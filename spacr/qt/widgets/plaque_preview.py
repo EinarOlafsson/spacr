@@ -1048,6 +1048,57 @@ def plaque_pass(path: Any, settings: Dict[str, Any], *,
 
 
 @_serialized_inference
+def _colony_preview_pass(path, settings):
+    """Count original photo pixels through the run's colony engine, without writes."""
+    from cellpose.io import imread
+
+    from ...plaque import _count_colony_plate, crop_well, detect_wells
+
+    path = Path(path)
+    settings = dict(settings)
+    weights = {}
+    for key in ("well_detection", "colony_detector"):
+        requested = settings.get(key)
+        if not requested:
+            continue
+        if key == "well_detection" and requested is True:
+            requested = "toxoplasma_well_detector_v1"
+        local, note, entry = resolve_detector(requested, settings.get("src"))
+        if not local:
+            return {"error": note, "entry": entry}
+        weights[key] = local
+    if "colony_detector" in weights:
+        settings["colony_detector"] = weights["colony_detector"]
+    image = imread(str(path))
+    rgb = load_display_image(path)
+    wells = (detect_wells(image, weights["well_detection"],
+                          confidence=float(settings.get("well_confidence", 0.25)))
+             if "well_detection" in weights else [])
+    labels = np.zeros(rgb.shape[:2], dtype=np.int32)
+    areas, summaries = [], []
+    next_id = 0
+    for well in wells or [None]:
+        result = _count_colony_plate(image, name=path.name, well=well, settings=settings)
+        # Labels are display geometry. Detector box rows remain the authority for
+        # counts/sizes even when two ellipses overlap or hide one another.
+        areas.extend(float(row["area_px"]) for row in result["colonies"])
+        summaries.append(result["summary"])
+        shape = crop_well(image, result["well"]).shape[:2]
+        local = _match_shape(result["labels"], shape).astype(np.int32)
+        hit = local > 0
+        x, y = result["offset"]
+        target = labels[y:y + shape[0], x:x + shape[1]]
+        target[hit] = local[hit] + next_id
+        next_id += int(local.max(initial=0))
+    return {"path": str(path), "image": rgb, "labels": labels,
+            "overlay": outline_labels(rgb.copy(), labels), "flow_rgb": None,
+            "cellprob": None, "count": sum(row["colony_count"] for row in summaries),
+            "mean_area": float(np.mean(areas)) if areas else 0.0,
+            "areas": areas, "note": "", "colony": True,
+            "colony_summaries": summaries}
+
+
+@_serialized_inference
 def figure_pass(path: Any, settings: Dict[str, Any], *,
                 detect: Optional[Callable] = None,
                 read_text: Optional[Callable] = None,
@@ -3953,6 +4004,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
         :param settings: the form's values.
         """
+        if self._settings.get("colony_counting") or (settings or {}).get("colony_counting"):
+            self.cancel_preview()
+            self._plaque_result = None
+            self._show_plaque_tabs()
         self._settings = dict(settings or {})
         s = self._settings
         self._growth_btn.setChecked(bool(s.get("plaque_estimate_growth", False)))
@@ -4072,7 +4127,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def _describe_model(self) -> None:
         """The note under the model box, which 'bundled' always gets."""
         chosen = self._model_box.currentText()
-        self._model_note.setText(tr(BUNDLED_NOTE) if chosen == "bundled"
+        colony = self.mode() == PLAQUE_MODE and self._settings.get("colony_counting")
+        self._model_note.setText(tr(BUNDLED_NOTE) if chosen == "bundled" and not colony
                                  else "")
         self._download_btn.hide()
         self._missing_entry = None
@@ -4213,6 +4269,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 """Detect figure wells and prepare a review result unless detection already returned an error."""
                 result = detect_figure(path, settings, detect=detect, read_text=read_text)
                 return result if result.get("error") else prepare_figure_review(result, settings)
+        elif settings.get("colony_counting"):
+            from copy import deepcopy
+
+            settings = deepcopy(settings)
+            work = lambda: _colony_preview_pass(path, settings)
         else:
             work = lambda: plaque_pass(path, settings, segment=segment)
         self._jobs.submit(lambda: _preview_call(work), lambda result, t=token: self._on_result(t, result))
@@ -4236,15 +4297,24 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             return
         if result.get("note"):
             self._model_note.setText(result["note"])
+        elif result.get("colony"):
+            self._model_note.clear()
+            self._offer_download(None)
         if "regions" in result:
             self._show_figure(result)
         else:
             self._plaque_result = result
             self._show_plaque_tabs()
-            self.set_preview_status(tr(
-                "{name}: {count} plaques, mean area {area:.0f} px.",
-                name=Path(result["path"]).name, count=result["count"],
-                area=result["mean_area"]))
+            if result.get("colony"):
+                self.set_preview_status(tr(
+                    "{name}: {count} colonies, mean area {area:.0f} px.",
+                    name=Path(result["path"]).name, count=result["count"],
+                    area=result["mean_area"]))
+            else:
+                self.set_preview_status(tr(
+                    "{name}: {count} plaques, mean area {area:.0f} px.",
+                    name=Path(result["path"]).name, count=result["count"],
+                    area=result["mean_area"]))
         self.preview_ready.emit(result)
 
     def overlay_style(self) -> OverlayStyle:
@@ -4341,6 +4411,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         """The masks view, saying so when the run found no plaque."""
         labels = arrays.get("labels") or {}
         if labels and not any(np.any(mask > 0) for mask in labels.values()):
+            if (self._plaque_result or {}).get("colony"):
+                return tr("Preview returned no masks.")
             return tr(NO_PLAQUES)
         if not labels:
             return None
