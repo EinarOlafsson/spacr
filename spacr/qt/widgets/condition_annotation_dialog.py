@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import copy
+import csv
+import io
 import json
 import re
 
@@ -29,6 +31,7 @@ from PySide6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QPushButton,
+    QPlainTextEdit,
     QScrollArea,
     QSplitter,
     QTableView,
@@ -90,6 +93,7 @@ class ConditionRowsModel(QAbstractTableModel):
         _schema, self.fingerprint, self.tokens = table_identity(frame)
         self.locations = {token: position for position, token in enumerate(self.tokens)}
         self.preview_values = None
+        self.preview_columns = {}
 
     def rowCount(self, parent=QModelIndex()):  # noqa: N802, B008
         """Count source rows; child indices have no rows.
@@ -99,11 +103,11 @@ class ConditionRowsModel(QAbstractTableModel):
         return 0 if parent.isValid() else len(self.frame)
 
     def columnCount(self, parent=QModelIndex()):  # noqa: N802, B008
-        """Include one diagnostic preview column beside every source column.
+        """Include all generated preview columns beside the source columns.
 
         :param parent: Qt parent index.
         """
-        return 0 if parent.isValid() else len(self.frame.columns) + 1
+        return 0 if parent.isValid() else len(self.frame.columns) + max(1, len(self.preview_columns))
 
     def data(self, index, role=Qt.DisplayRole):
         """Read by source position, never by the DataFrame index label.
@@ -113,8 +117,11 @@ class ConditionRowsModel(QAbstractTableModel):
         """
         if not index.isValid() or role not in (Qt.DisplayRole, Qt.UserRole + 1):
             return None
-        if index.column() == len(self.frame.columns):
-            value = self.preview_values.iloc[index.row()] if self.preview_values is not None else ""
+        if index.column() >= len(self.frame.columns):
+            offset = index.column() - len(self.frame.columns)
+            values = list(self.preview_columns.values())
+            value = values[offset].iloc[index.row()] if values else (
+                self.preview_values.iloc[index.row()] if self.preview_values is not None else "")
         else:
             value = self.frame.iloc[index.row(), index.column()]
         if role == Qt.UserRole + 1 and pd.api.types.is_number(value):
@@ -131,18 +138,22 @@ class ConditionRowsModel(QAbstractTableModel):
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
-            return str(self.frame.columns[section]) if section < len(self.frame.columns) else tr("Preview condition")
+            if section < len(self.frame.columns):
+                return str(self.frame.columns[section])
+            names = list(self.preview_columns)
+            return names[section - len(self.frame.columns)] if names else tr("Preview condition")
         return str(section + 1)
 
     def set_preview(self, values):
         """Refresh assignment diagnostics without reordering source rows.
 
-        :param values: Condition labels in original source order, or None.
+        :param values: Ordered output-name/Series mapping, one label Series, or None.
         """
-        self.preview_values = values
-        if len(self.frame):
-            column = len(self.frame.columns)
-            self.dataChanged.emit(self.index(0, column), self.index(len(self.frame) - 1, column))
+        self.beginResetModel()
+        self.preview_columns = dict(values) if isinstance(values, dict) else {}
+        self.preview_values = (next(reversed(self.preview_columns.values()))
+                               if self.preview_columns else values)
+        self.endResetModel()
 
     def row_summary(self, token):
         """Describe a manually assigned source row with its metadata values.
@@ -220,7 +231,7 @@ class ConditionBox(QFrame):
         top = QHBoxLayout()
         self.name = QLineEdit(condition.get("name", ""), self)
         self.name.setPlaceholderText(tr("Condition name"))
-        self.name.setToolTip(tr("Label written to the output column for this condition. Give each condition a distinct, nonempty name."))
+        self.name.setToolTip(tr("Label written to the output column for this condition. Use a nonempty label; several boxes may assign the same label."))
         top.addWidget(self.name)
         self.column = QComboBox(self)
         self.column.addItems([str(c) for c in source_model.frame.columns])
@@ -243,7 +254,29 @@ class ConditionBox(QFrame):
         remove.clicked.connect(lambda: self.remove_requested.emit(self))
         top.addWidget(remove)
         outer.addLayout(top)
-        self.count = QLabel(tr("Drop source rows here or enter an include expression."), self)
+        matching = QHBoxLayout()
+        self.match_mode = QComboBox(self)
+        self.match_mode.addItem(tr("Regular expression"), "regex")
+        self.match_mode.addItem(tr("Exact values"), "values")
+        self.match_mode.setToolTip(tr("Exact values match whole cells literally: c1 does not match c10. Regular expression mode uses Include and Exclude above."))
+        self.match_mode.setCurrentIndex(1 if condition.get("match_mode") == "values" else 0)
+        matching.addWidget(self.match_mode)
+        self.include_values = QPlainTextEdit(self)
+        self.exclude_values = QPlainTextEdit(self)
+        for editor, key, caption in ((self.include_values, "include_values", tr("Include exact values")),
+                                     (self.exclude_values, "exclude_values", tr("Exclude exact values"))):
+            stream = io.StringIO()
+            csv.writer(stream, lineterminator="\n").writerows([[value] for value in condition.get(key, [])])
+            editor.setPlainText(stream.getvalue().rstrip("\n"))
+            editor.setPlaceholderText(caption)
+            editor.setToolTip(tr("Enter comma-separated values or one value per line. Whitespace and duplicates are ignored; quote a value containing a comma. Blank Include uses manual rows only."))
+            editor.setMaximumHeight(76)
+            editor.textChanged.connect(self.changed)
+            matching.addWidget(editor, 1)
+        outer.addLayout(matching)
+        self.match_mode.currentIndexChanged.connect(self._match_mode_changed)
+        self._match_mode_changed()
+        self.count = QLabel(tr("Drag table rows into this box, or enter a matching rule."), self)
         outer.addWidget(self.count)
         self.rows = QListWidget(self)
         self.rows.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -269,9 +302,23 @@ class ConditionBox(QFrame):
 
     def definition(self):
         """Return the controls as a reproducible condition rule."""
-        return {"name": self.name.text().strip(), "metadata_column": self.column.currentText(),
-                "include": self.include.text(), "exclude": self.exclude.text(),
-                "manual_rows": list(self.manual_rows)}
+        result = {"name": self.name.text().strip(), "metadata_column": self.column.currentText(),
+                  "include": self.include.text(), "exclude": self.exclude.text(),
+                  "manual_rows": list(self.manual_rows)}
+        if self.match_mode.currentData() == "values":
+            result.update(match_mode="values",
+                          include_values=_exact_values(self.include_values.toPlainText()),
+                          exclude_values=_exact_values(self.exclude_values.toPlainText()))
+        return result
+
+    def _match_mode_changed(self, *_args):
+        """Show literal list editors only while exact matching is selected."""
+        exact = self.match_mode.currentData() == "values"
+        self.include.setEnabled(not exact)
+        self.exclude.setEnabled(not exact)
+        self.include_values.setVisible(exact)
+        self.exclude_values.setVisible(exact)
+        self.changed.emit()
 
     def _show_manual_rows(self):
         """List manual row identities without allocating one widget per source row."""
@@ -342,6 +389,12 @@ class ConditionBox(QFrame):
         self.changed.emit()
 
 
+def _exact_values(text):
+    """Read trimmed, duplicate-free CSV or newline-delimited exact values."""
+    return list(dict.fromkeys(value.strip() for row in csv.reader(io.StringIO(text), skipinitialspace=True)
+                              for value in row if value.strip()))
+
+
 def _regex_examples(frame, column):
     """Build safe copyable regex examples from a bounded sample of one column.
 
@@ -365,7 +418,7 @@ def _regex_examples(frame, column):
     return [
         (tr("Contains this text"), literal,
          tr("Find this literal text anywhere in the selected column. Regex punctuation from the sample is escaped.")),
-        (tr("Either value (a|b)"), "^(?:" + literal + "|" + re.escape(second) + ")$",
+        (tr("Either of two values"), "^(?:" + literal + "|" + re.escape(second) + ")$",
          tr("The vertical bar means OR. Add more alternatives with | inside the parentheses; ^ and $ require a whole-value match.")),
         (tr("One variable character (.)"), "^" + prefix + "." + suffix + "$",
          tr("A dot matches one character. This example replaces one character near the middle of a sample value.")),
@@ -404,6 +457,11 @@ class ConditionAnnotationDialog(QDialog):
         self.definition = None
         self.result_frame = None
         self.boxes = []
+        self._loading_column = True
+        self._active_column = 0
+        self._columns = copy.deepcopy(self._initial.get("columns") or [{
+            "column": self._initial.get("column", "condition"), "kind": "rules",
+            "conditions": self._initial.get("conditions", [])}])
         self._jobs = JobRunner(self, threaded=threaded, app_key="graph_builder")
         self._jobs.job_failed.connect(self._failed)
         self._timer = QTimer(self)
@@ -416,22 +474,72 @@ class ConditionAnnotationDialog(QDialog):
         self.resize(1200, 800)
         outer = QVBoxLayout(self)
         outer.setSpacing(SPACING["sm"])
+        column_bar = QHBoxLayout()
+        self.column_selector = QComboBox(self)
+        self.column_selector.setToolTip(tr("Generated columns are evaluated in this order. Select a column to edit its rules or combination."))
+        column_bar.addWidget(QLabel(tr("Generated columns"), self))
+        column_bar.addWidget(self.column_selector, 1)
+        for attribute, text, callback in (("add_column", tr("Add column"), self._add_column),
+                               ("remove_column", tr("Remove column"), self._remove_column),
+                               ("column_up", tr("Move up"), lambda: self._move_column(-1)),
+                               ("column_down", tr("Move down"), lambda: self._move_column(1))):
+            button = QPushButton(text, self)
+            button.setToolTip(text)
+            button.clicked.connect(callback)
+            button.setObjectName(attribute)
+            setattr(self, attribute, button)
+            column_bar.addWidget(button)
+        outer.addLayout(column_bar)
         header = QHBoxLayout()
         header.addWidget(QLabel(tr("Output column"), self))
-        self.output_column = QLineEdit(self._initial["column"], self)
+        self.output_column = QLineEdit(self._columns[0]["column"], self)
         self.output_column.setToolTip(tr("Name of the new condition column. An existing source column cannot be overwritten; choose a distinct name."))
         header.addWidget(self.output_column)
+        self.column_kind = QComboBox(self)
+        self.column_kind.addItem(tr("Rules"), "rules")
+        self.column_kind.addItem(tr("Combine columns"), "combine")
+        self.column_kind.setToolTip(tr("Rules assign labels using exact values, regex or dragged rows. Combine joins existing or earlier generated columns in the chosen order."))
+        header.addWidget(self.column_kind)
         self.add_condition = QPushButton(tr("Add condition"), self)
         self.add_condition.setToolTip(tr("Add another named condition box with its own metadata rules and manual row assignments."))
         self.add_condition.clicked.connect(lambda: self.add_box())
         header.addWidget(self.add_condition)
         outer.addLayout(header)
-        note = QLabel(tr("Include selects matching metadata values; a blank include uses manual rows only. "
+        note = QLabel(tr("Name a column (for example genotype), add rules, then add replicate and a combined condition column. Move columns up or down so inputs come before combinations. Exact values match whole cells; regex searches within cells. Include selects matching metadata values; a blank include uses manual rows only. "
                          "Exclude removes matching rows, including dropped rows. Drag selected source rows "
                          "into a condition box. Resolve overlapping conditions before Apply. "
                          "Unmatched rows remain blank; source files are preserved."), self)
         note.setWordWrap(True)
         outer.addWidget(note)
+        self.combine_panel = QWidget(self)
+        combination = QHBoxLayout(self.combine_panel)
+        self.combine_available = QComboBox(self)
+        self.combine_available.setToolTip(tr("Choose a source column or an earlier generated column to append to the combination."))
+        combination.addWidget(self.combine_available, 1)
+        append = QPushButton(tr("Add input"), self)
+        append.setToolTip(tr("Append the selected column to the ordered combination inputs."))
+        self.add_combine_input = append
+        append.clicked.connect(self._append_combine_input)
+        combination.addWidget(append)
+        self.combine_inputs = QListWidget(self)
+        self.combine_inputs.setMaximumHeight(82)
+        self.combine_inputs.setToolTip(tr("Inputs are joined from top to bottom. A row stays blank if any component is missing or empty."))
+        combination.addWidget(self.combine_inputs, 1)
+        for attribute, text, callback in (("remove_combine_input", tr("Remove input"), self._remove_combine_input),
+                               ("combine_input_up", tr("Input up"), lambda: self._move_combine_input(-1)),
+                               ("combine_input_down", tr("Input down"), lambda: self._move_combine_input(1))):
+            button = QPushButton(text, self)
+            button.setToolTip(text)
+            button.clicked.connect(callback)
+            button.setObjectName(attribute)
+            setattr(self, attribute, button)
+            combination.addWidget(button)
+        combination.addWidget(QLabel(tr("Separator"), self))
+        self.combine_separator = QLineEdit("_", self)
+        self.combine_separator.setMaximumWidth(80)
+        self.combine_separator.setToolTip(tr("Text placed between combination components, such as an underscore. An empty separator joins them directly."))
+        combination.addWidget(self.combine_separator)
+        outer.addWidget(self.combine_panel)
         splitter = QSplitter(Qt.Vertical, self)
         source_panel = QWidget(self)
         source_layout = QVBoxLayout(source_panel)
@@ -459,6 +567,7 @@ class ConditionAnnotationDialog(QDialog):
         source_layout.addWidget(self.table)
         splitter.addWidget(source_panel)
         scroll = QScrollArea(self)
+        self._rule_scroll = scroll
         scroll.setWidgetResizable(True)
         boxes_panel = QWidget(self)
         self.box_layout = QVBoxLayout(boxes_panel)
@@ -478,7 +587,7 @@ class ConditionAnnotationDialog(QDialog):
         actions.addWidget(self.preview_button)
         self.apply_button = QPushButton(tr("Apply conditions"), self)
         self.apply_button.setEnabled(False)
-        self.apply_button.setToolTip(tr("Add the condition column to the working table after validation. Invalid expressions and overlapping conditions must be resolved first."))
+        self.apply_button.setToolTip(tr("Add all generated columns to the working table after validation. Invalid expressions and overlapping conditions must be resolved first."))
         self.apply_button.clicked.connect(self.accept)
         actions.addWidget(self.apply_button)
         cancel = QPushButton(tr("Cancel"), self)
@@ -486,12 +595,141 @@ class ConditionAnnotationDialog(QDialog):
         cancel.clicked.connect(self.reject)
         actions.addWidget(cancel)
         outer.addLayout(actions)
-        self.output_column.textChanged.connect(self._changed)
-        for condition in self._initial["conditions"]:
-            self.add_box(condition)
-        if not self.boxes:
-            self.add_box()
+        self.output_column.textChanged.connect(self._column_name_changed)
+        self.column_kind.currentIndexChanged.connect(self._kind_changed)
+        self.combine_separator.textChanged.connect(self._changed)
+        self.column_selector.currentIndexChanged.connect(self._switch_column)
+        self._refresh_column_selector()
+        self._load_column()
         self.refresh_preview()
+
+    def _save_column(self):
+        """Retain editor state before selecting another generated column."""
+        item = self._columns[self._active_column]
+        item.update(column=self.output_column.text().strip(), kind=self.column_kind.currentData(),
+                    conditions=[box.definition() for box in self.boxes],
+                    columns=[self.combine_inputs.item(i).text() for i in range(self.combine_inputs.count())],
+                    separator=self.combine_separator.text())
+
+    def _refresh_column_selector(self):
+        """Keep the ordered output selector synchronized without emitting edits."""
+        self.column_selector.blockSignals(True)
+        self.column_selector.clear()
+        self.column_selector.addItems([item["column"] for item in self._columns])
+        self.column_selector.setCurrentIndex(self._active_column)
+        self.column_selector.blockSignals(False)
+
+    def _load_column(self):
+        """Load one output editor while preserving immutable source row tokens."""
+        self._loading_column = True
+        item = self._columns[self._active_column]
+        self.output_column.setText(item["column"])
+        self.column_kind.setCurrentIndex(1 if item.get("kind") == "combine" else 0)
+        for box in self.boxes:
+            self.box_layout.removeWidget(box)
+            box.deleteLater()
+        self.boxes = []
+        self.combine_available.clear()
+        self.combine_available.addItems([str(c) for c in self.frame.columns] +
+                                        [c["column"] for c in self._columns[:self._active_column]])
+        self.combine_inputs.clear()
+        self.combine_inputs.addItems(item.get("columns", []))
+        self.combine_separator.setText(item.get("separator", "_"))
+        for condition in item.get("conditions", []):
+            self.add_box(condition)
+        if not self.boxes and item.get("kind") != "combine":
+            self.add_box()
+        self._show_kind()
+        self._loading_column = False
+
+    def _switch_column(self, index):
+        """Select an output without evaluating the table on the GUI thread."""
+        if index < 0 or self._loading_column:
+            return
+        self._save_column()
+        self._active_column = index
+        self._load_column()
+        self._changed()
+
+    def _column_name_changed(self, *_args):
+        """Rename the selected output; dependency validation remains explicit."""
+        if self._loading_column:
+            return
+        self._columns[self._active_column]["column"] = self.output_column.text().strip()
+        self._refresh_column_selector()
+        self._changed()
+
+    def _show_kind(self):
+        """Display either rule boxes or ordered combination inputs."""
+        rules = self.column_kind.currentData() == "rules"
+        self._rule_scroll.setVisible(rules)
+        self.add_condition.setEnabled(rules)
+        self.combine_panel.setVisible(not rules)
+
+    def _kind_changed(self, *_args):
+        """Invalidate a draft when its output changes between rules and combine."""
+        self._show_kind()
+        self._changed()
+
+    def _add_column(self):
+        """Append a uniquely named rules output and select its editor."""
+        self._save_column()
+        names = set(map(str, self.frame.columns)) | {c["column"] for c in self._columns}
+        number = len(self._columns) + 1
+        name = f"condition_{number}"
+        while name in names:
+            number += 1
+            name = f"condition_{number}"
+        self._columns.append({"column": name, "kind": "rules", "conditions": []})
+        self._active_column = len(self._columns) - 1
+        self._refresh_column_selector()
+        self._load_column()
+        self._changed()
+
+    def _remove_column(self):
+        """Remove the selected output while retaining at least one editor."""
+        if len(self._columns) <= 1:
+            return
+        self._columns.pop(self._active_column)
+        self._active_column = min(self._active_column, len(self._columns) - 1)
+        self._refresh_column_selector()
+        self._load_column()
+        self._changed()
+
+    def _move_column(self, direction):
+        """Move an output in evaluation order; invalid dependencies are reported."""
+        target = self._active_column + direction
+        if 0 <= target < len(self._columns):
+            self._save_column()
+            self._columns[self._active_column], self._columns[target] = self._columns[target], self._columns[self._active_column]
+            self._active_column = target
+            self._refresh_column_selector()
+            self._load_column()
+            self._changed()
+
+    def _append_combine_input(self):
+        """Append a selected available component once."""
+        name = self.combine_available.currentText()
+        if name and not self.combine_inputs.findItems(name, Qt.MatchExactly):
+            self.combine_inputs.addItem(name)
+            self._changed()
+
+    def _remove_combine_input(self):
+        """Remove the selected combination component."""
+        row = self.combine_inputs.currentRow()
+        if row >= 0:
+            self.combine_inputs.takeItem(row)
+            self._changed()
+
+    def _move_combine_input(self, direction):
+        """Reorder components independently of output evaluation order."""
+        row = self.combine_inputs.currentRow()
+        target = row + direction
+        if row >= 0 and 0 <= target < self.combine_inputs.count():
+            item = self.combine_inputs.takeItem(row)
+            self.combine_inputs.insertItem(target, item)
+            self.combine_inputs.setCurrentRow(target)
+            self._changed()
 
     def _build_regex_guide(self, parent):
         """Place column-aware, copyable examples above the first condition box.
@@ -574,6 +812,12 @@ class ConditionAnnotationDialog(QDialog):
                                                    if c in self.frame), str(self.frame.columns[0]) if len(self.frame.columns) else ""),
                          "include": "", "exclude": "", "manual_rows": []}
         box = ConditionBox(self.source_model, condition, self)
+        available = [str(c) for c in self.frame.columns] + [c["column"] for c in self._columns[:self._active_column]]
+        box.column.clear()
+        if condition.get("metadata_column") and condition["metadata_column"] not in available:
+            available.append(condition["metadata_column"])
+        box.column.addItems(available)
+        box.column.setCurrentText(condition.get("metadata_column", box.column.currentText()))
         box.changed.connect(self._changed)
         box.column.currentTextChanged.connect(self._regex_column.setCurrentText)
         box.problem.connect(self._failed)
@@ -597,13 +841,31 @@ class ConditionAnnotationDialog(QDialog):
 
     def configuration(self):
         """Return a private reproducible copy of the current editor state."""
+        self._save_column()
         definition = copy.deepcopy(self._initial)
-        definition["column"] = self.output_column.text().strip()
-        definition["conditions"] = [box.definition() for box in self.boxes]
+        columns = []
+        for item in self._columns:
+            if item.get("kind") == "combine":
+                columns.append({key: copy.deepcopy(item[key]) for key in ("column", "kind", "columns", "separator")})
+            else:
+                columns.append({"column": item["column"], "kind": "rules",
+                                "conditions": copy.deepcopy(item.get("conditions", []))})
+        conditions = columns[0].get("conditions", [])
+        names = [c.get("name", "") for c in conditions]
+        legacy = len(columns) == 1 and columns[0]["kind"] == "rules" and len(names) == len(set(names))
+        definition.pop("columns", None)
+        definition.pop("column", None)
+        definition.pop("conditions", None)
+        if legacy:
+            definition.update(version=1, column=columns[0]["column"], conditions=conditions)
+        else:
+            definition.update(version=2, columns=columns)
         return definition
 
     def _changed(self, *_args):
         """Invalidate applied state immediately and debounce full-table previews."""
+        if self._loading_column:
+            return
         self._jobs.cancel()
         self.apply_button.setEnabled(False)
         self.result_frame = None
@@ -624,7 +886,8 @@ class ConditionAnnotationDialog(QDialog):
                 result = None
                 if not len(report.overlaps):
                     result = self.frame.copy()
-                    result[definition["column"]] = report.values.array
+                    for column, values in report.column_values.items():
+                        result[column] = values.array
                     result.attrs["condition_annotation"] = copy.deepcopy(definition)
                 return definition, report, result
             except ValueError as exc:
@@ -643,14 +906,17 @@ class ConditionAnnotationDialog(QDialog):
             return
         self.definition = definition
         self.result_frame = result
-        self.source_model.set_preview(report.values)
-        for box in self.boxes:
+        self.source_model.set_preview(report.column_values)
+        active_report = report.column_previews.get(self.output_column.text().strip(), report)
+        for index, box in enumerate(self.boxes):
+            rule_counts = getattr(active_report, "rule_counts", [])
+            count = rule_counts[index] if index < len(rule_counts) else active_report.counts.get(box.name.text().strip(), 0)
             box.count.setText(tr("{count:,} matching rows; {manual:,} manual rows",
-                                 count=report.counts.get(box.name.text().strip(), 0),
+                                 count=count,
                                  manual=len(box.manual_rows)))
         self.status.setText(tr("{assigned:,} assigned; {unmatched:,} unmatched; {overlaps:,} overlapping rows.",
-                               assigned=len(self.frame) - report.unmatched,
-                               unmatched=report.unmatched, overlaps=len(report.overlaps)))
+                               assigned=len(self.frame) - active_report.unmatched,
+                               unmatched=active_report.unmatched, overlaps=len(report.overlaps)))
         if len(report.overlaps):
             self.status.setText(self.status.text() + " " + tr("Resolve overlaps before applying."))
         self.apply_button.setEnabled(not len(report.overlaps))
