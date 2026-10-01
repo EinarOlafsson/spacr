@@ -226,7 +226,7 @@ the file. **Reset to spaCR defaults** also clears the mapping.
 Annotate experimental conditions in Graph Builder
 --------------------------------------------------
 
-**Annotate conditions** adds a condition column to the working table in
+**Annotate conditions** adds annotation columns to the working table in
 Graph Builder. It works with a physical database table, a named derived
 table or an imported CSV/TSV. These are experimental group labels for
 tabular analysis; they do not require image links or write image annotations.
@@ -234,17 +234,72 @@ tabular analysis; they do not require image links or write image annotations.
 #. Open **Annotate conditions** and set **Output column**. The default is
    ``condition``; choose another name, such as ``treatment_group``, if the
    source already has that column. Existing source columns cannot be replaced.
-#. Press **Add condition** for each group and give each box a distinct,
-   nonempty **Condition name**.
-#. In a box, choose the metadata **Column** to match, then enter an **Include**
-   regular expression, an **Exclude** expression, or both. For manual-only
+#. Press **Add condition** for each group and give each box a nonempty
+   **Condition name**.
+#. In a box, choose the metadata **Column** and matching mode. **Exact values**
+   accepts comma-separated or newline-separated lists in the include and
+   exclude fields. **Regular expression** accepts regex patterns. For manual-only
    grouping, leave Include blank and drop source rows into the box.
-#. Inspect **Preview condition** beside the source columns, each box's
+#. Inspect the generated columns beside the source columns, each box's
    matching/manual counts, and the assigned, unmatched and overlapping totals.
    **Preview assignments** reruns this check; edits also refresh the preview.
 #. Resolve invalid patterns and overlapping conditions, then choose
    **Apply conditions**. The output column becomes available for chart
    channels and filtering. **Cancel** discards the dialog's draft changes.
+
+Build genotype, replicate and a combined condition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Name the first **Output column** ``genotype`` and keep its mode set to
+**Rules**. Use **Add condition** for its labels. Press **Add column** to
+create ``replicate`` with its own boxes. In each box, choose **Exact values**
+to enter lists of metadata values without writing a regular expression.
+For example:
+
+.. list-table:: Example annotation rules
+   :header-rows: 1
+   :widths: 18 18 32 32
+
+   * - Output column
+     - Metadata column
+     - Included values
+     - Assigned label
+   * - ``genotype``
+     - ``columnID``
+     - ``c1,c2,c3``
+     - ``WildType``
+   * - ``genotype``
+     - ``columnID``
+     - ``c7,c4,c5,c6``
+     - ``mutant``
+   * - ``replicate``
+     - ``rowID``
+     - ``r1,r4,r5,r6``
+     - ``replicate 1``
+   * - ``replicate``
+     - ``rowID``
+     - ``r7,r9,r10``
+     - ``replicate 1``
+
+Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect.
+Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign
+the same label may select the same row; two different labels in one output
+column require a correction before applying. Each output column has its own
+assignments, so a row can have both a genotype and a replicate.
+
+Press **Add column**, name it ``condition``, and choose **Combine columns**.
+Select ``genotype`` and press **Add input**, then do the same for ``replicate``.
+Keep ``_`` in **Separator**. The input list shows the joining order.
+A row labelled ``WildType`` and ``replicate 1`` then receives
+``WildType_replicate 1``. The label's space is retained. Column names, labels,
+component order and separator are editable; the example does not prescribe
+the names for your experiment.
+
+Combination rules can use source columns or previously created annotation
+columns. Keep dependencies earlier in the column order. Missing components
+leave the combined value blank; they do not produce text such as ``nan``.
+Preview all generated columns before applying. Saving a chart, exporting the
+table or saving a new annotated SQLite table retains the complete recipe.
 
 Rules and manual selection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -292,8 +347,9 @@ dropped memberships. An Include rule can still match those rows; change
 the rule or add an Exclude expression when they must leave the condition.
 **Remove condition** removes the whole box and its rules.
 
-A row may belong to only one condition when applying. If two boxes match it,
-the preview shows the competing labels and **Apply conditions** stays
+A row may receive only one distinct label within each annotation column.
+If boxes assign different labels to it, the preview shows those competing
+labels and **Apply conditions** stays
 disabled. Adjust the include/exclude patterns or manual assignments until
 the overlap count is zero. No condition silently wins. Unmatched rows remain
 blank in the output column and remain present in the table.
@@ -304,7 +360,7 @@ Keep conditions with the analysis
 Reopen **Annotate conditions** to edit the current assignments. They survive
 table refreshes in the current Graph Builder session when the source is
 unchanged. Use **Save chart** to preserve the rules, manual assignments,
-output-column name and any merge definition with the chart. **Load chart**
+output-column definitions and any merge definition with the chart. **Load chart**
 reconstructs the source and checks its identity before applying those labels.
 
 Saved conditions belong to the exact source table, including its row order,
@@ -330,7 +386,7 @@ name. Changed saved data are still readable, but old editable rules are not
 silently restored onto them. Image-specific actions continue to require
 appropriate object provenance.
 
-**Export table…** writes the working table, including the condition column,
+**Export table…** writes the working table, including every annotation column,
 to a new CSV and records its source, merge definition and condition rules in
 ``<export>.csv.conditions.json``. It exports the working table rather than
 just a brushed selection. The original database or imported file is

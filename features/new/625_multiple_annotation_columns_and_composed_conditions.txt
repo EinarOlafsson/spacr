@@ -10,7 +10,7 @@ Requested 2026-10-01: In Graph Builder, create user-named columns such as
  rules assigning the same label are compatible. Existing regex, include/
  exclude and manual drag/drop annotations remain available.
 
-Status: IN PROGRESS. Support an ordered, reproducible multi-column recipe,
+Status: IMPLEMENTED AND VALIDATED on nightly. Supports an ordered, reproducible multi-column recipe,
  exact whole-value matching (c1 must not select c10), per-column preview,
  conflicting-label validation, source-column protection and blank handling.
  Combination rules may use existing columns or earlier generated columns;
@@ -18,3 +18,22 @@ Status: IN PROGRESS. Support an ordered, reproducible multi-column recipe,
  Persist and reopen the complete recipe through charts, CSV sidecars and
  saved SQLite annotated tables. Preserve old single-column recipes.
  Validate the requested genotype/replicate/condition example end to end.
+
+Acceptance 2026-10-01:
+- Backend b69274c45, Graph 1a1f54d40 and Qt b8a835bc9 integrated on the
+  priority branch. Ordered v2 recipes retain all outputs through chart
+  reload, CSV sidecars and editable SQLite saves. v1 recipes still work.
+- 59 focused tests passed together in 5.32 seconds under a 4 GB CPU cap:
+  exact whole values, duplicate lists/indices, same-label rules, per-column
+  conflicts, dependency ordering, missing values, source guards, worker
+  generation checks, manual row identity, persisted edits and atomic writes.
+- Independently exercised actual Qt buttons and fields with the user's
+  genotype/replicate/condition example. Both replicate lists assign
+  'replicate 1'. c10 and missing metadata stay unassigned in genotype and
+  condition. Applying preserves every original source value.
+- Inspected offscreen dark-theme renders at 1400x950 with all three preview
+  columns and the exact-value editor. Evidence is local at
+  /tmp/spacr-ui-evidence/625/. No native-window/platform coverage inferred.
+- User guide documents these controls and the complete example. API source
+  manifest refreshed separately; translation/tutorial publication remains
+  tracked by N615 rather than claimed by this implementation receipt.
