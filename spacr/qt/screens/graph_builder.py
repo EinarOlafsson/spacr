@@ -81,7 +81,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...condition_annotations import apply_conditions, source_context
+from ...condition_annotations import PROVENANCE_TABLE, apply_conditions, source_context
 from ..app_catalog import declared_app, register_declared
 from ..i18n import tr
 from ..job_runner import JobRunner
@@ -117,14 +117,15 @@ def table_names(path: str) -> List[str]:
 
     :param path: path to a SQLite measurement database, opened read-only;
         the preferred tables (``object``, ``cell``, ``nucleus``, …) come
-        first, then the rest alphabetically, with ``sqlite_`` internals left
-        out.
+        first, then the rest alphabetically. SQLite internals and the private
+        condition-annotation receipt table are left out; ordinary user tables
+        and named derived results remain available.
     """
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
             "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
-    found = [row[0] for row in rows]
+    found = [row[0] for row in rows if row[0].casefold() != PROVENANCE_TABLE.casefold()]
     ranked = [name for name in _PREFERRED_TABLES if name in found]
     from ...derived_tables import load_definitions
     return ranked + [name for name in found if name not in ranked] + list(load_definitions(path))
