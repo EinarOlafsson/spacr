@@ -263,6 +263,48 @@ def test_overlay_error_surfaces_and_does_not_leave_buttons_busy(qtbot, monkeypat
     assert panel.load_button.isEnabled() and panel.assign_button.isEnabled()
 
 
+def test_immediate_destruction_after_reopen_stops_current_load_before_write(qtbot, monkeypatch, tmp_path, engine):
+    from shiboken6 import delete, isValid
+
+    panel = _panel(qtbot, tmp_path)
+    old_stop = panel._stop
+    panel.close()
+    assert old_stop.is_set()
+    panel.show()
+    qtbot.waitUntil(lambda: not panel._closed, timeout=1000)
+    current_stop = panel._stop
+    assert current_stop is not old_stop and not current_stop.is_set()
+    entered, release = threading.Event(), threading.Event()
+    read = ops_engine._st_read_bundle
+    writes = []
+
+    def blocked(*args, **kwargs):
+        entered.set()
+        assert release.wait(5)
+        return read(*args, **kwargs)
+
+    monkeypatch.setattr(ops_engine, '_st_read_bundle', blocked)
+    monkeypatch.setattr(ops_engine, '_st_run', lambda *_a, **_kw: writes.append(True))
+    jobs = panel._jobs
+    shutdown = jobs.shutdown
+    monkeypatch.setattr(jobs, 'shutdown', lambda: shutdown(timeout_ms=10))
+    threads = []
+    try:
+        qtbot.mouseClick(panel.assign_button, Qt.LeftButton)
+        qtbot.waitUntil(entered.is_set, timeout=5000)
+        threads = [thread for thread, _ in jobs._jobs.values()]
+        delete(panel)  # Bypass both closeEvent and DeferredDelete event filtering.
+        assert not isValid(panel)
+        assert current_stop.is_set()
+        assert jobs.active_jobs() == jobs.pending_jobs() == 0
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: all(bridge.thread_has_stopped(thread) for thread in threads), timeout=5000)
+        bridge.prune_parked_threads()
+    assert not writes and not engine[2]
+    assert all(pair[0] not in threads for pair in bridge._PARKED_THREADS)
+
+
 def test_real_xenium_button_assignment_writes_expected_counts(qtbot, monkeypatch, tmp_path):
     pytest.importorskip('pyarrow')
     from spacr.tabular import read_table

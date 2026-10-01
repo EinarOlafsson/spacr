@@ -2645,6 +2645,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self._closed = False
         self._load_generation = 0
         self._stop = Event()
+        self._stop_holder = [self._stop]
         self._active_done = Event()
         self._active_done.set()
         self._reopen_timer = QTimer(self)
@@ -2655,10 +2656,12 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self.installEventFilter(self._lifecycle)
         if screen is not None and screen is not self:
             screen.installEventFilter(self._lifecycle)
-        jobs, stop = self._jobs, self._stop
+        jobs, stop_holder = self._jobs, self._stop_holder
 
         def destroyed(*_args):
-            stop.set()
+            # Destruction may follow a reopen, after the initial token retired.
+            # This state remains usable without touching the destroyed QWidget.
+            stop_holder[0].set()
             jobs.shutdown()
 
         self.destroyed.connect(destroyed)
@@ -3023,6 +3026,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
 
         self._reopen_timer.stop()
         self._stop = Event()  # Never revive the token captured by an older worker.
+        self._stop_holder[0] = self._stop
         self._closed = False
         self._set_busy(None)
 
