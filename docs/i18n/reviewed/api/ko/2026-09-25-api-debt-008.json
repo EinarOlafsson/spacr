@@ -18,7 +18,9 @@
       "source_sha256": "0c2206c2088e848e5484cc623481cf99006ab4f39513f371125b9f4fcd00950e",
       "context": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
       "translation": "항목 512. 제안은 호박색, 확정된 제안은 초록색, 거부된 제안은 빨간색입니다. 테마 자체의 경고, 성공, 오류 색상이므로, 배지는 나머지 화면 요소와 마찬가지로 테마 변경을 따릅니다. 글리프는 테마의 배경 색상으로 그려지는데, 어두운 테마에서는 검정, 밝은 테마에서는 거의 흰색입니다. 각 채우기 색상은 그에 맞춰 선택되어 두 경우 모두 4.5:1 보다 나은 대비로 읽힙니다. 셋 중 어느 것도(None of the three) 클래스 색상이 아니므로 배지가 클래스로 읽히는 일은 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.grid_that_fits#0",

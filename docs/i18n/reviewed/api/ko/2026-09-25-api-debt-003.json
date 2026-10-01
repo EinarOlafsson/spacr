@@ -1624,7 +1624,9 @@
       "source_sha256": "d048cede84fa699b4cfbae74d3065d82b8e540d4748c6a350f3e18b266038874",
       "context": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
       "translation": "모드는 드롭된 내용을 따릅니다(항목 518). Plaque 모드에서 PDFs 나 그 폴더를 드롭하면 Figure 모드로 전환할지 묻고, Figure 모드에서 이미지를 드롭하면 Plaque 모드로 전환할지 묻습니다. PDFs 와 이미지를 함께 드롭하면 PDFs 는 Figure 모드에서, 이미지는 Plaque 모드에서 읽는다고 알리고 어느 쪽을 읽을지 묻습니다. Figure 모드에 머무르면 이미지를 그림으로 읽고, Plaque 모드에 머무르면 PDFs 는 읽지 않은 채 남습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#4",

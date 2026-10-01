@@ -1362,7 +1362,9 @@
       "source_sha256": "5853f6cd5be1179d1340dd4b1219aa90013d5e943b6b7af5c410bead612343ae",
       "context": "Three inversions live here and they do different things (items 435 and 419 point 9). :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
       "translation": "여기에는 서로 다른 일을 하는 세 가지 반전이 있습니다(항목 435 와 419 의 9번 항목). :func:`invert_intensity` 는 이미지의 사진적 보색(``dtype_max - value``, 뷰어의 Invert 가 하는 일이며 모든 정수 dtype 에서 정확히 되돌릴 수 있음)이며, Make Masks 화면의 \"Invert image\" 가 이것으로 그립니다. :func:`invert_for_detection` 은 대신 이미지를 자체 범위에 대해 반사하며, 화면의 \"Invert for detection\" 이 검출기에 넘기는 것이 이것입니다. 검출기가 보색을 쓸 수 없는 이유를 보여 주는 측정 결과가 그 docstring 에 있으며, 병합해 없앨 중복이 아닙니다. :func:`invert_mask` 는 레이블 이미지의 전경과 배경을 뒤집습니다. 일반적인 현미경 시야에서는 프레임 전체를 덮는 객체 하나가 되므로, 아무 효과가 없다고 보고되었던 것입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine#5",
@@ -1410,7 +1412,9 @@
       "source_sha256": "680fdcbb8bea819fa4d8fd7853559d6a26d9847d442def1bc678c86829040936",
       "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list (item 511), so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
       "translation": "이들은 더 이상 두 번째 필터가 아닙니다. :func:`legacy_filters` 가 이들을 하나의 필터 목록의 항목으로 바꾸므로(항목 511), 여전히 ``min_area=20`` 을 전달하는 호출자는 ``area`` 행을 추가한 사용자와 같은 regionprops 처리로 판정되며, :class:`FilterRemoval` 은 객체가 통과하지 못한 레거시 경계값을 여전히 명시하므로 이전 원장도 똑같이 읽힙니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.FILTER_KEYS#0",
@@ -3991,7 +3995,9 @@
       "source_sha256": "9f5df3d601c570edb7c19f0e2332ea71cd19b0fbba16b2b435d739f41d24e3bd",
       "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. Item 473's raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
       "translation": "spaCR 에는 이미 로드 시 맞춤, 휠 확대/축소, 끌어서 이동하는 이미지 캔버스가 있었습니다. QC 현미경 시야 브라우저 자체의 ``_FieldView`` 입니다. 항목 473 의 원본 대 향상 이미지 창에는 같은 것이 두 개 필요했고, \"픽스맵을 담은 QGraphicsView\" 의 세 번째 사본을 만드는 것이야말로 코드베이스가 미묘하게 다르게 동작하는 세 개의 사본을 갖게 되는 경로입니다. 그래서 현미경 시야 브라우저의 뷰를 공유된다는 것을 나타내는 이름으로 변경 없이 이곳으로 옮겼고, 브라우저는 예전 이름으로 계속 사용합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#2",

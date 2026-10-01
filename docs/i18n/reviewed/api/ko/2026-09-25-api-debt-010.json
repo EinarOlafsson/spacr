@@ -3226,7 +3226,9 @@
       "source_sha256": "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
       "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
       "translation": "본문은 늘림 비율과 함께 배치되며, 레이아웃은 본문이 숨겨져 있어도 그 늘림을 셉니다. 그래서 접힌 카드가 여전히 공간을 요구하고, 접힌 제목을 창 맨 아래에 고정하는 늘림과 공간을 반씩 나눠 가졌습니다(항목 515): 접힌 Console 이 창 높이의 절반이 되었습니다. 접히면 본문은 늘림을 포기하고, 열리면 다시 가져옵니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.card.Card.follow_fold#2",
@@ -3618,7 +3620,9 @@
       "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
       "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
       "translation": "항목 471, 슬라이스 B. 결국 하나로 밝혀진 두 요청입니다: 모든 컨테이너는 접힌다(\"무엇이든 접히면 그것이 들어 있는 컨테이너의 맨 아래에 자동으로 고정되어야 한다\"), 그리고 모든 컨테이너는 \"가장자리를 끌어 늘리거나 줄일 수 있어야\" 한다. :class:`~PySide6.QtWidgets.QSplitter` 는 이미 둘 다 합니다 -- 끌 손잡이, 그리고 아무것도 없을 때까지 줄일 수 있는 자식 -- 그래서 두 절반이 여기서 반드시 하나의 메커니즘으로 존재하며, 분할기에서 접히는 모든 것은 크기도 조정되고 그 반대도 마찬가지입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter#2",
@@ -4122,7 +4126,9 @@
       "source_sha256": "d4832655134edc2bd98d98f8baaa9ea71afc520147f331b1f390a9775eefbda5",
       "context": "Item 471: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "항목 471: \"실시간 미리 보기가 열리면 화면 높이 전체를 차지한다: 콘솔, System 컨테이너, System 아래의 버튼 섹션이 자동으로 접히고, 설정은 왼쪽으로 접힌다\", 그리고 그림이 나타날 때마다 마찬가지입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#2",
@@ -4282,7 +4288,9 @@
       "source_sha256": "d7c96a305b7af08faf05d55e039bb388e2d301b27ed513a56c3e006de0b602fe",
       "context": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "항목 471, 슬라이스 C: \"그림이나 실시간 미리 보기 컨테이너 안의 모든 섹션도 접을 수 있어야 한다 ... 그림이든 표든 모든 GUI 요소가\". 이것이 화면 안의 섹션이 접기 컨트롤을 얻는 유일한 방법이므로, 모두가 같은 모양과 동작을 가집니다: 본문 위의 화살표와 이름(콘솔과 System 이 쓰는 것과 같은 :class:`~spacr.qt.widgets.foldable.Folder`), 클릭하면 접히고, 접힌 섹션은 주어진 공간의 맨 아래에 고정된 제목이 됩니다(:func:`lock_folded_to_bottom`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#10",
@@ -4330,7 +4338,9 @@
       "source_sha256": "43b80d0f63a9a4c8798f2872cecbf15370b54233bef26ebc087517cd5bcd0277",
       "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
       "translation": "본문 자체의 표시 여부는 소유자의 몫으로 남습니다. 접기는 본문이 아니라 내부 보관 위젯을 숨기므로, 펼쳐도 소유자가 숨긴 패널을 표시하거나 처음 표시될 때 만들어지는 패널을 만들 수 없습니다(항목 284/380). 반대로 섹션은 본문을 따릅니다: 소유자가 본문을 숨기고 있는 동안에는 제목을 포함한 섹션 전체도 숨겨지며, 소유자가 본문을 표시하면 돌아옵니다. 이를 위해 본문의 숨김 플래그만 읽으므로, 확인하려고 무언가를 표시하거나 측정하거나 만들지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#3",
@@ -4634,7 +4644,9 @@
       "source_sha256": "4e2e6595cfbd138b4c4a186481d80353527e3fb0d5c4c000f1cf7cefdd2cb3cb",
       "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
       "translation": "제목에 필요한 것보다 넓은 공간을 받은 접힌 패널 -- 분할기의 마지막 창, 열에 의해 늘어난 섹션 -- 은 예전에는 그 공간의 가운데에 제목을 배치했는데, 이것이 항목 471 이 지적한 버그입니다(\"콘솔을 접으면 가운데로 접힌다\"). 접혀 있는 동안 제목 위에 반드시 늘림 공간을 넣으면 그것이 남는 공간을 차지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#2",

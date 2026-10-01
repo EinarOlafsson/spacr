@@ -478,7 +478,9 @@
       "source_sha256": "bd92c5a8a636a6c26299ac17f3fff81857eb9dda91794caae4c676d6975a463c",
       "context": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own (item 526) -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
       "translation": "논문 폴더 또는 그림 이미지 폴더는 있는 그대로 읽습니다. 논문 폴더들을 담은 폴더(여러 PDFs 를 한 번에 읽어 각각 자체 폴더에 넣은 것, 항목 526)는 논문별로 읽습니다. 자체 그림 이미지가 있으면 그것을 먼저 읽고, 이어서 각 논문 폴더를 이름순으로 읽습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figure_folders#2",
@@ -510,7 +512,9 @@
       "source_sha256": "ebfca499c127ca36d153e8dbb1f93a2834390ea0f10741cd27fa5a8f0ba275e2",
       "context": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs (item 526); other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
       "translation": "플라크 이미지, 그 폴더, 둘이 섞인 것, 그리고 Figure 모드에서는 개수 제한 없이 PDFs 를 받습니다(항목 526). 함께 드롭된 다른 파일은 조용히 제쳐 둡니다. 이 핸들러가 생기기 전에는 Plaque Assay 에 Make Masks 의 정책이 적용되어, 사용할 수 없는 폴더를 Make Masks 의 문구로 거부했습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.can_accept#0",
@@ -542,7 +546,9 @@
       "source_sha256": "12b7724d5e8f4393bf3d17b45f5200797f19fbfae31ce2475d5bba3bbddbc568",
       "context": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused (item 526); hidden files are not counted, nor is what a paper folder holds.",
       "translation": "플라크 이미지도 PDF 도 아닌 파일은, 드롭된 것이든 드롭된 폴더의 최상위에 있는 것이든 거부되지 않고 무시됩니다(항목 526). 숨김 파일은 세지 않으며, 논문 폴더에 들어 있는 것도 세지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.plaque_others#4",
@@ -816,7 +822,9 @@
       "source_sha256": "615bd642923f957d025255290ade03a8ca66eee789325bf0e3a40377206b296b",
       "context": "Let Ctrl + wheel over ``root`` size the text inside it (item 529).",
       "translation": "``root`` 위에서 Ctrl + 휠로 그 안의 텍스트 크기를 조절할 수 있게 합니다(항목 529).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.live_zoom.register_text_column#1",
@@ -992,7 +1000,9 @@
       "source_sha256": "60652ae47f42a76671a5c9e165ec4b2bb86c7b7397d8144e7ca2facec778471d",
       "context": "Item 529. Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
       "translation": "항목 529. 논리 픽셀 단위로 저장되며, 도크는 이 값을 적용할 때 끌기 한계 범위로 제한합니다. :meth:`spacr.qt.widgets.dock.Dock.column_width` 를 참조하십시오.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences.get_runtime_text_scale#0",
@@ -1064,7 +1074,9 @@
       "source_sha256": "5fe6dcb0cd577368cdd80761c4d0900ce9351f2e76a6059693436f7975514698",
       "context": "Asked for in item 533: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "항목 533 에서 요청됨: \"mask generation 에서 직경 계산은 주 화면이 아니라 model zoo 버튼 팝업 창의 버튼이어야 한다. 버튼을 누르면 현재 컨테이너의 모든 정보를 담은 또 다른 팝업이 나와야 한다.\" 따라서 이 대화 상자는 :class:`DiameterPanel` 전체(측정 버튼, 근거와 메모가 있는 객체 유형별 행, 행마다의 *사용* 과 *모두 사용*)를 담으며, 패널은 여전히 Model zoo 를 연 화면의 설정에 기록합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#2",
@@ -1532,7 +1544,9 @@
       "source_sha256": "dee2b0e9c6b69f58c76d953a98d369eda60fd293c28be1c60428a160552c4d3c",
       "context": "Why a saved pattern used to wait for a restart (item 530). The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the application views to the window.",
       "translation": "저장된 패턴이 예전에 재시작을 기다려야 했던 이유(항목 530). 창은 도크와 페이지 뒤에 배경을 하나만 만들어 세션 동안 유지합니다. Preferences 를 저장하면 런타임 수치가 배경에 전달되었지만(`apply_saved_controls`), 패턴, 백엔드, 품질, 배율은 배경을 생성할 때 고정되며 아무것도 배경을 다시 생성하지 않았습니다. \"changing a screen\" 으로 그렇게 된다는 예전 메모는 배경이 화면에서 창으로 옮겨졌을 때 더 이상 사실이 아니게 되었습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops#3",
@@ -1548,7 +1562,9 @@
       "source_sha256": "fe3cbf5b4a074c22e0e00adfd8ea712983812acb1af9759c67465e519601d626",
       "context": "Size the console's text with the column it sits in (item 529).",
       "translation": "콘솔의 텍스트 크기를 콘솔이 들어 있는 열에 맞춥니다(항목 529).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.console_panel.ConsolePanel.apply_column_text_scale#1",
@@ -1588,7 +1604,9 @@
       "source_sha256": "355b92461558599fed53862ce5021bea77e82febc99c1f046d3a98c3920916e9",
       "context": "Item 529. A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
       "translation": "항목 529. 사용자가 고른 너비는 모든 새로 고침, 모든 숨기기와 표시, 모든 세션에 걸쳐 유지됩니다. 저장된 너비가 없으면 열은 :meth:`fitting_width` 가 늘 해 왔듯이 가장 긴 이름에 맞춥니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.set_column_width#0",
@@ -1628,7 +1646,9 @@
       "source_sha256": "f3d58e9e35ff88a829521ea646d1fdfab3c41c3792227c19b955bce269f7ffaa",
       "context": "The strip along the dock's right edge that drags its width (item 529).",
       "translation": "도크의 오른쪽 가장자리를 따라 있는, 도크 너비를 끌어서 조절하는 띠입니다(항목 529).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.DockEdge#1",
@@ -1752,7 +1772,9 @@
       "source_sha256": "e90427760c1087d342ec63026a99da6bbd15903adb586a28de6b1b4e884e911c",
       "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting (item 531); two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
       "translation": "`samples` 는 각 픽셀이 한 변에 취하는 샘플 수이며, 위젯이 Supersampling 설정에서 정합니다(항목 531). 2 는 공개된 2x2 이며, 아무도 구성하지 않은 엔진은 이 값을 유지합니다. 버퍼는 아직 할당하지 않고 캐스케이드 엔진을 만듭니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_cascade.render_into#0",
@@ -1776,7 +1798,9 @@
       "source_sha256": "13ae3c6d85887f3cee6c9451c6745656fe22478840b0c5473126cf47297f8775",
       "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting (item 531). ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
       "translation": "`samples` 는 각 픽셀이 한 변에 취하는 샘플 수이며, 위젯이 Supersampling 설정에서 정합니다(항목 531). ``None`` (아무도 구성하지 않은 엔진)은 작은 프레임에서는 2, 큰 프레임에서는 1 이라는 예전 규칙을 유지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_space.render_space_frame#9",
@@ -1784,7 +1808,9 @@
       "source_sha256": "5414c4d751eede660b968e9aec01104868442719f6b408f035ffa1db564d477d",
       "context": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (item 531: it used to be 2 x 2 whatever the number said).",
       "translation": "``1`` 이하이면 각 픽셀 중심에서 샘플 하나를 취하고, 그보다 크면 픽셀마다 ``samples`` x ``samples`` 격자 샘플을 평균합니다(항목 531: 예전에는 숫자가 무엇이든 2 x 2 였습니다).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel.OrbitEngine#2",
@@ -1792,7 +1818,9 @@
       "source_sha256": "46b3806160f3df28123793714b9061bb2be59ce72a830bb637e11fbbf85a18f8",
       "context": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting (item 531), makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
       "translation": "4 는 공개된 2x2 입니다. `samples` 는 위젯이 Supersampling 설정에서 정하며(항목 531), 이를 N * N 프레임에 걸쳐 도는 N x N 위상으로 만듭니다. 한 변에 1 이면 이력을 전혀 유지하지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel.Settings#1",
@@ -1800,7 +1828,9 @@
       "source_sha256": "02a2fc8b29ef07a7e1e0adb575498dc137dc8a55035197b01bbe5baceb8a0e39",
       "context": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said (item 531); now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
       "translation": "`supersampling` 은 각 축을 따른 픽셀당 샘플 수이며, Fractal 탭의 Supersampling 행입니다. 모든 렌더러는 설정값과 관계없이 고정된 2x2 를 사용했습니다(항목 531). 이제 셰이더와 CPU 커널은 이 값에서 N x N 격자를 받습니다. 2 는 공개된 격자이므로, 아무도 채우지 않은 `Settings()` 는 항상 그리던 것을 그립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel.apply_saved_controls#3",
@@ -1808,7 +1838,9 @@
       "source_sha256": "08dba1ddd3af29c3553d22a2fff33e5440b0ff39a751e3f6436b78f12c704ce3",
       "context": "Everything that can change while a backdrop is on application view is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved (item 530).",
       "translation": "배경이 화면에 있는 동안 바뀔 수 있는 모든 것은 여기서 전달됩니다. 바뀔 수 없는 것(패턴, 백엔드, 품질, 배율, Mandelbrot 기준 궤도)은 배경을 다시 만들어야 하며, 이는 Preferences 를 저장할 때 :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` 가 수행합니다(항목 530).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.image_ruler.ImageRuler#2",
@@ -1864,7 +1896,9 @@
       "source_sha256": "ed583203453911451f7e78d25390fc23e7ef616cefc590ba915b433825357431",
       "context": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25 (item 511); for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
       "translation": "Cellpose 구획의 각 경계 컨트롤이 ``object_filters`` 안의 어디에 있는지를 나타냅니다. Mask 의 ``{object}_min_area`` 계열은 2026-09-25 에 폐기되었습니다(항목 511). cell, nucleus, pathogen 에 대해서는 이 네 컨트롤이 대신 객체의 ``area`` 및 ``intensity_mean`` 행을 읽고 씁니다. 소기관 슬롯은 자체 설정을 유지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3",
@@ -2376,7 +2410,9 @@
       "source_sha256": "73551fc681a8a39be630ae80a95031a5505ca3fbecc281444db06acbab5fc747",
       "context": "Also the consent step and the upload shared by every community training-data contribution (item 523), so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
       "translation": "또한 모든 커뮤니티 학습 데이터 기여가 공유하는 동의 단계와 업로드이기도 하며(항목 523), 따라서 기여하는 각 화면은 같은 질문을 한 번만 하고 같은 방식으로 보냅니다. 그리고 이미지를 마스크와 함께 사용자가 이름을 붙인 커뮤니티 데이터셋으로 보내는 Make Masks 의 대화 상자이기도 합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share_dialog.ConsentDialog#0",
@@ -2736,7 +2772,9 @@
       "source_sha256": "54431e5fe8bf18c5487fd62154d6c0fee278f05af874baf7e54d27562aec8718",
       "context": "Open the annotate-then-upload window for this mode (item 523).",
       "translation": "이 모드에 대한 주석 후 업로드 창을 엽니다(항목 523).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data#1",
@@ -2784,7 +2822,9 @@
       "source_sha256": "99beb40523eeea98e7322760ad8cfd976fe6e502536a3d8bfc21a891f910a27c",
       "context": "Read several PDFs, one after another, off the main GUI execution path (item 526).",
       "translation": "여러 PDFs 를 GUI 스레드 밖에서 하나씩 차례로 읽습니다(항목 526).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_papers#1",
@@ -2832,7 +2872,9 @@
       "source_sha256": "813c3eaf25f9c1e3870a43126887b9cf7f40d4dd080439bbcc51024e02f3cf31",
       "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are (item 526), so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
       "translation": "소스와 모드마다 한 번, 그리고 화면이 표시되어 있는 동안에만 묻습니다. Figure 모드에서 PDF 또는 PDFs 폴더를 가리키는 ``src`` 는(이미 그 모드이든, 답에 따라 그 모드로 전환했든) 드롭된 파일과 같은 방식으로 모든 PDF 를 읽으므로(항목 526), 미리 보기와 실행은 열 수 없는 PDF 대신 논문의 그림 폴더를 받습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.images_in#2",

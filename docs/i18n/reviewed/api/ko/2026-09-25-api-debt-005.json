@@ -802,7 +802,9 @@
       "source_sha256": "ea2c524a335b5143cd5020eb02dde69bdd0ad5882bf127178d68721c59f05e5d",
       "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install (item 518).",
       "translation": "가져오기가 시작되었거나, 그림 판독기가 필요한 PDF 에 설치 제안으로 응답했으면 True 입니다(항목 518).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#7",
@@ -1822,7 +1824,9 @@
       "source_sha256": "15261313469c9c3e67f145132d2fe6448057d81da96d40e0f7f2952dd4fc23ac",
       "context": "Item 518: PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
       "translation": "항목 518: PDFs 는 Figure 모드에서, 플라크 이미지는 Plaque 모드에서 읽으므로, 다른 모드용 입력이면 전환을 묻고 두 가지가 모두 있으면 어느 것을 읽을지 묻습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_question#3",
@@ -3190,7 +3194,9 @@
       "source_sha256": "ee8bf065edb400a30ce7dbc6e4720c9e272fc20a3e6afc71c7d19b68cc0404a8",
       "context": "One scale slider per live preview, scaling that preview alone (item 471).",
       "translation": "실시간 미리 보기마다 하나의 배율 슬라이더로, 그 미리 보기만 배율을 조정합니다(항목 471).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#1",
@@ -3206,7 +3212,9 @@
       "source_sha256": "4e9e46511a7bc261ae82185b1937bd36319e36dac451378ffb1e819acb20289d",
       "context": "A window opened from the preview is not the preview (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
       "translation": "미리 보기에서 연 창은 미리 보기가 아닙니다(항목 522). 패널을 부모로 하는 대화 상자는 별개의 창이지만, Qt 는 패널의 배율 조정된 시트를 그 안으로 전파하며, 순회는 그 창을 패널의 자식들 사이에서 찾았습니다. 150 % 에서 설정 대화 상자의 버튼 높이는 다른 모든 대화 상자의 40 px 가 아니라 59 px 였습니다. 그런 창과 그 안의 모든 것은 100 % 로 유지되며, 창 자체의 시트는 그렇지 않으면 배율 조정된 채 상속될 크기를 100 % 로 다시 기술합니다 -- 창이 polish 될 때 설정되므로 처음 배치되기 전입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#11",
@@ -3894,7 +3902,9 @@
       "source_sha256": "b5d33d503c17395b6bb6224dc4cb5658d264808b5776fb30c00ed549fe49d21d",
       "context": "Item 509: the calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
       "translation": "항목 509: 보정 값이 저절로 채워집니다. 현미경 대물렌즈, 카메라, 형광체 선택기 또는 \"Infer from images…\" 가 배율, 개구수, 굴절률, 방출 파장, 카메라 픽셀, 이미지 픽셀 크기, Gaussian FWHM 을 채우며, 각 항목은 그 값의 출처를 표시합니다. 작업과 대물렌즈 행만 표시되고, 나머지는 처음에는 접혀 있고 펼친 상태를 기억하는 접이식 영역에 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.qc_field_browser.QCFieldBrowser.closeEvent#1",

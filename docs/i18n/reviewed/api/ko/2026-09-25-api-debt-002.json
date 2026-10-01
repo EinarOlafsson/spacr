@@ -1962,7 +1962,9 @@
       "source_sha256": "072bce659d2996778747500ba3c7bbe5e5376a6afff0328d9bad6e44f37ddfce",
       "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements (item 512) go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
       "translation": "기록할 열이며, 생략하면 주석 열입니다. Annotate 화면의 판정(항목 512)은 두 번째 연결이 아니라 이 같은 기록기를 통해 ``<column>_verdict`` 열에 기록됩니다. 기록기 하나, 대기열 하나, 순서 하나입니다. 기록할 수 없는 다른 열의 배치는 ``_failed_extra`` 에 그 열 이름 아래로 보관되며 ``_failed_batch`` 와 분리되므로, 주석 배치는 모든 독자가 기대하는 형태를 유지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.annotate_engine.add_colored_border#2",
@@ -2940,7 +2942,9 @@
       "source_sha256": "0b9f3aa6e3b48fabeed1ae527d7b299f0b987d758a6005b56782d566cdf5a6d7",
       "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred (item 512). Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
       "translation": "1. 제안은 결코 결정과 혼동되지 않습니다. 제안은 별도의 값으로 저장되므로 -- 제안된 1 은 11 이 됩니다 -- 어노테이션 열을 읽는 어떤 것도 제안을 사람의 답으로 오인할 수 없고, 잘못된 처리 세션은 어떤 행을 건드렸는지 기억하는 대신 값을 삭제하여 되돌립니다. 2. 제안은 결코 어노테이션을 덮어쓰지 않습니다. 쓰기에는 ``IS NULL`` 조건이 붙습니다. 모델이 확신할 때도, 다시 실행할 때도 마찬가지입니다. 사람의 레이블은 모델이 적합된 정답이며, 하나라도 조용히 잃으면 몇 시간을 허비하게 되고 처리 세션 결과가 잘못 나올 때까지 알아차리지 못합니다. 3. 신뢰도 하한이 없으므로 순서가 불확실성을 전달합니다. 어노테이션이 없는 모든 추출된 이미지 영역은 제안을 받고, 가장 확신하는 것부터 정렬되며, 검토자는 더 이상 동의하지 않는 지점에서 멈춥니다. 임계값은 아무도 고르지 않은 숫자로 그 결정을 대신 내려 버릴 것입니다. 4. 판정은 추론되지 않고 기록됩니다(항목 512). 제안을 확인하면 일반 레이블이 되고 거부하면 지워지며 -- 둘 다 열 옆의 ``<column>_verdict`` 에 확인된 클래스(``+c``) 또는 거부된 클래스(``-c``)로 기록됩니다. 거부는 다음 회차가 학습할 수 있는 정보입니다 -- 두 클래스 열에서 \"not class 1\" 은 클래스 2 의 예시입니다 -- NULL 이었다면 아무 말도 없었을 것입니다. 판정 열은 소스를 처음 열 때 추가되므로, 이 열이 생기기 전에 만든 테이블도 마이그레이션 단계 없이 이 열을 갖게 됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.ensure_verdict_column#0",

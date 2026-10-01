@@ -627,7 +627,9 @@
       "source_sha256": "514d99889366f19ab73e99610c4fb2bf4c88e0493e039613dd453d7b299a0cb1",
       "context": "Item 511. The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
       "translation": "항목 511. Filter 범주에는 예전에 고정된 입력란 네 개(최소 및 최대 면적, 최소 및 최대 평균 강도)가 있었습니다. 이제는 비어 있는 상태로 시작하며, \"Add a filter\" 가 :func:`skimage.measure.regionprops` 가 계산하는 모든 스칼라 속성을 제공합니다(:func:`mask_engine.filter_properties` 참조). 추가된 각 행에는 속성, 최솟값, 최댓값, Remove 버튼이 있습니다. 비어 있는 경계는 꺼진 것입니다. 이전의 네 가지는 사용자가 추가할 수 있는 행 중 두 가지, 즉 ``area`` 와 ``intensity_mean`` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.ObjectFilterList#2",
@@ -795,7 +797,9 @@
       "source_sha256": "a86a8067fdb3fa397a29ac228e7abc5b050582c25af080b5ad44e88c530a8404",
       "context": "A key-value mapping of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before item 511 opens as the rows it meant.",
       "translation": "이전 네 가지 경계의 사전(``min_area`` 등)은 :func:`mask_engine.legacy_filters` 가 마이그레이션하므로, 항목 511 이전에 저장된 상태도 원래 의도한 행으로 열립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.ObjectFilterList.set_filters#2",

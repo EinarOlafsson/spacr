@@ -730,7 +730,9 @@
       "source_sha256": "798d232e63aa0da820756129186df9d3bbf8aceded8617bd3fe318500fec424c",
       "context": "A panel in its default state is removed rather than stored. Most panels default to open, so storing that would grow the key-value mapping by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (item 509: the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
       "translation": "기본 상태인 패널은 저장하지 않고 제거합니다. 대부분의 패널은 기본적으로 열려 있으므로, 이를 저장하면 사용자가 건드린 모든 패널마다 사전에 항목이 하나씩 늘고 결코 줄지 않을 것입니다. 처음에 접혀 시작하는 패널(항목 509: 고급 PSF, 복원, CLAHE 행)은 ``default_shut=True`` 를 전달하므로, 여는 것이 False 로 저장되고 다시 접으면 잊힙니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences.set_folded_panel#2",
@@ -2706,7 +2708,9 @@
       "source_sha256": "4fdaae1db8987abfa8b9fd8d63c4aefc84a97dd1fd067712b35b38c46b27fc16",
       "context": "A suggestion is judged, not relabelled (item 512). An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
       "translation": "제안은 레이블을 다시 붙이는 것이 아니라 판정하는 것입니다(항목 512). Suggest 가 클래스를 제안한 추출 이미지 영역에는 점선 고리 옆에 호박색 ``?`` 배지가 붙습니다. 클릭이나 ``Y`` 는 제안을 확정하고(일반 레이블이 되어 초록색 체크 표시가 붙음), 오른쪽 클릭이나 ``N`` 은 거부하며(답하지 않은 상태로 돌아가고 빨간 X 표시가 붙음), ``U`` 는 둘 중 어느 것이든 되돌립니다. 키 범례 위의 막대가 이를 알려 주고, 페이지와 열에 있는 것을 셉니다. 각 판정은 ``<column>_verdict`` 열에 ``+c`` 또는 ``-c`` 로 기록되므로 재시작 후에도 남으며, 다음 Suggest 라운드는 거부된 것을 학습에 사용합니다. :meth:`AnnotateScreen._judge` 와 :func:`spacr.suggest.verdict_column` 을 참조하십시오.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate#9",
@@ -2714,7 +2718,9 @@
       "source_sha256": "cae822239c94b804ff9338aa4d1846cf19ad53d231e49525ab832c099283b2bd",
       "context": "A page is what fits (item 512). The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
       "translation": "한 페이지는 들어가는 만큼입니다(항목 512). 그리드는 설정이 요청한 추출 이미지 영역 크기에서 추출 이미지 영역 창이 주는 공간에 들어가는 만큼만 담으며, 절대 스크롤하지 않습니다. 콘솔을 열거나, 창을 접거나, GUI 배율을 바꾸거나, 창 크기를 조정하면 페이지를 다시 계산하여 나머지를 다음 페이지로 넘기고, 페이지 카운터가 따라가며, 화면의 첫 번째 추출 이미지 영역은 제자리에 머뭅니다. :func:`grid_that_fits` 와 :meth:`AnnotateScreen._refit_grid` 를 참조하십시오.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.AnnotateScreen.closeEvent#1",
@@ -3258,7 +3264,9 @@
       "source_sha256": "c8e94f5cacf7fda58b3fa8d23e4f2e18af349831d3d7183e4b5c6f7b436cdf72",
       "context": "False when the program folds it on the user's behalf (item 471: a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
       "translation": "프로그램이 사용자를 대신해 접을 때 False 입니다(항목 471: 실시간 미리 보기 열기). 그런 접기는 재시작 후에 기억되지 않으며, 수신자에게도 그렇게 알립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.foldable.Folder.set_shut#3",
@@ -3282,7 +3290,9 @@
       "source_sha256": "ec2222cb59ae6cbb6c53b544638e73e8c58e2683108291f0ae4b306d857fa018",
       "context": "start folded unless the user opened this panel before (item 509: advanced rows that most people never change).",
       "translation": "사용자가 이전에 이 패널을 연 적이 없으면 접힌 상태로 시작합니다(항목 509: 대부분의 사람이 바꾸지 않는 고급 행).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.folding_summary.FoldingSummaryView.setReadOnly#2",
