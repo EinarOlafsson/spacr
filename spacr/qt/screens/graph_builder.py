@@ -54,10 +54,12 @@ hand it a frame, and everything below works.
 """
 from __future__ import annotations
 
+import copy
 import json
 import logging
 import os
 import sqlite3
+import tempfile
 import traceback
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Dict, List, NamedTuple, Optional, Tuple
@@ -69,6 +71,7 @@ if TYPE_CHECKING:
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox,
+    QDialog,
     QFileDialog,
     QHBoxLayout,
     QLabel,
@@ -77,7 +80,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ...condition_annotations import apply_conditions, source_context
 from ..app_catalog import declared_app, register_declared
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import CollapsibleSplitter
@@ -233,6 +238,11 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         self.app_key = "graph_builder"
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
+        self._annotation_base_frame = None
+        self._condition_source = None
+        self._condition_definition = None
+        self._condition_definitions = {}
+        self._threaded = threaded
         self._jobs = JobRunner(self, threaded=threaded, app_key="graph_builder")
         self._jobs.job_failed.connect(self._on_load_failed)
 
@@ -276,6 +286,14 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         load_graph = QPushButton("Load chart…", self)
         load_graph.clicked.connect(self.choose_load_chart)
         head.addWidget(load_graph)
+        self._conditions_button = QPushButton(tr("Annotate conditions"), self)
+        self._conditions_button.setEnabled(False)
+        self._conditions_button.clicked.connect(self.open_condition_dialog)
+        head.addWidget(self._conditions_button)
+        self._export_table_button = QPushButton(tr("Export table…"), self)
+        self._export_table_button.setEnabled(False)
+        self._export_table_button.clicked.connect(self.choose_export_table)
+        head.addWidget(self._export_table_button)
         install_test_data_button(
             self, head, lambda _folder, db: self.load_path(
                 str(db), table=EXAMPLE_TABLE),
@@ -316,12 +334,27 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
             the filter panel, and its row and column counts label the source
             unless ``label`` is given.
         """
+        self._annotation_base_frame = frame
+        self._condition_source = source_context(
+            self._path, self._table_picker.currentText(), frame.attrs.get("merge_definition"))
+        key = json.dumps(self._condition_source, sort_keys=True)
+        self._condition_definition = None
+        definition = self._condition_definitions.get(key)
+        annotation_problem = None
+        if definition:
+            try:
+                frame = apply_conditions(frame, definition, self._condition_source)
+                self._condition_definition = copy.deepcopy(definition)
+            except ValueError as exc:
+                annotation_problem = tr("Saved conditions were not applied: {error}", error=str(exc))
         self._frame = frame
+        self._conditions_button.setEnabled(True)
+        self._export_table_button.setEnabled(True)
         self._derived_frame_loaded(frame)
         self.builder.set_frame(frame)
         self.filters.set_frame(frame)
         self._source.setText(
-            label or f"{len(frame):,} rows × {len(frame.columns)} columns")
+            annotation_problem or label or f"{len(frame):,} rows × {len(frame.columns)} columns")
 
     def choose_table(self) -> None:
         """Ask which table in the project to use."""
@@ -490,6 +523,79 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
             LOG.info("could not open the brushed objects", exc_info=True)
             self._source.setText(f"could not open those objects: {exc}")
 
+    def open_condition_dialog(self):
+        """Reopen conditions for the current physical, merged or imported table."""
+        if self._annotation_base_frame is None:
+            return
+        from ..widgets.condition_annotation_dialog import ConditionAnnotationDialog
+        dialog = ConditionAnnotationDialog(
+            self._annotation_base_frame, self._condition_source, self,
+            definition=self._condition_definition, threaded=self._threaded)
+        if dialog.exec() == QDialog.Accepted:
+            self.apply_condition_definition(dialog.definition)
+
+    def apply_condition_definition(self, definition):
+        """Apply validated labels to the working table while preserving the source.
+
+        :param definition: Source-bound condition rules from the annotation editor.
+        :returns: Working frame including the requested output column.
+        """
+        if self._annotation_base_frame is None:
+            raise ValueError("Load a source table before annotating conditions.")
+        frame = apply_conditions(self._annotation_base_frame, definition, self._condition_source)
+        self._condition_definition = copy.deepcopy(definition)
+        key = json.dumps(self._condition_source, sort_keys=True)
+        self._condition_definitions[key] = copy.deepcopy(definition)
+        self._frame = frame
+        self.builder.set_frame(frame)
+        self.filters.set_frame(frame)
+        self._source.setText(tr("Conditions applied to {rows} rows in {column}.",
+                                rows=f"{len(frame):,}", column=definition["column"]))
+        return frame
+
+    def choose_export_table(self):
+        """Choose a CSV destination for the current working table and its rules."""
+        path, _ = QFileDialog.getSaveFileName(
+            self, tr("Export table"), "annotated-table.csv", tr("Tables (*.csv)"))
+        if path:
+            try:
+                self.export_table(path)
+                self._source.setText(tr("Table exported to {path}", path=path))
+            except (OSError, ValueError) as exc:
+                self._source.setText(tr("Could not export table: {error}", error=str(exc)))
+
+    def export_table(self, path):
+        """Export working values and reproducible conditions without replacing input.
+
+        :param path: Destination CSV file. A .conditions.json sidecar stores rules.
+        :returns: Destination path.
+        """
+        if self._frame is None:
+            raise ValueError("Load a table before exporting.")
+        destination = Path(path).resolve()
+        source_path = (self._condition_source or {}).get("path")
+        if source_path and destination == Path(source_path).resolve():
+            raise ValueError("Choose a new export path to preserve the source table.")
+        sidecar = destination.with_suffix(destination.suffix + ".conditions.json")
+        payload = {"source": self._condition_source,
+                   "merge_definition": self._merge_definition,
+                   "condition_annotation": self._condition_definition}
+        # Prepare both files before replacing either destination; a failed CSV
+        # conversion never leaves a receipt describing an export that did not run.
+        temporary = []
+        try:
+            for target in (destination, sidecar):
+                with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as handle:
+                    temporary.append(Path(handle.name))
+            self._frame.to_csv(temporary[0], index=False)
+            temporary[1].write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            os.replace(temporary[0], destination)
+            os.replace(temporary[1], sidecar)
+        finally:
+            for candidate in temporary:
+                candidate.unlink(missing_ok=True)
+        return str(destination)
+
     def choose_save_chart(self):
         """Choose a file for the chart and its reproducible data-source definition."""
         path, _ = QFileDialog.getSaveFileName(self, "Save chart", "chart.json", "Charts (*.json)")
@@ -514,12 +620,16 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         :param path: Destination JSON file.
         :returns: Saved path.
         """
-        if not self._path:
+        source_path = (self._condition_source or {}).get("path")
+        if not source_path:
             raise ValueError("Load a source table before saving a chart.")
-        payload = {"source": str(Path(self._path).resolve()),
-                   "table": self._table_picker.currentText(),
+        if Path(path).resolve() == Path(source_path).resolve():
+            raise ValueError("Choose a new chart path to preserve the source table.")
+        payload = {"source": source_path,
+                   "table": self._condition_source["table"],
                    "chart": self.builder.spec.to_dict(),
-                   "merge_definition": self._merge_definition}
+                   "merge_definition": self._merge_definition,
+                   "condition_annotation": self._condition_definition}
         Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
         return path
 
@@ -533,6 +643,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         payload = json.loads(Path(path).read_text(encoding="utf-8"))
         source, table = payload["source"], payload.get("table")
         definition = payload.get("merge_definition")
+        annotation = payload.get("condition_annotation")
         spec = GraphSpec.from_dict(payload["chart"])
         self._jobs.cancel()
         self._source.setText("Loading chart…")
@@ -544,6 +655,8 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
                 save_definition(source, definition)
             else:
                 frame = read_table(source, table)
+            if annotation:
+                apply_conditions(frame, annotation, source_context(source, table, definition))
             names = table_names(source) if not source.lower().endswith((".csv", ".tsv", ".txt")) else []
             return _Loaded(names, table, frame, None)
 
@@ -553,6 +666,11 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
             :param loaded: Revalidated source frame and available table names.
             """
             self._path = source
+            key = json.dumps(source_context(source, table, definition), sort_keys=True)
+            if annotation:
+                self._condition_definitions[key] = copy.deepcopy(annotation)
+            else:
+                self._condition_definitions.pop(key, None)
             self._on_frame_loaded(loaded)
             self.builder.set_spec(spec)
 

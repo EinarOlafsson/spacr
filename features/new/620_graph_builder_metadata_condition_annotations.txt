@@ -12,3 +12,20 @@ identity, including duplicate indices.
 
 Status: IN PROGRESS. Merge interface agent owns screen/backend/dialog/tests.
 Shared chart rendering crash is tracked separately in 621.
+
+2026-10-01 — CORE ANNOTATION WORKFLOW IMPLEMENTED
+Annotate conditions opens a sortable/filterable source table and unlimited
+named condition boxes with metadata-column/include/exclude controls. Selected
+rows drag into boxes via stable source tokens; duplicate indices and source
+row order changes cannot silently misassign labels. Preview names unmatched
+and overlapping rows; conflicts or invalid regex block Apply. Working column
+name defaults to condition and can be changed. Existing source columns are
+protected. Rules reopen per table, travel with chart save/load and annotated
+CSV exports include a provenance sidecar. Manual display is capped while
+retaining every selected row token.
+20 focused backend, Qt and integration checks passed, including physical,
+CSV and derived chart roundtrips, actual sorted/filtered multiselect MIME/drop
+events, source mutation, duplicate rows, invalid-rule preservation and large
+manual assignments. Both themes rendered and visually inspected.
+Remaining immediate follow-up: Save annotated table creates a new named
+SQLite table with atomic provenance, without replacing the source table.

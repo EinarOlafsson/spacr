@@ -7964,6 +7964,86 @@
       "source_sha256": "3512feda3d7cf64024fb087d9cc7cc4b74cacaa6384e19ffd7bd0fe8934995db",
       "text": "Column names close to ``name``, best first.\n\n:param name: missing column name for which to find near-matches.\n:param columns: available column names to search.\n\nCase-insensitive, because `Prediction` for `prediction` is a typo nobody\nshould have to see spelled out."
     },
+    "spacr.condition_annotations": {
+      "source_blocks_sha256": [
+        "a48b5fc12bb53272b7a4977df0de0b3fcc6e3f3db41cb687c435fe9ef924f9c1",
+        "90d7574658c0e89efc43fd1d6cf36d184f2f5d60a5681c2281fe78a9466c5244"
+      ],
+      "source_sha256": "1b5edef5713be3493d36de305fd8ada248dbc745987d47c45e396197b7d543cb",
+      "text": "Reproducible condition labels on an unchanged source table.\n\nAssignments use content-bound positional row tokens, never pandas index labels\nor the sorted/filtered row number shown by a view. Definitions retain their\nsource, selected table, schema, full ordered content fingerprint, regex rules\nand manually selected tokens. A changed source is refused before any labels\nare applied. Source measurements are never overwritten."
+    },
+    "spacr.condition_annotations.AnnotationError": {
+      "source_blocks_sha256": [
+        "2336bff9cc54bcc6b99c6ee3e29c6d9cb76e4347f5aa175a10a709b37d663c59"
+      ],
+      "source_sha256": "2336bff9cc54bcc6b99c6ee3e29c6d9cb76e4347f5aa175a10a709b37d663c59",
+      "text": "An invalid condition rule, ambiguous assignment or changed source."
+    },
+    "spacr.condition_annotations.ConditionPreview": {
+      "source_blocks_sha256": [
+        "49760f7916c3a5043582dac8fc48154fefcc4f06bb78c1ac4d406c8f75066ebb",
+        "187fe7d9232b6652e904abd4ace7009396eac02aded94ab76f00edf8c290e988",
+        "afe81e4d9a5606319d9af4c2342f16a444d6722865e1dacf3d9c8069c3c155f2",
+        "4d9f21fe660c22a325ac837fc2fee288673c627c51a8a23d48d9cfc5e19ace29",
+        "4a38256ec6d6abddbd3d586eab37f889dbbe59b2411dab7a7bfbad831f0cb8d9"
+      ],
+      "source_sha256": "422c2a1683e8ece20c0c2c4d7095a21efbe5c612ab9f2e397c5886ccf8e87918",
+      "text": "Validated membership counts and row labels before application.\n\n:param values: Candidate labels in source row order; overlaps are diagnostic.\n:param counts: Matched row count per condition.\n:param unmatched: Rows assigned to no condition.\n:param overlaps: Source row positions assigned to multiple conditions."
+    },
+    "spacr.condition_annotations.apply_conditions": {
+      "source_blocks_sha256": [
+        "91bb405e8c463af78335e45355ba41ef6824b1ef0236d691c7bf631bfefa836a",
+        "e7bd125cfcf2bd7690cbf9d4d3aa8ec8f956b8768801fd3abee16a6754548388",
+        "5814b15e2d3f1c5d19e7d2e61e13333560feb2df667e387f67e57fd9ed39730e",
+        "9b18cbdfd73e16448552ebbb75cde79c986d544e30d7491891fd1469627cef5a",
+        "27cbe5374071a5df3bdcb8740c6462a2dad2fbc94582f17948bc1315dcbaa84b"
+      ],
+      "source_sha256": "4607edd04c817479a282b96c7c6eef18de0e20a20c64eef693442c74f750584a",
+      "text": "Return a labelled copy after source and overlap validation succeeds.\n\n:param frame: Original source frame.\n:param definition: Complete condition configuration.\n:param source: Current source context.\n:returns: Copy with the requested condition column; original remains unchanged."
+    },
+    "spacr.condition_annotations.new_definition": {
+      "source_blocks_sha256": [
+        "632c3f4fe50f4b8143cc0fdc0a07307c7cb1477651337d481ef54d1eeb128150",
+        "e7bd125cfcf2bd7690cbf9d4d3aa8ec8f956b8768801fd3abee16a6754548388",
+        "efad92d6990f38668864c157f3d1f0bb0b0e7a539f52ad1c01e4eec128abf9e4",
+        "b1e7ade2e9362e308e47352295f7a23905465cce35dbc8cfc7e32552aee21a08",
+        "73783783c20e10135a5d9c7474c86a3e3bfe5390b80e3866f1994c24a318081c"
+      ],
+      "source_sha256": "fcc27085e151242d9714d51dc9ba41d49476da860fbd429b94fd97f1ac1e531d",
+      "text": "Create an unassigned condition definition for exactly this source snapshot.\n\n:param frame: Original source frame.\n:param source: Identity returned by source_context.\n:param column: New output column name.\n:returns: Reproducible JSON-compatible annotation definition."
+    },
+    "spacr.condition_annotations.preview": {
+      "source_blocks_sha256": [
+        "244b8decd4b722fb3c722745da6646d87cfdae7120dbee54c536ce6ffe47bd85",
+        "1fb24186dfddc8b68d1c5d2f56c9bdacdbbef352b7cbf3bf5c34e5da05e19b52",
+        "66be453f942c13ed8f78dd12beb1ba0663d691c08e95628dbc930361ee57bbd1",
+        "03f22bb38d2d897c07900701308182101357e59568532c843c9819bbdae06961",
+        "21402f6e22009c0a2243e4b6ea4203231dd834077e9952ddbf38b702f6427bca",
+        "51fd0348ea5dd9b860fe30800df2a59ad2fd1b85c5b41dfa93d706ccf46eb8b0"
+      ],
+      "source_sha256": "805813b0fcfbda1d08fac34cb3fadc8d008250c31ab74b24527221ccb8676742",
+      "text": "Evaluate rules without mutating the frame or accepting conflicting labels.\n\nAn include pattern selects matching nonmissing metadata values. Blank include\nmeans manual assignments only. Exclude always removes matching rows, including\nmanually added rows. Different conditions may overlap in a preview, but Apply\nrefuses until those overlaps are resolved.\n\n:param frame: Original source frame, not a previously annotated copy.\n:param definition: Saved or edited condition rules.\n:param source: Current file/table/merge identity.\n:returns: ConditionPreview with explicit unmatched and overlap diagnostics."
+    },
+    "spacr.condition_annotations.source_context": {
+      "source_blocks_sha256": [
+        "49089191a302b1c99915ad546883c5290c314fdcb0af3ff8931921abc923bda5",
+        "d99654b0d0f8989c7688bf2fe7671411ef9829ca304a208421e8806ee9194ee2",
+        "f751c06df55957f4fc3377598ff955e06c7269a22c61ab2f82820ce6bd1afb4a",
+        "2074f732a6eff3cc57f7d9b19ec6be63c923936f6ff28eff904308c9a24ee4a9",
+        "e71e16273ccc7a62d8c2b01a2e0d32be0eaa105bab0f7b381df9cd904947a254"
+      ],
+      "source_sha256": "3b5e59b21026f237c7f002e56014b51c1c4f893680775593ef7d4ed39e20eaa9",
+      "text": "Identify the source without treating a derived table as a physical one.\n\n:param path: Source file, or None for an in-memory table.\n:param table: Selected table name; None for a delimited file.\n:param merge_definition: Reproduction configuration for a derived table.\n:returns: JSON-compatible source identity."
+    },
+    "spacr.condition_annotations.table_identity": {
+      "source_blocks_sha256": [
+        "12b616a7143fcb4aed0adb36310bdf473894856b9eb86d82e5186f22d1e7d7d6",
+        "3f05835c008fb33b2819b19e1c810d00f962a0369cb239f07c9fa87f51e62c02",
+        "2161d8ed8f1091f545255fe068c2a9558530e66ac5f85cbc595ad478fdc0f40b"
+      ],
+      "source_sha256": "fc54790ed704b60c6e384a82d62d8e94bcb86971b9576d409e2066451ddcd4b3",
+      "text": "Hash table values efficiently while ignoring mutable pandas index labels.\n\n:param frame: Original unannotated source frame.\n:returns: Schema, ordered content digest, and opaque per-row tokens."
+    },
     "spacr.confusion": {
       "source_blocks_sha256": [
         "197b462ec88e9746d4e7260aad1e5edbd04e7ed38efb6fed1619e2c90973bb3c",
@@ -58540,6 +58620,22 @@
       "source_sha256": "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8",
       "text": "How many worker threads are still winding down."
     },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.apply_condition_definition": {
+      "source_blocks_sha256": [
+        "07a7c77e92a7cb1d3da5cbce4d42a79edce21ed196a486dce9bbed76ab929d4f",
+        "85ec80bb89d99e72e0b2a23a871ada95a03528b058b1f143fb40ac553ac06a8e",
+        "8956978896976a1e7e1546c2a3f69afbe4f8abd1c9e563ebfe38d59779631cc5"
+      ],
+      "source_sha256": "61b6f44c3ada64c536539a5cb02a166f6834b9a2c490738262b9a1a6fcca5465",
+      "text": "Apply validated labels to the working table while preserving the source.\n\n:param definition: Source-bound condition rules from the annotation editor.\n:returns: Working frame including the requested output column."
+    },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_export_table": {
+      "source_blocks_sha256": [
+        "ebef016748b43d6a769a1bd7e05760d655f963e207a089f2955df04ea66725ef"
+      ],
+      "source_sha256": "ebef016748b43d6a769a1bd7e05760d655f963e207a089f2955df04ea66725ef",
+      "text": "Choose a CSV destination for the current working table and its rules."
+    },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_load_chart": {
       "source_blocks_sha256": [
         "1c8a2a117c38c8fce99d700fc1345c83ec79ec5ffccf8e2b44027bf13f6589b2"
@@ -58569,6 +58665,15 @@
       "source_sha256": "07a1ca7943ee266a164d5adac559bf010403fe26b66e5f387222a5b63f52dc28",
       "text": "Stop background work and unlink before going away.\n\n:param event: the Qt close event."
     },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table": {
+      "source_blocks_sha256": [
+        "c70b59e87212560f46da4604863fb370fc5d4d20afd6bbfb3653d78b7264e74a",
+        "621906b86c1c3f24b16049af0aeb1d1566fa7f852150c66c0f25d0616887d3e7",
+        "0386a2e9f93dea6d90861432f85cf91a2dc4d8e7054d75a90490d31d340c5a19"
+      ],
+      "source_sha256": "7da02a5f7010fb65ae4300a9c44603974e2774b0f7c91e4876426c124f317d92",
+      "text": "Export working values and reproducible conditions without replacing input.\n\n:param path: Destination CSV file. A .conditions.json sidecar stores rules.\n:returns: Destination path."
+    },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.is_busy": {
       "source_blocks_sha256": [
         "15a6bf9e940a7b2c14af2364abc3d0cbd33acf48add8c72e1d168a940f85e370"
@@ -58594,6 +58699,13 @@
       ],
       "source_sha256": "e335afea3df4d426a4d179e3089f7a50e8af0cff6c601193da4afcf3fe7d3be5",
       "text": "Load a CSV or one table of a SQLite measurement database.\n\nNOTHING HERE TOUCHES THE FILE. The read has always run on a worker\nthread -- ``SELECT * FROM cell`` into pandas measures 1.5 s for a\n200 000-row measurement table on a warm local SSD -- but listing the\ntables was kept inline on the argument that one ``sqlite_master``\nquery costs 0.4 ms. That argument holds only for a disk that answers.\nMeasured on one workstation, a single ``stat``\nunder ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep --\nhad not returned after TWENTY SECONDS, and ``sqlite3.connect`` opens\nthe file before it can read a byte of ``sqlite_master``. A user\npicking a measurements.db off a sleeping share, or dropping a project\nfolder that resolves onto one, froze the whole window with no\ntraceback: a stalled event loop is not a crash.\n\nSo the listing goes to the worker with the read, as one job, and the\npicker is populated by :meth:`_on_frame_loaded` when the answer\narrives. A ``path_probe`` pre-flight would not have helped: it answers\noptimistically from cache, and it is the ``connect`` itself that\nparks.\n\nReturns as soon as the job is dispatched; :meth:`_on_frame_loaded`\nfinishes on the GUI thread, whether the file read or not -- a failure\ncomes back as data in the :class:`_Loaded` rather than as an\nexception, so that it is dropped along with everything else when the\nload it belongs to has been superseded.\n\n:param path: a ``.csv``, ``.tsv`` or ``.txt`` file, read as delimited\n    text, or any other file, opened read-only as a SQLite database."
+    },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.open_condition_dialog": {
+      "source_blocks_sha256": [
+        "1dcf740102096470b50bf8e5b6092b90911e30e2ba1c67bfe37a7d71e7b0dc9f"
+      ],
+      "source_sha256": "1dcf740102096470b50bf8e5b6092b90911e30e2ba1c67bfe37a7d71e7b0dc9f",
+      "text": "Reopen conditions for the current physical, merged or imported table."
     },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.save_chart": {
       "source_blocks_sha256": [
@@ -74099,6 +74211,231 @@
       ],
       "source_sha256": "94b8dc8359b9844c0e66a2a7f975d418f0cc0c748c4e8e696c1842948cda3fff",
       "text": "Return why ``name`` cannot be a new column, or ``\"\"`` if it can.\n\nThe point is to fail here, with a sentence, rather than three screens\nlater inside an ``ALTER TABLE`` the user never sees.\n\n:param name: candidate column name as typed.\n:returns: an explanation, or the empty string when the name is fine."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog": {
+      "source_blocks_sha256": [
+        "ec217ea1310b2c9eb40b1573ff57aedea8744d7dfacf563ca81ad481e5634aa2"
+      ],
+      "source_sha256": "ec217ea1310b2c9eb40b1573ff57aedea8744d7dfacf563ca81ad481e5634aa2",
+      "text": "Assign condition labels using metadata rules and stable multirow drag/drop."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog": {
+      "source_blocks_sha256": [
+        "ed2734ad77df2113b6d81a5bc1c4db915c0be1ad3f8d8122c1923881f82a9320",
+        "3f05835c008fb33b2819b19e1c810d00f962a0369cb239f07c9fa87f51e62c02",
+        "baf5a3129464ed6e6605c77fe2d77aa3fca40c1487472ed54bcdeb679b573ddc",
+        "080e1bebb9c43632aa80886e62c0d6c11deb0fc7f826429609a0876a5d14e27d",
+        "b55ef8b688ec762b5ca02d7d77e30b7837d1680cbc157b647faded9d6cfd916a",
+        "195f1adb400368bdae2976949d52e9f3c47ce43873acb5a44aab7fc293ada517",
+        "180320d2c614a2cc078f0d6d7bf5385899bada11b635b2c4f75d03cbe18bf226",
+        "0467e33aac150dc227f3e67810483f6d48ad08481500db1e192e0147fb85ee86",
+        "157335354be0c86a5b5ddd6587d817c5f56fe162ff19f0d362fc610f64befbce",
+        "080e1bebb9c43632aa80886e62c0d6c11deb0fc7f826429609a0876a5d14e27d",
+        "165b8f2b4ac50ec899bf0076abb5fe2ff537f5761c88454dfca6cc915246c704",
+        "0fd63081e91e7416e4aa2fcd83c8bb3d872c4b2c6e75f6e21703e9f90fc74cab"
+      ],
+      "source_sha256": "1ba57e958fcab6683159b6cf55481977f4d755c5222bfbcaa00604ac66481a36",
+      "text": "Edit, preview and safely apply labels to any loaded table.\n\n:param frame: Original unannotated source frame.\n:param source: Source context binding the definition to a file/table/schema.\n:param parent: Owning screen.\n:param definition: Existing annotation to reopen, or None for a new one.\n:param threaded: Evaluate full-table patterns on a worker when true.\nBuild the sortable source table and an unbounded collection of boxes.\n\n:param frame: Immutable source measurements and metadata.\n:param source: Source context.\n:param parent: Owning screen.\n:param definition: Existing annotation definition to copy.\n:param threaded: Use background preview evaluation."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.accept": {
+      "source_blocks_sha256": [
+        "35d34ff5b298f18d766e98b25d84b9ad436645e3599ee0d4df7b9d9a039108bc"
+      ],
+      "source_sha256": "35d34ff5b298f18d766e98b25d84b9ad436645e3599ee0d4df7b9d9a039108bc",
+      "text": "Apply only the current validated draft, leaving source rows untouched."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.add_box": {
+      "source_blocks_sha256": [
+        "42b1948bf4ffcc8548a928180e407e0032b4d2d27c1f505e575b2cb67999fc7d",
+        "06c7790b2488e5919979f74474b778098668d18c63125a6d14a2c954a521b081",
+        "78fe44ceca19fdf6b527636097414df0a83a8d1e70b806e15b94b78f3728b06b"
+      ],
+      "source_sha256": "13f2976f8e3b4f51740eef2cd364f1884edc33a69d72e1974c0c910622c27fae",
+      "text": "Append another named condition without imposing a fixed count.\n\n:param condition: Existing rule to edit, or None for a blank condition.\n:returns: Newly added ConditionBox."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.configuration": {
+      "source_blocks_sha256": [
+        "2d27b65440d9591bbaff43a67d499d78c9773f2b6c16ceea83d6753bf34d9ab9"
+      ],
+      "source_sha256": "2d27b65440d9591bbaff43a67d499d78c9773f2b6c16ceea83d6753bf34d9ab9",
+      "text": "Return a private reproducible copy of the current editor state."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview": {
+      "source_blocks_sha256": [
+        "4b3aa67f3742bfa5f574e6bba1aa6141c74bd1656dde46fbbfb4a72f4435893e"
+      ],
+      "source_sha256": "4b3aa67f3742bfa5f574e6bba1aa6141c74bd1656dde46fbbfb4a72f4435893e",
+      "text": "Validate patterns and assignments off-thread before enabling Apply."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.reject": {
+      "source_blocks_sha256": [
+        "63d17fa4c6ec40dfad63dd5485470d36d5e2ccfc11e80f3fbe874424e22da4fd"
+      ],
+      "source_sha256": "63d17fa4c6ec40dfad63dd5485470d36d5e2ccfc11e80f3fbe874424e22da4fd",
+      "text": "Discard draft edits and stop delivery of pending preview results."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.remove_box": {
+      "source_blocks_sha256": [
+        "65d60f3e351b49aadceec8ba8437b811e709328a6bcadf615c5238892cafb45f",
+        "43a914dd8c883d2e304fe1b162e50f91b5eef96d84a9e5012de0ade1368a6a17"
+      ],
+      "source_sha256": "b4ef608e9d1b39857a1e499df878d43ae9aae86554b3d92ffc7092912c153a12",
+      "text": "Remove a condition from this unsaved draft and recompute diagnostics.\n\n:param box: ConditionBox being removed."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionBox": {
+      "source_blocks_sha256": [
+        "02201b285158640c3aee90f8e7d2c80fa64a4a2749e495892d5a09b66e726234",
+        "bcbf17b28f2e9760ec931ba3dcbd0e46944d291d65b9e4f62fc6fe5bc1b6370a",
+        "de57d0ee5bd4b79cf7f910f42a5dd956982228fefd332025f9a7062934eb5f26",
+        "3b94823e22fe08e946513fc24e849d837d64d4061babe7ad672c634aee062cbd",
+        "d16f185ec163f182662f4f38e520fd46c047019496a08bae8afe5786008ffc61",
+        "063e539aad9854a9cb6fdb5f1a826d0986ea787bc2cb837e7cb105c71bcd869e",
+        "1ee991ed42fdea668acad11abaddc212e38b588919d8f50b44a79cd4d2da78bf",
+        "fdc2d7a5ba0b61280eba48d6237cf314e9527c8aaeaca003696420ef09a9740c"
+      ],
+      "source_sha256": "5c44b88764d9fe1317139a75421864330cd7c836efdd00d91d13649d1ae92e8e",
+      "text": "One named condition with explicit metadata rules and dropped source rows.\n\n:param source_model: Immutable source rows and token mapping.\n:param condition: Condition definition copied into editable controls.\n:param parent: Owning annotation dialog.\nPlace metadata column, include and exclude controls at the top.\n\n:param source_model: Source data model.\n:param condition: Initial condition definition.\n:param parent: Owning widget."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.add_mime_rows": {
+      "source_blocks_sha256": [
+        "b4721337b147f1368ccaabd827950df5690a2b7b215fab28ebe1369e55ec07c2",
+        "4a3ae79760a9a0ad6d9781657a956d6d05c4b1c70d457d8ad05d136b1bdb1c01",
+        "f0e7130d031a73d75c1702c35e751eae444252fb280802c2cc539f37c0d68b8d"
+      ],
+      "source_sha256": "c7df6649bdecf28b9992e43554ba1d3e36d7b3678cddb064948c76d13e1fa2ae",
+      "text": "Accept only tokens from this exact source and keep earlier memberships.\n\n:param mime: Drag MIME data generated by the source table.\n:returns: Whether the payload was accepted."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.clear_manual_rows": {
+      "source_blocks_sha256": [
+        "03c91d11075a9b20b8bc98e23b6eea14fdb1f4f94e668e1d3193415a5a244237"
+      ],
+      "source_sha256": "03c91d11075a9b20b8bc98e23b6eea14fdb1f4f94e668e1d3193415a5a244237",
+      "text": "Remove all manual memberships from this condition."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.definition": {
+      "source_blocks_sha256": [
+        "89a890352b9218d3f382ed896e087196011d383c780a2e5fbf93bdc4f7e19cb3"
+      ],
+      "source_sha256": "89a890352b9218d3f382ed896e087196011d383c780a2e5fbf93bdc4f7e19cb3",
+      "text": "Return the controls as a reproducible condition rule."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.dragEnterEvent": {
+      "source_blocks_sha256": [
+        "7b5604e3e96d7f07775e1304c7b8262b49c45710441996be6b374ab98f4c1e8c",
+        "6e27881670f7840621960916e5947809fe2375e9c767f10c7b19d4edc2f54f5b"
+      ],
+      "source_sha256": "b362d21e837aaa8b0f11262e37817a70a65581bd8c7d7943cb2e9d4ce44b1799",
+      "text": "Offer copy only for spaCR condition-row drags.\n\n:param event: Qt drag-entry event."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.dragMoveEvent": {
+      "source_blocks_sha256": [
+        "424f78436259fcf1c59b80437bda0a37d908e31ed1a0807d303d779c0b148733",
+        "a5960d8fef19351403e22ec9a5e888a2a7f2d1e4e960c65c885b6b1d9332d57b"
+      ],
+      "source_sha256": "3fd01930ba910722009540a2ab00518b36e77c7df034dcd30074e187143bd96d",
+      "text": "Allow moving a supported row drag within this box.\n\n:param event: Qt drag-move event."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.dropEvent": {
+      "source_blocks_sha256": [
+        "328392796b2df9c5d206b15b9f664420ef03b574a8944c61983b02ee367a28a3",
+        "0825ba1665d9aaff696b65e87d3d019378bc389806cc271d841953e3b48f8745"
+      ],
+      "source_sha256": "5e2d7455968f7585fc69abae3ba5fb3e60e6a68c1c5db6d426b41124077ad3ff",
+      "text": "Resolve dropped rows by their source tokens, independent of sorting.\n\n:param event: Qt drop event."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.remove_selected_rows": {
+      "source_blocks_sha256": [
+        "9f038ef6d5a60f236f714f6f86d115d8deb1d573abf849e41f6a29e914f39008"
+      ],
+      "source_sha256": "9f038ef6d5a60f236f714f6f86d115d8deb1d573abf849e41f6a29e914f39008",
+      "text": "Remove only selected manual memberships; regex rules remain visible."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel": {
+      "source_blocks_sha256": [
+        "b05b8787c589cc913a706ee54f587393efd22b60cd38543aba8b58b0429f34bb",
+        "d0b4806c651c6b437b6f4608749043d45c38ffe6e7d175d37f99df9574caaee7",
+        "fdc2d7a5ba0b61280eba48d6237cf314e9527c8aaeaca003696420ef09a9740c",
+        "3ec71ec4ae66b328abd85e5d5ca69421d5f4ebd60314729746708697166cfb1f",
+        "292155c479780f11f082f5e557dd1801f53a8afed455ce5afa3a15d5c638879a",
+        "e019dc7e8f56589ca4d119187264d214c8ff77694039c39b3822ca485edbcc6d"
+      ],
+      "source_sha256": "3b3e9b875e2a899cace5342b775719aa20903da55ee04f2362e8f1e3c803cc91",
+      "text": "Expose source rows in immutable positional order and optional preview labels.\n\n:param frame: Unmodified source frame.\n:param parent: Owning widget.\nRetain the source frame and its duplicate-safe row tokens.\n\n:param frame: Source measurements and metadata.\n:param parent: Owning object."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.columnCount": {
+      "source_blocks_sha256": [
+        "fead09193eb75ad467d02e3dc72e39cc75d794b93538af37116ce45908cc6ce9",
+        "2eff023696b6e803c93a7e9bdfbc53cc8bffdd082937cd32ee8bae8184cafa0a"
+      ],
+      "source_sha256": "32f466042381645e1948971ad4fc1ccfab72b855cb207d8a987e461c54fe5cfe",
+      "text": "Include one diagnostic preview column beside every source column.\n\n:param parent: Qt parent index."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.data": {
+      "source_blocks_sha256": [
+        "80117d83661b89769dc306b9d06a2cdac045b7a9a076f3e07681a37f72241457",
+        "076057f710a1ea5e62047a9b52dbf3e664f3d23d12fbda87211e945f2137da9f",
+        "c87835c79808824796dee22e71cb688f46a01cd7f129171f19556b805a5223fc"
+      ],
+      "source_sha256": "f8e6f29c8e3126c95c7fff15cf6c8af401f192eaeb8a1a837f5fd0ff620e961c",
+      "text": "Read by source position, never by the DataFrame index label.\n\n:param index: Source model cell.\n:param role: Qt display or sorting role."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.headerData": {
+      "source_blocks_sha256": [
+        "9e0288a2cbd7ef362f6835bbb3faab1235b0aa20ec19f53dd4067a0c30e20b35",
+        "8845a497351519846c325559ec0c2e251456893c6df26363aa0605b17ec14ba5",
+        "c24d154d9bfe8353004163dd61a5a6a60df4d65775599b2a086050edb99ec216",
+        "e9ab73e10e5b9009ec03cdb2bcd4d348064e4601f64a88ef66773ccdd9d81ba0"
+      ],
+      "source_sha256": "a538ea85971fe742c24b78e54c3c6d56e6af75771848f032bacbe0bc3e1e5b1e",
+      "text": "Show all metadata column names and the working assignment preview.\n\n:param section: Row or column position.\n:param orientation: Header orientation.\n:param role: Qt role."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.rowCount": {
+      "source_blocks_sha256": [
+        "8d4caa27f4a0dd87da9ee7831c60367249e1e4725433f31faac906e08e3b3624",
+        "2eff023696b6e803c93a7e9bdfbc53cc8bffdd082937cd32ee8bae8184cafa0a"
+      ],
+      "source_sha256": "0b8ddb0a4c122b8964ec8d452c6295079910c1ae252c93a0891eeff0e708ce15",
+      "text": "Count source rows; child indices have no rows.\n\n:param parent: Qt parent index."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.row_summary": {
+      "source_blocks_sha256": [
+        "8fe0611c1c466f362e671c9aa4be139fadc5fd9e6bcf666618509ae5ca5441f0",
+        "da0a8a975f0d98fb8f6abd3102aa4d284f5cec52266b726223991ede2c3bf108",
+        "1a4cd312ebc1bbfb2d908bd873a07914aaf596d43cb159506e09b7c80b29e9fc"
+      ],
+      "source_sha256": "9354a5efb758e30e7a4f5da1bda59cb11bfc5fe42679f2d4e83f73c9eb694c59",
+      "text": "Describe a manually assigned source row with its metadata values.\n\n:param token: Stable row token from this source model.\n:returns: Source row number and a bounded metadata summary."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.set_preview": {
+      "source_blocks_sha256": [
+        "f16643de255afd6ab0fff31ef16814e114df7a28d3e8b0b48177e2c00a371835",
+        "9d83a1325beecfd2108ed15cf4afbfb820820ac9af1b9f87cdd5b92ae94ad9c3"
+      ],
+      "source_sha256": "1da56c34260f5eb2f719226ce86ab1b46357f13c7c927f596a2ccbdd5db8d3c7",
+      "text": "Refresh assignment diagnostics without reordering source rows.\n\n:param values: Condition labels in original source order, or None."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable": {
+      "source_blocks_sha256": [
+        "cc2af1a9417dc3c279aa0d2c04f10197bca6a2e8efbb16ea1ecd7151a8128b0f"
+      ],
+      "source_sha256": "cc2af1a9417dc3c279aa0d2c04f10197bca6a2e8efbb16ea1ecd7151a8128b0f",
+      "text": "Drag selected proxy rows using their original source identities."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.selection_mime": {
+      "source_blocks_sha256": [
+        "8fd21d07d04aa81be607cb68b3e94a0e7791307e6b9bbb834243acc3944b735f",
+        "9d2793878d29017069194abe5315e9653ea7e721737a5bbdbffe3e660390ea11"
+      ],
+      "source_sha256": "3378e0e3ded9837c17799812a27b7592593d5c892bbbbe71f5813c3f66ff2134",
+      "text": "Encode the current multiselection with the full source fingerprint.\n\n:returns: Drag MIME data, or None when no rows are selected."
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.startDrag": {
+      "source_blocks_sha256": [
+        "f158e87a49444d91509a60e0469cd3e3cb6c1d7b6c49563b4a2e9f61268fdf02",
+        "888c6de1151b73428375a679e1d27f08bb1fa5a58d1d504b2e1ba3d09ec8a58d"
+      ],
+      "source_sha256": "2552e77dbe62c8bb99ac477ffb246abd9f44e972b4790c67300b58311c413cb0",
+      "text": "Create one token per selected row after sorting/filtering.\n\n:param supported_actions: Qt drag action flags."
     },
     "spacr.qt.widgets.console_panel": {
       "source_blocks_sha256": [
