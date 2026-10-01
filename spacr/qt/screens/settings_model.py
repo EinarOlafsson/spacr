@@ -6922,6 +6922,82 @@ def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
     return action
 
 
+def _write_cellprofiler_example(path: str) -> None:
+    """Atomically copy the bundled pipeline without falling back to direct writes.
+
+    :param path: selected destination filename.
+    :returns: None after the complete resource has been committed.
+    :raises OSError: the resource or destination cannot be read or written.
+    """
+    from importlib.resources import files
+    from PySide6.QtCore import QIODevice, QSaveFile
+
+    data = files("spacr").joinpath(
+        "resources", "data", "cellprofiler_example.cppipe").read_bytes()
+    destination = QSaveFile(path)
+    destination.setDirectWriteFallback(False)
+    committed = False
+    try:
+        if not destination.open(QIODevice.WriteOnly):
+            raise OSError(destination.errorString())
+        if destination.write(data) != len(data):
+            raise OSError(destination.errorString())
+        if not destination.commit():
+            raise OSError(destination.errorString())
+        committed = True
+    finally:
+        if not committed:
+            destination.cancelWriting()
+
+
+def _export_cellprofiler_example(edit: QLineEdit) -> bool:
+    """Offer a save location and change the pipeline setting only after success.
+
+    :param edit: pipeline setting whose text receives the saved filename.
+    :returns: True after a successful save, False after cancellation or failure.
+    """
+    from PySide6.QtWidgets import QFileDialog, QMessageBox
+    from ..i18n import tr
+
+    path, _ = QFileDialog.getSaveFileName(
+        edit, tr("Export example CellProfiler pipeline…"),
+        "cellprofiler_example.cppipe", tr("CellProfiler pipelines (*.cppipe)"))
+    if not path:
+        return False
+    try:
+        _write_cellprofiler_example(path)
+    except Exception as error:
+        QMessageBox.warning(
+            edit, tr("Could not export pipeline"),
+            tr("The example pipeline could not be saved: {error}").format(error=error))
+        return False
+    edit.setText(path)
+    edit.editingFinished.emit()
+    return True
+
+
+def _add_cellprofiler_example_action(edit: QLineEdit) -> Any:
+    """Attach the bundled example export to Measure's existing alpha field.
+
+    :param edit: the existing pipeline filename editor.
+    :returns: the trailing export action, owned by the editor.
+    """
+    from PySide6.QtWidgets import QStyle
+    from ..i18n import tr
+
+    action = edit.addAction(edit.style().standardIcon(QStyle.SP_DialogSaveButton),
+                            QLineEdit.TrailingPosition)
+    action.setObjectName("CellProfilerExampleExport")
+    action.setText(tr("Export example CellProfiler pipeline…"))
+    action.setToolTip(tr(
+        "Export an example pipeline for two channels: _ch0.tif (DNA) and "
+        "_ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and "
+        "_cell_mask.tif (Cells). Adapt the pipeline to your images and masks "
+        "before running Measure."))
+    action.triggered.connect(lambda: _export_cellprofiler_example(edit))
+    return action
+
+
 class _CsvColumnField(QWidget):
     """A column-name box with a CSV button that offers the columns that exist.
 
@@ -9707,6 +9783,9 @@ class SettingsWidgets:
         if (key == "src" and self.app_key in ("mask", "measure")
                 and isinstance(widget, QLineEdit)):
             _add_cloud_browse_action(widget, self)
+        if (key == "cellprofiler_pipeline" and self.app_key == "measure"
+                and isinstance(widget, QLineEdit)):
+            _add_cellprofiler_example_action(widget)
 
     @staticmethod
     def _build_plain(plan) -> QWidget:
