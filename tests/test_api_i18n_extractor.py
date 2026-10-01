@@ -1316,7 +1316,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # organize_for_measure (module, OrganizeForMeasureDialog and eight methods).
     # 2026-10-01: merge, uncertainty and condition APIs; exact source delta
     # recorded in features/data/615_public_api_delta_2026-10-01.json.
-    expected = 12_034
+    # N625 adds annotation_columns; ConditionPreview documents three optional
+    # per-column diagnostics without adding another API symbol.
+    expected = 12_035
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1363,7 +1365,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,816 -> 11,834 with `expected` above.
     # 11,865 -> 11,929 with `expected` above, for item 593's 64.
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_034
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_035
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

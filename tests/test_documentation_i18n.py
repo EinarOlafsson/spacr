@@ -224,7 +224,7 @@ TOOLS = ROOT / "tools"
 # spacr.qt.widgets.organize_for_measure).
 # 2026-10-01: merge, uncertainty and condition APIs; exact source delta
 # recorded in features/data/615_public_api_delta_2026-10-01.json.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_034
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_035
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

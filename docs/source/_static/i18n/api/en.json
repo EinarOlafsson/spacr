@@ -7982,13 +7982,25 @@
     "spacr.condition_annotations.ConditionPreview": {
       "source_blocks_sha256": [
         "49760f7916c3a5043582dac8fc48154fefcc4f06bb78c1ac4d406c8f75066ebb",
-        "187fe7d9232b6652e904abd4ace7009396eac02aded94ab76f00edf8c290e988",
-        "afe81e4d9a5606319d9af4c2342f16a444d6722865e1dacf3d9c8069c3c155f2",
-        "4d9f21fe660c22a325ac837fc2fee288673c627c51a8a23d48d9cfc5e19ace29",
-        "4a38256ec6d6abddbd3d586eab37f889dbbe59b2411dab7a7bfbad831f0cb8d9"
+        "1672e6b6e5f4df3a6ccbe7db7ed5ed0b238757f70cd44c57ae98aa534d41a689",
+        "77c6fbd3e980b287165eeeba9ee49823946a667d1012c63e2a5705b57e21cd39",
+        "48ba9591c226a733d4c794c17654326b8adf6911f3f51b8b12e7c6db588077ee",
+        "82d71e0db19c2b3cfa43d8e6531976f6dbd0b900c88f9a903062286aa1b4f8e8",
+        "83cd3988e765cb17d89a805b60c50f03c99c9fa3cd228a4c8eb10eb1a171c8f9",
+        "3db0ebd073ffb24fe92d02c0d760a090c9568b8d4b20346e6d10d729b4f7d079",
+        "5f06a6f125201f1587a8a3881193cadd0480c05b395640d6b975c66034c3e317"
       ],
-      "source_sha256": "422c2a1683e8ece20c0c2c4d7095a21efbe5c612ab9f2e397c5886ccf8e87918",
-      "text": "Validated membership counts and row labels before application.\n\n:param values: Candidate labels in source row order; overlaps are diagnostic.\n:param counts: Matched row count per condition.\n:param unmatched: Rows assigned to no condition.\n:param overlaps: Source row positions assigned to multiple conditions."
+      "source_sha256": "5180687aa41b5d8e15e082c0e1f0eb678979f263a728a1979413f673ae9b60b3",
+      "text": "Validated membership counts and row labels before application.\n\n:param values: Final output labels in source row order; conflicts are diagnostic.\n:param counts: Final output row counts per distinct label.\n:param unmatched: Rows missing a value in the final output.\n:param overlaps: Union of positions assigned different labels within any output.\n:param column_values: Candidate values for every ordered output column.\n:param column_previews: Per-column membership and conflict reports.\n:param rule_counts: Individual rule counts before same-label unions."
+    },
+    "spacr.condition_annotations.annotation_columns": {
+      "source_blocks_sha256": [
+        "8b47252404c18af241e69dddd6a33d4e7e68b7565be310cdd7aa04963d8605a9",
+        "ece78fba4a10ddf84fe773cec1b9fffccf141a618fe7e13e78cd32de5fcd3fd5",
+        "2b46690d607a1e473cdc20a44e2f0d91162123c00960ed93b32ef9d8abb498f6"
+      ],
+      "source_sha256": "2aced30119c844881faf5549eba0f990c651ca2014b8da1d4abbe5f76c9307cf",
+      "text": "Return the ordered output names from a legacy definition or recipe.\n\n:param definition: Version 1 condition definition or version 2 column recipe.\n:returns: Distinct, nonempty output names in recipe order."
     },
     "spacr.condition_annotations.apply_conditions": {
       "source_blocks_sha256": [
@@ -7996,10 +8008,10 @@
         "e7bd125cfcf2bd7690cbf9d4d3aa8ec8f956b8768801fd3abee16a6754548388",
         "5814b15e2d3f1c5d19e7d2e61e13333560feb2df667e387f67e57fd9ed39730e",
         "9b18cbdfd73e16448552ebbb75cde79c986d544e30d7491891fd1469627cef5a",
-        "27cbe5374071a5df3bdcb8740c6462a2dad2fbc94582f17948bc1315dcbaa84b"
+        "87cad01dcedfcaf7f348e74b3b76c2cbce6cfbc94169dd104f338ff15bfcee23"
       ],
-      "source_sha256": "4607edd04c817479a282b96c7c6eef18de0e20a20c64eef693442c74f750584a",
-      "text": "Return a labelled copy after source and overlap validation succeeds.\n\n:param frame: Original source frame.\n:param definition: Complete condition configuration.\n:param source: Current source context.\n:returns: Copy with the requested condition column; original remains unchanged."
+      "source_sha256": "0ed9e057b00d8bc9cc9de96f12a41fd7692cfbea8d509424aff04d4863743a28",
+      "text": "Return a labelled copy after source and overlap validation succeeds.\n\n:param frame: Original source frame.\n:param definition: Complete condition configuration.\n:param source: Current source context.\n:returns: Copy with every requested output column; original remains unchanged."
     },
     "spacr.condition_annotations.new_definition": {
       "source_blocks_sha256": [
@@ -8014,40 +8026,40 @@
     },
     "spacr.condition_annotations.preview": {
       "source_blocks_sha256": [
-        "244b8decd4b722fb3c722745da6646d87cfdae7120dbee54c536ce6ffe47bd85",
-        "1fb24186dfddc8b68d1c5d2f56c9bdacdbbef352b7cbf3bf5c34e5da05e19b52",
+        "02a132fb7e17a387c284fd63b02d8df25a1e27aa0bd5c41416ecb8d0b431995f",
+        "7bdcbb0c5af24060f43095cbd2bbb8c451e49edd9f4c66ee4f71ff864501d399",
         "66be453f942c13ed8f78dd12beb1ba0663d691c08e95628dbc930361ee57bbd1",
-        "03f22bb38d2d897c07900701308182101357e59568532c843c9819bbdae06961",
+        "8e15aaed95d500da40f914936a3f61a56d027726b0fef60bbf0c69d23472b8eb",
         "21402f6e22009c0a2243e4b6ea4203231dd834077e9952ddbf38b702f6427bca",
-        "51fd0348ea5dd9b860fe30800df2a59ad2fd1b85c5b41dfa93d706ccf46eb8b0"
+        "ffda6618c0700219fd10ade7525aee26261a554b471e5e1667311fc0c680a422"
       ],
-      "source_sha256": "805813b0fcfbda1d08fac34cb3fadc8d008250c31ab74b24527221ccb8676742",
-      "text": "Evaluate rules without mutating the frame or accepting conflicting labels.\n\nAn include pattern selects matching nonmissing metadata values. Blank include\nmeans manual assignments only. Exclude always removes matching rows, including\nmanually added rows. Different conditions may overlap in a preview, but Apply\nrefuses until those overlaps are resolved.\n\n:param frame: Original source frame, not a previously annotated copy.\n:param definition: Saved or edited condition rules.\n:param source: Current file/table/merge identity.\n:returns: ConditionPreview with explicit unmatched and overlap diagnostics."
+      "source_sha256": "bab47032c58862b084cc463c235f4ed52c7ff7bd8d141353567168d1c6047535",
+      "text": "Evaluate ordered outputs without mutating the source or accepting conflicts.\n\nRegex or exact-value includes select metadata rows. Manual row assignments\njoin those selections, and excludes remove matches. Version 2 rules with the\nsame label are unioned; different labels within a column remain conflicts.\nCombinations may reference source columns and earlier recipe outputs only.\n\n:param frame: Original source frame, not a previously annotated copy.\n:param definition: Saved legacy rules or an ordered version 2 recipe.\n:param source: Current file/table/merge identity.\n:returns: ConditionPreview with all outputs and per-column diagnostics."
     },
     "spacr.condition_annotations.save_annotated_table": {
       "source_blocks_sha256": [
         "2088344a8dfd0b772276acb91c1d2b66fb4637494166ffbff4d15a541c68bd0e",
         "7103b45e92a29acaa6db9ef3f9e80e1fa3834504d42dd6224861890bcea40ad8",
         "4d54cee5c6afcdb13bd02a749b985d5528effeb287aa5b10188fe0803e219a97",
-        "d8e1a7657a4f9ec477a1486799ffd27229e1d98a8a17e5a7d98788fb0506efd5",
+        "62b8920a25c48dea5e94f3a3f898e56c0d39ab023406946011b3ec3c14750e7e",
         "9d348a40e98aa090a529c346d3d191bc2a7f20ecbaeba42a8f6253bffed731b1",
         "033a347f83a6feaba58b779bf3ec713c551f82c413b70ead2d4b86c78b89a517",
         "d47ca272b01984ee2223a33664357a8796a6e467fbf326817c5012b7e004de16",
         "4fdf992728b4c93e29c2ffbc49be4a882554fc4b91fdca68e7509d5efb71826b"
       ],
-      "source_sha256": "9bfc4d702141f863675f165fcdfafad6809d1a7bcfd66d001677a190e1286dec",
-      "text": "Atomically save a new physical table plus its source and editable rules.\n\n:param path: Existing SQLite source database, never a delimited input file.\n:param name: New table name; physical, view and saved-derived collisions fail.\n:param frame: Working frame including the annotation output column.\n:param definition: Validated annotation rules used for the working frame.\n:param source: Original annotation source context.\n:param merge_definition: Original merged-source configuration, if applicable.\n:returns: Saved table name. A failure rolls back both table and provenance."
+      "source_sha256": "eb1658bd473227057bb715da90dc5175d49a0806ac6b3ab2eb7d72e8b5c5cae6",
+      "text": "Atomically save a new physical table plus its source and editable rules.\n\n:param path: Existing SQLite source database, never a delimited input file.\n:param name: New table name; physical, view and saved-derived collisions fail.\n:param frame: Working frame including every annotation output column.\n:param definition: Validated annotation rules used for the working frame.\n:param source: Original annotation source context.\n:param merge_definition: Original merged-source configuration, if applicable.\n:returns: Saved table name. A failure rolls back both table and provenance."
     },
     "spacr.condition_annotations.saved_table_annotation": {
       "source_blocks_sha256": [
         "5c0ffaa62320b8d14988505bd613206c10934d559331786324a7ca7634a848a8",
         "20099200cdb5cff8c28bcb17a9a300acdf4b305ba6861d186b8b1c97ab29e248",
         "20cc823026bd32d592e2729d08246fc66a1d25f47d7cabf263d5e5b3a57e27c2",
-        "49b709507205e88b94f25290c37c2bda4fb0910a9a7b237427579ec72db499e0",
+        "59e75afcd07a6168c8a862259b3f974cb17d955901e352bca970f782541d0796",
         "412efd4cb990fe1936a69c28e080bf11bab5071f697ccb40ebf1d799f0e380ad"
       ],
-      "source_sha256": "eca73effac758456e693c3bcea809341fe042c18ae6c43d74f4be22ae0b842c3",
-      "text": "Recover editable rules only when a saved physical table is unchanged.\n\n:param path: SQLite source database opened read-only.\n:param name: Physical table name.\n:param frame: Actual stored table including the condition output column.\n:returns: Editable annotation definition or None for an ordinary table."
+      "source_sha256": "803722333f5f79cd641981426757511e9510345b3b62cd4c04eaccaccfe33bcb",
+      "text": "Recover editable rules only when a saved physical table is unchanged.\n\n:param path: SQLite source database opened read-only.\n:param name: Physical table name.\n:param frame: Actual stored table including every annotation output column.\n:returns: Editable annotation definition or None for an ordinary table."
     },
     "spacr.condition_annotations.source_context": {
       "source_blocks_sha256": [
@@ -58681,10 +58693,10 @@
       "source_blocks_sha256": [
         "07a7c77e92a7cb1d3da5cbce4d42a79edce21ed196a486dce9bbed76ab929d4f",
         "85ec80bb89d99e72e0b2a23a871ada95a03528b058b1f143fb40ac553ac06a8e",
-        "8956978896976a1e7e1546c2a3f69afbe4f8abd1c9e563ebfe38d59779631cc5"
+        "eb899c9805149e5348f8df9db9c0777350926f2d7516ce79c07145c20498e8bb"
       ],
-      "source_sha256": "61b6f44c3ada64c536539a5cb02a166f6834b9a2c490738262b9a1a6fcca5465",
-      "text": "Apply validated labels to the working table while preserving the source.\n\n:param definition: Source-bound condition rules from the annotation editor.\n:returns: Working frame including the requested output column."
+      "source_sha256": "2b8a46ddf7885dff2346f27b35f8c672feb4107fa158ad63ea64e63cd6a89141",
+      "text": "Apply validated labels to the working table while preserving the source.\n\n:param definition: Source-bound condition rules from the annotation editor.\n:returns: Working frame including the requested output columns."
     },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_export_table": {
       "source_blocks_sha256": [
@@ -58834,10 +58846,10 @@
     "spacr.qt.screens.graph_builder.table_names": {
       "source_blocks_sha256": [
         "c86051366260a4b1528b43f4de46c331dc65d4dff846267c69b36d2c567eb906",
-        "7513d0f858711ce00e43fd24a5e8d7902d59b41014ef674debe3844ed538085c"
+        "4188c0fb37c43d0905b4cef87b79b194c6e1b3db92143951bce00e495ba8169b"
       ],
-      "source_sha256": "725c676d74bbfdad4cc4d24b5aad49009ec0c80cae24aa3f7a0a16fc5fb96f2d",
-      "text": "Every user table in the SQLite file at ``path``, in a useful order.\n\n:param path: path to a SQLite measurement database, opened read-only;\n    the preferred tables (``object``, ``cell``, ``nucleus``, …) come\n    first, then the rest alphabetically, with ``sqlite_`` internals left\n    out."
+      "source_sha256": "0d8c3f6e64cad944093e91ce81c70c3f4cf87568906dcfad7a545acd58215c22",
+      "text": "Every user table in the SQLite file at ``path``, in a useful order.\n\n:param path: path to a SQLite measurement database, opened read-only;\n    the preferred tables (``object``, ``cell``, ``nucleus``, …) come\n    first, then the rest alphabetically. SQLite internals and the private\n    condition-annotation receipt table are left out; ordinary user tables\n    and named derived results remain available."
     },
     "spacr.qt.screens.hit_list": {
       "source_blocks_sha256": [
@@ -74436,11 +74448,11 @@
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.columnCount": {
       "source_blocks_sha256": [
-        "fead09193eb75ad467d02e3dc72e39cc75d794b93538af37116ce45908cc6ce9",
+        "0491a3f3820b50b03174429e214d54f070238157258d570a2bddc168746246dd",
         "2eff023696b6e803c93a7e9bdfbc53cc8bffdd082937cd32ee8bae8184cafa0a"
       ],
-      "source_sha256": "32f466042381645e1948971ad4fc1ccfab72b855cb207d8a987e461c54fe5cfe",
-      "text": "Include one diagnostic preview column beside every source column.\n\n:param parent: Qt parent index."
+      "source_sha256": "f15b8fe7fbe3f37f795a60366751e8abea28a1f7d026d8552644a233e2133bba",
+      "text": "Include all generated preview columns beside the source columns.\n\n:param parent: Qt parent index."
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.data": {
       "source_blocks_sha256": [
@@ -74481,10 +74493,10 @@
     "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.set_preview": {
       "source_blocks_sha256": [
         "f16643de255afd6ab0fff31ef16814e114df7a28d3e8b0b48177e2c00a371835",
-        "9d83a1325beecfd2108ed15cf4afbfb820820ac9af1b9f87cdd5b92ae94ad9c3"
+        "859c63906fb030ae33836ad1b0c7baa22350141de9a21445a71668d67c33005f"
       ],
-      "source_sha256": "1da56c34260f5eb2f719226ce86ab1b46357f13c7c927f596a2ccbdd5db8d3c7",
-      "text": "Refresh assignment diagnostics without reordering source rows.\n\n:param values: Condition labels in original source order, or None."
+      "source_sha256": "5ce16073525cdcef31e4e980d3ba3006fd395894f53fee7ce51de6a3fd69c573",
+      "text": "Refresh assignment diagnostics without reordering source rows.\n\n:param values: Ordered output-name/Series mapping, one label Series, or None."
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable": {
       "source_blocks_sha256": [

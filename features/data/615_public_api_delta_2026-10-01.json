@@ -1,10 +1,10 @@
 {
   "baseline": "a51dac8e6",
-  "current_head": "52033b0f12f70a3ab47192a4e0ec51e7610980f1",
+  "current_head": "0cd0a1e72bab657fb1c81b2b03e8cd3ad1efff8f",
   "counts": {
-    "total": 9989,
+    "total": 9990,
     "category": {
-      "function": 4458,
+      "function": 4459,
       "dataclass_constructor": 518,
       "constructor": 462,
       "method": 4315,
@@ -13,25 +13,26 @@
       "namedtuple_constructor": 24
     },
     "exposure": {
-      "autoapi": 9984,
+      "autoapi": 9985,
       "compatibility": 3,
       "cli_only": 2
     },
-    "variants": 9996,
+    "variants": 9997,
     "variant_buckets": {
-      "1": 9982,
+      "1": 9983,
       "2": 7
     },
     "constructor_prose": 462,
     "constructor_prose_nonzero": 462,
-    "parameters": 19840,
-    "required": 10218,
-    "signature_sha256": "bfb92d8db3552648d70be5ecd915f5f0bcf465450b1796c6cd3a7003cf1fbb2a",
+    "parameters": 19844,
+    "required": 10219,
+    "signature_sha256": "fdc47f07dc1985c98fb3bba40e7c1033abaa0c46302f421448743176cc0d9753",
     "before_signature_sha256": "fff8dea0bc9be2508cc5fbee90c35fb671f20f438dbf55868540ee6375186b40"
   },
   "added": {
     "spacr.condition_annotations.AnnotationError": "spacr.condition_annotations.AnnotationError\u0000exception_constructor\u0000autoapi\u0000args\u0000\u0000args\u00000\u00001\u00000\u00000",
-    "spacr.condition_annotations.ConditionPreview": "spacr.condition_annotations.ConditionPreview\u0000dataclass_constructor\u0000autoapi\u0000counts,overlaps,unmatched,values\u0000counts,overlaps,unmatched,values\u0000counts,overlaps,unmatched,values\u00000\u00001\u00000\u00000",
+    "spacr.condition_annotations.ConditionPreview": "spacr.condition_annotations.ConditionPreview\u0000dataclass_constructor\u0000autoapi\u0000column_previews,column_values,counts,overlaps,rule_counts,unmatched,values\u0000counts,overlaps,unmatched,values\u0000column_previews,column_values,counts,overlaps,rule_counts,unmatched,values\u00000\u00001\u00000\u00000",
+    "spacr.condition_annotations.annotation_columns": "spacr.condition_annotations.annotation_columns\u0000function\u0000autoapi\u0000definition\u0000definition\u0000definition\u00000\u00001\u00000\u00000",
     "spacr.condition_annotations.apply_conditions": "spacr.condition_annotations.apply_conditions\u0000function\u0000autoapi\u0000definition,frame,source\u0000definition,frame,source\u0000definition,frame,source\u00000\u00001\u00000\u00000",
     "spacr.condition_annotations.new_definition": "spacr.condition_annotations.new_definition\u0000function\u0000autoapi\u0000column,frame,source\u0000frame,source\u0000column,frame,source\u00000\u00001\u00000\u00000",
     "spacr.condition_annotations.preview": "spacr.condition_annotations.preview\u0000function\u0000autoapi\u0000definition,frame,source\u0000definition,frame,source\u0000definition,frame,source\u00000\u00001\u00000\u00000",

@@ -185,10 +185,12 @@ commit/push after each completed item. The inventory-only statements above
 are historical, not the current task scope. Initial checklist checkpoint and
 priority implementation commits were pushed and verified on nightly.
 
-English API manifest now contains 12,034 symbols. Source-derived callable
-inventory is 9,989 (+83, no removals), with 19,840 parameters and 10,218
-required parameters. The two changed existing signatures add optional immediate= on shared
-hover/availability tooltips. New merge-dialog APIs include initial_definition=. Full before/after
+English API manifest now contains 12,035 symbols. Source-derived callable
+inventory is 9,990 (+84, no removals), with 19,844 parameters and 10,219
+required parameters. Relative to the initial baseline, two existing tooltip
+signatures add optional immediate=. New merge-dialog APIs include
+initial_definition=. N625 also extends the previously introduced
+ConditionPreview constructor with three optional diagnostic fields. Full before/after
 signature rows and the matching baseline digest are preserved in
 features/data/615_public_api_delta_2026-10-01.json. Exact counts and hashes
 were advanced; docless, required-parameter and ghost-parameter checks remain
@@ -198,5 +200,23 @@ New user guides cover streamed Mask preprocessing and memory, merged tables,
 Graph Builder condition rules, drag/drop, CSV exports and atomic SQLite saves.
 Current Preferences Theme/Animation scenes were captured and reviewed, but
 full narration-timed tutorial publication remains pending. Nine-locale runtime
-and API repairs are running with bounded CPU memory. Main integration and
-release publication remain separate and have not been performed.
+and API repairs use bounded CPU memory. The user-prioritized main merge is
+complete via PR #135 at remote 2429976f07475fa54908f6cb119cd979dfa81dbe,
+from source 369ac90a. Automatic release run 36904849867 completed Prepare;
+Build distribution was queued at the latest check. Publication is unverified.
+N625 commits follow that merge and remain on nightly only.
+
+2026-10-01 — N625 API SOURCE REFRESH
+
+Ordered annotation recipes add condition_annotations.annotation_columns and
+three optional ConditionPreview fields: column_values, column_previews and
+rule_counts. Compared with the preceding inventory, this adds one callable,
+four parameters (one required), and one English API symbol. Current totals
+are 12,035 English API symbols, 9,990 public callables, 19,844 parameters, and
+10,219 required parameters. The baseline-relative receipt remains +84/-0
+callables against a51dac8e6 and records exact signatures and hashes.
+English source history retains prior paragraphs required by unfinished locale
+repairs. Source refresh does not establish translated API acceptance.
+Validation: eight focused inventory, extractor, source-signature, docless,
+required-parameter and ghost-parameter checks passed in 79.36 seconds under
+a 4 GB CPU-only cap. Existing completeness gates were preserved.

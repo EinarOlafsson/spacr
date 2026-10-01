@@ -173,6 +173,14 @@
       "source_sha256": "6c86973ad901a5dc365fdbcba22ce5f97bc5bcf2af41acb9a191c7f233eff514",
       "text": "Rewrite the tooltip in ``language``."
     },
+    "725c676d74bbfdad4cc4d24b5aad49009ec0c80cae24aa3f7a0a16fc5fb96f2d": {
+      "source_blocks_sha256": [
+        "c86051366260a4b1528b43f4de46c331dc65d4dff846267c69b36d2c567eb906",
+        "7513d0f858711ce00e43fd24a5e8d7902d59b41014ef674debe3844ed538085c"
+      ],
+      "source_sha256": "725c676d74bbfdad4cc4d24b5aad49009ec0c80cae24aa3f7a0a16fc5fb96f2d",
+      "text": "Every user table in the SQLite file at ``path``, in a useful order.\n\n:param path: path to a SQLite measurement database, opened read-only;\n    the preferred tables (``object``, ``cell``, ``nucleus``, …) come\n    first, then the rest alphabetically, with ``sqlite_`` internals left\n    out."
+    },
     "782220e645d85e78ed45021021cd8bb684487bf8ab63c16ecc0505c9d1c89f41": {
       "source_blocks_sha256": [
         "18d6c57d3eee6f78dc59a9d37b1c501e0155f6ec6f55893c9ce73a988e87b891",
