@@ -1122,7 +1122,9 @@
       "source_sha256": "8268982be4a59a166687566f77cbff9be9c2eac1594319ea55bdbd0e07c7e097",
       "context": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding structured-data name (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks``; every later run of the same workflow on the same ``src`` is checked against it by :func:`check_analysis_lock`, and the verdict is written into that processing session's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
       "translation": "Við hlið keyrslnanna heldur dagbókin tvær skrár fyrir blindaða vinnu. :func:`start_blinding` skrifar blindunarlykil (kóðuð heiti og stokkaða röð) í ``~/.spacr/blinding`` og :func:`unblind` skráir hver opnaði hann og hvenær. :func:`lock_analysis` frystir greiningaráætlun, með tætigildi og tímastimpli, í ``~/.spacr/analysis_locks``; hver síðari keyrsla sama verkferlis á sama ``src`` er borin saman við hana af :func:`check_analysis_lock`, og niðurstaðan er skrifuð í ``manifest.json`` þeirrar keyrslu undir ``analysis_lock``, og allur munur er líka talinn upp í ``provenance_warnings``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#0",
@@ -1138,31 +1140,36 @@
       "source_sha256": "fa1d435e1c436efdb5877fa024be6c851d6d98011578205654eeacb7f952c4df",
       "context": "The lock is the newest one :func:`lock_analysis` made for ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting and every hashed file is compared.",
       "translation": "Lásinn er sá nýjasti sem :func:`lock_analysis` bjó til fyrir ``app_key`` á ``src`` stillinganna, nema lás sé sendur inn. Lásinn er fyrst borinn saman við eigið tætigildi, svo breytt lásskrá uppgötvast; síðan er hver stilling og hver skrá með tætigildi borin saman.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
-      "label": "spacr.run_journal.check_analysis_lock#2",
+      "label": "spacr.run_journal.check_analysis_lock#3",
       "source": "the settings of the run being checked.",
       "source_sha256": "21c35046c8d05f886c15bdd8240f3c09c0e79b554dc0b7ae203f18b786ae19c0",
       "context": "the settings of the processing session being checked.",
       "translation": "stillingar keyrslunnar sem verið er að athuga.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#2"
     },
     {
-      "label": "spacr.run_journal.check_analysis_lock#3",
+      "label": "spacr.run_journal.check_analysis_lock#4",
       "source": "the pipeline running them.",
       "source_sha256": "09f82ec376a95edec730570ef26a0339cd6171afc441c2382de7f6f3fa6212e1",
       "context": "the workflow executing them.",
       "translation": "verkferlið sem keyrir þær.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#3"
     },
     {
-      "label": "spacr.run_journal.check_analysis_lock#4",
+      "label": "spacr.run_journal.check_analysis_lock#5",
       "source": "a lock record to check against instead of the newest one.",
       "source_sha256": "04cfcc06ecb6198567eb63a5ad798f1401693b1357367656ab5724c2c8604e0f",
       "context": "a lock record to check against instead of the newest one.",
       "translation": "lásfærsla til að bera saman við í stað þeirrar nýjustu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#4"
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#5",
@@ -1170,7 +1177,9 @@
       "source_sha256": "b0c257c3fb76778206d96f0aaca390e18f89edf8aafb0abc32a1b129979b4626",
       "context": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, and no key on the folder has been unblinded since the lock), ``\"post_hoc\"`` (changed, and a key on the folder was unblinded after the lock), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``deviations`` (``key``, ``locked``, ``now``), ``unblinded_utc`` and a one-sentence ``summary``.",
       "translation": "``status`` -- ``\"unlocked\"`` (enginn lás á við), ``\"verified\"`` (engu breytt), ``\"deviation\"`` (breytt, og enginn lykill möppunnar hefur verið afblindaður síðan lásinn var settur), ``\"post_hoc\"`` (breytt, og lykill möppunnar var afblindaður eftir lásinn), ``\"not_preregistered\"`` (óbreytt, en lásinn var búinn til eftir afblindun) eða ``\"tampered\"`` (lásinn passar ekki lengur við tætigildi sitt) -- með ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``deviations`` (``key``, ``locked``, ``now``), ``unblinded_utc`` og ``summary`` í einni setningu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.lock_analysis#0",
@@ -1186,7 +1195,9 @@
       "source_sha256": "b39a0ffbfd1aa184adf4a8273c3ec2c2646fda3903cc42ea1165bc406dfc1da8",
       "context": "The settings, the stated hypotheses and thresholds, and the SHA-256 of every model, data-selection boundary or threshold file the settings name (plus ``files``) are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of ``app_key`` on the same ``src`` is checked against the newest lock by :func:`check_analysis_lock`; the verdict goes into the processing session's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
       "translation": "Stillingarnar, uppgefnar tilgátur og þröskuldar, og SHA-256 hverrar líkans-, valsvæða- eða þröskuldsskrár sem stillingarnar nefna (auk ``files``) eru skrifuð með tíma og notanda í ``~/.spacr/analysis_locks/<lock id>.json`` og tætigildi reiknað. Upp frá því er hver dagbókarfærð keyrsla ``app_key`` á sama ``src`` borin saman við nýjasta lásinn af :func:`check_analysis_lock`; niðurstaðan fer í ``manifest.json`` keyrslunnar, og munur er talinn upp í viðvörunum skrárinnar, skýrslunni og aðferðatextanum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.lock_analysis#2",
@@ -1194,7 +1205,9 @@
       "source_sha256": "cf47343d42802b2c2950a7f9bd29025f6e5effa678455bf8687dcb0aaf51a6aa",
       "context": "A lock made after a blinding key on the same folder was unblinded is marked as such, because it was not made blind.",
       "translation": "Lás sem búinn er til eftir að blindunarlykill sömu möppu var afblindaður er merktur sem slíkur, því hann var ekki búinn til blint.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.lock_analysis#3",
@@ -1245,12 +1258,13 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.run_journal.lock_analysis#9",
+      "label": "spacr.run_journal.lock_analysis#12",
       "source": "the stored lock, including ``lock_id``, ``locked_utc`` and ``sha256``.",
       "source_sha256": "07d8ff4c8fd4fc1d666e2a6174a9471f98898a75a1efce1495955d616fe8c72b",
       "context": "the stored lock, including ``lock_id``, ``locked_utc`` and ``sha256``.",
       "translation": "vistaði lásinn, þar á meðal ``lock_id``, ``locked_utc`` og ``sha256``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.lock_analysis#9"
     },
     {
       "label": "spacr.run_journal.start_blinding#0",

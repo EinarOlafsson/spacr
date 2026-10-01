@@ -737,7 +737,9 @@
       "source_sha256": "0977194cb24229afdd2b33cd834c5f4974541c8bc07e11858abf6a119366d1a9",
       "context": "the filtered event; a ``ToolTip`` on a widget with hover help is swallowed, ``Enter`` shows the help and ``Leave`` hides it, and every event is otherwise passed to the base class.",
       "translation": "o evento filtrado; um ``ToolTip`` em um widget com ajuda ao passar o mouse é suprimido, ``Enter`` mostra a ajuda e ``Leave`` a oculta, e todo evento é, de resto, passado à classe base.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#0",

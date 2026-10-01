@@ -142,6 +142,18 @@
       "source_sha256": "5534fde2d4d1c33dbb0f2e4e1db028926652b5b81256b408de7d31114f8bcae3",
       "text": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.\n\nSelects PNG paths (via the ``png_list`` table plus optional\n``file_metadata`` filter) from each source's measurements database,\noptionally random-subsamples, then bundles the images in parallel\ninto a dated tar under the first source's ``datasets/`` folder.\nUse this to produce the ``tar_path`` consumed by\n:func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.\n\n``crop_source`` chooses where the images come from. ``'png'`` (and\n``'auto'`` wherever a crop folder exists) is the behaviour above,\nunchanged for uniform source formats: files are byte-copied into the tar\nwith their format marker. Mixed formats are decoded into declared uint8\ncopies in the archive only. ``'merged'`` (and\n``'auto'`` on a project with no crop folder) cuts every crop out of\n``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be\nbuilt with no PNG folder on disk at all, and is rebuilt at the *current*\ncrop settings rather than whatever the folder was generated with. The\nmembers are named exactly as the PNG folder would have named them, so\neverything that parses a crop file name downstream -- fold grouping,\n``prcfo``, the prediction merge -- keeps working either way.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_generate_dataset_defaults`. Key\n    entries:\n\n    - ``src`` (str or list of str) — folder(s) containing\n      ``measurements/measurements.db`` and the PNG crops.\n    - ``file_metadata`` — filter/join key applied against\n      ``png_list``.\n    - ``sample`` — ``int`` or ``[int]`` cap on selected PNGs\n      (random subsample); omit for all.\n    - ``experiment`` — string suffix used in the tar filename.\n    - ``crop_source`` — ``'auto'`` | ``'png'`` | ``'merged'``.\n\n:returns: Absolute path to the created ``…/datasets/<date>_<\n    experiment>.tar``.\n:raises RuntimeError: if ``src`` is not a string / list of strings,\n    no images are selected, no image could be written, or the\n    destination folder cannot be resolved.\n\nExample:\n    .. code-block:: python\n\n        from spacr.io import generate_dataset\n        tar_path = generate_dataset({\n            'src': ['/data/plate01', '/data/plate02'],\n            'experiment': 'screen_v1',\n            'sample': 100000,\n        })\n\nSee Also:\n    :func:`training_dataset_from_annotation` — build a labeled\n    ``train/`` / ``test/`` tree instead of a flat tar.\n    :func:`spacr.deep_spacr.deep_spacr` — consumes the tar via\n    ``apply_model_to_tar``."
     },
+    "673a6ea45c439762f29d997df262f63c4f9b4a712886ccf0af08a2ff31f707c6": {
+      "source_blocks_sha256": [
+        "e4ea8d48afff16e1b9c5060fe9d382692e0ec6f6f6f27ba324518da231006a27",
+        "6e3b695c86c1d9de9628acbe17c8d39d882bff6e9d569aee282f1f2520fcd332",
+        "bcd39ee407d791269f359bc1cf6a233b2ed37abbe5e8e61052570482e881baa9",
+        "7d9732d503d6b69caa62264f3a6bd65ab5017c8f993c6941d0edffce64708fe0",
+        "c88c006aef081bc1f8578283346e92cc7c1002a8442cda92e5357215be57edbe",
+        "80530b219aabdb2fec833b764ecb64be04b6cfc0d6b014831d702e1fc2ffcf09"
+      ],
+      "source_sha256": "673a6ea45c439762f29d997df262f63c4f9b4a712886ccf0af08a2ff31f707c6",
+      "text": "Estimate, save, enable and QC the Measure correction.\n\nThe one call a pipeline makes before ``measure_crop``, and the one the\nIllumination button on the Measure masthead runs on its own -- the model\nand its QC figures in minutes, before committing hours to the measure run\nthat will reuse them through ``illumination_model``.\n\nIt does nothing at all -- and returns None -- unless\n``settings['illumination_correction']`` is True, which is NOT the shipped\ndefault: the correction is opt-in, so a run that never mentions it is\nmeasured uncorrected. Being asked to run with the switch off is a\nno-op worth hearing about rather than a silent one, because from a\nsettings form it looks exactly like a Run button that does nothing, so a\nverbose call says which switch was not thrown.\n\n:param settings: a ``measure_crop`` settings dict. Reads\n    ``illumination_correction``, ``illumination_model``,\n    ``illumination_estimator``, ``illumination_degree``,\n    ``illumination_per_plate``, ``illumination_max_fields``,\n    ``illumination_dark``, ``illumination_on_missing``,\n    ``illumination_qc``, ``illumination_vendor_profile``, plus ``src``\n    and ``channels``.\n:param verbose: overrides ``settings['verbose']``.\n:returns: the :class:`IlluminationModel` that was enabled, or None."
+    },
     "6b10b5ea09d10e40ef81fea558a8e260ee683414c33bf623550966487d46128f": {
       "source_blocks_sha256": [
         "a7dab553cf176267f0dc83ae6090ff6b64dd890fcd37a0b970343a4cc8bb9a66",
@@ -160,6 +172,18 @@
       ],
       "source_sha256": "6c86973ad901a5dc365fdbcba22ce5f97bc5bcf2af41acb9a191c7f233eff514",
       "text": "Rewrite the tooltip in ``language``."
+    },
+    "782220e645d85e78ed45021021cd8bb684487bf8ab63c16ecc0505c9d1c89f41": {
+      "source_blocks_sha256": [
+        "18d6c57d3eee6f78dc59a9d37b1c501e0155f6ec6f55893c9ce73a988e87b891",
+        "4752c0a79fd6419078d7aa34bb9184b58ccb24d37468a15d1e9fbc48b5d34d61",
+        "60b730773d424102a58c358009b24f464f50047cc57d4a3eaa24bd740608a551",
+        "65be833d95e3dad52244c02a72fe958c040dd2693c0dc9e3fcaf80ff5ad94985",
+        "91ba116c8e764037a03e58f549a9f47f89d7a923e4d7a3b80fd9aa6f955cf324",
+        "b8ca37255b8e30c34071e469a995aaeca48bd930e153bbcd6f2460f2c162ad10"
+      ],
+      "source_sha256": "782220e645d85e78ed45021021cd8bb684487bf8ab63c16ecc0505c9d1c89f41",
+      "text": "Register the illumination settings through the defaults seam.\n\nCalled once at import. Uses\n:func:`spacr.settings.register_defaults` rather than appending to\n``spacr/settings.py``, so this module owns its own knobs.\n\nTypes, tooltips and the module description are contributed; **categories\ndeliberately are not**. ``spacr.settings.categories`` is one shared,\nordered map that every settings panel walks, and its growth is guarded by\nan exact-equality test against a hand-kept list. A key contributed at\n*import* time is in that map only in a session that imported this module,\nso contributing categories would make that test's result depend on which\nfiles pytest was pointed at.\n\nThe ten keys ARE filed under a heading -- \"Illumination Correction\" in\n``spacr.settings.categories`` -- and Measure's panel offers every one of\nthem, because ``measure_crop`` calls\n:func:`prepare_illumination_correction` itself and these are the keys\nthat call reads. The heading is written in that map by hand for the\nreason above: it has to exist for every process that groups the Measure\nsettings, not only for one that happened to import this module.\n\n:param replace: re-register over an existing registration.\n:returns: True if it registered, False if it was already registered."
     },
     "90f99a96fd4b9a39a7be00008e08899eec9d0527a814d19a1a66af09d8bd814f": {
       "source_blocks_sha256": [
@@ -222,6 +246,20 @@
       ],
       "source_sha256": "d3df3dd95e9aefb462e69d0131621679f793edc8c59e5d4a6854dc87b56c7787",
       "text": "Show the controls ``mode`` needs, without announcing the change.\n\n:param mode: ``'plaque'`` or ``'figure'``."
+    },
+    "dea51f54ed007fed048d5a1c02b59a16288ef7ef2da89550ed69ff5d07d62426": {
+      "source_blocks_sha256": [
+        "2c7c2981f028f612ec0b6909dbb51677dd28b140957340f7d0ee30ab76bae722",
+        "773830a7a23aa85f476671c8e45ec3da7b95d915d90333b4cce647ef79435fb0",
+        "b124e1d708fb5d05f93655d2e0e52c96accc228232e17046edeedc56c7e460b6",
+        "b77391fb30e77cdb6cc9f65e064636a5730177554dcb06c73e2d36ce2fbdc4c0",
+        "604e45408c4a4e5de6a28c66b362d41efde586caf88d6c1131bf702bafb0c255",
+        "d44a54ab4fabbea5314bdb3c8f34729dd10888b55bfcd4b63a85de2bdbca7e92",
+        "150925af7335af395df5fd874b744b53386a6510b0b1809e9e042c62398fe790",
+        "52167c57cbac30db84e00492ce14cbe6194c732d1e22c709ec013b75bb2bda42"
+      ],
+      "source_sha256": "dea51f54ed007fed048d5a1c02b59a16288ef7ef2da89550ed69ff5d07d62426",
+      "text": "Prepare one reusable optical model without installing a Measure hook.\n\nThis is the direct consumer of all ten ``illumination_*`` settings.  It\nestimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes\nthe exact saved bytes, optionally writes stage-labelled QC, and builds a\ncorrector.  Applying that corrector belongs to the caller's stage.\n\n:param settings: settings carrying the ten illumination controls. A\n    non-empty ``illumination_vendor_profile`` replaces the estimate with\n    the vendor's own flat field; ``illumination_model`` still wins over\n    both.\n:param src: optional raw field folder override. Defaults to ``settings['src']``.\n:param channels: optional persisted intensity-axis positions. Defaults to\n    ``settings['channels']``.\n:param qc_stage: optional stage label included in QC filenames/titles.\n:param verbose: override ``settings['verbose']``.\n:returns: a prepared model/corrector, or ``None`` when correction is off."
     },
     "dff35ca64af93eb70488dcdcadf52b0f3b095d107b3e1174a0922c875c1b4fe6": {
       "source_blocks_sha256": [

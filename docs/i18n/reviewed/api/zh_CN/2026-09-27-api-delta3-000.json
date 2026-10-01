@@ -98,7 +98,9 @@
       "source_sha256": "7d9732d503d6b69caa62264f3a6bd65ab5017c8f993c6941d0edffce64708fe0",
       "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, plus ``src`` and ``channels``.",
       "translation": "``measure_crop`` 设置字典。读取 ``illumination_correction``、``illumination_model``、``illumination_estimator``、``illumination_degree``、``illumination_per_plate``、``illumination_max_fields``、``illumination_dark``、``illumination_on_missing``、``illumination_qc``、``illumination_vendor_profile``，以及 ``src`` 和 ``channels``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.illumination.prepare_illumination_model#1",
@@ -106,7 +108,9 @@
       "source_sha256": "773830a7a23aa85f476671c8e45ec3da7b95d915d90333b4cce647ef79435fb0",
       "context": "This is the direct consumer of all ten ``illumination_*`` settings.  It estimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes the exact saved bytes, optionally writes stage-labelled QC, and builds a corrector.  Applying that corrector belongs to the caller's stage.",
       "translation": "直接使用全部十项 ``illumination_*`` 设置。一次性估计、加载或将厂商平场配置读入模型，确保拟合后的模型已保存，对实际保存的原始字节计算哈希，可选地写出标注处理阶段的质量控制（QC）结果，并构建校正器。应用该校正器属于调用方的处理阶段。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.illumination.prepare_illumination_model#2",
@@ -114,7 +118,9 @@
       "source_sha256": "b124e1d708fb5d05f93655d2e0e52c96accc228232e17046edeedc56c7e460b6",
       "context": "settings carrying the ten illumination controls. A non-empty ``illumination_vendor_profile`` replaces the estimate with the vendor's own flat field; ``illumination_model`` still wins over both.",
       "translation": "包含十项照明控制参数的设置。非空的 ``illumination_vendor_profile`` 用厂商自身的平场替代估计值；``illumination_model`` 仍优先于这两者。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.illumination.register_illumination_settings#3",
@@ -122,7 +128,9 @@
       "source_sha256": "65be833d95e3dad52244c02a72fe958c040dd2693c0dc9e3fcaf80ff5ad94985",
       "context": "The ten structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
       "translation": "这十个键确实归在一个标题下 -- 即 ``spacr.settings.categories`` 中的 \"Illumination Correction\" -- 而且“测量”面板提供全部十项，因为 ``measure_crop`` 自行调用 :func:`prepare_illumination_correction`，该调用读取的就是这些键。基于上述原因，此标题手动写入该映射：所有对“测量”设置进行分组的进程都必须能找到它，而不仅是碰巧导入了本模块的进程。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.pipeline_v2.stream_masks_from_stack#10",

@@ -2797,7 +2797,9 @@
       "source_sha256": "4428cd346435e56b7b911f51f7767ad89a060bd4a69cac3a2dbfbb013018908e",
       "context": "the widget whose window mask is cut to a rounded rectangle of its current size; an empty size returns ``False``.",
       "translation": "le widget dont le masque de fenêtre est découpé en rectangle arrondi de sa taille actuelle ; une taille vide renvoie ``False``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.qt.widgets.glass.spin_on_every_button#3",

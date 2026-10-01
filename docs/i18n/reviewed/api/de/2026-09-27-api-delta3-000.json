@@ -98,7 +98,9 @@
       "source_sha256": "7d9732d503d6b69caa62264f3a6bd65ab5017c8f993c6941d0edffce64708fe0",
       "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, plus ``src`` and ``channels``.",
       "translation": "ein Einstellungs-Dictionary für ``measure_crop``. Liest ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile`` sowie ``src`` und ``channels``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.illumination.prepare_illumination_model#1",
@@ -106,7 +108,9 @@
       "source_sha256": "773830a7a23aa85f476671c8e45ec3da7b95d915d90333b4cce647ef79435fb0",
       "context": "This is the direct consumer of all ten ``illumination_*`` settings.  It estimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes the exact saved bytes, optionally writes stage-labelled QC, and builds a corrector.  Applying that corrector belongs to the caller's stage.",
       "translation": "Dies ist der direkte Verbraucher aller zehn ``illumination_*``-Einstellungen. Er schätzt oder lädt das Modell beziehungsweise liest einmalig ein Herstellerprofil zur Flatfield-Korrektur ein, stellt sicher, dass ein angepasstes Modell gespeichert wird, bildet einen Hash der exakt gespeicherten Bytes, schreibt optional eine mit dem Verarbeitungsschritt gekennzeichnete Qualitätskontrolle (QC) und erstellt einen Korrektor. Dessen Anwendung gehört zum Verarbeitungsschritt des Aufrufers.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.illumination.prepare_illumination_model#2",
@@ -114,7 +118,9 @@
       "source_sha256": "b124e1d708fb5d05f93655d2e0e52c96accc228232e17046edeedc56c7e460b6",
       "context": "settings carrying the ten illumination controls. A non-empty ``illumination_vendor_profile`` replaces the estimate with the vendor's own flat field; ``illumination_model`` still wins over both.",
       "translation": "Einstellungen mit den zehn Beleuchtungsparametern. Ein nicht leeres ``illumination_vendor_profile`` ersetzt die Schätzung durch das Flatfield des Herstellers; ``illumination_model`` hat weiterhin Vorrang vor beiden.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.illumination.register_illumination_settings#3",
@@ -122,7 +128,9 @@
       "source_sha256": "65be833d95e3dad52244c02a72fe958c040dd2693c0dc9e3fcaf80ff5ad94985",
       "context": "The ten structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
       "translation": "Die zehn Schlüssel SIND unter einer Überschrift eingeordnet -- \"Illumination Correction\" in ``spacr.settings.categories`` -- und das Bedienfeld Messen bietet alle an, weil ``measure_crop`` selbst :func:`prepare_illumination_correction` aufruft und dieser Aufruf genau diese Schlüssel liest. Die Überschrift wird aus dem oben genannten Grund von Hand in diese Zuordnung eingetragen: Sie muss für jeden Prozess existieren, der die Einstellungen von Messen gruppiert, nicht nur für einen Prozess, der dieses Modul zufällig importiert hat.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.pipeline_v2.stream_masks_from_stack#10",

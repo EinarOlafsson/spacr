@@ -98,7 +98,9 @@
       "source_sha256": "7d9732d503d6b69caa62264f3a6bd65ab5017c8f993c6941d0edffce64708fe0",
       "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, plus ``src`` and ``channels``.",
       "translation": "``measure_crop`` 설정 딕셔너리입니다. ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``과 함께 ``src`` 및 ``channels``를 읽습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.illumination.prepare_illumination_model#1",
@@ -106,7 +108,9 @@
       "source_sha256": "773830a7a23aa85f476671c8e45ec3da7b95d915d90333b4cce647ef79435fb0",
       "context": "This is the direct consumer of all ten ``illumination_*`` settings.  It estimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes the exact saved bytes, optionally writes stage-labelled QC, and builds a corrector.  Applying that corrector belongs to the caller's stage.",
       "translation": "열 가지 ``illumination_*`` 설정을 모두 직접 사용합니다. 모델을 한 번 추정하거나 불러오거나 제조사 평탄장 프로파일을 모델에 읽어 들이고, 적합된 모델이 저장되도록 하며, 실제 저장된 바이트의 해시를 계산합니다. 선택적으로 처리 단계가 표시된 품질 관리(QC) 결과를 기록하고 보정기를 만듭니다. 보정기의 적용은 호출자의 처리 단계에서 수행합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.illumination.prepare_illumination_model#2",
@@ -114,7 +118,9 @@
       "source_sha256": "b124e1d708fb5d05f93655d2e0e52c96accc228232e17046edeedc56c7e460b6",
       "context": "settings carrying the ten illumination controls. A non-empty ``illumination_vendor_profile`` replaces the estimate with the vendor's own flat field; ``illumination_model`` still wins over both.",
       "translation": "열 가지 조명 제어 항목을 담은 설정입니다. 비어 있지 않은 ``illumination_vendor_profile``은 추정값을 제조사의 평탄장으로 대체합니다. ``illumination_model``은 여전히 둘 모두보다 우선합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.illumination.register_illumination_settings#3",
@@ -122,7 +128,9 @@
       "source_sha256": "65be833d95e3dad52244c02a72fe958c040dd2693c0dc9e3fcaf80ff5ad94985",
       "context": "The ten structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
       "translation": "열 가지 키는 실제로 제목 아래에 분류되어 있습니다 -- ``spacr.settings.categories``의 \"Illumination Correction\" -- 그리고 측정 패널은 모두 제공합니다. ``measure_crop``이 직접 :func:`prepare_illumination_correction`을 호출하고 그 호출이 이 키들을 읽기 때문입니다. 앞서 설명한 이유로 이 제목은 해당 매핑에 수동으로 작성됩니다. 이 모듈을 우연히 가져온 프로세스뿐 아니라 측정 설정을 그룹화하는 모든 프로세스에서 제목이 존재해야 합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.pipeline_v2.stream_masks_from_stack#10",
