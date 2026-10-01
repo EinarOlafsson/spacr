@@ -74,3 +74,15 @@ WHAT IS LEFT
     - Maintainer: optional runtime needs (all inside the backend env, none
       in setup.py): network access to PyPI and api.adoptium.net during
       install; about 1.5 GB of disk.
+
+2026-10-01 — OUT-OF-IMAGE CENTRES REMAIN UNMATCHED
+Commit 39e46bcd4 fixes the private centre lookup: coordinates outside image
+bounds are rejected before rounding rather than clamped onto an unrelated
+edge object. Negative subpixel values, exact width/height and farther-out
+values keep empty object_label/prcfo; valid in-frame nearest-pixel rounding
+and all original rows/features remain unchanged. Named and inferred mask
+roles are covered. Seven focused checks passed under a 1 GiB memory cap,
+zero swap and numerical threads limited to one (no OS CPU quota). No model
+installation, GPU or current real-backend acceptance was claimed. Public
+API/docstrings and captions are unchanged. Broader alpha limitations above
+remain open.
