@@ -61,7 +61,7 @@ def _wait(settle, condition, timeout, what):
 
 
 def record_plaque_current(app, window, screen, stage, captures, capture, settle,
-                          write_json, timeout, figure_mode=False):
+                          write_json, timeout, figure_mode=True):
     from capture_geometry import capture_rect
     from PySide6.QtCore import QPoint, Qt
     from PySide6.QtTest import QTest
@@ -71,12 +71,10 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
 
     manifest = prepare(stage)
     root = Path(manifest["root"])
-    # The bundled checkpoint is a Cellpose 3 file that Cellpose 4 refuses;
-    # the preview downloads the Model Zoo plaque model instead.
-    model = "toxoplasma_plaque_v1"
     catalog = Path(__file__).resolve().parent / "authoring/catalog/24_plaque_settings.json"
     requested = read(catalog)
-    requested.update(src=str(root), plaque_model=str(model), well_detection=False,
+    requested.pop('plaque_model', None)   # the current default model
+    requested.update(src=str(root), well_detection=False,
                      plate_format=None, well_diameter_mm=None)
     for key, value in requested.items():
         if not screen._settings_model.set_value_for_key(key, value):
@@ -97,8 +95,6 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
         settle()
     panel.load_source_async(str(root))
     _wait(settle, lambda: panel.current_path() is not None, 60, "Plaque preview did not list the example")
-    panel._model_box.setCurrentText(str(model))
-    settle(1)
     QTest.mouseClick(panel._run_btn, Qt.LeftButton)
     settle(3)
     _wait(settle, lambda: not panel.preview_running(), timeout, "Plaque preview did not settle")
@@ -170,8 +166,44 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
         raise ValueError("The Figure switch did not change the preview's mode")
     state["frames"]["30_figure_mode"] = capture_rect(panel, window)
     capture("30_figure_mode")
-    panel.load_source_async(str(figures.parent))
-    _wait(settle, lambda: panel.current_path() is not None, 120, "Figure mode listed no figure")
+    # Drop the PDF on the screen, as a user does: Figure mode reads the
+    # paper into a folder of figures and lists them. A question box, if one
+    # opens, is answered with its Figure-mode choice and recorded.
+    from PySide6.QtCore import QMimeData, QPointF, QTimer, QUrl
+    from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+    from PySide6.QtWidgets import QApplication, QMessageBox
+
+    answered = []
+
+    def answer():
+        for box in QApplication.topLevelWidgets():
+            if isinstance(box, QMessageBox) and box.isVisible():
+                for button in box.buttons():
+                    if button.property("plaque_mode") == ppv.FIGURE_MODE:
+                        answered.append(button.text())
+                        capture("30b_figure_question")
+                        button.click()
+                        return
+        if len(answered) == 0 and time.monotonic() < answer.until:
+            QTimer.singleShot(300, answer)
+    answer.until = time.monotonic() + 60
+    QTimer.singleShot(300, answer)
+
+    def mime():
+        data = QMimeData()
+        data.setUrls([QUrl.fromLocalFile(str(figures))])
+        return data
+    point = screen.rect().center()
+    QApplication.sendEvent(screen, QDragEnterEvent(point, Qt.CopyAction, mime(), Qt.LeftButton, Qt.NoModifier))
+    QApplication.sendEvent(screen, QDragMoveEvent(point, Qt.CopyAction, mime(), Qt.LeftButton, Qt.NoModifier))
+    QApplication.sendEvent(screen, QDropEvent(QPointF(point), Qt.CopyAction, mime(), Qt.LeftButton, Qt.NoModifier))
+    settle(3)
+    _wait(settle, lambda: getattr(panel, "_paper_batch", None) is None
+          and not panel._paper_jobs.is_busy() and panel.current_path() is not None,
+          timeout, "Figure mode did not read the PDF: " + panel._status.text())
+    settle(2)
+    state["figure_question"] = answered
+    state["figure_listing"] = str(panel.current_path())
     settle(2)
     QTest.mouseClick(panel._run_btn, Qt.LeftButton)
     settle(1)
