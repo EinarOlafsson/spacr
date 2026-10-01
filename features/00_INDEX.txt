@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-536 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
+537 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -804,3 +804,4 @@ NEW FEATURES
   622  622. Mask preprocessing exhausts plate memory
   623  623. Recover original filename metadata for condition annotation
   624  624. Center window resize lines at half the side length
+  625  625. Build condition labels from multiple metadata annotation columns

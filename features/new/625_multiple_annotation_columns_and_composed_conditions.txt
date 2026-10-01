@@ -1,0 +1,20 @@
+625. Build condition labels from multiple metadata annotation columns
+
+Requested 2026-10-01: In Graph Builder, create user-named columns such as
+ genotype and replicate using exact metadata-value lists, then combine
+ those columns into condition with a configurable separator (default _).
+ Example: columnID c1,c2,c3 -> WildType; c7,c4,c5,c6 -> mutant;
+ rowID r1,r4,r5,r6 and r7,r9,r10 -> replicate 1;
+ genotype + _ + replicate -> WildType_replicate 1.
+ Labels remain user-entered; duplicate values are harmless and separate
+ rules assigning the same label are compatible. Existing regex, include/
+ exclude and manual drag/drop annotations remain available.
+
+Status: IN PROGRESS. Support an ordered, reproducible multi-column recipe,
+ exact whole-value matching (c1 must not select c10), per-column preview,
+ conflicting-label validation, source-column protection and blank handling.
+ Combination rules may use existing columns or earlier generated columns;
+ refuse missing/forward/cyclic references rather than invent values.
+ Persist and reopen the complete recipe through charts, CSV sidecars and
+ saved SQLite annotated tables. Preserve old single-column recipes.
+ Validate the requested genotype/replicate/condition example end to end.

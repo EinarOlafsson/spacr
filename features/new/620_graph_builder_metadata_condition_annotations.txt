@@ -39,3 +39,10 @@ thread. Preview results are reused when applying annotations.
 Builder loading paths. Integration rerun: 25 backend/dialog/SQLite checks
 passed. Both light and dark themes were reviewed. User workflow is documented
 in docs/source/table_workflows.rst, including saving a separate SQLite table.
+
+2026-10-01 — PRIVATE RECEIPT TABLE HIDDEN FROM DATA PICKERS
+The shared Graph/Gate table discovery excludes the reserved annotation
+receipt table while retaining ordinary similarly named user tables, saved
+annotated tables and derived tables. Physical schema discovery still sees
+all tables for name-collision validation. Eighteen focused discovery,
+SQLite, Graph and Gate checks passed. Multi-column recipes are tracked in625.
