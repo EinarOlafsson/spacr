@@ -77,3 +77,18 @@ def test_external_mapping_controls_produce_a_valid_custom_result(qtbot, tmp_path
     assert dialog.result_frame.events_value.tolist() == [4., 7.]
     assert dialog.definition["joins"][0]["right_keys"] == ["scene", "parent"]
     assert "navigation is unavailable" in dialog.preview_text.toPlainText()
+
+
+def test_warning_and_dynamic_preview_templates_are_canonical_ui_sources():
+    from spacr.qt.widgets.merge_tables_dialog import WARNING
+    from tools.build_i18n_catalogs import extract_static_ui_sources
+
+    sources = set(extract_static_ui_sources())
+    assert WARNING in sources
+    assert "Available source columns:" in sources
+    assert "First 12 output rows:" in sources
+    assert "Validating all rows…" in sources
+    assert "Base {base}: {input_rows:,} rows → {output_rows:,} output rows" in sources
+    assert any(text.startswith("spaCR defaults active — one row per {base}.") for text in sources)
+    assert any(text.startswith("Custom rules active — one row per {base}.") for text in sources)
+    assert any(text.startswith("{table}: {input_rows:,} input rows") for text in sources)

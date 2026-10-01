@@ -33,13 +33,7 @@ from .object_roles import ANCHOR_COLUMN, anchor_column, is_one_row_per_cell
 
 METHODS = ("mean", "median", "sum", "min", "max", "count", "first", "last",
            "nunique", "any", "all")
-WARNING = (
-    "Custom merging changes spaCR's standard table relationships and "
-    "aggregation rules. It is intended for non-spaCR databases or deliberately "
-    "different schemas. Incorrect settings can link unrelated objects, "
-    "duplicate or omit observations, and change measurements used in plots "
-    "and gates. Check the join keys, output level, aggregation, and preview "
-    "before applying.")
+
 
 
 def schemas(path):

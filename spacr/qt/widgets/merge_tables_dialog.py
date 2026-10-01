@@ -29,7 +29,6 @@ from PySide6.QtWidgets import (
 )
 
 from ...derived_tables import (
-    WARNING,
     allowed_methods,
     column_sample,
     default_definition,
@@ -37,9 +36,17 @@ from ...derived_tables import (
     schemas,
 )
 from ...merge_tables import MergeError, aggregation_for
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import SPACING
 
+WARNING = (
+    "Custom merging changes spaCR's standard table relationships and "
+    "aggregation rules. It is intended for non-spaCR databases or deliberately "
+    "different schemas. Incorrect settings can link unrelated objects, "
+    "duplicate or omit observations, and change measurements used in plots "
+    "and gates. Check the join keys, output level, aggregation, and preview "
+    "before applying.")
 
 def _combo(values, value, parent):
     """Build a compact choice widget with its current value selected.
@@ -86,7 +93,7 @@ class CustomMergeDialog(QDialog):
         self.path = path
         outer = QVBoxLayout(self)
         outer.setSpacing(SPACING["sm"])
-        warning = QLabel(WARNING, self)
+        warning = QLabel(tr(WARNING), self)
         warning.setWordWrap(True)
         outer.addWidget(warning)
         schema_note = QLabel("Composite keys use comma-separated column names in matching order. "
@@ -120,7 +127,7 @@ class CustomMergeDialog(QDialog):
         available = schemas(path)
         schema_text = QTextEdit(self)
         schema_text.setReadOnly(True)
-        schema_text.setPlainText("Available source columns:\n" + "\n".join(
+        schema_text.setPlainText(tr("Available source columns:") + "\n" + "\n".join(
             table + ": " + ", ".join(c[0] for c in available[table])
             for table in definition["schema"]))
         schema_text.setMaximumHeight(130)
@@ -274,12 +281,16 @@ class MergeTablesDialog(QDialog):
 
     def _show_state(self):
         """Display the active mechanism and actual output observation level."""
-        mode = "Custom rules active" if self._custom else "spaCR defaults active"
-        self.state.setText(mode + " — one row per " + self.base.currentText() +
-            ". Children are aggregated before joining; unmatched measurements stay missing. "
-            "Nucleus uses an inner join; pathogen/organelle retain uninfected cells by default."
-            if not self._custom else mode + " — one row per " + self.base.currentText() +
-            ". Explicit relationships and join types are shown in Customize merging.")
+        if self._custom:
+            text = tr("Custom rules active — one row per {base}. "
+                      "Explicit relationships and join types are shown in Customize merging.",
+                      base=self.base.currentText())
+        else:
+            text = tr("spaCR defaults active — one row per {base}. "
+                      "Children are aggregated before joining; unmatched measurements stay missing. "
+                      "Nucleus uses an inner join; pathogen/organelle retain uninfected cells by default.",
+                      base=self.base.currentText())
+        self.state.setText(text)
 
     def _fill_rules(self):
         """Offer type-compatible rules for selected children, excluding join keys."""
@@ -338,11 +349,11 @@ class MergeTablesDialog(QDialog):
         try:
             definition = self.configuration()
             if not definition["name"] or definition["name"] in schemas(self.path):
-                raise MergeError("Choose a result name different from the source tables.")
+                raise MergeError(tr("Choose a result name different from the source tables."))
         except (ValueError, OSError) as exc:
             self._failed(str(exc))
             return
-        self.preview_text.setPlainText("Validating all rows…")
+        self.preview_text.setPlainText(tr("Validating all rows…"))
         self._jobs.submit(lambda: (definition, execute(self.path, definition)), self._validated)
 
     def _validated(self, payload):
@@ -351,20 +362,25 @@ class MergeTablesDialog(QDialog):
         :param payload: Definition and the worker's frame/diagnostics result.
         """
         self.definition, (self.result_frame, report) = payload
-        note = ("Image/object navigation is unavailable: this merge has no verified spaCR "
-                "image provenance. Plotting and tabular gating remain available.\n"
+        note = (tr("Image/object navigation is unavailable: this merge has no verified spaCR "
+                   "image provenance. Plotting and tabular gating remain available.") + "\n"
                 if not report["image_provenance"] else "")
-        lines = [note + f"Base {report['base']}: {report['base_rows']:,} rows → "
-                 f"{report['output_rows']:,} output rows"]
+        lines = [note + tr("Base {base}: {input_rows:,} rows → {output_rows:,} output rows",
+                           base=report["base"], input_rows=report["base_rows"],
+                           output_rows=report["output_rows"])]
         for joined in report["joins"]:
-            lines.append(
-                f"{joined['table']}: {joined['input_rows']:,} input rows, "
-                f"{joined['groups']:,} groups; {joined['relationship']}, {joined['how']} join\n"
-                f"  Keys: {', '.join(joined['left_keys'])} ← {', '.join(joined['right_keys'])}\n"
-                f"  Unmatched base: {joined['unmatched_base']:,}; unmatched child: "
-                f"{joined['unmatched_child']:,}; missing child keys: {joined['missing_key_rows']:,}; "
-                f"repeated child-key rows: {joined['duplicate_key_rows']:,}")
-        lines.append("\nFirst 12 output rows:\n" + self.result_frame.head(12).to_string(index=False))
+            lines.append(tr(
+                "{table}: {input_rows:,} input rows, {groups:,} groups; {relationship}, {how} join\n"
+                "  Keys: {left_keys} ← {right_keys}\n"
+                "  Unmatched base: {unmatched_base:,}; unmatched child: {unmatched_child:,}; "
+                "missing child keys: {missing_keys:,}; repeated child-key rows: {duplicate_rows:,}",
+                table=joined["table"], input_rows=joined["input_rows"], groups=joined["groups"],
+                relationship=joined["relationship"], how=joined["how"],
+                left_keys=", ".join(joined["left_keys"]), right_keys=", ".join(joined["right_keys"]),
+                unmatched_base=joined["unmatched_base"], unmatched_child=joined["unmatched_child"],
+                missing_keys=joined["missing_key_rows"], duplicate_rows=joined["duplicate_key_rows"]))
+        lines.append("\n" + tr("First 12 output rows:") + "\n" +
+                     self.result_frame.head(12).to_string(index=False))
         self.preview_text.setPlainText("\n\n".join(lines))
         self.create.setEnabled(True)
 
