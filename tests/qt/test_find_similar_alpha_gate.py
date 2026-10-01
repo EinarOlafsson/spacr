@@ -110,3 +110,57 @@ def test_a_search_while_hidden_still_pins_the_grid_to_the_matches(
     annotate._on_find_similar()
     qtbot.waitUntil(lambda: annotate._similar_worker is None, timeout=20000)
     assert annotate._similar_cache[2] is cached
+
+
+# ---------------------------------------------------------------------------
+# What the search refuses, and answers that arrive late (coverage, 288)
+# ---------------------------------------------------------------------------
+
+def test_a_search_needs_a_source_a_free_worker_and_a_selected_crop(
+        qtbot, qt_theme_applied, alpha, annotate, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    told = []
+    monkeypatch.setattr(QMessageBox, "information",
+                        staticmethod(lambda *a, **k: told.append(a[1])))
+    empty = AnnotateScreen()
+    qtbot.addWidget(empty)
+    empty._on_find_similar()
+    assert told == ["Open a source first"]
+
+    annotate._similar_worker = object()
+    annotate._on_find_similar()
+    assert annotate._status_label.text() == "A search is already running."
+    annotate._similar_worker = None
+    annotate._set_focus_slot(10_000)
+    annotate._focus_slot = 10_000
+    assert annotate._similar_query_key() is None
+    annotate._on_find_similar()
+    assert annotate._status_label.text() == "No crop is selected to match."
+
+
+def test_a_late_answer_for_another_source_is_ignored_and_failures_are_said(
+        annotate):
+    before = annotate._similar_cache
+    annotate._on_similar_done({"db_path": "/elsewhere/measurements.db"})
+    assert annotate._similar_cache is before
+    annotate._on_similar_failed("no measurements table")
+    assert "no measurements table" in annotate._status_label.text()
+    annotate._similar_worker = None
+    annotate._on_similar_finished()
+    assert annotate._btn_similar.isEnabled()
+
+
+def test_a_gui_scale_change_refits_the_grid_unless_the_screen_is_closing(
+        annotate, monkeypatch):
+    refits = []
+    monkeypatch.setattr(annotate, "_refit_grid", lambda: refits.append(1))
+    annotate._on_gui_scale_changed(1.25)
+    annotate._closing = True
+    try:
+        annotate._on_gui_scale_changed(1.5)
+    finally:
+        annotate._closing = False
+    assert refits == [1]
