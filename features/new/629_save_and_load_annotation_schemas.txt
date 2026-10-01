@@ -1,6 +1,6 @@
 629. Save and load reusable annotation schemas in Graph Builder
 
-Status: IN PROGRESS — requested by the user 2026-10-01.
+Status: DONE — implemented and validated 2026-10-01; supporting publication remains N615.
 
 Add Save schema and Load schema to Annotate conditions. A portable JSON file
 must retain all output-column names and ordering, extraction expressions and
@@ -25,3 +25,29 @@ verify source/manual-row isolation; preserve literal Unicode and punctuation;
 exercise actual Save/Load buttons and file pickers, worker responsiveness,
 error/cancel/stale handling and existing chart/SQLite recipes. Update the guide,
 tooltips and runtime translation sources. Supporting publication remains N615.
+
+IMPLEMENTATION AND ACCEPTANCE (2026-10-01)
+Save schema / Load schema are available in Annotate conditions. Private
+versioned JSON helpers preserve v1/v2/v3 recipe semantics, strip source identity
+and manual memberships, validate against the current table, and use bounded
+reads and atomic writes. Worker jobs retain a clicked save snapshot; stale
+loads cannot replace a newer draft. Explicitly empty rule columns remain empty.
+
+Backend: 46 focused schema checks passed. UI: the final focused schema,
+metadata-recipe and multi-column cohort passed 16 checks. Earlier integration
+coverage also passed; counts are not added because the cohorts overlap.
+Ruff and diff checks passed for the changed backend and UI files.
+
+Actual Save/Open file-picker and Apply controls passed in both dark and light
+Qt themes at 1250 x 850. A six-output recipe was saved and loaded onto a
+three-row table with different filenames and values; all outputs matched,
+unmatched rows remained empty, and loading did not apply changes or alter the
+source. These were offscreen Linux checks, not native macOS/Windows acceptance.
+Resource limits: 1 GiB memory, zero swap, numerical threads limited to one;
+the actual-control harness additionally used an explicit 100% CPU quota.
+
+Commits: bfe2ef316 (backend), 04f65fc0d (controls), 7fbff72d9 (empty-column
+roundtrip), c49a18d69 (strict fields, semantic preservation and guide).
+Receipt: features/data/629_annotation_schemas_2026-10-01.json.
+Runtime translation refresh and published tutorial media remain tracked in
+N615. No package publication is claimed by this feature's completion.

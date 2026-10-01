@@ -270,3 +270,13 @@ The PyPI storage request pypi/support#12512 remains open with an automated
 acknowledgment only; no quota increase or publication is claimed. The release
 run's final failure and preserved distributions are recorded in the receipt
 linked at the top of this ledger, superseding the earlier queued observations.
+
+2026-10-01 — FULL SPHINX ATTEMPT
+
+A full strict HTML build with English API pages used a 4 GiB kernel memory
+limit, zero swap and a 100% CPU quota. It completed source reading and reached
+approximately 10% of HTML writing before the memory cap ended it with exit137.
+The log is /tmp/spacr-implementation-20261001/docs-full-n628.log. No cap was
+raised and no successful full-build acceptance is claimed. The two guide
+heading repairs remain valid; current annotation/schema prose separately
+passes strict reStructuredText parsing. Complete Sphinx acceptance remains open.

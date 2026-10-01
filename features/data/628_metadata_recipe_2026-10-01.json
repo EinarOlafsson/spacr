@@ -15,7 +15,7 @@
     "graph_persistence": 5,
     "total": 110
   },
-  "resource_cap": "1 GiB, one CPU per focused run",
+  "resource_cap": "1 GiB memory cap; OpenMP/OpenBLAS numerical threads limited to one (not an OS CPU quota)",
   "actual_control_checks": {
     "themes": [
       "dark",
