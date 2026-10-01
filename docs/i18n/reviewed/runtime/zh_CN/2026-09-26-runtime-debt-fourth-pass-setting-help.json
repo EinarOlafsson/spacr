@@ -13,31 +13,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "confluency_channel",
-      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
-      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
-      "translation": "纹理和强度两种汇合度来源所读取的合并数组通道，编号方式与 channels 相同。留空则使用 channels 的第一项。纹理请选择明场或相差平面，强度请选择细胞质或细胞膜染色。当 confluency_source 解析为掩膜时忽略此项。默认值 None。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "confluency_qc_threshold",
       "source": "Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
       "source_sha256": "fc1aa1ad92c9e5014c42bd4ff5e7120944b42209f611bb33f4a2b43748890c05",
       "translation": "视野或孔通过单层 QC 所需的最低覆盖比例，范围 0 到 1。低于此值的视野和孔在 measurements.db 中得到 monolayer_ok 0，因此来自稀薄或破损单层的空斑和感染结果可被剔除，或除以覆盖比例。留空则所有孔都通过。默认值 0.8。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "confluency_source",
-      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
-      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
-      "translation": "汇合度的判定方式。auto 在运行有细胞掩膜时使用细胞掩膜，否则使用纹理。masks 是所有已分割细胞的并集，在 Measure 的大小过滤之前。texture 以自动阈值读取 confluency_channel 的局部变化，适用于明场和相差。intensity 自动对 confluency_channel 取阈值，适用于荧光细胞质或细胞膜染色。默认值 auto。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "confluency_window",
-      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
-      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
-      "translation": "纹理汇合度来源测量局部变化所用正方形窗口的边长（像素）。大致为应计为覆盖的最细细胞突起的宽度：较小时更贴合边缘，但会把平滑的细胞内部留作孔洞；较大时可跨过狭窄间隙。掩膜和强度来源会忽略此项。默认值 15。"
     },
     {
       "table": "setting_tooltips",
@@ -123,5 +102,29 @@
       "source_sha256": "7e40a4562581b1f508a919a4a548d5cfddaf1990175beae1c55f90e51fb72f0a",
       "translation": "图像必须保持相同大小和修改时间多久，watch_folder 才会读取它，以免读取显微镜仍在写入的半截文件。网络共享较慢时请调高此值。默认值 10。"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
+      "translation": "纹理和强度两种汇合度来源所读取的合并数组通道，编号方式与 channels 相同。留空则使用 channels 的第一项。纹理请选择明场或相差平面，强度请选择细胞质或细胞膜染色。当 confluency_source 解析为掩膜时忽略此项。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
+      "translation": "汇合度的判定方式。auto 在运行有细胞掩膜时使用细胞掩膜，否则使用纹理。masks 是所有已分割细胞的并集，在 Measure 的大小过滤之前。texture 以自动阈值读取 confluency_channel 的局部变化，适用于明场和相差。intensity 自动对 confluency_channel 取阈值，适用于荧光细胞质或细胞膜染色。默认值 auto。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
+      "translation": "纹理汇合度来源测量局部变化所用正方形窗口的边长（像素）。大致为应计为覆盖的最细细胞突起的宽度：较小时更贴合边缘，但会把平滑的细胞内部留作孔洞；较大时可跨过狭窄间隙。掩膜和强度来源会忽略此项。默认值 15。"
+    }
+  ],
+  "retired_note": "2026-09-30: item 536's phase confluency source rewrote the English of the confluency_channel, confluency_source and confluency_window tooltips; the replacements are in 2026-09-30-runtime-debt-eleventh-pass-confluency-phase.json. Kept verbatim as evidence, not loaded."
 }

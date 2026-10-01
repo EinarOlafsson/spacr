@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-09-30: item 603's Preferences tooltip-delay caption and its help, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Tooltip delay",
+      "source": "Tooltip delay",
+      "source_sha256": "1c6066f81b63dc5bf9709a8a94ca9119d5cf0ddab14ec10ecddf638e8183c881",
+      "translation": "툴팁 지연"
+    },
+    {
+      "table": "ui",
+      "key": "Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.",
+      "source": "Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.",
+      "source_sha256": "02681fb0113538b5c60c0625e1b8a5d8a93f06378ec82cfe097b971b9fdfc64c",
+      "translation": "포인터가 컨트롤 위에 머문 뒤 툴팁이 나타나기까지의 초입니다. 0이면 툴팁을 바로 표시합니다. 기본값 2.0 s."
+    }
+  ]
+}
