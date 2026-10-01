@@ -1785,6 +1785,104 @@ class _Parser(argparse.ArgumentParser):
         raise SystemExit(EXIT_USAGE)
 
 
+def _archive_metadata_object(pairs):
+    """Return a JSON object from ``pairs``, rejecting duplicate field names."""
+    values = {}
+    for key, value in pairs:
+        if key in values:
+            raise ValueError(f"duplicate metadata field: {key}")
+        values[key] = value
+    return values
+
+
+def _archive_package_parser():
+    """Return the standard-library parser for a local alpha archive export."""
+    parser = _Parser(
+        prog="spacr-run archive-package",
+        description="Build and check a local MIHCSME/REMBI, IDR and BioStudies "
+                    "archive package (alpha). Nothing is uploaded.",
+        epilog="Metadata is a JSON object of text fields such as title, "
+               "description, authors, email, microscope, organism and plate_map. "
+               "Missing fields use saved run settings and archive defaults. "
+               "Checks use spaCR's local templates, not archive-service approval. "
+               "The new named package must be outside the source run and must "
+               "not already exist; --out is its parent directory.",
+    )
+    parser.add_argument("--src", required=True, help="Run folder containing raw images.")
+    parser.add_argument("--out", required=True, help="Parent folder for the new named package.")
+    metadata = parser.add_mutually_exclusive_group(required=True)
+    metadata.add_argument("--metadata", metavar="FILE", help="UTF-8 JSON metadata file.")
+    metadata.add_argument("--metadata-json", metavar="JSON", help="Inline JSON metadata object.")
+    parser.add_argument("--copy-images", action="store_true",
+                        help="Copy images into the package; otherwise reference the originals.")
+    return parser
+
+
+def _cmd_archive_package(argv):
+    """Build a package from command arguments and return its checked exit status."""
+    from pathlib import Path
+
+    parser = _archive_package_parser()
+    try:
+        args = parser.parse_args(argv)
+    except SystemExit as exc:
+        return exc.code if isinstance(exc.code, int) else EXIT_USAGE
+    try:
+        if args.metadata:
+            with open(args.metadata, encoding="utf-8") as handle:
+                raw = handle.read(1024 * 1024 + 1)
+        else:
+            raw = args.metadata_json
+        if len(raw.encode("utf-8")) > 1024 * 1024:
+            raise ValueError("metadata JSON exceeds 1 MiB")
+        form = json.loads(raw, object_pairs_hook=_archive_metadata_object)
+        if not isinstance(form, dict):
+            raise ValueError("metadata JSON must be an object")
+        if any(value is not None and not isinstance(value, str)
+               for value in form.values()):
+            raise ValueError("metadata fields must contain text or null")
+        src = Path(args.src).expanduser().resolve()
+        if not src.is_dir():
+            raise ValueError(f"Not a folder: {src}")
+    except (OSError, UnicodeError, ValueError, RecursionError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_USAGE
+
+    try:
+        from . import report
+
+        supported = {key for key, _required in report._ARCHIVE_FORM_FIELDS}
+        unknown = sorted(set(form) - supported)
+        if unknown:
+            raise SettingsError("unknown metadata fields: " + ", ".join(unknown))
+        values = report._archive_form_defaults(src)
+        values.update({key: value.strip() for key, value in form.items()
+                       if value is not None})
+        missing = [key for key, required in report._ARCHIVE_FORM_FIELDS
+                   if required and not values.get(key)]
+        if missing:
+            raise SettingsError("missing required metadata: " + ", ".join(missing))
+        package = report._write_archive_package(
+            src, args.out, values, copy_images=args.copy_images)
+        problems = report._validate_archive_package(package)
+        if problems:
+            print(f"Package written to {package}, but spaCR's local checks failed:",
+                  file=sys.stderr)
+            for problem in problems:
+                print(f"  - {problem}", file=sys.stderr)
+            return EXIT_RUNTIME
+    except SettingsError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_USAGE
+    except Exception as exc:
+        print(f"archive-package failed: {exc}", file=sys.stderr)
+        return EXIT_RUNTIME
+    print(f"Archive package: {package}")
+    print("spaCR's local template and checksum checks passed. Nothing was uploaded. "
+          "Archive curator/service approval is still required.")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Return the ``spacr-run`` argument parser.
 
@@ -1797,8 +1895,8 @@ def build_parser() -> argparse.ArgumentParser:
         prog="spacr-run",
         description="Run a spaCR module from a settings file, with no GUI and "
                     "no display.",
-        epilog="Exit codes: 0 success, 1 the module raised, 2 bad arguments or "
-               "settings.",
+        epilog="Archive export (alpha): spacr-run archive-package --help\n"
+               "Exit codes: 0 success, 1 the module raised, 2 bad arguments or settings.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
@@ -1862,9 +1960,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         raised ``SystemExit`` itself; :func:`cmd_run` passes that code through
         unchanged.
     """
+    arguments = list(argv) if argv is not None else sys.argv[1:]
+    if arguments and arguments[0] == "archive-package":
+        return _cmd_archive_package(arguments[1:])
     parser = build_parser()
     try:
-        args = parser.parse_args(list(argv) if argv is not None else None)
+        args = parser.parse_args(arguments)
     except SystemExit as exc:
         return exc.code if isinstance(exc.code, int) else EXIT_USAGE
 
