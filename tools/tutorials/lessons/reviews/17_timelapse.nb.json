@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Last ned og pakk ut SYNTHETIC_timelapse_preview.zip. Undervisningseksemplet inneholder åtte bilderammer med cellebilder og tilhørende merkelappbilder. For en fullstendig Mask-kjøring på egne data klargjør du tidsordnede mikroskopibilder og noterer opptaksintervallet.",
   "scenes": [
-    "Fra Home åpner du Mask og klikker på Timelapse-ikonet øverst til høyre for å slå på sporing. Bruk Timelapse til å koble objekter mellom påfølgende bilder. Først prøver vi det lenkede eksemplet i Track preview, og deretter går vi gjennom innstillingene for å behandle din egen bildesekvens.",
+    "Åpne Mask fra Home, slå på Time i Actions-raden og slå på Timelapse for å aktivere sporing. Timelapse kobler objekter på tvers av påfølgende bilder. Først prøver vi det lenkede eksempelet i Track preview, og så går vi gjennom innstillingene for din egen bildeserie.",
     "Last ned og pakk ut eksempelarkivet nedenfor, og klikk deretter på Track preview til høyre for overskriften Actions. Arkivet inneholder en bildesekvens og en tilhørende maskesekvens med åtte bilderammer. Hold begge mappene samlet, slik at du kan velge bilder og merkelapper som hører sammen.",
     "Velg image_sequences og deretter field_A01 som bildemappe. Velg kanal 0: hvert eksempelbilde inneholder én kanal for celleintensitet. Sett Frames previewed til 8 og Fields til 1.",
     "Klikk på Masks og velg label_sequences og deretter field_A01. Hver merkelapp identifiserer et objekt i det tilsvarende bildet. La Keep only full-length tracks være av i begynnelsen, slik at du kan undersøke spor som begynner eller slutter inne i sekvensen.",

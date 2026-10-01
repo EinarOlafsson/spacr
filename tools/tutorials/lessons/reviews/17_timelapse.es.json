@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Descarga y extrae SYNTHETIC_timelapse_preview.zip. El ejemplo didáctico contiene ocho fotogramas de imágenes de células y las imágenes de etiquetas correspondientes. Para una ejecución completa de Mask con tus propios datos, prepara imágenes de microscopía ordenadas en el tiempo y anota el intervalo de adquisición.",
   "scenes": [
-    "Desde Home, abre Mask y haz clic en el icono Timelapse, arriba a la derecha, para activar el seguimiento. Usa Timelapse para enlazar objetos entre imágenes consecutivas. Primero probaremos el ejemplo enlazado en Track preview y después revisaremos los ajustes para procesar tu propia secuencia de imágenes.",
+    "Desde Home, abra Mask, active Time en la fila Actions y encienda Timelapse para activar el seguimiento. Timelapse enlaza objetos a lo largo de imágenes consecutivas. Primero probaremos el ejemplo enlazado en Track preview y después revisaremos los ajustes para procesar su propia secuencia de imágenes.",
     "Descarga y extrae el archivo de ejemplo que aparece abajo y haz clic en Track preview, a la derecha del encabezado Actions. El archivo contiene una secuencia de imágenes y una secuencia de máscaras correspondiente de ocho fotogramas. Mantén juntas ambas carpetas para poder seleccionar las imágenes y las etiquetas que se corresponden.",
     "Elige image_sequences y después field_A01 como carpeta de imágenes. Selecciona el canal cero: cada imagen de ejemplo contiene un solo canal de intensidad celular. Pon Frames previewed en ocho y Fields en uno.",
     "Haz clic en Masks y selecciona label_sequences y después field_A01. Cada etiqueta identifica un objeto en la imagen correspondiente. Deja Keep only full-length tracks desactivado al principio para poder revisar las trayectorias que empiezan o terminan dentro de la secuencia.",

@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "下载并解压SYNTHETIC_timelapse_preview.zip。这个教学示例包含八帧细胞图像及对应的标签图像。若要对自己的数据完整运行Mask，请准备按时间顺序排列的显微图像，并记录采集间隔。",
   "scenes": [
-    "从Home打开Mask，点击右上角的Timelapse图标开启跟踪。Timelapse用于在连续图像之间关联对象。我们先在Track preview中试用链接的示例，然后再查看处理您自己的图像序列所需的设置。",
+    "从 Home 打开 Mask，在 Actions 行打开 Time，再打开 Timelapse 以启用跟踪。Timelapse 会在连续图像之间链接对象。我们先在 Track preview 中试用链接的示例，然后查看处理您自己图像序列的设置。",
     "下载并解压下方的示例压缩包，然后点击Actions标题右侧的Track preview。压缩包包含一个八帧的图像序列和对应的掩膜序列。请把两个文件夹放在一起，以便选择相互对应的图像和标签。",
     "选择image_sequences，再选择field_A01作为图像文件夹。选择通道零：每张示例图像只包含一个细胞强度通道。把Frames previewed设为八，Fields设为一。",
     "点击Masks，选择label_sequences，再选择field_A01。每个标签标识对应图像中的一个对象。一开始请保持Keep only full-length tracks关闭，以便检查在序列中途开始或结束的轨迹。",

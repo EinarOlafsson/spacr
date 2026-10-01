@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "SYNTHETIC_timelapse_preview.zipをダウンロードして展開してください。この教材には、細胞画像八フレームと対応するラベル画像が含まれています。自分のデータでMaskを最後まで実行する場合は、時間順に並んだ顕微鏡画像を用意し、撮影間隔を記録しておきます。",
   "scenes": [
-    "HomeからMaskを開き、右上のTimelapseアイコンをクリックして追跡をオンにします。Timelapseを使うと、連続する画像の間で物体を連結できます。まずTrack previewでリンク先の例を試し、その後、自分の画像シーケンスを処理するための設定を確認します。",
+    "HomeからMaskを開き、Actions行のTimeをオンにしてから、Timelapseをオンにしてトラッキングを有効にします。Timelapseは連続する画像間でオブジェクトを結び付けます。まずTrack previewでリンク先の例を試し、その後、自分の画像シーケンスを処理するための設定を確認します。",
     "下の例のアーカイブをダウンロードして展開し、Actionsの見出しの右にあるTrack previewをクリックします。アーカイブには、八フレームの画像シーケンスと、それに対応するマスクのシーケンスが入っています。対応する画像とラベルを選べるように、二つのフォルダーは一緒にしておきます。",
     "画像フォルダーとして、image_sequences、続いてfield_A01を選びます。チャネルはゼロを選びます。各例の画像には、細胞の強度チャネルが一つだけ含まれています。Frames previewedを八に、Fieldsを一に設定します。",
     "Masksをクリックし、label_sequences、続いてfield_A01を選びます。各ラベルは、対応する画像の中の一つの物体を示します。シーケンスの途中で始まったり終わったりする軌跡も確認できるように、最初はKeep only full-length tracksをオフのままにします。",
