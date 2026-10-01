@@ -3620,7 +3620,10 @@ def _confluency_phase_features(x):
 def _confluency_phase_network():
     """The phase classifier's layers, read once from the bundled weights.
 
-    The weights file is a long table, one row per weight: ``layer``,
+    The weights were trained on LIVECell (Edlund et al. 2021, Nature
+    Methods) and carry its licence, CC BY-NC 4.0: non-commercial use. The
+    file's ``#`` header says so. It is a long table, one row per weight:
+    ``layer``,
     ``source`` (input unit, or -1 for the bias), ``target`` (output unit)
     and ``weight``. The input standardisation is already folded into the
     first layer. Hidden layers are rectified, the output is logistic.
@@ -3632,7 +3635,8 @@ def _confluency_phase_network():
     from .tabular import read_table
     path = os.path.join(os.path.dirname(__file__), 'resources', 'data',
                         _CONFLUENCY_PHASE_WEIGHTS)
-    table = read_table(path, canonicalise=False, report=None)
+    table = read_table(path, canonicalise=False, report=None, sep=',',
+                       comment='#')
     layers = []
     for layer in sorted(table['layer'].unique()):
         rows = table[table['layer'] == layer]
@@ -3675,10 +3679,11 @@ def _phase_coverage(image, window=15):
     """Covered area of a phase-contrast or brightfield field, learned.
 
     A small pixel classifier (a two-layer perceptron over
-    :func:`_confluency_phase_features`) trained on LIVECell (Edlund et al.
-    2021, Nature Methods; CC BY-NC 4.0): Incucyte phase-contrast fields of eight
-    cell lines with expert-drawn cell outlines, together with bare-plastic
-    and fully covered crops and pure-noise fields so that a field of one
+    :func:`_confluency_phase_features`) whose weights were trained on
+    LIVECell (Edlund et al. 2021, Nature Methods), CC BY-NC 4.0,
+    non-commercial use: Incucyte phase-contrast fields of eight cell lines
+    with expert-drawn cell outlines, together with bare-plastic and fully
+    covered crops and pure-noise fields so that a field of one
     kind is not forced into two classes. The probability map is smoothed
     and cut at :data:`_CONFLUENCY_PHASE_CUT`. Unlike the texture source
     there is no whole-field decision: every pixel is classified.

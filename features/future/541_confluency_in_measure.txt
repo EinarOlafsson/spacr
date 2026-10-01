@@ -224,3 +224,13 @@ REAL-DATA VALIDATION 2026-09-30 (CPU) -- brightfield/phase against hand-traced c
 ALPHA (2026-09-30): the `phase` choice lives inside confluency_source,
 which is already registered in ALPHA_FEATURES[541], so it is hidden with
 the rest of the Confluency (Alpha) settings; no new setting or widget.
+
+2026-09-30 -- Licence notice for the phase weights (maintainer decision)
+    The maintainer decided to keep the LIVECell-trained weights in the
+    package, with a notice. The weights are trained on LIVECell (Edlund et
+    al. 2021, Nature Methods 18:1038-1045, doi:10.1038/s41592-021-01249-6)
+    and are CC BY-NC 4.0: non-commercial use. The notice is in the '#'
+    header of spacr/resources/data/confluency_phase_mlp.csv (the loader
+    reads it with comment='#'), in the confluency_source tooltip, and in
+    the _phase_coverage and _confluency_phase_network docstrings. The repo
+    has no third-party notices file, so no attribution was added there.
