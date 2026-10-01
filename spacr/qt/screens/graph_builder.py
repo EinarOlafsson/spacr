@@ -81,7 +81,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...condition_annotations import PROVENANCE_TABLE, apply_conditions, source_context
+from ...condition_annotations import (
+    PROVENANCE_TABLE,
+    annotation_columns,
+    apply_conditions,
+    source_context,
+)
 from ..app_catalog import declared_app, register_declared
 from ..i18n import tr
 from ..job_runner import JobRunner
@@ -352,7 +357,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         saved_annotation = frame.attrs.get("saved_condition_definition")
         annotation_problem = frame.attrs.get("condition_annotation_problem")
         if saved_annotation:
-            frame = frame.drop(columns=[saved_annotation["column"]])
+            frame = frame.drop(columns=annotation_columns(saved_annotation))
             saved_key = json.dumps(saved_annotation["source"], sort_keys=True)
             self._condition_definitions.setdefault(saved_key, copy.deepcopy(saved_annotation))
         self._annotation_base_frame = frame
@@ -567,7 +572,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         """Apply validated labels to the working table while preserving the source.
 
         :param definition: Source-bound condition rules from the annotation editor.
-        :returns: Working frame including the requested output column.
+        :returns: Working frame including the requested output columns.
         """
         if self._annotation_base_frame is None:
             raise ValueError("Load a source table before annotating conditions.")
@@ -584,7 +589,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         self.builder.set_frame(frame)
         self.filters.set_frame(frame)
         self._source.setText(tr("Conditions applied to {rows} rows in {column}.",
-                                rows=f"{len(frame):,}", column=definition["column"]))
+                                rows=f"{len(frame):,}", column=", ".join(annotation_columns(definition))))
         return frame
 
     def _update_save_annotated_button(self):
@@ -728,7 +733,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
                 annotation_base = frame
                 saved = frame.attrs.get("saved_condition_definition")
                 if saved:
-                    annotation_base = frame.drop(columns=[saved["column"]])
+                    annotation_base = frame.drop(columns=annotation_columns(saved))
                 apply_conditions(annotation_base, annotation, source_context(source, table, resolved_definition))
             if resolved_definition:
                 save_definition(source, resolved_definition)
