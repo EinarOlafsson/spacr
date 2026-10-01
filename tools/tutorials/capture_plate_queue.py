@@ -144,7 +144,7 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
     def open_queue():
         action = next(a for a in window.menuBar().actions() if a.text().replace('&', '') == 'Help')
         menu = action.menu()
-        choices = [a for a in menu.actions() if a.text().replace('&', '') == 'Plate queue']
+        choices = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'plate queue']
         if len(choices) != 1:
             raise ValueError('No unique current Help -> Plate queue route')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton,

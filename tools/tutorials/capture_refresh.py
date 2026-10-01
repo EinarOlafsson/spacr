@@ -265,6 +265,10 @@ def main() -> int:
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
+        # spacr.qt.app.main() forces Agg before any figure is drawn; this
+        # recorder builds the window without main(), so match it here. Under
+        # QtAgg a pipeline plotting from a worker thread (Plate queue) fails.
+        'MPLBACKEND': 'Agg',
         'OMP_NUM_THREADS': '2', 'OPENBLAS_NUM_THREADS': '2',
         'MKL_NUM_THREADS': '2', 'NUMEXPR_NUM_THREADS': '2',
     }.items():

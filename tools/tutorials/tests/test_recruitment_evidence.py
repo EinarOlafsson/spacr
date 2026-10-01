@@ -15,14 +15,10 @@ from recruitment_evidence import inspect_results
 
 # Explicit expected columns, independent of the evidence module's constants.
 RATIOS = [
-    "pathogen_cell_mean_mean", "pathogen_cytoplasm_mean_mean", "pathogen_nucleus_mean_mean",
-    "pathogen_cell_q75_mean", "pathogen_cytoplasm_q75_mean", "pathogen_nucleus_q75_mean",
-    "pathogen_outside_cell_mean_mean", "pathogen_outside_cytoplasm_mean_mean",
-    "pathogen_outside_nucleus_mean_mean", "pathogen_outside_cell_q75_mean",
-    "pathogen_outside_cytoplasm_q75_mean", "pathogen_outside_nucleus_q75_mean",
-    "pathogen_periphery_cell_mean_mean", "pathogen_periphery_cytoplasm_mean_mean",
-    "pathogen_periphery_nucleus_mean_mean", "recruitment",
-]
+    f"pathogen_channel_1_{compartment}_{statistic}_ratio"
+    for statistic in ("mean", "q75", "outside_mean", "outside_q75", "periphery_mean")
+    for compartment in ("cell", "cytoplasm", "nucleus")
+] + ["recruitment"]
 
 
 def _csv(path, rows, *, duplicate_well_keys=False):
@@ -74,9 +70,6 @@ def _expected(field, cell_mean, cyto_mean, nucleus_mean, numerators, area, patho
                 values.append(numerator / denominator)
     values.append(values[1])
     row.update(zip(RATIOS, values))
-    for role in ("pathogen", "nucleus"):
-        for channel in range(4):
-            row[f"{role}_slope_channel_{channel}"] = 1.0
     return row
 
 
