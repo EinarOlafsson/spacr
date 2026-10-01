@@ -1980,6 +1980,9 @@ def _write_hit_structures_svg(chemistry, out_dir):
             continue
         name = str(row["compound"])
         name_lines = textwrap.wrap(textwrap.shorten(name, width=60, placeholder="…"), width=30)
+        if len(name_lines) > 2:
+            name_lines = [name_lines[0], textwrap.shorten(
+                " ".join(name_lines[1:]), width=30, placeholder="…")]
         caption = f"cluster {int(row['cluster'])} · {statistic} {row['potency']:.3g}"
         toxicity = row.get("cytotoxicity_index")
         toxicity_text = (f"cytotoxicity {toxicity:.3g}" if toxicity is not None

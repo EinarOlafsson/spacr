@@ -83,9 +83,10 @@ export. New tr() captions wait in _AWAITING_CATALOG_REBUILD.
     pip install 'spacr[chem]'. The historical request to add an extra is
     therefore resolved without introducing another alias.
 
-    Five targeted export checks pass on the final implementation using real
-    RDKit 2026.3.6; the unchanged PNG writer is stubbed only in the report
-    integration check to bound its DPI-dependent bitmap allocation. The
+    Six targeted export checks pass on the final implementation using real
+    RDKit 2026.3.6; the unchanged general figure writer is stubbed only in
+    the report integration check to isolate the new SVG export. This writer
+    follows the selected format (including PDF), despite its .png argument. The
     18 existing engine tests and one alpha-gate check passed on the first
     candidate. Later combined/actual-export Qt checks reached the 1 GiB
     memory guard; caps were not increased and those runs are not passes.
@@ -95,3 +96,9 @@ export. New tr() captions wait in _AWAITING_CATALOG_REBUILD.
     not real compound-screen scientific acceptance or full Qt acceptance.
     Receipt: features/data/584_vector_export_2026-10-01.json.
     Real compound-screen SAR acceptance remains open.
+
+    Independent review caught a three-line long-name overlap with potency;
+    names now occupy at most two lines, covered by an additional regression.
+    All six final checks passed in 3.03 seconds. The memory failures do not
+    establish DPI as their cause; large imports, Qt canvases and three
+    heatmap exports are part of the working set. No cap was increased.

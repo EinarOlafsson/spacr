@@ -14,8 +14,8 @@ SVG = '{http://www.w3.org/2000/svg}'
 
 
 def test_report_exports_real_vector_bonds_and_exact_compound_metadata(tmp_path, monkeypatch):
-    # The PNG writer is unchanged. Keep this vector integration check bounded
-    # independently of the user's configured bitmap export size and DPI.
+    # The general figure writer is unchanged. Test vector integration without
+    # allocating its independent preference-driven figure export.
     def save_bitmap(figure, filename, **kwargs):
         Path(filename).write_bytes(b'bitmap export delegated')
         return str(filename)
@@ -57,6 +57,20 @@ def test_empty_and_invalid_hits_do_not_create_artwork(tmp_path):
     result.sar['smiles_valid'] = False
     assert sp._write_hit_structures_svg(result, tmp_path) is None
     assert not list(tmp_path.iterdir())
+
+
+def test_wrapped_names_leave_room_for_potency_and_toxicity(tmp_path):
+    frame, layout, host = _screen()
+    result = sp._structure_activity(_scored(frame), layout, host=host)
+    name = 'abcdefghijklmnopqrst uvwxyzABCDEFGHIJKLMN OPQRSTUVWXYZabcdef'
+    result.sar.loc[result.sar.hit, 'compound'] = name
+    path = sp._write_hit_structures_svg(result, tmp_path)
+    root = ET.parse(path).getroot()
+    for tile in root.findall(SVG + 'g'):
+        lines = tile.findall(SVG + 'text')
+        assert [int(line.get('y')) for line in lines] == [318, 335, 359, 380]
+        assert lines[1].text.endswith('…')
+        assert tile.find(SVG + 'title').text == name
 
 
 def test_sheet_uses_same_limit_and_order_as_display(tmp_path):

@@ -6,10 +6,10 @@
     "exact compound metadata and atomic replacement"
   ],
   "final_tests": {
-    "passed": 5,
-    "seconds": 2.68,
-    "log_sha256": "440e7043e84c83eddd0b1a8f2ca57ba5f9c24d937b55b592d392585a0c4982e3",
-    "png_writer_stubbed_in_integration_test": true
+    "passed": 6,
+    "seconds": 3.03,
+    "log_sha256": "ca8592bcdcd4373c21fe38350231cdaae5d16f078260e7a8f3b0acbdf05e1fd7",
+    "general_figure_exporter_stubbed_in_integration_test": true
   },
   "earlier_candidate_checks": {
     "engine_passed": 18,
@@ -61,5 +61,11 @@
   "remaining": [
     "real compound-screen SAR validation",
     "full actual Control Charts export integration within memory cap"
-  ]
+  ],
+  "peer_review": {
+    "reviewer": "independent Codex agent",
+    "finding": "60-character name can wrap into three lines and overlap potency",
+    "resolution": "at most two name lines, with regression; full title and metadata preserved",
+    "memory_diagnosis": "No allocating stack was captured; high DPI is not established. General save_figure follows user format preferences, including PDF. Heavy plot imports, Qt canvases and three heatmap exports contribute to working set."
+  }
 }
