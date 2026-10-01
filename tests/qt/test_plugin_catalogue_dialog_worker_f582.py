@@ -26,6 +26,7 @@ def page(qtbot, monkeypatch, tmp_path):
     dialog = QDialog()
     qtbot.addWidget(dialog)
     result = preferences._PluginCataloguePage(QFormLayout(dialog), dialog)
+    qtbot.waitUntil(lambda: result._job is None)
     result._select_key('toxo_infection')
     yield result
     if result._job is not None:
@@ -141,3 +142,120 @@ def test_committed_install_is_not_reported_failed_when_catalogue_refresh_fails(p
     assert page.install_button.isEnabled()
     assert not page.uninstall_button.isEnabled()
     assert not page.open_button.isEnabled()
+
+
+@pytest.mark.parametrize('initial', [True, False])
+def test_initial_and_explicit_listing_leave_gui_responsive(page, qtbot, monkeypatch, initial):
+    started = threading.Event()
+    release = threading.Event()
+    actual = plugins._catalogue_rows
+    main_thread = threading.get_ident()
+    calls = []
+
+    def blocked(source):
+        calls.append((threading.get_ident(), source))
+        started.set()
+        assert release.wait(10)
+        return actual(source)
+
+    monkeypatch.setattr(plugins, '_catalogue_rows', blocked)
+    if initial:
+        dialog = QDialog()
+        qtbot.addWidget(dialog)
+        target = preferences._PluginCataloguePage(QFormLayout(dialog), dialog)
+    else:
+        target = page
+        assert target.refresh()
+    timer = QTimer(target._dialog)
+    ticks = []
+    timer.setInterval(1)
+    timer.timeout.connect(lambda: ticks.append(True))
+    timer.start()
+    try:
+        qtbot.waitUntil(started.is_set)
+        qtbot.waitUntil(lambda: len(ticks) > 2)
+        assert calls[0][0] != main_thread
+        assert calls[0][1] == target.source.text()
+        assert target.table.rowCount() == 0
+        assert not target.load_button.isEnabled()
+        assert not target.install_button.isEnabled()
+        assert not target.refresh()
+        assert not target.install_selected()
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: target._job is None)
+    assert target.table.rowCount() == 2
+    assert target.load_button.isEnabled()
+    assert target.status.text() == '2 entries in the catalogue.'
+
+
+def test_destroyed_window_cannot_receive_listing_results(page, qtbot, monkeypatch):
+    started = threading.Event()
+    release = threading.Event()
+    actual = plugins._catalogue_rows
+
+    def blocked(source):
+        started.set()
+        assert release.wait(10)
+        return actual(source)
+
+    monkeypatch.setattr(plugins, '_catalogue_rows', blocked)
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    dialog.setAttribute(Qt.WA_DeleteOnClose)
+    target = preferences._PluginCataloguePage(QFormLayout(dialog), dialog)
+    dialog.show()
+    job = target._job
+    try:
+        qtbot.waitUntil(started.is_set)
+        dialog.close()
+        qtbot.waitUntil(lambda: not isValid(dialog))
+        assert not isValid(target._job_timer)
+        assert job.is_alive()
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: not job.is_alive())
+    assert job.error is None
+    assert len(job.rows) == 2
+
+
+@pytest.mark.parametrize('failed', [True, False])
+def test_a_changed_source_cannot_receive_stale_listing_result(page, qtbot, monkeypatch, failed):
+    started = threading.Event()
+    release = threading.Event()
+    actual = plugins._catalogue_rows
+
+    def blocked(source):
+        started.set()
+        assert release.wait(10)
+        if failed:
+            raise OSError('old source unavailable')
+        return actual(source)
+
+    monkeypatch.setattr(plugins, '_catalogue_rows', blocked)
+    assert page.refresh()
+    try:
+        qtbot.waitUntil(started.is_set)
+        page.source.setText('/another/catalogue.json')
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: page._job is None)
+    assert page.table.rowCount() == 0
+    assert page._rows == []
+    assert page.status.text() == ''
+    assert page.load_button.isEnabled()
+
+
+def test_failed_listing_clears_previous_rows_and_shows_error(page, qtbot, monkeypatch):
+    def fail(source):
+        raise OSError('catalogue permission denied')
+
+    assert page.table.rowCount() == 2
+    monkeypatch.setattr(plugins, '_catalogue_rows', fail)
+    assert page.refresh()
+    qtbot.waitUntil(lambda: page._job is None)
+    assert page.table.rowCount() == 0
+    assert page._rows == []
+    assert 'Could not read the catalogue: catalogue permission denied' == page.status.text()
+    assert page.load_button.isEnabled()
+    assert not page.install_button.isEnabled()

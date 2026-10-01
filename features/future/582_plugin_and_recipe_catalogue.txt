@@ -106,8 +106,8 @@ WHAT IS LEFT
     until its replacement is ready. Existing staging and failed-update behavior
     is preserved. No new public API or captions are introduced.
 
-    Scope boundary: initial catalogue listing is still synchronous; conflicting
-    dependency isolation, hosted catalogue publication and signing policy remain
+    Scope boundary: conflicting dependency isolation, hosted catalogue
+    publication and signing policy remain
     open. This follow-up does not claim the full feature is complete.
 
     Validation (CPU, one thread, 1 GB cap): the six named catalogue/plugin
@@ -123,3 +123,21 @@ WHAT IS LEFT
     wheel install/update/uninstall, failed-update rollback, alpha visibility
     and installed-recipe Open cases passed in the first run. Backend and new
     tests pass Ruff; edited legacy UI files introduce no additional findings.
+
+2026-10-01 — BACKGROUND CATALOGUE LISTING FOLLOW-UP
+    Initial listing when Preferences opens and explicit List/refresh now use
+    the same Qt-independent worker. The request snapshots its source, clears
+    the previous rows and disables conflicting actions while it runs. Only
+    the GUI timer renders the completed snapshot. If the source changed
+    programmatically, neither stale results nor stale errors are applied.
+    A destroyed dialog also destroys its timer while the read finishes safely
+    without touching widgets. Read failures clear stale rows and show the
+    actual catalogue error; existing translated captions are reused.
+
+    Validation: 17 focused Qt tests passed in 10.44 seconds under a 1 GB,
+    single-thread CPU cap. These cover blocked initial/explicit fetches with
+    a live GUI heartbeat, dialog destruction, stale success/error rejection,
+    failed loads, the preceding mutation-worker cases, alpha gating, real
+    offline installation/uninstallation and installed-recipe Open behavior.
+    Backend and public API contracts are unchanged. Hosted publication,
+    signing policy and conflicting-dependency isolation remain out of scope.

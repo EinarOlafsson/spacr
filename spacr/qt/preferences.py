@@ -5589,7 +5589,7 @@ def _set_plugin_catalogue(source: str) -> None:
 
 
 class _PluginCatalogueJob(threading.Thread):
-    """Finish a catalogue mutation independently of the Preferences window.
+    """Finish catalogue reads or mutations independently of Preferences.
 
     No Qt object enters this non-daemon worker. Closing the dialog leaves the
     install running; interpreter shutdown waits for staging/commit to finish.
@@ -5599,7 +5599,7 @@ class _PluginCatalogueJob(threading.Thread):
     def __init__(self, row, source, install):
         """Snapshot the selected entry and its source before starting work."""
         super().__init__(name="spacr-plugin-catalogue", daemon=False)
-        self.row = dict(row)
+        self.row = dict(row or {})
         self.source = source
         self.install = install
         self.record = None
@@ -5615,6 +5615,12 @@ class _PluginCatalogueJob(threading.Thread):
             _uninstall_from_catalogue,
         )
 
+        if self.install is None:
+            try:
+                self.rows = _catalogue_rows(self.source)
+            except Exception as exc:
+                self.error = str(exc)
+            return
         try:
             if self.install:
                 self.record = _install_from_catalogue(self.row["key"], self.source)
@@ -5797,28 +5803,23 @@ class _PluginCataloguePage:
         return True
 
     def refresh(self) -> bool:
-        """Read the catalogue and fill the table.
+        """Fetch the current source off-thread and show its result when ready.
 
-        :returns: False, with the reason on the status line, when the
-            catalogue could not be read.
+        :returns: True when the read started, False while another job is busy.
         """
-        from ..plugins import _catalogue_rows
         from .i18n import tr
 
         if self._job is not None:
             return False
         source = self.source.text().strip()
         _set_plugin_catalogue(source)
-        try:
-            self._rows = _catalogue_rows(source or None)
-        except Exception as exc:
-            self._rows = []
-            self.table.setRowCount(0)
-            self.status.setText(tr("Could not read the catalogue: {error}")
-                                .format(error=exc))
-            self._sync_buttons()
-            return False
-        self._show_rows(self._rows)
+        self._job = _PluginCatalogueJob(None, source or None, None)
+        self._rows = []
+        self.table.setRowCount(0)
+        self.status.setText(tr("Working…"))
+        self._sync_buttons()
+        self._job.start()
+        self._job_timer.start()
         return True
 
     def _show_rows(self, rows):
@@ -5881,6 +5882,17 @@ class _PluginCataloguePage:
             return False
         self._job_timer.stop()
         self._job = None
+        if job.install is None:
+            # A programmatic source change can occur while controls are disabled.
+            # Never attach the old request's results or error to the new source.
+            if (self.source.text().strip() or None) != job.source:
+                self.status.clear()
+                self._sync_buttons()
+                return False
+            self._show_rows(job.rows if job.error is None else [])
+            if job.error is not None:
+                self.status.setText(tr("Could not read the catalogue: {error}").format(error=job.error))
+            return True
         row = job.row
         if job.error is not None:
             message = tr("{name} failed: {error}").format(name=row["name"], error=job.error)
