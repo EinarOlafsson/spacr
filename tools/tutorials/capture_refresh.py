@@ -100,6 +100,7 @@ def main() -> int:
                         help='With --openings: which shared or lesson-extension frames to record')
     parser.add_argument('--preview-filter-only', action='store_true', help='With --preview-variants, record the size filter but no second model run')
     parser.add_argument('--plaque-current-tour', action='store_true', help='Record the current Plaque preview overlay settings, Help route and Figure mode on the synthetic example')
+    parser.add_argument('--mask-crop-run', action='store_true', help='With --module mask --run, run on centred 600 px crops of two example fields (CPU recordings)')
     parser.add_argument('--batch-settings-only', action='store_true', help='Configure the bounded run and record its settings, but do not press Run (CPU recordings of slow models)')
     parser.add_argument('--clear-console-after-load', action='store_true', help='Press Clear console after the example loads (its report lists hidden alpha setting names)')
     parser.add_argument('--measure-qc-tour', action='store_true', help='Record the QC switch popup and the Image Preprocessing category after loading Measure data')
@@ -1324,6 +1325,25 @@ def main() -> int:
                 }
             if args.measure_full_example:
                 presets['measure']['test_mode'] = False
+            if args.mask_crop_run:
+                # A CPU recording: Cellpose-SAM takes hours on two full fields,
+                # so the run reads centred 600 px crops of two example fields,
+                # written beside the example (originals unchanged).
+                import tifffile
+                crops = stage / 'mask_crops' / 'plate1'
+                crops.mkdir(parents=True, exist_ok=True)
+                source = stage / 'example_data/plate1'
+                for field in ('F001', 'F013'):
+                    for path in sorted(source.glob(f'plate1_E01_T0001{field}L01A0*Z01C0*.tif')):
+                        image = tifffile.imread(path)
+                        y, x = (image.shape[0] - 600) // 2, (image.shape[1] - 600) // 2
+                        tifffile.imwrite(crops / path.name, image[y:y + 600, x:x + 600])
+                if len(list(crops.glob('*.tif'))) != 8:
+                    raise RuntimeError('Expected two cropped fields of four channels')
+                write_json(captures / 'crop_run_inputs.json', {
+                    'source': str(source), 'crops': str(crops), 'size': 600,
+                    'fields': ['F001', 'F013'], 'originals_modified': False})
+                presets['mask'].update(src=str(crops), test_mode=False)
             if args.mask_bounded_recapture:
                 # The downloaded settings use 100, which the real console says
                 # disables flow filtering. Show explicit bounded example values

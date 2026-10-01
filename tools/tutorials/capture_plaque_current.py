@@ -61,10 +61,11 @@ def _wait(settle, condition, timeout, what):
 
 
 def record_plaque_current(app, window, screen, stage, captures, capture, settle,
-                          write_json, timeout):
+                          write_json, timeout, figure_mode=False):
     from capture_geometry import capture_rect
     from PySide6.QtCore import QPoint, Qt
     from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QPushButton
 
     from spacr.qt.widgets import plaque_preview as ppv
 
@@ -119,6 +120,11 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
         capture("16_preview_failed")
         raise ValueError("Plaque preview failed: " + panel._status.text())
     settle(2)
+    fit = [b for b in panel.findChildren(QPushButton) if b.text().replace("&", "") == "Fit image"
+           and b.isVisible()]
+    if fit:
+        QTest.mouseClick(fit[0], Qt.LeftButton)
+        settle(1.5)
     state["plaque_preview"] = {"status": panel._status.text(),
                                "count": panel._plaque_result.get("count")}
     state["frames"]["16_overlay_preview"] = capture_rect(panel, window)
@@ -150,6 +156,11 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
     menu.hide()
     settle(.5)
 
+    if not figure_mode:
+        # Figure mode's wells table currently shows item 501's estimate
+        # columns with alpha features off, so it is not recorded.
+        write_json(captures / "plaque_current.json", state)
+        return state
     # Figure mode, through the panel's own switch.
     figures = make_synthetic_figure(root, stage / "plaque_figures" / root.name)
     button = panel._mode_switch._buttons[ppv.FIGURE_MODE]
