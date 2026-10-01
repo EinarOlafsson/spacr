@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Plate Viewer: revisar pocillos y exportar una tabla de mapa de calor",
+  "description": "Carga las mediciones de ejemplo, compara características y recuentos por pocillo, inspecciona pocillos individuales y exporta la tabla filtrada.",
+  "objectives": [
+    "Abrir Plate Viewer desde Graph Builder y cargar mediciones de ejemplo.",
+    "Elegir una característica, una agregación y un recuento mínimo de objetos.",
+    "Revisar los detalles de los pocillos y exportar la cuadrícula de pocillos actual."
+  ],
+  "prerequisite": "Usa Load test data en Plate Viewer para el ejemplo descargable, o abre el measurements.db de tu proyecto medido. El ejemplo contiene 2341 células en cuatro pocillos; usa mediciones que abarquen tu propia placa cuando evalúes patrones espaciales.",
+  "scenes": [
+    "Desde Home, abre Graph Builder en Data y elige Plate Viewer. Úsalo para resumir las mediciones de objetos por pocillo y revisar cómo se distribuyen en una placa.",
+    "Haz clic en Load test data para abrir el ejemplo descargable. Para tus propios datos, elige una base de datos de mediciones o su carpeta de ejecución y haz clic en Open. El ejemplo contiene cuatro pocillos medidos.",
+    "Elige cell como Table, cell_area como Measurement y plate1 como Plate. Pon Per well en mean para mostrar el área celular media. La mediana reduce la influencia de objetos inusualmente grandes o pequeños.",
+    "Elige una escala de colores. El rango robusto usa los percentiles del segundo al nonagésimo octavo, así un pocillo extremo no comprime los colores de los demás.",
+    "Haz clic en Render y compara los pocillos coloreados. Lee el informe de efecto de borde junto al mapa de calor y revisa la disposición de la placa y la cobertura medida. Usa mediciones de toda tu placa cuando evalúes patrones de borde, de fila o de columna.",
+    "Haz clic en un pocillo medido para ver su identificador, su recuento de objetos y el valor mostrado. Usa estos identificadores para encontrar el mismo pocillo en tus imágenes o en los resultados exportados.",
+    "Pon Per well en count para comparar el número de objetos. Esta vista te ayuda a encontrar pocillos con menos objetos segmentados antes de interpretar diferencias en las características.",
+    "Sube Min objects per well para excluir los pocillos con demasiado pocos objetos para tu comparación. Con seiscientos uno, quedan dos de los cuatro pocillos de este ejemplo. Los pocillos excluidos aparecen en blanco, no como mediciones de cero.",
+    "Haz clic en Export well grid CSV, elige un nombre de archivo y guarda. El CSV contiene los pocillos que conserva el filtro actual, con sus identificadores, recuentos, valores mostrados y anotaciones espaciales.",
+    "Guarda la tabla exportada junto con los ajustes de medición y agregación. Baja el recuento mínimo para volver a ver los pocillos excluidos, o elige otra medición para tu siguiente comparación."
+  ]
+}

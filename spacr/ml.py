@@ -662,7 +662,11 @@ class QuasiBinomial(Binomial):
         self.variance = _DispersedVariance(self.__dict__['variance'], dispersion)
 
     def variance(self, mu):
-        """Adjust the variance with the dispersion parameter."""
+        """Adjust the variance with the dispersion parameter.
+
+        :param mu: fitted mean probabilities, scalar or array; the binomial
+            variance of ``mu`` is multiplied by ``dispersion``.
+        """
         return self.dispersion * super().variance(mu)
 
 def calculate_p_values(X, y, model):
@@ -1146,6 +1150,9 @@ def screen_is_blockable(df) -> bool:
     The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated
     once for the formula path so a frame cannot be blocked on by one and not
     the other.
+
+    :param df: the design DataFrame, or ``None`` (returns ``False``); its
+        ``screenID`` column is compared as strings.
     """
     from .schema import SCREEN_KEY
 
@@ -4521,6 +4528,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
               f"coefficient reads as its distance from that value.")
 
     qc_design = None
+    fit_frame = None
+    fit_counts = {}
 
     block_screen = screen_is_blockable(df)
     if block_screen:
@@ -4545,6 +4554,21 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             random_row_column_effects=random_row_column_effects,
             regression_backend=regression_backend)
         model = mixed_model
+        observed_count = getattr(model, 'nobs', getattr(model, 'n_obs', None))
+        if observed_count is not None and np.isfinite(observed_count):
+            fit_counts['n_rows_fitted'] = int(observed_count)
+        inner = getattr(model, 'model', None)
+        row_labels = getattr(getattr(inner, 'data', None), 'row_labels', None)
+        if row_labels is not None and df.index.is_unique:
+            fit_frame = df.loc[row_labels]
+        elif fit_counts.get('n_rows_fitted') == len(df):
+            fit_frame = df
+        exog = getattr(inner, 'exog', None)
+        if exog is not None:
+            fit_counts['n_design_columns'] = int(exog.shape[1])
+        elif getattr(model, 'k_fe', None) is not None:
+            fit_counts['n_design_columns'] = int(model.k_fe)
+        fit_counts['layout'] = 'long'
     else:
         formula = prepare_formula(dependent_variable,
                                   random_row_column_effects=False,
@@ -4563,6 +4587,13 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         else:
             y, X = dmatrices(formula, data=df, return_type='dataframe')
         model_index = y.index
+        if model_index.equals(fit_df.index):
+            fit_frame = fit_df
+        elif fit_df.index.is_unique:
+            fit_frame = fit_df.loc[model_index]
+        fit_counts = {'n_rows_fitted': int(len(y)),
+                      'n_design_columns': int(X.shape[1]),
+                      'layout': model_layout}
 
         if draw_shared_panels and not _show_well_distributions(
                 df, dependent_variable, dst, plot=plot):
@@ -4602,11 +4633,23 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             glm_force_identity=glm_force_identity,
         )
 
+        fitted_exog = getattr(getattr(model, 'model', None), 'exog', None)
+        if fitted_exog is not None:
+            fit_counts['n_design_columns'] = int(fitted_exog.shape[1])
+
         coef_df = process_model_coefficients(
             model, regression_type, X, y, nc, pc, controls,
             hinge_threshold=hinge_threshold, hinge_n_boot=hinge_n_boot)
         display(coef_df)
         qc_design = (X, y)
+
+    if fit_frame is not None:
+        contributing = fit_frame
+        if fit_counts.get('layout') == 'wide' and 'prc' in fit_frame:
+            contributing = df.loc[df['prc'].isin(fit_frame['prc'])]
+        for name, column in (('n_wells', 'prc'), ('n_guides', 'grna'),
+                             ('n_genes', 'gene')):
+            fit_counts[name] = int(contributing[column].nunique())
 
     if plot and legacy_volcano:
         volcano_plot(
@@ -4644,6 +4687,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
     coef_df = coef_df.copy()
     coef_df['level'] = level
+    coef_df.attrs['fit_design'] = fit_counts
     if qc_manifest is not None and coef_df is not None:
         coef_df.attrs["qc_manifest"] = qc_manifest
     return model, coef_df, regression_type
@@ -4678,6 +4722,10 @@ def regression_levels(df, csv_path, dependent_variable='predictions',
     and the guide as a random effect nested in the gene. Its guide output is
     BLUPs, which is why it cannot be split into two testing families.
 
+    :param df: long-format DataFrame of gRNA/gene fractions and the
+        dependent variable, passed to :func:`regression` for every level.
+    :param csv_path: path passed to :func:`regression`, which derives the
+        volcano-plot filename from it.
     :param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.
     :param dst: the run folder. With more than one fit each level's FIGURES go
         into ``<dst>/<level>/`` so they cannot overwrite each other; the
@@ -5233,6 +5281,14 @@ def resolve_auto_inference(data, settings, *, well_column='prc',
     Anything other than ``inference='auto'`` is returned untouched, so an
     explicit choice is never overridden.
 
+    :param data: the analysis table (a DataFrame); its distinct well and
+        guide counts, and the permutation block column when present, size
+        the design.
+    :param settings: run settings; ``inference``, ``analysis_mode``,
+        ``analysis_unit``, ``agg_type`` and ``guide_permutation_block`` are
+        read. It is not modified.
+    :param well_column: column whose distinct values count the wells.
+    :param guide_column: column whose distinct values count the guides.
     :returns: ``(analysis_mode, reason)``. ``reason`` is a sentence naming the
         counts, suitable for the log and for the Methods section.
     """
@@ -5298,6 +5354,15 @@ def normalize_regression_input_pairs(settings):
     New settings store ``paired_data``. Older files remain valid: their flat
     lists are zipped positionally, exactly matching the former behaviour, and
     the migration is reported so the invisible legacy assumption is visible.
+
+    :param settings: regression settings dictionary. ``paired_data`` is read
+        when present, otherwise the legacy ``score_data`` and ``count_data``
+        lists; the dictionary is updated in place with the normalised
+        ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.
+    :returns: ``(pairs, migrated)``, where ``migrated`` is ``True`` when the
+        rows came from the legacy lists.
+    :raises ValueError: when ``paired_data`` is malformed or there is not at
+        least one score path and one count path.
     """
     from itertools import zip_longest
 
@@ -5358,6 +5423,11 @@ def load_regression_input_pairs(pairs):
     Resolution order is own column, partner column, then pair-row order.
     Conflicting declarations are refused. Returns ``(count_frame,
     score_frame, audit_rows)``.
+
+    :param pairs: sequence of mappings with ``'score'`` and ``'count'`` table
+        paths (either may be empty), as returned by
+        :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'``
+        is overwritten with the resolved plate label.
     """
     from .utils import correct_metadata
 
@@ -5675,12 +5745,23 @@ def _report_exchangeability(data, outcome_column, settings, destination):
     A COURTESY, NOT A PRECONDITION -- the same rule the montage pre-flight
     follows. It must never be the reason a run that produced results fails
     to report them, so every step is inside the guard.
+
+    :param data: the merged per-well table.
+    :param outcome_column: one phenotype column name.
+    :param settings: the run's settings.
+    :param destination: the run's results folder. When given, the report and
+        a residual-by-position figure per block are written to its
+        ``regression_qc`` folder, as a parametric run's QC is; the report's
+        ``'qc'`` key holds what was written.
+    :returns: the :func:`spacr.permutation_qc.block_residual_report`, or
+        ``None`` when the check could not run.
     """
     try:
         from .guide_permutation import (_nuisance_design, _residualize,
                                         prepare_long_guide_data)
         from .permutation_qc import (block_residual_report,
-                                     exchangeability_verdict)
+                                     exchangeability_verdict,
+                                     write_permutation_qc)
 
         block = str(settings.get('guide_permutation_block', 'plateID'))
         nuisance = _usable_nuisance_columns(data, settings)
@@ -5701,6 +5782,18 @@ def _report_exchangeability(data, outcome_column, settings, destination):
         report = block_residual_report(
             residuals, outcomes[block], positions)
         verdict = exchangeability_verdict(report)
+
+        if destination:
+            try:
+                report['qc'] = write_permutation_qc(
+                    destination, outcome_column, residuals,
+                    outcomes[block], positions, report, verdict,
+                    removed=[c for c in nuisance if c != block])
+                if report['qc'].get('figure'):
+                    print(f"Permutation QC written to {report['qc']['dir']}")
+            except Exception as error:                   # noqa: BLE001
+                print(f"Permutation QC could not be written: "
+                      f"{type(error).__name__}: {error}")
 
         if verdict['ok']:
             print(f"Exchangeability: nothing found. Durbin-Watson "
@@ -5834,7 +5927,8 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         batch_size=int(settings.get('guide_permutation_batch_size', 500)),
         statistic=str(settings.get('grna_statistic', 'pearson')),
     )
-    _report_exchangeability(data, outcomes, settings, destination)
+    for outcome_column in outcomes:
+        _report_exchangeability(data, outcome_column, settings, destination)
     results = results.copy()
     results['grna'] = results['guide']
     results['feature'] = (
@@ -6083,6 +6177,11 @@ def results_folder_kind(settings) -> str:
     wrote them was fine, which is the failure the `results_dir` helper in
     tests/test_cov_ml_perform_regression.py was already written to prevent
     once. A suite pointing at the wrong file is worse than a silent one.
+
+    :param settings: run settings mapping, or ``None`` (treated as empty);
+        only ``analysis_mode`` and ``regression_type`` are read.
+    :returns: ``'guide_permutation'``, ``'auto'`` when no regression type is
+        set, or the regression type as a string.
     """
     settings = settings or {}
     if settings.get('analysis_mode') == 'guide_permutation':
@@ -6662,7 +6761,10 @@ def perform_regression(settings):
     dimensions, and a remedy for recognized failures.
 
     :param settings: Regression settings consumed by the fitting pipeline.
-    :returns: Result returned by the regression implementation.
+    :returns: Regression output mapping. ``model_data`` is the prepared input
+        table, not coefficient results; ``fit_designs`` records measured design
+        counts separately for each parametric fit level. Unrecorded counts are
+        omitted, and permutation outputs retain their own result schema.
     :raises Exception: Re-raises the original regression failure.
     """
     from .regression_failure import describe_failure, write_failure_report
@@ -7460,7 +7562,8 @@ def _perform_regression(settings):
                 write_run_summary(
                     res_folder, model=None, settings=settings,
                     coef_df=output.get('primary'),
-                    regression_type=settings.get('regression_type'))
+                    regression_type=settings.get('regression_type'),
+                    fit_designs={})
             except Exception as error:  # noqa: BLE001 - never lose a run
                 print(f"Could not write the run summary: "
                       f"{type(error).__name__}: {error}")
@@ -7506,6 +7609,8 @@ def _perform_regression(settings):
         intercept_value=float(settings.get('intercept_value') or 0.0),
     )
     regression_type = next(iter(fits.values()))[2]
+    fit_designs = {one: dict(one_coef.attrs.get('fit_design', {}))
+                   for one, (_model, one_coef, _type) in fits.items()}
 
     settings['_regression_diagnostics'] = _write_regression_diagnostics(
         res_folder, merged_df, fits, settings)
@@ -7514,6 +7619,8 @@ def _perform_regression(settings):
         one: _annotate_level_coefficients(one_coef, n_grna, n_gene)
         for one, (_model, one_coef, _type) in fits.items()
     }
+    for table in level_tables.values():
+        table.attrs.pop('fit_design', None)
 
     if regression_type == 'mixed' and 'gene' in level_tables:
         whole = level_tables.pop('gene')
@@ -7620,7 +7727,8 @@ def _perform_regression(settings):
         try:
             _stage(settings, "the fit has returned")
             write_run_summary(res_folder, model=model, settings=settings,
-                              coef_df=coef_df, regression_type=regression_type)
+                              coef_df=coef_df, regression_type=regression_type,
+                              fit_designs=fit_designs)
         except Exception as error:  # noqa: BLE001 - never lose a run
             print(f"Could not write the run summary: "
                   f"{type(error).__name__}: {error}")
@@ -7636,7 +7744,7 @@ def _perform_regression(settings):
     if isinstance(settings['metadata_files'], str):
         settings['metadata_files'] = [settings['metadata_files']]
 
-    merged_df = tabular.read_table(results_path, report=None)
+    results_metadata_df = tabular.read_table(results_path, report=None)
     gene_merged_df = tabular.read_table(results_path_gene, report=None)
     grna_merged_df = tabular.read_table(results_path_grna, report=None)
 
@@ -7653,7 +7761,7 @@ def _perform_regression(settings):
             continue
         try:
             _ = merge_regression_res_with_metadata(hits_path, metadata_file, name=filename)
-            merged_df = merge_regression_res_with_metadata(results_path, metadata_file, name=filename)
+            results_metadata_df = merge_regression_res_with_metadata(results_path, metadata_file, name=filename)
             gene_merged_df = merge_regression_res_with_metadata(results_path_gene, metadata_file, name=filename)
             grna_merged_df = merge_regression_res_with_metadata(results_path_grna, metadata_file, name=filename)
         except Exception as metadata_error:
@@ -7668,7 +7776,7 @@ def _perform_regression(settings):
               "draw the original matplotlib one as well.")
 
     if _toxoplasma_is_on(settings):
-        data_path = merged_df
+        data_path = results_metadata_df
         data_path_gene = gene_merged_df
         data_path_grna = grna_merged_df
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -7773,6 +7881,7 @@ def _perform_regression(settings):
               'significant':significant,
               'model': model,
               'model_data': merged_df,
+              'fit_designs': fit_designs,
               'regression_type': regression_type,
               'res_folder': res_folder,
               'settings': dict(settings)}
@@ -8089,6 +8198,11 @@ def beta_logit(values):
 
     This is distinct from ``regression_type='beta'``, which selects a beta
     GLM. One transforms the response; the other selects the model family.
+
+    :param values: proportions in ``[0, 1]``, array-like; converted to a
+        float array. Non-finite entries pass through unchanged. When any
+        finite value is at or beyond 0 or 1 the finite values are squeezed
+        with ``(y * (n - 1) + 0.5) / n`` before the logit.
     """
     array = np.asarray(values, dtype=float)
     finite = np.isfinite(array)
@@ -8126,7 +8240,14 @@ def apply_transformation(X, transform):
     return transformer
 
 def check_normality(data, variable_name, verbose=False):
-    """Check if the data is normally distributed using the Shapiro-Wilk test."""
+    """Check if the data is normally distributed using the Shapiro-Wilk test.
+
+    :param data: numeric values, array-like; non-finite values are dropped
+        and fewer than 3 remaining values returns ``False`` without testing.
+    :param variable_name: name printed in the verbose messages only.
+    :param verbose: print the test statistic, P value and verdict.
+    :returns: ``True`` when the Shapiro-Wilk P value exceeds 0.05.
+    """
     values = np.asarray(data, dtype=float)
     values = values[np.isfinite(values)]
     if values.size < 3:

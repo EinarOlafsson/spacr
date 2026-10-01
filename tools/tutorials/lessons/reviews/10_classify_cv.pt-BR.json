@@ -1,38 +1,34 @@
 {
   "lesson": "10_classify_cv",
-  "english_sha256": "104932e5a39da62949d4d9ce3bde235cf5db2ab8dac208aa6973871b6d7f5106",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "pt-BR",
-  "title": "Classify: um exemplo verificado de visão computacional",
-  "description": "Prepare recortes baixados sem alterar seus pixels, preserve as identidades dos poços e examine um modelo pequeno sem exagerar seu desempenho.",
-  "objectives": [
-    "Encontrar a família de visão computacional no módulo principal Classify.",
-    "Preparar uma divisão existente com anotações baixadas sem alterar imagens ou rótulos originais.",
-    "Separar poços reais, mostrar gráficos e distinguir execução bem-sucedida de predição útil.",
-    "Localizar modelos, predições e ferramentas aninhadas."
-  ],
-  "prerequisite": "Siga Annotate: Load test data → Load, não Stream. Preserve plate1/measurements/measurements.db e os recortes png. Gravação com spaCR 1.5.0.8. Extraia o ZIP e execute prepare_classify_split.py no ambiente spaCR: --source aponta para plate1 e --destination para uma pasta NOVA. O script é específico deste exemplo de quatro poços: oito rótulos existentes infected=1 e oito infected=2 por poço, seleção determinística antes do treinamento, 64 recortes RGB idênticos byte a byte. O script também preserva uma cópia idêntica byte a byte do banco de dados original de medições. As cópias recebem nomes prcfo do banco; o interpretador de nomes antigos NÃO é corrigido. A seleção balanceada NÃO preserva a prevalência populacional. Selecione a pasta preparada, Computer Vision (Torch), Generate training dataset desligado. Configurações: ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=2, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True; mantenha todos os controles de vazamento. As 32 imagens de train tornam-se 16 de treinamento e 16 de validação; test tem 32. Poços distintos, mesma placa. Todas as predições de teste são classe zero: acurácia=0.5, referência majoritária=0.5, F1 macro=1/3. Verificadas independentemente as 32 identidades, rótulos, somas das probabilidades, acurácia, contagens e F1 macro, não todas as métricas. Saídas: model/resnet18/rgb/epochs_1. API: spacr.classify.classify → spacr.deep_spacr.train_test_model. Não se afirmam qualidade do modelo, validade biológica ou generalização para novos experimentos. Nenhuma pergunta AI enviada.",
-  "scenes": [
-    "Abra Classify na Home e escolha Computer Vision, Torch. A visão computacional aprende com imagens de objetos; a família tabular usa medidas salvas. Ambas agora pertencem ao mesmo módulo principal. Executaremos um pequeno exemplo verificado, com uma preparação alternativa que não corrige o interpretador de nomes antigos da aplicação.",
-    "Siga o tutorial Annotate vinculado para carregar o exemplo real com Load, preservando o banco de medidas e os recortes. O terminal lista os rótulos existentes de quatro poços reais. Preservamos esses rótulos; eles não são uma verdade biológica validada independentemente. O projeto original permanece intacto durante toda a demonstração.",
-    "Baixe o script e execute-o no ambiente spaCR. Source é a pasta da placa baixada; destination deve ser uma pasta nova. Ele copia oito imagens de cada uma das duas classes existentes por poço: sessenta e quatro no total. A seleção é determinística e ocorre antes do treinamento, não depois de observar o desempenho.",
-    "Leia o manifesto antes de continuar. Os nomes das cópias usam as identidades canônicas do banco, e cada imagem preserva seus bytes originais. Dois poços inteiros vão para a pasta de treinamento e dois para teste. Este subconjunto didático balanceado altera a prevalência das classes; não representa a população original.",
-    "No Classify, escolha a pasta do conjunto preparado, não o projeto original nem uma subpasta de classe. Ela contém train e test, cada uma com duas pastas de classe. O seletor abre esse conjunto existente. Não sobrescreva o projeto fonte nem reutilize um destino com resultados anteriores.",
-    "Desligue Generate training dataset porque a divisão já está preparada. Train e Test continuam ligados; aplicar o modelo ao conjunto completo fica desligado. As pastas preservam os rótulos um e dois, enquanto o modelo usa índices zero e um. São sistemas de numeração diferentes, não contraditórios.",
-    "Escolha ResNet18 para este exemplo limitado: uma época, lotes de oito, tamanho de imagem cento e vinte e oito e dois processos de carregamento. Use os três canais RGB e deixe pesos pré-treinados e aumento de dados desligados. Esses parâmetros reduzem a demonstração; não são uma receita recomendada para um classificador preciso.",
-    "Mantenha o agrupamento por poço e todos os controles de vazamento. A fração de validação de metade divide as trinta e duas imagens de train em dezesseis de treinamento e dezesseis de validação, um poço inteiro em cada grupo. As outras trinta e duas ficam apenas para teste. Todos compartilham uma placa: não é validação em experimento independente.",
-    "Ligue Plot, limpe a busca de configurações e pressione Run. Observe na console a divisão efetiva, as auditorias de vazamento, o treinamento e os caminhos salvos. Os dois controles entre grupos de poços passam nesta execução. Um resultado do software só tem sentido se os nomes correspondem às identidades reais, verificadas separadamente.",
-    "Figures mostra perda, acurácia e acurácia de validação por classe. Com apenas uma época, são pontos isolados, não evidência de convergência. A verificação independente do teste encontra todas as imagens preditas como classe zero: cinquenta por cento de acurácia, exatamente a referência majoritária balanceada. A execução bem-sucedida não produziu um classificador útil.",
-    "Guarde a pasta do modelo com checkpoint, ficha, auditorias de vazamento e tabelas de resultados. Aqui ela fica em model, resnet18, rgb, epochs sublinhado um. Compare identidades das predições e rótulos, não apenas a acurácia. As imagens classificadas incorretamente copiadas para revisão são saídas, não novas amostras independentes.",
-    "O controle AI permite perguntar sobre configurações ou resultados após configurar um provedor. Esta pergunta não foi enviada: não é uma resposta nem um resultado analítico. Em Python, classify chama train_test_model para essa família. Preserve o manifesto e confira os conselhos antes de planejar um experimento maior com validação independente."
-  ],
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: bind current native CV recording; scene 7 uses two loader workers. Prerequisites name spaCR 1.5.0.8, n_jobs=2 and the byte-identical preserved measurements database. Eleven other narration scenes and all measured limitations remain unchanged."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Classify: treinar um classificador de imagens",
+  "description": "Prepare recortes de imagem rotulados, escolha a família de visão computacional, treine um modelo pequeno e encontre suas previsões.",
+  "objectives": [
+    "Preparar o exemplo de classificação de imagens para download.",
+    "Escolher o modelo, os canais de imagem e as configurações de treinamento.",
+    "Manter os poços separados e inspecionar os modelos e as previsões salvos."
+  ],
+  "prerequisite": "Baixe o exemplo medido pelo Annotate com Load test data e depois Load. Mantenha a pasta plate1 com measurements/measurements.db e os recortes png. Baixe Classify_existing_split_example.zip abaixo e extraia o script auxiliar. No seu ambiente do spaCR, execute prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Selecione a pasta new_split no Classify. O script auxiliar é para este exemplo de quatro poços; ele copia 64 recortes RGB rotulados para pastas de treinamento e de teste.",
+  "scenes": [
+    "Na tela Home, abra Classify e escolha Computer Vision, Torch. Esta família aprende com recortes de objetos rotulados e salva um modelo capaz de pontuar outros recortes. Siga antes a aula do Annotate para baixar as imagens de exemplo e seus rótulos.",
+    "No Annotate, escolha Load test data e depois Load. Mantenha a pasta da placa com as medições e os recortes PNG. Com seus próprios dados, comece com recortes do Measure e atribua no Annotate as classes que você quer ensinar.",
+    "Baixe o ZIP de exemplo indicado e extraia prepare_classify_split.py. Execute-o no seu ambiente do spaCR com a origem apontando para a pasta da placa de exemplo e o destino apontando para uma pasta nova. O script prepara sessenta e quatro imagens rotuladas para este exercício.",
+    "Abra a pasta nova e o manifesto. Os diretórios de treinamento e de teste contêm, cada um, duas pastas de classe. O manifesto lista cada imagem copiada e o poço dela. Mantenha poços inteiros de um só lado da divisão quando as imagens do mesmo poço compartilham condições experimentais.",
+    "Volte ao Classify e escolha a pasta preparada como Source. Selecione a pasta superior que contém train e test. Use essa pasta preparada no resto da aula, para que o modelo e os arquivos de saída fiquem juntos.",
+    "Desative Generate training dataset, porque o script auxiliar já preparou a divisão. Ative Train e Test. Deixe desativada a aplicação ao conjunto de dados completo nesta primeira execução. O modelo usa os índices de classe zero e um para as duas pastas de classe.",
+    "Escolha ResNet18, tamanho de imagem cento e vinte e oito, os três canais RGB, tamanho de lote oito e uma época. Defina dois processos de carregamento, com pesos pré-treinados e aumento de dados desativados neste exemplo curto. As épocas controlam quantas vezes o treinamento percorre as imagens de entrada.",
+    "Defina a fração de validação como um meio, mantenha o agrupamento por poço e deixe as verificações de vazamento ativadas. A validação acompanha o modelo durante o treinamento; a pasta de teste separada é usada na avaliação final. Confira a distribuição de poços informada antes de interpretar as pontuações.",
+    "Ative Plot, limpe a busca de configurações e pressione Run. Acompanhe no console o carregamento do conjunto de dados, a divisão resultante, o progresso do treinamento e os caminhos de saída. Aguarde o fim do treinamento e do teste antes de abrir os resultados salvos.",
+    "Abra Figures para inspecionar a perda e a acurácia. Uma época dá uma primeira passada rápida. Compare os resultados de teste entre as classes antes de aumentar o tempo de treinamento. Se as previsões favorecerem só uma classe, revise os rótulos, o equilíbrio entre classes e os canais de entrada antes de usar o modelo num conjunto de dados maior.",
+    "Abra model, resnet18, rgb, epochs sublinhado um dentro da pasta preparada. Mantenha juntos o checkpoint, o cartão do modelo e as tabelas de resultados. Use as previsões salvas para revisar os erros e depois siga para Classifier Evaluation ou Activation Maps para examinar melhor o modelo."
+  ]
 }

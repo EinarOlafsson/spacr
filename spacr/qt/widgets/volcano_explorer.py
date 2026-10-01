@@ -561,6 +561,9 @@ class VolcanoExplorer(QWidget):
         rows, so a file keyed on ``gene`` and one keyed on ``guide`` both work
         without the user being asked which is which.
 
+        :param path: annotation file; ``.xlsx``/``.xls`` is read as Excel,
+            anything else as CSV. It must share a column with the results
+            (unless ``on`` names one) or :class:`ValueError` is raised.
         :returns: the number of columns added.
         """
         path = os.fspath(path)
@@ -1149,11 +1152,19 @@ class VolcanoExplorer(QWidget):
         return dict(self._problems)
 
     def label_for(self, setting: str) -> QLabel | None:
-        """Return the label associated with a style setting."""
+        """Return the label associated with a style setting.
+
+        :param setting: the style setting's key, as its control was
+            registered; an unknown key gives ``None``.
+        """
         return self._labels.get(setting)
 
     def section_for(self, setting: str):
-        """Return the collapsible section containing a style setting."""
+        """Return the collapsible section containing a style setting.
+
+        :param setting: the style setting's key; an unknown key, or one
+            registered outside a section, gives ``None``.
+        """
         return self._sections.get(setting)
 
     def sections(self) -> list:
@@ -1247,6 +1258,12 @@ class VolcanoExplorer(QWidget):
         the point that LOOKS closest. Raw Euclidean distance in data units
         picks the wrong point whenever the axes have different scales, which
         on a volcano they always do.
+
+        :param x: the click's x position in data units of the x column.
+        :param y: the click's y position in plotted units (after the
+            ``-log10`` transform when the style applies one).
+        :returns: the row position, or ``None`` when no point lies within
+            0.05 of the normalised visible range.
         """
         if self._results.empty:
             return None
@@ -1266,7 +1283,11 @@ class VolcanoExplorer(QWidget):
         return index if distance[index] <= 0.05 else None
 
     def select_point(self, index: int) -> dict:
-        """Select a point by row index and show everything known about it."""
+        """Select a point by row index and show everything known about it.
+
+        :param index: positional row index into the results frame (not a
+            label).
+        """
         detail = point_details(self._results, index, self._style)
         self._selected_index = int(index)
         rows = [(k, v) for k, v in detail.items() if not k.startswith("_")]

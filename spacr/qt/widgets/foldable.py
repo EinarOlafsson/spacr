@@ -217,7 +217,7 @@ class Folder:
 
 def make_foldable(heading: QLabel, body: QWidget, name: str = "",
                   on_change: Optional[Callable[[bool], None]] = None,
-                  *, persist_key: str = "") -> Folder:
+                  *, persist_key: str = "", shut_by_default: bool = False) -> Folder:
     """Make clicking ``heading`` fold ``body`` away. Returns the Folder.
 
     The Folder is returned so the caller can hold it: it owns the event
@@ -230,14 +230,16 @@ def make_foldable(heading: QLabel, body: QWidget, name: str = "",
         restart. Empty means it does not, which is what a bare panel in a
         test wants -- a test that wrote to the real preferences would fold a
         panel on the user's next launch.
+    :param shut_by_default: start folded unless the user opened this panel
+        before (item 509: advanced rows that most people never change).
     """
     key = str(persist_key or "").strip()
-    shut_at_start = False
+    shut_at_start = bool(shut_by_default)
     if key:
         try:
             from ..preferences import get_folded_panels
 
-            shut_at_start = bool(get_folded_panels().get(key))
+            shut_at_start = bool(get_folded_panels().get(key, shut_at_start))
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not read the folded panels", exc_info=True)
 
@@ -251,7 +253,10 @@ def make_foldable(heading: QLabel, body: QWidget, name: str = "",
             try:
                 from ..preferences import set_folded_panel
 
-                set_folded_panel(key, shut)
+                if shut_by_default:
+                    set_folded_panel(key, shut, default_shut=True)
+                else:
+                    set_folded_panel(key, shut)
             except Exception:                                # noqa: BLE001
                 LOG.debug("could not store the fold", exc_info=True)
         if on_change is not None:
@@ -260,5 +265,5 @@ def make_foldable(heading: QLabel, body: QWidget, name: str = "",
     folder = Folder(heading, body, name=name,
                     on_change=remember if key else on_change)
     if shut_at_start:
-        folder.set_shut(True)
+        folder.set_shut(True, by_user=not shut_by_default)
     return folder

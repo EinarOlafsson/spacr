@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Candida: udforsk organismeguiden",
+  "description": "Gennemse Candida-guiden, udforsk gærdiagrammet, og find tilgængelige generelle workflows til billedanalyse.",
+  "objectives": [
+    "Åbne siden fra Home og finde dens vigtigste kontroller.",
+    "Identificere tilgængelige input, handlinger og output.",
+    "Vælge den næste tilgængelige analyse eller reference."
+  ],
+  "prerequisite": "Åbn Home i spaCR. Guiden kræver ingen inputfiler. Candida-specifikke analysefliser viser foreløbig Coming soon.",
+  "scenes": [
+    "Fra Home vælger du Candida. Guiden dækker morfologi, filamentdannelse, biofilm og gærens samspil med værtsceller.",
+    "Læs informationsruden med modulbeskrivelserne ved siden af, og træk i skillelinjen for at gøre den side, du læser, bredere.",
+    "Diagrammet over knopskydende gær fungerer som i de andre guider. Hold markøren over en komponent for at læse dens beskrivelse, vælg flere for at holde dem fremhævet, og Clear components nulstiller valget.",
+    "De Candida-specifikke analysefliser er markeret Coming soon indtil videre, men du kan stadig analysere dine billeder med de generelle værktøjer. Gå tilbage til Home, segmentér dem i Mask, og mål dem i Measure med kanaler og masker, der passer til din art og dit eksperiment.",
+    "Til detaljer om gener og proteiner åbnes linkene til Candida Genome Database og UniProt i din browser. Guiden kræver ingen inputfiler og skriver intet output, så når du er klar til at behandle billeder, følger du vejledningen til et kørbart modul."
+  ]
+}

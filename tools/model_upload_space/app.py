@@ -23,6 +23,19 @@ DEPLOYING
   3. Add a secret named UPLOAD_REPO if it differs from the default below.
   4. Push these three files to the Space.
 
+COMMUNITY TRAINING DATA (the `contribute` endpoint). spaCR's "Contribute
+training data" buttons send a contribution folder here, as one tar, when the
+contributor has no Hugging Face login. contribution.py checks it (target
+allow-list, size and file-count caps, file-type allow-list, every image with
+exactly one mask or label file and one meta file) and opens a PULL REQUEST
+on the target dataset -- einarolafsson/community_<name>, or Plaque Assay's
+two plaque datasets. It never commits to a dataset's main branch; the
+maintainer merges. The token that does this is CONTRIBUTION_TOKEN when that
+secret is set, else HF_TOKEN; it needs permission to open pull requests on
+those datasets, and to create repositories in the namespace if a first
+contribution to a new name should create its dataset. Set the secret
+CREATE_NEW_DATASETS=0 to refuse names whose dataset does not exist yet.
+
 MODERATION. Everything lands under `staging/` and nothing is promoted
 automatically. A public write endpoint WILL eventually receive something
 unwanted -- junk, something copyrighted, or something malicious -- and the
@@ -37,6 +50,8 @@ import time
 
 import gradio as gr
 from huggingface_hub import HfApi
+
+import contribution
 
 UPLOAD_REPO = os.environ.get("UPLOAD_REPO", "einarolafsson/user-models")
 #: Read several names. HF_TOKEN is what the deploy notes ask for, but Spaces
@@ -59,6 +74,11 @@ RATE = {}                          # ip -> [timestamps]
 RATE_LIMIT, RATE_WINDOW = 3, 3600  # uploads per IP per hour
 
 api = HfApi(token=TOKEN)
+CONTRIBUTION_TOKEN = os.environ.get("CONTRIBUTION_TOKEN") or TOKEN
+contribution_api = HfApi(token=CONTRIBUTION_TOKEN)
+CREATE_NEW_DATASETS = os.environ.get("CREATE_NEW_DATASETS", "1").strip() \
+    not in ("0", "false", "no", "")
+CONTRIBUTION_RATE_LIMIT = 10       # contributions per IP per hour
 
 # ZeroGPU refuses to start a Space with no @spaces.GPU function ("No
 # @spaces.GPU function detected during startup"), and a free-tier Gradio Space
@@ -82,11 +102,11 @@ def _slug(text):
     return out or "model"
 
 
-def _rate_ok(who):
+def _rate_ok(who, limit=RATE_LIMIT):
     now = time.time()
     seen = [t for t in RATE.get(who, []) if now - t < RATE_WINDOW]
     RATE[who] = seen
-    if len(seen) >= RATE_LIMIT:
+    if len(seen) >= limit:
         return False
     seen.append(now)
     return True
@@ -159,20 +179,50 @@ def upload(file, name, kind, trained_on, scorecard_json, contact,
             f"(sha256 {sha}) — held for review before it appears in the zoo.")
 
 
-demo = gr.Interface(
-    fn=upload,
-    inputs=[gr.File(label="model file"), gr.Textbox(label="name"),
-            gr.Textbox(label="kind", value="cellpose"),
-            gr.Textbox(label="trained on"),
-            gr.Textbox(label="scorecard (JSON)", value="{}"),
-            gr.Textbox(label="contact (optional)"),
-            gr.File(label="training data (tar, optional)")],
-    outputs=gr.Textbox(label="result"),
-    title="spaCR model upload",
-    description=("Publishes a model to the shared spaCR collection. "
-                 "Submissions are held for review before they appear in the "
-                 "Model Zoo."),
-)
+def contribute(file, target, request: gr.Request = None):
+    """Check a community training-data contribution; open a pull request."""
+    if not CONTRIBUTION_TOKEN:
+        return "error: this endpoint is not configured (no token)."
+    who = getattr(request, "client", None)
+    who = getattr(who, "host", "unknown") if who else "unknown"
+    try:
+        contribution.resolve_target(target)
+    except contribution.Refused as exc:
+        return f"error: {exc}"
+    if not _rate_ok("contribute:" + who, CONTRIBUTION_RATE_LIMIT):
+        return (f"error: rate limit is {CONTRIBUTION_RATE_LIMIT} "
+                "contributions per hour.")
+    path = None if file is None else (
+        file if isinstance(file, str) else file.name)
+    return contribution.receive(path, target, contribution_api, who=who,
+                                create_new=CREATE_NEW_DATASETS)
+
+
+# Blocks with explicit api_name, so the two endpoints spaCR calls are
+# /gradio_api/call/upload and /gradio_api/call/contribute whatever Gradio's
+# default naming does.
+with gr.Blocks(title="spaCR upload") as demo:
+    gr.Markdown("# spaCR upload\nPublishes a model to the shared spaCR "
+                "collection, or community training data to its dataset as a "
+                "pull request. Everything is held for review.")
+    with gr.Tab("Model"):
+        model_inputs = [gr.File(label="model file"), gr.Textbox(label="name"),
+                        gr.Textbox(label="kind", value="cellpose"),
+                        gr.Textbox(label="trained on"),
+                        gr.Textbox(label="scorecard (JSON)", value="{}"),
+                        gr.Textbox(label="contact (optional)"),
+                        gr.File(label="training data (tar, optional)")]
+        model_result = gr.Textbox(label="result")
+        gr.Button("Upload").click(upload, inputs=model_inputs,
+                                  outputs=model_result, api_name="upload")
+    with gr.Tab("Training data"):
+        data_inputs = [gr.File(label="contribution folder (tar)"),
+                       gr.Textbox(label="target (figures, plaques or "
+                                        "community_<name>)")]
+        data_result = gr.Textbox(label="result")
+        gr.Button("Contribute").click(contribute, inputs=data_inputs,
+                                      outputs=data_result,
+                                      api_name="contribute")
 
 # Launched at import time and blocking. Two things bite here: the Space image
 # force-installs its OWN gradio, so requirements.txt must not pin one (a pin

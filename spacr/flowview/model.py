@@ -169,7 +169,13 @@ class RunGraph:
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "RunGraph":
-        """Restore a graph from :meth:`to_dict` output."""
+        """Restore a graph from :meth:`to_dict` output.
+
+        :param payload: mapping with the ``run_id``, ``started_at``,
+            ``nodes``, ``edges``, ``spacr_version`` and ``settings_digest``
+            keys :meth:`to_dict` writes; every key is required and a missing
+            one raises ``KeyError``.
+        """
 
         nodes = {
             node_id: Node(
@@ -211,6 +217,11 @@ class RunGraph:
 
     @classmethod
     def from_json(cls, payload: str | bytes | bytearray) -> "RunGraph":
-        """Restore a graph from its deterministic JSON record."""
+        """Restore a graph from its deterministic JSON record.
+
+        :param payload: JSON text (``str``, ``bytes`` or ``bytearray``) as
+            written by :meth:`to_json`; it is decoded with ``json.loads`` and
+            passed to :meth:`from_dict`.
+        """
 
         return cls.from_dict(json.loads(payload))

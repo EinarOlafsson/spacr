@@ -54,7 +54,20 @@ class Status(str, Enum):
 
 @dataclass
 class QueueItem:
-    """One plate to process."""
+    """One plate to process.
+
+    :param id: item identifier; :meth:`build` mints eight hex characters.
+    :param app_key: key of the app whose pipeline runs this plate, resolved by
+        :func:`spacr.qt.bridge.resolve_pipeline_entry`.
+    :param settings: settings dict handed to that pipeline.
+    :param status: lifecycle state of the item.
+    :param start_ts: epoch seconds when the run started, or ``None``.
+    :param end_ts: epoch seconds when the run finished, or ``None``.
+    :param error: error message of a failed run, or ``None``.
+    :param run_dir: run folder recorded for the item, or ``None``; stored and
+        reloaded with the queue.
+    :param label: display label shown for the item.
+    """
     id:       str
     app_key:  str
     settings: Dict[str, Any]
@@ -68,7 +81,12 @@ class QueueItem:
     @classmethod
     def build(cls, app_key: str, settings: Dict[str, Any],
                  label: str = "") -> "QueueItem":
-        """Factory that mints an ID + resolves a display label."""
+        """Factory that mints an ID + resolves a display label.
+
+        :param app_key: key of the app whose pipeline runs this plate.
+        :param settings: settings for the run; copied into the item. Its
+            ``src`` value becomes the label when none is given.
+        """
         item_id = uuid.uuid4().hex[:8]
         if not label:
             label = str(settings.get("src") or f"plate-{item_id}")
@@ -121,7 +139,10 @@ class PlateQueue:
         return list(self._items)
 
     def find(self, item_id: str) -> Optional[QueueItem]:
-        """Return the item with ``item_id`` or None."""
+        """Return the item with ``item_id`` or None.
+
+        :param item_id: the :attr:`QueueItem.id` to look for.
+        """
         return next((i for i in self._items if i.id == item_id), None)
 
     def next_queued(self) -> Optional[QueueItem]:
@@ -191,7 +212,13 @@ class PlateQueue:
         return removed
 
     def update(self, item_id: str, **fields) -> None:
-        """Patch fields on the item with ``item_id``. Saves on any change."""
+        """Patch fields on the item with ``item_id``. Saves on any change.
+
+        :param item_id: the :attr:`QueueItem.id` of the item to patch; an
+            unknown id is ignored.
+        :param fields: attribute values to set on the item. Names the item does
+            not have are ignored.
+        """
         item = self.find(item_id)
         if item is None:
             return
@@ -324,7 +351,12 @@ RunnerFn = Callable[[QueueItem], None]
 def default_runner(item: QueueItem) -> None:
     """Execute ``item`` synchronously via the resolved pipeline entry
     point. Intended for CLI use or tests — the Qt screen uses a
-    QThread wrapper instead so the UI stays responsive."""
+    QThread wrapper instead so the UI stays responsive.
+
+    :param item: the queue item to run; its ``app_key`` selects the pipeline,
+        which is called with its ``settings``. An app with no pipeline raises
+        :class:`RuntimeError`.
+    """
     from .bridge import resolve_pipeline_entry
     fn = resolve_pipeline_entry(item.app_key)
     if fn is None:
@@ -343,6 +375,9 @@ def run_queue(queue: PlateQueue,
 
     Not called by the Qt screen (which needs threads + signals) but
     exposed as a plain function for CLI / tests / scripting.
+
+    :param queue: the queue to drain; its QUEUED items run one at a time and
+        their status, timestamps and errors are written back to it.
     """
     while True:
         item = queue.next_queued()

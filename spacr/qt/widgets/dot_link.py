@@ -58,7 +58,11 @@ class DotLink(QToolButton):
         self.setFixedSize(14, 14)
 
     def paintEvent(self, _event) -> None:
-        """Paint only the state-coloured dot, never a platform icon."""
+        """Paint only the state-coloured dot, never a platform icon.
+
+        :param _event: the paint event; unused, since the dot is redrawn
+            whole from the button's enabled, pressed and hover state.
+        """
         normal, hover, pressed, disabled = self._colours
         if not self.isEnabled():
             colour = QColor(disabled)

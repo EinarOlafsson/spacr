@@ -1,0 +1,157 @@
+================================================================================
+MAKE MASKS: CONSOLIDATE A FOLDER TREE, AND SORT IMAGES INTO CHANNELS THEN MERGE
+================================================================================
+
+Status:    DONE 2026-09-28, on nightly (4e6d3fd42, 12c4124c1). See the notes at the end.
+Requested: 2026-09-28, by the maintainer, relayed by the session that
+           dispatched this item. In summary of his request: when a folder is
+           dropped in Make Masks and its images sit in subfolders, offer to
+           copy them all into one folder named by their folder path (port of
+           his rename_by_folders.py); and, for a folder where he drew two mask
+           types on two kinds of intensity image (nucleus-stain images with
+           nucleus masks, cell-stain images with cell masks), a "Sort into
+           channels" step -- by selection or by regex -- that MOVES images and
+           masks into per-channel folders, renames them in Yokogawa format and
+           merges them into merged/, with a manifest, a regex window with an
+           Auto regex and a Detect sets button, and a three-set visual check
+           before detected sets are applied.
+Owner:     subagent session for item 593
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Built. Non-GUI logic in two modules, Qt thin on top:
+
+* spacr/folder_consolidation.py -- the port of rename_by_folders.py.
+  consolidate_folder(source, output=None, extensions=None, skip_dirs=(),
+  log=None) copies (never moves) every file into <parent>/<name>_renamed
+  (unused name), each named after its folder path joined by "_", collisions
+  numbered _2, _3, long names shortened with a hash, Windows-safe names,
+  symlinks skipped and recorded, rename_manifest.csv. The Tk picker is gone;
+  the CLI stays: python -m spacr.folder_consolidation SOURCE [OUTPUT].
+  Added for Make Masks: extensions= (images only) and skip_dirs= (masks,
+  orig, sorted_channels -- matched with or without a _2 suffix), and
+  nested_file_count() for the question.
+* spacr/channel_sorting.py -- parse_names/check_sets (channel from the
+  selection or chanID; set = the other named groups), infer_regex (Auto
+  regex), detect_sets (Detect sets: Hungarian pairing on filename token
+  distance + a small order term, pairs of different image size forbidden,
+  mask-vs-image size reported), name_sets/yokogawa_name (Yokogawa naming via
+  spacr.convert.target_name), build_plan (nothing moves), apply_plan (moves
+  + channel_sorting_manifest.csv) and merge_sorted (stack/, masks/<role>_
+  mask_stack/, merged/ through spaCR's own _get_regex('cellvoyager'),
+  _extract_filename_metadata, _escaped_field_stem and
+  _load_and_concatenate_arrays -- no new npy layout).
+* spacr/qt/widgets/channel_sort_dialog.py -- ChannelSortDialog (thumbnail
+  list off-thread, ExtendedSelection, Select all, "Channel N" buttons, Add
+  channel, Clear channel, per-channel mask-role combo, Apply), RegexWindow
+  (guidance with three examples, live test table, summary of unmatched /
+  incomplete / duplicated sets, Auto regex, Detect sets) and
+  ExampleSetsDialog (three sets, all channels, masks tinted red, Yes/No).
+* spacr/qt/screens/make_masks.py -- "Consolidate folders…" and "Sort into
+  channels…" buttons; open_paths (single folder) and the folder picker call
+  _offer_consolidation, which asks with _confirm and runs the copy in a
+  _FolderJobWorker (lines go to the Make Masks console) and then opens the
+  new folder. The sort's plan is applied in the same worker type and C01/
+  opens afterwards.
+
+Output of a sort, beside the images: <folder>/sorted_channels/ holding
+C01/, C02/ ... (Yokogawa-named images, their masks in C0N/masks/ under the
+new stem, .curation.json ledgers moved with them), stack/, masks/<role>_
+mask_stack/, merged/ (+ .spacr_plane_layout.json) and
+channel_sorting_manifest.csv.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Masks drawn in Make Masks on a mixed folder could not reach Measure without
+hand renaming: the pipeline needs one multi-channel field per position with
+its mask planes. Nested acquisition folders could not be opened at all
+(Make Masks lists folders non-recursively).
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Done as described above. Open follow-ups are in the note.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    python -m pytest -q -p no:randomly tests/test_593_consolidate_and_sort_into_channels.py \
+        tests/qt/test_593_make_masks_consolidate_and_sort.py
+
+24 + 8 tests pass: consolidation (collisions, nested folders, manifest,
+symlink skip, reserved/long names, CLI), regex parsing and inference,
+set detection on synthetic images (two channels, masks, wrong sizes),
+Yokogawa names round-tripping through _get_regex('cellvoyager'), merged
+arrays (H, W, 2 intensity + 2 mask planes) in the pipeline's plane order,
+and offscreen screen/dialog smoke tests.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+* A multi-folder drop is not consolidated; only a single dropped or picked
+  folder is offered. A queue of several folders already works as a queue.
+* Images that are not a single 2-D plane (RGB PNGs, z-stacks) are refused by
+  the plan rather than projected: Make Masks masks are 2-D and silently
+  max-projecting a colour image would put a wrong plane into merged/.
+* Sets that are incomplete (a channel missing) block Apply instead of being
+  left behind: the user fixes the regex or the selection, or uses Detect
+  sets, whose unpaired images simply stay in the folder.
+* Detected sets are named one well per set (plate1 A01.., F001, 384 wells to
+  a plate), as asked; regex sets without a wellID group fill A01 with fields
+  F001..F999.
+
+--------------------------------------------------------------------------------
+NOTE 2026-09-28 (item-593 session)
+--------------------------------------------------------------------------------
+
+Built and tested as above; ratchet tests (i18n caption ratchet, helper
+caption, callable/nested docstrings) pass. The 60 new captions were added to
+_AWAITING_CATALOG_REBUILD in tests/qt/test_i18n_caption_ratchet.py rather
+than rebuilding en.py, because --sources-only also swept in unrelated
+pending captions (the 557/561 Noise2Void rows) and would have tripped the
+"awaiting and sourced at once" assertion. The API English manifest was
+regenerated with tools/build_documentation_i18n.py --sources-only (it also
+picked up two stale PSF docstrings already on nightly), and the API-surface
+pins in tests/test_api_i18n_extractor.py and tests/test_docstring_correctness.py
+were moved for the 64 new public symbols (58 callables, 6 dataclasses with
+required fields); the inventory digest move was proved by subtraction
+(dropping the three new modules' rows restores bafdafefba5a... exactly).
+
+Tests run 2026-09-28 (spacr env, offscreen, CPU, 12 GB cap): the two new
+files (32), the i18n caption ratchet, helper-caption, callable and nested
+docstring tests, i18n coverage audit, docstring correctness, API i18n
+extractor, the Make Masks drop/dnd/screen/canvas/prompt tests, widgets and
+tooltip tests -- 694 passed, 3 xfailed (report-only), 0 failed.
+
+For the maintainer to confirm:
+* Mask-role defaults: guessed from names (nuc/dapi/hoechst -> nucleus,
+  cell/cyto/actin -> cell, parasite/pathogen -> pathogen), else the first
+  unused of cell, nucleus, pathogen in channel order; editable per channel.
+* A selection-assigned channel overrides a regex chanID for that image.
+* After a sort Make Masks opens sorted_channels/C01; the source folder is
+  left with whatever was not in a set.
+* The masks are COPIED into masks/<role>_mask_stack/ for the merge (small,
+  compressed), so C0N/masks stays editable in Make Masks.
+
+Left: no translation rows yet for the new captions (next catalog rebuild);
+no real-data run on the maintainer's folder.
+
+2026-09-28 (evening) -- maintainer's decisions, and the conversion prompt.
+Confirmed as built: output in <folder>/sorted_channels/; incomplete or
+duplicated sets block Apply and send the user to the regex window; mask roles
+are guessed from names and editable. Changed: RGB images and z-stacks are no
+longer simply refused. build_plan lists them in SortPlan.convertible and the
+dialog asks "Convert RGB images and z-stacks?"; on yes RGB becomes grey (mean
+of its colours, same dtype) and a z-stack its maximum projection, written as
+TIFF through tiff_io.write_tiff, with the original moved to
+sorted_channels/originals/ and the manifest status "converted rgb" or
+"converted zstack". Tested in test_593 (RGB PNG plus a 3-plane TIFF).
+Left: a run on a real folder by the maintainer; translation rows follow the
+next catalog rebuild.

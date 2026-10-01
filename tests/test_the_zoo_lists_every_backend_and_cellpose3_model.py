@@ -92,7 +92,17 @@ def test_kinds_name_the_cellpose3_kind():
 
 def test_every_backend_is_listed_with_its_state_reason_and_licence(tmp_path):
     rows = {e.key: e for e in zoo.installable_backend_entries()}
-    assert set(rows) == {"cellpose3_v1", "dinocell_v1", "papers_v1", "samcell_v1", "spotnet_v1"}
+    # + cellprofiler_v1 (item 546, 2026-09-27): CellProfiler, which runs a
+    # lab's .cppipe on Measure's fields, is an installable backend too.
+    # + sam2_v1 (item 556, 2026-09-27): SAM2's video predictor, installable
+    # for timelapse_mode='sam2'.
+    # + careamics_v1 (item 557, 2026-09-28): CAREamics, which trains the
+    # Noise2Void denoiser in Mask generation.
+    assert set(rows) == {"cellpose3_v1", "cellpose_dino_v1", "dinocell_v1",
+                         "microsam_v1", "papers_v1", "samcell_v1",
+                         "spotnet_v1", "cellprofiler_v1", "sam2_v1",
+                         "careamics_v1"} | {
+                             f"{name}_v1" for name in zoo.PREFIXED_KINDS}
     cellpose3 = rows["cellpose3_v1"]
     assert (cellpose3.kind, cellpose3.source) == ("backend", "installable")
     assert cellpose3.uri == "backend:cellpose3" and cellpose3.path == ""
@@ -161,7 +171,8 @@ def test_a_bioimageio_cellpose3_row_downloads_its_checkpoint_with_its_hash():
     assert (row.name, row.kind, row.source) == (
         "cellpose_cyto3.pth", "cellpose3", "bioimage.io")
     assert row.sha256 == "2dc3087a" and row.licence == "BSD-3-Clause"
-    assert "segmentation_backend to cellpose3" in row.notes[0]
+    assert "segmentation_backend" not in row.notes[0]
+    assert "cellpose3:<its path> in the object's model setting" in row.notes[0]
     bare = zoo._cellpose3_download_entry(
         "a", "slug", "t", {}, "", "https://x/cellpose_model", "")
     assert (bare.uri, bare.name, bare.licence) == (
@@ -181,11 +192,11 @@ def test_the_bioimageio_listing_offers_both_kinds_from_one_cache(tmp_path):
     rows = {e.key: e for e in zoo.bioimageio_entries()}
     assert set(rows) == {"bioimageio_cellpose_cyto3",
                          "bioimageio_cellpose_plant_nuclei_resnet",
-                         "cellpose_sam"}
+                         "bioimageio_cellpose_sam"}
     assert rows["bioimageio_cellpose_cyto3"].trained_by == "Ada, Grace"
     assert rows["bioimageio_cellpose_plant_nuclei_resnet"].uri == (
         "https://mirror/cp_state_dict")
-    assert rows["cellpose_sam"].kind == "cellpose", (
+    assert rows["bioimageio_cellpose_sam"].kind == "cellpose", (
         "a Cellpose-SAM model is spaCR's own Cellpose's, not Cellpose 3's")
 
 
@@ -193,7 +204,10 @@ def test_the_catalogue_lists_them_without_the_network(tmp_path):
     kinds = [e.kind for e in zoo.catalogue(remote=False,
                                            include_plugins=False)]
     assert kinds.count("cellpose3") == 4
-    assert kinds.count("backend") == 5
+    # 7 -> 8 (item 546, 2026-09-27): the CellProfiler backend's row.
+    # 8 -> 9 (item 556, 2026-09-27): the SAM2 backend's row.
+    # 9 -> 10 (item 557, 2026-09-28): the CAREamics backend's row.
+    assert kinds.count("backend") == 10 + len(zoo.PREFIXED_KINDS)
 
 
 def test_a_row_names_the_backend_it_needs():

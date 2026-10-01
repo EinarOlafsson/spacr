@@ -2,7 +2,7 @@
 
 .. |Docs| image:: https://img.shields.io/github/actions/workflow/status/EinarOlafsson/spacr/pages%2Fpages-build-deployment?label=API%20Documentation
    :target: https://einarolafsson.github.io/spacr/
-   :alt: Documentação
+   :alt: Documentação da API
 .. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
    :target: https://einarolafsson.github.io/spacr/tutorials/
    :alt: Tutoriais interativos
@@ -63,7 +63,7 @@
    :width: 920
    :target: https://einarolafsson.github.io/spacr/_static/deck/
 
-`← Anterior <../../source/_static/deck/pages/51.md>`_   `Próximo → <../../source/_static/deck/pages/02.md>`_
+`← Anterior <../../source/_static/deck/pages/56.md>`_   `Próximo → <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -83,6 +83,18 @@ Os módulos de segmentação, medição, anotação e classificação também s�
 Imagens, máscaras, recortes, medições, anotações, previsões, códigos de barras e identificadores de poço ficam em um único projeto SQLite.
 
 É executado como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster.
+
+Experimente o spaCR
+~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
+   spacr
+
+Use **Carregar dados de teste…** em Import, Make Masks, Annotate ou em uma tela de ensaio para baixar dados de exemplo. No terminal, use ``spacr-download``.
 
 Suporte de hardware
 ~~~~~~~~~~~~~~~~~~~
@@ -128,10 +140,10 @@ Suporte de hardware
 
 
 Instalar o spaCR
-----------------
+~~~~~~~~~~~~~~~~
 
 Aplicativo para desktop
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 Os instaladores empacotam seus próprios Python. Conda não é necessário.
 
@@ -169,10 +181,10 @@ No Linux, torne o arquivo baixado executável e execute-o:
 
 No macOS, abra o arquivo ``.pkg``. A versão beta atual não é notarizada; se o Gatekeeper a bloquear, selecione **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**.
 
-Veja as instruções `guia do instalador <../../source/installer_guide.rst>`_ para atualização, desinstalação, off-line e solução de problemas.
+Consulte o `guia de instalação <../../source/installer_guide.rst>`_ para obter instruções de atualização, desinstalação, uso offline e solução de problemas, e os `requisitos do sistema <../../source/system_requirements.rst>`_ para recomendações sobre estações de trabalho e servidores e tabelas de compatibilidade de GPU.
 
 Instalação pelo PyPI
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 Para usar a versão publicada no PyPI, instale o spaCR com pip em um ambiente Conda. O Python 3.12 oferece a maior variedade de pacotes científicos opcionais:
 
@@ -196,7 +208,7 @@ Em um servidor, cluster ou executor de CI, omita o Qt:
 As integrações opcionais são instaladas separadamente, por exemplo ``spacr[zarr]``,  ``spacr[omero]``,``spacr[napari]`` e ``spacr[czi,nd2,lif]``. Veja a tabela de compatibilidade  `guia de instalação <../../source/installer_guide.rst>`_ para os extras completos e ?Python-versão.
 
 Instalação com conda-forge
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 O pacote oficial do conda-forge instala o spaCR e suas dependências de desktop no ambiente ativo:
 
@@ -207,8 +219,19 @@ O pacote oficial do conda-forge instala o spaCR e suas dependências de desktop 
    conda install conda-forge::spacr
    spacr
 
+Instalação com Docker
+---------------------
+
+Execute os fluxos de processamento de linha de comando do spaCR em um contêiner usando as `imagens Docker publicadas no GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_. Instale o `Docker <https://docs.docker.com/get-started/get-docker/>`_ e liste os fluxos disponíveis com esta imagem publicada para CPU:
+
+.. code-block:: bash
+
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+A imagem correspondente para GPU NVIDIA é ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Ambas as imagens são destinadas a contêineres Linux x86-64. Consulte o `guia de instalação com Docker <../../source/installer_guide.rst#container-images>`_ para conhecer os pré-requisitos de GPU, as montagens de dados e modelos, os arquivos de configuração e os comandos completos dos fluxos de processamento.
+
 Instalação a partir do código-fonte
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------
 
 Clone o repositório e instale-o no modo editável, para que sua cópia de trabalho *seja* o pacote instalado e as alterações passem a valer sem reinstalar::
 
@@ -231,7 +254,7 @@ Para obter alterações posteriores, execute de dentro do clone::
 A segunda linha só é necessária quando dependências ou pontos de entrada mudaram; o código Python é atualizado sem ela. Se um comando ainda executar código antigo depois do pull, o ``spacr-doctor`` informa qual ``spacr`` está de fato no seu caminho de busca, o que costuma ser a causa.
 
 Instalação a partir do código-fonte (leve)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------
 
 Quem contribui precisa do histórico; para apenas executar o spaCR, use uma destas opções, medidas em 2026-09-15 com ``packaging/measure_clone_forms.sh``::
 
@@ -249,7 +272,7 @@ Quem contribui precisa do histórico; para apenas executar o spaCR, use uma dest
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Na medição de 2026-09-15, o clone completo baixou 5,8 GB. No clone raso, ``--filter=blob:none`` não reduziu o download medido. Os arquivos versionados de nightly ocupam 1607 MB na cópia de trabalho (medidos em 2026-09-24), sem o histórico do Git. O tamanho e o tempo de download variam conforme a ramificação.
+Na medição de 2026-09-15, o clone completo baixou 5,8 GB. No clone raso, ``--filter=blob:none`` não reduziu o download medido. Os arquivos versionados de nightly ocupam 821 MB na cópia de trabalho (medidos em 2026-09-26), sem o histórico do Git. O tamanho e o tempo de download variam conforme a ramificação.
 
 
 Comandos de linha de comando
@@ -269,8 +292,6 @@ Comandos de linha de comando
    spacr-download measure annotate            # fetch example sets by name
    spacr-make-masks --folder DIR              # curate masks as a resumable queue
    spacr-make-masks --folder DIR --order easy --limit 50
-
-Defina ``SPACR_LOG_LEVEL=DEBUG`` durante a solução de problemas. Os logs rotativos são gravados em ``~/.spacr/logs/spacr.log``.
 
 ``spacr-run --list`` lista os módulos com pontos de entrada de linha de comando para execução sem interface gráfica. Os módulos de anotação, curadoria, comparação e exploração disponíveis apenas na interface gráfica são omitidos.
 
@@ -324,122 +345,100 @@ Quantitative readouts for biological assays.
 
 | |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
 
-.. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
-   :width: 16.0%
-   :alt: Abrir a API de Mask
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
-   :align: middle
-.. |Module_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
-   :width: 16.0%
-   :alt: Abrir a API de Measure
-   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
-   :align: middle
-.. |Module_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
-   :width: 16.0%
-   :alt: Abrir a API de Annotate
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
-   :align: middle
-.. |Module_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
-   :width: 16.0%
-   :alt: Abrir a API de Classify
-   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
-   :align: middle
-.. |Module_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
-   :width: 16.0%
-   :alt: Abrir a API de Map Barcodes
-   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-   :align: middle
-.. |Module_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
-   :width: 16.0%
-   :alt: Abrir a API de Regression
-   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-   :align: middle
-.. |Module_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.0%
-   :alt: Abrir a API de Import
-   :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
-   :align: middle
-.. |Module_embeddings| image:: ../../../spacr/resources/icons/workflow/apps/embeddings.png
-   :width: 16.0%
-   :alt: Abrir a API de Embeddings
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html
-   :align: middle
-.. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.0%
-   :alt: Abrir a API de Run Compare
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
-   :align: middle
-.. |Module_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.0%
-   :alt: Abrir a API de Experiment Design
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
-   :align: middle
-.. |Module_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 16.0%
-   :alt: Abrir a API de Power / Design
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
-   :align: middle
-.. |Module_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.0%
-   :alt: Abrir a API de Dose–Response
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
-   :align: middle
-.. |Module_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.0%
-   :alt: Abrir a API de QC
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
-   :align: middle
-.. |Module_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.0%
-   :alt: Abrir a API de Make Masks
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
-   :align: middle
-.. |Module_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 16.0%
-   :alt: Abrir a API de Align & Stitch
-   :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
-   :align: middle
-.. |Module_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.0%
-   :alt: Abrir a API de Image UMAP
-   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap
-   :align: middle
-.. |Module_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.0%
-   :alt: Abrir a API de Gate Editor
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
-   :align: middle
-.. |Module_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.0%
-   :alt: Abrir a API de Graph Builder
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
-   :align: middle
-.. |Module_toxoplasma| image:: ../../../spacr/resources/icons/workflow/apps/toxoplasma.png
-   :width: 16.0%
-   :alt: Abrir a API de Toxoplasma
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
-   :align: middle
-.. |Module_plasmodium| image:: ../../../spacr/resources/icons/workflow/apps/plasmodium.png
-   :width: 16.0%
-   :alt: Abrir a API de Plasmodium spp.
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
-   :align: middle
-.. |Module_candida| image:: ../../../spacr/resources/icons/workflow/apps/candida.png
-   :width: 16.0%
-   :alt: Abrir a API de Candida spp.
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
-   :align: middle
+.. |Module_mask| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks"><img src="../../../spacr/resources/icons/workflow/mask.png" width="16.0%" align="middle" alt="Abrir a API de Mask"></a>
+
+.. |Module_measure| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/measure/index.html"><img src="../../../spacr/resources/icons/workflow/measure.png" width="16.0%" align="middle" alt="Abrir a API de Measure"></a>
+
+.. |Module_annotate| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html"><img src="../../../spacr/resources/icons/workflow/annotate.png" width="16.0%" align="middle" alt="Abrir a API de Annotate"></a>
+
+.. |Module_classify_merged| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/classify/index.html"><img src="../../../spacr/resources/icons/workflow/classify_merged.png" width="16.0%" align="middle" alt="Abrir a API de Classify"></a>
+
+.. |Module_map_barcodes| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html"><img src="../../../spacr/resources/icons/workflow/map_barcodes.png" width="16.0%" align="middle" alt="Abrir a API de Map Barcodes"></a>
+
+.. |Module_regression| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/ml/index.html"><img src="../../../spacr/resources/icons/workflow/regression.png" width="16.0%" align="middle" alt="Abrir a API de Regression"></a>
+
+.. |Module_foreign| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html"><img src="../../../spacr/resources/icons/workflow/apps/foreign.png" width="16.0%" align="middle" alt="Abrir a API de Import"></a>
+
+.. |Module_embeddings| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html"><img src="../../../spacr/resources/icons/workflow/apps/embeddings.png" width="16.0%" align="middle" alt="Abrir a API de Embeddings"></a>
+
+.. |Module_run_compare| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html"><img src="../../../spacr/resources/icons/workflow/apps/run_compare.png" width="16.0%" align="middle" alt="Abrir a API de Run Compare"></a>
+
+.. |Module_experiment_design| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html"><img src="../../../spacr/resources/icons/workflow/apps/experiment_design.png" width="16.0%" align="middle" alt="Abrir a API de Experiment Design"></a>
+
+.. |Module_power| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html"><img src="../../../spacr/resources/icons/workflow/apps/power.png" width="16.0%" align="middle" alt="Abrir a API de Power / Design"></a>
+
+.. |Module_dose_response| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html"><img src="../../../spacr/resources/icons/workflow/apps/dose_response.png" width="16.0%" align="middle" alt="Abrir a API de Dose–Response"></a>
+
+.. |Module_qc_dashboard| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html"><img src="../../../spacr/resources/icons/workflow/apps/qc_dashboard.png" width="16.0%" align="middle" alt="Abrir a API de QC"></a>
+
+.. |Module_make_masks| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html"><img src="../../../spacr/resources/icons/workflow/apps/make_masks.png" width="16.0%" align="middle" alt="Abrir a API de Make Masks"></a>
+
+.. |Module_align| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/align/index.html"><img src="../../../spacr/resources/icons/workflow/apps/align.png" width="16.0%" align="middle" alt="Abrir a API de Align &amp; Stitch"></a>
+
+.. |Module_umap| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap"><img src="../../../spacr/resources/icons/workflow/apps/umap.png" width="16.0%" align="middle" alt="Abrir a API de Image UMAP"></a>
+
+.. |Module_gate_editor| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html"><img src="../../../spacr/resources/icons/workflow/apps/gate_editor.png" width="16.0%" align="middle" alt="Abrir a API de Gate Editor"></a>
+
+.. |Module_graph_builder| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html"><img src="../../../spacr/resources/icons/workflow/apps/graph_builder.png" width="16.0%" align="middle" alt="Abrir a API de Graph Builder"></a>
+
+.. |Module_toxoplasma| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma"><img src="../../../spacr/resources/icons/workflow/apps/toxoplasma.png" width="16.0%" align="middle" alt="Abrir a API de Toxoplasma"></a>
+
+.. |Module_plasmodium| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium"><img src="../../../spacr/resources/icons/workflow/apps/plasmodium.png" width="16.0%" align="middle" alt="Abrir a API de Plasmodium spp."></a>
+
+.. |Module_candida| raw:: html
+
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida"><img src="../../../spacr/resources/icons/workflow/apps/candida.png" width="16.0%" align="middle" alt="Abrir a API de Candida spp."></a>
 
 .. spacr-workflow-end
 
-Todos os módulos que acompanham o spaCR, na ordem em que a tela inicial os apresenta: primeiro os seis módulos do pipeline, depois todos os demais. Selecione um ícone para abrir a página da API desse módulo.
+Todos os módulos com um bloco na tela inicial, na ordem dessa tela: primeiro os seis módulos do fluxo de processamento, depois os demais. Selecione um bloco para abrir a página da API do módulo.
 
 Consulte o `guia de funcionalidades <../../source/features.rst>`_ para conhecer cada ferramenta.
 
 Outros recursos
 ~~~~~~~~~~~~~~~
 
-- `Tutoriais interativos <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 guided workflows from installation por meio de hit investigation.
+- `Tutoriais interativos <https://einarolafsson.github.io/spacr/tutorials/>`_ — fluxos de trabalho guiados, da instalação à investigação dos resultados positivos.
 - `Python  API início rápido <../../source/python_api.rst>`_ — run and validate pipelines from scripts, notebooks or a cluster.
 - `Guia de funcionalidades <../../source/features.rst>`_ capacidades, maturidade e integrações opcionais.
 - `Referência API com curadoria <https://einarolafsson.github.io/spacr/api/index.html>`_ — supported entry points by task, with the complete module reference one level deeper.
@@ -458,7 +457,7 @@ Guia animado de configurações
 As configurações com uma explicação visual oferecem um controle **Animation** na dica de ferramenta. Consulte a `galeria de animações de configurações <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou o `registro de animações de configurações <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 Dados
------
+~~~~~
 
 Conjuntos de dados de referência
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -532,6 +531,10 @@ spaCR envia um catálogo de modelos treinados e os busca sob demanda. Abra  **Mo
        (Cellpose-SAM (cpsam_v2))
      - the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset
      - F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505
+   * - ``toxoplasma_pv_v4``
+       (Cellpose-SAM (cpsam_v2))
+     - round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7
+     - F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505
    * - ``live_cell_v1``
        (Cellpose-SAM (cpsam_v2))
      - 11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset
@@ -563,7 +566,7 @@ Cada figura acima é medida em imagens que o modelo nunca viu no treinamento.
 
 **Cross-validated**, com um  **SD**, significa que a pontuação é a média de três execuções em divisões diferentes e o SD é o quão longe eles se afastaram. Uma divisão pode ter sorte: a figura da literatura deste modelo é 0,834 em uma única divisão de 19 poços e 0,806 em todos os três.
 
-Os modelos são hospedados na conta Hugging Face do próprio autor, portanto, contribuir não significa entregar o acesso de gravação a qualquer outra pessoa.  ``spacr.model_zoo`` ``publish_model`` executa o upload e imprime a linha de catálogo para adicionar.
+Os modelos são hospedados na conta de Hugging Face de cada autor; ``spacr.model_zoo.publish_model`` envia um modelo e imprime a linha a ser adicionada ao catálogo.
 
 
 Diagnóstico de desempenho
@@ -575,7 +578,7 @@ Gere um relatório de hardware e anexe-o a uma issue relacionada ao desempenho::
 
 Salva em ``~/.spacr/reports`` e imprime o caminho.  ``--quick`` pula os benchmarks mais longos;  ``--out PATH`` define a localização.
 
-Não lê dados do projeto. Importações de tempos, bibliotecas numéricas, construção de janelas e animação. Relata a emulação processador-arquitetura (uma compilação x86_64  Python no Apple Silicon) e a implementação BLAS do NumPy.
+Não lê dados do projeto. Mede o tempo de importações, bibliotecas numéricas, criação de janelas e animação, e informa a emulação x86_64 no Apple Silicon e a implementação de BLAS usada pelo NumPy.
 
 Referência da linha de comando
 ------------------------------
@@ -590,8 +593,6 @@ Lançamento do aplicativo
    spacr              # the desktop application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
-
-``spacr-server`` pula a triagem de configuração modal, que de outra forma bloquearia uma tarefa autônoma.
 
 ``spacr-qt`` e  ``spacr-nightly`` são aliases de ``spacr``.
 
@@ -623,8 +624,6 @@ No Qt, no display para clusters, servidores e CI.
 
 ``validate`` lê as mesmas configurações que a execução faria e relata o que está faltando, contraditório ou apontando para nada.
 
-``spacr-run --list`` mostra apenas módulos com um ponto de entrada sem interface gráfica; a anotação, a curadoria e a exploração são interativas e omitidas.
-
 Inspecionando uma corrida depois
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -655,7 +654,7 @@ Os logs rotativos são gravados em ``~/.spacr/logs/spacr.log``. Anexe esse arqui
 
 
 Contribuições e suporte
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Envie relatos de erros e solicitações de recursos bem delimitadas pelo `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Ao relatar uma falha, inclua a versão do spaCR, o sistema operacional, a versão do Python, as configurações do módulo e o trecho relevante do log. O ``spacr-doctor`` coleta a maior parte dessas informações; inclua o relatório de hardware ao relatar problemas de desempenho.
 
@@ -679,6 +678,18 @@ Se o spaCR contribuir para sua pesquisa, cite:
 Olafsson EB, *et al.* Um pooled image-based  CRISPR screen identifica o EAF1 como um modulador *T. gondii* da subversão ESCRT.
 
 `bioRxiv pré-impressão <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_  · ? `arquivo de software <https://doi.org/10.5281/zenodo.21343316>`_
+
+Outros trabalhos que citam o spaCR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. spacr-citing-papers-begin
+
+* `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
+* `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
+* `Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+
+.. spacr-citing-papers-end
 
 Agradecimentos
 ~~~~~~~~~~~~~~~

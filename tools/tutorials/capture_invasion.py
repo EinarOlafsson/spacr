@@ -52,6 +52,10 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
         if key not in bar.visible_keys():
             raise ValueError('Settings search did not expose '+key)
         field = screen._settings_model._widgets[key]
+        # A list setting is now drawn by its row's own editor while the
+        # registered backing editor stays hidden; the row is what the user sees.
+        if field.isHidden() and field.parentWidget() is not None:
+            field = field.parentWidget()
         screen._settings_scroll.ensureWidgetVisible(field)
         settle(.2)
         if not field.isVisible():

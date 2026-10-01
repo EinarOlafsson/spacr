@@ -96,13 +96,6 @@
     },
     {
       "table": "ui",
-      "key": "Min area (px)",
-      "source": "Min area (px)",
-      "source_sha256": "459d8afecdee961794d0adf19f4365bd9c5548f909e7beeb070d0a9dbe7db932",
-      "translation": "최소 면적 (px)"
-    },
-    {
-      "table": "ui",
       "key": "Object counts",
       "source": "Object counts",
       "source_sha256": "27a19633bad5df509ad9f6856a9ffd4375867600c485d0b2cebb62e792e57133",

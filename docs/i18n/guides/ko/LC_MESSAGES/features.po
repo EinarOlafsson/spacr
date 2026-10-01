@@ -1,0 +1,261 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Capabilities"
+msgstr "기능"
+
+msgid "spaCR follows an image-based screen from raw microscopy files to a ranked hit list. This page gives the full map; the :doc:`Python API quickstart <python_api>` and interactive tutorials show the individual routes."
+msgstr "spaCR은 이미지 기반 스크린을 원시 현미경 파일부터 순위가 매겨진 히트 목록까지 따라갑니다. 이 페이지는 전체 지도를 제공하며, :doc:`Python API 빠른 시작 <python_api>` 과 대화형 튜토리얼에서 개별 경로를 보여 줍니다."
+
+msgid "Core screen workflow"
+msgstr "핵심 스크린 워크플로"
+
+msgid "Mask"
+msgstr "마스크"
+
+msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
+msgstr "마스크 모듈은 TIFF, OME-TIFF, LIF, CZI, ND2 획득 데이터를 준비하고 Cellpose로 세포, 핵, 병원체, 세포소기관을 분할합니다. 2차원, 볼륨, 시계열 데이터를 지원하고, 객체 직경을 추정하며, 레이어 뷰어나 napari와 마스크 수정 사항을 주고받을 수 있습니다."
+
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` asks for -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
+msgstr "객체는 네 가지로 고정되어 있지 않습니다. 프로젝트에는 세포, 핵, 병원체, 이들로부터 유도된 세포질, 그리고 ``number_of_organelles`` 가 요청하는 만큼의 세포소기관 슬롯이 있습니다. 슬롯 수는 0개부터 26개까지입니다. 각 슬롯은 독립적이며 자체 채널, 직경, 검출 방법, 형태를 가집니다."
+
+msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
+msgstr "슬롯에는 형태 프리셋이 지정됩니다. 점상, 소포상, 구형, 섬유상, 관상, 그물상, 납작주머니상, 고리형, 초승달형 또는 사용자 지정이며, 프리셋이 spots, network, irregular, ring 중 하나의 검출 전략을 선택합니다."
+
+msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and a hidden object's answers are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
+msgstr "마스크 생성은 객체별 설정을 **Per-object settings** 아래의 표 하나로 배치하며, 채널이 설정된 객체마다 열이 하나씩 있고 세포 열은 항상 표시됩니다. 객체의 채널은 일반 양식에서 설정하며, 숨겨진 객체의 입력값은 채널이 다시 설정될 때를 위해 보존됩니다. 모든 객체에는 **배경 제거** 확인란이 있고, 세포 열에는 **세포 조정** 도 있습니다. **필터 추가** 는 면적이나 평균 강도 같은 scikit-image regionprop으로 객체를 거르는 행을 추가합니다. 각 객체의 칸에는 ``200 – 5000``, 최솟값만(``200``), 최댓값만(``– 5000``) 또는 필터 없음을 뜻하는 빈칸을 입력합니다. 이 행들이 ``object_filters`` 설정입니다. 객체에 Cellpose 3 모델을 선택하면 해당 백엔드의 자체 설정이 있는 **Cellpose 3** 범주가 표시됩니다. **품질 관리** 에는 분할 검사와 함께 출력, 저장, 실행, 안정성 설정이 있습니다."
+
+msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
+msgstr "마스크의 **실시간** 미리보기는 결과를 **오버레이**, **마스크**, **흐름** 또는 **세포 확률** 로 보여 줍니다. 그림을 마우스 오른쪽 버튼으로 클릭하면 **Save as PNG…** 또는 **Save as PDF…** 를 선택할 수 있습니다. 한 세션에서 마스크가 둘 이상 생성되면 **마스크 비교…** 가 선택한 마스크와 이미지를 별도의 패널에서 각각 고유한 불투명도와 쌓기 순서로 겹쳐 보여 줍니다."
+
+msgid "Measure"
+msgstr "측정"
+
+msgid "Measure writes per-object morphology, intensity, texture, radial, spatial and colocalization features to ``measurements.db``. It can save classifier-ready object crops, estimate illumination correction from a plate, restrict work to a region of interest and report segmentation quality before a run."
+msgstr "측정 모듈은 객체별 형태, 강도, 질감, 방사, 공간, 공동 국재 특징을 ``measurements.db`` 에 씁니다. 분류기에 바로 쓸 수 있는 객체 크롭을 저장하고, 플레이트에서 조명 보정을 추정하고, 관심 영역으로 작업을 제한하고, 실행 전에 분할 품질을 보고할 수 있습니다."
+
+msgid "Measure's settings are grouped as **Input & Experiment**, **Mask & Channel Mapping**, **Image Preprocessing** (with **Image Deconvolution (PSF)** and **Illumination Correction**), **Features**, **Object Filtering**, **Crop Output**, **3D Calibration (Beta)** and **Postprocessing** (with **Runtime & Reliability**). The segmentation-quality verdict is opt-in: the **QC** switch beside **3D** and **Time** opens it in a popup, and closing the popup turns the switch off."
+msgstr "측정 모듈의 설정은 **입력 및 실험**, **마스크 및 채널 매핑**, **이미지 전처리** (**이미지 디컨볼루션(PSF)** 및 **조명 보정** 포함), **특징**, **객체 필터링**, **크롭 출력**, **3D 보정 (베타)**, **Postprocessing** (**실행 환경 및 안정성** 포함)으로 묶여 있습니다. 분할 품질 판정은 선택 사항입니다. **3D** 와 **시간** 옆의 **QC** 스위치를 켜면 팝업으로 열리고, 팝업을 닫으면 스위치가 꺼집니다."
+
+msgid "Annotate and Classify"
+msgstr "어노테이션과 분류"
+
+msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are kept and inform the next round of training. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
+msgstr "어노테이션 모듈은 키보드로 조작하는 크롭 격자를 제공하고, 레이블을 프로젝트 데이터베이스에 직접 기록하며, 불확실성에 따라 능동 학습 대기열의 순위를 매길 수 있습니다. 한 페이지에는 들어갈 수 있는 만큼의 크롭이 표시되며 스크롤되지 않고, 나머지는 다음 페이지에 있습니다. **제안...** 을 실행하면 제안된 크롭에 **?** 배지가 붙습니다. 크롭을 클릭하거나 **Y** 를 눌러 확인하고, 마우스 오른쪽 버튼으로 클릭하거나 **N** 을 눌러 거부하며, **U** 로 실행 취소합니다. **페이지 나머지 확인** 과 **페이지 나머지 거부** 는 남은 제안을 한 번에 판정합니다. 거부 결과는 보존되어 다음 학습 라운드에 반영됩니다. 분류 모듈은 측정 표를 바탕으로 PyTorch 이미지 모델이나 고전적 모델 및 부스팅 모델을 학습합니다. 체크포인트에는 데이터 세트, 분할 규칙, 클래스 균형, 홀드아웃 지표가 기록됩니다. 분류의 **Essentials** 뷰에는 두 계열 중 하나를 선택하고 학습하는 데 필요한 항목이 있습니다. ResNet이나 MaxViT 같은 이미지 모델, 또는 XGBoost나 랜덤 포레스트 같은 표 형식 모델이며, 선택하지 않은 계열의 설정은 회색으로 표시됩니다."
+
+msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
+msgstr "분류 CV는 추론 시 선택적 회전과 반사도 제공합니다. 집계 방법, 원래 확률과 평균 확률, 방향 안정성 표시는 :doc:`classifier_evaluation` 을 참조합니다."
+
+msgid "Map Barcodes"
+msgstr "바코드 매핑"
+
+msgid "Barcode mapping decodes row, column and gRNA barcodes from FASTQ reads, joins them to imaged wells and reports abundance, collision, unmapped-read and library-coverage checks."
+msgstr "바코드 매핑은 FASTQ 리드에서 행, 열, gRNA 바코드를 디코딩하고, 이를 이미지화된 웰과 결합하며, 존재량, 충돌, 매핑되지 않은 리드, 라이브러리 커버리지 검사를 보고합니다."
+
+msgid "Regression"
+msgstr "회귀"
+
+msgid "Regression estimates guide, gene, condition and control effects. Its model families cover continuous, fractional, binary and count responses, robust and quantile fits, penalised high-dimensional designs, mixed effects and guide permutation. Diagnostics and run summaries are written beside the result."
+msgstr "회귀는 가이드, 유전자, 조건, 대조군 효과를 추정합니다. 모델 계열은 연속형, 비율형, 이진형, 계수형 반응, 강건 적합과 분위수 적합, 벌점화된 고차원 설계, 혼합 효과, 가이드 순열을 다룹니다. 진단 정보와 실행 요약은 결과 옆에 기록됩니다."
+
+msgid "Planning, quality control and exploration"
+msgstr "계획, 품질 관리 및 탐색"
+
+msgid "**Power and Design** estimate cell and well requirements and lay out plates, controls and replicates."
+msgstr "**Power and Design** 은 필요한 세포 수와 웰 수를 추정하고 플레이트, 대조군, 반복을 배치합니다."
+
+msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and leakage checks."
+msgstr "**QC Dashboard** 는 분할, 플레이트, 주석자 일치도, 누수 검사를 결합합니다."
+
+msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
+msgstr "**배치 보정** 은 중심화, z 점수화, 강건 z 점수화, 대조군 중심화, 생물학적 공변량을 보호하는 ComBat을 제공합니다."
+
+msgid "**Graph Builder, gates and linked views** connect summary plots to the object crops behind them."
+msgstr "**Graph Builder, 게이트, 연결된 뷰** 는 요약 그래프를 그 뒤에 있는 객체 크롭과 연결합니다."
+
+msgid "**Feature, dose-response, control-chart and outlier views** inspect a result without an export/re-import cycle."
+msgstr "**특징, 용량-반응, 관리도, 이상값 뷰** 는 내보내기/다시 가져오기 과정 없이 결과를 검사합니다."
+
+msgid "**Layer and lineage views** connect images, masks and the cell → nucleus → pathogen object hierarchy."
+msgstr "**레이어 및 계보 뷰** 는 이미지, 마스크, 세포 → 핵 → 병원체 객체 계층을 연결합니다."
+
+msgid "In **Live Preview**, **QC** image views and the raw/enhanced comparison, wheel zoom keeps the image point beneath the pointer in place. This also works when the image is smaller than its viewport; **Fit** or opening a new image resets the extra navigation space. Linked comparison views update together after the zoom. Orthogonal image views zoom around the pointer without moving the crosshair's selected position."
+msgstr "**Live Preview**, **QC** 이미지 뷰, 원시/향상 비교에서 휠로 확대/축소하면 포인터 아래의 이미지 지점이 제자리에 유지됩니다. 이미지가 뷰포트보다 작을 때도 동작하며, **화면에 맞추기** 를 하거나 새 이미지를 열면 추가 탐색 공간이 초기화됩니다. 연결된 비교 뷰는 확대/축소 후 함께 업데이트됩니다. 직교 이미지 뷰는 십자선의 선택 위치를 옮기지 않고 포인터를 중심으로 확대/축소합니다."
+
+msgid "For Toxoplasma compartment-intensity comparisons, see :doc:`recruitment`."
+msgstr "톡소플라스마 구획 강도 비교는 :doc:`recruitment` 를 참조합니다."
+
+msgid "Reproducibility and interoperability"
+msgstr "재현성과 상호 운용성"
+
+msgid "Every run can record its identifier, seed, resolved settings and outputs. Interrupted workflows can resume from checkpoints, and the run history can compare settings and artefacts. Measurements export to AnnData; optional integrations read or write OME-Zarr, connect to OMERO and send masks to napari."
+msgstr "모든 실행은 식별자, 시드, 확정된 설정, 출력을 기록할 수 있습니다. 중단된 워크플로는 체크포인트에서 재개할 수 있고, 실행 기록으로 설정과 산출물을 비교할 수 있습니다. 측정값은 AnnData로 내보낼 수 있으며, 선택적 통합 기능으로 OME-Zarr를 읽고 쓰고, OMERO에 연결하고, 마스크를 napari로 보낼 수 있습니다."
+
+msgid "How a module is reached"
+msgstr "모듈에 도달하는 방법"
+
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
+msgstr "홈 화면은 모듈을 **핵심**, **데이터**, **도구**, **어세이** 의 네 범주로 묶으며, 21개 모듈이 이 중 한 범주에 타일을 가지고 있습니다. 핵심은 순서대로 실행하는 파이프라인이고, 데이터는 파이프라인에 들어가고 나오는 것이며, 도구는 파이프라인이 스스로 수행하는 단계가 아니라 프로젝트에 대고 사용하는 도구이고, 어세이는 정량 판독값입니다. 마스크 만들기는 **도구** 아래에 있습니다."
+
+msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
+msgstr "타일만이 유일한 진입로는 아니며, 대부분의 모듈에는 타일이 없습니다. 타일은 “여기서 시작하세요”라는 뜻이지만, 다른 사람이 시작한 실행에 관한 질문에 답하는 모듈은 출발점이 아닙니다. 이런 모듈은 대신 다음 위치에서 열립니다."
+
+msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
+msgstr "**호스트 모듈 헤더의 버튼** -- 호스트 설정 옆의 페이지로 열리며, 이미 같은 프로젝트를 가리키고 있습니다. Investigate Hit과 Prediction Profiler는 회귀에서, 형식 변환기와 외부 마스크는 가져오기에서, Layer Viewer, Control Charts, Outliers는 QC에서 열립니다."
+
+msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
+msgstr "**도움말 메뉴** -- 특정 모듈에 속하기보다 이미 있는 작업을 검사하거나 관리하는 모듈입니다. 실행 기록, Pipeline Graph, Project Browser, 데이터베이스 브라우저, 보고서, 데이터 관리자, 플레이트 대기열, 배치 실행기, 분산 작업이 여기에 해당합니다."
+
+msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
+msgstr "**명령 팔레트** (Ctrl+K) -- 타일 여부와 관계없이 모든 모듈에 도달합니다. 예외가 없는 유일한 경로이며, 키보드 사용자의 탐색 수단입니다."
+
+msgid "None of them is second-class: they are shipped, translated and documented like any other module, and the ones that are pipelines still run headlessly under ``spacr-run``."
+msgstr "이들 중 어느 것도 부차적이지 않습니다. 다른 모듈과 똑같이 배포되고, 번역되고, 문서화되며, 파이프라인에 해당하는 모듈은 여전히 ``spacr-run`` 으로 헤드리스 실행됩니다."
+
+msgid "Host"
+msgstr "숙주"
+
+msgid "Opens from its masthead"
+msgstr "헤더에서 열리는 모듈"
+
+msgid "Timelapse"
+msgstr "타임랩스"
+
+msgid "Illumination Correction, AnnData Export, Motility Assay"
+msgstr "조명 보정, AnnData 내보내기, 운동성 분석"
+
+msgid "Annotate"
+msgstr "어노테이션"
+
+msgid "Annotator Agreement"
+msgstr "주석자 일치도"
+
+msgid "Classify"
+msgstr "분류"
+
+msgid "Classifier Evaluation, Explain CV Model, Activation Maps"
+msgstr "분류기 평가, CV 모델 설명, 활성화 맵"
+
+msgid "Barcode QC"
+msgstr "바코드 QC"
+
+msgid "Volcano Explorer, Hit List, Methods & Results"
+msgstr "볼케이노 플롯 탐색기, 히트 목록, 방법 및 결과"
+
+msgid "Image UMAP"
+msgstr "이미지 UMAP"
+
+msgid "Image Scatter, PCA"
+msgstr "이미지 산점도, PCA"
+
+msgid "Make Masks"
+msgstr "마스크 만들기"
+
+msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate, Napari Bridge"
+msgstr "Cellpose 워크벤치, 전체 폴더의 마스크 생성, 모델 비교, 모델 라이브러리, 큐레이트, 나파리 브리지"
+
+msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
+msgstr "매개변수 탐색은 세 번째 방법으로 도달합니다. 회귀 화면의 패널이며, 설정 양식의 **파라미터 스윕** 스위치로 엽니다."
+
+msgid "Arranging the window"
+msgstr "창 배치"
+
+msgid "**Home** keeps its panels in a right-hand column. Drag the column's arrow handle to resize it, or click it to fold the column away and bring it back. The **Text size** slider below the lowest panel scales the text in those panels."
+msgstr "**홈** 은 패널을 오른쪽 열에 둡니다. 열의 화살표 핸들을 끌어 크기를 조정하거나, 클릭하여 열을 접었다가 다시 펼칩니다. 가장 아래 패널 밑의 **텍스트 크기** 슬라이더로 해당 패널의 텍스트 크기를 조정합니다."
+
+msgid "**The dock**: while it is shown, drag its edge to make it wider or narrower; double-click the edge to fit it to the module names again."
+msgstr "**도크**: 표시되어 있는 동안 가장자리를 끌어 너비를 조정하고, 가장자리를 두 번 클릭하면 모듈 이름에 다시 맞춰집니다."
+
+msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
+msgstr "**모듈의 오른쪽 열** (콘솔, 작업, 기타 패널)은 왼쪽 가장자리를 끌면 한꺼번에 크기가 조정됩니다. 그 위에서 **Ctrl** 을 누른 채 스크롤하면 텍스트가 커지거나 작아지며, 열 위에서 **Ctrl+0** 을 누르면 기본 크기로 돌아갑니다."
+
+msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
+msgstr "**툴팁** 은 포인터가 2초 동안 머무르면 나타나고, 포인터가 그 위에 있는 동안 유지됩니다. **환경설정 → 모양 → 툴팁** 에서 모두 끌 수 있습니다."
+
+msgid "These sizes are remembered between sessions."
+msgstr "이 크기들은 세션 간에 기억됩니다."
+
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "마스크 만들기는 마스크를 손으로 수정하며, 헤더에서 Cellpose 루프를 제공합니다. 캔버스에는 브러시, 지우개, Erase object, Wand +, Wand −, Draw, Divide, 확대/축소, Recrop, 자의 10가지 도구가 있습니다. :doc:`마스크 만들기 참조 <make_masks>` 에서 이 도구들과 레벨, 검출 설정, 1차/2차 짝짓기, 저장, 측정을 다룹니다."
+
+msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
+msgstr "Draw는 자유형 윤곽을 따라 그린 뒤 닫고 채워 하나의 객체로 만듭니다. 이는 브러시로는 할 수 없는 일입니다. 브러시는 경로를 따라 원판을 찍기 때문에 가장자리를 따라 그리면 가장자리만 레이블되고 가운데는 배경으로 남습니다. Divide는 합쳐진 객체를 가로질러 선을 그어 둘로 나누며, 다른 객체의 레이블은 건드리지 않습니다. 분할에서 가장 흔히 필요한 수정입니다."
+
+msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
+msgstr "Recrop은 화면에 그려진 내용이 아니라 화면에 표시되는 시야 자체를 바꾸는 유일한 도구입니다. 여러 세포가 담긴 준비된 크롭은 하나의 학습 예제가 아니며, 이를 하나로 큐레이트하면 네트워크가 두 객체를 한 장의 그림으로 학습하게 됩니다. 따라서 객체 주위에 상자를 그리면 이미지와 마스크의 해당 영역이 별도의 시야로 기록되어 현재 시야 바로 다음 대기열에 들어가고, 여러 객체가 담긴 원본은 큐레이트되지 않고 ``recropped_originals/`` 로 옮겨집니다. 최소 변보다 작은 상자나 이미 만든 잘라내기를 반복하는 상자는 거부됩니다. 상자가 가로지르는 객체는 제외됩니다. 경계가 마우스를 놓은 위치에 있는 객체는 원래의 그 객체가 아니기 때문입니다. 남은 레이블은 1부터 다시 번호가 매겨집니다."
+
+msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. A mask is a threshold applied to that probability map, and a candidate object is discarded when its flows disagree with the ones the network predicted by more than the flow-error threshold. When a mask is wrong, those two panes are where the reason is visible."
+msgstr "이 화면에서 Cellpose-SAM을 실행하면 마스크 옆에 두 가지 중간 출력, 즉 세포 확률 맵과 흐름 필드가 표시됩니다. 마스크는 그 확률 맵에 임계값을 적용한 결과이며, 후보 객체의 흐름이 네트워크가 예측한 흐름과 흐름 오차 임계값 이상 다르면 그 후보는 버려집니다. 마스크가 잘못되었을 때 그 이유가 보이는 곳이 바로 이 두 창입니다."
+
+msgid "Settings that apply"
+msgstr "적용되는 설정"
+
+msgid "The settings panel carries a control when it applies to the run being set up and leaves it off the form when it does not:"
+msgstr "설정 패널은 컨트롤이 설정 중인 실행에 적용될 때 표시하고, 적용되지 않을 때는 양식에서 뺍니다."
+
+msgid "a slot past ``number_of_organelles`` takes its whole block of settings with it, its channel included -- a slot the run does not have is not a slot with its channel left showing;"
+msgstr "``number_of_organelles`` 를 넘는 슬롯은 채널을 포함한 설정 묶음 전체와 함께 사라집니다. 실행에 없는 슬롯이 채널만 표시된 채 남아 있지 않습니다."
+
+msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
+msgstr "채널이 어떤 평면도 가리키지 않는 객체는 실행에 전혀 포함되지 않으므로 그 설정도 양식에 없습니다."
+
+msgid "a setting belonging to one morphology is dropped for a slot of another: a punctate organelle has no ridge filter."
+msgstr "한 형태에 속한 설정은 다른 형태의 슬롯에서는 빠집니다. 점상 세포소기관에는 능선 필터가 없습니다."
+
+msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
+msgstr "3D 및 시간 스위치는 플레이트가 어떤 차원을 가지는지 선언합니다. ``z_stack`` 은 z축을 선언하고 볼륨 설정(분할 모드, 이방성, 복셀 크기)을 켜며, 어느 축이 z인지 추측하지 않고 오류와 함께 멈춥니다. ``timelapse`` 는 시간 축을 선언하고 추적 설정을 표시하며, 시점이 하나인 플레이트는 이를 무시합니다. 4D 설정은 데이터가 z 스택이면서 시계열일 때만 적용되고, 그때만 나타납니다."
+
+msgid "Maturity labels"
+msgstr "성숙도 레이블"
+
+msgid "The API uses these labels consistently:"
+msgstr "API는 다음 레이블을 일관되게 사용합니다."
+
+msgid "**Stable**"
+msgstr "**안정**"
+
+msgid "Supported entry points used by the principal Mask, Measure, Classify, barcode and regression workflows. Backward-incompatible changes require a deprecation period."
+msgstr "주요 마스크, 측정, 분류, 바코드, 회귀 워크플로에서 사용하는 지원 진입점입니다. 하위 호환되지 않는 변경에는 사용 중단 유예 기간이 필요합니다."
+
+msgid "**Advanced**"
+msgstr "**고급**"
+
+msgid "Supported specialist functionality whose defaults or result schema may still evolve. Release notes describe material changes."
+msgstr "기본값이나 결과 스키마가 아직 바뀔 수 있는 지원되는 전문 기능입니다. 중요한 변경 사항은 릴리스 노트에 설명됩니다."
+
+msgid "**Experimental**"
+msgstr "**실험적**"
+
+msgid "Early interfaces intended for evaluation. They may change between minor releases and should be pinned before use in an automated workflow."
+msgstr "평가용 초기 인터페이스입니다. 부 릴리스 사이에 바뀔 수 있으므로 자동화된 워크플로에서 사용하기 전에 버전을 고정해야 합니다."
+
+msgid "**Internal**"
+msgstr "**내부**"
+
+msgid "GUI widgets, workers and implementation helpers. They are documented for contributors but are not a compatibility promise."
+msgstr "GUI 위젯, 작업자, 구현 도우미입니다. 기여자를 위해 문서화되어 있지만 호환성을 약속하지는 않습니다."
+
+msgid "Optional dependencies"
+msgstr "선택적 의존성"
+
+msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "기본 패키지에는 헤드리스 파이프라인이 들어 있습니다. 데스크톱 인터페이스를 사용하려면 ``spacr[qt]`` 를 설치합니다. 다른 추가 구성 요소는 OME-Zarr, OMERO, napari, 기여도 분석, 추적, Zernike 측정, 제조사별 판독기를 추가합니다. 사용 가능 여부는 Python 버전에 따라 다르며, :doc:`설치 안내서 <installer_guide>` 가 공식 호환성 표입니다."
+

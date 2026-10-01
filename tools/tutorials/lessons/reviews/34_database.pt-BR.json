@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Database Browser: filtrar e exportar medições",
+  "description": "Abra um banco de dados de medições, selecione colunas e linhas e exporte o resultado.",
+  "objectives": [
+    "Abrir e percorrer uma tabela de medições.",
+    "Selecionar colunas e filtrar linhas.",
+    "Exportar os registros correspondentes."
+  ],
+  "prerequisite": "Tenha um arquivo measurements.db do spaCR ou uma pasta de execução que contenha um. O projeto de exemplo do Measure fornece um banco de dados depois da medição.",
+  "scenes": [
+    "Abra Help e depois Database Browser para inspecionar e exportar tabelas de medições.",
+    "Escolha measurements.db, ou a pasta de execução que o contém, e abra o banco de dados.",
+    "Selecione a tabela de que precisa. Escolha cell para as medições de células, ou outra tabela de objetos para as características desse objeto.",
+    "Leia o total de linhas e colunas e depois inspecione a página exibida. Use os controles de página para percorrer tabelas maiores.",
+    "Pesquise nos nomes das colunas para localizar uma característica. Selecione as colunas que quer ver e exportar.",
+    "Monte um filtro escolhendo uma coluna, um operador e um valor. Aplique-o para selecionar os registros correspondentes na tabela inteira.",
+    "Confira o número de linhas filtradas e inspecione os registros correspondentes. Ajuste ou limpe o filtro para mudar a seleção.",
+    "Escolha Export e um arquivo de destino. A exportação inclui todas as linhas correspondentes e as colunas selecionadas, sem alterar o banco de dados de origem."
+  ]
+}

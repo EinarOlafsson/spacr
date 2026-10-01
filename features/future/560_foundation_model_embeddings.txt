@@ -1,0 +1,84 @@
+FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12826486/
+
+WHAT TO BUILD
+    Add channel-adaptive / single-cell foundation models as backbones for
+    spaCR's embeddings, image UMAP and classifiers, each in its own
+    environment where dependencies clash.
+
+DONE WHEN
+    Embeddings from each backbone separate known phenotypes on a labelled
+    set (kNN accuracy / mAP) compared with current backbones.
+
+ALPHA: 2026-09-27 -- the Embeddings screen's Foundation model picker
+    (ALPHA_FEATURES[560], widgets EmbeddingsFoundationLabel and
+    EmbeddingsFoundationPicker), hidden until Preferences -> Show alpha
+    features is on. A model chosen while hidden still names the run's
+    backbone; None keeps the timm backbone.
+
+WHAT WAS BUILT (2026-09-27)
+    spacr/embeddings.py: _FOUNDATION_MODELS / _foundation_names, and
+    _backbone_encoder dispatching a backbone name to _foundation_encoder
+    (else timm). Loaders, weights pinned and downloaded once to the HF /
+    torch hub cache:
+      openphenom  recursionpharma/OpenPhenom @0f92333 (channel-agnostic MAE
+                  ViT-S/16, 256 px, 384 dims per pass; HF remote code)
+      chada_vit   nicoboou/chadavit16-moyen @91a4112 (channel-adaptive
+                  ViT-T/16, 224 px, 192-dim CLS; HF remote code)
+      subcell     CZI DNA-Protein_ViT-ProtS-Pool.pth (ViT-B/16 + gated
+                  attention pool, 448 px, 1536 dims; two planes, DNA then
+                  protein; rebuilt on transformers.ViTModel, strict load)
+      cell_dino   refused with a reason: Meta has not released the weights
+                  (dinov2 README_CELL_DINO.md).
+    embed_array honours an encoder's in_channels: None (channel-adaptive)
+    gets one plane per channel under per_channel and every channel in one
+    pass under project (the >3 projection limit is lifted for these); 2
+    gets the first two planes, zero-padded. Plain encoders unchanged.
+    _retrieval_scorecard: kNN accuracy (majority of k=10), mAP and
+    precision@k vs chance, over the same standardised cosine space as the
+    "find cells like this" index (active_learning._SimilarityIndex).
+    No new dependency: transformers (already used) + torch. The two HF
+    models run trust_remote_code at a pinned revision. None of the four
+    needed its own env here (torch 2.6, transformers 4.48, timm 1.0.17).
+
+MEASURED (CPU only; the GPU was held by a training job)
+    Labelled set: datasets_/plate1 PNG crops (224 px; channels nucleus,
+    pathogen, ch3), up to 80 per class folder, 307 crops. Labels: 6 classes
+    (nucleus count x infection) and 3 (infection). Folder labels come from
+    spaCR's object counts, not a human. k = 10; chance mAP 0.227 / 0.341.
+    Script: /mnt/firecuda2/codex/scratch-docs/560/bench.py (+ bench.csv).
+      backbone     policy       dims  kNN6  mAP6  kNN3  mAP3  CPU s
+      resnet18     per_channel  1536  0.720 0.438 0.798 0.563  164
+      resnet50     per_channel  6144  0.651 0.418 0.710 0.539  435
+      openphenom   per_channel  1152  0.668 0.460 0.739 0.579   95
+      openphenom   project       384  0.687 0.493 0.792 0.619   90
+      chada_vit    project       192  0.645 0.477 0.762 0.593  589
+      subcell      project(0,1) 1536  0.655 0.489 0.795 0.661  157
+    Reading: every backbone is well above chance. All three microscopy
+    models beat both ImageNet ResNets on mAP (best: OpenPhenom joint pass
+    mAP6 0.493 vs 0.438; SubCell on DNA + pathogen mAP3 0.661 vs 0.563),
+    with a quarter to an eighth of the dimensions for OpenPhenom/ChAda;
+    kNN accuracy is a tie with resnet18 on this small, count-derived,
+    imbalanced label set (two classes have 8 and 12 crops).
+
+WHAT IS LEFT
+    - Repeat on a human-annotated set of a few thousand crops, and on GPU
+      (not queued: GPU held for days).
+    - Cell-DINO once Meta publishes weights (a loader for a local DINOv2
+      teacher checkpoint then).
+    - SubCell's 4-channel (rybg) model and choosing which crop channel is
+      DNA/protein from the GUI (today: channel order via EmbeddingSpec).
+    - Isolated envs (_segmentation_backends) only if a pinned model stops
+      loading under spaCR's transformers; none needed today.
+    - Wire _retrieval_scorecard into encoder_entry's scorecard from the
+      screen, and add these backbones to image UMAP / classifier pickers.

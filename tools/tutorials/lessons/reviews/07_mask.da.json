@@ -1,36 +1,35 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "d988500d3e72fecd4b8c77b883b5355c5de3e59b413d46f093e2c762876087d4",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "f3857bc3da727e332cd16993840b67e8b1e444fcfe523266922653700cf7e5e4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "da",
-  "title": "Mask: livefiltre, en rigtig kørsel og kontrolleret eksport af overlays",
-  "description": "Brug de faktiske eksempeldata, sammenlign areal og diameter live, kør to felter med Plot slået til, og eksporter et manglende overlay gennem et tydeligt Python-trin.",
+  "title": "Mask: segmentér billeder, og undersøg resultaterne",
+  "description": "Indlæs mikroskopbilleder, vælg segmenteringsindstillinger, forhåndsvis objekter, og gem masker til måling.",
   "objectives": [
-    "Find Mask på Home og de indlejrede Live-, Time-, 3D- og OPS-kontroller.",
-    "Kontrollér metadata og kanalidentiteter før segmentering.",
-    "Skeln mellem et reversibelt filter og en ny modelkørsel.",
-    "Undersøg de faktiske resultater, bevar advarslen, og eksporter begge arrays eksplicit.",
-    "Hold QC-begrænsninger, originaldata og et usendt AI-spørgsmål adskilt fra videnskabelig validering."
+    "Indlæse mikroskopieksemplet og identificere dets intensitetskanaler.",
+    "Sammenligne modelindstillinger og størrelsesfiltre i Live-forhåndsvisningen.",
+    "Køre segmenteringen, undersøge overlejringer og finde de sammenlagte output."
   ],
-  "prerequisite": "Brug det rigtige Mask-download, og bevar kanalidentiteter og filnavnsmetadata. Live-preview er optaget på 1.5.0.7 med eksemplets medfølgende indstillinger på en ny kopi og genbruges kun, så længe live_preview.py og preview_contract.py er byteidentiske med den optagelse. Gemte masker reproducerer uafhængigt 105→52→105 ved minimumsareal 510 og 36 efter diameter 30→60. Den nye batch med to felter er et andet eksempel, ikke en direkte tællesammenligning: Plot=True, test_images=2, batch_size=2, n_jobs=2, diametre 30/30/15 og alle flowgrænser 0.4. Arkivværdien 100 slår flowfiltrering fra og anbefales ikke som standard. Den indbyggede overlay-løkke fejler STADIG på .spacr_plane_layout.json: ét af to overlays mangler trods Finished. Slet ikke layoutet, og aktivér ikke pickle. Hjælperen kalder spacr.plot.plot_image_mask_overlay kun på almindelige .npy-filer; fire intensitetsplaner og celle/kerne/patogen på 4/5/6 kræves. Den gemmer PNG med uigennemsigtig baggrund i en ny mappe uden at ændre arrays eller reparere GUI'en. Kildehashene matcher kørselsjournalen. Endelige antal: 25/19/8 og 52/50/58; første felts patogen-QC advarer near_empty_field. Celle-QC ligger før maskejustering. 95,424,864 kanal-RGB-værdier og 7,952,072 kombinerede forgrundspixel er kontrolleret uafhængigt, ikke biologisk nøjagtighed. Tidligere fejl og transparente plotforsøg bevares, men kaldes ikke komplette. Ingen AI-anmodning, træning, videnskabelig godkendelse eller publicering. API: spacr.core.preprocess_generate_masks og spacr.plot.plot_image_mask_overlay. OPS er en separat side, der åbnes fra handlingsrækken i Mask, og har sin egen vejledning; denne lektion kører det ikke.",
+  "prerequisite": "Åbn Mask, og vælg Load test data. Til dine egne billeder forbereder du en kildemappe med ensartede filnavne og kendte kanaler. Eksemplet bruger kernekanal 0, cellekanal 1 og patogenkanal 2 samt en ekstra intensitetskanal 3.",
   "scenes": [
-    "Åbn Mask fra Home. Det er et hovedmodul; dets handlingsrække rummer kontakterne Live, Time, tredimensionel og OPS. Time og OPS har hver deres linkede vejledning under Mask i afsnittet med undermoduler. Her viser vi et todimensionelt eksempel, live-sammenligninger og en omvej til plotting, ikke automatisk valideret segmentering.",
-    "Klik på Load test data, og vent på de rigtige mikroskopidata. Bevar mappestruktur og originalbilleder. Optagelsen bruger en frisk privat kopi, så en tidligere kørsel ikke leverer gamle resultater. Kontrollér filnavnsmetadata og kanalidentiteter for egne data, før du kopierer eksempelindstillinger.",
-    "Her er kerneintensitet kanal nul, celleintensitet kanal ét og patogenintensitet kanal to. Eksemplet har også kanal tre. Det er intensitetskanalernes identiteter, ikke maskeplanernes numre i et flettet output. Kontrollér billederne selv, og bevar layoutmetadata, når resultater flyttes.",
-    "Slå Live til, og vælg et felt. Preview sammenligner billedet med de foreslåede masker før en større kørsel. Denne preview bruger et andet felt end batchens to felter senere. Et vist preview-antal kan ikke direkte sammenlignes med en batchtotal.",
-    "Åbn Live settings, og undersøg cellekontrollerne. Optagelsen bruger den installerede CPSAM-model; valgmulighederne afhænger af installationen. Kør preview, før konturer fortolkes. Diameter og filtrering er forskellige handlinger; hverken modelnavnet eller en farverig maske garanterer nøjagtighed.",
-    "Udgangspunktet har 105 cellelabels. Hæves minimumsarealet til 510 pixel, er 52 labels synlige. Det er et reversibelt filter på det eksisterende resultat: råmasken er uændret, og modellen køres ikke igen. Grænsen demonstrerer kontrollen og er ikke en optimal biologisk tærskel.",
-    "Gendan den oprindelige arealgrænse, og alle 105 labels kommer tilbage. Undersøg, hvilke objekter der forsvinder og hvorfor, før et filter vælges. Små objekter kan være reelle eller segmenteringsfejl; fjernelse afgør ikke spørgsmålet. Hold råresultat og valgte filterværdier særskilt identificerbare.",
-    "At ændre diameter fra 30 til 60 pixel og køre igen sammenligner en modelparameter, ikke kun et visningsfilter. Det giver 36 labels i det optagne felt. Sammenlign grænser med billedet, ikke kun antal. Færre labels beviser ikke en bedre model, og indstillingerne er ikke universelle anbefalinger.",
-    "Brug to testbilleder i den separate batch, og behold Plot slået til. Alle tre flowgrænser er her udtrykkeligt 0,4. De downloadede indstillinger havde 100, som slår flowfiltrering fra; det anbefales ikke som standard. Læs konsollens enheds- og behandlingsbeskeder i stedet for at antage, hvordan kørslen foregik.",
-    "Læs hele konsollen. Arbejderen siger Finished, men overlay-oversigten melder ét af to plots manglende: layout-JSON blev forsøgt indlæst som billede. De flettede maskearrays findes, men den indbyggede plotting er ikke fuldført. Bevar advarslen, og kald det ikke stiltiende en succes.",
-    "Omvejen er et eksplicit eksternt trin. Bevar layout-JSON: den beskriver intensitets- og maskeplaner og er ikke et billede. Aktivér aldrig pickle-indlæsning for at skjule fejlen. Download og gennemse den linkede hjælper; brug denne kørsels merged-mappe, ikke en ældre resultatmappe.",
-    "Kør hjælperen med merged-kilden og en ny destination. Den kalder det rigtige plotting-API særskilt for hvert numerisk array og gemmer begge overlays. Et andet planelayout eller en eksisterende outputmappe afvises. Det omgår den fejlbehæftede mappescanning for denne eksport, men reparerer ikke programmets plotting-løkke.",
-    "De gemte plots vises i en ekstern billedfremviser, ikke indsat i spaCR. Første felt har efter justering 25 celle-, 19 kerne- og 8 patogenlabels. Patogen-QC advarer stadig om, at otte objekter er for få til feltets størrelseskontroller. Et læseligt overlay fjerner ikke begrænsningen.",
-    "Andet felt har 52 celle-, 50 kerne- og 58 patogenlabels. De første fire paneler viser intensitetskanaler og konturer; det sidste kombinerer objektmaskerne. Percentilnormalisering er her kun til visning. Kildearrays er uændrede, og antallene måler ikke nøjagtighed mod en sand reference.",
-    "Gem outputkontroller, originaljournal, indstillinger og QC-filer sammen. Vi kontrollerede uafhængigt de plottede kanalarrays, kombineret forgrundsdækning og uændrede kildehash. Celle-QC blev registreret før maskejustering, så tallene behøver ikke svare til slutresultatet. Undersøg segmenteringskvaliteten selv, før du fortsætter til Measure.",
-    "Konsollens valgfrie spaCR AI kan hjælpe med at diskutere indstillinger, men eksempelspørgsmålet er ikke sendt, og intet udbydersvar vises. Kontrollér råd mod de faktiske filer og advarsler. Python-pipelinen og plotting-API'et følger de samme datakrav; de linkede vejledninger dækker måling og den indlejrede Time-arbejdsgang."
+    "Fra Home åbner du Mask. Brug dette modul til at afgrænse celler, kerner og patogener i mikroskopbilleder. Denne gennemgang behandler todimensionelle billeder. Workflowene til Time, 3D og OPS har deres egne vejledninger.",
+    "Klik på Load test data, og vent, til mikroskopieksemplet er indlæst. Kontrollér Source, før du fortsætter. Til dine egne billeder vælger du deres mappe og bekræfter, at filnavnene angiver plade, brønd, synsfelt og kanal.",
+    "Sammenhold kanaltildelingerne med billederne. I dette eksempel er kerneintensiteten kanal 0, celleintensiteten kanal 1 og patogenintensiteten kanal 2. Kanal 3 er et ekstra intensitetsbillede. Vælg kun de objekttyper, der findes i dit eksperiment.",
+    "Slå Live til, og vælg et synsfelt. Undersøg billedet og de foreslåede masker sammen, før du behandler hele mappen. Prøv flere synsfelter, der repræsenterer spændet i billedkvalitet i dit eksperiment.",
+    "Åbn Live settings, og vælg modellen til det objekt, du vil segmentere. Angiv den omtrentlige objektdiameter, og kør forhåndsvisningen. Sammenlign konturerne med billedet, og hold øje med oversete objekter og objekter, der er slået sammen.",
+    "Brug filteret for mindste areal til at skjule objekter, der er mindre end det valgte antal pixels. Hæver du det, forsvinder små labels fra forhåndsvisningen. Filteret opdaterer et eksisterende maskeresultat, så du hurtigt kan sammenligne størrelsesgrænser.",
+    "Skift diameteren, når modellen deler eller sammenlægger objekter i den forkerte skala, og kør forhåndsvisningen igen. Kontrollér grænserne såvel som antallet af objekter. Gendan de indstillinger, du vil bruge, før du går videre til batchkørslen.",
+    "Til en lille første kørsel vælger du to testbilleder, lader Plot være slået til og gennemgår flowtærsklerne for celler, kerner og patogener. Her er de 0,4. Kontrollér indstillingerne for output og for at bevare de originale billeder, og klik derefter på Run.",
+    "Følg konsollen, og undersøg synsfelter, der fejlede, eller figurer, der mangler. Mappen merged indeholder billedintensiteterne og objekternes endelige labels. Opbevar dens metadata om planlayout sammen med arrays, så Measure kan identificere hver kanal og maske.",
+    "Hvis en overlejringseksport mangler, kan det linkede plotværktøj eksportere de gemte arrays separat. Udpak værktøjet, og vælg kørslens mappe merged. Lad layoutfilen blive liggende; værktøjet bruger den til at kontrollere intensitets- og maskeplanerne.",
+    "Kør værktøjet med mappen merged som kilde og en ny outputmappe som destination. Det gemmer en separat overlejring for hvert billedarray. Åbn de gemte PNG-filer for at undersøge resultaterne.",
+    "Gennemgå konturerne på hver intensitetskanal og i den kombinerede maskevisning. Kontrollér små objekter, celler, der rører hinanden, og oversete områder. Hold inputbilleder, indstillinger, masker og kvalitetsrapporter samlet, og fortsæt derefter til Measure for at udtrække objekternes egenskaber og udsnit."
   ]
 }

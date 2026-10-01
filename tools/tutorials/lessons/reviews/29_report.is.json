@@ -1,26 +1,35 @@
 {
-  "lesson": "29_report", "language": "is",
-  "english_sha256": "52964f24e8fcce5bb7a34b3ffb5cbafd7898d648ce8344a6c8403bca17894867",
-  "review": {"kind": "Parent editorial caption translation checked against frozen English and actual capture", "independent_peer_review": false, "native_speaker_signoff": false},
-  "title": "Report: skoða og deila skráðum niðurstöðum án þess að endurtaka greininguna",
-  "description": "Búðu til skýrslu úr raunverulega External Masks-dæminu, greindu á milli lokinnar vinnslu og þess að gögn um gæðaeftirlit vanti, og skoðaðu sjálfstæðu HTML-skrána áður en henni er deilt.",
-  "objectives": ["Finna Report undir Help og skoða sérstakt afrit af fyrirliggjandi verkefni.", "Greina á milli skráðrar vinnslustöðu, gæðaathugana sem eru ekki tiltækar og upplýsinga sem vantar um uppruna keyrslunnar.", "Búa til HTML með raunverulegum stýringum fyrir snið, hámarksfjölda mynda og úttak.", "Skoða skráðar töflur, upptaldar vigurmyndir og vistaðar stillingar án þess að fullyrða að ný greining eða sjálfvirk afmáun einkaupplýsinga hafi farið fram."],
-  "prerequisite": "Notaðu raunverulega verkefnið með tveimur myndsviðum sem var búið til í External Masks, með 103 frumum og meðfylgjandi frumumerkingum. Í upptökunni er notað heilt vinnuafrit sem hefur verið borið saman bæti fyrir bæti til að vernda staðfesta verkefnið. Við fyrri skoðun beint á frumgögnunum urðu til tóm SQLite-WAL-skrá og hjálparskrá fyrir samnýtt minni án þess að fyrirliggjandi gögn breyttust. Greining í lesham tryggir ekki að SQLite búi ekki til hjálparskrár. Hvorki vinnslukeðjan né gæðaeftirlitið er keyrt aftur. Engin keyrsluskrá samsvarar vinnuafritinu. Færslurnar 103 fyrir umfrymi eru afrit af frumusvæðum en ekki sjálfstætt hólf. Í þessari Report-sýnikennslu er ekki sérstakt niðurhal prófgagna, lifandi forskoðun myndskiptingar eða samskipti við AI.",
+  "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Report: búðu til skjal úr niðurstöðum verkefnis",
+  "description": "Veldu lokið verkefni, veldu úttakssnið og hámarksfjölda mynda og búðu svo til og lestu skýrsluna.",
+  "objectives": [
+    "Velja lokið verkefni og skoða tiltæka hluta skýrslunnar.",
+    "Stilla snið, hámarksfjölda mynda og heiti úttaksskrár.",
+    "Búa til skýrsluna og skoða niðurstöður hennar, stillingar og uppruna."
+  ],
+  "prerequisite": "Byrjaðu á loknu spaCR-verkefni sem inniheldur vistaðar stillingar, mælingar og myndir. Þú getur endurnýtt verkefnið úr kennsluefninu External Masks. Report safnar saman skrám sem eru þegar í verkefninu.",
   "scenes": [
-    "Opnaðu Help og síðan Report. Þetta verkfæri safnar fyrirliggjandi verkefnisskrám og niðurstöðum í skjal; það endurtekur ekki myndskiptingu, mælingar eða gæðagreiningar. Það er aðgengilegt undir Help en ekki sem sérstakur reitur á Home.",
-    "Smelltu á Choose run folder… og veldu vinnuafritið af lokna External Masks-verkefninu. Það inniheldur tvö raunverulega mynduð svið og mældar niðurstöður þeirra. Afritið varðveitir allar upprunalegu skrárnar og staðfesta frumverkefnið helst óbreytt alla upptökuna.",
-    "Lestu grænu Complete-tilkynninguna vandlega eftir skönnunina. Hún segir að hvert skráð vinnsluskref hafi unnið alla sína liði. Þetta staðfestir að vinnslu sé lokið, ekki að myndskiptingin sé rétt eða að gæðaeftirlit hafi staðist.",
-    "Kaflalistinn sýnir hvað er tiltækt; hann er ekki gátlisti til að velja hvað eigi að taka með. Hér finnast fimm af átta köflum. Upplýsingar um uppruna keyrslu, Segmentation QC og Plate QC eru ekki tiltækar, og skýringarnar verða áfram í skýrslunni í stað þess að hverfa.",
-    "Raunverulegu valkostirnir undir Format eru HTML, PDF og Both. Við höldum HTML í þessari sýnikennslu. PDF er lýst sem endurgerð með matplotlib; það er ekki loforð um nákvæmlega sama útlit og í vafranum. Aðeins HTML er búið til og skoðað í upptökunni.",
-    "Stilltu Embed at most á þrjár myndir. Þetta takmarkar innfelldar rastamyndir. Verkefnið inniheldur hins vegar sex PDF-skrár með vigurmyndum sem Report telur upp án þess að fella inn. Hærra hámark myndi ekki breyta þessum PDF-skrám í myndforskoðanir.",
-    "Smelltu á Choose output… og veldu nýtt HTML-skráarheiti utan frumverkefnisins. Viðmótið hefur engar stýringar fyrir titil, höfunda eða útilokun einkaupplýsinga. Skoðaðu slóðir og lýsigögn áður en þeim er deilt; Report felur þau ekki sjálfkrafa.",
-    "Smelltu á Generate report og bíddu eftir staðfestingu á að skráin hafi verið skrifuð. Þessi keyrsla býr aðeins til valda HTML-skrá í úttaksmöppunni. Open getur sent hana í skoðunarforrit tölvunnar; hér skoðum við nákvæmlega þá skrá beint í Chrome án þess að smella á Open.",
-    "Raunverulega skjalið opnast sem ein staðbundin HTML-skrá án beiðna um utanaðkomandi tilföng. Tenglar í efnisyfirliti auðkenna kaflana átta. Borðinn heldur tilkynningunni um lok vinnslu og segir að núll af sex myndum séu innfelldar; hann felur ekki gögn sem vantar.",
-    "Run status sýnir raunverulegu measure_crop-færsluna: tveir liðir voru reyndir, tveir heppnuðust og enginn mistókst. Við bjuggum ekki til falska færslu um lok vinnslu. Tölurnar lýsa unnum myndsviðum, ekki fjölda frumna eða stigi vísindalegrar staðfestingar.",
-    "Engin skráð keyrsla vísar á þessa afrituðu möppu. Skýrslan tekur fram að útgáfuupplýsingarnar sem birtast til vara lýsi tölvunni sem býr til skýrsluna, ekki endurgerðum uppruna greiningarinnar. Kaflar um gæðaeftirlit myndskiptingar og platna sem vantar eru líka sýnilegir: ekki tiltækt merkir ekki að athugunin hafi staðist.",
-    "Key figures telur upp allar sex upprunalegu PDF-skrárnar og útskýrir hvers vegna þær eru ekki innfelldar. Slóðirnar auðkenna myndir fyrir og eftir síun og myndútskurði fyrir bæði sviðin. Skoðaðu raunverulegu myndirnar í External Masks-kennslunni; þessi skýrsla rastar þær ekki.",
-    "Statistics and result tables sýnir 103 færslur fyrir frumur og jafnmargar færslur fyrir umfrymi og PNG-tengla. Í þessu dæmi eru aðeins frumugrímur, svo umfrymið er afrit af frumusvæðunum. Ekki leggja töflurnar saman eins og þær lýsi sjálfstæðum frumum. Heildarfærslufjöldi gagnagrunnsins inniheldur stillingar og aðrar hjálparfærslur.",
-    "Opnaðu raunverulega fellikaflann með vistuðum stillingum til að skoða forskoðunina. Gildin koma úr stillingaskrá verkefnisins en ekki endurheimtri keyrsluskrá. Færslufjöldinn sýnir ekki að hver stilling sé einstök og þessi upptaka les ekki upp hverja línu.",
-    "Í Python safnar spacr.report.collect_report upplýsingum í Report-hlut. build_report safnar gögnum og skrifar umbeðið snið og skilar lista yfir úttaksslóðir. Notaðu viðmótið eða API til að deila skráðum gögnum ásamt takmörkunum þeirra. Hvorugt kemur í stað gæðaeftirlits sem vantar, staðfestir líffræðilegt gildi eða fjarlægir viðkvæm lýsigögn fyrir þig."
+    "Opnaðu Help og svo Report. Notaðu tólið til að safna niðurstöðum, myndum og stillingum lokins verkefnis í eitt skjal.",
+    "Smelltu á Choose run folder og veldu verkefnið þitt. Í þessu dæmi notarðu verkefnið með tveimur sjónsviðum úr External Masks og heldur mælingum, stillingum og myndum saman.",
+    "Lestu vinnslustöðuna eftir skönnunina. Complete þýðir að skráðum vinnsluskrefum er lokið. Farðu sérstaklega yfir tiltækar niðurstöður gæðaeftirlits þegar þú metur greininguna.",
+    "Skoðaðu lista hlutanna til að sjá hvaða efni verkefnisins er tiltækt. Hluti sem vantar er samt merktur í skýrslunni. Bættu viðeigandi greiningarúttaki við verkefnið ef þú þarft þann hluta.",
+    "Veldu HTML, PDF eða Both undir Format. HTML opnast í vafra; PDF gefur skjalaútgáfu. Dæmið notar HTML.",
+    "Stilltu Embed at most til að takmarka fjölda rastamynda í skjalinu. Vigur-PDF-skrár eru taldar upp sem upprunaskrár í stað innfelldra forskoðana. Notaðu lægra hámark fyrir hnitmiðaða skýrslu.",
+    "Smelltu á Choose output og sláðu inn heiti áfangaskrárinnar. Athugaðu að valið snið og skráarending passi saman. Áður en þú deilir skýrslunni skaltu fara yfir slóðir verkefnisins og lýsigögn sem hún inniheldur.",
+    "Ýttu á Generate report og bíddu eftir staðfestingu á að skráin hafi verið skrifuð. Opnaðu vistuðu HTML-skrána í vafra til að skoða niðurstöðuna.",
+    "Notaðu tenglana í efnisyfirlitinu til að fara á milli hluta. Byrjaðu á samantekt vinnslunnar og skoðaðu svo myndir, niðurstöðutöflur og vistaðar stillingar.",
+    "Opnaðu Key figures til að finna myndir verkefnisins. Fylgdu uppgefnum skráarstöðum fyrir vigur-PDF-skrár, eða skoðaðu innfelldar rastaforskoðanir þegar þær eru til.",
+    "Skoðaðu Statistics and result tables fyrir tiltækar töflur hluta og fjölda lína í þeim. Í þessu dæmi með frumum eingöngu eru frumusvæði og umfrymissvæði eins, svo líttu á þau sem mælingar á sömu frumum.",
+    "Opnaðu Saved settings til að skoða stillingarnar sem geymdar eru með verkefninu. Haltu skýrslunni með skrám verkefnisins þegar þú deilir greiningu sem vísar í ytri myndir."
   ]
 }

@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source_sha256": "98e442532c56044e2aca2f66f22cf008ca9c149676e55c0ab3211bc2dafd6b65",
+      "translation": "El ajuste fino de Cellpose 4 usa AdamW. Comience con 100 épocas, tasa de aprendizaje 0.00001, decaimiento de pesos 0.1 y tamaño de minilote 1."
+    },
+    {
+      "table": "categories",
+      "key": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source_sha256": "13105e7ae7024e883b3f8dca9456225007943d9b2c11c4ab35ac3d71949a3cf2",
+      "translation": "Elija una tabla de parásitos individuales con vínculos explícitos a la vacuola madre, o una columna de recuento medido en cada vacuola. No proporcione ambas. Sin datos de recuento, la replicación queda sin medir en lugar de deducirse del reclutamiento o de la identidad del hospedador."
+    },
+    {
+      "table": "categories",
+      "key": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source_sha256": "28d5ad28bdefea580a16d38e4739bbc5bb55822f453670d5546e875e1e2ccece",
+      "translation": "Elija recuentos directos de parásitos o el indicador indirecto heredado de área agregada por hospedador. El clasificador de aprendizaje profundo de vacuolas completas llegará pronto y no puede ejecutarse hasta que haya un modelo entrenado disponible."
+    },
+    {
+      "table": "categories",
+      "key": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source_sha256": "f9f27be334385474852d77b130f190a56369e08640b1909b3bdfb8b5336c8f8a",
+      "translation": "Elija dónde se guardan los pesos entrenados y si se conservan los puntos de control de épocas intermedias."
+    },
+    {
+      "table": "categories",
+      "key": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source_sha256": "942a690aaf94696a0c0e39a77f0f5237ff323c230926d67e8188f27ea1a20ff8",
+      "translation": "Compare la intensidad del marcador de cada vacuola con el compartimento de referencia de su hospedador y clasifique los estados conjuntos del marcador con umbrales de cociente explícitos. Calibre los umbrales con controles del ensayo; las referencias ausentes o no válidas se mantienen como desconocidas."
+    },
+    {
+      "table": "categories",
+      "key": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source_sha256": "181a6d6dcb6feafb389528d1881bbfd2799b37f890843e2dc0b6f2540235cbce",
+      "translation": "Configure los intervalos de área y la escala para la estimación heredada de la replicación. Combina el área de patógenos dentro de un hospedador y no es ni un recuento directo de parásitos ni un volumen tridimensional medido."
+    },
+    {
+      "table": "categories",
+      "key": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source_sha256": "90d1efbd2c76c9df20d6b7209f50ff0b73f1a49592c17f22d1d78bef1ea3632f",
+      "translation": "Controle el filtrado de campos dispersos, el tamaño del conjunto de datos y el aumento aleatorio de escala en línea de Cellpose sin crear imágenes duplicadas."
+    },
+    {
+      "table": "categories",
+      "key": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source_sha256": "438ffe2486a47178e78c2753cbe756d3d9ab35e7556c9b9e036c487953b9d812",
+      "translation": "Ajuste fino de Cellpose-SAM estándar o de un punto de control existente; asigne un nombre distinto al nuevo modelo entrenado."
+    },
+    {
+      "table": "categories",
+      "key": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source_sha256": "d9cce8c2fdd211143c253bf43bcd68377a010872613fe0279ad95295a987c4ea",
+      "translation": "Rotaciones y reflexiones opcionales durante la predicción de fenotipos. Combine las predicciones promediando o por votación, conserve la predicción original y marque los desacuerdos para revisión. Todos los interruptores de aumento están desactivados de forma predeterminada; la concordancia mide la estabilidad frente a la orientación, no una confianza calibrada ni la exactitud biológica."
+    },
+    {
+      "table": "categories",
+      "key": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source_sha256": "9fc32374a0b052ef77ce0ec86653b68a05edfbb17ed4d142c7cfa2aa013cad01",
+      "translation": "Empareje imágenes de microscopía con máscaras de etiquetas de objetos enteras y, opcionalmente, proporcione un conjunto de validación independiente."
+    },
+    {
+      "table": "categories",
+      "key": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source_sha256": "6e08ff71703b82990f1492044eb89a24852852501e9e15c2b604022bdbd52b0b",
+      "translation": "Examine los campos sin procesar antes de la segmentación con criterios por canal de enfoque, saturación y píxeles no finitos. Elija una revisión solo con informe o exclusiones explícitas guardadas; calibre los umbrales para la adquisición. El examen está desactivado de forma predeterminada y nunca excluye imágenes por tener pocos objetos."
+    }
+  ]
+}

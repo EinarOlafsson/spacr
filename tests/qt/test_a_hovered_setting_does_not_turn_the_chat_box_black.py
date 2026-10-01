@@ -55,6 +55,7 @@ def mask_window(qapp, qtbot, monkeypatch):
     was = (prefs.get_ambient_enabled(), prefs.get_tooltips_bottom_enabled())
     prefs.set_ambient_enabled(True)
     prefs.set_tooltips_bottom_enabled(True)
+    monkeypatch.setattr(prefs, "get_tooltips_box_enabled", lambda: False)
     prefs.apply_preferences_to_app(qapp)
     window = MainWindow()
     qtbot.addWidget(window)
@@ -100,22 +101,37 @@ def _what_lost_its_sheet(screen) -> list:
     return lost
 
 
-def test_hovering_a_setting_leaves_the_chat_box_styled(mask_window, qapp,
-                                                       monkeypatch):
-    """The maintainer's gesture: the pointer enters a setting on Mask."""
+def test_hovering_a_setting_leaves_the_chat_box_styled(mask_window, qapp):
+    """A real setting hover writes only the bottom hint and preserves chat styling.
+
+    The hint timer may already have grown PySide's class metaobject in an
+    earlier instance, so a hover need not trigger a fresh palette sweep.
+    The separate polish test requires that sweep explicitly.
+    """
     from PySide6.QtCore import QEvent
     from PySide6.QtWidgets import QApplication, QLabel
+    from spacr.qt.widgets.hover_tooltip import HoverTooltip
 
     screen = mask_window._stack.currentWidget()
     assert _what_lost_its_sheet(screen) == [], "already broken before a hover"
-    sweeps = _count_sweeps(screen, monkeypatch)
     label = next(w for w in screen.findChildren(QLabel)
-                 if w.property("settingKey") and w.isVisible())
+                 if w.property("settingKey") and w.isVisible()
+                 and w.property("apiTooltipDisplayRole") == "tooltip")
+    expected = screen._settings_model.plain_tooltip_for(
+        str(label.property("settingKey")))
+    assert expected
+    screen._hint_strip.clear()
+    popup = HoverTooltip.instance()
+    popup.hide()
 
     QApplication.sendEvent(label, QEvent(QEvent.Enter))
     _settle(qapp)
 
-    assert sweeps, "the hover never reached the sweep; this proves nothing"
+    assert screen._hinted_widget is label
+    assert screen._hint_strip.text()
+    assert screen._hint_strip.toolTip() == expected
+    assert screen._hint_hold_timer.isActive()
+    assert not popup.isVisible()
     assert _what_lost_its_sheet(screen) == []
 
 

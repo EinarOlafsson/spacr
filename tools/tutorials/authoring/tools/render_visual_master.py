@@ -101,7 +101,8 @@ def validate_geometry(spec: dict, root: Path) -> tuple[int, int]:
 
 def encode_still(image: Path, duration: float, output: Path, fps: int) -> None:
     run([
-        "ffmpeg", "-y", "-loglevel", "error", "-loop", "1",
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-filter_threads", "2", "-filter_complex_threads", "2", "-loop", "1",
         "-framerate", str(fps), "-i", str(image), "-t", f"{duration:.6f}",
         "-an", "-c:v", "libx264", "-preset", "veryfast", "-tune", "stillimage",
         "-threads", "2", "-crf", "18",
@@ -136,7 +137,8 @@ def encode_pointer_scene(
 
     moving = work / f"{output.stem}_moving.mp4"
     run([
-        "ffmpeg", "-y", "-loglevel", "error", "-framerate", str(fps),
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-filter_threads", "2", "-filter_complex_threads", "2", "-framerate", str(fps),
         "-i", str(sequence / "%04d.jpg"), "-an", "-c:v", "libx264",
         "-preset", "veryfast", "-threads", "2", "-crf", "18", "-pix_fmt", "yuv420p",
         "-r", str(fps), "-video_track_timescale", TRACK_TIMESCALE, str(moving),

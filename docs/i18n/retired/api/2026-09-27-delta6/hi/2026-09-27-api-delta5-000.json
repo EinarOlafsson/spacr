@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "API delta 5, item 53 frozen-helper boundary. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup.start_update_helper#10",
+      "source": "Frozen application families currently return an error before spawning or removing anything: their verified, family-preserving replacement adapters are not implemented. The bundled standalone helper does not enable an online-installer fallback for these applications.",
+      "source_sha256": "ac8db0fb3865ad7b09ce2fa0bc2b1ecda3f645b092b98f6623d80963934af31d",
+      "context": "Frozen application families currently return an error before spawning or removing anything: their verified, family-preserving replacement adapters are not implemented. The bundled standalone helper does not enable an online-installer fallback for these applications.",
+      "translation": "फ़्रीज़ करके पैकेज किए गए अनुप्रयोग परिवार फिलहाल कोई भी प्रक्रिया शुरू करने या कुछ भी हटाने से पहले त्रुटि लौटाते हैं: उनके सत्यापित प्रतिस्थापन अडैप्टर, जो संबंधित स्थापना परिवार को बनाए रखते हैं, अभी लागू नहीं किए गए हैं। साथ में दिया गया स्वतंत्र सहायक प्रोग्राम इन अनुप्रयोगों के लिए विकल्प के रूप में ऑनलाइन इंस्टॉलर का उपयोग सक्षम नहीं करता है।",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    }
+  ]
+}

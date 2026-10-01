@@ -52,6 +52,63 @@ def test_main_recycles_workers_and_accepts_an_empty_marker_batch(
     ] for command in commands)
 
 
+def test_ignored_paths_are_removed_before_batching_and_every_file_runs_once(
+    tmp_path, monkeypatch,
+):
+    ignored_file = tmp_path / "test_ignored.py"
+    ignored_directory = tmp_path / "ignored"
+    ignored_directory.mkdir()
+    ignored_nested = ignored_directory / "test_nested.py"
+    selected = [tmp_path / f"test_selected_{index}.py" for index in range(5)]
+    for path in [ignored_file, ignored_nested, *selected]:
+        path.write_text("", encoding="utf-8")
+
+    commands = []
+
+    def run(command, check):
+        commands.append(command)
+        assert check is False
+        return SimpleNamespace(returncode=1 if len(commands) == 1 else 0)
+
+    monkeypatch.setattr(runner.subprocess, "run", run)
+    assert runner.main([
+        str(tmp_path), str(selected[0]), "--marker", "qt and not slow",
+        "--batch-size", "2", "--workers", "1",
+        "--ignore", str(ignored_file), "--ignore", str(ignored_directory),
+    ]) == 1
+
+    batches = [command[3:command.index("-m", 3)] for command in commands]
+    assert [len(batch) for batch in batches] == [2, 2, 1]
+    assert [path for batch in batches for path in batch] == sorted(
+        str(path) for path in selected)
+    assert all(command[command.index("-m", 3) + 1] == "qt and not slow"
+               for command in commands)
+
+
+def test_batch_timeouts_reach_every_fresh_pytest_process(tmp_path, monkeypatch):
+    for index in range(3):
+        (tmp_path / f"test_{index}.py").write_text("", encoding="utf-8")
+    commands = []
+    monkeypatch.setattr(runner, "_timeout_plugin_available", lambda: True)
+
+    def run(command, check):
+        commands.append(command)
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(runner.subprocess, "run", run)
+    assert runner.main([
+        str(tmp_path), "--marker", "qt", "--batch-size", "2",
+        "--workers", "2", "--per-test-timeout", "1200",
+        "--faulthandler-timeout", "900",
+    ]) == 0
+    assert len(commands) == 2
+    for command in commands:
+        assert command[command.index("--timeout") + 1] == "1200"
+        assert command[command.index("--timeout-method") + 1] == "thread"
+        assert "--max-worker-restart=0" in command
+        assert command[command.index("-o") + 1] == "faulthandler_timeout=900"
+
+
 def test_main_stops_at_the_first_real_failure(tmp_path, monkeypatch):
     (tmp_path / "test_one.py").write_text("", encoding="utf-8")
     monkeypatch.setattr(

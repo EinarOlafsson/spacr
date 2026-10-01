@@ -51,6 +51,16 @@ def sweep_inputs(cells, counts, *, score_column: str = "pred", scores=None):
     un-canonicalised join matches no well at all -- and the resulting all-NaN
     circularity column reads as "nothing here is circular", which is the most
     confident possible way to say nothing.
+
+    :param cells: the merged per-object frame with ``plateID``, ``rowID``
+        and ``columnID`` (or ``prc``); its numeric columns are averaged per
+        well. It is copied, not modified.
+    :param counts: the per-well gRNA table with ``prc``, ``grna`` and
+        ``fraction`` columns, pivoted to one column per gRNA.
+    :param score_column: the score column averaged per well, read from
+        ``cells`` or else from ``scores``.
+    :param scores: an optional score table used when ``cells`` lacks
+        ``score_column``.
     """
     from ... import schema
     from ...multi_database import normalise_plate_ids

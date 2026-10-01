@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (GPT-6), no native-speaker signoff",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Choose a folder of paired multichannel fields",
+      "source": "Choose a folder of paired multichannel fields",
+      "source_sha256": "44c2fc6c07512d9a31a5786cc6ba052f20f0fd241da84874c3ff839b0cf1d3b9",
+      "translation": "Choisir un dossier de champs multicanaux appariés"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder of paired multichannel fields (.npy or .tif) and the channels to learn from and to predict, for example 1 > 0 to predict the nucleus stain from channel 1. A small U-Net is trained on the CPU, the last quarter of the fields is held out, and the real and predicted stains are segmented the same way and matched at IoU 0.5. The model, predictions and a score table are written to <folder>/virtual_stain. Default 20 epochs.",
+      "source": "Choose a folder of paired multichannel fields (.npy or .tif) and the channels to learn from and to predict, for example 1 > 0 to predict the nucleus stain from channel 1. A small U-Net is trained on the CPU, the last quarter of the fields is held out, and the real and predicted stains are segmented the same way and matched at IoU 0.5. The model, predictions and a score table are written to <folder>/virtual_stain. Default 20 epochs.",
+      "source_sha256": "53df53aa0c44a9fe1c0da1027e6747cbd6af23b10de375027a7e69f9089c80b7",
+      "translation": "Choisissez un dossier de champs multicanaux appariés (.npy ou .tif) et les canaux d’entrée et de prédiction, par exemple 1 > 0 pour prédire le marquage nucléaire à partir du canal 1. Un petit U-Net est entraîné sur le CPU ; le dernier quart des champs est exclu de l’entraînement. Les marquages réels et prédits sont segmentés de la même manière et appariés à IoU 0.5. Le modèle, les prédictions et un tableau de scores sont écrits dans <folder>/virtual_stain. Par défaut : 20 époques."
+    },
+    {
+      "table": "ui",
+      "key": "Input channels > channel to predict:",
+      "source": "Input channels > channel to predict:",
+      "source_sha256": "9a9b1d3f3306ef8ad54280d217b28ac7c00fbb4a2f3b9eff705c9dcc4b3c13fa",
+      "translation": "Canaux d’entrée > canal à prédire :"
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Ravi et al., 'SAM 2: Segment Anything in Images and Videos', ICLR 2025 (arXiv:2408.00714). spaCR has not scored it against those results; item 556 scores it on Cell Tracking Challenge movies.",
+      "source": "Published results: Ravi et al., 'SAM 2: Segment Anything in Images and Videos', ICLR 2025 (arXiv:2408.00714). spaCR has not scored it against those results; item 556 scores it on Cell Tracking Challenge movies.",
+      "source_sha256": "10f5c11cd47de98ef14f6be733e8adaf6dffdad559aacfa2933deba08cd7bac3",
+      "translation": "Résultats publiés : Ravi et al., 'SAM 2: Segment Anything in Images and Videos', ICLR 2025 (arXiv:2408.00714). spaCR ne l’a pas évalué par rapport à ces résultats ; le point 556 l’évalue sur les séquences de Cell Tracking Challenge."
+    },
+    {
+      "table": "ui",
+      "key": "SAM2 1.1.0 is Apache-2.0 (Copyright Meta Platforms). Its SAM2.1 checkpoints, Apache-2.0 as well, are downloaded from the facebook/sam2.1-hiera-* repositories on Hugging Face into the backend's own folder the first time a movie is followed. PyPI carries SAM2 only as source, so it is built inside the environment, without its optional CUDA post-processing extension. spaCR ships none of it.",
+      "source": "SAM2 1.1.0 is Apache-2.0 (Copyright Meta Platforms). Its SAM2.1 checkpoints, Apache-2.0 as well, are downloaded from the facebook/sam2.1-hiera-* repositories on Hugging Face into the backend's own folder the first time a movie is followed. PyPI carries SAM2 only as source, so it is built inside the environment, without its optional CUDA post-processing extension. spaCR ships none of it.",
+      "source_sha256": "ab6a345b30110097105b8569ea0e017132e32feed7bf0ead8731e130384db098",
+      "translation": "SAM2 1.1.0 est sous licence Apache-2.0 (Copyright Meta Platforms). Ses points de contrôle SAM2.1, également sous Apache-2.0, sont téléchargés depuis les dépôts facebook/sam2.1-hiera-* sur Hugging Face vers le dossier propre au backend lors du premier suivi d’une séquence. PyPI fournit SAM2 uniquement sous forme de code source ; il est donc compilé dans l’environnement, sans son extension facultative de post-traitement CUDA. spaCR ne distribue aucun de ces composants."
+    },
+    {
+      "table": "ui",
+      "key": "SAM2's video predictor, as a timelapse mode: seeded with spaCR's masks on the first frame, it follows each object through the movie with a memory of its appearance, so segmentation and tracking are one step and every object keeps its id. Objects that appear later are seeded where spaCR first finds them.",
+      "source": "SAM2's video predictor, as a timelapse mode: seeded with spaCR's masks on the first frame, it follows each object through the movie with a memory of its appearance, so segmentation and tracking are one step and every object keeps its id. Objects that appear later are seeded where spaCR first finds them.",
+      "source_sha256": "4a11b92e2eb3595b6542e9658c62cf8fa635bfcaedefa22cf1c9675e583d44b3",
+      "translation": "Le prédicteur vidéo de SAM2 en mode de série temporelle : initialisé avec les masques de spaCR sur la première image, il suit chaque objet dans la séquence en mémorisant son apparence. La segmentation et le suivi forment ainsi une seule étape et chaque objet conserve son identifiant. Les objets apparaissant plus tard sont initialisés là où spaCR les trouve pour la première fois."
+    },
+    {
+      "table": "ui",
+      "key": "Training the virtual stain…",
+      "source": "Training the virtual stain…",
+      "source_sha256": "c41cfd4e94255a62e46cfc03ede452839e877a0bdef5cba361bbb9bddab4e6bf",
+      "translation": "Entraînement du marquage virtuel…"
+    },
+    {
+      "table": "ui",
+      "key": "Virtual stain on {fields} held-out fields: F1 {f1:.2f} at IoU 0.5 against the real stain's objects (input channel alone {base:.2f}), Pearson r {r:.2f}.",
+      "source": "Virtual stain on {fields} held-out fields: F1 {f1:.2f} at IoU 0.5 against the real stain's objects (input channel alone {base:.2f}), Pearson r {r:.2f}.",
+      "source_sha256": "b4ba6e8ff0706307dade16c877d6111cadb51b7b36e55094d5500ed9cbf37da0",
+      "translation": "Marquage virtuel sur {fields} champs réservés au test : F1 {f1:.2f} à IoU 0.5 par rapport aux objets du marquage réel (canal d’entrée seul {base:.2f}), Pearson r {r:.2f}."
+    },
+    {
+      "table": "ui",
+      "key": "Virtual staining",
+      "source": "Virtual staining",
+      "source_sha256": "3e4d7d3bcf801565104fa14d50194830cccaee0a99a1df93cbf856da0063de08",
+      "translation": "Marquage virtuel"
+    },
+    {
+      "table": "ui",
+      "key": "Virtual staining failed: {error}",
+      "source": "Virtual staining failed: {error}",
+      "source_sha256": "f08847a01c2bfcc6243db9bc523306be65f38a4923d7dcae00cd8c0390ad39d2",
+      "translation": "Échec du marquage virtuel : {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Virtual staining…",
+      "source": "Virtual staining…",
+      "source_sha256": "f31bfdd297d543a0c682b0dcf4c17cd69c4a6ed4cc28a54b96bb75722d6c8c66",
+      "translation": "Marquage virtuel…"
+    }
+  ]
+}

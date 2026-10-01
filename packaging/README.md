@@ -84,6 +84,34 @@ if one glyph drifts outside the shared weight band, so no platform can quietly
 become the loud one. Re-run it only when the artwork changes; `release.py
 collect` moves the links forward without touching the icons.
 
+## Offline (air-gapped) bundles
+
+For microscope PCs with no network access. The online installers stay the
+default download; a bundle is built on request, on a machine that is online,
+and carried over (USB drive, file share). It holds the pinned uv, the private
+CPython uv would have downloaded (laid out as a `UV_PYTHON_INSTALL_MIRROR`),
+every wheel of an environment locked for the target platform, Cellpose weights
+(default `cpsam`), optional Mask test data, and a `SHA256SUMS` the installer
+checks before running anything.
+
+```bash
+# Build (online). The PyTorch wheel line is fixed at build time: cpu, cu126, ...
+python packaging/offline/build_offline_bundle.py --platform linux-x86_64 \
+    --torch-backend cpu --from-source . --out dist/offline \
+    --test-data ~/.cache/spacr/example_data/plate1 --test-fields 2 --archive
+
+# Install (offline), then run Mask on the bundled test data
+tar xf spaCR-<version>-Linux-x86_64-Offline-cpu.tar
+spaCR-<version>-Linux-x86_64-Offline-cpu/install.sh \
+    --offline-bundle spaCR-<version>-Linux-x86_64-Offline-cpu --check-mask
+```
+
+On Windows: `powershell -ExecutionPolicy Bypass -File install.ps1
+-OfflineBundle <bundle folder> -CheckMask`. Targets: `linux-x86_64`,
+`windows-x86_64`, `macos-arm64`; wheels are fetched per target with
+`pip download --platform`, so any bundle can be built on Linux. A proposed
+CI job is in `features/data/587_offline_bundle_workflow_2026-09-27.yml`.
+
 ## Container images
 
 `packaging/docker/` holds two Dockerfiles: a CPU image on `python:3.12-slim`
@@ -127,9 +155,12 @@ leave the target as `main`. `.github/workflows/release.yml` then:
    version is available from the PyPI API;
 4. builds Windows, macOS, and Linux installers on native runners;
 5. commits the current installers under `spacr/application/` and updates the
-   README links; and
+   README links;
 6. tags that exact installer commit, creates the GitHub release, and attaches the three
-   installers, wheel, source distribution, and SHA-256 manifest.
+   installers, wheel, source distribution, and SHA-256 manifest; and
+7. records the new Zenodo version DOI and the PyPI sdist checksum in
+   ``CITATION.cff`` and the conda recipe on `main` and `nightly` (see
+   *Release metadata that only exists after publishing* below).
 
 GitHub displays manual ``workflow_dispatch`` buttons from the default branch,
 so merge `release.yml` into `main` once to enable that button permanently.
@@ -164,6 +195,40 @@ artifacts or a separate repository instead. The README cites the stable concept
 DOI, ``10.5281/zenodo.21343316``. Once Zenodo archives a version, put that
 release's newly minted version DOI in ``CITATION.cff``; never substitute an
 older release's version DOI for the concept DOI in the README.
+
+### Release metadata that only exists after publishing
+
+`bump` cannot write three values, because the release creates them: the
+Zenodo version DOI (minted a few minutes after the GitHub release), the
+PyPI sdist's SHA-256, and therefore the reference conda recipe's version.
+Until 2026-09-26 nothing wrote them after the release either, and both
+files were still on 1.5.0.9 two days after 1.5.1.0 shipped.
+
+`release.yml`'s `release-metadata` job now runs after `github-release`:
+
+```bash
+# Wait for Zenodo (concept record 21343316) and PyPI, print what they report
+python packaging/release.py sync-release-metadata --version 1.5.1.0 --lookup-only
+
+# Look up and write CITATION.cff and conda-forge/recipe/recipe.yaml
+python packaging/release.py sync-release-metadata --version 1.5.1.0
+
+# Write from a recorded lookup, with no network
+python packaging/release.py sync-release-metadata --version 1.5.1.0 \
+    --metadata release-metadata.json
+```
+
+It rewrites `CITATION.cff`'s `version`, `date-released` (Zenodo's
+publication date), `doi`, and the version-DOI identifier's value and
+description. In the recipe, it rewrites `version` and `sha256`. The
+concept DOI is never accepted as a version DOI, and neither file moves back
+to an older release. The lookup retries a missing record, a network error,
+HTTP 404, 429, or 5xx every 30 s, for up to 30 minutes in CI. The job looks
+the values up once and commits
+`chore(release): record spaCR <version>'s DOI and sdist checksum` to `main`
+and `nightly`, as the installer commit does. A rejected push rebases and
+retries up to five times. If Zenodo is slower than the wait, run the second
+command above locally and commit the two files.
 
 ## Conda-forge releases
 
@@ -256,7 +321,7 @@ installer/executable for each of the three target platforms:
 
 | Target             | Script                    | Output                   |
 |--------------------|---------------------------|--------------------------|
-| Windows 10/11 (x64)| `build_windows.ps1`       | `dist/spaCR-<ver>.exe`   |
+| Windows 10/11 (x64)| `build_windows.ps1`       | `dist/spaCR-<ver>-windows.zip`; `dist/spaCR-<ver>-setup.exe` with NSIS |
 | macOS 11+ (arm64/x64)| `build_macos.sh`        | `dist/spaCR-<ver>.dmg`   |
 | Debian/Ubuntu (x64)| `build_debian.sh`         | `dist/spacr_<ver>_amd64.deb` (installable via `sudo apt install ./spacr_<ver>_amd64.deb`) |
 
@@ -270,21 +335,25 @@ archive its output.
 
 **What each build does under the hood**
 
-* Windows: PyInstaller `--onefile --windowed` bundles Python, spacr,
+* Windows: PyInstaller's windowed **onedir** bundle contains Python, spacr,
   cellpose, torch (CPU or CUDA depending on your local env), plus a
   hidden-imports list of the heavy scientific stack (numpy, scipy,
   sklearn, statsmodels, skimage, matplotlib, cv2). The resulting
-  `.exe` runs on any Windows 10+ machine.
+  `spacr.exe` must stay beside its collected files. The ZIP preserves that
+  directory; NSIS wraps it in an installer. Use `-RequireInstaller` to fail
+  instead of skipping the installer when NSIS is unavailable. Actual platform
+  compatibility requires native build-and-launch evidence.
 
 * macOS: PyInstaller `--windowed` produces a `spaCR.app` bundle, which
   `hdiutil` then packs into a signed (ad-hoc) `.dmg` you can drag into
   `/Applications`. Requires code-signing for distribution outside your
   own Mac — that step is left explicit at the top of the script.
 
-* Debian: `stdeb` converts the `setup.py` into `debian/` control files,
-  then `dpkg-buildpackage` produces a `.deb` that pins the required
-  system libs (libgl1, libglib2.0-0, libsm6, libxext6, libxrender1)
-  in the `Depends:` field. Install with
+* Debian: the former `stdeb` system-Python recipe is replaced by the same
+  private CPU PyInstaller runtime under `/opt/spacr`. `dpkg-deb` packages
+  it with `/usr/bin/spacr`, the desktop entry and application icons, and
+  declares its native Qt/system library dependencies. Build on Ubuntu 22.04
+  to retain the Ubuntu 22.04 / Debian 12 compatibility floor. Install with
   `sudo apt install ./dist/spacr_<ver>_amd64.deb`.
 
 **Cross-building caveat**
@@ -298,3 +367,19 @@ You *cannot* cross-build these from a single machine:
 The scripts assume they run on their native platform; each fails fast with a
 clear error if run elsewhere. For normal releases, prefer the online
 installers above: frozen artifacts duplicate Python and the scientific stack.
+
+`frozen-installers.yml` builds these legacy artifacts and passes them to
+separate fresh native jobs for installation and a real Qt Measure run. Those
+jobs receive no checkout or spaCR environment from the builders. The receipts
+identify the architecture actually tested; an Apple silicon result is not an
+Intel macOS result. Artifacts and diagnostics are retained for review without
+publishing a release or using signing credentials. The macOS bundle retains
+its local ad-hoc signature, which is not notarization or Gatekeeper acceptance.
+
+This check does not establish legacy self-update or add the online installers'
+CPU/GPU, account and consent flows to the frozen builders. The Debian artifact
+is installed and launched in fresh Ubuntu 22.04 and Debian 12 containers without
+source or a supplementary pip environment. Its removal must delete package-owned
+paths while preserving the completed analysis outside `/opt/spacr`. Native
+acceptance is still required; changing the recipe alone does not establish that
+the package works.

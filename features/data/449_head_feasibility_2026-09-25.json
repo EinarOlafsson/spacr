@@ -1,0 +1,100 @@
+{
+ "item": 449,
+ "date": "2026-09-25",
+ "nightly": "a93f937d2",
+ "question": "Can a parasites-per-vacuole head be trained on labelled data already on this machine?",
+ "label_source": {
+  "pv_masks": "/mnt/wd4tb/spacr_pv_crops/MTOCScreen/merged/*.npy (plane 4), 485 fields, 10,174 PVs",
+  "count_labels": "MTOC screen plate1's own parasite-stain objects, /mnt/wd4tb/spacr_testdata/assays/src_mtoc_plate1/measurements.db table pathogen, parasite-stain-weighted centroid inside the PV",
+  "alignment_check": "field A02_2: 52/52 screen parasites fall inside a PV; stack plane 1 vs screen cell-stain object mean r=0.80",
+  "parasites_in_485_fields": 2416,
+  "parasites_outside_every_pv": 111,
+  "pv_count_histogram_0_to_9": [
+   8214,
+   1741,
+   148,
+   36,
+   25,
+   5,
+   2,
+   2,
+   0,
+   1
+  ],
+  "fields_with_pvs_but_no_screen_parasites": 269,
+  "caveat": "labels are segmentation-derived, not hand counts; 81% of PVs get no screen parasite at all"
+ },
+ "experiment": {
+  "task": "1 parasite vs 2 or more, PVs with >=1 screen parasite",
+  "crops": "spacr.crop_source.crop_object, bounding_box, padding 8, resized to 48x48",
+  "cv": "5-fold GroupKFold by well (161 wells)",
+  "cnn": "3-conv CNN, 25 epochs, AdamW, class-weighted BCE, rot/flip augmentation, 4-rotation TTA, CPU 8 threads"
+ },
+ "results": {
+  "n": 1960,
+  "class_sizes": [
+   1741,
+   219
+  ],
+  "wells": 161,
+  "folds": 5,
+  "area_only_logistic": {
+   "balanced_accuracy": 0.776,
+   "auc": 0.861,
+   "recall_single": 0.78,
+   "recall_two_or_more": 0.772,
+   "confusion_rows_true_1_then_2plus": [
+    [
+     1358,
+     383
+    ],
+    [
+     50,
+     169
+    ]
+   ]
+  },
+  "cnn_hoechst": {
+   "balanced_accuracy": 0.728,
+   "auc": 0.785,
+   "recall_single": 0.863,
+   "recall_two_or_more": 0.594,
+   "confusion_rows_true_1_then_2plus": [
+    [
+     1502,
+     239
+    ],
+    [
+     89,
+     130
+    ]
+   ],
+   "seconds_5_folds_cpu": 925.7
+  },
+  "cnn_cellmask": {
+   "balanced_accuracy": 0.702,
+   "auc": 0.788,
+   "recall_single": 0.797,
+   "recall_two_or_more": 0.607,
+   "confusion_rows_true_1_then_2plus": [
+    [
+     1387,
+     354
+    ],
+    [
+     86,
+     133
+    ]
+   ],
+   "seconds_5_folds_cpu": 793.4
+  }
+ },
+ "scripts_sha256": {
+  "pv_labels.py": "f6551d9fee75fafa50060a4e3c7807c762a9a63788e63bbc947fdc85625b5c14",
+  "pv_train.py": "69c7126f839e9844aada5db278893715491091cb6605f56fbec8bd010fea98f1"
+ },
+ "scripts": {
+  "pv_labels.py": "\"\"\"Label every PV of the PV-crop stacks with the MTOC screen's own parasite count.\n\nThe count of a vacuole is the number of the screen's parasite objects\n(segmented from the parasite stain, which the stacks do not carry) whose\nparasite-stain-weighted centroid falls inside that vacuole's mask. Writes\nlabels.csv: stem, pv label, bbox, area, count, touches_border, plus a field\ntable with how many parasites fell outside every PV.\n\"\"\"\nimport csv\nimport glob\nimport os\nimport sqlite3\n\nimport numpy as np\nfrom skimage.measure import regionprops\n\nSRC = \"/mnt/wd4tb/spacr_testdata/assays/src_mtoc_plate1/measurements.db\"\nMERGED = \"/mnt/wd4tb/spacr_pv_crops/MTOCScreen/merged\"\nOUT = \"/tmp/spacr-close2-scratch/pv449\"\nos.makedirs(OUT, exist_ok=True)\n\ncon = sqlite3.connect(f\"file:{SRC}?mode=ro\", uri=True)\nfields = []\nwith open(f\"{OUT}/labels.csv\", \"w\", newline=\"\") as fh:\n    out = csv.writer(fh)\n    out.writerow([\"stem\", \"well\", \"pv\", \"y0\", \"x0\", \"y1\", \"x1\", \"area\", \"count\", \"border\"])\n    for path in sorted(glob.glob(f\"{MERGED}/*.npy\")):\n        stem = os.path.basename(path)[:-4].replace(\"MTOCScreen-plate1_\", \"\")\n        arr = np.load(path, mmap_mode=\"r\")\n        pv = np.asarray(arr[..., 4])\n        rows = con.execute(\n            'select \"pathogen_channel_2_centroid_weighted-0\", \"pathogen_channel_2_centroid_weighted-1\" '\n            \"from pathogen where file_name=?\", (f\"plate1_{stem}_1\",)).fetchall()\n        pts = np.array(rows, dtype=float).reshape(-1, 2)\n        ys = np.clip(pts[:, 0].round().astype(int), 0, pv.shape[0] - 1)\n        xs = np.clip(pts[:, 1].round().astype(int), 0, pv.shape[1] - 1)\n        hit = pv[ys, xs]\n        counts = np.bincount(hit, minlength=int(pv.max()) + 1)\n        props = regionprops(pv)\n        fields.append((stem, len(pts), int((hit == 0).sum()), len(props)))\n        for p in props:\n            y0, x0, y1, x1 = p.bbox\n            border = y0 == 0 or x0 == 0 or y1 == pv.shape[0] or x1 == pv.shape[1]\n            out.writerow([stem, stem.split(\"_\")[0], p.label, y0, x0, y1, x1,\n                          int(p.area), int(counts[p.label]), int(border)])\nwith open(f\"{OUT}/fields.csv\", \"w\", newline=\"\") as fh:\n    out = csv.writer(fh)\n    out.writerow([\"stem\", \"parasites\", \"outside_pv\", \"pvs\"])\n    out.writerows(fields)\n\nf = np.array([r[1:] for r in fields])\nprint(\"fields\", len(fields), \"parasites\", f[:, 0].sum(), \"outside any PV\", f[:, 1].sum(),\n      \"PVs\", f[:, 2].sum(), \"fields with PVs but no screen parasites\",\n      int(((f[:, 0] == 0) & (f[:, 2] > 0)).sum()))\nlab = np.loadtxt(f\"{OUT}/labels.csv\", delimiter=\",\", skiprows=1, usecols=(8, 9))\nc = lab[:, 0].astype(int)\nprint(\"count histogram 0..20+:\", np.bincount(np.minimum(c, 20)).tolist())\nprint(\"border PVs\", int(lab[:, 1].sum()))\n",
+  "pv_train.py": "\"\"\"Can a stain-specific head tell single-parasite vacuoles from larger ones?\n\nLabels come from pv_labels.py (screen parasite-stain objects inside each PV).\nOnly PVs the screen put at least one parasite in are used; class 0 is one\nparasite, class 1 is two or more. Crops are cut by spacr.crop_source.crop_object,\nthe cropper spacr.object_classifier uses, so a trained head sees what the\nwrapper would hand it. Five folds grouped by well: no well is in both train\nand test. Baseline: logistic regression on PV area alone.\n\"\"\"\nimport csv\nimport json\nimport os\nimport sys\nimport time\nfrom collections import defaultdict\n\nimport numpy as np\nimport torch\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import balanced_accuracy_score, confusion_matrix, roc_auc_score\nfrom sklearn.model_selection import GroupKFold\n\nfrom spacr.crop_source import crop_object\n\ntorch.set_num_threads(8)\ntorch.manual_seed(0)\nnp.random.seed(0)\nOUT = \"/tmp/spacr-close2-scratch/pv449\"\nMERGED = \"/mnt/wd4tb/spacr_pv_crops/MTOCScreen/merged/MTOCScreen-plate1_{}.npy\"\nSIZE, PAD = 48, 8\n\nrows = [r for r in csv.DictReader(open(f\"{OUT}/labels.csv\")) if int(r[\"count\"]) >= 1]\nby_field = defaultdict(list)\nfor r in rows:\n    by_field[r[\"stem\"]].append(r)\ncache = f\"{OUT}/crops.npz\"\nif os.path.exists(cache):\n    data = np.load(cache)\n    X, meta = data[\"X\"], data[\"meta\"]\nelse:\n    X, meta = [], []\n    for stem, items in sorted(by_field.items()):\n        arr = np.asarray(np.load(MERGED.format(stem), mmap_mode=\"r\"))\n        image, mask = arr[..., :2], arr[..., 4]\n        for r in items:\n            crop = crop_object(image, mask, int(r[\"pv\"]), channels=[0, 1],\n                               shape=\"bounding_box\", size=SIZE, padding=PAD)\n            X.append(np.asarray(crop, dtype=np.float32))\n            meta.append([int(r[\"count\"]), int(r[\"area\"]), int(r[\"border\"]),\n                         hash(r[\"well\"]) % 100000])\n    X, meta = np.stack(X), np.array(meta)\n    np.savez_compressed(cache, X=X, meta=meta)\ncount, area, groups = meta[:, 0], meta[:, 1], meta[:, 3]\ny = (count >= 2).astype(int)\nprint(\"crops\", X.shape, \"class sizes\", np.bincount(y).tolist(), \"wells\", len(set(groups)))\n\n\ndef norm(batch):\n    lo = np.percentile(batch, 1, axis=(1, 2), keepdims=True)\n    hi = np.percentile(batch, 99.5, axis=(1, 2), keepdims=True)\n    return np.clip((batch - lo) / np.maximum(hi - lo, 1e-6), 0, 1).astype(np.float32)\n\n\nclass Net(torch.nn.Module):\n    def __init__(self):\n        super().__init__()\n        c = torch.nn\n        self.f = c.Sequential(\n            c.Conv2d(1, 16, 3, padding=1), c.BatchNorm2d(16), c.ReLU(), c.MaxPool2d(2),\n            c.Conv2d(16, 32, 3, padding=1), c.BatchNorm2d(32), c.ReLU(), c.MaxPool2d(2),\n            c.Conv2d(32, 64, 3, padding=1), c.BatchNorm2d(64), c.ReLU(), c.AdaptiveAvgPool2d(1),\n            c.Flatten(), c.Dropout(0.3), c.Linear(64, 1))\n\n    def forward(self, x):\n        return self.f(x)[:, 0]\n\n\ndef augment(x):\n    k = np.random.randint(4)\n    x = torch.rot90(x, k, (2, 3))\n    if np.random.rand() < 0.5:\n        x = torch.flip(x, (3,))\n    return x\n\n\ndef fit_predict(xtr, ytr, xte, epochs=25):\n    net = Net()\n    opt = torch.optim.AdamW(net.parameters(), 1e-3, weight_decay=1e-4)\n    pos = max(ytr.mean(), 1e-3)\n    lossf = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor((1 - pos) / pos))\n    xt, yt = torch.from_numpy(xtr)[:, None], torch.from_numpy(ytr.astype(np.float32))\n    for _ in range(epochs):\n        net.train()\n        order = torch.randperm(len(xt))\n        for i in range(0, len(xt), 64):\n            idx = order[i:i + 64]\n            opt.zero_grad()\n            loss = lossf(net(augment(xt[idx])), yt[idx])\n            loss.backward()\n            opt.step()\n    net.eval()\n    with torch.no_grad():\n        xe = torch.from_numpy(xte)[:, None]\n        tta = [torch.sigmoid(net(torch.rot90(xe, k, (2, 3)))) for k in range(4)]\n        return torch.stack(tta).mean(0).numpy()\n\n\ndef report(name, prob):\n    pred = (prob >= 0.5).astype(int)\n    cm = confusion_matrix(y, pred).tolist()\n    res = {\"balanced_accuracy\": round(balanced_accuracy_score(y, pred), 3),\n           \"auc\": round(roc_auc_score(y, prob), 3),\n           \"recall_single\": round(cm[0][0] / sum(cm[0]), 3),\n           \"recall_two_or_more\": round(cm[1][1] / sum(cm[1]), 3),\n           \"confusion_rows_true_1_then_2plus\": cm}\n    print(name, res)\n    return res\n\n\nfolds = list(GroupKFold(5).split(X, y, groups))\nresults = {\"n\": int(len(y)), \"class_sizes\": np.bincount(y).tolist(),\n           \"wells\": int(len(set(groups))), \"folds\": 5}\nprob = np.zeros(len(y))\nfor tr, te in folds:\n    lr = LogisticRegression(class_weight=\"balanced\").fit(np.log(area[tr, None]), y[tr])\n    prob[te] = lr.predict_proba(np.log(area[te, None]))[:, 1]\nresults[\"area_only_logistic\"] = report(\"area only\", prob)\nfor channel, name in ((0, \"hoechst\"), (1, \"cellmask\")):\n    start = time.time()\n    xc = norm(X[..., channel])\n    prob = np.zeros(len(y))\n    for tr, te in folds:\n        prob[te] = fit_predict(xc[tr], y[tr], xc[te])\n    results[f\"cnn_{name}\"] = report(f\"cnn {name}\", prob)\n    results[f\"cnn_{name}\"][\"seconds_5_folds_cpu\"] = round(time.time() - start, 1)\njson.dump(results, open(f\"{OUT}/results.json\", \"w\"), indent=1)\n"
+ }
+}

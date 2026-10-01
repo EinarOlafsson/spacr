@@ -8,7 +8,7 @@ from stage_lesson import REPO, read
 
 def build():
     root = Path(__file__).resolve().parent
-    receipt = read(root / 'evidence/2026-09-21-classify-cv-current-capture.json')
+    receipt = read(root / 'evidence/2026-10-01-classify-cv-current-capture.json')
     helper = root / 'prepare_classify_split.py'
     if hashlib.sha256(helper.read_bytes()).hexdigest() != receipt['tools']['tools/tutorials/prepare_classify_split.py']:
         raise ValueError('The downloadable helper must be the exact recorded source')

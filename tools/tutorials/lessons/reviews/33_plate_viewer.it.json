@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Plate Viewer: esaminare i pozzetti ed esportare una tabella di heatmap",
+  "description": "Carica le misure di esempio, confronta caratteristiche e conteggi per pozzetto, esamina i singoli pozzetti ed esporta la tabella filtrata.",
+  "objectives": [
+    "Aprire Plate Viewer da Graph Builder e caricare le misure di esempio.",
+    "Scegliere una caratteristica, un’aggregazione e un numero minimo di oggetti.",
+    "Esaminare i dettagli dei pozzetti ed esportare la griglia dei pozzetti corrente."
+  ],
+  "prerequisite": "Usa Load test data in Plate Viewer per l’esempio scaricabile, oppure apri il file measurements.db del tuo progetto misurato. L’esempio contiene 2.341 cellule in quattro pozzetti; usa misure che coprano l’intera piastra quando valuti pattern spaziali.",
+  "scenes": [
+    "Da Home, apri Graph Builder in Data, poi scegli Plate Viewer. Usalo per riassumere le misure degli oggetti per pozzetto ed esaminarne la distribuzione sulla piastra.",
+    "Fai clic su Load test data per aprire l’esempio scaricabile. Per i tuoi dati, scegli un database di misure o la sua cartella di esecuzione e fai clic su Open. L’esempio contiene quattro pozzetti misurati.",
+    "Scegli cell come Table, cell_area come Measurement e plate1 come Plate. Imposta Per well su mean per visualizzare l’area cellulare media. La mediana riduce l’influenza di oggetti insolitamente grandi o piccoli.",
+    "Scegli una scala di colori. L’intervallo robusto usa i percentili dal secondo al novantottesimo, così un pozzetto estremo non comprime i colori degli altri.",
+    "Fai clic su Render e confronta i pozzetti colorati. Leggi il rapporto sull’effetto bordo accanto alla heatmap, controllando la disposizione della piastra e la copertura misurata. Usa misure su tutta la piastra quando valuti pattern di bordo, di riga o di colonna.",
+    "Fai clic su un pozzetto misurato per vederne l’identificatore, il numero di oggetti e il valore visualizzato. Usa questi identificatori per ritrovare lo stesso pozzetto nelle immagini o nei risultati esportati.",
+    "Imposta Per well su count per confrontare il numero di oggetti. Questa vista ti aiuta a individuare i pozzetti con meno oggetti segmentati prima di interpretare le differenze nelle caratteristiche.",
+    "Alza Min objects per well per escludere i pozzetti con troppo pochi oggetti per il tuo confronto. Con seicentouno restano due dei quattro pozzetti di questo esempio. I pozzetti esclusi appaiono vuoti, non come misure pari a zero.",
+    "Fai clic su Export well grid CSV, scegli un nome di file e salva. Il CSV contiene i pozzetti mantenuti dal filtro corrente, con identificatori, conteggi, valori visualizzati e annotazioni spaziali.",
+    "Conserva la tabella esportata con le impostazioni di misura e aggregazione. Abbassa il conteggio minimo per rivedere i pozzetti esclusi, oppure scegli un’altra misura per il confronto successivo."
+  ]
+}

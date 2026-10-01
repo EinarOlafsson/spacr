@@ -23,6 +23,7 @@
 #      ttkthemes, PyWavelets, ttf_opensans, customtkinter, gpustat and
 #      rapidfuzz — four of which are now removed outright and two of which
 #      have moved to extras.
+#      PyWavelets is required again by the confluency noise estimator.
 #
 # Rather than re-synchronise 36 lines by hand and let them rot again, this
 # file now delegates. `-e .` installs exactly what setup.py declares, so the

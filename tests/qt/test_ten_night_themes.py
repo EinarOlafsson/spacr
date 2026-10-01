@@ -22,7 +22,10 @@ The bed-seam sweep is marked ``heavy``: it renders eleven minutes of audio.
 from __future__ import annotations
 
 import numpy as np
+import json
 import re
+import subprocess
+import sys
 
 import pytest
 
@@ -471,17 +474,31 @@ class TestTheSpaceoutDressingStaysCheapAndStaysTheSame:
         yield
         T.disable_spaceout()
 
+    @pytest.fixture(scope="class")
+    def cold_dressing(self):
+        """Measure startup in a fresh interpreter, independent of cached earlier themes."""
+        script = '''
+import json
+from spacr.qt import theme as T
+T.enable_spaceout()
+before = {"dressed": sorted(T._DRESSED), "bands": sorted(T._INK_BANDS)}
+T.palette_for("nocturne")
+after = sorted(T._DRESSED)
+print(json.dumps({"before": before, "after": after}))
+'''
+        result = subprocess.run([sys.executable, "-c", script], check=True,
+                                capture_output=True, text=True, timeout=60)
+        return json.loads(result.stdout)
+
     def test_only_the_four_are_solved_when_the_dressing_goes_on(self,
-                                                                dressed):
-        assert set(T._DRESSED) == set(T.DRESSED_EAGERLY)
+                                                                cold_dressing):
+        assert set(cold_dressing["before"]["dressed"]) == set(T.DRESSED_EAGERLY)
         for key in night.NIGHT_THEME_KEYS:
-            assert key not in T._INK_BANDS
+            assert key not in cold_dressing["before"]["bands"]
 
     def test_asking_for_a_palette_solves_that_theme_and_only_it(self,
-                                                                dressed):
-        T.palette_for("nocturne")
-        assert "nocturne" in T._DRESSED
-        assert "vesper" not in T._DRESSED
+                                                                cold_dressing):
+        assert set(cold_dressing["after"]) == set(T.DRESSED_EAGERLY) | {"nocturne"}
 
     def test_the_lazy_solve_is_the_eager_solve(self, dressed):
         """Dress lazily, then solve eagerly, and compare. A performance

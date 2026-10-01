@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "API delta 4, items 07/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.ml.perform_regression#3",
+      "source": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "source_sha256": "111e077a528fd1a4ea54624a6d636cb0e646d6a4c9a3a8b065abe98f47e32e48",
+      "context": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "translation": "回归输出映射。``model_data`` 是准备好的输入表，而非系数结果；``fit_designs`` 分别记录每个参数模型拟合层级实际测得的模型设计各项计数。未记录的计数将被省略，置换检验的输出保留其自身的结果结构。",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.maybe_start#3",
+      "source": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "source_sha256": "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c",
+      "context": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "translation": "注册表基准测试控制器；若显式选择 ``SPACR_DISTRIBUTION_SMOKE=1``，则为已安装应用程序的控制器；未配置输出路径时为 ``None``。",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#6",
+      "source": "the run folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "source_sha256": "2cbe0a85e31708dc3a545dc15d993f55aa2c38470c123db52949c411eda5b9cf",
+      "context": "the processing-session folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "translation": "运行文件夹。``regression_data.csv`` 提供准备好的输入数据的计数；未显式提供记录时，``regression_fit_designs.json`` 提供实际测得的拟合计数。",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#7",
+      "source": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "source_sha256": "7673a38b849e8c8e5fcecd3b98869c0f4834b6b9525047f3873b78d7f7743e78",
+      "context": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "translation": "可选的各层级实际测得的模型设计计数。缺失的拟合计数报告为未知，绝不根据准备好的输入行数推断。",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.write_run_summary#8",
+      "source": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "source_sha256": "0b499050f8ee133da9988260234365c3ee8687d3f8f2ea418bdf777ed96d6c91",
+      "context": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "translation": "可选的各层级实际测得的模型设计计数，同时保存为 ``regression_fit_designs.json``，以便在没有模型对象时重新打开并准确还原这些计数。",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.trial_metrics.design_summary#1",
+      "source": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "source_sha256": "2a3c15af52cecbe3c3190eae07b41391eec03e17d04aab6661ee4483d5530587",
+      "context": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "translation": "试次输出映射，可包含准备好的 ``model_data`` 和按层级实际测得的 ``fit_designs``。拟合计数按层级报告；仅当每次拟合都记录了相同的值时，才输出不带层级限定的计数。没有拟合记录的旧版输出保留其基于数据表的计数。",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    }
+  ]
+}

@@ -1,0 +1,310 @@
+LIVE/DEAD VIABILITY AND HOST CYTOTOXICITY INDEX
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27. Measure calls every nucleus live
+or dead -- from a dead stain, a live stain, both, or nuclear morphology --
+with thresholds fitted per plate or set by hand, and reports per well
+viability, a live-cell index and a cytotoxicity index scaled to the control
+wells, each plate's Z', and with a plate map the dose-response of viability,
+cytotoxicity and infection with a selectivity index. Scored on synthetic
+plates of known viability and (2026-09-30) on one public real stained
+plate: per-cell calls agree with blind hand calls on 95-97 % of random
+cells after a fix, but Z' > 0.5 is NOT met on the real plate (see
+2026-09-30 below). Hidden with Alpha features.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/live-dead-cell-identification-and-counting/112723
+
+WHAT TO BUILD
+    Classify cells live/dead from viability stains (e.g. PI/calcein, SYTOX)
+    or morphology, report viability and a cytotoxicity index per well, and
+    show it next to dose-response so antiparasitic hits can be separated
+    from host toxicity.
+
+DONE WHEN
+    On a control plate (untreated vs a cytotoxic compound) viability and the
+    index separate the conditions with Z' > 0.5.
+
+2026-09-27 -- Implemented as Alpha
+    Measure gains a "Viability (Alpha)" heading. With `viability` on, the
+    end of a run reads the nucleus table it wrote (the cell table when there
+    are no nuclei) and calls every object live or dead; a failure is printed
+    and does not fail the run. Code: spacr/measure.py only, no new module,
+    private helpers; _classify_viability is the entry (it takes any
+    measurements.db), _run_viability_step the Measure hook.
+
+    Calls. `viability_dead_channel` (propidium iodide, SYTOX, DAPI on
+    unfixed cells) and/or `viability_live_channel` (calcein) name measured
+    channels; each nucleus's mean intensity minus the median of Measure's
+    ring just outside it is the signal. Per plate (and time point) the
+    signal is put on an arcsinh scale (cofactor three robust SDs, so the
+    unstained population stays Gaussian) and two Gaussian populations are
+    fitted by EM from Otsu's split; they count as two only when Ashman's D
+    >= 2, the smaller holds >= 3 objects and both the fit and the data dip
+    between them. The cut is where the two cross. A plate with one
+    population is cut 5 robust SDs from its median (above it for a dead
+    stain, below it for a live stain); a plate with fewer than 20 objects
+    borrows the cut fitted on all plates. `viability_thresholds` [dead,
+    live] overrides either cut by hand (None keeps it automatic). Dead-stain
+    positive = dead; live-stain positive = live; with both, positive for
+    neither = "unstained" (not counted live). With no stain channel, dead is
+    called from nuclear morphology: condensation = (mean DNA intensity /
+    plate median) / (area / plate median area), cut the same way on a log
+    scale -- pyknotic nuclei score ~4, interphase ~1.
+
+    Per well (measurements.db:viability_well): counts of live, dead and
+    unstained, viability (live / objects), dead_fraction, the infection of
+    live cells when pathogens were segmented, live_cell_index (live objects
+    / mean of the plate's negative-control wells, so detached cells count
+    against viability), and cytotoxicity_index: the live-cell index scaled
+    to the plate's controls, negative 0 and positive 100, by
+    dose_response.normalise_to_controls; with negative wells only it is
+    100 x (1 - live-cell index), with no controls 100 x (1 - viability);
+    cytotoxicity_basis says which. Controls are named in the well_spec
+    notation (`viability_negative_wells`, `viability_positive_wells`, both
+    with the Plate... picker). A well among the run's fields whose cells
+    were all lost is reported with 0 objects, not dropped.
+    viability_qc, per plate: the cuts, how each was found, their separation
+    and positive fraction, the control means and SDs, and Z' of viability,
+    live-cell index and cytotoxicity index from dose_response.plate_reports
+    (i.e. control_chart.zprime_frame, the number the Control Chart and
+    Dose-Response screens show); assay_ok = 1 when viability and the index
+    both reach Z' 0.5.
+
+    Dose-response: `viability_plate_map` (CSV/Excel with a well column,
+    compound/treatment and concentration/dose, optional plateID) joins a
+    compound and concentration onto each well; viability, the cytotoxicity
+    index and the infection of live cells are fitted per compound with
+    dose_response.fit_frame (which refuses non-monotone and unbounded
+    curves rather than inventing an EC50) into viability_dose_response, and
+    dose_response.selectivity_index divides the host CC50 (EC50 of the
+    cytotoxicity index) by the parasite EC50 into viability_selectivity.
+    Figures (plot on, results/viability, through plot.save_figure): per
+    plate the stain histograms with their cuts and a live-vs-dead scatter,
+    plate heatmaps of viability and the cytotoxicity index
+    (figures.plates.build_plates), control and sample wells per plate with
+    their Z', and the three dose-response curves per compound side by side.
+
+    Validation (CPU; scripts and outputs in
+    /mnt/firecuda2/codex/scratch-docs/540). Synthetic fields generated by
+    tests/test_live_dead_viability.py and run through Measure itself:
+    cells as 9 px disks, Hoechst in every nucleus, dead cells with a
+    propidium-iodide nucleus, live cells filled with calcein, some live
+    cells infected; background, blur and Poisson noise. A killed cell
+    detaches with p 0.5, otherwise stays as a stained dead cell. Accuracy is
+    the per-object live/dead call against the drawn state.
+      1. Dose plate (80 wells x 2 fields, 12198 cells; untreated and
+         cytotoxic control columns, a selective compound CC50 60 / parasite
+         EC50 0.3, a toxic one CC50 1 / EC50 1, an inactive one; clean
+         stains): accuracy 100 % with both stains, dead stain only and
+         morphology, 99.98 % with calcein only. Z' 0.92 on viability and on
+         the index. Fits: toxic CC50 0.96 (0.91-1.02; truth 1.0), viability
+         EC50 1.44, parasite EC50 0.98, SI 0.98 (0.73-1.33); selective
+         parasite EC50 0.29 (0.26-0.33; truth 0.3), host CC50 unbounded
+         ("not bounded by 0.03-100"), so its SI is reported one-sided; the
+         inactive compound refused as non-monotone (flat).
+      2. Hard control plate, two plates (the second at 0.4x stain gain),
+         48 untreated + 48 cytotoxic wells x 2 fields, 12960 cells; PI and
+         calcein log-SD 0.8 and 0.6, 15 % of dead cells dim (PI 10x lower,
+         keeping a fifth of the calcein), only 60 % of dead nuclei
+         pyknotic. Accuracy / dead sensitivity / live specificity:
+             both stains      99.81 % / 99.59 % / 99.94 %
+             dead stain only  99.61 % / 98.95 % / 99.99 %
+             live stain only  97.16 % / 92.17 % / 99.95 %
+             morphology       86.26 % / 61.68 % / 100 %
+         (morphology finds the pyknotic 60 % and nothing else, as designed).
+         Per-well viability error mean 0.25 points (max 3.3) with both
+         stains. Z' per plate, viability / cytotoxicity index: both stains
+         0.94 / 0.95 and 0.92 / 0.94; dead only 0.93 / 0.95 and 0.91 / 0.93;
+         live only 0.88 / 0.92 and 0.87 / 0.92; morphology 0.67 / 0.86 and
+         0.71 / 0.87. The automatic cut was the fitted mixture on every plate
+         and stain; the 0.4x plate was cut at its own lower level.
+      3. Depth: the hard plate subsampled (20 draws) to fewer cells per
+         well. Both stains, median (min) Z' viability / index: 180 cells
+         0.93 / 0.94; 92 cells 0.90 / 0.74 (0.63); 44 cells 0.86 / 0.57
+         (0.47); 21 cells 0.79 / 0.36; 10 cells 0.78 / 0.10. Morphology
+         falls below 0.5 under ~90 cells. Viability is a fraction and keeps
+         its Z' at low depth; the live-cell index counts cells, so its Z'
+         depends on how many cells, and how evenly seeded, a well holds.
+      4. Uneven seeding: the hard two-plate control design again with the
+         cells seeded per well spread log-normally (CV 15 %), 13210 cells.
+         Calls are unchanged (both stains 99.86 %, dead only 99.76 %, live
+         only 96.96 %, morphology 84.94 %), and viability keeps Z' 0.93 /
+         0.93 (both stains; 0.85 / 0.86 live only; 0.72 / 0.69 morphology),
+         but the cytotoxicity index, which counts live cells against the
+         untreated wells, falls to Z' 0.52 / 0.56 with both stains or the
+         dead stain, 0.45 / 0.51 with calcein only and 0.23 / 0.32 from
+         morphology. So on a plate seeded this unevenly the index passes
+         0.5 only barely with a dead stain; viability passes easily. Read
+         the index with viability_qc's Z' beside it.
+    DONE WHEN (control plate, untreated vs cytotoxic, Z' > 0.5 for
+    viability and the index): met on the synthetic control plates with a
+    dead stain (viability 0.92-0.95, index 0.52-0.95 depending on seeding
+    evenness and depth), with the limits above: the index needs about 50+
+    cells per well and even seeding; morphology alone does not meet it on
+    an unevenly seeded plate. On a real stained plate it is not met:
+    see 2026-09-30.
+
+    Real data: no live/dead-stained plate is in the example data and the
+    brief's forum thread (image.sc 112723) could not be fetched (HTTP 403),
+    so no real stained accuracy is stated. The plate1 example (2682 Hoechst
+    nuclei, Toxoplasma-infected cells, no viability stain) was called by
+    morphology: one population (no second mode; cut from the median at
+    condensation 15), 3.8 % called dead, 2.5-5.0 % per well -- and those
+    are small bright fragments (median area 108 px against 6986 px), i.e.
+    debris and cut nuclei rather than a confirmed dead population. With no
+    controls on plate1 the index there is 100 x (1 - viability).
+
+    Tests: tests/test_live_dead_viability.py (the two-population fit and
+    its refusal of one Gaussian and of a skewed population; one-population
+    and manual cuts; states from one stain or two; condensation; control
+    roles; the cytotoxicity index under both, one and no controls; a well
+    whose cells were all lost; the plate map; a database without objects;
+    Measure end to end on a control plate with both stains and figures;
+    one stain, morphology and a manual cut; dose-response separating the
+    selective and the toxic compound; the settings; the real plate1 nuclei
+    when downloaded) and tests/qt/test_viability_alpha_gate.py (hidden and
+    shown with the switch, values kept while hidden).
+ALPHA: settings viability, viability_dead_channel, viability_live_channel,
+viability_thresholds, viability_negative_wells, viability_positive_wells and
+viability_plate_map (Measure category "Viability (Alpha)"), registered as
+ALPHA_FEATURES[540] in spacr/settings.py. No widgets, apps, dropdown choices
+or zoo rows are added (the two well settings get the existing Plate...
+button, which lives inside their rows).
+    Also changed: the two well settings joined well_spec.WELL_SETTINGS and
+    WELL_ONLY_SETTINGS (the tooltip audit requires it). AppScreen's
+    _alpha_hidden_sections and setting_row_is_visible now look through the
+    Plate... holder to the field it wraps: before, a category holding a
+    well-picker setting was never recognised as all-alpha, and
+    setting_row_is_visible answered False for every well-picker row.
+    Ratchets moved: tooltip default claims 784 -> 798 (seven viability
+    claims in Measure and External Masks); seven keys in
+    KEYS_ADDED_BY_REGROUP; the Measure category order; one category-help
+    caption held in _AWAITING_CATALOG_REBUILD. Regenerated: the settings-flow
+    page and index, the setting consumer map and API targets, and the
+    02_measure_and_crop notebook's settings list.
+
+    Not done / left: (1) DONE WHEN on real data: the one public real
+    control plate found (2026-09-30 below) cannot show Z' > 0.5 (single
+    40x fields, 2 % vs 8-10 % dead); still needed is a real plate with
+    replicate wells of a strong cytotoxic control (digitonin/saponin,
+    PI + calcein + Hoechst) and a field-to-well map. (2) Thresholds are overridden by number in
+    viability_thresholds, per stain for all plates at once; there is no
+    per-plate manual cut and no dragging the cut on the histogram in the
+    GUI. (3) Stains are read on the nucleus; calcein on the cell table is
+    not used (a dead cell often loses its cell mask but keeps its nucleus).
+    (4) Morphology calls only pyknotic nuclei: necrotic (swollen) death is
+    missed and mitotic nuclei (condensed too) can be called dead; there is
+    no learned (xgboost/torch) route as item 535 has. (5) The controls
+    basis of the index needs both control types on each plate; the
+    selectivity index is one-sided whenever the host curve does not reach
+    its plateau in the tested range. (6) No button to recompute viability on
+    an existing database without re-measuring (the helper takes a db path);
+    a refused dose-response panel shows "refused" without its points.
+
+2026-09-30 -- Real-data validation (CPU; worktree val-540)
+    Dataset: Trizna et al. 2023, Sci Data 10:160, "VirtualStaining
+    Dataset" (figshare 10.6084/m9.figshare.21971558, CC BY 4.0, 506 MB).
+    Caco-2 cells, untreated vs camptothecin 6 uM 24 h, 40x, 1388x1040
+    JPEG; four series (plates here): sets 1/3 acridine orange + PI, sets
+    2/4 DiOC6 + PI; sets 1-2 imaged 2019-02-16, sets 3-4 2019-11-15; 252
+    fields (20-41 per condition per set). The files are the other way
+    round from the paper's text: <k>.1.jpg is green, <k>.2.jpg is red
+    (PI). Ground truth given with it: the condition of every field and
+    flow-cytometry dead fractions per series (ctrl 1.8 +- 0.2 %, cam
+    8.0 +- 1.0 % for sets 1-2; 2.4 +- 0.8 % and 10.1 +- 1.2 % for 3-4).
+    No per-cell labels and no field-to-well map are published.
+    Pipeline: images binned 2x, cells segmented classically (Otsu on the
+    smoothed green+red sum with a low-background floor, watershed from
+    intensity peaks; not validated, merged/edge objects occur), written
+    as spaCR merged stacks (plate = set, control fields rows A-D, cam
+    fields rows E-H, one field per well), measured by measure_crop with
+    the mask as nuclei (so the ring background exists), then
+    _classify_viability with negative wells r1-r4, positive r5-r8.
+    Per-cell reference: 300 objects (per set 50 random + 25 from the top
+    fifth of the PI signal), shuffled and hand-called BLIND to spaCR's
+    call by the validating agent (Claude, not a biologist) from red/green
+    crops: D = a PI-bright body inside the object, L = none, U =
+    unscoreable (fragment, edge sliver, a neighbour's PI, diffuse
+    textured red); 65 U excluded, 235 scored (171 random; 20 D).
+    Before (the 2026-09-27 method): the two-population fit was never
+    accepted on a real plate (Ashman's D 1.7-2.0, no dip: the PI-negative
+    population has a long bright tail, not a Gaussian), so every plate
+    used the one-population cut, median + 5 robust SD, which falls inside
+    that tail. PI only, random cells: accuracy 88.3 % (sets 1-2 86.7 %,
+    sets 3-4 90.1 %), dead sensitivity 0.75, live specificity 0.90;
+    both stains 87.7 %. Dead % ctrl/cam per set: 16.2/35.1, 7.6/28.4,
+    1.5/11.4, 6.6/32.2 (flow 1.8/8.0, 1.8/8.0, 2.4/10.1, 2.4/10.1).
+    Live stain only: one population on sets 1, 2 and 4, cut 5 robust SD
+    below the median, so nothing was called dead (accuracy 88 % = the
+    share of live cells, dead sensitivity 0.20).
+    The PI signal (mean minus ring median) ranks the hand calls well
+    within a plate (AUC 0.98-1.00); the cut was the problem. Rules
+    compared leave-one-plate-out on the hand calls (mean held-out
+    accuracy all / random): median + 5 robust SD 0.81 / 0.88; 95th-99th
+    percentile of the negative-control objects 0.88 / 0.95 (but it fixes
+    the untreated dead fraction by construction, and a plate whose
+    untreated wells hold dead cells, set 4, collapses at the 99th);
+    object mean >= F x its ring median 0.94 / 0.97 (F chosen 1.55-1.65
+    in every fold); one fixed manual cut 0.95 / 0.98 (same microscope).
+    Change (spacr/measure.py, _split_by_plate + _object_background): a
+    DEAD stain on a plate the fit calls one population is now cut per
+    object against its own ring: dead when its mean is at least
+    _VIABILITY_BACKGROUND_FOLD = 1.65 x the ring median (source
+    'background' in viability_qc; the plate threshold shown is 0.65 x the
+    plate's median ring). F = 1.65 was fitted on sets 1-2 only (first
+    value of the plateau of their accuracy) and then scored on sets 3-4.
+    Unchanged: the mixture cut when two populations are found (all
+    synthetic plates), manual cuts, plates under 20 objects (pooled),
+    tables without ring columns or with a ring at or below zero
+    (background-subtracted images), live stains and morphology.
+    After, per-cell vs hand calls (random cells; top-fifth stratum):
+        PI only, sets 1-2 (tuning)   98.9 %  (86.5 %)
+        PI only, sets 3-4 (held out) 95.1 %  (85.2 %); was 90.1 % (77.8 %)
+                                     dead sens 0.83 (was 0.58), live
+                                     spec 0.97 (was 0.96)
+        both stains, held out        91.4 %  (88.9 %); was 88.9 % (85.2 %)
+        PI only, all 171 random      97.1 %; dead sens 0.90, live spec 0.98
+    Dead % ctrl/cam per set: 1.0/25.6, 0.8/16.1, 0.7/20.0, 4.2/27.6. The
+    untreated wells now sit near flow cytometry (1.8-2.4 %); the
+    camptothecin wells read 2-3x flow's 8-10 %, as did the hand calls
+    on random cam cells (7-30 %): attached, imaged cells are not the
+    trypsinised suspension flow counted, as the paper notes.
+    Z' (DONE WHEN) -- NOT MET on this plate:
+      each 40x field as a well (the only unit the data defines), PI only,
+      viability: -0.91 / -1.35 / -2.11 / -1.68 per set (before -7.26 /
+      -4.69 / -1.97 / -1.83). No single cut does better than -1.07 (cut
+      searched for the best Z' directly). The live-cell and cytotoxicity
+      indices are worse (-2 to -10): objects per field range 18-267
+      (10th-90th percentile 39-155).
+      Consecutive fields pooled into three pseudo-wells per condition
+      (the paper imaged three wells per condition, map unpublished):
+      viability Z' 0.59 / 0.66 on sets 1-2 but -2.06 / -0.50 on held-out
+      sets 3-4 (before -3.66 / -1.34 / -1.20 / -0.19). So the fix sharpens
+      per-cell calls but does not deliver Z' > 0.5 here.
+      Ceiling: the dataset's own flow-cytometry dead fractions give Z'
+      0.42 (sets 1-2) and 0.22 (sets 3-4) from their 3-well SDs; a 2 %
+      vs 8-10 % dead contrast on ~40-150 cells per field cannot reach 0.5.
+      The DONE WHEN needs a stronger cytotoxic control (near-total kill)
+      and replicate wells, which this public set does not have.
+    Also tried: BBBC010 (C. elegans live/dead, 100 wells, ampicillin vs
+    untreated): its channel 2 is GFP, not a dead stain (per-worm mean
+    964 vs 880, SDs ~250), and death there is read from worm shape, which
+    this nuclear step does not do; not usable.
+    Scripts, hand calls (handcall/sample.csv, calls.txt, montages) and
+    outputs: /mnt/wd4tb/scratch/540 (images deleted; re-download from
+    figshare). Test added: a dead stain with one heavy-tailed population
+    is cut against its ring, and the old rule, a zero ring and a live
+    stain keep the robust-SD cut.
+    Left from this: live-stain-only calls on real plates (the one-
+    population cut calls nothing dead; acridine orange also stains dead
+    cells, so it is not a live-only stain), segmentation of dense
+    monolayers, and a real plate that can test DONE WHEN.

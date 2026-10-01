@@ -46,12 +46,11 @@ def _fresh_disclosure():
 
 @pytest.fixture
 def grid_preference():
-    """Restore the per-object table preference whatever a test does."""
+    """The preferences module; the per-object table has no preference of its
+    own since item 592 made it Mask generation's only layout."""
     from spacr.qt import preferences as prefs
 
-    was = prefs.get_object_grid_enabled()
     yield prefs
-    prefs.set_object_grid_enabled(was)
 
 
 def _open_mask(qtbot, level=None, app="mask"):
@@ -107,24 +106,31 @@ def _heading_shown(screen, title) -> bool:
     return section is not None and not section.isHidden()
 
 
+def _grid_shown(screen) -> bool:
+    """Whether the per-object table's section is on the form."""
+    section = _grid_section(screen)
+    return section is not None and not section.isHidden()
+
+
 @pytest.mark.parametrize("app", ["mask", "timelapse"])
-def test_a_pathogen_channel_brings_pathogen_segmentation_into_essentials(
+def test_a_pathogen_channel_is_answered_in_the_per_object_table(
         qtbot, app):
-    """The reported steps, at the level a new user is on."""
+    """The reported steps, at the level a new user is on.
+
+    The per-object table is the only layout of these questions, so the
+    pathogen's segmentation settings are its column, not a heading.
+    """
     from spacr.qt.settings_search import ESSENTIALS
 
     window = _open_mask(qtbot, app=app)
     screen = _screen(window, app)
     assert screen._settings_search.level() == ESSENTIALS
-    assert not _heading_shown(screen, "Pathogen Segmentation")
 
     _commit(qtbot, screen, "pathogen_channel", "2")
 
-    assert _heading_shown(screen, "Pathogen Segmentation")
-    for key in ("pathogen_model_name", "pathogen_diameter",
-                "pathogen_cellprob_threshold", "pathogen_flow_threshold"):
-        assert key in screen._settings_search.visible_keys(), key
-    assert screen.setting_row_is_visible("pathogen_diameter")
+    assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert _grid_shown(screen)
+    assert "pathogen" in screen._object_grid.objects()
 
 
 def test_essentials_still_hides_what_it_hid(qtbot):
@@ -138,53 +144,43 @@ def test_essentials_still_hides_what_it_hid(qtbot):
     after = set(screen._settings_search.visible_keys())
     assert not screen.setting_row_is_visible("dry_run")
     assert not screen.setting_row_is_visible("resume")
-    assert after - before == {
-        "pathogen_model_name", "pathogen_diameter",
-        "pathogen_cellprob_threshold", "pathogen_flow_threshold"}
-
-
-def test_a_cell_channel_brings_cell_segmentation_into_essentials(qtbot):
-    """Cell rows are never hidden by the object rule; Essentials follows."""
-    window = _open_mask(qtbot)
-    screen = _screen(window)
-    assert not _heading_shown(screen, "Cell Segmentation")
-
-    _commit(qtbot, screen, "cell_channel", "0")
-
-    assert _heading_shown(screen, "Cell Segmentation")
-    assert screen.setting_row_is_visible("cell_diameter")
+    assert not {key for key in after - before if "pathogen" not in key}
 
 
 @pytest.mark.parametrize("app", ["mask", "timelapse"])
 @pytest.mark.parametrize("level", ["essentials", "all"])
-def test_clearing_the_channel_takes_the_heading_away(qtbot, level, app):
-    """On, off and on again, at either level."""
+def test_clearing_the_channel_keeps_the_table(qtbot, level, app):
+    """On, off and on again, at either level: no heading over no rows."""
     window = _open_mask(qtbot, level, app=app)
     screen = _screen(window, app)
 
     _commit(qtbot, screen, "pathogen_channel", "2")
-    assert _heading_shown(screen, "Pathogen Segmentation")
+    assert _grid_shown(screen)
 
     _commit(qtbot, screen, "pathogen_channel", "")
     assert screen._settings_model.collect()["pathogen_channel"] is None
     assert not _heading_shown(screen, "Pathogen Segmentation"), (
         "a heading over no rows is left on the form")
-    assert not screen.setting_row_is_visible("pathogen_diameter")
+    # 2026-09-29 (item 592, "hide unset objects"): with no channel
+    # set only the cell column is drawn, and under Essentials none of its
+    # questions is essential, so the table's section goes the way any
+    # heading over no essential rows goes. All settings keeps it.
+    assert _grid_shown(screen) is (level == "all")
+    assert "pathogen" not in screen._object_grid.objects()
 
     _commit(qtbot, screen, "pathogen_channel", "2")
-    assert _heading_shown(screen, "Pathogen Segmentation")
-    assert screen.setting_row_is_visible("pathogen_diameter")
+    assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert _grid_shown(screen)
 
 
-def test_a_settings_file_naming_a_pathogen_channel_opens_its_section(qtbot):
+def test_a_settings_file_naming_a_pathogen_channel_reaches_the_table(qtbot):
     """Loading settings is the other way a channel arrives."""
     window = _open_mask(qtbot)
     _screen(window).apply_settings_dict({"pathogen_channel": 2})
     screen = _screen(window)
 
     assert screen._settings_model.collect()["pathogen_channel"] == 2
-    assert _heading_shown(screen, "Pathogen Segmentation")
-    assert screen.setting_row_is_visible("pathogen_diameter")
+    assert _grid_shown(screen)
 
 
 def _grid_section(screen):
@@ -197,42 +193,39 @@ def _grid_section(screen):
 
 def test_the_per_object_table_stays_on_screen_under_essentials(
         qtbot, grid_preference):
-    """With the table on, it is the only place a channel can be set."""
-    from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QApplication
+    """The channel stays reachable under Essentials, and brings the table.
 
-    grid_preference.set_object_grid_enabled(True)
+    2026-09-29 (item 592, "hide unset objects"): a hidden object has
+    no column, so its channel is a row of the ordinary form, never a table
+    cell; Essentials must not hide that row.
+    """
     window = _open_mask(qtbot)
     screen = _screen(window)
     assert getattr(screen, "_object_grid", None) is not None
-    assert not screen.setting_row_is_visible("pathogen_channel"), (
-        "the table answers for the channel, so its flat row is hidden")
-    section = _grid_section(screen)
-    assert not section.isHidden(), (
-        "Essentials hid the table, and with it every object channel")
+    assert screen.setting_row_is_visible("pathogen_channel"), (
+        "Essentials hid the only control that shows the pathogen column")
+    assert "channel" not in screen._object_grid.questions()
 
-    table = screen._object_grid._model
-    row = list(table.table()).index("channel")
-    column = list(table.objects()).index("pathogen")
-    assert table.setData(table.index(row, column), "2", Qt.EditRole)
-    QApplication.processEvents()
+    _commit(qtbot, screen, "pathogen_channel", "2")
 
     assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert "pathogen" in screen._object_grid.objects()
     assert not _grid_section(screen).isHidden()
 
 
-def test_switching_the_table_on_later_keeps_it_on_screen(
+def test_the_search_strip_decides_the_tables_section(
         qtbot, grid_preference):
-    """Mounted by Preferences after the search strip was built."""
+    """The strip hides and restores the table's section like any other.
+
+    2026-09-29 (item 592, "hide unset objects"): measured under All
+    settings, since under Essentials a form with no channel set has no
+    essential question in the table and the section starts hidden.
+    """
     from PySide6.QtWidgets import QApplication
 
-    grid_preference.set_object_grid_enabled(False)
-    window = _open_mask(qtbot)
+    window = _open_mask(qtbot, "all")
     screen = _screen(window)
-    assert getattr(screen, "_object_grid", None) is None
-
-    grid_preference.set_object_grid_enabled(True)
-    assert screen.apply_object_grid_preference()
+    assert getattr(screen, "_object_grid", None) is not None
     QApplication.processEvents()
     section = _grid_section(screen)
     assert not section.isHidden()
@@ -242,12 +235,6 @@ def test_switching_the_table_on_later_keeps_it_on_screen(
     assert section.isHidden(), "the strip is not deciding the table's section"
     bar.set_query("")
     assert not section.isHidden()
-
-    grid_preference.set_object_grid_enabled(False)
-    assert screen.apply_object_grid_preference()
-    QApplication.processEvents()
-    bar.apply()
-    assert screen.setting_row_is_visible("pathogen_channel")
 
 
 def test_a_section_the_user_shut_stays_shut(qtbot):
@@ -285,6 +272,4 @@ def test_a_section_the_user_shut_stays_shut(qtbot):
     _commit(qtbot, screen, "pathogen_channel", "2")
     assert [s.property("settingsCategorySource") for s in shut
             if s.is_expanded()] == []
-    pathogen = _heading(screen, "Pathogen Segmentation")
-    assert not pathogen.isHidden()
-    assert pathogen.is_expanded(), "the section the channel brings is shut"
+    assert _grid_shown(screen)

@@ -603,3 +603,74 @@ def test_process_masks_handles_object_free_mask(tmp_path):
 
     assert np.count_nonzero(np.load(os.path.join(mask_dir, "f1.npy"))) == 0
     assert set(np.unique(np.load(os.path.join(mask_dir, "f0.npy")))) == {0, 1, 2}
+
+
+def _count_merges(monkeypatch):
+    """Wrap the merger so a test can see which fields were adjusted."""
+    import spacr.utils as U
+
+    calls = []
+    real = U._merge_cells_based_on_parasite_overlap
+
+    def counting(parasite, cell, *args, **kwargs):
+        """Count the call, then merge as the real merger does."""
+        calls.append(cell.shape)
+        return real(parasite, cell, *args, **kwargs)
+
+    monkeypatch.setattr(U, '_merge_cells_based_on_parasite_overlap', counting)
+    return calls
+
+
+def test_a_rerun_does_not_adjust_an_adjusted_mask_again(tmp_path, monkeypatch):
+    """ITEM 430: adjusting an adjusted mask merges it again.
+
+    The in-place run records each adjusted mask's hash as it lands, and a
+    mask that still matches is left alone, so a re-run of Mask with
+    adjust_cells on no longer changes the cell masks every time.
+    """
+    import spacr.utils as U
+
+    folders = _write_triple(tmp_path, n_files=2)
+    calls = _count_merges(monkeypatch)
+
+    U.adjust_cell_masks(folders['parasite'], folders['cell'], folders['nuclei'],
+                        n_jobs=1)
+    assert len(calls) == 2
+    assert (tmp_path / 'cell' / U.ADJUSTED_CELLS_LEDGER).is_file()
+    after_first = {p.name: p.read_bytes()
+                   for p in (tmp_path / 'cell').glob('*.npy')}
+
+    U.adjust_cell_masks(folders['parasite'], folders['cell'], folders['nuclei'],
+                        n_jobs=1)
+    assert len(calls) == 2, 'an already adjusted mask was adjusted again'
+    assert after_first == {p.name: p.read_bytes()
+                           for p in (tmp_path / 'cell').glob('*.npy')}
+
+
+def test_a_cell_mask_segmented_again_is_adjusted_again(tmp_path, monkeypatch):
+    """The record is of bytes, so a fresh segmentation is not taken as done."""
+    import spacr.utils as U
+
+    folders = _write_triple(tmp_path, n_files=2)
+    U.adjust_cell_masks(folders['parasite'], folders['cell'], folders['nuclei'],
+                        n_jobs=1)
+    np.save(tmp_path / 'cell' / 'f1.npy', _stacked_cells())
+    calls = _count_merges(monkeypatch)
+
+    U.adjust_cell_masks(folders['parasite'], folders['cell'], folders['nuclei'],
+                        n_jobs=1)
+
+    assert len(calls) == 1
+
+
+def test_a_separate_output_folder_writes_no_record(tmp_path):
+    """Output to another folder always rebuilds from source; nothing to record."""
+    import spacr.utils as U
+
+    folders = _write_triple(tmp_path, n_files=1)
+    out = tmp_path / 'adjusted'
+    U.adjust_cell_masks(folders['parasite'], folders['cell'], folders['nuclei'],
+                        n_jobs=1, output_folder=str(out))
+
+    assert not (tmp_path / 'cell' / U.ADJUSTED_CELLS_LEDGER).exists()
+    assert not (out / U.ADJUSTED_CELLS_LEDGER).exists()

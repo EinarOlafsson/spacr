@@ -1,36 +1,33 @@
 {
   "lesson": "11_classify_ml",
-  "english_sha256": "d042a85fceacc953e4c9f14cf04f6287ac61958c4f2931bf18802b6912439aab",
-  "review_type": "source-pinned editorial caption translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "de",
-  "title": "Classify: tabellarisches maschinelles Lernen",
-  "description": "Verwenden Sie Classify mit herunterladbaren Zellmessungen, eindeutigen Metadatenlabels, einem kleinen Random Forest, echter Konsolenausgabe und gespeicherten Vorhersagen.",
-  "objectives": [
-    "Die tabellarische Modellfamilie auswählen und das gemessene Beispiel über die Datenauswahl laden.",
-    "Klassen nach Plattenspalte definieren und den angeforderten Anteil von tatsächlich zurückgehaltenen Wells unterscheiden.",
-    "Abbildungen, fehlende Scores und Ergebnisse prüfen, ohne Demonstrationsgenauigkeit mit biologischer Validierung gleichzusetzen."
-  ],
-  "prerequisite": "Diese Aufnahme verwendet spaCR 1.5.0.8. In Classify Load test data und dann Load wählen, nicht Stream. Das Beispiel enthält 2.341 Objekte in vier Wells; 2.153 bleiben erhalten, 188 bleiben wegen fehlender passender Kerndaten ohne Score. c1 definiert Klasse null, c2 Klasse eins: Plattenspalten, keine bestätigten Phänotypen. Einstellungen: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Für dieses kleine Beispiel test_size=0.1 setzen; die aktuelle ML-Verarbeitung berücksichtigt diese Einstellung. Das geladene Projekt vor dem Start mit Choose source data bestätigen. Zwei Wells und 1.035 Objekte werden zurückgehalten, ohne gemeinsame Wells zwischen Training und Test. Merkmalsfilterung erfolgt vor der Aufteilung; Permutationswichtigkeit verwendet Trainingsdaten. Genauigkeit: 0.6202898551; Mehrheitsklassenreferenz: 0.5632850242. Neun Kennzahlen und 2.153 gespeicherte Vorhersagen wurden unabhängig geprüft. API: spacr.classify.classify ruft spacr.ml.generate_ml_scores auf. Ausgabe: results/random_forest/channel_1; predictions enthält die binäre Klasse, ml_pred die Wahrscheinlichkeit für Klasse eins. Nur drei echte Abbildungen werden gezeigt; keine Behauptung zu SHAP, Kalibrierung, Kausalität oder biologischer Validierung. Keine KI-Anfrage wurde gesendet.",
-  "scenes": [
-    "Öffnen Sie Classify über Home und wählen Sie Tabular Machine Learning als Klassifikatorfamilie. Sie lernt aus gespeicherten Messungen einzelner Objekte. Computer-Vision-Einstellungen können sichtbar, aber ausgegraut bleiben, weil sie zur anderen Familie gehören.",
-    "Klicken Sie auf Load test data und wählen Sie Load. Das gemessene Beispiel wird geladen, bei Bedarf heruntergeladen, und seine Pfade werden vorbereitet; Stream ist ein anderer Weg. Schließen Sie für eigene Projekte zuerst Measure ab und wählen Sie den Projektordner. Nicht jeder beliebige Bildordner enthält bereits die benötigte Messdatenbank.",
-    "Bestätigen Sie das heruntergeladene Projekt mit Choose source data. Wählen Sie den Plattenordner, der das Verzeichnis measurements enthält. In dieser Aufnahme verschwindet durch die Bestätigung dieses Ordners die nach dem Laden des Beispiels verbliebene Aufforderung, eine Quelle anzugeben. Die Quelle muss gemessene Objekte enthalten, bevor das tabellarische Modell ausgeführt werden kann.",
-    "Verwenden Sie Metadaten als Grundlage und definieren Sie zwei Classes aus columnID: c1 und c2. Hier sind das Plattenspaltenlabels zur Demonstration des Ablaufs, keine unabhängig bestätigten gesunden und betroffenen Zellen. Annotationsbasiertes Training benötigt echte Labels aus Annotate. Machen Sie fehlende Annotationen niemals zu erfundenen Referenzlabels.",
-    "Channel of interest wählt die gemessenen Merkmale. Wir verwenden Kanal eins, ohne ihm eine ungeprüfte biologische Bedeutung zuzuschreiben. Prüfen Sie bei eigenen Daten vor der Kanalwahl die Aufnahme- und Messeinstellungen. Die Auswahl eines Merkmalskanals segmentiert oder vermisst die Bilder nicht erneut.",
-    "Wählen Sie Random Forest und sechzehn Schätzer für diese kleine Demonstration, mit zwei Worker-Jobs. Das ist keine Empfehlung für ein optimiertes Modell. Überwachte Merkmalsauswahl und Kreuzvalidierung bleiben ausgeschaltet. Ohne Kreuzvalidierung entfällt nicht die separate, für diesen Lauf zurückgehaltene Testaufteilung.",
-    "Stellen Sie die Testgröße auf ein Zehntel und behalten Sie die Gruppierung nach Well bei. Ein angeforderter Anteil ist keine exakte Objektzahl: Dieses Vier-Well-Beispiel hält zwei ganze Wells zurück, etwa achtundvierzig Prozent der verbliebenen Objekte. Beide Klassen sind auf jeder Seite vertreten, und kein tatsächliches Well liegt zugleich in Training und Test.",
-    "Schalten Sie Plot ein, löschen Sie die Suche und drücken Sie Run. Die Konsole protokolliert die aufgelösten Einstellungen, Filterung, Aufteilung und den Modellbericht. Bewahren Sie dieses Protokoll mit den Ergebnissen auf. Eine Fertigmeldung belegt nicht, dass Labels, Validierungsdesign oder biologische Interpretation angemessen waren.",
-    "Dieser Lauf bewertet zweitausendeinhundertdreiundfünfzig Objekte. Einhundertachtundachtzig fehlen passende Kerndaten; sie bleiben ohne Score, nicht negativ. Die gespeicherte Testgenauigkeit beträgt etwa zweiundsechzig Prozent, gegenüber sechsundfünfzig Prozent für die Mehrheitsklasse. Vier Wells auf einer Platte belegen keine Übertragbarkeit auf ein neues Experiment.",
-    "Drei Abbildungen stehen bereit: Permutationswichtigkeit, Merkmalswichtigkeit der Bäume und diese Platten-Heatmap. Mit Predictions und Mittelwertgruppierung mittelt die Heatmap binäre vorhergesagte Klassen, nicht ihre Wahrscheinlichkeiten. Wichtigkeit ist keine Kausalität; die Permutation verwendet Trainingsdaten. Prüfen Sie die gespeicherten Tabellen, bevor Sie aus einer bunten Abbildung Schlussfolgerungen ziehen.",
-    "Der AI-Schalter ermöglicht Fragen zum Ablauf mit Unterstützung eines Anbieters. Dies ist ein ungesendeter Entwurf, keine erzeugte Antwort. Bewahren Sie Ergebnisse und Einstellungen zusammen auf und prüfen Sie jeden Rat. Untergeordnete Werkzeuge haben eigene Eingabeanforderungen: Das Explain-Tutorial nutzt Computer-Vision-Scores, nicht diese ML-Ausgaben. KI ersetzt nicht die Prüfung von Labels und Aufteilungsidentitäten."
-  ],
+  "english_sha256": "92e4828684b94f5fecd03ac4fe73b16a0b457fbdddbb462025d73f7df608675e",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: current eleven-scene native ML recording. Remove merged/older-application framing; describe conditional download; add explicit Choose source data confirmation. Prerequisites name spaCR 1.5.0.8 and the respected test_size=0.1 setting. Eight retained narration scenes preserve all measured results and scientific limitations."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Classify: aus gemessenen Merkmalen lernen",
+  "description": "Laden Sie Messwerte, definieren Sie Klassen, trainieren Sie einen tabellarischen Klassifikator und prüfen Sie Objektwerte und Plattenübersichten.",
+  "objectives": [
+    "Die tabellarische Familie und ein gemessenes Projekt auswählen.",
+    "Klassen definieren und Merkmalskanäle, Modellgröße und zurückgehaltene Wells wählen.",
+    "Modellausgaben, Objektvorhersagen und Übersichtsabbildungen finden."
+  ],
+  "prerequisite": "Verwenden Sie in Classify Load test data und wählen Sie Load; bestätigen Sie dann den heruntergeladenen Plattenordner mit Choose source data. Für Ihr eigenes Projekt führen Sie zuerst Measure aus. Das Beispiel verwendet die columnID-Werte c1 und c2 als zwei Klassen; verwenden Sie bei eigenen Daten Labels, die zu Ihrem Experiment passen.",
+  "scenes": [
+    "Öffnen Sie von Home aus Classify und wählen Sie Tabular Machine Learning. Diese Familie verwendet die von Measure gespeicherten Objektmesswerte. Sie erzeugt ein angepasstes Modell und einen Wert für jedes Objekt mit den erforderlichen Messwerten.",
+    "Klicken Sie auf Load test data und wählen Sie Load. Warten Sie, bis das gemessene Beispiel heruntergeladen ist. Für eigene Daten wählen Sie den von Measure erstellten Projektordner einschließlich seiner Messdatenbank.",
+    "Bestätigen Sie mit Choose source data den heruntergeladenen Plattenordner. Wählen Sie den Ordner mit den Messwerten. So erhält der Klassifikator Zugriff auf die Objekttabellen und die Metadaten, mit denen die Klassen definiert werden.",
+    "Wählen Sie Metadaten als Klassenbasis und definieren Sie zwei Classes mit den columnID-Werten c1 und c2. Diese Labels unterscheiden die beiden Plattenspalten im Beispiel. Um mit Ihren eigenen Zellannotationen zu trainieren, wählen Sie die Annotationsbasis und die in Annotate erstellte Labelspalte.",
+    "Setzen Sie Channel of interest für das Beispiel auf 1. Damit legen Sie fest, welche kanalspezifischen Messmerkmale in das Modell eingehen. Wählen Sie für Ihr eigenes Experiment den Kanal, der das für Ihre Klassen relevante Signal enthält.",
+    "Wählen Sie Random Forest, 16 Estimatoren und zwei Worker-Jobs. Die Zahl der Estimatoren bestimmt die Anzahl der Bäume. Mehr Bäume bedeuten mehr Rechenaufwand beim Anpassen. Lassen Sie Merkmalsauswahl und Kreuzvalidierung beim ersten Durchgang ausgeschaltet; diese Optionen können Sie vergleichen, sobald eine funktionierende Basis vorliegt.",
+    "Setzen Sie Test size auf 0,1 und behalten Sie die Gruppierung nach Well bei. spaCR hält ganze Wells zurück, daher kann der endgültige Objektanteil vom angeforderten Anteil abweichen. Lesen Sie die ermittelte Aufteilung in der Konsole und prüfen Sie, ob sie zu Ihrem Experiment passt.",
+    "Aktivieren Sie Plot, leeren Sie die Suche und drücken Sie Run. Die Konsole zeigt Merkmalsfilterung, Trainings- und Testaufteilung, Modellanpassung und die gespeicherten Ausgabepfade. Warten Sie das Ende des Laufs ab, bevor Sie seine Werte vergleichen.",
+    "Die Ergebnisse finden Sie unter results/random_forest/channel_1. Die Datenbank speichert die vorhergesagte Klasse in predictions und die Wahrscheinlichkeit für Klasse 1 in ml_pred. Objekte ohne erforderliche Messwerte können ohne Wert bleiben; prüfen Sie fehlende Werte, wenn Sie eine Übersicht exportieren.",
+    "Sehen Sie sich die Abbildungen zur Merkmalswichtigkeit und die Platten-Heatmap an. Mit Predictions und Mittelwertgruppierung ist der Wert eines Wells der Mittelwert seiner binären vorhergesagten Klassen. Nutzen Sie die gespeicherten Objektwerte für die Detailprüfung und vergleichen Sie die Leistung auf den zurückgehaltenen Wells, bevor Sie den Klassifikator auf ein anderes Experiment anwenden."
+  ]
 }

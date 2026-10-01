@@ -1,0 +1,53 @@
+A SCALED PREVIEW NO LONGER SCALES ITS DIALOGS
+
+Status: DONE, 2026-09-25.
+
+THE PROBLEM
+Item 521 found the backend install dialog's buttons 59 px tall squares when
+opened from Plaque Assay with its preview at 150 %, and fixed that one
+dialog by parenting it to the window. Every other dialog opened with a
+preview as its parent had the same fault: Plaque's Paper, Settings and
+Overlay dialogs, and Mask's Live Settings, had 59 px buttons at 150 % and
+30 px at 75 %, against the 40 px of every other dialog.
+
+CAUSE
+A preview's own scale (item 471, spacr/qt/widgets/preview_scale.py)
+re-states the application sheet at its scale on the panel
+(PreviewScaler._scale_root_sheet), and Qt cascades an ancestor's sheet
+into a child dialog although it is a window of its own. The scaler's walk
+(PreviewScaler.apply, root.findChildren) also found the dialog and its
+contents among the panel's children and scaled their minimum sizes,
+margins and own sheets.
+
+THE FIX (root, not per dialog)
+spacr/qt/widgets/preview_scale.py:
+* PreviewScaler._window_of (line 377): the outermost window between a
+  widget and the preview. PreviewScaler.apply (line 454) walks a window
+  and everything in it at 100 %, which also gives back the sizes of
+  controls lent to a dialog (PlaqueSettingsDialog, Live Settings).
+* PreviewScaler._unscale_window (line 415): the window's own sheet is the
+  preview's cascade re-stated at 100 % (the inherited sheet, the panel's
+  and every widget's between), then the window's own sheet, which still
+  wins where they differ. At 100 % its own sheet is given back untouched.
+* PreviewScaler.eventFilter / _window_polished (line 393): the parent
+  reports the new window polished from inside show(), before the window
+  takes its size, so it is never laid out once at the preview's scale.
+521's re-parenting of the install dialog stays.
+
+MEASURED (offscreen, theme applied; ordinary dialog button 40 px)
+                       before 150 % / 75 %    after 150 % / 75 %
+  Paper                59 / 30                40 / 40
+  Plaque Settings      59 / 30                40 / 40
+  Plaque Overlay       59 / 30                40 / 40
+  Mask Live Settings   59 / 30                40 / 40
+The previews' own buttons still scale: Plaque 40 -> 59 / 30 px.
+
+TESTS
+tests/qt/test_522_a_scaled_preview_no_longer_scales_its_dialogs.py
+(9 tests; all 9 fail before the fix): each dialog at 150 % and 75 % has
+buttons of the ordinary height, the panel's own buttons scale, and a
+dialog already open follows a later scale change and gets its own sheet
+back at 100 %. Also run, before and after: test_521, test_519,
+test_gui_scale_recovery, test_the_gui_scale_fits_a_laptop, the plaque
+preview/calibration/mode tests, the live settings and text-fit dialog
+tests, the help index and module coverage ratchet.

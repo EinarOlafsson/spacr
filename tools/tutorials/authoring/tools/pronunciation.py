@@ -79,9 +79,11 @@ _APPROVED_PYPI_FORMS = tuple(PYPI_SPEECH.values())
 _PYPI_ALIAS_SEPARATOR_CHAR = r"[\s,./_—–-]"
 _PYPI_ALIAS_SEPARATOR = rf"{_PYPI_ALIAS_SEPARATOR_CHAR}+"
 _REJECTED_PYPI_ALIAS = re.compile(
-    rf"(?<!\w)(?:(?:pypi|pypie)|"
+    # "pie pee" / "pie-pee" / "pypee" / "piepee" are the 2026-08 two-syllable
+    # spelling that 27 retired lesson 01 voices carried (item 447).
+    rf"(?<!\w)(?:(?:pypi|pypie|pypee|piepee)|"
     rf"(?:pie|pai|paj|pæ|paï){_PYPI_ALIAS_SEPARATOR}p"
-    rf"(?:{_PYPI_ALIAS_SEPARATOR_CHAR}*[ieí])?|"
+    rf"(?:{_PYPI_ALIAS_SEPARATOR_CHAR}*(?:ee|[ieí]))?|"
     rf"p{_PYPI_ALIAS_SEPARATOR}y{_PYPI_ALIAS_SEPARATOR}p"
     rf"{_PYPI_ALIAS_SEPARATOR}[ie])(?!\w)",
     re.IGNORECASE,

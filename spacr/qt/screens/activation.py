@@ -71,6 +71,9 @@ def host_of(widget: Optional[QWidget]) -> Optional[QWidget]:
     because the page is built before it is mounted -- and because a page
     that ended up in a window instead (the fold's last resort) has no such
     host above it, which is exactly what None says.
+
+    :param widget: the widget to start from, usually a folded page; None gives
+        None.
     """
     node = widget
     while node is not None:
@@ -83,6 +86,8 @@ def host_of(widget: Optional[QWidget]) -> Optional[QWidget]:
 def open_page(host_screen: Optional[QWidget]) -> Optional[QWidget]:
     """Show the activation page on ``host_screen`` and raise it.
 
+    :param host_screen: the screen that may carry the activation fold's opener;
+        None gives None.
     :returns: the module's screen, or None when this host carries no
         activation fold.
     """
@@ -97,6 +102,11 @@ def apply_seed(screen: Optional[QWidget], values: Dict[str, Any]) -> None:
     function rather than written out a second time: a navigation that
     seeded differently from the sidebar's would be a second answer to one
     question. A key with no widget is skipped, as it is there.
+
+    :param screen: the screen whose ``_settings_model`` widgets are set; None,
+        or a screen without a settings model, does nothing.
+    :param values: setting name to value; each is applied to the widget of that
+        name, and names with no widget are skipped.
     """
     model = getattr(screen, "_settings_model", None)
     if model is None or not values:
@@ -148,7 +158,10 @@ class ExplainNavigator:
         self.page: Optional[QWidget] = None
 
     def attach(self, page: QWidget) -> None:
-        """Remember the page, so the host it lands on can be found later."""
+        """Remember the page, so the host it lands on can be found later.
+
+        :param page: the activation page widget, stored as ``page``.
+        """
         self.page = page
 
     def _on_train_requested(self, target_key: str,

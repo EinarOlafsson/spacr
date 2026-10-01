@@ -26,7 +26,7 @@
     },
     {
       "visual": "03_diagnostics_folder",
-      "narration": "Open the diagnostic files in that folder. The example contains design identifiability, design diagnostics, inference diagnostics, a summary and a table of collinear guide pairs.",
+      "narration": "Read the diagnostic files in that folder in order: design identifiability, then design diagnostics with the collinear guide pairs, then inference diagnostics, and last the summary that pulls them together.",
       "hold_after": 0.7,
       "focus": [
         535,

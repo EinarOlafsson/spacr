@@ -392,13 +392,19 @@ class TestWatchingTheFormShapingSettings:
             _widgets={"number_of_organelles": widget})
 
     def test_a_field_commit_is_what_asks_for_a_rebuild(self, screen):
-        """One connection per shaping key, on the commit signal it has."""
+        """One connection per shaping key, on the commit signal it has.
+
+        The count's slot is `_follow_the_organelle_count` since instruction
+        356's case 2: it grows the panel in place and falls back to
+        `_rebuild_the_form` only when that cannot be done.
+        """
         widget = types.SimpleNamespace(editingFinished=_RecordingSignal())
         screen._settings_model = self._model_with(widget)
 
         screen._watch_the_settings_that_decide_the_form()
 
-        assert widget.editingFinished.connected == [screen._rebuild_the_form]
+        assert widget.editingFinished.connected == [
+            screen._follow_the_organelle_count]
 
     def test_with_no_model_there_is_nothing_to_follow(self, screen):
         """A screen whose panel failed to build must not raise here.
@@ -422,7 +428,8 @@ class TestWatchingTheFormShapingSettings:
 
         screen._watch_the_settings_that_decide_the_form()
 
-        assert widget.valueChanged.connected == [screen._rebuild_the_form]
+        assert widget.valueChanged.connected == [
+            screen._follow_the_organelle_count]
 
     def test_a_widget_whose_every_signal_refuses_is_simply_skipped(self,
                                                                    screen):

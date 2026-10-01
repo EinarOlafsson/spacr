@@ -44,8 +44,35 @@ def check_retained_console_state(before, after):
         raise RuntimeError('The native preference change altered the ordered figure images')
 
 
+def private_input_records(manifest, stage, input_root):
+    """Resolve byte-identical retained inputs without rewriting their manifest."""
+    records = deepcopy(manifest['records'])
+    if input_root is None:
+        return records
+    stage, input_root = Path(stage).resolve(), Path(input_root).resolve()
+    if not input_root.is_dir() or not input_root.is_relative_to(stage):
+        raise ValueError('Retained input root must be a directory inside the private stage')
+    old_run = Path(manifest['run'])
+    if not old_run.is_absolute() or old_run.parent.name != 'foreign_runs':
+        raise ValueError('The retained manifest does not identify its original Foreign workspace')
+    old_root = old_run.parent.parent
+    for record in records:
+        for key in ('source', 'image', 'mask'):
+            original = Path(record[key])
+            if not original.is_absolute() or not original.is_relative_to(old_root):
+                raise ValueError('Retained input path leaves its original workspace')
+            candidate = (input_root / original.relative_to(old_root)).resolve()
+            if not candidate.is_relative_to(input_root) or not candidate.is_file():
+                raise ValueError('Retained input copy is missing or leaves the private input root')
+            if _digest(candidate) != record[key + '_sha256']:
+                raise ValueError('Retained input copy differs from the accepted source hash')
+            record[key] = str(candidate)
+    return records
+
+
 def record_external_masks(app, window, screen, stage, captures, capture,
-                          settle, write_json, timeout):
+                          settle, write_json, timeout, *, input_root=None,
+                          stop_after_preview=False):
     """Preview without writing, then run and independently verify the project."""
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
@@ -72,7 +99,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     if json.loads(acceptance_path.read_text()).get('accepted') is not True:
         raise RuntimeError('The preserved Foreign input capture was not accepted')
     manifest = json.loads(manifest_path.read_text())
-    records = manifest['records']
+    records = private_input_records(manifest, stage, input_root)
     by_name = {record['neutral_stem']: record for record in records}
     if (len(records) != 2 or set(by_name) != {'fov01', 'fov02'}
             or [by_name[name]['objects'] for name in ('fov01', 'fov02')] != [44, 59]
@@ -110,6 +137,9 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         raise RuntimeError('The private project destination must not exist')
     write_json(captures / 'input_manifest.json', {
         'reused_foreign_manifest': str(manifest_path), 'records': records,
+        'retained_input_root': str(Path(input_root).resolve()) if input_root else None,
+        'retained_manifest_sha256': originals[str(manifest_path)],
+        'retained_manifest_rewritten': False,
         'original_hashes': originals, 'destination': str(destination),
         'measurement_csv_imported': False, 'new_images_generated': False,
         'neutral_names_do_not_preserve_original_wells': True,
@@ -447,11 +477,19 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     if not usage.folder.shut or usage.body.isVisible():
         raise RuntimeError('The actual System header did not collapse its body')
     runtime = screen._runtime_splitter
-    figure_slot = runtime.indexOf(screen._figures_card)
-    console_slot = runtime.indexOf(screen._console_wrap)
-    if runtime.count() != 2 or {figure_slot, console_slot} != {0, 1}:
-        raise RuntimeError('The actual External Masks figure/console splitter changed')
     console = screen._console
+
+    def runtime_slots():
+        # System and Actions now share this real splitter. Native folding
+        # moves collapsed headings to the bottom, so never cache positions.
+        widgets = (screen._figures_card, screen._console_wrap,
+                   screen._usage_card, screen._actions_section)
+        slots = [runtime.indexOf(widget) for widget in widgets]
+        if len(set(slots)) != len(widgets) or set(slots) != set(range(runtime.count())):
+            raise RuntimeError('The actual External Masks runtime panes changed')
+        return slots[0], slots[1]
+
+    runtime_slots()
 
     def console_fold(shut):
         if screen._console_folder.shut != shut:
@@ -460,12 +498,26 @@ def record_external_masks(app, window, screen, stage, captures, capture,
             raise RuntimeError('The actual Console heading did not change its fold state')
 
     def runtime_space(for_figures):
-        # These are the same native divider positions a user can drag to.
-        # Figures has no fold button in this build; do not manufacture one
-        # or change its minimum height just to obtain a larger screenshot.
-        available = max(sum(runtime.sizes()), runtime.height())
-        sizes = [0, 0]
-        sizes[figure_slot] = available if for_figures else 1
+        # Use the actual Figures heading to trade room with the console.
+        # Preserve the other panes and all native minimum heights.
+        figures = screen._figures_card
+        if figures.isVisible():
+            folder = getattr(figures, 'folder', None)
+            if folder is None:
+                raise RuntimeError('The actual Figures card has no native fold control')
+            if folder.shut == for_figures:
+                click(figures.title_label)
+            if folder.shut == for_figures:
+                raise RuntimeError('The actual Figures heading did not change its fold state')
+        console_fold(for_figures)
+        if not usage.folder.shut:
+            click(usage.title_label)
+        figure_slot, console_slot = runtime_slots()
+        sizes = list(runtime.sizes())
+        other = sum(size for slot, size in enumerate(sizes)
+                    if slot not in (figure_slot, console_slot))
+        available = max(1, max(sum(sizes), runtime.height()) - other)
+        sizes[figure_slot] = available if for_figures else figures.title_label.sizeHint().height()
         sizes[console_slot] = screen._console_header.sizeHint().height() if for_figures else available
         runtime.setSizes(sizes)
         settle(0.5)
@@ -487,7 +539,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         # footer widgets remain in the layout, so neither switch frees space.
         # Use the existing, visibly recorded Preferences control instead.
         # capture_refresh isolates preferences to this module's stage/config.
-        nonlocal screen, model, usage, runtime, figure_slot, console_slot, console, queue
+        nonlocal screen, model, usage, runtime, console, queue
         from spacr.qt.preferences import get_font_scale
 
         original_percent = int(round(get_font_scale() * 100))
@@ -613,12 +665,9 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         model = screen._settings_model
         usage = screen._usage_card
         runtime = screen._runtime_splitter
-        figure_slot = runtime.indexOf(screen._figures_card)
-        console_slot = runtime.indexOf(screen._console_wrap)
         console = screen._console
         queue = screen._figure_queue
-        if runtime.count() != 2 or {figure_slot, console_slot} != {0, 1}:
-            raise RuntimeError('Preferences changed the native results splitter structure')
+        runtime_slots()
         check_retained_console_state(before, retained_console_state())
         if int(round(get_font_scale() * 100)) != percent:
             raise RuntimeError('The native Preferences Save did not retain the selected font scale')
@@ -760,6 +809,20 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         raise RuntimeError('Only Preview only may change before the first real import')
     write_json(captures / 'configured_settings.json', settings)
     write_json(captures / 'batch_settings.json', settings)
+    if stop_after_preview:
+        unchanged()
+        write_json(captures / 'scientific_acceptance.json', {
+            'accepted': True, 'published': False,
+            'scope': 'Native non-writing preview and Preview only toggle; no new measurement',
+            'destination': str(destination), 'destination_exists': False,
+            'source_inputs_unchanged': True, 'input_groups_from_real_pickers': True,
+            'nonwriting_preview_verified': True, 'originals_sha256': originals,
+            'measurement_run': False, 'measurement_outputs_verified': False,
+            'preview_worker': preview_outcome,
+            'final_frame': '08_preview_only_disabled',
+        })
+        print('Accepted real External Masks preview only; no measurement or project written', flush=True)
+        return
     outcome, run_lines, _ = run_job('09_measure', True)
     if 'Prepared 2 field(s) in ' + str(destination) not in ''.join(run_lines):
         raise RuntimeError('The actual pipeline did not report the completed two-field project')

@@ -659,6 +659,36 @@ class MaskCuration:
         """
         return self.paint(world, label=0, radius=radius)
 
+    def delete_object(self, label: int) -> Optional[CurationEdit]:
+        """Remove one object whole: every element holding ``label`` becomes 0.
+
+        One click, one undoable stroke, and one ``delete`` entry in the
+        ledger naming the label and how many elements it covered. Rubbing an
+        object out with the eraser does the same to the pixels, but the
+        ledger then reads as a run of paints of 0 and nobody can tell a
+        deleted object from a trimmed one.
+
+        :param label: the object's id. 0 (background) and an id the mask
+            does not hold change nothing and record nothing.
+        :returns: the ``delete`` edit, or ``None`` when nothing changed.
+        """
+        label = int(label)
+        if not label:
+            return None
+        if self._open is not None:
+            self.end_stroke()
+        data = np.asarray(self.layer.data)
+        index = tuple(np.nonzero(data == label))
+        if not len(index[0]):
+            return None
+        before = data[index].copy()
+        changed = self.layer.set_labels_at(index, 0)
+        self._strokes.append([LabelEdit(index=index, before=before, after=0)])
+        while len(self._strokes) > self.history:
+            self._strokes.pop(0)
+        return self._record("delete", label, n_changed=changed,
+                            replaced=[label])
+
     def undo(self) -> Optional[CurationEdit]:
         """Take back the last stroke. ``None`` when there is nothing to undo.
 

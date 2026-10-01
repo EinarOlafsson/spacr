@@ -300,14 +300,17 @@
       "label": "spacr.timeflows_model.ctc_pairs#6",
       "source": "the pairs, in time order.",
       "source_sha256": "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
-      "translation": "按时间顺序排列的帧对。"
+      "translation": "按时间顺序排列的帧对。",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
-      "label": "spacr.timeflows_model.ctc_pairs#7",
+      "label": "spacr.timeflows_model.ctc_pairs#8",
       "source": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
       "source_sha256": "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df",
-      "translation": "序列或数量限制、重复帧标识或标注数组无效。"
+      "translation": "序列或数量限制、重复帧标识或标注数组无效。",
+      "rebound_from": "spacr.timeflows_model.ctc_pairs#7"
     },
     {
       "context": "Train the time head, then the whole network, on track-labelled pairs.",
@@ -423,17 +426,20 @@
     },
     {
       "context": "the loss at every step.",
-      "label": "spacr.timeflows_model.train_timeflows#16",
+      "label": "spacr.timeflows_model.train_timeflows#18",
       "source": "the loss at every step.",
       "source_sha256": "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
-      "translation": "每步的损失值。"
+      "translation": "每步的损失值。",
+      "relocated_from_2026_10_01": "spacr.timeflows_model.train_timeflows#16"
     },
     {
       "context": "no usable supervision remains after 32 sampled extracted image regions for a step; inspect the full masks and motion relative to the tile.",
       "label": "spacr.timeflows_model.train_timeflows#17",
       "source": "no usable supervision remains after 32 sampled crops for a step; inspect the full masks and motion relative to the tile.",
       "source_sha256": "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885",
-      "translation": "某一步采样 32 个裁剪后仍无可用监督；请检查完整掩膜以及相对于图块的运动。"
+      "translation": "某一步采样 32 个裁剪后仍无可用监督；请检查完整掩膜以及相对于图块的运动。",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     }
   ],
   "review_kind": "AI-assisted technical and linguistic review of held-out validation, scoring controls, input separation and CTC segmentation selection; no native-speaker or model-accuracy sign-off",

@@ -166,3 +166,72 @@ def test_the_load_button_is_the_cancel_while_a_load_runs(qtbot, tmp_path):
     panel._load_button.click()
     assert panel.is_loading() is False
     assert "Load" in panel._load_button.text()
+
+
+# -- the load says which stage it is in, counted against a total -----------
+
+def _a_run_with_a_gene_sibling(tmp_path):
+    folder = _a_run(tmp_path)
+    guides = pd.read_csv(os.path.join(folder, "results.csv"))
+    guides["level"] = "grna"
+    guides.to_csv(os.path.join(folder, "results.csv"), index=False)
+    pd.DataFrame({"feature": ["geneA"], "coefficient": [0.5],
+                  "p_value": [0.02]}).to_csv(
+        os.path.join(folder, "results_gene.csv"), index=False)
+    return folder
+
+
+def test_the_worker_reports_each_file_it_reads_against_a_total(tmp_path):
+    """Step 2 names the file and counts it: "file 2 of 2"."""
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    calls = []
+    out = RegressionResultsPanel._read_run(
+        _a_run_with_a_gene_sibling(tmp_path),
+        progress=lambda *a: calls.append(a))
+    assert out.get("error") is None, out
+    assert calls == [(2, 1, 2, "results.csv"), (2, 2, 2, "results_gene.csv")]
+
+
+def test_every_stage_is_said_in_order_while_the_run_loads(qtbot, tmp_path):
+    """Searching, reading each file, building -- each counted of three."""
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    panel = RegressionResultsPanel()
+    qtbot.addWidget(panel)
+    said = []
+    original = panel.say
+
+    def record(text, detail=""):
+        said.append(text)
+        original(text, detail)
+
+    panel.say = record
+    seen = []
+    panel.load_finished.connect(seen.append)
+    assert panel.start_load(_a_run_with_a_gene_sibling(tmp_path))
+    qtbot.waitUntil(lambda: bool(seen), timeout=10000)
+    assert seen == [True]
+    steps = [text for text in said if text.startswith("Step ")]
+    assert steps[0].startswith("Step 1 of 3: searching ols_1"), steps
+    assert "Step 2 of 3: reading results.csv (file 1 of 2)…" in steps
+    assert "Step 2 of 3: reading results_gene.csv (file 2 of 2)…" in steps
+    assert steps[-1] == ("Step 3 of 3: building the table, plots and "
+                         "diagnostics for 41 rows…"), steps
+    assert not said[-1].startswith("Step "), said[-1]
+
+
+def test_a_stage_from_a_cancelled_load_does_not_overwrite_the_cancel(
+        qtbot, tmp_path):
+    """A late "reading results.csv" must not replace "loading was cancelled"."""
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    panel = RegressionResultsPanel()
+    qtbot.addWidget(panel)
+    assert panel.start_load(_a_run(tmp_path))
+    stale = panel._load_generation
+    assert panel.cancel_load() is True
+    cancelled = panel.status_text()
+    panel._relay_load_progress(stale, 2, 1, 1, "results.csv")
+    qtbot.wait(50)
+    assert panel.status_text() == cancelled

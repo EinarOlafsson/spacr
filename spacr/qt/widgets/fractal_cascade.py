@@ -49,6 +49,7 @@ uniform float u_pointer_x;
 uniform float u_pointer_y;
 uniform float u_pull;
 uniform float u_push;
+uniform float u_lens;
 uniform float u_time;
 uniform float u_speed;
 uniform float u_dream;
@@ -165,12 +166,13 @@ vec2 toward_pointer(vec2 uv) {
     // firm under the cursor and gone by the far corner. Distant pixels
     // stay where they were, so there is no global shift to spring back
     // from. A click reverses it.
+    float lens = u_lens > 0.0 ? max(u_lens, 0.05) : 1.0;
     vec2 target = vec2(u_pointer_x, u_pointer_y);
-    vec2 to_pointer = target - uv;
+    vec2 to_pointer = (target - uv) / lens;
     float distance2 = dot(to_pointer, to_pointer) + 0.05;
     float strength = (0.55 * u_pull - 0.95 * u_push) / distance2;
     strength = clamp(strength, -1.4, 0.9);
-    return uv + strength * to_pointer;
+    return uv + strength * to_pointer * lens;
 }
 
 vec3 render_sample(vec2 fragment_position) {
@@ -371,8 +373,9 @@ if njit is not None:
 
     @njit(cache=True, parallel=True, fastmath=True, nogil=True)
     def render_into(output, t, speed, dream, iterations,
-                    pointer_x=0.0, pointer_y=0.0, pull=0.0, push=0.0):
-        """One complete frame, four spatial samples per pixel.
+                    pointer_x=0.0, pointer_y=0.0, pull=0.0, push=0.0,
+                    samples=2):
+        """One complete frame, ``samples`` x ``samples`` samples per pixel.
 
         Every sample is of the SAME instant, so the result is a true
         supersample rather than a blend across animation times.
@@ -380,7 +383,23 @@ if njit is not None:
         When Numba is unavailable, the public ``render_into`` name instead
         accepts arbitrary positional and keyword arguments and raises
         ``RuntimeError``.
+
+        :param output: preallocated ``uint8`` RGB buffer of shape (height,
+            width, 3), overwritten in place; its shape sets the frame size.
+        :param t: the animation time to render; the camera drift, palette and
+            zoom depth are all functions of it.
+        :param speed: zoom-speed multiplier; the zoom depth advances as
+            ``t * speed / 12``.
+        :param dream: strength of the camera wandering and the image warp;
+            larger values wander further.
+        :param iterations: iteration budget of the fractal layer at each
+            sample.
+        :param samples: samples a side, from the Supersampling setting (item
+            531); two is the published 2x2, one takes the pixel centre.
         """
+        side = max(1, samples)
+        step = 1.0 / side
+        count = side * side
         camera_rotation = (
             0.26 * _fast_sin(_FAST_TWO_PI * t / 59.0)
             + 0.11 * _fast_sin(_FAST_TWO_PI * t / 211.0 + 0.7)
@@ -427,10 +446,10 @@ if njit is not None:
                 red = 0
                 green = 0
                 blue = 0
-                for dy in range(2):
-                    for dx in range(2):
+                for dy in range(side):
+                    for dx in range(side):
                         r, g, b = _sample(
-                            x + 0.25 + 0.5 * dx, y + 0.25 + 0.5 * dy,
+                            x + step * (dx + 0.5), y + step * (dy + 0.5),
                             width, height, t, dream, iterations,
                             camera_cs, camera_sn, tx, ty, shear_x, shear_y,
                             stretch_x, stretch_y, rotation_cs, rotation_sn,
@@ -439,9 +458,9 @@ if njit is not None:
                         red += r
                         green += g
                         blue += b
-                output[y, x, 0] = red // 4
-                output[y, x, 1] = green // 4
-                output[y, x, 2] = blue // 4
+                output[y, x, 0] = red // count
+                output[y, x, 1] = green // count
+                output[y, x, 2] = blue // count
 
 else:
 
@@ -471,6 +490,10 @@ class CascadeEngine:
     :param thread_count: worker threads to render with. Clamped to at least
         one, so a caller that computed zero from an unavailable CPU count
         still renders.
+
+    `samples` is how many samples a side each pixel takes, set by the
+    widget from the Supersampling setting (item 531); two is the published
+    2x2, and an engine nobody configured keeps it.
     """
 
     def __init__(self, thread_count: int) -> None:
@@ -483,6 +506,7 @@ class CascadeEngine:
         self.width = 0
         self.height = 0
         self.output = None
+        self.samples = 2
 
     def _ensure_size(self, width: int, height: int) -> None:
         """Allocate the output buffer for a new frame size.
@@ -508,6 +532,15 @@ class CascadeEngine:
         the failure signal fired, no image ever arrived, and the widget
         painted its fallback colour. That is why the CPU cascade was black
         while the GPU one was fine and the CPU orbit followed the mouse.
+
+        :param width: frame width in pixels; the buffer is reallocated when the
+            size changes.
+        :param height: frame height in pixels.
+        :param t: the animation time to render.
+        :param speed: zoom-speed multiplier.
+        :param dream: strength of the camera wandering and the image warp.
+        :param iterations: iteration budget of the fractal layer at each
+            sample.
         """
         from numba import set_num_threads
 
@@ -515,5 +548,6 @@ class CascadeEngine:
         self._ensure_size(width, height)
         render_into(self.output, t, speed, dream, iterations,
                     float(pointer_x), float(pointer_y),
-                    float(pull), float(push))
+                    float(pull), float(push),
+                    max(1, int(self.samples)))
         return self.output.copy()

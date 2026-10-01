@@ -82,7 +82,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPlainTextEdit,
-    QProgressBar,
     QPushButton,
     QSizePolicy,
     QSpinBox,
@@ -141,12 +140,33 @@ def _stem_version(entry) -> tuple:
     return key, f"v{getattr(entry, 'version', '') or 1}"
 
 
+def _model_is_alpha_hidden(entry) -> bool:
+    """Whether the alpha gate hides this Model Zoo row right now (item 569).
+
+    A row is registered in ``spacr.settings.ALPHA_FEATURES`` under
+    ``models`` by its key, its name or its family stem.
+
+    :param entry: a :class:`spacr.model_zoo.ModelEntry`.
+    :returns: True while Preferences -> Show alpha features is off and the
+        row is registered.
+    """
+    from ..preferences import _is_alpha_visible
+
+    if _is_alpha_visible():
+        return False
+    names = {str(getattr(entry, "key", "") or ""),
+             str(getattr(entry, "name", "") or ""),
+             _stem_version(entry)[0]}
+    return any(not _is_alpha_visible("models", name) for name in names if name)
+
+
 def _status_of(entry) -> str:
     """One word for whether this version is usable right now.
 
     A segmentation backend says its own state -- installed, installable,
     installing or not installable here -- and a Cellpose 3 model of the
-    backend's own says whether that backend is here to run it.
+    backend's own, any Cellpose-DINO model, or a StarDist, InstanSeg or
+    Omnipose model, says whether its backend is here to run it.
     """
     kind = str(getattr(entry, "kind", ""))
     if kind == "backend":
@@ -154,6 +174,16 @@ def _status_of(entry) -> str:
     path = str(getattr(entry, "path", "") or "")
     if kind == "cellpose3" and str(getattr(entry, "source", "")) == "stock":
         return "usable" if path else "needs the Cellpose 3 backend"
+    if kind == "cellpose_dino":
+        from ..widgets.model_zoo_picker import _cellpose_dino_ready
+
+        if not _cellpose_dino_ready():
+            return "needs the Cellpose-DINO backend"
+    from ..widgets.model_zoo_picker import _prefixed_kind, _prefixed_label
+
+    if (_prefixed_kind(entry) and str(getattr(entry, "source", "")) == "stock"):
+        return ("usable" if path else
+                f"needs the {_prefixed_label(entry)} backend")
     if path and os.path.isfile(path):
         state = "installed"
     elif str(getattr(entry, "source", "")) == "bundled":
@@ -179,10 +209,6 @@ def group_entries(entries) -> list:
     out = []
     for stem, pairs in groups.items():
         pairs.sort(key=lambda pl: _version_sort_key(pl[0]), reverse=True)
-        # One entry per version label. The same model can arrive twice -- the
-        # picker guarantees a stock row AND the catalogue lists the stock
-        # models -- and a version box offering "v2, v2" is a bug the user sees.
-        # First wins, which is the caller's preferred copy.
         seen, unique = set(), []
         for label, entry in pairs:
             if label in seen:
@@ -190,9 +216,6 @@ def group_entries(entries) -> list:
             seen.add(label)
             unique.append((label, entry))
         out.append((stem, unique))
-    # Insertion order, not alphabetical: the caller's order is meaningful --
-    # the picker puts the stock model first, and a listing that reordered it
-    # would move the row the user reaches for most.
     return out
 
 
@@ -492,8 +515,6 @@ class ModelZooScreen(QWidget):
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
-        # A click on an uninstalled backend offers to install it, the same as
-        # the Make Masks Mode box and the Model Zoo button.
         self._table.itemClicked.connect(self._row_clicked)
         self.models_section = FoldSection(
             self._table, "Models", self, persist_key=f"{FOLD_KEY}/Models")
@@ -547,7 +568,9 @@ class ModelZooScreen(QWidget):
             "masks.")
         dl.addWidget(self._allow_unverified)
 
-        self._progress = QProgressBar(download)
+        from ..widgets.eliding import ProgressLine
+
+        self._progress = ProgressLine(download, detail=False)
         self._progress.setRange(0, 100)
         self._progress.setValue(0)
         self._progress.setTextVisible(True)
@@ -656,6 +679,9 @@ class ModelZooScreen(QWidget):
         One row per model family. The version column is a combo box, so a
         model with several versions is one row the user opens rather than
         several rows they have to tell apart by suffix.
+
+        :param entries: iterable of :class:`spacr.model_zoo.ModelEntry`;
+            grouped into families by key, newest version first.
         """
         self._entries = list(entries)
         self._groups = group_entries(self._entries)
@@ -700,7 +726,14 @@ class ModelZooScreen(QWidget):
             row = self._row_of_group(group)
             if row is not None:
                 self._table.setRowHidden(
-                    row, zoo.source_of(entry) not in enabled)
+                    row,
+                    zoo.source_of(entry) not in enabled
+                    or _model_is_alpha_hidden(entry))
+
+    def _refresh_alpha_visibility(self) -> None:
+        """Re-fold the table after Show alpha features changes (item 569)."""
+        self._apply_source_filter()
+        self._update_controls()
 
     def _sources_changed(self) -> None:
         """A heading was clicked: re-fold the table, and re-list if the
@@ -777,7 +810,11 @@ class ModelZooScreen(QWidget):
         self._update_controls()
 
     def chosen_entry(self, row: int):
-        """The entry a row currently stands for, honouring its version pick."""
+        """The entry a row currently stands for, honouring its version pick.
+
+        :param row: index into the grouped listing, i.e. the model family in
+            the order :meth:`set_entries` laid the rows out.
+        """
         stem, pairs = self._groups[row]
         return pairs[self._chosen[stem]][1]
 
@@ -966,6 +1003,8 @@ class ModelZooScreen(QWidget):
         ``fn(uri) -> chunks`` or ``fn(uri) -> (chunks, total)``; None restores
         :func:`spacr.model_zoo.open_uri`. This is the seam the tests use, and
         it is why no test in this suite touches the network.
+
+        :param opener: callable of that form, or ``None``.
         """
         self._opener = opener
 
@@ -1091,6 +1130,8 @@ class ModelZooScreen(QWidget):
         ``fn(images, config) -> masks``; None restores
         :func:`spacr.model_compare.segment_with_cellpose`. Every test injects
         one, which is why nothing here loads Cellpose.
+
+        :param fn: callable of that form, or ``None``.
         """
         self._segment_fn = fn
 
@@ -1530,6 +1571,9 @@ class ModelZooScreen(QWidget):
 
         A QThread collected while still running aborts the process, so the
         widget waits rather than dropping its references and hoping.
+
+        :param event: the close event, passed on to the base class after
+            running jobs are cancelled and waited on (up to five seconds each).
         """
         self._cancel["stop"] = True
         for thread, _worker in list(self._jobs):

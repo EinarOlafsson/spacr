@@ -23,17 +23,17 @@ import time
 SOURCE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/'
               'tutorials/measurements/measurements.db')
 SOURCE_SHA256 = '9028eabff2bab4d7ef5447e1870f7e0aa3879fa641497ae150ad31b8d2f97d5d'
-ENGLISH_SHA256 = 'ecc2920e5657b8cedad33eb4bf090450238fb86c69281c8787e4c954fee98c6f'
+ENGLISH_SHA256 = 'cfab2d77734441b48f73325808e55b91528307fc98e7a44732d3951255129e98'
 IDENTITY = ('plateID', 'rowID', 'columnID', 'fieldID', 'object_label')
 NARRATIONS = (
-    'Database Browser inspects large spaCR databases in a bounded, read-only view.',
-    'Choose a measurements database or its run folder and open it.',
-    'Select a table after reviewing its purpose and read-only status.',
-    'The preview loads a bounded page while reporting the complete row and column counts separately.',
-    'Search columns to make wide feature tables readable without changing the underlying rows.',
-    'Build a structured filter. Column names and operators are validated, and values are bound safely.',
-    'The exact filtered count describes the full query even though only one page is drawn.',
-    'Export the complete current filter and visible-column selection. The source database remains unchanged.',
+    "Open Help, then Database Browser to inspect and export measurement tables.",
+    "Choose measurements.db, or the run folder containing it, and open the database.",
+    "Select the table you need. Choose cell for cell measurements, or a different object table for that object’s features.",
+    "Read the total row and column counts, then inspect the displayed page. Use the page controls to move through larger tables.",
+    "Search column names to locate a feature. Select the columns you want to view and export.",
+    "Build a filter by choosing a column, an operator and a value. Apply it to select matching records across the full table.",
+    "Check the filtered row count and inspect the matching records. Adjust or clear the filter to change your selection.",
+    "Choose Export and a destination file. The export includes all matching rows and your selected columns, while keeping the source database unchanged.",
 )
 SCENE_FRAMES = ('01_overview', '02_open', '03_tables', '04_cell_table',
                 '05_column_search', '08_filter', '09_filtered', '10_export')
@@ -275,7 +275,7 @@ def retained_scene_mapping(catalog):
     return {'english_sha256': canonical, 'narration_changed': False,
             'existing_voices_reusable': True,
             'scenes': [{'scene': i, 'visual': frame, 'narration': text,
-                        'speech_text': scene['speech_text']}
+                        'speech_text': scene.get('speech_text', text)}
                        for i, (frame, text, scene) in enumerate(
                            zip(SCENE_FRAMES, NARRATIONS, lesson['scenes']), 1)]}
 
@@ -453,7 +453,7 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
     if len(help_actions) != 1 or help_actions[0].menu() is None:
         raise RuntimeError('Expected one actual Help menu')
     menu = help_actions[0].menu()
-    choices = [a for a in menu.actions() if a.text().replace('&', '') == 'Database browser']
+    choices = [a for a in menu.actions() if a.text().replace('&', '').casefold() == 'database browser']
     if len(choices) != 1 or not choices[0].isEnabled():
         raise RuntimeError('The actual Help menu lacks Database browser')
     QTest.mouseClick(window.menuBar(), Qt.LeftButton,

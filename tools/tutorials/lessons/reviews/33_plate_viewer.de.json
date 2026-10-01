@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Plate Viewer: Wells prüfen und eine Heatmap-Tabelle exportieren",
+  "description": "Laden Sie die Beispielmessungen, vergleichen Sie Merkmale und Anzahlen pro Well, prüfen Sie einzelne Wells und exportieren Sie die gefilterte Tabelle.",
+  "objectives": [
+    "Plate Viewer aus Graph Builder öffnen und Beispielmessungen laden.",
+    "Ein Merkmal, eine Aggregation und eine minimale Objektanzahl wählen.",
+    "Well-Details prüfen und das aktuelle Well-Raster exportieren."
+  ],
+  "prerequisite": "Verwenden Sie in Plate Viewer Load test data für das herunterladbare Beispiel, oder öffnen Sie die measurements.db Ihres gemessenen Projekts. Das Beispiel enthält 2.341 Zellen in vier Wells; verwenden Sie Messungen über Ihre gesamte Platte, wenn Sie räumliche Muster beurteilen.",
+  "scenes": [
+    "Öffnen Sie von Home aus Graph Builder unter Data und wählen Sie dann Plate Viewer. Damit fassen Sie Objektmessungen pro Well zusammen und prüfen ihre Verteilung über eine Platte.",
+    "Klicken Sie auf Load test data, um das herunterladbare Beispiel zu öffnen. Wählen Sie für eigene Daten eine Messdatenbank oder ihren Laufordner und klicken Sie auf Open. Das Beispiel enthält vier gemessene Wells.",
+    "Wählen Sie cell als Table, cell_area als Measurement und plate1 als Plate. Setzen Sie Per well auf mean, um die mittlere Zellfläche anzuzeigen. Der Median verringert den Einfluss ungewöhnlich großer oder kleiner Objekte.",
+    "Wählen Sie eine Farbskala. Der robuste Bereich verwendet das 2. bis 98. Perzentil, sodass ein extremes Well die Farben der übrigen nicht zusammendrückt.",
+    "Klicken Sie auf Render und vergleichen Sie die eingefärbten Wells. Lesen Sie den Randeffekt-Bericht neben der Heatmap und prüfen Sie Plattenlayout und gemessene Abdeckung. Verwenden Sie Messungen über Ihre gesamte Platte, wenn Sie Rand-, Zeilen- oder Spaltenmuster beurteilen.",
+    "Klicken Sie auf ein gemessenes Well, um seine Kennung, seine Objektanzahl und den angezeigten Wert zu sehen. Verwenden Sie diese Kennungen, um dasselbe Well in Ihren Bildern oder exportierten Ergebnissen zu finden.",
+    "Setzen Sie Per well auf count, um Objektanzahlen zu vergleichen. Diese Ansicht hilft Ihnen, Wells mit weniger segmentierten Objekten zu finden, bevor Sie Merkmalsunterschiede interpretieren.",
+    "Erhöhen Sie Min objects per well, um Wells mit zu wenigen Objekten für Ihren Vergleich auszuschließen. Bei 601 bleiben zwei der vier Wells dieses Beispiels übrig. Ausgeschlossene Wells erscheinen leer statt als Messwert null.",
+    "Klicken Sie auf Export well grid CSV, wählen Sie einen Dateinamen und speichern Sie. Die CSV-Datei enthält die vom aktuellen Filter behaltenen Wells mit ihren Kennungen, Anzahlen, angezeigten Werten und räumlichen Annotationen.",
+    "Bewahren Sie die exportierte Tabelle zusammen mit den Mess- und Aggregationseinstellungen auf. Senken Sie die Mindestanzahl, um ausgeschlossene Wells wieder anzuzeigen, oder wählen Sie für Ihren nächsten Vergleich eine andere Messung."
+  ]
+}

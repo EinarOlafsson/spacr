@@ -280,6 +280,10 @@ class PictureSettingsDialog(QDialog):
 
         Inapplicable controls remain visible and explain why they are disabled,
         so switching modes does not hide or discard configured values.
+
+        :param mode: image-source mode; each control is enabled or disabled by
+            :func:`spacr.picture_settings.applies_to` for it, and an empty
+            value means ``"png"``.
         """
         self._mode = str(mode or "png")
         from ...settings import tooltips
@@ -359,7 +363,11 @@ class PictureSettingsDialog(QDialog):
         return tuple(self._tabs.tabText(i) for i in range(self._tabs.count()))
 
     def tab_of(self, key: str) -> str:
-        """Which tab ``key``'s control is on, or ``""`` if it has none."""
+        """Which tab ``key``'s control is on, or ``""`` if it has none.
+
+        :param key: picture-setting key; converted with ``str()`` and stripped,
+            and None counts as empty.
+        """
         return self._tab_of.get(str(key or "").strip(), "")
 
     def show_tab(self, title: str) -> bool:
@@ -367,6 +375,8 @@ class PictureSettingsDialog(QDialog):
 
         A caller that wants one question answered can open the panel on it
         rather than on whichever tab happened to be first.
+
+        :param title: tab title, converted with ``str()`` and matched exactly.
         """
         for index in range(self._tabs.count()):
             if self._tabs.tabText(index) == str(title):

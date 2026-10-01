@@ -44,12 +44,14 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QAbstractItemView, QComboBox, QFileDialog, QFormLayout,
-    QHBoxLayout, QHeaderView, QLabel, QListWidget, QListWidgetItem,
+    QAbstractItemView, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout,
+    QHBoxLayout, QHeaderView, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem,
     QPlainTextEdit, QPushButton, QSpinBox, QTableWidget,
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import (RADIUS, SPACING, active_palette, block_surface,
                      register_widget_qss)
@@ -113,6 +115,71 @@ from ..widgets.toggle import Toggle
 from ..widgets.sortable_table import install_sorting, table_item
 from ..app_catalog import declared_app, register_declared
 
+#: Object names of the hit-scoring option (item 570). It ships as an alpha
+#: feature: these are the names registered with the alpha gate, so hiding
+#: them hides the whole option -- controls, output section and export.
+HIT_PANEL_OBJECT = "ControlChartHitPanel"
+HIT_SECTION_OBJECT = "ControlChartHitsSection"
+HIT_EXPORT_OBJECT = "ControlChartExportHits"
+HIT_ALPHA_WIDGETS = (HIT_PANEL_OBJECT, HIT_SECTION_OBJECT, HIT_EXPORT_OBJECT)
+
+#: Object names of the compound option of hit scoring: the compound-table
+#: picker in the controls and the structures and SAR output section. Both
+#: are registered with the alpha gate.
+_CHEMISTRY_PANEL_OBJECT = "ControlChartChemistry"
+_CHEMISTRY_SECTION_OBJECT = "ControlChartChemistrySection"
+_CHEMISTRY_ALPHA_WIDGETS = (_CHEMISTRY_PANEL_OBJECT,
+                            _CHEMISTRY_SECTION_OBJECT)
+
+#: Object names of the anomaly option: the controls that score every object
+#: against the negative control, and the output section with the ranked
+#: wells and the outlier review. Both are registered with the alpha gate.
+_ANOMALY_PANEL_OBJECT = "ControlChartAnomaly"
+_ANOMALY_SECTION_OBJECT = "ControlChartAnomalySection"
+
+#: The anomaly detectors offered, as ``(value, English label)``.
+_ANOMALY_METHOD_CHOICES = (
+    ("mahalanobis", "Robust Mahalanobis"), ("knn", "k-nearest neighbours"),
+    ("iforest", "Isolation forest"), ("gmm", "Gaussian mixture density"))
+
+#: The ranked-well table's columns on screen: field and header.
+_ANOMALY_COLUMNS = (
+    ("rank", "Rank"), ("plateID", "Plate"), ("well", "Well"),
+    ("treatment", "Treatment"), ("n", "Objects"),
+    ("mean_percentile", "Control percentile"),
+    ("outlier_fraction", "Outliers"), ("enrichment", "Enrichment"),
+    ("median_score", "Median score"), ("known_hit", "Known hit"),
+)
+
+#: The structure-activity table's columns on screen: field and header.
+_SAR_COLUMNS = (
+    ("compound", "Compound"), ("cluster", "Cluster"), ("hit", "Hit"),
+    ("potency", "Potency"), ("phenotype", "Phenotype"),
+    ("cytotoxicity_index", "Cytotoxicity"), ("nearest_hit", "Nearest hit"),
+    ("similarity_to_hit", "Similarity"), ("smiles", "SMILES"),
+)
+
+#: How many ranked hits the on-screen table lists; the export has them all.
+_MAX_HIT_ROWS = 200
+
+#: The hit table's columns: the field of the ranked hit table, and its header.
+_HIT_COLUMNS = (
+    ("rank", "Rank"), ("plateID", "Plate"), ("well", "Well"),
+    ("treatment", "Treatment"), ("value", "Value"), ("ssmd", "SSMD"),
+    ("robust_z", "Robust z"), ("b_score", "B-score"),
+)
+
+#: The hit-scoring choices offered, as ``(value, English label)``.
+_HIT_RANK_CHOICES = (("ssmd", "SSMD"), ("robust_z", "Robust z"),
+                     ("b_score", "B-score"))
+_HIT_ESTIMATOR_CHOICES = (("mm", "Method of moments"),
+                          ("umvue", "Unbiased (UMVUE)"),
+                          ("robust", "Robust (SSMD*)"))
+_HIT_DIRECTION_CHOICES = (("both", "Both directions"),
+                          ("up", "Up only"), ("down", "Down only"))
+_HIT_SCOPE_CHOICES = (("plate", "Per plate"),
+                      ("pooled", "Pooled over plates"))
+
 #: Column names worth guessing at, best first, when a table is first loaded.
 #: A guess the user can see and change beats an empty form.
 _PLATE_GUESSES = ("plateID", "plate_id", "plate", "PlateID", "barcode")
@@ -172,7 +239,13 @@ class ControlChartCanvas(QWidget):
 
     def set_result(self, result: Optional[ControlChartResult], *,
                    message: str = "") -> None:
-        """Draw ``result``; ``None`` draws ``message`` on an empty axis."""
+        """Draw ``result``; ``None`` draws ``message`` on an empty axis.
+
+        :param result: the control chart to draw, or ``None`` for an empty
+            axis.
+        :param message: the text drawn on the empty axis; empty shows "no chart
+            yet".
+        """
         self._result = result
         self._message = message or "no chart yet"
         self.render_now()
@@ -302,6 +375,17 @@ class ControlChartScreen(QWidget):
         self._loading = False
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
+        self._hit_result = None
+        self._hit_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._hit_jobs.job_failed.connect(self._on_hit_failed)
+        self._compounds: Optional[pd.DataFrame] = None
+        self._chemistry = None
+        self._chem_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._chem_jobs.job_failed.connect(self._on_chemistry_failed)
+        self._anomaly = None
+        self._anomaly_jobs = JobRunner(self, threaded=threaded,
+                                       app_key=APP_KEY)
+        self._anomaly_jobs.job_failed.connect(self._on_anomaly_failed)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -343,6 +427,15 @@ class ControlChartScreen(QWidget):
             "fired on it, as CSV")
         export.clicked.connect(self.choose_export)
         head.addWidget(export)
+
+        self._export_hits = QPushButton(tr("Export hits…"), self)
+        self._export_hits.setObjectName("ControlChartExportHits")
+        self._export_hits.setToolTip(tr(
+            "Write the ranked hit table, every well's scores and the plate "
+            "summary as CSV, and one plate heatmap per statistic, into a "
+            "folder"))
+        self._export_hits.clicked.connect(self.choose_hit_export)
+        head.addWidget(self._export_hits)
         outer.addLayout(head)
 
         body = CollapsibleSplitter(Qt.Horizontal, self,
@@ -386,6 +479,37 @@ class ControlChartScreen(QWidget):
         self.violations.setMinimumHeight(90)
         outputs.add_section(self.violations, "Rule violations",
                             persist_key="control_chart/Rule violations")
+
+        hits = QWidget(lower)
+        hits_layout = QVBoxLayout(hits)
+        hits_layout.setContentsMargins(0, 0, 0, 0)
+        hits_layout.setSpacing(SPACING["xs"])
+        self.hit_summary = QLabel(tr(
+            "Turn on hit scoring and name the negative control."), hits)
+        self.hit_summary.setObjectName("ControlChartHitSummary")
+        self.hit_summary.setWordWrap(True)
+        hits_layout.addWidget(self.hit_summary)
+        self.hit_table = QTableWidget(0, len(_HIT_COLUMNS), hits)
+        install_sorting(self.hit_table)
+        self.hit_table.setObjectName("ControlChartHitTable")
+        self.hit_table.setHorizontalHeaderLabels(
+            [tr(label) for _key, label in _HIT_COLUMNS])
+        self.hit_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.hit_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.hit_table.verticalHeader().setVisible(False)
+        self.hit_table.setMinimumHeight(90)
+        hits_layout.addWidget(self.hit_table, 1)
+        self._hit_section = outputs.add_section(
+            hits, "Hits", persist_key="control_chart/Hits")
+        self._hit_section.setObjectName("ControlChartHitsSection")
+        self._chem_section = outputs.add_section(
+            self._build_chemistry_output(lower), "Structures and SAR",
+            persist_key="control_chart/Structures and SAR")
+        self._chem_section.setObjectName("ControlChartChemistrySection")
+        self._anomaly_section = outputs.add_section(
+            self._build_anomaly_output(lower), "Anomalies",
+            persist_key="control_chart/Anomalies")
+        self._anomaly_section.setObjectName("ControlChartAnomalySection")
         lower_layout.addWidget(outputs, 1)
         right.add_pane(lower, "Output", stretch=2)
 
@@ -442,25 +566,6 @@ class ControlChartScreen(QWidget):
         self._levels.setSelectionMode(QAbstractItemView.MultiSelection)
         self._levels.setMaximumHeight(96)
         self._levels.setToolTip("Which level(s) are the control being charted")
-        # THE ONE ROW IN FORTY-FIVE SCREENS THAT KEPT ITS HELP ON THE FIELD.
-        #
-        # `retarget_field_tooltips` moves a setting's help onto the name the
-        # user hovers, and `_is_a_settings_field` decides what counts: an
-        # editor type, or anything carrying a `settingKey`. A QListWidget is
-        # neither, so this row was skipped -- measured across all forty-five
-        # registry screens, it was the last one left.
-        #
-        # THE KEY IS WHAT MARKS IT, NOT A WIDER PREDICATE. Adding QListWidget
-        # to the editor types, or dropping the key requirement, would change
-        # the rule for every screen to fix one row. `_is_a_settings_field`
-        # says outright that carrying a key is "the definitive mark of 'this
-        # widget is a setting's field', whatever it was built from" -- so the
-        # honest fix is to mark this one.
-        #
-        # `control_levels` is not a pipeline setting and has no entry in
-        # `spacr.settings`; it is screen-local. `format_tooltip` handles that:
-        # an unknown key yields the humanised name, the body, and a link to
-        # the API index rather than a broken deep link.
         self._levels.setProperty("settingKey", "control_levels")
         self._levels.setProperty("settingsAppKey", "control_chart")
         self._levels.itemSelectionChanged.connect(self._on_control_changed)
@@ -523,10 +628,173 @@ class ControlChartScreen(QWidget):
         self._negative.setObjectName("ControlChartNegative")
         self._negative.currentTextChanged.connect(self._on_control_changed)
         form.addRow("Negative control", self._negative)
+        form.addRow(self._build_hit_panel(panel))
+        form.addRow(self._build_anomaly_panel(panel))
         return panel
 
+    def _build_hit_panel(self, parent: QWidget) -> QWidget:
+        """The hit-scoring option: SSMD, robust z and B-score per well.
+
+        Scores every well against the negative control picked above, with
+        :func:`spacr.sp_stats.score_arrayed_screen`; the positive control,
+        when picked, gives the per-plate Z' in the summary. One container, so
+        the alpha gate hides the whole option by one name.
+
+        :param parent: the controls column.
+        :returns: the container.
+        """
+        box = QWidget(parent)
+        box.setObjectName("ControlChartHitPanel")
+        form = QFormLayout(box)
+        form.setContentsMargins(0, SPACING["sm"], 0, 0)
+        form.setSpacing(SPACING["xs"])
+
+        self._hit_score = Toggle(tr("Score hits (SSMD, robust z, B-score)"),
+                                 box)
+        self._hit_score.setObjectName("ControlChartHitScore")
+        self._hit_score.setToolTip(tr(
+            "Score every well against the negative control and call hits. "
+            "Needs the negative control picked above and well positions in "
+            "the table (prc, rowID and columnID, or well)."))
+        self._hit_score.toggled.connect(self._on_hit_changed)
+        form.addRow("", self._hit_score)
+
+        def combo(name: str, choices, tip: str) -> QComboBox:
+            """A picker of ``(value, label)`` choices wired to a rescore."""
+            widget = QComboBox(box)
+            widget.setObjectName(name)
+            for value, label in choices:
+                widget.addItem(tr(label), value)
+            widget.setToolTip(tr(tip))
+            widget.currentIndexChanged.connect(self._on_hit_changed)
+            return widget
+
+        self._hit_rank = combo(
+            "ControlChartHitRankBy", _HIT_RANK_CHOICES,
+            "The statistic that calls and ranks the hits. B-score removes "
+            "row and column effects by median polish first.")
+        form.addRow(tr("Call hits by"), self._hit_rank)
+
+        self._hit_threshold = QDoubleSpinBox(box)
+        self._hit_threshold.setObjectName("ControlChartHitThreshold")
+        self._hit_threshold.setRange(0.5, 50.0)
+        self._hit_threshold.setSingleStep(0.5)
+        self._hit_threshold.setValue(3.0)
+        self._hit_threshold.setToolTip(tr(
+            "A well is a hit when its score reaches this value. SSMD 3 is a "
+            "strong effect; 3 for robust z and B-score is three robust "
+            "standard deviations."))
+        self._hit_threshold.valueChanged.connect(self._on_hit_changed)
+        form.addRow(tr("Hit threshold"), self._hit_threshold)
+
+        self._hit_direction = combo(
+            "ControlChartHitDirection", _HIT_DIRECTION_CHOICES,
+            "Call hits above the negative control, below it, or both.")
+        form.addRow(tr("Direction"), self._hit_direction)
+
+        self._hit_estimator = combo(
+            "ControlChartHitEstimator", _HIT_ESTIMATOR_CHOICES,
+            "How SSMD is estimated from the negative control: method of "
+            "moments, the unbiased estimate, or the median and MAD.")
+        form.addRow(tr("SSMD estimator"), self._hit_estimator)
+
+        self._hit_scope = combo(
+            "ControlChartHitScope", _HIT_SCOPE_CHOICES,
+            "Score each well against its own plate's negative control, or "
+            "against the negative control of every plate together.")
+        form.addRow(tr("Reference"), self._hit_scope)
+
+        self._hit_treatment = QComboBox(box)
+        self._hit_treatment.setObjectName("ControlChartHitTreatment")
+        self._hit_treatment.setToolTip(tr(
+            "The column naming what is in each well. Wells sharing a "
+            "treatment are replicates and get one replicate SSMD in the "
+            "export. Leave empty for a screen without replicates."))
+        self._hit_treatment.currentTextChanged.connect(self._on_hit_changed)
+        form.addRow(tr("Treatment"), self._hit_treatment)
+        form.addRow(self._build_chemistry_panel(box))
+        return box
+
+    def _build_chemistry_panel(self, parent: QWidget) -> QWidget:
+        """The compound option: a compound table with SMILES for the wells.
+
+        :param parent: the hit-scoring container.
+        :returns: the container, hidden by one name by the alpha gate.
+        """
+        box = QWidget(parent)
+        box.setObjectName("ControlChartChemistry")
+        form = QFormLayout(box)
+        form.setContentsMargins(0, SPACING["xs"], 0, 0)
+        form.setSpacing(SPACING["xs"])
+        pick = QPushButton(tr("Compounds…"), box)
+        pick.setObjectName("ControlChartCompoundsButton")
+        pick.setToolTip(tr(
+            "A CSV or Excel table with a SMILES column and a compound name, "
+            "and a well column (with a plate column when plates differ) or "
+            "names matching the Treatment column. Hits are then drawn with "
+            "their structures, clustered by similarity and exported as SAR "
+            "tables. Clustering needs RDKit (pip install rdkit)."))
+        pick.clicked.connect(self._choose_compounds)
+        self._compound_label = QLabel(tr("no compound table"), box)
+        self._compound_label.setObjectName("ControlChartCompoundsLabel")
+        self._compound_label.setWordWrap(True)
+        form.addRow(pick, self._compound_label)
+        self._chem_similarity = QDoubleSpinBox(box)
+        self._chem_similarity.setObjectName("ControlChartClusterSimilarity")
+        self._chem_similarity.setRange(0.3, 1.0)
+        self._chem_similarity.setSingleStep(0.05)
+        self._chem_similarity.setValue(0.6)
+        self._chem_similarity.setToolTip(tr(
+            "The Tanimoto similarity of Morgan fingerprints (radius 2) a hit "
+            "needs to a cluster's centre to join it; other compounds join "
+            "the cluster of their most similar hit at the same similarity. "
+            "Default 0.6."))
+        self._chem_similarity.valueChanged.connect(self._recompute_chemistry)
+        form.addRow(tr("Cluster similarity"), self._chem_similarity)
+        return box
+
+    def _build_chemistry_output(self, parent: QWidget) -> QWidget:
+        """The structures of the hit compounds and the SAR table.
+
+        :param parent: the output column.
+        :returns: the section body.
+        """
+        from matplotlib.figure import Figure
+
+        body = QWidget(parent)
+        layout = QVBoxLayout(body)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["xs"])
+        self.chem_summary = QLabel(tr(
+            "Load a compound table to draw the hits' structures."), body)
+        self.chem_summary.setObjectName("ControlChartChemistrySummary")
+        self.chem_summary.setWordWrap(True)
+        layout.addWidget(self.chem_summary)
+        self.chem_figure = Figure(figsize=(8.0, 3.0))
+        self.chem_canvas = _canvas_class()(self.chem_figure)
+        self.chem_canvas.setObjectName("ControlChartStructures")
+        self.chem_canvas.setMinimumHeight(200)
+        layout.addWidget(self.chem_canvas, 2)
+        self.sar_table = QTableWidget(0, len(_SAR_COLUMNS), body)
+        install_sorting(self.sar_table)
+        self.sar_table.setObjectName("ControlChartSarTable")
+        self.sar_table.setHorizontalHeaderLabels(
+            [tr(label) for _key, label in _SAR_COLUMNS])
+        self.sar_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.sar_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.sar_table.verticalHeader().setVisible(False)
+        self.sar_table.setMinimumHeight(90)
+        layout.addWidget(self.sar_table, 1)
+        return body
+
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
-        """Chart ``frame``. The one call a host needs."""
+        """Chart ``frame``. The one call a host needs.
+
+        :param frame: the table to chart; its columns fill the pickers before
+            the chart is recomputed.
+        :param label: the source line to show; empty shows the row and column
+            counts.
+        """
         self._frame = frame
         self._loading = True
         try:
@@ -583,6 +851,7 @@ class ControlChartScreen(QWidget):
              guesses=_ORDER_GUESSES)
         fill(self._value, values or columns, blank=False)
         fill(self._control_column, keys, blank=True, guesses=_CONTROL_GUESSES)
+        fill(self._hit_treatment, keys, blank=True)
         self._refill_levels(frame)
 
     def _refill_levels(self, frame: pd.DataFrame) -> None:
@@ -673,6 +942,8 @@ class ControlChartScreen(QWidget):
         frame = self._frame
         if frame is None:
             return
+        self.rescore_hits()
+        self._rescore_anomalies()
         try:
             spec = self.spec()
         except ControlChartError as exc:
@@ -684,6 +955,506 @@ class ControlChartScreen(QWidget):
             lambda f=frame, s=spec, z=zprime: (
                 zprime_chart(f, s) if z else control_chart(f, s)),
             self._on_result)
+
+    def _on_hit_changed(self, *_args) -> None:
+        """Rescore the hits after a hit-scoring option changed.
+
+        :param _args: whatever the emitting signal passes; ignored.
+        """
+        if not self._loading:
+            self.rescore_hits()
+
+    def hit_options(self) -> Dict[str, object]:
+        """The keyword arguments the form gives
+        :func:`spacr.sp_stats.score_arrayed_screen`.
+
+        :returns: the options; ``negative_levels`` is empty when no negative
+            control is picked.
+        """
+        column = self._control_column.currentText() or None
+        negative = self._negative.currentText()
+        positive = self._positive.currentText()
+        rank_by = self._hit_rank.currentData() or "ssmd"
+        return {
+            "value_col": self._value.currentText(),
+            "plate_column": self._plate.currentText() or None,
+            "control_column": column,
+            "negative_levels": (negative,) if negative else (),
+            "positive_levels": (positive,) if positive else (),
+            "treatment_column": self._hit_treatment.currentText() or None,
+            "rank_by": rank_by,
+            "thresholds": {rank_by: float(self._hit_threshold.value())},
+            "direction": self._hit_direction.currentData() or "both",
+            "ssmd_estimator": self._hit_estimator.currentData() or "mm",
+            "scope": self._hit_scope.currentData() or "plate",
+        }
+
+    def rescore_hits(self) -> None:
+        """Score the hits from the form, off the GUI thread, when turned on.
+
+        Runs on its own job runner, so a control chart the engine refuses
+        (too few plates for a baseline, say) does not also refuse the hit
+        scores, which need no baseline.
+        """
+        frame = self._frame
+        if frame is None or not self._hit_score.isChecked():
+            self._hit_result = None
+            self.hit_table.setRowCount(0)
+            self.hit_summary.setText(tr(
+                "Turn on hit scoring and name the negative control."))
+            return
+        options = self.hit_options()
+        if not options["control_column"] or not options["negative_levels"]:
+            self._show_hit_refusal(tr(
+                "Pick the control column and the negative control to score "
+                "hits against."))
+            return
+        from ...sp_stats import score_arrayed_screen
+
+        value = options.pop("value_col")
+        self._hit_jobs.cancel()
+        self._hit_jobs.submit(
+            lambda f=frame, v=value, o=options: score_arrayed_screen(
+                f, v, **o),
+            self._on_hit_result)
+
+    def _on_hit_result(self, result) -> None:
+        """Show a worker-computed hit scoring. GUI thread only.
+
+        :param result: the :class:`spacr.sp_stats.ArrayedHitResult`.
+        """
+        self._hit_result = result
+        hits = result.hits()
+        self.hit_summary.setText(result.report())
+        shown = hits.head(_MAX_HIT_ROWS)
+        self.hit_table.setSortingEnabled(False)
+        self.hit_table.setRowCount(len(shown))
+        for row, (_index, record) in enumerate(shown.iterrows()):
+            for column, (key, _label) in enumerate(_HIT_COLUMNS):
+                value = record.get(key, "")
+                if isinstance(value, float):
+                    text = ("" if not np.isfinite(value) else
+                            str(int(value)) if key == "rank" else
+                            f"{value:.3g}")
+                else:
+                    text = "" if value is None else str(value)
+                self.hit_table.setItem(row, column, table_item(text))
+        self.hit_table.setSortingEnabled(True)
+        self.hit_table.resizeColumnsToContents()
+        self._recompute_chemistry()
+
+    def _show_hit_refusal(self, message: str) -> None:
+        """Say why the hits could not be scored, in the hits section.
+
+        :param message: the reason.
+        """
+        self._hit_result = None
+        self.hit_table.setRowCount(0)
+        self.hit_summary.setText(message)
+        self._recompute_chemistry()
+
+    def _on_hit_failed(self, message: str) -> None:
+        """Log and show a refused hit scoring.
+
+        :param message: the refusal text from the job runner.
+        """
+        LOG.info("hit scoring refused: %s", message)
+        self._show_hit_refusal(message)
+
+    @property
+    def hit_result(self):
+        """The hit scoring currently shown, or ``None``."""
+        return self._hit_result
+
+    def choose_hit_export(self) -> None:
+        """Ask for a folder and write the hit report into it."""
+        if self._hit_result is None:
+            self._source.setText(tr("Nothing scored yet."))
+            return
+        folder = QFileDialog.getExistingDirectory(
+            self, tr("Write the hit report into"))
+        if folder:
+            self.export_hits(folder)
+
+    def export_hits(self, folder: str) -> Optional[Dict[str, str]]:
+        """Write the ranked hit table, the scores and the heatmaps.
+
+        :param folder: the folder, created if absent.
+        :returns: ``{name: path}`` of what was written, or ``None`` when
+            nothing has been scored.
+        """
+        if self._hit_result is None:
+            self._source.setText(tr("Nothing scored yet."))
+            return None
+        from ...sp_stats import write_hit_report
+
+        written = write_hit_report(self._hit_result, folder)
+        if self._chemistry is not None:
+            from ...sp_stats import _write_sar_report
+
+            written.update(_write_sar_report(self._chemistry, folder))
+        self._source.setText(tr("hit report written to {folder}",
+                                folder=os.path.basename(folder) or folder))
+        return written
+
+    def _build_anomaly_panel(self, parent: QWidget) -> QWidget:
+        """The anomaly option: every object scored against the negative
+        control, to find phenotypes nobody named.
+
+        Uses the control column, the negative and positive controls and the
+        treatment column picked above; scoring is
+        :func:`spacr.sp_stats._score_anomalies`. One container, so the alpha
+        gate hides the whole option by one name.
+
+        :param parent: the controls column.
+        :returns: the container.
+        """
+        box = QWidget(parent)
+        box.setObjectName("ControlChartAnomaly")
+        form = QFormLayout(box)
+        form.setContentsMargins(0, SPACING["sm"], 0, 0)
+        form.setSpacing(SPACING["xs"])
+        self._anomaly_score = Toggle(
+            tr("Score anomalies against the negative control"), box)
+        self._anomaly_score.setObjectName("ControlChartAnomalyScore")
+        self._anomaly_score.setToolTip(tr(
+            "Model the negative-control objects as normal and score every "
+            "object and well for how unlike them it is, over every numeric "
+            "feature (or the emb_ embedding columns when present). Needs a "
+            "per-object table, the negative control picked above and well "
+            "positions. Default off."))
+        self._anomaly_score.toggled.connect(self._on_anomaly_changed)
+        form.addRow("", self._anomaly_score)
+        self._anomaly_method = QComboBox(box)
+        self._anomaly_method.setObjectName("ControlChartAnomalyMethod")
+        for value, label in _ANOMALY_METHOD_CHOICES:
+            self._anomaly_method.addItem(tr(label), value)
+        self._anomaly_method.setToolTip(tr(
+            "How unlike the controls an object is: robust Mahalanobis "
+            "distance, mean distance to the nearest control objects, an "
+            "isolation forest, or low density under a Gaussian mixture. All "
+            "run on the CPU. Default Robust Mahalanobis."))
+        self._anomaly_method.currentIndexChanged.connect(
+            self._on_anomaly_changed)
+        form.addRow(tr("Detector"), self._anomaly_method)
+        self._anomaly_quantile = QDoubleSpinBox(box)
+        self._anomaly_quantile.setObjectName("ControlChartAnomalyQuantile")
+        self._anomaly_quantile.setDecimals(3)
+        self._anomaly_quantile.setRange(0.5, 0.999)
+        self._anomaly_quantile.setSingleStep(0.005)
+        self._anomaly_quantile.setValue(0.99)
+        self._anomaly_quantile.setToolTip(tr(
+            "An object is an outlier when it scores beyond this quantile of "
+            "the control objects, so this share of controls is normal by "
+            "construction. Wells are ranked by their share of outliers. "
+            "Default 0.99."))
+        self._anomaly_quantile.valueChanged.connect(self._on_anomaly_changed)
+        form.addRow(tr("Outlier quantile"), self._anomaly_quantile)
+        self._anomaly_hits = QLineEdit(box)
+        self._anomaly_hits.setObjectName("ControlChartAnomalyKnownHits")
+        self._anomaly_hits.setToolTip(tr(
+            "Wells (A01), plate wells (prc) or treatment names that are known "
+            "hits, separated by commas. With the positive control they give "
+            "the AUROC of the ranking against the negative control. Default "
+            "empty."))
+        self._anomaly_hits.editingFinished.connect(self._on_anomaly_changed)
+        form.addRow(tr("Known hits"), self._anomaly_hits)
+        export = QPushButton(tr("Export anomalies…"), box)
+        export.setObjectName("ControlChartExportAnomalies")
+        export.setToolTip(tr(
+            "Write the ranked wells, every object's score, the top outliers "
+            "and the review figure into a folder."))
+        export.clicked.connect(self._choose_anomaly_export)
+        form.addRow("", export)
+        return box
+
+    def _build_anomaly_output(self, parent: QWidget) -> QWidget:
+        """The ranked wells and the top outlier objects for review.
+
+        :param parent: the output column.
+        :returns: the section body.
+        """
+        from matplotlib.figure import Figure
+
+        body = QWidget(parent)
+        layout = QVBoxLayout(body)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["xs"])
+        self.anomaly_summary = QLabel(tr(
+            "Turn on anomaly scoring and name the negative control."), body)
+        self.anomaly_summary.setObjectName("ControlChartAnomalySummary")
+        self.anomaly_summary.setWordWrap(True)
+        layout.addWidget(self.anomaly_summary)
+        self.anomaly_table = QTableWidget(0, len(_ANOMALY_COLUMNS), body)
+        install_sorting(self.anomaly_table)
+        self.anomaly_table.setObjectName("ControlChartAnomalyTable")
+        self.anomaly_table.setHorizontalHeaderLabels(
+            [tr(label) for _key, label in _ANOMALY_COLUMNS])
+        self.anomaly_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.anomaly_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.anomaly_table.verticalHeader().setVisible(False)
+        self.anomaly_table.setMinimumHeight(90)
+        layout.addWidget(self.anomaly_table, 1)
+        self.anomaly_figure = Figure(figsize=(8.0, 3.5))
+        self.anomaly_canvas = _canvas_class()(self.anomaly_figure)
+        self.anomaly_canvas.setObjectName("ControlChartAnomalyReview")
+        self.anomaly_canvas.setMinimumHeight(200)
+        layout.addWidget(self.anomaly_canvas, 2)
+        return body
+
+    def _on_anomaly_changed(self, *_args) -> None:
+        """Rescore the anomalies after an anomaly option changed.
+
+        :param _args: whatever the emitting signal passes; ignored.
+        """
+        if not self._loading:
+            self._rescore_anomalies()
+
+    def _anomaly_options(self) -> Dict[str, object]:
+        """The keyword arguments the form gives
+        :func:`spacr.sp_stats._score_anomalies`."""
+        negative = self._negative.currentText()
+        positive = self._positive.currentText()
+        hits = [part.strip() for part in self._anomaly_hits.text().split(",")
+                if part.strip()]
+        return {
+            "control_column": self._control_column.currentText() or None,
+            "negative_levels": (negative,) if negative else (),
+            "positive_levels": (positive,) if positive else (),
+            "known_hits": tuple(hits),
+            "plate_column": self._plate.currentText() or None,
+            "treatment_column": self._hit_treatment.currentText() or None,
+            "method": self._anomaly_method.currentData() or "mahalanobis",
+            "quantile": float(self._anomaly_quantile.value()),
+        }
+
+    def _rescore_anomalies(self) -> None:
+        """Score the anomalies from the form, off the GUI thread, when on."""
+        frame = self._frame
+        if frame is None or not self._anomaly_score.isChecked():
+            self._show_anomaly(None, tr(
+                "Turn on anomaly scoring and name the negative control."))
+            return
+        options = self._anomaly_options()
+        if not options["control_column"] or not options["negative_levels"]:
+            self._show_anomaly(None, tr(
+                "Pick the control column and the negative control to score "
+                "anomalies against."))
+            return
+        from ...sp_stats import _score_anomalies
+
+        self._anomaly_jobs.cancel()
+        self._anomaly_jobs.submit(
+            lambda f=frame, o=options: _score_anomalies(f, **o),
+            self._on_anomaly_result)
+
+    def _on_anomaly_result(self, result) -> None:
+        """Show a worker-computed anomaly scoring. GUI thread only.
+
+        :param result: the ``_AnomalyResult``.
+        """
+        self._show_anomaly(result, result.report())
+
+    def _on_anomaly_failed(self, message: str) -> None:
+        """Log and show a refused anomaly scoring.
+
+        :param message: the refusal text from the job runner.
+        """
+        LOG.info("anomaly scoring refused: %s", message)
+        self._show_anomaly(None, message)
+
+    def _show_anomaly(self, result, message: str) -> None:
+        """Fill the ranked wells and draw the outlier review, or say why not.
+
+        :param result: the ``_AnomalyResult``, or ``None``.
+        :param message: the summary text.
+        """
+        from ...sp_stats import _draw_anomaly_review
+
+        self._anomaly = result
+        self.anomaly_summary.setText(message)
+        self.anomaly_table.setSortingEnabled(False)
+        self.anomaly_figure.patch.set_alpha(0.0)
+        if result is None:
+            self.anomaly_table.setRowCount(0)
+            self.anomaly_figure.clear()
+            self.anomaly_canvas.draw_idle()
+            return
+        shown = result.ranked_wells().head(_MAX_HIT_ROWS)
+        self.anomaly_table.setRowCount(len(shown))
+        for row, (_index, record) in enumerate(shown.iterrows()):
+            for column, (key, _label) in enumerate(_ANOMALY_COLUMNS):
+                value = record.get(key, None)
+                if value is None or (not isinstance(value, str)
+                                     and pd.isna(value)):
+                    text = ""
+                elif isinstance(value, (bool, np.bool_)):
+                    text = tr("yes") if value else ""
+                elif key == "rank":
+                    text = str(int(value))
+                elif key == "outlier_fraction":
+                    text = f"{100 * float(value):.1f}%"
+                elif isinstance(value, (float, np.floating)):
+                    text = f"{value:.3g}"
+                else:
+                    text = str(value)
+                self.anomaly_table.setItem(row, column, table_item(text))
+        self.anomaly_table.setSortingEnabled(True)
+        self.anomaly_table.resizeColumnsToContents()
+        _draw_anomaly_review(self.anomaly_figure, result)
+        self.anomaly_canvas.draw_idle()
+
+    def _choose_anomaly_export(self) -> None:
+        """Ask for a folder and write the anomaly report into it."""
+        if self._anomaly is None:
+            self._source.setText(tr("Nothing scored yet."))
+            return
+        folder = QFileDialog.getExistingDirectory(
+            self, tr("Write the anomaly report into"))
+        if folder:
+            self._export_anomalies(folder)
+
+    def _export_anomalies(self, folder: str) -> Optional[Dict[str, str]]:
+        """Write the ranked wells, object scores and the review figure.
+
+        :param folder: the folder, created if absent.
+        :returns: ``{name: path}`` of what was written, or ``None`` when
+            nothing has been scored.
+        """
+        if self._anomaly is None:
+            self._source.setText(tr("Nothing scored yet."))
+            return None
+        from ...sp_stats import _write_anomaly_report
+
+        written = _write_anomaly_report(self._anomaly, folder)
+        self._source.setText(tr("anomaly report written to {folder}",
+                                folder=os.path.basename(folder) or folder))
+        return written
+
+    def _choose_compounds(self) -> None:
+        """Ask for a compound table and load it."""
+        path, _ = QFileDialog.getOpenFileName(
+            self, tr("Compound table with SMILES"), "",
+            tr("Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet)"))
+        if path:
+            self._load_compounds(path)
+
+    def _load_compounds(self, source) -> bool:
+        """Attach a compound table to the wells and redraw the hits.
+
+        :param source: a path or a DataFrame, read by
+            :func:`spacr.sp_stats._read_compound_map`.
+        :returns: whether the table was usable.
+        """
+        from ...sp_stats import HitScoringError, _read_compound_map
+
+        try:
+            self._compounds = _read_compound_map(source)
+        except (HitScoringError, OSError, ValueError) as exc:
+            self._compounds = None
+            self._compound_label.setText(str(exc))
+            self._recompute_chemistry()
+            return False
+        name = (os.path.basename(source) if isinstance(source, str)
+                else tr("table"))
+        self._compound_label.setText(tr(
+            "{name}: {count} compound(s)", name=name,
+            count=self._compounds["compound"].nunique()))
+        self._recompute_chemistry()
+        return True
+
+    def _recompute_chemistry(self, *_args) -> None:
+        """Link the shown hits to their compounds, off the GUI thread.
+
+        Needs a hit scoring and a compound table; the host toxicity of a
+        measurement database with a viability step is read alongside.
+
+        :param _args: whatever the emitting signal passes; ignored.
+        """
+        result, compounds = self._hit_result, self._compounds
+        if result is None or compounds is None:
+            self._show_chemistry(None, tr(
+                "Load a compound table to draw the hits' structures."))
+            return
+        from ...sp_stats import _host_toxicity, _structure_activity
+
+        path = self._path
+        if path and str(path).lower().endswith((".csv", ".tsv", ".txt")):
+            path = None
+        similarity = float(self._chem_similarity.value())
+
+        def work(r=result, c=compounds, p=path, s=similarity):
+            """Join, cluster and summarise on the worker."""
+            host, selectivity = _host_toxicity(p)
+            return _structure_activity(r, c, host=host,
+                                       selectivity=selectivity,
+                                       similarity=s)
+
+        self._chem_jobs.cancel()
+        self._chem_jobs.submit(work, self._on_chemistry_result)
+
+    def _on_chemistry_result(self, chemistry) -> None:
+        """Show a worker-computed chemistry result. GUI thread only.
+
+        :param chemistry: the ``_ChemistryResult``.
+        """
+        self._show_chemistry(chemistry, chemistry.report())
+
+    def _on_chemistry_failed(self, message: str) -> None:
+        """Log and show a refused chemistry link.
+
+        :param message: the refusal text from the job runner.
+        """
+        LOG.info("compound link refused: %s", message)
+        self._show_chemistry(None, message)
+
+    def _show_chemistry(self, chemistry, message: str) -> None:
+        """Draw the structures and fill the SAR table, or say why not.
+
+        :param chemistry: the result, or ``None``.
+        :param message: the summary line.
+        """
+        from ...sp_stats import _draw_hit_structures
+
+        self._chemistry = chemistry
+        self.chem_summary.setText(message)
+        self.chem_figure.patch.set_alpha(0.0)
+        if chemistry is None:
+            self.chem_figure.clear()
+            self.sar_table.setRowCount(0)
+        else:
+            _draw_hit_structures(self.chem_figure, chemistry)
+            self._fill_sar(chemistry.sar)
+        self.chem_canvas.draw_idle()
+
+    def _fill_sar(self, sar: pd.DataFrame) -> None:
+        """Fill the on-screen SAR table, strongest compounds first.
+
+        :param sar: the structure-activity table.
+        """
+        shown = sar.head(_MAX_HIT_ROWS)
+        self.sar_table.setSortingEnabled(False)
+        self.sar_table.setRowCount(len(shown))
+        for row, (_index, record) in enumerate(shown.iterrows()):
+            for column, (key, _label) in enumerate(_SAR_COLUMNS):
+                value = record.get(key, None)
+                if value is None or (not isinstance(value, str)
+                                     and pd.isna(value)):
+                    text = ""
+                elif isinstance(value, (bool, np.bool_)):
+                    text = tr("yes") if value else ""
+                elif isinstance(value, (float, np.floating)):
+                    text = f"{value:.3g}"
+                else:
+                    text = str(value)
+                self.sar_table.setItem(row, column, table_item(text))
+        self.sar_table.setSortingEnabled(True)
+        self.sar_table.resizeColumnsToContents()
+
+    @property
+    def _chemistry_result(self):
+        """The compound link currently shown, or ``None``."""
+        return self._chemistry
 
     def _on_result(self, result: ControlChartResult) -> None:
         """Show a worker-computed chart. GUI thread only."""
@@ -743,7 +1514,15 @@ class ControlChartScreen(QWidget):
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Read a CSV or one table of a measurement database, off the GUI
-        thread."""
+        thread.
+
+        :param path: a CSV, TSV or TXT file (by extension), read as one table;
+            any other path is opened as a SQLite measurement database and its
+            tables are listed in the picker.
+        :param table: the database table to read, also selected in the picker
+            when the database has it; ``None`` reads the picker's current
+            table.
+        """
         self._path = path
         names: List[str] = []
         if not str(path).lower().endswith((".csv", ".tsv", ".txt")):
@@ -794,11 +1573,13 @@ class ControlChartScreen(QWidget):
 
     def active_jobs(self) -> int:
         """How many worker threads are still winding down."""
-        return self._jobs.active_jobs()
+        return (self._jobs.active_jobs() + self._hit_jobs.active_jobs()
+                + self._anomaly_jobs.active_jobs())
 
     def is_busy(self) -> bool:
-        """True while a read or a chart is in flight."""
-        return self._jobs.is_busy()
+        """True while a read, a chart or a hit scoring is in flight."""
+        return (self._jobs.is_busy() or self._hit_jobs.is_busy()
+                or self._anomaly_jobs.is_busy())
 
     def choose_export(self) -> None:
         """Ask where to write the per-plate table and write it."""
@@ -809,7 +1590,12 @@ class ControlChartScreen(QWidget):
             self.export_points(path)
 
     def export_points(self, path: str) -> Optional[str]:
-        """Write one row per plate — value, limits, z, rules fired — as CSV."""
+        """Write one row per plate — value, limits, z, rules fired — as CSV.
+
+        :param path: the CSV file to write, without an index column. Nothing is
+            written, and ``None`` is returned, when nothing has been charted
+            yet.
+        """
         if self._result is None:
             self._source.setText("Nothing charted yet.")
             return None
@@ -823,6 +1609,9 @@ class ControlChartScreen(QWidget):
         :param event: the Qt close event.
         """
         self._jobs.shutdown()
+        self._hit_jobs.shutdown()
+        self._chem_jobs.shutdown()
+        self._anomaly_jobs.shutdown()
         self.canvas.close()
         super().closeEvent(event)
 

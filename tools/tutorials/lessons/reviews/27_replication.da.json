@@ -1,33 +1,35 @@
 {
   "lesson": "27_replication",
-  "english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "english_sha256": "f88be9a5d3e37117e01ec694187f3f515a070031de8789ee07e661eb4c098df3",
   "review": {
-    "kind": "Parent editorial translation of frozen English; synthetic-data caveats, counting unit, numeric results and export limitations retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "da",
-  "title": "Replikationsassay",
-  "description": "Tæl parasitter pr. vakuole, undersøg fordelingerne, og justér signaturforklaringer uden at ændre data. Eksemplet er syntetisk og viser ikke en behandlingseffekt.",
+  "title": "Replication Assay: tæl parasitter pr. vakuole",
+  "description": "Indlæs parasitmålinger, vælg vakuoleidentitet, kør analysen, og undersøg tællingsfordelinger og eksporter.",
   "objectives": [
-    "Bruge vakuolen frem for værtscellen som tælleenhed.",
-    "Bevare tællinger, der ikke er potenser af to, og undersøge oversigter pr. brønd og betingelse.",
-    "Bruge figurernes rigtige kontroller og læse eksportadvarsler."
+    "Vælge en måledatabase og dens vakuoleidentifikator.",
+    "Angive filtre for værtscelletildeling og størrelse og derefter køre analysen.",
+    "Læse fordelingerne pr. brønd og finde de gemte resultattabeller."
   ],
-  "prerequisite": "En ny kopi af den syntetiske undervisningsdatabase indeholder 1.992 opdigtede parasitrækker, 480 vakuoler, 240 værtscellegrupper og tolv kunstige brønde. Vehicle og inhibitor er undervisningsnavne; hver gruppes seks brønde gentager den samme fordeling. Der er ingen optagne billeder eller særlig knap til download af eksempeldata i dette modul. Originaldatabasen forbliver uændret. Uafhængige beregninger kontrollerer 6.588 CSV-felter samt søjlernes højder og stablede udgangspunkter. Dette validerer ikke segmentering, p-værdier eller effekt. Biologiske analyser kræver faktiske målinger, validerede vakuoleforbindelser og uafhængige forsøgsreplikater.",
+  "prerequisite": "Udpak det linkede syntetiske Replication Assay-eksempel. Det indeholder en måledatabase og en indstillingsreference med 1.992 parasitrækker i 480 vakuoler fordelt på tolv brønde. Betingelsernes navne og målingerne er undervisningsdata. Til dit eget assay bruger du målte parasitter med gennemgåede vakuoletildelinger og uafhængige eksperimentelle replikater.",
   "scenes": [
-    "Åbn Replication Assay i afsnittet Assays på Home. Modulet tæller målte parasitter pr. vakuole; det segmenterer ikke billeder her. Dette eksempel er udtrykkeligt syntetisk, så diagrammerne lærer dig kontrollerne og tællereglerne, ikke en biologisk behandlingseffekt.",
-    "Vælg den forberedte forsøgsmappe med measurements/measurements.db. Vores nye private kopi indeholder 1.992 opdigtede parasitrækker. Vi bevarer originaldatabasen og starter uden gamle resultatfiler, så alle viste resultater stammer fra denne kørsel.",
-    "Sæt Vacuole key til kolonnen med entydige vakuole-ID'er. Eksemplet indeholder 480 vakuoler, men kun 240 værtscellegrupper: Hver vært er forbundet med to vakuoler. Tælling pr. værtscelle ville slå dem sammen og besvare et andet spørgsmål. Validér forholdet i rigtige billeder, før du analyserer dine egne data.",
-    "Require host cell udelukker objekter uden gyldig værtsforbindelse. Det holder ikke-tildelte objekter ude af denne aflæsning, men kan også fjerne virkelige parasitter, hvis værtssegmenteringen mislykkedes. Alle undervisningsrækker har gyldige forbindelser; eksemplet validerer ikke din segmentering.",
-    "Den største navngivne kategori for potenser af to er 16, ikke en grænse, der afskærer alle større tællinger. Større potenser har en overløbskategori, og øvrige tællinger holdes adskilt. Hver kunstig brønd indeholder to vakuoler med tre parasitter; rund ikke en tælling på tre op til fire.",
-    "Kontrollér forbindelsen mellem betingelser og brønde. Her kaldes første kolonne vehicle og anden kolonne inhibitor, med seks kunstige brønde i hver gruppe. Navnene er en del af det opdigtede undervisningsdesign. De beviser ikke, at der blev givet et lægemiddel, og en overbevisende visuel forskel beviser ikke effekt.",
-    "Tryk først Run, når kilde, tildelingsnøgle, filtre og outputindstillinger er kontrolleret. Dette er tabelanalyse, ikke ny Cellpose-segmentering eller en ydelsestest af GPU'en. Den faktiske proces genererer både figuren pr. brønd og figuren pr. betingelse.",
-    "Læs hver stablet søjle som fordelingen af parasittællinger pr. vakuole i én brønd. Vehicle-eksemplet har 228 parasitter i 40 vakuoler; inhibitor-eksemplet har 104 i 40. Begge bevarer fem procent vakuoler med tællinger uden for potenserne af to. Vi kontrollerede de viste søjlehøjder mod uafhængige tællinger, ikke bare filnavnene.",
-    "Hvis signaturforklaringen bliver klippet, åbn Figure settings og aksefanen, og skift Legend position. Vi vælger en placering inde i figuren med de faktiske kontroller. Det er en ændring af præsentationen: Alle søjleværdier og outputdatafiler forbliver uændrede.",
-    "Betingelsesvisningen samler eksemplets vakuoler i to fordelinger. Alle seks brønde i hver gruppe gentager det samme opdigtede mønster. Citér ikke de resulterende signifikanstest som et behandlingsfund; reel inferens kræver ægte replikation og en velbegrundet uafhængig forsøgsenhed.",
-    "Læs konsollen såvel som diagrammet. Denne kørsel advarer om, at nogle valgte farver har ringe kontrast på en lys eksporteret side. Kontrollér de eksporterede figurer og vælg en let skelnelig palet; en læsbar mørk skærmvisning garanterer ikke automatisk en læsbar gemt figur.",
-    "Med Save aktiveret gemmes resultater under results/analyze_replication: vakuoletællinger, brøndfordelinger, betingelsesoversigter, statistiktabeller og figurer. Bevar indstillinger og kildeidentifikatorer sammen med dem. Gennemgå rigtige billeder og biologiske kontroller i dit eget assay, før du fortolker disse oversigter."
+    "Fra Home åbner du Toxoplasma og vælger derefter Replication Assay. Start med en måledatabase, der indeholder parasitrækker og deres vakuoletildelinger. Med det linkede syntetiske eksempel kan du øve indstillingerne og læse de resulterende tællingsfordelinger.",
+    "Udpak prøven, og sæt Source til dens mappe replication. Databasen ligger i measurements. Indtast den medfølgende indstillingsreference, og erstat dens pladsholder for Source med din udpakkede mappe. Lad Save være slået til, så resultaterne skrives.",
+    "Sæt Vacuole key til vacuole_id. Det grupperer parasitterne efter den vakuole, de tilhører. Prøven indeholder to vakuoler pr. værtscellegruppe, så brug vakuoleidentifikatoren til at holde tællingerne adskilt.",
+    "Slå Require host cell til for kun at medtage parasitter, der er knyttet til en værtscelle. Gennemgå objekter uden tildeling, når du bruger dine egne data. For denne prøve sætter du Minimum parasite area til 200 og Maximum parasite area til 800.",
+    "Sæt Maximum parasites per vacuole til 16. Det fastlægger den største navngivne kategori blandt totalspotenserne. Større totalspotenser havner i en overløbskategori, mens antal som 3 bliver i den separate kategori for værdier, der ikke er totalspotenser.",
+    "Indtast vehicle og inhibitor som de to Pathogen types, og tilknyt dem til kolonne 1 og kolonne 2 i Pathogen plate metadata. Hver gruppe indeholder seks øvebrønde. Til dit eksperiment indtaster du betingelsernes navne og brøndtildelingerne fra dit pladedesign.",
+    "Kontrollér Source, Vacuole key, filtrene og Save, og klik derefter på Run. Følg konsollen, indtil behandlingen er færdig. Området Figures viser fordelinger pr. brønd og pr. betingelse.",
+    "Åbn figuren pr. brønd. Hver stablet søjle viser andelen af vakuoler i hver kategori for antal parasitter. Læs farverne ved hjælp af signaturforklaringen. I denne prøve indeholder hver brønd 40 vakuoler, og 5 procent falder i kategorien for værdier, der ikke er totalspotenser.",
+    "Åbn Figure settings for at justere signaturforklaringen. På fanen axes vælger du en Legend position inde i figuren, hvis etiketterne går ud over den. Det ændrer kun præsentationen; de beregnede tællinger bevares.",
+    "Åbn figuren pr. betingelse for at sammenligne de samlede tællingsfordelinger. Gennemgå resultaterne pr. brønd sammen med denne oversigt. Når du analyserer et eksperiment, bruger du uafhængige biologiske replikater og en passende eksperimentel enhed til statistiske sammenligninger.",
+    "Læs eventuelle eksportadvarsler i konsollen. Kontrollér de gemte figurer og ikke kun visningen på skærmen, og vælg farver, der forbliver læsbare mod eksportens baggrund.",
+    "Resultaterne i results/analyze_replication inde i Source bygger oven på hinanden. vacuole_counts.csv tæller hver vakuole, well_distribution.csv omdanner tællingerne til hver brønds fordeling, og oversigterne og figurerne pr. betingelse samler brøndene. Opbevar dem sammen med indstillingerne og kildedatabasen, så du kan spore ethvert tal tilbage."
   ]
 }

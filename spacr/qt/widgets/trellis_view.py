@@ -117,7 +117,11 @@ class TrellisCanvas(GraphCanvas):
 
     def set_trellis_spec(self, spec: TrellisSpec, *,
                          immediate: bool = True) -> None:
-        """Replace the whole spec and redraw."""
+        """Replace the whole spec and redraw.
+
+        :param spec: the complete trellis spec: grid options plus the inner
+            chart spec in its ``graph`` attribute.
+        """
         self._trellis_spec = spec
         self._spec = spec.graph
         if self._frame is not None:
@@ -128,7 +132,11 @@ class TrellisCanvas(GraphCanvas):
             self._debounce.start()
 
     def set_spec(self, spec: GraphSpec, *, immediate: bool = True) -> None:
-        """Replace only the inner chart spec, keeping the grid's own options."""
+        """Replace only the inner chart spec, keeping the grid's own options.
+
+        :param spec: the inner chart spec, combined with the current grid
+            options through ``TrellisSpec.with_graph``.
+        """
         self.set_trellis_spec(self._trellis_spec.with_graph(spec),
                               immediate=immediate)
 
@@ -296,6 +304,13 @@ class TrellisCanvas(GraphCanvas):
         against that panel's own scales — so it is exact over a density raster
         and correct under a per-panel scale, where the drawn coordinates of a
         categorical axis differ from the grid's.
+
+        :param x0: horizontal position of one corner of the rectangle, in the
+            panel's data coordinates; the corners may be given in either order.
+        :param y0: vertical position of that corner, in the panel's data
+            coordinates; the corners may be given in either order.
+        :param x1: horizontal position of the opposite corner.
+        :param y1: vertical position of the opposite corner.
         """
         if self._trellis is None or self._visible is None or not self._keyed:
             return None
@@ -309,7 +324,11 @@ class TrellisCanvas(GraphCanvas):
         return self.publish_selection(picked)
 
     def on_linked_selection_changed(self, selection: Selection) -> None:
-        """Move the highlight; redraw only when the marks cannot be re-styled."""
+        """Move the highlight; redraw only when the marks cannot be re-styled.
+
+        :param selection: the new shared selection; not read directly, since
+            the highlight is recomputed from the canvas's linked selection.
+        """
         if self._trellis is None:
             return
         if not self._live_highlight:

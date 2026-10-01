@@ -14,6 +14,12 @@ its test module, so a pixel here means what it means there.
 """
 from __future__ import annotations
 
+from spacr.model_zoo import _mask_model_kinds
+
+#: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
+#: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
+MASK_KINDS = _mask_model_kinds()
+
 import shutil
 from pathlib import Path
 
@@ -182,9 +188,12 @@ CATEGORIES = ("Brush", "Magic wand", "Display", "Filter",
 def _categories(made):
     from spacr.qt.widgets.section import Section
 
+    # A category hidden as an alpha feature (Segment by prompt, item 555,
+    # while Show alpha features is off) is not on the panel.
     found = [w for w in made._settings_scroll.findChildren(Section)
              if w.parentWidget() is not None
-             and not isinstance(w.parentWidget().parentWidget(), Section)]
+             and not isinstance(w.parentWidget().parentWidget(), Section)
+             and w.isVisibleTo(made._settings_scroll)]
     return {title: section for title, section in made._settings_categories
             if section in found}
 
@@ -205,7 +214,7 @@ def test_every_category_is_the_core_applications_folding_section(
         owners = {
             "Brush": made._brush_slider, "Magic wand": made._wand_pct,
             "Display": made._norm_hi,
-            "Filter": made._filter_min_area,
+            "Filter": made._filter_add,
             "Object operations": made._btn_otsu,
             "Detection method": made._otsu_correction,
             "Image enhancement": made._enh_gamma,
@@ -370,7 +379,7 @@ def test_the_model_zoo_button_opens_the_cellpose_zoo_and_selects_the_pick(
 
         monkeypatch.setattr(model_zoo_picker, "choose_model", choose)
         button.click()
-        assert opened == [(made, ("cellpose",))]
+        assert opened == [(made, MASK_KINDS)]
         assert made._cp_model.currentData() == str(fetched)
         assert made._cp_model.currentText() == "toxoplasma_pv_v1"
         assert ("toxoplasma_pv_v1 (not downloaded)", None, False) not in _rows(

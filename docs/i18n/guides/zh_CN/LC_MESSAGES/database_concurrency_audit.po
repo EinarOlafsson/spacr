@@ -1,0 +1,417 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Database concurrency audit"
+msgstr "数据库并发审查"
+
+msgid "spaCR's measurement workers, annotation writer, run-status ledger, schema migrations, and Database Browser can access the same SQLite file from different processes or threads. The shared :mod:`spacr.database_concurrency` contract makes those accesses explicit:"
+msgstr "spaCR 的测量工作进程、标注写入器、运行状态账本、模式迁移和数据库浏览器可能从不同进程或线程访问同一个 SQLite 文件。共享的 :mod:`spacr.database_concurrency` 约定使这些访问变得明确："
+
+msgid "every thread or process owns and closes its own connection;"
+msgstr "每个线程或进程拥有并关闭自己的连接；"
+
+msgid "every connection has a finite ``busy_timeout`` and foreign-key enforcement;"
+msgstr "每个连接都有有限的 ``busy_timeout`` 并启用外键约束；"
+
+msgid "read-only work uses SQLite ``mode=ro`` plus ``query_only``;"
+msgstr "只读工作使用 SQLite ``mode=ro`` 加 ``query_only``；"
+
+msgid "multi-statement writes use ``BEGIN IMMEDIATE`` and roll back completely on a body or commit failure;"
+msgstr "多语句写入使用 ``BEGIN IMMEDIATE``，在主体或提交失败时完全回滚；"
+
+msgid "only lock/busy failures while acquiring a transaction are retried, with a bounded exponential backoff;"
+msgstr "只有在获取事务时发生的锁定/繁忙失败才会重试，并采用有上限的指数退避；"
+
+msgid "an exhausted lock budget raises :class:`spacr.database_concurrency.DatabaseBusy` instead of dropping a write or continuing silently."
+msgstr "锁定预算耗尽时会抛出 :class:`spacr.database_concurrency.DatabaseBusy`，而不是丢弃写入或悄悄继续。"
+
+msgid "Measurement writes retain their specialized recovery for concurrent ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
+msgstr "测量写入保留了针对并发 ``CREATE TABLE`` 和模式扩展竞争的专门恢复机制。运行状态表的创建和行插入是一个原子事务。数据库浏览器的编辑验证及其单行更新也共享同一个事务，因此在检查和写入之间行地址不会改变。断点续跑在重新测量前对多张表的删除会在一个带重试的写事务中完成验证和删除。标注模块保留所配置的日志模式，回滚失败的合并批次，保留未保存/错误状态，并在模块中报告该状态，而不是把失败的提交标记为已保存。"
+
+msgid "Journal mode and network storage"
+msgstr "日志模式与网络存储"
+
+msgid "spaCR enables WAL only where it is known to be safe. WAL lets readers proceed without blocking a committing writer, but SQLite's WAL index requires shared-memory coordination and is not safe on many NFS, SMB, NAS, or distributed filesystems. Before a Measure run, :func:`spacr.database_concurrency.enable_wal_where_safe` switches ``measurements/measurements.db`` to WAL only when its filesystem is positively identified as a local type on an allowlist (ext4, XFS, Btrfs, ZFS, APFS, tmpfs and similar); network, unrecognised and undetectable filesystems keep the rollback (``DELETE``) journal. Other databases retain their journal mode unless a caller explicitly requests ``WAL`` or ``DELETE``."
+msgstr "spaCR 只在已知安全的地方启用 WAL。WAL 允许读取者在不阻塞正在提交的写入者的情况下继续进行，但 SQLite 的 WAL 索引需要共享内存协调，在许多 NFS、SMB、NAS 或分布式文件系统上并不安全。在测量运行之前，:func:`spacr.database_concurrency.enable_wal_where_safe` 仅当 ``measurements/measurements.db`` 所在文件系统被明确识别为允许列表中的本地类型（ext4、XFS、Btrfs、ZFS、APFS、tmpfs 等）时，才将其切换为 WAL；网络文件系统、无法识别和无法检测的文件系统保持回滚（``DELETE``）日志。其他数据库保持其日志模式，除非调用方显式请求 ``WAL`` 或 ``DELETE``。"
+
+msgid ":func:`spacr.database_concurrency.inspect_database` reports the active journal mode, filesystem type, lock timeout, SQLite threading level, sidecar sizes, and optional ``PRAGMA quick_check`` result. It emits a warning when it detects WAL on a known network filesystem. Filesystem detection is advisory: storage inside a container or automounter can conceal its actual backing system, so vendor guidance remains authoritative."
+msgstr ":func:`spacr.database_concurrency.inspect_database` 报告当前的日志模式、文件系统类型、锁超时、SQLite 线程级别、附属文件大小以及可选的 ``PRAGMA quick_check`` 结果。当它在已知的网络文件系统上检测到 WAL 时会发出警告。文件系统检测仅供参考：容器或自动挂载器中的存储可能会隐藏其实际的底层系统，因此厂商指南仍具权威性。"
+
+msgid "Command-line audit"
+msgstr "命令行审查"
+
+msgid "Inspect an existing database without modifying it::"
+msgstr "在不修改的情况下检查现有数据库::"
+
+msgid "Run simultaneous readers and writers against a new disposable database::"
+msgstr "针对一个新的一次性数据库运行并发的读取者和写入者::"
+
+msgid "Use ``--json`` for CI or monitoring. ``--scratch PATH`` is accepted only when ``PATH`` does not exist; the audit deliberately refuses to place probe tables inside scientific results. Without ``--scratch``, its temporary database is removed after metrics are collected. The command returns nonzero for corrupt input, failed integrity checks, thread errors, timeouts, or a row-count mismatch."
+msgstr "在 CI 或监控中使用 ``--json``。只有当 ``PATH`` 不存在时才接受 ``--scratch PATH``；审查有意拒绝在科学结果中放置探测表。不使用 ``--scratch`` 时，收集完指标后会删除其临时数据库。对于损坏的输入、完整性检查失败、线程错误、超时或行数不匹配，该命令返回非零值。"
+
+msgid "Transaction API"
+msgstr "事务 API"
+
+msgid "Plugin and pipeline writers should use the same primitives::"
+msgstr "插件和流程中的写入方应使用相同的基本操作::"
+
+msgid "Connections must never be passed between threads. Do not retry statements from inside a transaction: earlier statements might already have run. The context manager retries only transaction acquisition, then either commits the complete body once or rolls it back."
+msgstr "连接绝不能在线程之间传递。不要在事务内部重试语句：之前的语句可能已经执行。上下文管理器只重试事务的获取，然后要么一次性提交完整的主体，要么将其回滚。"
+
+msgid "Stress coverage"
+msgstr "压力测试覆盖"
+
+msgid "``tests/test_database_concurrency.py`` uses real database files to verify:"
+msgstr "``tests/test_database_concurrency.py`` 使用真实的数据库文件验证："
+
+msgid "exact row counts under simultaneous reader/writer pressure;"
+msgstr "并发读写压力下的精确行数；"
+
+msgid "lock release and bounded lock exhaustion;"
+msgstr "锁的释放以及有上限的锁耗尽；"
+
+msgid "atomic success, rollback, and nested-transaction refusal;"
+msgstr "原子成功、回滚以及拒绝嵌套事务；"
+
+msgid "enforced read-only connections and WAL snapshot visibility;"
+msgstr "强制只读连接以及 WAL 快照可见性；"
+
+msgid "concurrent run-ledger stamps with no lost rows;"
+msgstr "并发的运行账本时间戳且无丢失行；"
+
+msgid "integrity/network-storage diagnostics and CLI exit behavior;"
+msgstr "完整性/网络存储诊断以及 CLI 退出行为；"
+
+msgid "refusal to run a destructive probe against an existing database, and removal of a probe's scratch database when it fails."
+msgstr "拒绝对现有数据库运行破坏性探测，并在探测失败时删除其临时数据库。"
+
+msgid "Annotation-batch rollback and fail-loud status are covered in ``tests/qt/test_annotate.py``, and resume cleanup across every measure-owned table in ``tests/test_resume.py``. The existing Measure multiprocessing, schema migration, unreadable run-status, and Qt Database Browser suites provide integration coverage for their respective production paths."
+msgstr "标注批次回滚和显式失败状态由 ``tests/qt/test_annotate.py`` 覆盖，跨所有测量模块所属表的断点续跑清理由 ``tests/test_resume.py`` 覆盖。现有的测量多进程、模式迁移、不可读运行状态以及 Qt 数据库浏览器测试套件为各自的生产路径提供集成覆盖。"
+
+msgid "API reference"
+msgstr "API 参考"
+
+msgid "SQLite connection, transaction, and concurrency-audit primitives."
+msgstr "SQLite 连接、事务和并发审查的基本操作。"
+
+msgid "spaCR uses one SQLite database as the meeting point for Measure worker processes, the annotator writer thread, read-only GUI queries, run-status stamps, and schema migrations.  This module provides the rules those paths share:"
+msgstr "spaCR 使用一个 SQLite 数据库作为测量工作进程、标注器写入线程、只读 GUI 查询、运行状态时间戳和模式迁移的交汇点。本模块提供这些路径共享的规则："
+
+msgid "every thread/process opens and closes its own connection;"
+msgstr "每个线程/进程打开并关闭自己的连接；"
+
+msgid "busy timeouts are explicit and write transactions retry only lock errors;"
+msgstr "繁忙超时是显式的，写事务只重试锁错误；"
+
+msgid "multi-statement writes use ``BEGIN IMMEDIATE`` with rollback on every error;"
+msgstr "多语句写入使用 ``BEGIN IMMEDIATE``，任何错误都会回滚；"
+
+msgid "WAL is opt-in because SQLite WAL shared memory is unsafe on many network filesystems;"
+msgstr "WAL 需要主动启用，因为 SQLite WAL 的共享内存在许多网络文件系统上并不安全；"
+
+msgid "a real reader/writer probe can verify the local SQLite/filesystem behavior."
+msgstr "真实的读写探测可以验证本地 SQLite/文件系统的行为。"
+
+msgid "Only the Python standard library is imported, so image workers can use it without pulling in pandas, Qt, torch, or Cellpose."
+msgstr "只导入了 Python 标准库，因此图像工作进程可以使用它，而无需引入 pandas、Qt、torch 或 Cellpose。"
+
+msgid "Outcome of a disposable simultaneous reader/writer stress probe."
+msgstr "一次性并发读写压力探测的结果。"
+
+msgid "Parameters"
+msgstr "参数"
+
+msgid "scratch database path; a clean temporary probe removes it, while explicit or stalled probes retain it for inspection."
+msgstr "临时数据库路径；干净的临时探测会将其删除，而显式探测或卡住的探测会将其保留以供检查。"
+
+msgid "actual uppercase journal mode read after the run."
+msgstr "运行后读取的实际大写日志模式。"
+
+msgid "validated number of writer threads launched."
+msgstr "已验证的已启动写入线程数。"
+
+msgid "validated number of polling reader threads launched."
+msgstr "已验证的已启动轮询读取线程数。"
+
+msgid "one-row committed transactions each writer tries."
+msgstr "每个写入者尝试提交的单行事务数。"
+
+msgid "``writers * writes_per_writer``, independent of any worker failures."
+msgstr "``writers * writes_per_writer``，与任何工作线程失败无关。"
+
+msgid "final row count verified after the bounded joins."
+msgstr "在有界的 join 之后验证的最终行数。"
+
+msgid "total successful ``COUNT`` queries across readers."
+msgstr "所有读取者成功执行的 ``COUNT`` 查询总数。"
+
+msgid "monotonic worker start-to-join elapsed time, excluding setup and final verification."
+msgstr "从工作线程启动到 join 的单调计时，不包括准备和最终验证。"
+
+msgid "immutable worker exceptions and surviving-thread timeout messages collected by the probe."
+msgstr "探测收集到的不可变工作线程异常和存活线程超时消息。"
+
+msgid "True when no thread failed and every committed row exists."
+msgstr "当没有线程失败且每个已提交的行都存在时为 True。"
+
+msgid "Return a JSON-serializable result including :attr:`ok`."
+msgstr "返回包含 :attr:`ok` 的可 JSON 序列化结果。"
+
+msgid "A lock remained busy after the configured retry budget."
+msgstr "在配置的重试预算用尽后锁仍处于繁忙状态。"
+
+msgid "SQLite could not apply a requested safety configuration."
+msgstr "SQLite 无法应用所请求的安全配置。"
+
+msgid "Read-only SQLite configuration and integrity snapshot."
+msgstr "只读的 SQLite 配置和完整性快照。"
+
+msgid "normalized absolute path of the inspected database."
+msgstr "被检查数据库的规范化绝对路径。"
+
+msgid "SQLite runtime version exposed by Python."
+msgstr "Python 所暴露的 SQLite 运行时版本。"
+
+msgid "DB-API thread-safety level reported by :data:`sqlite3.threadsafety`."
+msgstr ":data:`sqlite3.threadsafety` 报告的 DB-API 线程安全级别。"
+
+msgid "actual uppercase journal mode read from the database."
+msgstr "从数据库读取的实际大写日志模式。"
+
+msgid "whether enforcement is enabled on the audit connection, not a persistent database-wide promise."
+msgstr "审查连接上是否启用了约束，而不是对整个数据库的持久承诺。"
+
+msgid "audit connection's effective busy timeout in milliseconds."
+msgstr "审查连接的有效繁忙超时，单位为毫秒。"
+
+msgid "detected filesystem type, or ``None`` when unavailable."
+msgstr "检测到的文件系统类型，不可用时为 ``None``。"
+
+msgid "whether the detected type is in the known network-filesystem set; false with an unknown type does not prove the storage is local."
+msgstr "检测到的类型是否属于已知的网络文件系统集合；类型未知时为假，但这并不能证明存储是本地的。"
+
+msgid "joined ``PRAGMA quick_check`` result when requested, otherwise ``None``."
+msgstr "请求时连接起来的 ``PRAGMA quick_check`` 结果，否则为 ``None``。"
+
+msgid "main database-file size at inspection time."
+msgstr "检查时主数据库文件的大小。"
+
+msgid "``-wal`` sidecar size at inspection time, or zero when it is absent."
+msgstr "检查时 ``-wal`` 附属文件的大小，不存在时为零。"
+
+msgid "``-shm`` sidecar size at inspection time, or zero when it is absent."
+msgstr "检查时 ``-shm`` 附属文件的大小，不存在时为零。"
+
+msgid "actionable integrity or unsafe network-WAL findings."
+msgstr "可据以处理的完整性问题或网络上不安全的 WAL 发现。"
+
+msgid "Return a JSON-serializable snapshot."
+msgstr "返回可 JSON 序列化的快照。"
+
+msgid "Filesystems on which WAL is known to behave. An ALLOWLIST, not the complement of :data:`NETWORK_FILESYSTEMS`: \"not a type I recognise as networked\" is a weaker claim than \"local\", and the gap between them is someone's corrupted database on a cluster nobody here has seen. An unrecognised type stays on DELETE, which is what shipped."
+msgstr "已知 WAL 能正常工作的文件系统。这是一个允许列表（ALLOWLIST），而不是 :data:`NETWORK_FILESYSTEMS` 的补集：“不是我识别为网络的类型”比“本地”更弱，而两者之间的差距就是某个我们从未见过的集群上某人损坏的数据库。无法识别的类型保持为 DELETE，也就是随软件发布的设置。"
+
+msgid "exFAT and vfat are deliberately absent: neither has the byte-range locking WAL's shared-memory index depends on."
+msgstr "exFAT 和 vfat 被有意排除：二者都不具备 WAL 共享内存索引所依赖的字节范围锁定。"
+
+msgid "Open one configured connection owned by the calling thread."
+msgstr "打开一个由调用线程拥有的已配置连接。"
+
+msgid "SQLite database path."
+msgstr "SQLite 数据库路径。"
+
+msgid "open with URI ``mode=ro`` and ``query_only=ON``."
+msgstr "使用 URI ``mode=ro`` 和 ``query_only=ON`` 打开。"
+
+msgid "seconds SQLite waits inside a lock operation."
+msgstr "SQLite 在锁操作中等待的秒数。"
+
+msgid "optional explicit ``\"WAL\"`` or ``\"DELETE\"``. Omit to preserve the database's current mode. WAL must not be enabled blindly on shared/NFS storage; use :func:`filesystem_type` or the concurrency probe first."
+msgstr "可选的显式 ``\"WAL\"`` 或 ``\"DELETE\"``。省略时保留数据库的当前模式。不得在共享/NFS 存储上盲目启用 WAL；请先使用 :func:`filesystem_type` 或并发探测。"
+
+msgid "enable SQLite foreign-key enforcement on this connection. SQLite defaults it off per connection."
+msgstr "在此连接上启用 SQLite 外键约束。SQLite 默认对每个连接关闭该功能。"
+
+msgid "Returns"
+msgstr "返回"
+
+msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes."
+msgstr "处于自动提交模式的连接；多语句写入请使用 :func:`transaction`。"
+
+msgid "Raises"
+msgstr "抛出"
+
+msgid "for an unsafe/unsupported requested journal mode or when SQLite refuses to apply it."
+msgstr "请求的日志模式不安全/不受支持，或 SQLite 拒绝应用时。"
+
+msgid "Put ``path`` into WAL when the filesystem allows it. Never raises."
+msgstr "在文件系统允许时将 ``path`` 切换为 WAL。绝不抛出异常。"
+
+msgid "WHY THIS EXISTS (issue #15, \"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a READ -- before writing. So each worker alternates read, write, read, write against one file."
+msgstr "为什么存在此功能（问题 #15，“measurements sometimes hangs”）。测量模块为每个视野运行一个工作进程，每次追加都通过 pandas 的 ``DataFrame.to_sql`` 进行，它在写入前会先执行一次 ``has_table`` 探测——即一次读取（READ）。因此，每个工作进程都会针对同一个文件交替进行读、写、读、写。"
+
+msgid "Under the shipped rollback journal that combination starves the writer. A reader holds SHARED for the length of its statement, and a writer cannot COMMIT until every SHARED lock is gone, so with enough workers there is almost always someone reading and the committing worker waits out its busy timeout and raises \"database is locked\" -- usually surfacing on the next process's ``has_table``, which is the statement in the reporter's traceback."
+msgstr "在随软件发布的回滚日志下，这种组合会使写入者饥饿。读取者在其语句执行期间一直持有 SHARED 锁，而写入者必须等到所有 SHARED 锁都释放后才能 COMMIT，因此当工作进程足够多时，几乎总有进程在读取，正在提交的工作进程会耗尽其繁忙超时并抛出“database is locked”——通常出现在下一个进程的 ``has_table`` 上，也就是报告者回溯中的那条语句。"
+
+msgid "Measured on this exact shape, a commit attempted while one reader holds an open SELECT:"
+msgstr "在完全相同的情形下测得：当一个读取者持有一个打开的 SELECT 时尝试提交："
+
+msgid "journal_mode=delete    writer waited 1.037 s journal_mode=wal       writer waited 0.002 s"
+msgstr "journal_mode=delete    写入者等待 1.037 s journal_mode=wal       写入者等待 0.002 s"
+
+msgid "WAL readers do not block a writer at all, which removes the starvation. It does NOT make two WRITERS concurrent -- SQLite still serialises those -- so this fixes the reader-blocks-writer half, which is the half the traceback is in."
+msgstr "WAL 读取者完全不会阻塞写入者，从而消除了饥饿。它并不会使两个写入者（WRITERS）并发——SQLite 仍会将它们串行化——所以这修复的是读取者阻塞写入者的那一半，也就是回溯所在的那一半。"
+
+msgid "(The first version of this note had the direction backwards, claiming reads were blocked by writes. The test written to prove it measured 0.000 s and refuted it: in rollback-journal mode a writer holding RESERVED does not block readers, only its brief EXCLUSIVE commit does.)"
+msgstr "（此说明的第一个版本把方向弄反了，声称读取被写入阻塞。为证明这一点而编写的测试测得 0.000 s，从而否定了它：在回滚日志模式下，持有 RESERVED 的写入者不会阻塞读取者，只有其短暂的 EXCLUSIVE 提交才会。）"
+
+msgid "Called once when a database is opened for a run rather than per write: the mode is a property of the FILE and persists, so paying for it per connection would buy nothing."
+msgstr "在为一次运行打开数据库时调用一次，而不是每次写入时调用：该模式是文件（FILE）的属性并会持久保存，因此为每个连接付出代价毫无意义。"
+
+msgid "the database to switch. A file that does not exist yet is created by the connection, which is fine -- the mode persists."
+msgstr "要切换的数据库。尚不存在的文件会由连接创建，这没有问题——模式会持久保存。"
+
+msgid "the journal mode in force afterwards, or ``None`` when the database could not be opened at all."
+msgstr "之后生效的日志模式；如果完全无法打开数据库，则为 ``None``。"
+
+msgid "Best-effort filesystem type for ``path``, or None when unknowable."
+msgstr "尽力判断 ``path`` 的文件系统类型，无法得知时为 None。"
+
+msgid "Reads ``/proc/mounts`` on Linux and falls back to psutil's partition table elsewhere, so macOS and Windows get a real answer rather than None. The longest matching mount point wins on both paths. Advisory only--containers and automounters can hide the real backing store."
+msgstr "在 Linux 上读取 ``/proc/mounts``，在其他系统上回退到 psutil 的分区表，因此 macOS 和 Windows 也能得到真实答案而不是 None。两条路径上都以最长匹配的挂载点为准。仅供参考——容器和自动挂载器可能会隐藏真实的底层存储。"
+
+msgid "file or directory to look up. ``~`` is expanded and the path resolved; on Linux a path that does not exist yet is walked up to its nearest existing parent before the mount table is searched."
+msgstr "要查找的文件或目录。``~`` 会被展开，路径会被解析；在 Linux 上，尚不存在的路径会向上查找到最近的现有父目录，然后再搜索挂载表。"
+
+msgid "Inspect journal/locking configuration without changing the database."
+msgstr "在不修改数据库的情况下检查日志/锁定配置。"
+
+msgid "the SQLite database file (``~`` is expanded). It must already exist and is opened read-only."
+msgstr "SQLite 数据库文件（``~`` 会被展开）。该文件必须已经存在，并以只读方式打开。"
+
+msgid "also run ``PRAGMA quick_check`` and add a warning unless it reports ``ok``."
+msgstr "同时运行 ``PRAGMA quick_check``，除非其报告 ``ok``，否则添加一条警告。"
+
+msgid "when ``path`` is not an existing file."
+msgstr "当 ``path`` 不是现有文件时。"
+
+msgid "Return True only for SQLite lock/busy errors worth retrying."
+msgstr "仅对值得重试的 SQLite 锁定/繁忙错误返回 True。"
+
+msgid "the exception to classify. Only a :class:`sqlite3.OperationalError` whose message contains \"locked\" or \"busy\" (case-insensitively) counts."
+msgstr "要分类的异常。只有消息中包含“locked”或“busy”（不区分大小写）的 :class:`sqlite3.OperationalError` 才算。"
+
+msgid "Stress a new disposable database with simultaneous readers/writers."
+msgstr "用并发的读取者/写入者对一个新的一次性数据库进行压力测试。"
+
+msgid "An explicit ``path`` must not exist: the probe never adds audit tables to scientific data. When omitted, a temporary database is created and removed after its metrics are collected."
+msgstr "显式指定的 ``path`` 不得已存在：探测绝不会向科学数据中添加审查表。省略时会创建一个临时数据库，并在收集其指标后删除。"
+
+msgid "scratch database to create. It must not already exist (:exc:`FileExistsError`); missing parent directories are created, and a run that FINISHES leaves the file on disk along with any ``-wal`` and ``-shm`` sidecars, so every explicit run needs a fresh path. Omit it to probe a temporary database instead, which is removed after a clean finish. A run that RAISES -- a ``journal_mode`` :func:`connect` refuses, most often -- removes its scratch database either way: it never ran, so there is nothing in it to keep, and leaving one at an explicit path made the next run on it fail with :exc:`FileExistsError`. The one deliberate survivor is a worker that outlives the 30-second join deadline, whose database is kept for inspection."
+msgstr "要创建的临时数据库。它不得已经存在（:exc:`FileExistsError`）；缺失的父目录会被创建，并且完成（FINISHES）的运行会将该文件连同任何 ``-wal`` 和 ``-shm`` 附属文件留在磁盘上，因此每次显式运行都需要一个新路径。省略它则改为探测一个临时数据库，干净完成后会将其删除。抛出异常（RAISES）的运行——最常见的是 :func:`connect` 拒绝的 ``journal_mode``——无论如何都会删除其临时数据库：它从未运行过，因此其中没有值得保留的内容，而在显式路径上留下一个数据库会使下一次在该路径上的运行因 :exc:`FileExistsError` 失败。唯一有意保留的是超过 30 秒 join 截止时间仍存活的工作线程，其数据库会被保留以供检查。"
+
+msgid "concurrent writer threads. Each owns a connection opened with a 50 ms busy timeout and commits one transaction per row, so ``expected_rows`` is ``writers * writes_per_writer``. Must be a genuine positive integer; booleans, text and floats are refused."
+msgstr "并发写入线程。每个线程拥有一个以 50 ms 繁忙超时打开的连接，并为每行提交一个事务，因此 ``expected_rows`` 为 ``writers * writes_per_writer``。必须是真正的正整数；布尔值、文本和浮点数会被拒绝。"
+
+msgid "concurrent read-only threads polling ``COUNT(*)`` until the last writer exits. They move only ``reader_queries``, never ``expected_rows``; at least one is required, so a writers-only probe cannot be expressed. Must be a genuine positive integer."
+msgstr "并发的只读线程，轮询 ``COUNT(*)`` 直到最后一个写入者退出。它们只影响 ``reader_queries``，绝不影响 ``expected_rows``；至少需要一个，因此无法表达只有写入者的探测。必须是真正的正整数。"
+
+msgid "rows each writer inserts, one row per transaction. Must be a genuine positive integer."
+msgstr "每个写入者插入的行数，每个事务一行。必须是真正的正整数。"
+
+msgid "mode applied once by the setup connection and then inherited by every worker connection. Only ``\"WAL\"`` (the default) and ``\"DELETE\"`` are accepted, case-insensitively; anything else raises :exc:`DatabaseConfigurationError` after the scratch database has already been created. ``None`` is refused: a stress result must state which locking mode it actually intended to exercise."
+msgstr "由准备连接应用一次、随后被每个工作连接继承的模式。只接受 ``\"WAL\"`` （默认）和 ``\"DELETE\"``，不区分大小写；其他任何值都会在临时数据库已创建之后抛出 :exc:`DatabaseConfigurationError`。``None`` 会被拒绝：压力测试结果必须说明其实际打算测试的锁定模式。"
+
+msgid "result whose ``journal_mode`` is read back from the finished database rather than echoed from this argument, and whose ``errors`` carry per-thread failures instead of raising."
+msgstr "结果中的 ``journal_mode`` 从已完成的数据库中读回，而不是照搬此参数，其 ``errors`` 包含各线程的失败而不是抛出异常。"
+
+msgid "when ``writers``, ``readers``, or ``writes_per_writer`` is below 1."
+msgstr "当 ``writers``、``readers`` 或 ``writes_per_writer`` 小于 1 时。"
+
+msgid "when one of the work sizes is not an integer. In particular, ``2.9`` is not silently truncated and ``\"2\"`` is not accepted merely because the CLI parser would have converted it."
+msgstr "当任一工作量不是整数时。特别是，``2.9`` 不会被悄悄截断，``\"2\"`` 也不会仅仅因为 CLI 解析器会转换它而被接受。"
+
+msgid "when ``journal_mode`` is not an explicit ``\"WAL\"`` or ``\"DELETE\"`` string."
+msgstr "当 ``journal_mode`` 不是显式的 ``\"WAL\"`` 或 ``\"DELETE\"`` 字符串时。"
+
+msgid "Run an all-or-nothing transaction with bounded lock retry."
+msgstr "以有上限的锁重试运行一个全有或全无的事务。"
+
+msgid "Only ``BEGIN`` is retried. Once a transaction starts, retrying individual statements could duplicate earlier writes. Any body or commit error rolls the complete transaction back and propagates."
+msgstr "只重试 ``BEGIN``。事务一旦开始，重试单个语句可能会重复之前的写入。任何主体或提交错误都会回滚整个事务并向上传播。"
+
+msgid "calling thread's open autocommit connection."
+msgstr "调用线程打开的自动提交连接。"
+
+msgid "``DEFERRED``, ``IMMEDIATE`` (default), or ``EXCLUSIVE``."
+msgstr "``DEFERRED``、``IMMEDIATE`` （默认）或 ``EXCLUSIVE``。"
+
+msgid "maximum attempts to acquire the transaction."
+msgstr "获取事务的最大尝试次数。"
+
+msgid "first backoff between lock failures."
+msgstr "锁失败之间的首次退避时间。"
+
+msgid "backoff cap."
+msgstr "退避上限。"
+
+msgid "total seconds this transaction may spend waiting on locks inside SQLite, shared over ``attempts`` and floored at ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per attempt. Omit to inherit the connection's configured ``busy_timeout``; pass it when the write's own tolerance differs from whatever ``timeout`` the connection happened to be opened with."
+msgstr "此事务在 SQLite 内部等待锁的总秒数，在各次 ``attempts`` 之间分摊，每次尝试的下限为 ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS``。省略时继承连接配置的 ``busy_timeout``；当此次写入自身的容忍度不同于连接打开时所用的 ``timeout`` 时请传入。"
+
+msgid "when the lock outlives the retry budget."
+msgstr "当锁的持续时间超过重试预算时。"
+
+msgid "when asked to nest inside an active transaction."
+msgstr "当被要求嵌套在活动事务中时。"
+
+msgid "Is ``path`` on a filesystem where WAL is known to behave?"
+msgstr "``path`` 是否位于已知 WAL 能正常工作的文件系统上？"
+
+msgid "``True`` only for a POSITIVELY IDENTIFIED local filesystem. Anything else -- a network type, an unrecognised type, or a platform where :func:`filesystem_type` cannot tell (it reads ``/proc/mounts``, so macOS and Windows always answer ``None``) -- is ``False``."
+msgstr "仅对被明确识别（POSITIVELY IDENTIFIED）的本地文件系统返回 ``True``。其他任何情况——网络类型、无法识别的类型，或 :func:`filesystem_type` 无法判断的平台（它读取 ``/proc/mounts``，因此 macOS 和 Windows 总是返回 ``None``）——都返回 ``False``。"
+
+msgid "That asymmetry is the point. The cost of a wrong ``False`` is the lock contention this project already survives; the cost of a wrong ``True`` is WAL shared memory on storage that cannot support it, which is a corrupted database."
+msgstr "这种不对称正是关键所在。错误返回 ``False`` 的代价是本项目本来就能承受的锁竞争；错误返回 ``True`` 的代价是在无法支持的存储上使用 WAL 共享内存，也就是一个损坏的数据库。"
+
+msgid "the database file (or its directory) whose filesystem is looked up with :func:`filesystem_type`."
+msgstr "用 :func:`filesystem_type` 查找其文件系统的数据库文件（或其目录）。"
+
+msgid "Command-line SQLite health and concurrency audit."
+msgstr "命令行 SQLite 健康和并发审查。"
+
+msgid "Build the ``spacr-db-audit`` argument parser."
+msgstr "构建 ``spacr-db-audit`` 参数解析器。"
+
+msgid "parser for read-only database checks and disposable concurrency probes."
+msgstr "用于只读数据库检查和一次性并发探测的解析器。"
+
+msgid "Inspect or probe SQLite and report one combined audit result."
+msgstr "检查或探测 SQLite，并报告一个合并的审查结果。"
+
+msgid "command-line arguments without the program name; ``None`` reads the process arguments."
+msgstr "不含程序名的命令行参数；``None`` 表示读取进程参数。"
+
+msgid "``0`` when every requested integrity check and probe passes, or ``1`` when any requested operation fails or raises an exception."
+msgstr "当所有请求的完整性检查和探测都通过时为 ``0``，当任何请求的操作失败或抛出异常时为 ``1``。"
+
+msgid "with status ``2`` for invalid arguments or when neither a database nor ``--probe`` is supplied."
+msgstr "参数无效，或既未提供数据库也未提供 ``--probe`` 时，以状态 ``2`` 退出。"
+

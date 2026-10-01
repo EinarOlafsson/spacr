@@ -1,0 +1,261 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Capabilities"
+msgstr "功能"
+
+msgid "spaCR follows an image-based screen from raw microscopy files to a ranked hit list. This page gives the full map; the :doc:`Python API quickstart <python_api>` and interactive tutorials show the individual routes."
+msgstr "spaCR 跟随一次基于图像的筛选，从原始显微文件一直到排序后的命中列表。本页给出完整的功能图；:doc:`Python API 快速入门 <python_api>` 和交互式教程展示了各条具体路线。"
+
+msgid "Core screen workflow"
+msgstr "核心筛选工作流程"
+
+msgid "Mask"
+msgstr "掩膜"
+
+msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
+msgstr "掩膜模块准备 TIFF、OME-TIFF、LIF、CZI 和 ND2 采集数据，并使用 Cellpose 分割细胞、细胞核、病原体和细胞器。它支持二维、体数据和时间序列数据，可估计对象直径，并能与图层查看器或 napari 交换掩膜校正。"
+
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` asks for -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
+msgstr "对象并不是固定的四种。一个项目包含细胞、细胞核和病原体，由它们派生的细胞质，以及 ``number_of_organelles`` 要求数量的细胞器槽位——从零到二十六个。每个槽位相互独立，拥有自己的通道、直径、检测方法和形态。"
+
+msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
+msgstr "每个槽位会被指定一种形态预设——点状、囊泡状、球形、丝状、管状、网状、扁囊状、环形、新月形或自定义——预设决定检测策略，即 spots、network、irregular 或 ring 之一。"
+
+msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and a hidden object's answers are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
+msgstr "掩膜生成将逐对象设置排列为 **Per-object settings** 下的一张表，每个已设置通道的对象占一列；细胞列始终显示。对象的通道在常规表单中设置，隐藏对象的设置值会被保留，待其通道再次设置时使用。每个对象都有一个 **去除背景** 复选框，细胞列还有 **调整细胞**。**添加过滤器** 会添加一行，可按任何 scikit-image regionprop （例如面积或平均强度）过滤对象；每个对象的单元格可填写 ``200 – 5000``、单独的最小值（``200``）、单独的最大值（``– 5000``），或留空表示不过滤。这些行构成 ``object_filters`` 设置。为某个对象选择 Cellpose 3 模型时，会显示 **Cellpose 3** 类别及该后端自己的设置。**质量控制** 包含分割检查以及输出、存储、运行和可靠性设置。"
+
+msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
+msgstr "掩膜的 **实时** 预览以 **叠加**、**掩膜**、**流场** 或 **细胞概率** 显示结果。右键单击图片可选择 **Save as PNG…** 或 **Save as PDF…**。一次会话生成多个掩膜后，**比较掩膜…** 会在单独的面板中将您勾选的掩膜和图像相互叠加，每个都有自己的不透明度和叠放顺序。"
+
+msgid "Measure"
+msgstr "测量"
+
+msgid "Measure writes per-object morphology, intensity, texture, radial, spatial and colocalization features to ``measurements.db``. It can save classifier-ready object crops, estimate illumination correction from a plate, restrict work to a region of interest and report segmentation quality before a run."
+msgstr "测量模块将每个对象的形态、强度、纹理、径向、空间和共定位特征写入 ``measurements.db``。它可以保存可直接用于分类器的对象裁剪图，根据孔板估计照明校正，将处理限制在感兴趣区域内，并在运行前报告分割质量。"
+
+msgid "Measure's settings are grouped as **Input & Experiment**, **Mask & Channel Mapping**, **Image Preprocessing** (with **Image Deconvolution (PSF)** and **Illumination Correction**), **Features**, **Object Filtering**, **Crop Output**, **3D Calibration (Beta)** and **Postprocessing** (with **Runtime & Reliability**). The segmentation-quality verdict is opt-in: the **QC** switch beside **3D** and **Time** opens it in a popup, and closing the popup turns the switch off."
+msgstr "测量模块的设置分组为 **输入与实验**、**掩膜与通道映射**、**图像预处理** （包括 **Image Deconvolution (PSF)** 和 **照明校正**）、**特征**、**对象过滤**、**裁剪图输出**、**3D Calibration (Beta)** 和 **Postprocessing** （包括 **运行与可靠性**）。分割质量评判需要主动开启：**3D** 和 **时间** 旁边的 **QC** 开关会在弹出窗口中打开它，关闭弹出窗口即关闭该开关。"
+
+msgid "Annotate and Classify"
+msgstr "标注与分类"
+
+msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are kept and inform the next round of training. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
+msgstr "标注模块提供由键盘驱动的裁剪图网格，将标签直接记录到项目数据库中，并可按不确定性对主动学习队列排序。一页显示尽可能多的裁剪图且不会滚动；其余的在下一页。执行 **建议...** 后，建议的裁剪图带有 **?** 徽标：单击或按 **Y** 确认，右键单击或按 **N** 拒绝，**U** 撤销。**确认本页其余项** 和 **拒绝本页其余项** 会一次性判定所有剩余建议。拒绝结果会被保留，并为下一轮训练提供信息。分类模块根据测量表训练 PyTorch 图像模型或经典模型和提升（boosted）模型。检查点会记录其数据集、划分规则、类别平衡和留出指标。分类的 **Essentials** 视图包含选择和训练任一系列所需的内容——ResNet 或 MaxViT 等图像模型，或 XGBoost 或随机森林等表格模型——未选中系列的设置会显示为灰色。"
+
+msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
+msgstr "分类 CV 还提供推理时可选的旋转和镜像。关于汇总方法、原始概率和平均概率以及方向稳定性标记，请参阅 :doc:`classifier_evaluation`。"
+
+msgid "Map Barcodes"
+msgstr "映射条形码"
+
+msgid "Barcode mapping decodes row, column and gRNA barcodes from FASTQ reads, joins them to imaged wells and reports abundance, collision, unmapped-read and library-coverage checks."
+msgstr "条形码映射从 FASTQ 读段中解码行、列和 gRNA 条形码，将其与成像的孔关联，并报告丰度、冲突、未映射读段和文库覆盖度检查。"
+
+msgid "Regression"
+msgstr "回归"
+
+msgid "Regression estimates guide, gene, condition and control effects. Its model families cover continuous, fractional, binary and count responses, robust and quantile fits, penalised high-dimensional designs, mixed effects and guide permutation. Diagnostics and run summaries are written beside the result."
+msgstr "回归估计向导、基因、条件和对照的效应。其模型系列涵盖连续、比例、二元和计数型响应，稳健拟合和分位数拟合，带惩罚的高维设计，混合效应以及向导置换。诊断信息和运行摘要写在结果旁边。"
+
+msgid "Planning, quality control and exploration"
+msgstr "规划、质量控制与探索"
+
+msgid "**Power and Design** estimate cell and well requirements and lay out plates, controls and replicates."
+msgstr "**Power and Design** 估算所需的细胞数和孔数，并规划孔板、对照和重复。"
+
+msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and leakage checks."
+msgstr "**QC Dashboard** 汇总分割、孔板、标注者一致性和泄漏检查。"
+
+msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
+msgstr "**批次校正** 提供中心化、z 分数标准化、稳健 z 分数标准化、对照中心化以及保护生物学协变量的 ComBat。"
+
+msgid "**Graph Builder, gates and linked views** connect summary plots to the object crops behind them."
+msgstr "**Graph Builder、门控和联动视图** 将汇总图与其背后的对象裁剪图关联起来。"
+
+msgid "**Feature, dose-response, control-chart and outlier views** inspect a result without an export/re-import cycle."
+msgstr "**特征、剂量反应、控制图和离群值视图** 无需导出/重新导入即可检查结果。"
+
+msgid "**Layer and lineage views** connect images, masks and the cell → nucleus → pathogen object hierarchy."
+msgstr "**图层和谱系视图** 将图像、掩膜以及细胞 → 细胞核 → 病原体的对象层级关联起来。"
+
+msgid "In **Live Preview**, **QC** image views and the raw/enhanced comparison, wheel zoom keeps the image point beneath the pointer in place. This also works when the image is smaller than its viewport; **Fit** or opening a new image resets the extra navigation space. Linked comparison views update together after the zoom. Orthogonal image views zoom around the pointer without moving the crosshair's selected position."
+msgstr "在 **Live Preview**、**QC** 图像视图以及原始/增强比较中，滚轮缩放会使指针下方的图像点保持不动。当图像小于视口时同样有效；**适应窗口** 或打开新图像会重置额外的导航空间。缩放后，联动的比较视图会一起更新。正交图像视图围绕指针缩放，而不会移动十字准线的选定位置。"
+
+msgid "For Toxoplasma compartment-intensity comparisons, see :doc:`recruitment`."
+msgstr "关于弓形虫区室强度比较，请参阅 :doc:`recruitment`。"
+
+msgid "Reproducibility and interoperability"
+msgstr "可重复性与互操作性"
+
+msgid "Every run can record its identifier, seed, resolved settings and outputs. Interrupted workflows can resume from checkpoints, and the run history can compare settings and artefacts. Measurements export to AnnData; optional integrations read or write OME-Zarr, connect to OMERO and send masks to napari."
+msgstr "每次运行都可以记录其标识符、随机种子、解析后的设置和输出。中断的工作流程可以从检查点继续，运行历史可以比较设置和产物。测量结果可导出为 AnnData；可选的集成可以读写 OME-Zarr、连接 OMERO 并将掩膜发送到 napari。"
+
+msgid "How a module is reached"
+msgstr "如何进入模块"
+
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
+msgstr "主页将模块分为四个类别——**核心**、**数据**、**工具** 和 **实验分析**——其中二十一个模块在某个类别中有磁贴。核心是按顺序运行的流程；数据是流程的输入和输出；工具是您用于处理项目的工具，而不是流程自行执行的步骤；实验分析是定量读数。创建掩膜归在 **工具** 下。"
+
+msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
+msgstr "磁贴并不是唯一的入口，而且大多数模块没有磁贴。磁贴的意思是“从这里开始”，而用于回答别人发起的运行相关问题的模块并不是起点。这些模块改为从以下位置打开："
+
+msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
+msgstr "**其宿主模块标题栏上的按钮**——作为宿主设置旁边的一个页面打开，并已指向同一项目。Investigate Hit 和 Prediction Profiler 从回归打开；格式转换器和外部掩膜从导入打开；Layer Viewer、Control Charts 和 Outliers 从 QC 打开。"
+
+msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
+msgstr "**帮助菜单**，用于检查或管理已有工作、而不隶属于任何单个模块的那些模块——运行历史、Pipeline Graph、Project Browser、数据库浏览器、报告、数据管理器、孔板队列、批处理运行器和分布式作业。"
+
+msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
+msgstr "**命令面板** （Ctrl+K），可到达所有模块，无论是否有磁贴。这是唯一没有例外的路线，也是键盘用户的导航方式。"
+
+msgid "None of them is second-class: they are shipped, translated and documented like any other module, and the ones that are pipelines still run headlessly under ``spacr-run``."
+msgstr "它们都不是次要的：它们与其他模块一样随软件发布、经过翻译并有文档，其中属于流程的模块仍可通过 ``spacr-run`` 无界面运行。"
+
+msgid "Host"
+msgstr "宿主"
+
+msgid "Opens from its masthead"
+msgstr "从其标题栏打开"
+
+msgid "Timelapse"
+msgstr "延时成像"
+
+msgid "Illumination Correction, AnnData Export, Motility Assay"
+msgstr "照明校正、导出 AnnData、运动性分析"
+
+msgid "Annotate"
+msgstr "标注"
+
+msgid "Annotator Agreement"
+msgstr "标注者一致性"
+
+msgid "Classify"
+msgstr "分类"
+
+msgid "Classifier Evaluation, Explain CV Model, Activation Maps"
+msgstr "分类器评估、解释 CV 模型、激活图"
+
+msgid "Barcode QC"
+msgstr "条形码质控"
+
+msgid "Volcano Explorer, Hit List, Methods & Results"
+msgstr "火山图浏览器、命中列表、方法与结果"
+
+msgid "Image UMAP"
+msgstr "图像 UMAP"
+
+msgid "Image Scatter, PCA"
+msgstr "图像散点图、PCA"
+
+msgid "Make Masks"
+msgstr "创建掩膜"
+
+msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate, Napari Bridge"
+msgstr "Cellpose 工作台、为整个文件夹生成掩膜、模型比较、模型库、校正、napari 桥接"
+
+msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
+msgstr "参数扫描通过第三种方式进入：它是回归屏幕上的一个面板，通过其设置表单上的 **参数扫描** 开关打开。"
+
+msgid "Arranging the window"
+msgstr "排列窗口"
+
+msgid "**Home** keeps its panels in a right-hand column. Drag the column's arrow handle to resize it, or click it to fold the column away and bring it back. The **Text size** slider below the lowest panel scales the text in those panels."
+msgstr "**主页** 将其面板放在右侧一列中。拖动该列的箭头手柄可调整其大小，单击它可折叠该列并再次展开。最下方面板下的 **文字大小** 滑块可缩放这些面板中的文字。"
+
+msgid "**The dock**: while it is shown, drag its edge to make it wider or narrower; double-click the edge to fit it to the module names again."
+msgstr "**停靠栏**：显示时，拖动其边缘可使其变宽或变窄；双击边缘可使其重新适应模块名称。"
+
+msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
+msgstr "**模块的右侧列** （控制台、操作和其他面板）通过拖动其左边缘作为一个整体调整大小。按住 **Ctrl** 并在其上滚动可放大或缩小文字；在该列上按 **Ctrl+0** 可恢复默认大小。"
+
+msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
+msgstr "**工具提示** 在指针停留两秒后出现，并在指针位于其上时保持显示。可通过 **偏好 → 外观 → 工具提示** 将其全部关闭。"
+
+msgid "These sizes are remembered between sessions."
+msgstr "这些尺寸会在会话之间被记住。"
+
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "创建掩膜用于手动校正掩膜，并在其标题栏上提供 Cellpose 循环。其画布有十种工具：画笔、橡皮擦、Erase object、Wand +、Wand −、Draw、Divide、缩放、Recrop 和标尺。:doc:`创建掩膜参考 <make_masks>` 介绍了这些工具、色阶、检测设置、初级/次级配对、保存和测量。"
+
+msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
+msgstr "Draw 描绘一个自由形状的轮廓，并将其闭合、填充为单个对象——这是画笔做不到的，因为画笔沿路径盖印圆盘，用它描绘边缘只会标记边缘，而中间仍为背景。Divide 在合并的对象上拖出一条线，将其分为两个，而不影响其他任何对象的标签；这是分割最常需要的校正。"
+
+msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
+msgstr "Recrop 是唯一会改变屏幕上显示哪个视野、而不是改变其上所绘内容的工具。包含多个细胞的阶段性裁剪图不是一个训练样本，把它当作一个样本校正会让网络误认为两个对象是一张图——因此，围绕某个对象的框会将图像和掩膜的该区域写为一个单独的视野，排在当前视野之后，而多对象的原图会被移入 ``recropped_originals/``，而不是被校正。小于最小边长的框，或重复已有裁剪的框，会被拒绝；被框切到的对象会被丢弃，因为边界落在鼠标释放处的对象已不是原来的对象；保留下来的标签从一开始重新编号。"
+
+msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. A mask is a threshold applied to that probability map, and a candidate object is discarded when its flows disagree with the ones the network predicted by more than the flow-error threshold. When a mask is wrong, those two panes are where the reason is visible."
+msgstr "在此屏幕上运行 Cellpose-SAM 时，会在掩膜旁显示其两个中间输出：细胞概率图和流场。掩膜是对该概率图应用阈值的结果，当候选对象的流场与网络预测的流场之差超过流场误差阈值时，该候选对象会被丢弃。掩膜出错时，原因就体现在这两个窗格中。"
+
+msgid "Settings that apply"
+msgstr "适用的设置"
+
+msgid "The settings panel carries a control when it applies to the run being set up and leaves it off the form when it does not:"
+msgstr "当某个控件适用于正在设置的运行时，设置面板会显示它；不适用时则不在表单中显示："
+
+msgid "a slot past ``number_of_organelles`` takes its whole block of settings with it, its channel included -- a slot the run does not have is not a slot with its channel left showing;"
+msgstr "超出 ``number_of_organelles`` 的槽位会连同其整组设置（包括通道）一起隐藏——运行中不存在的槽位不会只留下一个通道显示在那里；"
+
+msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
+msgstr "通道未指向任何平面的对象根本不在运行中，因此其设置不会出现在表单中；"
+
+msgid "a setting belonging to one morphology is dropped for a slot of another: a punctate organelle has no ridge filter."
+msgstr "属于某种形态的设置不会出现在其他形态的槽位中：点状细胞器没有脊线滤波器。"
+
+msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
+msgstr "3D 和时间开关声明孔板具有哪些维度。``z_stack`` 声明存在 z 轴并启用体数据设置——分割模式、各向异性和体素大小——并且会以错误停止，而不是猜测哪个轴是 z。``timelapse`` 声明存在时间轴并显示跟踪设置；单时间点的孔板会忽略它。4D 设置仅在数据既是 z 栈又是时间序列时适用，也只在那时出现。"
+
+msgid "Maturity labels"
+msgstr "成熟度标签"
+
+msgid "The API uses these labels consistently:"
+msgstr "API 一致地使用以下标签："
+
+msgid "**Stable**"
+msgstr "**稳定**"
+
+msgid "Supported entry points used by the principal Mask, Measure, Classify, barcode and regression workflows. Backward-incompatible changes require a deprecation period."
+msgstr "主要的掩膜、测量、分类、条形码和回归工作流程所使用的受支持入口点。不向后兼容的更改需要经过弃用期。"
+
+msgid "**Advanced**"
+msgstr "**高级**"
+
+msgid "Supported specialist functionality whose defaults or result schema may still evolve. Release notes describe material changes."
+msgstr "受支持的专业功能，其默认值或结果模式仍可能演变。发行说明会描述重要更改。"
+
+msgid "**Experimental**"
+msgstr "**实验性**"
+
+msgid "Early interfaces intended for evaluation. They may change between minor releases and should be pinned before use in an automated workflow."
+msgstr "供评估使用的早期接口。它们可能在次要版本之间发生变化，在自动化工作流程中使用之前应固定版本。"
+
+msgid "**Internal**"
+msgstr "**内部**"
+
+msgid "GUI widgets, workers and implementation helpers. They are documented for contributors but are not a compatibility promise."
+msgstr "GUI 控件、工作线程和实现辅助函数。它们为贡献者提供了文档，但不构成兼容性承诺。"
+
+msgid "Optional dependencies"
+msgstr "可选依赖"
+
+msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "基础软件包包含无界面流程。安装 ``spacr[qt]`` 可获得桌面界面。其他附加组件可添加 OME-Zarr、OMERO、napari、归因、跟踪、Zernike 测量和厂商读取器。可用性因 Python 版本而异；:doc:`安装指南 <installer_guide>` 是权威的兼容性表。"
+

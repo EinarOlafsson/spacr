@@ -1,29 +1,34 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "pt-BR",
-  "title": "Hit List: examinar candidatos com uma janela auxiliar explícita",
-  "description": "Explore os filtros e as exportações reais de Hit List com resultados de Regression inalterados e uma alternativa explícita ao painel oculto.",
+  "title": "Hit List: filtrar candidatos e exportar uma lista curta",
+  "description": "Carregue resultados do Regression, filtre por valor q, número de guias e concordância e exporte os candidatos selecionados.",
   "objectives": [
-    "Distinguir o atalho nativo defeituoso do programa auxiliar externo.",
-    "Interpretar candidatos ordenados sem afirmar descobertas significativas.",
-    "Filtrar, restaurar e exportar as linhas reais."
+    "Abrir os resultados de exemplo do Regression com o script complementar fornecido.",
+    "Filtrar candidatos e ler os efeitos e a concordância entre guias.",
+    "Exportar as linhas selecionadas como CSV, Markdown ou HTML."
   ],
-  "prerequisite": "Extraia Hit_List_real_results_companion.zip. Ative o ambiente spaCR, execute python hit_list_companion.py e selecione results com Browse. O programa usa HitListScreen sem alterações: não corrige a navegação nem conecta Investigate. O arquivo contém resultados originais, não um projeto completo: 325 genes, 434 linhas de guias e nenhum gene com q <= .05. Efeitos marginais padronizados não são coeficientes multivariáveis ajustados simultaneamente. Intervalos ausentes estão indisponíveis. n_obs=0 não informa o suporte real: wells_with_gene em results_gene.csv varia de 2 a 48. Junções de metadados, ordenação penalizada e Investigate ficam fora. Não é necessário treinamento, nova regressão, GPU ou chamada a provedores de IA. API: spacr.hits.build_hit_list e HitList.filter/write_csv/to_markdown/to_html.",
+  "prerequisite": "Extraia Hit_List_real_results_companion.zip e ative o seu ambiente do spaCR. O atalho Hits atual do Regression não mostra o painel; execute python hit_list_companion.py e use Browse para ir até a pasta de resultados extraída. O script complementar não se conecta ao Investigate. Use wells_with_gene de results_gene.csv para a contagem de poços de suporte: o n_obs=0 exportado não é o suporte real. O exemplo não contém genes que atendam q <= 0.05.",
   "scenes": [
-    "Hit List pertence a Regression. Nesta versão, clicar em Hits seleciona uma página dentro de um painel oculto, e a lista não aparece. O tutorial mostra essa limitação. A janela seguinte é um programa auxiliar externo, não uma prova de que o atalho nativo foi corrigido.",
-    "Extraia o exemplo vinculado, ative seu ambiente spaCR e execute o script auxiliar Hit List incluído. A janela identificada abre o componente existente do spaCR sem alterar seus cálculos. Clique em Browse e selecione results. A regressão não é refeita e a integração com Investigate não está conectada.",
-    "O exemplo original carrega trezentos e vinte e cinco genes. Dê dois cliques nas divisórias das colunas se os valores estiverem cortados. Leia separadamente direção do efeito, P bruto, q corrigido e concordância das guias. Intervalos ausentes estão indisponíveis. São efeitos marginais padronizados; a contagem exportada de observações igual a zero não é o número real de poços.",
-    "Defina Max q como zero vírgula zero cinco. Nenhum gene permanece, pois o menor q gênico é aproximadamente zero vírgula dois sete um. Uma tabela filtrada vazia não significa falha de importação. Volte Max q para um para recuperar os candidatos, sem declará-los descobertas.",
-    "Minimum guides igual a dois mantém cento e dezessete genes com pelo menos duas linhas de guias testadas. Isso conta evidências disponíveis, não todas as guias projetadas originalmente. O filtro altera o subconjunto exibido sem recalcular a correção original de testes múltiplos.",
-    "Minimum agreement igual a um mantém cinquenta e sete genes cujas guias testadas compartilham o sinal do efeito gênico. Concordância não comprova significância nem causalidade. O resumo continua indicando zero genes significativos corroborados, embora essas linhas candidatas tenham guias concordantes.",
-    "Hide controls remove uma linha de controle, deixando cinquenta e seis candidatos. Restaure-a antes da exportação. Ocultar controles não reajusta o modelo nem altera a família de correção; preserve suas identidades ao interpretar a análise.",
-    "Com os outros filtros limpos, Direction up mostra efeitos positivos. Adicionar efeito absoluto mínimo de zero vírgula um deixa dezesseis linhas. São escolhas ilustrativas de exibição, não limiares recomendados. Restaure direção e efeito antes de buscar ou comparar outro subconjunto.",
-    "Busque um identificador registrado para examinar uma linha real. Uma busca sem correspondência esvazia a tabela; retornar ao identificador conhecido a restaura, e limpar a busca recupera a população. A filtragem é reversível. Anotações e o fluxo Investigate exigem verificações próprias.",
-    "Para exportar, restaure duas guias, concordância completa, controles incluídos e busca vazia. As três exportações contêm os mesmos cinquenta e sete candidatos neste exemplo. Markdown e HTML arredondam os números; CSV preserva o detalhe numérico. Salve os filtros separadamente: os arquivos não registram todas as opções.",
-    "Limpe os filtros para recuperar os trezentos e vinte e cinco genes. Separe os subconjuntos exportados dos originais inalterados e não apresente candidatos não significativos como achados validados. Python oferece o mesmo leitor e os mesmos filtros; confira os limites de linhas de cada formato para listas maiores."
+    "Na tela Home, abra Regression e escolha Hits. Se o painel continuar oculto, use o script complementar fornecido com esta aula para abrir o Hit List.",
+    "Extraia o exemplo indicado e ative o seu ambiente do spaCR. Execute python hit_list_companion.py. Na janela do script complementar, clique em Browse e selecione a pasta de resultados extraída.",
+    "O exemplo carrega trezentos e vinte e cinco genes. Alargue as colunas para ler o efeito, P, q e a concordância entre guias. Os efeitos são efeitos marginais padronizados. Para a contagem de poços de suporte, leia wells_with_gene em results_gene.csv; a contagem de observações zero exportada indica que o suporte não está disponível.",
+    "Defina Max q como zero vírgula zero cinco. Nenhum gene deste exemplo passa, então a tabela fica vazia. Volte Max q para um para percorrer todos os candidatos.",
+    "Defina Minimum guides como dois. Restam cento e dezessete genes com pelo menos duas linhas de guias testadas. Este filtro mantém os valores q originais.",
+    "Defina Minimum agreement como um. Restam cinquenta e sete candidatos cujas guias testadas compartilham o sinal do efeito do gene. Leia a concordância junto com q: esses candidatos continuam sem passar o limiar de significância.",
+    "Ative Hide controls para tirar a linha de controle desta visualização, deixando cinquenta e seis candidatos. Desative de novo para incluir essa linha na exportação posterior.",
+    "Limpe os outros filtros, escolha Direction up e defina Minimum absolute effect como zero vírgula um. Restam dezesseis linhas. Escolha os limiares adequados à sua análise e depois restaure esses controles antes do próximo passo.",
+    "Digite um identificador em Search para encontrar a linha dele. Uma busca sem correspondência deixa a tabela vazia. Limpe Search para restaurar o conjunto filtrado atual.",
+    "Para exportar, defina duas guias, concordância total, controles incluídos e busca vazia. Exporte as cinquenta e sete linhas selecionadas como CSV, Markdown ou HTML. O CSV preserva o detalhe numérico. Salve as escolhas de filtro junto com os arquivos.",
+    "Limpe os filtros para voltar aos trezentos e vinte e cinco genes. Mantenha as exportações de listas curtas separadas dos resultados originais. Em Python, use build_hit_list, depois filter e as funções de gravação em CSV, Markdown ou HTML; confira o limite de linhas de cada formato."
   ]
 }

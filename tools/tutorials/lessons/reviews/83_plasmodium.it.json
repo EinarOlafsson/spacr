@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Plasmodium: esplorare la guida dell’organismo",
+  "description": "Sfoglia la guida di Plasmodium, esplora il diagramma cellulare e trova i flussi di lavoro generali di analisi delle immagini disponibili.",
+  "objectives": [
+    "Aprire la pagina da Home e trovarne i comandi principali.",
+    "Individuare input, azioni e output disponibili.",
+    "Scegliere la successiva analisi o risorsa disponibile."
+  ],
+  "prerequisite": "Apri Home in spaCR. La guida non richiede file di input. I riquadri dei saggi specifici per Plasmodium mostrano per ora Coming soon.",
+  "scenes": [
+    "Plasmodium ha una guida tutta sua. Da Home, scegli Plasmodium per esplorare l’organismo, i suoi compartimenti cellulari e i saggi previsti.",
+    "Il pannello informativo racconta la storia del parassita per sezioni, dallo stadio ematico e da quello epatico fino alla motilità. Trascina il divisore per avere più spazio accanto ai riquadri dei moduli.",
+    "Nel diagramma dell’apicomplesso, passa il puntatore su un compartimento per leggere cos’è. Selezionane diversi per evidenziarli insieme; Clear components ripristina la vista.",
+    "I riquadri dei saggi sono ancora contrassegnati come Coming soon e non si possono ancora aprire, ma le descrizioni mostrano cosa misurerà ciascuno. Per analizzare oggi immagini di Plasmodium, torna a Home e apri Mask o Measure con le tue immagini e impostazioni dei canali adatte.",
+    "Per approfondire, i collegamenti a PlasmoDB e UniProt aprono risorse sull’organismo nel browser. Qui non servono dati né Run, e la guida non scrive file."
+  ]
+}

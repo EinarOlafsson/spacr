@@ -1,29 +1,32 @@
 {
   "lesson": "02_conda_install",
-  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "english_sha256": "bd6c60f01901809050a21eef5511d84dba6220200285260e3aec4a1faab042ed",
   "review": {
-    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "da",
-  "title": "Installation med Conda",
-  "description": "Installer den officielle conda-forge-pakke i et separat miljø, kontroller kanalens faktiske version, og genkend forskelle fra de aktuelle modulvejledninger.",
+  "title": "Installer spaCR med Conda",
+  "description": "Opret et Conda-miljø, installer spaCR fra conda-forge, og start programmet.",
   "objectives": [
-    "Opret og aktiver et separat Conda-miljø.",
-    "Kontroller kanalpakken, Qt og diagnoseresultaterne.",
-    "Vælg nyere pip eller skrivebordsinstallationsprogrammet, når kanalen stadig har den gamle brugerflade."
+    "Oprette og aktivere et dedikeret Conda-miljø.",
+    "Installere spaCR fra conda-forge.",
+    "Åbne spaCR og opdatere det samme miljø efter behov."
   ],
-  "prerequisite": "En Conda-kompatibel pakkehåndtering skal være installeret. Optagelsen kontrollerer spaCR 1.5.0.4 fra conda-forge på Linux med Python 3.12.14 og Qt 6.11.2 den 10. september 2026. Den rene installation bruger et nyt privat præfiks, kun conda-forge og en fastlagt kanalversion; kommandokortene viser den tilsvarende fremgangsmåde med et navngivet miljø, ikke genafspillet installationsoutput. Den faktiske brugerflade har stadig Home (63), ikke den nye indlejrede struktur i PyPI/installationsprogram 1.5.0.5. Standardkørslen af spacr-doctor bestod sin lille CUDA-hukommelsesallokeringstest, men advarede om valgfri CZI-understøttelse; dette er hverken en hastighedsmåling eller kontrol af alle analyser og formater. Den ægte optagelse bruger en privat mørk profil, skriftskala 1.5, allerede lukket introduktion og uændrede standarder for forudindlæsning, uden det ikke-understøttede flag --no-setup. Andre platforme er ikke testet. Den oprindelige og udgivne fortælling er forskellige, så uændret genbrug af lyd hævdes ikke.",
+  "prerequisite": "Installer Conda eller Miniforge, og åbn derefter en terminal, hvor kommandoen conda er tilgængelig.",
   "scenes": [
-    "Brug et separat Conda-miljø til spaCR, og kontroller, hvilken udgave kanalen faktisk tilbyder. Ved denne optagelse installerer conda-forge en punkt fem punkt nul punkt fire. PyPI og skrivebordsinstallationsprogrammet tilbyder allerede en punkt fem punkt nul punkt fem; versionerne er ikke indbyrdes udskiftelige.",
-    "Åbn en kommandoskal med Conda, og opret et nyt miljø med Python tre punkt tolv. Kommandokortet bruger navnet spacr-conda. Vælg et andet ubrugt navn, hvis det allerede findes, og hold miljøet adskilt fra igangværende analyser.",
-    "Aktiver miljøet, og udskriv sys punkt prefix for at kontrollere, hvor Python hører til. Den faktiske kontrol bruger et længere privat præfiks i stedet for det korte eksempelnavn. Terminalprompten alene beviser ikke, at den ønskede fortolker bruges.",
-    "Installer pakken med conda-forge angivet som kanal, og brug derefter conda list spacr til at se version og kanal. Den optagede installation brugte kun conda-forge og låste kanalversionen. Installationen var færdig inden kontrolbillederne; kortene er instruktioner, ikke opdigtet terminaloutput.",
-    "Kontroller spaCR-version, Qt-version og pakkens placering i det installerede miljø. Her er pakken en punkt fem punkt nul punkt fire, og Qt importeres korrekt. Det viser, hvilken pakke der er aktiv, ikke at alle videnskabelige arbejdsgange eller valgfrie formater er valideret.",
-    "Kør spacr-doctor, og læs også advarslerne. Den lille GPU-hukommelsesallokeringstest lykkes her, mens den valgfrie CZI-understøttelse mangler en afhængighed. Oversprungne kontroller er ikke beståede. Den foreslåede reparation vedrører den funktion; vurder miljøændringer før anvendelse, især ved blanding af pakkehåndteringer.",
-    "Den installerede Conda-pakke åbner og lukker normalt, men viser sin ældre Home med treogtres felter. Den har ikke den nye indlejrede modulstruktur. Antag ikke, at en vellykket installation betyder, at alle skærmbilleder passer til vejledninger for en nyere udgave.",
-    "Til den nyere indlejrede brugerflade i de opdaterede modulvejledninger skal du bruge den aktuelle pip- eller Platform installers-lektion i et separat miljø. Har du brug for Conda-kanalen, så registrer den faktiske udgave, og kontroller igen for opdateringer. Bevar den version, der bruges til en igangværende analyse."
+    "Åbn en terminal med Conda. Du opretter et miljø til spaCR, installerer conda-forge-pakken og starter programmet fra det miljø.",
+    "Opret et miljø med navnet spacr-conda med Python 3.12 og spaCR fra conda-forge ved hjælp af den viste kommando. Vælg et andet navn, hvis du allerede bruger det navn til et andet miljø.",
+    "Conda løser miljøet og viser pakkeplanen. Gennemgå den, skriv y for at acceptere, og vent derefter, til download og installation er færdige.",
+    "Aktivér spacr-conda. Kør den viste Python-kommando for at se miljøets sti, og kontrollér, at det er det miljø, du lige har oprettet.",
+    "Kør conda list spacr for at se den installerede version og bekræfte, at den kommer fra conda-forge. Når Python og spaCR installeres med én kommando, kan Conda løse alle pakker samlet, hvilket er meget hurtigere end at tilføje spaCR til et eksisterende miljø.",
+    "Kontrollér den installerede spaCR-version og pakkens placering. Gem versionen sammen med dine analysenoter, så du senere kan vende tilbage til det samme miljø.",
+    "Kør spacr-doctor for at kontrollere installationen. Her rapporterer det, at vispy, en central afhængighed, mangler, og viser kommandoen, der installerer den. Kør den kommando, og kør derefter spacr-doctor igen. Følg kun andre foreslåede trin for de filformater eller funktioner, du har brug for.",
+    "Skriv spacr for at starte programmet. Gennemfør valgene ved første opstart, og fortsæt derefter med Home-vejledningen for at finde moduler og deres eksempeldata.",
+    "For at opdatere senere lukker du spaCR, aktiverer dette miljø og opdaterer conda-forge-pakken. Når conda-forge ikke har en nyere build, melder Conda, at alle anmodede pakker allerede er installeret. Kontrollér derefter den installerede version; lektionerne om pip og installationsprogrammet dækker de andre installationsmåder."
   ]
 }

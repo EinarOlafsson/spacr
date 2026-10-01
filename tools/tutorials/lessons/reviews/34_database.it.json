@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Database Browser: filtrare ed esportare le misure",
+  "description": "Apri un database delle misure, seleziona colonne e righe ed esporta il risultato.",
+  "objectives": [
+    "Aprire e scorrere una tabella di misure.",
+    "Selezionare colonne e filtrare righe.",
+    "Esportare i record corrispondenti."
+  ],
+  "prerequisite": "Tieni pronto un file measurements.db di spaCR o una cartella di esecuzione che lo contiene. Il progetto di esempio di Measure fornisce un database dopo la misurazione.",
+  "scenes": [
+    "Apri Help e poi Database Browser per esaminare ed esportare le tabelle delle misure.",
+    "Scegli measurements.db, o la cartella di esecuzione che lo contiene, e apri il database.",
+    "Seleziona la tabella che ti serve. Scegli cell per le misure delle cellule, oppure un’altra tabella di oggetti per le caratteristiche di quell’oggetto.",
+    "Leggi il numero totale di righe e colonne, poi esamina la pagina mostrata. Usa i controlli di pagina per scorrere le tabelle più grandi.",
+    "Cerca nei nomi delle colonne per trovare una caratteristica. Seleziona le colonne che vuoi vedere ed esportare.",
+    "Crea un filtro scegliendo una colonna, un operatore e un valore. Applicalo per selezionare i record corrispondenti in tutta la tabella.",
+    "Controlla il numero di righe filtrate ed esamina i record corrispondenti. Modifica o cancella il filtro per cambiare la selezione.",
+    "Scegli Export e un file di destinazione. L’esportazione include tutte le righe corrispondenti e le colonne selezionate, senza modificare il database di origine."
+  ]
+}

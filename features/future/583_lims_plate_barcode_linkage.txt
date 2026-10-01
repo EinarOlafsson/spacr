@@ -1,0 +1,50 @@
+LIMS / PLATE-BARCODE LINKAGE
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    Link plates to sample metadata (strain, compound, concentration,
+    passage, operator) by plate barcode from a CSV or a LIMS API, filling
+    spaCR's plate maps automatically and checking for mismatches.
+
+DONE WHEN
+    A plate imported with a barcode gets its plate map filled from the CSV;
+    a mismatch is reported.
+
+ALPHA: 2026-09-27
+    Measure > "Plate Barcode Linkage (Alpha)", ALPHA_FEATURES[583]: four
+    settings, hidden unless Preferences -> Show alpha features is on.
+    plate_barcode_source names a records table (CSV/TSV/Excel/Parquet with a
+    barcode column, a well column and any metadata columns such as strain,
+    compound, concentration, passage, operator) or an http(s) LIMS address
+    answering JSON well records per barcode (?barcode=, or {barcode} in the
+    address; bearer token from the environment variable named in
+    plate_barcode_token_env, never stored). Each imaged plate's barcode comes
+    from plate_barcodes, else barcode.txt in the plate folder, else the
+    plate name. After measuring, the filled map goes to
+    measurements/plate_map_lims.csv and fills a blank profiling_metadata and
+    (when compound and concentration exist) a blank viability_plate_map.
+    Mismatches go to measurements/plate_barcode_mismatches.csv and the log:
+    barcode_not_found, barcode_shared, well_not_in_lims, well_not_imaged,
+    unreadable_well, conflicting_records, and plate_map_differs (a user's
+    own plate map disagreeing with the records). An unreachable LIMS is
+    reported and the run goes on.
+    Code: spacr/plate_qc.py (_link_plate_barcodes and helpers),
+    spacr/measure.py (_run_plate_barcode_step). Tests:
+    tests/test_plate_barcode_linkage.py (local CSV, fake fetcher, a LIMS
+    stand-in on 127.0.0.1), tests/qt/test_plate_barcode_alpha_gate.py.
+    CPU only; no real LIMS contacted.
+
+LEFT
+    No vendor-specific LIMS adapters (Benchling, LabKey, etc.) or paging;
+    the API path expects one JSON answer per barcode. Barcodes are not read
+    from image metadata or plate-reader files; the linkage runs from
+    Measure only, not at import (convert) time, and there is no Qt
+    plate-map view of the mismatches.

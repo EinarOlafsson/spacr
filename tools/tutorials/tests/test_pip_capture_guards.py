@@ -67,7 +67,7 @@ def test_conda_commands_do_not_pretend_to_be_the_pip_environment(recorder, tmp_p
     assert rows[1][1][-4:] == ['list', '--prefix', str(tmp_path / 'env'), 'spacr']
     assert rows[2][2] == 'spaCR: 1.5.0.4'
     assert rows[3][2] == str(tmp_path / 'env')
-    assert rows[4][1] == ['spacr-doctor']
+    assert rows[4][1] == ['spacr-doctor', '--no-gpu-probe']
     pip = recorder.commands()
     assert pip[1][1] == ['python', '-m', 'pip', '--version']
     assert pip[2][2] == 'spaCR: 1.5.0.5'

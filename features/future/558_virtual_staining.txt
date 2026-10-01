@@ -1,0 +1,125 @@
+VIRTUAL STAINING: PREDICT A FLUORESCENT CHANNEL FROM BRIGHTFIELD/PHASE
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27 (CPU-validated; GPU run 2026-09-28).
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/phase-contrast-halo-removal-and-segmentation/100029
+
+WHAT TO BUILD
+    Train and apply image-to-image models (e.g. U-Net / pix2pix-style, or
+    published virtual-staining models) that predict a nuclear or parasite
+    channel from brightfield/phase, so label-free timelapses can be
+    segmented and counted and a fluorescence channel is freed. Training data
+    = paired label-free + stained images from the user's own plates.
+
+DONE WHEN
+    On held-out paired fields, predicted channels segment to within a stated
+    F1 of the real stain's segmentation (item 532 method).
+
+ALPHA: 2026-09-27. Registered in spacr.settings.ALPHA_FEATURES[558]:
+  widgets: CellposeWorkbenchVirtualStain (the Cellpose Workbench's
+  "Virtual staining..." button, under the Train/Apply tabs). Hidden unless
+  Preferences -> Show alpha features is on. tests/qt/
+  test_virtual_stain_alpha_gate.py pins the gate and that a folder given
+  while hidden still reaches the run.
+
+WHAT WAS BUILT (2026-09-27, all private helpers in spacr/deep_spacr.py)
+  _VirtualStainUNet   small 2-D U-Net (base filters, depth levels, BN+ReLU,
+                      transposed-conv up, linear 1x1 head).
+  _train_virtual_stain(fields, sources, target, scale, crop, per_field,
+                      epochs, ...)  block-average by `scale`, percentile-
+                      normalise every plane (1-99.8), fresh random crops with
+                      flips/quarter turns each epoch, L1 loss, AdamW.
+  _predict_virtual_stain  whole field in one pass, reflect-padded, resized
+                      back to full resolution.
+  _vs_segment         Otsu + distance watershed; the SAME segmenter is run
+                      on the real and the predicted stain (pluggable:
+                      _virtual_stain_scorecard(segment=...) takes any
+                      plane -> labels callable, e.g. Cellpose).
+  _virtual_stain_scorecard  per held-out field: Pearson r, SSIM, PSNR,
+                      NRMSE, and object F1/precision/recall at IoU 0.5 and
+                      0.75 via spacr.scorecard.match_objects (item 532's
+                      optimal one-to-one matcher), real stain = reference.
+                      A baseline row segments the input plane itself.
+  _save_virtual_stain / _load_virtual_stain  torch state dict + settings.
+  _virtual_stain_from_folder  folder of .npy/.tif fields, last quarter held
+                      out, writes <folder>/virtual_stain/virtual_stain_c<t>.pt,
+                      <field>_virtual_c<t>.npy and virtual_stain_scores.csv.
+  The button asks for a folder and "inputs > target" (default "1 > 0") and
+  runs _virtual_stain_from_folder with 20 epochs off the GUI thread.
+  Tests: tests/test_virtual_staining.py (synthetic inverted-blob pairs: the
+  model learns, beats the input, save/load round trip, folder run output).
+
+CPU RUN (2026-09-27; GPU held by another session, none queued)
+  Data: toxo_mito example plate1/merged (16 fields, 1994x1994, 40x).
+  Task: predict channel 0 (nucleus stain) from channel 1 (cell stain).
+  Split by WELL: train E01, E02, L01 (12 fields); test L02 (4 fields).
+  Model: base 16, depth 3, scale 4 (fields 498 px, nuclei ~21 px), crop
+  128, 32 crops/field/epoch, batch 16, lr 1e-3, 20 epochs, 8 CPU threads.
+  1,294 s wall (~40-60 s/epoch on a loaded machine); final L1 0.025.
+  Held-out mean over 4 fields (same Otsu/watershed on both, IoU matching):
+                          Pearson  SSIM   F1@0.5  F1@0.75
+    predicted stain        0.879   0.833  0.701   0.370
+    input channel alone    0.634   0.756  0.262   0.015
+  Per field F1@0.5 predicted / input: L02_10 0.684/0.261, L02_11
+  0.612/0.222, L02_1 0.735/0.391, L02_9 0.774/0.175.
+  Against spaCR's Cellpose-SAM nucleus masks (plane 5; a reference, not
+  curated truth), F1@0.5 with the same simple segmenter: real stain
+  0.601/0.643/0.808/0.786 (mean 0.710), predicted 0.642/0.717/0.691/0.796
+  (mean 0.712), input 0.391/0.379/0.423/0.331. So with this segmenter the
+  predicted stain is as good as the real stain for COUNTING against that
+  reference, but outlines are looser (F1@0.75 0.37 vs real).
+  Honest caveats: 4 test fields from one well of one plate; the input is a
+  fluorescence cell stain, not brightfield/phase (plate1 has no label-free
+  channel); the segmenter is a threshold watershed, weaker than Cellpose.
+  Script: /mnt/wd4tb/scratch/558/run.py (outside the repo).
+
+FULL GPU TRAINING (written 2026-09-28; run the same evening, see GPU RUN)
+  Script: /mnt/wd4tb/scratch/558/gpu_train.sh. Queue it
+  through tools/gpu_turn.sh; it asserts CUDA, caps RAM at 24 GB and writes
+  to /mnt/wd4tb/scratch/558/gpu_s<src>_e<epochs>_x<scale>/.
+  Settings: device cuda, scale 2 (half resolution, nuclei ~42 px) instead
+  of 4, crop 256, 128 crops/field/epoch, batch 32, base 32, depth 4, 200
+  epochs. Expected: under 4 GB of GPU memory, roughly 1-2 h on one card;
+  the CPU run (scale 4, base 16, 20 epochs) took 22 min.
+  Data a real claim needs: a label-free channel (brightfield or phase),
+  which plate1 lacks; at least 3 plates or 3 wells per condition, split by
+  plate for testing; 50+ fields. Score with Cellpose (pass
+  segment=<Cellpose callable> to _virtual_stain_scorecard) as well as the
+  threshold watershed, and report F1@0.5 against curated nucleus masks.
+
+GPU RUN (2026-09-28 20:33-21:06, via tools/gpu_turn.sh 558-virtual-stain)
+  Same data and well split as the CPU run (train E01/E02/L01 12 fields,
+  test L02 4 fields), settings from gpu_train.sh: scale 2, crop 256, 128
+  crops/field/epoch, batch 32, base 32, depth 4, lr 1e-3, 200 epochs.
+  1,964 s wall (~9.7 s/epoch), torch peak 8.8 GB GPU (the 4 GB estimate
+  was low), final L1 0.0089. Log /mnt/wd4tb/scratch/558/gpu.log, outputs
+  /mnt/wd4tb/scratch/558/gpu_s1_e200_x2/.
+  Held-out mean over 4 fields (same Otsu/watershed segmenter):
+                          Pearson  SSIM   F1@0.5  F1@0.75
+    GPU predicted          0.934   0.927  0.814   0.669
+    CPU predicted          0.879   0.833  0.701   0.370
+    input channel alone    0.634   0.756  0.262   0.015
+  Per field F1@0.5 GPU predicted: L02_10 0.807, L02_11 0.708, L02_1 0.933,
+  L02_9 0.807 (CPU 0.684/0.612/0.735/0.774).
+  Against the Cellpose-SAM nucleus reference (plane 5), F1@0.5: real stain
+  mean 0.710 (0.601/0.643/0.808/0.786), GPU predicted mean 0.770
+  (0.657/0.769/0.824/0.828), input 0.381. The GPU prediction now matches
+  the reference slightly better than the real stain does with this
+  segmenter (it is smoother, so the watershed splits it more cleanly).
+  Conclusion: the GPU run lifts F1@0.5 from 0.70 to 0.81 and nearly
+  doubles F1@0.75 over the CPU run (0.37 -> 0.67), so
+  outlines are no longer the weak point. The caveats of the CPU run still
+  hold (one plate, one test well, fluorescence input, simple segmenter).
+
+WHAT IS LEFT
+  A label-free paired data set; a Cellpose
+  segmenter in the scorecard by default; applying a saved model from the
+  Timelapse or Make Masks screens (only the Cellpose workbench button runs
+  it now); a pix2pix / published-model option.

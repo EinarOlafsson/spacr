@@ -55,6 +55,9 @@ def source_path(screen) -> str:
     first, which is the one whose measurements the other two views can
     actually plot: a scatter over two plates' tables is two populations on
     one pair of axes.
+
+    :param screen: the Image UMAP screen whose settings form is read for
+        ``src``; None gives ``""``.
     """
     if screen is None:
         return ""
@@ -82,6 +85,9 @@ def measurements_database(source: str) -> str:
     the two things the UMAP screen's source box actually holds. A path
     that resolves to nothing returns "", and the folded screen then opens
     on its own Browse button rather than on a path that is not there.
+
+    :param source: a database file (``.db``, ``.sqlite`` or ``.sqlite3``) or a
+        project folder searched for one; ``~`` is expanded.
     """
     source = str(source or "").strip()
     if not source:
@@ -140,7 +146,11 @@ BUILDERS: Dict[str, Callable[..., QWidget]] = {
 
 
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
-    """Put Image UMAP's fold strip on ``screen``'s masthead."""
+    """Put Image UMAP's fold strip on ``screen``'s masthead.
+
+    :param screen: the Image UMAP screen; the strip goes on its masthead and
+        each folded page is built with it as ``screen``.
+    """
     builders = {key: partial(build, screen=screen)
                 for key, build in BUILDERS.items()}
     return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, builders)

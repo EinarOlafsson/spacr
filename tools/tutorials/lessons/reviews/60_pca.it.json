@@ -1,37 +1,39 @@
 {
   "lesson": "60_pca",
-  "english_sha256": "f295718c295b040c75a11a245ef79b086bb19375b109fcd741ddbbc33b19d402",
+  "english_sha256": "0f5f4b13e20bb8f692c069237b8269efd05bed0517cbdf08d8345c6dd8588688",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently checked real PCA populations, covariance eigenvalue comparison, live native controls and all CSV cells; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "it",
-  "title": "PCA: misure reali, ricalcolo interattivo e valori mancanti",
-  "description": "Esplora PCA dentro Image UMAP con cellule realmente scaricate, punteggi verificati, filtri reversibili, politiche esplicite per i valori mancanti e tre esportazioni CSV.",
+  "title": "PCA: esplorare le misure ed esportare le componenti",
+  "description": "Carica oggetti misurati, scegli le caratteristiche, confronta le componenti principali ed esporta punteggi, pesi e varianza spiegata.",
   "objectives": [
-    "Trovare PCA in Image UMAP e scegliere esplicitamente le variabili misurate.",
-    "Leggere varianza e frecce di correlazione senza affermare separazioni biologiche.",
-    "Confrontare standardizzazione, ricalcolo dopo i filtri e quattro politiche per i valori mancanti.",
-    "Esportare punteggi, coefficienti delle variabili e varianza preservando i dati originali."
+    "Caricare un database delle misure o un CSV e selezionare le caratteristiche.",
+    "Scegliere la scalatura, la gestione dei valori mancanti e i filtri.",
+    "Esaminare punteggi e pesi delle componenti, poi esportare tre tabelle di risultati."
   ],
-  "prerequisite": "Usa una copia privata identica dell'esempio scaricabile di Annotate: 2.341 cellule, 276 colonne originali e quattro pozzetti. Si analizzano cell_area, cell_channel_1_mean_intensity e cell_perimeter, poi cell_channel_0_homogeneity_distance_32, che ha sette valori realmente mancanti. Causa delle assenze e trattamenti non sono accertati. Una decomposizione indipendente agli autovalori della covarianza verifica la SVD dell'applicazione, posizioni delle righe, punteggi, coefficienti, correlazioni e varianze; sono controllate anche coordinate disegnate e ogni cella originale esportata. La verifica riguarda questi casi non degeneri a rango pieno, con tre o quattro variabili, non tutte le variabili automatiche, la geometria delle frecce, ingressi a rango ridotto, selezioni collegate alle immagini o conclusioni biologiche. PCA NumPy su CPU è distinto da UMAP e dalle sue opzioni GPU. Non dispone di download dedicato, anteprima immagini, console IA o interruttore generale Plot. I CSV non sono un modello adattato, impostazioni salvate o una figura esportata. API: spacr.qt.widgets.pca_model.pca e PCASpec; PCAResult.scores_frame, loadings_frame e variance_frame.",
+  "prerequisite": "Scarica l’esempio del tutorial di Annotate e lavora su una copia di measurements.db. Questa guida usa la sua tabella cell, con 2341 oggetti misurati in quattro pozzetti. Conserva il database originale e annota l’elenco delle caratteristiche, i filtri, la scalatura e la regola per i valori mancanti.",
   "scenes": [
-    "Apri Image UMAP da Home, poi il pulsante annidato PCA. PCA è una sintesi lineare delle misure, non un'altra proiezione UMAP. Riutilizziamo l'esempio scaricabile di Annotate su una copia privata. Il tutorial Annotate mostra come ottenere questi dati reali.",
-    "Usa Load table accanto al titolo PCA, scegli la copia del database delle misure, poi cell. Ci sono duemilatrecentoquarantuno oggetti in quattro pozzetti. Questa schermata può leggere anche un CSV di misure. Un percorso caricato in precedenza nel modulo principale non dimostra che sia aperta la tabella giusta.",
-    "Cancella la ricerca prima di scegliere None: il pulsante deseleziona solo le variabili attualmente visibili. Cerca e seleziona cell_area, cell_channel_1_mean_intensity e cell_perimeter. Cancella nuovamente la ricerca, imposta Components a tre e scegli Run PCA. La ricerca restringe l'elenco delle variabili, non la popolazione cellulare.",
-    "Mantieni Standardise e leggi lo scree plot. La prima componente spiega circa il sessantacinque virgola sette per cento della varianza standardizzata di queste tre variabili; la seconda, il trentuno virgola sette per cento. I punti sono singole cellule misurate, non repliche sperimentali indipendenti. La varianza spiegata non è accuratezza di classificazione.",
-    "Scegli rowID in Colour, poi PC tre su X e PC uno su Y. Questi controlli ridisegnano la decomposizione esistente senza ricalcolarla. I colori identificano righe spaziali, non trattamenti accertati. Una nuvola apparentemente separata invita a indagare misure e fattori confondenti, non dimostra un effetto biologico.",
-    "Torna a PC uno e PC due. Disattiva e riattiva Loadings biplot. Le frecce mostrano le correlazioni delle variabili con queste due componenti; la lunghezza assoluta è adattata alla visualizzazione, con il cerchio tratteggiato come riferimento. Direzioni vicine non dimostrano causalità.",
-    "Passa Scale a Centre only. La prima componente spiega ora circa il novanta virgola uno per cento, perché le scale originali delle misure cambiano l'analisi. La percentuale maggiore non rende migliore il modello. Ripristina Standardise: centra ogni variabile e divide per la sua deviazione standard campionaria.",
-    "Nel filtro a destra aggiungi cell_area e imposta il minimo a ventunomilanovecentoventicinque. L'analisi usa ora millecentosettantuno cellule. È un vero ricalcolo interattivo: cambiano media, scala e direzioni delle componenti. Non si limita a nascondere punti sui vecchi assi.",
-    "Scegli Clear all nel filtro. Tornano tutte le duemilatrecentoquarantuno cellule e la decomposizione originale. Filtrare non elimina mai righe dal database. Controlla popolazione e rapporto dopo ogni modifica: i punteggi di popolazioni analizzate separatamente non condividono automaticamente lo stesso sistema di coordinate.",
-    "Cerca ora cell_channel_0_homogeneity_distance_32 e selezionalo. Il risultato continua a contenere tre variabili finché non scegli Run PCA. Questa variabile di tessitura ha sette valori realmente mancanti. Non sappiamo perché manchino: non dobbiamo chiamare queste cellule non infette né sostituire le misure mancanti con zero.",
-    "Esegui con Auto. Restano tutte e quattro le variabili, ma vengono rimosse sette cellule, lasciandone duemilatrecentotrentaquattro. Auto elimina le variabili mancanti in oltre il due per cento delle righe, poi le righe ancora incomplete. Le tre componenti richieste catturano circa il novantotto virgola sei per cento; esiste ancora una quarta direzione.",
-    "Scegli Drop features in NaN. Restano tutte le duemilatrecentoquarantuno cellule, ma la variabile di tessitura viene esclusa. Quattro caselle possono restare selezionate mentre si analizzano solo tre variabili. Leggi risultato e avviso di esclusione, non soltanto la selezione richiesta.",
-    "Scegli Mean-impute. Restano tutte le cellule e le quattro variabili; sette valori vengono sostituiti dalla media della variabile per il calcolo. Sono valori inventati, non misure recuperate. Il rapporto indica quante sostituzioni sono avvenute. Dichiara l'imputazione quando presenti il risultato: il database originale non è stato riscritto.",
-    "Scegli Complete cases. Conserva le quattro variabili selezionate ed elimina le stesse sette cellule incomplete in questo esempio. L'accordo con Auto è specifico di questi dati. Torna ad Auto, deseleziona la variabile di tessitura, cancella la ricerca, scegli Run PCA e riporta Colour a none.",
-    "Scegli Export e un nome base come pca_example. La schermata scrive tre CSV: punteggi per ogni oggetto analizzato, coefficienti e correlazioni per ogni variabile, e varianza per ogni componente. Il file dei punteggi conserva anche le colonne delle misure originali: non contiene solo tre colonne di coordinate.",
-    "Queste esportazioni conservano duemilatrecentoquarantuno righe di oggetti e lasciano entrambi i database intatti. Registra separatamente variabili, filtri, scala e politica dei valori mancanti: il pulsante non salva impostazioni o un modello adattato. Per il codice usa pca e PCASpec nel modulo Qt pca_model di spaCR. Questa vista tabellare su CPU è distinta dalle anteprime immagini, dall'analisi GPU e da spaCR AI."
+    "Da Home, apri Image UMAP e poi scegli PCA. Usa la PCA per riassumere più colonne di misure come componenti principali. Parti dal database delle misure dell’esempio di Annotate collegato.",
+    "Fai clic su Load table accanto al titolo PCA. Apri measurements.db e seleziona cell. Controlla la tabella visualizzata e il numero di oggetti. Puoi anche caricare un CSV con colonne di misure.",
+    "Cancella la ricerca delle caratteristiche e fai clic su None per deselezionare tutte le caratteristiche visibili. Seleziona cell_area, cell_channel_1_mean_intensity e cell_perimeter. Cancella di nuovo la ricerca, imposta Components su tre, poi fai clic su Run PCA.",
+    "Lascia Scale su Standardise per centrare ogni caratteristica e dividerla per la sua deviazione standard campionaria. Leggi il grafico degli autovalori: le prime due componenti spiegano circa il sessantacinque virgola sette e il trentuno virgola sette per cento della varianza delle caratteristiche selezionate.",
+    "Scegli rowID in Colour, PC tre su X e PC uno su Y. Questi comandi ridisegnano il risultato adattato. Ogni punto rappresenta una cellula; in questo esempio rowID identifica una riga spaziale.",
+    "Torna a PC uno e PC due. Attiva o disattiva Loadings biplot per mostrare o nascondere le frecce delle caratteristiche. Le frecce mostrano le correlazioni con le componenti visualizzate; usa le loro direzioni e il cerchio di riferimento tratteggiato per confrontare le caratteristiche.",
+    "Scegli Centre only per adattare il modello sulle scale di misura originali. Ora la prima componente spiega circa il novanta virgola uno per cento. La scalatura cambia la domanda che viene riassunta. Torna a Standardise per confrontare le caratteristiche su una scala comune.",
+    "Nel filtro a destra, aggiungi cell_area e imposta il minimo a ventunomilanovecentoventicinque. Il pannello ricalcola la PCA sulle millecentosettantuno cellule rimanenti, quindi cambiano sia la popolazione sia le direzioni delle componenti.",
+    "Fai clic su Clear all nel filtro per ripristinare l’intera popolazione. Controlla il numero di oggetti dopo il filtraggio. Il database di origine non cambia; il risultato visualizzato viene ricalcolato per la popolazione scelta.",
+    "Seleziona cell_channel_0_homogeneity_distance_32 come quarta caratteristica. Fai clic su Run PCA per includerla nel risultato. Questo esempio ha sette misure mancanti in quella colonna; usa NaN per scegliere come le gestisce l’adattamento.",
+    "Con Auto, le caratteristiche mancanti in più del due per cento delle righe vengono rimosse, poi vengono scartate le righe incomplete. Qui restano tutte e quattro le caratteristiche e vengono escluse sette cellule. Leggi il report per vedere le caratteristiche e gli oggetti effettivamente analizzati.",
+    "Scegli Drop features per rimuovere ogni caratteristica selezionata che contiene valori mancanti. In questo esempio viene rimossa la caratteristica di tessitura e restano tutte le cellule. L’avviso del risultato indica quali caratteristiche sono state escluse, anche se le loro caselle restano selezionate.",
+    "Scegli Mean-impute per mantenere tutte le cellule e le caratteristiche, sostituendo durante il calcolo i valori mancanti con la media osservata della caratteristica. Qui vengono sostituiti sette valori. Annota questa scelta quando presenti il risultato; i valori sostituiti sono stime.",
+    "Scegli Complete cases per mantenere le caratteristiche selezionate ed escludere le righe incomplete. Per tornare all’esempio originale, scegli Auto, deseleziona la caratteristica di tessitura, cancella la ricerca, fai clic su Run PCA e imposta Colour su none.",
+    "Fai clic su Export e scegli un nome base, per esempio pca_example. Il pannello scrive tre file CSV: i punteggi degli oggetti analizzati, i pesi e le correlazioni delle caratteristiche, e la varianza spiegata delle componenti. La tabella dei punteggi include anche le colonne di misure di origine.",
+    "Apri le tabelle esportate e conservale insieme all’elenco delle caratteristiche, ai filtri e alle impostazioni dell’analisi. Considera le cellule come osservazioni all’interno dei loro pozzetti quando interpreti una separazione. Per un’analisi ripetibile in Python, usa pca e PCASpec da spacr.qt.widgets.pca_model."
   ]
 }

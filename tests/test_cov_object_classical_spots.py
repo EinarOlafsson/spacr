@@ -516,7 +516,11 @@ def test_spots_log_empty_result_is_zeros_of_input_shape():
     assert out.max() == 0
 
 
-def test_spots_log_watershed_grows_regions_beyond_the_circles():
+def test_spots_log_watershed_outlines_each_spot_and_does_not_flood():
+    """2026-09-26: the watershed used to be bounded only by the image's 20th
+    intensity percentile, so every spot flooded out until it met its
+    neighbours. Each spot now stops at half its own height, which for a
+    bright disc is the disc itself."""
     from spacr.object import _spots_log
 
     img = _disks((64, 64), [(16, 16), (48, 48)], radius=4)
@@ -527,8 +531,34 @@ def test_spots_log_watershed_grows_regions_beyond_the_circles():
 
     assert _n_labels(circles) == 2
     assert _n_labels(grown) == 2
-    # Watershed floods the whole intensity mask, the circle painter does not.
-    assert int((grown > 0).sum()) > int((circles > 0).sum())
+    yy, xx = np.mgrid[:64, :64]
+    disc_area = int(sum((((yy - c) ** 2 + (xx - c) ** 2) <= 16).sum()
+                        for c in (16, 48)))
+    assert 0.6 * disc_area <= int((grown > 0).sum()) <= 1.4 * disc_area
+
+
+def test_lipid_droplets_on_a_noisy_cell_stay_droplet_sized():
+    """Many small spots over a dim, uneven cell: the watershed must give one
+    small object per spot, not a mosaic tiling the field (what the Mask slide
+    of the public deck showed before 2026-09-26)."""
+    from spacr.object import _spots_log
+
+    rng = np.random.default_rng(0)
+    yy, xx = np.mgrid[:128, :128]
+    img = 0.15 * np.exp(-(((yy - 64) ** 2 + (xx - 64) ** 2) / (2 * 40.0 ** 2)))
+    centres = [(20 + 18 * i, 20 + 18 * j) for i in range(5) for j in range(5)]
+    for cy, cx in centres:
+        img = img + 0.8 * np.exp(-(((yy - cy) ** 2 + (xx - cx) ** 2) / (2 * 1.5 ** 2)))
+    img = np.clip(img + rng.normal(0, 0.01, img.shape), 0, None)
+    settings = {**_classical_settings(), "organelle_log_threshold": 0.05}
+
+    labels = _spots_log(img, settings, use_watershed=True)
+
+    areas = np.bincount(labels.ravel())[1:]
+    areas = areas[areas > 0]
+    assert len(areas) == len(centres)
+    assert areas.max() < 60
+    assert (labels > 0).mean() < 0.1
 
 
 def test_spots_dog_respects_sigma_settings(monkeypatch):

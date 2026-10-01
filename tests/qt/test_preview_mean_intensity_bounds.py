@@ -32,6 +32,22 @@ def _kept(mask, labels):
     return expected
 
 
+def _propagated(panel, key):
+    """What the panel propagates for ``key``.
+
+    Item 511 (2026-09-25) retired the area and mean bounds of cell, nucleus
+    and pathogen into ``object_filters`` rows; for those the value is read
+    back from the row, and a missing side is the old 0.
+    """
+    out = panel.settings_for_propagation()
+    if not LP._retired_bound(key):
+        return out[key]
+    assert key not in out
+    role, suffix = key.split("_", 1)
+    value = LP._bound_from_filters(out, role, suffix)
+    return 0 if value is None else value
+
+
 def _choose(panel, caption):
     index = panel._object_box.findData(caption)
     assert index >= 0, f"missing object choice: {caption}"
@@ -93,9 +109,8 @@ def test_live_bounds_keep_equal_means_and_restore_raw_labels_without_a_model_run
     np.testing.assert_array_equal(ready[-1][role], expected)
     np.testing.assert_array_equal(panel._raw_masks[role], raw)
     np.testing.assert_array_equal(panel._image, image)
-    propagated = panel.settings_for_propagation()
-    assert propagated[f"{role}_min_intensity"] == 10.25
-    assert propagated[f"{role}_max_intensity"] == 16.75
+    assert _propagated(panel, f"{role}_min_intensity") == 10.25
+    assert _propagated(panel, f"{role}_max_intensity") == 16.75
     assert len(calls) == 1
 
     # Area and intensity compose: an area floor above four removes even
@@ -127,13 +142,13 @@ def test_filter_rows_and_seeded_float_bounds_propagate_for_each_compartment(pane
         settings[f"{role}_min_intensity"] = 0.125
         settings[f"{role}_max_intensity"] = 64000.875
     panel.apply_settings(settings)
-    propagated = panel.settings_for_propagation()
     for role in LP.COMPARTMENTS:
         group = panel._compartment_widgets[role]
         for suffix in ("min_intensity", "max_intensity"):
             assert isinstance(group[suffix], QDoubleSpinBox)
             assert group[suffix].decimals() == 6
-            assert propagated[f"{role}_{suffix}"] == settings[f"{role}_{suffix}"]
+            key = f"{role}_{suffix}"
+            assert _propagated(panel, key) == settings[key]
 
 
 @pytest.mark.parametrize("suffix", ["min_intensity", "max_intensity"])
@@ -143,9 +158,9 @@ def test_small_intensity_limits_are_visible_and_propagate_exactly(panel, suffix)
     widget = panel._compartment_widgets["cell"][suffix]
     assert widget.value() == 0.0004
     assert "0004" in widget.text()
-    assert panel.settings_for_propagation()[key] == 0.0004
+    assert _propagated(panel, key) == 0.0004
     widget.setValue(0.000125)
-    assert panel.settings_for_propagation()[key] == 0.000125
+    assert _propagated(panel, key) == 0.000125
 
 
 @pytest.mark.parametrize("suffix", ["min_intensity", "max_intensity"])
@@ -161,14 +176,14 @@ def test_edit_then_zero_does_not_restore_a_hidden_seeded_limit(panel, suffix):
     panel.apply_settings({key: seeded})
     widget = panel._compartment_widgets["cell"][suffix]
     assert widget.value() == 0
-    assert panel.settings_for_propagation()[key] == seeded
+    assert _propagated(panel, key) == seeded
     np.testing.assert_array_equal(panel._masks["cell"], np.zeros_like(raw))
 
     widget.setValue(2)
-    assert panel.settings_for_propagation()[key] == 2
+    assert _propagated(panel, key) == 2
     assert id(widget) not in panel._clamped_on_seeding
     widget.setValue(0)
-    assert panel.settings_for_propagation()[key] == 0
+    assert _propagated(panel, key) == 0
     np.testing.assert_array_equal(panel._masks["cell"], raw)
     np.testing.assert_array_equal(panel._raw_masks["cell"], raw)
     assert panel._worker is None
@@ -179,13 +194,16 @@ def test_edit_then_zero_does_not_restore_a_hidden_seeded_limit(panel, suffix):
                          ids=["rounded-active-bound", "negative", "nan"])
 def test_typing_zero_directly_discards_only_an_edited_hidden_bound(
         panel, qtbot, suffix, seeded):
+    # The organelle's own settings: a negative or non-finite value for a
+    # retired Cellpose-object bound is left unmigrated (item 511), so the
+    # seeded-but-hidden case lives on the organelle controls.
     raw = _labels()
-    key = f"cell_{suffix}"
+    key = f"organelle_{suffix}"
     value = 0.0 if suffix == "min_intensity" else 1.0
     panel._image = np.full(raw.shape, value, np.float64)
-    panel._raw_masks = {"cell": raw.copy()}
-    panel.apply_settings({key: seeded})
-    widget = panel._compartment_widgets["cell"][suffix]
+    panel._raw_masks = {"organelle": raw.copy()}
+    panel.apply_settings({key: seeded, "organelle_min_area": 0})
+    widget = panel._compartment_widgets["organelle"][suffix]
     assert widget.value() == 0
     assert id(widget) in panel._clamped_on_seeding
     panel.show()
@@ -202,7 +220,7 @@ def test_typing_zero_directly_discards_only_an_edited_hidden_bound(
         assert preserved == seeded
     assert id(widget) in panel._clamped_on_seeding
     if np.isfinite(seeded) and seeded > 0:
-        np.testing.assert_array_equal(panel._masks["cell"], np.zeros_like(raw))
+        np.testing.assert_array_equal(panel._masks["organelle"], np.zeros_like(raw))
     else:
         assert panel._masks == {}
         assert "Preview failed:" in panel._status.text()
@@ -216,8 +234,8 @@ def test_typing_zero_directly_discards_only_an_edited_hidden_bound(
     assert widget.value() == 0
     assert panel.settings_for_propagation()[key] == 0
     assert id(widget) not in panel._clamped_on_seeding
-    np.testing.assert_array_equal(panel._masks["cell"], raw)
-    np.testing.assert_array_equal(panel._raw_masks["cell"], raw)
+    np.testing.assert_array_equal(panel._masks["organelle"], raw)
+    np.testing.assert_array_equal(panel._raw_masks["organelle"], raw)
     assert panel._worker is None
 
 

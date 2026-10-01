@@ -189,6 +189,8 @@ def _open_at_the_measured_width(window) -> bool:
 def install_the_spaceout_fractal(screen) -> bool:
     """Put the spaceout fractal behind ``screen``, if this is spaceout.
 
+    :param screen: the widget the fractal is parented to and sized to fill; an
+        event filter on it keeps the fractal following it.
     :returns: True when it was installed, so the caller knows to skip the
         ordinary ambient backdrop. False in every normal launch -- which is
         what keeps the mode hidden -- and false rather than raising when the
@@ -210,7 +212,8 @@ def install_the_spaceout_fractal(screen) -> bool:
         values = get_fractal_settings()
         widget = create_fractal_widget(
             Settings(backend=values["backend"], quality=values["quality"],
-                     scale=values["scale"]),
+                     scale=values["scale"],
+                     supersampling=values.get("supersampling", 2)),
             RuntimeControls(speed=values["speed"], dream=values["dream"],
                             variable_speed=values["variable_speed"]),
         )
@@ -327,6 +330,58 @@ class _DragsTheWindowByTheMenuBar(QObject):
         except Exception:                     # noqa: BLE001
             LOG.debug("could not start a window move", exc_info=True)
             return False
+
+
+_DATA_LIBRARIES = ("pandas",)
+_DATA_LIBRARIES_AFTER_S = 1.0
+
+_DATA_LIBRARIES_STARTED = False
+
+
+def _import_the_data_libraries_off_the_gui_thread():
+    """Import :data:`_DATA_LIBRARIES` on a worker thread, once per process.
+
+    PANDAS WAS THE LARGEST SINGLE PIECE OF A DATA SCREEN'S FIRST OPEN. It
+    was 64 % of Annotate's worst event-loop gap (item 284, 2026-09-25), and
+    once Annotate stopped importing it the next data screen paid instead --
+    Feature Explorer went from 311 to 555 ms in the same sweep. Home still
+    imports none of it (``test_a_cold_launch_does_not_import_pandas``); after
+    a module screen is on show, pandas comes in here, off the GUI thread,
+    with the interpreter's switch interval shortened as for any worker
+    (:func:`spacr.qt.gil_priority.responsive_gui`), so the data screen
+    opened next finds it imported. A screen opened while the import is still
+    running waits on Python's import lock rather than importing twice.
+
+    The libraries are :data:`_DATA_LIBRARIES`, those a data screen imports at
+    module scope. The window starts this :data:`_DATA_LIBRARIES_AFTER_S`
+    seconds after a module screen is on show, so the import does not share
+    the interpreter lock with the open that has just finished painting.
+
+    :returns: the started thread, or ``None`` when it was started before or
+        everything is imported already.
+    """
+    global _DATA_LIBRARIES_STARTED
+    if _DATA_LIBRARIES_STARTED or all(
+            name in sys.modules for name in _DATA_LIBRARIES):
+        return None
+    _DATA_LIBRARIES_STARTED = True
+
+    def _work() -> None:
+        """Import each library, logging rather than raising a failure."""
+        from .gil_priority import responsive_gui
+
+        with responsive_gui():
+            for name in _DATA_LIBRARIES:
+                try:
+                    _importlib.import_module(name)
+                except Exception:
+                    LOG.debug("could not import %s early", name,
+                              exc_info=True)
+
+    thread = threading.Thread(target=_work, name="spacr-data-libraries",
+                              daemon=True)
+    thread.start()
+    return thread
 
 
 class _PipelinePreloader:
@@ -650,6 +705,8 @@ def registered_metadata(field: str) -> dict:
 
     ``setdefault``, not assignment: a table's own hand-written entry is
     the more specific one and wins.
+
+    :param field: the ``APP_META`` field to collect, such as ``'title'``.
     """
     return {key: meta[field] for key, meta in APP_META.items()
             if meta.get(field)}
@@ -696,6 +753,9 @@ def registered_entry(key: str):
     Imported here, on demand, rather than at registration: registering an
     app must not drag numpy, torch or pandas into a process that only
     wanted to draw a sidebar.
+
+    :param key: the app key whose ``entry`` metadata (``'module:function'``) is
+        imported.
     """
     target = (APP_META.get(key) or {}).get("entry")
     if not target:
@@ -967,6 +1027,8 @@ def unregister_app(key: str) -> bool:
     and for tests that must not leak a registration into the next one —
     a stray row in :data:`APPS` is a stray tile, a stray sidebar entry
     and a stray Ctrl+N binding for every test that follows.
+
+    :param key: the app key to remove, converted to a string.
     """
     key = str(key)
     before = len(APPS)
@@ -1004,6 +1066,8 @@ def registered_factory(key: str):
     afternoon. A stand-in whose module fails to import is left in place and
     ``None`` is returned: the app falls back to the generic settings screen
     rather than taking the window down.
+
+    :param key: the app key looked up in ``APP_FACTORIES``.
     """
     factory = APP_FACTORIES.get(key)
     if isinstance(factory, LazyScreenFactory):
@@ -1211,6 +1275,9 @@ def app_stage(key: str) -> str:
     Unknown keys read as stable rather than raising: a stage is an
     annotation on an app, and an app with no annotation is one nobody
     has flagged.
+
+    :param key: the app key looked up in ``APP_STAGE``; unknown keys give
+        ``STAGE_STABLE``.
     """
     return APP_STAGE.get(key, STAGE_STABLE)
 
@@ -1320,10 +1387,14 @@ def app_is_visible(key: str) -> bool:
     what caught it: filtering :data:`TILELESS_APPS` out here took nine
     modules out of Ctrl+K, so the folds removed a door instead of moving
     one. Two questions, two functions.
+
+    :param key: the app key whose stage is checked against the maturity
+        preference.
     """
     try:
-        from .preferences import maturity_is_visible
-        return maturity_is_visible(app_stage(key))
+        from .preferences import _is_alpha_visible, maturity_is_visible
+        return (maturity_is_visible(app_stage(key))
+                and _is_alpha_visible("apps", key))
     except Exception:
         return True
 
@@ -1604,6 +1675,9 @@ def section_members(
     An explicit ``apps`` list is filtered too. A caller passing its own
     rows is asking "which of these belong to this section", and a
     tileless one does not belong to any tab whichever list it arrives in.
+
+    :param section: the category name, compared with the fourth element of each
+        ``APPS`` row.
     """
     return [row for row in tiled_apps(apps) if row[3] == section]
 
@@ -2281,7 +2355,6 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
     except Exception:                                        # noqa: BLE001
         failed(f"create {folder}")
 
-    # FIRST, before anything below can change a pixel.
     pixels, scale = None, (1.0, 1.0)
     try:
         from .hidpi import screen_for_widget
@@ -2326,8 +2399,8 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
     wanted = {}
     for name in ("ambient_enabled", "ambient_animation", "ambient_theme",
                  "ambient_palette", "pane_opacity", "theme",
-                 "tooltips_box_enabled", "tooltips_bottom_enabled",
-                 "object_grid_enabled"):
+                 "tooltips_enabled",
+                 "tooltips_box_enabled", "tooltips_bottom_enabled"):
         try:
             wanted[name] = _plain(getattr(preferences, f"get_{name}")())
         except Exception:                                    # noqa: BLE001
@@ -2438,8 +2511,6 @@ def _collect_paint_diagnostics(window, out_dir, report) -> None:
         json_path.write_text(json.dumps(report, indent=2, default=str),
                              encoding="utf-8")
         report["files"]["json"] = str(json_path)
-        # Rewritten so the file names itself; the first write is the one
-        # that proves the folder takes a file at all.
         json_path.write_text(json.dumps(report, indent=2, default=str),
                              encoding="utf-8")
     except Exception:                                        # noqa: BLE001
@@ -2549,6 +2620,12 @@ class MainWindow(QMainWindow):
         self._sidebar.nav_selected.connect(self._on_drawer_navigated)
         self._sidebar.fold_child_selected.connect(self.open_module)
         self._sidebar.module_hovered.connect(self._show_module_hint)
+        from .widgets.dock import DockEdge
+        self._dock_edge = DockEdge(self._sidebar)
+        self._dock_edge.collapsedChanged.connect(
+            lambda collapsed: self._dock_slot.setVisible(
+                not collapsed and self._dock_mode == "locked"))
+        row.insertWidget(row.indexOf(self._dock_slot) + 1, self._dock_edge)
 
         from .widgets.drawer import EdgeDrawer
         self._app_drawer = EdgeDrawer(self._stack, self._sidebar,
@@ -2719,6 +2796,9 @@ class MainWindow(QMainWindow):
         never fires -- and the marks are redrawn at their new x over the
         old ones. That is the "sometimes" in the report: it is not
         intermittent, it is every resize that is not a fullscreen toggle.
+
+        :param event: the resize event, passed to the base class; the new
+            geometry is read from the window itself.
         """
         super().resizeEvent(event)
         screen = getattr(self, "_loading_screen", None)
@@ -2932,6 +3012,9 @@ class MainWindow(QMainWindow):
         opened before the layout has caught up is placed against the
         previous action rectangle -- which is how pressing spaCR drops a
         menu under Help.
+
+        :param event: the change event; only a window-state change re-lays the
+            menu bar.
         """
         super().changeEvent(event)
         if event.type() != QEvent.Type.WindowStateChange:
@@ -3024,7 +3107,7 @@ class MainWindow(QMainWindow):
         self._app_actions: dict[str, QAction] = {}
         self._section_menus: dict[str, QMenu] = {}
         from .widgets.fold_strip import folded_modules
-        from .organisms import ORGANISMS
+        from .organisms import ORGANISMS, workflow
 
         folded = folded_children()
         catalogue = folded_modules()
@@ -3069,6 +3152,10 @@ class MainWindow(QMainWindow):
                             child_action.triggered.connect(
                                 lambda checked=False, k=child: self._open_organism_module(k))
                             self._app_actions[child] = child_action
+                        elif workflow(key, _icon):
+                            child_action.setProperty("organismWorkflow", workflow(key, _icon)[0])
+                            child_action.triggered.connect(
+                                lambda checked=False, o=key, i=_icon: self._open_organism_workflow(o, i))
                         else:
                             child_action.setText(tr("{name} — Coming soon", name=tr(title)))
                             child_action.setEnabled(False)
@@ -3652,6 +3739,13 @@ class MainWindow(QMainWindow):
                     refresh()
                 except Exception:
                     pass
+            refresh = getattr(screen, "_refresh_alpha_visibility", None)
+            if callable(refresh):
+                try:
+                    refresh()
+                except Exception:
+                    LOG.debug("could not apply the alpha gate",
+                              exc_info=True)
             try:
                 self._drop_a_redundant_screen_backdrop(screen)
             except Exception:
@@ -3669,6 +3763,12 @@ class MainWindow(QMainWindow):
             self._sidebar.refresh_visibility()
         except Exception:
             pass
+        try:
+            from .preferences import _apply_alpha_widgets
+
+            _apply_alpha_widgets(self)
+        except Exception:
+            LOG.debug("could not apply the alpha gate", exc_info=True)
 
     def refresh_language(self) -> None:
         """Apply the persisted language to existing static UI text."""
@@ -3690,6 +3790,19 @@ class MainWindow(QMainWindow):
             open_starplast(self)
         else:
             self.open_module(key)
+
+    def _open_organism_workflow(self, organism: str, icon: str) -> None:
+        """Open the existing module behind an organism tile, with its preset.
+
+        :param organism: the organism page key.
+        :param icon: the tile's icon key in that organism's ``workflows``.
+        """
+        from .organisms import workflow
+        from .screens.organism_screen import open_workflow
+
+        route = workflow(organism, icon)
+        if route is not None:
+            open_workflow(self, route)
 
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
@@ -3720,6 +3833,9 @@ class MainWindow(QMainWindow):
         Both the network call and an accepted ``pip`` upgrade run on
         :class:`_UpdateWorker`; only dialogs and status updates run here.
         """
+        if getattr(self, "_frozen_update_handshake", None) is not None:
+            self.statusBar().showMessage(tr("An update operation is already running."), 4000)
+            return
         worker = getattr(self, "_update_worker", None)
         try:
             if worker is not None and worker.isRunning():
@@ -3738,6 +3854,75 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(tr("Checking for updates…"), 4000)
         self._start_update_worker(
             "check", check_for_updates, self._on_update_check_done)
+
+    def _refresh_news(self) -> None:
+        """Read the published releases for Home's News panel, off-thread.
+
+        Home's News panel is already drawn from the resource bundled in
+        this wheel when this runs -- the panel asks for the refresh from
+        its own show event, one event-loop turn later -- so nothing here is
+        on the path to the first paint, and nothing here can stop the page
+        appearing.
+
+        It runs on :class:`_UpdateWorker`, the same thread wrapper the
+        manual update check uses, but on its OWN worker: a background
+        refresh must never make "Check for updates…" answer "an update
+        operation is already running", and the manual check must never be
+        the reason the news is stale.
+
+        Failure is silent by construction:
+        :func:`spacr.updater.fetch_release_notes` absorbs every error and
+        returns ``[]``, which :meth:`HomePage.apply_release_news` treats as
+        "nothing newer than the bundle". Offline, rate-limited and switched
+        off are therefore the same thing to the reader: the bundled list.
+        """
+        from .preferences import get_refresh_news
+
+        if self._closing:
+            LOG.debug("Not refreshing the news for a window that is closing")
+            return
+        if not get_refresh_news():
+            LOG.debug("News refresh is switched off in Preferences")
+            return
+        worker = getattr(self, "_news_worker", None)
+        try:
+            if worker is not None and worker.isRunning():
+                return
+        except RuntimeError:
+            pass
+        try:
+            from spacr.updater import fetch_release_notes
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("Could not import the release-notes reader",
+                      exc_info=True)
+            return
+        worker = _UpdateWorker("news", fetch_release_notes, self)
+        worker.succeeded.connect(self._on_news_ready)
+        worker.failed.connect(self._on_news_failed)
+        worker.finished.connect(worker.deleteLater)
+        worker.start()
+        self._news_worker = worker
+
+    def _on_news_ready(self, releases) -> None:
+        """Merge a fetched release list into Home, on the GUI thread."""
+        if self._closing:
+            return
+        page = getattr(self, "_startup", None)
+        if page is None:
+            return
+        try:
+            page.apply_release_news(releases)
+        except RuntimeError:
+            LOG.debug("Home went away before the release news arrived")
+
+    def _on_news_failed(self, operation: str, details: str) -> None:
+        """Swallow a news-refresh exception into the log.
+
+        Deliberately NOT :meth:`_on_update_worker_failed`: that one opens a
+        message box, which is right for a check the user pressed a button
+        for and wrong for a background refresh nobody asked for.
+        """
+        LOG.debug("News refresh failed:\n%s", details)
 
     def _start_update_worker(self, operation, fn, on_done) -> None:
         """Start one updater callable and retain it until shutdown."""
@@ -3799,9 +3984,6 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(
                 self, "Updates", f"Upgrade unavailable: {exc}")
             return
-        # find old spaCR files --> delete old spaCR files --> install new
-        # spaCR. Step 1 runs off the GUI thread; what it found is shown before
-        # anything is deleted, in _on_old_installs_found.
         self._update_version = info.latest_release
         self.statusBar().showMessage(tr("Upgrading spaCR…"), 4000)
         self._start_update_worker(
@@ -3899,6 +4081,21 @@ class MainWindow(QMainWindow):
                        error=self._removal_reason_text(
                            str(plan.get("error")))))
                 return
+            if plan.get("adapter") == "macos-frozen-v1" and plan.get("handshake"):
+                from PySide6.QtCore import QTimer
+
+                self._frozen_update_plan = plan
+                try:
+                    self._frozen_update_handshake = install_cleanup._FrozenUpdateHandshake(plan)
+                except Exception as error:
+                    QMessageBox.warning(
+                        self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    return
+                self._frozen_update_timer = QTimer(self)
+                self._frozen_update_timer.timeout.connect(self._poll_frozen_update)
+                self._frozen_update_timer.start(250)
+                self._poll_frozen_update()
+                return
             QMessageBox.information(
                 self, "Updates",
                 tr("spaCR will close, remove the older copies, install "
@@ -3911,6 +4108,62 @@ class MainWindow(QMainWindow):
                 lambda: updater.run_pip_upgrade(target_version=version),
                 records=records, ticked=ticked),
             self._on_update_sequence_done)
+
+    def _cancel_frozen_update(self):
+        """Disarm preparation before an ordinary close, cancellation or refusal."""
+        handshake = getattr(self, "_frozen_update_handshake", None)
+        timer = getattr(self, "_frozen_update_timer", None)
+        if timer is not None:
+            timer.stop()
+        if handshake is not None:
+            try:
+                handshake.cancel()
+            except Exception:
+                LOG.exception("Could not publish update cancellation; no shutdown approval was issued")
+        self._frozen_update_handshake = None
+        self._frozen_update_plan = None
+
+    def _poll_frozen_update(self):
+        """Keep the GUI alive until verified staging, then approve only accepted closure."""
+        handshake = getattr(self, "_frozen_update_handshake", None)
+        if handshake is None:
+            return
+        try:
+            if self._closing:
+                self._cancel_frozen_update()
+                return
+            status = handshake.status()
+            if status is None:
+                return
+            if status["state"] == "error":
+                raise RuntimeError(status["error"])
+            self._frozen_update_timer.stop()
+            answer = QMessageBox.information(
+                self, "Updates",
+                tr("spaCR will close, remove the older copies, install "
+                   "{version} and start again.", version=self._frozen_update_plan["version"]),
+                QMessageBox.Ok | QMessageBox.Cancel)
+            if answer != QMessageBox.Ok or self._closing:
+                self._cancel_frozen_update()
+                return
+            handshake.check()
+            self._frozen_update_closing = True
+            try:
+                accepted = self.close()
+            finally:
+                self._frozen_update_closing = False
+            if accepted is not True:
+                self._cancel_frozen_update()
+                return
+            self._frozen_update_handshake = None
+            self._frozen_update_plan = None
+        except Exception as error:
+            self._cancel_frozen_update()
+            if self._closing:
+                LOG.exception("Frozen update shutdown approval failed; the installed app is retained")
+            else:
+                QMessageBox.warning(
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
 
     def _confirm_old_installs(self, records):
         """List the copies an update removes, with a tick box per environment.
@@ -4039,7 +4292,15 @@ class MainWindow(QMainWindow):
         QMessageBox.warning(self, "Updates", f"{label} failed:\n{last}")
 
     def closeEvent(self, event):
-        """Cooperatively drain analysis and UI workers before destruction."""
+        """Cooperatively drain analysis and UI workers before destruction.
+
+        :param event: the close event; ignored, leaving the window open, when a
+            worker or an application screen does not stop, otherwise passed to
+            the base class, and the application quits if it is accepted.
+        """
+        if (getattr(self, "_frozen_update_handshake", None) is not None
+                and not getattr(self, "_frozen_update_closing", False)):
+            self._cancel_frozen_update()
         from .bridge import registry
         remaining = registry().cancel_all(
             timeout_ms=5000, reason="application shutdown")
@@ -4079,6 +4340,17 @@ class MainWindow(QMainWindow):
                 event.ignore()
                 self._closing = False
                 return
+        handshake = getattr(self, "_frozen_update_handshake", None)
+        if handshake is not None and getattr(self, "_frozen_update_closing", False):
+            try:
+                handshake.approve()
+            except Exception as error:
+                self._cancel_frozen_update()
+                QMessageBox.warning(
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                event.ignore()
+                self._closing = False
+                return
         self._closing = True
         from .widgets.console_panel import ConsolePanel
         for panel in self.findChildren(ConsolePanel):
@@ -4086,17 +4358,39 @@ class MainWindow(QMainWindow):
                 panel.shutdown()
             except Exception:
                 pass
-        worker = getattr(self, "_update_worker", None)
-        if worker is not None:
-            try:
-                worker.wait(5000)
-            except RuntimeError:
-                pass
+        self._release_update_workers()
         super().closeEvent(event)
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:
                 app.quit()
+
+    _UPDATE_WORKER_WAIT_MS = 5000
+
+    def _release_update_workers(self) -> None:
+        """Wait for the updater threads, and detach any that will not stop.
+
+        Both workers are children of this window, and Qt aborts the whole
+        process when a running QThread is destroyed with its parent. A news
+        fetch has no overall deadline (the socket timeout does not cover name
+        resolution), so it can outlast the wait. A worker still running after
+        it is taken off the window and parked by :func:`bridge.drain_thread`,
+        which keeps it alive until it returns instead of terminating it.
+        The wait is :attr:`_UPDATE_WORKER_WAIT_MS` per worker.
+        """
+        from .bridge import drain_thread
+
+        for attribute in ("_update_worker", "_news_worker"):
+            worker = getattr(self, attribute, None)
+            if worker is None:
+                continue
+            try:
+                if worker.wait(self._UPDATE_WORKER_WAIT_MS):
+                    continue
+                worker.setParent(None)
+            except RuntimeError:
+                continue
+            drain_thread(worker, timeout_ms=0)
 
     def dock_mode(self) -> str:
         """The user's dock preference — ``auto`` / ``locked`` / ``hidden``.
@@ -4191,11 +4485,15 @@ class MainWindow(QMainWindow):
         if mode == "locked":
             if sidebar.parent() is not slot:
                 slot.layout().addWidget(sidebar)
-            sidebar.setFixedWidth(sidebar.fitting_width())
+            sidebar.setFixedWidth(sidebar.column_width())
             sidebar.show()
-            slot.show()
+            edge = getattr(self, "_dock_edge", None)
+            slot.setVisible(edge is None or not edge.is_collapsed())
         else:
             slot.hide()
+        edge = getattr(self, "_dock_edge", None)
+        if edge is not None:
+            edge.setVisible(mode == "locked")
 
         action = getattr(self, "_act_all_apps", None)
         if action is not None:
@@ -4415,6 +4713,7 @@ class MainWindow(QMainWindow):
         self._startup.tile_clicked.connect(self._on_nav_selected)
         self._startup.sample_project_requested.connect(self._start_a_sample_project)
         self._startup.update_check_requested.connect(self._check_for_updates)
+        self._startup.news_refresh_requested.connect(self._refresh_news)
         try:
             self._startup._btn_all_apps.clicked.connect(self.toggle_app_drawer)
         except Exception:
@@ -4496,7 +4795,11 @@ class MainWindow(QMainWindow):
         return True
 
     def keyPressEvent(self, event) -> None:
-        """Up and Down change the spaceout zoom rate; Ctrl+R starts over."""
+        """Up and Down change the spaceout zoom rate; Ctrl+R starts over.
+
+        :param event: the key press; its key and Ctrl modifier are read, and
+            keys the backdrop does not take are passed to the base class.
+        """
         from PySide6.QtCore import Qt
 
         key = event.key()
@@ -4514,7 +4817,11 @@ class MainWindow(QMainWindow):
         super().keyPressEvent(event)
 
     def wheelEvent(self, event) -> None:
-        """The wheel does the same, a notch at a time."""
+        """The wheel does the same, a notch at a time.
+
+        :param event: the wheel event; its vertical angle delta is converted to
+            notches of 120.
+        """
         notches = 0
         try:
             notches = int(event.angleDelta().y() / 120)
@@ -4733,7 +5040,21 @@ class MainWindow(QMainWindow):
         return said
 
     def _on_nav_selected(self, key: str):
-        """Navigate to app ``key``, lazily instantiating its screen on first use."""
+        """Navigate to app ``key``, lazily instantiating its screen on first use.
+
+        A CALL THAT ARRIVES WHILE A SCREEN IS BEING OPENED WAITS FOR IT. The
+        open lets the event loop breathe between its steps (see
+        :meth:`_breathe_while_opening`), and a timer or a queued signal
+        delivered in a breath may ask for another module. Running that
+        request inside the half-finished open would build or show a second
+        screen in the middle of the first, so it is posted and runs as soon
+        as the first open has returned.
+        """
+        if getattr(self, "_opening_a_screen", False):
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(0, self, lambda: self._on_nav_selected(key))
+            return
         interaction_started = _timing.interval_started("navigation", key)
         if key == "__home__":
             try:
@@ -4749,58 +5070,118 @@ class MainWindow(QMainWindow):
                 budget_s=_timing.HOME_BUDGET_S,
             )
             return
+        from . import screens as _screens_package
+        from .i18n import ui_language_resolved_once
+
+        import time as _time
+
+        self._opening_a_screen = True
+        _screens_package._start_breathing_while_a_window_opens(
+            _time.perf_counter())
+        try:
+            with ui_language_resolved_once():
+                self._open_a_module_screen(key, interaction_started)
+        finally:
+            self._opening_a_screen = False
+            _screens_package._stop_breathing_while_a_window_opens()
+
+    def _open_a_module_screen(self, key: str, interaction_started) -> None:
+        """Build ``key``'s screen if it is new, then put it on show.
+
+        THE STEPS ARE SEPARATED BY BREATHS. Building, theming, joining the
+        stack and translating a heavy screen used to run back to back, so
+        their costs added into one freeze -- measured on Regression as one
+        event-loop gap that began inside the screen factory and ended after
+        the first show. Each step is now followed by
+        :meth:`_breathe_while_opening`, so the ambient backdrop and the rest
+        of the event loop run between them and the worst freeze is the
+        longest single step instead of their sum. The "Preparing" card
+        stays up until the screen is on show, so the breaths never show a
+        page that is still being assembled.
+
+        :param key: the module to open.
+        :param interaction_started: the navigation interval's start, for the
+            readiness watch.
+        """
         if key in self._screens and self._screen_scale_is_stale(key):
             self._rebuild_for_scale(key)
         built_now = key not in self._screens
-        if built_now:
-            card = self._show_preparing(key)
-            try:
-                self._screens[key] = self._build_screen(key)
-                self._screen_scales[key] = _current_font_scale()
-            except Exception as exc:                          # noqa: BLE001
-                LOG.exception("Could not open the %s screen", key)
-                self._say_a_module_would_not_open(key, exc)
-                return
-            finally:
-                self._hide_preparing(card)
-            try:
-                self._theme_screen(self._screens[key], key)
-            except Exception:
-                LOG.exception("Could not theme the %s screen", key)
-            self._a_page_joined_the_stack(self._screens[key])
-            self._stack.addWidget(self._screens[key])
-            self._drop_a_redundant_screen_backdrop(self._screens[key])
-            try:
-                from .i18n import retranslate_widget_tree
-                retranslate_widget_tree(self._screens[key])
-            except Exception:
-                LOG.exception("Could not translate the %s screen", key)
+        card = None
         try:
-            from .screens.settings_model import retarget_field_tooltips
-
-            retarget_field_tooltips(self._screens[key])
-        except Exception:
-            LOG.exception("Could not retarget help on the %s screen", key)
-        detach = getattr(self._screens[key], "_detach_what_the_form_hides",
-                         None)
-        if built_now and callable(detach):
+            if built_now:
+                card = self._show_preparing(key)
+                try:
+                    self._screens[key] = self._build_screen(key)
+                    self._screen_scales[key] = _current_font_scale()
+                except Exception as exc:                      # noqa: BLE001
+                    LOG.exception("Could not open the %s screen", key)
+                    self._say_a_module_would_not_open(key, exc)
+                    return
+                self._breathe_while_opening()
+                try:
+                    self._theme_screen(self._screens[key], key)
+                except Exception:
+                    LOG.exception("Could not theme the %s screen", key)
+                self._a_page_joined_the_stack(self._screens[key])
+                self._stack.addWidget(self._screens[key])
+                self._drop_a_redundant_screen_backdrop(self._screens[key])
+                self._breathe_while_opening()
+                try:
+                    from .i18n import retranslate_widget_tree
+                    retranslate_widget_tree(self._screens[key])
+                except Exception:
+                    LOG.exception("Could not translate the %s screen", key)
             try:
-                detach()
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not detach the hidden settings",
-                          exc_info=True)
-        self._stack.setCurrentWidget(self._screens[key])
+                from .screens.settings_model import retarget_field_tooltips
+
+                retarget_field_tooltips(self._screens[key])
+            except Exception:
+                LOG.exception("Could not retarget help on the %s screen", key)
+            detach = getattr(self._screens[key], "_detach_what_the_form_hides",
+                             None)
+            if built_now and callable(detach):
+                try:
+                    detach()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not detach the hidden settings",
+                              exc_info=True)
+            if built_now:
+                self._breathe_while_opening()
+            self._stack.setCurrentWidget(self._screens[key])
+        finally:
+            self._hide_preparing(card)
         _timing.watch_interactive(
             self._screens[key], "interactive module", key,
             started_at=interaction_started,
             budget_s=_timing.MODULE_BUDGET_S,
         )
+        if built_now and not _DATA_LIBRARIES_STARTED:
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(int(_DATA_LIBRARIES_AFTER_S * 1000),
+                              _import_the_data_libraries_off_the_gui_thread)
         if key in self._visit_order:
             self._visit_order.remove(key)
         self._visit_order.append(key)
         name = tr(next((n for k, n, _d, _s in APPS if k == key), key))
         self._status_app_label.setText(name)
         self.statusBar().showMessage(tr("Opened {name}", name=name), 2000)
+
+    @staticmethod
+    def _breathe_while_opening() -> None:
+        """Let the event loop run once between two steps of a module open.
+
+        User input is held back, as in the settings panel's own breaths
+        (``SettingsModel._build_sections``), so a click cannot land on a
+        page that is half assembled; timers, paints and queued signals run,
+        which is what keeps the ambient backdrop moving and the interface
+        answering the window manager while a heavy screen is put together.
+        A navigation request delivered here waits for the open in progress
+        (:meth:`_on_nav_selected`).
+        """
+        from .screens import _breathe_while_a_window_opens
+
+        _breathe_while_a_window_opens()
 
     def _on_zoo_compare_requested(self, request: dict) -> None:
         """Open Model Compare preloaded with the two models the zoo selected.
@@ -5091,6 +5472,13 @@ class MainWindow(QMainWindow):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not install the settings search strip early",
                       exc_info=True)
+        try:
+            from .preferences import _apply_alpha_widgets
+
+            _apply_alpha_widgets(page)
+        except Exception:
+            LOG.debug("could not apply the alpha gate to a new page",
+                      exc_info=True)
 
     def stylesheet_roots(self):
         """The widgets that carry the application sheet, instead of me.
@@ -5332,6 +5720,7 @@ class MainWindow(QMainWindow):
         try:
             with _timing.span("build screen", key):
                 screen = self._build_screen_timed(key)
+                _screens_package._breathe_while_a_window_opens()
                 from .screens.map_barcodes import install_folds_on
 
                 install_folds_on(screen)
@@ -5693,6 +6082,7 @@ def install_the_dialog_filters(app) -> tuple[str, ...]:
     Installers are idempotent and isolated: a failure in one filter does not
     prevent the remaining filters from being installed.
 
+    :param app: the Qt application each filter installer is called with.
     :returns: Names of the filters installed successfully.
     """
     import importlib
@@ -5729,6 +6119,37 @@ def _start_settings_prewarm() -> threading.Thread:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
 
     thread = threading.Thread(target=warm, name="spacr-prewarm", daemon=True)
+    thread.start()
+    return thread
+
+
+_ICON_WARM_AFTER_MS = 1500
+
+
+def _start_icon_prewarm() -> Optional[threading.Thread]:
+    """Re-ink the bundled app icons on a worker thread, for the active theme.
+
+    See :func:`spacr.qt.iconset._warm_the_bundled_icons` for what this saves:
+    the icon decoding that a module's first open otherwise pays inside its
+    freeze. The theme is resolved here, on the GUI thread, because it reads
+    preferences. ``launch`` starts this :data:`_ICON_WARM_AFTER_MS` after
+    the window is shown, the same wait the pipeline preloader uses, so Home
+    paints first.
+    """
+    try:
+        theme = iconset.active_theme()
+    except Exception:                                        # noqa: BLE001
+        return None
+
+    def warm():
+        """Fill the icon caches, and never let a bad file reach the GUI."""
+        try:
+            iconset._warm_the_bundled_icons(theme)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("Could not prewarm the bundled icons", exc_info=True)
+
+    thread = threading.Thread(target=warm, name="spacr-icon-prewarm",
+                              daemon=True)
     thread.start()
     return thread
 
@@ -5818,11 +6239,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
     try:
         from .laptop_mode import apply as _apply_laptop_mode, describe
         from .preferences import get_performance_level as _level_now
-        # 286: THE LEVEL DECIDES, NOT THE MACHINE. `apply()` with no argument
-        # measures cores and memory, which overrode the level chosen in the
-        # selector -- a two-core Workstation lost its backdrop at every
-        # start. The measurement is still logged, as a reading, because "it
-        # looks different on my laptop" needs evidence.
         _level = _level_now()
         LOG.info("performance level %s; hardware reading, for diagnosis "
                  "only: %s", _level, describe())
@@ -5851,6 +6267,12 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
+    try:
+        from .preferences import _install_run_notifier
+
+        _install_run_notifier(app)
+    except Exception:
+        LOG.debug("could not install the run notifier", exc_info=True)
     from .i18n import install_qt_translations
     install_qt_translations(app)
 
@@ -5905,6 +6327,9 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     if not in_safe_mode():
         _start_settings_prewarm()
+        from PySide6.QtCore import QTimer
+
+        QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
 
     def _drain_ai():
         """Stop every job runner before Qt starts destroying widgets.

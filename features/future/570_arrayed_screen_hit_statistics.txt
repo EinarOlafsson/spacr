@@ -1,0 +1,124 @@
+ARRAYED-SCREEN HIT STATISTICS: SSMD, ROBUST Z AGAINST NEGATIVE CONTROLS, B-SCORE
+
+Status: IMPLEMENTED AS ALPHA 2026-09-26. Statistics, report writer and the
+Control Charts option are built and tested against hand-computed values, R's
+medpolish example and pycytominer's RobustMAD. Checked on a public screen
+with known actives on 2026-09-30 (CPJUMP1; see the end of this file). Still
+open: a B-score comparison with cellHTS2 (no R here).
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/hcs-z-score-with-respect-to-negative-control/52891
+
+WHAT TO BUILD
+    Per-well hit scoring for arrayed screens: SSMD and robust z (median/MAD)
+    against negative controls, B-score for row/column plate effects, per-
+    plate and pooled, with hit calls at chosen thresholds and plate
+    heatmaps; complements the existing Z' chart and plate QC.
+
+DONE WHEN
+    On a public arrayed screen with known hits, hit rankings match reference
+    implementations (e.g. cellHTS2 / pycytominer) and plots render per
+    plate.
+
+2026-09-26 — Built as an alpha option of Control Charts
+    Statistics live in spacr/sp_stats.py (no new module): mad, robust_z_scores
+    (median/1.4826 MAD of the negative control, Zhang's z*),
+    ssmd_unreplicated (mm, umvue, robust SSMD*) and ssmd_replicated (mm,
+    umvue, robust, on paired differences to the plate's negative median),
+    median_polish (a port of R stats::medpolish: same sweep order, eps 0.01,
+    maxiter 10), b_scores (effects fitted on the sample wells so a control
+    column is not a column effect; residual / scaled MAD as cellHTS2 does),
+    call_hits (both/up/down), screen_wells (wells located by the plate_qc
+    reader; controls by a column and its levels or by well_spec positions
+    such as c1, r1, A01), score_screen / score_arrayed_screen (per-plate or
+    pooled negative reference; B-score always fitted per plate, pooled scope
+    uses one screen-wide scale), treatment_ssmd (replicate SSMD per
+    treatment), hit_table (ranked), hit_heatmap and write_hit_report.
+    Per-plate Z' in the plate summary comes from control_chart.zprime_frame,
+    the function the Z' chart uses. Heatmaps are the house small multiple
+    (figures/plates.build_plates, new outline= option and score_ramp, a
+    rust-to-green diverging map symmetric about zero, hits outlined) written
+    through spacr.plot.save_figure. write_hit_report writes hit_table.csv,
+    hit_scores_wells.csv, hit_plates.csv, hit_treatments.csv (with a
+    treatment column) and hit_heatmap_<ssmd|robust_z|b_score>.
+    Screen: Control Charts gains a "Score hits" toggle and its options (call
+    by SSMD/robust z/B-score, threshold, direction, SSMD estimator,
+    per-plate or pooled reference, treatment column), a Hits section with
+    the summary and ranked table, and an Export hits button. It scores on
+    its own job runner, so a two-plate screen too short to chart is still
+    scored. It reuses the form's control column and negative/positive picks.
+    Checks: robust z, SSMD (all three estimators, both designs) against
+    values worked by hand; both UMVUEs unbiased by simulation; median polish
+    reproduces R's ?medpolish deaths example exactly (overall 8, rows
+    6 -1 0 2 -8, columns 0 -1 0, the printed residuals); robust z equals
+    scipy's normal-scaled MAD and pycytominer 1.7.1 RobustMAD to 1.5e-6
+    (run from the downloaded wheel; the test skips where pycytominer is not
+    installed); B-score removes a planted row and column gradient (Spearman
+    with column and row under 0.1, fitted slopes 1.5 and 0.8 recovered) and
+    keeps the planted hit, where robust z calls over 100 gradient wells;
+    planted up/down hits called exactly and ranked first by every method.
+    Still open: DONE WHEN's comparison on a public arrayed screen with known
+    hits against cellHTS2 (R/Bioconductor, not installable here).
+ALPHA: widgets ControlChartHitPanel (the whole hit-scoring option in the
+Control Charts controls: ControlChartHitScore, ControlChartHitRankBy,
+ControlChartHitThreshold, ControlChartHitDirection, ControlChartHitEstimator,
+ControlChartHitScope, ControlChartHitTreatment), ControlChartHitsSection (the
+Hits output section), ControlChartExportHits (the Export hits button). No
+settings keys. Registered as ALPHA_FEATURES[570]['widgets'] in
+spacr/settings.py after merging nightly (569's registry); the same names
+are exported as control_chart.HIT_ALPHA_WIDGETS, and a screen test checks
+they hide with Show alpha features off and return with it on. The sixteen
+new tr() captions wait in _AWAITING_CATALOG_REBUILD for the catalog lane;
+the API surface pins move 11,834 -> 11,860 (callables 9,807 -> 9,832),
+each addition named where the pin is, and the documentation locale
+catalogs are not regenerated here.
+
+2026-09-30 -- real-screen check (CPJUMP1); no code change
+Data: Cell Painting Gallery cpg0000 CPJUMP1, U2OS 48 h compound plates
+BR00117010-13, well profiles (1,536 wells). Known actives: the annotated
+poscon_diverse wells (112). Negatives: DMSO negcon wells (256). The DMSO
+wells were split two ways per plate: one half is the reference, the other
+half is scored as samples, so false positives are counted on wells the
+reference never saw. Published list: CPJUMP1 replicability (Chandrasekaran
+et al. 2024, compound_U2OS_long, 202 of 306 compounds active at corrected
+p < 0.05). This is a multivariate profile call, so a single readout can
+only recover part of it. Defaults: rank by SSMD, threshold 3 for every
+method, direction both, per-plate reference, SSMD estimator mm.
+Readout: cell count (CellProfiler Cells_Number_Object_Number well mean).
+  SSMD: recall 0.63 (71/112), precision 1.00, 0/256 DMSO called.
+  robust z: recall 0.79, precision 0.94, DMSO false-positive rate 2.3%
+  (a normal control would give 0.27% at |z| >= 3; real DMSO wells have
+  heavier tails).
+  B-score: recall 0.57, precision 1.00, 0 DMSO called.
+  |SSMD| AUROC positive controls vs DMSO 0.96, so the default SSMD 3
+  (Zhang's "very strong") is conservative; a lower cut trades precision
+  for recall.
+  Against the published list (a compound counts as called when most of
+  its replicate wells are hits): SSMD calls 61 compounds, all published
+  actives (precision 1.00, recall 0.30); robust z 71 (1.00, 0.35);
+  replicate SSMD per treatment 81 (1.00, 0.40).
+Readout: nuclear area. SSMD recall 0.43, precision 0.98; robust z 0.57,
+  0.88 (DMSO rate 3.5%); B-score 0.49, 0.97; against the published list
+  precision 1.00, recall 0.25-0.31.
+Reference implementation on the real readout: spaCR's robust z equals
+pycytominer 1.7.1 normalize(method="mad_robustize", samples=negcon) per
+plate to 1.5e-6 relative, Spearman 1.0, and both call the same 351 wells
+at |z| >= 3.
+Readout choice: item 563's old anomaly distance (skewed, heavy right
+tail) inflated robust z false positives to 11-14% of DMSO wells. Its
+score is now a bounded control percentile and is not meant as a 570
+value. Score a measured feature here, and use 563 for multivariate
+ranking.
+Verdict: the hit calls recover the known actives that change the chosen
+readout, with very few false positives. None of the 570 code was weak on this data, so it
+is unchanged. Receipt:
+features/data/563_570_real_screen_validation_2026-09-30.json (scripts in
+/mnt/wd4tb/scratch/563/scripts). Plots: write_hit_report on the cell-count
+readout wrote the SSMD, robust z and B-score heatmaps of all four plates
+and the tables. Per-plate Z' is -0.8 to -1.3 with the fourteen positive
+controls pooled, because their effects on cell count range from none to
+total loss. LEFT: cellHTS2 B-score parity.

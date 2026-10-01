@@ -27,6 +27,17 @@ QT_ROOT = os.path.join(os.path.dirname(os.path.abspath(spacr.__file__)), "qt")
 #: see ``test_the_database_browser_sorts_descending_first``.
 EXEMPT = {("screens/db_browser.py", "self._view")}
 
+#: View SUBCLASSES that must not take it, and why.
+#:
+#: 2026-09-30 (item 600c, the Organize for Measure popup): a click on a
+#: column header selects that column and a click on a row header selects the
+#: row, which is how a whole channel or set is dragged or cleared (see
+#: ``test_header_clicks_select_a_column_or_a_row``). Qt gives a header click
+#: to sorting OR to selection, never both, and the table's rows are image
+#: sets whose cells are named by position, so the header keeps selection.
+#: Its cells are still the shared item (``test_nothing_builds_a_bare_...``).
+EXEMPT_SUBCLASSES = {("widgets/organize_for_measure.py", "_OrganizeTable")}
+
 
 def _relative(path: str) -> str:
     return os.path.relpath(path, QT_ROOT).replace(os.sep, "/")
@@ -116,7 +127,7 @@ def test_every_view_in_the_source_asks_for_the_sorting_contract():
 
 def test_every_view_subclass_asks_for_it_too():
     """A view that is subclassed rather than built still has to sort."""
-    missing = []
+    missing, exempt_seen = [], set()
     for path in _python_files():
         relative = _relative(path)
         if relative == "widgets/sortable_table.py":
@@ -129,8 +140,14 @@ def test_every_view_subclass_asks_for_it_too():
             bases = {_text(base) for base in node.bases}
             if not bases & VIEW_CLASSES:
                 continue
+            if (relative, node.name) in EXEMPT_SUBCLASSES:
+                exempt_seen.add((relative, node.name))
+                continue
             if "self" not in covered:
                 missing.append(f"{relative}: class {node.name}")
+    assert exempt_seen == EXEMPT_SUBCLASSES, (
+        "an exemption names a view subclass that no longer exists: "
+        f"{sorted(EXEMPT_SUBCLASSES - exempt_seen)}")
     assert not missing, (
         "these view subclasses never call install_sorting(self):\n  "
         + "\n  ".join(missing))

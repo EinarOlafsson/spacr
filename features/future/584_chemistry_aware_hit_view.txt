@@ -1,0 +1,72 @@
+A CHEMISTRY-AWARE HIT VIEW: SMILES, RDKIT CLUSTERING, SAR TABLES
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27. Control Charts' hit scoring takes a
+compound table with SMILES, draws the hits' structures grouped by cluster
+(RDKit Morgan fingerprints, Butina), and exports SAR tables linking potency,
+phenotype and host toxicity (item 540). Checked on a synthetic compound
+screen; no real compound screen was on this machine. Hidden with Alpha
+features.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    For compound screens: attach SMILES to wells, draw structures next to
+    hits, cluster hits by chemical similarity (RDKit fingerprints), and show
+    structure-activity tables linking potency, host toxicity (item 540) and
+    phenotype.
+
+DONE WHEN
+    On a small compound screen, hits render with structures and clusters,
+    and SAR tables export.
+
+2026-09-27 -- Implemented as Alpha
+    Where: the hit-scoring option of Control Charts (item 570). Its controls
+    gain "Compounds..." (a CSV/Excel/Parquet table read by spacr.tabular:
+    a SMILES column, a compound name, and a well column with an optional
+    plate column, or no wells and names matching the Treatment column) and
+    "Cluster similarity" (Tanimoto, default 0.6). A new output section,
+    "Structures and SAR", draws the hit compounds' structures (up to 24,
+    framed by cluster, labelled with potency and cytotoxicity) and lists
+    the SAR table. "Export hits..." also writes sar_table.csv (one row per
+    compound: SMILES, cluster, nearest hit and its similarity, n wells, hit
+    wells, potency = median of the ranking statistic, best rank, phenotype =
+    median of the scored measurement, host viability and cytotoxicity
+    index, selectivity_* when fitted), sar_wells.csv, sar_clusters.csv and
+    hit_structures (through plot.save_figure).
+    Code: spacr/sp_stats.py private helpers only (_read_compound_map,
+    _attach_compounds, _fingerprints, _butina, _structure_activity,
+    _cluster_sar, _draw_hit_structures, _write_sar_report, _host_toxicity,
+    _host_by_well); screen code in spacr/qt/screens/control_chart.py. Hits
+    are clustered by Butina on Morgan radius-2 2048-bit fingerprints;
+    every non-hit compound joins the cluster of its most similar hit at the
+    same similarity, so a cluster lists its inactive analogues (the SAR).
+    Host toxicity is read from the viability_well and viability_selectivity
+    tables of the loaded measurements.db (Measure's viability step, 540).
+    RDKit is optional and imported only when used: without it the SAR
+    tables still export (no clusters or structures) and the screen and the
+    report say "pip install rdkit". MAINTAINER: add rdkit as an optional
+    dependency (e.g. a "chemistry" extra); not added to setup.py here.
+    Checked (CPU, RDKit 2026.3.6 installed into
+    /mnt/firecuda2/codex/scratch-docs/584/pylib, not the env): a two-plate
+    screen with two planted active series (2-phenylbenzimidazoles,
+    tert-butylbenzamides), five unrelated inactives and one inactive
+    fluoro analogue: all five hits called, clustered exactly into the two
+    series, the analogue joined series A as an inactive member (Tanimoto
+    >= 0.6), toxicity of one compound carried to its SAR row, tables and
+    the structure sheet exported. Tests: tests/test_chemistry_aware_hits.py
+    and tests/qt/test_chemistry_hit_view_alpha_gate.py (the RDKit tests
+    skip where RDKit is absent).
+    Still open: DONE WHEN on a real small compound screen; structures are
+    drawn as RDKit bitmaps (not vector) in the exported sheet.
+ALPHA: widgets ControlChartChemistry (the compound picker and cluster
+similarity inside the hit-scoring controls) and ControlChartChemistrySection
+(the Structures and SAR output section), registered as
+ALPHA_FEATURES[584]['widgets'] in spacr/settings.py. No settings keys. The
+screen test checks they hide with Show alpha features off, return with it
+on, and that a compound table loaded while hidden still reaches the SAR
+export. New tr() captions wait in _AWAITING_CATALOG_REBUILD.

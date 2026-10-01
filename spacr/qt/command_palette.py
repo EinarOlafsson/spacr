@@ -307,7 +307,8 @@ class CommandPalette(QDialog):
 
         The headers are not selectable, and the auto-selection skips past the
         first one -- otherwise Return on a freshly opened palette would activate
-        a heading.
+        a heading. Every command follows a heading, so the first command is
+        always the second row.
 
         :param cmds: the commands to show, in section order.
         """
@@ -324,9 +325,7 @@ class CommandPalette(QDialog):
             item.setData(Qt.UserRole, cmd)
             self._list.addItem(item)
         if self._list.count() > 1:
-            for i in range(self._list.count()):
-                if self._list.item(i).flags() != Qt.NoItemFlags:
-                    self._list.setCurrentRow(i); break
+            self._list.setCurrentRow(1)
 
     def _on_filter(self, needle: str) -> None:
         """Narrow the list to commands matching the typed text.

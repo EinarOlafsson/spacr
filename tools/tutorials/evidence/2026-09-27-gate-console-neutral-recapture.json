@@ -1,0 +1,562 @@
+{
+  "item": "447",
+  "date": "2026-09-27",
+  "lesson": "64_gate_editor",
+  "scope": "Only the console answer and unsent chat draft frames were replaced with native captures. The remaining gate frames and narration retain their original scientific results.",
+  "capture_provenance": {
+    "commit": "bace0c525c7f1c5e47a15fad5f9aa04281c8cb15",
+    "version": "1.5.1.0",
+    "module": "gate_editor",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "scientific_acceptance": {
+    "accepted": true,
+    "reason": "Real gates, exact export identities, reversible views/filtering and console checked",
+    "clustering_does_not_establish_biological_populations": true,
+    "projection_fit_is_not_part_of_saved_gate_strategy": true,
+    "publication_held": true,
+    "published": false
+  },
+  "gate_checkpoint": {
+    "actual_named_gate": {
+      "gates": [
+        {
+          "kind": "rectangle",
+          "name": "tutorial_population",
+          "parent": null,
+          "x_column": "cell_area",
+          "y_column": "cell_channel_1_mean_intensity",
+          "x_low": 14794.634601685737,
+          "x_high": 30543.241342907168,
+          "y_low": 11384.905211094989,
+          "y_high": 16446.078505123078
+        }
+      ]
+    },
+    "gate_count": 657,
+    "all_rows": 2341,
+    "actual_save_delete_load_restores_membership": true,
+    "checkbox_hides_without_removing_membership": true,
+    "database": "/tmp/spacr-tutorials/gate_runs/example-_ibnyosq/measurements.db",
+    "original_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+    "original_database_unchanged": true,
+    "saved_strategy": "/tmp/spacr-tutorials/gate_runs/example-_ibnyosq/gates.json",
+    "chapter_complete": "Actual drawing, strategy reuse, exports, 3D, projection and search",
+    "second_gate_count": 265,
+    "automatic_nesting": false,
+    "exported_gate_objects": 657,
+    "exported_gate_object_identities_and_types_match": true,
+    "private_raw_cell_measurements_unchanged": true,
+    "volume_gate_count": 2341,
+    "two_gate_strategy": {
+      "gates": [
+        {
+          "kind": "rectangle",
+          "name": "tutorial_population",
+          "parent": null,
+          "x_column": "cell_area",
+          "y_column": "cell_channel_1_mean_intensity",
+          "x_low": 14794.634601685737,
+          "x_high": 30543.241342907168,
+          "y_low": 11384.905211094989,
+          "y_high": 16446.078505123078
+        },
+        {
+          "kind": "rectangle",
+          "name": "tutorial_second",
+          "parent": null,
+          "x_column": "cell_area",
+          "y_column": "cell_channel_1_mean_intensity",
+          "x_low": 12994.79383126043,
+          "x_high": 22668.93797229645,
+          "y_low": 10589.99895428912,
+          "y_high": 13925.989924985295
+        }
+      ]
+    },
+    "three_gate_strategy": {
+      "gates": [
+        {
+          "kind": "rectangle",
+          "name": "tutorial_population",
+          "parent": null,
+          "x_column": "cell_area",
+          "y_column": "cell_channel_1_mean_intensity",
+          "x_low": 14794.634601685737,
+          "x_high": 30543.241342907168,
+          "y_low": 11384.905211094989,
+          "y_high": 16446.078505123078
+        },
+        {
+          "kind": "rectangle",
+          "name": "tutorial_second",
+          "parent": null,
+          "x_column": "cell_area",
+          "y_column": "cell_channel_1_mean_intensity",
+          "x_low": 12994.79383126043,
+          "x_high": 22668.93797229645,
+          "y_low": 10589.99895428912,
+          "y_high": 13925.989924985295
+        },
+        {
+          "kind": "box",
+          "name": "tutorial_volume",
+          "parent": null,
+          "x_column": "cell_area",
+          "y_column": "cell_channel_1_mean_intensity",
+          "z_column": "cell_perimeter",
+          "x_low": -7200.354166666667,
+          "x_high": 110222.35416666666,
+          "y_low": -3152.2985094899614,
+          "y_high": 48615.534601217514,
+          "z_low": -73.20005068815993,
+          "z_high": 2292.670359629498
+        }
+      ]
+    },
+    "actual_3d_rotation": {
+      "before": [
+        30,
+        -60
+      ],
+      "after": [
+        29.999999999999996,
+        -109.99999999999999
+      ]
+    },
+    "projection_source_label": "projected onto PC1 17%, PC2 13%, PC3 6%",
+    "projection_independent_of_dimensions": true,
+    "search_outcomes": [
+      {
+        "label": "22_walk",
+        "dialogs": [
+          {
+            "title": "Cluster settings",
+            "eps": 0.5,
+            "min_samples": 20,
+            "walk": true,
+            "walk_steps": 5,
+            "scale": true
+          },
+          {
+            "title": "Walk finished",
+            "text": "Clustered at eps 0.167, which gave 2 populations and left 33% of objects outside them."
+          }
+        ],
+        "gates": {
+          "gates": [
+            {
+              "kind": "polygon",
+              "name": "cluster 1",
+              "parent": null,
+              "x_column": "cell_area",
+              "y_column": "cell_channel_1_mean_intensity",
+              "vertices": [
+                [
+                  5395.0,
+                  15079.655977757182
+                ],
+                [
+                  7657.0,
+                  12027.328196421575
+                ],
+                [
+                  9324.0,
+                  10872.386314886315
+                ],
+                [
+                  20623.0,
+                  9200.882946225089
+                ],
+                [
+                  22238.0,
+                  9006.77619390233
+                ],
+                [
+                  31267.0,
+                  8681.25304634279
+                ],
+                [
+                  34460.0,
+                  8777.780237957051
+                ],
+                [
+                  35914.0,
+                  9016.493540123629
+                ],
+                [
+                  40306.0,
+                  10196.400213367737
+                ],
+                [
+                  41055.0,
+                  11502.833978808914
+                ],
+                [
+                  36891.0,
+                  13875.376189314467
+                ],
+                [
+                  30855.0,
+                  17130.796532166587
+                ],
+                [
+                  27266.0,
+                  18030.117472309837
+                ],
+                [
+                  19515.0,
+                  19946.848475531642
+                ],
+                [
+                  11331.0,
+                  19567.877768952432
+                ],
+                [
+                  10760.0,
+                  19518.123513011153
+                ],
+                [
+                  9698.0,
+                  18965.401835429984
+                ]
+              ]
+            },
+            {
+              "kind": "polygon",
+              "name": "cluster 2",
+              "parent": null,
+              "x_column": "cell_area",
+              "y_column": "cell_channel_1_mean_intensity",
+              "vertices": [
+                [
+                  12042.0,
+                  9417.723966118585
+                ],
+                [
+                  12912.0,
+                  9139.13886307311
+                ],
+                [
+                  13858.0,
+                  8918.532400057728
+                ],
+                [
+                  15458.0,
+                  9019.037068184758
+                ],
+                [
+                  16926.0,
+                  9408.911615266454
+                ],
+                [
+                  17570.0,
+                  9742.53562891292
+                ],
+                [
+                  16578.0,
+                  10303.04240559778
+                ],
+                [
+                  15285.0,
+                  10311.937847562971
+                ],
+                [
+                  12523.0,
+                  10289.85650403258
+                ]
+              ]
+            }
+          ]
+        },
+        "status": "2,341 objects · 2 of 2 gate(s) shown · next gate inside cluster 1",
+        "populations": {
+          "cluster 1": 1540,
+          "cluster 2": 25
+        }
+      },
+      {
+        "label": "25_fixed_radius",
+        "dialogs": [
+          {
+            "title": "Cluster settings",
+            "eps": 0.5,
+            "min_samples": 20,
+            "walk": false,
+            "walk_steps": 5,
+            "scale": true
+          }
+        ],
+        "gates": {
+          "gates": [
+            {
+              "kind": "polygon",
+              "name": "cluster 1",
+              "parent": null,
+              "x_column": "cell_area",
+              "y_column": "cell_channel_1_mean_intensity",
+              "vertices": [
+                [
+                  272.0,
+                  12471.628676470587
+                ],
+                [
+                  1065.0,
+                  7317.123943661972
+                ],
+                [
+                  3103.0,
+                  3963.9310344827586
+                ],
+                [
+                  49262.0,
+                  6059.555174373757
+                ],
+                [
+                  53926.0,
+                  7717.471108556169
+                ],
+                [
+                  59917.0,
+                  11581.040589482116
+                ],
+                [
+                  61432.0,
+                  12712.772594087772
+                ],
+                [
+                  59022.0,
+                  14231.134780251432
+                ],
+                [
+                  54124.0,
+                  17316.627854556205
+                ],
+                [
+                  46072.0,
+                  20952.461516756382
+                ],
+                [
+                  27314.0,
+                  25838.85663029948
+                ],
+                [
+                  23137.0,
+                  26457.042961490253
+                ],
+                [
+                  19547.0,
+                  26625.823451168977
+                ],
+                [
+                  12522.0,
+                  26769.583373263056
+                ],
+                [
+                  8591.0,
+                  26162.76079618205
+                ],
+                [
+                  4542.0,
+                  24685.43857331572
+                ],
+                [
+                  3141.0,
+                  21769.74275708373
+                ],
+                [
+                  859.0,
+                  16753.166472642606
+                ]
+              ]
+            }
+          ]
+        },
+        "status": "2,341 objects · 1 of 1 gate(s) shown · next gate inside cluster 1",
+        "populations": {
+          "cluster 1": 2239
+        }
+      }
+    ],
+    "live_filter_cutoff": 21925,
+    "live_filtered_rows": 1171,
+    "clearing_filter_restores_every_row": true,
+    "filter_does_not_change_saved_gate_boundaries": true,
+    "actual_console_expression": "len(df)",
+    "actual_console_answer": 2341,
+    "assistant_question_not_sent": true,
+    "whole_lesson_complete": true,
+    "published": false
+  },
+  "console_evidence": {
+    "expression": "len(df)",
+    "transcript": "Saved the graph to /tmp/spacr-tutorials/gate_runs/example-_ibnyosq/gate_graph.png\n› len(df)\n2341",
+    "unsent_question": "How should I interpret this gate?",
+    "assistant_responder_configured": false,
+    "assistant_request_sent": false
+  },
+  "recording_tools_commit": "bace0c525c7f1c5e47a15fad5f9aa04281c8cb15",
+  "adopted_frames": [
+    {
+      "frame": "02_real_database_picker.png",
+      "scenes": [
+        1
+      ],
+      "method": "verified existing neutral-path redaction",
+      "original_sha256": "8a2c3f2d1db4b59b461a828ae23487680bf97445d167b3682346f505053e34ea",
+      "capture_sha256": "de783b200597e91e99361c53e3a26674b4b3bbc639637eca55c8bd73bf0d8cb4"
+    },
+    {
+      "frame": "09_save_strategy.png",
+      "scenes": [
+        6
+      ],
+      "method": "verified existing neutral-path redaction",
+      "original_sha256": "112d19ee9bf27edba5387a95769d8d574a1ba71adcd5f42511652cef3d0852f4",
+      "capture_sha256": "2a74fd26d11e494733d5a8ae8d5040f0cf74662d21e608b8039afe5d90d5a7f6"
+    },
+    {
+      "frame": "12b_save_graph.png",
+      "scenes": [
+        8
+      ],
+      "method": "verified existing neutral-path redaction",
+      "original_sha256": "4ac404ebbc6d39316723be90b4d7f0561143710b29756a6c9b2ca7083e113ff7",
+      "capture_sha256": "5cfc1f5f7c538d8084e49d0f6bb366c1fd46716deccfa13ce30166ad1177bd38"
+    },
+    {
+      "frame": "31_real_console_answer.png",
+      "scenes": [
+        20
+      ],
+      "method": "native console recapture after real gates and exact membership export checks",
+      "original_sha256": "840b0d60e5cf8c799fa256cb9db6a52edec83bcab26a070aab6dac0078edd9ae",
+      "capture_sha256": "2fd50801f92ec3d52a4bd5771ff81455867b750f43b52763e496e1e8199c06dc"
+    },
+    {
+      "frame": "32_chat_draft_not_sent.png",
+      "scenes": [
+        21
+      ],
+      "method": "native console recapture after real gates and exact membership export checks",
+      "original_sha256": "aab4fa26f1771d8d8af026a2df0c3d26458799b7b35b6bbb72addb180510c9ee",
+      "capture_sha256": "cf50d8d948443e1968863a6f81b9a52ed289dc377570bcfe1f89445175f82d06"
+    }
+  ],
+  "english_sha256": "c53acd338be4bb2e1a5c6402325dc13c673f8b99f05e3fb879daf9524f41ebbc",
+  "audio_and_cues_sha256": {
+    "audio/en/af_heart.json": "95bfbd7e21cf3a9face6b80164c8192fc7ad47c48d0fea9d312ef6173682cc49",
+    "audio/en/af_heart.m4a": "1a74e04c9ec781d4fb9a55c0be4677c88c77e15020810da4e50684648854ba2b",
+    "audio/es/ef_dora.json": "17148eca8f4c68bfbac645666ea5c7b4717618206193adc160c63a135ba689a1",
+    "audio/es/ef_dora.m4a": "8a62d7a351c676a40124065254634de08d0cff70d40e805c405f70a6afa829f9",
+    "audio/es/em_alex.json": "a5275747c8e91d59af34b21d6d08911ab304653aad9855a2d668b0aebe3e7f1b",
+    "audio/es/em_alex.m4a": "40ec8798a013a56dabf67b619bab7bc61721b9a2763537b99a61729363839a3e",
+    "audio/es/em_santa.json": "01dde6e2e8666177f2dd7aa98b12c2098ed96d6523d5701e1ad1f28f16554627",
+    "audio/es/em_santa.m4a": "79d7125e81693c22250167f68cc4677f1ab70ce855e6e64d6b68afdcc0aa84ea",
+    "audio/fr/ff_siwis.json": "c3fa22032a4bd7753328479cb0e39e2b61163289c4f1f8c5f9aeb12931fcca30",
+    "audio/fr/ff_siwis.m4a": "a4757898f9497d24f0e5a193c660e3f6b15449a54e34cd9d53e279ca92338d65",
+    "audio/hi/hf_alpha.json": "fc1cc42228eea0f938ee2265ad9f39beb21e25f0ccc9324d9d00bd46d6d736bb",
+    "audio/hi/hf_alpha.m4a": "f3a95fe079ba6fb45cfeb5404b093c868a116a66f2604aebe4dd52dca738eebe",
+    "audio/hi/hf_beta.json": "1449746f9451b1d7792e36a5c3d124b071a9b5992136749414479cc3104d4d1d",
+    "audio/hi/hf_beta.m4a": "9f9953a53c95096f8566c7f303d4a9aec44b8d49c0452929411e39eef0ad5c25",
+    "audio/hi/hm_omega.json": "811f06d3a1a440b51b79006d9a4264eb7159e1227bb01118691ff49f707c8e95",
+    "audio/hi/hm_omega.m4a": "96bc401ba7122d9979aba43ed0564ebf35ee08516c7062050a1602e51879b147",
+    "audio/hi/hm_psi.json": "85bb382aa364633773561d0aab68f2e71096c2a3ebfb18ba47576b5b745b38b7",
+    "audio/hi/hm_psi.m4a": "d819bae56886a352d9ee8532dc266fb863116f1af03961c094774d8acaed734e",
+    "audio/it/if_sara.json": "76efd26b6ca69c8dec857401a09057f924041389d17036cf801d78da8e4473c8",
+    "audio/it/if_sara.m4a": "58a65d52d47119037b8183f2c4ce828472231db31ed6960a3f6366d2beb51364",
+    "audio/it/im_nicola.json": "218b5fe9614365ad898cefc05a9a8a20c443dd5ff09a615b21af7c0cb37a3db1",
+    "audio/it/im_nicola.m4a": "2789a148eb920b8cb99b2e29aa9221de646a8e9a10f13bd9f7895fe7552ec10d",
+    "audio/ja/jf_alpha.json": "1ae0ee4abea958a34b5417cdeaddba4cfaffb4de4464523bddfc8349238420c1",
+    "audio/ja/jf_alpha.m4a": "5a3d9940299f11f1a66327f799bd72c489629a956d1c029d2e686eb111a2601c",
+    "audio/ja/jf_gongitsune.json": "87558134ad78caa95d08dc30695dcbc6ccb1cdf891a72864ccf831318594e102",
+    "audio/ja/jf_gongitsune.m4a": "f2ef6a9cb433736109ecd21993ee2f1694d4738febc2020d97865eb1df9608d5",
+    "audio/ja/jf_nezumi.json": "48faad8d0648b1029868b24e1e3404985c6880a744405b27dde2ee06f7686738",
+    "audio/ja/jf_nezumi.m4a": "8d02d38ee409458031f8d88cd9aa21eabb6cf9bdea5bbcabb80b5a1ff9874a48",
+    "audio/ja/jf_tebukuro.json": "e960f36a72aa9ea213ba5b61330d09fe64a885d83c2c3a2e565166b9758d5aae",
+    "audio/ja/jf_tebukuro.m4a": "b32f875018787effb56d03b09c99b5e152b30ff28b6096493f8c1ef4bc443897",
+    "audio/ja/jm_kumo.json": "4e86765b0b2d2794f56f32c6d054be4e66522477ff9c56cdad2a4e7979fe3c70",
+    "audio/ja/jm_kumo.m4a": "8cfd240b3a0789c017274803811ca08acc8527946dedc78dfee9284c43b0c232",
+    "audio/pt-BR/pf_dora.json": "93793cb98c8efd0146d25d05124a7b5c672c4eb19f2d4910970ecad97196991e",
+    "audio/pt-BR/pf_dora.m4a": "a06af7883385850c5b068aefb1287e71af9146952916ab6cbd97d25d48fd49e6",
+    "audio/pt-BR/pm_alex.json": "8169cd25a75f2e9c19aabf7bcf866091b416dfa72225ac634d9bfdf8ab61459e",
+    "audio/pt-BR/pm_alex.m4a": "01c1ed0ba69185ee83f71562aa190be66c11b172d9f8ee0c36ade8e3f938e2ff",
+    "audio/pt-BR/pm_santa.json": "6fc6f74c7d666b198e264baf29ef2f430e67645d469d3149b3eb0143458172a2",
+    "audio/pt-BR/pm_santa.m4a": "f6744e814b78bb761b5b86eeb05e44fb364a1d353dbcdd9527eb133c8d8e9e45",
+    "audio/zh-CN/zf_xiaobei.json": "79b6c033007d2d7dc899811e39e7801efb90ec953a6d003e702af1583104b25d",
+    "audio/zh-CN/zf_xiaobei.m4a": "2547d843dcd4c4578defde4080a6ef38959cf8db5b988b6b144925ae2bd652e9",
+    "audio/zh-CN/zf_xiaoni.json": "0988285bc5708caaeb9c43a167cdf9d0f1a8d98a50321c5180a44fafc8b5a1b5",
+    "audio/zh-CN/zf_xiaoni.m4a": "982f47040421ecbd7149401f693f0cbbb0061fda176910954883e01152575368",
+    "audio/zh-CN/zf_xiaoxiao.json": "6e51a911621282c539f2bb871834b7542ee168dad001e477af2b63d5f9ba0760",
+    "audio/zh-CN/zf_xiaoxiao.m4a": "9fda8923546118713f78d91668684ba34e2aab379b3e88d10a014b3083f65de5",
+    "audio/zh-CN/zf_xiaoyi.json": "1d340e95747e8258cfaebf78435fe7613000c8883312aa7fc9c47ab65f47fe54",
+    "audio/zh-CN/zf_xiaoyi.m4a": "47bf402ed10ca3223750156c5c2d4207ab4bd9375f620c2643fc01ea892d4e62",
+    "audio/zh-CN/zm_yunjian.json": "50f49864bdd5f0f007ea1ac11ab867809bf6524eaa3fccac3ea10132f3a1bd15",
+    "audio/zh-CN/zm_yunjian.m4a": "a3e1f2354b4e00d8c9a1c5223c660120d0e248c7b5cb69b68d72fa01bc83b27d",
+    "audio/zh-CN/zm_yunxi.json": "27008f65ecfffa7b23bb17876f3e16462cbb187825c01e6fc4d8e051292829b1",
+    "audio/zh-CN/zm_yunxi.m4a": "4fa3c7defc63a491715d064bef828511ae679ef6757689499164dca9d932de88",
+    "audio/zh-CN/zm_yunxia.json": "c7819776686e18225ba3131351fbaf76ab71fbd411ee07f986eabf173e220c02",
+    "audio/zh-CN/zm_yunxia.m4a": "b2303ad10f6595fe625fa7d972b572b056c51a45c18a5e799961daf00d4fb751",
+    "audio/zh-CN/zm_yunyang.json": "9b0588a25f0f3986a1ff7ec2301a88f48597019deb6e5e7ecb2170bba04d7e59",
+    "audio/zh-CN/zm_yunyang.m4a": "ecbcff75b2d87f23dfa12e01cda62d9a0efdeb38a1945a73608bc243c38c4e95",
+    "captions/en/af_heart.vtt": "645a0bb9307184e277f736864361c2b921e729ed1733c0553a2ee29644e245d2",
+    "captions/es/ef_dora.vtt": "7f847f6ddc95c52aa228b4f24b56ee50716230b4e3e17e8be03c83fb8024af64",
+    "captions/es/em_alex.vtt": "2702faa0b62b95dead6f73aa1789dbd78e732c7642b8733610f8f0a041b2e38c",
+    "captions/es/em_santa.vtt": "cc6e0a08ae05235188141e112e7bb835b3c40fdc2026942b59be6268f17f4606",
+    "captions/fr/ff_siwis.vtt": "36e4a8b4abf36b53d17bd8da51c301843351d5e1d16c5eefeea9bf89e51dd022",
+    "captions/hi/hf_alpha.vtt": "81a1dc8223898f915a8347cd3f7dba9af760f99f055803c2eb00b13394e1d30d",
+    "captions/hi/hf_beta.vtt": "bdc992bde23a8def6d5e830ed42dada838b419c18c5fb99774963bb3786b43b7",
+    "captions/hi/hm_omega.vtt": "9e1a540310b8741e2676e7ee83024bea58e15bc8256a8e767f85c75540630db7",
+    "captions/hi/hm_psi.vtt": "8ae44d73f072daeaaf044720e46919c20876a67333ed51f2269eae49b18f5b77",
+    "captions/it/if_sara.vtt": "dc7efd8a34612bd14a40ea1c758edd1fb1ac8fff6a4ebe160578bd89b78b2bbe",
+    "captions/it/im_nicola.vtt": "4e6532b05c3e2dd62d3f7eee3508bdfec56f98c991483a4df23ae800f6e340c3",
+    "captions/ja/jf_alpha.vtt": "6fecd3bd95842a98a7a40bdb133e03f9788af08ca38f80788a4915f64fbca5e2",
+    "captions/ja/jf_gongitsune.vtt": "c830a20e6580ecd342875f8bf05293d45bd305ba998b1f4114fafab79a722f50",
+    "captions/ja/jf_nezumi.vtt": "292673e6a163559484c10e724bf4e2d1038b40218b79f32b5a0a3632d33b8944",
+    "captions/ja/jf_tebukuro.vtt": "81cbd992dbe6a9eb419b430c3c23cf53f61441b688371eb9720a90a6c34957cb",
+    "captions/ja/jm_kumo.vtt": "10d46151f7fbc4a30c2e9f2b10cf104578c81f06c94453afcc816a11e6193941",
+    "captions/pt-BR/pf_dora.vtt": "975c57c483ac0a6492edc5fad6538fec1ccdf0e3a1bdf0d1a1cb6e2c701c08e6",
+    "captions/pt-BR/pm_alex.vtt": "46e1593cd673cb3b764088c3505e7d44637d14e656d9383441274cbb306dd20f",
+    "captions/pt-BR/pm_santa.vtt": "f21c73b7835225b38337abf63bcd82ac81076f9c5355ef6b33edc99a1e0de250",
+    "captions/zh-CN/zf_xiaobei.vtt": "1aa1db2d6ed1c6c13413c2df071dd0305930211fcb465c9a733dc1241a382491",
+    "captions/zh-CN/zf_xiaoni.vtt": "2b3f5e5c00ad250e94dc94307bf127405accf7a11d4fccc6398cf2c2d3fe779a",
+    "captions/zh-CN/zf_xiaoxiao.vtt": "2a947e38eac00486dbb5d1efefef4401267202a6c21a028b0fad3ee9ea05ffa9",
+    "captions/zh-CN/zf_xiaoyi.vtt": "0af99af35a690bb68bf7205c8f8f678cceb2c66573b4b4d97850933093d1ccca",
+    "captions/zh-CN/zm_yunjian.vtt": "e5fb14c9c91052e800d1951758236c5934cfe4902a12bd433b6fc97df6528415",
+    "captions/zh-CN/zm_yunxi.vtt": "bbddbd4ff7e856c75f3d264ba3926b3022c08820290e3ed61f239f18b16e62f6",
+    "captions/zh-CN/zm_yunxia.vtt": "9d5d1c459a9a3a1ea97c5b1cfaf2e7a6205bf4bfc8287ae8a9df3b11c29e868c",
+    "captions/zh-CN/zm_yunyang.vtt": "f65c08d8a08703c090909124322d0c64ed8b409f82e533384d1976f7d47fd792"
+  },
+  "visual_sha256": "5eafe9833b2e26ae828eb19a08c4903173af22510002c1854bcee7ee0fc020db",
+  "media_rendered": true,
+  "published": false,
+  "media": {
+    "master_sha256": "7d304240a74f07b7b70090a4526e8bb3aa4f21f309f96571070b37341e748c85",
+    "web_sha256": "a56485ab4b2f98169a63a1eea2ab2d42910f77bec7d189729880580a7742e501",
+    "web_bytes": 11990119,
+    "poster_sha256": "33e3710dc90c8e39f5d7a2d147a2f18acdb06edabf769463783a386d5ad86409",
+    "rendition_accepted": true
+  },
+  "checks": {
+    "playback": {
+      "browser": {
+        "passed": true,
+        "report_sha256": "f4b2b9bcd779eb453b15a94608979fd3bf4efaf9e152b3d9aea661a6192c480d"
+      },
+      "browser-web": {
+        "passed": true,
+        "report_sha256": "5370213d3afe8c6a1e9557c0a5709dfbfcb824240010ca9f2c26bd1cc6d4ab9f"
+      }
+    },
+    "frame_sweep": {
+      "images_checked": 22,
+      "path_offenders": [],
+      "errors": {},
+      "report_sha256": "bba18c3ed1121ab1f09fd1b248f7ba52836ba924770cf27e9a161950825c5658"
+    }
+  }
+}

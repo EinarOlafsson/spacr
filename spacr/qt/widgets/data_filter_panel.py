@@ -401,6 +401,9 @@ class DataFilterPanel(QWidget):
         a column the new frame does not have would raise on the next apply,
         and silently keeping only the ones that still resolve would narrow by
         less than the panel claims to.
+
+        :param frame: the table to filter; every column that
+            :func:`classify_columns` does not mark ``"skip"`` is offered.
         """
         self._frame = frame
         self.clear()
@@ -415,7 +418,12 @@ class DataFilterPanel(QWidget):
         return [self._picker.itemText(i) for i in range(self._picker.count())]
 
     def add_column(self, column: str) -> None:
-        """Add a clause row for ``column``. Adding twice is a no-op."""
+        """Add a clause row for ``column``. Adding twice is a no-op.
+
+        :param column: column of the current frame; a range row is added for a
+            ``"range"`` column and a category row for a ``"category"`` one.
+            Anything else, or no frame yet, adds nothing.
+        """
         if self._frame is None or column in self._rows:
             return
         kind = getattr(self, "_kinds", {}).get(column)
@@ -482,6 +490,9 @@ class DataFilterPanel(QWidget):
     def restore(self, state: dict) -> List[str]:
         """Apply a saved set to the CURRENT frame.
 
+        :param state: dict as :meth:`state` returns it,
+            ``{"version": 1, "filters": [...]}``; any other version raises
+            ``ValueError``. Existing clauses are cleared first.
         :returns: the columns that could not be restored, so the caller can
             say so. A filter set saved against one table and loaded against
             another is a normal thing to do -- what must not happen is it
@@ -508,7 +519,11 @@ class DataFilterPanel(QWidget):
         return missing
 
     def save(self, path: str) -> str:
-        """Write the filter set to ``path`` as JSON."""
+        """Write the filter set to ``path`` as JSON.
+
+        :param path: destination file, overwritten with :meth:`state`; it is
+            also the return value.
+        """
         import json
 
         with open(path, "w", encoding="utf-8") as handle:
@@ -516,7 +531,11 @@ class DataFilterPanel(QWidget):
         return path
 
     def load(self, path: str) -> List[str]:
-        """Read a filter set from ``path``. Returns the missing columns."""
+        """Read a filter set from ``path``. Returns the missing columns.
+
+        :param path: JSON file written by :meth:`save`; its contents are
+            applied with :meth:`restore`.
+        """
         import json
 
         with open(path, encoding="utf-8") as handle:

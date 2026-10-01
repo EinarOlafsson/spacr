@@ -1,0 +1,47 @@
+PLAQUE FIGURE MODE SHOWS THE FOUR VIEWS: OVERLAY, MASKS, FLOWS, CELL PROBABILITY
+
+Status: DONE, 2026-09-25.
+
+THE REQUEST
+The maintainer, 2026-09-25:
+  "i cannot see the cell probability, flows, and masks tabs in the figure
+  mode for the plaque assay, please add these, and also for plaque mode
+  if they are not there already"
+
+BEFORE
+Item 513 part 3 put the shared SegmentationViews (Overlay, Masks, Flows,
+Cell probability) into the plaque preview, but PlaquePreviewPanel.set_mode
+hid the view dropdown in Figure mode and forced Overlay. The per-well
+segmentation (segment_well) kept only the label mask, so there were no
+flows or probability to show. Plaque mode already offered all four views.
+
+WHAT CHANGED
+- The view dropdown stays visible in both modes; Figure mode no longer
+  forces Overlay (spacr/qt/widgets/plaque_preview.py:2872, set_mode).
+- segment_well asks the plaque model for its flows (return_flows=True,
+  the same call Plaque mode's plaque_pass makes) and returns flow_rgb and
+  cellprob for the well crop; a segmenter that gives labels only still
+  works and gives None for both (spacr/qt/widgets/plaque_preview.py:1291).
+- New PlaquePreviewPanel._show_figure_views
+  (spacr/qt/widgets/plaque_preview.py:4206) places every segmented well's
+  mask, flow picture and cell probability at the well's box on the
+  figure, and hands them to the views; it runs when a figure pass
+  finishes (:3733) and after each well is segmented (:4196). Masks are
+  numbered on across wells. Overlay stays the figure with the plaques and
+  the well boxes, as before.
+- Nothing to show says so with the shared widget's sentences: before any
+  well is segmented, "Press Run preview to see this."; wells segmented
+  without flows, "This run gave no flows." / "This run gave no cell
+  probability map."; wells with no plaque, "No plaques were found in this
+  image."
+
+TESTS
+tests/qt/test_524_plaque_figure_mode_shows_the_four_views.py (offscreen,
+faked detector and segmenter): Plaque mode shows the dropdown with the four
+views; Figure mode shows it too; each view shows the expected array for
+one segmented well and then for all wells; the sentences before a well is
+segmented and for a segmenter without flows; segment_well returns the
+crop's flows. The 513 test that pinned the old Overlay-only rule
+(test_513_plaque_preview_shares_the_four_views.py) and one line of
+test_plaque_assay_has_plaque_and_figure_modes.py were updated to the new
+behaviour. All plaque preview and segmentation view tests pass (188).

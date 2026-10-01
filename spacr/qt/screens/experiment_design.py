@@ -729,7 +729,11 @@ class ExperimentDesignScreen(QWidget):
 
 
     def begin_well_drag(self, row: int, column: int, modifiers=None) -> None:
-        """Anchor a selection on one well."""
+        """Anchor a selection on one well.
+
+        :param row: the anchor well's row index, counting from zero.
+        :param column: the anchor well's column index, counting from zero.
+        """
         self._well_anchor = (int(row), int(column))
         self._well_adding = bool(
             modifiers is not None and (modifiers & Qt.ControlModifier))
@@ -738,14 +742,23 @@ class ExperimentDesignScreen(QWidget):
                                            self._well_anchor))
 
     def well_at(self, position):
-        """The ``(row, column)`` under a GLOBAL point, or ``None``."""
+        """The ``(row, column)`` under a GLOBAL point, or ``None``.
+
+        :param position: a ``QPoint`` in global screen coordinates, mapped
+            into each well's own coordinates to test containment.
+        """
         for label in self._well_labels:
             if label.rect().contains(label.mapFromGlobal(position)):
                 return (label.row, label.column)
         return None
 
     def drag_wells_to(self, position) -> None:
-        """Preview the rectangle from the anchor to the well under a point."""
+        """Preview the rectangle from the anchor to the well under a point.
+
+        :param position: the pointer as a ``QPoint`` in global screen
+            coordinates; ignored when no drag is anchored, when it is over no
+            well, or when the well has not changed since the last call.
+        """
         anchor = getattr(self, "_well_anchor", None)
         if anchor is None:
             return

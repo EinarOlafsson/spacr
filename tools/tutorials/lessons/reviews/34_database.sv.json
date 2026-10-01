@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Database Browser: filtrera och exportera mätningar",
+  "description": "Öppna en mätdatabas, välj kolumner och rader och exportera resultatet.",
+  "objectives": [
+    "Öppna och bläddra i en mättabell.",
+    "Välja kolumner och filtrera rader.",
+    "Exportera matchande poster."
+  ],
+  "prerequisite": "Ha en spaCR-fil measurements.db eller en körmapp som innehåller en. Measures exempelprojekt ger en databas efter mätningen.",
+  "scenes": [
+    "Öppna Help och sedan Database Browser för att granska och exportera mättabeller.",
+    "Välj measurements.db, eller körmappen som innehåller den, och öppna databasen.",
+    "Välj den tabell du behöver. Välj cell för cellmätningar, eller en annan objekttabell för det objektets egenskaper.",
+    "Läs det totala antalet rader och kolumner och granska sedan den visade sidan. Använd sidkontrollerna för att bläddra i större tabeller.",
+    "Sök bland kolumnnamnen för att hitta en egenskap. Välj de kolumner du vill visa och exportera.",
+    "Bygg ett filter genom att välja en kolumn, en operator och ett värde. Tillämpa det för att välja matchande poster i hela tabellen.",
+    "Kontrollera antalet filtrerade rader och granska de matchande posterna. Justera eller rensa filtret för att ändra urvalet.",
+    "Välj Export och en målfil. Exporten innehåller alla matchande rader och dina valda kolumner, medan källdatabasen förblir oförändrad."
+  ]
+}

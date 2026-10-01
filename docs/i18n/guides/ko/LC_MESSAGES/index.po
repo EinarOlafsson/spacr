@@ -1,0 +1,210 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Language"
+msgstr "언어"
+
+msgid "Welcome to spaCR"
+msgstr "spaCR에 오신 것을 환영합니다"
+
+msgid "spaCR Logo"
+msgstr "spaCR 로고"
+
+msgid "**spaCR** — *Spatial phenotype analysis of CRISPR screens.*"
+msgstr "**spaCR** — *CRISPR 스크린의 공간 표현형 분석.*"
+
+msgid "You are reading the |docs-channel| documentation for spaCR |spacr-version|. The main site follows ``main``. The nightly preview follows ``nightly`` and may describe features not yet in a release. Each branch publishes its own API, guides and committed tutorial catalog automatically."
+msgstr "spaCR |spacr-version| 의 |docs-channel| 문서를 읽고 있습니다. 기본 사이트는 ``main`` 을 따릅니다. 나이틀리 미리보기는 ``nightly`` 를 따르며 아직 릴리스되지 않은 기능을 설명할 수 있습니다. 각 브랜치는 자체 API, 안내서, 커밋된 튜토리얼 카탈로그를 자동으로 게시합니다."
+
+msgid "A Python toolkit for quantifying and visualising phenotypic changes in high-throughput microscopy screens. Ships with a modern PySide6 GUI (``spacr``), a headless pipeline (:mod:`spacr.core`), and a plate-to-classification workflow that runs on top of PyTorch, Cellpose, scikit-image, and scipy."
+msgstr "고처리량 현미경 스크린에서 표현형 변화를 정량화하고 시각화하기 위한 Python 도구 키트입니다. 최신 PySide6 GUI(``spacr``), 헤드리스 파이프라인(:mod:`spacr.core`), 그리고 PyTorch, Cellpose, scikit-image, scipy를 기반으로 동작하는 플레이트에서 분류까지의 워크플로를 제공합니다."
+
+msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
+msgstr "풀드 또는 어레이 CRISPR 스크린을 수행하며 플레이트 이미지에서 세포별 측정값이 필요한 세포생물학자를 위해 만들어졌습니다. GUI 경로는 프로그래밍이 필요 없으며, 같은 처리 단계를 Python API로도 사용할 수 있어 스크립트 기반의 재현 가능한 워크플로를 구성할 수 있습니다."
+
+msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida organism guides. Choose an organism to see its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "GUI는 애플리케이션을 네 범주로 묶습니다. *핵심* 은 분할-측정-분류 파이프라인, *데이터* 는 이미지와 표를 가져오고 대규모로 실행하는 기능, *도구* 는 수동 마스크 수정, 스티칭, 임베딩, 게이트, 그래프, 품질 관리처럼 프로젝트에 대고 사용하는 도구, *어세이* 는 톡소플라스마, 플라스모디움, 칸디다 생물종 가이드입니다. 생물종을 선택하면 사용 가능한 어세이가 표시되며, 계획된 분석은 출시 예정으로 표시됩니다. 아래 “애플리케이션과 워크플로”의 띠들이 바로 이 범주이며, 같은 순서로 각 범주의 타일을 담고 있습니다."
+
+msgid "Not every screen is a tile, which is why no count of them is printed here. Work that only makes sense inside another step opens from that step's masthead instead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among them — so a screen with no tile below is one step further in rather than gone. Home lists whatever the running build offers."
+msgstr "모든 화면에 타일이 있는 것은 아니므로 여기에는 그 수를 적지 않습니다. 다른 단계 안에서만 의미가 있는 작업은 그 단계의 헤더에서 열립니다. 예를 들어 마스크에서 **타임랩스**, 측정에서 **조명** 과 **운동성 분석**, 분류에서 **분류기 평가** 와 **CV 모델 설명**, 어노테이션에서 **주석자 일치도**, 마스크 만들기에서 **Cellpose 워크벤치**, **모델 비교**, **모델 라이브러리**, **큐레이트** 가 열립니다. 따라서 아래에 타일이 없는 화면은 사라진 것이 아니라 한 단계 더 안쪽에 있는 것입니다. 홈에는 실행 중인 빌드가 제공하는 모든 것이 나열됩니다."
+
+msgid "🚀 Get started"
+msgstr "🚀 시작하기"
+
+msgid "Install spaCR from PyPI and launch the Qt GUI in two commands."
+msgstr "명령 두 개로 PyPI에서 spaCR을 설치하고 Qt GUI를 실행합니다."
+
+msgid "🎓 Interactive tutorials"
+msgstr "🎓 대화형 튜토리얼"
+
+msgid "Narrated, step-by-step lessons for spaCR workflows and modules."
+msgstr "spaCR 워크플로와 모듈을 단계별로 설명하는 내레이션 강의입니다."
+
+msgid "📖 API reference"
+msgstr "📖 API 참조"
+
+msgid "Supported workflow entry points and the complete module reference."
+msgstr "지원되는 워크플로 진입점과 전체 모듈 참조입니다."
+
+msgid "🎬 Video tutorials"
+msgstr "🎬 동영상 튜토리얼"
+
+msgid "Narrated walkthroughs of each pipeline module."
+msgstr "각 파이프라인 모듈을 내레이션과 함께 안내합니다."
+
+msgid "🐛 Report an issue"
+msgstr "🐛 문제 보고"
+
+msgid "File a bug, request a feature, or ask a question."
+msgstr "버그를 제출하거나, 기능을 요청하거나, 질문합니다."
+
+msgid "Applications and workflow"
+msgstr "애플리케이션과 워크플로"
+
+msgid "New to spaCR? :doc:`Choose a workflow after installation <workflows>` for the first Home tile, the inputs each step needs, and what to open next."
+msgstr "spaCR이 처음이신가요? :doc:`설치 후 워크플로 선택 <workflows>` 에서 홈의 첫 타일, 각 단계에 필요한 입력, 다음에 열 항목을 확인합니다."
+
+msgid "Every tile links to the API page used by that application's in-product help."
+msgstr "각 타일은 해당 애플리케이션의 제품 내 도움말이 사용하는 API 페이지로 연결됩니다."
+
+msgid "spaCR modules"
+msgstr "spaCR 모듈"
+
+msgid "Core"
+msgstr "핵심"
+
+msgid "Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression."
+msgstr "마이크로스코피 이미지의 핵심 순서, 분류, 측정, 명칭, 배코드 지도 및 회복을 통해."
+
+msgid "|DocModule_mask|\\ |DocModule_measure|\\ |DocModule_annotate|\\ |DocModule_classify_merged|\\ |DocModule_map_barcodes|\\ |DocModule_regression|"
+msgstr "|DocModule_mask|\\ |DocModule_measure|\\ |DocModule_annotate|\\ |DocModule_classify_merged|\\ |DocModule_map_barcodes|\\ |DocModule_regression|"
+
+msgid "Open the Mask API"
+msgstr "마스크 API 열기"
+
+msgid "Open the Measure API"
+msgstr "측정 API 열기"
+
+msgid "Open the Annotate API"
+msgstr "어노테이션 API 열기"
+
+msgid "Open the Classify API"
+msgstr "분류 API 열기"
+
+msgid "Open the Map Barcodes API"
+msgstr "바코드 매핑 API 열기"
+
+msgid "Open the Regression API"
+msgstr "회귀 API 열기"
+
+msgid "Data"
+msgstr "데이터"
+
+msgid "Import images and tables into spaCR projects and execute reproducible multi-plate workflows."
+msgstr "spaCR 프로젝트에 이미지와 테이블을 가져오고 재생 가능한 멀티 플레이트 작업 흐름을 실행합니다."
+
+msgid "|DocModule_foreign|\\ |DocModule_embeddings|\\ |DocModule_run_compare|\\ |DocModule_experiment_design|\\ |DocModule_power|\\ |DocModule_dose_response|"
+msgstr "|DocModule_foreign|\\ |DocModule_embeddings|\\ |DocModule_run_compare|\\ |DocModule_experiment_design|\\ |DocModule_power|\\ |DocModule_dose_response|"
+
+msgid "Open the Import API"
+msgstr "가져오기 API 열기"
+
+msgid "Open the Embeddings API"
+msgstr "Embeddings API 열기"
+
+msgid "Open the Run Compare API"
+msgstr "Run Compare API 열기"
+
+msgid "Open the Experiment Design API"
+msgstr "Experiment Design API 열기"
+
+msgid "Open the Power / Design API"
+msgstr "Power / Design API 열기"
+
+msgid "Open the Dose–Response API"
+msgstr "Dose–Response API 열기"
+
+msgid "|DocModule_qc_dashboard|"
+msgstr "|DocModule_qc_dashboard|"
+
+msgid "Open the QC API"
+msgstr "QC API 열기"
+
+msgid "Tools"
+msgstr "도구"
+
+msgid "Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality."
+msgstr "이것을 프로젝트에서 지정하십시오 : 수동으로 마스크를 편집하고, 스티치 플레이트를 읽고, 포트를 그리며, 트랙을 구축하고, 품질을 확인합니다."
+
+msgid "|DocModule_make_masks|\\ |DocModule_align|\\ |DocModule_umap|\\ |DocModule_gate_editor|\\ |DocModule_graph_builder|"
+msgstr "|DocModule_make_masks|\\ |DocModule_align|\\ |DocModule_umap|\\ |DocModule_gate_editor|\\ |DocModule_graph_builder|"
+
+msgid "Open the Make Masks API"
+msgstr "마스크 만들기 API 열기"
+
+msgid "Open the Align & Stitch API"
+msgstr "정렬 및 스티칭 API 열기"
+
+msgid "Open the Image UMAP API"
+msgstr "이미지 UMAP API 열기"
+
+msgid "Open the Gate Editor API"
+msgstr "Gate Editor API 열기"
+
+msgid "Open the Graph Builder API"
+msgstr "Graph Builder API 열기"
+
+msgid "Assays"
+msgstr "어세이"
+
+msgid "Quantitative readouts for biological assays."
+msgstr "생물학적 검사에 대한 양적 재구성."
+
+msgid "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+msgstr "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+
+msgid "Open the Toxoplasma API"
+msgstr "톡소플라스마 API 열기"
+
+msgid "Open the Plasmodium spp. API"
+msgstr "Plasmodium spp. API 열기"
+
+msgid "Open the Candida spp. API"
+msgstr "Candida spp. API 열기"
+
+msgid "Installation"
+msgstr "설치"
+
+msgid "Install spaCR and launch the desktop application. The ``qt`` extra remains supported for desktop installations; current packages also include PySide6 among their base dependencies."
+msgstr "spaCR을 설치하고 데스크톱 애플리케이션을 실행합니다. ``qt`` 추가 구성 요소는 데스크톱 설치에서 계속 지원되며, 현재 패키지에는 기본 의존성에 PySide6도 포함되어 있습니다."
+
+msgid "For a terminal workflow on a cluster or server, use ``spacr-run`` without opening the desktop application:"
+msgstr "클러스터나 서버에서 터미널 워크플로를 사용하려면 데스크톱 애플리케이션을 열지 않고 ``spacr-run`` 을 사용합니다."
+
+msgid "Learn spaCR"
+msgstr "spaCR 배우기"
+
+msgid "Start with installation, continue to Home and the pipeline overviews, then follow the module walkthrough for your task in the `interactive tutorial library <tutorials/>`_. Each lesson lists its available narration voices and captions. New English lessons can appear while their translations are being prepared. Open the library from the GUI through **Help → Tutorial**."
+msgstr "설치부터 시작하여 홈과 파이프라인 개요로 넘어간 다음, `대화형 튜토리얼 라이브러리 <tutorials/>`_ 에서 작업에 맞는 모듈 안내를 따라 합니다. 각 강의에는 사용 가능한 내레이션 음성과 자막이 표시됩니다. 번역이 준비되는 동안 새 영어 강의가 먼저 나타날 수 있습니다. GUI에서는 **도움말 → 튜토리얼** 로 라이브러리를 엽니다."
+
+msgid "Contents"
+msgstr "목차"
+

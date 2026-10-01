@@ -154,3 +154,29 @@ div.highlight pre {
   margin-bottom: 0.4rem;
   text-transform: uppercase;
 }
+
+/* ---------- Translated user guides (docs/i18n/guides) ---------- */
+/* Banner inserted by tools/build_guide_i18n.py on every translated page. */
+.spacr-guide-translation {
+    margin: 0 0 1.25rem;
+    padding: .6rem .9rem;
+    border-radius: .3rem;
+    border-inline-start: 4px solid var(--color-brand-primary);
+    background: var(--color-admonition-background);
+    font-size: .9em;
+}
+.spacr-guide-translation p { margin: .2rem 0; }
+.spacr-guide-translation__label { font-weight: 600; }
+/* A message whose English source changed (or is new) falls back to English;
+ * Sphinx's translation_progress_classes marks it ``untranslated``. Sphinx
+ * also puts that class on images and field-list containers, which carry no
+ * message of their own, so only text blocks are flagged. */
+.spacr-guide-translation__swatch,
+html:not([lang="en"]) article p.untranslated,
+html:not([lang="en"]) article :is(h1, h2, h3, h4, h5, h6).untranslated {
+    border-inline-start: 3px solid #d9a441;
+    padding-inline-start: .5rem;
+}
+.spacr-guide-translation__swatch { display: inline-block; height: 1em; }
+.spacr-guide-language { display: flex; gap: .5rem; align-items: center;
+    justify-content: flex-end; margin-bottom: .5rem; font-size: .9em; }

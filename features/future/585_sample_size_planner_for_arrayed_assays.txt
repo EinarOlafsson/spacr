@@ -1,0 +1,114 @@
+A SAMPLE-SIZE PLANNER FOR ARRAYED ASSAYS
+
+Status: IMPLEMENTED AS ALPHA 2026-09-28; audit gaps closed and checked on a real pilot 2026-09-30.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/errors-of-technical-and-biological-rpelicates/21802
+
+WHAT TO BUILD
+    Plan fields per well, wells per condition and biological replicates for
+    a target effect size and power, using variance components estimated from
+    a pilot plate (cells within fields, fields within wells, wells within
+    replicates); today's power analysis covers pooled screens only.
+
+DONE WHEN
+    On a pilot plate, the planner's recommendations match a simulation of
+    the same design.
+
+ALPHA: 2026-09-27 -- implemented as alpha (widget PowerArrayedPlanner in
+    ALPHA_FEATURES[585]). Hidden unless Preferences -> Show alpha features.
+
+    Engine (spacr/sp_stats.py, private helpers):
+      _nested_variance_components  method-of-moments split of a per-cell
+          pilot table into replicate / well / field / cell variances (pooled
+          within an optional condition column; replicate left NaN and
+          flagged when the pilot has one replicate).
+      _arrayed_power  two-sided t-test on replicate means (unpaired, df
+          2n-2, or paired with the replicate component cancelling, df n-1),
+          noncentral t.
+      _plan_arrayed_design  per (wells, fields) the fewest replicates that
+          reach the target power, sorted by a simple replicate/well/field
+          cost (defaults 20 / 1 / 0.1).
+      _simulate_arrayed_power  cell-level simulation of whole experiments.
+    GUI: an "Arrayed-assay planner" box under the Power screen's form: pilot
+    table (via spacr.tabular), column pickers, effect, power, alpha, paired;
+    lists the ten cheapest designs and checks the top one by 500 simulations.
+
+    Validation (tests/test_arrayed_sample_size_planner.py): analytic power
+    equals statsmodels TTestIndPower / TTestPower to 1e-6 for the same
+    replicate-mean variance; simulation agrees within 0.03 (3000 sims); on a
+    simulated 5-plate pilot the estimated components recover the truth
+    (unbiased over 40 seeds) and the recommended design's simulated power
+    matches its planned power within 0.03 -- the DONE WHEN.
+
+    Left: cost weights and search limits are fixed in the GUI (engine takes
+    them); normal-theory only (no count or proportion readouts, no
+    replicate-by-condition interaction term).
+
+STATUS 2026-09-27 — saved-plan action verified
+The alpha planner now has Save plan… for an atomic JSON export of the last
+successful computation. Later form edits cannot relabel its pilot mapping,
+variance components, design inputs, candidates or simulation provenance.
+Unestimated variances use null plus estimation flags, rather than a false zero.
+Existing alpha gating, translated captions and public API remain unchanged.
+All nine focused UI cases passed in the combined 71-check batch under 4G.
+Caption/docstring guards and the English API inventory/hash check also passed.
+Cost weights/search limits remain fixed in the GUI, and the statistical-model
+limitations above remain. The export retains reloadable engine inputs/results;
+it does not add a GUI load-plan action. Whole item 585 remains open.
+Receipt: features/data/585_arrayed_plan_save_preparation_2026-09-27.json.
+
+STATUS 2026-09-28 — editable costs and search limits verified
+The alpha form now exposes replicate, well and field costs (0 to 1,000,000,
+three decimal places; defaults 20, 1 and 0.1). Search ceilings are editable:
+2–24 replicates, 1–24 wells per condition and 1–50 fields per well, retaining
+the previous defaults of 12, 12 and 25. Searches and empty-result messages
+use these selected values; saved plans retain the actual computed inputs.
+Tests cover bounded defaults and label hints, expansion of reachable designs,
+three cost profiles changing the ranking, alpha hiding, sorted rows, atomic
+export and replay. Planner and engine checks pass in the 268-unique-check
+focused acceptance. A simulated five-plate pilot's recommended design agrees
+with cell-level simulation within 0.03. The prior fixed-GUI-cost/limit gap is
+closed. Normal-theory outcomes and the previously documented model scope
+remain; this receipt records simulation validation, not real-plate acceptance.
+Receipt: features/data/585_accepted_2026-09-28.json. All new captions have
+AI technical review (Codex), no native-speaker signoff, in all nine locales.
+
+STATUS 2026-09-30 — audit gaps closed; checked on a real pilot (still alpha)
+    Readouts: continuous, proportion (0/1 per cell) and count. A proportion's
+    cell variance is p(1-p) less the field-level spread above it; a count's
+    is the pilot's variance/mean ratio (at least 1, Poisson) times the mean.
+    Each condition keeps its own variance at baseline and baseline+effect,
+    so the effect is signed. Power equals statsmodels TTestIndPower /
+    TTestPower to 1e-6 for the unequal variances; cell-level simulation
+    (0/1 and negative-binomial draws) agrees within 0.035 in 3000 sims for
+    all readouts, paired and unpaired.
+    Replicate x condition term: with replicate and condition columns it is
+    estimated from the residual of a two-way additive fit to the replicate-
+    by-condition means and taken out of the replicate component; it never
+    cancels in a paired design. Recovered unbiased over 20 simulated pilots.
+    Cells per field now default to the pilot's harmonic mean (unequal fields
+    average out less than the plain mean suggests).
+    GUI: Readout and Condition column pickers, signed effect, and Load plan…
+    beside Save plan… (restores the form, table and summary from a saved
+    plan without re-reading the pilot; bad files change nothing).
+    Real pilot (tools/validate_arrayed_planner_pilot.py): TSG101 screen, 4
+    plates as replicates, negative-control wells (114 wells, 14,200 cells),
+    cell_area / parasites per cell / >1 parasite, effect ~10% of the mean.
+    Parametric simulation of the planner's cheapest design matched planned
+    power within 0.021 for all five reachable designs (DONE WHEN; the
+    unpaired proportion needs more than 24 replicates). A
+    model-free hierarchical resampling of the real fields brackets it for
+    area and count (distinct draws 0.88-0.92, with replacement 0.61-0.78,
+    planned 0.80-0.84); for the proportion, paired, planned 0.813 sits 0.033
+    above the optimistic bound 0.78, so treat proportion plans as up to ~0.03
+    optimistic. Estimated with both controls, the real replicate x
+    condition term of the proportion (8.7e-4) drops that design's power to
+    0.37: plan from a two-condition pilot with the condition column set.
+    Receipt: features/data/585_real_pilot_check_2026-09-30.json.
+    Open: the new captions await the catalog lane (_AWAITING_CATALOG_REBUILD);
+    promotion out of alpha is the maintainer's call.

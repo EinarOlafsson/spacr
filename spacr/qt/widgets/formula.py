@@ -227,6 +227,8 @@ def tokenize(expression: str) -> Tuple[_Token, ...]:
     """Split ``expression`` into tokens, or say exactly where it stopped making
     sense.
 
+    :param expression: formula text, converted with ``str()``; at most 2,000
+        characters, and a backticked name may contain spaces.
     :raises FormulaError: on an over-long expression, an unterminated backtick
         or a character the language does not contain — with the character, its
         position, and what to write instead where there is an alternative.
@@ -281,21 +283,32 @@ class Node:
 
 @dataclass(frozen=True)
 class Number(Node):
-    """A numeric literal. Always a ``float`` — see the module docstring."""
+    """A numeric literal. Always a ``float`` — see the module docstring.
+
+    :param value: the literal's value, as a ``float``.
+    """
 
     value: float
 
 
 @dataclass(frozen=True)
 class Column(Node):
-    """A reference to a column of the frame."""
+    """A reference to a column of the frame.
+
+    :param name: the column name, read from the frame when the node is
+        evaluated.
+    """
 
     name: str
 
 
 @dataclass(frozen=True)
 class Unary(Node):
-    """``-x``, ``+x`` or ``not x``."""
+    """``-x``, ``+x`` or ``not x``.
+
+    :param op: the operator text: ``-``, ``+`` or ``not``.
+    :param operand: the node the operator applies to.
+    """
 
     op: str
     operand: Node
@@ -303,7 +316,14 @@ class Unary(Node):
 
 @dataclass(frozen=True)
 class Binary(Node):
-    """Every infix operator, arithmetic, comparison and boolean alike."""
+    """Every infix operator, arithmetic, comparison and boolean alike.
+
+    :param op: the operator text: ``+``, ``-``, ``*``, ``/``, ``//``, ``%``,
+        ``**``, a comparison (``<``, ``<=``, ``>``, ``>=``, ``==``, ``!=``),
+        ``and`` or ``or``.
+    :param left: the left operand's node.
+    :param right: the right operand's node.
+    """
 
     op: str
     left: Node
@@ -312,7 +332,11 @@ class Binary(Node):
 
 @dataclass(frozen=True)
 class Call(Node):
-    """One of :data:`FUNCTIONS`, applied to its arguments."""
+    """One of :data:`FUNCTIONS`, applied to its arguments.
+
+    :param func: the function name, a key of :data:`FUNCTIONS`.
+    :param args: the argument nodes, in call order.
+    """
 
     func: str
     args: Tuple[Node, ...]
@@ -785,6 +809,8 @@ class _Parser:
 def parse(expression: str) -> Node:
     """Parse ``expression`` into an AST.
 
+    :param expression: formula text, converted with ``str()`` and stripped; an
+        empty text raises :class:`FormulaError`.
     :raises FormulaError: for anything that is not a valid expression in the
         grammar above, with the position and what to write instead.
     """
@@ -797,7 +823,10 @@ def parse(expression: str) -> Node:
 
 
 def referenced_columns(node: Node) -> Tuple[str, ...]:
-    """Every column ``node`` reads, in first-appearance order, de-duplicated."""
+    """Every column ``node`` reads, in first-appearance order, de-duplicated.
+
+    :param node: root of the expression tree to scan.
+    """
     found: Dict[str, None] = {}
 
     def walk(item: Node) -> None:
@@ -827,6 +856,9 @@ def unparse(node: Node) -> str:
     equalling ``parse(text)`` is what says the parser and the tree agree about
     precedence, which is the one property of a hand-written parser that is
     hard to eyeball and easy to get wrong.
+
+    :param node: root of the expression tree to print; a node of an unknown
+        type raises :class:`FormulaError`.
     """
     if isinstance(node, Number):
         return repr(node.value)
@@ -884,6 +916,9 @@ def _as_array(value: Any, length: int) -> np.ndarray:
 def evaluate(node: Node, frame: pd.DataFrame) -> Any:
     """Evaluate ``node`` over ``frame``.
 
+    :param node: root of the expression tree to evaluate.
+    :param frame: the table whose columns the expression reads; its length sets
+        the length of array results.
     :returns: an ``ndarray`` the length of the frame, or a python ``float``
         when the whole expression reduces (``mean(area)``). The caller
         broadcasts — keeping scalars scalar is what lets ``area / mean(area)``
@@ -1146,7 +1181,10 @@ class ColumnFormula:
 class ColumnResult:
     """One computed column's values and what computing them cost.
 
+    :param formula: the formula that produced the column; its ``name`` heads
+        :attr:`notice`.
     :param values: the column, aligned to the frame it was computed over.
+    :param n_rows: number of rows in the frame the column was computed over.
     :param n_nonfinite: NaN and ±inf in the result. Reported rather than
         hidden — a ratio column that is a third infinities is a division by a
         zero the user did not know was there, and it looks identical to a good
@@ -1246,7 +1284,11 @@ class FormulaSet:
     formulas: List[ColumnFormula] = field(default_factory=list)
 
     def add(self, formula: ColumnFormula) -> "FormulaSet":
-        """Append, replacing any formula of the same name."""
+        """Append, replacing any formula of the same name.
+
+        :param formula: the formula to append; any existing formula with the
+            same ``name`` is removed first.
+        """
         self.formulas = [f for f in self.formulas
                          if f.name != formula.name] + [formula]
         return self
@@ -1297,6 +1339,9 @@ class FormulaSet:
         A **copy** — the loaded table is never mutated, so removing a formula
         removes its column rather than leaving it behind, and two screens
         sharing a frame do not grow each other's columns.
+
+        :param frame: the table to add columns to; it is copied, never
+            modified.
         """
         return compute(frame, self.formulas)
 
@@ -1350,6 +1395,9 @@ def compute(frame: pd.DataFrame,
 
     In list order, each formula seeing what the earlier ones added.
 
+    :param frame: the table to add columns to; it is copied, never modified.
+    :param formulas: formulas to apply in order; each is written to a column
+        named by its ``name`` and may read columns added by earlier ones.
     :returns: ``(frame_with_columns, results)``.
     :raises FormulaError: naming the formula that failed. Nothing is added when
         one fails — a half-applied set would leave the user with some of the

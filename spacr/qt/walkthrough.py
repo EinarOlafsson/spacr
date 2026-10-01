@@ -65,7 +65,11 @@ def _settings():
 
 
 def was_seen(app_key: str) -> bool:
-    """True once ``app_key``'s walkthrough has been finished or dismissed."""
+    """True once ``app_key``'s walkthrough has been finished or dismissed.
+
+    :param app_key: the module's registry key; its seen flag is read from
+        spaCR's ``QSettings``.
+    """
     raw = _settings().value(f"{_KEY_SEEN}/{app_key}", False)
     if isinstance(raw, bool):
         return raw
@@ -73,7 +77,11 @@ def was_seen(app_key: str) -> bool:
 
 
 def mark_seen(app_key: str) -> None:
-    """Remember that ``app_key``'s walkthrough has been shown."""
+    """Remember that ``app_key``'s walkthrough has been shown.
+
+    :param app_key: the module's registry key; its seen flag is set in
+        spaCR's ``QSettings``.
+    """
     _settings().setValue(f"{_KEY_SEEN}/{app_key}", True)
 
 
@@ -130,7 +138,11 @@ def register_steps(app_key: str, steps: List[WalkStep],
 
 
 def unregister_steps(app_key: str) -> bool:
-    """Drop a module's registered steps. ``True`` if there were any."""
+    """Drop a module's registered steps. ``True`` if there were any.
+
+    :param app_key: the module's registry key, as passed to
+        :func:`register_steps`.
+    """
     return _EXTRA_STEPS.pop(str(app_key), None) is not None
 
 
@@ -514,11 +526,18 @@ def maybe_show(window: QMainWindow, app_key: str) -> Optional[_TourOverlay]:
     Called when a module is opened. Per module, so a module added next
     release introduces itself instead of being silenced by a flag set the
     first time the app ever ran.
+
+    :param window: the main window the walkthrough is shown over.
+    :param app_key: the module's registry key; nothing is shown when
+        :func:`was_seen` is already true for it.
     """
     if was_seen(app_key):
         return None
     return show_walkthrough(window, app_key, force=True)
 
+
+
+_OFFER_AFTER_MS = 30
 
 
 class _WalkthroughHandler(QObject):
@@ -547,6 +566,33 @@ class _WalkthroughHandler(QObject):
         if not app_key or was_seen(app_key):
             return
         if getattr(screen, "_settings_model", None) is None:
+            return
+        from PySide6.QtCore import QTimer
+
+        QTimer.singleShot(_OFFER_AFTER_MS, self, lambda: self._offer(app_key))
+
+    def _offer(self, app_key: str) -> None:
+        """Show ``app_key``'s walkthrough if its screen is still the one on show.
+
+        RUN A MOMENT AFTER THE SWITCH, NOT INSIDE IT. ``currentChanged`` is
+        emitted from inside the stack's switch, which is also where the new
+        screen is first shown and styled; building the overlay there added
+        its cost to that one freeze (80-150 ms of a first Mask or Analyze
+        Plaques open, measured). A timer lets the event loop turn and the
+        screen paint first. Everything the switch checked is checked again,
+        because the user may have moved on in between. The wait,
+        :data:`_OFFER_AFTER_MS`, is long enough for the loop to turn and
+        short enough to read as part of the opening.
+        """
+        if getattr(self._window, "_pathway_walkthrough_active", False):
+            return
+        try:
+            screen = self._window._stack.currentWidget()
+            if str(getattr(screen, "app_key", "") or "") != app_key:
+                return
+        except Exception:
+            return
+        if was_seen(app_key):
             return
         maybe_show(self._window, app_key)
 
@@ -582,6 +628,9 @@ def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
     Every module, not only the one on screen: the question "how does
     Measure work?" is usually asked from somewhere that is not Measure.
 
+    :param window: the main window; the submenu is inserted into its
+        menu-bar Help menu, before the first separator, and the window keeps
+        the submenu and the handler it creates.
     :returns: the submenu, or ``None`` when there is no Help menu or one is
         already installed.
     """
@@ -650,6 +699,10 @@ def install_window_hooks(window: QMainWindow) -> Optional[_WalkthroughHandler]:
     """Wire the walkthroughs into a live main window.
 
     Called once from :func:`spacr.qt.shortcuts.install`.
+
+    :param window: the main window; gets the Help-menu submenu, and its
+        ``_stack`` screen stack (when present) is followed so each module's
+        walkthrough is offered on the first visit. Wiring twice is a no-op.
     """
     install_help_menu(window)
     handler = getattr(window, "_walkthrough_handler", None)

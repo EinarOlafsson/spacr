@@ -92,8 +92,8 @@
     "sha256": "39da0afa5b144c6ef36c9e9e4d27917594660f436a559de8976fffdcc0b1f6db"
   },
   "embeddings": {
-    "candidate": "qtawesome:fa5s.vector-square",
-    "sha256": "1650d968e646e3f1f02c4d70a4fd871a5c17665d4ca58fae2d0666e5a1d9f2ef"
+    "candidate": "embeddings/embeddings_01.png",
+    "sha256": "fb875531dd332004111d84d72aa0070de5180951f071c1a21404405721993331"
   },
   "experiment_design": {
     "candidate": "experiment_design/experiment_design_02.png",

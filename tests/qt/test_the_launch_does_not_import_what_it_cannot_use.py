@@ -136,3 +136,47 @@ def test_retranslating_a_real_settings_tree_still_refreshes(qtbot):
     finally:
         settings_model.refresh_api_tooltips = original
     assert seen == ["sv"], "the API tooltips were not refreshed"
+
+
+def test_opening_annotate_does_not_import_pandas():
+    """284, 2026-09-26: pandas was 64 % of Annotate's worst open gap.
+
+    Nothing in the open touches a frame; the import came from
+    ``spacr.selection`` (through the object-opener registration) and
+    ``spacr.suggest`` (for one constant). Both now import pandas on first use.
+    """
+    out = _in_a_cold_process("""
+        import sys
+        import spacr.qt.screens.annotate
+        print("pandas:", "pandas" in sys.modules)
+        from spacr.selection import as_key_index
+        from spacr.suggest import SUGGESTION_OFFSET
+        assert list(as_key_index(["a", "b"])) == ["a", "b"]
+        print("then:", "pandas" in sys.modules)
+    """)
+    assert "pandas: False" in out, out
+    assert "then: True" in out, out
+
+
+def test_the_data_libraries_come_in_off_the_gui_thread_once():
+    """284: after a first module screen, pandas is imported on a worker.
+
+    So the next data screen does not pay for it on the GUI thread. Once per
+    process; a second call starts nothing.
+    """
+    out = _in_a_cold_process("""
+        import sys
+        import threading
+        import spacr.qt.app as A
+        print("before:", "pandas" in sys.modules)
+        thread = A._import_the_data_libraries_off_the_gui_thread()
+        print("worker:", thread is not None
+              and thread is not threading.main_thread())
+        thread.join(120)
+        print("after:", "pandas" in sys.modules)
+        print("again:", A._import_the_data_libraries_off_the_gui_thread())
+    """)
+    assert "before: False" in out, out
+    assert "worker: True" in out, out
+    assert "after: True" in out, out
+    assert "again: None" in out, out

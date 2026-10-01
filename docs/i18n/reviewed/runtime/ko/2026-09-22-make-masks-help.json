@@ -18,13 +18,6 @@
     },
     {
       "table": "ui",
-      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
-      "translation": "그린 마스크를 측정합니다. 각 행이 시야이고 각 열이 채널 또는 마스크 유형인 표를 엽니다. 측정 모듈 자체를 통해 실행하므로 폴더와 측정 데이터베이스도 일반 측정 실행에서 생성하는 것과 같습니다."
-    },
-    {
-      "table": "ui",
       "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
       "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
       "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
@@ -36,13 +29,6 @@
       "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
       "translation": "이미지와 검출에 사용하는 픽셀을 반전하여 어두운 객체를 밝게 만듭니다. 시야를 0..1로 정규화한 다음 각 픽셀 값을 1에서 해당 값을 뺀 값으로 바꿉니다. 커서 아래의 픽셀 강도는 반전을 반영하지만 객체 평균 강도와 필터 임계값은 처음 불러온 원래 값을 사용합니다. 불러온 이미지 데이터와 기존 마스크는 바뀌지 않습니다. 완성된 마스크의 전경과 배경을 바꾸려면 객체 작업에서 «객체와 배경 바꾸기» ('Swap object and background')를 사용하세요."
-    },
-    {
-      "table": "ui",
-      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
-      "translation": "마지막 필터가 제거한 객체 목록입니다. 객체마다 한 행에 식별자, 판정에 사용한 면적과 평균 강도, 제거 원인이 된 제한값을 표시합니다. 식별자는 포인터 아래의 값 표시에 나오는 것과 같습니다."
     },
     {
       "table": "ui",

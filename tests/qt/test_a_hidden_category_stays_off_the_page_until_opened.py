@@ -226,10 +226,28 @@ def test_opening_a_module_takes_what_it_hides_off_the_page(qtbot):
     for section in away:
         assert (not screen.isAncestorOf(section._body)
                 or not section._body.findChildren(QWidget))
+    # Every setting of every away category is off the page. Since 594
+    # Classify's Essentials carry both families' training settings, so fewer
+    # categories are away than the 50 this used to demand; the precise check
+    # comes first and a floor still refuses a screen that hides next to
+    # nothing.
+    from spacr.qt.screens.settings_model import (
+        categories_for_app, get_categories,
+    )
+    cats = categories_for_app("classify_merged", get_categories())
+    model = screen._settings_model
+    expected = set()
+    for section in away:
+        title = section.property("settingsCategorySource")
+        expected.update(k for k in cats.get(title, ()) if k in model._widgets)
+    assert expected
+    on_page = sorted(k for k in expected
+                     if screen.isAncestorOf(model._widgets[k]))
+    assert not on_page, on_page
     unbuilt = len(screen._waiting_heading_of)
     detached = sum(len(s._body.findChildren(QWidget)) for s in away
                    if s._body_is_detached())
-    assert unbuilt > 50 or detached > 200
+    assert unbuilt >= 30 or detached > 200
 
 
 def test_every_setting_still_reaches_the_run(qtbot):
@@ -256,7 +274,15 @@ def test_a_value_set_while_its_category_is_away_is_collected(qtbot):
 def test_searching_reveals_a_setting_whose_category_was_away(qtbot):
     _window_, screen = _window(qtbot, "classify_merged")
     bar = screen._settings_search
-    key, widget = _key_in_a_detached_body(screen)
+    # A switch or a spin box is its own visible editor. A text or choice
+    # setting may be placed in a column-picker row that shows a picker in
+    # place of the raw editor, which is then never visible, found or not
+    # (since 594 the first away setting, heatmap_feature, is one).
+    model = screen._settings_model
+    key, widget = next(
+        (key, widget) for key, widget in model._widgets.items()
+        if not screen.isAncestorOf(widget)
+        and type(widget).__name__ in ("Toggle", "QSpinBox", "QDoubleSpinBox"))
     if not bar._disclosure.isChecked():
         bar._disclosure.click()
     bar._input.setText(key)

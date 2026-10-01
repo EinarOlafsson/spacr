@@ -378,12 +378,47 @@ def test_typo_suggestions_name_the_intended_key(tmp_path, typo, expected):
     assert offenders and expected in offenders[0].message
 
 
-def test_a_key_unlike_any_setting_is_not_reported(tmp_path):
-    """Newer pipelines carry keys expected_types has never heard of."""
+def test_a_key_unlike_any_setting_is_a_warning_not_an_error(tmp_path):
+    """Decision 2026-09-25 (item 237): "truly unknown keys produce a visible
+    warning but the run continues". It used to pass in silence."""
     src = make_raw_plate(tmp_path, n_channels=3)
     settings = valid_mask_settings(src)
     settings["mosaic_csv_out"] = "/tmp/x.csv"
-    assert not settings_named(validate_settings(settings, "mask"), "mosaic_csv_out")
+    found = settings_named(validate_settings(settings, "mask"),
+                           "mosaic_csv_out")
+    assert found and all(p.severity == WARNING for p in found)
+    assert "not a setting spaCR knows" in found[0].message
+    assert not settings_named(errors(validate_settings(settings, "mask")),
+                              "mosaic_csv_out")
+
+
+def test_a_private_key_is_not_reported(tmp_path):
+    """A leading underscore is spaCR's own bookkeeping, never a user's."""
+    src = make_raw_plate(tmp_path, n_channels=3)
+    settings = valid_mask_settings(src)
+    settings["_run_marker"] = 1
+    assert not settings_named(validate_settings(settings, "mask"),
+                              "_run_marker")
+
+
+def test_a_blank_section_heading_row_is_not_reported(tmp_path):
+    """Old settings files carry "General", "Cell", ... as blank rows."""
+    src = make_raw_plate(tmp_path, n_channels=3)
+    settings = valid_mask_settings(src)
+    settings["General"] = None
+    settings["Miscellaneous"] = ""
+    problems = validate_settings(settings, "mask")
+    assert not settings_named(problems, "General")
+    assert not settings_named(problems, "Miscellaneous")
+
+
+def test_a_retired_key_with_a_successor_is_migrated(tmp_path):
+    """Known retired keys move to their successor: `complevel` was a
+    misspelling of the live `comp_level`."""
+    from spacr.settings import set_default_generate_barecode_mapping
+
+    folded = set_default_generate_barecode_mapping({"complevel": 9})
+    assert folded["comp_level"] == 9 and "complevel" not in folded
 
 
 # ---------------------------------------------------------------------------

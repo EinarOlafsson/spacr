@@ -1,0 +1,75 @@
+# PROPOSED, not installed: a manual workflow that builds offline (air-gapped)
+# spaCR bundles and attaches them to a workflow run as artifacts. Nothing is
+# published to a release. Copy to .github/workflows/offline-bundles.yml if
+# wanted; item 587 does not edit .github.
+#
+# The Linux job also installs its own bundle inside a network namespace with
+# no network (unshare -rn) and runs Mask on the bundled test data, which is
+# the item's "done when". Windows and macOS bundles are built on Linux (pip
+# downloads wheels per platform) and should be install-tested on those
+# runners before this is trusted; that job is sketched below, commented out.
+name: offline-bundles
+
+on:
+  workflow_dispatch:
+    inputs:
+      torch_backend:
+        description: "PyTorch wheel line (cpu, cu126, ...)"
+        default: cpu
+      test_fields:
+        description: "Mask test-data fields to include (0 = all)"
+        default: "2"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        platform: [linux-x86_64, windows-x86_64, macos-arm64]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Fetch Cellpose weights and Mask test data
+        run: |
+          python -m pip install "cellpose>=4.0.7,<5" huggingface_hub
+          python -c "from cellpose import models; models.CellposeModel(pretrained_model='cpsam', gpu=False)"
+          python -m pip install -e . --no-deps
+          python -m spacr.cli_download mask --yes
+      - name: Build bundle
+        run: |
+          python packaging/offline/build_offline_bundle.py \
+            --platform ${{ matrix.platform }} \
+            --torch-backend ${{ inputs.torch_backend }} \
+            --from-source . --out dist/offline \
+            --test-data ~/.cache/spacr/example_data/plate1 \
+            --test-fields ${{ inputs.test_fields }} --archive
+      - name: Install offline and run Mask (Linux only)
+        if: matrix.platform == 'linux-x86_64'
+        run: |
+          bundle=$(ls -d dist/offline/spaCR-*-Offline-*/ | head -1)
+          unshare -rn bash "$bundle/install.sh" --offline-bundle "$bundle" \
+            --install-root "$RUNNER_TEMP/spacr" --launcher-dir "$RUNNER_TEMP/bin" \
+            --no-launch --consent-collected --check-mask
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spacr-offline-${{ matrix.platform }}-${{ inputs.torch_backend }}
+          path: dist/offline/*.tar
+          retention-days: 7
+
+  # install-windows:
+  #   needs: build
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/download-artifact@v4
+  #       with: {name: spacr-offline-windows-x86_64-${{ inputs.torch_backend }}}
+  #     - shell: pwsh
+  #       run: |
+  #         tar xf (Get-ChildItem *.tar).FullName
+  #         $b = (Get-ChildItem -Directory spaCR-*-Offline-*).FullName
+  #         # Block outbound traffic for the install with a firewall rule here.
+  #         powershell -ExecutionPolicy Bypass -File "$b\install.ps1" -OfflineBundle $b -CheckMask

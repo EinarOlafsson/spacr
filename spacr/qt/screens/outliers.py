@@ -423,6 +423,13 @@ class OutliersScreen(QWidget):
         :class:`spacr.qt.job_runner.JobRunner`; listing the table names stays
         inline because the picker has to be populated before the read is
         dispatched, to know which table to read.
+
+        :param path: a CSV, TSV or TXT file (by extension), read as one table;
+            any other path is opened as a SQLite measurement database and its
+            tables are listed in the picker.
+        :param table: the database table to read, also selected in the picker
+            when the database has it; ``None`` reads the picker's current
+            table.
         """
         self._path = path
         names: List[str] = []

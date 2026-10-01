@@ -5,6 +5,7 @@ from __future__ import annotations
 # accounted separately in features/data/411_object_helpers_2026-09-22.json.
 
 import hashlib
+from html import unescape
 import json
 import os
 import re
@@ -202,7 +203,28 @@ TOOLS = ROOT / "tools"
 # Cancelled worker ownership: 411_cancelled_preview_api_2026-09-23.json.
 # PSF module and metadata-only doctor: 411_psf_doctor_api_2026-09-23.json.
 # Mask PSF integration: 411_psf_integration_api_2026-09-23.json.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_528
+# +10 for the News panel's live release refresh: the panel's merge and
+# apply entries, Home's relay, the release-refresh preference pair and
+# the updater's release-notes reader and its cache path.
+# 11,538 -> 11,651 on 2026-09-25: the remaining +114 / -1 of the
+# implementation session (items 502-513) beyond those ten, named by set
+# difference in test_api_i18n_extractor. 11,661 after rebasing on
+# b84c3441c: ten more callables (item 475, PSF/detect chain), named there.
+# 11,710 on nightly 03a02c3b8: +49 / -0, named in test_api_i18n_extractor.
+# 11,758 with item 528's twelve, named in test_api_i18n_extractor.
+# 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
+# 11,834 on 2026-09-26: item 545's eighteen ROI callables, named in
+# test_docstring_correctness.
+# 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
+# 11,861 with item 588's mask_engine.fill_label_holes.
+# 11,865 with items 544 and 573's four spacr.run_journal callables.
+# 593, 2026-09-28: +64 (spacr.folder_consolidation, spacr.channel_sorting and
+# spacr.qt.widgets.channel_sort_dialog).
+# 600, 2026-09-29: +13 (spacr.drop_classification and
+# spacr.qt.widgets.organize_for_measure).
+# 2026-10-01: merge, uncertainty and condition APIs; exact source delta
+# recorded in features/data/615_public_api_delta_2026-10-01.json.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_034
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
@@ -770,6 +792,77 @@ def test_reviewed_api_validation_waives_only_copied_prose_heuristics():
     )
 
 
+def test_reviewed_genus_name_may_equal_english_only_where_listed():
+    """A genus heading is its own translation in Latin-script locales.
+
+    The per-language identity list admits exactly the listed block in the
+    listed languages, for reviewed evidence only; every other exact-English
+    block, model output and non-Latin-script locale still fails.
+    """
+    import build_documentation_i18n as builder
+
+    allowed = builder.API_REVIEWED_EXACT_IDENTITY_BY_LANGUAGE
+    for genus in ("Plasmodium", "Candida", "Toxoplasma"):
+        assert builder._api_block_requires_translation(genus)
+        assert allowed[genus] == frozenset({"sv", "de", "es", "pt", "is", "fr"})
+        for language in allowed[genus]:
+            assert builder._reviewed_api_block_valid(genus, genus, language)
+            # A translated or qualified heading stays valid too.
+            assert builder._reviewed_api_block_valid(
+                genus, f"Organismus {genus}", language,
+            )
+            # Unreviewed model output echoing the English is still refused.
+            assert not builder._api_block_valid(genus, genus, language)
+        for language in ("zh_CN", "hi", "ko"):
+            assert not builder._reviewed_api_block_valid(genus, genus, language)
+    # Exact block only: a sentence naming the genus, a case change or extra
+    # whitespace is not the listed identity.
+    assert not builder._reviewed_api_block_valid(
+        "Plasmodium falciparum", "Plasmodium falciparum", "fr",
+    )
+    assert not builder._reviewed_api_block_valid("plasmodium", "plasmodium", "fr")
+    assert not builder._reviewed_api_block_valid("Plasmodium", " Plasmodium", "fr")
+    assert builder._reviewed_api_block_valid("no", "no", "es")
+    assert not builder._reviewed_api_block_valid("no", "no", "pt")
+    # The gate is otherwise unchanged: ordinary prose copied as English fails.
+    assert not builder._reviewed_api_block_valid("Public API", "Public API", "fr")
+    assert all(
+        isinstance(languages, frozenset) and languages <= set(builder.MODEL_SPECS)
+        for languages in allowed.values()
+    )
+
+
+def test_raises_field_is_not_read_as_a_type_declaration():
+    """``:raises X: word`` is an exception name and prose, not ``X: type``.
+
+    The numpydoc-declaration protector read ``ValueError: sequence`` in
+    ``spacr.timeflows_model.ctc_pairs`` as a declaration, so every locale's
+    whole-document literal check failed on a correctly translated field.
+    """
+    from build_i18n_catalogs import _PROTECT_PATTERNS, _syntax_preserved
+
+    source = (
+        ":raises ValueError: sequence/limit, duplicate frame identities or "
+        "annotation\n    arrays are invalid."
+    )
+    translated = (
+        ":raises ValueError: la séquence ou la limite, les identités de trame "
+        "en double ou les tableaux d'annotations sont invalides."
+    )
+    assert not any(
+        "ValueError: sequence" in match.group(0)
+        for pattern in _PROTECT_PATTERNS
+        for match in pattern.finditer(source)
+    )
+    assert _syntax_preserved(source, translated, check_emphasis=False)
+    # A real numpydoc declaration is still held byte for byte.
+    declaration = "values : sequence of values to check."
+    assert not _syntax_preserved(
+        declaration, "valeurs : séquence des valeurs à vérifier.",
+        check_emphasis=False,
+    )
+
+
 def test_api_repair_keeps_a_source_bound_reviewed_false_friend(
     tmp_path, monkeypatch,
 ):
@@ -840,8 +933,11 @@ def _integration_review_record(language, label):
 
 @pytest.mark.parametrize("catalog_state", ["missing", "current"])
 @pytest.mark.parametrize("language,label,rewrite_passes", [
-    pytest.param("pt", "spacr.qt.widgets.outlier_model#27", False,
-                 id="portuguese-rewrite-rejected"),
+    # None: 577 (5c8b55b7a) stopped the Portuguese well-as-adverb rewrite
+    # when every English "well" is the noun, so this review now survives
+    # contextualizing unchanged; it must still be published verbatim.
+    pytest.param("pt", "spacr.qt.widgets.outlier_model#27", None,
+                 id="portuguese-no-longer-rewritten"),
     pytest.param("de", "spacr.schema.add_screen_column#3", True,
                  id="german-rewrite-still-passes"),
 ])
@@ -883,13 +979,16 @@ def test_api_repair_publishes_reviewed_target_verbatim_after_contextual_rewrite(
 
     assert builder.reviewed_api_block_translations(docs, language) == {source: target}
     rewritten = builder._contextualize(target, language, source)
-    assert rewritten != target
-    assert all(builder._reviewed_api_block_valid(text, rewritten, language)
-               for text in (source, context)) is rewrite_passes
-    if not rewrite_passes:
-        assert "scientific-well-as-adverb" in builder._semantic_false_friends(
-            source, rewritten, language,
-        )
+    if rewrite_passes is None:
+        assert rewritten == target
+    else:
+        assert rewritten != target
+        assert all(builder._reviewed_api_block_valid(text, rewritten, language)
+                   for text in (source, context)) is rewrite_passes
+        if not rewrite_passes:
+            assert "scientific-well-as-adverb" in builder._semantic_false_friends(
+                source, rewritten, language,
+            )
     if catalog_state == "current":
         builder.write_language(docs, language, {key: target})
 
@@ -1699,7 +1798,6 @@ def test_canonical_indented_literal_shapes_are_never_translation_blocks():
         "spacr.classify_classes": '{"infected":',
         "spacr.mask_io": 'np.save("foo_mask.npy"',
         "spacr.pipeline_v2": "→ renamed + split into channel folders",
-        "spacr.qt": "python -m spacr.qt",
         "spacr.qt.verbose_logger.log_call": "[class.func] args=",
         "spacr.qt.widgets": "670 ms  spacr.qt.app",
         "spacr.power_simulate": "Permission is hereby granted",
@@ -1707,6 +1805,13 @@ def test_canonical_indented_literal_shapes_are_never_translation_blocks():
     for key, fragment in forbidden.items():
         blocks, _layout = translatable_blocks(docs[key])
         assert not any(fragment in block for block in blocks), (key, fragment)
+    # spacr.qt's launch commands were an indented literal; since 411
+    # (31000d98b) they are inline literals in a prose sentence, which is a
+    # translation block. The command may reach a block only inside ``...``.
+    blocks, _layout = translatable_blocks(docs["spacr.qt"])
+    for block in blocks:
+        if "python -m spacr.qt" in block:
+            assert "``python -m spacr.qt``" in block, block
 
 
 def test_code_definition_shape_inside_explicit_literal_block_stays_exact():
@@ -2003,7 +2108,7 @@ def test_github_summary_has_reviewed_domain_translations():
         assert (
             is_document_block
             or (source == "Make Masks" and canonical_normalized.count(source) == 2
-                and ":alt: Open the Make Masks API" in canonical
+                and 'alt="Open the Make Masks API"' in canonical
                 and "Import, Make Masks, Annotate" in canonical)
             or canonical_normalized.count(source) == 1
         ), source
@@ -2043,7 +2148,11 @@ def test_github_summary_has_reviewed_domain_translations():
     assert "criblages CRISPR" in joined["fr"]
     assert "CRISPR 스크리닝" in joined["ko"]
     assert "CRISPR-skim" in joined["is"]
-    assert len(REVIEWED_README_HEADINGS) == 16
+    # The reviewed "Try spaCR" heading was added by the
+    # 2026-09-27 source-current README pass.
+    assert len(REVIEWED_README_HEADINGS) == 18
+    assert "Docker installation" in REVIEWED_README_HEADINGS
+    assert "Try spaCR" in REVIEWED_README_HEADINGS
     for reviewed in REVIEWED_README_HEADINGS.values():
         assert set(reviewed) == {
             "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
@@ -3986,48 +4095,41 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     canonical_workflow = canonical.partition(
         ".. spacr-workflow-begin"
     )[2].partition(".. spacr-workflow-end")[0]
-    canonical_alt = re.findall(r"(?m)^   :alt: (.+)$", canonical_workflow)
+    canonical_alt = [unescape(value) for value in re.findall(
+        r'\balt="([^"]+)"', canonical_workflow)]
     module_names = [
         match.group(1)
         for alt in canonical_alt
         if (match := re.fullmatch(r"Open the (.+) API", alt)) is not None
     ]
-    # 22, NOT 45. 45 is the size of the app REGISTRY; the grid draws one
-    # tile per TILED app, and instruction 318 moved everything reached from
-    # another module's button off the grid. This number was left at the
-    # registry size when that happened, so this test has been red on a stale
-    # count rather than on anything about accessible text. 21 -> 22 on
-    # 2026-09-11 with 386's Embeddings tile, which gets its alt text from
-    # the same `WORKFLOW_MODULE_ALT_TEMPLATES` entry as every other module,
-    # in all nine languages -- no reviewed record of its own is needed.
-    assert len(module_names) == 22
+    # 1d5a80f78 replaced four assay tiles with three organism entry points.
+    # Pin their identities and order, not the obsolete 22-tile count.
+    assert module_names == [
+        "Mask", "Measure", "Annotate", "Classify", "Map Barcodes", "Regression",
+        "Import", "Embeddings", "Run Compare", "Experiment Design",
+        "Power / Design", "Dose–Response", "QC", "Make Masks", "Align & Stitch",
+        "Image UMAP", "Gate Editor", "Graph Builder", "Toxoplasma",
+        "Plasmodium spp.", "Candida spp.",
+    ]
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
         text = (readme_root / f"README.{language}.rst").read_text(
             encoding="utf-8"
         )
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
+        alt_text += [unescape(value) for value in re.findall(r'\balt="([^"]+)"', text)]
         workflow = text.partition(
             ".. spacr-workflow-begin"
         )[2].partition(".. spacr-workflow-end")[0]
-        workflow_alt = re.findall(r"(?m)^   :alt: (.+)$", workflow)
-        assert len(workflow_alt) == 22
-        # Twenty badges (19 plus the logo), 22 linked Home applications,
-        # four installer/archive icons and five resource icons. The badge
-        # count rose by one on 2026-09-02 when the bioRxiv preprint joined
-        # the row and by six on 2026-09-16; the application count fell from
-        # 44 to 21 with instruction 318 and was never brought down here.
-        # 21 -> 22 on 2026-09-11 with `embeddings`.
-        #
-        # COUNTED FROM README.rst SINCE 2026-09-19, not written out: 45 was
-        # correct for three days after the maintainer added six badges to
-        # the English README, because it described the nine and the nine
-        # had been left behind. Every image in the English README owes the
-        # nine an alt text, so the English README is the count.
-        # 2026-09-21: the info deck's title slide REPLACED the logo at the
-        # top, keeping its alternative text, so the count is the prior 51.
+        workflow_alt = [unescape(value) for value in re.findall(
+            r'\balt="([^"]+)"', workflow)]
+        assert len(workflow_alt) == len(module_names)
+        # Every canonical badge, Home tile, installer and resource image
+        # must also have an accessible label in each translated README.
         assert len(alt_text) == len(
-            re.findall(r"(?m)^   :alt: (.+)$", canonical)) == 51
+            re.findall(r"(?m)^   :alt: (.+)$", canonical)
+        ) + len(canonical_alt) == (
+                20 + len(module_names) + 4 + 5)
         assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
         assert "logo_spacr_readme.png" not in text
         assert all(
@@ -4063,7 +4165,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert not any(alt.startswith("Download spaCR") for alt in installers), (
             f"{language} kept the canonical English download alt text")
 
-        resources = alt_text[-5:]
+        resources = _readme_substitution_alt_text(text, README_RESOURCE_SUBSTITUTIONS)
         assert all(any(name in alt for name in (
             "BioStudies", "Hugging Face", "NCBI", "spaCRPower", "bioRxiv"
         )) for alt in resources)
@@ -4087,6 +4189,9 @@ def test_visual_regeneration_preserves_localized_workflow_markup(monkeypatch):
         *(f"**{section}**" for section in WORKFLOW_SECTION_LABELS["de"]),
         ".. |App_map| image:: icons/map.png\n"
         "   :alt: Open the Map Barcodes API",
+        '.. |Module_align| raw:: html\n\n'
+        '   <img src="icons/align.png" align="middle" '
+        'alt="Open the Align &amp; Stitch API">',
     ])
     monkeypatch.setattr(generator, "_readme_workflow", lambda _prefix: sample)
 
@@ -4107,6 +4212,10 @@ def test_visual_regeneration_preserves_localized_workflow_markup(monkeypatch):
             ) in localized
         )
         assert "Open the Map Barcodes API" not in localized
+        assert WORKFLOW_MODULE_ALT_TEMPLATES[language].format(
+            module="Align & Stitch"
+        ) in unescape(localized)
+        assert 'src="icons/align.png" align="middle"' in localized
 
 
 def test_localized_readme_inline_markup_is_balanced_and_tight():

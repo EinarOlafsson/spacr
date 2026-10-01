@@ -78,6 +78,9 @@ def find_results_table(path):
     Accepts the CSV itself, a regression output folder, or a parent holding
     one -- the three things a user actually has to hand when they want to look
     at a volcano again.
+
+    :param path: a results CSV, a regression output folder, or a folder
+        searched recursively for one; ``~`` is expanded.
     """
     path = os.path.abspath(os.path.expanduser(os.fspath(path)))
     if os.path.isfile(path):

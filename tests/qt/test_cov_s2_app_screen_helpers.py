@@ -61,6 +61,8 @@ class TestModuleMaturity:
         assert aps.settings_section_maturity(
             "mask", "Object filtration (Alpha)") == "alpha"
         assert aps.settings_section_maturity(
+            "mask", "Confluency \u03b1") == "alpha"
+        assert aps.settings_section_maturity(
             "mask", "Object filtration (Beta)") == "beta"
 
 

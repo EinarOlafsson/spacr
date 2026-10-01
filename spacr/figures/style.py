@@ -232,6 +232,53 @@ def user_overrides(kind: Optional[str] = None) -> dict:
         return {}
 
 
+def _group_colours(count: int, palette: Sequence = (),
+                  kind: Optional[str] = "jitter_bar") -> Optional[list]:
+    """The colours ``count`` groups take under the user's ``mark_colouring``.
+
+    `mark_colouring` is a rule about which colour each mark takes, not an
+    rcParam, so a grouped renderer that names its own colours has to ask for
+    it. This is that question, answered once for every such renderer.
+
+    * ``group`` (the default) returns ``None``: the renderer keeps its own
+      house rule -- grey unless the colour is what separates the series.
+    * ``uniform`` returns the data ink for every group.
+    * ``random`` returns ``palette`` reordered by the fixed seed in
+      :func:`spacr.figure_style._marks_coloured_by`, cycled to ``count``, so
+      neighbouring groups are told apart by eye and a redraw gives the same
+      colours.
+
+    :param count: how many groups will be drawn.
+    :param palette: the renderer's categorical palette; the house default
+        palette is used when it is empty.
+    :param kind: the graph kind whose per-graph preference applies.
+    :returns: ``count`` colour specs, or ``None`` to keep the house rule.
+    """
+    from ..figure_style import (GENERAL_DEFAULTS, STYLE_CHOICES,
+                                _marks_coloured_by, palette_colours, resolve)
+
+    try:
+        from ..qt.preferences import (get_figure_style,
+                                      get_figure_style_per_graph)
+
+        chosen = resolve(kind, get_figure_style(),
+                         get_figure_style_per_graph()).get("mark_colouring")
+    except Exception:
+        return None
+    rule = str(chosen or "group").strip().lower()
+    if rule not in STYLE_CHOICES["mark_colouring"] or rule == "group":
+        return None
+    count = max(1, int(count))
+    if rule == "uniform":
+        return [ROLES["data"]] * count
+    colours = list(palette or ()) or palette_colours(
+        GENERAL_DEFAULTS["palette"])
+    colours = _marks_coloured_by(colours, "random")
+    if not colours:
+        return None
+    return [colours[index % len(colours)] for index in range(count)]
+
+
 def rc(target: str = "screen", *, frame: str = "L",
        ink: Optional[str] = None,
        line: Optional[str] = None,
@@ -332,6 +379,21 @@ def figure_style(target: str = "screen", **kwargs):
 
     with plt.rc_context(rc(target, **kwargs)):
         yield
+
+
+@contextlib.contextmanager
+def _figure_axes(*args, **kwargs):
+    """Create subplot axes and draw their artists in the selected house style.
+
+    The style remains active for the entire drawing block and is restored
+    even if drawing raises. Arguments pass through to matplotlib's subplots.
+
+    :returns: context manager yielding the figure and its axes.
+    """
+    import matplotlib.pyplot as plt
+
+    with figure_style(theme_target()):
+        yield plt.subplots(*args, **kwargs)
 
 
 def theme_target() -> str:

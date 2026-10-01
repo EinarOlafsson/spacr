@@ -102,7 +102,7 @@ def test_an_empty_panel_has_no_entry_and_no_offer(panel):
 def test_the_entries_it_hands_back_are_a_copy(panel, qapp):
     """Mutating what a caller was given must not change what is on screen."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry("cuML"), _entry("Torch")])
+    panel.show_for(anchor, [_entry("cuML"), _entry("Torch")], immediate=True)
 
     handed = panel.entries()
     assert [e["title"] for e in handed] == ["cuML", "Torch"]
@@ -116,7 +116,7 @@ def test_the_entries_it_hands_back_are_a_copy(panel, qapp):
 def test_up_and_down_move_between_the_entries_and_wrap(panel, qapp):
     """A pinned panel is cyclable, so the last entry's Down is the first."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry("cuML"), _entry("Torch")], pinned=True)
+    panel.show_for(anchor, [_entry("cuML"), _entry("Torch")], pinned=True, immediate=True)
 
     def press(key):
         event = QKeyEvent(QEvent.KeyPress, key, Qt.NoModifier)
@@ -134,7 +134,7 @@ def test_up_and_down_move_between_the_entries_and_wrap(panel, qapp):
 def test_a_key_the_panel_has_no_use_for_is_passed_on(panel, qapp):
     """Only Escape and the arrows are the panel's; the rest are not eaten."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     event = QKeyEvent(QEvent.KeyPress, Qt.Key_A, Qt.NoModifier)
     event.ignore()
     panel.keyPressEvent(event)
@@ -146,7 +146,7 @@ def test_escape_closes_the_panel_and_says_it_closed(panel, qapp):
     closed = []
     panel.dismissed.connect(lambda: closed.append(1))
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     assert panel.isVisible()
 
     event = QKeyEvent(QEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
@@ -180,7 +180,7 @@ def test_an_anchor_destroyed_under_the_panel_is_forgotten(panel, qapp):
     exceptional one.
     """
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     assert panel._anchor is anchor
 
     shiboken6.delete(anchor)
@@ -193,7 +193,7 @@ def test_the_corridor_falls_back_to_the_panel_itself(panel, qapp):
     assert panel.corridor() is None
 
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     panel._anchor = None
     panel._anchor_rect = None
     assert panel.corridor() == panel.geometry()
@@ -204,7 +204,7 @@ def test_an_explicit_rectangle_docks_the_panel_without_the_widget(panel,
     """One row of an open combo popup is smaller than the widget it is in."""
     anchor = QWidget()
     rect = QRect(40, 60, 120, 20)
-    panel.show_for(anchor, [_entry()], anchor_rect=rect)
+    panel.show_for(anchor, [_entry()], anchor_rect=rect, immediate=True)
     assert panel._anchor_global_rect() == rect
     assert panel.corridor().contains(rect)
 
@@ -216,7 +216,7 @@ def test_a_panel_at_the_bottom_of_the_screen_opens_upwards(panel, qapp):
     anchor = QWidget()
     rect = QRect(available.left() + 10, available.bottom() - 4, 100, 4)
 
-    panel.show_for(anchor, [_entry()], anchor_rect=rect)
+    panel.show_for(anchor, [_entry()], anchor_rect=rect, immediate=True)
     assert panel.y() + panel.sizeHint().height() <= available.bottom() + 1
     assert panel.y() < rect.top()
 
@@ -226,7 +226,7 @@ def test_a_panel_anchored_off_every_screen_still_lands_somewhere(panel,
     """`screenAt` answers None for a point on no screen; the primary is used."""
     anchor = QWidget()
     panel.show_for(anchor, [_entry()],
-                   anchor_rect=QRect(-100000, -100000, 10, 10))
+                   anchor_rect=QRect(-100000, -100000, 10, 10), immediate=True)
     available = QGuiApplication.primaryScreen().availableGeometry()
     assert panel.x() >= available.left()
 
@@ -241,7 +241,7 @@ def test_the_pointer_travelling_through_the_gap_re_arms_the_hide(panel,
     """A naive leave-event dismissal makes the Install link unreachable."""
     anchor = QWidget()
     rect = QRect(200, 200, 100, 20)
-    panel.show_for(anchor, [_entry()], anchor_rect=rect)
+    panel.show_for(anchor, [_entry()], anchor_rect=rect, immediate=True)
     panel.start_hide(1)
     corridor = panel.corridor()
 
@@ -255,7 +255,7 @@ def test_a_pointer_well_clear_of_the_corridor_closes_the_panel(panel, qapp,
                                                                monkeypatch):
     """Moving away is a dismissal; the corridor is a grace, not a lock."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()], anchor_rect=QRect(200, 200, 100, 20))
+    panel.show_for(anchor, [_entry()], anchor_rect=QRect(200, 200, 100, 20), immediate=True)
     panel.start_hide(1)
 
     monkeypatch.setattr(panel, "_cursor_pos", lambda: QPoint(-5000, -5000))
@@ -267,7 +267,7 @@ def test_the_grace_period_runs_out_even_inside_the_corridor(panel, qapp,
                                                             monkeypatch):
     """A pointer parked in the gap does not hold the panel open forever."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()], anchor_rect=QRect(200, 200, 100, 20))
+    panel.show_for(anchor, [_entry()], anchor_rect=QRect(200, 200, 100, 20), immediate=True)
     panel.start_hide(1)
     corridor = panel.corridor()
     monkeypatch.setattr(panel, "_cursor_pos", lambda: corridor.center())
@@ -281,7 +281,7 @@ def test_the_grace_period_runs_out_even_inside_the_corridor(panel, qapp,
 def test_a_pinned_panel_ignores_every_hover_timer(panel, qapp):
     """A reader who is not holding the mouse must not lose the panel."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()], pinned=True)
+    panel.show_for(anchor, [_entry()], pinned=True, immediate=True)
     assert panel.is_pinned() is True
 
     panel.start_hide(1)
@@ -293,7 +293,7 @@ def test_a_pinned_panel_ignores_every_hover_timer(panel, qapp):
 def test_the_panel_under_the_pointer_is_not_hidden(panel, qapp, monkeypatch):
     """The pointer arriving on the panel is the opposite of leaving."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     monkeypatch.setattr(panel, "underMouse", lambda: True)
     panel._maybe_hide()
     assert panel.isVisible() is True
@@ -303,7 +303,7 @@ def test_a_destroyed_anchor_does_not_break_the_hide_check(panel, qapp,
                                                           monkeypatch):
     """Asking a deleted widget whether it is under the mouse raises."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()], anchor_rect=QRect(200, 200, 100, 20))
+    panel.show_for(anchor, [_entry()], anchor_rect=QRect(200, 200, 100, 20), immediate=True)
     panel.start_hide(1)
     shiboken6.delete(anchor)
     monkeypatch.setattr(panel, "_cursor_pos", lambda: QPoint(-5000, -5000))
@@ -317,7 +317,7 @@ def test_the_pointer_arriving_and_leaving_arms_and_cancels_the_hide(panel,
                                                                     qapp):
     """The two events the whole corridor rule hangs off."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     panel.start_hide(5000)
     assert panel._hide_timer.isActive()
 
@@ -525,7 +525,7 @@ def test_the_pointer_still_on_the_anchor_keeps_the_panel_open(panel, qapp,
                                                               monkeypatch):
     """Leaving the panel back onto the row it belongs to is not leaving."""
     anchor = QWidget()
-    panel.show_for(anchor, [_entry()], anchor_rect=QRect(200, 200, 100, 20))
+    panel.show_for(anchor, [_entry()], anchor_rect=QRect(200, 200, 100, 20), immediate=True)
     panel.start_hide(1)
     monkeypatch.setattr(panel, "underMouse", lambda: False)
     monkeypatch.setattr(anchor, "underMouse", lambda: True)

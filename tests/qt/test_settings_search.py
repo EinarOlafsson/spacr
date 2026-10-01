@@ -132,7 +132,11 @@ def test_a_narrowing_search_opens_the_sections_it_kept(mask_screen):
     # offscreen test, which makes every descendant invisible for a reason
     # that has nothing to do with the filter.
     assert not holding.isHidden()
-    emptied = bar._index["n_jobs"][0]
+    # 2026-09-29 (item 592): Output & Storage and Runtime & Reliability were
+    # merged into Mask generation's "Quality Control", so n_jobs now shares
+    # merge_pathogens' heading; a heading with no match is Input & Metadata.
+    emptied = bar._index["src"][0]
+    assert emptied is not holding
     assert emptied.isHidden()
 
     bar.set_query("")
@@ -189,8 +193,7 @@ def test_a_setting_is_recorded_against_the_heading_that_draws_it(
             f"{str(section.property('settingsCategorySource'))!r}")
 
 
-def test_a_match_under_a_heading_of_only_sub_headings_is_on_screen(
-        mask_screen):
+def test_a_match_under_a_heading_of_only_sub_headings_is_on_screen(qtbot):
     """A heading that owns no rows must not take its matches down with it.
 
     ``Advanced settings`` holds only sub-headings, and the object family
@@ -203,16 +206,28 @@ def test_a_match_under_a_heading_of_only_sub_headings_is_on_screen(
     Asserted up the whole chain rather than on the umbrella alone: the
     defect is that an ancestor is hidden, and which ancestor depends on how
     deep the module nests its families.
+
+    2026-09-29 (item 592): on Mask generation ``cell_remove_border_objects``
+    is a cell of the per-object table now, so no flat row under those
+    umbrellas matches any more (the table's own section is counted by the
+    keys it answers; see ``test_a_match_in_the_per_object_table_keeps_the_
+    table_on_screen``). The same defect is measured on Measure, whose
+    "Postprocessing" (item 595) owns no rows and holds "Runtime &
+    Reliability".
     """
-    bar = install(mask_screen)
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("measure")
+    qtbot.addWidget(screen)
+    bar = install(screen)
     assert bar is not None
     bar.set_level(ALL)
-    bar.set_query("remove border objects")
+    bar.set_query("max_failure_rate")
 
-    key = "cell_remove_border_objects"
+    key = "max_failure_rate"
     assert bar.visible_keys() == [key]
 
-    sections = {id(s) for s in mask_screen._settings_sections}
+    sections = {id(s) for s in screen._settings_sections}
     holding, field = bar._index[key]
     form = holding.findChild(QFormLayout)
     assert form.isRowVisible(field)
@@ -241,9 +256,30 @@ def test_a_match_under_a_heading_of_only_sub_headings_is_on_screen(
         "the outermost heading owns form rows, so it would have been "
         "counted anyway and this test proves nothing")
 
-    emptied = bar._index["n_jobs"][0]
+    emptied = bar._index["src"][0]
     assert emptied.isHidden(), (
         "rolling counts up must not keep a section that holds no match")
+
+
+def test_a_match_in_the_per_object_table_keeps_the_table_on_screen(
+        mask_screen):
+    """A search for a per-object question lands on the table (item 592).
+
+    2026-09-29: on Mask generation the table is the only layout of
+    ``cell_remove_border_objects``; its flat row stays hidden behind the
+    table, and the table's section is kept and opened for the match.
+    """
+    from tests.qt.per_object_table import grid_section
+
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    bar.set_query("remove border objects")
+
+    assert bar.visible_keys() == []
+    assert "cell_remove_border_objects" in bar._wanted_now()[1]
+    table = grid_section(mask_screen)
+    assert table is not None and not table.isHidden()
+    assert table.is_expanded()
 
 
 def test_a_search_that_matches_nothing_says_what_to_do(mask_screen):
@@ -390,11 +426,30 @@ def test_no_setting_is_hidden_in_every_state(mask_screen):
     bar.set_level(ALL)
     reached = set(bar.visible_keys())
 
+    # The legacy Cellpose 3 rows are gated on a MODEL rather than a
+    # dimension or a channel: they apply only to an object segmented by a
+    # Cellpose 3 model, and the model zoo chooses one by writing
+    # ``cellpose3:<model>`` into that object's model setting. So the second
+    # state is the first with the cell model sent to Cellpose 3, and a row is
+    # reachable when either state shows it.
+    from spacr._segmentation_backends import _cellpose3_value
+
+    mask_screen.apply_settings_dict(
+        {**announced, "cell_model_name": _cellpose3_value("cyto3")})
+    bar.set_level(ALL)
+    reached |= set(bar.visible_keys())
+
     unreachable = indexed - reached
     # What is left is gated on an organelle's TYPE -- a punctate organelle
     # does not show the ridge or ring controls -- so each remaining row is
     # reached by choosing that type, and none is orphaned.
     typed = {k for k in unreachable if k.startswith("organelle")}
+    # 2026-09-29 (item 592): the keys the per-object table answers are
+    # reached through the table, not through a flat row; they must all be
+    # in it in the announced state.
+    in_the_table = set(bar._wanted_now()[1])
+    unreachable -= in_the_table
+    typed -= in_the_table
     assert unreachable == typed, (
         "these rows are indexed but no run state shows them: "
         + ", ".join(sorted(unreachable - typed)))

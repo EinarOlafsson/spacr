@@ -100,7 +100,11 @@ def read_frames(path) -> Tuple[Tuple[np.ndarray, ...], Tuple[int, ...]]:
 
 
 def field_geometry(size: int) -> Tuple[Tuple[float, float, float, float], float]:
-    """Return the well rectangle and corner radius for a frame of ``size``."""
+    """Return the well rectangle and corner radius for a frame of ``size``.
+
+    :param size: side of the square frame, in pixels; the geometry drawn at
+        :data:`SOURCE_SIZE` is scaled to it.
+    """
     scale = float(size) / float(SOURCE_SIZE)
     box = tuple(value * scale for value in FIELD_BOX)
     return box, FIELD_RADIUS * scale
@@ -142,7 +146,16 @@ def field_ring_mask(
     radius: Optional[float] = None,
     pad: float = FIELD_PAD,
 ) -> np.ndarray:
-    """Mask covering only the drawn field stroke, not the space outside it."""
+    """Mask covering only the drawn field stroke, not the space outside it.
+
+    :param size: side of the square frame, in pixels.
+    :param box: the well rectangle ``(left, top, right, bottom)`` in pixels of
+        this frame; ``None`` uses :func:`field_geometry` for ``size``.
+    :param radius: the well's corner radius in pixels; ``None`` uses
+        :func:`field_geometry` for ``size``.
+    :param pad: half-width, in pixels, of the band masked around the field
+        path.
+    """
     ring, _inside = _field_masks(size, box, radius, pad)
     return ring
 
@@ -160,6 +173,13 @@ def chrome_mask(
     measure real content) and on the zoomed output (to measure it again after
     the transform, when the field survived the crop).
 
+    :param size: side of the square frame, in pixels.
+    :param box: the well rectangle ``(left, top, right, bottom)`` in pixels of
+        this frame; ``None`` uses :func:`field_geometry` for ``size``.
+    :param radius: the well's corner radius in pixels; ``None`` uses
+        :func:`field_geometry` for ``size``.
+    :param pad: half-width, in pixels, of the band masked around the field
+        path.
     :returns: boolean ``(size, size)`` array, ``True`` where a pixel must be
         ignored by the content measurement.
     """
@@ -173,6 +193,10 @@ def drop_specks(mask: np.ndarray, minimum: int = MIN_NEIGHBOURS) -> np.ndarray:
     See :data:`MIN_NEIGHBOURS` for why an isolated pixel has to go. Done with
     shifted slices rather than a convolution so the module keeps its only
     numeric dependency.
+
+    :param mask: 2-D boolean mask of lit pixels.
+    :param minimum: lit 8-neighbours a pixel needs to be kept; 0 or less
+        returns ``mask`` unchanged.
     """
     if minimum <= 0 or mask.size == 0:
         return mask
@@ -202,6 +226,14 @@ def content_mask(
     Specks are dropped per frame, before the union: a stray pixel is noise in
     the frame that produced it, and unioning first would let one frame's speck
     borrow a neighbour from another frame's real content.
+
+    :param frames: the animation's RGB uint8 frames, all the same square size,
+        as :func:`read_frames` returns them. A pixel is lit when any channel is
+        above :data:`BACKGROUND_LEVEL`.
+    :param chrome: boolean mask of pixels to ignore, as :func:`chrome_mask`
+        returns it, or ``None`` to count every pixel.
+    :param minimum_neighbours: lit 8-neighbours a lit pixel needs to count; see
+        :data:`MIN_NEIGHBOURS`.
     """
     accumulated: Optional[np.ndarray] = None
     for frame in frames:
@@ -228,6 +260,13 @@ def content_bounds(
 
     ``None`` means the animation is blank once chrome is discounted, which is
     not a failure — it cannot be zoomed, and callers show it as-is.
+
+    :param frames: the animation's RGB uint8 frames, all the same square size,
+        as :func:`read_frames` returns them.
+    :param chrome: boolean mask of pixels to ignore, as :func:`chrome_mask`
+        returns it, or ``None`` to count every pixel.
+    :param minimum_neighbours: lit 8-neighbours a lit pixel needs to count; see
+        :data:`MIN_NEIGHBOURS`.
     """
     mask = content_mask(frames, chrome, minimum_neighbours)
     if not mask.size:
@@ -251,6 +290,13 @@ def content_extent(
     This is *the* number the 70-80 % requirement is stated in, and the same
     function measures the source and the zoomed result — a target the
     transform is checked against rather than one it defines for itself.
+
+    :param frames: the animation's RGB uint8 frames, all the same square size,
+        as :func:`read_frames` returns them. An empty sequence gives 0.0.
+    :param chrome: boolean mask of pixels to ignore, as :func:`chrome_mask`
+        returns it, or ``None`` to count every pixel.
+    :param minimum_neighbours: lit 8-neighbours a lit pixel needs to count; see
+        :data:`MIN_NEIGHBOURS`.
     """
     if not len(frames):
         return 0.0
@@ -263,7 +309,11 @@ def content_extent(
 
 
 def source_content_extent(path) -> float:
-    """Measure the packaged animation at ``path`` as generated."""
+    """Measure the packaged animation at ``path`` as generated.
+
+    :param path: the packaged animation file, decoded with :func:`read_frames`;
+        a file with no frames gives 0.0.
+    """
     frames, _delays = read_frames(path)
     if not frames:
         return 0.0
@@ -275,6 +325,8 @@ def source_content_extent(path) -> float:
 class ZoomedAnimation:
     """One packaged animation, cropped and rescaled for display.
 
+    :param path: the animation file, as passed to :func:`zoomed_animation`.
+    :param size: side of the square display frames, in pixels.
     :param frames: display-sized ``(size, size, 3)`` uint8 RGB frames.
     :param delays: per-frame duration in milliseconds.
     :param source_extent: content share of the square before the zoom.
@@ -328,6 +380,10 @@ def zoom_frames(
 ) -> Tuple[Tuple[np.ndarray, ...], Tuple[int, int, int], float, float, bool]:
     """Crop and rescale ``frames`` so their content covers ``target``.
 
+    :param frames: the source RGB uint8 frames, all the same square size; the
+        chrome mask is built for that size.
+    :param size: side of the square output frames, in pixels.
+    :param target: share of the output square the content should span.
     :returns: ``(frames, crop, source_extent, fill, shows_field)``.
     """
     source_size = frames[0].shape[0]
@@ -419,6 +475,12 @@ def zoomed_animation(
     it per animation tick would be absurd, and doing it per hover would make
     every tooltip stutter. Callers may treat the result as immutable.
 
+    :param path: the packaged animation file; the cache is keyed on it together
+        with ``size`` and ``target``.
+    :param size: side of the square display frames, in pixels; converted to
+        ``int``.
+    :param target: share of the output square the content should span;
+        converted to ``float``.
     :returns: ``None`` when the file cannot be decoded, so a missing or
         corrupt asset degrades to a text-only tooltip instead of raising into
         the event loop.
@@ -456,6 +518,9 @@ def to_qimage(frame: np.ndarray):
     ``QImage`` does not take ownership of a Python buffer, so the copy is not
     optional: without it the image points at freed memory the moment the
     array goes out of scope.
+
+    :param frame: one RGB frame, an array of shape (H, W, 3), converted to
+        uint8.
     """
     from PySide6.QtGui import QImage
 
@@ -474,6 +539,9 @@ def from_qimage(image) -> np.ndarray:
     The inverse of :func:`to_qimage`, so what is actually on screen can be
     measured by the same rule the source frames were measured by — the scan
     lines are padded to a 4-byte boundary, hence the stride arithmetic.
+
+    :param image: the ``QImage`` to convert; it is converted to RGB888 first,
+        so any format is accepted.
     """
     from PySide6.QtGui import QImage
 

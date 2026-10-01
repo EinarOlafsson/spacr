@@ -32,6 +32,8 @@ from PySide6.QtWidgets import (
     QLineEdit,
 )
 
+from ..gil_priority import (_stop_watching_application_events,
+                            _watch_application_events)
 from ..theme import (
     FIELD_FADE_STOPS,
     field_chrome,
@@ -107,6 +109,9 @@ def fades(widget) -> bool:
       over a row of data, not a form field with space to its right, so a
       transparent trailing half would show the cell it is covering and
       read as a rendering fault rather than as a design.
+
+    :param widget: the widget to test; only the field types in ``FIELD_TYPES``
+        that have not set the opt-out property can qualify.
     """
     if not isinstance(widget, FIELD_TYPES):
         return False
@@ -254,10 +259,10 @@ def install_field_fade(app=None) -> bool:
     if app is None:
         return False
     if _filter is not None:
-        app.installEventFilter(_filter)
+        _watch_application_events(app, _filter, (QEvent.Type.Paint,))
         return False
     _filter = _FieldFadeFilter()
-    app.installEventFilter(_filter)
+    _watch_application_events(app, _filter, (QEvent.Type.Paint,))
     return True
 
 
@@ -268,7 +273,7 @@ def uninstall_field_fade(app=None) -> bool:
         return False
     app = app or QApplication.instance()
     if app is not None:
-        app.removeEventFilter(_filter)
+        _stop_watching_application_events(app, _filter)
     _filter = None
     return True
 
@@ -316,6 +321,9 @@ def field_fade_qss(palette: dict, opacity: Optional[float] = None) -> str:
     from ``opacity``, and its colours come from
     :func:`spacr.qt.theme.field_chrome` at paint time so they survive a
     theme switch without the stylesheet having baked them in.
+
+    :param palette: the theme palette passed by
+        :func:`spacr.qt.theme.register_widget_qss`; unused.
     """
     if not field_fade_enabled():
         return ""

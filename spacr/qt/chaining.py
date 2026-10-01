@@ -42,6 +42,7 @@ from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
 from .. import chaining as _chaining
 from .. import ports as _ports
 from ..chaining import ChainedInput, HeldPin, NextStep, StaleNote
+from .widgets.flow import FlowLayout
 
 LOG = logging.getLogger("spacr.qt.chaining")
 
@@ -316,13 +317,10 @@ class ChainingBar(QFrame):
         column.addWidget(self._fix)
 
         self._next_row = QWidget()
-        self._next_layout = QHBoxLayout(self._next_row)
-        self._next_layout.setContentsMargins(0, 0, 0, 0)
-        self._next_layout.setSpacing(8)
+        self._next_layout = FlowLayout(self._next_row, spacing=8)
         self._next_label = QLabel("Continue to:")
         self._next_label.setObjectName("ChainingNext")
         self._next_layout.addWidget(self._next_label)
-        self._next_layout.addStretch(1)
         self._next_row.hide()
         column.addWidget(self._next_row)
 
@@ -783,7 +781,7 @@ class ChainingBar(QFrame):
 
     def _draw_next(self, settings: Dict[str, Any], *, finished: bool) -> None:
         """Row 4 — what can run on what this one just produced."""
-        while self._next_layout.count() > 2:
+        while self._next_layout.count() > 1:
             item = self._next_layout.takeAt(1)
             widget = item.widget() if item is not None else None
             if widget is not None:
@@ -808,7 +806,7 @@ class ChainingBar(QFrame):
             return
         from .app import APPS
         titles = {key: name for key, name, _d, _s in APPS}
-        for index, step in enumerate(steps):
+        for step in steps:
             title = titles.get(step.module, step.module.replace("_", " ").title())
             button = QPushButton(title if step.ok else f"{title} — not ready")
             button.setObjectName("PrimaryButton" if step.ok
@@ -821,7 +819,9 @@ class ChainingBar(QFrame):
                 if step.ok else f"{step.blocked}\n\n{step.fix}")
             button.clicked.connect(
                 lambda _checked=False, s=step: self._on_continue(s))
-            self._next_layout.insertWidget(1 + index, button)
+            self._next_layout.addWidget(button)
+        self._next_layout.invalidate()
+        self._next_row.updateGeometry()
         self._next_row.show()
 
 
@@ -860,7 +860,10 @@ class ChainingBar(QFrame):
 
 
 def chaining_bar(screen) -> Optional[ChainingBar]:
-    """Return the strip installed on ``screen``, or None."""
+    """Return the strip installed on ``screen``, or None.
+
+    :param screen: the screen widget whose ``_chaining_bar`` attribute is read.
+    """
     bar = getattr(screen, "_chaining_bar", None)
     return bar if isinstance(bar, ChainingBar) else None
 

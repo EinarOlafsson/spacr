@@ -2,6 +2,9 @@
 import hashlib
 import json
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from published_lesson import check_published_lesson  # noqa: E402
 
 import pytest
 
@@ -40,46 +43,6 @@ def test_final_capture_proves_the_api_and_discloses_the_unfinished_gui():
                    ('ordered_identities_match', 'npy_exact', 'csv_float32_exact'))
 
 
-def test_every_final_voice_and_shared_video_are_the_ones_in_the_candidate():
-    report = read(ROOT / 'evidence/2026-09-12_embeddings_final_checks.json')
-    matrix = report['matrix']
-    assert matrix['passed'] is True
-    assert matrix['scene_count'] == 11
-    assert matrix['unique_final_tracks'] == len(matrix['tracks']) == 50
-    assert len(matrix['browser_reports']) == 14
-    assert report['native_speaker_signoff'] is False
-    assert report['human_listening_signoff'] is False
-    candidate = ROOT / 'release_candidate'
-    assert report['candidate_manifest_sha256'] == sha(candidate / 'release-manifest.json')
-    records = {r['path']: r for r in read(candidate / 'release-manifest.json')['files']}
-    for track in matrix['tracks']:
-        path = f"media_host/77_embeddings/audio/{track['language']}/{track['voice']}.m4a"
-        assert records[path]['sha256'] == track['sha256']
-    master = 'media_host/77_embeddings/video/77_embeddings_silent.mp4'
-    assert records[master]['sha256'] == matrix['master_sha256']
-    english = read(ROOT / 'lessons/77_embeddings.json')
-    canonical = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-    assert matrix['canonical_english_sha256'] == canonical
-
-
-def test_heart_native_captions_match_each_actual_sentence_not_estimated_scene_slots():
-    timing_path = ROOT / 'evidence/2026-09-12_embeddings_heart_timing.json'
-    timing = read(timing_path)
-    report = read(ROOT / 'evidence/2026-09-12_embeddings_final_checks.json')
-    assert report['heart_timing_sha256'] == sha(timing_path)
-    manifest = read(ROOT / 'release_candidate/release-manifest.json')
-    record = next(r for r in manifest['files']
-                  if r['path'] == 'media_host/77_embeddings/audio/en/af_heart.json')
-    assert record['sha256'] == sha(timing_path)
-    browser = read(ROOT / 'release_candidate/candidate-browser-checks.json')
-    case = next(c for c in browser['ready_playback_cases'] if c['lesson'] == '77_embeddings')
-    assert report['candidate_browser_case'] == case
-    assert case['audio_sha256'] == timing['media_sha256']
-    sentences = [sentence for scene in timing['scenes'] for sentence in scene['sentences']]
-    assert len(case['sentence_cue_checks']) == len(sentences) > 11
-    for actual, observed in zip(sentences, case['sentence_cue_checks']):
-        midpoint = (actual['speech_start'] + actual['speech_end']) / 2
-        assert observed['requested_audio_time'] == pytest.approx(midpoint)
-        assert abs(observed['audio'] - midpoint) < 1
-        assert observed['text'] == actual['text']
-        assert actual['text'] in observed['cues']
+def test_embeddings_published_voices_and_heart_captions_are_the_candidates():
+    """The nine-scene walkthrough replaced the 2026-09-12 recording."""
+    check_published_lesson('77_embeddings', 9)

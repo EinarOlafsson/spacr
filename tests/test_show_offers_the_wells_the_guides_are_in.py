@@ -174,3 +174,101 @@ class TestThroughThePanel:
         before = len(panel.scoped_objects()[0])
         panel.set_selected_wells(["p1_r1_c1"])
         assert len(panel.scoped_objects()[0]) < before
+
+
+# ---------------------------------------------------------------------------
+# item 205, decided 2026-09-25: the panel opens on the TOP HITS
+# ---------------------------------------------------------------------------
+
+RESULTS = pd.DataFrame({
+    "feature": ["Intercept", "grna[T.g1]", "grna[T.q]", "grna[T.x]",
+                "grna[T.w]"],
+    "coefficient": [0.1, 0.9, -0.5, 0.2, 0.3],
+    "p_value": [1e-9, 1e-6, 1e-3, 0.4, 0.02],
+})
+
+
+class TestTheTopHits:
+
+    def test_significant_terms_most_significant_first(self, objects):
+        from spacr.well_scope import _top_hits
+        assert _top_hits(objects, RESULTS, limit=2) == ["g1", "q"]
+
+    def test_nothing_significant_selects_nothing(self, objects):
+        from spacr.well_scope import _top_hits
+        assert _top_hits(objects, RESULTS, alpha=1e-12) == []
+
+    def test_a_gene_term_brings_every_guide_of_the_gene(self):
+        from spacr.well_scope import _top_hits
+        frame = pd.DataFrame({"prc": ["a", "b", "c"],
+                              "grna": ["TGGT1_2_1", "TGGT1_2_2", "TGGT1_3_1"]})
+        table = pd.DataFrame({"feature": ["gene[T.TGGT1_2]"],
+                              "p_value": [0.001]})
+        assert _top_hits(frame, table) == ["TGGT1_2_1", "TGGT1_2_2"]
+
+    def test_a_results_folder_is_read(self, objects, tmp_path):
+        from spacr.well_scope import _top_hits
+        RESULTS.to_csv(tmp_path / "results.csv", index=False)
+        assert _top_hits(objects, str(tmp_path), limit=1) == ["g1"]
+
+    def test_no_table_selects_nothing(self, objects, tmp_path):
+        from spacr.well_scope import _top_hits
+        assert _top_hits(objects, str(tmp_path / "missing.csv")) == []
+        assert _top_hits(objects, None) == []
+
+
+class TestThePanelOpensOnTheTopHits:
+
+    @staticmethod
+    def _panel(objects, groups=None, **kwargs):
+        pytest.importorskip("PySide6")
+        from PySide6.QtWidgets import QApplication
+
+        from spacr.qt.widgets.measurement_compare_dialog import (
+            MeasurementComparePanel)
+
+        QApplication.instance() or QApplication([])
+        return MeasurementComparePanel(objects.copy(),
+                                       groups if groups is not None
+                                       else {"a": [0]}, **kwargs)
+
+    def test_the_hits_and_their_wells_are_selected(self, objects):
+        panel = self._panel(objects, results=RESULTS)
+        assert panel._selected_guides == ["g1", "w", "q"]
+        assert panel.scope.currentData() == "wells"
+        assert panel.selected_wells() == ["p1_r1_c1", "p1_r1_c2", "p1_r1_c3"]
+
+    def test_the_well_set_is_shown(self, objects):
+        panel = self._panel(objects, results=RESULTS.iloc[:2])
+        text = panel.selection_note.text()
+        assert "g1" in text and "p1_r1_c1" in text and "p1_r1_c2" in text
+
+    def test_the_drawn_population_is_the_scoped_one(self, objects):
+        panel = self._panel(objects, results=RESULTS.iloc[:2])
+        scoped, report = panel.scoped_objects()
+        assert len(scoped) == 6 and report["chosen"] == 2
+        panel.set_selected_wells(["p1_r1_c1"])
+        assert len(panel.scoped_objects()[0]) == 3
+
+    def test_without_results_the_groups_guides_are_selected(self, objects):
+        panel = self._panel(objects)
+        assert panel._selected_guides == ["g1"]
+        assert panel.scope.currentData() == "wells"
+
+    def test_nothing_to_select_draws_everything_as_before(self, objects):
+        panel = self._panel(objects, groups={"a": ["a"]})
+        assert panel._selected_guides == []
+        assert panel.scope.currentData() == "all"
+
+    def test_the_user_can_change_the_guides(self, objects, monkeypatch):
+        panel = self._panel(objects, results=RESULTS.iloc[:2])
+        import spacr.qt.widgets.measurement_compare_dialog as module
+        from PySide6.QtWidgets import QDialog
+
+        monkeypatch.setattr(module._WellChoice, "exec",
+                            lambda self: QDialog.Accepted)
+        monkeypatch.setattr(module._WellChoice, "chosen",
+                            lambda self: {"q"})
+        assert panel._choose_guides() is True
+        assert panel._selected_guides == ["q"]
+        assert panel.selected_wells() == ["p1_r1_c3"]

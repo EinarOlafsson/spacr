@@ -109,8 +109,6 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "cell_flow_threshold": "flow_threshold",
             "cell_cellprob_threshold": "CP_prob",
             "model_name": "model_name",
-            # The run loads `custom_model` over `model_name` when it is set;
-            # the panel writes it back only if it was (333).
             "custom_model": "custom_model",
             "normalize": "normalize",
         }),
@@ -123,9 +121,6 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "cell_diameter": "diameter",
             "cell_flow_threshold": "flow_threshold",
             "cell_cellprob_threshold": "CP_prob",
-            # The plaque run segments with `plaque_model`, never
-            # `model_name`; the panel writes it only for a checkpoint the
-            # user picked (333).
             "plaque_model": "plaque_model",
             "diameter": "diameter",
             "flow_threshold": "flow_threshold",
@@ -175,7 +170,11 @@ def register_preview(app_key: str, spec: PreviewSpec,
 
 
 def unregister_preview(app_key: str) -> bool:
-    """Drop a declaration. ``True`` if there was one."""
+    """Drop a declaration. ``True`` if there was one.
+
+    :param app_key: app key whose preview declaration is removed; converted
+        with ``str()`` first.
+    """
     return PREVIEWS.pop(str(app_key), None) is not None
 
 
@@ -332,6 +331,10 @@ def install(screen: QWidget) -> Optional[_PreviewHost]:
     ``AppScreen`` already built one for it, when the screen has no runtime
     panel to insert into, or when one is already installed. Never raises: a
     missing preview must not cost anyone a module.
+
+    :param screen: app screen widget; its ``app_key`` attribute selects the
+        declared preview, and the installed host is remembered on it so a
+        second call returns the same one.
     """
     if getattr(screen, "_registry_preview", None) is not None:
         return screen._registry_preview
@@ -374,7 +377,7 @@ def attach_folded(screen: QWidget, app_key: str) -> Optional[_PreviewHost]:
     spec = PREVIEWS.get(key)
     if spec is None:
         return None
-    host = _attach(screen, key, spec)
+    host = _attach(screen, key, spec, in_heading=True)
     if host is None:
         return None
     host.toggle.setVisible(False)
@@ -383,8 +386,18 @@ def attach_folded(screen: QWidget, app_key: str) -> Optional[_PreviewHost]:
 
 
 def _attach(screen: QWidget, app_key: str,
-            spec: PreviewSpec) -> Optional[_PreviewHost]:
-    """Build ``spec``'s card, insert it hidden, and give it a toggle."""
+            spec: PreviewSpec, *,
+            in_heading: bool = False) -> Optional[_PreviewHost]:
+    """Build ``spec``'s card, insert it hidden, and give it a toggle.
+
+    :param in_heading: put the toggle in the Actions heading row when the
+        screen has one. A folded preview asks for this (item 520): its
+        toggle used to land in the Actions body or the settings strip, and
+        both fold away when a focus pane such as Plot figures opens, which
+        took the Track preview switch off Mask the moment a run drew its
+        first figure. The heading row is the one that stays on screen,
+        and the host's own Live switch already lives there.
+    """
     build = _resolve(spec.builder)
     if build is None:
         return None
@@ -435,7 +448,7 @@ def _attach(screen: QWidget, app_key: str,
 
     bar = getattr(screen, "_settings_search", None)
     heading = getattr(screen, '_actions_heading_row', None)
-    if app_key == 'host_pathogen' and heading is not None:
+    if (app_key == 'host_pathogen' or in_heading) and heading is not None:
         heading.addWidget(toggle)
     elif bar is not None and hasattr(bar, "add_trailing_widget"):
         bar.add_trailing_widget(toggle)
@@ -569,6 +582,10 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
 
     Called once from :func:`spacr.qt.shortcuts.install`, after the settings
     strip's own hook so the toggle has somewhere to go.
+
+    :param window: main window whose ``_stack`` screen stack is followed;
+        without one nothing is installed, and a watcher already stored on it is
+        returned instead of a new one.
     """
     stack = getattr(window, "_stack", None)
     if stack is None:

@@ -371,6 +371,8 @@ def median_absolute_deviation(values: Sequence[float]) -> float:
     caller can see the zero when it is zero — which is the case the whole
     fallback in :func:`robust_scale` exists for.
 
+    :param values: the feature's values; they are converted to float and every
+        non-finite entry is ignored.
     :returns: the MAD, or ``nan`` when nothing is finite.
     """
     finite = _finite(values)
@@ -390,6 +392,8 @@ def robust_scale(values: Sequence[float]) -> Tuple[float, float, str]:
     the module docstring for why that fallback and not Rousseeuw–Croux ``Sn``,
     and for the honest reading of it.
 
+    :param values: the feature's values; they are converted to float and every
+        non-finite entry is ignored.
     :returns: ``(centre, scale, note)``. ``note`` is ``""`` when the MAD did
         the work, ``"mad-zero"`` when the fallback fired, ``"constant"`` when
         the feature has no variation at all (scale 0, nothing can be an
@@ -423,6 +427,8 @@ def tukey_fences(values: Sequence[float], c: float = DEFAULT_IQR_C
     (``median +/- 0.6745 sigma``, ``IQR = 1.349 sigma``), which reproduces the
     ordinary fence exactly for Gaussian data and is reported as ``"iqr-zero"``.
 
+    :param values: the feature's values; they are converted to float and every
+        non-finite entry is ignored.
     :returns: ``(q1, q3, low, high, note)``; ``note`` is ``""``,
         ``"iqr-zero"``, ``"constant"`` or ``"empty"``.
     """
@@ -466,6 +472,8 @@ def candidate_features(frame: pd.DataFrame) -> Tuple[str, ...]:
 
     A user who wants a particular column anyway names it in
     :attr:`OutlierSpec.features`; nothing here refuses it.
+
+    :param frame: measurement table whose columns are classified.
     """
     return tuple(sorted(name for name, kind in column_kinds(frame).items()
                         if kind == CONTINUOUS))
@@ -477,6 +485,7 @@ def well_key_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     Tries :data:`WELL_KEY_SETS` in order and returns the first set whose
     columns are all present.
 
+    :param frame: measurement table whose column names are searched.
     :raises OutlierError: when none of them is, with the table's own columns in
         the message — the user can then either name the right ones explicitly
         or turn the well pass off.
@@ -616,19 +625,34 @@ class OutlierSpec:
         object.__setattr__(self, "seed", int(self.seed))
 
     def with_features(self, features: Sequence[str]) -> "OutlierSpec":
-        """A copy testing ``features``."""
+        """A copy testing ``features``.
+
+        :param features: column names to test; stored as a de-duplicated tuple.
+        """
         return replace(self, features=tuple(features))
 
     def with_method(self, method: str) -> "OutlierSpec":
-        """A copy using ``method``."""
+        """A copy using ``method``.
+
+        :param method: one of :data:`METHODS` (``"mad"``, ``"iqr"`` or
+            ``"mahalanobis"``); anything else raises :class:`OutlierError`.
+        """
         return replace(self, method=method)
 
     def with_transform(self, transform: str) -> "OutlierSpec":
-        """A copy applying ``transform`` first."""
+        """A copy applying ``transform`` first.
+
+        :param transform: one of :data:`TRANSFORMS` (``"none"`` or
+            ``"log10"``); anything else raises :class:`OutlierError`.
+        """
         return replace(self, transform=transform)
 
     def with_well_keys(self, keys: Sequence[str]) -> "OutlierSpec":
-        """A copy grouping wells by ``keys``."""
+        """A copy grouping wells by ``keys``.
+
+        :param keys: columns that together identify a well; stored as a
+            de-duplicated tuple.
+        """
         return replace(self, well_keys=tuple(keys))
 
     def threshold(self, n_features: int = 1) -> float:
@@ -666,7 +690,11 @@ class OutlierSpec:
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "OutlierSpec":
         """Rebuild from :meth:`to_dict`; unknown keys ignored, missing keys
-        defaulted, so a QC pass written by another build still opens."""
+        defaulted, so a QC pass written by another build still opens.
+
+        :param payload: mapping written by :meth:`to_dict`; only the spec's own
+            field names are read, and the constructor still validates them.
+        """
         fields = {"features", "method", "k", "c", "alpha", "transform",
                   "well_keys", "min_well_objects", "per_well",
                   "support_fraction", "seed"}
@@ -683,7 +711,10 @@ class OutlierSpec:
 
     @classmethod
     def from_json(cls, text: str) -> "OutlierSpec":
-        """Inverse of :meth:`to_json`."""
+        """Inverse of :meth:`to_json`.
+
+        :param text: JSON text written by :meth:`to_json`.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
@@ -719,6 +750,10 @@ class OutlierResult:
     :param flags: one per input row. ``True`` is "flagged", never "deleted".
     :param reasons: one per input row; ``""`` for an unflagged, scored row.
     :param threshold: the number :attr:`scores` was compared against.
+    :param n_rows_in: number of rows in the frame that was analysed;
+        :meth:`object_frame` and :meth:`filtered` require a frame of this
+        length.
+    :param n_scored: how many of those rows received a finite score.
     :param centres: per feature, the robust centre used (the median, or the
         MCD centre's coordinate).
     :param scales: per feature, the robust sigma used. Empty for
@@ -833,6 +868,9 @@ class OutlierResult:
         ``source``'s own columns is suffixed — see :attr:`column_names` for
         what was actually written.
 
+        :param source: the frame :func:`detect_outliers` was given, or one with
+            the same number of rows in the same order; any other length raises
+            :class:`OutlierError`.
         :raises OutlierError: when ``source`` is not the frame that was
             analysed. The flags are positional, so silently aligning them to a
             frame of a different length would attribute one object's badness to
@@ -879,6 +917,10 @@ class OutlierResult:
         Objects that could not be scored are **kept** — they were not flagged,
         and dropping them here would delete rows for missingness under the name
         of outlier removal.
+
+        :param source: the frame :func:`detect_outliers` was given, or one with
+            the same number of rows in the same order; any other length raises
+            :class:`OutlierError`.
         """
         if len(source) != self.n_rows_in:
             raise OutlierError(

@@ -1377,3 +1377,38 @@ if hidden:
 ```
 
 AFTER, not before. `setTabButton` shows whatever it is given, so a mark hidden on the way in comes back visible and puts an X on the page that must not close.
+
+
+---
+
+# Notes from `spacr/qt/theme.py`
+
+Prose lifted out of `spacr/qt/theme.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [make_transparent](#make_transparent) (1 entry)
+- [_CloseMarkWatcher.__init__](#_closemarkwatcher__init__) (1 entry)
+
+## make_transparent
+
+### lines 2785-2797
+
+```python
+if (target.property(TRANSPARENT_PROPERTY) is True
+```
+
+A TAG ALREADY IN FORCE GETS NO SECOND STYLE PASS (item 408). The pass is not harmless. AppScreen.changeEvent sweeps on PaletteChange, and Qt raises that from INSIDE its own polish of the screen -- the first hover on Mask is enough, because the hint timer's connection grows the screen's metaobject and Qt polishes it again. QStyleSheetStyle refuses a polish nested in another sheet style's call but lets the unpolish through, so every re-tagged widget with a sheet of its own (ConsoleSplit, the chat row, the chat input) was left with no stylesheet, and the chat viewport painted an opaque QPalette.Base until a sweep outside a polish -- Home and back. WA_StyleSheetTarget is what that unpolish clears, so a widget it did reach is not skipped here and still heals at the next sweep.
+
+## _CloseMarkWatcher.__init__
+
+### lines 5982-5983  _(unsure)_
+
+```python
+self._bar = weakref.ref(bar)
+```
+
+WEAK: the bar owns this watcher, so a strong reference is a cycle only the collector frees; see docs/notes/spacr/qt/theme.md.

@@ -1,0 +1,82 @@
+GENERATIVE COUNTERFACTUALS: MORPH A CONTROL CELL TOWARD A HIT PHENOTYPE
+
+Status: IMPLEMENTED AS ALPHA 2026-09-28.
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    No image.sc thread; from the literature / general practice.
+
+WHAT TO BUILD
+    Train a conditional generative model (e.g. diffusion or StyleGAN as in
+    Phenexplain, Lamiable et al., Nat Commun 2023) on crops and render how a
+    control cell would look under a hit condition, to make subtle phenotypes
+    visible beyond Grad-CAM.
+
+DONE WHEN
+    Counterfactual sequences for a known phenotype show the expected change,
+    and a classifier's score moves monotonically along them.
+
+ALPHA: 2026-09-28
+    Built as an alpha, CPU-validated. Settings counterfactuals,
+    counterfactual_crops and counterfactual_epochs (ALPHA_FEATURES[564]) form
+    the Counterfactuals heading of Activation Maps, hidden unless
+    Preferences -> Show alpha features is on.
+
+    Method (spacr/attribution.py, private helpers): a small class-conditional
+    autoencoder (encoder -> latent; decoder takes latent + class code) trained
+    on crops at <=64 px against the frozen classifier, which labels each crop
+    with its own prediction. Loss = reconstruction + classifier cross-entropy
+    for another class on the edited crop + mean absolute edit size. The
+    counterfactual is the crop plus (decode(target) - decode(own class)),
+    upsampled, so the edit is exactly zero at the crop's own class and all
+    detail the small generator cannot draw is kept. Sequences interpolate the
+    class code in 7 steps; the classifier scores every step. The report
+    compares against a class-mean-shift baseline. generate_activation_map
+    collects the first counterfactual_crops crops and writes
+    counterfactuals/counterfactual_{cells,summary}.csv and
+    counterfactual_sequences.pdf next to the maps.
+
+    CPU validation (synthetic crops, 32 px, known phenotype: bright puncta
+    inside a smooth cell; 400 crops, 30 epochs, 6 s on CPU; classifier 99.5%
+    held-out accuracy). Held-out 100 crops, both directions:
+        flip rate 0.99 (class-mean shift baseline 0.09)
+        monotone score along the sequence 1.00, mean Spearman 0.996
+        median edit 0.062 of the crop's intensity range, 12% of pixels
+        changed by >10% of the range (baseline edit 0.016)
+    Control -> hit on 50 held-out control crops: flip rate 1.00, puncta
+    energy (image minus its 5x5 blur, positive part) rose in every sequence
+    and monotonically, from 14.9 to 18.2 (real hit crops 20.3), so the edit
+    adds the expected phenotype, about 60% of the way to real hits.
+    Caveat: the same classifier guides and scores the edits, so the flip
+    rate alone can reflect an adversarial edit; the edit size, the phenotype
+    feature and the baseline are the checks against that.
+    Script: /mnt/wd4tb/scratch/564/validate_cpu.py. GPU run (larger N and
+    epochs) ready at /mnt/wd4tb/scratch/564/gpu_train.sh, not run.
+
+    What is left: validation on real screen crops with a known phenotype
+    (the DONE WHEN asks for real data); a diffusion/StyleGAN generator in its
+    own env for photorealistic counterfactuals at full crop size (the alpha
+    uses a tiny autoencoder); a per-condition (plate/well metadata) target
+    instead of the classifier's classes; a Qt viewer for the sequences.
+
+GPU RUN 2026-09-30
+    /mnt/wd4tb/scratch/564/gpu_train.sh through tools/gpu_turn.sh (08:24-08:26,
+    rc 0), same synthetic phenotype, 4,000 crops (3,000 train, 1,000
+    held-out), 100 epochs, 65.5 s training; classifier held-out accuracy 1.00,
+    reconstruction MSE 0.0027.
+        flip rate 0.918 (class-mean shift baseline 0.040)
+        monotone 0.999, mean Spearman 0.999
+        closeness: median edit 0.010 of the intensity range (baseline 0.018;
+        CPU run 0.062), 1.8% of pixels changed by >10% (CPU run 12%)
+    Control -> hit: flip rate 1.00, puncta energy rose in every sequence,
+    14.87 -> 18.08 (real hits 20.30), 59% of the way to real hits.
+    Outputs: /mnt/wd4tb/scratch/564/out_gpu_n4000_e100/ (validation.json,
+    counterfactual_{cells,summary}.csv, counterfactual_sequences.pdf).
+    Conclusion: with more data the edits are six times smaller, and now
+    smaller than the baseline's, for a flip rate that falls only from 0.99
+    to 0.92; real screen crops are still the open DONE WHEN step.

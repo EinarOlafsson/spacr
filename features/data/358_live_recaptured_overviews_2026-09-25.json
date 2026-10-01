@@ -1,0 +1,114 @@
+{
+  "source_commit": "f27e87e311c57ba53e3e919e77b43b7a93903041",
+  "workflow": 36177172073,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "09383fb3570b5da5e7fc94a85e508056f345c8c4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "f27e87e311c57ba53e3e919e77b43b7a93903041",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 625074170,
+    "media_files": 96
+  },
+  "lessons": [
+    "05_home",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways",
+    "82_toxoplasma",
+    "83_plasmodium",
+    "84_candida",
+    "85_host_pathogen"
+  ],
+  "media_revision": "b2225b919d11c150963c419c9810a4063482a9b2",
+  "cache_key": "recapture-20260925-nzin8z6h",
+  "live_catalog_sha256": "7338fe4e3dcbf693ef6c91f69b2e8b80db1b8375f3fd75cdf5e98cd73e0b8892",
+  "catalog_matches_source": true,
+  "narration_matches_lesson_source": true,
+  "published_video_urls": {
+    "05_home": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/05_home/video/05_home_silent.mp4",
+    "78_spacr_screens": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/78_spacr_screens/video/78_spacr_screens_silent.mp4",
+    "79_module_inputs_outputs": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/79_module_inputs_outputs/video/79_module_inputs_outputs_silent.mp4",
+    "80_image_analysis_pathways": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/80_image_analysis_pathways/video/80_image_analysis_pathways_silent.mp4",
+    "81_sequencing_pathways": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/81_sequencing_pathways/video/81_sequencing_pathways_silent.mp4",
+    "82_toxoplasma": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/82_toxoplasma/video/82_toxoplasma_silent.mp4",
+    "83_plasmodium": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/83_plasmodium/video/83_plasmodium_silent.mp4",
+    "84_candida": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/84_candida/video/84_candida_silent.mp4",
+    "85_host_pathogen": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/85_host_pathogen/video/85_host_pathogen_silent.mp4"
+  },
+  "video_urls_pinned_to_media_revision": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "1e4e7a50c0cae599b72afc4de938197bcfb0b3c4e633e227759befef7d659cff"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "e291da83c198fa2b5057984f59beb82a2182898f8c0dfece9875310681a0799b"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "main",
+      "lesson": "07_mask",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/07_mask/video/07_mask_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/c6d2b65f-7ccb-4702-ba06-ecbf7b1dfb56",
+      "width": 3840,
+      "time": 29.886829,
+      "expected": 30.006498472137462,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "05_home",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/05_home/video/05_home_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/33b62cb3-1207-4329-be35-8a392256eb06",
+      "width": 3840,
+      "time": 35.425071,
+      "expected": 35.78758229422945,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "79_module_inputs_outputs",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/79_module_inputs_outputs/video/79_module_inputs_outputs_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/a8fd0e9c-68ec-47b8-9465-4fd3ae6085a2",
+      "width": 3840,
+      "time": 36.686754,
+      "expected": 36.7694426705613,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "81_sequencing_pathways",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/81_sequencing_pathways/video/81_sequencing_pathways_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/636efcfe-b6f6-4725-b36d-7d08667954a2",
+      "width": 3840,
+      "time": 137.79259,
+      "expected": 138.12874844381628,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "85_host_pathogen",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b2225b919d11c150963c419c9810a4063482a9b2/85_host_pathogen/video/85_host_pathogen_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/f0a795f8-c760-4b38-9b06-f419cb2b8f90",
+      "width": 3840,
+      "time": 62.587682,
+      "expected": 62.8209164012149,
+      "error": null
+    }
+  ],
+  "passed": true
+}

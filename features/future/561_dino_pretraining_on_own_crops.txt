@@ -1,0 +1,96 @@
+SELF-SUPERVISED PRETRAINING (DINO) ON THE USER'S OWN UNLABELLED CROPS
+
+Status: IMPLEMENTED AS ALPHA 2026-09-28
+Owner: item-561 branch. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://www.biorxiv.org/content/10.1101/2023.04.28.538691
+
+WHAT TO BUILD
+    Pretrain a ViT with DINO on a screen's own single-cell crops (no labels)
+    to get a screen-specific feature extractor, then use it for embeddings,
+    UMAP and fine-tuned classifiers. GPU training through gpu_turn.sh,
+    resumable.
+
+DONE WHEN
+    On a labelled subset, the self-supervised features beat ImageNet
+    features for kNN classification of phenotypes.
+
+ALPHA: 2026-09-28 -- the Embeddings screen's "Pretrain on these crops..."
+    button (ALPHA_FEATURES[561], widget EmbeddingsDinoPretrainButton),
+    hidden until Preferences -> Show alpha features. Test:
+    tests/qt/test_dino_pretrain_alpha_gate.py (hidden/shown, and a run
+    started while hidden still reaches the next Embed).
+
+WHAT WAS BUILT (spacr/embeddings.py, private helpers)
+    _dino_pretrain: DINO self-distillation (student vs EMA teacher, 2
+    global + n local views, centring and sharpening, cosine lr and
+    momentum schedules) on any timm backbone (ResNet or ViT), no labels.
+    Views are made batched on the device with an affine grid (random crop,
+    any rotation, flip, per-channel gain/offset, noise). Crops are scaled
+    exactly as embed_array scales them; per_channel trains on one stain
+    per image, project on all encoded channels. Resumable: the checkpoint
+    is rewritten atomically after every epoch; rerunning with the same
+    path continues, a finished run returns at once, and a checkpoint made
+    with other settings is refused, never overwritten.
+    _dino_encoder: EmbeddingSpec(backbone="dino:<path>") embeds with the
+    teacher backbone (the same route as item 560's foundation models).
+    _backbone_scorecards: one labelled stack, several backbones, one
+    _retrieval_scorecard row each.
+    GUI: the button trains in the background (default resnet18, 64 px,
+    20 epochs, random init), then adds "Own DINO: <file>" to item 560's
+    Foundation model picker and selects it, so the next Embed uses it.
+    Tests: tests/test_dino_pretraining.py (views, planes, resume, refusal,
+    embed + score, policy mismatch) on a tiny CPU run.
+
+MEASURED (CPU only, 2026-09-28; the GPU is held by a training job)
+    Tiny setting: resnet10t, 32 px crops, 8 epochs, batch 64, 4 local
+    views, per_channel, seed 0, ~41 min per run on 8 CPU threads.
+    Pool: all 2185 datasets_/plate1 crops x 3 channels (6555 one-stain
+    images); no labels used. Labelled set: the same 307 crops as item 560
+    (6 classes nucleus count x infection; 3 classes infection), labels
+    from spaCR's object counts, not a human. k = 10, same 32 px input for
+    every row. Loss 6.70 -> 5.43 (scratch), 6.88 -> 5.44 (ImageNet init).
+      backbone                     kNN6  mAP6  P@10  kNN3  mAP3  P@10
+      ImageNet resnet10t (baseline) 0.586 0.338 0.441 0.671 0.444 0.542
+      DINO from ImageNet init       0.515 0.347 0.424 0.645 0.464 0.555
+      DINO from random init         0.632 0.410 0.512 0.736 0.514 0.628
+      chance                              0.227             0.341
+    Reading: DINO from random weights on the plate's own crops beats the
+    same architecture's ImageNet features on every metric (mAP6 +0.07,
+    kNN3 +0.07), so the done-when holds for this small setting. Starting
+    from ImageNet weights did not help in 8 epochs (kNN fell), so the GUI
+    default is random init. For scale: item 560's ImageNet resnet18 at
+    224 px scored kNN6 0.720 / mAP6 0.438 -- the tiny 32 px model beats
+    its mAP but not its kNN. One seed, one plate, count-derived labels,
+    and the labelled crops are inside the unlabelled pool (legitimate for
+    self-supervision, but not a held-out plate).
+    Files: /mnt/wd4tb/scratch/561/bench.py, scorecard_32px.csv,
+    train_*_r10t_32.log, dino_*_r10t_32.pt.
+
+GPU RUN (ready, not started)
+    /mnt/wd4tb/scratch/561/gpu_train.sh: resnet18, 64 px, 100 epochs,
+    random init (ARCH/SIZE/EPOCHS/INIT overridable), queued through
+    tools/gpu_turn.sh, resumable, then scores against ImageNet resnet18 at
+    the same size.
+
+WHAT IS LEFT
+    - Run the GPU script; try a ViT (vit_small) and ImageNet init at 100
+      epochs; repeat with several seeds and on a held-out plate with
+      human labels.
+    - A picker entry for loading an existing checkpoint (today only the
+      run just trained is offered), and progress/epoch controls in the GUI.
+    - Fine-tuned classifiers from the DINO backbone (the brief's third use).
+
+2026-09-30 GPU RUN (resnet18, 64 px, 100 epochs, from random weights; 10 min on the RTX 3090).
+Retrieval on the 307-crop plate1 set, DINO vs ImageNet resnet18 at 64 px:
+  6 classes: kNN 0.687 vs 0.573, mAP 0.444 vs 0.355 (chance 0.227)
+  3 classes: kNN 0.785 vs 0.658, mAP 0.576 vs 0.469 (chance 0.341)
+The GPU run widens the CPU run's lead (6-class kNN 0.632 vs 0.586) at a larger backbone and
+crop size. Scorecard: /mnt/wd4tb/scratch/561/scorecard_64px.csv; weights
+dino_scratch_resnet18_64_gpu.pt next to it.

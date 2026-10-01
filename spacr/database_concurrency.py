@@ -82,7 +82,12 @@ class DatabaseConfigurationError(RuntimeError):
 
 
 def is_busy_error(error: BaseException) -> bool:
-    """Return True only for SQLite lock/busy errors worth retrying."""
+    """Return True only for SQLite lock/busy errors worth retrying.
+
+    :param error: the exception to classify. Only a
+        :class:`sqlite3.OperationalError` whose message contains "locked" or
+        "busy" (case-insensitively) counts.
+    """
     if not isinstance(error, sqlite3.OperationalError):
         return False
     message = str(error).casefold()
@@ -335,6 +340,10 @@ def filesystem_type(path: os.PathLike | str) -> Optional[str]:
     elsewhere, so macOS and Windows get a real answer rather than None. The
     longest matching mount point wins on both paths. Advisory only--containers
     and automounters can hide the real backing store.
+
+    :param path: file or directory to look up. ``~`` is expanded and the path
+        resolved; on Linux a path that does not exist yet is walked up to its
+        nearest existing parent before the mount table is searched.
     """
     target = Path(path).expanduser().resolve()
     mounts = Path("/proc/mounts")
@@ -374,6 +383,9 @@ def wal_is_safe_here(path: os.PathLike | str) -> bool:
     lock contention this project already survives; the cost of a wrong
     ``True`` is WAL shared memory on storage that cannot support it, which
     is a corrupted database.
+
+    :param path: the database file (or its directory) whose filesystem is
+        looked up with :func:`filesystem_type`.
     """
     fs_type = filesystem_type(path)
     if not fs_type:
@@ -493,7 +505,15 @@ def inspect_database(
     quick_check: bool = False,
     timeout: float = 5.0,
 ) -> DatabaseHealth:
-    """Inspect journal/locking configuration without changing the database."""
+    """Inspect journal/locking configuration without changing the database.
+
+    :param path: the SQLite database file (``~`` is expanded). It must already
+        exist and is opened read-only.
+    :param quick_check: also run ``PRAGMA quick_check`` and add a warning
+        unless it reports ``ok``.
+    :param timeout: seconds SQLite waits inside a lock operation.
+    :raises FileNotFoundError: when ``path`` is not an existing file.
+    """
     absolute = os.path.abspath(os.path.expanduser(os.fspath(path)))
     if not os.path.isfile(absolute):
         raise FileNotFoundError(absolute)

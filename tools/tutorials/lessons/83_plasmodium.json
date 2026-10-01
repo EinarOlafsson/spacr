@@ -16,27 +16,27 @@
   "scenes": [
     {
       "visual": "00_home",
-      "narration": "From Home, choose Plasmodium. Open this guide to browse organism information, cell compartments and the planned assay topics.",
+      "narration": "Plasmodium has a guide of its own. From Home, choose Plasmodium to browse the organism, its cell compartments and the assays planned for it.",
       "hold_after": 0.7
     },
     {
       "visual": "01_organism",
-      "narration": "Scroll the information pane to read the blood-stage, liver-stage and motility sections. Drag the divider to adjust the space beside the module tiles.",
+      "narration": "The information pane tells the parasite's story in sections, from the blood stage and the liver stage to motility. Drag the divider for more room beside the module tiles.",
       "hold_after": 0.7
     },
     {
       "visual": "02_diagram",
-      "narration": "Hover over the apicomplexan diagram for compartment descriptions. Select components to highlight them together, then use Clear components to reset the view.",
+      "narration": "On the apicomplexan diagram, hover over a compartment to read what it is. Select several to highlight them together, and Clear components brings the view back.",
       "hold_after": 0.7
     },
     {
       "visual": "03_modules",
-      "narration": "The assay tiles currently show Coming soon and are disabled. Browse their descriptions to see the intended readouts. For an available image workflow, return to Home and open Mask or Measure with your own images and suitable channel settings.",
+      "narration": "The assay tiles are still marked Coming soon and can't be opened yet, but their descriptions show what each will measure. To analyse Plasmodium images today, go back Home and open Mask or Measure with your own images and suitable channel settings.",
       "hold_after": 0.7
     },
     {
       "visual": "04_references",
-      "narration": "Use the PlasmoDB and UniProt links to open organism resources in your browser. The guide requires no dataset, has no Run action and creates no output files.",
+      "narration": "For deeper reading, the PlasmoDB and UniProt links open organism resources in your browser. Nothing here needs a dataset or a Run, and the guide writes no files.",
       "hold_after": 0.7
     }
   ]

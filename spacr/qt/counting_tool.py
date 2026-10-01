@@ -109,7 +109,16 @@ class CountingTool(CanvasTool):
 
     def press(self, view: LayerCanvas, world: Dict[str, float],
               event: Any) -> bool:
-        """Add or remove one marker."""
+        """Add or remove one marker.
+
+        :param view: the canvas that was clicked; not read.
+        :param world: world-axis coordinates of the click, as resolved by the
+            canvas.
+        :param event: the mouse event; its ``button()`` is read (an event
+            without one counts as a left click). Left toggles a marker at
+            ``world``, right removes the one under it.
+        :returns: ``True`` for a left or right click, ``False`` otherwise.
+        """
         button = event.button() if hasattr(event, "button") else Qt.LeftButton
         if button == Qt.RightButton:
             self.session.remove_at(world)
@@ -120,7 +129,13 @@ class CountingTool(CanvasTool):
         return True
 
     def key(self, view: LayerCanvas, event: Any) -> bool:
-        """``1``–``9`` select a class; Backspace undoes the last click."""
+        """``1``–``9`` select a class; Backspace undoes the last click.
+
+        :param view: the canvas that had focus; not read.
+        :param event: the key event; Backspace or Delete undoes, and a digit
+            in its ``text()`` selects the class bound to that shortcut.
+        :returns: ``True`` when the key was consumed.
+        """
         if event.key() in (Qt.Key_Backspace, Qt.Key_Delete):
             self.session.undo()
             return True
@@ -326,6 +341,11 @@ class CountingPanel(QWidget):
 
         The seam the dialog goes through, so a screen (or a test) can save a
         count without a modal.
+
+        :param path: destination CSV path, handed to the session's
+            ``to_csv``; on an ``OSError`` or ``LayerError`` the error is shown
+            in the panel and ``None`` is returned.
+        :param summary: write one row per class instead of one per marker.
         """
         try:
             target = self._session.to_csv(path, summary=summary)
@@ -376,7 +396,11 @@ class CountingPanel(QWidget):
         self.counts_changed.emit(counts)
 
     def closeEvent(self, event) -> None:
-        """Stop listening and give the canvas its mouse back."""
+        """Stop listening and give the canvas its mouse back.
+
+        :param event: the close event; it is passed on unchanged to the
+            base-class handler.
+        """
         self.stop_counting()
         self._canvas.stack.unsubscribe(self._on_layers_changed)
         super().closeEvent(event)

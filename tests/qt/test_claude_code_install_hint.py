@@ -4,9 +4,10 @@ The maintainer, on a Windows machine without Node.js: "just allways use
 curl". The Windows hint used to be ``npm install -g @anthropic-ai/claude-code``,
 which fails with "'npm' is not recognized" wherever Node.js is absent.
 
-The commands are Anthropic's own native installers, copied from
-https://code.claude.com/docs/en/setup (retrieved 2026-09-15). The Windows one
-is the page's "Windows CMD" command. In PowerShell it fails twice, because
+The commands use Anthropic's native installers. The Windows command also
+registers the installed native directory in User PATH: the real installer can
+otherwise succeed while a new terminal still cannot find Claude. In PowerShell
+the vendor's bare CMD command fails twice, because
 ``curl`` can be an alias for ``Invoke-WebRequest`` and Windows PowerShell 5.1
 rejects ``&&``. So the hint names its shell (``cmd /c "..."``), which
 makes the one copied line run whole whichever of the two shells it is pasted
@@ -70,9 +71,28 @@ def test_the_windows_hint_names_its_shell_or_uses_curl_exe():
     assert names_its_shell or "curl.exe" in hint, hint
 
 
-def test_the_windows_hint_is_the_documented_cmd_installer_run_by_cmd():
-    assert (_claude_install_hint_on("win32")
-            == f'cmd /c "{DOCUMENTED_WINDOWS_CMD}"')
+def test_the_windows_hint_keeps_the_vendor_installer_and_registers_user_path():
+    hint = _claude_install_hint_on("win32")
+    prefix = f'cmd /c "{DOCUMENTED_WINDOWS_CMD} && powershell.exe -NoProfile -NonInteractive -Command '
+    assert hint.startswith(prefix) and hint.endswith('"')
+    setup = hint[len(prefix):-1].replace("^(", "(").replace("^)", ")")
+    assert '$' not in setup and '"' not in setup
+    assert "[IO.File]::Exists" in setup
+    assert "[Environment]::GetFolderPath('UserProfile')" in setup
+    assert "GetEnvironmentVariable('Path','User')" in setup
+    assert ".ToLowerInvariant().Split(';').Contains(" in setup
+    assert "SetEnvironmentVariable('Path'," in setup
+    assert "'\\.local\\bin','User')" in setup
+    assert "catch{" in setup and "exit(1)" in setup
+    assert "Machine" not in setup and "setx" not in setup.lower()
+
+
+def test_native_verifier_pins_the_same_reviewed_path_registration():
+    script = (PROVIDERS_PY.parents[3] / "packaging/verify_claude_native_install.ps1").read_text()
+    setup = script.split("$PathSetup = @'\n", 1)[1].split("\n'@", 1)[0]
+    assert setup == live_providers._CLAUDE_WINDOWS_PATH_SETUP
+    assert "this verifier never repairs PATH" in script
+    assert "New terminal did not resolve the exact native Claude executable" in script
 
 
 @pytest.mark.parametrize("platform", ("linux", "darwin"))

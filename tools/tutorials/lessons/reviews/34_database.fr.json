@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Database Browser : filtrer et exporter des mesures",
+  "description": "Ouvrez une base de données de mesures, sélectionnez des colonnes et des lignes, puis exportez le résultat.",
+  "objectives": [
+    "Ouvrir et parcourir une table de mesures.",
+    "Sélectionner des colonnes et filtrer des lignes.",
+    "Exporter les enregistrements correspondants."
+  ],
+  "prerequisite": "Disposez d’un fichier measurements.db de spaCR ou d’un dossier d’exécution qui en contient un. Le projet d’exemple de Measure fournit une base de données après la mesure.",
+  "scenes": [
+    "Ouvrez Help, puis Database Browser pour examiner et exporter des tables de mesures.",
+    "Choisissez measurements.db, ou le dossier d’exécution qui le contient, et ouvrez la base de données.",
+    "Sélectionnez la table voulue. Choisissez cell pour les mesures de cellules, ou une autre table d’objets pour les caractéristiques de cet objet.",
+    "Lisez le nombre total de lignes et de colonnes, puis examinez la page affichée. Utilisez les contrôles de page pour parcourir les tables plus grandes.",
+    "Recherchez dans les noms de colonnes pour trouver une caractéristique. Sélectionnez les colonnes à afficher et à exporter.",
+    "Construisez un filtre en choisissant une colonne, un opérateur et une valeur. Appliquez-le pour sélectionner les enregistrements correspondants dans toute la table.",
+    "Vérifiez le nombre de lignes filtrées et examinez les enregistrements correspondants. Modifiez ou effacez le filtre pour changer votre sélection.",
+    "Choisissez Export et un fichier de destination. L’export contient toutes les lignes correspondantes et les colonnes sélectionnées, sans modifier la base de données source."
+  ]
+}

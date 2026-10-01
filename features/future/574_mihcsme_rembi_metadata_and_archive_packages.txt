@@ -1,0 +1,66 @@
+METADATA AND ARCHIVE PACKAGES: MIHCSME/REMBI, IDR AND BIOIMAGE ARCHIVE
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/sharing-the-datasets-minimal-meta-information/116212
+
+WHAT TO BUILD
+    Capture MIHCSME/REMBI metadata for a screen (assay, reagents, imaging,
+    analysis) from spaCR's settings and plate maps plus a short form, and
+    assemble a submission package (files, metadata spreadsheets, checksums)
+    for the Image Data Resource or the BioImage Archive.
+
+DONE WHEN
+    A package for an example screen validates against the IDR/BioStudies
+    templates.
+
+ALPHA: 2026-09-27. Built behind Preferences -> Show alpha features, registered
+    as ALPHA_FEATURES[574] = {'widgets': ('ReportArchivePackage',)}.
+    Tools -> Report has an "Archive package..." button. It opens a short form
+    (title, description, authors, email, affiliation, organism, cell line,
+    screen technology/type, imaging method, microscope, protocols, keywords,
+    license, release date, optional plate map), with the fields spaCR can
+    fill already filled from the saved settings (experiment -> title,
+    metadata_type -> microscope, channels, models, magnification). It writes
+    <out>/<title>/ with:
+      idr/         study.txt, screenA-library.txt (one row per plate/well,
+                   organism with NCBITaxon, cell line, channels, plate-map
+                   columns as Characteristics [..]), screenA-processed.txt
+                   (object counts per well from pivoted_counts),
+                   screenA-plates.txt
+      biostudies/  <title>.pagetab.tsv (Submission, Study, Author,
+                   Organization, and the REMBI Biosample/Specimen/Image
+                   acquisition/Image analysis sections) and file_list.tsv
+      mihcsme/     Investigation/Study/Assay/AssayConditions sheets (TSV)
+                   and mihcsme.xlsx (needs openpyxl, optional)
+      checksums.md5 (md5sum -c format), README.txt, archive_manifest.json
+    Images stay where they are unless "Copy the images" is ticked. Nothing
+    is uploaded and the run folder is never written to. After writing, the
+    package is checked by spacr.report._validate_archive_package (required
+    IDR study keys and library columns, well spelling, plates on the plate
+    list, PageTab sections and required attributes, file list present and
+    unique, MIHCSME required keys, every checksum re-hashed). Code:
+    spacr/report.py (_write_archive_package and helpers),
+    spacr/tabular.py (_write_workbook), spacr/qt/screens/report.py.
+    CPU check on the example plate (~/.cache/spacr/example_data/plate1,
+    208 CellVoyager planes, 4 wells): package written and validated in 13 s,
+    no problems.
+    Tests: tests/test_archive_package.py,
+    tests/qt/test_archive_package_alpha_gate.py.
+
+LEFT
+    - The "templates" checked are spaCR's encoding of the IDR study/library
+      templates, the BioStudies PageTab/REMBI sections and the MIHCSME
+      sheets. Not yet run through IDR's own curation checks (idr-metadata
+      pyidr) or a BioStudies test submission (no network writes allowed).
+    - Term accessions beyond the organism (EFO screen type, FBbi imaging
+      method) are left for the curators; no ontology lookup.
+    - One screen per package; multi-screen studies are not assembled.
+    - A command-line entry point, and a Notebook cell, are not added.
+    - openpyxl is optional; without it only the MIHCSME TSVs are written.
+

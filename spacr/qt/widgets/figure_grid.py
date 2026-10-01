@@ -194,7 +194,13 @@ def _sort_key(value: Any) -> Tuple[int, Any]:
 
 def cell_caption(coordinate: Mapping[str, Any],
                  parameters: Sequence[str]) -> str:
-    """A one-line label naming the parameter values behind one figure."""
+    """A one-line label naming the parameter values behind one figure.
+
+    :param coordinate: parameter name to value for the figure; floats are
+        formatted with ``:g``.
+    :param parameters: the names to include, in caption order; names missing
+        from ``coordinate`` are skipped.
+    """
     parts = []
     for name in parameters:
         if name not in coordinate:
@@ -279,7 +285,11 @@ class SearchFigureGrid(QWidget):
 
 
     def set_parameters(self, parameters: Sequence[str]) -> None:
-        """Set the parameters whose values place a figure, then re-lay out."""
+        """Set the parameters whose values place a figure, then re-lay out.
+
+        :param parameters: the searched parameter names, in the order that
+            decides the axes; empty lays the figures out in arrival order.
+        """
         self._parameters = list(parameters or [])
         self.relayout()
 
@@ -328,6 +338,9 @@ class SearchFigureGrid(QWidget):
         format preference is PDF, and the grid necessarily DISPLAYS the
         PNG, because a PDF cannot be painted into a label. So the file a
         user should be handed is not always the one on screen.
+
+        :param index: zero-based cell index in arrival order; out of range
+            gives ``""``.
         """
         if not 0 <= index < len(self._cells):
             return ""
@@ -346,7 +359,13 @@ class SearchFigureGrid(QWidget):
 
 
     def eventFilter(self, obj, event):
-        """Debounce reflow while the container is being resized."""
+        """Debounce reflow while the container is being resized.
+
+        :param obj: the watched object; only the scroll area's viewport is
+            acted on.
+        :param event: the filtered event; a ``Resize`` restarts the reflow
+            timer, and every event is passed on to the base class.
+        """
         if obj is self._scroll.viewport() and event.type() == QEvent.Resize:
             self._reflow_timer.start()
         return super().eventFilter(obj, event)

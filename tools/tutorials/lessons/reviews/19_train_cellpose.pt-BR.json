@@ -1,31 +1,36 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "pt-BR",
-  "title": "Train Cellpose: pares verificados e alternativa explícita pela API",
-  "description": "Encontre Train no Cellpose Workbench, reconheça a falha de importação da origem e acompanhe um treinamento Python real de duas épocas com seis pares baixáveis de imagem e máscara celular.",
+  "title": "Treinar um modelo do Cellpose",
+  "description": "Prepare pares de imagem e máscara, ajuste um modelo de segmentação no Cellpose Workbench e aplique o checkpoint salvo.",
   "objectives": [
-    "Encontrar Train e Apply dentro de Make Masks, não como blocos Home separados.",
-    "Conferir nomes pareados e distinguir rótulos existentes de referência revisada.",
-    "Reconhecer importação parcial e separar a API da GUI defeituosa.",
-    "Inspecionar entradas, aquecimento, pesos alterados e caminho confirmado.",
-    "Distinguir perda de treino, campos de teste vazios e leitura dos pesos de acurácia independente."
+    "Inspecionar no Make Masks as imagens e as máscaras de rótulos de objetos correspondentes.",
+    "Escolher a pasta de treinamento, o modelo inicial, o cronograma de treinamento e o local de saída.",
+    "Executar o treinamento, encontrar o checkpoint e aplicá-lo a imagens separadas."
   ],
-  "prerequisite": "Use os seis pares, script gravado e manifesto do pacote. Os recortes preservam intensidade celular no canal 1 e máscara celular no plano 4 de campos reais; plano 6 é patógeno. Rótulos e objetos cortados NÃO são referência revisada independentemente. Train ainda descarta src e mantém model_name=new_model apesar da importação numérica; nenhum treino GUI começa. A chamada spacr.submodules.train_cellpose usa destino novo, duas épocas, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 e nenhum aumento extra spaCR. normalize=False desliga os percentis spaCR, não a divisão pelo máximo nem a normalização Cellpose. Rotação e redimensionamento internos continuam, com recortes de 256. Semente 19 na entrada; aleatoriedade interna mantida. CUDA limitado a 65% na RTX 3090, guarda de RAM 100 GiB adequada só a esta estação. Conferidos 3,145,728 valores e doze painéis; seis pares permaneceram no treino. Taxas 0 e 1.1111111111111112e-6; mudaram 345 de 347 tensores treináveis. Perda subiu de 1.496740683913231 a 1.5215517828861873. Sem teste: zeros são campos reservados. Checkpoint em models/cellpose_model/models lido com weights_only=True; resumo omite o segundo models. Leitura não é inferência nem validação de acurácia. Figura real em visualizador externo, sem inserção GUI. Originais, falhas e bloqueio GUI anterior preservados. Sem pedido AI, resposta, aprovação científica ou publicação.",
+  "prerequisite": "Baixe e extraia o exemplo indicado: seis imagens de treinamento com máscaras, mais três imagens separadas para o Apply. Ou prepare suas próprias imagens e as máscaras de rótulos inteiros correspondentes, e inspecione-as no Make Masks antes de treinar.",
   "scenes": [
-    "Abra Make Masks e depois seu Cellpose Workbench integrado. Train e Apply são abas internas, não blocos separados no Home. A lição mostra o caminho atual, um problema de importação e uma alternativa Python explícita. A lição Make Masks vinculada ensina a inspecionar e editar máscaras antes de treinar.",
-    "Em Train, confira ponto de partida e programação do treinamento. Não copie épocas ou taxa iniciais como recomendação. São necessárias imagens e máscaras de instâncias pareadas, pasta de origem e nome de saída. Ver um formulário não significa que esses requisitos estejam atendidos.",
-    "O seletor real Import settings abre um CSV com ajustes limitados. Depois aparecem duas épocas, minibatch um e taxa pequena. Porém, a origem obrigatória é descartada e o nome solicitado continua new model. É uma importação parcial, não uma configuração pronta: não pressione Run.",
-    "A rota Python seguinte é separada dessa falha GUI. Ela não preenche uma origem oculta nem conserta o formulário. Use o pacote vinculado em uma pasta nova. O script recusa destinos existentes, preserva os pares originais e registra exatamente a implementação da API e as entradas usadas.",
-    "São seis pares reais de imagem e máscara de quinhentos e doze pixels, com nomes correspondentes. Os ajustes originais identificam intensidade celular no canal um e máscara no plano quatro; seis é patógeno. Esses rótulos não são referência revisada independentemente. Confira limites e objetos cortados antes de treinar para produção.",
-    "Esta é a figura real dos seis pares salva pela API e aberta em visualizador externo, não inserida no spaCR. Cada imagem superior corresponde à máscara abaixo. Conferimos todos os valores de entrada e os doze arrays exibidos com as fontes. Isso verifica correspondência, não qualidade da anotação.",
-    "Execute o script com a origem e um destino novo. O exemplo CUDA limitado usa seis pares, duas épocas e minibatch um. O alvo de entrada tem quinhentos e doze pixels; Cellpose treina internamente com recortes de duzentos e cinquenta e seis. Desligar aumentos extras do spaCR não desliga normalização, rotação e redimensionamento internos do Cellpose.",
-    "A primeira época de aquecimento tem taxa zero. A segunda usa uma taxa positiva pequena, permitindo atualização real. Comparando checkpoint e pesos iniciais, mudaram trezentos e quarenta e cinco de trezentos e quarenta e sete tensores treináveis. Só mudar o diâmetro não passaria nessa verificação. Pesos alterados ainda não provam um bom modelo.",
-    "A perda de treino subiu um pouco, de aproximadamente um vírgula quatro nove sete para um vírgula cinco dois dois. Não foi fornecido conjunto de teste. Seus campos de perda zero são reservados, não desempenho perfeito. É uma demonstração mecânica, não convergência, segmentação melhor ou acurácia independente. Separe avaliação e treinamento.",
-    "Use o caminho do checkpoint no arquivo de verificações. Ele contém um segundo diretório models omitido pelo resumo genérico. Guarde checkpoint, ajustes, manifesto e verificações juntos. Carregar seus tensores com segurança confirma um arquivo legível, não uma inferência; o pacote fornece pares e script, não um modelo certificado.",
-    "Apply tem origem própria, campo de modelo personalizado e prévia ao vivo. Abrir a aba não seleciona nosso checkpoint externo nem executa inferência. Siga a lição vinculada e valide com imagens independentes. spaCR AI não é usado aqui: nenhuma pergunta ou resposta substitui examinar as evidências reais."
+    "Na tela Home, abra Tools e depois Make Masks. Abra o Cellpose Workbench pela barra de ferramentas; ele abre na aba Train. Você vai treinar a partir de imagens e das máscaras de rótulos de objetos e depois usar o modelo salvo em Apply.",
+    "Extraia o exemplo indicado. A pasta training dele tem seis imagens e uma subpasta masks, e a pasta apply tem três imagens separadas para depois. Clique no botão de pasta ao lado de Image source folder e escolha training. Deixe Mask source folder vazio para usar a subpasta masks, ou escolha outra pasta de máscaras.",
+    "Cada imagem precisa de uma máscara com a mesma altura e largura. Zero é o fundo, e cada objeto tem seu próprio número positivo. Abra a pasta de treinamento no Make Masks para inspecionar os rótulos e corrigi-los antes de treinar. Esta imagem tem noventa e cinco células rotuladas.",
+    "Este exemplo é em tons de cinza, então deixe Channels vazio. Em uma imagem multicanal, adicione até três números de canal contados a partir de zero, por exemplo zero e dois para o primeiro e o terceiro canais. Defina Channel axis somente se a detecção automática não encontrar a dimensão dos canais.",
+    "Mantenha Base model em cpsam para partir do Cellpose-SAM, ou digite o caminho de um checkpoint para continuar treinando um modelo anterior. Digite um Model name; aqui é tutorial cells. Deixe Checkpoint folder vazio para salvar dentro da pasta de origem, ou escolha outra pasta.",
+    "Defina N epochs e Batch size. Esta execução rápida usa dez épocas com tamanho de lote um. Mais épocas dão ao modelo mais atualizações de treinamento, e lotes maiores usam mais memória. Para começar, mantenha a taxa de aprendizado exibida.",
+    "Mantenha Normalize ativado, com os percentis um e noventa e nove como ponto de partida. Eles definem a faixa de intensidade usada em cada canal. Scale range varia o tamanho das imagens durante o treinamento, e Min train masks ignora imagens com menos objetos rotulados.",
+    "Para acompanhar a perda de validação, escolha uma Validation image folder separada e a Validation mask folder correspondente. Nunca reutilize ali imagens de treinamento. Deixe as duas vazias quando não tiver um conjunto rotulado separado, como neste exemplo.",
+    "Confira as pastas, o nome do modelo e o local de saída e pressione Run. O painel Figures mostra as imagens de treinamento acima das máscaras, e o console acompanha o progresso. Nesta GPU, dez épocas com seis imagens terminaram em menos de um minuto.",
+    "Quando o treinamento termina, o console mostra o caminho do checkpoint. No local padrão, ele fica na pasta de origem, em models, cellpose model, models. O nome do arquivo acrescenta ao nome do modelo a arquitetura e o número de épocas. Guarde-o junto com as configurações de treinamento.",
+    "Abra a aba Apply. Custom model agora aponta para o checkpoint que você treinou. Defina Source como a pasta apply do exemplo, cujas imagens vêm de poços que não foram usados no treinamento. Defina Channels como zero e Percentiles como dois e noventa e nove. Desative Fill in para que células que se tocam continuem separadas, e ative Save e Verbose.",
+    "Abra o Live preview, escolha uma imagem e pressione Run preview, com o mesmo canal e os mesmos percentis. Ele segmenta essa imagem com o seu checkpoint, que aqui encontra setenta e seis células. Ajuste as configurações aqui antes de processar a pasta inteira.",
+    "Pressione Run. O Apply grava uma máscara por imagem em uma subpasta masks ao lado dessas imagens, e Verbose mostra cada resultado como uma figura. Aqui as três máscaras contêm setenta e seis, quarenta e oito e cinquenta e cinco células. Antes de usar um modelo em um experimento inteiro, compare as máscaras dele com campos rotulados separadamente."
   ]
 }

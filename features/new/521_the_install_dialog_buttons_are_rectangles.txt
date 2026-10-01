@@ -1,0 +1,65 @@
+THE INSTALL DIALOG'S BUTTONS ARE RECTANGLES, AND ITS BAR SITS ON THEM
+
+Status: DONE, 2026-09-25.
+
+THE REQUEST
+The maintainer, 2026-09-25, about the backend install/Reinstall dialog
+opened from Plaque Assay (item 518):
+  "the reinstall and cancel buttons are to tall they look square, they
+  should be rectangles like all other buttons"
+and, for the same dialog:
+  "the bar should be bellow all text right above the buttons so it isnt
+  jumping up and down depending on how much text is being shown"
+
+CAUSE
+Not a size policy or stretch. Plaque Assay opens the dialog with its
+preview panel (PlaquePreviewPanel) as the parent. A preview scaled by its
+own slider (item 471, spacr/qt/widgets/preview_scale.py
+PreviewScaler._scale_root_sheet) re-states the whole application sheet at
+that scale on the panel itself, and a dialog inherits the style sheet of
+every widget above it, top-level or not. At the Plaque preview's saved
+150 %, "QPushButton { padding: 12px 18px; min-height: 33px }" reached the
+dialog: Install/Reinstall and Cancel were 94x59 and 117x59 px (Cancel
+100x59) against 40 px for every other button. The scaler's walk over the
+panel's children also scaled the dialog's own sizes (533 px tall in both
+variants).
+
+The progress line sat between the reason and the status, so it moved
+whenever the status line above the buttons changed length.
+
+FIX
+spacr/qt/widgets/model_zoo_picker.py:600  BackendInstallDialog is parented
+  to parent.window(), so it is themed like every other dialog and is
+  still modal to, and centred on, the window that opened it. Every caller
+  (install_backend, uninstall_backend, Plaque's _offer_install in
+  plaque_preview.py:3649, the Model Zoo) gets it.
+spacr/qt/widgets/model_zoo_picker.py:699  the progress line is the last
+  widget above the button box, below the blurb, reason, status and
+  details.
+spacr/qt/widgets/model_zoo_picker.py:736  start() keeps four lines' room
+  for the status while a job runs (it is cut at 300 characters), so the
+  window, and the bar, do not move as it grows and shrinks.
+
+Plaque's own in-place Install/Reinstall button (plaque_preview.py) opens
+this same dialog through install_backend; it has no buttons of its own.
+
+MEASURED (offscreen, dark theme, Plaque preview at 150 %)
+  before: Install 94x59, Reinstall 117x59, Cancel 100x59; normal 40 px.
+  after:  Install 63x40, Reinstall 78x40, Cancel 67x40; normal 40 px.
+
+TESTS
+tests/qt/test_521_the_install_dialog_buttons_are_rectangles.py
+  - both variants opened from the scaled Plaque preview: each button's
+    height is a normal button's (+-2 px) and its width is greater;
+  - both variants: the bar is just above the buttons, below the status,
+    and its y does not change as the status grows from one line to
+    several and back.
+Both fail on the old code. The existing dialog tests
+(test_a_backend_installs_into_its_own_environment,
+test_backend_install_translations, test_518_...,
+test_the_download_progress_line_is_never_cut_off) pass before and after.
+
+NOT DONE HERE
+Other dialogs parented to a scaled preview (Plaque's PaperDialog,
+PlaqueSettingsDialog, PlaqueOverlayDialog and the like) can inherit the
+preview's scaled sheet the same way; not measured.

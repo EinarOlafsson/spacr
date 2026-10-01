@@ -187,6 +187,8 @@ def isdir(path, *, default: bool = False, wait: bool = False) -> bool:
     dialog in, and opening it somewhere that turns out not to exist is worse
     than opening it at the default location.
 
+    :param path: the path to ask about; passed to :func:`exists` with
+        ``want_dir=True``, so anything falsy is ``False``.
     :param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of
         answering ``default`` immediately, and cache what comes back.
 
@@ -207,7 +209,11 @@ def isdir(path, *, default: bool = False, wait: bool = False) -> bool:
 
 
 def known(path, *, want_dir: bool = False) -> Optional[bool]:
-    """The cached answer for ``path``, or ``None`` when it is not known yet."""
+    """The cached answer for ``path``, or ``None`` when it is not known yet.
+
+    :param path: the path whose cached answer is wanted, looked up by its
+        string form (a falsy path as the empty string).
+    """
     with _lock:
         return _cache.get((str(path or ""), bool(want_dir)))
 

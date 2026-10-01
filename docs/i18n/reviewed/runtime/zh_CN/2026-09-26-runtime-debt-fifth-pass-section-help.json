@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map.",
+      "source": "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map.",
+      "source_sha256": "c8d9b232b7bf1a2312e404c9e3d43842f09ab8aeadeb6e6d9cd60dff7df7e4ed",
+      "translation": "在延时序列上测量的划痕或伤口愈合实验：每一帧中开放的伤口，来自明场或相差通道的纹理、荧光染色或细胞掩膜；其面积、平均宽度和最小宽度；以及每个孔和每个条件的闭合曲线、闭合速率和半闭合时间，连同图表和板布局图写入 measurements.db。"
+    },
+    {
+      "table": "categories",
+      "key": "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read.",
+      "source": "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read.",
+      "source_sha256": "cfea2162db719cbcc1dcea3c459a861cc99e484c69430112f43900eeae410c4f",
+      "translation": "Measure 之后的基于图像的特征谱分析：从对象表为每个孔生成一个特征谱，依据板布局图注释，按板相对阴性对照归一化，进行特征选择，按处理合并为一个共识特征谱，并以平均精度均值和重复一致百分比评估重复的可重现性。结果写为 pycytominer、copairs 和 Morpheus 可读取的 CSV、Parquet 和 GCT 文件。"
+    },
+    {
+      "table": "categories",
+      "key": "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells.",
+      "source": "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells.",
+      "source_sha256": "e19f4a6c38c6d6ff7efdc14f1e6b6a4c0a9e1efb7d740d9d305240dff0a9d859",
+      "translation": "每个细胞核的细胞周期时相，在测量后根据 DNA 染色以三种可互换方式之一判定：对每块板拟合的 DNA 含量直方图设门控、基于细胞核测量值的提升分类器，或基于细胞核裁剪图的图像分类器。每种方式都向 measurements.db 写入相同的时相列，并给出每个孔中感染与未感染细胞的时相比例。"
+    }
+  ]
+}

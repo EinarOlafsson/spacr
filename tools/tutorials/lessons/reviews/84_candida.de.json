@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Candida: den Organismusleitfaden erkunden",
+  "description": "Durchsuchen Sie den Candida-Leitfaden, erkunden Sie das Hefediagramm und finden Sie verfügbare allgemeine Bildanalyse-Workflows.",
+  "objectives": [
+    "Die Seite über Home öffnen und ihre wichtigsten Bedienelemente finden.",
+    "Die verfügbaren Eingaben, Aktionen und Ausgaben erkennen.",
+    "Die nächste verfügbare Analyse oder Referenz wählen."
+  ],
+  "prerequisite": "Öffnen Sie Home in spaCR. Für den Leitfaden sind keine Eingabedateien nötig. Die Candida-spezifischen Assay-Kacheln zeigen derzeit Coming soon.",
+  "scenes": [
+    "Wählen Sie auf Home Candida. Der Leitfaden behandelt Morphologie, Filamentierung, Biofilme und die Wechselwirkung der Hefe mit Wirtszellen.",
+    "Lesen Sie den Informationsbereich mit den Modulbeschreibungen daneben, und ziehen Sie den Trenner, um die Seite zu verbreitern, die Sie gerade lesen.",
+    "Das Diagramm der knospenden Hefe funktioniert wie in den anderen Leitfäden. Fahren Sie mit der Maus über einen Bestandteil, um seine Beschreibung zu lesen, wählen Sie mehrere aus, damit sie hervorgehoben bleiben, und Clear components setzt die Auswahl zurück.",
+    "Die Candida-spezifischen Assay-Kacheln sind vorerst mit Coming soon markiert, aber Sie können Ihre Bilder trotzdem mit den allgemeinen Werkzeugen analysieren. Kehren Sie zu Home zurück, segmentieren Sie sie in Mask und messen Sie sie in Measure, mit Kanälen und Masken, die zu Ihrer Art und Ihrem Experiment passen.",
+    "Für Details zu Genen und Proteinen öffnen sich die Links zur Candida Genome Database und zu UniProt in Ihrem Browser. Der Leitfaden braucht keine Eingabedateien und schreibt keine Ausgaben; wenn Sie Bilder verarbeiten möchten, folgen Sie dem Tutorial eines ausführbaren Moduls."
+  ]
+}

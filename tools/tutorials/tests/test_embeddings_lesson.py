@@ -28,8 +28,8 @@ def test_all_thirteen_reviews_are_source_bound_or_rejected_as_stale():
             assert all(text.strip() and text != scene['narration']
                        for text, scene in zip(review['scenes'], english['scenes']))
         assert all(review[key] for key in ('title','description','objectives','prerequisite'))
-        assert review['native_speaker_reviewed'] is False
-        assert review['listening_reviewed'] is False
+        assert review['review']['native_speaker_signoff'] is False
+        assert review['review']['listening_review'] is False
 
 
 def test_download_contains_exact_recorded_source_and_no_private_crops():

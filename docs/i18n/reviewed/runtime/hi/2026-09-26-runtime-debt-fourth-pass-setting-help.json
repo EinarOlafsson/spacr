@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third and fourth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency",
+      "source": "Measure confluency, the fraction of each field covered by cells, and write it to measurements.db: one row per field in the confluency table and one per well in confluency_well, with a monolayer_ok flag the plaque and infection assays can filter on or divide by. Works for any channel (brightfield, phase or a fluorescent stain) or straight from the cell masks, as confluency_source decides. With plot on, each field also gets an overlay of the covered area. Default False.",
+      "source_sha256": "a2d567ea9c3689df6fcf52ce2e970c5fde2dfc20e67b2e86305fb7e84f3b7bb3",
+      "translation": "कॉन्फ़्लुएंसी, यानी हर छवि क्षेत्र का कोशिकाओं से ढका भाग, मापता है और उसे measurements.db में लिखता है: confluency तालिका में हर छवि क्षेत्र की एक पंक्ति और confluency_well में हर वेल की एक पंक्ति, monolayer_ok फ़्लैग के साथ, जिससे प्लाक और संक्रमण परीक्षण फ़िल्टर या विभाजित कर सकते हैं। किसी भी चैनल (ब्राइटफ़ील्ड, फ़ेज़ या फ़्लोरोसेंट स्टेन) के साथ या सीधे कोशिका मास्क से काम करता है, जैसा confluency_source तय करे। plot चालू होने पर हर छवि क्षेत्र को ढके क्षेत्र का ओवरले भी मिलता है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_qc_threshold",
+      "source": "Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
+      "source_sha256": "fc1aa1ad92c9e5014c42bd4ff5e7120944b42209f611bb33f4a2b43748890c05",
+      "translation": "0 से 1 तक का वह न्यूनतम ढका भाग जिस पर कोई छवि क्षेत्र या वेल एकल परत QC पास करता है। इससे नीचे के छवि क्षेत्रों और वेल को measurements.db में monolayer_ok 0 मिलता है, ताकि पतली या फटी एकल परत से आए प्लाक और संक्रमण परिणाम हटाए जा सकें या ढके भाग से विभाजित किए जा सकें। खाली होने पर हर वेल पास होता है। डिफ़ॉल्ट 0.8।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe",
+      "source": "Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without saturating the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+      "source_sha256": "90d6473ba37b1f946dfef57546245408551042ea9aaeb9f1bd1947418510156d",
+      "translation": "कंट्रास्ट-सीमित अनुकूली हिस्टोग्राम समीकरण, पूरे छवि क्षेत्र के बजाय हर टाइल पर। चमकीले बीच वाले भाग को संतृप्त किए बिना धुंधले कोने के ऑब्जेक्ट उभारता है, और खाली टाइलों में शोर बढ़ाता है, जिसे क्लिप सीमा नियंत्रित करती है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "fill_in",
+      "source": "Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks.",
+      "source_sha256": "44b9e0519c2e8b51d8258f580e717ce8764d61833839384949ae279b2f7fcafc",
+      "translation": "Cellpose Masks (Apply) द्वारा लिखे गए हर मास्क के हर ऑब्जेक्ट के भीतर के छेद भरता है। हर ऑब्जेक्ट अलग से भरा जाता है और अपनी id बनाए रखता है, इसलिए छूने वाले ऑब्जेक्ट अलग रहते हैं और कोई छेद कभी पड़ोसी के पिक्सेल नहीं लेता। Cellpose Masks में डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_gpu_indices",
+      "source": "GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
+      "source_sha256": "23cff63eedc09cc6269f47ee10c179ce024950a7c66e48cf0e31bd39e7db1751",
+      "translation": "mask_parallel चालू होने पर उपयोग होने वाले GPUs, अल्पविराम से अलग संख्याओं के रूप में, जैसे 0,1। खाली होने पर प्रक्रिया को दिखने वाला हर GPU उपयोग होता है, जिसका क्लस्टर पर अर्थ है जॉब को आवंटित GPUs; दो से कम होने पर रन एक ही डिवाइस उपयोग करता है। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_parallel",
+      "source": "Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
+      "source_sha256": "4aa8f84644320895f9113991c3dbbb6b1aab52debce1dbee651af7486e84efff",
+      "translation": "तैयार कोशिका, नाभिक और रोगजनक बैच को एक साथ कई GPUs पर सेगमेंट करता है, हर GPU पर एक मॉडल प्रक्रिया। हर बैच ठीक एक GPU पर जाता है, पूरे हुए बैच रखे जाते हैं और समान सेटिंग्स से दोबारा चलाने पर बाकी फिर से शुरू होते हैं। मास्क एक-GPU रन से मेल खाते हैं। दो या अधिक CUDA या ROCm GPUs और Cellpose बैकएंड चाहिए; टाइमलैप्स या t_stack रन के लिए नहीं। adjust_cells के साथ समायोजित कोशिकाएँ masks/adjusted_cell_mask_stack में लिखी जाती हैं और कच्चे कोशिका मास्क रखे जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "percentiles",
+      "source": "Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps.",
+      "source_sha256": "33c1b48bceefd01eb2a0ef3020e40ce4084df287aaf66905a2e99c57d6b5ce2d",
+      "translation": "दो पर्सेंटाइल [low, high] जिनसे सेगमेंटेशन से पहले हर छवि के हर चैनल को 0-1 पर पुनः स्केल किया जाता है, उदा. [2, 98]। विंडो संकरी करने से धुंधले ऑब्जेक्ट का कंट्रास्ट बढ़ता है पर चमकीले कट जाते हैं। इन्हें स्वतः निकालने के लिए None सेट करें: low 2 पर स्थिर, high 98/99/99.9/99.99/99.999 में से पहला जो background * Signal_to_noise से अधिक हो। Cellpose Masks (Apply) में None इसके बजाय Cellpose को हर छवि स्वयं सामान्यीकृत करने देता है, जैसा लाइव पूर्वावलोकन करता है। Cellpose चरणों में डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_mode",
+      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or 3D data at a higher computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; 'iou' links masks by overlap and may fail when objects move far between frames; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
+      "source_sha256": "2d47849b1fbbb707e98557c645739ce7cd01d0cbbece48f621148506c42f09e5",
+      "translation": "फ़्रेमों के बीच ऑब्जेक्ट जोड़ने वाला ट्रैकिंग बैकएंड। 'trackastra' विभाजन को ध्यान में रखकर जोड़ने वाला एक पूर्व-प्रशिक्षित ट्रांसफ़ॉर्मर है; 'ultrack' सेगमेंटेशन और जोड़ने को एक साथ अनुकूलित करता है और अधिक गणना लागत पर घने या 3D डेटा का समर्थन करता है; 'trackpy' विन्यास योग्य खोज त्रिज्या और फ़्रेम मेमोरी का उपयोग करता है; 'btrack' गति मॉडल का उपयोग करता है; 'iou' ओवरलैप से मास्क जोड़ता है और ऑब्जेक्ट के फ़्रेमों के बीच दूर तक चलने पर विफल हो सकता है; 'timeflows' spaCR का प्रायोगिक कालिक Cellpose है, जिसे timeflows_model में प्रशिक्षित चेकपॉइंट चाहिए और जो अलग रखी गई फ़िल्मों पर अभी तक 'iou' से बेहतर नहीं हुआ है। डिफ़ॉल्ट 'trackastra'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_folder",
+      "source": "Keep Make Masks running on src and analyse each field as its images arrive, for a plate the microscope is still writing. A file is taken once it has stopped changing for watch_settle_seconds and reads whole, and a field once a file for every entry of channels is in. Images already in src go first. Each field is analysed alone, as a batch run with batch_size 1 would, and results gather in src/spacr_watch, whose watch_ledger.json lets a restart skip fields already analysed. Not for timelapse, z_stack or t_stack runs. Default False.",
+      "source_sha256": "e1945b9b02af0ec5552ba3fa6349595a7267daca13fb78d3480b2d33938926be",
+      "translation": "Make Masks को src पर चलता रखता है और हर छवि क्षेत्र का विश्लेषण उसकी छवियाँ आते ही करता है, उस प्लेट के लिए जिसे माइक्रोस्कोप अभी लिख रहा है। कोई फ़ाइल तब ली जाती है जब वह watch_settle_seconds तक नहीं बदलती और पूरी पढ़ी जा सकती है, और कोई छवि क्षेत्र तब जब channels की हर प्रविष्टि के लिए फ़ाइल आ जाए। src में पहले से मौजूद छवियाँ पहले आती हैं। हर छवि क्षेत्र का अकेले विश्लेषण होता है, जैसा batch_size 1 वाला बैच रन करता, और परिणाम src/spacr_watch में इकट्ठा होते हैं, जिसकी watch_ledger.json फ़ाइल पुनः आरंभ पर पहले से विश्लेषित छवि क्षेत्र छोड़ने देती है। टाइमलैप्स, z_stack या t_stack रन के लिए नहीं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_idle_minutes",
+      "source": "Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
+      "source_sha256": "f8b6c2105fec08f67339f572ae5e5d563bd70b47c1ce54eb6ea8e112efb3fb1b",
+      "translation": "जब src में इतने मिनट तक कुछ न बदले तो निगरानी बंद करें, और उन छवि क्षेत्रों की सूची दें जो कभी पूरे नहीं हुए। 0 होने पर रोकें दबाने तक निगरानी होती है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_measure_settings",
+      "source": "A Measure settings file (.csv or .json, as the Measure screen saves them) that watch_pipeline 'mask_measure' measures every field with. Blank uses Measure's defaults with this run's channels. Default blank.",
+      "source_sha256": "18280c253b0a2c1ddc164ded85c620d8bd3c37fb37ba782c5bdbd742defdb3c1",
+      "translation": "Measure सेटिंग्स फ़ाइल (.csv या .json, जैसे Measure स्क्रीन उन्हें सहेजती है) जिससे watch_pipeline 'mask_measure' हर छवि क्षेत्र को मापता है। खाली होने पर इस रन के चैनलों के साथ Measure के डिफ़ॉल्ट उपयोग होते हैं। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_pipeline",
+      "source": "What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' then runs Measure on the field's merged stacks and appends its rows to src/spacr_watch/measurements/measurements.db. Default 'mask'.",
+      "source_sha256": "74bbca66d83197ea90d44e01e1c8dac8a91f5f80ae0c2de27239e58632ff853c",
+      "translation": "watch_folder हर आने वाले छवि क्षेत्र पर क्या चलाता है। 'mask' Make Masks चलाता है; 'mask_measure' उसके बाद छवि क्षेत्र के मर्ज किए गए स्टैक पर Measure चलाता है और उसकी पंक्तियाँ src/spacr_watch/measurements/measurements.db में जोड़ता है। डिफ़ॉल्ट 'mask'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_poll_seconds",
+      "source": "How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
+      "source_sha256": "171a24ef2d4d63b4d839a3777115de8a2d18fd75a394dd7f85c0302ff96b5764",
+      "translation": "watch_folder कितनी बार src में नई या बदली हुई छवियाँ खोजता है। किसी छवि क्षेत्र की अंतिम फ़ाइल बदलना बंद होने के लगभग watch_settle_seconds और इतने समय बाद, उससे पहले के छवि क्षेत्र पूरे होने पर, उसे लिया जाता है। डिफ़ॉल्ट 5।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_settle_seconds",
+      "source": "How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
+      "source_sha256": "7e40a4562581b1f508a919a4a548d5cfddaf1990175beae1c55f90e51fb72f0a",
+      "translation": "watch_folder किसी छवि को पढ़े, उससे पहले छवि को कितनी देर तक समान आकार और संशोधन समय बनाए रखना चाहिए, ताकि माइक्रोस्कोप जिस फ़ाइल को अभी लिख रहा है वह आधी लिखी न ली जाए। धीमे नेटवर्क शेयर के लिए इसे बढ़ाएँ। डिफ़ॉल्ट 10।"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
+      "translation": "मर्ज किए गए ऐरे का वह चैनल जिसे बनावट और तीव्रता वाले कॉन्फ़्लुएंसी स्रोत पढ़ते हैं, channels की तरह गिना जाता है। खाली होने पर channels की पहली प्रविष्टि उपयोग होती है। बनावट के लिए ब्राइटफ़ील्ड या फ़ेज़ तल चुनें, तीव्रता के लिए साइटोप्लाज़्म या झिल्ली स्टेन। जब confluency_source मास्क पर तय होता है तो इसे अनदेखा किया जाता है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
+      "translation": "कॉन्फ़्लुएंसी कैसे तय होती है। auto रन में कोशिका मास्क होने पर उनका, अन्यथा बनावट का उपयोग करता है। masks, Measure के आकार फ़िल्टर से पहले, हर सेगमेंट की गई कोशिका का संघ है। texture ब्राइटफ़ील्ड और फ़ेज़ के लिए confluency_channel की स्थानीय भिन्नता को स्वचालित सीमा से पढ़ता है। intensity फ़्लोरोसेंट साइटोप्लाज़्म या झिल्ली स्टेन के लिए confluency_channel पर स्वचालित सीमा लगाता है। डिफ़ॉल्ट auto।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
+      "translation": "वर्गाकार विंडो की भुजा, पिक्सेल में, जिस पर बनावट वाला कॉन्फ़्लुएंसी स्रोत स्थानीय भिन्नता मापता है। लगभग उस सबसे पतले कोशिका प्रवर्ध की चौड़ाई जिसे ढका हुआ गिना जाना चाहिए: छोटी विंडो किनारों का अधिक बारीकी से अनुसरण करती है पर कोशिकाओं के चिकने भीतरी भाग को छेद के रूप में छोड़ देती है, बड़ी विंडो संकरे अंतराल पाट देती है। मास्क और तीव्रता स्रोत इसे अनदेखा करते हैं। डिफ़ॉल्ट 15।"
+    }
+  ],
+  "retired_note": "2026-09-30: item 536's phase confluency source rewrote the English of the confluency_channel, confluency_source and confluency_window tooltips; the replacements are in 2026-09-30-runtime-debt-eleventh-pass-confluency-phase.json. Kept verbatim as evidence, not loaded."
+}

@@ -192,7 +192,10 @@ def parse_values(text: str, kind: str, name: str) -> List[Any]:
 
 
 def format_params(params: Dict[str, Any]) -> str:
-    """Render a configuration as ``k=v, k=v`` in sorted-key order."""
+    """Render a configuration as ``k=v, k=v`` in sorted-key order.
+
+    :param params: parameter name to value.
+    """
     return ", ".join(f"{k}={params[k]}" for k in sorted(params))
 
 
@@ -477,6 +480,11 @@ def render_trial_figure(trial: Trial, metric: str, png_path: str) -> bool:
     Returns False when the trial has no embedding to draw: a classifier
     sweep has none, and a failed UMAP trial has none either. The caller
     treats that as "no figure for this cell" rather than as an error.
+
+    :param trial: the trial to draw; needs an ``embedding`` in
+        ``extra_metrics`` and a score.
+    :param metric: the metric name shown with the score in the figure title.
+    :param png_path: where the PNG is written.
     """
     embedding = trial.extra_metrics.get("embedding")
     if embedding is None or trial.score is None:
@@ -1446,7 +1454,12 @@ class HyperparamPanel(QWidget):
         return {name: dict(spec) for name, spec in self._walk_axes.items()}
 
     def set_walk_axes(self, axes: Mapping[str, Mapping[str, Any]]) -> None:
-        """Replace the chosen Walk axes."""
+        """Replace the chosen Walk axes.
+
+        :param axes: parameter name to ``{'start': ..., 'resolution': ...}``;
+            names outside ``UMAP_WALK_PARAMETERS`` raise :class:`ValueError`,
+            and resolution is raised to at least 2.
+        """
         cleaned: Dict[str, Dict[str, Any]] = {}
         for name, spec in (axes or {}).items():
             if name not in UMAP_WALK_PARAMETERS:
@@ -1465,6 +1478,8 @@ class HyperparamPanel(QWidget):
         The main search field wins when it holds one value, then the run's
         settings, then UMAP's own default. A starting point the user can
         see somewhere else in the panel is the one they expect.
+
+        :param name: the UMAP parameter name.
         """
         edit = self._value_edits.get(name)
         if edit is not None:
@@ -2090,7 +2105,12 @@ class HyperparamPanel(QWidget):
 
 
     def show_trial(self, trial: Trial) -> bool:
-        """Load one row's stored coordinates into the native 2-D/3-D view."""
+        """Load one row's stored coordinates into the native 2-D/3-D view.
+
+        :param trial: the trial whose stored ``embedding`` (and optional
+            ``cluster_labels``, ``backend`` and ``n_components``) in
+            ``extra_metrics`` is shown; returns False when it has no embedding.
+        """
         explorer = getattr(self, "_umap_explorer", None)
         if explorer is None:
             return False
@@ -2337,6 +2357,9 @@ class HyperparamPanel(QWidget):
 
         Destroying a QWidget whose QThread is still running aborts the process,
         which is exactly how the headless test suite would die.
+
+        :param event: the close event, passed on to the base class after a
+            running sweep worker is asked to stop and waited for up to 3 s.
         """
         worker = self._worker
         if worker is not None:
@@ -2767,7 +2790,10 @@ def _fill_hyperparam_card(host, card):
 
 
 def searchable(app_key: str) -> bool:
-    """Whether a hyperparameter search exists for ``app_key``."""
+    """Whether a hyperparameter search exists for ``app_key``.
+
+    :param app_key: the app key looked up in ``APP_PARAMS``.
+    """
     return app_key in APP_PARAMS
 
 

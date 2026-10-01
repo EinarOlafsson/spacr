@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Plasmodium: den Organismusleitfaden erkunden",
+  "description": "Durchsuchen Sie den Plasmodium-Leitfaden, erkunden Sie das Zelldiagramm und finden Sie verfügbare allgemeine Bildanalyse-Workflows.",
+  "objectives": [
+    "Die Seite über Home öffnen und ihre wichtigsten Bedienelemente finden.",
+    "Die verfügbaren Eingaben, Aktionen und Ausgaben erkennen.",
+    "Die nächste verfügbare Analyse oder Referenz wählen."
+  ],
+  "prerequisite": "Öffnen Sie Home in spaCR. Für den Leitfaden sind keine Eingabedateien nötig. Die Plasmodium-spezifischen Assay-Kacheln zeigen derzeit Coming soon.",
+  "scenes": [
+    "Plasmodium hat einen eigenen Leitfaden. Wählen Sie auf Home Plasmodium, um den Organismus, seine Zellkompartimente und die dafür geplanten Assays zu durchsuchen.",
+    "Der Informationsbereich erzählt die Geschichte des Parasiten in Abschnitten, vom Blutstadium und Leberstadium bis zur Motilität. Ziehen Sie den Trenner, um neben den Modulkacheln mehr Platz zu bekommen.",
+    "Fahren Sie im Apicomplexa-Diagramm mit der Maus über ein Kompartiment, um zu lesen, was es ist. Wählen Sie mehrere aus, um sie gemeinsam hervorzuheben; Clear components stellt die Ansicht wieder her.",
+    "Die Assay-Kacheln sind noch mit Coming soon markiert und lassen sich noch nicht öffnen, aber ihre Beschreibungen zeigen, was jede messen wird. Um heute Plasmodium-Bilder zu analysieren, kehren Sie zu Home zurück und öffnen Mask oder Measure mit Ihren eigenen Bildern und passenden Kanaleinstellungen.",
+    "Zum Weiterlesen öffnen die Links zu PlasmoDB und UniProt Ressourcen zum Organismus in Ihrem Browser. Hier braucht nichts einen Datensatz oder Run, und der Leitfaden schreibt keine Dateien."
+  ]
+}

@@ -1,0 +1,139 @@
+DEEP-LEARNING EVENT DETECTION ON TRACKS: MITOSIS, EGRESS, INVASION, HOST DEATH
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/trackmate-cell-division-inaccurate-tracking/74988
+
+WHAT TO BUILD
+    Classify short track windows (image sequence + track features) into
+    events (mitosis, parasite egress, invasion, host death), time-stamp
+    them, correct tracker division errors from detected mitoses, and report
+    event timing per condition (feeds a Kaplan-Meier view).
+
+DONE WHEN
+    On annotated timelapses, events are detected with a stated
+    precision/recall and timing error in frames.
+
+ALPHA: 2026-09-27. Built behind Preferences -> Show alpha features, registered
+    as ALPHA_FEATURES[567]: settings timelapse_events (default False),
+    timelapse_events_annotations (None), timelapse_events_model (None),
+    timelapse_events_window (9), timelapse_events_threshold (0.5) and
+    timelapse_events_conditions (None), shown on the Timelapse app under
+    "Event Detection (Alpha)". No widgets, apps or zoo rows.
+
+WHAT WAS BUILT (2026-09-27)
+    spacr/timelapse.py, private helpers only; CPU only (torch, at most four
+    threads), no GPU turn was used.
+    - After each field is tracked, _run_event_features_step stores per-object,
+      per-frame shape and intensity features and 16x16 image crops
+      (tracks/events/<stem>_features.csv, _crops.npz).
+    - At the end of the run (core.preprocess_generate_masks),
+      _run_event_detection_step: windows of each track (speed, area change,
+      shape, intensity, track starts/ends, tracks starting or ending nearby,
+      crops) go to a small network (per-frame conv encoder of the crops +
+      temporal 1D convolution). Classes are whatever the annotation table
+      names (mitosis, egress, invasion, host_death ...). With annotations it
+      is scored by leave-fields-out cross-validation
+      (event_detection_scores.csv: precision, recall, F1, mean/max timing
+      error in frames, match within 2 frames), trained on all annotated
+      fields and saved as event_model.pt (loaded tensors-only); otherwise
+      timelapse_events_model is applied.
+    - Events are time-stamped as per-track probability peaks
+      (<stem>_events.csv, events.csv).
+    - Division correction: detected mitoses link new tracks starting beside
+      the mother in parent_track_id (<stem>_corrected.csv); lineage trees
+      (item 537) are redrawn from those links only, so broken tracks are no
+      longer inferred as divisions (events/lineage).
+    - Timing per condition: time from each track's first frame to its first
+      event of each kind, censored at the track's end, through item 571's
+      _time_to_event_groups/_statistics/_figure (Kaplan-Meier, log-rank):
+      event_timing_<event>_curves/summary/tests.csv and figure.
+
+VALIDATION (synthetic, CPU; scratch-docs/567/validate.py)
+    Eight 30-frame fields, 9 cells each: two mitoses (rounding, brightening,
+    two daughters under new ids), one host death (shrink, brighten, end),
+    and distractors: a broken track, a transient rounding decoy, a cell that
+    vanishes. Leave-fields-out, 24 annotated events:
+    - with image features and crops: precision 1.00, recall 1.00, timing
+      error 0.0 frames (mitosis 16/16, host death 8/8), 129 s on CPU;
+    - tracks only (no images): mitosis P 1.00 / R 1.00, host death P 0.50 /
+      R 1.00 (vanishing cells taken for deaths), timing error 0.0 frames.
+    - Division links re-made from detected mitoses: 31 of 32 true links,
+      2 false links (a broken track restarting beside a dividing mother).
+    Tests: tests/test_event_detection_on_tracks.py (features, windows,
+    held-out scores, re-linking, timing per condition, saved-model reuse,
+    scoring, refusal), tests/qt/test_event_detection_alpha_gate.py.
+
+WHAT IS LEFT
+    - Real data (2026-09-30, below): mitosis on two CTC datasets and host
+      death on published LNCaP movies. Still no annotated Toxoplasma
+      egress/invasion movie; death timing is good to hours, not frames.
+    - Egress and invasion were not simulated; they need parasite and host
+      tracks read together (events across two object types).
+    - No own-env backend and no GPU training; the network is small enough
+      for the CPU. A larger pretrained video model would need an isolated
+      env via _segmentation_backends.
+    - No annotation tool in the GUI: annotations are a hand-made table.
+
+2026-09-30 -- Real-data validation (CPU, at most four torch threads on a
+shared machine; no GPU turn; scripts in /mnt/wd4tb/scratch/571/scripts)
+    Mitosis, Cell Tracking Challenge training data (celltrackingchallenge.net):
+    spaCR tracked the silver-truth masks with trackpy (the timelapse
+    module's _trackpy_track_cells), stored its event features and crops
+    (_run_event_features_step), and the GT divisions of man_track.txt were
+    mapped onto spaCR tracks at the mother's last frame (2 of 1319 had no
+    spaCR object there). Held out by movie: trained on one movie, scored on
+    the other, both ways (_event_cross_validate), window 9, threshold 0.5.
+                          annotated  P     R     F1    timing (frames)
+      Fluo-N2DL-HeLa      306        0.90  0.93  0.91  0.39 mean, <=2
+        (H2B-GFP, 2 x 92 frames at 30 min; 45 min CPU)
+      PhC-C2DL-PSC        1013       0.89  0.90  0.90  0.65 mean, <=2
+        (phase contrast, 2 x 300 frames; 80 min CPU)
+    (track-matched, tolerance 2 frames; matching by position within 25 px
+    gives 0.91/0.94 and 0.90/0.92.) Against the tracker alone (a new track
+    starting within 30 px of another = a division): HeLa P 0.78 R 0.93
+    F1 0.85, PSC P 0.86 R 0.95 F1 0.90. So the detector removes most false
+    divisions on the crowded HeLa movies and adds nothing on PSC, whose
+    daughters the tracker already separates cleanly; its timing is looser
+    than the tracker's (the tracker is right by construction when it is
+    right).
+    Mitosis timing per condition (feeds item 571): before this date a
+    track counted only its first mitosis, and trackpy carries one daughter
+    on under the mother's id, so time to division on HeLa came out 27 h
+    against 35 h in the GT lineage (log-rank p 8e-4). _event_timing now
+    splits a track at every detected mitosis into cell cycles
+    (_event_cycles): 35.0 vs 35.0 h, max KM gap 0.043, p 0.73.
+    Host death, Vicar et al. 2020 LNCaP movies (Zenodo 2601562 tracked
+    masks + death frames, 4531900 Hoechst and caspase-3/7 images): 14
+    fields (staurosporine, doxorubicin), 411 cells, 313 annotated deaths
+    (apoptotic and lytic), every 5th frame (15 min, 94 frames), leave-fields-
+    out 5 folds, window 9, 104 min CPU. Dead cells stay in the field, so
+    the detector used to call the same death again (550 calls on 411
+    tracks); a class whose name contains death or lysis now keeps its most
+    probable peak per track (_event_is_terminal). With that:
+      event-level  +-2 frames (30 min) P 0.39 R 0.38 F1 0.38;
+                   +-8 frames (2 h)    P 0.58 R 0.57 F1 0.57
+                   (before the fix 0.25/0.45/0.32 and 0.37/0.65/0.48)
+      per cell     260 of 313 deaths found, 47 cells called dead that
+                   survived, 53 deaths missed; median |error| 3 frames
+                   (45 min), 46 % within 30 min, 83 % within 5 h (the
+                   +-100-frame criterion of the dataset's authors).
+    At the population level the detected deaths reproduce the annotated
+    Kaplan-Meier curves (571): median 21.5 vs 21.25 h (doxorubicin), 14.25
+    vs 15.25 h (staurosporine); max curve gap 0.09 / 0.08; log-rank of
+    detected vs annotated p 0.32 / 0.49; HR staurosporine vs doxorubicin
+    2.48 (1.96-3.16) vs 2.08 (1.65-2.62) annotated.
+    A 17-frame window (4 h, with the once-per-track rule in the detector)
+    is no better: +-2 frames F1 0.32, +-8 frames F1 0.59, 253 of 313
+    deaths found, 43 false; the default stays 9.
+    Tests added: death called once per track, mitoses may repeat; cell
+    cycles split at each mitosis (tests/test_event_detection_on_tracks.py).
+    Verdict: mitosis detection holds on real data; death timing is only
+    good to hours, not frames, and should be read as a population estimate.

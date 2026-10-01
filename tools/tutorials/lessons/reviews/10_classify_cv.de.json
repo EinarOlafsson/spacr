@@ -1,38 +1,34 @@
 {
   "lesson": "10_classify_cv",
-  "english_sha256": "104932e5a39da62949d4d9ce3bde235cf5db2ab8dac208aa6973871b6d7f5106",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "de",
-  "title": "Classify: ein überprüftes Computer-Vision-Beispiel",
-  "description": "Bereiten Sie unveränderte heruntergeladene Bildausschnitte mit eindeutigen Well-Identitäten vor und beurteilen Sie ein kleines Modell ohne übertriebene Leistungsversprechen.",
-  "objectives": [
-    "Die Computer-Vision-Familie im Hauptmodul Classify finden.",
-    "Eine vorhandene Aufteilung aus heruntergeladenen Annotationen vorbereiten, ohne Originalbilder oder Labels zu ändern.",
-    "Tatsächliche Wells trennen, Trainingsabbildungen zeigen und erfolgreiche Ausführung von nützlicher Vorhersage unterscheiden.",
-    "Modelle, Vorhersagen und verschachtelte Werkzeuge finden."
-  ],
-  "prerequisite": "Annotate: Load test data → Load, nicht Stream. plate1/measurements/measurements.db und png-Bilder aufbewahren. Aufnahme mit spaCR 1.5.0.8. ZIP entpacken und prepare_classify_split.py in der spaCR-Umgebung ausführen: --source zeigt auf plate1, --destination auf einen NEUEN Ordner. Das Hilfsskript gilt ausschließlich für dieses Vier-Well-Beispiel: je acht vorhandene infected=1- und infected=2-Labels pro Well, deterministische Auswahl vor dem Training, 64 bytegleiche RGB-Bilder. Das Hilfsskript bewahrt außerdem eine bytegleiche Kopie der ursprünglichen Messdatenbank auf. Kopien erhalten die prcfo-Namen der Datenbank; der Parser alter Dateinamen wird NICHT repariert. Die ausgeglichene Auswahl erhält NICHT die Klassenhäufigkeit der Population. Vorbereiteten Ordner, Computer Vision (Torch), Generate training dataset aus wählen. Einstellungen: ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=2, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True; alle Leakage-Prüfungen an. Die 32 Bilder in train werden zu 16 Trainings- und 16 Validierungsbildern; test enthält 32. Keine überlappenden Wells, aber dieselbe Platte. Alle Testvorhersagen sind Klasse null: Accuracy=0.5, Mehrheitsbaseline=0.5, Makro-F1=1/3. Alle 32 Identitäten, Labels, Wahrscheinlichkeitssummen, Accuracy, Klassenanzahlen und Makro-F1 wurden unabhängig geprüft, nicht sämtliche Kennzahlen. Ausgabe: model/resnet18/rgb/epochs_1. API: spacr.classify.classify → spacr.deep_spacr.train_test_model. Keine Aussage über Modellnutzen, biologische Gültigkeit oder Übertragbarkeit auf neue Experimente. Keine AI-Frage gesendet.",
-  "scenes": [
-    "Öffnen Sie Classify über Home und wählen Sie Computer Vision, Torch. Computer Vision lernt aus Objektbildern, die tabellarische Familie aus gespeicherten Messungen. Beide gehören jetzt zum selben Hauptmodul. Dieses kleine, überprüfte Beispiel verwendet eine gesonderte Datenvorbereitung als Umgehungslösung; sie repariert nicht den Parser alter Dateinamen in der Anwendung.",
-    "Folgen Sie dem verlinkten Annotate-Tutorial und laden Sie mit Load das echte Beispiel. Bewahren Sie Messdatenbank und Bildausschnitte auf. Das Terminal zeigt vorhandene Annotationen aus vier tatsächlichen Wells. Diese Labels bleiben erhalten, sind aber keine unabhängig bestätigte biologische Wahrheit. Das Quellprojekt wird während der gesamten Demonstration nicht verändert.",
-    "Laden Sie das Hilfsskript herunter und starten Sie es in Ihrer spaCR-Umgebung. Source bezeichnet den heruntergeladenen Plattenordner; destination muss neu sein. Pro Well werden acht Bilder aus jeder der beiden vorhandenen Klassen kopiert: insgesamt vierundsechzig. Die Auswahl erfolgt deterministisch vor dem Training, nicht nach Betrachtung der Modellleistung.",
-    "Lesen Sie zuerst das Manifest. Die Kopien erhalten kanonische Objektidentitäten aus der Datenbank als Namen und behalten sämtliche Bildbytes. Zwei vollständige Wells kommen in den Trainingsordner, zwei in den Testordner. Diese bewusst ausgeglichene Lehrstichprobe verändert die Klassenhäufigkeit; sie repräsentiert nicht die ursprüngliche Population.",
-    "Wählen Sie in Classify den vorbereiteten Datensatzordner, nicht das Originalprojekt oder einen Klassenunterordner. Er enthält train und test mit jeweils zwei Klassenordnern. Der Quellenwähler öffnet diesen vorhandenen Datensatz. Überschreiben Sie das Quellprojekt nicht und verwenden Sie keinen Zielordner mit Ergebnissen eines früheren Laufs erneut.",
-    "Schalten Sie Generate training dataset aus, da die Aufteilung schon vorbereitet ist. Train und Test bleiben an; die Anwendung auf den vollständigen Datensatz bleibt aus. Die Klassenordner erhalten Labels eins und zwei, während das Modell Indizes null und eins benutzt. Das sind unterschiedliche Nummerierungen, kein Widerspruch.",
-    "Wählen Sie ResNet18 für dieses begrenzte Beispiel: eine Epoche, Batches mit acht Bildern, Bildgröße einhundertachtundzwanzig und zwei Lade-Worker. Verwenden Sie alle drei RGB-Kanäle, ohne vortrainierte Gewichte und Augmentation. Diese Einstellungen halten die Demonstration klein; sie sind kein empfohlenes Rezept für einen genauen Klassifikator.",
-    "Lassen Sie die Gruppierung nach Well und alle Leakage-Prüfungen eingeschaltet. Ein Validierungsanteil von einer Hälfte teilt die zweiunddreißig Bilder im Trainingsordner in sechzehn Trainings- und sechzehn Validierungsbilder, jeweils ein ganzes Well. Die übrigen zweiunddreißig bleiben ausschließlich Testdaten. Alle Wells teilen dieselbe Platte: keine Validierung an einem unabhängigen Experiment.",
-    "Schalten Sie Plot ein, leeren Sie die Einstellungssuche und klicken Sie Run. Verfolgen Sie tatsächliche Aufteilung, Leakage-Audits, Training und Speicherpfade in der Konsole. Beide Well-basierten Grenzprüfungen bestehen hier. Ein Softwareergebnis ist nur aussagekräftig, wenn die Namen zu den wirklichen Probenidentitäten passen; dies haben wir zusätzlich geprüft.",
-    "Figures zeigt Verlust, Genauigkeit und Validierungsgenauigkeit je Klasse. Eine einzige Epoche ergibt einzelne Punkte, keinen Nachweis der Konvergenz. Unsere separate Testprüfung findet für jedes Bild Klasse null: fünfzig Prozent Genauigkeit, genau die ausgeglichene Mehrheitsbaseline. Erfolgreiche Ausführung hat keinen nützlichen Klassifikator geliefert.",
-    "Bewahren Sie den Modellordner mit Checkpoint, Modellkarte, Leakage-Audits und Ergebnistabellen auf. Hier liegt er unter model, resnet18, rgb, epochs Unterstrich eins. Vergleichen Sie Vorhersageidentitäten und Labels, nicht nur eine Genauigkeitszahl. Zur Prüfung kopierte Fehlklassifikationen sind Ausgaben, keine zusätzlichen unabhängigen Trainings- oder Testproben.",
-    "Nach Einrichtung eines Anbieters können Sie über AI Fragen zu Einstellungen oder Ergebnissen stellen. Hier sehen Sie einen ungesendeten Entwurf, keine Antwort oder Analyse. In Python leitet classify diese Familie an train_test_model weiter. Bewahren Sie das Aufteilungsmanifest auf und prüfen Sie Ratschläge vor einem größeren, unabhängig validierten Experiment."
-  ],
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: bind current native CV recording; scene 7 uses two loader workers. Prerequisites name spaCR 1.5.0.8, n_jobs=2 and the byte-identical preserved measurements database. Eleven other narration scenes and all measured limitations remain unchanged."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Classify: einen Bildklassifikator trainieren",
+  "description": "Bereiten Sie beschriftete Bildausschnitte vor, wählen Sie die Computer-Vision-Familie, trainieren Sie ein kleines Modell und finden Sie seine Vorhersagen.",
+  "objectives": [
+    "Das herunterladbare Beispiel zur Bildklassifikation vorbereiten.",
+    "Modell, Bildkanäle und Trainingseinstellungen wählen.",
+    "Wells getrennt halten und gespeicherte Modelle und Vorhersagen prüfen."
+  ],
+  "prerequisite": "Laden Sie das gemessene Beispiel über Annotate mit Load test data und dann Load herunter. Behalten Sie den Ordner plate1 mit measurements/measurements.db und den png-Ausschnitten. Laden Sie unten Classify_existing_split_example.zip herunter und entpacken Sie das Hilfsskript. Führen Sie in Ihrer spaCR-Umgebung prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split aus. Wählen Sie in Classify den Ordner new_split. Das Hilfsskript ist für dieses Beispiel mit vier Wells gedacht; es kopiert 64 beschriftete RGB-Ausschnitte in Trainings- und Testordner.",
+  "scenes": [
+    "Öffnen Sie von Home aus Classify und wählen Sie Computer Vision, Torch. Diese Familie lernt aus beschrifteten Objektausschnitten und speichert ein Modell, das andere Ausschnitte bewerten kann. Folgen Sie zuerst der Annotate-Lektion, um die Beispielbilder und ihre Labels herunterzuladen.",
+    "Wählen Sie in Annotate Load test data und dann Load. Behalten Sie den Plattenordner mit den Messwerten und den PNG-Ausschnitten. Für eigene Daten beginnen Sie mit Ausschnitten aus Measure und vergeben in Annotate die Klassen, die gelernt werden sollen.",
+    "Laden Sie das verlinkte Beispiel-ZIP herunter und entpacken Sie prepare_classify_split.py. Führen Sie es in Ihrer spaCR-Umgebung aus, mit der Quelle auf dem Beispiel-Plattenordner und dem Ziel auf einem neuen Ordner. Das Hilfsskript bereitet 64 beschriftete Bilder für diese Übung vor.",
+    "Öffnen Sie den neuen Ordner und sein Manifest. Die Trainings- und Testverzeichnisse enthalten jeweils zwei Klassenordner. Das Manifest listet jedes kopierte Bild und sein Well. Halten Sie ganze Wells auf einer Seite der Aufteilung, wenn Bilder aus demselben Well dieselben Versuchsbedingungen teilen.",
+    "Kehren Sie zu Classify zurück und wählen Sie den vorbereiteten Ordner als Source. Wählen Sie den übergeordneten Ordner mit train und test. Verwenden Sie diesen Ordner für den Rest der Lektion, damit Modell und Ausgabedateien zusammenbleiben.",
+    "Schalten Sie Generate training dataset aus, da das Hilfsskript die Aufteilung bereits vorbereitet hat. Aktivieren Sie Train und Test. Lassen Sie die Anwendung auf den gesamten Datensatz bei diesem ersten Lauf ausgeschaltet. Das Modell verwendet die Klassenindizes 0 und 1 für die beiden Klassenordner.",
+    "Wählen Sie ResNet18, Bildgröße 128, alle drei RGB-Kanäle, Batchgröße 8 und eine Epoche. Stellen Sie zwei Loader-Worker ein, mit vortrainierten Gewichten und Augmentierung ausgeschaltet für dieses kurze Beispiel. Die Epochenzahl bestimmt, wie oft das Training die Eingabebilder durchläuft.",
+    "Setzen Sie den Validierungsanteil auf 0,5, behalten Sie die Gruppierung nach Well bei und lassen Sie die Leakage-Prüfungen aktiviert. Die Validierung überwacht das Modell während des Trainings; der separate Testordner dient der abschließenden Bewertung. Prüfen Sie die gemeldete Well-Zuordnung, bevor Sie die Werte interpretieren.",
+    "Schalten Sie Plot ein, leeren Sie die Einstellungssuche und drücken Sie Run. Verfolgen Sie in der Konsole das Laden des Datensatzes, die ermittelte Aufteilung, den Trainingsfortschritt und die Ausgabepfade. Warten Sie, bis Training und Test abgeschlossen sind, bevor Sie die gespeicherten Ergebnisse öffnen.",
+    "Öffnen Sie Figures, um Verlust und Genauigkeit zu prüfen. Eine Epoche liefert einen schnellen ersten Durchgang. Vergleichen Sie die Testergebnisse der Klassen, bevor Sie die Trainingszeit erhöhen. Bevorzugen die Vorhersagen nur eine Klasse, prüfen Sie Labels, Klassenbalance und Eingabekanäle, bevor Sie das Modell auf einen größeren Datensatz anwenden.",
+    "Öffnen Sie model/resnet18/rgb/epochs_1 im vorbereiteten Ordner. Halten Sie Checkpoint, Model Card und Ergebnistabellen zusammen. Prüfen Sie Fehler anhand der gespeicherten Vorhersagen und fahren Sie dann mit Classifier Evaluation oder Activation Maps fort, um das Modell genauer zu untersuchen."
+  ]
 }

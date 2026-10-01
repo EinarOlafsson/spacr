@@ -165,3 +165,43 @@ def test_archive_every_file_is_accounted_for(example, change):
     if change == 'left-behind': origin['measurements.db'] = before['measurements.db']
     with pytest.raises(ValueError, match='Archive did not preserve'):
         verify_archived_files(before, dest, origin)
+
+
+def test_explicit_private_manager_source_copies_real_registry_without_rewriting(tmp_path, monkeypatch):
+    import sqlite3
+    from manager_data import prepare
+
+    monkeypatch.delenv('SPACR_ARTIFACTS_DB', raising=False)
+    stage = tmp_path / 'neutral-stage'
+    source = stage / 'external_mask_runs/new-real-example/project'
+    source.mkdir(parents=True)
+    with sqlite3.connect(source / 'artifacts.db') as connection:
+        connection.execute('CREATE TABLE artifacts (artifact_id TEXT, kind TEXT, module TEXT, status TEXT)')
+        connection.executemany('INSERT INTO artifacts VALUES (?, ?, ?, ?)',
+                               [(str(index), kind, 'measure', 'complete') for index, kind in
+                                enumerate(('measurements-db', 'crops', 'resource-log'))])
+    (source / 'measurement.csv').write_text('object,area\n1,20\n')
+    before = snapshot_source(source)
+    prepared = prepare(stage, source=source)
+    assert prepared['source'] == str(source)
+    assert prepared['registry_rewritten'] is False
+    assert prepared['synthetic_artifacts'] is False
+    assert prepared['source_files'] == prepared['clone_files'] == before
+    assert snapshot_source(source) == before
+    assert snapshot_source(prepared['clone']) == before
+    assert (source / 'artifacts.db').stat().st_ino != (Path(prepared['clone']) / 'artifacts.db').stat().st_ino
+
+
+@pytest.mark.parametrize('outside', ['root', 'parent', 'symlink'])
+def test_manager_source_refuses_stage_root_and_external_projects(tmp_path, monkeypatch, outside):
+    from manager_data import prepare
+
+    monkeypatch.delenv('SPACR_ARTIFACTS_DB', raising=False)
+    stage = tmp_path / 'stage'
+    stage.mkdir()
+    source = stage if outside == 'root' else tmp_path
+    if outside == 'symlink':
+        source = stage / 'external'
+        source.symlink_to(tmp_path, target_is_directory=True)
+    with pytest.raises(ValueError, match='project directory inside the private stage'):
+        prepare(stage, source=source)

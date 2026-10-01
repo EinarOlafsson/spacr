@@ -1,21 +1,32 @@
 {
   "lesson": "62_feature_dictionary",
+  "english_sha256": "a4a0aa02083493fc8789469c86ef064f9a993896db6d7564c26d3625ca48639f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "es",
-  "english_sha256": "1e20922e62908000209a58019ff7d20436c5ce4a7e846c14865c6d48df2c49d7",
-  "review": {"kind": "Parent editorial translation checked against frozen English and actual capture; corrected machine-draft meanings and retained visible English control names", "independent_peer_review": false, "native_speaker_signoff": false},
-  "title": "Feature Dictionary: consultar significados, unidades y funciones de cálculo",
-  "description": "Usa el diccionario real de Help para buscar definiciones, filtrarlas por concepto y objeto, y distinguir la documentación general de las mediciones disponibles en un proyecto.",
-  "objectives": ["Encontrar el diccionario en Help y buscar por idea o nombre de medición.", "Usar los filtros reales de concepto y objeto sin modificar datos del proyecto.", "Leer unidades, funciones de cálculo y advertencias, incluida la diferencia entre área y volumen.", "Copiar definiciones y distinguir este panel de consulta de una exportación específica del proyecto mediante Python."],
-  "prerequisite": "No hace falta un proyecto, una descarga ni un modelo: se consultan las definiciones integradas. No se realizan mediciones, gráficos, solicitudes de AI, tareas de GPU ni exportaciones de archivos. Los nombres de ejemplo existen en la base real de mediciones utilizada en Database Browser, pero aquí el diccionario no carga esa base. El panel actual enumera cientos de nombres de roles de orgánulos; el desplazamiento normal permite ver las funciones y notas situadas debajo. El texto solo se copia al portapapeles del escritorio privado de la grabación.",
+  "title": "Feature Dictionary: buscar definiciones y unidades",
+  "description": "Busca por nombre de medición o por concepto, lee la definición y las unidades, y copia el texto de referencia que te sea útil.",
+  "objectives": [
+    "Encontrar una definición por nombre o por concepto.",
+    "Acotar los resultados con los filtros de concepto y de objeto.",
+    "Leer las unidades y las notas, y luego copiar la definición."
+  ],
+  "prerequisite": "Ten a mano el nombre de una columna de medición, o empieza con una idea como tamaño o intensidad. El diccionario integrado se puede abrir sin cargar un proyecto.",
   "scenes": [
-    "Abre Help y después Feature Dictionary. Esta ventana consulta definiciones de mediciones integradas; no es un flujo independiente de Home ni un procesamiento que haya que ejecutar. No necesitas descargar datos ni modelos.",
-    "Escribe una idea, como size. Los resultados se actualizan mientras escribes y, al seleccionar Area, aparece su definición. El recuento indica definiciones coincidentes, no células medidas ni columnas cuya existencia se haya confirmado en tu proyecto.",
-    "Los desplegables reales filtran por concepto y tipo de objeto. Aquí, intensity y cell devuelven trece definiciones. Estos filtros limitan el diccionario, no las imágenes ni los ajustes de análisis. Antes de otra consulta, restablece Any concept y Any object.",
-    "Busca la intensidad media del canal uno de la célula usando el nombre exacto de columna que aparece en pantalla. La entrada Mean intensity explica el estadístico de píxeles y sus unidades. Buscar un nombre recupera documentación; no examina los valores de esa columna ni demuestra que exista en el proyecto actual.",
-    "Desplázate hasta Channel, Module y Computed by. La referencia identifica la implementación de la medición, incluida la función de propiedades regionales ampliadas. El diccionario consulta la definición; no vuelve a calcular la medición. Las API de consulta de Python están en el módulo feature_dict.",
-    "Busca ahora cell_area. Lee el texto condicional de Unit: una ejecución bidimensional informa un área en píxeles, mientras que el mismo nombre representa un volumen en tres dimensiones. El campo measurement_units de la fila determina si ese volumen está en unidades cúbicas del píxel de imagen o en micrómetros cúbicos. No deduzcas unidades físicas solo del nombre.",
-    "Lee Note además de la definición principal. Un valor tridimensional ya expresado en unidades físicas no debe convertirse otra vez. Para documentar un proyecto concreto, las funciones de Python describe_database y export_dictionary examinan la base y resuelven las unidades registradas; no son botones de este panel.",
-    "Una consulta sin coincidencias no muestra una definición. Significa que el diccionario no encontró una coincidencia, no que los datos no puedan contener una característica personalizada. Vuelve a un nombre conocido o a una idea más general; la ausencia de documentación no es un resultado científico.",
-    "Vuelve a Area, selecciona el texto de su definición y cópialo. La grabación verifica la selección realmente copiada. La interfaz no tiene acciones Run ni Export: copiar texto no equivale a crear mediante Python un archivo de diccionario específico del proyecto. Cierra la ventana al terminar; ningún análisis se ha modificado."
+    "Abre Help y luego Feature Dictionary. Usa esta ventana cuando quieras entender una columna de medición de una tabla de resultados o de un gráfico.",
+    "Escribe size en el campo de búsqueda y selecciona Area en los resultados. La definición aparece a la derecha, y la lista de coincidencias se actualiza mientras escribes.",
+    "Elige un concepto y un tipo de objeto para acotar las definiciones. Prueba intensity y cell. Vuelve a poner los selectores en Any concept y Any object para una búsqueda más amplia.",
+    "Busca cell_channel_1_mean_intensity y selecciona Mean intensity. Lee el estadístico y las unidades para entender qué describe la columna.",
+    "Desplázate hacia abajo hasta Channel, Module y Computed by para ver más detalle. Usa la función de cálculo indicada como punto de partida en la referencia de la API.",
+    "Busca cell_area y lee Unit. En mediciones bidimensionales representa un área; en mediciones tridimensionales representa un volumen. Comprueba las unidades de medida registradas en tu proyecto antes de convertir valores.",
+    "Lee Note para ver matices, como valores ya expresados en unidades físicas. Para obtener un diccionario de las columnas que realmente hay en una base de datos, usa describe_database y export_dictionary desde Python.",
+    "Si ninguna definición coincide, limpia los filtros y prueba un término más amplio o el nombre exacto de la columna. Las características personalizadas pueden necesitar la documentación del flujo de trabajo que las creó.",
+    "Selecciona el texto de la definición y cópialo en tus notas. Usa las funciones de exportación de Python cuando necesites un archivo de diccionario propio del proyecto, y luego vuelve a tu tabla o gráfico."
   ]
 }

@@ -1,0 +1,519 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "channel_axis",
+      "source": "Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks. Default None (automatic).",
+      "source_sha256": "155e5ea5a56262610e28e2bb6950f17b52cb1a0f464c5706fa8d26a297b453f7",
+      "translation": "Axe des canaux de l’image : 0 pour canaux en premier, -1 pour canaux en dernier, ou vide pour le déduire des dimensions du masque. Les images ambiguës exigent un axe explicite. L’entraînement prend en charge des champs 2-D avec canaux facultatifs, pas des piles Z. Par défaut None (automatique)."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "class_column",
+      "source": "Column containing the per-object class label used by class-proportion analysis. Missing values are filled with 0 rather than dropping the corresponding rows; selecting an incorrect column can therefore assign class zero to every object without raising an error. The value is also appended to the condition when group_by_class is enabled. Default 'test'. Replication starts with the predictions column instead.",
+      "source_sha256": "1878c80e34ee161e94613e66b9d9706e70342f9c392678a28f360f4f1fd5fa87",
+      "translation": "Colonne contenant l’étiquette de classe par objet utilisée par l’analyse des proportions de classes. Les valeurs manquantes sont remplacées par 0 au lieu de supprimer les lignes correspondantes ; choisir une mauvaise colonne peut donc attribuer la classe zéro à chaque objet sans lever d’erreur. La valeur est aussi ajoutée à la condition lorsque group_by_class est activé. Par défaut 'test'. Replication démarre plutôt avec la colonne des prédictions."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_count_column",
+      "source": "Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "2048d2bd7b04f936a1e688788436fc1381db73ce7cfe0619fa7ed9867297451f",
+      "translation": "Colonne facultative de comptage mesuré sur chaque vacuole. Les comptes entiers non négatifs sont acceptés ; les valeurs manquantes restent inconnues. Alternative à une table de parasites liée. Vide par défaut. API : spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_marker_channels",
+      "source": "Zero-based intensity channels whose vacuole-to-host-reference ratios are reported. Each selected channel needs matching intensity columns in both compartments; its threshold is configured separately. Adding a channel adds a marker result without changing host infection denominators. Default [0]. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "48e2c0fcd376ba331bbcb09349d95b095634c2fe061cb78ac87f74d5c729bb03",
+      "translation": "Canaux d’intensité (indexés à partir de zéro) dont les rapports vacuole/référence de la cellule hôte sont rapportés. Chaque canal sélectionné nécessite des colonnes d’intensité correspondantes dans les deux compartiments ; son seuil se configure séparément. Ajouter un canal ajoute un résultat de marqueur sans modifier les dénominateurs d’infection des cellules hôtes. Par défaut [0]. API : spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_marker_thresholds",
+      "source": "Channel-to-ratio cutoffs, for example {0: 2.0, 1: 1.5}; ratios at or above the cutoff are positive. Calibrate cutoffs with assay controls. Unspecified channels remain unclassified. Default {}. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "dea265f88dff2d6c022d5802d90da840462114714750cafc3159ffd4c92be1fa",
+      "translation": "Seuils de rapport par canal, par exemple {0: 2.0, 1: 1.5} ; les rapports égaux ou supérieurs au seuil sont positifs. Calibrez les seuils avec les témoins du test. Les canaux non spécifiés restent non classés. Par défaut {}. API : spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_parasite_parent",
+      "source": "Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "e9f7b49ab5f207cfe85506734c3974968e668e666501d4d9ae867e37e0b5d0c2",
+      "translation": "Colonne d’étiquette de la vacuole parente dans la table de parasites sélectionnée. Les identifiants de cellules hôtes ne peuvent pas remplacer ceux des vacuoles. Les parasites non appariés sont exportés à part. Par défaut pathogen_id. API : spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_parasite_table",
+      "source": "Optional table containing one row per segmented parasite and an explicit parent-vacuole column. Leave empty if parasite counts are unavailable. Do not also set hp_count_column. Default empty. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "708e43668eb7a6201f6e60982a836d9d5935ecbc26727d18950cfe4c8e27e758",
+      "translation": "Table facultative contenant une ligne par parasite segmenté et une colonne explicite de vacuole parente. Laissez vide si les comptes de parasites ne sont pas disponibles. Ne définissez pas aussi hp_count_column. Vide par défaut. API : spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_reference_prefix",
+      "source": "Prefix of reference-channel mean intensities. Missing or nonpositive reference values yield unknown ratios, never infinity or negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "0820ca9b01b2eb25f6c31bdfe9d21566d550cbe3dacb0c3547a00d9179b2b301",
+      "translation": "Préfixe des intensités moyennes du canal de référence. Des valeurs de référence manquantes ou non positives donnent des rapports inconnus, jamais l’infini ni des résultats négatifs. Par défaut cytoplasm. API : spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_reference_table",
+      "source": "Select the per-host compartment used for recruitment-ratio denominators. Its object_label must identify the host cell so each vacuole is compared with its own host reference. Missing or invalid reference intensities produce unknown marker calls rather than negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "b95adc4ed6d004858a47033502622c18611fda0823e7d01ef479da477597f925",
+      "translation": "Sélectionner le compartiment par cellule hôte utilisé comme dénominateur des rapports de recrutement. Son object_label doit identifier la cellule hôte afin que chaque vacuole soit comparée à la référence de sa propre cellule hôte. Des intensités de référence manquantes ou invalides donnent des marqueurs inconnus plutôt que négatifs. Par défaut cytoplasm. API : spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_vacuole_prefix",
+      "source": "Select the measured intensity column family used as the numerator of each recruitment ratio, for example pathogen_channel_0_mean_intensity. Match the prefix in the selected vacuole table; changing it does not change masks or infer a different object type. Default pathogen. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "a2ea3695cf00cb10db3f3ad89096ed527d85a5b93f3ca9444f98f5f2795eb0f0",
+      "translation": "Sélectionner la famille de colonnes d’intensité mesurée servant de numérateur à chaque rapport de recrutement, par exemple pathogen_channel_0_mean_intensity. Faites correspondre le préfixe à celui de la table de vacuoles sélectionnée ; le modifier ne change pas les masques et ne déduit pas un autre type d’objet. Par défaut pathogen. API : spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_vacuole_table",
+      "source": "Measurement table with one object per whole vacuole and a cell_id link to its host. Use whole-vacuole masks, not individual parasite masks. Default pathogen. API: spacr.host_pathogen.analyze_host_pathogen.",
+      "source_sha256": "50e6735db450bb08a4d9b7c7a277a410ae66dc667a77f299275dab05365a2817",
+      "translation": "Table de mesures comportant un objet par vacuole entière et un lien cell_id vers sa cellule hôte. Utilisez des masques de vacuoles entières, et non des masques de parasites individuels. Par défaut pathogen. API : spacr.host_pathogen.analyze_host_pathogen."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_channels",
+      "source": "Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].",
+      "source_sha256": "c579a01ee68d3542c171c1b01a594de1031fbbe2245cc9b78840114734bdc52b",
+      "translation": "Identifiants des canaux d’acquisition à contrôler avant Masques. Vide signifie tous les canaux bruts stockés. Ce sont des canaux de tableau indexés à partir de zéro en v1 et des identifiants de canaux d’acquisition mappés en v2. Les dictionnaires de seuils utilisent les mêmes identifiants. Par défaut []."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_max_nonfinite",
+      "source": "Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.",
+      "source_sha256": "31b6c5aceb730de3abdd98ebfa971549eb01e8f77b8dc814c933f0bea0f16195",
+      "translation": "Fraction maximale de pixels NaN ou infinis autorisée par canal contrôlé. La dépasser signale le champ ; l’exclusion n’a lieu qu’en mode exclude. Plage 0-1 ; par défaut 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_max_saturation",
+      "source": "Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.",
+      "source_sha256": "0f688b2bbe5fa5ceffd31f2a342a9f58df9f3eec423a93405b11344926600932",
+      "translation": "Fraction maximale autorisée de pixels saturés par canal, par exemple {2: 0.01}. Les valeurs vont de 0 à 1. La saturation utilise le niveau d’acquisition ou le plafond du dtype entier, jamais le pixel le plus brillant observé. Vide désactive les exclusions pour saturation. Par défaut {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_min_focus",
+      "source": "Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.",
+      "source_sha256": "ddb3927e005e66effe8b514248b8bf8c01e82a8e6e764a1b0ecc9b3eb375922f",
+      "translation": "Variance minimale acceptable du laplacien brut par canal, par exemple {0: 25.0, 2: 10.0}. Vide désactive les exclusions pour mise au point. Calibrez à partir de champs représentatifs de la même acquisition ; les unités sont des intensités au carré. Pour un volume, le plan le mieux mis au point est utilisé, de sorte que des plans z voisins défocalisés ne suffisent pas à le rejeter. Par défaut {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_mode",
+      "source": "Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.",
+      "source_sha256": "4e3b656baa6ef995f480bc91ce4ba1d895a944b4ef9443fdd0478303faa0a454",
+      "translation": "Contrôle des images avant la segmentation. off conserve l’exécution normale ; report enregistre les métriques et les signalements sans rien exclure ; exclude ignore les champs signalés selon la politique enregistrée. Aucune image n’est supprimée et les champs exclus ne sont pas rapportés comme des résultats à zéro objet. Rapports : qc/image_quality.json et .csv. Par défaut off."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_saturation_level",
+      "source": "Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.",
+      "source_sha256": "62c64541c0fbee6c3a344bf0ae87d35d430bfd7fdd838c1fa159414873ac53cb",
+      "translation": "Niveau de saturation d’acquisition par canal, par exemple {0: 4095, 2: 65535}. Indiquez 4095 pour un détecteur 12 bits stocké en uint16. Les niveaux entiers manquants utilisent le plafond du dtype ; les images en virgule flottante exigent un niveau explicite si l’exclusion pour saturation est activée. Par défaut {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_src",
+      "source": "Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training. Default blank.",
+      "source_sha256": "a2f9df08456a4cf904fc3067512e3d4134db60623b1ace6d556f46e1605cc404",
+      "translation": "Dossier séparé facultatif de masques entiers d’étiquettes d’objets (fond 0). Laissez vide pour utiliser les masques du dossier d’images. Faites correspondre les noms de base des images, éventuellement avec un suffixe _masks. Des paires manquantes ou ambiguës arrêtent l’entraînement. Vide par défaut."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "max_train_images",
+      "source": "Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size. Default None (automatic).",
+      "source_sha256": "0f3671c230794de5986a79a4f3dd10febee720ec20df25d860c323600542d8c2",
+      "translation": "Limite facultative du nombre de paires d’images d’entraînement chargées en RAM, dans l’ordre des noms de fichiers. Vide ou une valeur non positive utilise toutes les paires. Cela ne modifie pas la taille des minibatchs. Par défaut None (automatique)."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_fwhm_um",
+      "source": "Gaussian full width at half maximum in micrometers: [Y, X] or [Z, Y, X]. This is an explicit approximation, not an inferred microscope PSF. All widths must be positive and finite.",
+      "source_sha256": "ee72b5378cc515a4440aad30dfd28d8682341bbe1698f08fbc41a54f50a5a44c",
+      "translation": "Largeur à mi-hauteur de la gaussienne, en micromètres : [Y, X] ou [Z, Y, X]. Il s’agit d’une approximation explicite, et non d’une PSF de microscope déduite. Toutes les largeurs doivent être positives et finies."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_image_sampling_um",
+      "source": "Explicit image sampling in micrometers: [Y, X] for 2D or [Z, Y, X] for a volume. All values must be positive and finite. A volume's sampling must agree with Measure's voxel calibration or anisotropy. No physical sampling is guessed.",
+      "source_sha256": "ea618fb519309c0ffd3efd46b129900c4b864d1204973473f4eecd31f37dff8c",
+      "translation": "Échantillonnage explicite de l’image, en micromètres : [Y, X] en 2D ou [Z, Y, X] pour un volume. Toutes les valeurs doivent être positives et finies. L’échantillonnage d’un volume doit concorder avec l’étalonnage des voxels ou l’anisotropie de Mesure. Aucun échantillonnage physique n’est deviné."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_kernel_sampling_um",
+      "source": "Measured kernel sampling in micrometers, in the same YX or ZYX order as the image. Must match image sampling exactly within numerical tolerance; no implicit resampling. Unused for a Gaussian approximation.",
+      "source_sha256": "583363c6fedcb7a910c33113cd69a28d96e7824993cfb71f6dfc8476b9afad8a",
+      "translation": "Échantillonnage mesuré du noyau, en micromètres, dans le même ordre YX ou ZYX que l’image. Doit correspondre exactement à l’échantillonnage de l’image, à la tolérance numérique près ; aucun rééchantillonnage implicite. Inutilisé pour une approximation gaussienne."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_operation",
+      "source": "With processed measurement intensities selected, convolve adds calibrated blur and deconvolve performs Richardson–Lucy restoration. Select original to keep normal Measure intensities without PSF processing. Stored images and exported crops are unchanged; the database records the intensity source and full PSF provenance. Configure a kernel appropriate to every selected intensity channel.",
+      "source_sha256": "790d0be1f226506a2d9b483da9025aab9c7e23403a54eff5b02d98a3b9ab1964",
+      "translation": "Avec les intensités de mesure traitées sélectionnées, convolve ajoute un flou calibré et deconvolve effectue une restauration de Richardson–Lucy. Sélectionnez original pour conserver les intensités normales de Mesure sans traitement PSF. Les images stockées et les vignettes exportées restent inchangées ; la base de données enregistre la source des intensités et la provenance PSF complète. Configurez un noyau adapté à chaque canal d’intensité sélectionné."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_path",
+      "source": "Measured PSF TIFF or NPY kernel, with odd spatial dimensions and finite nonnegative values. Use YX for a 2D field or ZYX for a volume. The center pixel is the optical origin; sampling must match the image. Captured once per run and sent to each worker, with exact kernel/file identity recorded.",
+      "source_sha256": "1bc362caea3ff61a56df226a423374ae1e2e79309b80796381d34c1c3904ab15",
+      "translation": "Noyau PSF mesuré au format TIFF ou NPY, avec des dimensions spatiales impaires et des valeurs finies non négatives. Utilisez YX pour un champ 2D ou ZYX pour un volume. Le pixel central est l’origine optique ; l’échantillonnage doit correspondre à celui de l’image. Capturé une fois par exécution et envoyé à chaque processus worker, avec enregistrement exact de l’identité du noyau et du fichier."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_source",
+      "source": "gaussian constructs an explicitly sampled Gaussian approximation from the supplied FWHM and image sampling. measured captures a calibrated TIFF or NPY kernel. The same kernel applies independently to every selected measurement intensity channel, so its calibration must suit all selected channels. Neither choice estimates microscope optics.",
+      "source_sha256": "e29df1f16e3f8c561c8ce36183f2c6d4f8ee86050e8cdcd992811189551bbd12",
+      "translation": "gaussian construit une approximation gaussienne explicitement échantillonnée à partir de la FWHM fournie et de l’échantillonnage de l’image. measured capture un noyau TIFF ou NPY calibré. Le même noyau s’applique indépendamment à chaque canal d’intensité de mesure sélectionné ; son étalonnage doit donc convenir à tous les canaux sélectionnés. Aucun des deux choix n’estime l’optique du microscope."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "min_train_masks",
+      "source": "Minimum labeled objects required per training image. Cellpose excludes fields below this count. Default 5. Lower it for deliberately sparse training fields.",
+      "source_sha256": "ed8880223f3e9c805703f6803f508be7c93cc9bda5f53cd1ddeae82dc39ac71c",
+      "translation": "Nombre minimal d’objets étiquetés requis par image d’entraînement. Cellpose exclut les champs en dessous de ce nombre. Par défaut 5. Abaissez-le pour des champs d’entraînement volontairement clairsemés."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "motility_analysis",
+      "source": "Run the automated motility assay once per plate, after all masks are merged: it rebuilds per-object measurements from merged/*.npy, cleans tracks, computes per-track velocity and straightness, applies the infection QC, and writes motility_plots plus a well-level summary table. It only fires when timelapse is also True, and it is what reveals the Motility setting categories. Default False.",
+      "source_sha256": "f5f1b5902485579ead4d5ddb0b22492440a18bd1284691abe36722062fec55ab",
+      "translation": "Exécuter le test de motilité automatisé une fois par plaque, après la fusion de tous les masques : il reconstruit les mesures par objet à partir de merged/*.npy, nettoie les trajectoires, calcule la vitesse et la rectitude par trajectoire, applique le QC d’infection et écrit motility_plots ainsi qu’une table de synthèse par puits. Il ne se déclenche que si timelapse vaut aussi True, et c’est lui qui fait apparaître les catégories de paramètres Motility. Par défaut False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nimg_per_epoch",
+      "source": "Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM. Default None (automatic).",
+      "source_sha256": "7cae0a66de40c80617cf9dbef7450b5dffdd744ce3490bfa4766871d0bec8636",
+      "translation": "Nombre facultatif d’images échantillonnées par époque d’entraînement. Vide utilise toutes les images d’entraînement. Cela modifie l’échantillonnage, pas le nombre de fichiers chargés en RAM. Par défaut None (automatique)."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nimg_test_per_epoch",
+      "source": "Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source. Default None (automatic).",
+      "source_sha256": "17f9c94623655bc4a14f4a07dab0ac9d4f3f2f6f6d4e06aded3da67a8e5b580c",
+      "translation": "Nombre facultatif d’images de validation échantillonnées par époque d’évaluation. Vide utilise toutes les images de validation. Nécessite une source d’images de validation. Par défaut None (automatique)."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nuclei_limit",
+      "source": "Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells. Replication starts at 10.",
+      "source_sha256": "441b564c6f3db7d1654eb4dff7f88d24c54c19f66b8055688b41f1f24bb9d960",
+      "translation": "Plafond de noyaux par cellule, appliqué lors de la fusion des tables par objet. None désactive le filtre, True ne garde que les cellules mononucléées, et un entier N garde les cellules en ayant N ou moins. Les cellules au-delà du plafond sont entièrement retirées de la table fusionnée. Ne passez pas False : il est interprété comme 0 et retire toutes les cellules, laissant une analyse vide au lieu de lever une erreur. Par défaut None. Merged Classifier démarre à True et Test de recrutement à 1 ; tous deux ne gardent donc au départ que les cellules mononucléées. Replication démarre à 10."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "number_of_organelles",
+      "source": "How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, matching the pattern organelle(?:[b-z]|[a-z]{2})?_.*; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.",
+      "source_sha256": "57d7edf6c82f6ea3046df54a7618d0162493b810c6aa7c1ade2b9e463ceeb216",
+      "translation": "Nombre d’emplacements d’organites de cette exécution, de 0 à 26. Chaque emplacement est un objet indépendant avec son propre canal, son propre type prédéfini et sa propre copie de chaque paramètre de détection, selon le motif organelle(?:[b-z]|[a-z]{2})?_.* ; augmenter le nombre génère les paramètres d’un emplacement supplémentaire et le diminuer masque les emplacements au-delà du nouveau nombre sans les supprimer. Un emplacement masqué garde ses valeurs, est toujours écrit dans le fichier de paramètres et revient tel quel quand le nombre est de nouveau augmenté ; on peut donc essayer un nombre plus petit sans perdre de travail. Par défaut 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_estimate_growth",
+      "source": "Optional experimental plaque time/scale suggestions, saved separately from measurements. Uses the largest quarter of plaques and an assumed linear growth relation. Defaults off. The RH/HFF seven-day reference has about 40 hours held-out endpoint error and has not been validated across times or other conditions. Without a known scale or time, the reference duration is explicitly assumed.",
+      "source_sha256": "d8c7450e0f2d484b872a9406e2a2f520a875e67965f458729e10a1cc573168f5",
+      "translation": "Suggestions expérimentales facultatives de temps et d’échelle des plages de lyse, enregistrées séparément des mesures. Utilise le quart le plus grand des plages et une relation de croissance linéaire supposée. Désactivé par défaut. La référence RH/HFF à sept jours présente une erreur d’environ 40 heures sur les points finaux mis de côté et n’a pas été validée pour d’autres durées ou conditions. Sans échelle ni durée connue, la durée de référence est explicitement supposée."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_formation_hours",
+      "source": "Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
+      "source_sha256": "2b3e6d7315e18921803be8fd5976f3e7c9d35711aee3315a12b1b0771c198f9a",
+      "translation": "Durée écoulée de formation des plages de lyse, en heures, enregistrée comme métadonnée expérimentale. Zéro est autorisé ; vide signifie inconnue. L’aperçu des figures permet des valeurs propres à chaque puits. Par défaut None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_growth_reference_hours",
+      "source": "Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
+      "source_sha256": "181f2afb0dbc3309ca3ad1eb3dbf7ada19cf391eda1a6c92991a94eac9009201",
+      "translation": "Durée de formation positive, en heures, correspondant au diamètre de référence de croissance. Par défaut 168 (sept jours). Une croissance linéaire du diamètre passant par zéro est supposée ; il ne s’agit pas d’une courbe de croissance temporelle ajustée."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_growth_reference_um",
+      "source": "Reference median equivalent diameter in micrometers of the largest 25 percent of plaques. Default 893.8178699548309, derived from three independent RH/HFF vehicle-control experiments in Kelsen et al. 2023 S20 Data, DOI 10.1371/journal.pbio.3002110. Replace with a matched local reference when available.",
+      "source_sha256": "ea05d7b7a593bb270b172804e155feeb86e3f89734ced617ad7631801a65780e",
+      "translation": "Diamètre équivalent médian de référence, en micromètres, des 25 pour cent de plages de lyse les plus grandes. Par défaut 893.8178699548309, dérivé de trois expériences témoins véhicule RH/HFF indépendantes de Kelsen et al. 2023 S20 Data, DOI 10.1371/journal.pbio.3002110. Remplacez-le par une référence locale appariée si elle existe."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_pixels_per_um",
+      "source": "Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
+      "source_sha256": "96e6048781ffaebde645f32909f3a21dfd266078b74d8abf686650ed6be9652f",
+      "translation": "Nombre connu de pixels par micromètre dans l’image analysée. Les valeurs positives remplacent les règles détectées. Laissez vide pour un étalonnage automatique par barre d’échelle ou diamètre de puits. Les valeurs par puits saisies dans l’aperçu des figures sont prioritaires. Par défaut None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_iterations",
+      "source": "Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
+      "source_sha256": "15995e9a85faa1c1ac0aca6504a0701fba97366ea4df0db30e1db28170c526d2",
+      "translation": "Itérations de Richardson–Lucy, 1–200 ; par défaut 20. Des valeurs plus élevées peuvent amplifier le bruit et les artefacts. Inutilisé pour la convolution. Le traitement peut être annulé entre les itérations, utilise des bords symétriques et conserve des intensités en virgule flottante sans les écrêter à la plage entière de la source."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_kernel_sampling_um",
+      "source": "Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
+      "source_sha256": "d7abfbd0b061ae3fb2b44eec9621b08bb4f8e1baac5ce81c01aaea0f42f9845d",
+      "translation": "Par défaut None (non défini). Espacement mesuré des pixels du noyau [Y, X], en micromètres. Doit correspondre à l’échantillonnage de l’image ; les noyaux non concordants sont refusés plutôt que rééchantillonnés silencieusement. Inutilisé pour une approximation gaussienne."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_measurement_source",
+      "source": "original (default) measures normal Measure intensities, including its standard rescaling and registered illumination/preprocessing hooks, without PSF processing. Stored PSF parameters are ignored with this choice. processed applies the calibrated PSF after those stages before quantitative features; select convolve or deconvolve. Source files and exported crops keep their original behavior. The intensity_rescale database table records the choice, kernel identity, calibration and algorithm. Incompatible existing measurements require a separate project/output database.",
+      "source_sha256": "3a3d2176cc09548a6cd3cd0f980203cd67e0c4e3691212ab505b91177dc73def",
+      "translation": "original (par défaut) mesure les intensités normales de Mesure, y compris sa remise à l’échelle standard et les étapes enregistrées d’illumination et de prétraitement, sans traitement PSF. Les paramètres PSF stockés sont ignorés avec ce choix. processed applique la PSF calibrée après ces étapes, avant les caractéristiques quantitatives ; sélectionnez convolve ou deconvolve. Les fichiers sources et les vignettes exportées gardent leur comportement d’origine. La table intensity_rescale de la base de données enregistre le choix, l’identité du noyau, l’étalonnage et l’algorithme. Des mesures existantes incompatibles exigent une base de données de projet ou de sortie distincte."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_operation",
+      "source": "Optional point-spread processing of every selected segmentation intensity channel after illumination and before normalization. none is off (default); convolve simulates optical blur; deconvolve uses Richardson–Lucy. Source images and measurement intensities stay original. Changing this setting rebuilds Mask inputs when preprocessing is on; preprocessing off requires an exact completed match. This operates on 2D projected fields, not a 3D optical reconstruction.",
+      "source_sha256": "7d1d52fddda865aaa4f3e46474bd76b8532a02809eec0ecbd834e9318c398339",
+      "translation": "Traitement facultatif par fonction d’étalement du point de chaque canal d’intensité de segmentation sélectionné, après l’illumination et avant la normalisation. none le désactive (par défaut) ; convolve simule un flou optique ; deconvolve utilise Richardson–Lucy. Les images sources et les intensités de mesure restent originales. Modifier ce paramètre reconstruit les entrées de Masques lorsque le prétraitement est activé ; sans prétraitement, une correspondance exacte déjà terminée est requise. Opère sur des champs projetés en 2D, pas une reconstruction optique 3D."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_path",
+      "source": "Default None (unset). Measured 2D PSF TIFF/NPY. Spatial dimensions must be odd; values finite, nonnegative and nonzero. The center pixel is the optical origin. The kernel is normalized to sum to one and captured once per processing run. Its contents and file identity enter psf/segmentation_application.json.",
+      "source_sha256": "c8ee98e07fbe20c88ed567862359351eecf41dedbee60cdf414b0a6f2287a967",
+      "translation": "Par défaut None (non défini). PSF 2D mesurée en TIFF/NPY. Les dimensions spatiales doivent être impaires ; les valeurs finies, non négatives et non nulles. Le pixel central est l’origine optique. Le noyau est normalisé pour que sa somme vaille un et capturé une fois par exécution de traitement. Son contenu et l’identité de son fichier sont inscrits dans psf/segmentation_application.json."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_source",
+      "source": "gaussian (default) constructs a sampled Gaussian approximation from explicit FWHM and image pixel spacing; it does not estimate microscope optics. measured loads a calibrated TIFF or NPY kernel. A single kernel is applied independently to each selected segmentation channel; use only where its calibration is appropriate for every selected channel.",
+      "source_sha256": "570fef418261c59faa9c0d34609d808343d69adafdbe4e47d82f07bac8e827cf",
+      "translation": "gaussian (par défaut) construit une approximation gaussienne échantillonnée à partir d’une FWHM et d’un espacement des pixels explicites ; elle n’estime pas l’optique du microscope. measured charge un noyau TIFF ou NPY calibré. Un même noyau est appliqué indépendamment à chaque canal de segmentation sélectionné ; utilisez-le seulement si son étalonnage convient à chacun de ces canaux."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "replication_method",
+      "source": "Readout for spacr.submodules.analyze_replication. direct_count counts individually segmented parasites per assigned vacuole. size_proxy delegates to the existing area-derived endodyogeny analysis, which aggregates pathogen area per host cell and assumes one vacuole per host for a vacuole interpretation; it does not count parasites or measure volume. deep_learning_coming_soon is reserved for the forthcoming whole-vacuole classification model and cannot run yet. Default direct_count.",
+      "source_sha256": "daede075628af91a4668a10c4520d5139f156ff5050939f25047a9b343a67790",
+      "translation": "Mesure pour spacr.submodules.analyze_replication. direct_count compte les parasites segmentés individuellement par vacuole attribuée. size_proxy délègue à l’analyse d’endodyogénie existante fondée sur l’aire, qui agrège l’aire des pathogènes par cellule hôte et suppose une vacuole par cellule hôte pour une interprétation par vacuole ; elle ne compte pas les parasites et ne mesure pas de volume. deep_learning_coming_soon est réservé au futur modèle de classification des vacuoles entières et ne peut pas encore s’exécuter. Par défaut direct_count."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_each",
+      "source": "Keep separate epoch checkpoints instead of replacing the periodic checkpoint. Default False. Enable to compare intermediate models; it consumes additional disk space.",
+      "source_sha256": "e291a7df3f7f40ff8779dbec7dfeac2d50c0841fc5a69ae960b1876e5ef60139",
+      "translation": "Conserver des points de contrôle distincts pour chaque époque au lieu de remplacer le point de contrôle périodique. Par défaut False. Activez-le pour comparer des modèles intermédiaires ; cela consomme de l’espace disque supplémentaire."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_every",
+      "source": "Checkpoint interval in epochs. Default 100. Cellpose always saves the final model even when the run is shorter than this interval.",
+      "source_sha256": "261834f7052527fb6c0758c1554da30a4246ae86cc94186c25eb56806a1be556",
+      "translation": "Intervalle entre points de contrôle, en époques. Par défaut 100. Cellpose enregistre toujours le modèle final, même si l’exécution est plus courte que cet intervalle."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_path",
+      "source": "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too. Default blank.",
+      "source_sha256": "4c34d9ea911146a161724263c3bea8dcc8724a7d105beb9edb73f1f9419bcc01",
+      "translation": "Dossier de sortie des points de contrôle. Cellpose écrit les poids dans son sous-dossier models. Laissez vide pour <image source>/models/cellpose_model. L’option Utiliser le modèle entraîné lit aussi cet emplacement. Vide par défaut."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "scale_range",
+      "source": "Range of Cellpose's random training scale augmentation, from 0 to 2. Default 0.5. Cellpose also applies its native rotation, flip and crop augmentation; no eight-fold duplicate dataset is created.",
+      "source_sha256": "7936e2082ff9feb05ea95ed4150f16d133af90fb1746c1c4f7e1c9cc541116d6",
+      "translation": "Plage de l’augmentation aléatoire d’échelle d’entraînement de Cellpose, de 0 à 2. Par défaut 0.5. Cellpose applique aussi ses augmentations natives de rotation, de retournement et de recadrage ; aucun jeu de données dupliqué huit fois n’est créé."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test_mask_src",
+      "source": "Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder. Default blank.",
+      "source_sha256": "2267cd466956b49de435571a452f67a9f834bb80feaa3562aad365e049c90612",
+      "translation": "Dossier facultatif de masques d’étiquettes de validation. Laissez vide pour utiliser le sous-dossier masks du dossier d’images de validation. Vide par défaut."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test_src",
+      "source": "Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields. Default blank.",
+      "source_sha256": "51a5cf1e3f5b49e5bbc21a2e6e8720aa024cb979455bdb178a18ebae1c9b84a9",
+      "translation": "Dossier facultatif d’images de validation, distinct des images d’entraînement. Laissez vide pour entraîner sans pertes de validation. Séparez par puits ou par expérience pour éviter les fuites entre champs apparentés. Vide par défaut."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.batch_size",
+      "source": "Training minibatch size, not a dataset limit. Default 1 reduces GPU memory use for Cellpose-SAM. Raise it only when memory permits.",
+      "source_sha256": "1656fb46d5f0786dac81e9e7c0caa3f85ed9a761324aa5014105abec379ec9ba",
+      "translation": "Taille des minibatchs d’entraînement, pas une limite du jeu de données. La valeur par défaut 1 réduit l’utilisation de la mémoire GPU pour Cellpose-SAM. Augmentez-la seulement si la mémoire le permet."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.channel_axis",
+      "source": "Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks.",
+      "source_sha256": "52ff79122e0c4f3a095def96459324ad9d39d1b8447035a6f346f91076ea4cbc",
+      "translation": "Axe des canaux de l’image : 0 pour canaux en premier, -1 pour canaux en dernier, ou vide pour le déduire des dimensions du masque. Les images ambiguës exigent un axe explicite. L’entraînement prend en charge des champs 2-D avec canaux facultatifs, pas des piles Z."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.channels",
+      "source": "Zero-based image channels to train on (one to three), or leave blank to preserve all channels in images with at most three. Channels are never averaged. Larger images require an explicit selection.",
+      "source_sha256": "387f591ef0ab765d87cbdfa25fe1addd7315d9e924a1a8c1bee6cd147ff91413",
+      "translation": "Canaux d’image (indexés à partir de zéro) sur lesquels entraîner (un à trois), ou laissez vide pour conserver tous les canaux des images qui en ont au plus trois. Les canaux ne sont jamais moyennés. Les images plus grandes exigent une sélection explicite."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.learning_rate",
+      "source": "AdamW learning rate for Cellpose 4 fine-tuning. Default 0.00001 (1e-5), the Cellpose-SAM recommendation. Reduce it if loss becomes unstable.",
+      "source_sha256": "7c807b8fec4864e016684711500af4431d95ad5f67b8dea2fe678e6a72cd2fa4",
+      "translation": "Taux d’apprentissage AdamW pour l’affinage de Cellpose 4. Par défaut 0.00001 (1e-5), la recommandation de Cellpose-SAM. Réduisez-le si la perte devient instable."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.mask_src",
+      "source": "Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training.",
+      "source_sha256": "2c4de5b3fd73339163260b9b39e69c72381216414a509973e6ab878e92c957c5",
+      "translation": "Dossier séparé facultatif de masques entiers d’étiquettes d’objets (fond 0). Laissez vide pour utiliser les masques du dossier d’images. Faites correspondre les noms de base des images, éventuellement avec un suffixe _masks. Des paires manquantes ou ambiguës arrêtent l’entraînement."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.max_train_images",
+      "source": "Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size.",
+      "source_sha256": "db08b150e9e52356ad2f890ac5e6e3435a23b3a9049cc7304b30baff1cc5ee3d",
+      "translation": "Limite facultative du nombre de paires d’images d’entraînement chargées en RAM, dans l’ordre des noms de fichiers. Vide ou une valeur non positive utilise toutes les paires. Cela ne modifie pas la taille des minibatchs."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.model_name",
+      "source": "Name for the newly trained checkpoint. The epoch count is appended. Use a distinct name for each experiment to preserve earlier runs.",
+      "source_sha256": "4e41df1e350191f5a1837f9531f00a6c9e1d6c7be63e5b6094ad9da2e3be91d3",
+      "translation": "Nom du point de contrôle nouvellement entraîné. Le nombre d’époques y est ajouté. Utilisez un nom distinct pour chaque expérience afin de conserver les exécutions précédentes."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.n_epochs",
+      "source": "Training epochs. Default 100 follows Cellpose-SAM fine-tuning guidance. Monitor training and validation losses before extending a run.",
+      "source_sha256": "ae4c4df81e39ca2724175a8ec36beecfb42dbb15a2f440fdaa9b4c6ca49308a8",
+      "translation": "Époques d’entraînement. La valeur par défaut 100 suit les recommandations d’affinage de Cellpose-SAM. Surveillez les pertes d’entraînement et de validation avant de prolonger une exécution."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.nimg_per_epoch",
+      "source": "Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM.",
+      "source_sha256": "453177e6167402652cdbd2e7abbfa238d24bc86f30e2f5054c054d3888aa8aeb",
+      "translation": "Nombre facultatif d’images échantillonnées par époque d’entraînement. Vide utilise toutes les images d’entraînement. Cela modifie l’échantillonnage, pas le nombre de fichiers chargés en RAM."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.nimg_test_per_epoch",
+      "source": "Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source.",
+      "source_sha256": "16e1646f814de87a47ea22e9eb81e12df3f3d733abe8bd530d8cfc6ea4676826",
+      "translation": "Nombre facultatif d’images de validation échantillonnées par époque d’évaluation. Vide utilise toutes les images de validation. Nécessite une source d’images de validation."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.normalize",
+      "source": "Apply Cellpose's per-channel percentile normalization once during training. Disable only for intentionally pre-normalized data. Default True.",
+      "source_sha256": "b6bbd94d503792b9bcd4268fe64a7e5d1a177c1dcec7af523203140e8a06bff6",
+      "translation": "Appliquer une seule fois pendant l’entraînement la normalisation par percentiles de Cellpose, canal par canal. Ne désactivez que pour des données volontairement prénormalisées. Par défaut True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.percentiles",
+      "source": "Lower and upper intensity percentiles used when normalization is enabled. Default [1, 99], matching Cellpose. Native image geometry and separate channels are preserved.",
+      "source_sha256": "054c2cddb98c420a4d610c9393627c118b30a3dfa12880bb1fb3d6dd2dc94b5b",
+      "translation": "Percentiles d’intensité inférieur et supérieur utilisés lorsque la normalisation est activée. Par défaut [1, 99], comme Cellpose. La géométrie native des images et les canaux séparés sont conservés."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.save_path",
+      "source": "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too.",
+      "source_sha256": "8e4612fba7c09d871efdd3e8cf52fdd992b9698c9f8df8ef3618fbb92bb739b9",
+      "translation": "Dossier de sortie des points de contrôle. Cellpose écrit les poids dans son sous-dossier models. Laissez vide pour <image source>/models/cellpose_model. L’option Utiliser le modèle entraîné lit aussi cet emplacement."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.src",
+      "source": "Folder containing training microscopy images. Masks default to the masks subfolder. Legacy project/train/images and project/train/masks layouts also remain supported.",
+      "source_sha256": "f8603d851f381facce6ddd52d26ebe897b2989dcba82175acba0d96b4cd72f7a",
+      "translation": "Dossier contenant les images de microscopie d’entraînement. Les masques proviennent par défaut du sous-dossier masks. Les anciennes arborescences project/train/images et project/train/masks restent aussi prises en charge."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.test_mask_src",
+      "source": "Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder.",
+      "source_sha256": "40d49cb69393a999e378139af670630a75b6b48a100e1dd4350ee62f5a684aa9",
+      "translation": "Dossier facultatif de masques d’étiquettes de validation. Laissez vide pour utiliser le sous-dossier masks du dossier d’images de validation."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.test_src",
+      "source": "Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields.",
+      "source_sha256": "ab03e850b280d62b1ba43fbb73d44fe7f4bf9bb78fec7119ccf58852046fb417",
+      "translation": "Dossier facultatif d’images de validation, distinct des images d’entraînement. Laissez vide pour entraîner sans pertes de validation. Séparez par puits ou par expérience pour éviter les fuites entre champs apparentés."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.weight_decay",
+      "source": "AdamW weight decay. Default 0.1, as recommended for Cellpose-SAM fine-tuning.",
+      "source_sha256": "2f489484388f4b4c178b7db4879d555479e04797334021edd901a4067fb2a5ed",
+      "translation": "Décroissance des poids AdamW. Par défaut 0.1, comme recommandé pour l’affinage de Cellpose-SAM."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_aggregation",
+      "source": "Combine test-time views using probability_mean or majority_vote. Voting ties prefer the higher mean probability, then the lower class index. pred retains the mean probability; predicted_label and cv_predictions retain the selected label. Default probability_mean.",
+      "source_sha256": "97a29e510ba88a81f2eecdd005f4f595406b5afd30cfae75736c237bf8486fa1",
+      "translation": "Combiner les vues de test par probability_mean ou majority_vote. En cas d’égalité des votes, la probabilité moyenne la plus élevée l’emporte, puis l’indice de classe le plus bas. pred conserve la probabilité moyenne ; predicted_label et cv_predictions conservent l’étiquette sélectionnée. Par défaut probability_mean."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_enabled",
+      "source": "Score selected rotated or reflected versions of each phenotype crop during inference. Choose transforms in this category; the original view is always included. Saves original predictions, mean probabilities, standard deviations, agreement and review flags. Keep disabled when orientation carries biological meaning. Does not change training augmentation. Default False.",
+      "source_sha256": "64c2a8c295c53141776bc2d92db7b00c6b8ebb24f67a83a77a55b127d43f626a",
+      "translation": "Évaluer, pendant l’inférence, des versions tournées ou réfléchies sélectionnées de chaque vignette de phénotype. Choisissez les transformations dans cette catégorie ; la vue originale est toujours incluse. Enregistre les prédictions originales, les probabilités moyennes, les écarts-types, la concordance et les signalements de révision. Laissez désactivé lorsque l’orientation a un sens biologique. Ne modifie pas l’augmentation d’entraînement. Par défaut False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_horizontal_flip",
+      "source": "With test-time augmentation enabled, include horizontal reflections of the selected rotations. Each distinct reflected view is classified before aggregation; equivalent orientations are evaluated once. Disable when horizontal direction has biological meaning in the assay. Default False.",
+      "source_sha256": "ceb57712d39ba20ec8c18a52be352881339b5284b6f40025f06c47f63d0b442e",
+      "translation": "Avec l’augmentation au moment du test activée, inclure les réflexions horizontales des rotations sélectionnées. Chaque vue réfléchie distincte est classée avant l’agrégation ; les orientations équivalentes ne sont évaluées qu’une fois. Désactivez-la lorsque la direction horizontale a un sens biologique dans le test. Par défaut False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_max_std",
+      "source": "Flag an object when its positive-class probability (binary) or selected-class probability (multiclass) has a population standard deviation above this value across orientations. Range 0-1; default 0.15.",
+      "source_sha256": "96913b03962a5bf4db05b6cf374796273ca6e9f2c60620d7675d46ab13f716dd",
+      "translation": "Signaler un objet lorsque sa probabilité de classe positive (binaire) ou de classe sélectionnée (multiclasse) a, d’une orientation à l’autre, un écart-type de population supérieur à cette valeur. Plage 0-1 ; par défaut 0.15."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_min_agreement",
+      "source": "Flag an object for review when fewer than this fraction of orientation predictions agree with the selected label. Agreement measures orientation stability, not calibrated confidence. Range 0-1; default 0.75.",
+      "source_sha256": "2a6c2845ec9136291ad5355c977b5f75ee86bc79ffe7f5d9229c34c3255fa957",
+      "translation": "Signaler un objet pour révision lorsque moins de cette fraction des prédictions par orientation concordent avec l’étiquette sélectionnée. La concordance mesure la stabilité vis-à-vis de l’orientation, pas une confiance calibrée. Plage 0-1 ; par défaut 0.75."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_rotations",
+      "source": "With test-time augmentation enabled, include 90, 180 and 270 degree rotations. Uses exact pixel rotations without interpolation. Default False.",
+      "source_sha256": "68fe2bdc40f5a5420aad6a796360b266c81cf242ea4dbd7ba72684cc29018922",
+      "translation": "Avec l’augmentation au moment du test activée, inclure les rotations de 90, 180 et 270 degrés. Utilise des rotations exactes de pixels, sans interpolation. Par défaut False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_vertical_flip",
+      "source": "With test-time augmentation enabled, include vertical reflections. Equivalent orientations are evaluated once; all rotations and both flips produce eight distinct views. Default False.",
+      "source_sha256": "38af2efefe83bfb5c8593c196d6fe6467d22fb6fc4f28bfcdc5c84c00edd6ad9",
+      "translation": "Avec l’augmentation au moment du test activée, inclure les réflexions verticales. Les orientations équivalentes ne sont évaluées qu’une fois ; l’ensemble des rotations et les deux retournements donnent huit vues distinctes. Par défaut False."
+    }
+  ]
+}

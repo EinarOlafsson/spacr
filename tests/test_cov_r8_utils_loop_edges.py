@@ -162,8 +162,8 @@ class TestScanningAFolderInTestMode:
             "the two unrecognised TIFFs were not filtered before the loop")
 
         listing = inspect.getsource(U._run_test_mode)
-        assert ("all_filenames = [filename for filename in "
-                "_listdir_visible(src) if regular_expression.match(filename)]"
+        assert ("listed = [filename for filename in "
+                "_listdir_visible(folder) if regular_expression.match(filename)]"
                 ) in listing, (
             "the listing no longer filters by the regex, so a non-match "
             "can now reach the loop and the guard inside it is live")

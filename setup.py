@@ -32,6 +32,7 @@ it is declared here too so a developer install from git gets wheels as well.
 """
 import sys
 import re
+from html import unescape
 
 from setuptools import setup, find_packages
 
@@ -41,6 +42,8 @@ def pypi_readme(source):
     PyPI serves package metadata without the repository's files. Use the
     public nightly tree, which also carries images not yet promoted to main.
     No network access or spaCR imports are needed during isolated builds.
+    GitHub's aligned raw-HTML tile substitutions become ordinary RST image
+    substitutions here because PyPI's renderer disables raw HTML.
     """
     def absolute(value, image=False):
         if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", value) or value.startswith(("//", "#")):
@@ -49,6 +52,18 @@ def pypi_readme(source):
                 if image else "https://github.com/EinarOlafsson/spacr/blob/nightly/")
         return base + value.removeprefix("./")
 
+    source = re.sub(
+        r'(?m)^\.\. \|(?P<name>Module_[^|\n]+)\| raw:: html\n\n'
+        r'   <a href="(?P<target>[^"]+)"><img src="(?P<image>[^"]+)" '
+        r'width="(?P<width>[^"]+)" align="middle" alt="(?P<alt>[^"]+)"></a>\n',
+        lambda match: (
+            f".. |{match['name']}| image:: {unescape(match['image'])}\n"
+            f"   :width: {match['width']}\n"
+            f"   :alt: {unescape(match['alt'])}\n"
+            f"   :target: {unescape(match['target'])}\n"
+            "   :align: middle\n"
+        ), source,
+    )
     source = re.sub(
         r"(?m)^(\s*\.\. (?:\|[^|]+\| )?(?:image|figure)::\s+)(\S+)",
         lambda match: match[1] + absolute(match[2], image=True), source)
@@ -69,6 +84,9 @@ dependencies = [
     'scipy>=1.12.0,<2.0',
     'cellpose>=4.0.7,<5.0',
     'scikit-image>=0.22.0,<0.28',
+    # Measure's texture confluency calls skimage.restoration.estimate_sigma,
+    # which imports PyWavelets internally even though spaCR never imports pywt.
+    'PyWavelets>=1.4,<2',
     'scikit-learn>=1.5.0,<2.0',
     'scikit-posthocs>=0.10.0,<0.20',
     'trackpy>=0.6.2,<1.0',
@@ -127,7 +145,7 @@ dependencies = [
     'protobuf>=5.28.3',
 ]
 
-VERSION = "1.5.1.0"
+VERSION = "1.5.1.1"
 name = "spacr"
 
 setup(
@@ -215,6 +233,7 @@ setup(
                    'pdfplumber>=0.11,<1'],
         'umap': ['umap-learn>=0.5.11,<1.0'],
         'anndata': ['anndata>=0.10,<0.13'],
+        'databases': ['duckdb>=1.1,<2', 'psycopg[binary]>=3.1,<4'],
         'dinocell': ['dinocell>=0.74,<1.0'],
         'samcell': ['samcell>=1.2,<2.0'],
         'napari': ['napari>=0.5,<1.0'],
@@ -251,6 +270,14 @@ setup(
 
         'zarr': ['zarr>=2.16,<4', 'numcodecs>=0.12,<1'],
         'omero': ['omero-py>=5.17,<6'],
+        'cloud': ['fsspec>=2023.1', 's3fs>=2023.1', 'gcsfs>=2023.1',
+                  'adlfs>=2023.1', 'aiohttp>=3.8,<4', 'botocore>=1.29,<2'],
+        'survival': ['lifelines>=0.27,<1'],
+        'search': ['faiss-cpu>=1.7.4,<2'],
+        'foundation': ['transformers>=4.40,<6'],
+        'notify': ['keyring>=23.0,<27'],
+        'chem': ['rdkit>=2023.3'],
+        'microscope': ['pycromanager>=0.28,<1'],
 
         'all': [
             'PySide6>=6.6,<7',

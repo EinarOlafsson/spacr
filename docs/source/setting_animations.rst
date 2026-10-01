@@ -50,40 +50,7 @@ Cell — Minimum object area
    :alt: Cell — Minimum object area setting animation
    :width: 300px
 
-**Settings:** ``cell_min_area``, ``cell_min_size``
-
-.. _setting-animation-cell-max-area:
-
-Cell — Maximum object area
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_max_area.gif
-   :alt: Cell — Maximum object area setting animation
-   :width: 300px
-
-**Settings:** ``cell_max_area``
-
-.. _setting-animation-cell-min-intensity:
-
-Cell — Minimum mean intensity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_min_intensity.gif
-   :alt: Cell — Minimum mean intensity setting animation
-   :width: 300px
-
-**Settings:** ``cell_min_intensity``
-
-.. _setting-animation-cell-max-intensity:
-
-Cell — Maximum mean intensity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_max_intensity.gif
-   :alt: Cell — Maximum mean intensity setting animation
-   :width: 300px
-
-**Settings:** ``cell_max_intensity``
+**Settings:** ``cell_min_size``, ``object_filters``
 
 .. _setting-animation-nucleus-remove-border-objects:
 
@@ -105,40 +72,7 @@ Nucleus — Minimum object area
    :alt: Nucleus — Minimum object area setting animation
    :width: 300px
 
-**Settings:** ``nucleus_min_area``, ``nucleus_min_size``
-
-.. _setting-animation-nucleus-max-area:
-
-Nucleus — Maximum object area
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_max_area.gif
-   :alt: Nucleus — Maximum object area setting animation
-   :width: 300px
-
-**Settings:** ``nucleus_max_area``
-
-.. _setting-animation-nucleus-min-intensity:
-
-Nucleus — Minimum mean intensity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_min_intensity.gif
-   :alt: Nucleus — Minimum mean intensity setting animation
-   :width: 300px
-
-**Settings:** ``nucleus_min_intensity``
-
-.. _setting-animation-nucleus-max-intensity:
-
-Nucleus — Maximum mean intensity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_max_intensity.gif
-   :alt: Nucleus — Maximum mean intensity setting animation
-   :width: 300px
-
-**Settings:** ``nucleus_max_intensity``
+**Settings:** ``nucleus_min_size``
 
 .. _setting-animation-pathogen-remove-border-objects:
 
@@ -160,40 +94,7 @@ Pathogen — Minimum object area
    :alt: Pathogen — Minimum object area setting animation
    :width: 300px
 
-**Settings:** ``pathogen_min_area``, ``pathogen_min_size``
-
-.. _setting-animation-pathogen-max-area:
-
-Pathogen — Maximum object area
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_max_area.gif
-   :alt: Pathogen — Maximum object area setting animation
-   :width: 300px
-
-**Settings:** ``pathogen_max_area``
-
-.. _setting-animation-pathogen-min-intensity:
-
-Pathogen — Minimum mean intensity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_min_intensity.gif
-   :alt: Pathogen — Minimum mean intensity setting animation
-   :width: 300px
-
-**Settings:** ``pathogen_min_intensity``
-
-.. _setting-animation-pathogen-max-intensity:
-
-Pathogen — Maximum mean intensity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_max_intensity.gif
-   :alt: Pathogen — Maximum mean intensity setting animation
-   :width: 300px
-
-**Settings:** ``pathogen_max_intensity``
+**Settings:** ``pathogen_min_size``
 
 .. _setting-animation-organelle-remove-border-objects:
 

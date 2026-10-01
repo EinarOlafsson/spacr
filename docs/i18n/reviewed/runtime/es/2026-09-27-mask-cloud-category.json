@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "source_sha256": "24a001745dccbfe5d65f0701b9abed5fd2c35297fbd1139c0102ff0445896aa6",
+      "source": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "translation": "Acceso al almacenamiento en la nube, caché local, pocillos y campos seleccionados, resolución de imagen y carga de resultados. Use estos ajustes cuando la fuente sea una dirección de almacenamiento remoto."
+    },
+    {
+      "table": "ui",
+      "key": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "source_sha256": "24a001745dccbfe5d65f0701b9abed5fd2c35297fbd1139c0102ff0445896aa6",
+      "source": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "translation": "Acceso al almacenamiento en la nube, caché local, pocillos y campos seleccionados, resolución de imagen y carga de resultados. Use estos ajustes cuando la fuente sea una dirección de almacenamiento remoto."
+    }
+  ]
+}

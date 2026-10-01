@@ -1,0 +1,1334 @@
+{
+ "item": 284,
+ "date": "2026-09-26",
+ "method": "tools/spacr_startup_benchmark.py --runs 1 --record-only (--offscreen, or under xvfb-run for the xcb rows); arms alternated per pair (base, new / new, base); both trees byte-compiled; values are medians over pairs; stall = worst_event_loop_stall_ms, open = duration_s in ms; load = 1-minute load average on 32 cores at the start of each base run",
+ "base": "git archive of nightly f046bcc36",
+ "commits": {
+  "1ebf51e59": "application-wide event filters share one hub",
+  "22908ffcf": "Annotate opens without importing pandas",
+  "94904dcb7": "pandas imported on a worker after the first module screen"
+ },
+ "sheet_cost_probe": {
+  "what": "thread CPU of one setStyleSheet(window sheet) on the screen root, set after clearing it, same process, three repeats, in the real window",
+  "load": "90-100",
+  "before_hub_ms": {
+   "make_masks": [
+    661,
+    648,
+    791
+   ],
+   "regression": [
+    813,
+    616,
+    619
+   ],
+   "mask": [
+    640,
+    583,
+    566
+   ],
+   "__preferences__": [
+    1140,
+    721,
+    795
+   ]
+  },
+  "after_hub_ms": {
+   "make_masks": [
+    251,
+    264,
+    278
+   ],
+   "regression": [
+    312,
+    290,
+    276
+   ],
+   "mask": [
+    251,
+    243,
+    215
+   ],
+   "__preferences__": [
+    200,
+    267,
+    269
+   ]
+  },
+  "events_per_sheet": {
+   "make_masks": 6288,
+   "regression": 5644
+  },
+  "sheet_rules_ablation_make_masks_ms": {
+   "full_sheet": 712,
+   "one_trivial_rule": 356,
+   "note": "before the hub: the rule set was about half, the per-widget restyle with its ~7 events per widget the other half; no rule group removed more than ~120 ms"
+  }
+ },
+ "hub_only_pairs_load_60": {
+  "loads": [
+   63.14,
+   60.22
+  ],
+  "rows": {
+   "__home__": {
+    "base_stall_ms": 512,
+    "new_stall_ms": 292,
+    "base_open_ms": 9787,
+    "new_open_ms": 9181
+   },
+   "__preferences__": {
+    "base_stall_ms": 1926,
+    "new_stall_ms": 896,
+    "base_open_ms": 1992,
+    "new_open_ms": 962
+   },
+   "mask": {
+    "base_stall_ms": 1257,
+    "new_stall_ms": 640,
+    "base_open_ms": 4021,
+    "new_open_ms": 2223
+   },
+   "measure": {
+    "base_stall_ms": 517,
+    "new_stall_ms": 357,
+    "base_open_ms": 2596,
+    "new_open_ms": 1431
+   },
+   "annotate": {
+    "base_stall_ms": 711,
+    "new_stall_ms": 689,
+    "base_open_ms": 1092,
+    "new_open_ms": 1012
+   },
+   "classify_merged": {
+    "base_stall_ms": 320,
+    "new_stall_ms": 233,
+    "base_open_ms": 1358,
+    "new_open_ms": 833
+   },
+   "map_barcodes": {
+    "base_stall_ms": 428,
+    "new_stall_ms": 309,
+    "base_open_ms": 1887,
+    "new_open_ms": 1076
+   },
+   "regression": {
+    "base_stall_ms": 749,
+    "new_stall_ms": 303,
+    "base_open_ms": 5201,
+    "new_open_ms": 1969
+   },
+   "feature_explorer": {
+    "base_stall_ms": 764,
+    "new_stall_ms": 485,
+    "base_open_ms": 1463,
+    "new_open_ms": 750
+   },
+   "convert": {
+    "base_stall_ms": 382,
+    "new_stall_ms": 274,
+    "base_open_ms": 582,
+    "new_open_ms": 461
+   },
+   "foreign": {
+    "base_stall_ms": 308,
+    "new_stall_ms": 401,
+    "base_open_ms": 897,
+    "new_open_ms": 579
+   },
+   "external_masks": {
+    "base_stall_ms": 530,
+    "new_stall_ms": 406,
+    "base_open_ms": 2211,
+    "new_open_ms": 1282
+   },
+   "queue": {
+    "base_stall_ms": 236,
+    "new_stall_ms": 111,
+    "base_open_ms": 237,
+    "new_open_ms": 112
+   },
+   "batch": {
+    "base_stall_ms": 389,
+    "new_stall_ms": 261,
+    "base_open_ms": 598,
+    "new_open_ms": 263
+   },
+   "distributed_jobs": {
+    "base_stall_ms": 268,
+    "new_stall_ms": 262,
+    "base_open_ms": 554,
+    "new_open_ms": 450
+   },
+   "db_browser": {
+    "base_stall_ms": 392,
+    "new_stall_ms": 256,
+    "base_open_ms": 801,
+    "new_open_ms": 506
+   },
+   "run_history": {
+    "base_stall_ms": 418,
+    "new_stall_ms": 279,
+    "base_open_ms": 862,
+    "new_open_ms": 296
+   },
+   "report": {
+    "base_stall_ms": 272,
+    "new_stall_ms": 174,
+    "base_open_ms": 355,
+    "new_open_ms": 209
+   },
+   "data_manager": {
+    "base_stall_ms": 312,
+    "new_stall_ms": 243,
+    "base_open_ms": 741,
+    "new_open_ms": 334
+   },
+   "pipeline_graph": {
+    "base_stall_ms": 396,
+    "new_stall_ms": 176,
+    "base_open_ms": 401,
+    "new_open_ms": 207
+   },
+   "qc_dashboard": {
+    "base_stall_ms": 260,
+    "new_stall_ms": 163,
+    "base_open_ms": 263,
+    "new_open_ms": 184
+   },
+   "lineage": {
+    "base_stall_ms": 225,
+    "new_stall_ms": 197,
+    "base_open_ms": 337,
+    "new_open_ms": 225
+   },
+   "experiment_design": {
+    "base_stall_ms": 736,
+    "new_stall_ms": 438,
+    "base_open_ms": 1821,
+    "new_open_ms": 1058
+   },
+   "layer_viewer": {
+    "base_stall_ms": 314,
+    "new_stall_ms": 226,
+    "base_open_ms": 568,
+    "new_open_ms": 227
+   },
+   "power": {
+    "base_stall_ms": 363,
+    "new_stall_ms": 314,
+    "base_open_ms": 915,
+    "new_open_ms": 474
+   },
+   "run_compare": {
+    "base_stall_ms": 388,
+    "new_stall_ms": 376,
+    "base_open_ms": 603,
+    "new_open_ms": 523
+   },
+   "tabulate": {
+    "base_stall_ms": 650,
+    "new_stall_ms": 291,
+    "base_open_ms": 1451,
+    "new_open_ms": 623
+   },
+   "dose_response": {
+    "base_stall_ms": 713,
+    "new_stall_ms": 483,
+    "base_open_ms": 1857,
+    "new_open_ms": 961
+   },
+   "project_browser": {
+    "base_stall_ms": 392,
+    "new_stall_ms": 173,
+    "base_open_ms": 633,
+    "new_open_ms": 175
+   },
+   "outliers": {
+    "base_stall_ms": 336,
+    "new_stall_ms": 346,
+    "base_open_ms": 698,
+    "new_open_ms": 433
+   },
+   "embeddings": {
+    "base_stall_ms": 444,
+    "new_stall_ms": 296,
+    "base_open_ms": 924,
+    "new_open_ms": 474
+   },
+   "control_chart": {
+    "base_stall_ms": 491,
+    "new_stall_ms": 354,
+    "base_open_ms": 1269,
+    "new_open_ms": 356
+   },
+   "train_compare": {
+    "base_stall_ms": 407,
+    "new_stall_ms": 229,
+    "base_open_ms": 739,
+    "new_open_ms": 230
+   },
+   "align": {
+    "base_stall_ms": 475,
+    "new_stall_ms": 313,
+    "base_open_ms": 845,
+    "new_open_ms": 346
+   },
+   "make_masks": {
+    "base_stall_ms": 800,
+    "new_stall_ms": 526,
+    "base_open_ms": 3261,
+    "new_open_ms": 2055
+   },
+   "plate_view": {
+    "base_stall_ms": 526,
+    "new_stall_ms": 315,
+    "base_open_ms": 791,
+    "new_open_ms": 343
+   },
+   "umap": {
+    "base_stall_ms": 648,
+    "new_stall_ms": 311,
+    "base_open_ms": 2461,
+    "new_open_ms": 1491
+   },
+   "profiler": {
+    "base_stall_ms": 420,
+    "new_stall_ms": 182,
+    "base_open_ms": 569,
+    "new_open_ms": 193
+   },
+   "graph_builder": {
+    "base_stall_ms": 409,
+    "new_stall_ms": 252,
+    "base_open_ms": 822,
+    "new_open_ms": 481
+   },
+   "investigate_hit": {
+    "base_stall_ms": 724,
+    "new_stall_ms": 336,
+    "base_open_ms": 1038,
+    "new_open_ms": 782
+   },
+   "gate_editor": {
+    "base_stall_ms": 944,
+    "new_stall_ms": 411,
+    "base_open_ms": 1929,
+    "new_open_ms": 1163
+   },
+   "feature_dict": {
+    "base_stall_ms": 738,
+    "new_stall_ms": 600,
+    "base_open_ms": 1260,
+    "new_open_ms": 846
+   },
+   "trellis": {
+    "base_stall_ms": 562,
+    "new_stall_ms": 425,
+    "base_open_ms": 1374,
+    "new_open_ms": 982
+   },
+   "toxoplasma": {
+    "base_stall_ms": 991,
+    "new_stall_ms": 501,
+    "base_open_ms": 2023,
+    "new_open_ms": 953
+   },
+   "plasmodium": {
+    "base_stall_ms": 549,
+    "new_stall_ms": 396,
+    "base_open_ms": 1405,
+    "new_open_ms": 872
+   },
+   "candida": {
+    "base_stall_ms": 677,
+    "new_stall_ms": 525,
+    "base_open_ms": 1454,
+    "new_open_ms": 1032
+   },
+   "analyze_plaques": {
+    "base_stall_ms": 744,
+    "new_stall_ms": 453,
+    "base_open_ms": 1970,
+    "new_open_ms": 1401
+   },
+   "recruitment": {
+    "base_stall_ms": 432,
+    "new_stall_ms": 340,
+    "base_open_ms": 2403,
+    "new_open_ms": 1680
+   },
+   "host_pathogen": {
+    "base_stall_ms": 505,
+    "new_stall_ms": 354,
+    "base_open_ms": 1511,
+    "new_open_ms": 1001
+   },
+   "invasion": {
+    "base_stall_ms": 479,
+    "new_stall_ms": 324,
+    "base_open_ms": 2236,
+    "new_open_ms": 916
+   },
+   "replication": {
+    "base_stall_ms": 453,
+    "new_stall_ms": 389,
+    "base_open_ms": 3052,
+    "new_open_ms": 1286
+   }
+  }
+ },
+ "pandas_worker_pairs_vs_22908ffcf": {
+  "loads": [
+   17.95,
+   20.24,
+   21.24,
+   16.77
+  ],
+  "rows": {
+   "__home__": {
+    "base_stall_ms": 285,
+    "new_stall_ms": 292,
+    "base_open_ms": 4629,
+    "new_open_ms": 4744
+   },
+   "__preferences__": {
+    "base_stall_ms": 516,
+    "new_stall_ms": 560,
+    "base_open_ms": 571,
+    "new_open_ms": 615
+   },
+   "mask": {
+    "base_stall_ms": 310,
+    "new_stall_ms": 350,
+    "base_open_ms": 1084,
+    "new_open_ms": 1165
+   },
+   "measure": {
+    "base_stall_ms": 219,
+    "new_stall_ms": 227,
+    "base_open_ms": 608,
+    "new_open_ms": 608
+   },
+   "annotate": {
+    "base_stall_ms": 192,
+    "new_stall_ms": 189,
+    "base_open_ms": 195,
+    "new_open_ms": 193
+   },
+   "classify_merged": {
+    "base_stall_ms": 224,
+    "new_stall_ms": 225,
+    "base_open_ms": 522,
+    "new_open_ms": 865
+   },
+   "map_barcodes": {
+    "base_stall_ms": 251,
+    "new_stall_ms": 248,
+    "base_open_ms": 513,
+    "new_open_ms": 571
+   },
+   "regression": {
+    "base_stall_ms": 286,
+    "new_stall_ms": 256,
+    "base_open_ms": 1269,
+    "new_open_ms": 1277
+   },
+   "feature_explorer": {
+    "base_stall_ms": 537,
+    "new_stall_ms": 236,
+    "base_open_ms": 728,
+    "new_open_ms": 373
+   },
+   "convert": {
+    "base_stall_ms": 156,
+    "new_stall_ms": 168,
+    "base_open_ms": 157,
+    "new_open_ms": 171
+   },
+   "foreign": {
+    "base_stall_ms": 174,
+    "new_stall_ms": 196,
+    "base_open_ms": 188,
+    "new_open_ms": 211
+   },
+   "external_masks": {
+    "base_stall_ms": 220,
+    "new_stall_ms": 195,
+    "base_open_ms": 467,
+    "new_open_ms": 442
+   },
+   "queue": {
+    "base_stall_ms": 57,
+    "new_stall_ms": 33,
+    "base_open_ms": 58,
+    "new_open_ms": 57
+   },
+   "batch": {
+    "base_stall_ms": 139,
+    "new_stall_ms": 119,
+    "base_open_ms": 140,
+    "new_open_ms": 120
+   },
+   "distributed_jobs": {
+    "base_stall_ms": 130,
+    "new_stall_ms": 119,
+    "base_open_ms": 131,
+    "new_open_ms": 123
+   },
+   "db_browser": {
+    "base_stall_ms": 170,
+    "new_stall_ms": 122,
+    "base_open_ms": 171,
+    "new_open_ms": 123
+   },
+   "run_history": {
+    "base_stall_ms": 162,
+    "new_stall_ms": 126,
+    "base_open_ms": 164,
+    "new_open_ms": 128
+   },
+   "report": {
+    "base_stall_ms": 92,
+    "new_stall_ms": 67,
+    "base_open_ms": 96,
+    "new_open_ms": 69
+   },
+   "data_manager": {
+    "base_stall_ms": 144,
+    "new_stall_ms": 116,
+    "base_open_ms": 147,
+    "new_open_ms": 117
+   },
+   "pipeline_graph": {
+    "base_stall_ms": 85,
+    "new_stall_ms": 68,
+    "base_open_ms": 85,
+    "new_open_ms": 71
+   },
+   "qc_dashboard": {
+    "base_stall_ms": 79,
+    "new_stall_ms": 71,
+    "base_open_ms": 79,
+    "new_open_ms": 72
+   },
+   "lineage": {
+    "base_stall_ms": 94,
+    "new_stall_ms": 81,
+    "base_open_ms": 94,
+    "new_open_ms": 82
+   },
+   "experiment_design": {
+    "base_stall_ms": 292,
+    "new_stall_ms": 248,
+    "base_open_ms": 374,
+    "new_open_ms": 321
+   },
+   "layer_viewer": {
+    "base_stall_ms": 149,
+    "new_stall_ms": 141,
+    "base_open_ms": 151,
+    "new_open_ms": 143
+   },
+   "power": {
+    "base_stall_ms": 212,
+    "new_stall_ms": 192,
+    "base_open_ms": 226,
+    "new_open_ms": 195
+   },
+   "run_compare": {
+    "base_stall_ms": 144,
+    "new_stall_ms": 140,
+    "base_open_ms": 146,
+    "new_open_ms": 141
+   },
+   "tabulate": {
+    "base_stall_ms": 241,
+    "new_stall_ms": 220,
+    "base_open_ms": 266,
+    "new_open_ms": 233
+   },
+   "dose_response": {
+    "base_stall_ms": 308,
+    "new_stall_ms": 307,
+    "base_open_ms": 529,
+    "new_open_ms": 510
+   },
+   "project_browser": {
+    "base_stall_ms": 112,
+    "new_stall_ms": 82,
+    "base_open_ms": 117,
+    "new_open_ms": 83
+   },
+   "outliers": {
+    "base_stall_ms": 199,
+    "new_stall_ms": 140,
+    "base_open_ms": 200,
+    "new_open_ms": 141
+   },
+   "embeddings": {
+    "base_stall_ms": 185,
+    "new_stall_ms": 165,
+    "base_open_ms": 187,
+    "new_open_ms": 166
+   },
+   "control_chart": {
+    "base_stall_ms": 257,
+    "new_stall_ms": 214,
+    "base_open_ms": 260,
+    "new_open_ms": 215
+   },
+   "train_compare": {
+    "base_stall_ms": 147,
+    "new_stall_ms": 125,
+    "base_open_ms": 150,
+    "new_open_ms": 126
+   },
+   "align": {
+    "base_stall_ms": 194,
+    "new_stall_ms": 141,
+    "base_open_ms": 195,
+    "new_open_ms": 142
+   },
+   "make_masks": {
+    "base_stall_ms": 365,
+    "new_stall_ms": 337,
+    "base_open_ms": 895,
+    "new_open_ms": 714
+   },
+   "plate_view": {
+    "base_stall_ms": 191,
+    "new_stall_ms": 172,
+    "base_open_ms": 195,
+    "new_open_ms": 172
+   },
+   "umap": {
+    "base_stall_ms": 313,
+    "new_stall_ms": 209,
+    "base_open_ms": 619,
+    "new_open_ms": 511
+   },
+   "profiler": {
+    "base_stall_ms": 104,
+    "new_stall_ms": 101,
+    "base_open_ms": 113,
+    "new_open_ms": 107
+   },
+   "graph_builder": {
+    "base_stall_ms": 194,
+    "new_stall_ms": 176,
+    "base_open_ms": 195,
+    "new_open_ms": 179
+   },
+   "investigate_hit": {
+    "base_stall_ms": 191,
+    "new_stall_ms": 172,
+    "base_open_ms": 197,
+    "new_open_ms": 174
+   },
+   "gate_editor": {
+    "base_stall_ms": 267,
+    "new_stall_ms": 254,
+    "base_open_ms": 422,
+    "new_open_ms": 318
+   },
+   "feature_dict": {
+    "base_stall_ms": 295,
+    "new_stall_ms": 276,
+    "base_open_ms": 426,
+    "new_open_ms": 376
+   },
+   "trellis": {
+    "base_stall_ms": 266,
+    "new_stall_ms": 232,
+    "base_open_ms": 269,
+    "new_open_ms": 233
+   },
+   "toxoplasma": {
+    "base_stall_ms": 286,
+    "new_stall_ms": 319,
+    "base_open_ms": 502,
+    "new_open_ms": 437
+   },
+   "plasmodium": {
+    "base_stall_ms": 219,
+    "new_stall_ms": 216,
+    "base_open_ms": 459,
+    "new_open_ms": 334
+   },
+   "candida": {
+    "base_stall_ms": 236,
+    "new_stall_ms": 212,
+    "base_open_ms": 460,
+    "new_open_ms": 328
+   },
+   "analyze_plaques": {
+    "base_stall_ms": 313,
+    "new_stall_ms": 245,
+    "base_open_ms": 662,
+    "new_open_ms": 529
+   },
+   "recruitment": {
+    "base_stall_ms": 240,
+    "new_stall_ms": 204,
+    "base_open_ms": 511,
+    "new_open_ms": 459
+   },
+   "host_pathogen": {
+    "base_stall_ms": 245,
+    "new_stall_ms": 208,
+    "base_open_ms": 383,
+    "new_open_ms": 335
+   },
+   "invasion": {
+    "base_stall_ms": 247,
+    "new_stall_ms": 245,
+    "base_open_ms": 476,
+    "new_open_ms": 333
+   },
+   "replication": {
+    "base_stall_ms": 244,
+    "new_stall_ms": 237,
+    "base_open_ms": 455,
+    "new_open_ms": 424
+   }
+  }
+ },
+ "final_offscreen_pairs": {
+  "loads": [
+   12.87,
+   11.74,
+   11.66,
+   11.29
+  ],
+  "rows": {
+   "__home__": {
+    "base_stall_ms": 253,
+    "new_stall_ms": 203,
+    "base_open_ms": 3948,
+    "new_open_ms": 3640
+   },
+   "__preferences__": {
+    "base_stall_ms": 995,
+    "new_stall_ms": 414,
+    "base_open_ms": 1062,
+    "new_open_ms": 471
+   },
+   "mask": {
+    "base_stall_ms": 372,
+    "new_stall_ms": 269,
+    "base_open_ms": 1253,
+    "new_open_ms": 750
+   },
+   "measure": {
+    "base_stall_ms": 259,
+    "new_stall_ms": 220,
+    "base_open_ms": 743,
+    "new_open_ms": 426
+   },
+   "annotate": {
+    "base_stall_ms": 372,
+    "new_stall_ms": 142,
+    "base_open_ms": 539,
+    "new_open_ms": 145
+   },
+   "classify_merged": {
+    "base_stall_ms": 219,
+    "new_stall_ms": 259,
+    "base_open_ms": 672,
+    "new_open_ms": 505
+   },
+   "map_barcodes": {
+    "base_stall_ms": 336,
+    "new_stall_ms": 253,
+    "base_open_ms": 675,
+    "new_open_ms": 407
+   },
+   "regression": {
+    "base_stall_ms": 369,
+    "new_stall_ms": 236,
+    "base_open_ms": 1589,
+    "new_open_ms": 693
+   },
+   "feature_explorer": {
+    "base_stall_ms": 222,
+    "new_stall_ms": 167,
+    "base_open_ms": 437,
+    "new_open_ms": 260
+   },
+   "convert": {
+    "base_stall_ms": 226,
+    "new_stall_ms": 118,
+    "base_open_ms": 226,
+    "new_open_ms": 118
+   },
+   "foreign": {
+    "base_stall_ms": 262,
+    "new_stall_ms": 118,
+    "base_open_ms": 272,
+    "new_open_ms": 118
+   },
+   "external_masks": {
+    "base_stall_ms": 321,
+    "new_stall_ms": 223,
+    "base_open_ms": 636,
+    "new_open_ms": 282
+   },
+   "queue": {
+    "base_stall_ms": 76,
+    "new_stall_ms": 0,
+    "base_open_ms": 78,
+    "new_open_ms": 40
+   },
+   "batch": {
+    "base_stall_ms": 206,
+    "new_stall_ms": 96,
+    "base_open_ms": 207,
+    "new_open_ms": 97
+   },
+   "distributed_jobs": {
+    "base_stall_ms": 178,
+    "new_stall_ms": 89,
+    "base_open_ms": 179,
+    "new_open_ms": 89
+   },
+   "db_browser": {
+    "base_stall_ms": 221,
+    "new_stall_ms": 101,
+    "base_open_ms": 222,
+    "new_open_ms": 102
+   },
+   "run_history": {
+    "base_stall_ms": 228,
+    "new_stall_ms": 104,
+    "base_open_ms": 231,
+    "new_open_ms": 105
+   },
+   "report": {
+    "base_stall_ms": 115,
+    "new_stall_ms": 62,
+    "base_open_ms": 115,
+    "new_open_ms": 64
+   },
+   "data_manager": {
+    "base_stall_ms": 225,
+    "new_stall_ms": 105,
+    "base_open_ms": 226,
+    "new_open_ms": 107
+   },
+   "pipeline_graph": {
+    "base_stall_ms": 103,
+    "new_stall_ms": 59,
+    "base_open_ms": 103,
+    "new_open_ms": 60
+   },
+   "qc_dashboard": {
+    "base_stall_ms": 83,
+    "new_stall_ms": 25,
+    "base_open_ms": 84,
+    "new_open_ms": 50
+   },
+   "lineage": {
+    "base_stall_ms": 112,
+    "new_stall_ms": 63,
+    "base_open_ms": 113,
+    "new_open_ms": 63
+   },
+   "experiment_design": {
+    "base_stall_ms": 471,
+    "new_stall_ms": 224,
+    "base_open_ms": 588,
+    "new_open_ms": 264
+   },
+   "layer_viewer": {
+    "base_stall_ms": 212,
+    "new_stall_ms": 114,
+    "base_open_ms": 213,
+    "new_open_ms": 114
+   },
+   "power": {
+    "base_stall_ms": 269,
+    "new_stall_ms": 163,
+    "base_open_ms": 351,
+    "new_open_ms": 164
+   },
+   "run_compare": {
+    "base_stall_ms": 194,
+    "new_stall_ms": 97,
+    "base_open_ms": 195,
+    "new_open_ms": 97
+   },
+   "tabulate": {
+    "base_stall_ms": 332,
+    "new_stall_ms": 199,
+    "base_open_ms": 448,
+    "new_open_ms": 199
+   },
+   "dose_response": {
+    "base_stall_ms": 373,
+    "new_stall_ms": 275,
+    "base_open_ms": 683,
+    "new_open_ms": 451
+   },
+   "project_browser": {
+    "base_stall_ms": 121,
+    "new_stall_ms": 72,
+    "base_open_ms": 134,
+    "new_open_ms": 74
+   },
+   "outliers": {
+    "base_stall_ms": 268,
+    "new_stall_ms": 121,
+    "base_open_ms": 268,
+    "new_open_ms": 122
+   },
+   "embeddings": {
+    "base_stall_ms": 273,
+    "new_stall_ms": 135,
+    "base_open_ms": 274,
+    "new_open_ms": 136
+   },
+   "control_chart": {
+    "base_stall_ms": 315,
+    "new_stall_ms": 168,
+    "base_open_ms": 413,
+    "new_open_ms": 174
+   },
+   "train_compare": {
+    "base_stall_ms": 205,
+    "new_stall_ms": 100,
+    "base_open_ms": 206,
+    "new_open_ms": 102
+   },
+   "align": {
+    "base_stall_ms": 219,
+    "new_stall_ms": 117,
+    "base_open_ms": 221,
+    "new_open_ms": 118
+   },
+   "make_masks": {
+    "base_stall_ms": 526,
+    "new_stall_ms": 317,
+    "base_open_ms": 1322,
+    "new_open_ms": 591
+   },
+   "plate_view": {
+    "base_stall_ms": 247,
+    "new_stall_ms": 137,
+    "base_open_ms": 248,
+    "new_open_ms": 137
+   },
+   "umap": {
+    "base_stall_ms": 240,
+    "new_stall_ms": 186,
+    "base_open_ms": 768,
+    "new_open_ms": 420
+   },
+   "profiler": {
+    "base_stall_ms": 158,
+    "new_stall_ms": 85,
+    "base_open_ms": 161,
+    "new_open_ms": 88
+   },
+   "graph_builder": {
+    "base_stall_ms": 286,
+    "new_stall_ms": 142,
+    "base_open_ms": 289,
+    "new_open_ms": 146
+   },
+   "investigate_hit": {
+    "base_stall_ms": 332,
+    "new_stall_ms": 147,
+    "base_open_ms": 336,
+    "new_open_ms": 148
+   },
+   "gate_editor": {
+    "base_stall_ms": 397,
+    "new_stall_ms": 258,
+    "base_open_ms": 601,
+    "new_open_ms": 259
+   },
+   "feature_dict": {
+    "base_stall_ms": 261,
+    "new_stall_ms": 229,
+    "base_open_ms": 389,
+    "new_open_ms": 319
+   },
+   "trellis": {
+    "base_stall_ms": 307,
+    "new_stall_ms": 192,
+    "base_open_ms": 398,
+    "new_open_ms": 194
+   },
+   "toxoplasma": {
+    "base_stall_ms": 448,
+    "new_stall_ms": 225,
+    "base_open_ms": 651,
+    "new_open_ms": 348
+   },
+   "plasmodium": {
+    "base_stall_ms": 261,
+    "new_stall_ms": 232,
+    "base_open_ms": 417,
+    "new_open_ms": 292
+   },
+   "candida": {
+    "base_stall_ms": 223,
+    "new_stall_ms": 218,
+    "base_open_ms": 415,
+    "new_open_ms": 282
+   },
+   "analyze_plaques": {
+    "base_stall_ms": 431,
+    "new_stall_ms": 199,
+    "base_open_ms": 822,
+    "new_open_ms": 430
+   },
+   "recruitment": {
+    "base_stall_ms": 313,
+    "new_stall_ms": 123,
+    "base_open_ms": 646,
+    "new_open_ms": 279
+   },
+   "host_pathogen": {
+    "base_stall_ms": 215,
+    "new_stall_ms": 218,
+    "base_open_ms": 492,
+    "new_open_ms": 276
+   },
+   "invasion": {
+    "base_stall_ms": 201,
+    "new_stall_ms": 220,
+    "base_open_ms": 541,
+    "new_open_ms": 287
+   },
+   "replication": {
+    "base_stall_ms": 316,
+    "new_stall_ms": 232,
+    "base_open_ms": 598,
+    "new_open_ms": 323
+   }
+  }
+ },
+ "final_xvfb_pairs": {
+  "loads": [
+   11.98,
+   12.73
+  ],
+  "rows": {
+   "__home__": {
+    "base_stall_ms": 254,
+    "new_stall_ms": 202,
+    "base_open_ms": 4294,
+    "new_open_ms": 4118
+   },
+   "__preferences__": {
+    "base_stall_ms": 1027,
+    "new_stall_ms": 424,
+    "base_open_ms": 1077,
+    "new_open_ms": 481
+   },
+   "mask": {
+    "base_stall_ms": 393,
+    "new_stall_ms": 280,
+    "base_open_ms": 1340,
+    "new_open_ms": 760
+   },
+   "measure": {
+    "base_stall_ms": 244,
+    "new_stall_ms": 219,
+    "base_open_ms": 723,
+    "new_open_ms": 405
+   },
+   "annotate": {
+    "base_stall_ms": 403,
+    "new_stall_ms": 144,
+    "base_open_ms": 620,
+    "new_open_ms": 147
+   },
+   "classify_merged": {
+    "base_stall_ms": 227,
+    "new_stall_ms": 237,
+    "base_open_ms": 728,
+    "new_open_ms": 493
+   },
+   "map_barcodes": {
+    "base_stall_ms": 304,
+    "new_stall_ms": 249,
+    "base_open_ms": 716,
+    "new_open_ms": 366
+   },
+   "regression": {
+    "base_stall_ms": 406,
+    "new_stall_ms": 308,
+    "base_open_ms": 1742,
+    "new_open_ms": 693
+   },
+   "feature_explorer": {
+    "base_stall_ms": 229,
+    "new_stall_ms": 171,
+    "base_open_ms": 460,
+    "new_open_ms": 273
+   },
+   "convert": {
+    "base_stall_ms": 227,
+    "new_stall_ms": 117,
+    "base_open_ms": 230,
+    "new_open_ms": 117
+   },
+   "foreign": {
+    "base_stall_ms": 267,
+    "new_stall_ms": 122,
+    "base_open_ms": 268,
+    "new_open_ms": 123
+   },
+   "external_masks": {
+    "base_stall_ms": 266,
+    "new_stall_ms": 239,
+    "base_open_ms": 681,
+    "new_open_ms": 288
+   },
+   "queue": {
+    "base_stall_ms": 80,
+    "new_stall_ms": 0,
+    "base_open_ms": 81,
+    "new_open_ms": 41
+   },
+   "batch": {
+    "base_stall_ms": 212,
+    "new_stall_ms": 100,
+    "base_open_ms": 213,
+    "new_open_ms": 101
+   },
+   "distributed_jobs": {
+    "base_stall_ms": 185,
+    "new_stall_ms": 85,
+    "base_open_ms": 187,
+    "new_open_ms": 85
+   },
+   "db_browser": {
+    "base_stall_ms": 215,
+    "new_stall_ms": 95,
+    "base_open_ms": 216,
+    "new_open_ms": 97
+   },
+   "run_history": {
+    "base_stall_ms": 227,
+    "new_stall_ms": 101,
+    "base_open_ms": 230,
+    "new_open_ms": 103
+   },
+   "report": {
+    "base_stall_ms": 113,
+    "new_stall_ms": 59,
+    "base_open_ms": 116,
+    "new_open_ms": 60
+   },
+   "data_manager": {
+    "base_stall_ms": 231,
+    "new_stall_ms": 106,
+    "base_open_ms": 233,
+    "new_open_ms": 109
+   },
+   "pipeline_graph": {
+    "base_stall_ms": 106,
+    "new_stall_ms": 59,
+    "base_open_ms": 106,
+    "new_open_ms": 60
+   },
+   "qc_dashboard": {
+    "base_stall_ms": 85,
+    "new_stall_ms": 26,
+    "base_open_ms": 86,
+    "new_open_ms": 52
+   },
+   "lineage": {
+    "base_stall_ms": 119,
+    "new_stall_ms": 69,
+    "base_open_ms": 120,
+    "new_open_ms": 69
+   },
+   "experiment_design": {
+    "base_stall_ms": 228,
+    "new_stall_ms": 238,
+    "base_open_ms": 627,
+    "new_open_ms": 267
+   },
+   "layer_viewer": {
+    "base_stall_ms": 220,
+    "new_stall_ms": 112,
+    "base_open_ms": 251,
+    "new_open_ms": 112
+   },
+   "power": {
+    "base_stall_ms": 271,
+    "new_stall_ms": 168,
+    "base_open_ms": 364,
+    "new_open_ms": 169
+   },
+   "run_compare": {
+    "base_stall_ms": 197,
+    "new_stall_ms": 93,
+    "base_open_ms": 199,
+    "new_open_ms": 94
+   },
+   "tabulate": {
+    "base_stall_ms": 335,
+    "new_stall_ms": 200,
+    "base_open_ms": 448,
+    "new_open_ms": 201
+   },
+   "dose_response": {
+    "base_stall_ms": 369,
+    "new_stall_ms": 287,
+    "base_open_ms": 681,
+    "new_open_ms": 490
+   },
+   "project_browser": {
+    "base_stall_ms": 128,
+    "new_stall_ms": 68,
+    "base_open_ms": 135,
+    "new_open_ms": 68
+   },
+   "outliers": {
+    "base_stall_ms": 261,
+    "new_stall_ms": 119,
+    "base_open_ms": 268,
+    "new_open_ms": 119
+   },
+   "embeddings": {
+    "base_stall_ms": 272,
+    "new_stall_ms": 139,
+    "base_open_ms": 274,
+    "new_open_ms": 140
+   },
+   "control_chart": {
+    "base_stall_ms": 321,
+    "new_stall_ms": 169,
+    "base_open_ms": 423,
+    "new_open_ms": 170
+   },
+   "train_compare": {
+    "base_stall_ms": 199,
+    "new_stall_ms": 105,
+    "base_open_ms": 200,
+    "new_open_ms": 105
+   },
+   "align": {
+    "base_stall_ms": 229,
+    "new_stall_ms": 137,
+    "base_open_ms": 231,
+    "new_open_ms": 137
+   },
+   "make_masks": {
+    "base_stall_ms": 512,
+    "new_stall_ms": 309,
+    "base_open_ms": 1374,
+    "new_open_ms": 588
+   },
+   "plate_view": {
+    "base_stall_ms": 285,
+    "new_stall_ms": 131,
+    "base_open_ms": 286,
+    "new_open_ms": 132
+   },
+   "umap": {
+    "base_stall_ms": 232,
+    "new_stall_ms": 184,
+    "base_open_ms": 736,
+    "new_open_ms": 418
+   },
+   "profiler": {
+    "base_stall_ms": 171,
+    "new_stall_ms": 85,
+    "base_open_ms": 172,
+    "new_open_ms": 86
+   },
+   "graph_builder": {
+    "base_stall_ms": 285,
+    "new_stall_ms": 148,
+    "base_open_ms": 288,
+    "new_open_ms": 150
+   },
+   "investigate_hit": {
+    "base_stall_ms": 389,
+    "new_stall_ms": 149,
+    "base_open_ms": 395,
+    "new_open_ms": 150
+   },
+   "gate_editor": {
+    "base_stall_ms": 438,
+    "new_stall_ms": 279,
+    "base_open_ms": 636,
+    "new_open_ms": 282
+   },
+   "feature_dict": {
+    "base_stall_ms": 244,
+    "new_stall_ms": 234,
+    "base_open_ms": 377,
+    "new_open_ms": 329
+   },
+   "trellis": {
+    "base_stall_ms": 308,
+    "new_stall_ms": 192,
+    "base_open_ms": 429,
+    "new_open_ms": 193
+   },
+   "toxoplasma": {
+    "base_stall_ms": 478,
+    "new_stall_ms": 321,
+    "base_open_ms": 676,
+    "new_open_ms": 329
+   },
+   "plasmodium": {
+    "base_stall_ms": 223,
+    "new_stall_ms": 238,
+    "base_open_ms": 397,
+    "new_open_ms": 272
+   },
+   "candida": {
+    "base_stall_ms": 225,
+    "new_stall_ms": 216,
+    "base_open_ms": 428,
+    "new_open_ms": 283
+   },
+   "analyze_plaques": {
+    "base_stall_ms": 455,
+    "new_stall_ms": 197,
+    "base_open_ms": 857,
+    "new_open_ms": 427
+   },
+   "recruitment": {
+    "base_stall_ms": 311,
+    "new_stall_ms": 114,
+    "base_open_ms": 614,
+    "new_open_ms": 271
+   },
+   "host_pathogen": {
+    "base_stall_ms": 215,
+    "new_stall_ms": 210,
+    "base_open_ms": 513,
+    "new_open_ms": 267
+   },
+   "invasion": {
+    "base_stall_ms": 265,
+    "new_stall_ms": 231,
+    "base_open_ms": 566,
+    "new_open_ms": 300
+   },
+   "replication": {
+    "base_stall_ms": 319,
+    "new_stall_ms": 242,
+    "base_open_ms": 639,
+    "new_open_ms": 310
+   }
+  }
+ },
+ "preferences_attempts_not_kept": {
+  "breaths_inside_the_build": "construction is 80-150 ms; no breath was ever due",
+  "sheet_on_the_empty_dialog": "4 alternating process pairs x 6 opens, load 21-25: median worst gap 553 (base) vs 574 (new); first open 638-798 vs 669-777; not kept",
+  "glass_and_polish_as_separate_steps": "glass's setWindowFlags posts a PolishRequest that the next breath runs before any timer, so the breath does not split the freeze; not kept",
+  "where_the_show_goes": "show() 400-550 ms at load 20-30: window sheet 150-230, glass (frameless setWindowFlags repolish, card, backdrop) ~200-280, make_the_window_resizable ~90-120 (polishes all ~755 widgets, activates the layout), first-show retranslation ~66; construction itself 80-150"
+ }
+}

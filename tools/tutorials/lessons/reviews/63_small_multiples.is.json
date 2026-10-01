@@ -1,38 +1,40 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently checked genuine scatter groups, limits, live filters and capped wrapping; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "is",
-  "title": "Small Multiples: raunverulegir hópar, síur í rauntíma og réttir áskvarðar",
-  "description": "Opnaðu Small Multiples innan Graph Builder, berðu niðurhalaðar mælingar saman á sameiginlegum eða sjálfstæðum ásum, skoðaðu tóma hópa og takmörkuð flokkunargildi og búðu til afleiddan dálk sem má fjarlægja aftur.",
+  "title": "Small Multiples: berðu saman hópa með sameiginlegum eða aðskildum ásum",
+  "description": "Hlaða inn mælingum, raða flokkuðum dreifiritum, velja kvarða ása og síur og bæta við afleiddum dálki.",
   "objectives": [
-    "Finna undireininguna og búa til dreifiritafylki úr raunverulegum mældum hlutum.",
-    "Bera saman sameiginlega, frjálsa, línuskipta og dálkaskipta kvarða án þess að rugla kvarðabreytingu saman við gagnabreytingu.",
-    "Sía í rauntíma, greina tóma hópa frá ónotuðum sætum og telja flokkunargildi sem ekki birtast.",
-    "Bæta við og fjarlægja tölulega umkvörðun í minni, varðveita upprunann og skrá valkosti myndarinnar."
+    "Hlaða inn mælingum og úthluta ásum og hliðum.",
+    "Velja sameiginleg, óháð eða hópbundin mörk ása.",
+    "Skoða síur og birta hópa og bæta svo við eða fjarlægja afleiddan dálk."
   ],
-  "prerequisite": "Notaðu bæti-fyrir-bæti eins einkaeintak af measurements.db úr niðurhalanlega Annotate-dæminu: 2.341 hlut, fjóra brunna, 13 sjónsviðsauðkenni og 51 raunverulega brunns/sjónsviðs-samsetningu. Fjöldi hluta er ekki fjöldi óháðra tilraunaendurtekninga og staðsetningarauðkenni eru ekki staðfestar meðferðir. Hnit allra sýndra punkta, nákvæm hópaðild, ásmörk, titlar og sýnileiki reita eru sannreynd óháð út frá upprunaröðunum. Sannprófunin nær til endanlegra samfelldra ása með breytileika í þessu gagnasafni án úrtaks; hún staðfestir ekki handahófskennd myndrit, val milli sýna, líffræðileg áhrif eða kvörðun í eðlisfræðilegar einingar. Small Multiples er töfluundireining Graph Builder án eigin niðurhals, forskoðunar mynda, GPU-vinnslukeðju, AI-stjórnborðs, almenns Plot-rofa eða útflutningshnapps. Endurnýttu Annotate-gögnin og Load table í undireiningunni sjálfri.",
+  "prerequisite": "Sæktu mælingadæmið úr Annotate-kennsluefninu og vinndu með afrit af measurements.db. Yfirferðin notar töfluna cell með 2.341 hlut úr fjórum brunnum. Small Multiples birtir gröf; notaðu Tabulate til að flytja út flokkaðar CSV-samantektir.",
   "scenes": [
-    "Opnaðu Graph Builder frá Home og veldu innfellda Small Multiples-hnappinn. Þetta er núverandi leið að undireiningunni, ekki sjálfstæður Home-reitur. Við endurnýtum raunverulegar niðurhalanlegar Annotate-mælingar í einkaeintaki; Annotate-kennslan sýnir hvernig dæmið er sótt.",
-    "Notaðu Load table inni í Small Multiples, veldu einkaeintak mæligagnagrunnsins og síðan cell. Þar eru 2.341 mældur hlutur úr fjórum brunnum. Yfireiningin Graph Builder hefur annan Load table-hnapp. Notaðu hér þann við fyrirsögnina Small Multiples.",
-    "Leitaðu að cell_area og dragðu á X; settu cell_channel_1_mean_intensity á Y. Veldu Scatter undir Plot. Dragðu rowID á Facet niður og columnID á Facet til hægri. Leitin þrengir dálkalistann, ekki frumuhópinn. Hver punktur er hér hlutur sem þegar hefur verið mældur.",
-    "Með báða kvarða á shared nota allir fjórir myndreitir sömu láréttu og lóðréttu mörk. Titlarnir sýna 615, 525, 700 og 501 hlut. Línu- og dálkaauðkennin lýsa staðsetningu, ekki sannreyndum meðferðum. Þessar frumur eru ekki óháðar tilraunaendurtekningar.",
-    "Stilltu bæði X scale og Y scale á free. Hver myndreitur notar nú sitt eigið bil. Það sýnir lögun innan hóps, en jafn breið punktaský þurfa ekki að ná yfir jafn stórt mæligildabil. Lestu ásgildin áður en þú berð saman. Breyttur kvarði breytir engum upprunamælingum.",
-    "Veldu per row fyrir báða kvarða. Myndreitir í sömu línu fylkisins deila mörkum, en mismunandi línur geta haft mismunandi mörk. Þetta er hópun kvarða eftir uppsetningu, ekki tölfræðileg leiðrétting. Hér má bera dálkana tvo í hverri línu saman á samræmdum ásum.",
-    "Veldu per column fyrir báða kvarða. Myndreitir í sama dálki deila mörkum. Einnig má stilla X og Y sitt í hvoru lagi; hér breytum við báðum saman. Endurstilltu báða á shared áður en þú berð alla fjóra brunnana saman. Sameiginlegt merkir sameiginlegt innan núverandi fylkis, ekki óbreytt eftir hverja síðari síu.",
-    "Bættu cell_area við undir Filter og settu neðri mörkin í 21.925. Raunverulega fylkið uppfærist strax í 1.171 hlut. Fjöldi og punktar myndreitanna breytast saman. Þetta er rauntímasía á mælingar, ekki myndaskipting eða ný greiningarkeyrsla.",
-    "Veldu Clear all undir Filter. Allir 2.341 hlutirnir koma aftur með upprunaleg punkthnit og sameiginleg ásmörk. Þessi hnappur hreinsar síuna; Clear all channels vinstra megin fjarlægir hins vegar dálkaval myndritsins. Hvorug aðgerðin eyðir röðum úr gagnagrunninum.",
-    "Til að skoða raunverulega vantaðan hóp skaltu sía columnID að c2 og fieldID að f20 og f21; skrunaðu í flokkalistanum eftir þörfum. Settu fieldID á Facet til hægri og haltu rowID á Facet niður. Eftir standa 174 frumur. Myndreiturinn með línuauðkenni 5 og sjónsviði 20 hefur n = 0: engir upprunahlutir, ekki mældur ljósstyrkur núll.",
-    "Hreinsaðu síurnar og settu columnID aftur á Facet til hægri. Stilltu Wrap at á 5 meðan báðar flokkunarrásir eru fylltar. Fylkið helst 2 × 2 og tilkynningin segir að línuskiptingin sé hunsuð. Wrap virkar með einni flokkunarrás, ekki til að endurraða tvívíðu fylki.",
-    "Tæmdu Facet niður, settu fieldID á Facet til hægri og haltu Wrap at í 5. Sjónsviðin sem tekin eru með mynda þrjár línur með fimm sætum hver. Aðeins 12 flokkunargildi eru teiknuð þótt uppruninn hafi 13. Ónotuðu sætin þrjú eru falið fyllirými, ekki raunverulegir hópar sem birtast með n = 0.",
-    "Lestu tilkynninguna undir fylkinu. Sjónsvið 21 fellur utan þeirra 12 gilda sem birtast og 264 upprunahlutir eru því ekki í myndreitunum. Í raun eru 2.077 punktar teiknaðir þótt innlesna taflan hafi enn 2.341 röð. Fjöldi innlesinna raða sannar ekki að þær séu allar sýnilegar.",
-    "Slökktu á Wrap og endurheimtu rowID og columnID sem flokkunarrásir. Skrifaðu area_k sem heiti undir Columns og cell_area deilt með 1.000 sem segð, nákvæmlega eins og sýnt er. Forskoðunin athugar fyrstu 2.000 raðirnar. Veldu Add column til að reikna afleidd gildi fyrir alla töfluna án þess að endurskrifa gagnagrunninn.",
-    "Dragðu area_k á X. Hvert lárétt hnit er nú upprunalegt flatarmál frumunnar deilt með 1.000; Y-gildi og hópaðild eru óbreytt. Þetta er töluleg umkvörðun, ekki kvörðun í fermíkrómetra, ný mæling eða sönnun um líffræðileg áhrif. Öll 2.341 afleiddu gildin voru sannreynd.",
-    "Settu cell_area aftur á X áður en þú velur area_k undir Columns og smellir á Remove. Upprunalega myndritið með fjórum reitum kemur aftur og afleiddi dálkurinn hverfur. Einkagagnagrunnurinn og upprunalegu niðurhöluðu gögnin eru bæði óbreytt. Skráðu breytur, hópun, síur og kvarða svo aðrir geti endurskapað sýnina.",
-    "Í kóða skilgreina trellis og TrellisSpec í Qt-einingu spaCR, trellis_spec, hópun, kvarða og Wrap; GraphSpec skilgreinir myndritsrásirnar. Þessi skjár hefur hvorki eigin útflutningshnapp né eigið niðurhalanlegt gagnasafn. Notaðu Tabulate fyrir sannreyndan CSV-útflutning samantekta. Myndaforskoðun, GPU-vinnslukeðjur og spaCR AI tilheyra viðeigandi greiningarkennslu, ekki þessari töflusýn."
+    "Frá Home opnarðu Graph Builder og svo Small Multiples. Notaðu þessa sýn til að bera saman sömu mælingar milli hópa. Dæmið notar mælingagagnagrunninn úr tengda Annotate-kennsluefninu.",
+    "Smelltu á Load table við hlið fyrirsagnarinnar Small Multiples. Opnaðu afrit af measurements.db og veldu cell. Athugaðu töfluna og 2.341 hlut hennar áður en þú úthlutar rásum grafsins.",
+    "Dragðu cell_area á X og cell_channel_1_mean_intensity á Y og veldu svo Scatter. Settu rowID á Facet down og columnID á Facet across. Leitin hjálpar þér að finna dálkaheiti; hver punktur táknar mælda frumu.",
+    "Veldu shared fyrir báða kvarðana svo að allir fjórir reitirnir noti sömu mörk ása. Lestu fyrirsagnir hópanna og fjölda hluta. Í þessu dæmi auðkenna hliðamerkin rúmfræðilegar raðir og dálka.",
+    "Veldu free fyrir X scale og Y scale svo að hver reitur fái eigin mörk. Þá sjást mynstur innan hópa betur. Berðu merkingar kvarðanna vandlega saman því að sviðin eru nú ólík milli reita.",
+    "Veldu per row fyrir báða kvarðana til að deila mörkum milli reita í hverri röð hnitanetsins. Ólíkar raðir geta haft ólík svið. Notaðu þetta þegar samanburður innan raða skiptir mestu.",
+    "Veldu per column til að deila mörkum innan hvers dálks hnitanetsins. Þú getur stillt X og Y hvort í sínu lagi. Settu aftur shared á báða ása þegar þú vilt bera alla fjóra brunnana saman á sameiginlegum kvörðum.",
+    "Í Filter bætirðu við cell_area og setur lágmarkið á 21.925. Hnitanetið uppfærist strax fyrir þá 1.171 hluti sem eftir eru. Athugaðu nýjan fjölda í reitunum.",
+    "Smelltu á Clear all í Filter til að fá allt þýðið aftur. Notaðu Clear all channels vinstra megin þegar þú vilt heldur fjarlægja úthlutanir grafsins. Hvorug aðgerðin breytir upprunagagnagrunninum.",
+    "Síaðu columnID á c2 og fieldID á f20 og f21. Settu fieldID á Facet across og haltu rowID á Facet down. Reiturinn fyrir röð 5, sjónsvið 20 hefur enga hluti; auði reiturinn táknar hóp sem vantar.",
+    "Hreinsaðu síurnar og settu columnID aftur á Facet across. Stilltu Wrap at á 5. Línuskiptingin á aðeins við um eina hliðarás, svo núverandi tvívíða hnitanetið er áfram tveir sinnum tveir.",
+    "Tæmdu Facet down og settu fieldID á Facet across. Með Wrap at 5 fylla birtu sjónsviðin raðir með allt að fimm reitum. Ónotuð pláss í lokin eru falin.",
+    "Lestu tilkynninguna fyrir neðan hnitanetið áður en þú berð saman hópa. Sýnin birtir 12 stig sjónsviða; sjónsvið 21 er ekki með í reitunum. Fjöldi hlaðinna lína tekur það sjónsvið með, svo athugaðu hvaða hópar sjást í raun.",
+    "Slökktu á línuskiptingu og settu rowID og columnID aftur sem hliðarnar tvær. Í Columns nefnirðu afleiddan dálk area_k og slærð inn cell_area deilt með 1000. Athugaðu forskoðunina og smelltu svo á Add column til að reikna hann fyrir alla töfluna.",
+    "Dragðu area_k á X til að birta flatarmál í þúsundum upprunalegu eininganna. Lóðréttu hnitin og hóparnir haldast óbreytt. Þetta breytir aðeins kvarða talnanna; umreikningur í efnislegt flatarmál krefst réttrar kvörðunar myndarinnar.",
+    "Settu cell_area aftur á X. Veldu area_k í Columns og smelltu á Remove til að eyða afleidda dálkinum úr sýninni. Haltu skrá yfir breytur, hliðar, síur og val á kvörðum.",
+    "Notaðu Tabulate þegar þú þarft útflutta CSV-samantekt. Fyrir small multiples-gröf með skriftu notarðu trellis og TrellisSpec úr spacr.qt.widgets.trellis_spec ásamt GraphSpec fyrir rásir grafsins. Túlkaðu hópana á viðeigandi stigi tilraunaendurtekninga."
   ]
 }

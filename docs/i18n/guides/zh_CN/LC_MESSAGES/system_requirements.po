@@ -1,0 +1,408 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "System requirements"
+msgstr "系统要求"
+
+msgid "Choose hardware for the largest images, number of concurrent fields and models you plan to run. These are planning recommendations, not measured minimums or speed guarantees. A GPU is optional for CPU-capable workflows; the acceleration matrix below identifies where particular hardware can help. See the :doc:`installer guide <installer_guide>` for installation and package compatibility."
+msgstr "请根据您计划运行的最大图像、并发视野数和模型来选择硬件。以下是规划建议，而不是实测的最低要求或速度保证。对于可在 CPU 上运行的工作流程，GPU 是可选的；下方的加速矩阵指出了特定硬件可以发挥作用的地方。有关安装和软件包兼容性，请参阅 :doc:`安装指南 <installer_guide>`。"
+
+msgid "General hardware recommendations"
+msgstr "通用硬件建议"
+
+msgid "Suggested workstation configurations"
+msgstr "建议的工作站配置"
+
+msgid "Resource"
+msgstr "资源"
+
+msgid "Low: learning and small experiments"
+msgstr "低：学习和小型实验"
+
+msgid "Medium: routine microscopy plates"
+msgstr "中：常规显微孔板"
+
+msgid "High: large screens and model training"
+msgstr "高：大型筛选和模型训练"
+
+msgid "CPU"
+msgstr "CPU"
+
+msgid "4–8 modern cores; about 2.5–3.5 GHz sustained on x86"
+msgstr "4–8 个现代核心；x86 上持续频率约 2.5–3.5 GHz"
+
+msgid "8–16 cores; about 3–4 GHz sustained on x86"
+msgstr "8–16 个核心；x86 上持续频率约 3–4 GHz"
+
+msgid "16–32 cores; about 3–4 GHz sustained on x86"
+msgstr "16–32 个核心；x86 上持续频率约 3–4 GHz"
+
+msgid "RAM"
+msgstr "内存"
+
+msgid "16 GB; process a few fields at a time"
+msgstr "16 GB；每次处理少量视野"
+
+msgid "32–64 GB"
+msgstr "32–64 GB"
+
+msgid "128 GB or more"
+msgstr "128 GB 或更多"
+
+msgid "GPU memory"
+msgstr "GPU 记忆体"
+
+msgid "CPU operation, or a compatible GPU with 8 GB for modest tiled inference"
+msgstr "CPU 运行，或配备 8 GB 显存的兼容 GPU 用于适度的分块推理"
+
+msgid "Compatible GPU with 12–16 GB dedicated VRAM; Apple silicon with 32–64 GB unified memory"
+msgstr "配备 12–16 GB 专用显存的兼容 GPU；或配备 32–64 GB 统一内存的 Apple 芯片"
+
+msgid "Compatible GPU with 24–48 GB or more dedicated VRAM; Apple silicon with 64–128 GB or more unified memory for MPS-capable work"
+msgstr "配备 24–48 GB 或更多专用显存的兼容 GPU；或配备 64–128 GB 或更多统一内存、用于支持 MPS 工作的 Apple 芯片"
+
+msgid "Storage"
+msgstr "存储"
+
+msgid "SSD; reserve 30 GB for the environment, caches and initial models, plus project space"
+msgstr "SSD；为环境、缓存和初始模型预留 30 GB，另加项目空间"
+
+msgid "1–2 TB NVMe SSD; reserve 50 GB for software and model caches"
+msgstr "1–2 TB NVMe SSD；为软件和模型缓存预留 50 GB"
+
+msgid "2–4 TB NVMe scratch storage, separate archive storage; reserve 100 GB for multiple model environments and caches"
+msgstr "2–4 TB NVMe 临时存储，另配独立的归档存储；为多个模型环境和缓存预留 100 GB"
+
+msgid "Typical use"
+msgstr "典型用途"
+
+msgid "Tutorials, annotation, classical segmentation and small CPU analyses"
+msgstr "教程、标注、经典分割和小型 CPU 分析"
+
+msgid "Mask, Measure, phenotype inference and moderate embeddings"
+msgstr "掩膜、测量、表型推理和中等规模的嵌入"
+
+msgid "Larger training batches, many channels, larger volumes and concurrent plate analysis"
+msgstr "更大的训练批次、多通道、更大的体数据以及并发的孔板分析"
+
+msgid "CPU clock figures are rough x86 purchasing targets, not requirements; GHz is not comparable across architectures. Count physical cores separately from threads, and distinguish performance from efficiency cores on hybrid CPUs. Apple unified memory is shared by the OS, CPU and GPU and is not equivalent to the same quantity of dedicated VRAM. Available memory, image dimensions and batch size determine whether a workload fits. Training usually needs more memory than inference; large 3-D images may exceed any of these examples."
+msgstr "CPU 频率数值只是 x86 的粗略采购目标，而不是要求；GHz 在不同架构之间不可比较。请将物理核心与线程分开计算，并在混合架构 CPU 上区分性能核和能效核。Apple 统一内存由操作系统、CPU 和 GPU 共享，并不等同于同等容量的专用显存。可用内存、图像尺寸和批大小决定工作负载能否容纳。训练通常比推理需要更多内存；大型三维图像可能超出上述任何示例。"
+
+msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.14, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. Current Apple MPS requirements include macOS 14 or later; use the requirements for the specific PyTorch build you install. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
+msgstr "请使用 64 位操作系统和 Python 环境。桌面安装程序面向 Windows 10/11 x86-64、Linux x86-64 以及 Intel/Apple 芯片的 macOS；它们标明的最低操作系统版本并不保证较新的 GPU 框架也支持同一操作系统。Python 3.12 是使用最广泛 spaCR 附加组件的实际起点。spaCR 声明支持的 Python 范围为 3.9–3.14（不含 3.14.1），但可选软件包和各硬件后端会缩小这一范围。当前 Apple MPS 的要求包括 macOS 14 或更高版本；请以您安装的具体 PyTorch 版本的要求为准。`Apple 的 PyTorch 要求 <https://developer.apple.com/metal/pytorch/>`_ 描述了当前 Apple 芯片的原生路线。"
+
+msgid "GPU support by chip and framework"
+msgstr "按芯片和框架划分的 GPU 支持"
+
+msgid "**Available** means spaCR has a dispatch route when the matching framework, driver and model operators work. It does not mean every configuration in the row has been tested. **Conditional** means an optional or legacy stack needs verification with the intended module. **No** means that framework does not provide that acceleration route; CPU execution may still be available."
+msgstr "**Available** 表示当匹配的框架、驱动程序和模型算子正常工作时，spaCR 有一条调度路线。这并不表示该行中的每种配置都经过测试。**Conditional** 表示需要针对目标模块验证某个可选或旧版的技术栈。**否** 表示该框架不提供这条加速路线；可能仍可在 CPU 上执行。"
+
+msgid "Compute compatibility, checked 23 September 2026"
+msgstr "计算兼容性，核对日期 2026 年 9 月 23 日"
+
+msgid "Hardware"
+msgstr "硬件"
+
+msgid "PyTorch neural workflows"
+msgstr "PyTorch 神经网络工作流程"
+
+msgid "Cellpose 4 / Cellpose-SAM"
+msgstr "Cellpose 4 / Cellpose-SAM"
+
+msgid "CuPy array operations"
+msgstr "CuPy 数组运算"
+
+msgid "RAPIDS / cuML embeddings"
+msgstr "RAPIDS / cuML 嵌入"
+
+msgid "Apple M1 family, including Pro, Max and Ultra where offered"
+msgstr "Apple M1 系列，包括提供的 Pro、Max 和 Ultra"
+
+msgid "Available: Metal/MPS on compatible macOS"
+msgstr "Available：在兼容的 macOS 上使用 Metal/MPS"
+
+msgid "Available: MPS network; some flow operations use CPU"
+msgstr "Available：MPS 网络；部分流场运算使用 CPU"
+
+msgid "No"
+msgstr "否"
+
+msgid "Apple M2 family, including Pro, Max and Ultra where offered"
+msgstr "Apple M2 系列，包括提供的 Pro、Max 和 Ultra"
+
+msgid "Available: Metal/MPS"
+msgstr "Available：Metal/MPS"
+
+msgid "Apple M3 family, including Pro, Max and Ultra where offered"
+msgstr "Apple M3 系列，包括提供的 Pro、Max 和 Ultra"
+
+msgid "Apple M4 family, including Pro and Max"
+msgstr "Apple M4 系列，包括 Pro 和 Max"
+
+msgid "Newer Apple silicon"
+msgstr "更新的 Apple 芯片"
+
+msgid "Conditional on the installed macOS/PyTorch supporting the GPU"
+msgstr "Conditional：取决于所安装的 macOS/PyTorch 是否支持该 GPU"
+
+msgid "Same MPS and operator requirements"
+msgstr "相同的 MPS 和算子要求"
+
+msgid "Intel Mac CPU with Intel integrated graphics"
+msgstr "配备 Intel 集成显卡的 Intel Mac CPU"
+
+msgid "CPU; Intel integrated graphics is not the MPS route"
+msgstr "CPU；Intel 集成显卡不是 MPS 路线"
+
+msgid "Intel Mac with a compatible AMD discrete GPU"
+msgstr "配备兼容 AMD 独立 GPU 的 Intel Mac"
+
+msgid "Conditional: legacy x86 PyTorch MPS build"
+msgstr "Conditional：旧版 x86 PyTorch MPS 构建"
+
+msgid "Conditional: legacy MPS stack; spaCR can use float32 weights and CPU flows"
+msgstr "Conditional：旧版 MPS 技术栈；spaCR 可以使用 float32 权重和 CPU 流场"
+
+msgid "No supported spaCR macOS route"
+msgstr "没有受支持的 spaCR macOS 路线"
+
+msgid "Intel Arc A/B discrete GPUs, supported Core Ultra Arc integrated GPUs, Data Center GPU Max"
+msgstr "Intel Arc A/B 独立 GPU、受支持的 Core Ultra Arc 集成 GPU、Data Center GPU Max"
+
+msgid "Available: XPU with a compatible PyTorch build and Intel driver"
+msgstr "Available：使用兼容的 PyTorch 构建和 Intel 驱动程序的 XPU"
+
+msgid "Conditional: explicit XPU device; verify Cellpose operators and build"
+msgstr "Conditional：显式指定 XPU 设备；需验证 Cellpose 算子和构建"
+
+msgid "Older Intel HD/UHD/Iris integrated GPUs on Windows"
+msgstr "Windows 上较旧的 Intel HD/UHD/Iris 集成 GPU"
+
+msgid "Conditional: DirectML on DirectX 12 hardware; otherwise CPU"
+msgstr "Conditional：DirectX 12 硬件上的 DirectML；否则使用 CPU"
+
+msgid "Conditional and unvalidated via DirectML; CPU is the baseline"
+msgstr "Conditional，且通过 DirectML 未经验证；以 CPU 为基准"
+
+msgid "AMD Radeon RX 7900 / supported RX 9000 models, supported Radeon PRO and Instinct GPUs"
+msgstr "AMD Radeon RX 7900 / 受支持的 RX 9000 型号、受支持的 Radeon PRO 和 Instinct GPU"
+
+msgid "Available: ROCm on explicitly supported GPU/OS combinations; Windows routes are version-specific"
+msgstr "Available：在明确受支持的 GPU/操作系统组合上使用 ROCm；Windows 路线因版本而异"
+
+msgid "Available on compatible Linux ROCm; verify other OS combinations"
+msgstr "Available：在兼容的 Linux ROCm 上；其他操作系统组合需验证"
+
+msgid "Experimental ROCm upstream; not installed by spaCR's CUDA extra"
+msgstr "上游 ROCm 支持处于实验阶段；spaCR 的 CUDA 附加组件不会安装它"
+
+msgid "Other AMD integrated or discrete GPUs"
+msgstr "其他 AMD 集成或独立 GPU"
+
+msgid "Conditional: only if named in AMD's ROCm matrix, or DirectML on Windows; otherwise CPU"
+msgstr "Conditional：仅当列于 AMD 的 ROCm 矩阵中，或在 Windows 上使用 DirectML 时；否则使用 CPU"
+
+msgid "Conditional on the selected backend and operators"
+msgstr "Conditional：取决于所选后端和算子"
+
+msgid "Experimental only for ROCm-supported hardware"
+msgstr "仅对 ROCm 支持的硬件处于实验阶段"
+
+msgid "NVIDIA GeForce RTX 20/30/40/50, compatible RTX workstation and data-center GPUs"
+msgstr "NVIDIA GeForce RTX 20/30/40/50、兼容的 RTX 工作站和数据中心 GPU"
+
+msgid "Available: CUDA on Linux/Windows with a matching wheel and driver"
+msgstr "Available：在 Linux/Windows 上使用匹配的 wheel 和驱动程序运行 CUDA"
+
+msgid "Available: CUDA; batch/image size must fit VRAM"
+msgstr "Available：CUDA；批次/图像大小必须能放入显存"
+
+msgid "Available: matching CUDA CuPy package"
+msgstr "Available：匹配的 CUDA CuPy 软件包"
+
+msgid "Available on supported Linux/WSL2; release-specific compute capability and CUDA requirements"
+msgstr "Available：在受支持的 Linux/WSL2 上；计算能力和 CUDA 要求因版本而异"
+
+msgid "Intel/AMD CPUs without a supported GPU"
+msgstr "没有受支持 GPU 的 Intel/AMD CPU"
+
+msgid "CPU, not GPU acceleration"
+msgstr "CPU，而非 GPU 加速"
+
+msgid "No; use NumPy/SciPy fallbacks"
+msgstr "否；使用 NumPy/SciPy 回退实现"
+
+msgid "No; use CPU embedding implementations"
+msgstr "否；使用 CPU 嵌入实现"
+
+msgid "The processor brand does not determine CUDA availability: an AMD Ryzen or Intel Core host can both use an NVIDIA GPU. Likewise, an NPU or Apple Neural Engine is not a PyTorch GPU device in spaCR. Detection of such hardware is not a claim that Mask or Classify uses it."
+msgstr "处理器品牌并不决定能否使用 CUDA：AMD Ryzen 或 Intel Core 主机都可以使用 NVIDIA GPU。同样，NPU 或 Apple Neural Engine 在 spaCR 中也不是 PyTorch GPU 设备。检测到此类硬件并不意味着掩膜或分类会使用它。"
+
+msgid "The Apple rows share the MPS route; increasing the chip generation does not add CUDA or CuPy support. spaCR's device resolver checks the actual runtime and selects float32 Cellpose weights when bfloat16 is unavailable. The current Apple guidance targets Apple silicon; Intel Mac/AMD support is a legacy path with older compatible PyTorch wheels, not a recommendation to buy an Intel Mac. `PyTorch MPS documentation <https://docs.pytorch.org/docs/stable/notes/mps.html>`_ and `Cellpose installation documentation <https://cellpose.readthedocs.io/en/latest/installation.html>`_ explain their backend requirements."
+msgstr "Apple 各行共享 MPS 路线；芯片代际的提升并不会增加 CUDA 或 CuPy 支持。spaCR 的设备解析器会检查实际运行时，并在 bfloat16 不可用时选择 float32 的 Cellpose 权重。当前的 Apple 指南针对 Apple 芯片；Intel Mac/AMD 支持是一条依赖较旧兼容 PyTorch wheel 的旧路线，并不建议购买 Intel Mac。`PyTorch MPS 文档 <https://docs.pytorch.org/docs/stable/notes/mps.html>`_ 和 `Cellpose 安装文档 <https://cellpose.readthedocs.io/en/latest/installation.html>`_ 说明了各自的后端要求。"
+
+msgid "Intel's supported devices and OS combinations differ by generation. Check the `PyTorch XPU hardware table <https://docs.pytorch.org/docs/stable/notes/get_start_xpu.html>`_ for the exact Arc/Core Ultra model; an Intel logo alone is insufficient. DirectML is a separate optional Windows backend with its own package and operator limits; Microsoft labels the PyTorch integration public preview. See `PyTorch with DirectML <https://learn.microsoft.com/en-us/windows/ai/directml/pytorch-windows>`_."
+msgstr "Intel 支持的设备和操作系统组合因代际而异。请查看 `PyTorch XPU 硬件表 <https://docs.pytorch.org/docs/stable/notes/get_start_xpu.html>`_ 以确认确切的 Arc/Core Ultra 型号；仅有 Intel 标志是不够的。DirectML 是一个独立的可选 Windows 后端，有其自己的软件包和算子限制；Microsoft 将其 PyTorch 集成标为公开预览版。请参阅 `PyTorch with DirectML <https://learn.microsoft.com/en-us/windows/ai/directml/pytorch-windows>`_。"
+
+msgid "For AMD, select the exact GPU, OS and PyTorch release in the `ROCm compatibility matrix <https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html>`_. Support for one RX 7000 or RX 9000 model does not imply support for every card in that series. spaCR recognizes ROCm through PyTorch's CUDA-compatible API and reports it separately from NVIDIA CUDA."
+msgstr "对于 AMD，请在 `ROCm 兼容性矩阵 <https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html>`_ 中选择确切的 GPU、操作系统和 PyTorch 版本。支持某一款 RX 7000 或 RX 9000 型号并不意味着支持该系列中的每一张卡。spaCR 通过 PyTorch 的 CUDA 兼容 API 识别 ROCm，并将其与 NVIDIA CUDA 分开报告。"
+
+msgid "For NVIDIA, check the `GPU compute-capability table <https://developer.nvidia.com/cuda/gpus>`_ and use the matching build from the `PyTorch installation selector <https://pytorch.org/get-started/locally/>`_. New GPU generations may require newer CUDA wheels; an older installation can fail despite the card being CUDA-capable. CuPy and RAPIDS are independent of PyTorch: installing a CUDA-enabled torch wheel alone does not install them. `CuPy's installation guide <https://docs.cupy.dev/en/stable/install.html>`_ describes CUDA packages and the experimental AMD path. The `RAPIDS platform requirements <https://docs.rapids.ai/install/>`_ impose their own GPU architecture, CUDA and OS restrictions; native Windows is not the standard RAPIDS route. spaCR's ``rapids`` extra currently requests CUDA 12 packages on Python 3.11–3.12. Check the selected RAPIDS release rather than assuming every CUDA GPU works."
+msgstr "对于 NVIDIA，请查看 `GPU 计算能力表 <https://developer.nvidia.com/cuda/gpus>`_，并使用 `PyTorch 安装选择器 <https://pytorch.org/get-started/locally/>`_ 中匹配的构建。新一代 GPU 可能需要更新的 CUDA wheel；即使显卡支持 CUDA，较旧的安装也可能失败。CuPy 和 RAPIDS 独立于 PyTorch：仅安装支持 CUDA 的 torch wheel 并不会安装它们。`CuPy 安装指南 <https://docs.cupy.dev/en/stable/install.html>`_ 介绍了 CUDA 软件包和实验性的 AMD 路线。`RAPIDS 平台要求 <https://docs.rapids.ai/install/>`_ 对 GPU 架构、CUDA 和操作系统有其自身的限制；原生 Windows 不是标准的 RAPIDS 路线。spaCR 的 ``rapids`` 附加组件目前在 Python 3.11–3.12 上请求 CUDA 12 软件包。请核对所选的 RAPIDS 版本，而不要假定每块 CUDA GPU 都能使用。"
+
+msgid "Which spaCR operations use these backends?"
+msgstr "哪些 spaCR 操作会使用这些后端？"
+
+msgid "Runtime paths"
+msgstr "运行时路径"
+
+msgid "Operation"
+msgstr "操作"
+
+msgid "Acceleration"
+msgstr "加速"
+
+msgid "Practical limit or fallback"
+msgstr "实际限制或回退"
+
+msgid "Mask / Make Masks / live Cellpose preview"
+msgstr "掩膜 / 创建掩膜 / 实时 Cellpose 预览"
+
+msgid "PyTorch through spaCR's device resolver and Cellpose 4"
+msgstr "通过 spaCR 设备解析器和 Cellpose 4 使用 PyTorch"
+
+msgid "Network, flow reconstruction and image preprocessing can use different devices; CPU remains usable"
+msgstr "网络、流场重建和图像预处理可以使用不同的设备；CPU 仍然可用"
+
+msgid "Phenotype classification, training and neural inference"
+msgstr "表型分类、训练和神经网络推理"
+
+msgid "PyTorch CUDA, ROCm, MPS, XPU or optional DirectML, as resolved"
+msgstr "按解析结果使用 PyTorch CUDA、ROCm、MPS、XPU 或可选的 DirectML"
+
+msgid "Model-specific operators, precision and training memory may narrow support"
+msgstr "模型特定的算子、精度和训练内存可能会缩小支持范围"
+
+msgid "Optional isolated segmentation backends"
+msgstr "可选的隔离分割后端"
+
+msgid "Their own environment's torch build; automatic worker selection currently checks CUDA/ROCm, then MPS, then CPU"
+msgstr "使用其自身环境中的 torch 构建；自动选择工作进程时目前依次检查 CUDA/ROCm、MPS、CPU"
+
+msgid "Host detection does not install a matching worker stack; do not assume automatic XPU/DirectML worker dispatch"
+msgstr "主机检测不会安装匹配的工作进程技术栈；请勿假定会自动调度到 XPU/DirectML 工作进程"
+
+msgid "OPS registration, peak finding, unmixing and matching primitives"
+msgstr "OPS 配准、寻峰、解混和匹配基础操作"
+
+msgid "PyTorch where available, optional CuPy operations, then CPU implementations"
+msgstr "可用时使用 PyTorch，其次是可选的 CuPy 运算，然后是 CPU 实现"
+
+msgid "``ops_gpu`` and operation-specific backend options govern use; not every registration step is a GPU operation"
+msgstr "``ops_gpu`` 和各操作特定的后端选项决定其使用；并非每个配准步骤都是 GPU 运算"
+
+msgid "Optional accelerated dimensionality reduction"
+msgstr "可选的加速降维"
+
+msgid "RAPIDS/cuML with CUDA and CuPy"
+msgstr "配合 CUDA 和 CuPy 的 RAPIDS/cuML"
+
+msgid "Explicit opt-in; CPU fallback when unavailable or when deterministic behavior requires it"
+msgstr "需显式启用；不可用或需要确定性行为时回退到 CPU"
+
+msgid "Measurement tables, image I/O and many classical statistics"
+msgstr "测量表、图像 I/O 和许多经典统计"
+
+msgid "Predominantly CPU, RAM and disk throughput"
+msgstr "主要取决于 CPU、内存和磁盘吞吐量"
+
+msgid "Adding VRAM does not replace host RAM or speed up every module"
+msgstr "增加显存不能替代主机内存，也不能加速每个模块"
+
+msgid "The matrix is based on spaCR's ``accelerator``, ``object``, ``ops_accel``, ``gpu_reduce`` and isolated-backend dispatch code as well as the linked upstream documentation. Framework capability is broader than a tested spaCR workflow. Verify the device reported by the intended module with a small representative field before scheduling a whole plate."
+msgstr "该矩阵依据 spaCR 的 ``accelerator``、``object``、``ops_accel``、``gpu_reduce`` 和隔离后端调度代码，以及所链接的上游文档编制。框架能力的范围大于经过测试的 spaCR 工作流程。在安排整块孔板之前，请用一个小的代表性视野核实目标模块报告的设备。"
+
+msgid "Servers and shared compute"
+msgstr "服务器与共享计算"
+
+msgid "Suggested server planning ranges"
+msgstr "建议的服务器规划范围"
+
+msgid "One active analysis job"
+msgstr "一个活动的分析作业"
+
+msgid "Several independent jobs / larger training"
+msgstr "多个独立作业 / 较大规模的训练"
+
+msgid "16–32 physical cores; approximately 2.5–3.5 GHz sustained x86 clock"
+msgstr "16–32 个物理核心；x86 持续时钟约 2.5–3.5 GHz"
+
+msgid "32–64 or more physical cores; approximately 2.5–3.5 GHz sustained, with adequate memory bandwidth"
+msgstr "32–64 个或更多物理核心；持续频率约 2.5–3.5 GHz，并具有足够的内存带宽"
+
+msgid "128 GB; more for large 3-D fields or large measurement tables"
+msgstr "128 GB；大型三维视野或大型测量表需要更多"
+
+msgid "256–512 GB or more, apportioned per job"
+msgstr "256–512 GB 或更多，按作业分配"
+
+msgid "GPU"
+msgstr "GPU"
+
+msgid "One compatible GPU with 24–48 GB VRAM for a broadly useful training/inference node"
+msgstr "一块配备 24–48 GB 显存的兼容 GPU，可作为用途广泛的训练/推理节点"
+
+msgid "Multiple compatible GPUs, typically 48–80 GB or more each for larger jobs; assign jobs explicitly"
+msgstr "多块兼容 GPU，较大的作业通常每块 48–80 GB 或更多；请显式分配作业"
+
+msgid "Local disk"
+msgstr "本地磁盘"
+
+msgid "2–4 TB NVMe scratch, plus 50–100 GB for environments and model caches"
+msgstr "2–4 TB NVMe 临时存储，另加 50–100 GB 用于环境和模型缓存"
+
+msgid "4–8 TB or more NVMe scratch; size for all simultaneously active projects"
+msgstr "4–8 TB 或更多 NVMe 临时存储；按所有同时活动的项目确定容量"
+
+msgid "Archive / network storage"
+msgstr "归档 / 网络存储"
+
+msgid "Capacity for raw data, retained results and an independent backup"
+msgstr "用于原始数据、保留的结果和独立备份的容量"
+
+msgid "Shared storage sized for aggregate throughput; 10 GbE or faster is a useful planning target when moving large plates"
+msgstr "按总吞吐量规划的共享存储；传输大型孔板时，10 GbE 或更快是有用的规划目标"
+
+msgid "These ranges are recommendations, not a guarantee that a particular volume or model will fit. Several GPUs do not automatically combine their VRAM into a single larger GPU. Independent job scheduling is distinct from distributed model training; use a module's documented multi-GPU capability when available. Limit worker counts and library threads to the scheduler allocation and leave RAM for the OS, caches and the parent process. Begin with one GPU worker per allocated GPU, then measure utilization before increasing concurrency."
+msgstr "这些范围只是建议，并不保证某个特定体数据或模型能够容纳。多块 GPU 不会自动将其显存合并为一块更大的 GPU。独立的作业调度与分布式模型训练不同；如果模块有文档说明的多 GPU 能力，请使用该能力。请将工作进程数和库线程数限制在调度器分配的范围内，并为操作系统、缓存和父进程留出内存。先为每块分配的 GPU 启动一个 GPU 工作进程，测量利用率后再增加并发。"
+
+msgid "Run headless jobs through ``spacr-run`` without launching a desktop or display server; ``spacr-run --list`` shows the available pipelines. Install the correct GPU framework in the environment actually running the job. Containers still require a compatible host driver and access to the assigned GPU. Use local scratch for active array processing and stage completed artifacts to shared storage, with a distinct writable project/output directory for each job."
+msgstr "通过 ``spacr-run`` 运行无界面作业，无需启动桌面或显示服务器；``spacr-run --list`` 显示可用的流程。请在实际运行作业的环境中安装正确的 GPU 框架。容器仍然需要兼容的主机驱动程序以及对所分配 GPU 的访问权限。活动的数组处理请使用本地临时存储，并将已完成的产物转存到共享存储，每个作业使用独立的可写项目/输出目录。"
+
+msgid "Disk and memory budgeting"
+msgstr "磁盘与内存预算"
+
+msgid "Budget from uncompressed data, not only the compressed microscope files. An array needs approximately ``Y × X × Z × channels × bytes_per_value`` bytes, multiplied by the number of fields held at once. A 2048 × 2048, four-channel uint16 field is 32 MiB before masks or working copies; float32 doubles that image allocation. Normalized copies, intermediate arrays, masks, crops, training tensors and tables add separate allocations, and model activations can dominate GPU memory."
+msgstr "请根据未压缩的数据而不仅仅是压缩后的显微文件来做预算。一个数组大约需要 ``Y × X × Z × channels × bytes_per_value`` 字节，再乘以同时保留的视野数。一个 2048 × 2048、四通道 uint16 视野在计入掩膜或工作副本之前为 32 MiB；float32 会使该图像分配翻倍。归一化副本、中间数组、掩膜、裁剪图、训练张量和表格会增加单独的分配，模型激活可能占据 GPU 内存的大部分。"
+
+msgid "As an initial disk reservation, allow 3–5 times the uncompressed input size for an active project, in addition to software/model space and backups. This is a planning allowance, not an upper bound: extensive object crops, many retained checkpoints, volumes or repeated runs can require substantially more. Process a representative subset, measure the actual output multiplier, and reserve free space before expanding to the whole screen. Keep backups outside the working-space allowance. Each optional model environment and its weights can add gigabytes independently of the main spaCR installation."
+msgstr "作为初始的磁盘预留，对于一个活动项目，除软件/模型空间和备份外，请预留未压缩输入大小的 3–5 倍。这是规划预留量，而不是上限：大量对象裁剪图、保留的多个检查点、体数据或重复运行可能需要多得多的空间。请先处理一个具有代表性的子集，测量实际的输出倍数，并在扩展到整个筛选之前预留好可用空间。请将备份保存在工作空间预留之外。每个可选的模型环境及其权重都可能独立于 spaCR 主安装再增加数 GB。"
+

@@ -169,12 +169,6 @@ class _ProvidersDialog(QDialog):
         holder.setFrameShape(QScrollArea.NoFrame)
         holder.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         holder.setWidget(page)
-        # A SCROLL AREA IS TWO WIDGETS AND BOTH PAINT. Without this the
-        # viewport fills with its palette Base colour, which is a solid
-        # black rectangle over the backdrop the screen installed --
-        # reported against this panel on 2026-09-13. `make_transparent`
-        # tags the viewport as well as the area, which is the half that is
-        # easy to forget.
         make_transparent(holder, page)
         return holder
 
@@ -811,7 +805,11 @@ class AIChatPanel(QWidget):
         self._retired.clear()
 
     def closeEvent(self, event) -> None:
-        """Drain the streaming thread before Qt destroys the panel."""
+        """Drain the streaming thread before Qt destroys the panel.
+
+        :param event: the close event; it is not inspected, only passed on to
+            the base class after :meth:`shutdown`.
+        """
         self.shutdown()
         super().closeEvent(event)
 

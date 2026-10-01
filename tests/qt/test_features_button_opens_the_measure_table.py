@@ -300,32 +300,20 @@ def test_pressing_measure_writes_a_measure_project(qtbot, drawn, tmp_path):
     assert "Database:" in screen._log.toPlainText()
 
 
-def test_make_masks_has_a_features_button_that_opens_the_table(qtbot,
-                                                               drawn):
-    """The button exists on the screen it was asked for, and it opens this."""
+def test_make_masks_no_longer_has_a_features_button(qtbot):
+    """Item 600b (2026-09-29): "Organize for Measure…" replaced FEATURES.
+
+    The maintainer: "remove the feature button in make masks this new
+    button is replacingit." The Measure-inputs window itself stays (it is
+    reached from Measure); only Make Masks' button and its handler went.
+    """
     from spacr.qt.screens.make_masks import MakeMasksScreen
 
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
-
-    assert screen._btn_features.text() == "Features"
-    assert screen._btn_features.toolTip()
-
-    screen._folder = str(drawn)
-    window = screen._on_open_features()
-    qtbot.addWidget(window)
-
-    assert isinstance(window, MeasureInputsScreen)
-    assert window.destination() == os.path.join(str(drawn), "features")
-
-    assert window.inputs.table().rows == [], (
-        "the folder must not have been read on the GUI thread; pressing "
-        "FEATURES on a folder living on a sleeping automount is the freeze "
-        "this walk was moved to a worker to remove")
-    qtbot.waitUntil(lambda: not window.inputs.is_scanning(), timeout=5000)
-    assert [row.label for row in window.inputs.table().rows] == [
-        "fov001", "fov002"]
-    window.close()
+    assert not hasattr(screen, "_btn_features")
+    assert not hasattr(screen, "_on_open_features")
+    assert screen._btn_organize.text().startswith("Organize for Measure")
 
 
 @pytest.fixture
@@ -537,8 +525,19 @@ def test_measures_settings_have_the_measure_modules_headings(qtbot):
     body = screen._settings_area.widget()
     shown = [s.title() if callable(getattr(s, "title", None)) else
              getattr(s, "_title", "") for s in body.findChildren(CollapsibleSection)]
-    expected = [getattr(section, "title", section[0]) for section in
-                SettingsWidgets(SETTINGS_APP_KEY).build_sections()]
+    # 2026-09-29 (item 595): Measure is nested now (Cloud α under Input &
+    # Experiment, Image Preprocessing, Features and Postprocessing hold
+    # sub-headings), so the headings are compared depth first, children
+    # after their parent, which is the order the window draws them in.
+    def _depth_first(sections):
+        """Every heading title, each followed by its children's."""
+        out = []
+        for section in sections:
+            out.append(getattr(section, "title", None) or section[0])
+            out.extend(_depth_first(getattr(section, "children", ()) or ()))
+        return out
+
+    expected = _depth_first(SettingsWidgets(SETTINGS_APP_KEY).build_sections())
     assert [str(t) for t in shown if t] == [str(t) for t in expected] or \
         len(body.findChildren(CollapsibleSection)) == len(expected)
     widgets = list(screen.settings._widgets.values())

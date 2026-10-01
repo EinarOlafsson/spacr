@@ -1,0 +1,72 @@
+SPACEOUT: THE FRACTAL SUPERSAMPLING SETTING DOES SOMETHING
+
+Status: DONE, 2026-09-26. Every renderer takes its sample grid from the
+setting; saving it rebuilds the running backdrop (no restart).
+Owner: Claude (worktree agent). Related: item 530 (fractal changes apply
+without a restart); spacr/qt/widgets/ambient.py, fractal_travel.py,
+fractal_cascade.py, fractal_space.py, fractal_mandelbrot.py,
+fractal_orbit_gpu.py; spacr/qt/preferences.py (the Fractal tab row).
+
+WHERE IT CAME FROM
+    Found 2026-09-25 by item 530: the Supersampling row on Preferences'
+    Fractal tab is saved but no renderer reads it -- every renderer uses a
+    fixed 2x2. So the number does nothing, live or after a restart, although
+    its tooltip promises "the cost is the square of this number".
+
+WHAT TO BUILD
+  1. Every spaceout renderer takes its sample grid from the saved
+     supersampling value (N samples a side, N x N per pixel) instead of the
+     fixed 2x2:
+       - the GPU fragment shaders (orbit, orbit_gpu, cascade, space,
+         mandelbrot) average an N x N grid of sub-pixel samples;
+       - the CPU cascade and space kernels take N x N spatial samples;
+       - the CPU orbit engine walks an N x N sub-pixel grid across frames
+         (its antialiasing is temporal by design), N = 1 walking none.
+  2. The value is a construction-time setting: it goes into the renderer's
+     `Settings` and into ambient's _BUILT_FROM_SETTINGS, so saving
+     Preferences rebuilds the running backdrop through 530's
+     rebuild_the_spaceout_backdrops() -- no restart.
+  3. The row stays uncapped (the Fractal tab's policy: a bound only where a
+     value cannot work); values below 1 are refused by the existing
+     validation and the renderers treat them as 1.
+
+DONE WHEN
+An offscreen test shows each renderer's sample grid follows the setting
+(1 -> one sample, 3 -> nine), the default published 2x2 is unchanged, and
+changing the saved value rebuilds a running backdrop with the new grid
+without a restart.
+
+NOTE 2026-09-26 (built)
+  SHADERS. fractal_travel._supersampled_shader(source, n) rewrites the
+  fixed four-call main() of each fragment shader (orbit, orbit_gpu, cascade,
+  space, mandelbrot) into an n x n loop with constant bounds, offsets
+  (i + 0.5)/n - 0.5 about the pixel centre. n = 2 returns the published
+  source unchanged, byte for byte. _make_gpu_widget compiles the rewritten
+  shader; its overlay now says "spatial NxN". All five shaders at n = 1..4
+  were compiled for real (QOpenGLShader, Mesa llvmpipe): all compile.
+  CPU. CascadeEngine and SpaceEngine take n x n spatial samples (their
+  kernels gained a general grid); OrbitEngine, whose antialiasing is
+  temporal by design, walks n x n sub-pixel phases over a ring of n * n
+  frames (n = 2 keeps JITTERS and the published 0.62/0.22/0.10/0.06 blend;
+  other n blend newest-first with weights falling as the square of the age;
+  n = 1 keeps no history). An engine nobody configured keeps what it drew
+  before (2x2; the space engine's small/large-frame rule).
+  LIVE. Settings gained `supersampling` (validated to a whole number >= 1,
+  unreadable -> 2, no upper cap, per the Fractal tab's policy). ambient's
+  _BUILT_FROM_SETTINGS now includes it, so Save rebuilds a running backdrop
+  through rebuild_the_spaceout_backdrops(); app.py and screensaver.py pass
+  it too. 530's list of "read each frame, not a rebuild" settings dropped
+  supersampling -- it was listed there only because nothing read it.
+  TESTS. tests/qt/test_the_fractal_supersampling_setting_does_something.py
+  (55, offscreen): the grid for 1/2/3, the setting's validation, every
+  shader's rewrite (n = 2 untouched, n = 1/3/4 a single n x n main with the
+  rest of the shader unchanged, a shader without the grid refused), the GPU
+  backdrop (vispy stand-in) compiling the grid it was given, each CPU
+  engine's sample grid/ring following the setting and changing the frame,
+  the CPU widget handing its engine the value, and a saved change
+  rebuilding a running backdrop (1x1 -> 3x3) while an unchanged save does
+  not. The 19 related fractal/spaceout/screensaver test files pass.
+  Pre-existing failures on nightly, unchanged: test_api_i18n_extractor::
+  test_public_docstrings_matches_reviewed_visible_coverage and
+  ::test_assignment_docs_are_ast_source_text_without_show_value_artifact
+  (35 vs 34, none of the keys are this item's).

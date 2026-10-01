@@ -1,0 +1,1845 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Choose a workflow after installation"
+msgstr "설치 후 워크플로 선택"
+
+msgid "Start on Home with the first module for your experiment. Use that module's example-data control when available, inspect the inputs and preview, then run a bounded example before your own data."
+msgstr "홈에서 실험에 맞는 첫 번째 모듈로 시작합니다. 해당 모듈에 예제 데이터 컨트롤이 있으면 사용하고, 입력과 미리보기를 검사한 다음, 자신의 데이터를 처리하기 전에 범위가 제한된 예제를 실행합니다."
+
+msgid "These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically."
+msgstr "이 경로들과 API 연계는 함께 제공되는 모듈 워크플로 지도를 공유합니다. 단계별 안내는 단계를 설명할 뿐 실험을 자동으로 실행하지는 않습니다."
+
+msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step."
+msgstr "**파이프라인 개요** 를 열어 경로를 선택합니다. 그래프에는 사용자가 제공하는 파일을 설명하는 외부 입력 노드가 있으며, 이 노드는 실행 가능한 모듈이 아닙니다. 그래프 아래의 고정 설명 카드는 모듈과 연결을 설명하며, 모듈 카드 끝에 API 링크가 있습니다. 그래프 요소를 선택하면 해당 카드의 윤곽이 강조되고, 파란색 구분선을 끌어 그래프와 설명 사이의 공간을 조정할 수 있습니다. **예제 시작** 은 경로의 첫 번째 실제 모듈을 열고, **단계별 안내** 는 이후에도 경로를 계속 볼 수 있게 합니다. 대체 입력 및 어노테이션 분기에서는 나열된 모든 단계를 실행할 필요가 없습니다."
+
+msgid "A pooled spaCR screen"
+msgstr "spaCR 풀링 스크리닝"
+
+msgid "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch."
+msgstr "이미지에서 얻은 표현형과 가이드 RNA의 풍부도를 결합해 섭동의 순위를 매기세요. 이미지를 분할하고 측정한 뒤 Annotate, Gate Editor 또는 Image UMAP에서 검토된 레이블을 만들고 분류기를 학습하고 검증하세요. 별도의 분기에서 대응하는 시퀀싱 리드를 매핑하세요. 실험 식별 정보를 기준으로 호환되는 표현형 점수와 가이드 RNA 수를 결합해 Regression에 사용하세요. 어노테이션 및 분할 경로는 선택 가능한 대안이며, 모든 분기를 실행할 필요는 없습니다."
+
+msgid "**Choose an input route:**"
+msgstr "**입력 경로 선택:**"
+
+msgid "**Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Mask <workflow-module-mask>`."
+msgstr "**현미경 이미지**: 채널 식별 정보와 시야 이름이 있는 원래 현미경 이미지를 제공합니다. 시계열의 경우 프레임 순서와 시간 정보를 유지합니다. 이 실험의 객체에 맞는 분할 설정을 선택합니다. :ref:`마스크 <workflow-module-mask>` 로 계속합니다."
+
+msgid "**Existing masks and matching images**: Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**기존 마스크 및 대응 이미지**: 원본 이미지와 대응하는 정수 객체 레이블 마스크를 함께 가져옵니다. 객체 클래스와 시야 식별 정보를 유지합니다. 이는 새 마스크를 생성하는 대신 사용하는 방법이며, 측정 전에 가져온 프로젝트를 검사합니다. :ref:`가져오기 <workflow-module-foreign>` 로 계속합니다."
+
+msgid "**FASTQ: R1/R2, R1 only or R2 only**: Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation. Continue with :ref:`Map Barcodes <workflow-module-map_barcodes>`."
+msgstr "**FASTQ: R1/R2, R1만 또는 R2만**: gzip으로 압축한 FASTQ 파일과 바코드 참조 CSV를 제공합니다. R1/R2에는 쌍 모드를 사용합니다. 단일 방향 리드의 경우 단일 모드를 선택하고 파일과 추출 방향에 맞게 single_direction을 R1 또는 R2로 설정합니다. :ref:`바코드 매핑 <workflow-module-map_barcodes>` 으로 계속합니다."
+
+msgid "**Module steps and alternatives:**"
+msgstr "**모듈 단계와 대안:**"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home and open Mask. Load the example data, check channels and segmentation, then run."
+msgstr ":ref:`Mask <workflow-module-mask>`: “홈 (Home)”에서 “마스크 (Mask)”를 여세요. 예제 데이터를 불러오고 채널과 분할 결과를 확인한 다음 실행하세요."
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Return Home and open Map Barcodes for the matching sequencing reads and references."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: “홈 (Home)”으로 돌아가 “바코드 매핑 (Map Barcodes)”를 열고 대응하는 시퀀싱 리드와 참조 데이터를 사용하세요."
+
+msgid ":ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present."
+msgstr ":ref:`Import <workflow-module-foreign>`: 분할 결과가 이미 있다면 대응 이미지와 외부 마스크를 spaCR 프로젝트로 가져오고 생성된 객체 식별 정보를 확인하세요. 필요한 배열이 있으면 분할을 건너뛰고 Measure로 진행하세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure with the Mask project and create measurements and object crops."
+msgstr ":ref:`Measure <workflow-module-measure>`: “마스크 (Mask)” 프로젝트를 “측정 (Measure)”에서 열어 측정값과 객체별 잘라낸 이미지를 생성하세요."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: “어노테이션 (Annotate)”를 열고 대표적인 객체를 살펴본 다음 표현형 라벨을 저장하세요."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 실제 특징/좌표 열에 임계값 또는 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate를 사용해 표시된 게이트를 어노테이션 열에 기록하세요. 선택된 객체를 검토하고 이진 또는 다중 클래스 레이블을 선택하세요."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 측정 특징 또는 제공된 인코더 특징을 투영하고 대표적인 잘라낸 이미지를 확인하세요. 클러스터는 후보 그룹이며 검증된 표현형이 아닙니다. 올가미와 어노테이션 도구를 사용해 검토된 선택 영역을 해당 측정 데이터베이스의 어노테이션 열에 기록하세요. 기하학적 선택 영역만으로 생물학적 표현형이 입증되지는 않습니다."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Open Classify, choose images or measured features, and inspect held-out predictions."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: “분류 (Classify)”를 열고 이미지 또는 측정한 특징을 선택한 다음, 학습에 사용하지 않고 따로 둔 데이터의 예측 결과를 살펴보세요."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics."
+msgstr ":ref:`Regression <workflow-module-regression>`: “회귀 (Regression)”을 열고 서로 호환되는 표현형 점수와 웰별 가이드 카운트를 입력하세요. 선별된 후보와 진단 결과를 살펴보세요."
+
+msgid "High-content image analysis"
+msgstr "고함량 이미지 분석"
+
+msgid "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently."
+msgstr "시퀀싱 없이 영상 실험을 정량화하세요. 현미경 이미지로 시작하거나 기존 마스크를 원본 이미지와 함께 가져와 객체를 측정한 뒤, 임베딩을 탐색하거나 게이트로 집단을 정의하거나 그림을 만드세요. 이러한 후속 분기는 서로 다른 질문에 답하며 독립적으로 사용할 수 있습니다."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and inspect segmentation on representative fields."
+msgstr ":ref:`Mask <workflow-module-mask>`: “홈 (Home)”에서 “마스크 (Mask)”를 열고 대표적인 시야의 분할 결과를 살펴보세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure on the resulting project and quantify objects."
+msgstr ":ref:`Measure <workflow-module-measure>`: 생성된 프로젝트를 “측정 (Measure)”에서 열고 객체를 정량화하세요."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP to explore measured phenotypes and inspect crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: “Image UMAP”를 열어 측정한 표현형을 탐색하고 잘라낸 이미지를 살펴보세요."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Open Gate Editor to define an explicit population filter."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: “게이트 편집기 (Gate Editor)”를 열어 객체 집단을 선택할 명시적인 필터를 정의하세요."
+
+msgid ":ref:`Graph Builder <workflow-module-graph_builder>`: Open Graph Builder to compare the chosen measurements and groups."
+msgstr ":ref:`Graph Builder <workflow-module-graph_builder>`: “그래프 빌더 (Graph Builder)”를 열어 선택한 측정값과 그룹을 비교하세요."
+
+msgid "Other routes for the appropriate question: :ref:`Classify <workflow-module-classify_merged>`, :ref:`Recruitment <workflow-module-recruitment>`, :ref:`Invasion Assay <workflow-module-invasion>`, :ref:`Replication Assay <workflow-module-replication>`."
+msgstr "해당 질문을 위한 다른 경로: :ref:`분류 <workflow-module-classify_merged>`, :ref:`리크루트먼트 분석 <workflow-module-recruitment>`, :ref:`침입 분석 <workflow-module-invasion>`, :ref:`복제 분석 <workflow-module-replication>`."
+
+msgid "Train a segmentation model"
+msgstr "분할 모델 학습"
+
+msgid "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test."
+msgstr "검토하고 정리한 이미지와 정수 마스크 쌍으로 분할 모델을 만드세요. Make Masks에서 대표 이미지를 수정하고, Cellpose Workbench에서 학습한 뒤, 생성된 체크포인트를 Mask에서 선택하세요. 전체 실험을 처리하기 전에 독립 시야에서 평가하세요. 학습 이미지는 따로 보류한 데이터에 대한 정확도 평가를 대신하지 못합니다."
+
+msgid "**Microscopy images and optional starting masks**: Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set. Continue with :ref:`Make Masks <workflow-module-make_masks>`."
+msgstr "**현미경 이미지 및 선택적 초기 마스크**: 대표 이미지를 열고, 필요하면 수정할 기존 정수 마스크를 가져옵니다. 대응하는 선별된 쌍을 저장하고, 별도의 검증 이미지는 학습 세트 밖에 둡니다. :ref:`마스크 만들기 <workflow-module-make_masks>` 로 계속합니다."
+
+msgid "**Independent microscopy images**: Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment. Continue with :ref:`Mask <workflow-module-mask>`."
+msgstr "**독립 현미경 이미지**: 학습된 체크포인트를 채널이 호환되는 독립 이미지에 적용합니다. 전체 실험을 처리하기 전에 분할 품질을 확인합니다. :ref:`마스크 <workflow-module-mask>` 로 계속합니다."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Start on Home with Make Masks and curate matching images and integer label masks."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: “홈 (Home)”에서 “마스크 만들기 (Make Masks)”를 열고 서로 대응하는 이미지와 정수 라벨 마스크를 검토하고 수정하세요."
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Inside Make Masks open Cellpose Workbench, choose Train and use the curated pairs."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: “마스크 만들기 (Make Masks)” 안에서 “Cellpose 워크벤치”를 열고 “Train”을 선택한 다음 검토한 쌍을 사용하세요."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Return Home, open Mask and select the trained checkpoint; verify separate fields before a full run."
+msgstr ":ref:`Mask <workflow-module-mask>`: “홈 (Home)”으로 돌아가 “마스크 (Mask)”를 열고 학습한 체크포인트를 선택하세요. 전체 실행 전에 별도의 시야에서 검증하세요."
+
+msgid "Toxoplasma and parasite imaging assays"
+msgstr "Toxoplasma 및 기생충 영상 분석"
+
+msgid "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another."
+msgstr "실험에 맞는 분석을 선택하세요. 모집, 침입 및 복제 분석은 측정된 객체와 각 분석에 필요한 구획 식별 정보 및 염색 채널을 사용합니다. 모집 분석은 구획의 강도를 비교하고, 침입 분석은 차등 염색으로 세포 내부와 외부의 기생충을 구별하며, 복제 분석은 해당 액포 안의 기생충 수를 셉니다. Plaque Assay는 플라크 이미지나 마스크를 사용하는 독립 분기로, 물리 단위의 면적을 구하려면 보정 정보가 필요합니다. 다이어그램은 이러한 분석을 묶어서 보여 주며, 한 분석을 다른 분석보다 먼저 실행해야 한다는 뜻은 아닙니다."
+
+msgid "**Plaque images or existing plaque masks**: Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow. Continue with :ref:`Plaque Assay <workflow-module-analyze_plaques>`."
+msgstr "**플라크 이미지 또는 기존 플라크 마스크**: 검출용 플라크 이미지나 분석용 기존 플라크 마스크를 선택합니다. 물리적 플라크 면적이 필요하면 이미지 보정 정보를 제공합니다. 이 분기에는 세포 구획 측정 워크플로가 필요하지 않습니다. :ref:`플라크 분석 <workflow-module-analyze_plaques>` 으로 계속합니다."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and configure the host, parasite and required compartment masks."
+msgstr ":ref:`Mask <workflow-module-mask>`: “홈 (Home)”에서 “마스크 (Mask)”를 열고 숙주, 기생충 및 필요한 세포 구획의 마스크를 설정하세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure and collect the compartment or staining measurements needed by your assay."
+msgstr ":ref:`Measure <workflow-module-measure>`: “측정 (Measure)”를 열어 분석에 필요한 구획 또는 염색 측정값을 수집하세요."
+
+msgid ":ref:`Recruitment <workflow-module-recruitment>`: For a recruitment question, open Recruitment and inspect compartment intensity ratios."
+msgstr ":ref:`Recruitment <workflow-module-recruitment>`: 분자 모집을 분석하려면 “리크루트먼트 분석 (Recruitment)”를 열고 구획 간 강도 비율을 살펴보세요."
+
+msgid ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+msgstr ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: 액포 전체와 숙주의 기준 구획을 측정하고, 감염 비율의 분모에 비감염 숙주 세포를 포함하세요. 마커 채널과 대조군으로 보정한 비율 임계값을 선택하세요. 필요한 경우 명시적인 액포 연결 정보나 측정된 개체 수 열을 이용해 개별적으로 분할된 기생충을 계수하세요. 액포, 숙주 및 웰 표, 마커의 결합 상태, 증식 분포와 연결 대상을 찾지 못한 기생충 정보를 검토하세요. 알 수 없는 측정값은 알 수 없는 상태로 유지합니다."
+
+msgid ":ref:`Invasion Assay <workflow-module-invasion>`: Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion."
+msgstr ":ref:`Invasion Assay <workflow-module-invasion>`: 필수인 두 색상 차등 염색 측정값과 염색 기준선 대조군을 사용해 부착과 침입을 구분하세요."
+
+msgid ":ref:`Replication Assay <workflow-module-replication>`: Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole."
+msgstr ":ref:`Replication Assay <workflow-module-replication>`: 명시적인 액포 식별자를 사용해 기생충을 계수하고 조건별 분포를 비교하세요. 숙주 식별자만으로는 액포를 정의할 수 없습니다."
+
+msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas."
+msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: 플라크 실험에서는 Toxoplasma에서 Plaque Assay를 열고 플라크 이미지나 기존 플라크 마스크를 제공하세요. 플라크 수와 면적을 비교하기 전에 검출 결과와 보정을 확인하세요."
+
+msgid "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma."
+msgstr "“Invasion”과 “Replication”은 각각 필요한 측정된 구획을 읽습니다. “플라크 분석 (Plaque Assay)”는 플라크 이미지나 마스크를 사용합니다. “홈 (Home)” → “Toxoplasma”에서 이 분석들을 여세요."
+
+msgid "An optical pooled screen"
+msgstr "광학 풀링 스크리닝"
+
+msgid "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles."
+msgstr "원본 시퀀싱 주기와 해당 표현형 이미지로 광학 풀링 스크리닝을 디코딩하세요. Mask를 통해 OPS에 들어가 주기/사이트 정렬과 바코드 디코딩을 확인한 뒤, 디코딩된 객체 식별 정보를 표현형 반응과 연결하고 호환되는 입력을 집계해 Regression에 사용하세요. Align & Stitch는 선택 사항이며, 이어 붙인 이미지만으로 시퀀싱 주기를 대체할 수 없습니다."
+
+msgid "**Sequencing cycles and phenotype images**: Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding. Continue with :ref:`OPS <workflow-module-ops>`."
+msgstr "**시퀀싱 주기 및 표현형 이미지**: 원래 주기/위치 이미지, 채널 할당, 대응하는 표현형 정렬을 제공합니다. 주기와 위치 식별 정보를 유지합니다. 모자이크 출력만으로는 디코딩할 수 없습니다. :ref:`OPS <workflow-module-ops>` 로 계속합니다."
+
+msgid "**Compatible phenotype responses**: Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff. Continue with :ref:`Regression <workflow-module-regression>`."
+msgstr "**호환되는 표현형 반응**: 디코딩된 객체 식별 정보를 표현형 반응과 결합하고 회귀에 필요한 분석 단위로 집계합니다. 객체/웰 식별 정보와 가이드 할당을 확인합니다. OPS 표는 FASTQ 개수 CSV를 바로 넘겨받는 형식이 아닙니다. :ref:`회귀 <workflow-module-regression>` 로 계속합니다."
+
+msgid ":ref:`OPS <workflow-module-ops>`: Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment."
+msgstr ":ref:`OPS <workflow-module-ops>`: “홈 (Home)”에서 시작하여 “마스크 (Mask)”를 연 다음 “OPS”를 여세요. 주기 및 위치별 원본 이미지와 표현형 이미지에 대한 정합 정보를 제공하세요."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join and aggregate decoded object identities with compatible phenotype responses before opening Regression."
+msgstr ":ref:`Regression <workflow-module-regression>`: “회귀 (Regression)”을 열기 전에 해독된 객체 식별자를 기준으로 호환되는 표현형 반응을 결합하고 집계하세요."
+
+msgid "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically."
+msgstr "이미지 타일의 기하 구조를 확인하거나 좌표를 매핑해야 할 때 «정렬 및 이어 붙이기 (Align & Stitch)»를 선택적으로 사용할 수 있습니다. OPS 예제의 필수 사전 단계는 아닙니다. 이어 붙인 이미지 하나만으로 시퀀싱 주기를 대체할 수는 없습니다. OPS 테이블은 회귀 분석 전에 식별자를 기준으로 명시적으로 결합하고 집계해야 합니다. 이 안내는 해당 변환을 자동으로 수행하지 않습니다."
+
+msgid "Import existing data"
+msgstr "기존 데이터 가져오기"
+
+msgid "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch."
+msgstr "기존 실험의 데이터 구성에 맞는 경로를 선택해 spaCR로 가져오세요. 이미지만 있는 데이터는 분할이 필요합니다. 서로 대응하는 이미지와 정수 마스크를 측정용 프로젝트로 변환할 수 있습니다. 기존 특징 테이블에는 명시적인 열 및 객체 매핑이 필요하며, 이미 탐색에 사용할 수 있는 상태일 수도 있습니다. 후속 분기로 진행하기 전에 식별 정보, 채널 및 잘라낸 이미지 경로를 확인하세요."
+
+msgid "**Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**현미경 이미지**: 채널 식별 정보와 시야 이름이 있는 원래 현미경 이미지를 제공합니다. 시계열의 경우 프레임 순서와 시간 정보를 유지합니다. 이 실험의 객체에 맞는 분할 설정을 선택합니다. :ref:`가져오기 <workflow-module-foreign>` 로 계속합니다."
+
+msgid "**External measurements and object mappings**: Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**외부 측정값 및 객체 매핑**: 객체, 시야, 열 매핑을 명시하여 기존 특징 표를 가져옵니다. 이미지 탐색이 필요하면 대응하는 크롭 경로를 제공합니다. 가져온 특징에 이미 있는 행을 다시 측정하지 않습니다. :ref:`가져오기 <workflow-module-foreign>` 로 계속합니다."
+
+msgid ":ref:`Import <workflow-module-foreign>`: Start on Home with Import and select the route matching images, external masks or external measurements."
+msgstr ":ref:`Import <workflow-module-foreign>`: “홈 (Home)”에서 “가져오기 (Import)”를 열고 이미지, 외부 마스크 또는 외부 측정값에 맞는 경로를 선택하세요."
+
+msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, open Mask to add segmentation; skip this when valid masks already exist."
+msgstr ":ref:`Mask <workflow-module-mask>`: 이미지만 가져왔다면 “마스크 (Mask)”를 열어 분할을 추가하세요. 유효한 마스크가 이미 있으면 이 단계를 건너뛰세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use Measure when features have not already been imported or computed by External Masks."
+msgstr ":ref:`Measure <workflow-module-measure>`: 특징을 아직 가져오지 않았고 “외부 마스크 (External Masks)”에서도 계산하지 않았다면 “측정 (Measure)”를 사용하세요."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP to inspect the resulting measured objects and matching crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: “Image UMAP”를 열어 측정된 객체와 그에 대응하는 잘라낸 이미지를 살펴보세요."
+
+msgid "Discover phenotypes without labels"
+msgstr "라벨 없이 표현형 발견"
+
+msgid "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation."
+msgstr "초기 표현형 레이블 없이 분할과 측정이 완료된 실험을 탐색하세요. Image UMAP에서 측정 특징이나 인코딩된 이미지 특징을 비교하고, 대표적인 잘라낸 이미지를 확인한 뒤, Gate Editor에서 재현 가능한 선택 영역을 만드세요. 지도 학습 전에 Annotate에서 후보 레이블을 검토하세요. 클러스터나 게이트는 표현형에 대한 가설이며, 그 표현형의 검증은 아닙니다."
+
+msgid "**Segmented image project**: Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring. Continue with :ref:`Measure <workflow-module-measure>`."
+msgstr "**분할된 이미지 프로젝트**: 마스크나 가져오기에서 얻은 병합된 이미지 배열과 대응하는 객체 레이블 평면을 사용합니다. 측정 전에 채널 역할, 객체 식별 정보, 크롭 설정을 확인합니다. :ref:`측정 <workflow-module-measure>` 으로 계속합니다."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Start on Home with Measure using an already segmented project, or use its example data."
+msgstr ":ref:`Measure <workflow-module-measure>`: “홈 (Home)”에서 “측정 (Measure)”를 열고 이미 분할된 프로젝트나 해당 모듈의 예제 데이터를 사용하세요."
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Open Embeddings to encode object images; retain the object IDs and encoder/channel settings."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: “임베딩 (Embeddings)”를 열어 객체 이미지를 인코딩하세요. 객체 ID와 인코더 및 채널 설정을 보존하세요."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP with compatible measured or encoder feature columns and inspect candidate groups."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: “Image UMAP”를 열고 호환되는 측정 특징 열 또는 인코더 특징 열을 사용하여 후보 그룹을 살펴보세요."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define a reproducible selection in Gate Editor using the matching feature or projection columns."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: “게이트 편집기 (Gate Editor)”에서 대응하는 특징 열 또는 투영 열을 사용해 재현 가능한 선택 조건을 정의하세요."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate and review candidate labels before using them as supervised training data."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: “어노테이션 (Annotate)”를 열어 후보 라벨을 검토한 다음 지도 학습 데이터로 사용하세요."
+
+msgid "Plan a screen"
+msgstr "스크리닝 계획"
+
+msgid "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment."
+msgstr "취득 전에 조건, 대조군, 반복 및 플레이트 배정을 설계하세요. 효과 크기와 변동성에 대한 명시적인 가정 아래 Power / Design으로 필요한 표본 수를 탐색하세요. 예비 측정은 이러한 가정의 근거가 될 수 있습니다. 설계 결과의 전달은 계획상의 의존 관계이며, 실험을 자동으로 실행하는 것은 아닙니다."
+
+msgid "**Conditions, controls and design assumptions**: Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required. Continue with :ref:`Experiment Design <workflow-module-experiment_design>`."
+msgstr "**조건, 대조군 및 설계 가정**: 실험 조건, 대조군, 반복 요구 사항, 플레이트 제약을 입력합니다. 이 입력은 직접 입력할 수 있으며 기존 데이터 파일이 필요하지 않습니다. :ref:`Experiment Design <workflow-module-experiment_design>` 으로 계속합니다."
+
+msgid "**Effect sizes, variability and optional pilot data**: Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort. Continue with :ref:`Power / Design <workflow-module-power>`."
+msgstr "**효과 크기, 변동성 및 선택적 예비 데이터**: 효과 크기와 변동성에 대한 명시적 가정을 제공하고, 필요하면 호환되는 예비 측정값을 사용합니다. 가정을 바꾸면 필요한 표본 추출 규모가 어떻게 달라지는지 검토합니다. :ref:`Power / Design <workflow-module-power>` 으로 계속합니다."
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Start on Home with Experiment Design; assign conditions, controls, replicates and wells."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: “홈 (Home)”에서 “실험 설계 (Experiment Design)”을 열고 조건, 대조군, 반복 및 웰을 배정하세요."
+
+msgid ":ref:`Power / Design <workflow-module-power>`: Open Power / Design and estimate sampling needs from explicit effect-size and variability assumptions."
+msgstr ":ref:`Power / Design <workflow-module-power>`: “검정력 / 설계 (Power / Design)”을 열고 효과 크기와 변동성에 대한 명시적인 가정을 바탕으로 필요한 표본 수를 추정하세요."
+
+msgid "Track live cells"
+msgstr "살아 있는 세포 추적"
+
+msgid "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility."
+msgstr "순서가 있는 이미지 시퀀스에서 분할된 객체를 추적한 뒤 측정값과 움직임을 정량화하세요. 프레임 순서, 프레임 간격, 객체 식별 정보 및 픽셀 보정을 확인하세요. 기존 마스크가 있으면 원본 이미지와 함께 가져오고, 운동성을 해석하기 전에 추적 프로젝트의 식별 정보가 유효한지 확인하세요."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and point it at an ordered time-series project."
+msgstr ":ref:`Mask <workflow-module-mask>`: “홈 (Home)”에서 “마스크 (Mask)”를 열고 시간순으로 정렬된 이미지 시계열 프로젝트를 지정하세요."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Open the Timelapse action in Mask, configure timing and inspect linked objects."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: “마스크 (Mask)”에서 “타임랩스 (Timelapse)” 작업을 열고 시간 설정을 구성한 다음 연결된 객체를 살펴보세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure on the tracked project to quantify the objects."
+msgstr ":ref:`Measure <workflow-module-measure>`: 추적된 프로젝트를 “측정 (Measure)”에서 열어 객체를 정량화하세요."
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Inside Measure open Motility Assay and check frame interval, pixel calibration and track filters."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: “측정 (Measure)” 안에서 “운동성 분석 (Motility Assay)”를 열고 프레임 간격, 픽셀 보정 및 궤적 필터를 확인하세요."
+
+msgid "Module inputs, outputs and next steps"
+msgstr "모듈 입력, 출력 및 다음 단계"
+
+msgid "Mask"
+msgstr "마스크"
+
+msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
+msgstr "채널과 모델을 선택하고 미리보기를 검사한 다음 마스크를 실행하세요. 측정은 병합 배열을 사용하며, 개수 데이터베이스는 아직 특징 테이블이 아닙니다."
+
+msgid "**Open:** Home → Mask."
+msgstr "**열기:** 홈 → 마스크."
+
+msgid "Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies."
+msgstr "아래 입력과 출력에는 조건부 대안이 포함되어 있습니다. 안내와 연계 메모에서 어떤 경로가 적용되는지 알려 줍니다."
+
+msgid "**Inputs**"
+msgstr "**입력**"
+
+msgid "**Microscope images** — Source image folder; original files, supported vendor files or imported TIFFs."
+msgstr "**현미경 이미지** — 원본 이미지 폴더: 원본 파일, 지원되는 제조사 파일 또는 가져온 TIFFs."
+
+msgid "**Segmentation checkpoint** — Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration."
+msgstr "**분할 체크포인트** — 저장된 Cellpose 호환 체크포인트 또는 자체 구성으로 선택한 호환 설치 백엔드."
+
+msgid "**Outputs**"
+msgstr "**출력**"
+
+msgid "**Images and label masks** — merged/\\*.npy in the project; channels and integer label planes share each field array."
+msgstr "**이미지와 레이블 마스크** — 프로젝트의 merged/\\*.npy; 채널과 정수 레이블 평면이 각 시야 배열을 공유합니다."
+
+msgid "**Label masks** — masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup."
+msgstr "**레이블 마스크** — 보존된 경우 masks/, 또는 명시적으로 저장한 이미지/마스크 쌍. 중간 마스크는 정리 과정에서 삭제될 수 있습니다."
+
+msgid "**Object counts** — measurements/measurements.db; Mask counts alone are not per-object feature measurements."
+msgstr "**객체 수** — measurements/measurements.db. 마스크 개수만으로는 객체별 특징 측정값이 아닙니다."
+
+msgid "**Before this module**"
+msgstr "**이 모듈 이전**"
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Select the saved compatible checkpoint in Mask."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: 마스크에서 저장된 호환 체크포인트를 선택하세요."
+
+msgid ":ref:`Import Images <workflow-module-import_images>`: Use imported image planes and identities; image-only imports still need segmentation."
+msgstr ":ref:`Import Images <workflow-module-import_images>`: 가져온 이미지 평면과 식별 정보를 사용하세요. 이미지만 가져온 경우에도 분할이 필요합니다."
+
+msgid ":ref:`Format Converter <workflow-module-convert>`: Use the converted layout and preserve source identity mappings."
+msgstr ":ref:`Format Converter <workflow-module-convert>`: 변환된 레이아웃을 사용하고 원본 식별 매핑을 보존하세요."
+
+msgid ":ref:`Import <workflow-module-foreign>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
+msgstr ":ref:`Import <workflow-module-foreign>`: 이미지만 가져오는 경우 Import Images 또는 Format Converter를 사용하고, Mask에서 변환된 이미지 프로젝트를 지정하세요. 외부 측정값만으로는 분할 입력이 되지 않습니다."
+
+msgid "**After this module**"
+msgstr "**이 모듈 이후**"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the same project and the correct image/mask channel indices."
+msgstr ":ref:`Measure <workflow-module-measure>`: 같은 프로젝트와 올바른 이미지/마스크 채널 인덱스를 사용하세요."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Enable the nested time-series route before generating linked labels."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: 연결된 레이블을 생성하기 전에 중첩 시계열 경로를 켜세요."
+
+msgid ":doc:`API reference </api/spacr/core/index>`."
+msgstr ":doc:`API 참조 </api/spacr/core/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=07_mask>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=07_mask>`__."
+
+msgid "Measure"
+msgstr "측정"
+
+msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
+msgstr "측정은 이미지와 레이블 평면을 함께 읽습니다. PNG 파일이 필요하면 크롭 저장을 켜고, 스트리밍 크롭을 쓰려면 데이터베이스와 소스 프로젝트를 함께 보관하세요."
+
+msgid "**Open:** Home → Measure."
+msgstr "**열기:** 홈 → 측정."
+
+msgid "**Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks. Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``. Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``."
+msgstr "**측정된 객체** — measurements/measurements.db; 객체 표는 켜져 있는 세포, 핵, 병원체, 세포소기관 마스크에 따라 달라집니다. 경로에 따른 관련 표: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``. 경로에 따른 관련 열: ``plateID``, ``rowID``, ``columnID``, ``fieldID``."
+
+msgid "**Object crops** — data/\\*\\*/\\*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``png_path``, ``prcfo``."
+msgstr "**객체 자르기 이미지** — save_png가 켜져 있으면 data/\\*\\*/\\*_png; png_list가 저장된 크롭의 색인을 제공합니다. 지원되는 워크플로는 대신 병합된 배열과 마스크에서 크롭을 스트리밍할 수 있습니다. 경로에 따른 관련 표: ``png_list``. 경로에 따른 관련 열: ``png_path``, ``prcfo``."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
+msgstr ":ref:`Mask <workflow-module-mask>`: 같은 프로젝트와 올바른 이미지/마스크 채널 인덱스를 사용하세요."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: FEATURES로 이미지와 마스크를 짝짓고 측정된 프로젝트를 쓰세요. 독립 마스크는 병합 배열이 아닙니다."
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: 필요할 때만 다시 측정하세요. External Masks도 이미 측정을 수행할 수 있습니다."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Use the time-series project with stable frame/object identities."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: 안정적인 프레임/객체 식별자가 있는 시계열 프로젝트를 사용하세요."
+
+msgid ":ref:`Import <workflow-module-foreign>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table."
+msgstr ":ref:`Import <workflow-module-foreign>`: 대응하는 이미지와 외부 정수 마스크를 가져와 병합된 프로젝트 배열을 만든 뒤 해당 프로젝트에서 Measure를 여세요. 호환되는 측정값을 이미 가져왔거나 계산했다면 이 단계를 건너뛰세요. 기존에 가져온 테이블에 중복 측정값을 추가하지 마세요."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Save or stream crops with stable object identities."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 안정적인 객체 식별자와 함께 크롭을 저장하거나 스트리밍하세요."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Choose the image or tabular family to match your input."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 입력에 맞는 이미지 또는 표 형식 계열을 선택하세요."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Choose feature columns and inspect representative crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 특징 열을 선택하고 대표 크롭을 검사하세요."
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Retain encoder and channel-policy provenance."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: 인코더와 채널 정책 출처 정보를 보존하세요."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Use the actual measured feature definitions and units."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 실제 측정된 특징 정의와 단위를 사용하세요."
+
+msgid ":ref:`Graph Builder <workflow-module-graph_builder>`: Choose explicit variables, groups and filters."
+msgstr ":ref:`Graph Builder <workflow-module-graph_builder>`: 명시적인 변수, 그룹, 필터를 선택하세요."
+
+msgid ":ref:`QC <workflow-module-qc_dashboard>`: Review available checks and missing evidence."
+msgstr ":ref:`QC <workflow-module-qc_dashboard>`: 사용 가능한 검사와 누락된 근거를 검토하세요."
+
+msgid ":ref:`Recruitment <workflow-module-recruitment>`: Require the intended compartment intensities and identities."
+msgstr ":ref:`Recruitment <workflow-module-recruitment>`: 의도한 구획 강도와 식별 정보가 필요합니다."
+
+msgid ":ref:`Invasion Assay <workflow-module-invasion>`: Require two-colour stain measurements and appropriate baseline controls."
+msgstr ":ref:`Invasion Assay <workflow-module-invasion>`: 2색 염색 측정값과 적절한 기준 대조군이 필요합니다."
+
+msgid ":ref:`Replication Assay <workflow-module-replication>`: Require explicit parasite-to-vacuole identities."
+msgstr ":ref:`Replication Assay <workflow-module-replication>`: 명시적인 기생충-공포 식별 정보가 필요합니다."
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Combine measured objects with matching tracks."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: 측정된 객체를 일치하는 궤적과 결합하세요."
+
+msgid ":ref:`Feature Explorer <workflow-module-feature_explorer>`: Define the class comparison and inspect filtering."
+msgstr ":ref:`Feature Explorer <workflow-module-feature_explorer>`: 클래스 비교를 정의하고 필터링을 검사하세요."
+
+msgid ":ref:`Database Browser <workflow-module-db_browser>`: Inspect actual tables before exporting."
+msgstr ":ref:`Database Browser <workflow-module-db_browser>`: 내보내기 전에 실제 표를 검사하세요."
+
+msgid ":ref:`AnnData Export <workflow-module-anndata_export>`: Export compatible feature and metadata columns."
+msgstr ":ref:`AnnData Export <workflow-module-anndata_export>`: 호환되는 특징 및 메타데이터 열을 내보내세요."
+
+msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Join the measured response to explicit doses and controls."
+msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: 측정된 반응을 명시적인 용량 및 대조군과 결합하세요."
+
+msgid ":ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+msgstr ":ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: 측정된 프로젝트 루트와 필요한 객체/png_list 테이블을 제공하세요. 크기 구간을 해석하기 전에 숙주 세포 집계와 면적 단위를 확인하세요. 마스크 개수 데이터베이스만으로는 부족합니다."
+
+msgid ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
+msgstr ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: 측정에서 감염되지 않은 세포를 유지하세요. 공포 전체 마스크, 숙주 기준 강도, 선택적으로 명시적인 기생충-공포 연결을 제공하세요. 숙주 식별만으로는 공포가 정의되지 않습니다."
+
+msgid ":doc:`API reference </api/spacr/measure/index>`."
+msgstr ":doc:`API 참조 </api/spacr/measure/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=08_measure>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=08_measure>`__."
+
+msgid "Annotate"
+msgstr "어노테이션"
+
+msgid "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent."
+msgstr "지도 학습 전에 png_list 테이블에서 대표 객체에 레이블을 지정하세요. 질문마다 별도의 어노테이션을 사용하고 학습 그룹과 평가 그룹을 독립적으로 유지하세요."
+
+msgid "**Open:** Home → Annotate."
+msgstr "**열기:** 홈 → 어노테이션."
+
+msgid "**Reusable gates** — Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions."
+msgstr "**재사용 가능한 게이트** — 저장된 임계값/다각형 게이트 정의 또는 선택된 객체 집합. 게이트는 같은 특징 정의에 적용하세요."
+
+msgid "**Training annotations** — A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``prcfo``."
+msgstr "**학습 주석** — measurements/measurements.db의 png_list 표에서 선택한 어노테이션 열; 레이블은 객체 식별 정보에 속합니다. 경로에 따른 관련 표: ``png_list``. 경로에 따른 관련 열: ``prcfo``."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Save or stream crops with stable object identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: 안정적인 객체 식별자와 함께 크롭을 저장하거나 스트리밍하세요."
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Keep the newly measured project and crop index together."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: 새로 측정한 프로젝트와 크롭 인덱스를 함께 보관하세요."
+
+msgid ":ref:`Import <workflow-module-foreign>`: Imported tables require explicit column and object-identity mappings."
+msgstr ":ref:`Import <workflow-module-foreign>`: 가져온 테이블에는 명시적인 열 및 객체 식별 매핑이 필요합니다."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Apply compatible gates, then review candidate labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 호환되는 게이트를 적용한 다음 후보 레이블을 검토하세요."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Keep labelled training and evaluation groups separate."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 레이블이 지정된 학습 그룹과 평가 그룹을 분리하세요."
+
+msgid ":ref:`Annotator Agreement <workflow-module-agreement>`: Choose independent annotation columns for the same objects."
+msgstr ":ref:`Annotator Agreement <workflow-module-agreement>`: 같은 객체에 대해 독립적인 어노테이션 열을 선택하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/annotate/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/annotate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=09_annotate>`__."
+
+msgid "Classify"
+msgstr "분류"
+
+msgid "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs."
+msgstr "크롭이나 스트리밍 객체 이미지에는 컴퓨터 비전을, 측정된 특징 열에는 표 형식 머신러닝을 선택하세요. 두 계열은 서로 다른 입력을 사용합니다."
+
+msgid "**Open:** Home → Classify."
+msgstr "**열기:** 홈 → 분류."
+
+msgid "**Object classification scores** — Saved score CSVs and, when merged, measurements/measurements.db, table png_list. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``."
+msgstr "**객체 분류 점수** — 저장된 점수 CSV와, 병합한 경우 measurements/measurements.db의 png_list 표. 경로에 따른 관련 표: ``png_list``. 경로에 따른 관련 열: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``."
+
+msgid "**Trained image classifier** — Saved classifier checkpoint, model settings and matching channel/preprocessing configuration."
+msgstr "**학습된 이미지 분류기** — 저장된 분류기 체크포인트, 모델 설정 및 일치하는 채널/전처리 구성."
+
+msgid "**Fitted feature classifier** — The fitted tabular classifier and its recorded feature list, training settings and validation results."
+msgstr "**적합된 특징 분류기** — 적합된 표 형식 분류기와 기록된 특징 목록, 학습 설정, 검증 결과."
+
+msgid "**Classifier evaluation bundle** — Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run."
+msgstr "**분류기 평가 번들** — 저장된 분류기 실행의 보류 예측, 레이블, 분할 메타데이터 및 보정/누출 지표."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose the image or tabular family to match your input."
+msgstr ":ref:`Measure <workflow-module-measure>`: 입력에 맞는 이미지 또는 표 형식 계열을 선택하세요."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Keep labelled training and evaluation groups separate."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 레이블이 지정된 학습 그룹과 평가 그룹을 분리하세요."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 검토된 게이트 선택을 어노테이션 열에 기록한 뒤 Classify에서 동일한 열과 객체 집단을 선택하세요. 검증 객체를 학습 레이블과 분리해 두세요."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 검토된 올가미 선택을 해당 객체 데이터베이스의 어노테이션 열에 기록한 뒤 Classify에서 그 열을 선택하세요. 잘라낸 이미지를 확인하고 레이블을 검증하세요. 임베딩 클러스터는 정답 데이터가 아닙니다."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Select the intended CV or ML score column and preserve plate/well identity."
+msgstr ":ref:`Regression <workflow-module-regression>`: 의도한 CV 또는 ML 점수 열을 선택하고 플레이트/웰 식별 정보를 보존하세요."
+
+msgid ":ref:`Classifier Evaluation <workflow-module-classifier_evaluation>`: Use the matching held-out predictions and split metadata."
+msgstr ":ref:`Classifier Evaluation <workflow-module-classifier_evaluation>`: 일치하는 보류 예측과 분할 메타데이터를 사용하세요."
+
+msgid ":ref:`Activation <workflow-module-activation>`: Also provide the matching crops and channel preprocessing."
+msgstr ":ref:`Activation <workflow-module-activation>`: 일치하는 크롭과 채널 전처리도 함께 제공하세요."
+
+msgid ":ref:`Explain CV Model <workflow-module-explain_cv>`: Select CV predictions and the matching measured objects."
+msgstr ":ref:`Explain CV Model <workflow-module-explain_cv>`: CV 예측과 일치하는 측정 객체를 선택하세요."
+
+msgid ":doc:`API reference </api/spacr/classify/index>`."
+msgstr ":doc:`API 참조 </api/spacr/classify/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=41_classify>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=41_classify>`__."
+
+msgid "Map Barcodes"
+msgstr "바코드 매핑"
+
+msgid "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores."
+msgstr "실험을 인코딩하는 참조를 제공하세요. 웰 수준 가이드 개수를 표현형 점수와 짝짓기 전에 매핑된 개수와 바코드 QC를 검사하세요."
+
+msgid "**Open:** Home → Map Barcodes."
+msgstr "**열기:** 홈 → 바코드 매핑."
+
+msgid "**Sequencing reads** — Single-end or paired FASTQ files, with the matching barcode reference tables."
+msgstr "**시퀀싱 리드** — 싱글 엔드 또는 페어드 FASTQ 파일과 일치하는 바코드 참조 테이블."
+
+msgid "**Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
+msgstr "**웰당 가이드 개수** — 바코드 매핑 실행 폴더: unique_combinations.csv와 annotated_reads.h5. 웰 식별에는 대응하는 바코드 참조가 필요합니다. 경로에 따른 관련 열: ``count``."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Pair guide counts with phenotype scores using consistent plate/well keys."
+msgstr ":ref:`Regression <workflow-module-regression>`: 일관된 플레이트/웰 키를 사용해 가이드 개수와 표현형 점수를 짝지으세요."
+
+msgid ":ref:`Barcode QC <workflow-module-barcode_qc>`: Check mapping and coverage before guide filtering."
+msgstr ":ref:`Barcode QC <workflow-module-barcode_qc>`: 가이드 필터링 전에 매핑과 커버리지를 확인하세요."
+
+msgid ":doc:`API reference </api/spacr/sequencing/index>`."
+msgstr ":doc:`API 참조 </api/spacr/sequencing/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=12_map_barcodes>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=12_map_barcodes>`__."
+
+msgid "Regression"
+msgstr "회귀"
+
+msgid "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported."
+msgstr "표현형 입력과 가이드 개수 입력의 플레이트 및 웰 식별자를 일치시키고, 반응과 대조군을 선택한 다음, 히트를 해석하기 전에 진단 결과를 검사하세요. 직접 측정한 반응도 지원됩니다."
+
+msgid "**Open:** Home → Regression."
+msgstr "**열기:** 홈 → 회귀."
+
+msgid "**Optical barcode assignments** — OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads. Relevant tables, depending on the route: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_barcodes``, ``ops_reads``."
+msgstr "**광학 바코드 할당** — OPS 대상 measurements.db: 웰별 기하 정보, 표현형 정렬, 핵 및 바코드 표; 선택적인 주기별 리드. 경로에 따른 관련 표: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_barcodes``, ``ops_reads``."
+
+msgid "**Regression results and hits** — Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures."
+msgstr "**회귀 결과 및 히트** — 선택한 실행 결과 폴더: 계수/결과 CSVs, 히트 테이블, 설정 및 진단 그림."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Select the intended CV or ML score column and preserve plate/well identity."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 의도한 CV 또는 ML 점수 열을 선택하고 플레이트/웰 식별 정보를 보존하세요."
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Pair guide counts with phenotype scores using consistent plate/well keys."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: 일관된 플레이트/웰 키를 사용해 가이드 개수와 표현형 점수를 짝지으세요."
+
+msgid ":ref:`OPS <workflow-module-ops>`: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
+msgstr ":ref:`OPS <workflow-module-ops>`: 회귀 전에 디코딩된 객체를 표현형 및 가이드 입력에 명시적으로 결합/집계하세요. 이는 직접적인 CSV 전달이 아닙니다."
+
+msgid ":ref:`Run Compare <workflow-module-run_compare>`: Compare compatible saved result sets and their settings."
+msgstr ":ref:`Run Compare <workflow-module-run_compare>`: 호환되는 저장 결과 세트와 그 설정을 비교하세요."
+
+msgid ":ref:`Hit List <workflow-module-hit_list>`: Inspect ranked hits and guide agreement."
+msgstr ":ref:`Hit List <workflow-module-hit_list>`: 순위가 매겨진 히트와 가이드 일치도를 검사하세요."
+
+msgid ":ref:`Volcano Explorer <workflow-module-volcano_explorer>`: Inspect saved effects and adjusted significance."
+msgstr ":ref:`Volcano Explorer <workflow-module-volcano_explorer>`: 저장된 효과와 보정된 유의성을 검사하세요."
+
+msgid ":ref:`Diagnostics <workflow-module-regression_diagnostics>`: Open the diagnostics actually written by this run."
+msgstr ":ref:`Diagnostics <workflow-module-regression_diagnostics>`: 이 실행이 실제로 기록한 진단 결과를 여세요."
+
+msgid ":ref:`Methods & Results <workflow-module-methods_export>`: Review exported prose and every traced result."
+msgstr ":ref:`Methods & Results <workflow-module-methods_export>`: 내보낸 문장과 추적된 모든 결과를 검토하세요."
+
+msgid ":ref:`Investigate Hit <workflow-module-investigate_hit>`: Join compatible phenotype and object data for the chosen hit."
+msgstr ":ref:`Investigate Hit <workflow-module-investigate_hit>`: 선택한 히트에 대해 호환되는 표현형 및 객체 데이터를 결합하세요."
+
+msgid ":doc:`API reference </api/spacr/ml/index>`."
+msgstr ":doc:`API 참조 </api/spacr/ml/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=13_regression>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=13_regression>`__."
+
+msgid "Feature Explorer"
+msgstr "Feature Explorer"
+
+msgid "Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking."
+msgstr "선택한 클래스 비교에 대해 측정된 특징의 순위를 매기세요. 순위를 해석하기 전에 필터링과 클래스 정의를 검토하세요."
+
+msgid "**Open:** Classify → Feature Explorer."
+msgstr "**열기:** 분류 → Feature Explorer."
+
+msgid "**Figures and table exports** — The output location chosen by the tool; exports describe the selected data and filters."
+msgstr "**그림 및 표 내보내기** — 도구가 선택한 출력 위치입니다. 내보내기에는 선택한 데이터와 필터가 기술됩니다."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Define the class comparison and inspect filtering."
+msgstr ":ref:`Measure <workflow-module-measure>`: 클래스 비교를 정의하고 필터링을 검사하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/feature_explorer/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=65_feature_explorer>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=65_feature_explorer>`__."
+
+msgid "Format Converter"
+msgstr "형식 변환기"
+
+msgid "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements."
+msgstr "소스 매핑을 보존하면서 지원되는 현미경 형식을 설정된 TIFF 레이아웃으로 변환하세요. 변환은 객체 측정값을 생성하지 않습니다."
+
+msgid "**Open:** Import → Format Converter."
+msgstr "**열기:** 가져오기 → 형식 변환기."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
+msgstr ":ref:`Mask <workflow-module-mask>`: 변환된 레이아웃을 사용하고 원본 식별 매핑을 보존하세요."
+
+msgid ":doc:`API reference </api/spacr/convert/index>`."
+msgstr ":doc:`API 참조 </api/spacr/convert/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=35_converter>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=35_converter>`__."
+
+msgid "Import"
+msgstr "가져오기"
+
+msgid "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements."
+msgstr "객체/열 매핑을 명시해 외부 측정값을 가져오거나 Import Images, Format Converter 또는 External Masks를 선택하세요. 가져온 측정값은 Measure를 새로 실행한 결과가 아닙니다. 대응하는 원본 이미지와 외부 정수 마스크가 있으면 Import가 Measure에서 사용하는 병합된 프로젝트 배열을 만듭니다. 파일에 맞는 경로를 선택하고 측정 전에 객체 식별 정보를 확인하세요. 필요한 측정값이 이미 포함된 특징 테이블은 가져온 뒤 바로 사용할 수 있습니다."
+
+msgid "**Open:** Home → Import."
+msgstr "**열기:** 홈 → 가져오기."
+
+msgid "**External measurements** — Third-party measurement CSV/database tables and their image, mask and object-identity mappings."
+msgstr "**외부 측정값** — 타사 측정 CSV/데이터베이스 테이블과 그 이미지, 마스크, 객체 식별 매핑."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Imported tables require explicit column and object-identity mappings."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 가져온 테이블에는 명시적인 열 및 객체 식별 매핑이 필요합니다."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table."
+msgstr ":ref:`Measure <workflow-module-measure>`: 대응하는 이미지와 외부 정수 마스크를 가져와 병합된 프로젝트 배열을 만든 뒤 해당 프로젝트에서 Measure를 여세요. 호환되는 측정값을 이미 가져왔거나 계산했다면 이 단계를 건너뛰세요. 기존에 가져온 테이블에 중복 측정값을 추가하지 마세요."
+
+msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
+msgstr ":ref:`Mask <workflow-module-mask>`: 이미지만 가져오는 경우 Import Images 또는 Format Converter를 사용하고, Mask에서 변환된 이미지 프로젝트를 지정하세요. 외부 측정값만으로는 분할 입력이 되지 않습니다."
+
+msgid ":doc:`API reference </api/spacr/foreign/index>`."
+msgstr ":doc:`API 참조 </api/spacr/foreign/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=36_import>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=36_import>`__."
+
+msgid "External Masks"
+msgstr "외부 마스크"
+
+msgid "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation."
+msgstr "대응하는 이미지와 기존 정수 레이블 마스크를 할당한 다음, 분할을 다시 실행하지 않고 spaCR 프로젝트를 만들고 측정하세요."
+
+msgid "**Open:** Import → External Masks."
+msgstr "**열기:** 가져오기 → 외부 마스크."
+
+msgid ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
+msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: 저장된 레이블 TIFFs와 원본 이미지를 External Masks에 제공하고, 객체 역할을 할당한 다음 측정 전에 병합 프로젝트를 만드세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Re-measure only when needed; External Masks can already perform measurement."
+msgstr ":ref:`Measure <workflow-module-measure>`: 필요할 때만 다시 측정하세요. External Masks도 이미 측정을 수행할 수 있습니다."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Keep the newly measured project and crop index together."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 새로 측정한 프로젝트와 크롭 인덱스를 함께 보관하세요."
+
+msgid ":doc:`API reference </api/spacr/external_masks/index>`."
+msgstr ":doc:`API 참조 </api/spacr/external_masks/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=31_external_masks>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=31_external_masks>`__."
+
+msgid "Plate Queue"
+msgstr "플레이트 대기열"
+
+msgid "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately."
+msgstr "선택한 파이프라인을 여러 플레이트에 걸쳐 실행하세요. 출력은 대기열에 넣은 각 모듈의 출력이며, 각 플레이트와 그 설정을 따로 보존하세요."
+
+msgid "**Open:** the application's Help/tools menus."
+msgstr "**열기:** 애플리케이션의 도움말/도구 메뉴."
+
+msgid "**Run queue** — Saved module/plate/settings job definitions and dependency order."
+msgstr "**대기열 실행** — 저장된 모듈/플레이트/설정 작업 정의와 의존 순서."
+
+msgid "**Run history and artifacts** — Project run records, settings, output paths, artifact provenance, status and logs."
+msgstr "**실행 기록 및 산출물** — 프로젝트 실행 기록, 설정, 출력 경로, 산출물 출처, 상태 및 로그."
+
+msgid ":doc:`API reference </api/spacr/qt/plate_queue/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/plate_queue/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=30_plate_queue>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=30_plate_queue>`__."
+
+msgid "Batch Runner"
+msgstr "배치 실행기"
+
+msgid "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log."
+msgstr "모듈 작업을 검증하고 의존 순서대로 실행합니다. 각 작업은 자체 모듈 출력과 로그를 씁니다."
+
+msgid ":doc:`API reference </api/spacr/batch/index>`."
+msgstr ":doc:`API 참조 </api/spacr/batch/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=37_batch>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=37_batch>`__."
+
+msgid "Distributed Jobs"
+msgstr "분산 작업"
+
+msgid "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis."
+msgstr "설정된 실행을 원격 실행 대상에 제출하고 상태와 로그를 검사하세요. 하위 분석 전에 실제 모듈 산출물을 가져오세요."
+
+msgid ":doc:`API reference </api/spacr/remote_execution/index>`."
+msgstr ":doc:`API 참조 </api/spacr/remote_execution/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=38_distributed_jobs>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=38_distributed_jobs>`__."
+
+msgid "Database Browser"
+msgstr "데이터베이스 브라우저"
+
+msgid "Browse selected tables and export rows; table inspection does not rerun image analysis."
+msgstr "선택한 테이블을 탐색하고 행을 내보내세요. 테이블 검사는 이미지 분석을 다시 실행하지 않습니다."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Inspect actual tables before exporting."
+msgstr ":ref:`Measure <workflow-module-measure>`: 내보내기 전에 실제 표를 검사하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/db_browser/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/db_browser/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=34_database>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=34_database>`__."
+
+msgid "Run History"
+msgstr "실행 기록"
+
+msgid "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity."
+msgstr "저장된 실행 상태, 설정, 출력, 로그를 검사하세요. 실행이 완료되었다고 생물학적 타당성이 입증되지는 않습니다."
+
+msgid ":doc:`API reference </api/spacr/run_journal/index>`."
+msgstr ":doc:`API 참조 </api/spacr/run_journal/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=40_run_history>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=40_run_history>`__."
+
+msgid "Report"
+msgstr "보고서"
+
+msgid "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis."
+msgstr "분석을 몰래 다시 실행하지 않고 기록된 결과, 설정, QC를 공유 가능한 보고서로 묶으세요."
+
+msgid "**Quality-control results** — Stored project checks and QC reports; a missing check is not a passing result."
+msgstr "**품질 관리 결과** — 저장된 프로젝트 검사와 QC 보고서. 누락된 검사는 통과 결과가 아닙니다."
+
+msgid "**Shareable reports** — Exported HTML/PDF or methods/results documents derived from recorded analysis outputs."
+msgstr "**공유 가능한 보고서** — 기록된 분석 출력에서 만든 내보낸 HTML/PDF 또는 방법/결과 문서."
+
+msgid ":doc:`API reference </api/spacr/report/index>`."
+msgstr ":doc:`API 참조 </api/spacr/report/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=29_report>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=29_report>`__."
+
+msgid "Data Manager"
+msgstr "데이터 관리자"
+
+msgid "Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable."
+msgstr "프로젝트 파일과 디스크 사용량을 검사하세요. 파생 산출물을 삭제하면 그 파일을 사용하는 하위 작업이 무효화됩니다. 원본 이미지는 복구 가능한 상태로 남아 있어야 합니다."
+
+msgid ":doc:`API reference </api/spacr/data_manager/index>`."
+msgstr ":doc:`API 참조 </api/spacr/data_manager/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=44_data_manager>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=44_data_manager>`__."
+
+msgid "Pipeline Graph"
+msgstr "Pipeline Graph"
+
+msgid "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts."
+msgstr "기록된 산출물 의존 관계와 오래됨/누락 상태를 읽습니다. 그래프는 출처를 설명할 뿐, 누락된 산출물을 다시 생성하지 않습니다."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/pipeline_graph/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/pipeline_graph/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=52_pipeline_graph>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=52_pipeline_graph>`__."
+
+msgid "QC"
+msgstr "QC"
+
+msgid "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection."
+msgstr "저장된 분할, 단위, 누출, 플레이트 효과 검사를 검사하세요. 자세히 보려면 중첩된 뷰어를 여세요."
+
+msgid "**Open:** Home → QC."
+msgstr "**열기:** 홈 → QC."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Review available checks and missing evidence."
+msgstr ":ref:`Measure <workflow-module-measure>`: 사용 가능한 검사와 누락된 근거를 검토하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/qc_dashboard/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/qc_dashboard/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=54_qc_dashboard>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=54_qc_dashboard>`__."
+
+msgid "Lineage"
+msgstr "Lineage"
+
+msgid "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference."
+msgstr "기록된 세포/핵/병원체/세포소기관 포함 관계 링크를 검사하세요. 이는 객체 포함 관계이며, 시계열 계보 추론이 아닙니다."
+
+msgid "**Open:** Help search → Database Browser → Lineage."
+msgstr "**열기:** 도움말 검색 → 데이터베이스 브라우저 → Lineage."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/lineage/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=56_lineage>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=56_lineage>`__."
+
+msgid "Experiment Design"
+msgstr "Experiment Design"
+
+msgid "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition."
+msgstr "조건, 대조군, 반복, 플레이트 제약을 입력한 다음 획득 전에 실험 레이아웃을 내보내세요."
+
+msgid "**Open:** Home → Experiment Design."
+msgstr "**열기:** 홈 → Experiment Design."
+
+msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
+msgstr "**스크린 설계 및 검정력 추정** — 명시적으로 선택한 효과 크기, 변동성, 샘플링 가정에 기반한 저장된 계획 테이블 또는 그림."
+
+msgid "**Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data."
+msgstr "**실험 레이아웃** — 내보낸 플레이트/조건/대조군/반복 맵입니다. 플레이트와 웰 식별자를 획득한 데이터와 일치시키세요."
+
+msgid ":ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design."
+msgstr ":ref:`Power / Design <workflow-module-power>`: 실험 레이아웃으로 샘플링 가정을 정의한 다음 설계를 수정하세요."
+
+msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities."
+msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: 용량/조건 식별 정보를 보존하면서 먼저 실험을 획득하고 측정하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/experiment_design/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/experiment_design/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=67_experiment_design>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=67_experiment_design>`__."
+
+msgid "Layer Viewer"
+msgstr "Layer Viewer"
+
+msgid "Inspect aligned image, label and point/ROI layers for the selected field."
+msgstr "선택한 시야의 정렬된 이미지, 레이블, 점/ROI 레이어를 검사하세요."
+
+msgid "**Open:** QC → Layer Viewer."
+msgstr "**열기:** QC → Layer Viewer."
+
+msgid ":doc:`API reference </api/spacr/qt/layer_viewer/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/layer_viewer/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=57_layer_viewer>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=57_layer_viewer>`__."
+
+msgid "Power / Design"
+msgstr "Power / Design"
+
+msgid "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions."
+msgstr "선택한 효과 크기와 변동성으로 필요한 샘플링을 추정하세요. 예비 측정값은 가정에 대한 선택적 근거입니다."
+
+msgid "**Open:** Home → Power / Design."
+msgstr "**열기:** 홈 → Power / Design."
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: 실험 레이아웃으로 샘플링 가정을 정의한 다음 설계를 수정하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/power/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=68_power_design>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=68_power_design>`__."
+
+msgid "Run Compare"
+msgstr "Run Compare"
+
+msgid "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison."
+msgstr "변경된 입력 데이터를 통제된 모델 비교로 취급하지 말고, 호환되는 저장 설정, 개수, 히트 목록을 비교하세요."
+
+msgid "**Open:** Home → Run Compare."
+msgstr "**열기:** 홈 → Run Compare."
+
+msgid "**Run/model comparison** — Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy."
+msgstr "**실행/모델 비교** — 호환되는 저장 실행 또는 마스크의 비교 테이블과 그림. 일치도는 정답 기준 정확도가 아닙니다."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Compare compatible saved result sets and their settings."
+msgstr ":ref:`Regression <workflow-module-regression>`: 호환되는 저장 결과 세트와 그 설정을 비교하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/run_compare/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/run_compare/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=50_run_compare>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=50_run_compare>`__."
+
+msgid "Tabulate"
+msgstr "Tabulate"
+
+msgid "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes."
+msgstr "그룹화 변수와 측정 열을 선택한 다음 피벗 테이블과 그룹별 표본 크기를 검사하세요."
+
+msgid "**Open:** Help search → Database Browser → Tabulate."
+msgstr "**열기:** 도움말 검색 → 데이터베이스 브라우저 → Tabulate."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/tabulate/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/tabulate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=61_tabulate>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=61_tabulate>`__."
+
+msgid "Dose–Response"
+msgstr "Dose–Response"
+
+msgid "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing."
+msgstr "곡선 적합 전에 용량 및 반응 열, 대조군, 단위를 지정하세요. 이 경로에는 시퀀싱이 필요하지 않습니다."
+
+msgid "**Open:** Home → Dose–Response."
+msgstr "**열기:** 홈 → Dose–Response."
+
+msgid "**Assay results** — Assay-specific result tables and figures in the configured destination, preserving well and condition identities."
+msgstr "**분석 결과** — 설정된 대상 위치의 어세이별 결과 테이블과 그림. 웰과 조건 식별 정보를 보존합니다."
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Acquire and measure the experiment first, preserving dose/condition identities."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: 용량/조건 식별 정보를 보존하면서 먼저 실험을 획득하고 측정하세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Join the measured response to explicit doses and controls."
+msgstr ":ref:`Measure <workflow-module-measure>`: 측정된 반응을 명시적인 용량 및 대조군과 결합하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/dose_response/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/dose_response/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=69_dose_response>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=69_dose_response>`__."
+
+msgid "Project Browser"
+msgstr "Project Browser"
+
+msgid "Locate projects and inspect their stage, last run, disk use and stale outputs."
+msgstr "프로젝트를 찾고 단계, 마지막 실행, 디스크 사용량, 오래된 출력을 검사하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/project_browser/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/project_browser/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=45_project_browser>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=45_project_browser>`__."
+
+msgid "Outliers"
+msgstr "Outliers"
+
+msgid "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis."
+msgstr "필터링된 데이터를 분석에 넘기기 전에 강건한 객체/웰 이상치 점수와 선택된 제외 규칙을 검토하세요."
+
+msgid "**Open:** QC → Outliers."
+msgstr "**열기:** QC → Outliers."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/outliers/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/outliers/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=66_outliers>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=66_outliers>`__."
+
+msgid "Embeddings"
+msgstr "Embeddings"
+
+msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
+msgstr "선택한 모델과 채널 정책으로 객체 이미지를 인코딩하세요. 하위 탐색에 특징을 제공할 때 객체 식별 정보와 인코더 출처 정보를 보존하세요."
+
+msgid "**Open:** Home → Embeddings."
+msgstr "**열기:** 홈 → Embeddings."
+
+msgid "**Image embeddings** — Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent."
+msgstr "**이미지 임베딩** — 객체 인덱스가 있는 인코더 특징으로, 채널 정책과 인코더 출처 정보를 포함합니다. 인코딩 API는 특징을 반환하며, 저장 여부는 호출자에 따라 다릅니다."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Retain encoder and channel-policy provenance."
+msgstr ":ref:`Measure <workflow-module-measure>`: 인코더와 채널 정책 출처 정보를 보존하세요."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 일치하는 객체 ID와 함께 인코더 특징 테이블을 제공하세요. 모든 GUI 경로가 이를 자동으로 저장한다고 가정하지 마세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/embeddings/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/embeddings/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=77_embeddings>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=77_embeddings>`__."
+
+msgid "Control Charts"
+msgstr "Control Charts"
+
+msgid "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment."
+msgstr "지정된 대조군을 플레이트 간에 비교하고 드리프트를 검사하세요. 대조군의 정의는 실험에서 나옵니다."
+
+msgid "**Open:** QC → Control Charts."
+msgstr "**열기:** QC → Control Charts."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/control_chart/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/control_chart/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=51_control_charts>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=51_control_charts>`__."
+
+msgid "Training Runs"
+msgstr "학습 실행"
+
+msgid "Compare saved training histories, metrics and settings from compatible model runs."
+msgstr "호환되는 모델 실행의 저장된 학습 기록, 지표, 설정을 비교하세요."
+
+msgid "**Open:** Classify → Training Runs."
+msgstr "**열기:** 분류 → 학습 실행."
+
+msgid ":doc:`API reference </api/spacr/train_compare/index>`."
+msgstr ":doc:`API 참조 </api/spacr/train_compare/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=28_training_runs>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=28_training_runs>`__."
+
+msgid "Align & Stitch"
+msgstr "정렬 및 스티칭"
+
+msgid "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
+msgstr "타일 기하 구조, 겹침, 채널 매핑을 검사한 다음 좌표 기록과 함께 모자이크를 저장하세요. OPS에는 원래 사이클/사이트 식별 정보도 필요합니다."
+
+msgid "**Open:** Home → Align & Stitch."
+msgstr "**열기:** 홈 → 정렬 및 스티칭."
+
+msgid "**Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it."
+msgstr "**정렬된 모자이크와 좌표** — Align & Stitch 대상: 합성 이미지와 이를 해석하는 데 필요한 타일 좌표/레이아웃 기록."
+
+msgid ":ref:`OPS <workflow-module-ops>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
+msgstr ":ref:`OPS <workflow-module-ops>`: 타일 좌표와 원래 시퀀싱 사이클을 OPS로 전달하세요. 평탄화된 모자이크만으로는 부족합니다."
+
+msgid ":doc:`API reference </api/spacr/align/index>`."
+msgstr ":doc:`API 참조 </api/spacr/align/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=32_align_stitch>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=32_align_stitch>`__."
+
+msgid "Make Masks"
+msgstr "마스크 만들기"
+
+msgid "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
+msgstr "분할 학습을 위해 이미지/마스크 쌍을 선별하거나, FEATURES로 이미지와 마스크를 할당하고 측정을 실행하세요. 마스크를 저장한다고 분류기가 학습되지는 않습니다."
+
+msgid "**Open:** Home → Make Masks."
+msgstr "**열기:** 홈 → 마스크 만들기."
+
+msgid "**Curated training fields** — Separate image and integer-mask files with matching field identities; preserve original images and labels."
+msgstr "**선별된 학습 시야** — 시야 식별 정보가 일치하는 이미지 파일과 정수 마스크 파일을 분리하세요. 원본 이미지와 레이블을 보존하세요."
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: 독립적으로 검증된 이미지/마스크 쌍을 사용하세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`: FEATURES로 이미지와 마스크를 짝짓고 측정된 프로젝트를 쓰세요. 독립 마스크는 병합 배열이 아닙니다."
+
+msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: 일치하는 원본 이미지와 함께 플라크 마스크를 사용하세요. 세포 마스크가 자동으로 플라크 레이블이 되지는 않습니다."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/make_masks/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/make_masks/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=14_make_masks>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=14_make_masks>`__."
+
+msgid "Plate Viewer"
+msgstr "플레이트 뷰어"
+
+msgid "Aggregate the selected measurement by well and inspect plate patterns and controls."
+msgstr "선택한 측정값을 웰별로 집계하고 플레이트 패턴과 대조군을 검사하세요."
+
+msgid "**Open:** Graph Builder → Plate Viewer."
+msgstr "**열기:** Graph Builder → 플레이트 뷰어."
+
+msgid ":doc:`API reference </api/spacr/plate_qc/index>`."
+msgstr ":doc:`API 참조 </api/spacr/plate_qc/index>`."
+
+msgid "Image UMAP"
+msgstr "이미지 UMAP"
+
+msgid "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+msgstr "측정 특징 또는 제공된 인코더 특징을 투영하고 대표적인 잘라낸 이미지를 확인하세요. 클러스터는 후보 그룹이며 검증된 표현형이 아닙니다. 올가미와 어노테이션 도구를 사용해 검토된 선택 영역을 해당 측정 데이터베이스의 어노테이션 열에 기록하세요. 기하학적 선택 영역만으로 생물학적 표현형이 입증되지는 않습니다."
+
+msgid "**Open:** Home → Image UMAP."
+msgstr "**열기:** 홈 → 이미지 UMAP."
+
+msgid "**Projection and clusters** — Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data."
+msgstr "**투영 및 클러스터** — 불러온 측정 데이터의 Image UMAP/PCA 좌표 테이블, 선택한 클러스터 및 그림."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose feature columns and inspect representative crops."
+msgstr ":ref:`Measure <workflow-module-measure>`: 특징 열을 선택하고 대표 크롭을 검사하세요."
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: 일치하는 객체 ID와 함께 인코더 특징 테이블을 제공하세요. 모든 GUI 경로가 이를 자동으로 저장한다고 가정하지 마세요."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Supply the matching coordinate/feature columns when defining a selection."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 선택 영역을 정의할 때 일치하는 좌표/특징 열을 제공하세요."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 검토된 올가미 선택을 해당 객체 데이터베이스의 어노테이션 열에 기록한 뒤 Classify에서 그 열을 선택하세요. 잘라낸 이미지를 확인하고 레이블을 검증하세요. 임베딩 클러스터는 정답 데이터가 아닙니다."
+
+msgid "`Module tutorial <tutorials/#lesson=15_image_umap>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=15_image_umap>`__."
+
+msgid "Prediction Profiler"
+msgstr "Prediction Profiler"
+
+msgid "Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects."
+msgstr "입력 특징이 변할 때 적합된 모델이 어떻게 반응하는지 검사하세요. 예측은 인과 효과를 입증하지 않습니다."
+
+msgid "**Open:** Regression → Prediction Profiler."
+msgstr "**열기:** 회귀 → Prediction Profiler."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/profiler/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/profiler/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=53_prediction_profiler>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=53_prediction_profiler>`__."
+
+msgid "Graph Builder"
+msgstr "Graph Builder"
+
+msgid "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
+msgstr "불러온 테이블에서 변수, 그룹, 그래프 설정을 선택한 다음 분석 맥락과 함께 그림을 내보내세요."
+
+msgid "**Open:** Home → Graph Builder."
+msgstr "**열기:** 홈 → Graph Builder."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose explicit variables, groups and filters."
+msgstr ":ref:`Measure <workflow-module-measure>`: 명시적인 변수, 그룹, 필터를 선택하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/graph_builder/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/graph_builder/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=58_graph_builder>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=58_graph_builder>`__."
+
+msgid "Investigate Hit"
+msgstr "Investigate Hit"
+
+msgid "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit."
+msgstr "회귀 히트를 후보 객체 및 정량적인 웰 수준 근거와 연결합니다. 이것이 히트를 독립적으로 검증하지는 않습니다."
+
+msgid "**Open:** Regression → Investigate Hit."
+msgstr "**열기:** 회귀 → Investigate Hit."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join compatible phenotype and object data for the chosen hit."
+msgstr ":ref:`Regression <workflow-module-regression>`: 선택한 히트에 대해 호환되는 표현형 및 객체 데이터를 결합하세요."
+
+msgid ":doc:`API reference </api/spacr/hit_investigation/index>`."
+msgstr ":doc:`API 참조 </api/spacr/hit_investigation/index>`."
+
+msgid "Gate Editor"
+msgstr "Gate Editor"
+
+msgid "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "실제 특징/좌표 열에 임계값 또는 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate를 사용해 표시된 게이트를 어노테이션 열에 기록하세요. 선택된 객체를 검토하고 이진 또는 다중 클래스 레이블을 선택하세요."
+
+msgid "**Open:** Home → Gate Editor."
+msgstr "**열기:** 홈 → Gate Editor."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Supply the matching coordinate/feature columns when defining a selection."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 선택 영역을 정의할 때 일치하는 좌표/특징 열을 제공하세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the actual measured feature definitions and units."
+msgstr ":ref:`Measure <workflow-module-measure>`: 실제 측정된 특징 정의와 단위를 사용하세요."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Apply compatible gates, then review candidate labels."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 호환되는 게이트를 적용한 다음 후보 레이블을 검토하세요."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 검토된 게이트 선택을 어노테이션 열에 기록한 뒤 Classify에서 동일한 열과 객체 집단을 선택하세요. 검증 객체를 학습 레이블과 분리해 두세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/gate_editor/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/gate_editor/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=64_gate_editor>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=64_gate_editor>`__."
+
+msgid "Feature Dictionary"
+msgstr "특성 사전"
+
+msgid "Look up feature definitions and units before choosing measurement columns."
+msgstr "측정 열을 선택하기 전에 특징 정의와 단위를 확인하세요."
+
+msgid "**Feature definitions** — The installed feature dictionary; definitions describe existing measurements and do not compute them."
+msgstr "**특징 정의** — 설치된 특징 사전입니다. 정의는 기존 측정값을 설명할 뿐 계산하지 않습니다."
+
+msgid ":doc:`API reference </api/spacr/feature_dict/index>`."
+msgstr ":doc:`API 참조 </api/spacr/feature_dict/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=62_feature_dictionary>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=62_feature_dictionary>`__."
+
+msgid "Small Multiples"
+msgstr "Small Multiples"
+
+msgid "Compare groups in small-multiple plots with explicit shared or independent axes."
+msgstr "명시적인 공유 축 또는 독립 축이 있는 스몰 멀티플 그래프로 그룹을 비교하세요."
+
+msgid "**Open:** Graph Builder → Small Multiples."
+msgstr "**열기:** Graph Builder → Small Multiples."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/trellis/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/trellis/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=63_small_multiples>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=63_small_multiples>`__."
+
+msgid "Plaque Assay"
+msgstr "플라크 분석"
+
+msgid "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example."
+msgstr "설정된 플라크 모델로 플라크 이미지 또는 기존 마스크를 분석하세요. 이 경로는 측정을 거칠 필요가 없으며, 전용 플라크 예제를 사용하세요."
+
+msgid "**Open:** Toxoplasma → Plaque Assay."
+msgstr "**열기:** 톡소플라스마 → 플라크 분석."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: 일치하는 원본 이미지와 함께 플라크 마스크를 사용하세요. 세포 마스크가 자동으로 플라크 레이블이 되지는 않습니다."
+
+msgid ":doc:`API reference </api/spacr/submodules/index>`."
+msgstr ":doc:`API 참조 </api/spacr/submodules/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=24_plaque>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=24_plaque>`__."
+
+msgid "Recruitment"
+msgstr "리크루트먼트 분석"
+
+msgid "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios."
+msgstr "구획 강도 측정값과 일치하는 숙주/병원체 식별 정보로 리크루트먼트 비율을 계산하세요."
+
+msgid "**Open:** Toxoplasma → Recruitment."
+msgstr "**열기:** 톡소플라스마 → 리크루트먼트 분석."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: 의도한 구획 강도와 식별 정보가 필요합니다."
+
+msgid "`Module tutorial <tutorials/#lesson=25_recruitment>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=25_recruitment>`__."
+
+msgid "Invasion Assay"
+msgstr "침입 분석"
+
+msgid "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion."
+msgstr "필수인 두 색상 차등 염색 측정값과 염색 기준선 대조군을 사용해 부착과 침입을 구분하세요."
+
+msgid "**Open:** Toxoplasma → Invasion Assay."
+msgstr "**열기:** 톡소플라스마 → 침입 분석."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require two-colour stain measurements and appropriate baseline controls."
+msgstr ":ref:`Measure <workflow-module-measure>`: 2색 염색 측정값과 적절한 기준 대조군이 필요합니다."
+
+msgid "`Module tutorial <tutorials/#lesson=26_invasion>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=26_invasion>`__."
+
+msgid "Replication Assay"
+msgstr "복제 분석"
+
+msgid "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole."
+msgstr "명시적인 액포 식별자를 사용해 기생충을 계수하고 조건별 분포를 비교하세요. 숙주 식별자만으로는 액포를 정의할 수 없습니다."
+
+msgid "**Open:** Toxoplasma → Replication Assay."
+msgstr "**열기:** 톡소플라스마 → 복제 분석."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require explicit parasite-to-vacuole identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: 명시적인 기생충-공포 식별 정보가 필요합니다."
+
+msgid "`Module tutorial <tutorials/#lesson=27_replication>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=27_replication>`__."
+
+msgid "Cellpose Workbench"
+msgstr "Cellpose 워크벤치"
+
+msgid "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask."
+msgstr "Make Masks 안에서 Cellpose Workbench를 열고 검증된 이미지/마스크 쌍으로 학습하세요. 마스크에서 체크포인트를 선택하기 전에 별도의 시야로 평가하세요."
+
+msgid "**Open:** Make Masks → Cellpose Workbench."
+msgstr "**열기:** 마스크 만들기 → Cellpose 워크벤치."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use independently checked image/mask pairs."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: 독립적으로 검증된 이미지/마스크 쌍을 사용하세요."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Select the saved compatible checkpoint in Mask."
+msgstr ":ref:`Mask <workflow-module-mask>`: 마스크에서 저장된 호환 체크포인트를 선택하세요."
+
+msgid ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing."
+msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: 학습된 체크포인트를 일치하는 이미지 채널 및 전처리와 함께 custom_model 로 전달하세요."
+
+msgid "`Module tutorial <tutorials/#lesson=19_train_cellpose>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=19_train_cellpose>`__."
+
+msgid "Mask the whole folder"
+msgstr "전체 폴더의 마스크 생성"
+
+msgid "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them."
+msgstr "Make Masks를 통해 열린 이미지 폴더에 선택한 분할 모델을 적용하세요. 측정하기 전에 저장된 레이블을 검사하세요."
+
+msgid "**Open:** Make Masks → Mask the whole folder."
+msgstr "**열기:** 마스크 만들기 → 전체 폴더의 마스크 생성."
+
+msgid ":doc:`API reference </api/spacr/spacr_cellpose/index>`."
+msgstr ":doc:`API 참조 </api/spacr/spacr_cellpose/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=20_cellpose_masks>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=20_cellpose_masks>`__."
+
+msgid "Model Compare"
+msgstr "모델 비교"
+
+msgid "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+msgstr "같은 시야에서 모델 마스크를 비교하세요. 독립적인 참조 레이블이 없으면 일치도는 분할 정확도를 측정하지 않습니다."
+
+msgid "**Open:** Make Masks → Model Compare."
+msgstr "**열기:** 마스크 만들기 → 모델 비교."
+
+msgid ":doc:`API reference </api/spacr/model_compare/index>`."
+msgstr ":doc:`API 참조 </api/spacr/model_compare/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=21_model_compare>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=21_model_compare>`__."
+
+msgid "Model Zoo"
+msgstr "모델 라이브러리"
+
+msgid "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file."
+msgstr "모델 출처를 검사하고 호환되는 체크포인트나 백엔드를 다운로드/설치하세요. 나열된 백엔드 자체는 체크포인트 파일이 아닙니다."
+
+msgid "**Open:** Make Masks → Model Zoo."
+msgstr "**열기:** 마스크 만들기 → 모델 라이브러리."
+
+msgid ":doc:`API reference </api/spacr/model_zoo/index>`."
+msgstr ":doc:`API 참조 </api/spacr/model_zoo/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=22_model_zoo>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=22_model_zoo>`__."
+
+msgid "Curate"
+msgstr "큐레이트"
+
+msgid "Correct labels and track assignments while retaining a record of the edits."
+msgstr "편집 기록을 남기면서 레이블과 궤적 할당을 수정하세요."
+
+msgid "**Open:** Make Masks → Curate."
+msgstr "**열기:** 마스크 만들기 → 큐레이트."
+
+msgid "**Linked time-series objects** — Tracked labels and frame/object associations from the time-series project, with frame interval and units."
+msgstr "**연결된 시계열 객체** — 시계열 프로젝트의 추적된 레이블과 프레임/객체 연관 정보, 프레임 간격 및 단위 포함."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/curate/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/curate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=42_curate>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=42_curate>`__."
+
+msgid "Napari Bridge"
+msgstr "나파리 브리지"
+
+msgid "Send the matching image/labels to napari and import the revised labels back with field identity preserved."
+msgstr "일치하는 이미지/레이블을 napari로 보내고, 시야 식별 정보를 보존한 채 수정된 레이블을 다시 가져오세요."
+
+msgid "**Open:** Make Masks → Napari Bridge."
+msgstr "**열기:** 마스크 만들기 → 나파리 브리지."
+
+msgid ":doc:`API reference </api/spacr/napari_bridge/index>`."
+msgstr ":doc:`API 참조 </api/spacr/napari_bridge/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=46_napari_bridge>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=46_napari_bridge>`__."
+
+msgid "Import Images"
+msgstr "이미지 가져오기"
+
+msgid "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement."
+msgstr "별도 프로젝트를 쓰기 전에 시야 식별 정보, 이미지 채널, 선택적 외부 마스크를 검토하세요. 이미지만 가져온 경우 측정 전에 분할이 필요합니다."
+
+msgid "**Open:** Import → Import Images."
+msgstr "**열기:** 가져오기 → 이미지 가져오기."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use imported image planes and identities; image-only imports still need segmentation."
+msgstr ":ref:`Mask <workflow-module-mask>`: 가져온 이미지 평면과 식별 정보를 사용하세요. 이미지만 가져온 경우에도 분할이 필요합니다."
+
+msgid ":doc:`API reference </api/spacr/image_import/index>`."
+msgstr ":doc:`API 참조 </api/spacr/image_import/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=74_import_images>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=74_import_images>`__."
+
+msgid "Barcode QC"
+msgstr "바코드 QC"
+
+msgid "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering."
+msgstr "가이드 개수 필터링 전에 매핑 깊이, 커버리지, 충돌, 위치 효과를 검사하세요."
+
+msgid "**Open:** Map Barcodes → Barcode QC."
+msgstr "**열기:** 바코드 매핑 → 바코드 QC."
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Check mapping and coverage before guide filtering."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: 가이드 필터링 전에 매핑과 커버리지를 확인하세요."
+
+msgid ":doc:`API reference </api/spacr/sequencing_qc/index>`."
+msgstr ":doc:`API 참조 </api/spacr/sequencing_qc/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=47_barcode_qc>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=47_barcode_qc>`__."
+
+msgid "Image Scatter"
+msgstr "이미지 산점도"
+
+msgid "Plot selected measurement columns with object-crop inspection."
+msgstr "객체 크롭 검사와 함께 선택한 측정 열을 그래프로 그리세요."
+
+msgid "**Open:** Image UMAP → Image Scatter."
+msgstr "**열기:** 이미지 UMAP → 이미지 산점도."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/image_scatter/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/image_scatter/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=55_image_scatter>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=55_image_scatter>`__."
+
+msgid "PCA"
+msgstr "PCA"
+
+msgid "Inspect principal components and feature loadings for the selected measured objects."
+msgstr "선택한 측정 객체의 주성분과 특징 적재값을 검사하세요."
+
+msgid "**Open:** Image UMAP → PCA."
+msgstr "**열기:** 이미지 UMAP → PCA."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/pca/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/pca/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=60_pca>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=60_pca>`__."
+
+msgid "Volcano Explorer"
+msgstr "볼케이노 플롯 탐색기"
+
+msgid "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records."
+msgstr "저장된 회귀 결과를 열어 효과 크기, 보정된 유의성, 개별 히트 기록을 검사하세요."
+
+msgid "**Open:** Regression → Volcano Explorer."
+msgstr "**열기:** 회귀 → 볼케이노 플롯 탐색기."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Inspect saved effects and adjusted significance."
+msgstr ":ref:`Regression <workflow-module-regression>`: 저장된 효과와 보정된 유의성을 검사하세요."
+
+msgid ":doc:`API reference </api/spacr/volcano_style/index>`."
+msgstr ":doc:`API 참조 </api/spacr/volcano_style/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=72_volcano_explorer>`__."
+
+msgid "Hit List"
+msgstr "히트 목록"
+
+msgid "Filter and rank saved hits with their effects, FDR and guide agreement."
+msgstr "저장된 히트를 효과, FDR, 가이드 일치도와 함께 필터링하고 순위를 매기세요."
+
+msgid "**Open:** Regression → Hit List."
+msgstr "**열기:** 회귀 → 히트 목록."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Inspect ranked hits and guide agreement."
+msgstr ":ref:`Regression <workflow-module-regression>`: 순위가 매겨진 히트와 가이드 일치도를 검사하세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/hit_list/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/hit_list/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=48_hit_list>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=48_hit_list>`__."
+
+msgid "Methods & Results"
+msgstr "방법 및 결과"
+
+msgid "Draft methods/results text from recorded settings and results; review every claim before publication."
+msgstr "기록된 설정과 결과로 방법/결과 문장 초안을 작성합니다. 게재 전에 모든 주장을 검토하세요."
+
+msgid "**Open:** Regression → Methods & Results."
+msgstr "**열기:** 회귀 → 방법 및 결과."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Review exported prose and every traced result."
+msgstr ":ref:`Regression <workflow-module-regression>`: 내보낸 문장과 추적된 모든 결과를 검토하세요."
+
+msgid ":doc:`API reference </api/spacr/methods_export/index>`."
+msgstr ":doc:`API 참조 </api/spacr/methods_export/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=49_methods_results>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=49_methods_results>`__."
+
+msgid "Diagnostics"
+msgstr "진단"
+
+msgid "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions."
+msgstr "선택한 회귀 실행이 저장한 진단 패널을 검사하세요. 진단이 누락된 것과 가정을 통과한 것을 구별하세요."
+
+msgid "**Open:** Regression → Diagnostics."
+msgstr "**열기:** 회귀 → 진단."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Open the diagnostics actually written by this run."
+msgstr ":ref:`Regression <workflow-module-regression>`: 이 실행이 실제로 기록한 진단 결과를 여세요."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/regression/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/regression/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=75_regression_diagnostics>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=75_regression_diagnostics>`__."
+
+msgid "Illumination"
+msgstr "조명"
+
+msgid "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy."
+msgstr "설정된 단계에서 평탄 필드 보정을 추정하고 적용하세요. 보정된 표시 값을 원시 측정값과 구별하고 적용한 정책을 기록하세요."
+
+msgid "**Open:** Measure → Illumination."
+msgstr "**열기:** 측정 → 조명."
+
+msgid ":doc:`API reference </api/spacr/illumination/index>`."
+msgstr ":doc:`API 참조 </api/spacr/illumination/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=43_illumination>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=43_illumination>`__."
+
+msgid "AnnData Export"
+msgstr "AnnData 내보내기"
+
+msgid "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis."
+msgstr "하위 단일 세포 분석을 위해 객체 메타데이터와 측정된 특징이 담긴 AnnData .h5ad 파일을 내보내세요."
+
+msgid "**Open:** Measure → AnnData Export."
+msgstr "**열기:** 측정 → AnnData 내보내기."
+
+msgid "**AnnData export** — An exported .h5ad file containing measured features and object metadata."
+msgstr "**AnnData 내보내기** — 측정된 특징과 객체 메타데이터가 들어 있는 내보낸 .h5ad 파일입니다."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Export compatible feature and metadata columns."
+msgstr ":ref:`Measure <workflow-module-measure>`: 호환되는 특징 및 메타데이터 열을 내보내세요."
+
+msgid ":doc:`API reference </api/spacr/anndata_export/index>`."
+msgstr ":doc:`API 참조 </api/spacr/anndata_export/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=59_anndata_export>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=59_anndata_export>`__."
+
+msgid "Motility Assay"
+msgstr "운동성 분석"
+
+msgid "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration."
+msgstr "명시적인 프레임 간격과 픽셀 보정으로 궤적 속도와 감염 관련 측정값을 검사하세요."
+
+msgid "**Open:** Measure → Motility Assay."
+msgstr "**열기:** 측정 → 운동성 분석."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Supply frame interval and pixel calibration."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: 프레임 간격과 픽셀 보정을 지정하세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Combine measured objects with matching tracks."
+msgstr ":ref:`Measure <workflow-module-measure>`: 측정된 객체를 일치하는 궤적과 결합하세요."
+
+msgid ":doc:`API reference </api/spacr/timelapse/index>`."
+msgstr ":doc:`API 참조 </api/spacr/timelapse/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=18_motility>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=18_motility>`__."
+
+msgid "Timelapse"
+msgstr "타임랩스"
+
+msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
+msgstr "마스크에서 타임랩스를 열어 순서가 있는 프레임에 걸쳐 객체를 분할하고 연결하세요. 하위 운동성 분석 전에 연결을 검사하세요."
+
+msgid "**Open:** Mask → Timelapse."
+msgstr "**열기:** 마스크 → 타임랩스."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Enable the nested time-series route before generating linked labels."
+msgstr ":ref:`Mask <workflow-module-mask>`: 연결된 레이블을 생성하기 전에 중첩 시계열 경로를 켜세요."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the time-series project with stable frame/object identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: 안정적인 프레임/객체 식별자가 있는 시계열 프로젝트를 사용하세요."
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Supply frame interval and pixel calibration."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: 프레임 간격과 픽셀 보정을 지정하세요."
+
+msgid "`Module tutorial <tutorials/#lesson=17_timelapse>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=17_timelapse>`__."
+
+msgid "OPS"
+msgstr "OPS"
+
+msgid "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV."
+msgstr "시퀀싱 사이클 이미지와 표현형 정렬을 사용하여 핵마다 바코드를 디코딩하세요. 회귀 전에 디코딩된 식별 정보를 호환되는 표현형 입력에 집계/결합하세요. OPS 데이터베이스는 FASTQ 개수 CSV를 바로 대체할 수 없습니다."
+
+msgid "**Open:** Mask → OPS."
+msgstr "**열기:** 마스크 → OPS."
+
+msgid ":ref:`Align & Stitch <workflow-module-align>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
+msgstr ":ref:`Align & Stitch <workflow-module-align>`: 타일 좌표와 원래 시퀀싱 사이클을 OPS로 전달하세요. 평탄화된 모자이크만으로는 부족합니다."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
+msgstr ":ref:`Regression <workflow-module-regression>`: 회귀 전에 디코딩된 객체를 표현형 및 가이드 입력에 명시적으로 결합/집계하세요. 이는 직접적인 CSV 전달이 아닙니다."
+
+msgid ":doc:`API reference </api/spacr/ops_engine/index>`."
+msgstr ":doc:`API 참조 </api/spacr/ops_engine/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=76_ops>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=76_ops>`__."
+
+msgid "Classifier Evaluation"
+msgstr "분류기 평가"
+
+msgid "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+msgstr "일치하는 분류기의 보류 예측, 보정, 분할/누출 근거를 검사하세요."
+
+msgid "**Open:** Classify → Classifier Evaluation."
+msgstr "**열기:** 분류 → 분류기 평가."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Use the matching held-out predictions and split metadata."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 일치하는 보류 예측과 분할 메타데이터를 사용하세요."
+
+msgid ":doc:`API reference </api/spacr/classifier_evaluation/index>`."
+msgstr ":doc:`API 참조 </api/spacr/classifier_evaluation/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=39_classifier_evaluation>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=39_classifier_evaluation>`__."
+
+msgid "Explain CV Model"
+msgstr "CV 모델 설명"
+
+msgid "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality."
+msgstr "식별 결합을 보존하면서 기존 컴퓨터 비전 점수에 측정 특징 대리 모델을 적합하세요. 대리 모델 설명은 인과관계가 아닙니다."
+
+msgid "**Open:** Classify → Explain CV Model."
+msgstr "**열기:** 분류 → CV 모델 설명."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Select CV predictions and the matching measured objects."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: CV 예측과 일치하는 측정 객체를 선택하세요."
+
+msgid ":doc:`API reference </api/spacr/surrogate/index>`."
+msgstr ":doc:`API 참조 </api/spacr/surrogate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=70_explain_cv>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=70_explain_cv>`__."
+
+msgid "Activation"
+msgstr "활성화"
+
+msgid "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps."
+msgstr "일치하는 이미지 분류기와 전처리를 적용하여 돌출도/모델 반응 맵을 검사하세요."
+
+msgid "**Open:** Classify → Activation."
+msgstr "**열기:** 분류 → 활성화."
+
+msgid "**Image attribution maps** — Saved model-response/saliency images for the matching classifier and input preprocessing."
+msgstr "**이미지 기여도 맵** — 일치하는 분류기와 입력 전처리에 대한 저장된 모델 반응/돌출도 이미지."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Also provide the matching crops and channel preprocessing."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 일치하는 크롭과 채널 전처리도 함께 제공하세요."
+
+msgid ":doc:`API reference </api/spacr/deep_spacr/index>`."
+msgstr ":doc:`API 참조 </api/spacr/deep_spacr/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=16_activation>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=16_activation>`__."
+
+msgid "Annotator Agreement"
+msgstr "주석자 일치도"
+
+msgid "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy."
+msgstr "독립적인 어노테이션 열을 비교하고 불일치 객체를 검사하세요. 일치도는 분류 정확도와 별개입니다."
+
+msgid "**Open:** Annotate → Annotator Agreement."
+msgstr "**열기:** 어노테이션 → 주석자 일치도."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Choose independent annotation columns for the same objects."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 같은 객체에 대해 독립적인 어노테이션 열을 선택하세요."
+
+msgid ":doc:`API reference </api/spacr/agreement/index>`."
+msgstr ":doc:`API 참조 </api/spacr/agreement/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=23_agreement>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=23_agreement>`__."
+
+msgid "Computer Vision"
+msgstr "컴퓨터 비전"
+
+msgid "Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint."
+msgstr "레이블이 지정된 객체 크롭, 아카이브 또는 지원되는 스트리밍 크롭으로 이미지 분류기를 학습하세요. 체크포인트를 적용할 때 채널과 전처리를 일치시키세요."
+
+msgid "**Open:** Classify → Computer Vision."
+msgstr "**열기:** 분류 → 컴퓨터 비전."
+
+msgid "`Module tutorial <tutorials/#lesson=10_classify_cv>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=10_classify_cv>`__."
+
+msgid "Tabular Machine Learning"
+msgstr "표 형식 머신러닝"
+
+msgid "Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores."
+msgstr "측정된 객체와 레이블로 특징 기반 분류기를 학습하세요. 점수를 사용하기 전에 누락 특징 제외와 그룹별 보류 성능을 검사하세요."
+
+msgid "**Open:** Classify → Tabular Machine Learning."
+msgstr "**열기:** 분류 → 표 형식 머신러닝."
+
+msgid "`Module tutorial <tutorials/#lesson=11_classify_ml>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=11_classify_ml>`__."
+
+msgid "Parameter Sweep"
+msgstr "매개변수 탐색"
+
+msgid "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed."
+msgstr "명시적으로 선택한 회귀 설정을 실행하고 진단 결과를 비교하세요. 입력 데이터와 평가 질문은 고정하세요."
+
+msgid "**Open:** Regression → Parameter Sweep."
+msgstr "**열기:** 회귀 → 매개변수 탐색."
+
+msgid ":doc:`API reference </api/spacr/parameter_sweep/index>`."
+msgstr ":doc:`API 참조 </api/spacr/parameter_sweep/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=73_parameter_sweep>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=73_parameter_sweep>`__."
+
+msgid "Toxoplasma"
+msgstr "톡소플라스마"
+
+msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+msgstr "홈에서 생물종 가이드를 열어 구획 도식을 살펴본 다음 Plaque Assay, 리크루트먼트, Invasion Assay 또는 Replication Assay를 선택하세요. 출시 예정 타일 4개는 제안을 설명하며 실행할 수 없습니다. 가이드 자체는 프로젝트를 분석하거나 측정 테이블을 생성하지 않습니다."
+
+msgid "**Open:** Home → Toxoplasma."
+msgstr "**열기:** 홈 → 톡소플라스마."
+
+msgid "**Bundled organism reference** — Installed organism descriptions and SwissBioPics cell diagrams; no project input is required."
+msgstr "**내장 생물종 참조 자료** — 설치된 생물종 설명과 SwissBioPics 세포 도식. 프로젝트 입력이 필요하지 않습니다."
+
+msgid "**Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced."
+msgstr "**생물종 가이드 및 어세이 선택** — GUI 전용 구획 강조 표시와 사용 가능한 어세이로의 이동. 측정값이나 파일은 생성되지 않습니다."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/organism_screen/index>`."
+msgstr ":doc:`API 참조 </api/spacr/qt/screens/organism_screen/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=82_toxoplasma>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=82_toxoplasma>`__."
+
+msgid "Plasmodium spp."
+msgstr "Plasmodium spp."
+
+msgid "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+msgstr "홈에서 생물종 가이드를 열어 계획된 말라리아 이미징 워크플로를 읽고 공통 정단복합체 도식을 살펴보세요. 8개 어세이 타일은 모두 출시 예정이며, 어느 것도 분석을 시작하거나 결과를 생성하지 않습니다."
+
+msgid "**Open:** Home → Plasmodium spp.."
+msgstr "**열기:** 홈 → Plasmodium spp.."
+
+msgid "`Module tutorial <tutorials/#lesson=83_plasmodium>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=83_plasmodium>`__."
+
+msgid "Candida spp."
+msgstr "Candida spp."
+
+msgid "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+msgstr "홈에서 생물종 가이드를 열어 계획된 진균 이미징 워크플로를 읽고 일반적인 출아 효모 도식을 살펴보세요. 8개 어세이 타일은 모두 출시 예정이며, 어느 것도 분석을 시작하거나 결과를 생성하지 않습니다."
+
+msgid "**Open:** Home → Candida spp.."
+msgstr "**열기:** 홈 → Candida spp.."
+
+msgid "`Module tutorial <tutorials/#lesson=84_candida>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=84_candida>`__."
+
+msgid "Endodyogeny size proxy"
+msgstr "내분열 크기 대리 지표"
+
+msgid "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional."
+msgstr "측정된 구획 면적을 읽고, 조건을 어노테이션하며, area ** 1.5를 log2 크기 배가 구간으로 나눕니다. 기본값은 공포가 아니라 숙주 세포별로 병원체 면적을 집계하므로 한 세포 안의 여러 공포가 합쳐집니다. 이는 면적 기반 크기 대리 지표이며, 측정된 부피나 기생충 수가 아닙니다. 공포당 기생충 수가 필요하면 명시적인 공포 식별 정보와 함께 Replication Assay를 사용하세요. API를 호출하기 전에 구획, 면적 필터, 보정, 조건, 그룹화를 설정하세요. 저장은 선택 사항입니다."
+
+msgid "**Use from Python:** :func:`spacr.submodules.analyze_endodyogeny`. This API-only workflow has no Home tile or menu entry."
+msgstr "**Python에서 사용:** :func:`spacr.submodules.analyze_endodyogeny`. 이 API 전용 워크플로에는 홈 타일이나 메뉴 항목이 없습니다."
+
+msgid "**Host-cell-aggregated compartment areas** — Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell. Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``, ``png_list``. Relevant columns, depending on the route: ``cell_id``, ``pathogen_area``."
+msgstr "**숙주 세포별 집계 구획 면적** — 각 src 프로젝트 루트의 measurements/measurements.db; 표는 기본적으로 cell, nucleus, pathogen, cytoplasm이며 병합을 위해 png_list가 추가됩니다. compartment 설정이 면적 열을 선택하며, 기본값 pathogen_area를 숙주 세포별로 합산합니다. 경로에 따른 관련 표: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``, ``png_list``. 경로에 따른 관련 열: ``cell_id``, ``pathogen_area``."
+
+msgid "**Area-derived size-proxy results** — Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/. Relevant columns, depending on the route: ``pathogen_area``, ``pathogen_volume``, ``pathogen_volume_bin``, ``bin_index``."
+msgstr "**면적 기반 크기 대리 지표 결과** — 반환되는 data 및 chi_squared DataFrame; save=True이면 첫 번째 프로젝트 루트/results/analyze_endodyogeny/ 아래에 data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv, 그림도 씁니다. 경로에 따른 관련 열: ``pathogen_area``, ``pathogen_volume``, ``pathogen_volume_bin``, ``bin_index``."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+msgstr ":ref:`Measure <workflow-module-measure>`: 측정된 프로젝트 루트와 필요한 객체/png_list 테이블을 제공하세요. 크기 구간을 해석하기 전에 숙주 세포 집계와 면적 단위를 확인하세요. 마스크 개수 데이터베이스만으로는 부족합니다."
+
+msgid "Direct Cellpose mask generation"
+msgstr "Cellpose 마스크 직접 생성"
+
+msgid "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project."
+msgstr "Python API를 통해 TIFF 시야에 기본 또는 사용자 지정 Cellpose 모델을 실행합니다. identify_masks_finetune 이라는 과거 이름과 달리 이 함수는 학습이 아니라 추론을 수행합니다. 정규화, 채널, 크기 조정, 모델 매개변수를 검토하세요. 마스크는 save가 켜져 있을 때만 기록됩니다. 측정 전에 External Masks를 통해 호환되는 이미지/마스크 쌍을 가져오거나, 학습 전에 쌍을 선별하세요. 이 호출은 측정에 바로 쓸 수 있는 병합 프로젝트를 만들지 않습니다."
+
+msgid "**Use from Python:** :func:`spacr.spacr_cellpose.identify_masks_finetune`. This API-only workflow has no Home tile or menu entry."
+msgstr "**Python에서 사용:** :func:`spacr.spacr_cellpose.identify_masks_finetune`. 이 API 전용 워크플로에는 홈 타일이나 메뉴 항목이 없습니다."
+
+msgid "**TIFF fields for direct Cellpose inference** — Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint."
+msgstr "**Cellpose 직접 추론용 TIFF 시야** — src 최상위의 소문자 .tif 파일이며, src/masks에 같은 이름의 파일이 있으면 건너뜁니다. 설정된 채널과 호환되는 기본 model_name 또는 custom_model 체크포인트를 지정하세요."
+
+msgid "**Direct Cellpose TIFF masks** — When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db."
+msgstr "**Cellpose TIFF 마스크 직접 사용** — save=True이면 src/masks/<image-name>.tif 파일에 정수 레이블이 저장됩니다. 호출은 None을 반환하며 병합 배열이나 measurements.db 파일을 만들지 않습니다."
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: 학습된 체크포인트를 일치하는 이미지 채널 및 전처리와 함께 custom_model 로 전달하세요."
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: 저장된 레이블 TIFFs와 원본 이미지를 External Masks에 제공하고, 객체 역할을 할당한 다음 측정 전에 병합 프로젝트를 만드세요."
+
+msgid "Pooled-screen simulation sweep"
+msgstr "풀드 스크린 시뮬레이션 스윕"
+
+msgid "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid."
+msgstr "Python 스윕 API로 명시한 스크린 설계 가정을 탐색하세요. 조합을 전개하고, 프로세스 풀에서 시뮬레이션을 실행하며, 합성 요약 통계를 씁니다. 반환값은 None입니다. 실행 전에 작고 명시적인 max_workers 값과 범위가 제한된 매개변수 격자를 설정하세요. 출력은 실험적 회귀를 위한 측정값이나 바코드 개수를 대체하지 않습니다. 결과는 가정을 기록한 채 계획 근거로 사용하세요. 계획 가정을 선택할 때 합성 요약을 검토하고, 그 가정을 Power / Design 또는 Experiment Design에 수동으로 옮기세요. 두 도구 모두 이 시뮬레이션 데이터베이스를 가져오지 않으며, 시뮬레이션 설정 격자를 내보내지도 않습니다."
+
+msgid "**Use from Python:** :func:`spacr.sim.run_multiple_simulations`. This API-only workflow has no Home tile or menu entry."
+msgstr "**Python에서 사용:** :func:`spacr.sim.run_multiple_simulations`. 이 API 전용 워크플로에는 홈 타일이나 메뉴 항목이 없습니다."
+
+msgid "**Pooled-screen simulation assumptions** — Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound."
+msgstr "**풀드 스크린 시뮬레이션 가정** — Python 설정 사전: 스크린 크기, 점유율, 분류기 정확도, 시퀀싱 가정에 대한 반복 가능한 스윕 값과 함께 replicates, src, name, variable, plot, max_workers. generate_parameters가 이들의 데카르트 곱을 전개합니다. 작은 스윕과 명시적인 워커 수 한도로 시작하세요."
+
+msgid "**Synthetic screen simulation summaries** — src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits. Relevant tables, depending on the route: ``simulations``."
+msgstr "**합성 스크린 시뮬레이션 요약** — src/<YYMMDD>/<name>/simulations.db; 스윕이 simulations에 요약 행을 추가하고 선택적으로 그래프를 씁니다. 이는 합성된 성능 추정치이며 측정된 실험 히트가 아닙니다. 경로에 따른 관련 표: ``simulations``."
+
+msgid ":doc:`API reference </api/spacr/sim/index>`."
+msgstr ":doc:`API 참조 </api/spacr/sim/index>`."
+
+msgid "Host–Pathogen Analysis"
+msgstr "숙주–병원체 분석"
+
+msgid "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+msgstr "액포 전체와 숙주의 기준 구획을 측정하고, 감염 비율의 분모에 비감염 숙주 세포를 포함하세요. 마커 채널과 대조군으로 보정한 비율 임계값을 선택하세요. 필요한 경우 명시적인 액포 연결 정보나 측정된 개체 수 열을 이용해 개별적으로 분할된 기생충을 계수하세요. 액포, 숙주 및 웰 표, 마커의 결합 상태, 증식 분포와 연결 대상을 찾지 못한 기생충 정보를 검토하세요. 알 수 없는 측정값은 알 수 없는 상태로 유지합니다."
+
+msgid "**Open:** Toxoplasma → Host–Pathogen Analysis."
+msgstr "**열기:** 톡소플라스마 → 숙주–병원체 분석."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
+msgstr ":ref:`Measure <workflow-module-measure>`: 측정에서 감염되지 않은 세포를 유지하세요. 공포 전체 마스크, 숙주 기준 강도, 선택적으로 명시적인 기생충-공포 연결을 제공하세요. 숙주 식별만으로는 공포가 정의되지 않습니다."
+
+msgid ":doc:`API reference </api/spacr/host_pathogen/index>`."
+msgstr ":doc:`API 참조 </api/spacr/host_pathogen/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=85_host_pathogen>`__."
+msgstr "`모듈 튜토리얼 <tutorials/#lesson=85_host_pathogen>`__."
+

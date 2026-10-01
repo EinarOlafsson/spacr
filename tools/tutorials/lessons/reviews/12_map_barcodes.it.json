@@ -1,0 +1,35 @@
+{
+  "lesson": "12_map_barcodes",
+  "english_sha256": "7402e3485399ce5b847c3b955761c012fc92be1c2bf6d5bae1e2db305d6ab139",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Map Barcodes: dalle letture di sequenziamento ai conteggi",
+  "description": "Carica letture appaiate e riferimenti della libreria, trova le posizioni dei codici a barre, applica le impostazioni e salva i conteggi delle guide.",
+  "objectives": [
+    "Scaricare un piccolo esempio di letture appaiate e selezionare le tabelle di riferimento corrispondenti.",
+    "Esaminare posizioni e orientamento dei codici a barre prima di applicare una proposta.",
+    "Eseguire la mappatura ed esaminare i conteggi e gli output del controllo qualità."
+  ],
+  "prerequisite": "Scegli Load test data in Map Barcodes. L’esempio usa le letture SRR33531217, le corrispondenti tabelle di colonne e righe primers_3 e i riferimenti delle guide. Usa tabelle di riferimento corrispondenti alla tua libreria quando elabori altre letture.",
+  "scenes": [
+    "Da Home, apri Map Barcodes. Gli input sono letture di sequenziamento e tabelle di riferimento che danno un nome ai codici a barre della tua libreria. L’output conta ogni combinazione osservata, pronta per il controllo qualità del sequenziamento e per l’analisi successiva.",
+    "Fai clic su Load test data e seleziona entrambe le letture appaiate della prima corsa dell’archivio. Limita ogni file a diecimila letture per questo esempio, poi attendi il download del campione appaiato.",
+    "Seleziona le tabelle di riferimento corrispondenti per colonne, righe e guide. Ogni tabella associa nomi di codici a barre e sequenze. Mantieni questi nomi coerenti con lo schema della piastra e con gli identificativi delle guide usati nel resto dell’analisi.",
+    "Apri Find barcodes e avvia la ricerca. L’anteprima campiona entrambe le letture della coppia e controlla posizioni e orientamenti dei codici a barre. Attendi i risultati prima di modificare il modulo principale.",
+    "Confronta Observed con By chance, poi esamina orientamento, spostamento e verdetto proposti per ogni codice a barre. Preferisci le posizioni sostenute da molte letture e da riferimenti attesi ben distinti. Apri la spiegazione del verdetto se il risultato è incerto.",
+    "Esamina i risultati della guida per entrambe le letture della coppia. In questo esempio, la lettura uno sostiene la sequenza della guida in complemento inverso e la lettura due sostiene l’orientamento salvato. Scegli l’orientamento in base ai risultati della tua libreria e della tua coppia di letture.",
+    "Controlla anche il codice a barre di riga. Qui la lettura uno sostiene il suo complemento inverso e la lettura due sostiene la sequenza salvata. Esamina insieme colonna, guida e riga, così che la combinazione completa identifichi il pozzetto e la guida corretti.",
+    "Apri il visualizzatore di letture per esaminare le singole letture. Usa la legenda dei colori per trovare i segmenti di colonna, guida, riga e ancoraggio. Controlla che le posizioni proposte corrispondano alla struttura attesa della libreria.",
+    "Esamina le impostazioni di estrazione proposte, poi fai clic su Apply these settings per copiarle nel modulo. L’esempio usa una finestra di estrazione di ottantanove basi. Controlla i campi aggiornati prima di avviare l’esecuzione.",
+    "Segui le note sull’orientamento quando scegli i file di riferimento definitivi. In questo esempio, seleziona copie in complemento inverso dei riferimenti di righe e guide, e mantieni il riferimento delle colonne così come è salvato. Conserva tutti i nomi dei codici a barre quando prepari queste copie.",
+    "Scegli la coppia di letture scaricata, due processi di lavoro e blocchi di mille letture. Attiva il salvataggio delle letture annotate se vuoi esaminare le singole assegnazioni. Fai clic su Run; questo flusso di mappatura usa la CPU.",
+    "Al termine della mappatura, esamina unique_combinations.csv e gli output del controllo qualità. La tabella dei conteggi collega i nomi di colonna, riga e guida al numero di letture. Esamina le assegnazioni senza corrispondenza e ambigue in Barcode QC, poi abbina questi conteggi ai punteggi di fenotipo in Regression."
+  ]
+}

@@ -241,6 +241,7 @@ def _make_screen(app_key=None, host=None):
             self.status.setWordWrap(True)
             right_layout.addWidget(self.status)
             self.progress = QProgressBar(right)
+            self.progress.setTextVisible(False)
             self.progress.setVisible(False)
             right_layout.addWidget(self.progress)
             output = CollapsibleSplitter(
@@ -602,7 +603,11 @@ def _make_screen(app_key=None, host=None):
                 "analysis_unit", "agg_type", "transform",
                 "multiple_testing_method", "fdr_alpha",
                 "fraction_threshold", "min_cells_per_well",
+                "n_rows_fitted_grna", "n_wells_grna",
+                "n_rows_fitted_gene", "n_wells_gene",
                 "n_wells", "n_guides", "n_cells", "n_rows_fitted",
+                "n_rows_prepared", "n_wells_prepared",
+                "n_guides_prepared", "n_genes_prepared",
                 "n_results", "n_below_alpha", "positive_rank",
                 "seconds", "error_type") if c in frame.columns]
             columns = preferred or list(frame.columns)[:12]
@@ -654,11 +659,31 @@ def build_parameter_sweep_card(host):
     return holder, card
 
 
+_LAZY_SWEEP_PANEL_CLASS = None
+
+
 def _lazy_sweep_panel(host):
     """A stand-in that builds the real sweep panel the first time it is needed.
 
-    The class is defined HERE rather than at module scope because this module
-    keeps PySide6 out of its import path on purpose -- see `_make_screen`.
+    :param host: the ``AppScreen`` the real panel will be built for.
+    :returns: a ``LazySweepPanel`` holding nothing but a layout.
+    """
+    return _lazy_sweep_panel_class()(host)
+
+
+def _lazy_sweep_panel_class():
+    """The ``LazySweepPanel`` class, defined once per process.
+
+    The class is defined inside a function rather than at module scope
+    because this module keeps PySide6 out of its import path on purpose --
+    see `_make_screen`. It is defined ONCE and cached, and the host is kept
+    on the instance rather than captured by closure, because PySide6 never
+    releases a QWidget subclass it has had to wrap: a class created per
+    call, whose methods close over ``host``, pinned every regression
+    ``AppScreen`` it was ever built for -- the screen's whole Python wrapper
+    tree, long after Qt had deleted the widgets: about six MB and ~5,000
+    objects kept per regression screen built, and a serial
+    ``pytest tests/qt`` builds hundreds of them.
 
     It forwards ``score_data`` and ``count_data`` because the drop handler
     finds the sweep by looking for that pair (see
@@ -672,6 +697,10 @@ def _lazy_sweep_panel(host):
     and ``retranslate_dynamic_content``, and treating an introspection probe
     as a demand for the panel defeats the whole deferral.
     """
+    global _LAZY_SWEEP_PANEL_CLASS
+    if _LAZY_SWEEP_PANEL_CLASS is not None:
+        return _LAZY_SWEEP_PANEL_CLASS
+
     from PySide6.QtWidgets import QVBoxLayout, QWidget
 
     class LazySweepPanel(QWidget):
@@ -687,9 +716,13 @@ def _lazy_sweep_panel(host):
         real one in, so the surrounding screen sizes correctly either way.
         """
 
-        def __init__(self):
-            """Stand in for the panel without building it."""
+        def __init__(self, host):
+            """Stand in for the panel without building it.
+
+            :param host: the ``AppScreen`` the real panel is built for.
+            """
             super().__init__()
+            self._host = host
             self._panel = None
             layout = QVBoxLayout(self)
             layout.setContentsMargins(0, 0, 0, 0)
@@ -698,7 +731,7 @@ def _lazy_sweep_panel(host):
         def panel(self):
             """The real panel, built on the first ask."""
             if self._panel is None:
-                self._panel = _make_screen(host=host)
+                self._panel = _make_screen(host=self._host)
                 self._layout.addWidget(self._panel)
             return self._panel
 
@@ -739,7 +772,8 @@ def _lazy_sweep_panel(host):
             self.panel()
             super().showEvent(event)
 
-    return LazySweepPanel()
+    _LAZY_SWEEP_PANEL_CLASS = LazySweepPanel
+    return LazySweepPanel
 
 
 def sweepable(app_key: str) -> bool:
@@ -747,5 +781,8 @@ def sweepable(app_key: str) -> bool:
 
     Only the regression module for now: the sweep axes, the legality filters
     and the row-to-regression round trip are all specific to it.
+
+    :param app_key: the module's registry key; only ``"regression"`` gives
+        ``True``.
     """
     return app_key == "regression"

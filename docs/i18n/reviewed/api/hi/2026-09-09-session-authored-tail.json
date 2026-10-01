@@ -378,7 +378,9 @@
       "source_sha256": "e2536b59483cfd352bcf0b5096f93952a96c80e5c82a50ee834dc99053a10df4",
       "source": "Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-well summaries.",
       "context": "Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-microplate sample position summaries.",
-      "translation": "किसी प्रतिदीप्त मार्कर की रोगजनक रिक्तिका तक भर्ती का परिमाणन करता है और प्रति-PV / प्रति-वेल सारांश तैयार करता है।"
+      "translation": "किसी प्रतिदीप्त मार्कर की रोगजनक रिक्तिका तक भर्ती का परिमाणन करता है और प्रति-PV / प्रति-वेल सारांश तैयार करता है।",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.SpatialAttention#0",

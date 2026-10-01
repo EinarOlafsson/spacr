@@ -1,31 +1,33 @@
 {
   "lesson": "23_agreement",
-  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
   "review": {
-    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "es",
-  "title": "Concordancia entre anotadores",
-  "description": "Abra la herramienta integrada, compare etiquetas didácticas explícitamente artificiales en copias de recortes reales descargados y distinga la concordancia por parejas del resumen de varias pasadas.",
+  "title": "Annotator Agreement: comparar pasadas de anotación independientes",
+  "description": "Elige columnas de anotación, compara la concordancia y revisa los recortes en los que las etiquetas difieren.",
   "objectives": [
-    "Abrir Annotator Agreement desde Annotate.",
-    "Comparar etiquetas, observaciones ausentes y matrices de confusión sin cambiar las anotaciones.",
-    "Inspeccionar recortes con discrepancias e interpretar resúmenes de dos y tres pasadas."
+    "Abrir la base de datos de ejemplo y seleccionar dos pasadas de anotación.",
+    "Leer la concordancia por pares y la matriz de confusión.",
+    "Revisar los desacuerdos y comparar tres pasadas de anotación."
   ],
-  "prerequisite": "Los dieciséis recortes son copias sin cambios del ejemplo descargable de Annotate; DEMO_A, DEMO_B y DEMO_C son etiquetas didácticas artificiales añadidas a una base privada nueva. No son clasificaciones biológicas, puntuaciones de revisores humanos ni predicciones. Las imágenes y etiquetas originales no cambian; solo la copia usa png_path relativo. Para evaluar su trabajo, use pasadas de anotación independientes reales. La detección predeterminada excluye columnas conocidas de salida de modelos. Cálculos independientes con enteros y fracciones verifican parejas, matrices y agregados; tres vistas coinciden píxel a píxel con sus recortes. Este ejemplo pequeño enseña controles, no valida la fiabilidad del ensayo. El vídeo anterior repetía una pantalla vacía y describía una detección automática de predicciones que ya no corresponde a la API; no es solo una lección trasladada.",
+  "prerequisite": "Extrae el ejemplo de Annotator Agreement enlazado y conserva su base de datos junto con las imágenes de recorte. Contiene dieciséis imágenes del ejemplo de Annotate y tres columnas de etiquetas didácticas artificiales, DEMO_A, DEMO_B y DEMO_C. Para tu propio análisis, usa anotaciones de las mismas imágenes recogidas de forma independiente.",
   "scenes": [
-    "Abra Annotate y después su botón Annotator Agreement. Es una herramienta integrada, no otro módulo de Home. La vista compara columnas de anotación sin editarlas; vuelva a Annotate cuando quiera cambiar una etiqueta.",
-    "Abra la base de demostración preparada. Sus dieciséis imágenes son recortes reales del ejemplo descargable, pero las tres columnas DEMO son etiquetas didácticas artificiales. No miden la habilidad de una persona ni un fenotipo biológico. Las etiquetas e imágenes originales se conservaron en una copia de origen separada.",
-    "Compruebe explícitamente las columnas seleccionadas en lugar de aceptar las primeras opciones predeterminadas. Una sola columna no permite medir concordancia. La detección actual excluye por defecto las columnas conocidas de salida de modelos; comparar un clasificador con una persona es validación de modelos, no concordancia entre personas.",
-    "Seleccione DEMO A y DEMO B y pulse Compute agreement. Doce recortes están etiquetados en ambas pasadas, tres en solo una y uno en ninguna. Las etiquetas ausentes no se convierten silenciosamente en discrepancias.",
-    "Las dos pasadas didácticas coinciden en nueve de doce recortes comparados: setenta y cinco por ciento, con un kappa de Cohen de cero coma cinco. Considere juntos la concordancia bruta, el solapamiento y el equilibrio de clases. La pantalla advierte que doce etiquetas compartidas no bastan para una estimación estable de fiabilidad; estas etiquetas inventadas solo sirven de demostración.",
-    "Las filas corresponden a DEMO A y las columnas a DEMO B. Cinco recortes tienen clase uno en ambas pasadas y cuatro tienen clase dos en ambas. Los valores fuera de la diagonal, uno y dos, identifican tres discrepancias. Una etiqueta resumen como moderada es una convención, no un umbral de aceptación para su ensayo.",
-    "Seleccione una discrepancia para inspeccionar el recorte correspondiente y sus dos etiquetas. Comprobamos las tres vistas contra sus píxeles originales. En un estudio real, revise imágenes representativas y las definiciones de las clases antes de decidir cómo resolver los casos; esta pantalla de solo lectura no decide por usted.",
-    "Añada DEMO C y vuelva a calcular. Cambiar una casilla no realiza un cálculo nuevo por sí solo. La tabla compara ahora tres parejas, con distintos números de etiquetas compartidas, mientras que el resumen global de Fleiss usa solo los doce recortes etiquetados en todas las pasadas seleccionadas.",
-    "El kappa de Fleiss del ejemplo didáctico es aproximadamente cero coma seis seis tres, no la media de los tres kappas por parejas. Aquí la concordancia bruta global cuenta filas completas unánimes. A la cuarta fila de revisión le falta la etiqueta A, pero B y C discrepan: puede aparecer para revisión sin entrar en el resumen de casos completos.",
-    "Seleccionar solo A y B y volver a calcular restaura la comparación original. Verificamos que la base y los archivos de recortes permanecen sin cambios durante los tres cálculos. Para su análisis, use pasadas de anotación realmente independientes y consulte el tutorial de Annotate para recoger esas etiquetas."
+    "Desde Home, abre Annotate y luego elige Annotator Agreement. Usa esta herramienta para comparar etiquetas recogidas en pasadas de anotación separadas. Los resultados te ayudan a encontrar imágenes que necesitan revisión.",
+    "Abre la base de datos de ejemplo. Mantén a su lado las carpetas de recortes extraídas para que se carguen las vistas previas de las imágenes. Las columnas DEMO contienen etiquetas didácticas artificiales; usa tus propias columnas de anotación independientes cuando evalúes la concordancia en un estudio.",
+    "Selecciona al menos dos columnas de anotación de la lista. En este ejemplo, empieza con DEMO A y DEMO B. Comprueba los nombres de las columnas para comparar las pasadas correctas.",
+    "Haz clic en Compute agreement. Las dos pasadas seleccionadas comparten doce recortes etiquetados. Otros tres recortes tienen etiqueta en una sola pasada, y uno no tiene ninguna. La concordancia por pares usa los recortes etiquetados en ambas pasadas.",
+    "Lee los resultados por pares. Las pasadas coinciden en nueve de doce recortes, lo que da un setenta y cinco por ciento de concordancia y una kappa de Cohen de cero coma cinco. Interpreta estos valores junto con el número de etiquetas compartidas; una muestra pequeña da una estimación incierta.",
+    "Abre la matriz de confusión. Las filas representan DEMO A y las columnas representan DEMO B. La diagonal contiene las etiquetas coincidentes: cinco para la clase uno y cuatro para la clase dos. Las celdas fuera de la diagonal contienen los tres desacuerdos.",
+    "Selecciona un desacuerdo para ver su recorte y las etiquetas asignadas en cada pasada. Compara la imagen con tus definiciones de clase. Para cambiar una etiqueta después de revisarla, vuelve a Annotate.",
+    "Añade DEMO C y vuelve a hacer clic en Compute agreement. La tabla por pares muestra ahora los tres pares. Cada par usa sus etiquetas compartidas, mientras que el resumen global usa los recortes etiquetados en las tres pasadas seleccionadas.",
+    "Lee la kappa de Fleiss global y el resumen de concordancia unánime. Este ejemplo da una kappa de Fleiss de aproximadamente cero coma seis seis tres. Revisa también la lista de desacuerdos: puede incluir un recorte que solo tiene etiquetas en dos de las tres pasadas.",
+    "Para volver a centrarte en un par, selecciona solo A y B y haz clic en Compute agreement. Los resultados se quedan en esta vista de comparación; tus columnas de anotación permanecen en la base de datos de origen. Continúa en Annotate para recoger otra pasada independiente o revisar los desacuerdos encontrados."
   ]
 }

@@ -49,12 +49,19 @@ def available() -> Tuple[str, ...]:
 
 
 def paragraphs(code: str):
-    """The agreement in ``code``, or ``None`` to use the English."""
+    """The agreement in ``code``, or ``None`` to use the English.
+
+    :param code: language code, as :mod:`spacr.qt.i18n` spells it; a code
+        with no registered translation gives ``None``.
+    """
     entry = _TRANSLATIONS.get(str(code))
     return entry[0] if entry else None
 
 
 def review_note(code: str) -> str:
-    """Who reviewed ``code``'s presentation, or ``""`` if it has none."""
+    """Who reviewed ``code``'s presentation, or ``""`` if it has none.
+
+    :param code: language code, as :mod:`spacr.qt.i18n` spells it.
+    """
     entry = _TRANSLATIONS.get(str(code))
     return entry[1] if entry else ""

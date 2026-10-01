@@ -200,10 +200,20 @@ def main(argv=None) -> int:
     merge.add_argument("--base-path", default="/spacr")
     args = parser.parse_args(argv)
     if args.command == "configure":
+        # Load only the compatibility extension from the publisher's tools.
+        # Putting that directory on sys.path would shadow the pinned branch's
+        # own tools (conf.py imports some lazily, e.g. build_module_workflows),
+        # so an older branch would be checked by a newer generator.
         config = args.root / "docs/source/conf.py"
+        compat = Path(__file__).resolve().parent / "docs_publication_compat.py"
         with config.open("a") as handle:
-            handle.write("\nimport sys as _publication_sys\n"
-                         f"_publication_sys.path.insert(0, {str(Path(__file__).resolve().parent)!r})\n"
+            handle.write("\nimport importlib.util as _publication_util\n"
+                         "import sys as _publication_sys\n"
+                         "_publication_spec = _publication_util.spec_from_file_location(\n"
+                         f"    'docs_publication_compat', {str(compat)!r})\n"
+                         "_publication_module = _publication_util.module_from_spec(_publication_spec)\n"
+                         "_publication_sys.modules['docs_publication_compat'] = _publication_module\n"
+                         "_publication_spec.loader.exec_module(_publication_module)\n"
                          "extensions = list(extensions) + ['docs_publication_compat']\n")
     elif args.command == "version":
         from docs_version import source_version

@@ -160,6 +160,7 @@ MASK_APPS = frozenset({"mask", "timelapse"})
 ALT_SRC_KEYS: Dict[str, str] = {
     "foreign": "images",
     "external_masks": "inputs",
+    "ops": "genotype_source",
 }
 
 CHANNEL_KEYS: Tuple[str, ...] = tuple(
@@ -279,7 +280,7 @@ def _known_setting_keys() -> frozenset:
     if _KNOWN_KEYS_CACHE is not None:
         return _KNOWN_KEYS_CACHE
 
-    keys = set()
+    keys = {"hash_inputs"}
     from . import settings as _settings
 
     keys.update(getattr(_settings, "expected_types", {}))
@@ -294,9 +295,6 @@ def _known_setting_keys() -> frozenset:
     from . import graph_types as _graph_types
 
     buf = _io.StringIO()
-    # The sweep wants KEYS, not the user's graph-type choice, and asking for
-    # the choice imports Qt, which validating a batch queue must not do. See
-    # `graph_types._READ_THE_PREFERENCE_STORE`.
     reading = _graph_types._READ_THE_PREFERENCE_STORE.set(False)
     try:
         with contextlib.redirect_stdout(buf):
@@ -650,6 +648,9 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
         fix = (
             "Drop intensity images and label masks onto External Masks, "
             "then review their assignments.")
+    elif key == "genotype_source":
+        fix = ("Set genotype_source to the folder of sequencing tiles; OPS "
+               "searches it recursively.")
     else:
         fix = (
             "Set src to the folder holding the images (or, for measure, "
@@ -1036,7 +1037,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "barcode_mapping": "",
     "compartments": "",
     "compression": "",
-    "complevel": "",
+    "complevel": "comp_level",
     "correlate": "",
     "downstream": "",
     "upstream": "",
@@ -1065,6 +1066,10 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "infection_pca_n_clusters": "",
     "straightness_filter": "drop_straight_tracks",
     "zscore_thresh": "track_outlier_zscore",
+    **{f"{obj}_{bound}": "object_filters"
+       for obj in ("cell", "nucleus", "pathogen")
+       for bound in ("min_area", "max_area", "min_intensity",
+                     "max_intensity")},
 }
 #: NOT HERE: a setting withdrawn from ONE panel while `spacr.settings` still
 #: declares it. `log_x`, `log_y`, `x_lim`, `y_lims` and `png_type` left the
@@ -1149,11 +1154,19 @@ def _object_role_in(key):
     final word and `difflib` scores on characters. A guard that looked only at
     the front would have missed the one case anybody has hit.
 
+    An organelle slot's background switch names its slot by number at the
+    end, ``remove_background_organelle_7``; that is slot 7's role, so slot 1's
+    switch is never answered with slot 7's.
+
     :param key: a settings key.
     :returns: the role name, or ``None`` when the key names none.
     """
     from .object_roles import ALL_ROLES, split_role_setting
+    from .organelle_types import _background_switch_role
 
+    switch = _background_switch_role(key)
+    if switch is not None:
+        return switch
     parts = split_role_setting(key)
     if parts is not None:
         return parts[0]
@@ -1162,13 +1175,30 @@ def _object_role_in(key):
 
 
 def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem]:
-    """Flag keys that look like a typo of a real setting.
+    """Flag keys spaCR does not know: a likely typo, or simply unknown.
 
-    Only keys with a close match are reported: spaCR's newer pipelines
-    (stitching, motility, plotting) legitimately carry keys that are not in
-    ``expected_types``, and warning about all of them would be noise.
+    Decision 2026-09-25 (item 237): "settings files with retired keys: WARN
+    AND MIGRATE -- known retired keys are migrated to their successors;
+    truly unknown keys produce a visible warning but the run continues."
+
+    A key with a close match to a live setting is reported as a typo with
+    the suggestion. A key with no close match, that is not retired
+    (:func:`_check_retired_keys` speaks for those) and not renamed, is now
+    reported too -- as a WARNING, never an ERROR, so the run goes ahead
+    with the value ignored. "Known" is broad: ``expected_types``, the
+    tooltips, the category lists and every key a ``set_default_*`` /
+    ``get_*_settings`` helper produces, plus the app's own extra keys. A
+    plugin app's settings are its own, so for one only the typo check runs.
+    A key with no value is not reported: older settings files carry their
+    section headings ("General", "Cell", ...) as blank rows, and a blank
+    value changes nothing whatever its name.
     """
     known = _known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
+    try:
+        from .plugins import get_app as _get_plugin_app
+        plugin = bool(app) and _get_plugin_app(app) is not None
+    except Exception:
+        plugin = False
     problems: List[Problem] = []
     for key in settings:
         if not isinstance(key, str) or key in known:
@@ -1189,6 +1219,14 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
                 WARNING, key,
                 f"'{key}' is not a spaCR setting; did you mean '{close[0]}'?",
                 f"Rename '{key}' to '{close[0]}' — as it stands the value is ignored and the default is used."))
+        elif (not plugin and not key.startswith("_")
+              and settings[key] not in (None, "")):
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' is not a setting spaCR knows.",
+                f"The run continues and '{key}' is ignored. Remove it from "
+                f"the settings file, or check the spelling if it was meant "
+                f"to change something."))
     return problems
 
 
@@ -1477,14 +1515,25 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 'Choose original intensities or configure a calibrated PSF for processed measurements.'))
 
     if app in ('mask', 'timelapse') and settings.get('psf_operation', 'none') != 'none':
+        from .point_spread import fill_psf_settings
         from .psf_pipeline import prepare_psf
         try:
-            prepare_psf(settings)
+            candidate = dict(settings)
+            fill_psf_settings(candidate)
+            prepare_psf(candidate)
         except (ValueError, OSError) as exc:
             problems.append(Problem(
                 ERROR, 'psf_operation', f'PSF preparation failed: {exc}',
                 'Set calibrated Y/X sampling and a matching measured kernel '
                 'or explicit Gaussian FWHM, or switch psf_operation to none.'))
+
+    if app in ('mask', 'timelapse'):
+        from .psf_pipeline import chain_problems
+        for key, message in chain_problems(settings):
+            problems.append(Problem(
+                ERROR, key, f'Image enhancement cannot run: {message}.',
+                'Choose one of the listed methods or a value in range, or '
+                'switch that enhancement step off.'))
 
     if app == "explain_cv":
         for key, label in (("db_path", "measurements database"),

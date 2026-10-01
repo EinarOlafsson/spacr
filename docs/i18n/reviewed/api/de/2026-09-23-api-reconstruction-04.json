@@ -62,7 +62,9 @@
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#5",
       "source": "True when the fetch was started.",
       "source_sha256": "c6f1bde2fa0273604fd26567bc06009fe46ca4d753cc3d533b7160ff05b8f075",
-      "translation": "True, wenn der Abruf gestartet wurde."
+      "translation": "True, wenn der Abruf gestartet wurde.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Whether an installer is running.",

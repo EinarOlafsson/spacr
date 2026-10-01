@@ -1,0 +1,17 @@
+624. Center window resize lines at half the side length
+
+Requested 2026-10-01: The lines indicating where to expand/shrink windows
+should span 50% of each side and be centered on that side.
+
+Status: DONE 2026-10-01. The shared resize-edge overlay paints each active
+horizontal or vertical guide from 25% to 75% of the drawable side. Existing
+small-window corner padding remains. The full edge/corner drag hit area,
+native pointer, rounded rim and resizing behavior are unchanged.
+
+Validation: 40 existing resize/glass checks passed under the 4 GiB cap.
+Native dark-theme windows at 640 x 420 and 920 x 620 showed the centered
+vertical and horizontal guides respectively; both retained an 8-bit alpha
+surface. The edge outside the painted segment still reports a resize hit.
+Screenshots: /tmp/spacr-ui-evidence/624/dark-0.png and dark-1.png.
+Light native capture was interrupted and discarded; no light screenshot
+acceptance is claimed. The geometry is shared across themes.

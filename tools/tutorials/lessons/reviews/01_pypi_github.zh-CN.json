@@ -1,29 +1,31 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
   "review": {
-    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "zh-CN",
-  "title": "PyPI、GitHub 和 conda-forge",
-  "description": "找到官方软件包和安装程序的来源，比较各渠道提供的版本，并选择相应的安装教程。",
+  "title": "在GitHub、PyPI和conda-forge上找到spaCR",
+  "description": "找到官方软件包和安装程序的来源，比较各渠道提供的版本，并选择对应的安装教程。",
   "objectives": [
-    "识别 spaCR 在 PyPI、GitHub 和 conda-forge 上的官方页面。",
-    "区分发行文件、开发中的源代码以及独立更新的软件包渠道。",
-    "选择安装方式，并核实实际安装的版本。"
+    "找到官方下载页面。",
+    "为您的电脑选择安装方式。",
+    "打开对应的安装教程。"
   ],
-  "prerequisite": "本概览不执行安装。页面截取于 2026 年 9 月 10 日：PyPI 和 GitHub 提供 1.5.0.5，conda-forge 提供 1.5.0.4。各渠道版本和可用文件可能变化，请阅读当前页面并核实已安装版本。浏览器使用匿名配置，保留页面文字、徽章和发行历史，不作修改。各平台的安装步骤及硬件选择见链接的安装教程。",
+  "prerequisite": "打开网页浏览器，决定要使用桌面安装程序还是Python环境。",
   "scenes": [
-    "安装 spaCR 前，先选择官方分发来源。PyPI 和 conda-forge 提供 Python 软件包；GitHub 提供源代码、发行记录和桌面安装程序。这些途径彼此相关，但不一定同时发布同一个版本。",
-    "在 PyPI 上，阅读发行版标题和安装命令。这里的标题是 spaCR 一点五点零点五。请核实当前页面显示的版本，不要根据旧截图、徽章或教程日期推断版本。",
-    "Project links 将软件包连接到文档、主页、问题跟踪和源代码仓库。通过这些链接在官方资源之间切换。软件包页面描述的是该已发布版本，并不保证所有正在开发的功能都已包含在内。",
-    "在 GitHub 上，分支选择器标明你正在阅读哪条代码分支。main 是发行分支，nightly 包含正在进行的开发。日常安装请选择已发布版本；只有明确需要较新开发内容且能接受变化时，才使用 nightly。",
-    "打开一个发行版并展开 Assets。选择适合 Windows、macOS 或 Linux 的安装程序。wheel 和源码分发包是 Python 软件包文件，不是桌面安装程序。请下载与所选版本及文件完全对应的校验和清单，不要拿另一渠道的哈希值来比较。",
-    "conda-forge 页面有自己的版本选择器。录制时，它提供一点五点零点四，而 PyPI 提供一点五点零点五。演示特意保留了这一真实差异，不要假定某个渠道的更新已经到达。",
-    "明确指定渠道的命令是 conda install conda-forge，接两个冒号，再接 spacr。请在你打算使用的环境中运行。Conda 教程介绍这条途径；创建 Conda 环境后用 pip 安装是另一条途径，虽然两者都使用环境管理器。",
-    "使用 Python 虚拟环境请选择 pip 教程，安装渠道软件包请选择 Conda 教程，需要由安装程序管理的私有运行环境则选择 Platform installers。随后核实已安装版本并运行 spacr-doctor，再继续学习模块教程。"
+    "选择安装spaCR的方式。想要可以直接启动的应用程序，请使用桌面安装程序；需要Python虚拟环境，请使用pip；需要Conda环境，请使用conda-forge。请从这里显示的spaCR官方链接开始。",
+    "在PyPI上找到spaCR，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。pip教程介绍了如何先创建并激活这个环境。",
+    "使用Project links打开文档、源代码仓库或问题跟踪器。把文档加入书签，这样在使用spaCR时可以随时回到各模块的演示。",
+    "在GitHub上打开spaCR仓库。main包含发布版本的源代码，nightly包含最新的开发工作。如需打包好的桌面安装，请打开Releases并选择一个版本。",
+    "展开Assets，下载适用于Windows、macOS或Linux的安装程序。如果要验证下载，请保留同一版本中的校验和文件。Platform installers课程介绍了如何运行安装程序并打开spaCR。",
+    "在conda-forge上打开spaCR软件包页面，查看可用的版本。不同的软件包渠道可能在不同时间更新，所以请选择您所用方式中可用的版本。",
+    "conda-forge命令会把spaCR安装到当前激活的Conda环境中。请按照Conda课程创建该环境、安装软件包并启动应用程序。",
+    "接下来选择pip、Conda或Platform installers。spaCR打开后，进入Home课程，再查看流程概览，为您的数据选择合适的工作流程。"
   ]
 }

@@ -81,26 +81,58 @@ class DropHandler(ABC):
 
     @abstractmethod
     def can_accept(self, path: Path) -> bool:
-        """Return True if ``path`` (folder OR file) is usable as-is."""
+        """Return True if ``path`` (folder OR file) is usable as-is.
+
+        :param path: the dropped folder or file to test.
+        """
 
     @abstractmethod
     def apply(self, path: Path, screen) -> None:
-        """Wire ``path`` into ``screen`` (set src, populate settings, etc.)."""
+        """Wire ``path`` into ``screen`` (set src, populate settings, etc.).
+
+        :param path: the dropped folder or file, already accepted by
+            :meth:`can_accept` (or picked from its alternatives).
+        :param screen: the app screen that received the drop; the handler
+            writes the path into its settings form.
+        """
 
     def suggest_alternatives(self, path: Path) -> List[Path]:
         """When ``can_accept`` returns False, return sibling/child folders
         that WOULD be accepted so the UI can prompt "did you mean…".
 
         Default: no suggestions.
+
+        :param path: the dropped folder or file that :meth:`can_accept`
+            rejected; the default implementation ignores it.
         """
         return []
 
     def error_message(self, path: Path) -> str:
-        """Human-friendly explanation for why ``path`` can't be used."""
+        """Human-friendly explanation for why ``path`` can't be used.
+
+        :param path: the dropped folder or file that was rejected; the default
+            message names only its final component.
+        """
         return f"This module can't use {path.name!r}."
 
     def accepts_multiple(self) -> bool:
         """Return True to be called per-folder on multi-item drops."""
+        return False
+
+    def apply_all(self, paths: Sequence[Path], screen) -> bool:
+        """Wire every accepted path of ONE drop in at once, in drop order.
+
+        A handler whose screen builds one list out of a drop -- Make Masks'
+        queue, Plaque Assay's selection -- overrides this, because
+        :meth:`apply` called once per path cannot tell the second file of a
+        drop from the first file of the next one. The default declines, and
+        each path goes through :meth:`apply` as before.
+
+        :param paths: the paths :meth:`can_accept` accepted, in drop order.
+        :param screen: the screen to wire the drop into.
+        :returns: True when the drop was handled here; False sends every
+            path through :meth:`apply` instead.
+        """
         return False
 
 
@@ -333,11 +365,27 @@ def _deliver_drop(report: Sequence[dict], handler: DropHandler,
         if entry.get("csv") is not None:
             _apply_settings_csv(entry["path"], screen, scan=entry["csv"])
 
+    together = [entry["path"] for entry in report
+                if entry.get("csv") is None and entry.get("accepted")]
+    applied_together = False
+    if together:
+        try:
+            applied_together = bool(handler.apply_all(together, screen))
+        except Exception as e:
+            applied_together = True
+            _report_drop_problem(
+                screen, together[0], f"The drop handler failed: {e}",
+                "Check that the paths are readable and that their contents "
+                "match this module, then try again.",
+            )
+
     for entry in report:
         if entry.get("csv") is not None:
             continue
         path = entry["path"]
         if entry.get("accepted"):
+            if applied_together:
+                continue
             try:
                 handler.apply(path, screen)
             except Exception as e:
@@ -977,6 +1025,11 @@ def suggest_alternatives_dialog(
 ) -> Optional[Path]:
     """Modal that lets the user pick from ``alternatives``.
 
+    :param parent: widget that owns the modal dialog.
+    :param original: the rejected path; its final component is named in the
+        dialog's heading.
+    :param alternatives: candidate paths listed for the user, the first one
+        preselected; the chosen entry is returned.
     :returns: the chosen Path, or None if cancelled.
     """
     dlg = QDialog(parent)
@@ -1067,7 +1120,11 @@ def choose_one_dialog(parent, headline: str, question: str,
 def has_images_in(path: Path, min_count: int = 1,
                     exts: Sequence[str] = IMAGE_EXTS) -> bool:
     """Return True if ``path`` contains at least ``min_count`` image
-    files at its top level (does not recurse). Worker thread only."""
+    files at its top level (does not recurse). Worker thread only.
+
+    :param path: folder to inspect; a path that is not a directory yields
+        False.
+    """
     if not path.is_dir():
         return False
     count = 0
@@ -1087,6 +1144,9 @@ def find_image_folders_nearby(path: Path, max_depth: int = 1,
     Handy for the "did you mean X?" prompt when the user drops the
     wrong sibling of a plate folder. Worker thread only: it lists two levels
     of a folder the user chose.
+
+    :param path: folder the user dropped; its siblings and, if it is a
+        directory, its immediate child folders are searched.
     """
     hits: List[Path] = []
     if path.parent and path.parent.is_dir():
@@ -1103,7 +1163,11 @@ def find_image_folders_nearby(path: Path, max_depth: int = 1,
 def sample_image_names(path: Path, n: int = 8,
                          exts: Sequence[str] = IMAGE_EXTS) -> List[Path]:
     """Return up to ``n`` image paths from ``path`` — used by the
-    filename-regex preview in the mask handler. Worker thread only."""
+    filename-regex preview in the mask handler. Worker thread only.
+
+    :param path: folder whose top-level image files are listed in sorted order;
+        a path that is not a directory yields an empty list.
+    """
     if not path.is_dir():
         return []
     out: List[Path] = []

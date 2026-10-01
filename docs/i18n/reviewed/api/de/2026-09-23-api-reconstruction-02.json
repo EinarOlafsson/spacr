@@ -446,7 +446,9 @@
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#4",
       "source": "the widget that opened it.",
       "source_sha256": "91db06efd5012709a6042252b4643cf288c4ddfae00ac21fa6afb0a3635e6d4e",
-      "translation": "das Widget, das den Dialog geöffnet hat."
+      "translation": "das Widget, das den Dialog geöffnet hat.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "the window, already shown.",

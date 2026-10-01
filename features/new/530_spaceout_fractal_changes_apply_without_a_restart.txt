@@ -1,0 +1,98 @@
+SPACEOUT: FRACTAL THEME CHANGES TAKE EFFECT WITHOUT A RESTART
+
+Status: DONE, 2026-09-25. Every setting applies live; none is restart-only,
+so no restart popup was built (see the note below).
+Owner: Claude (worktree agent). Related: spacr/qt/spaceout.py, fractal_defaults.py,
+night_themes.py; 471's Keep/Revert-with-countdown pattern for GUI scale.
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "in spaceout model, i noticed that i need to restart the application for
+    fractal theme changes to take effect. it would be better if they just
+    toook effect right away without restarting. if the restart is necessary,
+    then at least have a popup saying so with a button to restart and get
+    back to the settings when restarted with a keep or revert options"
+
+WHAT TO BUILD
+  1. Changing a fractal theme setting in Spaceout applies at once to the
+     running backdrop/fractal (rebuild the shader/renderer or restart just
+     that renderer, not the application).
+  2. Only if a particular setting truly cannot apply live (measure it, do not
+     assume): a popup says so, with "Restart now" and "Later". Restart now
+     relaunches spaCR, reopens the settings where the user was, and asks
+     Keep or Revert (with 471's auto-revert countdown); Revert restores the
+     previous value.
+
+DONE WHEN
+Every fractal theme setting is listed in this file as live or restart-only,
+with the reason for each restart-only one; an offscreen test changes each
+live setting and sees the renderer's parameters change without a restart;
+the restart path (if any remains) is tested with the relaunch faked.
+
+NOTE 2026-09-25 (built)
+  CAUSE. The window builds ONE spaceout backdrop (behind the dock and the
+  page) and keeps it for the session. Saving Preferences already pushed the
+  runtime numbers into it (fractal_travel.apply_saved_controls), but the
+  pattern, backend, quality and scale are frozen into the renderer's
+  `Settings` when it is constructed -- the pattern picks the fragment shader,
+  the backend picks GPU or CPU -- and nothing constructed it again. The old
+  docstring said "changing a screen does that anyway", which stopped being
+  true when the backdrop moved from the screens to the window. Not a cached
+  singleton and not a GL limitation: just a widget nobody rebuilt.
+
+  FIX. widgets/ambient.py `rebuild_the_spaceout_backdrops()`, called from the
+  Preferences Save after apply_saved_controls/restart_the_dive. Each spaceout
+  backdrop records the construction-time settings it was built from; when
+  they differ from the store it builds a replacement FIRST (so a GPU that
+  cannot be had right now leaves the running one on screen), then retires
+  the old one and its resize filter, places the new one, carries over the
+  same RuntimeControls (arrow-key zoom rate survives), the paused state and
+  the visibility, and moves every attribute on the host or its window that
+  held the old widget (`_dock_backdrop`, a screen's `_ambient`). A heavy
+  import holding the GL lock defers it on a 400 ms timer, as at startup.
+  Settings that need no rebuild do not trigger one.
+
+  MEASURED under xvfb-run with Mesa llvmpipe (a real GL context): orbit_gpu
+  -> mandelbrot -> cascade -> space -> orbit -> orbit_gpu, gpu -> cpu -> gpu,
+  balanced -> high, scale, max_iterations, precision_digits: each save
+  replaced the backdrop in place (one live backdrop throughout), the new
+  canvas drew frames (render EMA 15-55 ms), and stats_text named the new
+  pattern/backend/quality. Runtime settings changed the running controls
+  with no rebuild.
+
+  EVERY FRACTAL SETTING
+    LIVE, rebuilds just the backdrop (read once at construction):
+      pattern            -- selects the fragment shader / CPU kernel
+      backend            -- GPU (vispy canvas) or CPU (numba worker)
+      quality            -- frozen Settings; sets the detail level
+      scale              -- frozen Settings; CPU internal resolution
+      max_iterations     -- Mandelbrot reference orbit iterated at build
+      precision_digits   -- same (later refinements already read the store)
+    LIVE, no rebuild (RuntimeControls, pushed by apply_saved_controls and
+    read by the canvas every frame):
+      speed, dream, variable_speed, speed_min, speed_max, speed_period,
+      pointer_gravity, pointer_size, pointer_strength, zoom_rate
+    LIVE, no rebuild (read from the store every frame):
+      render_scale, path, steering, max_depth, seconds_per_decade,
+      base_iterations, iterations_per_decade, initial_scale,
+      steering_strength, steering_interval_decades, steering_duration,
+      candidate_count
+    RESTART-ONLY: none. So the Restart now / Later popup and the Keep/Revert
+    step were not built -- the request asks for them only if a setting truly
+    cannot apply live.
+    FINDING, not changed here: `supersampling` (Fractal tab row) is stored
+    but no renderer reads it -- every renderer's anti-aliasing is a fixed
+    2x2 -- so it does nothing live OR after a restart. Worth its own item.
+
+  TESTS. tests/qt/test_fractal_changes_apply_without_a_restart.py (38,
+  offscreen): each rebuild setting changes the running renderer (pattern and
+  quality in stats_text, scale in the target size, backend via a GPU
+  stand-in, orbit numbers in the recorded build), each runtime/per-frame
+  setting changes without a rebuild, references/pause/visibility/controls
+  carried, old filter dropped, a failed build keeps the running backdrop, a
+  heavy import defers, nothing outside spaceout, and the Preferences Save
+  button does the rebuild. test_the_saved_fractal_settings_are_used now
+  inspects the moved builder. Pre-existing failures on nightly, unchanged:
+  2 in test_ten_night_themes (TestTheSpaceoutDressingStaysCheap...) and
+  test_api_i18n_extractor::test_public_docstrings_matches_reviewed_visible_
+  coverage (nightly +14; the new public rebuild_the_spaceout_backdrops makes
+  it +15 -- the count bump needs a catalog regeneration, out of this lane).

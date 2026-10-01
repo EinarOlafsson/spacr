@@ -103,6 +103,10 @@ class AiToggleLabel(QLabel):
         sheet pick the new Zoom up for free; this one is not, so without
         this hook "Live" and "AI" would keep the size and the colour they
         were built with until the app was restarted.
+
+        :param event: the change event; passed to the base class, and a
+            style, palette, application-palette or application-font change
+            re-styles the label.
         """
         try:
             kind = event.type()
@@ -131,6 +135,9 @@ class AiToggleLabel(QLabel):
 
         The language switch calls this with a fresh translation, so the
         stored text has to follow it rather than be captured once.
+
+        :param text: the full label text; stored as :meth:`text` and elided
+            to the current width when it does not fit.
         """
         if not self._eliding:
             self._full_text = str(text)
@@ -152,7 +159,11 @@ class AiToggleLabel(QLabel):
         return QLabel.text(self)
 
     def resizeEvent(self, event):            # noqa: N802 (Qt naming)
-        """Re-elide for the width just granted."""
+        """Re-elide for the width just granted.
+
+        :param event: the resize event; passed to the base class, and the new
+            width is read back from the widget itself.
+        """
         super().resizeEvent(event)
         self._apply_elision()
 
@@ -182,7 +193,10 @@ class AiToggleLabel(QLabel):
         return self._on
 
     def setChecked(self, on: bool) -> None:
-        """Set the toggle state; emits ``toggled`` only on a real change."""
+        """Set the toggle state; emits ``toggled`` only on a real change.
+
+        :param on: the new state, coerced to ``bool``; ``True`` is ON.
+        """
         on = bool(on)
         if on == self._on:
             return
@@ -191,7 +205,11 @@ class AiToggleLabel(QLabel):
         self.toggled.emit(self._on)
 
     def mousePressEvent(self, event):
-        """Flip the toggle on left-click; forward other buttons to Qt."""
+        """Flip the toggle on left-click; forward other buttons to Qt.
+
+        :param event: the mouse press; only its button is read, and a
+            left-button press is consumed.
+        """
         if event.button() == Qt.LeftButton:
             self._on = not self._on
             self._refresh_style()

@@ -38,6 +38,7 @@ Public API::
         get_spinner_delay, set_spinner_delay,
         ambient_default_palette, apply_ambient_preferences,
         get_setting_animations_enabled, set_setting_animations_enabled,
+        get_tooltips_enabled, set_tooltips_enabled,
         get_font_scale, set_font_scale,
         get_gui_scale, set_gui_scale,
         get_figure_save_mode, set_figure_save_mode,
@@ -157,7 +158,7 @@ from __future__ import annotations
 
 import logging
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
 
 from .night_themes import NIGHT_THEME_KEYS, is_night_theme, theme_for
 
@@ -176,14 +177,19 @@ _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
 _KEY_PERFORMANCE_LOG = "prefs/performance_logging"
 _KEY_SHARE_DIAGNOSTICS = "privacy/share_diagnostic_logs"
+_KEY_REFRESH_NEWS = "privacy/refresh_news_from_github"
 _KEY_LOG_FILE_LEVELS = "prefs/log_file_levels"
 _KEY_LOG_CONSOLE_LEVELS = "prefs/log_console_levels"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
 _KEY_DOCK_MODE   = "prefs/dock_mode"
+_KEY_DOCK_WIDTH  = "prefs/dock_width"
+_KEY_RUNTIME_TEXT_SCALE = "prefs/runtime_text_scale"
+_KEY_HOME_ASIDE_TEXT = "prefs/home_aside_text"
 _KEY_PANE_OPACITY = "prefs/pane_opacity"
 _KEY_FIELD_FADE = "prefs/field_fade"
 _KEY_SHOW_ALPHA = "prefs/show_alpha"
 _KEY_SHOW_BETA = "prefs/show_beta"
+_KEY_SHOW_ALPHA_FEATURES = "prefs/show_alpha_features"
 _KEY_AMBIENT_ENABLED = "prefs/ambient_enabled"
 _KEY_AMBIENT_THEME   = "prefs/ambient_theme"
 _KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
@@ -204,8 +210,13 @@ _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 #: both off, or either alone are all legal, which is why they are two
 #: booleans and not a three-way choice wearing two checkboxes.
 _KEY_TOOLTIPS_BOX = "prefs/tooltips_box"
-_KEY_OBJECT_GRID = "prefs/object_settings_grid"
 _KEY_TOOLTIPS_BOTTOM = "prefs/tooltips_bottom"
+#: The master switch over every ordinary Qt tooltip in the application --
+#: buttons, toolbars, table headers, the lot. It is not one of the two
+#: SETTINGS surfaces above: those answer "what is this setting", this one
+#: answers "do small labels pop up at all".
+_KEY_TOOLTIPS_ENABLED = "prefs/tooltips_enabled"
+_KEY_TOOLTIP_DELAY = "prefs/tooltip_delay"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
 _KEY_FONT_WEIGHT = "prefs/interface_font_weight"
@@ -343,6 +354,10 @@ FRACTAL_LIMITS = {
                      "a period of zero would change speed infinitely fast"),
     "pointer_size": (0.0, None, "a reach cannot be negative"),
     "pointer_strength": (0.0, None, "a strength cannot be negative"),
+    "magnifier_size": (0.25, 3.0,
+                       "below a quarter the lens is smaller than the "
+                       "cursor, and above three times it covers the "
+                       "window"),
     "supersampling": (1, None,
                       "fewer than one sample a pixel draws nothing"),
     "seconds_per_decade": (0.1, None,
@@ -479,6 +494,7 @@ _KEY_FRACTAL_POINTER = "spaceout/fractal_pointer_gravity"
 #: How far that pull reaches, and how hard it pulls.
 _KEY_FRACTAL_POINTER_SIZE = "spaceout/fractal_pointer_size"
 _KEY_FRACTAL_POINTER_STRENGTH = "spaceout/fractal_pointer_strength"
+_KEY_FRACTAL_MAGNIFIER_SIZE = "spaceout/fractal_magnifier_size"
 
 #: Supersampling, and the Mandelbrot renderer's own numbers.
 _KEY_FRACTAL_SUPERSAMPLING = "spaceout/fractal_supersampling"
@@ -587,6 +603,8 @@ DEFAULT_CB_MODE = "off"
 _KEY_FIG_FORMAT = "prefs/figure_format"
 _KEY_FIG_PNG_DPI = "prefs/figure_png_dpi"
 _KEY_FIG_SAVE_MODE = "prefs/figure_save_mode"
+_KEY_FIG_INTEGRITY = "prefs/figure_integrity_check"
+_FIG_INTEGRITY_WIDGET = "FigureIntegrityCheck"
 VALID_FIG_FORMATS = ("png", "pdf")
 DEFAULT_FIG_FORMAT = "pdf"
 VALID_PNG_DPIS = (100, 200, 300, 600, 1200)
@@ -711,6 +729,9 @@ def get_language() -> str:
 def set_language(language: str) -> None:
     """Persist one of the bundled UI languages.
 
+    :param language: a UI language code from
+        :data:`spacr.qt.i18n.VALID_LANGUAGE_CODES`; stripped, with ``-`` read
+        as ``_``.
     :raises ValueError: if ``language`` is not a supported language code.
     """
     from .i18n import VALID_LANGUAGE_CODES
@@ -760,7 +781,10 @@ _KEY_FOLDED = "ui/folded_panels"
 
 
 def get_folded_panels() -> dict:
-    """Which bottom panels the user left folded, ``{key: True}``.
+    """Which panels the user left folded, ``{key: True}``, or opened, ``{key: False}``.
+
+    False is stored only for a panel that starts folded; see
+    :func:`set_folded_panel`.
 
     Keyed by ``"<module>/<panel>"`` so folding the console on Mask does not
     fold it on Sequencing -- the same rule the console/chat splitter already
@@ -780,12 +804,20 @@ def get_folded_panels() -> dict:
         return {}
 
 
-def set_folded_panel(key: str, shut: bool) -> None:
+def set_folded_panel(key: str, shut: bool, *, default_shut: bool = False) -> None:
     """Remember that ``key`` is folded, or is not.
 
-    A PANEL THAT IS OPEN IS REMOVED rather than stored as False. The default
-    is open, so storing it would grow the dict by one entry for every panel
-    the user has ever touched and never shrink it.
+    A PANEL IN ITS DEFAULT STATE IS REMOVED rather than stored. Most panels
+    default to open, so storing that would grow the dict by one entry for
+    every panel the user has ever touched and never shrink it. A panel that
+    starts folded (item 509: the advanced PSF, restoration and CLAHE rows)
+    passes ``default_shut=True``, so opening it is what gets stored, as
+    False, and folding it again forgets it.
+
+    :param key: the panel key, ``"<module>/<panel>"``; stripped, and an empty
+        key does nothing.
+    :param shut: true to record the panel as folded, false as open.
+    :param default_shut: the panel's state when nothing is stored.
     """
     import json
 
@@ -793,10 +825,10 @@ def set_folded_panel(key: str, shut: bool) -> None:
     if not key:
         return
     state = get_folded_panels()
-    if shut:
-        state[key] = True
-    else:
+    if bool(shut) == bool(default_shut):
         state.pop(key, None)
+    else:
+        state[key] = bool(shut)
     _settings().setValue(_KEY_FOLDED, json.dumps(state))
 
 
@@ -820,7 +852,11 @@ def get_figure_style() -> dict:
 
 
 def set_figure_style(style: dict) -> None:
-    """Store the general figure settings."""
+    """Store the general figure settings.
+
+    :param style: the general figure settings, ``{setting: value}``; stored as
+        JSON, and ``None`` stores an empty dict.
+    """
     import json
 
     _settings().setValue(_KEY_FIG_STYLE, json.dumps(dict(style or {})))
@@ -842,7 +878,11 @@ def get_figure_style_per_graph() -> dict:
 
 
 def set_figure_style_per_graph(overrides: dict) -> None:
-    """Store the per-graph overrides."""
+    """Store the per-graph overrides.
+
+    :param overrides: per-graph overrides, ``{kind: {setting: value}}``;
+        entries whose value is not a non-empty dict are dropped before storing.
+    """
     import json
 
     clean = {k: dict(v) for k, v in (overrides or {}).items()
@@ -950,6 +990,9 @@ def get_figure_style_default(kind: str) -> dict:
     section states at length: a stored resolution is a preference that has
     stopped tracking. A style with no saved default is drawn from the
     dataclass's own defaults, which move when the package does.
+
+    :param kind: the figure kind, e.g. ``"volcano"``, as
+        :func:`spacr.style_base.style_kind` derives it; converted to ``str``.
     """
     return dict(get_figure_style_defaults().get(str(kind), {}))
 
@@ -959,6 +1002,11 @@ def set_figure_style_default(kind: str, values) -> None:
 
     The design: "a per-project default so a lab's house style is
     applied to every figure of that type without re-setting it each time".
+
+    :param kind: the figure kind, e.g. ``"volcano"``, as
+        :func:`spacr.style_base.style_kind` derives it; converted to ``str``.
+    :param values: the ``{field: value}`` style to save for that kind,
+        replacing any previous default; ``None`` saves an empty dict.
     """
     import json
 
@@ -974,6 +1022,9 @@ def clear_figure_style_default(kind: str) -> bool:
 
     The way back, and it is not optional: a default that can only be set is
     the same trap as a colour that can only be set.
+
+    :param kind: the figure kind, e.g. ``"volcano"``, as
+        :func:`spacr.style_base.style_kind` derives it; converted to ``str``.
     """
     import json
 
@@ -1018,6 +1069,7 @@ def get_figure_format() -> str:
 def set_figure_format(fmt: str) -> None:
     """Persist a supported figure format.
 
+    :param fmt: the figure file format, one of :data:`VALID_FIG_FORMATS`.
     :raises ValueError: if ``fmt`` is not ``png`` or ``pdf``.
     """
     if fmt not in VALID_FIG_FORMATS:
@@ -1068,6 +1120,25 @@ def set_figure_save_mode(mode: str) -> None:
     _settings().setValue(_KEY_FIG_SAVE_MODE, normalized)
 
 
+def _get_figure_integrity() -> bool:
+    """Whether exported image figures are checked and stamped (default off).
+
+    Read by :func:`spacr.plot.save_figure` on every export, from the app,
+    the command line and notebooks alike; the ``SPACR_FIGURE_INTEGRITY``
+    environment variable overrides it there.
+    """
+    return _as_bool(_settings().value(_KEY_FIG_INTEGRITY, False), False)
+
+
+def _set_figure_integrity(on: bool) -> None:
+    """Persist whether exported image figures are checked and stamped.
+
+    :param on: true to check display ranges, saturation, repeated panels
+        and lossy formats on export and write a provenance sidecar.
+    """
+    _settings().setValue(_KEY_FIG_INTEGRITY, bool(on))
+
+
 def get_figure_live_cache() -> int:
     """How many of the most recent figures keep their live matplotlib Figure.
 
@@ -1094,6 +1165,8 @@ def get_figure_live_cache() -> int:
 def set_figure_live_cache(count: int) -> None:
     """Persist how many figures keep their live Figure.
 
+    :param count: how many of the most recent figures keep their live Figure;
+        converted to ``int``.
     :raises ValueError: outside ``MIN_FIG_LIVE_CACHE..MAX_FIG_LIVE_CACHE``.
     """
     count = int(count)
@@ -1123,7 +1196,11 @@ def get_figure_dynamic() -> bool:
 
 
 def set_figure_dynamic(enabled: bool) -> None:
-    """Persist whether evicted figures reload from their vector page."""
+    """Persist whether evicted figures reload from their vector page.
+
+    :param enabled: true to reload an evicted figure from its vector page,
+        false to keep showing its raster; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_FIG_DYNAMIC, bool(enabled))
 
 
@@ -1149,6 +1226,8 @@ def get_figure_png_dpi() -> int:
 def set_figure_png_dpi(dpi: int) -> None:
     """Persist one of :data:`VALID_PNG_DPIS`.
 
+    :param dpi: the PNG resolution in dots per inch; converted to ``int`` and
+        checked against :data:`VALID_PNG_DPIS`.
     :raises ValueError: if ``dpi`` is not a supported resolution.
     """
     dpi = int(dpi)
@@ -1191,7 +1270,11 @@ TRANSPARENT_FIGURE_BG = "none"
 
 
 def figure_bg_is_transparent(bg: str) -> bool:
-    """Whether ``bg`` means "let whatever is behind show through"."""
+    """Whether ``bg`` means "let whatever is behind show through".
+
+    :param bg: a background colour token; ``"none"``, ``"transparent"`` and the
+        empty string (after stripping and lower-casing) mean transparent.
+    """
     return str(bg).strip().lower() in {"none", "transparent", ""}
 
 
@@ -1200,6 +1283,9 @@ def figure_color_is_auto(token) -> bool:
 
     Matching is case- and space-insensitive because tokens can come from a
     hand-edited INI file or the dialog.
+
+    :param token: a stored colour token or colour string; converted to ``str``
+        before comparing with :data:`AUTO_FIGURE_COLOR`.
     """
     return str(token).strip().lower() == AUTO_FIGURE_COLOR
 
@@ -1370,7 +1456,11 @@ def get_figure_line_colour() -> str:
 
 def set_figure_line_colour(token: str) -> None:
     """Persist the line colour TOKEN. Pass :data:`AUTO_FIGURE_COLOR` for
-    "follow the text", never what it resolved to."""
+    "follow the text", never what it resolved to.
+
+    :param token: the line colour token, or :data:`AUTO_FIGURE_COLOR` to follow
+        the text colour.
+    """
     settings = _settings()
     settings.setValue(_KEY_FIG_LINE, token)
     settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
@@ -1403,6 +1493,9 @@ def set_figure_colors(bg: str, fg: str) -> None:
     Writing also marks the store as migrated: a value set here is a decision
     taken under the current scheme, so :func:`_migrate_frozen_figure_colors`
     must not second-guess it afterwards.
+
+    :param bg: the background colour token, or :data:`AUTO_FIGURE_COLOR`.
+    :param fg: the text colour token, or :data:`AUTO_FIGURE_COLOR`.
     """
     settings = _settings()
     settings.setValue(_KEY_FIG_BG, bg)
@@ -1432,7 +1525,11 @@ def get_figure_text_size() -> int:
 
 
 def set_figure_text_size(size: int) -> None:
-    """Persist a figure font size; zero delegates sizing to Matplotlib."""
+    """Persist a figure font size; zero delegates sizing to Matplotlib.
+
+    :param size: the figure font size; converted to ``int``, and 0 leaves
+        sizing to Matplotlib.
+    """
     _settings().setValue(_KEY_FIG_TEXT_SIZE, int(size))
 
 
@@ -1518,6 +1615,7 @@ def set_theme(theme: str) -> None:
     Choosing ``"system"`` also records that it was chosen, so
     :func:`get_theme` honours it instead of reading it as the default.
 
+    :param theme: one of :data:`VALID_THEMES`.
     :raises ValueError: if ``theme`` is not in :data:`VALID_THEMES`.
     """
     if theme not in VALID_THEMES:
@@ -1595,6 +1693,10 @@ def set_theme_choice(choice: str) -> None:
     Choosing one of the ten night themes also writes that theme's
     backdrop and its sound set — see :func:`apply_night_theme`, which is
     where the reasoning for doing so lives.
+
+    :param choice: a token from :func:`theme_choices`; a ``"cell:<variant>"``
+        token sets the Cell theme and that variant. Any other value raises
+        :class:`ValueError`.
     """
     valid = {token for _label, token in theme_choices()}
     if choice not in valid:
@@ -1685,7 +1787,11 @@ def get_cell_variant() -> str:
 
 
 def set_cell_variant(variant: str) -> None:
-    """Persist one of the bundled Cell-theme microscopy variants."""
+    """Persist one of the bundled Cell-theme microscopy variants.
+
+    :param variant: one of :data:`spacr.qt.imagery.CELL_VARIANTS`; any other
+        value raises :class:`ValueError`.
+    """
     from .imagery import CELL_VARIANTS
     if variant not in CELL_VARIANTS:
         raise ValueError(f"unknown cell variant {variant!r}. "
@@ -1735,6 +1841,13 @@ def theme_background_path(theme: str, width: int = 0, height: int = 0):
     One place for the "which theme wants which picture" question, so
     :func:`apply_preferences_to_app` and anything else that re-applies
     the stylesheet cannot drift apart.
+
+    :param theme: an application theme name; only ``"cell"`` has a background
+        image.
+    :param width: the wanted image width in pixels; 0 or less means the screen
+        size.
+    :param height: the wanted image height in pixels; 0 or less means the
+        screen size.
     """
     if theme == "cell":
         return cell_background_path(width, height)
@@ -1873,6 +1986,11 @@ def set_ambient_animation(name: str) -> None:
 
     Picking None does **not** disturb the stored theme's palette, so
     switching back later restores exactly the animation that was there.
+
+    :param name: an entry of ``ANIMATION_CHOICES`` from
+        :mod:`spacr.qt.widgets.ambient`; its ``NO_ANIMATION`` entry
+        (``"none"``) switches the backdrop off, and any other value raises
+        :class:`ValueError`.
     """
     choices = _animation_choices()
     if name not in choices:
@@ -1893,6 +2011,8 @@ def set_ambient_enabled(on: bool) -> None:
     Flushed immediately: module screens re-read this key when they are
     built, and a stale read right after the user cleared the checkbox
     would put the animation back on the very next screen they open.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
     settings = _settings()
     settings.setValue(_KEY_AMBIENT_ENABLED, bool(on))
@@ -1922,6 +2042,7 @@ def set_ambient_theme(name: str) -> None:
     is kept if the new theme also offers it, and otherwise replaced with
     that theme's default (see :func:`ambient_default_palette`).
 
+    :param name: an ambient theme name from ``AMBIENT_THEMES``.
     :raises ValueError: if ``name`` is not a known ambient theme.
     """
     from .widgets.ambient import AMBIENT_THEMES, palettes_for
@@ -1943,6 +2064,10 @@ def ambient_default_palette(theme: str) -> str:
     offers it (spaCR's own brand colours are the intended default
     everywhere they exist), otherwise the theme's first palette. Never
     raises for an unknown theme — it reports the global default.
+
+    :param theme: an ambient theme name, as offered by
+        :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`; an unknown name gives
+        the global default palette.
     """
     from .widgets.ambient import DEFAULT_PALETTE, palettes_for
     try:
@@ -1973,6 +2098,7 @@ def get_ambient_palette() -> str:
 def set_ambient_palette(name: str) -> None:
     """Persist a palette offered by the *current* ambient theme.
 
+    :param name: a palette name offered by the current ambient theme.
     :raises ValueError: if ``name`` is not one of
         ``palettes_for(get_ambient_theme())``. Set the theme first: a
         palette is only meaningful next to the theme that draws it.
@@ -2117,7 +2243,13 @@ def get_ambient_blur() -> float:
 
 def set_ambient_blur(value: float) -> None:
     """Set the softening. Out-of-range values are clamped, not refused:
-    this is a slider, and there is no user error to report."""
+    this is a slider, and there is no user error to report.
+
+    :param value: the blur, in units of eight screen pixels of area averaging
+        (0.0 is as designed); clamped to ``BLUR_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_BLUR``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_BLUR, 0, value)
 
 
@@ -2135,7 +2267,13 @@ def get_ambient_resolution() -> float:
 
 
 def set_ambient_resolution(value: float) -> None:
-    """Set the detail multiplier. Clamped."""
+    """Set the detail multiplier. Clamped.
+
+    :param value: the multiplier on each animation's own shading buffer (1.0 is
+        as designed); clamped to ``RESOLUTION_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_RESOLUTION``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_RESOLUTION, 3, value)
 
 
@@ -2152,7 +2290,13 @@ def get_ambient_density() -> float:
 
 
 def set_ambient_density(value: float) -> None:
-    """Set the element-count multiplier. Clamped."""
+    """Set the element-count multiplier. Clamped.
+
+    :param value: the multiplier on each animation's own element count (1.0 is
+        as designed); clamped to ``DENSITY_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_DENSITY``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_DENSITY, 4, value)
 
 
@@ -2178,6 +2322,9 @@ def get_ambient_drift_direction() -> str:
 def set_ambient_drift_direction(name: str) -> None:
     """Persist one of :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`.
 
+    :param name: the starfield drift direction, one of ``DRIFT_DIRECTIONS``
+        (``"up"``, ``"down"`` or ``"random"`` when the widget module cannot be
+        imported).
     :raises ValueError: if ``name`` is not one of them.
     """
     try:
@@ -2199,7 +2346,13 @@ def get_ambient_speed() -> float:
 
 
 def set_ambient_speed(value: float) -> None:
-    """Set the motion multiplier. Clamped."""
+    """Set the motion multiplier. Clamped.
+
+    :param value: the multiplier on each theme's own motion (1.0 is as
+        designed); clamped to ``SPEED_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_SPEED``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_SPEED, 1, value)
 
 
@@ -2210,7 +2363,13 @@ def get_ambient_size() -> float:
 
 
 def set_ambient_size(value: float) -> None:
-    """Set the element-size multiplier. Clamped."""
+    """Set the element-size multiplier. Clamped.
+
+    :param value: the multiplier on each animation's own element size (1.0 is
+        as designed); clamped to ``SIZE_RANGE`` from
+        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
+        ``DEFAULT_SIZE``.
+    """
     _set_ambient_multiplier(_KEY_AMBIENT_SIZE, 2, value)
 
 
@@ -2316,7 +2475,6 @@ PERFORMANCE_LABELS = {
 
 #: The hardware each level is for, and what it trades. Shown as the level's
 #: tooltip, so the choice can be made without guessing.
-#
 #: 286: EVERY CLAIM HERE IS ONE THE CODE KEEPS. The minutes and megabytes
 #: are `memory_budget.RECOMMENDED` for the level, which an untouched budget
 #: follows, and a test holds each note to them. The old wording promised
@@ -2501,7 +2659,7 @@ def get_fractal_settings() -> dict:
         DEFAULT_SCALE, DEFAULT_SPEED, DEFAULT_SPEED_MAX, DEFAULT_SPEED_MIN,
         DEFAULT_SPEED_PERIOD, DEFAULT_VARIABLE_SPEED, clamp,
         DEFAULT_FOLLOW_POINTER, DEFAULT_POINTER_SIZE,
-        DEFAULT_POINTER_STRENGTH,
+        DEFAULT_POINTER_STRENGTH, DEFAULT_MAGNIFIER_SIZE,
     )
 
     settings = _settings()
@@ -2578,6 +2736,9 @@ def get_fractal_settings() -> dict:
                                 DEFAULT_POINTER_SIZE, 0.0, None),
         "pointer_strength": _number(_KEY_FRACTAL_POINTER_STRENGTH,
                                     DEFAULT_POINTER_STRENGTH, 0.0, None),
+        "magnifier_size": _number(_KEY_FRACTAL_MAGNIFIER_SIZE,
+                                  DEFAULT_MAGNIFIER_SIZE,
+                                  *FRACTAL_LIMITS["magnifier_size"][:2]),
         "supersampling": int(_number(_KEY_FRACTAL_SUPERSAMPLING,
                           _MANDEL_DEFAULTS["supersampling"],
                           FRACTAL_LIMITS['supersampling'][0], None)),
@@ -2655,6 +2816,8 @@ def set_fractal_settings(**values) -> None:
         "pointer_gravity": (_KEY_FRACTAL_POINTER, None),
         "pointer_size": (_KEY_FRACTAL_POINTER_SIZE, (0.0, None)),
         "pointer_strength": (_KEY_FRACTAL_POINTER_STRENGTH, (0.0, None)),
+        "magnifier_size": (_KEY_FRACTAL_MAGNIFIER_SIZE,
+                           FRACTAL_LIMITS["magnifier_size"][:2]),
         "supersampling": (_KEY_FRACTAL_SUPERSAMPLING,
                 (FRACTAL_LIMITS['supersampling'][0], FRACTAL_LIMITS['supersampling'][1])),
         "seconds_per_decade": (_KEY_FRACTAL_SECONDS_PER_DECADE,
@@ -2758,6 +2921,8 @@ def get_preload_policy() -> str:
 def set_preload_policy(policy: str) -> None:
     """Persist it. Takes effect at the next launch, and says so.
 
+    :param policy: one of :data:`PRELOAD_POLICIES`, matched after stripping and
+        lower-casing.
     :raises ValueError: on anything but the two policies.
     """
     text = str(policy).strip().lower()
@@ -2791,6 +2956,8 @@ def get_interface_font_weight() -> str:
 def set_interface_font_weight(weight: str) -> None:
     """Persist the weight and apply it to the running application.
 
+    :param weight: one of :data:`INTERFACE_FONT_WEIGHTS`, matched after
+        stripping and lower-casing.
     :raises ValueError: on anything but 'regular' or 'light'.
     """
     text = str(weight).strip().lower()
@@ -2832,6 +2999,9 @@ def get_laptop_mode() -> str:
 def set_laptop_mode(choice: str) -> None:
     """Persist the laptop-mode preference and apply it now.
 
+    :param choice: one of :data:`LAPTOP_MODE_CHOICES`: ``"on"`` selects the
+        Laptop performance level, ``"off"`` moves a Laptop level back to the
+        default level, and ``"automatic"`` changes nothing.
     :raises ValueError: on an unknown choice.
 
     Applied immediately rather than at the next launch, because the two
@@ -2843,13 +3013,6 @@ def set_laptop_mode(choice: str) -> None:
     if choice not in LAPTOP_MODE_CHOICES:
         raise ValueError(f"unknown laptop mode {choice!r}; "
                          f"expected one of {list(LAPTOP_MODE_CHOICES)}")
-    # 286: THE OLD WORDS WRITE THE ONE VALUE. This used to store the key the
-    # migration removes and apply a hardware measurement for "automatic",
-    # so a caller could set "on" and read "off" back from `get_laptop_mode`,
-    # or have a two-core reading override Workstation. "on" is the Laptop
-    # level; "off" leaves Laptop for the default level; "automatic" states no
-    # choice and leaves the level alone. This run's backdrop follows through
-    # `set_performance_level`.
     if choice == "on":
         set_performance_level("laptop")
     elif choice == "off" and get_performance_level() == "laptop":
@@ -2862,6 +3025,10 @@ def laptop_mode_note(choice: str) -> str:
 
     Automatic is the case that needs saying: the label cannot state the
     outcome, because the outcome depends on the machine reading it.
+
+    :param choice: one of :data:`LAPTOP_MODE_CHOICES`: ``"automatic"`` reports
+        what this machine's measurement decides, ``"on"`` lists what is turned
+        down, and anything else is described as off.
     """
     from .laptop_mode import measure, wanted, what_it_turns_down
 
@@ -2881,8 +3048,6 @@ def get_idle_minutes() -> float:
     :returns: minutes; 0 means "as soon as nothing is using it".
     """
     from .memory_budget import MAX_IDLE_MINUTES, MIN_IDLE_MINUTES
-    # 286: an untouched budget follows the performance level, so the sweep
-    # enforces what the level promises; a number the user set is kept.
     fallback = float(_level_budget()[0])
     raw = _settings().value(_KEY_IDLE_MINUTES, None)
     if raw is None or raw == "":
@@ -2895,7 +3060,12 @@ def get_idle_minutes() -> float:
 
 
 def set_idle_minutes(minutes: float) -> None:
-    """Persist the idle timeout."""
+    """Persist the idle timeout.
+
+    :param minutes: how long an unused cache entry may sit before it is
+        dropped, in minutes; 0 drops it as soon as nothing uses it. Stored as a
+        ``float``.
+    """
     settings = _settings()
     settings.setValue(_KEY_IDLE_MINUTES, float(minutes))
     settings.sync()
@@ -2904,7 +3074,6 @@ def set_idle_minutes(minutes: float) -> None:
 def get_cache_ceiling_mb() -> int:
     """How much cache spaCR may hold at once, in megabytes."""
     from .memory_budget import MAX_CACHE_CEILING_MB, MIN_CACHE_CEILING_MB
-    # Follows the level while untouched; see `get_idle_minutes`.
     fallback = int(_level_budget()[1])
     raw = _settings().value(_KEY_CACHE_CEILING, None)
     if raw is None or raw == "":
@@ -2917,7 +3086,11 @@ def get_cache_ceiling_mb() -> int:
 
 
 def set_cache_ceiling_mb(megabytes: int) -> None:
-    """Persist the cache ceiling."""
+    """Persist the cache ceiling.
+
+    :param megabytes: the most cache spaCR may hold at once, in megabytes;
+        stored as an ``int``.
+    """
     settings = _settings()
     settings.setValue(_KEY_CACHE_CEILING, int(megabytes))
     settings.sync()
@@ -2931,7 +3104,6 @@ def get_headroom_mb() -> int:
     neither of the others has anything to answer to.
     """
     from .memory_budget import MAX_HEADROOM_MB, MIN_HEADROOM_MB
-    # Follows the level while untouched; see `get_idle_minutes`.
     fallback = int(_level_budget()[2])
     raw = _settings().value(_KEY_HEADROOM, None)
     if raw is None or raw == "":
@@ -2944,7 +3116,11 @@ def get_headroom_mb() -> int:
 
 
 def set_headroom_mb(megabytes: int) -> None:
-    """Persist the headroom floor."""
+    """Persist the headroom floor.
+
+    :param megabytes: the memory that must stay free for everything else on the
+        machine, in megabytes; stored as an ``int``.
+    """
     settings = _settings()
     settings.setValue(_KEY_HEADROOM, int(megabytes))
     settings.sync()
@@ -3063,10 +3239,6 @@ def get_performance_level() -> str:
         level = DEFAULT_PERFORMANCE_LEVEL
 
     if _SAFE_MODE:
-        # Safe mode answers every read with a default and sends every write
-        # to the real store, so migrating here would "migrate" defaults and
-        # write Balanced over the user's real level. Answer and store
-        # nothing; the next ordinary start migrates the real values.
         return level
 
     try:
@@ -3077,8 +3249,6 @@ def get_performance_level() -> str:
                   exc_info=True)
         return level
     if _level_is_durable(settings, level):
-        # The obsolete answers go only once the level has reached the store:
-        # until then they are the only record of what the user chose (286).
         try:
             settings.remove(_KEY_LAPTOP_MODE)
             settings.remove(_KEY_SPACR_MODE)
@@ -3238,6 +3408,7 @@ def set_spacr_mode(mode: str) -> None:
     cleanup has already happened or not happened by the time anyone can
     reach this dialog.
 
+    :param mode: one of :data:`SPACR_MODES`.
     :raises ValueError: on an unknown mode.
     """
     if mode not in SPACR_MODES:
@@ -3245,9 +3416,6 @@ def set_spacr_mode(mode: str) -> None:
                          f"Choose from {SPACR_MODES}.")
     previous = get_spacr_mode()
     settings = _settings()
-    # ONE STORED VALUE (286). The posture is derived from the level, so the
-    # level is all that is written; the old `prefs/spacr_mode` copy was a
-    # second answer that only the migration ever read.
     settings.setValue(_KEY_PERFORMANCE_LEVEL, mode)
     settings.sync()
     if mode == "extra_performance" and previous != "extra_performance":
@@ -3284,18 +3452,16 @@ def mode_note(mode: str) -> str:
 
 
 def mode_warning(mode: str) -> str:
-    """What choosing ``mode`` will cost, or ``""`` when it costs nothing."""
+    """What choosing ``mode`` will cost, or ``""`` when it costs nothing.
+
+    :param mode: one of :data:`SPACR_MODES`; a mode with no entry in
+        :data:`MODE_WARNINGS` gives ``""``.
+    """
     return MODE_WARNINGS.get(mode, "")
 
 
 def _visual_snapshot() -> dict:
     """The five settings Extra Performance overrides, as they are now."""
-    # "ambient_enabled" is the STORED switch, read past SPACR_NO_BACKDROP.
-    # Restoring the animation goes through `set_ambient_animation`, which
-    # turns the backdrop on, so without it a user who had switched the
-    # backdrop off got it back by passing through Extra Performance or Laptop
-    # (286). The raw key and not `get_ambient_enabled()`, which answers False
-    # for a process-local suppression that must never be saved as a choice.
     return {
         "ambient_animation": get_ambient_animation(),
         "ambient_enabled": _as_bool(
@@ -3369,9 +3535,6 @@ def _restore_visuals() -> bool:
             set_setting_animations_enabled(bool(stashed["setting_animations"]))
         if "field_fade" in stashed:
             set_field_fade_enabled(bool(stashed["field_fade"]))
-        # Last, because `set_ambient_animation` above switches the backdrop
-        # on. A stash written before 286 has no such entry and keeps the old
-        # behaviour.
         if "ambient_enabled" in stashed:
             set_ambient_enabled(_as_bool(stashed["ambient_enabled"], True))
     except Exception:
@@ -3423,7 +3586,13 @@ def get_spinner_delay() -> float:
 
 def set_spinner_delay(seconds: float) -> None:
     """Set the spinner's appearance delay, in seconds. Clamped, not
-    refused."""
+    refused.
+
+    :param seconds: how long background work must run before the spinner shows;
+        clamped between :data:`SPINNER_DELAY_MIN` and
+        :data:`SPINNER_DELAY_MAX`, and an unparseable value or NaN stores
+        :data:`DEFAULT_SPINNER_DELAY`.
+    """
     try:
         value = float(seconds)
     except (TypeError, ValueError):
@@ -3474,10 +3643,10 @@ DEFAULT_SETTING_ANIMATIONS = False
 DEFAULT_TOOLTIPS_BOX = False
 DEFAULT_TOOLTIPS_BOTTOM = True
 
-#: OFF until someone chooses it. The grid is a different way to read
-#: the most-used screen in the application, so it arrives as an offer
-#: rather than as a change to what everyone already knows.
-DEFAULT_OBJECT_GRID = False
+#: Tooltips are ON by default, at the maintainer's instruction (2026-09-24).
+#: They are how spaCR explains a button without spending a line of the
+#: window on it; the switch exists for the person who already knows.
+DEFAULT_TOOLTIPS_ENABLED = True
 
 
 def get_tooltips_box_enabled() -> bool:
@@ -3494,30 +3663,11 @@ def get_tooltips_box_enabled() -> bool:
 
 
 def set_tooltips_box_enabled(on: bool) -> None:
-    """Turn the hover tooltip box on or off, effective at the next hover."""
-    _settings().setValue(_KEY_TOOLTIPS_BOX, bool(on))
-    _settings().sync()
+    """Turn the hover tooltip box on or off, effective at the next hover.
 
-
-def get_object_grid_enabled() -> bool:
-    """Whether the per-object settings are shown as one table.
-
-    78 of Mask's 201 settings are the same twenty-odd questions asked once
-    per object type, so a form that lists them flat asks 203 questions before
-    anything is segmented. Set, those rows are hidden and a grid takes their
-    place -- one row per question, one column per object.
-
-    THE STORED KEYS DO NOT CHANGE either way. The grid edits the same widgets
-    the flat rows do, so a settings file written with this on is the same file
-    written with it off.
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
-    return _as_bool(_settings().value(_KEY_OBJECT_GRID, DEFAULT_OBJECT_GRID),
-                    DEFAULT_OBJECT_GRID)
-
-
-def set_object_grid_enabled(on: bool) -> None:
-    """Turn the per-object grid on or off, effective at the next form build."""
-    _settings().setValue(_KEY_OBJECT_GRID, bool(on))
+    _settings().setValue(_KEY_TOOLTIPS_BOX, bool(on))
     _settings().sync()
 
 
@@ -3536,10 +3686,98 @@ def get_tooltips_bottom_enabled() -> bool:
 
 
 def set_tooltips_bottom_enabled(on: bool) -> None:
-    """Turn the bottom tooltip strip on or off, effective at the next hover."""
+    """Turn the bottom tooltip strip on or off, effective at the next hover.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_TOOLTIPS_BOTTOM, bool(on))
     _settings().sync()
 
+
+def get_tooltips_enabled() -> bool:
+    """Whether ordinary tooltips appear anywhere in spaCR. Default ``True``.
+
+    The master switch read by :mod:`spacr.qt.tooltip_policy`, the one event
+    filter on ``QApplication`` that decides when every tooltip appears and
+    goes. Cleared, no tooltip is shown at all; the two settings surfaces --
+    :func:`get_tooltips_box_enabled` and
+    :func:`get_tooltips_bottom_enabled` -- are separate and unaffected.
+    """
+    return _as_bool(_settings().value(_KEY_TOOLTIPS_ENABLED,
+                                      DEFAULT_TOOLTIPS_ENABLED),
+                    DEFAULT_TOOLTIPS_ENABLED)
+
+
+def set_tooltips_enabled(on: bool) -> None:
+    """Turn every tooltip on or off, effective immediately.
+
+    Drops :mod:`spacr.qt.tooltip_policy`'s cached answer and takes down any
+    tooltip already on screen, so clearing the switch is not followed by one
+    last popup nobody asked for.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
+    """
+    _settings().setValue(_KEY_TOOLTIPS_ENABLED, bool(on))
+    _settings().sync()
+    try:
+        from .tooltip_policy import invalidate_tooltip_policy
+        invalidate_tooltip_policy()
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("could not refresh the tooltip policy", exc_info=True)
+
+
+
+#: Seconds the pointer rests before a tooltip appears, out of the box.
+_TOOLTIP_DELAY_DEFAULT = 2.0
+_TOOLTIP_DELAY_MIN = 0.0
+_TOOLTIP_DELAY_MAX = 10.0
+
+
+def _clamped_tooltip_delay(value) -> float:
+    """``value`` as seconds within the allowed range; the default if junk.
+
+    :param value: anything a store or a caller may hand over.
+    :returns: seconds between the minimum and the maximum.
+    """
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError):
+        return _TOOLTIP_DELAY_DEFAULT
+    if seconds != seconds:
+        return _TOOLTIP_DELAY_DEFAULT
+    return max(_TOOLTIP_DELAY_MIN, min(_TOOLTIP_DELAY_MAX, seconds))
+
+
+def _get_tooltip_delay() -> float:
+    """How long the pointer rests before a tooltip appears, in seconds.
+
+    Two seconds unless chosen otherwise, clamped to 0-10 on read so a
+    hand-edited store cannot make tooltips unreachable. Read by
+    :mod:`spacr.qt.tooltip_policy`, which caches it.
+    """
+    return _clamped_tooltip_delay(
+        _settings().value(_KEY_TOOLTIP_DELAY, _TOOLTIP_DELAY_DEFAULT))
+
+
+def _set_tooltip_delay(seconds) -> float:
+    """Store the tooltip delay and apply it at once, everywhere.
+
+    Drops the tooltip policy's cached delay, so the next hover anywhere in
+    the application waits the new time.
+
+    :param seconds: the delay; clamped to 0-10, junk stores the default.
+    :returns: the value stored.
+    """
+    value = _clamped_tooltip_delay(seconds)
+    settings = _settings()
+    settings.setValue(_KEY_TOOLTIP_DELAY, value)
+    settings.sync()
+    try:
+        from .tooltip_policy import invalidate_tooltip_policy
+        invalidate_tooltip_policy()
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("could not refresh the tooltip policy", exc_info=True)
+    return value
 
 
 def get_setting_animations_enabled() -> bool:
@@ -3572,6 +3810,8 @@ def set_setting_animations_enabled(on: bool) -> None:
 
     Flushed immediately so the very next hover honours it — see
     :func:`get_setting_animations_enabled` for why nothing caches it.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
     settings = _settings()
     settings.setValue(_KEY_SETTING_ANIMATIONS, bool(on))
@@ -3648,10 +3888,105 @@ def get_font_scale() -> float:
 
 
 def set_font_scale(scale: float) -> None:
-    """Persist a UI font scale after clamping it to supported bounds."""
+    """Persist a UI font scale after clamping it to supported bounds.
+
+    :param scale: the UI font scale, 1.0 for the designed size; converted to
+        ``float`` and clamped between :data:`FONT_SCALE_MIN` and
+        :data:`FONT_SCALE_MAX`.
+    """
     scale = float(scale)
     scale = max(FONT_SCALE_MIN, min(FONT_SCALE_MAX, scale))
     _settings().setValue(_KEY_FONT_SCALE, scale)
+
+
+#: The text size of a module screen's right-hand column (item 529), as a
+#: multiple of the size the rest of the interface has. Ctrl + wheel over the
+#: column moves it; nothing outside the column follows it.
+RUNTIME_TEXT_SCALE_MIN = 0.60
+RUNTIME_TEXT_SCALE_MAX = 2.00
+DEFAULT_RUNTIME_TEXT_SCALE = 1.0
+
+
+def get_runtime_text_scale() -> float:
+    """The right-hand column's text size, clamped to its bounds.
+
+    One value for every module screen, so the console reads the same size
+    wherever the user goes; see :mod:`spacr.qt.live_zoom`.
+    """
+    try:
+        raw = float(_settings().value(_KEY_RUNTIME_TEXT_SCALE,
+                                      DEFAULT_RUNTIME_TEXT_SCALE))
+    except (TypeError, ValueError):
+        raw = DEFAULT_RUNTIME_TEXT_SCALE
+    return max(RUNTIME_TEXT_SCALE_MIN, min(RUNTIME_TEXT_SCALE_MAX, raw))
+
+
+def set_runtime_text_scale(scale: float) -> float:
+    """Persist the right-hand column's text size, clamped to its bounds.
+
+    :param scale: 1.0 for the size the rest of the interface has.
+    :returns: the value stored.
+    """
+    scale = round(max(RUNTIME_TEXT_SCALE_MIN,
+                      min(RUNTIME_TEXT_SCALE_MAX, float(scale))), 4)
+    _settings().setValue(_KEY_RUNTIME_TEXT_SCALE, scale)
+    return scale
+
+
+def _home_aside_scale(key: str, low: float, high: float) -> float:
+    """A Home right-column size stored under ``key``, clamped to its bounds.
+
+    :param key: the preference key.
+    :param low: the smallest factor allowed.
+    :param high: the largest factor allowed.
+    :returns: the factor, 1.0 when nothing usable is stored.
+    """
+    try:
+        raw = float(_settings().value(key, 1.0))
+    except (TypeError, ValueError):
+        raw = 1.0
+    if raw != raw:
+        raw = 1.0
+    return max(low, min(high, raw))
+
+
+def _set_home_aside_scale(key: str, scale: float, low: float,
+                          high: float) -> float:
+    """Store a Home right-column size under ``key``, clamped to its bounds.
+
+    :param key: the preference key.
+    :param scale: the factor, 1.0 for the designed size.
+    :param low: the smallest factor allowed.
+    :param high: the largest factor allowed.
+    :returns: the value stored.
+    """
+    scale = round(max(low, min(high, float(scale))), 4)
+    _settings().setValue(key, scale)
+    return scale
+
+
+def get_dock_width() -> int:
+    """The width the user dragged the dock to, or 0 for its fitting width.
+
+    Item 529. Stored in logical pixels; the dock clamps it to its drag
+    bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.
+    """
+    try:
+        return max(0, int(float(_settings().value(_KEY_DOCK_WIDTH, 0) or 0)))
+    except (TypeError, ValueError):
+        return 0
+
+
+def set_dock_width(width: int) -> None:
+    """Persist the dock's dragged width; 0 goes back to the fitting width.
+
+    :param width: logical pixels.
+    """
+    try:
+        width = max(0, int(width))
+    except (TypeError, ValueError):
+        width = 0
+    _settings().setValue(_KEY_DOCK_WIDTH, width)
 
 
 def get_gui_scale() -> float:
@@ -3820,6 +4155,8 @@ def scaled_px(base_px: int) -> int:
 
     Rounds to the nearest int; caps to at least 1 px so a very small
     scale doesn't collapse things to zero.
+
+    :param base_px: a size in pixels as designed for a font scale of 1.0.
     """
     return max(1, int(round(base_px * get_font_scale())))
 
@@ -4004,6 +4341,10 @@ def set_dock_mode(mode: str) -> None:
 
     A withdrawn mode is accepted and stored as its replacement, so code that
     still names one is migrated rather than made to raise.
+
+    :param mode: one of :data:`VALID_DOCK_MODES`, or a retired mode from
+        :data:`RETIRED_DOCK_MODES`, which is stored as its replacement;
+        anything else raises :class:`ValueError`.
     """
     mode = RETIRED_DOCK_MODES.get(mode, mode)
     if mode not in VALID_DOCK_MODES:
@@ -4043,7 +4384,11 @@ def get_pane_opacity() -> float:
 
 
 def set_pane_opacity(fraction: float) -> None:
-    """Store the requested opacity. Accepts 0.0-1.0; clamped, then rounded."""
+    """Store the requested opacity. Accepts 0.0-1.0; clamped, then rounded.
+
+    :param fraction: the opacity from 0.0 to 1.0, stored as a whole percentage;
+        an unparseable value stores :data:`DEFAULT_PANE_OPACITY_PCT`.
+    """
     try:
         value = float(fraction)
     except (TypeError, ValueError):
@@ -4087,7 +4432,11 @@ def get_hash_inputs() -> bool:
 
 
 def set_hash_inputs(on: bool) -> None:
-    """Persist the input-hashing choice."""
+    """Persist the input-hashing choice.
+
+    :param on: true to hash a run's inputs and outputs for the manifest, false
+        not to; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_HASH_INPUTS, bool(on))
 
 
@@ -4119,6 +4468,8 @@ def set_field_fade_enabled(on: bool) -> None:
     next repaint honours it. Re-applying the stylesheet
     (:func:`apply_preferences_to_app`) is what makes it land on fields
     that are already on screen.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
     settings = _settings()
     settings.setValue(_KEY_FIELD_FADE, bool(on))
@@ -4138,7 +4489,11 @@ def get_color_blind_mode() -> str:
 
 
 def set_color_blind_mode(mode: str) -> None:
-    """Persist a supported colour-vision mode."""
+    """Persist a supported colour-vision mode.
+
+    :param mode: one of :data:`VALID_CB_MODES`; any other value raises
+        :class:`ValueError`.
+    """
     if mode not in VALID_CB_MODES:
         raise ValueError(f"unknown CB mode {mode!r}. "
                           f"Choose from {VALID_CB_MODES}.")
@@ -4283,6 +4638,11 @@ def get_log_console_levels() -> frozenset:
 def set_log_levels(file_levels, console_levels) -> tuple:
     """Persist both switch sets, then apply them to the live handlers.
 
+    :param file_levels: the ``logging`` level numbers the log files record;
+        anything other than DEBUG, INFO, WARNING, ERROR and CRITICAL is
+        discarded.
+    :param console_levels: the ``logging`` level numbers shown on the console;
+        a level the log files do not keep is dropped.
     :returns: ``(file_levels, console_levels)`` as actually stored, which
         is not necessarily what was asked for -- a console level whose file
         level is off is dropped rather than saved and silently ignored.
@@ -4357,7 +4717,10 @@ def get_verbose_logging() -> bool:
 
 
 def set_verbose_logging(on: bool) -> None:
-    """Persist whether package-wide diagnostic tracing is enabled."""
+    """Persist whether package-wide diagnostic tracing is enabled.
+
+    :param on: true to turn it on, false to turn it off; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_VERBOSE_LOG, bool(on))
 
 
@@ -4412,9 +4775,42 @@ def get_share_diagnostic_logs() -> bool:
 
 
 def set_share_diagnostic_logs(on: bool) -> None:
-    """Persist the revocable diagnostic-log preview opt-in."""
+    """Persist the revocable diagnostic-log preview opt-in.
+
+    :param on: true to let an error report save a redacted copy of the recent
+        log, false not to; stored as a ``bool``.
+    """
     _settings().setValue(_KEY_SHARE_DIAGNOSTICS, bool(on))
 
+
+#: On, because "the news section should always automatically reflect the
+#: latest spaCR release news" (2026-09-24) and a wheel's bundled notes stop
+#: at the release before its own. Nothing is sent: the request is a GET of
+#: the public releases list, unauthenticated, at most once a day, on a
+#: worker thread, after Home has been drawn. Off leaves the panel exactly
+#: as it was -- the bundled resource, and no socket.
+DEFAULT_REFRESH_NEWS = True
+
+
+def get_refresh_news() -> bool:
+    """Whether Home's News panel may ask GitHub for newer releases.
+
+    Read by :meth:`spacr.qt.app.MainWindow._refresh_news`, which is the one
+    place that starts the fetch. The bundled
+    ``spacr/resources/release_notes.json`` is drawn either way.
+    """
+    return _as_bool(_settings().value(_KEY_REFRESH_NEWS,
+                                      DEFAULT_REFRESH_NEWS),
+                    DEFAULT_REFRESH_NEWS)
+
+
+def set_refresh_news(on: bool) -> None:
+    """Persist the News panel's release-refresh opt-out.
+
+    :param on: true to let the News panel ask GitHub for newer releases, false
+        to opt out; stored as a ``bool``.
+    """
+    _settings().setValue(_KEY_REFRESH_NEWS, bool(on))
 
 
 #: The Database Browser opens ``measurements.db`` read-only. Editing is a
@@ -4463,6 +4859,9 @@ def set_db_browser_editable(on: bool) -> None:
     Browser re-reads this key on every UI refresh — a stale read right
     after the user ticked the box would tell them editing is still off.
     One tiny INI write is worth not having to explain that.
+
+    :param on: true to allow edit mode, false to forbid it; stored as a
+        ``bool``.
     """
     settings = _settings()
     settings.setValue(_KEY_DB_EDIT, bool(on))
@@ -4481,7 +4880,11 @@ def get_show_alpha() -> bool:
 
 
 def set_show_alpha(on: bool) -> None:
-    """Show or hide modules and settings classified as Alpha."""
+    """Show or hide modules and settings classified as Alpha.
+
+    :param on: true to show Alpha modules and settings, false to hide them;
+        stored as a ``bool``.
+    """
     _settings().setValue(_KEY_SHOW_ALPHA, bool(on))
 
 
@@ -4492,7 +4895,11 @@ def get_show_beta() -> bool:
 
 
 def set_show_beta(on: bool) -> None:
-    """Show or hide modules and settings classified as Beta."""
+    """Show or hide modules and settings classified as Beta.
+
+    :param on: true to show Beta modules and settings, false to hide them;
+        stored as a ``bool``.
+    """
     _settings().setValue(_KEY_SHOW_BETA, bool(on))
 
 
@@ -4501,6 +4908,10 @@ def maturity_is_visible(stage: str) -> bool:
 
     Unknown stages are treated as stable. Stable features cannot be hidden;
     the two preferences are deliberately scoped to unfinished features.
+
+    :param stage: the maturity stage, e.g. ``"alpha"`` or ``"beta"``; matched
+        case-insensitively, and an empty value or any other stage counts as
+        stable.
     """
     normalized = str(stage or "stable").strip().lower()
     if normalized == "alpha":
@@ -4508,6 +4919,994 @@ def maturity_is_visible(stage: str) -> bool:
     if normalized == "beta":
         return get_show_beta()
     return True
+
+
+DEFAULT_SHOW_ALPHA_FEATURES = False
+
+
+def _get_show_alpha_features() -> bool:
+    """Whether features built from the future list are shown (default off).
+
+    Separate from :func:`get_show_alpha`, which is about a module's
+    maturity stage. This one hides everything registered in
+    ``spacr.settings.ALPHA_FEATURES`` until the user turns it on.
+    """
+    return _as_bool(
+        _settings().value(_KEY_SHOW_ALPHA_FEATURES,
+                          DEFAULT_SHOW_ALPHA_FEATURES),
+        DEFAULT_SHOW_ALPHA_FEATURES)
+
+
+def _set_show_alpha_features(on: bool) -> None:
+    """Show or hide every feature registered with the alpha gate.
+
+    Flushed at once, because the open screens re-read it as soon as the
+    Preferences dialog closes.
+
+    :param on: true to show alpha features, false to hide them.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_SHOW_ALPHA_FEATURES, bool(on))
+    settings.sync()
+
+
+def _is_alpha_visible(kind=None, name=None, choice=None) -> bool:
+    """THE alpha gate: whether something should be on screen right now.
+
+    With no arguments, whether alpha features are shown at all. With a kind
+    and a name, True for anything not registered in
+    ``spacr.settings.ALPHA_FEATURES`` and, for a registered thing,
+    whether the Show alpha features preference is on.
+
+    :param kind: one of ``spacr.settings.ALPHA_KINDS``, or None.
+    :param name: the settings key, object name, module key or model key.
+    :param choice: with ``kind='choices'``, the dropdown entry asked about.
+    """
+    if _get_show_alpha_features():
+        return True
+    if kind is None:
+        return False
+    from ..settings import _is_alpha
+
+    return not _is_alpha(kind, name, choice)
+
+
+def _apply_alpha_widgets(root) -> int:
+    """Hide or restore every registered alpha widget and action under ``root``.
+
+    Found by object name. A widget is hidden only if it was showing, and it
+    is marked when hidden, so turning the preference back on restores just
+    the ones this hid; a label its owner keeps hidden until a run starts is
+    left for its owner to show.
+
+    :param root: a widget whose children are walked, itself included.
+    :returns: how many widgets or actions changed.
+    """
+    from PySide6.QtCore import QObject
+
+    from ..settings import _alpha_names
+
+    shown = _get_show_alpha_features()
+    changed = 0
+    for name in sorted(_alpha_names("widgets")):
+        found = list(root.findChildren(QObject, name))
+        if root.objectName() == name:
+            found.append(root)
+        for thing in found:
+            try:
+                hidden = (thing.isHidden() if hasattr(thing, "isHidden")
+                          else not thing.isVisible())
+                if not shown and not hidden:
+                    thing.setProperty("_spacr_alpha_hid", True)
+                    thing.setVisible(False)
+                    changed += 1
+                elif shown and thing.property("_spacr_alpha_hid"):
+                    thing.setProperty("_spacr_alpha_hid", False)
+                    thing.setVisible(True)
+                    changed += 1
+            except RuntimeError:
+                continue
+    return changed
+
+
+_KEY_NOTIFY_PREFIX = "notify/"
+_KEY_NOTIFY_SAVED_SECRETS = "notify/saved_secrets"
+
+_NOTIFY_DEFAULTS = {
+    "enabled": False,
+    "when": "always",
+    "min_minutes": 5,
+    "desktop": True,
+    "email": False,
+    "smtp_host": "",
+    "smtp_port": 587,
+    "smtp_security": "starttls",
+    "smtp_user": "",
+    "email_from": "",
+    "email_to": "",
+    "slack": False,
+    "ntfy": False,
+    "ntfy_server": "https://ntfy.sh",
+    "teams": False,
+    "webhook": False,
+}
+"""Run-finished notification preferences and what a fresh install holds."""
+
+_NOTIFY_WHEN = ("always", "failed")
+_NOTIFY_SECURITY = ("starttls", "ssl", "none")
+_NOTIFY_ALPHA_WIDGET = "NotifyRunsEnabled"
+
+
+def _get_run_notifications() -> dict:
+    """The stored run-finished notification preferences, secrets excluded.
+
+    Every value falls back to :data:`_NOTIFY_DEFAULTS` when it is missing or
+    unreadable.
+
+    :returns: a dict with the keys of :data:`_NOTIFY_DEFAULTS`.
+    """
+    store = _settings()
+    out = {}
+    for key, default in _NOTIFY_DEFAULTS.items():
+        raw = store.value(_KEY_NOTIFY_PREFIX + key, default)
+        if isinstance(default, bool):
+            out[key] = _as_bool(raw, default)
+        elif isinstance(default, int):
+            try:
+                out[key] = int(raw)
+            except (TypeError, ValueError):
+                out[key] = default
+        else:
+            out[key] = str(raw if raw is not None else default).strip()
+    if out["when"] not in _NOTIFY_WHEN:
+        out["when"] = _NOTIFY_DEFAULTS["when"]
+    if out["smtp_security"] not in _NOTIFY_SECURITY:
+        out["smtp_security"] = _NOTIFY_DEFAULTS["smtp_security"]
+    out["min_minutes"] = max(0, min(1440, out["min_minutes"]))
+    if not 1 <= out["smtp_port"] <= 65535:
+        out["smtp_port"] = _NOTIFY_DEFAULTS["smtp_port"]
+    return out
+
+
+def _saved_notification_secrets() -> frozenset:
+    """Which notification secrets have been saved, by name, never by value."""
+    raw = _settings().value(_KEY_NOTIFY_SAVED_SECRETS, "")
+    if isinstance(raw, (list, tuple)):
+        raw = ",".join(str(part) for part in raw)
+    return frozenset(part for part in str(raw or "").split(",") if part)
+
+
+def _set_run_notifications(values: dict, secrets=None) -> None:
+    """Store run-finished notification preferences and any new secrets.
+
+    Secrets go to the OS keyring, or without one to a file only the user can
+    read; the preference store keeps only which ones are saved. An empty
+    secret leaves the saved one as it is.
+
+    :param values: any of the keys of :data:`_NOTIFY_DEFAULTS`.
+    :param secrets: optional ``{name: value}`` for the names in
+        ``spacr.run_journal._NOTIFY_SECRET_NAMES``.
+    """
+    store = _settings()
+    for key in _NOTIFY_DEFAULTS:
+        if key in values:
+            store.setValue(_KEY_NOTIFY_PREFIX + key, values[key])
+    saved = set(_saved_notification_secrets())
+    if secrets:
+        from ..run_journal import _store_notify_secret
+
+        for name, value in secrets.items():
+            if value:
+                _store_notify_secret(name, value)
+                saved.add(name)
+    store.setValue(_KEY_NOTIFY_SAVED_SECRETS, ",".join(sorted(saved)))
+    store.sync()
+
+
+def _forget_run_notification_secrets() -> None:
+    """Delete every saved notification secret from the keyring and the file."""
+    from ..run_journal import _NOTIFY_SECRET_NAMES, _store_notify_secret
+
+    for name in _NOTIFY_SECRET_NAMES:
+        _store_notify_secret(name, "")
+    store = _settings()
+    store.setValue(_KEY_NOTIFY_SAVED_SECRETS, "")
+    store.sync()
+
+
+def _run_notification_config():
+    """The notification settings a closing run is announced with, or None.
+
+    None unless notifications are switched on, at least one channel is
+    ready, and the Show alpha features gate shows them: a configuration the
+    gate hides sends nothing.
+
+    :returns: the stored preferences with ``desktop``, ``email``, ``slack``,
+        ``ntfy``, ``teams`` and ``webhook`` reduced to the channels that are
+        ready, or ``None``.
+    """
+    if not _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
+        return None
+    values = _get_run_notifications()
+    if not values["enabled"]:
+        return None
+    saved = _saved_notification_secrets()
+    values["email"] = bool(values["email"] and values["smtp_host"]
+                           and values["email_to"])
+    values["slack"] = bool(values["slack"] and "slack_webhook" in saved)
+    values["ntfy"] = bool(values["ntfy"] and "ntfy_topic" in saved)
+    values["teams"] = bool(values["teams"] and "teams_webhook" in saved)
+    values["webhook"] = bool(values["webhook"] and "webhook_url" in saved)
+    values["desktop"] = bool(values["desktop"])
+    if not any(values[name] for name in ("desktop", "email", "slack",
+                                         "ntfy", "teams", "webhook")):
+        return None
+    return values
+
+
+class _NotificationsPage:
+    """The Notifications tab: when and how a finished or failed run is told.
+
+    Secrets are never read back into the dialog: a secret field is empty,
+    says whether one is saved, and replaces it only when something is typed.
+
+    :param form: the tab's form layout, from the dialog's ``_page``.
+    :param dialog: the Preferences dialog.
+    """
+
+    def __init__(self, form, dialog) -> None:
+        """Build every row, reading the stored values."""
+        from PySide6.QtWidgets import (QComboBox, QLabel, QLineEdit,
+                                       QPushButton, QSpinBox)
+
+        from .i18n import tr
+        from .widgets.toggle import Toggle
+
+        self._dialog = dialog
+        self._thread = None
+        self._timer = None
+        values = _get_run_notifications()
+
+        help_label = QLabel(tr(
+            "spaCR can tell you when a long run finishes or fails: on this "
+            "computer's desktop, by email, in Slack or Microsoft Teams, "
+            "through ntfy or a webhook. Nothing is sent until you switch "
+            "it on here. Passwords and addresses "
+            "that work like passwords are kept in the system keyring."))
+        help_label.setWordWrap(True)
+        help_label.setObjectName("NotifyTabHelp")
+        form.addRow(help_label)
+
+        self.enabled = Toggle()
+        self.enabled.setObjectName("NotifyRunsEnabled")
+        self.enabled.setToolTip(
+            "Announce every run that finishes or fails, by the ways switched "
+            "on below, with its name, duration, outcome, a short QC summary "
+            "and where its output is. Runs from the app and from the command "
+            "line are both announced. A run you cancel is not. Default off.")
+        form.addRow(tr("Notify me"), self.enabled)
+
+        self.when = QComboBox()
+        self.when.setObjectName("NotifyRunsWhen")
+        self.when.addItem(tr("When a run finishes or fails"), "always")
+        self.when.addItem(tr("Only when a run fails"), "failed")
+        self.when.setToolTip(
+            "Which runs are announced: every run that ends, or only the ones "
+            "that fail. Default when a run finishes or fails.")
+        form.addRow(tr("When"), self.when)
+
+        self.min_minutes = QSpinBox()
+        self.min_minutes.setObjectName("NotifyRunsMinMinutes")
+        self.min_minutes.setRange(0, 1440)
+        self.min_minutes.setSuffix(tr(" min"))
+        self.min_minutes.setToolTip(
+            "Only runs that took at least this long are announced, so a "
+            "quick run you are watching does not send anything. 0 announces "
+            "every run. Default 5 min.")
+        form.addRow(tr("Runs longer than"), self.min_minutes)
+
+        self.desktop = Toggle()
+        self.desktop.setObjectName("NotifyDesktop")
+        self.desktop.setToolTip(
+            "Show a notification on this computer, from the system tray "
+            "while the app is open, or through the desktop's own "
+            "notifications for a command-line run. Default on.")
+        form.addRow(tr("Desktop"), self.desktop)
+
+        self.email = Toggle()
+        self.email.setObjectName("NotifyEmail")
+        self.email.setToolTip(
+            "Send an email through the SMTP server below. Your institution's "
+            "or mail provider's server works; many need an app password "
+            "rather than your usual one. Default off.")
+        form.addRow(tr("Email"), self.email)
+
+        def line(tip, placeholder="", secret=False):
+            """A text field with its tooltip and placeholder."""
+            field = QLineEdit()
+            field.setToolTip(tip)
+            if placeholder:
+                field.setPlaceholderText(placeholder)
+            if secret:
+                field.setEchoMode(QLineEdit.Password)
+            return field
+
+        self.smtp_host = line(
+            "The outgoing mail server, for example smtp.example.org. "
+            "Default empty.", "smtp.example.org")
+        self.smtp_host.setObjectName("NotifySmtpHost")
+        form.addRow(tr("SMTP server"), self.smtp_host)
+
+        self.smtp_port = QSpinBox()
+        self.smtp_port.setObjectName("NotifySmtpPort")
+        self.smtp_port.setRange(1, 65535)
+        self.smtp_port.setToolTip(
+            "The server's port: usually 587 with STARTTLS, 465 with SSL. "
+            "Default 587.")
+        form.addRow(tr("SMTP port"), self.smtp_port)
+
+        self.smtp_security = QComboBox()
+        self.smtp_security.setObjectName("NotifySmtpSecurity")
+        self.smtp_security.addItem("STARTTLS", "starttls")
+        self.smtp_security.addItem("SSL", "ssl")
+        self.smtp_security.addItem(tr("None"), "none")
+        self.smtp_security.setToolTip(
+            "How the connection to the mail server is encrypted. None sends "
+            "the password in the clear and is only for a server on your own "
+            "network. Default STARTTLS.")
+        form.addRow(tr("Encryption"), self.smtp_security)
+
+        self.smtp_user = line(
+            "The name you sign in to the mail server with, often your email "
+            "address. Leave empty for a server that needs no sign-in. "
+            "Default empty.")
+        self.smtp_user.setObjectName("NotifySmtpUser")
+        form.addRow(tr("SMTP user name"), self.smtp_user)
+
+        self.smtp_password = line(
+            "The mail server password. Kept in the system keyring, or "
+            "without one in a file only you can read, and never written to "
+            "a log. Leave empty to keep the saved one. Default empty.",
+            secret=True)
+        self.smtp_password.setObjectName("NotifySmtpPassword")
+        form.addRow(tr("SMTP password"), self.smtp_password)
+
+        self.email_from = line(
+            "The sender address. Empty uses the user name. Default empty.")
+        self.email_from.setObjectName("NotifyEmailFrom")
+        form.addRow(tr("From"), self.email_from)
+
+        self.email_to = line(
+            "Who is told, one or more addresses separated by commas. "
+            "Default empty.", "you@example.org")
+        self.email_to.setObjectName("NotifyEmailTo")
+        form.addRow(tr("To"), self.email_to)
+
+        self.slack = Toggle()
+        self.slack.setObjectName("NotifySlack")
+        self.slack.setToolTip(
+            "Post to a Slack channel through an incoming webhook. Default "
+            "off.")
+        form.addRow(tr("Slack"), self.slack)
+
+        self.slack_webhook = line(
+            "The incoming-webhook address Slack gives you, starting "
+            "https://hooks.slack.com/. Anyone with it can post to the "
+            "channel, so it is kept like a password. Leave empty to keep the "
+            "saved one. Default empty.", secret=True)
+        self.slack_webhook.setObjectName("NotifySlackWebhook")
+        form.addRow(tr("Slack webhook"), self.slack_webhook)
+
+        self.ntfy = Toggle()
+        self.ntfy.setObjectName("NotifyNtfy")
+        self.ntfy.setToolTip(
+            "Publish to an ntfy topic, which the ntfy phone app or web page "
+            "shows as a push notification. Default off.")
+        form.addRow(tr("ntfy"), self.ntfy)
+
+        self.ntfy_server = line(
+            "The ntfy server: the public one, or your own. Default "
+            "https://ntfy.sh.", "https://ntfy.sh")
+        self.ntfy_server.setObjectName("NotifyNtfyServer")
+        form.addRow(tr("ntfy server"), self.ntfy_server)
+
+        self.ntfy_topic = line(
+            "The topic to publish to. On a public server anyone who knows "
+            "the topic can read it, so choose one nobody would guess; it is "
+            "kept like a password. Leave empty to keep the saved one. "
+            "Default empty.", secret=True)
+        self.ntfy_topic.setObjectName("NotifyNtfyTopic")
+        form.addRow(tr("ntfy topic"), self.ntfy_topic)
+
+        self.ntfy_token = line(
+            "An access token, for a server or topic that needs one. Kept "
+            "like a password. Leave empty to keep the saved one. Default "
+            "empty.", secret=True)
+        self.ntfy_token.setObjectName("NotifyNtfyToken")
+        form.addRow(tr("ntfy access token"), self.ntfy_token)
+
+        self.teams = Toggle()
+        self.teams.setObjectName("NotifyTeams")
+        self.teams.setToolTip(
+            "Post an Adaptive Card to a Microsoft Teams channel or chat "
+            "through a workflow webhook. Default off.")
+        form.addRow(tr("Microsoft Teams"), self.teams)
+
+        self.teams_webhook = line(
+            "The webhook address from a Teams workflow configured to allow "
+            "Anyone to call it. Anyone with the address can post, so it is "
+            "kept like a password. Leave empty to keep the saved one. "
+            "Default empty.", secret=True)
+        self.teams_webhook.setObjectName("NotifyTeamsWebhook")
+        form.addRow(tr("Teams webhook"), self.teams_webhook)
+
+        self.webhook = Toggle()
+        self.webhook.setObjectName("NotifyWebhook")
+        self.webhook.setToolTip(
+            "Send a JSON object with title, body and failed fields to the "
+            "webhook below. The body contains the run summary and output "
+            "path; failed is true when the run failed. Default off.")
+        form.addRow(tr("Webhook"), self.webhook)
+
+        self.webhook_url = line(
+            "The HTTP or HTTPS address that receives the JSON notification. "
+            "Kept like a password because webhook addresses can contain "
+            "access keys. Leave empty to keep the saved one. Default "
+            "empty.", secret=True)
+        self.webhook_url.setObjectName("NotifyWebhookUrl")
+        form.addRow(tr("Webhook address"), self.webhook_url)
+
+        self.webhook_token = line(
+            "An optional bearer token for the webhook. Kept like a password. "
+            "Leave empty to keep the saved one. Default empty.", secret=True)
+        self.webhook_token.setObjectName("NotifyWebhookToken")
+        form.addRow(tr("Webhook access token"), self.webhook_token)
+
+        self.send_test = QPushButton(tr("Send a test"))
+        self.send_test.setObjectName("NotifySendTest")
+        self.send_test.setToolTip(
+            "Send a test message now by every way switched on above, using "
+            "what is typed here, and say which got through. Nothing is "
+            "saved. Default not sent.")
+        self.send_test.clicked.connect(self._send_test)
+        form.addRow(tr("Try it"), self.send_test)
+
+        self.forget = QPushButton(tr("Forget saved secrets"))
+        self.forget.setObjectName("NotifyForgetSecrets")
+        self.forget.setToolTip(
+            "Delete all saved notification passwords, webhook addresses, "
+            "topics and tokens from the keyring and from spaCR's own file, "
+            "at once. "
+            "Default kept.")
+        self.forget.clicked.connect(self._forget)
+        form.addRow(tr("Saved secrets"), self.forget)
+
+        self.test_result = QLabel("")
+        self.test_result.setObjectName("NotifyTestResult")
+        self.test_result.setWordWrap(True)
+        form.addRow(self.test_result)
+
+        self._secrets = {
+            "smtp_password": self.smtp_password,
+            "slack_webhook": self.slack_webhook,
+            "ntfy_topic": self.ntfy_topic,
+            "ntfy_token": self.ntfy_token,
+            "teams_webhook": self.teams_webhook,
+            "webhook_url": self.webhook_url,
+            "webhook_token": self.webhook_token,
+        }
+        self._show(values)
+        self._mark_saved_secrets()
+        for toggle in (self.email, self.slack, self.ntfy, self.teams,
+                       self.webhook):
+            toggle.toggled.connect(lambda _on: self._sync())
+        self._sync()
+
+    def _show(self, values: dict) -> None:
+        """Put ``values`` into the controls; secret fields are cleared."""
+        self.enabled.setChecked(bool(values["enabled"]))
+        self.when.setCurrentIndex(max(0, self.when.findData(values["when"])))
+        self.min_minutes.setValue(int(values["min_minutes"]))
+        self.desktop.setChecked(bool(values["desktop"]))
+        self.email.setChecked(bool(values["email"]))
+        self.smtp_host.setText(values["smtp_host"])
+        self.smtp_port.setValue(int(values["smtp_port"]))
+        self.smtp_security.setCurrentIndex(
+            max(0, self.smtp_security.findData(values["smtp_security"])))
+        self.smtp_user.setText(values["smtp_user"])
+        self.email_from.setText(values["email_from"])
+        self.email_to.setText(values["email_to"])
+        self.slack.setChecked(bool(values["slack"]))
+        self.ntfy.setChecked(bool(values["ntfy"]))
+        self.ntfy_server.setText(values["ntfy_server"])
+        self.teams.setChecked(bool(values["teams"]))
+        self.webhook.setChecked(bool(values["webhook"]))
+        for field in self._secrets.values():
+            field.clear()
+
+    def _mark_saved_secrets(self) -> None:
+        """Say in each secret field whether a secret is saved for it."""
+        from .i18n import tr
+
+        saved = _saved_notification_secrets()
+        for name, field in self._secrets.items():
+            field.setPlaceholderText(
+                tr("Saved; type to replace") if name in saved
+                else tr("Not saved"))
+
+    def _sync(self) -> None:
+        """A channel's fields are editable only while it is switched on."""
+        for toggle, fields in (
+                (self.email, (self.smtp_host, self.smtp_port,
+                              self.smtp_security, self.smtp_user,
+                              self.smtp_password, self.email_from,
+                              self.email_to)),
+                (self.slack, (self.slack_webhook,)),
+                (self.teams, (self.teams_webhook,)),
+                (self.webhook, (self.webhook_url, self.webhook_token)),
+                (self.ntfy, (self.ntfy_server, self.ntfy_topic,
+                             self.ntfy_token))):
+            for field in fields:
+                field.setEnabled(toggle.isChecked())
+
+    def values(self) -> dict:
+        """What the controls hold, secrets excluded."""
+        return {
+            "enabled": self.enabled.isChecked(),
+            "when": self.when.currentData(),
+            "min_minutes": self.min_minutes.value(),
+            "desktop": self.desktop.isChecked(),
+            "email": self.email.isChecked(),
+            "smtp_host": self.smtp_host.text().strip(),
+            "smtp_port": self.smtp_port.value(),
+            "smtp_security": self.smtp_security.currentData(),
+            "smtp_user": self.smtp_user.text().strip(),
+            "email_from": self.email_from.text().strip(),
+            "email_to": self.email_to.text().strip(),
+            "slack": self.slack.isChecked(),
+            "ntfy": self.ntfy.isChecked(),
+            "teams": self.teams.isChecked(),
+            "webhook": self.webhook.isChecked(),
+            "ntfy_server": (self.ntfy_server.text().strip()
+                            or _NOTIFY_DEFAULTS["ntfy_server"]),
+        }
+
+    def secrets(self) -> dict:
+        """The secrets typed into the dialog, by name; empty ones left out."""
+        return {name: field.text() for name, field in self._secrets.items()
+                if field.text()}
+
+    def save(self) -> None:
+        """Store the controls, and any secret that was typed."""
+        _set_run_notifications(self.values(), self.secrets())
+
+    def reset(self) -> None:
+        """Put the controls back to a fresh install's values.
+
+        Saved secrets are not touched; Forget saved secrets does that.
+        """
+        self._show(_get_run_notifications())
+        self._sync()
+
+    def _forget(self) -> None:
+        """Delete every saved secret now and say so."""
+        from .i18n import tr
+
+        try:
+            _forget_run_notification_secrets()
+            self.test_result.setText(tr("Saved secrets forgotten."))
+        except Exception as exc:
+            LOG.warning("could not forget the notification secrets (%s)",
+                        type(exc).__name__)
+            self.test_result.setText(tr("Could not forget the saved "
+                                        "secrets."))
+        self._mark_saved_secrets()
+
+    def _send_test(self):
+        """Send a test message by the channels switched on, off the GUI thread.
+
+        :returns: the sending thread, or ``None`` when no channel is on.
+        """
+        from PySide6.QtCore import QTimer
+
+        from ..run_journal import _dispatch_notification
+        from .i18n import tr
+
+        trial = self.values()
+        trial["secrets"] = self.secrets()
+        if not any(trial[name] for name in ("desktop", "email", "slack",
+                                             "ntfy", "teams", "webhook")):
+            self.test_result.setText(tr(
+                "Switch on at least one way to be told first."))
+            return None
+        message = {
+            "title": tr("spaCR test notification"),
+            "body": tr("If you can read this, spaCR can tell you when a run "
+                       "finishes or fails."),
+            "failed": False,
+        }
+        self.send_test.setEnabled(False)
+        self.test_result.setText(tr("Sending…"))
+        self._thread = _dispatch_notification(message, trial)
+        self._timer = QTimer(self.test_result)
+        self._timer.setInterval(200)
+        self._timer.timeout.connect(self._test_finished)
+        self._timer.start()
+        return self._thread
+
+    def _test_finished(self) -> bool:
+        """Report the test once its thread is done.
+
+        :returns: ``True`` when the result was shown.
+        """
+        from .i18n import tr
+
+        thread = self._thread
+        if thread is None or thread.is_alive():
+            return False
+        if self._timer is not None:
+            self._timer.stop()
+        results = dict(getattr(thread, "results", {}) or {})
+        sent = [name for name, result in results.items() if result == "sent"]
+        failed = [f"{name} ({result})" for name, result in results.items()
+                  if result != "sent"]
+        lines = []
+        if sent:
+            lines.append(tr("Sent: {channels}").format(
+                channels=", ".join(sent)))
+        if failed:
+            lines.append(tr("Not sent: {channels}").format(
+                channels="; ".join(failed)))
+        try:
+            self.test_result.setText("\n".join(lines))
+            self.send_test.setEnabled(True)
+        except RuntimeError:
+            return False
+        return True
+
+
+_KEY_PLUGIN_CATALOGUE = "plugins/catalogue"
+_PLUGIN_CATALOGUE_ALPHA_WIDGET = "PluginCatalogueTable"
+
+
+def _get_plugin_catalogue() -> str:
+    """The catalogue the Plugins tab opens with, or ``$SPACR_PLUGIN_CATALOGUE``."""
+    import os
+
+    stored = str(_settings().value(_KEY_PLUGIN_CATALOGUE, "") or "").strip()
+    return stored or os.environ.get("SPACR_PLUGIN_CATALOGUE", "").strip()
+
+
+def _set_plugin_catalogue(source: str) -> None:
+    """Remember the catalogue the Plugins tab opens with.
+
+    :param source: a catalogue file, its folder or an http(s) address.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_PLUGIN_CATALOGUE, str(source or "").strip())
+    settings.sync()
+
+
+class _PluginCataloguePage:
+    """The Plugins tab: browse a catalogue and install plugins and recipes.
+
+    Each row shows an entry's version, the installed version, its status,
+    author and licence; its summary is the row's tooltip. Installing,
+    updating and uninstalling go through the plugin SDK, which puts each
+    plugin in its own folder and each recipe in a settings file.
+
+    :param form: the tab's form layout, from the dialog's ``_page``.
+    :param dialog: the Preferences dialog.
+    """
+
+    def __init__(self, form, dialog) -> None:
+        """Build the rows and list the remembered catalogue, if any."""
+        from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QLabel,
+                                       QLineEdit, QPushButton, QTableWidget,
+                                       QWidget)
+
+        from .i18n import tr
+
+        self._dialog = dialog
+        self._rows = []
+        help_label = QLabel(tr(
+            "Browse a catalogue of community plugins and assay recipes. A "
+            "plugin is installed into its own folder with the libraries it "
+            "needs, so it never replaces a package spaCR uses; a recipe is "
+            "saved as a settings file you can load into its module."))
+        help_label.setWordWrap(True)
+        help_label.setObjectName("PluginCatalogueHelp")
+        form.addRow(help_label)
+
+        self.source = QLineEdit(_get_plugin_catalogue())
+        self.source.setObjectName("PluginCatalogueSource")
+        self.source.setPlaceholderText(tr("Catalogue file, folder or address"))
+        self.source.setToolTip(tr(
+            "Where the catalogue is: a catalogue.json file, the folder "
+            "holding one, or an http(s) address. It is remembered for next "
+            "time. Default the SPACR_PLUGIN_CATALOGUE variable, else empty."))
+        self.load_button = QPushButton(tr("List"))
+        self.load_button.setObjectName("PluginCatalogueLoad")
+        self.load_button.clicked.connect(self.refresh)
+        source_row = QWidget()
+        source_layout = QHBoxLayout(source_row)
+        source_layout.setContentsMargins(0, 0, 0, 0)
+        source_layout.addWidget(self.source, 1)
+        source_layout.addWidget(self.load_button)
+        form.addRow(tr("Catalogue"), source_row)
+
+        columns = [tr("Type"), tr("Name"), tr("Version"), tr("Installed"),
+                   tr("Status"), tr("Author"), tr("Licence")]
+        self.table = QTableWidget(0, len(columns))
+        from .widgets.sortable_table import install_sorting
+
+        install_sorting(self.table)
+        self.table.setObjectName("PluginCatalogueTable")
+        self.table.setHorizontalHeaderLabels(columns)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.itemSelectionChanged.connect(self._sync_buttons)
+        form.addRow(self.table)
+
+        self.install_button = QPushButton(tr("Install or update"))
+        self.install_button.setObjectName("PluginCatalogueInstall")
+        self.install_button.clicked.connect(self.install_selected)
+        self.uninstall_button = QPushButton(tr("Uninstall"))
+        self.uninstall_button.setObjectName("PluginCatalogueUninstall")
+        self.uninstall_button.clicked.connect(self.uninstall_selected)
+        self.open_button = QPushButton(tr("Open"))
+        self.open_button.setObjectName("PluginCatalogueOpen")
+        self.open_button.clicked.connect(self._open_selected)
+        actions = QWidget()
+        actions_layout = QHBoxLayout(actions)
+        actions_layout.setContentsMargins(0, 0, 0, 0)
+        actions_layout.addWidget(self.install_button)
+        actions_layout.addWidget(self.uninstall_button)
+        actions_layout.addWidget(self.open_button)
+        actions_layout.addStretch(1)
+        form.addRow(actions)
+
+        self.status = QLabel("")
+        self.status.setObjectName("PluginCatalogueStatus")
+        self.status.setWordWrap(True)
+        form.addRow(self.status)
+        self._sync_buttons()
+        if self.source.text().strip():
+            self.refresh()
+
+    def selected(self):
+        """The selected catalogue row as a dict, or None."""
+        rows = self.table.selectionModel().selectedRows()
+        if not rows:
+            return None
+        item = self.table.item(rows[0].row(), 0)
+        key = item.data(Qt.UserRole) if item is not None else None
+        return next((row for row in self._rows if row["key"] == key), None)
+
+    def _sync_buttons(self) -> None:
+        """Offer only the actions the selected row allows."""
+        row = self.selected()
+        self.install_button.setEnabled(
+            row is not None and row["status"] in ("available",
+                                                  "update available"))
+        self.uninstall_button.setEnabled(
+            row is not None and bool(row["installed"]))
+        self.open_button.setEnabled(
+            row is not None and row["kind"] == "recipe"
+            and bool(row["installed"]))
+
+    def _open_selected(self) -> bool:
+        """Load the installed recipe into its desktop module without running it."""
+        from ..cli import load_settings_file
+        from ..plugins import _catalogue_installed, get_app
+        from .app import APPS, _opened_module_screen, app_is_visible
+        from .chaining import screen_for_module
+        from .i18n import tr
+
+        row = self.selected()
+        if row is None or not _is_alpha_visible(
+                "widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET):
+            return False
+        try:
+            installed = _catalogue_installed().get(row["key"], {})
+            if installed.get("kind") != "recipe":
+                return False
+            requested = str(installed.get("app") or "")
+            host = screen_for_module(requested)
+            plugin = get_app(host)
+            if (not requested
+                    or (host not in {app[0] for app in APPS} and plugin is None)
+                    or (plugin is not None and not maturity_is_visible(plugin.stage))
+                    or not app_is_visible(requested)
+                    or not app_is_visible(host)):
+                raise ValueError(f"{tr('Could not apply template')}: {requested}")
+            settings = load_settings_file(installed.get("path"))
+            window = self._dialog.parentWidget()
+            if window is None or not callable(getattr(window, "open_module", None)):
+                raise ValueError(tr("Could not apply template"))
+            opened = window.open_module(requested)
+            screen = _opened_module_screen(window, requested, opened)
+            if screen is None or not callable(getattr(screen, "apply_settings_dict", None)):
+                raise ValueError(f"{tr('Could not apply template')}: {requested}")
+            if not screen.apply_settings_dict(settings):
+                raise ValueError(tr("Could not apply template"))
+        except Exception as exc:
+            self.status.setText(tr("{name} failed: {error}").format(
+                name=row["name"], error=exc))
+            return False
+        self._dialog.close()
+        return True
+
+    def refresh(self) -> bool:
+        """Read the catalogue and fill the table.
+
+        :returns: False, with the reason on the status line, when the
+            catalogue could not be read.
+        """
+        from .i18n import tr
+        from .widgets.sortable_table import table_item
+        from ..plugins import _catalogue_rows
+
+        source = self.source.text().strip()
+        _set_plugin_catalogue(source)
+        try:
+            self._rows = _catalogue_rows(source or None)
+        except Exception as exc:
+            self._rows = []
+            self.table.setRowCount(0)
+            self.status.setText(tr("Could not read the catalogue: {error}")
+                                .format(error=exc))
+            self._sync_buttons()
+            return False
+        kinds = {"plugin": tr("Plugin"), "recipe": tr("Recipe")}
+        states = {"available": tr("available"), "installed": tr("installed"),
+                  "update available": tr("update available"),
+                  "incompatible": tr("incompatible")}
+        self.table.setRowCount(0)
+        self.table.setRowCount(len(self._rows))
+        for index, row in enumerate(self._rows):
+            values = (kinds.get(row["kind"], row["kind"]), row["name"],
+                      row["version"], row["installed"],
+                      states.get(row["status"], row["status"]),
+                      row["author"], row["licence"])
+            for column, value in enumerate(values):
+                item = table_item(str(value))
+                item.setData(Qt.UserRole, row["key"])
+                item.setToolTip(row["summary"] or row["name"])
+                self.table.setItem(index, column, item)
+        self.table.resizeColumnsToContents()
+        self.status.setText(tr("{count} entries in the catalogue.")
+                            .format(count=len(self._rows)))
+        self._sync_buttons()
+        return True
+
+    def _select_key(self, key: str) -> None:
+        """Select the row for ``key`` again after the table is refilled."""
+        for index in range(self.table.rowCount()):
+            item = self.table.item(index, 0)
+            if item is not None and item.data(Qt.UserRole) == key:
+                self.table.selectRow(index)
+                return
+
+    def _act(self, install: bool) -> bool:
+        """Install or uninstall the selected row, then list again."""
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import QApplication
+
+        from .i18n import tr
+        from ..plugins import _install_from_catalogue, _uninstall_from_catalogue
+
+        row = self.selected()
+        if row is None:
+            return False
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            if install:
+                record = _install_from_catalogue(
+                    row["key"], self.source.text().strip() or None)
+                message = tr("Installed {name} {version}.").format(
+                    name=row["name"], version=record["version"])
+                if row["kind"] == "recipe":
+                    message += " " + tr("Its settings are in {path}.").format(
+                        path=record["path"])
+            else:
+                _uninstall_from_catalogue(row["key"])
+                message = tr("Uninstalled {name}.").format(name=row["name"])
+        except Exception as exc:
+            self.status.setText(tr("{name} failed: {error}").format(
+                name=row["name"], error=exc))
+            return False
+        finally:
+            QApplication.restoreOverrideCursor()
+        self.refresh()
+        self._select_key(row["key"])
+        self.status.setText(message)
+        return True
+
+    def install_selected(self) -> bool:
+        """Install or update the selected entry; True when it worked."""
+        return self._act(True)
+
+    def uninstall_selected(self) -> bool:
+        """Uninstall the selected entry; True when it worked."""
+        return self._act(False)
+
+
+def _install_run_notifier(app=None):
+    """Let run-finished notifications reach this app's desktop.
+
+    Installs the desktop sender the run journal calls from whichever thread
+    closed the run. The message is carried to the GUI thread and shown from
+    a system tray icon, or, where the desktop has no tray, by the operating
+    system's own notification command.
+
+    :param app: the ``QApplication``; falls back to the running one.
+    :returns: the relay object, or ``None`` without an application.
+    """
+    import threading
+
+    from PySide6.QtCore import QObject, QTimer, Signal, Slot
+    from PySide6.QtWidgets import QApplication, QStyle, QSystemTrayIcon
+
+    from .. import run_journal
+
+    app = app or QApplication.instance()
+    if app is None:
+        return None
+    existing = app.findChild(QObject, "RunFinishedNotifier")
+    if existing is not None:
+        run_journal._DESKTOP_NOTIFIER[0] = existing.arrived.emit
+        return existing
+
+    def _without_qt(title: str, body: str) -> None:
+        """The operating system's notification, any failure logged."""
+        try:
+            run_journal._desktop_os_notify(title, body)
+        except Exception as exc:
+            LOG.info("no desktop notification shown (%s)", exc)
+
+    class _RunFinishedRelay(QObject):
+        """Carries a message from the thread that sent it to the GUI thread."""
+
+        arrived = Signal(str, str, bool)
+
+        def __init__(self, parent) -> None:
+            """Listen for messages on the thread this object lives in."""
+            super().__init__(parent)
+            self.setObjectName("RunFinishedNotifier")
+            self._tray = None
+            self.arrived.connect(self._show)
+
+        @Slot(str, str, bool)
+        def _show(self, title: str, body: str, failed: bool) -> None:
+            """Show one message from the tray, or without Qt when none."""
+            try:
+                if not QSystemTrayIcon.isSystemTrayAvailable():
+                    threading.Thread(target=_without_qt, args=(title, body),
+                                     daemon=True).start()
+                    return
+                if self._tray is None:
+                    icon = app.windowIcon()
+                    if icon.isNull():
+                        icon = app.style().standardIcon(
+                            QStyle.StandardPixmap.SP_MessageBoxInformation)
+                    self._tray = QSystemTrayIcon(icon, self)
+                    self._tray.setToolTip("spaCR")
+                self._tray.show()
+                self._tray.showMessage(
+                    title, body,
+                    (QSystemTrayIcon.MessageIcon.Critical if failed
+                     else QSystemTrayIcon.MessageIcon.Information), 15000)
+                QTimer.singleShot(20000, self._tray.hide)
+            except Exception:
+                LOG.debug("could not show the run notification",
+                          exc_info=True)
+
+    relay = _RunFinishedRelay(app)
+    run_journal._DESKTOP_NOTIFIER[0] = relay.arrived.emit
+    return relay
+
 
 
 def color_blind_continuous_cmap() -> str:
@@ -4568,6 +5967,14 @@ def apply_preferences_to_app(app=None) -> None:
         install_field_fade(app)
     except Exception:
         LOG.exception("Could not install the field fade")
+
+    try:
+        from .tooltip_policy import (install_tooltip_policy,
+                                     invalidate_tooltip_policy)
+        invalidate_tooltip_policy()
+        install_tooltip_policy(app)
+    except Exception:
+        LOG.exception("Could not install the tooltip policy")
 
     style_signature = (
         str(theme),
@@ -4660,6 +6067,9 @@ def confirm_resource_action(action: str, parent=None) -> bool:
 
     Cancel is the default, so a stray Return key does nothing.
 
+    :param action: which clean-up to confirm: ``"ram"``, ``"vram"``, ``"cpu"``
+        or ``"disk"``.
+    :param parent: the widget the message box is parented to, or ``None``.
     :returns: ``True`` only if the user explicitly accepted.
     """
     from PySide6.QtWidgets import QMessageBox
@@ -4868,6 +6278,10 @@ def _start_disk_report(parent=None) -> None:
 def run_resource_action(action: str, parent=None):
     """Confirm ``action``, run it, and report the measured result.
 
+    :param action: which clean-up to run: ``"ram"``, ``"vram"``, ``"cpu"`` or
+        ``"disk"``.
+    :param parent: the widget the confirmation and result dialogs are parented
+        to, or ``None``.
     :returns: the :class:`~spacr.qt.resource_cleanup.Reclaim` for "ram",
         "vram" and "cpu", or ``None`` when the user declined — in which case
         **nothing ran**. The confirmation is asked before any work is
@@ -4968,6 +6382,7 @@ PREFERENCE_TIPS = {
     "Colour-blind mode": "Use interface and figure colours designed to remain distinguishable for common colour-vision deficiencies.",
     "Module visibility": "Select the module maturity levels shown in navigation: stable only, or stable with beta and alpha modules.",
     "Show busy spinner after": "Delay before displaying the busy indicator for a running task.",
+    "Tooltip delay": "Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.",
     "Page opacity": "Page opacity relative to the animated background.",
     "Animation detail": "Backdrop rendering detail. Reduce this value if animation affects interface performance.",
     "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
@@ -5021,6 +6436,10 @@ def explain_every_row(dialog) -> int:
     control to the label beside it. A row explained either way ends up
     explained the same way, and a row added later without a tooltip is
     reported by the test rather than passing unnoticed.
+
+    :param dialog: the finished Preferences dialog; every ``QFormLayout``
+        inside it is walked, and each row whose label is a ``QLabel`` is given
+        a tooltip when one is known.
     """
     from PySide6.QtWidgets import (QFormLayout, QLabel, QPushButton,
                                    QToolButton)
@@ -5058,12 +6477,272 @@ def explain_every_row(dialog) -> int:
     return explained
 
 
+_PREFERENCES_WINDOW_CLASS = None
+_PAGE_STAND_IN_CLASS = None
+
+
+def _page_stand_in_class():
+    """The placeholder a tab holds while its page waits. Made once, on first use.
+
+    :returns: a ``QWidget`` subclass, built with no arguments.
+    """
+    global _PAGE_STAND_IN_CLASS
+    if _PAGE_STAND_IN_CLASS is not None:
+        return _PAGE_STAND_IN_CLASS
+    from PySide6.QtCore import QSize
+    from PySide6.QtWidgets import QWidget
+
+    class _PageStandIn(QWidget):
+        """Holds a tab's place until its page comes back, asking for the most.
+
+        The dialog opens at the size of its largest tab, and a tab's scroll
+        area caps what its page may ask for at 36 by 24 lines of text. The
+        Figures page is always taller than the cap, so the dialog always
+        opened at the cap's height; this keeps that. Its width was the
+        widest page's, 548 px at an 18 px line where the cap is 648, and
+        what a page measures across is known only once it is styled -- the
+        cost this stand-in exists to put off. Asking the waiting page is no
+        answer either: a page that has never been shown lays out as empty,
+        because Qt leaves out widgets that have not been shown yet.
+
+        SO IT ASKS FOR THE CAP BOTH WAYS, and the dialog opens about 100 px
+        wider than it did, the same at every open and in every language.
+        Narrower was measured and is worse: at the open page's width the
+        resize filter judges the dialog stuck at its contents and wraps the
+        whole window in a second scroll area.
+        """
+
+        def sizeHint(self):                   # noqa: N802 - Qt naming
+            """Larger than any scroll area lets a page ask to be."""
+            return QSize(1 << 20, 1 << 20)
+
+    _PAGE_STAND_IN_CLASS = _PageStandIn
+    return _PAGE_STAND_IN_CLASS
+
+
+def _preferences_window_class():
+    """The dialog class Preferences is built on. Made once, on first use.
+
+    Qt is imported here rather than at module scope, for the reason
+    :class:`PreferencesDialog` gives.
+
+    :returns: a ``QDialog`` subclass.
+    """
+    global _PREFERENCES_WINDOW_CLASS
+    if _PREFERENCES_WINDOW_CLASS is not None:
+        return _PREFERENCES_WINDOW_CLASS
+    from PySide6.QtWidgets import QDialog, QWidget
+
+    class _PreferencesWindow(QDialog):
+        """The Preferences window, which styles one tab when it opens.
+
+        THE OPEN WAS THE SHOW, NOT THE BUILD. Building the dialog took
+        80-150 ms at load 15-21; showing it took 400-550 ms, because the
+        show styles every widget on every tab -- the window's stylesheet,
+        the glass card's transparent containers, the resize filter's polish
+        and the first-show translation each walk all ~755 widgets, and
+        nobody can see more than one tab. Figures alone is 386 of them.
+
+        So a tab nobody is looking at gives its page up for the first show
+        and gets it back the moment it is chosen: the page leaves its scroll
+        area, parentless and hidden, as a closed settings category's body
+        does (:meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`),
+        and a :func:`_page_stand_in_class` holds its place. Coming back, it
+        is styled by the window's sheet, given what the glass gave the rest
+        of the dialog, and translated, in the click that chose it.
+
+        NOTHING IS BUILT LATER. Every control on every page is made in the
+        build as it always was, and Save, Reset and Cancel read and write
+        those same controls whether their page is in the window or waiting,
+        so a page nobody opened saves exactly what it was built with.
+
+        AND PYTHON STILL SEES THE WHOLE DIALOG. ``findChild`` finds a
+        control on a waiting page and brings that page back, and
+        ``findChildren`` brings every page back before it walks, so code
+        that finds a control by its object name (item 569's switch) or walks
+        the dialog sees what it saw before -- except during the first show,
+        when the walks are the sheet's, the glass's and the resize filter's
+        and not bringing the pages back is the point. Qt's own C++ searches
+        see only the window, which is what they style.
+        """
+
+        def __init__(self, parent=None):
+            """An empty Preferences window; the builder fills it.
+
+            :param parent: the owning window, or ``None``.
+            """
+            super().__init__(parent)
+            self._page_tabs = None
+            self._pages_wait_for_the_show = False
+            self._window_only = 0
+            self._pages_away = {}
+
+        def _show_only_the_open_page_at_first(self, tabs) -> None:
+            """Have the first show style only the page of the current tab.
+
+            Called once the build is finished. The pages stay where they
+            are until the show, so the navigation that picks the tab to
+            open on finds each control on its tab.
+
+            :param tabs: the dialog's ``QTabWidget``; every page is a scroll
+                area holding the page.
+            """
+            self._page_tabs = tabs
+            self._pages_wait_for_the_show = True
+            tabs.currentChanged.connect(self._bring_the_page_back)
+
+        def setVisible(self, visible):            # noqa: N802 - Qt naming
+            """Send the unseen pages away just before the first show.
+
+            HERE, AND NOT ON THE FIRST ``Polish``. The window sheet, the
+            glass and the resize filter all act on that event from the
+            application, which hears it before the window does, and the
+            resize filter polishes every child as it does. Qt's own show
+            begins in this call, so the pages are gone before any of them
+            runs.
+
+            :param visible: as for ``QWidget.setVisible``.
+            """
+            if not (visible and self._pages_wait_for_the_show):
+                super().setVisible(visible)
+                return
+            self._pages_wait_for_the_show = False
+            self._send_the_unseen_pages_away()
+            self._window_only += 1
+            try:
+                super().setVisible(visible)
+            finally:
+                self._window_only -= 1
+
+        def findChild(self, *args, **kwargs):     # noqa: N802 - Qt naming
+            """``QObject.findChild``, finding a control whose page is waiting.
+
+            A control asked for by name is the dialog's wherever its page
+            is, so what the builder, Save and a test find by name does not
+            depend on which tabs have been chosen. The page it is on comes
+            back into its tab, hidden unless its tab is current, as it was
+            before pages waited: a caller that goes on to click or read the
+            geometry of what it found is holding a widget in the window.
+
+            :returns: the first match, or ``None``.
+            """
+            found = super().findChild(*args, **kwargs)
+            if found is not None or self._window_only:
+                return found
+            for index, page in list(self._pages_away.items()):
+                found = page.findChild(*args, **kwargs)
+                if found is not None:
+                    self._bring_the_page_back(index)
+                    return found
+            return None
+
+        def findChildren(self, *args, **kwargs):  # noqa: N802 - Qt naming
+            """``QObject.findChildren`` over every page, waiting or not.
+
+            A walk of the dialog from Python -- a test's, or code that
+            looks at every control -- sees the dialog it saw before pages
+            waited, so every waiting page comes back first. Not during the
+            first show: the window sheet, the glass and the resize filter
+            walk the dialog then, and bringing the pages back for them is
+            the cost the waiting exists to save. Nor while a page is coming
+            back, whose glass asks the dialog for its card.
+
+            :returns: every match.
+            """
+            if not self._window_only:
+                for index in list(self._pages_away):
+                    self._bring_the_page_back(index)
+            return super().findChildren(*args, **kwargs)
+
+        def _send_the_unseen_pages_away(self) -> int:
+            """Take every page but the current tab's out of the window.
+
+            :returns: how many widgets left the window.
+            """
+            tabs = self._page_tabs
+            if tabs is None:
+                return 0
+            current = tabs.currentIndex()
+            stand_in = _page_stand_in_class()
+            moved = 0
+            for index in range(tabs.count()):
+                if index == current or index in self._pages_away:
+                    continue
+                scroll = tabs.widget(index)
+                page = scroll.widget() if scroll is not None else None
+                if page is None:
+                    continue
+                moved += len(page.findChildren(QWidget)) + 1
+                scroll.takeWidget()
+                page._spacr_detached_from = scroll
+                page.setVisible(False)
+                self.destroyed.connect(page.deleteLater)
+                scroll.setWidget(stand_in())
+                self._pages_away[index] = page
+            return moved
+
+        def _bring_the_page_back(self, index) -> bool:
+            """Put a waiting page back in its tab as the tab is chosen.
+
+            :param index: the tab just chosen.
+            :returns: ``True`` when this call put a page back.
+            """
+            page = self._pages_away.pop(index, None)
+            if page is None:
+                return False
+            scroll = self._page_tabs.widget(index)
+            try:
+                self.destroyed.disconnect(page.deleteLater)
+            except (RuntimeError, TypeError):
+                pass
+            page._spacr_detached_from = None
+            self._window_only += 1
+            try:
+                holder = scroll.takeWidget()
+                scroll.setWidget(page)
+                if holder is not None:
+                    holder.deleteLater()
+                _what_a_page_missed_while_away(self, page)
+            finally:
+                self._window_only -= 1
+            return True
+
+    _PREFERENCES_WINDOW_CLASS = _PreferencesWindow
+    return _PREFERENCES_WINDOW_CLASS
+
+
+def _what_a_page_missed_while_away(dialog, page) -> None:
+    """Give a page coming back what the dialog's first show gave the rest.
+
+    The first-show translation pass and the glass card's treatment of the
+    containers and buttons each walked the dialog as it was shown, and a
+    page waiting outside it was not there to be walked.
+
+    :param dialog: the Preferences window.
+    :param page: the page just put back in its tab.
+    """
+    try:
+        from .i18n import retranslate_widget_tree, ui_language_resolved_once
+
+        with ui_language_resolved_once():
+            retranslate_widget_tree(page)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("a Preferences page was not translated", exc_info=True)
+    try:
+        from .widgets.glass import _glass_a_part_that_came_later
+
+        _glass_a_part_that_came_later(dialog, page)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("a Preferences page was not glassed", exc_info=True)
+
+
 class PreferencesDialog:
     """Wrapper that builds the modal Preferences dialog on demand.
 
     Kept as a factory (not a real class subclass) so this module can
     be imported headless without pulling in QtWidgets. The real
-    :class:`QDialog` is returned by ``PreferencesDialog(parent)``.
+    :class:`QDialog` -- the subclass :func:`_preferences_window_class`
+    makes on first use -- is returned by ``PreferencesDialog(parent)``.
     """
 
     def __new__(cls, parent=None):
@@ -5092,9 +6771,10 @@ class PreferencesDialog:
     def _build_the_dialog(cls, parent=None):
         """Build and return the preferences dialog.
 
-        A ``__new__`` returning a plain ``QDialog`` rather than an ``__init__``
-        on a subclass: everything Qt is imported inside the call, so importing
-        this module costs nothing until a dialog is actually asked for.
+        A ``__new__`` returning a ``QDialog`` rather than an ``__init__`` on a
+        subclass of one: everything Qt is imported inside the call, so
+        importing this module costs nothing until a dialog is actually asked
+        for.
 
         The window is detached from the window manager's point of view, so the
         user can put it where they like -- it is still parented, still modal and
@@ -5105,7 +6785,7 @@ class PreferencesDialog:
         """
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
-            QCheckBox, QComboBox, QDialog, QDialogButtonBox,
+            QCheckBox, QComboBox, QDialogButtonBox,
             QDoubleSpinBox, QFormLayout,
             QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSlider,
             QSpinBox, QTabWidget, QVBoxLayout, QWidget,
@@ -5114,7 +6794,7 @@ class PreferencesDialog:
         from .theme import spaceout_enabled
         from .widgets.toggle import Toggle
 
-        dlg = QDialog(parent)
+        dlg = _preferences_window_class()(parent)
         from .dialogs import detach_from_window_manager
         detach_from_window_manager(dlg)
         dlg.setWindowTitle(tr("spaCR — Preferences"))
@@ -5148,8 +6828,30 @@ class PreferencesDialog:
 
         form = _page("General", "PreferencesTabGeneral")
         appearance = _page("Appearance", "PreferencesTabAppearance")
-        theme_tab = _page("Theme", "PreferencesTabTheme")
-        animation = _page("Animation", "PreferencesTabAnimation")
+        from .widgets.section import Section
+
+        def _category(title: str, object_name: str):
+            """Add a folded category to Appearance and return its form.
+
+            The category is the same widget the module screens group their
+            settings with, so it folds and looks the way every other
+            settings category does. Its rows sit in a holder named
+            ``object_name``, which is what the Help search opens the dialog
+            on; the navigation unfolds the category on the way to a row.
+            """
+            category = Section(title)
+            holder = QWidget()
+            holder.setObjectName(object_name)
+            category_form = QFormLayout(holder)
+            category_form.setContentsMargins(0, 0, 0, 0)
+            category_form.setFieldGrowthPolicy(
+                QFormLayout.AllNonFixedFieldsGrow)
+            category.add_prose(holder)
+            return category, category_form
+
+        theme_category, theme_tab = _category("Theme", "PreferencesTabTheme")
+        animation_category, animation = _category(
+            "Animation", "PreferencesTabAnimation")
         performance = _page("Performance", "PreferencesTabPerformance")
         modules = _page("Modules", "PreferencesTabModules")
         figures = _page("Figures", "PreferencesTabFigures")
@@ -5207,11 +6909,11 @@ class PreferencesDialog:
             _sync_console_enabled(_level)
 
         _debug_file_toggle = log_level_toggles[logging.DEBUG][0]
-        _debug_file_toggle.setToolTip(
+        _debug_file_toggle.setToolTip(tr(
             "While verbose logging is on (Modules tab), DEBUG is always "
             "written to the log files, so this switch stays on. Turn "
             "verbose logging off to choose it yourself. Your own choice "
-            "is kept for when you do.")
+            "is kept for when you do."))
         _chosen_debug = [logging.DEBUG in _chosen_log_file_levels()]
 
         def _remember_the_debug_choice(checked) -> None:
@@ -5459,6 +7161,46 @@ class PreferencesDialog:
         setting_anim_check.setChecked(get_setting_animations_enabled())
         animation.addRow(tr("Setting animations"), setting_anim_check)
 
+        tooltips_all_check = Toggle(tr("Show tooltips"))
+        tooltips_all_check.setObjectName("TooltipsEnabled")
+        tooltips_all_check.setToolTip(
+            "Resting the pointer on a button, a field or a column header "
+            "for the chosen Tooltip delay shows a small label saying what it is. The "
+            "label stays while the pointer is on it and leaves a second "
+            "after the pointer goes. Cleared, no tooltip appears anywhere "
+            "in spaCR."
+        )
+        tooltips_all_check.setChecked(get_tooltips_enabled())
+        appearance.addRow(tr("Tooltips"), tooltips_all_check)
+
+        tooltip_delay_slider = QSlider(Qt.Horizontal)
+        tooltip_delay_slider.setObjectName("TooltipDelay")
+        tooltip_delay_slider.setRange(int(_TOOLTIP_DELAY_MIN * 10),
+                                      int(_TOOLTIP_DELAY_MAX * 10))
+        tooltip_delay_slider.setSingleStep(1)
+        tooltip_delay_slider.setPageStep(5)
+        tooltip_delay_slider.setTickInterval(10)
+        tooltip_delay_slider.setValue(
+            int(round(_get_tooltip_delay() * 10)))
+        tooltip_delay_slider.setToolTip(PREFERENCE_TIPS["Tooltip delay"])
+        tooltip_delay_value = QLabel()
+
+        def _update_tooltip_delay_lbl(v):
+            """Show the tooltip delay in seconds, or "show immediately" at zero."""
+            tooltip_delay_value.setText(
+                tr("show immediately") if v == 0 else f"{v / 10:.1f} s")
+
+        tooltip_delay_slider.valueChanged.connect(_update_tooltip_delay_lbl)
+        _update_tooltip_delay_lbl(tooltip_delay_slider.value())
+        tooltips_all_check.toggled.connect(tooltip_delay_slider.setEnabled)
+        tooltip_delay_slider.setEnabled(tooltips_all_check.isChecked())
+        tooltip_delay_column = QVBoxLayout()
+        tooltip_delay_column.setContentsMargins(0, 0, 0, 0)
+        tooltip_delay_column.addWidget(tooltip_delay_slider)
+        tooltip_delay_column.addWidget(tooltip_delay_value)
+        appearance.addRow(tr("Tooltip delay"),
+                          _hbox_wrap(tooltip_delay_column))
+
         tooltips_box_check = Toggle(tr("Tooltips box"))
         tooltips_box_check.setObjectName("TooltipsBox")
         tooltips_box_check.setToolTip(
@@ -5480,20 +7222,6 @@ class PreferencesDialog:
         )
         tooltips_bottom_check.setChecked(get_tooltips_bottom_enabled())
         appearance.addRow(tr("Tooltips bottom"), tooltips_bottom_check)
-
-        object_grid_check = Toggle(tr("Per-object settings as a table"))
-        object_grid_check.setObjectName("ObjectSettingsGrid")
-        object_grid_check.setToolTip(
-            "78 of Mask's 201 settings are the same twenty-odd questions "
-            "asked once per object type. Set, those rows are replaced by one "
-            "table: a row per question, a column per object. The stored "
-            "settings are identical either way, so a file written with this "
-            "on is the same file written with it off. Takes effect the next "
-            "time a module's form is built."
-        )
-        object_grid_check.setChecked(get_object_grid_enabled())
-        appearance.addRow(tr("Per-object settings as a table"),
-                          object_grid_check)
 
         def _warn_when_both_are_off() -> None:
             """Say what turning both off costs, on the rows themselves.
@@ -5847,7 +7575,7 @@ class PreferencesDialog:
         form.addRow(tr("Colour-blind mode"), cb_combo)
 
         verbose_check = Toggle(tr("Enable verbose logging"))
-        verbose_check.setToolTip(
+        verbose_check.setToolTip(tr(
             "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. "
             "It also lets cellpose report which model it loaded, and it "
             "records which buttons you pressed. That trail is what makes a "
@@ -5864,7 +7592,7 @@ class PreferencesDialog:
             "does not trace every function call. "
             "That tracer is a separate tool for developers, and nothing "
             "here turns it on."
-        )
+        ))
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)
 
@@ -5918,6 +7646,21 @@ class PreferencesDialog:
         )
         share_diagnostics_check.setChecked(get_share_diagnostic_logs())
         modules.addRow(tr("Report logs"), share_diagnostics_check)
+
+        refresh_news_check = Toggle(
+            tr("Show newer releases than this build in Home's News panel")
+        )
+        refresh_news_check.setObjectName("RefreshNews")
+        refresh_news_check.setToolTip(
+            "On by default. A build's bundled release notes stop at the "
+            "release before its own, so with this on spaCR reads the public "
+            "list of releases from GitHub once a day, on a background "
+            "thread, after Home is drawn, and shows anything newer at the "
+            "top of News. Nothing is sent and nothing is signed in. Off "
+            "shows only the notes bundled in this build."
+        )
+        refresh_news_check.setChecked(get_refresh_news())
+        modules.addRow(tr("Release news"), refresh_news_check)
 
         db_edit_check = Toggle(tr("Allow editing in the Database Browser"))
         db_edit_check.setToolTip(
@@ -5995,10 +7738,19 @@ class PreferencesDialog:
             "signed off. Stable and Alpha features are unaffected."
         )
         beta_check.setChecked(get_show_beta())
+        alpha_features_check = Toggle(tr("Show alpha features"))
+        alpha_features_check.setObjectName("ShowAlphaFutureFeatures")
+        alpha_features_check.setToolTip(tr(
+            "Show the settings, controls, screens and models built from the "
+            "future-features list that are not yet released. Off hides them; "
+            "saved values still reach every run."
+        ))
+        alpha_features_check.setChecked(_get_show_alpha_features())
         maturity_col = QVBoxLayout()
         maturity_col.setContentsMargins(0, 0, 0, 0)
         maturity_col.addWidget(alpha_check)
         maturity_col.addWidget(beta_check)
+        maturity_col.addWidget(alpha_features_check)
         modules.addRow(tr("Module visibility"), _hbox_wrap(maturity_col))
 
         figure_save_mode_combo = QComboBox()
@@ -6036,6 +7788,22 @@ class PreferencesDialog:
             if fig_format_combo.itemData(i) == cur_fmt:
                 fig_format_combo.setCurrentIndex(i); break
         figures.addRow(tr("Figure format"), fig_format_combo)
+
+        integrity_check = None
+        if _is_alpha_visible("widgets", _FIG_INTEGRITY_WIDGET):
+            integrity_check = Toggle(tr("Check figure integrity on export"))
+            integrity_check.setObjectName("FigureIntegrityCheck")
+            integrity_check.setToolTip(tr(
+                "When an image figure or montage is saved, warn if panels "
+                "meant for comparison use different display ranges, if "
+                "pixels are saturated or clipped, if a panel is repeated, "
+                "or if a lossy format was chosen. Also writes the source "
+                "files, display settings, processing steps and spaCR "
+                "version into the file's metadata and a .provenance.json "
+                "file beside it. Default off."
+            ))
+            integrity_check.setChecked(_get_figure_integrity())
+            figures.addRow(integrity_check)
 
         from ..graph_types import (DATA_SHAPES, GRAPH_NAMES, DEFAULTS,
                                    types_for)
@@ -6226,8 +7994,6 @@ class PreferencesDialog:
             "Suggested:\n{levels}").format(levels=_suggestions(1)))
         performance.addRow(tr("Cache ceiling"), cache_spin)
 
-        # 286: a budget number still at the previous level's value moves with
-        # the level; a number the user typed stays where they put it.
         _budget_level = [mode_combo.currentData()]
         _budget_spins = (idle_spin, cache_spin, headroom_spin)
         mode_combo.currentIndexChanged.connect(
@@ -6241,6 +8007,8 @@ class PreferencesDialog:
         font_weight.setCurrentIndex(
             max(0, font_weight.findData(get_interface_font_weight())))
         appearance.addRow(tr("Interface font"), font_weight)
+        appearance.addRow(theme_category)
+        appearance.addRow(animation_category)
 
         if spaceout_enabled():
             fractal = _page("Fractal", "PreferencesTabFractal")
@@ -6399,11 +8167,13 @@ class PreferencesDialog:
                 "every so often and moves the camera onto it. It finds more "
                 "variety, and moving the camera is visible: the Steering "
                 "control below sets how much.\n\n"
-                "Tour the interesting places floats between twenty "
-                "coordinates chosen in advance for keeping their detail "
-                "over four decades of zoom, easing out of one and into "
-                "the next. Dragging the view stops the tour; Ctrl+R hands "
-                "the camera back to it."))
+                "Tour the interesting places measures the view as it "
+                "descends and glides toward the part with the most colours "
+                "in it, never toward a single-colour patch. The camera "
+                "eases in and out of every move and turns away before the "
+                "detail runs out, and at the end of a dive it glides back "
+                "up. Dragging the view stops the tour; Ctrl+R hands the "
+                "camera back to it."))
             fractal.addRow(tr("Path"), fractal_path)
 
             fractal_steering = _tenths(
@@ -6478,6 +8248,46 @@ class PreferencesDialog:
             fractal.addRow(tr("Pointer reach"), fractal_pointer_size)
             fractal_pointer_size.setEnabled(fractal_pointer.isChecked())
             fractal_pointer.toggled.connect(fractal_pointer_size.setEnabled)
+
+            fractal_magnifier = QSlider(Qt.Horizontal)
+            fractal_magnifier.setObjectName("FractalMagnifierSize")
+            _lens_low, _lens_high = FRACTAL_LIMITS["magnifier_size"][:2]
+            fractal_magnifier.setRange(int(round(_lens_low * 100)),
+                                       int(round(_lens_high * 100)))
+            fractal_magnifier.setSingleStep(5)
+            fractal_magnifier.setPageStep(25)
+            fractal_magnifier.setTickInterval(25)
+            fractal_magnifier.setValue(
+                int(round(_fractal_values["magnifier_size"] * 100)))
+            fractal_magnifier.setToolTip(tr(
+                "How big the magnifying glass under the pointer is, as a "
+                "share of its usual size. The whole lens scales together: "
+                "the bulge under the cursor and the soft edge around it. "
+                "25% is a small loupe; 300% bends most of the window. "
+                "Applies wherever the pointer bends the picture: both "
+                "orbit folds, and the cascade and space on the GPU "
+                "renderer. The Mandelbrot is dragged instead. "
+                "Default 100%."))
+            fractal_magnifier_value = QLabel()
+
+            def _magnifier_says(percent):
+                """Show the lens size the slider is at, as a percentage."""
+                fractal_magnifier_value.setText(f"{int(percent)}%")
+
+            fractal_magnifier.valueChanged.connect(_magnifier_says)
+            _magnifier_says(fractal_magnifier.value())
+            _magnifier_column = QVBoxLayout()
+            _magnifier_column.setContentsMargins(0, 0, 0, 0)
+            _magnifier_column.addWidget(fractal_magnifier)
+            _magnifier_column.addWidget(fractal_magnifier_value)
+            _magnifier_row = _hbox_wrap(_magnifier_column)
+            _magnifier_row.setToolTip(fractal_magnifier.toolTip())
+            fractal_magnifier.setAccessibleDescription(
+                fractal_magnifier.toolTip())
+            fractal_magnifier.setToolTip("")
+            fractal.addRow(tr("Magnifier size"), _magnifier_row)
+            fractal_magnifier.setEnabled(fractal_pointer.isChecked())
+            fractal_pointer.toggled.connect(fractal_magnifier.setEnabled)
 
             fractal_pointer_strength = None
 
@@ -6619,6 +8429,15 @@ class PreferencesDialog:
         quit_button.clicked.connect(lambda: _quit_spacr(dlg))
         performance.addRow(tr("Application"), quit_button)
 
+        notifications_page = None
+        if _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
+            notifications_page = _NotificationsPage(
+                _page("Notifications", "PreferencesTabNotifications"), dlg)
+
+        if _is_alpha_visible("widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET):
+            dlg._plugin_catalogue_page = _PluginCataloguePage(
+                _page("Plugins", "PreferencesTabPlugins"), dlg)
+
         sound_page = None
         if sound_is_offered():
             from .sound_preferences import SoundPage
@@ -6731,6 +8550,8 @@ class PreferencesDialog:
                 _select(cb_combo, get_color_blind_mode())
                 _select(figure_save_mode_combo, get_figure_save_mode())
                 _select(fig_format_combo, get_figure_format())
+                if integrity_check is not None:
+                    integrity_check.setChecked(_get_figure_integrity())
                 _select(png_dpi_combo, get_figure_png_dpi())
                 live_cache_spin.setValue(get_figure_live_cache())
                 dynamic_check.setChecked(get_figure_dynamic())
@@ -6753,17 +8574,34 @@ class PreferencesDialog:
 
                 setting_anim_check.setChecked(
                     get_setting_animations_enabled())
+                tooltips_all_check.setChecked(get_tooltips_enabled())
+                tooltip_delay_slider.setValue(
+                    int(round(_get_tooltip_delay() * 10)))
                 field_fade_check.setChecked(get_field_fade_enabled())
                 hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
+                _chosen_debug[0] = logging.DEBUG in _chosen_log_file_levels()
+                default_file_levels = set(get_log_file_levels())
+                default_console_levels = set(get_log_console_levels())
+                for level, (file_toggle, _c) in log_level_toggles.items():
+                    file_toggle.setChecked(level in default_file_levels)
+                for level, (_f, console_toggle) in log_level_toggles.items():
+                    _sync_console_enabled(level)
+                    console_toggle.setChecked(
+                        console_toggle.isEnabled()
+                        and level in default_console_levels)
                 _select(performance_log_combo, get_performance_logging())
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
+                refresh_news_check.setChecked(get_refresh_news())
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
+                alpha_features_check.setChecked(_get_show_alpha_features())
                 if sound_page is not None:
                     sound_page.reset()
+                if notifications_page is not None:
+                    notifications_page.reset()
             finally:
                 _settings = original
 
@@ -6798,12 +8636,12 @@ class PreferencesDialog:
                 set_ambient_drift_direction(direction_choice)
             set_spinner_delay(spinner_slider.value() / 10.0)
             set_setting_animations_enabled(setting_anim_check.isChecked())
+            set_tooltips_enabled(tooltips_all_check.isChecked())
+            _set_tooltip_delay(tooltip_delay_slider.value() / 10.0)
             set_tooltips_box_enabled(tooltips_box_check.isChecked())
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())
-            set_object_grid_enabled(object_grid_check.isChecked())
             set_preferred_provider(ai_provider_combo.currentData() or "")
-            _tell_the_screens_the_object_grid_changed()
             scale_settle.stop()
             set_font_scale(scale_slider.value() / 100.0)
             set_gui_scale(gui_scale_slider.value() / 100.0)
@@ -6822,6 +8660,7 @@ class PreferencesDialog:
             set_verbose_logging(verbose_check.isChecked())
             set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
+            set_refresh_news(refresh_news_check.isChecked())
             verbose_holds_debug = verbose_check.isChecked()
             set_log_levels(
                 [level for level, (file_t, _c) in log_level_toggles.items()
@@ -6834,8 +8673,11 @@ class PreferencesDialog:
             set_db_browser_editable(db_edit_check.isChecked())
             set_show_alpha(alpha_check.isChecked())
             set_show_beta(beta_check.isChecked())
+            _set_show_alpha_features(alpha_features_check.isChecked())
             set_figure_save_mode(figure_save_mode_combo.currentData())
             set_figure_format(fig_format_combo.currentData())
+            if integrity_check is not None:
+                _set_figure_integrity(integrity_check.isChecked())
             for shape, combo in default_graph_combos.items():
                 set_default_graph_type(shape, combo.currentData() or "")
             set_figure_png_dpi(png_dpi_combo.currentData())
@@ -6862,6 +8704,7 @@ class PreferencesDialog:
                                   else 1.0),
                     pointer_strength=(1.0 if fractal_pointer.isChecked()
                                       else 0.0),
+                    magnifier_size=fractal_magnifier.value() / 100.0,
                     supersampling=int(fractal_ss.value()),
                     path=fractal_path.currentData(),
                     steering=fractal_steering.value(),
@@ -6887,6 +8730,14 @@ class PreferencesDialog:
                     restart_the_dive()
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not restart the dive", exc_info=True)
+                try:
+                    from .widgets.ambient import (
+                        rebuild_the_spaceout_backdrops)
+
+                    rebuild_the_spaceout_backdrops()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not rebuild the backdrop",
+                              exc_info=True)
                 if complaints:
                     from PySide6.QtWidgets import QMessageBox
 
@@ -6901,6 +8752,12 @@ class PreferencesDialog:
                                    headroom_spin.value())
             if sound_page is not None:
                 sound_page.save()
+            if notifications_page is not None:
+                try:
+                    notifications_page.save()
+                except Exception as exc:                     # noqa: BLE001
+                    LOG.warning("could not save the notification settings "
+                                "(%s)", type(exc).__name__)
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()
@@ -6917,6 +8774,7 @@ class PreferencesDialog:
             layout.addWidget(hints)
         explain_every_row(dlg)
         _everything_explains_itself_in_the_strip(dlg, hints)
+        dlg._show_only_the_open_page_at_first(tabs)
         return dlg
 
 
@@ -7013,36 +8871,6 @@ def _tell_the_cards_the_rim_changed() -> int:
     return told
 
 
-def _tell_the_screens_the_object_grid_changed() -> int:
-    """Mount or unmount the per-object table on every open module.
-
-    A PREFERENCE THE USER CANNOT SEE TAKE EFFECT is a preference they will
-    set twice. Every screen decides for itself -- a module with too few
-    shared questions still declines the table -- so this only has to ask.
-
-    :returns: how many screens changed.
-    """
-    try:
-        from PySide6.QtWidgets import QApplication
-
-        from .screens.app_screen import AppScreen
-    except Exception:                                        # noqa: BLE001
-        return 0
-    application = QApplication.instance()
-    if application is None:
-        return 0
-    changed = 0
-    for widget in application.allWidgets():
-        if not isinstance(widget, AppScreen):
-            continue
-        try:
-            changed += bool(widget.apply_object_grid_preference())
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("a screen would not retake the grid switch",
-                      exc_info=True)
-    return changed
-
-
 def _hbox_wrap(layout):
     """Wrap a layout in a widget so it can be placed where a widget is wanted.
 
@@ -7066,6 +8894,8 @@ def get_section_layout(panel: str) -> dict:
     Divider sizes and collapsed sections are remembered per category so the
     next session restores the user's working layout.
 
+    :param panel: the stable category or panel key the layout was saved under
+        with :func:`set_section_layout`; converted to ``str``.
     :returns: ``{"folded": [title, ...], "sizes": [int, ...]}``, plus
         ``"steps"`` and ``"boxes"`` for a panel whose nested sections fold or
         whose boxes are draggable -- see :func:`set_section_layout`. An empty
@@ -7154,7 +8984,12 @@ def get_figure_grid_size() -> int:
 
 
 def set_figure_grid_size(pixels: int) -> None:
-    """Remember the tile width, clamped to what the grid will accept."""
+    """Remember the tile width, clamped to what the grid will accept.
+
+    :param pixels: the tile width in pixels; converted to ``int`` and clamped
+        between ``MIN_CELL_PX`` and ``MAX_CELL_PX`` of
+        :mod:`spacr.qt.widgets.figure_grid_view`.
+    """
     from .widgets.figure_grid_view import MAX_CELL_PX, MIN_CELL_PX
 
     _settings().setValue(_KEY_FIGURE_GRID_SIZE,
@@ -7183,6 +9018,10 @@ def set_save_workspace(mode) -> str:
 
     Updating both values makes the change available immediately to pipeline
     code that cannot read Qt settings directly.
+
+    :param mode: ``"off"``, ``"reference"`` or ``"copy"``, or anything
+        :func:`spacr.workspace.resolve_mode` accepts (booleans and yes/no
+        aliases); unrecognised values select the default mode.
     """
     from ..workspace import resolve_mode, set_default_mode
 
@@ -7205,7 +9044,12 @@ def get_workspace_copy_limit_mb() -> float:
 
 
 def set_workspace_copy_limit_mb(limit) -> float:
-    """Remember the per-file copy limit, and push it down with the mode."""
+    """Remember the per-file copy limit, and push it down with the mode.
+
+    :param limit: the largest file ``copy`` mode brings in, in megabytes;
+        negative values store 0.0, and an unparseable value stores the
+        workspace default.
+    """
     from ..workspace import DEFAULT_COPY_LIMIT_MB, set_default_mode
 
     try:
@@ -7262,7 +9106,12 @@ def get_montage_columns() -> int:
 
 
 def set_montage_columns(columns) -> int:
-    """Store the cells-per-row count. Returns the value actually stored."""
+    """Store the cells-per-row count. Returns the value actually stored.
+
+    :param columns: cells per row; converted to ``int`` and clamped to
+        :data:`MONTAGE_COLUMNS_RANGE`, and an unparseable value stores
+        :data:`DEFAULT_MONTAGE_COLUMNS`.
+    """
     low, high = MONTAGE_COLUMNS_RANGE
     try:
         value = max(low, min(high, int(columns)))
@@ -7306,7 +9155,12 @@ def get_rim_length() -> int:
 
 
 def set_rim_length(pixels) -> int:
-    """Store the rim length. Returns the value actually stored."""
+    """Store the rim length. Returns the value actually stored.
+
+    :param pixels: how far the lit run reaches along the rim, in pixels;
+        clamped to :data:`RIM_LENGTH_RANGE`, and an unparseable value stores
+        :data:`DEFAULT_RIM_LENGTH`.
+    """
     low, high = RIM_LENGTH_RANGE
     try:
         value = max(low, min(high, int(pixels)))
@@ -7335,7 +9189,12 @@ def get_rim_lag() -> float:
 
 
 def set_rim_lag(fraction) -> float:
-    """Store the chase fraction. Returns the value actually stored."""
+    """Store the chase fraction. Returns the value actually stored.
+
+    :param fraction: how far the accent closes the gap to the pointer each
+        frame; clamped to :data:`RIM_LAG_RANGE`, and an unparseable value
+        stores :data:`DEFAULT_RIM_LAG`.
+    """
     low, high = RIM_LAG_RANGE
     try:
         value = max(low, min(high, float(fraction)))
@@ -7359,7 +9218,11 @@ def get_rim_alignment() -> str:
 
 
 def set_rim_alignment(name: str) -> str:
-    """Store the alignment. An unknown name stores the default instead."""
+    """Store the alignment. An unknown name stores the default instead.
+
+    :param name: one of :data:`RIM_ALIGNMENTS`, matched after stripping and
+        lower-casing.
+    """
     value = str(name or "").strip().lower()
     if value not in RIM_ALIGNMENTS:
         value = DEFAULT_RIM_ALIGNMENT
@@ -7392,7 +9255,11 @@ def get_rim_mode() -> str:
 
 
 def set_rim_mode(name: str) -> str:
-    """Store the rim mode. An unknown name stores the default instead."""
+    """Store the rim mode. An unknown name stores the default instead.
+
+    :param name: one of :data:`RIM_MODES`, matched after stripping and
+        lower-casing.
+    """
     value = str(name or "").strip().lower()
     if value not in RIM_MODES:
         value = DEFAULT_RIM_MODE
@@ -7413,7 +9280,12 @@ def get_rim_period() -> float:
 
 
 def set_rim_period(seconds) -> float:
-    """Store the pulse period. Returns the value actually stored."""
+    """Store the pulse period. Returns the value actually stored.
+
+    :param seconds: seconds for one pulse of ``beat`` or one hue turn of
+        ``rainbow``; clamped to :data:`RIM_PERIOD_RANGE`, and an unparseable
+        value stores :data:`DEFAULT_RIM_PERIOD`.
+    """
     low, high = RIM_PERIOD_RANGE
     try:
         value = max(low, min(high, float(seconds)))
@@ -7456,7 +9328,11 @@ def get_popup_backdrop() -> str:
 
 
 def set_popup_backdrop(name: str) -> str:
-    """Store the popup backdrop. An unknown name stores the default."""
+    """Store the popup backdrop. An unknown name stores the default.
+
+    :param name: one of :data:`POPUP_BACKDROPS`, matched after stripping and
+        lower-casing.
+    """
     value = str(name or "").strip().lower()
     if value not in POPUP_BACKDROPS:
         value = DEFAULT_POPUP_BACKDROP
@@ -7521,7 +9397,11 @@ def set_dashboard_watermark(which: str, when: str = "") -> str:
 
 
 def clear_dashboard_watermark(which: str) -> None:
-    """Forget ``which``'s watermark, so its panel shows everything again."""
+    """Forget ``which``'s watermark, so its panel shows everything again.
+
+    :param which: the Home panel, ``"runs"`` or ``"totals"`` (the keys of
+        :data:`DASHBOARD_WATERMARKS`); any other name does nothing.
+    """
     key = DASHBOARD_WATERMARKS.get(which)
     if key is None:
         return
@@ -7550,7 +9430,11 @@ def get_news_height() -> int:
 
 
 def set_news_height(px: int) -> int:
-    """Remember how tall Home's release-notes list was dragged."""
+    """Remember how tall Home's release-notes list was dragged.
+
+    :param px: the list height in font-scale-independent pixels; negative
+        values store 0, and an unparseable value stores nothing and returns 0.
+    """
     try:
         value = max(0, int(px))
     except (TypeError, ValueError):

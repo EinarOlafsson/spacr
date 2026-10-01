@@ -1,25 +1,36 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "cfaf542e696d5f0d5b7916cd7cb3ecbd6c160471f01a0eac387828fe2411c7d6",
-  "review": {"kind": "Parent editorial review against frozen English and actual GUI; preserve visible controls and API identifiers", "independent_peer_review": false, "native_speaker_signoff": false},
+  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "sv",
-  "title": "Batch Runner: validerade jobb, beroenden och separata loggar",
-  "description": "Konfigurera tre kanalbevarande konverteringar med det verkliga trådade gränssnittet och filväljarna. Kontrollera ordningen, spara och läs in kön, stoppa och återuppta riktiga underprocesser.",
-  "objectives": ["Hitta Batch runner under Help och lägg till inställningar med uttryckliga beroenden och åsidosättningar.", "Se en ogiltig ordning, rätta den och spara den validerade planen.", "Läs in planen, stoppa mellan jobb och fortsätt utan att upprepa slutförda jobb.", "Granska separata loggar och oberoende verifierade pixlar, kanalidentiteter och konverteringsregister."],
-  "prerequisite": "Använd testdatasetets tre insamlade fyrkanalsfält med separata käll- och målmappar per jobb. tools/tutorials/batch_data.py kopierar originalen byte för byte till tydliga TIFF-namn från fov01_C1 till fov01_C4. A01 är en demonstrationskoordinat; ursprungliga platt- och brunnskoordinater återskapas inte. Den gamla inspelningen fördelade originalnamnen på fyra separata C01-fält och bevisar inte bevarade kanaler. Här körs bara convert, inte hela Mask-to-Classify-kedjan. Ingen modell, AI-förfrågan eller biologisk upptäckt hävdas. Kön har ingen egen Load test data, levande bildförhandsvisning eller figurpanel; se Format Converter för Preview och Resume. Felpolicyer visas men misslyckade analyser, kraschåterställning och GPU-drivrutinsisolering testas inte.",
+  "title": "Batch Runner: konfigurera och kör en kö",
+  "description": "Lägg till modulinställningar, ordna beroenden, kör jobb och granska deras separata loggar.",
+  "objectives": [
+    "Lägga till jobb med deras inställningar och beroenden.",
+    "Spara, köra och fortsätta kön.",
+    "Granska varje jobbs logg och utdata."
+  ],
+  "prerequisite": "Förbered indata och den exporterade inställnings-JSON-filen för varje jobb. Exemplet kör tre bildkonverteringar till separata utdatamappar.",
   "scenes": [
-    "Öppna Help och sedan Batch runner. Detta gemensamma menyverktyg kombinerar moduljobb utan grafiskt gränssnitt, inställningsfiler, beroenden och separata loggar. De egna jobben körs i följd; det hindrar inte andra program eller köer från att använda samma dators resurser.",
-    "Välj convert och öppna första JSON-filen med Choose settings. Vi förberedde tre verkliga mikroskopifält i separata mappar, vart och ett med fyra tydligt namngivna kanalfiler. Pixlarna är oförändrade, men A noll ett är en demonstrationskoordinat, inte en återfunnen originalbrunn.",
-    "Inställningarna anger källa, mål och faktisk konvertering med förhandsvisning och återupptagning avstängda. Lägg till en beskrivande etikett och välj Add job. Första id är convert ett. Validera konvertering och kanalindelning på ett litet exempel innan en större batch schemaläggs.",
-    "För andra jobbet anger After convert ett. Åsidosättningen plate naming lika med name ändrar plattnamnens konvention utan att skriva om den sparade filen. Beroendet styr körbarhet och ordning; det skickar inte automatiskt första jobbets utdata som indata till det andra.",
-    "Lägg till tredje jobbet utan beroende eller åsidosättning. Alla har olika utmappar. Tabellen visar id, etiketter, beroenden och pending. En vald rad laddar konfigurationen i redigeraren; själva tabellen är inget redigerbart kalkylblad.",
-    "Flytta andra jobbet över dess förutsättning. Valideringen rapporterar det senare beroendet och inaktiverar Run queue. Den lilla problempanelen kan behöva rullas för att visa förklaring och rättelse. Det verifierar en faktisk vägran, inte bara ett påstående om skydd.",
-    "Flytta tillbaka det under convert ett och flytta oberoende tredje jobbet över det. Giltig ordning är ett, tre, två. Välj Validate igen: inga problem. Ordningen uppfyller kraven, men validering avgör inte om analysen besvarar din vetenskapliga fråga.",
-    "On failure kan fortsätta oberoende jobb eller stoppa vid första felet. Vi granskade båda och återställde fortsättning. Stop after är tre fel i rad; den räknar fel utan att bevisa samma orsak. Det lyckade exemplet testar inget av de två felförloppen.",
-    "Save queue sparar den ordnade planen som JSON. Vi tog sedan bort tredje jobbet ur denna tillfälliga kö i minnet och återställde trejobbsplanen med Load queue. Projektmapparna raderades inte. Behåll inställningsfiler och indata tillsammans med planen.",
-    "Tryck Stop när Run queue startar första riktiga underprocessen. Det aktiva jobbet slutförs före stoppet: första raden visar success, de andra not run. Processen avslutas inte omedelbart och det kontrollerade stoppet bevisar inte återställning efter datorkrasch.",
-    "Välj Run queue igen. Bara två återstående jobb körs i sparad ordning; första jobbets tidsstämplar är oförändrade. Alla visar success. Separata processer skiljer normal körning, men demonstrationen garanterar inte skydd mot systemomfattande GPU- eller minnesfel.",
-    "Välj varje rad för dess logg. Konverteraren anger en brunn, ett bildfält och fyra kanalidentiteter, sedan fyra konverterade filer och avslutningskod noll. Namnåsidosättningen syns i andra jobbets utdata. Loggar är underlag att granska, inte automatiskt bevis för vetenskapligt riktiga resultat.",
-    "De tolv utbilderna från tre jobb matchade varje originalpixel och de avsedda kanalidentiteterna. Varje konverteringsregister visar fyra försök, fyra lyckade och inga fel. Originalen är oförändrade. För skript erbjuder spacr.batch Job, Queue och run_queue; se API-lektionen och konverterarens förhandsvisning."
+    "Öppna Help och sedan Batch runner. Använd den för att köa modulejobb med deras inställningsfiler, körordning och separata loggar.",
+    "Välj modul och klicka på Choose settings. I det här exemplet väljer du convert och JSON-inställningarna för det första mikroskopisynfältet.",
+    "Kontrollera källa och mål i inställningarna, lägg till en beskrivande etikett och klicka sedan på Add job. Använd en separat utdatamapp för varje konvertering.",
+    "För det andra jobbet anger du convert-1 i After så att det beror på det första. Lägg till en inställningsöverskrivning när jobbet behöver ett annat värde. Ange indatasökvägar uttryckligen; ett beroende styr bara ordningen.",
+    "Lägg till fler jobb och granska deras identifierare, etiketter och beroenden. Markera en rad för att läsa in dess konfiguration i redigeraren.",
+    "Använd flyttkontrollerna för att ordna jobben. Ett beroende måste stå före det jobb som behöver det; läs eventuella valideringsmeddelanden och rätta ordningen.",
+    "Klicka på Validate när kön är ordnad. Åtgärda de listade problemen tills Run queue blir tillgängligt.",
+    "Välj i On failure om oberoende jobb ska fortsätta eller om kön ska stoppa vid första felet. Ställ in Stop after för att begränsa antalet fel i rad.",
+    "Klicka på Save queue för att spara planen som JSON. Använd Load queue för att öppna den senare, och håll de refererade inställningsfilerna och indata tillgängliga.",
+    "Klicka på Run queue. För att pausa mellan jobb trycker du på Stop; det pågående jobbet slutförs och återstående jobb förblir okörda.",
+    "Klicka på Run queue igen för att fortsätta med återstående jobb. Följ varje rads status medan kön går framåt.",
+    "Markera en rad för att läsa dess logg och granska fel eller utdatasökvägar. I konverteringsexemplet kontrollerar du de rapporterade synfälts- och kanalidentifierarna.",
+    "Öppna varje utdatamapp och granska de konverterade bilderna och konverteringsposten. Behåll kö-JSON, inställningar och loggar tillsammans med resultaten."
   ]
 }

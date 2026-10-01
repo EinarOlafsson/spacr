@@ -1851,21 +1851,31 @@ def _specs() -> List[Spec]:
     # used to put them back. Every retired key is named in
     # tests/test_dead_settings.py::test_the_retired_keys_are_gone_from_every_declaration_site,
     # which is where the record of what they used to alias now lives.
+    # ITEM 511, 2026-09-25: the maintainer retired Mask's per-object
+    # `{cell,nucleus,pathogen}_{min,max}_{area,intensity}` into rows of
+    # `object_filters`. The minimum-area animations keep their slugs and
+    # files and now name the live `*_min_size` spelling (and, for cell, the
+    # `object_filters` setting whose commonest row they show). The maximum
+    # area and the mean-intensity animations of those three objects had no
+    # live key left and were removed, as 391 removed eight before them.
+    retired_bound_kinds = ("cell", "nucleus", "pathogen")
+    slugs = {
+        ("cell", "minimum"): "cell_min_area",
+        ("nucleus", "minimum"): "nucleus_min_area",
+        ("pathogen", "minimum"): "pathogen_min_area",
+    }
     aliases = {
         "cell": {
             "border": ("cell_remove_border_objects",),
-            "minimum": ("cell_min_area", "cell_min_size"),
-            "maximum": ("cell_max_area",),
+            "minimum": ("cell_min_size", "object_filters"),
         },
         "nucleus": {
             "border": ("nucleus_remove_border_objects",),
-            "minimum": ("nucleus_min_area", "nucleus_min_size"),
-            "maximum": ("nucleus_max_area",),
+            "minimum": ("nucleus_min_size",),
         },
         "pathogen": {
             "border": ("pathogen_remove_border_objects",),
-            "minimum": ("pathogen_min_area", "pathogen_min_size"),
-            "maximum": ("pathogen_max_area",),
+            "minimum": ("pathogen_min_size",),
         },
         "organelle": {
             "border": (
@@ -1898,9 +1908,12 @@ def _specs() -> List[Spec]:
         for variant, keys in variants.items():
             scene = "border" if variant == "border" else "filter"
             specs.append(Spec(
-                keys[0], f"{kind.capitalize()} — {names[variant]}", category,
+                slugs.get((kind, variant), keys[0]),
+                f"{kind.capitalize()} — {names[variant]}", category,
                 scene, keys, {"kind": kind, "variant": variant},
             ))
+        if kind in retired_bound_kinds:
+            continue
         for bound, variant, cutoff in (
             ("min", "minimum", 60), ("max", "maximum", 40),
         ):

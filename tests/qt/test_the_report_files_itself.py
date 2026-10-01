@@ -1016,3 +1016,120 @@ def test_the_route_errors_tooltip_states_the_real_default():
         assert stated, key
         actual = getattr(ai_settings, f"get_{key}")()
         assert stated.group(1) == str(actual), key
+
+
+# ---------------------------------------------------------------------------
+# The automatic report waits for spaCR AI's answer
+# ---------------------------------------------------------------------------
+
+ANALYSIS = "The masks file is missing because the plate folder moved."
+
+
+def _the_ai_is_answering(screen, tb):
+    """Put the console in the state an error sent to spaCR AI leaves it in."""
+    console = screen._console
+    screen._last_error_text = tb
+    console._ai_error_traceback = tb
+    console._ai_error_explanation = ""
+    console._ai_worker = object()
+
+
+def _the_ai_answered(screen, answer=ANALYSIS):
+    """Finish the pretend stream the way the console finishes a real one."""
+    console = screen._console
+    console._ai_worker = None
+    console._ai_error_explanation = answer
+    console.ai_stream_finished.emit()
+
+
+class TestTheReportWaitsForTheAI:
+    """ITEM 432: filing did not wait for the AI, so an automatic report
+    rarely carried the analysis it exists to carry."""
+
+    def test_the_report_carries_the_answer_that_arrived_after_the_run(
+            self, qtbot, monkeypatch, signed_in, mask_screen, machine):
+        github = FakeGitHub()
+        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
+        tb = _traceback(machine)
+        _the_ai_is_answering(mask_screen, tb)
+
+        mask_screen._file_the_report_automatically()
+
+        assert "Waiting up to" in mask_screen._console.as_text()
+        assert github.requests == [], "filed before the AI had answered"
+
+        _the_ai_answered(mask_screen)
+        qtbot.waitUntil(
+            lambda: "[issue] Filed on" in mask_screen._console.as_text(),
+            timeout=30000)
+        qtbot.waitUntil(lambda: not mask_screen._jobs.is_busy(), timeout=30000)
+        [created] = github.posted("/repos/EinarOlafsson/spacr/issues")
+        assert ANALYSIS in created["body"]
+
+    def test_an_ai_that_never_answers_does_not_hold_the_report(
+            self, qtbot, monkeypatch, mask_screen, machine):
+        from spacr.qt.screens import app_screen
+
+        posted = []
+        monkeypatch.setattr(app_screen, "AI_ANSWER_WAIT_SECONDS", 0.05)
+        monkeypatch.setattr(mask_screen, "_post_the_report",
+                            lambda tb, fp: posted.append((tb, fp)))
+        tb = _traceback(machine)
+        _the_ai_is_answering(mask_screen, tb)
+
+        mask_screen._file_the_report_automatically()
+        qtbot.waitUntil(lambda: bool(posted), timeout=5000)
+
+        assert [entry[0] for entry in posted] == [tb]
+        mask_screen._console._ai_worker = None
+        mask_screen._console.ai_stream_finished.emit()
+        assert len(posted) == 1, "one wait files once"
+
+    def test_a_second_failure_during_the_wait_is_not_filed_twice(
+            self, qtbot, monkeypatch, mask_screen, machine):
+        posted = []
+        monkeypatch.setattr(mask_screen, "_post_the_report",
+                            lambda tb, fp: posted.append(tb))
+        tb = _traceback(machine)
+        _the_ai_is_answering(mask_screen, tb)
+
+        mask_screen._file_the_report_automatically()
+        mask_screen._file_the_report_automatically()
+
+        assert "being reported already" in mask_screen._console.as_text()
+        _the_ai_answered(mask_screen)
+        assert posted == [tb]
+
+    def test_no_wait_when_the_ai_is_not_answering_this_error(
+            self, monkeypatch, mask_screen, machine):
+        posted = []
+        monkeypatch.setattr(mask_screen, "_post_the_report",
+                            lambda tb, fp: posted.append(tb))
+        tb = _traceback(machine)
+        mask_screen._last_error_text = tb
+
+        mask_screen._file_the_report_automatically()
+
+        assert posted == [tb]
+        assert "Waiting up to" not in mask_screen._console.as_text()
+
+
+@pytest.mark.parametrize("line,leaks", [
+    (r"could not reach \\LAB-NAS\screens\plate 1", ("plate 1", " 1")),
+    ("mask /Volumes/Lab Drive failed", ("Drive",)),
+    ("wrote /mnt/lab share/Patient 042 and stopped", ("042",)),
+    ("wrote /mnt/data/plate a.tif then stopped", ("a.tif",)),
+])
+def test_the_last_component_of_an_unquoted_path_keeps_no_tail(line, leaks):
+    """ITEM 432: an unquoted path's last component stopped at its first
+    space, so ``\\\\LAB-NAS\\screens\\plate 1`` published `` 1``. The words
+    that follow are taken when they look like a name -- a number, a
+    capital, a file name -- and the prose after the path stays readable."""
+    stripped = issue_report.strip_report_paths(line)
+
+    for leak in leaks:
+        assert leak not in stripped, f"{leak!r} survived in {stripped!r}"
+    assert "<PATH>" in stripped
+    for word in ("failed", "and stopped", "then stopped"):
+        if word in line:
+            assert word in stripped, f"{word!r} was eaten: {stripped!r}"

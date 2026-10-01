@@ -18,13 +18,6 @@
     },
     {
       "table": "ui",
-      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
-      "translation": "Mældu maskana sem þú teiknaðir. Opnar töflu þar sem hver röð er myndsvið og hver dálkur er rás eða tegund maska. Keyrslan fer í gegnum mælingaeininguna sjálfa, svo möppurnar og mælingagagnagrunnurinn eru þau úttök sem venjuleg mælingakeyrsla býr til."
-    },
-    {
-      "table": "ui",
       "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
       "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
       "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
@@ -36,20 +29,6 @@
       "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
       "translation": "Snýr við myndinni og mynddílunum sem notaðir eru við greiningu svo dökkir hlutir verði bjartir. Myndsviðið er staðlað á bilið 0..1 og gildi hvers mynddíls verður síðan 1 að frádregnu eigin gildi. Styrkur mynddíls undir bendlinum fylgir viðsnúningnum; meðalstyrkur hluta og þröskuldar í Síu nota upphaflegu innlesnu gildin. Innlesin myndgögn og fyrirliggjandi maski haldast óbreytt. Til að víxla forgrunni og bakgrunni í fullgerðum maska skaltu nota «Víxla hlut og bakgrunni» ('Swap object and background') undir Hlutaaðgerðir."
-    },
-    {
-      "table": "ui",
-      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
-      "translation": "Beittu virkum mörkum á maskann á skjánum. Hver hlutur sem er fjarlægður birtist í listanum fyrir neðan, ásamt flatarmálinu og meðalstyrknum sem voru notuð við matið. Hægt er að afturkalla aðgerðina í einu skrefi."
-    },
-    {
-      "table": "ui",
-      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
-      "translation": "Það sem síðasta síun fjarlægði, ein röð fyrir hvern hlut: auðkenni hans, flatarmálið og meðalstyrkurinn sem voru metin, og mörkin sem leiddu til útilokunar hans. Auðkennin eru þau sömu og birtast við aflestur undir bendli."
     },
     {
       "table": "ui",

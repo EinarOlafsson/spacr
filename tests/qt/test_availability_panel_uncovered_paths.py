@@ -81,7 +81,7 @@ def _press_at(point: QPoint) -> QMouseEvent:
 
 def test_a_press_outside_the_panel_closes_it(panel, anchor, qtbot):
     """The press-away dismissal is what makes the panel escapable by mouse."""
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     assert panel.isVisible()
     closed = []
     panel.dismissed.connect(lambda: closed.append(True))
@@ -96,7 +96,7 @@ def test_a_press_outside_the_panel_closes_it(panel, anchor, qtbot):
 
 def test_a_press_on_the_panel_leaves_it_open(panel, anchor):
     """The Install word is inside the panel, so a press there must not close it."""
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
 
     panel.eventFilter(anchor, _press_at(panel.geometry().center()))
 
@@ -112,7 +112,7 @@ def test_a_press_while_the_panel_is_hidden_is_ignored(panel, anchor,
     visibility check instead of running the dismissal -- which stops a
     pending hide, drops the pin and takes the focus back -- all over again.
     """
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     panel.dismiss()
     closed = []
     panel.dismissed.connect(lambda: closed.append(True))
@@ -128,7 +128,7 @@ def test_a_press_while_the_panel_is_hidden_is_ignored(panel, anchor,
 
 def test_an_event_that_is_not_a_press_is_ignored(panel, anchor):
     """Every event in the application passes through here; only presses count."""
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
 
     assert panel.eventFilter(anchor, QEvent(QEvent.KeyPress)) is False
     assert panel.isVisible()
@@ -145,7 +145,7 @@ def test_a_press_with_no_position_falls_back_to_the_pointer(panel, anchor,
     posts, and an ``AttributeError`` here escapes into the event loop where
     nothing catches it.
     """
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     monkeypatch.setattr(panel, "_cursor_pos",
                         lambda: panel.geometry().topLeft() - QPoint(400, 400))
     closed = []
@@ -161,7 +161,7 @@ def test_a_press_with_no_position_falls_back_to_the_pointer(panel, anchor,
 def test_a_positionless_press_with_the_pointer_on_the_panel_keeps_it(
         panel, anchor, monkeypatch):
     """The fallback has to be able to say "inside" too, or it always closes."""
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     on_the_panel = panel.geometry().center()
     monkeypatch.setattr(panel, "_cursor_pos", lambda: on_the_panel)
 
@@ -180,7 +180,7 @@ def test_a_second_hide_request_does_not_restart_the_grace_period(panel,
     one reset the clock the panel could be kept open indefinitely by a
     stationary cursor.
     """
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     panel.start_hide()
     first = panel._hide_since
 
@@ -231,7 +231,7 @@ def test_a_panel_whose_anchor_is_gone_still_closes_on_the_timer(panel,
                                                                anchor,
                                                                monkeypatch):
     """With no anchor there is no corridor to travel, so the hide proceeds."""
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     panel._anchor = None
     panel._hide_since = time.monotonic() - 10.0
     monkeypatch.setattr(panel, "_cursor_pos",
@@ -258,7 +258,7 @@ def test_a_machine_with_no_screen_still_docks_the_panel_under_the_anchor(
 
     monkeypatch.setattr(ap, "QGuiApplication", _NoScreens)
 
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
 
     rect = panel._anchor_global_rect()
     assert panel.pos() == QPoint(rect.left(), rect.bottom() + 2)
@@ -281,7 +281,7 @@ def test_an_entry_with_no_documentation_opens_nothing(panel, anchor,
     asked = []
     panel.api_requested.connect(asked.append)
 
-    panel.show_for(anchor, [_entry(url="")])
+    panel.show_for(anchor, [_entry(url="")], immediate=True)
     assert not panel.api_link().isVisibleTo(panel)
 
     panel._on_link("api")
@@ -304,7 +304,7 @@ def test_an_entry_with_documentation_opens_it_once(panel, anchor,
     asked = []
     panel.api_requested.connect(asked.append)
 
-    panel.show_for(anchor, [_entry()])
+    panel.show_for(anchor, [_entry()], immediate=True)
     panel._on_link("api")
 
     assert opened == ["https://spacr.readthedocs.io/cuml"]

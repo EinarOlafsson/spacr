@@ -1,34 +1,36 @@
 {
   "lesson": "26_invasion",
-  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
   "review": {
-    "kind": "Parent editorial caption translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "sv",
-  "title": "Invasionsanalys",
-  "description": "Ställ in den aktuella tvåfärgsanalysen, skilj färgningsreferensens brunnar från försöksbetingelser och granska verkliga trösklar, diagram och filer. Exempeldatabasen är uttryckligen syntetisk.",
+  "title": "Invasion Assay: poängsätt yttre och total färgning",
+  "description": "Koppla två färgningskanaler, välj färgningens baslinje, kör analysen och granska invasionsbedömningar och tröskelkänslighet.",
   "objectives": [
-    "Koppla yttre och total färgning till rätt mätkolumner.",
-    "Använd det omdöpta referensreglaget och kontrollera tröskelkänsligheten.",
-    "Läs figurer och nämnare per brunn utan att tolka syntetiska mönster som biologiska effekter."
+    "Välja mätdatabasen och koppla yttre och total färgning.",
+    "Ange baslinjebrunnar och tröskelinställningar och sedan köra analysen.",
+    "Granska fördelningar, nämnare per brunn och sparade resultattabeller."
   ],
-  "prerequisite": "Den befintliga syntetiska databasen bevaras; det aktuella gränssnittet körs på en ny byte-identisk kopia. Av 1 800 påhittade mätningar är 360 färgningsreferens och 1 440 analysobjekt i tolv konstgjorda brunnar. Verkliga tvåfärgsbilder saknas, och den allmänna nedladdningsplattan styrker inte försöksupplägget före och efter permeabilisering. Vehicle och inhibitor är undervisningsnamn, inte prövade behandlingar. Medelintensitet väljs eftersom kolumnerna finns, inte som allmänt bästa mått för ytfärgning. Oberoende beräkningar kontrollerar klasser, trösklar, antal, sammanfattningar och figurgeometri; bilder, effekt och statistisk inferens valideras inte. Både original och indatakopia förblir oförändrade. Inställningen heter nu stain_baseline_wells, tidigare control_wells. Bimodalitetsgränsen med sex decimaler registreras exakt.",
+  "prerequisite": "Packa upp det länkade syntetiska Invasion Assay-exemplet och använd dess inställningsreferens. Databasen innehåller 1 800 syntetiska parasitmätningar; villkorsnamn och resultat är bara illustrationer. För din egen analys använder du en validerad tvåfärgsdesign med yttre färgning före permeabilisering och total färgning efteråt, och granskar representativa bilder.",
   "scenes": [
-    "Öppna Invasion Assay under Assays på Home. Modulen klassificerar redan uppmätta parasiter; den segmenterar inte bilder här. Vår databas är uttryckligen syntetisk. Figurerna lär ut inställningar och beräkningar, inte observerad invasion eller behandlingseffekt.",
-    "Välj försöksmappen som innehåller measurements/measurements.db. Den nya privata kopian har 1 800 påhittade parasitrader: 360 färgningsreferensobjekt och 1 440 objekt i analysbrunnarna. Den vanliga nedladdningsplattan ersätter inte ett validerat tvåfärgsförsök.",
-    "Outside channel är färgningen före permeabilisering, här kanal 1. Total channel är färgningen efteråt, här kanal 0. En parasit med positiv yttre färgning klassas som attached; vid eller under tröskeln klassas den som invaded. Svag yttre färgning kan därför skapa falska invaded-klassningar.",
-    "Vi väljer mean eftersom undervisningsdatabasen innehåller medelintensitetskolumner. Det är ingen allmän rekommendation för ytfärgning. Kontrollera vilka rand- eller percentilmått som finns och passar för verkliga data. En lokal bakgrundsring är också något annat än själva kanalen för yttre färgning.",
-    "Ställ Stain baseline wells på kolumn 1. Namnet ersätter det äldre control wells och anger den konstgjorda negativa färgningsreferensen, inte vehikelbetingelsen. Objekten bestämmer tröskeln och räknas inte in i analysresultatens nämnare. Vehicle och inhibitor ligger kvar i kolumn 2 och 3.",
-    "Control quantile är 0,99. De 360 referensobjekten ger en tröskel på ungefär 22,8 intensitetsenheter. Outside threshold lämnas tomt så att den referensbaserade tröskeln används. Den automatiska metoden ger inte den tröskel som tillämpas i denna körning.",
-    "Threshold sensitivity är 0,25: tröskeln prövas också 25 procent lägre och högre. En högre tröskel kan klassa fler parasiter som invaded. Granska effektivitetsintervallet och kvalitetsflaggorna innan du tolkar ändringar; en lyckad körning bevisar inte att färgningen är tillförlitlig.",
-    "Extracellular class avgör hur objekt utan koppling till en värdcell hanteras. Här låter classify färgningen avgöra; alla undervisningsrader har redan en värdkoppling. Välj medvetet mellan attached, exclude och classify för verkliga data, efter att ha granskat värdcellssegmenteringen.",
-    "Run skapar tre verkliga figurer. Tröskelsidan visar en fördelning per brunn, inte per parasit. Här kommer den tillämpade linjen från referensen och alla tolv brunnar syns. Kontrollera om tröskeln ligger mellan rimliga populationer; påhittade fördelningar ersätter inte representativa färgningsbilder.",
-    "Om en teckenförklaring hamnar utanför ritytan öppnar du Figure settings och väljer best för Legend position på axelfliken. Bekräfta så att etiketterna syns. Detta ändrar bara presentationen: vi har verifierat att ritade värden och sparade resultattabeller är oförändrade.",
-    "Staplarna per brunn visar andelarna attached och invaded, med 120 klassificerade parasiter ovanför varje stapel. Referensbrunnarna ingår inte. Läs nämnaren tillsammans med andelen: en hög andel från mycket få objekt motsvarar inte samma andel från en väl undersökt brunn.",
-    "De två påhittade betingelserna har vardera 720 klassificerade parasiter. Andelarna invaded är cirka 39,7 och 68,9 procent. Sammanfattningen anger också medelvärdet över brunnar, vilket i allmänhet inte är samma sak som att slå ihop objekten. Varken namnen eller ett p-värde styrker en biologisk effekt här.",
-    "Granska konsolen och resultatmappen för parasitklassningar, trösklar per bildfält, effektivitet per brunn, sammanfattningar och jämförelser. Använd oberoende försöksbrunnar för inferens, inte enskilda parasiter som utbytbara replikat. spaCR AI är valfritt och användes inte i denna lokala analys. Validera färgning och bilder före biologiska slutsatser."
+    "Från Home öppnar du Toxoplasma och väljer sedan Invasion Assay. Börja med en mätdatabas som innehåller parasitintensiteter för den yttre och den totala färgningen. Använd det länkade syntetiska provet för att öva på kanalkoppling, tröskelval och granskning av resultat.",
+    "Packa upp provet och ställ in Source på dess mapp invasion, som innehåller measurements/measurements.db. Ange den medföljande inställningsreferensen och ersätt dess platshållare för Source. Provet innehåller baslinjebrunnar och två analysvillkor.",
+    "Ställ Outside channel på 1 och Total channel på 0. Den yttre färgningen läggs på före permeabiliseringen och den totala efteråt. Parasiter som är positiva för den yttre färgningen klassas som fästa, och de som ligger på eller under den yttre tröskeln som invaderade. Kontrollera ordningen på dina insamlingskanaler när du använder egna mätningar.",
+    "Välj mean under Intensity statistic så att det matchar kolumnerna i exempeldatabasen. För din egen analys väljer du en tillgänglig statistik som passar färgningen och granskar representativa objekt. Behåll Minimum total intensity på 100 för det här provet.",
+    "Ställ Stain baseline wells på kolumn 1 med c1. Dessa mätningar utan färgning bestämmer gränsvärdet och utesluts ur analysens nämnare. Under Pathogen plate metadata kopplar du vehicle till kolumn 2 och inhibitor till kolumn 3.",
+    "Ställ Control quantile på 0,99 och lämna den fasta Outside threshold tom. Då bestämmer baslinjemätningarna gränsvärdet, ungefär 22,8 i det här exemplet. Kontrollera den tillämpade tröskeln i utdata innan du tolkar klassningarna.",
+    "Ställ Threshold sensitivity på 0,25. Då utvärderas även gränsvärden 25 procent under och över den valda tröskeln. Jämför det resulterande intervallet för invasionseffektivitet för att se hur starkt ditt resultat beror på tröskelvalet.",
+    "Ställ Extracellular class på classify för provet. För objekt utan koppling till en värdcell använder classify färgningen, attached klassar dem som fästa och exclude tar bort dem från den poängsatta populationen. Välj den här inställningen med tanke på hur bra dina värdcellstilldelningar är.",
+    "Låt Save vara påslaget och klicka på Run. Öppna tröskelfiguren när bearbetningen är klar. Den visar fördelningar per brunn och det tillämpade gränsvärdet. I ett experiment jämför du fördelningarna med representativa färgade bilder och undersöker svag yttre färgning.",
+    "Om en förklaring sträcker sig utanför figuren öppnar du Figure settings. På fliken axes ställer du Legend position på best och bekräftar. Kontrollera att etiketterna syns både i figuren på skärmen och i den exporterade figuren.",
+    "Öppna figuren per brunn. Varje stapel visar andelarna fästa och invaderade parasiter, med antalet poängsatta parasiter ovanför. Baslinjebrunnar är uteslutna. Läs antalen tillsammans med andelarna när du jämför brunnar.",
+    "Öppna sammanfattningen per villkor. Jämför den sammanslagna invasionsandelen med medelvärdet över brunnarna, eftersom de viktas olika. Kontrollera variationen i resultaten per brunn innan du jämför villkor.",
+    "Allt hamnar i results/analyze_invasion inuti Source. parasite_calls.csv innehåller varje parasits klassning, field_thresholds.csv gränsvärdena bakom dem, well_invasion.csv andelarna per brunn och condition_summary.csv den sammanslagna jämförelsen. Spara figurer och inställningar tillsammans med dem och jämför villkor över oberoende replikat."
   ]
 }

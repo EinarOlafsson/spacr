@@ -1,0 +1,123 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Explain CV models and investigate hits"
+msgstr "Skýra CV-líkön og rannsaka marktækar niðurstöður"
+
+msgid "spaCR separates three questions that are easy to blur together:"
+msgstr "spaCR aðskilur þrjár spurningar sem auðvelt er að rugla saman:"
+
+msgid "activation or occlusion maps show **where** a vision model attended;"
+msgstr "virkjunar- eða huliðskort sýna **hvar** sjónlíkan beindi athygli sinni;"
+
+msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
+msgstr "einingin **Skýra CV-líkan** sýnir hvaða mælda formgerð getur endurskapað ákvarðanir líkansins; og"
+
+msgid "**Investigate Hit** asks which cells in wells supporting a regression hit have morphology consistent with that hit."
+msgstr "**Investigate Hit** spyr hvaða frumur í brunnum sem styðja marktæka niðurstöðu aðhvarfs hafa formgerð sem samræmist þeirri niðurstöðu."
+
+msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI and exports therefore use ``EAF1-hit-like`` and ``hit_like_probability`` rather than calling a cell ``EAF1-KO``."
+msgstr "Síðasta niðurstaðan er veikt stýrð vísbending, ekki strikamerki á frumustigi. Viðmótið og útflutningur nota því ``EAF1-hit-like`` og ``hit_like_probability`` í stað þess að kalla frumu ``EAF1-KO``."
+
+msgid "Explain CV Model"
+msgstr "Skýra CV-líkan"
+
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
+msgstr "Einingin opnast úr haus **Flokkun** frekar en úr eigin reit, við hlið **Mat á flokkara**: báðar spyrja hvað þjálfaður flokkari gerði í raun."
+
+msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
+msgstr "Veldu nákvæma ``measurements.db`` og fyrirliggjandi CSV-skrá með CV-spám fyrir hvern hlut. Einingin keyrir aldrei upphaflega flokkarann aftur né setur annan í hans stað án þess að láta vita. Hún tengir spár einn á móti einum við mælda hluti og útilokar auðkenni, spá-/flokkadálka, skor, merkingar og útilokanir notanda úr eiginleikafylki staðgengilslíkansins."
+
+msgid "The surrogate family is a fixed choice: Random Forest, scikit-learn histogram gradient boosting, or XGBoost when that optional dependency is installed. The exact backend and package version are saved. Wells are held intact by default; plate-held-out validation is available when the experiment has enough plates."
+msgstr "Fjölskylda staðgengilslíkans er fast val: Random Forest, histogram gradient boosting í scikit-learn eða XGBoost þegar sá valkvæði pakki er uppsettur. Nákvæmur bakendi og pakkaútgáfa eru vistuð. Brunnum er sjálfgefið haldið heilum; sannprófun með plötum utan þjálfunar er tiltæk þegar tilraunin hefur nægilega margar plötur."
+
+msgid "Read the output in this order:"
+msgstr "Lestu úttakið í þessari röð:"
+
+msgid "held-out fidelity, the majority-class baseline, and improvement over it;"
+msgstr "tryggð á geymdum gögnum, grunnlína meirihlutaflokks og framför umfram hana;"
+
+msgid "class-wise precision/recall/F1 and the confusion matrix; then"
+msgstr "nákvæmni/heimt/F1 fyrir hvern flokk og ruglingsfylkið; síðan"
+
+msgid "gain, held-out permutation importance, and mean absolute SHAP."
+msgstr "ávinningur, umröðunarmikilvægi á geymdum gögnum og meðaltal algildis SHAP."
+
+msgid "If fidelity does not clear the configured improvement over the majority baseline, spaCR withholds the importance table. This means the surrogate did not reproduce the CV model well enough for its feature ranking to explain that model. Per-cell signed SHAP values, correlated-feature pairs, exact feature and leakage-exclusion lists, split units, random seed, model parameters, and sampled object IDs are retained in the artifacts."
+msgstr "Ef tryggðin nær ekki stilltri framför umfram grunnlínu meirihlutaflokksins heldur spaCR mikilvægistöflunni eftir. Þetta þýðir að staðgengilslíkanið endurskapaði CV-líkanið ekki nógu vel til að röðun eiginleika þess geti skýrt það líkan. SHAP-gildi með formerki fyrir hverja frumu, pör fylgnibundinna eiginleika, nákvæmir listar yfir eiginleika og útilokanir vegna leka, skiptieiningar, slembifræ, færibreytur líkans og auðkenni valinna hluta eru varðveitt í afurðunum."
+
+msgid "Investigate Hit"
+msgstr "Investigate Hit"
+
+msgid "From the **Regression** masthead open **Hit List**, select the exact gene result, and choose **Investigate selected…**. The hand-off carries the result folder, gene, effect direction, FDR, phenotype, and agreeing guides; it does not search for the newest results file. Investigate Hit hashes the selected regression CSV/JSON bytes into its provenance."
+msgstr "Úr haus **Aðhvarf** skaltu opna **Niðurstöðulisti**, velja nákvæma genaniðurstöðu og velja **Investigate selected…**. Afhendingin ber með sér niðurstöðumöppuna, genið, stefnu áhrifa, FDR, svipgerð og samhljóða leiðara; hún leitar ekki að nýjustu niðurstöðuskránni. Investigate Hit reiknar tætigildi af bætum valinnar aðhvarfs-CSV/JSON inn í upprunaskráningu sína."
+
+msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
+msgstr "Leggðu til mæligagnagrunninn, upphaflegu CSV-skrána með spám fyrir hvern hlut og CSV-skrána með hlutföllum leiðara á brunn. Tengingar nota skýra lykla fyrir hlut og plötu/röð/dálk. Tvíteknir hlutalyklar eða tvítekin hlutföll brunns/leiðara stöðva keyrsluna."
+
+msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+msgstr "Fyrsta úttakið er heiðarleg yfirferðarröð: frumum í brunnum sem innihalda markið er raðað í stefnu áhrifa aðhvarfsins, með hlutfalli markleiðara á brunnstigi sýnt við hlið þeirra. Valkvæða eignunarlíkanið síðan:"
+
+msgid "treats wells as bags and cells as instances;"
+msgstr "meðhöndlar brunna sem poka og frumur sem tilvik;"
+
+msgid "learns background and target-like morphology across many wells;"
+msgstr "lærir bakgrunns- og marklíka formgerð yfir marga brunna;"
+
+msgid "uses guide fraction as a noisy learned prior, never as a forced cell prevalence;"
+msgstr "notar hlutfall leiðara sem suðótt lært forgildi, aldrei sem þvingaða tíðni í frumum;"
+
+msgid "scores every cell with a model that excluded its well, or its plate when the design supports plate cross-fitting; and"
+msgstr "reiknar skor fyrir hverja frumu með líkani sem útilokaði brunn hennar, eða plötu hennar þegar hönnunin styður víxlmátun á plötum; og"
+
+msgid "keeps independent guides visible before reporting gene-level consensus."
+msgstr "heldur óháðum leiðurum sýnilegum áður en samstaða á genastigi er tilkynnt."
+
+msgid "The original phenotype score is excluded from the morphology model by default. Including it is an explicit, warned setting because selecting, embedding, and validating with the same score would be circular."
+msgstr "Upphaflega svipgerðarskorið er sjálfgefið útilokað úr formgerðarlíkaninu. Að taka það með er skýr stilling með viðvörun því að val, innfelling og sannprófun með sama skori væri hringrökstuðningur."
+
+msgid "Quantitative evidence"
+msgstr "Megindlegar vísbendingar"
+
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
+msgstr "Skýrslan notar brunna, ekki frumur, sem óháðu tilraunaeininguna. Hún tilkynnir tíðni kandídata í mark- á móti viðmiðunarbrunnum, bootstrap-bil yfir brunna, umröðunarpróf með blokkun á plötum, skammtasvörun leiðara, leiðarasértæk áhrif og tvær strangari núlltilgátur. Strangari núlltilgátur um hlutfall leiðara og brunnmerki endurtaka víxlmátunarferlið innan hverrar umröðunar í stað þess að stokka aðeins lokamerki samantektarinnar."
+
+msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
+msgstr "Tvívíði samanburðurinn er PCA sem er aðeins mátað á formgerð viðmiðunarfrumna án marks og síðan notað til að umbreyta öllum frumum. Auðkenni leiðara, staða markbrunns og upphaflegt úttak flokkarans eru útilokuð. Útflutta taflan inniheldur nákvæma hlutalykla og sýnafjölda þannig að hægt er að rekja sjónrænan klasa aftur til brunna sinna og mynda; megindlega auðgunin er áfram aðalfullyrðingin."
+
+msgid "A stratified gallery samples high, borderline, low, and false-looking control objects. The reviewer CSV is shuffled and reveals only a random review ID and image path. Its separate analyst-only key retains the stratum and probability. After one or more blinded reviewers return binary calls, ``evaluate_blinded_reviews`` reports calibration error, precision, recall, ROC AUC when defined, and pairwise Cohen's kappa."
+msgstr "Lagskipt myndasafn tekur sýni af háum, jaðar-, lágum og falskt útlítandi viðmiðunarhlutum. CSV-skrá yfirfarenda er stokkuð og sýnir aðeins slembið yfirferðarauðkenni og myndslóð. Aðskilinn lykill hennar, eingöngu fyrir greinanda, varðveitir lagið og líkurnar. Eftir að einn eða fleiri blindaðir yfirfarendur skila tvíundarákvörðunum tilkynnir ``evaluate_blinded_reviews`` kvörðunarskekkju, nákvæmni, heimt, ROC AUC þegar það er skilgreint og pöruð Cohen's kappa."
+
+msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
+msgstr "Merkingar í gagnagrunni eru útgáfumerktar í sérstökum upprunatöflum. Fyrirliggjandi handvirkar merkingar eru óbreyttar. **Breyta spám í merkingar** er aðskilin aðgerð sem tekur aðeins við nýju dálkheiti, og **Afturkalla breytinguna** hreinsar nákvæmlega gildin sem sú aðgerð skrifaði en varðveitir úttektarröð hennar."
+
+msgid "Evidence ladder"
+msgstr "Stigi vísbendinga"
+
+msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. The strongest validation is an orthogonal experiment that assigns perturbation identity per cell, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
+msgstr "Samfellt UMAP/PCA-þýði er gagnleg könnunarvísbending en ekki viðmiðunarsannleikur. Traust eykst með neikvæðum og jákvæðum viðmiðum, óháðum leiðurum, endurteknum plötum, víxlmátun á brunnum/plötum, endurmátuðum núlltilgátum, bootstrap-stöðugleika, blindaðri yfirferð og samræmi milli SHAP á mældum eiginleikum og eignunar á pixlastigi. Sterkasta sannprófunin er óháð tilraun sem úthlutar auðkenni truflunar á hverja frumu, t.d. raðaðri truflun/björgun eða beinum aflestri leiðarastrikamerkja á staðnum (in situ)."
+
+msgid "Headless entry points"
+msgstr "Inngangspunktar án myndræns viðmóts"
+
+msgid "The statistical APIs are :mod:`spacr.surrogate`, :mod:`spacr.hit_attribution`, and :mod:`spacr.hit_investigation`."
+msgstr "Tölfræði-API-in eru :mod:`spacr.surrogate`, :mod:`spacr.hit_attribution` og :mod:`spacr.hit_investigation`."
+

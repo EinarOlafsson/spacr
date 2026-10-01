@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Plate Viewer: 웰 확인과 히트맵 표 내보내기",
+  "description": "예제 측정값을 불러오고, 웰 단위 특징과 개수를 비교하고, 개별 웰을 확인한 뒤 필터링된 표를 내보냅니다.",
+  "objectives": [
+    "Graph Builder에서 Plate Viewer를 열고 예제 측정값을 불러옵니다.",
+    "특징, 집계 방식, 최소 객체 수를 고릅니다.",
+    "웰 세부 정보를 확인하고 현재 웰 격자를 내보냅니다."
+  ],
+  "prerequisite": "내려받을 수 있는 예제는 Plate Viewer의 Load test data로 열고, 자신의 데이터는 측정한 프로젝트의 measurements.db를 여세요. 예제에는 웰 4개에 걸쳐 세포 2,341개가 있습니다. 공간 패턴을 평가할 때는 플레이트 전체를 포괄하는 측정값을 사용하세요.",
+  "scenes": [
+    "Home에서 Data의 Graph Builder를 연 다음 Plate Viewer를 선택하세요. 객체 측정값을 웰별로 요약하고 플레이트 전체의 분포를 확인하는 데 사용합니다.",
+    "Load test data를 클릭해 내려받을 수 있는 예제를 여세요. 자신의 데이터라면 측정 데이터베이스나 실행 폴더를 고르고 Open을 클릭하세요. 예제에는 측정된 웰이 4개 있습니다.",
+    "Table에서 cell, Measurement에서 cell_area, Plate에서 plate1을 선택하세요. 평균 세포 면적을 표시하려면 Per well을 mean으로 설정하세요. 중앙값을 쓰면 유난히 크거나 작은 객체의 영향이 줄어듭니다.",
+    "색상 척도를 고르세요. 로버스트 범위는 2번째부터 98번째 백분위수를 사용하므로, 극단적인 웰 하나가 나머지 웰의 색 차이를 눌러 버리지 않습니다.",
+    "Render를 클릭하고 색칠된 웰을 비교하세요. 히트맵 옆의 가장자리 효과 보고서를 읽고, 플레이트 배치와 측정 범위를 확인하세요. 가장자리, 행, 열 패턴을 평가할 때는 플레이트 전체의 측정값을 사용하세요.",
+    "측정된 웰을 클릭하면 식별자, 객체 수, 표시된 값을 볼 수 있습니다. 이미지나 내보낸 결과에서 같은 웰을 찾을 때 이 식별자를 사용하세요.",
+    "객체 수를 비교하려면 Per well을 count로 설정하세요. 이 보기로 특징 차이를 해석하기 전에 분할된 객체가 적은 웰을 찾을 수 있습니다.",
+    "비교하기에 객체가 너무 적은 웰을 제외하려면 Min objects per well을 올리세요. 601로 설정하면 이 예제의 웰 4개 중 2개가 남습니다. 제외된 웰은 0 측정값이 아니라 빈칸으로 표시됩니다.",
+    "Export well grid CSV를 클릭하고 파일 이름을 정해 저장하세요. CSV에는 현재 필터로 남은 웰이 식별자, 개수, 표시된 값, 공간 주석과 함께 들어 있습니다.",
+    "내보낸 표는 측정 및 집계 설정과 함께 보관하세요. 제외된 웰을 다시 보려면 최소 개수를 낮추고, 다음 비교에는 다른 측정 항목을 고르세요."
+  ]
+}

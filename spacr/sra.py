@@ -170,6 +170,10 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
     documents for sequencing ("the folder of .fastq.gz reads"), so a subset
     and a full download are the same shape to everything downstream.
 
+    :param run_file: the archive file to stream; its ``url`` is read and its
+        ``filename`` names the output.
+    :param destination: folder the ``.fastq.gz`` file is written into; created
+        if missing.
     :param progress: called with ``(reads_so_far, compressed_bytes_so_far)``.
     :param should_stop: polled between chunks; a truthy answer abandons the
         download and removes the partial file.
@@ -223,7 +227,11 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
 
 
 def total_bytes(files: Iterable[RunFile]) -> int:
-    """What downloading all of ``files`` in full would cost."""
+    """What downloading all of ``files`` in full would cost.
+
+    :param files: the run files; their ``size_bytes`` are summed, so a file of
+        unknown size adds zero.
+    """
     return sum(f.size_bytes for f in files)
 
 
@@ -234,6 +242,10 @@ def estimated_bytes(files: Sequence[RunFile], max_reads: Optional[int]) -> int:
     run with longer reads is not under-quoted. Returns the full size when no
     limit is set, and when a run does not report its read count -- guessing low
     there would understate a multi-gigabyte download.
+
+    :param files: the run files to download.
+    :param max_reads: reads to take from each file, or None for whole files;
+        each file's share is ``max_reads / read_count``, capped at 1.
     """
     if max_reads is None:
         return total_bytes(files)

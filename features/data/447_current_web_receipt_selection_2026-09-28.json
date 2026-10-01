@@ -1,0 +1,19 @@
+{
+  "item": 447,
+  "scope": "Select existing current-byte sentence-cue playback evidence and preflight media before copying",
+  "passed": true,
+  "tests": 70,
+  "source_sha256": "22e4d0d547d22be71554d74983c1967e240a1161730c47eb4a9273e29e4c5e19",
+  "junit_sha256": "cf6e1fe767a3bdc942312d23f44c5e507c074b1e0010d074ced8fee0886d92fc",
+  "original_build_failed_lesson": "60_pca",
+  "current_existing_sentence_reports": [
+    "60_pca",
+    "64_gate_editor",
+    "75_regression_diagnostics",
+    "31_external_masks",
+    "49_methods_results",
+    "44_data_manager"
+  ],
+  "all_existing_acceptance_guards_preserved": true,
+  "publication_complete": false
+}

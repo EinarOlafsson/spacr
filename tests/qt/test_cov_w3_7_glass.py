@@ -549,16 +549,18 @@ def test_a_filter_that_will_not_come_off_is_still_forgotten(qapp,
     # Bound before the patch, so this file can put the application back the
     # way it found it: a filter left on the QApplication would glass every
     # dialog built by every test after this one.
-    really_remove = qapp.removeEventFilter
+    from spacr.qt.gil_priority import _stop_watching_application_events
 
-    monkeypatch.setattr(type(qapp), "removeEventFilter",
-                        lambda self, obj: (_ for _ in ()).throw(
+    really_remove = _stop_watching_application_events
+
+    monkeypatch.setattr(glass, "_stop_watching_application_events",
+                        lambda app, obj: (_ for _ in ()).throw(
                             RuntimeError("already gone")))
     try:
         assert glass.uninstall_glass_everywhere() is True
         assert glass._INSTALLED is None
     finally:
-        really_remove(installed)
+        really_remove(qapp, installed)
 
 
 def test_an_event_the_installer_cannot_read_is_swallowed(qapp):
@@ -569,3 +571,70 @@ def test_an_event_the_installer_cannot_read_is_swallowed(qapp):
             raise RuntimeError("event is gone")
 
     assert installer.eventFilter(qapp, Unreadable()) is False
+
+
+@pytest.fixture
+def window_sheet(qtbot):
+    """A per-window application sheet in force, removed afterwards."""
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt import theme
+
+    app = QApplication.instance()
+    app.setStyleSheet("")
+    theme.apply_stylesheet_per_window(app, "QLabel { color: rgb(11, 22, 33); }")
+    yield app
+    theme.apply_stylesheet_per_window(app, "")
+    app.setStyleSheet("")
+
+
+def test_the_card_rule_joins_the_window_sheet_in_one_styling_pass(
+        dialog, window_sheet, qtbot):
+    """Item 284: Preferences was restyled twice as it opened, once by the
+    window sheet and once more when this rule was appended to it.
+
+    With a window sheet in force the rule is recorded as one of the
+    dialog's own rules and put on WITH the sheet: one ``setStyleSheet`` on
+    the dialog, none when it is then polished and shown, and both the
+    sheet and the rule are on it."""
+    from PySide6.QtWidgets import QLabel, QWidget
+
+    QLabel("row", dialog)
+    dialog.setStyleSheet("QLabel { font-weight: bold; }")
+    calls = []
+    real = QWidget.setStyleSheet
+
+    def counting(self, sheet):
+        if self is dialog:
+            calls.append(sheet)
+        return real(self, sheet)
+
+    QWidget.setStyleSheet = counting
+    try:
+        assert glass._paint_nothing_behind_the_card(dialog) is True
+        dialog.show()
+        window_sheet.processEvents()
+    finally:
+        QWidget.setStyleSheet = real
+    assert len(calls) == 1
+    sheet = dialog.styleSheet()
+    assert "rgb(11, 22, 33)" in sheet
+    assert "QLabel { font-weight: bold; }" in sheet
+    assert glass.NO_BACKGROUND in sheet
+    assert glass._paint_nothing_behind_the_card(dialog) is False
+
+
+def test_the_card_rule_survives_a_theme_change(dialog, window_sheet, qtbot):
+    """It is the dialog's own rule now, so a new window sheet keeps it."""
+    from spacr.qt import theme
+
+    assert glass._paint_nothing_behind_the_card(dialog) is True
+    dialog.show()
+    window_sheet.processEvents()
+    theme.apply_stylesheet_per_window(
+        window_sheet, "QLabel { color: rgb(200, 100, 50); }")
+    window_sheet.processEvents()
+    sheet = dialog.styleSheet()
+    assert "rgb(200, 100, 50)" in sheet
+    assert "rgb(11, 22, 33)" not in sheet
+    assert sheet.count(glass.NO_BACKGROUND) == 1

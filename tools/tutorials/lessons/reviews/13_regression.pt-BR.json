@@ -1,46 +1,38 @@
 {
   "lesson": "13_regression",
-  "language": "pt-BR",
-  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "english_sha256": "2e037a0eedfdac229744cbbaa82819ee8680d8fb607655490493ef36f4b0f71b",
   "review": {
-    "kind": "Editorial translation checked against English and the accepted real-data recording",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "Distinguish 759 stored results from the displayed 434-guide family.",
-      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
-      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
-    ]
+    "listening_review": false
   },
-  "title": "Regression: um exemplo real, das tabelas pareadas aos resultados",
-  "description": "Carregue a triagem de exemplo disponível para download, configure uma análise limitada por permutação de guias, examine o console e as figuras reais e encontre as ferramentas especializadas agora integradas ao Regression.",
+  "language": "pt-BR",
+  "title": "Regression: das tabelas pareadas aos resultados",
+  "description": "Combine pontuações de fenótipo com contagens de guias, escolha um método de inferência, execute o exemplo e explore os resultados por guia e por gene.",
   "objectives": [
-    "Carregar quatro pares de tabelas de escores e contagens pelo controle visível de dados de teste e escolher uma pasta de saída separada.",
-    "Distinguir método de inferência, nível dos resultados e unidade de análise, reproduzindo o exemplo sem recomendar sua quantidade de permutações para uma análise final.",
-    "Examinar resultados, figuras e limitações diagnósticas reais, distinguindo inspeção interativa de uma prévia que recalcula a análise.",
-    "Localizar as ferramentas integradas ao Regression, a assistência opcional por IA e a função Python atual."
+    "Carregar tabelas pareadas de pontuações e contagens e escolher uma pasta de saída.",
+    "Definir o método de inferência, o nível dos resultados e a unidade de análise.",
+    "Executar o exemplo e inspecionar os resultados com os diagnósticos que os acompanham."
   ],
-  "prerequisite": "Gravado no spaCR 1.5.0.9. Abra o spaCR e escolha Regression nos módulos Core. O exemplo baixa ou reutiliza arquivos de escores e contagens em cache. A análise gravada não exige banco de medições, recortes de imagens, serviço externo de anotação nem assinatura de IA. A execução curta por permutação demonstra o fluxo de trabalho, não descobertas biológicas definitivas.",
+  "prerequisite": "Abra o Regression e escolha Load test data para obter quatro tabelas pareadas de pontuações e contagens. Use uma pasta de saída nova. Um banco de dados de medições é opcional nesta análise de pontuações e contagens; as visualizações por objeto exigem os dados medidos e as imagens correspondentes.",
   "scenes": [
-    "Abra Regression nos módulos Core. Ele relaciona escores fenotípicos à abundância de guias e apresenta associações conforme o método de inferência escolhido. As ferramentas no topo agora pertencem a este módulo; não são blocos separados na tela Home.",
-    "Em Input Tables, escolha Load test data. O aplicativo baixa a triagem de exemplo ou reutiliza arquivos verificados em cache; esta gravação usa o cache. O console informa quatro tabelas de escores e quatro de contagens, pareadas por placa.",
-    "Confira as quatro linhas pareadas. Cada placa precisa dos arquivos correspondentes de escores e contagens; a coluna opcional do banco de medições está vazia aqui. Amplie o painel de configurações se necessário e use uma nova pasta de saída para não misturar a demonstração com uma análise existente.",
-    "Mude de Essentials para All settings e use a busca para encontrar uma configuração pelo rótulo ou pela chave da API. Aqui, a inferência é não paramétrica: testes por permutação de guias. Isso difere de ajustar todos os preditores juntos em uma regressão paramétrica, que exige um delineamento identificável.",
-    "Level responde a outra pergunta: quais resultados apresentar? Escolha both para obter resultados separados por guia e por gene. Essa escolha, sozinha, não seleciona o método de inferência. Guias e genes constituem famílias de testes distintas: confira a família desejada antes de interpretar a significância ajustada.",
-    "Use well como unidade de análise neste exemplo. A predefinição carregada fornece a coluna de resposta, as transformações, os controles e as exclusões; examine essas escolhas antes de adaptá-la à sua triagem. Uma predefinição baixada é um delineamento de exemplo, não uma recomendação universal.",
-    "Defina o suporte mínimo das guias como dois poços nesta execução limitada. É um filtro sobre as guias testadas, não uma prova de poder estatístico suficiente. Uma guia presente em pouquíssimos poços ainda exige interpretação cuidadosa.",
-    "Configure cento e noventa e nove permutações para reproduzir a demonstração curta. Isso limita o menor valor p empírico possível a zero vírgula zero zero cinco, o que pode ser grosseiro demais após a correção de testes múltiplos. Planeje uma quantidade adequada de permutações para seu experimento real.",
-    "Defina a semente das permutações como zero para a execução demonstrada. Mantenha os blocos por placa e os termos de ajuste por linha e coluna do exemplo, a menos que seu delineamento justifique alterá-los. Uma semente fixa favorece a reprodutibilidade; não corrige hipóteses inválidas de permutabilidade.",
-    "O campo Regression backend não é um interruptor universal de aceleração. Ele se aplica aos estimadores ajustados compatíveis; alterá-lo não transforma esta demonstração por permutação em regressão na GPU. Outros módulos do spaCR têm suas próprias escolhas de dispositivo: acompanhe os controles e o console da operação realmente executada.",
-    "Escolha none como fonte de anotação neste exemplo independente. Os resultados estatísticos não exigem consulta externa de anotações gênicas. Na sua triagem, use anotações adequadas ao organismo e ao sistema de identificadores, sem presumir que todo rótulo de guia poderá ser identificado.",
-    "Limpe a busca, confira a pasta de saída e pressione Run. Acompanhe o console real enquanto ele alinha as entradas, aplica os filtros selecionados e calcula os resultados. Regression produz figuras diagnósticas diretamente; esta gravação não exige ativar um interruptor Plot separado.",
-    "O exemplo concluído produziu quatrocentos e trinta e quatro resultados de guias e trezentos e vinte e cinco de genes, com cinco figuras. Finished indica que o software terminou; não certifica o delineamento experimental nem estabelece descobertas biológicas. Leia os avisos diagnósticos além da linha de conclusão. O relatório de intercambiabilidade falhou nesta execução; por isso, os pressupostos do teste de permutação ainda precisam de uma avaliação independente.",
-    "Runs identifica a análise salva e Results mostra a execução selecionada. Confirme a pasta e as configurações ao comparar execuções. Mudar um valor no formulário não recalcula o resultado exibido: execute a análise novamente quando quiser testar uma nova escolha.",
-    "Results contém a tabela de coeficientes e visualizações interativas ao lado das figuras geradas. A execução contém setecentas e cinquenta e nove linhas nos dois níveis; esta visualização seleciona os quatrocentos e trinta e quatro resultados de guias. Use Level para escolher a família de testes. Inspecionar resultados salvos interativamente não repete a inferência.",
-    "Abra a visualização p-values para examinar a distribuição dos resultados. Interprete-a junto com a família de testes selecionada, a resolução das permutações e os diagnósticos, não como prova automática de um efeito. O tutorial Diagnostics explica detalhadamente os painéis salvos de delineamento e inferência.",
-    "Measurements oferece controles para examinar outras respostas de medição. Este exemplo não tem um banco de medições anexado: abrir a aba não cria um banco nem executa uma varredura de medições. Forneça os dados medidos necessários antes de usar essas ferramentas no seu experimento.",
-    "Cells pode relacionar resultados selecionados aos objetos subjacentes quando há medições e imagens adequadas. Aqui, a coluna de banco de dados está vazia, portanto não há uma montagem celular para mostrar. Não confunda uma visualização de objetos indisponível com uma falha da análise de escores e contagens.",
-    "As ferramentas integradas são Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler e Diagnostics. Passe o ponteiro sobre os ícones para identificá-las. Os tutoriais vinculados explicam cada fluxo; por exemplo, o perfil de predição exige a saída de um modelo ajustado apropriado, que esta execução por permutação não fornece.",
-    "O controle AI ativa a assistência opcional pelo provedor configurado em Preferences, na seção AI. Faça uma pergunta específica sobre a saída ou as configurações e confronte as sugestões com os dados. Esta pergunta de exemplo não foi enviada: nenhum provedor foi contatado e nenhuma resposta foi gerada para a gravação.",
-    "Para trabalhar com scripts, use a função perform_regression no módulo de aprendizado de máquina do spaCR com as configurações correspondentes e consulte a documentação atual da API. Mantenha juntas as tabelas de entrada, as configurações salvas, as saídas e a interpretação diagnóstica. Use Parameter Sweep deliberadamente para comparar e separe as escolhas exploratórias das decisões da análise final."
+    "Na tela Home, abra Regression. Este módulo relaciona as pontuações de fenótipo com a abundância das guias. Comece com uma tabela de pontuações e uma tabela de contagens para cada placa e depois escolha como testar e relatar as associações.",
+    "Em Input Tables, clique em Load test data e aguarde o exemplo carregar. Ele traz quatro tabelas de pontuações e quatro tabelas de contagens, pareadas por placa.",
+    "Inspecione cada linha pareada e confira o nome da placa, o arquivo de pontuações e o arquivo de contagens. Deixe vazia a coluna opcional do banco de dados de medições neste exemplo. Escolha uma pasta de saída nova para a análise.",
+    "Mude para All settings e use a caixa de busca para encontrar Inference. Escolha nonparametric para este exemplo de permutação de guias. Use um método paramétrico quando sua pergunta e seu delineamento exigirem ajustar vários preditores juntos.",
+    "Level escolhe quais resultados são relatados. Selecione both para obter resultados por guia e por gene. Mantenha essas famílias de testes separadas ao revisar a significância ajustada.",
+    "Escolha well como unidade de análise neste exemplo. Revise a coluna de resposta, as transformações, os controles e os poços excluídos. Adapte essas configurações ao delineamento da sua própria triagem antes de executar dados novos.",
+    "O suporte mínimo por guia controla em quantos poços uma guia precisa aparecer antes de ser testada. Defina como dois para acompanhar este pequeno exemplo. Escolha um requisito de suporte adequado ao seu experimento.",
+    "Defina cento e noventa e nove permutações para uma primeira execução rápida. Mais permutações dão uma resolução mais fina do valor p empírico e levam mais tempo. Escolha um número maior quando sua análise final exigir.",
+    "Defina a semente das permutações como zero para repetir a mesma aleatorização. Mantenha os blocos por placa do exemplo e os termos de incômodo de linha e coluna. Com seus próprios dados, escolha blocos que respeitem quais observações podem ser trocadas de acordo com o delineamento experimental.",
+    "Escolha none em Annotation source para executar o exemplo sem buscar anotações de genes. Para outra triagem, selecione anotações que correspondam ao organismo e ao sistema de identificadores dela.",
+    "Limpe a busca, confira as entradas pareadas e a pasta de saída e clique em Run. Acompanhe o console enquanto o módulo alinha as tabelas, filtra as guias e calcula os resultados. As figuras de diagnóstico são geradas junto com a análise.",
+    "Quando a execução terminar, abra Runs e selecione a análise salva. Confirme a pasta e as configurações antes de compará-la com outra execução. Execute a análise de novo depois de mudar as configurações se quiser resultados novos.",
+    "Abra Results e use Level para alternar entre os resultados por guia e por gene. Inspecione a tabela de resultados e as visualizações interativas. Os arquivos salvos results_grna.csv e results_gene.csv contêm as tabelas correspondentes para análises posteriores.",
+    "Abra a visualização de valores p e a ferramenta Diagnostics. Revise a distribuição dos resultados junto com a resolução das permutações, a família de testes e os avisos sobre o delineamento. Resolva os problemas de diagnóstico importantes antes de interpretar as associações.",
+    "Use a barra de ferramentas para abrir Volcano Explorer, Hit List ou Investigate Hit como próximo passo. Os tutoriais deles mostram como inspecionar os resultados selecionados. Mantenha juntos as tabelas de entrada, as configurações salvas, os arquivos de resultados e os relatórios de diagnóstico ao compartilhar a análise."
   ]
 }

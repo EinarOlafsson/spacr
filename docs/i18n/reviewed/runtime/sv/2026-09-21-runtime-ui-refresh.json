@@ -151,27 +151,6 @@
     },
     {
       "table": "ui",
-      "key": "An install is still running",
-      "source": "An install is still running",
-      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8",
-      "translation": "En installation körs fortfarande"
-    },
-    {
-      "table": "ui",
-      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
-      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
-      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f",
-      "translation": "En annan installation körs fortfarande. Vänta tills den är klar, eller tryck på Avbryt under markeringarna."
-    },
-    {
-      "table": "ui",
-      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
-      "translation": "Tillämpa de aktiverade gränserna på masken som visas. Varje borttaget objekt listas nedanför, med den area och medelintensitet som bedömningen byggde på. Räknas som ett steg att ångra."
-    },
-    {
-      "table": "ui",
       "key": "At most:",
       "source": "At most:",
       "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf",
@@ -298,13 +277,6 @@
     },
     {
       "table": "ui",
-      "key": "Create a GitHub account",
-      "source": "Create a GitHub account",
-      "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538",
-      "translation": "Skapa ett GitHub-konto"
-    },
-    {
-      "table": "ui",
       "key": "Crops could not be loaded",
       "source": "Crops could not be loaded",
       "source_sha256": "43507e598078de1d2e4bb832761c216589c912922af7e77927bab4a79d48c518",
@@ -375,13 +347,6 @@
     },
     {
       "table": "ui",
-      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa",
-      "translation": "Hämta tio exempelbildfält för Plaque Analysis och låt src peka på dem. Två datamängder finns att välja mellan: segmenterade plackfält, som plackmodellen tränades på, eller bilder av hela plattor, som analysflödet använder. Cachas efter den första hämtningen."
-    },
-    {
-      "table": "ui",
       "key": "Download {name}?",
       "source": "Download {name}?",
       "source_sha256": "c370b702fb8e700e08a90f0956ad28ed6e9377764ceb2f49fa57259263284053",
@@ -449,13 +414,6 @@
       "source": "Enable — report a failed run as a GitHub issue",
       "source_sha256": "7a55f8aeb46b362d821a98fd5c90f9397c8924d144a4caba6aa603e6f55d6e8f",
       "translation": "Aktivera — rapportera en misslyckad körning som ett GitHub-ärende"
-    },
-    {
-      "table": "ui",
-      "key": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "source": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "source_sha256": "a84e067a92c40588addf5df3512657c1f0650f4d237393f7d45f5564958415dc",
-      "translation": "Varje gräns är avstängd vid 0. Filter tillämpar de gränser som är aktiverade, och samma sak sker när ett bildfält öppnas. Varje borttaget objekt listas nedanför."
     },
     {
       "table": "ui",
@@ -536,13 +494,6 @@
     },
     {
       "table": "ui",
-      "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
-      "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
-      "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a",
-      "translation": "Inloggningen till GitHub avbröts innan den var klar. Tryck på Logga in för att försöka igen."
-    },
-    {
-      "table": "ui",
       "key": "Grow / shrink:",
       "source": "Grow / shrink:",
       "source_sha256": "6c6fc0076d7288997b218fa43d08c6fd2d8e5f77ad223c95292e901c6e54aff6",
@@ -620,27 +571,6 @@
     },
     {
       "table": "ui",
-      "key": "Install",
-      "source": "Install",
-      "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572",
-      "translation": "Installera"
-    },
-    {
-      "table": "ui",
-      "key": "Install runs:\n    {command}",
-      "source": "Install runs:\n    {command}",
-      "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3",
-      "translation": "Installationen kör:\n    {command}"
-    },
-    {
-      "table": "ui",
-      "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
-      "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
-      "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e",
-      "translation": "Installationen kör:\n    {command}\n\nDärefter startar inloggningen hos GitHub."
-    },
-    {
-      "table": "ui",
       "key": "Install {name}",
       "source": "Install {name}",
       "source_sha256": "15d27e180bc64b4b3219b11337fa5e748c69724a16fc7b9918b5994ddaad2e9f",
@@ -680,20 +610,6 @@
       "source": "Keep",
       "source_sha256": "183f00f483d3844e875d26eac74c676054383aef38ed5a8e4d1505ef21008585",
       "translation": "Behåll"
-    },
-    {
-      "table": "ui",
-      "key": "Keep installing",
-      "source": "Keep installing",
-      "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d",
-      "translation": "Fortsätt installera"
-    },
-    {
-      "table": "ui",
-      "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
-      "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
-      "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f",
-      "translation": "Låt skärmen vara öppen tills installationen är klar, eller stoppa den och installera senare via Hjälp > Konfigurera spaCR igen…"
     },
     {
       "table": "ui",
@@ -774,13 +690,6 @@
     },
     {
       "table": "ui",
-      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
-      "translation": "Mät maskerna du ritade. Öppnar en tabell där varje rad är ett bildfält och varje kolumn är en kanal eller en masktyp. Körningen använder själva modulen Measure, så mapparna och mätdatabasen är desamma som vid en vanlig Measure-körning."
-    },
-    {
-      "table": "ui",
       "key": "Midnight",
       "source": "Midnight",
       "source_sha256": "aa996cf21f0dbc617e27fac13ab13916a07944c2de10c2dbcd60b95a6023f80b",
@@ -841,13 +750,6 @@
       "source": "Nothing called “{query}”.",
       "source_sha256": "f60811b08688ba3184efb7fa24ee0098f41b9e64a9c57ad948f59d3b89404809",
       "translation": "Inget med namnet ”{query}”."
-    },
-    {
-      "table": "ui",
-      "key": "Nothing has been removed. Set a bound above and press Filter.",
-      "source": "Nothing has been removed. Set a bound above and press Filter.",
-      "source_sha256": "c8e2c4f9b9f1c314c574cb6e754ff4d6a8050a8339fad29fe20c7278cd36fc76",
-      "translation": "Inget har tagits bort. Ställ in en gräns ovanför och tryck på Filter."
     },
     {
       "table": "ui",
@@ -1047,13 +949,6 @@
     },
     {
       "table": "ui",
-      "key": "Resonance",
-      "source": "Resonance",
-      "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073",
-      "translation": "Resonans"
-    },
-    {
-      "table": "ui",
       "key": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
       "source": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
       "source_sha256": "597c5956c242dc0273a9ef0560f020f45fc576ccf59331bfd5d66b93a994de51",
@@ -1114,13 +1009,6 @@
       "source": "Sending the approved report to GitHub…",
       "source_sha256": "ea72812a8e6c27c02289c93888cee5e2b65f3d1bf3ae1cfaac310a4fe1abdae0",
       "translation": "Skickar den godkända rapporten till GitHub…"
-    },
-    {
-      "table": "ui",
-      "key": "Set up the GitHub CLI",
-      "source": "Set up the GitHub CLI",
-      "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029",
-      "translation": "Ställ in GitHub CLI"
     },
     {
       "table": "ui",
@@ -1243,13 +1131,6 @@
     },
     {
       "table": "ui",
-      "key": "Stop it and close",
-      "source": "Stop it and close",
-      "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b",
-      "translation": "Stoppa och stäng"
-    },
-    {
-      "table": "ui",
       "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
       "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
       "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
@@ -1271,24 +1152,10 @@
     },
     {
       "table": "ui",
-      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
-      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
-      "translation": "Tio bildfält från datasetet som en publicerad modell tränades på, med maskerna som användes vid träningen. De öppnas för redigering, så att du ser det som modellen såg."
-    },
-    {
-      "table": "ui",
       "key": "Test on my folder",
       "source": "Test on my folder",
       "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592",
       "translation": "Testa på min mapp"
-    },
-    {
-      "table": "ui",
-      "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
-      "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
-      "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776",
-      "translation": "GitHub CLI är inte installerat.\n\nMed det kan spaCR skicka en rapport från ditt GitHub-konto utan att öppna webbläsaren. Utan det öppnas rapporterna fortfarande i webbläsaren."
     },
     {
       "table": "ui",
@@ -1317,13 +1184,6 @@
       "source": "The installer could not be run: {error}",
       "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
       "translation": "Installationsprogrammet kunde inte köras: {error}"
-    },
-    {
-      "table": "ui",
-      "key": "The installer for {tools} is still running. Closing this screen now stops it.",
-      "source": "The installer for {tools} is still running. Closing this screen now stops it.",
-      "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8",
-      "translation": "Installationsprogrammet för {tools} körs fortfarande. Om du stänger denna screening nu stoppas det."
     },
     {
       "table": "ui",
@@ -1530,13 +1390,6 @@
     },
     {
       "table": "ui",
-      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
-      "translation": "Det som det senaste filtret tog bort, en rad per objekt: dess ID, arean och medelintensiteten som det bedömdes utifrån, samt gränsen som gjorde att det togs bort. ID-värdena är desamma som visas vid pekaren."
-    },
-    {
-      "table": "ui",
       "key": "What the run writes appears here.",
       "source": "What the run writes appears here.",
       "source_sha256": "57d1a41411fd14075f9cee6de966df4d4ec327f0703009fd16b25a3008aaaf41",
@@ -1726,20 +1579,6 @@
     },
     {
       "table": "ui",
-      "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
-      "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963",
-      "translation": "spaCR kan inte installera detta här automatiskt: {needs} krävs men hittades inte. Installera med:\n    {command}"
-    },
-    {
-      "table": "ui",
-      "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
-      "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4",
-      "translation": "spaCR kan inte köra detta här automatiskt: {needs} krävs men hittades inte."
-    },
-    {
-      "table": "ui",
       "key": "spaCR's own music",
       "source": "spaCR's own music",
       "source_sha256": "d6e65a15352eb413607f3d21e251559a385cc13859305c576c60880320fa784c",
@@ -1779,13 +1618,6 @@
       "source": "{label} is installed.",
       "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
       "translation": "{label} är installerad."
-    },
-    {
-      "table": "ui",
-      "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
-      "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35",
-      "translation": "{label} är inte installerat ännu.\n\nInstallera kör kommandot nedan på denna dator: det laddar ner och kör leverantörens eget installationsprogram och startar sedan inloggningen. spaCR får aldrig tillgång till dina autentiseringsuppgifter."
     },
     {
       "table": "ui",
@@ -1974,5 +1806,192 @@
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "An install is still running",
+        "source": "An install is still running",
+        "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8",
+        "translation": "En installation körs fortfarande"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+        "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+        "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f",
+        "translation": "En annan installation körs fortfarande. Vänta tills den är klar, eller tryck på Avbryt under markeringarna."
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Create a GitHub account",
+        "source": "Create a GitHub account",
+        "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538",
+        "translation": "Skapa ett GitHub-konto"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+        "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+        "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a",
+        "translation": "Inloggningen till GitHub avbröts innan den var klar. Tryck på Logga in för att försöka igen."
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Install",
+        "source": "Install",
+        "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572",
+        "translation": "Installera"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Install runs:\n    {command}",
+        "source": "Install runs:\n    {command}",
+        "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3",
+        "translation": "Installationen kör:\n    {command}"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+        "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+        "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e",
+        "translation": "Installationen kör:\n    {command}\n\nDärefter startar inloggningen hos GitHub."
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Keep installing",
+        "source": "Keep installing",
+        "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d",
+        "translation": "Fortsätt installera"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+        "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+        "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f",
+        "translation": "Låt skärmen vara öppen tills installationen är klar, eller stoppa den och installera senare via Hjälp > Konfigurera spaCR igen…"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Resonance",
+        "source": "Resonance",
+        "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073",
+        "translation": "Resonans"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Set up the GitHub CLI",
+        "source": "Set up the GitHub CLI",
+        "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029",
+        "translation": "Ställ in GitHub CLI"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Stop it and close",
+        "source": "Stop it and close",
+        "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b",
+        "translation": "Stoppa och stäng"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+        "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+        "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776",
+        "translation": "GitHub CLI är inte installerat.\n\nMed det kan spaCR skicka en rapport från ditt GitHub-konto utan att öppna webbläsaren. Utan det öppnas rapporterna fortfarande i webbläsaren."
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "The installer for {tools} is still running. Closing this screen now stops it.",
+        "source": "The installer for {tools} is still running. Closing this screen now stops it.",
+        "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8",
+        "translation": "Installationsprogrammet för {tools} körs fortfarande. Om du stänger denna screening nu stoppas det."
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+        "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963",
+        "translation": "spaCR kan inte installera detta här automatiskt: {needs} krävs men hittades inte. Installera med:\n    {command}"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+        "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4",
+        "translation": "spaCR kan inte köra detta här automatiskt: {needs} krävs men hittades inte."
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+        "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35",
+        "translation": "{label} är inte installerat ännu.\n\nInstallera kör kommandot nedan på denna dator: det laddar ner och kör leverantörens eget installationsprogram och startar sedan inloggningen. spaCR får aldrig tillgång till dina autentiseringsuppgifter."
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa",
+      "translation": "Hämta tio exempelbildfält för Plaque Analysis och låt src peka på dem. Två datamängder finns att välja mellan: segmenterade plackfält, som plackmodellen tränades på, eller bilder av hela plattor, som analysflödet använder. Cachas efter den första hämtningen."
+    },
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
+      "translation": "Tio bildfält från datasetet som en publicerad modell tränades på, med maskerna som användes vid träningen. De öppnas för redigering, så att du ser det som modellen såg."
+    }
+  ],
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
 }

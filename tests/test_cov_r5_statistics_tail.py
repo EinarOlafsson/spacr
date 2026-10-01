@@ -304,7 +304,8 @@ def test_a_cell_count_that_is_not_finite_is_reported_as_unknown():
     counts = regression_summary._design_counts(infinite)
     assert counts["n_cells"] is None
     assert counts["n_wells"] == 2
-    assert counts["n_rows_fitted"] == 2
+    assert counts["n_rows_prepared"] == 2
+    assert "n_rows_fitted" not in counts
 
     finite = infinite.assign(cell_count=[5.0, 3.0])
     assert regression_summary._design_counts(finite)["n_cells"] == 8

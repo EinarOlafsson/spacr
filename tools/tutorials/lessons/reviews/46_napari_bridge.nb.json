@@ -1,27 +1,32 @@
 {
   "lesson": "46_napari_bridge",
-  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "14688c14b96399c6c9c53e6f7d24eecc4573e2051c997b9e04f162a1d0977bf2",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "nb",
-  "title": "Napari Bridge: rediger, importer og åpne igjen på en trygg måte",
-  "description": "Et pikselkontrollert forløp med syntetiske bilde- og etikettfiler, sikkerhetskopier, Fill og Undo, og lukking og gjenåpning mellom importer.",
+  "title": "Napari Bridge: rediger og hent tilbake en etikettmaske",
+  "description": "Åpne et bilde og masken i napari, rediger etikettene og lagre den korrigerte masken tilbake i spaCR.",
   "objectives": [
-    "Åpne Napari Bridge i Make Masks med separate bilde- og etikettfiler.",
-    "Skill mellom redigering, Undo, import til disk og korrigeringshistorikk.",
-    "Lukk og åpne igjen mellom importer, og kontroller begge lagrede rettelser uten å si at feilen i samme viser er løst."
+    "Åpne tilhørende bilde- og etikettfiler.",
+    "Redigere og angre endringer i napari.",
+    "Hente tilbake og undersøke den lagrede masken."
   ],
-  "prerequisite": "Pakk ut det tydelig SYNTHETIC-merkede eksemplet i en NY mappe, og behold en urørt sikkerhetskopi. Bildet og masken er256x256 uint16 med16 syntetiske objekter; ingen biologisk validering. Opptaket bruker valgfri napari0.9.1 og skriftstørrelse20. Velg mask.tif og image.tif i Make Masks → Napari Bridge. Fill:2→18, Undo, gjenta, Take the mask back; arbeidsmasken overskrives og2 197 piksler registreres i mask.tif.curation.json. LUKK og ÅPNE IGJEN før neste endring: en andre redigering i samme viser ble feilaktig meldt uendret og gikk tapt. Feilen er IKKE erklært løst. Åpne igjen,4→20, importer:1 288 piksler endres, og begge historikkposter beholdes. Alle65 536 piksler i hver lagrede maske er kontrollert; kilde og bildeintensiteter er bevart. Nye/fjernede etiketter betyr ikke flere/færre celler. API: spacr.napari_bridge.load_handoff, open_in_napari, write_back. Ingen påstand om trening, biologisk validering, ubegrenset gjentatt redigering, publisering eller lyttegodkjenning.",
+  "prerequisite": "Installer den valgfrie napari-avhengigheten og pakk ut det syntetiske eksemplet i en ny mappe. Behold en urørt sikkerhetskopi: Take the mask back overskriver den valgte arbeidsmasken. Lukk og åpne visningen igjen mellom lagrede redigeringsrunder.",
   "scenes": [
-    "Åpne Napari Bridge inne i Make Masks. Den sender et bilde og en etikettmaske til den valgfrie napari-viseren og importerer deretter korrigerte etiketter. Leksjonen bruker et tydelig syntetisk øvingseksempel, ikke et biologisk forsøk. Behold en urørt sikkerhetskopi: Import av rettelser overskriver den valgte arbeidsmasken.",
-    "Last ned eksemplet og pakk det ut i en ny mappe. Velg mask.tif, så image.tif, og trykk Open in napari. Dette er ulike inndata: Objektenes heltallsetiketter hører til i Mask, mens intensitetsbildet er en visuell referanse. Eksemplet inneholder seksten syntetiske objekter.",
-    "Napari åpner et bildelag og et Labels-lag som heter mask. Velg mask for redigering; la bildeintensitetene være uendret. Etikett null er bakgrunn. Fargene skiller objektidentiteter, ikke biologiske klasser eller konfidens. Vi har forstørret skriften i det faktiske grensesnittet for opptaket, ikke kildebildet.",
-    "Gå tilbake til spaCR og klikk Take the mask back før du endrer noe. Status sier at masken er uendret, og ingenting skrives. Import og redigering i viseren er ulike handlinger. Denne uendret-kontrollen beviser ikke at en senere rettelse ble lagret; kontroller også det resultatet.",
-    "Velg etikett atten i napari, velg Fill, og klikk på øvingsobjektet med etikett to. Bare dette objektets etikett endres. Dette er kontrollert ommerking, ikke en forbedring av biologisk segmentering. Arbeidsfilen på disken er ennå ikke endret.",
-    "Bruk Undo til å gjenopprette den opprinnelige etiketten; opptaket bruker Control Z. Gjenta deretter samme Fill før import. Undo virker på viserens redigeringshistorikk. Ikke bland dette med gjenoppretting av en eldre fil etter import: Behold sikkerhetskopier til det.",
-    "Klikk Take the mask back. Status viser to tusen ett hundre og nittisju endrede piksler og en korrigeringshistorikk. Én etikett er lagt til og én fjernet fordi to ble atten; det er fortsatt seksten objekter. Kontroller lagret maske og historikk, ikke bare fargen i napari.",
-    "Klikk nå Close viewer før du gjør en ny endring, og åpne viseren igjen. Dette er nødvendig i den testede versjonen: En andre redigering i samme viser kunne bli meldt uendret og gå tapt. Vi viser det kontrollerte lukk-og-åpne-forløpet, ikke en løsning på programfeilen.",
-    "Etter gjenåpning erstatter du etikett fire med tjue og importerer igjen. Det endrer ett tusen to hundre og åttiåtte piksler, og den tidligere historikkposten beholdes. Lukk viseren når du er ferdig. Behold originalbilde, korrigert maske og opphavsinformasjon; kjør berørte målinger på nytt i stedet for å gjenbruke resultater knyttet til gamle etiketter."
+    "Åpne Make Masks og deretter Napari Bridge. Bruk den til å redigere en eksisterende etikettmaske med intensitetsbildet som referanse. Behold en urørt sikkerhetskopi av masken.",
+    "Last ned og pakk ut det syntetiske eksemplet. Velg mask.tif for Mask og image.tif for Image, og trykk deretter på Open in napari.",
+    "Velg maskens Labels-lag i napari. Etikett 0 er bakgrunn; hver objektetikett har en visningsfarge. Gjør endringene i etikettlaget.",
+    "Gå tilbake til spaCR og bruk Take the mask back for å importere visningens gjeldende etiketter. Hvis du ikke har gjort endringer, viser statusen at masken er uendret.",
+    "For å øve velger du etikett 18, velger Fill og klikker på objektet med etikett 2. Undersøk den endrede etiketten før du importerer den.",
+    "Bruk Undo for å angre den siste endringen i visningen. Gjenta Fill når du vil beholde endringen.",
+    "Klikk på Take the mask back i spaCR. Se gjennom antallet endrede piksler, og undersøk deretter den lagrede masken og sidefilen med korreksjonshistorikk.",
+    "Klikk på Close viewer og åpne masken på nytt før neste redigeringsrunde. Da blir den lagrede masken utgangspunktet for senere korreksjoner.",
+    "Etter neste endring henter du tilbake masken og undersøker resultatet igjen. Lukk visningen når du er ferdig, behold korreksjonshistorikken, og kjør på nytt målinger som påvirkes av de endrede etikettene."
   ]
 }

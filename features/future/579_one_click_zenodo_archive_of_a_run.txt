@@ -1,0 +1,52 @@
+ONE-CLICK ZENODO ARCHIVE OF A RUN, WITH A DOI
+
+Status: DONE 2026-09-30 (alpha). A Zenodo sandbox deposit succeeded.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    Package a finished run's settings, run journal, report, results tables
+    and (optionally) masks into a Zenodo deposit with metadata, so an
+    analysis gets a citable DOI; uses the user's own Zenodo token; sandbox
+    mode for testing.
+
+DONE WHEN
+    A run is deposited to the Zenodo sandbox with correct metadata and
+    files.
+
+ALPHA: 2026-09-27
+    Report -> "Deposit on Zenodo…" (widget ReportZenodoDeposit,
+    ALPHA_FEATURES[579]) opens item 574's archive form plus a token field,
+    "Use the Zenodo sandbox" (on by default), "Remember the token",
+    "Include the masks" and "Publish now". spacr.report._zenodo_archive_run
+    stages <out>/<title>-zenodo/: the 574 archive package zipped (images
+    not copied), settings.zip, run_journal.zip (the journalled runs of the
+    folder), report.html, results.zip (databases and result tables) and
+    optionally masks.zip, then uses the Zenodo deposition API: create the
+    deposition, PUT each file to its bucket and check the MD5 Zenodo
+    returns, PUT the metadata (dataset; title, HTML-escaped description,
+    creators "Last, First" with affiliation, keywords, license id,
+    publication date, open access, a note naming the spaCR version and the
+    runs), and publish only when asked. A draft reports its reserved DOI.
+    The answer is written to zenodo_deposit.json in the staging folder; the
+    run folder is not written to.
+    Token: OS keyring (service spacr-zenodo, one entry for the sandbox and
+    one for Zenodo) or ~/.spacr/zenodo_token.json at mode 600 (the
+    notification secret-file writer, now taking a path). Sent only in the
+    Authorization header, never logged or written; plain http is refused
+    except to localhost, and redirects are refused.
+    Tested only against tests/zenodo_fake.py, a local fake of the endpoints
+    used: tests/test_zenodo_deposit.py, tests/qt/test_zenodo_deposit_alpha_gate.py.
+    No dependency added (urllib from the standard library).
+
+WHAT IS LEFT
+    The "done when" deposit to the real Zenodo sandbox was not made (agents
+    may not upload anywhere): the maintainer should make one sandbox
+    deposit with a sandbox token and check the record on
+    sandbox.zenodo.org. No progress bar for large uploads; uploads are one
+    PUT per file with no resume.

@@ -57,17 +57,29 @@ import logging
 import os
 import re
 from dataclasses import dataclass, field, replace
-from typing import (Any, Callable, Dict, List, Mapping, Optional, Sequence,
-                    Tuple)
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import pandas as pd
 
 from . import merge_tables as mt
-from .merge_tables import (IDENTITY, OBJECT_COLUMN, OBJECT_TABLES, PNG_TABLE,
-                           MergePolicy, aggregation_plan, mergeable_tables,
-                           roll_up)
-from .multi_database import (SCREEN_COLUMN, SOURCE_COLUMN, MergePlan,
-                             MergeRefused, describe_merge, read_merged)
+from .merge_tables import (
+    IDENTITY,
+    OBJECT_COLUMN,
+    OBJECT_TABLES,
+    PNG_TABLE,
+    MergePolicy,
+    aggregation_plan,
+    mergeable_tables,
+    roll_up,
+)
+from .multi_database import (
+    SCREEN_COLUMN,
+    SOURCE_COLUMN,
+    MergePlan,
+    MergeRefused,
+    describe_merge,
+    read_merged,
+)
 from .object_roles import ONE_ROW_PER_CELL, anchor_column, is_one_row_per_cell
 
 LOG = logging.getLogger("spacr.plate_measurements")
@@ -77,7 +89,7 @@ LOG = logging.getLogger("spacr.plate_measurements")
 #: ``source_database`` are here because they are JOIN KEYS in this
 #: composition: prefix them and the roll-up no longer meets the anchor.
 _UNPREFIXED: Tuple[str, ...] = IDENTITY + (
-    OBJECT_COLUMN, SCREEN_COLUMN, SOURCE_COLUMN)
+    OBJECT_COLUMN, SCREEN_COLUMN, SOURCE_COLUMN, "timeID", "time_id")
 
 
 @dataclass(frozen=True)
@@ -330,7 +342,7 @@ def _rows(attachments: Any) -> List[PlateDatabase]:
         pairs: List[Tuple[Any, Any]] = list(attachments.items())
     else:
         pairs = []
-        for index, entry in enumerate(attachments or ()):
+        for entry in attachments or ():
             if isinstance(entry, PlateDatabase):
                 pairs.append((entry.plate, entry.path))
             elif isinstance(entry, Mapping):
@@ -757,7 +769,7 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
                                       dropped=dropped, note=note))
             continue
 
-        keys = tuple([column for column in IDENTITY if column in frame.columns]
+        keys = tuple(mt._keys_in(frame)
                      + [column for column in (SCREEN_COLUMN, SOURCE_COLUMN)
                         if column in frame.columns]
                      + [link])
@@ -769,11 +781,12 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
                 for column in frame.columns if column not in skip})
             plan_for_table: Dict[str, str] = {}
         else:
-            plan_for_table = aggregation_plan(frame, overrides=policy.overrides,
+            table_overrides = mt.aggregation_overrides(policy, table)
+            plan_for_table = aggregation_plan(frame, overrides=table_overrides,
                                               skip=keys)
             ambiguous = ambiguous_identifiers(frame, keys,
                                               plan=plan_for_table,
-                                              overrides=policy.overrides)
+                                              overrides=table_overrides)
             if ambiguous and on_ambiguous_identifier == "refuse":
                 for column, detail in ambiguous.items():
                     line = describe_identifier_refusal(table, column, detail)
@@ -793,7 +806,7 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
         mt._align_keys(merged, rolled, on)
         how = policy.how_for(table)
         before = len(merged)
-        merged = merged.merge(rolled, on=on, how=how)
+        merged = merged.merge(rolled, on=on, how=how, validate="one_to_one")
         if how == "inner" and len(merged) < before:
             LOG.info("inner join on %s removed %d of %d %s objects "
                      "(consolidate_on_cell=%s, keep_uninfected=%s)",

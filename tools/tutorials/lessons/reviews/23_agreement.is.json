@@ -1,31 +1,33 @@
 {
   "lesson": "23_agreement",
-  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
   "review": {
-    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "is",
-  "title": "Samræmi milli merkjenda",
-  "description": "Opnaðu innbyggða samanburðartólið, berðu saman tilbúnar kennslumerkingar á afritum af raunverulegum niðurhöluðum myndbútum og greindu á milli samræmis í pörum og samantektar úr fleiri merkingarumferðum.",
+  "title": "Annotator Agreement: berðu saman óháðar merkingarumferðir",
+  "description": "Veldu merkingardálka, berðu saman samræmi og skoðaðu úrklippin þar sem merkin eru ólík.",
   "objectives": [
-    "Opna Annotator Agreement úr Annotate.",
-    "Bera saman merkingar, gildi sem vantar og ruglingsfylki án þess að breyta merkingum.",
-    "Skoða myndbúta með ósamræmi og túlka samantektir úr tveimur og þremur umferðum."
+    "Opna dæmagagnagrunninn og velja tvær merkingarumferðir.",
+    "Lesa samræmi para og ruglingsfylkið.",
+    "Skoða ósamræmi og bera saman þrjár merkingarumferðir."
   ],
-  "prerequisite": "Myndbútar sextán eru óbreytt afrit úr niðurhalanlega Annotate-dæminu. DEMO_A, DEMO_B og DEMO_C eru tilbúnar kennslumerkingar í nýjum einkagagnagrunni, ekki líffræðileg flokkun, einkunnir mannlegra yfirlesara eða líkanaspár. Upprunalegar merkingar og myndir eru óbreyttar; png_path er aðeins gert afstætt í sýnikennsluafritinu. Notaðu raunverulegar, óháðar merkingarumferðir við eigið mat. Sjálfgefin dálkaleit sleppir þekktum úttaksdálkum líkana. Óháðir útreikningar með heiltölum og brotum sannreyna öll pör, fylki og heildargildi; þrjár forsýningar samsvara mynddílum frummyndanna nákvæmlega. Litla dæmið kennir á stýringar en sannar ekki áreiðanleika tilraunar. Gamla myndskeiðið endurtók tóman skjá og lýsti sjálfvirkri leit að spádálkum sem passar ekki lengur við API-ið; kennsluefnið var því ekki aðeins fært.",
+  "prerequisite": "Dragðu tengda Annotator Agreement-dæmið út og haltu gagnagrunni þess með úrklippamyndunum. Það inniheldur sextán myndir úr Annotate-dæminu og þrjá tilbúna kennsludálka með merkjum, DEMO_A, DEMO_B og DEMO_C. Í eigin greiningu notarðu óháð safnaðar merkingar á sömu myndum.",
   "scenes": [
-    "Opnaðu Annotate og síðan hnappinn Annotator Agreement. Þetta er innbyggt tól, ekki annar einingareitur á Home. Samanburðarskjárinn les merkingardálka án þess að breyta þeim; farðu aftur í Annotate þegar þú vilt breyta merkingu.",
-    "Opnaðu tilbúna sýnikennslugagnagrunninn. Myndirnar sextán eru raunverulegir myndbútar úr niðurhalanlega dæminu, en DEMO-dálkarnir þrír eru tilbúnar kennslumerkingar. Þær mæla hvorki færni einstaklings né líffræðilega svipgerð. Upprunalegar merkingar og myndir eru varðveittar í sérstöku upprunaafriti.",
-    "Athugaðu sérstaklega hvaða dálkar eru valdir í stað þess að samþykkja fyrstu sjálfgefnu valkostina. Ekki er hægt að mæla samræmi með einum dálki. Núverandi dálkaleit sleppir sjálfgefið þekktum úttaksdálkum líkana; samanburður flokkara við manneskju er sannprófun líkans, ekki samræmi milli manna.",
-    "Veldu DEMO A og DEMO B og ýttu á Compute agreement. Tólf myndbútar eru merktir í báðum umferðum, þrír aðeins í annarri og einn í hvorugri. Merkingar sem vantar eru ekki taldar ósamræmi án þess að frá því sé sagt.",
-    "Kennsluumferðirnar tvær eru sammála um níu af tólf samanbornum myndbútum: sjötíu og fimm prósent, með Cohen-kappa núll komma fimm. Skoðaðu hrátt samræmi, sameiginlegar merkingar og jafnvægi flokka saman. Skjárinn varar við að tólf sameiginlegar merkingar séu of fáar fyrir stöðugt mat á áreiðanleika; þessar uppspunnu merkingar eru aðeins sýnikennsla.",
-    "Raðirnar tákna DEMO A og dálkarnir DEMO B. Fimm myndbútar hafa flokk eitt í báðum umferðum og fjórir flokk tvö í báðum. Tölurnar utan hornalínunnar, einn og tveir, sýna þrjú ósamræmi. Samantektarheiti eins og miðlungs er venja, ekki samþykkisviðmið fyrir tilraunina þína.",
-    "Veldu ósamræmi til að skoða viðeigandi myndbút og báðar merkingar. Við bárum allar þrjár forsýningarnar saman við upprunalegu mynddílana. Í raunverulegri rannsókn skaltu yfirfara dæmigerðar myndir og skilgreiningar flokka áður en ákveðið er hvernig leysa eigi ágreining; þessi skrifvarði skjár tekur ekki ákvörðunina fyrir þig.",
-    "Bættu DEMO C við og reiknaðu aftur. Að breyta gátreit framkvæmir ekki nýjan útreikning eitt og sér. Taflan ber nú saman þrjú pör með mismarga sameiginlega merkta myndbúta, en heildarsamantekt Fleiss notar aðeins tólf myndbúta sem eru merktir í öllum völdum umferðum.",
-    "Fleiss-kappa kennsludæmisins er um núll komma sex sex þrír, ekki meðaltal þriggja kappa-gilda paranna. Hrátt heildarsamræmi telur hér fullmerktar raðir þar sem allar merkingar eru sammála. Fjórðu yfirferðarröðina vantar A-merkingu en B og C eru ósammála; hún getur því birst til yfirferðar án þess að teljast með í samantekt fullmerktra tilvika.",
-    "Ef aðeins A og B eru valin og reiknað aftur kemur upprunalegi samanburðurinn aftur. Við staðfestum að gagnagrunnurinn og myndskrárnar haldast óbreytt í öllum þremur útreikningum. Notaðu raunverulega óháðar merkingarumferðir við þína greiningu og farðu aftur í Annotate-leiðbeiningarnar til að safna þeim merkingum."
+    "Frá Home opnarðu Annotate og velur svo Annotator Agreement. Notaðu tólið til að bera saman merki sem safnað var í aðskildum merkingarumferðum. Niðurstöðurnar hjálpa þér að finna myndir sem þarf að fara yfir.",
+    "Opnaðu dæmagagnagrunninn. Hafðu útdregnu úrklippamöppurnar við hliðina á honum svo forskoðanir mynda hlaðist inn. DEMO-dálkarnir innihalda tilbúin kennslumerki; notaðu eigin óháða merkingardálka þegar þú metur samræmi í rannsókn.",
+    "Veldu að minnsta kosti tvo merkingardálka úr listanum. Í þessu dæmi byrjarðu á DEMO A og DEMO B. Athugaðu nöfn dálkanna svo þú berir saman réttu umferðirnar.",
+    "Smelltu á Compute agreement. Völdu umferðirnar tvær deila tólf merktum úrklippum. Þrjú úrklipp til viðbótar hafa merki í aðeins einni umferð og eitt hefur ekkert merki. Samræmi para notar úrklippin sem eru merkt í báðum umferðum.",
+    "Lestu niðurstöður paranna. Umferðirnar eru sammála um níu af tólf úrklippum, sem gefur 75 % samræmi og kappa Cohens 0,5. Lestu gildin ásamt fjölda sameiginlegra merkja; lítið úrtak gefur óvisst mat.",
+    "Opnaðu ruglingsfylkið. Línurnar tákna DEMO A og dálkarnir DEMO B. Hornalínan inniheldur samhljóða merki: fimm fyrir flokk 1 og fjögur fyrir flokk 2. Reitirnir utan hornalínunnar innihalda ósamræmin þrjú.",
+    "Veldu ósamræmi til að sjá úrklipp þess og merkin sem sett voru í hverri umferð. Berðu myndina saman við skilgreiningar flokkanna. Til að breyta merki eftir yfirferð ferðu aftur í Annotate.",
+    "Bættu DEMO C við og smelltu aftur á Compute agreement. Tafla paranna sýnir nú öll þrjú pörin. Hvert par notar sín sameiginlegu merki, en heildarsamantektin notar úrklipp sem eru merkt í öllum þremur völdu umferðunum.",
+    "Lestu heildargildi kappa Fleiss og samantekt um einróma samræmi. Þetta dæmi gefur kappa Fleiss um 0,663. Farðu líka yfir lista ósamræma: hann getur innihaldið úrklipp sem er aðeins merkt í tveimur af þremur umferðum.",
+    "Til að einbeita þér aftur að einu pari velurðu aðeins A og B og smellir á Compute agreement. Niðurstöðurnar haldast í þessari samanburðarsýn; merkingardálkarnir þínir eru áfram í upprunagagnagrunninum. Haltu áfram í Annotate til að safna annarri óháðri umferð eða fara yfir ósamræmin sem fundust."
   ]
 }

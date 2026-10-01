@@ -18,13 +18,6 @@
     },
     {
       "table": "ui",
-      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
-      "translation": "आपके बनाए मास्क मापें। एक तालिका खुलती है जिसमें प्रत्येक पंक्ति एक दृश्य क्षेत्र और प्रत्येक स्तंभ एक चैनल या मास्क का प्रकार है। प्रक्रिया मापन मॉड्यूल से ही चलती है, इसलिए वही फ़ोल्डर और मापन डेटाबेस बनते हैं जो उस मॉड्यूल को चलाने पर बनते हैं।"
-    },
-    {
-      "table": "ui",
       "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
       "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
       "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
@@ -36,20 +29,6 @@
       "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
       "translation": "छवि और पहचान के लिए इस्तेमाल किए जाने वाले पिक्सेल उलटें, ताकि गहरे ऑब्जेक्ट चमकीले हो जाएँ। फ़ील्ड को 0..1 में सामान्यीकृत किया जाता है और फिर हर पिक्सेल का मान 1 में से उसके अपने मान को घटाकर मिलता है। कर्सर के नीचे पिक्सेल की तीव्रता उलटने के अनुसार बदलती है; ऑब्जेक्ट की औसत तीव्रता और फ़िल्टर की सीमाएँ मूल लोड किए गए मानों का उपयोग करती हैं। लोड किया गया छवि डेटा और मौजूदा मास्क नहीं बदलते। तैयार मास्क में अग्रभूमि और पृष्ठभूमि बदलने के लिए ऑब्जेक्ट संचालन में «ऑब्जेक्ट और पृष्ठभूमि बदलें» ('Swap object and background') का उपयोग करें।"
-    },
-    {
-      "table": "ui",
-      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
-      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
-      "translation": "चालू सीमाओं को स्क्रीन पर दिख रहे मास्क पर लागू करें। हटाया गया प्रत्येक ऑब्जेक्ट नीचे सूचीबद्ध होता है, साथ में वह क्षेत्रफल और औसत तीव्रता भी होती है जिनके आधार पर उसे हटाया गया। पूरी क्रिया एक चरण में पूर्ववत की जा सकती है।"
-    },
-    {
-      "table": "ui",
-      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
-      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
-      "translation": "पिछले फ़िल्टर ने जो हटाया उसकी सूची, प्रत्येक ऑब्जेक्ट के लिए एक पंक्ति: उसका पहचानकर्ता, जाँचा गया क्षेत्रफल और औसत तीव्रता, तथा वह सीमा जिसके कारण वह हटा। पहचानकर्ता वही हैं जो पॉइंटर के नीचे की रीडिंग में दिखते हैं।"
     },
     {
       "table": "ui",

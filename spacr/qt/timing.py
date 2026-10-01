@@ -95,7 +95,11 @@ def _depth() -> int:
 
 
 def mark(name: str, detail: str = "") -> None:
-    """Record an instant. Cheap enough to leave in hot paths."""
+    """Record an instant. Cheap enough to leave in hot paths.
+
+    :param name: label of the instant in the timeline; recorded only while
+        ``SPACR_TIMING`` is on.
+    """
     if not ENABLED:
         return
     with _LOCK:
@@ -110,6 +114,9 @@ def interval_started(name: str, detail: str = "") -> Optional[float]:
     ``None`` while timing is disabled keeps the ordinary navigation path to
     one branch and no allocation.  The absolute value is deliberately opaque
     to callers; :func:`watch_interactive` turns it into a report duration.
+
+    :param name: the interaction's label; a ``"<name> requested"`` mark is
+        recorded for it.
     """
     if not ENABLED:
         return None
@@ -149,6 +156,11 @@ def stalls_between(started_at: float, ended_at: float,
     whole gap to the click can report a multi-second freeze for an interaction
     that lasted only a few hundred milliseconds. Preserve the raw interval in
     ``late_ms`` and add the honest in-window portion as ``overlap_ms``.
+
+    :param started_at: start of the interval, in seconds on the
+        instrumentation clock (the clock of the stall rows' ``at`` values).
+    :param ended_at: end of the interval on the same clock; an end at or
+        before the start gives an empty list.
     """
     start = float(started_at)
     end = float(ended_at)
@@ -192,6 +204,9 @@ def span(name: str, detail: str = ""):
 
     Records even when the body raises: a span that only appears on success
     hides exactly the slow failures worth seeing.
+
+    :param name: label of the region in the timeline; recorded only while
+        ``SPACR_TIMING`` is on.
     """
     if not ENABLED:
         yield
@@ -469,13 +484,22 @@ def event_loop_started() -> None:
 
 
 def subscribe_readiness(callback: Callable[[dict], None]) -> None:
-    """Call ``callback`` after each post-paint interactive-ready record."""
+    """Call ``callback`` after each post-paint interactive-ready record.
+
+    :param callback: called with a copy of each readiness record dict;
+        registering the same callable twice has no extra effect, and an
+        exception it raises is ignored.
+    """
     if callback not in _READY_CALLBACKS:
         _READY_CALLBACKS.append(callback)
 
 
 def unsubscribe_readiness(callback: Callable[[dict], None]) -> None:
-    """Remove a callback installed by :func:`subscribe_readiness`."""
+    """Remove a callback installed by :func:`subscribe_readiness`.
+
+    :param callback: the callable to remove; one that is not subscribed is
+        ignored.
+    """
     try:
         _READY_CALLBACKS.remove(callback)
     except ValueError:
@@ -522,6 +546,11 @@ def watch_interactive(
     paint.  It removes itself at the first valid state and is parented to the
     observed widget, so neither a report nor a failed screen keeps a window
     alive.  PySide6 is imported only while timing is explicitly enabled.
+
+    :param widget: the screen to observe; it and its input controls get the
+        paint filter, and ``None`` records nothing.
+    :param name: the readiness record's label; an unfinished probe with the
+        same name and detail is retired first.
     """
     if not ENABLED or widget is None:
         return None
@@ -956,7 +985,11 @@ def snapshot() -> dict:
 
 
 def write_json(path: str) -> str:
-    """Write :func:`snapshot` to ``path`` and return it, or ``""`` on error."""
+    """Write :func:`snapshot` to ``path`` and return it, or ``""`` on error.
+
+    :param path: destination JSON file, overwritten; nothing is written
+        while timing is off or when the path is empty.
+    """
     if not ENABLED or not path:
         return ""
     try:

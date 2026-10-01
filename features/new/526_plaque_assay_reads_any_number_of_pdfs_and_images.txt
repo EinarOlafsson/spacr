@@ -1,0 +1,136 @@
+PLAQUE ASSAY READS ANY NUMBER OF PDFS AND IMAGES
+
+Status: DONE, 2026-09-25 (filed the same day).
+Owner: agent (526 worktree). Related: 517 (drop files), 518 (mode follows the input),
+524 (four views in Figure mode).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "plaque assay should be able to read an arbitrary number of figures or
+    images. so if i drop a file with one or 10 pdfs both should be fine.
+    there might be other files in the folder, if these are not images or
+    pdfs they are ignored."
+
+WHAT IS WRONG
+Dropping a folder with two PDFs reads the first and rejects the second
+("Plaque Assay reads one paper at a time; 1 more PDF(s) were left out."),
+shown as an ERROR. 517 left this open on purpose; it is now asked for.
+
+WHAT TO BUILD
+  * Any number of PDFs (dropped, in a dropped folder, or in src) are all read,
+    one after another in the background, each paper's figures going into its
+    own figure folder, and all of them shown in the preview (page/paper
+    navigation), then run together.
+  * Any number of images likewise, as 517 already does for images.
+  * Files that are neither images nor PDFs are ignored quietly (at most one
+    info line naming how many were skipped), never an error.
+  * Progress says which paper of how many is being read; one failing PDF does
+    not stop the others and is reported by name.
+
+DONE WHEN
+An offscreen test drops a folder with 10 PDFs plus unrelated files and sees
+all 10 read (reader faked) with no error, and one real run reads the
+maintainer's two Plate PDFs (or two test PDFs) end to end.
+
+
+2026-09-25 -- DONE
+
+WHAT CHANGED
+- PlaqueDropHandler._take_pdfs (spacr/qt/dnd_handlers.py:1908) reads one
+  PDF as before (fetch_paper) and several through the new
+  PlaquePreviewPanel.fetch_papers (spacr/qt/widgets/plaque_preview.py:4587).
+  The "one paper at a time" refusal is gone. check_the_src (the src path)
+  calls the same _take_pdfs, so a src naming a folder of PDFs reads them all.
+- fetch_papers queues the PDFs on the panel's paper JobRunner, one after
+  another (_next_paper :4643, _on_batch_paper :4668, _papers_read :4679).
+  Each paper goes into parent/<pdf stem> beside the first PDF (a clashing
+  name from another folder becomes <folder>_<stem>). The status line says
+  "Reading paper k of n: <name>…". A PDF that raises is noted by name and
+  the rest are read. At the end the note gives the count and names each
+  failure, src is set to the folder of papers, and the preview lists it.
+  A job failure the runner itself reports also moves the batch on (:4550).
+- plaque_papers.figure_folders (spacr/plaque_papers.py:3016): a folder that
+  holds paper folders is read paper by paper, with its own figures first
+  if it has any. images_in(src, papers=True) (plaque_preview.py:309) lists
+  figures that way in Figure mode (:2960). When figures come from several
+  folders the picker labels them "<paper>/<file>" (:2977).
+  _analyze_plaque_figures (spacr/submodules.py:1742) measures each paper
+  folder into one <src>/plaque_figures database, and
+  _add_figure_summaries (:1700) adds up the counts, so the papers run
+  together.
+- plaque_inputs also reports a folder of paper folders as a paper input
+  (_holds_papers, dnd_handlers.py:1627). A src that has already been read
+  is therefore not read again when the form writes it back.
+- Files that are neither images nor PDFs: PlaqueDropHandler.can_accept
+  (:1800) now takes any file, and apply_all leaves such files aside with one
+  console line from plaque_others (:1641, message at :1885). Dropped alone
+  they are still refused with the handler's own sentence, as before.
+
+TESTS
+  New: tests/qt/test_526_plaque_assay_reads_any_number_of_pdfs_and_images.py,
+  8 tests, offscreen, on the real AppScreen("analyze_plaques") with real
+  QDropEvents. Only fetch_paper_to_folder is faked; the fake writes a real
+  PNG and paper.json.
+  (1) A dropped folder with 10 PDFs plus .txt/.xlsx/.docx: all 10 read in
+      order, no refusal, one "3 file(s) ... left aside" line, "Reading paper
+      1 of 10" and "10 of 10" shown, src = the folder, the picker lists 10
+      figures as plate_NN/figure_1.png, and no mode question is asked.
+  (2) A src naming such a folder: all 10 read. Setting the same src again
+      reads nothing.
+  (3) 5 PDFs with plate_03 failing: 4 read, the note says "Could not read
+      plate_03.pdf: the PDF has no pages", and the status names it.
+  (4) Loose PDFs from two folders plus a .txt: all read, the name clash
+      gives b_one, one line about the ignored file.
+  (5) 12 PNGs plus 2 unrelated files in Plaque mode: src = the folder and
+      one ignored line.
+  (6) A lone .txt is still refused.
+  (7) figure_folders / images_in(papers=True) / plaque_inputs on a folder
+      of papers.
+  (8) The figure run measures every paper folder into one database and
+      adds up the counts.
+  Updated: test_518 test_a_folder_of_pdfs_dropped_in_plaque_mode_asks_and_
+  reads_the_first is now ..._reads_them_all (item 526 changes that rule on
+  purpose), and its fixture also records fetch_papers.
+  Focused set (517, 518, 524, 513 x2, plaque Qt files, dnd handler files,
+  plaque run/papers files; 25 files):
+    before: 645 passed, 1 failed, 1 skipped
+    after, and after merging nightly (already up to date):
+      653 passed, 1 failed, 1 skipped (the 8 new tests added)
+  The one failure is the same before and after:
+  test_plaque_papers_dedup_conflict_scale_db::test_without_pdfplumber_here_
+  the_reader_environment_renders_the_pdf. The reader environment is not
+  installed under the test's temporary home.
+  Guard tests (i18n extractor, docstring inventory, nested budget): 4
+  failures from pinned counts that had already drifted on nightly (11724 vs
+  pin 11710; model_zoo_picker nested helpers). The three public callables
+  added here (figure_folders, plaque_others, fetch_papers) add to that drift.
+  Left to the docs lane.
+
+REAL RUN
+  Two small real PDFs (Plate1.pdf and Plate2.pdf, one figure page each,
+  made with matplotlib) and a readme.txt in one folder, passed to the real
+  PlaqueDropHandler.apply_all on an offscreen AppScreen in Figure mode. They
+  were read by the real figure reader in ~/.spacr/backends/papers (this
+  environment has no pdfplumber) in 4.2 s on CPU. The status showed
+  "Reading paper 1 of 2: Plate1.pdf…", "Reading paper 2 of 2: Plate2.pdf…"
+  and "Read 2 of 2 papers into …/Plates: 2 figures, 2 with legends.". src
+  was set to …/Plates and the picker showed Plate1/page_001.png and
+  Plate2/page_001.png. Each paper folder held legends.csv, page_001.png,
+  paper.json and text_layer.json. The figure run (YOLO detector plus plaque
+  model) was not run on these; its per-paper loop is covered by test (8).
+
+NEW tr() STRINGS (not in spacr/qt/i18n_catalogs; English falls back)
+  "{n} file(s) that are neither images nor PDFs were left aside."
+  "Reading paper {k} of {n}: {name}…"
+  "Read {k} of {n} papers into {path}: {figures} figures, {m} with legends."
+  "Could not read {name}: {why}"
+  "Could not read {n} of the papers: {names}."
+  Removed from use: "Plaque Assay reads one paper at a time; {n} more
+  PDF(s) were left out." and "Drop each remaining PDF once this one has
+  been read."
+
+LEFT
+  If the reader asks to be installed partway through a batch, it is not
+  offered again: those PDFs are reported as failed, with the reader's
+  reason. It is still offered once before the batch starts. A drop or src
+  of PDFs that were read before reads them again, as a single PDF always
+  has. Only a src written back after a read is skipped.

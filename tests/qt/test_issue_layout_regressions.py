@@ -47,14 +47,21 @@ def test_menu_highlight_uses_menu_bar_label_not_hidden_popup(qtbot):
 
 @pytest.mark.parametrize('width', [900, 1400])
 @pytest.mark.parametrize('factor', [1., 1.5])
-def test_annotate_actions_wrap_without_clipping(qtbot, qt_theme_applied, width, factor):
+@pytest.mark.parametrize('alpha', [False, True])
+def test_annotate_actions_wrap_without_clipping(
+        qtbot, qt_theme_applied, monkeypatch, width, factor, alpha):
+    from spacr.qt import preferences
     from spacr.qt.screens.annotate import AnnotateScreen
+    monkeypatch.setattr(preferences, '_get_show_alpha_features', lambda: alpha)
     stack = QStackedWidget()
     qtbot.addWidget(stack)
     screen = AnnotateScreen()
     stack.addWidget(screen)
     font = QFont(screen.font())
-    font.setPointSizeF(font.pointSizeF() * factor)
+    if font.pointSizeF() > 0:
+        font.setPointSizeF(font.pointSizeF() * factor)
+    else:
+        font.setPixelSize(round(font.pixelSize() * factor))
     screen.setFont(font)
     stack.setFixedSize(width, 800)
     stack.show()
@@ -62,6 +69,9 @@ def test_annotate_actions_wrap_without_clipping(qtbot, qt_theme_applied, width, 
     toolbar = screen._btn_open.parentWidget()
     buttons = toolbar.findChildren(QPushButton)
     assert len(buttons) >= 16
+    blind = screen.findChild(QPushButton, 'AnnotateBlindToggle')
+    assert blind.isHidden() is not alpha
+    buttons = [button for button in buttons if not button.isHidden()]
     for button in buttons:
         assert button.width() >= button.sizeHint().width(), button.text()
         assert toolbar.rect().contains(button.geometry()), button.text()

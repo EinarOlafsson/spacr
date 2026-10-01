@@ -29,9 +29,9 @@ cell_CP_prob,-1
 nucleus_background,500
 nucleus_Signal_to_noise,4
 nucleus_CP_prob,0
-nucleus_FT,100
-cell_FT,100
-pathogen_FT,100
+nucleus_FT,0.4
+cell_FT,0.4
+pathogen_FT,0.4
 plot,False
 figuresize,20
 cmap,inferno

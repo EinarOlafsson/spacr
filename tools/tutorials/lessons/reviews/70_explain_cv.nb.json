@@ -1,31 +1,33 @@
 {
-  "language": "nb",
-  "title": "Forklar CV-modellen",
-  "description": "Undersøk en ekte surrogatmodell i Classify og se når forklaringene ikke bør tolkes.",
-  "objectives": [
-    "Velg tilhørende målinger og prediksjoner i det nestede verktøyet.",
-    "Skill surrogatets samsvar fra uavhengig validering av klassifikatoren.",
-    "Undersøk utilstrekkelig modelltrofasthet, klassefeil og komplette eksporter."
-  ],
-  "prerequisite": "Bruk måledatabasen og prediksjons-CSV-en for de samme beskårne objektene. Her gjenbrukes 234 ekte prediksjoner fra Annotate/Classify-eksemplet trent i én epoke, ikke den portable Evaluation-pakken. filename og predicted_label er uendret. Den opprinnelige klassifikatoren deler brønner mellom trening og test; dette er ikke uavhengig validering. Surrogatet bruker 89 komplette tilfeller og 1126 egenskaper; 145 rader utelates. Trening: 68 objekter fra to brønner; test: 21 fra en tredje. Alle prediksjoner er klasse 1: modelltrofasthet 17/21, balansert nøyaktighet 0,5. Den viste referansen er 81/89 fra alle komplette tilfeller. Importance og SHAP forklarer ikke klassifikatoren pålitelig. Navnefilteret fjerner 18 cv_intensity-målinger uten å bevise etikettlekkasje. GUI-tabellene stopper ved 1000 rader; les hele CSV-filene. API: spacr.surrogate.explain_classifier, fit_surrogate og write_surrogate_result. Repetisjoner, utelatelser og SHAP-budsjett er ikke felter i dette skjemaet. CPU-eksempel uten ny trening, ekstern KI-forespørsel, morsmålslyttegodkjenning eller publisering.",
-  "scenes": [
-    "Åpne Classify og deretter Explain CV Model-ikonet øverst til høyre. Det åpner et nestet verktøy, ikke en ny Home-modul. Vi gjenbruker eksisterende prediksjoner fra bildeklassifikatoren og de tilhørende målingene fra eksemplet. Å forklare prediksjonene validerer ikke selve klassifikatoren.",
-    "Velg den tilhørende måledatabasen og CSV-filen med lagrede prediksjoner. De må identifisere de samme beskårne objektene, ikke bare brønner med lignende navn. Her bruker vi uendrede kopier av 234 ekte prediksjoner. Dette er verken ny trening eller et nylig validert datasett.",
-    "Hvis Browse beholder gamle kolonnevalg, bekrefter du prediksjonsbanen med Enter. Velg filename som bildebanen og predicted_label som modellens klassevalg, ikke sanne etiketter eller en kontinuerlig sannsynlighet. Velg Random Forest, gruppering etter well og en ny utdatamappe.",
-    "Klikk Explain model. Surrogatet lærer fra målte egenskaper å etterligne eksisterende klassevalg; bildemodellen kjøres ikke på nytt. Eksemplet bruker CPU. Skjemaet tilbyr backend og gruppering; antall permutasjonsrepetisjoner, utelatte egenskaper og SHAP-budsjett er API-valg, ikke kontroller i dette skjemaet.",
-    "Les Fidelity først. Alle prediksjonene ble koblet sammen, men bare 89 rader hadde komplette egenskaper. Surrogatet trener på 68 objekter fra to brønner og tester 21 fra en tredje. Modelltrofastheten er omtrent 81 prosent, under den viste flertallsreferansen på 91 prosent. Referansen bruker alle komplette tilfeller, ikke bare den tilbakeholdte brønnen.",
-    "Importance er skjult fordi kontrollen av modelltrofasthet mislyktes. Ikke bruk tilpasningen til å hevde hva bildeklassifikatoren gjenkjenner. Kontroller også automatiske utelatelser: Advarselen kaller 18 målenavn lekkasjer, men intensitetsnavn med variasjonskoeffisient beviser ikke alene lekkasje av etiketter.",
-    "Confusion sammenligner klassevalgene til den opprinnelige modellen med surrogatets, ikke med biologisk sannhet. Her velger surrogatet klasse 1 for alle tilbakeholdte objekter: 17 samsvar og fire feil. Balansert nøyaktighet er 0,5. En høy samlet prosent kan skjule svikt på den mindre klassen.",
-    "Per-cell SHAP er fortsatt synlig selv om modelltrofastheten sviktet. Verdiene beskriver surrogatet; de redder ikke forklaringen av bildemodellen og dokumenterer ingen biologisk mekanisme. Legg denne begrensningen ved eksporterte attribusjonstabeller. Aktiveringskart besvarer et annet, romlig spørsmål i sin egen leksjon.",
-    "Undersøk Correlations og Feature distributions som datasammendrag, ikke som bevis på årsakssammenheng. Hver GUI-tabell stopper ved 1000 rader. De komplette eksportene inneholder 1087 korrelasjonspar og 2252 fordelingsrader. Les filene før du rapporterer totaler eller manglende egenskaper.",
-    "Held-out cells beholder objektidentitetene og begge sett med prediksjoner. Open held-out objects er deaktivert i denne opptakssituasjonen, så åpning av bildeutsnitt vises ikke. Behold de elleve filene, innstillingene og advarselen om modelltrofasthet samlet. Evaluation forklarer valideringsgrensene; verken en figur, en SHAP-tabell eller et svar fra spaCR AI kan validere en klassifikator."
-  ],
   "lesson": "70_explain_cv",
-  "english_sha256": "220d1518a48d6f0f969a34f9995cff69bf81645ed1067383b7194ac4553655e5",
+  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
   "review": {
-    "kind": "Editorial translation of frozen English; failed fidelity, recorded counts and UI limits preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
-  }
+  },
+  "language": "nb",
+  "title": "Explain CV Model: sammenlign prediksjoner med målte egenskaper",
+  "description": "Last inn samsvarende prediksjoner og målinger, tilpass en surrogatmodell og les fideliteten før du bruker egenskapsforklaringer.",
+  "objectives": [
+    "Koble måledatabasen til lagrede klassifiseringsprediksjoner.",
+    "Velge prediksjonskolonner, en beregningsmotor og tilbakeholdte grupper.",
+    "Lese fidelitet, forvekslingsmatrise og lagrede egenskapsoppsummeringer."
+  ],
+  "prerequisite": "Bruk measurements.db og prediksjons-CSV-filen for de samme objektene fra Annotate/Classify-eksemplet. Velg klassebeslutningene fra den lagrede modellen som mål. I dette eksemplet har surrogatet begrenset fidelitet, så egenskapsattribusjonene bør ikke brukes til å forklare bildemodellen. Evaluer den opprinnelige klassifikatoren separat med uavhengige data.",
+  "scenes": [
+    "Fra Home åpner du Classify og velger deretter Explain CV Model øverst til høyre. Forbered måledatabasen og de lagrede prediksjonene for de samme utklippede objektene.",
+    "Velg measurements.db og den tilhørende prediksjons-CSV-filen. Kontroller filnavn og objektidentiteter før du fortsetter. Eksemplet bruker 234 lagrede prediksjoner.",
+    "Bekreft prediksjonsbanen med Enter hvis kolonnevalgene ikke er oppdatert. Velg filename for utklippsbanen og predicted_label for modellens klassebeslutninger. Velg Random Forest, gruppering per brønn og en ny utdatamappe.",
+    "Klikk på Explain model. Surrogatet bruker målte egenskaper til å gjenskape de lagrede klassebeslutningene. Velg beregningsmotor og gruppering i dette skjemaet; bruk Python-API-et for flere tilpasningsvalg.",
+    "Les Fidelity først. Her har 89 rader fullstendige egenskaper; 68 brukes til tilpasning og 21 fra en annen brønn holdes tilbake. Sammenlign samsvaret med grunnlinjen og undersøk hvilke rader som ble utelatt.",
+    "Åpne Importance. I dette eksemplet holder fidelitetskontrollen tilbake rangeringen. Gå også gjennom navnene på utelatte egenskaper: en navnebasert lekkasjeadvarsel må sjekkes mot hva målingen faktisk inneholder.",
+    "Åpne Confusion for å sammenligne surrogatets beslutninger med bildemodellens. Her tildeles hvert tilbakeholdt objekt klasse 1, som gir 17 samsvar og 4 avvik. Kontroller ytelsen per klasse i stedet for bare å stole på samlet samsvar.",
+    "Per-cell SHAP beskriver det tilpassede surrogatet. Når fideliteten er utilstrekkelig, kan disse verdiene ikke forklare bildemodellen pålitelig. Ta med denne begrensningen i enhver eksportert attribusjonstabell.",
+    "Åpne Correlations og Feature distributions for å undersøke målingene. Disse tabellene i grensesnittet viser opptil 1 000 rader. Bruk de lagrede CSV-filene for å undersøke de fullstendige oppsummeringene.",
+    "Åpne Held-out cells for å se objektidentiteter og begge prediksjonene. Hold utdatafiler, innstillinger og fidelitetsrapport samlet. Fortsett med Evaluation-veiledningen når du må vurdere den opprinnelige klassifikatoren."
+  ]
 }

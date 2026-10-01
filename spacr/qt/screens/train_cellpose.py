@@ -208,9 +208,100 @@ class CellposeWorkbenchScreen(QWidget):
         self._carry_note.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self._carry_note.setVisible(False)
         outer.addWidget(self._carry_note)
+        self._add_virtual_stain(outer)
 
         self._current = self._tabs.currentIndex()
         self._tabs.currentChanged.connect(self._on_tab_changed)
+
+    def _add_virtual_stain(self, outer) -> None:
+        """The alpha button that learns to predict one channel from others."""
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton
+
+        from ..job_runner import JobRunner
+        from ..preferences import _apply_alpha_widgets
+
+        self._vs_jobs = JobRunner(self, app_key=TRAIN_KEY)
+        self._vs_jobs.job_failed.connect(self._on_virtual_stain_failed)
+        row = QHBoxLayout()
+        self._vs_button = QPushButton(tr("Virtual staining…"), self)
+        self._vs_button.setObjectName("CellposeWorkbenchVirtualStain")
+        self._vs_button.setToolTip(tr(
+            "Choose a folder of paired multichannel fields (.npy or .tif) and "
+            "the channels to learn from and to predict, for example 1 > 0 to "
+            "predict the nucleus stain from channel 1. A small U-Net is "
+            "trained on the CPU, the last quarter of the fields is held out, "
+            "and the real and predicted stains are segmented the same way and "
+            "matched at IoU 0.5. The model, predictions and a score table are "
+            "written to <folder>/virtual_stain. Default 20 epochs."))
+        self._vs_button.clicked.connect(lambda: self._virtual_stain())
+        row.addWidget(self._vs_button)
+        row.addStretch(1)
+        outer.addLayout(row)
+        self._vs_note = QLabel("", self)
+        self._vs_note.setWordWrap(True)
+        self._vs_note.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self._vs_note.setVisible(False)
+        outer.addWidget(self._vs_note)
+        _apply_alpha_widgets(self._vs_button)
+
+    def _virtual_stain(self, folder: str = "", channels: str = "") -> str:
+        """Train a virtual-staining model on a folder and score it.
+
+        :param folder: folder of paired fields; asks for one when empty.
+        :param channels: ``"<inputs> > <target>"``, for example ``"1,3 > 0"``;
+            asks when empty.
+        :returns: the folder used, or ``''`` when a dialog was dismissed.
+        """
+        from PySide6.QtWidgets import QFileDialog, QInputDialog
+
+        if not folder:
+            folder = QFileDialog.getExistingDirectory(
+                self, tr("Choose a folder of paired multichannel fields"))
+        if not folder:
+            return ""
+        if not channels:
+            channels, ok = QInputDialog.getText(
+                self, tr("Virtual staining"),
+                tr("Input channels > channel to predict:"), text="1 > 0")
+            if not ok:
+                return ""
+        inputs, _sep, goal = str(channels).partition(">")
+        sources = [int(c) for c in inputs.replace(" ", "").split(",") if c]
+        target = int(goal.strip())
+        folder = str(folder)
+        self._show_virtual_stain_note(tr("Training the virtual stain…"))
+
+        def work():
+            """Train, predict and score off the GUI thread."""
+            from ...deep_spacr import _virtual_stain_from_folder
+
+            return _virtual_stain_from_folder(folder, sources, target,
+                                              epochs=20)[1]
+
+        self._vs_jobs.submit(work, self._on_virtual_stain_done)
+        return folder
+
+    def _show_virtual_stain_note(self, text: str) -> None:
+        """Show one line under the virtual-staining button."""
+        self._vs_note.setText(text)
+        self._vs_note.setVisible(True)
+
+    def _on_virtual_stain_done(self, summary) -> None:
+        """Say how the predicted stain segments against the real one."""
+        self._vs_summary = dict(summary)
+        self._show_virtual_stain_note(tr(
+            "Virtual stain on {fields} held-out fields: F1 {f1:.2f} at IoU "
+            "0.5 against the real stain's objects (input channel alone "
+            "{base:.2f}), Pearson r {r:.2f}.").format(
+                fields=int(summary["test_fields"]),
+                f1=summary["predicted_f1_50"],
+                base=summary["input_baseline_f1_50"],
+                r=summary["predicted_pearson"]))
+
+    def _on_virtual_stain_failed(self, message: str) -> None:
+        """Show why the virtual-staining job stopped."""
+        self._show_virtual_stain_note(
+            tr("Virtual staining failed: {error}").format(error=message))
 
     def closeEvent(self, event):
         """Close both module pages before their owning workbench is destroyed.
@@ -235,7 +326,11 @@ class CellposeWorkbenchScreen(QWidget):
         return self._screens[1]
 
     def screen_for(self, app_key: str) -> Optional[AppScreen]:
-        """The tab that runs ``app_key``, or ``None``."""
+        """The tab that runs ``app_key``, or ``None``.
+
+        :param app_key: the app key to find, compared as a string with each
+            tab's ``app_key``.
+        """
         for screen in self._screens:
             if screen.app_key == str(app_key):
                 return screen
@@ -312,7 +407,11 @@ class CellposeWorkbenchScreen(QWidget):
 
     def apply_seed(self, seed: Dict) -> int:
         """Take a seed handed over by another screen. See
-        :meth:`apply_settings_dict`, which decides where it lands."""
+        :meth:`apply_settings_dict`, which decides where it lands.
+
+        :param seed: settings name to value, passed unchanged to
+            :meth:`apply_settings_dict`.
+        """
         return self.apply_settings_dict(seed)
 
 

@@ -67,6 +67,13 @@ _console_ref: "Optional[weakref.ReferenceType[Any]]" = None
 _handler: "Optional[_ConsoleForwarder]" = None
 _relay: "Optional[_ConsoleRelay]" = None
 _file_handler: "Optional[RotatingFileHandler]" = None
+
+#: The verbose preference as last applied by :func:`apply_verbose_logging`.
+#: :func:`is_verbose` reads THIS, not a handler level: the per-level console
+#: switches set the forwarder to DEBUG in every session so that their filter
+#: decides, and a check that read the handler reported verbose on whether
+#: the user had turned it on or not.
+_verbose = False
 _SINK_LOGGER = "spacr"
 _ATTACHED_LOGGERS = ("spacr", "spacr.qt", "spacr.pipeline_v2",
                         "spacr.qt.plate_queue", "spacr.qt.hf_download",
@@ -381,6 +388,9 @@ def register_console_target(panel: Any) -> None:
 
     Called from the GUI thread (the AppScreen constructor), which is
     where the relay wants to be built — see :class:`_ConsoleRelay`.
+
+    :param panel: the console panel that receives log lines; it is held by weak
+        reference and dropped when its ``destroyed`` signal fires.
     """
     global _console_ref
     _ensure_handler()
@@ -404,6 +414,10 @@ def apply_console_levels(levels) -> None:
     The handler keeps passing everything and a filter decides, so the set
     can change while another thread is mid-log without the handler being
     swapped underneath it.
+
+    :param levels: numeric logging levels the console should show; anything
+        outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are
+        lowered to the lowest level kept.
     """
     from ..logging_util import LevelSetFilter, normalise_levels
     handler = _ensure_handler()
@@ -443,7 +457,13 @@ def apply_verbose_logging(on: bool) -> None:
 
     The ``cellpose`` logger goes to INFO while verbose is on, so it can
     say which model it loaded, and back to WARNING when verbose is off.
+
+    :param on: ``True`` sets the console handler, file handler and attached
+        spaCR loggers to DEBUG (and ``cellpose`` to INFO); ``False`` sets them
+        to INFO (and ``cellpose`` to WARNING).
     """
+    global _verbose
+    _verbose = bool(on)
     handler = _ensure_handler()
     file_handler = _ensure_file_handler()
     level = logging.DEBUG if on else logging.INFO
@@ -459,8 +479,13 @@ def apply_verbose_logging(on: bool) -> None:
 
 def is_verbose() -> bool:
     """Cheap runtime check — decorated functions call this on entry so
-    they emit NOTHING when verbose mode is off."""
-    return _handler is not None and _handler.level == logging.DEBUG
+    they emit NOTHING when verbose mode is off.
+
+    It reads the verbose PREFERENCE as :func:`apply_verbose_logging` last
+    applied it, not the console forwarder's level, which
+    :func:`apply_console_levels` holds at DEBUG in every session.
+    """
+    return _verbose
 
 
 def log_call(fn: Callable) -> Callable:
@@ -474,6 +499,10 @@ def log_call(fn: Callable) -> Callable:
 
     Truncates giant reprs to 240 chars so a settings dict with 100
     entries doesn't wreck the console.
+
+    :param fn: the function or method to wrap; its arguments, return value or
+        raised exception are logged to ``spacr.trace`` while verbose mode is
+        on.
     """
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
@@ -506,6 +535,10 @@ def log_button_press(button_name: str,
     Wire this from Qt slot handlers so the console shows exactly which
     button the user hit, with any relevant context values (e.g. the
     current settings dict on a Run press).
+
+    :param button_name: name of the pressed button, shown in the
+        ``[button:<name>]`` trace line; nothing is logged unless verbose mode
+        is on.
     """
     if not is_verbose():
         return

@@ -1,31 +1,35 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "0cafbb000a43518dec4abf97d95a12a28d3db265fc707f4caf2d681e26617f72",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "zh-CN",
-  "title": "Graph Builder：真实测量、实时筛选与移交限制",
-  "description": "用实际测量列绘图，按采集元数据分面，并识别当前向Annotate移交选择的缺陷。",
+  "title": "Graph Builder：绘制测量数据并过滤对象",
+  "description": "加载测量表，指定绘图坐标轴，比较分组，并过滤显示的对象。",
   "objectives": [
-    "加载真实示例数据库并选择cell表。",
-    "构建直方图、散点图、颜色分组和行分面。",
-    "核对筛选及恢复后的对象数量。",
-    "区分内部发布选择与真正可用的移交。"
+    "加载示例测量表。",
+    "绘制直方图、散点图和分组面板。",
+    "过滤对象并选择后续视图。"
   ],
-  "prerequisite": "下载并解压链接中的测量数据库，或使用已下载的Annotate示例。压缩包只有测量数据，没有裁剪图像；不需要运行新模型。",
+  "prerequisite": "下载并解压Graph_Builder_real_measurements.zip。其中包含measurements.db。如需稍后查看图像裁剪，请同时保留对应的Annotate项目及其图像。",
   "scenes": [
-    "Graph Builder用于探索已有表格。从Home打开它；这是一个主模块，内部包含Plate Viewer和Small Multiples。我们使用示例中的真实测量值，不训练模型，也不让人工智能服务生成结果。",
-    "点击Load table，打开链接压缩包或已下载Annotate示例中的measurements点db。选择cell表，共两千三百四十一行。压缩包完整保留录制时使用的数据库，但不包含其他表引用的图像。",
-    "搜索cell_area并将该列拖到X。自动绘图会生成三十个区间的直方图。每根柱表示一个面积区间内的细胞数，不是处理组比较，也不是显著性检验。数值保留原有单位，没有进行新的物理校准。",
-    "将cell_channel_1_mean_intensity拖到Y。每个点表示一个细胞的面积和通道一平均强度。重叠的点可能相互遮挡，但这里仍表示了全部数据行。请查看行数提示；更大的数据集可能采用不同绘制策略。",
-    "将columnID放到Colour并阅读图例。颜色区分采集列，不代表推断类别或已知处理组。视觉上的分离是描述性现象，不是效应证据。我们已将点坐标和颜色分配逐一与原始行核对。",
-    "将rowID放到向下箭头的分面通道，按孔板行拆成面板。两个面板分别有一千一百四十和一千二百零一个细胞。共享坐标轴有助于比较，但同一孔中的细胞并不是独立实验重复。",
-    "在右侧筛选面板添加cell_area，将最小值设为两万一千九百二十五。图形立即更新为一千一百七十一行。这个向上取整的中位数仅用来演示筛选，不是推荐的生物学阈值。注意坐标轴范围也会变化。",
-    "点击筛选面板中的Clear all，恢复全部两千三百四十一个细胞。这不同于左侧的Clear all channels，后者删除绘图列映射。筛选后要重新检查数量和坐标轴；改变对象群体并不产生新的测量。",
-    "点击小叉移除行分面，然后在散点图上拖出矩形。此版本存在缺陷：录制的操作在内部发布了六百五十三个对象键，但显示的选择数仍为零，Open selection in Annotate也处于禁用状态。不要以为已经打开或创建了标注。",
-    "普通单击还会清除内部选择。教程验证了这一恢复操作，但没有修复移交。筛选和指向对象是不同操作，其他视图可能共享这些状态。请检查当前对象群体，不要自动把图形当成整个数据库。",
-    "使用标题栏快捷按钮进入嵌套的Plate Viewer和Small Multiples；各自的教程会介绍它们。当前屏幕没有导出图形或绘图规格的按钮。链接中的数据库是外部教程下载文件，不是Graph Builder的导出结果。",
-    "在Python中，read_table加载数据，GraphSpec描述通道和分面，selection API区分筛选条件与明确的对象键。请将来源、设置和版本与解释一同保存。这些API既不验证生物学结论，也不修复向Annotate移交选择的问题。"
+    "从Home打开Graph Builder探索测量表。先使用链接中的示例数据库，然后在您自己的已测量项目上重复这些步骤。",
+    "点击Load table，从解压的归档中打开measurements点db。选择cell表。本例包含两千三百四十一个已测量的细胞。",
+    "在列列表中找到cell_area，把它拖到X上。自动生成的图变成直方图：每个柱表示某个面积区间内的细胞数。解读坐标轴之前，请检查测量单位。",
+    "把cell_channel_1_mean_intensity拖到Y上，生成散点图。每个点按面积和通道一的平均强度放置一个细胞。处理较大的表时，请留意行数提示。",
+    "把columnID拖到Colour上，区分板上的各列。用图例把颜色与记录的列标签对应起来，并找出需要仔细检查的分组。",
+    "把rowID拖到向下的分面通道上，为板上每一行生成一个面板。借助共享坐标轴比较各面板。在不同条件之间做统计比较时，请以独立的孔为单位。",
+    "在右侧的过滤面板中添加cell_area并输入最小值。本例使用两万一千九百二十五，剩下一千一百七十一行。请为您自己的测量数据选择合适的阈值，并观察绘制的数量和坐标轴如何变化。",
+    "在过滤面板中点击Clear all恢复完整的表。如果想移除绘图映射并开始另一张图，请使用左侧的Clear all channels。",
+    "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。如果Open selection in Annotate不可用，请用对应项目单独打开Annotate，并在那里检查对象。",
+    "点击图中的空白处清除选择。在探索另一组对象之前，请检查当前的过滤条件和显示的数量。",
+    "使用标题栏中的快捷方式打开Plate Viewer查看孔热图，或打开Small Multiples查看重复的小图。保留源数据库以及所选的列和过滤条件，以便重现该视图。",
+    "当前界面显示的图没有导出按钮。需要用脚本绘图时请使用Graph Builder API，或使用Database Browser导出表格，供其他绘图工具使用。"
   ]
 }

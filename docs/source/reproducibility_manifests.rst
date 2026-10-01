@@ -65,5 +65,5 @@ in settings.
        result = run_assay(settings)
        run.record_output(result)
 
-``spacr repro <run-folder>`` replays supported modules with the recorded
+``spacr-repro <run-folder>`` replays supported modules with the recorded
 settings. The complete API is generated under :mod:`spacr.run_journal`.

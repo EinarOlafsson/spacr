@@ -1,30 +1,34 @@
 {
   "lesson": "47_barcode_qc",
-  "english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "189d9466d15df859444f28e70fed0f6ef73597559efd8b96ef17b7e7e2930940",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "is",
-  "title": "Barcode QC: raunverulegar talningar, val á þröskuldi og vistaðar myndir",
-  "description": "Skoðaðu birta talningardæmið, keyrðu Barcode QC og berðu saman lesdýpt og þröskulda í raunverulega vistuðum gröfum.",
+  "title": "Barcode QC: skoðaðu lestrardýpt og veldu þröskuld",
+  "description": "Hlaðu inn vörpuðum talningum, farðu yfir þekju brunna og leiðaraða og berðu saman gnægðarþröskulda.",
   "objectives": [
-    "Finna Barcode QC innan Map Barcodes og velja raunverulegar talningar.",
-    "Greina á milli sýnimarkmiðs og rökstuddrar tilraunaákvörðunar.",
-    "Skoða viðvaranir, vistaðar myndir og töflur sem voru sannreyndar óháð.",
-    "Greina á milli hola með fáa lestra, hola yfir markmiði og árekstra raða."
+    "Velja talningainntök og stillingar gæðaeftirlits.",
+    "Skoða þekju og staðsetningaráhrif.",
+    "Bera saman þröskulda og halda töflunum og gröfunum sem verða til."
   ],
-  "prerequisite": "Notaðu afrit af plate_1_unique_combinations.csv úr niðurhalaða Regression-dæminu og nýja úttaksmöppu. Taflan kemur ekki úr misheppnaðri FASTQ-keyrslu okkar. Hún hefur 172756 línur, 49464341 úthlutaða lestra, 384 holur og 1379 leiðsöguraðir sem sáust. Markmið 5/miðgildi er aðeins til sýningar, hlutfall fyrir fáa lestra 0.1, Plot/Save/Verbose virkt. Valfrjáls QC- og viðmiðunarinntök eru ekki notuð. 2884 reitir sannreyndir án tölulegrar skekkju. src-viðvörunin og tóma Figures-spjaldið eru ólöguð; PNG-myndir eru sýndar í raunverulegum ytri myndskoðara. Engin lifandi forskoðun, GPU-útreikningur, AI-fyrirspurn, líffræðileg staðfesting eða birting. API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+  "prerequisite": "Notaðu plate_1_unique_combinations.csv úr gögnum dæmaskimunarinnar sem sótt voru í Regression-kennsluefninu, eða þína eigin töflu með vörpuðum talningum. Veldu nýja úttaksmöppu. Leggðu fram gæðaeftirlitsskrár vörpunar og tilvísunarskrár strikamerkja þegar þú þarft prófanir sem byggja á óvörpuðum lestrum eða væntanlegu safni.",
   "scenes": [
-    "Opnaðu Map Barcodes og síðan innbyggða verkfærið Barcode QC. Þessi verkferill skoðar talningar eftir úthlutun; hann úthlutar ekki FASTQ-lestrum aftur. Við notum birta talningartöflu úr tengdu Regression-kennslunni. Hún er ekki niðurstaða fyrri misheppnaðrar tilraunar okkar til að úthluta hráum lestrum.",
-    "Veldu afrit af plate one unique combinations undir Count data. Athugaðu valda skrá í stað þess að skilja eftir sýndarslóð. Þessi raunverulega tafla inniheldur um 49,5 milljónir úthlutaðra lestra úr 384 holum. Haltu frumritinu óbreyttu og veldu nýjan áfangastað fyrir QC-úttakið.",
-    "Target gRNAs per well táknar markmiðið sem er notað til að leiða út þröskuld fyrir hlutfallslegt magn lestra. Hér höldum við sýnigildinu fimm og notum miðgildið. Þetta er hvorki ráðlögð tilraunahönnun né sönnun um úthlutun til einnar leiðsöguraðar. Veldu út frá þinni hönnun og skoðaðu málamiðlanirnar, ekki aðeins tillögutöluna.",
-    "Hlutfallið fyrir lestrafátækar holur finnur holur með óvenjulega fáa lestra miðað við miðgildi plötunnar. Hér er það 0,1 og engin af 384 holum fer undir reiknuðu mörkin. Þetta er merking á lesdýpt, ekki trygging fyrir áreiðanleika hverrar holu, leiðsöguraðar eða líffræðilegrar mælingar.",
-    "Kveiktu á Plot og Save, tilgreindu áfangastað og ýttu á Run. Þetta er lítil töflugreining, ekki GPU-myndhlutun, og skjárinn hefur enga lifandi forskoðun. Við skiljum valfrjáls inntök fyrir QC úthlutunar og strikamerkjaviðmið eftir tóm. Ekki er hægt að draga ályktanir sem þarfnast þeirra skráa af talningartöflunni einni.",
-    "Lestu raunverulega keyrslugluggann, þar með taldar viðvaranir. Útreikningnum lýkur en þessi útgáfa kvartar ranglega um að src vanti þótt einingin noti Count data. Við sannreyndum inntakið og vistuðu töflurnar; við löguðum ekki forathugunina. Þessi greindi ósamræmisvandi er ekki heimild til að hunsa aðrar villur.",
-    "Þessi útgáfa skilur einnig Figures-spjaldið eftir tómt þótt tvö PNG-gröf hafi verið vistuð. Opnaðu barcode_qc.png og threshold_sweep.png úr úttaksmöppunni í myndskoðara. Næstu atriði sýna raunverulegan myndskoðara kerfisins, ekki myndir settar inn í spaCR eða fullyrðingu um að viðmótið sé lagað.",
-    "Skoðaðu lesdýpt, áhrif raða og dálka og dreifingu safnsins sem sást. Strikalínan markar holur með fáa lestra; súlurnar bera saman miðgildi raða eða dálka við miðgildi plötunnar. Safnferillinn sýnir ójafna framsetningu leiðsöguraða sem sáust. Án viðmiðunarsafns sýnir hann ekki hvaða væntanlegar leiðsöguraðir vantar alveg.",
-    "Skoðaðu þröskuldasveipið í stað þess að samþykkja mörk blint. Hér er útleiddi þröskuldurinn um 0,0121, eða 1,21 prósent af lestrum holu. Hann gefur miðgildi fimm leiðsöguraða, heldur öllum holum og um 58 prósentum úthlutaðra lestra, en um 40 prósent hola fara enn yfir markmiðið.",
-    "Rauði ferillinn telur holur yfir markmiðinu fimm leiðsöguraðir. Hann mælir ekki líkindi strikamerkjaraða og gildi undir markmiðinu staðfestir ekki úthlutun til einnar leiðsöguraðar. Vægari mörk auka hér hlutfallið yfir markmiði án þess að bæta við holum. Berðu saman vistuðu töfluna og rökstyddu valið fyrir þína greiningu; þetta er ekki algildur þröskuldur.",
-    "Geymdu upprunatalningar, stillingar, keyrsluskrá, tillögu, töflur og myndir saman. Óháðar athuganir endurgerðu vistaða tölfræði hola, staðsetninga og sveips án tölulegs fráviks. Það sannreynir útreikninginn, ekki líffræðilega túlkun hans. AI-aðstoð er valfrjáls og engin fyrirspurn var send hér; athugaðu síðari ráð gegn raunverulegum gögnum og API."
+    "Opnaðu Map Barcodes og svo Barcode QC. Byrjaðu á töflu með vörpuðum talningum; tengda Regression-dæmið leggur til eina til æfingar.",
+    "Stilltu Count data á talningatöfluna þína og veldu nýjan úttaksstað. Dæmið inniheldur varpaða lestra úr 384 brunnum.",
+    "Stilltu Target gRNAs per well eftir tilraunasniðinu og veldu samantektaraðferðina sem notuð er til að leiða út þröskuldinn. Dæmið notar 5 og median.",
+    "Stilltu Starved read fraction til að merkja brunna með fáa lestra miðað við miðgildi plötunnar. Dæmið notar 0,1. Farðu yfir merktu brunnana áður en þú útilokar þá.",
+    "Virkjaðu Plot og Save og ýttu svo á Run. Bættu við gæðaeftirlitsinntaki vörpunar eða tilvísunarinntaki þegar þú vilt samsvarandi prófanir; talningataflan ein lýsir aðeins sýnilegum vörpuðum lestrum.",
+    "Lestu lokaannálinn og vistaðar úttaksslóðir. Rannsakaðu villur miðað við valin inntök áður en þú notar niðurstöðurnar.",
+    "Opnaðu barcode_qc.png og threshold_sweep.png úr úttaksmöppunni. Notaðu myndskoðara ef spjaldið Figures er tómt.",
+    "Skoðaðu lestrardýpt, áhrif raða og dálka og hvernig leiðaraðir eru fulltrúa. Berðu saman við tilvísunarsafn þegar þú þarft að finna væntanlegar leiðaraðir sem vantar alveg.",
+    "Skoðaðu þröskuldssóparann. Í þessu dæmi gefur þröskuldur nálægt 1,21 % af lestrum hvers brunns miðgildið fimm leiðaraðir og heldur um 58 % varpaðra lestra.",
+    "Berðu saman lestra sem haldast, brunna sem haldast og brunna yfir markmiði leiðaraða eftir því sem þröskuldurinn breytist. Veldu þröskuld sem hentar sniðinu; markmið leiðaraða staðfestir ekki að niðurstaðan tilheyri einni leiðaröð.",
+    "Haltu ráðleggingunni, sóparatöflunni, gröfunum og stillingunum með upprunatalningunum. Notaðu valinn þröskuld stöðugt í síðari greiningu og skráðu ástæðuna fyrir valinu."
   ]
 }

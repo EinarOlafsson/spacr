@@ -9,15 +9,15 @@
 | Language | Translation |
 | --- | --- |
 | [English](../../../README.rst) | Source text. Every other README is translated from it. |
-| [Svenska](README.sv.rst) (Swedish) | Machine draft. A fluent speaker read a sample and their corrections are kept. |
-| [Deutsch](README.de.rst) (German) | Machine draft. A fluent speaker read a sample and their corrections are kept. |
-| [Español](README.es.rst) (Spanish) | Machine draft. No fluent-speaker review. |
-| [简体中文](README.zh_CN.rst) (Mandarin Chinese) | Machine draft. No fluent-speaker review. |
-| [Português](README.pt.rst) (Portuguese) | Machine draft. No fluent-speaker review. |
-| [हिन्दी](README.hi.rst) (Hindi) | Machine draft. No fluent-speaker review. |
-| [한국어](README.ko.rst) (Korean) | Machine draft. No fluent-speaker review. |
-| [Íslenska](README.is.rst) (Icelandic) | Machine draft. A fluent speaker read a sample and their corrections are kept. |
-| [Français](README.fr.rst) (French) | Machine draft. No fluent-speaker review. |
+| [Svenska](README.sv.rst) (Swedish) | AI technical review (Codex), no native-speaker signoff. |
+| [Deutsch](README.de.rst) (German) | AI technical review (Codex), no native-speaker signoff. |
+| [Español](README.es.rst) (Spanish) | AI technical review (Codex), no native-speaker signoff. |
+| [简体中文](README.zh_CN.rst) (Mandarin Chinese) | AI technical review (Codex), no native-speaker signoff. |
+| [Português](README.pt.rst) (Portuguese) | AI technical review (Codex), no native-speaker signoff. |
+| [हिन्दी](README.hi.rst) (Hindi) | AI technical review (Codex), no native-speaker signoff. |
+| [한국어](README.ko.rst) (Korean) | AI technical review (Codex), no native-speaker signoff. |
+| [Íslenska](README.is.rst) (Icelandic) | AI technical review (Codex), no native-speaker signoff. |
+| [Français](README.fr.rst) (French) | AI technical review (Codex), no native-speaker signoff. |
 
 </details>
 

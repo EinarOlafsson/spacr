@@ -1,0 +1,96 @@
+601. Preferences: Theme and Animation are categories of Appearance
+
+Requested by the maintainer (2026-09-30), verbatim:
+"in preferences theme and animation can be categories in appearence instead of their own tabs.
+
+the rim arround the window perifery looks like it is made up of many small boxes. please make it a continuous gradient with no boxes (e.g. by removing the lines between the boxes.)"
+
+(The second paragraph is item 602.)
+
+Brief:
+In the Preferences dialog, remove the separate Theme and Animation tabs.
+Their settings become categories (collapsible sections, styled like the
+other settings categories) inside the Appearance tab. Keep every setting
+and its behaviour; only the layout changes. Update the Qt tests that
+assert the tab list.
+
+Done when: the tabs are General, Appearance, Performance, Modules,
+Figures, Logging, AI (plus Fractal and Sound in spaceout mode); Appearance
+holds folded THEME and ANIMATION categories with every control they had;
+the Help search still lands on a Theme or Animation row (Qt tests).
+
+Status: IMPLEMENTED 2026-09-30; current tutorial capture recorded 2026-10-01,
+        full lesson/media publication remains pending.
+
+What was built: Theme and Animation are built as settings categories (the
+same Section widget the module screens use, folded by default) at the
+bottom of the Appearance tab, under its own rows. Every row and its wiring
+is unchanged. Each category's rows sit in a holder that keeps the old page
+name (PreferencesTabTheme, PreferencesTabAnimation), so the Help search
+index and its hand-off keep their names; opening Preferences on one of
+them now selects Appearance and unfolds the category before marking the
+row. tools/build_help_search_index.py lists a row under its innermost
+named page only, and spacr/qt/help_api_index.py's preference rows were
+regenerated (tab title now Appearance). Tests: tests/qt/test_preferences_tabs.py.
+
+Left: tutorials that show the old Theme and Animation tabs need
+re-recording (docs lane).
+
+2026-10-01 — CURRENT PREFERENCES RECORDING AND REUSABLE CAPTURE
+There is no separate Preferences lesson in the current catalogue. The existing
+09_performance scene is shared by Home (05_home) and platform installers
+(04_platform_installers). Its shared recorder, tools/tutorials/capture_home.py,
+now also follows actual Appearance-tab and category-header clicks to capture
+folded Theme/Animation, expanded Theme, and expanded Animation. It checks the
+new tab/category structure and visible controls, and closes without Save.
+Future Home captures therefore produce the corrected Preferences scene plus
+three current Appearance scenes with stable names.
+
+A bounded standalone recorder, tools/tutorials/capture_preferences_appearance.py,
+uses this same helper and the existing dark/Blobs capture policy. It isolates
+QSettings and state before Qt imports, uses actual controls and painting, and
+records source hashes, frame hashes, tab names and geometry. No desktop
+preferences or existing authoring masters are changed. It produces four
+3840x2160 source images, a readable cropped 1920x1080 H.264 review clip,
+English WebVTT captions, and a local review page. No narration was synthesized
+and no published catalogue, audio, translation, or remote media was replaced.
+
+Final private stage: /tmp/spacr-ui-evidence/601/preferences-final/
+  preferences_appearance.mp4: 24.000 seconds, 360 frames at 15 fps.
+  SHA256: 6796073f607d52b197f3f45d9c055757cc2b3cfc106269f61cfc7970e0776db4
+  review.html, preferences_appearance.vtt, frames.json, provenance.json,
+  09_performance.png, 10_appearance_categories.png,
+  11_appearance_theme.png, 12_appearance_animation.png.
+Actual Qt offscreen painting, scale 1, application font scale 1.5; source and
+encoded frames were inspected. Tabs and every Theme/Animation control are
+readable. The final 97-test named Preferences/tutorial cohort passed in 20.54s,
+including real category clicks and unchanged pre-initialized preference values.
+
+Remaining publication work: incorporate these captured scenes into the current
+full Home/installer masters with matching narration/caption timing and publish
+through the established tutorial workflow. The alternative workspace at
+/media/carruthers/mnt3/claude/tutorials contains a July30 five-scene Home master;
+it does not match the current eleven-scene lesson. Its old audio/masters were
+preserved, rather than used to claim that the current full tutorial was updated.
+This record completes the local capture work, not public-video replacement.
+
+2026-10-01 — HOME AUTHORING SOURCE LINKS THE THREE CURRENT APPEARANCE SCENES
+The Home lesson source now includes folded Appearance categories, expanded
+Theme, and expanded Animation immediately after its Performance scene. Each
+new narration describes the controls visible in its recorded frame. The
+focus rectangle uses the same readable 1920x1080 region already inspected in
+the private review clip. All original eleven scenes and lesson metadata are
+preserved; the authoring lesson now has fourteen scenes.
+
+A private staging manifest binds each new scene to its recorded PNG hash,
+frame dimensions, capture provenance and updated lesson-source hash:
+tools/tutorials/evidence/2026-10-01-home-appearance-authoring-stage.json.
+The existing stage_lesson.py --check-only verifies all three new scene/frame
+links, frame hashes, 4K dimensions and focus rectangles under a 1G cap. Output:
+"Validated 05_home: 3 real capture scenes; catalogs unchanged."
+This is a checked three-scene fragment, not a complete fourteen-scene master.
+
+Published catalogs, existing captions/audio and installer source are unchanged.
+The new narration still needs matching translations and audio, complete Home
+master assembly, timing/player review and paired publication. N601 remains
+open for those tutorial-publication steps; no current-GUI code gap is claimed.

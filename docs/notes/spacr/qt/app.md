@@ -30,7 +30,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [MainWindow._close_icon](#mainwindow_close_icon) (1 entry)
 - [MainWindow.eventFilter](#mainwindoweventfilter) (1 entry)
 - [MainWindow.changeEvent](#mainwindowchangeevent) (1 entry)
-- [MainWindow._build_menu_bar](#mainwindow_build_menu_bar) (21 entries)
+- [MainWindow._build_menu_bar](#mainwindow_build_menu_bar) (20 entries)
 - [MainWindow._build_window_menu](#mainwindow_build_window_menu) (2 entries)
 - [MainWindow._menu_bar_actions](#mainwindow_menu_bar_actions) (2 entries)
 - [MainWindow](#mainwindow) (2 entries)
@@ -38,7 +38,6 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [MainWindow._apply_demo_to_screen](#mainwindow_apply_demo_to_screen) (3 entries)
 - [MainWindow._show_about](#mainwindow_show_about) (2 entries)
 - [MainWindow.refresh_theme](#mainwindowrefresh_theme) (2 entries)
-- [MainWindow._refresh_demo_status_tips](#mainwindow_refresh_demo_status_tips) (1 entry)
 - [MainWindow._rebuild_startup_page](#mainwindow_rebuild_startup_page) (1 entry)
 - [MainWindow._on_upgrade_done](#mainwindow_on_upgrade_done) (2 entries)
 - [MainWindow.closeEvent](#mainwindowcloseevent) (5 entries)
@@ -1171,14 +1170,6 @@ PAUSE AND GO FLAT. Ctrl+T stops the animation and leaves the last frame up, whic
 
 Ctrl+B was explicitly requested for this action. The drawer moved to Ctrl+Shift+A, which keeps both window actions keyboard-reachable.
 
-### lines 3326-3337
-
-```python
-demo_menu = QMenu("&Demos", mb)
-```
-
-DEMOS LIVES UNDER HELP. A demo is something you reach for when you are learning what a module does, which is what the Help menu is for, and it was taking a top-level slot on a bar that has to stay short. Built here, before Help, and added to it below the submenu is the same QMenu either way. PARENTED TO THE MENU BAR, not to the window. `first_run.find_menu` which the walkthrough and the tutorial scripts both use reaches a menu through `menuBar().findChildren(QMenu)`, because walking the bar's actions returns QMenu wrappers that go stale on PySide6 6.11. A menu parented elsewhere is invisible to that lookup, so Demos would have become unfindable the moment it stopped being a top-level menu.
-
 ### lines 3361-3372
 
 ```python
@@ -1277,9 +1268,7 @@ Qt's role heuristic matches on TEXT, so an action with no text has nothing to ma
 DEMO_TARGETS = {
 ```
 
-demos
-
-Map each demo key to (target-app key, generator function name). Kept as a class constant so tests can introspect it without launching the file dialog.
+Map each internal synthetic-fixture key to (target-app key, generator function name). Recording and test fixtures use these generators; they are not navigation menu entries. Kept as a class constant so tests can introspect it without launching the file dialog.
 
 ### lines 3682-3686
 
@@ -1370,16 +1359,6 @@ try:
 ```
 
 Preferences is where the window's backdrop is turned on and off, so it is where a cached screen's record of that backdrop stops being true. Reconciling here is the only thing that clears the flag on a screen the user is not looking at.
-
-## MainWindow._refresh_demo_status_tips
-
-### line 4097
-
-```python
-pass
-```
-
-A deleted action during shutdown must not stop the rest.
 
 ## MainWindow._rebuild_startup_page
 
@@ -2260,3 +2239,57 @@ try:
 ```
 
 Also kill any subprocess still tracked by a provider
+
+
+---
+
+# Notes from `spacr/qt/app.py`
+
+Prose lifted out of `spacr/qt/app.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## Contents
+
+- [_collect_paint_diagnostics](#_collect_paint_diagnostics) (2 entries)
+- [MainWindow._on_update_check_done](#mainwindow_on_update_check_done) (1 entry)
+- [launch](#launch) (1 entry)
+
+## _collect_paint_diagnostics
+
+### line 2358  _(unsure)_
+
+```python
+pixels, scale = None, (1.0, 1.0)
+```
+
+FIRST, before anything below can change a pixel.
+
+### lines 2516-2517  _(unsure)_
+
+```python
+json_path.write_text(json.dumps(report, indent=2, default=str),
+```
+
+Rewritten so the file names itself; the first write is the one that proves the folder takes a file at all.
+
+## MainWindow._on_update_check_done
+
+### lines 3985-3987
+
+```python
+self._update_version = info.latest_release
+```
+
+find old spaCR files --> delete old spaCR files --> install new spaCR. Step 1 runs off the GUI thread; what it found is shown before anything is deleted, in _on_old_installs_found.
+
+## launch
+
+### lines 6157-6161
+
+```python
+_level = _level_now()
+```
+
+286: THE LEVEL DECIDES, NOT THE MACHINE. `apply()` with no argument measures cores and memory, which overrode the level chosen in the selector -- a two-core Workstation lost its backdrop at every start. The measurement is still logged, as a reading, because "it looks different on my laptop" needs evidence.

@@ -47,6 +47,14 @@ GUARDED = (
     # when the user asks for advice; the guard keeps `pd.DataFrame` in the
     # string annotations without paying for it at import.
     ("spacr.settings_advisor", "pandas"),
+    # spacr.qt.linked_selection, guarded 2026-09-26 (item 284). Annotate
+    # imports it at module scope to register an object opener, and pandas
+    # was most of the worst event-loop gap of Annotate's first open although
+    # nothing in the open touches a frame. The module names `pd.DataFrame`
+    # only in annotations of `select_frame`, `visible` and `linked_visible`;
+    # the frames it is handed come from callers that already imported
+    # pandas, so the guard costs nothing at run time.
+    ("spacr.qt.linked_selection", "pandas"),
 )
 DEFERRED_WITHOUT_GUARD = (
     ("spacr.classify_classes", "pandas"),

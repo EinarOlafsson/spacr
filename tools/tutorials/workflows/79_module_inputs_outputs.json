@@ -1,8 +1,8 @@
 {
   "title": "Module inputs and outputs",
   "description": "Find every current module's input data, saved outputs, upstream producers and downstream consumers, including tools nested inside a Home module.",
-  "introduction": "Choose a module by the files you have and the result you need. Start from its Home tile, or open the related tool inside its parent module. Use the chapter list to find a module, check its required inputs and identify the output to pass to the next step. Keep object, plate and well identifiers with your data.",
-  "conclusion": "Choose the chapter for your next task and open its linked module lesson for the controls and example data. Keep each output with the settings that created it. The module pages and Python API list the same input files, tables and identifiers when you need to connect steps in your own analysis.",
+  "introduction": "Think of this lesson as a map of where each file goes. Every chapter is one module: how to open it, what it reads, what it writes and which module picks that output up next. Start from the files you have or the result you need, and follow the handoffs from there. Keep object, plate and well identifiers with your data as it travels.",
+  "conclusion": "When you know your next task, jump to its chapter and open the linked module lesson for its controls and example data. Keep every output beside the settings that made it. The module pages and the Python API describe the same files, tables and identifiers when you connect steps in your own analysis.",
   "pathways": [
     "pooled_screen",
     "high_content",
@@ -856,7 +856,7 @@
         "curated_pairs",
         "masks"
       ],
-      "guidance": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
+      "guidance": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
     },
     "plate_view": {
       "name": "Plate Viewer",
@@ -962,7 +962,7 @@
       "outputs": [
         "figures"
       ],
-      "guidance": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
+      "guidance": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
     },
     "investigate_hit": {
       "name": "Investigate Hit",
@@ -994,7 +994,7 @@
         "gates",
         "labels"
       ],
-      "guidance": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+      "guidance": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
     },
     "feature_dict": {
       "name": "Feature Dictionary",
@@ -1904,7 +1904,7 @@
         },
         {
           "module": "gate_editor",
-          "action": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "action": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
           "after": [
             "measure"
           ]
@@ -2556,7 +2556,7 @@
       "artifacts": [
         "masks"
       ],
-      "handoff": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
+      "handoff": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
     },
     {
       "from": "external_masks",

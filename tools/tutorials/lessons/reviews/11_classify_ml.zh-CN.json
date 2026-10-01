@@ -1,36 +1,33 @@
 {
   "lesson": "11_classify_ml",
-  "english_sha256": "d042a85fceacc953e4c9f14cf04f6287ac61958c4f2931bf18802b6912439aab",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "zh-CN",
-  "title": "Classify：表格机器学习",
-  "description": "使用可下载的已测量细胞、明确的元数据标签、小型随机森林、真实控制台输出和已保存的预测来操作Classify。",
-  "objectives": [
-    "选择表格分类器，并通过数据选择器载入已测量的示例。",
-    "按板列定义类别，区分请求的比例与实际留出的孔。",
-    "检查图形、未评分对象和输出，不把演示准确率当成生物学验证。"
-  ],
-  "prerequisite": "本次录制使用spaCR 1.5.0.8。在Classify中选择Load test data，然后选择Load，而不是Stream。示例的4个孔有2,341个对象；保留2,153个，188个因缺少对应的细胞核数据而未评分。c1为类别0，c2为类别1；这是板列标签，不是已验证的表型。设置：random_forest、channel_of_interest=1、n_estimators=16、n_jobs=2、n_repeats=1、top_features=10、batch_correction=none、prune_features=False、cross_validation=False、plot=True。为这个小型示例设置test_size=0.1；当前ML分发器会遵循此设置。运行前，通过Choose source data确认已加载的项目。留出2个孔、1,035个对象，训练与测试之间没有相同的孔。特征筛选先于划分；置换重要性使用训练数据。准确率为0.6202898551，多数类基准为0.5632850242。已独立核对9个指标值及2,153个已保存预测。API：spacr.classify.classify调用spacr.ml.generate_ml_scores。输出位于results/random_forest/channel_1；predictions是二元类别，ml_pred是类别1的概率。只展示3幅真实图，不声称有SHAP输出、概率校准、因果关系或生物学验证。没有向AI发送问题。",
-  "scenes": [
-    "从Home打开Classify，将分类器家族设为Tabular Machine Learning。它从每个对象已保存的测量值中学习。计算机视觉设置可能仍然可见，但会变灰，因为它们属于另一个家族。",
-    "点击Load test data并选择Load。这会加载已测量的示例，必要时下载，并准备路径；Stream是另一条路径。使用自己的项目时，请先完成Measure，再选择项目文件夹。不要假设任意图像文件夹都已经包含所需的测量数据库。",
-    "通过Choose source data确认已下载的项目。选择包含measurements目录的板文件夹。在本次录制中，确认该文件夹会清除加载示例后留下的源路径为空提示。只有数据源包含已测量的对象，才能运行表格模型。",
-    "使用元数据作为依据，从columnID定义两个Classes：c1和c2。这里它们是用于讲解流程的板列标签，不是经独立确认的健康和受影响细胞。基于标注的训练则需要Annotate中的真实标签。绝不能把缺失的标注变成虚构的真实标签。",
-    "Channel of interest用于选择测量特征。我们使用通道一，但不赋予它未经核实的生物学意义。为自己的数据选择通道之前，请检查采集和测量设置。在这里选择特征通道不会重新分割图像，也不会重新测量。",
-    "为这个小型演示选择Random Forest、十六个估计器和两个工作任务。这不是优化模型的推荐配置。我们关闭监督式特征筛选和交叉验证。关闭交叉验证并不会取消本次运行另行留出的测试集。",
-    "将测试大小设为十分之一，并保持按孔分组。请求的比例不是精确的对象数量：这个四孔示例会留出两个完整的孔，约占保留对象的百分之四十八。两侧都有两个类别，而且没有任何实际的孔同时出现在训练和测试中。",
-    "开启Plot，清空搜索并点击Run。控制台会记录解析后的设置、筛选过程、划分和模型报告。请把这份记录与结果一起保存。完成标记并不能证明标签、验证设计或生物学解释是恰当的。",
-    "本次运行对两千一百五十三个对象进行了评分。一百八十八个对象缺少对应的细胞核数据，因此仍未评分，而不是阴性。保存的测试准确率约为百分之六十二，多数类基准约为百分之五十六。一块板上的四个孔不能证明模型能泛化到新实验。",
-    "共有三幅图：置换重要性、树模型特征重要性以及这幅板热图。选择Predictions并按均值汇总时，热图平均的是预测的二元类别，而不是概率。重要性不等于因果关系；置换计算使用的是训练数据。从彩色图得出结论之前，请检查保存的表格。",
-    "AI开关允许借助服务提供方询问流程问题。这里是未发送的草稿，不是生成的回答。请将结果与设置一起保留，并核实任何建议。嵌套工具有各自的输入要求：Explain教程使用计算机视觉评分，而不是这些ML输出。AI不能替代标签和划分身份的核对。"
-  ],
+  "english_sha256": "92e4828684b94f5fecd03ac4fe73b16a0b457fbdddbb462025d73f7df608675e",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: current eleven-scene native ML recording. Remove merged/older-application framing; describe conditional download; add explicit Choose source data confirmation. Prerequisites name spaCR 1.5.0.8 and the respected test_size=0.1 setting. Eight retained narration scenes preserve all measured results and scientific limitations."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Classify：从测量特征中学习",
+  "description": "加载测量数据，定义类别，训练表格分类器，并检查对象分数和板级汇总。",
+  "objectives": [
+    "选择表格模型系列和一个已测量的项目。",
+    "定义类别，选择特征通道、模型规模和留出的孔。",
+    "找到模型输出、对象预测和汇总图。"
+  ],
+  "prerequisite": "在Classify中使用Load test data并选择Load，然后用Choose source data确认下载的板文件夹。对于您自己的项目，请先运行Measure。示例把columnID的值c1和c2作为两个类别；使用自己的数据时，请使用适合您实验的标签。",
+  "scenes": [
+    "从Home打开Classify，选择Tabular Machine Learning。这个模型系列使用Measure保存的对象测量数据。它会生成一个拟合好的模型，并为每个具备所需测量值的对象给出分数。",
+    "点击Load test data并选择Load。等待已测量的示例下载完成。对于您自己的数据，请选择Measure创建的项目文件夹，包括其中的测量数据库。",
+    "使用Choose source data确认下载的板文件夹。选择包含测量数据的文件夹。这样分类器就能访问对象表以及用于定义类别的元数据。",
+    "选择元数据作为类别依据，并用column I D的值c1和c2定义两个Classes。这些标签区分示例板上的两列。如果要用您自己的细胞标注进行训练，请选择标注依据，以及您在Annotate中创建的标签列。",
+    "在本例中把Channel of interest设为一。它决定哪些与通道相关的测量特征进入模型。在您自己的实验中，请选择包含与类别相关信号的通道。",
+    "选择Random Forest，十六个估计器和两个工作进程。估计器数量决定树的数量。树越多，拟合工作量越大。在第一次尝试中，保持特征裁剪和交叉验证关闭；有了可用的基线之后，再比较这些选项。",
+    "把Test size设为十分之一，并保持按孔分组。spaCR会留出完整的孔，因此最终的对象比例可能与请求的比例不同。请在控制台中查看最终划分，确认它适合您的实验。",
+    "开启Plot，清空搜索，然后按Run。控制台会显示特征过滤、训练和测试划分、模型拟合以及保存的输出路径。比较分数之前，请等待运行完成。",
+    "结果位于results、random_forest、channel下划线一中。数据库把预测类别保存在predictions中，把类别一的概率保存在ml_pred中。缺少必要测量值的对象可能没有分数；导出汇总时请检查缺失值。",
+    "浏览特征重要性图和板热图。使用Predictions和均值分组时，一个孔的值是其二值预测类别的平均值。详细审查时请使用保存的对象分数，并在把分类器应用到其他实验之前，比较在留出孔上的表现。"
+  ]
 }

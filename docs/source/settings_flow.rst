@@ -7,8 +7,9 @@ point to the functions that actually read it.
 Asked for on 2026-09-08: *"in the API when a user clicks a settings they
 should see the setting and the function it goes to and the function(s) that
 the settings get passed along to. when they click the setting itself they
-should get the tool tip text."* This is that page. A setting's tooltip in
-the interface links straight to its section here, so the answer to "what
+should get the tool tip text."* This is that page. When the function that
+reads a setting has no published API anchor, the **API** link in the
+setting's tooltip opens its section here instead, so the answer to "what
 does this actually change" is one click from the control it is about.
 
 HOW TO READ A BRANCH. Each line is a call, indented under its caller, and a

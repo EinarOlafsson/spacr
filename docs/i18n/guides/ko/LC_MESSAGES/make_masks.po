@@ -1,0 +1,759 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 21:19-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Make Masks: editing, detection and measurement"
+msgstr "마스크 만들기: 편집, 검출, 측정"
+
+msgid "Open **Home → Tools → Make Masks** to inspect an image, correct its integer label mask and save the result. Each positive label identifies one object; zero is background. This screen can also propose objects with a detector, grow cell masks from existing nucleus masks, and organize curated images and masks for Measure with **Organize for Measure…**."
+msgstr "**홈 → 도구 → 마스크 만들기** 를 열어 이미지를 검사하고, 정수 레이블 마스크를 수정하고, 결과를 저장합니다. 양의 레이블 각각은 객체 하나를 나타내며 0은 배경입니다. 이 화면에서는 검출기로 객체를 제안하고, 기존 핵 마스크에서 세포 마스크를 키우고, **Measure용으로 정리…** 로 선별된 이미지와 마스크를 측정용으로 정리할 수도 있습니다."
+
+msgid "For the inputs and outputs of the surrounding workflow, see :ref:`Make Masks in the module map <workflow-module-make_masks>` and the `Make Masks tutorial <tutorials/#lesson=14_make_masks>`_. The :doc:`screen API <api/spacr/qt/screens/make_masks/index>` documents the implementation and :mod:`spacr.qt.mask_engine` documents the editing routines."
+msgstr "주변 워크플로의 입력과 출력은 :ref:`모듈 맵의 마스크 만들기 <workflow-module-make_masks>` 와 `마스크 만들기 튜토리얼 <tutorials/#lesson=14_make_masks>`_ 을 참조합니다. :doc:`화면 API <api/spacr/qt/screens/make_masks/index>` 에 구현이, :mod:`spacr.qt.mask_engine` 에 편집 루틴이 문서화되어 있습니다."
+
+msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
+msgstr "설정이나 그 레이블 위에 마우스를 올리면 설명을 읽고 API 도움말 링크를 따라갈 수 있습니다. 대응하는 애니메이션이 있는 컨트롤은 그 팝업에서 애니메이션도 제공하며, 각 컨트롤은 자체 표시 상태를 기억합니다. 이미지 향상 도움말은 검출 체인 문서로 연결됩니다. 대응하는 애니메이션이 없는 컨트롤도 글로 된 설명과 API 링크는 그대로 유지합니다."
+
+msgid "Open a field and save an edit"
+msgstr "시야를 열고 편집 내용 저장하기"
+
+msgid "Choose **Open folder…** and select the image folder. The ordinary layout keeps corresponding masks in its ``masks/`` subfolder. A saved TIFF mask uses the image's filename stem; a missing mask starts empty. The loader also supports the sibling masks layout and Cellpose ``_seg.npy`` bundles."
+msgstr "**폴더 열기…** 를 선택하고 이미지 폴더를 선택합니다. 일반 레이아웃에서는 대응하는 마스크를 ``masks/`` 하위 폴더에 둡니다. 저장된 TIFF 마스크는 이미지 파일 이름의 어간을 사용하며, 마스크가 없으면 빈 마스크로 시작합니다. 로더는 형제 폴더 마스크 레이아웃과 Cellpose ``_seg.npy`` 번들도 지원합니다."
+
+msgid "Inspect the image and labels. Images and masks must have matching spatial dimensions. An ordinary colour image is converted to grayscale; prepare the intended channel as a separate image when channel identity matters."
+msgstr "이미지와 레이블을 검사합니다. 이미지와 마스크의 공간 크기가 같아야 합니다. 일반 컬러 이미지는 회색조로 변환되므로, 채널 식별이 중요하면 원하는 채널을 별도의 이미지로 준비합니다."
+
+msgid "Correct an object with a tool, or choose a detection method and inspect its preview before accepting objects. **Undo** and **Redo** apply to mask edits."
+msgstr "도구로 객체를 수정하거나, 검출 방법을 선택하고 객체를 수락하기 전에 미리보기를 검사합니다. **실행 취소** 와 **다시 실행** 은 마스크 편집에 적용됩니다."
+
+msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a ``uint16`` label TIFF in the ordinary layout; a Cellpose bundle is updated as a bundle. The source image is preserved."
+msgstr "다른 시야로 이동하기 전에 **마스크 저장** 또는 **Ctrl+S** 를 누릅니다. 저장하면 일반 레이아웃에서는 ``uint16`` 레이블 TIFF가 기록되고, Cellpose 번들은 번들로 업데이트됩니다. 원본 이미지는 보존됩니다."
+
+msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
+msgstr "**유지** 또는 **버리기** 로 시야 단위의 선별 판정을 기록하고 다음으로 넘어갑니다. 이 판정은 ``csv/keep_discard.csv`` 에 기록됩니다. 버리기는 이미지나 마스크를 삭제하지 않고 결정만 기록합니다. 편집 내용은 따로 저장합니다."
+
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
+msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트에서 시야 표본을 제공합니다."
+
+msgid "Drop images and folders"
+msgstr "이미지와 폴더 끌어다 놓기"
+
+msgid "You can also drop files and folders onto the screen. Make Masks works out what the drop is:"
+msgstr "파일과 폴더를 화면에 끌어다 놓을 수도 있습니다. 마스크 만들기는 끌어다 놓은 항목이 무엇인지 판단합니다."
+
+msgid "images are queued in the order dropped; one folder of images opens as a folder;"
+msgstr "이미지는 놓은 순서대로 대기열에 들어가며, 이미지가 든 폴더 하나는 폴더로 열립니다."
+
+msgid "images dropped together with their masks open with those masks. A ``masks`` folder is used as it is; other mask files are copied, after a question, to ``masks/<image stem>.tif`` beside their images, keeping any mask already there;"
+msgstr "마스크와 함께 놓은 이미지는 그 마스크와 함께 열립니다. ``masks`` 폴더는 그대로 사용하며, 다른 마스크 파일은 확인을 거쳐 이미지 옆의 ``masks/<image stem>.tif`` 로 복사되고 이미 있는 마스크는 유지됩니다."
+
+msgid "images kept in subfolders prompt an offer to consolidate them: their images are copied into one folder, each renamed with its folder path so no name is lost, and a ``rename_manifest.csv`` records the original names;"
+msgstr "하위 폴더에 있는 이미지는 하나로 합치자는 제안을 표시합니다. 이미지는 한 폴더로 복사되고, 이름이 사라지지 않도록 각각 폴더 경로로 이름이 바뀌며, ``rename_manifest.csv`` 에 원래 이름이 기록됩니다."
+
+msgid "subfolders named like channels (DAPI, GFP, ``ch1``, ``C01``…), or several image folders, open **Organize for Measure** with a channel column per folder. Cancelling it opens the drop as an ordinary folder;"
+msgstr "채널처럼 이름 붙은 하위 폴더(DAPI, GFP, ``ch1``, ``C01``…)나 여러 이미지 폴더는 폴더마다 채널 열이 있는 **Measure용으로 정리** 를 엽니다. 취소하면 놓은 항목이 일반 폴더로 열립니다."
+
+msgid "a spaCR output folder, such as ``merged/`` or ``sorted_channels``, opens its images."
+msgstr "``merged/`` 나 ``sorted_channels`` 같은 spaCR 출력 폴더는 그 안의 이미지를 엽니다."
+
+msgid "Anything not used is listed in the console with the reason."
+msgstr "사용하지 않은 항목은 이유와 함께 콘솔에 나열됩니다."
+
+msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json``. Opening an image without editing it does not create evidence of manual curation. Existing history is retained when editing a previously curated mask. See :func:`spacr.qt.mask_engine.save_mask` and :class:`spacr.curation.CurationLog` for the file contract."
+msgstr "저장된 편집 기록은 마스크 옆에 ``<mask>.curation.json`` 으로 저장됩니다. 이미지를 열기만 하고 편집하지 않으면 수동 선별 증거가 만들어지지 않습니다. 이전에 선별한 마스크를 편집하면 기존 기록이 유지됩니다. 파일 규약은 :func:`spacr.qt.mask_engine.save_mask` 와 :class:`spacr.curation.CurationLog` 를 참조합니다."
+
+msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "저장 형식에는 양의 레이블이 최대 65,535개까지 들어갑니다. 연결된 객체가 이보다 많은 이진 마스크나 ID가 이 범위를 넘는 기존 다중 레이블 마스크는 저장이 거부되며, 너무 큰 ID를 작은 숫자로 되감지 않습니다. 저장이 거부되면 기존 TIFF나 Cellpose 번들과 그 메타데이터가 보존됩니다. 일반 모드에서는 전경값이 하나뿐인 마스크를 이진 마스크로 해석하여 연결 성분마다 별도의 ID를 부여합니다. 1차/2차 관계에는 아래에 설명한 정확한 ID 경로를 사용합니다. 이러한 서로 다른 규칙은 :func:`spacr.qt.mask_engine.canonical_labels` 를 참조합니다."
+
+msgid "Canvas tools and navigation"
+msgstr "캔버스 도구와 탐색"
+
+msgid "Tool"
+msgstr "도구"
+
+msgid "Action"
+msgstr "동작"
+
+msgid "Brush"
+msgstr "브러시"
+
+msgid "Paint disks along the pointer path using the active label."
+msgstr "활성 레이블로 포인터 경로를 따라 원판을 칠합니다."
+
+msgid "Erase"
+msgstr "지우개"
+
+msgid "Remove pixels under the brush."
+msgstr "브러시 아래의 픽셀을 제거합니다."
+
+msgid "Erase object"
+msgstr "Erase object"
+
+msgid "Remove the complete label clicked."
+msgstr "클릭한 레이블 전체를 제거합니다."
+
+msgid "Wand + / Wand −"
+msgstr "Wand + / Wand −"
+
+msgid "Flood from the clicked pixel within the chosen intensity tolerance; add or remove the resulting region."
+msgstr "클릭한 픽셀에서 선택한 강도 허용 범위 안으로 채워 나가고, 그 영역을 추가하거나 제거합니다."
+
+msgid "Draw"
+msgstr "Draw"
+
+msgid "Trace an outline and fill its interior as one object."
+msgstr "윤곽을 따라 그리고 내부를 하나의 객체로 채웁니다."
+
+msgid "Divide"
+msgstr "Divide"
+
+msgid "Draw a cut through a merged object. The larger component retains its ID; the smaller receives a new ID."
+msgstr "합쳐진 객체를 가로지르는 절단선을 그립니다. 큰 부분은 ID를 유지하고 작은 부분은 새 ID를 받습니다."
+
+msgid "Zoom"
+msgstr "확대/축소"
+
+msgid "Drag a rectangle to change the view without changing labels."
+msgstr "사각형을 끌어 레이블을 바꾸지 않고 보기를 변경합니다."
+
+msgid "Recrop"
+msgstr "Recrop"
+
+msgid "Write a cropped image/mask pair as another field, then retire the original when leaving the field after recropping."
+msgstr "잘라낸 이미지/마스크 쌍을 다른 시야로 쓰고, 다시 자른 뒤 시야를 떠날 때 원본을 치웁니다."
+
+msgid "Ruler"
+msgstr "자"
+
+msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
+msgstr "선을 끌어 이미지 픽셀 거리를 측정합니다. 자를 선택한 상태에서 마우스 오른쪽 버튼을 클릭하면 지워집니다. 확대/축소와 이동을 해도 측정이 유지됩니다."
+
+msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Shift 또는 Alt + 드래그** 로 화면을 이동합니다. 휠은 커서를 중심으로 확대/축소하며, **Esc** 는 확대/축소를 초기화합니다. **Left/Right** 는 이전/다음 시야를 선택합니다. **Ctrl+Z/Ctrl+Y** 는 편집을 실행 취소하거나 다시 실행합니다. **Ctrl + 왼쪽 클릭** 은 객체를 잘록한 부분에서 나누고, **Ctrl + 오른쪽 클릭** 은 커서 아래의 객체를 제거합니다. 보기 옆의 바로 가기 패널에는 돋보기 컨트롤을 포함한 현재 제스처가 나열됩니다."
+
+msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
+msgstr "Recrop은 파일을 만들고 시야 대기열을 바꿉니다. 자른 영역의 경계에 걸린 객체는 빠지고, 남은 객체는 새 크롭 안에서 다시 번호가 매겨집니다. 너무 작은 크롭과 거의 중복되는 크롭은 거부됩니다. 처리가 끝난 원본은 ``recropped_originals/`` 로 옮겨집니다. 전체 시야에 걸쳐 1차/2차 ID를 유지할 때는 원래 이미지와 마스크를 사용합니다. 번호가 다시 매겨진 크롭은 다른 짝짓기 맥락입니다. 정확한 제한과 경로는 :func:`spacr.qt.mask_engine.write_recrop` 에 문서화되어 있습니다."
+
+msgid "Wand tolerance and leaking regions"
+msgstr "Wand 허용 범위와 새어 나가는 영역"
+
+msgid "The Wand's relative tolerance is a fraction of the image intensity range; absolute tolerance uses the processed image's intensity units. The optional runaway detector looks for sudden widening as the flood leaves the clicked object. **Growth ratio**, **Warm-up**, **Min baseline** and **Confirmation** control how much widening is required, where checking begins, the minimum object width and how long widening must persist."
+msgstr "Wand의 상대 허용 범위는 이미지 강도 범위에 대한 비율이며, 절대 허용 범위는 처리된 이미지의 강도 단위를 사용합니다. 선택적 폭주 검출기는 채우기가 클릭한 객체를 벗어나면서 갑자기 넓어지는지 살핍니다. **성장 비율**, **Warm-up**, **Min baseline**, **Confirmation** 은 얼마나 넓어져야 하는지, 어디서 확인을 시작할지, 객체의 최소 너비, 넓어짐이 얼마나 지속되어야 하는지를 제어합니다."
+
+msgid "**Re-flood below the escape** searches for a lower tolerance whose region stays inside the object. **Search steps** controls that search's precision. **Taper onto the gradient** refines a provisional cut using the intensity boundary; smoothing, transition-band width and foreground inset determine where the edge may move. These controls help with a bright object connected to another region by a weak bridge; inspect the resulting edge when the bridge and object have similar intensity."
+msgstr "**유출 수위 아래로 다시 채우기** 는 영역이 객체 안에 머무는 더 낮은 허용 범위를 찾습니다. **검색 단계 수** 는 그 검색의 정밀도를 제어합니다. **그래디언트로 점차 전환** 는 강도 경계를 사용하여 임시 절단을 다듬으며, 평활화, 전이 대역 폭, 전경 안쪽 여백이 경계가 움직일 수 있는 범위를 정합니다. 이 컨트롤은 밝은 객체가 약한 다리로 다른 영역과 이어진 경우에 유용합니다. 다리와 객체의 강도가 비슷하면 결과 경계를 검사합니다."
+
+msgid "The Wand uses the currently applied image enhancement. If enhancement is still being calculated, wait for its completion before trying the click again. Post-detection morphology and splitting belong to detector output, not to the manual Wand gesture."
+msgstr "Wand는 현재 적용된 이미지 향상을 사용합니다. 향상이 아직 계산 중이면 끝날 때까지 기다린 뒤 다시 클릭합니다. 검출 후 형태학 처리와 분리는 검출기 출력에 속하며 수동 Wand 동작에는 적용되지 않습니다."
+
+msgid "Display, Levels and intensity units"
+msgstr "표시, 레벨, 강도 단위"
+
+msgid "**Lower %** and **Upper %** set the percentiles drawn as black and white. **Levels…** opens a full-field histogram: drag either marker or enter a black/white intensity cutoff. Changes update the percentile controls. A constant-intensity image has no range to stretch. **Reset levels** uses the full range, 0–100 percentiles."
+msgstr "**하한 %** 와 **상위 백분위수 %** 는 검은색과 흰색으로 그릴 백분위수를 설정합니다. **레벨…** 은 전체 시야의 히스토그램을 엽니다. 두 표식 중 하나를 끌거나 검은색/흰색 강도 기준값을 입력합니다. 변경 내용은 백분위수 컨트롤에 반영됩니다. 강도가 일정한 이미지에는 늘릴 범위가 없습니다. **레벨 초기화** 는 전체 범위인 0–100 백분위수를 사용합니다."
+
+msgid "With **Detect on the normalized image** off, these levels affect display. With it on, detectors use the stretched image before any applied enhancement. The normalization is computed for the whole field before extracting a magnifier crop, so moving the magnifier does not redefine the percentile levels. The setting changes future proposals; it does not modify existing labels or rewrite the loaded image."
+msgstr "**정규화된 이미지에서 검출** 이 꺼져 있으면 이 레벨은 표시에만 영향을 줍니다. 켜져 있으면 검출기는 적용된 향상보다 앞서 늘린 이미지를 사용합니다. 정규화는 돋보기 영역을 잘라내기 전에 시야 전체에 대해 계산되므로, 돋보기를 움직여도 백분위수 수준이 다시 정의되지 않습니다. 이 설정은 이후의 제안을 바꿀 뿐 기존 레이블을 수정하거나 불러온 이미지를 다시 쓰지 않습니다."
+
+msgid "**Invert image** affects both the picture and detector input. It normalizes the field to 0–1 and takes its complement, so an absolute detection threshold must be interpreted on that scale. The pixel value in the corner readout follows inversion and detection normalization; object mean intensity and the **Filter** intensity bounds use the original loaded values. Changing contrast or inversion therefore does not change the meaning of a measured object's original mean intensity."
+msgstr "**이미지 반전** 은 그림과 검출기 입력 모두에 영향을 줍니다. 시야를 0–1로 정규화하고 보수를 취하므로, 절대 검출 임계값은 그 척도에서 해석해야 합니다. 모서리 표시의 픽셀 값은 반전과 검출 정규화를 따르며, 객체 평균 강도와 **필터** 강도 범위는 처음 불러온 값을 사용합니다. 따라서 대비나 반전을 바꿔도 측정된 객체의 원래 평균 강도의 의미는 바뀌지 않습니다."
+
+msgid "**Swap object and background**, under Object operations, changes the label mask. Use it only when that label transformation is intended; it does not perform image inversion."
+msgstr "객체 작업 아래의 **객체와 배경 바꾸기** 는 레이블 마스크를 변경합니다. 그러한 레이블 변환이 의도된 경우에만 사용하며, 이미지 반전은 수행하지 않습니다."
+
+msgid "Choose a detection method"
+msgstr "검출 방법 선택"
+
+msgid "The method selector controls the detector used by the live preview and the corresponding whole-image detection action. Only applicable method controls are shown. Model methods require their model or backend; the Model Zoo indicates installation and download state."
+msgstr "방법 선택기는 실시간 미리보기와 해당 전체 이미지 검출 작업에 사용할 검출기를 제어합니다. 적용 가능한 방법 컨트롤만 표시됩니다. 모델 방법에는 해당 모델이나 백엔드가 필요하며, 모델 라이브러리에 설치 및 다운로드 상태가 표시됩니다."
+
+msgid "The **Object detection** toolbar action runs model loading, inference and postprocessing in a worker so the window remains responsive. It captures the current input and settings when started. If you switch fields or change the image or mask before it finishes, the result is discarded; run detection again on the intended field. Closing the window does not wait for that result. The Python method :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` remains synchronous and returns zero if another detection is already running."
+msgstr "도구 모음 작업 **객체 검출** 은 창이 계속 반응하도록 모델 로드, 추론, 후처리를 작업자에서 실행합니다. 시작할 때 현재 입력과 설정을 캡처합니다. 끝나기 전에 시야를 바꾸거나 이미지나 마스크를 변경하면 결과가 버려지므로, 원하는 시야에서 다시 검출을 실행합니다. 창을 닫을 때 그 결과를 기다리지 않습니다. Python 메서드 :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` 는 여전히 동기식이며, 다른 검출이 이미 실행 중이면 0을 반환합니다."
+
+msgid "CPU Cellpose inference uses float32 weights through the shared device policy. Supported GPU precision depends on the backend and device. Different precision can produce different predictions, so inspect the masks instead of assuming identical output across devices. This inference policy does not change training precision. See :func:`spacr.accelerator.cellpose_kwargs`. Live Cellpose previews also use float32 when explicitly forced to CPU or when accelerator detection falls back to CPU. A Cellpose 3 checkpoint rejected by Cellpose 4 produces a preview-specific compatibility message; choose a checkpoint supported by the installed preview runtime. See :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`."
+msgstr "CPU Cellpose 추론은 공유 장치 정책을 통해 float32 가중치를 사용합니다. GPU에서 지원되는 정밀도는 백엔드와 장치에 따라 다릅니다. 정밀도가 다르면 예측이 달라질 수 있으므로, 장치마다 출력이 같다고 가정하지 말고 마스크를 검사합니다. 이 추론 정책은 학습 정밀도를 바꾸지 않습니다. :func:`spacr.accelerator.cellpose_kwargs` 를 참조합니다. 실시간 Cellpose 미리보기도 명시적으로 CPU를 강제하거나 가속기 감지가 CPU로 대체되면 float32를 사용합니다. Cellpose 4가 거부한 Cellpose 3 체크포인트는 미리보기 전용 호환성 메시지를 표시하므로, 설치된 미리보기 런타임이 지원하는 체크포인트를 선택합니다. :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model` 을 참조합니다."
+
+msgid "Method"
+msgstr "방법"
+
+msgid "What to inspect and adjust"
+msgstr "검사하고 조정할 항목"
+
+msgid "Otsu"
+msgstr "Otsu 방법"
+
+msgid "A global threshold for foreground/background populations. Adjust correction, blur, bright/dark foreground, hole filling, touching-object splitting, border exclusion and minimum area. Local Otsu is an additional option for whole-image detection."
+msgstr "전경/배경 집단에 대한 전역 임계값입니다. 보정, 흐림, 밝은/어두운 전경, 구멍 채우기, 맞닿은 객체 분리, 경계 제외, 최소 면적을 조정합니다. Local Otsu는 전체 이미지 검출을 위한 추가 옵션입니다."
+
+msgid "Li, Yen, Triangle, IsoData, Mean, Minimum"
+msgstr "Li, Yen, Triangle, IsoData, Mean, Minimum"
+
+msgid "Alternative global levels with the shared threshold cleanup controls. Minimum can refuse a histogram without two separable peaks. An algorithm name alone does not establish accuracy on a new image."
+msgstr "공유 임계값 정리 컨트롤과 함께 쓰는 다른 전역 수준입니다. Minimum은 분리 가능한 봉우리가 두 개 없는 히스토그램을 거부할 수 있습니다. 알고리즘 이름만으로 새 이미지에서의 정확도가 보장되지는 않습니다."
+
+msgid "Multi-Otsu"
+msgstr "Multi-Otsu 방법"
+
+msgid "Choose the number of intensity classes and the foreground band."
+msgstr "강도 클래스 수와 전경 대역을 선택합니다."
+
+msgid "Sauvola, Niblack"
+msgstr "Sauvola, Niblack"
+
+msgid "Local-window statistics with window size and contrast weight ``k``. Niblack uses ``mean - k*standard_deviation``. Sauvola uses a default ``R=1`` on float input without rescaling its range; check the detector input scale when transferring settings."
+msgstr "창 크기와 대비 가중치 ``k`` 를 사용하는 국소 창 통계입니다. Niblack은 ``mean - k*standard_deviation`` 을 사용합니다. Sauvola는 부동소수점 입력에서 범위를 재조정하지 않고 기본값 ``R=1`` 을 사용하므로, 설정을 옮길 때 검출기 입력 척도를 확인합니다."
+
+msgid "Maxima + propagate"
+msgstr "극대값 + 전파"
+
+msgid "Find bright centres after Gaussian blur, then grow watershed basins using intensity and a stop rule. Centre spacing and seed level govern proposed seeds; a seed can disappear during subsequent filtering."
+msgstr "가우스 흐림 후 밝은 중심을 찾은 다음, 강도와 중지 규칙으로 워터셰드 영역을 키웁니다. 중심 간격과 시드 수준이 제안되는 시드를 결정하며, 시드는 이후 필터링에서 사라질 수 있습니다."
+
+msgid "Secondary objects from primary masks"
+msgstr "1차 마스크에서 2차 객체 생성"
+
+msgid "Grow from every pixel of each labelled primary object while retaining its ID. See the pairing walkthrough below."
+msgstr "레이블된 각 1차 객체의 모든 픽셀에서 키우며 ID를 유지합니다. 아래의 짝짓기 안내를 참조합니다."
+
+msgid "Adaptive threshold"
+msgstr "적응형 임계값"
+
+msgid "Local Gaussian-weighted threshold, offset and morphological cleanup through the irregular-organelle engine."
+msgstr "불규칙 세포소기관 엔진을 통한 국소 가우스 가중 임계값, 오프셋, 형태학적 정리입니다."
+
+msgid "LoG blobs, DoG blobs"
+msgstr "LoG blobs, DoG blobs"
+
+msgid "Spot detection over Gaussian scales. Inspect scale range, response threshold and whether spots grow by watershed rather than disk stamps."
+msgstr "가우스 척도 전반의 반점 검출입니다. 척도 범위, 반응 임계값, 반점이 원판 찍기 대신 워터셰드로 커지는지를 검사합니다."
+
+msgid "Ridge filter"
+msgstr "리지 필터"
+
+msgid "Frangi, Sato or Meijering response for network-like structures; select response scales and global or adaptive response threshold."
+msgstr "그물 형태 구조를 위한 Frangi, Sato 또는 Meijering 반응입니다. 반응 척도와 전역 또는 적응형 반응 임계값을 선택합니다."
+
+msgid "Hysteresis"
+msgstr "히스테리시스"
+
+msgid "Grow from strong response through connected weaker response. Values below 1 are interpreted as percentile fractions by this engine."
+msgstr "강한 반응에서 연결된 약한 반응을 따라 키웁니다. 이 엔진은 1 미만의 값을 백분위수 비율로 해석합니다."
+
+msgid "U-Net"
+msgstr "U-Net"
+
+msgid "Load a compatible ``.pt``/``.pth`` checkpoint and choose its sigmoid probability cutoff; optional skeletonization applies to the result."
+msgstr "호환되는 ``.pt``/``.pth`` 체크포인트를 불러오고 시그모이드 확률 기준값을 선택합니다. 선택적 골격화가 결과에 적용됩니다."
+
+msgid "Cellpose and other installed backends"
+msgstr "Cellpose 및 기타 설치된 백엔드"
+
+msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
+msgstr "해당 모델 컨트롤을 사용합니다. Cellpose는 직경, 흐름 오차 임계값, 세포 확률 임계값, 정규화를 제공합니다. 수락한 레이블과 함께 세포 확률 창과 흐름 창을 검사합니다."
+
+msgid "Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
+msgstr "일반 Otsu는 이전 방식의 돋보기 전처리 경로를 유지합니다. 잘라낸 미리보기와 전체 시야 검출이 픽셀 단위로 같다는 보장은 없습니다. 다른 임계값 모드는 요청된 크롭에서 공유 엔진을 실행하지만, 크롭의 히스토그램은 여전히 전체 시야와 다를 수 있습니다. 여러 대표 시야에서 조정하고 최종 전체 이미지 출력을 검사합니다."
+
+msgid "Enhancement before and after detection"
+msgstr "검출 전후의 향상"
+
+msgid "**Compare** previews the configured enhancement; **Apply** enables it for detection and display. The order is percentile stretch, background subtraction, optional point-spread processing, optional restoration, denoise, contrast, sharpen, detection, morphology, then split. Disabled steps leave their input unchanged. Background estimation radius should exceed the structures you want to retain. Denoising and the separate Maxima/secondary blur can compound, so check both settings."
+msgstr "**비교하기** 는 구성된 향상을 미리 보여 주고, **적용** 은 이를 검출과 표시에 사용합니다. 순서는 백분위수 늘이기, 배경 차감, 선택적 점 확산 처리, 선택적 복원, 잡음 제거, 대비, 선명화, 검출, 형태학 처리, 분리입니다. 꺼진 단계는 입력을 바꾸지 않습니다. 배경 추정 반경은 유지하려는 구조보다 커야 합니다. 잡음 제거와 별도의 Maxima/2차 흐림이 겹칠 수 있으므로 두 설정을 모두 확인합니다."
+
+msgid "Compare opens with a pending result while enhancement runs. Wait for the right-hand image before judging the effect. Normalization uses the whole field before extracting the displayed crop. If you change the field or settings, open a new comparison for that selection. **Cancel** closes the comparison; an enhancement already running finishes in the background and its abandoned result is discarded."
+msgstr "향상이 실행되는 동안 비교는 결과 대기 상태로 열립니다. 효과를 판단하기 전에 오른쪽 이미지가 나타날 때까지 기다립니다. 정규화는 표시되는 크롭을 잘라내기 전에 시야 전체를 사용합니다. 시야나 설정을 바꾸면 그 선택에 대해 새 비교를 엽니다. **취소** 는 비교를 닫으며, 이미 실행 중인 향상은 백그라운드에서 끝나고 버려진 결과는 폐기됩니다."
+
+msgid "Post-detection opening/closing and splitting modify label shapes. These steps are bypassed for paired secondary objects to retain primary IDs. Make Masks enhancement is configured separately from the batch Mask pipeline; transfer the intended preprocessing explicitly when training or running a model elsewhere. See :mod:`spacr.qt.detect_chain`."
+msgstr "검출 후 열림/닫힘 연산과 분리는 레이블 모양을 바꿉니다. 짝지어진 2차 객체에는 1차 ID를 유지하기 위해 이 단계가 적용되지 않습니다. 마스크 만들기의 향상은 일괄 마스크 파이프라인과 별도로 구성되므로, 다른 곳에서 모델을 학습하거나 실행할 때는 원하는 전처리를 명시적으로 옮깁니다. :mod:`spacr.qt.detect_chain` 을 참조합니다."
+
+msgid "For calibrated optical processing, choose **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the image pixel height and width in micrometres, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit Y/X full widths at half maximum. Use **Reload** after changing a kernel file. Compare the result before applying it; more deconvolution iterations can amplify noise. The original image intensities stay available for measurement. See :doc:`point_spread` for the complete workflow and Measure settings."
+msgstr "보정된 광학 처리를 하려면 **점 확산 함수** 아래에서 **컨볼루션 (흐림)** 또는 **디컨볼루션 (Richardson–Lucy)** 을 선택합니다. 이미지 픽셀 높이와 너비를 마이크로미터 단위로 입력한 다음, 간격이 일치하는 측정된 TIFF/NPY 커널이나 Y/X 반치전폭을 명시한 가우스 근사를 선택합니다. 커널 파일을 바꾼 뒤에는 **다시 불러오기** 를 사용합니다. 적용하기 전에 결과를 비교하며, 디컨볼루션 반복이 많을수록 잡음이 증폭될 수 있습니다. 원래 이미지 강도는 측정에 계속 사용할 수 있습니다. 전체 워크플로와 측정 설정은 :doc:`point_spread` 를 참조합니다."
+
+msgid "Restore an image with Cellpose 3"
+msgstr "Cellpose 3로 이미지 복원"
+
+msgid "Under **Image enhancement**, choose **Denoise**, **Deblur**, or **One-click restoration** in **Deep image enhancement**. The default is **Off**. If needed, select **Install Cellpose 3…** to install its separate backend environment; this does not replace spaCR's own Cellpose installation. First use may download the selected model's weights."
+msgstr "**이미지 향상** 아래의 **딥러닝 이미지 개선** 에서 **잡음 제거**, **흐림 제거** 또는 **원클릭 복원** 을 선택합니다. 기본값은 **꺼짐** 입니다. 필요하면 **Cellpose 3 설치…** 를 선택하여 별도의 백엔드 환경을 설치합니다. 이는 spaCR 자체의 Cellpose 설치를 대체하지 않습니다. 처음 사용할 때 선택한 모델의 가중치가 다운로드될 수 있습니다."
+
+msgid "Open **Restoration model settings** and choose **Cells (cyto3)**, **Cells (cyto2)**, or **Nuclei**, according to the structures in the selected intensity channel. Set their approximate diameter in pixels. This controls model rescaling, not microscope calibration. **Load / retry model** reloads the current choice. Wait for the ready message before comparing or applying it; that message identifies the device used by the isolated backend."
+msgstr "**Restoration model settings** 를 열고, 선택한 강도 채널의 구조에 따라 **세포 (cyto3)**, **세포 (cyto2)** 또는 **핵** 을 선택합니다. 대략적인 직경을 픽셀 단위로 설정합니다. 이는 현미경 보정이 아니라 모델의 배율 조정을 제어합니다. **모델 불러오기 / 다시 시도** 는 현재 선택을 다시 불러옵니다. 비교하거나 적용하기 전에 준비 완료 메시지를 기다립니다. 이 메시지에는 격리된 백엔드가 사용하는 장치가 표시됩니다."
+
+msgid "Loading and restoration run in the background. On a CPU, a whole field can take tens of seconds; a small magnifier region is quicker. Timing depends on the image, model and computer. A backend installed with supported GPU acceleration can use it, but the workflow also runs on a CPU."
+msgstr "불러오기와 복원은 백그라운드에서 실행됩니다. CPU에서는 전체 시야에 수십 초가 걸릴 수 있으며, 돋보기의 작은 영역은 더 빠릅니다. 소요 시간은 이미지, 모델, 컴퓨터에 따라 다릅니다. 지원되는 GPU 가속과 함께 설치된 백엔드는 이를 사용할 수 있지만, 워크플로는 CPU에서도 실행됩니다."
+
+msgid "Use **Compare** to inspect several representative regions before choosing **Apply**. Restoration follows background and PSF processing and precedes classical denoising and contrast adjustments. Apply feeds the restored floating-point intensities to detection and the Wand while keeping display scaling separate. The image dimensions and loaded source pixels stay unchanged; upsampling models are not offered here."
+msgstr "**적용** 을 선택하기 전에 **비교하기** 로 여러 대표 영역을 검사합니다. 복원은 배경 및 PSF 처리 뒤, 고전적 잡음 제거와 대비 조정 앞에 수행됩니다. 적용하면 복원된 부동소수점 강도가 검출과 Wand에 전달되고 표시 배율은 따로 유지됩니다. 이미지 크기와 불러온 원본 픽셀은 바뀌지 않으며, 여기서는 업샘플링 모델을 제공하지 않습니다."
+
+msgid "Restored values are normalized model output, not calibrated fluorescence; they can be negative or exceed one. Measurements retain the original intensities. A clearer-looking image does not establish recovered structure or more accurate masks, and these weights are not validated for every organelle or acquisition. Inspect the resulting masks as well as the image. Keep the saved enhancement record with the masks: it identifies the model, Cellpose version, checkpoint hash, device, diameter and processing settings. CARE and Noise2Void are not supplied as ready restoration engines."
+msgstr "복원된 값은 정규화된 모델 출력이지 보정된 형광이 아니며, 음수이거나 1을 넘을 수 있습니다. 측정에는 원래 강도가 유지됩니다. 이미지가 더 선명해 보인다고 해서 구조가 복원되었거나 마스크가 더 정확하다는 뜻은 아니며, 이 가중치가 모든 세포소기관이나 획득 조건에 대해 검증된 것도 아닙니다. 이미지뿐 아니라 결과 마스크도 검사합니다. 저장된 향상 기록을 마스크와 함께 보관합니다. 여기에는 모델, Cellpose 버전, 체크포인트 해시, 장치, 직경, 처리 설정이 기록되어 있습니다. CARE와 Noise2Void는 바로 쓸 수 있는 복원 엔진으로 제공되지 않습니다."
+
+msgid "Grow secondary objects from a primary mask"
+msgstr "1차 마스크에서 2차 객체 키우기"
+
+msgid "Open the image channel in which the secondary objects should grow, such as a cell channel, then select **Secondary objects from primary masks**."
+msgstr "2차 객체가 자랄 이미지 채널(예: 세포 채널)을 연 다음 **1차 마스크에서 2차 객체 생성** 을 선택합니다."
+
+msgid "Choose different **Primary object class** and **Secondary object class** values, for example Nucleus and Cell. Custom class names can be entered."
+msgstr "**1차 객체 클래스** 와 **2차 객체 클래스** 에 서로 다른 값을 선택합니다(예: Nucleus와 Cell). 사용자 지정 클래스 이름을 입력할 수도 있습니다."
+
+msgid "Use **File…** for a primary label mask belonging to this field, or **Folder…** for masks matched to successive image filename stems. An explicitly selected file is bound to the current field; it is not reused silently when moving to another image."
+msgstr "이 시야에 속한 1차 레이블 마스크에는 **파일...** 을, 연속된 이미지 파일 이름 어간과 대응하는 마스크에는 **폴더…** 를 사용합니다. 명시적으로 선택한 파일은 현재 시야에 묶이며, 다른 이미지로 이동할 때 조용히 재사용되지 않습니다."
+
+msgid "Wait for the primary-object count. The primary mask must match the image's height and width and contain valid nonnegative integer IDs within ``uint16`` capacity. Its path must differ from the editable output mask, including aliases. Primary data are read-only."
+msgstr "1차 객체 수가 표시될 때까지 기다립니다. 1차 마스크는 이미지의 높이 및 너비와 일치해야 하며, ``uint16`` 범위 안의 유효한 음이 아닌 정수 ID를 담아야 합니다. 그 경로는 별칭을 포함하여 편집 가능한 출력 마스크와 달라야 합니다. 1차 데이터는 읽기 전용입니다."
+
+msgid "Choose **Intensity watershed** or **Distance watershed** under Growth. Intensity follows the negative blurred image; Distance floods a flat surface outward from primary pixels. Both retain the primary labels."
+msgstr "성장 아래에서 **강도 기반 워터셰드** 또는 **거리 기반 워터셰드** 를 선택합니다. 강도 방식은 흐리게 한 이미지의 음수를 따르고, 거리 방식은 평평한 표면을 1차 픽셀에서 바깥쪽으로 채웁니다. 두 방식 모두 1차 레이블을 유지합니다."
+
+msgid "Select a stop rule and inspect the preview. A global threshold is the screen's initial secondary setting. It is useful when primary objects, such as nuclei, are dark in the secondary channel. The separate Maxima mode starts with a fraction-of-peak rule."
+msgstr "중지 규칙을 선택하고 미리보기를 검사합니다. 전역 임계값이 이 화면의 초기 2차 설정입니다. 핵 같은 1차 객체가 2차 채널에서 어두울 때 유용합니다. 별도의 Maxima 모드는 최댓값 비율 규칙으로 시작합니다."
+
+msgid "Use whole-image **Replace** when starting a new paired output. Adding to an unrelated existing mask is refused even if some numeric IDs happen to match. Clear the existing objects or replace the whole image first."
+msgstr "새 짝지어진 출력을 시작할 때는 전체 이미지 **바꾸기** 를 사용합니다. 관련 없는 기존 마스크에 추가하는 것은 일부 숫자 ID가 우연히 일치하더라도 거부됩니다. 먼저 기존 객체를 지우거나 전체 이미지를 바꿉니다."
+
+msgid "Inspect relationship diagnostics, correct errors and save. A source changed after loading or an output path that would overwrite a primary source is refused; reload the source and inspect a new preview."
+msgstr "관계 진단을 검사하고, 오류를 수정하고, 저장합니다. 불러온 뒤 변경된 소스나 1차 소스를 덮어쓰게 될 출력 경로는 거부되므로, 소스를 다시 불러오고 새 미리보기를 검사합니다."
+
+msgid "The four stop rules are **Fraction of the primary object's peak**, **A threshold algorithm's level**, **Absolute intensity** and **Percentile of the image**. Common threshold, absolute and percentile rules constrain four-connected growth paths. Fraction-of-peak trims each basin after growth; it does not constrain those paths during the flood. The fraction is a ratio of intensity, not an image quantile. Neither Growth option implements CellProfiler's Propagation algorithm."
+msgstr "네 가지 중지 규칙은 **1차 객체 최댓값의 비율**, **임계값 알고리즘의 수준**, **절대 강도**, **이미지 백분위수** 입니다. 일반적인 임계값, 절대값, 백분위수 규칙은 4-연결 성장 경로를 제한합니다. 최댓값 비율은 성장 후 각 영역을 다듬으며, 채우는 동안에는 경로를 제한하지 않습니다. 이 비율은 강도의 비이지 이미지 분위수가 아닙니다. 두 성장 옵션 모두 CellProfiler의 Propagation 알고리즘을 구현하지 않습니다."
+
+msgid "**Matched** reports IDs present in both masks; **Missing secondary** identifies primaries without a secondary label; **No primary** identifies secondary IDs without a primary; **Primary not enclosed** identifies matched secondary labels that do not fully contain their primary pixels. **Not expanded** identifies matched labels that have not grown beyond their own primary. These are relationship checks, not a claim that the cell boundary is biologically correct. Do not use consecutive relabeling to repair a pairing: it changes the association. In this mode, clicking accepts objects and dragging does not merge distinct primary IDs."
+msgstr "**대응됨** 은 두 마스크에 모두 있는 ID를 보고합니다. **2차 객체 누락** 은 2차 레이블이 없는 1차 객체를, **1차 객체 없음** 은 1차 객체가 없는 2차 ID를, **1차 객체가 포함되지 않음** 은 1차 픽셀을 완전히 포함하지 않는 대응된 2차 레이블을 식별합니다. **확장되지 않음** 은 자신의 1차 객체 밖으로 자라지 않은 대응된 레이블을 식별합니다. 이는 관계 검사이며, 세포 경계가 생물학적으로 올바르다는 주장이 아닙니다. 연속 번호 재부여로 짝짓기를 고치지 않습니다. 대응 관계가 바뀌기 때문입니다. 이 모드에서는 클릭하면 객체가 수락되며, 끌어도 서로 다른 1차 ID가 합쳐지지 않습니다."
+
+msgid "See :func:`spacr.qt.mask_engine.secondary_object_instances`, :class:`spacr.qt.secondary_masks.PrimaryMaskSource` and :class:`spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector` for label, source and diagnostic contracts."
+msgstr "레이블, 소스, 진단 규약은 :func:`spacr.qt.mask_engine.secondary_object_instances`, :class:`spacr.qt.secondary_masks.PrimaryMaskSource`, :class:`spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector` 를 참조합니다."
+
+msgid "Live magnifier, filtering and measurement"
+msgstr "실시간 돋보기, 필터링, 측정"
+
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
+msgstr "**돋보기** 를 켜거나 **M** 을 누르면 포인터 주변의 제안된 객체를 검사할 수 있습니다. 휠은 상자 배율을, **Shift + wheel** 은 상자 크기를 바꿉니다. **Ctrl+L+오른쪽 클릭** 은 상자를 잠그거나 잠금 해제합니다. 객체를 수락하기 전에 업데이트 중인 미리보기가 끝날 때까지 기다립니다."
+
+msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, dragging can join encountered pieces into one object. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
+msgstr "**추가할 객체** 는 확대 영역의 모든 객체 또는 마우스 아래의 객체만 선택합니다. 일반 모드에서는 끌면 지나가는 조각들을 하나의 객체로 합칠 수 있습니다. 전체 이미지 미리보기는 포인터 아래의 객체를 수락하며, 2차 모드는 1차 식별 정보를 합치지 않고 유지합니다."
+
+msgid "The corner readout identifies the pixel and object under the cursor. The **Filter** category starts empty: choose a property and **Add a filter** to add a row with a minimum and a maximum. Every scalar :func:`skimage.measure.regionprops` property is offered, such as area, eccentricity or solidity; intensity statistics are offered only while an intensity image is open and use the original loaded values. A blank bound is off. The list applies as you edit it and when a field opens; the log below it names each hidden object and the bound that hid it, and removing a row brings back what it hid. The same list is the ``object_filters`` setting of Mask generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object operations also offer hole filling, dilation, shrinking, relabeling and clearing; shrinking can remove thin or small objects entirely."
+msgstr "모서리 표시는 커서 아래의 픽셀과 객체를 알려 줍니다. **필터** 범주는 처음에 비어 있습니다. 속성을 선택하고 **필터 추가** 로 최솟값과 최댓값이 있는 행을 추가합니다. 면적, 이심률, 고형도 같은 모든 스칼라 :func:`skimage.measure.regionprops` 속성을 제공하며, 강도 통계는 강도 이미지가 열려 있을 때만 제공되고 처음 불러온 값을 사용합니다. 빈 경계값은 사용하지 않음을 뜻합니다. 목록은 편집하는 동안과 시야를 열 때 적용되며, 아래의 로그에는 숨겨진 각 객체와 그것을 숨긴 경계값이 표시되고, 행을 제거하면 그 행이 숨긴 객체가 다시 나타납니다. 같은 목록이 마스크 생성의 ``object_filters`` 설정입니다. :func:`spacr.qt.mask_engine.filter_properties` 를 참조합니다. 객체 작업에서는 구멍 채우기, 팽창, 축소, 레이블 번호 재부여, 지우기도 제공하며, 축소하면 가늘거나 작은 객체가 완전히 사라질 수 있습니다."
+
+msgid "Organize images and masks for Measure"
+msgstr "측정을 위해 이미지와 마스크 정리"
+
+msgid "A folder of images and standalone TIFF masks is not itself a Measure dataset. **Organize for Measure…** arranges it into the layout Measure reads. Fill its table in any of three ways, each on its own:"
+msgstr "이미지와 독립 TIFF 마스크가 든 폴더는 그 자체로는 측정 데이터 세트가 아닙니다. **Measure용으로 정리…** 는 이를 측정 모듈이 읽는 레이아웃으로 배치합니다. 표는 다음 세 가지 방법 중 하나로 채울 수 있습니다."
+
+msgid "give a **Source folder** and choose a filename convention in the **Regex** box — the same conventions as Mask generation, with a custom regex — then press **Sort by regex**. **Auto regex** proposes one and **Detect sets** pairs images into fields and shows example sets to confirm;"
+msgstr "**원본 폴더** 를 지정하고 **Regex** 상자에서 파일 이름 규칙(마스크 생성과 같은 규칙과 사용자 지정 정규식)을 선택한 다음 **정규식으로 정렬** 을 누릅니다. **정규식 자동 생성** 은 정규식을 제안하고, **세트 찾기** 는 이미지를 시야로 짝지어 확인할 예시 세트를 보여 줍니다."
+
+msgid "drop files or folders into the table's columns, one column per channel. Dropped files sort by name and are matched across columns into rows, one row per field;"
+msgstr "파일이나 폴더를 표의 열에 끌어다 놓습니다. 채널마다 열이 하나입니다. 놓은 파일은 이름순으로 정렬되고 열 사이에서 짝지어져 시야마다 한 행이 됩니다."
+
+msgid "choose **Teach me…** and answer \"Which channel is this?\" for one image at a time. spaCR learns a regex from the answers and asks again only about a name it cannot yet read."
+msgstr "**학습시키기…** 를 선택하고 이미지 하나씩 “이 채널은 무엇입니까?” 에 답합니다. spaCR은 답변에서 정규식을 학습하며, 아직 읽을 수 없는 이름에 대해서만 다시 묻습니다."
+
+msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
+msgstr "**채널 추가** 와 **마스크 추가** 로 열을 추가합니다. 각 마스크 열에는 객체 클래스(세포, 핵, 병원체 또는 세포소기관)와 그 마스크가 윤곽을 나타내는 이미지의 채널을 지정합니다. 합쳐진 폴더는 파일의 원래 이름으로 읽힙니다. 이미지가 빠진 행은 **적용** 을 막고 해결 방법을 알려 주며, RGB 이미지와 z 스택은 원본을 유지한 채 회색 평면 하나로 변환하도록 제안됩니다. **적용** 을 누르기 전에는 아무것도 옮겨지지 않습니다. 그다음 이미지가 원본 폴더 안의 ``sorted_channels/`` 로 옮겨져 채널별 폴더, 마스크, ``merged/`` 가 만들어지고, 모든 이동이 ``channel_sorting_manifest.csv`` 에 기록됩니다. 측정 모듈의 ``src`` 가 그 ``sorted_channels`` 폴더를 가리키도록 합니다. :func:`spacr.channel_sorting.build_plan` 과 :ref:`측정 입력 및 출력 <workflow-module-measure>` 을 참조합니다."
+
+msgid "Upload data"
+msgstr "데이터 업로드"
+
+msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**데이터 업로드…** 는 화면의 이미지와 그 마스크, 폴더에 있는 선별된 모든 이미지와 저장된 마스크, 또는 선택한 이미지 폴더와 마스크 폴더를 향후 모델 학습을 위해 Hugging Face의 spaCR 커뮤니티 데이터 세트로 보냅니다. 모든 이미지에는 이름과 크기가 같은 저장된 마스크가 있어야 합니다. 데이터 세트 이름을 정하고, 메모를 추가하고, 라이선스에 동의합니다. 대화 상자는 대상을 열고, 선택하고, 복사할 수 있는 링크로 보여 줍니다. 새 데이터 세트는 첫 업로드와 함께 나타나며, 각 기여는 사용 전에 검토됩니다."
+
+msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
+msgstr "헤더에서는 Cellpose 워크벤치, 전체 폴더의 마스크 생성, 모델 비교, 모델 라이브러리, 큐레이트, 나파리 브리지도 열 수 있습니다. 이들의 입력/출력 규약은 :ref:`모듈 맵 <workflow-module-make_masks>` 에서 연결됩니다."
+
+msgid "Engine parameter reference"
+msgstr "엔진 매개변수 참조"
+
+msgid "The following definitions are generated from the same parameter docstrings as the API pages. They include programmatic field names for reproducing a configuration in code. The GUI shows only the subset used by the selected method. Secondary growth has its own controls, independent of Maxima + propagate, and defaults to a global threshold in the screen."
+msgstr "다음 정의는 API 페이지와 같은 매개변수 docstring에서 생성됩니다. 코드에서 구성을 재현할 수 있도록 프로그래밍 방식의 필드 이름이 포함되어 있습니다. GUI에는 선택한 방법이 사용하는 일부만 표시됩니다. 2차 성장에는 극대값 + 전파와 독립된 자체 컨트롤이 있으며, 이 화면에서는 기본적으로 전역 임계값을 사용합니다."
+
+msgid "CPU detectors"
+msgstr "CPU 검출기"
+
+msgid "Engine settings: :class:`spacr.qt.cpu_modes.CpuParams`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "엔진 설정: :class:`spacr.qt.cpu_modes.CpuParams`. 이는 프로그래밍 방식의 기본값이며, 화면에서는 모드별 기본값을 사용하거나 현재 세션의 값을 복원할 수 있습니다."
+
+msgid "``local_k`` — default ``0.2``"
+msgstr "``local_k`` — 기본값 ``0.2``"
+
+msgid "dimensionless local contrast weight; default 0.2 for both modes. Niblack uses ``T = m - k*s``: increasing k lowers the threshold, admitting more bright pixels and fewer dark pixels. Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats without range rescaling, giving scikit-image's default ``R = 1``. Its response to k depends on the local mean m and deviation s; positive k does not guarantee rejection of a flat background."
+msgstr "무차원 국소 대비 가중치이며, 두 모드 모두 기본값은 0.2입니다. Niblack은 ``T = m - k*s`` 를 사용하므로 k를 늘리면 임계값이 낮아져 밝은 픽셀은 더 많이, 어두운 픽셀은 더 적게 받아들입니다. Sauvola는 ``T = m*(1 + k*(s/R - 1))`` 을 사용합니다. 엔진은 범위를 재조정하지 않고 부동소수점을 전달하므로 scikit-image의 기본값 ``R = 1`` 이 적용됩니다. k에 대한 반응은 국소 평균 m과 편차 s에 따라 달라지며, 양의 k가 평평한 배경의 제외를 보장하지는 않습니다."
+
+msgid "``propagate_sigma`` — default ``2.0``"
+msgstr "``propagate_sigma`` — 기본값 ``2.0``"
+
+msgid "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
+msgstr "극대값을 찾기 전의 가우스 흐림(픽셀 단위)입니다. 검출기가 이미지를 볼 때 이미 실행된 이미지 향상 체인의 잡음 제거와는 별개입니다. 객체 하나가 중심 하나를 갖게 하는 흐림은 보통 객체 경계를 측정할 때 원하는 흐림보다 훨씬 강한데, 전파는 같은 흐린 이미지에서 경계를 측정하기 때문에 이 설정이 따로 존재합니다. 시야에 잡음이 정말 많지 않다면 체인의 잡음 제거는 끕니다. 그렇지 않으면 두 흐림이 겹칩니다."
+
+msgid "``propagate_min_distance`` — default ``10``"
+msgstr "``propagate_min_distance`` — 기본값 ``10``"
+
+msgid "the smallest gap between two seeds, in pixels; about one object radius."
+msgstr "두 시드 사이의 최소 간격(픽셀)으로, 대략 객체 반지름 하나입니다."
+
+msgid "``propagate_seed_level`` — default ``90.0``"
+msgstr "``propagate_seed_level`` — 기본값 ``90.0``"
+
+msgid "how bright a maximum must be to be a seed."
+msgstr "극대값이 시드가 되려면 얼마나 밝아야 하는지입니다."
+
+msgid "``propagate_seed_percentile`` — default ``True``"
+msgstr "``propagate_seed_percentile`` — 기본값 ``True``"
+
+msgid "read the seed level as a percentile of the blurred image rather than as an absolute intensity."
+msgstr "시드 수준을 절대 강도가 아니라 흐린 이미지의 백분위수로 해석합니다."
+
+msgid "``propagate_exclude_border`` — default ``False``"
+msgstr "``propagate_exclude_border`` — 기본값 ``False``"
+
+msgid "drop seeds near the edge."
+msgstr "가장자리 근처의 시드를 제외합니다."
+
+msgid "``propagate_stop`` — default ``'seed_fraction'``"
+msgstr "``propagate_stop`` — 기본값 ``'seed_fraction'``"
+
+msgid "a key of :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`."
+msgstr ":data:`spacr.qt.mask_engine.PROPAGATE_STOPS` 의 키입니다."
+
+msgid "``propagate_stop_value`` — default ``0.4``"
+msgstr "``propagate_stop_value`` — 기본값 ``0.4``"
+
+msgid "the fraction, intensity or percentile the stop rule reads."
+msgstr "중지 규칙이 읽는 비율, 강도 또는 백분위수입니다."
+
+msgid "``propagate_stop_algorithm`` — default ``'otsu'``"
+msgstr "``propagate_stop_algorithm`` — 기본값 ``'otsu'``"
+
+msgid "which global threshold provides the floor under the ``threshold`` stop rule."
+msgstr "``threshold`` 중지 규칙에서 하한을 제공하는 전역 임계값입니다."
+
+msgid "``secondary_growth`` — default ``'intensity'``"
+msgstr "``secondary_growth`` — 기본값 ``'intensity'``"
+
+msgid "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting."
+msgstr "2차 객체를 위한 ``intensity`` 또는 ``distance`` 워터셰드입니다. 극대값 검출은 이 설정을 무시합니다."
+
+msgid "Organelle detectors"
+msgstr "세포소기관 검출기"
+
+msgid "Engine settings: :class:`spacr.qt.organelle_modes.MethodParams`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "엔진 설정: :class:`spacr.qt.organelle_modes.MethodParams`. 이는 프로그래밍 방식의 기본값이며, 화면에서는 모드별 기본값을 사용하거나 현재 세션의 값을 복원할 수 있습니다."
+
+msgid "``adaptive_block`` — default ``51``"
+msgstr "``adaptive_block`` — 기본값 ``51``"
+
+msgid "the local threshold's window, in pixels, forced odd by the engine. Read by ``adaptive`` and by ``ridge`` when its threshold is adaptive."
+msgstr "국소 임계값의 창 크기(픽셀)이며, 엔진이 홀수로 강제합니다. ``adaptive`` 와, 임계값이 적응형일 때의 ``ridge`` 가 읽습니다."
+
+msgid "``adaptive_offset`` — default ``5.0``"
+msgstr "``adaptive_offset`` — 기본값 ``5.0``"
+
+msgid "subtracted from the Gaussian-weighted local mean before the bright-foreground comparison. Increasing it lowers the threshold and admits more pixels before cleanup; a negative offset raises the threshold. Units are those of the processed detector image: smoothed image intensity for ``adaptive``, ridge response for ``ridge`` with an adaptive threshold. Default 5.0; an offset suitable for raw intensities can overwhelm a response whose values lie between 0 and 1."
+msgstr "밝은 전경과 비교하기 전에 가우스 가중 국소 평균에서 빼는 값입니다. 늘리면 임계값이 낮아져 정리 전에 더 많은 픽셀을 받아들이고, 음수 오프셋은 임계값을 높입니다. 단위는 처리된 검출기 이미지의 단위로, ``adaptive`` 에서는 평활화된 이미지 강도, 적응형 임계값을 쓰는 ``ridge`` 에서는 능선 반응입니다. 기본값은 5.0이며, 원시 강도에 맞는 오프셋은 0과 1 사이 값을 갖는 반응을 압도할 수 있습니다."
+
+msgid "``morph_radius`` — default ``3``"
+msgstr "``morph_radius`` — 기본값 ``3``"
+
+msgid "the cleanup disk, in pixels. ``adaptive`` also pre-smooths with half of it; the network branches close with half."
+msgstr "정리용 원판 반지름(픽셀)입니다. ``adaptive`` 는 그 절반으로 사전 평활화도 하며, 네트워크 분기는 절반으로 닫힘 연산을 합니다."
+
+msgid "``fill_holes`` — default ``64``"
+msgstr "``fill_holes`` — 기본값 ``64``"
+
+msgid "holes up to this area, in square pixels, are filled. ``adaptive`` only."
+msgstr "이 면적(제곱 픽셀) 이하의 구멍을 채웁니다. ``adaptive`` 전용입니다."
+
+msgid "``watershed_spots`` — default ``True``"
+msgstr "``watershed_spots`` — 기본값 ``True``"
+
+msgid "whether ``log`` and ``dog`` grow a watershed from each blob centre rather than stamping a disk."
+msgstr "``log`` 와 ``dog`` 가 원판을 찍는 대신 각 반점 중심에서 워터셰드를 키울지 여부입니다."
+
+msgid "``log_min_sigma`` — default ``1.0``"
+msgstr "``log_min_sigma`` — 기본값 ``1.0``"
+
+msgid "smallest Gaussian scale LoG searches, in pixels; a blob's radius is about sigma times root two."
+msgstr "LoG가 검색하는 가장 작은 가우스 척도(픽셀)이며, 반점 반지름은 대략 시그마에 루트 2를 곱한 값입니다."
+
+msgid "``log_max_sigma`` — default ``10.0``"
+msgstr "``log_max_sigma`` — 기본값 ``10.0``"
+
+msgid "the largest."
+msgstr "가장 큰 척도입니다."
+
+msgid "``log_num_sigma`` — default ``10``"
+msgstr "``log_num_sigma`` — 기본값 ``10``"
+
+msgid "how many scales between the two."
+msgstr "두 척도 사이의 척도 개수입니다."
+
+msgid "``log_threshold`` — default ``0.01``"
+msgstr "``log_threshold`` — 기본값 ``0.01``"
+
+msgid "the blob-response cut-off, read by ``log`` AND by ``dog``, which has no threshold of its own."
+msgstr "반점 반응 기준값으로, ``log`` 와 자체 임계값이 없는 ``dog`` 가 함께 읽습니다."
+
+msgid "``dog_sigma_low`` — default ``1.0``"
+msgstr "``dog_sigma_low`` — 기본값 ``1.0``"
+
+msgid "DoG's smallest scale, in pixels."
+msgstr "DoG의 가장 작은 척도(픽셀)입니다."
+
+msgid "``dog_sigma_high`` — default ``3.0``"
+msgstr "``dog_sigma_high`` — 기본값 ``3.0``"
+
+msgid "DoG's largest."
+msgstr "DoG의 가장 큰 척도입니다."
+
+msgid "``ridge_filter`` — default ``'frangi'``"
+msgstr "``ridge_filter`` — 기본값 ``'frangi'``"
+
+msgid "``frangi``, ``sato`` or ``meijering``."
+msgstr "``frangi``, ``sato`` 또는 ``meijering`` 입니다."
+
+msgid "``ridge_sigmas`` — default ``(1.0, 2.0, 3.0)``"
+msgstr "``ridge_sigmas`` — 기본값 ``(1.0, 2.0, 3.0)``"
+
+msgid "the filament half-widths to look for, in pixels."
+msgstr "찾을 필라멘트 반폭(픽셀)입니다."
+
+msgid "``ridge_threshold`` — default ``'otsu'``"
+msgstr "``ridge_threshold`` — 기본값 ``'otsu'``"
+
+msgid "``otsu`` or ``adaptive``, how the ridge response is cut."
+msgstr "능선 반응을 자르는 방법으로, ``otsu`` 또는 ``adaptive`` 입니다."
+
+msgid "``skeletonize`` — default ``False``"
+msgstr "``skeletonize`` — 기본값 ``False``"
+
+msgid "reduce a network to a one-pixel skeleton and label that, so area measures length rather than thickness."
+msgstr "네트워크를 1픽셀 골격으로 줄여 레이블하므로 면적이 두께가 아니라 길이를 측정합니다."
+
+msgid "``hysteresis_low`` — default ``0.2``"
+msgstr "``hysteresis_low`` — 기본값 ``0.2``"
+
+msgid "the weak level; under 1.0 it is read as a fraction and becomes that percentile of the smoothed image."
+msgstr "약한 수준입니다. 1.0 미만이면 비율로 해석되어 평활화된 이미지의 해당 백분위수가 됩니다."
+
+msgid "``hysteresis_high`` — default ``0.6``"
+msgstr "``hysteresis_high`` — 기본값 ``0.6``"
+
+msgid "the seeding level, read the same way."
+msgstr "시드 수준이며, 같은 방식으로 해석합니다."
+
+msgid "``unet_model_path`` — default ``''``"
+msgstr "``unet_model_path`` — 기본값 ``''``"
+
+msgid "the ``.pt``/``.pth`` file to load."
+msgstr "불러올 ``.pt``/``.pth`` 파일입니다."
+
+msgid "``unet_threshold`` — default ``0.5``"
+msgstr "``unet_threshold`` — 기본값 ``0.5``"
+
+msgid "the probability the sigmoid output is cut at."
+msgstr "시그모이드 출력을 자르는 확률입니다."
+
+msgid "Image enhancement"
+msgstr "이미지 향상"
+
+msgid "Engine settings: :class:`spacr.qt.detect_chain.Chain`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "엔진 설정: :class:`spacr.qt.detect_chain.Chain`. 이는 프로그래밍 방식의 기본값이며, 화면에서는 모드별 기본값을 사용하거나 현재 세션의 값을 복원할 수 있습니다."
+
+msgid "``background`` — default ``'none'``"
+msgstr "``background`` — 기본값 ``'none'``"
+
+msgid "one of :data:`BACKGROUND_METHODS`."
+msgstr ":data:`BACKGROUND_METHODS` 중 하나입니다."
+
+msgid "``background_radius`` — default ``50``"
+msgstr "``background_radius`` — 기본값 ``50``"
+
+msgid "the ball's or the top-hat disk's radius, in pixels. Set it comfortably larger than the largest object: a radius under the object size eats the objects along with the background."
+msgstr "볼 또는 톱햇 원판의 반지름(픽셀)입니다. 가장 큰 객체보다 충분히 크게 설정합니다. 객체 크기보다 작은 반지름은 배경과 함께 객체까지 깎아 냅니다."
+
+msgid "``background_scale`` — default ``0.5``"
+msgstr "``background_scale`` — 기본값 ``0.5``"
+
+msgid "the fraction of full size the background is ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what that buys and what it costs; 1.0 is scikit-image's own answer, exactly."
+msgstr "배경을 추정(ESTIMATED)할 때 사용하는 전체 크기 대비 비율로, 0.1에서 1.0 사이입니다. 얻는 이점과 비용은 :func:`background_surface` 를 참조하며, 1.0은 scikit-image 자체의 결과와 정확히 같습니다."
+
+msgid "``denoise`` — default ``'none'``"
+msgstr "``denoise`` — 기본값 ``'none'``"
+
+msgid "one of :data:`DENOISE_METHODS`."
+msgstr ":data:`DENOISE_METHODS` 중 하나입니다."
+
+msgid "``denoise_strength`` — default ``1.0``"
+msgstr "``denoise_strength`` — 기본값 ``1.0``"
+
+msgid "the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the estimated noise."
+msgstr "가우스 필터의 시그마(픽셀), 중앙값 및 양방향 필터의 원판 반지름, 또는 추정 잡음의 배수로 나타낸 비국소 평균 기준값입니다."
+
+msgid "``gamma`` — default ``1.0``"
+msgstr "``gamma`` — 기본값 ``1.0``"
+
+msgid "the exponent the intensities are raised to on 0..1. Below 1 lifts the dim end (faint objects become visible), above 1 pushes it down. 1.0 is off."
+msgstr "0..1 강도를 거듭제곱할 지수입니다. 1보다 작으면 어두운 쪽을 끌어올리고(흐린 객체가 보이게 됨), 1보다 크면 낮춥니다. 1.0은 꺼짐입니다."
+
+msgid "``clahe`` — default ``False``"
+msgstr "``clahe`` — 기본값 ``False``"
+
+msgid "contrast-limited adaptive histogram equalisation."
+msgstr "대비 제한 적응형 히스토그램 평활화입니다."
+
+msgid "``clahe_tile`` — default ``64``"
+msgstr "``clahe_tile`` — 기본값 ``64``"
+
+msgid "the side of one CLAHE tile, in pixels."
+msgstr "CLAHE 타일 한 변의 길이(픽셀)입니다."
+
+msgid "``clahe_clip`` — default ``0.01``"
+msgstr "``clahe_clip`` — 기본값 ``0.01``"
+
+msgid "CLAHE's clip limit, 0..1. Higher is more contrast and more amplified noise."
+msgstr "CLAHE의 클립 한도(0..1)입니다. 높을수록 대비가 강해지고 잡음도 더 증폭됩니다."
+
+msgid "``equalize`` — default ``False``"
+msgstr "``equalize`` — 기본값 ``False``"
+
+msgid "global histogram equalisation."
+msgstr "전역 히스토그램 평활화입니다."
+
+msgid "``sharpen`` — default ``False``"
+msgstr "``sharpen`` — 기본값 ``False``"
+
+msgid "an unsharp mask."
+msgstr "언샤프 마스크입니다."
+
+msgid "``sharpen_radius`` — default ``1.0``"
+msgstr "``sharpen_radius`` — 기본값 ``1.0``"
+
+msgid "the blur radius the mask is built from, in pixels: about the scale of the edges to sharpen."
+msgstr "마스크를 만드는 흐림 반지름(픽셀)으로, 선명하게 할 경계의 척도와 비슷합니다."
+
+msgid "``sharpen_amount`` — default ``1.0``"
+msgstr "``sharpen_amount`` — 기본값 ``1.0``"
+
+msgid "how much of the mask is added back."
+msgstr "마스크를 얼마나 다시 더할지입니다."
+
+msgid "``morphology`` — default ``'none'``"
+msgstr "``morphology`` — 기본값 ``'none'``"
+
+msgid "one of :data:`MORPHOLOGY_OPS`, applied to what was detected. ``open`` separates objects joined by a thin bridge, ``close`` joins objects broken into pieces, ``open_close`` does both in that order."
+msgstr "검출된 결과에 적용하는 :data:`MORPHOLOGY_OPS` 중 하나입니다. ``open`` 은 가는 다리로 이어진 객체를 떼어 내고, ``close`` 는 조각난 객체를 잇고, ``open_close`` 는 그 순서로 둘 다 수행합니다."
+
+msgid "``morphology_radius`` — default ``1``"
+msgstr "``morphology_radius`` — 기본값 ``1``"
+
+msgid "the disk radius, in pixels."
+msgstr "원판 반지름(픽셀)입니다."
+
+msgid "``split`` — default ``False``"
+msgstr "``split`` — 기본값 ``False``"
+
+msgid "a distance-transform watershed on what was detected, cutting an object with two centres in two. It is the Otsu mode's \"Split objects that touch\", offered to every other method."
+msgstr "검출된 결과에 거리 변환 워터셰드를 적용하여 중심이 두 개인 객체를 둘로 나눕니다. Otsu 모드의 “Split objects that touch” 를 다른 모든 방법에도 제공하는 것입니다."
+
+msgid "``psf_operation`` — default ``'none'``"
+msgstr "``psf_operation`` — 기본값 ``'none'``"
+
+msgid "``none``, ``convolve`` or ``deconvolve``. Runs after background subtraction and before denoising. Off by default."
+msgstr "``none``, ``convolve`` 또는 ``deconvolve`` 입니다. 배경 차감 뒤, 잡음 제거 전에 실행됩니다. 기본적으로 꺼져 있습니다."
+
+msgid "``psf`` — default ``None``"
+msgstr "``psf`` — 기본값 ``None``"
+
+msgid "immutable calibrated two-dimensional kernel. Required when PSF processing is enabled; missing/invalid kernels stop detection."
+msgstr "불변의 보정된 2차원 커널입니다. PSF 처리를 켜면 필수이며, 커널이 없거나 유효하지 않으면 검출이 중지됩니다."
+
+msgid "``psf_sampling_um`` — default ``(1.0, 1.0)``"
+msgstr "``psf_sampling_um`` — 기본값 ``(1.0, 1.0)``"
+
+msgid "image pixel spacing in YX order, in micrometers. Must match the kernel; no implicit resampling is performed."
+msgstr "YX 순서의 이미지 픽셀 간격(마이크로미터)입니다. 커널과 일치해야 하며, 암묵적 리샘플링은 수행되지 않습니다."
+
+msgid "``psf_iterations`` — default ``20``"
+msgstr "``psf_iterations`` — 기본값 ``20``"
+
+msgid "Richardson–Lucy iterations, 1..200."
+msgstr "Richardson–Lucy 반복 횟수(1..200)입니다."
+
+msgid "``psf_error`` — default ``''``"
+msgstr "``psf_error`` — 기본값 ``''``"
+
+msgid "actionable loading/validation error when no kernel is ready."
+msgstr "준비된 커널이 없을 때 조치할 수 있는 불러오기/검증 오류입니다."
+
+msgid "``restoration`` — default ``False``"
+msgstr "``restoration`` — 기본값 ``False``"
+
+msgid "enable isolated Cellpose 3 restoration after PSF and before classical denoising. Off by default. Run preparation on a worker."
+msgstr "PSF 뒤, 고전적 잡음 제거 전에 격리된 Cellpose 3 복원을 사용합니다. 기본적으로 꺼져 있습니다. 준비 작업은 작업자에서 실행합니다."
+
+msgid "``restoration_plan`` — default ``None``"
+msgstr "``restoration_plan`` — 기본값 ``None``"
+
+msgid "immutable loaded model identity and diameter in pixels. Model output uses normalized units, not calibrated fluorescence."
+msgstr "불변의 불러온 모델 식별 정보와 픽셀 단위 직경입니다. 모델 출력은 보정된 형광이 아니라 정규화된 단위를 사용합니다."
+
+msgid "``restoration_error`` — default ``''``"
+msgstr "``restoration_error`` — 기본값 ``''``"
+
+msgid "loading error shown instead of silently using unprocessed data when restoration was explicitly requested."
+msgstr "복원을 명시적으로 요청했을 때 처리되지 않은 데이터를 조용히 사용하는 대신 표시되는 불러오기 오류입니다."
+
+msgid "``percentile_clip`` — default ``False``"
+msgstr "``percentile_clip`` — 기본값 ``False``"
+
+msgid "clip each plane to two percentiles of its own intensities before the contrast curves, so a hot pixel or a dead one cannot define the interval the curves are drawn on. The intensities keep their units; nothing is stretched."
+msgstr "대비 곡선을 그리기 전에 각 평면을 자체 강도의 두 백분위수로 잘라, 뜨거운 픽셀이나 죽은 픽셀이 곡선이 그려질 구간을 정하지 못하게 합니다. 강도는 단위를 유지하며 늘어나지 않습니다."
+
+msgid "``percentile_low`` — default ``1.0``"
+msgstr "``percentile_low`` — 기본값 ``1.0``"
+
+msgid "the lower percentile, 0..100."
+msgstr "낮은 백분위수(0..100)입니다."
+
+msgid "``percentile_high`` — default ``99.0``"
+msgstr "``percentile_high`` — 기본값 ``99.0``"
+
+msgid "the upper percentile, 0..100, above the lower."
+msgstr "높은 백분위수(0..100)이며, 낮은 값보다 커야 합니다."
+
+msgid "``log`` — default ``False``"
+msgstr "``log`` — 기본값 ``False``"
+
+msgid "a logarithmic transform on 0..1, ``log(1 + gain·x) / log(1 + gain)``: it compresses the bright end and lifts the dim one, more strongly than a gamma below 1 does near zero."
+msgstr "0..1에 대한 로그 변환 ``log(1 + gain·x) / log(1 + gain)`` 입니다. 밝은 쪽을 압축하고 어두운 쪽을 끌어올리며, 0 근처에서는 1보다 작은 감마보다 더 강하게 작용합니다."
+
+msgid "``log_gain`` — default ``10.0``"
+msgstr "``log_gain`` — 기본값 ``10.0``"
+
+msgid "the factor the unit-interval intensities are scaled by before the logarithm. Larger compresses harder; as it goes to zero the curve goes to the identity."
+msgstr "로그를 취하기 전에 단위 구간 강도에 곱하는 배율입니다. 클수록 더 강하게 압축하며, 0에 가까워지면 곡선이 항등 함수에 가까워집니다."
+
+msgid "``sqrt`` — default ``False``"
+msgstr "``sqrt`` — 기본값 ``False``"
+
+msgid "a square root on 0..1, the curve gamma 0.5 draws, offered by name."
+msgstr "0..1에 대한 제곱근으로, 감마 0.5가 그리는 곡선을 이름으로 제공합니다."
+

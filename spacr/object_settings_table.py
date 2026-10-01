@@ -30,7 +30,9 @@ from collections import OrderedDict
 from typing import Dict, Iterable, List, Mapping, Optional, Tuple
 
 from .object_roles import organelle_index, organelle_label
-from .organelle_types import ALL_ORGANELLE_ROLES
+from .organelle_types import (ALL_ORGANELLE_ROLES, _background_switch_key,
+                              _background_switch_role,
+                              _legacy_background_switch_role)
 
 __all__ = [
     "OBJECT_ORDER",
@@ -56,12 +58,68 @@ OBJECT_ORDER: Tuple[str, ...] = (
 _PREFIXES = tuple(sorted(OBJECT_ORDER, key=len, reverse=True))
 
 
+#: Questions spelled with the object LAST (``remove_background_cell``).
+#:
+#: spaCR names the same relationship both ways round; a table that only saw
+#: ``<object>_<question>`` would leave these rows in the flat form.
+_OBJECT_LAST_QUESTIONS: Tuple[str, ...] = ("remove_background",)
+
+#: Settings that are a per-object question for ONE object and carry no
+#: object in their name: ``{key: (object, question)}``.
+_SINGLE_OBJECT_KEYS: Dict[str, Tuple[str, str]] = {
+    "adjust_cells": ("cell", "adjust_cells"),
+}
+
+#: The questions of :data:`_SINGLE_OBJECT_KEYS`, which the table keeps as a
+#: row although only one object asks them.
+_SINGLE_OBJECT_QUESTIONS = frozenset(
+    question for _obj, question in _SINGLE_OBJECT_KEYS.values())
+
+
 def _split(key: str) -> Optional[Tuple[str, str]]:
-    """``('cell', 'min_area')`` for ``'cell_min_area'``, else ``None``."""
+    """``('cell', 'min_area')`` for ``'cell_min_area'``, else ``None``.
+
+    Also ``('cell', 'remove_background')`` for ``'remove_background_cell'``
+    and ``('cell', 'adjust_cells')`` for ``'adjust_cells'``. An organelle
+    slot's switch is numbered -- ``remove_background_organelle_2`` is
+    ``('organelleb', 'remove_background')`` -- and the lettered spelling it
+    had before 2026-09-30 is still read (item 76).
+    """
+    if key in _SINGLE_OBJECT_KEYS:
+        return _SINGLE_OBJECT_KEYS[key]
+    slot = _background_switch_role(key) or _legacy_background_switch_role(key)
+    if slot is not None:
+        return slot, "remove_background"
+    for question in _OBJECT_LAST_QUESTIONS:
+        head = question + "_"
+        if key.startswith(head) and key[len(head):] in OBJECT_ORDER:
+            return key[len(head):], question
     for prefix in _PREFIXES:
         if key.startswith(prefix + "_"):
             return prefix, key[len(prefix) + 1:]
     return None
+
+
+def _settings_key(obj: str, question: str) -> str:
+    """The flat settings key one table cell stands for.
+
+    The inverse of the split: ``('cell', 'min_area')`` is ``cell_min_area``,
+    ``('cell', 'remove_background')`` is ``remove_background_cell`` and
+    ``('cell', 'adjust_cells')`` is ``adjust_cells``. An organelle slot's
+    switch is numbered: ``('organelleb', 'remove_background')`` is
+    ``remove_background_organelle_2`` (item 76, 2026-09-30).
+
+    :param obj: the object, a column of the table.
+    :param question: the row.
+    """
+    for key, pair in _SINGLE_OBJECT_KEYS.items():
+        if pair == (obj, question):
+            return key
+    if question == "remove_background" and obj in ALL_ORGANELLE_ROLES:
+        return _background_switch_key(obj)
+    if question in _OBJECT_LAST_QUESTIONS:
+        return f"{question}_{obj}"
+    return f"{obj}_{question}"
 
 
 def questions(keys: Iterable[str]) -> "List[str]":
@@ -69,6 +127,9 @@ def questions(keys: Iterable[str]) -> "List[str]":
 
     ONE ENTRY PER SHAPE, however many objects ask it. ``cell_diameter`` and
     ``nucleus_diameter`` are one question, which is the entire saving.
+
+    :param keys: flat settings names such as ``"cell_diameter"``; names that
+        do not start with a known object followed by ``_`` are skipped.
     """
     seen: "OrderedDict[str, None]" = OrderedDict()
     for key in keys:
@@ -79,7 +140,11 @@ def questions(keys: Iterable[str]) -> "List[str]":
 
 
 def families(keys: Iterable[str]) -> "Dict[str, List[str]]":
-    """``{question: [objects that ask it]}``, objects in display order."""
+    """``{question: [objects that ask it]}``, objects in display order.
+
+    :param keys: flat settings names such as ``"cell_min_area"``; names that
+        do not start with a known object followed by ``_`` are skipped.
+    """
     found: "Dict[str, set]" = {}
     for key in keys:
         split = _split(key)
@@ -92,6 +157,75 @@ def families(keys: Iterable[str]) -> "Dict[str, List[str]]":
             for question, objects in found.items()}
 
 
+#: What a filter row's question starts with: ``filter:area`` is the row of
+#: ``object_filters`` bounds on the ``area`` regionprop, one cell per object.
+_FILTER_PREFIX = "filter:"
+
+#: Between a filter cell's minimum and maximum.
+_FILTER_DASH = "\u2013"
+
+
+def _filter_text(entry) -> Optional[str]:
+    """One ``object_filters`` row as a cell: ``"200 – 5000"``, ``"200 –"``.
+
+    :param entry: a ``{'property', 'min', 'max'}`` mapping.
+    :returns: the text, or ``None`` when neither side is set.
+    """
+    low, high = entry.get("min"), entry.get("max")
+
+    def _num(value):
+        """One bound as compact text; blank for an unset bound."""
+        if value is None or (isinstance(value, str) and not value.strip()):
+            return ""
+        number = float(value)
+        return f"{number:g}"
+
+    left, right = _num(low), _num(high)
+    if not left and not right:
+        return None
+    return f"{left} {_FILTER_DASH} {right}".strip()
+
+
+def _parse_filter_text(text) -> Tuple[Optional[float], Optional[float]]:
+    """A filter cell's ``(min, max)``; blank or ``off`` is ``(None, None)``.
+
+    Accepts ``"200 – 5000"``, ``"200-5000"``, ``"200, 5000"``, ``"200 to
+    5000"``, ``"200"`` (a minimum alone) and ``"– 5000"`` (a maximum alone).
+
+    :param text: what the cell holds or the user typed.
+    :raises ValueError: when a side is not a number, or the minimum is above
+        the maximum.
+    """
+    raw = str(text if text is not None else "").strip()
+    if not raw or raw.lower() in ("off", "none", "auto"):
+        return None, None
+    for separator in (_FILTER_DASH, "\u2014", ",", " to ", ".."):
+        if separator in raw:
+            left, _sep, right = raw.partition(separator)
+            break
+    else:
+        match = re.match(r"^\s*(-?[\d.eE+]*)\s*-\s*(-?[\d.eE+]*)\s*$", raw)
+        if match and (match.group(1) or match.group(2)) and raw[0] != "-":
+            left, right = match.group(1), match.group(2)
+        elif raw.startswith("-") and raw[1:].strip() and not re.match(
+                r"^-\s*\d", raw):
+            left, right = "", raw[1:]
+        else:
+            left, right = raw, ""
+
+    def _side(value):
+        """One side of the range as a number; ``None`` when left blank."""
+        value = value.strip()
+        return float(value) if value else None
+
+    low, high = _side(left), _side(right)
+    if low is not None and high is not None and low > high:
+        raise ValueError(
+            f"The minimum {low:g} is above the maximum {high:g}, which "
+            f"would remove every object.")
+    return low, high
+
+
 def column_label(obj: str) -> str:
     """What a column header reads.
 
@@ -100,6 +234,10 @@ def column_label(obj: str) -> str:
     underscore-separated object keys and ``organelle2`` is ambiguous with
     label 2 -- an implementation constraint that has no business appearing in
     a column header.
+
+    :param obj: an object name from :data:`OBJECT_ORDER`, e.g. ``"cell"`` or
+        ``"organelleb"``. Organelle slots get their numbered label; any other
+        name has underscores turned into spaces and is capitalised.
     """
     if obj.startswith("organelle"):
         return organelle_label(obj)
@@ -118,6 +256,9 @@ def to_table(settings: Mapping[str, object]) -> "Dict[str, Dict[str, object]]":
     present as ``None``. ``cytoplasm`` has no channel, no diameter and no
     detection method because it is derived rather than found in a channel,
     and a blank cell says that where a ``None`` would read as "not set yet".
+
+    :param settings: a flat settings dict, e.g. Mask's settings; it is only
+        read.
     """
     order = {name: index for index, name in enumerate(OBJECT_ORDER)}
     table: "Dict[str, Dict[str, object]]" = OrderedDict()
@@ -151,7 +292,7 @@ def from_table(table: Mapping[str, Mapping[str, object]],
     out: "Dict[str, object]" = dict(base or {})
     for question, row in table.items():
         for obj, value in row.items():
-            out[f"{obj}_{question}"] = value
+            out[_settings_key(obj, question)] = value
     return out
 
 

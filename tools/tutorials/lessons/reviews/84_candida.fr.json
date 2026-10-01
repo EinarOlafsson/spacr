@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Candida : explorer le guide de l’organisme",
+  "description": "Parcourez le guide Candida, explorez le schéma de la levure et trouvez les workflows généraux d’analyse d’images disponibles.",
+  "objectives": [
+    "Ouvrir la page depuis Home et trouver ses principales commandes.",
+    "Identifier les entrées, actions et sorties disponibles.",
+    "Choisir l’analyse ou la référence disponible suivante."
+  ],
+  "prerequisite": "Ouvrez Home dans spaCR. Le guide ne nécessite aucun fichier d’entrée. Les tuiles d’essais propres à Candida affichent pour l’instant Coming soon.",
+  "scenes": [
+    "Depuis Home, choisissez Candida. Son guide couvre la morphologie, la filamentation, les biofilms et les interactions de la levure avec les cellules hôtes.",
+    "Lisez le panneau d’information avec les descriptions des modules à côté, et faites glisser le séparateur pour élargir le côté que vous lisez.",
+    "Le schéma de la levure bourgeonnante fonctionne comme dans les autres guides. Survolez un composant pour lire sa description, sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise la sélection.",
+    "Les tuiles d’essais propres à Candida sont marquées Coming soon pour le moment, mais vous pouvez déjà analyser vos images avec les outils généraux. Revenez à Home, segmentez-les dans Mask et mesurez-les dans Measure, en choisissant des canaux et des masques adaptés à votre espèce et à votre expérience.",
+    "Pour les détails sur les gènes et les protéines, les liens Candida Genome Database et UniProt s’ouvrent dans votre navigateur. Le guide ne demande aucun fichier d’entrée et n’écrit aucune sortie ; quand vous êtes prêt à traiter des images, suivez le tutoriel d’un module exécutable."
+  ]
+}

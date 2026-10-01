@@ -1,21 +1,33 @@
 {
-  "lesson": "74_import_images", "language": "nb",
-  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
-  "review": {"kind": "Editorial caption translation checked against English and recorded operations", "native_speaker_signoff": false, "corrections": ["Preserve prepared-copy disclosure, image identity and the scan, linking, tiling and plan limitations."]},
-  "title": "Import Images: kontroller planen før import",
-  "description": "Åpne Import Images i Import, kontroller et lite utvalg ekte mikroskopibilder før filer skrives, og lagre en plan som kan brukes igjen. Eksemplet skiller mellom opprinnelige navn som ikke støttes, og klargjorte kopier.",
-  "objectives": ["Finn Import Images i Import og skill det fra import av eksisterende målinger og masker.", "Kontroller bildeidentiteter og uavklarte deler av filnavn før prosjektet skrives.", "Velg kopier eller lenker, lagre og last inn en plan, og kontroller importen."],
-  "prerequisite": "Last først ned det ekte Mask-eksemplet. Opptaket bruker kopier av bildefeltene E01/F001 og L01/F009, hvert med fire C-kanaler. De klargjorte kopiene utelater bare A-delen rett før Z; originalene endres ikke. Dette er et spesifikt kontrollert eksempel, ikke en generell beskjed om å slette ukjente metadata.",
+  "lesson": "74_import_images",
+  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Import Images: koble bildeidentiteter og lag et prosjekt",
+  "description": "Skann bildenavn og metadata, gå gjennom den foreslåtte koblingen av brønn, synsfelt og kanal, lagre en plan og importer kopier til et prosjekt.",
+  "objectives": [
+    "Skanne mikroskopbilder og løse spørsmål om navngiving.",
+    "Velge mål, platenavn og om filer skal kopieres eller lenkes.",
+    "Lagre en gjenbrukbar plan og importere bilder for Mask."
+  ],
+  "prerequisite": "Last ned Mask-eksemplet først. Gjennomgangen bruker kopier av synsfeltene E01/F001 og L01/F009, med fire kanaler hver. De forberedte kopiene utelater den overflødige tokenen A rett før Z, men beholder identitetene for brønn, synsfelt og kanal. Behold originalene og bruk opptaksprotokollene når du tolker ukjente tokener.",
   "scenes": [
-    "Åpne Import fra kategorien Data på Home, og velg Import Images. Dette underverktøyet klargjør rå bildefiler. Import Project, Format Converter og External Masks er beslektede arbeidsflyter med egne veiledninger.",
-    "De åtte bildene våre er ekte mikroskopidata fra det nedlastbare Mask-eksemplet: ett bildefelt fra hver av to brønner med fire kanaler per felt. Vi arbeider med separate kopier og lar de nedlastede originalene være urørt.",
-    "Scan viser en uavklart opptaksdel i de opprinnelige navnene. Import forblir deaktivert, og ingenting skrives. Ikke gjett en kanaltilordning: To forskjellige kanaler deler denne opptaksverdien, så en slik tilordning ville forvrenge identitetene deres.",
-    "I dette kontrollerte eksemplet utelater de klargjorte kopiene bare den overflødige opptaksdelen. Brønn-, bildefelt- og kanalnavn beholdes. Scan viser nå åtte rader, to brønner, to feltnumre og fire kanaler. Det betyr ikke at de opprinnelige navnene ble godkjent.",
-    "Sammenlign forslaget med filnavnene før import. Read inside each file kontrollerer også innebygde aksemetadata. Sample begrenser filene som undersøkes; kontroller at forslaget omfatter bildene du vil importere. Avklar spørsmål fra opptaksloggene, ikke ved gjetting.",
-    "Velg et mål utenfor inndatamappen, og angi platenavnet. Vi slår av Link instead of copy for å lage et selvstendig prosjekt. Lenker sparer diskplass, men krever at originalene fortsatt er tilgjengelige på sine nåværende steder.",
-    "Disse eksempelfilene er ikke mosaikkfliser. Les Tiles nøye ved flisbaserte opptak: Sammensying gjenoppretter bildefelt, separate fliser endrer hva et felt betyr, og å hoppe over dem mister disse bildene. Kontroller rapporten og ubekreftede skjøter før måling.",
-    "Save plan skriver kilden og tilordningssvarene dine til en JSON-fil, ikke en sikkerhetskopi av bildene. Oppbevar den med opptaksnotatene. Den samme planen kan leses gjennom Pythons API for bildeimport.",
-    "Load plan leser kildemappen på nytt og gjenbruker lagrede svar. Kontroller det nye forslaget før import; en lagret plan garanterer ikke at et endret opptak er korrekt. Her gjenopprettes de samme åtte kontrollerte bildeidentitetene.",
-    "Trykk Import og les sammendraget. Denne kjøringen skrev åtte selvstendige bildekopier uten å hoppe over filer; innholdet samsvarer med kildene. Velg deretter prosjektet i Mask og undersøk direkteforhåndsvisningen før segmentering. Import alene lager verken masker eller målinger."
+    "Fra Home åpner du Data, velger Import og deretter Import Images. Begynn med mikroskopbildefilene du vil ordne i et prosjekt.",
+    "Bruk Mask-eksemplet i denne gjennomgangen. Velg kopier av ett synsfelt fra hver av to brønner, med fire kanaler per synsfelt. La den opprinnelige nedlastingen være uendret.",
+    "Klikk på Scan. Hvis du blir spurt hva en token i filnavnet betyr, sjekker du opptaksprotokollene før du tilordner den. Fortsett først når de foreslåtte identitetene skiller synsfelt og kanaler entydig.",
+    "Skann de forberedte eksempelkopiene. Den overflødige opptakstokenen er fjernet, mens tokenene for brønn, synsfelt og kanal er beholdt. Kontroller at forslaget viser åtte bilder, to brønner, to synsfeltnumre og fire kanaler.",
+    "Sammenlign forslaget med filnavnene. Aktiver Read inside each file når du trenger innebygde aksemetadata. Sett Sample høyt nok til å undersøke filene du skal importere.",
+    "Velg et mål utenfor inndatamappen og skriv inn platenavnet. Slå av Link instead of copy for uavhengige kopier. Lenker sparer diskplass, men krever at originalfilene forblir tilgjengelige.",
+    "For flisbaserte opptak velger du om flisene skal settes sammen, beholdes separat eller hoppes over. Gå gjennom den resulterende synsfeltorganiseringen før du måler. Disse eksempelbildene er separate synsfelt og trenger ikke settes sammen.",
+    "Klikk på Save plan for å lagre kilden og koblingsvalgene som JSON. Behold planen sammen med opptaksnotater og originalbilder.",
+    "Klikk på Load plan for å laste inn kilden og de lagrede svarene igjen. Gå gjennom det nye forslaget før du importerer, særlig når kildefilene er endret.",
+    "Klikk på Import og les sammendraget. Eksemplet gir åtte bildekopier uten overhoppede filer. Åpne det resulterende prosjektet i Mask og undersøk Live preview før du starter segmenteringen."
   ]
 }

@@ -1,28 +1,32 @@
 {
   "lesson": "49_methods_results",
-  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "pt-BR",
-  "title": "Methods & Results: criar, revisar e exportar um rascunho",
-  "description": "Abra a ferramenta integrada, use a execução real de Regression, identifique três problemas de revisão e preserve um Markdown explicitamente não revisado.",
+  "title": "Methods & Results: redigir e exportar um relatório de execução",
+  "description": "Selecione uma execução concluída, gere o relatório, revise as configurações e os resultados registrados e exporte em Markdown.",
   "objectives": [
-    "Encontrar a ferramenta em Regression e escolher as fontes da execução concluída.",
-    "Distinguir fatos registrados, padrões inferidos e linguagem sobre candidatos.",
-    "Copiar e exportar o rascunho intacto com seu registro estruturado.",
-    "Distinguir exportação e verificação numérica de aprovação científica."
+    "Selecionar o projeto, o diário de execução e a pasta de resultados correspondente.",
+    "Gerar um resumo e revisar as abas Methods, Results e Caveats.",
+    "Copiar o texto do relatório ou exportar Markdown com o resumo da execução."
   ],
-  "prerequisite": "Conclua primeiro o exemplo baixado de Regression; preserve projeto, diário e resultados guide_permutation originais. Esta aula trata de revisão e exportação, não aprova manuscrito nem corrige o aplicativo. O diário declara guide_permutation_seed=0, não uma semente global; o rascunho resolve seed=42 separadamente. Os geradores não são intercambiáveis e a semente global aplicada não foi verificada. A análise registra spaCR 1.5.0.4, mas o rascunho cita o exportador 1.5.0.5. Todos os 325 valores BH foram verificados independentemente: nenhum q<0.05, mínimo 0.2708333333333333. Efeitos/p/q de dez candidatos correspondem, sem certificar todas as contagens de guias ou hipóteses científicas. Copy sections e Export Markdown preservam texto e registro exatos; novo arquivo UNREVIEWED_methods_results.md. Entradas intactas, sem provedor, nova regressão, aprovação ou publicação. API: spacr.methods_export.build_digest, render_methods, render_results. O bloqueio anterior por exatidão científica foi preservado.",
+  "prerequisite": "Conclua antes o exemplo do Regression. Mantenha juntos a pasta do projeto, o diário de execução e os resultados guide_permutation. Revise as configurações inferidas, as versões da análise e os limiares estatísticos antes de usar o texto gerado num relatório.",
   "scenes": [
-    "Abra Regression na Home e depois a ferramenta integrada Methods and Results. Este tutorial fica sob Regression na seção de submódulos. Ele usa o exemplo real concluído na aula de Regression, não resultados inventados. Aqui o objetivo é criar, examinar e preservar um rascunho, não aprovar automaticamente um manuscrito.",
-    "Escolha a pasta do projeto, o diário daquela execução e sua pasta de resultados de regressão. Deixe Classifier vazio: estamos relatando uma regressão, não um checkpoint de classificador. Mantenha os originais intactos. Nomes semelhantes não bastam: confirme que diário e resultados descrevem a mesma execução concluída.",
-    "Clique em Build digest. Methods, Results, Caveats e Run digest são gerados sem contatar um provedor de inteligência artificial. São um ponto de partida para revisão. Aqui o texto cita a versão do exportador, enquanto o registro original indica outra versão da análise. Informe a versão que realmente produziu a análise.",
-    "Leia as ressalvas: gerar o texto com sucesso não é validá-lo. Aqui a frase genérica sobre a semente diz quarenta e dois. O diário original declara explicitamente zero para as permutações, mas não declara uma semente global. Não substitua todo quarenta e dois por zero: primeiro diferencie os geradores e sua proveniência registrada.",
-    "A aba Run digest permite examinar esses registros estruturados. Compare configurações declaradas e ambiente salvo com o texto. Um padrão inferido ao exportar não prova a execução histórica. Preserve avisos e questões pendentes, inclusive informações ausentes de controle de qualidade; a falta de relatório não prova que o controle foi aprovado.",
-    "A tabela de genes salva contém trezentos e vinte e cinco testes, nenhum significativo no limiar q de zero vírgula zero cinco. O menor q é aproximadamente zero vírgula vinte e sete. Portanto, o título strongest hits é enganoso aqui: são candidatos ordenados, não descobertas. Confira toda a família corrigida, não apenas as primeiras linhas atraentes.",
-    "Copy sections copia juntos Methods e Results exibidos. Não corrige a redação, certifica os números nem inclui o apêndice estruturado. Preserve uma cópia intacta antes de revisões documentadas separadamente. Resolva com os registros de origem as questões de semente, versão e linguagem sobre candidatos antes de usar o texto em um relatório.",
-    "Export Markdown salva ambas as seções e o registro da execução como apêndice. Escolha um nome novo, aqui marcado explicitamente como não revisado. A ação real Save cria o arquivo; nossa verificação confirma que texto e registro estruturado correspondem à tela. Exportar corretamente não é aprovação científica.",
-    "Draft with AI é opcional e não é usado nesta gravação. Envia o registro ao provedor configurado: revise antes conteúdo e privacidade. Uma checagem numérica não decide se uma frase tem o significado correto. Python oferece build_digest, render_methods e render_results para o mesmo fluxo, com a mesma necessidade de revisão."
+    "Na tela Home, abra Regression e depois Methods and Results. Use esta ferramenta para redigir um relatório a partir de uma análise concluída. Este passo a passo continua com a execução salva do exemplo do Regression.",
+    "Escolha a pasta do projeto, o diário de execução e a pasta de resultados de regressão correspondente. Deixe Classifier vazio neste exemplo de regressão. Confirme que todos os arquivos selecionados pertencem à execução que você quer descrever.",
+    "Clique em Build digest e leia as abas Methods e Results. Compare a versão da análise com o ambiente de execução salvo; a versão do exportador pode ser diferente da que fez a análise.",
+    "Leia Caveats e compare pelo nome as entradas de sementes com as configurações salvas. Uma semente de permutação e uma semente global se referem a geradores diferentes. Deixe como desconhecida uma semente histórica não registrada ao editar o relatório.",
+    "Abra Run digest para inspecionar as configurações estruturadas e os registros de origem. Compare-os com o texto e revise os avisos sobre relatórios ausentes ou padrões inferidos antes de compartilhar o rascunho.",
+    "Em Results, inspecione juntos os tamanhos de efeito e os valores q corrigidos. Este exemplo não tem genes abaixo de um limiar de valor q de zero vírgula zero cinco. Descreva as linhas listadas como candidatos ordenados ao editar um título que as chame de hits.",
+    "Clique em Copy sections para copiar os Methods e Results exibidos. Confira o texto copiado com os registros de origem. Use Export Markdown quando também precisar do resumo estruturado da execução.",
+    "Clique em Export Markdown e escolha um nome de arquivo novo. O arquivo contém as duas seções do relatório e o resumo da execução como apêndice. Guarde um rascunho original e salve suas revisões separadamente.",
+    "Draft with AI é opcional e envia o resumo para o provedor configurado. Revise o conteúdo antes de usar essa opção e depois confira qualquer texto gerado com a análise salva. Você também pode usar build_digest, render_methods e render_results pelo Python."
   ]
 }

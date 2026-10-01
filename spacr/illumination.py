@@ -125,6 +125,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import tempfile
 import time
 from dataclasses import dataclass
@@ -249,6 +250,9 @@ class IlluminationField:
     :param floored: pixels the fitted surface had to be floored at (see
         :data:`FLAT_FLOOR_FRACTION`). Non-zero means the fit went negative
         somewhere and the estimate should be looked at before it is trusted.
+    :param darkfield: optional ``(C, Y, X)`` spatial background subtracted on
+        top of ``dark``. Only a vendor profile that ships its own background
+        surface carries one; an estimated field never does.
     """
 
     plate: str
@@ -260,6 +264,7 @@ class IlluminationField:
     degree: int
     bin_size: int
     floored: int = 0
+    darkfield: Optional[np.ndarray] = None
 
     @property
     def shape(self) -> Tuple[int, int]:
@@ -305,6 +310,22 @@ class IlluminationField:
         """
         return np.asarray([self.dark[self.index_of(c)] for c in channels],
                           dtype=np.float32)
+
+    def _offset_stack(self, channels: Sequence[int]) -> np.ndarray:
+        """The offsets to subtract: ``(C,)`` scalars, or ``(Y, X, C)`` planes.
+
+        A field with a spatial :attr:`darkfield` returns the scalar dark plus
+        that surface per channel; any other returns :meth:`dark_stack`.
+
+        :param channels: source channel indices in the order required by the
+            array being corrected.
+        """
+        scalars = self.dark_stack(channels)
+        if self.darkfield is None:
+            return scalars
+        planes = [self.darkfield[self.index_of(c)] for c in channels]
+        return (np.stack(planes, axis=-1).astype(np.float32, copy=False)
+                + scalars)
 
     def nonuniformity(self) -> Dict[int, float]:
         """Per channel, ``(p98 - p2) / mean`` of the field, as a fraction.
@@ -411,6 +432,9 @@ class IlluminationModel:
                 'key': key,
             }
             arrays[slot] = np.asarray(item.flatfield, dtype=np.float32)
+            if item.darkfield is not None:
+                arrays[f'{slot}_dark'] = np.asarray(item.darkfield,
+                                                    dtype=np.float32)
         payload = {'index': index, 'meta': self.meta, 'format': 1}
         np.savez_compressed(path, manifest=np.asarray(json.dumps(payload)),
                             **arrays)
@@ -436,6 +460,9 @@ class IlluminationModel:
                 fields = {}
                 for slot, entry in payload['index'].items():
                     flat = np.asarray(handle[slot], dtype=np.float32)
+                    darkfield = (np.asarray(handle[f'{slot}_dark'],
+                                            dtype=np.float32)
+                                 if f'{slot}_dark' in handle.files else None)
                     fields[entry['key']] = IlluminationField(
                         plate=entry['plate'],
                         channels=tuple(int(c) for c in entry['channels']),
@@ -445,7 +472,8 @@ class IlluminationModel:
                         estimator=str(entry['estimator']),
                         degree=int(entry['degree']),
                         bin_size=int(entry['bin_size']),
-                        floored=int(entry.get('floored', 0)))
+                        floored=int(entry.get('floored', 0)),
+                        darkfield=darkfield)
         except IlluminationError:
             raise
         except Exception as exc:
@@ -829,6 +857,332 @@ def estimate_illumination(src, channels: Sequence[int], *,
 
 
 
+_VENDOR_IMAGE_SUFFIXES = ('.tif', '.tiff', '.npy', '.czi')
+
+
+def _lenient_profile_json(text: str) -> Dict[str, Any]:
+    """Parse one Harmony ``FlatfieldProfile`` blob.
+
+    Harmony writes the profile as JSON in some versions and as a JSON-like
+    map with bare keys and bare words in others. Strict JSON is tried first;
+    otherwise bare keys and bare-word values are quoted and it is read again.
+
+    :param text: the element text.
+    :returns: the parsed map.
+    :raises IlluminationError: when neither form parses.
+    """
+    import re
+
+    text = str(text or '').strip()
+    try:
+        return json.loads(text)
+    except ValueError:
+        pass
+    quoted = text.replace("'", '"')
+    quoted = re.sub(r'([{,]\s*)([A-Za-z_][\w ]*?)\s*:', r'\1"\2":', quoted)
+
+    def _value(match):
+        """Quote a bare profile value while preserving JSON booleans and null."""
+        word = match.group(2).strip()
+        if word in ('true', 'false', 'null'):
+            return match.group(0)
+        return f'{match.group(1)}"{word}"'
+
+    quoted = re.sub(r'(:\s*)([A-Za-z_][^,}\]"]*?)\s*(?=[,}])', _value, quoted)
+    quoted = re.sub(r':\s*(?=[,}])', ': ""', quoted)
+    try:
+        return json.loads(quoted)
+    except ValueError as exc:
+        raise IlluminationError(
+            f"a Harmony FlatfieldProfile could not be parsed: {exc}. The "
+            f"profile starts {text[:80]!r}.") from exc
+
+
+def _harmony_surface(profile: Any) -> Optional[np.ndarray]:
+    """Evaluate one Harmony polynomial profile on its pixel grid.
+
+    Harmony stores each surface as ``Coefficients`` grouped by total degree,
+    ``Dims`` (width, height), ``Origin`` (x, y) and ``Scale`` (x, y). With
+    ``x = (column - Origin[0]) * Scale[0]`` and
+    ``y = (row - Origin[1]) * Scale[1]`` the surface is
+    ``sum_i sum_j Coefficients[i][j] * x**(i - j) * y**j``.
+
+    :param profile: the ``Foreground`` or ``Background`` entry.
+    :returns: ``(height, width)`` float64 surface, or None when the entry
+        carries no polynomial (Harmony's "no correction" state).
+    :raises IlluminationError: for a profile type other than polynomial.
+    """
+    inner = profile.get('Profile') if isinstance(profile, Mapping) else None
+    if not isinstance(inner, Mapping) or not inner.get('Coefficients'):
+        return None
+    kind = str(inner.get('Type', 'Polynomial'))
+    if kind.lower() != 'polynomial':
+        raise IlluminationError(
+            f"Harmony flat-field profile type {kind!r} is not supported; "
+            f"only polynomial profiles can be evaluated.")
+    width, height = (int(v) for v in inner['Dims'])
+    origin = [float(v) for v in inner.get('Origin', (0.0, 0.0))]
+    scale = [float(v) for v in inner.get('Scale', (1.0, 1.0))]
+    x = (np.arange(width, dtype=np.float64) - origin[0]) * scale[0]
+    y = (np.arange(height, dtype=np.float64) - origin[1]) * scale[1]
+    xx, yy = np.meshgrid(x, y)
+    surface = np.zeros((height, width), dtype=np.float64)
+    for degree, row in enumerate(inner['Coefficients']):
+        for power, coefficient in enumerate(row):
+            surface += float(coefficient) * xx ** (degree - power) * yy ** power
+    return surface
+
+
+def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
+    """Every channel's flat-field profile in a Harmony XML file.
+
+    Reads any element whose tag ends in ``FlatfieldProfile`` -- the entries
+    of an Operetta or Opera Phenix ``Index.idx.xml`` / ``Index.xml`` export,
+    or of a saved FFC profile file.
+
+    :param path: the XML file.
+    :returns: Harmony channel number -> ``{'foreground', 'background',
+        'degree', 'name'}``, the surfaces evaluated.
+    :raises IlluminationError: when the file holds no profile.
+    """
+    import xml.etree.ElementTree as ElementTree
+
+    try:
+        root = ElementTree.parse(path).getroot()
+    except (OSError, ElementTree.ParseError) as exc:
+        raise IlluminationError(
+            f"vendor flat-field profile {path!r} could not be read as XML: "
+            f"{exc}") from exc
+    parents = {child: parent for parent in root.iter() for child in parent}
+    profiles: Dict[int, Dict[str, Any]] = {}
+    for element in root.iter():
+        if not str(element.tag).endswith('FlatfieldProfile'):
+            continue
+        blob = _lenient_profile_json(element.text)
+        owner = parents.get(element)
+        channel = blob.get('Channel')
+        if channel is None and owner is not None:
+            channel = owner.get('ChannelID')
+        if channel is None:
+            channel = len(profiles) + 1
+        foreground = _harmony_surface(blob.get('Foreground'))
+        if foreground is None:
+            continue
+        coefficients = blob['Foreground']['Profile']['Coefficients']
+        profiles[int(channel)] = {
+            'foreground': foreground,
+            'background': _harmony_surface(blob.get('Background')),
+            'degree': max(len(coefficients) - 1, 0),
+            'name': str(blob.get('ChannelName', '') or ''),
+        }
+    if not profiles:
+        raise IlluminationError(
+            f"{path!r} contains no Harmony FlatfieldProfile with a "
+            f"foreground polynomial. Point illumination_vendor_profile at the "
+            f"export's Index.idx.xml (or Index.xml), or at a saved FFC "
+            f"profile file.")
+    return profiles
+
+
+def _vendor_reference_image(path: str) -> np.ndarray:
+    """Read a vendor shading reference image as ``(C, Y, X)`` float64.
+
+    A ZEN shading reference, or a Nikon or Olympus flat-field image, exported
+    as ``.tif``/``.tiff``/``.czi``, or saved as ``.npy``. A 2-D image is one
+    plane.
+
+    :param path: the image.
+    :raises IlluminationError: when it cannot be read or is not 2-D or 3-D
+        once singleton axes are dropped.
+    """
+    suffix = os.path.splitext(path)[1].lower()
+    try:
+        if suffix == '.npy':
+            image = np.load(path, allow_pickle=False)
+        elif suffix == '.czi':
+            import czifile
+            image = czifile.imread(path)
+        else:
+            import tifffile
+            image = tifffile.imread(path)
+    except ImportError as exc:
+        raise IlluminationError(
+            f"reading {path!r} needs {exc.name}; install it with "
+            f"'pip install {exc.name}'.") from exc
+    except Exception as exc:
+        raise IlluminationError(
+            f"vendor shading reference {path!r} could not be read: "
+            f"{type(exc).__name__}: {exc}") from exc
+    image = np.squeeze(np.asarray(image, dtype=np.float64))
+    if image.ndim == 2:
+        image = image[np.newaxis]
+    if image.ndim != 3:
+        raise IlluminationError(
+            f"vendor shading reference {path!r} has shape {image.shape}; "
+            f"expected one plane (Y, X) or one plane per channel (C, Y, X).")
+    return image
+
+
+def _parse_vendor_channel_map(value: str, channels: Sequence[int]) -> Dict[int, int]:
+    """Parse an explicit intensity-axis to vendor-profile assignment.
+
+    :param value: comma-separated zero-based:one-based channel pairs, or blank.
+    :param channels: persisted intensity-axis positions being corrected.
+    :returns: integer mapping, or an empty dict for the legacy default order.
+    :raises IlluminationError: for malformed, duplicated or incomplete pairs.
+    """
+    text = str(value or '').strip()
+    if not text:
+        return {}
+    mapping = {}
+    for pair in text.split(','):
+        match = re.fullmatch(r'\s*(\d+)\s*:\s*(\d+)\s*', pair)
+        if match is None:
+            raise IlluminationError(
+                "illumination_vendor_channel_map must use comma-separated "
+                "zero-based intensity:one-based vendor pairs, for example 0:2,1:1.")
+        channel, vendor = (int(value) for value in match.groups())
+        if vendor < 1 or channel in mapping:
+            raise IlluminationError(
+                "illumination_vendor_channel_map needs one assignment per intensity "
+                "channel and vendor channel/plane numbers starting at 1.")
+        mapping[channel] = vendor
+    missing = sorted(set(int(channel) for channel in channels) - set(mapping))
+    if missing:
+        raise IlluminationError(
+            "illumination_vendor_channel_map does not cover corrected intensity "
+            f"channel(s) {missing}; add an explicit assignment for each.")
+    return mapping
+
+
+def _vendor_illumination(path: str, channels: Sequence[int], *,
+                         dark: float = 0.0,
+                         channel_map: str = '',
+                         verbose: bool = True) -> IlluminationModel:
+    """Build an :class:`IlluminationModel` from a vendor flat-field file.
+
+    Two kinds of file are read:
+
+    * **Harmony XML** (PerkinElmer/Revvity Operetta and Opera Phenix). Merged
+      channel ``c`` takes Harmony channel ``c + 1``, the order Harmony's
+      ``-ch1``, ``-ch2`` file names merge in. The foreground polynomial is the
+      gain and the background polynomial the spatial offset, both kept at
+      Harmony's own scale, so ``(observed - background) / foreground`` is
+      exactly what Harmony applies. ``dark`` is added to the background.
+    * **A shading reference image** (ZEN shading reference, Nikon or Olympus
+      flat-field image). Plane ``c`` is merged channel ``c``; a single plane
+      serves every channel. Each plane has ``dark`` subtracted and is
+      normalised to mean 1, like an estimated field.
+
+    One field covers every plate, because a vendor profile describes the
+    instrument rather than any one plate.
+
+    :param path: the vendor file.
+    :param channels: merged-stack channel indices to correct.
+    :param dark: camera offset in raw counts.
+    :param channel_map: optional comma-separated intensity:vendor pairs, e.g.
+        ``0:2,1:1``. Intensity positions are zero-based, Harmony IDs and image
+        planes one-based. Every corrected channel must be covered; entries
+        for other intensity channels may be retained when selecting a subset.
+        Blank keeps the existing channel order and single-plane broadcasting.
+    :param verbose: print the resulting field's description.
+    :returns: model with resolved channel mapping in its saved metadata.
+    :raises IlluminationError: when the file does not cover a channel, or a
+        plane cannot be inverted.
+    """
+    path = os.path.abspath(str(path))
+    if not os.path.isfile(path):
+        raise IlluminationError(
+            f"vendor flat-field profile {path!r} does not exist.")
+    channels = [int(c) for c in channels]
+    if not channels:
+        raise IlluminationError(
+            'a vendor flat-field profile needs at least one channel to apply '
+            'to; settings["channels"] is empty.')
+    explicit_mapping = _parse_vendor_channel_map(channel_map, channels)
+    resolved_mapping = {c: explicit_mapping.get(c, c + 1) for c in channels}
+    suffix = os.path.splitext(path)[1].lower()
+    darkfield = None
+    if suffix == '.xml':
+        profiles = _harmony_profiles(path)
+        missing = [c for c in channels if resolved_mapping[c] not in profiles]
+        if missing:
+            raise IlluminationError(
+                f"{path!r} has Harmony profiles for channels "
+                f"{sorted(profiles)} (1-based), but merged channel(s) "
+                f"{missing} need Harmony channel(s) "
+                f"{[resolved_mapping[c] for c in missing]}.")
+        planes = [profiles[resolved_mapping[c]]['foreground'] for c in channels]
+        backgrounds = [profiles[resolved_mapping[c]]['background'] for c in channels]
+        estimator = 'harmony'
+        degree = max(profiles[resolved_mapping[c]]['degree'] for c in channels)
+    elif suffix in _VENDOR_IMAGE_SUFFIXES:
+        image = _vendor_reference_image(path)
+        if image.shape[0] == 1 and not explicit_mapping:
+            resolved_mapping = {c: 1 for c in channels}
+            planes = [image[0] - float(dark) for _ in channels]
+        else:
+            missing = [c for c in channels
+                       if not 1 <= resolved_mapping[c] <= image.shape[0]]
+            if missing:
+                raise IlluminationError(
+                    f"{path!r} has {image.shape[0]} plane(s), but merged "
+                    f"channel(s) {missing} request vendor plane(s) "
+                    f"{[resolved_mapping[c] for c in missing]} (1-based).")
+            planes = [image[resolved_mapping[c] - 1] - float(dark) for c in channels]
+        planes = [plane / max(float(plane.mean()), 1e-12) for plane in planes]
+        estimator = 'vendor image'
+        degree = 0
+    else:
+        raise IlluminationError(
+            f"{path!r} is not a vendor flat-field file spaCR reads: use a "
+            f"Harmony .xml, or a shading reference image "
+            f"({', '.join(_VENDOR_IMAGE_SUFFIXES)}).")
+    shapes = {plane.shape for plane in planes}
+    if len(shapes) != 1:
+        raise IlluminationError(
+            f"the profiles in {path!r} differ in size between channels "
+            f"({sorted(shapes)}); one correction cannot cover them all.")
+    if suffix == '.xml' and any(b is not None for b in backgrounds):
+        darkfield = np.stack(
+            [np.zeros_like(planes[i]) if b is None else b
+             for i, b in enumerate(backgrounds)]).astype(np.float32)
+    flatfield = np.stack(planes).astype(np.float32)
+    low = float(flatfield.min())
+    if not np.isfinite(low) or low <= 0:
+        raise IlluminationError(
+            f"the vendor flat field in {path!r} reaches {low!r}; a gain map "
+            f"that is not strictly positive cannot be inverted.")
+    item = IlluminationField(
+        plate=ALL_PLATES,
+        channels=tuple(channels),
+        flatfield=flatfield,
+        dark=np.full(len(channels), float(dark), dtype=np.float32),
+        n_fields=0,
+        estimator=estimator,
+        degree=int(degree),
+        bin_size=1,
+        darkfield=darkfield)
+    if verbose:
+        print(f"illumination field read from vendor profile {path}")
+        print(item.describe())
+    meta = {
+        'vendor_profile': path,
+        'vendor_channel_map': {str(c): resolved_mapping[c] for c in channels},
+        'vendor_channel_map_explicit': bool(explicit_mapping),
+        'channels': channels,
+        'per_plate': False,
+        'estimator': estimator,
+        'degree': int(degree),
+        'dark': float(dark),
+        'created': time.strftime('%Y-%m-%d %H:%M:%S'),
+        'application_contract_version': 1,
+        'channel_index_space': 'persisted-intensity-axis',
+        'estimated_from_intensity_state': 'raw',
+    }
+    return IlluminationModel(fields={ALL_PLATES: item}, meta=meta)
+
+
 class IlluminationCorrector:
     """The preprocessing hook that applies an :class:`IlluminationModel`.
 
@@ -928,7 +1282,7 @@ class IlluminationCorrector:
         key = (item.plate, tuple(int(c) for c in channels))
         cached = self._cache.get(key)
         if cached is None:
-            cached = (item.gain_stack(channels), item.dark_stack(channels))
+            cached = (item.gain_stack(channels), item._offset_stack(channels))
             self._cache[key] = cached
         return cached
 
@@ -1187,6 +1541,15 @@ def validate_segmentation_illumination_resume(
     covers exactly the fields already on disk.  This function never fits a
     model, creates a record, corrects pixels, or updates the run journal.
 
+    :param prepared: the loaded model and corrector whose model path and digest
+        the record must name.
+    :param provenance_path: path of the prior segmentation application record
+        (JSON) to read.
+    :param pipeline_style: segmentation pipeline style the record must match,
+        ``'v1'`` or ``'v2'`` (case-insensitive).
+    :param expected_fields: identifiers of the mask fields already on disk; the
+        record's completed-field set, compared as strings, must equal them
+        exactly.
     :returns: the validated existing application record.
     :raises IlluminationError: for an absent or incompatible record, model,
         pipeline style, or completed-field set.
@@ -1224,6 +1587,17 @@ def load_segmentation_illumination_resume(
     trust existing normalised mask NPZ files.  No model is fitted, no QC or
     application record is written, no pixels are corrected, and no Measure
     hook is installed.
+
+    :param settings: run settings; ``illumination_correction`` must be true,
+        and ``illumination_model`` (when set), ``illumination_on_missing`` and
+        ``verbose`` are read.
+    :param provenance_path: path of the prior segmentation application record
+        (JSON); its ``model_path`` is resolved relative to this file's folder
+        when not absolute.
+    :param pipeline_style: segmentation pipeline style, ``'v1'`` or ``'v2'``
+        (case-insensitive); any other value raises :class:`IlluminationError`.
+    :param expected_fields: identifiers of the mask fields already on disk; the
+        record's completed-field set must equal them exactly.
     """
     if not settings.get('illumination_correction', False):
         raise IlluminationError(
@@ -1425,7 +1799,18 @@ class SegmentationIlluminationSession:
 
     def correct(self, field_id: str, channel_arrays: np.ndarray,
                 context) -> np.ndarray:
-        """Correct a private copy of one raw field, refusing a second pass."""
+        """Correct a private copy of one raw field, refusing a second pass.
+
+        :param field_id: identifier of the raw field, compared as a string; a
+            field already corrected or marked complete raises
+            :class:`IlluminationError`.
+        :param channel_arrays: raw field intensities, ``(Y, X, C)`` or
+            ``(Z, Y, X, C)``; a copy is corrected and the input is left
+            unchanged.
+        :param context: the :class:`spacr.measure_hooks.PreprocessingContext`
+            passed to the prepared corrector; its file name selects the plate's
+            model.
+        """
         field_id = str(field_id)
         if (field_id in self._applied_fields or
                 field_id in self._completed_fields):
@@ -1452,6 +1837,9 @@ class SegmentationIlluminationSession:
     def mark_completed(self, field_id: str) -> bool:
         """Persist ``field_id`` after its corrected pipeline output is durable.
 
+        :param field_id: identifier of a field already passed to
+            :meth:`correct`, compared as a string; an uncorrected field raises
+            :class:`IlluminationError`.
         :returns: ``True`` when the record changed, ``False`` when the same
             completed field was marked again.
         """
@@ -1471,7 +1859,12 @@ class SegmentationIlluminationSession:
         return True
 
     def finish(self, expected_fields: Iterable[str]) -> None:
-        """Mark the journal stage done after every expected field is durable."""
+        """Mark the journal stage done after every expected field is durable.
+
+        :param expected_fields: identifiers of every field the run should have
+            completed; the set, compared as strings, must equal the completed
+            set exactly or :class:`IlluminationError` is raised.
+        """
         expected = {str(field_id) for field_id in expected_fields}
         if expected != self._completed_fields:
             missing = sorted(expected - self._completed_fields)
@@ -1978,12 +2371,16 @@ def prepare_illumination_model(
         verbose: Optional[bool] = None) -> Optional[PreparedIllumination]:
     """Prepare one reusable optical model without installing a Measure hook.
 
-    This is the direct consumer of all nine ``illumination_*`` settings.  It
-    estimates or loads the model once, ensures a fitted model is saved, hashes
+    This is the direct consumer of the ``illumination_*`` settings.  It
+    estimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes
     the exact saved bytes, optionally writes stage-labelled QC, and builds a
     corrector.  Applying that corrector belongs to the caller's stage.
 
-    :param settings: settings carrying the nine illumination controls.
+    :param settings: settings carrying the illumination controls. A
+        non-empty ``illumination_vendor_profile`` replaces the estimate with
+        the vendor's own flat field; ``illumination_vendor_channel_map``
+        optionally assigns persisted channels to vendor channels/planes.
+        ``illumination_model`` still wins over both.
     :param src: optional raw field folder override. Defaults to ``settings['src']``.
     :param channels: optional persisted intensity-axis positions. Defaults to
         ``settings['channels']``.
@@ -2009,9 +2406,17 @@ def prepare_illumination_model(
     folder = os.path.join(
         os.path.dirname(_source_folders(source)[0]), 'illumination')
     existing = str(settings.get('illumination_model', '') or '').strip()
+    vendor = str(settings.get('illumination_vendor_profile', '') or '').strip()
     if existing:
         model = IlluminationModel.load(existing)
         model_path = os.path.abspath(existing)
+    elif vendor:
+        model = _vendor_illumination(
+            vendor, wanted,
+            dark=float(settings.get('illumination_dark', 0.0)),
+            channel_map=settings.get('illumination_vendor_channel_map', ''),
+            verbose=talk)
+        model_path = os.path.join(folder, 'illumination_model.npz')
     else:
         model = estimate_illumination(
             source,
@@ -2067,7 +2472,8 @@ def prepare_illumination_correction(settings: Mapping[str, Any], *,
         ``illumination_estimator``, ``illumination_degree``,
         ``illumination_per_plate``, ``illumination_max_fields``,
         ``illumination_dark``, ``illumination_on_missing``,
-        ``illumination_qc``, plus ``src`` and ``channels``.
+        ``illumination_qc``, ``illumination_vendor_profile``,
+        ``illumination_vendor_channel_map``, plus ``src`` and ``channels``.
     :param verbose: overrides ``settings['verbose']``.
     :returns: the :class:`IlluminationModel` that was enabled, or None.
     """
@@ -2095,6 +2501,12 @@ def prepare_segmentation_illumination(
     segmentation output exists.  The application record is stored beside the
     current run's source folder, even when the optical model is shared from an
     external path, so two runs cannot overwrite one another's completion set.
+
+    :param settings: run settings carrying the illumination controls read by
+        :func:`prepare_illumination_model`, and ``src`` when ``src`` is not
+        given.
+    :param pipeline_style: segmentation pipeline style, ``'v1'`` or ``'v2'``
+        (case-insensitive); any other value raises :class:`IlluminationError`.
     """
     prepared = prepare_illumination_model(
         settings, src=src, channels=channels,
@@ -2132,6 +2544,8 @@ def illumination_settings(settings=None):
     settings.setdefault('illumination_dark', 0.0)
     settings.setdefault('illumination_on_missing', 'error')
     settings.setdefault('illumination_qc', True)
+    settings.setdefault('illumination_vendor_profile', '')
+    settings.setdefault('illumination_vendor_channel_map', '')
     return settings
 
 
@@ -2185,6 +2599,23 @@ _TOOLTIPS = {
         'and the percentage of the position bias the correction removed. '
         'The figure has low computational cost and provides direct '
         'verification of the correction. Default True.'),
+    'illumination_vendor_channel_map': (
+        '(str) - Optional channel assignments for a vendor flat-field profile: '
+        '0:2,1:1 maps persisted intensity channel 0 to vendor channel 2 and '
+        'intensity channel 1 to vendor channel 1. Intensity channels start at '
+        '0; Harmony channels and reference-image planes start at 1. Include '
+        'every corrected intensity channel. Empty keeps the original order '
+        'and applies a single reference plane to all channels. Used only '
+        'with illumination_vendor_profile; a saved illumination_model wins. '
+        'Default empty.'),
+    'illumination_vendor_profile': (
+        '(str) - Path to the flat-field correction the microscope software '
+        'saved, used instead of estimating one from the fields: a Harmony '
+        'Index.idx.xml or FFC profile (Operetta, Opera Phenix), or a shading '
+        'reference image (.tif, .czi, .npy) from ZEN, Nikon or Olympus. '
+        'Harmony profiles are applied at Harmony\'s own scale, so the '
+        'corrected pixels match Harmony\'s corrected export. Empty means '
+        'estimate. Default empty.'),
 }
 
 _TYPES = {
@@ -2197,6 +2628,8 @@ _TYPES = {
     'illumination_dark': float,
     'illumination_on_missing': str,
     'illumination_qc': bool,
+    'illumination_vendor_profile': str,
+    'illumination_vendor_channel_map': str,
 }
 
 _DESCRIPTION = (
@@ -2222,7 +2655,7 @@ def register_illumination_settings(replace: bool = False) -> bool:
     so contributing categories would make that test's result depend on which
     files pytest was pointed at.
 
-    The nine keys ARE filed under a heading -- "Illumination Correction" in
+    The illumination keys ARE filed under a heading -- "Illumination Correction" in
     ``spacr.settings.categories`` -- and Measure's panel offers every one of
     them, because ``measure_crop`` calls
     :func:`prepare_illumination_correction` itself and these are the keys

@@ -1,31 +1,36 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "is",
-  "title": "Train Cellpose: yfirfarin pör og skýr API-hjáleið",
-  "description": "Finndu Train í Cellpose Workbench, þekktu núverandi innflutningsvillu gagnaslóðar og fylgdu raunverulegri tveggja umferða Python-þjálfun með sex niðurhalanlegum frumumynda- og grímupörum.",
+  "title": "Þjálfaðu Cellpose-líkan",
+  "description": "Undirbúðu pör mynda og gríma, fínstilltu skiptingarlíkan í Cellpose Workbench og notaðu vistaða eftirlitspunktinn.",
   "objectives": [
-    "Finna Train og Apply innan Make Masks, ekki sem sérflísar á Home.",
-    "Athuga samsvarandi skráarnöfn og greina núverandi merkingar frá yfirförnum viðmiðum.",
-    "Þekkja hlutainnflutning og aðgreina API-leið frá gölluðu GUI.",
-    "Skoða inntak, upphitunarhraða, breytt vægi og staðfesta slóð.",
-    "Greina þjálfunartap, frátekin prófunargildi og lestur vægja frá óháðri nákvæmni."
+    "Skoða myndir og samsvarandi hlutamerkjagrímur í Make Masks.",
+    "Velja þjálfunarmöppu, upphafslíkan, þjálfunaráætlun og úttaksstað.",
+    "Keyra þjálfun, finna eftirlitspunktinn og nota hann á aðrar myndir."
   ],
-  "prerequisite": "Notaðu sexpara pakkann með upptökuhjálparforritinu og upprunaskrá. Raunveruleg myndsvið varðveita frumustyrk rásar 1 og frumugrímu plans 4; plan 6 er sýkill. Núverandi merkingar og kantafskornir hlutir eru EKKI óháð yfirfarin viðmið. Train tapar enn src og heldur model_name=new_model þótt tölur flytjist inn; engin GUI-þjálfun byrjar. spacr.submodules.train_cellpose notar nýjan áfangastað, tvær umferðir, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 og enga auka gagnamögnun spaCR. normalize=False slekkur á hundraðshlutamarkaforvinnslu spaCR, ekki kvörðun með hámarki eða stöðlun Cellpose. Cellpose snýr og stærðarbreytir enn og notar innri 256-díla búta. Upphafsfræ 19; innri slembivinnsla helst. CUDA takmarkað við 65% á RTX 3090; 100 GiB vinnsluminnisvakt á aðeins við þessa stöð. 3,145,728 inntaksgildi og tólf myndfylki skoðuð; öll sex pör héldust í þjálfun. Hraðar 0 og 1.1111111111111112e-6; 345 af 347 þjálfanlegum stikatenserum breyttust. Tap hækkaði úr 1.496740683913231 í 1.5215517828861873. Engin prófunargögn: núllin eru fráteknir reitir. Vistunarskrá undir models/cellpose_model/models lesin með weights_only=True; samantekt stjórnborðs sleppir öðru models. Lestur er ekki ályktun eða nákvæmnispróf. Raunveruleg mynd í ytri skoðara, ekki sett í GUI. Frumgögn, mistök og fyrri GUI-stöðvun varðveitt. Engin AI-beiðni, þjónustusvar, vísindalegt samþykki eða birting.",
+  "prerequisite": "Sæktu og afþjappaðu tengda dæmið: sex þjálfunarmyndir með grímum og þrjár aðskildar myndir fyrir Apply. Eða undirbúðu eigin myndir og samsvarandi grímur með heiltölumerkjum og skoðaðu þær í Make Masks fyrir þjálfun.",
   "scenes": [
-    "Opnaðu Make Masks og síðan innbyggða Cellpose Workbench. Train og Apply eru flipar þar, ekki sérflísar á Home. Kennslan sýnir núverandi leið, innflutningsvillu og skýra Python-hjáleið. Tengda Make Masks-kennslan fjallar um að skoða og breyta grímum fyrir þjálfun.",
-    "Í Train skaltu skoða upphafspunkt og þjálfunaráætlun. Ekki afrita upphaflegan umferðafjölda eða námshraða sem ráðleggingu. Þjálfun krefst paraðra mynda og tilvikagríma, gagnamöppu og úttaksheitis. Sýnilegt eyðublað þýðir ekki að þessum kröfum sé fullnægt.",
-    "Raunverulega Import settings-gluggann notarðu til að opna CSV með afmörkuðum stillingum. Eftir innflutning sjást tvær umferðir, minibatch eitt og lítill námshraði. En nauðsynleg gagnaslóð tapast og líkananafnið helst new model. Þetta er hlutainnflutningur, ekki tilbúin uppsetning; ekki ýta á Run.",
-    "Python-leiðin hér fyrir neðan er aðskilin frá GUI-villunni. Hún setur ekki gagnaslóð í leyni og lagar ekki eyðublaðið. Notaðu tengda pakkann í nýrri möppu. Hjálparforritið hafnar fyrirliggjandi áfangastað, varðveitir upprunapör og skráir nákvæmlega API-útfærslu og inntak.",
-    "Sex raunveruleg 512-díla mynd- og grímupör bera samsvarandi skráarnöfn. Upprunalegar stillingar auðkenna frumustyrk sem rás eitt og frumugrímur sem plan fjögur; plan sex er sýkill. Núverandi merkingar eru ekki óháð yfirfarin viðmið. Skoðaðu mörk og kantafskorna hluti fyrir eiginlega þjálfun.",
-    "Þetta er raunverulega sexpara myndin sem API-keyrslan vistaði og ytri skoðari opnaði, ekki mynd sett inn í spaCR. Hver efri mynd samsvarar grímunni beint undir. Öll inntaksgildi og tólf birt fylki voru borin við upprunapör. Það staðfestir samsvörun, ekki gæði merkinga.",
-    "Keyrðu hjálparforritið með gagnauppsprettu og nýjum áfangastað. Afmarkaða CUDA-dæmið notar sex pör, tvær umferðir og minibatch eitt. Inntaksstærð er 512 dílar, en Cellpose þjálfar innri 256-díla búta. Að sleppa auka gagnamögnun spaCR slekkur ekki á stöðlun, snúningi og stærðarbreytingu Cellpose.",
-    "Fyrsta upphitunarumferð hefur námshraða núll. Önnur notar lítinn jákvæðan hraða og leyfir raunverulegar vægisbreytingar. Vistuð vægi voru borin við upphafleg þjálfanleg vægi: 345 af 347 stikatenserum breyttust. Breyting á þvermáli einu nægði ekki. Breytt vægi sanna samt ekki gott líkan.",
-    "Þjálfunartap hækkaði lítillega úr um 1,497 í 1,522. Engin prófunargögn voru gefin. Núll í prófunartapsreitum eru staðgenglar, ekki fullkominn árangur. Þetta sýnir vélræna framkvæmd, ekki samleitni, betri sundurgreiningu eða óháða nákvæmni. Haltu sjálfstæðu mati aðskildu frá þjálfun.",
-    "Notaðu slóð vistuðu vægjanna í yfirförnu athuganaskránni. Hún hefur aðra models-möppu sem almenna stjórnborðssamantektin sleppir. Geymdu vægi, stillingar, upprunaskrá og athuganir saman. Öruggur lestur tensora staðfestir læsilega skrá, ekki ályktun; pakkinn inniheldur pör og hjálparforrit, ekki vottað líkan.",
-    "Apply hefur eigin gagnamöppu, reit fyrir sérlíkan og lifandi forskoðun. Að opna flipann velur ekki ytri vægjaskrána okkar og keyrir ekki ályktun. Fylgdu tengdri kennslu og staðfestu á óháðum myndum. Valfrjálsa spaCR AI er ónotað hér; spurningar eða þjónustusvör koma ekki í stað skoðunar raunverulegra gagna."
+    "Frá Home opnarðu Tools og svo Make Masks. Opnaðu Cellpose Workbench af tækjastiku þess; það opnast á flipanum Train. Þú þjálfar út frá myndum og hlutamerkjagrímum þeirra og notar svo vistaða líkanið í Apply.",
+    "Afþjappaðu tengda dæmið. Mappan training inniheldur sex myndir og undirmöppuna masks, og mappan apply inniheldur þrjár aðskildar myndir til síðari nota. Smelltu á möpphnappinn við hlið Image source folder og veldu training. Hafðu Mask source folder tómt til að nota undirmöppuna masks, eða veldu aðra grímumöppu.",
+    "Hver mynd þarf grímu með sömu hæð og breidd. 0 er bakgrunnur og hver hlutur hefur sína eigin jákvæðu tölu. Opnaðu þjálfunarmöppuna í Make Masks til að skoða merkin og leiðrétta þau fyrir þjálfun. Þessi mynd hefur 95 merktar frumur.",
+    "Dæmið er grátónamynd, svo hafðu Channels tómt. Fyrir fjölrása mynd bætirðu við allt að þremur rásanúmerum sem byrja á núlli, til dæmis 0 og 2 fyrir fyrstu og þriðju rás. Stilltu Channel axis aðeins ef sjálfvirk greining finnur ekki rásavíddina.",
+    "Hafðu Base model á cpsam til að byrja frá Cellpose-SAM, eða sláðu inn slóð að eftirlitspunkti til að halda áfram þjálfun fyrra líkans. Sláðu inn Model name; hér er það tutorial cells. Hafðu Checkpoint folder tómt til að vista í upprunamöppunni, eða veldu aðra möppu.",
+    "Stilltu N epochs og Batch size. Þessi fljótlega keyrsla notar 10 umferðir með skammtastærð 1. Fleiri umferðir gefa líkaninu fleiri þjálfunaruppfærslur og stærri skammtar nota meira minni. Haltu birtum lærdómshraða til að byrja með.",
+    "Hafðu Normalize virkt með 1. og 99. hundraðshluta sem upphafspunkt. Þeir ákvarða styrkbilið sem notað er fyrir hverja rás. Scale range breytir myndastærð meðan á þjálfun stendur og Min train masks sleppir myndum með færri merkta hluti.",
+    "Til að fylgjast með staðfestingartapi velurðu sérstaka Validation image folder og Validation mask folder hennar. Notaðu aldrei þjálfunarmyndir þar aftur. Hafðu báðar tómar ef þú hefur ekki sérstakt merkt safn, eins og í þessu dæmi.",
+    "Athugaðu möppur, heiti líkans og úttaksstað og ýttu svo á Run. Spjaldið Figures sýnir þjálfunarmyndirnar fyrir ofan grímur þeirra og stjórnborðið fylgir framvindunni. Á þessu GPU-skjákorti tóku 10 umferðir á sex myndum innan við mínútu.",
+    "Þegar þjálfun lýkur gefur stjórnborðið upp slóð eftirlitspunktsins. Með sjálfgefnum stað er hann í upprunamöppunni undir models/cellpose_model/models. Skráarheitið bætir högun og fjölda umferða við heiti líkansins. Geymdu hann með þjálfunarstillingunum.",
+    "Opnaðu flipann Apply. Custom model vísar nú á eftirlitspunktinn sem þú þjálfaðir. Stilltu Source á möppuna apply í dæminu, en myndir hennar koma úr brunnum sem ekki voru notaðir til þjálfunar. Stilltu Channels á 0 og Percentiles á 2 og 99. Slökktu á Fill in svo að frumur sem snertast haldist aðskildar, og kveiktu á Save og Verbose.",
+    "Opnaðu Live preview, veldu eina mynd og ýttu á Run preview með sömu rás og hundraðshlutum. Myndinni er skipt með eftirlitspunktinum þínum, sem hér finnur 76 frumur. Stilltu hér áður en þú keyrir alla möppuna.",
+    "Ýttu á Run. Apply skrifar eina grímu á hverja mynd í undirmöppuna masks við hlið myndanna og Verbose sýnir hverja niðurstöðu sem mynd. Hér innihalda grímurnar þrjár 76, 48 og 55 frumur. Berðu grímur líkans saman við sérstaklega merkt sjónsvið áður en þú notar það á heila tilraun."
   ]
 }

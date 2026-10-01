@@ -1,0 +1,41 @@
+{
+  "lesson": "71_investigate_hit",
+  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Investigate Hit: spåra en gen från Regression tillbaka till uppmätta celler",
+  "description": "Skicka en gen från Hit List till Investigate Hit, lägg till mätdatabasen, cellprediktionerna och guideandelarna och läs sedan evidensen på brunnsnivå.",
+  "objectives": [
+    "Öppna en Regression-körning i Hit List, kontrollera q-värden och skicka en gen till Investigate Hit.",
+    "Välja mätdatabas, cellprediktioner, guideandelar och poängkolumn.",
+    "Läsa flikarna för evidens, brunnar, guider och tröskel och hitta de sparade tabellerna."
+  ],
+  "prerequisite": "Packa upp Investigate_Hit_real_screen_example.zip. Allt i det kommer från en och samma verkliga screening: Regression-körningen på Regressions testdata (inställningarna från Regression-handledningen), motsvarande CV-prediktioner per cell och en mätdatabas med samma cellers verkliga mått på form, storlek och intensitet. För att hålla nedladdningen liten innehåller databasen 52 brunnar: alla analyserade brunnar med en guide för gen 225160 och, för var och en, tre brunnar utan den från samma platta. Ingen gen i den här snabba Regression-körningen klarar q ≤ 0,05. Behandla undersökningen som ett genomräknat exempel, inte som en bekräftad träff.",
+  "scenes": [
+    "Från Home öppnar du Regression. Investigate Hit utgår från en färdig Regression-körning. Den frågar om de uppmätta cellerna i brunnarna bakom en gen ser annorlunda ut än celler i brunnar utan den genen.",
+    "Välj Hits för att öppna Hit List. Packa först upp exempelarkivet. Det innehåller en Regression-körning på testdata, motsvarande CV-prediktioner per cell och en mätdatabas för samma celler. Alla tre kommer från en och samma verkliga screening.",
+    "Klicka på Browse och välj mappen guide_permutation i regression_run, results. Det är utdata från testdatakörningen i Regression-handledningen.",
+    "Hit List rangordnar 325 gener. Läs effekt, P-värde och q-värde för varje rad tillsammans, liksom antalet guider och hur många av dem som stämmer överens.",
+    "Ställ Max q på 0,05. Tabellen töms eftersom ingen gen i den här körningen når ett q-värde på högst 0,05. Med 199 permutationer är det minsta möjliga P-värdet 0,005, och det lägsta q-värdet är ungefär 0,27. Det som följer granskar alltså en rangordnad kandidat, inte en bekräftad träff.",
+    "Ställ tillbaka Max q på 1, sök efter 225160 och markera dess rad. Den har effekten 0,34, q-värdet 0,27 och tre guider som alla pekar åt samma håll.",
+    "Klicka på Investigate selected. Investigate Hit öppnas med resultatmappen, genen, dess tre guider och en positiv effektriktning redan ifyllda från raden.",
+    "Bredvid Measurements database klickar du på Browse och väljer measurements.db från exemplet. Den innehåller form, storlek och medelintensitet per kanal för 8 915 celler i 52 brunnar.",
+    "För Existing CV predictions väljer du cv_predictions.csv. Varje rad är en cells sparade CV-poäng, kopplad till samma uppmätta objekt. Klicka på sökvägen och tryck på Enter så att poängkolumnerna läses in, och behåll sedan pred som fenotyppoängkolumn.",
+    "För Well/guide fractions väljer du regression_data.csv i samma resultatmapp. Tabellen skrevs av Regression. Den anger varje guides andel i varje analyserad brunn.",
+    "Lämna Independent morphology features tomt. Modulen använder då databasens 13 numeriska cellmätningar och utelämnar identifierare, guideandelar och CV-poängen, så att kontrollen inte återanvänder poängen. För din egen databas anger du bara mätkolumner utan saknade värden.",
+    "Klicka på Investigate hit. Modellen anpassas med en platta i taget undanhållen, så ingen cell poängsätts av en modell som tränats på dess egen platta. En brunns guideandel anger bara utgångsförväntningen för brunnens celler. Den markerar aldrig en cell som bärare av guiden. Exemplet tar några minuter.",
+    "Evidence visar resultatet. Målbrunnarna har en träfflik prevalens som bara är 0,01 högre än kontrollbrunnarnas. Bootstrapintervallet per brunn går från minus 0,04 till plus 0,06, och P-värdet för den blockade permutationen är ungefär 0,63. Cellerna stöder inte kandidaten.",
+    "Wells listar varje brunns guideandel, genomsnittliga träfflika sannolikhet, prevalens och antal celler. Varje brunn räknas som en oberoende enhet, så jämförelsen använder 13 målbrunnar och 39 kontrollbrunnar, inte enskilda celler.",
+    "Guides visar varje målguide för sig. Deras dos-responskurvor pekar åt olika håll, vilket är ytterligare ett skäl att inte behandla genen som en träff.",
+    "Threshold sensitivity upprepar jämförelsen vid sannolikhetsgränser från 0,5 till 0,9. Vid varje gräns ligger skillnaden kvar nära 0,01, så slutsatsen beror inte på gränsen.",
+    "Candidate cells rangordnar cellerna efter träfflik sannolikhet, med den ursprungliga poängen och det veck som poängsatte varje cell. Sannolikheterna beskriver träfflik morfologi, inte vilken guide en cell bar på. För bara över klassningar till annoteringen när evidensen på brunnsnivå är övertygande. Undo ångrar en överföring.",
+    "Tabellerna sparas i resultatmappen under hit_investigation och sedan 225160. De innehåller den här inbäddningen och ett manifest, och varje körning sparas dessutom som en ny version i databasen. Exemplet har inga utsnittsbilder, så granskningsgalleriet är tomt. Undersök sedan en gen som klarar din tröskel i en Regression-körning med fler permutationer."
+  ]
+}

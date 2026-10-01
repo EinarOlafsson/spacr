@@ -1,20 +1,34 @@
 {
-  "lesson": "05_home", "language": "nb",
-  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
-  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Correct crops, parent modules, time-series workflows and measured-feature classification.", "Use Bokmål with English UI names and preserve every source instruction; caption-only."]},
-  "title": "Home og navigering",
-  "description": "Finn de seks trinnene i Core, utforsk de gjeldende kategoriene i Home og finn tilknyttede verktøy i hovedmodulene deres.",
-  "objectives": ["Følge Core-arbeidsflyten fra bilder til regresjonsresultater.", "Finne Data, Tools og Assays uten å forveksle en integrert handling med en manglende modul.", "Skille nedlastbare, virkelige datasett fra genererte demonstrasjoner og finne tilhørende fordypningsveiledninger."],
-  "prerequisite": "Installer spaCR og åpne skrivebordsappen. Opptaket bruker mørkt tema og større tekst i grensesnittet.",
+  "lesson": "05_home",
+  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Home-skjermen og navigering",
+  "description": "Åpne en modul fra Home, finn tilhørende verktøy og eksempeldata, og velg deretter en pipeline å følge.",
+  "objectives": [
+    "Velge en startmodul for bilder, målinger eller sekvenseringslesninger.",
+    "Finne tilhørende verktøy og organismespesifikke analyser.",
+    "Laste inn et eksempel, finne hjelp og åpne en pipelineoversikt."
+  ],
+  "prerequisite": "Installer spaCR og åpne skrivebordsprogrammet.",
   "scenes": [
-    "Home organiserer spaCR i Core, Data, Tools og Assays. Dette er kategorier for arbeidsflyter. Tilknyttede verktøy kan også ligge inne i en hovedmodul, så knappene i Home viser ikke alle funksjonene.",
-    "Core følger analyseflyten for screening: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Begynn med trinnet som passer til inndataene dine. Du trenger ikke gjenta segmenteringen hvis du allerede har kompatible måledata eller utsnitt av bilder.",
-    "Data samler Import, Run Compare, Experiment Design, Power and Design, Dose Response og kvalitetskontroll. Import er også inngangen til Import Images, Format Converter og External Masks. Åpne hovedmodulen først for å finne disse arbeidsflytene.",
-    "Tools inneholder Make Masks, Align and Stitch, Image UMAP, Gate Editor og Graph Builder. Hver modul samler tilknyttede handlinger. Make Masks inneholder for eksempel modelltrening og modellsammenligning, mens Graph Builder inneholder Plate Viewer og Small Multiples.",
-    "Assays samler Plaque Assay, Recruitment, Invasion Assay og Replication Assay. Velg en arbeidsflyt som passer til eksperimentet og inndataene den krever. Fargen som viser modulens modenhet, er uavhengig av kategorien; les verktøytipset før du baserer deg på en eksperimentell funksjon.",
-    "Classify er én modul. Innstillingen Classifier family velger mellom bildebasert maskinsyn og maskinlæring fra målte egenskaper. De tidligere veiledningene for maskinsyn og maskinlæring forklarer fortsatt disse to alternativene, ikke separate knapper i Home.",
-    "Ikonene øverst i Classify åpner Classifier Evaluation, Explain CV Model, Activation, Training Runs og Feature Explorer. Hold pekeren over et ikon for å se navn og beskrivelse. Bruk den lenkede fordypningsveiledningen når du vil undersøke en trent modell eller resultatene dens.",
-    "Core-veiledningene bruker de virkelige datasettene som tilbys via Load test data. Nedlastingen fyller inn relevante inndata og kompatible innstillinger. De genererte demonstrasjonene under Help er et annet alternativ. I Mask viser bryterne Time og 3D arbeidsflyter for tidsserier og volumdata; Live åpner forhåndsvisningen.",
-    "Bruk Help for å gå tilbake til guidede gjennomganger og veiledninger. Ha veiledningen for den aktuelle modulen åpen ved siden av appen, og følg kontrollene av data, innstillinger og resultater. Neste leksjon viser hvordan de samme arbeidsflytene brukes via Python-API-et og kommandolinjen."
+    "Home er utgangspunktet ditt. Klikk på en flis for å åpne en modul, eller bruk sidefeltet til venstre. Klikk på Home i sidefeltet for å komme tilbake hit. Fanene Core, Data, Tools og Assays hjelper deg å finne oppgaven du vil utføre.",
+    "For mikroskopbilder begynner du med Mask for å avgrense objekter, og deretter Measure for å hente ut egenskapene og utsnittene deres. Med Annotate merker du eksempelobjekter, og Classify lærer av merkene for å gi flere objekter en poengsum. Map Barcodes leser sekvenseringsdata. Regression kombinerer de resulterende fenotypepoengene med guide-tellingene for å finne sammenhenger.",
+    "I Data kommer filer inn og resultater kontrolleres. Hvis du allerede har bilder, masker eller måletabeller, tar Import dem inn i et prosjekt som de andre modulene kan lese. Før et eksperiment planlegger Experiment Design platene dine; etterpå viser QC de registrerte kvalitetskontrollene, og Run Compare setter to kjøringer side om side.",
+    "Tools samler de praktiske redigeringsverktøyene og utforskerne. I Make Masks retter du masker, og derfra åpnes også Cellpose Workbench. Align and Stitch setter sammen overlappende bildefliser til ett bilde. Når du har målinger, kan du utforske og plotte dem med Image UMAP, Gate Editor og Graph Builder. Verktøylinjen i hver modul åpner de tilhørende verktøyene.",
+    "Åpne Assays og velg organismen din: Toxoplasma, Plasmodium eller Candida. Velg deretter en analyse i menyen for den organismen. Åpne for eksempel Toxoplasma for plakkanalyse eller målinger av vert og patogen. Følg veiledningen for den valgte analysen for å forberede bildene, maskene og måleinndataene.",
+    "Åpne Classify og velg inndata med Classifier family. Velg Computer Vision for objektbilder eller Tabular Machine Learning for kolonner med målte egenskaper. De lenkede veiledningene tar deg gjennom trening, evaluering og poengsetting for hver familie.",
+    "Når en modell er trent, hjelper verktøylinjen i Classify deg med å granske den. Classifier Evaluation viser hvordan den gjorde det på tilbakeholdte data, Explain CV Model og Activation viser hva som styrer avgjørelsene, Training Runs sammenligner treningshistorikk, og Feature Explorer rangerer egenskapene som skiller gruppene dine. Hold pekeren over et ikon for å se navnet.",
+    "For å prøve en modul klikker du på Load test data når det finnes. Vent til nedlastingen er ferdig, og gå deretter gjennom de utfylte inndataene og innstillingene. I Mask klikker du på Live for å undersøke et synsfelt før du trykker på Run. Slå på Time for en tidsserie eller 3D for et volumbilde.",
+    "Skriv navnet på en modul, en innstilling eller en funksjon i søkefeltet ved siden av Help. Her finner et søk etter Performance den tilsvarende siden i Preferences. Klikk på et resultat for å åpne målet. API-resultater åpner dokumentasjonen for den valgte funksjonen.",
+    "I Preferences velger du en Performance-profil for datamaskinen din. Laptop bruker færre ressurser; de høyere profilene tillater mer mellomlagring og bakgrunnsarbeid. Begynn med en moderat profil hvis minnet er begrenset. Analyseinnstillingene dine forblir under din kontroll i hver modul.",
+    "Gå tilbake til Home og klikk på Pipeline overviews for å velge en arbeidsflyt. Begynn med spaCR screens for en samlet bildebasert screening, eller velg en vei for bildeanalyse eller sekvensering for dataene dine. De neste veiledningene viser hvordan modulene henger sammen, og modulleksjonene går deretter gjennom hver oppgave."
   ]
 }

@@ -5,7 +5,9 @@ catalogs and held recordings remain unchanged; only release copies transform.
 """
 from copy import deepcopy
 
-HELD = ('12_map_barcodes', '21_model_compare', '22_model_zoo', '71_investigate_hit')
+# 71 Investigate Hit left this list on 2026-09-25: it now has a native walkthrough
+# on the real screen example. The other three were promoted by their own recordings.
+HELD = ('12_map_barcodes', '21_model_compare', '22_model_zoo')
 OPS = '76_ops'
 # Embeddings shipped a Home tile on 2026-09-11 (instruction 386 step 6) after
 # this candidate was verified, so the course had a registered module with no
@@ -46,6 +48,27 @@ def first_placeholder(lessons):
     raise ValueError('This placeholder check requires an actually unavailable lesson')
 
 
+def placeholder_probe(lessons, identity, language='en'):
+    """Return lessons with one ready lesson shown as Coming soon, for in-memory checks only.
+
+    Once every route is ready the player's availability and completion guards
+    have nothing real to protect, but they remain product code for future holds.
+    The browser checks serve this copy (never written to disk) so the guards
+    are still observed to fail when broken. The transformation is the one
+    :func:`release_catalog` applies to a hold.
+    """
+    result = deepcopy(lessons)
+    matches = [lesson for lesson in result if lesson['id'] == identity]
+    if len(matches) != 1 or matches[0].get('status') == 'coming_soon':
+        raise ValueError('The probe must be exactly one ready lesson')
+    title, description = COPY[language]
+    for field in ('silent', 'poster', 'web', 'example_files'):
+        matches[0].pop(field, None)
+    matches[0].update(status='coming_soon', availability_title=title, description=description,
+                      objectives=[], prerequisite='', scenes=[])
+    return result
+
+
 def release_catalog(source, language, *, recording_stage=None, model_promotions=(), barcode_promotion=False):
     """Preserve every ready lesson verbatim and replace only approved holds."""
     result = deepcopy(source)
@@ -82,7 +105,7 @@ def release_catalog(source, language, *, recording_stage=None, model_promotions=
                  and bool(recorded_ops.get('scenes')))
     if (len(ids) != len(set(ids)) or not set(HELD) <= set(ids)
             or (OPS in ids and not valid_ops) or (EMBEDDINGS in ids and not valid_promotion)):
-        raise ValueError('Expected distinct original lessons, four holds, '
+        raise ValueError('Expected distinct original lessons, the original holds, '
                          'a recorded OPS promotion if present, and only a recorded Embeddings promotion')
     if recorded_ops is not None:
         from ops_promotion import require_recorded_ops

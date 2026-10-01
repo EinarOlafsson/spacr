@@ -22,13 +22,14 @@ import logging
 import re
 import threading
 import time
+import weakref
 from collections.abc import Mapping as _Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
-from PySide6.QtCore import QEvent, Qt, Signal
+from PySide6.QtCore import QEvent, QObject, Qt, Signal, Slot
 from PySide6.QtWidgets import (
     QAbstractItemView, QCheckBox, QComboBox, QSplitter, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton,
@@ -71,7 +72,12 @@ VERDICT_NEITHER = "no effect"
 
 
 def verdict_for(row) -> str:
-    """One phrase per measurement, from BOTH corrections."""
+    """One phrase per measurement, from BOTH corrections.
+
+    :param row: one scan row; its ``survives_across_scan`` and
+        ``survives_within_run`` attributes are read, and missing ones count as
+        false.
+    """
     if getattr(row, "survives_across_scan", False):
         return VERDICT_SURVIVES
     if getattr(row, "survives_within_run", False):
@@ -84,6 +90,9 @@ def ordered_columns(frame) -> list:
 
     Ordering, not filtering -- the columns nobody thought to list are still
     the user's own numbers.
+
+    :param frame: the frame whose columns are ordered; ``None`` returns an
+        empty list.
     """
     if frame is None:
         return []
@@ -166,6 +175,136 @@ class _ReadFailed:
     def __init__(self, error: BaseException) -> None:
         """:param error: what the read raised, kept to be re-raised."""
         self.error = error
+
+
+class _ReadRelay(QObject):
+    """Carry reads, merge progress and fit results onto the GUI thread.
+
+    ONE RELAY FOR THE PROCESS, never a child of a panel. A reader thread
+    emitting on a panel's child raced the GUI thread destroying that panel:
+    ``emit`` could run on a QObject whose C++ half was being freed, which
+    segfaulted at the emit or corrupted the heap for a later, unrelated
+    Qt call. The shared relay lives as long as the application, so the
+    reader always emits on a live object, and carries only a weak
+    reference to the panel it is for. Delivery runs on the GUI thread and
+    skips a panel that is gone.
+    """
+
+    landed = Signal(object)
+    update = Signal(object, str, object)
+
+    def __init__(self) -> None:
+        """Connect the relay to its own GUI-thread delivery."""
+        super().__init__()
+        self.landed.connect(self._deliver)
+        self.update.connect(self._deliver_update)
+
+    @Slot(object)
+    def _deliver(self, panel_ref) -> None:
+        """Hand the landing to the panel, if it is still there.
+
+        :param panel_ref: a weak reference to the panel whose read landed.
+        """
+        import shiboken6
+
+        panel = panel_ref()
+        if panel is None or not shiboken6.isValid(panel):
+            return
+        panel._on_read_landed()
+
+    @Slot(object, str, object)
+    def _deliver_update(self, panel_ref, handler: str, args) -> None:
+        """Deliver a worker update only while its panel still exists.
+
+        :param panel_ref: weak reference to the destination panel.
+        :param handler: the panel's GUI-thread update method.
+        :param args: positional arguments captured by the worker.
+        """
+        import shiboken6
+
+        panel = panel_ref()
+        if panel is None or not shiboken6.isValid(panel):
+            return
+        getattr(panel, handler)(*args)
+
+
+_READ_RELAY: Optional[_ReadRelay] = None
+
+
+def _read_relay() -> _ReadRelay:
+    """The process's one :class:`_ReadRelay`.
+
+    Called from a panel's constructor, so it is built on the GUI thread. A
+    relay left over from an application that has since been replaced is
+    rebuilt, so delivery always runs on the current GUI thread.
+    """
+    global _READ_RELAY
+    from PySide6.QtCore import QCoreApplication
+
+    app = QCoreApplication.instance()
+    relay = _READ_RELAY
+    if relay is None or (app is not None and relay.thread() != app.thread()):
+        relay = _ReadRelay()
+        _READ_RELAY = relay
+    return relay
+
+
+def _file_answer(lock, reads, shown, key, value) -> None:
+    """File one read's answer. WORKER THREAD; touches no widget.
+
+    :param lock: guards the three dicts.
+    :param reads: answers keyed by ``(generation, question)``.
+    :param shown: newest answer per question, as ``(generation, answer)``.
+    :param key: ``(generation, question)``.
+    :param value: the answer, or a :class:`_ReadFailed`.
+    """
+    with lock:
+        reads[key] = value
+        seen = shown.get(key[1])
+        if seen is None or seen[0] <= key[0]:
+            shown[key[1]] = (key[0], value)
+
+
+def _run_read(lock, reads, reading, shown, relay, key, work,
+              waiting) -> None:
+    """Perform one database read. WORKER THREAD; holds no widget.
+
+    :param lock: the panel's read lock.
+    :param reads: the panel's answers, keyed by ``(generation, question)``.
+    :param reading: the reads still out, keyed the same way.
+    :param shown: the panel's newest answer per question.
+    :param relay: ``(relay, panel_ref)``: the shared :class:`_ReadRelay`
+        and a weak reference to the panel, told when this lands.
+    :param key: ``(generation, question)``, what the answer is filed
+        under.
+    :param work: the callable to run.
+    :param waiting: set once the answer is filed, so a GUI-thread wait
+        still inside its budget picks the answer up without a redraw.
+
+    Everything it needs is passed in, and none of it is the panel -- see
+    :class:`_ReadRelay` for the crash a reader holding the panel caused.
+
+    The filing is in a ``finally``. A read that ends any other way --
+    the interpreter shutting down under it, a C-level error `work` does
+    not raise as an `Exception` -- must still release the question, or
+    the cell that said "reading…" says it for the life of the panel and
+    no later paint ever asks again.
+    """
+    try:
+        try:
+            value = work()
+        except Exception as error:               # noqa: BLE001 - carried back
+            value = _ReadFailed(error)
+        _file_answer(lock, reads, shown, key, value)
+    finally:
+        with lock:
+            reading.pop(key, None)
+        waiting.set()
+        shared, panel_ref = relay
+        try:
+            shared.landed.emit(panel_ref)
+        except RuntimeError:
+            pass
 
 
 def _screen_key(screens) -> Optional[Tuple[Tuple[str, str], ...]]:
@@ -323,6 +462,9 @@ def anchor_tables(tables: Sequence[str]) -> Tuple[str, ...]:
     mean one nucleus or one pathogen, with the cell's own measurements
     repeated across its children -- which is the fan-out the roll-up exists to
     prevent, arrived at from the other side.
+
+    :param tables: measurement table names; those holding one row per cell are
+        kept, in their given order.
     """
     return tuple(name for name in tables if is_one_row_per_cell(name))
 
@@ -608,7 +750,10 @@ def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
 
 
 def displayed_plates(plates: Sequence[str]) -> Tuple[str, ...]:
-    """Plate ids as the plates are CALLED, in their given order."""
+    """Plate ids as the plates are CALLED, in their given order.
+
+    :param plates: plate ids, each passed through ``canonical_plate_id``.
+    """
     return tuple(canonical_plate_id(plate) for plate in plates)
 
 
@@ -733,6 +878,10 @@ def merge_evidence(frame) -> str:
 
     Every name the summary counted, so that a user who wants to check the
     claim can, and one who does not is not made to read it.
+
+    :param frame: the merged frame; the ``default_aggregation``,
+        ``identifier_columns`` and ``dropped_columns`` entries of its ``attrs``
+        are listed.
     """
     attrs = getattr(frame, "attrs", {}) or {}
     lines: List[str] = []
@@ -760,6 +909,9 @@ def merge_report(frame) -> str:
     Kept as one string for a caller that wants everything -- a log line, a
     test, a headless script. The PANEL shows the two halves in two places,
     which is the whole of the design.
+
+    :param frame: the merged frame, passed to :func:`merge_summary` and
+        :func:`merge_evidence`.
     """
     evidence = merge_evidence(frame)
     return merge_summary(frame) + (("\n" + evidence) if evidence else "")
@@ -1277,6 +1429,10 @@ class WorkflowSteps:
         A number this panel does not have is IGNORED rather than an error: a
         layout stored by a version with five steps must not stop this one
         from starting.
+
+        :param folds: mapping of step number to ``True`` (open) or ``False``
+            (folded), as :meth:`step_folds` returns; unknown numbers are
+            ignored and ``None`` changes nothing.
         """
         for number, expanded in dict(folds or {}).items():
             step = self.steps.get(int(number))
@@ -1316,6 +1472,10 @@ class WorkflowSteps:
 
         A key this panel does not have is ignored, for the reason
         :meth:`set_step_folds` gives.
+
+        :param heights: mapping of box key to height in pixels at 100 % font
+            scale, as :meth:`box_heights` returns; unknown keys are ignored
+            and ``None`` changes nothing.
         """
         from ..preferences import scaled_px
 
@@ -1376,20 +1536,6 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
     #: each writing their own record would restore in three separate
     #: writes and could disagree with each other.
     step_folds_changed = Signal()
-
-    #: Internal relay: emitted from the WORKER thread, received on the GUI
-    #: thread. Emitting a Signal is the only thing a worker-thread callback
-    #: may safely do; the receiver below is a bound method of this GUI-thread
-    #: object, so Qt queues the real work back where it belongs. Getting this
-    #: wrong is the exact bug `spacr.qt.job_runner` was written to stop being
-    #: re-derived.
-    _progress_relayed = Signal(str, int, int)
-
-    #: Internal relay: a database read has landed. Emitted from the reader
-    #: thread for the same reason `_progress_relayed` is, and received on the
-    #: GUI thread by `_on_read_landed`, which redraws whatever was drawn as
-    #: "reading…" while the read was still out.
-    _read_landed = Signal()
 
     #: The list columns, in reading order.
     COLUMNS = ("Plate", "Database", "Screen", "Tables", "Plates in it",
@@ -1475,8 +1621,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         #: F): the fits read this file, so the merge is paid for once and
         #: every run in the queue is fitted on the same numbers.
         self._artefact = ""
-        self._progress_relayed.connect(self._on_progress)
-        self._read_landed.connect(self._on_read_landed)
+        self._read_relay = (_read_relay(), weakref.ref(self))
 
         from ..preferences import scaled_px
         from .height_grip import HeightGrip
@@ -1706,8 +1851,11 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
                 waiting = start = threading.Event()
                 self._reading[key] = waiting
         if start is not None:
-            threading.Thread(target=self._run_read,
-                             args=(key, work, start), daemon=True,
+            threading.Thread(target=_run_read,
+                             args=(self._read_lock, self._reads,
+                                   self._reading, self._shown,
+                                   self._read_relay, key, work, start),
+                             daemon=True,
                              name="spacr-merge-read").start()
         budget = self._deadline - time.monotonic()
         if budget > 0:
@@ -1734,36 +1882,6 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
             raise value.error
         return value
 
-    def _run_read(self, key, work, waiting) -> None:
-        """Perform one database read. WORKER THREAD; touches no widget.
-
-        :param key: ``(generation, question)``, what the answer is filed
-            under.
-        :param work: the callable to run.
-        :param waiting: set once the answer is filed, so a GUI-thread wait
-            still inside its budget picks the answer up without a redraw.
-
-        The filing is in a ``finally``. A read that ends any other way --
-        the interpreter shutting down under it, a C-level error `work` does
-        not raise as an `Exception` -- must still release the question, or
-        the cell that said "reading…" says it for the life of the panel and
-        no later paint ever asks again.
-        """
-        try:
-            try:
-                value = work()
-            except Exception as error:           # noqa: BLE001 - carried back
-                value = _ReadFailed(error)
-            self._file_read(key, value)
-        finally:
-            with self._read_lock:
-                self._reading.pop(key, None)
-            waiting.set()
-            try:
-                self._read_landed.emit()
-            except RuntimeError:
-                pass
-
     def _file_read(self, key, value) -> None:
         """File one answer. WORKER THREAD.
 
@@ -1783,11 +1901,7 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         way; only `_shown`, which is keyed by the question alone, needs the
         comparison.
         """
-        with self._read_lock:
-            self._reads[key] = value
-            seen = self._shown.get(key[1])
-            if seen is None or seen[0] <= key[0]:
-                self._shown[key[1]] = (key[0], value)
+        _file_answer(self._read_lock, self._reads, self._shown, key, value)
 
     def _on_read_landed(self) -> None:
         """Redraw what was drawn provisionally, now the answer is in.
@@ -1854,7 +1968,18 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         Held in an attribute and guarded rather than connected as a bound
         method: `probes` is process-wide and outlives this panel, and
         reaching a destroyed C++ half is a crash rather than an exception.
+
+        The slot holds the panel only WEAKLY and is disconnected when the
+        panel is destroyed. `closeEvent` unfollows too, but a panel inside a
+        screen is never closed itself -- Qt deletes it with the screen -- so
+        a slot closing over ``self`` stayed connected for good and kept the
+        whole screen's Python wrapper tree alive: about six MB for every
+        regression screen a serial ``pytest tests/qt`` built.
         """
+        import weakref
+
+        owner = weakref.ref(self)
+
         def corrected(path: str, _answer: bool) -> None:
             """Redraw when ``path`` is one of ours, ignore every other.
 
@@ -1862,14 +1987,35 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
             :param _answer: what it changed to; the rows are drawn from
                 `paths()`, which reads the probe's cache itself.
             """
+            panel = owner()
+            if panel is None:
+                return
             try:
-                if any(entry.path == path for entry in self._databases):
-                    self._recount()
+                if any(entry.path == path for entry in panel._databases):
+                    panel._recount()
             except RuntimeError:
                 pass
 
+        def let_go(*_args) -> None:
+            """Drop the probe connection as the panel is destroyed.
+
+            Only while still connected: `closeEvent` may have unfollowed
+            already, and disconnecting twice warns.
+
+            :param _args: whatever ``destroyed`` sends; unused.
+            """
+            if not corrected.following:
+                return
+            corrected.following = False
+            try:
+                path_probe.probes.answered.disconnect(corrected)
+            except (RuntimeError, TypeError):
+                pass
+
+        corrected.following = True
         self._probe_redraw = corrected
         path_probe.probes.answered.connect(corrected)
+        self.destroyed.connect(let_go)
 
     def _unfollow_path_probes(self) -> None:
         """Stop following the probes, before the C++ half goes."""
@@ -1877,6 +2023,9 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         if redraw is None:
             return
         self._probe_redraw = None
+        if not getattr(redraw, "following", True):
+            return
+        redraw.following = False
         try:
             path_probe.probes.answered.disconnect(redraw)
         except (RuntimeError, TypeError):
@@ -1898,7 +2047,12 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
 
 
     def set_database_provider(self, provider) -> None:
-        """Take a new source of input-table rows and re-read it."""
+        """Take a new source of input-table rows and re-read it.
+
+        :param provider: zero-argument callable returning the input table's
+            rows (see :func:`attached_databases` for the accepted shapes); it
+            is called on every refresh, starting immediately.
+        """
         self._provider = provider
         self.refresh()
 
@@ -2127,7 +2281,11 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         return tuple(out)
 
     def set_selected_tables(self, names: Sequence[str]) -> None:
-        """Tick exactly ``names``."""
+        """Tick exactly ``names``.
+
+        :param names: table names to tick, compared as strings; every other
+            listed table is unticked.
+        """
         wanted = {str(name) for name in names}
         self._filling = True
         try:
@@ -2144,7 +2302,11 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
         return self.anchor_box.currentText() or DEFAULT_ANCHOR
 
     def set_anchor(self, name: str) -> None:
-        """Choose the anchor, if it is on offer."""
+        """Choose the anchor, if it is on offer.
+
+        :param name: name of the table to anchor on, set as the anchor box's
+            current text; a name not offered there leaves the choice unchanged.
+        """
         self.anchor_box.setCurrentText(str(name))
 
     def policy(self) -> MergePolicy:
@@ -2631,17 +2793,10 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
 
 
     def _relay_progress(self, stage: str, done: int, total: int) -> None:
-        """Called BY THE WORKER. Emits, and does nothing else.
-
-        The guard is the one `JobRunner._relay` documents: a panel closed
-        while a merge is still running takes its C++ half with it, and PySide6
-        then raises ``RuntimeError: Signal source has been deleted`` inside
-        the worker.
-        """
-        try:
-            self._progress_relayed.emit(str(stage), int(done), int(total))
-        except RuntimeError:
-            pass
+        """Send worker progress through the relay that outlives this panel."""
+        relay, panel_ref = self._read_relay
+        relay.update.emit(panel_ref, "_on_progress",
+                          (str(stage), int(done), int(total)))
 
     def _on_progress(self, stage: str, done: int, total: int) -> None:
         """Show one stage. Always on the GUI thread."""
@@ -2672,7 +2827,11 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
             self._plan_shown + f"\n\nThe merge did not finish: {message}")
 
     def closeEvent(self, event):                 # noqa: N802 - Qt name
-        """Do not let a worker outlive the widget it reports to."""
+        """Do not let a worker outlive the widget it reports to.
+
+        :param event: the close event; it is passed on to the base class after
+            the workers and path probes are stopped.
+        """
         try:
             self._stop.set()
             self._jobs.shutdown()
@@ -2806,6 +2965,9 @@ def well_keys(frame) -> Tuple[str, Tuple[str, ...]]:
     reason a measurements table with no ``prc`` column is still comparable to
     a regression frame that has one.
 
+    :param frame: the frame to read; its ``prc`` column is used when present,
+        else ``plateID``, ``rowID`` and ``columnID`` joined with underscores.
+        ``None`` or a frame without columns gives ``("", ())``.
     :returns: ``("", ())`` for a frame carrying no well identity at all,
         which is itself the answer to "why did nothing join".
     """
@@ -2831,6 +2993,12 @@ def describe_key_overlap(left_name: str, left, right_name: str,
     The sentence the design asks for, and it is computed rather than
     asserted. ``""`` when the two do overlap, because then the join is not the
     problem and saying anything about it would send the user the wrong way.
+
+    :param left_name: how the first frame is named in the sentence, such as
+        ``'merged measurements'``.
+    :param left: the first frame; its well keys come from :func:`well_keys`.
+    :param right_name: how the second frame is named in the sentence.
+    :param right: the second frame; its well keys come from :func:`well_keys`.
     """
     left_key, left_wells = well_keys(left)
     right_key, right_wells = well_keys(right)
@@ -2913,13 +3081,6 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
     #: `DatabaseMergePanel` because `WorkflowSteps` is not a QObject.
     step_folds_changed = Signal()
 
-    #: Worker-thread relays. The rule is the one `job_runner` exists to stop
-    #: being re-derived: a worker may EMIT and nothing else, and the receiver
-    #: is a bound method of this GUI-thread object so Qt queues the real work
-    #: back where it belongs.
-    _started_relayed = Signal(str, int, int)
-    _result_relayed = Signal(object)
-
     def __init__(self, frame_provider=None, settings_provider=None,
                  parent=None, *, score_provider=None, threaded: bool = True,
                  fit=None):
@@ -2943,8 +3104,7 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
         self._outcomes: List[ColumnFit] = []
         self._queue_settings: Dict[str, Any] = {}
         self._queue_score = ""
-        self._started_relayed.connect(self._on_queue_progress)
-        self._result_relayed.connect(self._on_queue_result)
+        self._worker_relay = (_read_relay(), weakref.ref(self))
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -3086,7 +3246,11 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
                      if self.columns_list.item(index).isSelected())
 
     def set_selected_columns(self, names: Sequence[str]) -> int:
-        """Select exactly ``names``. Returns how many were found."""
+        """Select exactly ``names``. Returns how many were found.
+
+        :param names: column names to select, compared as strings; every other
+            listed column is deselected, and ``None`` selects none.
+        """
         wanted = {str(name) for name in (names or ())}
         found = 0
         for index in range(self.columns_list.count()):
@@ -3258,18 +3422,15 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
         return {"outcome": "ran", "fits": fits}
 
     def _relay_started(self, column: str, index: int, total: int) -> None:
-        """Called BY THE WORKER before each fit. Emits, and nothing else."""
-        try:
-            self._started_relayed.emit(str(column), int(index), int(total))
-        except RuntimeError:
-            pass
+        """Send a fit's start through the relay that outlives this panel."""
+        relay, panel_ref = self._worker_relay
+        relay.update.emit(panel_ref, "_on_queue_progress",
+                          (str(column), int(index), int(total)))
 
     def _relay_result(self, outcome: ColumnFit) -> None:
-        """Called BY THE WORKER after each fit. Emits, and nothing else."""
-        try:
-            self._result_relayed.emit(outcome)
-        except RuntimeError:
-            pass
+        """Send a fit's result through the relay that outlives this panel."""
+        relay, panel_ref = self._worker_relay
+        relay.update.emit(panel_ref, "_on_queue_result", (outcome,))
 
     def _on_queue_progress(self, column: str, index: int, total: int) -> None:
         """One fit is starting. Always on the GUI thread."""
@@ -3325,7 +3486,11 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
         self.progress.setVisible(True)
 
     def closeEvent(self, event):                 # noqa: N802 - Qt name
-        """Do not let a queue outlive the widget it reports to."""
+        """Do not let a queue outlive the widget it reports to.
+
+        :param event: the close event; it is passed on to the base class after
+            the worker queue is stopped.
+        """
         try:
             self._stop.set()
             self._jobs.shutdown()
@@ -3660,6 +3825,8 @@ class MeasurementScanPanel(QWidget):
         tests about "the databases appear without a scan" began failing --
         the databases were there, the section was shown, and its content was
         simply folded away, which is what folded means.
+
+        :param title: the section's title; an unknown title returns ``False``.
         """
         section = self._folders.get(str(title))
         return bool(section is not None and section.isVisibleTo(self))
@@ -3692,7 +3859,12 @@ class MeasurementScanPanel(QWidget):
         return bool(section is not None and section.is_expanded())
 
     def set_section_expanded(self, title: str, expanded: bool) -> None:
-        """Fold or open one section by name. The hook a preference needs."""
+        """Fold or open one section by name. The hook a preference needs.
+
+        :param title: the section's title; an unknown title is ignored.
+        :param expanded: ``True`` to open the section, ``False`` to fold it;
+            coerced with ``bool()``.
+        """
         section = self._folders.get(str(title))
         if section is not None:
             section.set_expanded(bool(expanded))
@@ -3703,6 +3875,9 @@ class MeasurementScanPanel(QWidget):
         Anything added to this tab goes HERE and not into the layout: a widget
         appended to the layout takes its height out of the others, which is
         how the sections came to overlap.
+
+        :param widget: the widget to add as a foldable section; ``None`` does
+            nothing.
         """
         if widget is None:
             return
@@ -3715,7 +3890,11 @@ class MeasurementScanPanel(QWidget):
 
 
     def set_frame_provider(self, provider) -> None:
-        """Take a new source for the frame the scan runs on."""
+        """Take a new source for the frame the scan runs on.
+
+        :param provider: zero-argument callable returning the frame the scan
+            runs on, called each time the frame is needed.
+        """
         self._frame_provider = provider
 
     def set_database_provider(self, provider) -> None:
@@ -3723,6 +3902,10 @@ class MeasurementScanPanel(QWidget):
 
         The same shape as :meth:`set_frame_provider`, and for the same reason:
         the tab re-reads the rows rather than holding a copy of them.
+
+        :param provider: zero-argument callable returning the input table's
+            rows (see :func:`attached_databases` for the accepted shapes); it
+            is called on every refresh by the databases section.
         """
         self.databases.set_database_provider(provider)
 
@@ -3830,7 +4013,12 @@ class MeasurementScanPanel(QWidget):
                                     "loaded run", frame)
 
     def scan(self, frame, **kwargs) -> bool:
-        """Scan ``frame`` and show the result."""
+        """Scan ``frame`` and show the result.
+
+        :param frame: the measurement frame passed to
+            :func:`spacr.measurement_scan.scan_measurements` together with
+            ``kwargs``.
+        """
         from ...measurement_scan import ScanRefused, scan_measurements
 
         try:
@@ -3849,7 +4037,12 @@ class MeasurementScanPanel(QWidget):
         return self.set_result(result)
 
     def set_result(self, result) -> bool:
-        """Show an already-computed :class:`ScanResult`."""
+        """Show an already-computed :class:`ScanResult`.
+
+        :param result: the :class:`~spacr.measurement_scan.ScanResult` to show;
+            its ``frame()`` and ``rows`` fill the table, with a verdict per
+            row.
+        """
         self._result = result
         table = result.frame()
         if not len(table):

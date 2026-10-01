@@ -162,13 +162,14 @@ def test_the_readout_predicts_what_the_filter_removes(screen):
     hover(screen, 8, 8)
     readout = screen._canvas.readout
     assert readout.label == 3
-    screen._filter_min_int.setValue(readout.mean_intensity)
-    assert screen._filter_min_int.value() == readout.mean_intensity, (
+    screen._filter_list.set_filter("intensity_mean", readout.mean_intensity)
+    assert screen._filter_list.filters()[0]["min"] == pytest.approx(
+        readout.mean_intensity, rel=1e-9), (
         "the test's mean needs no rounding to fit the box")
     screen._btn_filter.click()
     assert (screen._canvas.mask == 3).any(), "a bound AT the mean removed it"
 
-    screen._filter_min_int.setValue(readout.mean_intensity + 0.01)
+    screen._filter_list.set_filter("intensity_mean", readout.mean_intensity + 0.01)
     screen._btn_filter.click()
     assert not (screen._canvas.mask == 3).any()
     removed = screen._log.edits[-1]
@@ -278,7 +279,7 @@ def test_the_masthead_carries_no_sentence_beside_the_name(screen):
 
 def test_the_settings_toggle_sits_directly_right_of_the_magnifier(
         screen, qtbot):
-    row = screen._tool_row_layout
+    row = screen._tool_pin_layout
     magnifier = row.indexOf(screen._btn_magnifier)
     assert magnifier >= 0
     assert row.indexOf(screen._btn_settings) == magnifier + 1
@@ -295,9 +296,10 @@ def test_the_settings_toggle_sits_directly_right_of_the_magnifier(
 def test_an_action_added_later_does_not_come_between_the_pair(screen):
     from PySide6.QtWidgets import QPushButton
 
-    row = screen._tool_row_layout
+    row = screen._tool_pin_layout
     added = screen.add_toolbar_action(QPushButton("Another action"))
-    assert row.indexOf(added) < row.indexOf(screen._btn_magnifier)
+    assert row.indexOf(added) < 0
+    assert screen._tool_row_layout.indexOf(added) >= 0
     assert row.indexOf(screen._btn_settings) == \
         row.indexOf(screen._btn_magnifier) + 1
 

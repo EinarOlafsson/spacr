@@ -1,0 +1,227 @@
+FILTERS ARE ANY scikit-image REGIONPROP, ADDED BY THE USER
+
+Status: DONE 2026-09-25 (engine, Make Masks list, object_filters setting;
+        see BUILT below). Filed 2026-09-24. The old per-object bounds were
+        retired into object_filters rows the same day, by the maintainer's
+        decision (see the last note).
+Owner: Claude (item 511 worktree).
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "there should be other filter options as well, basically the user should be
+    able to pick any sikit-image regionprop to filter on. but this should be
+    opti in not one row for each filter. the user should be able to add filters
+    from scikit-image regionprops, that is to say."
+
+WHAT TO BUILD
+Instead of a fixed row per filter, an "Add a filter" control that offers every
+property skimage.measure.regionprops computes for a labelled image (area,
+eccentricity, solidity, extent, perimeter, axis lengths, intensity statistics
+where an intensity image is available, and the rest), then adds one row with a
+minimum and a maximum. Rows can be removed. The chosen filters travel with the
+mask's provenance and apply in Make Masks and in Mask generation alike. Offer
+only the properties that are real for the image at hand (an intensity property
+needs an intensity image), rather than failing later.
+
+DONE WHEN
+A user can filter objects on a property spaCR never hard-coded, the filter is
+recorded, and removing it restores the objects it hid.
+
+BUILT 2026-09-25
+Engine, one for both apps (spacr/qt/mask_engine.py; no new module):
+  _filter_catalogue / filter_properties (1597/1645): every scalar regionprop,
+    enumerated from skimage's own COL_DTYPES by computing each on a probe;
+    non-scalar ones (coords, image, bbox, centroid, moments...) left out;
+    intensity_* offered only with an intensity image. skimage 0.23.2 gives
+    16 shape + 4 intensity properties.
+  normalise_filters (1698): the serialised list [{"property","min","max"}],
+    None/blank = off, old skimage names mapped (mean_intensity ->
+    intensity_mean), JSON or literal text accepted, errors named.
+  legacy_filters (1755): THE MIGRATION -- min/max_area and min/max_intensity
+    (0 = off) become "area" and "intensity_mean" entries.
+  settings_filters (1779): reads the object_filters setting per object type.
+  filter_removals (1850): one regionprops_table call per mask with every
+    requested property; an intensity property without an intensity image is
+    refused ("An intensity plane with the same shape as the mask is required:
+    the filter on X measures pixel values, so it cannot run on a mask alone.").
+  apply_filters (1938); filter_report / filter_objects (1995-) now run on it.
+Mask generation: spacr/utils.py:621 _filter_objects migrates its legacy
+  bounds into the list and judges them with filters= in one pass (same run-log
+  lines, plus "Object filters: removed N"); filters= threaded through
+  _process_single_fov_in_memory, merge_split_objects, _process_single_fov.
+  Wired where the size filters apply, per object type: spacr/object.py:128
+  (merge_split_filter_masks), :777 (masks, incl. the 3-D branch), :1487
+  (organelle slots), spacr/pipeline_v2.py:551, live_preview.py:1063. Raw
+  intensity planes are loaded whenever a listed filter needs them.
+Make Masks: spacr/qt/screens/make_masks.py:6887 ObjectFilterList -- property
+  box + "Add a filter", rows of property / min / max / Remove, starts empty
+  (opt-in); in the Filter category at :8451. Applied live
+  (apply_object_filter :9287) against a baseline (_filter_base :9262), so
+  removing a row or loosening a bound brings back what it hid; edits made
+  since the last run are folded into the baseline; undo, redo and opening a
+  field start a new one. The ledger's "filter" entry records filters=<list>
+  (provenance). The four fixed spin boxes are gone; set_filters() accepts an
+  old bounds dict and migrates it.
+LEFT FOR THE MAINTAINER: Mask's per-object {obj}_min_area, _max_area,
+  _min_intensity, _max_intensity settings still exist in the form (many
+  tests, tables and translations hang on them). They are migrated into the
+  list where read, so there is one engine, but still two ways to type an area
+  bound in Mask. Retiring them is a separate decision.
+
+TESTS (2026-09-25)
+  New: tests/test_object_filters_are_any_regionprop.py (29: each of the 20
+  properties, refusal, restore, migration, once per mask, Mask run labels ==
+  Make Masks labels); tests/qt/test_make_masks_filters_are_any_regionprop.py
+  (9: offered list with/without an image, add/remove rows, live restore,
+  provenance, editor vs run, legacy dict). Existing Make Masks and filter
+  tests moved to the list API. 69 files (all Make Masks qt tests, mask
+  filter/intensity/merge tests, settings and i18n pins):
+  before 1458 passed / 1 failed (stale reviewed translations, pre-existing);
+  after, pre-merge 1865 passed / 0 failed; after merging nightly
+  1863 passed / 2 failed -- test_runtime_i18n_syntax sv and fr, which fail on
+  nightly itself (316's 721adc238 retired 17 sv records, file 246 vs pinned
+  263); 511's own deltas (-4 / -1) are applied in that test.
+
+NEW SETTING (docs lane): object_filters (dict, Mask, "Object filtration"
+  category, default {}), e.g. {'cell': [{'property': 'solidity', 'min': 0.9}]}.
+NEW tr() STRINGS (make_masks.py): "Add a filter"; "Remove"; "no minimum";
+  "no maximum"; tooltips of the property box, Add, row label, min, max and
+  Remove; the Filter category subtitle; the Filter button and ledger
+  tooltips; "Nothing is hidden. Add a filter above and set a bound.";
+  "Object filters: nothing outside the bounds."; "Object filter removed
+  {count} object(s) — Ctrl+Z to undo"; ledger pieces "Object {label} with
+  area {area} px", "and intensity {mean}", "was removed by", "and",
+  "minimum", "maximum", "area", "intensity", "(was {value})"; "{name}
+  measures pixel values, and no intensity image is open, so it cannot filter
+  this mask." Retired captions (reviewed records deleted): Min/Max area (px),
+  the old Filter subtitle, button and ledger tooltips, and placeholder.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- DECISION APPLIED: THE OLD PER-OBJECT BOUNDS ARE RETIRED
+--------------------------------------------------------------------------------
+
+The maintainer, 2026-09-25: "RETIRE Mask's old per-object {obj}_min_area,
+_max_area, _min_intensity, _max_intensity settings from the form; saved
+settings that carry them are migrated into object_filters rows on load
+(511's legacy_filters already does the conversion -- make it the load path).
+... the pipeline still honours old saved values via migration."
+
+SCOPE. The twelve keys {cell,nucleus,pathogen}_{min,max}_{area,intensity}.
+The organelle family (organelle_min_area and the slots' *_min_area, and
+organelle*_min/max_intensity) is NOT retired: the organelle segmenters use
+organelle_min_area as a segmentation parameter (spacr/object.py, the
+remove_small_objects calls in the classical routes), not only as a filter.
+Say if the organelle bounds should follow.
+
+THE LOAD PATH, one fold, spacr/settings.py _fold_object_bounds:
+  * each retired key present is popped and handed to
+    mask_engine.legacy_filters (0 = off, as before); the rows are appended
+    to that object's object_filters list. A row the file already has for
+    the same property wins (a filter list is the later spelling).
+  * a value that is not a finite number >= 0 is LEFT in place, unmigrated,
+    so the run, the doctor and the Live preview refuse it as they did
+    (_validated_intensity_bounds); moving it would have made it "off".
+  * called from set_default_settings_preprocess_generate_masks (every Mask
+    run and every script that still passes the old names), the CLI/batch
+    loader (cli._under_todays_names, with the doctor's message), the Qt
+    form's load (app_screen._translate_legacy_setting_keys) and the Live
+    preview's apply_settings.
+  * the twelve are SEMANTIC_FOLD_MEANINGS entries and RETIRED_SETTINGS ->
+    "object_filters", so the doctor says "'cell_min_area' was folded into
+    'object_filters'" and what the value becomes.
+
+THE REGISTRIES. Removed from the Mask defaults, expected_types, the
+tooltips and the Cell/Nucleus/Pathogen categories. object_filters' tooltip
+now says area and intensity_mean are rows there, that an area minimum is
+also Cellpose's min_size, and that an old file's bounds become rows. The
+three *_min_size (Measure) tooltips pointed at the retired keys and now
+point at the object_filters area row. seg_qc's four fix texts likewise.
+
+THE READERS, moved:
+  * settings._get_object_settings: Cellpose min_size =
+    mask_engine.object_filter_area_floor(settings, obj) (the minimum of the
+    object's area row; new function next to settings_filters, with
+    parse_object_filters split out of settings_filters).
+  * core.py:282 (the v2 path's min_size) -- the same one line. (493's file;
+    one-line hunk.)
+  * the Live preview (spacr/qt/widgets/live_preview.py; 525b's file, three
+    small hunks): its per-compartment Min/Max area and Min/Max intensity
+    controls for cell, nucleus and pathogen now read (_bound_from_filters)
+    and write (_bounds_into_filters) those objects' area / intensity_mean
+    rows of object_filters, so propagation sends object_filters and never
+    a retired key. Organelle controls unchanged.
+  * make_masks_help: the Make Masks min-area control's help points at
+    object_filters.
+  * NOT moved, on purpose: the role-generic f-string reads
+    settings.get(f'{object_type}_min_area', 0) and friends in
+    spacr/object.py (merge_split_filter_masks, generate_cellpose_masks_sam),
+    spacr/pipeline_v2.py and the Live preview's _apply_size_filter. The
+    organelle slots still go through them; for cell/nucleus/pathogen the key
+    is folded away before they run, so they read 0 and the object_filters
+    row does the work.
+  * spacr/object.py:1168 (3-D branch): a list of object_filters with no
+    intensity property crashed zip(masks, None). A pre-existing 511 bug
+    (any area-only filter list in a volumetric run) that the migration made
+    reachable from an old cell_min_area; now an intensity-free filter gets
+    None planes. NOTE the behaviour change: an old cell_min_area in a
+    volumetric/3-D run used to be skipped (the 2-D filter step is skipped
+    there); as an area row it now judges each 3-D label by voxel count.
+
+DOCS TABLES AND GENERATED FILES.
+  * setting animations: the nine max-area and mean-bound animations of
+    cell, nucleus and pathogen had no live key left and were removed (GIFs,
+    manifest, generator specs, docs/source/setting_animations.rst via
+    --docs-only), as 391 removed eight. The three min-area animations keep
+    their slugs and now name *_min_size; cell's also carries
+    object_filters. 87 -> 78 animations, 107 -> 96 keys.
+  * reviewed runtime translations: 91 records (labels and tooltips of the
+    retired mean bounds, all in */2026-09-15-mask-mean-bounds.json) deleted,
+    per tools/check_reviewed_runtime_evidence.py ("the English is gone;
+    DELETE"). The EN catalog rows in spacr/qt/i18n_catalogs are the
+    translation lane's to drop.
+  * tools/build_setting_consumer_map.py: the twelve pinned as catalog_only
+    and CATALOG_ONLY_UNREAD, with the reason (catalog rows remain; the
+    generic f-string reads expand to them; no literal read is left).
+    setting_api_targets.py was NOT regenerated (its only drift is other
+    lanes').
+  * docs/source/_generated/settings_flow.rst and settings_flow_index.py
+    regenerated (tools/settings_flow.py --rst).
+
+TESTS. New in tests/test_object_filters_are_any_regionprop.py: the keys are
+gone from every registry; an old CSV is migrated into rows on load (and
+the doctor names object_filters); a script passing old names to the Mask
+defaults is folded and Cellpose min_size comes from the row; an existing
+row wins; an unusable value is left for the run to refuse; a migrated file
+filters exactly as the old bounds did (merge_split_filter_masks vs the
+legacy _filter_objects). tests/test_settings_full_coverage.py: min_size
+from the area row. Updated honestly, each with a dated note: expected-types
+pin (catalog_only), categories (KEYS_RETIRED), tooltip census (742 -> 734,
+-8, none of the twelve left), tooltip contract, dead-settings/doctor typo
+example, Live preview tests (read the rows back), mask intensity contract,
+animations (counts, organelle-only mean-bound scenes, a test that the nine
+are gone), two settings-tables, object grid examples (min_area ->
+background).
+
+RESULTS, one capped offscreen CPU process, 80 files:
+  before, on this worktree's base (b315c0342), the 62 files that name the
+    keys or pin the registries: 1940 passed / 5 failed (2 i18n caption
+    ratchet, 2 settings-flow artefacts stale, 1 ops_spot_detector tooltip
+    over 600 chars -- none from this item);
+  after, 80 files (the 62, plus the reviewed-translation, animation and
+    audit files a retirement touches): 2535 passed / 5 failed / 27 skipped
+    (the last five failures of the full run, in the zoom and audit files,
+    were fixed and those two files re-run: 31 passed).
+    The 5: the same two i18n caption ratchet tests and the ops_spot_detector
+    tooltip, and test_runtime_i18n_syntax sv/fr, whose failing counts are
+    of 2026-09-21 files this item did not touch (the 511 build note records
+    them red on nightly then). The settings-flow artefacts are green again
+    after regeneration.
+LEFT: the EN catalog rows (and nine languages' catalog rows) for the twelve
+keys are the translation lane's to drop; whether the organelle bounds should
+be retired the same way is the maintainer's call.
+AFTER MERGING NIGHTLY (ab5ce88d7): nightly had meanwhile added reviewed
+translations of object_filters' OLD tooltip (*/2026-09-25-runtime-debt-
+second-pass-setting-help.json); the rewrite above makes them stale, so the
+nine records were deleted as tools/check_reviewed_runtime_evidence.py
+directs. tests/test_runtime_i18n_syntax.py's sv/fr source pins moved by the
+deleted mask-mean-bounds sources (-7 sv, -12 fr), each marked in place.

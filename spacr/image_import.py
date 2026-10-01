@@ -98,6 +98,9 @@ def tokenise(name: str) -> List[Tuple[str, str]]:
     ``"plate1_A01_F001"`` becomes alpha/digit pairs. Separators are dropped:
     conventions disagree about ``_`` versus ``-`` versus nothing, and the
     disagreement carries no information.
+
+    :param name: the file or folder name to split; every character that is
+        not an ASCII letter or a digit is dropped.
     """
     return [("digit" if t[0].isdigit() else "alpha", t)
             for t in _TOKEN.findall(name)]
@@ -473,7 +476,12 @@ class ImportPlan:
         return {axis: len(values) for axis, values in out.items()}  # type: ignore[arg-type]
 
     def with_mapping(self, mapping: Dict[int, Dict[str, int]]) -> "ImportPlan":
-        """A new plan with ``mapping`` merged in. Nothing on disk is touched."""
+        """A new plan with ``mapping`` merged in. Nothing on disk is touched.
+
+        :param mapping: further answers as ``{token position: {value: index}}``;
+            for each position they are added to, and override, the answers this
+            plan already holds.
+        """
         merged = {position: dict(answers)
                   for position, answers in self.mapping.items()}
         for position, answers in mapping.items():
@@ -579,6 +587,11 @@ def canonical_name(entry: Dict[str, object], *, plate: str = "plate1") -> str:
     Missing axes take 1 rather than 0: spaCR's convention is one-based, and a
     plate whose only timepoint is ``T0000`` reads as a bug in the acquisition
     rather than as an absence.
+
+    :param entry: one resolved file's axes, read by the keys ``plate``,
+        ``well``, ``t``, ``field``, ``z`` and ``channel``; a missing well
+        becomes ``A01`` and a missing or zero index becomes 1.
+    :param plate: the plate name used when ``entry`` has no ``plate`` key.
     """
     return CANONICAL.format(
         plate=str(entry.get("plate", plate)),
@@ -618,6 +631,9 @@ def save_plan(plan: "ImportPlan", path) -> Path:
     the mapping -- see its own docstring for why replaying a stale table
     would import last week's images.
 
+    :param plan: the plan to save.
+    :param path: the JSON file to write; missing parent folders are created
+        and an existing file is overwritten.
     :returns: the path written, so a caller can report it.
     """
     import json
@@ -641,6 +657,9 @@ def load_plan(path) -> "ImportPlan":
     The plan is re-derived from the folder and the saved MAPPING rather than
     trusting the saved per-file table: the folder may have gained images since,
     and a stale table would silently import last week's files.
+
+    :param path: the JSON file written by :func:`save_plan`; its ``root`` and
+        ``mapping`` keys are read and the rest is ignored.
     """
     import json
 

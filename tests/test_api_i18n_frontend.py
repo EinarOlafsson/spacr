@@ -120,7 +120,24 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # Exact additions/removals and the unchanged rendered boundary are recorded
 # in features/data/411_api_test_surface_2026-09-23.json. Locale debt remains
 # checked separately by the complete-catalog browser test.
-REAL_SYMBOL_COUNT = 11_528
+# 11,528 -> 11,651 on 2026-09-25, +124 / -1 against af6d77376 (items
+# 502-513), then 11,661 with ten more after rebasing on b84c3441c; the set
+# differences are named in test_api_i18n_extractor.
+# 11,710 on nightly 03a02c3b8: +47 callables and two mask_engine constants.
+# 11,758 with item 528's twelve, named in test_api_i18n_extractor.
+# 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
+# 11,834 on 2026-09-26: item 545's eighteen ROI callables.
+# 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
+# 11,861 with item 588's mask_engine.fill_label_holes.
+# 11,865 with items 544 and 573's four spacr.run_journal callables.
+# 11,929: +67 (spacr.channel_sorting, spacr.folder_consolidation,
+# qt.widgets.channel_sort_dialog, three ObjectSettingsGrid filter methods),
+# -3 object-grid preference helpers; named in test_api_i18n_extractor.
+# 11,942: +13 (spacr.drop_classification, qt.widgets.organize_for_measure,
+# item 600); named in test_api_i18n_extractor.
+# 2026-10-01: merge, uncertainty and condition APIs; exact source delta
+# recorded in features/data/615_public_api_delta_2026-10-01.json.
+REAL_SYMBOL_COUNT = 12_034
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

@@ -23,6 +23,12 @@ properties tested here are:
 """
 from __future__ import annotations
 
+from spacr.model_zoo import _mask_model_kinds
+
+#: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
+#: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
+MASK_KINDS = _mask_model_kinds()
+
 import numpy as np
 import pytest
 
@@ -309,7 +315,9 @@ def test_propagation_does_not_switch_the_override_on(panel, checkpoint):
 def test_the_preview_offers_only_cellpose_models(panel, monkeypatch):
     """``kinds`` is a rule rather than a parameter: the zoo also carries the
     YOLO well detector and ``CellposeModel`` cannot load it, so offering it
-    here produces a preview that fails the moment it is selected."""
+    here produces a preview that fails the moment it is selected. Cellpose 3
+    rows are offered since item 503 and Cellpose-DINO rows since item 525:
+    the pass segments each in its own backend, as the run does."""
     import spacr.qt.widgets.model_zoo_picker as picker
 
     seen = {}
@@ -318,7 +326,7 @@ def test_the_preview_offers_only_cellpose_models(panel, monkeypatch):
         lambda parent=None, kinds=None: seen.update(kinds=kinds))
     panel._choose_a_preview_model()
 
-    assert seen["kinds"] == ("cellpose",)
+    assert seen["kinds"] == MASK_KINDS
 
 
 # --------------------------------------------------------------------------

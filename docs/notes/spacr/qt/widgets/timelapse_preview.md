@@ -504,3 +504,25 @@ movie = TimelapseMoviePanel(card)
 ```
 
 The movie sits under the tuning controls, not beside them: it is what you look at after a pass to find out WHY the numbers came out the way they did, and a track break is found by scrubbing frames rather than by reading a fragmentation figure.
+
+
+---
+
+# Notes from `spacr/qt/widgets/timelapse_preview.py`
+
+Prose lifted out of `spacr/qt/widgets/timelapse_preview.py` by `tools/extract_source_notes.py`.
+Ordinary comments move here; tool directives and published attribute documentation stay in the module. The path mirrors the source path, which is how its reasons are found.
+
+Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
+
+## TimelapsePreviewPanel.apply_settings
+
+### lines 2031-2034
+
+```python
+wanted, _key, here = _model_the_run_would_use(
+```
+
+The model the RUN segments `obj` with, by the key order the
+
+Mask panel reads (333). This seeded the object, channel and diameter and never the model, so every frame was segmented with the menu's first entry whatever the run was set to use.

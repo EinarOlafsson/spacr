@@ -14,7 +14,9 @@ from .organelle_types import (ALL_ORGANELLE_ROLES,
                               apply_preset, declared_organelle_roles,
                               organelle_count, organelle_number,
                               organelle_slot_label,
-                              slot_setting)
+                              slot_setting,
+                              _background_switch_key,
+                              _legacy_background_switch_role)
 
 LOG = logging.getLogger(__name__)
 
@@ -320,8 +322,6 @@ def _ensure_bundled_barcode(kind, fetch=None):
                 return response.read()
     payload = _verified_barcode_bytes(kind, fetch(url))
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    # Written whole and then moved, so an interrupted fetch cannot leave a
-    # half-written CSV that parses as a short barcode table.
     staging = f"{path}.partial"
     with open(staging, "wb") as handle:
         handle.write(payload)
@@ -972,6 +972,49 @@ def _set_psf_defaults(settings):
     settings.setdefault('psf_iterations', 20)
 
 
+def _set_unmix_defaults(settings):
+    """Populate the dormant spectral-unmixing settings, unmixing off."""
+    settings.setdefault('unmix', False)
+    settings.setdefault('unmix_controls', '')
+    settings.setdefault('unmix_background_percentile', 5.0)
+
+
+def _set_n2v_defaults(settings):
+    """Populate the dormant Noise2Void settings, denoising off."""
+    settings.setdefault('n2v_denoise', False)
+    settings.setdefault('n2v_model', '')
+    settings.setdefault('n2v_epochs', 20)
+
+
+def _set_enhancement_defaults(settings):
+    """Populate the dormant enhancement-chain settings, every step off.
+
+    One ``enhance_<field>`` per :data:`spacr.qt.detect_chain.SETTINGS_FIELDS`
+    entry, with the value :data:`spacr.qt.detect_chain.NO_CHAIN` holds --
+    pinned to it by test rather than imported, so that importing this module
+    costs no imaging code. Read back by :func:`spacr.psf_pipeline.prepare_chain`.
+    """
+    settings.setdefault('enhance_background', 'none')
+    settings.setdefault('enhance_background_radius', 50)
+    settings.setdefault('enhance_background_scale', 0.5)
+    settings.setdefault('enhance_denoise', 'none')
+    settings.setdefault('enhance_denoise_strength', 1.0)
+    settings.setdefault('enhance_percentile_clip', False)
+    settings.setdefault('enhance_percentile_low', 1.0)
+    settings.setdefault('enhance_percentile_high', 99.0)
+    settings.setdefault('enhance_gamma', 1.0)
+    settings.setdefault('enhance_log', False)
+    settings.setdefault('enhance_log_gain', 10.0)
+    settings.setdefault('enhance_sqrt', False)
+    settings.setdefault('enhance_clahe', False)
+    settings.setdefault('enhance_clahe_tile', 64)
+    settings.setdefault('enhance_clahe_clip', 0.01)
+    settings.setdefault('enhance_equalize', False)
+    settings.setdefault('enhance_sharpen', False)
+    settings.setdefault('enhance_sharpen_radius', 1.0)
+    settings.setdefault('enhance_sharpen_amount', 1.0)
+
+
 def set_default_settings_preprocess_generate_masks(settings=None):
     """Populate default settings for the preprocess/generate-masks pipeline.
 
@@ -986,6 +1029,10 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     _fold_renamed_settings(settings)
     settings.setdefault('pipeline_style', 'v1')
     _set_psf_defaults(settings)
+    settings.setdefault('psf_objective', 'auto')
+    _set_unmix_defaults(settings)
+    _set_n2v_defaults(settings)
+    _set_enhancement_defaults(settings)
     from .image_quality import DEFAULTS as image_quality_defaults
     for key, value in image_quality_defaults.items():
         settings.setdefault(key, value.copy() if isinstance(value, (dict, list)) else value)
@@ -1022,8 +1069,22 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('cell_model_name', 'cpsam')
     settings.setdefault('nucleus_model_name', 'cpsam')
     settings.setdefault('pathogen_model_name', 'cpsam')
+    settings.setdefault('cellpose3_add_nucleus_channel', True)
+    settings.setdefault('cellpose3_size_model', False)
+    settings.setdefault('cellpose3_resample', True)
+    settings.setdefault('cellpose3_augment', False)
+    settings.setdefault('cellpose3_percentile_low', 1.0)
+    settings.setdefault('cellpose3_percentile_high', 99.0)
 
     settings.setdefault('seg_qc', 'report')
+    settings.setdefault('robustness_report', False)
+    settings.setdefault('robustness_fields', 4)
+    settings.setdefault('robustness_crop', 512)
+    settings.setdefault('robustness_diameter_factors', [0.75, 1.25])
+    settings.setdefault('robustness_flow_thresholds', [0.2, 0.6])
+    settings.setdefault('robustness_cellprob_thresholds', [-2.0, 2.0])
+    settings.setdefault('robustness_enhancement', True)
+    settings.setdefault('robustness_tolerance', 0.2)
     settings.setdefault('seg_qc_min_objects', 10)
     settings.setdefault('seg_qc_count_ratio', 0.25)
     settings.setdefault('seg_qc_size_ratio', 1.4)
@@ -1078,12 +1139,48 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('ultrack_division_weight', -0.1)
     settings.setdefault('ultrack_contour_sigma', 0.0)
     settings.setdefault('ultrack_n_workers', 1)
+    settings.setdefault('timeflows_model', None)
     settings.setdefault('timelapse_objects', ['cell'])
+    settings.setdefault('timelapse_lineage', False)
+    settings.setdefault('timelapse_lineage_color_by', 'generation_time')
+    settings.setdefault('timelapse_lineage_max_distance', 30.0)
+    settings.setdefault('timelapse_events', False)
+    settings.setdefault('timelapse_events_annotations', None)
+    settings.setdefault('timelapse_events_model', None)
+    settings.setdefault('timelapse_events_window', 9)
+    settings.setdefault('timelapse_events_threshold', 0.5)
+    settings.setdefault('timelapse_events_conditions', None)
 
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
     settings.setdefault('adjust_cells', True)
+    settings.setdefault('mask_parallel', False)
+    settings.setdefault('mask_gpu_indices', '')
+    settings.setdefault('watch_folder', False)
+    settings.setdefault('watch_pipeline', 'mask')
+    settings.setdefault('watch_measure_settings', '')
+    settings.setdefault('watch_settle_seconds', 10.0)
+    settings.setdefault('watch_poll_seconds', 5.0)
+    settings.setdefault('watch_idle_minutes', 0.0)
+    settings.setdefault('microscope_feedback', False)
+    settings.setdefault('microscope_driver', 'simulated')
+    settings.setdefault('microscope_simulated_folder', '')
+    settings.setdefault('microscope_positions', '')
+    settings.setdefault('microscope_stage_transform', [1.0, 0.0, 0.0, 1.0])
+    settings.setdefault('microscope_event_table', 'cell')
+    settings.setdefault('microscope_event_query', '')
+    settings.setdefault('microscope_max_events', 10)
+    settings.setdefault('microscope_timepoints', 1)
+    settings.setdefault('microscope_interval_seconds', 0.0)
+    settings.setdefault('cloud_anonymous', False)
+    settings.setdefault('cloud_profile', '')
+    settings.setdefault('cloud_endpoint', '')
+    settings.setdefault('cloud_cache', '')
+    settings.setdefault('cloud_wells', '')
+    settings.setdefault('cloud_fields', 0)
+    settings.setdefault('cloud_level', 0)
+    settings.setdefault('cloud_results', '')
 
     settings.setdefault('z_stack', False)
     settings.setdefault('z_segmentation_mode', 'project')
@@ -1111,18 +1208,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_perimeter_fraction',  0)
     settings.setdefault('pathogen_perimeter_fraction',  0)
     settings.setdefault('organelle_perimeter_fraction', 0)
-    settings.setdefault('cell_min_area', 0)
-    settings.setdefault('nucleus_min_area', 0)
-    settings.setdefault('pathogen_min_area', 0)
-    settings.setdefault('cell_max_area', 0)
-    settings.setdefault('nucleus_max_area', 0)
-    settings.setdefault('pathogen_max_area', 0)
-    settings.setdefault('cell_min_intensity', 0.0)
-    settings.setdefault('cell_max_intensity', 0.0)
-    settings.setdefault('nucleus_min_intensity', 0.0)
-    settings.setdefault('nucleus_max_intensity', 0.0)
-    settings.setdefault('pathogen_min_intensity', 0.0)
-    settings.setdefault('pathogen_max_intensity', 0.0)
+    settings.setdefault('object_filters', {})
+    _fold_object_bounds(settings)
     settings.setdefault('cell_remove_border_objects', False)
     settings.setdefault('nucleus_remove_border_objects', False)
     settings.setdefault('pathogen_remove_border_objects', False)
@@ -1180,9 +1267,6 @@ def set_default_plot_data_from_db(settings):
     settings.setdefault('pathogen_plate_metadata', None)
     settings.setdefault('treatments', None)
     settings.setdefault('treatment_plate_metadata', None)
-    # 293: the Default Graph Type setting decides what is drawn
-    # FIRST. The fallback is the literal this line used to
-    # hold, so a user who chose nothing sees what they saw.
     settings.setdefault(
         'graph_type',
         _graph_types.mark_to_start_on(
@@ -1442,8 +1526,15 @@ def normalize_cellpose_model_name(value, object_type=None, key=None):
 
 
 def _get_object_settings(object_type, settings):
-    """Build per-object Cellpose/segmentation settings for cell/nucleus/pathogen."""
+    """Build per-object Cellpose/segmentation settings for cell/nucleus/pathogen.
+
+    Cellpose's ``min_size`` is the minimum of the object's ``area`` row in
+    ``object_filters``, the row the retired ``{object}_min_area`` setting
+    migrates into, so undersized masks are still dropped during
+    segmentation.
+    """
     from .utils import _get_diam
+    from .qt.mask_engine import object_filter_area_floor
     object_settings = {}
 
     object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type)
@@ -1460,7 +1551,7 @@ def _get_object_settings(object_type, settings):
             object_type=object_type, key=f'{object_type}_model_name')
 
     if object_type == 'cell':
-        object_settings['min_size'] = settings['cell_min_area']
+        object_settings['min_size'] = object_filter_area_floor(settings, 'cell')
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
@@ -1473,7 +1564,7 @@ def _get_object_settings(object_type, settings):
                 print(f'Cell diameter must be an integer or float, got {settings["cell_diameter"]!r}')
 
     elif object_type == 'nucleus':
-        object_settings['min_size'] = settings['nucleus_min_area']
+        object_settings['min_size'] = object_filter_area_floor(settings, 'nucleus')
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
@@ -1487,7 +1578,7 @@ def _get_object_settings(object_type, settings):
                 print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diameter"]!r}')
 
     elif object_type == 'pathogen':
-        object_settings['min_size'] = settings['pathogen_min_area']
+        object_settings['min_size'] = object_filter_area_floor(settings, 'pathogen')
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['resample'] = False
@@ -1602,6 +1693,7 @@ def get_measure_crop_settings(settings=None):
     _fold_renamed_settings(settings)
     _set_psf_defaults(settings)
     settings.setdefault('psf_measurement_source', 'original')
+    _set_unmix_defaults(settings)
     _requested_organelle_count = organelle_count(settings)
     import ast as _ast
     for _k, _v in list(settings.items()):
@@ -1619,6 +1711,11 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('dry_run', False)
     settings.setdefault('test_nr', 10)
     settings.setdefault('channels', [0,1,2,3])
+    settings.setdefault('cloud_anonymous', False)
+    settings.setdefault('cloud_profile', '')
+    settings.setdefault('cloud_endpoint', '')
+    settings.setdefault('cloud_cache', '')
+    settings.setdefault('cloud_results', '')
 
     settings.setdefault('save_measurements',True)
     settings.setdefault('radial_dist', True)
@@ -1626,6 +1723,71 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('spatial_neighbor_radius', 50)
     settings.setdefault('bystander_measurements', False)
     settings.setdefault('bystander_reach_in_diameters', 1.0)
+    settings.setdefault('confluency', False)
+    settings.setdefault('confluency_source', 'auto')
+    settings.setdefault('confluency_channel', None)
+    settings.setdefault('confluency_window', 15)
+    settings.setdefault('confluency_qc_threshold', 0.8)
+    settings.setdefault('bleach_correction', 'none')
+    settings.setdefault('measure_gpu', False)
+    settings.setdefault('measurement_backend', 'sqlite')
+    settings.setdefault('measurement_backend_target', '')
+    settings.setdefault('profiling', False)
+    settings.setdefault('profiling_metadata', '')
+    settings.setdefault('profiling_treatment_column', 'columnID')
+    settings.setdefault('profiling_negative_control', '')
+    settings.setdefault('profiling_normalization', 'mad_robustize')
+    settings.setdefault('profiling_feature_selection', [
+        'variance_threshold', 'frequency_threshold', 'correlation_threshold',
+        'drop_na_columns', 'drop_outliers'])
+    settings.setdefault('profiling_correlation_threshold', 0.9)
+    settings.setdefault('profiling_phenotype_column', '')
+    settings.setdefault('profiling_databases', [])
+    settings.setdefault('cell_cycle', False)
+    settings.setdefault('cell_cycle_method', 'measurements')
+    settings.setdefault('cell_cycle_channel', None)
+    settings.setdefault('cell_cycle_gates', None)
+    settings.setdefault('cell_cycle_mitotic_ratio', 1.8)
+    settings.setdefault('cell_cycle_fucci_channels', None)
+    settings.setdefault('cell_cycle_labels', '')
+    settings.setdefault('cell_cycle_model', '')
+    settings.setdefault('cell_cycle_epochs', 20)
+    settings.setdefault('wound_closure', False)
+    settings.setdefault('wound_source', 'texture')
+    settings.setdefault('wound_channel', None)
+    settings.setdefault('wound_window', 15)
+    settings.setdefault('wound_threshold', None)
+    settings.setdefault('wound_hours_per_frame', None)
+    settings.setdefault('wound_conditions', {})
+    settings.setdefault('intensity_calibration', False)
+    settings.setdefault('intensity_calibration_wells', None)
+    settings.setdefault('intensity_calibration_statistic', 'foreground')
+    settings.setdefault('intensity_calibration_offset', 0)
+    settings.setdefault('plate_barcode_source', '')
+    settings.setdefault('plate_barcodes', None)
+    settings.setdefault('plate_barcode_column', 'barcode')
+    settings.setdefault('plate_barcode_token_env', 'SPACR_LIMS_TOKEN')
+    settings.setdefault('time_to_event', False)
+    settings.setdefault('time_to_event_object', 'cell')
+    settings.setdefault('time_to_event_mode', 'track_end')
+    settings.setdefault('time_to_event_column', '')
+    settings.setdefault('time_to_event_threshold', None)
+    settings.setdefault('time_to_event_persist', 1)
+    settings.setdefault('time_to_event_origin', 'track')
+    settings.setdefault('time_to_event_min_frames', 3)
+    settings.setdefault('time_to_event_hours_per_frame', None)
+    settings.setdefault('time_to_event_group', 'well')
+    settings.setdefault('time_to_event_conditions', None)
+    settings.setdefault('time_to_event_reference', '')
+    settings.setdefault('time_to_event_covariates', None)
+    settings.setdefault('viability', False)
+    settings.setdefault('viability_dead_channel', None)
+    settings.setdefault('viability_live_channel', None)
+    settings.setdefault('viability_thresholds', None)
+    settings.setdefault('viability_negative_wells', None)
+    settings.setdefault('viability_positive_wells', None)
+    settings.setdefault('viability_plate_map', '')
+    settings.setdefault('cellprofiler_pipeline', '')
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -1808,6 +1970,7 @@ RENAMED_SETTINGS = {
     "img_size": "crop_size",
     "straightness_filter": "drop_straight_tracks",
     "zscore_thresh": "track_outlier_zscore",
+    "complevel": "comp_level",
 }
 
 #: What each SEMANTIC fold does with an old value, in the words the doctor
@@ -1838,6 +2001,21 @@ SEMANTIC_FOLD_MEANINGS = {
         "true means annotation_source 'toxoplasma' and false means no "
         "annotation, unless annotation_source already names an organism"),
 }
+
+RETIRED_OBJECT_BOUNDS = {
+    f"{obj}_{bound}": (obj, bound)
+    for obj in ("cell", "nucleus", "pathogen")
+    for bound in ("min_area", "max_area", "min_intensity", "max_intensity")
+}
+
+SEMANTIC_FOLD_MEANINGS.update({
+    key: (
+        f"a non-zero value becomes the "
+        f"{'minimum' if bound.startswith('min') else 'maximum'} of the "
+        f"{'area' if bound.endswith('area') else 'intensity_mean'} row "
+        f"for {obj} in object_filters, and 0 means no bound")
+    for key, (obj, bound) in RETIRED_OBJECT_BOUNDS.items()
+})
 
 #: Retired names whose migration is SEMANTIC and must not be a plain move.
 #: :data:`SEMANTIC_FOLD_MEANINGS` says what each one does instead.
@@ -1882,6 +2060,20 @@ def _renamed_suffix_name(key):
     return None if new is None else f"{role}_{new}"
 
 
+def _renamed_background_switch(key):
+    """The numbered name of a lettered slot background switch, or ``None``.
+
+    ``remove_background_organelleb`` (2026-09-21 to 2026-09-30) is
+    ``remove_background_organelle_2`` today, by the numbered
+    slot naming. A rule rather than 701 table rows, like
+    :func:`_renamed_suffix_name`.
+
+    :param key: the key a settings file carries.
+    """
+    role = _legacy_background_switch_role(key)
+    return None if role is None else _background_switch_key(role)
+
+
 def _resolve_rename(key):
     """Walk ``key`` to the end of its rename chain.
 
@@ -1901,6 +2093,8 @@ def _resolve_rename(key):
             direct = RENAMED_SETTINGS.get(name)
             if direct is None:
                 direct = _renamed_suffix_name(name)
+            if direct is None:
+                direct = _renamed_background_switch(name)
             if direct is None:
                 step += (name,)
             elif isinstance(direct, str):
@@ -2066,6 +2260,77 @@ def _fold_toxoplasma(settings, quiet=False):
             "%s=%r is applied as annotation_source=%r. %s was retired and "
             "this file still uses it.", old, value,
             settings['annotation_source'], old)
+    return settings
+
+
+def _fold_object_bounds(settings, quiet=False):
+    """Move the retired per-object area and intensity bounds into rows.
+
+    Mask's ``{object}_min_area``, ``_max_area``, ``_min_intensity`` and
+    ``_max_intensity`` settings were retired on 2026-09-25 (item 511): one
+    filter list, ``object_filters``, holds every bound. A settings file
+    written before carries them, and its values must still apply, so they
+    become rows of ``object_filters`` for that object through
+    :func:`spacr.qt.mask_engine.legacy_filters`, where 0 was off and stays
+    off.
+
+    A row the file already has for the same property wins: a filter list is
+    the later spelling, written by someone who has seen the new form.
+
+    A value that is not a finite number of zero or more is LEFT where it is,
+    unmigrated: the old bound was refused by the run, the doctor and the
+    Live preview (``spacr.utils._validated_intensity_bounds``), and moving
+    it would turn that refusal into a silent "off".
+
+    :param settings: the settings mapping, edited in place.
+    :param quiet: say nothing, for a caller that folds a throwaway copy.
+    :returns: the same mapping, for chaining.
+    """
+    if not isinstance(settings, dict):
+        return settings
+    present = [key for key in RETIRED_OBJECT_BOUNDS if key in settings]
+    if not present:
+        return settings
+    from .qt.mask_engine import legacy_filters, parse_object_filters
+
+    import math
+
+    by_object = {}
+    for key in present:
+        obj, bound = RETIRED_OBJECT_BOUNDS[key]
+        value = settings[key]
+        try:
+            number = float(value) if value not in (None, '') else 0.0
+        except (TypeError, ValueError):
+            number = float('nan')
+        if not math.isfinite(number) or number < 0:
+            if not quiet:
+                LOG.warning(
+                    "%s=%r is not a bound of zero or more, so it was left "
+                    "where it is rather than moved into object_filters.",
+                    key, value)
+            continue
+        settings.pop(key)
+        by_object.setdefault(obj, {})[bound] = number
+    if not by_object:
+        return settings
+    table = parse_object_filters(settings.get('object_filters'))
+    for obj, bounds in by_object.items():
+        rows = legacy_filters(**bounds)
+        if not rows:
+            continue
+        kept = list(table.get(obj) or [])
+        named = {str(row.get('property')) for row in kept
+                 if isinstance(row, dict)}
+        added = [row for row in rows if row['property'] not in named]
+        if not added:
+            continue
+        table[obj] = kept + added
+        if not quiet:
+            LOG.info(
+                "The retired %s bounds %r are applied as object_filters "
+                "rows %r.", obj, bounds, added)
+    settings['object_filters'] = table
     return settings
 
 
@@ -3034,11 +3299,25 @@ descriptions = {
 
 expected_types = {
     "psf_measurement_source": str,
-    "psf_operation": str, "psf_source": str,
+    "psf_operation": str, "psf_source": str, "psf_objective": str,
     "psf_path": (str, type(None)),
     "psf_image_sampling_um": (list, type(None)),
     "psf_kernel_sampling_um": (list, type(None)),
     "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
+    "unmix": bool, "unmix_controls": str,
+    "unmix_background_percentile": (float, int),
+    "n2v_denoise": bool, "n2v_model": str, "n2v_epochs": int,
+    "enhance_background": str, "enhance_background_radius": int,
+    "enhance_background_scale": float,
+    "enhance_denoise": str, "enhance_denoise_strength": float,
+    "enhance_percentile_clip": bool, "enhance_percentile_low": float,
+    "enhance_percentile_high": float,
+    "enhance_gamma": float, "enhance_log": bool, "enhance_log_gain": float,
+    "enhance_sqrt": bool,
+    "enhance_clahe": bool, "enhance_clahe_tile": int, "enhance_clahe_clip": float,
+    "enhance_equalize": bool,
+    "enhance_sharpen": bool, "enhance_sharpen_radius": float,
+    "enhance_sharpen_amount": float,
     "src": (str, list),
     "illumination_correction": bool,
     "illumination_per_plate": bool,
@@ -3048,6 +3327,8 @@ expected_types = {
     "illumination_max_fields": int,
     "illumination_estimator": str,
     "illumination_model": str,
+    "illumination_vendor_profile": str,
+    "illumination_vendor_channel_map": str,
     "illumination_on_missing": str,
     "dst": str,
     "db_path": str,
@@ -3089,6 +3370,15 @@ expected_types = {
     "plaque_growth_reference_hours": (float, int),
     "plaque_pixels_per_um": (float, int, type(None)),
     "plaque_formation_hours": (float, int, type(None)),
+    "colony_counting": bool,
+    "colony_dilution": (float, int, dict),
+    "colony_plated_volume_ul": (float, int),
+    "colony_too_many": (int, float, type(None)),
+    "colony_too_few": (int, float, type(None)),
+    "colony_polarity": str,
+    "colony_threshold": (float, int),
+    "colony_min_area_px": (float, int, type(None)),
+    "colony_detector": (str, type(None)),
     "nucleus_channel": (int, type(None)),
     "nucleus_background": int,
     "nucleus_signal_to_noise": float,
@@ -3120,7 +3410,17 @@ expected_types = {
     "ultrack_division_weight": float,
     "ultrack_contour_sigma": float,
     "ultrack_n_workers": int,
+    "timeflows_model": (str, type(None)),
     "timelapse_objects": list,
+    "timelapse_lineage": bool,
+    "timelapse_lineage_color_by": str,
+    "timelapse_lineage_max_distance": (int, float),
+    "timelapse_events": bool,
+    "timelapse_events_annotations": (str, type(None)),
+    "timelapse_events_model": (str, type(None)),
+    "timelapse_events_window": int,
+    "timelapse_events_threshold": (int, float),
+    "timelapse_events_conditions": (list, type(None)),
     "fps": int,
     "lower_percentile": (int, float),
     "merge_pathogens": bool,
@@ -3144,6 +3444,32 @@ expected_types = {
     "save_original_images": bool,
     "keep_intermediate": bool,
     "keep_original_images": bool,
+    "mask_parallel": bool,
+    "mask_gpu_indices": str,
+    "watch_folder": bool,
+    "watch_pipeline": str,
+    "watch_measure_settings": str,
+    "watch_settle_seconds": float,
+    "watch_poll_seconds": float,
+    "watch_idle_minutes": float,
+    "microscope_feedback": bool,
+    "microscope_driver": str,
+    "microscope_simulated_folder": str,
+    "microscope_positions": str,
+    "microscope_stage_transform": list,
+    "microscope_event_table": str,
+    "microscope_event_query": str,
+    "microscope_max_events": int,
+    "microscope_timepoints": int,
+    "microscope_interval_seconds": float,
+    "cloud_anonymous": bool,
+    "cloud_profile": str,
+    "cloud_endpoint": str,
+    "cloud_cache": str,
+    "cloud_wells": str,
+    "cloud_fields": int,
+    "cloud_level": int,
+    "cloud_results": str,
     "save": bool,
     "plot": bool,
     "tensorboard": bool,
@@ -3282,6 +3608,69 @@ expected_types = {
     "radial_dist": bool,
     "bystander_measurements": bool,
     "bystander_reach_in_diameters": float,
+    "confluency": bool,
+    "confluency_source": str,
+    "confluency_channel": (int, type(None)),
+    "confluency_window": int,
+    "confluency_qc_threshold": (float, int, type(None)),
+    "bleach_correction": str,
+    "measure_gpu": bool,
+    "measurement_backend": str,
+    "measurement_backend_target": str,
+    "profiling": bool,
+    "profiling_metadata": str,
+    "profiling_treatment_column": (str, list),
+    "profiling_negative_control": (str, list),
+    "profiling_normalization": str,
+    "profiling_feature_selection": list,
+    "profiling_correlation_threshold": (float, int),
+    "profiling_phenotype_column": str,
+    "profiling_databases": list,
+    "cell_cycle": bool,
+    "cell_cycle_method": str,
+    "cell_cycle_channel": (int, type(None)),
+    "cell_cycle_gates": (list, type(None)),
+    "cell_cycle_mitotic_ratio": (float, int, type(None)),
+    "cell_cycle_fucci_channels": (list, type(None)),
+    "cell_cycle_labels": str,
+    "cell_cycle_model": str,
+    "cell_cycle_epochs": int,
+    "wound_closure": bool,
+    "wound_source": str,
+    "wound_channel": (int, type(None)),
+    "wound_window": int,
+    "wound_threshold": (float, int, type(None)),
+    "wound_hours_per_frame": (float, int, type(None)),
+    "wound_conditions": dict,
+    "intensity_calibration": bool,
+    "intensity_calibration_wells": (list, str, type(None)),
+    "intensity_calibration_statistic": str,
+    "intensity_calibration_offset": (float, int),
+    "plate_barcode_source": str,
+    "plate_barcodes": (dict, str, type(None)),
+    "plate_barcode_column": str,
+    "plate_barcode_token_env": str,
+    "time_to_event": bool,
+    "time_to_event_object": str,
+    "time_to_event_mode": str,
+    "time_to_event_column": str,
+    "time_to_event_threshold": (float, int, type(None)),
+    "time_to_event_persist": int,
+    "time_to_event_origin": str,
+    "time_to_event_min_frames": int,
+    "time_to_event_hours_per_frame": (float, int, type(None)),
+    "time_to_event_group": str,
+    "time_to_event_conditions": (list, type(None)),
+    "time_to_event_reference": str,
+    "time_to_event_covariates": (list, type(None)),
+    "viability": bool,
+    "viability_dead_channel": (int, type(None)),
+    "viability_live_channel": (int, type(None)),
+    "viability_thresholds": (list, type(None)),
+    "viability_negative_wells": (list, str, type(None)),
+    "viability_positive_wells": (list, str, type(None)),
+    "viability_plate_map": str,
+    "cellprofiler_pipeline": str,
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -3472,6 +3861,9 @@ expected_types = {
     'attribution_steps':int,
     'attribution_baseline':str,
     'sanity_check':bool,
+    'counterfactuals':bool,
+    'counterfactual_crops':int,
+    'counterfactual_epochs':int,
     'object_type':str,
     "parasite_table": str,
     "compartment": str,
@@ -3526,6 +3918,12 @@ expected_types = {
     "nucleus_model_name":str,
     "pathogen_model_name":str,
     "segmentation_backend":str,
+    "cellpose3_add_nucleus_channel":bool,
+    "cellpose3_size_model":bool,
+    "cellpose3_resample":bool,
+    "cellpose3_augment":bool,
+    "cellpose3_percentile_low":(int, float),
+    "cellpose3_percentile_high":(int, float),
     "normalize_input":bool,
     "filter_column":str,
     "target_unique_count":int,
@@ -3561,10 +3959,23 @@ expected_types = {
     'image_qc_mode':str,
     'image_qc_channels':list,
     'image_qc_min_focus':dict,
+    'object_filters':dict,
     'image_qc_max_saturation':dict,
     'image_qc_saturation_level':dict,
     'image_qc_max_nonfinite':float,
+    'image_qc_classifier':bool,
+    'image_qc_classifier_model':(str, type(None)),
+    'image_qc_classifier_labels':(str, type(None)),
+    'image_qc_classifier_threshold':(int, float),
     "seg_qc_min_objects":int,
+    "robustness_report": bool,
+    "robustness_fields": int,
+    "robustness_crop": (int, type(None)),
+    "robustness_diameter_factors": (list, str),
+    "robustness_flow_thresholds": (list, str),
+    "robustness_cellprob_thresholds": (list, str),
+    "robustness_enhancement": bool,
+    "robustness_tolerance": (float, int),
     "seg_qc_count_ratio":float,
     "seg_qc_size_ratio":float,
     "seg_qc_border_fraction":float,
@@ -3705,20 +4116,8 @@ expected_types = {
     'nucleus_perimeter_fraction':float,
     'pathogen_perimeter_fraction':float,
     'organelle_perimeter_fraction':float,
-    'cell_min_area':int,
-    'nucleus_min_area':int,
-    'pathogen_min_area':int,
     'organelle_min_area':int,
-    'cell_max_area':(int, type(None)),
-    'nucleus_max_area':(int, type(None)),
-    'pathogen_max_area':(int, type(None)),
     'organelle_max_area':(int, type(None)),
-    'cell_min_intensity':float,
-    'cell_max_intensity':float,
-    'nucleus_min_intensity':float,
-    'nucleus_max_intensity':float,
-    'pathogen_min_intensity':float,
-    'pathogen_max_intensity':float,
     'organelle_min_intensity':float,
     'organelle_max_intensity':float,
     'cell_remove_border_objects':bool,
@@ -3790,8 +4189,11 @@ expected_types = {
 }
 
 _clone_organelle_registry(expected_types)
+#: The background switch of every slot after the first, numbered as the user
+#: counts: ``remove_background_organelle_2`` ... (item 76, the maintainer's
+#: name, 2026-09-30; lettered ``remove_background_organelleb`` before).
 SLOT_BACKGROUND_SWITCHES = tuple(
-    f'remove_background_{role}' for role in ORGANELLE_SLOT_ROLES[1:])
+    _background_switch_key(role) for role in ORGANELLE_SLOT_ROLES[1:])
 for _key in SLOT_BACKGROUND_SWITCHES:
     expected_types.setdefault(_key, bool)
 #: The slot prefixes, built ONCE. `str.startswith` takes a tuple and does the
@@ -3838,6 +4240,7 @@ _IMAGE_SOURCES = {
     "on_demand": "stream_images",
     "stream": "stream_images",
     "stream_images": "stream_images",
+    "merged_db": "stream_images",
     "auto": "auto",
 }
 
@@ -3858,6 +4261,11 @@ def _canonical_image_source(value) -> str:
     stopped finding its own crops. Both are mapped explicitly now, and
     ``auto`` survives as itself because both readers downstream understand
     it.
+
+    ``merged_db`` (`crops.STREAM_FROM_DB`, the viewers' database stream) is
+    a STREAMING source, so it resolves to ``stream_images`` -- training has
+    no database mode, and the unrecognised branch would have answered it
+    with the opposite direction, as it once did ``on_demand``.
     """
     return _IMAGE_SOURCES.get(str(value or "").strip().lower(),
                               "load_images")
@@ -3921,11 +4329,37 @@ tooltips = {
     'psf_measurement_source': "(str) - original (default) measures normal Measure intensities, including its standard rescaling and registered illumination/preprocessing hooks, without PSF processing. Stored PSF parameters are ignored with this choice. processed applies the calibrated PSF after those stages before quantitative features; select convolve or deconvolve. Source files and exported crops keep their original behavior. The intensity_rescale database table records the choice, kernel identity, calibration and algorithm. Incompatible existing measurements require a separate project/output database.",
     'psf_operation': "(str) - Optional point-spread processing of every selected segmentation intensity channel after illumination and before normalization. none is off (default); convolve simulates optical blur; deconvolve uses Richardson–Lucy. Source images and measurement intensities stay original. Changing this setting rebuilds Mask inputs when preprocessing is on; preprocessing off requires an exact completed match. This operates on 2D projected fields, not a 3D optical reconstruction.",
     'psf_source': "(str) - gaussian (default) constructs a sampled Gaussian approximation from explicit FWHM and image pixel spacing; it does not estimate microscope optics. measured loads a calibrated TIFF or NPY kernel. A single kernel is applied independently to each selected segmentation channel; use only where its calibration is appropriate for every selected channel.",
+    'psf_objective': "(str) - Objective used to infer PSF calibration that is left unset: auto reads magnification, numerical aperture, immersion and pixel size from the first source image's OME metadata and otherwise assumes a 20x/0.75 air objective; a table row such as 10x/0.30 air, 40x/0.95 air, 60x/1.40 oil or 100x/1.45 oil uses that objective's values, with a 6.5 µm camera pixel and 520 nm emission unless the metadata says otherwise. Explicit psf_image_sampling_um and psf_fwhm_um always win. Default auto.",
     'psf_path': "(str or None) - Default None (unset). Measured 2D PSF TIFF/NPY. Spatial dimensions must be odd; values finite, nonnegative and nonzero. The center pixel is the optical origin. The kernel is normalized to sum to one and captured once per processing run. Its contents and file identity enter psf/segmentation_application.json.",
-    'psf_image_sampling_um': "(list or None) - Default None (unset). Explicit image pixel spacing [Y, X] in micrometers. Required when PSF processing is on; neither magnification nor pixel spacing is guessed. Both numbers must be positive and finite.",
+    'psf_image_sampling_um': "(list or None) - Default None (unset). Image pixel spacing [Y, X] in micrometers; both numbers must be positive and finite. Unset with a Gaussian PSF, Mask and timelapse infer it from the first source image's OME/ImageJ calibration, else camera pixel / magnification of psf_objective (6.5 µm / 20 = 0.325 µm by default), and print each value's source. Measure and measured kernels require it explicitly.",
     'psf_kernel_sampling_um': "(list or None) - Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
-    'psf_fwhm_um': "(list or None) - Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers. Required for a Gaussian approximation. Both values must be positive and finite; these are user supplied approximation parameters, not measured resolution.",
+    'psf_fwhm_um': "(list or None) - Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
     'psf_iterations': "(int) - Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
+    'unmix': "(bool) - Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
+    'unmix_controls': "(str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank.",
+    'unmix_background_percentile': "(float) - Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
+    'n2v_denoise': "(bool) - Self-supervised denoising: train a Noise2Void (N2V2) network per segmentation channel on this run's own noisy fields, with no clean images, and denoise every field with it after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo; training wants a GPU. The models' hashes and training losses are recorded with the run. Default False.",
+    'n2v_model': "(str) - Folder of trained Noise2Void models, one channel_<c>.ckpt per segmentation channel, such as the n2v folder of an earlier run on the same microscope. Blank trains new models on up to eight of this run's fields into its own n2v folder and reuses them when the run is resumed. Ignored unless n2v_denoise is on. Default blank.",
+    'n2v_epochs': "(int) - Training passes over the Noise2Void patches, at least 1. More epochs denoise better up to a point and take longer: on a CPU, 30 epochs over ten 512 x 512 crops took under four minutes, and eight full 2000 x 2000 fields take about twelve times as long per epoch, so train on a GPU. Changing it trains new models. Ignored when n2v_model names trained models. Default 20.",
+    'enhance_background': "(str) - Background subtraction for every selected segmentation channel after illumination correction and before normalization, the first step of the enhancement chain Make Masks tunes. rolling_ball removes a fitted surface of the radius below and flattens uneven illumination; tophat keeps what is brighter than its surroundings and is faster; none is off. Set the radius larger than the largest object. A resumed run refuses Mask inputs made with a different chain. Default 'none'.",
+    'enhance_background_radius': "(int) - Radius in pixels of the rolling ball or the top-hat disk. Make it larger than the largest object and smaller than the scale the illumination varies on; a radius under the object size removes the objects with the background. Default 50.",
+    'enhance_background_scale': "(float) - Fraction of full size the background is estimated at, above 0 and at most 1. The surface is scaled back up before subtraction, so only the estimate is smaller; 1.0 is scikit-image's exact answer and is slow on large fields. Default 0.5.",
+    'enhance_denoise': "(str) - Smoothing after background subtraction and the PSF, before the contrast curves. gaussian is a Gaussian filter with the strength as sigma in pixels; median removes speckle and keeps edges; bilateral and nlm (non-local means) keep edges better and are slow on whole fields; tv is total-variation (Chambolle), the edge-preserving smoother offered in place of anisotropic diffusion; none is off. Default 'none'.",
+    'enhance_denoise_strength': "(float) - How much smoothing, above 0: the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, the non-local means cut-off in multiples of the measured noise, or ten times the total-variation weight on 0..1. Default 1.0.",
+    'enhance_percentile_clip': "(bool) - Clip each selected channel plane to two percentiles of its own intensities before the contrast curves. Removes hot and dead pixels from the range the curves are drawn on without stretching anything, so intensity thresholds keep their units. Default False.",
+    'enhance_percentile_low': "(float) - Lower percentile of the enhancement chain's percentile clip, at least 0 and below the upper percentile. Pixels darker than this percentile of their own plane are raised to it. Default 1.0.",
+    'enhance_percentile_high': "(float) - Upper percentile of the enhancement chain's percentile clip, at most 100 and above the lower percentile. Pixels brighter than this percentile of their own plane are lowered to it. Default 99.0.",
+    'enhance_gamma': "(float) - Exponent the intensities are raised to on 0..1, above 0; 1.0 is off. Below 1 lifts the dim end so faint objects rise out of the background; above 1 pushes it down and keeps only the bright ones. Default 1.0.",
+    'enhance_log': "(bool) - Logarithmic transform on 0..1, log(1 + gain x) / log(1 + gain), applied after gamma. It compresses the bright end and lifts the dim one, more strongly near zero than a gamma below 1 does. Default False.",
+    'enhance_log_gain': "(float) - Factor the unit-interval intensities are multiplied by before the logarithm, above 0. Larger compresses the bright end harder; as it goes to zero the curve becomes the identity. Unused unless enhance_log is on. Default 10.0.",
+    'enhance_sqrt': "(bool) - Square-root transform on 0..1, applied after the logarithm: the curve a gamma of 0.5 draws, offered by name. It lifts the dim end of every selected channel before detection. Default False.",
+    'enhance_clahe': "(bool) - Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without saturating the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+    'enhance_clahe_tile': "(int) - Side of one CLAHE tile in pixels, at least 8. Make it larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself. Default 64.",
+    'enhance_clahe_clip': "(float) - CLAHE clip limit, above 0 and at most 1. Higher gives more contrast and more amplified noise in tiles that hold only background; unused unless enhance_clahe is on. Default 0.01.",
+    'enhance_equalize': "(bool) - Global histogram equalisation of each selected channel plane, the strongest of the contrast curves. A field that is mostly background has its background stretched across half the range. Default False.",
+    'enhance_sharpen': "(bool) - Unsharp mask after the contrast curves. Makes edges steeper so a threshold lands on the boundary; too much amount puts a bright rim around every object and a dark moat outside it. Default False.",
+    'enhance_sharpen_radius': "(float) - Blur radius in pixels the unsharp mask is built from, above 0: about the scale of the edges to sharpen. Unused unless enhance_sharpen is on. Default 1.0.",
+    'enhance_sharpen_amount': "(float) - How much of the unsharp mask is added back, at least 0. One is a normal sharpen; above 2 the halos around objects start to become objects of their own. Default 1.0.",
     'image_source':
         "(str) - Source of classification images. 'load_images' reads "
         "previously exported object crops; 'stream_images' generates crops "
@@ -4120,17 +4554,36 @@ tooltips = {
     "nucleus_model_name": "(str) - Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. 'nuclei' and 'nucleus' map to 'cpsam' because Cellpose 4 removed the pre-SAM models -- unless segmentation_backend is 'cellpose3', which runs the real Cellpose 3 'nuclei'. Configure nucleus_diameter to control scale; of the three parameters that once distinguished models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are dropped. Default 'cpsam'.",
     "pathogen_model_name": "(str) - Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints are Cellpose-3 CPnet, which CPSAM cannot load, so they map to 'cpsam' and are reported; with segmentation_backend 'cellpose3' a Cellpose 3 name or checkpoint path runs as written. The older 'pathogen_model' key still overrides this one when set. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
     "segmentation_backend": "(str) - Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs each object's model name. 'cellpose3' runs Cellpose 3 with an object's cyto3, cyto2, cyto or nuclei model name, or a Cellpose 3 checkpoint's path; other names mean nuclei for nuclei and cyto3 otherwise. 'samcell' and 'dinocell' are 2-D models for live-cell and label-free images that read only the object's channel. Every backend but 'cellpose' installs from the Model Zoo into its own environment and refuses z_stack and t_stack runs. Default 'cellpose'.",
+    "cellpose3_add_nucleus_channel": "(bool) - Cellpose 3 reads two channels as [cyto, nucleus]. When True, a cell segmented by a Cellpose 3 model also receives the nucleus channel as its second channel, as cyto, cyto2 and cyto3 were trained; when False, the model sees the cell channel alone. Read only for objects whose model is a Cellpose 3 model. Default True.",
+    "cellpose3_size_model": "(bool) - When True, a named Cellpose 3 model estimates each image's object diameter with its own size model, which is slower and, on Toxoplasma vacuoles, far less accurate; when False, the object's diameter setting is used, or its magnification default when blank. Read only for Cellpose 3 models. Default False.",
+    "cellpose3_resample": "(bool) - When True, Cellpose 3 computes flows at the image's original size before building masks, which gives smoother outlines at some cost in time; when False, it builds them at the rescaled size. Read only for objects whose model is a Cellpose 3 model. Default True.",
+    "cellpose3_augment": "(bool) - When True, Cellpose 3 averages its prediction over flipped copies of overlapping tiles, which is slower and can steady borderline objects. It stands in for net averaging, which Cellpose 3.1 no longer offers. Read only for objects whose model is a Cellpose 3 model. Default False.",
+    "cellpose3_percentile_low": "(float) - Lower percentile of Cellpose 3's per-channel normalization: this intensity becomes 0 before the model sees the image. Raising it darkens more of the background. Cellpose 3's models were trained with 1. Read only for Cellpose 3 models. Default 1.0.",
+    "cellpose3_percentile_high": "(float) - Upper percentile of Cellpose 3's per-channel normalization: this intensity becomes 1 before the model sees the image. Lowering it brightens dim objects and saturates bright ones. Cellpose 3's models were trained with 99. Read only for Cellpose 3 models. Default 99.0.",
     "cell_diameter": "(int or None) - Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and segmentation produces fragmented or merged masks. spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
     "nucleus_diameter": "(int or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
     "pathogen_diameter": "(int or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
     "diameter_estimate_n_fields": "(int) - How many fields spacr.diameter.estimate_diameters reads before it proposes cell_diameter, nucleus_diameter and pathogen_diameter from blob statistics instead of requiring manual estimation. Fields are taken on an even stride across the sorted plate, so rows and columns are both represented rather than the first few wells; each field costs about a second of CPU and loads neither torch nor Cellpose. Increase it to 10–20 when wells are heterogeneous or confidence is low; decrease it to 2–3 for a faster preliminary estimate. Default 5.",
     'image_qc_mode': '(str) - Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.',
     'image_qc_channels': '(list) - Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].',
+    'object_filters': "(dict) - Object filters on any scalar scikit-image regionprop, per object type, for example {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. An object is kept when min <= value <= max; a missing side is off. Intensity properties read the object's own raw channel. An area minimum is also Cellpose's min_size. An old file's cell_min_area and the other retired per-object bounds become rows here when it loads. Default {}.",
     'image_qc_min_focus': '(dict) - Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.',
     'image_qc_max_saturation': '(dict) - Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.',
     'image_qc_saturation_level': '(dict) - Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.',
     'image_qc_max_nonfinite': '(float) - Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.',
+    'image_qc_classifier': '(bool) - Also screen each field with a small neural network that flags out-of-focus, saturated, debris-covered, bubble and empty fields, alongside the focus and saturation rules. Flags go into the image-quality report with a probability per class; in exclude mode a flagged field is kept out of segmentation like any other. Runs on the CPU. The built-in model is trained once on synthetic fields with planted defects and cached. Ignored when image_qc_mode is off. Default False.',
+    'image_qc_classifier_model': '(str or None) - A classifier saved by an earlier run (qc/image_qc_model.pt) to use instead of the built-in one. It is read as tensors only. Blank uses the built-in model. Default None.',
+    'image_qc_classifier_labels': '(str or None) - Table of hand-labelled fields to fine-tune the classifier on, with a field column (the raw file name) and a label column: good, or out_of_focus, saturated, debris, bubble or empty, several separated by semicolons; an optional channel column picks the channel. With 10 or more fields, cross-validated precision and recall against the rule metrics go to qc/image_qc_benchmark.csv; the tuned model is saved as qc/image_qc_model.pt. Default None.',
+    'image_qc_classifier_threshold': '(float) - Smallest class probability, from 0 to 1, at which the classifier flags a field. Raise it to flag fewer fields, lower it to miss fewer defects. Default 0.5.',
     "seg_qc": "(str) - Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
+    "robustness_report": "(bool) - After the masks are made, re-segment a few sampled fields with the diameter, the flow and cell-probability thresholds and contrast enhancement each moved a little, and report how much the object count, median area, mean object intensity and the objects themselves change. Settings whose results move more than robustness_tolerance are flagged fragile. Writes qc/segmentation_robustness_<object>.csv and a heatmap. Two-dimensional Cellpose-SAM runs only. Default False.",
+    "robustness_fields": "(int) - How many fields the robustness report samples at random (seeded by random_seed) and re-segments at every grid point. More fields give a steadier verdict; each field costs one segmentation per grid point. Default 4.",
+    "robustness_crop": "(int or None) - Side in pixels of the centre crop the robustness report cuts from each sampled field, to keep the grid fast, on a CPU especially. Blank or 0 re-segments whole fields. Default 512.",
+    "robustness_diameter_factors": "(list) - Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+    "robustness_flow_thresholds": "(list) - Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6].",
+    "robustness_cellprob_thresholds": "(list) - Cell-probability thresholds the robustness report tries in place of the run's own, one at a time. Lower grows objects and finds faint ones; higher shrinks or drops them. Default [-2.0, 2.0].",
+    "robustness_enhancement": "(bool) - Also re-segment each sampled field after contrast-limited adaptive histogram equalisation (CLAHE), to see whether contrast enhancement changes what the model finds. Default True.",
+    "robustness_tolerance": "(float) - Largest median relative change in object count, median area or mean intensity, or share of the run's objects not found again, that still counts as stable. A grid point beyond it is flagged fragile. Default 0.2.",
     "seg_qc_min_objects": "(int) - Fields with fewer objects than this are classified as near-empty, and robust per-field size statistics are suppressed because the median absolute deviation is unstable for very small samples. Increase the value for confluent cell plates expected to contain hundreds of objects per field; reduce it to 3-5 for low-multiplicity pathogen assays in which few objects per field are expected. Default 10.",
     "seg_qc_count_ratio": "(float) - Permitted ratio between a field's object count and the plate median before the field is flagged. A value of 0.25 flags counts below one quarter of the median or above its reciprocal, four times the median. Calibrate this threshold with representative control plates when expected object density varies by assay. Default 0.25.",
     "seg_qc_size_ratio": "(float) - Fold change in a field's median object diameter, measured against the plate median, that marks it as fused or fragmented when its object count has moved in the opposite direction. Merging two equal objects into one increases equivalent diameter by a factor of approximately 1.41, while dividing one object into two produces the reciprocal change; the default therefore reflects the expected geometric ratio. Default 1.4.",
@@ -4214,6 +4667,15 @@ tooltips = {
     "plaque_growth_reference_hours": "(float) - Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
     "plaque_pixels_per_um": "(float, int or None) - Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
     "plaque_formation_hours": "(float, int or None) - Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
+    "colony_counting": "(bool) - Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
+    "colony_dilution": "(float, int or dict) - Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+    "colony_plated_volume_ul": "(float) - Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
+    "colony_too_many": "(int or None) - Plates with more colonies than this are flagged 'too many to count' (TNTC) in per_plate: neighbouring colonies merge and compete, so the count underestimates what was plated. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 300.",
+    "colony_too_few": "(int or None) - Plates with fewer colonies than this are flagged 'too few to count' (TFTC) in per_plate: so few colonies carry a sampling error too large for the CFU/mL they imply. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 30.",
+    "colony_polarity": "(str) - Whether colonies are brighter than the agar (bright: white or cream colonies on blood, chocolate or dark agar, or any plate photographed on a dark background) or darker (dark: on a light box or on pale agar). auto tries both and keeps the one whose round objects stand further above the agar. Set it when auto picks the wrong one on a sparse plate. Default auto.",
+    "colony_threshold": "(float) - How far above the agar a pixel must be to count as colony, in multiples of the agar's own noise. Lower finds faint, small or translucent colonies but also picks up agar texture, bubbles and glare; higher keeps only clear colonies. Default 4.0.",
+    "colony_min_area_px": "(float, int or None) - Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
+    "colony_detector": "(str or None) - A YOLO colony detector to find the colonies with, in place of thresholding: a checkpoint path or a Model Zoo key. It needs the ultralytics package. Detection counts colonies in chains and at the dish rim that thresholding merges or loses; polarity, threshold and minimum area are then not used. Blank thresholds. Default None.",
     "well_diameter_mm": "(float, int or None) - Known interior diameter of a detected well in millimetres, overriding plate_format when both are set. It converts the detected pixel diameter into pixels per millimetre and therefore rescales every physical plaque area; use None when the diameter is unknown. Default None.",
     "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
@@ -4228,7 +4690,7 @@ tooltips = {
     "merge_pathogens": "(bool) - Legacy option that merged two touching pathogen labels into one when their shared boundary exceeded 66% of the smaller object's perimeter, so a single PV split by Cellpose counted once. The current Cellpose-SAM path ignores it - use pathogen_perimeter_fraction instead. Default True.",
     "resize": "(bool or float) - Resize every image to target_height x target_width before running Cellpose, then scale the returned mask back to the original dimensions with nearest-neighbour interpolation so measurements remain in original pixels. Enable this setting to match oversized fields to the model's training scale or reduce GPU memory use. Requires target_height and target_width. Default False (True for plaque analysis).",
     "embedding_by_controls": "(bool) - Fit the reducer only on control wells - rows whose col_to_compare value equals pos or neg - and then project every object into that space. Use it when the axes should be defined by the control phenotypes so treatments are read relative to them; False fits on all objects. Default False.",
-    "cam_type": "(str) - Which attribution map is computed. 'gradcam' weights the target_layer feature maps by their pooled gradients into a coarse heatmap of the region that drove the call; 'gradcam_pp' currently computes the identical map and only changes the output folder and table name. 'saliency_image' sums the absolute input gradient into one map; 'saliency_channel' keeps it per channel so you can see which stain mattered. Default 'gradcam'.",
+    "cam_type": "(str) - Which attribution map is computed. 'gradcam' weights target_layer feature maps by their pooled gradients; 'saliency_image' and 'saliency_channel' map the input gradient, summed or per stain. Also selectable: 'torchcam_gradcam'/'torchcam_gradcam_pp', 'hirescam', 'ablation_cam', 'gradient_shap'/'deeplift_shap', 'saliency' (SmoothGrad) and 'chefer' (ViT relevance). Methods that do not fit model_type are greyed with the reason. Default 'gradcam'.",
     "target_layer": "(str) - Dotted attribute path to the convolutional layer whose activations and gradients Grad-CAM hooks, e.g. 'base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b'; utils.recommend_target_layers(model) lists valid names. Later layers give class-specific but coarse maps, earlier ones finer detail. Required for 'gradcam'/'gradcam_pp' - it is auto-filled only when model_type is exactly 'maxvit', and left None it raises. Default None.",
     "shuffle": "(bool) - Shuffle the tar dataset in the DataLoader when generating activation maps, so each batch-grid PDF contains a mixed sample rather than consecutive files from one plate or class. False preserves deterministic file order and permits direct alignment with the dataset listing. Default True.",
     "correlation": "(bool) - Correlate every input channel with every activation-map channel per image and write the result to the <cam_type>_correlations table: a Pearson coefficient plus Manders M1/M2 at each manders_thresholds percentile (15, 50, and 75 by default). This provides quantitative evidence of stain-specific model attention beyond visual heatmap inspection. save=True is required to write the results to the database. Default True.",
@@ -4257,6 +4719,32 @@ tooltips = {
     "t_project_for_tracking": "(bool) - Collapse each timepoint's z-stack to one plane before linking, so tracking uses the projection while segmentation uses the volume. Enable this setting when volumetric linking is too slow or anisotropy is uncertain. Objects at the same lateral position but different z positions then merge in the projection and cannot be distinguished downstream. This setting does not enable backends that do not support volumetric data. Default False.",
     "save_original_images": "(bool) - After each batch is MIP-projected and merged into stack/, either move the raw input images into src/orig/ (True) or delete them so the pixels live only in stack/ (False). Set False on large screens where the duplicate raw copy will not fit on disk; the deletion is not reversible. Default True.",
     "keep_intermediate": "(bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database).",
+    "mask_parallel": "(bool) - Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
+    "mask_gpu_indices": "(str) - GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
+    "watch_folder": "(bool) - Keep Make Masks running on src and analyse each field as its images arrive, for a plate the microscope is still writing. A file is taken once it has stopped changing for watch_settle_seconds and reads whole, and a field once a file for every entry of channels is in. Images already in src go first. Each field is analysed alone, as a batch run with batch_size 1 would, and results gather in src/spacr_watch, whose watch_ledger.json lets a restart skip fields already analysed. Not for timelapse, z_stack or t_stack runs. Default False.",
+    "watch_pipeline": "(str) - What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' then runs Measure on the field's merged stacks and appends its rows to src/spacr_watch/measurements/measurements.db. Default 'mask'.",
+    "watch_measure_settings": "(str) - A Measure settings file (.csv or .json, as the Measure screen saves them) that watch_pipeline 'mask_measure' measures every field with. Blank uses Measure's defaults with this run's channels. Default blank.",
+    "watch_settle_seconds": "(float) - How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
+    "watch_poll_seconds": "(float) - How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
+    "watch_idle_minutes": "(float) - Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
+    "microscope_feedback": "(bool) - While watch_folder runs with watch_pipeline 'mask_measure', send the objects of each measured field that match microscope_event_query back to the microscope to be imaged again, for example at higher resolution or as a short timelapse. Stage positions come from microscope_positions and microscope_stage_transform; every event and its images are recorded in watch_ledger.json and the images saved in src/spacr_watch/reimaged. Default False.",
+    "microscope_driver": "(str) - The microscope microscope_feedback drives. 'simulated' acquires from the images in microscope_simulated_folder laid out at microscope_positions, for trying the loop without a microscope. 'pycromanager' drives a running Micro-Manager through pycro-manager (pip install pycromanager, and turn on Micro-Manager's server under Tools > Options). Default 'simulated'.",
+    "microscope_simulated_folder": "(str) - The folder of field images the simulated microscope acquires from, named as the watched images are and placed on the stage by microscope_positions. Blank uses src. Default blank.",
+    "microscope_positions": "(str) - A table (.csv, .xlsx or .parquet) of the stage position each field was acquired at, with the columns field (the field name the watch prints, such as plate1_A01_0001_001), x and y in micrometres at the image centre, and optionally z. Events in a field missing from it are recorded but not imaged. Default blank.",
+    "microscope_stage_transform": "(list) - Four numbers [a, b, c, d] turning a pixel offset from the image centre (dx columns, dy rows) into a stage move of (a*dx + b*dy, c*dx + d*dy) micrometres. For a pixel size p with camera and stage axes aligned use [p, 0, 0, p]; negate a term for a flipped axis and swap them for a camera turned 90 degrees. Default [1.0, 0.0, 0.0, 1.0].",
+    "microscope_event_table": "(str) - The measurement table whose objects can become events, such as cell, nucleus or pathogen. Each event is placed at the object's intensity-weighted centroid. Default 'cell'.",
+    "microscope_event_query": "(str) - A pandas query on microscope_event_table choosing which objects are events, for example pathogen_area > 200 or cell_channel_1_mean_intensity > 900. Blank makes every object an event, up to microscope_max_events per field. Default blank.",
+    "microscope_max_events": "(int) - The most events one field sends to the microscope, taken in table order, so a field full of matches does not hold up the plate. Default 10.",
+    "microscope_timepoints": "(int) - How many images the microscope takes at each event: 1 is a single snapshot, more makes a timelapse spaced microscope_interval_seconds apart. The microscope keeps its current channel, objective and exposure. Default 1.",
+    "microscope_interval_seconds": "(float) - Seconds between the timelapse images of one event when microscope_timepoints is above 1. The watch waits at the event meanwhile, so long timelapses delay later fields. Default 0.",
+    "cloud_anonymous": "(bool) - Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
+    "cloud_profile": "(str) - Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
+    "cloud_endpoint": "(str) - Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
+    "cloud_cache": "(str) - Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank.",
+    "cloud_wells": "(str) - Wells of a cloud OME-Zarr plate to fetch, such as A1, B03; only these are downloaded, a channel at a time, with z maximum projected. Blank fetches every well, which for a large plate can be many gigabytes. Default blank.",
+    "cloud_fields": "(int) - Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
+    "cloud_level": "(int) - Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
+    "cloud_results": "(str) - Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
     "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
     "amsgrad": "(bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True.",
     "analyze_clusters": "(bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False.",
@@ -4272,7 +4760,7 @@ tooltips = {
     "cell_intensity_range": "(list) - Legacy [min, max] bounds used during recruitment analysis when cell_chann_dim is set. Despite the setting name, the current _object_filter call uses index 0 from [nucleus, pathogen, cell] and therefore filters the nucleus-channel mean intensity. Review the filtered object counts when using this setting. Default None.",
     "cell_loc": "(list) - One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",
     "cell_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the cell label mask sits. Merged arrays are ordered [image channels..., cell, nucleus, pathogen, organelle], so the default 4 assumes the four channels 0-3 were kept; keep fewer channels and every mask dim shifts down. None makes measure_crop skip all cell measurements and cell crops. Default 4.",
-    "cell_min_size": "(int) - (Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by cell_min_area, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000.",
+    "cell_min_size": "(int) - (Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000.",
     "cell_plate_metadata": "(list of lists) - Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
     "cell_signal_to_noise": "(int) - Multiplied by cell_background to define the minimum intensity for the normalisation ceiling. spaCR evaluates the 98th through 99.5th percentiles of the cell channel and uses the first value at or above that product as the upper anchor. Increase it to raise the ceiling and reduce normalised intensity; decrease it to increase the visibility of faint cells. Default 10.",
     "cell_size_range": "(list) - [min, max] bounds in pixels^2 on cell_area, used to drop rows from the measurement table during recruitment analysis; only cells strictly between the two values are kept. Both entries must be integers or that bound is silently skipped. Setting it to None widens it to [0, 1e100]. Default [0, 100000].",
@@ -4291,7 +4779,7 @@ tooltips = {
     "CP_prob": "(float) - Cellpose cellprob_threshold: the cell-probability cut-off applied to the network output when deciding which pixels belong to an object. Lower it (typically toward -6) to recover dim or partly detected objects and grow existing masks; raise it (toward 6) to drop faint false positives and shrink masks. Default 0.",
     "custom_model": '(str) - Path to a saved Cellpose model, loaded as pretrained_model by the mask-finetune tool. When set, model_type is passed as None and diameter as diam_mean (which Cellpose 4.x ignores with a warning). model_name remains active and selects the channel pair sent to model.eval; an incompatible value therefore segments the wrong channels. Default None.',
     "cytoplasm_min_size": "(int) - (Deprecated) Pixel-area floor for the cytoplasm mask, which is the cell mask with nucleus, pathogen and organelle pixels removed. Cytoplasm regions below this are erased before measurement, so their host cell yields no cytoplasm features and any recruitment ratio built on them is lost. 0 or None disables. Default 0.",
-    "nucleus_min_size": "(int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer nucleus_min_area, which filters at segmentation time.",
+    "nucleus_min_size": "(int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.",
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
     "score_column": "(str) - Which column of the prediction CSV holds the CNN score that Explain CV and the hit-investigation montages read. The regression module no longer has this setting: it fits dependent_variable and simulates the minimum cell count on that same column, so one measurement cannot be named two ways there. Default 'cv_predictions'. Investigate Hit starts blank because no score field can be inferred universally; select the prediction column before building its montages.",
     "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. This setting is normally derived from inference; set it directly only to override that choice. Default 'regression'. The Regression module starts with inference='nonparametric', so its resolved initial mode is 'guide_permutation'.",
@@ -4342,7 +4830,7 @@ tooltips = {
     "experiment": "(str) - Free-text run label. Its real effect is naming the exported PNG dataset tar as <YYMMDD>_<experiment>.tar (a random-numbered variant is used if that name already exists), so give each screen a distinct value to avoid confusing dataset tars. It is also passed to the measurement-database writer but not stored there. Default 'experiment' (the barcode pipeline uses 'experiment_1' and a foreign import uses 'foreign_import').",
     "figuresize": "(int) - Base figure size in inches; figures are built square as figuresize x figuresize and font sizes are derived from it (legend, axis labels and ticks at 0.75x, overlay text at 0.5x). Raise it when text is unreadable at publication scale, lower it to fit panels on screen. Default 10; cluster grids cap total width at 200 inches.",
     "filter_by": "(str or None) - Restricts the feature matrix before dimensionality reduction: only columns matching this channel are kept and the other channel_1-channel_4 columns are dropped. Accepts 'channel_0'-'channel_3', an int, a list of channel numbers, or 'morphology' to keep only shape features (area, eccentricity, Zernike moments, ...). None, 'None', 'all', and '*' disable filtering. Default 'channel_0'.",
-    "fill_in": '(bool) - Post-process each Cellpose mask with fill_holes_in_mask in the mask-finetune and plaque tools. The mask is relabelled by connectivity over all nonzero pixels, then interior holes are filled component by component. Relabelling does not preserve the original label values, so touching objects can merge. Default False. Plaque Analysis starts with this enabled so plaque interiors are filled before scoring.',
+    "fill_in": '(bool) - Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks.',
     "flow_threshold": "(float) - Cellpose flow_threshold: the maximum allowed error between the predicted flow field and the flows recomputed from each candidate mask; masks above it are discarded. Raise it to keep more objects, including irregularly shaped ones; lower it to reject poorly formed masks and reduce false positives. Default 0.4.",
     "fps": "(int) - Playback rate of the per-channel movies written to <src>/movies from timelapse .npy stacks, and only when timelapse is True. Raise it to skim long acquisitions, lower it to inspect individual frames. Affects the movies only - never tracking, segmentation or measurements. Default 2.",
     "calibrate_fraction_threshold": "(bool) - Estimate fraction_threshold from control wells instead of using the configured value. The sweep recomputes per-well fractions across candidate cutoffs and selects the cutoff with greatest imaging-sequencing agreement. The plate design must identify pure control wells independently; selecting controls by the measured fraction would be circular. Default False.",
@@ -4414,7 +4902,7 @@ tooltips = {
     "nucleus_signal_to_noise": "(float) - Multiplied by nucleus_background to define the intensity a bright pixel must reach before normalisation stops increasing the upper clip point. spaCR evaluates the 98th through 99.5th percentiles of the non-zero nucleus channel and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. A higher value raises the clip point, reduces contrast stretching and protects bright nuclei from saturation; a lower value increases contrast for dim nuclei but saturates bright nuclei sooner. Default 10.",
     "pathogen_size_range": "(list) - Two-element [min, max] area filter in pixels squared applied to the pathogen table in analyze_recruitment, well after segmentation: rows with pathogen_area outside the open interval are dropped. Bounds must be ints - floats are silently ignored. None widens it to effectively unlimited. Default [0, 100000]. Use it to discard debris and merged clumps.",
     "pathogen_types": "(list) - Names given to each pathogen condition on the plate, e.g. ['wt','ku80']. Element i is written into the pathogen column for every well listed in pathogen_plate_metadata[i] and folded into the combined condition label used for grouping and plotting. Must match pathogen_plate_metadata in length and order; None skips pathogen annotation. Default ['pathogen_1', 'pathogen_2'] for the dataset builders, ['pc'] for the control-based paths, None where types are not used.",
-    "percentiles": "(list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. Default None in the Cellpose steps.",
+    "percentiles": "(list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps.",
     "pin_memory": "(bool) - Decode and hold the entire train/test image set in RAM up front (loaded in parallel across all cores) and hand batches to the GPU from page-locked memory. Enable when the dataset fits comfortably in RAM and disk I/O is the bottleneck; disable for large datasets or it will exhaust memory before the first epoch even starts. Default False.",
     "plate": "(str) - Legacy setting that is not read by the regression path. Use plateID instead; perform_regression passes plateID to process_scores and process_reads, which apply it to count and score rows lacking a plate identifier. Default None.",
     "plot": "(bool) - Render and save quality-control figures during the pipeline, including channel montages, Cellpose mask overlays, filtration comparisons, and crop grids. Figure generation increases runtime and memory use, particularly for complete plates. test_mode enables this setting automatically. Default False. Merged Classifier and Recruitment both start with plotting enabled so their diagnostic figures are produced on the first run.",
@@ -4429,6 +4917,69 @@ tooltips = {
     "png_size": "(list of int) - Output crop size as [width, height] in pixels, centred on the object centroid; larger keeps more surroundings, smaller clips large objects. Should match the classifier input size (default [224,224]). With several crop_mode entries pass a list of lists, one size per mode, or a single size is reused for all.",
     "positive_control_id": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
     "preprocess": "(bool) - Run image preparation before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into floating-point arrays. Keep True for unprocessed input; set False only when the normalized arrays already exist, because segmentation requires those arrays. Default True.",
+    "confluency": "(bool) - Measure confluency, the fraction of each field covered by cells, and write it to measurements.db: one row per field in the confluency table and one per well in confluency_well, with a monolayer_ok flag the plaque and infection assays can filter on or divide by. Works for any channel (brightfield, phase or a fluorescent stain) or straight from the cell masks, as confluency_source decides. With plot on, each field also gets an overlay of the covered area. Default False.",
+    "confluency_source": "(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+    "confluency_channel": "(int or None) - The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+    "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.",
+    "bleach_correction": "(str) - Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
+    "measure_gpu": "(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
+    "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
+    "measurement_backend_target": "(str) - The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank.",
+    "wound_closure": "(bool) - Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
+    "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
+    "wound_channel": "(int or None) - The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
+    "wound_window": "(int) - Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+    "wound_threshold": "(float or None) - Sets the cut between open wound and monolayer by hand, on the scale of the wound_level column of the wound table: for texture the local variance over the field's median, for intensity a share of the frame's 95th percentile. Use it when the automatic cut misreads a series: run once, read wound_level, then set a value. Higher counts more of the field as open. Used on every frame, with no recalibration of later frames. Blank or 0 keeps the automatic cut. Ignored by the masks source. Default None.",
+    "wound_hours_per_frame": "(float or None) - Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
+    "wound_conditions": "(dict) - Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
+    "confluency_qc_threshold": "(float or None) - Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
+    "profiling": "(bool) - After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
+    "profiling_metadata": "(str) - Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
+    "profiling_treatment_column": "(str or list) - The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
+    "profiling_negative_control": "(str or list) - Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
+    "profiling_normalization": "(str) - How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
+    "profiling_feature_selection": "(list) - Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+    "profiling_correlation_threshold": "(float) - Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+    "profiling_phenotype_column": "(str) - Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+    "profiling_databases": "(list) - Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
+    "cell_cycle": "(bool) - Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
+    "cell_cycle_method": "(str) - How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
+    "cell_cycle_channel": "(int or None) - The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
+    "cell_cycle_gates": "(list or None) - Fixed gates [G1/S, S/G2] in DNA content units, where the G1 peak is 2 and the G2 peak 4, for example [2.5, 3.5]. They replace the crossings fitted per plate; the peaks are still fitted to place the units. Read the fitted gates off the saved histogram before editing them. Blank uses the fitted gates. Default None.",
+    "cell_cycle_mitotic_ratio": "(float or None) - A nucleus past the G1/S gate is called M when its background-subtracted mean DNA intensity is at least this many times the median of the plate's G2 nuclei: condensed mitotic chromatin is brighter. Lower catches more prophase and more bright G2 nuclei. Blank never calls M from intensity and leaves mitotic nuclei in G2. Default 1.8.",
+    "cell_cycle_fucci_channels": "(list or None) - Two merged-array channels of a FUCCI reporter, the G1 reporter (Cdt1) then the S/G2/M reporter (Geminin), both measured. Each is split into positive and negative per plate, and every nucleus gets a fucci_state: early G1, G1, G1/S or S/G2/M. The xgboost method also uses their intensities. Blank skips FUCCI. Default None.",
+    "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+    "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
+    "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+    "intensity_calibration": "(bool) - Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+    "intensity_calibration_wells": "(list or None) - The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+    "intensity_calibration_statistic": "(str) - How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+    "intensity_calibration_offset": "(float) - The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
+    "plate_barcode_source": "(str) - Sample records to fill the plate map from, by plate barcode: a CSV, TSV, Excel or Parquet table with a barcode column, a well column (well such as A01, or rowID and columnID) and metadata such as strain, compound, concentration, passage and operator; or the http(s) address of a LIMS service that answers JSON well records for ?barcode=, or for {barcode} in the address. The filled map and a list of mismatches go to measurements. Blank links nothing. Default blank.",
+    "plate_barcodes": "(dict or None) - The barcode each plate was imported with, such as {'plate1': 'BC000123'}. A plate not named here takes the barcode in a barcode.txt file in its plate folder, or else its own plate name. Two plates given one barcode are reported as a mismatch. Default None.",
+    "plate_barcode_column": "(str) - The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
+    "plate_barcode_token_env": "(str) - The name of the environment variable holding the LIMS access token, sent as a bearer token with each request. The token itself is never written to settings or results; set the variable before starting spaCR. Ignored for a table. Default SPACR_LIMS_TOKEN.",
+    "time_to_event": "(bool) - After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
+    "time_to_event_object": "(str) - The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
+    "time_to_event_mode": "(str) - What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
+    "time_to_event_column": "(str) - The measurement the event is read from, a column of the object table such as cell_channel_2_mean_intensity, or an Annotate column of png_list holding labels for each object in each frame. Ignored by track_end. Default blank.",
+    "time_to_event_threshold": "(float or None) - The cut the event is read at. For above and below it is in the column's units; for fold_change it is a ratio to the track's first value, 2 for a doubling; for annotated it is the label that marks the event, blank for any non-zero label. Read it off a histogram of the column before trusting the curves. Default None.",
+    "time_to_event_persist": "(int) - Consecutive observed frames the event must hold before it counts; it is dated to the first of them. Raise it to 2 or 3 when a noisy measurement crosses the threshold for one frame and back. Objects already showing the event in their first frame are left out. Default 1.",
+    "time_to_event_origin": "(str) - Where each object's clock starts. track: at the object's own first frame, so objects that appear later (daughters, cells moving in) count from when they are first seen. movie: at the movie's first frame, keeping only the objects present then, the cohort to use when time since infection or treatment matters. Default track.",
+    "time_to_event_min_frames": "(int) - Tracks with fewer observed frames are left out: a track seen once or twice is more often a segmentation or tracking fragment than an object, and with track_end every short fragment would be an event. Default 3.",
+    "time_to_event_hours_per_frame": "(float or None) - Hours between consecutive frames, used to report times in hours; 0.25 for a frame every 15 minutes. It rescales the times and medians but not the tests or hazard ratios of conditions. Blank reports times in frames. Default None.",
+    "time_to_event_group": "(str) - How objects are grouped into the conditions compared, when time_to_event_conditions is blank: well, plate, row, column, field, or a column of the object table read at each track's first frame. Default well.",
+    "time_to_event_conditions": "(list or None) - Conditions named by their wells, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']. Objects in wells no entry names are left out. It replaces time_to_event_group. Blank uses time_to_event_group. Default None.",
+    "time_to_event_reference": "(str) - The condition the others are compared with: every log-rank pair and every hazard ratio is against it. It must be one of the conditions. Blank uses the first entry of time_to_event_conditions, or the first condition in sorted order. Default blank.",
+    "time_to_event_covariates": "(list or None) - Columns of the object table adjusted for in the Cox model, each read at the track's first frame so it is measured before the event, such as ['cell_area']. Their hazard ratios are per unit of the column. Tracks missing a value are left out of the model only. Blank fits the conditions alone. Default None.",
+    "viability": "(bool) - Call every cell live or dead after measuring, from a dead stain (propidium iodide, SYTOX, DAPI on unfixed cells), a live stain (calcein), both, or without either from nuclear morphology (pyknotic nuclei). Writes one row per nucleus to measurements.db:viability, per-well viability, live-cell and cytotoxicity index to viability_well, each plate's thresholds and control Z' to viability_qc, and with plot the threshold, plate, control and dose-response figures. Default False.",
+    "viability_dead_channel": "(int or None) - The merged-array channel of the dead stain (propidium iodide, SYTOX, or DAPI added to unfixed cells), counted as in channels; it must be one of the measured channels. Each nucleus's background-subtracted mean intensity is split per plate into two populations, and above the cut is dead. Blank reads no dead stain; with neither stain channel set, dead cells are called from nuclear morphology instead. Default None.",
+    "viability_live_channel": "(int or None) - The merged-array channel of the live stain (calcein-AM), counted as in channels; it must be one of the measured channels. It is read on the nucleus, which calcein fills, split per plate, and above the cut is live. With a dead stain as well, a cell positive for neither is counted unstained, not live. Blank reads no live stain. Default None.",
+    "viability_thresholds": "(list or None) - Manual cuts [dead, live] in background-subtracted mean intensity, for example [150, None], each replacing the automatic per-plate cut of its stain; None keeps that one automatic. Without stain channels the dead entry is the condensation ratio (intensity per area against the plate's typical nucleus, about 3) above which a nucleus is pyknotic. Read the automatic cuts in viability_qc or the threshold figures first. Default None.",
+    "viability_negative_wells": "(list or str) - Untreated or vehicle wells, e.g. ['c1']; rows (r1), columns (c1) and wells (A01) all read. Their mean live-cell count is each plate's reference for the live-cell index, they read 0 on the cytotoxicity index and they are one side of its Z'. Blank leaves the index as the percentage of cells not live. Default None.",
+    "viability_positive_wells": "(list or str) - Wells given a cytotoxic control (for example digitonin, saponin or staurosporine), e.g. ['c12'], in the same notation as viability_negative_wells. They read 100 on the cytotoxicity index and, with the negative wells, give each plate's Z' in viability_qc; a Z' of 0.5 or more is a working assay. Blank scales the index to the negative wells alone. Default None.",
+    "viability_plate_map": "(str) - A table (CSV or Excel) of each well's compound and concentration: a well column (well such as A01, rowID and columnID, or prc), compound or treatment, concentration or dose, and optionally plateID. With it, viability, the cytotoxicity index and the infection of live cells are fitted against concentration per compound, and the host CC50 over the parasite EC50 is written as a selectivity index. Blank skips dose-response. Default blank.",
+    "cellprofiler_pipeline": "(str) - A CellProfiler pipeline (.cppipe) to run headless after measuring, in CellProfiler's own environment from the Model Zoo. Each field's channels are handed to it as <field>_ch<N>.tif, N from 0, and its masks as <field>_<object>_mask.tif; load the masks in NamesAndTypes as objects, and measure each object's Location. Its per-object measurements go to measurements.db:cellprofiler_<object>, matched to spaCR objects by prcfo. Blank skips it. Default blank.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -4525,18 +5076,28 @@ tooltips = {
     "pathogen_model": "(str or None) - Path to a custom Cellpose checkpoint used to detect pathogen objects, overriding pathogen_model_name when set. It must be a CPSAM-architecture checkpoint (one your own Train Cellpose run produced); a Cellpose-3 CPnet file cannot load into Cellpose 4. A path that does not exist stops the run rather than falling back to the stock weights silently. Default None.",
     "timelapse_displacement": "(int or None) - Maximum distance in pixels an object may travel between consecutive frames when linking: trackpy's search_range, or btrack's max search radius. Too small fragments tracks, too large causes identity swaps and SubnetOversize failures. None auto-searches downward from 500 for trackpy and falls back to 100 for btrack. Default None.",
     "timelapse_memory": "(int) - Number of consecutive frames an object may vanish (e.g. missed by segmentation) and still be re-linked to the same track by trackpy. Raise it when tracks fragment because objects blink out; too high risks merging two different objects into one track. Not used by the btrack mode. Default 3.",
-    "timelapse_mode": "(str) - Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large. Default 'trackastra'.",
+    "timelapse_mode": "(str) - Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or 3D data at a higher computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; 'iou' links masks by overlap and may fail when objects move far between frames; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
     "trackastra_model": "(str) - Pretrained Trackastra checkpoint used for frame linking. 'general_2d' is the general-purpose two-dimensional model for live-cell data. This setting is used only when timelapse_mode='trackastra'. Select a different checkpoint only when it was trained for substantially different image characteristics. Default 'general_2d'.",
     "trackastra_linking": "(str) - How Trackastra turns predicted association scores into tracks: 'greedy' takes the best match per object and is fast, 'ilp' solves the assignment globally and is more accurate on crowded or dividing populations but needs the trackastra ilp extra and considerably more time. Default 'greedy'.",
     "ultrack_max_distance": "(float) - The largest jump in pixels Ultrack will consider when linking an object in one frame to a candidate in the next; anything further apart is never joined, so the track breaks instead. Raise it for fast-moving or sparsely sampled cells, lower it on crowded fields where a generous radius invites identity swaps. Only consulted when timelapse_mode='ultrack'. Default 25.0.",
     "ultrack_division_weight": "(float) - Cost the Ultrack solver pays to split one track into two daughters; the value is negative and the more negative it is the more readily divisions are accepted. Make it less negative when a replication assay over-calls divisions on touching cells, more negative when real division events are being missed. Only consulted when timelapse_mode='ultrack'. Default -0.1.",
     "ultrack_contour_sigma": "(float) - Standard deviation of the Gaussian blur applied while turning the segmentation labels into the contour map Ultrack builds its candidate objects from. Zero keeps the boundaries exactly as Cellpose drew them; one to four softens them so the joint solver is free to redraw boundaries between objects that were merged or split. Only consulted when timelapse_mode='ultrack'. Default 0.0.",
+    "timeflows_model": "(str) - Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
     "ultrack_n_workers": "(int) - How many worker processes Ultrack runs during its candidate-segmentation and linking passes; they all write into the same temporary sqlite store, so extra workers cut wall-clock on long movies but add database contention and memory. Leave it at one for short batches or a busy machine. Only consulted when timelapse_mode='ultrack'. Default 1.",
     "timelapse_frame_limits": "(list) - Slice of frame indices [start, end] kept from each batch before tracking, e.g. [0,10] to work on the first ten frames while tuning settings. The list is ignored unless it has at least two elements, which is why the shipped default [5,] has no effect. Default [5,].",
     "timelapse_objects": "(list) - Which segmented objects are tracked across frames and relabelled with track IDs: any subset of ['cell', 'nucleus', 'pathogen']; any other value aborts the run with a message. Each extra entry costs a full additional tracking pass. Tracking nuclei is often more stable than cells when cells touch. Default ['cell'].",
+    "timelapse_lineage": "(bool) - After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+    "timelapse_lineage_color_by": "(str) - What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+    "timelapse_lineage_max_distance": "(float) - Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
+    "timelapse_events": "(bool) - After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. Runs on the CPU. Default False.",
+    "timelapse_events_annotations": "(str or None) - Table of hand-annotated events with columns field (the tracks file's field name), track_id, frame and event, plus an optional object column. Every event of an annotated field must be listed. The detector is scored on held-out annotated fields (precision, recall and timing error in frames, matched within 2 frames), trained on all of them and saved as tracks/events/event_model.pt. Blank uses timelapse_events_model. Default None.",
+    "timelapse_events_model": "(str or None) - A trained event model (event_model.pt from an earlier run) to apply when timelapse_events_annotations is blank. It is read as tensors only. Default None.",
+    "timelapse_events_window": "(int) - Frames the detector sees around each frame of a track, centred on it; an even number is raised by one. Longer windows see slower changes but blur events close together. Only read when training. Default 9.",
+    "timelapse_events_threshold": "(float) - Smallest class probability, from 0 to 1, at which a frame is called an event; each event keeps the most probable frame within 2 frames. Raise it for fewer false events, lower it to miss fewer. Default 0.5.",
+    "timelapse_events_conditions": "(list or None) - Conditions compared in the event timing, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']; fields in wells no entry names are left out. Blank compares wells. Default None.",
     "timelapse_remove_transient": "(bool) - After linking, drop every track not present in all frames (trackpy filter_stubs over the full stack length), keeping only objects tracked from first frame to last. Enable for clean per-object time courses; expect to lose cells that divide, enter or leave the field, so object counts fall. Default False.",
     "timelapse": "(bool) - Treat each well/field as a time series instead of independent images: files are grouped into time stacks, randomization is switched off, per-channel movies are written, objects in timelapse_objects are tracked across frames, a timeID column is added to the measurement tables, and measure_crop stops writing single-object PNGs. Only enable when filenames carry a time index. Default False.",
-    "pathogen_min_size": "(int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by pathogen_min_area, which filters at segmentation time instead.",
+    "pathogen_min_size": "(int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
     "pathogen_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the pathogen label mask sits, one plane after the nucleus mask. With the default four image channels (0-3) that is 6; shift it if you keep a different number of channels. None makes measure_crop skip pathogen measurements, so infection status cannot be scored. Default 6.",
     "use_bounding_box": "(bool) - Crop the object's rectangular bounding box padded by 10 px instead of its mask, so neighbouring cells and background inside the box are kept rather than zeroed out. Enable when the classifier should see local context; leave off to isolate a single object on a black background. Default False.",
     "plot_points": "(bool) - Show the scatter marker for each object in the embedding. When False the markers are still drawn but at alpha 0, so cluster colors and the legend survive while only the outlines and overlaid thumbnails stay visible - handy for image-only UMAP figures. Marker size comes from dot_size. Default True.",
@@ -4593,7 +5154,7 @@ tooltips = {
     "track_outlier_zscore": "(float) - Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.",
     "max_displacement": "(float) - Largest plausible centroid movement between consecutive frames, in pixels. A single-frame excursion followed by an immediate return is interpolated from neighbouring positions; other displacements above this value cause the complete track to be excluded. Increase the value for rapidly moving objects or sparsely sampled timelapses and decrease it to remove identity-switch artifacts. Default 50.0.",
     "tracked_object": "(str) - Which object's feature block ({object}_* columns) the XGBoost infection classifier trains on: 'cell', 'nucleus' or 'pathogen'; anything else falls back to 'cell'. It does not change what is tracked - track geometry and velocity always come from the cell centroids. Default 'cell'.",
-    "motility_analysis": "(bool) - Run the automated motility assay after segmentation: it rebuilds per-object measurements from merged/*.npy, cleans tracks, computes per-track velocity and straightness, applies the infection QC, and writes motility_plots plus a well-level summary table. It only fires when timelapse is also True, and it is what reveals the Motility setting categories. Default False.",
+    "motility_analysis": "(bool) - Run the automated motility assay once per plate, after all masks are merged: it rebuilds per-object measurements from merged/*.npy, cleans tracks, computes per-track velocity and straightness, applies the infection QC, and writes motility_plots plus a well-level summary table. It only fires when timelapse is also True, and it is what reveals the Motility setting categories. Default False.",
     "reuse_existing_measurements": "(bool) - If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or track_outlier_zscore only take effect with this set to False. Default True.",
     "infection_pca_umap_search": "(bool) - Fit UMAP once per combination of infection_pca_umap_n_neighbors_grid and infection_pca_umap_min_dist_grid, keeping the run with the highest cluster-centroid distance times ground-truth separation. True costs one UMAP fit per grid point; False does a single fit using infection_pca_umap_n_neighbors and infection_pca_umap_min_dist. Default True.",
     "infection_pca_umap_n_neighbors_grid": "(list[int]) - Candidate UMAP n_neighbors values tried when infection_pca_umap_search is True. Small values (around 5) preserve local structure and split fine subpopulations; large values (30 and up) emphasise global structure. Every entry is paired with every value in infection_pca_umap_min_dist_grid, so keep the list short. Default [5, 10, 15, 30].",
@@ -4665,20 +5226,8 @@ tooltips = {
     'nucleus_perimeter_fraction': "(float) - Merge two touching nucleus labels when their shared boundary covers at least this fraction of the smaller object's perimeter. Low non-zero values merge aggressively (0.1 joins barely-touching nuclei); high values only fuse objects sharing most of an edge. Range 0-1; 0 (default) disables perimeter merging. Use it when one nucleus is split into fragments.",
     'pathogen_perimeter_fraction': "(float) - Fraction, from 0 to 1, of the smaller label's perimeter that two touching pathogen objects must share before they are merged. The default of 0 disables perimeter-based merging. Values near 0.1 merge most touching objects, whereas values from 0.5 to 0.8 merge only objects with a long shared boundary. Use this setting to join vacuoles that Cellpose divided into multiple labels.",
     'organelle_perimeter_fraction': "(float) - Merge two touching organelle labels when their shared boundary is at least this fraction of the smaller object's perimeter. Range 0-1; increase it toward 1 to merge only nearly fully fused pairs, or decrease it to merge labels with shorter shared boundaries. Applied before area and mean-intensity filtering in both Mask runs and Live Preview. Default 0 (disabled).",
-    'cell_min_area': "(int) - Minimum cell area in pixels^2. Passed to Cellpose as min_size so undersized masks are dropped during segmentation, then re-applied afterwards to delete any object below it. Raise it to clear debris and fragments; set it too high and genuine small cells disappear. 0 disables. Default 0.",
-    'nucleus_min_area': "(int) - Minimum nucleus area in pixels^2, applied twice: passed to Cellpose as min_size so small masks are never emitted, then re-applied to the label image so any surviving object below it is deleted and the rest renumbered. Raise it to drop debris and fragments. 0 (default) disables both filters.",
-    'pathogen_min_area': "(int) - Minimum pathogen area in pixels squared. Passed to Cellpose as min_size so undersized masks never leave segmentation, then re-applied in the merge/split/filter pass. 0, the default, disables it. Raise it to clear speckle and debris; set it too high and small or newly divided parasites disappear.",
     'organelle_min_area': "(int) - Post-segmentation area floor in square pixels; smaller objects are deleted and the mask relabelled. Raise it to clear noise specks left by thresholding, lower it to keep faint puncta. One filter for both the live preview and the batch run. Default 10 in Mask; Measure and External Masks start at 0 because they consume existing labels rather than segmenting new ones.",
-    'cell_max_area': "(int or None) - Maximum cell area in pixels^2; objects larger than this are deleted after segmentation. Use it to discard clumps or debris blobs that Cellpose labelled as one huge cell. 0 or None disables the filter. Default 0.",
-    'nucleus_max_area': "(int or None) - Maximum nucleus area in pixels^2; after segmentation, labels larger than this are deleted and the remaining nuclei are renumbered. Use it to remove unsplit clumps of touching nuclei or large segmentation artifacts covering a substantial fraction of the field. 0 (the default) or None disables the filter.",
-    'pathogen_max_area': "(int or None) - Maximum pathogen area in pixels squared; labels larger than this are deleted after segmentation. 0, the default, or None disables the filter. Use it to remove fused clumps and large segmentation artifacts that would otherwise dominate per-object statistics.",
     'organelle_max_area': "(int or None) - Post-segmentation area ceiling in square pixels; larger objects are deleted rather than split. Use it to reject fused clumps, saturated debris and background merged by Otsu into one component. Values below the largest valid organelle remove biological objects without warning. One filter for both the live preview and the batch run. Default None in Mask, meaning no limit; 0 in Measure and External Masks, which also disables it.",
-    'cell_min_intensity': "(float) - Delete cell objects whose mean pixel intensity in cell_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'cell_max_intensity': "(float) - Delete cell objects whose mean pixel intensity in cell_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'nucleus_min_intensity': "(float) - Delete nucleus objects whose mean pixel intensity in nucleus_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'nucleus_max_intensity': "(float) - Delete nucleus objects whose mean pixel intensity in nucleus_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'pathogen_min_intensity': "(float) - Delete pathogen objects whose mean pixel intensity in pathogen_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'pathogen_max_intensity': "(float) - Delete pathogen objects whose mean pixel intensity in pathogen_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
     'organelle_min_intensity': "(float) - Delete organelle objects whose mean pixel intensity in organelle_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
     'organelle_max_intensity': "(float) - Delete organelle objects whose mean pixel intensity in organelle_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
     'cell_remove_border_objects': "(bool) - Delete every cell label touching any of the four image edges before measurement. Removes partial cells whose area and total intensity are truncated and would bias per-cell statistics, at the cost of losing objects - a large cost in fields where cells are big relative to the field. Default False.",
@@ -4740,6 +5289,9 @@ tooltips = {
     'object_type': "(str) - Mask used to define an object when the pointing game scores an attribution map: 'cell', 'nucleus', 'pathogen' or 'cytoplasm'. The metric checks only whether the map's maximum-valued pixel lies inside that mask. It has low computational cost but does not evaluate the rest of the map, so a method can score 1.0 while assigning spurious attribution elsewhere. Default 'cell'.",
     'occlusion_stride': '(int) - How far the occlusion patch moves between evaluations. Equal to occlusion_window it tiles without overlap and is fastest; half of it doubles the passes and halves the blockiness. A stride larger than the window leaves unmeasured gaps that appear as an artificial grid in the map. Default 4.',
     'occlusion_window': "(int) - Side length in pixels of the patch moved across the image during occlusion analysis. Larger windows reduce runtime but spatial resolution and can miss features smaller than the window; smaller windows resolve finer structure with quadratically more forward passes. Occlusion provides a gradient-independent comparison for gradient-based attribution methods. Default 8.",
+    'counterfactuals': '(bool) - Also train a small class-conditional generator on the crops, guided by the loaded classifier, and morph held-out crops toward the other class in steps. Writes each crop\'s classifier score along its sequence, the flip rate, how far the edit moved the crop, a class-mean-shift baseline and a figure to counterfactuals/ next to the maps. The same classifier guides and scores the edits, so read the flip rate with the edit size. Default False.',
+    'counterfactual_crops': '(int) - How many crops, taken in dataset order, train and test the counterfactual generator; a quarter is held out for scoring. More crops give a steadier estimate and a slower run. Ignored unless counterfactuals is on. Default 256.',
+    'counterfactual_epochs': '(int) - Training passes of the counterfactual generator over its crops. Ignored unless counterfactuals is on. Default 30.',
     'sanity_check': "(bool) - Randomize the model's weights layer by layer, recompute attribution and report the similarity between maps. A method that produces nearly the same map for a randomized model is responding to image structure rather than the trained decision function. On a small CNN, the CAM family, including spaCR's default Grad-CAM, fails this test while saliency and integrated gradients pass. The resulting similarity is reported for the selected model rather than inferred from benchmark behavior. This costs one additional attribution per randomized layer. Default True.",
     'smoothgrad_samples': "(int) - Number of noise-perturbed image copies averaged into one attribution map. Using 8-50 samples reduces local gradient variability and improves between-image comparability. A value of 0, the default, evaluates the method once and minimizes computation during method selection. Applies to every method, including the CAM family, where maps are averaged explicitly rather than through Captum.",
     'smoothgrad_sigma': "(float) - Standard deviation of the noise added by SmoothGrad, expressed as a fraction of the image intensity range. Values that are too small produce nearly identical samples and little averaging effect; values that are too large move samples outside the training distribution, causing the average to characterize responses to noise rather than the experimental images. Values of 0.1-0.2 are typical. Ignored when smoothgrad_samples is 0. Default 0.15.",
@@ -4840,7 +5392,7 @@ tooltips = {
 _clone_organelle_registry(tooltips, tooltip=True)
 for _role in ORGANELLE_SLOT_ROLES[1:]:
     tooltips.setdefault(
-        f'remove_background_{_role}',
+        _background_switch_key(_role),
         tooltips['remove_background_organelle']
         .replace('organelle_', f'{_role}_')
         .replace('the organelle channel',
@@ -4873,7 +5425,7 @@ def _name_the_family_in_every_estimator_tooltip():
 
 _name_the_family_in_every_estimator_tooltip()
 
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -4918,18 +5470,18 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 categories = {
     "Paths": ["src", "mask_src", "test_src", "test_mask_src", "save_path", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
-    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected", "object_filters"],
 
     "Cellpose": ["channel_axis", "min_train_masks", "max_train_images",
         "nimg_per_epoch", "nimg_test_per_epoch", "scale_range",
         "save_every", "save_each", "base_model", "custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
 
 
-    "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_signal_to_noise", "cell_cellprob_threshold", "cell_flow_threshold", "remove_background_cell", "adjust_cells", "cell_min_area", "cell_max_area", "cell_min_intensity", "cell_max_intensity", "cell_remove_border_objects", "cell_perimeter_fraction"],
+    "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_signal_to_noise", "cell_cellprob_threshold", "cell_flow_threshold", "remove_background_cell", "adjust_cells", "cell_remove_border_objects", "cell_perimeter_fraction"],
 
-    "Nucleus": ["nucleus_model_name", "nucleus_diameter", "nucleus_background", "nucleus_signal_to_noise", "nucleus_cellprob_threshold", "nucleus_flow_threshold", "remove_background_nucleus", "nucleus_min_area", "nucleus_max_area", "nucleus_min_intensity", "nucleus_max_intensity", "nucleus_remove_border_objects", "nucleus_perimeter_fraction"],
+    "Nucleus": ["nucleus_model_name", "nucleus_diameter", "nucleus_background", "nucleus_signal_to_noise", "nucleus_cellprob_threshold", "nucleus_flow_threshold", "remove_background_nucleus", "nucleus_remove_border_objects", "nucleus_perimeter_fraction"],
 
-    "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_background", "pathogen_signal_to_noise", "pathogen_cellprob_threshold", "pathogen_flow_threshold", "pathogen_model", "remove_background_pathogen", "pathogen_min_area", "pathogen_max_area", "pathogen_min_intensity", "pathogen_max_intensity", "pathogen_remove_border_objects", "pathogen_perimeter_fraction"],
+    "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_background", "pathogen_signal_to_noise", "pathogen_cellprob_threshold", "pathogen_flow_threshold", "pathogen_model", "remove_background_pathogen", "pathogen_remove_border_objects", "pathogen_perimeter_fraction"],
 
     "Organelle": organelle_basic_settings,
     "Organelle advanced": organelle_advanced_settings,
@@ -4939,20 +5491,48 @@ categories = {
         "hp_marker_thresholds", "hp_parasite_table", "hp_parasite_parent",
         "hp_count_column"],
 
-    "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_path",
-                              "psf_image_sampling_um", "psf_kernel_sampling_um",
+    "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_objective",
+                              "psf_path", "psf_image_sampling_um", "psf_kernel_sampling_um",
                               "psf_fwhm_um", "psf_iterations"],
 
+    "Spectral Unmixing α": ["unmix", "unmix_controls",
+                                  "unmix_background_percentile"],
+
+    "Self-Supervised Denoising α": ["n2v_denoise", "n2v_model",
+                                          "n2v_epochs"],
+
+    "Image Enhancement": ["enhance_background", "enhance_background_radius",
+                          "enhance_background_scale",
+                          "enhance_denoise", "enhance_denoise_strength",
+                          "enhance_percentile_clip", "enhance_percentile_low",
+                          "enhance_percentile_high",
+                          "enhance_gamma", "enhance_log", "enhance_log_gain",
+                          "enhance_sqrt",
+                          "enhance_clahe", "enhance_clahe_tile", "enhance_clahe_clip",
+                          "enhance_equalize",
+                          "enhance_sharpen", "enhance_sharpen_radius",
+                          "enhance_sharpen_amount"],
+
     "Image Quality": ['image_qc_mode', 'image_qc_channels', 'image_qc_min_focus',
-                      'image_qc_max_saturation', 'image_qc_saturation_level', 'image_qc_max_nonfinite'],
+                      'image_qc_max_saturation', 'image_qc_saturation_level', 'image_qc_max_nonfinite',
+                      'image_qc_classifier', 'image_qc_classifier_model',
+                      'image_qc_classifier_labels', 'image_qc_classifier_threshold'],
+
+    "Cellpose 3": ["cellpose3_add_nucleus_channel", "cellpose3_size_model", "cellpose3_resample", "cellpose3_augment", "cellpose3_percentile_low", "cellpose3_percentile_high"],
 
     "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
+
+    "Segmentation Robustness α": ["robustness_report", "robustness_fields",
+                                        "robustness_crop", "robustness_diameter_factors",
+                                        "robustness_flow_thresholds",
+                                        "robustness_cellprob_thresholds",
+                                        "robustness_enhancement", "robustness_tolerance"],
 
     "Timelapse": timelapse_settings,
 
     "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
-    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing"],
+    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
@@ -5027,7 +5607,7 @@ categories = {
     ],
     "Regression: Diagnostics": ["regression_qc"],
 
-    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input"],
+    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input", "counterfactuals", "counterfactual_crops", "counterfactual_epochs"],
 
     "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
@@ -5056,7 +5636,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -5067,6 +5647,77 @@ categories = {
         "t_stack", "t_axis_order", "t_axis", "frame_interval_s",
         "t_track_backend", "t_link_threshold", "t_max_displacement_px",
         "t_max_displacement_um", "t_project_for_tracking",
+    ],
+
+    "Confluency α": [
+        "confluency", "confluency_source", "confluency_channel",
+        "confluency_window", "confluency_qc_threshold",
+    ],
+
+    "Colony Counting α": [
+        "colony_counting", "colony_dilution", "colony_plated_volume_ul",
+        "colony_too_many", "colony_too_few", "colony_polarity",
+        "colony_threshold", "colony_min_area_px", "colony_detector",
+    ],
+
+    "Bleach Correction α": [
+        "bleach_correction",
+    ],
+
+    "GPU Measurement α": [
+        "measure_gpu",
+    ],
+
+    "Measurement Backend α": [
+        "measurement_backend", "measurement_backend_target",
+    ],
+
+    "Profiling α": [
+        "profiling", "profiling_metadata", "profiling_treatment_column",
+        "profiling_negative_control", "profiling_normalization",
+        "profiling_feature_selection", "profiling_correlation_threshold",
+        "profiling_phenotype_column", "profiling_databases",
+    ],
+
+    "Cell Cycle α": [
+        "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
+        "cell_cycle_gates", "cell_cycle_mitotic_ratio",
+        "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
+        "cell_cycle_epochs",
+    ],
+
+    "Wound Closure α": [
+        "wound_closure", "wound_source", "wound_channel", "wound_window",
+        "wound_threshold", "wound_hours_per_frame", "wound_conditions",
+    ],
+
+    "Intensity Calibration α": [
+        "intensity_calibration", "intensity_calibration_wells",
+        "intensity_calibration_statistic", "intensity_calibration_offset",
+    ],
+
+    "Plate Barcode Linkage α": [
+        "plate_barcode_source", "plate_barcodes", "plate_barcode_column",
+        "plate_barcode_token_env",
+    ],
+
+    "Time To Event α": [
+        "time_to_event", "time_to_event_object", "time_to_event_mode",
+        "time_to_event_column", "time_to_event_threshold",
+        "time_to_event_persist", "time_to_event_origin",
+        "time_to_event_min_frames", "time_to_event_hours_per_frame",
+        "time_to_event_group", "time_to_event_conditions",
+        "time_to_event_reference", "time_to_event_covariates",
+    ],
+
+    "Viability α": [
+        "viability", "viability_dead_channel", "viability_live_channel",
+        "viability_thresholds", "viability_negative_wells",
+        "viability_positive_wells", "viability_plate_map",
+    ],
+
+    "CellProfiler α": [
+        "cellprofiler_pipeline",
     ],
 
     "Motility (beta)": motility_settings,
@@ -5113,6 +5764,14 @@ _ADVANCED_FAMILIES = (
         "perimeter_fraction", "remove_border", "remove_border_objects",
     ), ()),
 )
+
+_FAMILY_SHARED_KEYS = {"Object filtration": ("object_filters",)}
+"""Keys a family heading takes whole rather than one per object.
+
+``object_filters`` (item 511) holds every object type's filter list in one
+mapping, so it has no object prefix for the suffix match to find, and it
+belongs beside the per-object area and intensity bounds it extends.
+"""
 
 #: Which heading each category nests under when the panel can draw a tree.
 #:
@@ -5182,6 +5841,22 @@ def _advanced_lookup_sets(table):
     return spoken_for, filed
 
 
+def _prefixed_family_key(prefix, obj):
+    """The key a prefix-form family names for one object.
+
+    ``remove_background_<object>`` for every object but an organelle slot
+    after the first, whose background switch is numbered as the user counts
+    slots (``remove_background_organelle_2``, see
+    :func:`spacr.organelle_types._background_switch_key`).
+    """
+    if f"{prefix}_" == "remove_background_" and obj.startswith("organelle"):
+        try:
+            return _background_switch_key(obj)
+        except ValueError:
+            pass
+    return f"{prefix}_{obj}"
+
+
 def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     """Keys belonging to one family, ordered by object then by suffix.
 
@@ -5193,16 +5868,11 @@ def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     """
     spoken_for, filed = _advanced_lookup_sets(table)
     found = []
-    # `seen` MIRRORS `found` ONLY TO BE ASKED. The list is the answer -- its
-    # order is the contract, object then suffix -- but `key in found` on a
-    # list is a linear scan, and this list grows to ~4,900 keys across 706
-    # objects. That made the duplicate check quadratic: ~12 million string
-    # comparisons to file one family, which was most of the regroup's cost
-    # and all of it invisible, because nothing here looks expensive.
     seen = set()
     for obj in ADVANCED_OBJECT_ORDER:
         candidates = [f"{obj}_{suffix}" for suffix in family_suffixes]
-        candidates += [f"{prefix}_{obj}" for prefix in family_prefixes]
+        candidates += [_prefixed_family_key(prefix, obj)
+                       for prefix in family_prefixes]
         for key in candidates:
             if key in spoken_for or key in seen:
                 continue
@@ -5221,16 +5891,15 @@ def _regroup_advanced(table):
     is the guard.
     """
     out = dict(table)
-    # COMPUTED ONCE PER FAMILY, NOT TWICE. The pass below that empties the
-    # per-object categories needs the same three member lists the pass at the
-    # bottom files under the family headings, and `out` is not modified
-    # between them in any way that changes which keys match -- so the second
-    # set of calls returned exactly the answers the first had already found.
-    # Three families over 706 objects is ~137 ms of pure Python, and doing it
-    # twice was ~137 ms of it for nothing.
     by_family = [
         (heading, _advanced_family_members(out, suffixes, prefixes))
         for heading, suffixes, prefixes in _ADVANCED_FAMILIES
+    ]
+    filed_anywhere = {key for keys in out.values() for key in keys}
+    by_family = [
+        (heading, members + [key for key in _FAMILY_SHARED_KEYS.get(heading, ())
+                             if key in filed_anywhere and key not in members])
+        for heading, members in by_family
     ]
     moved = set()
     for _heading, members in by_family:
@@ -5259,7 +5928,7 @@ for _role in ORGANELLE_SLOT_ROLES[1:]:
         _organelle_slot_key(key, _role) for key in _organelle_basic_slots)
     categories['Organelle advanced'].extend(
         _organelle_slot_key(key, _role) for key in _organelle_advanced_slots)
-    categories['Organelle advanced'].append(f'remove_background_{_role}')
+    categories['Organelle advanced'].append(_background_switch_key(_role))
     for _suffix in ('channel', 'mask_dim', 'chann_dim'):
         _key = f'{_role}_{_suffix}'
         categories['General'].append(_key)
@@ -5676,6 +6345,35 @@ def get_setting_dependencies():
             f"segments without a checkpoint. The value is kept and saved."),
     )
 
+    setting_dependencies['illumination_vendor_channel_map'] = rule(
+        ('illumination_correction', 'illumination_vendor_profile', 'illumination_model'),
+        lambda settings, context: (
+            bool(settings.get('illumination_correction', False))
+            and bool(str(settings.get('illumination_vendor_profile') or '').strip())
+            and not str(settings.get('illumination_model') or '').strip()),
+        lambda settings, context: (
+            "Vendor channel assignments are used only when illumination correction "
+            "is enabled, a vendor profile is selected, and no saved illumination "
+            "model overrides it. The value is kept and saved."),
+    )
+
+    setting_dependencies['bleach_correction'] = rule(
+        ('timelapse',),
+        lambda settings, context: bool(settings.get('timelapse', False)),
+        lambda settings, context: (
+            "Bleach correction is only used for timelapse runs. The value is kept and saved."),
+    )
+
+    for _key in categories.get("Time To Event α", ()):
+        setting_dependencies[_key] = _combined(
+            setting_dependencies.get(_key),
+            ('timelapse',),
+            lambda settings, context: bool(settings.get('timelapse', False)),
+            lambda settings, context, key=_key: (
+                f"{key} follows tracked objects, so it is only read when "
+                f"timelapse is on. The value is kept and saved."),
+        )
+
     return setting_dependencies
 
 category_value_dependencies = {
@@ -5985,6 +6683,9 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('attribution_baseline', 'blur')
     settings.setdefault('sanity_check', True)
     settings.setdefault('object_type', 'cell')
+    settings.setdefault('counterfactuals', False)
+    settings.setdefault('counterfactual_crops', 256)
+    settings.setdefault('counterfactual_epochs', 30)
     return settings
 
 def get_analyze_plaque_settings(settings):
@@ -6025,6 +6726,15 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('plaque_estimate_growth', False)
     settings.setdefault('plaque_growth_reference_um', 893.8178699548309)
     settings.setdefault('plaque_growth_reference_hours', 168.0)
+    settings.setdefault('colony_counting', False)
+    settings.setdefault('colony_dilution', 1)
+    settings.setdefault('colony_plated_volume_ul', 100)
+    settings.setdefault('colony_too_many', 300)
+    settings.setdefault('colony_too_few', 30)
+    settings.setdefault('colony_polarity', 'auto')
+    settings.setdefault('colony_threshold', 4.0)
+    settings.setdefault('colony_min_area_px', None)
+    settings.setdefault('colony_detector', None)
     settings.setdefault('background', 200)
     settings.setdefault('Signal_to_noise', 10)
     settings.setdefault('CP_prob', 0)
@@ -6057,9 +6767,6 @@ def set_graph_importance_defaults(settings):
     settings.setdefault('csvs','list of paths')
     settings.setdefault('grouping_column','compartment')
     settings.setdefault('data_column','compartment_importance_sum')
-    # 293: the Default Graph Type setting decides what is drawn
-    # FIRST. The fallback is the literal this line used to
-    # hold, so a user who chose nothing sees what they saw.
     settings.setdefault(
         'graph_type',
         _graph_types.mark_to_start_on(
@@ -6245,9 +6952,6 @@ def get_plot_data_from_csv_default_settings(settings):
     settings.setdefault('src','path')
     settings.setdefault('data_column','choose column')
     settings.setdefault('grouping_column','choose column')
-    # 293: the Default Graph Type setting decides what is drawn
-    # FIRST. The fallback is the literal this line used to
-    # hold, so a user who chose nothing sees what they saw.
     settings.setdefault(
         'graph_type',
         _graph_types.mark_to_start_on(
@@ -6548,7 +7252,10 @@ def _set_organelle_defaults(settings):
             slot_key = _organelle_slot_key(key, role)
             base_value = view.get(key, value)
             settings.setdefault(slot_key, deepcopy(base_value))
-        settings.setdefault(f'remove_background_{role}', False)
+        # An old file without the switch keeps the old shared behaviour: the
+        # slot's channel follows the generic remove_background (item 76).
+        settings.setdefault(_background_switch_key(role),
+                            settings.get('remove_background', False))
     return settings
 
 
@@ -6572,3 +7279,359 @@ tooltips.update({
     'hp_parasite_parent': '(str) - Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.',
     'hp_count_column': '(str) - Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.',
 })
+
+
+ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
+               'module_settings')
+
+
+ALPHA_FEATURES = {
+    426: {
+        'settings': ('timeflows_model',),
+        'choices': {'timelapse_mode': ('timeflows',)},
+    },
+    493: {
+        'settings': ('mask_parallel', 'mask_gpu_indices'),
+        'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
+    },
+    535: {
+        'settings': ('cell_cycle', 'cell_cycle_method', 'cell_cycle_channel',
+                     'cell_cycle_gates', 'cell_cycle_mitotic_ratio',
+                     'cell_cycle_fucci_channels', 'cell_cycle_labels',
+                     'cell_cycle_model', 'cell_cycle_epochs'),
+    },
+    539: {
+        'settings': ('bleach_correction',),
+    },
+    566: {
+        'settings': ('measure_gpu',),
+    },
+    576: {
+        'settings': ('measurement_backend', 'measurement_backend_target'),
+    },
+    540: {
+        'settings': ('viability', 'viability_dead_channel',
+                     'viability_live_channel', 'viability_thresholds',
+                     'viability_negative_wells', 'viability_positive_wells',
+                     'viability_plate_map'),
+    },
+    541: {
+        'settings': ('confluency', 'confluency_source', 'confluency_channel',
+                     'confluency_window', 'confluency_qc_threshold'),
+        'widgets': ('MeasureConfluencyToggle',),
+    },
+    542: {
+        'settings': ('colony_counting', 'colony_dilution',
+                     'colony_plated_volume_ul', 'colony_too_many',
+                     'colony_too_few', 'colony_polarity', 'colony_threshold',
+                     'colony_min_area_px', 'colony_detector'),
+        'models': ('colony_yolo11n_makrai_v1',),
+    },
+    536: {
+        'settings': ('wound_closure', 'wound_source', 'wound_channel',
+                     'wound_window', 'wound_threshold',
+                     'wound_hours_per_frame', 'wound_conditions'),
+        'widgets': ('MeasureWoundToggle',),
+    },
+    544: {
+        'widgets': ('AnnotateBlindToggle', 'MakeMasksBlindToggle'),
+    },
+    545: {
+        'widgets': ('MakeMasksRoisButton',),
+    },
+    547: {
+        'settings': ('profiling', 'profiling_metadata',
+                     'profiling_treatment_column',
+                     'profiling_negative_control', 'profiling_normalization',
+                     'profiling_feature_selection',
+                     'profiling_correlation_threshold',
+                     'profiling_phenotype_column', 'profiling_databases'),
+    },
+    548: {
+        'settings': ('watch_folder', 'watch_pipeline', 'watch_measure_settings',
+                     'watch_settle_seconds', 'watch_poll_seconds',
+                     'watch_idle_minutes'),
+        'widgets': ('WatchFolderProgress',),
+    },
+    549: {
+        'settings': ('microscope_feedback', 'microscope_driver',
+                     'microscope_simulated_folder', 'microscope_positions',
+                     'microscope_stage_transform', 'microscope_event_table',
+                     'microscope_event_query', 'microscope_max_events',
+                     'microscope_timepoints', 'microscope_interval_seconds'),
+    },
+    550: {
+        'settings': ('cloud_anonymous', 'cloud_profile', 'cloud_endpoint',
+                     'cloud_cache', 'cloud_wells', 'cloud_fields',
+                     'cloud_level', 'cloud_results'),
+        'widgets': ('CloudSourceBrowse',),
+    },
+    546: {
+        'settings': ('cellprofiler_pipeline',),
+        'models': ('cellprofiler_v1',),
+    },
+    551: {
+        'models': ('stardist_v1', 'stardist_2D_versatile_fluo',
+                   'stardist_2D_versatile_he', 'stardist_2D_paper_dsb2018'),
+    },
+    552: {
+        'models': ('instanseg_v1', 'instanseg_fluorescence_nuclei_and_cells',
+                   'instanseg_brightfield_nuclei'),
+    },
+    553: {
+        'models': ('omnipose_v1', 'omnipose_bact_phase_omni',
+                   'omnipose_bact_fluor_omni', 'omnipose_worm_omni',
+                   'omnipose_worm_bact_omni', 'omnipose_worm_high_res_omni',
+                   'omnipose_cyto2_omni'),
+    },
+    554: {
+        'choices': {'ops_spot_detector': ('spotiflow',)},
+        'models': ('spotiflow_v1', 'spotiflow_general', 'spotiflow_hybiss',
+                   'spotiflow_synth_complex', 'spotiflow_fluo_live'),
+    },
+    555: {
+        'widgets': ('MakeMasksPromptCategory',),
+        'models': ('microsam_v1',),
+    },
+    556: {
+        'choices': {'timelapse_mode': ('sam2',)},
+        'models': ('sam2_v1',),
+    },
+    565: {
+        'widgets': ('AnnotateFindSimilar', 'AnnotateSimilarityOptions'),
+    },
+    560: {
+        'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker'),
+    },
+    562: {
+        'widgets': ('EmbeddingsWellMilButton',),
+    },
+    561: {
+        'widgets': ('EmbeddingsDinoPretrainButton',),
+    },
+    558: {
+        'widgets': ('CellposeWorkbenchVirtualStain',),
+    },
+    570: {
+        'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
+                    'ControlChartExportHits'),
+    },
+    571: {
+        'settings': ('time_to_event', 'time_to_event_object',
+                     'time_to_event_mode', 'time_to_event_column',
+                     'time_to_event_threshold', 'time_to_event_persist',
+                     'time_to_event_origin', 'time_to_event_min_frames',
+                     'time_to_event_hours_per_frame', 'time_to_event_group',
+                     'time_to_event_conditions', 'time_to_event_reference',
+                     'time_to_event_covariates'),
+    },
+    572: {
+        'widgets': ('FigureIntegrityCheck',),
+    },
+    573: {
+        'widgets': ('AnalysisLockButton',),
+    },
+    580: {
+        'settings': ('intensity_calibration', 'intensity_calibration_wells',
+                     'intensity_calibration_statistic',
+                     'intensity_calibration_offset'),
+    },
+    577: {
+        'widgets': ('NotifyTabHelp', 'NotifyRunsEnabled', 'NotifyRunsWhen',
+                    'NotifyRunsMinMinutes', 'NotifyDesktop', 'NotifyEmail',
+                    'NotifySmtpHost', 'NotifySmtpPort', 'NotifySmtpSecurity',
+                    'NotifySmtpUser', 'NotifySmtpPassword', 'NotifyEmailFrom',
+                    'NotifyEmailTo', 'NotifySlack', 'NotifySlackWebhook',
+                    'NotifyNtfy', 'NotifyNtfyServer', 'NotifyNtfyTopic',
+                    'NotifyNtfyToken', 'NotifySendTest', 'NotifyForgetSecrets',
+                    'NotifyTestResult', 'NotifyTeams', 'NotifyTeamsWebhook',
+                    'NotifyWebhook', 'NotifyWebhookUrl', 'NotifyWebhookToken'),
+    },
+    581: {
+        'settings': ('anndata_format', 'anndata_tidy_dir'),
+    },
+    538: {
+        'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
+    },
+    557: {
+        'settings': ('n2v_denoise', 'n2v_model', 'n2v_epochs'),
+        'models': ('careamics_v1',),
+    },
+    574: {
+        'widgets': ('ReportArchivePackage',),
+    },
+    579: {
+        'widgets': ('ReportZenodoDeposit',),
+    },
+    575: {
+        'widgets': ('RunHistoryExportWorkflow',),
+    },
+    537: {
+        'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
+                     'timelapse_lineage_max_distance'),
+    },
+    567: {
+        'settings': ('timelapse_events', 'timelapse_events_annotations',
+                     'timelapse_events_model', 'timelapse_events_window',
+                     'timelapse_events_threshold',
+                     'timelapse_events_conditions'),
+    },
+    583: {
+        'settings': ('plate_barcode_source', 'plate_barcodes',
+                     'plate_barcode_column', 'plate_barcode_token_env'),
+    },
+    543: {
+        'settings': ('illumination_vendor_profile', 'illumination_vendor_channel_map'),
+    },
+    584: {
+        'widgets': ('ControlChartChemistry', 'ControlChartChemistrySection'),
+    },
+    585: {
+        'widgets': ('PowerArrayedPlanner',),
+    },    563: {
+        'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
+    },
+    568: {
+        'widgets': ('MakeMasksUncertaintyButton', 'MakeMasksUncertaintySetting',
+                    'MakeMasksUncertaintyEnsembleSetting'),
+    },
+    578: {
+        'settings': ('robustness_report', 'robustness_fields',
+                     'robustness_crop', 'robustness_diameter_factors',
+                     'robustness_flow_thresholds',
+                     'robustness_cellprob_thresholds',
+                     'robustness_enhancement', 'robustness_tolerance'),
+    },
+    559: {
+        'settings': ('image_qc_classifier', 'image_qc_classifier_model',
+                     'image_qc_classifier_labels',
+                     'image_qc_classifier_threshold'),
+    },
+    582: {
+        'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
+                    'PluginCatalogueLoad', 'PluginCatalogueTable',
+                    'PluginCatalogueInstall', 'PluginCatalogueUninstall',
+                    'PluginCatalogueOpen', 'PluginCatalogueStatus'),
+    },
+    534: {
+        'widgets': ('MapBarcodesSpatialToggle', 'MapBarcodesSpatialCard'),
+    },
+    591: {
+        'module_settings': {
+            app_key: (
+                'illumination_correction', 'illumination_model',
+                'illumination_estimator', 'illumination_degree',
+                'illumination_dark', 'illumination_per_plate',
+                'illumination_max_fields', 'illumination_qc',
+                'illumination_on_missing',
+                'psf_measurement_source', 'psf_operation', 'psf_source',
+                'psf_objective', 'psf_path', 'psf_image_sampling_um',
+                'psf_kernel_sampling_um', 'psf_fwhm_um', 'psf_iterations',
+                'enhance_background', 'enhance_background_radius',
+                'enhance_background_scale', 'enhance_denoise',
+                'enhance_denoise_strength', 'enhance_percentile_clip',
+                'enhance_percentile_low', 'enhance_percentile_high',
+                'enhance_gamma', 'enhance_log', 'enhance_log_gain',
+                'enhance_sqrt', 'enhance_clahe', 'enhance_clahe_tile',
+                'enhance_clahe_clip', 'enhance_equalize', 'enhance_sharpen',
+                'enhance_sharpen_radius', 'enhance_sharpen_amount',
+            )
+            for app_key in ('mask', 'timelapse')
+        },
+    },
+    405: {
+        'choices': {'segmentation_backend': ('samcell',)},
+        'models': ('samcell_v1',),
+    },
+    475: {
+        'choices': {'ops_spot_detector': ('spotnet',)},
+        'models': ('spotnet_v1',),
+    },
+    501: {
+        'settings': ('plaque_estimate_growth', 'plaque_growth_reference_um',
+                     'plaque_growth_reference_hours'),
+        'widgets': ('PlaqueEstimateScaleTime', 'PlaqueEstimateScaleTimeNote'),
+    },
+    564: {
+        'settings': ('counterfactuals', 'counterfactual_crops',
+                     'counterfactual_epochs'),
+    },
+    508: {
+        'widgets': ('MakeMasksUseInMaskGeneration',),
+    },
+}
+
+
+def _alpha_names(kind, app_key=None):
+    """Every name registered as alpha under ``kind``, across all items.
+
+    ``ALPHA_FEATURES`` is the one registry of everything built from
+    ``features/future`` that ships as an alpha feature (see
+    ``features/README.md``): hidden unless Preferences -> Show alpha
+    features is on. Each entry is keyed by the item
+    number and lists what that item adds under the kinds in ``ALPHA_KINDS``:
+    ``settings`` (settings keys, hidden from the form, the settings search
+    and its counts), ``choices`` (``{key: (dropdown values,)}``), ``widgets``
+    (Qt object names of buttons, checkboxes, labels, menu actions or
+    panels), ``apps`` (module keys: tile, sidebar, menu and palette together)
+    ``models`` (Model Zoo keys, names or family stems) and
+    ``module_settings`` (``{module key: (settings keys,)}``, settings that are
+    alpha on those modules' forms only, where the same key is an ordinary
+    setting of another module). A feature is marked in this one place and
+    promoted out of alpha by deleting its entry.
+
+    Hiding is a display decision only: a saved or typed alpha setting still
+    reaches the run, and headless and command-line runs never consult the
+    registry. The one exception is run-finished notifications, which are
+    configured only in Preferences and are sent, from the app or the command
+    line, only while the gate shows them.
+
+    :param kind: one of ``ALPHA_KINDS``.
+    :param app_key: with ``kind='settings'``, the module whose form is asked
+        about, so its ``module_settings`` are included; without it only the
+        settings alpha on every module.
+    :returns: a frozenset of names; for ``choices`` the settings keys that
+        carry alpha entries, for ``module_settings`` every settings key alpha
+        on some module.
+    :raises ValueError: for a kind that is not in ``ALPHA_KINDS``.
+    """
+    if kind not in ALPHA_KINDS:
+        raise ValueError(
+            f'unknown alpha kind {kind!r}; expected one of {ALPHA_KINDS}')
+    names = set()
+    for entry in ALPHA_FEATURES.values():
+        if kind == 'module_settings':
+            for keys in (entry.get(kind) or {}).values():
+                names.update(keys or ())
+            continue
+        names.update(entry.get(kind, ()) or ())
+        if kind == 'settings' and app_key is not None:
+            scoped = entry.get('module_settings') or {}
+            names.update(scoped.get(str(app_key), ()) or ())
+    return frozenset(str(name) for name in names)
+
+
+def _alpha_choices(key):
+    """The dropdown entries of settings ``key`` that are alpha.
+
+    :param key: a settings key, such as ``'timelapse_mode'``.
+    :returns: a frozenset of the entries' values, empty when none are alpha.
+    """
+    values = set()
+    for entry in ALPHA_FEATURES.values():
+        values.update((entry.get('choices') or {}).get(str(key), ()) or ())
+    return frozenset(str(value) for value in values)
+
+
+def _is_alpha(kind, name, choice=None):
+    """Whether ``name`` of ``kind`` is registered with the alpha gate.
+
+    :param kind: one of ``ALPHA_KINDS``.
+    :param name: the settings key, object name, module key or model key.
+    :param choice: with ``kind='choices'``, the dropdown entry asked about;
+        without it the question is whether ``name`` has any alpha entry.
+    :returns: True when registered.
+    """
+    if kind == 'choices' and choice is not None:
+        return str(choice) in _alpha_choices(name)
+    return str(name) in _alpha_names(kind)

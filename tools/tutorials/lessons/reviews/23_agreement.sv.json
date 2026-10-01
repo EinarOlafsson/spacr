@@ -1,31 +1,33 @@
 {
   "lesson": "23_agreement",
-  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
   "review": {
-    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "sv",
-  "title": "Överensstämmelse mellan annotatörer",
-  "description": "Öppna det inbäddade verktyget, jämför uttryckligen konstgjorda undervisningsetiketter på kopior av verkliga nedladdade bildutsnitt och skilj parvis överensstämmelse från en sammanfattning av flera omgångar.",
+  "title": "Annotator Agreement: jämför oberoende annoteringsomgångar",
+  "description": "Välj annoteringskolumner, jämför överensstämmelsen och granska de utsnitt där etiketterna skiljer sig.",
   "objectives": [
-    "Öppna Annotator Agreement från Annotate.",
-    "Jämför etiketter, saknade observationer och förväxlingsmatriser utan att ändra annoteringar.",
-    "Granska bildutsnitt med oenighet och tolka sammanfattningar av två respektive tre omgångar."
+    "Öppna exempeldatabasen och välja två annoteringsomgångar.",
+    "Läsa parvis överensstämmelse och förväxlingsmatrisen.",
+    "Granska oenigheter och jämföra tre annoteringsomgångar."
   ],
-  "prerequisite": "De sexton bildutsnitten är oförändrade kopior av Annotates nedladdningsbara exempel. DEMO_A, DEMO_B och DEMO_C är konstgjorda undervisningsetiketter i en ny privat databas, inte biologiska klasser, mått på mänskliga granskares prestation eller modellprediktioner. Originalbilder och etiketter förblir oförändrade; png_path görs relativ endast i demokopian. Använd verkligt oberoende annoteringsomgångar för egen utvärdering. Standardidentifieringen utesluter kända modellutdatakolumner. Oberoende heltals- och bråkberäkningar verifierar varje par, matris och sammanfattande mått; tre förhandsvisningar matchar originalens pixlar exakt. Det lilla exemplet lär ut kontrollerna, inte försökets tillförlitlighet. Den äldre videon upprepade en tom skärm och beskrev automatisk identifiering av prediktioner som inte längre stämmer med API:et: lektionen har inte bara flyttats.",
+  "prerequisite": "Packa upp det länkade Annotator Agreement-exemplet och behåll databasen tillsammans med utsnittsbilderna. Det innehåller sexton bilder från Annotate-exemplet och tre konstgjorda undervisningskolumner med etiketter, DEMO_A, DEMO_B och DEMO_C. Använd oberoende insamlade annoteringar av samma bilder i din egen analys.",
   "scenes": [
-    "Öppna Annotate och sedan knappen Annotator Agreement. Det är ett inbäddat verktyg, inte ytterligare en modul på Home. Jämförelsevyn läser annoteringskolumner utan att redigera dem; återvänd till Annotate när du vill ändra en etikett.",
-    "Öppna den förberedda demonstrationsdatabasen. De sexton bilderna är verkliga utsnitt ur det nedladdningsbara exemplet, men de tre DEMO-kolumnerna är konstgjorda undervisningsetiketter. De mäter varken en persons skicklighet eller en biologisk fenotyp. Originaletiketter och bilder har bevarats i en separat källkopia.",
-    "Kontrollera uttryckligen vilka kolumner som valts i stället för att acceptera de första standardvalen. En enda kolumn kan inte mäta överensstämmelse. Den aktuella identifieringen utesluter kända modellutdatakolumner som standard; att jämföra en klassificerare med en person är modellvalidering, inte överensstämmelse mellan människor.",
-    "Välj DEMO A och DEMO B och tryck på Compute agreement. Tolv utsnitt har etiketter i båda omgångarna, tre i bara en och ett i ingen. Saknade etiketter omvandlas inte i det tysta till oenighet.",
-    "De två undervisningsomgångarna överensstämmer för nio av tolv jämförda utsnitt: sjuttiofem procent, med Cohens kappa på noll komma fem. Läs rå överensstämmelse, överlapp och klassbalans tillsammans. Skärmen varnar för att tolv gemensamma etiketter är för få för en stabil tillförlitlighetsskattning; de påhittade etiketterna är bara en demonstration.",
-    "Raderna motsvarar DEMO A och kolumnerna DEMO B. Fem utsnitt har klass ett i båda omgångarna och fyra har klass två i båda. Antalen utanför diagonalen, ett och två, visar tre oenigheter. En sammanfattande beteckning som måttlig är en konvention, inte en acceptansgräns för ditt försök.",
-    "Välj en oenighet för att granska motsvarande bildutsnitt och båda etiketterna. Vi kontrollerade alla tre förhandsvisningar mot originalpixlarna. I en verklig studie bör du granska representativa bilder och klassdefinitioner innan du beslutar hur fallen ska avgöras; denna skrivskyddade vy fattar inte beslutet åt dig.",
-    "Lägg till DEMO C och beräkna igen. Att ändra en kryssruta startar inte i sig en ny beräkning. Tabellen jämför nu tre par med olika antal gemensamma etiketter, medan den övergripande Fleiss-sammanfattningen bara använder de tolv utsnitt som har etiketter i varje vald omgång.",
-    "Undervisningsexemplets Fleiss-kappa är ungefär noll komma sex sex tre, inte medelvärdet av de tre parvisa kappavärdena. Den övergripande råa överensstämmelsen räknar här enhälliga, fullständiga rader. Den fjärde granskningsraden saknar A men har oenighet mellan B och C; därför kan den visas för granskning utan att ingå i sammanfattningen av fullständiga fall.",
-    "Om du bara väljer A och B och beräknar igen återställs den ursprungliga jämförelsen. Vi verifierade att databasen och bildfilerna förblir oförändrade under alla tre beräkningar. Använd verkligt oberoende annoteringsomgångar för din egen analys och återvänd till Annotate-handledningen för att samla in etiketterna."
+    "Från Home öppnar du Annotate och väljer sedan Annotator Agreement. Använd verktyget för att jämföra etiketter som samlats in i separata annoteringsomgångar. Resultaten hjälper dig att hitta bilder som behöver granskas.",
+    "Öppna exempeldatabasen. Ha de uppackade utsnittsmapparna bredvid så att bildförhandsvisningarna kan läsas in. DEMO-kolumnerna innehåller konstgjorda undervisningsetiketter; använd dina egna oberoende annoteringskolumner när du bedömer överensstämmelse i en studie.",
+    "Välj minst två annoteringskolumner i listan. I det här exemplet börjar du med DEMO A och DEMO B. Kontrollera kolumnnamnen så att du jämför rätt omgångar.",
+    "Klicka på Compute agreement. De två valda omgångarna delar tolv märkta utsnitt. Ytterligare tre utsnitt har en etikett i bara en omgång, och ett saknar etikett helt. Den parvisa överensstämmelsen använder utsnitt som märkts i båda omgångarna.",
+    "Läs de parvisa resultaten. Omgångarna stämmer överens för nio av tolv utsnitt, vilket ger 75 % överensstämmelse och Cohens kappa 0,5. Läs värdena tillsammans med antalet delade etiketter; ett litet urval ger en osäker skattning.",
+    "Öppna förväxlingsmatrisen. Raderna motsvarar DEMO A och kolumnerna DEMO B. Diagonalen innehåller matchande etiketter: fem för klass 1 och fyra för klass 2. Cellerna utanför diagonalen innehåller de tre oenigheterna.",
+    "Välj en oenighet för att visa dess utsnitt och de etiketter som satts i varje omgång. Jämför bilden med dina klassdefinitioner. För att ändra en etikett efter granskning går du tillbaka till Annotate.",
+    "Lägg till DEMO C och klicka på Compute agreement igen. Den parvisa tabellen visar nu alla tre paren. Varje par använder sina delade etiketter, medan den samlade sammanfattningen använder utsnitt som märkts i alla tre valda omgångar.",
+    "Läs det samlade Fleiss kappa och sammanfattningen av enhällig överensstämmelse. Exemplet ger Fleiss kappa på ungefär 0,663. Granska också listan över oenigheter: den kan innehålla ett utsnitt som bara har etiketter i två av de tre omgångarna.",
+    "För att åter fokusera på ett par väljer du bara A och B och klickar på Compute agreement. Resultaten stannar i den här jämförelsevyn; dina annoteringskolumner finns kvar i källdatabasen. Fortsätt i Annotate för att samla in ytterligare en oberoende omgång eller granska de oenigheter som hittats."
   ]
 }

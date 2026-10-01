@@ -1,0 +1,92 @@
+SMART MICROSCOPY: SEND HITS BACK FOR RE-IMAGING
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27. Hidden unless Preferences -> Show
+alpha features is on (ALPHA_FEATURES[549]).
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/application-smart-microscopy-guided-acquistion-with-rare-event-detection/119806
+
+WHAT TO BUILD
+    From live analysis (item 548), send positions of hit wells or rare
+    events (egress, invasion) to the microscope for higher-resolution or
+    timelapse re-imaging via Micro-Manager/pycro-manager (and vendor APIs
+    where available), with a simulation mode for testing without a
+    microscope.
+
+DONE WHEN
+    In simulation, detected events produce correctly transformed stage
+    positions; on a Micro-Manager demo config, positions are queued and
+    acquired.
+
+ALPHA NOTE (2026-09-27)
+    What was built. The folder watch of item 548 (Make Masks, watch_folder
+    with watch_pipeline 'mask_measure') can send the objects it finds back
+    to the microscope. Switched on by microscope_feedback; the code is in
+    spacr/core.py (_microscope_* helpers and _SimulatedMicroscope, called
+    from _watch_run_field and _watch_folder_and_analyse).
+      - Events: rows of microscope_event_table (default cell) in each
+        field's measurements that match microscope_event_query (a pandas
+        query; blank = every object), at most microscope_max_events per
+        field, placed at the object's intensity-weighted centroid.
+      - Stage position: the field's x, y (and optional z) from the
+        microscope_positions table (columns field, x, y[, z]; field is the
+        key the watch prints), plus microscope_stage_transform [a, b, c, d]
+        times the pixel offset from the image centre (um per pixel,
+        rotation and flips included).
+      - Queue: events are stored in the field's entry in watch_ledger.json
+        (object, pixel, stage, status queued / acquired / failed /
+        no_position, files). Queued events are then imaged; events still
+        queued when a watch ends are imaged at the next start.
+      - Acquisition goes through the pycro-manager Core calls
+        (set_xy_position, wait_for_device, set_position, snap_image,
+        get_image, get_image_width/height): microscope_timepoints images
+        microscope_interval_seconds apart, written as TIFFs to
+        src/spacr_watch/reimaged. The channel, objective and exposure are
+        left as the microscope has them.
+      - microscope_driver 'simulated' (default) is a local stand-in with
+        the same calls. It lays the field images of
+        microscope_simulated_folder (blank = src) on its stage at their
+        positions and returns the view centred on the stage position.
+        'pycromanager' imports pycromanager only when chosen and connects
+        to a running Micro-Manager (optional dependency: pip install
+        pycromanager; not added to setup.py).
+    Registered as alpha: the settings microscope_feedback,
+    microscope_driver, microscope_simulated_folder, microscope_positions,
+    microscope_stage_transform, microscope_event_table,
+    microscope_event_query, microscope_max_events, microscope_timepoints
+    and microscope_interval_seconds (Make Masks, Workflow & Test Run).
+    DONE WHEN, as measured. The simulation half is met.
+    tests/test_microscope_feedback.py::
+    test_measured_events_are_imaged_centred_on_their_objects runs the real
+    preprocessing, merge and Measure (Cellpose forward pass stubbed) on
+    wells copied into a watched folder. The event query picks the larger
+    cell; its stage position equals field centre + [0.5,0,0,-0.5] x pixel
+    offset, and the simulated re-image is the field shifted so that the
+    object sits at the image centre. Other tests there cover the
+    transform with rotation and flips, the simulator, the queue across a
+    restart, fields with no position, and the refusals.
+    tests/qt/test_microscope_feedback_alpha_gate.py pins the alpha gate.
+    All CPU-only.
+    LEFT FOR LATER
+      - The Micro-Manager demo-config run ("positions are queued and
+        acquired" on real Micro-Manager) has not been done; there is no
+        Micro-Manager here. The pycromanager driver path is untested.
+      - Field positions come from a table; reading them from Micro-Manager
+        or vendor metadata (or a .pos position list) is not done.
+      - Vendor APIs (Nikon, Zeiss, Olympus, Leica) are not wrapped.
+      - Changing objective, channel or exposure for the re-image, and
+        pausing a running plate acquisition while the stage is borrowed,
+        are not handled; the re-image uses the microscope as it is set.
+      - Events are imaged one at a time in the watch thread, so a long
+        timelapse delays the next field's analysis.
+      - The live plate view of events is not built; events are in the
+        ledger and the console.

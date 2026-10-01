@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "bleach_correction",
+      "source": "Bleach correction",
+      "source_sha256": "b25fc1d0f54447c28a36206d5920b7ab84812d2ed9d8b3fad8fae32326d575c0",
+      "translation": "Leiðrétting ljósbleikingar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellprofiler_pipeline",
+      "source": "Cellprofiler pipeline",
+      "source_sha256": "8a9271001cab7665ddf225ee282b6c0c119803be634e8a2eb68a9859b63faa94",
+      "translation": "CellProfiler-ferli"
+    },
+    {
+      "table": "setting_labels",
+      "key": "colony_counting",
+      "source": "Colony counting",
+      "source_sha256": "db6838a5673660f0ad3a3d065231df4b9151f7fc6bf5f2750700563bc4b03f5b",
+      "translation": "Talning þyrpinga"
+    },
+    {
+      "table": "setting_labels",
+      "key": "colony_dilution",
+      "source": "Colony dilution",
+      "source_sha256": "2e7d07db37802c451aadcc6235f92d2a03fe5b04cd7ae171bbf8c57803aa7f21",
+      "translation": "Þynning þyrpinga"
+    },
+    {
+      "table": "setting_labels",
+      "key": "colony_min_area_px",
+      "source": "Colony min area px",
+      "source_sha256": "be7b796b49feb2797dd1352fb5b061ffd8f720d0526be5564f761aded4b9010e",
+      "translation": "Lágmarksflatarmál þyrpingar px"
+    },
+    {
+      "table": "setting_labels",
+      "key": "colony_plated_volume_ul",
+      "source": "Colony plated volume ul",
+      "source_sha256": "394ccf335725734073c32b2cbb1306b8ac99280fad710af860d32611fc9997d0",
+      "translation": "Þyrpingar: sáð rúmmál µl"
+    },
+    {
+      "table": "setting_labels",
+      "key": "colony_polarity",
+      "source": "Colony polarity",
+      "source_sha256": "f81283b43bcddb0388a463bb1134f085f1a4a192f0b8fd5f81effdef15944586",
+      "translation": "Pólun þyrpinga"
+    },
+    {
+      "table": "setting_labels",
+      "key": "colony_threshold",
+      "source": "Colony threshold",
+      "source_sha256": "14d4deb4d153b407f2da895c931703dd5a443fefa3c67d67dd6c5886f602ba2e",
+      "translation": "Þröskuldur þyrpinga"
+    },
+    {
+      "table": "setting_labels",
+      "key": "colony_too_few",
+      "source": "Colony too few",
+      "source_sha256": "b48019e0a73e341bbdab765dcee2ebf9425145696a3576a5ed67921f0376594f",
+      "translation": "Þyrpingar: of fáar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "colony_too_many",
+      "source": "Colony too many",
+      "source_sha256": "a1bc43a98461a19c2e42873ee87aee093d1f7da6800d97857d36ee5c22cbc5aa",
+      "translation": "Þyrpingar: of margar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_vendor_profile",
+      "source": "Illumination vendor profile",
+      "source_sha256": "33085f725acdbc61111ec3ae71c0e4f012f1d8778779fa50212ad96fe4c155aa",
+      "translation": "Lýsingarsnið framleiðanda"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration",
+      "source": "Intensity calibration",
+      "source_sha256": "62bebe4d0998f2ff934edc4183cf51814efd37fcf23388860565572f8a24c3b9",
+      "translation": "Styrkkvörðun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_offset",
+      "source": "Intensity calibration offset",
+      "source_sha256": "8fd62bc7c8fac54843f681497989f0a1765ae23c6a91b9e20086a4b08e5417a5",
+      "translation": "Hliðrun styrkkvörðunar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_statistic",
+      "source": "Intensity calibration statistic",
+      "source_sha256": "c163c0b0fd517fe201900cc3d7a30dd3f84210d0ea63fa179749b172d91154c5",
+      "translation": "Tölfræði styrkkvörðunar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_wells",
+      "source": "Intensity calibration wells",
+      "source_sha256": "a98d57e72049aeb502d172ae2ce102385ac48aa87962d9eb694fb45cd48a29c4",
+      "translation": "Brunnar styrkkvörðunar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plate_barcode_column",
+      "source": "Plate barcode column",
+      "source_sha256": "6292400defc136527373193be62d4ae5564514de970ac3d6708c1e28819e7405",
+      "translation": "Dálkur strikamerkis plötu"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plate_barcode_source",
+      "source": "Plate barcode source",
+      "source_sha256": "8c7737570db8418cc8f722aaaf803c5ee9e2d4c65fddd824b98417b96b24705b",
+      "translation": "Uppspretta strikamerkis plötu"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plate_barcode_token_env",
+      "source": "Plate barcode token env",
+      "source_sha256": "69571a3138a5c3b36f6e96012abd9d5c790a3fed798d69589bdaa3aee92568b4",
+      "translation": "Umhverfisbreyta strikamerkjalykils"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plate_barcodes",
+      "source": "Plate barcodes",
+      "source_sha256": "9e1588cfcc985b23d33d27b82582e63fb393513fac1661ef524ed4a992d38d3d",
+      "translation": "Strikamerki platna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event",
+      "source": "Time to event",
+      "source_sha256": "4681df2524cb750bf5305b832fe996aeff05e593506470d24e10606ab4ca194c",
+      "translation": "Tími að atburði"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_column",
+      "source": "Time to event column",
+      "source_sha256": "55839de9cc4a679d1fc077f2628301ca37d14e984e0cd324d17b6436d5294c9e",
+      "translation": "Tími að atburði: dálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_conditions",
+      "source": "Time to event conditions",
+      "source_sha256": "aaefc6ff22ebe21b08234f96aa7f219876ec0dae7e38c6529576dad0b162026c",
+      "translation": "Tími að atburði: skilyrði"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_covariates",
+      "source": "Time to event covariates",
+      "source_sha256": "dd1ed7d72d1c5bcf58535964bc6e927ce1dbf62aabe0ec147643bca7699a7f91",
+      "translation": "Tími að atburði: fylgibreytur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_group",
+      "source": "Time to event group",
+      "source_sha256": "94691d0ca57b038a8a3d478614200931246d8a97c9fe9d371459bc9321389ba9",
+      "translation": "Tími að atburði: hópur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_hours_per_frame",
+      "source": "Time to event hours per frame",
+      "source_sha256": "4e351ca2e12160edfc9c11327b35dd9c41050cf04bec2663b78ba296755de068",
+      "translation": "Tími að atburði: klukkustundir á ramma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_min_frames",
+      "source": "Time to event min frames",
+      "source_sha256": "0077dbf558a1c3985533e92216ab530d44b563b2d553cc3cd89e4e32d8292a3f",
+      "translation": "Tími að atburði: lágmarksfjöldi ramma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_mode",
+      "source": "Time to event mode",
+      "source_sha256": "e8ee7df86920925d075a9de1d052946cbce0c88b4dec9f7a375c3bb5b28d83f3",
+      "translation": "Tími að atburði: hamur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_object",
+      "source": "Time to event object",
+      "source_sha256": "eda4ab424ceb53762c65df4033a50ff8aebbde06d274aeea539ce228711524d8",
+      "translation": "Tími að atburði: hlutur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_origin",
+      "source": "Time to event origin",
+      "source_sha256": "2716507663fc6a0991127185a55796883f70d6255478299a3c7b1cff098dfbfa",
+      "translation": "Tími að atburði: upphaf"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_persist",
+      "source": "Time to event persist",
+      "source_sha256": "ac890bde87cbc8dd4c3de3a137706977dd39910340f4e8901b6129d16e74cbd9",
+      "translation": "Tími að atburði: varanleiki"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_reference",
+      "source": "Time to event reference",
+      "source_sha256": "997ddb99be2631c94cce73388a29473574013a40f94575a45544a2cec1bc2a82",
+      "translation": "Tími að atburði: viðmið"
+    },
+    {
+      "table": "setting_labels",
+      "key": "time_to_event_threshold",
+      "source": "Time to event threshold",
+      "source_sha256": "1402b4925e6dde42232f92f8ef9257750f4b54044e09f83a0a2e0371e96e6f7f",
+      "translation": "Tími að atburði: þröskuldur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_lineage",
+      "source": "Timelapse lineage",
+      "source_sha256": "eee2056cf84bed877cdadc62ca94062e6c3f7956ef3fb5e65dd755be1b72f070",
+      "translation": "Ættartré tímaraðar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_lineage_color_by",
+      "source": "Timelapse lineage color by",
+      "source_sha256": "491e0a26c1e55f4b0ca7e432f484af9422522e8db5c054b79f149f2253388134",
+      "translation": "Litur ættartrés eftir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_lineage_max_distance",
+      "source": "Timelapse lineage max distance",
+      "source_sha256": "4a1652dac541d032322bb7a20cefa7f69e2f278837f6e426cb53b975905db8bd",
+      "translation": "Ættartré: hámarksfjarlægð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "unmix",
+      "source": "Unmix",
+      "source_sha256": "4d1fe9fff02e8a3a430c74114666763aea8e4c781a41fc084c7de0120e1ef576",
+      "translation": "Litrófsaðgreining"
+    },
+    {
+      "table": "setting_labels",
+      "key": "unmix_background_percentile",
+      "source": "Unmix background percentile",
+      "source_sha256": "4cf97ac9cb3d0bd13f9d41fc33b716367efc512ef631d8175449608d9d6a3d56",
+      "translation": "Litrófsaðgreining: hundraðsmark bakgrunns"
+    },
+    {
+      "table": "setting_labels",
+      "key": "unmix_controls",
+      "source": "Unmix controls",
+      "source_sha256": "2bc4f29d7211d03641a1bc3f3be975cc8b6d61b5390a9aa67e470da2ebcbe194",
+      "translation": "Viðmið litrófsaðgreiningar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "viability",
+      "source": "Viability",
+      "source_sha256": "2bef44d8ef60c052e33d262c890419469262c8831bbb48946e2a60fed4c504b9",
+      "translation": "Lífvænleiki"
+    },
+    {
+      "table": "setting_labels",
+      "key": "viability_dead_channel",
+      "source": "Viability dead channel",
+      "source_sha256": "3e1673b427e1c8b8dcfe29f4d54e08dcd6531a77286062ad18e2a5c7aab50898",
+      "translation": "Lífvænleiki: rás dauðra frumna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "viability_live_channel",
+      "source": "Viability live channel",
+      "source_sha256": "c7acd9cdbae17658a61d6b16fad7ec85f4e0acad6ec2327fea2b65227cd60c7c",
+      "translation": "Lífvænleiki: rás lifandi frumna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "viability_negative_wells",
+      "source": "Viability negative wells",
+      "source_sha256": "12e7cce24919ae6a05c160bdab2bd6f34a6cbcfa1a8925bf9e00db3f5ad7e187",
+      "translation": "Lífvænleiki: neikvæðir brunnar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "viability_plate_map",
+      "source": "Viability plate map",
+      "source_sha256": "b032ced553580fc809892d42cfbf4456264fac122da578bbaa273d2bb000922d",
+      "translation": "Lífvænleiki: plötukort"
+    },
+    {
+      "table": "setting_labels",
+      "key": "viability_positive_wells",
+      "source": "Viability positive wells",
+      "source_sha256": "e5348659348412371e9e594a9011be712603bae9033c3761a45a274ffa8f458d",
+      "translation": "Lífvænleiki: jákvæðir brunnar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "viability_thresholds",
+      "source": "Viability thresholds",
+      "source_sha256": "f6901d8bd40433b8c6ff7278f386729bedabd55bc87c3bcf80a0a4f3802d5f2b",
+      "translation": "Lífvænleiki: þröskuldar"
+    }
+  ]
+}

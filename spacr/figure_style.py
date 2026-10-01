@@ -313,7 +313,8 @@ def rc_params(style: Mapping[str, Any]) -> dict:
     shape = str(style.get("page_shape", "") or "").strip()
     if shape in PAGE_SHAPES and shape != GENERAL_DEFAULTS["page_shape"]:
         params["figure.figsize"] = list(page_size(shape, PAGE_WIDTH_IN))
-    colours = palette_colours(style.get("palette"))
+    colours = _marks_coloured_by(palette_colours(style.get("palette")),
+                                style.get("mark_colouring"))
     if colours:
         from cycler import cycler
 
@@ -352,7 +353,7 @@ def apply(kind: Optional[str] = None,
         mpl.rcParams.update(rc_params(style))
         palette = style.get("palette")
         if palette:
-            _apply_palette(palette)
+            _apply_palette(palette, style.get("mark_colouring"))
     except Exception:
         pass
     return style
@@ -382,12 +383,59 @@ def palette_colours(name: Optional[str]) -> list:
             return []
 
 
-def _apply_palette(name: str) -> None:
-    """Set the colour cycle. seaborn's names when it is installed, else ours."""
+RANDOM_MARK_SEED = 20260925
+
+
+def _marks_coloured_by(colours, rule: Optional[str] = "group") -> list:
+    """The colour cycle a figure's groups take under ``mark_colouring``.
+
+    The cycle is what every grouped renderer draws from when it does not
+    name a colour itself -- one artist per group, each taking the next
+    colour -- so the rule reaches a figure through ``axes.prop_cycle`` the
+    same way the palette does.
+
+    * ``group``: the palette in its order, one colour per group.
+    * ``uniform``: the palette's first colour and nothing else, so every
+      group is drawn in the same ink.
+    * ``random``: the palette reordered by a FIXED seed. Neighbouring groups
+      stop taking adjacent palette colours, which is what telling them apart
+      by eye in a working view needs; the seed is fixed so that redrawing
+      the same figure gives the same colours.
+
+    :param colours: the resolved palette, as :func:`palette_colours`
+        returns it.
+    :param rule: one of ``STYLE_CHOICES["mark_colouring"]``; anything else
+        is read as ``group``.
+    :returns: the colours for the cycle; empty when ``colours`` is empty, so
+        an empty palette still leaves the current cycle alone whatever the
+        rule.
+    """
+    colours = list(colours or [])
+    chosen = str(rule or "group").strip().lower()
+    if chosen == "uniform":
+        return colours[:1]
+    if chosen == "random" and len(colours) > 1:
+        import random
+
+        shuffled = list(colours)
+        random.Random(RANDOM_MARK_SEED).shuffle(shuffled)
+        if shuffled == colours:
+            shuffled = shuffled[1:] + shuffled[:1]
+        return shuffled
+    return colours
+
+
+def _apply_palette(name: str, mark_colouring: Optional[str] = "group") -> None:
+    """Set the colour cycle. seaborn's names when it is installed, else ours.
+
+    :param name: the palette name.
+    :param mark_colouring: the ``mark_colouring`` rule the cycle follows; see
+        :func:`_marks_coloured_by`.
+    """
     import matplotlib as mpl
     from cycler import cycler
 
-    colours = palette_colours(name)
+    colours = _marks_coloured_by(palette_colours(name), mark_colouring)
     if colours:
         mpl.rcParams["axes.prop_cycle"] = cycler(color=colours)
 

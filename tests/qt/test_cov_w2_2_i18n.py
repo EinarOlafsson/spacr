@@ -627,7 +627,9 @@ def test_the_dialog_filter_is_installed_once(qapp):
     finally:
         current = getattr(qapp, "_spacr_dialog_i18n_filter", None)
         if current is not None and current is not had:
-            qapp.removeEventFilter(current)
+            from spacr.qt.gil_priority import _stop_watching_application_events
+
+            _stop_watching_application_events(qapp, current)
         qapp._spacr_dialog_i18n_filter = had
 
 
@@ -901,7 +903,9 @@ def test_a_shown_dialog_is_translated_by_the_filter(qapp):
         dialog.close()
         current = getattr(qapp, "_spacr_dialog_i18n_filter", None)
         if current is not None and current is not had:
-            qapp.removeEventFilter(current)
+            from spacr.qt.gil_priority import _stop_watching_application_events
+
+            _stop_watching_application_events(qapp, current)
         qapp._spacr_dialog_i18n_filter = had
 
 

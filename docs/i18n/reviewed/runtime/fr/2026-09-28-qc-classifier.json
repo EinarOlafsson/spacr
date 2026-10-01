@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (GPT-6), no native-speaker signoff",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier",
+      "source": "Image QC classifier",
+      "source_sha256": "531a47394a1d7c49b9cd589d10df4f7057d5bdbd4a6f8f82690cde75f3a02092",
+      "translation": "Classificateur de qualité d’image (QC)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_model",
+      "source": "Image QC classifier model",
+      "source_sha256": "f165ac20974fa6d98a9f6c6e93b63854f45f78207322a8829cb41964d3d65c8b",
+      "translation": "Modèle du classificateur de qualité d’image (QC)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_labels",
+      "source": "Image QC classifier labels",
+      "source_sha256": "943c322ed4a5b86e28ad37c5598759f48ad71da1e5a868238becc5eefd8a86ea",
+      "translation": "Étiquettes du classificateur de qualité d’image (QC)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_threshold",
+      "source": "Image QC classifier threshold",
+      "source_sha256": "69b945ee7598e93b26c4d41ebcbbfff0942284494920042e630c7025a7d10aa8",
+      "translation": "Seuil du classificateur de qualité d’image (QC)"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier",
+      "source": "Also screen each field with a small neural network that flags out-of-focus, saturated, debris-covered, bubble and empty fields, alongside the focus and saturation rules. Flags go into the image-quality report with a probability per class; in exclude mode a flagged field is kept out of segmentation like any other. Runs on the CPU. The built-in model is trained once on synthetic fields with planted defects and cached. Ignored when image_qc_mode is off. Default False.",
+      "source_sha256": "a4278479156447351631aebe25cd9eb4f3ce12479723607300c85da00364afb8",
+      "translation": "Examine aussi chaque champ avec un petit réseau neuronal qui signale les champs flous, saturés, couverts de débris, contenant des bulles ou vides, en complément des règles de mise au point et de saturation. Les signalements sont inscrits dans le rapport de qualité d’image avec une probabilité par classe ; en mode exclude, un champ signalé est exclu de la segmentation comme tout autre champ signalé. S’exécute sur le CPU. Le modèle intégré est entraîné une seule fois sur des champs synthétiques contenant des défauts introduits volontairement, puis mis en cache. Ce réglage est ignoré lorsque image_qc_mode est off. Valeur par défaut False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_model",
+      "source": "A classifier saved by an earlier run (qc/image_qc_model.pt) to use instead of the built-in one. It is read as tensors only. Blank uses the built-in model. Default None.",
+      "source_sha256": "bf40849d0c7891c8abb3ad319f807c7113eac5fbdb5dedd2d85c6d22f3817056",
+      "translation": "Un classificateur enregistré lors d’une exécution précédente (qc/image_qc_model.pt), à utiliser à la place du classificateur intégré. Il est lu uniquement sous forme de tenseurs. Une valeur vide utilise le modèle intégré. Valeur par défaut None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_labels",
+      "source": "Table of hand-labelled fields to fine-tune the classifier on, with a field column (the raw file name) and a label column: good, or out_of_focus, saturated, debris, bubble or empty, several separated by semicolons; an optional channel column picks the channel. With 10 or more fields, cross-validated precision and recall against the rule metrics go to qc/image_qc_benchmark.csv; the tuned model is saved as qc/image_qc_model.pt. Default None.",
+      "source_sha256": "70d32bc87f65993cdc22720a190b3cd911a7e423c594db0a3d113799e6ab4a32",
+      "translation": "Tableau de champs étiquetés manuellement pour affiner le classificateur, avec une colonne field (le nom du fichier original) et une colonne label : good, ou out_of_focus, saturated, debris, bubble ou empty ; plusieurs étiquettes sont séparées par des points-virgules. Une colonne facultative channel sélectionne le canal. Avec 10 champs ou plus, la précision et le rappel obtenus par validation croisée, comparés aux métriques des règles, sont écrits dans qc/image_qc_benchmark.csv ; le modèle affiné est enregistré sous qc/image_qc_model.pt. Valeur par défaut None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_threshold",
+      "source": "Smallest class probability, from 0 to 1, at which the classifier flags a field. Raise it to flag fewer fields, lower it to miss fewer defects. Default 0.5.",
+      "source_sha256": "72435294f7c4860f3dbd890c3f06dce9befa3f0fe732a61595ec4bc2676609d8",
+      "translation": "Probabilité de classe minimale, de 0 à 1, à partir de laquelle le classificateur signale un champ. Augmentez la valeur pour signaler moins de champs et diminuez-la pour laisser passer moins de défauts. Valeur par défaut 0.5."
+    }
+  ]
+}

@@ -5,13 +5,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "Enter the actual image pixel spacing in micrometers. No calibration is inferred.",
-      "source": "Enter the actual image pixel spacing in micrometers. No calibration is inferred.",
-      "source_sha256": "1badb9bb2d6bcbd8b814bd7196d5c9575956c6f34c687f3f9f8bea4d14fa4d92",
-      "translation": "Ange bildens faktiska pixelavstånd i mikrometer. Ingen kalibrering härleds."
-    },
-    {
-      "table": "ui",
       "key": "Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.",
       "source": "Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.",
       "source_sha256": "574fd172a1dad29dbc5e32cad321335bdaf0970701e8c93f28f2f0da0992ca87",
@@ -90,6 +83,16 @@
         "source": "Order: percentile stretch (Display) → background → PSF → denoise → contrast → sharpen → detect → morphology → split.",
         "source_sha256": "1a1c0e3cea944f9bb380f03d3337315aa18a7c7ed01f691d7b75fda58581dc53",
         "translation": "Ordning: percentilsträckning (Visning) → bakgrund → PSF → brusreducering → kontrast → skärpa → detektion → morfologi → delning."
+      }
+    },
+    {
+      "reason": "Item 509: the image pixel help no longer says no calibration is inferred, because Make Masks now infers it; original review retained.",
+      "record": {
+        "table": "ui",
+        "key": "Enter the actual image pixel spacing in micrometers. No calibration is inferred.",
+        "source": "Enter the actual image pixel spacing in micrometers. No calibration is inferred.",
+        "source_sha256": "1badb9bb2d6bcbd8b814bd7196d5c9575956c6f34c687f3f9f8bea4d14fa4d92",
+        "translation": "Ange bildens faktiska pixelavstånd i mikrometer. Ingen kalibrering härleds."
       }
     }
   ]

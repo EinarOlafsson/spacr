@@ -442,6 +442,9 @@ def pausable(fn: Callable) -> Callable:
     Setting this on a function that does *not* actually call
     :func:`checkpoint` is how you ship a Pause button that lies, so the
     marker is deliberately explicit rather than inferred.
+
+    :param fn: the entry-point callable to mark; it is returned, and an object
+        that cannot take attributes is returned unmarked.
     """
     try:
         setattr(fn, PAUSABLE_ATTR, True)
@@ -456,6 +459,47 @@ def pausable(fn: Callable) -> Callable:
 #: read-only observation — it gives the Home screen a real "field 41 of
 #: 96" without anything having to be threaded through the pipeline.
 _PROGRESS_RE = re.compile(r"\bProgress:\s*(\d+)\s*/\s*(\d+)")
+
+_MASK_GPU_RE = re.compile(
+    r"\[mask GPUs\] (\w+) Progress: (\d+)/(\d+) archives, failed (\d+)"
+    r"((?: \| GPU \S+ \w+ \d+/\d+)*)")
+_MASK_GPU_WORKER_RE = re.compile(r"GPU (\S+) (\w+) (\d+)/(\d+)")
+_WATCH_FOLDER_RE = re.compile(
+    r"watch_folder: (\d+) analysed, (\d+) waiting, (\d+) failed")
+
+
+def _watch_folder_progress(text: str) -> Optional[dict]:
+    """Read the newest folder-watch count line in ``text``, if any.
+
+    The folder watch of Make Masks prints the line whenever a count changes.
+
+    :param text: worker output.
+    :returns: ``{'done', 'waiting', 'failed'}`` counts, or None.
+    """
+    matches = list(_WATCH_FOLDER_RE.finditer(text or ""))
+    if not matches:
+        return None
+    done, waiting, failed = (int(value) for value in matches[-1].groups())
+    return {"done": done, "waiting": waiting, "failed": failed}
+
+
+def _mask_gpu_progress(text: str) -> Optional[dict]:
+    """Read the newest parallel mask progress line in ``text``, if any.
+
+    ``spacr._mask_workers._progress_line`` writes the line; this returns the
+    object role, overall ``done``/``total``/``failed`` archive counts and a
+    ``workers`` list of ``(device, state, done, total)`` tuples.
+    """
+    matches = list(_MASK_GPU_RE.finditer(text or ""))
+    if not matches:
+        return None
+    match = matches[-1]
+    workers = [(device, state, int(done), int(total))
+               for device, state, done, total
+               in _MASK_GPU_WORKER_RE.findall(match.group(5))]
+    return {"object_type": match.group(1), "done": int(match.group(2)),
+            "total": int(match.group(3)), "failed": int(match.group(4)),
+            "workers": workers}
 
 WORKER_SETTING_KEYS = (
     "n_jobs",
@@ -494,6 +538,11 @@ def apply_worker_budget(
     so they resolve to the current remaining budget. Explicit smaller values
     are preserved. The return value is stored on the run handle so the next
     run sees what this one actually reserved.
+
+    :param settings: the run settings dict, modified in place; each
+        ``WORKER_SETTING_KEYS`` entry present is clamped to between 1 and the
+        available workers, with ``None``, ``-1`` and other non-positive values
+        taking all of them and unparseable values left alone.
     """
     available = available_worker_count(total)
     allocations: List[int] = []
@@ -869,6 +918,8 @@ def thread_has_stopped(thread) -> bool:
     case is not exotic — ``make_thread`` wires ``thread.finished ->
     thread.deleteLater``, so any GUI pump that delivers a retirement slot
     has usually flushed the deferred delete on the way.
+
+    :param thread: a QThread, or None.
     """
     if thread is None:
         return True
@@ -1273,6 +1324,9 @@ class PipelineWorker(QObject):
                 self.line_ready.emit(
                     f"Reproducibility manifest: {journal_run.dir}\n"
                 )
+                lock = getattr(journal_run, "_analysis_lock", None)
+                if lock:
+                    self.line_ready.emit(f"{lock.get('summary')}\n")
         except Exception as exc:
             journal_context = None
             journal_run = None
@@ -1448,6 +1502,10 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
     The result is also stamped with the app key (:func:`_tag`) so the
     run registry can say *which module* is running. Note that none of
     these are stamped :func:`pausable` — see :class:`PauseGate`.
+
+    :param app_key: the app key, e.g. ``'mask'`` or ``'measure'``; keys outside
+        the built-in chain fall back to the ``entry=`` an app registered, then
+        to a plugin app of that key.
     """
     from .verbose_logger import log_call
 
@@ -1511,7 +1569,6 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
             from spacr.align import align_folder
             return _ret(log_call(align_folder))
         if app_key == "ops":
-            # 372 PART 14-M: the sequencing engine, validated on the plate.
             from spacr.ops_engine import run_ops
             return _ret(log_call(run_ops))
         if app_key == "convert":

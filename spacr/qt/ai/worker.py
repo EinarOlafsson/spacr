@@ -163,6 +163,11 @@ def make_stream_thread(
       Python is already owned by Python; ``ConsolePanel``/``AIChatPanel``
       hold it in ``_retired`` until the thread has exited and free it
       there, on the thread that holds it.
+
+    :param provider: the :class:`~spacr.qt.ai.providers.ChatProvider` whose
+        ``stream_chat`` the worker consumes.
+    :param messages: conversation history as ``{role, content}`` dicts,
+        handed to the provider unchanged.
     """
     from PySide6.QtCore import Qt
     thread = QThread(parent)

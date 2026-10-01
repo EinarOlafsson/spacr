@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Plate Viewer：检查孔并导出热图表格",
+  "description": "加载示例测量数据，比较孔水平的特征和计数，检查单个孔，并导出过滤后的表格。",
+  "objectives": [
+    "从Graph Builder打开Plate Viewer并加载示例测量数据。",
+    "选择特征、汇总方式和最小对象数。",
+    "检查孔的详细信息，并导出当前的孔网格。"
+  ],
+  "prerequisite": "使用Plate Viewer中的Load test data打开可下载的示例，或者打开您已测量项目的measurements.db。示例包含分布在四个孔中的2,341个细胞；评估空间模式时，请使用覆盖您整块板的测量数据。",
+  "scenes": [
+    "从Home打开Data中的Graph Builder，然后选择Plate Viewer。用它按孔汇总对象测量值，并检查它们在板上的分布。",
+    "点击Load test data打开可下载的示例。对于您自己的数据，请选择测量数据库或其运行文件夹，然后点击Open。示例包含四个已测量的孔。",
+    "在Table中选择cell，在Measurement中选择cell_area，在Plate中选择plate1。把Per well设为mean，以显示平均细胞面积。中位数可以降低异常大或异常小对象的影响。",
+    "选择一个颜色标尺。稳健范围使用第二到第九十八百分位数，这样单个极端的孔不会压缩其他孔的颜色差异。",
+    "点击Render并比较着色的孔。阅读热图旁边的边缘效应报告，检查板布局和测量覆盖范围。评估边缘、行或列的模式时，请使用覆盖整块板的测量数据。",
+    "点击一个已测量的孔，查看其标识符、对象数量和显示的数值。在图像或导出结果中查找同一个孔时，请使用这些标识符。",
+    "把Per well设为count，比较对象数量。在解读特征差异之前，这个视图可以帮您找出分割对象较少的孔。",
+    "提高Min objects per well，排除对象太少、不适合比较的孔。设为六百零一时，本例四个孔中剩下两个。被排除的孔显示为空白，而不是零值测量。",
+    "点击Export well grid CSV，选择文件名并保存。CSV包含当前过滤条件保留下来的孔，以及它们的标识符、计数、显示值和空间注释。",
+    "把导出的表格与测量和汇总设置放在一起。降低最小计数可以重新显示被排除的孔，也可以为下一次比较选择另一项测量。"
+  ]
+}

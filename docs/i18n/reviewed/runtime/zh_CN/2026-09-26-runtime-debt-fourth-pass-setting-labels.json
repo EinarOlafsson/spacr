@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third and fourth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "confluency",
+      "source": "Confluency",
+      "source_sha256": "a4f80cbc3c7e9c94023afeb4e2fb9b6af52c8e8ddd40a1db49294ab9e45a4c10",
+      "translation": "汇合度"
+    },
+    {
+      "table": "setting_labels",
+      "key": "confluency_channel",
+      "source": "Confluency channel",
+      "source_sha256": "5c2388864cb560a8569e361558c13c63245505dbd8e4263be6212242e28f3667",
+      "translation": "汇合度通道"
+    },
+    {
+      "table": "setting_labels",
+      "key": "confluency_qc_threshold",
+      "source": "Confluency QC threshold",
+      "source_sha256": "74f46417f062618b991fa207e3f35591051bc2fc195925ec63b5700b2ef85df7",
+      "translation": "汇合度 QC 阈值"
+    },
+    {
+      "table": "setting_labels",
+      "key": "confluency_source",
+      "source": "Confluency source",
+      "source_sha256": "8a32ae8abb7bc96aec8cc1dd1f2dd9cb51355346f6aab038ef97833ba59c7817",
+      "translation": "汇合度来源"
+    },
+    {
+      "table": "setting_labels",
+      "key": "confluency_window",
+      "source": "Confluency window",
+      "source_sha256": "eb54836c9b13b486dd31e3fcb05a73aaf1b3552efeb53c7351fa4b81227bb646",
+      "translation": "汇合度窗口"
+    },
+    {
+      "table": "setting_labels",
+      "key": "mask_gpu_indices",
+      "source": "Mask GPU indices",
+      "source_sha256": "18c81189db12acb7334e0234797408485da28049c919424764137765a7b439c0",
+      "translation": "掩膜 GPU 索引"
+    },
+    {
+      "table": "setting_labels",
+      "key": "mask_parallel",
+      "source": "Mask parallel",
+      "source_sha256": "45d09eee9e450d65f7647e9cd3c57c514f1dfa27754f291ee7639067f6ce2775",
+      "translation": "并行生成掩膜"
+    },
+    {
+      "table": "setting_labels",
+      "key": "watch_folder",
+      "source": "Watch folder",
+      "source_sha256": "ac7c3020705c5324c3d04e4e44d75c412310d6d878a73e92f67c470231ea6173",
+      "translation": "监视文件夹"
+    },
+    {
+      "table": "setting_labels",
+      "key": "watch_idle_minutes",
+      "source": "Watch idle minutes",
+      "source_sha256": "e9ae2629bdf7d1fa01111f632e162b25776253ce51806f4bb657afb4646a899e",
+      "translation": "监视空闲分钟数"
+    },
+    {
+      "table": "setting_labels",
+      "key": "watch_measure_settings",
+      "source": "Watch measure settings",
+      "source_sha256": "b3baede7495cbfbe34caf7f7cf21246e66219ad091ffd8b2bbf82414040b250b",
+      "translation": "监视用 Measure 设置"
+    },
+    {
+      "table": "setting_labels",
+      "key": "watch_pipeline",
+      "source": "Watch pipeline",
+      "source_sha256": "fe3d26ceb30770095679d05935f3c69e9a91596d3e71a0b843214a750aa87626",
+      "translation": "监视流程"
+    },
+    {
+      "table": "setting_labels",
+      "key": "watch_poll_seconds",
+      "source": "Watch poll seconds",
+      "source_sha256": "05f49f177174769af4f569785ad37e1f4002b111f63d8d8db73d0e272e7966f4",
+      "translation": "监视轮询秒数"
+    },
+    {
+      "table": "setting_labels",
+      "key": "watch_settle_seconds",
+      "source": "Watch settle seconds",
+      "source_sha256": "b48731811f65dc347af0c4fc4f056e18220c876b692953d5559e9fa3c8c7b2d4",
+      "translation": "监视稳定秒数"
+    }
+  ]
+}

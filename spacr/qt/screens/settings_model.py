@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
     QBoxLayout,
     QCheckBox,
     QComboBox,
+    QDialog,
     QFormLayout,
     QFrame,
     QGridLayout,
@@ -49,6 +50,7 @@ from PySide6.QtWidgets import (
 )
 
 from .. import timing as _timing
+from ..theme import ALPHA_MARK
 from ..widgets.availability_panel import (AvailabilityPanel,
                                          disable_combo_row,
                                          run_install_offer)
@@ -145,7 +147,12 @@ def _import_registered_defaults_module(app_key: str) -> None:
 
 def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     """Return a fresh defaults dict for an app key, mirroring the Tk GUI
-    dispatch in gui_core.setup_settings_panel."""
+    dispatch in gui_core.setup_settings_panel.
+
+    :param app_key: application key; a registered plugin's defaults are used
+        first, then the registered or built-in defaults for that key, and an
+        unknown key gets a minimal ``{'src': ...}`` dict.
+    """
     try:
         from spacr.plugins import get_app, load_object
         plugin_app = get_app(app_key)
@@ -270,7 +277,20 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
                        "remove_background", "diameter", "resize", "width_height",
                        "target_size", "augment", "verbose"},
     "mask": {"pathogen_model"},
-    "timelapse": {"timelapse"},
+    "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
+                  "watch_folder", "watch_pipeline", "watch_measure_settings",
+                  "watch_settle_seconds", "watch_poll_seconds",
+                  "watch_idle_minutes", "microscope_feedback", "microscope_driver",
+                  "microscope_simulated_folder", "microscope_positions",
+                  "microscope_stage_transform", "microscope_event_table",
+                  "microscope_event_query", "microscope_max_events",
+                  "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile",
+                  "cloud_endpoint", "cloud_cache", "cloud_wells",
+                  "cloud_fields", "cloud_level", "cloud_results",
+                  "robustness_report", "robustness_fields", "robustness_crop",
+                  "robustness_diameter_factors", "robustness_flow_thresholds",
+                  "robustness_cellprob_thresholds", "robustness_enhancement",
+                  "robustness_tolerance"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
@@ -461,7 +481,11 @@ def _is_clearable_plane_setting(key: str) -> bool:
 
 
 def object_switch_keys(role: str) -> Tuple[str, ...]:
-    """The keys that decide whether ``role`` is in the run."""
+    """The keys that decide whether ``role`` is in the run.
+
+    :param role: object name, such as ``'cell'`` or an organelle slot; the keys
+        are ``<role>_channel`` and ``<role>_mask_dim``.
+    """
     return tuple(f"{role}_{suffix}" for suffix in OBJECT_SWITCH_SUFFIXES)
 
 
@@ -479,13 +503,21 @@ def object_of_setting(key: str) -> Optional[str]:
     ``spacr.settings.advanced_object_of`` understands them: spaCR is not
     consistent about which end of a key the object name goes on, and a rule
     that knew only one end would leave half a family on screen.
+
+    :param key: setting key; an organelle-slot prefix, or a
+        ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object.
     """
-    from ...organelle_types import organelle_role_of
+    from ...organelle_types import _background_switch_role, organelle_role_of
 
     text = str(key)
     role = organelle_role_of(text)
     if role is not None:
         return role
+    # ``remove_background_organelle_7`` is slot 7's switch (item 76,
+    # 2026-09-30); its last token is a number, not a slot prefix.
+    switch = _background_switch_role(text)
+    if switch is not None:
+        return switch
     tail = organelle_role_of(text.rpartition("_")[2])
     if tail is not None and text.startswith("remove_background_"):
         return tail
@@ -544,7 +576,9 @@ def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
       * the object's channel (or its mask plane) names no plane, so the run
         does not have that object at all;
       * the slot's type puts it in one morphology and the setting belongs to
-        a different one -- a punctate organelle has no ridge filter.
+        a different one -- a punctate organelle has no ridge filter;
+      * it is a legacy Cellpose 3 setting and no object is segmented by a
+        Cellpose 3 model (:func:`_cellpose3_rows_to_hide`).
 
     :param keys: every setting this panel has a control for. WHAT THE PANEL
         HOLDS IS WHAT DECIDES WHAT MAY BE HIDDEN: a role is gated only when
@@ -588,7 +622,46 @@ def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
         if (suffix in _MORPHOLOGY_OWNED
                 and suffix not in _MORPHOLOGY_SETTINGS[morphology]):
             hidden.add(key)
+    hidden.update(_cellpose3_rows_to_hide(on_panel, settings))
     return hidden
+
+
+def _cellpose3_choosers(keys) -> set:
+    """The settings on a panel that can send an object to Cellpose 3.
+
+    :param keys: the settings the panel holds.
+    :returns: ``segmentation_backend``, ``pathogen_model`` and every
+        ``*_model_name`` among them.
+    """
+    return {str(key) for key in keys
+            if str(key) in ("segmentation_backend", "pathogen_model")
+            or str(key).endswith("_model_name")}
+
+
+def _cellpose3_rows_to_hide(on_panel, settings) -> set:
+    """The legacy Cellpose 3 rows, while nothing on the panel chooses one.
+
+    Item 503. Those settings are read only for an object segmented by a
+    Cellpose 3 model, so they are shown only once a model setting reads
+    ``cellpose3:<model>`` or ``segmentation_backend`` is ``cellpose3``. A
+    panel that holds none of the settings that choose a model hides nothing,
+    for the reason :func:`keys_hidden_by_their_object` gives: a row whose
+    switch lives on another screen could never be brought back.
+
+    :param on_panel: the settings the panel holds.
+    :param settings: the panel's current values.
+    :returns: the Cellpose 3 keys to hide.
+    """
+    from ...settings import categories
+    from ..._segmentation_backends import _cellpose3_is_chosen
+
+    rows = {key for key in categories.get("Cellpose 3", ()) if key in on_panel}
+    choosers = _cellpose3_choosers(on_panel)
+    if not rows or not choosers:
+        return set()
+    if _cellpose3_is_chosen({key: settings.get(key) for key in choosers}):
+        return set()
+    return rows
 
 
 
@@ -735,6 +808,35 @@ def _image_source_the_panel_offers(value) -> str:
     return resolved if resolved in offered else offered[0]
 
 
+def _image_source_seeded_from_crop_source(values):
+    """``values`` with the ``image_source`` a file that predates it means.
+
+    MIRRORS THE HEADLESS SEED. `settings.deep_spacr_defaults` runs
+    ``setdefault('image_source', settings.get('crop_source') ...)``, so a
+    settings file written before ``image_source`` existed -- ``crop_source``
+    alone -- streams when it says ``'on_demand'``. ``crop_source`` is hidden
+    on the training panel, so without this the same file opened the combo on
+    LOAD IMAGES and the panel and the run disagreed about what it meant.
+
+    THE NEWER KEY WINS, as it does headlessly: a file carrying
+    ``image_source`` is left as it is, and so is one whose ``crop_source`` is
+    empty. The seeded value is resolved to the mode the panel offers, so a
+    retired spelling selects its mode rather than matching no item.
+
+    :param values: a settings mapping from a file or another screen; not
+        modified.
+    :returns: ``values`` itself when there is nothing to seed, else a copy
+        with ``image_source`` set.
+    """
+    if not values or "image_source" in values \
+            or not values.get("crop_source"):
+        return values
+    seeded = dict(values)
+    seeded["image_source"] = _image_source_the_panel_offers(
+        values["crop_source"])
+    return seeded
+
+
 _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     "umap": {
         "reduction_method": ["umap", "tsne", "pca", "isomap", "spectral"],
@@ -863,6 +965,9 @@ def has_csv_column_picker(app_key: str, key: str) -> bool:
     Read by the screen so it does not ALSO hang the measurements.db "SQL"
     button off the same field: two buttons that disagree about which file the
     column comes from is worse than the one wrong button this replaces.
+
+    :param app_key: application key looked up in ``CSV_COLUMN_SOURCES``.
+    :param key: setting key checked against that module's CSV column sources.
     """
     return str(key or "") in CSV_COLUMN_SOURCES.get(str(app_key or ""), {})
 
@@ -972,7 +1077,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "surrogate_min_fidelity_improvement",
         )),
         ("Importance & diagnostics", (
-            "surrogate_n_repeats", "surrogate_shap_max_samples",
+            "surrogate_importance_methods", "surrogate_n_repeats",
+            "surrogate_shap_explainer", "surrogate_shap_max_samples",
             "surrogate_exclude", "surrogate_correlation_threshold",
         )),
         ("Output & runtime", ("dst", "verbose")),
@@ -1075,55 +1181,79 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
-            # 404/405: which model segments every object channel above.
             "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
+        ("Cloud α", (
+            "cloud_anonymous", "cloud_profile", "cloud_endpoint",
+            "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level",
+            "cloud_results",
+        )),
         ("Workflow & Test Run", (
             "preprocess", "masks", "test_mode", "test_images", "resume",
-            "dry_run",
+            "dry_run", "watch_folder", "watch_pipeline",
+            "watch_measure_settings", "watch_settle_seconds",
+            "watch_poll_seconds", "watch_idle_minutes",
+            "microscope_feedback", "microscope_driver",
+            "microscope_simulated_folder", "microscope_positions",
+            "microscope_stage_transform", "microscope_event_table",
+            "microscope_event_query", "microscope_max_events",
+            "microscope_timepoints", "microscope_interval_seconds",
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
         )),
-        ("Image Quality", ("@Image Quality",)),
-        ("Illumination Correction", (
+        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
+        ("Illumination Correction α", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile", "illumination_vendor_channel_map",
         )),
-        ("Point Spread Function", ("@Point Spread Function",)),
+        ("Self-Supervised Denoising α",
+         ("@Self-Supervised Denoising α",)),
+        ("Image Deconvolution α", ("@Point Spread Function",)),
+        ("Image Enhancement α", ("@Image Enhancement",)),
+        ("Image Quality", ("@Image Quality",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
+        ("Cellpose 3", ("@Cellpose 3",)),
         ("Image Preprocessing (per object)",
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
-        ("Quality Control", ("@Segmentation QC",)),
+        ("Quality Control", (
+            "@Segmentation QC",
+            "save", "delete_intermediate", "keep_intermediate",
+            "keep_original_images", "save_original_images", "keep_npz",
+            "filter", "merge_pathogens",
+            "strict_errors", "max_failure_rate", "on_error",
+            "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs",
+            "batch_size", "pipeline_style", "diameter_estimate_n_fields",
+            "mask_parallel", "mask_gpu_indices",
+        )),
+        ("Segmentation Robustness α",
+         ("@Segmentation Robustness α",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
         ("Visualization & Diagnostics", (
             "plot", "cmap", "figuresize", "examples_to_plot",
         )),
-        ("Output & Storage", (
-            "save", "delete_intermediate", "keep_intermediate",
-            "keep_original_images", "save_original_images", "keep_npz",
-            "filter", "merge_pathogens",
-        )),
-        ("Runtime & Reliability", (
-            "strict_errors", "max_failure_rate", "on_error",
-            "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs",
-            "batch_size", "pipeline_style", "diameter_estimate_n_fields",
-        )),
     ),
     "measure": (
-        ("Input & Experiment", ("src", "experiment")),
+        ("Input & Experiment", (
+            "src", "experiment", "plot", "test_mode", "test_nr",
+        )),
+        ("Cloud α", (
+            "cloud_anonymous", "cloud_profile", "cloud_endpoint",
+            "cloud_cache", "cloud_results",
+        )),
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
             "pathogen_mask_dim",
@@ -1134,15 +1264,21 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "cytoplasm",
             "timelapse", "timelapse_objects",
         )),
+        ("Bleach Correction α", ("@Bleach Correction α",)),
+        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
+        ("Image Deconvolution (PSF)", ("@Point Spread Function",)),
         ("Illumination Correction", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
             "illumination_dark",
             "illumination_per_plate", "illumination_max_fields",
             "illumination_qc", "illumination_on_missing",
+            "illumination_vendor_profile", "illumination_vendor_channel_map",
         )),
-        ("Point Spread Function", ("@Point Spread Function",)),
-        ("Measurement Features", (
+        ("Image Enhancement", ("@Image Enhancement",)),
+        ("Intensity Calibration α", ("@Intensity Calibration α",)),
+        ("Plate Barcode Linkage α", ("@Plate Barcode Linkage α",)),
+        ("Features", (
             "save_measurements", "calculate_correlation",
             "spatial_measurements",
             "spatial_neighbor_radius",
@@ -1153,6 +1289,13 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "object_distance_intensity",
             "summarize_organelles_by",
         )),
+        ("Confluency α", ("@Confluency α",)),
+        ("Cell Cycle α", ("@Cell Cycle α",)),
+        ("Wound Closure α", ("@Wound Closure α",)),
+        ("Viability α", ("@Viability α",)),
+        ("CellProfiler α", ("@CellProfiler α",)),
+        ("GPU Measurement α", ("@GPU Measurement α",)),
+        ("Time To Event α", ("@Time To Event α",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -1167,7 +1310,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
             "normalize", "normalize_by",
         )),
-        ("Preview & Diagnostics", ("plot", "test_mode", "test_nr")),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
         )),
@@ -1176,6 +1318,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "on_error_attempts", "on_error_backoff", "random_seed", "dry_run",
             "verbose", "n_jobs",
         )),
+        ("Profiling α", ("@Profiling α",)),
+        ("Measurement Backend α", ("@Measurement Backend α",)),
     ),
     "timelapse": (
         ("Input & Metadata", (
@@ -1183,7 +1327,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
-            # 404/405: which model segments every object channel above.
             "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
@@ -1198,20 +1341,26 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
         )),
-        ('Image Quality', ('@Image Quality',)),
-        ("Illumination Correction", (
+        ("Spectral Unmixing α", ("@Spectral Unmixing α",)),
+        ("Illumination Correction α", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
+            "illumination_vendor_profile", "illumination_vendor_channel_map",
         )),
-        ("Point Spread Function", ("@Point Spread Function",)),
+        ("Self-Supervised Denoising α",
+         ("@Self-Supervised Denoising α",)),
+        ("Image Deconvolution α", ("@Point Spread Function",)),
+        ("Image Enhancement α", ("@Image Enhancement",)),
+        ("Image Quality", ("@Image Quality",)),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
+        ("Cellpose 3", ("@Cellpose 3",)),
         ("Image Preprocessing (per object)",
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
@@ -1224,10 +1373,20 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_mode", "trackastra_model", "trackastra_linking",
             "ultrack_max_distance", "ultrack_division_weight",
             "ultrack_contour_sigma", "ultrack_n_workers",
+            "timeflows_model",
             "timelapse_displacement", "timelapse_memory",
             "t_track_backend", "t_link_threshold",
             "t_max_displacement_px", "t_max_displacement_um",
             "t_project_for_tracking",
+        )),
+        ("Lineage Trees α", (
+            "timelapse_lineage", "timelapse_lineage_color_by",
+            "timelapse_lineage_max_distance",
+        )),
+        ("Event Detection α", (
+            "timelapse_events", "timelapse_events_annotations",
+            "timelapse_events_model", "timelapse_events_window",
+            "timelapse_events_threshold", "timelapse_events_conditions",
         )),
         ("Visualization & Diagnostics", (
             "plot", "cmap", "figuresize", "examples_to_plot",
@@ -1363,6 +1522,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "normalize", "normalize_input", "overlay", "plot",
         )),
         ("Map Quantification", ("correlation", "manders_thresholds")),
+        ("Counterfactuals", (
+            "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
+        )),
         ("Output & Runtime", (
             "save", "shuffle", "batch_size", "n_jobs",
         )),
@@ -1446,6 +1608,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "analyze_plaques": (
         ("Input & Channels", ("src", "masks")),
         ("Scale & Time", ("plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours")),
+        ("Colony Counting α", ("@Colony Counting α",)),
         ("Experimental Growth Estimates", ("plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours")),
         ("Model", ("diameter",)),
         ("Detection Thresholds", (
@@ -1490,6 +1653,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Channels", ("src", "channels")),
         ("Correction Model", (
             "illumination_correction", "illumination_model",
+            "illumination_vendor_profile", "illumination_vendor_channel_map",
             "illumination_estimator", "illumination_degree",
             "illumination_dark",
         )),
@@ -1520,7 +1684,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input Tables", ("src", "anndata_tables")),
         ("Output File", (
             "anndata_out", "anndata_single_table", "anndata_compression",
-            "anndata_dtype",
+            "anndata_dtype", "anndata_format", "anndata_tidy_dir",
         )),
         ("Rows & Missing Values", (
             "anndata_row_limit", "anndata_nan_policy",
@@ -1599,6 +1763,16 @@ _APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "illumination": ("illumination_correction", "illumination_model"),
     "anndata_export": ("anndata_out",),
     "classify": ("@Labels & Classes", "model_type", "train_channels"),
+    "classify_merged": (
+        "src", "experiment", "generate_training_dataset", "train", "test",
+        "dataset_mode", "classes", "metadata_item_1_name",
+        "metadata_item_1_value", "metadata_item_2_name",
+        "metadata_item_2_value", "test_split", "val_split",
+        "image_source", "channel_of_interest", "train_channels",
+        "image_size", "model_type", "init_weights", "epochs", "batch_size",
+        "learning_rate", "optimizer_type", "mixed_precision",
+        "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",
+    ),
     "umap": ("tables", "reduction_method", "color_by"),
     "external_masks": ("channels", "experiment"),
 }
@@ -1652,6 +1826,11 @@ def essential_keys(
 
     A module with no curated layout gets the first shared category, which is
     "Paths" — still the right answer, just a thinner one.
+
+    Classify's first group is only the family switch, so its extras carry
+    what training either family needs: the classes, the splits, the image
+    model and its schedule, and the tabular algorithm and its main
+    hyperparameters. The family switch greys whichever half does not apply.
 
     :param app_key: the module's app key.
     :param categories: optional pre-computed :func:`categories_for_app`
@@ -1825,6 +2004,56 @@ def _shared_category_parents() -> Dict[str, str]:
     return parents
 
 
+#: Categories one module draws INSIDE another of its categories.
+#:
+#: Keyed by module, then by the nested category's title, giving the title of
+#: the heading it sits in. Unlike :data:`spacr.settings.CATEGORY_PARENTS`,
+#: whose parents are empty umbrellas shared by every module, the parent here
+#: is usually a category with settings of its own -- Mask generation's
+#: "Image Preprocessing" keeps its normalisation rows and gains the
+#: unmixing, illumination, deconvolution and enhancement headings below them.
+_APP_CATEGORY_PARENTS: Dict[str, Dict[str, str]] = {
+    app_key: {
+        "Spectral Unmixing α": "Image Preprocessing",
+        "Illumination Correction α": "Image Preprocessing",
+        "Self-Supervised Denoising α": "Image Preprocessing",
+        "Image Deconvolution α": "Image Preprocessing",
+        "Image Enhancement α": "Image Preprocessing",
+    }
+    for app_key in ("mask", "timelapse")
+}
+_APP_CATEGORY_PARENTS["mask"]["Segmentation Robustness α"] = "Quality Control"
+_APP_CATEGORY_PARENTS["mask"]["Cloud α"] = "Input & Metadata"
+_APP_CATEGORY_PARENTS["measure"] = {
+    "Cloud α": "Input & Experiment",
+    **{title: "Image Preprocessing" for title in (
+        "Bleach Correction α", "Spectral Unmixing α",
+        "Image Deconvolution (PSF)", "Illumination Correction",
+        "Image Enhancement", "Intensity Calibration α",
+        "Plate Barcode Linkage α")},
+    **{title: "Features" for title in (
+        "Confluency α", "Cell Cycle α", "Wound Closure α", "Viability α",
+        "CellProfiler α", "GPU Measurement α", "Time To Event α")},
+    **{title: "Postprocessing" for title in (
+        "Runtime & Reliability", "Profiling α", "Measurement Backend α")},
+}
+
+
+def _category_parents(app_key) -> Dict[str, str]:
+    """Which heading each category nests under on one module's panel.
+
+    The shared parents of :func:`_shared_category_parents`, plus the ones
+    the module declares in :data:`_APP_CATEGORY_PARENTS`.
+
+    :param app_key: the module's registry key, or ``None`` for the shared
+        parents alone.
+    :returns: ``{category title: parent title}``.
+    """
+    parents = _shared_category_parents()
+    parents.update(_APP_CATEGORY_PARENTS.get(str(app_key or ""), {}))
+    return parents
+
+
 def _object_subheading(obj: str) -> str:
     """The heading one object's rows are drawn under.
 
@@ -1875,35 +2104,50 @@ def _split_rows_by_object(rows, keys):
     return own, children
 
 
-def _nest_sections(flat) -> List[SettingsSection]:
+def _nest_sections(flat, app_key=None) -> List[SettingsSection]:
     """Hang each flat section under the parent its category declares.
 
-    THE PARENT TAKES THE PLACE OF ITS FIRST CHILD, so the running order of a
-    panel is the one its layout wrote. Hoisting the umbrella to the top or
-    dropping it to the bottom would move a block of settings the layout
-    deliberately put between two others.
+    A parent that is itself one of the panel's categories keeps its own rows
+    and place, and its children are drawn below those rows. A parent that is
+    not -- an umbrella such as "Advanced settings" -- TAKES THE PLACE OF ITS
+    FIRST CHILD, so the running order of a panel is the one its layout wrote.
+    Hoisting the umbrella to the top or dropping it to the bottom would move
+    a block of settings the layout deliberately put between two others.
 
     A parent whose children all vanished -- every key hidden, or none
     offered by this module -- is not emitted, the same rule an empty
     category has always followed.
+
+    :param flat: the panel's sections in layout order, none nested yet.
+    :param app_key: the module, whose own nesting
+        (:data:`_APP_CATEGORY_PARENTS`) applies on top of the shared one.
+    :returns: the top-level sections, children attached.
     """
-    parents = _shared_category_parents()
-    order: List[str] = []
-    umbrellas: Dict[str, List[SettingsSection]] = {}
-    out: List[object] = []
+    parents = _category_parents(app_key)
+    kids: Dict[str, List[SettingsSection]] = {}
+    for section in flat:
+        parent = parents.get(section.title)
+        if parent is not None:
+            kids.setdefault(parent, []).append(section)
+    present = {section.title for section in flat
+               if parents.get(section.title) is None}
+    out: List[SettingsSection] = []
+    placed = set()
     for section in flat:
         parent = parents.get(section.title)
         if parent is None:
+            below = kids.get(section.title)
+            if below:
+                section = SettingsSection(
+                    section.title, section.own_rows,
+                    tuple(section.children) + tuple(below))
             out.append(section)
             continue
-        if parent not in umbrellas:
-            umbrellas[parent] = []
-            order.append(parent)
-            out.append(parent)
-        umbrellas[parent].append(section)
-    return [SettingsSection(item, (), umbrellas[item])
-            if isinstance(item, str) else item
-            for item in out]
+        if parent in present or parent in placed:
+            continue
+        placed.add(parent)
+        out.append(SettingsSection(parent, (), kids[parent]))
+    return out
 
 
 #: Below this many settings a module cannot render as an undifferentiated
@@ -2032,6 +2276,12 @@ def categories_for_app(
     ``n_jobs`` and a ``Model Training`` tab containing only ``test``.  Both
     controls belong to the sequencing run, but changing the global category
     table would also move training controls in unrelated modules.
+
+    :param app_key: application key of the module whose settings are shown; a
+        plugin's own categories replace ``categories`` entirely, and some
+        built-in modules relocate keys.
+    :param categories: category title to ordered setting keys; it is copied,
+        not modified.
     """
     try:
         from spacr.plugins import get_app
@@ -2114,17 +2364,22 @@ def categories_for_app(
             "Test-time augmentation": ['tta_enabled', 'tta_rotations', 'tta_horizontal_flip',
                                        'tta_vertical_flip', 'tta_aggregation', 'tta_min_agreement', 'tta_max_std'],
 
-            "Evaluation & Results": [
+            "Evaluation": [
                 "cross_validation_enabled", "cross_validation_folds",
                 "cv_group_by", "holdout_plate", "nested_cv_inner_folds",
                 "score_threshold",
                 "classifier_evaluation", "evaluation_calibration",
                 "evaluation_bins", "evaluation_fail_on_leakage",
                 "leakage_audit_train_test", "leakage_hash_content",
-                "leakage_require_identity", "n_top_examples",
-                "plot", "tensorboard", "intermedeate_save", "pin_memory",
-                "random_seed", "n_jobs", "verbose", "strict_errors",
-                "max_failure_rate"],
+                "leakage_require_identity"],
+
+            "Results & figures": [
+                "n_top_examples", "plot", "tensorboard",
+                "intermedeate_save"],
+
+            "Runtime & Reliability": [
+                "random_seed", "n_jobs", "pin_memory", "verbose",
+                "strict_errors", "max_failure_rate"],
         }
         if app_key == "classify_merged":
             ordered["Model & Regularization"] = [
@@ -2147,8 +2402,8 @@ def categories_for_app(
                     "remove_low_variance_features", "min_cells_per_well",
                     "prune_features", "top_features", "n_repeats"],
             })
-            ordered["Evaluation & Results"] = (
-                ordered["Evaluation & Results"]
+            ordered["Results & figures"] = (
+                ordered["Results & figures"]
                 + ["cmap", "heatmap_feature", "grouping", "min_max"])
 
         if app_key == "classify_merged":
@@ -2158,7 +2413,8 @@ def categories_for_app(
                          "Training & Loss", "Test-time augmentation")
             ml_groups = ("Model & Features", "Plate & Batch Correction")
             shared_first = ("Plate Sources & Workflow", "Labels & Classes")
-            shared_last = ("Evaluation & Results",)
+            shared_last = ("Evaluation", "Results & figures",
+                           "Runtime & Reliability")
 
             rebuilt = {"Classifier": ["classifier_family"]}
             for name in shared_first:
@@ -2411,6 +2667,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "prediction, and flag disagreement for review. All augmentation "
         "switches are off by default; agreement measures orientation "
         "stability, not calibrated confidence or biological accuracy.",
+    "CELLPOSE 3":
+        "Settings read only when an object is segmented by a legacy "
+        "Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 "
+        "weights file -- chosen from the model zoo's cellpose3 heading, which "
+        "writes cellpose3:<model> into the object's model setting. They "
+        "stay hidden until one is chosen. The object's diameter, flow and "
+        "cell probability thresholds still apply.",
     "IMAGE QUALITY":
         "Screen raw fields before segmentation using channel-specific focus, "
         "saturation and nonfinite-pixel criteria. Choose report-only review "
@@ -2451,10 +2714,18 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "decides which measured features survive. Open it when the model "
         "overfits, or when thousands of correlated features are drowning the "
         "few that matter.",
-    "EVALUATION & RESULTS":
-        "How the fitted model is judged and how the result is shown — "
-        "cross-validation, calibration, the leakage audit, the heatmap, and "
-        "where the scores are written. Shared by both classifier families.",
+    "EVALUATION":
+        "How the fitted model is judged: cross-validation and the held-out "
+        "plate, the evaluation report with its calibration curve and bins, "
+        "the score threshold that turns a score into a call, and the leakage "
+        "audit that checks train and test share no object. Shared by both "
+        "classifier families.",
+    "RESULTS & FIGURES":
+        "What the run writes and draws once the model is fitted: the plots, "
+        "the top-scoring example crops, TensorBoard logs, intermediate "
+        "checkpoints and, for the tabular model, the heatmap. Change these "
+        "for what you want to look at afterwards; none of them changes the "
+        "model.",
     "EMBEDDING & CLUSTERING":
         "How the feature table is reduced to two dimensions and clustered "
         "on top of that — neighbourhood size, distance metric, and the "
@@ -2508,6 +2779,114 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "LINEAGE TREES Α":
+        "Lineage trees drawn from the tracker's division links after each "
+        "field is tracked, coloured by a measurement, with Newick and CSV "
+        "export and per-lineage generation times and sibling correlation.",
+    "EVENT DETECTION Α":
+        "Mitosis, egress, invasion and host death detected on tracks by a "
+        "small network trained on annotated events, with held-out precision "
+        "and recall, division links re-made from mitoses and time to each "
+        "event per condition.",
+    "BLEACH CORRECTION Α":
+        "Photobleaching correction for timelapse intensities, per field and "
+        "channel: a simple ratio to the first timepoint, a fitted exponential "
+        "decay, or histogram matching. Corrected intensities are written "
+        "beside the measured ones with the method, and the fitted decay is "
+        "plotted.",
+    "MEASUREMENT BACKEND Α":
+        "Copies a finished run's measurements into DuckDB or Parquet for "
+        "very large screens, or into PostgreSQL for labs that share one "
+        "server. measurements.db stays the working copy.",
+    "GPU MEASUREMENT Α":
+        "Per-object intensity statistics, GLCM homogeneity and Zernike "
+        "moments computed for all objects of a field at once on a CUDA GPU, "
+        "matching the CPU values within float tolerance. Without a GPU the "
+        "CPU path runs.",
+    "PROFILING Α":
+        "Image-based profiling after Measure: one profile per well from the "
+        "object tables, annotated from a plate map, normalised per plate "
+        "against the negative controls, feature-selected, collapsed into one "
+        "consensus profile per treatment and scored for replicate "
+        "reproducibility as mean average precision and percent replicating. "
+        "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
+        "Morpheus read.",
+    "PLATE BARCODE LINKAGE Α":
+        "Fill the plate map from sample records by plate barcode: each "
+        "imaged plate is looked up by its barcode in a table or a LIMS "
+        "service, its wells get the strain, compound, concentration, "
+        "passage and operator recorded there, and every mismatch between "
+        "the records and the images is listed.",
+    "INTENSITY CALIBRATION Α":
+        "Scale every imaging session to the same intensities before "
+        "measuring, from fluorescent beads or reference wells imaged "
+        "on every plate: each plate's intensity channels are "
+        "multiplied by the gain that makes its reference wells match "
+        "the first plate's, and the gains are recorded in "
+        "measurements.db.",
+    "TIME TO EVENT Α":
+        "How long each tracked object of a timelapse lasts until an event "
+        "such as death, lysis, egress, division or first detection, with "
+        "objects still waiting at the end of their track censored there. "
+        "Conditions are compared with Kaplan-Meier curves, median times, "
+        "log-rank tests and a Cox model, written to measurements.db and "
+        "drawn under results/time_to_event.",
+    "CELL CYCLE Α":
+        "The cell-cycle phase of every nucleus, called after measuring from "
+        "the DNA stain in one of three interchangeable ways: gates on each "
+        "plate's fitted DNA-content histogram, a boosted classifier on the "
+        "nucleus measurements, or an image classifier on nucleus crops. Each "
+        "writes the same phase column to measurements.db, with the phase "
+        "fractions per well among infected and uninfected cells.",
+    "COLONY COUNTING Α":
+        "Count bacterial or fungal colonies on plate or dish photos instead "
+        "of plaques: the dish is found, colonies are thresholded against the "
+        "agar and touching ones split, and each plate gets a count, CFU/mL "
+        "from the dilution and plated volume, a too-many or too-few flag, "
+        "and colony areas and diameters, in millimetres when Scale & Time "
+        "says how large the dish is.",
+    "SEGMENTATION ROBUSTNESS Α":
+        "Re-segments a few sampled fields with the diameter, the thresholds "
+        "and contrast enhancement each moved a little, and reports how much "
+        "object counts, areas and intensities change, flagging the settings "
+        "the results are fragile to.",
+    "SELF-SUPERVISED DENOISING Α":
+        "Noise2Void denoising trained on the run's own noisy images, with no "
+        "clean targets: one model per segmentation channel, applied after "
+        "illumination correction and before the PSF and the enhancement "
+        "chain. Needs the CAREamics backend from the Model Zoo.",
+    "SPECTRAL UNMIXING Α":
+        "Bleed-through correction: how much of each dye is read in the other "
+        "channels is estimated from single-stain control wells, and every "
+        "field is unmixed with that matrix before it is segmented or "
+        "measured. The matrix is printed and recorded with the run.",
+    "CELLPROFILER Α":
+        "Runs a lab's own CellProfiler pipeline on this run's fields after "
+        "measuring, headless in CellProfiler's own environment from the "
+        "Model Zoo, and writes its per-object measurements beside spaCR's, "
+        "matched to spaCR's objects, so existing pipelines keep working.",
+    "VIABILITY Α":
+        "Live and dead cells, called after measuring from a dead stain, a "
+        "live stain, both, or nuclear morphology, with thresholds fitted "
+        "per plate or set by hand. Writes per-well viability, a live-cell "
+        "index and a cytotoxicity index scaled to the control wells, each "
+        "plate's Z', and with a plate map the dose-response of viability "
+        "beside that of infection, so parasite killing can be told from "
+        "host toxicity.",
+    "CONFLUENCY Α":
+        "How much of each field is covered by cells, measured per field and "
+        "per well into measurements.db with a monolayer QC flag: from the "
+        "cell masks, from the texture of a brightfield or phase channel, or "
+        "from a fluorescent stain. Plaque and infection results from a thin "
+        "or torn monolayer can then be dropped or divided by the covered "
+        "fraction.",
+    "WOUND CLOSURE Α":
+        "A scratch or wound-healing assay measured over a time-lapse: the "
+        "open wound in every frame, from the texture of a brightfield or "
+        "phase channel, a fluorescent stain or the cell masks; its area, "
+        "mean and minimum width; and per well and per condition the "
+        "closure curve, closure rate and half-closure time, written to "
+        "measurements.db with figures and a plate map.",
     "MOTILITY (BETA)":
         "The beta motility assay run inline with the mask pipeline: whether "
         "it runs at all, and the per-object tracking parameters it uses. "
@@ -2614,11 +2993,30 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The older area-bin approximation of replication state, kept so "
         "historical analyses still reproduce. New runs should use the "
         "direct parasite-per-vacuole counts instead.",
+    "PER-OBJECT SETTINGS":
+        "One column per object -- cell, nucleus, pathogen, cytoplasm -- and "
+        "one row per question: channel, model, diameter, thresholds, remove "
+        "background, adjust cells, and any filters added with Add a filter. "
+        "Fill a column for every object the run segments.",
     "INPUT & METADATA":
         "The image folder, which channel holds which object, and how spaCR "
         "reads plate, well and field out of the file names. Nothing "
         "segments correctly until the channel assignment and the naming "
         "convention here are right.",
+    "FEATURES":
+        "Which families of measurement are computed for every object -- "
+        "intensity, morphology, texture, radial distribution and "
+        "colocalisation -- and the assays read from them, such as "
+        "confluency, cell cycle, wound closure, viability and time to "
+        "event. More features means a wider table and a longer run.",
+    "POSTPROCESSING":
+        "What happens around and after the measurement: how the run "
+        "recovers from failures and how many workers it uses, profiling of "
+        "the finished tables, and copying them to a database backend.",
+    "CLOUD":
+        "Cloud storage access, local cache, selected wells and fields, image "
+        "resolution, and result uploads. Use these settings when the source "
+        "is a remote storage address.",
     "WORKFLOW & TEST RUN":
         "Select the stages to execute, enable a small test run over a subset "
         "of fields, and configure resumption after interruption. Validate a "
@@ -2698,19 +3096,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "to whichever you pick. Switch backends when cells swap identities "
         "or tracks break at division.",
     "INPUT & EXPERIMENT":
-        "The folder holding the masked images and the experiment name the "
-        "measurements are filed under. Set once at the start of a "
-        "measurement run.",
+        "The folder holding the masked images, the experiment name the "
+        "measurements are filed under, and the small test run and plots "
+        "used to check a configuration before committing to a whole plate.",
     "MASK & CHANNEL MAPPING":
         "Which plane of the stack holds each mask and each intensity "
         "channel, whether a cytoplasm compartment is derived, and whether "
         "the data is a time series. A wrong index here quietly measures the "
         "wrong object, so it is worth checking twice.",
-    "MEASUREMENT FEATURES":
-        "Which families of measurement are computed for every object — "
-        "intensity, morphology, texture, radial distribution and "
-        "colocalisation, with their parameters. More features means a wider "
-        "table and a longer run, so enable what the analysis needs.",
     "OBJECT FILTERING":
         "Which objects are large enough, infected enough or clean enough to "
         "be measured at all. Raise the minimum sizes when debris is being "
@@ -2720,10 +3113,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "— crop mode and size, which channels and masks are included, "
         "dilation, and how they are normalised. These are the images "
         "Annotate and the CV classifier read later.",
-    "PREVIEW & DIAGNOSTICS":
-        "The small test run and the plots used to check a configuration "
-        "before committing to a whole plate. The fastest way to find out "
-        "that a channel index is wrong.",
     "3D CALIBRATION (BETA)":
         "The physical size of a voxel and the anisotropy between z and xy. "
         "Only these turn volumetric measurements from pixel counts into "
@@ -2956,6 +3345,21 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Richardson–Lucy attempts deconvolution and can amplify noise. Raw "
         "images and measurement intensities remain unchanged. Leave this off "
         "unless the same kernel and pixel calibration fit every selected channel.",
+    "IMAGE DECONVOLUTION \u0391":
+        "Deconvolution or convolution with the microscope's point spread "
+        "function, applied to the segmentation channels before "
+        "normalization: a calibrated measured PSF, one inferred from the "
+        "objective, or an explicit Gaussian. Richardson-Lucy deconvolution "
+        "sharpens and can amplify noise. Raw images and measurement "
+        "intensities remain unchanged.",
+    "IMAGE ENHANCEMENT":
+        "The image enhancement chain Make Masks tunes, applied unchanged to "
+        "every selected segmentation channel after illumination correction "
+        "and before normalization: background subtraction, the PSF, denoising, "
+        "the contrast curves and sharpening, in that fixed order. Every step "
+        "is off by default. Raw images and measurement intensities remain "
+        "unchanged; the mask provenance records which steps ran, and a "
+        "resumed run refuses inputs made with a different chain.",
     "ILLUMINATION CORRECTION":
         "Whether the microscope's uneven lighting is estimated from these "
         "fields and divided out before any intensity is measured, and how "
@@ -3072,8 +3476,41 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
 #: Per-module overrides for headings that mean different things per module.
 #: Missing entries fall through to :data:`CATEGORY_TOOLTIPS`.
 CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
+    "mask": {
+        "QUALITY CONTROL":
+            "Automatic pass/fail checks on the finished masks, what the run "
+            "keeps on disk, and how it behaves when something fails: object "
+            "count, size and border checks, the files and intermediates "
+            "saved, error handling, workers, batch size, GPUs and the random "
+            "seed. Tighten the checks once you know what a good field looks "
+            "like.",
+    },
+    "classify": {
+        "RUNTIME & RELIABILITY":
+            "The random seed that fixes the split and the initialisation, "
+            "how many workers load the crops and whether they pin memory, "
+            "how much the run prints, and how many failed items it "
+            "tolerates. Fix the seed when two runs have to be compared.",
+    },
+    "classify_merged": {
+        "RUNTIME & RELIABILITY":
+            "The random seed that fixes the split and the initialisation, "
+            "how many workers load the crops and whether they pin memory, "
+            "how much the run prints, and how many failed items it "
+            "tolerates. Fix the seed when two runs have to be compared.",
+    },
     "measure": {
-        "POINT SPREAD FUNCTION": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+        "CLOUD \u0391":
+            "Read the plate straight from cloud storage: credentials, endpoint "
+            "and local cache, and the cloud folder the measurements are copied "
+            "to when the run finishes. Leave it alone for a plate on local disk.",
+        "IMAGE PREPROCESSING":
+            "What is done to the pixels of each field before a single "
+            "feature is measured -- bleach, spectral and illumination "
+            "correction, deconvolution with a point spread function and "
+            "cross-plate intensity calibration -- and which barcode links "
+            "each plate to its plate map. The masks are not changed.",
+        "IMAGE DECONVOLUTION (PSF)": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
     },
     "train_cellpose": {
         "TRAINING DATA": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
@@ -3272,12 +3709,18 @@ def _category_blurb(app_key: str, title: str) -> str:
     """The written blurb for a category title, or ``""`` if there is none.
 
     Tries the module's own override then the shared table, first for the
-    title as rendered and then for the title with a family prefix removed.
+    title as rendered, then for the title with a family prefix removed, and
+    for an alpha category ("ILLUMINATION CORRECTION α") last for the same
+    name without the mark, so a category that turned alpha on one module
+    keeps the blurb it has on the others.
     """
     key = str(title or "").upper().strip()
     if not key:
         return ""
     candidates = [key]
+    mark = ALPHA_MARK.upper()
+    if key.endswith(mark) and key[:-len(mark)].strip():
+        candidates.append(key[:-len(mark)].strip())
     for prefix in _CATEGORY_FAMILY_PREFIXES:
         for dash in _CATEGORY_PREFIX_DASHES:
             marker = f"{prefix} {dash} "
@@ -3417,7 +3860,13 @@ def section_tooltip(app_key: str, section, language: Optional[str] = None) -> st
 
 
 def section_tooltip_is_curated(app_key: str, section) -> bool:
-    """True when a tree heading has written help rather than the fallback."""
+    """True when a tree heading has written help rather than the fallback.
+
+    :param app_key: application key of the module whose settings are shown.
+    :param section: tree heading: an object with ``title`` and ``path``
+        attributes, a tuple whose first item is the title, or anything
+        converted to a title with ``str()``.
+    """
     path = tuple(getattr(section, "path", ()) or ())
     title = getattr(section, "title", None)
     if title is None:
@@ -3433,6 +3882,9 @@ def category_tooltip_is_curated(app_key: str, title: str) -> bool:
     Shares :func:`_category_blurb` with :func:`category_tooltip` rather than
     repeating the lookup: the two used to hold separate copies, so a lookup
     rule added to one would silently not apply to the other.
+
+    :param app_key: application key of the module whose settings are shown.
+    :param title: category (section) title looked up for a written blurb.
     """
     return bool(_category_blurb(app_key, title))
 
@@ -3731,6 +4183,9 @@ def api_docs_url(
     back to the generated API index rather than the documentation homepage.
     Shared batch-correction settings always land on their implementation,
     rather than whichever consumer app happens to display them.
+
+    :param app_key: application key; a plugin's own ``docs_url`` wins,
+        otherwise it selects the module page when ``key`` does not.
     """
     try:
         from spacr.plugins import get_app
@@ -3743,8 +4198,14 @@ def api_docs_url(
     chosen_by_hand = True
     if key == "psf_measurement_source":
         module, anchor = "psf_measurement", "spacr.psf_measurement.prepare_measurement_psf"
+    elif key == "psf_objective":
+        module, anchor = "point_spread", "spacr.point_spread.fill_psf_settings"
     elif key.startswith("psf_"):
         module, anchor = "psf_pipeline", "spacr.psf_pipeline.prepare_psf"
+    elif app_key == "make_masks" and key.startswith("make_masks_psf_optics_"):
+        module, anchor = "point_spread", "spacr.point_spread.infer_optics"
+    elif key.startswith("enhance_"):
+        module, anchor = "psf_pipeline", "spacr.psf_pipeline.prepare_chain"
     elif app_key == "make_masks" and key.startswith("make_masks_psf_"):
         module, anchor = "point_spread", "spacr.point_spread.apply_psf"
     elif app_key == "make_masks" and key.startswith("make_masks_"):
@@ -4160,7 +4621,13 @@ def format_tooltip(
     key: str = "",
     language: Optional[str] = None,
 ) -> str:
-    """Return localized typed HTML with an unchanged API-document URL."""
+    """Return localized typed HTML with an unchanged API-document URL.
+
+    :param text: description of the setting; an empty value becomes a generic
+        "Controls ..." sentence.
+    :param app_key: application key of the module whose settings are shown; it
+        selects the API documentation link.
+    """
     from ..i18n import tr
 
     code = _language_code(language)
@@ -4195,7 +4662,13 @@ def plain_tooltip(
     language: Optional[str] = None,
 ) -> str:
     """Same content as `format_tooltip` but plain text — used by the
-    hover-follows footer at the bottom of each AppScreen."""
+    hover-follows footer at the bottom of each AppScreen.
+
+    :param text: description of the setting; an empty value becomes a generic
+        "Controls ..." sentence.
+    :param app_key: application key of the module whose settings are shown; it
+        selects the API documentation link.
+    """
     from ..i18n import tr
 
     code = _language_code(language)
@@ -4730,6 +5203,9 @@ def regression_design_scan(settings) -> dict:
     with it. What it could not work out comes back as ``None`` with a
     ``note`` saying why.
 
+    :param settings: regression settings; the sgRNA count CSVs are taken from
+        the ``count`` entries of ``paired_data``, or from the legacy
+        ``count_data`` when there are none.
     :returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.
     """
     out = {"genes": None, "guides": None, "wells": None, "rows": 0,
@@ -5375,6 +5851,10 @@ def normalise_regression_level(level: Any) -> str:
 
     Missing or unrecognized values can occur in settings saved by older
     versions and are handled without interrupting panel rendering.
+
+    :param level: saved level, compared case-insensitively after stripping;
+        ``'both'``, ``'grna'`` and ``'gene'`` are kept and anything else
+        becomes ``'both'``.
     """
     text = str(level or "").strip().lower()
     return text if text in REGRESSION_LEVELS else "both"
@@ -5699,7 +6179,12 @@ SECTION_EXPLAINERS: Dict[str, Tuple[str, ...]] = {
 
 
 def has_section_explainer(app_key: str, title: str) -> bool:
-    """Return whether a settings section begins with explanatory prose."""
+    """Return whether a settings section begins with explanatory prose.
+
+    :param app_key: application key looked up in ``SECTION_EXPLAINERS``.
+    :param title: settings section title checked against that module's
+        explainer sections.
+    """
     return str(title or "") in SECTION_EXPLAINERS.get(str(app_key or ""), ())
 
 
@@ -5851,7 +6336,14 @@ def attach_api_tooltip(
     description: str = "",
     _descriptions: Optional[Dict[str, str]] = None,
 ) -> str:
-    """Attach typed, linked API help metadata to one setting widget."""
+    """Attach typed, linked API help metadata to one setting widget.
+
+    :param widget: the setting widget that receives the tooltip and its
+        ``settingsAppKey``/``settingKey``/``apiTooltip*`` properties.
+    :param app_key: application key of the module whose settings are shown; it
+        selects the API documentation link.
+    :param key: setting key whose description, name and type hint are shown.
+    """
     descriptions = _descriptions if _descriptions is not None else get_tooltips()
     existing_tooltip = "" if widget.property("apiTooltipHtml") else widget.toolTip()
     body = (descriptions.get(key) or description
@@ -5891,6 +6383,10 @@ def refresh_api_tooltips(
     Field widgets marked ``metadata`` stay quiet because their visible label
     owns hover help. API-dot destinations carry the selected documentation
     language while retaining the same module page.
+
+    :param root: widget whose own and descendant setting widgets (those with
+        ``settingsAppKey`` and ``settingKey`` properties) are refreshed;
+        ``None`` does nothing.
     """
     if root is None:
         return
@@ -5964,6 +6460,11 @@ def install_api_tooltips(
     figure dialog. A column of dots reads as texture rather than as one
     affordance per setting, and the API link was never in the dot alone --
     it is in the hover text, which is where it was being read from.
+
+    :param owner: the form widget whose children carrying a ``settingKey``
+        property get tooltips; it also owns the shared tooltip event filter.
+    :param app_key: application key of the module whose settings are shown; it
+        selects the API documentation links.
     """
     event_filter = getattr(owner, "_api_tooltip_filter", None)
     if event_filter is None:
@@ -6218,6 +6719,207 @@ class _TrainingFolderEdit(_ScalarEdit):
                 self.editingFinished.emit()
 
         action.triggered.connect(browse)
+
+
+class _CloudListingSignals(QObject):
+    """Carries a cloud listing from its worker thread to the dialog."""
+
+    done = Signal(object, object, object)
+
+
+class _CloudBrowserDialog(QDialog):
+    """Browse a cloud store and pick a location for ``src``.
+
+    Listing and reading metadata run on a worker thread, so a slow network
+    never freezes the window. A folder is opened by double-clicking it; an
+    OME-Zarr, or any location typed into the address box, is described from
+    its metadata without fetching image data. Credentials are never asked
+    for: the public-data box reads anonymously, and otherwise the standard
+    places are used.
+
+    :param address: the address to open first.
+    :param anonymous: the starting state of the public-data box.
+    :param endpoint: the starting S3-compatible endpoint.
+    :param parent: the parent widget.
+    """
+
+    def __init__(self, address: str = "", anonymous: bool = False,
+                 endpoint: str = "", parent: Optional[QWidget] = None) -> None:
+        """Build the address row, the listing and the description."""
+        super().__init__(parent)
+        from PySide6.QtWidgets import (QDialogButtonBox,
+                                       QListWidget, QPlainTextEdit)
+        from ..i18n import tr
+
+        self.setObjectName("CloudBrowserDialog")
+        self.setWindowTitle(tr("Browse cloud storage"))
+        self._signals = _CloudListingSignals(self)
+        self._signals.done.connect(self._show_listing)
+        self._request = 0
+        layout = QVBoxLayout(self)
+        row = QHBoxLayout()
+        self.address = QLineEdit(address or "s3://", self)
+        self.address.setPlaceholderText(
+            tr("s3://bucket/folder, gs://, az:// or https://"))
+        self.address.returnPressed.connect(self.open_address)
+        row.addWidget(self.address, 1)
+        up = QPushButton(tr("Up"), self)
+        up.clicked.connect(self.go_up)
+        row.addWidget(up)
+        go = QPushButton(tr("Open"), self)
+        go.clicked.connect(self.open_address)
+        row.addWidget(go)
+        layout.addLayout(row)
+        self.anonymous = Toggle(tr("Public data (no credentials)"), self)
+        self.anonymous.setChecked(bool(anonymous))
+        layout.addWidget(self.anonymous)
+        self.endpoint = QLineEdit(endpoint or "", self)
+        self.endpoint.setPlaceholderText(
+            tr("S3-compatible endpoint (blank for Amazon S3)"))
+        layout.addWidget(self.endpoint)
+        self.entries = QListWidget(self)
+        self.entries.itemDoubleClicked.connect(self._enter)
+        layout.addWidget(self.entries, 1)
+        self.details = QPlainTextEdit(self)
+        self.details.setReadOnly(True)
+        layout.addWidget(self.details)
+        buttons = QDialogButtonBox(QDialogButtonBox.Cancel, parent=self)
+        use = buttons.addButton(tr("Use this location"),
+                                QDialogButtonBox.AcceptRole)
+        use.setObjectName("CloudBrowserUse")
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+        if address:
+            self.open_address()
+
+    def options(self) -> Dict[str, Any]:
+        """The credential settings chosen in the dialog, as settings values."""
+        return {"cloud_anonymous": self.anonymous.isChecked(),
+                "cloud_endpoint": self.endpoint.text().strip()}
+
+    def location(self) -> str:
+        """The address the dialog points at now."""
+        return self.address.text().strip()
+
+    def go_up(self) -> None:
+        """Open the folder above the current address."""
+        text = self.location().rstrip("/")
+        head, sep, _tail = text.rpartition("/")
+        if sep and not head.endswith(":/"):
+            self.address.setText(head)
+            self.open_address()
+
+    def _enter(self, item) -> None:
+        """Open the double-clicked entry below the current address."""
+        name = item.data(Qt.UserRole)
+        if name:
+            self.address.setText(f"{self.location().rstrip('/')}/{name}")
+            self.open_address()
+
+    def open_address(self) -> None:
+        """List and describe the typed address on a worker thread."""
+        import threading
+
+        from ..i18n import tr
+
+        self._request += 1
+        request = self._request
+        address = self.location()
+        options = self.options()
+        self.entries.clear()
+        self.details.setPlainText(tr("Reading…"))
+        signals = self._signals
+
+        def work() -> None:
+            """Read the listing and the description, never raising."""
+            from ...ome_zarr import (_CloudOptions, _cloud_listing,
+                                     _cloud_path, _cloud_source_kind,
+                                     _describe_cloud_source)
+
+            entries, text = [], ""
+            try:
+                path = _cloud_path(address, _CloudOptions._from_settings(
+                    options))
+                kind = _cloud_source_kind(path)
+                if kind == "folder":
+                    entries = _cloud_listing(path)
+                else:
+                    text = _describe_cloud_source(path)
+            except Exception as exc:
+                text = f"{type(exc).__name__}: {exc}"
+            try:
+                signals.done.emit(request, entries, text)
+            except RuntimeError:
+                return
+
+        threading.Thread(target=work, daemon=True,
+                         name="spacr-cloud-listing").start()
+
+    def _show_listing(self, request, entries, text) -> None:
+        """Show a finished listing, unless a newer one was asked for."""
+        from PySide6.QtWidgets import QListWidgetItem
+
+        if request != self._request:
+            return
+        self.entries.clear()
+        for name, kind, size in entries:
+            label = f"{name}/" if kind == "folder" else f"{name}  ({size} B)"
+            item = QListWidgetItem(label)
+            item.setData(Qt.UserRole, name)
+            self.entries.addItem(item)
+        self.details.setPlainText(str(text or ""))
+
+
+def _browse_cloud_into(edit: QLineEdit, model: Any = None) -> bool:
+    """Open the cloud browser and put the chosen address into ``edit``.
+
+    :param edit: the ``src`` field.
+    :param model: the settings form, whose ``cloud_anonymous`` and
+        ``cloud_endpoint`` start the dialog and receive its choices.
+    :returns: True when a location was chosen.
+    """
+    current = getattr(model, "_current_setting", None)
+    anonymous = current("cloud_anonymous") if callable(current) else False
+    endpoint = current("cloud_endpoint") if callable(current) else ""
+    text = edit.text().strip()
+    from ...ome_zarr import _is_cloud_url
+
+    dialog = _CloudBrowserDialog(text if _is_cloud_url(text) else "",
+                                 bool(anonymous), str(endpoint or ""), edit)
+    if dialog.exec() != QDialog.Accepted or not dialog.location():
+        return False
+    edit.setText(dialog.location())
+    edit.editingFinished.emit()
+    setter = getattr(model, "set_value_for_key", None)
+    if callable(setter):
+        for key, value in dialog.options().items():
+            setter(key, value)
+    return True
+
+
+def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
+    """Give a ``src`` field a trailing button that browses cloud storage.
+
+    The button is an alpha feature, shown only while Show alpha features is
+    on.
+
+    :param edit: the ``src`` field.
+    :param model: the settings form, passed to :func:`_browse_cloud_into`.
+    :returns: the button's action.
+    """
+    from PySide6.QtWidgets import QStyle
+
+    from ..i18n import tr
+    from ..preferences import _apply_alpha_widgets
+
+    action = edit.addAction(edit.style().standardIcon(QStyle.SP_DriveNetIcon),
+                            QLineEdit.TrailingPosition)
+    action.setObjectName("CloudSourceBrowse")
+    action.setToolTip(tr("Browse cloud storage…"))
+    action.triggered.connect(lambda: _browse_cloud_into(edit, model))
+    _apply_alpha_widgets(edit)
+    return action
 
 
 class _CsvColumnField(QWidget):
@@ -6652,15 +7354,16 @@ class _RegressionBackendField(QWidget):
             position = event.pos()
         index = view.indexAt(position)
         if not index.isValid():
+            AvailabilityPanel.instance().start_hide()
             return
         statuses = self.availability_entries()
         if index.row() >= len(statuses):
+            AvailabilityPanel.instance().start_hide()
             return
         entry = statuses[index.row()]
         if entry['enabled']:
             panel = AvailabilityPanel.instance()
-            if panel.isVisible():
-                panel.start_hide()
+            panel.start_hide()
             return
         rect = view.visualRect(index)
         top_left = view.viewport().mapToGlobal(rect.topLeft())
@@ -7852,6 +8555,11 @@ def list_shape_for(key: str, default: Any) -> Optional[Tuple[bool, bool, Any, An
       the placeholder *string* ``'list of paths'``;
     * ``sample``, whose declared "type" is the value ``None``.
 
+    :param key: setting key; its declared type in
+        ``spacr.settings.expected_types`` is consulted.
+    :param default: the setting's default value; a list or tuple (or ``None``
+        for a list-only declared type) qualifies, and its elements decide the
+        element type.
     :returns: ``(nested_capable, allow_none, element_type, container)`` when
         the key holds a list, or ``None`` when it should keep its ordinary
         widget.
@@ -8156,12 +8864,20 @@ class SettingsWidgets:
         """
         self.app_key = app_key
         self._parent = parent
+        self._unmounted_control_owner = None
+        if parent is not None:
+            self._unmounted_control_owner = QWidget(parent)
+            self._unmounted_control_owner.setObjectName("UnmountedSettingsControls")
+            self._unmounted_control_owner.hide()
         #: Settings to build no widget for. See __init__'s docstring.
         self._skip_keys = frozenset(str(k) for k in (skip_keys or ()))
         from spacr.settings import organelle_slots_beyond_the_count
 
         shipped = resolve_default_settings(app_key)
         current_values = {str(k): v for k, v in (current or {}).items()}
+        if "image_source" in shipped:
+            current_values = _image_source_seeded_from_crop_source(
+                current_values)
         deciding = dict(shipped)
         deciding.update(current_values)
         from spacr.organelle_types import (NUMBER_OF_ORGANELLES,
@@ -8281,7 +8997,10 @@ class SettingsWidgets:
         import time as _time
 
         cats = categories_for_app(self.app_key, get_categories())
-        hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
+        hidden = set(_APP_HIDDEN_CATEGORIES.get(self.app_key, set()))
+        own_parents = _APP_CATEGORY_PARENTS.get(str(self.app_key or ""), {})
+        hidden.update(child for child, parent in own_parents.items()
+                      if parent in hidden)
         may_wait = self._keys_that_may_wait(cats, hidden, variables,
                                             hidden_keys)
         _BREATH = 0.025
@@ -8354,6 +9073,13 @@ class SettingsWidgets:
         if self.app_key == "umap" and isinstance(affinity_widget, QComboBox):
             affinity_widget.currentTextChanged.connect(
                 self._on_umap_reducer_changed)
+        architecture_widget = self._widgets.get("model_type")
+        if self.app_key == "activation" and architecture_widget is not None:
+            for signal_name in ("currentTextChanged", "textChanged"):
+                signal = getattr(architecture_widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._refresh_attribution_method_enablement)
+                    break
 
         self._connect_setting_dependency_signals()
 
@@ -8361,6 +9087,8 @@ class SettingsWidgets:
 
         self._refresh_contextual_widgets()
         self._refresh_umap_reducer_enablement()
+        self._refresh_mask_gpu_enablement()
+        self._refresh_attribution_method_enablement()
         self._refresh_analysis_unit_lock()
         self._refresh_regression_backend()
         self._state_passes_ready = True
@@ -8398,7 +9126,7 @@ class SettingsWidgets:
             timer.timeout.connect(timer.deleteLater)
             timer.start(0)
 
-        return _nest_sections(sections)
+        return _nest_sections(sections, self.app_key)
 
     def _keys_that_may_wait(self, cats, hidden, variables,
                             hidden_keys) -> set:
@@ -8416,7 +9144,7 @@ class SettingsWidgets:
         judge = self.categories_may_wait
         if judge is None:
             return set()
-        parents = _shared_category_parents()
+        parents = _category_parents(self.app_key)
         owner: Dict[str, str] = {}
         for cat_name, keys in cats.items():
             if cat_name in hidden:
@@ -8467,6 +9195,10 @@ class SettingsWidgets:
                     if plan is None:
                         continue
                     widget = self._build_plain(plan)
+                    owner = getattr(self, "_unmounted_control_owner", self._parent)
+                    if owner is not None:
+                        widget.setParent(owner)
+                    self._add_source_actions(key, widget)
                     attach_api_tooltip(widget, self.app_key, key,
                                        _descriptions=self._tooltips)
                     self._widgets.settle(key, widget)
@@ -8491,7 +9223,8 @@ class SettingsWidgets:
         owned = getattr(self, "_keys_decided_by_a_pass", None)
         if owned is not None:
             return owned
-        owned = {"exclude_rows", "regression_backend", "metric"}
+        owned = {"exclude_rows", "regression_backend", "metric",
+                 "mask_parallel", "mask_gpu_indices"}
         owned.update(self._rules_for_this_panel())
         owned.update(_ALL_BASIS_SETTINGS)
         for keys in _UMAP_REDUCER_SETTINGS.values():
@@ -8517,6 +9250,7 @@ class SettingsWidgets:
         """:meth:`_decide_the_state_of_every_control`, one pass per step."""
         for decide in (self._refresh_contextual_widgets,
                        self._refresh_umap_reducer_enablement,
+                       self._refresh_mask_gpu_enablement,
                        self._refresh_analysis_unit_lock,
                        self._refresh_regression_backend):
             try:
@@ -8643,19 +9377,107 @@ class SettingsWidgets:
         from spacr.settings import organelle_slots_beyond_the_count
 
         shipped = resolve_default_settings(self.app_key)
-        self._defaults = organelle_slots_beyond_the_count(shipped, wanted)
-        self._slots_the_panel_added = {
-            key: value for key, value in self._defaults.items()
-            if key not in shipped}
+        fresh = organelle_slots_beyond_the_count(shipped, wanted)
+        added = getattr(self, "_slots_the_panel_added", None)
+        added = {} if added is None else added
+        for key, value in fresh.items():
+            if key in self._defaults:
+                continue
+            self._defaults[key] = value
+            if key not in shipped:
+                added[key] = value
+        self._slots_the_panel_added = added
         self._slots_built_for = wanted
         return wanted
 
+    def organelle_keys_to_spawn(self, count) -> List[str]:
+        """The settings :meth:`spawn_organelle_slots` would build, unbuilt.
+
+        Asked first so the screen can check it has a heading for every one
+        of them before anything is built.
+
+        :param count: the new ``number_of_organelles``.
+        :returns: the keys of the slots past those already built, in the
+            order the defaults declare them; empty when there are none.
+        """
+        from spacr.organelle_types import organelle_role_of
+        from spacr.settings import organelle_slots_beyond_the_count
+
+        try:
+            wanted = min(max(0, int(count or 0)), PANEL_ORGANELLE_SLOTS)
+        except (TypeError, ValueError):
+            return []
+        before = int(getattr(self, "_slots_built_for", 0) or 0)
+        if wanted <= before:
+            return []
+        roles = set(ALL_ORGANELLE_ROLES[before:wanted])
+        fresh = organelle_slots_beyond_the_count(
+            resolve_default_settings(self.app_key), wanted)
+        hidden = set(_APP_HIDDEN_KEYS.get(self.app_key, frozenset()))
+        keys = dict.fromkeys(list(self._defaults) + list(fresh))
+        return [key for key in keys
+                if organelle_role_of(key) in roles
+                and key not in self._widgets and key not in hidden]
+
+    def spawn_organelle_slots(self, count) -> List[str]:
+        """Build the controls a raised ``number_of_organelles`` asks for.
+
+        A slot's controls do not exist until the count says so, and
+        rebuilding the whole screen to add them would discard what the user
+        had typed. This builds ONLY the new slots' controls, on the panel already
+        on screen; every control that existed keeps its identity and
+        whatever the user typed into it. The caller lays the new controls
+        out.
+
+        EXISTING VALUES WIN. A slot above the count that a settings file
+        carried is already in ``_defaults`` (see :meth:`set_hidden_value`),
+        and its control is built holding that value rather than the one the
+        panel would invent.
+
+        :param count: the new ``number_of_organelles``.
+        :returns: the new settings keys with a control, in the order the
+            panel declares them; empty when the count asks for nothing new.
+        """
+        from spacr.settings_spec import convert_settings_dict_for_gui
+
+        before = int(getattr(self, "_slots_built_for", 0) or 0)
+        wanted = self.organelle_keys_to_spawn(count)
+        after = self.grow_to_fit_the_organelle_count(count)
+        if after <= before or not wanted:
+            return []
+        roles = set(ALL_ORGANELLE_ROLES[before:after])
+        self._skip_keys = frozenset(self._skip_keys) - frozenset(wanted)
+        variables = convert_settings_dict_for_gui(
+            {key: self._defaults[key] for key in wanted
+             if key in self._defaults})
+        spawned: List[str] = []
+        for key, (kind, options, default) in variables.items():
+            widget = self._widget_for(kind, options, default, key)
+            if widget is None:
+                continue
+            attach_api_tooltip(widget, self.app_key, key,
+                               _descriptions=self._tooltips)
+            self._widgets[key] = widget
+            spawned.append(key)
+        for role in sorted(roles):
+            self._connect_the_signals_of_role(role)
+        self._slot_heading_cache = None
+        return spawned
+
     def tooltip_for(self, key: str) -> str:
-        """Return the HTML-formatted tooltip for a given setting key."""
+        """Return the HTML-formatted tooltip for a given setting key.
+
+        :param key: setting key whose description is looked up; an unknown key
+            gets the generic fallback text.
+        """
         return format_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
     def plain_tooltip_for(self, key: str) -> str:
-        """Return the plain-text hint (description + docs URL) for a setting."""
+        """Return the plain-text hint (description + docs URL) for a setting.
+
+        :param key: setting key whose description is looked up; an unknown key
+            gets the generic fallback text.
+        """
         return plain_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
 
@@ -8851,14 +9673,40 @@ class SettingsWidgets:
 
         See :meth:`_route_control` for how it is chosen.
 
+        A parented model keeps unmounted controls under a hidden Qt-owned
+        host. Folded forms may omit rows after building them; parenting those
+        controls directly to the visible form would paint them over its rows.
+        A row layout reparents its control when it is actually mounted.
+
+        :param kind: the setting's declared control kind.
+        :param options: allowed choices or constraints from its declaration.
+        :param default: initial value for the control.
+        :param key: the setting name used to choose specialized controls.
         :returns: the control, or ``None`` when the kind has none.
         """
         route, what = self._route_control(kind, options, default, key)
         if route == "special":
-            return what()
-        if route == "plain":
-            return self._build_plain(what)
-        return None
+            widget = what()
+        elif route == "plain":
+            widget = self._build_plain(what)
+            self._add_source_actions(key, widget)
+        else:
+            return None
+        owner = getattr(self, "_unmounted_control_owner", self._parent)
+        if (widget is not None and owner is not None
+                and widget.parent() in (None, self._parent)):
+            widget.setParent(owner)
+        return widget
+
+    def _add_source_actions(self, key: str, widget: QWidget) -> None:
+        """Give the ``src`` field of Make Masks and Measure a cloud browser.
+
+        :param key: the setting the plain control edits.
+        :param widget: the control just built.
+        """
+        if (key == "src" and self.app_key in ("mask", "measure")
+                and isinstance(widget, QLineEdit)):
+            _add_cloud_browse_action(widget, self)
 
     @staticmethod
     def _build_plain(plan) -> QWidget:
@@ -9003,6 +9851,10 @@ class SettingsWidgets:
         if key == "segmentation_backend":
             from ..model_install import SegmentationBackendCombo
             return "special", lambda: SegmentationBackendCombo(
+                default=self._defaults.get(key, default), parent=parent)
+        if key == "ops_spot_detector":
+            from ..model_install import SpotDetectorCombo
+            return "special", lambda: SpotDetectorCombo(
                 default=self._defaults.get(key, default), parent=parent)
         if key == "metadata_type":
             return "special", lambda: _MetadataTypeField(
@@ -9287,6 +10139,12 @@ class SettingsWidgets:
         Used by the Live Preview's "Propagate settings" toggle to push
         interactively-tuned values back into the main settings panel.
         Returns True if the key existed and was set.
+
+        :param key: setting key whose widget is updated; ``False`` is returned
+            when no widget is bound to it.
+        :param value: new value, converted to what the widget takes (``bool``
+            for a check box, ``int`` or ``float`` for a spin box, item data or
+            text for a combo box, text for a line edit).
         """
         w = self._widgets.get(key)
         if w is None:
@@ -9336,6 +10194,8 @@ class SettingsWidgets:
             self._refresh_umap_reducer_enablement()
         if key == "analysis_unit":
             self._refresh_analysis_unit_lock()
+        if key == "mask_parallel":
+            self._refresh_mask_gpu_enablement()
         return True
 
     def set_hidden_value(self, key: str, value: Any) -> bool:
@@ -9350,6 +10210,12 @@ class SettingsWidgets:
         A slot
         above the current count is accepted only when this app owns the count
         and the key is a declared setting; foreign-app keys remain rejected.
+
+        :param key: setting key; it must already be a run setting, or an
+            organelle-slot key declared in ``expected_types`` when this form
+            owns the organelle count, otherwise ``False`` is returned.
+        :param value: new value, coerced to the setting's expected type before
+            it is stored.
         """
         if key not in self._defaults:
             from ...organelle_types import (NUMBER_OF_ORGANELLES,
@@ -9442,6 +10308,117 @@ class SettingsWidgets:
             except Exception:                                # noqa: BLE001
                 LOGGER.debug("could not re-run the dependency rules",
                              exc_info=True)
+
+    def _refresh_mask_gpu_enablement(self) -> None:
+        """Grey parallel GPU mask controls this computer cannot use.
+
+        Both stay greyed, with the reason on hover, when fewer than two
+        compatible CUDA/ROCm GPUs are visible. A saved value is kept, so a
+        settings file sent through Cluster Distribution still runs on the
+        GPUs allocated to that job. The GPU list is greyed while
+        mask_parallel is off.
+        """
+        parallel = self._built_control("mask_parallel")
+        indices = self._built_control("mask_gpu_indices")
+        if parallel is None and indices is None:
+            return
+        from ..i18n import tr
+        from ... import _mask_workers
+
+        count = _mask_workers._mask_gpu_count_for_controls()
+        _mask_workers._watch_mask_gpu_probe()
+        if count is None:
+            for control in (parallel, indices):
+                if control is not None:
+                    control.setEnabled(False)
+                    _apply_greyed_note(control, tr("Checking compatible GPUs…"))
+            if not getattr(self, "_mask_gpu_poll_pending", False):
+                self._mask_gpu_poll_pending = True
+                reference = weakref.ref(self)
+                timer = QTimer(parallel if parallel is not None else indices)
+                timer.setSingleShot(True)
+
+                def refresh():
+                    """Refresh surviving controls without extending the panel lifetime."""
+                    model = reference()
+                    if model is not None:
+                        model._mask_gpu_poll_pending = False
+                        model._refresh_mask_gpu_enablement()
+
+                timer.timeout.connect(refresh)
+                timer.timeout.connect(timer.deleteLater)
+                timer.start(100)
+            return
+        if count < 2:
+            note = tr(
+                "Needs two or more compatible CUDA or ROCm GPUs; {count} "
+                "found on this computer. Cluster Distribution runs use the "
+                "GPUs allocated to the job.").format(count=count)
+            for control in (parallel, indices):
+                if control is not None:
+                    control.setEnabled(False)
+                    _apply_greyed_note(control, note)
+            return
+        if parallel is not None:
+            parallel.setEnabled(True)
+            _clear_greyed_note(parallel)
+            if not parallel.property("_spacr_mask_gpu_wired"):
+                parallel.setProperty("_spacr_mask_gpu_wired", True)
+                _connect_value_changed(
+                    parallel,
+                    lambda *_args: self._refresh_mask_gpu_enablement())
+        if indices is None:
+            return
+        enabled = (bool(self._read_widget(parallel))
+                   if parallel is not None else True)
+        indices.setEnabled(enabled)
+        if enabled:
+            _clear_greyed_note(indices)
+        else:
+            _apply_greyed_note(indices, tr(
+                "Used only when mask_parallel is on. {count} GPUs found."
+            ).format(count=count))
+
+    def _refresh_attribution_method_enablement(self, *_args) -> None:
+        """Grey the ``cam_type`` entries that do not apply to ``model_type``.
+
+        Asked of :func:`spacr.attribution.cam_type_applicability`, the same
+        rule ``generate_activation_map`` refuses a run by, so the menu and the
+        run cannot disagree. A greyed entry keeps its place and carries the
+        reason as its tooltip -- Chefer relevance on a ResNet, a CAM on a
+        pure ViT, DeepSHAP on a model that reuses its ReLU modules.
+        """
+        if self.app_key != "activation":
+            return
+        combo = self._built_control("cam_type")
+        if not isinstance(combo, QComboBox):
+            return
+        try:
+            from ...attribution import cam_type_applicability
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("attribution rules unavailable", exc_info=True)
+            return
+        from ..i18n import tr
+
+        architecture = self._widgets.get("model_type")
+        model_type = str(self._read_widget(architecture) or "").strip() \
+            if architecture is not None else ""
+        items = combo.model()
+        for index in range(combo.count()):
+            name = str(combo.itemData(index) or combo.itemText(index))
+            try:
+                applies, reason = cam_type_applicability(
+                    name, model_type=model_type or None)
+            except Exception:                                # noqa: BLE001
+                applies, reason = True, ""
+            item = items.item(index) if hasattr(items, "item") else None
+            if item is not None:
+                item.setEnabled(applies)
+            combo.setItemData(
+                index, "" if applies else tr(
+                    "Not applicable to {model}: {reason}",
+                    model=model_type or tr("this model"), reason=reason),
+                Qt.ToolTipRole)
 
     def _refresh_umap_reducer_enablement(self) -> None:
         """Enable only the settings the selected reducer actually reads."""
@@ -9898,6 +10875,7 @@ class SettingsWidgets:
             wanted.update(object_switch_keys(role))
             wanted.update(f"{role}_{name}"
                           for name in ("type", "diameter", "morphology"))
+        wanted.update(_cellpose3_choosers(self._widgets))
         return wanted
 
     def _object_visibility_settings(self) -> Dict[str, Any]:
@@ -10292,49 +11270,65 @@ class SettingsWidgets:
         if getattr(self, "_object_visibility_signals_connected", False):
             return
         self._object_visibility_signals_connected = True
+        roles = {object_of_setting(key) for key in self._widgets}
+        roles = {role for role in roles
+                 if role is not None and role not in CHANNELLED_OBJECTS}
+        for role in roles:
+            self._connect_the_signals_of_role(role)
+
+    def _connect_the_signals_of_role(self, role: str) -> None:
+        """Follow one object role's type, diameter and preset targets.
+
+        Once per role: :meth:`spawn_organelle_slots` calls it for a slot
+        built after the panel, and a second connection would run every
+        handler twice.
+
+        :param role: the object role, e.g. ``"organelleb"``.
+        """
+        connected = getattr(self, "_roles_followed", None)
+        if connected is None:
+            connected = self._roles_followed = set()
+        if role in connected:
+            return
+        connected.add(role)
         from ...organelle_types import ORGANELLE_TYPES, slot_setting
 
         primary_targets = {"organelle_morphology", "organelle_method"}
         for preset in ORGANELLE_TYPES.values():
             primary_targets.update(preset.params)
+        recommended = self._organelle_recommendations(role)
+        owned = self._organelle_preset_owned.setdefault(role, {})
+        for key, value in recommended.items():
+            if self._setting_value_equals(key, value):
+                owned[key] = value
 
-        roles = {object_of_setting(key) for key in self._widgets}
-        roles = {role for role in roles
-                 if role is not None and role not in CHANNELLED_OBJECTS}
-        for role in roles:
-            recommended = self._organelle_recommendations(role)
-            owned = self._organelle_preset_owned.setdefault(role, {})
-            for key, value in recommended.items():
-                if self._setting_value_equals(key, value):
-                    owned[key] = value
+        type_widget = self._widgets.get(f"{role}_type")
+        if type_widget is not None:
+            _connect_value_changed(
+                type_widget,
+                partial(self._on_organelle_type_changed, role))
 
-            type_widget = self._widgets.get(f"{role}_type")
-            if type_widget is not None:
-                _connect_value_changed(
-                    type_widget,
-                    partial(self._on_organelle_type_changed, role))
-
-            diameter = self._widgets.get(f"{role}_diameter")
-            if diameter is not None:
-                changed = partial(self._on_organelle_diameter_changed, role)
-                committed = getattr(diameter, "editingFinished", None)
-                if committed is not None:
-                    try:
-                        committed.connect(changed)
-                    except Exception:                        # noqa: BLE001
-                        _connect_value_changed(diameter, changed)
-                else:
+        diameter = self._widgets.get(f"{role}_diameter")
+        if diameter is not None:
+            changed = partial(self._on_organelle_diameter_changed, role)
+            committed = getattr(diameter, "editingFinished", None)
+            if committed is not None:
+                try:
+                    committed.connect(changed)
+                except Exception:                        # noqa: BLE001
                     _connect_value_changed(diameter, changed)
+            else:
+                _connect_value_changed(diameter, changed)
 
-            for primary in primary_targets:
-                key = slot_setting(primary, role)
-                widget = self._widgets.get(key)
-                if widget is None:
-                    continue
-                _connect_value_changed(
-                    widget,
-                    partial(self._on_organelle_preset_target_changed,
-                            role, key))
+        for primary in primary_targets:
+            key = slot_setting(primary, role)
+            widget = self._widgets.get(key)
+            if widget is None:
+                continue
+            _connect_value_changed(
+                widget,
+                partial(self._on_organelle_preset_target_changed,
+                        role, key))
 
     def _on_object_switch_changed(self, *_args) -> None:
         """Refresh rows after one slot-narrowing value is committed."""
@@ -10433,6 +11427,10 @@ class SettingsWidgets:
         A settings file that supplies morphology/method/thresholds owns those
         values. A file that supplies only a type asks the picker to populate
         its missing recommendations just as a direct user choice does.
+
+        :param settings: imported settings mapping; its keys decide which
+            organelle slots are affected, and a slot's recommended values are
+            applied only to keys it does not supply with a non-``None`` value.
         """
         from ...organelle_types import organelle_role_of
 
@@ -10748,6 +11746,11 @@ def retarget_field_tooltips(root: QWidget) -> int:
             carried = field.property(prop)
             if carried:
                 label.setProperty(prop, carried)
+        field._spacr_setting_label = label
+        pending = str(field.property(_PENDING_NOTE_PROPERTY) or "")
+        if pending:
+            label.setEnabled(field.isEnabled())
+            _note_on_label(label, pending)
         label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
         field.setToolTip("")

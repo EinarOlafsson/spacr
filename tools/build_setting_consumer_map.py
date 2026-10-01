@@ -135,6 +135,10 @@ ABSENT_FROM_EXPECTED_TYPES = {
         "surrogate_model", "surrogate_n_estimators",
         "surrogate_n_repeats", "surrogate_random_seed",
         "surrogate_shap_max_samples", "surrogate_split_by",
+        # 2026-09-26 (item 18): Explain CV's importance-method and SHAP
+        # explainer settings, typed by spacr.surrogate's register_defaults
+        # at module import, like the other surrogate_* keys here.
+        "surrogate_importance_methods", "surrogate_shap_explainer",
         "surrogate_test_size", "sweep_points", "sweep_span",
         "target_gene", "target_grnas_per_well", "target_guides",
         "target_statistic", "z_handling",
@@ -172,6 +176,9 @@ ABSENT_FROM_EXPECTED_TYPES = {
     # below, which is what "a reason each" meant. ``umap.reduction_method``
     # left on 2026-09-19 with its row: dotted catalog keys are app-qualified
     # tooltip identities and ``setting_keys`` no longer reads them.
+    # 2026-09-26 (item 511): the twelve retired cell/nucleus/pathogen
+    # min/max area and intensity bounds left, because setting_api_targets.py
+    # dropped their rows; nothing pins what has no row.
     "catalog_only": (
         "barcode_qc",
     ),
@@ -214,7 +221,9 @@ CATALOG_ONLY_NOTES = {
 #: settings mapping. Both directions are asserted by the test, so this tuple
 #: is what tells a search that finds everything from a search that finds
 #: nothing: ``barcode_qc`` must be found. Empty since 2026-09-19, when its
-#: one member, ``umap.reduction_method``, left the vocabulary with its row.
+#: one member, ``umap.reduction_method``, left the vocabulary with its row;
+#: the twelve retired Mask bounds joined it on 2026-09-25 (item 511) and left
+#: again on 2026-09-26 (item 511) when their rows were dropped.
 CATALOG_ONLY_UNREAD = ()
 
 
@@ -318,7 +327,44 @@ def _filled_from_settings(fn) -> set:
     return found
 
 
-def _returns_settings(fn) -> bool:
+def _projected_settings(value, tables, aliases=frozenset()) -> bool:
+    """Recognize a defaults table projected through actual settings reads.
+
+    ``{key: settings.get(key, default) for key, default in TABLE.items()}``
+    returns a settings mapping; a comprehension over unrelated data does not.
+
+    :param value: assigned expression to inspect without executing it.
+    :param tables: statically folded module tables and their string keys.
+    :param aliases: local names already bound to a settings mapping.
+    :returns: whether the expression has this complete projection shape.
+    """
+    if not isinstance(value, ast.DictComp) or len(value.generators) != 1:
+        return False
+    gen = value.generators[0]
+    if gen.ifs or gen.is_async or not isinstance(gen.target, ast.Tuple):
+        return False
+    if len(gen.target.elts) != 2 or not all(
+            isinstance(part, ast.Name) for part in gen.target.elts):
+        return False
+    key, default = (part.id for part in gen.target.elts)
+    source = gen.iter
+    if not (isinstance(source, ast.Call) and not source.args
+            and not source.keywords and isinstance(source.func, ast.Attribute)
+            and source.func.attr == 'items'
+            and isinstance(source.func.value, ast.Name)
+            and source.func.value.id in tables):
+        return False
+    read = value.value
+    return (isinstance(value.key, ast.Name) and value.key.id == key
+            and isinstance(read, ast.Call) and not read.keywords
+            and isinstance(read.func, ast.Attribute) and read.func.attr == 'get'
+            and _is_settings_mapping(read.func.value, aliases)
+            and len(read.args) == 2
+            and isinstance(read.args[0], ast.Name) and read.args[0].id == key
+            and isinstance(read.args[1], ast.Name) and read.args[1].id == default)
+
+
+def _returns_settings(fn, tables=None) -> bool:
     """Whether ``fn`` hands its caller back a settings mapping.
 
     Asked of the RETURN STATEMENTS rather than of the name.
@@ -329,7 +375,9 @@ def _returns_settings(fn) -> bool:
     params = {a.arg for a in fn.args.args + fn.args.kwonlyargs}
     aliases = set(params & SETTINGS_NAMES) | _filled_from_settings(fn)
     for child in ast.walk(fn):
-        if isinstance(child, ast.Assign) and _settings_alias(child.value):
+        if isinstance(child, ast.Assign) and (
+                _settings_alias(child.value)
+                or _projected_settings(child.value, tables or {}, aliases)):
             aliases |= {t.id for t in child.targets
                         if isinstance(t, ast.Name)}
     for child in ast.walk(fn):
@@ -361,9 +409,10 @@ def settings_helpers() -> set:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except (SyntaxError, UnicodeDecodeError):
             continue
+        tables = _module_tables(tree)
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                if _returns_settings(node):
+                if _returns_settings(node, tables):
                     found.add(node.name)
     return found
 
@@ -622,7 +671,8 @@ class Reads(ast.NodeVisitor):
         Both halves are required: a factory called on something else
         returns something else.
         """
-        if _settings_alias(value):
+        if (_settings_alias(value)
+                or _projected_settings(value, self.tables, self.aliases)):
             return True
         if not isinstance(value, ast.Call):
             return False
@@ -706,6 +756,14 @@ class Reads(ast.NodeVisitor):
                 self._record_dynamic(node.slice, node, "subscript")
             else:
                 self._record_named(node.slice, node, "subscript")
+        self.generic_visit(node)
+
+    def visit_DictComp(self, node):           # noqa: N802 - ast naming
+        """Record folded defaults reads without leaking the loop key's scope."""
+        if _projected_settings(node, self.tables, self.aliases):
+            table = node.generators[0].iter.func.value.id
+            for key in sorted(self.tables[table]):
+                self._record(key, node.value, 'get-dynamic')
         self.generic_visit(node)
 
     def visit_Call(self, node):               # noqa: N802 - ast naming

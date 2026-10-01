@@ -1,31 +1,35 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "0cafbb000a43518dec4abf97d95a12a28d3db265fc707f4caf2d681e26617f72",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "it",
-  "title": "Graph Builder: misure reali, filtri interattivi e limite del trasferimento",
-  "description": "Creare grafici dalle misure, suddividerli secondo i metadati di acquisizione e riconoscere il difetto di trasferimento ad Annotate.",
+  "title": "Graph Builder: tracciare misure e filtrare oggetti",
+  "description": "Carica una tabella di misure, assegna gli assi del grafico, confronta gruppi e filtra gli oggetti visualizzati.",
   "objectives": [
-    "Caricare il database reale e scegliere cell.",
-    "Creare istogramma, dispersione, colori e pannelli per riga.",
-    "Verificare le popolazioni filtrate e ripristinate.",
-    "Distinguere pubblicazione interna e trasferimento funzionante."
+    "Caricare una tabella di misure di esempio.",
+    "Creare un istogramma, un grafico a dispersione e pannelli per gruppo.",
+    "Filtrare gli oggetti e scegliere una vista successiva."
   ],
-  "prerequisite": "Scaricare e decomprimere il database collegato oppure usare l’esempio scaricato di Annotate. L’archivio contiene misure, non ritagli di immagini; non occorre eseguire un nuovo modello.",
+  "prerequisite": "Scarica ed estrai Graph_Builder_real_measurements.zip. Contiene measurements.db. Per esaminare in seguito i ritagli di immagine, tieni disponibili anche il progetto Annotate corrispondente e le sue immagini.",
   "scenes": [
-    "Graph Builder esplora una tabella esistente. Apritelo da Home: è un modulo principale con Plate Viewer e Small Multiples al suo interno. Useremo misure reali dell’esempio, senza addestrare modelli né chiedere a un servizio di intelligenza artificiale di generare risultati.",
-    "Scegliete Load table e aprite measurements punto db dall’archivio collegato o dall’esempio scaricato di Annotate. Selezionate cell: duemilatrecentoquarantuno righe. L’archivio conserva esattamente il database registrato, ma non le immagini indicate nelle altre tabelle.",
-    "Cercate cell_area e trascinate la colonna su X. Il grafico automatico crea un istogramma di trenta intervalli. Ogni barra conta le cellule in un intervallo di area; non confronta trattamenti e non è un test di significatività. Le unità memorizzate restano invariate, senza una nuova calibrazione fisica.",
-    "Trascinate cell_channel_1_mean_intensity su Y. Ogni punto rappresenta area e intensità media del canale uno di una cellula. Punti sovrapposti possono nascondersi, anche se qui tutte le righe sono rappresentate. Controllate il conteggio: tabelle più grandi possono usare un’altra modalità di disegno.",
-    "Mettete columnID su Colour e leggete la legenda. I colori distinguono colonne di acquisizione, non classi inferite né trattamenti noti. Una separazione visiva è descrittiva, non dimostra un effetto. Abbiamo verificato coordinate e colori rispetto alle righe originali.",
-    "Mettete rowID nel canale delle faccette con freccia verso il basso per ottenere pannelli per riga della piastra. Contengono millecentoquaranta e milleduecentouno cellule. Gli assi condivisi aiutano il confronto, ma cellule nello stesso pozzetto non sono repliche sperimentali indipendenti.",
-    "Nel filtro a destra aggiungete cell_area e impostate il minimo a ventunomilanovecentoventicinque. Il grafico passa subito a millecentosettantuno righe. Questa mediana arrotondata illustra il filtro, non raccomanda una soglia biologica. Cambiano anche i limiti degli assi.",
-    "Scegliete Clear all nel filtro per ripristinare tutte le duemilatrecentoquarantuno cellule. È diverso da Clear all channels a sinistra, che elimina le assegnazioni del grafico. Ricontrollate conteggio e assi: cambiare popolazione non produce una nuova misura.",
-    "Togliete la faccetta di riga con la piccola croce e trascinate un rettangolo sul grafico. Questa versione ha un difetto: il gesto registrato pubblica internamente seicentocinquantatré chiavi di oggetti, ma mostra zero selezionati e lascia disattivato Open selection in Annotate. Non presumete che siano state aperte o create annotazioni.",
-    "Un semplice clic cancella anche quella selezione interna. Il tutorial verifica il ripristino, ma non ripara il trasferimento. Filtrare e indicare oggetti sono operazioni diverse; altre viste possono condividerne lo stato. Controllate la popolazione attiva, senza presumere che il grafico mostri sempre l’intero database.",
-    "I collegamenti nell’intestazione aprono Plate Viewer e Small Multiples, trattati nei rispettivi tutorial. Questo schermo non offre un pulsante per esportare grafico o specifica. Il database collegato è un download esterno del tutorial, non un’esportazione di Graph Builder.",
-    "In Python, read_table carica i dati, GraphSpec descrive canali e faccette, e l’API di selezione distingue filtri e chiavi esplicite. Conservate fonte, impostazioni e versione insieme all’interpretazione. Queste API non validano conclusioni biologiche e non riparano il trasferimento ad Annotate."
+    "Apri Graph Builder da Home per esplorare una tabella di misure. Parti dal database di esempio collegato, poi ripeti i passaggi con un tuo progetto misurato.",
+    "Fai clic su Load table e apri measurements punto db dall’archivio estratto. Scegli la tabella cell. Questo esempio contiene duemilatrecentoquarantuno cellule misurate.",
+    "Trova cell_area nell’elenco delle colonne e trascinala su X. Il grafico automatico diventa un istogramma: ogni barra conta le cellule in un intervallo di area. Controlla le unità di misura prima di interpretare l’asse.",
+    "Trascina cell_channel_1_mean_intensity su Y per creare un grafico a dispersione. Ogni punto colloca una cellula in base all’area e all’intensità media del canale uno. Leggi l’avviso sul numero di righe quando lavori con tabelle più grandi.",
+    "Trascina columnID su Colour per distinguere le colonne della piastra. Usa la legenda per abbinare i colori alle etichette di colonna registrate e cerca gruppi da esaminare più da vicino.",
+    "Trascina rowID sul canale di sfaccettatura verso il basso per creare un pannello per ogni riga della piastra. Confronta i pannelli sfruttando gli assi condivisi. Usa pozzetti indipendenti per i confronti statistici tra condizioni.",
+    "Nel pannello dei filtri a destra, aggiungi cell_area e inserisci un minimo. L’esempio usa ventunomilanovecentoventicinque, che lascia millecentosettantuno righe. Scegli soglie adatte alle tue misure e osserva come cambiano il numero di punti e gli assi.",
+    "Fai clic su Clear all nel pannello dei filtri per ripristinare la tabella completa. Usa Clear all channels a sinistra quando vuoi togliere le assegnazioni del grafico e iniziarne uno diverso.",
+    "Rimuovi una sfaccettatura con la sua piccola croce per tornare a un solo grafico a dispersione. Trascina un rettangolo attorno agli oggetti per selezionare una regione. Se Open selection in Annotate non è disponibile, apri Annotate separatamente con il progetto corrispondente ed esamina lì gli oggetti.",
+    "Fai clic su una parte vuota del grafico per cancellare la selezione. Controlla i filtri attivi e il numero visualizzato prima di esplorare un altro gruppo di oggetti.",
+    "Usa le scorciatoie dell’intestazione per aprire Plate Viewer, con mappe di calore per pozzetto, o Small Multiples, con grafici ripetuti. Conserva il database di origine, le colonne scelte e i filtri per poter riprodurre la vista.",
+    "La schermata attuale mostra i grafici senza un pulsante di esportazione. Usa l’API di Graph Builder per grafici da script, oppure Database Browser per esportare una tabella verso un altro strumento di grafici."
   ]
 }

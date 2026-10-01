@@ -236,10 +236,34 @@ def test_run_v2_captures_psf_from_pipeline_settings(tmp_path, monkeypatch):
 
 
 def test_preflight_reports_uncalibrated_psf_before_any_processing(tmp_path):
+    """509: an unset Gaussian calibration is inferred; a kernel with no file still fails."""
     from spacr.validate import validate_settings
-    problems = validate_settings({'src': str(tmp_path), 'psf_operation': 'convolve'}, 'mask')
+    settings = {'src': str(tmp_path), 'psf_operation': 'convolve'}
+    problems = validate_settings(settings, 'mask')
+    assert not any(p.setting == 'psf_operation' for p in problems)
+    assert settings.get('psf_image_sampling_um') is None
+    settings['psf_source'] = 'measured'
+    problems = validate_settings(settings, 'mask')
     assert any(p.setting == 'psf_operation' and 'PSF preparation failed' in p.message for p in problems)
     assert not (tmp_path / 'psf').exists()
+
+
+def test_segmentation_infers_unset_gaussian_calibration_and_says_so(tmp_path, capsys):
+    """509: PSF on with nothing else set runs from inferred optics, recorded in settings."""
+    stack = _input(tmp_path)
+    settings = _settings(stack)
+    settings.update(psf_operation='convolve')
+    session = _prepare_segmentation_psf(settings, tmp_path, [0, 1])
+    assert session is not None
+    assert settings['psf_image_sampling_um'] == [0.325, 0.325]
+    assert settings['psf_fwhm_um'] == [0.3536, 0.3536]
+    assert 'pixel_size_um = 0.325 × 0.325 (calculated' in capsys.readouterr().out
+    settings = _settings(stack)
+    settings.update(psf_operation='deconvolve', psf_objective='60x/1.40 oil',
+                    psf_image_sampling_um=[.2, .2])
+    _prepare_segmentation_psf(settings, tmp_path, [0, 1])
+    assert settings['psf_image_sampling_um'] == [.2, .2]
+    assert settings['psf_fwhm_um'] == [0.189429, 0.189429]
 
 
 def test_timelapse_processes_each_frame_independently(tmp_path):

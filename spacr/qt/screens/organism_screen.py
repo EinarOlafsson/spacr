@@ -18,7 +18,9 @@ an example is available. Plaque Assay starts with images; the other assays
 use the corresponding measurement tables and object relationships. Follow
 each module's input help before running, then open the results in its selected
 output folder. Starplast opens a separate application for exploring the
-Toxoplasma knowledge map; its first launch offers installation.
+Toxoplasma knowledge map; its first launch offers installation. Gliding
+motility opens the Motility Assay with infection QC off. Egress, Bradyzoite
+conversion and Host cell damage say Coming soon and are disabled.
 
 .. _spacr.qt.screens.organism_screen.plasmodium:
 
@@ -26,11 +28,12 @@ Plasmodium
 ----------
 Open Home > Plasmodium to browse blood-stage, liver-stage, motility and
 compound-response topics. Explore the apicomplexan diagram and follow the
-PlasmoDB or UniProt links for organism-specific information. The assay tiles
-currently say Coming soon and are disabled; this page has no runnable
-Plasmodium-specific analysis and writes no results. To work with images now,
-return to Home and use the general segmentation and measurement modules with
-appropriate images, channels and masks for your experiment.
+PlasmoDB or UniProt links for organism-specific information. Three tiles open
+existing modules: Parasitaemia opens Host–Pathogen Analysis, Sporozoite
+motility opens the Motility Assay with infection QC off, and Drug response
+imaging opens Dose–Response. Each tile's tooltip says which inputs to prepare.
+The other five tiles say Coming soon and are disabled. This page itself writes
+no results; the opened module writes to its selected output folder.
 
 .. _spacr.qt.screens.organism_screen.candida:
 
@@ -38,11 +41,12 @@ Candida
 -------
 Open Home > Candida to browse morphology, filamentation, biofilm and host-cell
 interaction topics. Explore the budding-yeast diagram and follow the Candida
-Genome Database or UniProt links for gene and protein information. The assay
-tiles currently say Coming soon and are disabled; this page requires no data
-and writes no analysis files. For an available image workflow, return to Home
-and select the general segmentation and measurement modules, choosing masks
-and imaging channels suited to your species and experimental readout.
+Genome Database or UniProt links for gene and protein information. Four tiles
+open existing modules: Adhesion and Epithelial invasion open the Invasion
+Assay, Phagocytosis opens Host–Pathogen Analysis, and Antifungal response
+opens Dose–Response. Filamentation, Germ tube formation, Biofilm and
+Morphology say Coming soon and are disabled. This page requires no data; the
+opened module writes to its selected output folder.
 """
 from __future__ import annotations
 
@@ -57,7 +61,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..i18n import tr
-from ..organisms import ORGANISMS
+from ..organisms import ORGANISMS, workflow
 from ..preferences import scaled_px
 from ..theme import SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px, make_transparent
 from ..widgets.home import AppTile
@@ -85,6 +89,7 @@ class OrganismScreen(QWidget):
         self.app_key = app_key
         self.setObjectName("OrganismScreen")
         self.organism = ORGANISMS[app_key]
+        self._host = host
         if host is not None:
             self.module_requested.connect(host._on_nav_selected)
         self._columns = 0
@@ -159,7 +164,8 @@ class OrganismScreen(QWidget):
         credit.setObjectName("OrganismImageCredit")
         column.addWidget(credit)
         column.addWidget(self._link("CC BY 4.0", record["licence_url"]))
-        modules = {key: title for key, title, _, _ in self.organism["modules"] if key}
+        modules = {key or icon: title for key, title, _, icon in self.organism["modules"]
+                   if key or workflow(self.app_key, icon)}
         for title, text, keys in self.organism["sections"]:
             section = self._paragraph(title, "OrganismSectionTitle")
             section.setStyleSheet(f"font-size: {font_px(17)}px; font-weight: 600;")
@@ -188,6 +194,19 @@ class OrganismScreen(QWidget):
             return
         if any(row[0] == key for row in self.organism["modules"] if row[0]):
             self.module_requested.emit(key)
+        elif workflow(self.app_key, key):
+            self.open_workflow(key)
+
+    def open_workflow(self, icon: str):
+        """Open the existing module behind a tile and apply its preset.
+
+        :param icon: the tile's icon key in this organism's ``workflows``.
+        :returns: the module screen the preset went to, or ``None``.
+        """
+        route = workflow(self.app_key, icon)
+        if route is None:
+            return None
+        return open_workflow(self._host, route, self.module_requested.emit)
 
     @staticmethod
     def _link(label: str, url: str, external: bool = True) -> QLabel:
@@ -223,10 +242,18 @@ class OrganismScreen(QWidget):
             tile.setProperty("organismModuleKey", key or "")
             tile.setMaximumWidth(scaled_px(TILE_MAX_W))
             tile.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+            route = None if key else workflow(self.app_key, icon)
+            tile.setProperty("organismWorkflow", route[0] if route else "")
             if key:
                 tile.setToolTip(tr(title) + "\n" + tr(description))
                 tile.clicked.connect(lambda checked=False, target=key:
                                      self._open_module_link(target))
+            elif route:
+                note = tr(title) + "\n" + tr(description) + "\n" + tr(route[2])
+                tile.setToolTip(note)
+                tile.setAccessibleDescription(note)
+                tile.clicked.connect(lambda checked=False, target=icon:
+                                     self.open_workflow(target))
             else:
                 note = tr("Coming soon") + " — " + tr(title) + "\n" + tr(description)
                 tile.setToolTip(note)
@@ -268,3 +295,36 @@ class OrganismScreen(QWidget):
         if event.type() == QEvent.Resize and watched is self._module_scroll.viewport():
             QTimer.singleShot(0, self._reflow)
         return super().eventFilter(watched, event)
+
+
+def open_workflow(window, route, fallback=None):
+    """Open ``route``'s module in ``window`` and apply the route's preset.
+
+    Shared by the organism tiles and the spaCR menu, so both reach the same
+    screen with the same settings. Keys the module lacks are skipped.
+
+    :param window: the main window, or ``None`` when no window hosts the page.
+    :param route: ``(app key, preset, note)`` from the organism ``workflows``.
+    :param fallback: called with the app key when ``window`` cannot open it.
+    :returns: the module screen the preset went to, or ``None``.
+    """
+    key, preset = route[0], route[1]
+    opener = getattr(window, "open_module", None)
+    if not callable(opener):
+        if fallback is not None:
+            fallback(key)
+        return None
+    opened = opener(key)
+    screens = getattr(window, "_screens", {})
+    candidates = [screens.get(key), screens.get(opened)]
+    if screens.get(opened) is not None:
+        candidates += screens[opened].findChildren(QWidget)
+    for screen in candidates:
+        if (screen is not None and getattr(screen, "app_key", None) == key
+                and callable(getattr(screen, "apply_settings_dict", None))):
+            if preset:
+                screen.apply_settings_dict(dict(preset))
+                if screens.get(key) is not None:
+                    screen = screens[key]
+            return screen
+    return None

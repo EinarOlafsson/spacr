@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Automatic pass/fail checks on the finished masks, what the run keeps on disk, and how it behaves when something fails: object count, size and border checks, the files and intermediates saved, error handling, workers, batch size, GPUs and the random seed. Tighten the checks once you know what a good field looks like.",
+      "source": "Automatic pass/fail checks on the finished masks, what the run keeps on disk, and how it behaves when something fails: object count, size and border checks, the files and intermediates saved, error handling, workers, batch size, GPUs and the random seed. Tighten the checks once you know what a good field looks like.",
+      "source_sha256": "0328eb9975be8f0f5f6427d13c1a061101d7206a75e15c8cfcc03b7f6bdabd11",
+      "translation": "对完成的掩膜进行的自动通过/不通过检查、运行在磁盘上保留的内容，以及出错时的行为：对象数量、大小和边界检查，保存的文件和中间结果，错误处理，工作进程，批大小，GPUs 和随机种子。知道好的视野是什么样子后再收紧检查。"
+    },
+    {
+      "table": "categories",
+      "key": "Deconvolution or convolution with the microscope's point spread function, applied to the segmentation channels before normalization: a calibrated measured PSF, one inferred from the objective, or an explicit Gaussian. Richardson-Lucy deconvolution sharpens and can amplify noise. Raw images and measurement intensities remain unchanged.",
+      "source": "Deconvolution or convolution with the microscope's point spread function, applied to the segmentation channels before normalization: a calibrated measured PSF, one inferred from the objective, or an explicit Gaussian. Richardson-Lucy deconvolution sharpens and can amplify noise. Raw images and measurement intensities remain unchanged.",
+      "source_sha256": "7cc5d1d59638d155c5b90c414adab0826063f8a6cbd31646c284ac2d16f7f43e",
+      "translation": "在归一化之前对分割通道应用显微镜点扩散函数的去卷积或卷积：经校准的实测 PSF、由物镜推断的 PSF 或显式的高斯函数。Richardson-Lucy 去卷积会锐化图像，也可能放大噪声。原始图像和测量强度保持不变。"
+    },
+    {
+      "table": "categories",
+      "key": "Noise2Void denoising trained on the run's own noisy images, with no clean targets: one model per segmentation channel, applied after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo.",
+      "source": "Noise2Void denoising trained on the run's own noisy images, with no clean targets: one model per segmentation channel, applied after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo.",
+      "source_sha256": "05072f9978f4f7a438fbfc269f81553fea5d09750038ae29de5c3f984610d534",
+      "translation": "在运行自身的含噪图像上训练的 Noise2Void 去噪，无需干净目标：每个分割通道一个模型，在照明校正之后、PSF 和增强流程之前应用。需要模型库中的 CAREamics 后端。"
+    },
+    {
+      "table": "categories",
+      "key": "One column per object -- cell, nucleus, pathogen, cytoplasm -- and one row per question: channel, model, diameter, thresholds, remove background, adjust cells, and any filters added with Add a filter. Fill a column for every object the run segments.",
+      "source": "One column per object -- cell, nucleus, pathogen, cytoplasm -- and one row per question: channel, model, diameter, thresholds, remove background, adjust cells, and any filters added with Add a filter. Fill a column for every object the run segments.",
+      "source_sha256": "56a21ef6fc343f2f81c8032c7f78cdb7624042157a0913c2027c04e788c2e3a8",
+      "translation": "每个对象一列（细胞、细胞核、病原体、细胞质），每个问题一行：通道、模型、直径、阈值、去除背景、调整细胞，以及用“添加过滤器”添加的任何过滤器。为运行要分割的每个对象填写一列。"
+    },
+    {
+      "table": "categories",
+      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
+      "translation": "直接从云存储读取板：凭据、端点和本地缓存，以及运行结束时测量结果要复制到的云文件夹。对于本地磁盘上的板请保持不变。"
+    },
+    {
+      "table": "categories",
+      "key": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
+      "source": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
+      "source_sha256": "03814a8777e690d1aad1793b7b81835892878929c1bf04c9ad238edf00c8d79f",
+      "translation": "存放已掩膜图像的文件夹、测量结果归档所用的实验名称，以及在对整块板投入之前用于检查配置的小型测试运行和图表。"
+    },
+    {
+      "table": "categories",
+      "key": "What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.",
+      "source": "What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.",
+      "source_sha256": "ca6fff8808c134c26c36828f1ed7a6539f1e6cdbbd34365c6f0f5c8414762aa0",
+      "translation": "测量前后发生的事：运行如何从失败中恢复、使用多少工作进程、对已完成表格的特征谱分析，以及将其复制到数据库后端。"
+    },
+    {
+      "table": "categories",
+      "key": "What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.",
+      "source": "What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.",
+      "source_sha256": "72a3eb42ea282a4243dfefb3c6e0b69feae21b8046fa694ab8018bb18a5e21ed",
+      "translation": "在测量任何特征之前对每个视野像素所做的处理（光漂白、光谱和照明校正，基于点扩散函数的去卷积，以及跨板强度校准），以及将每块板与其板布局图关联的条形码。掩膜不会改变。"
+    },
+    {
+      "table": "categories",
+      "key": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
+      "source": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
+      "source_sha256": "3acf56bad6bcc69406fc99cb3a64854cd0070e8578eb7284f3c5920d0707eeab",
+      "translation": "为每个对象计算哪些测量类别（强度、形态、纹理、径向分布和共定位），以及由此读出的实验，如汇合度、细胞周期、伤口愈合、细胞活力和事件发生时间。特征越多，表格越宽，运行越久。"
+    }
+  ]
+}

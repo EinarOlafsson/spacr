@@ -16,6 +16,13 @@ sys.path.insert(0, str(_SOURCE_ROOT / 'tools'))
 import nested_helper_docs as _nested_helper_docs
 import api_visibility as _api_visibility
 from docs_version import source_version as _source_version
+import build_guide_i18n as _guide_i18n
+
+# Guides-only mode renders the translated user guides (and extracts their
+# English messages). It skips AutoAPI, the tutorial media and the API
+# catalogs: translated trees link to the English API and tutorial player.
+# See tools/build_guide_i18n.py.
+_guides_only = os.environ.get('SPACR_DOCS_GUIDES_ONLY', '') == '1'
 
 sys.path.insert(0, os.path.abspath(
     os.path.join(__file__, '..', '..', 'spacr')
@@ -56,6 +63,23 @@ extensions = [
     'sphinx_design',           # grid / card / tab directives on landing
     'autoapi.extension',       # AST-walk based auto reference
 ]
+if _guides_only:
+    extensions.remove('autoapi.extension')
+    extensions.remove('sphinx.ext.viewcode')   # source pages live in English
+    extensions.append('build_guide_i18n')
+    html_copy_source = False
+
+# -- Translated user guides (gettext) ----------------------------------------
+# One catalog per page in docs/i18n/guides/<lang>/LC_MESSAGES/<page>.po. A
+# message whose English changed no longer matches its msgid and renders in
+# English; ``translation_progress_classes`` marks it ``untranslated`` so the
+# stylesheet can flag it.
+locale_dirs = ['../i18n/guides/']
+gettext_compact = False
+gettext_uuid = False
+gettext_location = False
+gettext_additional_targets = []
+translation_progress_classes = True
 
 suppress_warnings = ['misc.section', 'toc.not_included']
 # `_generated/**` holds INCLUDE FRAGMENTS, not documents. Without this
@@ -65,6 +89,14 @@ suppress_warnings = ['misc.section', 'toc.not_included']
 # fatal, and 18,000 lines resolved twice for a build that is already the
 # slowest job in CI.
 exclude_patterns = ['_autoapi_templates/**', '_generated/**']
+if _guides_only:
+    # ``api/`` may hold AutoAPI's kept sources from an English build; the
+    # static exclusions keep the 161 MB API catalogs and the README deck out
+    # of every translated tree (Sphinx applies exclude_patterns to
+    # html_static_path too).
+    exclude_patterns += ['api/**', 'i18n/**', 'deck/**',
+                         *sorted(f'{page}.rst' for page in
+                                 _guide_i18n.ENGLISH_ONLY_PAGES)]
 default_role = 'py:obj'
 
 intersphinx_mapping = {
@@ -76,6 +108,29 @@ intersphinx_mapping = {
     'torch':       ('https://pytorch.org/docs/stable',                 None),
     'matplotlib':  ('https://matplotlib.org/stable',                   None),
 }
+
+# -- Link check (``sphinx -b linkcheck``) ------------------------------------
+# The tutorial player is copied into the build root from html_extra_path
+# (docs/_build/extra_staged/tutorials), not from docs/source, so linkcheck's
+# local-file test cannot see it. Every ``tutorials/`` link (the player itself,
+# ``#lesson=<id>`` deep links from the API and workflow pages, and example
+# downloads) resolves to /tutorials/ on each published channel.
+# tests/test_module_workflow_map.py pins the relative depth of the API links;
+# all 73 linked lesson ids were matched to lesson_catalog.js on 2026-09-30.
+linkcheck_ignore = [
+    r'^(\.\./)*tutorials/',
+]
+# Anchors that exist in the page a browser shows but not in the HTML that
+# linkcheck downloads:
+# * docs.pytorch.org/docs/stable/* is a JavaScript redirect stub to the
+#   versioned tree (for example /docs/2.14/); the anchors are on that page.
+# * GitHub renders README headings as ``user-content-<slug>`` ids and maps the
+#   plain ``#<slug>`` fragment in JavaScript (Sphinx's own GitHub anchor rewrite
+#   is disabled upstream, sphinx-doc/sphinx#9435).
+linkcheck_anchors_ignore_for_url = [
+    r'^https://(docs\.)?pytorch\.org/docs/stable/',
+    r'^https://github\.com/EinarOlafsson/spacr/?$',
+]
 
 # Napoleon (Google / NumPy → reST bridge) — spaCR uses reST field
 # lists natively but napoleon stays on so any legacy Args/Returns
@@ -172,6 +227,8 @@ html_js_files = [
     ('api_i18n.js', {
         'data-api-catalog-version': _api_catalog_version,
         'data-api-language': _api_publication_language,
+        # Languages with translated user guides, served under /<lang>/.
+        'data-guide-languages': ' '.join(_guide_i18n.catalog_languages()),
     }),
 ]
 
@@ -203,13 +260,16 @@ _budget_spec = _importlib_util.spec_from_file_location(
 _budget = _importlib_util.module_from_spec(_budget_spec)
 _budget_spec.loader.exec_module(_budget)
 
-_voices = _budget.per_language_setting()
-_staged_extra = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), '..', '_build', 'extra_staged'))
-_budget.stage(_pathlib.Path(_staged_extra), per_language=_voices)
-print(_budget.report(per_language=_voices))
+if _guides_only:
+    html_extra_path = []
+else:
+    _voices = _budget.per_language_setting()
+    _staged_extra = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), '..', '_build', 'extra_staged'))
+    _budget.stage(_pathlib.Path(_staged_extra), per_language=_voices)
+    print(_budget.report(per_language=_voices))
 
-html_extra_path = [_staged_extra]
+    html_extra_path = [_staged_extra]
 
 html_theme_options = {
     # Auto-switching light/dark, with a manual toggle in the top bar

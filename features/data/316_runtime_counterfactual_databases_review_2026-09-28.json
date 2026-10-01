@@ -1,0 +1,55 @@
+{
+  "source_revision": "edbb48db1286221b109de6ca2b980dece3fd30f2",
+  "source_records": 14,
+  "unique_english_sources": 12,
+  "total_records": 126,
+  "languages": {
+    "sv": {
+      "records": 14,
+      "unique_translations": 12,
+      "passed": true
+    },
+    "de": {
+      "records": 14,
+      "unique_translations": 12,
+      "passed": true
+    },
+    "es": {
+      "records": 14,
+      "unique_translations": 12,
+      "passed": true
+    },
+    "zh_CN": {
+      "records": 14,
+      "unique_translations": 12,
+      "passed": true
+    },
+    "pt": {
+      "records": 14,
+      "unique_translations": 12,
+      "passed": true
+    },
+    "hi": {
+      "records": 14,
+      "unique_translations": 12,
+      "passed": true
+    },
+    "ko": {
+      "records": 14,
+      "unique_translations": 12,
+      "passed": true
+    },
+    "is": {
+      "records": 14,
+      "unique_translations": 12,
+      "passed": true
+    },
+    "fr": {
+      "records": 14,
+      "unique_translations": 12,
+      "passed": true
+    }
+  },
+  "review_kind": "AI technical review (GPT-6), no native-speaker signoff",
+  "passed": true
+}

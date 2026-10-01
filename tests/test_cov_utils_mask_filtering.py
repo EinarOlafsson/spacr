@@ -566,14 +566,40 @@ def test_run_test_mode_reads_from_orig_subfolder(tmp_path):
     names = [f"plate1_A01_T0001F00{i}L01A01Z01C01.tif" for i in (1, 2)]
     for n in names:
         (orig / n).write_bytes(b"not-a-real-tif")
-    # a decoy in the parent that must NOT be picked up
-    (src / "plate1_B02_T0001F009L01A01Z01C01.tif").write_bytes(b"decoy")
-
     regex = U._get_regex("cellvoyager", "tif")
     out = U._run_test_mode(str(src), regex, test_images=10)
     assert out == os.path.join(str(src), "test")
     copied = sorted(os.listdir(out))
     assert copied == sorted(names)
+
+
+def test_run_test_mode_also_samples_raw_images_beside_orig(tmp_path):
+    """ITEM 430: the pipeline reads raw images from the plate folder AND orig/.
+
+    A plate a killed run left half moved into orig/, or one given new images
+    after an earlier run, holds raw images in both. Sampling only orig/ tested
+    a plate the real run would not see. A name in both is taken once, from
+    orig/.
+    """
+    src = tmp_path / "plate"
+    orig = src / "orig"
+    orig.mkdir(parents=True)
+    in_orig = [f"plate1_A01_T0001F00{i}L01A01Z01C01.tif" for i in (1, 2)]
+    for n in in_orig:
+        (orig / n).write_bytes(b"from-orig")
+    beside = "plate1_B02_T0001F009L01A01Z01C01.tif"
+    (src / beside).write_bytes(b"beside")
+    (src / in_orig[0]).write_bytes(b"stale-duplicate")
+
+    regex = U._get_regex("cellvoyager", "tif")
+    out = U._run_test_mode(str(src), regex, test_images=10)
+
+    copied = sorted(os.listdir(out))
+    assert copied == sorted(in_orig + [beside])
+    with open(os.path.join(out, in_orig[0]), "rb") as handle:
+        assert handle.read() == b"from-orig"
+    with open(os.path.join(out, beside), "rb") as handle:
+        assert handle.read() == b"beside"
 
 
 def test_run_test_mode_with_no_matching_files(tmp_path):

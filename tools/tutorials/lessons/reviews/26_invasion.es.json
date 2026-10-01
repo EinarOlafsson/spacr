@@ -1,34 +1,36 @@
 {
   "lesson": "26_invasion",
-  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
   "review": {
-    "kind": "Parent editorial translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "es",
-  "title": "Ensayo de invasión",
-  "description": "Configure el ensayo actual de dos colores, separe los pocillos de referencia de tinción de las condiciones experimentales y examine los umbrales, gráficos y archivos reales. La base del ejemplo es explícitamente sintética.",
+  "title": "Invasion Assay: puntuar la tinción externa y total",
+  "description": "Asigna dos canales de tinción, elige la referencia de tinción, ejecuta el análisis y revisa las clasificaciones de invasión y la sensibilidad al umbral.",
   "objectives": [
-    "Asignar las tinciones exterior y total a las columnas correctas.",
-    "Usar el control renombrado de referencia de tinción y revisar la sensibilidad al umbral.",
-    "Interpretar gráficos y denominadores por pocillo sin atribuir efectos biológicos a patrones sintéticos."
+    "Elegir la base de datos de mediciones y asignar las tinciones externa y total.",
+    "Definir los pocillos de referencia y los controles del umbral, y ejecutar el análisis.",
+    "Revisar las distribuciones, los denominadores por pocillo y las tablas de resultados guardadas."
   ],
-  "prerequisite": "Se conserva la base sintética existente y se ejecuta la interfaz actual sobre una nueva copia idéntica. Sus 1.800 medidas inventadas incluyen 360 objetos de referencia y 1.440 objetos de ensayo en doce pocillos artificiales. No contiene imágenes adquiridas con dos tinciones; la placa general descargable tampoco establece el diseño anterior y posterior a la permeabilización. Vehicle e inhibitor son etiquetas didácticas, no tratamientos probados. Se usa la media porque existen esas columnas, no por ser la mejor medida general para una tinción superficial. Cálculos independientes verifican clasificaciones, umbrales, recuentos, resúmenes y geometría, sin validar imágenes, eficacia ni inferencia estadística. Las bases original y copiada permanecen intactas. La interfaz usa stain_baseline_wells en lugar de control_wells y registra exactamente el límite de bimodalidad de seis decimales.",
+  "prerequisite": "Extrae el ejemplo sintético de Invasion Assay enlazado y usa su referencia de ajustes. La base de datos contiene 1800 mediciones sintéticas de parásitos; los nombres de las condiciones y los resultados son ilustrativos. Para tu propio ensayo, usa un diseño de tinción de dos colores validado, con tinción externa antes de la permeabilización y tinción total después, y revisa imágenes representativas.",
   "scenes": [
-    "Abra Invasion Assay en la sección Assays de Home. Este módulo clasifica parásitos ya medidos; aquí no segmenta imágenes. Nuestra base es explícitamente sintética. Los gráficos muestran ajustes y cálculos, no una invasión observada ni un efecto de tratamiento.",
-    "Elija la carpeta del experimento que contiene measurements, barra, measurements punto db. Esta nueva copia privada incluye mil ochocientos parásitos inventados: trescientos sesenta de referencia de tinción y mil cuatrocientos cuarenta en pocillos de ensayo. La placa descargable habitual no sustituye un experimento validado de tinción de dos colores.",
-    "Outside channel corresponde a la tinción aplicada antes de permeabilizar, aquí el canal uno. Total channel corresponde a la posterior, aquí el canal cero. Un parásito positivo para la tinción exterior se clasifica como attached; con señal igual o inferior al umbral, como invaded. Una tinción exterior débil puede crear clasificaciones invaded falsas.",
-    "Elegimos mean porque esta base didáctica contiene columnas de intensidad media. No es una recomendación general para una tinción superficial. En datos reales, revise qué medidas de borde o percentil están disponibles y son adecuadas. Un anillo de fondo local también es distinto del canal de tinción exterior.",
-    "Establezca Stain baseline wells en la columna uno. Sustituye el nombre antiguo control wells y señala la referencia artificial de tinción negativa, no la condición vehículo. Estos objetos definen el umbral y quedan excluidos de los denominadores del ensayo. Vehicle e inhibitor permanecen en las columnas dos y tres.",
-    "Control quantile es cero coma noventa y nueve. Los trescientos sesenta objetos de referencia dan un umbral aproximado de veintidós coma ocho unidades de intensidad. Dejamos vacío Outside threshold para aplicar el umbral de referencia. El método automático no es el umbral utilizado en esta ejecución.",
-    "Threshold sensitivity es cero coma veinticinco: se evalúa el umbral un veinticinco por ciento por debajo y por encima. Elevarlo puede clasificar más parásitos como invaded. Examine el intervalo de eficiencia y las banderas de calidad antes de interpretar cambios; una ejecución correcta no demuestra que la tinción sea fiable.",
-    "Extracellular class determina cómo tratar objetos sin vínculo con una célula huésped. Aquí usamos classify y dejamos la decisión a la tinción; todas las filas didácticas ya tienen vínculo con un huésped. En datos reales, elija conscientemente entre attached, exclude y classify tras comprobar la segmentación del huésped.",
-    "Run produce tres gráficos reales. La página de umbrales muestra una distribución por pocillo, no por parásito. Aquí la línea aplicada procede de la referencia y se ven los doce pocillos. Revise si separa poblaciones plausibles; estas distribuciones inventadas no sustituyen la inspección de imágenes de tinción representativas.",
-    "Si una leyenda sale del lienzo, abra Figure settings y seleccione best en Legend position, dentro de la pestaña de ejes. Confirme para mantener visibles las etiquetas. Es solo un ajuste de presentación: verificamos que los valores dibujados y las tablas guardadas no cambian.",
-    "Las barras por pocillo muestran las fracciones attached e invaded, con ciento veinte parásitos clasificados sobre cada barra. No aparecen los pocillos de referencia. Mantenga el denominador junto a la proporción: una fracción alta basada en muy pocos objetos no equivale a la misma fracción en un pocillo bien muestreado.",
-    "Cada condición inventada contiene setecientos veinte parásitos clasificados. Sus fracciones invaded son aproximadamente treinta y nueve coma siete y sesenta y ocho coma nueve por ciento. El resumen también informa la media entre pocillos, que no suele ser igual a agrupar todos los objetos. Ni estas etiquetas ni un valor p demuestran aquí un efecto biológico.",
-    "Revise la consola y la carpeta de resultados: clasificaciones, umbrales por campo, eficiencias por pocillo, resúmenes y comparaciones. Para inferir resultados, use pocillos experimentales independientes, no parásitos individuales como réplicas intercambiables. spaCR AI es opcional y no se usó en este análisis local. Valide la tinción y las imágenes antes de extraer conclusiones biológicas."
+    "Desde Home, abre Toxoplasma y elige Invasion Assay. Empieza con una base de datos de mediciones que contenga las intensidades de los parásitos para las tinciones externa y total. Usa la muestra sintética enlazada para practicar la asignación de canales, la elección del umbral y la revisión de resultados.",
+    "Extrae la muestra y define Source como su carpeta invasion, que contiene measurements/measurements.db. Introduce la referencia de ajustes que la acompaña y sustituye su marcador de Source. La muestra contiene pocillos de referencia y dos condiciones del ensayo.",
+    "Pon Outside channel en uno y Total channel en cero. La tinción externa se aplica antes de la permeabilización; la total, después. Los parásitos positivos para la tinción externa se clasifican como adheridos, y los que quedan en el umbral externo o por debajo, como invasores. Comprueba el orden de los canales de adquisición cuando uses tus propias mediciones.",
+    "Selecciona mean en Intensity statistic para que coincida con las columnas de la base de datos de ejemplo. Para tu propio ensayo, elige una estadística disponible adecuada para la tinción y revisa objetos representativos. Mantén Minimum total intensity en cien para esta muestra.",
+    "Define Stain baseline wells como la columna uno, usando c1. Estas mediciones de tinción negativa establecen el umbral y se excluyen de los denominadores del ensayo. En Pathogen plate metadata, asigna vehicle a la columna dos e inhibitor a la columna tres.",
+    "Pon Control quantile en cero coma noventa y nueve y deja sin definir el Outside threshold fijo. Así, las mediciones de referencia determinan el umbral, de unos veintidós coma ocho en este ejemplo. Comprueba el umbral aplicado en la salida antes de interpretar las clasificaciones.",
+    "Pon Threshold sensitivity en cero coma veinticinco. Así también se evalúan umbrales un veinticinco por ciento por debajo y por encima del umbral elegido. Compara el intervalo de eficiencia de invasión resultante para ver cuánto depende tu resultado de la elección del umbral.",
+    "Pon Extracellular class en classify para la muestra. Para los objetos sin vínculo con una célula huésped, classify usa la tinción, attached los asigna a adheridos y exclude los quita de la población puntuada. Elige este ajuste teniendo en cuenta la calidad de tus asignaciones a células huésped.",
+    "Mantén Save activado y haz clic en Run. Cuando termine el procesamiento, abre la figura del umbral. Muestra las distribuciones por pocillo y el umbral aplicado. En un experimento, compara estas distribuciones con imágenes teñidas representativas e investiga las tinciones externas débiles.",
+    "Si una leyenda se sale de la figura, abre Figure settings. En la pestaña axes, pon Legend position en best y confirma. Comprueba que las etiquetas siguen visibles tanto en la figura en pantalla como en la exportada.",
+    "Abre la figura por pocillo. Cada barra muestra las fracciones de adheridos e invasores, con el número de parásitos puntuados encima. Los pocillos de referencia se excluyen. Lee los recuentos junto con las fracciones al comparar pocillos.",
+    "Abre el resumen por condición. Compara la fracción de invasión agrupada con la media entre pocillos, ya que usan ponderaciones distintas. Revisa la variación en los resultados por pocillo antes de comparar condiciones.",
+    "Todo se guarda en results/analyze_invasion dentro de Source. parasite_calls.csv contiene la clasificación de cada parásito, field_thresholds.csv los umbrales que la sustentan, well_invasion.csv las fracciones por pocillo y condition_summary.csv la comparación agrupada. Guarda con ellos las figuras y los ajustes, y compara las condiciones entre réplicas independientes."
   ]
 }

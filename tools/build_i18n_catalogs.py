@@ -276,6 +276,17 @@ _IDENTITY_TEXT = {
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
     "NaN", "PDF", "SAMCell", "Cellpose 3", "SpotNet (DeepCell)",
+    # 316, 2026-09-26: the Model Zoo's backend names (items 547/555), shown
+    # alone as zoo rows; like DINOCell and SAMCell they are product names.
+    "InstanSeg", "Omnipose", "StarDist", "micro-SAM", "Spotiflow",
+    # 316, 2026-09-26: the notification services named alone as Preferences
+    # rows (item 577).
+    "ntfy", "Slack", "Microsoft Teams",
+    # 316, 2026-09-27: backend and workflow-engine names shown alone.
+    "CellProfiler", "CellProfiler (Alpha)", "CellProfiler α", "CAREamics Noise2Void", "Nextflow…", "Snakemake…",
+    "Visium", "Visium HD", "Xenium",
+    # 316, 2026-09-30 (eleventh pass): the spaCR command-line entry point.
+    "spacr-run",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
@@ -304,6 +315,12 @@ _IDENTITY_TEXT = {
     # The relationship name is already translated before formatting; the
     # remaining fields are a count and object IDs, with no English prose.
     "{name}: {count} ({ids})",
+    # Instruction 316, 2026-09-25. A method and a parameter name shown as
+    # standalone captions: the Isomap embedding in the dimensionality-
+    # reduction choices, the U-Net organelle-detection mode, and the DBSCAN
+    # ``eps`` form label in the gate settings. Each is the literal name the
+    # user will find in the literature and the API; none is English prose.
+    "Isomap", "U-Net", "eps",
 }
 
 _KNOWN_CONTAMINATION_MARKERS = (
@@ -516,6 +533,9 @@ _PROTECT_PATTERNS = (
         # not a numpydoc declaration, and may be translated normally.
         r"(?<![:\w])(?<!:param )(?<!:type )(?<!:return )"
         r"(?<!:ivar )(?<!:cvar )(?<!:var )"
+        # ``:raises ValueError: sequence/limit ...`` names an exception, then
+        # prose; "ValueError: sequence" is not a declaration of that type.
+        r"(?<!:raises )"
         # "settings dictionary: iterable sweep values" is narrative prose,
         # not a declaration of a parameter called dictionary. Keep a real
         # standalone "dictionary: iterable" declaration protected below.
@@ -2778,6 +2798,13 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # reviewed records, so it would override the zh_CN, hi, ko and is records
     # already written for this label.
     "Concentration": {"fr": "Concentration"},
+    # 316, 2026-09-29: the channel-sort dialog's No button and its no
+    # column value are the same word in Spanish.
+    "No": {"es": "No"},
+    "no": {"es": "no"},
+    # 316, 2026-09-30: the Organize for Measure table's Text view option
+    # is the same word in Swedish and German.
+    "Text": {"sv": "Text", "de": "Text"},
     # These scientific labels are also correctly spelt English words in
     # the listed languages. Keep the actual terminology rather than adding
     # artificial qualifiers solely to make an exact-copy audit pass.
@@ -3443,12 +3470,24 @@ _HELPER_CAPTION_RULES: dict[
     # and 2 are a Qt setter name and an i18n property name.
     ("help_search.py", "_localize"):
         ("help_search.py", ((3, "text"),)),
+    # The words a Help search result ROW is built from. help_index imports
+    # no catalog, so it marks each template with an identity `_template`
+    # call and help_search renders it through `tr` when the row is drawn.
+    # Added 2026-09-30 (item 422): before it, no `tr()` named these six.
+    ("help_index.py", "_template"):
+        ("help_index.py", ((0, "text"),)),
     ("preferences.py", "_percent_row"):
         ("preferences.py", ((1, "label_text"), (5, "tip"))),
+    ("preferences.py", "line"):
+        ("preferences.py", ((0, "tip"),)),
     ("prerun.py", "_label"): ("prerun.py", ((0, "text"),)),
     ("prerun.py", "_say"): ("prerun.py", ((0, "text"),)),
     ("screens/annotate.py", "_set_kbd_hint"):
         ("screens/annotate.py", ((0, "text"),)),
+    ("screens/annotate.py", "_set_page_label"):
+        ("screens/annotate.py", ((0, "text"),)),
+    ("screens/control_chart.py", "combo"):
+        ("screens/control_chart.py", ((2, "tip"),)),
     # Writes to the console, which the language pass does not translate.
     ("screens/app_screen.py", "_say"):
         ("screens/app_screen.py", ((0, "message"),)),
@@ -3480,6 +3519,8 @@ _HELPER_CAPTION_RULES: dict[
         ("screens/make_masks.py", ((0, "text"),)),
     ("screens/map_barcodes.py", "_button"):
         ("screens/map_barcodes.py", ((0, "caption"), (1, "hint"))),
+    ("screens/map_barcodes.py", "_path_row"):
+        ("screens/map_barcodes.py", ((1, "caption"), (2, "hint"))),
     ("screens/methods_export.py", "_set_provenance"):
         ("screens/methods_export.py", ((0, "text"),)),
     ("screens/organism_screen.py", "_paragraph"):
@@ -3791,8 +3832,44 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.widgets.test_data_chooser import TestDataChooser
     from spacr.qt.import_demo import ImportTestDataChooser
     from spacr.import_examples import IMPORT_VARIANTS
+    from spacr.embeddings import _FOUNDATION_MODELS
+    from spacr.qt.screens.map_barcodes import _SPATIAL_MASKS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    presentation_sources = {info["label"] for info in _FOUNDATION_MODELS.values()}
+    presentation_sources.update(label for _key, label in _SPATIAL_MASKS)
+    spatial_tree = ast.parse(
+        (ROOT / "spacr/qt/screens/map_barcodes.py").read_text(encoding="utf-8")
+    )
+    for owner in spatial_tree.body:
+        if isinstance(owner, ast.FunctionDef) and owner.name == "_install_spatial_transcriptomics":
+            for node in ast.walk(owner):
+                if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                        and isinstance(node.targets[0], ast.Name)
+                        and node.targets[0].id == "hint"):
+                    presentation_sources.update(_literal_strings(node.value, {}))
+        if isinstance(owner, ast.ClassDef) and owner.name == "_SpatialTranscriptomicsPanel":
+            for node in ast.walk(owner):
+                if (isinstance(node, ast.For) and isinstance(node.target, ast.Tuple)
+                        and [getattr(part, "id", None) for part in node.target.elts]
+                        == ["value", "caption"] and isinstance(node.iter, ast.Tuple)):
+                    for option in node.iter.elts:
+                        if isinstance(option, ast.Tuple) and len(option.elts) == 2:
+                            presentation_sources.update(_literal_strings(option.elts[1], {}))
+    cloud_tree = ast.parse(
+        (ROOT / "spacr/qt/screens/settings_model.py").read_text(encoding="utf-8")
+    )
+    for owner in cloud_tree.body:
+        if isinstance(owner, ast.ClassDef) and owner.name == "_CloudBrowserDialog":
+            for node in ast.walk(owner):
+                if (isinstance(node, ast.Call) and _call_name(node) == "setPlaceholderText"
+                        and isinstance(node.func, ast.Attribute)
+                        and isinstance(node.func.value, ast.Attribute)
+                        and node.func.value.attr == "address"):
+                    for argument in node.args:
+                        if isinstance(argument, ast.Call) and _call_name(argument) == "tr":
+                            for value in argument.args:
+                                presentation_sources.update(_literal_strings(value, {}))
     found.update(_starplast_progress_sources())
     found.update(_organism_description_sources())
     found.update(_make_masks_shortcut_sources())
@@ -3809,6 +3886,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
         for _route, title, description, _icon in organism["modules"]:
             found.update((title, description))
         found.update(label for label, _url in organism["links"])
+        # 474: each live tile's "Opens ..." usage note, which the organism
+        # screen shows as tr(route[2]) in the tile's tooltip.
+        found.update(note for _app, _preset, note
+                     in organism.get("workflows", {}).values())
     for compartment_labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
         found.update(compartment_labels)
     # Hover explanations are class data, passed to Qt through loop variables.
@@ -3908,8 +3989,8 @@ def _indirect_runtime_ui_sources() -> set[str]:
     # These registry values are known presentation prose. A filename, URL or
     # example regex inside an explanation must not make the AST heuristic
     # discard the whole paragraph.
-    return {value.strip() for value in chooser_sources | preview_sources | _workflow_ui_sources()
-            if value.strip()} | {
+    return {value.strip() for value in chooser_sources | preview_sources | _workflow_ui_sources() | presentation_sources
+            if value.strip() and value not in _IDENTITY_TEXT} | {
         value.strip() for value in found if _looks_translatable(value)
     }
 
@@ -4155,15 +4236,22 @@ def canonical_sources() -> dict[str, object]:
     # primary translation for higher numbered slots.
     from spacr.organelle_types import (
         CATALOGUED_ORGANELLE_SLOTS,
+        _background_switch_role,
         organelle_number,
         organelle_role_of,
     )
 
     def catalogued_setting(key: object) -> bool:
+        """True when ``key`` is a setting the materialized catalogs carry.
+
+        :param key: a settings key; slot N's background switch is
+            ``remove_background_organelle_N`` (item 76, 2026-09-30).
+        """
         text = str(key)
         role = organelle_role_of(text)
         if text.startswith("remove_background_"):
-            role = organelle_role_of(text.removeprefix("remove_background_"))
+            role = (_background_switch_role(text)
+                    or organelle_role_of(text.removeprefix("remove_background_")))
         return role is None or organelle_number(role) <= (
             CATALOGUED_ORGANELLE_SLOTS
         )
@@ -4972,6 +5060,19 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
         context_literals[token] = match.group(0)
         return token
 
+    # Preserve verbatim citation titles and copyright notices copied from
+    # the English source. Lexical cleanup must not rewrite quoted attribution.
+    attribution_literals = re.findall(r"\(Copyright \d{4}[^()\n]*\)", str(source))
+    if re.search(r"\b(?:doi:\s*10\.\d{4,9}/|arxiv:\s*\d{4}\.\d{4,5}(?:v\d+)?\b)",
+                 str(source), re.IGNORECASE):
+        attribution_literals.extend(
+            match.group(0) for match in re.finditer(
+                r"(?<!\w)(['\"])[^'\"\n]+\s[^'\"\n]+\1", str(source)
+            )
+        )
+    for literal in attribution_literals:
+        corrected = re.sub(re.escape(literal), hide_context_literal, corrected)
+
     corrected = _CONTEXT_HARD_PROTECT_RE.sub(
         hide_context_literal, corrected,
     )
@@ -5063,13 +5164,17 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
         SOURCE_CONTEXT_REGEX_REPLACEMENTS.get(language, ())
     ):
         if re.search(source_pattern, str(source), flags=re.IGNORECASE):
+            if language == "pt" and wrong_pattern == r"\bpoço (abaixo|acima|além|dentro|fora)\b":
+                total_well, noun_well = _english_well_sense_counts(source)
+                if total_well == noun_well:
+                    continue
             corrected = re.sub(wrong_pattern, right, corrected)
     # A source-conditioned replacement can expose a second global cleanup
     # (for example Chinese ``图像作物`` first becomes ``图像图像裁剪``).
     # Reapplying this small, idempotent table keeps compound terms natural.
     for wrong, right in CONTEXT_REPLACEMENTS.get(language, ()):
         corrected = corrected.replace(wrong, right)
-    for token, literal in context_literals.items():
+    for token, literal in reversed(context_literals.items()):
         corrected = corrected.replace(token, literal)
     for wrong, right in POST_CONTEXT_REPLACEMENTS.get(language, ()):
         corrected = corrected.replace(wrong, right)

@@ -1,27 +1,32 @@
 {
   "lesson": "50_run_compare",
-  "english_sha256": "3d7c880e6031605c7d7f8b4ae578c37f8e09eafd791ec541aea6c85e8f39f078",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "60f9898197011e045f8be2667a3fa097b07841cc559845331e098f5e4de0a5cc",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "da",
-  "title": "Run Compare: undersøg to ægte Measure-øjebliksbilleder",
-  "description": "Sammenlign bevarede Measure-resultater, indstillinger og antal uden at forveksle manglende resultater med en negativ videnskabelig konklusion.",
+  "title": "Run Compare: sammenlign gemte kørsler",
+  "description": "Vælg to gemte kørsler, undersøg forskelle i indstillinger og antal, og kontrollér tilgængelige resultatsammenligninger.",
   "objectives": [
-    "Åbn Run Compare via Home og Data, og forbered eksemplet til download.",
-    "Sammenlign forskellige historiske kørsler uden at ændre deres metadata.",
-    "Læs indstillinger, antal og advarsler inden for evidensens grænser."
+    "Vælge referencekørsel og sammenligningskørsel.",
+    "Undersøge forskelle i indstillinger og antal.",
+    "Finde tilgængelige resultatsammenligninger."
   ],
-  "prerequisite": "Pak Run_Compare_real_snapshots.zip ud. Kør prepare_run_compare_download.py i spaCR-miljøet med en NY destinationsmappe, og vælg den med Browse. Dette flytter udtrykkeligt to databaser og historiske poster; det er ikke GUI-import, en ny analyse eller et komplet projektarkiv. De fulde SHA-256-værdier matcher originalerne. Kun projekt, stier og flyttenote ændres. De ægte kørsler blev lavet med spaCR 1.5.0.5 den 11. september 2026 kl. 03:37:56 og 04:05:56 UTC. Hver har 601 celler, 622 kerner, 373 patogenobjekter, 601 cytoplasmaobjekter og 601 png_list-rækker: én plade, fire brønde, seksten billedfelter. Identiteter og indstillinger matcher; databasebytes er forskellige. Ingen garanti for alle egenskabsværdier, nøjagtighed eller forbedring. Ingen regressionsresultater medfølger. API: spacr.run_compare.runs_in og compare_runs med spacr.artifacts.Registry. Ingen GPU, AI-udbyder, ny analyse eller offentliggørelse.",
+  "prerequisite": "Hent og udpak de linkede snapshots. Følg README-filen for at køre prepare_run_compare_download.py i dit spaCR-miljø med en ny destinationsmappe. Til dine egne sammenligninger bevarer du hver kørsels output, før det overskrives.",
   "scenes": [
-    "Åbn Home, vælg Data og derefter Run Compare. Det er et hovedmodul, ikke et indlejret værktøj i Regression. Det læser registrerede output fra to kørsler. Eksemplet bruger to ægte Measure-øjebliksbilleder fra arbejdsgangen med data til download; der opfindes ikke en ændring for at gøre sammenligningen spændende.",
-    "Hent og udpak det tilhørende arkiv. Kør forberedelsesscriptet i dit spaCR-miljø med en ny destinationsmappe efter readme-vejledningen. Det flytter udtrykkeligt to uændrede databaser og deres historiske poster. Det er hverken en automatisk importknap, en ny analyse eller en fuldstændig kopi af de oprindelige projekter.",
-    "Klik Browse, og vælg den forberedte sammenligningsmappe. Scriptet bevarer oprindelige kørsels-id'er, indstillinger, versioner, tidspunkter og indholdshash. Kun adresserne i det kopierede indeks og flyttenoten ændres. Bevar originalprojekterne: En historisk post, der peger på en senere overskrevet database, er ikke et bevaret øjebliksbillede.",
-    "Vælg den tidligere Measure-kørsel som reference A og den senere som B, og klik Compare. Begge blev lavet med spaCR-version 1.5.0.5. En nyere fremviser ændrer ikke historikken. Her matcher indstillinger og antal; det demonstrerer konsistens, ikke at en model er blevet bedre.",
-    "Slå Show unchanged settings til for at undersøge registrerede værdier. Nullet på Settings betyder ingen forskelle, ikke at ingen indstillinger blev gemt. Fold poster ud, og sammenlign værdierne. De to kørsler brugte identiske registrerede indstillinger; eksemplet kan derfor ikke vise virkningen af at ændre en parameter.",
-    "Counts viser 601 celler og 622 kerner pr. kørsel fordelt på seksten billedfelter og fire brønde. Delta er B minus A; alle viste deltaer er nul. Den uafhængige kontrol sammenlignede også objektidentiteter. Ens totaler alene beviser ikke, at objekterne eller alle målte egenskabsværdier er identiske.",
-    "Hits siger, at ingen regressionsresultater blev registreret. Disse øjebliksbilleder indeholder kun målinger, så der er ingen rangordnet hitliste at sammenligne. Det betyder ikke, at en regression ikke fandt signifikante hits: Resultatet er slet ikke til stede her. Se Regression og Run History for at spore de nødvendige output.",
-    "At vælge samme kørsel på begge sider giver en advarsel. Læs den frem for at opfatte sammenligningen som automatisk validering. Vælg igen to forskellige kørsler, og undersøg kilde, version og omfang før konklusioner. En advarsel er grund til at undersøge, ikke til at gennemtvinge et resultat.",
-    "Parret af forskellige kørsler er genoprettet, og originalfilerne er uændrede. Run Compare læser og sammenligner; det genkører ikke Measure og kræver hverken GPU eller AI-udbyder. Python har runs_in og compare_runs til samme sammenligning. Bevar faktiske outputsnapshots og dokumentér deres oprindelse, før du sammenligner egne kørsler."
+    "I kategorien Data på Home åbner du Run Compare for at undersøge det output, der er registreret for to kørsler.",
+    "Hent og udpak snapshot-eksemplet. Følg README-filen for at køre forberedelsesscriptet med en ny destinationsmappe.",
+    "Klik på Browse, og vælg den forberedte sammenligningsmappe. Hold de oprindelige projekter og deres kørselssnapshots tilgængelige til dine egne sammenligninger.",
+    "Vælg en referencekørsel som A og sammenligningskørslen som B, og klik derefter på Compare. Kontrollér deres modulnavne og registrerede versioner.",
+    "Slå Show unchanged settings til for at medtage ens værdier. Fold posterne ud for at undersøge den konfiguration, hver kørsel brugte.",
+    "Åbn Counts for at sammenligne objekttotaler. Delta er B minus A. Eksemplet har ens antal; undersøg de relevante billeder og målinger, når du skal forstå en forskel.",
+    "Åbn Hits, når begge kørsler har registrerede regressionsresultater. Eksemplet indeholder Measure-snapshots, så der er ingen hit-sammenligning.",
+    "Vælg to forskellige kørsler. Hvis den samme kørsel er valgt på begge sider, bruger du advarslen til at rette valget.",
+    "Behold begge output-snapshots og de indstillinger, der forklarer deres forskelle. Brug Run History til enkelte logfiler og Regression til de underliggende hit-resultater."
   ]
 }

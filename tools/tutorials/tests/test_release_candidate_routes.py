@@ -19,8 +19,8 @@ REMAINING_HOLDS = [identity for identity in PLACEHOLDERS
 def test_candidate_manifest_and_browser_evidence_match_the_actual_package():
     result = validate(ROOT, require_browser=True)
     assert result['routes'] == 85
-    assert result['ready'] == 84
-    assert result['coming_soon'] == 1
+    assert result['ready'] == 85
+    assert result['coming_soon'] == 0
 
 
 def test_checkpoint_records_match_actual_committed_files():
@@ -44,9 +44,10 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     # OPS retains its explicitly recorded API example.
     # Model Compare/Zoo are likewise their explicitly recorded subsets.
     # Map now includes real search, mapped counts and its explicit API subset.
-    # Investigate Hit still must not be counted as a completed tutorial.
-    assert len(ready) == 84 and len(lessons) == 85
-    assert [x['id'] for x in unavailable] == REMAINING_HOLDS
+    # Investigate Hit now has its native walkthrough on the real screen example,
+    # so no Coming soon route remains.
+    assert len(ready) == 85 and len(lessons) == 85
+    assert [x['id'] for x in unavailable] == REMAINING_HOLDS == []
     embeddings = next(x for x in ready if x['id'] == EMBEDDINGS)
     assert embeddings['app_key'] == 'embeddings'
     assert len(embeddings['scenes']) == 9
@@ -82,9 +83,27 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
                 assert lesson['scenes'] and all(x['narration'].strip() for x in lesson['scenes'])
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert manifest['published'] is False and manifest['release_hold'] is True
-    assert manifest['narration_tracks'] == 525
-    videos = {Path(r['path']).parts[2] for r in manifest['files']
-              if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
+    declared_tracks = [(lesson['id'], language, voice) for lesson in ready
+                       for language, voices in lesson['narration_voices'].items() for voice in voices]
+    assert len(declared_tracks) == len(set(declared_tracks))
+    media_tracks = [tuple(Path(record['path']).parts[index] for index in (1, 3))
+                    + (Path(record['path']).stem,) for record in manifest['files']
+                    if record['path'].startswith('media_host/')
+                    and Path(record['path']).parts[2:3] == ('audio',)
+                    and record['path'].endswith('.m4a')]
+    assert len(media_tracks) == len(set(media_tracks))
+    assert set(media_tracks) == set(declared_tracks)
+    assert manifest['narration_tracks'] == len(declared_tracks)
+    assert manifest['narration_tracks'] == 85 * 27 == 2295
+    assert all(sum(map(len, lesson['narration_voices'].values())) == 27 for lesson in ready)
+    assert all((lesson['id'], 'en', 'af_heart') in declared_tracks for lesson in ready)
+    local = {Path(r['path']).parts[2] for r in manifest['files']
+             if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
+    hosted = {Path(r['path']).parts[1] for r in manifest['files']
+              if r['path'].startswith('media_host/') and Path(r['path']).parts[2:3] == ('web',)}
+    # One web copy per ready lesson: on Pages or on the media revision, never both.
+    assert not local & hosted and hosted == set(manifest.get('hosted_web_lessons', []))
+    videos = local | hosted
     assert videos == {x['id'] for x in ready}
     assert not videos & set(REMAINING_HOLDS)
 
@@ -108,4 +127,4 @@ def test_the_hold_is_lifted_only_beside_a_read_back_media_revision():
     assert readback['passed'] is True and not readback['download_failures'] and not readback['metadata_failures']
     assert readback['downloaded_sha256_matched'] == readback['files_expected'] == receipt['media_files']
     assert published['passed'] is True and published['media_root'] == receipt['media_root']
-    assert len(published['ready_playback_cases']) == 84
+    assert len(published['ready_playback_cases']) == 85

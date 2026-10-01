@@ -1,0 +1,519 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "(was {value})",
+      "source": "(was {value})",
+      "source_sha256": "ccd829a868ad3d479ec4e5b7c11f7e266ea4f0cd04c55f81ae5c98612a3ebfb2",
+      "translation": "(var {value})"
+    },
+    {
+      "table": "ui",
+      "key": "0.51 × emission / NA",
+      "source": "0.51 × emission / NA",
+      "source_sha256": "3e45d5ec0cfd1568004824042f0bd31e0229cc0e1c3f112229e0db5a33726f65",
+      "translation": "0.51 × emissionsvåglängd / NA"
+    },
+    {
+      "table": "ui",
+      "key": "Add a filter",
+      "source": "Add a filter",
+      "source_sha256": "2b824457f02146947ce4f11578f3bf1e77aaa21f8c576f0ddb88efe380097203",
+      "translation": "Lägg till ett filter"
+    },
+    {
+      "table": "ui",
+      "key": "Camera",
+      "source": "Camera",
+      "source_sha256": "03494b0d1f803522a3497d751eaaf6f987883cd4fe0b0e66baf67a662ae231b2",
+      "translation": "Kamera"
+    },
+    {
+      "table": "ui",
+      "key": "Camera pixel",
+      "source": "Camera pixel",
+      "source_sha256": "0fd172e0af6b796bc66012b50e7101e88528b328c22f302534e8623ca723488b",
+      "translation": "Kamerapixel"
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose-DINO",
+      "source": "Cellpose-DINO",
+      "source_sha256": "dda839dee56fc3bfaae3ef3a142fce089c9446a40e4dadf5a90c95ab37a72b73",
+      "translation": "Cellpose-DINO-motor"
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose-DINO · {model}",
+      "source": "Cellpose-DINO · {model}",
+      "source_sha256": "40c87d3a5caaab89f879684608fad6716bd71e37c53f47743ff45dc0a86d763a",
+      "translation": "Cellpose-DINO · modell {model}"
+    },
+    {
+      "table": "ui",
+      "key": "Choose an image to infer optics from",
+      "source": "Choose an image to infer optics from",
+      "source_sha256": "d7492396217984f6913a60e7981ecd0c5856f98a8e202f06b350780f28d3e000",
+      "translation": "Välj en bild att härleda optiken från"
+    },
+    {
+      "table": "ui",
+      "key": "Clip high percentile",
+      "source": "Clip high percentile",
+      "source_sha256": "b1c473577b99e5c9882bb4b5b0d0ce7e02b7d074f0555e2b298e0355069cf2ce",
+      "translation": "Övre percentil för klippning"
+    },
+    {
+      "table": "ui",
+      "key": "Clip low percentile",
+      "source": "Clip low percentile",
+      "source_sha256": "2b9e15aeb3dc7dc4a8785bd924b0d3ecb135ac9a91e5b378b277103df952079b",
+      "translation": "Nedre percentil för klippning"
+    },
+    {
+      "table": "ui",
+      "key": "Could not read the image: {error}",
+      "source": "Could not read the image: {error}",
+      "source_sha256": "20f70a1e31f35bf41027f3599adbac6305787358e95c87856818f153bb5d8bf1",
+      "translation": "Kunde inte läsa bilden: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not read {name}: {why}",
+      "source": "Could not read {name}: {why}",
+      "source_sha256": "08a5ca5710c89d925375ae9e0d1ed2736b7863b0736a4a39ec588a112f3581fa",
+      "translation": "Kunde inte läsa {name}: {why}"
+    },
+    {
+      "table": "ui",
+      "key": "Emission wavelength",
+      "source": "Emission wavelength",
+      "source_sha256": "586ade43530dea912a63586e836c67e21b5eabcacc4ba53bf42805a1a60a0f06",
+      "translation": "Emissionsvåglängd"
+    },
+    {
+      "table": "ui",
+      "key": "Enhancement: {steps} (preview field).",
+      "source": "Enhancement: {steps} (preview field).",
+      "source_sha256": "8d8f793d08d3880f1f4bd921e9c7128dbcfd012014b868c019e82e6fa1d35c76",
+      "translation": "Förbättring: {steps} (förhandsvisat bildfält)."
+    },
+    {
+      "table": "ui",
+      "key": "Figure mode: read the PDFs",
+      "source": "Figure mode: read the PDFs",
+      "source_sha256": "ecc56a3aa9b9a3e54fc207976e015d4d1ee282261e8759baccd82a40bcadb5cf",
+      "translation": "Figurläge: läs PDFs"
+    },
+    {
+      "table": "ui",
+      "key": "Fluorophore",
+      "source": "Fluorophore",
+      "source_sha256": "193eceb4cc65fb9b7b5170de96d7c09f47c5e9766442bc4cd712797acff26baf",
+      "translation": "Fluorofor"
+    },
+    {
+      "table": "ui",
+      "key": "Image Enhancement",
+      "source": "Image Enhancement",
+      "source_sha256": "40715ba662e49fe8ac41c6f7808d00b099c3f5bc35d0dedc371d0a5057dee0ef",
+      "translation": "Bildförbättring"
+    },
+    {
+      "table": "ui",
+      "key": "Image dimensions",
+      "source": "Image dimensions",
+      "source_sha256": "7c539fa539ea7537adcfabd561ceddd30bd910f6d557aa1fd4b02ea9a2f8b34e",
+      "translation": "Bilddimensioner"
+    },
+    {
+      "table": "ui",
+      "key": "Immersion refractive index",
+      "source": "Immersion refractive index",
+      "source_sha256": "d743acc4e09ec38ce16df1fd29264fae4cc2b4445037af908f5865d188807365",
+      "translation": "Immersionsmediets brytningsindex"
+    },
+    {
+      "table": "ui",
+      "key": "Infer from images…",
+      "source": "Infer from images…",
+      "source_sha256": "d531d63be012137d3c6388374c7a9f6f1bc6583faf6cf03e767dd430047f18ba",
+      "translation": "Härled från bilder…"
+    },
+    {
+      "table": "ui",
+      "key": "Logarithm",
+      "source": "Logarithm",
+      "source_sha256": "f627da38e2fd82682cfad4cf712ffcfe57cb82772595669dc50c1ab5f9c1c9e5",
+      "translation": "Logaritm"
+    },
+    {
+      "table": "ui",
+      "key": "Logarithm gain",
+      "source": "Logarithm gain",
+      "source_sha256": "06247454e4c0d55ca7ffdeec612d60c91e2e34084bf9c3b12fae4446d0b5f5ae",
+      "translation": "Logaritmförstärkning"
+    },
+    {
+      "table": "ui",
+      "key": "No images",
+      "source": "No images",
+      "source_sha256": "dc045492a543d85e3f16a4a7ceb1d0b474843a8a86a52a2315882b28f6d5f0b4",
+      "translation": "Inga bilder"
+    },
+    {
+      "table": "ui",
+      "key": "Not read yet; use Infer from images…",
+      "source": "Not read yet; use Infer from images…",
+      "source_sha256": "211f4df7b37de9413d30ffcb873d252449a3729fd01f8af03298ad457d4f33d9",
+      "translation": "Inte inläst än; använd Härled från bilder…"
+    },
+    {
+      "table": "ui",
+      "key": "Not stated by the file",
+      "source": "Not stated by the file",
+      "source_sha256": "123240703b730e789ab30e9ded70dfdb02009c1cb215e34af264b64e33755ce7",
+      "translation": "Anges inte i filen"
+    },
+    {
+      "table": "ui",
+      "key": "Numerical aperture",
+      "source": "Numerical aperture",
+      "source_sha256": "668549c765fe3b8940c728fb419045bb1ff40f3ec0972a0ea205ebe843c1c22b",
+      "translation": "Numerisk apertur"
+    },
+    {
+      "table": "ui",
+      "key": "Object {label} with area {area} px",
+      "source": "Object {label} with area {area} px",
+      "source_sha256": "850ddb39f7ca2da745564c2af72c853765718af05b6d71d7f3391cce9cb0b4da",
+      "translation": "Objekt {label} med ytan {area} px"
+    },
+    {
+      "table": "ui",
+      "key": "Objective",
+      "source": "Objective",
+      "source_sha256": "3b20adc3b2ce1c15ea6880c3151baabea06f5ba9132c18a9b969fc5299a7d655",
+      "translation": "Objektiv"
+    },
+    {
+      "table": "ui",
+      "key": "PDFs or images?",
+      "source": "PDFs or images?",
+      "source_sha256": "c99495348a598d7e1b51feb51b95bf45e001cd6cfa69ff27e9220dc41e4c0b22",
+      "translation": "PDFs eller bilder?"
+    },
+    {
+      "table": "ui",
+      "key": "Percentile clip",
+      "source": "Percentile clip",
+      "source_sha256": "a881ade37f9b33f78af79f1a81ef62c4e6fe6cc4b4bd087016cc2e20e5a9d008",
+      "translation": "Percentilklippning"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque mode: read the images",
+      "source": "Plaque mode: read the images",
+      "source_sha256": "1933c160966d13136410d34ebc13a9a974051c34282fd04730301478b94d42e3",
+      "translation": "Plackläge: läs bilderna"
+    },
+    {
+      "table": "ui",
+      "key": "Reading image metadata…",
+      "source": "Reading image metadata…",
+      "source_sha256": "1089a20360706e5aca2eaaa24147f874a302d7d608386ee734073ebc0e5dd9ac",
+      "translation": "Läser bildmetadata…"
+    },
+    {
+      "table": "ui",
+      "key": "Reading paper {k} of {n}: {name}…",
+      "source": "Reading paper {k} of {n}: {name}…",
+      "source_sha256": "15dccf109dc4b1383590836d4d7edeabf72090c9d33d502be900627585026bcb",
+      "translation": "Läser artikel {k} av {n}: {name}…"
+    },
+    {
+      "table": "ui",
+      "key": "Reinstall",
+      "source": "Reinstall",
+      "source_sha256": "c630a782a9eb85693aacf434471397b1c70f324b436bb92e665eac2d4eef6932",
+      "translation": "Installera om"
+    },
+    {
+      "table": "ui",
+      "key": "Reinstall {name}",
+      "source": "Reinstall {name}",
+      "source_sha256": "2bc7b55b543cf53dd80e27dfb10542c69dcf8c38a5c562bc6186b87638db73e4",
+      "translation": "Installera om {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Square root",
+      "source": "Square root",
+      "source_sha256": "2af4da15396b82fd3c40995f66a1ba02b3deb402ce7a1b32b703906ef3aebf38",
+      "translation": "Kvadratrot"
+    },
+    {
+      "table": "ui",
+      "key": "Stay in Figure mode",
+      "source": "Stay in Figure mode",
+      "source_sha256": "9f48d7bb7586602f530d53fd285025af7c6cd4e949836e64de8f5089c49d6e26",
+      "translation": "Stanna i figurläge"
+    },
+    {
+      "table": "ui",
+      "key": "Stay in Plaque mode",
+      "source": "Stay in Plaque mode",
+      "source_sha256": "815ed85997f78ac50597c413964893a328d6f0f3f3e5712dcbb9d701ee41a51f",
+      "translation": "Stanna i plackläge"
+    },
+    {
+      "table": "ui",
+      "key": "Switch to Figure mode",
+      "source": "Switch to Figure mode",
+      "source_sha256": "2a34c48a723bb52e0e7cdbb856660c194100a375090ee14e0373dfe6e7d33f26",
+      "translation": "Byt till figurläge"
+    },
+    {
+      "table": "ui",
+      "key": "Switch to Figure mode?",
+      "source": "Switch to Figure mode?",
+      "source_sha256": "2cf7b91d1145ecc4f02b80b9bd90f2bc540c8e5c62a4aa19f19355add802a253",
+      "translation": "Byta till figurläge?"
+    },
+    {
+      "table": "ui",
+      "key": "Switch to Plaque mode",
+      "source": "Switch to Plaque mode",
+      "source_sha256": "3dd6e2fe33273523ed11dbb4709f7c7af594fedc344843368c53a855111f4122",
+      "translation": "Byt till plackläge"
+    },
+    {
+      "table": "ui",
+      "key": "Switch to Plaque mode?",
+      "source": "Switch to Plaque mode?",
+      "source_sha256": "5ecd8fadc930be17f98305942072f95f8ecfb6fff66a1d2989d8c59ff216b138",
+      "translation": "Byta till plackläge?"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF images (*.tif *.tiff)",
+      "source": "TIFF images (*.tif *.tiff)",
+      "source_sha256": "4956fdb204fa8fe8bfdacbb7c1046a28dd25113d94c230141cf8813814b9a15e",
+      "translation": "TIFF-bilder (*.tif *.tiff)"
+    },
+    {
+      "table": "ui",
+      "key": "The {n} dropped items",
+      "source": "The {n} dropped items",
+      "source_sha256": "96d023a02c5764fc46129f89043d5801429ff22cb8332d8c9e27ef15eaa0a630",
+      "translation": "De {n} släppta objekten"
+    },
+    {
+      "table": "ui",
+      "key": "Total variation",
+      "source": "Total variation",
+      "source_sha256": "15074833b6828bd65b0576d02649b738173d833c4e8a06cc573371d42c560901",
+      "translation": "Totalvariation"
+    },
+    {
+      "table": "ui",
+      "key": "Use in Mask generation",
+      "source": "Use in Mask generation",
+      "source_sha256": "2e04a1bf6ff819c63a25ea91c058e350f8e8d5d668a1c7dccc527f1575329ffb",
+      "translation": "Använd i maskgenereringen"
+    },
+    {
+      "table": "ui",
+      "key": "and",
+      "source": "and",
+      "source_sha256": "6201111b83a0cb5b0922cb37cc442b9a40e24e3b1ce100a4bb204f4c63fd2ac0",
+      "translation": "och"
+    },
+    {
+      "table": "ui",
+      "key": "and intensity {mean}",
+      "source": "and intensity {mean}",
+      "source_sha256": "2cfbf11999f4a9a9ce659bcddcaca307772312a675a66b2e3f25428588dae618",
+      "translation": "och intensiteten {mean}"
+    },
+    {
+      "table": "ui",
+      "key": "area",
+      "source": "area",
+      "source_sha256": "4a91ee5f0106c2b35c11c168352f0abfbf4fc86165c62d6fb51b5232dfc692e6",
+      "translation": "yta"
+    },
+    {
+      "table": "ui",
+      "key": "calculated: {detail}",
+      "source": "calculated: {detail}",
+      "source_sha256": "51604c60104e62ea82afce81dda0e958f337768a07775e19c114f89860322b0e",
+      "translation": "beräknat: {detail}"
+    },
+    {
+      "table": "ui",
+      "key": "camera pixel / magnification",
+      "source": "camera pixel / magnification",
+      "source_sha256": "7d7e5fdc449de3f84a90c045f064f945c92e6983d6851e3f46832d6108773170",
+      "translation": "kamerapixel / förstoring"
+    },
+    {
+      "table": "ui",
+      "key": "chosen",
+      "source": "chosen",
+      "source_sha256": "7be403e3cc82262248913b70f596a31b93f656e0da8ce5d1bf757c63ef7a8db4",
+      "translation": "valt"
+    },
+    {
+      "table": "ui",
+      "key": "default",
+      "source": "default",
+      "source_sha256": "37a8eec1ce19687d132fe29051dca629d164e2c4958ba141d5f4133a33f0688f",
+      "translation": "standard"
+    },
+    {
+      "table": "ui",
+      "key": "default ({detail})",
+      "source": "default ({detail})",
+      "source_sha256": "f6153e2bd0da6404daa5eb2caa97355ef3ce78a2983e51e48f6e696eef9e38be",
+      "translation": "standard ({detail})"
+    },
+    {
+      "table": "ui",
+      "key": "entered by you",
+      "source": "entered by you",
+      "source_sha256": "7b95a4ca8bc81d5bca00612a71553dfb06e8ead02ffd8f740f644c64f92d8a16",
+      "translation": "angivet av dig"
+    },
+    {
+      "table": "ui",
+      "key": "every step off",
+      "source": "every step off",
+      "source_sha256": "235d485e0ab4828714e8d0d0b79c88c318b4cfda55cf7d9934b15c9fa6a777e2",
+      "translation": "alla steg avstängda"
+    },
+    {
+      "table": "ui",
+      "key": "from ImageJ calibration ({detail})",
+      "source": "from ImageJ calibration ({detail})",
+      "source_sha256": "9d9cae50ab6586c898c71816fa948025bb2b6d9bacf62fbb553d5ada2cf41b71",
+      "translation": "från ImageJ-kalibrering ({detail})"
+    },
+    {
+      "table": "ui",
+      "key": "from OME metadata ({detail})",
+      "source": "from OME metadata ({detail})",
+      "source_sha256": "9a09ed2a72868a3bd356936185903c815d44e184f0a1481c3998b42a532f1051",
+      "translation": "från OME-metadata ({detail})"
+    },
+    {
+      "table": "ui",
+      "key": "from TIFF resolution tags ({detail})",
+      "source": "from TIFF resolution tags ({detail})",
+      "source_sha256": "09311a8e93a6b9fa683b3ba89de12a51a01d51c508059791ef3e898dc94ed6f8",
+      "translation": "från TIFF-upplösningstaggar ({detail})"
+    },
+    {
+      "table": "ui",
+      "key": "from objective {detail}",
+      "source": "from objective {detail}",
+      "source_sha256": "5fa97255fc07cd9820359407ae99267dca56970c7de0e43e519deaeaee231083",
+      "translation": "från objektiv {detail}"
+    },
+    {
+      "table": "ui",
+      "key": "from the file name ({detail})",
+      "source": "from the file name ({detail})",
+      "source_sha256": "d7f2386146a7e7e0e87a1c4ae4b06aeeb4c3e7bf4c5de964f00ecdd7039a2476",
+      "translation": "från filnamnet ({detail})"
+    },
+    {
+      "table": "ui",
+      "key": "from the image ({detail})",
+      "source": "from the image ({detail})",
+      "source_sha256": "8a83ec1ebca724f8261c4c11b0106bbc772e097ddfb1d6a8d064242543529c7d",
+      "translation": "från bilden ({detail})"
+    },
+    {
+      "table": "ui",
+      "key": "from {detail}",
+      "source": "from {detail}",
+      "source_sha256": "0bb97059ec3c48e266fd56ce3d727953b673cd0c791857582ceecb10242559c8",
+      "translation": "från {detail}"
+    },
+    {
+      "table": "ui",
+      "key": "intensity",
+      "source": "intensity",
+      "source_sha256": "d0854ad1c7e25944fb5267ab76084310fcf3b0b78166ec6fab6e74d0a2a27781",
+      "translation": "intensitet"
+    },
+    {
+      "table": "ui",
+      "key": "maximum",
+      "source": "maximum",
+      "source_sha256": "8a64ff09886cc35fe5f56cd45a1f87251bca00056ff939ddd81b2f8d93f1cdd4",
+      "translation": "högsta"
+    },
+    {
+      "table": "ui",
+      "key": "minimum",
+      "source": "minimum",
+      "source_sha256": "692e4e5decffcf5eac86471ba27ac56a861268d060e4a53a0c768617f4d3a56f",
+      "translation": "lägsta"
+    },
+    {
+      "table": "ui",
+      "key": "needs the Cellpose-DINO backend",
+      "source": "needs the Cellpose-DINO backend",
+      "source_sha256": "7c5661a87b236483a8dedcebfc0741d224352264d39caaae414a65139ce8c649",
+      "translation": "kräver beräkningsmotorn Cellpose-DINO"
+    },
+    {
+      "table": "ui",
+      "key": "no maximum",
+      "source": "no maximum",
+      "source_sha256": "7be0d48d478750d7a1e54b25f5a5d8ec4b208e94c82f127763f7d17cd7324ea5",
+      "translation": "ingen övre gräns"
+    },
+    {
+      "table": "ui",
+      "key": "no minimum",
+      "source": "no minimum",
+      "source_sha256": "2f9116d2eb900ec447f2d023b9507747f3a27ab2fbe5066a8c7b5e377c8678b8",
+      "translation": "ingen nedre gräns"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR (native)",
+      "source": "spaCR (native)",
+      "source_sha256": "8312d904e521ba4d3c01785b68852d77c91feede694c15d418800c4964993b6d",
+      "translation": "spaCR (inbyggd)"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR cannot run this",
+      "source": "spaCR cannot run this",
+      "source_sha256": "901c75041046374a5138b9d114c3df6210d72638077c8b06d134c61aab5bdbc9",
+      "translation": "spaCR kan inte köra detta"
+    },
+    {
+      "table": "ui",
+      "key": "was removed by",
+      "source": "was removed by",
+      "source_sha256": "1cad139969df7526060aa34917af088227aa03ae63c3d5e41aff12b84301db88",
+      "translation": "togs bort av"
+    },
+    {
+      "table": "ui",
+      "key": "{height} × {width} pixels ({source})",
+      "source": "{height} × {width} pixels ({source})",
+      "source_sha256": "bfda294dd2192ac3169fddfe90685237af58321efa8c245a920a4b1ede87d9b0",
+      "translation": "{height} × {width} pixlar ({source})"
+    }
+  ]
+}

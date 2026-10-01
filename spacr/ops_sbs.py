@@ -582,13 +582,6 @@ def attribute_reads(peaks: np.ndarray, centroids: np.ndarray,
     :returns: ``(owner, ambiguous)`` -- the index into ``centroids`` of each
         read's owner, or -1, and whether each read was refused as ambiguous.
     """
-    # SPOTS FIRST, OWNERS SECOND (372 PART 9 hole 2, measured in PART 14-L):
-    # code that only looks inside a footprint can never discover that the
-    # reads are elsewhere, and on the first real plate they were -- 25 % of
-    # spots inside the nucleus, 67 % within 3 px, 98 % within 10 px -- while
-    # sampling at the nuclear centroid decoded at chance. A read between two
-    # objects is refused rather than split, and counted, so a footprint that
-    # is too loose shows up as ambiguity instead of as wrong barcodes.
     from scipy.spatial import cKDTree
 
     points = np.asarray(peaks, dtype=float).reshape(-1, 2)

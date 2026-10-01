@@ -201,6 +201,8 @@ def column_kinds(frame: pd.DataFrame) -> Dict[str, str]:
     continuous; one it offers as *ticks* is categorical; one it skips
     (high-cardinality free text, or a key that identifies rather than
     describes) is not worth an axis either.
+
+    :param frame: the table whose columns are classified.
     """
     translation = {"range": CONTINUOUS, "category": CATEGORICAL,
                    "skip": UNPLOTTABLE}
@@ -214,6 +216,8 @@ def plottable_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     Same rule, same reason as the filter panel's picker: a measurement table
     has hundreds of columns, and offering all of them is the same as offering
     none.
+
+    :param frame: the table whose columns are offered.
     """
     return tuple(sorted(name for name, kind in column_kinds(frame).items()
                         if kind != UNPLOTTABLE))
@@ -338,6 +342,7 @@ class GraphSpec:
     def column_for(self, channel: str) -> Optional[str]:
         """The column on ``channel``.
 
+        :param channel: one of :data:`CHANNELS`.
         :raises SpecError: on an unknown channel.
         """
         if channel not in CHANNELS:
@@ -347,7 +352,13 @@ class GraphSpec:
         return getattr(self, channel)
 
     def with_channel(self, channel: str, column: Optional[str]) -> "GraphSpec":
-        """A copy with ``column`` on ``channel`` (``None`` empties the zone)."""
+        """A copy with ``column`` on ``channel`` (``None`` empties the zone).
+
+        :param channel: one of :data:`CHANNELS`; anything else raises
+            :class:`SpecError`.
+        :param column: column name, converted with ``str()``; None or an empty
+            string empties the zone.
+        """
         if channel not in CHANNELS:
             raise SpecError(
                 f"unknown channel {channel!r}; the drop zones are "
@@ -355,11 +366,22 @@ class GraphSpec:
         return replace(self, **{channel: (str(column) if column else None)})
 
     def with_kind(self, kind: Optional[str]) -> "GraphSpec":
-        """A copy pinned to ``kind``, or back to inferring when ``None``."""
+        """A copy pinned to ``kind``, or back to inferring when ``None``.
+
+        :param kind: one of :data:`PLOT_KINDS` to pin, or None to infer it
+            again; the constructor raises :class:`SpecError` for any other
+            value.
+        """
         return replace(self, kind=kind)
 
     def with_role(self, column: str, role: Optional[str]) -> "GraphSpec":
-        """A copy treating ``column`` as ``role``; ``None`` restores the rule."""
+        """A copy treating ``column`` as ``role``; ``None`` restores the rule.
+
+        :param column: column name to override; converted with ``str()``.
+        :param role: ``"continuous"`` or ``"categorical"``, or None to drop the
+            override; the constructor raises :class:`SpecError` for any other
+            value.
+        """
         roles = dict(self.roles)
         if role is None:
             roles.pop(str(column), None)
@@ -382,7 +404,11 @@ class GraphSpec:
         return not self.x and not self.y
 
     def kinds_for(self, frame: pd.DataFrame) -> Dict[str, str]:
-        """:func:`column_kinds` of ``frame`` with this spec's overrides applied."""
+        """:func:`column_kinds` of ``frame`` with this spec's overrides applied.
+
+        :param frame: the table whose columns are classified; overrides for
+            columns it lacks are ignored.
+        """
         kinds = column_kinds(frame)
         kinds.update({name: role for name, role in self.roles.items()
                       if name in frame.columns})
@@ -396,10 +422,59 @@ class GraphSpec:
         the Default Graph Type preference chooses among the forms that fit,
         and the inference answers when there is no preference or the chosen
         form cannot be drawn here -- see :func:`_kind_and_note`.
+
+        :param kinds: ``{column: kind}`` map as returned by
+            :func:`column_kinds` or :meth:`GraphSpec.kinds_for`.
         """
         if self.kind:
             return self.kind
         return _kind_and_note(self, kinds)[0]
+
+    def binding_error(self, kinds: Mapping[str, str]) -> str:
+        """Explain incomplete or incompatible bindings, or return an empty string.
+
+        A pinned plot kind survives channel edits. Its temporary inability to
+        draw is an editable state, not an invalid spec or a reason to silently
+        choose another chart. The map must describe all available columns,
+        including role overrides, as returned by :meth:`kinds_for`.
+
+        :param kinds: column kinds for the current table.
+        :returns: an actionable canvas message, or ``""`` when drawable.
+        """
+        for channel in CHANNELS:
+            column = self.column_for(channel)
+            if column and column not in kinds:
+                return (f"Column '{column}' on {channel.replace('_', ' ').title()} "
+                        "is unavailable. Clear it or choose a column from this table.")
+        if self.is_empty:
+            return "Drag a column onto X or Y to draw a chart."
+        kind = self.resolved_kind(kinds)
+        x_kind, y_kind = _axis_kind(self.x, kinds), _axis_kind(self.y, kinds)
+        label = kind.replace('_', ' + ').title()
+        if kind in (SCATTER, LINE):
+            if not self.x or not self.y:
+                return f"{label} needs columns on both X and Y."
+        elif kind == HISTOGRAM:
+            if (x_kind or y_kind) != CONTINUOUS:
+                return "Histogram needs a continuous column on X or Y."
+        elif kind == BAR:
+            # Explicit bars also support low-cardinality numeric Y (classified
+            # categorical) and count fallback when Y has no numeric values.
+            if (x_kind or y_kind) != CATEGORICAL:
+                return ("Bar needs a categorical column on X, or a single "
+                        "categorical column on Y for category counts.")
+        elif kind == BAR_JITTER:
+            if x_kind != CATEGORICAL or y_kind != CONTINUOUS:
+                return ("Bar + Jitter needs a categorical column on X and a "
+                        "continuous column on Y.")
+        elif kind in (BOX, VIOLIN, JITTER):
+            if {x_kind, y_kind} != {CATEGORICAL, CONTINUOUS}:
+                return (f"{label} needs one categorical axis and one continuous "
+                        "axis. Bind columns to both X and Y.")
+        elif kind == HEATMAP:
+            if x_kind != CATEGORICAL or y_kind != CATEGORICAL:
+                return "Heatmap needs categorical columns on both X and Y."
+        return ""
 
     def _kind_note(self, kinds: Mapping[str, str]) -> str:
         """Why the drawn kind is not the chosen one, or ``""``.
@@ -434,6 +509,11 @@ class GraphSpec:
         Unknown keys are ignored and missing keys take their defaults, so a
         spec written by an older (or newer) build still opens. A spec that
         will not load is a chart the user cannot get back.
+
+        :param payload: mapping written by :meth:`to_dict`; only channel names
+            and ``kind``, ``roles``, ``bins``, ``shared_x``, ``shared_y``,
+            ``point_budget`` and ``seed`` are read, and the constructor still
+            validates them.
         """
         fields = set(CHANNELS) | {"kind", "roles", "bins", "shared_x",
                                   "shared_y", "point_budget", "seed"}
@@ -468,10 +548,6 @@ class GraphSpec:
         pinned = " (pinned)" if self.kind else ""
         note = self._kind_note(kinds)
         said = f"{kind}{pinned} · " + " · ".join(parts)
-        # THE FALLBACK IS SAID OUT LOUD, in the one line that becomes the
-        # chart's caption and the window title. A preference that is quietly
-        # ignored leaves the user looking at a chart they did not choose with
-        # no way to find out why.
         return f"{said} — {note}" if note else said
 
 
@@ -562,6 +638,12 @@ def infer_kind(spec: GraphSpec, kinds: Mapping[str, str]) -> str:
     override: a violin claims a density estimate the data may not support at
     small n, and joining points with a line asserts an order between them that
     a measurement table does not have.
+
+    :param spec: the chart specification; only its ``x`` and ``y`` columns are
+        read.
+    :param kinds: ``{column: kind}`` map as returned by :func:`column_kinds` or
+        :meth:`GraphSpec.kinds_for`; a column missing from it is treated as
+        categorical.
     """
     x_kind = _axis_kind(spec.x, kinds)
     y_kind = _axis_kind(spec.y, kinds)
@@ -638,6 +720,14 @@ class FacetPanel:
     ``index`` holds *positional* indices into the frame :func:`facet_grid` was
     given, not label indices: a measurement frame carries a duplicated or
     reset index often enough that positions are the only safe currency.
+
+    :param row: zero-based grid row of the panel.
+    :param col: zero-based grid column of the panel.
+    :param row_level: facet-row level this panel shows, or None when rows are
+        not faceted.
+    :param col_level: facet-column level this panel shows, or None when columns
+        are not faceted.
+    :param index: positional indices of the panel's rows in the faceted frame.
     """
 
     row: int
@@ -660,7 +750,11 @@ class FacetPanel:
         return self.n == 0
 
     def frame(self, source: pd.DataFrame) -> pd.DataFrame:
-        """This panel's rows out of ``source``."""
+        """This panel's rows out of ``source``.
+
+        :param source: the frame the grid was built from, or one with the same
+            row positions; rows are taken by position.
+        """
         return source.iloc[self.index]
 
     def title(self) -> str:
@@ -678,6 +772,15 @@ class FacetGrid:
     and a grid that closes up the gaps tells the reader the second one when
     the first is true.
 
+    :param row_column: column split into panel rows, or None when rows are not
+        faceted.
+    :param col_column: column split into panel columns, or None when columns
+        are not faceted.
+    :param row_levels: level of each panel row, in order; ``(None,)`` when rows
+        are not faceted.
+    :param col_levels: level of each panel column, in order; ``(None,)`` when
+        columns are not faceted.
+    :param panels: every panel, row by row, including those with no rows.
     :param hidden_rows: rows excluded because their facet level did not make
         the :data:`MAX_FACET_LEVELS` cut. Non-zero means the grid is not the
         whole table, and :attr:`notice` says so.
@@ -915,6 +1018,11 @@ def value_axes(spec: GraphSpec, kinds: Mapping[str, str]
     dropped in. Without this the scales would be computed for an axis nothing
     is drawn on, panels would autoscale independently, and a faceted
     "histogram of Y" would quietly stop sharing its bins.
+
+    :param spec: the chart specification whose ``x`` and ``y`` columns are
+        read.
+    :param kinds: ``{column: kind}`` map as returned by :func:`column_kinds` or
+        :meth:`GraphSpec.kinds_for`.
     """
     kind = spec.resolved_kind(kinds)
     if kind in (HISTOGRAM, BAR) and not spec.x and spec.y:
@@ -1020,6 +1128,14 @@ class RenderData:
     :attr:`notice` is **not** optional decoration. It is the difference
     between a chart of a million cells and a chart of fifty thousand of them,
     and a screenshot that does not carry it is a result nobody can check.
+
+    :param frame: the rows to draw: the whole table, or a random sample of it
+        when :attr:`strategy` is ``SAMPLED``.
+    :param strategy: ``FULL``, ``BINNED`` or ``SAMPLED``: how the rows are
+        drawn.
+    :param n_total: number of rows in the table given to :func:`prepare_data`.
+    :param n_shown: number of rows actually drawn or, for a binned density,
+        counted.
     """
 
     frame: pd.DataFrame
@@ -1041,6 +1157,12 @@ def prepare_data(frame: pd.DataFrame, spec: GraphSpec,
     See the module docstring for the policy. The short version: aggregates use
     everything, point plots use everything up to ``spec.point_budget``, and
     above that they either bin (nothing lost) or sample (said out loud).
+
+    :param frame: the filtered table to draw.
+    :param spec: the chart specification; its kind, ``point_budget``, ``bins``,
+        colour and size channels and ``seed`` decide the strategy.
+    :param kinds: ``{column: kind}`` map as returned by :func:`column_kinds` or
+        :meth:`GraphSpec.kinds_for`.
     """
     kind = spec.resolved_kind(kinds)
     total = int(len(frame))
@@ -1094,6 +1216,20 @@ def brush_mask(frame: pd.DataFrame, spec: GraphSpec, kinds: Mapping[str, str],
     variable, so only the horizontal sweep constrains anything — brushing
     across four bins selects the rows in those four bins, whatever height the
     drag happened to start at.
+
+    :param frame: the rows to test; hand it the unsampled panel rows so the
+        result names every row in the rectangle.
+    :param spec: the chart specification; it decides which column each axis
+        carries.
+    :param kinds: ``{column: kind}`` map as returned by :func:`column_kinds` or
+        :meth:`GraphSpec.kinds_for`.
+    :param x0: horizontal start of the dragged rectangle in the panel's data
+        coordinates; on a categorical axis these are tick positions, one per
+        level. The two ends of each axis may come in either order.
+    :param y0: vertical start of the rectangle; ignored, like ``y1``, on a
+        histogram or bar chart.
+    :param x1: horizontal end of the rectangle.
+    :param y1: vertical end of the rectangle.
     """
     lo_x, hi_x = (x0, x1) if x0 <= x1 else (x1, x0)
     lo_y, hi_y = (y0, y1) if y0 <= y1 else (y1, y0)

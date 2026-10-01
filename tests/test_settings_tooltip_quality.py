@@ -106,10 +106,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "100", "200", ACCURATE_SHARED,
         "The tooltip explicitly names 200 for plaque analysis.",
     ),
-    ("analyze_plaques", "fill_in"): DefaultVariant(
-        "False", "True", REPAIRED_TOOLTIP,
-        "Plaque analysis fills mask interiors on its initial run.",
-    ),
     ("analyze_plaques", "resize"): DefaultVariant(
         "False", "True", ACCURATE_SHARED,
         "The tooltip explicitly names the plaque-analysis resize override.",
@@ -302,9 +298,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
 # intentional: they prove each affected module contract, not just each source
 # string, including generated organelle-slot tooltips.
 REPAIRED_TOOLTIP_FACTS = {
-    ("analyze_plaques", "fill_in"): (
-        "Plaque Analysis starts with this enabled",
-    ),
     ("classify_merged", "coordinate_columns"): (
         "Merged Classifier derives one identifier from object_array",
         "initially ['cell_id']",
@@ -590,8 +583,13 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
                                     # does say pixels, so only the census
                                     # moved.
     per_organelle_unit_settings = 4
+    # +2 on 2026-09-25 (item 508): enhance_background_radius and
+    # enhance_sharpen_radius, the Make Masks chain's two radii as Mask
+    # settings. Both tooltips say pixels.
+    enhancement_unit_settings = 2
     assert len(diameter_or_radius) == (
-        base_unit_settings + per_organelle_unit_settings * MAX_ORGANELLES
+        base_unit_settings + enhancement_unit_settings
+        + per_organelle_unit_settings * MAX_ORGANELLES
     )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
 
@@ -742,10 +740,276 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # Compared with the actual 0a4f5aa75 package: +43 pairs, none removed.
     # Plaque calibration +4, TTA +6, PSF +15, Host–Pathogen +4,
     # Mask image QC/metadata +6 and restored Replication settings +8.
-    assert comparisons == 716
+    # 716 -> 735 on 2026-09-25, +19/-0 (item 508): the nineteen enhance_*
+    # settings, resolved by Mask only, each ending in a parseable
+    # "Default X.". Pinned by name in the 508 census file below.
+    # 735 -> 741 on 2026-09-25, +6/-0 (item 503): the six legacy Cellpose 3
+    # settings, each ending in a parseable "Default X.", declared where
+    # only `mask` resolves them; pinned by name here.
+    item_503 = {("mask", key) for key in (
+        "cellpose3_add_nucleus_channel", "cellpose3_size_model",
+        "cellpose3_resample", "cellpose3_augment",
+        "cellpose3_percentile_low", "cellpose3_percentile_high")}
+    assert item_503 <= compared_pairs
+    # 741 -> 742 on 2026-09-25, item 511: object_filters states "Default {}."
+    assert any(key == "object_filters" for _app, key in compared_pairs)
+    # 742 -> 734 on 2026-09-25, -8/+0, item 511 again: the maintainer retired
+    # Mask's per-object {obj}_min_area, _max_area, _min_intensity and
+    # _max_intensity into object_filters rows, and eight of those twelve
+    # tooltips stated a parseable default. None of the twelve may remain.
+    from spacr.settings import RETIRED_OBJECT_BOUNDS
+    assert not {key for _app, key in compared_pairs} & set(RETIRED_OBJECT_BOUNDS)
+    # 734 -> 736 on 2026-09-26, +2/-0 (item 493): mask_parallel states
+    # "Default False." and mask_gpu_indices "Default blank.", both resolved
+    # by Mask only (Timelapse keeps them hidden and is not in APPS).
+    assert {("mask", "mask_parallel"), ("mask", "mask_gpu_indices")} <= compared_pairs
+    # 736 -> 744 on 2026-09-26, +8/-0 (item 541): confluency (False),
+    # confluency_channel (None), confluency_window (15) and
+    # confluency_qc_threshold (0.8), each resolved by Measure and by External
+    # Masks, which measures with Measure's defaults. confluency_source says
+    # "Default auto.", which is not a literal and so is not compared.
+    item_541 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("confluency", "confluency_channel",
+                            "confluency_window", "confluency_qc_threshold")}
+    assert item_541 <= compared_pairs
+    # 744 -> 750 on 2026-09-26, +6/-0 (item 548): the six folder-watch
+    # settings, each ending in a parseable default and resolved by Mask only
+    # (Timelapse hides them and is not in APPS).
+    item_548 = {("mask", key) for key in (
+        "watch_folder", "watch_pipeline", "watch_measure_settings",
+        "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes")}
+    assert item_548 <= compared_pairs
+    # 750 -> 768 on 2026-09-26, +18/-0 (item 550): the eight cloud-source
+    # settings resolved by Mask, and the five of them Measure declares
+    # (credentials, cache and results; the OME-Zarr selection is Mask's)
+    # resolved by Measure and by External Masks, which measures with
+    # Measure's defaults. Each ends in a parseable default.
+    cloud_measure = ("cloud_anonymous", "cloud_profile", "cloud_endpoint",
+                     "cloud_cache", "cloud_results")
+    item_550 = ({("mask", key) for key in cloud_measure + (
+        "cloud_wells", "cloud_fields", "cloud_level")}
+        | {(app, key) for app in ("measure", "external_masks")
+           for key in cloud_measure})
+    assert item_550 <= compared_pairs
+    # 768 -> 784 on 2026-09-26, +16/-0 (item 535): eight cell-cycle claims --
+    # cell_cycle (False), cell_cycle_channel, cell_cycle_gates and
+    # cell_cycle_fucci_channels (None), cell_cycle_mitotic_ratio (1.8),
+    # cell_cycle_labels and cell_cycle_model (blank) and cell_cycle_epochs
+    # (20) -- each resolved by Measure and by External Masks.
+    # cell_cycle_method says "Default measurements.", not a literal.
+    item_535 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("cell_cycle", "cell_cycle_channel",
+                            "cell_cycle_gates", "cell_cycle_fucci_channels",
+                            "cell_cycle_mitotic_ratio", "cell_cycle_labels",
+                            "cell_cycle_model", "cell_cycle_epochs")}
+    assert item_535 <= compared_pairs
+    # 784 -> 796 on 2026-09-26, +12/-0 (item 547): profiling (False),
+    # profiling_metadata, profiling_negative_control and
+    # profiling_phenotype_column (blank), profiling_correlation_threshold
+    # (0.9) and profiling_databases ([]), each resolved by Measure and by
+    # External Masks, which measures with Measure's defaults.
+    # profiling_treatment_column ("columnID"), profiling_normalization
+    # ("mad_robustize") and profiling_feature_selection ("all five") are not
+    # literals and so are not compared.
+    item_547 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("profiling", "profiling_metadata",
+                            "profiling_negative_control",
+                            "profiling_phenotype_column",
+                            "profiling_correlation_threshold",
+                            "profiling_databases")}
+    assert item_547 <= compared_pairs
+    # 796 -> 806 on 2026-09-26, +10/-0 (item 536): wound_closure (False),
+    # wound_channel (None), wound_window (15), wound_hours_per_frame (None)
+    # and wound_conditions ({}), each resolved by Measure and by External
+    # Masks, which measures with Measure's defaults. wound_source says
+    # "Default texture.", which is not a literal and so is not compared.
+    item_536 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("wound_closure", "wound_channel", "wound_window",
+                            "wound_hours_per_frame", "wound_conditions")}
+    assert item_536 <= compared_pairs
+    # 806 -> 824 on 2026-09-26, +18/-0 (item 571): nine time-to-event
+    # claims -- time_to_event (False), time_to_event_column and
+    # time_to_event_reference (blank), time_to_event_threshold,
+    # time_to_event_hours_per_frame, time_to_event_conditions and
+    # time_to_event_covariates (None), time_to_event_persist (1) and
+    # time_to_event_min_frames (3) -- each resolved by Measure and by
+    # External Masks. The object, mode, origin and group settings say
+    # "Default cell.", "track_end.", "track." and "well.", not literals.
+    item_571 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("time_to_event", "time_to_event_column",
+                            "time_to_event_reference",
+                            "time_to_event_threshold",
+                            "time_to_event_hours_per_frame",
+                            "time_to_event_conditions",
+                            "time_to_event_covariates",
+                            "time_to_event_persist",
+                            "time_to_event_min_frames")}
+    assert item_571 <= compared_pairs
+    # 824 -> 833 on 2026-09-27, +9/-0 (item 538): unmix (False),
+    # unmix_controls (blank) and unmix_background_percentile (5.0), each
+    # resolved by Make Masks, Measure and External Masks.
+    item_538 = {(app, key) for app in ("mask", "measure", "external_masks")
+                for key in ("unmix", "unmix_controls",
+                            "unmix_background_percentile")}
+    assert item_538 <= compared_pairs
+    # 833 -> 847 on 2026-09-27, +14/-0 (item 540): seven live/dead claims --
+    # viability (False), viability_dead_channel, viability_live_channel,
+    # viability_thresholds, viability_negative_wells and
+    # viability_positive_wells (None) and viability_plate_map (blank) --
+    # each resolved by Measure and by External Masks.
+    item_540 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("viability", "viability_dead_channel",
+                            "viability_live_channel", "viability_thresholds",
+                            "viability_negative_wells",
+                            "viability_positive_wells", "viability_plate_map")}
+    assert item_540 <= compared_pairs
+    # 847 -> 853 on 2026-09-27, +6/-0 (item 580): intensity_calibration
+    # (False), intensity_calibration_wells (None) and
+    # intensity_calibration_offset (0), each resolved by Measure and by
+    # External Masks. intensity_calibration_statistic says "Default
+    # foreground.", which is not a literal and so is not compared.
+    item_580 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("intensity_calibration",
+                            "intensity_calibration_wells",
+                            "intensity_calibration_offset")}
+    assert item_580 <= compared_pairs
+    # 853 -> 856 on 2026-09-27, +3/-0 (item 543): illumination_vendor_profile
+    # ("Default empty."), resolved by Measure, by External Masks, which
+    # measures with Measure's defaults, and by Mask, which corrects its
+    # segmentation inputs with the same field.
+    item_543 = {(app, "illumination_vendor_profile")
+                for app in ("measure", "external_masks", "mask")}
+    assert item_543 <= compared_pairs
+    # 856 -> 858 on 2026-09-27, +2/-0 (item 546): cellprofiler_pipeline
+    # (blank), resolved by Measure and by External Masks.
+    item_546 = {(app, "cellprofiler_pipeline")
+                for app in ("measure", "external_masks")}
+    assert item_546 <= compared_pairs
+    # 858 -> 862 on 2026-09-27, +4/-0 (item 583): plate_barcode_source
+    # (blank) and plate_barcodes (None), each resolved by Measure and by
+    # External Masks. plate_barcode_column and plate_barcode_token_env say
+    # "Default barcode." and "Default SPACR_LIMS_TOKEN.", which are not
+    # literals and so are not compared.
+    item_583 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("plate_barcode_source", "plate_barcodes")}
+    assert item_583 <= compared_pairs
+    # 862 -> 869 on 2026-09-27, +7/-0 (item 542): seven colony-counting
+    # claims -- colony_counting (False), colony_dilution (1),
+    # colony_plated_volume_ul (100), colony_too_many (300), colony_too_few
+    # (30), colony_threshold (4.0) and colony_min_area_px (None) -- each
+    # resolved by Plaque Assay only. colony_polarity says "Default auto.",
+    # which is not a literal and so is not compared.
+    item_542 = {("analyze_plaques", key) for key in (
+        "colony_counting", "colony_dilution", "colony_plated_volume_ul",
+        "colony_too_many", "colony_too_few", "colony_threshold",
+        "colony_min_area_px")}
+    assert item_542 <= compared_pairs
+    # 869 -> 877 on 2026-09-27, +8/-0 (item 578): the eight
+    # segmentation-robustness claims -- robustness_report (False),
+    # robustness_fields (4), robustness_crop (512),
+    # robustness_diameter_factors ([0.75, 1.25]), robustness_flow_thresholds
+    # ([0.2, 0.6]), robustness_cellprob_thresholds ([-2.0, 2.0]),
+    # robustness_enhancement (True) and robustness_tolerance (0.2) -- each
+    # resolved by Make Masks only.
+    item_578 = {("mask", key) for key in (
+        "robustness_report", "robustness_fields", "robustness_crop",
+        "robustness_diameter_factors", "robustness_flow_thresholds",
+        "robustness_cellprob_thresholds", "robustness_enhancement",
+        "robustness_tolerance")}
+    assert item_578 <= compared_pairs
+    # 877 -> 887 on 2026-09-27, +10/-0 (item 549): the ten microscope
+    # feedback settings, each ending in a parseable default and resolved by
+    # Mask only (Timelapse hides them and is not in APPS).
+    item_549 = {("mask", key) for key in (
+        "microscope_feedback", "microscope_driver",
+        "microscope_simulated_folder", "microscope_positions",
+        "microscope_stage_transform", "microscope_event_table",
+        "microscope_event_query", "microscope_max_events",
+        "microscope_timepoints", "microscope_interval_seconds")}
+    assert item_549 <= compared_pairs
+    # 887 -> 889 on 2026-09-27, +2/-0 (item 566): measure_gpu (False),
+    # resolved by Measure and by External Masks.
+    item_566 = {(app, "measure_gpu") for app in ("measure", "external_masks")}
+    assert item_566 <= compared_pairs
+    # 889 -> 893 on 2026-09-27, +4/-0 (item 559): the four image-quality
+    # classifier claims -- image_qc_classifier (False),
+    # image_qc_classifier_model (None), image_qc_classifier_labels (None) and
+    # image_qc_classifier_threshold (0.5) -- each resolved by Make Masks only.
+    item_559 = {("mask", key) for key in (
+        "image_qc_classifier", "image_qc_classifier_model",
+        "image_qc_classifier_labels", "image_qc_classifier_threshold")}
+    assert item_559 <= compared_pairs
+    # 893 -> 895 on 2026-09-28, +2/-0 (item 576): measurement_backend_target
+    # (blank), resolved by Measure and by External Masks. Its companion
+    # measurement_backend says "Default sqlite.", a combo choice, and is
+    # not compared.
+    item_576 = {(app, "measurement_backend_target")
+                for app in ("measure", "external_masks")}
+    assert item_576 <= compared_pairs
+    # 895 -> 898 on 2026-09-28, +3/-0 (item 557): n2v_denoise (False),
+    # n2v_model (blank) and n2v_epochs (20), resolved by Make Masks only
+    # (Timelapse is not in APPS).
+    item_557 = {("mask", key) for key in (
+        "n2v_denoise", "n2v_model", "n2v_epochs")}
+    assert item_557 <= compared_pairs
+    # 898 -> 899 on 2026-09-30, +1/-0 (item 542): colony_detector (None),
+    # the colony detector checkpoint, resolved by Plaque Assay only.
+    item_542_detector = {("analyze_plaques", "colony_detector")}
+    assert item_542_detector <= compared_pairs
+    # 899 -> 901 on 2026-10-01, +2/-0 (item 536): wound_threshold (None),
+    # the hand-set wound cut, resolved by Measure and by External Masks.
+    item_536_threshold = {(app, "wound_threshold")
+                          for app in ("measure", "external_masks")}
+    assert item_536_threshold <= compared_pairs
+    assert comparisons == 901
+    census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
+                             '508_default_claim_census_2026-09-25.json').read_text())
+    assert census_508['comparisons_before'] == 716
+    # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above;
+    # + 8: item 541's four confluency claims in two apps, pinned above;
+    # + 6: item 548's folder-watch settings, pinned above;
+    # + 18: item 550's cloud-source settings, pinned above.
+    # + 16: item 535's eight cell-cycle claims in two apps, pinned above.
+    # + 12: item 547's six profiling claims in two apps, pinned above.
+    # + 0: item 539's bleach_correction says "Default none.", a combo
+    # choice rather than a literal, and so is not compared.
+    # + 10: item 536's five wound-closure claims in two apps, pinned above.
+    # + 18: item 571's nine time-to-event claims in two apps, pinned above.
+    # + 9: item 538's three unmixing claims in three apps, pinned above.
+    # + 14: item 540's seven live/dead claims in two apps, pinned above.
+    # + 6: item 580's three calibration claims in two apps, pinned above.
+    # + 4: item 583's two barcode-linkage claims in two apps, pinned above.
+    # + 0: item 537's three lineage-tree settings belong to the Timelapse
+    # category, which no compared app resolves, so none is compared.
+    # + 0: item 567's six event-detection settings, likewise in Timelapse.
+    # + 3: item 543's vendor flat-field profile in three apps, pinned above.
+    # + 2: item 546's CellProfiler pipeline in two apps, pinned above.
+    # + 7: item 542's colony-counting claims in Plaque Assay, pinned above.
+    # + 8: item 578's segmentation-robustness claims in Make Masks, pinned
+    # above.
+    # + 10: item 549's microscope feedback claims in Mask, pinned above.
+    # + 2: item 566's measure_gpu in two apps, pinned above.
+    # + 4: item 559's image-quality classifier claims in Mask, pinned above.
+    # + 2: item 576's measurement_backend_target in two apps, pinned above.
+    # + 3: item 557's Noise2Void claims in Mask, pinned above.
+    # + 1: item 542's colony detector in Plaque Assay, pinned above.
+    # + 2: item 536's wound_threshold in two apps, pinned above.
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
+            + len(item_541) + len(item_548) + len(item_550)
+            + len(item_535) + len(item_547) + len(item_536)
+            + len(item_571) + len(item_538) + len(item_540)
+            + len(item_580) + len(item_543) + len(item_546)
+            + len(item_583) + len(item_542) + len(item_578)
+            + len(item_549) + len(item_566) + len(item_559)
+            + len(item_576) + len(item_557) + len(item_542_detector)
+            + len(item_536_threshold)
+            == comparisons)
+    assert census_508['removed_pairs'] == []
+    assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
+    assert len(census_508['added_pairs']) == 19
     census = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                          '491_default_claim_census_2026-09-23.json').read_text())
-    assert census['comparisons_after'] == comparisons
+    assert census['comparisons_after'] == census_508['comparisons_before']
     assert census['removed_pairs'] == []
     assert len(census['added_pairs']) == 43
     assert {tuple(pair) for pair in census['added_pairs']} <= compared_pairs
@@ -760,7 +1024,9 @@ def test_real_default_claims_have_no_unrecorded_drift():
         assert ("analyze_plaques", key) in compared_pairs
     for role in ("cell", "nucleus", "pathogen", "organelle"):
         for suffix in ("min_intensity", "max_intensity"):
-            assert ("mask", f"{role}_{suffix}") in compared_pairs
+            # Item 511: only organelle keeps its own mean-bound settings.
+            assert (("mask", f"{role}_{suffix}") in compared_pairs) == (
+                role == "organelle")
         for suffix in ("minimum_area_to_split", "min_watershed_distance",
                        "intensity_threshold", "intensity_merge", "intensity_split"):
             assert ("mask", f"{role}_{suffix}") not in compared_pairs
@@ -781,7 +1047,17 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # says mean" -- was an artefact of a setting whose tooltip had to name a
     # SECOND setting to explain itself. Instruction 391 removed both, so the
     # ambiguity is gone rather than newly tolerated.
-    assert len(variants) == 47
+    # 47 -> 46 on 2026-09-26, item 588. The entry that went was
+    # ("analyze_plaques", "fill_in"): the tooltip said "Default False" and
+    # added "Plaque Analysis starts with this enabled". Neither was the
+    # truth any more. Cellpose Masks (Apply), fill_in's only reader
+    # (spacr_cellpose.identify_masks_finetune), starts at True, and Plaque
+    # Assay segments with plaque.segment_plaque_image and never reads
+    # fill_in (grep of spacr/submodules.py, plaque.py and plaque_preview.py:
+    # no hit). The tooltip now says "Default True in Cellpose Masks", which
+    # matches both modules' True, so there is no variant left to record and
+    # no plaque fact to keep.
+    assert len(variants) == 46
     assert variants == expected
     assert {
         classification: sum(
@@ -800,7 +1076,9 @@ def test_real_default_claims_have_no_unrecorded_drift():
         # `control_wells` split (357-Q6) took its repaired-tooltip entry
         # with it, because the tooltip it repaired documented two meanings
         # at once and there is now one tooltip per meaning.
-        REPAIRED_TOOLTIP: 22,
+        # 22 -> 21 on 2026-09-26, item 588: ("analyze_plaques", "fill_in")
+        # went with its variant; see the 47 -> 46 note above.
+        REPAIRED_TOOLTIP: 21,
         CONFIG_DEFECT: 0,
     }
     assert all(
@@ -835,7 +1113,9 @@ def test_repaired_tooltips_state_each_module_value_and_behavior():
     # keeping all three: a repaired tooltip, the variant it explained, and
     # the fact it carried are one entry seen from three sides, and a change
     # that moved only one of them would be a change nobody had understood.
-    assert len(REPAIRED_TOOLTIP_FACTS) == 22
+    # 22 -> 21 on 2026-09-26, item 588: ("analyze_plaques", "fill_in"),
+    # the same one entry as the variant count and the class count above.
+    assert len(REPAIRED_TOOLTIP_FACTS) == 21
     assert set(REPAIRED_TOOLTIP_FACTS) == repaired
 
     defaults_by_app = {}
@@ -881,10 +1161,17 @@ def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
     # arrays instead" -- and the setting was retired with it (357-Q4). The
     # rule explained when a control did not apply; nothing read the control
     # in either case.
-    assert len(witnessed) == 48
+    # 48 -> 50 on 2026-09-28, item 539: bleach_correction is gated on
+    # timelapse in Measure and External Masks, and its reason names it.
+    # 50 -> 76 on 2026-09-28, item 595: the thirteen time_to_event settings
+    # are gated on timelapse wherever both are shown (Measure and External
+    # Masks), and every reason names it.
+    assert len(witnessed) == 76
     # 35 -> 34 with it: `load_path_regex` was witnessed in exactly one app,
     # so the pair count and the distinct-key count fall by one together.
-    assert len({key for _app, key in witnessed}) == 34
+    # 34 -> 35 with it: bleach_correction is one new distinct key.
+    # 35 -> 48 with item 595: thirteen new distinct keys.
+    assert len({key for _app, key in witnessed}) == 48
     assert not failures
 
 

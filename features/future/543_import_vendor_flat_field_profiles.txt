@@ -1,0 +1,108 @@
+IMPORT VENDOR FLAT-FIELD PROFILES (OPERETTA/HARMONY, ZEN, ...)
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/how-to-use-illumination-correction-file-from-perkin-elmer-operetta-microscope-outside-of-harmony-in-imagej-or-cellprofiler-instead/31650
+
+WHAT TO BUILD
+    Read the illumination/flat-field correction files vendors write
+    (PerkinElmer Harmony/Operetta FFC profiles, Zeiss ZEN shading
+    references, Nikon/Olympus where documented) and use them in spaCR's
+    illumination correction instead of estimating one.
+
+DONE WHEN
+    An Operetta export's FFC profile is applied and matches Harmony's
+    corrected output on the same field.
+
+ALPHA: 2026-09-27. One new setting, illumination_vendor_profile (registered
+    in ALPHA_FEATURES[543]; hidden unless Preferences -> Show alpha features
+    is on, and a saved value still reaches the run). It sits under
+    every Illumination Correction heading (Measure, External Masks) and under
+    Correction Model on the Illumination screen.
+
+WHAT WAS BUILT (2026-09-27, CPU only)
+    spacr/illumination.py: a non-empty illumination_vendor_profile replaces
+    the estimate in prepare_illumination_model (illumination_model still
+    wins over both). Read by _vendor_illumination:
+      * Harmony XML (Operetta / Opera Phenix Index.idx.xml, Index.xml or a
+        saved FFC profile): every *FlatfieldProfile element, JSON or the
+        bare-key spelling. Foreground polynomial = gain, Background
+        polynomial = spatial offset, both at Harmony's own scale, so
+        corrected = (raw - background) / foreground. Merged channel c takes
+        Harmony channel c + 1. Polynomial convention: x = (col - Origin[0]) *
+        Scale[0], y = (row - Origin[1]) * Scale[1], sum_i sum_j C[i][j] *
+        x**(i-j) * y**j (as described in the image.sc thread).
+      * Shading reference image (.tif/.tiff/.czi/.npy; ZEN, Nikon, Olympus):
+        plane c = channel c, one plane serves all; illumination_dark
+        subtracted, normalised to mean 1.
+    IlluminationField gained an optional spatial darkfield, saved/loaded in
+    the .npz, so the Harmony background survives into worker processes and
+    segmentation-input correction.
+    Tests: tests/test_vendor_flat_field_profiles.py (synthetic Operetta
+    export; spaCR's corrected field equals an independently computed
+    Harmony output, JSON and bare-key forms, npz round trip, TIFF reference)
+    and tests/qt/test_vendor_flat_field_alpha_gate.py.
+
+WHAT IS LEFT
+    * The "done when" check on REAL data: an Operetta export plus Harmony's
+      own flat-field-corrected export of the same field, to confirm the
+      polynomial convention (x/y order, Origin/Scale) and that Harmony adds
+      no further rescaling. Only synthetic data was available.
+    * Shading references embedded as CZI attachments (not exported images)
+      and Nikon ND2 / Olympus vendor-specific shading files are not read.
+    * The subset/reordered-channel mapping gap is resolved by the
+      2026-10-01 implementation below; real Harmony validation remains open.
+
+
+2026-10-01 — EXPLICIT VENDOR CHANNEL ASSIGNMENTS
+    illumination_vendor_channel_map is an optional string, default empty.
+    For example, 0:2,1:1 maps persisted intensity-axis position 0 to Harmony
+    channel 2 and position 1 to Harmony channel 1. Persisted intensity
+    positions are zero-based; Harmony IDs and reference-image planes are
+    one-based. This supports subsets, reordered acquisitions and noncontiguous
+    Harmony IDs without assuming that current array order is vendor order.
+
+    Every corrected intensity channel needs an assignment when the setting
+    is nonempty. Extra assignments may remain when selecting a subset.
+    Malformed pairs, duplicate intensity keys, missing assignments, zero
+    vendor IDs and unavailable profiles/planes fail clearly. Explicit maps
+    never fall back to another profile or a single reference plane. A blank
+    mapping preserves legacy c -> c+1 behavior and single-plane broadcasting.
+    Both the gain and spatial background follow the assigned Harmony channel;
+    image reference planes retain the existing dark subtraction/normalization.
+
+    The setting reaches prepare_illumination_model and is used only when a
+    vendor profile is selected. A saved illumination_model still wins. Model
+    metadata records the resolved vendor_channel_map plus whether it was
+    explicit; both survive NPZ save/load. The existing model digest therefore
+    binds channel assignments in segmentation application provenance.
+
+    Validation: 34 focused CPU tests passed under a 4 GiB cap, hidden CUDA
+    and at most two numerical threads. Independent synthetic gain/background
+    equations confirm reordered correction; tests cover subset/noncontiguous
+    channels, shading references, invalid mappings, unchanged blank defaults,
+    saved-model priority, NPZ provenance and raw-field preservation. No
+    acquisition images were changed and no GPU jobs were run.
+
+    This closes the channel-assignment implementation gap. Comparing a real
+    Operetta/Harmony original and its corrected export, and reading proprietary
+    embedded CZI/ND2/Olympus shading formats, remain open. Status stays alpha.
+
+    Settings integration: the new string key is registered with a blank
+    default, alpha visibility, help and all four existing illumination
+    settings groups. The API-consumer and settings-flow artifacts were
+    regenerated from source. The mapping field is inactive unless correction
+    is on and a vendor profile is selected without an overriding saved
+    model; disabling or hiding it retains its saved value. Thirteen focused
+    alpha, real-form visibility, value-retention and dependency/layout
+    checks passed under the same 4 GiB CPU/offscreen cap.

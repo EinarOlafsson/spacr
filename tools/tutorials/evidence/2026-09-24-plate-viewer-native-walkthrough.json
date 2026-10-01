@@ -31,7 +31,7 @@
   },
   "published": false,
   "input_method": "Actual Load test data button with a private cached copy of the public Annotate example",
-  "well_detail": "E01 \u00b7 615 object(s) \u00b7 mean cell_area = 23997.8 \u00b7 outer ring (edge)",
+  "well_detail": "E01 · 615 object(s) · mean cell_area = 23997.8 · outer ring (edge)",
   "minimum_count": 601,
   "export": {
     "rows": 2,
@@ -42,5 +42,13 @@
   },
   "database_unchanged": true,
   "active_jobs_at_exit": 0,
-  "media_status": "Matching narration and publication pending"
+  "media_status": "Accepted immutable media; Pages source prepared; live deployment requires separate verification.",
+  "publication": {
+    "candidate": "release-candidate-append-12208ne8",
+    "commit": "2a2933b1333166d6ba1947fac6be3a5c345482a8",
+    "tag": "tutorials-plate-20260925-12208ne8",
+    "readback_files": 1036,
+    "narration": "English af_heart only; other voices and languages fall back until re-rendered",
+    "all_ready_local_and_hosted_playback": true
+  }
 }

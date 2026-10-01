@@ -1,0 +1,87 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Python API quickstart"
+msgstr "Python API त्वरित आरंभ"
+
+msgid "Use the Python API when a workflow needs to run from a notebook, a reusable script, a server or a scheduler. The desktop application and the Python API call the same pipeline functions and use the same setting names."
+msgstr "जब किसी कार्यप्रवाह को नोटबुक, पुन: उपयोग योग्य स्क्रिप्ट, सर्वर या शेड्यूलर से चलाना हो, तब Python API का उपयोग करें। डेस्कटॉप एप्लिकेशन और Python API एक ही पाइपलाइन फ़ंक्शन कॉल करते हैं और एक ही सेटिंग नामों का उपयोग करते हैं।"
+
+msgid "Install the headless package"
+msgstr "हेडलेस पैकेज स्थापित करें"
+
+msgid "Add ``[qt]`` only when the same environment also needs the desktop interface."
+msgstr "``[qt]`` केवल तब जोड़ें जब उसी परिवेश में डेस्कटॉप इंटरफ़ेस की भी आवश्यकता हो।"
+
+msgid "Use the typed workflow configuration"
+msgstr "टाइप किए गए कार्यप्रवाह विन्यास का उपयोग करें"
+
+msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
+msgstr "शीर्ष-स्तरीय API मुख्य कार्यप्रवाहों के लिए एक छोटा, स्थिर इंटरफ़ेस प्रदान करता है। टाइप किए गए फ़ील्ड उन विकल्पों को कवर करते हैं जो अधिकांश स्क्रिप्ट चुनती हैं; ``extra`` उन्नत सेटिंग्स स्वीकार करता है, लेकिन किसी मौजूदा टाइप किए गए फ़ील्ड के लिए दूसरा मान अस्वीकार करता है।"
+
+msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
+msgstr "जब सहेजी गई सेटिंग फ़ाइल के लिए पूरा शब्दकोश चाहिए, तो ``mask.to_settings()`` कॉल करें। यह GUI द्वारा उपयोग किए गए उन्हीं डिफ़ॉल्ट के माध्यम से विस्तारित होता है।"
+
+msgid "Validate before a long run"
+msgstr "लंबे रन से पहले सत्यापन करें"
+
+msgid "Set ``dry_run`` to inspect the input and return a list of problems without loading a model, using the GPU or writing results."
+msgstr "मॉडल लोड किए बिना, GPU का उपयोग किए बिना या परिणाम लिखे बिना इनपुट की जाँच करके समस्याओं की सूची पाने के लिए ``dry_run`` सेट करें।"
+
+msgid "An empty list means that the preflight checks passed. A preflight check cannot guarantee model quality; inspect the segmentation preview before processing a full screen."
+msgstr "खाली सूची का अर्थ है कि प्रारंभिक जाँचें पास हो गईं। प्रारंभिक जाँच मॉडल की गुणवत्ता की गारंटी नहीं दे सकती; पूरी स्क्रीन संसाधित करने से पहले विभाजन पूर्वावलोकन की जाँच करें।"
+
+msgid "Generate masks"
+msgstr "मास्क बनाएँ"
+
+msgid "A normal run returns ``None`` and writes masks, overlays, object counts and the resolved settings below ``src``. Invalid required inputs raise ``ValueError``; runtime progress and recoverable field failures are written to the spaCR log."
+msgstr "सामान्य रन ``None`` लौटाता है और ``src`` के अंतर्गत मास्क, ओवरले, ऑब्जेक्ट की संख्या और निर्धारित सेटिंग्स लिखता है। अमान्य आवश्यक इनपुट ``ValueError`` उत्पन्न करते हैं; रन की प्रगति और पुनर्प्राप्त किए जा सकने वाले फ़ील्ड विफलताएँ spaCR लॉग में लिखी जाती हैं।"
+
+msgid "Measure objects and save crops"
+msgstr "ऑब्जेक्ट मापें और क्रॉप सहेजें"
+
+msgid "Measure writes ``measurements/measurements.db`` and the resolved settings. If ``save_png`` is enabled, it also writes one crop set for each ``crop_mode``."
+msgstr "मापन ``measurements/measurements.db`` और निर्धारित सेटिंग्स लिखता है। यदि ``save_png`` सक्षम है, तो यह हर ``crop_mode`` के लिए क्रॉप का एक सेट भी लिखता है।"
+
+msgid "Run the same contract from a shell"
+msgstr "शेल से वही अनुबंध चलाएँ"
+
+msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
+msgstr "हेडलेस कमांड शेड्यूलर में उपयोगी है क्योंकि यह भारी पाइपलाइन स्टैक आयात करने से पहले सेटिंग नामों और मानों का सत्यापन करती है।"
+
+msgid "Command-line overrides are applied after the file:"
+msgstr "कमांड-लाइन ओवरराइड फ़ाइल के बाद लागू होते हैं:"
+
+msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+msgstr "अज्ञात सेटिंग्स और रूपांतरित न किए जा सकने वाले मान सुझाव के साथ अस्वीकार किए जाते हैं। जब समस्या किसी सेटिंग के बजाय परिवेश में हो तो ``spacr-doctor`` का उपयोग करें।"
+
+msgid "Continue from notebooks"
+msgstr "नोटबुक से आगे बढ़ें"
+
+msgid "The repository's ``Notebooks/`` directory contains complete Mask, Measure, Classify, barcode and regression examples. Treat the settings helpers and the :doc:`curated API reference <api/index>` as authoritative for the installed version; notebooks are worked examples rather than a compatibility contract."
+msgstr "रिपॉज़िटरी की ``Notebooks/`` निर्देशिका में मास्क, मापन, वर्गीकरण, बारकोड और प्रतिगमन के पूर्ण उदाहरण हैं। स्थापित संस्करण के लिए सेटिंग सहायकों और :doc:`चयनित API संदर्भ <api/index>` को प्रामाणिक मानें; नोटबुक उदाहरण हैं, संगतता अनुबंध नहीं।"
+
+msgid "Export measured objects to AnnData"
+msgstr "मापे गए ऑब्जेक्ट को AnnData में निर्यात करें"
+
+msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
+msgstr "डेस्कटॉप एप्लिकेशन वाले ही प्रवेश बिंदु से मापन डेटाबेस निर्यात करने, अनुपस्थित-मान नीति चुनने और परिणामी ऑब्जेक्ट-बनाम-विशेषता मैट्रिक्स की जाँच करने के लिए :doc:`anndata_export` का पालन करें।"
+

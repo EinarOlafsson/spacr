@@ -1,0 +1,519 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "channel_axis",
+      "source": "Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks. Default None (automatic).",
+      "source_sha256": "155e5ea5a56262610e28e2bb6950f17b52cb1a0f464c5706fa8d26a297b453f7",
+      "translation": "Bildens kanalaxel: 0 för kanal först, -1 för kanal sist, eller tomt för att härleda den från maskens dimensioner. Tvetydiga bilder kräver en uttrycklig axel. Träningen stöder 2D-fält med valfria kanaler, inte Z-stackar. Standard None (automatiskt)."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "class_column",
+      "source": "Column containing the per-object class label used by class-proportion analysis. Missing values are filled with 0 rather than dropping the corresponding rows; selecting an incorrect column can therefore assign class zero to every object without raising an error. The value is also appended to the condition when group_by_class is enabled. Default 'test'. Replication starts with the predictions column instead.",
+      "source_sha256": "1878c80e34ee161e94613e66b9d9706e70342f9c392678a28f360f4f1fd5fa87",
+      "translation": "Kolumn med klassetiketten per objekt som används i analysen av klassandelar. Saknade värden fylls med 0 i stället för att motsvarande rader tas bort; en felaktig kolumn kan därför tilldela klass noll till varje objekt utan att något fel uppstår. Värdet läggs också till betingelsen när group_by_class är aktiverat. Standard 'test'. Replication börjar i stället med kolumnen med prediktioner."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_count_column",
+      "source": "Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "2048d2bd7b04f936a1e688788436fc1381db73ce7cfe0619fa7ed9867297451f",
+      "translation": "Valfri kolumn med uppmätt antal för varje vakuol. Icke-negativa heltal accepteras; saknade värden förblir okända. Alternativ till en länkad parasittabell. Standard tomt. API: spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_marker_channels",
+      "source": "Zero-based intensity channels whose vacuole-to-host-reference ratios are reported. Each selected channel needs matching intensity columns in both compartments; its threshold is configured separately. Adding a channel adds a marker result without changing host infection denominators. Default [0]. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "48e2c0fcd376ba331bbcb09349d95b095634c2fe061cb78ac87f74d5c729bb03",
+      "translation": "Nollbaserade intensitetskanaler vars kvoter mellan vakuol och värdreferens rapporteras. Varje vald kanal behöver motsvarande intensitetskolumner i båda kompartmenten; dess tröskel ställs in separat. Att lägga till en kanal ger ytterligare ett markörresultat utan att ändra nämnarna för värdinfektion. Standard [0]. API: spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_marker_thresholds",
+      "source": "Channel-to-ratio cutoffs, for example {0: 2.0, 1: 1.5}; ratios at or above the cutoff are positive. Calibrate cutoffs with assay controls. Unspecified channels remain unclassified. Default {}. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "dea265f88dff2d6c022d5802d90da840462114714750cafc3159ffd4c92be1fa",
+      "translation": "Gränsvärden för kvoten per kanal, till exempel {0: 2.0, 1: 1.5}; kvoter på eller över gränsvärdet är positiva. Kalibrera gränsvärdena med analysens kontroller. Kanaler som inte anges förblir oklassificerade. Standard {}. API: spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_parasite_parent",
+      "source": "Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "e9f7b49ab5f207cfe85506734c3974968e668e666501d4d9ae867e37e0b5d0c2",
+      "translation": "Kolumn med föräldravakuolens etikett i den valda parasittabellen. Värdcellers ID kan inte ersätta vakuolers ID. Parasiter utan matchning exporteras separat. Standard pathogen_id. API: spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_parasite_table",
+      "source": "Optional table containing one row per segmented parasite and an explicit parent-vacuole column. Leave empty if parasite counts are unavailable. Do not also set hp_count_column. Default empty. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "708e43668eb7a6201f6e60982a836d9d5935ecbc26727d18950cfe4c8e27e758",
+      "translation": "Valfri tabell med en rad per segmenterad parasit och en uttrycklig kolumn för föräldravakuolen. Lämna tomt om parasitantal saknas. Ange inte samtidigt hp_count_column. Standard tomt. API: spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_reference_prefix",
+      "source": "Prefix of reference-channel mean intensities. Missing or nonpositive reference values yield unknown ratios, never infinity or negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "0820ca9b01b2eb25f6c31bdfe9d21566d550cbe3dacb0c3547a00d9179b2b301",
+      "translation": "Prefix för referenskanalens medelintensiteter. Saknade eller icke-positiva referensvärden ger okända kvoter, aldrig oändlighet eller negativa bedömningar. Standard cytoplasm. API: spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_reference_table",
+      "source": "Select the per-host compartment used for recruitment-ratio denominators. Its object_label must identify the host cell so each vacuole is compared with its own host reference. Missing or invalid reference intensities produce unknown marker calls rather than negative calls. Default cytoplasm. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "b95adc4ed6d004858a47033502622c18611fda0823e7d01ef479da477597f925",
+      "translation": "Välj det kompartment per värdcell som används som nämnare i rekryteringskvoterna. Dess object_label måste identifiera värdcellen så att varje vakuol jämförs med referensen i sin egen värdcell. Saknade eller ogiltiga referensintensiteter ger okända markörbedömningar i stället för negativa. Standard cytoplasm. API: spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_vacuole_prefix",
+      "source": "Select the measured intensity column family used as the numerator of each recruitment ratio, for example pathogen_channel_0_mean_intensity. Match the prefix in the selected vacuole table; changing it does not change masks or infer a different object type. Default pathogen. API: spacr.host_pathogen.summarize_tables.",
+      "source_sha256": "a2ea3695cf00cb10db3f3ad89096ed527d85a5b93f3ca9444f98f5f2795eb0f0",
+      "translation": "Välj den familj av uppmätta intensitetskolumner som används som täljare i varje rekryteringskvot, till exempel pathogen_channel_0_mean_intensity. Matcha prefixet i den valda vakuoltabellen; att ändra det ändrar inte maskerna och härleder ingen annan objekttyp. Standard pathogen. API: spacr.host_pathogen.summarize_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hp_vacuole_table",
+      "source": "Measurement table with one object per whole vacuole and a cell_id link to its host. Use whole-vacuole masks, not individual parasite masks. Default pathogen. API: spacr.host_pathogen.analyze_host_pathogen.",
+      "source_sha256": "50e6735db450bb08a4d9b7c7a277a410ae66dc667a77f299275dab05365a2817",
+      "translation": "Mättabell med ett objekt per hel vakuol och en cell_id-länk till dess värdcell. Använd masker för hela vakuoler, inte masker för enskilda parasiter. Standard pathogen. API: spacr.host_pathogen.analyze_host_pathogen."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_channels",
+      "source": "Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].",
+      "source_sha256": "c579a01ee68d3542c171c1b01a594de1031fbbe2245cc9b78840114734bdc52b",
+      "translation": "Identifierare för insamlingskanaler som ska granskas före Mask. Tomt betyder alla lagrade råkanaler. I v1 är de nollbaserade arraykanaler och i v2 mappade identifierare för insamlingskanaler. Tröskelordlistor använder samma identifierare. Standard []."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_max_nonfinite",
+      "source": "Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.",
+      "source_sha256": "31b6c5aceb730de3abdd98ebfa971549eb01e8f77b8dc814c933f0bea0f16195",
+      "translation": "Största andel NaN- eller oändliga pixlar som tillåts per granskad kanal. Överskrids den flaggas fältet; uteslutning sker endast i uteslutningsläge. Intervall 0-1; standard 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_max_saturation",
+      "source": "Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.",
+      "source_sha256": "0f688b2bbe5fa5ceffd31f2a342a9f58df9f3eec423a93405b11344926600932",
+      "translation": "Största tillåtna andel mättade pixlar per kanal, till exempel {2: 0.01}. Värdena ligger mellan 0 och 1. Mättnad bestäms av insamlingsnivån eller heltalstypens (dtype) maxvärde, aldrig av den ljusaste observerade pixeln. Tomt stänger av uteslutning på grund av mättnad. Standard {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_min_focus",
+      "source": "Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.",
+      "source_sha256": "ddb3927e005e66effe8b514248b8bf8c01e82a8e6e764a1b0ecc9b3eb375922f",
+      "translation": "Minsta godtagbara råa Laplace-varians per kanal, till exempel {0: 25.0, 2: 10.0}. Tomt stänger av uteslutning på grund av fokus. Kalibrera med representativa fält från samma insamling; enheten är intensitet i kvadrat. För en volym används planet med bäst fokus, så att ofokuserade närliggande z-plan inte ensamma avvisar den. Standard {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_mode",
+      "source": "Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.",
+      "source_sha256": "4e3b656baa6ef995f480bc91ce4ba1d895a944b4ef9443fdd0478303faa0a454",
+      "translation": "Bildgranskning före segmentering. off lämnar körningen som vanligt; report sparar mått och flaggor utan att utesluta något; exclude hoppar över flaggade fält enligt den sparade policyn. Inga bilder raderas och uteslutna fält rapporteras inte som resultat med noll objekt. Rapporter: qc/image_quality.json och .csv. Standard off."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_saturation_level",
+      "source": "Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.",
+      "source_sha256": "62c64541c0fbee6c3a344bf0ae87d35d430bfd7fdd838c1fa159414873ac53cb",
+      "translation": "Mättnadsnivå vid insamlingen per kanal, till exempel {0: 4095, 2: 65535}. Ange 4095 för en 12-bitars detektor som lagras i uint16. Saknade heltalsnivåer använder dtype-typens maxvärde; flyttalsbilder kräver en uttrycklig nivå om uteslutning på grund av mättnad är på. Standard {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_src",
+      "source": "Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training. Default blank.",
+      "source_sha256": "a2f9df08456a4cf904fc3067512e3d4134db60623b1ace6d556f46e1605cc404",
+      "translation": "Valfri separat mapp med heltalsmasker med objektetiketter (bakgrund 0). Lämna tomt för att använda masker i bildmappen. Matcha bildernas basnamn, eventuellt med suffixet _masks. Saknade eller tvetydiga par stoppar träningen. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "max_train_images",
+      "source": "Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size. Default None (automatic).",
+      "source_sha256": "0f3671c230794de5986a79a4f3dd10febee720ec20df25d860c323600542d8c2",
+      "translation": "Valfri gräns för antalet bildpar för träning som läses in i RAM, i filnamnsordning. Tomt eller ett icke-positivt värde använder alla par. Detta ändrar inte minibatchstorleken. Standard None (automatiskt)."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_fwhm_um",
+      "source": "Gaussian full width at half maximum in micrometers: [Y, X] or [Z, Y, X]. This is an explicit approximation, not an inferred microscope PSF. All widths must be positive and finite.",
+      "source_sha256": "ee72b5378cc515a4440aad30dfd28d8682341bbe1698f08fbc41a54f50a5a44c",
+      "translation": "Gaussisk halvvärdesbredd (FWHM) i mikrometer: [Y, X] eller [Z, Y, X]. Detta är en uttrycklig approximation, inte en härledd mikroskop-PSF. Alla bredder måste vara positiva och ändliga."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_image_sampling_um",
+      "source": "Explicit image sampling in micrometers: [Y, X] for 2D or [Z, Y, X] for a volume. All values must be positive and finite. A volume's sampling must agree with Measure's voxel calibration or anisotropy. No physical sampling is guessed.",
+      "source_sha256": "ea618fb519309c0ffd3efd46b129900c4b864d1204973473f4eecd31f37dff8c",
+      "translation": "Uttrycklig bildsampling i mikrometer: [Y, X] för 2D eller [Z, Y, X] för en volym. Alla värden måste vara positiva och ändliga. En volyms sampling måste stämma med voxelkalibreringen eller anisotropin i Measure. Ingen fysisk sampling gissas."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_kernel_sampling_um",
+      "source": "Measured kernel sampling in micrometers, in the same YX or ZYX order as the image. Must match image sampling exactly within numerical tolerance; no implicit resampling. Unused for a Gaussian approximation.",
+      "source_sha256": "583363c6fedcb7a910c33113cd69a28d96e7824993cfb71f6dfc8476b9afad8a",
+      "translation": "Uppmätt sampling för kärnan i mikrometer, i samma YX- eller ZYX-ordning som bilden. Måste motsvara bildens sampling exakt inom numerisk tolerans; ingen implicit omsampling. Används inte för en gaussisk approximation."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_operation",
+      "source": "With processed measurement intensities selected, convolve adds calibrated blur and deconvolve performs Richardson–Lucy restoration. Select original to keep normal Measure intensities without PSF processing. Stored images and exported crops are unchanged; the database records the intensity source and full PSF provenance. Configure a kernel appropriate to every selected intensity channel.",
+      "source_sha256": "790d0be1f226506a2d9b483da9025aab9c7e23403a54eff5b02d98a3b9ab1964",
+      "translation": "När bearbetade mätintensiteter är valda lägger convolve till kalibrerad oskärpa och deconvolve utför Richardson–Lucy-restaurering. Välj original för att behålla vanliga Measure-intensiteter utan PSF-bearbetning. Lagrade bilder och exporterade bildutsnitt ändras inte; databasen registrerar intensitetskällan och PSF-bearbetningens fullständiga ursprung. Konfigurera en kärna som passar varje vald intensitetskanal."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_path",
+      "source": "Measured PSF TIFF or NPY kernel, with odd spatial dimensions and finite nonnegative values. Use YX for a 2D field or ZYX for a volume. The center pixel is the optical origin; sampling must match the image. Captured once per run and sent to each worker, with exact kernel/file identity recorded.",
+      "source_sha256": "1bc362caea3ff61a56df226a423374ae1e2e79309b80796381d34c1c3904ab15",
+      "translation": "Uppmätt PSF-kärna i TIFF- eller NPY-format, med udda spatiala dimensioner och ändliga icke-negativa värden. Använd YX för ett 2D-fält eller ZYX för en volym. Mittpixeln är det optiska origo; samplingen måste stämma med bilden. Hämtas en gång per körning och skickas till varje arbetsprocess, och kärnans och filens exakta identitet registreras."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure.psf_source",
+      "source": "gaussian constructs an explicitly sampled Gaussian approximation from the supplied FWHM and image sampling. measured captures a calibrated TIFF or NPY kernel. The same kernel applies independently to every selected measurement intensity channel, so its calibration must suit all selected channels. Neither choice estimates microscope optics.",
+      "source_sha256": "e29df1f16e3f8c561c8ce36183f2c6d4f8ee86050e8cdcd992811189551bbd12",
+      "translation": "gaussian bygger en uttryckligen samplad gaussisk approximation från angiven FWHM och bildsampling. measured hämtar en kalibrerad kärna i TIFF- eller NPY-format. Samma kärna tillämpas oberoende på varje vald intensitetskanal för mätning, så dess kalibrering måste passa alla valda kanaler. Inget av valen uppskattar mikroskopets optik."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "min_train_masks",
+      "source": "Minimum labeled objects required per training image. Cellpose excludes fields below this count. Default 5. Lower it for deliberately sparse training fields.",
+      "source_sha256": "ed8880223f3e9c805703f6803f508be7c93cc9bda5f53cd1ddeae82dc39ac71c",
+      "translation": "Minsta antal etiketterade objekt per träningsbild. Cellpose utesluter fält under detta antal. Standard 5. Sänk det för avsiktligt glesa träningsfält."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "motility_analysis",
+      "source": "Run the automated motility assay once per plate, after all masks are merged: it rebuilds per-object measurements from merged/*.npy, cleans tracks, computes per-track velocity and straightness, applies the infection QC, and writes motility_plots plus a well-level summary table. It only fires when timelapse is also True, and it is what reveals the Motility setting categories. Default False.",
+      "source_sha256": "f5f1b5902485579ead4d5ddb0b22492440a18bd1284691abe36722062fec55ab",
+      "translation": "Kör den automatiserade motilitetsanalysen en gång per platta, efter att alla masker har slagits samman: den bygger om mätningar per objekt från merged/*.npy, rensar spår, beräknar hastighet och rakhet per spår, tillämpar infektions-QC och skriver motility_plots samt en sammanfattningstabell på brunnsnivå. Den körs bara när timelapse också är True, och det är den som visar inställningskategorierna för Motility. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nimg_per_epoch",
+      "source": "Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM. Default None (automatic).",
+      "source_sha256": "7cae0a66de40c80617cf9dbef7450b5dffdd744ce3490bfa4766871d0bec8636",
+      "translation": "Valfritt antal bilder som samplas per träningsepok. Tomt använder alla träningsbilder. Detta ändrar samplingen, inte antalet filer som läses in i RAM. Standard None (automatiskt)."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nimg_test_per_epoch",
+      "source": "Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source. Default None (automatic).",
+      "source_sha256": "17f9c94623655bc4a14f4a07dab0ac9d4f3f2f6f6d4e06aded3da67a8e5b580c",
+      "translation": "Valfritt antal valideringsbilder som samplas per utvärderingsepok. Tomt använder alla valideringsbilder. Kräver en källa för valideringsbilder. Standard None (automatiskt)."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nuclei_limit",
+      "source": "Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells. Replication starts at 10.",
+      "source_sha256": "441b564c6f3db7d1654eb4dff7f88d24c54c19f66b8055688b41f1f24bb9d960",
+      "translation": "Tak för antal kärnor per cell, som tillämpas när tabellerna per objekt slås samman. None stänger av filtret, True behåller endast celler med en kärna och ett heltal N behåller celler med N eller färre. Celler över taket tas helt bort från den sammanslagna tabellen. Ange inte False: det tolkas som 0 och tar bort varje cell, vilket ger en tom analys i stället för ett fel. Standard None. Merged Classifier börjar på True och Recruitment på 1, så båda behåller initialt endast celler med en kärna. Replication börjar på 10."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "number_of_organelles",
+      "source": "How many organelle slots this run has, from 0 to 26. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, matching the pattern organelle(?:[b-z]|[a-z]{2})?_.*; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.",
+      "source_sha256": "57d7edf6c82f6ea3046df54a7618d0162493b810c6aa7c1ade2b9e463ceeb216",
+      "translation": "Hur många organellplatser denna körning har, från 0 till 26. Varje plats är ett oberoende objekt med egen kanal, egen typförinställning och egen kopia av varje detektionsinställning, enligt mönstret organelle(?:[b-z]|[a-z]{2})?_.*; att höja antalet skapar ytterligare en plats inställningar och att sänka det döljer platserna över det nya antalet utan att ta bort dem. En dold plats behåller sina värden, skrivs fortfarande till inställningsfilen och kommer tillbaka exakt som den var när antalet höjs igen, så ett mindre antal kan prövas utan att arbete går förlorat. Standard 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_estimate_growth",
+      "source": "Optional experimental plaque time/scale suggestions, saved separately from measurements. Uses the largest quarter of plaques and an assumed linear growth relation. Defaults off. The RH/HFF seven-day reference has about 40 hours held-out endpoint error and has not been validated across times or other conditions. Without a known scale or time, the reference duration is explicitly assumed.",
+      "source_sha256": "d8c7450e0f2d484b872a9406e2a2f520a875e67965f458729e10a1cc573168f5",
+      "translation": "Valfria experimentella förslag på placktid och skala, sparade separat från mätningarna. Använder den största fjärdedelen av placken och ett antaget linjärt tillväxtsamband. Avstängt som standard. Referensen för RH/HFF efter sju dagar har ett slutpunktsfel på cirka 40 timmar på utelämnade data och har inte validerats för andra tider eller förhållanden. Utan känd skala eller tid antas referensens varaktighet uttryckligen."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_formation_hours",
+      "source": "Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
+      "source_sha256": "2b3e6d7315e18921803be8fd5976f3e7c9d35711aee3315a12b1b0771c198f9a",
+      "translation": "Förfluten tid för plackbildning i timmar, sparad som experimentell metadata. Noll är tillåtet; tomt betyder okänt. Förhandsvisningen av figurer tillåter åsidosättning per brunn. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_growth_reference_hours",
+      "source": "Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
+      "source_sha256": "181f2afb0dbc3309ca3ad1eb3dbf7ada19cf391eda1a6c92991a94eac9009201",
+      "translation": "Positiv bildningstid i timmar som motsvarar referensdiametern för tillväxt. Standard 168 (sju dagar). Linjär diametertillväxt genom noll antas; detta är inte en anpassad tidsberoende tillväxtkurva."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_growth_reference_um",
+      "source": "Reference median equivalent diameter in micrometers of the largest 25 percent of plaques. Default 893.8178699548309, derived from three independent RH/HFF vehicle-control experiments in Kelsen et al. 2023 S20 Data, DOI 10.1371/journal.pbio.3002110. Replace with a matched local reference when available.",
+      "source_sha256": "ea05d7b7a593bb270b172804e155feeb86e3f89734ced617ad7631801a65780e",
+      "translation": "Referensmedian för ekvivalent diameter i mikrometer för de största 25 procenten av placken. Standard 893.8178699548309, härledd från tre oberoende RH/HFF-experiment med vehikelkontroll i Kelsen et al. 2023 S20 Data, DOI 10.1371/journal.pbio.3002110. Ersätt med en matchad lokal referens när en sådan finns."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_pixels_per_um",
+      "source": "Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
+      "source_sha256": "96e6048781ffaebde645f32909f3a21dfd266078b74d8abf686650ed6be9652f",
+      "translation": "Känt antal pixlar per mikrometer i den analyserade bilden. Positiva värden åsidosätter detekterade skalstreck. Lämna tomt för automatisk kalibrering via skalstapel eller brunnsdiameter. Värden per brunn som anges i figurförhandsgranskningen har företräde. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_iterations",
+      "source": "Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
+      "source_sha256": "15995e9a85faa1c1ac0aca6504a0701fba97366ea4df0db30e1db28170c526d2",
+      "translation": "Richardson–Lucy-iterationer, 1–200; standard 20. Högre värden kan förstärka brus och artefakter. Används inte för faltning. Bearbetningen kan avbrytas mellan iterationer, använder symmetriska kanter och behåller flyttalsintensiteter utan att klippa dem till källans heltalsintervall."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_kernel_sampling_um",
+      "source": "Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
+      "source_sha256": "d7abfbd0b061ae3fb2b44eec9621b08bb4f8e1baac5ce81c01aaea0f42f9845d",
+      "translation": "Standard None (inte satt). Uppmätt pixelavstånd för kärnan [Y, X] i mikrometer. Måste motsvara bildens sampling; kärnor som inte stämmer avvisas i stället för att tyst omsamplas. Används inte för en gaussisk approximation."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_measurement_source",
+      "source": "original (default) measures normal Measure intensities, including its standard rescaling and registered illumination/preprocessing hooks, without PSF processing. Stored PSF parameters are ignored with this choice. processed applies the calibrated PSF after those stages before quantitative features; select convolve or deconvolve. Source files and exported crops keep their original behavior. The intensity_rescale database table records the choice, kernel identity, calibration and algorithm. Incompatible existing measurements require a separate project/output database.",
+      "source_sha256": "3a3d2176cc09548a6cd3cd0f980203cd67e0c4e3691212ab505b91177dc73def",
+      "translation": "original (standard) mäter vanliga Measure-intensiteter, inklusive dess standardomskalning och registrerade steg för belysning/förbehandling, utan PSF-bearbetning. Lagrade PSF-parametrar ignoreras med detta val. processed tillämpar den kalibrerade PSF:en efter dessa steg och före kvantitativa egenskaper; välj convolve eller deconvolve. Källfiler och exporterade bildutsnitt behåller sitt ursprungliga beteende. Databastabellen intensity_rescale registrerar valet, kärnans identitet, kalibreringen och algoritmen. Inkompatibla befintliga mätningar kräver en separat projekt- eller utdatadatabas."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_operation",
+      "source": "Optional point-spread processing of every selected segmentation intensity channel after illumination and before normalization. none is off (default); convolve simulates optical blur; deconvolve uses Richardson–Lucy. Source images and measurement intensities stay original. Changing this setting rebuilds Mask inputs when preprocessing is on; preprocessing off requires an exact completed match. This operates on 2D projected fields, not a 3D optical reconstruction.",
+      "source_sha256": "7d1d52fddda865aaa4f3e46474bd76b8532a02809eec0ecbd834e9318c398339",
+      "translation": "Valfri punktspridningsbearbetning av varje vald intensitetskanal för segmentering, efter belysningskorrigering och före normalisering. none är av (standard); convolve simulerar optisk oskärpa; deconvolve använder Richardson–Lucy. Källbilder och mätintensiteter förblir original. Att ändra inställningen bygger om indata till Mask när förbehandling är på; med förbehandling av krävs en exakt matchning mot en slutförd körning. Detta verkar på 2D-projicerade fält, inte en optisk 3D-rekonstruktion."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_path",
+      "source": "Default None (unset). Measured 2D PSF TIFF/NPY. Spatial dimensions must be odd; values finite, nonnegative and nonzero. The center pixel is the optical origin. The kernel is normalized to sum to one and captured once per processing run. Its contents and file identity enter psf/segmentation_application.json.",
+      "source_sha256": "c8ee98e07fbe20c88ed567862359351eecf41dedbee60cdf414b0a6f2287a967",
+      "translation": "Standard None (inte satt). Uppmätt 2D-PSF i TIFF/NPY-format. Spatiala dimensioner måste vara udda; värdena ändliga, icke-negativa och skilda från noll. Mittpixeln är det optiska origo. Kärnan normaliseras till summan ett och hämtas en gång per bearbetningskörning. Dess innehåll och filidentitet förs in i psf/segmentation_application.json."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_source",
+      "source": "gaussian (default) constructs a sampled Gaussian approximation from explicit FWHM and image pixel spacing; it does not estimate microscope optics. measured loads a calibrated TIFF or NPY kernel. A single kernel is applied independently to each selected segmentation channel; use only where its calibration is appropriate for every selected channel.",
+      "source_sha256": "570fef418261c59faa9c0d34609d808343d69adafdbe4e47d82f07bac8e827cf",
+      "translation": "gaussian (standard) bygger en samplad gaussisk approximation från uttrycklig FWHM och bildens pixelavstånd; den uppskattar inte mikroskopets optik. measured läser in en kalibrerad kärna i TIFF- eller NPY-format. En enda kärna tillämpas oberoende på varje vald segmenteringskanal; använd den endast där dess kalibrering passar varje vald kanal."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "replication_method",
+      "source": "Readout for spacr.submodules.analyze_replication. direct_count counts individually segmented parasites per assigned vacuole. size_proxy delegates to the existing area-derived endodyogeny analysis, which aggregates pathogen area per host cell and assumes one vacuole per host for a vacuole interpretation; it does not count parasites or measure volume. deep_learning_coming_soon is reserved for the forthcoming whole-vacuole classification model and cannot run yet. Default direct_count.",
+      "source_sha256": "daede075628af91a4668a10c4520d5139f156ff5050939f25047a9b343a67790",
+      "translation": "Avläsning för spacr.submodules.analyze_replication. direct_count räknar individuellt segmenterade parasiter per tilldelad vakuol. size_proxy lämnar över till den befintliga areabaserade endodyogenianalysen, som summerar patogenarea per värdcell och antar en vakuol per värdcell för en vakuoltolkning; den räknar inte parasiter och mäter inte volym. deep_learning_coming_soon är reserverad för den kommande klassificeringsmodellen för hela vakuoler och kan inte köras än. Standard direct_count."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_each",
+      "source": "Keep separate epoch checkpoints instead of replacing the periodic checkpoint. Default False. Enable to compare intermediate models; it consumes additional disk space.",
+      "source_sha256": "e291a7df3f7f40ff8779dbec7dfeac2d50c0841fc5a69ae960b1876e5ef60139",
+      "translation": "Behåll separata epokkontrollpunkter i stället för att ersätta den periodiska kontrollpunkten. Standard False. Aktivera för att jämföra mellanliggande modeller; det tar extra diskutrymme."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_every",
+      "source": "Checkpoint interval in epochs. Default 100. Cellpose always saves the final model even when the run is shorter than this interval.",
+      "source_sha256": "261834f7052527fb6c0758c1554da30a4246ae86cc94186c25eb56806a1be556",
+      "translation": "Intervall mellan kontrollpunkter i epoker. Standard 100. Cellpose sparar alltid den slutliga modellen, även när körningen är kortare än intervallet."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_path",
+      "source": "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too. Default blank.",
+      "source_sha256": "4c34d9ea911146a161724263c3bea8dcc8724a7d105beb9edb73f1f9419bcc01",
+      "translation": "Utdatamapp för kontrollpunkter. Cellpose skriver vikter till sin undermapp models. Lämna tomt för <image source>/models/cellpose_model. Använd tränad modell läser också från denna plats. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "scale_range",
+      "source": "Range of Cellpose's random training scale augmentation, from 0 to 2. Default 0.5. Cellpose also applies its native rotation, flip and crop augmentation; no eight-fold duplicate dataset is created.",
+      "source_sha256": "7936e2082ff9feb05ea95ed4150f16d133af90fb1746c1c4f7e1c9cc541116d6",
+      "translation": "Omfång för den slumpmässiga skalaugmenteringen i Cellpose vid träning, från 0 till 2. Standard 0.5. Cellpose tillämpar även sin inbyggda rotations-, spegelnings- och beskärningsaugmentering; ingen åttafaldig dubblettdatamängd skapas."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test_mask_src",
+      "source": "Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder. Default blank.",
+      "source_sha256": "2267cd466956b49de435571a452f67a9f834bb80feaa3562aad365e049c90612",
+      "translation": "Valfri mapp med valideringsmasker (etikettmasker). Lämna tomt för att använda undermappen masks i valideringsbildmappen. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test_src",
+      "source": "Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields. Default blank.",
+      "source_sha256": "51a5cf1e3f5b49e5bbc21a2e6e8720aa024cb979455bdb178a18ebae1c9b84a9",
+      "translation": "Valfri mapp med valideringsbilder, separat från träningsbilderna. Lämna tomt för att träna utan valideringsförluster. Dela upp per brunn eller experiment för att undvika läckage mellan relaterade fält. Standard tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.batch_size",
+      "source": "Training minibatch size, not a dataset limit. Default 1 reduces GPU memory use for Cellpose-SAM. Raise it only when memory permits.",
+      "source_sha256": "1656fb46d5f0786dac81e9e7c0caa3f85ed9a761324aa5014105abec379ec9ba",
+      "translation": "Minibatchstorlek vid träning, inte en gräns för datamängden. Standard 1 minskar GPU-minnesanvändningen för Cellpose-SAM. Höj den bara när minnet räcker."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.channel_axis",
+      "source": "Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks.",
+      "source_sha256": "52ff79122e0c4f3a095def96459324ad9d39d1b8447035a6f346f91076ea4cbc",
+      "translation": "Bildens kanalaxel: 0 för kanal först, -1 för kanal sist, eller tomt för att härleda den från maskens dimensioner. Tvetydiga bilder kräver en uttrycklig axel. Träningen stöder 2D-fält med valfria kanaler, inte Z-stackar."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.channels",
+      "source": "Zero-based image channels to train on (one to three), or leave blank to preserve all channels in images with at most three. Channels are never averaged. Larger images require an explicit selection.",
+      "source_sha256": "387f591ef0ab765d87cbdfa25fe1addd7315d9e924a1a8c1bee6cd147ff91413",
+      "translation": "Nollbaserade bildkanaler att träna på (en till tre), eller lämna tomt för att behålla alla kanaler i bilder med högst tre. Kanaler medelvärdesbildas aldrig. Större bilder kräver ett uttryckligt val."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.learning_rate",
+      "source": "AdamW learning rate for Cellpose 4 fine-tuning. Default 0.00001 (1e-5), the Cellpose-SAM recommendation. Reduce it if loss becomes unstable.",
+      "source_sha256": "7c807b8fec4864e016684711500af4431d95ad5f67b8dea2fe678e6a72cd2fa4",
+      "translation": "Inlärningshastighet för AdamW vid finjustering av Cellpose 4. Standard 0.00001 (1e-5), rekommendationen för Cellpose-SAM. Sänk den om förlusten blir instabil."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.mask_src",
+      "source": "Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training.",
+      "source_sha256": "2c4de5b3fd73339163260b9b39e69c72381216414a509973e6ab878e92c957c5",
+      "translation": "Valfri separat mapp med heltalsmasker med objektetiketter (bakgrund 0). Lämna tomt för att använda masker i bildmappen. Matcha bildernas basnamn, eventuellt med suffixet _masks. Saknade eller tvetydiga par stoppar träningen."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.max_train_images",
+      "source": "Optional limit on paired training images loaded into RAM, in filename order. Blank or a nonpositive value uses every pair. This does not change the minibatch size.",
+      "source_sha256": "db08b150e9e52356ad2f890ac5e6e3435a23b3a9049cc7304b30baff1cc5ee3d",
+      "translation": "Valfri gräns för antalet bildpar för träning som läses in i RAM, i filnamnsordning. Tomt eller ett icke-positivt värde använder alla par. Detta ändrar inte minibatchstorleken."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.model_name",
+      "source": "Name for the newly trained checkpoint. The epoch count is appended. Use a distinct name for each experiment to preserve earlier runs.",
+      "source_sha256": "4e41df1e350191f5a1837f9531f00a6c9e1d6c7be63e5b6094ad9da2e3be91d3",
+      "translation": "Namn på den nytränade kontrollpunkten. Antalet epoker läggs till. Använd ett eget namn för varje experiment så att tidigare körningar bevaras."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.n_epochs",
+      "source": "Training epochs. Default 100 follows Cellpose-SAM fine-tuning guidance. Monitor training and validation losses before extending a run.",
+      "source_sha256": "ae4c4df81e39ca2724175a8ec36beecfb42dbb15a2f440fdaa9b4c6ca49308a8",
+      "translation": "Träningsepoker. Standard 100 följer riktlinjerna för finjustering av Cellpose-SAM. Följ tränings- och valideringsförlusterna innan du förlänger en körning."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.nimg_per_epoch",
+      "source": "Optional number of images sampled per training epoch. Blank uses every training image. This changes sampling, not the number of files loaded into RAM.",
+      "source_sha256": "453177e6167402652cdbd2e7abbfa238d24bc86f30e2f5054c054d3888aa8aeb",
+      "translation": "Valfritt antal bilder som samplas per träningsepok. Tomt använder alla träningsbilder. Detta ändrar samplingen, inte antalet filer som läses in i RAM."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.nimg_test_per_epoch",
+      "source": "Optional number of validation images sampled per evaluation epoch. Blank uses all validation images. Requires a validation image source.",
+      "source_sha256": "16e1646f814de87a47ea22e9eb81e12df3f3d733abe8bd530d8cfc6ea4676826",
+      "translation": "Valfritt antal valideringsbilder som samplas per utvärderingsepok. Tomt använder alla valideringsbilder. Kräver en källa för valideringsbilder."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.normalize",
+      "source": "Apply Cellpose's per-channel percentile normalization once during training. Disable only for intentionally pre-normalized data. Default True.",
+      "source_sha256": "b6bbd94d503792b9bcd4268fe64a7e5d1a177c1dcec7af523203140e8a06bff6",
+      "translation": "Tillämpa percentilnormalisering per kanal från Cellpose en gång under träningen. Stäng av endast för avsiktligt förnormaliserade data. Standard True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.percentiles",
+      "source": "Lower and upper intensity percentiles used when normalization is enabled. Default [1, 99], matching Cellpose. Native image geometry and separate channels are preserved.",
+      "source_sha256": "054c2cddb98c420a4d610c9393627c118b30a3dfa12880bb1fb3d6dd2dc94b5b",
+      "translation": "Nedre och övre intensitetspercentiler som används när normalisering är på. Standard [1, 99], som i Cellpose. Bildens ursprungliga geometri och separata kanaler bevaras."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.save_path",
+      "source": "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too.",
+      "source_sha256": "8e4612fba7c09d871efdd3e8cf52fdd992b9698c9f8df8ef3618fbb92bb739b9",
+      "translation": "Utdatamapp för kontrollpunkter. Cellpose skriver vikter till sin undermapp models. Lämna tomt för <image source>/models/cellpose_model. Använd tränad modell läser också från denna plats."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.src",
+      "source": "Folder containing training microscopy images. Masks default to the masks subfolder. Legacy project/train/images and project/train/masks layouts also remain supported.",
+      "source_sha256": "f8603d851f381facce6ddd52d26ebe897b2989dcba82175acba0d96b4cd72f7a",
+      "translation": "Mapp med mikroskopibilder för träning. Masker hämtas som standard från undermappen masks. Äldre strukturer med project/train/images och project/train/masks stöds fortfarande."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.test_mask_src",
+      "source": "Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder.",
+      "source_sha256": "40d49cb69393a999e378139af670630a75b6b48a100e1dd4350ee62f5a684aa9",
+      "translation": "Valfri mapp med valideringsmasker (etikettmasker). Lämna tomt för att använda undermappen masks i valideringsbildmappen."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.test_src",
+      "source": "Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields.",
+      "source_sha256": "ab03e850b280d62b1ba43fbb73d44fe7f4bf9bb78fec7119ccf58852046fb417",
+      "translation": "Valfri mapp med valideringsbilder, separat från träningsbilderna. Lämna tomt för att träna utan valideringsförluster. Dela upp per brunn eller experiment för att undvika läckage mellan relaterade fält."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_cellpose.weight_decay",
+      "source": "AdamW weight decay. Default 0.1, as recommended for Cellpose-SAM fine-tuning.",
+      "source_sha256": "2f489484388f4b4c178b7db4879d555479e04797334021edd901a4067fb2a5ed",
+      "translation": "Viktavklingning för AdamW. Standard 0.1, enligt rekommendationen för finjustering av Cellpose-SAM."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_aggregation",
+      "source": "Combine test-time views using probability_mean or majority_vote. Voting ties prefer the higher mean probability, then the lower class index. pred retains the mean probability; predicted_label and cv_predictions retain the selected label. Default probability_mean.",
+      "source_sha256": "97a29e510ba88a81f2eecdd005f4f595406b5afd30cfae75736c237bf8486fa1",
+      "translation": "Kombinera vyerna vid inferens med probability_mean eller majority_vote. Vid lika röster väljs högre medelsannolikhet och sedan lägre klassindex. pred behåller medelsannolikheten; predicted_label och cv_predictions behåller den valda etiketten. Standard probability_mean."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_enabled",
+      "source": "Score selected rotated or reflected versions of each phenotype crop during inference. Choose transforms in this category; the original view is always included. Saves original predictions, mean probabilities, standard deviations, agreement and review flags. Keep disabled when orientation carries biological meaning. Does not change training augmentation. Default False.",
+      "source_sha256": "64c2a8c295c53141776bc2d92db7b00c6b8ebb24f67a83a77a55b127d43f626a",
+      "translation": "Poängsätt valda roterade eller speglade versioner av varje fenotypbildutsnitt under inferensen. Välj transformationer i denna kategori; originalvyn tas alltid med. Sparar ursprungliga prediktioner, medelsannolikheter, standardavvikelser, samstämmighet och granskningsflaggor. Håll avstängt när orienteringen har biologisk betydelse. Ändrar inte augmenteringen vid träning. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_horizontal_flip",
+      "source": "With test-time augmentation enabled, include horizontal reflections of the selected rotations. Each distinct reflected view is classified before aggregation; equivalent orientations are evaluated once. Disable when horizontal direction has biological meaning in the assay. Default False.",
+      "source_sha256": "ceb57712d39ba20ec8c18a52be352881339b5284b6f40025f06c47f63d0b442e",
+      "translation": "Ta med horisontella speglingar av de valda rotationerna när augmentering vid inferens är på. Varje distinkt speglad vy klassificeras före sammanvägningen; likvärdiga orienteringar utvärderas en gång. Stäng av när den horisontella riktningen har biologisk betydelse i analysen. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_max_std",
+      "source": "Flag an object when its positive-class probability (binary) or selected-class probability (multiclass) has a population standard deviation above this value across orientations. Range 0-1; default 0.15.",
+      "source_sha256": "96913b03962a5bf4db05b6cf374796273ca6e9f2c60620d7675d46ab13f716dd",
+      "translation": "Flagga ett objekt när dess sannolikhet för den positiva klassen (binärt) eller den valda klassen (flerklass) har en populationsstandardavvikelse över detta värde mellan orienteringarna. Intervall 0-1; standard 0.15."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_min_agreement",
+      "source": "Flag an object for review when fewer than this fraction of orientation predictions agree with the selected label. Agreement measures orientation stability, not calibrated confidence. Range 0-1; default 0.75.",
+      "source_sha256": "2a6c2845ec9136291ad5355c977b5f75ee86bc79ffe7f5d9229c34c3255fa957",
+      "translation": "Flagga ett objekt för granskning när mindre än denna andel av orienteringsprediktionerna stämmer med den valda etiketten. Samstämmigheten mäter orienteringsstabilitet, inte kalibrerad konfidens. Intervall 0-1; standard 0.75."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_rotations",
+      "source": "With test-time augmentation enabled, include 90, 180 and 270 degree rotations. Uses exact pixel rotations without interpolation. Default False.",
+      "source_sha256": "68fe2bdc40f5a5420aad6a796360b266c81cf242ea4dbd7ba72684cc29018922",
+      "translation": "Ta med rotationer på 90, 180 och 270 grader när augmentering vid inferens är på. Använder exakta pixelrotationer utan interpolation. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tta_vertical_flip",
+      "source": "With test-time augmentation enabled, include vertical reflections. Equivalent orientations are evaluated once; all rotations and both flips produce eight distinct views. Default False.",
+      "source_sha256": "38af2efefe83bfb5c8593c196d6fe6467d22fb6fc4f28bfcdc5c84c00edd6ad9",
+      "translation": "Ta med vertikala speglingar när augmentering vid inferens är på. Likvärdiga orienteringar utvärderas en gång; alla rotationer och båda speglingarna ger åtta distinkta vyer. Standard False."
+    }
+  ]
+}

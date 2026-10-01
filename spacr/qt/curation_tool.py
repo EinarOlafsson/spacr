@@ -114,7 +114,14 @@ class BrushTool(CanvasTool):
 
     def press(self, view: LayerCanvas, world: Dict[str, float],
               event: Any) -> bool:
-        """Open a stroke and lay the first dab."""
+        """Open a stroke and lay the first dab.
+
+        :param view: the canvas that received the press; not used.
+        :param world: world coordinate under the pointer, where the first dab
+            is laid.
+        :param event: the mouse press event; its button picks painting (left)
+            or erasing (right), and any other button is ignored.
+        """
         button = event.button() if hasattr(event, "button") else Qt.LeftButton
         if button not in (Qt.LeftButton, Qt.RightButton):
             return False
@@ -132,6 +139,12 @@ class BrushTool(CanvasTool):
         this guard the brush would paint wherever the cursor happened to
         travel after the button came up — which is the sort of bug that
         destroys a mask in the time it takes to reach for the undo button.
+
+        :param view: the canvas that received the motion; not used.
+        :param world: world coordinate under the pointer, where the next dab is
+            laid.
+        :param event: the mouse move event; its held buttons are read, and
+            nothing is painted unless the left or right button is down.
         """
         if not self._painting:
             return False
@@ -143,7 +156,12 @@ class BrushTool(CanvasTool):
 
     def release(self, view: LayerCanvas, world: Dict[str, float],
                 event: Any) -> bool:
-        """Close the stroke, so undo takes back all of it."""
+        """Close the stroke, so undo takes back all of it.
+
+        :param view: the canvas that received the release; not used.
+        :param world: world coordinate under the pointer; not used.
+        :param event: the mouse release event; not used.
+        """
         if not self._painting:
             return False
         self._painting = False
@@ -151,7 +169,13 @@ class BrushTool(CanvasTool):
         return True
 
     def key(self, view: LayerCanvas, event: Any) -> bool:
-        """``[`` / ``]`` resize the brush; Backspace undoes a stroke."""
+        """``[`` / ``]`` resize the brush; Backspace undoes a stroke.
+
+        :param view: the canvas that received the key press; not used.
+        :param event: the key event; Backspace or Delete undo, and its text
+            ``[`` or ``]`` shrinks or grows the radius by a factor of 1.5
+            (never below 0.5).
+        """
         if event.key() in (Qt.Key_Backspace, Qt.Key_Delete):
             self.session.undo()
             return True
@@ -450,7 +474,12 @@ class BrushPanel(QWidget):
                               for edit in self._session.log.edits))
 
     def closeEvent(self, event) -> None:
-        """Stop painting and let go of the model."""
+        """Stop painting and let go of the model.
+
+        :param event: the close event, passed on to the base class after
+            painting stops and the panel unsubscribes from the layer stack and
+            the session.
+        """
         self.stop_painting()
         self._canvas.stack.unsubscribe(self._on_layers_changed)
         self._session.unsubscribe(self._on_edit_recorded)
@@ -573,7 +602,12 @@ class TrackCurationPanel(QWidget):
         return self._session
 
     def set_tracks(self, tracks: pd.DataFrame, *, artifact: str = "") -> None:
-        """Open a track table. The seam a screen (or a test) goes through."""
+        """Open a track table. The seam a screen (or a test) goes through.
+
+        :param tracks: track table to curate; it must contain ``frame`` and
+            ``track_id`` and is copied by
+            :class:`spacr.curation.TrackCuration`.
+        """
         self._artifact = str(artifact or self._artifact)
         self._session = TrackCuration(tracks, artifact=self._artifact)
         self.refresh()
@@ -584,6 +618,10 @@ class TrackCurationPanel(QWidget):
         Any ledger already beside it is read back too, so a second curation
         session continues the first one's history rather than starting a
         fresh one that makes the earlier edits invisible.
+
+        :param path: tracks CSV to read; its ``.curation.json`` ledger beside
+            it is read back if present. A read or validation failure is shown
+            in the status line and returns ``None``.
         """
         try:
             frame = pd.read_csv(path)

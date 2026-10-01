@@ -1148,16 +1148,28 @@ class DoseResponseSpec:
 
     def with_columns(self, concentration: str, response: str,
                      group: Optional[str] = None) -> "DoseResponseSpec":
-        """A copy pointed at different columns."""
+        """A copy pointed at different columns.
+
+        :param concentration: column holding the dose.
+        :param response: column holding the measured response.
+        """
         return replace(self, concentration=concentration, response=response,
                        group=group)
 
     def with_ci_method(self, method: str) -> "DoseResponseSpec":
-        """A copy using a different interval."""
+        """A copy using a different interval.
+
+        :param method: :data:`CI_PROFILE` or :data:`CI_WALD`; any other value
+            raises :class:`DoseResponseError`.
+        """
         return replace(self, ci_method=method)
 
     def with_unit(self, unit: str) -> "DoseResponseSpec":
-        """A copy that says the concentrations are in ``unit``."""
+        """A copy that says the concentrations are in ``unit``.
+
+        :param unit: concentration unit for the sentences; surrounding
+            whitespace is stripped.
+        """
         return replace(self, unit=unit)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -1181,6 +1193,9 @@ class DoseResponseSpec:
 
         Unknown keys are ignored and missing keys defaulted, so an analysis
         written by another build of spaCR still opens.
+
+        :param payload: mapping as written by :meth:`to_dict`; only the spec's
+            own field names are used.
         """
         fields = {"concentration", "response", "group", "ci_method",
                   "confidence", "unit", "direction", "allow_non_monotone",
@@ -1194,7 +1209,10 @@ class DoseResponseSpec:
 
     @classmethod
     def from_json(cls, text: str) -> "DoseResponseSpec":
-        """Inverse of :meth:`to_json`."""
+        """Inverse of :meth:`to_json`.
+
+        :param text: JSON text as written by :meth:`to_json`.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
@@ -1230,6 +1248,10 @@ class DoseResponseResult:
         the experiment does not bound it.
     :param ec50_unconstrained: ``10 ** log10_ec50``, always. An extrapolation
         when :attr:`ec50_bounded` is ``False``.
+    :param ec50_bounded: whether the data bound the EC50: it lies inside the
+        tested range, the curve's midpoint is within the observed responses,
+        both plateaus are reached and the interval is closed on both sides.
+        :attr:`ec50` is ``None`` unless it is ``True``.
     :param ec50_low: back-transformed lower end of the interval, or ``None``
         for an open side.
     :param ec50_high: back-transformed upper end of the interval, or
@@ -1250,6 +1272,9 @@ class DoseResponseResult:
     :param dof: residual degrees of freedom — ``n_obs`` less the model's
         parameter count, so ``n_obs - 4`` for a 4PL and ``n_obs - 5`` for a
         5PL.
+    :param dose_min: lowest distinct positive concentration fitted.
+    :param dose_max: highest distinct positive concentration fitted.
+    :param sse: residual sum of squares of the fitted curve.
     :param rse: residual standard error, in response units.
     :param r_squared: with the health warning in :meth:`caveats` attached.
     :param lack_of_fit_f: F statistic of the test against pure error.
@@ -1394,7 +1419,11 @@ class DoseResponseResult:
         return bool(abs(self.hill) <= SHALLOW_HILL)
 
     def predict(self, x) -> np.ndarray:
-        """The fitted response at ``x``."""
+        """The fitted response at ``x``.
+
+        :param x: concentration(s), in the fitted units; evaluated with this
+            result's model and parameters.
+        """
         return self.model_function(x, *self.parameters)
 
     def curve(self, points: int = 200) -> Tuple[np.ndarray, np.ndarray]:
@@ -1752,7 +1781,11 @@ class DoseResponseSet:
         return tuple(fit.group for fit in self.fits)
 
     def get(self, group: str) -> Optional[GroupFit]:
-        """The fit for one level, or ``None``."""
+        """The fit for one level, or ``None``.
+
+        :param group: the level name to look up, as stored in
+            :attr:`GroupFit.group` (``""`` for an ungrouped fit).
+        """
         for fit in self.fits:
             if fit.group == group:
                 return fit
@@ -2717,6 +2750,10 @@ def fit_frame(frame: pd.DataFrame,
     still report the other twenty-three, with the cytotoxic one visibly
     labelled rather than missing.
 
+    :param frame: the table holding the concentration, response and optional
+        grouping columns named by ``spec``.
+    :param spec: the columns to fit and the fitting policy; with a ``group``
+        column, one curve is fitted per level.
     :raises DoseResponseError: only for something wrong with the *table* —
         a column that is not there, or a group column with no levels. Per-curve
         failures land in :attr:`GroupFit.error`.
@@ -2795,6 +2832,9 @@ def candidate_concentration_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     and free text (:data:`~spacr.qt.widgets.graph_spec.UNPLOTTABLE`), which is
     the part of its judgement that transfers; the continuous/categorical split
     does not identify dose columns reliably.
+
+    :param frame: the table whose columns are screened; they are returned in
+        sorted name order.
     """
     from .graph_spec import UNPLOTTABLE
     kinds = _kinds(frame)
@@ -2815,6 +2855,9 @@ def candidate_response_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     Here the classifier's continuous/categorical split *is* the right cut: a
     response is a measured quantity, and a column with four levels is a label
     or a count rather than something a sigmoid passes through.
+
+    :param frame: the table whose columns are classified; the continuous ones
+        are returned in sorted name order.
     """
     from .graph_spec import CONTINUOUS
     kinds = _kinds(frame)

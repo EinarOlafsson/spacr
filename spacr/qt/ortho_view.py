@@ -137,7 +137,13 @@ class OrthoPanel(QFrame):
 
     def show_canvas(self, stack: LayerStack, canvas: Canvas,
                     crosshair: Optional[Dict[str, float]] = None) -> None:
-        """Paint ``stack`` through ``canvas``, with the crosshair at a point."""
+        """Paint ``stack`` through ``canvas``, with the crosshair at a point.
+
+        :param stack: the layer stack to paint; kept for the next repaint.
+        :param canvas: the :class:`~spacr.layers.Canvas` that maps the stack's
+            world coordinates onto this panel's pixels; it also places the
+            crosshair.
+        """
         self._stack = stack
         self._canvas = canvas
         if crosshair is None:
@@ -308,7 +314,12 @@ class OrthoView(LinkedView, QWidget):
         return self._views
 
     def set_stack(self, stack: LayerStack) -> None:
-        """Show a different volume, rebuilding the sliders for its extents."""
+        """Show a different volume, rebuilding the sliders for its extents.
+
+        :param stack: the new layer stack; the view is refitted to it, and a
+            stack with no volume leaves the panels empty with the reason in the
+            status line.
+        """
         self._stack = stack
         self.reset_view()
 
@@ -454,7 +465,11 @@ class OrthoView(LinkedView, QWidget):
         return origin + index * step
 
     def slice_index(self, axis: str) -> int:
-        """Which slice the crosshair is on along ``axis``, counting from 0."""
+        """Which slice the crosshair is on along ``axis``, counting from 0.
+
+        :param axis: the world axis, one of the view's axis names (``z``, ``y``
+            or ``x`` by default).
+        """
         origin, step = self._slice_grid(axis)
         if step <= 0:
             return 0
@@ -589,7 +604,12 @@ class OrthoView(LinkedView, QWidget):
             f"{self._views.xy.units}/px")
 
     def on_linked_selection_changed(self, selection) -> None:
-        """Move the crosshair onto the object another view selected."""
+        """Move the crosshair onto the object another view selected.
+
+        :param selection: the shared :class:`~spacr.selection.Selection`. Only
+            a selection of exactly one key moves the crosshair, onto the
+            centroid of the labels-layer object with that key.
+        """
         if selection.keys is None or len(selection.keys) != 1:
             return
         wanted = str(selection.keys[0])
@@ -607,6 +627,10 @@ class OrthoView(LinkedView, QWidget):
                 return
 
     def closeEvent(self, event) -> None:
-        """Leave the shared selection when the screen goes."""
+        """Leave the shared selection when the screen goes.
+
+        :param event: the close event, passed on to the base class after the
+            view leaves the shared selection.
+        """
         self.unlink_selection()
         super().closeEvent(event)

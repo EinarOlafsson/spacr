@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Automatic pass/fail checks on the finished masks, what the run keeps on disk, and how it behaves when something fails: object count, size and border checks, the files and intermediates saved, error handling, workers, batch size, GPUs and the random seed. Tighten the checks once you know what a good field looks like.",
+      "source": "Automatic pass/fail checks on the finished masks, what the run keeps on disk, and how it behaves when something fails: object count, size and border checks, the files and intermediates saved, error handling, workers, batch size, GPUs and the random seed. Tighten the checks once you know what a good field looks like.",
+      "source_sha256": "0328eb9975be8f0f5f6427d13c1a061101d7206a75e15c8cfcc03b7f6bdabd11",
+      "translation": "Contrôles automatiques réussi/échoué des masques terminés, ce que l’exécution garde sur disque et son comportement en cas d’échec : contrôles du nombre d’objets, de la taille et des bords, fichiers et intermédiaires enregistrés, gestion des erreurs, processus, taille de lot, GPUs et graine aléatoire. Resserrez les contrôles une fois que vous savez à quoi ressemble un bon champ."
+    },
+    {
+      "table": "categories",
+      "key": "Deconvolution or convolution with the microscope's point spread function, applied to the segmentation channels before normalization: a calibrated measured PSF, one inferred from the objective, or an explicit Gaussian. Richardson-Lucy deconvolution sharpens and can amplify noise. Raw images and measurement intensities remain unchanged.",
+      "source": "Deconvolution or convolution with the microscope's point spread function, applied to the segmentation channels before normalization: a calibrated measured PSF, one inferred from the objective, or an explicit Gaussian. Richardson-Lucy deconvolution sharpens and can amplify noise. Raw images and measurement intensities remain unchanged.",
+      "source_sha256": "7cc5d1d59638d155c5b90c414adab0826063f8a6cbd31646c284ac2d16f7f43e",
+      "translation": "Déconvolution ou convolution par la fonction d’étalement du point du microscope, appliquée aux canaux de segmentation avant la normalisation : une PSF mesurée et calibrée, une PSF déduite de l’objectif ou une gaussienne explicite. La déconvolution de Richardson-Lucy rend plus net et peut amplifier le bruit. Les images brutes et les intensités mesurées restent inchangées."
+    },
+    {
+      "table": "categories",
+      "key": "Noise2Void denoising trained on the run's own noisy images, with no clean targets: one model per segmentation channel, applied after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo.",
+      "source": "Noise2Void denoising trained on the run's own noisy images, with no clean targets: one model per segmentation channel, applied after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo.",
+      "source_sha256": "05072f9978f4f7a438fbfc269f81553fea5d09750038ae29de5c3f984610d534",
+      "translation": "Débruitage Noise2Void entraîné sur les propres images bruitées de l’exécution, sans cibles propres : un modèle par canal de segmentation, appliqué après la correction d’éclairage et avant la PSF et la chaîne d’amélioration. Nécessite le moteur CAREamics de la Bibliothèque de modèles."
+    },
+    {
+      "table": "categories",
+      "key": "One column per object -- cell, nucleus, pathogen, cytoplasm -- and one row per question: channel, model, diameter, thresholds, remove background, adjust cells, and any filters added with Add a filter. Fill a column for every object the run segments.",
+      "source": "One column per object -- cell, nucleus, pathogen, cytoplasm -- and one row per question: channel, model, diameter, thresholds, remove background, adjust cells, and any filters added with Add a filter. Fill a column for every object the run segments.",
+      "source_sha256": "56a21ef6fc343f2f81c8032c7f78cdb7624042157a0913c2027c04e788c2e3a8",
+      "translation": "Une colonne par objet (cellule, noyau, pathogène, cytoplasme) et une ligne par question : canal, modèle, diamètre, seuils, suppression du fond, ajustement des cellules et tout filtre ajouté avec Ajouter un filtre. Remplissez une colonne pour chaque objet que l’exécution segmente."
+    },
+    {
+      "table": "categories",
+      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
+      "translation": "Lire la plaque directement depuis le stockage cloud : identifiants, point de terminaison et cache local, ainsi que le dossier cloud vers lequel les mesures sont copiées à la fin de l’exécution. Laissez tel quel pour une plaque sur disque local."
+    },
+    {
+      "table": "categories",
+      "key": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
+      "source": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
+      "source_sha256": "03814a8777e690d1aad1793b7b81835892878929c1bf04c9ad238edf00c8d79f",
+      "translation": "Le dossier contenant les images masquées, le nom d’expérience sous lequel les mesures sont classées, ainsi que la petite exécution de test et les graphiques servant à vérifier une configuration avant de s’engager sur toute une plaque."
+    },
+    {
+      "table": "categories",
+      "key": "What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.",
+      "source": "What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.",
+      "source_sha256": "ca6fff8808c134c26c36828f1ed7a6539f1e6cdbbd34365c6f0f5c8414762aa0",
+      "translation": "Ce qui se passe autour et après la mesure : comment l’exécution se remet des échecs et combien de processus elle utilise, le profilage des tables terminées et leur copie vers un moteur de base de données."
+    },
+    {
+      "table": "categories",
+      "key": "What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.",
+      "source": "What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.",
+      "source_sha256": "72a3eb42ea282a4243dfefb3c6e0b69feae21b8046fa694ab8018bb18a5e21ed",
+      "translation": "Ce qui est fait aux pixels de chaque champ avant qu’une seule caractéristique soit mesurée (correction de photoblanchiment, spectrale et d’éclairage, déconvolution par une fonction d’étalement du point et calibration d’intensité entre plaques) et quel code-barres relie chaque plaque à son plan de plaque. Les masques ne sont pas modifiés."
+    },
+    {
+      "table": "categories",
+      "key": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
+      "source": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
+      "source_sha256": "3acf56bad6bcc69406fc99cb3a64854cd0070e8578eb7284f3c5920d0707eeab",
+      "translation": "Quelles familles de mesures sont calculées pour chaque objet (intensité, morphologie, texture, distribution radiale et colocalisation) et les essais qui en sont tirés, comme la confluence, le cycle cellulaire, la fermeture de la plaie, la viabilité et le temps jusqu’à l’événement. Plus de caractéristiques signifient une table plus large et une exécution plus longue."
+    }
+  ]
+}

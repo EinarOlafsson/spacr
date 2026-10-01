@@ -248,3 +248,81 @@ def test_a_shape_chosen_for_a_matplotlib_figure_is_written_into_its_height(
 # the failure label and the empty-plot label), so every item `takeAt` hands
 # back owns a widget. A spacer or a nested layout would make the guard fire,
 # and no code path adds one.
+
+
+# ---------------------------------------------------------------------------
+# The figure-integrity check on the save path (coverage ratchet, 288)
+# ---------------------------------------------------------------------------
+
+class TestTheSaveCarriesTheIntegrityStamp:
+    """A figure saved here meets the rule a pipeline figure meets: with the
+    integrity check on, the file carries its stamp and the provenance is
+    finished beside it; a check that finds nothing, fails, or cannot finish
+    costs the stamp and never the file."""
+
+    def _integrity(self, monkeypatch, *, report, stamp, finish=None):
+        from spacr import plot
+
+        seen = {}
+        monkeypatch.setattr(plot, "_figure_integrity_enabled", lambda: True)
+        monkeypatch.setattr(plot, "_integrity_report",
+                            lambda figure, fmt, dpi: report)
+        monkeypatch.setattr(plot, "_integrity_metadata",
+                            lambda rep, written: stamp)
+
+        def finished(rep, path):
+            seen["finished"] = (rep, path)
+            if finish is not None:
+                raise finish
+
+        monkeypatch.setattr(plot, "_finish_integrity", finished)
+        return seen
+
+    @pytest.fixture
+    def dialog(self, qtbot):
+        made = SaveFigureDialog(_figure())
+        qtbot.addWidget(made)
+        return made
+
+    def test_a_stamped_figure_is_written_and_its_provenance_finished(
+            self, dialog, tmp_path, monkeypatch):
+        report = {"panels": 1}
+        seen = self._integrity(monkeypatch, report=report,
+                               stamp={"Description": "spaCR integrity"})
+        out = tmp_path / "stamped.pdf"
+        assert dialog.save(str(out)) == str(out)
+        assert out.is_file()
+        assert seen["finished"] == (report, str(out))
+
+    def test_an_empty_stamp_or_no_report_still_writes(self, dialog, tmp_path,
+                                                      monkeypatch):
+        self._integrity(monkeypatch, report={"panels": 1}, stamp={})
+        out = tmp_path / "plain.png"
+        assert dialog.save(str(out)) == str(out)
+        assert dialog._integrity_stamp(dialog._source, str(out), "png") == (
+            {}, {"panels": 1})
+        self._integrity(monkeypatch, report=None, stamp={"x": "y"})
+        assert dialog._integrity_stamp(dialog._source, str(out), "png") == (
+            {}, None)
+
+    def test_provenance_that_cannot_be_finished_keeps_the_file(
+            self, dialog, tmp_path, monkeypatch):
+        self._integrity(monkeypatch, report={"panels": 1}, stamp={},
+                        finish=OSError("read-only folder"))
+        out = tmp_path / "kept.png"
+        assert dialog.save(str(out)) == str(out)
+        assert out.is_file()
+
+    def test_a_check_that_cannot_run_costs_only_the_stamp(
+            self, dialog, tmp_path, monkeypatch):
+        from spacr import plot
+
+        def broken(figure, fmt, dpi):
+            raise ValueError("no pixel data in this panel")
+
+        self._integrity(monkeypatch, report=None, stamp={})
+        monkeypatch.setattr(plot, "_integrity_report", broken)
+        out = tmp_path / "unchecked.png"
+        assert dialog._integrity_stamp(dialog._source, str(out), "png") == (
+            {}, None)
+        assert dialog.save(str(out)) == str(out) and out.is_file()

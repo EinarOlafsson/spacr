@@ -1,21 +1,33 @@
 {
-  "lesson": "75_regression_diagnostics", "language": "de",
-  "english_sha256": "636adada0750d87b67747ee847c26351442e9bb4bd9d98063728b6c302af4b33",
-  "review": {"kind": "Editorial caption translation checked against English and recorded diagnostic evidence", "native_speaker_signoff": false, "corrections": ["Preserve the distinction between design warnings, permutation inference and software errors.", "Retain numerical limits and explain why this run has no fitted residuals."]},
-  "title": "Regression Diagnostics: die Belege hinter den Ergebnissen verstehen",
-  "description": "Öffnen Sie die Diagnosedateien einer echten Analyse des Beispiel-Screens, unterscheiden Sie Warnungen zum Versuchsdesign von Permutationsergebnissen und erkennen Sie die Grenzen eines kurzen Demonstrationslaufs.",
-  "objectives": ["Diagnostics in Regression öffnen und den untersuchten Ausgabeordner prüfen.", "Identifizierbarkeit des Designs, Vorkommen der Guides und Inferenzdiagramme im Kontext der gewählten Analyse interpretieren.", "Fehlende Anpassungsresiduen und begrenzte Permutationsauflösung erkennen, ohne eine Modellanpassung zu unterstellen."],
-  "prerequisite": "Führen Sie das Regression-Beispiel mit den vier herunterladbaren Paaren aus Score- und Zähltabellen aus. Diese Aufnahme untersucht einen begrenzten nichtparametrischen Lauf mit 199 Permutationen, mindestens zwei Wells und Ergebnissen auf Guide- und Genebene. Sie erklärt Software und Diagnostik, nicht eine abschließende Inferenz für belastbare Entdeckungen.",
+  "lesson": "75_regression_diagnostics",
+  "english_sha256": "f5063f20ac388e58f2c086d2c3d555de7b543c91ae100f8274c1fcf161aa402c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Regression Diagnostics: die gespeicherten Analyseberichte prüfen",
+  "description": "Öffnen Sie die Design- und Inferenzberichte eines abgeschlossenen Laufs, prüfen Sie Stützung und Abhängigkeiten und nutzen Sie die Befunde bei der Wahl der nächsten Analyse.",
+  "objectives": [
+    "Den Diagnoseordner des gewünschten Regression-Laufs öffnen.",
+    "Zusammenfassungen zu Designstützung, Identifizierbarkeit und Inferenz lesen.",
+    "Diagnosen mit ihren Einstellungen aufbewahren und nach einer Änderung der Analyse erneut ausführen."
+  ],
+  "prerequisite": "Schließen Sie das Regression-Beispiel mit seinen vier Score/Zählungs-Paaren ab. Der gezeigte Permutationslauf verwendet 199 Permutationen und mindestens zwei Wells. Halten Sie Einstellungen und Ergebnisfamilien zusammen, wenn Sie die Diagnosepanels interpretieren.",
   "scenes": [
-    "Zeigen Sie in Regression auf Diagnostics und öffnen Sie es nach Abschluss einer Analyse. Die Schaltfläche liest gespeicherte Ausgaben; sie passt kein weiteres Modell an. Sie öffnet den neuesten Diagnoseordner im Projekt. Prüfen Sie deshalb den Pfad, wenn mehrere Läufe vorliegen.",
-    "Der Dateimanager des Systems zeigt die tatsächlichen Dateien unserer Analyse des heruntergeladenen Beispiel-Screens. Als Grafikformat war hier PNG eingestellt. Der Ordner enthält Diagramme zur Identifizierbarkeit, zum Design und zur Inferenz sowie eine Zusammenfassung und eine Tabelle kollinearer Guide-Paare.",
-    "Das Design hat 606 Wells, 793 Parameter und Rang 599. Es kann nicht für jeden Guide gleichzeitig einen eindeutigen Koeffizienten bestimmen. Diese Warnung erklärt, warum wir eine Permutationsanalyse verwendet haben; sie bedeutet nicht, dass ein simultanes Modell erfolgreich angepasst wurde.",
-    "Die Guides sind ungleich vertreten: 355 kommen in diesem Design nur in einem Well vor. Ein geringes Vorkommen begrenzt die Aussagekraft des Experiments. Prüfen Sie die Abdeckung vor der Interpretation von Effekten und unterscheiden Sie das vollständige Design von der gefilterten Familie tatsächlich getesteter Guides.",
-    "Das Designdiagramm hilft, geringe Abdeckung und Abhängigkeiten zwischen Guide-Prädiktoren zu erkennen. Stets gemeinsam auftretende Guides lassen sich statistisch schwer unterscheiden. Untersuchen Sie konkrete Paare in der Kollinearitätstabelle, statt ein Warnsymbol als vollständige Erklärung anzusehen.",
-    "Das Inferenzdiagramm fasst 434 Guide-Tests zusammen: die Verteilung der p-Werte, den Vergleich mit einer Gleichverteilung unter der Nullhypothese und Entdeckungen bei verschiedenen korrigierten Schwellen. Dieser kurze Lauf hat an der angezeigten Schwelle keine Entdeckungen. Eine Kalibrierungswarnung fordert zur Untersuchung auf; sie beweist keinen biologischen Effekt.",
-    "Für die kurze Demonstration haben wir nur 199 Permutationen verwendet. Der kleinste erreichbare empirische p-Wert beträgt deshalb 0,005. Nach Korrektur für multiples Testen kann diese Auflösung unzureichend sein. Planen Sie für die eigentliche Analyse eine angemessene Permutationszahl.",
-    "Dieser Permutationslauf hat kein Diagramm mit Anpassungsresiduen, weil er das simultane Regressionsmodell nicht angepasst hat. Der eben gezeigte p-Wert-Vergleich ist keine Residuendiagnostik. Andere Analysemodi können Residuendiagramme schreiben, wenn sie beobachtete und angepasste Werte liefern.",
-    "Die Zusammenfassung enthält die Bewertung jedes Diagramms und die schlechteste Bewertung der gesamten Diagnostik. Lesen Sie jede Bewertung im Kontext, statt die Gesamtanzeige als Softwarefehler zu verstehen. Die Python-API für Regressionsdiagnostik schreibt dieselben Arten von Diagrammen aus den übergebenen Eingaben.",
-    "Kehren Sie zu Regression zurück, um Eingaben zu untersuchen oder eine Analyseentscheidung bewusst zu ändern. Eine Änderung verlangt einen neuen Lauf und neue Diagnosen; das Öffnen dieses Ordners aktualisiert niemals alte Ergebnisse. Das Regression-Tutorial erklärt den vollständigen Datensatz, die Konsole, interaktive Ergebnisse und die Assistenzfunktionen."
+    "Öffnen Sie von Home aus Regression. Klicken Sie nach Abschluss einer Analyse auf Diagnostics. Prüfen Sie den Ordnerpfad: Diese Verknüpfung öffnet den neuesten Diagnoseordner, den sie im Projekt findet.",
+    "Lesen Sie die Diagnosedateien in diesem Ordner der Reihe nach: zuerst die Identifizierbarkeit des Designs, dann die Designdiagnose mit den kollinearen Guide-Paaren, dann die Inferenzdiagnose und zuletzt die Zusammenfassung, die alles bündelt.",
+    "Beginnen Sie mit Design identifiability. Vergleichen Sie die Anzahl der Wells, die Anzahl der Parameter und den Rang des Designs. Dieses Beispiel hat mehr Parameter, als sein Rang stützt; es kann daher nicht für jeden Guide einen eindeutigen simultanen Koeffizienten bestimmen.",
+    "Prüfen Sie die Stützung jedes Guides über die Wells hinweg. Das Beispiel enthält viele Guides, die nur in einem Well vorkommen. Unterscheiden Sie das vollständige Design von der gefilterten Familie der tatsächlich getesteten Guides.",
+    "Öffnen Sie Design diagnostics und die Tabelle der kollinearen Paare. Ermitteln Sie Prädiktoren, die immer gemeinsam auftreten oder schwach gestützt sind, bevor Sie ihnen getrennte Effekte zuschreiben.",
+    "Öffnen Sie Inference diagnostics. Prüfen Sie die Verteilung der P-Werte, den Vergleich mit der Nullhypothese und die Entdeckungen bei verschiedenen adjustierten Schwellen. Dieses Beispiel hat bei der angezeigten Schwelle keine Entdeckungen.",
+    "Prüfen Sie beim Interpretieren von P-Werten die Anzahl der Permutationen. Mit 199 Permutationen ist der kleinste erreichbare empirische P-Wert 0,005. Planen Sie die Auflösung, die Ihre Korrektur für multiples Testen braucht.",
+    "Eine Permutationsanalyse liefert keine angepassten Residuen aus einem simultanen Regressionsmodell. Suchen Sie nach Residuenpanels, wenn Sie einen Modus verwenden, der beobachtete und angepasste Werte liefert.",
+    "Lesen Sie die Zusammenfassung zusammen mit den einzelnen Panels. Ihre Gesamtbewertung spiegelt die schlechteste Panelbewertung wider; öffnen Sie daher den zugehörigen Bericht, um den Grund zu verstehen.",
+    "Kehren Sie zu Regression zurück, um Eingaben oder Analyseeinstellungen gezielt zu ändern. Führen Sie die überarbeitete Analyse aus und prüfen Sie ihre neuen Diagnosen. Halten Sie frühere Ausgabeordner getrennt, damit jeder Bericht seinen Einstellungen zugeordnet bleibt."
   ]
 }

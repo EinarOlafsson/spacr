@@ -47,19 +47,26 @@ def main() -> int:
     parser.add_argument('--settings-tour', action='store_true', help='Show bounded analysis choices through real settings searches')
     parser.add_argument('--annotation-tour', action='store_true', help='Record actual crop labelling and view changes in a new example column')
     parser.add_argument('--mask-editor-tour', action='store_true', help='Record actual reversible mask-editing gestures on private real-data copies')
-    parser.add_argument('--mask-readouts-tour', action='store_true', help='Record the CPU Otsu magnifier and FEATURES window on real data')
+    parser.add_argument('--mask-readouts-tour', action='store_true', help='Record the CPU Otsu Live magnifier on real data')
+    parser.add_argument('--mask-curation-organize', action='store_true', help='With --mask-editor-tour, also record Keep/Discard, Upload data (never sent), folder consolidation and Organize for Measure on private copies')
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
+    parser.add_argument('--methods-export-picker-only', action='store_true', help='Capture only the native Methods export picker while verifying the unchanged draft export')
     parser.add_argument('--hit-list-companion', action='store_true', help='Explicit external Hit List window after showing the hidden native panel; not a shortcut fix')
     parser.add_argument('--graph-review-handoff', action='store_true', help='Verify native graphs and explicitly record the broken annotation handoff, without repairing it')
     parser.add_argument('--mask-bounded-recapture', action='store_true', help='Use explicit 0.4 flow thresholds in a fresh two-field Mask recording; not a quality claim')
     parser.add_argument('--mask-saved-plots', action='store_true', help='Show verified per-file API overlays in the external image viewer; no model rerun')
+    parser.add_argument('--cellpose-training-gui', action='store_true', help='Train on the extracted six-pair example through the Workbench, then apply the checkpoint to its apply folder')
+    parser.add_argument('--stop-before-training', action='store_true', help='With --cellpose-training-gui, record the form and stop before Run (no GPU)')
     parser.add_argument('--cellpose-training-review', action='store_true', help='Show the native source-import defect and a separately verified API training figure; never start GUI training')
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
+    parser.add_argument('--manager-source', type=Path, help='Existing real project inside the private stage; preserve its registry and operate only on a verified bound clone')
+    parser.add_argument('--external-input-root', type=Path, help='Private byte-identical copies of the retained Foreign inputs, preserving their original manifest and relative paths')
+    parser.add_argument('--external-preview-only', action='store_true', help='Stop after the real non-writing External Masks preview and its Preview only toggle; never run measurement')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
@@ -70,6 +77,7 @@ def main() -> int:
     parser.add_argument('--workflow-lesson', choices=('78_spacr_screens', '79_module_inputs_outputs', '80_image_analysis_pathways', '81_sequencing_pathways'),
                         default='78_spacr_screens', help='Workflow map lesson to record through native navigation')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
+    parser.add_argument('--model-zoo-additions', action='store_true', help='With --module model_zoo, also record the Cellpose 3 and bioimage.io headings (needs network) and Mask generation\'s Measure diameters popup on stage/mask_src')
     parser.add_argument('--barcode-search-tour', action='store_true', help='Record the real barcode search, explicit Apply and a verified mapped-count run')
     parser.add_argument('--barcode-reference-source', type=Path, help='Existing validated plain/reverse-complement reference pairs to copy into the private barcode recording')
     parser.add_argument('--model-compare-api-introduction', action='store_true', help='Record only the real Model Compare route and field loading before a separately verified mask-comparison API example')
@@ -77,14 +85,38 @@ def main() -> int:
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
     parser.add_argument('--plate-current-example', action='store_true', help='Record Plate Viewer with its current Load test data control')
+    parser.add_argument('--investigate-hit-example', action='store_true', help='Record Regression Hits -> Investigate Hit on the real screen example ZIP in the stage')
     parser.add_argument('--barcode-saved-plots', action='store_true', help='Show independently verified Barcode QC PNGs in the actual external viewer; no claim of GUI figure repair')
     parser.add_argument('--activation-saved-plots', action='store_true', help='Show independently verified Activation PNG grids in the real external viewer; does not certify GUI figures')
     parser.add_argument('--napari-reopen-each-edit', action='store_true', help='Record the explicit close/reopen-between-imports workflow; does not certify repeated edits in one viewer')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
+    parser.add_argument('--sweep-input-root', type=Path, help='Private byte-identical copies of the original sweep CSVs; preserve the settings manifest and relative paths')
+    parser.add_argument('--pca-host-only', action='store_true',
+                        help='Recapture only the native Image UMAP PCA entry point; no data load or fit')
+    parser.add_argument('--openings', action='store_true', help='Record only the shared Home, Help-menu and host openings of the tool lessons')
+    parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data'), default='home',
+                        help='With --openings: which shared or lesson-extension frames to record')
     parser.add_argument('--timeout', type=float, default=600)
+    parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
+                        help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
+                             'every other recording is refused while alpha features are on')
     args = parser.parse_args()
+    if args.manager_source is not None and args.module != 'data_manager':
+        parser.error('--manager-source requires --module data_manager')
+    if args.external_input_root is not None and args.module != 'external_masks':
+        parser.error('--external-input-root requires --module external_masks')
+    if args.external_preview_only and (args.module != 'external_masks' or args.run or args.download or args.preview):
+        parser.error('--external-preview-only requires external_masks without run/download/preview')
+    if args.sweep_input_root is not None and args.module != 'parameter_sweep':
+        parser.error('--sweep-input-root requires --module parameter_sweep')
+    if args.pca_host_only and (args.module != 'pca' or args.run or args.download or args.preview):
+        parser.error('--pca-host-only requires pca without run/download/preview')
+    if args.openings and (args.module != 'home' or args.run or args.download or args.preview):
+        parser.error('--openings requires --module home without run/download/preview')
+    if args.preferences_alpha_toggle_scene and (args.run or args.download or args.preview):
+        parser.error('--preferences-alpha-toggle-scene records only the Preferences toggle, without run/download/preview')
     if args.workflow_overview and (args.module != 'workflow_overview' or args.run or args.download or args.preview):
         parser.error('--workflow-overview requires workflow_overview without run/download/preview')
     if args.workflow_lesson != '78_spacr_screens' and not args.workflow_overview:
@@ -105,12 +137,16 @@ def main() -> int:
         parser.error('--graph-review-handoff requires --module graph_builder')
     if args.methods_review_export and (args.module != 'methods_export' or args.run or args.download):
         parser.error('--methods-review-export requires methods_export without a run or download')
+    if args.methods_export_picker_only and not args.methods_review_export:
+        parser.error('--methods-export-picker-only requires --methods-review-export')
     if args.mask_bounded_recapture and (args.module != 'mask' or not args.run or not args.download):
         parser.error('--mask-bounded-recapture requires mask with --download and --run')
     if args.mask_saved_plots and (args.module != 'mask' or args.run or args.download or args.preview):
         parser.error('--mask-saved-plots requires mask without a new run, download or preview')
     if args.cellpose_training_review and (args.module != 'train_cellpose' or args.run or args.download or args.preview):
         parser.error('--cellpose-training-review requires train_cellpose without a new run, download or preview')
+    if (args.cellpose_training_gui or args.stop_before_training) and (args.module != 'train_cellpose' or args.run or args.download or args.cellpose_training_review or not args.cellpose_training_gui):
+        parser.error('--cellpose-training-gui requires train_cellpose alone; --stop-before-training requires it')
     if args.measure_full_example and (args.module != 'measure' or not args.run):
         parser.error('--measure-full-example requires --module measure --run')
     if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
@@ -188,7 +224,7 @@ def main() -> int:
             state = stage / 'data_manager_state' / f'{args.capture_name or args.module}.json'
             if state.exists():
                 raise RuntimeError('Use a new capture name for a fresh private Data Manager project')
-            prepared = prepare(stage)
+            prepared = prepare(stage, source=args.manager_source)
             write_json(state, prepared)
             # Keep the original readable at an immutable alias, then shadow
             # only its original pathname with the verified disposable copy.
@@ -229,6 +265,10 @@ def main() -> int:
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
+        # spacr.qt.app.main() forces Agg before any figure is drawn; this
+        # recorder builds the window without main(), so match it here. Under
+        # QtAgg a pipeline plotting from a worker thread (Plate queue) fails.
+        'MPLBACKEND': 'Agg',
         'OMP_NUM_THREADS': '2', 'OPENBLAS_NUM_THREADS': '2',
         'MKL_NUM_THREADS': '2', 'NUMEXPR_NUM_THREADS': '2',
     }.items():
@@ -283,6 +323,7 @@ def main() -> int:
         mark_seen(key)
     set_preload_policy('on_demand')
     set_ai_on_by_default(False)
+    # Also turns Show alpha features off: alpha features get no tutorials.
     configure_appearance(args.theme, args.backdrop)
     set_font_scale(args.font_scale)
     if args.module in ('regression', 'queue', 'train_cellpose'):
@@ -314,7 +355,8 @@ def main() -> int:
         hidden_backdrops = exclude_special_backdrops(window)
         if hidden_backdrops:
             settle(.2)
-        appearance = verify_appearance(window)
+        appearance = verify_appearance(
+            window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene)
         try:
             verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
         except RuntimeError:
@@ -385,8 +427,17 @@ def main() -> int:
         'folded_children': gui.folded_children(),
     }
     write_json(stage / 'runtime_inventory.json', inventory)
-    capture('00_home')
-    if args.module == 'home':
+    if args.openings:
+        import capture_openings
+        if args.openings_set == 'home':
+            capture_openings.record_openings(app, window, captures, capture, settle, write_json)
+        elif args.openings_set == 'illumination_apply':
+            capture_openings.record_illumination_apply(app, window, stage, captures, capture, settle, write_json)
+        else:
+            capture_openings.record_align_test_data(app, window, stage, captures, capture, settle, write_json, args.timeout)
+    else:
+        capture('00_home')
+    if args.module == 'home' and not args.openings:
         home = window._startup
         tabs = home._tabs
         for index in range(1, tabs.count()):
@@ -450,7 +501,11 @@ def main() -> int:
         record_apply(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
     elif args.module == 'train_cellpose':
-        if args.cellpose_training_review:
+        if args.cellpose_training_gui:
+            from capture_cellpose_training_gui import record
+            record(app, window, stage, captures, capture, settle, write_json, args.timeout,
+                   dry_run=args.stop_before_training)
+        elif args.cellpose_training_review:
             from capture_cellpose_training_review import record
             record(app, window, stage, captures, capture, settle, write_json, args.timeout)
         else:
@@ -473,7 +528,8 @@ def main() -> int:
     elif args.module == 'parameter_sweep':
         from capture_parameter_sweep import record_sweep
         record_sweep(app, window, stage, captures, capture,
-                     settle, write_json, args.timeout, existing=args.sweep_from)
+                     settle, write_json, args.timeout, existing=args.sweep_from,
+                     input_root=args.sweep_input_root)
     elif args.module == 'feature_dict':
         from capture_feature_dictionary import record_dictionary
         record_dictionary(app, window, stage, captures, capture,
@@ -524,7 +580,8 @@ def main() -> int:
     elif args.module == 'methods_export':
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
-                       settle, write_json, args.timeout, review_export=args.methods_review_export)
+                       settle, write_json, args.timeout, review_export=args.methods_review_export,
+                       export_picker_only=args.methods_export_picker_only)
     elif args.module == 'timelapse':
         from capture_timelapse import record_timelapse
         record_timelapse(app, window, stage, captures, capture,
@@ -565,9 +622,17 @@ def main() -> int:
         record_anndata(app, window, stage, captures, capture,
                       settle, write_json, args.timeout, route_only=args.anndata_api_introduction)
     elif args.module == 'pca':
-        from capture_pca import record_pca
-        record_pca(app, window, stage, captures, capture,
-                   settle, write_json, args.timeout)
+        from capture_pca import capture_pca_host, record_pca
+        if args.pca_host_only:
+            capture_pca_host(window, capture, settle)
+            write_json(captures / 'desktop_acceptance.json', {
+                'accepted': True, 'capture_scope': 'PCA entry point only',
+                'opened_through_actual_home_tile': True,
+                'pca_fold_visible_and_enabled': True,
+                'analysis_run': False, 'application_source_modified': False})
+        else:
+            record_pca(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
     elif args.module == 'trellis':
         from capture_trellis import record_trellis
         record_trellis(app, window, stage, captures, capture,
@@ -652,7 +717,8 @@ def main() -> int:
             record_editor(app, window, screen, stage, captures, capture,
                           settle, write_json, args.timeout, detect=args.editor_detect,
                           readouts_only=args.mask_readouts_tour and not args.mask_editor_tour,
-                          include_readouts=args.mask_readouts_tour and args.mask_editor_tour)
+                          include_readouts=args.mask_readouts_tour and args.mask_editor_tour,
+                          curation_organize=args.mask_curation_organize)
         if args.module == 'import_images':
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,
@@ -697,7 +763,9 @@ def main() -> int:
         if args.module == 'external_masks':
             from capture_external_masks import record_external_masks
             record_external_masks(app, window, screen, stage, captures, capture,
-                                  settle, write_json, args.timeout)
+                                  settle, write_json, args.timeout,
+                                  input_root=args.external_input_root,
+                                  stop_after_preview=args.external_preview_only)
         if args.module == 'model_zoo':
             if args.model_zoo_inventory:
                 from capture_model_inventory import record_inventory
@@ -706,7 +774,12 @@ def main() -> int:
             else:
                 from capture_model_zoo import record_model_zoo
                 record_model_zoo(app, window, screen, stage, captures, capture,
-                                 settle, write_json, args.timeout)
+                                 settle, write_json, args.timeout,
+                                 additions=args.model_zoo_additions)
+                if args.model_zoo_additions:
+                    from capture_model_zoo_additions import record_measure_diameters
+                    record_measure_diameters(app, window, stage, capture, settle, write_json,
+                                             captures, args.timeout, stage / 'mask_src')
         if args.model_compare_api_introduction:
             from capture_model_compare import record_screen
             record_screen(app, window, screen, stage, captures, capture,
@@ -725,6 +798,12 @@ def main() -> int:
             else:
                 from capture_plate_retention import record_plate_retention
             record_plate_retention(app, window, screen, stage, captures, capture,
+                                   settle, write_json, args.timeout)
+        if args.investigate_hit_example:
+            if args.module != 'regression':
+                raise SystemExit('--investigate-hit-example requires --module regression')
+            from capture_investigate_hit import record_investigate_hit
+            record_investigate_hit(app, window, screen, stage, captures, capture,
                                    settle, write_json, args.timeout)
         if args.module == 'control_chart':
             from capture_control_chart import record_control_chart

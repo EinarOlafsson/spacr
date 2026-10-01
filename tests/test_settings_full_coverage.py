@@ -484,7 +484,19 @@ def test_get_object_settings_derives_the_size_window_from_the_diameter(obj):
     assert got["minimum_size"] == 40.0 ** 2 / 4
     assert got["maximum_size"] == 40.0 ** 2 * 10
     assert got["model_name"] == "cpsam"
-    assert got["min_size"] == s[f"{obj}_min_area"]
+    assert got["min_size"] == 0
+
+
+@pytest.mark.parametrize("obj", ["cell", "nucleus", "pathogen"])
+def test_get_object_settings_takes_min_size_from_the_area_row(obj):
+    """Item 511: Cellpose's min_size is the object's object_filters area
+    minimum, which is where an old file's {obj}_min_area lands."""
+    s = S.set_default_settings_preprocess_generate_masks(
+        {f"{obj}_min_area": 37, "verbose": False})
+    assert f"{obj}_min_area" not in s
+    assert s["object_filters"][obj] == [
+        {"property": "area", "min": 37.0, "max": None}]
+    assert S._get_object_settings(obj, s)["min_size"] == 37
 
 
 @pytest.mark.parametrize("obj,label", [("cell", "Cell"),

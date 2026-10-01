@@ -33,8 +33,8 @@ def window(qtbot):
     file_menu = bar.addMenu("File")
     file_menu.addAction("Open")
     help_menu = bar.addMenu("Help")
-    demos = QMenu("Demos", help_menu)
-    help_menu.addMenu(demos)
+    reference = QMenu("Reference", help_menu)
+    help_menu.addMenu(reference)
     bar.addSeparator()
     bar.resize(400, 24)
     return win
@@ -54,7 +54,7 @@ def test_a_submenu_is_aimed_at_the_top_level_menu_that_opens_it(window):
     """A menu moved under another one has no geometry of its own on the bar,
     so its own rectangle is empty and the cursor would aim at (0, 0). It has
     to point at the menu a user's hand actually goes to."""
-    bar, point = S._menu_target(window, "Demos")
+    bar, point = S._menu_target(window, "Reference")
     help_rect = bar.actionGeometry(S._find_menu(window, "Help").menuAction())
     assert point == (help_rect.center().x(), help_rect.center().y())
 
@@ -63,7 +63,7 @@ def test_a_bar_entry_that_opens_no_menu_is_skipped(window):
     """A separator, or a plain action on the bar, has no submenus to search.
     Treating it as a menu would raise while looking for the parent of one."""
     assert S._top_level_menu_containing(
-        window, S._find_menu(window, "Demos")).title() == "Help"
+        window, S._find_menu(window, "Reference")).title() == "Help"
     assert S._top_level_menu_containing(
         window, S._find_menu(window, "File")) is None
 

@@ -1,0 +1,104 @@
+WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
+
+Status: ALPHA, built 2026-09-26. First version on Make Masks, hidden unless
+Preferences -> Show alpha features is on (ALPHA_FEATURES[548]).
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/can-cellprofiler-watch-a-directory-and-analyze-images-as-they-are-created/13357
+
+WHAT TO BUILD
+    A live mode that watches an acquisition folder and runs the chosen
+    pipeline (mask, measure, classify) on each new field once the file is
+    complete (size stable / companion files present), with a live plate view
+    of results filling in during the scan and a resume-safe queue.
+
+DONE WHEN
+    Copying a plate's files into the watched folder one by one yields the
+    same results as a batch run, with each field processed within a set
+    delay of arriving.
+
+ALPHA NOTE (2026-09-26)
+    What was built. Make Masks has a watch mode, switched on by the setting
+    watch_folder. Its code is in spacr/core.py (_watch_folder_and_analyse,
+    reached from preprocess_generate_masks). The user picks the folder
+    (src) and a pipeline in watch_pipeline: 'mask' runs Make Masks, and
+    'mask_measure' runs Make Masks and then Measure. Measure uses the
+    settings file named in watch_measure_settings, or Measure's defaults
+    when that is blank.
+      - A file is taken once its size and mtime have not changed for
+        watch_settle_seconds and it reads whole (TIFFs are decoded in full).
+        A field is taken once a file for every entry of `channels` is in.
+        Fields are grouped by the metadata_type or custom_regex filename
+        pattern, and a file whose name has no channel is a field by itself.
+        Images already in the folder are analysed first.
+      - Each field is copied into src/spacr_watch/fields/<field> (a copy,
+        not a hard link, so the pipeline can never write through to the
+        acquired files) and analysed there on its own. Its merged stacks are linked into
+        src/spacr_watch/merged, and its measurement tables are appended to
+        src/spacr_watch/measurements/measurements.db. The append happens
+        once per field: the field is recorded in the same transaction, in
+        the table spacr_watch_fields.
+      - src/spacr_watch/watch_ledger.json records every field: its files
+        (size and mtime), when it was first seen, when it went stable, when
+        it started and finished, how long it waited and ran, its status and
+        any error. The record is written atomically after every change. A
+        restart skips fields marked done. A failed field is retried on the
+        next start, not within the same session. A field that Stop
+        interrupted is analysed again from its images.
+      - GUI: progress and errors are printed to the run console
+        ("watch_folder: N analysed, N waiting, N failed", one line per field
+        with the time it took and how long it waited, and "watch_folder:
+        ERROR <field> failed: ..."). The WatchFolderProgress label beside
+        Run shows the counts.
+      - Stopping: Stop is honoured between fields and while waiting, and
+        the record is saved. The run ends by itself after
+        watch_idle_minutes without change, when that is above 0.
+    Registered as alpha: the settings watch_folder, watch_pipeline,
+    watch_measure_settings, watch_settle_seconds, watch_poll_seconds and
+    watch_idle_minutes, and the widget WatchFolderProgress.
+    DONE WHEN, as measured. The test
+    tests/test_watch_folder_and_analyse.py::
+    test_files_copied_in_one_by_one_give_the_batch_runs_results runs the
+    real preprocessing, merge and Measure; only the Cellpose forward pass is
+    stubbed. Three wells x two channels are copied into the watched folder
+    one file at a time. The merged arrays and the cell and nucleus
+    measurement rows equal those of a batch run with batch_size=1. Each
+    field starts within settle + poll (+1 s slack) of its last file
+    arriving, plus the run time of the fields queued ahead of it.
+    tests/qt/test_watch_folder_alpha_gate.py pins the alpha gate.
+    Equality holds against batch_size=1 only. Preprocessing normalises
+    intensities by percentiles pooled over each batch, so a batch run with a
+    larger batch_size normalises differently. Each field of a watch is a
+    batch of one.
+    LEFT FOR LATER
+      - A live plate view of the results filling in during the scan.
+        Today the combined measurements.db is there to open in the
+        Database Browser or to point Measure-based tools at.
+      - Classify as a watch pipeline step.
+      - Timelapse, z_stack and t_stack runs are refused: nothing says when a
+        field's last plane or frame has arrived. This needs a companion or
+        "acquisition done" marker file, or a planes-per-field setting.
+      - Companion-file completeness (for example, waiting for a vendor
+        metadata file) is not implemented. Completeness means all channels
+        are in and every file is stable and readable.
+      - Normalisation pooled across fields (batch_size > 1 parity) would
+        need a running or reference-based normalisation.
+      - Fields are analysed one at a time on one device. Overlapping a
+        field's analysis with the next field's pickup is left for later.
+      - Each field folder keeps its copy of the raw images (in orig/ when
+        save_original_images is on), so the watch costs about one extra
+        copy of the raw data on disk. Reclaiming it after a field succeeds
+        is left for later.
+      - The watched folder is scanned at its top level only; subfolders
+        per well or per timepoint are not followed.
+      - The GPU acceptance run on a real acquisition has not been done; all
+        tests are CPU-only.

@@ -1,38 +1,34 @@
 {
   "lesson": "10_classify_cv",
-  "english_sha256": "104932e5a39da62949d4d9ce3bde235cf5db2ab8dac208aa6973871b6d7f5106",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "fr",
-  "title": "Classify : un exemple de vision par ordinateur vérifié",
-  "description": "Préparez des images téléchargées intactes avec des identités de puits explicites, puis examinez un petit modèle sans surestimer ses performances.",
-  "objectives": [
-    "Trouver la famille vision par ordinateur dans Classify.",
-    "Préparer une partition existante à partir d’annotations téléchargées sans modifier les images ou étiquettes sources.",
-    "Séparer les puits réels, afficher les figures et distinguer exécution réussie et prédiction utile.",
-    "Retrouver modèles, prédictions et outils imbriqués."
-  ],
-  "prerequisite": "Suivez Annotate : Load test data → Load, pas Stream. Conservez plate1/measurements/measurements.db et les images png. Enregistrement sous spaCR 1.5.0.8. Extrayez le ZIP et lancez prepare_classify_split.py dans l’environnement spaCR : --source désigne plate1 et --destination un NOUVEAU dossier. Cet outil vise uniquement cet exemple à quatre puits : huit annotations existantes infected=1 et huit infected=2 par puits, classement déterministe avant entraînement, 64 images RGB identiques octet par octet. Le script conserve également une copie identique octet par octet de la base de mesures d’origine. Les copies portent les identités prcfo de la base ; l’analyseur des anciens noms n’est PAS corrigé. L’échantillon équilibré ne conserve PAS la prévalence de la population. Sélectionnez le dossier préparé, Computer Vision (Torch), Generate training dataset désactivé. Réglages : ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=2, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True ; tous les contrôles de fuite restent actifs. Les 32 images de train deviennent 16 d’entraînement et 16 de validation ; test en contient 32. Puits distincts, mais même plaque. Toutes les prédictions de test sont de classe zéro : exactitude=0.5, référence majoritaire=0.5, F1 macro=1/3. Les 32 identités, étiquettes, sommes des probabilités, exactitude, effectifs et F1 macro ont été vérifiés indépendamment, pas toutes les métriques. Sorties : model/resnet18/rgb/epochs_1. API : spacr.classify.classify → spacr.deep_spacr.train_test_model. Aucune qualité du modèle, validité biologique ou généralisation à une nouvelle expérience n’est établie. Aucune question AI n’a été envoyée.",
-  "scenes": [
-    "Ouvrez Classify depuis Home et choisissez Computer Vision, Torch. La vision par ordinateur apprend à partir des images d’objets ; la famille tabulaire utilise les mesures enregistrées. Les deux appartiennent désormais au même module principal. Ce petit exemple vérifié utilise une préparation distincte qui ne corrige pas l’analyseur des anciens noms de fichiers.",
-    "Suivez le tutoriel Annotate lié pour charger l’exemple réel avec Load, en conservant sa base de mesures et ses images recadrées. Le terminal présente les annotations existantes de quatre puits réels. Nous préservons ces étiquettes ; ce ne sont pas des vérités biologiques validées indépendamment. Le projet source reste intact.",
-    "Téléchargez l’outil et lancez-le dans votre environnement spaCR. Source désigne le dossier de plaque téléchargé ; destination doit être un nouveau dossier. L’outil copie huit images de chacune des deux classes existantes par puits : soixante-quatre images au total. La sélection est déterministe et précède l’entraînement, sans consulter les performances du modèle.",
-    "Lisez le manifeste avant de continuer. Les copies portent les identités canoniques d’objets de la base, et chaque image conserve ses octets d’origine. Deux puits entiers vont dans le dossier d’entraînement et deux dans celui de test. Cet exemple pédagogique équilibré modifie la prévalence des classes ; il n’est pas représentatif de la population initiale.",
-    "Dans Classify, sélectionnez le dossier du jeu préparé, pas le projet original ni un sous-dossier de classe. Il contient train et test, chacun avec deux dossiers de classe. Le sélecteur ouvre ce jeu existant. N’écrasez pas le projet source et ne réutilisez pas un dossier contenant les résultats d’une exécution précédente.",
-    "Désactivez Generate training dataset, puisque la partition est déjà préparée. Train et Test restent actifs ; l’application du modèle au jeu complet reste désactivée. Les dossiers préservent les étiquettes un et deux, tandis que le modèle emploie les indices zéro et un. Ces numérotations sont différentes, pas contradictoires.",
-    "Choisissez ResNet18 pour cet exemple limité : une époque, des lots de huit, une taille d’image de cent vingt-huit et deux processus de chargement. Utilisez les trois canaux RGB et désactivez poids préentraînés et augmentation. Ces réglages réduisent la démonstration ; ils ne constituent pas une recette recommandée pour un classifieur précis.",
-    "Conservez le regroupement par puits et tous les contrôles de fuite. Une fraction de validation de moitié sépare les trente-deux images du dossier d’entraînement en seize pour entraîner et seize pour valider, un puits entier de chaque côté. Les trente-deux autres restent réservées au test. Une même plaque ne constitue pas une expérience de validation indépendante.",
-    "Activez Plot, effacez la recherche de réglages et cliquez sur Run. La console indique la partition effective, les contrôles de fuite, l’entraînement et les chemins enregistrés. Les deux contrôles entre groupes de puits réussissent ici. Un contrôle logiciel n’a de sens que si les noms correspondent aux identités réelles, vérifiées séparément.",
-    "Figures affiche perte, exactitude et exactitude de validation par classe. Avec une seule époque, il s’agit de points isolés, pas d’une preuve de convergence. Notre vérification du test trouve toutes les images prédites en classe zéro : cinquante pour cent d’exactitude, exactement la référence majoritaire équilibrée. Une exécution réussie n’a pas donné un classifieur utile.",
-    "Conservez le dossier du modèle avec son point de contrôle, sa fiche, les audits de fuite et les tables de résultats. Ici, il se trouve sous model, resnet18, rgb, epochs tiret bas un. Comparez identités de prédiction et étiquettes, pas seulement l’exactitude. Les images mal classées copiées pour révision sont des sorties, pas de nouveaux échantillons indépendants.",
-    "Le contrôle AI permet de poser des questions sur les réglages ou résultats après configuration d’un fournisseur. Cette question n’a pas été envoyée : ce n’est ni une réponse ni un résultat d’analyse. En Python, classify appelle train_test_model pour cette famille. Gardez le manifeste et vérifiez les conseils avant une expérience plus importante, validée indépendamment."
-  ],
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: bind current native CV recording; scene 7 uses two loader workers. Prerequisites name spaCR 1.5.0.8, n_jobs=2 and the byte-identical preserved measurements database. Eleven other narration scenes and all measured limitations remain unchanged."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Classify : entraîner un classificateur d’images",
+  "description": "Préparez des vignettes étiquetées, choisissez la famille vision par ordinateur, entraînez un petit modèle et trouvez ses prédictions.",
+  "objectives": [
+    "Préparer l’exemple téléchargeable de classification d’images.",
+    "Choisir le modèle, les canaux d’image et les paramètres d’entraînement.",
+    "Garder les puits séparés et examiner les modèles et prédictions enregistrés."
+  ],
+  "prerequisite": "Téléchargez l’exemple mesuré depuis Annotate avec Load test data, puis Load. Conservez son dossier plate1 avec measurements/measurements.db et les vignettes png. Téléchargez Classify_existing_split_example.zip ci-dessous et extrayez le script d’aide. Dans votre environnement spaCR, exécutez prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Sélectionnez le dossier new_split dans Classify. Le script est conçu pour cet exemple à quatre puits ; il copie 64 vignettes RGB étiquetées dans des dossiers d’entraînement et de test.",
+  "scenes": [
+    "Depuis Home, ouvrez Classify et choisissez Computer Vision, Torch. Cette famille apprend à partir de vignettes d’objets étiquetées et enregistre un modèle capable de noter d’autres vignettes. Suivez d’abord la leçon Annotate pour télécharger les images d’exemple et leurs étiquettes.",
+    "Dans Annotate, choisissez Load test data, puis Load. Conservez le dossier de plaque qui contient les mesures et les vignettes PNG. Pour vos propres données, partez des vignettes de Measure et attribuez dans Annotate les classes à apprendre.",
+    "Téléchargez le ZIP d’exemple indiqué et extrayez prepare_classify_split.py. Exécutez-le dans votre environnement spaCR, avec la source pointant vers le dossier de plaque d’exemple et la destination vers un nouveau dossier. Le script prépare soixante-quatre images étiquetées pour cet exercice.",
+    "Ouvrez le nouveau dossier et son manifeste. Les répertoires d’entraînement et de test contiennent chacun deux dossiers de classe. Le manifeste liste chaque image copiée et son puits. Gardez chaque puits entier du même côté de la séparation lorsque les images d’un même puits partagent les mêmes conditions expérimentales.",
+    "Revenez dans Classify et choisissez le dossier préparé comme Source. Sélectionnez le dossier parent qui contient train et test. Gardez ce dossier préparé pour le reste de la leçon, afin que le modèle et ses fichiers de sortie restent ensemble.",
+    "Désactivez Generate training dataset, car le script d’aide a déjà préparé la séparation. Activez Train et Test. Laissez désactivée l’application au jeu de données complet pour cette première exécution. Le modèle utilise les indices de classe zéro et un pour les deux dossiers de classe.",
+    "Choisissez ResNet18, une taille d’image de cent vingt-huit, les trois canaux RGB, une taille de lot de huit et une époque. Réglez deux processus de chargement, sans poids préentraînés ni augmentation pour ce court exemple. Le nombre d’époques indique combien de fois l’entraînement parcourt ses images d’entrée.",
+    "Réglez la fraction de validation sur un demi, gardez le regroupement par puits et laissez les contrôles de fuite activés. La validation suit le modèle pendant l’entraînement ; le dossier de test séparé sert à l’évaluation finale. Vérifiez l’attribution des puits indiquée avant d’interpréter les scores.",
+    "Activez Plot, effacez la recherche de paramètres et appuyez sur Run. Suivez dans la console le chargement du jeu de données, la séparation retenue, la progression de l’entraînement et les chemins de sortie. Attendez la fin de l’entraînement et du test avant d’ouvrir les résultats enregistrés.",
+    "Ouvrez Figures pour examiner la perte et l’exactitude. Une époque donne un premier passage rapide. Comparez les résultats de test entre classes avant d’allonger l’entraînement. Si les prédictions favorisent une seule classe, vérifiez les étiquettes, l’équilibre des classes et les canaux d’entrée avant d’utiliser le modèle sur un jeu de données plus grand.",
+    "Ouvrez model, resnet18, rgb, epochs tiret bas un dans le dossier préparé. Gardez ensemble le point de contrôle, la fiche du modèle et les tableaux de résultats. Utilisez les prédictions enregistrées pour examiner les erreurs, puis passez à Classifier Evaluation ou à Activation Maps pour étudier le modèle plus en détail."
+  ]
 }

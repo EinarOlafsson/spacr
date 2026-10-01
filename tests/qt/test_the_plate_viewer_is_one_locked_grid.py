@@ -479,3 +479,126 @@ class TestAChosenWellIsPainted:
         picker.ask_for_layout(384)
 
         assert CHOSEN in picker._wells[(1, 1)].styleSheet()
+
+
+# --------------------------------------------------------------------------
+# 6: a drag that reaches the edge scrolls the plate (the "still open" item)
+# --------------------------------------------------------------------------
+
+@pytest.fixture
+def big(qtbot, qt_theme_applied):
+    """A 1536-well map in a window far too small to show it."""
+    widget = PlateMapPicker(layout=1536)
+    qtbot.addWidget(widget)
+    widget.resize(500, 400)
+    widget.show()
+    QApplication.processEvents()
+    return widget
+
+
+def _row_y(picker, row):
+    well = picker._wells[(row, 1)]
+    return well.mapToGlobal(well.rect().center()).y()
+
+
+def _column_x(picker, column):
+    well = picker._wells[(1, column)]
+    return well.mapToGlobal(well.rect().center()).x()
+
+
+class TestADragScrollsAtTheEdge:
+    def test_holding_past_the_right_edge_scrolls_and_extends(self, big):
+        bar = big._area.horizontalScrollBar()
+        assert bar.maximum() > 0
+        view = big._view_rect_global()
+        big.begin_drag(2, 1)
+
+        big.drag_to(QPoint(view.right() + 30, _row_y(big, 2)))
+        assert big._autoscroll.isActive()
+        reached = max(column for _row, column in big.selection())
+        for _ in range(25):
+            big._autoscroll_tick()
+
+        assert bar.value() > 0
+        assert max(column for _row, column in big.selection()) > reached
+        assert {row for row, _column in big.selection()} == {2}
+        assert big.finish_drag() is True
+        assert not big._autoscroll.isActive()
+
+    def test_holding_below_the_bottom_scrolls_down(self, big):
+        bar = big._area.verticalScrollBar()
+        assert bar.maximum() > 0
+        view = big._view_rect_global()
+        big.begin_drag(1, 2)
+
+        big.drag_to(QPoint(_column_x(big, 2), view.bottom() + 30))
+        reached = max(row for row, _column in big.selection())
+        for _ in range(25):
+            big._autoscroll_tick()
+
+        assert bar.value() > 0
+        assert max(row for row, _column in big.selection()) > reached
+
+    def test_the_rectangle_stops_at_the_last_well_on_screen(self, big):
+        """Past the edge the pointer is over a clipped well; the rectangle
+        ends on the edge well instead, and only the scroll grows it."""
+        view = big._view_rect_global()
+        big.begin_drag(2, 1)
+
+        big.drag_to(QPoint(view.right() + 200, _row_y(big, 2)))
+
+        last = max(column for _row, column in big.selection())
+        well = big._wells[(2, last)]
+        assert well.mapToGlobal(well.rect().topLeft()).x() <= view.right()
+        assert last < max(column for _row, column in big._wells)
+
+    def test_a_drag_away_from_the_edge_does_not_scroll(self, big):
+        big.begin_drag(2, 2)
+        big.drag_to(QPoint(_column_x(big, 4), _row_y(big, 4)))
+
+        assert not big._autoscroll.isActive()
+        assert big._area.horizontalScrollBar().value() == 0
+        assert big._area.verticalScrollBar().value() == 0
+
+    def test_moving_back_inside_stops_the_scroll(self, big):
+        view = big._view_rect_global()
+        big.begin_drag(2, 1)
+        big.drag_to(QPoint(view.right() + 30, _row_y(big, 2)))
+        assert big._autoscroll.isActive()
+
+        big.drag_to(QPoint(_column_x(big, 3), _row_y(big, 3)))
+
+        assert not big._autoscroll.isActive()
+
+    def test_no_press_means_no_scroll(self, big):
+        view = big._view_rect_global()
+        big.drag_to(QPoint(view.right() + 30, view.center().y()))
+
+        assert not big._autoscroll.isActive()
+
+    def test_the_timer_scrolls_while_the_pointer_is_held_still(self, qtbot,
+                                                               big):
+        bar = big._area.horizontalScrollBar()
+        view = big._view_rect_global()
+        big.begin_drag(2, 1)
+        big.drag_to(QPoint(view.right() + 30, _row_y(big, 2)))
+
+        reached = max(column for _row, column in big.selection())
+        qtbot.waitUntil(lambda: bar.value() > 0, timeout=3000)
+        qtbot.waitUntil(lambda: max(column for _row, column
+                                    in big.selection()) > reached,
+                        timeout=3000)
+
+        assert bar.value() > 0
+        assert big.finish_drag() is True
+
+    def test_a_plate_that_fits_never_scrolls(self, picker):
+        _sized(picker, WIDE)
+        picker.resize(WIDE, 900)
+        QApplication.processEvents()
+        view = picker._view_rect_global()
+        picker.begin_drag(1, 1)
+
+        picker.drag_to(QPoint(view.right() + 30, view.bottom() + 30))
+
+        assert not picker._autoscroll.isActive()

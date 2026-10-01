@@ -1,34 +1,36 @@
 {
   "lesson": "26_invasion",
-  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
   "review": {
-    "kind": "Parent editorial translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "it",
-  "title": "Saggio di invasione",
-  "description": "Configurare il saggio attuale a due colori, distinguere i pozzetti di riferimento della colorazione dalle condizioni sperimentali e leggere soglie, grafici e file reali. La banca dati dimostrativa è esplicitamente sintetica.",
+  "title": "Invasion Assay: valutare la colorazione esterna e totale",
+  "description": "Assegna due canali di colorazione, scegli il riferimento di colorazione, esegui l’analisi ed esamina le classificazioni di invasione e la sensibilità alla soglia.",
   "objectives": [
-    "Associare le colorazioni esterna e totale alle colonne corrette.",
-    "Usare il controllo rinominato del riferimento di colorazione e verificare la sensibilità alla soglia.",
-    "Leggere figure e denominatori per pozzetto senza attribuire significato biologico a dati sintetici."
+    "Scegliere il database delle misure e assegnare le colorazioni esterna e totale.",
+    "Impostare i pozzetti di riferimento e i controlli della soglia, poi eseguire l’analisi.",
+    "Esaminare distribuzioni, denominatori per pozzetto e tabelle dei risultati salvate."
   ],
-  "prerequisite": "La banca dati sintetica esistente viene conservata e l’interfaccia attuale opera su una nuova copia identica. Le 1.800 misure inventate comprendono 360 oggetti di riferimento e 1.440 oggetti del saggio in dodici pozzetti artificiali. Non sono disponibili immagini acquisite a due colori; nemmeno la piastra scaricabile generale dimostra il protocollo prima e dopo permeabilizzazione. Vehicle e inhibitor sono nomi didattici, non trattamenti sperimentati. Si usa la media perché queste colonne sono disponibili, non come scelta generalmente migliore per una colorazione superficiale. Calcoli indipendenti controllano classificazioni, soglie, conteggi, riepiloghi e geometria, senza validare immagini, efficacia o inferenza statistica. Le due banche dati di input restano inalterate. Il controllo è ora stain_baseline_wells anziché control_wells; il limite di bimodalità a sei decimali è registrato esattamente.",
+  "prerequisite": "Estrai l’esempio sintetico di Invasion Assay collegato e usa il suo riferimento delle impostazioni. Il database contiene 1.800 misure sintetiche di parassiti; i nomi delle condizioni e i risultati sono illustrativi. Per il tuo saggio, usa un protocollo di colorazione a due colori validato, con colorazione esterna prima della permeabilizzazione e colorazione totale dopo, ed esamina immagini rappresentative.",
   "scenes": [
-    "Aprire Invasion Assay nella sezione Assays di Home. Il modulo classifica parassiti già misurati; qui non segmenta immagini. La banca dati utilizzata è esplicitamente sintetica. Le figure illustrano impostazioni e calcoli, non un’invasione osservata né un effetto del trattamento.",
-    "Scegliere la cartella dell’esperimento contenente measurements, barra, measurements punto db. Questa nuova copia privata contiene milleottocento parassiti inventati: trecentosessanta oggetti di riferimento della colorazione e millequattrocentoquaranta nei pozzetti del saggio. La normale piastra scaricabile non sostituisce un esperimento validato di colorazione a due colori.",
-    "Outside channel indica la colorazione prima della permeabilizzazione, qui il canale uno. Total channel indica quella successiva, qui il canale zero. Un parassita positivo per il segnale esterno è classificato attached; con intensità pari o inferiore alla soglia, invaded. Una colorazione esterna debole può quindi generare classificazioni invaded false.",
-    "Scegliamo mean perché questa banca dati didattica contiene colonne di intensità media. Non è una raccomandazione generale per una colorazione superficiale. Nei dati reali, verificare quali misure del bordo o dei percentili siano disponibili e appropriate. Anche un anello di fondo locale è diverso dal canale della colorazione esterna.",
-    "Impostare Stain baseline wells sulla colonna uno. Questo nome sostituisce il precedente control wells e identifica il riferimento artificiale di colorazione negativa, non la condizione veicolo. Questi oggetti definiscono la soglia e sono esclusi dai denominatori del saggio. Vehicle e inhibitor restano nelle colonne due e tre.",
-    "Control quantile vale zero virgola novantanove. I trecentosessanta oggetti di riferimento producono una soglia di circa ventidue virgola otto unità di intensità. Lasciamo vuoto Outside threshold per usare la soglia derivata dal riferimento. In questa esecuzione non viene applicata la soglia del metodo automatico.",
-    "Threshold sensitivity vale zero virgola venticinque: la soglia viene valutata anche al venticinque per cento in meno e in più. Aumentarla può classificare più parassiti come invaded. Esaminare l’intervallo di efficienza e gli indicatori di qualità prima di interpretare variazioni; un’esecuzione riuscita non dimostra l’affidabilità della colorazione.",
-    "Extracellular class stabilisce come trattare gli oggetti privi di un legame con una cellula ospite. Qui usiamo classify, lasciando la decisione alla colorazione; tutte le righe didattiche hanno già un legame con un ospite. Nei dati reali, scegliere consapevolmente fra attached, exclude e classify dopo aver controllato la segmentazione dell’ospite.",
-    "Run produce tre figure reali. La pagina delle soglie mostra una distribuzione per pozzetto, non per parassita. Qui la linea applicata deriva dal riferimento e tutti i dodici pozzetti sono visibili. Valutare se separa popolazioni plausibili: queste distribuzioni inventate non sostituiscono l’esame di immagini rappresentative della colorazione.",
-    "Se una legenda esce dal riquadro della figura, aprire Figure settings e selezionare best per Legend position nella scheda degli assi. Confermare per mantenere visibili le etichette. È soltanto una modifica grafica: abbiamo verificato che valori tracciati e tabelle salvate restano invariati.",
-    "Le barre per pozzetto mostrano le frazioni attached e invaded, con centoventi parassiti classificati sopra ogni barra. I pozzetti di riferimento non compaiono. Conservare il denominatore accanto alla proporzione: una frazione elevata basata su pochissimi oggetti non equivale alla stessa frazione in un pozzetto ben campionato.",
-    "Le due condizioni inventate contengono ciascuna settecentoventi parassiti classificati. Le loro frazioni invaded sono circa trentanove virgola sette e sessantotto virgola nove per cento. Il riepilogo riporta anche la media fra pozzetti, che generalmente non coincide con l’aggregazione degli oggetti. Né questi nomi né un valore p dimostrano qui un effetto biologico.",
-    "Esaminare console e cartella dei risultati: classificazioni, soglie per campo, efficienze per pozzetto, riepiloghi e confronti. Per l’inferenza servono pozzetti sperimentali indipendenti, non singoli parassiti come repliche intercambiabili. spaCR AI è facoltativo e non è stato usato in questa analisi locale. Validare colorazione e immagini prima di trarre conclusioni biologiche."
+    "Da Home, apri Toxoplasma e scegli Invasion Assay. Parti da un database di misure che contenga le intensità dei parassiti per le colorazioni esterna e totale. Usa il campione sintetico collegato per esercitarti ad assegnare i canali, scegliere la soglia ed esaminare i risultati.",
+    "Estrai il campione e imposta Source sulla sua cartella invasion, che contiene measurements/measurements.db. Inserisci il riferimento delle impostazioni allegato e sostituisci il segnaposto di Source. Il campione contiene pozzetti di riferimento e due condizioni del saggio.",
+    "Imposta Outside channel su uno e Total channel su zero. La colorazione esterna si applica prima della permeabilizzazione; quella totale, dopo. I parassiti positivi alla colorazione esterna sono classificati come attaccati, quelli pari o inferiori alla soglia esterna come invasi. Controlla l’ordine dei canali di acquisizione quando usi le tue misure.",
+    "Seleziona mean in Intensity statistic per corrispondere alle colonne del database di esempio. Per il tuo saggio, scegli una statistica disponibile adatta alla colorazione ed esamina oggetti rappresentativi. Lascia Minimum total intensity a cento per questo campione.",
+    "Imposta Stain baseline wells sulla colonna uno, usando c1. Queste misure a colorazione negativa stabiliscono la soglia e sono escluse dai denominatori del saggio. In Pathogen plate metadata, assegna vehicle alla colonna due e inhibitor alla colonna tre.",
+    "Imposta Control quantile a zero virgola novantanove e lascia vuoto l’Outside threshold fisso. Le misure di riferimento determinano allora la soglia, circa ventidue virgola otto in questo esempio. Controlla la soglia applicata nell’output prima di interpretare le classificazioni.",
+    "Imposta Threshold sensitivity a zero virgola venticinque. Vengono così valutate anche soglie del venticinque per cento sotto e sopra quella scelta. Confronta l’intervallo di efficienza di invasione ottenuto per vedere quanto il risultato dipende dalla scelta della soglia.",
+    "Imposta Extracellular class su classify per il campione. Per gli oggetti senza collegamento a una cellula ospite, classify usa la colorazione, attached li assegna agli attaccati ed exclude li rimuove dalla popolazione valutata. Scegli questa impostazione tenendo conto della qualità delle assegnazioni alle cellule ospiti.",
+    "Lascia attivo Save e fai clic su Run. Al termine dell’elaborazione, apri la figura della soglia. Mostra le distribuzioni per pozzetto e la soglia applicata. In un esperimento, confronta queste distribuzioni con immagini colorate rappresentative e indaga le colorazioni esterne deboli.",
+    "Se una legenda esce dalla figura, apri Figure settings. Nella scheda axes, imposta Legend position su best, poi conferma. Verifica che le etichette restino visibili sia nella figura a schermo sia in quella esportata.",
+    "Apri la figura per pozzetto. Ogni barra mostra le frazioni di parassiti attaccati e invasi, con sopra il numero di parassiti valutati. I pozzetti di riferimento sono esclusi. Leggi i conteggi insieme alle frazioni quando confronti i pozzetti.",
+    "Apri il riepilogo per condizione. Confronta la frazione di invasione aggregata con la media tra i pozzetti, perché usano pesi diversi. Controlla la variabilità dei risultati per pozzetto prima di confrontare le condizioni.",
+    "Tutto viene salvato in results/analyze_invasion dentro Source. parasite_calls.csv contiene la classificazione di ogni parassita, field_thresholds.csv le soglie che la determinano, well_invasion.csv le frazioni per pozzetto e condition_summary.csv il confronto aggregato. Conserva con essi figure e impostazioni, e confronta le condizioni tra repliche indipendenti."
   ]
 }

@@ -305,7 +305,11 @@ class QCDashboardScreen(QWidget):
 
 
     def set_source(self, src: Any) -> None:
-        """Point the screen at a project folder and read it."""
+        """Point the screen at a project folder and read it.
+
+        :param src: the project folder; its string form is put in the folder
+            field and the verdicts are re-read with :meth:`refresh`.
+        """
         self._src_edit.setText(str(src))
         self.refresh()
 

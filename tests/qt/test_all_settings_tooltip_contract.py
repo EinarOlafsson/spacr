@@ -53,14 +53,20 @@ def test_every_registered_displayed_setting_has_authored_help():
 
     mask_shown = set(inventories["mask"]) - set(_APP_HIDDEN_KEYS.get("mask", set()))
     roles = ("cell", "nucleus", "pathogen", "organelle")
-    new_bounds = {f"{role}_{bound}_intensity"
-                  for role in roles for bound in ("min", "max")}
+    new_bounds = {f"organelle_{bound}_intensity" for bound in ("min", "max")}
+    new_bounds.add("object_filters")
     retired_controls = {
         f"{role}_{suffix}" for role in roles for suffix in (
             "intensity_merge", "intensity_split", "intensity_threshold",
             "min_watershed_distance", "minimum_area_to_split",
         )
     }
+    # The maintainer, 2026-09-25 (item 511): the per-object area and mean
+    # bounds of cell, nucleus and pathogen are object_filters rows now.
+    retired_controls |= {
+        f"{role}_{bound}" for role in ("cell", "nucleus", "pathogen")
+        for bound in ("min_area", "max_area", "min_intensity",
+                      "max_intensity")}
     assert new_bounds <= mask_shown, (
         f"Mask is missing displayed mean bounds: {sorted(new_bounds - mask_shown)}")
     assert not (retired_controls & mask_shown), (

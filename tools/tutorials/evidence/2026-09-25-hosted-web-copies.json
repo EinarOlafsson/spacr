@@ -1,0 +1,32 @@
+{
+  "scope": "Web copies hosted on the immutable media revision beside the 4K masters (5801260bb). New 17 and 76 web copies are hosted; the verified 78-81 web copies moved byte for byte from Pages. Posters and catalogs stay on Pages.",
+  "hosted_web_lessons": [
+    "17_timelapse",
+    "76_ops",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways"
+  ],
+  "migrated_unchanged": [
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways"
+  ],
+  "removed_local_web_copies": [
+    "production/17_timelapse/video/17_timelapse_silent.mp4",
+    "production/76_ops/video/76_ops_silent.mp4",
+    "production/78_spacr_screens/video/78_spacr_screens_silent.mp4",
+    "production/79_module_inputs_outputs/video/79_module_inputs_outputs_silent.mp4",
+    "production/80_image_analysis_pathways/video/80_image_analysis_pathways_silent.mp4",
+    "production/81_sequencing_pathways/video/81_sequencing_pathways_silent.mp4"
+  ],
+  "candidate": "release-candidate-append-31kkmyz_",
+  "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
+  "tag": "tutorials-hosted-20260925-31kkmyz_",
+  "readback_files": 650,
+  "web_bytes": 603532677,
+  "ceiling_bytes": 734003200,
+  "local_and_hosted_playback_assert_hosted_source": true
+}

@@ -710,6 +710,9 @@ class ClassifierEvaluationScreen(QWidget):
     def show_cell(self, true_class: str, predicted_class: str) -> None:
         """Inspect one confusion cell. The seam a test (or a link) goes through.
 
+        :param true_class: annotated class naming the confusion-matrix row.
+        :param predicted_class: model-predicted class naming the
+            confusion-matrix column.
         :returns: nothing; the two lists, the breakdown and the buttons are
             the result.
         """
@@ -815,6 +818,9 @@ class ClassifierEvaluationScreen(QWidget):
         show *why* this order, and the threshold so it can say where the split
         was made.
 
+        :param which: ``"high"`` for the confident (sure and wrong) half of the
+            open cell or ``"low"`` for the unconfident half; a value the cell
+            rejects is reported in the status line.
         :returns: whatever the opener returned, or ``None`` when there was
             nothing to open or nowhere to open it.
         """
@@ -908,6 +914,9 @@ class ClassifierEvaluationScreen(QWidget):
         A job left running here outlives its owner but stays in the
         process-wide run registry, which ``MainWindow.closeEvent`` reads to
         decide whether the application may quit.
+
+        :param event: the close event; it is not inspected, only passed on to
+            the base class once the workers are drained.
         """
         from ..bridge import drain_thread
 

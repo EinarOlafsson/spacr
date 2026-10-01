@@ -401,6 +401,11 @@ class MethodsExportScreen(QWidget):
         Split out from the widget so a test can assert on the wording — this
         line is the entire user-facing guarantee, and a vague one would be
         worse than none.
+
+        :param draft: the :class:`spacr.qt.ai.manuscript.ManuscriptDraft` just
+            produced. When ``ok``, its provider and the counts of checked
+            numbers are quoted; otherwise its ``problems`` are listed one per
+            line.
         """
         if draft.ok:
             checked = ((draft.methods_check.checked if draft.methods_check
@@ -512,7 +517,11 @@ class MethodsExportScreen(QWidget):
         return self._jobs.active_jobs()
 
     def closeEvent(self, event) -> None:             # noqa: N802 - Qt override
-        """Drain the worker before the widget goes."""
+        """Drain the worker before the widget goes.
+
+        :param event: the close event, passed on to the base class once the
+            drafting job has been shut down.
+        """
         self._jobs.shutdown()
         super().closeEvent(event)
 

@@ -16,37 +16,37 @@
   "scenes": [
     {
       "visual": "00_home",
-      "narration": "From Home, choose Toxoplasma. This page brings the organism guide, cell diagram and available assays together. You can explore it before loading any images or measurements.",
+      "narration": "Every Toxoplasma experiment can start from one page. From Home, choose Toxoplasma: the organism guide, a cell diagram and the available assays sit side by side, ready to explore before you load any images.",
       "hold_after": 0.7
     },
     {
       "visual": "01_organism",
-      "narration": "Read the introduction in the information pane. Scroll each pane independently, or drag the divider to give the guide or assay tiles more room.",
+      "narration": "Begin with the introduction in the information pane. Each pane scrolls on its own, and dragging the divider gives the guide or the assay tiles more room.",
       "hold_after": 0.7
     },
     {
       "visual": "02_diagram",
-      "narration": "Hover over a cell component to read its description. Select several components to keep them highlighted, and use Clear components to reset the diagram.",
+      "narration": "The diagram is there to explore. Hover over a cell component and its description appears. Select several to keep them highlighted, and Clear components resets the picture.",
       "hold_after": 0.7
     },
     {
       "visual": "03_assays",
-      "narration": "Choose Plaque Assay for plaque counts and areas, Invasion Assay for entry measurements, Recruitment for marker ratios, Replication Assay for parasite counts, or Host–Pathogen for linked vacuole and host summaries. Open the matching lesson for its inputs, settings and results.",
+      "narration": "Pick the tile that matches your question. Plaque Assay counts plaques and measures their areas; Invasion Assay asks how many parasites got inside. Recruitment measures how much marker gathers at the vacuole, Replication Assay how many parasites each vacuole holds, and Host–Pathogen ties vacuoles to their host cells. Each has its own lesson.",
       "hold_after": 0.7
     },
     {
       "visual": "04_host_pathogen",
-      "narration": "Click Host–Pathogen to open its analysis screen. Use Load test data to start with the supplied microscopy example, then follow the Host–Pathogen tutorial through the settings, preview and Run.",
+      "narration": "Let's follow one of them. Click Host–Pathogen and its analysis screen opens. Load test data brings in the supplied microscopy example, and from there the Host–Pathogen tutorial walks you through the settings, preview and Run.",
       "hold_after": 0.7
     },
     {
       "visual": "05_starplast",
-      "narration": "Return to Toxoplasma and choose Starplast to explore the knowledge map in its separate application. On first use, follow the offered installation steps. The reference links also open organism resources in your browser.",
+      "narration": "Back on the Toxoplasma page, Starplast opens a knowledge map in its own application; the first time, it offers installation steps to follow. The reference links, meanwhile, open organism resources in your browser.",
       "hold_after": 0.7
     },
     {
       "visual": "06_home_return",
-      "narration": "The guide itself writes no analysis files. Return to Home when you need image segmentation or measurement first; use the assay pages once the required images or tables are ready.",
+      "narration": "The guide writes no analysis files, so the real work happens elsewhere. If your images still need segmenting or measuring, return Home first; once the images or tables are ready, the assay pages take over.",
       "hold_after": 0.7
     }
   ]

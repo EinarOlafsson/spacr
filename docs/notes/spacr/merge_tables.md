@@ -263,3 +263,34 @@ Both of these come from starplast, which built the same picker for a different t
 a group can be named as an input and contribute almost nothing starplast caught one carrying 1.1% -- and nobody notices, because a projection always produces a picture; a projection can separate objects on WHETHER THEY WERE MEASURED rather than on what was measured, and that reads as a phenotype.
 
 The second matters more in spaCR than it did there. A cell with no pathogen has NaN for every pathogen measurement, and `reduce_dimensions` median-fills rather than dropping the row -- deliberately, because dropping loses every measurement the object DID have. But a median fill puts all the uninfected cells at the same point on those axes, so an embedding can split infected from uninfected on missingness alone. That split is real, reproducible, and not a phenotype.
+
+## Named derived tables and explicit external schemas
+
+Graph Builder and Gate Editor share `spacr.derived_tables` and the Merge tables
+popup. Standard merges delegate to `merge_tables` and `MergePolicy`, using the
+same measurement rules as Regression. The default output is one row per cell
+or cytoplasm; nucleus joins are inner, while pathogen and organelle joins retain
+uninfected base observations. Image and time keys stay part of the identity.
+Each child is aggregated independently before joining, so multiple child tables
+cannot multiply the base observations. An all-missing sum remains missing.
+
+The popup supports per-column aggregation overrides. A qualified policy key
+such as `pathogen.area` changes that table's area rule without also changing
+`organelle.area`. Explicit numeric options include mean, median, sum, minimum,
+maximum and count; text and Boolean options depend on actual types. Identifiers
+cannot be averaged or summed. Count counts nonmissing values; the separately
+reported child count counts contributing source rows.
+
+Customize merging requires acknowledgment of the warning and explicit composite
+key mappings. One-to-one relationships reject duplicate child keys; one-to-many
+relationships roll up before joining. Left joins retain unmatched base rows;
+inner joins omit them. Missing child keys never match. Preview shows input/output
+counts, unmatched records, repeated child keys and output rows. Cancel preserves
+the previous configuration, and Reset to spaCR defaults clears custom rules.
+
+Definitions are stored beside the source as `<database>.spacr-merges.json`, bound
+to the canonical source path and selected-table schemas. Source tables are never
+overwritten. Refresh/reopen revalidates definitions. Saved charts and gating
+strategies embed their definition; gate exports rebuild the full result and use
+the base object's identity. External tables without verified image provenance
+remain available for tabular plotting and gating, with image actions disabled.

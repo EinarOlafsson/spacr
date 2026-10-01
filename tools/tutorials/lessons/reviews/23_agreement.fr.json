@@ -1,31 +1,33 @@
 {
   "lesson": "23_agreement",
-  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
   "review": {
-    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "fr",
-  "title": "Accord entre annotateurs",
-  "description": "Ouvrez l’outil intégré, comparez des étiquettes pédagogiques explicitement artificielles sur des copies de vrais recadrages téléchargés et distinguez l’accord par paire du résumé à plusieurs passes.",
+  "title": "Annotator Agreement : comparer des passes d’annotation indépendantes",
+  "description": "Choisissez des colonnes d’annotation, comparez la concordance et examinez les vignettes dont les étiquettes diffèrent.",
   "objectives": [
-    "Ouvrir Annotator Agreement depuis Annotate.",
-    "Comparer les étiquettes, les observations manquantes et les matrices de confusion sans modifier les annotations.",
-    "Examiner les recadrages en désaccord et interpréter les résumés à deux et trois passes."
+    "Ouvrir la base de données d’exemple et sélectionner deux passes d’annotation.",
+    "Lire la concordance par paires et la matrice de confusion.",
+    "Examiner les désaccords et comparer trois passes d’annotation."
   ],
-  "prerequisite": "Les seize recadrages sont des copies inchangées de l’exemple téléchargeable d’Annotate. DEMO_A, DEMO_B et DEMO_C sont des étiquettes pédagogiques artificielles ajoutées à une nouvelle base privée, pas des classifications biologiques, des scores humains ou des prédictions. Les images et étiquettes sources restent inchangées ; png_path devient relatif seulement dans la copie. Pour votre évaluation, utilisez de vraies passes indépendantes. La détection par défaut exclut les colonnes connues de sortie des modèles. Des calculs indépendants en entiers et fractions vérifient chaque paire, matrice et agrégat ; trois aperçus correspondent exactement aux pixels des sources. Ce petit exemple enseigne les commandes, pas la fiabilité d’un essai. L’ancien film répétait un écran vide et décrivait une détection automatique des prédictions devenue incompatible avec l’API : il ne s’agit pas simplement d’une leçon déplacée.",
+  "prerequisite": "Extrayez l’exemple Annotator Agreement associé et gardez sa base de données avec les images de vignettes. Il contient seize images de l’exemple Annotate et trois colonnes d’étiquettes pédagogiques artificielles, DEMO_A, DEMO_B et DEMO_C. Pour votre propre analyse, utilisez des annotations des mêmes images recueillies de façon indépendante.",
   "scenes": [
-    "Ouvrez Annotate, puis son bouton Annotator Agreement. C’est un outil intégré, pas un autre module de Home. La vue de comparaison lit les colonnes d’annotation sans les modifier ; revenez dans Annotate pour changer une étiquette.",
-    "Ouvrez la base de démonstration préparée. Ses seize images sont de vrais recadrages de l’exemple téléchargeable, mais les trois colonnes DEMO contiennent des étiquettes pédagogiques artificielles. Elles ne mesurent ni les compétences d’une personne ni un phénotype biologique. Les images et étiquettes originales ont été préservées dans une copie source distincte.",
-    "Vérifiez explicitement les colonnes sélectionnées au lieu d’accepter les premiers choix par défaut. Une seule colonne ne permet pas de mesurer l’accord. La détection actuelle exclut par défaut les colonnes connues de sortie des modèles ; comparer un classifieur à une personne relève de la validation du modèle, pas de l’accord entre personnes.",
-    "Sélectionnez DEMO A et DEMO B, puis cliquez sur Compute agreement. Douze recadrages sont étiquetés dans les deux passes, trois dans une seule et un dans aucune. Les étiquettes manquantes ne sont pas silencieusement transformées en désaccords.",
-    "Les deux passes pédagogiques concordent sur neuf des douze recadrages comparés : soixante-quinze pour cent, avec un kappa de Cohen de zéro virgule cinq. Examinez ensemble l’accord brut, le recouvrement et l’équilibre des classes. L’écran avertit que douze étiquettes partagées sont insuffisantes pour estimer la fiabilité de façon stable ; ces étiquettes inventées ne sont qu’une démonstration.",
-    "Les lignes correspondent à DEMO A et les colonnes à DEMO B. Cinq recadrages portent la classe un dans les deux passes, et quatre la classe deux dans les deux. Les nombres hors diagonale, un et deux, représentent trois désaccords. Une qualification comme modéré est une convention, pas un seuil d’acceptation de votre essai.",
-    "Sélectionnez un désaccord pour examiner le recadrage correspondant et les deux étiquettes. Nous avons vérifié les trois aperçus par rapport aux pixels originaux. Dans une véritable étude, examinez des images représentatives et les définitions des classes avant de décider comment arbitrer ; cet écran en lecture seule ne tranche pas à votre place.",
-    "Ajoutez DEMO C et relancez le calcul. Cocher une case ne déclenche pas à lui seul un nouveau calcul. Le tableau compare maintenant trois paires dont les nombres d’étiquettes partagées diffèrent, tandis que le résumé global de Fleiss utilise seulement les douze recadrages étiquetés dans toutes les passes sélectionnées.",
-    "Le kappa de Fleiss de l’exemple pédagogique vaut environ zéro virgule six six trois, et non la moyenne des trois kappas par paire. L’accord brut global compte ici les lignes complètes unanimes. La quatrième ligne à examiner n’a pas d’étiquette A mais présente un désaccord entre B et C : elle peut donc figurer dans la revue sans entrer dans le résumé des cas complets.",
-    "En sélectionnant seulement A et B et en recalculant, vous retrouvez la comparaison initiale. Nous avons vérifié que la base et les fichiers de recadrage restent inchangés pendant les trois calculs. Utilisez des passes d’annotation réellement indépendantes pour votre analyse et revenez au tutoriel Annotate pour recueillir ces étiquettes."
+    "Depuis Home, ouvrez Annotate, puis choisissez Annotator Agreement. Cet outil compare des étiquettes recueillies lors de passes d’annotation distinctes. Les résultats aident à repérer les images à revoir.",
+    "Ouvrez la base de données d’exemple. Gardez les dossiers de vignettes extraits à côté pour que les aperçus d’images se chargent. Les colonnes DEMO contiennent des étiquettes pédagogiques artificielles ; utilisez vos propres colonnes d’annotation indépendantes pour évaluer la concordance dans une étude.",
+    "Sélectionnez au moins deux colonnes d’annotation dans la liste. Pour cet exemple, commencez par DEMO A et DEMO B. Vérifiez les noms des colonnes afin de comparer les bonnes passes.",
+    "Cliquez sur Compute agreement. Les deux passes sélectionnées partagent douze vignettes étiquetées. Trois autres vignettes n’ont une étiquette que dans une seule passe, et une n’en a aucune. La concordance par paires utilise les vignettes étiquetées dans les deux passes.",
+    "Lisez les résultats par paires. Les passes concordent sur neuf vignettes sur douze, soit soixante-quinze pour cent de concordance et un kappa de Cohen de zéro virgule cinq. Interprétez ces valeurs avec le nombre d’étiquettes communes ; un petit échantillon donne une estimation incertaine.",
+    "Ouvrez la matrice de confusion. Les lignes représentent DEMO A et les colonnes DEMO B. La diagonale contient les étiquettes concordantes : cinq pour la classe un et quatre pour la classe deux. Les cases hors diagonale contiennent les trois désaccords.",
+    "Sélectionnez un désaccord pour afficher sa vignette et les étiquettes attribuées dans chaque passe. Comparez l’image avec vos définitions de classes. Pour modifier une étiquette après vérification, revenez dans Annotate.",
+    "Ajoutez DEMO C et cliquez de nouveau sur Compute agreement. La table par paires montre maintenant les trois paires. Chaque paire utilise ses étiquettes communes, tandis que le résumé global utilise les vignettes étiquetées dans les trois passes sélectionnées.",
+    "Lisez le kappa de Fleiss global et le résumé de concordance unanime. Cet exemple donne un kappa de Fleiss d’environ zéro virgule six six trois. Examinez aussi la liste des désaccords : elle peut inclure une vignette étiquetée dans deux des trois passes seulement.",
+    "Pour revenir à une seule paire, sélectionnez uniquement A et B et cliquez sur Compute agreement. Les résultats restent dans cette vue de comparaison ; vos colonnes d’annotation restent dans la base de données source. Poursuivez dans Annotate pour recueillir une autre passe indépendante ou revoir les désaccords identifiés."
   ]
 }

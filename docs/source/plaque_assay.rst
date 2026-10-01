@@ -40,9 +40,10 @@ Read a published figure
 #. If the figure reader is missing, use the panel's **Install** action.
    It installs the YOLO/OCR reader in its own backend environment under
    ``~/.spacr/backends``. Inspect the installation result before previewing.
-#. In **Settings… → Figure**, choose the well detector, inference sizes,
-   confidence cutoff and text-reading settings. **Run preview** finds wells
-   and reads the figure text; this first pass does not segment the plaques.
+#. In **Settings… → Figure**, choose the well detector, inference sizes and
+   confidence cutoff; the text-reading settings are on the **Text detection**
+   tab. **Run preview** finds wells and reads the figure text; this first
+   pass does not segment the plaques.
 #. Click a well in the image or a table row. **Plaque preview** segments that
    well with the plaque settings. **Find plaques in all wells** processes
    the detected wells in sequence; Cancel stops after the current well.
@@ -60,7 +61,7 @@ entries. The batch figure workflow uses these files and writes its database
 under ``<src>/plaque_figures/plaque_figures.db`` by default. Reprocessing a
 figure replaces its previous rows; duplicate image content is recorded rather
 than counted as an independent image. See
-:func:`spacr.plaque_papers.analyze_figure_folder` for the full file contract.
+:func:`spacr.plaque_papers.measure_figure_folder` for the full file contract.
 
 Areas in pixels and calibrated areas are different quantities. Verify the
 reported scale and its source before comparing physical areas between images.
@@ -74,27 +75,40 @@ same grid. Conflicting peer bars leave that crop in pixels with a conflict
 note. Whole-well calibration is a later fallback when the plate format is
 known; stated magnification alone does not calibrate a rescaled figure.
 
-Optional scale and time estimates
-----------------------------------
+Drop images, PDFs and folders
+------------------------------
 
-In Figure mode, enter any known **Pixels per µm** and formation time for
-each well first. Choose **Estimate scale / time (experimental)** to show
-suggestions in the **Estimated pixels per µm**, **Estimated time (hours)**
-and **Estimate basis** columns. Review the basis alongside each suggestion.
-The option is off by default and keeps suggestions separate from entered
-calibration and measured results.
+Drop any number of images, PDFs or folders onto Plaque Assay. Images are read
+in **Plaque** mode and PDFs in **Figure** mode; every PDF is read in turn,
+with progress naming the paper being read, and a paper that cannot be read is
+reported by name without stopping the others. Files that are neither images
+nor PDFs are left out and counted once. When the drop does not match the
+current mode, a prompt offers to switch; when it holds both images and PDFs,
+choose which mode to run. If the figure reader needs installing or
+reinstalling, the prompt installs it in place and reports the result.
 
-The calculation uses the largest quarter of plaques and assumes linear
-diameter growth. Its default reference is an RH/HFF control diameter of
-about 894 µm at seven days. This reference does not establish a growth curve
-across times or conditions. When both scale and time are unknown, the
-reference duration is assumed; it is not a separately measured time.
-Conflicting known times prevent pooling wells into one page estimate.
+Inspect the result views
+-------------------------
 
-Use **Experimental Growth Estimates** settings to choose a reference
-diameter and its corresponding duration for your experiment. Keep the
-reference and assumptions with exported suggestions. See
-:func:`spacr.plaque_growth.estimate_page` for the input and output fields.
+The view selector above the preview offers **Overlay**, **Masks**, **Flows**
+and **Cell probability** in both modes. In Figure mode, each segmented well's
+outputs are placed at its box on the figure. Right-click the image for the
+overlay options: outlines or filled objects, random colours, **Overlay
+settings…** and **Save picture…**. The overlay settings include the outline
+and fill colours, fill opacity and the **Line weight** of the **Well boxes**.
+**Ruler** measures a distance on the image, in µm when the pixel size is
+known and in pixels otherwise; right-click clears it.
+
+Contribute training data
+-------------------------
+
+**Contribute training data…** sends an annotated image to spaCR's community
+training data on Hugging Face. In Figure mode, box every well for the well
+detector; in Plaque mode, paint every plaque for the next plaque model. An
+image without annotations is not sent, and you must agree to the licence
+before uploading. The dialog shows the destination dataset as a link that
+can be opened, selected and copied. A contribution is reviewed before it is
+used for training, so draw the annotations carefully.
 
 Changing selections while a preview runs
 ----------------------------------------

@@ -134,6 +134,10 @@ def field_key(row: Mapping[str, Any]) -> str:
     every plate. Matching children to parents on the label alone attaches
     every field's nuclei to every field's cell 7, which produces a tree that
     looks plausible and is wrong everywhere.
+
+    :param row: an object-table row carrying every column of
+        :data:`spacr.schema.FIELD_KEY_COLUMNS`; their values are joined with
+        the schema key separator.
     """
     return schema.KEY_SEPARATOR.join(
         str(row[column]) for column in schema.FIELD_KEY_COLUMNS)
@@ -252,7 +256,11 @@ class LineageNode:
         return out
 
     def find(self, key: str) -> Optional["LineageNode"]:
-        """The node with this key, anywhere below (or at) this one."""
+        """The node with this key, anywhere below (or at) this one.
+
+        :param key: shared object key to look for, compared as a string with
+            each node's :attr:`key` in depth-first order; the first match wins.
+        """
         for _depth, node in self.walk():
             if node.key == str(key):
                 return node
@@ -444,6 +452,9 @@ def orphans(frames: Mapping[str, pd.DataFrame], *,
     nucleus segmentation found something the cell segmentation did not — and
     that is worth showing rather than dropping on the way into a tree.
 
+    :param frames: ``{table name: rows}``. The ``root`` table is required; each
+        other table in :data:`LINEAGE_TABLES` that is present and has a
+        parent-link column is checked, and anything else is ignored.
     :returns: the offending rows with ``table`` and ``parent_id`` columns
         added, in table then field then label order. Empty when everything
         attaches, which is the healthy case.
@@ -484,6 +495,9 @@ def lineage_frame(forest: Sequence[LineageNode]) -> pd.DataFrame:
 
     For export, for a table view, and for the tests — a tree is awkward to
     assert on and this is the same information in a shape pandas can compare.
+
+    :param forest: root nodes as returned by :func:`build_forest`, flattened
+        depth-first in order; roots get an empty ``parent_key`` and depth 0.
     """
     rows: List[Dict[str, Any]] = []
 
@@ -520,6 +534,9 @@ def forest_key_collisions(forest: Sequence[LineageNode]
     happen (the label is unique per mask), while a nucleus 1 and a pathogen 1
     inside one cell is the ordinary case. Merging the two would report a
     collision on every plate.
+
+    :param forest: root nodes as returned by :func:`build_forest`; each root's
+        :meth:`LineageNode.key_collisions` are merged into one mapping.
     """
     out: Dict[str, Tuple[str, ...]] = {}
     for root in forest:
@@ -533,6 +550,10 @@ def describe_forest(forest: Sequence[LineageNode]) -> str:
     Says the thing a tree of ten thousand rows cannot: how many parents have
     nothing inside them. In an infection assay that number *is* the readout,
     and having to count it by scrolling is how it gets estimated instead.
+
+    :param forest: root nodes as returned by :func:`build_forest`. The first
+        root's table is taken as the root table; an empty forest gets a
+        sentence saying there is nothing to show.
     """
     if not forest:
         return "No parent objects, so there is no lineage to show."

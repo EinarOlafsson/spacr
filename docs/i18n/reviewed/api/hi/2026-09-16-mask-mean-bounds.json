@@ -20,28 +20,33 @@
       "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
       "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
       "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
-      "translation": "पहले से प्रशिक्षित ``cpsam`` मॉडल लोड करता है; यदि ``<object_type>_model_name`` (या ``pathogen_model``) उपयोगकर्ता द्वारा प्रशिक्षित चेकपॉइंट का नाम देता है, तो उस चेकपॉइंट को लोड करता है। पहले से बैचों में बाँटी गई प्रत्येक ``.npz`` फ़ाइल पर क्रमशः काम करता है, 2-D मास्कों पर परिमाप-आधारित विलय तथा क्षेत्रफल/किनारे के आधार पर फ़िल्टरिंग लागू करता है, और वैकल्पिक रूप से वस्तुओं को उनके अपने चैनल की मूल छवि में निरपेक्ष औसत तीव्रता के आधार पर फ़िल्टर करता है। फिर वैकल्पिक रूप से टाइम-लैप्स छवियों में वस्तुओं को ट्रैक करता है, प्रत्येक छवि के लिए ``.npy`` मास्क सहेजता है, और वस्तु-प्रकार के अनुसार गिनती को रन के SQLite डेटाबेस में दर्ज करता है। टाइम-स्टैक आर्काइव में प्रत्येक समय-बिंदु के लिए एक फ़ाइलनाम होना चाहिए, चाहे घोषित समय-अक्ष की स्थिति कोई भी हो; मूल छवि का प्रत्येक फ़ाइलनाम उस समय-बिंदु के ``(Z, Y, X, C)`` आयतन या उसकी ``(Y, X, C)`` छवि को पहचानता है, यदि श्रृंखला समतल ``TYX`` हो।"
-    },
-    {
-      "label": "spacr.object.generate_cellpose_masks_sam#2",
-      "source": "Directory containing the pre-batched ``.npz`` image stacks.",
-      "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
-      "context": "Directory containing the pre-batched ``.npz`` image stacks.",
-      "translation": "पहले से बैचों में बाँटे गए ``.npz`` छवि स्टैक वाली निर्देशिका।"
+      "translation": "पहले से प्रशिक्षित ``cpsam`` मॉडल लोड करता है; यदि ``<object_type>_model_name`` (या ``pathogen_model``) उपयोगकर्ता द्वारा प्रशिक्षित चेकपॉइंट का नाम देता है, तो उस चेकपॉइंट को लोड करता है। पहले से बैचों में बाँटी गई प्रत्येक ``.npz`` फ़ाइल पर क्रमशः काम करता है, 2-D मास्कों पर परिमाप-आधारित विलय तथा क्षेत्रफल/किनारे के आधार पर फ़िल्टरिंग लागू करता है, और वैकल्पिक रूप से वस्तुओं को उनके अपने चैनल की मूल छवि में निरपेक्ष औसत तीव्रता के आधार पर फ़िल्टर करता है। फिर वैकल्पिक रूप से टाइम-लैप्स छवियों में वस्तुओं को ट्रैक करता है, प्रत्येक छवि के लिए ``.npy`` मास्क सहेजता है, और वस्तु-प्रकार के अनुसार गिनती को रन के SQLite डेटाबेस में दर्ज करता है। टाइम-स्टैक आर्काइव में प्रत्येक समय-बिंदु के लिए एक फ़ाइलनाम होना चाहिए, चाहे घोषित समय-अक्ष की स्थिति कोई भी हो; मूल छवि का प्रत्येक फ़ाइलनाम उस समय-बिंदु के ``(Z, Y, X, C)`` आयतन या उसकी ``(Y, X, C)`` छवि को पहचानता है, यदि श्रृंखला समतल ``TYX`` हो।",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#3",
-      "source": "Pipeline settings dict; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
-      "source_sha256": "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
-      "context": "Workflow settings key-value mapping; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
-      "translation": "प्रसंस्करण पाइपलाइन की सेटिंग्स का शब्दकोश; :func:`spacr.settings.set_default_settings_preprocess_generate_masks` के माध्यम से मानक रूप में बदला जाता है।"
+      "source": "Directory containing the pre-batched ``.npz`` image stacks.",
+      "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
+      "context": "Directory containing the pre-batched ``.npz`` image stacks.",
+      "translation": "पहले से बैचों में बाँटे गए ``.npz`` छवि स्टैक वाली निर्देशिका।",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#2"
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#4",
+      "source": "Pipeline settings dict; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "source_sha256": "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
+      "context": "Workflow settings key-value mapping; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "translation": "प्रसंस्करण पाइपलाइन की सेटिंग्स का शब्दकोश; :func:`spacr.settings.set_default_settings_preprocess_generate_masks` के माध्यम से मानक रूप में बदला जाता है।",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#3"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#5",
       "source": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
       "source_sha256": "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
       "context": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
-      "translation": "``'cell'``, ``'nucleus'``, ``'pathogen'`` या ``'organelle'``; चैनल/थ्रेशोल्ड की खोज और आउटपुट फ़ोल्डर का नाम निर्धारित करता है।"
+      "translation": "``'cell'``, ``'nucleus'``, ``'pathogen'`` या ``'organelle'``; चैनल/थ्रेशोल्ड की खोज और आउटपुट फ़ोल्डर का नाम निर्धारित करता है।",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#4"
     },
     {
       "label": "spacr.object.merge_split_filter_masks#0",

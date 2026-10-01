@@ -79,6 +79,9 @@ def is_database_path(path) -> bool:
     column and for the drop handler that catches the same file when it lands
     on the screen around the widget. Two copies would disagree the first time
     somebody's database was called ``plate1.sqlite``.
+
+    :param path: file path as a string or path-like object; its extension is
+        compared, case-insensitively, with ``DATABASE_EXTENSIONS``.
     """
     return os.path.splitext(os.fspath(path))[1].lower() in DATABASE_EXTENSIONS
 
@@ -141,6 +144,11 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
     matched against BOTH cells of a row it may join -- a plate is named by its
     score CSV as often as by its count CSV -- and one that matches nothing is
     listed on its own row rather than being dropped or guessed onto row 0.
+
+    :param scores: score CSV paths; each starts a row, in the order given.
+    :param counts: count CSV paths; each is paired with the score whose
+        filename tokens it uniquely matches best, unmatched ones fill score
+        rows still missing a count, and any left over get rows of their own.
     """
     unused = set(range(len(counts)))
     count_tokens = [_pair_tokens(path) for path in counts]
@@ -240,6 +248,9 @@ def side_for_header(path) -> str:
     ``spacr.qt.dnd_handlers.SweepInputsDropHandler``. A second copy of this
     rule would drift, and the direction it would drift in is silent: a count
     table filed as a score is not an error, it is a wrong regression.
+
+    :param path: CSV file whose first row is read as the header; a file that
+        cannot be read counts as a score file.
     """
     import csv as _csv
     try:
@@ -444,6 +455,9 @@ class PairedFileTableWidget(QWidget):
         find, and the widget has no parent chain to walk up either. Once
         installed the layout follows the header on its own, and the call is
         idempotent, so repeated shows cost one dictionary lookup.
+
+        :param event: the show event; it is not inspected, only passed on to
+            the base class first.
         """
         super().showEvent(event)
         try:
@@ -566,9 +580,18 @@ class PairedFileTableWidget(QWidget):
         self._databases = list(dict.fromkeys(
             row["database"] for row in current if row.get("database")))
 
-    def _repropose(self) -> None:
-        """Rebuild every row from tokens, then honour the manual attachments."""
-        typed = self._plate_labels_the_user_typed()
+    def _repropose(self, typed: dict | None = None) -> None:
+        """Rebuild every row from tokens, then honour the manual attachments.
+
+        :param typed: the plate labels the user typed, keyed by the row's
+            files. Omitted, they are read from the table as it stands. A row
+            move or delete passes the labels it read BEFORE changing the
+            table, because a generated `plate 2` that a move carried to the
+            top no longer matches the proposal for its new position and would
+            otherwise be mistaken for a name the user chose.
+        """
+        if typed is None:
+            typed = self._plate_labels_the_user_typed()
         rows = suggest_file_pairs(self._scores, self._counts,
                                   databases=self._databases)
         for row in rows:
@@ -685,6 +708,9 @@ class PairedFileTableWidget(QWidget):
 
         Returns the sentence, so a caller with a console logs the same words
         the user is reading.
+
+        :param path: path to the measurements database, as a string or
+            path-like object; an empty path raises :class:`ValueError`.
         """
         database = os.fspath(path).strip()
         if not database:
@@ -892,6 +918,9 @@ class PairedFileTableWidget(QWidget):
         dropping it on a plate's row attaches it to THAT plate, which is the
         one thing the token pairing cannot know when the file is called
         ``measurements.db`` like everybody else's.
+
+        :param event: the drop event; its local file URLs and drop position
+            are read, and it is ignored when it carries no usable paths.
         """
         paths = self._dropped(event)
         if not paths:
@@ -994,21 +1023,42 @@ class PairedFileTableWidget(QWidget):
         target = row + offset
         if row < 0 or not 0 <= target < self.table.rowCount():
             return
+        typed = self._labels_before_a_change()
         values = self.get_value()
         values[row], values[target] = values[target], values[row]
         self.set_value(values)
+        self._repropose_after_a_change(typed)
         self.table.selectRow(target)
         self.value_changed.emit()
+
+    def _labels_before_a_change(self) -> dict:
+        """The typed plate labels, read while the table is still unchanged."""
+        self._rebuild_sides()
+        return self._plate_labels_the_user_typed()
+
+    def _repropose_after_a_change(self, typed: dict) -> None:
+        """Renumber generated plate labels the moment rows move or go.
+
+        A generated label names a row's position, so a move or a delete that
+        leaves it in place has it asserting a position the row no longer has
+        until the next file arrives.
+
+        :param typed: labels from :meth:`_labels_before_a_change`.
+        """
+        self._rebuild_sides()
+        self._repropose(typed)
 
     def _remove(self) -> None:
         """Remove the selected row."""
         rows = sorted({index.row() for index in self.table.selectedIndexes()},
                       reverse=True)
+        typed = self._labels_before_a_change() if rows else {}
         for row in rows:
             self._pinned.pop(self._cell(row, self.SIDE_COLUMNS["database"]),
                              None)
             self.table.removeRow(row)
         if rows:
+            self._repropose_after_a_change(typed)
             self._refresh_status()
             self.value_changed.emit()
 
@@ -1069,12 +1119,6 @@ class FilePathListWidget(QWidget):
     """
 
     value_changed = Signal()
-    # ANY change to what the list holds, including one made by `set_value`.
-    # `value_changed` is deliberately the USER's edit: it is what marks a
-    # screen dirty and re-writes a settings file, so a load must not emit it.
-    # That leaves a listener which has to follow the value itself -- Map
-    # Barcodes' live search -- deaf to a settings file replacing a path. This
-    # is that listener's signal, and every user edit emits it too.
     contents_changed = Signal()
 
     def __init__(
@@ -1122,25 +1166,6 @@ class FilePathListWidget(QWidget):
         outer.addWidget(self._hint)
         self._follow_path_probes()
 
-        # ONE ROW FOR A SETTING THAT NAMES ONE FILE.
-        #
-        # Reported 2026-09-15: "the barcode references in map barcodes should
-        # be one line or row each now they are large fields for some reason."
-        # Measured on the live screen: `grna_csv`, `row_csv` and `column_csv`
-        # each came to a sizeHint height of 240 against 30-33 for every other
-        # field on that form -- eight rows of furniture for one path.
-        #
-        # `single=True` already existed and was not enough: it shrank the list
-        # from 96 to 48 and left the list, the hint and the button on three
-        # separate rows. A setting that holds exactly one path has no order to
-        # show, no selection to make and nothing to scroll.
-        #
-        # THE LIST STAYS AND STAYS THE VALUE. `paths()` reads it, every
-        # mutation goes through it, and the drop target and the path probes
-        # are wired to it. Hiding it and mirroring its one row into a
-        # read-only field changes what the user sees and nothing about what
-        # the widget IS -- which is why this is a presentation change and not
-        # a rewrite of the value logic.
         self._single_line = None
         if self._single:
             self._list.hide()
@@ -1214,6 +1239,10 @@ class FilePathListWidget(QWidget):
         That is what loads a settings file written while these keys were
         wrongly rendered as lists: ``['/x/barcodes_row.csv']`` comes back as
         ``/x/barcodes_row.csv`` rather than carrying the wrong shape forward.
+
+        :param value: None, one path as a string or path-like object, or an
+            iterable of paths; surrounding quotes and placeholder values are
+            dropped.
         """
         before = self.paths()
         self._list.clear()
@@ -1275,6 +1304,11 @@ class FilePathListWidget(QWidget):
         When the setting names ONE file this REPLACES what is there. A second
         choice is a correction, and a control that appended left the run
         reading a file the user believed they had swapped out.
+
+        :param paths: paths to add, as strings or path-like objects; a bare
+            string counts as one path, and placeholders and None entries are
+            skipped. Each is made absolute, a folder contributes its matching
+            files one level down, and a single-file widget keeps only the last.
         """
         incoming = self._coerce(paths)
         if self._single:
@@ -1398,12 +1432,20 @@ class FilePathListWidget(QWidget):
         that optimism is that a genuinely missing path is drawn as present
         until the probe lands, so this is the half that corrects it.
 
-        Connected with a weak-ish guard rather than a bound method held
-        forever: the signal source is process-wide and outlives any one
-        widget, and a destroyed C++ object behind a live Python wrapper is
-        what turns a redraw into a hard crash.
+        Connected through a WEAK reference, and disconnected when the widget
+        is destroyed: the signal source is process-wide and outlives any one
+        widget. A closure over ``self`` connected for good kept every file
+        list ever built -- its whole Python wrapper tree -- alive for the
+        rest of the process, one more receiver on every probe answer each
+        time; a serial ``pytest tests/qt`` builds thousands. A destroyed C++
+        object behind a live Python wrapper is also what turns a redraw
+        into a hard crash, hence the ``RuntimeError`` guard.
         """
+        import weakref
+
         from .. import path_probe as _probe
+
+        owner = weakref.ref(self)
 
         def redraw(_path: str, _answer: bool) -> None:
             """Refresh the hint once a probe has an answer.
@@ -1414,13 +1456,27 @@ class FilePathListWidget(QWidget):
             :param _path: the path that was probed; unused.
             :param _answer: what the probe found; unused.
             """
+            widget = owner()
+            if widget is None:
+                return
             try:
-                self._refresh_hint()
+                widget._refresh_hint()
             except RuntimeError:
+                pass
+
+        def let_go(*_args) -> None:
+            """Drop the probe connection as the widget is destroyed.
+
+            :param _args: whatever ``destroyed`` sends; unused.
+            """
+            try:
+                _probe.probes.answered.disconnect(redraw)
+            except (RuntimeError, TypeError):
                 pass
 
         self._path_probe_redraw = redraw
         _probe.probes.answered.connect(redraw)
+        self.destroyed.connect(let_go)
 
     def _refresh_hint(self) -> None:
         """Show or hide the empty hint as the list changes.

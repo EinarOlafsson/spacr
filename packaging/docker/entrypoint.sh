@@ -82,8 +82,21 @@ export XDG_RUNTIME_DIR
 # lands in the container's own writable layer and is discarded with the
 # container, which is what an unconfigured `docker run --rm` should do. It is
 # mode 1777 so this holds for any --user as well.
+#
+# UNDER APPTAINER OR SINGULARITY NOTHING IS LINKED. There HOME is the user's
+# real home on the cluster, bind-mounted in, and a link written into it
+# outlives the container: the host's own ~/.cellpose/models would become a
+# link to a /models that exists only inside the image, and every later
+# Cellpose run on the host would fail to download into it. The models the
+# user already has in that home are what both readers find by default, so
+# only a folder actually bound on /models is handed to Cellpose.
 # ---------------------------------------------------------------------------
-if [ -d /models ]; then
+if [ -n "${APPTAINER_CONTAINER:-}${SINGULARITY_CONTAINER:-}" ]; then
+    if grep -qs ' /models ' /proc/self/mountinfo; then
+        : "${CELLPOSE_LOCAL_MODELS_PATH:=/models}"
+        export CELLPOSE_LOCAL_MODELS_PATH
+    fi
+elif [ -d /models ]; then
     : "${CELLPOSE_LOCAL_MODELS_PATH:=/models}"
     export CELLPOSE_LOCAL_MODELS_PATH
     for leaf in .cellpose/models .spacr/models; do

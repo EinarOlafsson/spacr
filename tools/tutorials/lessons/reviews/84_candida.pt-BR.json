@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Candida: explorar o guia do organismo",
+  "description": "Navegue pelo guia de Candida, explore o diagrama da levedura e encontre os fluxos gerais de análise de imagens disponíveis.",
+  "objectives": [
+    "Abrir a página pela tela Home e encontrar os controles principais.",
+    "Identificar as entradas, ações e saídas disponíveis.",
+    "Escolher a próxima análise ou referência disponível."
+  ],
+  "prerequisite": "Abra a tela Home do spaCR. O guia não precisa de arquivos de entrada. Os blocos de ensaios específicos de Candida mostram por enquanto Coming soon.",
+  "scenes": [
+    "Na tela Home, escolha Candida. O guia aborda morfologia, filamentação, biofilmes e a interação da levedura com as células hospedeiras.",
+    "Leia o painel de informações com as descrições dos módulos ao lado e arraste o divisor para alargar o lado que estiver lendo.",
+    "O diagrama da levedura em brotamento funciona como nos outros guias. Passe o cursor sobre um componente para ler a descrição, selecione vários para mantê-los destacados, e Clear components limpa a seleção.",
+    "Os blocos de ensaios específicos de Candida estão marcados como Coming soon por enquanto, mas você já pode analisar suas imagens com as ferramentas gerais. Volte à tela Home, segmente-as em Mask e meça-as em Measure, escolhendo canais e máscaras adequados à sua espécie e ao seu experimento.",
+    "Para detalhes de genes e proteínas, os links do Candida Genome Database e do UniProt abrem no seu navegador. O guia não precisa de arquivos de entrada nem grava saídas; quando estiver pronto para processar imagens, siga o tutorial de um módulo executável."
+  ]
+}

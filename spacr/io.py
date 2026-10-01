@@ -447,7 +447,8 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 
 def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  
                                        invert=False, visualize=False, remove_background=False, 
-                                       background=0, Signal_to_noise=10, target_height=None, target_width=None):
+                                       background=0, Signal_to_noise=10, target_height=None, target_width=None,
+                                       rescale=True):
     """Load a Cellpose training set, percentile-normalised and optionally resized.
 
     With no explicit percentiles, the upper one is chosen per channel as the
@@ -471,6 +472,11 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
         sit to count as signal.
     :param target_height: resize height, or ``None`` to keep the original.
     :param target_width: resize width, or ``None`` to keep the original.
+    :param rescale: ``False`` returns each image as loaded -- channels
+        picked, inverted, background removed and resized, but NOT rescaled --
+        for a caller that lets Cellpose normalise each image itself, as the
+        live preview does. ``percentiles``, ``Signal_to_noise`` and the
+        percentile search are then unused.
     :returns: ``(images, labels, image_names, label_names, orig_dims)``.
         Labels are resized with nearest-neighbour and no anti-aliasing,
         because interpolating a label array invents object ids.
@@ -521,7 +527,7 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
         if image.ndim < 3:
             image = np.expand_dims(image, axis=-1)
 
-        if percentiles is None:
+        if rescale and percentiles is None:
             for c in range(image.shape[-1]):
                 p1 = np.percentile(image[..., c], lower_percentile)
                 percentiles_1[c].append(p1)
@@ -538,9 +544,13 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
 
         images.append(image)
 
-    if percentiles is None:
-        avg_p1 = [np.mean(p) for p in percentiles_1]
-        avg_p99 = [np.mean(p) if p else avg_p1[i] for i, p in enumerate(percentiles_99)]
+    if not rescale:
+        normalized_images = images
+    elif percentiles is None:
+        used = [c for c, p in enumerate(percentiles_1) if p]
+        avg_p1 = [np.mean(percentiles_1[c]) for c in used]
+        avg_p99 = [np.mean(percentiles_99[c]) if percentiles_99[c] else avg_p1[i]
+                   for i, c in enumerate(used)]
 
         print(f'Average 1st percentiles: {avg_p1}, Average 99th percentiles: {avg_p99}')
 
@@ -1136,8 +1146,10 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
 
     Instead of MIP-ing each channel to a ``src/<channel>/`` folder and then
     re-reading those folders to merge them (which duplicated the pixel data on
-    disk), this builds an in-memory dict ``{fov_filename: {channel: mip}}`` and
-    concatenates the channels of each FOV into one ``stack/<fov>.npy``. The
+    disk), this projects and writes one field at a time. Only filenames are
+    retained across fields; pixel memory is bounded by one field's channels
+    plus a decoded plane and the output stack. Each z-plane is folded into
+    its channel maximum without materializing an entire z-stack. The
     merge order and MIP maths are identical to the old folder+\\ ``_merge_file``
     path, so the produced stacks are byte-for-byte the same.
 
@@ -1158,7 +1170,8 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     Args:
         src (str): The source directory containing the z-stack images.
         regex (str): The regular expression pattern used to match the filenames of the z-stack images.
-        batch_size (int, optional): The number of images to process in each batch. Defaults to 100.
+        batch_size (int, optional): Retained for call compatibility; raw ingest
+            always streams one field at a time regardless of this value.
         metadata_type (str, optional): The type of metadata associated with the images. Defaults to ''.
         save_original_images (bool, optional): When True (default) the raw input
             images are moved aside into ``src/orig/`` for safekeeping. When
@@ -1219,50 +1232,49 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         if stem_of[key] in existing:
             channels_seen.add(key[3])
 
-    time_ls = []
+    # Keep only filenames plate-wide. Pixel buffers belong to one field at a
+    # time; retaining every MIP here used plate-sized RAM before the first
+    # stack was written (over 100 GB for a 2000 x 2000 multi-channel plate).
+    from .cancellation import checkpoint
+    field_keys = defaultdict(list)
+    for key in pending_keys:
+        field_keys[stem_of[key]].append(key)
+    sorted_channels = sorted({key[3] for key in image_paths_by_key})
     files_to_process = sum(len(image_paths_by_key[key]) for key in pending_keys)
-    fov_channels = {}
-    for idx in range(0, len(pending_keys), batch_size):
-        start = time.time()
-
-        batch_keys = pending_keys[idx:idx+batch_size]
-        batch_images_by_key = {key: image_paths_by_key[key] for key in batch_keys}
-        images_by_key = load_images_from_paths(batch_images_by_key)
-
-        for i, (key, images) in enumerate(images_by_key.items()):
-
-            plate, well, field, channel, timeID, sliceID = key
-
-            if not images:
-                print(f"Warning: no readable images for {key}, skipping")
-                files_processed += 1
-                continue
-
-            output_filename = stem_of[key] + '.tif'
-
-            mip = np.max(np.stack(images), axis=0)
-            channels_seen.add(channel)
-            _chans = fov_channels.setdefault(output_filename, {})
-            _prev = _chans.get(channel)
-            _chans[channel] = mip if _prev is None else np.maximum(_prev, mip)
-
-            files_processed += 1
-            stop = time.time()
-            duration = stop - start
-            time_ls.append(duration)
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
-
-        images_by_key.clear()
-
-    if fov_channels:
+    time_ls = []
+    if field_keys:
         os.makedirs(stack_path, exist_ok=True)
-    sorted_channels = sorted(channels_seen)
-    for output_filename, chan_mips in fov_channels.items():
-        file_root = os.path.splitext(output_filename)[0]
-        new_file = os.path.join(stack_path, file_root + '.npy')
+    for stem, keys in field_keys.items():
+        checkpoint()
+        start = time.time()
+        output_filename = stem + '.tif'
+        new_file = os.path.join(stack_path, stem + '.npy')
         if os.path.exists(new_file):
             print(f'WARNING: A file with the same name already exists at location {new_file}')
+            channels_seen.update(key[3] for key in keys)
             continue
+        chan_mips = {}
+        for key in keys:
+            channel = key[3]
+            for path in image_paths_by_key[key]:
+                checkpoint()
+                # Decode one plane, including when a regex groups all z
+                # slices under one key. No z-stack-sized np.stack temporary.
+                loaded = load_images_from_paths({key: [path]})[key]
+                for plane in loaded:
+                    previous = chan_mips.get(channel)
+                    if previous is None:
+                        chan_mips[channel] = plane
+                    elif previous.dtype == plane.dtype:
+                        np.maximum(previous, plane, out=previous)
+                    else:
+                        chan_mips[channel] = np.maximum(previous, plane)
+                    channels_seen.add(channel)
+                loaded.clear()
+                # Loop locals must not retain the last plane of the previous
+                # field while the next field is decoded.
+                plane = previous = None
+                files_processed += 1
         planes = []
         for channel in sorted_channels:
             mip = chan_mips.get(channel)
@@ -1271,10 +1283,17 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 continue
             planes.append(np.expand_dims(mip, axis=2))
         if planes:
+            checkpoint()
             _save_array_atomic(new_file, np.concatenate(planes, axis=2))
         else:
             print(f"No valid channels to merge for file {output_filename}")
-    fov_channels.clear()
+        planes.clear()
+        chan_mips.clear()
+        mip = None
+        time_ls.append(time.time() - start)
+        print_progress(files_processed, files_to_process, n_jobs=1,
+                       time_ls=time_ls, batch_size=1,
+                       operation_type='Preprocessing filenames')
 
     stacked = _stack_field_stems(stack_path)
     if save_original_images:
@@ -1655,8 +1674,11 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     background-removal switch of the object whose ``<object>_channel`` names
     it: the nucleus, the cell, the pathogen, or any organelle slot the run
     enables (``organelle``, ``organelleb``, ...). A slot reads
-    ``<slot>_background``, ``<slot>_signal_to_noise`` and
-    ``remove_background_<slot>``. A channel no object names keeps the generic
+    ``<slot>_background``, ``<slot>_signal_to_noise`` and its background
+    switch, ``remove_background_organelle`` for slot 1 and
+    ``remove_background_organelle_N`` for slot N (the lettered
+    ``remove_background_organelleb`` is still read when a caller passes
+    settings that were never folded). A channel no object names keeps the generic
     ``background``, ``Signal_to_noise`` and ``remove_background``. The three
     are read one by one, so one a slot does not carry, or carries empty, keeps
     the value the channel already had, and when two objects name the same
@@ -1678,6 +1700,8 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     channels = [int(c) for c in channels]
 
     normalized_stack = np.zeros_like(stack, dtype=np.float32)
+
+    from .organelle_types import _background_switch_key
 
     organelle_slot_channels = [
         (role, settings.get(f'{role}_channel'))
@@ -1715,7 +1739,9 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
             if role_signal_to_noise is None:
                 role_signal_to_noise = settings.get('Signal_to_noise', 10)
             signal_threshold = role_signal_to_noise * background
-            role_remove_background = settings.get(f'remove_background_{role}')
+            role_remove_background = settings.get(
+                _background_switch_key(role),
+                settings.get(f'remove_background_{role}'))
             if role_remove_background is not None:
                 remove_background = role_remove_background
 
@@ -1753,7 +1779,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         files_to_process = len(channels)
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f"Normalizing")
 
-    return normalized_stack.astype(save_dtype)
+    return normalized_stack.astype(save_dtype, copy=False)
 
 _PARTIAL_SUFFIX = '.partial'
 _DAMAGED_SUFFIX = '.damaged'
@@ -1959,7 +1985,8 @@ def _correct_v1_segmentation_batch(
     from .measure_hooks import PreprocessingContext
 
     working = np.array(stack, copy=True, dtype=(
-        np.float32 if psf_session is not None and psf_session.plan else None))
+        np.float32 if psf_session is not None and psf_session.processes
+        else None))
     field_ids = []
     for index, filename in enumerate(filenames):
         field_id = os.path.splitext(os.path.basename(str(filename)))[0]
@@ -1968,7 +1995,9 @@ def _correct_v1_segmentation_batch(
             channels=list(channels),
             settings=settings,
         )
-        selected = stack[index][..., list(channels)]
+        field = (psf_session.unmix(stack[index]) if psf_session is not None
+                 else stack[index])
+        selected = field[..., list(channels)]
         corrected = (illumination_session.correct(field_id, selected, context)
                      if illumination_session is not None else selected)
         if psf_session is not None:
@@ -1996,8 +2025,10 @@ def _concatenate_and_normalize_impl(
     :param illumination_session: optional segmentation-only illumination
         session. It corrects private copies of the selected channels before
         normalisation and records completion only after each NPZ is durable.
-    :param psf_session: optional PSF session captured for this run. Applies
-        after illumination on each field before padding or normalization;
+    :param psf_session: optional PSF session captured for this run. Unmixes
+        each whole raw field first when unmixing is on, then applies the PSF,
+        or the whole enhancement chain when one is on, after illumination on
+        each field before padding or normalization;
         preserves floating point intensities and records archive identities.
     :param only_fields: when given, the field stems to normalise; every other
         ``.npy`` in ``src`` is left out. Used, without a timelapse, to rebuild
@@ -3030,8 +3061,9 @@ def _resume_normalized_archives(settings, src, mask_channels):
     stack_path = os.path.join(src, 'stack')
     masks_path = os.path.join(src, 'masks')
     from zipfile import BadZipFile
-    from .psf_pipeline import validate_psf_resume, _record_path
-    psf_tracked = (settings.get('psf_operation', 'none') != 'none' or
+    from .psf_pipeline import (validate_psf_resume, _record_path,
+                               processing_requested)
+    psf_tracked = (processing_requested(settings) or
                    _record_path(src).exists())
     if psf_tracked:
         try:
@@ -3479,7 +3511,8 @@ def preprocess_img_data(settings):
         )
 
     from .psf_pipeline import _prepare_segmentation_psf
-    psf_session = _prepare_segmentation_psf(settings, src, mask_channels)
+    psf_session = _prepare_segmentation_psf(settings, src, mask_channels,
+                                            stack_dir=stack_path)
 
     concatenate_and_normalize(src=stack_path,
                               channels=mask_channels,
@@ -6134,6 +6167,13 @@ def generate_dataset(settings=None):
         no images are selected, no image could be written, or the
         destination folder cannot be resolved.
 
+    The tar-writing pool is closed and joined, not left to the ``with``
+    block's ``terminate()``: that sends SIGTERM to idle workers, and a
+    worker whose SIGTERM handler needs a lock the interrupted code holds
+    (coverage's ``sigterm = True`` data save does) never exits, so the
+    shutdown waited on it for ever. Workers that finished their tasks are
+    let go by a normal exit instead.
+
     Example:
         .. code-block:: python
 
@@ -6266,6 +6306,8 @@ def generate_dataset(settings=None):
             add_images_to_tar,
             [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)]
         )
+        pool.close()
+        pool.join()
 
     print(f"Merging temporary files")
 

@@ -25,13 +25,6 @@
     },
     {
       "table": "ui",
-      "key": "Create a GitHub account",
-      "source": "Create a GitHub account",
-      "translation": "Criar uma conta no GitHub",
-      "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538"
-    },
-    {
-      "table": "ui",
       "key": "Crops could not be loaded",
       "source": "Crops could not be loaded",
       "translation": "Não foi possível carregar os recortes",
@@ -102,13 +95,6 @@
     },
     {
       "table": "ui",
-      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
-      "translation": "Baixar dez campos de exemplo para Plaque Analysis e definir src para apontar para eles. Há dois conjuntos à escolha: campos com placas de lise segmentadas, usados para treinar o modelo, ou figuras de placas inteiras, usadas como entrada do fluxo de processamento. Os dados ficam em cache após o primeiro download.",
-      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
-    },
-    {
-      "table": "ui",
       "key": "Download {name}?",
       "source": "Download {name}?",
       "translation": "Baixar {name}?",
@@ -176,13 +162,6 @@
       "source": "Enable — report a failed run as a GitHub issue",
       "translation": "Ativar — relatar uma execução que falhou como um problema no GitHub",
       "source_sha256": "7a55f8aeb46b362d821a98fd5c90f9397c8924d144a4caba6aa603e6f55d6e8f"
-    },
-    {
-      "table": "ui",
-      "key": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "source": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
-      "translation": "Cada limite fica desativado em 0. O botão Filtro aplica os limites ativados, assim como a abertura de um campo; cada objeto removido é listado abaixo.",
-      "source_sha256": "a84e067a92c40588addf5df3512657c1f0650f4d237393f7d45f5564958415dc"
     },
     {
       "table": "ui",
@@ -263,13 +242,6 @@
     },
     {
       "table": "ui",
-      "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
-      "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
-      "translation": "A entrada no GitHub foi interrompida antes de ser concluída. Pressione Entrar para tentar novamente.",
-      "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a"
-    },
-    {
-      "table": "ui",
       "key": "Grow / shrink:",
       "source": "Grow / shrink:",
       "translation": "Expandir / reduzir:",
@@ -333,27 +305,6 @@
     },
     {
       "table": "ui",
-      "key": "Install",
-      "source": "Install",
-      "translation": "Instalar",
-      "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572"
-    },
-    {
-      "table": "ui",
-      "key": "Install runs:\n    {command}",
-      "source": "Install runs:\n    {command}",
-      "translation": "A instalação executa:\n    {command}",
-      "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3"
-    },
-    {
-      "table": "ui",
-      "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
-      "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
-      "translation": "A instalação executa:\n    {command}\n\nEm seguida, começa o processo de entrada do próprio GitHub.",
-      "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e"
-    },
-    {
-      "table": "ui",
       "key": "Install {name}",
       "source": "Install {name}",
       "translation": "Instalar {name}",
@@ -386,20 +337,6 @@
       "source": "Keep",
       "translation": "Manter",
       "source_sha256": "183f00f483d3844e875d26eac74c676054383aef38ed5a8e4d1505ef21008585"
-    },
-    {
-      "table": "ui",
-      "key": "Keep installing",
-      "source": "Keep installing",
-      "translation": "Continuar instalando",
-      "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d"
-    },
-    {
-      "table": "ui",
-      "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
-      "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
-      "translation": "Mantenha a tela aberta até a conclusão ou interrompa a instalação e instale depois em Ajuda > Configurar spaCR novamente…",
-      "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f"
     },
     {
       "table": "ui",
@@ -480,13 +417,6 @@
     },
     {
       "table": "ui",
-      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
-      "translation": "Medir as máscaras que você desenhou. Abre uma tabela em que cada linha é um campo e cada coluna é um canal ou tipo de máscara. A execução passa pelo próprio módulo Measure; portanto, as pastas e o banco de dados de medidas são os mesmos que uma execução de Measure produz.",
-      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986"
-    },
-    {
-      "table": "ui",
       "key": "Midnight",
       "source": "Midnight",
       "translation": "Meia-noite",
@@ -521,5 +451,85 @@
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Create a GitHub account",
+        "source": "Create a GitHub account",
+        "translation": "Criar uma conta no GitHub",
+        "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+        "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+        "translation": "A entrada no GitHub foi interrompida antes de ser concluída. Pressione Entrar para tentar novamente.",
+        "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Install",
+        "source": "Install",
+        "translation": "Instalar",
+        "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Install runs:\n    {command}",
+        "source": "Install runs:\n    {command}",
+        "translation": "A instalação executa:\n    {command}",
+        "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+        "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+        "translation": "A instalação executa:\n    {command}\n\nEm seguida, começa o processo de entrada do próprio GitHub.",
+        "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Keep installing",
+        "source": "Keep installing",
+        "translation": "Continuar instalando",
+        "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+        "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+        "translation": "Mantenha a tela aberta até a conclusão ou interrompa a instalação e instale depois em Ajuda > Configurar spaCR novamente…",
+        "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f"
+      },
+      "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "translation": "Baixar dez campos de exemplo para Plaque Analysis e definir src para apontar para eles. Há dois conjuntos à escolha: campos com placas de lise segmentadas, usados para treinar o modelo, ou figuras de placas inteiras, usadas como entrada do fluxo de processamento. Os dados ficam em cache após o primeiro download.",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
+    }
+  ],
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
 }

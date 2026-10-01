@@ -28,7 +28,10 @@ Use a :ref:`container image <container-images>` when the install itself is the
 problem: a cluster node, a cloud instance, a shared machine you cannot change,
 or an analysis that has to be re-runnable years from now. The images are for
 the CLI and the pipelines; the desktop interface in a container is a Linux-only
-extra and is documented as one.
+extra and is documented as one. On a cluster without Docker, build the same
+image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a
+workstation that has no network access at all, use an
+:ref:`offline installer bundle <offline-bundle>`.
 
 Desktop installers
 ------------------
@@ -149,12 +152,17 @@ Update an environment installed from PyPI with:
 
 For reproducible work, install an exact version instead of following the
 latest release. Use the command for the package source already installed in
-the environment:
+the environment, replacing ``VERSION`` with a release that source publishes:
 
 .. code-block:: bash
 
-   conda install conda-forge::spacr=1.5.0.4
-   python -m pip install "spacr[qt]==1.5.0.4"
+   conda install conda-forge::spacr=VERSION
+   python -m pip install "spacr[qt]==VERSION"
+
+``python -m pip index versions spacr`` lists the PyPI releases, and
+``conda search -c conda-forge spacr`` lists the conda-forge builds.
+conda-forge can trail PyPI by a release or more, so check the source you
+install from.
 
 Uninstalling
 ------------
@@ -179,17 +187,72 @@ results. User preferences, run records and logs under ``~/.spacr`` are also
 left in place so they can be inspected or reused. Remove that directory
 separately only if those records are no longer needed.
 
+.. _offline-bundle:
+
 Offline installation
 --------------------
 
 The small desktop installers are online installers and cannot complete
-without network access. For an offline workstation, prepare a wheel directory
-on a networked machine with the same operating system, architecture and Python
-minor version:
+without network access. For a locked-down microscope PC, build an offline
+bundle on a networked machine. It holds everything the installer would
+download: the pinned ``uv`` tool, the managed Python 3.12 runtime, every wheel
+of the locked environment, Cellpose weights (``cpsam`` by default), optional
+Mask test data, ``bundle.json`` and a ``SHA256SUMS`` file. Bundles target
+``linux-x86_64``, ``windows-x86_64`` or ``macos-arm64`` and can be built for
+another platform than the one building them. The PyTorch wheel line is fixed
+when the bundle is built: ``cpu``, or a CUDA line such as ``cu126``.
+
+From a spaCR checkout, on the networked machine:
 
 .. code-block:: bash
 
-   python -m pip download --dest spacr-wheelhouse "spacr[qt]==1.5.0.4"
+   python packaging/offline/build_offline_bundle.py --platform linux-x86_64 \
+       --torch-backend cpu --out dist/offline \
+       --test-data ~/.cache/spacr/example_data/plate1 --archive
+
+This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under
+``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``.
+``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model``
+adds Cellpose weights and can be repeated, ``--test-fields`` limits the
+number of test fields, and ``--from-source .`` packs spaCR built from the
+checkout instead of the PyPI release.
+
+Copy the bundle to the offline machine and run its installer with the bundle
+folder. On Linux or macOS:
+
+.. code-block:: bash
+
+   ./install.sh --offline-bundle "$PWD" --check-mask
+
+On Windows, in PowerShell inside the bundle folder:
+
+.. code-block:: powershell
+
+   .\install.ps1 -OfflineBundle . -CheckMask
+
+The installer checks every file against ``SHA256SUMS``, installs Python and
+the wheels with no package index, and copies the Cellpose weights without
+overwriting existing ones. ``--check-mask`` (``-CheckMask``) then runs Mask on
+a scratch copy of the bundled test data and passes when masks and merged
+stacks are written; on a CPU this can take an hour for two fields.
+
+What the bundle does not contain: the separate environments of optional
+segmentation backends such as Cellpose 3 or StarDist, and Model Zoo models
+other than the Cellpose weights you chose; those still need a network. On
+Linux the system Qt libraries are not bundled, so a minimal system without
+them runs spaCR headless only. ``SHA256SUMS`` detects damaged files, but the
+bundle is not signed, so transfer it through a channel you trust.
+
+Install into an existing Python environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To install spaCR into an existing Python environment offline, prepare a wheel directory
+on a networked machine with the same operating system, architecture and Python
+minor version, replacing ``VERSION`` with the release to install:
+
+.. code-block:: bash
+
+   python -m pip download --dest spacr-wheelhouse "spacr[qt]==VERSION"
 
 Copy ``spacr-wheelhouse`` to the offline machine, create and activate a Python
 environment, then install without contacting a package index:
@@ -197,7 +260,7 @@ environment, then install without contacting a package index:
 .. code-block:: bash
 
    python -m pip install --no-index --find-links spacr-wheelhouse \
-       "spacr[qt]==1.5.0.4"
+       "spacr[qt]==VERSION"
 
 Repeat the download for the required optional extras. GPU-enabled PyTorch
 builds may require a separate wheel source, so prepare and test the complete
@@ -272,9 +335,10 @@ must not be running as root, and it must complete one real pipeline — so an
 image that exists is an image that ran. An image that fails a check is not
 published, and the release run that built it is red.
 
-Images begin with the first release made after this page described them.
-Older versions have no image, and ``docker pull`` will say so rather than
-give you something unrelated.
+The public `GHCR package page
+<https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available
+versions. The commands below use the published **1.5.1.0** images; not every
+older spaCR release has a container image.
 
 They exist for the headless half of spaCR: the CLI, the pipelines, a cluster
 job and a reviewer re-running an analysis a year later. They are not a way to
@@ -287,11 +351,10 @@ better.
 
    * - Image
      - For
-   * - ``ghcr.io/einarolafsson/spacr:<version>``
-     - CPU only. Works on any x86-64 host with Docker or Podman, needs no
-       driver, and runs the measure and regression half of spaCR at full
-       speed.
-   * - ``ghcr.io/einarolafsson/spacr:<version>-cuda12.4``
+   * - ``ghcr.io/einarolafsson/spacr:1.5.1.0``
+     - CPU only. Runs Linux x86-64 containers with Docker or Podman and
+       needs no GPU driver.
+   * - ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``
      - CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and
        the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU
        image.
@@ -308,23 +371,49 @@ images either, because they pin PyTorch versions that conflict with spaCR's
 and with each other; install one inside a running container, or let the Model
 Zoo install it into an isolated environment of its own.
 
-Running a pipeline
-~~~~~~~~~~~~~~~~~~
+Install Docker and check the image
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``<version>`` below is a spaCR version that has a published image — the
-`GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_
-lists them. ``:latest`` takes the newest CPU image if you do not need a
-particular one.
+Install `Docker Desktop <https://docs.docker.com/get-started/get-docker/>`_
+or, on a Linux server, `Docker Engine
+<https://docs.docker.com/engine/install/>`_. Configure it to run Linux
+containers. These images target x86-64; a native ARM64 image is not provided.
+
+Check that Docker can start the pinned CPU image and list spaCR's headless
+pipelines:
 
 .. code-block:: bash
 
-   docker pull ghcr.io/einarolafsson/spacr:<version>
+   docker pull ghcr.io/einarolafsson/spacr:1.5.1.0
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr --version
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.0 spacr-run --list
+
+For NVIDIA GPU processing, install the host driver and follow the
+`NVIDIA Container Toolkit installation guide
+<https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html>`_
+to configure Docker's NVIDIA runtime. The CUDA image's host-driver requirement
+is listed above; the CPU image needs neither the toolkit nor ``--gpus``.
+
+Running a pipeline
+~~~~~~~~~~~~~~~~~~
+
+These examples use a Linux Bash shell. Prepare a ``screen`` folder containing
+your data and exported settings, and a model-cache folder. The
+`bind mounts <https://docs.docker.com/engine/storage/bind-mounts/>`_ make them
+available inside the container as ``/data`` and ``/models``. Paths inside
+the settings CSV must use these container paths, rather than the host's
+paths. Write outputs under ``/data`` so they remain in ``screen`` after
+``--rm`` removes the container.
+
+.. code-block:: bash
+
+   mkdir -p screen "$HOME/.cellpose/models"
 
    docker run --rm \
        --user "$(id -u):$(id -g)" \
        -v "$PWD/screen:/data" \
        -v "$HOME/.cellpose/models:/models" \
-       ghcr.io/einarolafsson/spacr:<version> \
+       ghcr.io/einarolafsson/spacr:1.5.1.0 \
        spacr-run measure --settings /data/settings/measure_settings.csv
 
 On a GPU host, add ``--gpus all`` and use the CUDA tag:
@@ -335,13 +424,13 @@ On a GPU host, add ``--gpus all`` and use the CUDA tag:
        --user "$(id -u):$(id -g)" \
        -v "$PWD/screen:/data" \
        -v "$HOME/.cellpose/models:/models" \
-       ghcr.io/einarolafsson/spacr:<version>-cuda12.4 \
+       ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 \
        spacr-run mask --settings /data/settings/gen_mask_settings.csv
 
-Pass ``--user "$(id -u):$(id -g)"``. Every file a container writes to a
-mounted folder is owned by the user ID inside the container, so without it
-the results belong to a user that does not exist on the host and cannot be
-deleted without ``sudo``. The images already run as a non-root user, and the
+On Linux, pass ``--user "$(id -u):$(id -g)"`` to match your host user and group.
+Files written to a mounted folder use the container's user ID; without this
+option, ownership or permissions may differ from your host account. The
+images already run as a non-root user, and the
 entrypoint moves the cache directories somewhere writable when the user ID
 you pass has no home inside the image.
 
@@ -352,7 +441,7 @@ is visible:
 
 .. code-block:: bash
 
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:<version>-cuda12.4 spacr-doctor
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 spacr-doctor
 
 The desktop interface in a container
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -368,7 +457,7 @@ libraries, so a Linux host running X11 can pass its display socket in:
        -e DISPLAY \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -v "$PWD/screen:/data" \
-       ghcr.io/einarolafsson/spacr:<version> \
+       ghcr.io/einarolafsson/spacr:1.5.1.0 \
        spacr
 
 Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist
@@ -382,7 +471,7 @@ switched off, and is the right command when the window is slow or blank:
 .. code-block:: bash
 
    docker run --rm -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
-       ghcr.io/einarolafsson/spacr:<version> safespacr
+       ghcr.io/einarolafsson/spacr:1.5.1.0 safespacr
 
 On macOS and Windows this needs a third-party X server and is not tested or
 supported. Use the desktop installer on those platforms.
@@ -411,6 +500,57 @@ it:
 
 The second command runs a real pipeline on a synthetic field and reports one
 line per check; it needs no model, no GPU and no network.
+
+.. _apptainer-images:
+
+Apptainer and SingularityCE on a cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Where a cluster allows Apptainer or SingularityCE but not Docker, repackage
+the Docker image as one read-only ``.sif`` file. Build from the repository
+root as an ordinary user, with Apptainer 1.2 or newer or SingularityCE 4.0 or
+newer:
+
+.. code-block:: bash
+
+   apptainer build --build-arg IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.0 \
+       spacr-cpu.sif packaging/apptainer/spacr.def
+   apptainer build --build-arg IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 \
+       spacr-cuda.sif packaging/apptainer/spacr.def
+
+To start from an image you built yourself, add
+``--build-arg BOOTSTRAP=docker-daemon --build-arg IMAGE=spacr:cpu``. The build
+runs the image's smoke test. If a login node has no user namespaces, build on
+a workstation and copy the ``.sif`` file over. Where ``/etc/subuid`` lists you
+but ``newuidmap`` is not installed, add ``--ignore-subuid``.
+
+.. code-block:: bash
+
+   apptainer run spacr-cpu.sif                          # list the modules
+   apptainer run spacr-cpu.sif spacr-run mask --settings mask.csv
+   apptainer run --nv spacr-cuda.sif spacr-doctor       # check the GPU
+
+``--nv`` binds the host NVIDIA driver; the CUDA image needs driver 550 or
+newer. Unlike Docker, the container runs as you, with your real home
+mounted: models already in ``~/.cellpose/models`` are found, and run manifests
+go to ``~/.spacr/runs/``. ``$HOME``, the current folder and ``/tmp`` are
+available by default; add other data folders with ``--bind``. To use a shared
+model folder, bind it read-only to ``/models``:
+``--bind /shared/cellpose_models:/models:ro``. If a host ``PYTHONPATH`` from
+a conda or module setup leaks into the container, add ``--cleanenv``.
+
+``packaging/apptainer/spacr_slurm.sh`` is a Slurm array job that runs Mask
+then Measure on one plate per task, from one pair of settings files. Copy it,
+set ``SIF``, ``PLATES`` (a file with one plate folder per line),
+``MASK_SETTINGS`` and ``MEASURE_SETTINGS`` and the ``#SBATCH`` lines for your
+cluster, then submit it:
+
+.. code-block:: bash
+
+   sbatch --array=0-$(( $(wc -l < plates.txt) - 1 )) spacr_slurm.sh
+
+For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG``
+line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image.
 
 Troubleshooting
 ---------------

@@ -1,30 +1,32 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
   "review": {
-    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "it",
-  "title": "Processi distribuiti",
-  "description": "Preparare un profilo reale da Help e distinguere la configurazione salvata da un’esecuzione remota verificata.",
+  "title": "Distributed Jobs: configurare una destinazione di esecuzione",
+  "description": "Crea un profilo di esecuzione e prepara un lavoro di modulo per un’altra workstation o un cluster.",
   "objectives": [
-    "Aprire Distributed jobs da Help e salvare un profilo.",
-    "Distinguere mappatura dei percorsi, copia dei dati e autenticazione.",
-    "Preparare SSH, Slurm o comandi personalizzati senza dichiarare esecuzioni non provate."
+    "Creare un profilo per la destinazione di esecuzione.",
+    "Configurare i percorsi e le opzioni del backend.",
+    "Preparare l’invio ed esaminare lo stato dei lavori."
   ],
-  "prerequisite": "Solo configurazione, con archivio locale isolato e nessuna connessione o invio. researcher@workstation.invalid e le cartelle sono esempi, non destinazioni funzionanti. Prima dell’invio servono accesso autorizzato, spaCR e dipendenze compatibili e dati presenti sulla destinazione. Usare le impostazioni esportate dal modulo, non questo profilo come configurazione sperimentale. API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. I profili non conservano password; autenticarsi fuori da spaCR. Le radici sostituiscono prefissi assoluti senza copiare immagini. Sono verificati salvataggio, riapertura e annullamento, non scheduler, risultati remoti o validità del modello.",
+  "prerequisite": "Procurati l’accesso a una destinazione con spaCR, le sue dipendenze e i tuoi dati di input. Esporta le impostazioni del modulo che vuoi eseguire. Sostituisci l’host e i percorsi di esempio mostrati qui con i tuoi.",
   "scenes": [
-    "Apri Help, poi Distributed jobs. Questa utilità si raggiunge da Help, non da un riquadro principale separato di Home. Prepariamo un profilo reale ed esaminiamo i controlli attuali. Non mostriamo connessioni o processi remoti inviati: salvare un profilo non dimostra che la destinazione funzioni.",
-    "Questo pannello invia le impostazioni di un modulo a un’altra destinazione di esecuzione. Prima dell’invio, predisponi accesso autorizzato, un’installazione compatibile di spaCR e i dati sulla destinazione. I profili memorizzano impostazioni di connessione, non password. Configura le chiavi SSH o l’autenticazione dello strumento cloud fuori da spaCR.",
-    "Scegli New profile. Il salvataggio del modulo vuoto viene rifiutato con un messaggio. Assegna un nome chiaro e scegli il backend. Il nostro esempio si chiama esplicitamente NOT CONNECTED, così non può essere confuso con una workstation verificata o un processo riuscito.",
-    "Per SSH, inserisci host, cartella di lavoro remota ed eseguibile spaCR. L’host che termina con punto invalid e le cartelle sono esempi, non credenziali utilizzabili o posizioni verificate. Abbiamo salvato e riaperto il profilo; i valori visibili corrispondono esattamente alla configurazione memorizzata.",
-    "Le radici locale e remota descrivono gli stessi dati con prefissi assoluti diversi. Imposta entrambe, oppure lasciale entrambe vuote se i percorsi coincidono. Questo adatta i percorsi nelle impostazioni, senza copiare le immagini sul server. Predisponi separatamente l’archiviazione condivisa o il trasferimento.",
-    "Slurm abilita le opzioni dello scheduler mantenendo i controlli di host e percorsi. Partizioni, limiti di tempo e richieste di acceleratori devono corrispondere alle risorse assegnate sul cluster. La partizione mostrata è un segnaposto. Cambiare questa scelta non riserva una GPU e non verifica l’accessibilità dello scheduler.",
-    "Cloud or custom command abilita modelli separati di argomenti per invio, stato e annullamento, con recupero facoltativo dei log. Usa i segnaposto obbligatori per impostazioni e identificatore esterno. Sono argomenti suddivisi in token, non uno script shell. I controlli di connessione disattivati appartengono agli altri backend; qui non viene eseguito alcun comando personalizzato.",
-    "Cancel chiude le modifiche al backend non salvate e conserva il profilo SSH originale byte per byte. Save serve a conservare le modifiche desiderate. Poll interval suggerisce la frequenza di monitoraggio, non la velocità di calcolo. Una destinazione salvata resta solo configurazione finché non viene verificato un processo reale e autorizzato.",
-    "Per un’esecuzione reale, seleziona il modulo corretto e le sue impostazioni esportate prima di Submit. Inizia con una piccola verifica autorizzata, poi esamina stato, log e registrazione locale. Cancel job riguarda un processo selezionato; eliminare un profilo è diverso. La nostra tabella resta vuota perché non inviamo nulla e non dichiariamo risultati remoti."
+    "Apri Help e poi Distributed jobs. Inizia creando un profilo di esecuzione per la workstation o il cluster che vuoi usare.",
+    "Installa dipendenze di spaCR compatibili sulla destinazione e rendi disponibili lì i dati di input. Configura le chiavi SSH o l’autenticazione da riga di comando del tuo fornitore al di fuori di spaCR.",
+    "Scegli New profile. Inserisci un nome descrittivo e seleziona il backend. Compila i campi obbligatori mostrati dal modulo.",
+    "Per SSH, inserisci l’host, la directory di lavoro remota e l’esecutore di spaCR. Salva il profilo e riaprilo ogni volta che devi aggiornare queste impostazioni.",
+    "Imposta le radici dei dati locale e remota quando gli stessi dati hanno percorsi assoluti diversi sulle due macchine. Questo riscrive i percorsi nelle impostazioni; predisponi uno spazio di archiviazione condiviso o copia i file separatamente.",
+    "Per Slurm, scegli la partizione, il limite di tempo e la richiesta di acceleratori supportati dal tuo cluster. Mantieni impostazioni di host e directory adatte al suo ambiente di accesso.",
+    "Per un comando cloud o personalizzato, inserisci i modelli di argomenti per invio, stato e annullamento, più il recupero dei log se serve. Includi i segnaposto per impostazioni e identificativo esterno indicati dai controlli.",
+    "Salva le modifiche che vuoi conservare, oppure usa Cancel per lasciare il profilo invariato. Poll interval stabilisce ogni quanto controllare lo stato dei lavori.",
+    "Seleziona il profilo, il modulo e le sue impostazioni esportate, poi usa Submit quando la destinazione è pronta. Segui stato e log nella tabella dei lavori. Usa Cancel job per fermare un lavoro selezionato ed esamina i risultati nella posizione di output configurata."
   ]
 }

@@ -19,6 +19,9 @@ from typing import Any
 def retire_pyqtgraph_menus(owner: Any) -> int:
     """Queue deletion of parentless pyqtgraph menus owned by ``owner``.
 
+    :param owner: widget whose child ``QGraphicsView`` objects are searched
+        for pyqtgraph plot and view-box menus; when it is a ``QWidget``,
+        parentless menus are reparented to it before deletion.
     :returns: number of distinct menu roots retired. ``0`` also covers an
         environment without pyqtgraph or an owner whose C++ object is gone.
     """

@@ -295,3 +295,20 @@ def test_older_main_table_gets_only_its_known_whitespace_correction():
     publish_doctree(fixed, settings_overrides={'halt_level': 2})
     assert normalize_ambient_table(fixed) == fixed
     assert normalize_ambient_table('Other docstring') == 'Other docstring'
+
+
+def test_configure_loads_the_compat_extension_without_shadowing_branch_tools(tmp_path, monkeypatch):
+    """An older pinned branch must be checked by its own tools, not the publisher's."""
+    from publish_docs_channels import main
+    config = tmp_path / 'docs/source/conf.py'
+    config.parent.mkdir(parents=True)
+    config.write_text('extensions = []\n')
+    before = list(sys.path)
+    monkeypatch.delitem(sys.modules, 'docs_publication_compat', raising=False)
+    assert main(['configure', '--root', str(tmp_path)]) == 0
+    namespace = {}
+    exec(compile(config.read_text(), str(config), 'exec'), namespace)
+    publisher_tools = str(Path(__file__).resolve().parents[1] / 'tools')
+    assert namespace['extensions'] == ['docs_publication_compat']
+    assert sys.path == before
+    assert sys.modules['docs_publication_compat'].__file__ == publisher_tools + '/docs_publication_compat.py'

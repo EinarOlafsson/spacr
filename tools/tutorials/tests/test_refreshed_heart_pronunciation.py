@@ -27,9 +27,25 @@ def plans(item, language, voice=None):
     return renderer.prepare_scene_plans(item, language, dialect, speed, voice=voice)
 
 
-def test_first_cuda_in_current_refreshed_english_is_the_explicit_repair_target():
-    item = lesson()
-    spoken = [sentence for scene in plans(item, 'en', 'af_heart') for sentence in scene['sentences']]
+def lesson_speaking_target():
+    """The installer lesson with the repaired sentence put back in one scene.
+
+    The published lesson was rewritten as a CPU-only walkthrough and no longer
+    says CUDA, so the repair is dormant there; this copy keeps its rule tested.
+    """
+    item = deepcopy(lesson())
+    item['scenes'][4]['narration'] = TARGET + ' The installed Torch build is CUDA thirteen point two.'
+    return item
+
+
+def test_the_published_installer_lesson_no_longer_speaks_cuda_so_the_repair_is_dormant():
+    spoken = [sentence for scene in plans(lesson(), 'en', 'af_heart') for sentence in scene['sentences']]
+    assert spoken and not [sentence for sentence in spoken if 'CUDA' in sentence['text']]
+
+
+def test_first_cuda_is_the_explicit_repair_target_when_the_lesson_speaks_it():
+    spoken = [sentence for scene in plans(lesson_speaking_target(), 'en', 'af_heart')
+              for sentence in scene['sentences']]
     cuda = [sentence for sentence in spoken if 'CUDA' in sentence['text']]
     assert len(cuda) == 2
     assert cuda[0]['text'] == TARGET
@@ -38,6 +54,7 @@ def test_first_cuda_in_current_refreshed_english_is_the_explicit_repair_target()
 
 
 def test_all_fifty_voice_plans_keep_every_other_sentence_and_setting():
+    """No published voice plan is changed by the repair while the lesson does not say CUDA."""
     changed = []
     for language, (code, voices) in renderer.LANGUAGES.items():
         item = lesson(language)
@@ -47,14 +64,22 @@ def test_all_fifty_voice_plans_keep_every_other_sentence_and_setting():
             speed = renderer.resolve_voice_speed(voice)
             before = renderer.prepare_scene_plans(item, language, dialect, speed)
             after = renderer.prepare_scene_plans(item, language, dialect, speed, voice=voice)
-            expected = deepcopy(before)
-            if (language, voice) == ('en', 'af_heart'):
-                target = next(s for p in expected for s in p['sentences'] if s['text'] == TARGET)
-                target['speech_text'] = target['speech_text'].replace('[CUDA](/kˈuːdᵊ/)', '[CUDA](/kˈudə/)')
-            assert after == expected, (language, voice)
+            assert after == before, (language, voice)
             if after != before:
                 changed.append((language, voice))
-    assert changed == [('en', 'af_heart')]
+    assert changed == []
+
+
+def test_the_repair_changes_only_the_target_sentence_of_the_heart_plan():
+    item = lesson_speaking_target()
+    dialect = renderer.narration_dialect('en', renderer.LANGUAGES['en'][0], 'af_heart')
+    speed = renderer.resolve_voice_speed('af_heart')
+    before = renderer.prepare_scene_plans(item, 'en', dialect, speed)
+    after = renderer.prepare_scene_plans(item, 'en', dialect, speed, voice='af_heart')
+    expected = deepcopy(before)
+    target = next(s for p in expected for s in p['sentences'] if s['text'] == TARGET)
+    target['speech_text'] = target['speech_text'].replace('[CUDA](/kˈuːdᵊ/)', '[CUDA](/kˈudə/)')
+    assert after == expected != before
 
 
 @pytest.mark.parametrize('field,value', [
@@ -80,35 +105,32 @@ def test_release_verifier_does_not_reuse_a_different_voices_cached_plan(tmp_path
     # cache key must actually collide, not pass because their speeds differ.
     assert renderer.resolve_voice_speed(voices[0]) == renderer.resolve_voice_speed(voices[1])
     path = tmp_path / 'lessons_en.json'
-    path.write_text(json.dumps({'lessons': [lesson()]}))
+    path.write_text(json.dumps({'lessons': [lesson_speaking_target()]}))
     specs = verifier.supported_track_specs(production=tmp_path, catalog_path=path,
                                           languages={'en': ('a', list(voices))})
     by_voice = {spec.voice: spec for spec in specs}
     for voice in voices:
-        assert by_voice[voice].scene_plans == plans(lesson(), 'en', voice)
+        assert by_voice[voice].scene_plans == plans(lesson_speaking_target(), 'en', voice)
     first = lambda spec: next(s['speech_text'] for p in spec.scene_plans for s in p['sentences'] if s['text'] == TARGET)
     assert first(by_voice['af_heart']) != first(by_voice['am_puck'])
 
 
-def test_candidate_uses_the_verified_refreshed_audio_and_all_native_sentence_cues():
+def test_candidate_uses_its_own_heart_audio_and_all_native_sentence_cues():
+    """The 2026-09-12 CUDA repair was retired with the CUDA sentence; the
+    published Heart track is the candidate's own render, checked in the browser
+    sentence by sentence against the lesson it narrates."""
     repair = ROOT / 'audio_repairs/platform-heart-refreshed-20260912'
-    metadata = json.loads((repair / 'af_heart.json').read_text())
-    audio_hash = hashlib.sha256((repair / 'af_heart.m4a').read_bytes()).hexdigest()
-    assert metadata['media_sha256'] == audio_hash
+    retired = hashlib.sha256((repair / 'af_heart.m4a').read_bytes()).hexdigest()
     manifest = json.loads((ROOT / 'release_candidate/release-manifest.json').read_text())
-    for suffix in ('m4a', 'json'):
-        path = f'media_host/04_platform_installers/audio/en/af_heart.{suffix}'
-        record = next(item for item in manifest['files'] if item['path'] == path)
-        assert record['sha256'] == hashlib.sha256((repair / f'af_heart.{suffix}').read_bytes()).hexdigest()
+    path = 'media_host/04_platform_installers/audio/en/af_heart.m4a'
+    record = next(item for item in manifest['files'] if item['path'] == path)
+    assert record['sha256'] != retired
     report = json.loads((ROOT / 'release_candidate/candidate-browser-checks.json').read_text())
     case = next(item for item in report['ready_playback_cases'] if item['lesson'] == '04_platform_installers')
-    assert case['audio_sha256'] == audio_hash
-    sentences = [s for scene in metadata['scenes'] for s in scene['sentences']]
+    assert case['passed'] is True and case['audio_sha256'] == record['sha256']
+    sentences = [s['text'] for scene in plans(lesson(), 'en', 'af_heart') for s in scene['sentences']]
     checks = case['sentence_cue_checks']
-    assert sentences and len(checks) == len(sentences)
-    for sentence, observed in zip(sentences, checks):
-        midpoint = (sentence['speech_start'] + sentence['speech_end']) / 2
-        assert observed['requested_audio_time'] == pytest.approx(midpoint)
-        assert abs(observed['audio'] - midpoint) < 1
-        assert observed['text'] == sentence['text']
-        assert sentence['text'] in observed['cues']
+    assert sentences and [observed['text'] for observed in checks] == sentences
+    for observed in checks:
+        assert abs(observed['audio'] - observed['requested_audio_time']) < 1
+        assert observed['text'] in observed['cues']

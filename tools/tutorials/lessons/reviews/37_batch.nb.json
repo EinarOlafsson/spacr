@@ -1,25 +1,36 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "cfaf542e696d5f0d5b7916cd7cb3ecbd6c160471f01a0eac387828fe2411c7d6",
-  "review": {"kind": "Parent editorial review against frozen English and actual GUI; preserve visible controls and API identifiers", "independent_peer_review": false, "native_speaker_signoff": false},
+  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "nb",
-  "title": "Batch Runner: validerte jobber, avhengigheter og egne logger",
-  "description": "Konfigurer tre kanalbevarende konverteringer med det virkelige trådede grensesnittet og filvelgerne. Kontroller rekkefølgen, lagre og last køen, og stopp og fortsett virkelige underprosesser.",
-  "objectives": ["Finn Batch runner under Help og legg til innstillinger med uttrykkelige avhengigheter og overstyringer.", "Se en ugyldig rekkefølge, rett den og lagre den validerte planen.", "Last planen, stopp mellom jobber og fortsett uten å gjenta fullførte jobber.", "Undersøk separate logger og uavhengig verifiserte piksler, kanalidentiteter og konverteringsregistre."],
-  "prerequisite": "Bruk testdatasettets tre innsamlede firekanalfelt med egne kilde- og målmapper per jobb. tools/tutorials/batch_data.py kopierer originalene byte for byte til tydelige TIFF-navn fra fov01_C1 til fov01_C4. A01 er en demonstrasjonskoordinat; opprinnelige plate- og brønnkoordinater rekonstrueres ikke. Den gamle innspillingen gjorde originalnavnene til fire separate C01-felt og dokumenterer derfor ikke bevarte kanaler. Her kjøres bare convert, ikke hele Mask-to-Classify-kjeden. Ingen modell, AI-forespørsel eller biologisk oppdagelse hevdes. Køen har ikke egen Load test data, direkte bildeforhåndsvisning eller figurpanel; se Format Converter for Preview og Resume. Feilpolicyer vises, men mislykkede analyser, gjenoppretting etter krasj og GPU-driverisolasjon er ikke testet.",
+  "title": "Batch Runner: konfigurer og kjør en kø",
+  "description": "Legg til modulinnstillinger, ordne avhengigheter, kjør jobber og undersøk de separate loggene.",
+  "objectives": [
+    "Legge til jobber med innstillinger og avhengigheter.",
+    "Lagre, kjøre og fortsette køen.",
+    "Undersøke loggen og utdataene for hver jobb."
+  ],
+  "prerequisite": "Forbered inndataene og den eksporterte innstillings-JSON-filen for hver jobb. Eksemplet kjører tre bildekonverteringer til separate utdatamapper.",
   "scenes": [
-    "Åpne Help og deretter Batch runner. Dette felles menyverktøyet kombinerer moduljobber uten grafisk grensesnitt, innstillingsfiler, avhengigheter og egne logger. Egne jobber kjøres sekvensielt; det hindrer ikke andre programmer eller køer i å bruke samme datamaskins ressurser.",
-    "Velg convert og åpne første JSON med Choose settings. Vi klargjorde tre virkelige mikroskopifelt i separate mapper, hver med fire tydelig navngitte kanalfiler. Pikslene er uendret, men A null en er en demonstrasjonskoordinat, ikke en gjenfunnet original brønn.",
-    "Innstillingene angir kilde, mål og faktisk konvertering med forhåndsvisning og gjenopptaking av. Legg til en beskrivende etikett og velg Add job. Første id er convert en. Kontroller konvertering og kanaltilordning på et lite eksempel før en større batch planlegges.",
-    "For andre jobb angir After convert en. Overstyringen plate naming lik name endrer platenavnkonvensjonen uten å skrive om lagret innstillingsfil. Avhengigheten styrer om jobben kan kjøre og i hvilken rekkefølge; den gir ikke automatisk første jobbs utdata som inndata til den andre.",
-    "Legg til tredje jobb uten avhengighet eller overstyring. Alle har egne utmapper. Tabellen viser id, etiketter, avhengigheter og pending. Når en rad velges, lastes konfigurasjonen i redigereren; selve tabellen er ikke et redigerbart regneark.",
-    "Flytt andre jobb over forutsetningen sin. Valideringen melder den senere avhengigheten og deaktiverer Run queue. Det lille problemfeltet kan kreve rulling for å vise forklaring og retting. Dette bekrefter en virkelig avvisning, ikke bare en påstand om beskyttelse.",
-    "Flytt den tilbake under convert en, og flytt uavhengige tredje jobb over den. Gyldig rekkefølge er en, tre, to. Velg Validate igjen: ingen problemer. Rekkefølgen oppfyller kravene, men validering avgjør ikke om analysen besvarer det vitenskapelige spørsmålet ditt.",
-    "On failure tilbyr å fortsette uavhengige jobber eller stoppe ved første feil. Vi så begge valg og gjenopprettet fortsettelse. Stop after er tre feil på rad; den teller feil, ikke bevis for samme årsak. Dette vellykkede eksemplet tester ingen av de to feilforløpene.",
-    "Save queue lagrer den ordnede planen som JSON. Vi fjernet så tredje jobb fra denne midlertidige køen i minnet og gjenopprettet trejobbsplanen med Load queue. Prosjektmappene ble ikke slettet. Bevar innstillingsfiler og inndata sammen med planen.",
-    "Trykk Stop når Run queue starter første virkelige underprosess. Aktiv jobb fullføres før stoppen: første rad viser success, de andre not run. Prosessen avsluttes ikke umiddelbart, og denne kontrollerte stoppen beviser ikke gjenoppretting etter datakrasj.",
-    "Velg Run queue igjen. Bare de to gjenværende jobbene kjøres i lagret rekkefølge; første jobbs tidsstempler er uendret. Alle viser success. Egne prosesser skiller vanlig kjøring, men demonstrasjonen garanterer ikke beskyttelse mot systemomfattende GPU- eller minnefeil.",
-    "Velg hver rad for å lese dens logg. Konverteren melder én brønn, ett bildefelt og fire kanalidentiteter, så fire konverterte filer og avslutningskode null. Navneoverstyringen vises i andre jobbs utdata. Logger er bevis å undersøke, ikke automatisk bekreftelse på vitenskapelig riktighet.",
-    "Tolv utbilder fra tre jobber samsvarte med hver original piksel og de tilsiktede kanalidentitetene. Hvert konverteringsregister viser også fire forsøk, fire vellykkede og ingen feil. Originalene er uendret. For skript tilbyr spacr.batch Job, Queue og run_queue; se API-leksjonen og konverterens forhåndsvisning."
+    "Åpne Help og deretter Batch runner. Bruk den til å legge modulejobber i kø med innstillingsfiler, kjørerekkefølge og separate logger.",
+    "Velg modul og klikk på Choose settings. I dette eksemplet velger du convert og JSON-innstillingene for det første mikroskopisynsfeltet.",
+    "Kontroller kilde og mål i innstillingene, legg til en beskrivende merkelapp, og klikk deretter på Add job. Bruk en egen utdatamappe for hver konvertering.",
+    "For den andre jobben skriver du convert-1 i After slik at den avhenger av den første. Legg til en innstillingsoverstyring når denne jobben trenger en annen verdi. Oppgi inndatabaner eksplisitt; en avhengighet styrer bare rekkefølgen.",
+    "Legg til flere jobber og gå gjennom identifikatorer, merkelapper og avhengigheter. Velg en rad for å laste konfigurasjonen inn i redigeringsprogrammet.",
+    "Bruk flyttekontrollene til å ordne jobbene. En avhengighet må stå før jobben som trenger den; les eventuelle valideringsmeldinger og rett rekkefølgen.",
+    "Klikk på Validate etter at du har ordnet køen. Løs problemene som listes opp, til Run queue blir tilgjengelig.",
+    "Velg i On failure om uavhengige jobber skal fortsette, eller om køen skal stoppe ved første feil. Angi Stop after for å begrense antall feil på rad.",
+    "Klikk på Save queue for å lagre planen som JSON. Bruk Load queue til å åpne den igjen senere, og hold de refererte innstillingsfilene og inndataene tilgjengelige.",
+    "Klikk på Run queue. For å pause mellom jobber trykker du på Stop; den pågående jobben fullføres, og de gjenværende jobbene blir ikke kjørt.",
+    "Klikk på Run queue igjen for å fortsette med de gjenværende jobbene. Følg statusen for hver rad mens køen går fremover.",
+    "Velg en rad for å lese loggen og undersøke feil eller utdatabaner. I konverteringseksemplet kontrollerer du de rapporterte identifikatorene for synsfelt og kanal.",
+    "Åpne hver utdatamappe og undersøk de konverterte bildene og konverteringsposten. Behold kø-JSON, innstillinger og logger sammen med resultatene."
   ]
 }

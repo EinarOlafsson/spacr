@@ -23,10 +23,19 @@ maintainer's own 40x screening defaults (cell 8000 px2, nucleus 2000), and a
 few hundred synthetic pixels would be correctly erased by them. That is a
 property of this fixture, not of the pipeline.
 
+WITH ``--mask`` it runs the real two-step job instead: ``spacr-run mask``
+segments a synthetic two-channel field with Cellpose-SAM, and ``spacr-run
+measure`` measures what it found. That is the check an HPC image has to pass
+(``--nv`` and CPU alike), and it is not the default because it needs the
+``cpsam`` checkpoint: either already in the model folder or downloadable.
+The accelerator it ran on is printed, so a ``--nv`` run that silently fell
+back to the CPU is visible in the log.
+
 Usage::
 
     python3 /opt/spacr/smoke_pipeline.py                 # temporary workspace
     python3 /opt/spacr/smoke_pipeline.py --workspace DIR  # keep the output
+    python3 /opt/spacr/smoke_pipeline.py --mask           # Mask + Measure
 
 Exit status is 0 only when every check passed. Every check prints one line.
 """
@@ -51,6 +60,10 @@ REQUIRED_TABLES = ("cell", "nucleus")
 #: takes a couple of seconds on one 32x32 field; the ceiling is generous
 #: because a cold container imports torch, cellpose and skimage first.
 RUN_TIMEOUT_SECONDS = 900
+
+#: Centres of the synthetic cells ``--mask`` draws. Segmentation has to find
+#: every one of them, on the GPU and on the CPU alike, for the run to pass.
+SYNTHETIC_CELLS = ((64, 64), (70, 190), (185, 120))
 
 
 def _say(ok: bool, message: str) -> bool:
@@ -115,8 +128,73 @@ def write_settings(path: Path, folders: tuple[Path, Path, Path],
     path.write_text(json.dumps(settings, indent=2), encoding="utf-8")
 
 
-def run_pipeline(settings: Path, workspace: Path) -> tuple[bool, str]:
-    """Invoke ``spacr-run external_masks`` and return success plus its output.
+def write_raw_field(src: Path) -> None:
+    """Write one synthetic raw field for the Mask stage, CellVoyager-named.
+
+    Channel 0 holds three bright nuclei and channel 1 the three cells around
+    them, smooth discs on a dim noisy background: plain enough that
+    Cellpose-SAM finds every one at the diameters :func:`write_mask_settings`
+    gives it, on either device.
+    """
+    import numpy as np
+    import tifffile
+
+    src.mkdir(parents=True, exist_ok=True)
+    shape = (256, 256)
+    yy, xx = np.indices(shape)
+    rng = np.random.default_rng(0)
+    nuclei = rng.normal(200, 20, shape)
+    cells = rng.normal(200, 20, shape)
+    for cy, cx in SYNTHETIC_CELLS:
+        distance = np.hypot(yy - cy, xx - cx)
+        nuclei += 3000 * np.exp(-(distance / 12.0) ** 4)
+        cells += 1500 * np.exp(-(distance / 34.0) ** 4)
+    for channel, plane in ((1, nuclei), (2, cells)):
+        name = f"smoke_A01_T0001F001L01A0{channel}Z01C0{channel}.tif"
+        tifffile.imwrite(str(src / name),
+                         np.clip(plane, 0, 65535).astype(np.uint16),
+                         photometric="minisblack")
+
+
+def write_mask_settings(workspace: Path, src: Path) -> tuple[Path, Path]:
+    """Write the settings for ``spacr-run mask`` and ``spacr-run measure``.
+
+    Mask writes the merged stack as the two intensity planes followed by the
+    cell and nucleus masks, which is where the measure settings point.
+    """
+    mask = {
+        "src": str(src), "metadata_type": "cellvoyager",
+        "cell_channel": 1, "nucleus_channel": 0,
+        "cell_diameter": 68, "nucleus_diameter": 24,
+        "n_jobs": 1, "batch_size": 4, "plot": False,
+    }
+    measure = {
+        "src": str(src), "channels": [0, 1],
+        "cell_mask_dim": 2, "nucleus_mask_dim": 3, "pathogen_mask_dim": None,
+        "crop_mode": ["cell"], "save_png": False,
+        "cell_min_size": 0, "nucleus_min_size": 0, "pathogen_min_size": 0,
+        "n_jobs": 1, "plot": False,
+    }
+    paths = (workspace / "mask.json", workspace / "measure.json")
+    for path, settings in zip(paths, (mask, measure)):
+        path.write_text(json.dumps(settings, indent=2), encoding="utf-8")
+    return paths
+
+
+def describe_accelerator() -> str:
+    """Return the device spaCR will run Cellpose on, for the log."""
+    try:
+        from spacr.accelerator import resolve
+
+        found = resolve()
+        return f"{found.kind} ({found.device}) {found.label}"
+    except Exception as error:
+        return f"unknown ({type(error).__name__}: {error})"
+
+
+def run_pipeline(settings: Path, workspace: Path,
+                 module: str = "external_masks") -> tuple[bool, str]:
+    """Invoke ``spacr-run <module>`` and return success plus its output.
 
     The console script is looked up on ``PATH`` rather than called as
     ``python -m``: an image that installed the package but not its entry
@@ -131,14 +209,14 @@ def run_pipeline(settings: Path, workspace: Path) -> tuple[bool, str]:
     environment.pop("DISPLAY", None)
     try:
         completed = subprocess.run(
-            [executable, "external_masks", "--settings", str(settings)],
+            [executable, module, "--settings", str(settings)],
             cwd=str(workspace), env=environment, text=True,
             capture_output=True, timeout=RUN_TIMEOUT_SECONDS, check=False)
     except subprocess.TimeoutExpired:
         return False, f"spacr-run did not finish in {RUN_TIMEOUT_SECONDS}s"
     output = (completed.stdout or "") + (completed.stderr or "")
     if completed.returncode != 0:
-        return False, f"spacr-run exited {completed.returncode}\n{output}"
+        return False, f"spacr-run {module} exited {completed.returncode}\n{output}"
     return True, output
 
 
@@ -166,6 +244,10 @@ def main(argv: list[str] | None = None) -> int:
         "--workspace", default=None,
         help="directory to work in; a temporary one is used and removed "
              "when this is not given.")
+    parser.add_argument(
+        "--mask", action="store_true",
+        help="segment a synthetic field with Cellpose-SAM and measure it, "
+             "instead of measuring ready-made masks.")
     arguments = parser.parse_args(argv)
 
     temporary = arguments.workspace is None
@@ -184,17 +266,27 @@ def main(argv: list[str] | None = None) -> int:
             version not in ("", "unknown"),
             f"package metadata resolves the version: {version}"))
 
-        folders = write_field(workspace / "input")
-        settings = workspace / "settings.json"
-        destination = workspace / "project"
-        write_settings(settings, folders, destination)
-        checks.append(_say(True, "synthetic field and label masks written"))
+        if arguments.mask:
+            destination = workspace / "plate"
+            write_raw_field(destination)
+            steps = zip(("mask", "measure"),
+                        write_mask_settings(workspace, destination))
+            checks.append(_say(True, "synthetic raw field written"))
+            print(f"accelerator: {describe_accelerator()}", flush=True)
+        else:
+            folders = write_field(workspace / "input")
+            settings = workspace / "settings.json"
+            destination = workspace / "project"
+            write_settings(settings, folders, destination)
+            steps = (("external_masks", settings),)
+            checks.append(_say(True, "synthetic field and label masks written"))
 
-        ran, output = run_pipeline(settings, workspace)
-        checks.append(_say(ran, "spacr-run external_masks finished"))
-        if not ran:
-            print(output, file=sys.stderr, flush=True)
-            return 1
+        for module, settings in steps:
+            ran, output = run_pipeline(settings, workspace, module)
+            checks.append(_say(ran, f"spacr-run {module} finished"))
+            if not ran:
+                print(output, file=sys.stderr, flush=True)
+                return 1
 
         merged = sorted((destination / "merged").glob("*.npy"))
         checks.append(_say(
@@ -212,6 +304,11 @@ def main(argv: list[str] | None = None) -> int:
             count = rows_in(database, table)
             checks.append(_say(
                 count > 0, f"table {table!r} holds {count} measured object(s)"))
+            if arguments.mask:
+                checks.append(_say(
+                    count == len(SYNTHETIC_CELLS),
+                    f"segmentation found all {len(SYNTHETIC_CELLS)} "
+                    f"synthetic {table} objects"))
     finally:
         if temporary:
             shutil.rmtree(workspace, ignore_errors=True)

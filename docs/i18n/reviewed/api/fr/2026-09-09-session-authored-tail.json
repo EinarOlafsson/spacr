@@ -3,11 +3,12 @@
   "language": "fr",
   "records": [
     {
-      "label": "spacr.active_learning.retrain_round#26",
+      "label": "spacr.active_learning.retrain_round#27",
       "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
-      "translation": "combien de vignettes non annotées tirer au hasard et ajuster comme la classe MANQUANTE lorsqu'une seule classe a été annotée. ``None`` (valeur par défaut) refuse à la place, comme auparavant."
+      "translation": "combien de vignettes non annotées tirer au hasard et ajuster comme la classe MANQUANTE lorsqu'une seule classe a été annotée. ``None`` (valeur par défaut) refuse à la place, comme auparavant.",
+      "rebound_from": "spacr.active_learning.retrain_round#26"
     },
     {
       "label": "spacr.checkpoint.CheckpointStore#13",
@@ -45,11 +46,12 @@
       "translation": "une égalité parfaite est tranchée au hasard, et le générateur est initialisé avec une graine : les exécutions de spaCR sont reproductibles, et un tirage au sort qui tomberait autrement à la reprise annoterait le même criblage de deux façons."
     },
     {
-      "label": "spacr.illumination.validate_segmentation_illumination_resume#3",
+      "label": "spacr.illumination.validate_segmentation_illumination_resume#7",
       "source_sha256": "52512129ab75392752103e0541d87b9ace021a7eab35a03dd8a0e95fa60dccbe",
       "source": "for an absent or incompatible record, model, pipeline style, or completed-field set.",
       "context": "for an absent or incompatible record, model, workflow style, or completed-field set.",
-      "translation": "pour un enregistrement, un modèle, un style de flux de travail ou un ensemble de champs terminés manquant ou incompatible."
+      "translation": "pour un enregistrement, un modèle, un style de flux de travail ou un ensemble de champs terminés manquant ou incompatible.",
+      "rebound_from": "spacr.illumination.validate_segmentation_illumination_resume#3"
     },
     {
       "label": "spacr.macro.Recording#3",
@@ -119,14 +121,18 @@
       "source_sha256": "8fb1fed8e28689b9c509739102f66e3bbed9ac6f6fdae808b545aa2239f383d3",
       "source": "When Numba is unavailable, the public ``render_space_frame`` name instead accepts arbitrary positional and keyword arguments and raises ``RuntimeError``. Refuse: the CPU space renderer needs Numba, which is absent.",
       "context": "When Numba is unavailable, the public ``render_space_frame`` name instead accepts arbitrary positional and keyword arguments and raises ``RuntimeError``. Refuse: the CPU space renderer needs Numba, which is absent.",
-      "translation": "Lorsque Numba n'est pas disponible, le nom public ``render_space_frame`` accepte à la place des arguments positionnels et nommés quelconques et lève ``RuntimeError``. Refuser : le moteur de rendu spatial sur CPU a besoin de Numba, qui manque."
+      "translation": "Lorsque Numba n'est pas disponible, le nom public ``render_space_frame`` accepte à la place des arguments positionnels et nommés quelconques et lève ``RuntimeError``. Refuser : le moteur de rendu spatial sur CPU a besoin de Numba, qui manque.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_space.sample_space#2",
       "source_sha256": "b3e1fed861320fe165842168cd0465a27d9090e70231c29aa3207bcb5e7cd302",
       "source": "When Numba is unavailable, the public ``sample_space`` name instead accepts arbitrary positional and keyword arguments and raises ``RuntimeError``. Refuse: the CPU space renderer needs Numba, which is absent.",
       "context": "When Numba is unavailable, the public ``sample_space`` name instead accepts arbitrary positional and keyword arguments and raises ``RuntimeError``. Refuse: the CPU space renderer needs Numba, which is absent.",
-      "translation": "Lorsque Numba n'est pas disponible, le nom public ``sample_space`` accepte à la place des arguments positionnels et nommés quelconques et lève ``RuntimeError``. Refuser : le moteur de rendu spatial sur CPU a besoin de Numba, qui manque."
+      "translation": "Lorsque Numba n'est pas disponible, le nom public ``sample_space`` accepte à la place des arguments positionnels et nommés quelconques et lève ``RuntimeError``. Refuser : le moteur de rendu spatial sur CPU a besoin de Numba, qui manque.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.gate_spec.BoxGate.kind#0",

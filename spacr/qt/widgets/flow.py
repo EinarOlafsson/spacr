@@ -39,7 +39,11 @@ class FlowLayout(QLayout):
         self.setContentsMargins(0, 0, 0, 0)
 
     def addItem(self, item) -> None:            # noqa: N802 (Qt override)
-        """Append a layout item (Qt calls this for every added widget)."""
+        """Append a layout item (Qt calls this for every added widget).
+
+        :param item: the :class:`QLayoutItem` to append after the existing
+            items.
+        """
         self._items.append(item)
 
     def count(self) -> int:
@@ -47,13 +51,19 @@ class FlowLayout(QLayout):
         return len(self._items)
 
     def itemAt(self, index):                    # noqa: N802 (Qt override)
-        """Return the item at ``index``, or None when out of range."""
+        """Return the item at ``index``, or None when out of range.
+
+        :param index: zero-based position of the item.
+        """
         if 0 <= index < len(self._items):
             return self._items[index]
         return None
 
     def takeAt(self, index):                    # noqa: N802 (Qt override)
-        """Remove and return the item at ``index``, or None."""
+        """Remove and return the item at ``index``, or None.
+
+        :param index: zero-based position of the item to remove.
+        """
         if 0 <= index < len(self._items):
             return self._items.pop(index)
         return None
@@ -67,11 +77,19 @@ class FlowLayout(QLayout):
         return True
 
     def heightForWidth(self, width: int) -> int:    # noqa: N802 (Qt override)
-        """Height needed to lay the chips out inside ``width``."""
+        """Height needed to lay the chips out inside ``width``.
+
+        :param width: available width in pixels; the items are wrapped into it
+            without being moved.
+        """
         return self._do_layout(QRect(0, 0, width, 0), test_only=True)
 
     def setGeometry(self, rect) -> None:        # noqa: N802 (Qt override)
-        """Place every chip inside ``rect``."""
+        """Place every chip inside ``rect``.
+
+        :param rect: the :class:`QRect` given to the layout; the items are
+            wrapped and placed inside it.
+        """
         super().setGeometry(rect)
         self._do_layout(rect, test_only=False)
 
@@ -149,7 +167,11 @@ class FlowHost(QWidget):
         return True
 
     def heightForWidth(self, width: int) -> int:   # noqa: N802 (Qt override)
-        """Height the chips need once wrapped into ``width``."""
+        """Height the chips need once wrapped into ``width``.
+
+        :param width: available width in pixels, passed to the layout; without
+            a layout the base class answers.
+        """
         layout = self.layout()
         if layout is None:
             return super().heightForWidth(width)

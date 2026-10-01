@@ -1,7 +1,8 @@
 """Sourced organism introductions and image-analysis module proposals.
 
-The assay keys are existing pipeline identifiers. A proposal has no route,
-so the organism pages cannot accidentally run an unimplemented analysis.
+The assay keys are existing pipeline identifiers. A proposal served by a
+general module opens that module through ``workflows``; any other proposal
+has no route, so the organism pages cannot run an unimplemented analysis.
 Artwork provenance, licences and checksums ship in organism_sources.json.
 """
 from __future__ import annotations
@@ -51,15 +52,16 @@ ORGANISMS = {
                 "before assigning it to a particular step."
             ), ("replication", "analyze_plaques")),
             ("Movement, exit and persistent stages", (
+                "Gliding motility opens the Motility Assay to measure the "
+                "speed and straightness of extracellular parasite tracks. "
                 "The planned Egress module will focus on vacuole rupture and "
-                "parasite exit; Gliding motility will quantify extracellular "
-                "trails and movement. Bradyzoite conversion will address "
+                "parasite exit. Bradyzoite conversion will address "
                 "stage-marker and cyst-wall readouts, while Host cell damage "
-                "will describe monolayer loss. These are proposed workflows, "
-                "so their tiles are marked Coming soon. Fixed images, time "
+                "will describe monolayer loss. These three are proposed "
+                "workflows, so their tiles are marked Coming soon. Fixed images, time "
                 "series and stage-specific markers answer different questions "
                 "and should be selected for the intended readout."
-            ), ()),
+            ), ("gliding",)),
             ("From a phenotype to candidate proteins", (
                 "The compartment diagram connects imaging phenotypes to "
                 "subcellular vocabulary used in Starplast. ToxoDB provides "
@@ -90,6 +92,13 @@ ORGANISMS = {
             (None, "Bradyzoite conversion", "Quantify cyst-wall staining and stage conversion.", "cyst"),
             (None, "Host cell damage", "Measure monolayer integrity and host-cell loss.", "damage"),
         ),
+        "workflows": {
+            "gliding": ("motility", {"infection_intensity_qc_scope": "none"}, (
+                "Opens the Motility Assay with infection QC off, because "
+                "extracellular parasites have no host cell. Segment the "
+                "parasites as the tracked cell objects; it reports track "
+                "speed and straightness per well.")),
+        },
     },
     "plasmodium": {
         "name": "Plasmodium spp.",
@@ -112,37 +121,41 @@ ORGANISMS = {
         ),
         "sections": (
             ("Infection frequency and blood-stage development", (
-                "The proposed Parasitaemia module will count infected red "
-                "blood cells relative to the total red-cell population. "
+                "Parasitaemia opens Host–Pathogen Analysis, which reports "
+                "infected red blood cells relative to all measured red "
+                "cells. "
                 "Blood-stage staging will separate rings, trophozoites and "
                 "schizonts so a shift in stage composition can be examined "
                 "alongside infection frequency. Merozoite invasion will focus "
                 "on entry into red blood cells. Together these readouts would "
                 "help distinguish fewer newly infected cells from altered "
                 "development of parasites already inside them."
-            ), ()),
+            ), ("parasitaemia",)),
             ("Liver infection and parasite movement", (
                 "Liver-stage growth is planned to measure parasite number "
-                "and size within hepatocytes. Sporozoite motility will focus "
-                "on gliding trajectories or trails, while Cell traversal "
+                "and size within hepatocytes. Sporozoite motility opens the "
+                "Motility Assay for gliding tracks, while Cell traversal "
                 "will address host-cell wounding along parasite paths. "
                 "Traversal, productive invasion and subsequent growth are "
                 "different outcomes: their image markers, observation times "
                 "and denominators need to be defined separately."
-            ), ()),
+            ), ("sporozoite",)),
             ("Transmission stages and compound responses", (
                 "Gametocyte maturity is a proposed workflow for stage and "
                 "sex-associated image features when suitable markers and "
                 "reference annotations are available. Drug response imaging "
-                "will relate growth and morphology to concentration. Record "
+                "opens Dose–Response to fit an image readout against "
+                "concentration. Record "
                 "the species, starting stage and exposure duration with "
                 "these measurements: changes in the mix of stages can "
                 "otherwise be mistaken for changes in parasite number."
-            ), ()),
+            ), ("drug",)),
             ("Building an image-analysis workflow", (
-                "All eight Plasmodium modules on this page are planned. "
-                "Their descriptions define intended readouts rather than "
-                "available analysis pipelines. PlasmoDB and UniProt provide "
+                "Parasitaemia, Sporozoite motility and Drug response imaging "
+                "open existing spaCR modules; the other five tiles are "
+                "planned and marked Coming soon. Their descriptions define "
+                "intended readouts rather than available analysis "
+                "pipelines. PlasmoDB and UniProt provide "
                 "genome and protein context for choosing markers and "
                 "interpreting results. The apicomplexan illustration is "
                 "useful for discussing compartments shared with Toxoplasma, "
@@ -166,6 +179,22 @@ ORGANISMS = {
             (None, "Gametocyte maturity", "Classify gametocyte stage and sex from images.", "gametocyte"),
             (None, "Drug response imaging", "Measure growth inhibition across compound concentrations.", "drug"),
         ),
+        "workflows": {
+            "parasitaemia": ("host_pathogen", {}, (
+                "Opens Host–Pathogen Analysis. Measure red blood cells as "
+                "host cells, including uninfected ones, and parasites as "
+                "pathogen objects; its infection fraction per well is the "
+                "parasitaemia.")),
+            "sporozoite": ("motility", {"infection_intensity_qc_scope": "none"}, (
+                "Opens the Motility Assay with infection QC off, because "
+                "gliding sporozoites have no host cell. Segment the "
+                "sporozoites as the tracked cell objects; it reports track "
+                "speed and straightness per well.")),
+            "drug": ("dose_response", {}, (
+                "Opens Dose–Response. Fit a four-parameter logistic curve "
+                "and EC50 to a per-well image readout, such as "
+                "parasitaemia, against compound concentration.")),
+        },
     },
     "candida": {
         "name": "Candida spp.",
@@ -197,33 +226,36 @@ ORGANISMS = {
                 "growth conditions when comparing their results."
             ), ()),
             ("Surface attachment and community growth", (
-                "The proposed Adhesion module will count fungal cells "
-                "associated with a host-cell surface. Biofilm will focus "
+                "Adhesion opens the Invasion Assay, whose attached and "
+                "invaded counts give the fungal cells bound to a host-cell "
+                "monolayer. The planned Biofilm module will focus "
                 "on collective growth, including covered area and thickness "
                 "when the acquisition contains depth information. A single "
                 "two-dimensional field can describe surface coverage but "
                 "cannot by itself establish biofilm thickness. Choose "
                 "single-plane or volumetric imaging to match the endpoint."
-            ), ()),
+            ), ("adhesion",)),
             ("Interactions with host cells", (
-                "Epithelial invasion is planned to distinguish extracellular "
-                "fungi from those internalised by epithelial cells. "
-                "Phagocytosis will measure uptake by phagocytes. Both "
+                "Epithelial invasion opens the Invasion Assay to distinguish "
+                "extracellular fungi from those internalised by epithelial "
+                "cells. Phagocytosis opens Host–Pathogen Analysis to measure "
+                "uptake by phagocytes. Both "
                 "require a way to resolve contact from internalisation, "
                 "such as appropriate differential labelling or spatial "
                 "information. Report the host-cell population and fungal "
                 "morphology together with the uptake readout."
-            ), ()),
+            ), ("epithelial", "phagocytosis")),
             ("Antifungal response and interpretation", (
-                "Antifungal response is a proposed concentration-response "
-                "workflow for fungal growth and morphology. Combining it "
-                "with Morphology or Biofilm would help describe which "
-                "image features change during treatment. All eight Candida "
-                "modules are currently planned and their tiles are marked "
-                "Coming soon. The Candida Genome Database and UniProt "
+                "Antifungal response opens Dose–Response to fit fungal "
+                "growth or a morphology score against drug concentration. "
+                "Combining it with Morphology or Biofilm would help "
+                "describe which image features change during treatment. "
+                "Filamentation, Germ tube formation, Biofilm and Morphology "
+                "are planned and their tiles are marked Coming soon. The "
+                "Candida Genome Database and UniProt "
                 "provide gene and protein annotations to support marker "
                 "selection and interpretation."
-            ), ()),
+            ), ("antifungal",)),
         ),
         "links": (
             ("Candida Genome Database", "https://www.candidagenome.org/"),
@@ -242,6 +274,25 @@ ORGANISMS = {
             (None, "Morphology", "Classify yeast, pseudohyphal and hyphal forms.", "morphology"),
             (None, "Antifungal response", "Measure growth and morphology across antifungal concentrations.", "antifungal"),
         ),
+        "workflows": {
+            "adhesion": ("invasion", {}, (
+                "Opens the Invasion Assay. With two-colour differential "
+                "staining, its attached plus invaded counts per well are "
+                "the fungi bound to the monolayer.")),
+            "epithelial": ("invasion", {}, (
+                "Opens the Invasion Assay. Two-colour differential staining "
+                "separates extracellular from internalised fungi, as for "
+                "Toxoplasma invasion.")),
+            "phagocytosis": ("host_pathogen", {}, (
+                "Opens Host–Pathogen Analysis. Measure phagocytes as host "
+                "cells and fungi as pathogen objects; it reports the "
+                "fraction of phagocytes containing fungi and fungi per "
+                "phagocyte. Killing is not measured.")),
+            "antifungal": ("dose_response", {}, (
+                "Opens Dose–Response. Fit a four-parameter logistic curve "
+                "and EC50 to fungal growth or a morphology score per well "
+                "against drug concentration.")),
+        },
     },
 }
 """Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.
@@ -250,8 +301,21 @@ Each record supplies a display name, description, biology source URL, bundled
 diagram filename and diagram note. ``sections`` contains heading, prose and
 linked assay-key triples; ``links`` contains display-label and URL pairs.
 ``modules`` contains route-key, title, description and icon-key tuples. A
-``None`` route denotes a planned assay whose tile cannot start an analysis.
+``None`` route denotes an organism-specific assay with no pipeline of its
+own. ``workflows`` maps such a tile's icon key to the existing module that
+measures its readout, a settings preset applied on opening, and a note on
+how to use it; a ``None`` tile absent from ``workflows`` is Coming soon.
 ``starplast`` launches an external app from the Toxoplasma page; it is not
 a spaCR analysis registry key or segmentation backend.
 Display prose is translated at use; route keys, URLs and asset names stay fixed.
 """
+
+
+def workflow(organism_key: str, icon: str):
+    """Return the existing module route of one organism tile, if any.
+
+    :param organism_key: ``toxoplasma``, ``plasmodium`` or ``candida``.
+    :param icon: the tile's icon key, unique within its organism.
+    :returns: ``(app key, preset, note)`` or ``None`` for a Coming soon tile.
+    """
+    return ORGANISMS.get(organism_key, {}).get("workflows", {}).get(icon)

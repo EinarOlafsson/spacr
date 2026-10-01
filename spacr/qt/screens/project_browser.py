@@ -230,7 +230,11 @@ class ProjectBrowserScreen(QWidget):
         return tuple(self._roots)
 
     def add_root(self, path: str, *, scan: bool = True) -> bool:
-        """Add a folder to search. ``True`` when it was not already there."""
+        """Add a folder to search. ``True`` when it was not already there.
+
+        :param path: folder to add; ``~`` is expanded and the path made
+            absolute. It is also recorded as a recent folder.
+        """
         path = os.path.abspath(os.path.expanduser(str(path or "")))
         if not path or path in self._roots:
             return False
@@ -428,7 +432,11 @@ class ProjectBrowserScreen(QWidget):
         return str(item.data(Qt.UserRole) or "") if item is not None else ""
 
     def summary_for(self, root: str):
-        """The listed summary for one root, or ``None``."""
+        """The listed summary for one root, or ``None``.
+
+        :param root: absolute project root, compared exactly with each
+            summary's ``root``.
+        """
         for summary in self._summaries:
             if summary.root == root:
                 return summary
@@ -449,7 +457,11 @@ class ProjectBrowserScreen(QWidget):
             self.project_chosen.emit(root)
 
     def show_detail(self, root: str) -> str:
-        """Draw the detail pane for one project. Returns what it drew."""
+        """Draw the detail pane for one project. Returns what it drew.
+
+        :param root: absolute project root as listed; a root with no listed
+            summary clears the pane and returns ``""``.
+        """
         summary = self.summary_for(root)
         if summary is None:
             self._detail.setPlainText("")

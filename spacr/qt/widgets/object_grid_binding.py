@@ -26,7 +26,8 @@ from typing import Any, Dict, FrozenSet, Mapping, Optional
 
 from PySide6.QtCore import QObject
 
-from spacr.object_settings_table import to_table
+from spacr.object_settings_table import _FILTER_PREFIX, _settings_key, to_table
+from spacr.qt.widgets.object_settings_grid import _SWITCH_QUESTIONS
 
 #: The change signals a settings widget might carry, most specific first.
 #:
@@ -83,11 +84,36 @@ class ObjectGridBinding(QObject):
         and the grid must not claim a key that is no longer there.
         """
         owned = set()
-        for question, row in self._grid.table().items():
+        # 2026-09-29 (item 592, "hide unset objects"): the columns hidden
+        # because their channel is unset are still claimed, so their rows
+        # stay off the flat form; the channels are NOT claimed, because a
+        # hidden object's channel on the form is how it is brought back.
+        claimed = getattr(self._grid, "_claimed_table", None)
+        table = claimed() if callable(claimed) else self._grid.table()
+        for question, row in table.items():
+            if (question.startswith(_FILTER_PREFIX)
+                    or question in _SWITCH_QUESTIONS):
+                continue
             for obj in row:
-                owned.add(f"{obj}_{question}")
+                owned.add(_settings_key(obj, question))
+        if "object_filters" in getattr(self._grid, "_base", {}):
+            owned.add("object_filters")
         return frozenset(owned)
 
+
+    def _switch_keys(self) -> FrozenSet[str]:
+        """The channel keys that decide which columns the grid draws.
+
+        Followed like the claimed keys, so a channel set on the form shows or
+        hides its object's column (2026-09-29, item 592).
+        """
+        claimed = getattr(self._grid, "_claimed_table", None)
+        if not callable(claimed):
+            return frozenset()
+        return frozenset(
+            _settings_key(obj, question)
+            for question, row in claimed().items()
+            if question in _SWITCH_QUESTIONS for obj in row)
 
     def seed(self) -> None:
         """Show the panel's current answers in the grid.
@@ -123,7 +149,7 @@ class ObjectGridBinding(QObject):
         """
         widgets = getattr(self._panel, "_widgets", None) or {}
         connected = 0
-        for key in self.owned_keys():
+        for key in self.owned_keys() | self._switch_keys():
             widget = widgets.get(key)
             if widget is None or id(widget) in self._followed:
                 continue
@@ -166,12 +192,25 @@ class ObjectGridBinding(QObject):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not read the panel", exc_info=True)
             return 0
+        same = getattr(self._grid, "_shows_the_same_objects_as", None)
+        if callable(same) and not same(current):
+            # A channel on the form switched an object on or off: redraw the
+            # columns from the panel, which also shows every value.
+            self._grid.set_settings(current)
+            return 1
+        keep = getattr(self._grid, "_keep_the_switches", None)
+        if callable(keep):
+            keep(current)
         shown = self._grid.settings()
         moved = 0
         for key in self.owned_keys():
             if key not in current:
                 continue
             if key in shown and _same(shown[key], current[key]):
+                continue
+            if key == "object_filters":
+                self._grid.set_filters(current[key])
+                moved += 1
                 continue
             value = current[key]
             for question, row in to_table({key: value}).items():
@@ -247,8 +286,30 @@ def _same(a: Any, b: Any) -> bool:
     """
     if a is b:
         return True
+    if isinstance(a, (dict, str)) and isinstance(b, (dict, str)) and (
+            isinstance(a, dict) or isinstance(b, dict)):
+        return _filters_of(a) == _filters_of(b)
     if isinstance(a, bool) or isinstance(b, bool):
         return bool(a) == bool(b)
     if isinstance(a, (int, float)) and isinstance(b, (int, float)):
         return float(a) == float(b)
     return a == b
+
+
+def _filters_of(value: Any) -> Any:
+    """``object_filters`` in one canonical shape, for comparing two spellings.
+
+    The form may hold the mapping as text and the table as a dict; both are
+    read into ``{object: [{property, min, max}, ...]}`` with empty lists
+    dropped. A value that is not an ``object_filters`` mapping comes back
+    unchanged.
+    """
+    try:
+        from spacr.qt.mask_engine import (normalise_filters,
+                                          parse_object_filters)
+
+        parsed = parse_object_filters(value)
+        return {str(obj): normalise_filters(rows, strict=False)
+                for obj, rows in sorted(parsed.items()) if rows}
+    except Exception:                                        # noqa: BLE001
+        return value

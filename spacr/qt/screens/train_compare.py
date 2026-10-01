@@ -599,7 +599,11 @@ class TrainCompareScreen(QWidget):
         return self._metric_combo.currentText()
 
     def set_metric(self, name: str) -> bool:
-        """Pick the metric to draw; re-draws when a comparison exists."""
+        """Pick the metric to draw; re-draws when a comparison exists.
+
+        :param name: metric name; it must be one of :meth:`available_metrics`,
+            otherwise an error is shown and ``False`` returned.
+        """
         if name not in self.available_metrics():
             self._set_status(f"No run logged '{name}'.", error=True)
             return False
@@ -640,7 +644,12 @@ class TrainCompareScreen(QWidget):
         return out
 
     def select_runs(self, run_ids: Sequence[str]) -> bool:
-        """Tick exactly these run ids. Unknown ids are reported inline."""
+        """Tick exactly these run ids. Unknown ids are reported inline.
+
+        :param run_ids: run ids to tick; every other run is unticked. Ids that
+            match no listed run are reported and make the call return
+            ``False``.
+        """
         wanted = set(run_ids or ())
         known = set(self.run_ids())
         missing = sorted(wanted - known)
@@ -882,6 +891,8 @@ class TrainCompareScreen(QWidget):
     def identify_series(self, label: str) -> str:
         """Name the run behind a series label and report it inline.
 
+        :param label: legend label of a plotted series, looked up in the
+            figure's ``spacr_series_by_label`` mapping.
         :returns: the description shown, or ``''`` when the label is unknown.
         """
         mapping = getattr(self._figure, "spacr_series_by_label", {}) or {}

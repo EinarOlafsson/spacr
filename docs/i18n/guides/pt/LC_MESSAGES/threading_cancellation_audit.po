@@ -1,0 +1,135 @@
+# spaCR user guide translation (pt).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: pt\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Threading and cancellation audit"
+msgstr "Auditoria de threads e cancelamento"
+
+msgid "spaCR runs analysis entry points through :class:`spacr.qt.bridge.PipelineWorker` on a dedicated ``QThread``. Large imports, image decoding, model fitting and plate processing therefore do not run on Qt's GUI thread. Stop is cooperative: spaCR never uses ``QThread.terminate()`` on an analysis that may be writing an array, TIFF, database transaction, or checkpoint."
+msgstr "O spaCR executa os pontos de entrada de análise por meio de :class:`spacr.qt.bridge.PipelineWorker` em um ``QThread`` dedicado. Por isso, importações grandes, decodificação de imagens, ajuste de modelos e processamento de placas não rodam na thread da interface gráfica do Qt. A parada é cooperativa: o spaCR nunca usa ``QThread.terminate()`` em uma análise que possa estar gravando uma matriz, um TIFF, uma transação de banco de dados ou um ponto de verificação."
+
+msgid "Safe cancellation boundaries"
+msgstr "Limites seguros de cancelamento"
+
+msgid "The worker installs a thread-local :class:`spacr.cancellation.CancellationToken`. Long workflows call :func:`spacr.cancellation.checkpoint` only after a durable unit, or before the next unit begins:"
+msgstr "O processo de trabalho instala um :class:`spacr.cancellation.CancellationToken` local da thread. Os fluxos de trabalho longos chamam :func:`spacr.cancellation.checkpoint` somente depois de uma unidade gravada de forma durável, ou antes do início da próxima unidade:"
+
+msgid "Mask checks between source plates, object types, and Cellpose batches."
+msgstr "Máscaras verifica entre placas de origem, tipos de objeto e lotes do Cellpose."
+
+msgid "Measure keeps at most one pool-width field batch outstanding and checks after every batch has returned and saved its results."
+msgstr "Medição mantém pendente no máximo um lote de campos com a largura do pool e verifica depois que cada lote retorna e salva seus resultados."
+
+msgid "Format Converter checks before source groups; its atomic :class:`spacr.checkpoint.CheckpointStore` record checks after each complete field."
+msgstr "Conversor de formatos verifica antes dos grupos de origem; seu registro atômico :class:`spacr.checkpoint.CheckpointStore` verifica após cada campo completo."
+
+msgid "UMAP checks before each grid/adaptive trial. Completed trial artifacts and adaptive state are persisted before cancellation is raised."
+msgstr "UMAP verifica antes de cada tentativa em grade ou adaptativa. Os artefatos das tentativas concluídas e o estado adaptativo são salvos antes de o cancelamento ser lançado."
+
+msgid "Batch Runner checks between jobs. While a child ``spacr-run`` process is active it polls the token, terminates that child, persists the current job as resumable, and then stops the queue."
+msgstr "Executor em lote verifica entre trabalhos. Enquanto um processo filho ``spacr-run`` está ativo, ele consulta o token, encerra esse processo filho, salva o trabalho atual como retomável e depois para a fila."
+
+msgid "Stop first asks how to stop. **Finish current work** requests cancellation and waits for the current unit; if the run has not reached a boundary after five minutes, the question is asked again. The console reports ``Stopped safely`` when the boundary is reached, and the reproducibility manifest records ``status: cancelled`` rather than a failure traceback."
+msgstr "Ao parar, primeiro pergunta-se como parar. **Finish current work** solicita o cancelamento e aguarda a unidade atual; se a execução não tiver chegado a um limite após cinco minutos, a pergunta é feita novamente. O console informa ``Stopped safely`` quando o limite é alcançado, e o manifesto de reprodutibilidade registra ``status: cancelled`` em vez de um rastreamento de falha."
+
+msgid "**Force stop** gives the window back at once. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
+msgstr "**Force stop** devolve o controle da janela imediatamente. Um processo de trabalho que não responde -- normalmente um que está preso em uma chamada longa do Cellpose ou do PyTorch -- é estacionado em vez de encerrado: suas referências são mantidas e ele termina em segundo plano, de modo que o que ele estiver gravando pode ficar gravado pela metade. **Force restart** salva o módulo e suas configurações, reinicia o spaCR e reabre esse módulo."
+
+msgid "Shutdown behavior"
+msgstr "Comportamento ao encerrar"
+
+msgid "The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to every active worker and thread. On application shutdown it requests cancellation for all jobs and waits against one bounded deadline. If any job that writes results has not reached a safe boundary, the close event is refused and the live references are retained. Read-only housekeeping jobs, such as a Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit finishes. The same rule applies when an individual module screen is closed."
+msgstr "O :class:`spacr.qt.bridge.RunRegistry` de todo o processo mantém referências fortes a cada processo de trabalho e thread ativos. Ao encerrar o aplicativo, ele solicita o cancelamento de todos os trabalhos e aguarda até um prazo comum limitado. Se algum trabalho que grava resultados não tiver alcançado um limite seguro, o evento de fechamento é recusado e as referências ativas são mantidas. Trabalhos de manutenção somente leitura, como a atualização do Histórico de execuções, são cancelados da mesma forma, mas nunca bloqueiam o fechamento. O usuário pode fechar novamente depois que a unidade atual terminar. A mesma regra se aplica ao fechar a tela de um módulo individual."
+
+msgid "``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt method is thread-safe. This avoids a shutdown deadlock in which the GUI thread waits for a worker while the worker's queued quit request waits for the GUI event loop."
+msgstr "``PipelineWorker.finished`` invoca ``QThread.quit`` diretamente porque esse método do Qt é seguro entre threads. Isso evita um impasse no encerramento, em que a thread da interface espera por um processo de trabalho enquanto a solicitação de saída enfileirada por ele espera pelo loop de eventos da interface."
+
+msgid "API usage"
+msgstr "Uso da API"
+
+msgid "Headless and plugin pipelines use the same small API::"
+msgstr "Os pipelines sem interface gráfica e os de plugins usam a mesma pequena API::"
+
+msgid "Calling ``checkpoint()`` outside a managed GUI worker is a no-op. Code that catches broad ``Exception`` values must re-raise :class:`spacr.cancellation.PipelineCancelled`; treating it as a failed field would defeat the worker's distinct cancellation status."
+msgstr "Chamar ``checkpoint()`` fora de um processo de trabalho gerenciado pela interface não tem efeito. O código que captura valores ``Exception`` genéricos deve relançar :class:`spacr.cancellation.PipelineCancelled`; tratá-la como um campo com falha anularia o status de cancelamento próprio do processo de trabalho."
+
+msgid "Stress coverage"
+msgstr "Cobertura de testes de estresse"
+
+msgid "``tests/qt/test_threading_cancellation_audit.py`` exercises fifty rapid Start/Stop cycles, registry-wide shutdown, repeated cancellation, screen close while active, and refusal to destroy a stubborn worker. ``tests/test_cancellation.py`` verifies thread isolation, idempotence, durability-before-cancel, resumable queues, and termination of an active batch subprocess."
+msgstr "``tests/qt/test_threading_cancellation_audit.py`` exercita cinquenta ciclos rápidos de Iniciar/Parar, o encerramento de todo o registro, o cancelamento repetido, o fechamento de uma tela durante uma execução ativa e a recusa em destruir um processo de trabalho que não responde. ``tests/test_cancellation.py`` verifica o isolamento entre threads, a idempotência, a durabilidade antes do cancelamento, as filas retomáveis e o encerramento de um subprocesso de lote ativo."
+
+msgid "Cooperative cancellation for long-running spaCR pipelines."
+msgstr "Cancelamento cooperativo para pipelines do spaCR de longa duração."
+
+msgid "Qt cannot safely kill a Python thread that may be writing a TIFF, committing a SQLite transaction, or updating several related artifacts.  Instead, the GUI installs one :class:`CancellationToken` in each worker thread and pipeline code calls :func:`checkpoint` only at boundaries where the previous unit is fully durable and the next unit has not started."
+msgstr "O Qt não pode encerrar com segurança uma thread Python que possa estar gravando um TIFF, confirmando uma transação SQLite ou atualizando vários artefatos relacionados. Em vez disso, a interface instala um :class:`CancellationToken` em cada thread de trabalho, e o código do pipeline chama :func:`checkpoint` somente em limites em que a unidade anterior está totalmente gravada de forma durável e a próxima ainda não começou."
+
+msgid "The module is intentionally standard-library only.  Core workflows may import it without importing Qt, torch, or any GUI dependency."
+msgstr "O módulo usa intencionalmente apenas a biblioteca padrão. Os fluxos de trabalho principais podem importá-lo sem importar Qt, torch nem qualquer dependência da interface gráfica."
+
+msgid "Thread-safe, idempotent cancellation request shared with one worker."
+msgstr "Solicitação de cancelamento segura entre threads e idempotente, compartilhada com um processo de trabalho."
+
+msgid "Parameters"
+msgstr "Parâmetros"
+
+msgid "default user-facing reason raised by :meth:`checkpoint`."
+msgstr "motivo padrão, voltado ao usuário, lançado por :meth:`checkpoint`."
+
+msgid "Request cancellation and return True only for the first request."
+msgstr "Solicita o cancelamento e retorna True somente na primeira solicitação."
+
+msgid "Repeated Stop clicks are harmless and do not replace the original reason, which keeps logs and manifests deterministic."
+msgstr "Cliques repetidos em Parar são inofensivos e não substituem o motivo original, o que mantém determinísticos os logs e os manifestos."
+
+msgid "Whether cancellation has been requested."
+msgstr "Indica se o cancelamento foi solicitado."
+
+msgid "Raise :class:`PipelineCancelled` when cancellation was requested."
+msgstr "Lança :class:`PipelineCancelled` quando o cancelamento foi solicitado."
+
+msgid "The first cancellation reason supplied to :meth:`cancel`."
+msgstr "O primeiro motivo de cancelamento fornecido a :meth:`cancel`."
+
+msgid "Raised at a safe boundary after cancellation has been requested."
+msgstr "Lançada em um limite seguro depois que o cancelamento foi solicitado."
+
+msgid "This is a normal control-flow outcome, not a pipeline failure.  Callers that catch broad :class:`Exception` values must re-raise it so the worker can record the run as ``cancelled`` rather than as a failed item."
+msgstr "É um resultado normal do fluxo de controle, não uma falha do pipeline. Chamadores que capturam valores :class:`Exception` genéricos devem relançá-la para que o processo de trabalho possa registrar a execução como ``cancelled`` e não como um item com falha."
+
+msgid "Return whether the calling worker has a pending cancellation request."
+msgstr "Retorna se o processo de trabalho chamador tem uma solicitação de cancelamento pendente."
+
+msgid "Stop at this safe boundary when requested; otherwise do nothing."
+msgstr "Para neste limite seguro, se solicitado; caso contrário, não faz nada."
+
+msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
+msgstr "Chamadas fora de um processo de trabalho gerenciado intencionalmente não têm efeito, de modo que as mesmas funções de pipeline funcionam pela interface gráfica, pela CLI, em notebooks e em testes."
+
+msgid "Return the token installed for the calling thread, if any."
+msgstr "Retorna o token instalado para a thread chamadora, se houver."
+
+msgid "Install ``token`` for this thread and restore any prior token on exit."
+msgstr "Instala ``token`` para esta thread e restaura o token anterior, se houver, ao sair."
+
+msgid "cancellation token to expose within the context."
+msgstr "token de cancelamento a ser exposto dentro do contexto."
+

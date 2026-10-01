@@ -1,0 +1,108 @@
+DEEP-LEARNING IMAGE QC: OUT-OF-FOCUS, SATURATION, DEBRIS, EMPTY FIELDS
+
+Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/automated-quality-control-of-images/19373
+
+WHAT TO BUILD
+    A classifier that flags out-of-focus, saturated, debris-covered, bubble
+    and empty fields (pretrained on public QC sets and fine-tunable from
+    Annotate), extending the existing image-quality screening and
+    quarantine.
+
+DONE WHEN
+    On a labelled QC set it beats the current rule-based metrics in
+    precision/recall and quarantines flagged fields.
+
+ALPHA: 2026-09-27. Built behind Preferences -> Show alpha features, registered
+    as ALPHA_FEATURES[559]: settings image_qc_classifier (default False),
+    image_qc_classifier_model (None), image_qc_classifier_labels (None) and
+    image_qc_classifier_threshold (0.5), shown on the Mask app in the
+    existing "Image Quality" heading (the rule settings there stay visible).
+    No widgets, apps or zoo rows.
+
+WHAT WAS BUILT (2026-09-27)
+    spacr/image_quality.py, private helpers only; CPU only (torch, at most
+    eight threads while training). No GPU turn was used.
+    - _qc_inputs: per screened channel (best-focus plane of a volume), three
+      scale-free maps -- intensity over background divided by the larger of
+      signal range and 20 noise sigmas (noise-only fields stay near 0),
+      |Laplacian| over pixel noise (blur = missing structure), saturated
+      pixels -- read as 16 native-resolution 64 px tiles plus a 64x64
+      whole-field average.
+    - _qc_network: two-branch CNN (tile branch pooled by max and mean, field
+      branch), one sigmoid per class: out_of_focus, saturated, debris,
+      bubble, empty (multi-label; none = good).
+    - Built-in model: trained once on 2400 synthetic fields with planted
+      defects (_synthetic_qc_field: sparse to confluent textured cells,
+      tissue gaps, haze, fibres/crystals/aggregates, bubbles with rims, blur,
+      clipping), cached at ~/.spacr/models/image_qc_classifier_v1.pt; about
+      8-10 minutes on the CPU the first time. Saved/loaded tensors-only.
+    - screen_fields: with image_qc_classifier on (and image_qc_mode report or
+      exclude) each channel gets p_<class> in the JSON/CSV report and a
+      "classifier_<class>" reason at >= threshold; exclude mode keeps those
+      fields out of segmentation through the existing exclusion/quarantine
+      path (qc/image_quality.json, gallery, filter_batch). Raw files untouched.
+    - Fine-tuning: image_qc_classifier_labels (table read with
+      spacr.tabular; field + label columns, good or classes separated by ";",
+      optional channel). With >= 10 fields, 5-fold cross-validation
+      fine-tunes the base model per fold and writes
+      qc/image_qc_benchmark.csv: precision/recall per defect and any-defect
+      for the classifier, the saved rule policy, and rule cut-offs (focus,
+      saturation) tuned on the same training folds. Then fine-tunes on all
+      labels, saves qc/image_qc_model.pt (reusable via
+      image_qc_classifier_model) and applies it.
+
+VALIDATION (CPU, scratch-docs/559/validate.py and e2e.py)
+    Held-out base images never used in training: random 192 px crops of a
+    real Xenium DAPI tile, with planted defects rendered differently from the
+    training generator (Bezier hairs, star crystals, elliptical bubbles with
+    halos, blur with noise re-added, clipping at 65535, background-resampled
+    empty fields).
+    - Built-in model, no fine-tuning (90 good + 30 per defect):
+      any-defect P 0.86 / R 0.89, versus the rule metrics with cut-offs
+      tuned on the test set itself P 0.63 / R 1.00 (their best F1 is to flag
+      everything). Per class: out_of_focus P 1.00/R 1.00 (rule P 0.14),
+      saturated 1.00/1.00 (rule 1.00/1.00), debris 1.00/0.97, empty
+      0.97/1.00 (rules cannot see either), bubble 0.20/0.43.
+    - Labelled QC set through screen_fields (36 good + 12 per defect, 96
+      fields, 5-fold CV fine-tuning): classifier any-defect P 0.85 / R 0.87,
+      F1 0.86, versus rule_tuned P 0.63 / R 1.00, F1 0.77; out_of_focus,
+      saturated, debris and empty all 1.00/1.00; bubble 0.29/0.33. Exclude
+      mode quarantined 55/60 defective fields and 2/36 good ones.
+    Tests: tests/test_image_qc_classifier.py (policy, labels, inputs, model
+    save/load, exclusion without touching pixels, benchmark + fine-tune),
+    tests/qt/test_image_qc_classifier_alpha_gate.py.
+
+WHAT IS LEFT
+    - Not pretrained on public QC sets: none was downloaded (no network);
+      the built-in model is synthetic-only. Training on e.g. BBBC/Cell
+      Painting QC labels, and shipping the weights instead of training on
+      first use, needs the maintainer (package data / download location).
+    - Bubbles are the weak class (P/R about 0.3 on real tissue crops, where
+      tissue gaps look like bubbles); needs real labelled bubble fields.
+    - Annotate has no field-level labelling mode yet; labels come from a
+      table. An Annotate "field QC" view writing that table is the next step.
+    - v2 pipeline gets the classifier through the same screen_fields call but
+      was only exercised through v1-style stack/ folders here.
+    - No dedicated QC dashboard card for classifier classes (the existing
+      Image Quality card shows the reasons).
+
+2026-09-28 — SETTINGS CONSUMER AND HELP DOCUMENTATION CORRECTED
+Both static analyzers now recognize a literal defaults table projected
+through settings.get(key, default), including policies returned to callers.
+There are no classifier-key exceptions or scientific-module imports. The
+four classifier controls link to image_quality.quality_policy; nine QC flow
+sections and the Help search index were regenerated from the actual readers.
+Merged-source validation: 50 analyzer/flow/literal checks and 22 Help checks
+passed. The new arXiv attribution regression belongs to the runtime pass.
+Receipts: features/data/559_settings_consumers_2026-09-28/.
+The original public-QC pretraining, Annotate field labels and real-data
+precision/recall acceptance remain open; this note does not close item 559.

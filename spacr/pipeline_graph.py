@@ -223,11 +223,21 @@ class ModuleGraph:
     ran: Tuple[str, ...] = ()
 
     def next_of(self, module: str) -> Tuple[str, ...]:
-        """Modules this one can feed, from the declared edges."""
+        """Modules this one can feed, from the declared edges.
+
+        :param module: a module key; a key with no outgoing edge, or not in
+            the graph, gives an empty tuple.
+        :returns: the consumer module keys, sorted.
+        """
         return tuple(sorted({b for a, b in self.edges if a == module}))
 
     def previous_of(self, module: str) -> Tuple[str, ...]:
-        """Modules that can feed this one, from the declared edges."""
+        """Modules that can feed this one, from the declared edges.
+
+        :param module: a module key; a key with no incoming edge, or not in
+            the graph, gives an empty tuple.
+        :returns: the producer module keys, sorted.
+        """
         return tuple(sorted({a for a, b in self.edges if b == module}))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -278,7 +288,10 @@ class PipelineGraph:
         return True
 
     def node(self, artifact_id: str) -> Optional[Node]:
-        """The node with this id, or ``None``."""
+        """The node with this id, or ``None``.
+
+        :param artifact_id: the registry id to look up.
+        """
         for node in self.nodes:
             if node.artifact_id == artifact_id:
                 return node
@@ -307,11 +320,24 @@ class PipelineGraph:
 
         The "what does re-running this invalidate?" question, answered from
         the graph already in memory rather than by another registry walk.
+
+        :param artifact_id: the registry id of the starting node. The start
+            itself is not included, and an id with no edges gives an empty
+            tuple.
+        :returns: the reachable nodes, ordered by depth, then newest first,
+            then id.
         """
         return self._reach(artifact_id, forward=True)
 
     def upstream(self, artifact_id: str) -> Tuple[Node, ...]:
-        """Every node this one was derived from, transitively."""
+        """Every node this one was derived from, transitively.
+
+        :param artifact_id: the registry id of the starting node. The start
+            itself is not included, and an id with no edges gives an empty
+            tuple.
+        :returns: the ancestor nodes, ordered by depth, then newest first,
+            then id.
+        """
         return self._reach(artifact_id, forward=False)
 
     def _reach(self, start: str, *, forward: bool) -> Tuple[Node, ...]:
@@ -698,6 +724,10 @@ def to_dot(graph: PipelineGraph) -> str:
     Not used by the GUI — it draws itself — but it is what a user pastes into
     a methods figure, and it is the cheapest way to eyeball a graph while
     developing. No trailing newline.
+
+    :param graph: the pipeline graph to render. Each node is labelled with its
+        module, kind and path basename and filled by state; dangling edges are
+        drawn dashed red.
     """
     lines = ["digraph spacr {", "  rankdir=LR;",
              '  node [shape=box, style="rounded,filled", fontname="Helvetica"];']

@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Plate Viewer: undersøg brønde og eksportér en heatmaptabel",
+  "description": "Indlæs eksempelmålingerne, sammenlign egenskaber og antal pr. brønd, undersøg enkelte brønde, og eksportér den filtrerede tabel.",
+  "objectives": [
+    "Åbne Plate Viewer fra Graph Builder og indlæse eksempelmålinger.",
+    "Vælge en egenskab, en aggregering og et mindste antal objekter.",
+    "Undersøge brønddetaljer og eksportere det aktuelle brøndgitter."
+  ],
+  "prerequisite": "Brug Load test data i Plate Viewer til det downloadbare eksempel, eller åbn measurements.db fra dit målte projekt. Eksemplet indeholder 2.341 celler i fire brønde; brug målinger, der dækker hele din plade, når du vurderer rumlige mønstre.",
+  "scenes": [
+    "Fra Home åbner du Graph Builder under Data og vælger derefter Plate Viewer. Brug det til at opsummere objektmålinger pr. brønd og undersøge, hvordan de fordeler sig over en plade.",
+    "Klik på Load test data for at åbne det downloadbare eksempel. Til dine egne data vælger du en måledatabase eller dens kørselsmappe og klikker på Open. Eksemplet indeholder fire målte brønde.",
+    "Vælg cell som Table, cell_area som Measurement og plate1 som Plate. Sæt Per well til mean for at vise det gennemsnitlige celleareal. Medianen mindsker indflydelsen fra usædvanligt store eller små objekter.",
+    "Vælg en farveskala. Det robuste interval bruger 2. til 98. percentil, så en ekstrem brønd ikke presser de andres farver sammen.",
+    "Klik på Render, og sammenlign de farvede brønde. Læs rapporten om kanteffekter ved siden af heatmappet, og kontrollér pladelayoutet og den målte dækning. Brug målinger på tværs af hele pladen, når du vurderer kant-, række- eller kolonnemønstre.",
+    "Klik på en målt brønd for at se dens identifikator, antal objekter og den viste værdi. Brug identifikatorerne til at finde den samme brønd i dine billeder eller eksporterede resultater.",
+    "Sæt Per well til count for at sammenligne antal objekter. Denne visning hjælper dig med at finde brønde med færre segmenterede objekter, før du fortolker forskelle i egenskaber.",
+    "Hæv Min objects per well for at udelukke brønde med for få objekter til din sammenligning. Ved 601 er der to af eksemplets fire brønde tilbage. Udelukkede brønde vises tomme i stedet for som måleværdien nul.",
+    "Klik på Export well grid CSV, vælg et filnavn, og gem. CSV-filen indeholder de brønde, som det aktuelle filter beholder, med identifikatorer, antal, viste værdier og rumlige annotationer.",
+    "Opbevar den eksporterede tabel sammen med måle- og aggregeringsindstillingerne. Sænk minimumsantallet for at vise udelukkede brønde igen, eller vælg en anden måling til din næste sammenligning."
+  ]
+}

@@ -57,7 +57,7 @@ SAMPLE = (
     "pathogen_perimeter_fraction",
     "organelle_perimeter_fraction",
     "nucleus_signal_to_noise",
-    "nucleus_max_area",
+    "organelle_max_area",
     "normalization_percentiles",
     "cell_min_area",
     "organelle_mask_within_cells",
@@ -103,7 +103,12 @@ def test_the_animations_are_mostly_too_small_as_generated():
     # ``_min_intensity_percentile`` and ``_max_intensity_percentile`` — whose
     # settings went with them, so a GIF explaining any of them would now
     # illustrate a setting nobody can type.
-    assert len(extents) == 87
+    # 87 -> 78 on 2026-09-25, item 511: the maintainer retired the
+    # max-area and mean-bound settings of cell, nucleus and pathogen, and
+    # their nine animations went with them. `nucleus_max_area` left the
+    # sample for `organelle_max_area`, the same filter scene at the same
+    # 70.8 % extent. 49 of the 78 still sit below 70 %.
+    assert len(extents) == 78
     assert 'psf_fwhm_um' in {animation.slug for animation in setting_animations()}
     below = [value for value in extents if value < az.MIN_FILL]
     # Re-checked as a claim about the population, not carried over. Six of the

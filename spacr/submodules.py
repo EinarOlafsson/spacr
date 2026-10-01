@@ -1313,7 +1313,18 @@ def _resolve_well_detector(settings):
         return None
     if requested is True:
         requested = 'toxoplasma_well_detector_v1'
-    requested = str(requested)
+    return _resolve_detector_weights(str(requested), 'well_detection')
+
+
+def _resolve_detector_weights(requested, setting):
+    """A detector checkpoint on disk, from a path or a model-zoo key.
+
+    :param requested: a checkpoint path, or a :mod:`spacr.model_zoo` key,
+        fetched into ``~/.spacr/models`` on first use.
+    :param setting: the setting it came from, named in the error.
+    :returns: the checkpoint path.
+    :raises ValueError: when it is neither a file nor a model-zoo key.
+    """
     if os.path.isfile(requested):
         return requested
     from . import model_zoo
@@ -1321,7 +1332,7 @@ def _resolve_well_detector(settings):
                   if e.key == requested), None)
     if entry is None:
         raise ValueError(
-            f"well_detection={requested!r} is neither a file nor a model_zoo "
+            f"{setting}={requested!r} is neither a file nor a model_zoo "
             f"key")
     dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
     os.makedirs(dest, exist_ok=True)
@@ -1386,7 +1397,72 @@ def explain_cellpose3(exc, model):
         f"{model} is a Cellpose 3 model, and the Cellpose installed here is "
         f"version 4, which cannot load it. Choose "
         f"'{DEFAULT_PLAQUE_MODEL}' (the current plaque model) or "
-        f"'toxoplasma_plaque_v1' in plaque_model.")
+        f"'toxoplasma_plaque_v1' in plaque_model, or install the Cellpose 3 "
+        f"backend from the Model Zoo, which runs this checkpoint in an "
+        f"environment of its own.")
+
+
+class _Cellpose3PlaqueModel:
+    """A Cellpose 3 plaque checkpoint, segmenting through the Cellpose 3 backend.
+
+    Cellpose 4 refuses Cellpose 3 checkpoints, so the historical bundled
+    plaque model reaches its weights only through the isolated Cellpose 3
+    environment. Each image is sent as one grey plane, the channels that
+    checkpoint was trained with (``[0, 0]``), and the answer comes back in
+    the shape ``CellposeModel.eval`` gives for one image.
+
+    :param backend: the Cellpose 3 backend, with Cellpose's batch ``eval``.
+    """
+
+    def __init__(self, backend):
+        """Keep the backend that does the segmenting."""
+        self._backend = backend
+        self.note = str(getattr(backend, 'note', '') or '')
+
+    def eval(self, image, channel_axis=None, diameter=None,
+             flow_threshold=0.4, cellprob_threshold=0.0, **_other):
+        """Segment one image the way ``CellposeModel.eval`` does.
+
+        :param image: ``H x W`` or ``H x W x C``.
+        :param channel_axis: the colour axis of a 3-D image; the last when
+            None.
+        :param diameter: the plaque diameter in pixels, or None for the
+            checkpoint's own.
+        :param flow_threshold: Cellpose's flow error threshold.
+        :param cellprob_threshold: Cellpose's cell probability threshold.
+        :returns: ``(labels, flows, None)``.
+        """
+        plane = np.asarray(image, dtype=np.float32)
+        if plane.ndim == 3:
+            plane = plane.mean(axis=-1 if channel_axis is None
+                               else channel_axis)
+        masks, flows, _styles = self._backend.eval(
+            [plane], diameter=diameter or None,
+            flow_threshold=flow_threshold,
+            cellprob_threshold=cellprob_threshold)
+        return masks[0], (list(flows[0]) if flows else []), None
+
+
+def _cellpose3_plaque_backend(model_path):
+    """The Cellpose 3 backend on ``model_path``, or None when it is not installed.
+
+    :param model_path: a Cellpose 3 checkpoint.
+    :returns: a :class:`_Cellpose3PlaqueModel`, or None.
+    """
+    from ._segmentation_backends import (_CELLPOSE3, _RemoteBackend,
+                                         _backend_state)
+
+    try:
+        state = _backend_state(_CELLPOSE3)
+        if not state.ready or state.in_process:
+            return None
+        backend = _RemoteBackend(_CELLPOSE3,
+                                 model=os.path.abspath(str(model_path)))
+    except Exception:
+        return None
+    print(f"{model_path} is a Cellpose 3 model; it segments through the "
+          f"Cellpose 3 backend, {backend.note}.")
+    return _Cellpose3PlaqueModel(backend)
 
 
 def _requested_plaque_model(settings):
@@ -1397,8 +1473,8 @@ def _requested_plaque_model(settings):
     fallback -- reads the same default rather than restating it.
 
     :param settings: the plaque settings dict.
-    :returns: a path, a :mod:`spacr.model_zoo` key, or ``'bundled'``, which is
-        also what an unset or empty value means.
+    :returns: a path, a :mod:`spacr.model_zoo` key, or ``'bundled'``. An
+        unset or empty value means :data:`DEFAULT_PLAQUE_MODEL`.
     """
     return str(settings.get('plaque_model') or DEFAULT_PLAQUE_MODEL)
 
@@ -1497,8 +1573,13 @@ def analyze_plaques(settings):
           preview makes too.
         - ``plaque_mode`` -- ``'figure'`` hands the folder to
           :func:`spacr.plaque_papers.measure_figure_folder` instead.
+        - ``colony_counting`` -- in plaque mode, counts bacterial or fungal
+          colonies on plate photos instead of segmenting plaques
+          (:func:`_analyze_colony_plates`), writing
+          ``<src>/colonies/colonies.db``.
 
-    :returns: None. Writes ``<src>/masks/plaques_analysis.db``.
+    :returns: None. Writes ``<src>/masks/plaques_analysis.db``. With
+        ``colony_counting`` it returns the per-plate colony table instead.
 
     Example:
         .. code-block:: python
@@ -1513,6 +1594,12 @@ def analyze_plaques(settings):
     from .settings import get_analyze_plaque_settings
     from .utils import save_settings, download_models
     spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
+
+    if settings.get('colony_counting') and str(
+            settings.get('plaque_mode') or 'plaque') != 'figure':
+        settings = get_analyze_plaque_settings(settings)
+        save_settings(settings, name='analyze_colonies', show=True)
+        return _analyze_colony_plates(settings)
 
     model_path = _resolve_plaque_model(settings)
     settings['custom_model'] = model_path
@@ -1643,8 +1730,13 @@ def _plaque_cellpose_model(model_path):
     """Load the plaque checkpoint on the accelerator spaCR resolved.
 
     :param model_path: the checkpoint.
-    :returns: a ``cellpose.models.CellposeModel``.
-    :raises Cellpose3Checkpoint: when the checkpoint is a Cellpose 3 model.
+    A Cellpose 3 checkpoint, which Cellpose 4 refuses, is run by the
+    Cellpose 3 backend in its own environment when that is installed.
+
+    :returns: a ``cellpose.models.CellposeModel``, or a
+        :class:`_Cellpose3PlaqueModel` for a Cellpose 3 checkpoint.
+    :raises Cellpose3Checkpoint: when the checkpoint is a Cellpose 3 model
+        and the Cellpose 3 backend is not installed.
     """
     try:
         from .accelerator import cellpose_kwargs
@@ -1660,6 +1752,10 @@ def _plaque_cellpose_model(model_path):
         explained = explain_cellpose3(exc, model_path)
         if explained is exc:
             raise
+        if isinstance(explained, Cellpose3Checkpoint):
+            backend = _cellpose3_plaque_backend(model_path)
+            if backend is not None:
+                return backend
         raise explained from exc
 
 
@@ -1697,6 +1793,114 @@ def _segment_plaque_folder(settings, model_path):
     return len(names)
 
 
+def _analyze_colony_plates(settings):
+    """Plaque Assay's colony counting: CFU per plate from plate photos.
+
+    Every image under ``src`` is one plate, or a multi-well plate when
+    ``well_detection`` names a detector. Each dish or well is found (the
+    detector, else :func:`spacr.plaque._find_dish`), its colonies are counted
+    and measured by :func:`spacr.plaque._count_colony_plate`, and the count
+    becomes CFU/mL with ``colony_dilution`` and ``colony_plated_volume_ul``
+    and is flagged against ``colony_too_many`` and ``colony_too_few``.
+    ``colony_detector``, a checkpoint path or model-zoo key, finds the
+    colonies with a YOLO detector instead of thresholding; without
+    ``ultralytics`` installed the run warns and thresholds.
+
+    :param settings: the plaque settings dict, defaults applied.
+    :returns: the per-plate table as a DataFrame.
+
+    Writes ``<src>/colonies/colonies.db`` with a ``per_plate`` table (one row
+    per dish or well: count, flag, CFU/mL, the dish and its scale, colony
+    size summaries) and a ``per_colony`` table (area and diameter in pixels
+    and, with a scale, mm), the per-plate table again as
+    ``colonies/per_plate.csv``, and, when ``save`` is on, one outlined
+    overlay per plate and a colony-size histogram in ``colonies/``.
+    """
+    from .plaque import (_colony_overlay_figure, _colony_size_figure,
+                         _count_colony_plate, detect_wells)
+    from .tabular import write_table
+
+    src = settings['src']
+    out_dir = os.path.join(src, 'colonies')
+    os.makedirs(out_dir, exist_ok=True)
+    weights = _resolve_well_detector(settings)
+    settings = dict(settings)
+    if settings.get('colony_detector'):
+        settings['colony_detector'] = _resolve_detector_weights(
+            str(settings['colony_detector']), 'colony_detector')
+        import importlib.util
+        if importlib.util.find_spec('ultralytics') is None:
+            LOG_PLAQUE.warning(
+                "colony_detector needs the 'ultralytics' package (pip install "
+                "\"spacr[plaque]\"); counting by thresholding instead")
+            settings['colony_detector'] = None
+    names = [f for f in sorted(os.listdir(src))
+             if os.path.isfile(os.path.join(src, f))
+             and f.lower().endswith(('.tif', '.tiff', '.png', '.jpg', '.jpeg'))]
+    per_plate, per_colony = [], []
+    save = bool(settings.get('save', True))
+    for name in names:
+        image = cellpose.io.imread(os.path.join(src, name))
+        wells = []
+        if weights:
+            try:
+                wells = detect_wells(image, weights, confidence=float(
+                    settings.get('well_confidence', 0.25)))
+            except ImportError as exc:
+                LOG_PLAQUE.warning("%s; finding the dish in %s by its outline "
+                                   "instead", exc, name)
+        targets = wells or [None]
+        stem = os.path.splitext(name)[0]
+        for index, well in enumerate(targets, start=1):
+            result = _count_colony_plate(image, name=name, well=well,
+                                         settings=settings)
+            row = dict(file=name, well=index if well is not None else None,
+                       **result['summary'])
+            per_plate.append(row)
+            for colony in result['colonies']:
+                per_colony.append(dict(file=name, well=row['well'], **colony))
+            print(f"{name}{f' well {index}' if well is not None else ''}: "
+                  f"{row['colony_count']} colonies ({row['count_flag']})"
+                  + (f", {row['cfu_per_ml']:.3g} CFU/mL"
+                     if row['cfu_per_ml'] is not None else ''))
+            if save:
+                label = stem if well is None else f"{stem}_well{index:02d}"
+                figure = _colony_overlay_figure(result, title=label)
+                save_figure(figure, os.path.join(out_dir, f"{label}_colonies.pdf"),
+                            close=True)
+    plates = pd.DataFrame(per_plate)
+    colonies = pd.DataFrame(per_colony)
+    db_name = os.path.join(out_dir, 'colonies.db')
+    write_database(plates, db_name, 'per_plate', if_exists='replace')
+    write_database(colonies, db_name, 'per_colony', if_exists='replace')
+    write_table(plates, os.path.join(out_dir, 'per_plate.csv'))
+    if save and per_colony:
+        save_figure(_colony_size_figure(per_colony),
+                    os.path.join(out_dir, 'colony_sizes.pdf'), close=True)
+    print(f"Colony counts saved to '{db_name}'.")
+    return plates
+
+
+def _add_figure_summaries(total, part):
+    """Add one paper's Figure-mode summary to the run's.
+
+    Several papers read at once are measured one folder after another into
+    one database (item 526); their counts add up, and the run keeps the
+    first folder's ``run_id`` and database.
+
+    :param total: the summary so far.
+    :param part: the next folder's summary.
+    :returns: ``total``, with ``part``'s counts added.
+    """
+    for key, value in part.items():
+        if key == 'run_id' or isinstance(value, bool):
+            continue
+        if isinstance(value, (int, float)) and isinstance(
+                total.get(key), (int, float)):
+            total[key] += value
+    return total
+
+
 def _analyze_plaque_figures(settings, model_path):
     """Plaque Assay's Figure mode: published figures in, annotated plaques out.
 
@@ -1718,18 +1922,22 @@ def _analyze_plaque_figures(settings, model_path):
                   if part.strip())
     read_text = None if settings.get('figure_read_text', True) else (
         lambda _path: [])
-    summary = plaque_papers.measure_figure_folder(
-        settings['src'], os.path.join(settings['src'], 'plaque_figures'),
-        detector=str(settings.get('figure_detector')
-                     or plaque_papers.DEFAULT_DETECTOR),
-        segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
-        confidence=float(settings.get('figure_confidence', 0.25)),
-        confirm_each=bool(settings.get('confirm_annotations', False)),
-        plate_format=settings.get('plate_format'),
-        pixels_per_um=settings.get("plaque_pixels_per_um"),
-        formation_hours=settings.get("plaque_formation_hours"),
-        growth_settings=settings, read_text=read_text,
-        text_options=plaque_papers.text_options_from_settings(settings))
+    summary = None
+    for folder in plaque_papers.figure_folders(settings['src']):
+        part = plaque_papers.measure_figure_folder(
+            folder, os.path.join(settings['src'], 'plaque_figures'),
+            detector=str(settings.get('figure_detector')
+                         or plaque_papers.DEFAULT_DETECTOR),
+            segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
+            confidence=float(settings.get('figure_confidence', 0.25)),
+            confirm_each=bool(settings.get('confirm_annotations', False)),
+            plate_format=settings.get('plate_format'),
+            pixels_per_um=settings.get("plaque_pixels_per_um"),
+            formation_hours=settings.get("plaque_formation_hours"),
+            growth_settings=settings, read_text=read_text,
+            text_options=plaque_papers.text_options_from_settings(settings))
+        summary = part if summary is None else _add_figure_summaries(
+            summary, part)
     print(f"Figure mode: {summary['figures']} figure(s), {summary['regions']} "
           f"plaque image(s), {summary['plaques']} plaque(s) -> "
           f"{summary['database']}")

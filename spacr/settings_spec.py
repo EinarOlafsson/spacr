@@ -130,6 +130,36 @@ def _metadata_type_choices():
     return choices
 
 
+#: ``cam_type`` menu when :mod:`spacr.attribution` is not imported yet, in
+#: the order :func:`spacr.attribution.cam_type_choices` gives. Kept here so
+#: building a settings panel does not import torch; a test holds the two
+#: equal.
+_CAM_TYPE_CHOICES = (
+    'gradcam', 'gradcam_pp', 'saliency_image', 'saliency_channel',
+    'torchcam_gradcam', 'torchcam_gradcam_pp', 'ablation_cam',
+    'attention_rollout', 'chefer', 'deeplift', 'deeplift_shap', 'eigencam',
+    'feature_ablation', 'gradient_shap', 'guided_backprop', 'hirescam',
+    'input_x_gradient', 'integrated_gradients', 'layercam', 'occlusion',
+    'saliency', 'scorecam', 'xgradcam',
+)
+
+
+def _cam_type_choices():
+    """Every ``cam_type`` the Activation Maps form offers.
+
+    Read from :func:`spacr.attribution.cam_type_choices` when that module is
+    already loaded, and from :data:`_CAM_TYPE_CHOICES` otherwise, so the
+    panel never pays for importing torch.
+    """
+    module = sys.modules.get("spacr.attribution")
+    if module is not None:
+        try:
+            return list(module.cam_type_choices())
+        except Exception:
+            pass
+    return list(_CAM_TYPE_CHOICES)
+
+
 def _torchvision_model_names():
     """Return model names for the combo WITHOUT importing torchvision. If
     torchvision is already loaded (e.g. after a training run) use its full zoo;
@@ -242,6 +272,9 @@ def convert_settings_dict_for_gui(settings):
         'p_threshold_kind': ('combo', ['adjusted', 'raw'], 'adjusted'),
         'metadata_type': ('combo', _metadata_type_choices(), 'cellvoyager'),
         'plaque_mode': ('combo', ['plaque', 'figure'], 'plaque'),
+        'watch_pipeline': ('combo', ['mask', 'mask_measure'], 'mask'),
+        'microscope_driver': ('combo', ['simulated', 'pycromanager'], 'simulated'),
+        'anndata_format': ('combo', ['h5ad', 'parquet', 'r', 'all'], 'h5ad'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', chan_list, '[0,1,2,3]'),
@@ -252,7 +285,7 @@ def convert_settings_dict_for_gui(settings):
                       + [repr(['cell', role]) for role in ALL_ROLES
                          if role != 'cell'],
                       "['cell']"),
-        'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack'], 'trackastra'),
+        'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack', 'timeflows', 'sam2'], 'trackastra'),
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
         'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
@@ -262,6 +295,7 @@ def convert_settings_dict_for_gui(settings):
                                'statsmodels (CPU)'),
         'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
         'model_type': ('combo', torchvision_models, 'resnet50'),
+        'cam_type': ('combo', _cam_type_choices(), 'gradcam'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
         'model_type_ml': ('combo', ['xgboost', 'lightgbm', 'catboost', 'random_forest', 'extra_trees', 'gradient_boosting', 'logistic_regression', 'svm', 'mlp'], 'xgboost'),
         'optimizer_type': ('combo', ['adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta', 'asgd'], 'adamw'),
@@ -271,13 +305,30 @@ def convert_settings_dict_for_gui(settings):
         'cv_group_by': ('combo', ['cell', 'field', 'well', 'plate'], 'well'),
         'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
         'psf_measurement_source': ('combo', ['original', 'processed'], 'original'),
+        'confluency_source': ('combo', ['auto', 'masks', 'texture', 'intensity', 'phase'], 'auto'),
+        'colony_polarity': ('combo', ['auto', 'bright', 'dark'], 'auto'),
+        'bleach_correction': ('combo', ['none', 'ratio', 'exponential', 'histogram'], 'none'),
+        'measurement_backend': ('combo', ['sqlite', 'duckdb', 'parquet', 'postgres'], 'sqlite'),
+        'profiling_normalization': ('combo', ['mad_robustize', 'standardize', 'robustize', 'none'], 'mad_robustize'),
+        'cell_cycle_method': ('combo', ['measurements', 'xgboost', 'torch', 'all'], 'measurements'),
+        'wound_source': ('combo', ['texture', 'intensity', 'masks'], 'texture'),
+        'intensity_calibration_statistic': ('combo', ['foreground', 'median'], 'foreground'),
+        'time_to_event_mode': ('combo', ['track_end', 'annotated', 'above', 'below', 'fold_change'], 'track_end'),
+        'time_to_event_origin': ('combo', ['track', 'movie'], 'track'),
+        'time_to_event_object': ('combo', ['cell', 'nucleus', 'pathogen', 'cytoplasm'], 'cell'),
         'psf_operation': ('combo', ['none', 'convolve', 'deconvolve'], 'none'),
         'psf_source': ('combo', ['gaussian', 'measured'], 'gaussian'),
+        'psf_objective': ('combo', ['auto', '10x/0.30 air', '10x/0.45 air', '20x/0.45 air',
+                                    '20x/0.75 air', '40x/0.95 air', '40x/1.30 oil',
+                                    '60x/1.20 water', '60x/1.40 oil', '63x/1.40 oil',
+                                    '100x/1.40 oil', '100x/1.45 oil'], 'auto'),
         'psf_path': ('entry', None, None),
         'psf_image_sampling_um': ('entry', None, None),
         'psf_kernel_sampling_um': ('entry', None, None),
         'psf_fwhm_um': ('entry', None, None),
         'psf_iterations': ('entry', None, 20),
+        'enhance_background': ('combo', ['none', 'rolling_ball', 'tophat'], 'none'),
+        'enhance_denoise': ('combo', ['none', 'gaussian', 'median', 'bilateral', 'nlm', 'tv'], 'none'),
         'image_qc_mode': ('combo', ['off', 'report', 'exclude'], 'off'),
         'tta_aggregation': ('combo', ['probability_mean', 'majority_vote'], 'probability_mean'),
         'replication_method': ('combo', [

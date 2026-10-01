@@ -1,0 +1,87 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Export measurements to AnnData"
+msgstr "मापन को AnnData में निर्यात करें"
+
+msgid "Create an ``.h5ad`` file containing measured features and object metadata for analysis in AnnData or Scanpy. Start with a spaCR project containing ``measurements/measurements.db``. For a worked example, download the project from the `Annotate tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "AnnData या Scanpy में विश्लेषण के लिए मापी गई विशेषताओं और ऑब्जेक्ट मेटाडेटा वाली एक ``.h5ad`` फ़ाइल बनाएँ। ``measurements/measurements.db`` वाले spaCR प्रोजेक्ट से शुरुआत करें। पूरा उदाहरण देखने के लिए `एनोटेशन ट्यूटोरियल <tutorials/#lesson=09_annotate>`__ से प्रोजेक्ट डाउनलोड करें।"
+
+msgid "Export from the application"
+msgstr "एप्लिकेशन से निर्यात करें"
+
+msgid "From **Home**, open **Measure**, then **AnnData Export**."
+msgstr "**मुखपृष्ठ** से **मापन** खोलें, फिर **AnnData निर्यात** खोलें।"
+
+msgid "Select the measured project as the source."
+msgstr "मापे गए प्रोजेक्ट को स्रोत के रूप में चुनें।"
+
+msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
+msgstr "**Anndata आउटपुट फ़ाइल** को एक नए ``.h5ad`` फ़ाइल नाम पर सेट करें। खाली छोड़ने पर फ़ाइल प्रोजेक्ट के ``results`` फ़ोल्डर के अंतर्गत लिखी जाती है। सफल निर्यात चुने गए पथ पर मौजूद फ़ाइल को बदल देता है; दोनों संस्करण रखने के लिए अलग-अलग नाम उपयोग करें।"
+
+msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
+msgstr "प्रति कोशिका एक पंक्ति और उस तालिका की विशेषताओं के लिए **Anndata एकल तालिका** को ``cell`` पर सेट करें। उन ऑब्जेक्ट प्रकारों के लिए ``nucleus`` या ``pathogen`` का उपयोग करें। कोशिका-स्तरीय संयुक्त निर्यात के लिए इसे खाली छोड़ें; इसमें चाइल्ड मापन उनकी पैरेंट कोशिकाओं पर समेकित किए जाते हैं।"
+
+msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
+msgstr "**Anndata nan नीति** चुनें, फिर **चलाएँ** पर क्लिक करें। पूर्ण होने का संदेश पढ़ें और आउटपुट फ़ाइल खोलकर उसका आकार और विशेषताओं के नाम जाँचें।"
+
+msgid "Choose how to handle missing features"
+msgstr "अनुपस्थित विशेषताओं को संभालने का तरीका चुनें"
+
+msgid "``keep`` retains missing values. Choose this when you want to decide how to handle them in the downstream analysis."
+msgstr "``keep`` अनुपस्थित मानों को बनाए रखता है। इसे तब चुनें जब आप आगे के विश्लेषण में स्वयं तय करना चाहते हों कि उन्हें कैसे संभालना है।"
+
+msgid "``drop_features`` removes feature columns containing missing values."
+msgstr "``drop_features`` अनुपस्थित मानों वाले विशेषता स्तंभ हटा देता है।"
+
+msgid "``drop_objects`` removes object rows containing missing feature values."
+msgstr "``drop_objects`` अनुपस्थित विशेषता मानों वाली ऑब्जेक्ट पंक्तियाँ हटा देता है।"
+
+msgid "``mean`` replaces missing values with the observed feature mean."
+msgstr "``mean`` अनुपस्थित मानों को विशेषता के प्रेक्षित माध्य से बदल देता है।"
+
+msgid "``zero`` replaces missing values with zero. Use it only when zero is an appropriate value for the intended analysis."
+msgstr "``zero`` अनुपस्थित मानों को शून्य से बदल देता है। इसका उपयोग केवल तब करें जब शून्य इच्छित विश्लेषण के लिए उपयुक्त मान हो।"
+
+msgid "The imputing policies retain the original missing positions in ``layers['missing']``. These choices apply to the feature matrix, not to unknown metadata such as unavailable calibration values. Check object and feature counts after choosing a dropping policy. Scanpy operations such as scaling and PCA need missing feature values to be handled before use."
+msgstr "प्रतिस्थापन (imputation) नीतियाँ मूल अनुपस्थित स्थितियों को ``layers['missing']`` में सुरक्षित रखती हैं। ये विकल्प विशेषता मैट्रिक्स पर लागू होते हैं, अज्ञात मेटाडेटा (जैसे अनुपलब्ध अंशांकन मान) पर नहीं। हटाने वाली नीति चुनने के बाद ऑब्जेक्ट और विशेषताओं की संख्या जाँचें। स्केलिंग और PCA जैसे Scanpy संचालनों के उपयोग से पहले अनुपस्थित विशेषता मानों को संभालना आवश्यक है।"
+
+msgid "Inspect the output"
+msgstr "आउटपुट की जाँच करें"
+
+msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
+msgstr "``X`` में ऑब्जेक्ट-बनाम-विशेषता मैट्रिक्स, ``obs`` में ऑब्जेक्ट मेटाडेटा होता है, और ``var`` विशेषताओं का वर्णन करता है। स्रोत छवियाँ और उनके पथ सुरक्षित रखें: छवि पिक्सेल निर्यात में शामिल नहीं किए जाते। एनोटेशन उदाहरण में ``keep`` के साथ केवल-कोशिका निर्यात में 2,341 ऑब्जेक्ट, 261 विशेषताएँ और 28 अनुपस्थित विशेषता मान होते हैं।"
+
+msgid "Export from Python"
+msgstr "Python से निर्यात करें"
+
+msgid "The following uses the same entry point as the application's **Run** button:"
+msgstr "निम्नलिखित कोड एप्लिकेशन के **चलाएँ** बटन वाले ही प्रवेश बिंदु का उपयोग करता है:"
+
+msgid "For explicit function arguments, see :func:`spacr.anndata_export.export_anndata`."
+msgstr "स्पष्ट फ़ंक्शन तर्कों के लिए :func:`spacr.anndata_export.export_anndata` देखें।"
+
+msgid "Follow the video"
+msgstr "वीडियो के साथ अभ्यास करें"
+
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
+msgstr "`AnnData वीडियो <tutorials/#lesson=59_anndata_export>`__ डाउनलोड योग्य मापन उदाहरण के साथ इन नियंत्रणों को क्रम से समझाता है। यह संयुक्त, केवल-कोशिका और केवल-केंद्रक निर्यात दिखाता है और अनुपस्थित-मान नीतियों की तुलना करता है। सामान्य निर्यातक पूरी तरह अनुपस्थित मेटाडेटा को सीधे संभाल लेता है। यदि प्रतिस्थापन फ़ाइल लिखना विफल हो जाता है, तो मौजूदा पूर्ण आउटपुट सुरक्षित रहता है।"
+

@@ -1,29 +1,34 @@
 {
   "lesson": "68_power_design",
-  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "50ffe28cafc59c00ff0e0552315128c1e4cd478a2a41e9ac0ebe3d151410882c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "nb",
-  "title": "Power / Design: les simulatoren og begrensningene",
-  "description": "Forstå de faktiske kontrollene, simulerte kurvene og advarslene uten å ta en liten demonstrasjon eller motstridende tekst for validerte designråd.",
+  "title": "Power & Design: utforsk simulerte deteksjonskurver",
+  "description": "Angi antakelser om bibliotek og design, kjør simuleringer og undersøk deteksjonsandeler, mislykkede tilpasninger og forbehold.",
   "objectives": [
-    "Skille simuleringsantakelser fra innsamlede forsøksdata.",
-    "Lese brukbare modelltilpasninger, deteksjonsandeler og usikkerhet riktig.",
-    "Gjenkjenne det feilaktige rådet om samme design og bevare dokumentasjonen."
+    "Angi bibliotek, vurderingsenhet og designantakelser.",
+    "Kjøre skanninger av celleantall og brønnantall med registrerte innstillinger.",
+    "Lese deteksjonsandeler og forbehold før et design tolkes."
   ],
-  "prerequisite": "Kritisk gjennomgang av den registrerte simulatoren, ikke kalibrert statistisk styrke eller råd om utvalgsstørrelse. Power_recorded_simulation_review.zip bevarer opprinnelig JSON og gjennomgang; ikke en importerbar kjøring eller GUI-eksport. Skjerm, adapter, simulator og tilpasningskode registrert med spaCR 1.5.0.4 er fortsatt byte-identiske med dagens kode. To marginale skanninger ga 18 tilpasninger og ni punkter, to gjentakelser per punkt; fire ikke-konvergerte tilpasninger beholdes i nevneren. To simuleringer begrenset sannsynligheter. Samme nominelle design med ulike tilfeldige trekninger gir 1/2 og 2/2 deteksjoner. Rådet om å øke til allerede eksisterende brønnantall avvises og er ikke rettet. Noen endemerker kuttes; den kontrollerte tabellen har alle ni koordinater. Ingen ny simulering, innsamlede data, biologisk kalibrering, GPU-oppgave, KI-forespørsel eller publisering hevdes. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve og spacr.qt.screens.power.run_power_sweep; spacr.power_simulate og spacr.power_model simulerer og tilpasser.",
+  "prerequisite": "Forbered antakelser om bibliotekstørrelse, guider per gen, bakgrunn, effekt og prevalens. Modulen simulerer data. Det lenkede eksemplet bruker bare to replikater per punkt for å vise kontrollene; bruk nok gjentakelser og passende antakelser til planlegging. I denne versjonen bør du undersøke tabellen i stedet for å stole på en overskrift som kan anbefale uendret utgangsantall brønner.",
   "scenes": [
-    "Power og Design undersøker antakelser med simulerte data. Det laster ikke et innsamlet forsøk og fastslår ikke at antakelsene passer til ditt. Denne leksjonen leser en faktisk registrert kjøring, inkludert advarsler og et misvisende råd. Ikke bruk denne lille demonstrasjonen som validerte råd om utvalgsstørrelse.",
-    "Start med biblioteket og enheten som vurderes. Bytte mellom guide og gen endrer vurderingsenheten: 40 gener med fire guider hver gir 160 enheter ved guideskåring. Genskåring samler guideinformasjonen. Dette er undervisningsantakelser, ikke nye biologiske målinger.",
-    "Plate- og effektkontrollene beskriver det antatte designet. Andelen positive klassifikasjoner er en simulert sannsynlighet, ikke et organismetall eller en målt infeksjonsrate. Vurder bakgrunn, effekt og prevalens samlet; de viste antakelsene validerer ikke modellen.",
-    "En effekt under én utløser den innebygde advarselen om ikke-støttet retning og deaktiverer Run. Opptaket gjenoppretter deretter en støttet verdi og tilgjengelige kontroller. Dette er en programvarebeskyttelse, ikke biologisk umulighet. Ikke omgå advarselen for å få en bekvem kurve.",
-    "Demonstrasjonen bruker bare to gjentakelser per punkt. Deteksjon krever en brukbar tilpasning som når valgt terskel for areal under ROC-kurven. Dette er ikke en P-verditerskel for hypotesetesting. Seed og backend registreres; Torch alene beviser ikke GPU-kjøring.",
-    "Run starter den ekte simulatoren på en arbeidstråd. Celleantall og brønnantall varieres hver for seg, ikke i alle kombinasjoner. Opptaket fullførte 18 tilpasninger over ni punkter. Behold innstillinger og rå gjentakelsesdata sammen, slik at hver tegnet andel kan spores til tilpasningene bak den.",
-    "Deteksjoner telles over alle bestilte gjentakelser. Fire tilpasninger konvergerte ikke og beholdes i nevneren som ikke-deteksjoner; de utelates ikke i det skjulte. Hundre prosent betyr her bare to av to. Et så lite utvalg gir ikke en presis deteksjonssannsynlighet.",
-    "Tabellen skiller deteksjonsandeler fra gjennomsnittlig ytelse blant brukbare tilpasninger. Et utilgjengelig gjennomsnitt er ikke null. Average precision trenger også prevalensreferansen. Les tabellen ved avkuttede endemerker, og kontroller manglende konvergens i stedet for bare den blå linjen.",
-    "Sammendraget har en feil. Begge grunnestimatene bruker allerede 96 brønner, men ulike tilfeldige trekninger gir én av to deteksjoner i én skanning og to av to i den andre. Å gå til de samme 96 brønnene forbedrer ikke designet. Avvis rådet; veiledningen reparerer det ikke.",
-    "Utvid de øvrige forbeholdene. To simulerte screeninger begrenset sannsynligheter over én, så realisert belegning avviker fra forespurt verdi. Modellen har flere antakelser og begrensninger; å liste dem er ikke validering. Les advarsler og mislykkede tilpasninger før konklusjoner.",
-    "Arkivet bevarer faktisk spesifikasjon, gjentakelser, kurver, tabell og feilaktig tekst. Det er ekstern dokumentasjon, ikke en innebygd GUI-eksport eller et importert resultat. Pythons designadapter og simulerings-API-er gir samme arbeidsflyt, men virkelig planlegging krever egen validering av antakelser og usikkerhet."
+    "Fra Home åpner du Power & Design. Begynn med antakelsene du vil utforske, og bruk deretter simulerte deteksjonskurver til å sammenligne de viste valgene for celleantall og brønnantall.",
+    "Angi bibliotekstørrelse og guider per gen, og velg deretter vurderingsenhet. Med 40 gener og 4 guider per gen bruker guidevurdering 160 enheter; genvurdering slår sammen guideinformasjonen.",
+    "Gå gjennom kontrollene for plate, bakgrunn, effekt og prevalens samlet. Andelen positive kall er en antatt klassifiseringssannsynlighet. Velg verdier som beskriver den planlagte analysen.",
+    "Hvis en effekt under 1 deaktiverer Run, leser du advarselen om retning som ikke støttes. Gjenopprett en støttet verdi for å fortsette; simulatoren dekker ikke alle mulige effektretninger.",
+    "Angi gjentakelser, frø, beregningsmotor og deteksjonsterskel. Terskelen bruker arealet under ROC-kurven. Eksemplet bruker to replikater per punkt for en kort kjøring; velg flere gjentakelser når du anslår deteksjonssannsynlighet.",
+    "Klikk på Run og følg fremdriften. Simulatoren skanner celleantall og brønnantall separat. Ta vare på innstillingene sammen med de ferdige resultatene.",
+    "Les antall deteksjoner sammen med nevnerne. Mislykkede eller ikke-konvergerte tilpasninger regnes som ikke-deteksjoner. Med to ønskede replikater betyr 100 % bare to deteksjoner av to.",
+    "Bruk resultattabellen til å undersøke deteksjonsandeler, gjennomsnittlig ytelse blant brukbare tilpasninger og manglende konvergens. Gjennomsnitt som ikke er tilgjengelige, er manglende resultater. Tolk average precision i forhold til den antatte prevalensen.",
+    "Sammenlign de ønskede designverdiene direkte. Denne versjonen kan anbefale å øke til samme utgangsantall brønner fordi de to skanningene bruker ulike tilfeldige trekninger. Se bort fra overskriften og bruk tabellen og usikkerheten til å vurdere sammenligningen.",
+    "Utvid forbeholdene og undersøk mislykkede tilpasninger eller avkuttede sannsynligheter. Juster antakelsene når de gir utfall som ikke stemmer med eksperimentet du vil modellere.",
+    "Hold innstillinger og replikatresultater samlet. Det lenkede arkivet inneholder eksempelkjøringen for gjennomgang. For programmatisk utdata bruker du designadapteren og simulerings-API-ene; vurder antakelser og usikkerhet før du velger et eksperimentelt design."
   ]
 }

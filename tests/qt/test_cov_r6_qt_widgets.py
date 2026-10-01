@@ -132,11 +132,14 @@ def test_the_hook_is_forgotten_when_the_application_went_first(qapp,
         # The orphan was never removed from the app — that is the whole
         # point — so remove it here rather than leaving it filtering every
         # paint event for the rest of the session.
-        qapp.removeEventFilter(orphan)
+        from spacr.qt.gil_priority import (_stop_watching_application_events,
+                                           _watch_application_events)
+
+        _stop_watching_application_events(qapp, orphan)
         ff.uninstall_field_fade(qapp)
         ff._filter = saved
         if saved is not None:
-            qapp.installEventFilter(saved)
+            _watch_application_events(qapp, saved, (QEvent.Type.Paint,))
 
 
 # ---------------------------------------------------------------------------

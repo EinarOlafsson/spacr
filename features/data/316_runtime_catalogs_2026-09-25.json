@@ -1,0 +1,256 @@
+{
+  "schema": 1,
+  "date": "2026-09-25",
+  "instruction": 316,
+  "baseline": "c17135a40 (nightly); the before counts are the runtime audit (tools/report_translation_compatibility.runtime_issues) on that tree",
+  "measured_on": "47e6400c1 (docs/i18n-runtime, on nightly 91f25fcf2)",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "scope": "Runtime (GUI) translation debt for all nine locales. First pass: the strings missing, stale or gate-rejected at a5c2017bd. Second pass: 196 sources nightly added afterwards (items 509-530) plus two reworded PSF tooltips. Records are docs/i18n/reviewed/runtime/<locale>/2026-09-25-runtime-debt-*.json and 2026-09-25-runtime-debt-second-pass-*.json. Catalogs were rebuilt without any translation model; a source without a reviewed or existing valid value was left out (English fallback), never machine-filled.",
+  "catalog_inventory": {
+    "settings": 1108,
+    "categories": 211,
+    "ui": 5472,
+    "modules": 72,
+    "runtime_entries": 7949
+  },
+  "locales": {
+    "de": {
+      "before": {
+        "missing": 766,
+        "stale": 4,
+        "placeholders": 1,
+        "obsolete": 63
+      },
+      "after": {
+        "missing": 0,
+        "stale": 0,
+        "placeholders": 0,
+        "obsolete": 0
+      },
+      "records_first_pass": 720,
+      "records_second_pass": 196,
+      "runtime_compatible": true
+    },
+    "es": {
+      "before": {
+        "missing": 766,
+        "stale": 4,
+        "placeholders": 1,
+        "obsolete": 63
+      },
+      "after": {
+        "missing": 0,
+        "stale": 0,
+        "placeholders": 0,
+        "obsolete": 0
+      },
+      "records_first_pass": 721,
+      "records_second_pass": 196,
+      "runtime_compatible": true
+    },
+    "fr": {
+      "before": {
+        "missing": 766,
+        "stale": 4,
+        "placeholders": 1,
+        "obsolete": 63
+      },
+      "after": {
+        "missing": 0,
+        "stale": 0,
+        "placeholders": 0,
+        "obsolete": 0
+      },
+      "records_first_pass": 720,
+      "records_second_pass": 196,
+      "runtime_compatible": true
+    },
+    "sv": {
+      "before": {
+        "missing": 766,
+        "stale": 4,
+        "placeholders": 1,
+        "obsolete": 63
+      },
+      "after": {
+        "missing": 0,
+        "stale": 0,
+        "placeholders": 0,
+        "obsolete": 0
+      },
+      "records_first_pass": 720,
+      "records_second_pass": 196,
+      "runtime_compatible": true
+    },
+    "pt": {
+      "before": {
+        "missing": 766,
+        "stale": 4,
+        "placeholders": 1,
+        "obsolete": 63
+      },
+      "after": {
+        "missing": 0,
+        "stale": 0,
+        "placeholders": 0,
+        "obsolete": 0
+      },
+      "records_first_pass": 721,
+      "records_second_pass": 196,
+      "runtime_compatible": true
+    },
+    "zh_CN": {
+      "before": {
+        "missing": 748,
+        "stale": 3,
+        "placeholders": 1,
+        "obsolete": 64
+      },
+      "after": {
+        "missing": 0,
+        "stale": 0,
+        "placeholders": 0,
+        "obsolete": 0
+      },
+      "records_first_pass": 703,
+      "records_second_pass": 196,
+      "runtime_compatible": true
+    },
+    "ko": {
+      "before": {
+        "missing": 1098,
+        "stale": 4,
+        "placeholders": 1,
+        "obsolete": 86
+      },
+      "after": {
+        "missing": 0,
+        "stale": 0,
+        "placeholders": 0,
+        "obsolete": 0
+      },
+      "records_first_pass": 1051,
+      "records_second_pass": 196,
+      "runtime_compatible": true
+    },
+    "hi": {
+      "before": {
+        "missing": 958,
+        "stale": 20,
+        "placeholders": 1,
+        "obsolete": 86
+      },
+      "after": {
+        "missing": 35,
+        "stale": 0,
+        "placeholders": 0,
+        "obsolete": 0
+      },
+      "records_first_pass": 890,
+      "records_second_pass": 196,
+      "runtime_compatible": false
+    },
+    "is": {
+      "before": {
+        "missing": 1162,
+        "stale": 20,
+        "placeholders": 1,
+        "obsolete": 83
+      },
+      "after": {
+        "missing": 0,
+        "stale": 0,
+        "placeholders": 0,
+        "obsolete": 0
+      },
+      "records_first_pass": 1129,
+      "records_second_pass": 196,
+      "runtime_compatible": true
+    }
+  },
+  "hindi_english_fallback": {
+    "count": 35,
+    "first_pass_ids": "821-855",
+    "table": "UI",
+    "reason": "A safety classifier stopped the translator's output on this chunk. The captions show in English; nothing machine-generated was substituted.",
+    "sources": [
+      "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
+      "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "A DOI, PMID or PMC id is fetched from Europe PMC with its figure legends; a PDF is read page by page. The figures go into a new folder, with their legends in legends.csv, and the preview switches to it.",
+      "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "Add back a high-pass copy of the image, which makes edges steeper and helps a threshold land on the boundary rather than in the halo. Too much amount puts a bright rim around every object and a dark moat outside it.",
+      "Applied to what the detector found, not to the image. Opening erases what is thinner than the radius, which breaks two objects joined by a bridge; Closing fills what is thinner, which joins one object broken into pieces.",
+      "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "Download nine overlapping tiles from a published optical pooled screen (about 200 MB) and fill in the tile folder, grid, order and overlap, so Plan can be pressed straight away. Cached after the first download.",
+      "Drop a folder of images anywhere on this window or type a path into the Source field below. Use Load test data when available, or open Pipeline overviews on Home to choose a walkthrough.",
+      "How the filter's response becomes a foreground. Otsu takes one level for the whole region; Adaptive uses the block size and offset above and keeps faint filaments in dim corners, at the cost of background elsewhere.",
+      "Load the selected Cellpose 3 restoration weights on the GPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "No two centres closer together than this, so one object cannot become two. About one object radius. Raise it when objects are being split, lower it when two touching objects come back as one.",
+      "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "On: the number above is a percentile of this image. Off: it is an absolute intensity, which is what to use when the same setting must mean the same thing across fields of different exposure.",
+      "Pixels above this are kept only where they connect to a seed above the strong level. Under 1.0 it is read as a fraction and becomes that percentile of the region (0.2 is the 20th); 1.0 and above is an absolute intensity.",
+      "Showing the image inverted — dark is bright — and detecting on it. The hover intensity follows the picture and says so; filtering, the object mean and saving still use the original pixels.",
+      "Suits a field with ONE dominant peak and a shoulder -- mostly background with faint objects on it. The level is geometric: the point on the histogram furthest from the line between the peak and the far end.",
+      "Suits a field with THREE or more populations -- background, a dim halo and bright objects -- where one level between all of them is a compromise that fits none. Set the class count and which class is the foreground.",
+      "Suits a histogram with two clear humps and a real valley between them; the level is the bottom of the valley. It refuses a histogram it cannot smooth into two humps, and says so rather than guessing.",
+      "Suits much what Otsu suits and is the classic Ridler-Calvard iteration: the level settles where it is the mean of the two means either side of it. A reasonable second opinion when Otsu looks wrong.",
+      "Suits touching round objects with a bright centre -- nuclei, vacuoles, colonies. Each centre becomes one object, and two that touch come apart at the ridge between them rather than at a level.",
+      "TIFF, named like E01/img_channel000_position008_time000000000_z000.tif. Naming: micromanager_mda. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "TIFF, named like E01/plate1_S00001_T00009_C00001.tiff. Naming: zeiss_zen_split_tiles. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "TIFF, named like W0097F0009T0001Z000C1.tif. Naming: cq1. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nThe CQ1 writes a well INDEX over 24 columns: W0097 is E01.",
+      "TIFF, named like data/E1--W00097--P00009--Z00000--T00000--DAPI.tif. Naming: scanr. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "TIFF, named like plate1_E01f08d0.TIF. Naming: arrayscan. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nFields and dyes count from zero: f08d0 is field 9, channel 1.",
+      "The apicoplast is a plastid found in some apicocomplexan parasites which is a non-photosynthetic plastid relict. Apicoplasts do not contain thylakoids; it is not yet clear if they contain internal membranes.",
+      "The exponent the intensities are raised to on 0..1. Below 1 lifts the dim end, so faint objects rise out of the background; above 1 pushes it down and leaves only the bright ones. 1.00 is off.",
+      "The number the rule above reads: a fraction from 0 to 1 for the per-centre rule, an intensity for the absolute one, a percentile from 0 to 100 for the third. Not read when a threshold algorithm provides the level.",
+      "The scales the filter looks for, in pixels, separated by commas; each should be about the half-width of a filament. Add a larger value for thick bundles and keep the small ones for fine tubules. Runtime grows with the list.",
+      "The side of one tile, in pixels. Comfortably larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself.",
+      "This field: {hosts} hosts, {infected} infected, {vacuoles} vacuoles, {orphans} orphan parasites. The host denominator includes measured uninfected cells; this is not a whole-plate rate.",
+      "Which object class to embed. It picks the label column in png_list and the mask plane a streamed crop is cut by, so asking for nuclei out of a cell crop table returns nothing rather than returning cells.",
+      "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do."
+    ]
+  },
+  "compatibility_register": {
+    "command": "tools/report_translation_compatibility.py --english-required --full-audit",
+    "english": {
+      "api": "incompatible",
+      "runtime": "compatible"
+    },
+    "runtime_locales_compatible": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "runtime_locales_incompatible": {
+      "hi": 35
+    },
+    "note": "The English API source audit and the nine API locales are incompatible for reasons outside this runtime pass (API docstrings changed on nightly); runtime English is compatible."
+  },
+  "ratchets": {
+    "EXTERNAL_SOURCE_COUNTS": {
+      "from": {
+        "SETTING_LABELS": 982,
+        "SETTING_TOOLTIPS": 977,
+        "CATEGORY_HELP": 193,
+        "UI": 3547,
+        "MODULE_SUMMARIES": 68
+      },
+      "to": {
+        "SETTING_LABELS": 1086,
+        "SETTING_TOOLTIPS": 1108,
+        "CATEGORY_HELP": 211,
+        "UI": 5472,
+        "MODULE_SUMMARIES": 72
+      },
+      "identity_delta": "+2304/-122 by set difference against c0b2c5227",
+      "digest": "d9bacf1ad450423806f5680b05246e842b5d0d894e042deb645cdd5558feceff"
+    },
+    "AWAITING_CATALOG_REBUILD": "emptied"
+  }
+}

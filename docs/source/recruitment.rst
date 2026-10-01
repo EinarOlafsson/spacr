@@ -57,7 +57,7 @@ and 4, its separate column is
 ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Calculating channel 3 retains
 the channel 2 result. These are illustrative intensities, not experiment data.
 
-The calculation produces fifteen auxiliary ratios per channel. It no longer
+The calculation produces fifteen auxiliary ratios per channel. It does not
 creates constant-one pathogen/nucleus slope columns; these ratios do not
 estimate a spatial slope. Genuine slope columns already supplied by the
 caller are preserved. When comparing historical exports, check whether their

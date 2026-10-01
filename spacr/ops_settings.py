@@ -40,6 +40,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_window_overlap": 96,
     "ops_footprint": 10.0,
     "ops_store_reads": False,
+    "ops_spot_detector": "native",
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -62,6 +63,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_window_overlap": int,
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
+    "ops_spot_detector": str,
 }
 
 #: Which panel section each setting appears under.
@@ -82,7 +84,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
-        "ops_store_reads",
+        "ops_store_reads", "ops_spot_detector",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers",
@@ -166,6 +168,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "because it is large -- a full well of the reference plate is about "
         "thirty million rows -- so turn it on for a well or two rather than "
         "for a plate. Default False.",
+    "ops_spot_detector":
+        "(str) - Which detector finds the sequencing spots. 'native' is spaCR's own spot score, the one this pipeline was validated with. 'spotnet' is DeepCell's SpotNet, run in its own environment; its spots go through the same base calls and nucleus assignment, and ops_read_threshold no longer applies. SpotNet is licensed for NON-COMMERCIAL ACADEMIC USE ONLY, installs from the Model Zoo and needs a DeepCell token in ~/.spacr/deepcell_token. Default 'native'.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "

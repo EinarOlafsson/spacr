@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QComboBox,
+    QFileDialog,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -34,6 +35,7 @@ from PySide6.QtWidgets import (
 
 from ...run_journal import search_runs
 from ..bridge import make_thread
+from ..i18n import tr
 from ..iconset import icon
 from ..theme import (SPACING, active_palette, page_tabs_qss,
                      register_widget_qss)
@@ -104,6 +106,20 @@ def _bytes(value: Any) -> str:
 def _json_text(value: Any) -> str:
     """Pretty-print a possibly non-JSON-native value."""
     return json.dumps(value, indent=2, sort_keys=True, default=str)
+
+
+def _analysis_lock_text(manifest: dict) -> str:
+    """Present only the verdict and summary recorded in a run manifest.
+
+    :param manifest: saved manifest, optionally containing ``analysis_lock``.
+    :returns: localized labels and the recorded values, or an empty-state label.
+    """
+    recorded = manifest.get("analysis_lock")
+    recorded = recorded if isinstance(recorded, dict) else {}
+    status = recorded.get("status") or tr("None")
+    summary = recorded.get("summary") or tr("None")
+    return (f"{tr('Lock')} · {tr('Status')}: {status}\n"
+            f"{tr('Summary')}: {summary}")
 
 
 #: ``objectName`` of the tab strip, and the name its QSS block is
@@ -252,11 +268,35 @@ class RunHistoryScreen(QWidget):
         self._load_settings = QPushButton("Load settings in module", detail)
         self._load_settings.setObjectName("PrimaryButton")
         self._load_settings.clicked.connect(self._load_selected_settings)
+        self._export_workflow = QPushButton(tr("Export workflow…"), detail)
+        self._export_workflow.setObjectName("RunHistoryExportWorkflow")
+        self._export_workflow.setToolTip(tr(
+            "Write this run as a Snakemake or Nextflow workflow that runs the "
+            "same module with the same settings once per plate, with "
+            "spacr-run on this machine, a cluster, or the spaCR container "
+            "image."))
+        workflow_menu = QMenu(self._export_workflow)
+        for engine, label in (("snakemake", tr("Snakemake…")),
+                              ("nextflow", tr("Nextflow…"))):
+            workflow_menu.addAction(label).triggered.connect(
+                lambda _checked=False, e=engine:
+                self._export_selected_workflow(e))
+        self._export_workflow.setMenu(workflow_menu)
         action_row.addWidget(self._selection_label, 1)
         action_row.addWidget(self._open_folder)
         action_row.addWidget(self._copy_path)
         action_row.addWidget(self._load_settings)
+        action_row.addWidget(self._export_workflow)
         detail_layout.addLayout(action_row)
+        self._analysis_lock_summary = QLabel(detail)
+        self._analysis_lock_summary.setObjectName("RunHistoryAnalysisLockSummary")
+        self._analysis_lock_summary.setTextFormat(Qt.PlainText)
+        self._analysis_lock_summary.setProperty("i18nSkipText", True)
+        self._analysis_lock_summary.setWordWrap(True)
+        detail_layout.addWidget(self._analysis_lock_summary)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._export_workflow)
 
         self._tabs = QTabWidget(detail)
         self._tabs.setObjectName(TABS_NAME)
@@ -294,7 +334,11 @@ class RunHistoryScreen(QWidget):
         return widget
 
     def showEvent(self, event) -> None:
-        """Load history on first display, not during application startup."""
+        """Load history on first display, not during application startup.
+
+        :param event: the show event; passed to the base class and otherwise
+            not read.
+        """
         super().showEvent(event)
         if not self._loaded_once and not self._busy:
             self.refresh()
@@ -366,6 +410,10 @@ class RunHistoryScreen(QWidget):
         process-wide — but it survives *ownerless*, and an ownerless job in
         the run registry is what ``MainWindow.closeEvent`` reads when it
         decides whether the application may quit.
+
+        :param event: the close event; passed to the base class once every
+            history job has been cancelled and drained (up to three seconds
+            each).
         """
         from ..bridge import drain_thread
 
@@ -499,6 +547,7 @@ class RunHistoryScreen(QWidget):
             self._clear_details()
             return
         perf = record.get("performance") or {}
+        manifest = record.get("manifest") or {}
         summary = {
             "run_id": record.get("run_id"),
             "module": record.get("app_key"),
@@ -515,6 +564,9 @@ class RunHistoryScreen(QWidget):
             "output_size": _bytes(perf.get("output_bytes")),
             "run_folder": str(record.get("dir")),
         }
+        if isinstance(manifest.get("analysis_lock"), dict):
+            summary["analysis_lock"] = manifest["analysis_lock"]
+        self._analysis_lock_summary.setText(_analysis_lock_text(manifest))
         self._selection_label.setText(
             f"{record.get('app_key')} · {record.get('status')} · "
             f"{record.get('run_id')}"
@@ -536,7 +588,6 @@ class RunHistoryScreen(QWidget):
             + (str(failure) if failure else "None.")
         )
         self._problems.setPlainText(problem_text)
-        manifest = record.get("manifest") or {}
         self._environment.setPlainText(_json_text({
             "environment": record.get("environment") or {},
             "seeds": manifest.get("seeds") or {},
@@ -548,6 +599,7 @@ class RunHistoryScreen(QWidget):
         enabled = Path(record["dir"]).is_dir()
         self._open_folder.setEnabled(enabled)
         self._copy_path.setEnabled(enabled)
+        self._export_workflow.setEnabled(enabled)
         self._load_settings.setEnabled(
             bool(record.get("settings"))
             and str(record.get("app_key") or "") not in ("", "unknown")
@@ -556,6 +608,7 @@ class RunHistoryScreen(QWidget):
     def _clear_details(self) -> None:
         """Reset detail panes and actions when nothing is selected."""
         self._selection_label.setText("Select a run to inspect it.")
+        self._analysis_lock_summary.clear()
         for widget in (
             self._overview, self._settings, self._outputs, self._problems,
             self._environment,
@@ -563,6 +616,7 @@ class RunHistoryScreen(QWidget):
             widget.clear()
         self._open_folder.setEnabled(False)
         self._copy_path.setEnabled(False)
+        self._export_workflow.setEnabled(False)
         self._load_settings.setEnabled(False)
 
     def _open_selected_folder(self) -> None:
@@ -671,6 +725,37 @@ class RunHistoryScreen(QWidget):
         if record is not None:
             QApplication.clipboard().setText(str(record["dir"]))
             self._set_status("Run-folder path copied.")
+
+    def _export_selected_workflow(self, engine: str,
+                                  folder: Optional[str] = None) -> Optional[Path]:
+        """Write the selected run as a workflow into a folder the user picks.
+
+        The workflow goes into ``<folder>/<run id>_<engine>``, and the
+        status line names its main file or says why it could not be written.
+
+        :param engine: ``"snakemake"`` or ``"nextflow"``.
+        :param folder: destination; asked for with a folder dialog when None.
+        :returns: the workflow's main file, or None when nothing was written.
+        """
+        from ...cli_repro import _export_workflow
+
+        record = self._selected_record()
+        if record is None:
+            return None
+        if folder is None:
+            folder = QFileDialog.getExistingDirectory(
+                self, tr("Export workflow into folder"))
+        if not folder:
+            return None
+        target = Path(folder) / f"{Path(record['dir']).name}_{engine}"
+        try:
+            main = _export_workflow(record["dir"], target, engine)
+        except (OSError, ValueError) as exc:
+            self._set_status(tr("Could not export the workflow: {error}",
+                                error=exc), error=True)
+            return None
+        self._set_status(tr("Workflow written: {path}", path=main))
+        return main
 
     def _load_selected_settings(self) -> None:
         """Ask MainWindow to open the run's module with its exact settings."""

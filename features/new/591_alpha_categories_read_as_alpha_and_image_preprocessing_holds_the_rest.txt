@@ -1,0 +1,98 @@
+ALPHA CATEGORIES READ AS ALPHA, AND IMAGE PREPROCESSING HOLDS THE REST
+
+Status:    IMPLEMENTED AS ALPHA 2026-09-28 (see the notes below).
+Requested: 2026-09-28, by the maintainer, verbatim:
+  "we need to add untested features to the alpha flag. and the settings
+  categories dont need to say alpha just make them the alpha color and add an
+  α at the end."
+  "mask modual: cloud, illumination correction, point spread function, image
+  enhance (point spread function and image enhance can be under a new
+  category called Image Deconvolution & Enhancement), illumination
+  corrections and point spread function should be folded into image
+  preprocessing (as alpha sub categories)"
+  Clarified 2026-09-28: "its all image preprocessing, but it can be in image
+  preprocessing, under a sub category called image deconvolution and the
+  enhansement under a image enhancement sub category".
+
+WHAT TO BUILD
+1. Every alpha settings category: drop "(Alpha)" from the name, append " α",
+   and draw the heading in the alpha colour (one theme token, both themes).
+2. Mask / Make Masks: cloud, illumination correction, point spread function
+   and image enhancement settings are alpha.
+3. Image Preprocessing gains alpha sub-categories: "Illumination Correction
+   α", "Image Deconvolution α" (point spread function) and "Image
+   Enhancement α". The separate top-level categories they came from go.
+4. Untested features: any feature whose item file says it was validated only
+   on synthetic data or misses its target on real data is behind the alpha
+   flag. List them in this file for the maintainer to review.
+
+ALPHA, 2026-09-28: what was built.
+  1. Every "(Alpha)" category is now "<Name> α" (16 of them, in
+     spacr.settings.categories and every module layout). The heading reads
+     "CONFLUENCY α" -- the name upper-cased, the mark kept lower-case -- and
+     no longer "· ALPHA"; a whole alpha module's headings end with α too.
+     The colour is one token, spacr.qt.theme.ALPHA_INK (#00948F), set on
+     QToolButton#SectionHeader[maturity="alpha"] in every theme (3.7:1 on
+     the light theme's white, 4:1 or more on every dark surface).
+     settings_section_maturity reads a trailing α as alpha.
+  2. Mask generation (and Timelapse, which shares its layout): the Cloud
+     category is "Cloud α" (its keys were already alpha, item 550); the
+     illumination correction, PSF and image enhancement settings are alpha
+     ON THESE TWO MODULES ONLY, through a new ALPHA_FEATURES kind,
+     'module_settings' ({module: (keys,)}), registered under 591. The same
+     keys stay ordinary on Measure and on the Illumination Correction
+     module, whose whole form they are.
+  3. Image Preprocessing keeps its own rows and nests "Illumination
+     Correction α", "Image Deconvolution α" (the PSF settings) and "Image
+     Enhancement α" below them (settings_model._APP_CATEGORY_PARENTS; the
+     old top-level categories are gone from both layouts). With alpha
+     features off the three sub-headings hide; Image Preprocessing stays.
+  4. Untested features (below): three that were not behind the flag now are.
+  Tests: tests/qt/test_591_alpha_categories_read_as_alpha.py (hidden off,
+  shown on, a value set while hidden reaches collect(), scoping, heading
+  text, colour in dark and light). Captions for the new titles and the Image
+  Deconvolution blurb wait in _AWAITING_CATALOG_REBUILD.
+
+FEATURES VALIDATED ONLY ON SYNTHETIC DATA OR MISSING THEIR REAL-DATA TARGET
+(read from the features/future item files on 2026-09-28, for review)
+  Newly put behind the alpha flag by this item:
+    405 SAMCell for timelapse -- pretrained inference on a synthetic field
+        only; the held-out comparison against Cellpose is open. Now alpha:
+        the 'samcell' segmentation backend choice and the samcell_v1 zoo row.
+    475 SpotNet -- on the two real A1 fields it does NOT beat the native
+        detector. Now alpha: the 'spotnet' ops_spot_detector choice and the
+        spotnet_v1 zoo row.
+    501 Plaque growth time/scale estimate -- no matched multi-time growth
+        curve; no temporal validation. Now alpha: plaque_estimate_growth,
+        plaque_growth_reference_um, plaque_growth_reference_hours (the
+        "Estimate scale / time" control in Plaque's Figure preview reads the
+        same setting but is not a registered widget yet).
+  Already alpha (no change):
+    426 TimeFlows (synthetic Fluo-N2DH-SIM+ only; ties the zero-motion
+        control), 535 cell cycle (synthetic; real-data done-when not met),
+    536 wound closure (done-when not met on public data), 537 lineage trees
+        (not tested on real data), 539 bleach correction (synthetic series),
+    540 viability (synthetic only), 541 confluency (synthetic fields),
+    542 colony counting (not met on public photos), 543 vendor flat fields
+        (synthetic only), 554 Spotiflow (synthetic spots), 558 virtual
+        staining (synthetic pairs), 559 image QC classifier (built-in model
+        synthetic-only), 562 MIL (synthetic), 563 anomaly detection
+        (synthetic screen), 567 event detection (synthetic), 571 time to
+        event (synthetic and public survival data), 578 robustness report
+        (synthetic plate tests), 584 chemistry-aware hit view (synthetic
+        compound screen).
+  Not synthetic-only, noted for completeness: 490 PSF (instrument-specific
+  accuracy not claimed; alpha on Mask generation by point 2 above), 404
+  DINOCell (ran for real on one field, ~85%).
+
+MERGED WITH NIGHTLY, 2026-09-28: 557's "Self-Supervised Denoising α" is
+  nested under Image Preprocessing on Mask generation and Timelapse (after
+  Illumination Correction α, before Image Deconvolution α, the order the
+  run applies them); 576's "Measurement Backend α" nests under Measure's
+  Postprocessing. Measure keeps 595's grouping: its Illumination
+  Correction, Image Deconvolution (PSF) and Image Enhancement stay ordinary
+  (the WIP's Measure-only alpha entry was dropped), and its Cloud α blurb
+  is a Measure override so Mask's Cloud α keeps the translated shared one.
+
+LEFT: the i18n catalog rows for the renamed categories (catalog lane); the
+Plaque Figure preview's growth-estimate control as a registered widget.

@@ -31,6 +31,7 @@ of them, because a version change explains a count change on its own.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 from PySide6.QtCore import Qt, Signal
@@ -42,6 +43,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
     QLineEdit,
+    QPlainTextEdit,
     QPushButton,
     QTabWidget,
     QTreeWidget,
@@ -53,6 +55,8 @@ from PySide6.QtWidgets import (
 from ...run_compare import RunComparison, RunRef, compare_runs, runs_in
 from ..theme import SPACING, block_surface, register_widget_qss
 from .app_screen import ModuleHeader
+from .run_history import _analysis_lock_text, _json_text
+from ..i18n import tr
 
 __all__ = ["RunCompareScreen", "APP_KEY", "register"]
 
@@ -155,7 +159,7 @@ class RunCompareScreen(QWidget):
 
 
     def _build_ui(self) -> None:
-        """Lay the screen out: picker, banner, then the three tabs.
+        """Lay out the picker, verdicts, result tables and journal evidence.
 
         The three tables sit under one "Comparison" heading (item 471): a
         click folds them away and the folded heading stays at the bottom of
@@ -221,6 +225,12 @@ class RunCompareScreen(QWidget):
         self._force_button.setVisible(False)
         banner_row.addWidget(self._force_button)
         outer.addWidget(self._banner)
+        self._analysis_lock_summary = QLabel()
+        self._analysis_lock_summary.setObjectName("RunCompareAnalysisLockSummary")
+        self._analysis_lock_summary.setTextFormat(Qt.PlainText)
+        self._analysis_lock_summary.setProperty("i18nSkipText", True)
+        self._analysis_lock_summary.setWordWrap(True)
+        outer.addWidget(self._analysis_lock_summary)
 
         options = QHBoxLayout()
         self._show_all = Toggle("Show unchanged settings")
@@ -240,6 +250,10 @@ class RunCompareScreen(QWidget):
         self._tabs.addTab(self._settings_tree, "Settings")
         self._tabs.addTab(self._counts_tree, "Counts")
         self._tabs.addTab(self._hits_tree, "Hits")
+        self._environment = QPlainTextEdit()
+        self._environment.setReadOnly(True)
+        self._environment.setAccessibleName(tr("Versions, seeds, and manifest"))
+        self._tabs.addTab(self._environment, tr("Environment"))
         self._tabs_section = FoldSection(
             self._tabs, "Comparison", persist_key="run_compare/Comparison")
         outer.addWidget(self._tabs_section, 1)
@@ -255,6 +269,8 @@ class RunCompareScreen(QWidget):
             than the screen looking broken.
         """
         self.last_error = ""
+        self._analysis_lock_summary.clear()
+        self._environment.clear()
         self._project_edit.setText(project)
         self._runs = []
         try:
@@ -337,6 +353,8 @@ class RunCompareScreen(QWidget):
         a, b = self.selected_runs()
         if a is None or b is None:
             self._clear_tables()
+            self._analysis_lock_summary.clear()
+            self._environment.clear()
             return None
         comparison = compare_runs(a, b,
                                   include_same_settings=self._show_all.isChecked(),
@@ -378,8 +396,14 @@ class RunCompareScreen(QWidget):
 
 
     def _draw(self, comparison: RunComparison) -> None:
-        """Redraw the banner and all three tabs."""
+        """Redraw the comparison tables and retained journal evidence."""
         blocked = not comparison.comparable
+        evidence = {"A": _recorded_lock_evidence(comparison.a),
+                    "B": _recorded_lock_evidence(comparison.b)}
+        self._analysis_lock_summary.setText("\n\n".join(
+            f"{side} · {record['run_id']}\n{_analysis_lock_text(record)}"
+            for side, record in evidence.items()))
+        self._environment.setPlainText(_json_text(evidence))
         self._set_verdict(comparison.headline(), blocked=blocked)
         self._force_button.setVisible(
             blocked and bool(comparison.comparability.blockers))
@@ -397,7 +421,7 @@ class RunCompareScreen(QWidget):
                f"/{len(comparison.hits.vanished)})")
 
     def _clear_tables(self) -> None:
-        """Empty all three tabs and reset their labels."""
+        """Empty the three result tables while retaining journal evidence."""
         for tree in (self._settings_tree, self._counts_tree, self._hits_tree):
             tree.clear()
         for index, label in enumerate(("Settings", "Counts", "Hits")):
@@ -415,6 +439,35 @@ class RunCompareScreen(QWidget):
         """What the banner currently says."""
         return self._verdict.text()
 
+
+
+def _recorded_lock_evidence(run: RunRef) -> dict:
+    """Read a selected run's exact journal entry without checking any current lock.
+
+    :param run: selected artifact-backed run whose exact journal ID is read.
+    :returns: run ID, recorded lock evidence or ``None``, and any manifest errors.
+    """
+    from ...run_journal import _read_run_record, runs_root
+
+    run_id = str(run.run_id)
+    evidence = {"run_id": run_id, "analysis_lock": None}
+    if (not run_id or run_id in (".", "..") or run_id.startswith("artifact:")
+            or "/" in run_id or "\\" in run_id):
+        return evidence
+    directory = Path(runs_root()) / run_id
+    if not directory.is_dir():
+        return evidence
+    try:
+        record = _read_run_record(directory)
+    except OSError as exc:
+        evidence["manifest_errors"] = [str(exc)]
+        return evidence
+    recorded = record["manifest"].get("analysis_lock")
+    if isinstance(recorded, dict):
+        evidence["analysis_lock"] = recorded
+    if record["errors"]:
+        evidence["manifest_errors"] = record["errors"]
+    return evidence
 
 
 def _tree(columns: Tuple[str, ...]) -> QTreeWidget:

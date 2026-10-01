@@ -30,6 +30,8 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
+from tests.qt.per_object_table import table_value, the_table_answers  # noqa: E402
+
 #: One row per object that names a plane, and one setting of that object's
 #: that must follow the plane on and off the form.
 FOLLOWERS = {
@@ -71,7 +73,14 @@ def _write_and_read_back(tmp_path, settings: dict) -> dict:
 
 def test_a_file_that_names_no_channel_leaves_optional_objects_off_the_form(
         qtbot, tmp_path):
-    """The whole route: save a panel with nothing switched on, open it."""
+    """The whole route: save a panel with nothing switched on, open it.
+
+    2026-09-29 (item 592): on Mask generation every object's diameter is a
+    cell of the per-object table, the only layout of it, so the flat rows
+    stay behind the table. Since the same day's "hide unset objects"
+    decision a file naming no channel opens with only the cell column, and
+    every channel is a row of the form.
+    """
     screen, model = _screen(qtbot)
     loaded = _write_and_read_back(tmp_path, dict(model.collect()))
     for role in FOLLOWERS:
@@ -84,42 +93,50 @@ def test_a_file_that_names_no_channel_leaves_optional_objects_off_the_form(
     qtbot.wait(1)
 
     for role, follower in FOLLOWERS.items():
-        expected = role == "cell"
-        assert reopened.setting_row_is_visible(follower) is expected, (
-            f"{follower} visibility disagrees with the saved "
-            f"{role}_channel")
+        assert reopened.setting_row_is_visible(follower) is False, (
+            f"{follower} is on the flat form beside the table")
         if role == "organelle":
             # This file also says there are zero organelles. The optimized
             # form therefore builds no slot at all; the count is the control
             # that can ask for its first slot.
             assert reopened_model.collect()["number_of_organelles"] == 0
             assert f"{role}_channel" not in reopened_model._widgets
+            assert "organelle" not in reopened._object_grid.objects()
             assert reopened.setting_row_is_visible(
                 "number_of_organelles") is True
         else:
-            # Non-slot switches stay -- there would be nothing left to turn
-            # the object back on with.
+            # The switch stays -- there would be nothing left to turn the
+            # object back on with. 2026-09-29 (item 592, "hide unset objects"):
+            # it is a row of the form, and only cell keeps its column.
             assert reopened.setting_row_is_visible(
                 f"{role}_channel") is True
+            assert (role in reopened._object_grid.objects()) is (
+                role == "cell")
     assert reopened_model.collect()["cell_channel"] is None
 
 
 def test_a_file_that_omits_channels_keeps_only_the_reference_object(
         qtbot, tmp_path):
-    """Absence is not a channel; cell alone remains available by design."""
+    """Absence is not a channel; cell alone remains available by design.
+
+    2026-09-29 (item 592): the objects are table columns, and an omitted
+    channel hides its object's column (cell's excepted).
+    """
     screen, model = _screen(qtbot)
     settings = {k: v for k, v in model.collect().items()
                 if not k.endswith("_channel")}
     loaded = _write_and_read_back(tmp_path, settings)
     assert "cell_channel" not in loaded
 
-    reopened, _model = _screen(qtbot)
+    reopened, reopened_model = _screen(qtbot)
     reopened.apply_settings_dict(loaded)
     qtbot.wait(1)
 
-    assert reopened.setting_row_is_visible("cell_diameter") is True
-    assert reopened.setting_row_is_visible("cell_channel") is True
-    assert reopened.setting_row_is_visible("nucleus_diameter") is False
+    # 2026-09-29 (item 592, "hide unset objects"): only the
+    # reference object keeps its column; the channels stay on the form.
+    assert the_table_answers(reopened, "cell_diameter") is True
+    assert reopened_model.collect()["nucleus_channel"] is None
+    assert "nucleus" not in reopened._object_grid.objects()
     assert reopened.setting_row_is_visible("nucleus_channel") is True
 
 
@@ -128,10 +145,15 @@ def test_a_file_that_omits_channels_keeps_only_the_reference_object(
 # ---------------------------------------------------------------------------
 
 def test_a_stored_channel_of_zero_puts_its_object_back(qtbot, tmp_path):
-    """Plane zero is the first plane, not an object that is not there."""
+    """Plane zero is the first plane, not an object that is not there.
+
+    2026-09-29 (item 592): read back from the per-object table, which draws
+    a column for an object on plane 0.
+    """
     screen, model = _screen(qtbot)
     settings = dict(model.collect())
     settings["cell_channel"] = 0
+    settings["nucleus_channel"] = 0
     loaded = _write_and_read_back(tmp_path, settings)
     assert loaded["cell_channel"] == 0
 
@@ -140,9 +162,41 @@ def test_a_stored_channel_of_zero_puts_its_object_back(qtbot, tmp_path):
     qtbot.wait(1)
 
     assert reopened_model.collect()["cell_channel"] == 0
-    assert reopened.setting_row_is_visible("cell_diameter") is True
-    # And it says nothing about the objects the same file left unset.
-    assert reopened.setting_row_is_visible("nucleus_diameter") is False
+    assert the_table_answers(reopened, "cell_diameter") is True
+    # 2026-09-29 (item 592, "hide unset objects"): plane 0 draws the
+    # nucleus column; the pathogen the same file left unset stays hidden.
+    assert the_table_answers(reopened, "nucleus_diameter") is True
+    assert "pathogen" not in reopened._object_grid.objects()
+
+
+def test_a_hidden_objects_values_survive_save_and_reload(qtbot, tmp_path):
+    """2026-09-29 (item 592, "hide unset objects"): hide, never delete.
+
+    A pathogen answer typed while its channel was set, then hidden by
+    clearing the channel, is saved, reloaded, and back in its column once
+    the channel is set again.
+    """
+    screen, model = _screen(qtbot)
+    assert model.set_value_for_key("pathogen_channel", 2)
+    assert "pathogen" in screen._object_grid.objects()
+    assert screen._object_grid.set_value("diameter", "pathogen", "63")
+    assert model.collect()["pathogen_diameter"] == 63
+    assert model.set_value_for_key("pathogen_channel", None)
+    assert "pathogen" not in screen._object_grid.objects()
+
+    loaded = _write_and_read_back(tmp_path, dict(model.collect()))
+    assert loaded["pathogen_channel"] is None
+    assert loaded["pathogen_diameter"] == 63
+
+    reopened, reopened_model = _screen(qtbot)
+    reopened.apply_settings_dict(loaded)
+    qtbot.wait(1)
+    assert "pathogen" not in reopened._object_grid.objects()
+    assert reopened_model.collect()["pathogen_diameter"] == 63
+
+    assert reopened_model.set_value_for_key("pathogen_channel", 1)
+    assert "pathogen" in reopened._object_grid.objects()
+    assert table_value(reopened, "pathogen_diameter") == 63
 
 
 def test_the_rule_reads_a_saved_none_as_absent_and_a_saved_zero_as_present():
@@ -163,3 +217,23 @@ def test_the_rule_reads_a_saved_none_as_absent_and_a_saved_zero_as_present():
         ("cell_channel", "cell_diameter"),
         {"cell_channel": None},
     ) == set()
+
+
+def test_timelapse_mirrors_the_hidden_columns(qtbot):
+    """2026-09-29 (item 592, "hide unset objects"): Timelapse shares Mask's
+    per-object table and hides and shows its columns the same way."""
+    screen, model = _screen(qtbot, "timelapse")
+    grid = screen._object_grid
+    assert model.collect()["nucleus_channel"] is None
+    assert "cell" in grid.objects()
+    assert "nucleus" not in grid.objects()
+    assert screen.setting_row_is_visible("nucleus_channel") is True
+
+    assert model.set_value_for_key("nucleus_channel", 1)
+    assert "nucleus" in grid.objects()
+    assert grid.set_value("diameter", "nucleus", "31")
+    assert model.set_value_for_key("nucleus_channel", None)
+    assert "nucleus" not in grid.objects()
+    assert model.collect()["nucleus_diameter"] == 31
+    assert model.set_value_for_key("nucleus_channel", 2)
+    assert table_value(screen, "nucleus_diameter") == 31

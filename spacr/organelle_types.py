@@ -102,6 +102,9 @@ class OrganelleType:
     def morphology_for(self, diameter_px: Optional[float]) -> Optional[str]:
         """The morphology this type implies at ``diameter_px``.
 
+        :param diameter_px: the expected object diameter in pixels, or None.
+            Only used by size-split types: at or above ``RING_RESOLVABLE_PX``
+            (15) gives the large morphology, below it or None the small one.
         :returns: one of the four morphologies, or None for ``custom``,
             which deliberately recommends nothing.
         """
@@ -327,6 +330,8 @@ def known_types() -> Tuple[str, ...]:
 def resolve_type(name: Optional[str]) -> OrganelleType:
     """The preset called ``name``.
 
+    :param name: the preset name, matched case-insensitively after stripping
+        whitespace; None or empty means ``DEFAULT_TYPE`` (``custom``).
     :raises ValueError: for an unknown name, listing the known ones.
         Falling back to 'custom' would mean a typo silently segmented with
         different settings than the user asked for.
@@ -448,7 +453,11 @@ BASIC_SETTINGS: Tuple[str, ...] = (
 
 
 def is_basic(setting: str) -> bool:
-    """True when ``setting`` belongs in the plain Organelle category."""
+    """True when ``setting`` belongs in the plain Organelle category.
+
+    :param setting: a settings key, compared as a string against
+        ``BASIC_SETTINGS``.
+    """
     return str(setting) in BASIC_SETTINGS
 
 
@@ -584,17 +593,88 @@ def organelle_number(role: str) -> int:
             offset = 0
             for length in range(2, len(suffix)):
                 offset += 26 ** length
+            value = 0
             for char in suffix:
-                offset = offset * 26 + (ord(char) - ord("a"))
-            return offset + 27
+                value = value * 26 + (ord(char) - ord("a"))
+            return offset + value + 27
     raise ValueError(
         f"{role!r} is not an organelle role; expected 'organelle', "
         "'organelleb'..'organellez', then 'organelleaa' onward")
 
 
 def organelle_slot_label(role: str) -> str:
-    """What the user calls a slot: ``Organelle 1``, ``Organelle 2``, ..."""
+    """What the user calls a slot: ``Organelle 1``, ``Organelle 2``, ...
+
+    :param role: a slot prefix such as ``'organelle'`` or ``'organelleb'``;
+        anything else raises :class:`ValueError`.
+    """
     return f"Organelle {organelle_number(role)}"
+
+
+#: The settings-key stem of every per-object background switch.
+_BACKGROUND_SWITCH = "remove_background_"
+
+
+def _background_switch_key(role: str) -> str:
+    """The background-removal switch of one organelle slot.
+
+    Naming: the first slot keeps
+    ``remove_background_organelle`` and slot N is
+    ``remove_background_organelle_N`` -- numbered as the user counts, not
+    lettered as the storage prefix is. From 2026-09-21 to 2026-09-30 these
+    were ``remove_background_organelleb`` and so on; those spellings are
+    folded onto these by :func:`spacr.settings.surviving_setting_name`.
+
+    :param role: a slot prefix, ``'organelle'``, ``'organelleb'``, ...
+    :raises ValueError: when ``role`` is not an organelle slot.
+    """
+    number = organelle_number(role)
+    if number == 1:
+        return f"{_BACKGROUND_SWITCH}organelle"
+    return f"{_BACKGROUND_SWITCH}organelle_{number}"
+
+
+def _background_switch_role(key: str) -> Optional[str]:
+    """The slot whose background switch ``key`` is, or ``None``.
+
+    :param key: a settings key. ``remove_background_organelle`` is slot 1
+        and ``remove_background_organelle_7`` slot 7; a number outside
+        2..:data:`MAX_ORGANELLES`, the lettered spelling and every other key
+        answer ``None``.
+    """
+    text = str(key)
+    if not text.startswith(_BACKGROUND_SWITCH + "organelle"):
+        return None
+    tail = text[len(_BACKGROUND_SWITCH + "organelle"):]
+    if not tail:
+        return "organelle"
+    if not tail.startswith("_") or not tail[1:].isdigit() \
+            or tail[1] == "0":
+        return None
+    number = int(tail[1:])
+    if not 2 <= number <= MAX_ORGANELLES:
+        return None
+    return organelle_role(number)
+
+
+def _legacy_background_switch_role(key: str) -> Optional[str]:
+    """The slot a pre-2026-09-30 lettered switch named, or ``None``.
+
+    :param key: a settings key such as ``remove_background_organelleb``.
+        The first slot's ``remove_background_organelle`` is current, not
+        legacy, and answers ``None``.
+    """
+    text = str(key)
+    if not text.startswith(_BACKGROUND_SWITCH):
+        return None
+    tail = text[len(_BACKGROUND_SWITCH):]
+    if tail == "organelle":
+        return None
+    try:
+        organelle_number(tail)
+    except ValueError:
+        return None
+    return tail
 
 
 def organelle_role_of(key: str) -> Optional[str]:
@@ -609,9 +689,7 @@ def organelle_role_of(key: str) -> Optional[str]:
     text = str(key)
     if not text.startswith("organelle"):
         return None
-    head, separator, _rest = text.partition("_")
-    if not separator and head != text:
-        return None
+    head = text.partition("_")[0]
     try:
         organelle_number(head)
     except ValueError:
@@ -642,6 +720,9 @@ def primary_setting(key: str) -> str:
 
     The inverse of :func:`slot_setting`. A key belonging to no slot is
     returned unchanged, so a caller can run a whole settings dict through it.
+
+    :param key: any settings key, e.g. ``'organelleb_channel'``, which becomes
+        ``'organelle_channel'``.
     """
     text = str(key)
     role = organelle_role_of(text)
@@ -698,10 +779,7 @@ def _count_implied_by_the_slots(settings: Mapping[str, object]) -> int:
         role = organelle_role_of(key)
         if role is None:
             continue
-        try:
-            highest = max(highest, organelle_number(role))
-        except ValueError:            # pragma: no cover - role_of validated it
-            continue
+        highest = max(highest, organelle_number(role))
     return min(highest, MAX_ORGANELLES)
 
 
@@ -712,6 +790,9 @@ def active_organelle_roles(
     What a panel shows. A slot outside this tuple is HIDDEN, not gone: its
     keys are still typed, still in the settings dict and still written back
     out, which is what makes lowering the number reversible.
+
+    :param settings: a run settings mapping; its slot count is read as in
+        :func:`organelle_count`.
     """
     return organelle_roles(organelle_count(settings))
 
@@ -725,6 +806,9 @@ def declared_organelle_roles(
     values": a file written at seven and opened at two declares seven, so the
     defaults machinery leaves slots three to seven exactly as it found them
     instead of dropping them on the way back out.
+
+    :param settings: a run settings mapping; its slot count and the slot
+        prefixes of its keys are both read.
     """
     active = active_organelle_roles(settings)
     present = {organelle_role_of(key) for key in (settings or {})}
@@ -740,6 +824,10 @@ def organelle_slot_is_active(key: str,
     True for every key that belongs to no slot, so a caller can use it as a
     filter over a whole settings dict without having to know which keys are
     organelle settings.
+
+    :param key: any settings key; a key belonging to no slot counts as active.
+    :param settings: the run settings mapping whose slot count decides which
+        slots are active.
     """
     role = organelle_role_of(key)
     return role is None or role in active_organelle_roles(settings)

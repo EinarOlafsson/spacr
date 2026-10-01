@@ -1,0 +1,48 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plate-aware guide permutation analysis"
+msgstr "प्लेट-सजग गाइड क्रमचय विश्लेषण"
+
+msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it whenever the simultaneous fit would be unidentifiable; either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
+msgstr "गाइड क्रमचय विश्लेषण का उपयोग तब करें जब स्वतंत्र प्रायोगिक इकाई कूप हो और गाइड स्तंभ कूपों से अधिक होने या गाइड अंशों के अत्यधिक सहसंबद्ध होने के कारण एक साथ गाइड मॉडल की पहचान संभव न हो। ``inference='nonparametric'`` (डिफ़ॉल्ट) इसे चलाता है, और ``inference='auto'`` इसे तब चुनता है जब एक साथ फ़िट अपहचाननीय हो; दोनों ही स्थितियों में रन ``analysis_mode='guide_permutation'`` दर्ज करता है। यह मोड :func:`spacr.ml.perform_regression` वाले ही युग्मित प्रति-कोशिका स्कोर और सीक्वेंसिंग-गिनती CSV इनपुट (``paired_data``) का उपयोग करता है।"
+
+msgid "Each guide is tested separately after its well-level fraction and the well-level phenotype have both been adjusted for plate (and any optional measured nuisance columns).  Two-sided empirical P values come from Freedman--Lane residual permutations restricted within plate.  Multiple-test correction is then applied separately within each requested minimum-support family.  These are marginal associations: co-occurring guides may share a signal, so the output is not a set of mutually adjusted causal coefficients."
+msgstr "हर गाइड का परीक्षण अलग-अलग किया जाता है, जब उसके कूप-स्तरीय अंश और कूप-स्तरीय फ़ेनोटाइप दोनों को प्लेट (और किसी भी वैकल्पिक मापे गए व्यवधान स्तंभ) के लिए समायोजित कर दिया गया हो। द्वि-पक्षीय अनुभवजन्य P मान प्लेट के भीतर सीमित Freedman--Lane अवशिष्ट क्रमचयों से आते हैं। इसके बाद बहु-परीक्षण सुधार हर अनुरोधित न्यूनतम-समर्थन परिवार के भीतर अलग से लागू किया जाता है। ये सीमांत संबंध हैं: साथ आने वाले गाइड एक संकेत साझा कर सकते हैं, इसलिए आउटपुट परस्पर समायोजित कारणात्मक गुणांकों का समूह नहीं है।"
+
+msgid "Example"
+msgstr "उदाहरण"
+
+msgid "The important output columns are ``wells_with_guide``, ``standardized_marginal_effect``, ``permutation_p_value``, ``adjusted_p_value`` and ``significant``.  ``guide_min_wells`` accepts either one positive integer or a list.  The empirical P value for a guide is computed once at the smallest requested threshold; only the multiple-testing family and adjusted value change across support thresholds. ``guide_primary_min_wells`` selects which requested family is returned in ``output['significant']``; when it is ``None``, spaCR uses the smallest family so the primary correction retains every tested guide."
+msgstr "महत्वपूर्ण आउटपुट स्तंभ ``wells_with_guide``, ``standardized_marginal_effect``, ``permutation_p_value``, ``adjusted_p_value`` और ``significant`` हैं। ``guide_min_wells`` एक धनात्मक पूर्णांक या एक सूची स्वीकार करता है। किसी गाइड का अनुभवजन्य P मान सबसे छोटी अनुरोधित सीमा पर एक बार गणना किया जाता है; समर्थन सीमाओं के बीच केवल बहु-परीक्षण परिवार और समायोजित मान बदलते हैं। ``guide_primary_min_wells`` चुनता है कि ``output['significant']`` में कौन-सा अनुरोधित परिवार लौटाया जाए; जब यह ``None`` हो, तो spaCR सबसे छोटे परिवार का उपयोग करता है ताकि प्राथमिक सुधार में हर परीक्षित गाइड बना रहे।"
+
+msgid "Multiple-testing choices"
+msgstr "बहु-परीक्षण विकल्प"
+
+msgid "``multiple_testing_method`` accepts ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` or ``none``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
+msgstr "``multiple_testing_method`` ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` या ``none`` स्वीकार करता है। ``fdr_bh`` डिफ़ॉल्ट है। पुनरुत्पादकता के लिए अनुरोधित समर्थन परिवार, क्रमचय संख्या, सीड, ब्लॉकिंग स्तंभ, व्यवधान स्तंभ, उपस्थिति सीमा, सुधार विधि और अल्फ़ा को इनपुट फ़ाइल चेकसम के साथ दर्ज करें।"
+
+msgid "Direct analysis of an existing long table"
+msgstr "मौजूदा लंबी तालिका का सीधा विश्लेषण"
+
+msgid "If a previous run already produced ``regression_data.csv``, it can be analyzed without re-reading the per-cell and sequencing inputs:"
+msgstr "यदि पिछले रन ने पहले ही ``regression_data.csv`` बना दी है, तो प्रति-कोशिका और सीक्वेंसिंग इनपुट दोबारा पढ़े बिना उसका विश्लेषण किया जा सकता है:"
+

@@ -893,6 +893,26 @@ def test_an_unthreaded_plate_view_still_returns_its_answer(qtbot, plate_db):
 
 # -- 5. the sklearn fit -----------------------------------------------------
 
+def _let_the_canvases_settle(qtbot, screen, timeout_s: float = 20.0) -> None:
+    """Pump the loop until no canvas under ``screen`` has a draw pending.
+
+    The load before a measured action leaves its own redraws queued; they
+    belong to the load, not to the action, and measured inside the action's
+    window they made this test report the LOAD's paint as the recompute's
+    stall (dispatch 36763301786: 4 ticks in the window).
+    """
+    from matplotlib.backends.backend_qt import FigureCanvasQT
+
+    end = time.perf_counter() + timeout_s
+    while time.perf_counter() < end:
+        qtbot.wait(50)
+        if not any(getattr(canvas, "_draw_pending", False)
+                   for canvas in screen.findChildren(FigureCanvasQT)):
+            qtbot.wait(50)
+            return
+    pytest.fail("the canvases never finished drawing the loaded table")
+
+
 def test_recomputing_a_pca_never_freezes_the_gui_thread(qtbot, big_db):
     """The decomposition moved to a worker; only the redraw is left."""
     from spacr.qt.screens.pca import PCAScreen
@@ -904,6 +924,7 @@ def test_recomputing_a_pca_never_freezes_the_gui_thread(qtbot, big_db):
     screen.load_path(big_db, "cell")
     qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0,
                     timeout=90000)
+    _let_the_canvases_settle(qtbot, screen)
 
     busy = _BusyWatcher(screen)
     dog = LoopWatchdog(screen)

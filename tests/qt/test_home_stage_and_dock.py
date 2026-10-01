@@ -34,7 +34,7 @@ from PySide6.QtWidgets import QLabel
 from spacr.qt import theme
 from spacr.qt.app import (APPS, MainWindow, app_stage, make_home_page,
                           tiled_apps)
-from spacr.qt.widgets.home import AppTile, StageLegend
+from spacr.qt.widgets.home import AppTile, Panel, StageLegend
 
 
 THEMES = ("dark", "light")
@@ -331,8 +331,8 @@ def test_the_legend_is_no_longer_in_the_aside_column(qtbot,
     qtbot.addWidget(page)
     legend = page.legend
     assert isinstance(legend, StageLegend)
-    assert legend.parent() is None, (
-        "the legend is still parented into the page")
+    assert legend.parent() is page, (
+        "the hidden legend needs the page's ownership until it is used")
 
     aside = page._news.parent()
     widgets = [aside.layout().itemAt(i).widget()
@@ -340,10 +340,21 @@ def test_the_legend_is_no_longer_in_the_aside_column(qtbot,
     assert legend not in widgets, "the legend is still in the aside"
     # And SYSTEM is last, which is the other half of the same request:
     # "system is fine but should be at the bottom".
-    present = [w for w in widgets if w is not None]
+    # Item 597 put the Text size slider right below the lowest panel, so
+    # System is the last PANEL rather than the last widget.
+    present = [w for w in widgets if isinstance(w, Panel)]
     assert present[-1] is page._system, (
         "System is not at the bottom of the aside: "
         f"{[w.header.text() for w in present]}")
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+    from shiboken6 import isValid
+
+    assert legend.isHidden()
+    page.close()
+    page.deleteLater()
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not isValid(legend), "the hidden legend outlived its Home page"
 
 
 def test_the_legend_names_every_stage_and_draws_its_colour(qtbot,

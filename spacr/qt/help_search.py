@@ -50,6 +50,7 @@ from __future__ import annotations
 
 import logging
 import threading
+from functools import partial
 from typing import Callable, Dict, List, Optional
 
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer, Signal
@@ -71,11 +72,12 @@ from PySide6.QtWidgets import (
 )
 
 from .help_index import (
+    PER_KIND_LIMIT,
     HelpEntry,
     build_index,
     rendered_description,
     rendered_subtitle,
-    search,
+    _search_with_overflow,
 )
 from .i18n import tr
 
@@ -107,6 +109,17 @@ RESULT_LIMIT = 24
 
 #: Role the entry is stashed under on its list item.
 ENTRY_ROLE = int(Qt.UserRole) + 1
+
+#: Role an "and N more" row stashes its kind under. A separate role, not a
+#: fake :class:`HelpEntry`: nothing that opens entries may ever be handed one.
+MORE_ROLE = int(Qt.UserRole) + 2
+
+#: How many more rows of a kind opening its "and N more" row reveals. One
+#: step answers every setting in this tree (``src`` is the widest, 28 left
+#: out); the API kind can leave thousands out for a short query, and drawing
+#: them all at once would put a ten-thousand-row list on the GUI thread, so
+#: it pages instead and the row counts down.
+MORE_STEP = 40
 
 
 def _localize(widget: QWidget, setter_name: str, property_name: str,
@@ -627,6 +640,11 @@ class HelpSearchField(QLineEdit):
         self._window = window
         self._index: Optional[List[HelpEntry]] = None
         self._results: List[HelpEntry] = []
+        #: Per-kind caps the user has lifted with an "and N more" row. They
+        #: belong to one query and are dropped when the text changes.
+        self._caps: Dict[str, int] = {}
+        #: Kind -> matches left out of the list for the current query.
+        self._left_out: Dict[str, int] = {}
 
         _localize(self, "setPlaceholderText", "_spacr_i18n_placeholder",
                   "Search spaCR…")
@@ -716,6 +734,7 @@ class HelpSearchField(QLineEdit):
 
         :param text: the new contents of the box.
         """
+        self._caps = {}
         if str(text).strip() and self._index is None:
             self._loader.start()
             self._show_note(tr("Building the index…"))
@@ -744,21 +763,28 @@ class HelpSearchField(QLineEdit):
         query = self.text().strip()
         if not query:
             self._results = []
+            self._left_out = {}
             self._list.clear()
             self.hide_popup()
             return
         if self._index is None:
             self._show_note(tr("Building the index…"))
             return
-        self._results = search(self._index, query, limit=RESULT_LIMIT)
+        limit = RESULT_LIMIT + sum(
+            cap - PER_KIND_LIMIT for cap in self._caps.values())
+        self._results, self._left_out = _search_with_overflow(
+            self._index, query, limit=limit, caps=self._caps)
         self._list.clear()
-        for entry in self._results:
+        last_of_kind = {entry.kind: i for i, entry in enumerate(self._results)}
+        for i, entry in enumerate(self._results):
             item = QListWidgetItem(self._row_text(entry))
             item.setData(ENTRY_ROLE, entry)
             described = rendered_description(entry, tr)
             if described:
                 item.setToolTip(described)
             self._list.addItem(item)
+            if last_of_kind[entry.kind] == i and entry.kind in self._left_out:
+                self._list.addItem(self._more_row(entry.kind))
         if self._results:
             self._list.setCurrentRow(0)
             self._note.setVisible(False)
@@ -766,6 +792,36 @@ class HelpSearchField(QLineEdit):
         else:
             self._show_note(tr("Nothing called “{query}”.", query=query))
         self._place_popup()
+
+    def _more_row(self, kind: str) -> QListWidgetItem:
+        """The "and N more" row that follows the last shown row of ``kind``.
+
+        It sits under its own kind rather than at the foot of the list, so
+        it reads as "more of THESE" -- after the eight ``src`` rows, not
+        after an API list that has nothing to do with them.
+
+        :param kind: the kind with matches left out.
+        :returns: an item carrying ``kind`` under :data:`MORE_ROLE`.
+        """
+        item = QListWidgetItem(
+            tr("and {count} more", count=self._left_out[kind]))
+        item.setData(MORE_ROLE, kind)
+        return item
+
+    def _show_more(self, kind: str) -> None:
+        """Lift the cap on ``kind`` by :data:`MORE_STEP` and search again.
+
+        The selection lands on the first row the step revealed, which is
+        where the "more" row was, so Return on "and 28 more" followed by Down
+        walks into the new rows instead of back to the top.
+
+        :param kind: the kind whose "more" row was opened.
+        """
+        row = self._list.currentRow()
+        self._caps[kind] = self._caps.get(kind, PER_KIND_LIMIT) + MORE_STEP
+        self._refresh()
+        if 0 <= row < self._list.count():
+            self._list.setCurrentRow(row)
 
     def _row_text(self, entry: HelpEntry) -> str:
         """One line for the list.
@@ -826,9 +882,21 @@ class HelpSearchField(QLineEdit):
     def _on_activated(self, item: QListWidgetItem) -> None:
         """Open the entry behind ``item`` and put the field away.
 
+        An "and N more" row is not an entry: opening it keeps the popup up
+        and reveals the next :data:`MORE_STEP` rows of its kind instead.
+
         :param item: the row the user chose.
         """
-        entry = item.data(ENTRY_ROLE) if item is not None else None
+        if item is None:
+            return
+        kind = item.data(MORE_ROLE)
+        if kind:
+            # Deferred: this runs inside the list's own click or activation
+            # signal, and ``_show_more`` clears the list -- deleting the item
+            # the view is still in the middle of delivering.
+            QTimer.singleShot(0, partial(self._show_more, str(kind)))
+            return
+        entry = item.data(ENTRY_ROLE)
         if entry is None:
             return
         self.hide_popup()
@@ -867,6 +935,9 @@ class HelpSearchField(QLineEdit):
         Safe to do unconditionally now that the list takes ``NoFocus``:
         clicking a row cannot move focus, so a focus-out means the user went
         somewhere else and the list is in the way of whatever that was.
+
+        :param event: the focus-out event; it is not inspected, only passed on
+            to the base class after the list is hidden.
         """
         self.hide_popup()
         super().focusOutEvent(event)

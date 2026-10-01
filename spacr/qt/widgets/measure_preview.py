@@ -16,6 +16,7 @@ from __future__ import annotations
 import itertools
 import logging
 import os
+import threading
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -35,6 +36,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMenu,
+    QToolButton,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -57,6 +60,7 @@ from .percentile_pair import DECIMALS as PERCENTILE_DECIMALS
 from .toggle import Toggle
 from ..hidpi import logical_size, scaled_for
 from ..job_runner import JobRunner
+from ..i18n import tr
 from ...crops import DEFAULT_MASK_DIMS
 from ...object_roles import ALL_ROLES, ORGANELLE_ROLES, organelle_label
 from ...organelle_types import (
@@ -264,6 +268,15 @@ def annotate_crops(crops: List[Dict[str, Any]], data: Optional[np.ndarray],
     ``params`` is a snapshot of the widget values taken on the GUI thread --
     see :meth:`MeasurePreviewPanel._category_params`. Passing a snapshot rather
     than reading the widgets is what makes this safe to call from a worker.
+
+    :param crops: crop dicts from :func:`spacr.measure.crop_objects_from_array`,
+        each with a ``label``; updated in place with ``category``,
+        ``included`` and, for cells, ``phenotype``.
+    :param data: the merged ``(H, W, C)`` array the crops came from, or
+        ``None``, in which case every crop is simply included.
+    :param params: widget snapshot with ``object``, ``cell_dim``, ``dims``,
+        ``minima`` and ``uninfected``; only ``object == "cell"`` is
+        categorised by phenotype.
     """
     object_name = params.get("object", "cell")
     if data is None or object_name != "cell":
@@ -310,6 +323,11 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
     ``QPixmap`` is a GUI object and building one off the GUI thread is
     undefined behaviour, so the pixmaps stay in :meth:`_render_grid`.
 
+    :param data: merged ``(H, W, C)`` array of image channels then mask slices.
+    :param crop_kwargs: keyword arguments for
+        :func:`spacr.measure.crop_objects_from_array`, e.g. ``mask_dim``; a
+        crop failure is returned as ``error`` rather than raised.
+    :param category_params: widget snapshot passed to :func:`annotate_crops`.
     :returns: ``{crops, error}``.
     """
     from spacr.measure import crop_objects_from_array
@@ -320,6 +338,132 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
         return {"crops": [], "error": f"Crop failed: {exc}"}
     annotate_crops(crops, data, category_params)
     return {"crops": crops, "error": ""}
+
+
+def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
+                           category_params, cancelled):
+    """Stream checked fields with a shared crop budget and source identity.
+
+    Only one additional source array is mapped at a time. The crop count is
+    divided among checked fields so the first field cannot consume every
+    preview slot. Cancellation is observed between fields; superseded work
+    never publishes a partial grid.
+    """
+    crops, errors = [], []
+    limit = max(1, int(crop_kwargs.get("limit", 60)))
+    quota, extra = divmod(limit, max(1, len(paths)))
+    for index, path in enumerate(paths):
+        if cancelled.is_set():
+            return {"crops": [], "error": "", "cancelled": True}
+        count = quota + int(index < extra)
+        if not count:
+            continue
+        data = None
+        try:
+            data = (current_data if path == current_path else
+                    np.load(path, mmap_mode="r", allow_pickle=False))
+            if data.ndim != 3:
+                raise ValueError("Expected a merged (H,W,C) array")
+            kwargs = dict(crop_kwargs, limit=count)
+            if (kwargs["mask_dim"] >= data.shape[2]
+                    or any(c >= data.shape[2] for c in kwargs["channels"])):
+                raise ValueError("Configured mask or image channels are absent")
+            result = compute_crops(data, kwargs, category_params)
+            if result.get("error"):
+                raise ValueError(result["error"])
+            for entry in result.get("crops") or []:
+                entry["source_path"] = path
+                entry["object_key"] = (path, category_params.get("object", "cell"),
+                                       int(entry["label"]))
+                crops.append(entry)
+        except Exception as exc:
+            errors.append(f"{Path(path).name}: {exc}")
+        finally:
+            # Crops own their RGB pixels. Release the source mapping now.
+            del data
+    return {"crops": crops, "error": "", "warnings": errors,
+            "limited_fields": max(0, len(paths) - limit)}
+
+
+_CONFLUENCY_SETTING_KEYS = (
+    "confluency_source", "confluency_channel", "confluency_window",
+    "confluency_qc_threshold",
+)
+
+
+def _compute_confluency_preview(data: np.ndarray,
+                               settings: Dict[str, Any]) -> Dict[str, Any]:
+    """Covered area of one merged field, with its overlay. Worker-safe.
+
+    Runs exactly what a Measure run with ``confluency`` on would run for
+    this field, :func:`spacr.measure._measure_field_confluency`, so the
+    preview and the database agree.
+
+    :param data: merged ``(H, W, C)`` array.
+    :param settings: ``channels``, ``cell_mask_dim`` and the
+        ``confluency_*`` settings.
+    :returns: ``{overlay, confluency, source, monolayer_ok, error}``;
+        ``overlay`` is a ``uint8`` RGB array, and a failure is returned as
+        ``error`` rather than raised.
+    """
+    from spacr.measure import (
+        _confluency_overlay, _measure_field_confluency, _monolayer_ok)
+
+    try:
+        result, plane = _measure_field_confluency(data, settings)
+    except Exception as exc:
+        return {"overlay": None, "confluency": None, "source": "",
+                "monolayer_ok": None, "error": str(exc)}
+    return {
+        "overlay": _confluency_overlay(plane, result.covered),
+        "confluency": result.confluency,
+        "source": result.source,
+        "monolayer_ok": _monolayer_ok(
+            result.confluency, settings.get("confluency_qc_threshold")),
+        "error": "",
+    }
+
+
+_WOUND_SETTING_KEYS = (
+    "wound_source", "wound_channel", "wound_window", "wound_threshold",
+    "voxel_size_xy_um",
+)
+
+
+def _compute_wound_preview(data: np.ndarray,
+                           settings: Dict[str, Any]) -> Dict[str, Any]:
+    """The open wound of one merged field, with its edge drawn. Worker-safe.
+
+    Runs what a Measure run with ``wound_closure`` on runs for the first
+    frame of a field, :func:`spacr.measure._measure_field_wound`, so the
+    edge shown is the one the run would start from.
+
+    :param data: merged ``(H, W, C)`` array.
+    :param settings: ``channels``, ``cell_mask_dim`` and the ``wound_*``
+        settings.
+    :returns: ``{overlay, open_fraction, mean_width, min_width, unit,
+        status, error}``; a failure is returned as ``error`` rather than
+        raised.
+    """
+    from spacr.measure import _measure_field_wound, _wound_overlay
+
+    try:
+        row, plane, wound, status = _measure_field_wound(data, settings)
+    except Exception as exc:
+        return {"overlay": None, "open_fraction": None, "status": "",
+                "error": str(exc)}
+    in_um = row.get("mean_width_um") == row.get("mean_width_um") and (
+        row.get("mean_width_um") is not None)
+    unit = "um" if in_um else "px"
+    return {
+        "overlay": _wound_overlay(plane, wound),
+        "open_fraction": float(row["open_fraction"]),
+        "mean_width": row[f"mean_width_{unit}"],
+        "min_width": row[f"min_width_{unit}"],
+        "unit": "µm" if in_um else "px",
+        "status": status,
+        "error": "",
+    }
 
 
 def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
@@ -436,6 +580,7 @@ class _CropThumb(QLabel):
     """
 
     clicked = Signal(int)
+    activated = Signal(int)
 
     def __init__(self, index: int, *, included: bool = True, parent=None):
         """Build the thumb, rimmed by whether the crop is included."""
@@ -464,6 +609,14 @@ class _CropThumb(QLabel):
         """
         self.clicked.emit(self._index)
         super().mousePressEvent(event)
+
+    def mouseDoubleClickEvent(self, event):
+        """Open the source behind this crop without changing checked fields.
+
+        :param event: the mouse double-click event.
+        """
+        self.activated.emit(self._index)
+        super().mouseDoubleClickEvent(event)
 
 
 class MeasurePreviewPanel(LivePreviewContract, QWidget):
@@ -499,6 +652,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         #: that does not move `src` cannot re-randomise the field.
         self._auto_loaded_src: str = ""
         self._data_path: Optional[str] = None
+        self._checked_sources: set[str] = set()
+        self._checked_directory = None
+        self._crop_running = False
+        self._pending_crop_request = None
+        self._crop_cancel = threading.Event()
         self._crops: List[Dict[str, Any]] = []
         self._selected: set[int] = set()
         self._propagate_cb = None
@@ -510,6 +668,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._load_token = 0
         self._crop_token = 0
         self._loading_fov = False
+        self._confluency_settings: Dict[str, Any] = {}
+        self._confluency_token = 0
+        self._wound_settings: Dict[str, Any] = {}
+        self._wound_token = 0
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_controls()
         self._build_ui()
@@ -519,18 +681,16 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         retarget_field_tooltips(self)
 
 
-    def _object_names(self, count: Optional[int] = None) -> Tuple[str, ...]:
+    def _object_names(self) -> Tuple[str, ...]:
         """The objects this panel has controls for, in display order.
 
-        :param count: how many organelle slots to name. Defaults to the slots
-            already built, which is what every consumer of the control dicts
-            wants; :meth:`_build_slot_controls` passes the new total.
+        Named for the slots already built, which is what every consumer of
+        the control dicts wants.
+
         :returns: the role names.
         """
-        if count is None:
-            count = getattr(self, "_slots_built",
-                            DEFAULT_NUMBER_OF_ORGANELLES)
-        return _objects_for(count)
+        return _objects_for(getattr(self, "_slots_built",
+                                    DEFAULT_NUMBER_OF_ORGANELLES))
 
     @staticmethod
     def _in_role_order(controls: Dict[str, QWidget],
@@ -734,6 +894,15 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         pick_row.addWidget(self._channel_box)
         pick_row.addWidget(self._paste_box, 1)
         pick_row.addWidget(self._pick_btn)
+        self._checked_menu = QMenu(self)
+        self._checked_button = QToolButton(self)
+        self._checked_button.setText(tr("Checked images ({count})", count=0))
+        self._checked_button.setToolTip(tr(
+            "Check images to combine their objects. Double-click a crop "
+            "to open its source image. This affects the preview only."))
+        self._checked_button.setPopupMode(QToolButton.InstantPopup)
+        self._checked_button.setMenu(self._checked_menu)
+        pick_row.addWidget(self._checked_button)
         root.addLayout(pick_row)
 
         actions = QHBoxLayout()
@@ -751,6 +920,25 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         actions.addWidget(self._run_btn)
         actions.addWidget(self._cancel_btn)
         actions.addWidget(self._settings_btn)
+        self._confluency_btn = QPushButton(tr("Confluency"))
+        self._confluency_btn.setObjectName("MeasureConfluencyToggle")
+        self._confluency_btn.setCheckable(True)
+        self._confluency_btn.setProperty("maturity", "alpha")
+        self._confluency_btn.setToolTip(tr(
+            "Show the area of this field Measure would count as covered by "
+            "cells, using the Confluency settings of the run."))
+        self._confluency_btn.toggled.connect(self._on_confluency_toggled)
+        actions.addWidget(self._confluency_btn)
+        self._wound_btn = QPushButton(tr("Wound"))
+        self._wound_btn.setObjectName("MeasureWoundToggle")
+        self._wound_btn.setCheckable(True)
+        self._wound_btn.setProperty("maturity", "alpha")
+        self._wound_btn.setToolTip(tr(
+            "Show the open wound Measure would start a wound-closure series "
+            "from if this field were its first frame, using the Wound "
+            "Closure settings of the run."))
+        self._wound_btn.toggled.connect(self._on_wound_toggled)
+        actions.addWidget(self._wound_btn)
         actions.addWidget(self._status, 1)
         from .preview_scale import install_preview_scale
         self._scale_control = install_preview_scale(self, "measure", actions)
@@ -760,6 +948,18 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if current_scale() != 1.0:
             self._on_gui_scale(current_scale())
         root.addLayout(actions)
+
+        self._confluency_view = QLabel(self)
+        self._confluency_view.setObjectName("MeasureConfluencyOverlay")
+        self._confluency_view.setAlignment(Qt.AlignCenter)
+        self._confluency_view.hide()
+        root.addWidget(self._confluency_view)
+        self._wound_view = QLabel(self)
+        self._wound_view.setObjectName("MeasureWoundOverlay")
+        self._wound_view.setAlignment(Qt.AlignCenter)
+        self._wound_view.hide()
+        root.addWidget(self._wound_view)
+        self._refresh_alpha_visibility()
 
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
@@ -965,6 +1165,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         2,117 controls hidden behind a gate. The count is now what brings a
         slot's controls into existence, which is why raising it is the only
         route that has to work.
+
+        :param count: number of organelle slots, clamped to
+            0-``MAX_ORGANELLES``; a value ``int()`` rejects is ignored.
         """
         try:
             wanted = max(0, min(int(count), MAX_ORGANELLES))
@@ -1024,8 +1227,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 width = int(value)
         except (TypeError, ValueError, IndexError):
             return
-        # Loading a saved rectangle is not a user edit that requests a
-        # square. Keep its geometry while setting the displayed width.
         from PySide6.QtCore import QSignalBlocker
 
         with QSignalBlocker(self._crop_size):
@@ -1168,6 +1369,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         the FOV dropdown -- comes through here. A 17 MB merged array is not a
         cheap read, and the crop pass that follows it is far worse.
 
+        :param path: merged ``.npy`` file, run folder or ``merged/`` folder, as
+            :func:`load_merged_array` accepts; an empty value submits nothing.
         :returns: ``True`` when a job was submitted.
         """
         text = str(path).strip() if path else ""
@@ -1202,16 +1405,28 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
         The sibling of ``LivePreviewPanel.load_image``: for programmatic
         callers and tests. The GUI uses :meth:`load_array_async`.
+
+        :param path: merged ``.npy`` file, run folder or ``merged/`` folder, as
+            :func:`load_merged_array` accepts; a read error is shown in the
+            status line and returns ``False``.
         """
         payload = load_merged_array(path)
         if payload["error"]:
             self._status.setText(payload["error"])
             return False
-        self._install_array(path, payload["data"])
+        if payload.get("sets") is not None:
+            self._sampler.adopt(payload.get("directory"), payload["sets"],
+                                payload.get("channels") or [])
+        self._install_array(payload["path"], payload["data"])
         return True
 
     def _install_array(self, path: str, data: np.ndarray) -> None:
         """Adopt an already-read array and re-crop from it."""
+        path = str(Path(path).resolve())
+        directory = str(Path(path).parent)
+        if directory != self._checked_directory:
+            self._checked_sources = {path}
+            self._checked_directory = directory
         self._data = data
         self._data_path = path
         self._path_label.setText(
@@ -1221,9 +1436,183 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 widget.setValue(-1)
         self._refresh_source_selectors()
         self.refresh()
+        if self._confluency_btn.isChecked():
+            self._refresh_confluency()
+        if self._wound_btn.isChecked():
+            self._refresh_wound()
+
+    def _refresh_alpha_visibility(self) -> None:
+        """Show the confluency and wound previews only with alpha features.
+
+        Item 541 registers the toggle and its overlay in
+        ``spacr.settings.ALPHA_FEATURES``; this asks the same gate the rest
+        of the window uses. Hiding it also switches it off, so no overlay is
+        left on screen from a control the user can no longer see.
+        """
+        from ..preferences import _is_alpha_visible
+
+        visible = _is_alpha_visible(
+            "widgets", self._confluency_btn.objectName())
+        if not visible and self._confluency_btn.isChecked():
+            self._confluency_btn.setChecked(False)
+        self._confluency_btn.setVisible(visible)
+        wound_visible = _is_alpha_visible(
+            "widgets", self._wound_btn.objectName())
+        if not wound_visible and self._wound_btn.isChecked():
+            self._wound_btn.setChecked(False)
+        self._wound_btn.setVisible(wound_visible)
+
+    def _confluency_preview_settings(self) -> Dict[str, Any]:
+        """The settings the confluency preview runs with.
+
+        :returns: the run's ``confluency_*`` values over the defaults, with
+            this panel's channels and cell mask slice.
+        """
+        from spacr.settings import get_measure_crop_settings
+
+        defaults = get_measure_crop_settings({})
+        settings = {key: defaults[key] for key in _CONFLUENCY_SETTING_KEYS}
+        settings.update(self._confluency_settings)
+        settings["channels"] = (
+            _parse_channels(self._measurement_channels.text()) or [0])
+        settings["cell_mask_dim"] = _optional_spin_value(
+            self._mask_dims["cell"])
+        return settings
+
+    def _on_confluency_toggled(self, on: bool) -> None:
+        """Draw or clear the covered-area overlay.
+
+        :param on: whether the overlay is wanted.
+        """
+        if on:
+            self._refresh_confluency()
+            return
+        self._confluency_token += 1
+        self._confluency_view.clear()
+        self._confluency_view.hide()
+
+    def _refresh_confluency(self) -> None:
+        """Compute the loaded field's covered area on a worker and draw it."""
+        if self._data is None:
+            self.set_preview_status(self.PREVIEW_SOURCE_HINT)
+            return
+        data = self._data
+        settings = self._confluency_preview_settings()
+        self._confluency_token += 1
+        token = self._confluency_token
+        self._jobs.submit(
+            lambda: _compute_confluency_preview(data, settings),
+            lambda result, _t=token: self._on_confluency_ready(_t, result))
+
+    def _on_confluency_ready(self, token: int, result) -> None:
+        """Show the overlay and the covered fraction. GUI thread only.
+
+        :param token: which request this answers; stale ones are dropped.
+        :param result: the dict from :func:`_compute_confluency_preview`.
+        """
+        from .live_preview import numpy_to_qpixmap
+
+        if token != self._confluency_token or not isinstance(result, dict):
+            return
+        if not self._confluency_btn.isChecked():
+            return
+        if result.get("error"):
+            self._status.setText(tr("Confluency failed: {error}",
+                                    error=result["error"]))
+            self._confluency_view.hide()
+            return
+        pixmap = numpy_to_qpixmap(result["overlay"])
+        side = max(160, self._thumb_px * 3)
+        self._confluency_view.setPixmap(
+            scaled_for(pixmap, self._confluency_view, side, side))
+        self._confluency_view.show()
+        verdict = (tr("monolayer QC passed") if result.get("monolayer_ok")
+                   else tr("below the monolayer QC threshold"))
+        self._status.setText(tr(
+            "Confluency {percent} ({source}), {verdict}",
+            percent=f"{100.0 * float(result['confluency']):.1f} %",
+            source=result.get("source", ""), verdict=verdict))
+
+    def _wound_preview_settings(self) -> Dict[str, Any]:
+        """The settings the wound preview runs with.
+
+        :returns: the run's ``wound_*`` values over the defaults, with this
+            panel's channels and cell mask slice.
+        """
+        from spacr.settings import get_measure_crop_settings
+
+        defaults = get_measure_crop_settings({})
+        settings = {key: defaults[key] for key in _WOUND_SETTING_KEYS}
+        settings.update(self._wound_settings)
+        settings["channels"] = (
+            _parse_channels(self._measurement_channels.text()) or [0])
+        settings["cell_mask_dim"] = _optional_spin_value(
+            self._mask_dims["cell"])
+        return settings
+
+    def _on_wound_toggled(self, on: bool) -> None:
+        """Draw or clear the wound-edge overlay.
+
+        :param on: whether the overlay is wanted.
+        """
+        if on:
+            self._refresh_wound()
+            return
+        self._wound_token += 1
+        self._wound_view.clear()
+        self._wound_view.hide()
+
+    def _refresh_wound(self) -> None:
+        """Find the loaded field's wound on a worker and draw its edge."""
+        if self._data is None:
+            self.set_preview_status(self.PREVIEW_SOURCE_HINT)
+            return
+        data = self._data
+        settings = self._wound_preview_settings()
+        self._wound_token += 1
+        token = self._wound_token
+        self._jobs.submit(
+            lambda: _compute_wound_preview(data, settings),
+            lambda result, _t=token: self._on_wound_ready(_t, result))
+
+    def _on_wound_ready(self, token: int, result) -> None:
+        """Show the wound overlay, its open area and widths. GUI thread only.
+
+        :param token: which request this answers; stale ones are dropped.
+        :param result: the dict from :func:`_compute_wound_preview`.
+        """
+        from .live_preview import numpy_to_qpixmap
+
+        if token != self._wound_token or not isinstance(result, dict):
+            return
+        if not self._wound_btn.isChecked():
+            return
+        if result.get("error"):
+            self._status.setText(tr("Wound failed: {error}",
+                                    error=result["error"]))
+            self._wound_view.hide()
+            return
+        pixmap = numpy_to_qpixmap(result["overlay"])
+        side = max(160, self._thumb_px * 3)
+        self._wound_view.setPixmap(scaled_for(pixmap, self._wound_view, side))
+        self._wound_view.show()
+        if result.get("status") != "ok":
+            self._status.setText(tr(
+                "No scratch found: the largest open area is {percent} of "
+                "the field", percent=(
+                    f"{100.0 * float(result['open_fraction']):.1f} %")))
+            return
+        self._status.setText(tr(
+            "Wound {percent} open, mean width {mean} {unit}, "
+            "narrowest {narrowest} {unit}",
+            percent=f"{100.0 * float(result['open_fraction']):.1f} %",
+            mean=f"{float(result['mean_width']):.0f}",
+            narrowest=f"{float(result['min_width']):.0f}",
+            unit=result.get("unit", "px")))
 
     def shutdown(self) -> None:
         """Abandon anything in flight and leave no QThread behind."""
+        self._cancel_extra_work()
         runner = getattr(self, "_jobs", None)
         if runner is not None:
             runner.shutdown()
@@ -1252,6 +1641,45 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self._data_path, tooltip="Field of view")
         channels = int(self._data.shape[2]) if self._data is not None else 0
         populate_channel_combo(self._channel_box, channels)
+        self._refresh_checked_menu()
+
+    def _refresh_checked_menu(self) -> None:
+        """Keep checked fields visible even when the random sample changes."""
+        self._checked_menu.clear()
+        clear = self._checked_menu.addAction(tr("Uncheck all images"))
+        clear.triggered.connect(self._uncheck_all_sources)
+        self._checked_menu.addSeparator()
+        paths = set(self._checked_sources)
+        for index in range(self._fov_box.count()):
+            path = self._fov_box.itemData(index)
+            if path:
+                paths.add(str(Path(path).resolve()))
+        for path in sorted(paths):
+            action = self._checked_menu.addAction(Path(path).name)
+            action.setToolTip(path)
+            action.setCheckable(True)
+            action.setChecked(path in self._checked_sources)
+            action.toggled.connect(
+                lambda checked, source=path: self._set_source_checked(source, checked))
+        self._checked_button.setText(tr("Checked images ({count})",
+                                        count=len(self._checked_sources)))
+
+    def _set_source_checked(self, path: str, checked: bool) -> None:
+        """Select one source without replacing the other checked images."""
+        path = str(Path(path).resolve())
+        if checked:
+            self._checked_sources.add(path)
+        else:
+            self._checked_sources.discard(path)
+        self._checked_button.setText(tr("Checked images ({count})",
+                                        count=len(self._checked_sources)))
+        self.refresh()
+
+    def _uncheck_all_sources(self) -> None:
+        """Clear the display selection; measurement settings stay untouched."""
+        self._checked_sources.clear()
+        self._refresh_checked_menu()
+        self.refresh()
 
     def sample_note(self) -> str:
         """The sentence stating this preview is a sample of N of M sets."""
@@ -1274,6 +1702,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         path = self._fov_box.currentData()
         if not path or str(path) == str(self._data_path):
             return
+        if self._checked_sources == {str(self._data_path)}:
+            self._checked_sources = {str(Path(path).resolve())}
         self._loading_fov = True
         try:
             self.load_array_async(path, enumerate_sets=False)
@@ -1371,25 +1801,18 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
         Every field is copied independently: a settings file carrying one
         unusable value must not cost the panel every field after it.
+
+        :param settings: the Measure settings dict, or ``None``; keys that are
+            absent or ``None`` leave their controls unchanged, and a value that
+            cannot be applied is skipped.
         """
         settings = dict(settings or {})
 
-        # THE COUNT FIRST, because it is what brings the slot controls into
-        # existence: a value written into a slot whose control does not exist
-        # yet is a value dropped on the floor. Absent is still LEFT ALONE --
-        # a dict that mentions no slot and no count is not claiming the run
-        # has none, it is making no claim, which is the rule `_set` below
-        # follows for every other field.
         speaks_to_the_count = (
             settings.get("number_of_organelles") is not None
             or any(organelle_role_of(key) is not None for key in settings))
         if speaks_to_the_count:
             self.set_organelle_count(organelle_count(settings))
-        # AND THE SLOTS THE FILE CARRIES BEYOND IT. `declared_organelle_roles`
-        # is the wider of the two -- the slots shown, plus any further slot
-        # this dict already has keys for -- so a file written at seven and
-        # opened at two keeps controls for slots three to seven and hands
-        # their values back untouched instead of dropping them.
         self._build_slot_controls(_slots_the_settings_speak_for(settings))
         self._refresh_slot_rows()
 
@@ -1464,6 +1887,18 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
         if "png_channel_mapping" in settings or "png_dims" in settings:
             self._png_dims.set_value(_resolve_png_mapping(settings))
+
+        for key in _CONFLUENCY_SETTING_KEYS:
+            if key in settings:
+                self._confluency_settings[key] = settings[key]
+        for key in _WOUND_SETTING_KEYS:
+            if key in settings:
+                self._wound_settings[key] = settings[key]
+        self._refresh_alpha_visibility()
+        if self._confluency_btn.isChecked():
+            self._refresh_confluency()
+        if self._wound_btn.isChecked():
+            self._refresh_wound()
 
         if settings.get("src"):
             self._auto_load_from_src(settings["src"])
@@ -1558,9 +1993,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     def _cancel_extra_work(self) -> None:
         """Drop the result of the crop (or load) pass in flight."""
         self._crop_token += 1
-        runner = getattr(self, "_jobs", None)
-        if runner is not None:
-            runner.cancel()
+        self._load_token += 1
+        self._crop_cancel.set()
+        self._pending_crop_request = None
 
     def run_preview(self) -> None:
         """Re-crop on demand — the shared name for the shared action.
@@ -1588,6 +2023,18 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         nothing with nothing on the status line, which is the one thing no
         live view may do.
         """
+        self._crop_token += 1
+        self._crop_cancel.set()
+        self._pending_crop_request = None
+        self._crops = []
+        self._selected.clear()
+        self.set_preview_busy(False)
+        self._render_grid()
+        if self._data is not None and not self._checked_sources:
+            self.set_preview_busy(False)
+            self.set_preview_status(tr("No images checked."))
+            self.preview_ready.emit([])
+            return
         if self._data is None:
             self.set_preview_status(self.PREVIEW_SOURCE_HINT)
             return
@@ -1621,14 +2068,33 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             limit=int(self._max_crops.value()),
             size=self._png_size_pair(),
         )
-        data = self._data
-        params = self._category_params()
-        self._crop_token += 1
-        token = self._crop_token
+        paths = tuple(sorted(self._checked_sources))
+        request = (self._crop_token, paths, self._data_path, self._data,
+                   crop_kwargs, self._category_params())
         self.set_preview_busy(True)
+        if self._crop_running:
+            self._pending_crop_request = request
+        else:
+            self._start_crop_request(request)
+
+    def _start_crop_request(self, request) -> None:
+        """Run one crop pass at a time and retain only the newest request."""
+        token, paths, path, data, kwargs, params = request
+        cancelled = self._crop_cancel = threading.Event()
+        self._crop_running = True
         self._jobs.submit(
-            lambda: compute_crops(data, crop_kwargs, params),
-            lambda result, _t=token: self._on_crops_ready(_t, result))
+            lambda: _compute_checked_crops(paths, path, data, kwargs, params,
+                                           cancelled),
+            lambda result: self._finish_crop_request(token, result))
+
+    def _finish_crop_request(self, token, result) -> None:
+        """Retire a pass even when superseded, then start the latest one."""
+        self._crop_running = False
+        self._on_crops_ready(token, result)
+        pending = self._pending_crop_request
+        self._pending_crop_request = None
+        if pending is not None:
+            self._start_crop_request(pending)
 
     def _on_crops_ready(self, token: int, result) -> None:
         """Draw the crop grid. Always on the GUI thread -- QPixmap demands it."""
@@ -1646,6 +2112,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._status.setText(
             f"{len(self._crops)} object(s) · {groups} categor"
             f"{'y' if groups == 1 else 'ies'}")
+        warnings = result.get("warnings") or []
+        if result.get("limited_fields"):
+            warnings.append(tr("Increase Maximum preview crops to include every checked image."))
+        if warnings:
+            self._status.setText(self._status.text() + " · " + "; ".join(warnings))
         self._maybe_propagate()
         self.preview_ready.emit(self._crops)
 
@@ -1725,13 +2196,14 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             1, self._grid_scroll.viewport().width() // (self._thumb_px + 12)
         )
         grouped: Dict[str, List[tuple[int, dict]]] = defaultdict(list)
-        if self._object_box.currentText() == "cell" and self._group_cells.isChecked():
-            for index, entry in enumerate(self._crops):
-                grouped[entry.get("category", "Unclassified")].append(
-                    (index, entry))
-        else:
-            grouped[self._object_box.currentText().capitalize()] = list(
-                enumerate(self._crops))
+        for index, entry in enumerate(self._crops):
+            category = (entry.get("category", "Unclassified")
+                        if self._object_box.currentText() == "cell"
+                        and self._group_cells.isChecked()
+                        else self._object_box.currentText().capitalize())
+            if len(self._checked_sources) > 1:
+                category += " · " + Path(entry.get("source_path", "")).name
+            grouped[category].append((index, entry))
 
         row = 0
         for category in sorted(grouped):
@@ -1747,9 +2219,15 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 thumb.setPixmap(self._crop_pixmap(entry["crop"]))
                 status = "kept" if entry.get("included", True) else "excluded"
                 thumb.setToolTip(
+                    f"{entry.get('source_path', '')}\n"
                     f"label {entry['label']} · {entry['area']} px² · "
                     f"{entry.get('category', '')} · {status}")
-                thumb.clicked.connect(self._on_thumb_clicked)
+                thumb.clicked.connect(
+                    lambda i, token=self._crop_token:
+                    self._on_current_thumb_clicked(token, i))
+                thumb.activated.connect(
+                    lambda i, token=self._crop_token:
+                    self._on_current_thumb_clicked(token, i, activate=True))
                 self._grid.addWidget(
                     thumb, row + offset // columns, offset % columns)
             row += (len(entries) + columns - 1) // columns
@@ -1773,6 +2251,14 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                             self._thumb_px)
         return _rounded_pixmap(pixmap, radius=8)
 
+    def _on_current_thumb_clicked(self, token, index, *, activate=False) -> None:
+        """Ignore a queued click from a grid superseded by another source."""
+        if token == self._crop_token:
+            if activate:
+                self._open_crop_source(index)
+            else:
+                self._on_thumb_clicked(index)
+
     def _on_thumb_clicked(self, index: int) -> None:
         """Open the full-size crop behind a thumbnail.
 
@@ -1788,8 +2274,16 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         selected = (
             f" · {len(self._selected)} selected" if self._selected else "")
         self._status.setText(
+            f"{Path(entry.get('source_path', '')).name} · "
             f"label {entry['label']} · {entry['area']} px² · "
             f"{entry.get('category', '')}{selected}")
+
+    def _open_crop_source(self, index: int) -> None:
+        """Navigate to the exact source of a crop with a repeated label."""
+        if 0 <= index < len(self._crops):
+            path = self._crops[index].get("source_path")
+            if path:
+                self.load_array_async(path, enumerate_sets=False)
 
     def current_params(self) -> dict:
         """The parameters the preview is using right now.
@@ -1846,8 +2340,6 @@ class CropSettingsDialog(QDialog):
 
         :returns: whether anything was laid out.
         """
-        # The last of the three layouts this reaches, so a call made while
-        # the dialog is still being built finds nothing half-laid-out.
         if getattr(self, "_filter_form", None) is None:
             return False
         panel = self._panel

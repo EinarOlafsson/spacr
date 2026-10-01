@@ -75,8 +75,9 @@ def test_each_set_is_published_in_its_own_repo_and_folder(key, repo):
     chosen = example_set(key)
     assert chosen.repo == repo
     assert EXAMPLE_ARCHIVES[repo] == f"spacr-example-{key}.tar"
-    assert chosen.folder == key
-    assert example_set_folder(key) == example_plate_folder().parent / key
+    expected_folder = "invasion_segmented_v1" if key == "invasion" else key
+    assert chosen.folder == expected_folder
+    assert example_set_folder(key) == example_plate_folder().parent / expected_folder
     assert f"settings/{key}_settings.csv" in chosen.markers
     assert 1_000_000 < chosen.bytes < 200_000_000
 
@@ -94,6 +95,11 @@ def test_the_invasion_set_says_it_is_synthetic_before_it_is_fetched():
     assert "SYNTHETIC" in example_set("invasion").summary
     assert "SYNTHETIC" in assay_examples._tooltip("invasion")
     assert "synthetic" in assay_examples._title("invasion")
+    assert "segmented by Mask" in example_set("invasion").summary
+    tooltip = assay_examples._tooltip("invasion")
+    assert "segmented by Mask with Cellpose-SAM" in tooltip
+    assert "No real cells were imaged" in tooltip
+    assert "ground truth records the drawn objects, not the segmented masks" in tooltip
     for key in ("replication", "recruitment"):
         assert "SYNTHETIC" not in assay_examples._tooltip(key)
 
@@ -171,6 +177,39 @@ def test_a_cached_copy_is_used_without_a_request(qtbot, qt_theme_applied,
     placed = assay_examples.load_the_assay_example(
         screen, ask=must_not_download, folder=folder)
     assert placed == {"src": str(folder)}
+
+
+def test_segmented_invasion_download_preserves_the_earlier_drawn_cache(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    """A complete drawn-mask example cannot satisfy the segmented download."""
+    from spacr import example_archives
+    from spacr.qt.screens.app_screen import AppScreen
+
+    monkeypatch.setattr(example_archives, "example_plate_folder",
+                        lambda: tmp_path / "plate1")
+    old_folder = _unpack_a_published_copy(tmp_path / "invasion", "invasion")
+    before = {path.relative_to(old_folder): path.read_bytes()
+              for path in old_folder.rglob("*") if path.is_file()}
+    screen = AppScreen("invasion")
+    qtbot.addWidget(screen)
+    calls = []
+
+    def download(parent, dest, on_done):
+        calls.append(Path(dest))
+        _unpack_a_published_copy(Path(dest), "invasion")
+        on_done(object(), "")
+
+    expected = tmp_path / "invasion_segmented_v1"
+    placed = assay_examples.load_the_assay_example(screen, ask=download)
+    assert calls == [expected]
+    assert placed == {"src": str(expected)}
+    assert _field(screen, "src").text() == str(expected)
+    assert {path.relative_to(old_folder): path.read_bytes()
+            for path in old_folder.rglob("*") if path.is_file()} == before
+
+    calls.clear()
+    assert assay_examples.load_the_assay_example(screen, ask=download) == placed
+    assert calls == []
 
 
 def test_a_half_unpacked_copy_is_fetched_again(qtbot, qt_theme_applied,
