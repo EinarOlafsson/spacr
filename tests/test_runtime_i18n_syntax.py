@@ -134,7 +134,10 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     additions = later_sources - earlier_sources
     # 781 -> 780 on 2026-09-25: nightly merge 5c03e8bda removed one retired PSF
     # help record from 2026-09-23-psf-help.json (11 -> 10 records).
-    assert len(additions) == report["later_distinct_additions"] == 780
+    # 780 -> 778 on 2026-10-01: the Make Masks re-layout rewrote two
+    # FEATURES workflow-map phrases; their records were retired in place
+    # (2026-09-23-workflow-map-phrases.json, 208 -> 206 records).
+    assert len(additions) == report["later_distinct_additions"] == 778
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
     for filename, record_count, source_count in (
@@ -623,7 +626,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 626  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1686  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1684  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -876,7 +879,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 619  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1678  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1676  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
