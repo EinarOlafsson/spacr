@@ -17,7 +17,7 @@ from model_promotion import validate_scope
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from published_lesson import check_published_lesson  # noqa: E402
 
-LESSONS = [('21_model_compare', 6), ('22_model_zoo', 7)]
+LESSONS = [('21_model_compare', 6), ('22_model_zoo', 13)]
 FIRST_RECORDINGS = [('21_model_compare', 8), ('22_model_zoo', 7)]
 
 
