@@ -86,7 +86,7 @@ msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and l
 msgstr "**QC Dashboard** combina verificações de segmentação, de placa, de concordância entre anotadores e de vazamento."
 
 msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
-msgstr "**Correcção em lote** oferece centralização, escore z, escore z robusto, centralização nos controles e ComBat com covariáveis biológicas protegidas."
+msgstr "**Correção de lote** oferece centralização, escore z, escore z robusto, centralização nos controles e ComBat com covariáveis biológicas protegidas."
 
 msgid "**Graph Builder, gates and linked views** connect summary plots to the object crops behind them."
 msgstr "**Graph Builder, gates and linked views** ligam os gráficos de resumo aos recortes de objetos por trás deles."
