@@ -30,6 +30,7 @@ PUBLISHED_CATALOG = REPO / "docs" / "source" / "_extra" / "tutorials" / "catalog
 #: Every registered widget must appear here: a new alpha widget fails
 #: ``test_every_alpha_widget_has_its_visible_text_listed`` until it is added.
 WIDGET_LABELS = {
+    "MakeMasksUseInMaskGeneration": ("Use in Mask generation",),
     "PlaqueEstimateScaleTime": ("Estimate scale / time (experimental)",),
     "PlaqueEstimateScaleTimeNote": ("Published RH/HFF reference",),
     "DistributedAllocatedGpus": ("segment batches on every GPU allocated",),

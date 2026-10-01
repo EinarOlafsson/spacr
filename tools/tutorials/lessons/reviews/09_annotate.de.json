@@ -1,10 +1,10 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a3acb3d56217b54087148d2878efa6bce013ff9177d326bc4d388b3680bb96d5",
+  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -36,7 +36,8 @@
     "Das ist die CMY-Palette. Über dieselben Einstellungen gelangen Sie zurück zu RGB. Behalten Sie beim Vergleichen und Beschriften dieselbe Ansicht bei.",
     "Öffnen Sie Annotator Agreement über das Symbol oben rechts, um Annotationsspalten zu vergleichen. Damit finden Sie Objekte, denen verschiedene Prüfer unterschiedliche Labels gegeben haben.",
     "Wenn Ihre Labels fertig sind, öffnen Sie Train. Wählen Sie Bilder für einen Bildklassifikator oder gemessene Merkmale für einen tabellarischen Klassifikator. Die verlinkten Classify-Lektionen erklären die Trainingseinstellungen.",
-    "Suggest kann Ihnen Labels zur Prüfung vorschlagen. Retrain aktualisiert das Modell, nachdem Sie Labels hinzugefügt haben, und Rounds hilft Ihnen, diesen Prüfzyklus zu verfolgen. Prüfen Sie vorgeschlagene Labels, bevor Sie sie übernehmen.",
+    "Suggest schlägt Labels für die Ausschnitte vor, die Sie noch nicht beantwortet haben, und braucht dafür zuerst Beispiele beider Klassen. Beschriften Sie einige von jeder, hier zehn in Klasse eins und zehn in Klasse zwei, und wechseln Sie zur nächsten Seite, damit sie gespeichert werden.",
+    "Öffnen Sie dann Suggest und wählen Sie Suggest for the images on this page. Jeder vorgeschlagene Ausschnitt trägt ein Fragezeichen: Klicken Sie ihn an oder drücken Sie Y, um zu bestätigen, oder klicken Sie mit der rechten Maustaste bzw. drücken N, um abzulehnen. Beide Antworten werden festgehalten, Ablehnungen trainieren die nächste Runde, und Rounds zeigt, wie sich das Modell dabei verbessert.",
     "Generate annotation database erstellt einen Satz von Ausschnitten aus geeigneten Quelldaten. Verwenden Sie es beim Vorbereiten eines neuen Annotationsprojekts; das heruntergeladene Beispiel enthält die hier benötigten Ausschnitte und die Datenbank bereits.",
     "Öffnen Sie Console, um Meldungen zum Laden der Quelle und zum Speichern zu prüfen. Ihre Annotationsspalte wird in der Projektdatenbank gespeichert und kann beim Vorbereiten der Trainingsdaten in Classify ausgewählt werden.",
     "Für Hilfe zu einer Einstellung öffnen Sie spaCR AI in Console, nachdem Sie in Preferences einen Anbieter eingerichtet haben. Wenn Sie mit dem Beschriften fertig sind, fahren Sie mit Classify, Ihrem Projekt und der gewählten Annotationsspalte fort."
