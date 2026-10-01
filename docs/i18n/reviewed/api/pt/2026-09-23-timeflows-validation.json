@@ -430,7 +430,7 @@
       "source": "the loss at every step.",
       "source_sha256": "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
       "translation": "a perda em cada etapa.",
-      "relocated_from_2026_10_01": "spacr.timeflows_model.train_timeflows#16"
+      "rebound_from": "spacr.timeflows_model.train_timeflows#16"
     },
     {
       "context": "no usable supervision remains after 32 sampled extracted image regions for a step; inspect the full masks and motion relative to the tile.",
@@ -439,7 +439,7 @@
       "source_sha256": "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885",
       "translation": "não resta supervisão utilizável após 32 recortes amostrados para uma etapa; inspecione as máscaras completas e o movimento em relação ao bloco.",
       "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "retired_reason": "2026-10-01: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     }
   ],
   "review_kind": "AI-assisted technical and linguistic review of held-out validation, scoring controls, input separation and CTC segmentation selection; no native-speaker or model-accuracy sign-off",
