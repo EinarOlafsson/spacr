@@ -286,3 +286,27 @@ custom-schema acknowledgment/reset, validation preview and saved definition.
 Shared merge rules are tracked in 79; Graph Builder integration is in 613.
 
 Supporting API, docs, translations, tutorials and validation are tracked in 615.
+
+2026-10-01 IMPLEMENTATION — named/default/custom merging in Gate Editor
+The Merge tables button now sits immediately right of the table picker and uses
+N79's shared popup and validation engine. Named results replace the active working
+frame and remain selectable through ordinary refresh/reopen. Existing chip-based
+working sets remain supported. Custom external schemas support actual tabular
+gating; image annotation/export are disabled with an explanation when verified
+image/object provenance is unavailable.
+
+Saved gating strategies embed the complete merge definition. Load reconstructs
+and revalidates the source-bound mapping, including after its sidecar was removed.
+Export gates evaluates the full reconstructed result rather than attempting to
+read a nonexistent physical derived table; filter writeback uses the original
+base object type. time_id is also retained as canonical timeID so repeated labels
+in distinct frames cannot receive each other's gate. Annotate uses the base role.
+The module workflow/API docstring now documents these behaviors.
+
+Validation: tests/qt/test_requested_gate_table_merges.py covers named table refresh,
+real gate masks, custom-data gating with unsupported image actions disabled,
+strategy reconstruction, real filters-table export and a temporal-export case
+that marks only one object in one frame. Existing Gate working-set tests pass.
+Included in the passing 198-check merge cohort and 93-check targeted follow-up.
+Ruff and git diff checks pass. Generated API/catalog/tutorial publication remains
+coordinated in N615; native platform appearance was not claimed.

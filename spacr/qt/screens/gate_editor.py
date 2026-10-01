@@ -16,7 +16,15 @@ where the object tables are offered first, or a CSV or TSV file. Several
 databases can be loaded as one table; plate identifiers that collide between
 them are reported rather than silently pooled. Database tables are read as a
 sample set by ``sample_fraction`` and capped by ``max_points``, both in the
-Gate Editor settings.
+Gate Editor settings. **Merge tables** beside the table picker opens the same
+validated default/custom merge workflow as Graph Builder. Name the result,
+inspect row counts, unmatched records and the aggregation preview, then create
+it. Multiple child tables are aggregated independently onto composite image,
+time and object keys. Saved gates embed the derived-table definition and
+reconstruct it against the same source/schema. Export evaluates the full merged
+table and writes gates using the original base object's identity. External
+tabular merges remain gateable; image annotation/export are unavailable when
+image/object provenance cannot be verified.
 
 **What it produces.** Threshold, rectangle, oval, polygon and wand gates on
 one or two measurements, box, cylinder and prism gates in the 3D view, and
@@ -45,6 +53,7 @@ Assembles:
 """
 from __future__ import annotations
 
+import json
 import logging
 import os
 from pathlib import Path
@@ -53,33 +62,51 @@ from typing import List, Optional, Tuple
 import pandas as pd
 from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtWidgets import (
-    QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSizePolicy,
-    QVBoxLayout, QWidget, QTabWidget,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
+from ..app_catalog import declared_app, register_declared
 from ..job_runner import JobRunner
 from ..theme import SPACING, page_tabs_qss, register_widget_qss
 from ..widgets.collapsible_splitter import EDGE, CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
-from ..widgets.gate_search_panel import GateSearchPanel
+from ..widgets.derived_table_source import DerivedTableSource
 from ..widgets.formula_editor import FormulaPanel
 from ..widgets.gate_canvas import (
-    AxisCutoffs, CutoffError, apply_cutoffs, axis_at, axis_menu_items,
-    parse_cutoff, AXIS_NAMES,
+    AXIS_NAMES,
+    AxisCutoffs,
+    CutoffError,
+    apply_cutoffs,
+    axis_at,
+    axis_menu_items,
+    parse_cutoff,
 )
-from ..widgets.gate_editor import GateEditorPanel
-from ..widgets.gate_spec import GateError, GateSet
-from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
-from ..widgets.graph_spec import GraphSpec, plottable_columns
 from ..widgets.gate_console import GateConsole
-from ..widgets.table_chip import TableChip
+from ..widgets.gate_editor import GateEditorPanel
+from ..widgets.gate_search_panel import GateSearchPanel
+from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
+from ..widgets.gate_spec import GateError, GateSet
+from ..widgets.graph_spec import GraphSpec, plottable_columns
 from ..widgets.measurements_example import (
-    EXAMPLE_TABLE, install_test_data_button,
+    EXAMPLE_TABLE,
+    install_test_data_button,
 )
-from .graph_builder import read_table, table_names
+from ..widgets.table_chip import TableChip
 from .app_screen import ModuleHeader
-from ..app_catalog import declared_app, register_declared
+from .graph_builder import read_table, table_names
 
 LOG = logging.getLogger("spacr.qt.screens.gate_editor")
 
@@ -234,7 +261,7 @@ class _AxisCutoffDialog(QDialog):
                 parse_cutoff(self._high.text()))
 
 
-class GateEditorScreen(QWidget):
+class GateEditorScreen(DerivedTableSource, QWidget):
     """A table, two axis pickers, the gating surface, and save/load.
 
     :param parent: parent widget.
@@ -312,6 +339,7 @@ class GateEditorScreen(QWidget):
             "and a nuclear one on another.")
         self._table_picker.activated.connect(self._on_table_added)
         head.addWidget(self._table_picker)
+        self._install_merge_button(head)
 
         load = QPushButton("Load table…", self)
         load.setObjectName("PrimaryButton")
@@ -551,6 +579,7 @@ class GateEditorScreen(QWidget):
         :param frame: the rows, or None to clear.
         """
         self._frame = frame
+        self._derived_frame_loaded(frame)
         self.formulas.set_frame(frame)
         self._push_frame()
         self._source.setText(
@@ -667,8 +696,7 @@ class GateEditorScreen(QWidget):
         :param table: the table to read from every database; ``None`` uses the
             first table of the first database.
         """
-        from ...multi_database import (
-            SOURCE_COLUMN, MergeRefused, describe_merge, read_merged)
+        from ...multi_database import SOURCE_COLUMN, MergeRefused, describe_merge, read_merged
 
         paths = [str(p) for p in paths]
         if not paths:
@@ -735,8 +763,7 @@ class GateEditorScreen(QWidget):
         The record preserves collision resolutions that cannot be recovered
         from the merged table itself.
         """
-        from ...multi_database import (MergeDecision, decision_for,
-                                       record_decision)
+        from ...multi_database import MergeDecision, decision_for, record_decision
 
         try:
             if plan is not None:
@@ -792,7 +819,9 @@ class GateEditorScreen(QWidget):
             f"loading {os.path.basename(path)}"
             + (f" · {chosen}" if chosen else "") + "…")
         self._table = chosen
-        if chosen and chosen not in self._tables:
+        from ...derived_tables import load_definitions
+        derived = bool(names and chosen in load_definitions(path))
+        if chosen and (chosen not in self._tables or derived):
             self._tables = [chosen]
             self._rebuild_chips()
         fraction = self._settings.sample_fraction
@@ -812,6 +841,14 @@ class GateEditorScreen(QWidget):
         """
         if str(path).lower().endswith((".csv", ".tsv", ".txt")) or not table:
             return read_table(path, table, limit=cap)
+        from ...derived_tables import load_definitions
+        if table in load_definitions(path):
+            frame = read_table(path, table)
+            if cap and len(frame) > cap:
+                return frame.iloc[::max(1, len(frame) // int(cap))].head(int(cap))
+            if fraction < 1:
+                return frame.iloc[::max(2, int(round(1.0 / fraction)))]
+            return frame
         from ...filters import read_sampled
         return read_sampled(path, table, fraction=fraction, limit=cap)
 
@@ -1288,9 +1325,8 @@ class GateEditorScreen(QWidget):
 
         :returns: an error to show, or None on success.
         """
-        from ...merge_tables import ReductionError, reduce_dimensions
-
         from ...column_groups import resolve
+        from ...merge_tables import ReductionError, reduce_dimensions
 
         frame = self._frame
         if frame is None or frame.empty:
@@ -1407,6 +1443,7 @@ class GateEditorScreen(QWidget):
     def show_aggregation_rules(self) -> None:
         """The per-column merge rules, for the columns actually loaded."""
         from PySide6.QtWidgets import QMessageBox
+
         from ..widgets.aggregation_rules import AggregationRulesDialog
 
         frame = self._frame
@@ -1512,6 +1549,9 @@ class GateEditorScreen(QWidget):
         """Write every gate to the database as a column of ``filters``."""
         from PySide6.QtWidgets import QMessageBox
 
+        if not self._has_merge_image_provenance():
+            self._source.setText("This merge has no verified image/object provenance; save the gating strategy for tabular reuse.")
+            return
         gates = self.gates.gates
         if gates.is_empty:
             QMessageBox.information(self, "No gates",
@@ -1551,14 +1591,22 @@ class GateEditorScreen(QWidget):
         formula the database does not have must not cost the user the other
         five.
         """
+        from ...derived_tables import execute, load_definitions
         from ...filters import FilterError, export_gate, gate_mask_over_table
-
+        definition = load_definitions(path).get(table)
+        derived_frame = execute(path, definition)[0] if definition else None
+        if definition and not derived_frame.attrs.get("image_provenance"):
+            return [], [(g.name, "No verified image/object provenance") for g in gates.gates]
         written, failed = [], []
         for gate in gates.gates:
             try:
-                frame, mask = gate_mask_over_table(path, table, gates, gate.name)
+                if derived_frame is not None:
+                    frame = derived_frame
+                    mask = gates.mask(frame, gate.name)
+                else:
+                    frame, mask = gate_mask_over_table(path, table, gates, gate.name)
                 column, marked = export_gate(
-                    path, frame, mask, gate.name, object_type=table)
+                    path, frame, mask, gate.name, object_type=definition["base"] if definition else table)
                 written.append((column, marked))
             except (FilterError, Exception) as exc:
                 LOG.info("could not export gate %r", gate.name, exc_info=True)
@@ -1573,8 +1621,12 @@ class GateEditorScreen(QWidget):
         be asking a question they have already answered.
         """
         from PySide6.QtWidgets import QInputDialog, QMessageBox
+
         from ...filters import ANNOTATION_MODES, FilterError, annotate_from_gates
 
+        if not self._has_merge_image_provenance():
+            self._source.setText("This merge has no verified image/object provenance.")
+            return
         names = list(self.gates.canvas.enabled_gates)
         if not names:
             QMessageBox.information(
@@ -1615,10 +1667,11 @@ class GateEditorScreen(QWidget):
                                  f"(not written: this table came from a file)")
             return
 
+        annotation_column = column.strip()
         self._jobs.submit(
-            lambda p=path, f=frame, l=labels, c=column.strip(),
-                   t=(self._table or ""):
-                self._write_annotation(p, f, l, c, t),
+            lambda p=path, f=frame, labels_=labels, c=annotation_column,
+                   t=(self._merge_definition["base"] if self._merge_definition else self._table or ""):
+                self._write_annotation(p, f, labels_, c, t),
             lambda payload: self._source.setText(
                 f"wrote {payload[0]} — {summary}"))
 
@@ -1669,6 +1722,17 @@ class GateEditorScreen(QWidget):
     def _on_table_added(self, _index: int) -> None:
         """Picking a table ADDS it to the working set."""
         name = self._table_picker.currentText()
+        from ...derived_tables import load_definitions
+        if self._path and name in load_definitions(self._path):
+            self._tables = [name]
+            self.load_path(self._path, table=name)
+            self._rebuild_chips()
+            return
+        if self._merge_definition and name:
+            self._tables = [name]
+            self.load_path(self._path, table=name)
+            self._rebuild_chips()
+            return
         if not name or name in self._tables:
             return
         self._tables.append(name)
@@ -1815,8 +1879,8 @@ class GateEditorScreen(QWidget):
             paths = list(self._paths)
             labels = self.database_labels()
             self._jobs.submit(
-                lambda p=paths, l=labels, t=tables, c=cap, m=policy:
-                    (t[0], self._read_across_databases(p, l, t, c, m)),
+                lambda p=paths, labels_=labels, t=tables, c=cap, m=policy:
+                    (t[0], self._read_across_databases(p, labels_, t, c, m)),
                 self._on_frame_loaded)
             return
         self._jobs.submit(
@@ -1961,7 +2025,10 @@ class GateEditorScreen(QWidget):
         :param path: the file to write the gating strategy to, as JSON; an
             existing file is overwritten.
         """
-        self.gates.gates.save(path)
+        payload = self.gates.gates.to_dict()
+        if self._merge_definition:
+            payload["merge_definition"] = self._merge_definition
+        Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
         self._source.setText(_with_lock_notes(
             f"gates saved to {os.path.basename(path)}", path))
         return path
@@ -1985,7 +2052,25 @@ class GateEditorScreen(QWidget):
             that cannot be read is reported on the source line and gives False.
         """
         try:
-            self.gates.set_gates(GateSet.load(path))
+            payload = json.loads(Path(path).read_text(encoding="utf-8"))
+            definition = payload.get("merge_definition")
+            if definition:
+                from ...derived_tables import execute, save_definition
+                if not self._path:
+                    raise ValueError("Open the strategy's source database before loading its merged table.")
+                frame, _report = execute(self._path, definition)
+                save_definition(self._path, definition)
+                self._jobs.cancel()
+                self._table = definition["name"]
+                self._tables = [self._table]
+                self._table_picker.blockSignals(True)
+                if self._table_picker.findText(self._table) < 0:
+                    self._table_picker.addItem(self._table)
+                self._table_picker.setCurrentText(self._table)
+                self._table_picker.blockSignals(False)
+                self._rebuild_chips()
+                self.set_frame(frame)
+            self.gates.set_gates(GateSet.from_dict(payload))
         except (GateError, OSError, ValueError) as exc:
             LOG.info("could not load gates from %s: %s", path, exc)
             self._source.setText(f"could not load those gates: {exc}")
