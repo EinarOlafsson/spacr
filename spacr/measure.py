@@ -3583,6 +3583,7 @@ def _confluency_phase_features(x):
     noise = max(float(estimate_sigma(x)), 1e-4)
 
     def log_sd(window):
+        """Log of the local standard deviation in ``window``, in noise units."""
         return np.log(_local_sd(x, window) / noise + 1e-3)
 
     planes = {window: log_sd(window) for window in (3, 7, 15, 31)}
