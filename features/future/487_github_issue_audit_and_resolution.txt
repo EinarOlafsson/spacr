@@ -399,3 +399,12 @@ acceptance work are tracked in new/614_github_134_measure_plane_layout_conflict.
 The prior zero-open-issues statement remains a dated 2026-09-24 snapshot;
 this update does not reopen any of those historical issue resolutions.
 No issue was changed or closed by this inventory session.
+
+2026-10-01 — ISSUE134 CLOSED AFTER THE FIX REACHED MAIN
+The implementation session verified fix d4f89627d is an ancestor of remote
+main 2429976f0, merged through PR #135. N614 records the actual no-pathogen
+Measure run, unchanged layout manifest, explicit-conflict refusal and the
+26 passing focused checks. Issue134 was closed as completed at
+2026-10-01T19:17:59Z. A subsequent paginated open-issue listing returned
+zero issues. This records merged runtime acceptance; release publication
+and outstanding supporting work remain separately tracked by N615.
