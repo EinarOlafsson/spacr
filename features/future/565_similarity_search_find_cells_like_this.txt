@@ -73,7 +73,9 @@ FOLLOW-UP IMPLEMENTED 2026-10-01 — SEARCH CONTROLS
     index, overlays unsaved local labels and waits off the GUI thread for
     already-submitted label batches. Save failures are actionable, and late
     replies after a source/table/annotation-column/image-type change are ignored.
+    Writer startup failures with zero pending batches are also refused, so
+    a stopped writer cannot make an unanswered-only search silently use stale labels.
     Focused evidence: tests/qt/test_similarity_options_f565.py plus existing
-    tests/qt/test_find_similar_alpha_gate.py — 12 passed on CPU, offscreen,
+    tests/qt/test_find_similar_alpha_gate.py — 13 passed on CPU, offscreen,
     under a 4 GiB cap with two compute threads. No GPU run or biological
     validation is claimed; the acceptance gaps above remain open.

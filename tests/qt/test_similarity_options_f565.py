@@ -78,14 +78,16 @@ def test_options_follow_alpha_registration(annotate, alpha, monkeypatch):  # noq
     assert not annotate._similar_unlabelled.isChecked()
 
 
-def test_failed_pending_label_save_refuses_unlabelled_search(qtbot, tmp_path):
+@pytest.mark.parametrize('pending_batches', [0, 1])
+def test_failed_pending_label_save_refuses_unlabelled_search(qtbot, tmp_path, pending_batches):
     class FailedWriter:
-        pending_batches = 1
         last_error = 'locked'
+    writer = FailedWriter()
+    writer.pending_batches = pending_batches
     frame = pd.DataFrame({'a': [1., 2., 3.], 'b': [3., 1., 2.]}, index=['a', 'b', 'c'])
     worker = _SimilarityWorker(str(tmp_path / 'unused.db'), None, 'a',
                                index=_SimilarityIndex(frame, backend='numpy'),
-                               unlabelled_only=True, writer=FailedWriter())
+                               unlabelled_only=True, writer=writer)
     failures = []
     worker.failed.connect(failures.append)
     worker.run()

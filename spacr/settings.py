@@ -7385,7 +7385,7 @@ ALPHA_FEATURES = {
         'models': ('sam2_v1',),
     },
     565: {
-        'widgets': ('AnnotateFindSimilar',),
+        'widgets': ('AnnotateFindSimilar', 'AnnotateSimilarityOptions'),
     },
     560: {
         'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker'),

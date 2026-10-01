@@ -901,6 +901,8 @@ class _SimilarityWorker(QThread):
             if time.monotonic() >= deadline:
                 raise ValueError("Labels are still being saved; try the unlabelled search after saving finishes.")
             time.sleep(0.02)
+        if self._writer is not None and self._writer.last_error:
+            raise ValueError("Labels could not be saved; resolve the save error before searching unlabelled crops.")
         table = '"' + self._png_table.replace('"', '""') + '"'
         column = '"' + self._annotation_column.replace('"', '""') + '"'
         with sqlite3.connect(f"file:{self._db_path}?mode=ro", uri=True, timeout=30) as db:
