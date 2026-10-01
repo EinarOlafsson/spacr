@@ -50,7 +50,9 @@
       "source_sha256": "d4832655134edc2bd98d98f8baaa9ea71afc520147f331b1f390a9775eefbda5",
       "context": "Item 471: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "Item 471: \"quando uma pré-visualização ao vivo abre, ela ocupa a altura inteira da tela: o console, o contêiner System e a seção de botões abaixo de System se recolhem automaticamente, e as configurações se recolhem para a esquerda\", e o mesmo sempre que figuras aparecem.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#2",
@@ -210,7 +212,9 @@
       "source_sha256": "d7c96a305b7af08faf05d55e039bb388e2d301b27ed513a56c3e006de0b602fe",
       "context": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "Item 471, parte C: \"quaisquer seções dentro dos contêineres de figuras ou de pré-visualização ao vivo também devem ser recolhíveis ... todo elemento da GUI, seja uma figura ou uma tabela\". Esta é a única forma de uma seção dentro de uma tela ganhar um controle de recolhimento, para que todas pareçam e se comportem da mesma maneira: uma seta e um nome acima do corpo (o mesmo :class:`~spacr.qt.widgets.foldable.Folder` que o console e o System usam), um clique a recolhe, e uma seção recolhida é seu título preso à parte de BAIXO de todo o espaço que recebe (:func:`lock_folded_to_bottom`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#10",
@@ -258,7 +262,9 @@
       "source_sha256": "43b80d0f63a9a4c8798f2872cecbf15370b54233bef26ebc087517cd5bcd0277",
       "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
       "translation": "A VISIBILIDADE PRÓPRIA DO CORPO CONTINUA SENDO DO SEU PROPRIETÁRIO. O recolhimento oculta um contêiner interno, nunca o corpo, então expandir não pode mostrar um painel que seu proprietário ocultou nem construir um painel que é construído na primeira exibição (itens 284/380). No sentido inverso, a seção segue seu corpo: enquanto o proprietário mantém o corpo oculto, a seção inteira -- título incluído -- também fica oculta, e volta quando o proprietário mostra o corpo. Só o indicador de oculto do corpo é lido para isso, então nada é mostrado, medido ou construído para descobrir.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#3",
@@ -562,7 +568,9 @@
       "source_sha256": "4e2e6595cfbd138b4c4a186481d80353527e3fb0d5c4c000f1cf7cefdd2cb3cb",
       "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
       "translation": "Um painel recolhido que recebia mais espaço do que seu título precisa -- o último painel de um splitter, uma seção esticada pela sua coluna -- dispunha seu título no meio desse espaço, que é o bug que o item 471 aponta (\"quando eu recolho o console, ele se recolhe para o meio\"). Um stretch colocado ACIMA do título enquanto ele está recolhido ocupa o espaço sobrando.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#2",

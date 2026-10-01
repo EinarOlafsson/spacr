@@ -2826,7 +2826,9 @@
       "source_sha256": "5853f6cd5be1179d1340dd4b1219aa90013d5e943b6b7af5c410bead612343ae",
       "context": "Three inversions live here and they do different things (items 435 and 419 point 9). :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
       "translation": "TRÊS INVERSÕES VIVEM AQUI E FAZEM COISAS DIFERENTES (itens 435 e 419, ponto 9). :func:`invert_intensity` é o complemento fotográfico de uma IMAGEM -- ``dtype_max - value``, o que o Invert de um visualizador faz, exatamente reversível em qualquer dtype inteiro --, e é com ela que o \"Invert image\" da tela do Make Masks desenha. :func:`invert_for_detection`, em vez disso, reflete uma imagem em torno da sua PRÓPRIA faixa, e é o que o \"Invert for detection\" da tela entrega aos detectores; sua docstring tem a medição que mostra por que um detector não pode usar o complemento, e ela NÃO é uma duplicata a ser eliminada por fusão. :func:`invert_mask` inverte o primeiro plano e o fundo de uma imagem de RÓTULOS; em um campo comum, isso resulta em um único objeto cobrindo o quadro, e é por isso que foi relatado como se não fizesse nada.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine#5",
@@ -2874,7 +2876,9 @@
       "source_sha256": "680fdcbb8bea819fa4d8fd7853559d6a26d9847d442def1bc678c86829040936",
       "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list (item 511), so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
       "translation": "Eles não são mais um segundo filtro. :func:`legacy_filters` os transforma em entradas da lista única de filtros (item 511), de modo que um chamador que ainda passe ``min_area=20`` é julgado pela mesma passagem de regionprops que um usuário que acrescentou uma linha ``area``, e um :class:`FilterRemoval` ainda nomeia o limite legado em que um objeto falhou, para que os registros mais antigos sejam lidos da mesma forma.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.FILTER_KEYS#0",

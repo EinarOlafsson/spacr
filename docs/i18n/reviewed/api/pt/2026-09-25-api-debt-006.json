@@ -4340,7 +4340,9 @@
       "source_sha256": "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
       "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
       "translation": "O corpo é disposto com um stretch, e um layout conta esse stretch mesmo enquanto o corpo está oculto, então um cartão recolhido ainda pedia espaço e o dividia igualmente com o stretch que prende um título recolhido na parte de baixo de seu painel (item 515): o Console recolhido saía com metade da altura do painel. Recolhido, o corpo abre mão de seu stretch; aberto, ele o retoma.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.card.Card.follow_fold#2",
@@ -4732,7 +4734,9 @@
       "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
       "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
       "translation": "Item 471, parte B. Dois pedidos que acabam sendo um só: todo contêiner se recolhe (\"sempre que algo for recolhido, deve se prender automaticamente à parte de baixo do contêiner em que está\"), e todo contêiner pode ser \"expandido ou encolhido arrastando as bordas\". Um :class:`~PySide6.QtWidgets.QSplitter` já faz as duas coisas -- uma alça para arrastar, e um filho que pode ser reduzido a nada --, então as duas metades vivem aqui como UM mecanismo, e tudo o que se recolhe em um splitter também se redimensiona, e vice-versa.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter#2",
