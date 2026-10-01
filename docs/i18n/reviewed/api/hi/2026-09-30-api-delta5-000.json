@@ -1,0 +1,640 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting.build_plan#7",
+      "source": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "source_sha256": "458e0718fd7c8fe44ebb1f16ece2c2ab2690e2bbc1f15c7a079d2da08d7ed031",
+      "context": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "translation": "``{image: mask path}`` जो हर छवि का मास्क सीधे बताता है (मास्क कॉलम); जो छवि इसमें नहीं है, उसका कोई मास्क नहीं है। None होने पर हर मास्क :func:`mask_for` से खोजा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#1",
+      "source": "Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "source_sha256": "7fc544a3cc6225fd1b7812f065faf628151122fccf7cbf22d99f1726fc58e1e4",
+      "context": "Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "translation": "Make Masks फ़ाइलें, फ़ोल्डर या दोनों छोड़े जाने को स्वीकार करता है, और उपयोगकर्ता का आशय इस पर निर्भर करता है कि क्या छोड़ा गया। :func:`classify_drop` पथों को पढ़ता है -- नाम, फ़ोल्डर संरचना और, कुछ TIFFs के लिए, उनके पिक्सेल -- और बताता है कि यह नीचे दिए गए मामलों में से कौन-सा है, बिना कोई प्रश्न पूछे या कोई विजेट दिखाए:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.mask_io#8",
+      "source": "The second half of this module moves label masks to and from the formats other tools curate and train on: :func:`masks_to_geojson` and :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and :func:`coco_to_masks` for COCO-style training sets, and :func:`export_rois` / :func:`import_rois` choosing among them by file name.",
+      "source_sha256": "7062fc19343d4d5d8071b25be2ca74952f809825f64a59120826923d88660493",
+      "context": "The second half of this module moves label masks to and from the formats other tools curate and train on: :func:`masks_to_geojson` and :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and :func:`coco_to_masks` for COCO-style training sets, and :func:`export_rois` / :func:`import_rois` choosing among them by file name.",
+      "translation": "इस मॉड्यूल का दूसरा भाग लेबल मास्क को उन फ़ॉर्मेट में और उनसे लाता-ले जाता है जिन पर अन्य टूल क्यूरेशन और प्रशिक्षण करते हैं: QuPath के लिए :func:`masks_to_geojson` और :func:`geojson_to_masks`, Fiji के ROI Manager के लिए :func:`masks_to_roiset` और :func:`roiset_to_masks`, COCO-शैली प्रशिक्षण सेट के लिए :func:`masks_to_coco` और :func:`coco_to_masks`, और :func:`export_rois` / :func:`import_rois`, जो फ़ाइल नाम से इनमें से चुनते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#2",
+      "source": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes. So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest), each in its own backend's worker.",
+      "source_sha256": "a37bac1c01e027cec6ef98504c6846db765e23b96a862563152d27419cd9aea3",
+      "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes. So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest), each in its own backend's worker.",
+      "translation": "जिस ऑब्जेक्ट की मॉडल सेटिंग ``cellpose3:<model or weights path>`` हो, या ``segmentation_backend`` के ``'cellpose3'`` होने पर हर ऑब्जेक्ट, उसे Cellpose 3 बैकएंड के अपने परिवेश में ``_cellpose3_masks`` विभाजित करता है; जो वह लौटाता है वह Cellpose-SAM परिणाम वाली ही पंक्तियों से गुज़रता है, इसलिए सहेजे गए मास्क और डेटाबेस पंक्तियाँ एक जैसे लिखे जाते हैं। जिसकी मॉडल सेटिंग ``cellpose_dino:<checkpoint path>`` हो, उसे Cellpose-DINO बैकएंड का वर्कर विभाजित करता है, जो Cellpose-SAM मॉडल वाला ही ``eval`` कॉल लेता है और उसकी आकृतियाँ लौटाता है। यही उस ऑब्जेक्ट के लिए भी है जिसकी मॉडल सेटिंग में StarDist, InstanSeg या Omnipose उपसर्ग हो (``stardist:<model>`` आदि), हर एक अपने बैकएंड के वर्कर में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.ReaderNeedsInstall#1",
+      "source": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place.",
+      "source_sha256": "ad034697e3a3247bddc8054a4aa04eaf5e0b2504b6ea0c89a17428f8fb5df87c",
+      "context": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place.",
+      "translation": "एक :class:`ImportError`, ताकि हर कॉलर जो पहले से अनुपस्थित रीडर की रिपोर्ट करता था वह अब भी करे; Plaque Assay इसे पकड़कर उसी जगह इंस्टॉल की पेशकश करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.figure_folders#1",
+      "source": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
+      "source_sha256": "f8323f70ad6be21f5af494bbf970b97367ad794acfe103d3c8d88d31f2d1daec",
+      "context": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
+      "translation": "पेपर फ़ोल्डर, या फ़िगर छवियों का फ़ोल्डर, जैसा है वैसा ही पढ़ा जाता है। पेपर फ़ोल्डरों वाला फ़ोल्डर -- एक साथ पढ़ी गई कई PDFs, हर एक अपने फ़ोल्डर में -- पेपर दर पेपर पढ़ा जाता है: पहले उसकी अपनी फ़िगर छवियाँ, यदि हों, फिर हर पेपर फ़ोल्डर नाम के क्रम में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay#18",
+      "source": "Optional ``{slot role: channel}`` for the organelle slots after the first (``{'organelleb': 3}``), each drawn in its own colour. Default ``None`` draws the first slot only, as before. Mask planes are located through the merged folder's plane layout sidecar when one is present, so a slot left out here no longer shifts the planes of the objects that are drawn.",
+      "source_sha256": "20afcb292f47ac539953501ffb5a6cf59295b59f48cff163bfc14b53ba255867",
+      "context": "Optional ``{slot role: channel}`` for the organelle slots after the first (``{'organelleb': 3}``), each drawn in its own colour. Default ``None`` draws the first slot only, as before. Mask image layers are located through the merged folder's image layer layout sidecar when one is present, so a slot left out here no longer shifts the image layers of the objects that are drawn.",
+      "translation": "पहले के बाद वाले ऑर्गेनेल स्लॉट के लिए वैकल्पिक ``{slot role: channel}`` (``{'organelleb': 3}``), हर एक अपने रंग में बनाया जाता है। डिफ़ॉल्ट ``None`` पहले की तरह केवल पहला स्लॉट बनाता है। जब मर्ज किए गए फ़ोल्डर की प्लेन-लेआउट सहायक फ़ाइल मौजूद हो, तो मास्क प्लेन उसी के ज़रिए खोजे जाते हैं, इसलिए यहाँ छोड़ा गया स्लॉट अब बनाए जाने वाले ऑब्जेक्ट के प्लेन को खिसकाता नहीं है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.annotate_engine.SaveWorker.submit#2",
+      "source": "the column to write; the annotation column when omitted. The Annotate screen's judgements go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one queue, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
+      "source_sha256": "eb3195b72294dc96abd1f26172a2854d428c89af4a83a77538d6eaa990d46210",
+      "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
+      "translation": "लिखा जाने वाला स्तंभ; छोड़ने पर एनोटेशन स्तंभ। Annotate पेज के निर्णय दूसरे कनेक्शन के बजाय इसी राइटर के माध्यम से ``<column>_verdict`` स्तंभ में जाते हैं: एक राइटर, एक कतार, एक क्रम। किसी अन्य स्तंभ का बैच जो लिखा नहीं जा सकता, ``_failed_extra`` में उसके स्तंभ के अंतर्गत रखा जाता है, ``_failed_batch`` से अलग, ताकि एनोटेशन बैच वही आकार बनाए रखे जिसकी उसका हर पाठक अपेक्षा करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#1",
+      "source": "A folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "source_sha256": "f0ea7f83f97e0ee55369f435911d29ba349aa47ad84bd137db80f9be84b689b3",
+      "context": "A folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "translation": "ऐसा फ़ोल्डर जिसकी छवियाँ केवल सबफ़ोल्डरों में हैं, और spaCR द्वारा लिखा गया फ़ोल्डर (``merged/*.npy``, ``sorted_channels``) भी स्वीकार किए जाते हैं, और एक ``.npy`` भी ताकि स्क्रीन बता सके कि वह क्या है; :func:`spacr.drop_classification.classify_drop` तय करता है कि छोड़ी गई सामग्री का क्या अर्थ है। जोड़े बाद में खोजे जाते हैं, यहाँ आवश्यक नहीं हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler#1",
+      "source": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs; other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "source_sha256": "d5ed8bf1751ac20608c6062ae3650361e716be90e5bf54db03dc0a83eb4a0ff4",
+      "context": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs; other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "translation": "यह प्लाक छवियाँ, उनके फ़ोल्डर, दोनों का मिश्रण, और Figure मोड में कितनी भी PDFs स्वीकार करता है; उनके साथ छोड़ी गई अन्य फ़ाइलें चुपचाप अलग रख दी जाती हैं। इस हैंडलर से पहले Plaque Assay को Make Masks की नीति दी गई थी, जो उस फ़ोल्डर को जिसका वह उपयोग नहीं कर सकता था, Make Masks के वाक्य के साथ अस्वीकार कर देती थी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#1",
+      "source": "The mode follows what was dropped: PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "source_sha256": "9140ac09fcc1a71770e76a0759797463235beccaba4a4dc0dfd3f97ecd23cba9",
+      "context": "The mode follows what was dropped: PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "translation": "मोड गिराई गई सामग्री का अनुसरण करता है: Plaque मोड में गिराई गई PDFs, या उनका फ़ोल्डर, Figure मोड पर जाने के लिए पूछते हैं; Figure मोड में गिराई गई छवियाँ Plaque मोड पर जाने के लिए पूछती हैं; PDFs और छवियाँ एक साथ बताती हैं कि PDFs Figure मोड में और छवियाँ Plaque मोड में पढ़ी जाती हैं, और पूछती हैं कि कौन-सा पढ़ना है। Figure मोड में रहने पर छवियाँ चित्रों के रूप में पढ़ी जाती हैं; Plaque मोड में रहने पर PDFs अपठित रहती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_others#1",
+      "source": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused; hidden files are not counted, nor is what a paper folder holds.",
+      "source_sha256": "0156594e489a886de637fd684932187520eba6954bbffee07c215da6bd8598ea",
+      "context": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused; hidden files are not counted, nor is what a paper folder holds.",
+      "translation": "जो फ़ाइल न प्लाक छवि है न PDF, चाहे छोड़ी गई हो या छोड़े गए फ़ोल्डर के शीर्ष स्तर पर हो, उसे अस्वीकार करने के बजाय अनदेखा किया जाता है; छिपी फ़ाइलें नहीं गिनी जातीं, और न ही पेपर फ़ोल्डर की सामग्री।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.live_zoom.register_text_column#0",
+      "source": "Let Ctrl + wheel over ``root`` size the text inside it.",
+      "source_sha256": "c3c903c2d683f84d422c83122fa5d7020238f9168cd286d182837a5bd0913e3f",
+      "context": "Let Ctrl + wheel over ``root`` size the text inside it.",
+      "translation": "``root`` पर Ctrl + व्हील को उसके भीतर के टेक्स्ट का आकार बदलने दें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine#2",
+      "source": "THREE INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS. :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary field that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "source_sha256": "94b46744b8530e309187fb5ad64a731e6e100c1ff918a825ccc9139ff2dc9571",
+      "context": "Three inversions live here and they do different things. :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "translation": "यहाँ तीन उलटाव हैं और वे अलग-अलग काम करते हैं। :func:`invert_intensity` किसी छवि का फ़ोटोग्राफ़िक पूरक है -- ``dtype_max - value``, जो किसी व्यूअर का Invert करता है, हर पूर्णांक dtype पर ठीक-ठीक उलटा जा सकने वाला -- और Make Masks पेज का \"Invert image\" इसी से बनाता है। :func:`invert_for_detection` इसके बजाय छवि को उसकी अपनी सीमा के सापेक्ष परावर्तित करता है, और पेज का \"Invert for detection\" डिटेक्टरों को यही देता है; इसके docstring में वह माप है जो बताता है कि डिटेक्टर पूरक का उपयोग क्यों नहीं कर सकता, और यह मिलाकर हटाया जाने वाला डुप्लिकेट नहीं है। :func:`invert_mask` किसी लेबल छवि की अग्रभूमि और पृष्ठभूमि उलटता है; सामान्य फ़ील्ड पर इससे पूरे फ़्रेम को ढकने वाला एक ऑब्जेक्ट बनता है, इसीलिए इसकी रिपोर्ट कुछ न करने के रूप में हुई थी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FILTER_BOUNDS#1",
+      "source": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list, so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "source_sha256": "eee49aff894aec4122fb525057383a50ee6982efc83f0fa60deb0a1453e82df3",
+      "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list, so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "translation": "वे अब दूसरा फ़िल्टर नहीं हैं। :func:`legacy_filters` उन्हें एकमात्र फ़िल्टर सूची की प्रविष्टियों में बदलता है, इसलिए जो कॉलर अब भी ``min_area=20`` देता है उसे उसी regionprops पास से आँका जाता है जिससे ``area`` पंक्ति जोड़ने वाले उपयोगकर्ता को, और :class:`FilterRemoval` अब भी उस पुरानी सीमा का नाम देता है जिसमें ऑब्जेक्ट विफल हुआ, ताकि पुराने लेजर पहले जैसे पढ़े जाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#1",
+      "source": "Holes are filled per object by :func:`fill_label_holes`, never by filling the foreground and labelling it again: that joined every pair of touching cells into one object.",
+      "source_sha256": "6f538ef16fa487dae97d039709e6887e9b742b58c7f8e81d34f0e67360663cc5",
+      "context": "Holes are filled per object by :func:`fill_label_holes`, never by filling the foreground and labelling it again: that joined every pair of touching cells into one object.",
+      "translation": "छेद :func:`fill_label_holes` हर ऑब्जेक्ट के लिए अलग से भरता है, कभी भी फ़ोरग्राउंड भरकर उसे दोबारा लेबल करके नहीं: उस तरीके ने छूने वाली कोशिकाओं के हर जोड़े को एक ऑब्जेक्ट में मिला दिया था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_label_holes#1",
+      "source": "THE ONE HOLE FILLER FOR LABEL IMAGES. :func:`fill_holes`, the propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the Cellpose ``fill_in`` step) all come here. Filling the binary foreground and labelling it afresh with ``ndimage.label`` is what this replaces: it makes every pair of TOUCHING objects one object, so a field of 74 adjacent cells came back as 8. Here nothing is relabelled.",
+      "source_sha256": "f3e16bdf2fc10742b753b304c92276e2c66e68a76b41b7e38bd7aad0585fcbf0",
+      "context": "The one hole filler for label images. :func:`fill_holes`, the propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the Cellpose ``fill_in`` step) all come here. Filling the binary foreground and labelling it afresh with ``ndimage.label`` is what this replaces: it makes every pair of TOUCHING objects one object, so a microscope field of view of 74 adjacent cells came back as 8. Here nothing is relabelled.",
+      "translation": "लेबल छवियों के लिए एकमात्र छेद-भराव। :func:`fill_holes`, ऊपर वाला प्रसार चरण और :func:`spacr.utils.fill_holes_in_mask` (Cellpose का ``fill_in`` चरण) सभी यहीं आते हैं। यह जिसकी जगह लेता है, वह है बाइनरी फ़ोरग्राउंड को भरकर ``ndimage.label`` से नए सिरे से लेबल करना: वह छूने वाले ऑब्जेक्ट के हर जोड़े को एक ऑब्जेक्ट बना देता है, इसलिए 74 सटी हुई कोशिकाओं वाला दृश्य-क्षेत्र 8 बनकर लौटा। यहाँ कुछ भी दोबारा लेबल नहीं होता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_dock_width#1",
+      "source": "Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
+      "source_sha256": "6f8072268a17598efc216ff6ccdce11e1682ed25c8afd326eb56bf0f441eff0d",
+      "context": "Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
+      "translation": "लॉजिकल पिक्सेल में संग्रहीत; डॉक इसे लागू करते समय अपनी खींचने की सीमाओं में बाँध देता है, देखें :meth:`spacr.qt.widgets.dock.Dock.column_width`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_folded_panel#1",
+      "source": "A PANEL IN ITS DEFAULT STATE IS REMOVED rather than stored. Most panels default to open, so storing that would grow the dict by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "source_sha256": "49e101fc9a89834495506773d393ce59a53e0b83103969d41bc5694ca10c31f5",
+      "context": "A panel in its default state is removed rather than stored. Most panels default to open, so storing that would grow the key-value mapping by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "translation": "अपनी डिफ़ॉल्ट स्थिति वाला पैनल संग्रहीत करने के बजाय हटा दिया जाता है। अधिकांश पैनल डिफ़ॉल्ट रूप से खुले होते हैं, इसलिए यह संग्रहीत करने से उपयोगकर्ता द्वारा छुए गए हर पैनल के लिए dict में एक प्रविष्टि जुड़ती और कभी घटती नहीं। मुड़ा हुआ शुरू होने वाला पैनल (उन्नत PSF, पुनर्स्थापन और CLAHE पंक्तियाँ) ``default_shut=True`` देता है, इसलिए उसे खोलना ही False के रूप में संग्रहीत होता है, और फिर से मोड़ने पर वह भुला दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.DiameterDialog#1",
+      "source": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the screen that opened the zoo.",
+      "source_sha256": "dcccfc6a6a8bd9d2afdb58ae1f5b43758d38174a1b3def9bc346e52e81b3fe01",
+      "context": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
+      "translation": "अनुरोध: \"mask generation में व्यास की गणना मुख्य पेज पर नहीं बल्कि model zoo बटन की पॉपअप विंडो में एक बटन होनी चाहिए। बटन दबाने पर वर्तमान कंटेनर की सारी जानकारी के साथ एक और पॉपअप आना चाहिए।\" इसलिए यह पूरे :class:`DiameterPanel` को रखता है -- मापने का बटन, हर ऑब्जेक्ट प्रकार के लिए उसके प्रमाण और टिप्पणी सहित एक पंक्ति, हर पंक्ति पर *उपयोग करें* और *सभी का उपयोग करें* -- और पैनल अब भी उसी पेज की सेटिंग्स में लिखता है जिसने zoo खोला था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#10",
+      "source": "A SUGGESTION IS JUDGED, NOT RELABELLED. A crop Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the key legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "source_sha256": "37c0c1dc05cbbf7424583dadb899ae43a65eb41fad4f697724cbb06f21e40a13",
+      "context": "A suggestion is judged, not relabelled. An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "translation": "सुझाव को आँका जाता है, फिर से लेबल नहीं किया जाता। जिस क्रॉप के लिए Suggest ने कोई वर्ग प्रस्तावित किया, उस पर उसकी डैश वाली अंगूठी के बगल में एम्बर ``?`` बैज होता है। क्लिक या ``Y`` इसकी पुष्टि करता है (यह सामान्य लेबल बनता है और हरा टिक पहनता है); दायाँ-क्लिक या ``N`` इसे अस्वीकार करता है (यह फिर अनुत्तरित हो जाता है और लाल क्रॉस पहनता है); ``U`` दोनों को पूर्ववत करता है। कुंजी-सूची के ऊपर की पट्टी यह बताती है, और गिनती करती है कि पेज और स्तंभ में क्या है। हर निर्णय ``<column>_verdict`` स्तंभ में ``+c`` या ``-c`` के रूप में लिखा जाता है, ताकि वह पुनः आरंभ के बाद भी बचे, और अगले Suggest दौर को प्रशिक्षण के लिए अस्वीकृतियाँ दी जाती हैं। :meth:`AnnotateScreen._judge` और :func:`spacr.suggest.verdict_column` देखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#9",
+      "source": "A PAGE IS WHAT FITS. The grid holds exactly the crops that fit the room the crop pane gives it, at the crop size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first crop on screen stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "source_sha256": "6d3bec89fd0c2c09a6cd0b4c5706eb49ce0b8c3b25be9f1dedcd2314aaf773b9",
+      "context": "A page is what fits. The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "translation": "एक पेज वह है जो समा जाए। ग्रिड में ठीक उतने क्रॉप होते हैं जितने क्रॉप पैन द्वारा दी गई जगह में, सेटिंग्स द्वारा माँगे गए क्रॉप आकार पर, समाते हैं, और यह कभी स्क्रॉल नहीं होता: कंसोल खोलना, पैन मोड़ना, GUI पैमाना बदलना या विंडो का आकार बदलना पेज को फिर से गणना करता है और बाकी को अगले पेज पर भेजता है, पेज काउंटर साथ चलता है, और पेज पर पहला क्रॉप वहीं रहता है जहाँ था। :func:`grid_that_fits` और :meth:`AnnotateScreen._refit_grid` देखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#1",
+      "source": "A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "source_sha256": "46271add4bed5ac1216e935c835f0a0aea6b78af54dc4fa737410bb92a885b10",
+      "context": "A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "translation": "सुझाव एम्बर है, पुष्टि किया गया सुझाव हरा और अस्वीकृत लाल -- थीम के अपने चेतावनी, सफलता और त्रुटि रंग, ताकि बैज थीम परिवर्तन का वैसे ही अनुसरण करे जैसे बाकी सजावट करती है। ग्लिफ़ थीम के पृष्ठभूमि रंग में बनाया जाता है, जो dark थीम पर काला और light पर लगभग सफ़ेद है; हर भराव उसके विरुद्ध चुना गया और दोनों में 4.5:1 से बेहतर पढ़ा जाता है। तीनों में से कोई भी (None) वर्ग रंग नहीं है, इसलिए बैज को कभी वर्ग नहीं समझा जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#1",
+      "source": ":func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "source_sha256": "842be1c6e2423fa4b7d993b99ff2fb93e9bc8a6b3011cb46225a85a74b37858a",
+      "context": ":func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "translation": ":func:`spacr.drop_classification.classify_drop` बताता है कि क्या छोड़ा गया, और:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#4",
+      "source": "one folder whose subfolders look like channels (DAPI/, GFP/..., or the same fields in each) opens \"Organize for Measure\" with a channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation;",
+      "source_sha256": "3df3b7e9284be39e6f2c9dc90bb7968a1f03cb61f233266a63a307ebb0684e08",
+      "context": "one folder whose subfolders look like image data channels (DAPI/, GFP/..., or the same microscope fields of view in each) opens \"Organize for Measure\" with an image data channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation;",
+      "translation": "ऐसा एक फ़ोल्डर जिसके सबफ़ोल्डर चैनल जैसे दिखते हैं (DAPI/, GFP/..., या हर एक में वही दृश्य-क्षेत्र) हर सबफ़ोल्डर के लिए एक चैनल कॉलम के साथ \"Organize for Measure\" खोलता है; कोई भी अन्य फ़ोल्डर जिसकी छवियाँ सबफ़ोल्डरों में हैं, समेकन के लिए प्रस्तुत किया जाता है;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.ObjectFilterList#1",
+      "source": "The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
+      "source_sha256": "461b788e7594350328ac29b2bd8699d69e9f7e4390f32e43f4d709fe247196f1",
+      "context": "The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
+      "translation": "Filter श्रेणी में पहले चार निश्चित बॉक्स होते थे -- न्यूनतम और अधिकतम क्षेत्रफल, न्यूनतम और अधिकतम माध्य तीव्रता। अब यह खाली शुरू होती है, और \"Add a filter\" हर वह अदिश गुण प्रस्तुत करता है जिसकी :func:`skimage.measure.regionprops` गणना करता है (:func:`mask_engine.filter_properties` देखें); हर जोड़ी गई पंक्ति में गुण, एक न्यूनतम, एक अधिकतम और Remove बटन होता है। खाली सीमा बंद है। पुराने चार उन पंक्तियों में से दो हैं जिन्हें उपयोगकर्ता जोड़ सकता है: ``area`` और ``intensity_mean``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.ObjectFilterList.set_filters#1",
+      "source": "A dict of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before the filter list opens as the rows it meant.",
+      "source_sha256": "773155f16ccbd362cbdd4a2a7237272c68578e3e236418953bff28712f18de1e",
+      "context": "A key-value mapping of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before the filter list opens as the rows it meant.",
+      "translation": "पुरानी चार सीमाओं की dict (``min_area`` और बाकी) :func:`mask_engine.legacy_filters` द्वारा स्थानांतरित की जाती है, ताकि फ़िल्टर सूची से पहले की सहेजी गई स्थिति उन्हीं पंक्तियों के रूप में खुले जिनका उसका अर्थ था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.load_cellpose_model#3",
+      "source": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend, and a ``stardist:``, ``instanseg:`` or ``omnipose:`` model in its own backend.",
+      "source_sha256": "4b5737f07e2cf611f471fb900e7051821ff1b79710b4a2e1589a4d1c3ba16d14",
+      "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend, and a ``stardist:``, ``instanseg:`` or ``omnipose:`` model in its own backend.",
+      "translation": "``cellpose3:<name or path>`` मॉडल -- Cellpose 3 का मानक मॉडल या bioimage.io का Cellpose 3 चेकपॉइंट -- बिल्कुल भी Cellpose 4 मॉडल नहीं है: Cellpose 4 ऐसा चेकपॉइंट लोड कर लेगा और उससे निरर्थक विभाजन करेगा। इसे :func:`_backend_model` Cellpose 3 बैकएंड के अपने परिवेश में लोड करता है, उसी तरह जैसे Mask generation इसे लोड करता है। ``cellpose_dino:<path>`` मॉडल, यानी Cellpose-DINO चेकपॉइंट, इसी तरह Cellpose-DINO बैकएंड में लोड होता है, और ``stardist:``, ``instanseg:`` या ``omnipose:`` मॉडल अपने-अपने बैकएंड में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#3",
+      "source": "a tooltip appears after the Tooltip delay preference of hovering, not before (:data:`SHOW_DELAY_MS` when nothing is stored);",
+      "source_sha256": "c3b1f7515db2806fe656ebb1d9e8f9868ce51a81a62083fbc488594116f55922",
+      "context": "a tooltip appears after the Tooltip delay preference of hovering, not before (:data:`SHOW_DELAY_MS` when nothing is stored);",
+      "translation": "टूलटिप Tooltip delay प्राथमिकता में तय समय तक पॉइंटर रखे रहने के बाद दिखता है, उससे पहले नहीं (कुछ संग्रहीत न होने पर :data:`SHOW_DELAY_MS`);",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops#2",
+      "source": "WHY A SAVED PATTERN USED TO WAIT FOR A RESTART. The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the screens to the window.",
+      "source_sha256": "4d62c462db52e7d54e7a4c62b3123671bc0d4f3eca29a129054801f6dc79ecb2",
+      "context": "Why a saved pattern used to wait for a restart. The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the application views to the window.",
+      "translation": "सहेजा गया पैटर्न पहले रीस्टार्ट की प्रतीक्षा क्यों करता था। विंडो डॉक और पेज के पीछे एक ही बैकड्रॉप बनाती है और उसे सत्र भर रखती है। Preferences सहेजने से रनटाइम संख्याएँ उसमें पहुँच जाती थीं (`apply_saved_controls`), लेकिन पैटर्न, बैकएंड, गुणवत्ता और स्केल उसके बनते समय तय हो जाते हैं, और उसे फिर से किसी ने नहीं बनाया -- पुरानी टिप्पणी कि \"changing a screen\" से यह हो जाएगा, तब सच नहीं रही जब बैकड्रॉप पेजों से विंडो पर चला गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#1",
+      "source": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane: the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "source_sha256": "360a3eea7281d3c28d93ee25fd4b16419cda4f01ebe25d626c1292d8036d1aa2",
+      "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane: the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "translation": "बॉडी को एक स्ट्रेच के साथ लेआउट किया जाता है, और लेआउट उस स्ट्रेच को तब भी गिनता है जब बॉडी छिपी हो, इसलिए मोड़ा गया कार्ड फिर भी जगह माँगता था और उसे उस स्ट्रेच के साथ बराबर बाँटता था जो मोड़े गए शीर्षक को उसके पेन के नीचे बाँधे रखता है: मोड़ा गया Console पेन की आधी ऊँचाई का निकलता था। मोड़े जाने पर बॉडी अपना स्ट्रेच छोड़ देती है; खोले जाने पर उसे वापस ले लेती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#1",
+      "source": "Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "source_sha256": "92d82faeacdc6b128f4551b1d9a2b9a7d37d71f119d1478e095e5452cef3459f",
+      "context": "Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "translation": "दो अनुरोध जो अंततः एक ही निकलते हैं: हर कंटेनर सिमटता है (\"जब भी कुछ सिमटा हो तो उसे अपने कंटेनर के नीचे स्वतः लॉक हो जाना चाहिए\"), और हर कंटेनर को \"किनारों को खींचकर बड़ा या छोटा किया जा सके\"। एक :class:`~PySide6.QtWidgets.QSplitter` पहले से दोनों करता है -- खींचने के लिए एक हैंडल, और एक चाइल्ड जिसे शून्य तक घटाया जा सकता है -- इसलिए दोनों हिस्से यहाँ एक ही तंत्र के रूप में रहते हैं, और स्प्लिटर में जो कुछ भी सिमटता है उसका आकार भी बदला जा सकता है, और इसका उल्टा भी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
+      "source": "The request: \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "source_sha256": "623f21c03aef1c8e8342c15cf1af89df40907668b4c800d9c0bb381989bd0358",
+      "context": "The request: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "translation": "अनुरोध: \"जब लाइव प्रीव्यू खुलता है, तो यह डिस्प्ले की पूरी ऊँचाई ले लेता है: कंसोल, System कंटेनर और System के नीचे का बटन सेक्शन स्वतः सिमट जाते हैं, और सेटिंग्स बाईं ओर सिमट जाती हैं\", और जब भी फ़िगर दिखाई दें तब भी यही।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#1",
+      "source": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside a screen gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "source_sha256": "c575a161fa01047f40f4f06db899ee34572f672da673e4f8c50c9291738ae694",
+      "context": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "translation": "अनुरोध: \"फ़िगर या लाइव प्रीव्यू कंटेनरों के भीतर के सभी सेक्शन भी सिमटने योग्य होने चाहिए ... हर GUI तत्व, चाहे वह फ़िगर हो या तालिका\"। यही एकमात्र तरीका है जिससे किसी पेज के भीतर का सेक्शन मोड़ने का नियंत्रण पाता है, इसलिए वे सभी एक जैसे दिखते और व्यवहार करते हैं: बॉडी के ऊपर एक तीर और एक नाम (वही :class:`~spacr.qt.widgets.foldable.Folder` जिसका उपयोग कंसोल और System करते हैं), एक क्लिक उसे मोड़ता है, और मोड़ा गया सेक्शन उसे दी गई जगह के निचले सिरे पर लॉक किया गया उसका शीर्षक होता है (:func:`lock_folded_to_bottom`)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#2",
+      "source": "THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show. The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "source_sha256": "f8c83ffb7986082749047ff21dd12062f24a20cbf55c50636ed405fdd603ad0e",
+      "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show. The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "translation": "बॉडी की अपनी दृश्यता उसके स्वामी की ही रहती है। मोड़ना एक भीतरी होल्डर को छिपाता है, कभी बॉडी को नहीं, इसलिए खोलना न तो ऐसा पैनल दिखा सकता है जिसे उसके स्वामी ने छिपाया, न ऐसा पैनल बना सकता है जो पहली बार दिखाए जाने पर बनता है। उल्टी दिशा में, सेक्शन अपनी बॉडी का अनुसरण करता है: जब तक स्वामी बॉडी को छिपाए रखता है, पूरा सेक्शन -- शीर्षक सहित -- भी छिपा रहता है, और जब स्वामी बॉडी दिखाता है तो वह लौट आता है। इसके लिए केवल बॉडी का छिपा होने का फ़्लैग पढ़ा जाता है, इसलिए पता लगाने के लिए कुछ भी दिखाया, मापा या बनाया नहीं जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#1",
+      "source": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the reported bug (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "source_sha256": "79e103e46d1472b1eabcd2263ef44b7b0047ac7be0ad8337be0a993d70e2badb",
+      "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the reported bug (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "translation": "अपने शीर्षक की ज़रूरत से अधिक जगह पाने वाला मोड़ा गया पैनल -- स्प्लिटर का अंतिम पेन, अपने कॉलम द्वारा फैलाया गया सेक्शन -- पहले अपने शीर्षक को उस जगह के बीच में लेआउट करता था, और यही रिपोर्ट किया गया बग है (\"जब मैं कंसोल को सिमटाता हूँ तो वह बीच में सिमट जाता है\")। मोड़े रहने के दौरान शीर्षक के ऊपर रखा गया एक स्ट्रेच इसके बजाय अतिरिक्त जगह ले लेता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.apply_column_text_scale#0",
+      "source": "Size the console's text with the column it sits in.",
+      "source_sha256": "07c4b533ba0a1221b4054b9438e72e1225f8d67a5c0fda0577a666e3987af813",
+      "context": "Size the console's text with the column it sits in.",
+      "translation": "कंसोल के टेक्स्ट का आकार उस कॉलम के साथ तय करें जिसमें वह है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.column_width#1",
+      "source": "A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
+      "source_sha256": "a6ac702129fe1b5d118c0dfbd2bb41cc8ab7785aaaafe2dd34263f43ba8bebff",
+      "context": "A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
+      "translation": "उपयोगकर्ता द्वारा चुनी गई चौड़ाई हर रीफ़्रेश, हर छिपाने और दिखाने, और हर सत्र में बनी रहती है; कोई संग्रहीत न होने पर कॉलम अपने सबसे लंबे नाम में फ़िट होता है, जैसा :meth:`fitting_width` हमेशा करता आया है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.DockEdge#0",
+      "source": "The strip along the dock's right edge that drags its width.",
+      "source_sha256": "eed20acf1d3fed6c3913073fcaeef384be349fbc40fcbeaa63af700ad35e4be4",
+      "context": "The strip along the dock's right edge that drags its width.",
+      "translation": "डॉक के दाएँ किनारे के साथ की पट्टी जो उसकी चौड़ाई खींचती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#3",
+      "source": "WHY. The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the screen, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
+      "source_sha256": "d0f984c6994fa1872f93dc61262278c81e5cc6445abc0348026002ca39cff8c4",
+      "context": "WHY. The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
+      "translation": "क्यों। थीम हर ``QProgressBar`` को 8 px की पट्टी के रूप में बनाती है (``height: 8px; max-height: 8px``, :mod:`spacr.qt.theme` में)। जो बार अपना टेक्स्ट भी बनाता है -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- वह 13 px का कैप्शन उन 8 px में बनाता है, इसलिए हर ग्लिफ़ का केवल ऊपरी आधा हिस्सा स्क्रीन तक पहुँचता है, और 50 % GUI स्केल पर पट्टी 4 px की होती है और लगभग कुछ भी नहीं दिखता। \"step 1 of 3\" या \"10%\" जैसा कैप्शन कट जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.Folder.set_shut#2",
+      "source": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "source_sha256": "3352e147240549d6dbfdd2bb045862ec2c1431c4518293a96b16ee98b82bcdef",
+      "context": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "translation": "False जब प्रोग्राम इसे उपयोगकर्ता की ओर से मोड़ता है (लाइव प्रीव्यू का खुलना)। ऐसा मोड़ना रीस्टार्ट के पार याद नहीं रखा जाता, और श्रोताओं को यह बताया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.make_foldable#5",
+      "source": "start folded unless the user opened this panel before (advanced rows that most people never change).",
+      "source_sha256": "2e6bd5aa4992778539a120e40369f7e478577e44af09041b844205d3fda1086c",
+      "context": "start folded unless the user opened this panel before (advanced rows that most people never change).",
+      "translation": "मोड़ी हुई अवस्था में शुरू करें, जब तक उपयोगकर्ता ने यह पैनल पहले न खोला हो (उन्नत पंक्तियाँ जिन्हें अधिकांश लोग कभी नहीं बदलते)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_cascade.CascadeEngine#3",
+      "source": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting; two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
+      "source_sha256": "f40d007d7034ec05aba280162f355962931d7198ca5818aa196eb10096bdde04",
+      "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting; two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
+      "translation": "`samples` यह है कि हर पिक्सेल प्रति भुजा कितने सैंपल लेता है, जिसे विजेट Supersampling सेटिंग से सेट करता है; दो प्रकाशित 2x2 है, और जिस इंजन को किसी ने कॉन्फ़िगर नहीं किया वह इसे रखता है। कैस्केड इंजन बनाएँ, अभी उसका बफ़र आवंटित किए बिना।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.SpaceEngine#2",
+      "source": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting. ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
+      "source_sha256": "d8e5f5d2352b325e1601ee773751eb56a4047225446aa3275cabc6d6431ec699",
+      "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting. ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
+      "translation": "`samples` यह है कि हर पिक्सेल प्रति भुजा कितने सैंपल लेता है, जिसे विजेट Supersampling सेटिंग से सेट करता है। ``None`` -- ऐसा इंजन जिसे किसी ने कॉन्फ़िगर नहीं किया -- छोटे फ़्रेम पर दो और बड़े पर एक का पुराना नियम रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.render_space_frame#9",
+      "source": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (it used to be 2 x 2 whatever the number said).",
+      "source_sha256": "83e470742723539dc5c32efba72e4a30a02143d93c4f0d9aecd4271fc76f52da",
+      "context": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (it used to be 2 x 2 whatever the number said).",
+      "translation": "``1`` या उससे कम हर पिक्सेल केंद्र पर एक सैंपल लेता है; उससे बड़ा कोई भी मान प्रति पिक्सेल ``samples`` x ``samples`` सैंपल ग्रिड का औसत लेता है (पहले यह संख्या चाहे जो हो, 2 x 2 होता था)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.OrbitEngine#2",
+      "source": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting, makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
+      "source_sha256": "3e55330cbce04e3465d1728d1c30bdbc04d386de4c3889c650d0cb8c3ed26608",
+      "context": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting, makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
+      "translation": "चार प्रकाशित 2x2 है। `samples`, जिसे विजेट Supersampling सेटिंग से सेट करता है, इसे N * N फ़्रेमों में चले गए N x N फ़ेज़ बनाता है; प्रति भुजा एक कोई इतिहास नहीं रखता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.Settings#1",
+      "source": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said; now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
+      "source_sha256": "4c951aa952e5cf39f1d85b4ca6ff37a99f678c151ff0ec7511a159efa80c8d45",
+      "context": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said; now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
+      "translation": "`supersampling` हर अक्ष के साथ प्रति पिक्सेल सैंपल है, Fractal टैब की Supersampling पंक्ति। हर रेंडरर एक स्थिर 2x2 उपयोग करता था, चाहे वह कुछ भी कहे; अब शेडर और CPU कर्नेल इससे N x N ग्रिड लेते हैं। दो प्रकाशित ग्रिड है, इसलिए जिस `Settings()` को किसी ने नहीं भरा वह वही बनाता है जो हमेशा बनाता था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.apply_saved_controls#3",
+      "source": "Everything that can change while a backdrop is on screen is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved.",
+      "source_sha256": "e6917cbfdc34259d77a5eb43f955187c108960e7a998f4ff3181f82240ee6915",
+      "context": "Everything that can change while a backdrop is on application view is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved.",
+      "translation": "बैकड्रॉप के पेज पर रहते हुए जो कुछ भी बदल सकता है, वह यहाँ भेजा जाता है। जो नहीं बदल सकता -- पैटर्न, बैकएंड, गुणवत्ता, स्केल और Mandelbrot संदर्भ कक्षा -- उसके लिए बैकड्रॉप को फिर से बनाना पड़ता है, जो Preferences सहेजे जाने पर :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.BOUND_ROWS#0",
+      "source": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25; for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
+      "source_sha256": "03ad49454a91154977ff644cd16de6d732918dc4887f650871f4be77251f9153",
+      "context": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25; for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
+      "translation": "Cellpose कम्पार्टमेंट का हर सीमा नियंत्रण ``object_filters`` में कहाँ रहता है। Mask का ``{object}_min_area`` परिवार 2026-09-25 को हटा दिया गया; cell, nucleus और pathogen के लिए ये चार नियंत्रण इसके बजाय ऑब्जेक्ट की ``area`` और ``intensity_mean`` पंक्तियाँ पढ़ते और लिखते हैं। ऑर्गेनेल स्लॉट अपनी सेटिंग्स रखते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog#1",
+      "source": "Also the consent step and the upload shared by every community training-data contribution, so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
+      "source_sha256": "04237e1387dd8e9516016a9919a6d711880407fc3a2c47b857b43fee4e676edc",
+      "context": "Also the consent step and the upload shared by every community training-data contribution, so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
+      "translation": "साथ ही, हर सामुदायिक प्रशिक्षण-डेटा योगदान द्वारा साझा किया गया सहमति चरण और अपलोड, ताकि योगदान करने वाला हर पेज एक ही प्रश्न एक बार पूछे और एक ही तरह भेजे, और Make Masks का वह संवाद जो छवियों को उनके मास्क के साथ उपयोगकर्ता द्वारा नामित सामुदायिक डेटासेट में भेजता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
+      "source": "IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED. A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "source_sha256": "2b47680e338a06f4bfb7cda42e28be77e43555b5e7733afdc01ca945cff257a3",
+      "context": "It belongs to the window, not the widget that asked. A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "translation": "यह विंडो का है, पूछने वाले विजेट का नहीं। डायलॉग अपने ऊपर के हर विजेट की स्टाइल शीट विरासत में लेता है, और Plaque Assay अपने प्रीव्यू से पूछता है, जिसका अपना स्केल स्लाइडर ऐप्लिकेशन शीट को उस प्रीव्यू के स्केल पर फिर से लागू करता है: 150 % पर Install और Cancel 59 px ऊँचे थे, हर दूसरे बटन की तरह 40 px नहीं। ``parent.window()`` को पैरेंट बनाए जाने पर यह हर दूसरे डायलॉग की तरह थीम किया जाता है और फिर भी उसे खोलने वाली विंडो पर केंद्रित और उसके लिए मोडल रहता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#7",
+      "source": "build an installed backend's environment again, for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "source_sha256": "97e80d829d2417b86a1c431189bc2097374c6e76bc66845c4a3d864fad3b3be7",
+      "context": "build an installed backend's environment again, for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "translation": "पहले से इंस्टॉल बैकएंड का एनवायरनमेंट फिर से बनाएँ, उस बैकएंड के लिए जो उस पैकेज के पिन होने से पहले इंस्टॉल हुआ था जिसकी उसे अब ज़रूरत है; डायलॉग यह बताता है और उसका बटन Reinstall कहता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#5",
+      "source": "build an installed backend again.",
+      "source_sha256": "a319160d9854370cf3706a008ee44edcc410a09c69254429ba9a0cf701c6ec52",
+      "context": "build an installed backend again.",
+      "translation": "पहले से इंस्टॉल बैकएंड को फिर से बनाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#1",
+      "source": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "source_sha256": "07e5c058297cb833a1694e8a850228cd515ebd6e6fe437682bd02a94ce47e74f",
+      "context": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "translation": "यह प्रवेश बिंदु के रूप में पहले के प्रश्नों की श्रृंखला और अलग \"Sort into channels\" डायलॉग की जगह लेता है। केवल एक पॉपअप छवियों और उनके मास्क को उस संरचना में रखता है जिसे Measure पढ़ता है -- Yokogawa नाम वाले चैनल फ़ोल्डर, मास्क, और ``merged/*.npy`` -- :mod:`spacr.channel_sorting` और :mod:`spacr.folder_consolidation` के माध्यम से, जो हर निर्णय लेते हैं:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data#0",
+      "source": "Open the annotate-then-upload window for this mode.",
+      "source_sha256": "c3addd8c1b1149b028b18e66ad36af22467363140cff9696127b24e046d33d14",
+      "context": "Open the annotate-then-upload window for this mode.",
+      "translation": "इस मोड के लिए एनोटेट-फिर-अपलोड विंडो खोलें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#6",
+      "source": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install.",
+      "source_sha256": "e72a1e4b0fe39f5d41656b9d4cf5e15ca4a02d8500bcb3072f5b4a3029729ba1",
+      "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install.",
+      "translation": "True, जब फ़ेच शुरू हुआ हो, या जब फ़िगर रीडर की आवश्यकता वाली किसी PDF का उत्तर उसके इंस्टॉल से दिया गया हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_papers#0",
+      "source": "Read several PDFs, one after another, off the GUI thread.",
+      "source_sha256": "d503302b6c662818f17f8a2e44b59b9e92bca6a0200359765d4df4c75033f956",
+      "context": "Read several PDFs, one after another, off the main GUI execution path.",
+      "translation": "कई PDFs, एक के बाद एक, GUI थ्रेड से बाहर पढ़ें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.check_the_src#1",
+      "source": "Asked once per source and mode, and only while the screen is on screen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are, so the preview and the run get the paper's figure folder rather than a PDF they cannot open.",
+      "source_sha256": "48fe7d9e1d1943d2e943379f66bcc6c46eb654b8b4f17e9ab5f52f88df63317b",
+      "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are, so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
+      "translation": "हर स्रोत और मोड के लिए एक बार पूछा जाता है, और केवल तब जब पेज दिखाई दे रहा हो। Figure मोड में -- पहले से, या उत्तर के बाद उस पर स्विच होने पर -- PDF या PDFs के फ़ोल्डर को नामित करने वाले ``src`` की हर PDF उसी तरह पढ़ी जाती है जैसे छोड़ी गई फ़ाइलें, ताकि पूर्वावलोकन और रन को ऐसी PDF के बजाय पेपर का फ़िगर फ़ोल्डर मिले जिसे वे खोल नहीं सकते।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_question#1",
+      "source": "PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "source_sha256": "c0fa55b631496215b251cdc4d6906ed4e39ff658edcdd46fd4275b97c64ed033",
+      "context": "PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "translation": "PDFs Figure मोड में और प्लाक छवियाँ Plaque मोड में पढ़ी जाती हैं, इसलिए दूसरे मोड का इनपुट बदलने के लिए पूछता है, और दोनों के लिए इनपुट पूछता है कि कौन-सा पढ़ना है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#0",
+      "source": "One scale slider per live preview, scaling that preview alone.",
+      "source_sha256": "312da1f2de492cab07c13c99059f365b5ebde79c7a65ee20d9b497a052bf0782",
+      "context": "One scale slider per live preview, scaling that preview alone.",
+      "translation": "हर लाइव पूर्वावलोकन के लिए एक स्केल स्लाइडर, जो केवल उसी पूर्वावलोकन को स्केल करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#10",
+      "source": "A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW. A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "source_sha256": "eef8deb4d5d40c142f2c8a6a69d7f86a5d11ab505ca5d407ef9c8cfbb07ccc70",
+      "context": "A window opened from the preview is not the preview. A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "translation": "पूर्वावलोकन से खोली गई विंडो पूर्वावलोकन नहीं है। पैनल को पैरेंट मानने वाला डायलॉग अपनी अलग विंडो है, फिर भी Qt पैनल की स्केल की गई शीट उसमें भी लागू कर देता है, और ट्रैवर्सल ने उसे पैनल के चाइल्ड में पाया: 150 % पर एक सेटिंग्स डायलॉग के बटन 59 px ऊँचे थे, हर दूसरे डायलॉग के 40 px नहीं। ऐसी विंडो और उसके भीतर सब कुछ 100 % पर रखा जाता है, और विंडो की अपनी शीट उन आकारों को, जो उसे अन्यथा स्केल होकर विरासत में मिलते, 100 % पर फिर से कहती है -- पॉलिश होते समय सेट की गई, इसलिए पहली बार लेआउट होने से पहले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.psf_controls#1",
+      "source": "The calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each field saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
+      "source_sha256": "8097f7099e1f6af666327bd36ba6df4f0313e405703fa7deff5fa791c88b5431",
+      "context": "The calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
+      "translation": "कैलिब्रेशन अपने-आप भरता है। माइक्रोस्कोप ऑब्जेक्टिव, कैमरा और फ़्लोरोफ़ोर चयनकर्ता, या \"Infer from images…\", आवर्धन, न्यूमेरिकल एपर्चर, अपवर्तनांक, उत्सर्जन तरंगदैर्ध्य, कैमरा पिक्सेल, छवि पिक्सेल आकार और Gaussian FWHM भरता है, और हर फ़ील्ड बताता है कि उसका मान कहाँ से आया। केवल ऑपरेशन और ऑब्जेक्टिव पंक्ति दिखाई जाती है; बाकी एक मोड़ में है जो बंद अवस्था में शुरू होता है और खोले जाने को याद रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#1",
+      "source": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC field browser's own ``_FieldView``. The raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the field browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "source_sha256": "a4cc97ccdb80610cdfea7aaedc99d8076b813f370837e48aa8ef818e97c554e4",
+      "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. The raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "translation": "spaCR में पहले से लोड पर फ़िट होने वाला, व्हील से ज़ूम और ड्रैग से पैन होने वाला एक छवि कैनवास था: QC फ़ील्ड ब्राउज़र का अपना ``_FieldView``। कच्ची-बनाम-संवर्धित विंडो को यही चीज़ दो बार चाहिए थी, और \"पिक्समैप वाला एक QGraphicsView\" की तीसरी प्रति ही वह तरीका है जिससे किसी कोडबेस में तीन ऐसी प्रतियाँ हो जाती हैं जो सूक्ष्म रूप से अलग व्यवहार करती हैं। इसलिए फ़ील्ड ब्राउज़र का व्यू बिना बदलाव के यहाँ ले जाया गया, ऐसे नाम के साथ जो बताता है कि यह साझा है, और ब्राउज़र इसे अपने पुराने नाम से उपयोग करता रहता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal#8",
+      "source": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding key (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks`` (settings of one or more pipelines, Gate Editor gating strategies, models and files); every later run of a locked pipeline on its ``src`` is checked against it by :func:`check_analysis_lock`, every model the run records is checked as it is recorded, and the verdict is written into that run's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
+      "source_sha256": "56d8e8c68105660516b94d2a2afb399ebb57c461948aad4eba5372a928a8c1b0",
+      "context": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding structured-data name (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks`` (settings of one or more workflows, Data-selection boundary Editor data-selection filtering strategies, models and files); every later run of a locked workflow on its ``src`` is checked against it by :func:`check_analysis_lock`, every model the processing-session records is checked as it is recorded, and the verdict is written into that processing session's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
+      "translation": "प्रोसेसिंग रिकॉर्ड के अलावा, जर्नल ब्लाइंडेड काम के लिए दो रिकॉर्ड रखता है। :func:`start_blinding` एक ब्लाइंडिंग कुंजी (कोडित नाम और फेंटा हुआ क्रम) ``~/.spacr/blinding`` में लिखता है और :func:`unblind` दर्ज करता है कि उसे किसने और कब खोला। :func:`lock_analysis` एक विश्लेषण योजना को हैश और टाइमस्टैम्प के साथ ``~/.spacr/analysis_locks`` में स्थिर कर देता है (एक या अधिक पाइपलाइनों की सेटिंग्स, Gate Editor की गेटिंग रणनीतियाँ, मॉडल और फ़ाइलें); किसी लॉक की गई पाइपलाइन की उसके ``src`` पर हर बाद की प्रोसेसिंग को :func:`check_analysis_lock` उसके विरुद्ध जाँचता है, प्रोसेसिंग जो भी मॉडल दर्ज करती है उसे दर्ज होते समय जाँचा जाता है, और निर्णय उस प्रोसेसिंग के ``manifest.json`` में ``analysis_lock`` के अंतर्गत लिखा जाता है, और कोई भी अंतर ``provenance_warnings`` में भी सूचीबद्ध होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.Run.record_model#3",
+      "source": "Records ``\"<filename>:<digest>\"`` in ``model_hashes``. An unreadable checkpoint is only logged and leaves no entry at all; any other failure is also appended to ``provenance_warnings``, so it reaches ``manifest.json`` — model logging must never itself fail a run. When an analysis lock applies to the run, the model is also checked against it (see :func:`lock_analysis`), and the run's verdict is updated.",
+      "source_sha256": "b2ebeb4767770bd9cba9defdfe6ce9443ee65635cd4003e82db2c0c0d6ac565c",
+      "context": "Records ``\"<filename>:<digest>\"`` in ``model_hashes``. An unreadable checkpoint is only logged and leaves no entry at all; any other failure is also appended to ``provenance_warnings``, so it reaches ``manifest.json`` — model logging must never itself fail a processing session. When an analysis lock applies to the processing session, the model is also checked against it (see :func:`lock_analysis`), and the processing session's verdict is updated.",
+      "translation": "``\"<filename>:<digest>\"`` को ``model_hashes`` में दर्ज करता है। अपठनीय चेकपॉइंट केवल लॉग में लिखा जाता है और कोई प्रविष्टि नहीं छोड़ता; कोई भी अन्य विफलता ``provenance_warnings`` में भी जोड़ी जाती है, ताकि वह ``manifest.json`` तक पहुँचे — मॉडल लॉगिंग को कभी स्वयं प्रोसेसिंग विफल नहीं करनी चाहिए। जब प्रोसेसिंग पर कोई विश्लेषण लॉक लागू हो, तो मॉडल को उसके विरुद्ध भी जाँचा जाता है (:func:`lock_analysis` देखें), और प्रोसेसिंग का निर्णय अद्यतन किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#1",
+      "source": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked gating strategy is compared.",
+      "source_sha256": "31b6f08effa0bb154920756a3b05b21674f528631602289a62e43370f6f75fe2",
+      "context": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked data-selection filtering strategy is compared.",
+      "translation": "जब तक कोई लॉक न दिया जाए, लॉक वही होता है जो :func:`lock_analysis` ने ``app_key`` को शामिल करते हुए, सेटिंग के ``src`` पर, सबसे हाल में बनाया था। लॉक को पहले उसके अपने हैश से जाँचा जाता है, इसलिए संपादित लॉक फ़ाइल पकड़ी जाती है; फिर हर सेटिंग, हर हैश की गई फ़ाइल और हर लॉक की गई गेटिंग रणनीति की तुलना होती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#2",
+      "source": "Each difference is stamped with when it was first seen (kept beside the lock), and it is post-hoc only when it was first seen after a blinding key on a folder of the plan was opened: an edit made while still blind stays a deviation even when the run that uses it comes later.",
+      "source_sha256": "0e9b1bd83a5212f9b03a777a393293d6e6846a585f641bfb4d9fcb08650910d2",
+      "context": "Each difference is stamped with when it was first seen (kept beside the lock), and it is post-hoc only when it was first seen after a blinding key on a folder of the plan was opened: an edit made while still blind stays a deviation even when the processing session that uses it comes later.",
+      "translation": "हर अंतर पर वह समय अंकित होता है जब वह पहली बार दिखा (लॉक के साथ रखा जाता है), और वह post hoc केवल तब है जब वह योजना के किसी फ़ोल्डर की ब्लाइंडिंग कुंजी खोले जाने के बाद पहली बार दिखा हो: ब्लाइंड रहते हुए किया गया बदलाव विचलन ही रहता है, भले ही उसका उपयोग करने वाली प्रोसेसिंग बाद में आए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#6",
+      "source": "the Gate Editor gating strategies in use, for gates the lock took as objects (see :func:`lock_analysis`).",
+      "source_sha256": "83e6764c0d22590aaddbe5d378fc6debe0fb82a03fc36fcb42173d43f87ad4fe",
+      "context": "the Data-selection boundary Editor data-selection filtering strategies in use, for data-selection boundaries the lock took as objects (see :func:`lock_analysis`).",
+      "translation": "उपयोग में Gate Editor की गेटिंग रणनीतियाँ, उन गेट के लिए जिन्हें लॉक ने ऑब्जेक्ट के रूप में लिया (:func:`lock_analysis` देखें)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#7",
+      "source": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every change first seen while still blind), ``\"post_hoc\"`` (a change first seen after a key on the plan's folders was unblinded), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, and ``detail`` for gates), ``unblinded_utc`` and a one-sentence ``summary``.",
+      "source_sha256": "10074b649025364697478b9f51d822bb0471c8b4b66bf5fce5e7d1234be82eac",
+      "context": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every change first seen while still blind), ``\"post_hoc\"`` (a change first seen after a key on the plan's folders was unblinded), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, and ``detail`` for data-selection boundaries), ``unblinded_utc`` and a one-sentence ``summary``.",
+      "translation": "``status`` -- ``\"unlocked\"`` (कोई लॉक लागू नहीं), ``\"verified\"`` (कुछ नहीं बदला), ``\"deviation\"`` (बदला, हर बदलाव ब्लाइंड रहते हुए पहली बार दिखा), ``\"post_hoc\"`` (ऐसा बदलाव जो योजना के फ़ोल्डरों की कुंजी अनब्लाइंड होने के बाद पहली बार दिखा), ``\"not_preregistered\"`` (अपरिवर्तित, लेकिन लॉक एक अनब्लाइंडिंग के बाद बना) या ``\"tampered\"`` (लॉक अब अपने हैश से मेल नहीं खाता) -- साथ में ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, और गेट के लिए ``detail``), ``unblinded_utc`` और एक वाक्य का ``summary``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#1",
+      "source": "The settings, the stated hypotheses and thresholds, the SHA-256 of every model, gate or threshold file the settings name (plus ``files``), the gating strategies and the models are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of a locked pipeline on its ``src`` is checked against the newest lock by :func:`check_analysis_lock`, and every model a run records is checked as it is recorded; the verdict goes into the run's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
+      "source_sha256": "642147843641a155f2cf072666516dc9ce9a4e27b2f2332047d55f001f5b4443",
+      "context": "The settings, the stated hypotheses and thresholds, the SHA-256 of every model, data-selection boundary or threshold file the settings name (plus ``files``), the data-selection filtering strategies and the models are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of a locked workflow on its ``src`` is checked against the newest lock by :func:`check_analysis_lock`, and every model a processing-session records is checked as it is recorded; the verdict goes into the processing session's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
+      "translation": "सेटिंग, बताई गई परिकल्पनाएँ और सीमाएँ, सेटिंग में नामित हर मॉडल, गेट या सीमा फ़ाइल का SHA-256 (साथ में ``files``), गेटिंग रणनीतियाँ और मॉडल समय और उपयोगकर्ता के साथ ``~/.spacr/analysis_locks/<lock id>.json`` में लिखे जाते हैं और हैश किए जाते हैं। तब से किसी लॉक की गई पाइपलाइन की उसके ``src`` पर हर जर्नल में दर्ज प्रोसेसिंग को :func:`check_analysis_lock` सबसे नए लॉक के विरुद्ध जाँचता है, और प्रोसेसिंग जो भी मॉडल दर्ज करती है उसे दर्ज होते समय जाँचा जाता है; निर्णय प्रोसेसिंग के ``manifest.json`` में जाता है, और कोई अंतर मैनिफ़ेस्ट की चेतावनियों, रिपोर्ट और विधि-पाठ में सूचीबद्ध होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#10",
+      "source": "``{name: checkpoint path}`` for the models the analysis loads, under the names the pipeline records them by.",
+      "source_sha256": "3c4b8b275641a7e3a2dd87ceea44afd2afbb65818cd57aeb9880beaa85e8357d",
+      "context": "``{name: checkpoint path}`` for the models the analysis loads, under the names the workflow records them by.",
+      "translation": "विश्लेषण जिन मॉडलों को लोड करता है उनके लिए ``{name: checkpoint path}``, उन नामों के अंतर्गत जिनसे पाइपलाइन उन्हें दर्ज करती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#11",
+      "source": "further pipelines of the same plan, as ``{app_key: settings}``; each is checked against its own settings on its own ``src``, and one unblinding on any of their folders counts for the whole plan.",
+      "source_sha256": "a7e6f1b731dd9b29d6deaca655cf8606d4590b79121ef9cded3512466e49ffa2",
+      "context": "further workflows of the same plan, as ``{app_key: settings}``; each is checked against its own settings on its own ``src``, and one unblinding on any of their folders counts for the whole plan.",
+      "translation": "उसी योजना की अतिरिक्त पाइपलाइनें, ``{app_key: settings}`` के रूप में; हर एक को उसके अपने ``src`` पर उसकी अपनी सेटिंग्स के विरुद्ध जाँचा जाता है, और उनके किसी भी फ़ोल्डर पर एक अनब्लाइंडिंग पूरी योजना पर लागू होती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#13",
+      "source": "when ``pipelines`` repeats ``app_key``, or ``gates`` holds something that is not a gating strategy.",
+      "source_sha256": "e8932485173c773b75462c0aadd3759a958eb1e3852c7eb430e5b247100bcf96",
+      "context": "when ``pipelines`` repeats ``app_key``, or ``gates`` holds something that is not a data-selection filtering strategy.",
+      "translation": "जब ``pipelines`` ``app_key`` को दोहराता है, या ``gates`` में ऐसा कुछ है जो गेटिंग रणनीति नहीं है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#14",
+      "source": "when a model in ``models`` is not a file.",
+      "source_sha256": "be7a364edec56cf8622a173492817885ba526e84a6bfb38c743c4ac441c563ba",
+      "context": "when a model in ``models`` is not a file.",
+      "translation": "जब ``models`` में कोई मॉडल फ़ाइल नहीं है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#2",
+      "source": "A lock made after a blinding key on a folder it covers was unblinded is marked as such, because it was not made blind.",
+      "source_sha256": "a0c46db5eaabf14d4f0fd89598be3bd3300c4ae780c097e59f9cd9efe39abec1",
+      "context": "A lock made after a blinding key on a folder it covers was unblinded is marked as such, because it was not made blind.",
+      "translation": "जो लॉक अपने दायरे के किसी फ़ोल्डर की ब्लाइंडिंग कुंजी के अनब्लाइंड होने के बाद बनाया गया, उसे ऐसा ही चिह्नित किया जाता है, क्योंकि वह ब्लाइंड रहकर नहीं बनाया गया था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#9",
+      "source": "Gate Editor gating strategies the plan depends on: a gate set, its dict, a saved gate file, a list of these, or a mapping from a label to one. Gate files named by any setting are taken as well. A gate file is checked on every run; gates handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
+      "source_sha256": "d72aaaa3f7c96e24c95d82afbadce1697625b231112f73391da0bfc7d34a18c5",
+      "context": "Data-selection boundary Editor data-selection filtering strategies the plan depends on: a data-selection boundary set, its key-value mapping, a saved data-selection boundary file, a list of these, or a mapping from a label to one. Data-selection boundary files named by any setting are taken as well. A data-selection boundary file is checked on every processing session; data-selection boundaries handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
+      "translation": "योजना जिन Gate Editor गेटिंग रणनीतियों पर निर्भर है: एक गेट सेट, उसकी dict, एक सहेजी गई गेट फ़ाइल, इनकी एक सूची, या किसी लेबल से इनमें से एक तक का मैपिंग। जिन गेट फ़ाइलों को कोई भी सेटिंग नामित करती है, वे भी ली जाती हैं। गेट फ़ाइल हर प्रोसेसिंग पर जाँची जाती है; ऑब्जेक्ट के रूप में सौंपे गए गेट तब जाँचे जाते हैं जब :func:`check_analysis_lock` को वे उसी लेबल के अंतर्गत दिए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.sim.gini#1",
+      "source": "Reference: StatsDirect non-parametric methods (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "source_sha256": "9b333733f94d94a5ed4d21accd878d60d26212480c91124851ce438bced2189d",
+      "context": "Reference: StatsDirect non-parametric methods (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "translation": "संदर्भ: StatsDirect, अप्राचलिक विधियाँ (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest#4",
+      "source": "1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a run that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not when the model is confident, not on a re-run. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a run came out wrong. 3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. A JUDGEMENT IS RECORDED, NOT INFERRED. Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "source_sha256": "2b4c477edd721e3ec0897e4354525fb16634855fc3c9c7e4a109eaccbe4495d8",
+      "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred. Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "translation": "1. सुझाव को कभी निर्णय समझने की भूल नहीं हो सकती। सुझाव अपने अलग मानों के रूप में संग्रहीत होते हैं -- सुझाया गया 1 11 बन जाता है -- इसलिए एनोटेशन स्तंभ पढ़ने वाली कोई भी चीज़ उसे मनुष्य का उत्तर नहीं समझ सकती, और गलत हुए रन को यह याद रखकर नहीं कि कौन-सी पंक्तियाँ छुई गईं, बल्कि एक मान हटाकर पलटा जाता है। 2. सुझाव कभी किसी एनोटेशन को अधिलेखित नहीं करता। लेखन ``IS NULL`` के साथ होता है। न तब जब मॉडल आश्वस्त हो, न दोबारा रन करने पर। मनुष्य के लेबल वह ग्राउंड ट्रुथ हैं जिस पर मॉडल फ़िट किया गया था; चुपचाप एक भी खोने से घंटों का नुकसान होगा और तब तक पता नहीं चलेगा जब तक कोई रन गलत न निकले। 3. कोई विश्वास-सीमा नहीं, इसलिए क्रम ही संदेह को दर्शाता है। हर बिना एनोटेशन वाले क्रॉप को एक सुझाव मिलता है, सबसे अधिक विश्वास वाले पहले क्रम में, और समीक्षक वहीं रुकता है जहाँ वह सहमत होना बंद करता है। थ्रेशोल्ड उसके लिए यह निर्णय ऐसी संख्या से कर देगा जिसे किसी ने नहीं चुना। 4. निर्णय दर्ज किया जाता है, अनुमानित नहीं। किसी सुझाव की पुष्टि उसे सामान्य लेबल में बदल देती है और अस्वीकृति उसे हटा देती है -- और दोनों स्तंभ के बगल में, ``<column>_verdict`` में, पुष्टि किए गए (``+c``) या अस्वीकृत (``-c``) वर्ग के रूप में लिखे जाते हैं। अस्वीकृति ऐसी जानकारी है जिस पर अगला दौर प्रशिक्षित हो सकता है -- दो-वर्ग वाले स्तंभ में \"not class 1\" वर्ग 2 का उदाहरण है -- जबकि NULL केवल चुप्पी होती। निर्णय स्तंभ पहली बार स्रोत खोले जाने पर जोड़ा जाता है, इसलिए उससे पहले बनी तालिकाओं को यह बिना किसी माइग्रेशन चरण के मिल जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.fill_holes_in_mask#1",
+      "source": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a field of 74 adjacent cells was saved as 8. Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
+      "source_sha256": "fc89df908c0e223a67870157f8dd6ce29e5f5f532766387cab53f2c41c3c7a2d",
+      "context": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a microscope field of view of 74 adjacent cells was saved as 8. Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
+      "translation": ":func:`spacr.qt.mask_engine.fill_label_holes` को सौंपता है, जो लेबल छवियों के लिए एकमात्र छेद-भराव है। पहले मास्क पर सबसे पहले ``ndimage.label`` चलता था, जिससे छूने वाले ऑब्जेक्ट का हर जोड़ा एक ऑब्जेक्ट बन जाता था: Cellpose का ``fill_in`` चालू होने पर (Apply में इसका डिफ़ॉल्ट), 74 सटी हुई कोशिकाओं वाला दृश्य-क्षेत्र 8 के रूप में सहेजा गया। अब कोई ऑब्जेक्ट न मिलाया जाता है न दोबारा क्रमांकित होता है, और छेद को उस ऑब्जेक्ट का id मिलता है जो उसे घेरता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
