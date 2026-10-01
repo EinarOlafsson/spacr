@@ -1866,6 +1866,14 @@ def _draw_hit_structures(figure, chemistry: _ChemistryResult, *,
 
     figure.clear()
     ink = resolve_ink(target)
+    if target == "screen":
+        # The automatic figure ground is transparent in both themes, so
+        # theme_target cannot distinguish a light canvas from a dark one.
+        try:
+            from .qt.preferences import get_figure_colors
+            ink = get_figure_colors()[1]
+        except ImportError:
+            pass  # Headless installations may not include Qt.
     sar = chemistry.sar
     hits = sar[sar["hit"]]
     if "smiles_valid" in hits.columns:
@@ -1905,7 +1913,10 @@ def _draw_hit_structures(figure, chemistry: _ChemistryResult, *,
             caption += f"\ncytotoxicity {tox:.3g}"
         ax.set_title(str(row["compound"]), fontsize=8, color=ink)
         ax.set_xlabel(caption, fontsize=7, color=ink)
-    figure.tight_layout(pad=0.6)
+    # A Qt canvas acquires its final geometry after this worker result is
+    # installed. Recompute the layout on draw/resize: a one-shot tight_layout
+    # can leave negative spacing and overlapping molecular tiles afterward.
+    figure.set_layout_engine("constrained", w_pad=0.06, h_pad=0.06)
     return len(hits)
 
 
