@@ -1,0 +1,62 @@
+604. Spaceout: the Mandelbrot camera glides to complex regions
+
+Requested by the maintainer (2026-09-30), verbatim:
+"in spaceout mode the mandelbrot camera should smoothely center on regions with high complexity, i.e. not single color.
+now the camera jumps which looks wierd. please make the camera movement smooth.
+for the other spaceout modes theis a giant magnigying glass where the mouse is. there should be a slider deffining its size.
+for the space mode there are small stars that look great passing like little dots. but there should also be galaxies passing i want the user to feel like they are really passing through space."
+
+Brief (this item is the first paragraph; 605 and 606 are the others):
+The Mandelbrot camera must never jump.
+- Pick targets by a complexity score (local colour/escape-time variance or
+  entropy on a coarse grid of the current frame); never a single-colour
+  region.
+- Glide to the target smoothly: ease-in-out or critically damped
+  interpolation of centre and zoom, continuous in velocity, zoom in
+  log-space.
+- Retarget smoothly before reaching a flat region.
+
+Done when: a test shows frame-to-frame centre/zoom deltas are bounded (no
+jumps) and that chosen targets score above a complexity threshold; rendered
+frame strips in /mnt/wd4tb/scratch/604 show a smooth glide.
+
+Status: IMPLEMENTED 2026-09-30
+
+Why it jumped (2026-09-30): three causes. (1) The "tour" path aimed the
+camera at the twenty committed region coordinates, which are ABSOLUTE
+points of the plane, as if they were offsets from the reference orbit, so
+it glided off the set into flat colour. (2) Every decade the reference
+orbit is moved onto a boundary point somewhere in the view, and the camera
+offset was then reset to (0, 0): the picture jumped by up to a whole
+view each time, on every path. (3) The depth wrapped from 21 decades to 0
+in one frame.
+
+Fix: the tour path (still the default, still labelled "Tour the
+interesting places") is now _GlideCamera in fractal_mandelbrot.py. Every
+half second a worker thread surveys the view (perturbation escape map)
+and _complexity_map scores each 9x9 window: palette-band entropy weighted
+by how often neighbours differ, so one colour scores 0 and smooth
+gradients score low. The camera heads for the best nearby window above
+_COMPLEXITY_FLOOR, keeps it while it scores well, and drops it early when
+it fades toward the floor. The centre follows as an exactly solved
+critically damped spring, speed-capped in screen units; the depth (log
+zoom) eases its velocity toward the dive rate, slowed while the centre
+travels, reversed gently when nothing in view has structure, and run
+backwards to the surface at the end of a dive (and on Ctrl+R) instead of
+cutting. A rebased reference now shifts the camera's centre and target by
+the opposite offset on every path, so the picture stays still.
+
+Measured (scratch /mnt/wd4tb/scratch/604): over a real orbit the largest
+frame-to-frame move is 0.006 of the half-height, the depth's frame-to-frame
+acceleration below 1e-4 decades. Frames: strip_glide_8_every_third_second.png
+(consecutive, 1/3 s apart), sheet_glide_8_every4s.png,
+mandel_gpu_glide_overview.png (the real shader on Mesa llvmpipe, 2.5 s apart),
+mandel_gpu_glide_rewind.png (the glide back up).
+
+Tests: tests/qt/test_the_mandelbrot_camera_glides_to_detail.py; updated
+the tour and rebase pins in test_the_fractal_tour_and_shaders_at_their_edges
+and test_cov_r5_fractal_travel.
+
+Left: RegionTour/_TourPilot and fractal_regions.py are no longer used by
+the canvas (kept; their own tests still exercise them). Not run on a real
+GPU here; the shader was rendered on llvmpipe only.

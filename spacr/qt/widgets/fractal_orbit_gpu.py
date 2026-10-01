@@ -41,18 +41,20 @@ uniform float u_pointer_x;
 uniform float u_pointer_y;
 uniform float u_pull;
 uniform float u_push;
+uniform float u_lens;
 
 // THE POINTER BENDS THE PLANE, IT DOES NOT MOVE THE CAMERA. Identical to
 // every other pattern since instruction 327 (4): displacement toward the
 // pointer with a 1/r^2 strength, so it is firm under the cursor and gone
 // by the far corner, and nothing is displaced globally to spring back.
 vec2 toward_pointer(vec2 uv) {
+    float lens = u_lens > 0.0 ? max(u_lens, 0.05) : 1.0;
     vec2 target = vec2(u_pointer_x, u_pointer_y);
-    vec2 to_pointer = target - uv;
+    vec2 to_pointer = (target - uv) / lens;
     float distance2 = dot(to_pointer, to_pointer) + 0.05;
     float strength = (0.55 * u_pull - 0.95 * u_push) / distance2;
     strength = clamp(strength, -1.4, 0.9);
-    return uv + strength * to_pointer;
+    return uv + strength * to_pointer * lens;
 }
 
 vec3 orbit_sample(vec2 fragment_position) {

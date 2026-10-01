@@ -85,8 +85,8 @@ PATTERN_LABELS: Final[dict] = {
     "space": "Space (star field flight)",
     "mandelbrot": "Mandelbrot (perturbation deep zoom)",
 }
-from ..fractal_defaults import (DEFAULT_PATTERN,  # noqa: E402
-                               FALLBACK_PATTERN)
+from ..fractal_defaults import (DEFAULT_MAGNIFIER_SIZE,  # noqa: E402
+                               DEFAULT_PATTERN, FALLBACK_PATTERN)
 
 DEFAULT_BACKEND: Final[str] = "auto"
 DEFAULT_QUALITY: Final[str] = "auto"
@@ -367,6 +367,9 @@ class RuntimeControls:
     pointer_size: float = DEFAULT_POINTER_SIZE
     #: How hard it pulls. 0 is off; above 1 exaggerates.
     pointer_strength: float = DEFAULT_POINTER_STRENGTH
+    #: How big the magnifying glass under the pointer is, as a multiple of
+    #: its usual size. Read every frame, so a change shows at once.
+    magnifier_size: float = DEFAULT_MAGNIFIER_SIZE
     #: A multiplier on the Mandelbrot descent, changed by Up and Down and
     #: by the wheel while the backdrop is running -- as in the source this
     #: pattern came from.
@@ -572,7 +575,7 @@ if njit is not None:
 
     @njit(inline="always", fastmath=True)
     def _orbit_sample(px, py, width, height, t, speed, dream, iterations,
-                      pointer_x, pointer_y, pull, push):
+                      pointer_x, pointer_y, pull, push, lens=1.0):
         """The colour of one pixel, in the plane's own coordinates.
 
         Divides by the SHORT side so the picture keeps its proportions on
@@ -582,22 +585,27 @@ if njit is not None:
         Returns the three channels as 0-255 integers rather than floats
         because the caller writes them straight into a uint8 buffer, and
         rounding once here is cheaper than rounding three times there.
+
+        ``lens`` is the Magnifier size: the pointer's warp is measured in
+        lens radii and scaled back, so the magnifying glass grows or shrinks
+        whole.
         """
         denominator = float(min(width, height))
         x = (2.0 * px - width) / denominator
         y = (height - 2.0 * py) / denominator
 
         if pull > 0.0 or push > 0.0:
-            to_x = pointer_x - x
-            to_y = pointer_y - y
+            radius = lens if lens > 0.05 else 0.05
+            to_x = (pointer_x - x) / radius
+            to_y = (pointer_y - y) / radius
             distance2 = to_x * to_x + to_y * to_y + 0.05
             strength = (0.55 * pull - 0.95 * push) / distance2
             if strength > 0.9:
                 strength = 0.9
             elif strength < -1.4:
                 strength = -1.4
-            x += strength * to_x
-            y += strength * to_y
+            x += strength * to_x * radius
+            y += strength * to_y * radius
 
         rotation = (0.24 * _fast_sin(0.17 * t)
                     + 0.11 * _fast_sin(0.043 * t + 1.2))
@@ -688,7 +696,7 @@ if njit is not None:
 
     @njit(cache=True, parallel=True, fastmath=True, nogil=True)
     def _render_into(output, t, speed, dream, iterations, jitter_x, jitter_y,
-                     pointer_x, pointer_y, pull, push):
+                     pointer_x, pointer_y, pull, push, lens=1.0):
         """Fill one whole frame, one row per worker thread.
 
         WRITES INTO A BUFFER THE CALLER OWNS rather than returning an
@@ -707,7 +715,7 @@ if njit is not None:
                 red, green, blue = _orbit_sample(
                     x + jitter_x, y + jitter_y, width, height,
                     t, speed, dream, iterations,
-                    pointer_x, pointer_y, pull, push)
+                    pointer_x, pointer_y, pull, push, lens)
                 output[y, x, 0] = red
                 output[y, x, 1] = green
                 output[y, x, 2] = blue
@@ -832,6 +840,7 @@ class OrbitEngine:
         self.frames = 0
         self.samples = 2
         self._ring_samples = 2
+        self.lens = DEFAULT_MAGNIFIER_SIZE
 
     def _ensure_size(self, width: int, height: int) -> None:
         """Allocate the ring and output buffers for a new frame size.
@@ -878,7 +887,8 @@ class OrbitEngine:
         jitters = JITTERS if samples == 2 else _orbit_jitters(samples)
         jitter_x, jitter_y = jitters[self.slot]
         _render_into(self.ring[self.slot], t, speed, dream, iterations,
-                     jitter_x, jitter_y, pointer_x, pointer_y, pull, push)
+                     jitter_x, jitter_y, pointer_x, pointer_y, pull, push,
+                     float(self.lens))
         if self.frames == 0:
             for index in range(phases):
                 if index != self.slot:
@@ -1040,6 +1050,8 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             """
             try:
                 started = time.perf_counter()
+                self.engine.lens = float(request.get(
+                    "lens", DEFAULT_MAGNIFIER_SIZE))
                 frame = self.engine.render(
                     request["width"], request["height"], request["t"],
                     request["speed"], request["dream"], request["iterations"],
@@ -1223,6 +1235,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                 "pointer_x": pointer.x, "pointer_y": pointer.y,
                 "pull": pointer.pull if controls.follow_pointer else 0.0,
                 "push": pointer.push if controls.follow_pointer else 0.0,
+                "lens": controls.magnifier_size,
             })
             self._sim_time += target_period
 
@@ -1368,6 +1381,7 @@ uniform float u_pointer_x;
 uniform float u_pointer_y;
 uniform float u_pull;
 uniform float u_push;
+uniform float u_lens;
 uniform float u_tx;
 uniform float u_ty;
 uniform float u_rotation;
@@ -1464,14 +1478,17 @@ float field(vec2 uv) {
 //   * a click reverses it, pushing the structure away instead.
 //
 // The 0.05 floor keeps the divide finite at the pointer itself, and the
-// clamps stop a pixel being thrown past it.
+// clamps stop a pixel being thrown past it. `u_lens` is the Magnifier
+// size: distances are measured in lens radii and the displacement scaled
+// back, so the whole lens grows or shrinks without changing its shape.
 vec2 toward_pointer(vec2 uv) {
+    float lens = u_lens > 0.0 ? max(u_lens, 0.05) : 1.0;
     vec2 target = vec2(u_pointer_x, u_pointer_y);
-    vec2 to_pointer = target - uv;
+    vec2 to_pointer = (target - uv) / lens;
     float distance2 = dot(to_pointer, to_pointer) + 0.05;
     float strength = (0.55 * u_pull - 0.95 * u_push) / distance2;
     strength = clamp(strength, -1.4, 0.9);
-    return uv + strength * to_pointer;
+    return uv + strength * to_pointer * lens;
 }
 
 vec3 render_sample(vec2 fragment_position) {
@@ -2014,6 +2031,16 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not seed the orbit texture",
                               exc_info=True)
+            if settings.pattern == "space":
+                try:
+                    from .fractal_space import _galaxy_texture
+
+                    self._program["u_galaxies"] = gloo.Texture2D(
+                        _galaxy_texture(), interpolation="linear",
+                        wrapping="clamp_to_edge")
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not upload the galaxy pictures",
+                              exc_info=True)
             gloo.set_state(depth_test=False, blend=False)
             self._update_uniforms(0.0)
             self._timer = vispy_app.Timer(interval=1.0 / settings.fps,
@@ -2052,10 +2079,24 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                     ("u_pointer_y", np.float32(pointer_y)),
                     ("u_pull", np.float32(pull)),
                     ("u_push", np.float32(push)),
-            ) + tuple(self._mandelbrot_uniforms(elapsed).items()):
+                    ("u_lens", np.float32(controls.magnifier_size)),
+            ) + tuple(self._mandelbrot_uniforms(elapsed).items()) \
+                    + tuple(self._galaxy_uniforms(phase).items()):
                 if name in _DECLARED:
                     self._program[name] = value
             self._upload_the_orbit_if_it_arrived()
+
+        def _galaxy_uniforms(self, phase: float) -> dict:
+            """Where the passing galaxies are, for the space pattern.
+
+            :param phase: the flight's clock, the shader's ``u_time``.
+            :returns: ``{}`` for every other pattern.
+            """
+            if settings.pattern != "space":
+                return {}
+            from .fractal_space import _galaxies_at, _galaxy_uniforms
+
+            return _galaxy_uniforms(_galaxies_at(phase, 1.0))
 
         def _start_the_reference_orbit(self) -> None:
             """Iterate Z off the GUI thread and upload it when it is ready."""
@@ -2091,14 +2132,13 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             """
             if settings.pattern != "mandelbrot":
                 return {}
-            from .fractal_mandelbrot import (DEFAULTS, depth_after_restart,
-                                             depth_decades,
-                                             iteration_budget, scale_at)
+            from .fractal_mandelbrot import depth_after_restart
 
             now = time.perf_counter()
             previous = getattr(self, "_zoom_clock", None)
             self._zoom_clock = now
-            if previous is not None:
+            gliding = str(_mandel_setting("path", "tour")) == "tour"
+            if previous is not None and not gliding:
                 step = (now - previous) * controls.speed * controls.zoom_rate \
                     / max(0.1, float(_mandel_setting("seconds_per_decade")))
                 self._depth = max(0.0,
@@ -2111,27 +2151,35 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 camera = getattr(self, "_camera", None)
                 if camera is not None:
                     camera.restart()
-                pilot = getattr(self, "_pilot", None)
-                if pilot is not None:
-                    pilot.restarted()
+                glide = getattr(self, "_glide", None)
+                if glide is not None:
+                    glide.restart()
+                    self._depth = glide.depth
                 self._refine_due = None
                 self._refined = None
+                self._glide_survey = None
 
                 self._plan = None
                 self._steer_step = 0
                 self._next_steer = 0.0
+            orbit = self._orbit
+            if gliding:
+                try:
+                    centre, depth = self._glide_frame(
+                        orbit, 0.0 if previous is None else now - previous)
+                except Exception:                            # noqa: BLE001
+                    LOG.exception("could not steer the dive")
+                    glide = getattr(self, "_glide", None)
+                    centre = (glide.centre if glide is not None
+                              else (0.0, 0.0))
+                    depth = getattr(self, "_depth", 0.0)
+                self._depth = depth
+                return self._dive_uniforms(depth, centre, orbit)
             depth = depth_after_restart(
                 getattr(self, "_depth", 0.0),
                 float(_mandel_setting("max_depth", 34.0)))
             self._depth = depth
-            orbit = self._orbit
-            length = float(orbit.max_iter + 1) if orbit is not None else 1.0
-            budget = iteration_budget(
-                depth, int(_mandel_setting("base_iterations")),
-                float(_mandel_setting("iterations_per_decade")),
-                int(_mandel_setting("max_iterations")))
-            if orbit is not None:
-                budget = min(budget, orbit.max_iter)
+            budget = self._budget_at(depth, orbit)
             try:
                 centre = self._steer(depth, budget, orbit,
                                      float(elapsed))
@@ -2139,6 +2187,35 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 LOG.exception("could not steer the dive")
                 camera = getattr(self, "_camera", None)
                 centre = camera.centre if camera is not None else (0.0, 0.0)
+            return self._dive_uniforms(depth, centre, orbit)
+
+        def _budget_at(self, depth: float, orbit) -> int:
+            """The iteration budget at ``depth``, capped by the reference.
+
+            :param depth: the depth in decades.
+            :param orbit: the reference orbit, or None while it is built.
+            """
+            from .fractal_mandelbrot import iteration_budget
+
+            budget = iteration_budget(
+                depth, int(_mandel_setting("base_iterations")),
+                float(_mandel_setting("iterations_per_decade")),
+                int(_mandel_setting("max_iterations")))
+            if orbit is not None:
+                budget = min(budget, orbit.max_iter)
+            return budget
+
+        def _dive_uniforms(self, depth: float, centre, orbit) -> dict:
+            """The zoom's uniforms for a depth and a centre.
+
+            :param depth: the depth in decades.
+            :param centre: ``(re, im)`` offset from the reference orbit.
+            :param orbit: the reference orbit, or None while it is built.
+            """
+            from .fractal_mandelbrot import scale_at
+
+            length = float(orbit.max_iter + 1) if orbit is not None else 1.0
+            budget = self._budget_at(depth, orbit)
             return {
                 "u_scale": np.float32(
                     scale_at(depth, float(_mandel_setting("initial_scale")))),
@@ -2149,13 +2226,86 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 "u_max_iter": np.int32(max(1, int(budget))),
             }
 
+        def _glide_frame(self, orbit, seconds: float) -> tuple:
+            """One frame of the glide toward the busiest part of the view.
+
+            :param orbit: the reference orbit, or None while it is built.
+            :param seconds: time since the previous frame.
+            :returns: ``(centre, depth)``.
+
+            THE DECIDING IS IN `_GlideCamera`, which has no Qt in it. This
+            is the part that cannot be: reading the settings, handing it the
+            drag, and surveying the view on a worker thread so an escape map
+            never stalls a frame. A survey that lands after the reference
+            moved describes a different frame and is dropped.
+            """
+            import threading
+
+            from .fractal_mandelbrot import (MAX_USEFUL_DEPTH, _GlideCamera,
+                                             _survey, scale_at)
+
+            maximum = max(0.1, float(_mandel_setting("max_depth",
+                                                     MAX_USEFUL_DEPTH)))
+            glide = getattr(self, "_glide", None)
+            if glide is None:
+                glide = _GlideCamera(max_depth=maximum)
+                self._glide = glide
+            glide.max_depth = maximum
+            initial = float(_mandel_setting("initial_scale"))
+            rate = controls.speed * controls.zoom_rate / max(
+                0.1, float(_mandel_setting("seconds_per_decade")))
+
+            pointer = getattr(self, "_pointer", None)
+            if pointer is not None and (pointer.drag_x or pointer.drag_y):
+                glide.drag(pointer.drag_x, pointer.drag_y,
+                           glide.scale(initial))
+                pointer.drag_x = 0.0
+                pointer.drag_y = 0.0
+                self._refine_due = 0.0
+
+            landed = getattr(self, "_glide_survey", None)
+            if landed is not None and landed["done"]:
+                self._glide_survey = None
+                if (landed["survey"] is not None
+                        and landed["orbit"] is self._orbit):
+                    glide.consider(landed["survey"], initial)
+
+            centre, depth = glide.advance(seconds, rate, initial)
+            if orbit is None:
+                return centre, depth
+            span = scale_at(depth, initial)
+            budget = self._budget_at(depth, orbit)
+            self._refine_the_reference(glide, orbit, budget, depth, span)
+            if (glide.wants_survey()
+                    and getattr(self, "_glide_survey", None) is None):
+                width, height = self.physical_size
+                aspect = max(1, int(width)) / max(1, int(height))
+                slot = {"done": False, "survey": None, "orbit": orbit}
+                self._glide_survey = slot
+                glide.surveyed()
+                here = glide.centre
+
+                def _look():
+                    """Score the current view for structure. Off the GUI thread."""
+                    try:
+                        slot["survey"] = _survey(orbit, here, span, budget,
+                                                 aspect)
+                    except Exception:                        # noqa: BLE001
+                        LOG.debug("could not survey the view", exc_info=True)
+                    finally:
+                        slot["done"] = True
+
+                threading.Thread(target=_look, daemon=True,
+                                 name="spacr-mandelbrot-survey").start()
+            return glide.centre, glide.depth
+
         def _steer(self, depth: float, budget: int, orbit,
                    seconds: float = 0.0):
             """Where the dive is heading, in the reference orbit's frame.
 
-            :param seconds: the simulation clock, which is what the region
-                tour is an itinerary over. Defaulted so a caller that does
-                not tour need not carry one.
+            :param seconds: the simulation clock; unused by the fixed and
+                guided paths, and kept so every caller passes the same
+                arguments. The tour path is :meth:`_glide_frame`.
             :returns: ``(offset_re, offset_im)`` for ``u_center_offset``.
 
             THE DECIDING IS IN `SteeringCamera`, which has no Qt in it and
@@ -2203,13 +2353,6 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self._refine_the_reference(camera, orbit, budget, depth, span)
 
             path = str(_mandel_setting("path", "tour"))
-            if path == "tour":
-                pilot = getattr(self, "_pilot", None)
-                if pilot is None:
-                    pilot = _TourPilot()
-                    self._pilot = pilot
-                pilot.steer(camera, float(seconds), span)
-                return camera.advance(time.perf_counter())
             if path != "guided":
                 return camera.centre
             if not camera.steering:
@@ -2252,7 +2395,9 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
             Surveyed and rebuilt on a worker thread: the survey is a 96x54
             escape map and the rebuild iterates the orbit at full precision,
-            neither of which belongs in a frame.
+            neither of which belongs in a frame. When the new reference
+            lands, the camera's centre and target move by the opposite of
+            the reference's move, so the picture stays exactly where it was.
             """
             import threading
 
@@ -2263,18 +2408,22 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             landed = getattr(self, "_refined", None)
             if landed is not None:
                 self._refined = None
-                centre, fresh = landed
+                _centre, fresh, moved = landed
                 if fresh is not None:
                     self._orbit = fresh
-                    camera.centre = (0.0, 0.0)
-                    camera.target = None
+                    dx, dy = moved
+                    camera.centre = (camera.centre[0] - dx,
+                                     camera.centre[1] - dy)
+                    if camera.target is not None:
+                        camera.target = (camera.target[0] - dx,
+                                         camera.target[1] - dy)
                 self._refine_due = depth + REFINE_EVERY
                 return
 
             if getattr(self, "_refine_thread_running", False):
                 return
             due = getattr(self, "_refine_due", None)
-            if due is None:
+            if due is None or due > depth + REFINE_EVERY:
                 self._refine_due = depth + REFINE_EVERY
                 return
             if depth < due:
@@ -2290,12 +2439,14 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 try:
                     offset = best_reference_in_view(
                         orbit, here[0], here[1], span, int(budget))
-                    self._refined = rebased_orbit(
+                    centre, fresh = rebased_orbit(
                         orbit, offset[0], offset[1], digits, ceiling)
+                    self._refined = (centre, fresh,
+                                     (float(offset[0]), float(offset[1])))
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not refine the reference",
                               exc_info=True)
-                    self._refined = (None, None)
+                    self._refined = (None, None, None)
                 finally:
                     self._refine_thread_running = False
 
@@ -2569,6 +2720,8 @@ def apply_saved_controls() -> int:
             controls.follow_pointer = bool(values["pointer_gravity"])
             controls.pointer_size = float(values["pointer_size"])
             controls.pointer_strength = float(values["pointer_strength"])
+            controls.magnifier_size = float(values.get(
+                "magnifier_size", DEFAULT_MAGNIFIER_SIZE))
             controls.zoom_rate = float(values["zoom_rate"])
             updated += 1
         except Exception:                                    # noqa: BLE001

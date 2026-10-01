@@ -100,3 +100,12 @@ DEFAULT_POINTER_SIZE: float = 1.0
 #: How hard it pulls. 0 is off however the switch is set; above 1
 #: exaggerates.
 DEFAULT_POINTER_STRENGTH: float = 1.0
+
+#: How big the magnifying glass under the pointer is, as a multiple of the
+#: size it has always had. Scaling it scales the whole lens -- the bulge
+#: under the cursor and the fall-off around it -- by the same factor.
+DEFAULT_MAGNIFIER_SIZE: float = 1.0
+
+#: The range the Magnifier size slider offers: a quarter of the usual
+#: lens, a small loupe, up to three times it.
+MAGNIFIER_SIZE_RANGE: Final[tuple] = (0.25, 3.0)
