@@ -155,7 +155,7 @@ msgid "Click **Run** and follow progress in the console. When training finishes,
 msgstr "单击 **运行** 并在控制台中查看进度。训练完成后，控制台会报告已保存检查点的路径。使用默认输出位置时，检查点位于 ``<src>/models/cellpose_model/models`` 下。选择了 ``save_path`` 时，检查点位于 ``<save_path>/models`` 下。"
 
 msgid "Open **Apply**, select a separate image folder, such as the example's ``apply`` folder, and check that **Custom model** points to the checkpoint you want. Turn on **Save**, which is off by default. Inspect a preview before processing the folder. Apply writes label masks into that image folder's ``masks`` subfolder. Use separate labelled images to evaluate segmentation before applying the model to an entire experiment."
-msgstr "打开 **应用**，选择一个单独的图像文件夹（例如示例中的 ``apply`` 文件夹），并确认 **定制模型** 指向所需的检查点。打开默认关闭的 **保存**。在处理整个文件夹前先检查预览。应用会将标签掩膜写入该图像文件夹的 ``masks`` 子文件夹。在将模型应用于整个实验之前，请使用单独的已标注图像评估分割效果。"
+msgstr "打开 **应用**，选择一个单独的图像文件夹（例如示例中的 ``apply`` 文件夹），并确认 **自定义模型** 指向所需的检查点。打开默认关闭的 **保存**。在处理整个文件夹前先检查预览。应用会将标签掩膜写入该图像文件夹的 ``masks`` 子文件夹。在将模型应用于整个实验之前，请使用单独的已标注图像评估分割效果。"
 
 msgid "The Python entry point :func:`spacr.submodules.train_cellpose` accepts the same settings and returns the checkpoint path, training losses and validation losses. Continue with :doc:`Make Masks <make_masks>` to inspect or edit masks, or :ref:`Mask <workflow-module-mask>` to use the model in an image pipeline."
 msgstr "Python 入口点 :func:`spacr.submodules.train_cellpose` 接受相同的设置，并返回检查点路径、训练损失和验证损失。接下来可使用 :doc:`创建掩膜 <make_masks>` 检查或编辑掩膜，或使用 :ref:`掩膜 <workflow-module-mask>` 在图像流程中使用该模型。"
