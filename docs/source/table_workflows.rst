@@ -283,8 +283,9 @@ nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or
 equals with an empty value to match an actual empty string.
 
 Choose **all rules match** when every criterion must match, or **any rule
-matches** when at least one must match. Criteria may inspect different source columns or earlier generated
-columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and
+matches** when at least one must match. Criteria may inspect different source
+columns or earlier generated columns. For example, assign ``control`` when
+``drug`` equals ``DMSO`` and
 ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative
 criterion. An actual empty string is a value and can be matched explicitly.
 
@@ -366,6 +367,10 @@ table or saving a new annotated SQLite table retains the complete recipe.
 
 Rules and manual selection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In **Assign values**, choose **Regular expression** in a condition box to
+use its Include and Exclude fields. Choose **Manual rows only** to assign
+only the rows you drop into that box, without a comparison rule.
 
 Above the condition boxes, **Examples for column** offers copyable patterns
 based on the selected column's values. Choose an example type, inspect or
