@@ -142,3 +142,35 @@ and enlarged corners against white/black grounds, dark/light at scales 1,
 1.5 and 2 (/tmp/spacr-ui-evidence). Original mask clipping is emulated in the
 baseline montage because the offscreen Qt plugin does not apply native masks.
 No native compositor, Windows or macOS visual verification is claimed.
+
+2026-10-01 — NATIVE PREFERENCES CORRECTION AFTER USER FEEDBACK
+The preceding alpha-only change was insufficient on native X11: Preferences
+still had black square corners. Reproduced on the actual Ubuntu/GNOME X11
+DISPLAY=:0 with a controlled checkerboard behind a real PreferencesDialog.
+WA_TranslucentBackground was true but windowHandle().format().alphaBufferSize()
+was -1: Qt had already created an opaque native surface before Polish.
+Offscreen alpha renders did not detect that native creation-order failure.
+
+The shared frameless helper now recreates only an existing opaque QWindow's
+platform surface with an explicit 8-bit alpha format before mapping it. It
+preserves the QWidget, QWindow, contents, parentage and geometry. A surface
+already carrying alpha is left alone. The corner helper clears its mask only
+when the native format actually carries alpha; the attribute alone never
+removes the rounded fallback shape. Card painting and the continuous glow
+are unchanged.
+
+Final verification: 74 named glass/native-alpha/gradient tests passed at scale
+1; 20 native-alpha/corner/gradient tests passed with QT_SCALE_FACTOR=2. New
+regressions explicitly create an opaque surface before glass polishing and
+verify actual alpha, preserved content, and no repeated surface recreation;
+an attribute-only/no-alpha case retains its rounded mask.
+
+Actual Preferences was displayed, resized and reopened on DISPLAY=:0 in both
+dark and light themes. All four outside-corner pixels matched the known
+checkerboard background, the native format remained alpha=8, and the native
+window ID stayed unchanged during resize/reopen. Captures were inspected at
+normal size; evidence is /tmp/spacr-ui-evidence/native-preferences-{dark,light}
+-{0,1,2}.png. A temporary copy of the user's QSettings file was used; the
+user's real preferences and saved geometry were not written. Native Windows
+and macOS were not tested. These observations supersede the earlier
+alpha-attribute-only acceptance claim above.

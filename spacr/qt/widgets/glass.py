@@ -606,6 +606,31 @@ def _paint_nothing_behind_the_card(dialog: QDialog) -> bool:
         return False
 
 
+def _ensure_alpha_surface(dialog: QWidget) -> bool:
+    """Repair a native surface created before translucent window polishing.
+
+    Qt can create the platform window before sending Polish. Merely setting
+    WA_TranslucentBackground afterwards leaves that existing X11 surface
+    opaque (alphaBufferSize=-1). Recreate its platform resources with an
+    explicit alpha format before it is mapped; keep the QWidget, QWindow,
+    geometry, parentage and all child state intact.
+
+    :param dialog: window whose existing native surface must support alpha.
+    :returns: true when alpha is requested, or no native window exists yet.
+    """
+    window = dialog.windowHandle()
+    if window is None:
+        return True
+    if window.format().alphaBufferSize() >= 8:
+        return True
+    surface_format = window.format()
+    surface_format.setAlphaBufferSize(8)
+    window.destroy()
+    window.setFormat(surface_format)
+    window.create()
+    return window.format().alphaBufferSize() >= 8
+
+
 def make_frameless(dialog: QDialog) -> bool:
     """Drop the title bar and let the card's rounded corners show.
 
@@ -637,6 +662,7 @@ def make_frameless(dialog: QDialog) -> bool:
                                & ~Qt.WindowType.Dialog)
                               | Qt.WindowType.Window
                               | Qt.FramelessWindowHint)
+        _ensure_alpha_surface(dialog)
         dialog.setProperty(DETACHED, True)
         _paint_nothing_behind_the_card(dialog)
         if getattr(dialog, "_spacr_background_drag", None) is None:
@@ -657,8 +683,9 @@ def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
     on high-DPI screens. Cutting the antialiased card to that shape erased
     partially covered edge pixels, producing a jagged white/dark fringe
     against the desktop. Translucent windows already carry the card's
-    exact per-pixel alpha; clear any old mask and let that alpha compose.
-    Opaque fallback windows retain the rounded platform mask.
+    exact per-pixel alpha only when their native format has an alpha buffer.
+    Clear the mask in that case; the QWidget attribute alone is not proof.
+    Until a native alpha surface exists, retain the rounded platform mask.
 
     :param dialog: window carrying the shared rounded card.
     :param radius: corner radius in logical pixels for the opaque fallback.
@@ -673,7 +700,10 @@ def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
         rect = dialog.rect()
         if rect.width() <= 0 or rect.height() <= 0:
             return False
-        if dialog.testAttribute(Qt.WA_TranslucentBackground):
+        window = dialog.windowHandle()
+        if (dialog.testAttribute(Qt.WA_TranslucentBackground)
+                and window is not None
+                and window.format().alphaBufferSize() >= 8):
             dialog.clearMask()
             return True
         step = 4.0
