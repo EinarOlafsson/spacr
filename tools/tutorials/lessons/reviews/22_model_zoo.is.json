@@ -1,30 +1,37 @@
 {
   "lesson": "22_model_zoo",
-  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "english_sha256": "87954acf7425ca91badbab0643a90a8aac3a886ea492cc22f0466884dd4fbbab",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "is",
   "title": "Model Zoo: veldu líkan og prófaðu það á myndunum þínum",
-  "description": "Opnaðu Model Zoo, finndu eða sæktu vistunarpunkt, skoðaðu upplýsingar hans og veldu lítið myndasafn til prófunar.",
+  "description": "Opnaðu Model Zoo, finndu eða sæktu vistunarpunkt, skoðaðu upplýsingar hans, prófaðu hann á litlu myndasafni og mældu þvermál hluta fyrir Mask.",
   "objectives": [
     "Opna Model Zoo og skanna staðbundna líkanamöppu.",
     "Velja líkanafjölskyldu og útgáfu og skoða upplýsingarnar.",
-    "Keyra litla myndprófun og skoða grímurnar og gæðasamantektirnar sem koma út."
+    "Keyra litla myndprófun og skoða grímurnar og gæðasamantektirnar sem koma út.",
+    "Mæla þvermál hluta á eigin sjónsviðum í Model Zoo-glugganum í Mask generation."
   ],
   "prerequisite": "Dragðu tengda dæmið út og notaðu möppuna images fyrir prófunina á þremur sjónsviðum. Veldu uppsett Cellpose-aðgreiningarlíkan eða sæktu hentugan vistunarpunkt í gegnum Model Zoo. Fyrir eigin prófun útbýrðu nokkrar dæmigerðar TIFF-, PNG-, NPY- eða NPZ-myndir.",
   "scenes": [
     "Frá Home opnarðu Make Masks og velur svo Model Zoo. Notaðu þessa síðu til að finna aðgreiningarlíkan og prófa það á litlu myndasafni.",
-    "Smelltu á Choose folder og veldu líkanamöppuna þína til að skanna hana. Ef þú slærð inn slóðina smellirðu á Scan. Kveiktu á þeim upprunafyrirsögnum sem þú vilt fletta í, til dæmis Cellpose eða staðbundnum líkönum.",
+    "Smelltu á Choose folder og veldu líkanamöppuna þína til að skanna hana. Ef þú slærð inn slóðina smellirðu á Scan. Fyrirsagnirnar fyrir ofan töfluna ráða því hvaða uppruni er sýndur; kveikt er á cellposeSAM fyrir staðalvigtirnar og spaCR fyrir líkönin sem eru þjálfuð hér í upphafi.",
+    "Kveiktu á cellpose3 til að sýna Cellpose 3-líkönin, til dæmis cyto3 og nuclei. Þau keyra í eigin Cellpose 3-umhverfi, svo líkan sem vantar uppsettan bakenda segir frá því og býður upp á uppsetningu þegar þú velur það.",
+    "Kveiktu á bioimage.io til að sýna Cellpose-líkön sem eru birt á bioimage.io. Lestu á hverju hvert þeirra var þjálfað áður en þú velur; vigtirnar sækjast þegar þú biður um þær.",
     "Veldu líkanafjölskyldu og notaðu Version-stýringu hennar til að velja vistunarpunkt. Lestu upplýsingar um myndgerð, þjálfun og staðbundna slóð. Fyrir fjartengdan vistunarpunkt velurðu möppu í Save to og smellir á Download áður en þú prófar hann.",
     "Dragðu tengda dæmið út og veldu möppuna images undir Test on fields. Stilltu fjölda sjónsviða á 3. Fyrir eigin myndir byrjarðu á litlu safni sem inniheldur dæmigerð sjónsvið og erfið tilvik.",
     "Veldu staðbundna aðgreiningarlíkanið og smelltu á Test on fields. Bíddu þar til prófuninni lýkur. Stærri myndir og líkön geta tekið lengri tíma, einkum á CPU.",
     "Veldu niðurstöðulínu til að skoða forskoðun grímunnar. Berðu mörk, hluti sem snertast og hluti sem misstust saman við myndina. Notaðu fjölda hluta og gæðaflögg til að finna sjónsvið sem þarf að skoða nánar.",
-    "Farðu yfir samantektir sjónsviðanna og haltu svo slóð valins vistunarpunkts fyrir greiningareininguna. Til að bera saman tvær ólíkar líkanafjölskyldur á sömu myndum velurðu báðar línurnar og svo Compare the two selected. Notaðu útgáfustýringuna til að prófa aðra útgáfu sömu fjölskyldu."
+    "Farðu yfir samantektir sjónsviðanna og haltu svo slóð valins vistunarpunkts fyrir greiningareininguna. Til að bera saman tvær ólíkar líkanafjölskyldur á sömu myndum velurðu báðar línurnar og svo Compare the two selected. Notaðu útgáfustýringuna til að prófa aðra útgáfu sömu fjölskyldu.",
+    "Sama skrá opnast inni í Mask generation, þar sem hún getur líka mælt hlutina þína. Stilltu Source á myndirnar þínar og fylltu út rásirnar fyrir frumu, kjarna og sýkil; þetta dæmi notar hráu myndirnar úr Measure-sýninu.",
+    "Skiptu yfir í All settings og smelltu á Model name-reit hlutar í töflunni fyrir hvern hlut. Model Zoo-glugginn opnast og líkanið sem þú velur er skrifað í stillingar þess hlutar.",
+    "Smelltu á Measure diameters neðst til vinstri. Cellpose kvarðar hverja mynd eftir þvermálinu sem það fær, svo þvermál mælt á þínum eigin sjónsviðum er öruggara en ágiskun.",
+    "Ýttu á Measure from my images. Hver hlutagerð fær mælt þvermál með rökstuðningi og öryggi. Use skrifar eitt í stillingar Mask og Use all skrifar öll; ekkert breytist fyrr en þú ýtir á þá."
   ]
 }

@@ -1,30 +1,37 @@
 {
   "lesson": "22_model_zoo",
-  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "english_sha256": "87954acf7425ca91badbab0643a90a8aac3a886ea492cc22f0466884dd4fbbab",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "de",
   "title": "Model Zoo: ein Modell wählen und an Ihren Bildern testen",
-  "description": "Öffnen Sie Model Zoo, finden oder laden Sie einen Checkpoint, prüfen Sie seine Details und wählen Sie eine kleine Bildauswahl für einen Test.",
+  "description": "Öffnen Sie Model Zoo, finden oder laden Sie einen Checkpoint, prüfen Sie seine Details, testen Sie ihn an einer kleinen Bildauswahl und messen Sie Objektdurchmesser für Mask.",
   "objectives": [
     "Model Zoo öffnen und einen lokalen Modellordner durchsuchen.",
     "Modellfamilie und Version wählen und die Details prüfen.",
-    "Einen kleinen Bildtest ausführen und die entstandenen Masken und Qualitätsübersichten prüfen."
+    "Einen kleinen Bildtest ausführen und die entstandenen Masken und Qualitätsübersichten prüfen.",
+    "Objektdurchmesser an eigenen Bildfeldern im Model-Zoo-Fenster von Mask generation messen."
   ],
   "prerequisite": "Entpacken Sie das verlinkte Beispiel und verwenden Sie seinen Ordner images für den Test mit drei Bildfeldern. Wählen Sie ein installiertes Cellpose-Segmentierungsmodell oder laden Sie über Model Zoo einen geeigneten Checkpoint herunter. Bereiten Sie für einen eigenen Test einige repräsentative TIFF-, PNG-, NPY- oder NPZ-Bilder vor.",
   "scenes": [
     "Öffnen Sie von Home aus Make Masks und wählen Sie dann Model Zoo. Auf dieser Seite finden Sie ein Segmentierungsmodell und testen es an einer kleinen Bildauswahl.",
-    "Klicken Sie auf Choose folder und wählen Sie Ihr Modellverzeichnis, um es zu durchsuchen. Wenn Sie den Pfad eintippen, klicken Sie auf Scan. Aktivieren Sie die Quellenüberschriften, die Sie durchsuchen möchten, etwa Cellpose oder lokale Modelle.",
+    "Klicken Sie auf Choose folder und wählen Sie Ihr Modellverzeichnis, um es zu durchsuchen. Wenn Sie den Pfad eintippen, klicken Sie auf Scan. Die Überschriften über der Tabelle legen fest, welche Quellen aufgeführt werden; cellposeSAM für die Standardgewichte und spaCR für die hier trainierten Modelle sind anfangs aktiviert.",
+    "Aktivieren Sie cellpose3, um die Cellpose-3-Modelle wie cyto3 und nuclei aufzulisten. Sie laufen in einer eigenen Cellpose-3-Umgebung; ein Modell, dessen Backend nicht installiert ist, weist darauf hin, und wenn Sie es wählen, wird die Installation angeboten.",
+    "Aktivieren Sie bioimage.io, um auf bioimage.io veröffentlichte Cellpose-Modelle aufzulisten. Lesen Sie, womit jedes trainiert wurde, bevor Sie eines wählen; seine Gewichte werden heruntergeladen, wenn Sie sie anfordern.",
     "Wählen Sie eine Modellfamilie und mit ihrem Steuerelement Version den Checkpoint. Lesen Sie die Details zu Bildtyp, Trainingsinformationen und lokalem Pfad. Wählen Sie für einen entfernten Checkpoint einen Ordner unter Save to und klicken Sie auf Download, bevor Sie ihn testen.",
     "Entpacken Sie das verlinkte Beispiel und wählen Sie unter Test on fields seinen Ordner images. Setzen Sie die Anzahl der Bildfelder auf 3. Beginnen Sie bei eigenen Bildern mit einer kleinen Auswahl aus typischen Bildfeldern und schwierigen Fällen.",
     "Wählen Sie das lokale Segmentierungsmodell und klicken Sie auf Test on fields. Warten Sie, bis der Test abgeschlossen ist. Größere Bilder und Modelle können länger dauern, besonders auf einer CPU.",
     "Wählen Sie eine Ergebniszeile, um ihre Maskenvorschau zu prüfen. Prüfen Sie anhand des Bildes Grenzen, sich berührende und übersehene Objekte. Nutzen Sie Objektzahl und Qualitätsmarkierungen, um Bildfelder zu finden, die genauer geprüft werden sollten.",
-    "Prüfen Sie die Feldübersichten und notieren Sie dann den Pfad des gewählten Checkpoints für Ihr Analysemodul. Um zwei verschiedene Modellfamilien an denselben Bildern zu vergleichen, wählen Sie beide Zeilen und dann Compare the two selected. Mit dem Versionssteuerelement testen Sie eine andere Version derselben Familie."
+    "Prüfen Sie die Feldübersichten und notieren Sie dann den Pfad des gewählten Checkpoints für Ihr Analysemodul. Um zwei verschiedene Modellfamilien an denselben Bildern zu vergleichen, wählen Sie beide Zeilen und dann Compare the two selected. Mit dem Versionssteuerelement testen Sie eine andere Version derselben Familie.",
+    "Derselbe Katalog öffnet sich in Mask generation, wo er auch Ihre Objekte messen kann. Setzen Sie Source auf Ihre Bilder und füllen Sie die Kanäle für Zelle, Zellkern und Pathogen aus; dieses Beispiel verwendet die Rohbilder aus dem Measure-Beispiel.",
+    "Wechseln Sie zu All settings und klicken Sie in der Tabelle pro Objekt auf die Zelle Model name eines Objekts. Das Model-Zoo-Fenster öffnet sich, und das gewählte Modell wird in die Einstellungen dieses Objekts geschrieben.",
+    "Klicken Sie unten links auf Measure diameters. Cellpose skaliert jedes Bild anhand des angegebenen Durchmessers, daher ist ein an Ihren eigenen Bildfeldern gemessener Durchmesser sicherer als eine Schätzung.",
+    "Drücken Sie Measure from my images. Jeder Objekttyp erhält einen gemessenen Durchmesser mit Belegen und Konfidenz. Use schreibt einen Wert in die Einstellungen von Mask, Use all schreibt alle; nichts ändert sich, bevor Sie darauf drücken."
   ]
 }

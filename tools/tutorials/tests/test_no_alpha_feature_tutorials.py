@@ -100,6 +100,8 @@ WIDGET_LABELS = {
     # With its ellipsis: bare "uncertainty" is ordinary statistics narration.
     "MakeMasksUncertaintyButton": ("Uncertainty…",),
     "MakeMasksUncertaintySetting": ("Uncertainty…",),
+    # Item 508: Image enhancement's hand-off to Mask generation.
+    "MakeMasksUseInMaskGeneration": ("Use in Mask generation",),
     # Plugin catalogue (Preferences). Its one-word buttons (List, Open,
     # Uninstall) and table headers are left out as ordinary words.
     "PluginCatalogueHelp": ("Browse a catalogue of community plugins",),

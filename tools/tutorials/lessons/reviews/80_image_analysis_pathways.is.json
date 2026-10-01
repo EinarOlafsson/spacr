@@ -1,7 +1,7 @@
 {
   "language": "is",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "31082f017cb8971f3b4fb79b8185b9270238cf0e756eee105dfe7ade3d76799e",
+  "english_sha256": "248e5aaff34ba0af1c0ea8c170fa82f657332ca16f72cb82cb1364de9572f9a8",
   "title": "Myndgreiningareiningar og hvernig þær tengjast",
   "section": "Workflows",
   "description": "Veldu myndgreiningarleið í gegnum aðgreiningu, mælingu, merkingu, flokkun, varpanir, hlið, samskráningu mynda, gæðaeftirlit og greiningar.",
@@ -14,7 +14,7 @@
   "scenes": [
     "Myndgreining í spaCR fylgir myndunum þínum frá dílum til svara. Óunnar myndir byrja í Mask, sem finnur hlutina. Ef þú vilt laga grímur í höndunum notarðu Make Masks, eða flytur inn grímur sem þú átt þegar. Measure breytir svo myndum og grímum í tölur, og í úrklipp ef þú vilt. Þaðan velurðu leiðina: flokkun, könnun mynda, hliðun eða greiningu. Skeyttu reitum saman fyrst þegar greiningin þarf eitt hnitakerfi.",
     "Óunnar smásjármyndir byrja í Mask. Opnaðu það frá Home, veldu rásir og aðgreiningarlíkön og athugaðu forskoðunina áður en þú keyrir. Mask skrifar hvert sjónsvið sem sameinað fylki, þar sem myndrásirnar og heiltölumerkingalögin eru saman, og það er þetta sameinaða fylki sem Measure les næst. Mask geymir líka lítinn talningagagnagrunn, en hann er aðeins talning, ekki eiginleikatafla.",
-    "Stundum þurfa grímur mannshönd. Opnaðu Make Masks frá Home til að laga þær sjónsvið fyrir sjónsvið. Það sem þú vistar hér getur farið tvær leiðir. Til að þjálfa aðgreiningu ferðu yfir pör af myndum og grímum og heldur þeim saman sem þjálfunarsviðum. Til að mæla notarðu FEATURES til að para hverja mynd við grímu sína og skrifa mælt verkefni, og þannig komast grímurnar til Measure; stök gríma er ekki sameinað fylki. Skellugrímur sem teiknaðar eru hér geta líka farið í Plaque Assay með samsvarandi upprunamyndum. Að vista grímu þjálfar engan flokkara.",
+    "Stundum þurfa grímur mannshönd. Opnaðu Make Masks frá Home til að laga þær sjónsvið fyrir sjónsvið. Það sem þú vistar hér getur farið tvær leiðir. Til að þjálfa aðgreiningu ferðu yfir pör af myndum og grímum og heldur þeim saman sem þjálfunarsviðum. Til að mæla notarðu Organize for Measure, sem færir hverja mynd og grímur hennar í rásarmöppur og sameinar þær í fylkin sem Measure les; stök gríma er ekki sameinað fylki. Skellugrímur sem teiknaðar eru hér geta líka farið í Plaque Assay með samsvarandi upprunamyndum. Að vista grímu þjálfar engan flokkara.",
     "Measure er miðpunktur alls þessa korts. Opnaðu það frá Home og beindu því að verkefninu sem Mask bjó til, með rásavísa myndar og grímu rétt stillta; grímur sem paraðar eru í Make Masks koma líka hingað. Measure les myndir og merkingalög saman og skrifar hverja frumu, kjarna eða sníkjudýr sem línu í measurements.db. Kveiktu á vistun úrklippa ef þú vilt PNG-mynd af hverjum hlut, og geymdu gagnagrunninn með upprunaverkefninu ef þú streymir úrklippum í staðinn. Nær allt annað byrjar á þessum línum. Annotate og Classify nota mælingarnar og úrklippin til að læra svipgerðir. Image UMAP varpar þeim svo þú getir leitað að hópum og Embeddings kóðar úrklippin með líkani og skráir kóðarann og rásastefnuna. Gate Editor setur þröskulda á raunverulega mælda eiginleika, í raunverulegum einingum þeirra, og QC sýnir hvaða athuganir eru til og hverjar vantar. Toxoplasma-greiningarnar byrja líka hér: Recruitment þarf réttan styrk hólfa, Invasion Assay tvílitar litunarmælingar með grunnlínuviðmiðum og Replication Assay skýr tengsl sníkjudýrs og bólu. Host–Pathogen Analysis krefst grímna af heilum bólum og viðmiðunarstyrks hýsils, með ósýktu frumunum haldið inni. Og stærðarvísir innfjölgunar les mælda verkefnið úr Python eftir að þú hefur athugað samantekt eftir hýsilfrumum og flatarmálseiningar; talningagagnagrunnur Mask einn og sér dugar ekki.",
     "Með mælingar í höndunum er Annotate staðurinn þar sem þú kennir með dæmum. Opnaðu það frá Home og það sýnir úrklipp hlutanna sem Measure vistaði eða streymir úr verkefninu. Merktu dæmigerða hluti; hver merking fer í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Þú þarft ekki að byrja frá grunni: hlið sem vistuð eru í Gate Editor geta stungið upp á merkingum sem þú ferð yfir. Notaðu sérstakan dálk fyrir hverja spurningu, haltu þjálfunar- og matshlutum aðskildum, og það er þessi dálkur sem Classify þjálfar á næst.",
     "Opnaðu Classify frá Home til að breyta merkingum í spár. Það hefur tvær fjölskyldur og gögnin þín ráða hvor er notuð. Computer Vision lærir af úrklippum hluta sem Measure vistar eða streymir; Tabular Machine Learning lærir af mældu eiginleikadálkunum. Merkingarnar geta komið frá þremur stöðum. Oftast koma þær úr Annotate. Gate Editor getur skrifað yfirfarið val hliða í merkingadálk og Image UMAP getur gert það sama með yfirfarið snöruval; í báðum tilvikum velurðu hér sama dálk og sama hlutasafn. Innfellingaklasi er ekki rétt svar, svo skoðaðu úrklippin, staðfestu merkingarnar og haltu staðfestingarhlutum frá þjálfuninni. Classify vistar svo stigin, þjálfaða líkanið og matspakka með spám á gögnunum sem haldið var til hliðar. Í skimun velurðu CV- eða ML-stigadálkinn sem þú átt við og ferð með hann í Regression með auðkenni plötu og brunns óskert.",
@@ -33,15 +33,13 @@
     "Myndaleiðin liggur því nær alltaf frá Mask til Measure og greinist svo eftir spurningunni þinni. Til að þjálfa eigið aðgreiningarlíkan útbýrðu pör af myndum og grímum í Make Masks, þjálfar þau í Cellpose Workbench og opnar vistaða líkanið aftur í Mask. Ef þú ert þegar með samhæft úttak geturðu komið inn síðar. Hvert sem þú ferð skaltu halda auðkennum rása, einingum og lyklum hluta með hverri niðurstöðu."
   ],
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
-    "phrase_bank_sha256": "ee188ce13bef88c26dd73239ee25c634a4fa46c8bbf79624fcb87e9077cf0f5e",
+    "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
+    "phrase_bank_sha256": "d089be80a43241007fb3387fcad4c4fcc6d704c7276694242894de93f6f4ae88",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ],
-    "independent_peer_review": false,
-    "listening_review": false
+    ]
   }
 }

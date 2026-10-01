@@ -1,7 +1,7 @@
 {
   "language": "ja",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "31082f017cb8971f3b4fb79b8185b9270238cf0e756eee105dfe7ade3d76799e",
+  "english_sha256": "248e5aaff34ba0af1c0ea8c170fa82f657332ca16f72cb82cb1364de9572f9a8",
   "title": "画像解析モジュールとその関係",
   "section": "ワークフロー",
   "description": "セグメンテーション、測定、注釈、分類、投影、ゲート、画像位置合わせ、品質管理、アッセイを通る画像解析経路を選びます。",
@@ -14,7 +14,7 @@
   "scenes": [
     "spaCR の画像解析は、ピクセルから答えまで画像を追いかけます。未加工の画像は Mask から始まり、Mask がオブジェクトを見つけます。マスクを手で修正したい場合は Make Masks を使うか、手元のマスクを取り込みます。次に Measure が、画像とマスクを数値に、必要なら切り出し画像にも変えます。そこから、分類、画像の探索、ゲーティング、アッセイのどれに進むかを選びます。解析に一つの座標系が必要なときは、先にタイルをつなぎます。",
     "未加工の顕微鏡画像は Mask から始まります。Home から開き、チャネルとセグメンテーションモデルを選び、実行前にプレビューを確認します。Mask は各視野を、画像のチャネルと整数ラベルの面をまとめた結合配列として書き出し、次に Measure が読み込むのはこの結合配列です。Mask は小さなカウントのデータベースも残しますが、それは集計にすぎず、特徴量の表ではありません。",
-    "マスクには人の手が必要なこともあります。Home から Make Masks を開き、視野ごとに修正します。ここで保存したものには、二つの行き先があります。セグメンテーションを学習させるには、画像とマスクの組をキュレーションし、学習用の視野として一緒に保管します。測定するには、FEATURES で各画像とマスクを組にして、測定済みのプロジェクトを書き出します。こうしてマスクは Measure に届きます。単独のマスクは結合配列ではありません。ここで描いたプラークのマスクも、対応する元画像があれば Plaque Assay に使えます。マスクを保存しても、分類器が学習するわけではありません。",
+    "マスクには人の手が必要なこともあります。Home から Make Masks を開き、視野ごとに修正します。ここで保存したものには、二つの行き先があります。セグメンテーションを学習させるには、画像とマスクの組をキュレーションし、学習用の視野として一緒に保管します。測定するには、Organize for Measure を使います。各画像とそのマスクをチャンネルフォルダーに移動し、Measure が読み込む配列に結合します。単独のマスクは結合配列ではありません。ここで描いたプラークのマスクも、対応する元画像があれば Plaque Assay に使えます。マスクを保存しても、分類器が学習するわけではありません。",
     "Measure は、この地図全体の中心です。Home から開き、画像とマスクのチャネル番号を正しく設定したうえで、Mask が作ったプロジェクトを指定します。Make Masks で組にしたマスクもここに届きます。Measure は画像とラベルの面をまとめて読み込み、細胞、核、寄生虫をそれぞれ measurements.db の一行として書き出します。各オブジェクトの PNG が欲しければ切り出し画像の保存をオンにし、代わりに切り出し画像をストリーミングする場合は、データベースを元のプロジェクトと一緒に保管します。ほかのほとんどすべてが、これらの行から始まります。Annotate と Classify は、測定値と切り出し画像を使って表現型を学びます。Image UMAP はそれらを投影してグループを探せるようにし、Embeddings はモデルで切り出し画像を符号化して、エンコーダーとチャネルの扱いを記録します。Gate Editor は実際の単位を持つ本物の測定特徴量にしきい値を設定し、QC はどのチェックがあり、どれが欠けているかを示します。Toxoplasma のアッセイもここから始まります。Recruitment には適切な区画の強度が、Invasion Assay には基準の対照を伴う二色染色の測定値が、Replication Assay には寄生虫と寄生胞の明示的な対応付けが必要です。Host–Pathogen Analysis には、寄生胞全体のマスクと宿主の基準強度が必要で、非感染の細胞も残しておきます。そして内生出芽のサイズ指標は、宿主細胞ごとの集計と面積の単位を確認した後で、Python から測定済みのプロジェクトを読み込みます。Mask のカウントのデータベースだけでは足りません。",
     "測定値がそろったら、Annotate で例を示して教えます。Home から開くと、Measure が保存した、またはプロジェクトからストリーミングするオブジェクトの切り出し画像が表示されます。代表的なオブジェクトにラベルを付けます。各ラベルは png_list テーブルのアノテーション列に、そのオブジェクトの識別と結び付けて入ります。ゼロから始める必要はありません。Gate Editor で保存したゲートから、確認用のラベル候補を提案できます。問いごとに別の列を使い、学習用と評価用のオブジェクトを分けておきます。次に Classify が学習に使うのは、この列です。",
     "Home から Classify を開き、ラベルを予測に変えます。Classify には二つの系統があり、データによってどちらを使うかが決まります。Computer Vision は、Measure が保存またはストリーミングするオブジェクトの切り出し画像から、Tabular Machine Learning は測定した特徴量の列から学習します。ラベルの出どころは三つあります。最も多いのは Annotate です。Gate Editor は確認済みのゲートの選択をアノテーション列に書き込めますし、Image UMAP も確認済みの投げ縄の選択で同じことができます。どちらの場合も、ここで同じ列とオブジェクトの集団を選びます。埋め込みのクラスターは正解ではないので、切り出し画像を確認し、ラベルを検証し、検証用のオブジェクトは学習から外しておきます。その後 Classify は、スコア、学習済みモデル、取り分けたデータに対する予測の評価一式を保存します。スクリーンでは、使うつもりの CV または ML のスコア列を選び、プレートとウェルの識別を保ったまま Regression に渡してください。",
@@ -33,15 +33,13 @@
     "このように、画像の経路はほぼ必ず Mask から Measure へ進み、そこから問いに応じて分かれます。自分のセグメンテーションモデルを学習させるには、Make Masks で画像とマスクの組を用意し、Cellpose Workbench で学習させ、保存したモデルを Mask で開きます。互換性のある出力がすでにあれば、途中から始めることもできます。どこへ進んでも、各結果にはチャネルの識別、単位、オブジェクトのキーを添えておきます。"
   ],
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
-    "phrase_bank_sha256": "2aa30f040225b37c849b82807847ac0866a5081931d8a53e1e55af52c11f1084",
+    "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
+    "phrase_bank_sha256": "228e631e9bd4a38e66a91fe5784975780047c9090bb64f37d87932e65a86d6c8",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ],
-    "independent_peer_review": false,
-    "listening_review": false
+    ]
   }
 }

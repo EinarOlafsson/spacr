@@ -263,7 +263,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **Before this module**
 
 * :ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices.
-* :ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.
+* :ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.
 * :ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement.
 * :ref:`Timelapse <workflow-module-timelapse>`: Use the time-series project with stable frame/object identities.
 * :ref:`Import <workflow-module-foreign>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.
@@ -1180,7 +1180,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Make Masks
 ~~~~~~~~~~
 
-Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.
+Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.
 
 **Open:** Home → Make Masks.
 
@@ -1199,7 +1199,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **After this module**
 
 * :ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs.
-* :ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.
+* :ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.
 * :ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels.
 
 :doc:`API reference </api/spacr/qt/screens/make_masks/index>`.

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "language": "is",
-  "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+  "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
   "review": {
     "kind": "AI-written workflow-map phrase bank; AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "native_speaker_signoff": false,
@@ -472,11 +472,6 @@
       "source": "Optical screens take a different road. Open Mask from Home, then choose OPS. Instead of reads, OPS takes the images from each sequencing cycle, aligns them to the phenotype images and decodes a barcode for every nucleus. The results land in the OPS measurements.db, with tables for geometry, phenotype alignment, nuclei and barcodes. That database is not a FASTQ count table, though. To use it in Regression, first join and aggregate the decoded identities with your phenotype data, so each object or well carries both.",
       "source_sha256": "0fe87f6232115c552ae38b05b6dffd909331a2dddd88316265912061359cc9a0",
       "translation": "Sjónrænar skimanir fara aðra leið. Opnaðu Mask frá Home og veldu svo OPS. Í stað lestra tekur OPS myndir úr hverri raðgreiningarlotu, hliðrar þeim að svipgerðarmyndunum og afkóðar strikamerki fyrir hvern kjarna. Niðurstöðurnar lenda í measurements.db frá OPS, með töflum fyrir rúmfræði, hliðrun svipgerða, kjarna og strikamerki. Sá gagnagrunnur er þó ekki FASTQ-talningartafla. Til að nota hann í Regression skaltu fyrst tengja og safna saman afkóðuðu auðkennunum við svipgerðargögnin, svo hver hlutur eða brunnur beri hvort tveggja."
-    },
-    {
-      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
-      "source_sha256": "a6a5ab7befe0897f6af543d29c69e73aa17862f085f26fc676de371f627264b1",
-      "translation": "Stundum þurfa grímur mannshönd. Opnaðu Make Masks frá Home til að laga þær sjónsvið fyrir sjónsvið. Það sem þú vistar hér getur farið tvær leiðir. Til að þjálfa aðgreiningu ferðu yfir pör af myndum og grímum og heldur þeim saman sem þjálfunarsviðum. Til að mæla notarðu FEATURES til að para hverja mynd við grímu sína og skrifa mælt verkefni, og þannig komast grímurnar til Measure; stök gríma er ekki sameinað fylki. Skellugrímur sem teiknaðar eru hér geta líka farið í Plaque Assay með samsvarandi upprunamyndum. Að vista grímu þjálfar engan flokkara."
     },
     {
       "source": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
@@ -1069,11 +1064,6 @@
       "translation": "Vistaður vistunarpunktur samhæfur Cellpose, eða samhæfur uppsettur bakendi valinn með eigin stillingum."
     },
     {
-      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
-      "translation": "Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
-    },
-    {
       "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
       "translation": "Notaðu styrkmælingar hólfa og samsvarandi auðkenni hýsils/sýkils til að reikna söfnunarhlutföll."
@@ -1359,11 +1349,6 @@
       "translation": "Veldu Computer Vision fyrir úrklipp eða streymdar myndir af hlutum, eða Tabular Machine Learning fyrir mælda eiginleikadálka. Fjölskyldurnar tvær nota ólík inntök."
     },
     {
-      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
-      "translation": "Farðu yfir pör mynda og grímna fyrir þjálfun aðgreiningar, eða notaðu FEATURES til að úthluta myndum og grímum og kalla á mælingu. Að vista grímu þjálfar engan flokkara."
-    },
-    {
       "source": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
       "source_sha256": "a4923474c959d4abf02e4bf3e6d4603a9b671771e7f8d0c56fa9b32223e57584",
       "translation": "Veldu myndgreiningarleið í gegnum aðgreiningu, mælingu, merkingu, flokkun, varpanir, hlið, samskráningu mynda, gæðaeftirlit og greiningar."
@@ -1497,6 +1482,21 @@
       "source": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid.",
       "source_sha256": "4546ed51870a60e41bcc003e0306fea487f7a6bdd322366eacfdcf11e3dcaf16",
       "translation": "Notaðu sóp-API-ið í Python til að kanna tilgreindar forsendur skimunarhönnunar. Það víkkar út samsetningar, keyrir hermanir í ferlasafni og skrifar tilbúna samantektartölfræði; það skilar None. Stilltu lítið og skýrt max_workers-gildi og takmarkað stikanet áður en keyrt er. Úttakið kemur ekki í stað mælinga eða talninga strikamerkja fyrir Regression í tilraunum. Notaðu niðurstöðurnar sem skipulagsgögn og skráðu forsendurnar. Farðu yfir tilbúnu samantektirnar þegar forsendur skipulags eru valdar og færðu þær handvirkt yfir í Power / Design eða Experiment Design. Hvorugt tólið flytur inn þennan hermunargagnagrunn og hvorugt flytur út stillinganet hermunarinnar."
+    },
+    {
+      "source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source_sha256": "7898685a0a14bdd0d79ca4ff55263a7d39ba16b3c8ebd1ce80074136297c8c3c",
+      "translation": "Farðu yfir pör mynda og grímna fyrir þjálfun aðgreiningar, eða notaðu Organize for Measure til að sameina myndir og grímur þeirra í fylki sem Measure les. Að vista grímu þjálfar engan flokkara."
+    },
+    {
+      "source": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "aafb7c2b254b3d128e14e0af31ff2cac483a4c60b11f9ee8ef6b371bbbbdac77",
+      "translation": "Notaðu Organize for Measure til að sameina myndir og grímur þeirra í fylkin sem Measure les; stakar grímur eru ekki sameinuð fylki."
+    },
+    {
+      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
+      "source_sha256": "6660e4f689c9d736a3ede08eece36af39dcc9b640d58df74e1a2155f65d12524",
+      "translation": "Stundum þurfa grímur mannshönd. Opnaðu Make Masks frá Home til að laga þær sjónsvið fyrir sjónsvið. Það sem þú vistar hér getur farið tvær leiðir. Til að þjálfa aðgreiningu ferðu yfir pör af myndum og grímum og heldur þeim saman sem þjálfunarsviðum. Til að mæla notarðu Organize for Measure, sem færir hverja mynd og grímur hennar í rásarmöppur og sameinar þær í fylkin sem Measure les; stök gríma er ekki sameinað fylki. Skellugrímur sem teiknaðar eru hér geta líka farið í Plaque Assay með samsvarandi upprunamyndum. Að vista grímu þjálfar engan flokkara."
     }
   ]
 }
