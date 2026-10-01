@@ -4,18 +4,21 @@ TIMEFLOWS: A TEMPORAL CELLPOSE FOR THE TIMELAPSE SUBMODULE
 
 Filed as 417 on 2026-09-18; renumbered 2026-09-19 because 417 also names features/new/417_the_magnifier_round_two.txt.
 
-Status:    EXPERIMENTAL, OPT-IN, NOT PROMOTED (2026-09-26). v2 was retrained
-           with the corrected sampler and 1/3/6/12-frame gaps, then scored on
-           a harder held-out set (real C. glutamicum, U373, DIC-HeLa, Huh7;
-           synthetic SIM+). It ties v1 and the no-model zero-motion control,
-           and it loses to the IoU stitcher on the dense real movie. The
-           time head has still not learned motion. timelapse_mode='timeflows'
-           exists (a trained checkpoint goes in timeflows_model; the default
-           stays trackastra), and whole-movie ids are reproducible. Still
-           open: a head that learns motion (see 2026-09-26 below), the
-           segmentation pretraining, lineage, end-to-end scoring and
-           promotion. See the dated evidence below; the historical
-           not-started statements no longer describe the implementation.
+Status:    CLOSED 2026-09-30 by the maintainer: superseded by the live_cell
+           session's cellposeTIME (github.com/EinarOlafsson/cellposeTIME,
+           private). It has one --time flag, default OFF; with the flag off
+           the model is stock Cellpose. spaCR will wrap that model later.
+           Timeflows stays alpha/experimental and opt-in:
+           timelapse_mode='timeflows' plus a checkpoint in timeflows_model
+           (ALPHA_FEATURES[426]); the default is still trackastra. Not
+           promoted. The last recipe tried, ftA (fine-tuned from v1 with an
+           organism-balanced sampler, a longer run and a cosine LR), ties v1
+           and does not beat it: C. glutamicum 37,377 correct links against
+           v1's 37,417 and IoU's 37,688; U373 93 vs 94; DIC-HeLa, SIM+ and
+           Huh7 tie (2026-10-01 below). The time head has still not learned
+           motion. Nothing is owed here: the open steps listed below
+           (segmentation pretraining, lineage, end-to-end scoring) are left
+           to cellposeTIME.
 
 Decision:  Fork Cellpose and add a third output: flows through TIME. The
            z-as-time idea is dropped -- it is not in this file any more,
@@ -893,3 +896,122 @@ the dense real movie (C. glut all: 1,042 fewer correct links than IoU,
 head has still not learned motion. The loss swap alone is ruled out; the
 causes listed on 09-26 (tile censoring, 1/8-resolution features, no
 correlation between frames) remain the next things to change.
+
+--------------------------------------------------------------------------------
+2026-10-01 -- FINE-TUNED FROM V1 (ftA): TIES V1; ITEM CLOSED, SUPERSEDED
+--------------------------------------------------------------------------------
+GOAL. Beat v1 after the Huber v2 lost to it. Four levers were planned: a
+longer run with an LR schedule, v1's loss plus a temporal-consistency term,
+sampling balanced across organisms, and fine-tuning from v1 rather than
+starting from scratch.
+
+CODE (spacr/timeflows_model.py; tests/test_timeflows_training_recipes.py,
+5 tests). New train_timeflows keywords: lr_schedule='cosine' (linear warm-up
+over 5 % of a stage, then a cosine down to 5 %) and consistency_weight (a
+forward-backward term: each step also predicts the reversed pair, and for
+every object present in both crops the two implied displacements must
+cancel; a division or a disappearance adds nothing). Private helpers:
+_cosine_factor, _cycle_consistency, _group_balanced_weights. New CLI flags:
+--init (fine-tune a saved Timeflows checkpoint), --lr-head, --lr-full,
+--lr-schedule, --consistency-weight and --groups (one group per movie; every
+group gets an equal sampling share, and the displacement balance is kept
+inside each group). The recipe is recorded in the checkpoint .json. Every
+default leaves the old behaviour unchanged.
+
+TRAINED, ONE ARM. ftA used --init timeflows_v1.pt, the v2 data (six movies,
+gaps 1/3/6/12, 15 pairs per sequence per gap, 720 pairs), --groups
+unspecified rat mouse mouse mouse human (PSC, MSC, MuSC, HSC, GOWT1, HeLa;
+mouse drops from about half the sampling weight to a quarter), 1,000
+head-only steps at 3e-4 and then 6,000 full steps at 1e-5, cosine schedule,
+v1's MSE loss and no consistency term. One gpu_turn, started 19:36 on
+2026-09-30, finished training by 20:15 with rc 0. Loss: head median 0.195
+(0.027-5.68), full median 0.399 (0.018-10.8), final 0.573. The v2 runs ended
+at 7.04 (MSE) and 2.97 (Huber). Checkpoint
+/mnt/wd4tb/scratch/426/v3/ftA.pt (sha256 adc1eb4f...) with its .json.
+NOT RUN: the consistency-term arm and a long from-scratch arm. On
+2026-09-30 the maintainer stopped all further 426 GPU turns, because
+cellposeTIME supersedes this item and the live_cell queue was waiting. The
+code for those arms exists and is tested, but has no held-out evidence.
+
+SCORING. The fixed 09-26 hard held-out pairs were reused exactly
+(--pairs-from), with the same masks, matcher and score_pair, and per-pair
+seeds equal to the pair's index in the full selection.
+  * 30 of the 45 C. glutamicum pairs were scored on CUDA by
+    tools/evaluate_timeflows.py (evaluator sha 86a0444c, checkpoint bf16
+    precision). The turn was then stopped (FINISH 20:55:35) to release the
+    card: the evaluation was CPU-bound, but its CUDA context blocked the
+    queue's idle gate.
+  * The other 15 C. glutamicum pairs, and all pairs of U373, DIC-HeLa,
+    SIM+ and Huh7, were scored on the CPU by a lean scorer
+    (/mnt/wd4tb/scratch/426/v3/lean_eval.py). It runs the trained arm plus
+    the IoU and zero-motion baselines only, with no random-head or
+    copied-frame controls, in fp32 on 4 threads. The evaluator itself
+    hard-codes 2 threads and runs the encoder six times per pair, which
+    measured about 9-30 min per pair on the loaded machine.
+  * AGREEMENT CHECK. Two pairs were scored both ways: C. glutamicum 00 gap 4
+    (754-758, 1,294 objects) and 00 gap 16 (663-679, 762 objects). The
+    trained arm chose the same target for every object (1,294/1,294 and
+    762/762), and IoU and zero motion were identical.
+  * In every set and gap, the IoU and zero-motion counts reproduce the 09-26
+    numbers exactly.
+
+Correct links to the true successor. v1 and v2-MSE are from 09-26 and
+v2-Huber from 09-30, all on the same pairs:
+
+  set / gap       true   ftA     v1   v2-MSE  v2-Huber   IoU   zero motion
+  C.glut g1      20216  20009  20017   20003    19949   20007     20050
+  C.glut g4      19704  14564  14583   14321    14107   14833     14641
+  C.glut g16     12481   2804   2817    2819     2590    2848      2790
+  C.glut all     52401  37377  37417   37143    36646   37688     37481
+  U373 g6           36     32     32      32       32      32        32
+  U373 g12          36     36     36      36       35      25        35
+  U373 g24          35     25     26      24       28      14        23
+  U373 all         107     93     94      92       95      71        90
+  DIC-HeLa g6       67     67     67      67       67      67        67
+  DIC-HeLa g12      65     60     60      62       62      61        63
+  DIC-HeLa g24      40     37     37      37       37      40        38
+  DIC-HeLa all     172    164    164     166      166     168       168
+  SIM+ g12         124    120    120     121      120     105       118
+  SIM+ g24          90     75     75      74       74      60        73
+  SIM+ all         214    195    195     195      194     165       191
+  Huh7 g1           83     83     83      81       83      83        83
+
+False links among objects with no successor: C. glutamicum (6,905): ftA
+6,454, v1 6,458, IoU 6,351, zero motion 6,463. SIM+ (102): ftA 69, v1 68.
+U373: 4 and 4. DIC-HeLa: 38 and 38. C. glutamicum successors that moved at
+least 1 diameter (8,033): ftA linked 4, v1 5, IoU 59, zero motion 0.
+
+PER-GAP DEGRADATION. On C. glutamicum every arm falls steeply with the gap:
+about 99 % at gap 1, 74 % at gap 4 and 22 % at gap 16. ftA stays within
+0.1 percentage points of v1 at every gap (-8, -19 and -13 links). Its
+degradation is v1's, neither better nor worse at any gap. On U373 the only
+difference is at gap 24 (25 vs 26). DIC-HeLa and SIM+ match v1 at every
+gap.
+
+CONCLUSION. ftA does NOT beat v1. It is 40 links (0.1 %) short on
+C. glutamicum and 1 short on U373, and it ties elsewhere. It recovers what
+the v2 retrains lost (+234 against v2-MSE and +731 against v2-Huber on
+C. glutamicum), and its loss settles where v2's did not. Even so, it stays
+below IoU (-311) and zero motion (-104) on the dense real movie. It
+behaves as a gently fine-tuned v1, not as a head that learned motion. Not
+promoted. Promotion was always the maintainer's call, and the item is now
+closed. Receipt: features/data/426_timeflows_ftA_heldout_2026-10-01.json.
+
+CAVEATS FOR THE SUCCESSOR, from the live_cell session.
+  * All six training sets use CTC SILVER-truth (ST) shapes carrying gold TRA
+    ids, so any segmentation score on them measures agreement with silver
+    truth, not with a human. U373 and DIC-HeLa held-out scoring also uses
+    ST masks.
+  * Fluo-C2DL-MSC, Fluo-N2DH-GOWT1 and Fluo-N2DL-HeLa are partial_instance
+    sets (not every cell is labelled), which inflates false positives for
+    every method.
+  * Median displacement per diameter / gold self-IoU between consecutive
+    frames: C2DL-MSC 0.26 / 0.36, N2DL-HeLa 0.11 / 0.73, N2DH-GOWT1
+    0.03 / 0.91, U373 0.05 / 0.84. Displacement grows roughly with the gap,
+    which is why the table above is reported per gap.
+
+SUCCESSOR. cellposeTIME (github.com/EinarOlafsson/cellposeTIME, private),
+from the live_cell session. It has one --time flag, default OFF; with the
+flag off it is stock Cellpose. spaCR will wrap it later as its own item.
+Timeflows (timelapse_mode='timeflows') stays in spaCR as an alpha,
+experimental, opt-in backend until then.
