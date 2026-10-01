@@ -8280,8 +8280,12 @@ class PreferencesDialog:
             _magnifier_column.setContentsMargins(0, 0, 0, 0)
             _magnifier_column.addWidget(fractal_magnifier)
             _magnifier_column.addWidget(fractal_magnifier_value)
-            fractal.addRow(tr("Magnifier size"),
-                           _hbox_wrap(_magnifier_column))
+            _magnifier_row = _hbox_wrap(_magnifier_column)
+            _magnifier_row.setToolTip(fractal_magnifier.toolTip())
+            fractal_magnifier.setAccessibleDescription(
+                fractal_magnifier.toolTip())
+            fractal_magnifier.setToolTip("")
+            fractal.addRow(tr("Magnifier size"), _magnifier_row)
             fractal_magnifier.setEnabled(fractal_pointer.isChecked())
             fractal_pointer.toggled.connect(fractal_magnifier.setEnabled)
 
