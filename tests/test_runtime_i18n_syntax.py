@@ -371,6 +371,13 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     latest_p11 = {record["source"] for record in pass11}
     assert len(pass11) == len(latest_p11) and not latest_p11 & sources
     sources |= latest_p11
+    # The 2026-10-01 twelfth runtime pass: the AI meaning review of setting
+    # labels and tooltips that had only a machine translation; disjoint.
+    pass12 = [record for path in sorted(folder.glob("2026-10-01-runtime-review-twelfth-pass-*.json"))
+              for record in json.loads(path.read_text())["records"]]
+    latest_p12 = {record["source"] for record in pass12}
+    assert len(pass12) == len(latest_p12) and not latest_p12 & sources
+    sources |= latest_p12
     assert sources <= reviewed.keys()
     return sources
 

@@ -35,10 +35,10 @@ msgid "Select the measured project as the source."
 msgstr "Välj det uppmätta projektet som källa."
 
 msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
-msgstr "Sätt **Anndata ut** till ett nytt ``.h5ad``-filnamn. Om fältet lämnas tomt skrivs filen under projektets mapp ``results``. En lyckad export ersätter en befintlig fil på den valda sökvägen; använd separata namn för att behålla båda versionerna."
+msgstr "Sätt **Anndata-utdata** till ett nytt ``.h5ad``-filnamn. Om fältet lämnas tomt skrivs filen under projektets mapp ``results``. En lyckad export ersätter en befintlig fil på den valda sökvägen; använd separata namn för att behålla båda versionerna."
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
-msgstr "Sätt **Anndata enda tabell** till ``cell`` för en rad per cell med den tabellens egenskaper. Använd ``nucleus`` eller ``pathogen`` för de objekttyperna. Lämna fältet tomt för en sammanfogad export på cellnivå, där underordnade mätningar aggregeras till sina överordnade celler."
+msgstr "Sätt **Anndata, enskild tabell** till ``cell`` för en rad per cell med den tabellens egenskaper. Använd ``nucleus`` eller ``pathogen`` för de objekttyperna. Lämna fältet tomt för en sammanfogad export på cellnivå, där underordnade mätningar aggregeras till sina överordnade celler."
 
 msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
 msgstr "Välj **Anndata-policy för nan** och klicka sedan på **Kör**. Läs meddelandet när exporten är klar och öppna utdatafilen för att kontrollera dess form och egenskapsnamn."
