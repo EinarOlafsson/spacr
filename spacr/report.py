@@ -2898,7 +2898,15 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
             "submission needs the raw images.")
     slug = _archive_slug(values["title"])
     pkg = Path(str(out)).expanduser().resolve() / slug
-    pkg.mkdir(parents=True, exist_ok=True)
+    resolved_pkg = pkg.resolve()
+    if resolved_pkg == src or src in resolved_pkg.parents:
+        raise ValueError("Choose an archive destination outside the source run folder.")
+    try:
+        pkg.mkdir(parents=True, exist_ok=False)
+    except FileExistsError as exc:
+        raise ValueError(
+            f"Archive package already exists: {pkg}. Choose another output folder or title."
+        ) from exc
 
     per_well: Dict[Tuple[str, str], List[Path]] = {}
     for image in images:
