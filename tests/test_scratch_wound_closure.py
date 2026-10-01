@@ -247,6 +247,77 @@ def test_a_later_frame_imaged_at_another_position_keeps_its_wound():
     assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.02
 
 
+def _textured(open_mask, seed, floor=0.0, ratio=None):
+    """Brightfield-like frame whose open floor carries ``floor`` texture.
+
+    With ``ratio`` the monolayer inside ``ratio[0]`` (a mask) is imaged at
+    ``ratio[1]`` of the usual texture amplitude.
+    """
+    rng = np.random.default_rng(seed)
+    texture = ndi.gaussian_filter(rng.standard_normal(SHAPE), 1.5)
+    texture /= texture.std()
+    amplitude = np.where(open_mask, floor, 120.0)
+    if ratio is not None:
+        amplitude = np.where(ratio[0] & ~open_mask, 120.0 * ratio[1],
+                             amplitude)
+    return 1000 + rng.normal(0, 8, SHAPE) + amplitude * texture
+
+
+def test_scattered_cells_on_a_later_wound_floor_count_as_open():
+    """Cells and debris scattered over part of a wound's floor stay open.
+
+    They raise that stretch's texture well above the clean floor's but
+    keep it far below the monolayer's; a cut set from the clean stretch
+    alone calls the scattered stretch covered.
+    """
+    first, later = _straight(192, 80), _straight(192, 50)
+    rng = np.random.default_rng(1)
+    image = _brightfield(later, seed=11).astype(float)
+    texture = ndi.gaussian_filter(rng.standard_normal(SHAPE), 1.5)
+    texture /= texture.std()
+    yy, xx = np.indices(SHAPE)
+    zone = later & (xx < 0.6 * SHAPE[1])
+    ys, xs = np.nonzero(zone)
+    cells = np.zeros(SHAPE, dtype=bool)
+    for i in rng.choice(ys.size, int(zone.sum() / 49), replace=False):
+        cells |= (yy - ys[i]) ** 2 + (xx - xs[i]) ** 2 <= 4
+    image += cells * texture * 45
+    frame, status, _masks = _wound_series(
+        [_brightfield(first, seed=10), image], (0, 1), source="texture")
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.05
+
+
+def test_a_wound_floor_with_a_flat_bright_stretch_stays_open_whole():
+    """A floor that is partly saturated flat is not split at that stretch.
+
+    The first frame's floor carries faint texture; later, part of it is
+    saturated and perfectly flat. Splitting the floor there would call the
+    faintly textured rest of the wound covered.
+    """
+    first, later = _straight(192, 80), _straight(192, 50)
+    image = _textured(later, 1, floor=10.0)
+    image[later & (np.indices(SHAPE)[1] < SHAPE[1] // 2)] = 1000.0
+    frame, status, _masks = _wound_series(
+        [_textured(first, 10, floor=10.0), image], (0, 1), source="texture")
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.04
+
+
+def test_a_closed_wound_of_flatter_cells_reads_closed():
+    """Cells that close a wound flatter than the monolayer still cover it."""
+    first = _straight(192, 80)
+    closed = np.zeros(SHAPE, dtype=bool)
+    frame, status, _masks = _wound_series(
+        [_brightfield(first, seed=10),
+         _textured(closed, 1, ratio=(first, 0.35))], (0, 1),
+        source="texture")
+    assert status == "ok"
+    assert frame["relative_open_area"].iloc[1] <= 0.05
+
+
 def test_closure_metrics_on_a_known_curve():
     times = np.array([0, 4, 8, 12, 16, 20])
     relative = np.array([1.0, 0.8, 0.6, 0.4, 0.2, 0.0])

@@ -5286,6 +5286,11 @@ _WOUND_FRONT_MIN_WIDTH = 0.3
 _WOUND_FRONT_DEVIATION = 0.25
 _WOUND_FOLLOW_MARGIN = 1.0
 _WOUND_FOLLOW_MIN_REGION = 0.5
+_WOUND_FLOOR_MIN_OPEN = 0.1
+_WOUND_FLOOR_MIN_GAP = 1.75
+_WOUND_FLOOR_BELOW = 1.0
+_WOUND_FLOOR_ABOVE = 1.5
+_WOUND_FLOOR_REACH = 3
 
 
 @dataclass
@@ -5720,7 +5725,26 @@ def _wound_follow(first, later, axis):
     return moved > 0
 
 
-def _wound_relevel(plane, axis, level, start_area, window):
+def _wound_floor(plane, wound, axis, window):
+    """What a later frame's open-floor level is checked against.
+
+    :param plane: the 2-D first frame.
+    :param wound: its boolean wound.
+    :param axis: the series' :class:`_WoundAxis`.
+    :param window: texture window in pixels.
+    :returns: ``(region, open_level, covered_level)``: the first wound
+        widened by one window, and the median log texture of the first
+        wound and of the field outside the band.
+    """
+    values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
+                               1e-18))
+    far = np.abs(_wound_across(axis, values.shape)) > axis.half_band
+    region = binary_dilation(wound, iterations=max(1, int(window)))
+    covered = float(np.median(values[far])) if far.any() else 0.0
+    return region, float(np.median(values[wound])), covered
+
+
+def _wound_relevel(plane, axis, level, start_area, window, floor=None):
     """The texture cut for a later frame, recalibrated on that frame.
 
     A later time point is often imaged again rather than left on the stage,
@@ -5743,6 +5767,25 @@ def _wound_relevel(plane, axis, level, start_area, window):
     :param level: the first frame's cut.
     :param start_area: the first frame's wound area in pixels.
     :param window: texture window in pixels.
+    :param floor: from :func:`_wound_floor` on the first frame, or
+        ``None``. Cells or debris scattered over a wound's floor raise its
+        texture, so the open pixels left under the cut above are only the
+        smoothest part of the floor and the open level read from them sits
+        too low. When given, and the cut above leaves at least
+        :data:`_WOUND_FLOOR_MIN_OPEN` of the first wound's area open, the
+        open level is read instead from Otsu's lower class among the
+        pixels within one window of the first wound and within
+        :data:`_WOUND_FLOOR_REACH` windows of the pixels the cut above
+        leaves open in the band (so a nearly closed wound is not read
+        against the monolayer that has filled the rest of the first
+        wound), provided that class lies at least
+        :data:`_WOUND_FLOOR_MIN_GAP` below the covered level in log
+        texture (a closed wound's monolayer splits into two classes much
+        closer together). That level is held to within
+        :data:`_WOUND_FLOOR_BELOW` below and :data:`_WOUND_FLOOR_ABOVE`
+        above the first frame's open level, shifted by the change in the
+        covered level since then, so a floor with a bright, smooth stretch
+        and a dimmer one is not split between them.
     :returns: the cut for this frame.
     """
     values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
@@ -5767,7 +5810,26 @@ def _wound_relevel(plane, axis, level, start_area, window):
             break
         opened = float(np.median(values[core]))
         cut = opened + _WOUND_TEXTURE_FRACTION * (covered - opened)
-    return float(np.exp(cut))
+    if floor is None or (near & (values <= cut)).sum() < (
+            _WOUND_FLOOR_MIN_OPEN * start_area):
+        return float(np.exp(cut))
+    region, first_open, first_covered = floor
+    reach = distance_transform_edt(~(near & (values <= cut)))
+    inside = values[region & (reach <= _WOUND_FLOOR_REACH * window)]
+    if inside.size <= 100:
+        return float(np.exp(cut))
+    split, _separation = _otsu_separation(inside)
+    lower = inside[inside <= split]
+    if lower.size < _WOUND_RELEVEL_MIN_CORE * start_area:
+        return float(np.exp(cut))
+    opened = float(np.median(lower))
+    if covered - opened < _WOUND_FLOOR_MIN_GAP:
+        return float(np.exp(cut))
+    expected = first_open + covered - first_covered
+    opened = float(np.clip(opened, expected - _WOUND_FLOOR_BELOW,
+                           expected + _WOUND_FLOOR_ABOVE))
+    return float(np.exp(opened + _WOUND_TEXTURE_FRACTION
+                        * (covered - opened)))
 
 
 def _wound_series(planes, times, *, source='texture', window=15,
@@ -5784,7 +5846,9 @@ def _wound_series(planes, times, *, source='texture', window=15,
     (:func:`_wound_follow`), since a wound only narrows. The cut between
     open and covered is decided on the first frame
     (:func:`_wound_level`); for ``texture`` each later frame recalibrates it
-    on its own open and covered levels (:func:`_wound_relevel`), and for
+    on its own open and covered levels (:func:`_wound_relevel`), reading
+    the open level of a floor that carries scattered cells against the
+    first frame's (:func:`_wound_floor`), and for
     ``texture`` and ``intensity`` a first frame that is a scratch is
     redrawn between smooth fronts (:func:`_wound_fronts`).
 
@@ -5809,14 +5873,14 @@ def _wound_series(planes, times, *, source='texture', window=15,
     rows, masks = [], {}
     axis, start_area, status = None, None, 'ok'
     keep = set(int(k) for k in keep)
-    level, share, first_separation = None, 0.5, None
+    level, share, first_separation, floor = None, 0.5, None, None
     for index, (plane, time) in enumerate(zip(planes, times)):
         if source != 'masks':
             plane = _confluency_plane(plane)
         frame_level = level
         if index > 0 and status == 'ok' and source == 'texture':
             frame_level = _wound_relevel(plane, axis, level, start_area,
-                                         window)
+                                         window, floor)
         open_mask, frame_level, share, separation = _wound_open(
             plane, source, window, frame_level, share)
         if index == 0:
@@ -5843,6 +5907,8 @@ def _wound_series(planes, times, *, source='texture', window=15,
                     axis = _wound_axis(wound, margin)
             start_area = int(wound.sum())
             first_wound = wound
+            if status == 'ok' and source == 'texture':
+                floor = _wound_floor(plane, wound, axis, window)
         elif status == 'ok':
             wound, regions = _wound_select(open_mask, axis, window * window)
             wound = _wound_grow(wound, share, window, source) & _wound_band(
