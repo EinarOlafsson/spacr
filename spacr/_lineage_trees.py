@@ -469,7 +469,7 @@ def _lineage_hour_statistics(segments, statistics, calibration):
 
 def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
                                color_by='generation_time', max_distance=30.0,
-                               measurements=None, plot=True, frame_interval_s=None):
+                               measurements=None, plot=True, frame_interval_s=None, tracks_snapshot=None):
     """Build lineage trees from one tracks table and write them beside it.
 
     Reads a tracks CSV written by any spaCR tracker (one field per file),
@@ -491,12 +491,14 @@ def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
     :param frame_interval_s: optional positive seconds per frame; validates
         against time_s when present, otherwise calibrates generation times.
         Missing calibration leaves the added hours columns NaN.
+    :param tracks_snapshot: optional validated tracks snapshot from the measured-feature reader.
     :returns: dict with the ``segments`` and ``statistics`` frames and the
         ``paths`` written.
     """
     from .tabular import read_table, write_table
 
-    tracks = read_table(tracks_path, report=None)
+    tracks = (read_table(tracks_path, report=None) if tracks_snapshot is None
+              else tracks_snapshot.copy())
     stem = os.path.splitext(os.path.basename(tracks_path))[0]
     out_dir = out_dir or os.path.join(os.path.dirname(os.path.abspath(tracks_path)), 'lineage')
     segments = _lineage_segments(tracks, max_distance=max_distance)
@@ -527,7 +529,8 @@ def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
             'calibration': calibration}
 
 
-def _run_lineage_step(src, name, object_type, mode, settings):
+def _run_lineage_step(src, name, object_type, mode, settings, *,
+                      frame_sources=None, label_stack=None):
     """Draw lineage trees from the tracks one field just produced.
 
     Looks for ``<dirname(src)>/tracks/<tracker>_tracks_<object>_<name>.csv``
@@ -544,12 +547,19 @@ def _run_lineage_step(src, name, object_type, mode, settings):
         print(f"Lineage trees skipped: no tracks table at {tracks_path}")
         return None
     try:
+        source_record = None
+        if frame_sources is not None:
+            from ._lineage_measurements import _SUFFIX, _atomic_json, _prepare_lineage_sources
+            source_record = _prepare_lineage_sources(
+                tracks_path, object_type, frame_sources, label_stack, settings.get('frame_interval_s'))
         result = _lineage_trees_from_tracks(
             tracks_path,
             color_by=settings.get('timelapse_lineage_color_by') or 'generation_time',
             max_distance=float(settings.get('timelapse_lineage_max_distance') or 30.0),
             frame_interval_s=settings.get('frame_interval_s'),
             plot=bool(settings.get('save', True) or settings.get('plot', False)))
+        if source_record is not None:
+            _atomic_json(tracks_path + _SUFFIX, source_record)
     except Exception as exc:
         print(f"Lineage trees could not be built for {tracks_path}: {exc}")
         return None

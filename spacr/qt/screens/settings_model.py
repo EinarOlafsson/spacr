@@ -1296,6 +1296,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("CellProfiler α", ("@CellProfiler α",)),
         ("GPU Measurement α", ("@GPU Measurement α",)),
         ("Time To Event α", ("@Time To Event α",)),
+        ("Lineage Trees α", (
+            "timelapse_lineage", "timelapse_lineage_color_by",
+            "timelapse_lineage_max_distance",
+        )),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",

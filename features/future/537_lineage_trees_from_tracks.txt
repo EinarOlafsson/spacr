@@ -122,3 +122,57 @@ zero added/removed/changed entries and no private-module documentation entry.
 
 Still open: post-Measure colouring integration and independent real parasite
 endodyogeny validation. This is not full F537 acceptance or alpha promotion.
+
+2026-10-01 — POST-MEASURE FEATURE COLOURING (implementation complete; alpha)
+Measure now exposes the same three lineage controls under Lineage Trees α,
+subject to the existing Time and Show alpha features switches. Saved values
+are retained while hidden. The post-measure step runs after measurements and
+other derived measurement steps, reading only the selected tracked object's
+numeric feature. Available observed frames are averaged for each segment;
+segments without feature values stay uncoloured. Counts of matched objects,
+unmatched objects and missing feature values are reported and saved.
+
+Both existing tracking hooks capture their actual batch_filenames and final
+mask labels in <tracks CSV>.lineage_sources.json. The versioned manifest is
+bound to the tracks CSV's SHA-256 and records each frame's filename, canonical
+field/time identity and final track-to-object label identity. It also retains
+an explicitly supplied frame_interval_s; Measure reuses it when unset and
+rejects a conflicting explicit override. This does not use the motility
+interval default or infer times from sorted measurements. Missing, stale,
+malformed or ambiguous mappings require tracking to be repeated with lineage
+enabled. Calibration and mapping validation precede publication of new field
+outputs. Valid manifests are written by atomic replacement.
+
+The private reader uses a read-only SQLite connection, exact prcf/object_label
+keys and one-to-one joins. Repeated labels in another field cannot match.
+Duplicate measurement keys, unknown feature columns, nonnumeric/nonfinite
+values and entirely unmatched objects stop that field's measured-colour
+export. Missing measured objects remain missing rather than shifting frame
+indices. The measured outputs go to tracks/lineage_measured, with a provenance
+JSON containing the selected column, source identities, the exact mapping-file
+SHA-256 and an exact digest of the matched numeric values. Source CSVs, measurement tables and earlier
+tracks/lineage outputs remain unchanged.
+
+Validation: 34 focused provenance/feature tests passed in 1.75 s under the
+same 1 GiB memory/no-swap scope, pinned to one CPU. The earlier combined
+43-check cohort (21 initial feature tests plus 22 calibration regressions)
+passed in 2.77 s. Two actual integration cases additionally passed under the
+coordinated 4 GiB scope, one CPU/no swap: Measure AppScreen alpha visibility
+and hidden-value retention, and real measure_crop on three tiny labelled
+images with acquisition time IDs 100/103/109 mapped to frames 0/1/2. Actual
+cell areas 4/9/16 yield the independently expected segment mean. The first
+control test omitted Measure's existing Time switch and failed its visibility
+assertion; after correcting that fixture alone, the case passed in 4.10 s.
+The actual measurement integration already passed in the original cohort.
+No product change, cap increase or guard override was needed for that failure.
+
+This completes the post-Measure implementation gap. Independent biological
+validation on real parasite endodyogeny remains open; this is not full F537
+acceptance or alpha promotion.
+Actual English API extraction before/after this integration: 12035 entries,
+zero added/removed/changed and no private-module entry. Existing function
+signatures/docstrings outside the approved private engine are unchanged.
+Malformed numeric run settings are reported as per-field failures before
+publication; an unset maximum distance retains the existing 30-pixel default.
+The two existing lineage tooltips were revised; no new setting or caption was
+introduced. Runtime catalog updates are coordinated by the integration owner.

@@ -1541,7 +1541,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                                           track_by_iou=track_by_iou)
                     if settings.get('timelapse_lineage'):
                         from .timelapse import _run_lineage_step
-                        _run_lineage_step(src, name, object_type, timelapse_mode, settings)
+                        _run_lineage_step(src, name, object_type, timelapse_mode, settings,
+                                          frame_sources=batch_filenames, label_stack=mask_stack)
                     if settings.get('timelapse_events'):
                         from .timelapse import _run_event_features_step
                         _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)
@@ -1822,7 +1823,8 @@ def generate_cellpose_masks(src, settings, object_type):
                                                           track_by_iou=track_by_iou)
                     if settings.get('timelapse_lineage'):
                         from .timelapse import _run_lineage_step
-                        _run_lineage_step(src, name, object_type, timelapse_mode, settings)
+                        _run_lineage_step(src, name, object_type, timelapse_mode, settings,
+                                          frame_sources=batch_filenames, label_stack=mask_stack)
                     if settings.get('timelapse_events'):
                         from .timelapse import _run_event_features_step
                         _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)

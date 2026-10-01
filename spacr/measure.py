@@ -9028,6 +9028,11 @@ def measure_crop(settings):
                         and os.path.isfile(db_path)):
                     _run_cellprofiler_step(db_path, settings)
 
+                if (settings.get('timelapse_lineage') and settings['timelapse']
+                        and os.path.isfile(db_path)):
+                    from ._lineage_measurements import _run_measured_lineage_step
+                    _run_measured_lineage_step(db_path, settings)
+
                 if settings['timelapse']:
                     if settings['timelapse_objects'] == 'nucleus':
                         folder_path = settings['src']
