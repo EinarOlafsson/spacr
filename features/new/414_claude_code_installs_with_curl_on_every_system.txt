@@ -2,8 +2,8 @@
 CLAUDE CODE INSTALLS WITH CURL ON EVERY SYSTEM, WINDOWS INCLUDED
 ================================================================================
 
-Status:    OPEN 2026-09-27 — native Windows install succeeds, fresh-terminal
-           PATH acceptance failed. Product correction prepared; rerun pending.
+Status:    done — native Windows, macOS and Linux command acceptance verified
+           2026-10-01; scope and receipt recorded below.
 Requested: 2026-09-15, by the maintainer, in these words (item 1 of three):
            "the claud on all systems if possible code installation on windows
            (just allways use curl)"
@@ -170,3 +170,32 @@ The downloaded artifact digest and source-bound receipts were verified.
 This establishes Linux acceptance within the container scope; it does not claim
 a terminal-emulator window or authentication. macOS acceptance is still pending.
 Receipt: features/data/414_linux_native_command_acceptance_2026-09-27.json.
+
+2026-10-01 — NATIVE ACCEPTANCE COMPLETE
+Run36916587905 finished successfully. Source e3a030a294f7f5a8f4762df0ac9765cfba38eafb
+built and installed the native spaCR artifacts before reading their actual
+Claude install hints. The four command jobs then installed Claude2.1.287 and
+resolved the same native executable in a new shell:
+  Windows CMD: job110563041858; Windows PowerShell5.1: job110563041883;
+  macOS15 arm64: job110563041929; Ubuntu22.04: job110576340713.
+
+The artifact smoke receipt hashes match each command receipt. Both installer
+and fresh-shell exit codes are zero. Windows product code registers User PATH;
+the verifier does not repair it. macOS/Linux use real-account interactive
+login shells; installed Mach-O/ELF executable hashes stay unchanged across
+the fresh-shell check. Unix profile hashes before and after match. Node/npm
+are unavailable to the commands; hosted Windows/macOS tooling outside that
+PATH is not asserted physically absent. No authentication or terminal-emulator
+window was exercised, and neither is claimed.
+
+Compared current providers.py and both native verifiers byte-for-byte with
+the tested commit: unchanged. Rechecked current official vendor setup docs:
+https://code.claude.com/docs/en/setup ; native curl commands still match.
+The literal command is shown consistently across locales; it is not a
+translated catalog phrase. Existing no-npm/shell-wrapper regression tests
+remain unchanged. No unnecessary native reinstall was launched locally.
+
+Receipt: features/data/414_native_claude_acceptance_2026-10-01.json.
+This closes N414's command installation and fresh-shell discovery acceptance.
+The same run's basic app smoke does not close N53's interruption/rollback,
+N415's startup-theme matrix or N627's online uv-update transaction.
