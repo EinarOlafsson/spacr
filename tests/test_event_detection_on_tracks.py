@@ -216,3 +216,17 @@ def test_mitosis_timing_counts_cell_cycles_and_death_the_first_event():
     assert int(mitosis['event'].sum()) == 2
     death = timing['death'][0]
     assert death['duration'].tolist() == [25.0] and death['event'].tolist() == [1]
+
+
+def test_a_death_is_called_once_per_track_and_mitoses_may_repeat():
+    index = pd.DataFrame({'track_id': [1] * 12, 'frame': list(range(12))})
+    p = np.zeros((12, 3))
+    p[:, 0] = 1.0
+    for frame, value in ((2, 0.7), (9, 0.9)):
+        p[frame] = [0.1, 0.0, value]
+    for frame in (3, 10):
+        p[frame] = [0.1, 0.9, 0.0]
+    found = tl._event_peaks(index, p, ['none', 'mitosis', 'host_death'])
+    assert found[found['event'] == 'mitosis']['frame'].tolist() == [3, 10]
+    assert found[found['event'] == 'host_death']['frame'].tolist() == [9]
+    assert tl._event_is_terminal('Lysis') and not tl._event_is_terminal('egress')

@@ -2361,7 +2361,10 @@ def _event_peaks(index, probabilities, classes, threshold=0.5, tolerance=2):
     """Time-stamp events from per-frame class probabilities.
 
     An event is a frame where its class's probability reaches ``threshold``
-    and is the highest of that track within ``tolerance`` frames.
+    and is the highest of that track within ``tolerance`` frames. A class
+    that can happen to a cell only once (its name contains ``death`` or
+    ``lysis``) keeps only its most probable peak per track: a dead cell
+    stays in the field and would otherwise be called dead again and again.
 
     :param index: ``track_id`` and ``frame`` of each window.
     :param probabilities: from :func:`_event_probabilities`.
@@ -2384,7 +2387,24 @@ def _event_peaks(index, probabilities, classes, threshold=0.5, tolerance=2):
                         (p[near] == p[i]) & (frames[near] < frames[i])).any():
                     events.append({'track_id': int(track), 'frame': int(frames[i]),
                                    'event': name, 'probability': float(p[i])})
-    return pd.DataFrame(events, columns=['track_id', 'frame', 'event', 'probability'])
+    found = pd.DataFrame(events, columns=['track_id', 'frame', 'event', 'probability'])
+    once = found['event'].map(_event_is_terminal).astype(bool)
+    if once.any():
+        best = found[once].sort_values(['probability', 'frame'], ascending=[False, True])
+        best = best.drop_duplicates(['track_id', 'event'])
+        found = pd.concat([found[~once], best]).sort_values(['track_id', 'frame'])
+        found = found.reset_index(drop=True)
+    return found
+
+
+def _event_is_terminal(name):
+    """Whether an event class can happen to one tracked object only once.
+
+    :param name: the class name.
+    :returns: True for names containing ``death`` or ``lysis``.
+    """
+    text = str(name).lower()
+    return 'death' in text or 'lysis' in text
 
 
 def _event_scores(detected, annotations, classes, tolerance=2):
