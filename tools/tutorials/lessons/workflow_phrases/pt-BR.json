@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "language": "pt-BR",
-  "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+  "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
     "native_speaker_signoff": false,
@@ -229,11 +229,6 @@
       "source": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
       "source_sha256": "b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315",
       "translation": "Conte parasitas usando identidades explícitas dos vacúolos e compare distribuições por condição; a identidade da célula hospedeira sozinha não define um vacúolo."
-    },
-    {
-      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
-      "translation": "Prepare pares de imagens e máscaras para treinar a segmentação, ou use FEATURES para associar imagens e máscaras e iniciar a medição. Salvar uma máscara não treina um classificador."
     },
     {
       "source": "Curated training fields",
@@ -1061,11 +1056,6 @@
       "translation": "Anotações de treinamento"
     },
     {
-      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
-      "translation": "Use FEATURES para associar imagens e máscaras e gravar um projeto medido; máscaras isoladas não são matrizes combinadas."
-    },
-    {
       "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
       "translation": "Use medições de intensidade de compartimentos e identidades correspondentes de hospedeiros e patógenos para calcular razões de recrutamento."
@@ -1696,11 +1686,6 @@
       "translation": "Triagens ópticas seguem outro caminho. Abra Mask em Home e escolha OPS. Em vez de leituras, o OPS recebe as imagens de cada ciclo de sequenciamento, alinha-as às imagens de fenótipo e decodifica um código de barras para cada núcleo. Os resultados vão para o measurements.db do OPS, com tabelas de geometria, alinhamento de fenótipo, núcleos e códigos de barras. Esse banco de dados, porém, não é uma tabela de contagens FASTQ. Para usá-lo em Regression, primeiro junte e agregue as identidades decodificadas aos seus dados de fenótipo, para que cada objeto ou poço carregue as duas coisas."
     },
     {
-      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
-      "source_sha256": "a6a5ab7befe0897f6af543d29c69e73aa17862f085f26fc676de371f627264b1",
-      "translation": "Às vezes as máscaras precisam de uma mão humana. Abra Make Masks em Home para corrigi-las campo a campo. O que você salva aqui pode seguir dois caminhos. Para treinar a segmentação, revise pares de imagem e máscara e mantenha-os juntos como campos de treinamento. Para medir, use FEATURES para associar cada imagem à sua máscara e gravar um projeto medido, que é como essas máscaras chegam ao Measure; uma máscara avulsa não é uma matriz combinada. Máscaras de placas desenhadas aqui também podem alimentar o Plaque Assay com as imagens de origem correspondentes. Salvar uma máscara não treina um classificador."
-    },
-    {
       "source": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
       "source_sha256": "ffcd4d427a5c7b438baf20f3788c26693ea14874fa46b146ea1cad4886dc412a",
       "translation": "Em seguida, abra Measure em Home e aponte-o para o mesmo projeto, com os índices de canal de imagem e de máscara definidos corretamente. O Measure lê cada matriz combinada, imagens e planos de rótulos juntos, e grava cada célula, núcleo ou parasita como uma linha em measurements.db. Ative o salvamento de recortes e ele também corta um pequeno PNG em volta de cada objeto, indexado em png_list. Daqui a história se divide. O Annotate mostra esses recortes para você rotular exemplos, e o Classify aprende com os recortes ou com as características medidas, então mantenha estáveis as identidades dos objetos."
@@ -1764,6 +1749,21 @@
       "source": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
       "source_sha256": "a411687903249cb72bec9c5b232786d8f69f9d15601ee7847136242b743493f7",
       "translation": "O Measure é o centro de todo este mapa. Abra-o em Home e aponte-o para o projeto que o Mask construiu, com os índices de canal de imagem e de máscara definidos corretamente; máscaras associadas no Make Masks também chegam aqui. O Measure lê juntos as imagens e os planos de rótulos e grava cada célula, núcleo ou parasita como uma linha em measurements.db. Ative o salvamento de recortes se quiser um PNG de cada objeto, e mantenha o banco de dados com o projeto de origem se, em vez disso, você transmitir os recortes. Quase todo o resto parte dessas linhas. O Annotate e o Classify usam as medições e os recortes para aprender fenótipos. O Image UMAP as projeta para você procurar agrupamentos, e o Embeddings codifica os recortes com um modelo, registrando o codificador e a política de canais. O Gate Editor define limiares nas características realmente medidas, nas unidades reais, e o QC mostra quais verificações existem e quais faltam. Os ensaios de Toxoplasma também partem daqui: o Recruitment precisa das intensidades de compartimento certas, o Invasion Assay precisa de medições de coloração em duas cores com controles de referência, e o Replication Assay precisa de vínculos explícitos de parasita para vacúolo. O Host–Pathogen Analysis exige máscaras de vacúolos inteiros e intensidades de referência do hospedeiro, mantendo as células não infectadas. E o indicador de tamanho da endodiogenia lê o projeto medido pelo Python, depois que você conferir a agregação por célula hospedeira e as unidades de área; o banco de contagens do Mask sozinho não basta."
+    },
+    {
+      "source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source_sha256": "7898685a0a14bdd0d79ca4ff55263a7d39ba16b3c8ebd1ce80074136297c8c3c",
+      "translation": "Prepare pares de imagens e máscaras para treinar a segmentação, ou use Organize for Measure para combinar imagens e suas máscaras em matrizes que o Measure lê. Salvar uma máscara não treina um classificador."
+    },
+    {
+      "source": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "aafb7c2b254b3d128e14e0af31ff2cac483a4c60b11f9ee8ef6b371bbbbdac77",
+      "translation": "Use Organize for Measure para combinar imagens e suas máscaras nas matrizes que o Measure lê; máscaras isoladas não são matrizes combinadas."
+    },
+    {
+      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
+      "source_sha256": "6660e4f689c9d736a3ede08eece36af39dcc9b640d58df74e1a2155f65d12524",
+      "translation": "Às vezes as máscaras precisam de uma mão humana. Abra Make Masks em Home para corrigi-las campo a campo. O que você salva aqui pode seguir dois caminhos. Para treinar a segmentação, revise pares de imagem e máscara e mantenha-os juntos como campos de treinamento. Para medir, use Organize for Measure, que move cada imagem e suas máscaras para pastas de canal e as combina nas matrizes que o Measure lê; uma máscara avulsa não é uma matriz combinada. Máscaras de placas desenhadas aqui também podem alimentar o Plaque Assay com as imagens de origem correspondentes. Salvar uma máscara não treina um classificador."
     }
   ],
   "retired_records": [

@@ -65,7 +65,7 @@ def _directory_state(path):
 
 
 def record_model_zoo(app, window, screen, stage, captures, capture, settle,
-                     write_json, timeout):
+                     write_json, timeout, additions=False):
     """Use visible controls; accept only actual, fully retired benchmark jobs."""
     stage, captures = Path(stage).resolve(), Path(captures).resolve()
     if not captures.is_relative_to(stage):
@@ -161,7 +161,14 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                     watchdog.start(max(1, min(12000, int((deadline - time.monotonic()) * 1000))))
                     timers.append(watchdog)
                     dialog.resize(1400, 950)
-                    fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path)
+                    # Browse to the parent, then type the folder's name: a
+                    # typed absolute path races the picker's completer.
+                    dialog.setDirectory(str(Path(path).parent))
+                    settle(.4)
+                    edit = dialog.findChild(QLineEdit, 'fileNameEdit')
+                    fill(edit, Path(path).name)
+                    if edit is None or edit.text() != Path(path).name:
+                        raise RuntimeError(f'The picker holds {edit.text() if edit else None!r}')
                     capture(frame)
                     box = dialog.findChild(QDialogButtonBox)
                     accept = None if box is None else box.button(QDialogButtonBox.Open)
@@ -326,6 +333,10 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
         if Path(zoo._scan_edit.text()).resolve() != MODELS.resolve():
             raise RuntimeError('The visible model folder does not match the actual cache')
         capture('03_current_catalogue_and_local_models')
+        if additions:
+            from capture_model_zoo_additions import record_source_headings
+            evidence['source_headings'] = {}
+            record_source_headings(app, zoo, capture, settle, timeout, evidence['source_headings'])
         select_model(PRIMARY)
         selected = zoo.selected_entries()
         if (len(selected) != 1 or Path(selected[0].path).resolve() != PRIMARY.resolve()

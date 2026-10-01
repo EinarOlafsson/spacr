@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "language": "hi",
-  "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+  "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
     "native_speaker_signoff": false,
@@ -229,11 +229,6 @@
       "source": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
       "source_sha256": "b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315",
       "translation": "स्पष्ट वैक्यूल पहचान का उपयोग करके परजीवी गिनें और स्थितियों के वितरण की तुलना करें; केवल मेज़बान पहचान से वैक्यूल निर्धारित नहीं होता।"
-    },
-    {
-      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
-      "translation": "विभाजन प्रशिक्षण के लिए छवि और मास्क के जोड़े तैयार करें, या FEATURES से छवियाँ और मास्क निर्धारित करके मापन शुरू करें। मास्क सहेजने से वर्गीकारक प्रशिक्षित नहीं होता।"
     },
     {
       "source": "Curated training fields",
@@ -1061,11 +1056,6 @@
       "translation": "प्रशिक्षण एनोटेशन"
     },
     {
-      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
-      "translation": "छवियों और मास्क को जोड़कर मापी गई परियोजना लिखने के लिए FEATURES लें; अलग मास्क मर्ज किए गए ऐरे नहीं हैं।"
-    },
-    {
       "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
       "translation": "रिक्रूटमेंट अनुपात की गणना के लिए कंपार्टमेंट तीव्रता मापन और संबंधित मेज़बान तथा रोगजनक पहचान लें।"
@@ -1696,11 +1686,6 @@
       "translation": "ऑप्टिकल स्क्रीन दूसरा रास्ता अपनाती हैं। Home से Mask खोलें, फिर OPS चुनें। रीड के बजाय OPS हर सीक्वेंसिंग चक्र की इमेज लेता है, उन्हें फ़ीनोटाइप इमेज से संरेखित करता है और हर नाभिक के लिए एक बारकोड डिकोड करता है। परिणाम OPS के measurements.db में जाते हैं, जिसमें ज्यामिति, फ़ीनोटाइप संरेखण, नाभिक और बारकोड की तालिकाएँ हैं। पर वह डेटाबेस FASTQ गिनती तालिका नहीं है। Regression में इसका उपयोग करने के लिए पहले डिकोड की गई पहचानों को अपने फ़ीनोटाइप डेटा से जोड़ें और एकत्र करें, ताकि हर वस्तु या वेल में दोनों हों।"
     },
     {
-      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
-      "source_sha256": "a6a5ab7befe0897f6af543d29c69e73aa17862f085f26fc676de371f627264b1",
-      "translation": "कभी-कभी मास्क को इंसानी हाथ की ज़रूरत होती है। उन्हें फ़ील्ड-दर-फ़ील्ड सुधारने के लिए Home से Make Masks खोलें। आप यहाँ जो सहेजते हैं, वह दो तरफ़ जा सकता है। सेगमेंटेशन प्रशिक्षित करने के लिए इमेज और मास्क के जोड़े सुधारें और उन्हें प्रशिक्षण फ़ील्ड के रूप में साथ रखें। मापने के लिए FEATURES से हर इमेज को उसके मास्क से जोड़ें और एक मापा गया प्रोजेक्ट लिखें, इसी तरह ये मास्क Measure तक पहुँचते हैं; अकेला मास्क मिला हुआ ऐरे नहीं है। यहाँ बनाए गए प्लाक मास्क अपनी मेल खाती स्रोत इमेज के साथ Plaque Assay में भी जा सकते हैं। मास्क सहेजने से कोई क्लासिफ़ायर प्रशिक्षित नहीं होता।"
-    },
-    {
       "source": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
       "source_sha256": "ffcd4d427a5c7b438baf20f3788c26693ea14874fa46b146ea1cad4886dc412a",
       "translation": "इसके बाद Home से Measure खोलें और उसे उसी प्रोजेक्ट पर ले जाएँ, इमेज और मास्क चैनल इंडेक्स सही सेट करके। Measure हर मिला हुआ ऐरे पढ़ता है, इमेज और लेबल प्लेन साथ में, और हर कोशिका, नाभिक या परजीवी को measurements.db में एक पंक्ति के रूप में लिखता है। क्रॉप सहेजना चालू करें, तो यह हर वस्तु के आसपास एक छोटा PNG भी काटता है, जो png_list में इंडेक्स होता है। यहाँ से कहानी दो रास्तों में बँटती है। Annotate उन क्रॉप को दिखाता है ताकि आप उदाहरणों पर लेबल लगा सकें, और Classify क्रॉप या मापे गए फ़ीचर से सीखता है, इसलिए वस्तुओं की पहचान स्थिर रखें।"
@@ -1764,6 +1749,21 @@
       "source": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
       "source_sha256": "a411687903249cb72bec9c5b232786d8f69f9d15601ee7847136242b743493f7",
       "translation": "Measure इस पूरे नक्शे का केंद्र है। इसे Home से खोलें और Mask के बनाए प्रोजेक्ट पर ले जाएँ, इमेज और मास्क चैनल इंडेक्स सही सेट करके; Make Masks में जोड़े गए मास्क भी यहीं आते हैं। Measure इमेज और लेबल प्लेन साथ पढ़ता है और हर कोशिका, नाभिक या परजीवी को measurements.db में एक पंक्ति के रूप में लिखता है। अगर हर वस्तु का PNG चाहिए तो क्रॉप सहेजना चालू करें, और अगर क्रॉप स्ट्रीम करते हैं तो डेटाबेस को उसके स्रोत प्रोजेक्ट के साथ रखें। लगभग बाकी सब इन्हीं पंक्तियों से शुरू होता है। Annotate और Classify फ़ीनोटाइप सीखने के लिए माप और क्रॉप इस्तेमाल करते हैं। Image UMAP उन्हें प्रक्षेपित करता है ताकि आप समूह खोज सकें, और Embeddings एक मॉडल से क्रॉप को कूटबद्ध करता है, एन्कोडर और चैनल नीति दर्ज करते हुए। Gate Editor असली मापे गए फ़ीचर पर, उनकी असली इकाइयों में, सीमाएँ तय करता है, और QC दिखाता है कि कौन-सी जाँचें मौजूद हैं और कौन-सी नहीं। Toxoplasma परीक्षण भी यहीं से शुरू होते हैं: Recruitment को सही कम्पार्टमेंट तीव्रताएँ चाहिए, Invasion Assay को बेसलाइन नियंत्रणों के साथ दो-रंग के स्टेन माप, और Replication Assay को परजीवी से वैक्यूल तक के स्पष्ट लिंक। Host–Pathogen Analysis को पूरे वैक्यूल के मास्क और होस्ट संदर्भ तीव्रताएँ चाहिए, असंक्रमित कोशिकाएँ शामिल रखते हुए। और एंडोडायोजेनी आकार-सूचक Python से मापा गया प्रोजेक्ट पढ़ता है, जब आप होस्ट-कोशिका एकत्रीकरण और क्षेत्रफल की इकाइयाँ जाँच लें; केवल Mask का गिनती डेटाबेस काफ़ी नहीं है।"
+    },
+    {
+      "source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source_sha256": "7898685a0a14bdd0d79ca4ff55263a7d39ba16b3c8ebd1ce80074136297c8c3c",
+      "translation": "विभाजन प्रशिक्षण के लिए छवि और मास्क के जोड़े तैयार करें, या Organize for Measure से छवियों और उनके मास्क को उन ऐरे में मर्ज करें जिन्हें Measure पढ़ता है। मास्क सहेजने से वर्गीकारक प्रशिक्षित नहीं होता।"
+    },
+    {
+      "source": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "aafb7c2b254b3d128e14e0af31ff2cac483a4c60b11f9ee8ef6b371bbbbdac77",
+      "translation": "छवियों और उनके मास्क को उन ऐरे में मर्ज करने के लिए Organize for Measure लें जिन्हें Measure पढ़ता है; अलग मास्क मर्ज किए गए ऐरे नहीं हैं।"
+    },
+    {
+      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
+      "source_sha256": "6660e4f689c9d736a3ede08eece36af39dcc9b640d58df74e1a2155f65d12524",
+      "translation": "कभी-कभी मास्क को इंसानी हाथ की ज़रूरत होती है। उन्हें फ़ील्ड-दर-फ़ील्ड सुधारने के लिए Home से Make Masks खोलें। आप यहाँ जो सहेजते हैं, वह दो तरफ़ जा सकता है। सेगमेंटेशन प्रशिक्षित करने के लिए इमेज और मास्क के जोड़े सुधारें और उन्हें प्रशिक्षण फ़ील्ड के रूप में साथ रखें। मापने के लिए Organize for Measure इस्तेमाल करें, जो हर इमेज और उसके मास्क को चैनल फ़ोल्डरों में ले जाता है और उन्हें उन ऐरे में मिलाता है जिन्हें Measure पढ़ता है; अकेला मास्क मिला हुआ ऐरे नहीं है। यहाँ बनाए गए प्लाक मास्क अपनी मेल खाती स्रोत इमेज के साथ Plaque Assay में भी जा सकते हैं। मास्क सहेजने से कोई क्लासिफ़ायर प्रशिक्षित नहीं होता।"
     }
   ],
   "retired_records": [

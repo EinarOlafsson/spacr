@@ -47,7 +47,8 @@ def main() -> int:
     parser.add_argument('--settings-tour', action='store_true', help='Show bounded analysis choices through real settings searches')
     parser.add_argument('--annotation-tour', action='store_true', help='Record actual crop labelling and view changes in a new example column')
     parser.add_argument('--mask-editor-tour', action='store_true', help='Record actual reversible mask-editing gestures on private real-data copies')
-    parser.add_argument('--mask-readouts-tour', action='store_true', help='Record the CPU Otsu magnifier and FEATURES window on real data')
+    parser.add_argument('--mask-readouts-tour', action='store_true', help='Record the CPU Otsu Live magnifier on real data')
+    parser.add_argument('--mask-curation-organize', action='store_true', help='With --mask-editor-tour, also record Keep/Discard, Upload data (never sent), folder consolidation and Organize for Measure on private copies')
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
@@ -76,6 +77,7 @@ def main() -> int:
     parser.add_argument('--workflow-lesson', choices=('78_spacr_screens', '79_module_inputs_outputs', '80_image_analysis_pathways', '81_sequencing_pathways'),
                         default='78_spacr_screens', help='Workflow map lesson to record through native navigation')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
+    parser.add_argument('--model-zoo-additions', action='store_true', help='With --module model_zoo, also record the Cellpose 3 and bioimage.io headings (needs network) and Mask generation\'s Measure diameters popup on stage/mask_src')
     parser.add_argument('--barcode-search-tour', action='store_true', help='Record the real barcode search, explicit Apply and a verified mapped-count run')
     parser.add_argument('--barcode-reference-source', type=Path, help='Existing validated plain/reverse-complement reference pairs to copy into the private barcode recording')
     parser.add_argument('--model-compare-api-introduction', action='store_true', help='Record only the real Model Compare route and field loading before a separately verified mask-comparison API example')
@@ -711,7 +713,8 @@ def main() -> int:
             record_editor(app, window, screen, stage, captures, capture,
                           settle, write_json, args.timeout, detect=args.editor_detect,
                           readouts_only=args.mask_readouts_tour and not args.mask_editor_tour,
-                          include_readouts=args.mask_readouts_tour and args.mask_editor_tour)
+                          include_readouts=args.mask_readouts_tour and args.mask_editor_tour,
+                          curation_organize=args.mask_curation_organize)
         if args.module == 'import_images':
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,
@@ -767,7 +770,12 @@ def main() -> int:
             else:
                 from capture_model_zoo import record_model_zoo
                 record_model_zoo(app, window, screen, stage, captures, capture,
-                                 settle, write_json, args.timeout)
+                                 settle, write_json, args.timeout,
+                                 additions=args.model_zoo_additions)
+                if args.model_zoo_additions:
+                    from capture_model_zoo_additions import record_measure_diameters
+                    record_measure_diameters(app, window, stage, capture, settle, write_json,
+                                             captures, args.timeout, stage / 'mask_src')
         if args.model_compare_api_introduction:
             from capture_model_compare import record_screen
             record_screen(app, window, screen, stage, captures, capture,

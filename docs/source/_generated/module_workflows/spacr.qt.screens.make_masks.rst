@@ -4,7 +4,7 @@ Workflow inputs and outputs
 Make Masks
 ~~~~~~~~~~
 
-Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.
+Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.
 
 **Open:** Home → Make Masks.
 
@@ -23,7 +23,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **After this module**
 
 * :ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs.
-* :ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.
+* :ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.
 * :ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels.
 
 :doc:`API reference </api/spacr/qt/screens/make_masks/index>`.

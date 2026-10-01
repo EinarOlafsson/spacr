@@ -856,7 +856,7 @@
         "curated_pairs",
         "masks"
       ],
-      "guidance": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
+      "guidance": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
     },
     "plate_view": {
       "name": "Plate Viewer",
@@ -2556,7 +2556,7 @@
       "artifacts": [
         "masks"
       ],
-      "handoff": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
+      "handoff": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
     },
     {
       "from": "external_masks",
