@@ -7,9 +7,16 @@ translation, tutorial and platform acceptance remains. The requested main
 promotion completed through PR #135 at 2429976f0 on 2026-10-01. Subsequent
 N625 multi-column annotations and N626 organizer repairs are nightly changes.
 Release run 36904849867 built and validated the distributions successfully;
-its PyPI publication job is queued, not verified published.
+its PyPI upload failed because the project has exhausted its 10 GiB storage
+quota. No 1.5.1.1 files are published; the downstream release jobs were skipped.
 Graph Builder lesson58 authoring now covers N625's complete three-column
 recipe with real-control and full-row checks; its new media remains unpublished.
+
+Current publication blocker: features/data/615_release_storage_block_2026-10-01.json.
+The exact CI distributions are preserved locally and match the upload log's
+SHA256 hashes. A 20 GiB project-limit request is prepared, awaiting explicit
+authorization to contact PyPI's maintainers. No historical release was deleted,
+no additional version/tag was created, and the failed upload was not retried.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex implementation session.
 
