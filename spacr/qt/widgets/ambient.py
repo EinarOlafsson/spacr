@@ -5820,6 +5820,7 @@ def _build_the_spaceout_fractal(values: dict, controls=None):
             follow_pointer=bool(values["pointer_gravity"]),
             pointer_size=values["pointer_size"],
             pointer_strength=values["pointer_strength"],
+            magnifier_size=values["magnifier_size"],
             zoom_rate=values["zoom_rate"])
     widget = create_fractal_widget(
         Settings(pattern=values["pattern"], backend=values["backend"],

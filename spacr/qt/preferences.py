@@ -354,6 +354,10 @@ FRACTAL_LIMITS = {
                      "a period of zero would change speed infinitely fast"),
     "pointer_size": (0.0, None, "a reach cannot be negative"),
     "pointer_strength": (0.0, None, "a strength cannot be negative"),
+    "magnifier_size": (0.25, 3.0,
+                       "below a quarter the lens is smaller than the "
+                       "cursor, and above three times it covers the "
+                       "window"),
     "supersampling": (1, None,
                       "fewer than one sample a pixel draws nothing"),
     "seconds_per_decade": (0.1, None,
@@ -490,6 +494,7 @@ _KEY_FRACTAL_POINTER = "spaceout/fractal_pointer_gravity"
 #: How far that pull reaches, and how hard it pulls.
 _KEY_FRACTAL_POINTER_SIZE = "spaceout/fractal_pointer_size"
 _KEY_FRACTAL_POINTER_STRENGTH = "spaceout/fractal_pointer_strength"
+_KEY_FRACTAL_MAGNIFIER_SIZE = "spaceout/fractal_magnifier_size"
 
 #: Supersampling, and the Mandelbrot renderer's own numbers.
 _KEY_FRACTAL_SUPERSAMPLING = "spaceout/fractal_supersampling"
@@ -2654,7 +2659,7 @@ def get_fractal_settings() -> dict:
         DEFAULT_SCALE, DEFAULT_SPEED, DEFAULT_SPEED_MAX, DEFAULT_SPEED_MIN,
         DEFAULT_SPEED_PERIOD, DEFAULT_VARIABLE_SPEED, clamp,
         DEFAULT_FOLLOW_POINTER, DEFAULT_POINTER_SIZE,
-        DEFAULT_POINTER_STRENGTH,
+        DEFAULT_POINTER_STRENGTH, DEFAULT_MAGNIFIER_SIZE,
     )
 
     settings = _settings()
@@ -2731,6 +2736,9 @@ def get_fractal_settings() -> dict:
                                 DEFAULT_POINTER_SIZE, 0.0, None),
         "pointer_strength": _number(_KEY_FRACTAL_POINTER_STRENGTH,
                                     DEFAULT_POINTER_STRENGTH, 0.0, None),
+        "magnifier_size": _number(_KEY_FRACTAL_MAGNIFIER_SIZE,
+                                  DEFAULT_MAGNIFIER_SIZE,
+                                  *FRACTAL_LIMITS["magnifier_size"][:2]),
         "supersampling": int(_number(_KEY_FRACTAL_SUPERSAMPLING,
                           _MANDEL_DEFAULTS["supersampling"],
                           FRACTAL_LIMITS['supersampling'][0], None)),
@@ -2808,6 +2816,8 @@ def set_fractal_settings(**values) -> None:
         "pointer_gravity": (_KEY_FRACTAL_POINTER, None),
         "pointer_size": (_KEY_FRACTAL_POINTER_SIZE, (0.0, None)),
         "pointer_strength": (_KEY_FRACTAL_POINTER_STRENGTH, (0.0, None)),
+        "magnifier_size": (_KEY_FRACTAL_MAGNIFIER_SIZE,
+                           FRACTAL_LIMITS["magnifier_size"][:2]),
         "supersampling": (_KEY_FRACTAL_SUPERSAMPLING,
                 (FRACTAL_LIMITS['supersampling'][0], FRACTAL_LIMITS['supersampling'][1])),
         "seconds_per_decade": (_KEY_FRACTAL_SECONDS_PER_DECADE,
@@ -8157,11 +8167,13 @@ class PreferencesDialog:
                 "every so often and moves the camera onto it. It finds more "
                 "variety, and moving the camera is visible: the Steering "
                 "control below sets how much.\n\n"
-                "Tour the interesting places floats between twenty "
-                "coordinates chosen in advance for keeping their detail "
-                "over four decades of zoom, easing out of one and into "
-                "the next. Dragging the view stops the tour; Ctrl+R hands "
-                "the camera back to it."))
+                "Tour the interesting places measures the view as it "
+                "descends and glides toward the part with the most colours "
+                "in it, never toward a single-colour patch. The camera "
+                "eases in and out of every move and turns away before the "
+                "detail runs out, and at the end of a dive it glides back "
+                "up. Dragging the view stops the tour; Ctrl+R hands the "
+                "camera back to it."))
             fractal.addRow(tr("Path"), fractal_path)
 
             fractal_steering = _tenths(
@@ -8236,6 +8248,46 @@ class PreferencesDialog:
             fractal.addRow(tr("Pointer reach"), fractal_pointer_size)
             fractal_pointer_size.setEnabled(fractal_pointer.isChecked())
             fractal_pointer.toggled.connect(fractal_pointer_size.setEnabled)
+
+            fractal_magnifier = QSlider(Qt.Horizontal)
+            fractal_magnifier.setObjectName("FractalMagnifierSize")
+            _lens_low, _lens_high = FRACTAL_LIMITS["magnifier_size"][:2]
+            fractal_magnifier.setRange(int(round(_lens_low * 100)),
+                                       int(round(_lens_high * 100)))
+            fractal_magnifier.setSingleStep(5)
+            fractal_magnifier.setPageStep(25)
+            fractal_magnifier.setTickInterval(25)
+            fractal_magnifier.setValue(
+                int(round(_fractal_values["magnifier_size"] * 100)))
+            fractal_magnifier.setToolTip(tr(
+                "How big the magnifying glass under the pointer is, as a "
+                "share of its usual size. The whole lens scales together: "
+                "the bulge under the cursor and the soft edge around it. "
+                "25% is a small loupe; 300% bends most of the window. "
+                "Applies wherever the pointer bends the picture: both "
+                "orbit folds, and the cascade and space on the GPU "
+                "renderer. The Mandelbrot is dragged instead. "
+                "Default 100%."))
+            fractal_magnifier_value = QLabel()
+
+            def _magnifier_says(percent):
+                """Show the lens size the slider is at, as a percentage."""
+                fractal_magnifier_value.setText(f"{int(percent)}%")
+
+            fractal_magnifier.valueChanged.connect(_magnifier_says)
+            _magnifier_says(fractal_magnifier.value())
+            _magnifier_column = QVBoxLayout()
+            _magnifier_column.setContentsMargins(0, 0, 0, 0)
+            _magnifier_column.addWidget(fractal_magnifier)
+            _magnifier_column.addWidget(fractal_magnifier_value)
+            _magnifier_row = _hbox_wrap(_magnifier_column)
+            _magnifier_row.setToolTip(fractal_magnifier.toolTip())
+            fractal_magnifier.setAccessibleDescription(
+                fractal_magnifier.toolTip())
+            fractal_magnifier.setToolTip("")
+            fractal.addRow(tr("Magnifier size"), _magnifier_row)
+            fractal_magnifier.setEnabled(fractal_pointer.isChecked())
+            fractal_pointer.toggled.connect(fractal_magnifier.setEnabled)
 
             fractal_pointer_strength = None
 
@@ -8652,6 +8704,7 @@ class PreferencesDialog:
                                   else 1.0),
                     pointer_strength=(1.0 if fractal_pointer.isChecked()
                                       else 0.0),
+                    magnifier_size=fractal_magnifier.value() / 100.0,
                     supersampling=int(fractal_ss.value()),
                     path=fractal_path.currentData(),
                     steering=fractal_steering.value(),

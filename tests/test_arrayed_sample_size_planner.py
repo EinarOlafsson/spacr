@@ -332,3 +332,70 @@ def test_resampling_refuses_a_pilot_too_small_for_the_design():
     assert 0.0 <= _resample_arrayed_power(
         _pilot(), "intensity", 1.0, replicates=3, wells=6, fields=3,
         replace=True, n_sim=100) <= 1.0
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36794763761)
+# ---------------------------------------------------------------------------
+
+def test_variances_with_nothing_to_pool_or_fit_are_nan():
+    from spacr.sp_stats import _additive_residual_variance, _pooled_variance
+
+    variance, dof = _pooled_variance(pd.Series([1.0, 2.0]), ["a", "b"])
+    assert np.isnan(variance) and dof == 0
+    variance, dof = _additive_residual_variance(
+        pd.Series([1.0, 2.0]), pd.Series(["r1", "r2"]), pd.Series(["c", "c"]))
+    assert np.isnan(variance) and dof == 0
+    variance, dof = _additive_residual_variance(
+        pd.Series([1.0, 2.0]), pd.Series(["r1", "r1"]),
+        pd.Series(["a", "b"]))
+    assert np.isnan(variance) and dof == 0
+
+
+def test_a_design_with_no_variance_has_full_power_or_the_false_rate():
+    flat = {"replicate": 0.0, "well": 0.0, "field": 0.0, "cell": 0.0,
+            "cells_per_field": 10}
+    shape = dict(replicates=3, wells=2, fields=2)
+    assert _arrayed_power(flat, 1.0, **shape) == 1.0
+    assert _arrayed_power(flat, 0.0, **shape) == 0.05
+
+
+def test_a_pilot_without_cell_counts_falls_back_to_its_own_mean():
+    comps = dict(TRUE)
+    designs = _plan_arrayed_design(comps, 1.0, max_replicates=4,
+                                   max_wells=2, max_fields=2)
+    assert {"replicates", "wells", "fields"} <= set(designs.columns)
+    power = _simulate_arrayed_power(comps, 1.0, replicates=3, wells=2,
+                                    fields=2, n_sim=50, seed=0)
+    assert 0.0 <= power <= 1.0
+
+
+def test_a_paired_resampled_design_compares_within_replicates():
+    pilot = _pilot(seed=5, replicates=6, wells=12, fields=6)
+    power = _resample_arrayed_power(pilot, "intensity", 1.0, replicates=4,
+                                    wells=2, fields=2, paired=True,
+                                    n_sim=100, seed=0)
+    assert 0.0 <= power <= 1.0
+
+
+def test_one_replicate_per_condition_estimates_no_replicate_terms():
+    """Each condition seen on its own plate: no replicate varies within a
+    condition and no plate is seen under two, so neither the replicate nor
+    the replicate-by-condition term can be estimated."""
+    pilot = _pilot(replicates=2).assign(
+        condition=lambda f: np.where(f["plateID"] == "p0", "dmso", "drug"))
+    comps = _nested_variance_components(pilot, "intensity",
+                                        replicate="plateID",
+                                        condition="condition")
+    assert comps["estimated"]["replicate"] is False
+    assert comps["estimated"]["replicate_condition"] is False
+
+
+def test_a_given_cell_count_is_used_as_is():
+    designs = _plan_arrayed_design(dict(TRUE), 1.0, cells=12, max_replicates=4,
+                                   max_wells=2, max_fields=2)
+    if len(designs):
+        assert set(designs["cells_per_field"]) == {12}
+    power = _simulate_arrayed_power(dict(TRUE), 1.0, replicates=3, wells=2,
+                                    fields=2, cells=12, n_sim=50, seed=0)
+    assert 0.0 <= power <= 1.0

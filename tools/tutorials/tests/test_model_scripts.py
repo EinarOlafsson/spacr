@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1] / 'lessons'
 LANGUAGES = {'es', 'fr', 'hi', 'it', 'pt-BR', 'ja', 'zh-CN', 'da', 'de', 'is', 'ko', 'nb', 'sv'}
 
 
-@pytest.mark.parametrize('identity,scenes', [('21_model_compare', 6), ('22_model_zoo', 7)])
+@pytest.mark.parametrize('identity,scenes', [('21_model_compare', 6), ('22_model_zoo', 13)])
 def test_all_model_reviews_are_complete_and_bound_to_the_current_source(identity, scenes):
     english = json.loads((ROOT / (identity + '.json')).read_text())
     digest = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()

@@ -2399,8 +2399,6 @@ def _export_tables(db_path: Union[str, os.PathLike],
             tabular._require_optional(
                 "pyreadr", tabular._PYREADR_MISSING_MESSAGE)
         except ImportError as exc:
-            if rds:
-                raise
             notes.append(str(exc).splitlines()[0] + " No .rds data frames "
                          "were written; load_spacr_export.R reads the "
                          "Parquet tables instead.")

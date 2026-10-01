@@ -1,30 +1,37 @@
 {
   "lesson": "22_model_zoo",
-  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "english_sha256": "87954acf7425ca91badbab0643a90a8aac3a886ea492cc22f0466884dd4fbbab",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "nb",
   "title": "Model Zoo: velg en modell og prøv den på bildene dine",
-  "description": "Åpne Model Zoo, finn eller last ned et sjekkpunkt, undersøk detaljene og velg et lite bildesett for en test.",
+  "description": "Åpne Model Zoo, finn eller last ned et sjekkpunkt, undersøk detaljene, test det på et lite bildesett og mål objektdiametre for Mask.",
   "objectives": [
     "Åpne Model Zoo og skanne en lokal modellmappe.",
     "Velge modellfamilie og versjon, og deretter undersøke detaljene.",
-    "Kjøre en liten bildetest og undersøke de resulterende maskene og kvalitetssammendragene."
+    "Kjøre en liten bildetest og undersøke de resulterende maskene og kvalitetssammendragene.",
+    "Måle objektdiametre fra dine egne synsfelt i Model Zoo-vinduet i Mask generation."
   ],
   "prerequisite": "Pakk ut det lenkede eksemplet og bruk mappen images til testen med tre synsfelt. Velg en installert Cellpose-segmenteringsmodell, eller last ned et egnet sjekkpunkt via Model Zoo. For din egen test forbereder du noen representative TIFF-, PNG-, NPY- eller NPZ-bilder.",
   "scenes": [
     "Fra Home åpner du Make Masks og velger deretter Model Zoo. Bruk denne siden til å finne en segmenteringsmodell og prøve den på et lite bildesett.",
-    "Klikk på Choose folder og velg modellkatalogen din for å skanne den. Hvis du skriver inn banen, klikker du på Scan. Slå på kildeoverskriftene du vil bla i, for eksempel Cellpose eller lokale modeller.",
+    "Klikk på Choose folder og velg modellkatalogen din for å skanne den. Hvis du skriver inn banen, klikker du på Scan. Overskriftene over tabellen bestemmer hvilke kilder som vises; cellposeSAM for standardvektene og spaCR for modellene som er trent her, er slått på fra start.",
+    "Slå på cellpose3 for å vise Cellpose 3-modellene, for eksempel cyto3 og nuclei. De kjører i sitt eget Cellpose 3-miljø, så en modell uten installert backend sier fra, og når du velger den, tilbys installasjonen.",
+    "Slå på bioimage.io for å vise Cellpose-modeller publisert på bioimage.io. Les hva hver modell er trent på før du velger en; vektene lastes ned når du ber om dem.",
     "Velg en modellfamilie og bruk kontrollen Version til å velge sjekkpunkt. Les detaljene om bildetype, treningsinformasjon og lokal bane. For et eksternt sjekkpunkt velger du en mappe i Save to og klikker på Download før du prøver det.",
     "Pakk ut det lenkede eksemplet og velg mappen images under Test on fields. Sett antall synsfelt til 3. For egne bilder begynner du med et lite sett som inneholder typiske synsfelt og vanskelige tilfeller.",
     "Velg den lokale segmenteringsmodellen og klikk på Test on fields. Vent til testen er ferdig. Større bilder og modeller kan ta lengre tid, særlig på en CPU.",
     "Velg en resultatrad for å undersøke maskeforhåndsvisningen. Kontroller grenser, objekter som berører hverandre og oversette objekter mot bildet. Bruk objekttallet og kvalitetsflaggene til å finne synsfelt som bør undersøkes nærmere.",
-    "Gå gjennom sammendragene for synsfeltene, og behold deretter banen til det valgte sjekkpunktet for analysemodulen. For å sammenligne to ulike modellfamilier på de samme bildene velger du begge radene og deretter Compare the two selected. Bruk versjonskontrollen til å prøve en annen versjon av samme familie."
+    "Gå gjennom sammendragene for synsfeltene, og behold deretter banen til det valgte sjekkpunktet for analysemodulen. For å sammenligne to ulike modellfamilier på de samme bildene velger du begge radene og deretter Compare the two selected. Bruk versjonskontrollen til å prøve en annen versjon av samme familie.",
+    "Den samme katalogen åpnes inne i Mask generation, der den også kan måle objektene dine. Sett Source til bildene dine og fyll inn kanalene for celle, kjerne og patogen; dette eksemplet bruker råbildene fra Measure-eksemplet.",
+    "Bytt til All settings og klikk på cellen Model name for et objekt i tabellen per objekt. Model Zoo-vinduet åpnes, og modellen du velger, skrives inn i innstillingene for det objektet.",
+    "Klikk på Measure diameters nederst til venstre. Cellpose skalerer hvert bilde etter diameteren den får, så en diameter målt på dine egne synsfelt er tryggere enn en gjetning.",
+    "Trykk på Measure from my images. Hver objekttype får en målt diameter med belegg og sikkerhet. Use skriver én inn i innstillingene til Mask, og Use all skriver alle; ingenting endres før du trykker på dem."
   ]
 }

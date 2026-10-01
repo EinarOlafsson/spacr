@@ -1289,6 +1289,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'wound_conditions',
     'wound_hours_per_frame',
     'wound_source',
+    'wound_threshold',
     'wound_window',
     'write_random_annotation_column',
     'writer',

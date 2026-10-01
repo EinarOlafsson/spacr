@@ -838,6 +838,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Closure (Alpha)" heading.
     "wound_closure", "wound_source", "wound_channel", "wound_window",
     "wound_hours_per_frame", "wound_conditions",
+    # NEW SETTING, not a regrouping (item 536, 2026-10-01): the hand-set
+    # wound cut, under the same "Wound Closure α" heading.
+    "wound_threshold",
     # NEW SETTINGS, not a regrouping (item 580, 2026-09-27): Measure's
     # cross-plate intensity calibration from beads or reference wells -- the
     # switch, the reference wells, the statistic and the camera offset --

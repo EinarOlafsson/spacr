@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "language": "ja",
-  "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+  "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
     "native_speaker_signoff": false,
@@ -229,11 +229,6 @@
       "source": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
       "source_sha256": "b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315",
       "translation": "明示的な液胞の識別情報を使って寄生体を数え、条件間の分布を比較します。宿主の識別情報だけでは液胞を定義できません。"
-    },
-    {
-      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
-      "translation": "セグメンテーション学習用の画像とマスクのペアを整えるか、FEATURES で画像とマスクを指定して測定を呼び出します。マスクを保存しても分類器は学習されません。"
     },
     {
       "source": "Curated training fields",
@@ -1061,11 +1056,6 @@
       "translation": "学習用の注釈"
     },
     {
-      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
-      "translation": "FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。"
-    },
-    {
       "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
       "translation": "区画の強度測定値と、対応する宿主・病原体の識別情報を使って、動員比を計算します。"
@@ -1696,11 +1686,6 @@
       "translation": "光学スクリーンは別の道を進みます。Home から Mask を開き、OPS を選びます。OPS はリードの代わりに、各シーケンシングサイクルの画像を受け取り、表現型の画像と位置合わせして、核ごとにバーコードをデコードします。結果は OPS の measurements.db に入り、形状、表現型との位置合わせ、核、バーコードの表があります。ただし、このデータベースは FASTQ のカウント表ではありません。Regression で使うには、まずデコードした識別を表現型のデータと結合して集計し、各オブジェクトやウェルが両方を持つようにします。"
     },
     {
-      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
-      "source_sha256": "a6a5ab7befe0897f6af543d29c69e73aa17862f085f26fc676de371f627264b1",
-      "translation": "マスクには人の手が必要なこともあります。Home から Make Masks を開き、視野ごとに修正します。ここで保存したものには、二つの行き先があります。セグメンテーションを学習させるには、画像とマスクの組をキュレーションし、学習用の視野として一緒に保管します。測定するには、FEATURES で各画像とマスクを組にして、測定済みのプロジェクトを書き出します。こうしてマスクは Measure に届きます。単独のマスクは結合配列ではありません。ここで描いたプラークのマスクも、対応する元画像があれば Plaque Assay に使えます。マスクを保存しても、分類器が学習するわけではありません。"
-    },
-    {
       "source": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
       "source_sha256": "ffcd4d427a5c7b438baf20f3788c26693ea14874fa46b146ea1cad4886dc412a",
       "translation": "次に、Home から Measure を開き、画像とマスクのチャネル番号を正しく設定したうえで、同じプロジェクトを指定します。Measure は各結合配列を、画像とラベルの面をまとめて読み込み、細胞、核、寄生虫をそれぞれ measurements.db の一行として書き出します。切り出し画像の保存をオンにすると、各オブジェクトの周りの小さな PNG も切り出され、png_list に索引付けされます。ここから物語は分かれます。Annotate はそれらの切り出し画像を表示して例にラベルを付けられるようにし、Classify は切り出し画像か測定した特徴量から学習します。そのため、オブジェクトの識別は安定させておいてください。"
@@ -1764,6 +1749,21 @@
       "source": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
       "source_sha256": "a411687903249cb72bec9c5b232786d8f69f9d15601ee7847136242b743493f7",
       "translation": "Measure は、この地図全体の中心です。Home から開き、画像とマスクのチャネル番号を正しく設定したうえで、Mask が作ったプロジェクトを指定します。Make Masks で組にしたマスクもここに届きます。Measure は画像とラベルの面をまとめて読み込み、細胞、核、寄生虫をそれぞれ measurements.db の一行として書き出します。各オブジェクトの PNG が欲しければ切り出し画像の保存をオンにし、代わりに切り出し画像をストリーミングする場合は、データベースを元のプロジェクトと一緒に保管します。ほかのほとんどすべてが、これらの行から始まります。Annotate と Classify は、測定値と切り出し画像を使って表現型を学びます。Image UMAP はそれらを投影してグループを探せるようにし、Embeddings はモデルで切り出し画像を符号化して、エンコーダーとチャネルの扱いを記録します。Gate Editor は実際の単位を持つ本物の測定特徴量にしきい値を設定し、QC はどのチェックがあり、どれが欠けているかを示します。Toxoplasma のアッセイもここから始まります。Recruitment には適切な区画の強度が、Invasion Assay には基準の対照を伴う二色染色の測定値が、Replication Assay には寄生虫と寄生胞の明示的な対応付けが必要です。Host–Pathogen Analysis には、寄生胞全体のマスクと宿主の基準強度が必要で、非感染の細胞も残しておきます。そして内生出芽のサイズ指標は、宿主細胞ごとの集計と面積の単位を確認した後で、Python から測定済みのプロジェクトを読み込みます。Mask のカウントのデータベースだけでは足りません。"
+    },
+    {
+      "source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source_sha256": "7898685a0a14bdd0d79ca4ff55263a7d39ba16b3c8ebd1ce80074136297c8c3c",
+      "translation": "セグメンテーション学習用の画像とマスクのペアを整えるか、Organize for Measure で画像とそのマスクを Measure が読み込む配列に統合します。マスクを保存しても分類器は学習されません。"
+    },
+    {
+      "source": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "aafb7c2b254b3d128e14e0af31ff2cac483a4c60b11f9ee8ef6b371bbbbdac77",
+      "translation": "Organize for Measure で画像とそのマスクを、Measure が読み込む配列に統合します。単独のマスクは統合配列ではありません。"
+    },
+    {
+      "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
+      "source_sha256": "6660e4f689c9d736a3ede08eece36af39dcc9b640d58df74e1a2155f65d12524",
+      "translation": "マスクには人の手が必要なこともあります。Home から Make Masks を開き、視野ごとに修正します。ここで保存したものには、二つの行き先があります。セグメンテーションを学習させるには、画像とマスクの組をキュレーションし、学習用の視野として一緒に保管します。測定するには、Organize for Measure を使います。各画像とそのマスクをチャンネルフォルダーに移動し、Measure が読み込む配列に結合します。単独のマスクは結合配列ではありません。ここで描いたプラークのマスクも、対応する元画像があれば Plaque Assay に使えます。マスクを保存しても、分類器が学習するわけではありません。"
     }
   ],
   "retired_records": [

@@ -13,31 +13,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "confluency_channel",
-      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
-      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
-      "translation": "Rás sameinaða fylkisins sem áferðar- og styrkuppsprettur þekjuhlutfalls lesa, talin eins og í channels. Autt notar fyrstu færslu channels. Veldu bjartsviðs- eða fasaskilsplanið fyrir áferð, eða umfrymis- eða himnulitunina fyrir styrk. Hunsað þegar confluency_source verður grímur. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "confluency_qc_threshold",
       "source": "Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
       "source_sha256": "fc1aa1ad92c9e5014c42bd4ff5e7120944b42209f611bb33f4a2b43748890c05",
       "translation": "Lægsta þakta hlutfall, frá 0 til 1, sem sjónsvið eða brunnur þarf til að standast QC einlags. Sjónsvið og brunnar undir því fá monolayer_ok 0 í measurements.db, svo að niðurstöðum skellu- og sýkingarprófa úr þunnu eða rifnu einlagi megi sleppa eða deila með þakta hlutfallinu. Autt lætur alla brunna standast. Sjálfgefið 0.8."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "confluency_source",
-      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
-      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
-      "translation": "Hvernig þekjuhlutfall er ákvarðað. auto notar frumugrímurnar þegar keyrslan hefur frumugrímur, annars áferð. masks er sammengi allra bútaðra frumna, fyrir stærðarsíur Measure. texture les staðbundinn breytileika confluency_channel með sjálfvirkum þröskuldi, fyrir bjartsvið og fasaskil. intensity setur sjálfvirkt þröskuld á confluency_channel, fyrir flúrljómandi umfrymis- eða himnulitanir. Sjálfgefið auto."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "confluency_window",
-      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
-      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
-      "translation": "Hlið ferningslaga gluggans, í dílum, sem áferðaruppspretta þekjuhlutfalls mælir staðbundinn breytileika yfir. Um það bil breidd grennsta frumuútskots sem á að teljast þakið: minni gluggi fylgir brúnum betur en skilur slétt innri svæði frumna eftir sem göt, stærri brúar mjó bil. Uppspretturnar grímur og styrkur hunsa þetta. Sjálfgefið 15."
     },
     {
       "table": "setting_tooltips",
@@ -123,5 +102,29 @@
       "source_sha256": "7e40a4562581b1f508a919a4a548d5cfddaf1990175beae1c55f90e51fb72f0a",
       "translation": "Hversu lengi mynd þarf að halda sömu stærð og breytingartíma áður en watch_folder les hana, svo að skrá sem smásjáin er enn að skrifa sé ekki tekin hálfskrifuð. Hækkaðu gildið fyrir hæg netdrif. Sjálfgefið 10."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
+      "translation": "Rás sameinaða fylkisins sem áferðar- og styrkuppsprettur þekjuhlutfalls lesa, talin eins og í channels. Autt notar fyrstu færslu channels. Veldu bjartsviðs- eða fasaskilsplanið fyrir áferð, eða umfrymis- eða himnulitunina fyrir styrk. Hunsað þegar confluency_source verður grímur. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
+      "translation": "Hvernig þekjuhlutfall er ákvarðað. auto notar frumugrímurnar þegar keyrslan hefur frumugrímur, annars áferð. masks er sammengi allra bútaðra frumna, fyrir stærðarsíur Measure. texture les staðbundinn breytileika confluency_channel með sjálfvirkum þröskuldi, fyrir bjartsvið og fasaskil. intensity setur sjálfvirkt þröskuld á confluency_channel, fyrir flúrljómandi umfrymis- eða himnulitanir. Sjálfgefið auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
+      "translation": "Hlið ferningslaga gluggans, í dílum, sem áferðaruppspretta þekjuhlutfalls mælir staðbundinn breytileika yfir. Um það bil breidd grennsta frumuútskots sem á að teljast þakið: minni gluggi fylgir brúnum betur en skilur slétt innri svæði frumna eftir sem göt, stærri brúar mjó bil. Uppspretturnar grímur og styrkur hunsa þetta. Sjálfgefið 15."
+    }
+  ],
+  "retired_note": "2026-09-30: item 536's phase confluency source rewrote the English of the confluency_channel, confluency_source and confluency_window tooltips; the replacements are in 2026-09-30-runtime-debt-eleventh-pass-confluency-phase.json. Kept verbatim as evidence, not loaded."
 }

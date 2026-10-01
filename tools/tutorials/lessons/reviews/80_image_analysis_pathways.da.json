@@ -1,7 +1,7 @@
 {
   "language": "da",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "31082f017cb8971f3b4fb79b8185b9270238cf0e756eee105dfe7ade3d76799e",
+  "english_sha256": "248e5aaff34ba0af1c0ea8c170fa82f657332ca16f72cb82cb1364de9572f9a8",
   "title": "Billedanalysemoduler og deres sammenhænge",
   "section": "Arbejdsgange",
   "description": "Vælg en rute til billedanalyse gennem segmentering, måling, annotation, klassifikation, projektioner, gates, billedregistrering, kvalitetskontrol og analyser.",
@@ -14,7 +14,7 @@
   "scenes": [
     "Billedanalyse i spaCR følger dine billeder fra pixels til svar. Råbilleder begynder i Mask, som finder objekterne. Hvis du vil rette masker i hånden, bruger du Make Masks, eller importerer masker, du allerede har. Measure gør derefter billeder og masker til tal, og til udsnit hvis du vil. Derfra vælger du vej: klassifikation, billedudforskning, gating eller en analyse. Sæt fliserne sammen først, når analysen kræver ét koordinatsystem.",
     "Rå mikroskopbilleder begynder i Mask. Åbn det fra Home, vælg kanaler og segmenteringsmodeller, og kontrollér forhåndsvisningen, før du kører. Mask skriver hvert synsfelt som et sammenlagt array, med billedkanalerne og deres heltalslabelplaner samlet, og det er dette sammenlagte array, Measure læser bagefter. Mask gemmer også en lille tælledatabase, men den er kun en optælling, ikke en egenskabstabel.",
-    "Nogle gange har masker brug for en menneskelig hånd. Åbn Make Masks fra Home for at rette dem synsfelt for synsfelt. Det, du gemmer her, kan gå to veje. For at træne segmentering kuraterer du billed- og maskepar og holder dem samlet som træningsfelter. For at måle bruger du FEATURES til at parre hvert billede med dets maske og skrive et målt projekt, og sådan når maskerne frem til Measure; en fritstående maske er ikke et sammenlagt array. Plaquemasker, der tegnes her, kan også bruges i Plaque Assay sammen med deres matchende kildebilleder. At gemme en maske træner ikke en klassifikator.",
+    "Nogle gange har masker brug for en menneskelig hånd. Åbn Make Masks fra Home for at rette dem synsfelt for synsfelt. Det, du gemmer her, kan gå to veje. For at træne segmentering kuraterer du billed- og maskepar og holder dem samlet som træningsfelter. For at måle bruger du Organize for Measure, som flytter hvert billede og dets masker til kanalmapper og fletter dem sammen til de arrays, som Measure læser; en fritstående maske er ikke et sammenlagt array. Plaquemasker, der tegnes her, kan også bruges i Plaque Assay sammen med deres matchende kildebilleder. At gemme en maske træner ikke en klassifikator.",
     "Measure er navet i hele dette kort. Åbn det fra Home, og peg det mod det projekt, Mask byggede, med billed- og maskekanalindeksene korrekt indstillet; masker, der er parret i Make Masks, ankommer også her. Measure læser billeder og labelplaner samlet og skriver hver celle, kerne eller parasit som en række i measurements.db. Slå lagring af udsnit til, hvis du vil have en PNG af hvert objekt, og opbevar databasen sammen med dens kildeprojekt, hvis du i stedet streamer udsnit. Næsten alt andet tager udgangspunkt i disse rækker. Annotate og Classify bruger målingerne og udsnittene til at lære fænotyper. Image UMAP projicerer dem, så du kan lede efter grupperinger, og Embeddings koder udsnittene med en model og registrerer koderen og kanalpolitikken. Gate Editor sætter tærskler på de rigtige målte egenskaber i deres rigtige enheder, og QC viser, hvilke kontroller der findes, og hvilke der mangler. Toxoplasma-analyserne tager også udgangspunkt her: Recruitment kræver de rigtige kompartmentintensiteter, Invasion Assay tofarvede farvningsmålinger med baselinekontroller og Replication Assay eksplicitte forbindelser mellem parasit og vakuole. Host–Pathogen Analysis kræver masker af hele vakuoler og værtens referenceintensiteter, med de uinficerede celler bevaret. Og størrelsesmålet for endodyogeni læser det målte projekt fra Python, når du har kontrolleret aggregeringen pr. værtscelle og arealenhederne; tælledatabasen fra Mask alene er ikke nok.",
     "Med målinger i hånden er Annotate stedet, hvor du lærer fra dig med eksempler. Åbn det fra Home, så viser det de objektudsnit, som Measure har gemt eller streamer fra projektet. Mærk repræsentative objekter; hver label ender i en annotationskolonne i tabellen png_list, knyttet til objektets identitet. Du behøver ikke begynde fra nul: gates, der er gemt i Gate Editor, kan foreslå kandidatlabels, som du gennemgår. Brug en separat kolonne til hvert spørgsmål, hold trænings- og evalueringsobjekter adskilt, og det er den kolonne, Classify træner på bagefter.",
     "Åbn Classify fra Home for at gøre labels til forudsigelser. Det har to familier, og dine data afgør hvilken. Computer Vision lærer af objektudsnit, som Measure gemmer eller streamer; Tabular Machine Learning lærer af de målte egenskabskolonner. Labels kan komme tre steder fra. Oftest kommer de fra Annotate. Gate Editor kan skrive gennemgåede gateudvalg til en annotationskolonne, og Image UMAP kan gøre det samme med gennemgåede lassoudvalg; vælg i begge tilfælde den samme kolonne og objektpopulation her. En indlejringsklynge er ikke en facitliste, så gennemgå udsnittene, validér labels, og hold valideringsobjekterne væk fra træningen. Classify gemmer derefter sine scorer, den trænede model og en evalueringspakke med forudsigelser på tilbageholdte data. I en screening vælger du den CV- eller ML-scorekolonne, du mener, og tager den med til Regression med plade- og brøndidentiteten intakt.",
@@ -33,15 +33,13 @@
     "Billedvejen går altså næsten altid fra Mask til Measure og forgrener sig derefter mod dit spørgsmål. For at træne din egen segmenteringsmodel forbereder du billed- og maskepar i Make Masks, træner dem i Cellpose Workbench og åbner den gemte model i Mask igen. Med kompatible output ved hånden kan du komme ind senere. Hvor du end går hen, bevarer du kanalidentiteter, enheder og objektnøgler sammen med hvert resultat."
   ],
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
-    "phrase_bank_sha256": "d09ff0a490896314a1ce2f1b7bd727a1b9f1845d21b7c757c6dc787a785cb530",
+    "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
+    "phrase_bank_sha256": "89df332abf952b89e8e594d0d0e480c8be46ceba9b813dc6747daab2f99d6b69",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ],
-    "independent_peer_review": false,
-    "listening_review": false
+    ]
   }
 }

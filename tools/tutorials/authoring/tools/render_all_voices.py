@@ -383,6 +383,11 @@ def mastering_config(lesson_id: str, language: str, voice: str) -> dict:
         # The current 80-scene reference reached -0.0 dBFS after all normal
         # AAC encodes. Keep the decoded peak gate and fingerprint this repair.
         result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("78_spacr_screens", "zh-CN", "zm_yunjian"):
+        # The 2026-09-30 re-record reached -0.5 dBFS decoded true peak after
+        # all normal AAC encodes. Same fingerprinted repair; the decoded
+        # -1 dBFS gate still decides acceptance.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
     if (lesson_id, language, voice) == ("50_run_compare", "hi", "hf_beta"):
         # The 2026-09-26 Hindi render reached +0.4 dBFS decoded true peak
         # after all three normal AAC encodes. Same fingerprinted repair as

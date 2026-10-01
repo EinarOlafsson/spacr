@@ -166,6 +166,7 @@ def test_the_backend_switches_without_a_restart(spaceout, monkeypatch):
     ("pointer_gravity", False, "follow_pointer"),
     ("pointer_size", 1.7, "pointer_size"),
     ("pointer_strength", 0.6, "pointer_strength"),
+    ("magnifier_size", 2.0, "magnifier_size"),
     ("zoom_rate", 3.0, "zoom_rate"),
 ])
 def test_a_runtime_setting_reaches_the_running_backdrop(

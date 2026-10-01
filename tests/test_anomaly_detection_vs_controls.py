@@ -180,3 +180,154 @@ def test_auroc_matches_its_definition():
     assert _auroc([3.0, 4.0], [1.0, 2.0]) == 1.0
     assert _auroc([1.0], [1.0]) == 0.5
     assert _auroc([], [1.0]) is None
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36794763761)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("kwargs,match", [
+    (dict(quantile=0.2), "quantile must be at least 0.5"),
+    (dict(treatment_column="drug"), "treatment column 'drug'"),
+    (dict(negative_levels="neg", control_column=None), "no control column"),
+    (dict(features=["feature_0", "nope"]), "no feature column 'nope'"),
+    (dict(features=[]), "no numeric feature"),
+    (dict(negative_wells="A99"), None),
+])
+def test_scoring_refuses_what_it_cannot_score(kwargs, match):
+    frame = _screen(cells=4)
+    arguments = dict(control_column="condition", negative_levels="neg")
+    arguments.update(kwargs)
+    with pytest.raises(HitScoringError, match=match):
+        _score_anomalies(frame, **arguments)
+
+
+def test_an_empty_table_or_one_with_no_readable_well_is_refused():
+    with pytest.raises(HitScoringError, match="the table is empty"):
+        _score_anomalies(_screen().head(0), control_column="condition",
+                         negative_levels="neg")
+    frame = _screen(cells=2)
+    frame["rowID"] = "?"
+    with pytest.raises(HitScoringError, match="readable well"):
+        _score_anomalies(frame, control_column="condition",
+                         negative_levels="neg")
+
+
+def test_a_table_the_well_reader_rejects_is_refused_plainly():
+    frame = _screen(cells=2).drop(columns=["rowID", "columnID"])
+    with pytest.raises(HitScoringError):
+        _score_anomalies(frame, control_column="condition",
+                         negative_levels="neg")
+
+
+def test_constant_control_features_are_refused():
+    frame = _screen(cells=4)
+    for i in range(8):
+        frame[f"feature_{i}"] = 1.0
+    with pytest.raises(HitScoringError, match="constant across the negative"):
+        _score_anomalies(frame, control_column="condition",
+                         negative_levels="neg")
+
+
+def test_control_wells_named_by_spec_and_a_capped_reference_with_treatments():
+    frame = _screen(cells=6)
+    frame["drug"] = np.where(frame["columnID"] == 5, "hit_compound", "other")
+    result = _score_anomalies(frame, negative_wells="c1, c12",
+                              treatment_column="drug", max_reference=40,
+                              method="knn", neighbours=3)
+    assert result.n_reference <= 40 * 2
+    assert "treatment" in result.wells.columns
+    assert "treatment" in result.cells.columns
+    with pytest.raises(HitScoringError):
+        _score_anomalies(frame, negative_wells="not a well spec")
+
+
+def test_identical_control_wells_still_get_a_finite_well_z():
+    frame = _screen(cells=4)
+    controls = frame["condition"] == "neg"
+    for i in range(8):
+        frame.loc[controls, f"feature_{i}"] = frame.loc[
+            controls, f"feature_{i}"].mean() + np.tile(
+                [0.0, 0.1, 0.2, 0.3], int(controls.sum()) // 4)
+    result = _score_anomalies(frame, control_column="condition",
+                              negative_levels="neg")
+    assert np.isfinite(result.wells["anomaly_z"]).all()
+
+
+def test_embeddings_are_preferred_and_a_single_control_well_splits_its_objects():
+    import numpy.random as npr
+
+    from spacr.sp_stats import _anomaly_features
+
+    frame = pd.DataFrame({"emb_0": [1.0], "emb_1": [2.0], "area": [3.0]})
+    assert _anomaly_features(frame, []) == ["emb_0", "emb_1"]
+    index = np.arange(10)
+    first, second = _anomaly_halves(index, ["P"] * 10, [1] * 10, [1] * 10,
+                                    npr.default_rng(0))
+    assert len(first) == len(second) == 5
+    assert not set(first) & set(second)
+
+
+def test_a_review_crop_that_is_missing_or_unreadable_is_none(tmp_path):
+    from spacr.sp_stats import _review_crop
+
+    assert _review_crop(None) is None
+    assert _review_crop(str(tmp_path / "gone.png")) is None
+    bad = tmp_path / "bad.png"
+    bad.write_bytes(b"not an image")
+    assert _review_crop(str(bad)) is None
+
+
+def test_a_report_without_wells_or_known_hits_says_less():
+    result = _score_anomalies(_screen(cells=4), control_column="condition",
+                              negative_levels="neg")
+    assert result.auroc is None
+    text = result.report()
+    assert "AUROC" not in text and "Most unlike the controls" in text
+
+
+def test_a_review_with_nothing_drawn_writes_only_the_tables(tmp_path,
+                                                           monkeypatch):
+    import spacr.sp_stats as sp_stats
+
+    result = _score_anomalies(_screen(cells=4), control_column="condition",
+                              negative_levels="neg")
+    monkeypatch.setattr(sp_stats, "_draw_anomaly_review",
+                        lambda figure, result, target=None: 0)
+    written = _write_anomaly_report(result, tmp_path / "anomaly")
+    assert "anomaly_review" not in written
+    assert set(written) >= {"anomaly_wells", "anomaly_cells"}
+
+
+def test_a_report_with_no_wells_ranked_names_no_top_well(monkeypatch):
+    result = _score_anomalies(_screen(cells=4), control_column="condition",
+                              negative_levels="neg")
+    monkeypatch.setattr(type(result), "ranked_wells",
+                        lambda self: self.wells.head(0))
+    assert "Most unlike the controls" not in result.report()
+
+
+def test_two_control_wells_too_small_to_halve_are_split_by_object():
+    import numpy.random as npr
+
+    index = np.arange(3)
+    first, second = _anomaly_halves(index, ["P"] * 3, [1, 1, 2], [1, 1, 1],
+                                    npr.default_rng(0))
+    assert len(first) + len(second) == 3 and min(len(first), len(second)) >= 1
+
+
+def test_a_plate_with_too_few_controls_is_centred_on_all_controls():
+    frame = _screen(cells=6)
+    lonely = (frame["plateID"] == "P2") & (frame["condition"] == "neg")
+    keep = ~lonely | (frame.index.isin(frame[lonely].index[:2]))
+    result = _score_anomalies(frame[keep].reset_index(drop=True),
+                              control_column="condition",
+                              negative_levels="neg")
+    assert len(result.wells)
+
+
+def test_a_named_plate_column_overrides_the_readers_plate():
+    frame = _screen(cells=4).rename(columns={"plateID": "barcode"})
+    result = _score_anomalies(frame, control_column="condition",
+                              negative_levels="neg", plate_column="barcode")
+    assert set(result.wells["plateID"]) == {"P1", "P2"}

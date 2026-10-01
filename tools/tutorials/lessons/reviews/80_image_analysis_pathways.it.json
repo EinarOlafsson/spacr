@@ -1,7 +1,7 @@
 {
   "language": "it",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "31082f017cb8971f3b4fb79b8185b9270238cf0e756eee105dfe7ade3d76799e",
+  "english_sha256": "248e5aaff34ba0af1c0ea8c170fa82f657332ca16f72cb82cb1364de9572f9a8",
   "title": "Moduli di analisi delle immagini e loro relazioni",
   "section": "Flussi di lavoro",
   "description": "Scegliere un percorso di analisi delle immagini attraverso segmentazione, misurazione, annotazione, classificazione, proiezioni, gate, registrazione delle immagini, controllo qualità e saggi.",
@@ -14,7 +14,7 @@
   "scenes": [
     "L’analisi delle immagini in spaCR segue le tue immagini dai pixel alle risposte. Le immagini grezze iniziano in Mask, che trova gli oggetti. Se vuoi correggere le maschere a mano, usa Make Masks, oppure importa maschere che hai già. Measure trasforma poi immagini e maschere in numeri, e in ritagli se li vuoi. Da lì scegli la strada: classificazione, esplorazione delle immagini, gate o un saggio. Unisci prima i riquadri quando l’analisi richiede un unico sistema di coordinate.",
     "Le immagini grezze al microscopio iniziano in Mask. Aprilo da Home, scegli i canali e i modelli di segmentazione e controlla l’anteprima prima di eseguire. Mask scrive ogni campo come un array unito, con i canali dell’immagine e i piani di etichette intere insieme, ed è questo array unito che Measure legge dopo. Mask conserva anche un piccolo database di conteggi, ma è solo un conteggio, non una tabella di caratteristiche.",
-    "A volte le maschere hanno bisogno di una mano umana. Apri Make Masks da Home per correggerle campo per campo. Ciò che salvi qui può prendere due strade. Per addestrare la segmentazione, cura coppie immagine-maschera e tienile insieme come campi di addestramento. Per misurare, usa FEATURES per abbinare ogni immagine alla sua maschera e scrivere un progetto misurato: è così che queste maschere arrivano a Measure; una maschera isolata non è un array unito. Le maschere di placche disegnate qui possono anche alimentare Plaque Assay con le immagini di origine corrispondenti. Salvare una maschera non addestra un classificatore.",
+    "A volte le maschere hanno bisogno di una mano umana. Apri Make Masks da Home per correggerle campo per campo. Ciò che salvi qui può prendere due strade. Per addestrare la segmentazione, cura coppie immagine-maschera e tienile insieme come campi di addestramento. Per misurare, usa Organize for Measure, che sposta ogni immagine e le sue maschere in cartelle di canale e le unisce negli array che Measure legge; una maschera isolata non è un array unito. Le maschere di placche disegnate qui possono anche alimentare Plaque Assay con le immagini di origine corrispondenti. Salvare una maschera non addestra un classificatore.",
     "Measure è il perno di tutta questa mappa. Aprilo da Home e indirizzalo al progetto creato da Mask, con gli indici dei canali di immagine e maschera impostati correttamente; anche le maschere abbinate in Make Masks arrivano qui. Measure legge insieme immagini e piani di etichette e scrive ogni cellula, nucleo o parassita come una riga in measurements.db. Attiva il salvataggio dei ritagli se vuoi un PNG di ogni oggetto, e conserva il database con il progetto di origine se invece fornisci i ritagli al volo. Quasi tutto il resto parte da queste righe. Annotate e Classify usano misure e ritagli per imparare i fenotipi. Image UMAP le proietta per cercare raggruppamenti, ed Embeddings codifica i ritagli con un modello, registrando encoder e regola dei canali. Gate Editor imposta soglie sulle caratteristiche realmente misurate, nelle loro unità reali, e QC mostra quali controlli esistono e quali mancano. Anche i saggi di Toxoplasma partono da qui: Recruitment richiede le giuste intensità dei compartimenti, Invasion Assay misure di colorazione a due colori con controlli di riferimento, e Replication Assay collegamenti espliciti parassita-vacuolo. Host–Pathogen Analysis vuole maschere di vacuoli interi e intensità di riferimento dell’ospite, mantenendo le cellule non infette. Infine l’indicatore di dimensione dell’endodiogenia legge il progetto misurato da Python, dopo aver controllato l’aggregazione per cellula ospite e le unità di area; il database di conteggi di Mask da solo non basta.",
     "Con le misure in mano, Annotate è il luogo in cui si insegna con gli esempi. Aprilo da Home e ti mostrerà i ritagli degli oggetti che Measure ha salvato o fornisce al volo dal progetto. Etichetta oggetti rappresentativi; ogni etichetta va in una colonna di annotazione della tabella png_list, legata all’identità dell’oggetto. Non devi partire da zero: i gate salvati in Gate Editor possono proporre etichette candidate da rivedere. Usa una colonna diversa per ogni domanda, tieni separati gli oggetti di addestramento e di valutazione, ed è su quella colonna che Classify si addestra dopo.",
     "Apri Classify da Home per trasformare le etichette in previsioni. Ha due famiglie, e sono i tuoi dati a scegliere. Computer Vision impara dai ritagli degli oggetti, salvati o forniti al volo da Measure; Tabular Machine Learning impara dalle colonne di caratteristiche misurate. Le etichette possono arrivare da tre posti. Più spesso arrivano da Annotate. Gate Editor può scrivere selezioni di gate controllate in una colonna di annotazione, e Image UMAP può fare lo stesso con selezioni al lazo controllate; in entrambi i casi, seleziona qui la stessa colonna e la stessa popolazione di oggetti. Un cluster di embedding non è una verità di riferimento, quindi esamina i ritagli, convalida le etichette e tieni gli oggetti di validazione separati dall’addestramento. Classify salva poi i punteggi, il modello addestrato e un pacchetto di valutazione con le previsioni sui dati tenuti da parte. In uno screening, scegli la colonna di punteggio CV o ML che intendi usare e portala in Regression con l’identità di piastra e pozzetto intatta.",
@@ -33,15 +33,13 @@
     "Così il percorso delle immagini passa quasi sempre da Mask a Measure, poi si dirama verso la tua domanda. Per addestrare il tuo modello di segmentazione, prepara coppie immagine-maschera in Make Masks, addestrale in Cellpose Workbench e riapri il modello salvato in Mask. Con output compatibili a disposizione, puoi entrare più avanti. Ovunque tu vada, conserva con ogni risultato le identità dei canali, le unità e le chiavi degli oggetti."
   ],
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
-    "phrase_bank_sha256": "f7471680aac2eff781eba089afe58321659ee207ec43a9153aaae29ba6b544e3",
+    "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
+    "phrase_bank_sha256": "789876f007f3216bbdad2162763aecabd7f968e090ff07f8e06444b29d5fa3d1",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ],
-    "independent_peer_review": false,
-    "listening_review": false
+    ]
   }
 }

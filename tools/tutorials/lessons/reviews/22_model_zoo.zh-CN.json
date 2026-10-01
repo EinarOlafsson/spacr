@@ -1,30 +1,37 @@
 {
   "lesson": "22_model_zoo",
-  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "english_sha256": "87954acf7425ca91badbab0643a90a8aac3a886ea492cc22f0466884dd4fbbab",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "zh-CN",
   "title": "Model Zoo：选择模型并在您的图像上试用",
-  "description": "打开Model Zoo，查找或下载检查点，查看其详细信息，并选择一小组图像进行试用。",
+  "description": "打开Model Zoo，查找或下载检查点，查看其详细信息，在一小组图像上试用，并为Mask测量对象直径。",
   "objectives": [
     "打开Model Zoo并扫描本地模型文件夹。",
     "选择模型系列和版本，然后查看其详细信息。",
-    "在少量图像上运行试用，并检查生成的掩膜和质量汇总。"
+    "在少量图像上运行试用，并检查生成的掩膜和质量汇总。",
+    "在Mask generation的Model Zoo弹窗中，根据您自己的视野测量对象直径。"
   ],
   "prerequisite": "解压链接中的示例，使用其中的images文件夹进行三个视野的试用。选择一个已安装的Cellpose分割模型，或通过Model Zoo下载合适的检查点。自行试用时，请准备几张有代表性的TIFF、PNG、NPY或NPZ图像。",
   "scenes": [
     "从Home打开Make Masks，然后选择Model Zoo。在这个页面上可以查找分割模型，并在一小组图像上试用。",
-    "点击Choose folder，选择您的模型目录进行扫描。如果是手动输入路径，请点击Scan。开启想浏览的来源标题，例如Cellpose或本地模型。",
+    "点击Choose folder，选择您的模型目录进行扫描。如果是手动输入路径，请点击Scan。表格上方的标题决定列出哪些来源；用于标准权重的cellposeSAM和用于此处训练模型的spaCR一开始就是开启的。",
+    "开启cellpose3即可列出Cellpose 3模型，例如cyto3和nuclei。它们在各自的Cellpose 3环境中运行，因此如果某个模型的后端尚未安装，会给出提示，选择它时会提供安装。",
+    "开启bioimage.io即可列出在bioimage.io上发布的Cellpose模型。选择之前，请先阅读每个模型的训练数据；只有在您请求时才会下载其权重。",
     "选择一个模型系列，用它的Version控件选择检查点。阅读关于图像类型、训练信息和本地路径的详细信息。对于远程检查点，试用之前请在Save to中选择文件夹，然后点击Download。",
     "解压链接中的示例，在Test on fields下选择其中的images文件夹。把视野数量设为三。使用自己的图像时，请从一小组包含典型视野和困难情况的图像开始。",
     "选择本地分割模型，点击Test on fields。等待试用完成。较大的图像和模型可能需要更长时间，尤其是在CPU上。",
     "选择一行结果，查看其掩膜预览。对照图像检查边界、相互接触的对象和漏检的对象。借助对象数量和质量标记，找出需要仔细检查的视野。",
-    "查看各视野的汇总，然后记下所选检查点的路径，供分析模块使用。要在同一组图像上比较两个不同的模型系列，请选中两行并选择Compare the two selected。要试用同一系列的其他版本，请使用版本控件。"
+    "查看各视野的汇总，然后记下所选检查点的路径，供分析模块使用。要在同一组图像上比较两个不同的模型系列，请选中两行并选择Compare the two selected。要试用同一系列的其他版本，请使用版本控件。",
+    "同一目录也会在Mask generation中打开，在那里它还可以测量您的对象。将Source设为您的图像，并填写细胞、细胞核和病原体通道；本例使用Measure示例的原始图像。",
+    "切换到All settings，在按对象列出的表格中点击某个对象的Model name单元格。Model Zoo弹窗随即打开，您选择的模型会写入该对象的设置。",
+    "点击左下角的Measure diameters。Cellpose会按给定的直径缩放每张图像，因此在您自己的视野上测得的直径比猜测更可靠。",
+    "按下Measure from my images。每种对象类型都会得到一个测量直径，并附有依据和置信度。Use把其中一个写入Mask的设置，Use all则全部写入；在按下它们之前不会有任何改变。"
   ]
 }

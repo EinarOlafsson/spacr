@@ -13,31 +13,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "confluency_channel",
-      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
-      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
-      "translation": "El canal de la matriz fusionada que leen las fuentes de confluencia de textura e intensidad, contado como en channels. En blanco usa la primera entrada de channels. Elija el plano de campo claro o de fase para textura, o la tinción de citoplasma o de membrana para intensidad. Se ignora cuando confluency_source se resuelve en máscaras. Valor predeterminado: None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "confluency_qc_threshold",
       "source": "Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
       "source_sha256": "fc1aa1ad92c9e5014c42bd4ff5e7120944b42209f611bb33f4a2b43748890c05",
       "translation": "Fracción cubierta más baja, de 0 a 1, con la que un campo o un pocillo supera el QC de la monocapa. Los campos y pocillos por debajo reciben monolayer_ok 0 en measurements.db, de modo que los resultados de placas y de infección de una monocapa fina o rota pueden descartarse o dividirse por la fracción cubierta. En blanco aprueba todos los pocillos. Valor predeterminado: 0.8."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "confluency_source",
-      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
-      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
-      "translation": "Cómo se decide la confluencia. auto usa las máscaras de células cuando la ejecución las tiene, y la textura en caso contrario. masks es la unión de todas las células segmentadas, antes de los filtros de tamaño de Measure. texture lee la variación local de confluency_channel con un umbral automático, para campo claro y fase. intensity umbraliza confluency_channel automáticamente, para tinciones fluorescentes de citoplasma o de membrana. Valor predeterminado: auto."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "confluency_window",
-      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
-      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
-      "translation": "Lado de la ventana cuadrada, en píxeles, sobre la que la fuente de confluencia de textura mide la variación local. Aproximadamente el ancho de la prolongación celular más fina que debe contar como cubierta: una ventana menor sigue los bordes más de cerca pero deja como huecos el interior liso de las células, una mayor salva huecos estrechos. Las fuentes de máscaras e intensidad lo ignoran. Valor predeterminado: 15."
     },
     {
       "table": "setting_tooltips",
@@ -123,5 +102,29 @@
       "source_sha256": "7e40a4562581b1f508a919a4a548d5cfddaf1990175beae1c55f90e51fb72f0a",
       "translation": "Cuánto tiempo debe mantener una imagen el mismo tamaño y la misma hora de modificación antes de que watch_folder la lea, para no tomar a medio escribir un archivo que el microscopio aún está escribiendo. Auméntelo para recursos compartidos de red lentos. Valor predeterminado: 10."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
+      "translation": "El canal de la matriz fusionada que leen las fuentes de confluencia de textura e intensidad, contado como en channels. En blanco usa la primera entrada de channels. Elija el plano de campo claro o de fase para textura, o la tinción de citoplasma o de membrana para intensidad. Se ignora cuando confluency_source se resuelve en máscaras. Valor predeterminado: None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
+      "translation": "Cómo se decide la confluencia. auto usa las máscaras de células cuando la ejecución las tiene, y la textura en caso contrario. masks es la unión de todas las células segmentadas, antes de los filtros de tamaño de Measure. texture lee la variación local de confluency_channel con un umbral automático, para campo claro y fase. intensity umbraliza confluency_channel automáticamente, para tinciones fluorescentes de citoplasma o de membrana. Valor predeterminado: auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
+      "translation": "Lado de la ventana cuadrada, en píxeles, sobre la que la fuente de confluencia de textura mide la variación local. Aproximadamente el ancho de la prolongación celular más fina que debe contar como cubierta: una ventana menor sigue los bordes más de cerca pero deja como huecos el interior liso de las células, una mayor salva huecos estrechos. Las fuentes de máscaras e intensidad lo ignoran. Valor predeterminado: 15."
+    }
+  ],
+  "retired_note": "2026-09-30: item 536's phase confluency source rewrote the English of the confluency_channel, confluency_source and confluency_window tooltips; the replacements are in 2026-09-30-runtime-debt-eleventh-pass-confluency-phase.json. Kept verbatim as evidence, not loaded."
 }
