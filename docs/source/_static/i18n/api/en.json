@@ -86398,13 +86398,13 @@
     "spacr.qt.widgets.glass.round_the_corners": {
       "source_blocks_sha256": [
         "6d7433678ee058342c2ce9bf28abdf778be33f65197f7d2b29588768f6b61c99",
-        "99d89642d0b2f863c377de7b714051c77540ca613ed0390981579d44440baa99",
+        "1f3721214e5e9bed9a7fb1a57f32839480c695addd8e8f25dfdb10279c2136d1",
         "4cabc230e6127c33baabb45ea629f6b91dd76493cbcc4b90f73eeebbbb7f156c",
         "cee6db11bc34f0cb85c2a71c0fe85b04d024065fdcbe1e04e382e4463d21b4ae",
         "da1240f84dbcff6fbf2d84bd599ca3103c7c15be57bf663e4b2c6b9ccba66965"
       ],
-      "source_sha256": "44febc6ef9a29d605fdb94f2786fdd8bd55e0be66f920637b1884da7af18dece",
-      "text": "Keep antialiased alpha edges on translucent windows.\n\nA QRegion is binary and quantizes its outline to logical pixels, even\non high-DPI screens. Cutting the antialiased card to that shape erased\npartially covered edge pixels, producing a jagged white/dark fringe\nagainst the desktop. Translucent windows already carry the card's\nexact per-pixel alpha; clear any old mask and let that alpha compose.\nOpaque fallback windows retain the rounded platform mask.\n\n:param dialog: window carrying the shared rounded card.\n:param radius: corner radius in logical pixels for the opaque fallback.\n:returns: false for an empty or deleted widget, true after adjustment."
+      "source_sha256": "cee5103e9fbb0b947e544e8d45c2ff907cb4bf2bd2ccfda34450a4b6ef53f233",
+      "text": "Keep antialiased alpha edges on translucent windows.\n\nA QRegion is binary and quantizes its outline to logical pixels, even\non high-DPI screens. Cutting the antialiased card to that shape erased\npartially covered edge pixels, producing a jagged white/dark fringe\nagainst the desktop. Translucent windows already carry the card's\nexact per-pixel alpha only when their native format has an alpha buffer.\nClear the mask in that case; the QWidget attribute alone is not proof.\nUntil a native alpha surface exists, retain the rounded platform mask.\n\n:param dialog: window carrying the shared rounded card.\n:param radius: corner radius in logical pixels for the opaque fallback.\n:returns: false for an empty or deleted widget, true after adjustment."
     },
     "spacr.qt.widgets.glass.spin_on_every_button": {
       "source_blocks_sha256": [

@@ -1,0 +1,11 @@
+621. Graph Builder clearing chart axes crashes
+
+Reported 2026-10-01: KeyError None from GraphCanvas._draw_bar after a channel
+zone was cleared, via _on_zone_changed -> set_channel -> render_now.
+
+Acceptance: Incomplete and incompatible plot bindings show actionable empty
+states without raising. Clearing then rebinding restores plotting without
+discarding the selected plot kind. Validate every channel and preserve valid
+plot behaviors. Include regression tests for pinned bar and other plot kinds.
+
+Status: IN PROGRESS. Shared UI agent owns widget/spec/tests.

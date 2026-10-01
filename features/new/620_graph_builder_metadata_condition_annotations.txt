@@ -1,0 +1,14 @@
+620. Graph Builder metadata condition annotations
+
+Requested 2026-10-01: Add an Annotate conditions button for any current
+physical, derived or imported table. The output column is user-named,
+defaulting to condition. Support regex rules on any metadata column and
+unlimited named condition boxes accepting multirow drag/drop. Each box has
+chosen-column include/exclude fields at its top. Apply assignments to the
+working table, expose the column for charts, preserve reproducibility through
+save/load and exports, and report invalid patterns or conflicting membership
+without silently overwriting input data. Sorting/filtering must preserve row
+identity, including duplicate indices.
+
+Status: IN PROGRESS. Merge interface agent owns screen/backend/dialog/tests.
+Shared chart rendering crash is tracked separately in 621.

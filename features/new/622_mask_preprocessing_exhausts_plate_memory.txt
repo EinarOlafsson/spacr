@@ -1,0 +1,31 @@
+622. Mask preprocessing exhausts plate memory
+
+Reported 2026-10-01: Mask generation on
+/nas_mnt/carruthers/anu/revision/Replication09182026_20260918_164600/plate1
+uses approximately 100 GB of RAM and crashes.
+
+Diagnosis: 18,440 TIFFs, 147,661,601,936 bytes on disk; sampled planes are
+2000 x 2000 uint16. Saved run uses V1 preprocessing, batch_size 50 and one
+segmentation channel. _rename_and_organize_image_files retained every field's
+channel projections in fov_channels until all raw images had been loaded.
+The batch setting only bounded temporary input lists, not retained pixels.
+
+Implemented: group filenames by output field, decode one plane at a time,
+combine z-projections incrementally, atomically save each field and release
+all its pixels before the next field. Cancellation checks occur between
+planes and before writes. Retain channel ordering, timepoint separation,
+original-image policy and resumable atomic output behavior.
+Normalization also releases raw/padding and archive dictionaries promptly,
+and avoids a redundant dtype copy when the desired dtype already matches.
+
+Validation: 54 ingest/projection/recovery checks passed, then 65 targeted
+memory/illumination/PSF/organelle checks passed. Memory regression checks
+live input buffers and proves each output exists before reading the next
+field, even with batch_size 10000. Interruption/resume preserves completed
+outputs and raw inputs. A copied real sample (3 fields, 9 TIFFs) produced
+three correct-channel stacks under a 4 GB cap, peak RSS 996.77 MiB including
+Python and imported scientific libraries. Original NAS images were untouched.
+
+Status: Primary plate-wide retention fixed and validated. Downstream mask
+batch copy/lifetime audit is in progress. Full plate segmentation has not
+been rerun; model/device-dependent peak memory is not claimed by this sample.

@@ -1146,8 +1146,10 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
 
     Instead of MIP-ing each channel to a ``src/<channel>/`` folder and then
     re-reading those folders to merge them (which duplicated the pixel data on
-    disk), this builds an in-memory dict ``{fov_filename: {channel: mip}}`` and
-    concatenates the channels of each FOV into one ``stack/<fov>.npy``. The
+    disk), this projects and writes one field at a time. Only filenames are
+    retained across fields; pixel memory is bounded by one field's channels
+    plus a decoded plane and the output stack. Each z-plane is folded into
+    its channel maximum without materializing an entire z-stack. The
     merge order and MIP maths are identical to the old folder+\\ ``_merge_file``
     path, so the produced stacks are byte-for-byte the same.
 
@@ -1168,7 +1170,8 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     Args:
         src (str): The source directory containing the z-stack images.
         regex (str): The regular expression pattern used to match the filenames of the z-stack images.
-        batch_size (int, optional): The number of images to process in each batch. Defaults to 100.
+        batch_size (int, optional): Retained for call compatibility; raw ingest
+            always streams one field at a time regardless of this value.
         metadata_type (str, optional): The type of metadata associated with the images. Defaults to ''.
         save_original_images (bool, optional): When True (default) the raw input
             images are moved aside into ``src/orig/`` for safekeeping. When
@@ -1229,50 +1232,49 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         if stem_of[key] in existing:
             channels_seen.add(key[3])
 
-    time_ls = []
+    # Keep only filenames plate-wide. Pixel buffers belong to one field at a
+    # time; retaining every MIP here used plate-sized RAM before the first
+    # stack was written (over 100 GB for a 2000 x 2000 multi-channel plate).
+    from .cancellation import checkpoint
+    field_keys = defaultdict(list)
+    for key in pending_keys:
+        field_keys[stem_of[key]].append(key)
+    sorted_channels = sorted({key[3] for key in image_paths_by_key})
     files_to_process = sum(len(image_paths_by_key[key]) for key in pending_keys)
-    fov_channels = {}
-    for idx in range(0, len(pending_keys), batch_size):
-        start = time.time()
-
-        batch_keys = pending_keys[idx:idx+batch_size]
-        batch_images_by_key = {key: image_paths_by_key[key] for key in batch_keys}
-        images_by_key = load_images_from_paths(batch_images_by_key)
-
-        for i, (key, images) in enumerate(images_by_key.items()):
-
-            plate, well, field, channel, timeID, sliceID = key
-
-            if not images:
-                print(f"Warning: no readable images for {key}, skipping")
-                files_processed += 1
-                continue
-
-            output_filename = stem_of[key] + '.tif'
-
-            mip = np.max(np.stack(images), axis=0)
-            channels_seen.add(channel)
-            _chans = fov_channels.setdefault(output_filename, {})
-            _prev = _chans.get(channel)
-            _chans[channel] = mip if _prev is None else np.maximum(_prev, mip)
-
-            files_processed += 1
-            stop = time.time()
-            duration = stop - start
-            time_ls.append(duration)
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
-
-        images_by_key.clear()
-
-    if fov_channels:
+    time_ls = []
+    if field_keys:
         os.makedirs(stack_path, exist_ok=True)
-    sorted_channels = sorted(channels_seen)
-    for output_filename, chan_mips in fov_channels.items():
-        file_root = os.path.splitext(output_filename)[0]
-        new_file = os.path.join(stack_path, file_root + '.npy')
+    for stem, keys in field_keys.items():
+        checkpoint()
+        start = time.time()
+        output_filename = stem + '.tif'
+        new_file = os.path.join(stack_path, stem + '.npy')
         if os.path.exists(new_file):
             print(f'WARNING: A file with the same name already exists at location {new_file}')
+            channels_seen.update(key[3] for key in keys)
             continue
+        chan_mips = {}
+        for key in keys:
+            channel = key[3]
+            for path in image_paths_by_key[key]:
+                checkpoint()
+                # Decode one plane, including when a regex groups all z
+                # slices under one key. No z-stack-sized np.stack temporary.
+                loaded = load_images_from_paths({key: [path]})[key]
+                for plane in loaded:
+                    previous = chan_mips.get(channel)
+                    if previous is None:
+                        chan_mips[channel] = plane
+                    elif previous.dtype == plane.dtype:
+                        np.maximum(previous, plane, out=previous)
+                    else:
+                        chan_mips[channel] = np.maximum(previous, plane)
+                    channels_seen.add(channel)
+                loaded.clear()
+                # Loop locals must not retain the last plane of the previous
+                # field while the next field is decoded.
+                plane = previous = None
+                files_processed += 1
         planes = []
         for channel in sorted_channels:
             mip = chan_mips.get(channel)
@@ -1281,10 +1283,17 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 continue
             planes.append(np.expand_dims(mip, axis=2))
         if planes:
+            checkpoint()
             _save_array_atomic(new_file, np.concatenate(planes, axis=2))
         else:
             print(f"No valid channels to merge for file {output_filename}")
-    fov_channels.clear()
+        planes.clear()
+        chan_mips.clear()
+        mip = None
+        time_ls.append(time.time() - start)
+        print_progress(files_processed, files_to_process, n_jobs=1,
+                       time_ls=time_ls, batch_size=1,
+                       operation_type='Preprocessing filenames')
 
     stacked = _stack_field_stems(stack_path)
     if save_original_images:
@@ -1770,7 +1779,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         files_to_process = len(channels)
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f"Normalizing")
 
-    return normalized_stack.astype(save_dtype)
+    return normalized_stack.astype(save_dtype, copy=False)
 
 _PARTIAL_SUFFIX = '.partial'
 _DAMAGED_SUFFIX = '.damaged'
