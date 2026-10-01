@@ -108,3 +108,25 @@ REAL-DATA VALIDATION 2026-09-30 (CPU; no code change)
     Still left: no real double-stained sample with known amounts (the
     doubles above are sums of real singles); per-channel registration or
     PSF matching before unmixing; the clipping bias on strong spill.
+
+2026-10-01 — SEGMENTATION LIVE PREVIEW UNMIXING (partial item)
+Segmentation Live Preview now offers the same unmixing path as batch processing
+when the user selects an organized HWC NPY intensity field from the project's
+stack folder. It discovers and reads that field without pickle or source
+writes, resolves the same single-stain controls, and applies the batch matrix
+to all intensity channels before channel selection, PSF and enhancement.
+A raw TIFF/single-channel file or merged mask array with unmixing enabled
+fails before model inference rather than guessing channel correspondence.
+Provenance records the matrix/control sources and original input identity.
+
+Fifteen new preview cases plus eighteen existing PSF-preview cases passed
+under a 4 GiB no-swap, one-core scope (33 total, 9.79 s). Synthetic
+single-stain controls and a held-out mixed field match the batch correction
+pixel-for-pixel, including reordered requested channels and a classical
+segmentation path. The source stack and settings remain unchanged.
+
+Measure's crop preview currently matches its raw PNG export, while Measure
+unmixes channel arrays internally for measurements. An opt-in processed
+intensity preview must preserve that distinction or update the exported PNG
+path in step with the preview; that preview parity is still open. Known real
+double-stain/registration limitations above also remain open.

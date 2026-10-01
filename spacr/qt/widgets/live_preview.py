@@ -346,13 +346,14 @@ in memory for a popup that lists eight comfortably."""
 
 
 def load_preview_image(path: Path) -> np.ndarray:
-    """Read *path* into an (H, W) or (H, W, C) uint8/uint16 array.
+    """Read *path* into a nonempty (H, W) or (H, W, C) numeric array.
 
-    Tifffile is used for TIFFs to preserve bit-depth; other formats fall
-    back to PIL. Raises :class:`FileNotFoundError` if the path is bad.
+    Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy``
+    stacks are memory mapped without loading pickled objects. Raises
+    :class:`FileNotFoundError` if the path is bad.
 
-    :param path: image file path (``str`` or :class:`~pathlib.Path`); a
-        ``.tif``/``.tiff`` suffix, in any case, selects tifffile.
+    :param path: image file path (``str`` or :class:`~pathlib.Path`);
+        ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.
     """
     path = Path(path)
     if not path.is_file():

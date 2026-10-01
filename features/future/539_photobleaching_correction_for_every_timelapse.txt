@@ -126,3 +126,19 @@ WHAT IS LEFT
     rescaled whole; a population-wide real decrease (e.g. loss of a
     reporter) cannot be told from bleaching by any median trend; motility
     and calcium paths are still separate.
+
+2026-10-01 — CELL BACKGROUND RINGS (partial item)
+Measure now writes outside-intensity means and percentiles for cells using a
+local ring of label-zero pixels. Every foreground cell label is excluded, so
+neighbour cells cannot masquerade as background. If no background pixel is
+available, the ring statistics remain NaN through Measure and bleaching;
+fully occupied fields still retain their cell rows. Nucleus, pathogen and
+organelle rings retain their historical surrounding-object semantics. The
+feature descriptions distinguish these scopes.
+
+Nine new oracle/pipeline cases plus 21 relevant existing bleaching/ring/scope
+checks passed in 8.61 seconds under a 4 GiB no-swap, one-core scope. The
+camera-offset case independently recovers the cell signal and integrated
+intensity. No image or original measurement table was modified. This closes
+the cell-ring gap above; population-wide biology versus bleaching, motility
+and calcium integration, and image-level histogram behavior remain open.
