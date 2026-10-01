@@ -44,5 +44,13 @@
     "Synthetic threshold-counting acceptance, not external-lab detector accuracy validation.",
     "Offscreen Linux Qt, not native macOS or Windows acceptance.",
     "Missing optional detector dependency produces a preview error rather than batch fallback."
-  ]
+  ],
+  "runtime": {
+    "commit": "b8cc22c72",
+    "locales": 9,
+    "ui_sources": 6485,
+    "focused_checks": 14,
+    "identity_sha256": "fa4c72cf3762d11065cb717442a3cd15db80ca5b8cc4ae32f3210d51f6e02433",
+    "review": "Source-bound AI terminology adaptations with independent technical review."
+  }
 }

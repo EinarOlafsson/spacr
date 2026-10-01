@@ -214,3 +214,10 @@ Receipt: features/data/542_colony_preview_2026-10-01.json. The new status
 caption is under the standard nine-locale runtime rebuild. Real detector
 cross-validation, external-lab data and per-plate CSV dilution input remain
 outstanding; this feature is still alpha/partial overall.
+
+The colony status runtime refresh completed in b8cc22c72: all nine locales
+passed the standard catalog audit, all nine source-bound adaptations matched
+exactly, and 14 focused catalog checks passed. Inventory increased by exactly
+one UI source, to 6,485. Translation provenance records AI terminology
+adaptation of reviewed plaque captions and independent technical review,
+without claiming a new model draft or human/native-speaker signoff.

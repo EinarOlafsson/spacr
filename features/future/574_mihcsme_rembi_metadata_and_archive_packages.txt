@@ -64,3 +64,17 @@ LEFT
     - A command-line entry point, and a Notebook cell, are not added.
     - openpyxl is optional; without it only the MIHCSME TSVs are written.
 
+
+2026-10-01 — PRESERVE RUNS AND EXISTING PACKAGE DESTINATIONS
+Commit c78a89c59 enforces the existing promise that exports do not write into
+the run folder. A package path equal to or inside the resolved source folder
+(including parent/leaf symlink aliases) is rejected before any directory or
+metadata is written. Existing package directories, files and dangling symlinks
+are refused with a request to choose another output folder or title. New
+sibling package exports retain their normal behavior. Fifteen focused new
+and existing archive checks passed under 1 GiB memory, zero swap and a
+100% CPU quota; they verify source bytes, existing notes, symlink retention
+and successful ordinary export. Independent code review found no remaining
+issue in this guard. No API signatures/docstrings or captions changed.
+Curator/service template acceptance and other broader alpha requirements
+listed above remain open; this is an output-preservation fix.

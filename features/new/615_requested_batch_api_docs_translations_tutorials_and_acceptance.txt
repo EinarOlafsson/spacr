@@ -293,3 +293,10 @@ review; no human or native-speaker signoff is claimed. Obsolete records remain
 retired in the history, not silently reused against changed English sources.
 Receipt: features/data/615_runtime_n628_n629_2026-10-01.json.
 API translations, full Sphinx acceptance and media publication remain open.
+
+2026-10-01 — COLONY PREVIEW RUNTIME INCREMENT
+Commit b8cc22c72 adds one colony-status caption (6,485 total UI sources) with
+source-bound terminology adaptations in all nine languages. Standard full
+runtime audit, all nine exact targets/placeholders and 14 focused checks
+passed. Related-source provenance and AI review are explicit. API translation
+refresh and full documentation/publication acceptance remain open.
