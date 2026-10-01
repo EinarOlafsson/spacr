@@ -280,3 +280,16 @@ The log is /tmp/spacr-implementation-20261001/docs-full-n628.log. No cap was
 raised and no successful full-build acceptance is claimed. The two guide
 heading repairs remain valid; current annotation/schema prose separately
 passes strict reStructuredText parsing. Complete Sphinx acceptance remains open.
+
+2026-10-01 — N628/N629 RUNTIME TRANSLATION CHECKPOINT
+Committed 3b2362a76: all nine runtime language catalogs regenerated and audited
+against 6,484 UI captions (+72 / -14 from the previous 6,426). Labels (1,209),
+tooltips (1,231), categories (237) and module names (72) are unchanged.
+All 384 source-bound technical corrections exactly match generated targets;
+both named-group helper captions preserve their example placeholders in all
+nine languages. Fourteen focused catalog/placeholder/source checks passed.
+The review records identify AI technical authorship and independent agent
+review; no human or native-speaker signoff is claimed. Obsolete records remain
+retired in the history, not silently reused against changed English sources.
+Receipt: features/data/615_runtime_n628_n629_2026-10-01.json.
+API translations, full Sphinx acceptance and media publication remain open.
