@@ -2117,7 +2117,9 @@
       "source_sha256": "7513d0f858711ce00e43fd24a5e8d7902d59b41014ef674debe3844ed538085c",
       "context": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically, with ``sqlite_`` internals left out.",
       "translation": "chemin d’une base de données de mesures SQLite, ouverte en lecture seule ; les tables préférées (``object``, ``cell``, ``nucleus``, …) viennent en premier, puis les autres par ordre alphabétique, les tables internes ``sqlite_`` étant exclues.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-01: table discovery documentation now describes exclusion of private condition-annotation receipts. The prior source-bound review remains recorded; the revised paragraph requires a new translation."
     },
     {
       "label": "spacr.qt.screens.hit_list.HitListScreen.closeEvent#1",
