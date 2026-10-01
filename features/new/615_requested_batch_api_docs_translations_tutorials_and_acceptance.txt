@@ -361,3 +361,19 @@ Receipts: docs/i18n/reviewed/guides/2026-10-01-preview-model-and-plugin-guides-r
 and features/data/615_preview_controls_runtime_2026-10-01.json.
 Full current English HTML validation is the next checkpoint; translated
 rendering, tutorial media and publication remain separate acceptance work.
+
+2026-10-01 — CURRENT FULL ENGLISH HTML CHECKPOINT
+The complete source snapshot at 0f4d2abef passes both strict Sphinx phases:
+full read/dummy in 3:44.26 and full HTML in 3:44.47, with zero warnings.
+All 2,563 source fingerprints and all 634 generated API RST hashes/mtimes
+stayed unchanged. The build contains 1,289 HTML files, including all 634 API
+pages and 615 source-view pages. Both existing rendered publication/markup
+checks pass (19.27s); the current English 12,035-symbol API audit passes.
+The prose guard reports zero flags (474 historical advisories).
+Memory remained kernel-capped at 4 GiB, swap disabled, one CPU affinity;
+reported RSS includes shared pages and is not the cgroup charged-memory limit.
+The runtime source-hash companion also passes (one check, 9.08s, 1 GiB).
+Receipt: features/data/615_current_full_docs_2026-10-01.json.
+This includes the current guides and F542/F574/F583/F584/F585 changes.
+Later CellProfiler/lineage/anomaly work is not claimed by this snapshot.
+Translated HTML, tutorial media and live publication remain open.

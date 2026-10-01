@@ -65,6 +65,10 @@
     "pinned_inventory": {
       "passed": 1,
       "seconds": 5.08
+    },
+    "source_hash_registry": {
+      "passed": 1,
+      "seconds": 9.08
     }
   },
   "guide_receipt": "docs/i18n/reviewed/guides/2026-10-01-preview-model-and-plugin-guides-receipt.json",
