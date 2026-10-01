@@ -8561,8 +8561,7 @@ class MakeMasksScreen(QWidget):
         # toolbar on the left -- Open folder, Organize for Measure, Load
         # test data, Uncertainty -- and the curation buttons on the right,
         # under the console: Discard, Keep, Skip, Blind, ROIs, Upload data.
-        # Save mask, Prev and Next sit under the image, right-aligned, in the
-        # row :meth:`_build_view_pane` left for them.
+        # Save mask, Prev and Next share the editor action toolbar above.
         from ..i18n import tr
 
         nav = QWidget()
@@ -8583,10 +8582,8 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(self._build_test_data_button())
         nav_row.addWidget(self._build_uncertainty_button())
 
-        # Save / Prev / Next travel as ONE group under the image, and
-        # Discard / Keep / Skip / Blind / ROIs / Upload data as a second
-        # group on the bottom row, so neither can wrap apart.
-        self._nav_step_group, step_row = self._nav_button_group()
+        # Curation stays on the bottom row; save/navigation use the same
+        # scrolling horizontal action row as detection, undo and redo.
         self._nav_curate_group, curate_row = self._nav_button_group()
         self._btn_prev = QPushButton(tr("Prev image"))
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -8628,9 +8625,9 @@ class MakeMasksScreen(QWidget):
         self._btn_save.setIcon(iconset.contrast_icon("save"))
         self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.clicked.connect(self._on_save)
-        step_row.addWidget(self._btn_save)
-        step_row.addWidget(self._btn_prev)
-        step_row.addWidget(self._btn_next)
+        for button in (self._btn_save, self._btn_prev, self._btn_next):
+            button.setMinimumHeight(32)
+            self.add_toolbar_action(button)
 
         self._btn_skip = QPushButton(tr("Skip"))
         self._btn_skip.setIcon(iconset.icon("next"))
@@ -8657,7 +8654,6 @@ class MakeMasksScreen(QWidget):
                                          QSizePolicy.Preferred)
         self._status_label.setMinimumWidth(0)
         self._image_nav_row.addWidget(self._status_label, 1)
-        self._image_nav_row.addWidget(self._nav_step_group, 0, Qt.AlignRight)
         outer.addWidget(nav)
 
     def _nav_button_group(self, separated: bool = False):
@@ -11927,8 +11923,7 @@ class MakeMasksScreen(QWidget):
             self._masks_console, "Console", persist_key="make_masks/Console",
             stretch=1, extent=240, minimum=120)
         self._shortcut_panel = column
-        # Under the image: the status line on the left and Save / Prev /
-        # Next right-aligned, filled in by :meth:`_build_ui`.
+        # Under the image: the status line, filled in by _build_ui.
         views = QWidget()
         views.setObjectName("MakeMasksViewsColumn")
         views_col = QVBoxLayout(views)

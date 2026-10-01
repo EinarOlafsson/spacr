@@ -552,3 +552,15 @@ HOW TO KNOW IT WORKED
 The 600c layout test asserts one shared top y for toolbar, step and curate
 buttons at 1600x900 and at a narrow width, no overlap between groups, and
 that Save/Prev/Next still fire their slots.
+
+2026-10-01 — REQUESTED ACTION-ROW FOLLOW-UP COMPLETE
+Save mask, Previous image and Next image now share the existing horizontally
+scrolling action toolbar with the other Make Masks tools. Their callbacks,
+keyboard shortcuts and unsaved-navigation behavior are preserved. The old
+separate navigation row is removed.
+Rendered geometry and save/navigation checks pass at 1280, 1600 and 1920 px;
+all three alignment cases also pass at display scale 2. The combined named
+quality/organizer/layout cohort passed 119 tests. The action-row capture in
+/tmp/spacr-implementation-20261001/review/masks/action-row.png was inspected.
+This closes the newly requested N247 runtime follow-up; shared catalog and
+tutorial refresh are tracked under N615.

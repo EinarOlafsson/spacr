@@ -83,7 +83,7 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
     """The Make Masks button layout the maintainer asked for (2026-09-30).
 
     Bottom row, left: Open folder, Organize for Measure, Load test data,
-    Uncertainty. Under the image, right-aligned: Save mask, Prev, Next.
+    Uncertainty. Editor action row: Save mask, Prev, Next (item 247, 2026-10-01).
     Bottom row, right, under the console: Discard, Keep, Skip, Blind, ROIs,
     Upload data -- Keep and Discard no longer on a row of their own.
     """
@@ -94,20 +94,21 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
                         lambda: True)
     screen = mm.MakeMasksScreen()
     qtbot.addWidget(screen)
-    step, curate = screen._nav_step_group, screen._nav_curate_group
+    curate = screen._nav_curate_group
+    steps = [screen._btn_save, screen._btn_prev, screen._btn_next]
 
     def widgets(group):
         layout = group.layout()
         return [layout.itemAt(i).widget() for i in range(layout.count())
                 if layout.itemAt(i).widget() is not None]
 
-    assert widgets(step) == [screen._btn_save, screen._btn_prev,
-                             screen._btn_next]
+    for button in steps:
+        assert screen._tool_row_layout.indexOf(button) >= 0
     assert widgets(curate) == [screen._btn_discard, screen._btn_keep,
                                screen._btn_skip, screen._btn_blind,
                                screen._btn_rois, screen._btn_contribute]
     # One widget each, so neither group can wrap apart.
-    for group in (step, curate):
+    for group in (curate,):
         for button in widgets(group):
             assert button.parent() is group
     assert screen._btn_training_datasets is screen._btn_test_data
@@ -131,15 +132,11 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
     row_y = {top_left(button).y() for button in toolbar + widgets(curate)}
     assert len(row_y) == 1, "the toolbar and the curation buttons share a row"
     assert top_left(screen._btn_open).x() < top_left(screen._btn_discard).x()
-    # Save / Prev / Next sit under the image, right-aligned, above the row.
-    tabs = screen._view_tabs
-    tabs_right = tabs.mapTo(screen, tabs.rect().topRight()).x()
-    tabs_bottom = tabs.mapTo(screen, tabs.rect().bottomLeft()).y()
-    next_right = screen._btn_next.mapTo(
-        screen, screen._btn_next.rect().topRight()).x()
-    assert abs(next_right - tabs_right) <= 8
-    assert tabs_bottom < top_left(screen._btn_next).y() < row_y.pop()
-    xs = [top_left(button).x() for button in widgets(step)]
+    # Item 247: saving/navigation share the top editor action row.
+    centers = {button.mapTo(screen, button.rect().center()).y()
+               for button in steps + [screen._btn_cellpose, screen._btn_undo]}
+    assert max(centers) - min(centers) <= 1
+    xs = [top_left(button).x() for button in steps]
     assert xs == sorted(xs)
 
 

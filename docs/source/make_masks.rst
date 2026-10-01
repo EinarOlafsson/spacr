@@ -52,6 +52,10 @@ Open a field and save an edit
    advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a
    decision without deleting the image or its mask. Save edits separately.
 
+**Save mask**, **Previous image** and **Next image** share the top action
+row with the editing tools. Scroll that row horizontally on a narrow window
+to reach controls outside the visible area.
+
 To try the screen without your own data, **Load test data…** downloads ten
 unsegmented Toxoplasma vacuole fields, with their curated masks kept apart
 in ``ground_truth_masks/``, and opens the first. The arrow on the same
