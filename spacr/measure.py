@@ -1580,8 +1580,10 @@ def _intensity_measurements(
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(periphery_intensity_stats, columns=[f'periphery_{stat}' for stat in col_lables])], axis=1)
 
             if outside:
-                if ls[j] in ('nucleus', 'pathogen', *ORGANELLE_ROLES):
-                    outside_intensity_stats = _outside_intensity(label, channel, spacing=spacing)
+                if ls[j] in ('cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES):
+                    outside_intensity_stats = _outside_intensity(
+                        label, channel, spacing=spacing,
+                        exclude_foreground=(ls[j] == 'cell'))
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
 
             label_shape = np.asarray(label).shape
@@ -2372,7 +2374,8 @@ def _periphery_intensity(label_mask, image):
                 (region, np.mean(intensities), *quantiles))
     return periphery_intensity_stats
 
-def _outside_intensity(label_mask, image, distance=5, spacing=None):
+def _outside_intensity(label_mask, image, distance=5, spacing=None, *,
+                       exclude_foreground=False):
     """Return per-region intensity stats within a ``distance``-pixel ring outside each object.
 
     :param label_mask: Label mask defining the regions.
@@ -2380,6 +2383,9 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None):
     :param distance: Ring width, in xy pixels.
     :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`.
         ``None`` (2-D) keeps the historical ``binary_dilation`` ring exactly.
+    :param exclude_foreground: Keep only label-zero ring pixels for cell
+        background; an empty background ring yields NaN statistics. False
+        preserves the historical surrounding-object measurements.
     :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
 
     .. note::
@@ -2401,7 +2407,9 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None):
     whole = _whole_field_window(shape)
     pad = _ring_padding(distance, spacing, shape)
     cut_points = [5, 10, 25, 50, 75, 85, 95]
-    for region in np.unique(label_mask)[1:]:
+    for region in np.unique(label_mask):
+        if region == 0:
+            continue
         box = _box_for(boxes, region)
         window = whole if box is None else _grow_window(box, pad, shape)
         region_mask = label_mask[window] == region
@@ -2411,6 +2419,8 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None):
             edt = distance_transform_edt(~region_mask, sampling=spacing)
             dilated_mask = edt <= ring_width
         outside_mask = dilated_mask & ~region_mask
+        if exclude_foreground:
+            outside_mask &= label_mask[window] == 0
         intensities = image[window][outside_mask]
         if intensities.size == 0:
             outside_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
