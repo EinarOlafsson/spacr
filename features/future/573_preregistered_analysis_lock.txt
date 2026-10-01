@@ -1,7 +1,7 @@
 PRE-REGISTERED ANALYSIS LOCK: HASH SETTINGS AND GATES BEFORE UNBLINDING
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26, COMPLETED 2026-09-30 (see the
-notes of those dates). Lock, re-run verification and post-hoc flags in the
+Status: COMPLETED AS ALPHA 2026-10-01 after the remaining live settings-edit
+and Gate Editor export/timing work (see the dated notes below). Lock, re-run verification and post-hoc flags in the
 manifest, report and methods text; Gate Editor gating strategies, models
 recorded during the run, multi-pipeline locks and first-seen (post-hoc)
 edit times are covered since 2026-09-30.
@@ -286,3 +286,13 @@ swap and a 4 GiB memory ceiling; the canonical public-docstring extraction used
 1 GiB and confirms 12,035 unchanged symbols. Existing public signatures and
 docstrings are unchanged, no new runtime captions, and no new Ruff findings.
 Receipt: features/data/573_committed_settings_edits_2026-10-01.json.
+
+2026-10-01 — SESSION COMPLETION CHECKPOINT
+The remaining committed settings-form timing gap is closed alongside the
+previously completed live Gate Editor and export checks. Existing lock,
+unchanged-run verification, tamper detection and post-hoc report behavior
+remain covered. The integrated settings-lock and CellProfiler-export cohort
+passes 22 checks in 2.73s under 4 GiB, one actual CPU and zero swap; this
+confirms the shared settings-model changes compose correctly.
+The feature is complete as an alpha feature. Global documentation deployment,
+tutorial publication and release acceptance stay separately tracked in N615.

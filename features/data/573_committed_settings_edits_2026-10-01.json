@@ -179,5 +179,16 @@
     },
     "method": "Actual public_docstrings extractor on current source and intercepted HEAD-only text for four changed files; no source files replaced or generated catalog writes."
   },
-  "limitations": "Local control validation rejects known type/range/expression/list errors; it does not replace pipeline preflight or inspect input image/model contents. No native desktop focus, remote publication or full-suite run."
+  "limitations": "Local control validation rejects known type/range/expression/list errors; it does not replace pipeline preflight or inspect input image/model contents. No native desktop focus, remote publication or full-suite run.",
+  "integrated_regression": {
+    "passed": 22,
+    "seconds": 2.73,
+    "tests": [
+      "tests/qt/test_settings_edit_analysis_lock_f573.py",
+      "tests/qt/test_cellprofiler_example_export_f546.py"
+    ],
+    "limits": "4GiB, zero swap, one actual CPU",
+    "log": "/tmp/spacr-implementation-20261001/review/f573-f546-integrated-tests.log"
+  },
+  "feature_status": "complete as alpha; global release/publication tracked in N615"
 }
