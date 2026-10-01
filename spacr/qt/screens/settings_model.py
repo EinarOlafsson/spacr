@@ -507,12 +507,17 @@ def object_of_setting(key: str) -> Optional[str]:
     :param key: setting key; an organelle-slot prefix, or a
         ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object.
     """
-    from ...organelle_types import organelle_role_of
+    from ...organelle_types import _background_switch_role, organelle_role_of
 
     text = str(key)
     role = organelle_role_of(text)
     if role is not None:
         return role
+    # ``remove_background_organelle_7`` is slot 7's switch (item 76,
+    # 2026-09-30); its last token is a number, not a slot prefix.
+    switch = _background_switch_role(text)
+    if switch is not None:
+        return switch
     tail = organelle_role_of(text.rpartition("_")[2])
     if tail is not None and text.startswith("remove_background_"):
         return tail

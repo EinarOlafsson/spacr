@@ -62,11 +62,13 @@ class TestASecondSlotIsNormalisedWithItsOwnValues:
     OWN = {"background": 300, "signal_to_noise": 2, "remove": True}
 
     def _slot(self, role):
+        from spacr.organelle_types import _background_switch_key
+
         return {
             f"{role}_channel": 4,
             f"{role}_background": self.OWN["background"],
             f"{role}_signal_to_noise": self.OWN["signal_to_noise"],
-            f"remove_background_{role}": self.OWN["remove"],
+            _background_switch_key(role): self.OWN["remove"],
         }
 
     def test_the_second_slot_is_treated_exactly_as_the_first(self):
@@ -112,15 +114,18 @@ class TestEverySlotHasItsOwnBackgroundSwitch:
     signal-to-noise anchor and no switch to apply the floor with, so a noisy
     second organelle stain could not be clipped without clipping the first.
     The maintainer chose to extend the existing ``remove_background_<object>``
-    pattern.
+    pattern, and on 2026-09-30 (item 76) named slot N's switch
+    ``remove_background_organelle_N`` rather than the lettered
+    ``remove_background_organelleb``.
     """
 
     def test_it_is_declared_typed_and_explained_for_every_slot(self):
-        from spacr.organelle_types import ALL_ORGANELLE_ROLES
+        from spacr.organelle_types import (ALL_ORGANELLE_ROLES,
+                                           _background_switch_key)
         from spacr.settings import expected_types, tooltips
 
         for role in ALL_ORGANELLE_ROLES:
-            key = f"remove_background_{role}"
+            key = _background_switch_key(role)
             assert expected_types[key] is bool, key
             assert f"{role}_background" in tooltips[key], key
 
@@ -131,8 +136,9 @@ class TestEverySlotHasItsOwnBackgroundSwitch:
         settings = factory({"organelle_channel": 3, "organelleb_channel": 4,
                             "number_of_organelles": 2})
         assert settings["remove_background_organelle"] is False
-        assert settings["remove_background_organelleb"] is False
-        assert "remove_background_organellec" not in settings
+        assert settings["remove_background_organelle_2"] is False
+        assert "remove_background_organelle_3" not in settings
+        assert "remove_background_organelleb" not in settings
 
     def test_a_value_the_user_set_survives_the_factory(self):
         from spacr.settings import (
@@ -140,15 +146,16 @@ class TestEverySlotHasItsOwnBackgroundSwitch:
 
         settings = factory({"organelle_channel": 3, "organelleb_channel": 4,
                             "number_of_organelles": 2,
-                            "remove_background_organelleb": True})
-        assert settings["remove_background_organelleb"] is True
+                            "remove_background_organelle_2": True})
+        assert settings["remove_background_organelle_2"] is True
 
     def test_turning_on_slot_two_clips_slot_two_and_not_slot_one(self):
         stack = _ramp_stack()
         both = {"organelle_channel": 3, "organelleb_channel": 4,
                 "organelle_background": 300, "organelleb_background": 300}
         off = _normalise(both, stack)
-        on = _normalise({**both, "remove_background_organelleb": True}, stack)
+        on = _normalise({**both, "remove_background_organelle_2": True},
+                        stack)
         below = stack[0, :, :, 4] < 300
         assert np.all(on[0][below, 4] == 0)
         assert np.any(off[0][below, 4] > 0)
@@ -159,13 +166,15 @@ class TestEverySlotHasItsOwnBackgroundSwitch:
         with the slot's prefix; counting it would conjure an organelle."""
         from spacr.organelle_types import organelle_count
 
-        assert organelle_count({"remove_background_organellec": True}) == 0
+        assert organelle_count({"remove_background_organelle_3": True}) == 0
 
     def test_the_panel_hides_it_with_its_slot(self):
         from spacr.qt.screens.settings_model import object_of_setting
 
-        assert object_of_setting("remove_background_organelleb") == (
+        assert object_of_setting("remove_background_organelle_2") == (
             "organelleb")
+        assert object_of_setting("remove_background_organelle_27") == (
+            "organelleaa")
         assert object_of_setting("remove_background") is None
 
 
@@ -182,7 +191,7 @@ class TestWhatASlotTakesWhenItsOwnValueIsMissingOrShared:
         """Read last, a slot wins each value it carries, as the first did.
 
         The floor and the anchor become the slot's. The switch only when the
-        slot carries one: this dict names no ``remove_background_organelleb``,
+        slot carries one: this dict names no ``remove_background_organelle_2``,
         so the one the pathogen turned on stays on for that channel. Every
         slot has declared its own switch since 2026-09-21, so a settings dict
         that went through the factory carries it and the slot's wins.
@@ -202,7 +211,7 @@ class TestWhatASlotTakesWhenItsOwnValueIsMissingOrShared:
         pathogen_alone = _normalise({**pathogen, "organelle_channel": 3},
                                     stack)
         slots_values_switch_left_on = _normalise(
-            {**slot, "remove_background_organelleb": True}, stack)
+            {**slot, "remove_background_organelle_2": True}, stack)
         np.testing.assert_array_equal(
             shared[..., 4], slots_values_switch_left_on[..., 4])
         assert not np.array_equal(shared[..., 4], pathogen_alone[..., 4])
@@ -220,7 +229,7 @@ class TestWhatASlotTakesWhenItsOwnValueIsMissingOrShared:
             {"organelle_channel": 3, "organelleb_channel": 4,
              "organelleb_background": None,
              "organelleb_signal_to_noise": None,
-             "remove_background_organelleb": None}, stack)
+             "remove_background_organelle_2": None}, stack)
         np.testing.assert_array_equal(empty[..., 4], generic[..., 4])
 
     def test_the_first_slots_empty_value_falls_back_too(self):

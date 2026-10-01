@@ -630,6 +630,45 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         ),
     },
     {
+        "key": "toxoplasma_pv_v4",
+        "name": "cpsam_v2_toxo_r7",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r7",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-pv-segmentation-cpsam-r7/resolve/main/"
+               "weights/cpsam_v2_toxo_r7",
+        "sha256":
+            "621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2",
+        "metrics": {'n_train': '502 fields', 'train_objects': '23,340', 'n_test': '11 anchor wells', 'test_objects': '683', 'cv': '5-fold, grouped by source', 'f1': '0.8536', 'aji': '0.7755', 'dice': '0.8905', 'stock_f1': '0.7648', 'stock_aji': '0.5050', 'stock_dice': '0.6431', 'train_loss': '0.0424', 'val_loss': '0.0796', 'best_epoch': '55 / 100'},
+        "display_name": "Toxoplasma PV v4 (round 7)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "round 6's 556 curated fields plus 80 hand-curated fields of "
+                   "a new plate (Anu revision, Replication09182026 plate 1); "
+                   "502 train / 123 validation / 11 test; training data at "
+                   "einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+        "versus_stock": "F1 0.854 against stock cpsam_v2's 0.765 on the 11 "
+                        "anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+        "trained_on": (
+            "Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and "
+            "anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new "
+            "384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it "
+            "was trained on, round 7 scores F1 0.748 against 0.899 for round 6 "
+            "(recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate",
+            "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); "
+            "5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168",
+            "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 "
+            "against 0.786 on the new plate) but finds fewer of them",
+            "the drop on the new plate is under investigation: round 7 also "
+            "under-fits that plate's own training fields, which points at how "
+            "those fields entered training rather than at generalisation",
+        ),
+    },
+    {
         "key": "live_cell_v1",
         "name": "live_cell_v1",
         "kind": "cellpose",

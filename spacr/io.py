@@ -1665,8 +1665,11 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     background-removal switch of the object whose ``<object>_channel`` names
     it: the nucleus, the cell, the pathogen, or any organelle slot the run
     enables (``organelle``, ``organelleb``, ...). A slot reads
-    ``<slot>_background``, ``<slot>_signal_to_noise`` and
-    ``remove_background_<slot>``. A channel no object names keeps the generic
+    ``<slot>_background``, ``<slot>_signal_to_noise`` and its background
+    switch, ``remove_background_organelle`` for slot 1 and
+    ``remove_background_organelle_N`` for slot N (the lettered
+    ``remove_background_organelleb`` is still read when a caller passes
+    settings that were never folded). A channel no object names keeps the generic
     ``background``, ``Signal_to_noise`` and ``remove_background``. The three
     are read one by one, so one a slot does not carry, or carries empty, keeps
     the value the channel already had, and when two objects name the same
@@ -1688,6 +1691,8 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     channels = [int(c) for c in channels]
 
     normalized_stack = np.zeros_like(stack, dtype=np.float32)
+
+    from .organelle_types import _background_switch_key
 
     organelle_slot_channels = [
         (role, settings.get(f'{role}_channel'))
@@ -1725,7 +1730,9 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
             if role_signal_to_noise is None:
                 role_signal_to_noise = settings.get('Signal_to_noise', 10)
             signal_threshold = role_signal_to_noise * background
-            role_remove_background = settings.get(f'remove_background_{role}')
+            role_remove_background = settings.get(
+                _background_switch_key(role),
+                settings.get(f'remove_background_{role}'))
             if role_remove_background is not None:
                 remove_background = role_remove_background
 

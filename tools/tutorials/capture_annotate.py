@@ -328,3 +328,77 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
         'training_started': False, 'annotation_database_generation_started': False,
         'biological_classification_claim': False,
     })
+    import os
+    if os.environ.get('SPACR_TUTORIAL_ANNOTATE_SUGGEST') == '1':
+        record_suggest_judgement(app, screen, captures, capture, settle, write_json,
+                                 wait_for, page_ready, query, annotation)
+
+
+def record_suggest_judgement(app, screen, captures, capture, settle, write_json,
+                             wait_for, page_ready, query, annotation):
+    """Label a few crops, Suggest for this page, then confirm and reject (512).
+
+    Runs after the preserving tour on the private copy only; the labels and
+    suggestions stay in the tutorial column of that copy.
+    """
+    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QMenu
+
+    thumbs = screen._thumbs
+    if len(thumbs) < 30:
+        raise RuntimeError('Too few crops on the page for a suggestion round')
+    for index in range(10):
+        QTest.mouseClick(thumbs[index], Qt.LeftButton)
+        settle(.05)
+    for index in range(10, 20):
+        QTest.mouseClick(thumbs[index], Qt.RightButton)
+        settle(.05)
+    QTest.mouseClick(screen._btn_next, Qt.LeftButton)
+    wait_for(page_ready, 'Next did not load after labelling')
+    QTest.mouseClick(screen._btn_prev, Qt.LeftButton)
+    wait_for(page_ready, 'Back did not reload the labelled page')
+    wait_for(lambda: query(f'SELECT count(*) FROM png_list WHERE "{annotation}" IN (1, 2)')[0][0] >= 20,
+             'The labels were not saved')
+    capture('19_labels_for_suggest')
+    seen = {}
+
+    def pick():
+        menus = [m for m in app.topLevelWidgets() if isinstance(m, QMenu) and m.isVisible()]
+        if len(menus) != 1:
+            seen['error'] = 'Suggest menu did not open'
+            for m in menus:
+                m.close()
+            return
+        menu = menus[0]
+        capture('19_suggest_menu')
+        action = next((a for a in menu.actions() if a.text() == 'Suggest for the images on this page'), None)
+        if action is None:
+            seen['error'] = 'No page suggestion entry'
+            menu.close()
+            return
+        QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(action).center())
+        seen['ok'] = True
+
+    QTimer.singleShot(900, pick)
+    QTest.mouseClick(screen._btn_suggest, Qt.LeftButton)
+    settle(.5)
+    if not seen.get('ok'):
+        raise RuntimeError(seen.get('error', 'Suggest menu not handled'))
+    wait_for(lambda: screen._suggest_worker is None, 'The suggestion round did not finish')
+    settle(2)
+    wait_for(page_ready, 'The page did not reload with suggestions')
+    suggested = [i for i in range(len(screen._page_paths))
+                 if (screen._page_paths[i][1] or 0) >= 10]
+    if len(suggested) < 2:
+        raise RuntimeError(f'Too few suggestions on the page: {screen._status_label.text()}')
+    capture('20_suggestions')
+    QTest.mouseClick(thumbs[suggested[0]], Qt.LeftButton)
+    settle(.3)
+    QTest.mouseClick(thumbs[suggested[1]], Qt.RightButton)
+    settle(.6)
+    capture('21_judged')
+    write_json(captures / 'suggest_tour.json', {
+        'accepted': True, 'labels': {'1': 10, '2': 10}, 'suggested_on_page': len(suggested),
+        'confirmed_index': suggested[0], 'rejected_index': suggested[1],
+        'status': screen._status_label.text()})

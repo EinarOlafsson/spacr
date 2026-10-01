@@ -1,10 +1,10 @@
 {
   "lesson": "40_run_history",
-  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Slutför ett spaCR-jobb för att skapa en lokal körpost. Exemplet bläddrar bland poster från konverterings-, Recruitment- och Regression-körningar.",
   "scenes": [
-    "Öppna Help och sedan Run history för att bläddra bland de körposter som sparats på den här datorn.",
+    "Öppna Help och sedan Run History för att bläddra bland de körposter som sparats på den här datorn.",
     "Klicka på Refresh för att läsa in tillgängliga poster. Välj en körning för att granska detaljerna och dra i avdelaren om du behöver mer utrymme.",
     "Välj en modul och en status och skriv sedan ett sökord för att begränsa listan. Välj till exempel convert och Success för att hitta slutförda konverteringar.",
     "Öppna Files and models för registrerade detaljer om indata och utdata. Körningar som hoppade över filhashning kan ha en tom förteckning; använd utdatasökvägarna i inställningar eller loggar för att hitta deras resultat.",
