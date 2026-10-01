@@ -73,3 +73,24 @@ through the established tutorial workflow. The alternative workspace at
 it does not match the current eleven-scene lesson. Its old audio/masters were
 preserved, rather than used to claim that the current full tutorial was updated.
 This record completes the local capture work, not public-video replacement.
+
+2026-10-01 — HOME AUTHORING SOURCE LINKS THE THREE CURRENT APPEARANCE SCENES
+The Home lesson source now includes folded Appearance categories, expanded
+Theme, and expanded Animation immediately after its Performance scene. Each
+new narration describes the controls visible in its recorded frame. The
+focus rectangle uses the same readable 1920x1080 region already inspected in
+the private review clip. All original eleven scenes and lesson metadata are
+preserved; the authoring lesson now has fourteen scenes.
+
+A private staging manifest binds each new scene to its recorded PNG hash,
+frame dimensions, capture provenance and updated lesson-source hash:
+tools/tutorials/evidence/2026-10-01-home-appearance-authoring-stage.json.
+The existing stage_lesson.py --check-only verifies all three new scene/frame
+links, frame hashes, 4K dimensions and focus rectangles under a 1G cap. Output:
+"Validated 05_home: 3 real capture scenes; catalogs unchanged."
+This is a checked three-scene fragment, not a complete fourteen-scene master.
+
+Published catalogs, existing captions/audio and installer source are unchanged.
+The new narration still needs matching translations and audio, complete Home
+master assembly, timing/player review and paired publication. N601 remains
+open for those tutorial-publication steps; no current-GUI code gap is claimed.
