@@ -12,5 +12,43 @@
   "Walk": "'Andar' means walking on foot; the switch selects the local step-by-step search ('Busca passo a passo')",
   "Hit List": "'Lista de acertos' means a list of correct answers; screen hits are candidates ('Lista de candidatos')",
   "Setting animations": "'Configurando animações' reads 'configuring animations'; the preference means animations for settings ('Animações das configurações')"
+ },
+ "snapshot": {
+  "Anndata out": {
+   "runtime": "Anndata fora",
+   "guide": "Saída do AnnData"
+  },
+  "Model zoo…": {
+   "runtime": "Modelo de jardim zoológico...",
+   "guide": "Biblioteca de modelos…"
+  },
+  "Promote calls to annotation": {
+   "runtime": "Promova chamadas para anotação",
+   "guide": "Converter chamadas em anotações"
+  },
+  "Undo promotion": {
+   "runtime": "Desfazer promoção",
+   "guide": "Desfazer conversão"
+  },
+  "Taper onto the gradient": {
+   "runtime": "Aperte o degradê",
+   "guide": "Ajustar ao gradiente"
+  },
+  "Train": {
+   "runtime": "Comboio",
+   "guide": "Treinar"
+  },
+  "Walk": {
+   "runtime": "Andar",
+   "guide": "Busca passo a passo"
+  },
+  "Hit List": {
+   "runtime": "Lista de acertos",
+   "guide": "Lista de candidatos"
+  },
+  "Setting animations": {
+   "runtime": "Configurando animações",
+   "guide": ""
+  }
  }
 }

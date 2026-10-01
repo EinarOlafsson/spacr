@@ -69,6 +69,27 @@ def page_named(dialog: QWidget, object_name: str) -> Optional[QWidget]:
     return dialog.findChild(QWidget, str(object_name))
 
 
+def _unfold_around(widget: QWidget) -> int:
+    """Open every folded category that holds ``widget``.
+
+    A page can sit inside a category of another tab, and a row in a folded
+    category cannot be seen, scrolled to or focused until it is opened.
+
+    :param widget: the page or row being shown.
+    :returns: how many categories were opened.
+    """
+    opened = 0
+    holder = widget
+    while holder is not None:
+        is_open = getattr(holder, "is_expanded", None)
+        unfold = getattr(holder, "set_expanded", None)
+        if callable(is_open) and callable(unfold) and not is_open():
+            unfold(True)
+            opened += 1
+        holder = holder.parentWidget()
+    return opened
+
+
 def show_tab(dialog: QWidget, object_name: str, label: str = "") -> bool:
     """Bring the page named ``object_name`` to the front, at row ``label``.
 
@@ -89,6 +110,7 @@ def show_tab(dialog: QWidget, object_name: str, label: str = "") -> bool:
             break
     else:
         return False
+    _unfold_around(page)
     if label:
         QTimer.singleShot(0, lambda: reveal_row(page, label))
     return True
@@ -147,6 +169,7 @@ def reveal_row(page: QWidget, label: str) -> bool:
     widget = row_field(page, label)
     if widget is None:
         return False
+    _unfold_around(widget)
     scroll = page.parentWidget()
     while scroll is not None and not isinstance(scroll, QScrollArea):
         scroll = scroll.parentWidget()

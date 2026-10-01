@@ -14,5 +14,51 @@
   "Walk": "'Marcher' means walking on foot; the switch selects the local step-by-step search ('Recherche pas à pas')",
   "Outputs": "'Produits' means 'products'; the workflow card lists outputs ('Sorties')",
   "Setting animations": "'Configuration des animations' reads 'configuring animations'; the preference means animations for settings ('Animations des paramètres')"
+ },
+ "snapshot": {
+  "Anndata out": {
+   "runtime": "Annoncés",
+   "guide": "Sortie AnnData"
+  },
+  "Anndata nan policy": {
+   "runtime": "Politique des données",
+   "guide": "Politique NaN AnnData"
+  },
+  "Model zoo…": {
+   "runtime": "Modèle zoo...",
+   "guide": "Bibliothèque de modèles…"
+  },
+  "Promote calls to annotation": {
+   "runtime": "Promouvoir les appels à l'annotation",
+   "guide": "Convertir les appels en annotations"
+  },
+  "Undo promotion": {
+   "runtime": "Annulation de la promotion",
+   "guide": "Annuler la conversion"
+  },
+  "Re-flood below the escape": {
+   "runtime": "Refonte au-dessous de l'échappée",
+   "guide": "Réinonder sous le point de fuite"
+  },
+  "Taper onto the gradient": {
+   "runtime": "Taper sur le dégradé",
+   "guide": "Raccorder au gradient"
+  },
+  "Train": {
+   "runtime": "Le train",
+   "guide": "Entraîner"
+  },
+  "Walk": {
+   "runtime": "Marcher",
+   "guide": "Recherche pas à pas"
+  },
+  "Outputs": {
+   "runtime": "Produits",
+   "guide": "Sorties"
+  },
+  "Setting animations": {
+   "runtime": "Configuration des animations",
+   "guide": ""
+  }
  }
 }

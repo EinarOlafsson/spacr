@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-09-30 21:19-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -49,8 +49,8 @@ msgstr "दूसरे फ़ील्ड पर जाने से पहल�
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "फ़ील्ड-स्तरीय क्यूरेशन निर्णय दर्ज करने और आगे बढ़ने के लिए **रखें** या **त्यागें** का उपयोग करें। ये निर्णय ``csv/keep_discard.csv`` में जाते हैं; त्यागें छवि या उसके मास्क को हटाए बिना निर्णय दर्ज करता है। संपादन अलग से सहेजें।"
 
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. **Training datasets…** opens a sample of fields from the dataset each published model was trained on."
-msgstr "अपने डेटा के बिना स्क्रीन आज़माने के लिए **परीक्षण डेटा लोड करें...** दस बिना विभाजित टोक्सोप्लाज़्मा रिक्तिका फ़ील्ड डाउनलोड करता है, उनके क्यूरेट किए गए मास्क ``ground_truth_masks/`` में अलग रखता है, और पहला फ़ील्ड खोलता है। **प्रशिक्षण डेटासेट…** हर प्रकाशित मॉडल जिस डेटासेट पर प्रशिक्षित हुआ उससे फ़ील्ड का एक नमूना खोलता है।"
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
+msgstr "अपने डेटा के बिना स्क्रीन आज़माने के लिए **परीक्षण डेटा लोड करें...** दस बिना विभाजित टोक्सोप्लाज़्मा रिक्तिका फ़ील्ड डाउनलोड करता है, उनके क्यूरेट किए गए मास्क ``ground_truth_masks/`` में अलग रखता है, और पहला फ़ील्ड खोलता है। उसी बटन पर बना तीर हर प्रकाशित मॉडल जिस डेटासेट पर प्रशिक्षित हुआ उससे फ़ील्ड का एक नमूना प्रस्तुत करता है।"
 
 msgid "Drop images and folders"
 msgstr "छवियाँ और फ़ोल्डर छोड़ें"
@@ -370,11 +370,11 @@ msgstr "**मुझे सिखाएँ…** चुनें और एक स
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**चैनल जोड़ें** और **मास्क जोड़ें** स्तंभ जोड़ते हैं; हर मास्क स्तंभ अपना ऑब्जेक्ट वर्ग (कोशिका, केंद्रक, रोगजनक या कोशिकांग) और वह चैनल बताता है जिसकी छवियों की वह रूपरेखा देता है। एकत्रित फ़ोल्डर अपनी फ़ाइलों के मूल नामों से पढ़ा जाता है। किसी छवि से रहित पंक्तियाँ **लागू करें** को रोकती हैं और बताती हैं कि उन्हें कैसे ठीक करें; RGB छवियों और z-स्टैक को मूल रखते हुए एक धूसर तल में रूपांतरण के लिए प्रस्तुत किया जाता है। **लागू करें** से पहले कुछ भी नहीं खिसकता। इसके बाद छवियाँ स्रोत फ़ोल्डर के भीतर ``sorted_channels/`` में ले जाई जाती हैं, हर चैनल के लिए एक फ़ोल्डर, मास्क और ``merged/`` के साथ, और हर स्थानांतरण ``channel_sorting_manifest.csv`` में दर्ज होता है। मापन के ``src`` को उस ``sorted_channels`` फ़ोल्डर की ओर इंगित करें। :func:`spacr.channel_sorting.build_plan` और :ref:`मापन इनपुट और आउटपुट <workflow-module-measure>` देखें।"
 
-msgid "Contribute images and masks"
-msgstr "छवियाँ और मास्क योगदान करें"
+msgid "Upload data"
+msgstr "डेटा अपलोड करें"
 
-msgid "**Contribute images and masks…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
-msgstr "**छवियाँ और मास्क योगदान करें…** स्क्रीन पर की छवि उसके मास्क के साथ, फ़ोल्डर की हर क्यूरेट की गई छवि उसके सहेजे मास्क के साथ, या चुना गया छवि फ़ोल्डर और मास्क फ़ोल्डर, भविष्य के मॉडल प्रशिक्षण के लिए Hugging Face पर spaCR के सामुदायिक डेटासेट में भेजता है। हर छवि को उसी नाम और आकार का सहेजा गया मास्क चाहिए। डेटासेट का नाम दें, टिप्पणियाँ जोड़ें और लाइसेंस से सहमत हों; संवाद गंतव्य को एक ऐसे लिंक के रूप में दिखाता है जिसे आप खोल, चुन और कॉपी कर सकते हैं। नया डेटासेट अपने पहले अपलोड के साथ दिखाई देता है, और हर योगदान उपयोग से पहले समीक्षित होता है।"
+msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**डेटा अपलोड करें…** स्क्रीन पर की छवि उसके मास्क के साथ, फ़ोल्डर की हर क्यूरेट की गई छवि उसके सहेजे मास्क के साथ, या चुना गया छवि फ़ोल्डर और मास्क फ़ोल्डर, भविष्य के मॉडल प्रशिक्षण के लिए Hugging Face पर spaCR के सामुदायिक डेटासेट में भेजता है। हर छवि को उसी नाम और आकार का सहेजा गया मास्क चाहिए। डेटासेट का नाम दें, टिप्पणियाँ जोड़ें और लाइसेंस से सहमत हों; संवाद गंतव्य को एक ऐसे लिंक के रूप में दिखाता है जिसे आप खोल, चुन और कॉपी कर सकते हैं। नया डेटासेट अपने पहले अपलोड के साथ दिखाई देता है, और हर योगदान उपयोग से पहले समीक्षित होता है।"
 
 msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
 msgstr "शीर्षपट्टी Cellpose वर्कबेंच, पूरे फ़ोल्डर के लिए मास्क बनाएँ, मॉडल तुलना, मॉडल संग्रह, क्यूरेट और नैपारी ब्रिज भी खोलती है। उनके इनपुट/आउटपुट अनुबंध :ref:`मॉड्यूल मानचित्र <workflow-module-make_masks>` से जुड़े हैं।"

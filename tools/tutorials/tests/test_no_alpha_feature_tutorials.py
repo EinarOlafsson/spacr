@@ -98,6 +98,7 @@ WIDGET_LABELS = {
     "ControlChartAnomalySection": ("Anomalies",),
     # With its ellipsis: bare "uncertainty" is ordinary statistics narration.
     "MakeMasksUncertaintyButton": ("Uncertainty…",),
+    "MakeMasksUncertaintySetting": ("Uncertainty…",),
     # Plugin catalogue (Preferences). Its one-word buttons (List, Open,
     # Uninstall) and table headers are left out as ordinary words.
     "PluginCatalogueHelp": ("Browse a catalogue of community plugins",),

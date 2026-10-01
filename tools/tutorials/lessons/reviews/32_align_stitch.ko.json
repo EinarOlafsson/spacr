@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "Home의 Tools 범주에서 Align and Stitch를 여세요. 타일을 고르고, Plan으로 배치를 검토한 뒤, Write stack으로 모자이크를 만드세요.",
     "아래 예제를 내려받아 압축을 풀고 그 tiles 폴더를 선택하세요. 3 × 3 그리드로 배열된 겹치는 크롭 9개가 들어 있습니다. 자신의 획득 데이터라면 원래 타일 순서와 스테이지 메타데이터를 준비해 두세요.",
+    "공개된 데이터로 연습하려면 Load test data를 누르세요. spaCR이 광학 풀드 스크린에서 겹치는 타일 9개를 내려받고 타일 폴더, 그리드, 순서, 겹침, 출력 폴더를 채워 주므로 바로 Plan을 누를 수 있습니다. 다음 단계에서는 내려받을 수 있는 예제의 설정을 사용합니다.",
     "이 예제에서는 그리드를 3 × 3, 행 우선 순서, 겹침 0.25로 두세요. 이 설정은 획득 조건에 맞추세요. 행마다 번갈아 반대 방향으로 획득했다면 지그재그 순서를 쓰세요.",
     "Reference channel을 정합에 쓰는 이미지 평면으로 지정하세요. 이 예제는 채널 1, 즉 0부터 셀 때 두 번째 평면을 씁니다. 겹치는 부분에 구조가 보이는 채널을 고르세요. 결정된 배치는 이미지의 모든 채널에 적용됩니다.",
     "정합을 받아들일 기준인 Minimum confidence와 비교할 이웃 타일 범위인 Neighbour radius를 설정하세요. 예제는 0.3과 1을 쓰고, 겹치는 부분은 부드럽게 섞습니다. 밴드 버퍼 예산은 이미지 쓰기에 쓰이는 메모리를 조절합니다.",

@@ -1,10 +1,10 @@
 {
   "lesson": "43_illumination",
-  "english_sha256": "733c89c9161df491db3c40feedfcdde7908b25a629f43da184fe9e8f6ff66d99",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,7 +15,7 @@
   "objectives": [
     "대표 시야와 강도 채널을 고릅니다.",
     "조명 모델을 추정하고 확인합니다.",
-    "모델을 Mask나 Measure에서 다시 씁니다."
+    "저장한 모델을 Measure에서 적용합니다."
   ],
   "prerequisite": "획득 그룹마다 대표 시야가 들어 있는 병합 이미지 폴더를 쓰세요. 예제는 Measure에서 내려받은 플레이트 예제의 시야 16개를 씁니다. 저장된 평면 중 어느 것이 강도이고 어느 것이 라벨인지 알아 두세요.",
   "scenes": [
@@ -31,6 +31,7 @@
     "illumination 폴더에 저장된 조명 QC PNG를 여세요. Figures 패널에 나타나지 않으면 이미지 뷰어를 쓰세요.",
     "추정된 조명 필드에서 밝기가 부드럽게 변하는지, 세포 모양의 원치 않는 구조가 없는지 확인하세요. 보정은 암전류 오프셋을 뺀 뒤 평균이 1인 이 필드로 나눕니다.",
     "보정 전후의 방사 방향 프로파일을 비교하세요. 적합에 쓴 이미지 밖에서도 보정이 잘 되는지 다른 시야로 평가하세요.",
-    "모델을 다시 쓰려면 그 경로를 지정하고 원하는 Mask나 Measure 워크플로에서 보정을 켜세요. 채널, 플레이트 식별 정보, 설정을 모델과 함께 보관하고, 같은 강도를 두 번 보정하지 마세요."
+    "저장한 모델은 채널, 플레이트 식별 정보, 설정과 함께 보관하세요. 한 세트의 강도에는 한 번만 적용하세요. 같은 강도를 두 번 보정하면 값이 왜곡됩니다.",
+    "모델을 적용하려면 Measure를 열고 설정에서 illumination을 검색하세요. Image Preprocessing 아래에서 Illumination correction을 켜고 Illumination model을 저장한 파일로 지정하세요. 그러면 Measure가 측정하기 전에 모델링한 채널을 조명 필드로 나눕니다. 마스크는 바뀌지 않습니다."
   ]
 }

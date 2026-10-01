@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "I kategorien Tools på Home åpner du Align and Stitch. Velg flisene, se gjennom oppsettet med Plan, og bruk deretter Write stack for å lage mosaikken.",
     "Last ned og pakk ut eksemplet nedenfor, og velg deretter mappen tiles. Den inneholder ni overlappende utsnitt i et 3 × 3-rutenett. For ditt eget opptak holder du den opprinnelige flisrekkefølgen og bordmetadataene tilgjengelige.",
+    "Vil du heller øve på publiserte data, trykker du på Load test data. spaCR laster ned ni overlappende fliser fra en optisk poolet screening og fyller ut flismappen, rutenettet, rekkefølgen, overlappingen og utdatamappen, så du kan trykke på Plan med en gang. De neste trinnene bruker innstillingene fra eksemplet som kan lastes ned.",
     "Sett rutenettet til 3 × 3, radvis rekkefølge og overlapp 0,25 for dette eksemplet. Tilpass innstillingene til opptaket ditt; bruk serpentinrekkefølge når annenhver rad ble tatt opp i motsatt retning.",
     "Sett Reference channel til bildeplanet som brukes til registreringen. Eksemplet bruker kanal 1, det andre planet ved nummerering fra 0. Velg en kanal med synlig struktur i overlappene; den resulterende plasseringen gjelder alle bildekanalene.",
     "Angi Minimum confidence for å godta en registrering og Neighbour radius for nabofliser som sammenlignes. Eksemplet bruker 0,3 og 1, med myk overgang i overlappene. Budsjettet for båndbufferen styrer minnet som bildeskriveren bruker.",

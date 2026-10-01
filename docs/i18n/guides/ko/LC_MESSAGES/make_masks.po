@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-09-30 21:19-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -49,8 +49,8 @@ msgstr "다른 시야로 이동하기 전에 **마스크 저장** 또는 **Ctrl+
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "**유지** 또는 **버리기** 로 시야 단위의 선별 판정을 기록하고 다음으로 넘어갑니다. 이 판정은 ``csv/keep_discard.csv`` 에 기록됩니다. 버리기는 이미지나 마스크를 삭제하지 않고 결정만 기록합니다. 편집 내용은 따로 저장합니다."
 
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. **Training datasets…** opens a sample of fields from the dataset each published model was trained on."
-msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. **학습 데이터셋…** 은 게시된 각 모델이 학습한 데이터 세트에서 시야 표본을 엽니다."
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
+msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트에서 시야 표본을 제공합니다."
 
 msgid "Drop images and folders"
 msgstr "이미지와 폴더 끌어다 놓기"
@@ -370,11 +370,11 @@ msgstr "**학습시키기…** 를 선택하고 이미지 하나씩 “이 채�
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**채널 추가** 와 **마스크 추가** 로 열을 추가합니다. 각 마스크 열에는 객체 클래스(세포, 핵, 병원체 또는 세포소기관)와 그 마스크가 윤곽을 나타내는 이미지의 채널을 지정합니다. 합쳐진 폴더는 파일의 원래 이름으로 읽힙니다. 이미지가 빠진 행은 **적용** 을 막고 해결 방법을 알려 주며, RGB 이미지와 z 스택은 원본을 유지한 채 회색 평면 하나로 변환하도록 제안됩니다. **적용** 을 누르기 전에는 아무것도 옮겨지지 않습니다. 그다음 이미지가 원본 폴더 안의 ``sorted_channels/`` 로 옮겨져 채널별 폴더, 마스크, ``merged/`` 가 만들어지고, 모든 이동이 ``channel_sorting_manifest.csv`` 에 기록됩니다. 측정 모듈의 ``src`` 가 그 ``sorted_channels`` 폴더를 가리키도록 합니다. :func:`spacr.channel_sorting.build_plan` 과 :ref:`측정 입력 및 출력 <workflow-module-measure>` 을 참조합니다."
 
-msgid "Contribute images and masks"
-msgstr "이미지와 마스크 기여"
+msgid "Upload data"
+msgstr "데이터 업로드"
 
-msgid "**Contribute images and masks…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
-msgstr "**이미지와 마스크 기여…** 는 화면의 이미지와 그 마스크, 폴더에 있는 선별된 모든 이미지와 저장된 마스크, 또는 선택한 이미지 폴더와 마스크 폴더를 향후 모델 학습을 위해 Hugging Face의 spaCR 커뮤니티 데이터 세트로 보냅니다. 모든 이미지에는 이름과 크기가 같은 저장된 마스크가 있어야 합니다. 데이터 세트 이름을 정하고, 메모를 추가하고, 라이선스에 동의합니다. 대화 상자는 대상을 열고, 선택하고, 복사할 수 있는 링크로 보여 줍니다. 새 데이터 세트는 첫 업로드와 함께 나타나며, 각 기여는 사용 전에 검토됩니다."
+msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**데이터 업로드…** 는 화면의 이미지와 그 마스크, 폴더에 있는 선별된 모든 이미지와 저장된 마스크, 또는 선택한 이미지 폴더와 마스크 폴더를 향후 모델 학습을 위해 Hugging Face의 spaCR 커뮤니티 데이터 세트로 보냅니다. 모든 이미지에는 이름과 크기가 같은 저장된 마스크가 있어야 합니다. 데이터 세트 이름을 정하고, 메모를 추가하고, 라이선스에 동의합니다. 대화 상자는 대상을 열고, 선택하고, 복사할 수 있는 링크로 보여 줍니다. 새 데이터 세트는 첫 업로드와 함께 나타나며, 각 기여는 사용 전에 검토됩니다."
 
 msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
 msgstr "헤더에서는 Cellpose 워크벤치, 전체 폴더의 마스크 생성, 모델 비교, 모델 라이브러리, 큐레이트, 나파리 브리지도 열 수 있습니다. 이들의 입력/출력 규약은 :ref:`모듈 맵 <workflow-module-make_masks>` 에서 연결됩니다."

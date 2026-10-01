@@ -35,5 +35,135 @@
   "Z projection": "'S sýninguna' means 'S the exhibition'; the label is 'Z-vörpun'",
   "Remove image canvas": "'Að fjarlægja myndavél kanvas' means 'to remove camera canvas'; the label is 'Fjarlægja myndstriga'",
   "Remove cluster noise": "'Að fjarlægja cluster rök' means 'to remove cluster arguments'; the label is 'Fjarlægja klasasuð'"
+ },
+ "snapshot": {
+  "Anndata single table": {
+   "runtime": "Sjálfstæði einstaka borð",
+   "guide": "Anndata stök tafla"
+  },
+  "Batch correction": {
+   "runtime": "Batch réttlæti",
+   "guide": "Lotuleiðrétting"
+  },
+  "Cell probability": {
+   "runtime": "Hugsanlegur sjúkdómur",
+   "guide": "Líkur á frumu"
+  },
+  "Clear all": {
+   "runtime": "Klár allt",
+   "guide": "Hreinsa allt"
+  },
+  "Custom model": {
+   "runtime": "Custom móður",
+   "guide": "Sérsniðið líkan"
+  },
+  "Download": {
+   "runtime": "Láttu niður",
+   "guide": "Sækja"
+  },
+  "File…": {
+   "runtime": "Skrif...",
+   "guide": "Skrá…"
+  },
+  "Model zoo…": {
+   "runtime": "Góðursjöllun...",
+   "guide": "Líkanasafn…"
+  },
+  "Open folder…": {
+   "runtime": "Öppna fótbolta...",
+   "guide": "Opna möppu…"
+  },
+  "Outputs": {
+   "runtime": "Afleiðingar",
+   "guide": "Úttök"
+  },
+  "Parameter sweep": {
+   "runtime": "Parametrar svippa",
+   "guide": "Færibreytuskönnun"
+  },
+  "Preferences": {
+   "runtime": "Aðferðir",
+   "guide": "Kjörstillingar"
+  },
+  "Promote calls to annotation": {
+   "runtime": "Tilkynna samtal til annotations",
+   "guide": "Gera greiningar að merkingum"
+  },
+  "Re-flood below the escape": {
+   "runtime": "Flóður undir flóttamann",
+   "guide": "Endurflæða undir útrásarstigi"
+  },
+  "Resume checkpoint": {
+   "runtime": "Ráðstefnu Checkpoint",
+   "guide": "Halda áfram frá vistunarpunkti"
+  },
+  "Run queue": {
+   "runtime": "Farið í Queue",
+   "guide": "Farið í Queue"
+  },
+  "Save mask": {
+   "runtime": "Sparaðu maska",
+   "guide": "Vista grímu"
+  },
+  "Taper onto the gradient": {
+   "runtime": "Farið í gradientinu",
+   "guide": "Mjókka niður á stigulinn"
+  },
+  "Train": {
+   "runtime": "Þjálf",
+   "guide": "Þjálfa"
+  },
+  "Undo promotion": {
+   "runtime": "og stuðning",
+   "guide": "Afturkalla færslu í merkingar"
+  },
+  "Walk": {
+   "runtime": "Spurning",
+   "guide": "Ganga"
+  },
+  "Setting animations": {
+   "runtime": "Að setja upp animations",
+   "guide": ""
+  },
+  "Activation Maps": {
+   "runtime": "Aðgerðarkarta",
+   "guide": ""
+  },
+  "Cell flow threshold": {
+   "runtime": "Sjálfflutningar flutninga",
+   "guide": "Flæðisþröskuldur frumu"
+  },
+  "Cell diameter": {
+   "runtime": "Célur í diametrum",
+   "guide": "Þvermál frumu"
+  },
+  "Nucleus flow threshold": {
+   "runtime": "Kjarnorku flutningarnar",
+   "guide": "Flæðisþröskuldur kjarna"
+  },
+  "Nucleus diameter": {
+   "runtime": "Kjarnorkuð diameter",
+   "guide": "Þvermál kjarna"
+  },
+  "Pathogen flow threshold": {
+   "runtime": "Pathogene flutning þangað",
+   "guide": "Flæðisþröskuldur sýkils"
+  },
+  "Pathogen diameter": {
+   "runtime": "Pathogæna diámeter",
+   "guide": "Þvermál sýkils"
+  },
+  "Z projection": {
+   "runtime": "S sýninguna",
+   "guide": "Z-vörpun"
+  },
+  "Remove image canvas": {
+   "runtime": "Að fjarlægja myndavél kanvas",
+   "guide": "Fjarlægja myndstriga"
+  },
+  "Remove cluster noise": {
+   "runtime": "Að fjarlægja cluster rök",
+   "guide": "Fjarlægja klasasuð"
+  }
  }
 }

@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "Öffnen Sie in der Kategorie Tools von Home Align and Stitch. Wählen Sie die Kacheln, prüfen Sie ihr Layout mit Plan und erstellen Sie dann mit Write stack das Mosaik.",
     "Laden Sie das Beispiel unten herunter, entpacken Sie es und wählen Sie seinen Ordner tiles. Er enthält neun überlappende Ausschnitte in einem 3 × 3-Raster. Halten Sie für Ihre eigene Aufnahme die ursprüngliche Kachelreihenfolge und die Tischmetadaten bereit.",
+    "Um stattdessen mit veröffentlichten Daten zu üben, drücken Sie Load test data. spaCR lädt neun überlappende Kacheln aus einem optischen gepoolten Screen herunter und füllt Kachelordner, Raster, Reihenfolge, Überlappung und Ausgabeordner aus, sodass Sie sofort Plan drücken können. Die nächsten Schritte verwenden die Einstellungen des herunterladbaren Beispiels.",
     "Setzen Sie für dieses Beispiel das Raster auf 3 × 3, zeilenweise Reihenfolge und eine Überlappung von 0,25. Passen Sie diese Einstellungen an Ihre Aufnahme an; verwenden Sie die Serpentinenreihenfolge, wenn abwechselnde Zeilen in entgegengesetzter Richtung aufgenommen wurden.",
     "Setzen Sie Reference channel auf die Bildebene, die für die Registrierung verwendet wird. Dieses Beispiel verwendet Kanal 1, also bei Zählung ab 0 die zweite Ebene. Wählen Sie einen Kanal mit sichtbaren Strukturen in den Überlappungen; die ermittelte Platzierung gilt für alle Bildkanäle.",
     "Legen Sie Minimum confidence für das Akzeptieren einer Registrierung und Neighbour radius für die zu vergleichenden Nachbarkacheln fest. Das Beispiel verwendet 0,3 und 1, mit weichem Überblenden in den Überlappungen. Das Budget des Bandpuffers steuert den Speicherbedarf beim Schreiben der Bilder.",

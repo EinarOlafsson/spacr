@@ -257,6 +257,23 @@ def _description_of(label: str, caught: Dict[str, str], *widgets) -> str:
                or _tooltip_under(*widgets))
 
 
+def _named_page_of(widget):
+    """The nearest widget at or above ``widget`` named ``PreferencesTab*``.
+
+    A page can hold another named page -- a category of the Appearance tab
+    carries its own name -- and each row is listed under the innermost one,
+    once.
+
+    :param widget: where to start looking.
+    :returns: the named widget, or ``None``.
+    """
+    while widget is not None:
+        if str(widget.objectName()).startswith("PreferencesTab"):
+            return widget
+        widget = widget.parentWidget()
+    return None
+
+
 def _collect_preference_rows() -> List[Tuple[str, str, str, str]]:
     """Build the real preferences dialog and read its rows off it.
 
@@ -298,6 +315,8 @@ def _collect_preference_rows() -> List[Tuple[str, str, str, str]]:
         for page in pages:
             object_name = str(page.objectName())
             for form in page.findChildren(QFormLayout):
+                if _named_page_of(form.parentWidget()) is not page:
+                    continue
                 for row in range(form.rowCount()):
                     item = form.itemAt(row, QFormLayout.LabelRole)
                     caption = item.widget() if item is not None else None

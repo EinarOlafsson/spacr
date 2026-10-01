@@ -1,0 +1,38 @@
+603. A Tooltip delay setting in Preferences
+
+Requested by the maintainer (2026-09-30), verbatim:
+"in preferences withe the other tooltip settings, there should be a time lag setting for the tooltip, how long it takes for tooltips to appear upon hover. default to 2 seconds."
+
+Brief:
+Add a "Tooltip delay" setting (seconds, default 2.0, range 0-10, step 0.1)
+next to the existing tooltip settings in Preferences (Appearance, after
+601). It applies app-wide, immediately and on restart, persists like the
+other preferences, and has a tooltip. Custom tooltip code paths are
+checked too.
+
+Done when: default 2 s; a hover shows no tooltip before the delay and does
+show one after it (Qt tests).
+
+Status: IMPLEMENTED 2026-09-30
+
+What was built: a Tooltip delay slider (object name TooltipDelay, 0-10 s
+in 0.1 s steps, shown as "2.0 s" or "show immediately") under the Tooltips
+switch on Appearance, greyed while tooltips are off; Save stores it under
+prefs/tooltip_delay and Reset returns it to 2.0 s. The application-wide
+tooltip filter (spacr/qt/tooltip_policy.py) reads it (cached, dropped when
+saved), so the next hover anywhere waits the new time, and the stored
+value is read again at the next start. Qt sends its tooltip event only
+after the style's own wait (about 0.7 s with Fusion), so a shorter delay
+starts its wait when the pointer enters a widget that has a tooltip.
+Tooltips raised from inside views (table cells, header sections, the
+organize-for-measure remove button) are replayed by the same filter, so
+they follow the delay too. Tests: tests/qt/test_603_tooltip_delay_setting.py.
+
+Not changed, on purpose: the setting help box and the bottom strip
+("Tooltips box", "Tooltips bottom") still open as soon as a setting's
+title is hovered. They have their own switches and the request names
+tooltips; say so if they should wait as well.
+
+Left: the two new captions wait in _AWAITING_CATALOG_REBUILD. The
+"Tooltips" row's own explanation still says "for two seconds" (true by
+default); reword it at the next catalog pass.

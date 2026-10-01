@@ -12,5 +12,43 @@
   "Taper onto the gradient": "'Taper auf den Gradienten' leaves 'Taper' in English and has no meaning",
   "Walk": "'Gehen' is the verb 'to go on foot' and reads like a start button; the switch selects the local walk search ('Schrittweise Suche')",
   "Setting animations": "'Einstellung von Animationen' reads 'the setting-up of animations'; the preference means animations for settings ('Einstellungsanimationen')"
+ },
+ "snapshot": {
+  "Anndata out": {
+   "runtime": "Anndata aus",
+   "guide": "Anndata-Ausgabe"
+  },
+  "Anndata nan policy": {
+   "runtime": "Anndata nan Politik",
+   "guide": "Anndata-NaN-Richtlinie"
+  },
+  "Train": {
+   "runtime": "Zug",
+   "guide": "Trainieren"
+  },
+  "Promote calls to annotation": {
+   "runtime": "Aufruf zur Annotation fördern",
+   "guide": "Aufrufe in Annotationen übernehmen"
+  },
+  "Undo promotion": {
+   "runtime": "Beförderung rückgängig machen",
+   "guide": "Übernahme rückgängig machen"
+  },
+  "Re-flood below the escape": {
+   "runtime": "Unter der Flucht wieder überschwemmt",
+   "guide": "Unterhalb des Austritts erneut fluten"
+  },
+  "Taper onto the gradient": {
+   "runtime": "Taper auf den Gradienten",
+   "guide": "An den Gradienten angleichen"
+  },
+  "Walk": {
+   "runtime": "Gehen",
+   "guide": "Schrittweise Suche"
+  },
+  "Setting animations": {
+   "runtime": "Einstellung von Animationen",
+   "guide": ""
+  }
  }
 }
