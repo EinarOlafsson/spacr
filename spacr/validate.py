@@ -1154,11 +1154,19 @@ def _object_role_in(key):
     final word and `difflib` scores on characters. A guard that looked only at
     the front would have missed the one case anybody has hit.
 
+    An organelle slot's background switch names its slot by number at the
+    end, ``remove_background_organelle_7``; that is slot 7's role, so slot 1's
+    switch is never answered with slot 7's.
+
     :param key: a settings key.
     :returns: the role name, or ``None`` when the key names none.
     """
     from .object_roles import ALL_ROLES, split_role_setting
+    from .organelle_types import _background_switch_role
 
+    switch = _background_switch_role(key)
+    if switch is not None:
+        return switch
     parts = split_role_setting(key)
     if parts is not None:
         return parts[0]

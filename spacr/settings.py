@@ -5837,6 +5837,22 @@ def _advanced_lookup_sets(table):
     return spoken_for, filed
 
 
+def _prefixed_family_key(prefix, obj):
+    """The key a prefix-form family names for one object.
+
+    ``remove_background_<object>`` for every object but an organelle slot
+    after the first, whose background switch is numbered as the user counts
+    slots (``remove_background_organelle_2``, see
+    :func:`spacr.organelle_types._background_switch_key`).
+    """
+    if f"{prefix}_" == "remove_background_" and obj.startswith("organelle"):
+        try:
+            return _background_switch_key(obj)
+        except ValueError:
+            pass
+    return f"{prefix}_{obj}"
+
+
 def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     """Keys belonging to one family, ordered by object then by suffix.
 
@@ -5851,7 +5867,8 @@ def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     seen = set()
     for obj in ADVANCED_OBJECT_ORDER:
         candidates = [f"{obj}_{suffix}" for suffix in family_suffixes]
-        candidates += [f"{prefix}_{obj}" for prefix in family_prefixes]
+        candidates += [_prefixed_family_key(prefix, obj)
+                       for prefix in family_prefixes]
         for key in candidates:
             if key in spoken_for or key in seen:
                 continue
