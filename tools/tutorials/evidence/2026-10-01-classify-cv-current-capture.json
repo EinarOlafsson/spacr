@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-01",
+  "supersedes": "evidence/2026-09-21-classify-cv-current-capture.json",
+  "reason": "The 09-21 helper read crops only below one maintainer cache path; this helper keeps the part of png_path inside the plate folder, so it runs on any machine.",
+  "tools": {
+    "tools/tutorials/prepare_classify_split.py": "0ae0a0e3d2b1353017ba96f57ecd74d924a969a680a13b290294058cdfb94768"
+  },
+  "recording": {
+    "preparation_capture": "classify_canonical_preparation",
+    "gui_capture": "classify_cv_20261001",
+    "neutral_namespace": true,
+    "cpu_only": true,
+    "alpha_features": "off"
+  }
+}
