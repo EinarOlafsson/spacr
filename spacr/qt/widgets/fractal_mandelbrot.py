@@ -929,6 +929,333 @@ def a_more_interesting_anchor(orbit, budget: int = 600,
     return best[1], best[2]
 
 
+#: Colour bands the complexity score sorts escape times into: one per
+#: twelfth of the shader's palette cycle, plus one for the interior.
+_PALETTE_BINS: Final[int] = 12
+
+#: The least score from :func:`_complexity_map` a place needs before the
+#: camera will head for it. A single-colour patch scores 0 and two bands at
+#: most 1, so this asks for at least three colours mixed finely.
+_COMPLEXITY_FLOOR: Final[float] = 1.5
+
+#: Side of the square window the score is measured over, in survey cells.
+_COMPLEXITY_WINDOW: Final[int] = 9
+
+
+def _complexity_map(escaped: np.ndarray, iterations: np.ndarray,
+                    window: int = _COMPLEXITY_WINDOW) -> np.ndarray:
+    """How busy the picture is around each cell of a survey.
+
+    :param escaped: 2-D boolean map, True where the point escaped.
+    :param iterations: escape-time map of the same shape.
+    :param window: side of the square neighbourhood scored; odd.
+    :returns: a float map the shape of ``escaped``; ``-1`` where the window
+        would run off the survey.
+
+    The escape time is folded onto the palette the shader draws with -- one
+    cycle every forty iterations -- and cut into bands, with the interior as
+    a band of its own. The score is the bands' entropy in bits, weighted by
+    how often neighbouring cells differ. A patch of one colour scores 0
+    however its times differ, which is what "not single colour" means on
+    screen; a smooth gradient through many bands scores low because its
+    bands are wide; a tangle of filaments, where nearly every neighbour
+    differs, scores the most. Counted with integral images, so every window
+    costs four lookups.
+    """
+    bins = _PALETTE_BINS
+    phase = np.mod(0.025 * np.asarray(iterations, dtype=np.float64), 1.0)
+    index = np.minimum((phase * bins).astype(np.int64), bins - 1)
+    index = np.where(np.asarray(escaped, dtype=bool), index, bins)
+    height, width = index.shape
+    size = max(1, int(window))
+    scores = np.full((height, width), -1.0)
+    if height < size or width < size:
+        return scores
+    changes = np.zeros((height, width), dtype=np.float64)
+    changes[:, :-1] += index[:, 1:] != index[:, :-1]
+    changes[:-1, :] += index[1:, :] != index[:-1, :]
+    layers = np.concatenate(
+        [(index[..., None] == np.arange(bins + 1)).astype(np.float64),
+         0.5 * changes[..., None]], axis=-1)
+    integral = np.zeros((height + 1, width + 1, bins + 2))
+    integral[1:, 1:] = layers.cumsum(axis=0).cumsum(axis=1)
+    counts = (integral[size:, size:] - integral[:-size, size:]
+              - integral[size:, :-size] + integral[:-size, :-size])
+    share = counts[..., :-1] / float(size * size)
+    logs = np.log2(np.where(share > 0.0, share, 1.0))
+    entropy = -(share * logs).sum(axis=-1)
+    edges = counts[..., -1] / float(size * size)
+    half = size // 2
+    scores[half:half + entropy.shape[0], half:half + entropy.shape[1]] = \
+        entropy * (0.35 + 0.65 * edges)
+    return scores
+
+
+def _survey(orbit, centre, scale: float, budget: int,
+            aspect: float = 16.0 / 9.0, rows: int = 45) -> dict:
+    """Escape-time survey of the view the camera is looking at.
+
+    :param orbit: the reference orbit the view is drawn against.
+    :param centre: ``(re, im)`` of the view centre relative to the reference.
+    :param scale: the viewport half-height.
+    :param budget: the iteration budget the frame is drawn with.
+    :param aspect: width over height of the screen.
+    :param rows: survey rows; the columns follow the aspect.
+    :returns: ``{"scores", "centre", "scale", "aspect"}`` for
+        :meth:`_GlideCamera.consider`.
+    """
+    rows = max(_COMPLEXITY_WINDOW + 2, int(rows))
+    columns = max(_COMPLEXITY_WINDOW + 2,
+                  int(round(rows * max(0.2, float(aspect)))))
+    escaped, iterations = perturbation_escape_map(
+        orbit, columns, rows, float(scale), int(budget),
+        float(centre[0]), float(centre[1]))
+    return {"scores": _complexity_map(escaped, iterations),
+            "centre": (float(centre[0]), float(centre[1])),
+            "scale": float(scale), "aspect": columns / float(rows)}
+
+
+class _GlideCamera:
+    """A deep-zoom camera that glides to wherever the picture is busiest.
+
+    A PLAIN OBJECT, for the same reason :class:`SteeringCamera` is: it can
+    be driven frame by frame in a test and its motion measured.
+
+    Where to go comes from :func:`_complexity_map` of the current view: the
+    camera heads for the nearby window with the most colours in it and never
+    for one under :data:`_COMPLEXITY_FLOOR`. How it gets there is what keeps
+    it from jumping:
+
+    * the centre follows the target as a critically damped spring, solved
+      exactly each frame, so position and velocity are continuous and a new
+      target changes only the acceleration;
+    * its speed is capped in screen units, so no frame moves the picture
+      more than a sliver of the window;
+    * the zoom is a depth in decades whose velocity eases toward a wanted
+      rate -- slowed while the centre is still travelling, reversed gently
+      when nothing in view has structure, and run backwards to the surface
+      at the end of a dive -- so the zoom is continuous in velocity too;
+    * a target whose neighbourhood is fading toward one colour is replaced
+      before the camera arrives, and the spring carries the change smoothly.
+
+    The centre and target are offsets from the reference orbit, as the
+    shader's ``u_center_offset`` is; when the reference moves, the canvas
+    moves both the other way, so the picture stays still.
+
+    :param max_depth: decades to descend before gliding back to the surface.
+    :param floor: least complexity a target may have, in bits.
+    """
+
+    def __init__(self, max_depth: float = MAX_USEFUL_DEPTH,
+                 floor: float = _COMPLEXITY_FLOOR) -> None:
+        """Start at the surface, still, with nothing chosen yet.
+
+        :param max_depth: decades to descend before gliding back up.
+        :param floor: least complexity a target may have, in bits.
+        """
+        self.max_depth = max(0.1, float(max_depth))
+        self.floor = float(floor)
+        self.centre = (0.0, 0.0)
+        self.velocity = (0.0, 0.0)
+        self.target: Optional[tuple] = None
+        self.target_score = 0.0
+        self.centre_score: Optional[float] = None
+        self.depth = 0.0
+        self.zoom_velocity = 0.0
+        self.ascending = False
+        self.taken = False
+        self.flat = False
+        self.stiffness = 0.9
+        self.speed_limit = 0.45
+        self.zoom_ease = 1.2
+        self.ascent_rate = max(0.5, min(2.0, self.max_depth / 14.0))
+        self.survey_every = 0.5
+        self._since_survey = 1e9
+
+    def scale(self, initial_scale: float = 1.25) -> float:
+        """The viewport half-height at the current depth.
+
+        :param initial_scale: the half-height at depth 0.
+        """
+        return scale_at(self.depth, initial_scale)
+
+    def wants_survey(self) -> bool:
+        """Whether it is time to measure the view again."""
+        return (not self.ascending and not self.taken
+                and self._since_survey >= self.survey_every)
+
+    def surveyed(self) -> None:
+        """Note that a survey of the current view has been started."""
+        self._since_survey = 0.0
+
+    def consider(self, survey: dict, initial_scale: float = 1.25) -> None:
+        """Choose where to head from a survey of the view.
+
+        :param survey: what :func:`_survey` returned, possibly a few frames
+            old -- its own centre and scale place every cell in the plane.
+        :param initial_scale: the half-height at depth 0, which with the
+            depth gives the scale distances are measured in now.
+
+        The current target is kept while it still scores well and nothing
+        nearby is clearly better; changing targets on every survey would
+        wander. It is dropped early, while it still scores above the floor
+        but is heading toward it, so the camera turns before it reaches a
+        flat patch rather than after.
+        """
+        scores = np.asarray(survey["scores"], dtype=np.float64)
+        rows, columns = scores.shape
+        aspect = float(survey.get("aspect", columns / max(1.0, rows)))
+        then = float(survey["scale"])
+        origin = survey["centre"]
+        xs = ((np.arange(columns) + 0.5) / columns * 2.0 - 1.0) * aspect
+        ys = (np.arange(rows) + 0.5) / rows * 2.0 - 1.0
+        plane_x = origin[0] + xs[None, :] * then
+        plane_y = origin[1] + ys[:, None] * then
+        now = max(1e-300, self.scale(initial_scale))
+
+        def _score_at(point) -> float:
+            """The survey's score at ``point``, or 0 outside it.
+
+            :param point: ``(re, im)`` relative to the reference.
+            """
+            column = int(np.floor(((point[0] - origin[0]) / then / aspect
+                                   + 1.0) * 0.5 * columns))
+            row = int(np.floor(((point[1] - origin[1]) / then + 1.0)
+                               * 0.5 * rows))
+            if 0 <= row < rows and 0 <= column < columns:
+                return max(0.0, float(scores[row, column]))
+            return 0.0
+
+        self.centre_score = _score_at(self.centre)
+        distance = np.hypot(plane_x - self.centre[0],
+                            plane_y - self.centre[1]) / now
+        eligible = scores >= self.floor
+        near = eligible & (distance <= 0.7)
+        if not near.any():
+            near = eligible & (distance <= 1.6)
+        if not near.any():
+            self.flat = self.centre_score < self.floor
+            if self.target is not None:
+                self.target_score = _score_at(self.target)
+            return
+        self.flat = False
+        merit = np.where(near, scores - 1.2 * distance, -np.inf)
+        best = np.unravel_index(int(np.argmax(merit)), merit.shape)
+        best_merit = float(merit[best])
+        if self.target is not None:
+            self.target_score = _score_at(self.target)
+            away = math.hypot(self.target[0] - self.centre[0],
+                              self.target[1] - self.centre[1]) / now
+            kept = self.target_score - 1.2 * away
+            if (self.target_score >= 1.15 * self.floor
+                    and best_merit < kept + 0.35):
+                return
+        self.target = (float(plane_x[0, best[1]]), float(plane_y[best[0], 0]))
+        self.target_score = float(scores[best])
+
+    def advance(self, seconds: float, rate: float,
+                initial_scale: float = 1.25) -> tuple:
+        """Move one frame on, and answer ``(centre, depth)``.
+
+        :param seconds: time since the last frame; a frame that arrives very
+            late is treated as a quarter of a second, so a machine waking
+            from sleep resumes the glide rather than cutting ahead.
+        :param rate: the dive's own pace in decades per second.
+        :param initial_scale: the half-height at depth 0.
+        """
+        step = max(0.0, min(0.25, float(seconds)))
+        self._since_survey += step
+        if step <= 0.0:
+            return self.centre, self.depth
+        span = max(1e-300, self.scale(initial_scale))
+        self._move_the_centre(step, span)
+        self._move_the_depth(step, max(0.0, float(rate)), span)
+        return self.centre, self.depth
+
+    def _move_the_centre(self, step: float, span: float) -> None:
+        """Critically damped follow of the target, capped in screen speed.
+
+        :param step: seconds this frame lasts.
+        :param span: the viewport half-height now.
+        """
+        goal = self.target if (self.target is not None
+                               and not self.taken) else self.centre
+        omega = self.stiffness
+        decay = math.exp(-omega * step)
+        moved = []
+        for axis in (0, 1):
+            offset = self.centre[axis] - goal[axis]
+            speed = self.velocity[axis]
+            carry = speed + omega * offset
+            moved.append(((offset + carry * step) * decay + goal[axis],
+                          (speed - omega * carry * step) * decay))
+        new_x, new_y = moved[0][0], moved[1][0]
+        velocity = (moved[0][1], moved[1][1])
+        travel = math.hypot(new_x - self.centre[0], new_y - self.centre[1])
+        allowed = self.speed_limit * span * step
+        if travel > allowed > 0.0:
+            share = allowed / travel
+            new_x = self.centre[0] + (new_x - self.centre[0]) * share
+            new_y = self.centre[1] + (new_y - self.centre[1]) * share
+            velocity = (velocity[0] * share, velocity[1] * share)
+        self.centre = (new_x, new_y)
+        self.velocity = velocity
+
+    def _move_the_depth(self, step: float, rate: float, span: float) -> None:
+        """Ease the zoom's velocity toward what the view calls for.
+
+        :param step: seconds this frame lasts.
+        :param rate: the dive's own pace in decades per second.
+        :param span: the viewport half-height now.
+        """
+        if self.ascending:
+            wanted = -min(self.ascent_rate, 1.2 * self.depth)
+        elif self.flat and not self.taken:
+            wanted = -0.6 * max(rate, 0.02)
+        else:
+            gate = 1.0
+            if self.target is not None and not self.taken:
+                away = math.hypot(self.target[0] - self.centre[0],
+                                  self.target[1] - self.centre[1]) / span
+                gate = max(0.0, min(1.0, 1.0 - away / 0.5))
+            wanted = rate * (0.1 + 0.9 * gate)
+        blend = 1.0 - math.exp(-step / self.zoom_ease)
+        before = self.zoom_velocity
+        self.zoom_velocity = before + (wanted - before) * blend
+        self.depth += 0.5 * (before + self.zoom_velocity) * step
+        if self.depth <= 0.0:
+            self.depth = 0.0
+            self.zoom_velocity = max(0.0, self.zoom_velocity)
+        if self.ascending and self.depth < 0.03:
+            self.ascending = False
+        elif not self.ascending and self.depth >= self.max_depth:
+            self.ascending = True
+
+    def drag(self, dx: float, dy: float, span: float) -> tuple:
+        """Move the view by hand, and stop choosing where to go.
+
+        :param dx: horizontal pointer movement, in the -1..1 widget space.
+        :param dy: vertical pointer movement, in the same space.
+        :param span: the viewport half-height now.
+        :returns: the new centre.
+        """
+        self.centre = (self.centre[0] - float(dx) * float(span),
+                       self.centre[1] - float(dy) * float(span))
+        self.velocity = (0.0, 0.0)
+        self.target = None
+        self.taken = True
+        return self.centre
+
+    def restart(self) -> None:
+        """Glide back to the surface and choose again from there."""
+        self.taken = False
+        self.flat = False
+        self.target = None
+        if self.depth > 0.03:
+            self.ascending = True
+        self._since_survey = 1e9
+
+
 #: How often to move the reference onto the boundary again, in decades.
 #:
 #: In a dragged-view descent, refining every two decades stays sharp to six,

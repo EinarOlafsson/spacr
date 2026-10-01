@@ -8027,7 +8027,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "classes",
-    "line": 6944,
+    "line": 7023,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -8036,7 +8036,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 6946,
+    "line": 7025,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -8045,7 +8045,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 11491,
+    "line": 11686,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8054,7 +8054,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 11491,
+    "line": 11686,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8063,7 +8063,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 11607,
+    "line": 11802,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -12362,7 +12362,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 13862,
+    "line": 14069,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"
@@ -15540,7 +15540,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 6052,
+    "line": 6053,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -15790,7 +15790,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu",
-    "line": 2949,
+    "line": 3028,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "load_cellpose_model"
@@ -23848,7 +23848,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 5770,
+    "line": 5849,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_LiveMagnifier._primary_request_values"
