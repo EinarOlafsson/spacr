@@ -1,0 +1,208 @@
+{
+  "language": "is",
+  "note": "Source-bound corrections of rejected API drafts. Model-draft segments are preserved as evidence. Corrected translations are not claimed to be verbatim model output.",
+  "records": [
+    {
+      "context": "Union of positions assigned different labels within any output.",
+      "label": "spacr.condition_annotations.ConditionPreview#4",
+      "model_draft_segments": [
+        {
+          "source": "Union of positions assigned different labels within any output.",
+          "translation": "Unions of positions gefið mismunandi tákn í hverri útgáfu."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "Union of positions assigned different labels within any output.",
+      "source_sha256": "82d71e0db19c2b3cfa43d8e6531976f6dbd0b900c88f9a903062286aa1b4f8e8",
+      "translation": "Sammengi staðsetninga sem fá ólík merki innan einhvers úttaksdálks."
+    },
+    {
+      "context": "Individual rule counts before same-label unions.",
+      "label": "spacr.condition_annotations.ConditionPreview#7",
+      "model_draft_segments": [
+        {
+          "source": "Individual rule counts before same-label unions.",
+          "translation": "Einhver regla talar fyrir same-label samkeppnunar."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "Individual rule counts before same-label unions.",
+      "source_sha256": "5f06a6f125201f1587a8a3881193cadd0480c05b395640d6b975c66034c3e317",
+      "translation": "Fjöldi samsvarandi raða fyrir hverja reglu áður en niðurstöður með sama merki eru sameinaðar."
+    },
+    {
+      "context": "Name-to-definition mapping, empty when no definitions exist.",
+      "label": "spacr.derived_tables.load_definitions#2",
+      "model_draft_segments": [
+        {
+          "source": "Name-to-definition mapping, empty when no definitions exist.",
+          "translation": "Name-to-definition mapping, leyti þegar engin skilyrði er til."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "Name-to-definition mapping, empty when no definitions exist.",
+      "source_sha256": "088ccfc0fdae1d40628398a73d1e230400052a4a6aa3c30ae15ccc8b4472a278",
+      "translation": "Vörpun úr nöfnum í skilgreiningar; tóm ef engar skilgreiningar eru til."
+    },
+    {
+      "context": "The tar-writing pool is closed and joined, not left to the ``with`` block's ``terminate()``: that sends SIGTERM to idle workers, and a worker whose SIGTERM handler needs a lock the interrupted code holds (coverage's ``sigterm = True`` data save does) never exits, so the shutdown waited on it for ever. Workers that finished their tasks are let go by a normal exit instead.",
+      "label": "spacr.io.generate_dataset#11",
+      "model_draft_segments": [
+        {
+          "source": "The tar-writing pool is closed and joined, not left to the ``with`` block's ``terminate()``: that sends SIGTERM to idle workers, and a worker whose SIGTERM handler needs a lock the interrupted code holds (coverage's ``sigterm = True`` data save does) never exits, so the shutdown waited on it for ever. Workers that finished their tasks are let go by a normal exit instead.",
+          "translation": "The tar-skriving pool er lokaður og tengdur, ekki leyft á ``with`` blokkinn ``terminate()``: sem sendir SIGTERM til ídla starfsmenn, og starfsmann sem SIGterM handmenn þurfa lukk sem breyttur kóða holds (tölvunar ``sigterm = True`` gögnum gerir) aldrei fara út, þannig að lokað bíða á það fyrir eilífu."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "The tar-writing pool is closed and joined, not left to the ``with`` block's ``terminate()``: that sends SIGTERM to idle workers, and a worker whose SIGTERM handler needs a lock the interrupted code holds (coverage's ``sigterm = True`` data save does) never exits, so the shutdown waited on it for ever. Workers that finished their tasks are let go by a normal exit instead.",
+      "source_sha256": "12cb9f41e79880a7d93c165292e34660b55bf81e1a14b8a8bbae45ea285605d1",
+      "translation": "Vinnsluferlahópnum sem skrifar tar-skrár er lokað og beðið eftir að hann ljúki. ``with``-blokkin fær ekki að ljúka hópnum með ``terminate()``: sú aðgerð sendir SIGTERM til aðgerðalausra vinnsluferla. Ef SIGTERM-meðhöndlari vinnsluferlis þarf læsingu sem kóðinn sem var rofinn heldur, lýkur ferlinu aldrei. Þannig hagar gagnavistun coverage með ``sigterm = True`` sér, og því beið lokunin endalaust eftir ferlinu. Vinnsluferlum sem hafa lokið verkefnum sínum er þess í stað leyft að ljúka á eðlilegan hátt."
+    },
+    {
+      "context": "Unqualified column-to-method mapping for this table.",
+      "label": "spacr.merge_tables.aggregation_overrides#3",
+      "model_draft_segments": [
+        {
+          "source": "Unqualified column-to-method mapping for this table.",
+          "translation": "Unqualified kolumn-to-method mapping fyrir þessa tabla."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "Unqualified column-to-method mapping for this table.",
+      "source_sha256": "bf53d2606a2bab71544218a14860bd14621dff5804e059c3ad59afc72bb09f91",
+      "translation": "Vörpun úr dálkaheitum án töfluforskeytis í aðferðir fyrir þessa töflu."
+    },
+    {
+      "context": "Rows, index, order and existing columns are preserved. Multiple original images for one microscope field of view are deduplicated and sorted, joined with ``'; '``. Unmatched values are missing. Existing output columns are never replaced. Ambiguous laboratory microplate or timepoint matches throw ValueError, as do changed maps when expected_sha256 binds a saved workflow to its reviewed mapping bytes. ``original_path`` preserves recorded paths, not a promise they still exist.",
+      "label": "spacr.original_filenames.enrich#1",
+      "model_draft_segments": [
+        {
+          "source": "Rows, index, order and existing columns are preserved. Multiple original images for one microscope field of view are deduplicated and sorted, joined with ``'; '``. Unmatched values are missing. Existing output columns are never replaced. Ambiguous laboratory microplate or timepoint matches throw ValueError, as do changed maps when expected_sha256 binds a saved workflow to its reviewed mapping bytes. ``original_path`` preserves recorded paths, not a promise they still exist.",
+          "translation": "Röfur, index, orðin og núverandi kolumnar eru geymd. Mörg upphafna myndir fyrir einn mikroskópur sviði eru deduplikaðir og sortir, tengd við ``'; '``. Unmatched reikningar eru saknar. Existing output columns eru aldrei skipt. Ambigu laboratory microplate eða timepoint matches throw ValueError, eins og að breyta kort þegar expected_sha256 tengur sparað vinnuflu við endurskoðað mapping bytes. ``original_path`` geymir skráðir leiðir, ekki loforð þeir eru enn til."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "Rows, index, order and existing columns are preserved. Multiple original images for one field are deduplicated and sorted, joined with ``'; '``. Unmatched values are missing. Existing output columns are never replaced. Ambiguous plate or timepoint matches raise ValueError, as do changed maps when expected_sha256 binds a saved workflow to its reviewed mapping bytes. ``original_path`` preserves recorded paths, not a promise they still exist.",
+      "source_sha256": "0656be33345049484739c8f6cd1ad0f1be93ca0ecd521aa21d1d4822bfaa53b4",
+      "translation": "Raðir, vísir, röðun og núverandi dálkar haldast óbreytt. Ef margar upprunalegar myndir tilheyra sama smásjársviði eru tvítekningar fjarlægðar, myndunum raðað og gildin sameinuð með ``'; '``. Gildi án samsvörunar eru merkt sem vantar. Núverandi úttaksdálkum er aldrei skipt út. Tvíræð samsvörun plötu eða tímapunkts veldur ValueError, og sama á við um breyttar vörpunarskrár þegar expected_sha256 bindur vistað verkflæði við yfirfarna bætarunu vörpunarskrárinnar. ``original_path`` varðveitir skráðar slóðir en tryggir ekki að þær séu enn til."
+    },
+    {
+      "context": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available. Use **Merge tables** beside that picker to combine tables at a cell/cytoplasm observation level. The popup shows the shared spaCR aggregation rules, per-column overrides and a validated preview. **Customize merging** supplies explicit composite structured-data names, relationships and join types for external schemas, with acknowledgment and reset controls. Named results persist beside the database in ``.spacr-merges.json`` and are revalidated on reuse. **Save chart** includes the chart image data channels and merge definition; **Load chart** reconstructs the data before plotting. External results without verified image provenance support plotting and tabular filtering, while the image navigation action explains why it is unavailable.",
+      "label": "spacr.qt.screens.graph_builder#6",
+      "model_draft_segments": [
+        {
+          "source": "**Load chart** reconstructs the data before plotting. External results without verified image provenance support plotting and tabular filtering, while the image navigation action explains why it is unavailable.",
+          "translation": "**Load chart** endurbyggja gögnum áður en plotting. Frjáls niðurstöður án staðfestra mynd frástæðan stuðlar plottingu og táknfiltringu, þar sem myndnavigation aðgerðir útskýra hvers vegna það er ekki til staðar."
+        },
+        {
+          "source": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available. Use **Merge tables** beside that picker to combine tables at a cell/cytoplasm observation level. The popup shows the shared spaCR aggregation rules, per-column overrides and a validated preview. **Customize merging** supplies explicit composite structured-data names, relationships and join types for external schemas, with acknowledgment and reset controls. Named results persist beside the database in ``.spacr-merges.json`` and are revalidated on reuse. **Save chart** includes the chart image data channels and merge definition;",
+          "translation": "**Hvað það þarf.** Einn tól af ``measurements.db`` eða CSV eða TSV faili, sem er valið með Load tól. Ástæður tabla og ``png_list`` eru tilkynnt fyrst; Öll önnur tabla í gögnum er til staðar. Notaðu **Samblað tabla** við þessara uppskera til að sameina tabla á cell/cytoplasm athygli. The popup sýnir sameiginleg spaCR sameiginleika reglur, per-kolumn overrides og staðfest preview. **Customize merging** veitir útskýrt samsettu gögn-nafn, samskipti og tengja tegundir fyrir útlendar skema, með viðurkenningu og endursetningu stjórnun. Námennir niðurstöður halda áfram við gögnum í ``.spacr-merges.json`` og eru endurnýjandi á nýtt notkun. **Save gráður** inniheldur gráður mynd gögn kanna og samræmi skilaboð;"
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available. Use **Merge tables** beside that picker to combine tables at a cell/cytoplasm observation level. The popup shows the shared spaCR aggregation rules, per-column overrides and a validated preview. **Customize merging** supplies explicit composite keys, relationships and join types for external schemas, with acknowledgment and reset controls. Named results persist beside the database in ``.spacr-merges.json`` and are revalidated on reuse. **Save chart** includes the chart channels and merge definition; **Load chart** reconstructs the data before plotting. External results without verified image provenance support plotting and tabular filtering, while the image navigation action explains why it is unavailable.",
+      "source_sha256": "2205a234029d2679e9b0bee509e0a6c2be6c8dd55e39005bb1e8913f7f0c2f96",
+      "translation": "**Það sem þarf.** Eina töflu úr ``measurements.db`` eða CSV- eða TSV-skrá, valda með Hlaða töflu. Hlutataflur og ``png_list`` birtast fyrst; allar aðrar töflur gagnagrunnsins eru áfram tiltækar. Notaðu **Sameina töflur** við hlið valreitsins til að sameina töflur á stigi einstakra frumu- eða umfrymismælinga. Glugginn sýnir sameiginlegar reglur spaCR um samantekt gagna, sérstillingar fyrir einstaka dálka og sannreynda forskoðun. **Sérsníða sameiningu** gerir kleift að skilgreina samsetta lykla, vensl og tegundir samtenginga fyrir ytri gagnaskipan, með staðfestingu og endurstillingu. Niðurstöður með nöfnum eru vistaðar við hlið gagnagrunnsins í ``.spacr-merges.json`` og sannreyndar aftur við endurnotkun. **Vista graf** vistar tengingar gagnadálka við grafið og skilgreiningu sameiningarinnar; **Hlaða grafi** endurgerir gögnin áður en grafið er teiknað. Ytri niðurstöður án sannreyndra upprunaupplýsinga mynda styðja gröf og síun taflna; aðgerðin fyrir myndaskoðun útskýrir hvers vegna hún er ekki tiltæk."
+    },
+    {
+      "context": "A QRegion is binary and quantizes its outline to logical pixels, even on high-DPI application views. Cutting the antialiased card to that shape erased partially covered edge pixels, producing a jagged white/dark fringe against the desktop. Translucent windows already carry the card's exact per-pixel alpha only when their native format has an alpha buffer. Clear the mask in that case; the QWidget attribute alone is not proof. Until a native alpha surface exists, retain the rounded platform mask.",
+      "label": "spacr.qt.widgets.glass.round_the_corners#1",
+      "model_draft_segments": [
+        {
+          "source": "A QRegion is binary and quantizes its outline to logical pixels, even on high-DPI application views. Cutting the antialiased card to that shape erased partially covered edge pixels, producing a jagged white/dark fringe against the desktop. Translucent windows already carry the card's exact per-pixel alpha only when their native format has an alpha buffer. Clear the mask in that case; the QWidget attribute alone is not proof. Until a native alpha surface exists, retain the rounded platform mask.",
+          "translation": "A QRegion er tvöfaldur og kvantísa útliti sín til logic pixels, jafnvel á hár-DPI umsókn sýningar. Cut the antialiated card to that shape er delimited edge pixel, sem framleiðir a jagged hvít/dark fringe gegn skrifstofu. Translucent vindur hefur þegar borið nákvæmlega per-pixel alfa kortina aðeins þegar heimilegu formata þeirra hefur alfa buffer. Tölja maski í þessu tilfelli; QWidget atribút einn er ekki staðreynd. þar til heimilegt alfa yfirborði er til, haldið runda plattform maski."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "A QRegion is binary and quantizes its outline to logical pixels, even on high-DPI screens. Cutting the antialiased card to that shape erased partially covered edge pixels, producing a jagged white/dark fringe against the desktop. Translucent windows already carry the card's exact per-pixel alpha only when their native format has an alpha buffer. Clear the mask in that case; the QWidget attribute alone is not proof. Until a native alpha surface exists, retain the rounded platform mask.",
+      "source_sha256": "1f3721214e5e9bed9a7fb1a57f32839480c695addd8e8f25dfdb10279c2136d1",
+      "translation": "QRegion er tvígilt svæði og námundar útlínur sínar að rökrænum mynddílum, jafnvel á skjám með hátt DPI. Þegar spjaldið með mýktum brúnum var klippt að þessari lögun hurfu jaðarmynddílar sem voru aðeins þaktir að hluta; við það myndaðist tennt hvít eða dökk rönd við skjáborðið. Hálfgagnsæir gluggar geyma nákvæm alfa-gildi spjaldsins fyrir hvern mynddíl aðeins ef gluggasnið stýrikerfisins hefur alfa-biðminni. Hreinsaðu maskann í því tilviki; QWidget-eigindin ein og sér er ekki sönnun fyrir því. Haltu ávala kerfismaskanum þar til teikniflötur stýrikerfisins með alfa-rás er til staðar."
+    },
+    {
+      "context": "the Data-selection boundary Editor data-selection filtering strategies in use, for data-selection boundaries the lock took as objects (see :func:`lock_analysis`).",
+      "label": "spacr.run_journal.check_analysis_lock#6",
+      "model_draft_segments": [
+        {
+          "source": "the Data-selection boundary Editor data-selection filtering strategies in use, for data-selection boundaries the lock took as objects (see :func:`lock_analysis`).",
+          "translation": "The Data-selection landamær Editor data-selction filtering stratégi í notkun, fyrir data-selection landamæri lokað sem hlutum (sjá :func:`lock_analysis`)."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "the Gate Editor gating strategies in use, for gates the lock took as objects (see :func:`lock_analysis`).",
+      "source_sha256": "83e6764c0d22590aaddbe5d378fc6debe0fb82a03fc36fcb42173d43f87ad4fe",
+      "translation": "valreglurnar sem eru í notkun í Gate Editor, fyrir valmörk sem greiningarlásinn tók við sem hlutum (sjá :func:`lock_analysis`)."
+    },
+    {
+      "context": "Score a bounded curation work list headlessly and persist its ranking.",
+      "label": "spacr.segmentation_uncertainty.compute_queue_uncertainty#0",
+      "model_draft_segments": [
+        {
+          "source": "Score a bounded curation work list headlessly and persist its ranking.",
+          "translation": "Score a bounded curation vinnuleikinn án heila og halda áfram að rangingu."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "Score a bounded curation queue headlessly and persist its ranking.",
+      "source_sha256": "85ec548ff4d7413f8ad081036e88078536f8668bfc0b60532256cbe5861451eb",
+      "translation": "Reikna skor fyrir afmarkaðan yfirferðarlista án grafísks viðmóts og vista röðun hans."
+    },
+    {
+      "context": "Key-value mapping of score summaries keyed by image filename without its extension. Each summary excludes the pixel map.",
+      "label": "spacr.segmentation_uncertainty.compute_queue_uncertainty#9",
+      "model_draft_segments": [
+        {
+          "source": "Key-value mapping of score summaries keyed by image filename without its extension. Each summary excludes the pixel map.",
+          "translation": "Key-value mapping af niðurstöðum summar keypt af myndin filename án endurtekinu. Hver summar er ekki pikselkarta."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "Dictionary of score summaries keyed by image filename without its extension. Each summary excludes the pixel map.",
+      "source_sha256": "74045502865d03b13b3c4e2cdb554874d8d5114489db5c0ff71f516afbf421eb",
+      "translation": "Vörpun úr myndskráarheitum án skráarendingar í samantektir á skorum. Hver samantekt undanskilur mynddílakortið."
+    },
+    {
+      "context": "Score aligned TTA passes, optionally adding a second-model ensemble.",
+      "label": "spacr.segmentation_uncertainty.compute_uncertainty#0",
+      "model_draft_segments": [
+        {
+          "source": "Score aligned TTA passes, optionally adding a second-model ensemble.",
+          "translation": "Score aligned TTA passes, opcionally með því að bæta annað-móða samsetningu."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "Score aligned TTA passes, optionally adding a second-model ensemble.",
+      "source_sha256": "c41ffb3ba76806e354c27b82360903c3f2d23c045418b81fba957ad6d1457e7d",
+      "translation": "Reikna skor fyrir samstilltar TTA keyrslur og, ef óskað er, sameina niðurstöður tveggja líkana."
+    },
+    {
+      "context": "Atomically save a float32 TIFF map with embedded JSON provenance.",
+      "label": "spacr.segmentation_uncertainty.save_uncertainty_map#0",
+      "model_draft_segments": [
+        {
+          "source": "Atomically save a float32 TIFF map with embedded JSON provenance.",
+          "translation": "Atomically save a float32 TIFF kartan með innbyggð JSON útgang."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "Atomically save a float32 TIFF map with embedded JSON provenance.",
+      "source_sha256": "80a046c9c0f03fea6135d0b23763eb89ae63bd5e810730aace917810e6e049b4",
+      "translation": "Vista float32 TIFF kort með innbyggðum JSON upprunaupplýsingum í einni óskiptanlegri aðgerð."
+    },
+    {
+      "context": "uncertainty score key-value mapping containing a finite 2-D map.",
+      "label": "spacr.segmentation_uncertainty.save_uncertainty_map#2",
+      "model_draft_segments": [
+        {
+          "source": "uncertainty score key-value mapping containing a finite 2-D map.",
+          "translation": "Uncertainty score key-value mapping sem inniheldur 2D mappingu."
+        }
+      ],
+      "review_basis": "Corrected after inspecting actual rejected local-model output. Codex AI technical review and independent root Codex AI peer review checked all 14 exact source/target pairs, including union/count semantics, worker shutdown locks, missing and ambiguous mappings, chart bindings, native-alpha fallback, and finite numeric values.",
+      "source": "uncertainty score dictionary containing a finite 2-D map.",
+      "source_sha256": "277aa0138f1393eff5f5004318ead411f62f8af72cbc7f68da8c90312c9e252c",
+      "translation": "vörpun með óvissumati sem inniheldur 2-D kort með endanlegum tölugildum."
+    }
+  ],
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "schema": 1
+}
