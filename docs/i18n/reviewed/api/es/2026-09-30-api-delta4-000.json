@@ -10,7 +10,9 @@
       "source_sha256": "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
       "context": "``{image: mask path}`` naming each image's mask outright (item 600's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
       "translation": "``{image: mask path}`` que indica directamente la máscara de cada imagen (las columnas de máscara del item 600); una imagen que no figura en él no tiene ninguna. None busca cada máscara con :func:`mask_for`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.channel_sorting.mask_for#1",
@@ -58,7 +60,9 @@
       "source_sha256": "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
       "context": "Item 600. Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
       "translation": "Item 600. Make Masks acepta que se suelten archivos, carpetas o ambos, y lo que el usuario quiere decir depende de lo que soltó. :func:`classify_drop` lee las rutas -- nombres, estructura de carpetas y, para algunos TIFFs, sus píxeles -- e indica cuál de los siguientes casos es, sin una sola pregunta ni widget:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification#2",
@@ -194,7 +198,9 @@
       "source_sha256": "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
       "context": "Item 600: a folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
       "translation": "Item 600: también se aceptan una carpeta cuyas imágenes están solo en subcarpetas y una carpeta que escribió spaCR (``merged/*.npy``, ``sorted_channels``), y un ``.npy`` para que la pantalla pueda decir qué es; :func:`spacr.drop_classification.classify_drop` decide qué significa lo soltado. Los pares se buscan después y aquí no son obligatorios.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#0",
@@ -210,7 +216,9 @@
       "source_sha256": "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
       "context": "Item 600. :func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
       "translation": "Item 600. :func:`spacr.drop_classification.classify_drop` indica qué se soltó, y:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#11",
@@ -242,7 +250,9 @@
       "source_sha256": "d6cfe7dc8f5efd9740d06ece07a39d601c18295bf1f4f87dbbe487802815feab",
       "context": "one folder whose subfolders look like image data channels (DAPI/, GFP/..., or the same microscope fields of view in each) opens \"Organize for Measure\" with an image data channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation (item 593);",
       "translation": "una carpeta cuyas subcarpetas parecen canales (DAPI/, GFP/... o los mismos campos de visión en cada una) abre \"Organize for Measure\" con una columna de canal por subcarpeta; cualquier otra carpeta cuyas imágenes estén en subcarpetas se ofrece para consolidación (item 593);",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#5",
@@ -298,7 +308,9 @@
       "source_sha256": "4145d60284cd1c41324b691b5ceb3a7b1e50f5918b463f4cdfb711ecf8072e33",
       "context": "Item 600, replacing item 593's string of prompts and its separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
       "translation": "Item 600, que sustituye como punto de entrada la serie de preguntas del item 593 y su diálogo aparte \"Sort into channels\". UNA sola ventana emergente coloca las imágenes y sus máscaras en la estructura que lee Measure -- carpetas de canal con nombres Yokogawa, las máscaras y ``merged/*.npy`` -- mediante :mod:`spacr.channel_sorting` y :mod:`spacr.folder_consolidation`, que toman todas las decisiones:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.organize_for_measure#2",

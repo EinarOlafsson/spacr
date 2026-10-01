@@ -314,7 +314,9 @@
       "source_sha256": "ea2c524a335b5143cd5020eb02dde69bdd0ad5882bf127178d68721c59f05e5d",
       "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install (item 518).",
       "translation": "True cuando se inició la descarga, o cuando a un PDF que necesita el lector de figuras se le respondió con su instalación (elemento 518).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#7",
@@ -1270,7 +1272,9 @@
       "source_sha256": "15261313469c9c3e67f145132d2fe6448057d81da96d40e0f7f2952dd4fc23ac",
       "context": "Item 518: PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
       "translation": "Elemento 518: los PDFs se leen en modo Figure y las imágenes de placas en modo Plaque, así que una entrada para el otro modo pregunta si cambiar, y una entrada para ambos pregunta cuál leer.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_question#3",
@@ -2638,7 +2642,9 @@
       "source_sha256": "ee8bf065edb400a30ce7dbc6e4720c9e272fc20a3e6afc71c7d19b68cc0404a8",
       "context": "One scale slider per live preview, scaling that preview alone (item 471).",
       "translation": "Un control deslizante de escala por vista previa en vivo, que escala solo esa vista previa (elemento 471).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#1",
@@ -2654,7 +2660,9 @@
       "source_sha256": "4e9e46511a7bc261ae82185b1937bd36319e36dac451378ffb1e819acb20289d",
       "context": "A window opened from the preview is not the preview (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
       "translation": "UNA VENTANA ABIERTA DESDE LA VISTA PREVIA NO ES LA VISTA PREVIA (elemento 522). Un diálogo cuyo padre es el panel es una ventana propia, pero Qt propaga a él la hoja escalada del panel, y el recorrido lo encontraba entre los hijos del panel: al 150 % los botones de un diálogo de ajustes medían 59 px de alto, no los 40 px de cualquier otro diálogo. Esa ventana y todo lo que contiene se mantienen al 100 %, y la propia hoja de la ventana redefine, al 100 %, los tamaños que de otro modo heredaría escalados -- se aplica cuando se pule el estilo, es decir, antes de su primera disposición.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#11",
@@ -3294,7 +3302,9 @@
       "source_sha256": "b5d33d503c17395b6bb6224dc4cb5658d264808b5776fb30c00ed549fe49d21d",
       "context": "Item 509: the calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
       "translation": "Elemento 509: la calibración se rellena sola. Un selector de objetivo de microscopio, cámara y fluoróforo, o \"Infer from images…\", rellena el aumento, la apertura numérica, el índice de refracción, la longitud de onda de emisión, el píxel de la cámara, el tamaño de píxel de la imagen y la FWHM gaussiana, y cada campo indica de dónde procede su valor. Solo se muestran la operación y la fila del objetivo; el resto está en un pliegue que empieza contraído y recuerda si se abrió.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.qc_field_browser.QCFieldBrowser.closeEvent#1",

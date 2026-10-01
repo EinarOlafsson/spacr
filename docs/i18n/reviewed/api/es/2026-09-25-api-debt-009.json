@@ -466,7 +466,9 @@
       "source_sha256": "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
       "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
       "translation": "El cuerpo se dispone con un factor de estiramiento, y una disposición cuenta ese factor aunque el cuerpo esté oculto, así que una tarjeta plegada seguía pidiendo espacio y lo repartía a partes iguales con el estiramiento que fija un encabezado plegado al fondo de su panel (elemento 515): la Console plegada ocupaba la mitad de la altura del panel. Plegado, el cuerpo cede su estiramiento; abierto, lo recupera.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.card.Card.follow_fold#2",
@@ -834,7 +836,9 @@
       "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
       "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
       "translation": "Elemento 471, parte B. Dos peticiones que resultan ser una: todo contenedor se contrae (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), y todo contenedor puede \"expanded or shrinkable by draging the edges\". Un :class:`~PySide6.QtWidgets.QSplitter` ya hace ambas cosas -- un asa que arrastrar y un hijo que se puede reducir a nada --, así que ambas mitades viven aquí como UN SOLO mecanismo, y todo lo que se contrae en un divisor también se redimensiona, y viceversa.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter#2",
@@ -1314,7 +1318,9 @@
       "source_sha256": "d4832655134edc2bd98d98f8baaa9ea71afc520147f331b1f390a9775eefbda5",
       "context": "Item 471: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "Elemento 471: \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", y lo mismo siempre que aparecen figuras.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#2",
@@ -1450,7 +1456,9 @@
       "source_sha256": "d7c96a305b7af08faf05d55e039bb388e2d301b27ed513a56c3e006de0b602fe",
       "context": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "Elemento 471, parte C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". Esta es la única forma en que una sección dentro de una pantalla recibe un control de plegado, de modo que todas tienen el mismo aspecto y comportamiento: una flecha y un nombre sobre el cuerpo (el mismo :class:`~spacr.qt.widgets.foldable.Folder` que usan la consola y System), un clic la pliega, y una sección plegada es su encabezado fijado al FONDO del espacio que se le dé (:func:`lock_folded_to_bottom`).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#10",
@@ -1498,7 +1506,9 @@
       "source_sha256": "43b80d0f63a9a4c8798f2872cecbf15370b54233bef26ebc087517cd5bcd0277",
       "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
       "translation": "LA VISIBILIDAD PROPIA DEL CUERPO SIGUE SIENDO COSA DE SU PROPIETARIO. El pliegue oculta un contenedor interior, nunca el cuerpo, así que desplegar no puede mostrar un panel que su propietario ocultó ni construir un panel que se construye la primera vez que se muestra (elementos 284/380). A la inversa, la sección sigue a su cuerpo: mientras el propietario mantiene oculto el cuerpo, toda la sección -- encabezado incluido -- también está oculta, y vuelve cuando el propietario muestra el cuerpo. Para eso solo se lee la marca de oculto del cuerpo, así que no se muestra, mide ni construye nada para averiguarlo.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#3",
@@ -1786,7 +1796,9 @@
       "source_sha256": "4e2e6595cfbd138b4c4a186481d80353527e3fb0d5c4c000f1cf7cefdd2cb3cb",
       "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
       "translation": "Un panel plegado al que se da más espacio del que necesita su encabezado -- el último panel de un divisor, una sección estirada por su columna -- colocaba antes su encabezado en medio de ese espacio, que es el error que nombra el elemento 471 (\"when i collapse the console it collapses to the middle\"). Un estiramiento colocado ENCIMA del encabezado mientras está plegado ocupa en su lugar el espacio sobrante.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#2",

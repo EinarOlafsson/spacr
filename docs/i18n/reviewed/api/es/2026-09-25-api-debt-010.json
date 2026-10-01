@@ -474,7 +474,9 @@
       "source_sha256": "c8e94f5cacf7fda58b3fa8d23e4f2e18af349831d3d7183e4b5c6f7b436cdf72",
       "context": "False when the program folds it on the user's behalf (item 471: a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
       "translation": "False cuando el programa lo pliega en nombre del usuario (elemento 471: al abrirse una vista previa en vivo). Un plegado así no se recuerda entre reinicios, y así se indica a los oyentes.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.foldable.Folder.set_shut#3",
@@ -498,7 +500,9 @@
       "source_sha256": "ec2222cb59ae6cbb6c53b544638e73e8c58e2683108291f0ae4b306d857fa018",
       "context": "start folded unless the user opened this panel before (item 509: advanced rows that most people never change).",
       "translation": "empieza plegado salvo que el usuario haya abierto antes este panel (elemento 509: filas avanzadas que la mayoría de la gente nunca cambia).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.folding_summary.FoldingSummaryView.setReadOnly#2",
