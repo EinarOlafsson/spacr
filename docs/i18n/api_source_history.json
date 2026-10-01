@@ -97,6 +97,22 @@
       "source_sha256": "320dcf8883b6a437663638a040a7c2d62ea68d43c5773cf7b04ebe0ae339973b",
       "text": "Fingerprint ``checkpoint_path`` and remember it under ``name``.\n\n:param name: human-readable key under which to record the model.\n:param checkpoint_path: model checkpoint file to fingerprint.\n\nRecords ``\"<filename>:<digest>\"`` in ``model_hashes``. An unreadable\ncheckpoint is only logged and leaves no entry at all; any other\nfailure is also appended to ``provenance_warnings``, so it reaches\n``manifest.json`` — model logging must never itself fail a run."
     },
+    "37b2432c77d78b8097847af74473da9118f75e4bae86dfc12438516f8ec026a2": {
+      "source_blocks_sha256": [
+        "3baedc6c4989969aa27e64caf192ff8bba05ef2705ba4267459d08aa21653531",
+        "0f2837e3a323ac3929fe092b5e566fa850770a24c250c2809f7cb153f5994373",
+        "158e4c55397fec0051adb73c82ab56a64eccb65e63d56ac2ee44eee4c4e136a2",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "30c86adf14efb7a9ebbeed1ed3e0000eccea603353ffef58ffe6514ae039c6bb",
+        "8b92ca1e3962dc13e5284e4bc8a00e4d120378666a064b40c8bd87de0feb4bbb",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ],
+      "source_sha256": "37b2432c77d78b8097847af74473da9118f75e4bae86dfc12438516f8ec026a2",
+      "text": "``spacr-make-masks`` — open the mask editor on a folder, as a queue.\n\nA curation session has to be startable from a terminal, pointed at a\nfolder, bounded, and resumable. Curation is done over SSH and on more than\none machine, and the answer until now was\n``spacr/cli.py``'s flat refusal — *\"Make Masks is a manual mask editor; run\nit in the GUI\"*. That sentence is still true about the brush and false about\nthe session. This module is the session::\n\n    spacr-make-masks --folder <dir>\n    spacr-make-masks --folder <dir> --order value --limit 25\n    spacr-make-masks --folder <dir> --dry-run      # no display needed\n\n:mod:`spacr.curation_queue` does the thinking — which fields are waiting,\nin what order, and what was already decided about each one. This module is\nthe thin part: parse four arguments, build the queue, say what the session\nis, and only then start Qt.\n\nNothing is imported from :mod:`spacr.qt` until the folder has been read and\naccepted. That order is the point of the module rather than a detail of it:\na folder that does not exist, or that holds no layout spaCR recognises, is\nanswered with a sentence on a login node with no display, not with a Qt\ncrash after a ten-second import.\n\nWhat is printed before the editor opens\n---------------------------------------\n\nThe session summary, in the ledger's own terms::\n\n    nested layout at /data/pv: 500 bundles, 366 done, 29 skip, 105 remaining;\n    25 this session, sorted by easy\n\nso a curator sees what they are resuming into, and sees it in the shell they\nstarted from rather than only in a window.\n\nAll three layouts open the editor\n---------------------------------\n\n:func:`spacr.curation_queue.detect_layout` reads three layouts, and the\neditor edits each where it lies: a ``nested`` folder's masks in\n``<folder>/masks``, a ``sibling`` set's in the ``masks/`` beside its\n``images/`` -- never ``images/masks``, which would orphan every draft the set\nalready has -- and a ``seg`` folder's ``_seg.npy`` bundles written back into\nthemselves. :mod:`spacr.qt.mask_engine` says why in place is sound and no\nconvert step is needed.\n\nExit codes::\n\n    0   the editor ran, or --dry-run printed the queue, or there was\n        nothing left to curate\n    1   the Qt interface could not start\n    2   bad arguments, a folder that is not there, or a folder holding no\n        recognisable layout"
+    },
     "4ad31e08c656e39bf86d9de51afb3dc52fde2da49d7036309e9036a4ad57d525": {
       "source_blocks_sha256": [
         "74176b26b002b54e92aa082476381b47a593f0d5ad62bc4a45b69b74a62b3f68",

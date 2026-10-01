@@ -56,7 +56,7 @@ def test_the_button_is_hidden_unless_alpha_features_are_shown(
         button = widget._btn_uncertainty
         assert button.objectName() == "MakeMasksUncertaintyButton"
         assert button.isHidden() is not shown
-        assert set(widget._uncertainty_actions) == {"map", "rank"}
+        assert set(widget._uncertainty_actions) == {"map", "rank", "save"}
         monkeypatch.setattr(preferences, "_get_show_alpha_features",
                             lambda s=shown: not s)
         preferences._apply_alpha_widgets(widget)

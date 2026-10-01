@@ -94,6 +94,7 @@ _DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     "annotation_umap_qc",
     "annotation_validation",
     "active_learning",
+    "segmentation_uncertainty",
     "curation",
     "sudoku",
     "plate_qc",

@@ -4484,7 +4484,7 @@ def _uncertainty_snapshot(request, models):
         ``rank``, ``{(folder, file name): score dictionary}`` without the
         maps, a field that cannot be read or segmented being left out.
     """
-    from ...active_learning import _segmentation_uncertainty, _tta_passes
+    from ...segmentation_uncertainty import compute_uncertainty
 
     segment = request.get('segment')
     threshold = 0.0
@@ -4502,15 +4502,30 @@ def _uncertainty_snapshot(request, models):
                 dict(request['detect'], image=image, vectors=True), models)
             return labels, cellprob, vectors
 
-    def _score(image):
-        """:param image: one field.
+    secondary = request.get('second_segment')
+    second_model = request.get('second_model')
+    if second_model and secondary is None:
+        if second_model == request['detect']['model']:
+            raise ValueError("The ensemble model must differ from the primary model.")
 
-        :returns: its uncertainty over the test-time passes.
+        def secondary(image):
+            """Segment a transform with the captured second model.
+
+            :param image: one transformed field.
+            :returns: labels, cell probability and vectors.
+            """
+            labels, cellprob, _rgb, vectors = _detect_cellpose_snapshot(
+                dict(request['detect'], model=second_model, image=image, vectors=True), models)
+            return labels, cellprob, vectors
+
+    def _score(image):
+        """Score primary TTA and the optional second model in one frame.
+
+        :param image: one field.
+        :returns: its uncertainty over four or eight aligned passes.
         """
-        passes = _tta_passes(image, segment)
-        return _segmentation_uncertainty(
-            passes['labels'], probabilities=passes['probabilities'],
-            vectors=passes['vectors'], probability_threshold=threshold)
+        return compute_uncertainty(image, segment, second_segment=secondary,
+                                   probability_threshold=threshold)
 
     if request['kind'] == 'field':
         return _score(request['image'])
@@ -8267,6 +8282,7 @@ class MakeMasksScreen(QWidget):
         self._uncertainty_worker = None
         self._uncertainty_request = None
         self._uncertainty_pane = None
+        self._uncertainty_result = None
         self._uncertainty_delivered.connect(self._take_uncertainty)
         self._comparison_worker = None
         self._comparison_request = None
@@ -9220,7 +9236,8 @@ class MakeMasksScreen(QWidget):
             "disagreement as a heat map on its own tab; Rank the fields puts "
             "the most uncertain fields first and saves the scores as "
             "curate_uncertainty.csv for spacr-make-masks --order uncertain. "
-            "Takes four detection runs per field."))
+            "Takes four detection runs per field, or eight when an optional "
+            "ensemble model is selected in Detection method."))
         button.setMenu(self._uncertainty_menu())
         _apply_alpha_widgets(button)
         self._btn_uncertainty = button
@@ -9243,10 +9260,13 @@ class MakeMasksScreen(QWidget):
                 ("map", tr("Map this field's uncertainty"),
                  self._on_map_uncertainty),
                 ("rank", tr("Rank the fields, most uncertain first"),
-                 self._on_rank_uncertainty)):
+                 self._on_rank_uncertainty),
+                ("save", tr("Save uncertainty map…"),
+                 self._on_save_uncertainty)):
             action = menu.addAction(text)
             action.triggered.connect(lambda _checked=False, run=slot: run())
             self._uncertainty_actions[key] = action
+        menu.aboutToShow.connect(self._sync_uncertainty_export)
         self._uncertainty_menu_widget = menu
         return menu
 
@@ -9272,7 +9292,7 @@ class MakeMasksScreen(QWidget):
             "Map where the segmentation of this field is least sure, or rank "
             "the open fields with the most uncertain first. The same menu as "
             "the Uncertainty button on the bottom row; four detection "
-            "runs per field."))
+            "runs per field, or eight with the optional ensemble model."))
         button.setMenu(self._uncertainty_menu())
         _apply_alpha_widgets(button)
         self._btn_uncertainty_setting = button
@@ -9284,6 +9304,119 @@ class MakeMasksScreen(QWidget):
                        getattr(self, "_btn_uncertainty_setting", None)):
             if button is not None:
                 button.setEnabled(enabled)
+
+    def _build_uncertainty_ensemble_setting(self) -> QWidget:
+        """Offer an optional second model for alpha uncertainty scoring.
+
+        This display-side choice is persisted independently of segmentation
+        settings and never changes the model used to create or save masks.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+        from ..prefs import _s
+
+        row = QWidget(self)
+        row.setObjectName("MakeMasksUncertaintyEnsembleSetting")
+        layout = QVBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(QLabel(tr("Uncertainty ensemble model (optional)")))
+        controls = QHBoxLayout()
+        self._uncertainty_ensemble = QComboBox(row)
+        self._uncertainty_ensemble.setEditable(True)
+        self._uncertainty_ensemble.addItem(tr("None"), "")
+        for index in range(self._cp_model.count()):
+            value = self._cp_model.itemData(index)
+            if value:
+                self._uncertainty_ensemble.addItem(self._cp_model.itemText(index), value)
+        value = str(_s().value("make_masks/uncertainty_second_model", "") or "")
+        index = self._uncertainty_ensemble.findData(value)
+        if index >= 0:
+            self._uncertainty_ensemble.setCurrentIndex(index)
+        else:
+            self._uncertainty_ensemble.setEditText(value)
+        self._uncertainty_ensemble.setToolTip(tr(
+            "Optional second model for uncertainty only. Blank or None uses "
+            "four primary-model passes. A different model adds four passes "
+            "and can reveal errors both flips and rotations repeat. "
+            "Saved masks and ordinary detection are unchanged."))
+        self._uncertainty_ensemble.currentTextChanged.connect(self._remember_uncertainty_ensemble)
+        controls.addWidget(self._uncertainty_ensemble, 1)
+        browse = QPushButton(tr("Browse…"), row)
+        browse.clicked.connect(self._pick_uncertainty_ensemble)
+        controls.addWidget(browse)
+        layout.addLayout(controls)
+        _apply_alpha_widgets(row)
+        return row
+
+    def _uncertainty_ensemble_model(self) -> str:
+        """Return the optional second model's stable name or checkpoint path."""
+        combo = self._uncertainty_ensemble
+        index = combo.currentIndex()
+        value = (combo.currentData() if index >= 0
+                 and combo.currentText() == combo.itemText(index) else None)
+        return str(value if value is not None else combo.currentText()).strip()
+
+    def _remember_uncertainty_ensemble(self, _text):
+        """Persist the model choice without starting inference.
+
+        :param _text: changed combo caption; stable item data is read instead.
+        """
+        from ..prefs import _s
+
+        _s().setValue("make_masks/uncertainty_second_model", self._uncertainty_ensemble_model())
+
+    def _pick_uncertainty_ensemble(self):
+        """Select a local checkpoint for the second uncertainty model."""
+        from ..i18n import tr
+
+        path, _filter = QFileDialog.getOpenFileName(self, tr("Choose ensemble model"))
+        if path:
+            self._uncertainty_ensemble.setEditText(path)
+
+    def _sync_uncertainty_export(self):
+        """Enable export only for a completed map of the field still in view."""
+        current = self._uncertainty_result
+        valid = (current is not None and self._blind is None
+                 and current[0]['token'] == self._load_token
+                 and current[0]['image_reference'] is self._canvas.image)
+        self._uncertainty_actions['save'].setEnabled(valid)
+
+    def _on_save_uncertainty(self, path=None) -> bool:
+        """Save the current lossless map, with captured model/source provenance.
+
+        :param path: optional destination for scripted use; None opens a picker.
+        :returns: whether a map was saved successfully.
+        """
+        from ..i18n import tr
+        from ...segmentation_uncertainty import save_uncertainty_map
+
+        self._sync_uncertainty_export()
+        if not self._uncertainty_actions['save'].isEnabled():
+            self._status_label.setText(tr("Map the current field before saving uncertainty, and leave blind mode first."))
+            return False
+        request, result = self._uncertainty_result
+        source = request.get('source') or 'field'
+        if path is None:
+            default = os.path.join(os.path.dirname(source), 'uncertainty',
+                                   engine.field_stem(os.path.basename(source)) + '_uncertainty.tif')
+            path, _filter = QFileDialog.getSaveFileName(
+                self, tr("Save uncertainty map"), default, tr("TIFF image (*.tif *.tiff)"))
+        if not path:
+            return False
+        detect = request['detect']
+        provenance = dict(source=source, primary_model=detect['model'],
+                          second_model=request.get('second_model') or None,
+                          parameters=detect['parameters'], invert=detect['invert'],
+                          percentiles=detect['percentiles'], preprocessing=str(detect['chain']),
+                          transforms=['identity', 'flip_lr', 'flip_ud', 'rot90'])
+        try:
+            target = save_uncertainty_map(path, result, provenance=provenance,
+                                          protected_paths=(source, request.get('mask_path')))
+        except (OSError, ValueError) as exc:
+            self._warn(tr("Uncertainty map not saved"), str(exc))
+            return False
+        self._status_label.setText(tr("Uncertainty map saved to {path}.", path=str(target)))
+        return True
 
     def _uncertainty_detect_request(self) -> dict:
         """The Object detection settings, captured for a worker thread.
@@ -9354,11 +9487,14 @@ class MakeMasksScreen(QWidget):
                        image=np.array(self._canvas.image, copy=True),
                        image_reference=self._canvas.image,
                        token=self._load_token,
-                       detect=self._uncertainty_detect_request())
+                       detect=self._uncertainty_detect_request(),
+                       second_model=self._uncertainty_ensemble_model(),
+                       source=self._curation_paths()[0], mask_path=self._curation_paths()[1])
         if not self._start_uncertainty(request, threaded):
             return False
         self._status_label.setText(tr(
-            "Mapping segmentation uncertainty: four detection runs…"))
+            "Mapping segmentation uncertainty: {passes} detection runs…",
+            passes=8 if request.get("second_model") else 4))
         return True
 
     def _on_rank_uncertainty(self, *, segment=None,
@@ -9386,12 +9522,14 @@ class MakeMasksScreen(QWidget):
         pairs = self._field_pairs()
         request = dict(kind='rank', segment=segment, fields=pairs,
                        layout=self._layout_kwargs(),
-                       detect=self._uncertainty_detect_request())
+                       detect=self._uncertainty_detect_request(),
+                       second_model=self._uncertainty_ensemble_model())
         if not self._start_uncertainty(request, threaded):
             return False
         self._status_label.setText(tr(
-            "Ranking {count} fields by segmentation uncertainty: four "
-            "detection runs each…", count=len(pairs)))
+            "Ranking {count} fields by segmentation uncertainty: {passes} "
+            "detection runs each…", count=len(pairs),
+            passes=8 if request.get("second_model") else 4))
         return True
 
     def _take_uncertainty(self, payload) -> None:
@@ -9412,9 +9550,12 @@ class MakeMasksScreen(QWidget):
                 self._status_label.setText(tr(
                     "Uncertainty map discarded because the field changed."))
                 return
+            self._uncertainty_result = (request, result)
             self._show_uncertainty_map(result, request['image'])
             return
-        self._apply_uncertainty_ranking(request['fields'], result)
+        model = ' + '.join(filter(None, (request['detect']['model'],
+                                          request.get('second_model'))))
+        self._apply_uncertainty_ranking(request['fields'], result, model=model)
 
     def _show_uncertainty_map(self, result: dict, image) -> None:
         """Put the map on an Uncertainty tab, made the first time it is used.
@@ -9440,7 +9581,7 @@ class MakeMasksScreen(QWidget):
                              label=worst, value=f"{objects[worst]:.2f}")
         self._status_label.setText(text)
 
-    def _apply_uncertainty_ranking(self, pairs, scores) -> None:
+    def _apply_uncertainty_ranking(self, pairs, scores, *, model=None) -> None:
         """Save the scores and offer the most uncertain field first.
 
         The scores are merged into ``curate_uncertainty.csv`` in the queue's
@@ -9450,6 +9591,7 @@ class MakeMasksScreen(QWidget):
 
         :param pairs: the ``(folder, file name)`` pairs that were ranked.
         :param scores: ``{pair: score dictionary}``.
+        :param model: captured model identity; defaults to the current selection.
         """
         from ..i18n import tr
         from ...curation_queue import SEG_SUFFIX, _write_uncertainty
@@ -9463,7 +9605,7 @@ class MakeMasksScreen(QWidget):
                 return name[:-len(SEG_SUFFIX)]
             return os.path.splitext(name)[0]
 
-        model = self._cp_model.currentData() or 'cpsam'
+        model = model or self._cp_model.currentData() or 'cpsam'
         rows = {stem(name): dict(uncertainty=round(score['field'], 4),
                                  n_objects=score['n_objects'],
                                  passes=score['n_passes'], model=model)
@@ -9476,6 +9618,10 @@ class MakeMasksScreen(QWidget):
         except OSError as exc:
             self._report(tr("Uncertainty scores not saved: {error}",
                             error=str(exc)), "warning")
+        if self._blind is not None:
+            self._status_label.setText(tr(
+                "Uncertainty saved; blind order was preserved."))
+            return
         if self._field_pairs() != list(pairs):
             self._status_label.setText(tr(
                 "Uncertainty saved; the open fields changed while ranking, "
@@ -12691,6 +12837,7 @@ class MakeMasksScreen(QWidget):
         }
         for group in self._method_groups.values():
             card.body_layout.addWidget(group)
+        card.body_layout.addWidget(self._build_uncertainty_ensemble_setting())
         return card
 
     def _mode_guidance(self, mode: str) -> str:
