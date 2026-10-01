@@ -212,3 +212,28 @@ unsaved changes with unchanged disk gates, first-seen edits before unblinding,
 new post-hoc edits, tampered locks, no-lock exports and failed-write/no-receipt
 behavior. Existing Gate Editor export/screen cohort also checked. No run_journal
 code changed. API/catalog publication is coordinated in the session integration.
+
+2026-10-01 — FIRST-SEEN CHECKS ON COMMITTED LIVE GATE EDITS
+The Gate Editor now checks a saved/loaded strategy when its committed gates change,
+including threshold edits, completed drawing changes and hierarchy edits. Unsaved
+edits are compared in memory immediately; the existing journal first-seen policy
+therefore records a blind edit before a later unblinding or export. The source line
+shows the current gate-specific verdict, replacing obsolete save/load notes. An
+unsaved strategy or a strategy with no matching lock makes no verification claim.
+
+Identical duplicate change signals reuse their feedback. Pointer motion and adding
+unfinished polygon vertices do not run these checks. Live comparisons use the
+already-canonical strategy path and narrow gate coverage before comparison, so
+other locked gate files and the source strategy file are not reopened on an edit.
+Switching strategy files binds the new path before its load emits a gate-change
+signal, preventing a false difference from being recorded against the old file.
+A failed lock check leaves the edit intact and reports the failure explicitly.
+
+Validation: tests/qt/test_gate_edit_analysis_lock_f573.py, the existing gate-export
+lock cohort and tests/test_573_lock_gates_models_pipelines_report.py passed 18 checks
+under a 4 GiB CPU/offscreen cap. Includes a real threshold editingFinished signal,
+pre-unblinding edit preserved as deviation at later export, a new post-hoc edit,
+strategy switching, duplicate signals, no-lock behavior, failed journal checks and
+no unrelated gate-file reads or per-edit source-path resolution. The journal policy
+and public API are unchanged. Settings-form keystroke timing remains outside this
+Gate Editor follow-up; no broader completion claim is added.

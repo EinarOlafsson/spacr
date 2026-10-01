@@ -335,3 +335,18 @@ _ROW = declared_app(APP_KEY)
 The row this screen puts in the registry is declared in
 
 `spacr.qt.app_catalog`, which is what lets the app be registered without importing this module -- the launch reads the table, not the screen. These read the same row back rather than restating it, so the name, the blurb and the nine translations have one spelling and no second copy to drift from.
+
+## First-seen live gate edits (F573, 2026-10-01)
+
+A committed edit to a saved or loaded strategy now compares the live GateSet with
+applicable analysis locks immediately. The source line replaces earlier save/load
+notes with the current gate-specific verdict. This lets a threshold changed while
+blind retain its original first-seen time when it is exported after unblinding.
+A new edit after unblinding is judged by the existing journal policy as post-hoc.
+
+The check observes completed gate edits, not pointer movement or unfinished polygon
+vertices. Duplicate signals for the same strategy content reuse their feedback.
+Unsaved strategies have no path-bound coverage. The comparison neither resolves the
+source path again nor rereads the source or unrelated locked gate files. Loading a
+different strategy sets its identity before the gate-change signal is emitted, so
+its contents are never recorded as an edit to the previously loaded strategy.

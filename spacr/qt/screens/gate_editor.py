@@ -83,6 +83,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..app_catalog import declared_app, register_declared
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import SPACING, page_tabs_qss, register_widget_qss
 from ..widgets.collapsible_splitter import EDGE, CollapsibleSplitter
@@ -294,6 +295,9 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         #: Kept so the screen can say what the merge cost -- which columns
         #: were dropped and which plates were qualified.
         self._gate_strategy_path = ""
+        self._gate_edit_last_state = None
+        self._gate_edit_lock_notes = []
+        self._gate_file_note_suffix = ""
         self._merge_plan = None
         #: The working set: every table whose measurements are on offer.
         self._tables: List[str] = []
@@ -664,13 +668,34 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                 box.setCurrentIndex(index)
 
     def _on_gates_changed(self) -> None:
-        """Update the gate count on the source label.
+        """Record first-seen live gate edits and replace the displayed gate count.
 
-        The previous count is stripped first, so repeated edits replace the
-        suffix rather than stacking more of them.
+        The panel emits this after committed threshold/tree/drawing edits, not
+        for pointer motion. Checking immediately preserves edit timing relative
+        to unblinding. Repeated identical signals reuse their displayed notes;
+        unsaved strategies claim no lock coverage. Only the canonical saved
+        strategy is compared, without rereading its remote source file.
         """
-        self._source.setText(self._source.text().split(" · gates")[0]
-                             + f" · gates: {len(self.gates.gates)}")
+        base = self._source.text().split(" · gates")[0]
+        if self._gate_file_note_suffix and base.endswith(self._gate_file_note_suffix):
+            base = base[:-len(self._gate_file_note_suffix)]
+        base = base.split("; Analysis lock ")[0]
+        text = base + f" · gates: {len(self.gates.gates)}"
+        strategy = self._gate_strategy_path
+        if not strategy:
+            self._source.setText(text)
+            return
+        state = (strategy, json.dumps(self.gates.gates.to_dict(), sort_keys=True))
+        if state != self._gate_edit_last_state:
+            try:
+                verdicts = _gate_export_lock_verdicts(
+                    strategy, self.gates.gates, scope="live_gating_strategy", resolved=True)
+                self._gate_edit_lock_notes = [verdict["summary"] for verdict in verdicts]
+                self._gate_edit_last_state = state
+            except Exception as exc:
+                LOG.warning("could not check live gate edit against analysis locks", exc_info=True)
+                self._gate_edit_lock_notes = [tr("Gate lock check failed: {error}", error=str(exc))]
+        self._source.setText("; ".join([text, *self._gate_edit_lock_notes]))
 
     def choose_table(self) -> None:
         """Ask which table in the project to gate."""
@@ -2063,8 +2088,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             payload["merge_definition"] = self._merge_definition
         Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
         self._gate_strategy_path = str(Path(path).resolve())
-        self._source.setText(_with_lock_notes(
-            f"gates saved to {os.path.basename(path)}", path))
+        text = f"gates saved to {os.path.basename(path)}"
+        noted = _with_lock_notes(text, path)
+        self._gate_file_note_suffix = noted[len(text):]
+        self._source.setText(noted)
         return path
 
     def choose_load_gates(self) -> None:
@@ -2088,6 +2115,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         try:
             payload = json.loads(Path(path).read_text(encoding="utf-8"))
             definition = payload.get("merge_definition")
+            loaded_gates = GateSet.from_dict(payload)
             if definition:
                 from ...derived_tables import execute, save_definition
                 if not self._path:
@@ -2104,15 +2132,21 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                 self._table_picker.blockSignals(False)
                 self._rebuild_chips()
                 self.set_frame(frame)
-            self.gates.set_gates(GateSet.from_dict(payload))
+            previous_strategy = self._gate_strategy_path
             self._gate_strategy_path = str(Path(path).resolve())
+            try:
+                self.gates.set_gates(loaded_gates)
+            except Exception:
+                self._gate_strategy_path = previous_strategy
+                raise
         except (GateError, OSError, ValueError) as exc:
             LOG.info("could not load gates from %s: %s", path, exc)
             self._source.setText(f"could not load those gates: {exc}")
             return False
-        self._source.setText(_with_lock_notes(
-            f"{len(self.gates.gates)} gate(s) from {os.path.basename(path)}",
-            path))
+        text = f"{len(self.gates.gates)} gate(s) from {os.path.basename(path)}"
+        noted = _with_lock_notes(text, path)
+        self._gate_file_note_suffix = noted[len(text):]
+        self._source.setText(noted)
         return True
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
@@ -2125,8 +2159,9 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         super().closeEvent(event)
 
 
-def _gate_export_lock_verdicts(strategy: str, gates: GateSet) -> list:
-    """Compare the exported live strategy against locks holding its saved path.
+def _gate_export_lock_verdicts(strategy: str, gates: GateSet, *,
+                              scope="exported_gating_strategy", resolved=False) -> list:
+    """Compare a live strategy against locks holding its saved path.
 
     This checks gating-strategy coverage, not unrelated pipeline settings or
     unrecorded merge definitions. Existing journal helpers retain lock digest,
@@ -2134,13 +2169,16 @@ def _gate_export_lock_verdicts(strategy: str, gates: GateSet) -> list:
     no verification claim.
 
     :param strategy: Last successfully saved or loaded strategy path.
-    :param gates: Snapshot of the live gates being exported, including unsaved edits.
+    :param gates: Live gates, including unsaved edits.
+    :param scope: Whether this check describes an edit or an exported strategy.
+    :param resolved: Strategy path was already canonicalized at save/load time;
+        avoid touching a potentially remote filesystem during live edits.
     :returns: Gate-specific verdicts for every applicable analysis lock.
     """
     if not strategy:
         return []
     from ...run_journal import _gate_deviations, _lock_verdict, _locks_root
-    label = str(Path(strategy).resolve())
+    label = str(strategy) if resolved else str(Path(strategy).resolve())
     verdicts = []
     for lock_path in sorted(_locks_root().glob("*.json")):
         try:
@@ -2150,10 +2188,12 @@ def _gate_export_lock_verdicts(strategy: str, gates: GateSet) -> list:
             continue
         if not isinstance(record, dict) or label not in (record.get("gates") or {}):
             continue
-        deviations = [change for change in _gate_deviations(record, {label: gates})
-                      if change["key"] == "gates:" + label]
+        # Restrict gate comparison before calling the journal helper, so another
+        # locked strategy on a remote filesystem is never opened by this edit.
+        target = {**record, "gates": {label: record["gates"][label]}}
+        deviations = _gate_deviations(target, {label: gates})
         verdict = _lock_verdict(record, deviations)
-        verdict["scope"] = "exported_gating_strategy"
+        verdict["scope"] = scope
         verdicts.append(verdict)
     return verdicts
 
