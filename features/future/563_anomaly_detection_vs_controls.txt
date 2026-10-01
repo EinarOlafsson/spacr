@@ -116,3 +116,35 @@ was used. No normalising flow. Crops still need png_path in the table.
 "Control percentile" waits in _AWAITING_CATALOG_REBUILD. The anomaly
 score is now a bounded percentile, so it is not a value to feed into
 item 570's robust z/SSMD. Use the well ranking or the outlier fraction.
+
+
+2026-10-01 — AUTOMATIC CROP LINKS FOR OBJECT-TABLE REVIEW
+Control Charts now enriches a physical object table with png_list paths in
+its existing loading worker. The source database is opened read-only and
+only crop identity/path columns are read. A match requires plate, row,
+column, field, the selected object's own crop-mode ID, and timepoint when
+present. Integer, integral-float and o-prefixed object labels are accepted;
+timeID/time_id and t-prefixed integer timepoints are handled explicitly.
+Missing identity values never match one another, and conflicting time aliases
+or one-sided time identity do not fall back to a static join. No object rows
+or measurement values are added, removed, reordered or replaced; duplicate
+pandas indices and existing nonempty png_path values are preserved.
+
+Repeated rows for the same crop path collapse safely. Different paths for
+one object remain unmatched and are logged, rather than choosing a crop
+arbitrarily. Unmatched objects remain in scoring. With readable paths the
+existing anomaly renderer shows crop tiles; unavailable crops retain the
+existing PC1/PC2 review. CSVs, external tables and named derived tables are
+not guessed into a physical crop mode. This closes automatic png_list
+linking for supported physical object tables, not arbitrary imported tables
+or on-demand crop generation when PNG files were never written.
+
+Validation: 21 focused real-SQLite identity/read-only checks passed under
+1 GiB, plus 5 actual Control Charts load/score/crop-render and existing alpha
+checks under a predeclared 4 GiB cap. Both cohorts used one actual CPU and
+zero swap. Source database hashes are unchanged; the actual scoring result
+keeps all input object rows and the review canvas contains crop images.
+An added fixture initially triggered pandas' incompatible-dtype warning;
+changing the fixture to replace its column resolved it before the final
+21-check backend pass. No new scientific real-screen acceptance is claimed.
+Existing public signatures/docstrings and runtime captions are unchanged.

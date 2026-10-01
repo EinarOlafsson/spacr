@@ -54,6 +54,114 @@ def _object_id_int(value):
         return None
 
 
+def _crop_join_token(value, *, time=False):
+    """Normalize a scalar identity token; missing values never match.
+
+    :param value: stored plate, well, field or time identifier.
+    :param time: also accept the canonical ``t`` prefix for timepoints.
+    :returns: text key or None for missing/invalid identifiers.
+    """
+    if value is None or pd.isna(value) or isinstance(value, (bool, np.bool_)):
+        return None
+    if isinstance(value, (int, np.integer)):
+        return str(int(value))
+    if isinstance(value, (float, np.floating)):
+        return str(int(value)) if np.isfinite(value) and value.is_integer() else None
+    text = str(value).strip()
+    if time:
+        digits = text[1:] if text.startswith('t') else text
+        if digits.isascii() and digits.isdigit():
+            text = str(int(digits))
+    return text or None
+
+
+def _attach_object_crop_paths(db_path, frame, object_type):
+    """Add uniquely identified PNG paths to physical object rows without writes.
+
+    :param db_path: source SQLite database, opened read-only.
+    :param frame: measurement rows; their columns, order and index are preserved.
+    :param object_type: physical object table with a known crop-mode ID column.
+    :returns: frame with missing png_path values filled where the complete
+        field/object/time identity has exactly one path; ambiguous or incomplete
+        identities remain unmatched. Existing nonempty paths are retained.
+    """
+    import logging
+    from pathlib import Path
+
+    log = logging.getLogger(__name__)
+    identity = ['plateID', 'rowID', 'columnID', 'fieldID']
+    id_column = PNG_LIST_ID_COLUMNS.get(object_type)
+    if (id_column is None or frame.empty
+            or not set(identity + ['object_label']).issubset(frame.columns)
+            or frame.columns.duplicated().any()):
+        return frame
+    if ('png_path' in frame
+            and frame['png_path'].fillna('').astype(str).str.strip().ne('').all()):
+        return frame
+    uri = Path(db_path).resolve().as_uri() + '?mode=ro'
+    with sqlite3.connect(uri, uri=True) as db:
+        columns = {row[1] for row in db.execute('PRAGMA table_info("png_list")')}
+        if not columns:
+            return frame
+        required = identity + [id_column, 'png_path']
+        if not set(required).issubset(columns):
+            log.info('Crop review: png_list lacks the complete %s crop identity',
+                     object_type)
+            return frame
+        times = [name for name in ('timeID', 'time_id') if name in columns]
+        selected = required + times
+        crops = pd.read_sql_query(
+            'SELECT ' + ', '.join('"' + name + '"' for name in selected)
+            + ' FROM "png_list"', db)
+    left_times = [name for name in ('timeID', 'time_id') if name in frame]
+    if bool(left_times) != bool(times):
+        log.warning('Crop review: measurement and crop timepoint identities '
+                    'differ; paths not attached')
+        return frame
+    left = pd.DataFrame({key: frame[key].map(_crop_join_token).to_numpy()
+                         for key in identity})
+    right = pd.DataFrame({key: crops[key].map(_crop_join_token).to_numpy()
+                          for key in identity})
+    left['object_label'] = frame['object_label'].map(_object_id_int).to_numpy()
+    right['object_label'] = crops[id_column].map(_object_id_int).to_numpy()
+    left['object_label'] = left['object_label'].where(left['object_label'] > 0)
+    right['object_label'] = right['object_label'].where(right['object_label'] > 0)
+    if times:
+        for original, names, key_frame in (
+                (frame, left_times, left), (crops, times, right)):
+            normalized = [original[name].map(
+                lambda value: _crop_join_token(value, time=True)) for name in names]
+            if len(normalized) == 2 and not normalized[0].equals(normalized[1]):
+                log.warning('Crop review: conflicting timepoint aliases; '
+                            'paths not attached')
+                return frame
+            key_frame['timeID'] = normalized[0].to_numpy()
+    keys = list(left.columns)
+    right['png_path'] = crops['png_path'].to_numpy()
+    right = right.dropna(subset=keys + ['png_path'])
+    right = right[right['png_path'].astype(str).str.strip().ne('')]
+    right = right.drop_duplicates(subset=keys + ['png_path'])
+    ambiguous = right.duplicated(subset=keys, keep=False)
+    if ambiguous.any():
+        log.warning('Crop review: %d crop rows have conflicting paths; '
+                    'ambiguous objects remain unmatched',
+                    int(ambiguous.sum()))
+    unique = right.loc[~ambiguous]
+    mapping = dict(zip(unique[keys].itertuples(index=False, name=None),
+                       unique['png_path']))
+    paths = [mapping.get(key) if all(pd.notna(value) for value in key) else None
+             for key in left.itertuples(index=False, name=None)]
+    if not any(path is not None for path in paths):
+        return frame
+    result = frame.copy(deep=False)
+    if 'png_path' in frame:
+        old = frame['png_path'].tolist()
+        paths = [previous if pd.notna(previous) and str(previous).strip() else path
+                 for previous, path in zip(old, paths)]
+    result['png_path'] = paths
+    return result
+
+
 def _merged_field_paths(db_path, object_type='cell'):
     """Return ``{(plateID, rowID, columnID, fieldID): (path_name, file_name)}``.
 
