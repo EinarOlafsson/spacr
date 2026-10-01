@@ -4103,7 +4103,12 @@ def _arrayed_power(components: Dict[str, Any], effect: float, *,
     crit = student_t.ppf(1.0 - alpha / 2.0, dof)
     with _warnings.catch_warnings():
         _warnings.simplefilter('ignore', RuntimeWarning)
-        achieved = nct.sf(crit, dof, ncp) + nct.cdf(-crit, dof, ncp)
+        # T(df, ncp) reflected about zero is T(df, -ncp).  The mirrored
+        # survival tail avoids SciPy's unstable negative-argument CDF at
+        # low degrees of freedom without dropping a legitimate small tail.
+        achieved = nct.sf(crit, dof, ncp) + nct.sf(crit, dof, -ncp)
+    if not np.isfinite(achieved):
+        raise ValueError('noncentral t power could not be computed reliably')
     return float(min(1.0, achieved))
 
 
