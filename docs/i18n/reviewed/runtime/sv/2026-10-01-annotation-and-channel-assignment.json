@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "review_method": "Codex AI authored or corrected the target text after inspecting local-model outputs. Independent Codex AI peer review checked all 14 annotation instructions and all 10 vendor-tooltip sentence pairs per locale. These corrections are not claimed to be verbatim local-model outputs. Additional action, row-count and reinstall-confirmation captions received Codex AI technical review.",
+  "independent_review_candidate_sha256": "b2621102c063230bf77429d5435f7848c02cd92618c24a7e2994905c846d60e0",
+  "reviewed_tooltip_sentences": [
+    {
+      "source": "Assign saved intensity channels to a vendor flat-field calibration.",
+      "translation": "Tilldela sparade intensitetskanaler till leverantörens flatfältskalibrering."
+    },
+    {
+      "source": "Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1.",
+      "translation": "Exemplet 0:2,1:1 kopplar intensitetskanalerna 0 och 1 till kalibreringskanalerna 2 respektive 1."
+    },
+    {
+      "source": "Intensity channel numbers start at 0.",
+      "translation": "Intensitetskanalerna numreras från 0."
+    },
+    {
+      "source": "Calibration channel or image-layer numbers start at 1.",
+      "translation": "Kalibreringskanaler och bildlager numreras från 1."
+    },
+    {
+      "source": "Include every corrected intensity channel.",
+      "translation": "Ta med varje intensitetskanal som ska korrigeras."
+    },
+    {
+      "source": "An empty value keeps the original channel order.",
+      "translation": "Ett tomt värde behåller den ursprungliga kanalordningen."
+    },
+    {
+      "source": "With an empty value, a single calibration image layer applies to all channels.",
+      "translation": "Med ett tomt värde används ett enda kalibreringsbildlager för alla kanaler."
+    },
+    {
+      "source": "Select a vendor calibration file first.",
+      "translation": "Välj först en kalibreringsfil från leverantören."
+    },
+    {
+      "source": "A saved illumination model takes priority.",
+      "translation": "En sparad belysningsmodell har företräde."
+    },
+    {
+      "source": "Default empty.",
+      "translation": "Standardvärdet är tomt."
+    }
+  ],
+  "prior_local_model_drafts": {
+    "tooltip": "Tilldela sparade intensitetskanaler till en leverantör av flatfältskalibrering. Exempel 0:2, 1:1 tilldelar intensitetskanal 0 och 1 kalibreringskanaler 2 och 1. Intensitetskanalnummer börjar vid 0. Kalibreringskanal eller bildlagersnummer börjar vid 1. Inkludera varje korrigerad intensitets kanal. Ett tomt värde behåller den ursprungliga kanalordningen. Med ett tomt värde gäller ett enda kalibreringsbildlager för alla kanaler. Välj först en kalibreringsfil för leverantören. En sparad belysningsmodell prioriteras. Förvald tom.",
+    "ui": {
+      "Name a column (for example genotype), add rules, then add replicate and a combined condition column.": "Namnge en kolumn (till exempel genotyp), lägg till regler och lägg sedan till replikat och en kombinerad tillståndskolumn.",
+      "Move columns up or down so inputs come before combinations.": "Flytta kolumner upp eller ner så ingångar kommer före kombinationer.",
+      "Exact values match whole cells; regex searches within cells.": "Exakta värden matchar hela celler; regex sökningar inom celler.",
+      "Include selects matching metadata values; a blank include uses manual rows only.": "Inkludera väljer matchande metadatavärden; ett blankt inkluderar använder endast manuella rader.",
+      "Exclude removes matching rows, including dropped rows.": "Uteslut tar bort matchande rader, inklusive tappade rader.",
+      "Drag selected source rows into a condition box.": "Dra markerade källrader i en tillståndsruta.",
+      "Resolve overlapping conditions before Apply.": "Lös upp överlappande villkor innan Applicera.",
+      "Rows that match no condition get an empty value.": "Rader som inte matchar något villkor får ett tomt värde.",
+      "Original source files are not modified.": "Ursprungliga källfiler ändras inte.",
+      "Exact values match whole cells literally: c1 does not match c10. Regular expression mode uses Include and Exclude above.": "Exakta värden matchar hela celler ordagrant: c1 matchar inte c10. Reguljärt uttrycksläge använder Inkludera och Exkludera ovan."
+    }
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source_sha256": "d876737d707c2a650b07e2238fd642bbe56a54f06e97b4f636e70e3a15879900",
+      "translation": "Skapa kolumner för genotyp och replikat med regler och kombinera dem sedan i en kolumn för försöksvillkor."
+    },
+    {
+      "table": "ui",
+      "key": "Place generated columns before any combined column that uses them.",
+      "source": "Place generated columns before any combined column that uses them.",
+      "source_sha256": "dfe8be8cc3405000938408cb7091c89d8e33a4b98a5cc474b944bec7a02bc805",
+      "translation": "Placera genererade kolumner före varje kombinerad kolumn som använder dem."
+    },
+    {
+      "table": "ui",
+      "key": "Exact values must match the entire table value.",
+      "source": "Exact values must match the entire table value.",
+      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
+      "translation": "Exakta värden måste motsvara hela tabellvärdet."
+    },
+    {
+      "table": "ui",
+      "key": "Regex can match part of a table value.",
+      "source": "Regex can match part of a table value.",
+      "source_sha256": "6261d4e9fa0983a52bdbd8ced4bca29dc0c0b5110a110528997fc082b62a88c8",
+      "translation": "Regex kan matcha en del av ett tabellvärde."
+    },
+    {
+      "table": "ui",
+      "key": "Include selects rows whose chosen metadata matches the rule.",
+      "source": "Include selects rows whose chosen metadata matches the rule.",
+      "source_sha256": "a3accd3eb88b585dae5b6c969782ba924a6b240ec74f25b26688340411419b43",
+      "translation": "Inkludera väljer rader vars valda metadata matchar regeln."
+    },
+    {
+      "table": "ui",
+      "key": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source_sha256": "3a2b440b35243a30356e52de42c0db64791eb1e948b7916e8f3fbcbfc28e84fd",
+      "translation": "Om fältet Inkludera är tomt tilldelas endast rader som har dragits in i den här rutan."
+    },
+    {
+      "table": "ui",
+      "key": "Exclude removes matching rows, including rows dragged into this box.",
+      "source": "Exclude removes matching rows, including rows dragged into this box.",
+      "source_sha256": "136d6e070316ca3784203f0a7ea4c6e29989d4a23c693b3e4d25503d426a5eb6",
+      "translation": "Uteslut tar bort matchande rader, även rader som har dragits in i den här rutan."
+    },
+    {
+      "table": "ui",
+      "key": "Drag selected table rows into a condition box to assign them.",
+      "source": "Drag selected table rows into a condition box to assign them.",
+      "source_sha256": "6ae74571c67a58f1a39c1008c1d9a930e2346d752d5cdbc9d2e62f2685ea02a4",
+      "translation": "Dra markerade tabellrader till en villkorsruta för att tilldela dem."
+    },
+    {
+      "table": "ui",
+      "key": "Resolve different labels assigned to the same row in one column before applying.",
+      "source": "Resolve different labels assigned to the same row in one column before applying.",
+      "source_sha256": "8914b01b909da3f6e47b47632d2470e81b191027125604432a88dd7df0cf849b",
+      "translation": "Lös konflikter mellan olika etiketter för samma rad i en kolumn innan du tillämpar ändringarna."
+    },
+    {
+      "table": "ui",
+      "key": "Multiple boxes may assign the same label without a conflict.",
+      "source": "Multiple boxes may assign the same label without a conflict.",
+      "source_sha256": "714a70fbee26e6d53be2e000e564bf3b24844a8cdd569fa8ad9e5c01c2dab722",
+      "translation": "Flera rutor kan tilldela samma etikett utan konflikt."
+    },
+    {
+      "table": "ui",
+      "key": "Rows that match no condition get an empty value.",
+      "source": "Rows that match no condition get an empty value.",
+      "source_sha256": "9d7399faf9a5e825acfbc6a90b4bc93867220d38dc3090a3cfe94821dce9108d",
+      "translation": "Rader som inte matchar något villkor får ett tomt värde."
+    },
+    {
+      "table": "ui",
+      "key": "Original source files are not modified.",
+      "source": "Original source files are not modified.",
+      "source_sha256": "eb44a4c106a6cd864ccff03e473d06c0d57b6e260c5688d17d2dcb3f0fb30e58",
+      "translation": "Ursprungliga källfiler ändras inte."
+    },
+    {
+      "table": "ui",
+      "key": "For example, c1 does not match c10.",
+      "source": "For example, c1 does not match c10.",
+      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
+      "translation": "Till exempel matchar c1 inte c10."
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression mode uses the Include and Exclude fields above.",
+      "source": "Regular expression mode uses the Include and Exclude fields above.",
+      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
+      "translation": "Läget för reguljära uttryck använder fälten Inkludera och Uteslut ovan."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_channel_map",
+      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
+      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
+      "translation": "Tilldela sparade intensitetskanaler till leverantörens flatfältskalibrering. Exemplet 0:2,1:1 kopplar intensitetskanalerna 0 och 1 till kalibreringskanalerna 2 respektive 1. Intensitetskanalerna numreras från 0. Kalibreringskanaler och bildlager numreras från 1. Ta med varje intensitetskanal som ska korrigeras. Ett tomt värde behåller den ursprungliga kanalordningen. Med ett tomt värde används ett enda kalibreringsbildlager för alla kanaler. Välj först en kalibreringsfil från leverantören. En sparad belysningsmodell har företräde. Standardvärdet är tomt."
+    },
+    {
+      "table": "ui",
+      "key": "Apply conditions",
+      "source": "Apply conditions",
+      "source_sha256": "504783ac0c3e4c6e2eee46c4b0d745e71fbb3f62dcc85418c3e62c67ef5370f4",
+      "translation": "Tillämpa villkor"
+    },
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
+      "translation": "Detta installerar om spaCR i dess nuvarande miljö. spaCR stängs innan uppdateringen börjar. Det öppnas automatiskt igen när uppdateringen har lyckats."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
+      "translation": "Detta installerar om spaCR i dess nuvarande miljö. spaCR stängs och öppnas igen automatiskt när uppdateringen har lyckats."
+    }
+  ],
+  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success."
+}

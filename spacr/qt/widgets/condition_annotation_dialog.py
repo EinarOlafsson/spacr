@@ -258,7 +258,11 @@ class ConditionBox(QFrame):
         self.match_mode = QComboBox(self)
         self.match_mode.addItem(tr("Regular expression"), "regex")
         self.match_mode.addItem(tr("Exact values"), "values")
-        self.match_mode.setToolTip(tr("Exact values match whole cells literally: c1 does not match c10. Regular expression mode uses Include and Exclude above."))
+        self.match_mode.setToolTip(" ".join((
+            tr('Exact values must match the entire table value.'),
+            tr('For example, c1 does not match c10.'),
+            tr('Regular expression mode uses the Include and Exclude fields above.'),
+        )))
         self.match_mode.setCurrentIndex(1 if condition.get("match_mode") == "values" else 0)
         matching.addWidget(self.match_mode)
         self.include_values = QPlainTextEdit(self)
@@ -505,10 +509,20 @@ class ConditionAnnotationDialog(QDialog):
         self.add_condition.clicked.connect(lambda: self.add_box())
         header.addWidget(self.add_condition)
         outer.addLayout(header)
-        note = QLabel(tr("Name a column (for example genotype), add rules, then add replicate and a combined condition column. Move columns up or down so inputs come before combinations. Exact values match whole cells; regex searches within cells. Include selects matching metadata values; a blank include uses manual rows only. "
-                         "Exclude removes matching rows, including dropped rows. Drag selected source rows "
-                         "into a condition box. Resolve overlapping conditions before Apply. "
-                         "Unmatched rows remain blank; source files are preserved."), self)
+        note = QLabel(" ".join((
+            tr('Create genotype and replicate columns with rules, then combine them in a condition column.'),
+            tr('Place generated columns before any combined column that uses them.'),
+            tr('Exact values must match the entire table value.'),
+            tr('Regex can match part of a table value.'),
+            tr('Include selects rows whose chosen metadata matches the rule.'),
+            tr('If the Include field is empty, only rows dragged into this box are assigned.'),
+            tr('Exclude removes matching rows, including rows dragged into this box.'),
+            tr('Drag selected table rows into a condition box to assign them.'),
+            tr('Resolve different labels assigned to the same row in one column before applying.'),
+            tr('Multiple boxes may assign the same label without a conflict.'),
+            tr('Rows that match no condition get an empty value.'),
+            tr('Original source files are not modified.'),
+        )), self)
         note.setWordWrap(True)
         outer.addWidget(note)
         self.combine_panel = QWidget(self)

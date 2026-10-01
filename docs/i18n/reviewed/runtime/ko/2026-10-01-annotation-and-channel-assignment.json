@@ -1,0 +1,188 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "review_method": "Codex AI authored or corrected the target text after inspecting local-model outputs. Independent Codex AI peer review checked all 14 annotation instructions and all 10 vendor-tooltip sentence pairs per locale. These corrections are not claimed to be verbatim local-model outputs. Additional action, row-count and reinstall-confirmation captions received Codex AI technical review.",
+  "independent_review_candidate_sha256": "b2621102c063230bf77429d5435f7848c02cd92618c24a7e2994905c846d60e0",
+  "reviewed_tooltip_sentences": [
+    {
+      "source": "Assign saved intensity channels to a vendor flat-field calibration.",
+      "translation": "저장된 강도 채널을 공급업체의 평탄장 보정에 할당합니다."
+    },
+    {
+      "source": "Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1.",
+      "translation": "예시 0:2,1:1은 강도 채널 0과 1을 각각 보정 채널 2와 1에 연결합니다."
+    },
+    {
+      "source": "Intensity channel numbers start at 0.",
+      "translation": "강도 채널 번호는 0부터 시작합니다."
+    },
+    {
+      "source": "Calibration channel or image-layer numbers start at 1.",
+      "translation": "보정 채널 또는 이미지 레이어 번호는 1부터 시작합니다."
+    },
+    {
+      "source": "Include every corrected intensity channel.",
+      "translation": "보정할 모든 강도 채널을 지정하세요."
+    },
+    {
+      "source": "An empty value keeps the original channel order.",
+      "translation": "빈 값은 원래 채널 순서를 유지합니다."
+    },
+    {
+      "source": "With an empty value, a single calibration image layer applies to all channels.",
+      "translation": "값이 비어 있으면 하나의 보정 이미지 레이어가 모든 채널에 적용됩니다."
+    },
+    {
+      "source": "Select a vendor calibration file first.",
+      "translation": "먼저 공급업체의 보정 파일을 선택하세요."
+    },
+    {
+      "source": "A saved illumination model takes priority.",
+      "translation": "저장된 조명 모델이 우선합니다."
+    },
+    {
+      "source": "Default empty.",
+      "translation": "기본값은 비어 있습니다."
+    }
+  ],
+  "prior_local_model_drafts": {
+    "tooltip": "예제 0:2,1:1은 강도 채널 0과 1을 분류 채널 2과 1에 분류합니다. 강도의 채널 번호는 0에서 시작합니다. 분류채널 또는 이미지 레이어 번호가 1에서 시작됩니다. 각 수정 된 강도채널을 포함합니다. 공허한 값은 원래 채널 순서를 유지합니다. 빈 값으로, 하나의 분류 이미지 층은 모든 채널에 적용됩니다. 먼저 배달자 분류 파일을 선택합니다. 저장 된 조명 모델은 우선 순위를 취합니다. 기본 빈.",
+    "ui": {
+      "Name a column (for example genotype), add rules, then add replicate and a combined condition column.": "열 (예를 들어, 유전자 형식)을 지정하고, 규칙을 추가하고, 복제 및 조합 상태 열을 추가합니다.",
+      "Move columns up or down so inputs come before combinations.": "열을 위로 또는 아래로 이동하여 입력이 조합 전에 나타납니다.",
+      "Exact values match whole cells; regex searches within cells.": "정확한 값은 전체 세포와 일치; regex 세포 내에서 검색.",
+      "Include selects matching metadata values; a blank include uses manual rows only.": "메타 데이터 값과 일치하는 선택을 포함; 빈 값은 수동 라인을 사용하는 것을 포함합니다.",
+      "Exclude removes matching rows, including dropped rows.": "삭제는 떨어진 라인을 포함하여 일치하는 라인을 제거합니다.",
+      "Drag selected source rows into a condition box.": "선택한 출처 라인을 조건 상자에 밀어 넣으십시오.",
+      "Resolve overlapping conditions before Apply.": "적용하기 전에 과도한 조건을 해결하십시오.",
+      "Rows that match no condition get an empty value.": "조건과 일치하지 않는 라인은 빈 가치를 얻습니다.",
+      "Original source files are not modified.": "원본 파일은 변경되지 않습니다.",
+      "Exact values match whole cells literally: c1 does not match c10. Regular expression mode uses Include and Exclude above.": "정확한 값은 문자 그대로 전체 세포와 일치합니다: c1은 c10과 일치하지 않습니다."
+    }
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source_sha256": "d876737d707c2a650b07e2238fd642bbe56a54f06e97b4f636e70e3a15879900",
+      "translation": "규칙으로 유전자형 열과 반복 실험 열을 만든 다음, 이를 하나의 실험 조건 열로 결합합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Place generated columns before any combined column that uses them.",
+      "source": "Place generated columns before any combined column that uses them.",
+      "source_sha256": "dfe8be8cc3405000938408cb7091c89d8e33a4b98a5cc474b944bec7a02bc805",
+      "translation": "생성한 열은 해당 열을 사용하는 결합 열보다 앞에 배치합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Exact values must match the entire table value.",
+      "source": "Exact values must match the entire table value.",
+      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
+      "translation": "정확한 값은 표의 전체 값과 일치해야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Regex can match part of a table value.",
+      "source": "Regex can match part of a table value.",
+      "source_sha256": "6261d4e9fa0983a52bdbd8ced4bca29dc0c0b5110a110528997fc082b62a88c8",
+      "translation": "Regex는 표의 값 일부와 일치할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Include selects rows whose chosen metadata matches the rule.",
+      "source": "Include selects rows whose chosen metadata matches the rule.",
+      "source_sha256": "a3accd3eb88b585dae5b6c969782ba924a6b240ec74f25b26688340411419b43",
+      "translation": "포함은 선택한 메타데이터가 규칙과 일치하는 행을 선택합니다."
+    },
+    {
+      "table": "ui",
+      "key": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source_sha256": "3a2b440b35243a30356e52de42c0db64791eb1e948b7916e8f3fbcbfc28e84fd",
+      "translation": "포함 필드가 비어 있으면 이 조건 상자로 끌어온 행만 할당됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Exclude removes matching rows, including rows dragged into this box.",
+      "source": "Exclude removes matching rows, including rows dragged into this box.",
+      "source_sha256": "136d6e070316ca3784203f0a7ea4c6e29989d4a23c693b3e4d25503d426a5eb6",
+      "translation": "제외는 이 조건 상자로 끌어온 행을 포함하여 일치하는 행을 제거합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Drag selected table rows into a condition box to assign them.",
+      "source": "Drag selected table rows into a condition box to assign them.",
+      "source_sha256": "6ae74571c67a58f1a39c1008c1d9a930e2346d752d5cdbc9d2e62f2685ea02a4",
+      "translation": "선택한 표의 행을 조건 상자로 끌어와 할당합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Resolve different labels assigned to the same row in one column before applying.",
+      "source": "Resolve different labels assigned to the same row in one column before applying.",
+      "source_sha256": "8914b01b909da3f6e47b47632d2470e81b191027125604432a88dd7df0cf849b",
+      "translation": "적용하기 전에 같은 열의 같은 행에 서로 다른 레이블이 할당된 충돌을 해결하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Multiple boxes may assign the same label without a conflict.",
+      "source": "Multiple boxes may assign the same label without a conflict.",
+      "source_sha256": "714a70fbee26e6d53be2e000e564bf3b24844a8cdd569fa8ad9e5c01c2dab722",
+      "translation": "여러 조건 상자가 같은 레이블을 할당하는 경우에는 충돌이 발생하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Rows that match no condition get an empty value.",
+      "source": "Rows that match no condition get an empty value.",
+      "source_sha256": "9d7399faf9a5e825acfbc6a90b4bc93867220d38dc3090a3cfe94821dce9108d",
+      "translation": "어떤 조건과도 일치하지 않는 행에는 빈 값이 지정됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Original source files are not modified.",
+      "source": "Original source files are not modified.",
+      "source_sha256": "eb44a4c106a6cd864ccff03e473d06c0d57b6e260c5688d17d2dcb3f0fb30e58",
+      "translation": "원본 소스 파일은 수정되지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "For example, c1 does not match c10.",
+      "source": "For example, c1 does not match c10.",
+      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
+      "translation": "예를 들어 c1은 c10과 일치하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression mode uses the Include and Exclude fields above.",
+      "source": "Regular expression mode uses the Include and Exclude fields above.",
+      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
+      "translation": "정규 표현식 모드는 위의 포함 및 제외 필드를 사용합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_channel_map",
+      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
+      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
+      "translation": "저장된 강도 채널을 공급업체의 평탄장 보정에 할당합니다. 예시 0:2,1:1은 강도 채널 0과 1을 각각 보정 채널 2와 1에 연결합니다. 강도 채널 번호는 0부터 시작합니다. 보정 채널 또는 이미지 레이어 번호는 1부터 시작합니다. 보정할 모든 강도 채널을 지정하세요. 빈 값은 원래 채널 순서를 유지합니다. 값이 비어 있으면 하나의 보정 이미지 레이어가 모든 채널에 적용됩니다. 먼저 공급업체의 보정 파일을 선택하세요. 저장된 조명 모델이 우선합니다. 기본값은 비어 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
+      "translation": "현재 환경에 spaCR을 다시 설치합니다. 업데이트가 시작되기 전에 spaCR이 종료됩니다. 업데이트가 성공하면 자동으로 다시 열립니다."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
+      "translation": "현재 환경에 spaCR을 다시 설치합니다. 업데이트가 성공하면 spaCR이 자동으로 종료되었다가 다시 열립니다."
+    }
+  ],
+  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success."
+}

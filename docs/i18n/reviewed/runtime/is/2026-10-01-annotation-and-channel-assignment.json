@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "review_method": "Codex AI authored or corrected the target text after inspecting local-model outputs. Independent Codex AI peer review checked all 14 annotation instructions and all 10 vendor-tooltip sentence pairs per locale. These corrections are not claimed to be verbatim local-model outputs. Additional action, row-count and reinstall-confirmation captions received Codex AI technical review.",
+  "independent_review_candidate_sha256": "b2621102c063230bf77429d5435f7848c02cd92618c24a7e2994905c846d60e0",
+  "reviewed_tooltip_sentences": [
+    {
+      "source": "Assign saved intensity channels to a vendor flat-field calibration.",
+      "translation": "Tengdu vistaðar styrkleikarásir við flat-field-kvörðun framleiðanda."
+    },
+    {
+      "source": "Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1.",
+      "translation": "Dæmið 0:2,1:1 tengir styrkleikarásir 0 og 1 við kvörðunarrásir 2 og 1, í þeirri röð."
+    },
+    {
+      "source": "Intensity channel numbers start at 0.",
+      "translation": "Númer styrkleikarása byrja á 0."
+    },
+    {
+      "source": "Calibration channel or image-layer numbers start at 1.",
+      "translation": "Númer kvörðunarrása eða myndlaga byrja á 1."
+    },
+    {
+      "source": "Include every corrected intensity channel.",
+      "translation": "Tilgreindu hverja styrkleikarás sem á að leiðrétta."
+    },
+    {
+      "source": "An empty value keeps the original channel order.",
+      "translation": "Tómt gildi heldur upprunalegri röð rásanna."
+    },
+    {
+      "source": "With an empty value, a single calibration image layer applies to all channels.",
+      "translation": "Þegar gildið er tómt er eitt kvörðunarmyndlag notað fyrir allar rásir."
+    },
+    {
+      "source": "Select a vendor calibration file first.",
+      "translation": "Veldu fyrst kvörðunarskrá frá framleiðanda."
+    },
+    {
+      "source": "A saved illumination model takes priority.",
+      "translation": "Vistað lýsingarlíkan hefur forgang."
+    },
+    {
+      "source": "Default empty.",
+      "translation": "Sjálfgefið gildi er tómt."
+    }
+  ],
+  "prior_local_model_drafts": {
+    "tooltip": "Skilja sparað hjarta kanna til fljótt-fljótt kalibration. Til dæmis 0:2,1:1 skila hjarða kanna 0 og 1 til að kalibrations kanna 2 og 1. Hjarta kanalnum byrja á 0. Kalibration kanna eða image-layer tölur byrja í 1. Inklúðu hvert korrigerður hjarðarkanna. Væri reikninginn halda upprunalega kanna. Með vöru reikning, einn kalibrering myndu skili gildir um allar kannaðir. Veldu fljóta kalibrationer skili fyrst. A sparaður ljósi mönnun tekur priority. Verkefni vöri.",
+    "ui": {
+      "Name a column (for example genotype), add rules, then add replicate and a combined condition column.": "Name a column (e.g. genotype), bæta reglur, þá bæta replikate og sameiginlegur skilyrði.",
+      "Move columns up or down so inputs come before combinations.": "Vertu að flytja stólum upp eða niður svo að inntök koma áður en samsetningar.",
+      "Exact values match whole cells; regex searches within cells.": "Áhugtar gildi samanleika helstu celler; regex leita inn í cellerum.",
+      "Include selects matching metadata values; a blank include uses manual rows only.": "Inklúðu valkostur sem tengjast metadata gildi; a blank inniheldur að nota aðeins handbók.",
+      "Exclude removes matching rows, including dropped rows.": "Auðvitað fjarlægja samkomandi rán, þar á meðal niður rán.",
+      "Drag selected source rows into a condition box.": "Farið úr valda skýrslum inn í skilyrði.",
+      "Resolve overlapping conditions before Apply.": "Hættu að leyfa yfirlappingarreglur áður en að nota.",
+      "Rows that match no condition get an empty value.": "Rökur sem uppfyllir engin aðstæður fá tomt verð.",
+      "Original source files are not modified.": "Fyrstu skýrslur eru ekki breytt.",
+      "Exact values match whole cells literally: c1 does not match c10. Regular expression mode uses Include and Exclude above.": "Áratugar gildi samanleika helstu célum bókstaflega: c1 samsvarar ekki c10. Reglulega útskýrunarferð notar Include og Exclude hér að neðan."
+    }
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source_sha256": "d876737d707c2a650b07e2238fd642bbe56a54f06e97b4f636e70e3a15879900",
+      "translation": "Búðu til dálka fyrir arfgerð og endurtekningu með reglum og sameinaðu þá síðan í dálk fyrir tilraunaskilyrði."
+    },
+    {
+      "table": "ui",
+      "key": "Place generated columns before any combined column that uses them.",
+      "source": "Place generated columns before any combined column that uses them.",
+      "source_sha256": "dfe8be8cc3405000938408cb7091c89d8e33a4b98a5cc474b944bec7a02bc805",
+      "translation": "Settu myndaða dálka á undan öllum sameinuðum dálkum sem nota þá."
+    },
+    {
+      "table": "ui",
+      "key": "Exact values must match the entire table value.",
+      "source": "Exact values must match the entire table value.",
+      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
+      "translation": "Nákvæm gildi verða að samsvara öllu gildinu í töflunni."
+    },
+    {
+      "table": "ui",
+      "key": "Regex can match part of a table value.",
+      "source": "Regex can match part of a table value.",
+      "source_sha256": "6261d4e9fa0983a52bdbd8ced4bca29dc0c0b5110a110528997fc082b62a88c8",
+      "translation": "Regex getur samsvarað hluta af gildi í töflunni."
+    },
+    {
+      "table": "ui",
+      "key": "Include selects rows whose chosen metadata matches the rule.",
+      "source": "Include selects rows whose chosen metadata matches the rule.",
+      "source_sha256": "a3accd3eb88b585dae5b6c969782ba924a6b240ec74f25b26688340411419b43",
+      "translation": "Inniheldur velur raðir þar sem valin lýsigögn samsvara reglunni."
+    },
+    {
+      "table": "ui",
+      "key": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source_sha256": "3a2b440b35243a30356e52de42c0db64791eb1e948b7916e8f3fbcbfc28e84fd",
+      "translation": "Ef reiturinn Inniheldur er auður er aðeins úthlutað þeim röðum sem hafa verið dregnar inn í þennan skilyrðareit."
+    },
+    {
+      "table": "ui",
+      "key": "Exclude removes matching rows, including rows dragged into this box.",
+      "source": "Exclude removes matching rows, including rows dragged into this box.",
+      "source_sha256": "136d6e070316ca3784203f0a7ea4c6e29989d4a23c693b3e4d25503d426a5eb6",
+      "translation": "Útiloka fjarlægir raðir sem samsvara reglunni, þar á meðal raðir sem hafa verið dregnar inn í þennan skilyrðareit."
+    },
+    {
+      "table": "ui",
+      "key": "Drag selected table rows into a condition box to assign them.",
+      "source": "Drag selected table rows into a condition box to assign them.",
+      "source_sha256": "6ae74571c67a58f1a39c1008c1d9a930e2346d752d5cdbc9d2e62f2685ea02a4",
+      "translation": "Dragðu valdar töfluraðir inn í skilyrðareit til að úthluta þeim."
+    },
+    {
+      "table": "ui",
+      "key": "Resolve different labels assigned to the same row in one column before applying.",
+      "source": "Resolve different labels assigned to the same row in one column before applying.",
+      "source_sha256": "8914b01b909da3f6e47b47632d2470e81b191027125604432a88dd7df0cf849b",
+      "translation": "Leystu úr því að sömu röð í einum dálki sé úthlutað mismunandi merkjum áður en breytingarnar eru staðfestar."
+    },
+    {
+      "table": "ui",
+      "key": "Multiple boxes may assign the same label without a conflict.",
+      "source": "Multiple boxes may assign the same label without a conflict.",
+      "source_sha256": "714a70fbee26e6d53be2e000e564bf3b24844a8cdd569fa8ad9e5c01c2dab722",
+      "translation": "Margir skilyrðareitir mega úthluta sama merki án áreksturs."
+    },
+    {
+      "table": "ui",
+      "key": "Rows that match no condition get an empty value.",
+      "source": "Rows that match no condition get an empty value.",
+      "source_sha256": "9d7399faf9a5e825acfbc6a90b4bc93867220d38dc3090a3cfe94821dce9108d",
+      "translation": "Raðir sem samsvara engu skilyrði fá tómt gildi."
+    },
+    {
+      "table": "ui",
+      "key": "Original source files are not modified.",
+      "source": "Original source files are not modified.",
+      "source_sha256": "eb44a4c106a6cd864ccff03e473d06c0d57b6e260c5688d17d2dcb3f0fb30e58",
+      "translation": "Upprunalegum frumskrám er ekki breytt."
+    },
+    {
+      "table": "ui",
+      "key": "For example, c1 does not match c10.",
+      "source": "For example, c1 does not match c10.",
+      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
+      "translation": "Til dæmis samsvarar c1 ekki c10."
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression mode uses the Include and Exclude fields above.",
+      "source": "Regular expression mode uses the Include and Exclude fields above.",
+      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
+      "translation": "Reglulegar segðir nota reitina Inniheldur og Útiloka hér að ofan."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_channel_map",
+      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
+      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
+      "translation": "Tengdu vistaðar styrkleikarásir við flat-field-kvörðun framleiðanda. Dæmið 0:2,1:1 tengir styrkleikarásir 0 og 1 við kvörðunarrásir 2 og 1, í þeirri röð. Númer styrkleikarása byrja á 0. Númer kvörðunarrása eða myndlaga byrja á 1. Tilgreindu hverja styrkleikarás sem á að leiðrétta. Tómt gildi heldur upprunalegri röð rásanna. Þegar gildið er tómt er eitt kvörðunarmyndlag notað fyrir allar rásir. Veldu fyrst kvörðunarskrá frá framleiðanda. Vistað lýsingarlíkan hefur forgang. Sjálfgefið gildi er tómt."
+    },
+    {
+      "table": "ui",
+      "key": "Apply conditions",
+      "source": "Apply conditions",
+      "source_sha256": "504783ac0c3e4c6e2eee46c4b0d745e71fbb3f62dcc85418c3e62c67ef5370f4",
+      "translation": "Beita skilyrðum"
+    },
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
+      "translation": "Þetta setur spaCR upp aftur í núverandi umhverfi þess. spaCR lokast áður en uppfærslan hefst. Það opnast sjálfkrafa aftur þegar uppfærslan hefur tekist."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
+      "translation": "Þetta setur spaCR upp aftur í núverandi umhverfi þess. spaCR lokast og opnast sjálfkrafa aftur þegar uppfærslan hefur tekist."
+    }
+  ],
+  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success."
+}
