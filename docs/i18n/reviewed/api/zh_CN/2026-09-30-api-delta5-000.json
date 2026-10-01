@@ -1,0 +1,640 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting.build_plan#7",
+      "source": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "source_sha256": "458e0718fd7c8fe44ebb1f16ece2c2ab2690e2bbc1f15c7a079d2da08d7ed031",
+      "context": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "translation": "``{image: mask path}``，直接指定每张图像的掩膜（掩膜列）；不在其中的图像没有掩膜。None 时用 :func:`mask_for` 查找每个掩膜。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#1",
+      "source": "Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "source_sha256": "7fc544a3cc6225fd1b7812f065faf628151122fccf7cbf22d99f1726fc58e1e4",
+      "context": "Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "translation": "Make Masks 接受拖放的文件、文件夹或两者，用户的意图取决于拖放了什么。:func:`classify_drop` 读取这些路径——名称、文件夹布局，以及对少数 TIFFs 读取其像素——并判定属于以下哪一种情况，不提任何问题，也不使用任何控件：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.mask_io#8",
+      "source": "The second half of this module moves label masks to and from the formats other tools curate and train on: :func:`masks_to_geojson` and :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and :func:`coco_to_masks` for COCO-style training sets, and :func:`export_rois` / :func:`import_rois` choosing among them by file name.",
+      "source_sha256": "7062fc19343d4d5d8071b25be2ca74952f809825f64a59120826923d88660493",
+      "context": "The second half of this module moves label masks to and from the formats other tools curate and train on: :func:`masks_to_geojson` and :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and :func:`coco_to_masks` for COCO-style training sets, and :func:`export_rois` / :func:`import_rois` choosing among them by file name.",
+      "translation": "本模块的后半部分负责在标签掩膜与其他工具用于整理和训练的格式之间相互转换：:func:`masks_to_geojson` 和 :func:`geojson_to_masks` 用于 QuPath，:func:`masks_to_roiset` 和 :func:`roiset_to_masks` 用于 Fiji 的 ROI Manager，:func:`masks_to_coco` 和 :func:`coco_to_masks` 用于 COCO 风格的训练集，:func:`export_rois` / :func:`import_rois` 则按文件名在它们之间选择。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#2",
+      "source": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes. So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest), each in its own backend's worker.",
+      "source_sha256": "a37bac1c01e027cec6ef98504c6846db765e23b96a862563152d27419cd9aea3",
+      "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes. So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest), each in its own backend's worker.",
+      "translation": "模型设置为 ``cellpose3:<model or weights path>`` 的对象，或在 ``segmentation_backend`` 为 ``'cellpose3'`` 时的任何对象，都由 ``_cellpose3_masks`` 在 Cellpose 3 后端自己的环境中分割；其返回结果进入与 Cellpose-SAM 结果相同的流程，因此保存的掩膜和数据库行的写法相同。模型设置为 ``cellpose_dino:<checkpoint path>`` 的对象由 Cellpose-DINO 后端的工作进程分割，该进程接受与 Cellpose-SAM 模型完全相同的 ``eval`` 调用并返回其形状。模型设置带有 StarDist、InstanSeg 或 Omnipose 前缀的对象（``stardist:<model>`` 等）也是如此，各自在其后端的工作进程中处理。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.ReaderNeedsInstall#1",
+      "source": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place.",
+      "source_sha256": "ad034697e3a3247bddc8054a4aa04eaf5e0b2504b6ea0c89a17428f8fb5df87c",
+      "context": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place.",
+      "translation": "这是一个 :class:`ImportError`，因此所有已经在报告读取器缺失的调用方仍会照常报告；Plaque Assay 会捕获此异常，以便就地提供安装选项。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.figure_folders#1",
+      "source": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
+      "source_sha256": "f8323f70ad6be21f5af494bbf970b97367ad794acfe103d3c8d88d31f2d1daec",
+      "context": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
+      "translation": "论文文件夹或图像文件夹按原样读取。包含论文文件夹的文件夹（一次读取多个 PDFs，每个读入各自的文件夹）按论文逐个读取：如果它自身有图像，先读取这些图像，然后按名称读取每个论文文件夹。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay#18",
+      "source": "Optional ``{slot role: channel}`` for the organelle slots after the first (``{'organelleb': 3}``), each drawn in its own colour. Default ``None`` draws the first slot only, as before. Mask planes are located through the merged folder's plane layout sidecar when one is present, so a slot left out here no longer shifts the planes of the objects that are drawn.",
+      "source_sha256": "20afcb292f47ac539953501ffb5a6cf59295b59f48cff163bfc14b53ba255867",
+      "context": "Optional ``{slot role: channel}`` for the organelle slots after the first (``{'organelleb': 3}``), each drawn in its own colour. Default ``None`` draws the first slot only, as before. Mask image layers are located through the merged folder's image layer layout sidecar when one is present, so a slot left out here no longer shifts the image layers of the objects that are drawn.",
+      "translation": "可选的 ``{slot role: channel}``，用于第一个之后的细胞器槽位（``{'organelleb': 3}``），每个槽位用各自的颜色绘制。默认值 ``None`` 只绘制第一个槽位，与以前相同。若合并文件夹中有平面布局附属文件，则通过它定位掩膜平面，因此此处省略的槽位不再使所绘制对象的平面发生错位。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.annotate_engine.SaveWorker.submit#2",
+      "source": "the column to write; the annotation column when omitted. The Annotate screen's judgements go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one queue, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
+      "source_sha256": "eb3195b72294dc96abd1f26172a2854d428c89af4a83a77538d6eaa990d46210",
+      "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
+      "translation": "要写入的列；省略时为标注列。Annotate 界面的判定通过同一个写入器写入 ``<column>_verdict`` 列，而不是通过第二个连接：一个写入器、一个队列、一种顺序。无法写入的其他列的批次会按其列保存在 ``_failed_extra`` 中，与 ``_failed_batch`` 分开，从而使标注批次保持其所有读取方所期望的结构。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#1",
+      "source": "A folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "source_sha256": "f0ea7f83f97e0ee55369f435911d29ba349aa47ad84bd137db80f9be84b689b3",
+      "context": "A folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "translation": "图像只位于子文件夹中的文件夹，以及 spaCR 写出的文件夹（``merged/*.npy``、``sorted_channels``）也会被接受，``.npy`` 同样接受，以便界面说明它是什么；拖放的含义由 :func:`spacr.drop_classification.classify_drop` 决定。配对稍后查找，此处不要求。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler#1",
+      "source": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs; other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "source_sha256": "d5ed8bf1751ac20608c6062ae3650361e716be90e5bf54db03dc0a83eb4a0ff4",
+      "context": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs; other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "translation": "它接受蚀斑图像、蚀斑图像文件夹、两者的混合，以及在 Figure 模式下任意数量的 PDFs；与它们一起拖放的其他文件会被悄悄搁置。在有这个处理器之前，Plaque Assay 使用的是 Make Masks 的策略，它会用 Make Masks 的提示语拒绝无法使用的文件夹。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#1",
+      "source": "The mode follows what was dropped: PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "source_sha256": "9140ac09fcc1a71770e76a0759797463235beccaba4a4dc0dfd3f97ecd23cba9",
+      "context": "The mode follows what was dropped: PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "translation": "模式随拖放内容而定：在 Plaque 模式下拖入 PDFs 或包含它们的文件夹时，会询问是否切换到 Figure 模式；在 Figure 模式下拖入图像时，会询问是否切换到 Plaque 模式；同时拖入 PDFs 和图像时，会说明 PDFs 在 Figure 模式下读取、图像在 Plaque 模式下读取，并询问要读取哪一种。留在 Figure 模式会把图像当作图来读取；留在 Plaque 模式则不读取这些 PDFs。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_others#1",
+      "source": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused; hidden files are not counted, nor is what a paper folder holds.",
+      "source_sha256": "0156594e489a886de637fd684932187520eba6954bbffee07c215da6bd8598ea",
+      "context": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused; hidden files are not counted, nor is what a paper folder holds.",
+      "translation": "既不是蚀斑图像也不是 PDF 的文件，无论是被直接拖放还是位于被拖放文件夹的顶层，都会被忽略而不是被拒绝；隐藏文件不计入，论文文件夹中的内容也不计入。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.live_zoom.register_text_column#0",
+      "source": "Let Ctrl + wheel over ``root`` size the text inside it.",
+      "source_sha256": "c3c903c2d683f84d422c83122fa5d7020238f9168cd286d182837a5bd0913e3f",
+      "context": "Let Ctrl + wheel over ``root`` size the text inside it.",
+      "translation": "让在 ``root`` 上按 Ctrl + 滚轮调整其中文字的大小。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine#2",
+      "source": "THREE INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS. :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary field that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "source_sha256": "94b46744b8530e309187fb5ad64a731e6e100c1ff918a825ccc9139ff2dc9571",
+      "context": "Three inversions live here and they do different things. :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "translation": "这里有三种反转，它们的作用各不相同。:func:`invert_intensity` 是图像的摄影学补色——``dtype_max - value``，即查看器的 Invert 所做的操作，在所有整数 dtype 上都可以精确还原——Make Masks 界面的 \"Invert image\" 就是用它绘制的。:func:`invert_for_detection` 则是把图像关于其自身的取值范围进行镜像，界面的 \"Invert for detection\" 交给检测器的就是它；其文档字符串中给出了说明为什么检测器不能使用补色的测量结果，而且它并不是一个应当合并掉的重复函数。:func:`invert_mask` 翻转标签图像的前景和背景；在普通视野上，这会得到一个覆盖整个画面的对象，这就是它曾被报告为不起任何作用的原因。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FILTER_BOUNDS#1",
+      "source": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list, so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "source_sha256": "eee49aff894aec4122fb525057383a50ee6982efc83f0fa60deb0a1453e82df3",
+      "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list, so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "translation": "它们不再是第二个过滤器。:func:`legacy_filters` 会把它们转换为唯一那个过滤器列表中的条目，因此仍然传入 ``min_area=20`` 的调用方，会与添加了 ``area`` 行的用户经过同一次 regionprops 计算来评判，而 :class:`FilterRemoval` 仍会指明对象未通过的旧式边界，从而使旧的台账读起来保持一致。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#1",
+      "source": "Holes are filled per object by :func:`fill_label_holes`, never by filling the foreground and labelling it again: that joined every pair of touching cells into one object.",
+      "source_sha256": "6f538ef16fa487dae97d039709e6887e9b742b58c7f8e81d34f0e67360663cc5",
+      "context": "Holes are filled per object by :func:`fill_label_holes`, never by filling the foreground and labelling it again: that joined every pair of touching cells into one object.",
+      "translation": "孔洞由 :func:`fill_label_holes` 按对象逐个填充，绝不先填充前景再重新标记：那种做法会把每一对相互接触的细胞合并成一个对象。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_label_holes#1",
+      "source": "THE ONE HOLE FILLER FOR LABEL IMAGES. :func:`fill_holes`, the propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the Cellpose ``fill_in`` step) all come here. Filling the binary foreground and labelling it afresh with ``ndimage.label`` is what this replaces: it makes every pair of TOUCHING objects one object, so a field of 74 adjacent cells came back as 8. Here nothing is relabelled.",
+      "source_sha256": "f3e16bdf2fc10742b753b304c92276e2c66e68a76b41b7e38bd7aad0585fcbf0",
+      "context": "The one hole filler for label images. :func:`fill_holes`, the propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the Cellpose ``fill_in`` step) all come here. Filling the binary foreground and labelling it afresh with ``ndimage.label`` is what this replaces: it makes every pair of TOUCHING objects one object, so a microscope field of view of 74 adjacent cells came back as 8. Here nothing is relabelled.",
+      "translation": "标签图像唯一的孔洞填充器。:func:`fill_holes`、上面的传播步骤和 :func:`spacr.utils.fill_holes_in_mask`（Cellpose 的 ``fill_in`` 步骤）都调用这里。它取代的是先填充二值前景、再用 ``ndimage.label`` 重新标记的做法：那样会把每一对相互接触的对象变成一个对象，于是一个含有 74 个相邻细胞的视野返回时只剩 8 个。这里不会重新标记任何东西。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_dock_width#1",
+      "source": "Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
+      "source_sha256": "6f8072268a17598efc216ff6ccdce11e1682ed25c8afd326eb56bf0f441eff0d",
+      "context": "Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
+      "translation": "以逻辑像素存储；停靠栏在应用该值时会将其限制在自身的拖动范围内，参见 :meth:`spacr.qt.widgets.dock.Dock.column_width`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_folded_panel#1",
+      "source": "A PANEL IN ITS DEFAULT STATE IS REMOVED rather than stored. Most panels default to open, so storing that would grow the dict by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "source_sha256": "49e101fc9a89834495506773d393ce59a53e0b83103969d41bc5694ca10c31f5",
+      "context": "A panel in its default state is removed rather than stored. Most panels default to open, so storing that would grow the key-value mapping by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "translation": "处于默认状态的面板会被移除，而不是存储。大多数面板默认是展开的，因此存储这种状态会让字典为用户碰过的每个面板增加一个条目，而且永远不会缩小。初始为折叠状态的面板（高级 PSF、复原和 CLAHE 行）会传入 ``default_shut=True``，因此被存储的是展开它这一操作（存为 False），再次折叠时就会遗忘该记录。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.DiameterDialog#1",
+      "source": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the screen that opened the zoo.",
+      "source_sha256": "dcccfc6a6a8bd9d2afdb58ae1f5b43758d38174a1b3def9bc346e52e81b3fe01",
+      "context": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
+      "translation": "原始需求：\"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" 因此它容纳整个 :class:`DiameterPanel`——测量按钮、每种对象类型一行（附其依据和说明）、每行的 *Use* 以及 *Use all*——并且面板仍会写入打开 zoo 的那个界面的设置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#10",
+      "source": "A SUGGESTION IS JUDGED, NOT RELABELLED. A crop Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the key legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "source_sha256": "37c0c1dc05cbbf7424583dadb899ae43a65eb41fad4f697724cbb06f21e40a13",
+      "context": "A suggestion is judged, not relabelled. An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "translation": "建议会被评判，而不是被重新标记。Suggest 为其建议了类别的裁剪图，会在虚线圆环旁边带有一个琥珀色的 ``?`` 徽标。单击或按 ``Y`` 表示确认（它会成为普通标签并带上绿色对勾）；右键单击或按 ``N`` 表示拒绝（它会回到未回答状态并带上红色叉号）；``U`` 可撤销以上任一操作。按键图例上方的栏会说明这一点，并统计本页和本列中的内容。每次评判都会写入 ``<column>_verdict`` 列，形式为 ``+c`` 或 ``-c``，因此重启后仍然保留，下一轮 Suggest 也会获得这些拒绝结果用于训练。参见 :meth:`AnnotateScreen._judge` 和 :func:`spacr.suggest.verdict_column`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#9",
+      "source": "A PAGE IS WHAT FITS. The grid holds exactly the crops that fit the room the crop pane gives it, at the crop size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first crop on screen stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "source_sha256": "6d3bec89fd0c2c09a6cd0b4c5706eb49ce0b8c3b25be9f1dedcd2314aaf773b9",
+      "context": "A page is what fits. The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "translation": "一页就是能放下的内容。网格恰好容纳按照设置所要求的裁剪图尺寸、在裁剪图窗格所给空间中能放下的裁剪图，而且永远不会滚动：打开控制台、折叠窗格、更改 GUI 缩放比例或调整窗口大小，都会重新计算页面并把其余内容推到下一页，页码也会随之更新，而界面上的第一个裁剪图保持在原来的位置。参见 :func:`grid_that_fits` 和 :meth:`AnnotateScreen._refit_grid`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#1",
+      "source": "A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "source_sha256": "46271add4bed5ac1216e935c835f0a0aea6b78af54dc4fa737410bb92a885b10",
+      "context": "A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "translation": "建议为琥珀色，已确认的建议为绿色，已拒绝的为红色——即主题自身的警告、成功和错误颜色，因此徽标会像界面其他部分一样随主题变化。字形以主题的背景色绘制，在深色主题上为黑色，在浅色主题上接近白色；每种填充色都是针对它选择的，在两种主题下的对比度都优于 4.5:1。这三种颜色中没有一种（None）是类别颜色，因此徽标永远不会被误读为类别。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#1",
+      "source": ":func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "source_sha256": "842be1c6e2423fa4b7d993b99ff2fb93e9bc8a6b3011cb46225a85a74b37858a",
+      "context": ":func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "translation": ":func:`spacr.drop_classification.classify_drop` 说明拖放了什么，然后：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#4",
+      "source": "one folder whose subfolders look like channels (DAPI/, GFP/..., or the same fields in each) opens \"Organize for Measure\" with a channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation;",
+      "source_sha256": "3df3b7e9284be39e6f2c9dc90bb7968a1f03cb61f233266a63a307ebb0684e08",
+      "context": "one folder whose subfolders look like image data channels (DAPI/, GFP/..., or the same microscope fields of view in each) opens \"Organize for Measure\" with an image data channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation;",
+      "translation": "子文件夹看起来像通道的文件夹（DAPI/、GFP/...，或每个子文件夹中都是相同的视野）会打开 \"Organize for Measure\"，每个子文件夹一个通道列；其他图像位于子文件夹中的文件夹则提供合并；",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.ObjectFilterList#1",
+      "source": "The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
+      "source_sha256": "461b788e7594350328ac29b2bd8699d69e9f7e4390f32e43f4d709fe247196f1",
+      "context": "The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
+      "translation": "Filter 类别过去包含四个固定的输入框——最小和最大面积、最小和最大平均强度。现在它初始为空，\"Add a filter\" 会提供 :func:`skimage.measure.regionprops` 计算的每个标量属性（参见 :func:`mask_engine.filter_properties`）；添加的每一行都带有属性、最小值、最大值和一个 Remove 按钮。空白的边界表示关闭。原来的四个边界只是用户可以添加的两种行：``area`` 和 ``intensity_mean``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.ObjectFilterList.set_filters#1",
+      "source": "A dict of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before the filter list opens as the rows it meant.",
+      "source_sha256": "773155f16ccbd362cbdd4a2a7237272c68578e3e236418953bff28712f18de1e",
+      "context": "A key-value mapping of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before the filter list opens as the rows it meant.",
+      "translation": "包含旧式四个边界（``min_area`` 等）的字典会由 :func:`mask_engine.legacy_filters` 迁移，因此在过滤器列表出现之前保存的状态会被打开为其原本所表示的行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.load_cellpose_model#3",
+      "source": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend, and a ``stardist:``, ``instanseg:`` or ``omnipose:`` model in its own backend.",
+      "source_sha256": "4b5737f07e2cf611f471fb900e7051821ff1b79710b4a2e1589a4d1c3ba16d14",
+      "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend, and a ``stardist:``, ``instanseg:`` or ``omnipose:`` model in its own backend.",
+      "translation": "``cellpose3:<name or path>`` 模型——无论是 Cellpose 3 的标准模型还是来自 bioimage.io 的 Cellpose 3 检查点——根本不是 Cellpose 4 模型：Cellpose 4 会加载这样的检查点并用它分割出无意义的结果。它由 :func:`_backend_model` 在 Cellpose 3 后端自己的环境中加载，与 Mask generation 的加载方式相同。``cellpose_dino:<path>`` 模型（Cellpose-DINO 检查点）以同样方式在 Cellpose-DINO 后端中加载，``stardist:``、``instanseg:`` 或 ``omnipose:`` 模型则在各自的后端中加载。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#3",
+      "source": "a tooltip appears after the Tooltip delay preference of hovering, not before (:data:`SHOW_DELAY_MS` when nothing is stored);",
+      "source_sha256": "c3b1f7515db2806fe656ebb1d9e8f9868ce51a81a62083fbc488594116f55922",
+      "context": "a tooltip appears after the Tooltip delay preference of hovering, not before (:data:`SHOW_DELAY_MS` when nothing is stored);",
+      "translation": "提示框在鼠标悬停达到 Tooltip delay 偏好设置的时长后才出现，不会更早（未保存任何值时为 :data:`SHOW_DELAY_MS`）；",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops#2",
+      "source": "WHY A SAVED PATTERN USED TO WAIT FOR A RESTART. The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the screens to the window.",
+      "source_sha256": "4d62c462db52e7d54e7a4c62b3123671bc0d4f3eca29a129054801f6dc79ecb2",
+      "context": "Why a saved pattern used to wait for a restart. The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the application views to the window.",
+      "translation": "为什么过去保存的图案要等到重启才生效。窗口在停靠栏和页面后方只构建一个背景，并在整个会话中保留它。保存 Preferences 会将运行时数值推送给它（`apply_saved_controls`），但图案、后端、质量和缩放在构造时就已固定，而此后没有任何东西再次构造它——旧注释中所说的 \"changing a screen\" 就能做到这一点，在背景从各界面移到窗口之后就不再成立。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#1",
+      "source": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane: the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "source_sha256": "360a3eea7281d3c28d93ee25fd4b16419cda4f01ebe25d626c1292d8036d1aa2",
+      "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane: the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "translation": "主体以伸缩方式布局，而即使主体被隐藏，布局仍会计入该伸缩，因此折叠的卡片仍会请求空间，并与将折叠标题固定在窗格底部的伸缩项平分空间：折叠后的 Console 占了窗格一半的高度。折叠时，主体放弃其伸缩；展开时再收回。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#1",
+      "source": "Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "source_sha256": "92d82faeacdc6b128f4551b1d9a2b9a7d37d71f119d1478e095e5452cef3459f",
+      "context": "Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "translation": "两个请求最终其实是一个：每个容器都可以折叠（“每当有东西被折叠时，它都应该自动固定到所在容器的底部”），每个容器也都可以“通过拖动边缘展开或缩小”。:class:`~PySide6.QtWidgets.QSplitter` 本来就两者兼备——一个可拖动的拖动柄，以及一个可以缩到无的子控件——因此这两部分在这里作为“同一个”机制实现，分隔器中任何可折叠的内容也都可以调整大小，反之亦然。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
+      "source": "The request: \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "source_sha256": "623f21c03aef1c8e8342c15cf1af89df40907668b4c800d9c0bb381989bd0358",
+      "context": "The request: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "translation": "原始需求：“当实时预览打开时，它占据整个界面的高度：控制台、System 容器以及 System 下方的按钮区块自动折叠，设置向左折叠”，每当出现图形时也是如此。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#1",
+      "source": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside a screen gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "source_sha256": "c575a161fa01047f40f4f06db899ee34572f672da673e4f8c50c9291738ae694",
+      "context": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "translation": "原始需求：“图形或实时预览容器内的任何区块也都应该可以折叠……每个 GUI 元素，无论是图形还是表格”。这是界面内的区块获得折叠控件的唯一方式，因此它们的外观和行为都一致：主体上方有一个箭头和名称（与控制台和 System 使用的相同 :class:`~spacr.qt.widgets.foldable.Folder`），点击即可折叠，折叠后的区块只剩被固定在所分配空间“底部”的标题（:func:`lock_folded_to_bottom`）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#2",
+      "source": "THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show. The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "source_sha256": "f8c83ffb7986082749047ff21dd12062f24a20cbf55c50636ed405fdd603ad0e",
+      "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show. The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "translation": "“主体自身的可见性仍由其所有者决定。”折叠隐藏的是内部容器，而不是主体本身，因此展开时不会显示所有者已隐藏的面板，也不会构建首次显示时才构建的面板。反过来，区块会跟随其主体：当所有者保持主体隐藏时，整个区块（包括标题）也会隐藏，并在所有者显示主体时重新出现。为此只读取主体的隐藏标志，因此不会为了判断而显示、测量或构建任何内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#1",
+      "source": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the reported bug (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "source_sha256": "79e103e46d1472b1eabcd2263ef44b7b0047ac7be0ad8337be0a993d70e2badb",
+      "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the reported bug (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "translation": "折叠后的面板如果获得了超过其标题所需的空间——分隔器中的最后一个窗格、被其所在列拉伸的区块——以前会把标题布置在该空间的中间，这正是所报告的缺陷（“当我折叠控制台时，它折叠到了中间”）。折叠时在标题“上方”放置一个伸缩项，由它占据多余的空间。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.apply_column_text_scale#0",
+      "source": "Size the console's text with the column it sits in.",
+      "source_sha256": "07c4b533ba0a1221b4054b9438e72e1225f8d67a5c0fda0577a666e3987af813",
+      "context": "Size the console's text with the column it sits in.",
+      "translation": "让控制台的文字大小随其所在的栏变化。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.column_width#1",
+      "source": "A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
+      "source_sha256": "a6ac702129fe1b5d118c0dfbd2bb41cc8ab7785aaaafe2dd34263f43ba8bebff",
+      "context": "A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
+      "translation": "用户选择的宽度会在每次刷新、每次隐藏和显示以及每个会话中保持；如果没有存储任何宽度，栏会适应其最长的名称，正如 :meth:`fitting_width` 一贯的做法。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.DockEdge#0",
+      "source": "The strip along the dock's right edge that drags its width.",
+      "source_sha256": "eed20acf1d3fed6c3913073fcaeef384be349fbc40fcbeaa63af700ad35e4be4",
+      "context": "The strip along the dock's right edge that drags its width.",
+      "translation": "沿停靠栏右边缘、用于拖动调整其宽度的条带。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#3",
+      "source": "WHY. The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the screen, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
+      "source_sha256": "d0f984c6994fa1872f93dc61262278c81e5cc6445abc0348026002ca39cff8c4",
+      "context": "WHY. The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
+      "translation": "原因。主题把每个 ``QProgressBar`` 绘制为 8 px 高的轨道（``height: 8px; max-height: 8px``，见 :mod:`spacr.qt.theme`）。同时绘制自身文字的进度条——\"step 2 of 3\"、\"45%\"、\"312 MB / 690 MB (45%)\"——会把 13 px 的文字画进这 8 px 中，因此每个字形只有上半部分能显示出来；而在 50 % 的 GUI 缩放下轨道只有 4 px，几乎什么都显示不出来。像 \"step 1 of 3\" 或 \"10%\" 这样的文字会被截断。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.Folder.set_shut#2",
+      "source": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "source_sha256": "3352e147240549d6dbfdd2bb045862ec2c1431c4518293a96b16ee98b82bcdef",
+      "context": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "translation": "当程序代替用户进行折叠时为 False（打开实时预览）。这样的折叠不会在重启后被记住，监听者也会得到相应通知。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.make_foldable#5",
+      "source": "start folded unless the user opened this panel before (advanced rows that most people never change).",
+      "source_sha256": "2e6bd5aa4992778539a120e40369f7e478577e44af09041b844205d3fda1086c",
+      "context": "start folded unless the user opened this panel before (advanced rows that most people never change).",
+      "translation": "除非用户之前打开过此面板，否则初始为折叠状态（大多数人从不更改的高级行）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_cascade.CascadeEngine#3",
+      "source": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting; two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
+      "source_sha256": "f40d007d7034ec05aba280162f355962931d7198ca5818aa196eb10096bdde04",
+      "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting; two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
+      "translation": "`samples` 是每个像素每边采样的数量，由控件根据 Supersampling 设置设定；二是已发布的 2x2，没人配置过的引擎会保持该值。创建级联引擎，但暂不分配其缓冲区。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.SpaceEngine#2",
+      "source": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting. ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
+      "source_sha256": "d8e5f5d2352b325e1601ee773751eb56a4047225446aa3275cabc6d6431ec699",
+      "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting. ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
+      "translation": "`samples` 是每个像素每边采样的数量，由控件根据 Supersampling 设置设定。``None``——没人配置过的引擎——保持旧规则：小帧上为二，大帧上为一。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.render_space_frame#9",
+      "source": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (it used to be 2 x 2 whatever the number said).",
+      "source_sha256": "83e470742723539dc5c32efba72e4a30a02143d93c4f0d9aecd4271fc76f52da",
+      "context": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (it used to be 2 x 2 whatever the number said).",
+      "translation": "``1`` 或更小时在每个像素中心取一个采样；任何更大的值会对每个像素取 ``samples`` x ``samples`` 采样网格的平均值（过去无论数值为何都是 2 x 2）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.OrbitEngine#2",
+      "source": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting, makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
+      "source_sha256": "3e55330cbce04e3465d1728d1c30bdbc04d386de4c3889c650d0cb8c3ed26608",
+      "context": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting, makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
+      "translation": "四是已发布的 2x2。`samples` 由控件根据 Supersampling 设置设定，使其变为在 N * N 帧中遍历的 N x N 个相位；每边为一时完全不保留历史。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.Settings#1",
+      "source": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said; now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
+      "source_sha256": "4c951aa952e5cf39f1d85b4ca6ff37a99f678c151ff0ec7511a159efa80c8d45",
+      "context": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said; now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
+      "translation": "`supersampling` 是沿每个轴的每像素采样数，即 Fractal 选项卡中的 Supersampling 行。过去每个渲染器无论它如何设置都使用固定的 2x2；现在着色器和 CPU 内核会根据它采用 N x N 网格。二是已发布的网格，因此没人填写的 `Settings()` 会绘制它一直绘制的内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.apply_saved_controls#3",
+      "source": "Everything that can change while a backdrop is on screen is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved.",
+      "source_sha256": "e6917cbfdc34259d77a5eb43f955187c108960e7a998f4ff3181f82240ee6915",
+      "context": "Everything that can change while a backdrop is on application view is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved.",
+      "translation": "背景显示在界面上时可以更改的一切都会推送到这里。不能更改的部分——图案、后端、质量、缩放以及 Mandelbrot 参考轨道——需要重建背景，这由 :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` 在保存 Preferences 时完成。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.BOUND_ROWS#0",
+      "source": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25; for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
+      "source_sha256": "03ad49454a91154977ff644cd16de6d732918dc4887f650871f4be77251f9153",
+      "context": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25; for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
+      "translation": "Cellpose 各区室的每个边界控件在 ``object_filters`` 中的位置。Mask 的 ``{object}_min_area`` 系列设置已于 2026-09-25 停用；对于细胞、细胞核和病原体，这四个控件改为读写该对象的 ``area`` 和 ``intensity_mean`` 行。细胞器槽位保留其自身的设置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog#1",
+      "source": "Also the consent step and the upload shared by every community training-data contribution, so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
+      "source_sha256": "04237e1387dd8e9516016a9919a6d711880407fc3a2c47b857b43fee4e676edc",
+      "context": "Also the consent step and the upload shared by every community training-data contribution, so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
+      "translation": "同时也是所有社区训练数据贡献共用的同意步骤和上传，这样每个进行贡献的界面都会以同样方式提问一次并以同样方式发送；另外还包括 Make Masks 中用于将图像及其掩膜发送到用户命名的社区数据集的对话框。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
+      "source": "IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED. A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "source_sha256": "2b47680e338a06f4bfb7cda42e28be77e43555b5e7733afdc01ca945cff257a3",
+      "context": "It belongs to the window, not the widget that asked. A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "translation": "“它属于窗口，而不属于发起请求的控件”。对话框会继承其上方每个控件的样式表，而 Plaque Assay 是从其预览中发起请求的，该预览自己的缩放滑块会按该预览的缩放比例重新声明应用程序样式表：在 150 % 时，Install 和 Cancel 高 59 px，而不是其他所有按钮的 40 px。以 ``parent.window()`` 为父对象后，它的主题与其他所有对话框一致，同时仍居中于打开它的窗口，并对该窗口保持模态。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#7",
+      "source": "build an installed backend's environment again, for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "source_sha256": "97e80d829d2417b86a1c431189bc2097374c6e76bc66845c4a3d864fad3b3be7",
+      "context": "build an installed backend's environment again, for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "translation": "重新构建已安装后端的环境，用于在其现在所需的软件包被固定版本之前就已安装的后端；对话框会说明这一点，其按钮显示为 Reinstall。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#5",
+      "source": "build an installed backend again.",
+      "source_sha256": "a319160d9854370cf3706a008ee44edcc410a09c69254429ba9a0cf701c6ec52",
+      "context": "build an installed backend again.",
+      "translation": "重新构建已安装的后端。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#1",
+      "source": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "source_sha256": "07e5c058297cb833a1694e8a850228cd515ebd6e6fe437682bd02a94ce47e74f",
+      "context": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "translation": "它取代此前的一连串提示及单独的 \"Sort into channels\" 对话框作为入口。只用一个弹出窗口就把图像及其掩膜放入 Measure 读取的布局——Yokogawa 命名的通道文件夹、掩膜以及 ``merged/*.npy``——途径是 :mod:`spacr.channel_sorting` 和 :mod:`spacr.folder_consolidation`，所有决定都由二者作出：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data#0",
+      "source": "Open the annotate-then-upload window for this mode.",
+      "source_sha256": "c3addd8c1b1149b028b18e66ad36af22467363140cff9696127b24e046d33d14",
+      "context": "Open the annotate-then-upload window for this mode.",
+      "translation": "为此模式打开“先标注后上传”窗口。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#6",
+      "source": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install.",
+      "source_sha256": "e72a1e4b0fe39f5d41656b9d4cf5e15ca4a02d8500bcb3072f5b4a3029729ba1",
+      "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install.",
+      "translation": "当获取已启动，或当一个需要图阅读器的 PDF 已通过安装阅读器得到响应时，返回 True。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_papers#0",
+      "source": "Read several PDFs, one after another, off the GUI thread.",
+      "source_sha256": "d503302b6c662818f17f8a2e44b59b9e92bca6a0200359765d4df4c75033f956",
+      "context": "Read several PDFs, one after another, off the main GUI execution path.",
+      "translation": "在 GUI 线程之外依次读取多个 PDFs。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.check_the_src#1",
+      "source": "Asked once per source and mode, and only while the screen is on screen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are, so the preview and the run get the paper's figure folder rather than a PDF they cannot open.",
+      "source_sha256": "48fe7d9e1d1943d2e943379f66bcc6c46eb654b8b4f17e9ab5f52f88df63317b",
+      "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are, so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
+      "translation": "每个来源和模式只询问一次，并且仅在该界面可见时询问。在 Figure 模式下，指向一个 PDF 或一个包含 PDFs 的文件夹的 ``src``（无论是原本如此，还是在回答后切换到该模式）会像拖放的文件一样读取其中每个 PDF，这样预览和运行得到的是论文的图像文件夹，而不是它们无法打开的 PDF。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_question#1",
+      "source": "PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "source_sha256": "c0fa55b631496215b251cdc4d6906ed4e39ff658edcdd46fd4275b97c64ed033",
+      "context": "PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "translation": "PDFs 在 Figure 模式下读取，蚀斑图像在 Plaque 模式下读取，因此属于另一种模式的输入会询问是否切换，而同时包含两者的输入会询问读取哪一种。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#0",
+      "source": "One scale slider per live preview, scaling that preview alone.",
+      "source_sha256": "312da1f2de492cab07c13c99059f365b5ebde79c7a65ee20d9b497a052bf0782",
+      "context": "One scale slider per live preview, scaling that preview alone.",
+      "translation": "每个实时预览一个缩放滑块，只缩放该预览本身。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#10",
+      "source": "A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW. A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "source_sha256": "eef8deb4d5d40c142f2c8a6a69d7f86a5d11ab505ca5d407ef9c8cfbb07ccc70",
+      "context": "A window opened from the preview is not the preview. A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "translation": "“从预览中打开的窗口不属于预览”。以面板为父对象的对话框本身是一个独立窗口，但 Qt 会把面板的缩放样式表级联到其中，而遍历也会在面板的子对象中找到它：在 150 % 时，某个设置对话框的按钮高 59 px，而不是其他所有对话框的 40 px。这样的窗口及其中的所有内容都保持在 100 %，并且该窗口自身的样式表会在 100 % 下重新声明原本会以缩放形式继承的尺寸——在其 polish 时设置，因此在首次布局之前生效。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.psf_controls#1",
+      "source": "The calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each field saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
+      "source_sha256": "8097f7099e1f6af666327bd36ba6df4f0313e405703fa7deff5fa791c88b5431",
+      "context": "The calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
+      "translation": "校准会自动填充。显微镜物镜、相机和荧光团选择器，或 \"Infer from images…\"，会填入放大倍数、数值孔径、折射率、发射波长、相机像素、图像像素大小和高斯 FWHM，每个字段都会说明其值的来源。只显示操作和物镜这一行；其余内容位于一个初始折叠、并会记住曾被展开的折叠区中。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#1",
+      "source": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC field browser's own ``_FieldView``. The raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the field browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "source_sha256": "a4cc97ccdb80610cdfea7aaedc99d8076b813f370837e48aa8ef818e97c554e4",
+      "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. The raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "translation": "spaCR 早已有一个加载时适配、滚轮缩放、拖动平移的图像画布：QC 视野浏览器自己的 ``_FieldView``。原始与增强对比窗口需要两个同样的东西，而第三份 “一个装着 pixmap 的 QGraphicsView” 副本，正是代码库最终出现三个行为略有不同的实现的原因。因此，视野浏览器的视图被原样移到这里，换了一个表明它是共享组件的名称，而浏览器继续以旧名称使用它。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal#8",
+      "source": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding key (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks`` (settings of one or more pipelines, Gate Editor gating strategies, models and files); every later run of a locked pipeline on its ``src`` is checked against it by :func:`check_analysis_lock`, every model the run records is checked as it is recorded, and the verdict is written into that run's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
+      "source_sha256": "56d8e8c68105660516b94d2a2afb399ebb57c461948aad4eba5372a928a8c1b0",
+      "context": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding structured-data name (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks`` (settings of one or more workflows, Data-selection boundary Editor data-selection filtering strategies, models and files); every later run of a locked workflow on its ``src`` is checked against it by :func:`check_analysis_lock`, every model the processing-session records is checked as it is recorded, and the verdict is written into that processing session's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
+      "translation": "除处理记录外，日志还为盲法工作保存两类记录。:func:`start_blinding` 将盲法编码表（编码名称和打乱的顺序）写入 ``~/.spacr/blinding``，:func:`unblind` 记录由谁在何时打开了它。:func:`lock_analysis` 把分析计划冻结在 ``~/.spacr/analysis_locks`` 中（一个或多个流程的设置、Gate Editor 的门控策略、模型和文件），并附上哈希和时间戳；之后对已锁定流程在其 ``src`` 上的每次处理都由 :func:`check_analysis_lock` 与之核对，该次处理记录的每个模型在记录时即被核对，结论写入该次处理的 ``manifest.json`` 中的 ``analysis_lock`` 下，任何差异也会列在 ``provenance_warnings`` 中。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.Run.record_model#3",
+      "source": "Records ``\"<filename>:<digest>\"`` in ``model_hashes``. An unreadable checkpoint is only logged and leaves no entry at all; any other failure is also appended to ``provenance_warnings``, so it reaches ``manifest.json`` — model logging must never itself fail a run. When an analysis lock applies to the run, the model is also checked against it (see :func:`lock_analysis`), and the run's verdict is updated.",
+      "source_sha256": "b2ebeb4767770bd9cba9defdfe6ce9443ee65635cd4003e82db2c0c0d6ac565c",
+      "context": "Records ``\"<filename>:<digest>\"`` in ``model_hashes``. An unreadable checkpoint is only logged and leaves no entry at all; any other failure is also appended to ``provenance_warnings``, so it reaches ``manifest.json`` — model logging must never itself fail a processing session. When an analysis lock applies to the processing session, the model is also checked against it (see :func:`lock_analysis`), and the processing session's verdict is updated.",
+      "translation": "将 ``\"<filename>:<digest>\"`` 记录到 ``model_hashes`` 中。无法读取的检查点只写入日志，不留下任何条目；其他任何失败还会追加到 ``provenance_warnings``，从而进入 ``manifest.json``——模型记录本身绝不能导致处理失败。当某个分析锁适用于该次处理时，模型也会与之核对（参见 :func:`lock_analysis`），并更新该次处理的结论。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#1",
+      "source": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked gating strategy is compared.",
+      "source_sha256": "31b6f08effa0bb154920756a3b05b21674f528631602289a62e43370f6f75fe2",
+      "context": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked data-selection filtering strategy is compared.",
+      "translation": "除非传入了锁，否则所用的锁是 :func:`lock_analysis` 创建的、涵盖 ``app_key``（位于这些设置的 ``src`` 上）的最新锁。锁首先与其自身的哈希核对，因此被编辑过的锁文件会被发现；然后逐项比较每个设置、每个已计算哈希的文件以及每个已锁定的门控策略。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#2",
+      "source": "Each difference is stamped with when it was first seen (kept beside the lock), and it is post-hoc only when it was first seen after a blinding key on a folder of the plan was opened: an edit made while still blind stays a deviation even when the run that uses it comes later.",
+      "source_sha256": "0e9b1bd83a5212f9b03a777a393293d6e6846a585f641bfb4d9fcb08650910d2",
+      "context": "Each difference is stamped with when it was first seen (kept beside the lock), and it is post-hoc only when it was first seen after a blinding key on a folder of the plan was opened: an edit made while still blind stays a deviation even when the processing session that uses it comes later.",
+      "translation": "每个差异都标注首次发现的时间（保存在锁旁边），只有当它在计划中某个文件夹的盲法编码表被打开之后才首次被发现时，才算事后（post hoc）差异：仍处于盲态时所做的修改始终是偏差，即使使用它的处理在之后才进行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#6",
+      "source": "the Gate Editor gating strategies in use, for gates the lock took as objects (see :func:`lock_analysis`).",
+      "source_sha256": "83e6764c0d22590aaddbe5d378fc6debe0fb82a03fc36fcb42173d43f87ad4fe",
+      "context": "the Data-selection boundary Editor data-selection filtering strategies in use, for data-selection boundaries the lock took as objects (see :func:`lock_analysis`).",
+      "translation": "正在使用的 Gate Editor 门控策略，用于锁以对象形式接收的门控（参见 :func:`lock_analysis`）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#7",
+      "source": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every change first seen while still blind), ``\"post_hoc\"`` (a change first seen after a key on the plan's folders was unblinded), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, and ``detail`` for gates), ``unblinded_utc`` and a one-sentence ``summary``.",
+      "source_sha256": "10074b649025364697478b9f51d822bb0471c8b4b66bf5fce5e7d1234be82eac",
+      "context": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every change first seen while still blind), ``\"post_hoc\"`` (a change first seen after a key on the plan's folders was unblinded), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, and ``detail`` for data-selection boundaries), ``unblinded_utc`` and a one-sentence ``summary``.",
+      "translation": "``status``——``\"unlocked\"``（没有适用的锁）、``\"verified\"``（没有变化）、``\"deviation\"``（有变化，且每项变化都是在仍处于盲态时首次发现的）、``\"post_hoc\"``（某项变化是在计划文件夹的编码表被揭盲之后首次发现的）、``\"not_preregistered\"``（没有变化，但锁是在揭盲之后创建的）或 ``\"tampered\"``（锁已与其哈希不符）——并附带 ``lock_id``、``sha256``、``locked_utc``、``locked_by``、``pipelines``、``deviations``（``key``、``locked``、``now``、``first_seen_utc``、``post_hoc``，门控还有 ``detail``）、``unblinded_utc`` 以及一句话的 ``summary``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#1",
+      "source": "The settings, the stated hypotheses and thresholds, the SHA-256 of every model, gate or threshold file the settings name (plus ``files``), the gating strategies and the models are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of a locked pipeline on its ``src`` is checked against the newest lock by :func:`check_analysis_lock`, and every model a run records is checked as it is recorded; the verdict goes into the run's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
+      "source_sha256": "642147843641a155f2cf072666516dc9ce9a4e27b2f2332047d55f001f5b4443",
+      "context": "The settings, the stated hypotheses and thresholds, the SHA-256 of every model, data-selection boundary or threshold file the settings name (plus ``files``), the data-selection filtering strategies and the models are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of a locked workflow on its ``src`` is checked against the newest lock by :func:`check_analysis_lock`, and every model a processing-session records is checked as it is recorded; the verdict goes into the processing session's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
+      "translation": "设置、声明的假设和阈值、设置中提到的每个模型、门控或阈值文件的 SHA-256（外加 ``files``）、门控策略以及模型，会连同时间和用户一起写入 ``~/.spacr/analysis_locks/<lock id>.json`` 并计算哈希。此后，已锁定流程在其 ``src`` 上每次记入日志的处理都会由 :func:`check_analysis_lock` 与最新的锁核对，处理所记录的每个模型在记录时即被核对；结论写入该次处理的 ``manifest.json``，差异则列在清单的警告、报告和方法文本中。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#10",
+      "source": "``{name: checkpoint path}`` for the models the analysis loads, under the names the pipeline records them by.",
+      "source_sha256": "3c4b8b275641a7e3a2dd87ceea44afd2afbb65818cd57aeb9880beaa85e8357d",
+      "context": "``{name: checkpoint path}`` for the models the analysis loads, under the names the workflow records them by.",
+      "translation": "分析所加载模型的 ``{name: checkpoint path}``，使用流程记录它们时所用的名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#11",
+      "source": "further pipelines of the same plan, as ``{app_key: settings}``; each is checked against its own settings on its own ``src``, and one unblinding on any of their folders counts for the whole plan.",
+      "source_sha256": "a7e6f1b731dd9b29d6deaca655cf8606d4590b79121ef9cded3512466e49ffa2",
+      "context": "further workflows of the same plan, as ``{app_key: settings}``; each is checked against its own settings on its own ``src``, and one unblinding on any of their folders counts for the whole plan.",
+      "translation": "同一计划中的其他流程，形式为 ``{app_key: settings}``；每个流程都在其自身的 ``src`` 上与其自身的设置核对，任何一个流程文件夹的一次揭盲都对整个计划生效。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#13",
+      "source": "when ``pipelines`` repeats ``app_key``, or ``gates`` holds something that is not a gating strategy.",
+      "source_sha256": "e8932485173c773b75462c0aadd3759a958eb1e3852c7eb430e5b247100bcf96",
+      "context": "when ``pipelines`` repeats ``app_key``, or ``gates`` holds something that is not a data-selection filtering strategy.",
+      "translation": "当 ``pipelines`` 重复了 ``app_key``，或 ``gates`` 中含有不是门控策略的内容时。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#14",
+      "source": "when a model in ``models`` is not a file.",
+      "source_sha256": "be7a364edec56cf8622a173492817885ba526e84a6bfb38c743c4ac441c563ba",
+      "context": "when a model in ``models`` is not a file.",
+      "translation": "当 ``models`` 中的某个模型不是文件时。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#2",
+      "source": "A lock made after a blinding key on a folder it covers was unblinded is marked as such, because it was not made blind.",
+      "source_sha256": "a0c46db5eaabf14d4f0fd89598be3bd3300c4ae780c097e59f9cd9efe39abec1",
+      "context": "A lock made after a blinding key on a folder it covers was unblinded is marked as such, because it was not made blind.",
+      "translation": "如果在锁所涵盖的某个文件夹的盲法编码表被揭盲之后才创建锁，该锁会被如实标记，因为它不是在盲态下创建的。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#9",
+      "source": "Gate Editor gating strategies the plan depends on: a gate set, its dict, a saved gate file, a list of these, or a mapping from a label to one. Gate files named by any setting are taken as well. A gate file is checked on every run; gates handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
+      "source_sha256": "d72aaaa3f7c96e24c95d82afbadce1697625b231112f73391da0bfc7d34a18c5",
+      "context": "Data-selection boundary Editor data-selection filtering strategies the plan depends on: a data-selection boundary set, its key-value mapping, a saved data-selection boundary file, a list of these, or a mapping from a label to one. Data-selection boundary files named by any setting are taken as well. A data-selection boundary file is checked on every processing session; data-selection boundaries handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
+      "translation": "计划所依赖的 Gate Editor 门控策略：一个门控集、它的字典、一个已保存的门控文件、由这些组成的列表，或从标签到其中之一的映射。任何设置所指定的门控文件也会被纳入。门控文件在每次处理时都会被核对；以对象形式传入的门控，只有在 :func:`check_analysis_lock` 以相同标签收到它们时才会被核对。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.sim.gini#1",
+      "source": "Reference: StatsDirect non-parametric methods (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "source_sha256": "9b333733f94d94a5ed4d21accd878d60d26212480c91124851ce438bced2189d",
+      "context": "Reference: StatsDirect non-parametric methods (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "translation": "参考：StatsDirect 非参数方法 (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest#4",
+      "source": "1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a run that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not when the model is confident, not on a re-run. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a run came out wrong. 3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. A JUDGEMENT IS RECORDED, NOT INFERRED. Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "source_sha256": "2b4c477edd721e3ec0897e4354525fb16634855fc3c9c7e4a109eaccbe4495d8",
+      "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred. Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "translation": "1. “建议绝不会与决定混淆。”建议以其自身的值存储——建议的 1 变为 11——因此读取标注列的任何代码都不会把建议误认为人工的答案，而一次出错的运行只需删除一个值即可撤销，无需记住改动过哪些行。2. “建议绝不会覆盖标注。”写入操作带有 ``IS NULL``。模型置信度高时不会，重新运行时也不会。人工标签是模型拟合所依据的参考标注；悄无声息地丢失一个会耗费数小时，而且要到某次运行结果出错时才会被发现。3. “没有置信度下限，因此由排序承载不确定性。”每个未标注的裁剪图都会得到一条建议，按置信度从高到低排序，审阅者在不再认同之处停下即可。阈值会替他们做出这个决定，而且用的是一个无人选择的数字。4. “判定是被记录的，而不是推断的”。确认一条建议会把它变为普通标签，拒绝则会清除它——两者都会记录在该列旁边的 ``<column>_verdict`` 中，记为被确认（``+c``）或被拒绝（``-c``）的类别。拒绝是下一轮训练可以利用的信息——在二分类列中，\"not class 1\" 就是类别 2 的一个样本——而 NULL 则什么也不表达。判定列会在首次打开数据源时添加，因此在它出现之前创建的表无需迁移步骤即可获得该列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.fill_holes_in_mask#1",
+      "source": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a field of 74 adjacent cells was saved as 8. Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
+      "source_sha256": "fc89df908c0e223a67870157f8dd6ce29e5f5f532766387cab53f2c41c3c7a2d",
+      "context": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a microscope field of view of 74 adjacent cells was saved as 8. Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
+      "translation": "委托给 :func:`spacr.qt.mask_engine.fill_label_holes`，即标签图像唯一的孔洞填充器。过去会先对掩膜运行 ``ndimage.label``，这会把每一对相互接触的对象合并为一个对象：在开启 Cellpose 的 ``fill_in``（Apply 中的默认设置）时，一个含有 74 个相邻细胞的视野被保存为 8 个。现在不会合并或重新编号任何对象，孔洞会获得包围它的对象的编号。",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
