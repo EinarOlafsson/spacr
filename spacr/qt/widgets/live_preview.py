@@ -84,7 +84,7 @@ from ...organelle_types import (organelle_count, organelle_role,
 
 LOG = logging.getLogger("spacr.qt.live_preview")
 
-SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
+SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".npy")
 
 _PLANE_ROLE = int(Qt.UserRole) + 1
 
@@ -358,6 +358,13 @@ def load_preview_image(path: Path) -> np.ndarray:
     if not path.is_file():
         raise FileNotFoundError(path)
     suf = path.suffix.lower()
+    if suf == ".npy":
+        array = np.load(path, mmap_mode="r", allow_pickle=False)
+        if array.ndim not in (2, 3) or not all(array.shape):
+            raise ValueError("Preview NPY must contain a nonempty (H,W) or (H,W,C) array")
+        if not np.issubdtype(array.dtype, np.number):
+            raise ValueError("Preview NPY must contain numeric image pixels")
+        return array
     if suf in (".tif", ".tiff"):
         import tifffile
         return tifffile.imread(str(path))
@@ -974,6 +981,44 @@ def _check_preview_cancel(req: PreviewRequest) -> None:
         raise PipelineCancelled('Preview cancelled')
 
 
+def _unmix_preview_field(req):
+    """Unmix an organized intensity stack without modifying its source."""
+    if not req.preprocess_settings.get('unmix', False):
+        return req.image, None
+    from ...psf_pipeline import _prepare_unmixing
+    from ...schema import parse_field_stem
+
+    source = Path(req.source_path)
+    if (source.suffix.lower() != '.npy' or source.parent.name != 'stack'
+            or not source.is_file()):
+        raise ValueError(
+            'Spectral unmixing preview requires an organized NPY intensity '
+            'field from the project stack folder; select that field instead '
+            'of a raw single-channel image or merged mask array.')
+    parse_field_stem(source.name, strict=True)
+    if req.image.ndim != 3 or not all(req.image.shape):
+        raise ValueError('Spectral unmixing preview requires a nonempty (H,W,C) stack')
+
+    def load_control(path):
+        """Read controls cooperatively and reject incompatible channel layouts."""
+        _check_preview_cancel(req)
+        field = np.load(path, mmap_mode='r', allow_pickle=False)
+        if field.ndim != 3 or field.shape[-1] != req.image.shape[-1]:
+            raise ValueError('Unmixing controls and preview must have the same intensity channels')
+        return field
+
+    _check_preview_cancel(req)
+    plan = _prepare_unmixing(req.preprocess_settings, source.parent,
+                            load=load_control)
+    _check_preview_cancel(req)
+    image = plan.apply(req.image)
+    _check_preview_cancel(req)
+    record = plan.provenance()
+    record['source_directory'] = str(source.parent.resolve())
+    record['stage'] = 'before channel selection, PSF and enhancement'
+    return image, record
+
+
 def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     """Run one Cellpose pass per requested object type.
 
@@ -1001,6 +1046,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     from ..detect_chain import provenance as chain_provenance
 
     _check_preview_cancel(req)
+    preview_image, unmixing = _unmix_preview_field(req)
     inferred = fill_psf_settings(req.preprocess_settings,
                                  req.source_path or None)
     plan = prepare_psf(req.preprocess_settings)
@@ -1018,6 +1064,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         'stage': 'loaded preview field, before background and model normalization',
         'normalization': 'field-local Cellpose defaults; classical method specific',
         'illumination': 'no preview illumination correction',
+        'unmixing': unmixing or {'operation': 'none'},
         'input_modified': False,
         'filter_intensity_source': 'original loaded preview field',
         'input_shape': list(req.image.shape),
@@ -1033,7 +1080,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     def _prepared(ch_idx: int) -> np.ndarray:
         """One channel's plane after the PSF or enhancement chain, once."""
         if ch_idx not in processed:
-            plane = _select_channel(req.image, ch_idx)
+            plane = _select_channel(preview_image, ch_idx)
             if chain is not None:
                 processed[ch_idx] = apply_chain(
                     plane[..., None], chain, cancel=req.cancel)[..., 0]
