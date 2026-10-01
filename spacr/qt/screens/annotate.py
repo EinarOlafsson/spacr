@@ -856,7 +856,9 @@ class _SimilarityWorker(QThread):
     failed = Signal(str)
 
     def __init__(self, db_path: str, image_type: Optional[str], key: str,
-                 index: Any = None, k: int = 100, parent=None):
+                 index: Any = None, k: int = 100, parent=None, *,
+                 unlabelled_only: bool = False, annotation_column: str = "annotate",
+                 png_table: str = "png_list", pending_labels=None, writer=None):
         """Carry one search's inputs onto a worker thread.
 
         :param db_path: the database whose crops are searched.
@@ -864,8 +866,13 @@ class _SimilarityWorker(QThread):
         :param key: the ``png_path`` of the crop to match.
         :param index: an index built earlier for the same source, or
             ``None`` to build one.
-        :param k: how many similar crops to return.
+        :param k: how many similar crops to return, excluding the query.
         :param parent: parent object.
+        :param unlabelled_only: exclude committed labels, retaining cleared and proposed labels.
+        :param annotation_column: label column currently edited by Annotate.
+        :param png_table: crop table currently selected in Annotate.
+        :param pending_labels: unsaved local labels overriding stored values.
+        :param writer: existing save worker whose submitted batches must settle before reading.
         """
         super().__init__(parent)
         self._db_path = db_path
@@ -873,6 +880,39 @@ class _SimilarityWorker(QThread):
         self._key = key
         self._index = index
         self._k = int(k)
+        self._unlabelled_only = bool(unlabelled_only)
+        self._annotation_column = annotation_column
+        self._png_table = png_table
+        self._pending_labels = dict(pending_labels or {})
+        self._writer = writer
+
+    def _excluded_labels(self, index):
+        """Read fresh human-label state without caching it with the feature index."""
+        import sqlite3
+
+        if not self._unlabelled_only:
+            return None
+        deadline = time.monotonic() + 30
+        while self._writer is not None and self._writer.pending_batches:
+            if self.isInterruptionRequested():
+                return None
+            if self._writer.last_error:
+                raise ValueError("Labels could not be saved; resolve the save error before searching unlabelled crops.")
+            if time.monotonic() >= deadline:
+                raise ValueError("Labels are still being saved; try the unlabelled search after saving finishes.")
+            time.sleep(0.02)
+        table = '"' + self._png_table.replace('"', '""') + '"'
+        column = '"' + self._annotation_column.replace('"', '""') + '"'
+        with sqlite3.connect(f"file:{self._db_path}?mode=ro", uri=True, timeout=30) as db:
+            fields = {row[1] for row in db.execute(f'PRAGMA table_info({table})')}
+            value = column if self._annotation_column in fields else 'NULL'
+            labels = dict(db.execute(f'SELECT png_path, {value} FROM {table}'))
+        labels.update(self._pending_labels)
+        # Annotate represents cleared labels by NULL or zero and unanswered
+        # model proposals above SUGGESTION_OFFSET; none is a human answer.
+        return {str(key) for key in index.keys if str(key) not in labels or
+                (labels[str(key)] is not None and int(labels[str(key)]) != 0
+                 and int(labels[str(key)]) <= SUGGESTION_OFFSET)}
 
     def run(self):
         """Build the index if needed, search it, and hand back the hits."""
@@ -883,7 +923,10 @@ class _SimilarityWorker(QThread):
                 index = al._similarity_index(self._db_path,
                                              image_type=self._image_type)
             started = time.perf_counter()
-            hits = index.like(self._key, self._k)
+            excluded = self._excluded_labels(index)
+            if self.isInterruptionRequested():
+                return
+            hits = index.like(self._key, self._k, exclude=excluded)
             seconds = time.perf_counter() - started
         except Exception as exc:
             try:
@@ -897,6 +940,10 @@ class _SimilarityWorker(QThread):
             self.done.emit({"index": index, "hits": hits, "key": self._key,
                             "db_path": self._db_path,
                             "image_type": self._image_type,
+                            "annotation_column": self._annotation_column,
+                            "png_table": self._png_table,
+                            "unlabelled_only": self._unlabelled_only,
+                            "requested_k": self._k,
                             "seconds": seconds})
         except RuntimeError:
             pass
@@ -3330,6 +3377,7 @@ class AnnotateScreen(QWidget):
         row.addWidget(self._btn_settings)
         row.addWidget(self._build_blind_toggle())
         row.addWidget(self._build_similar_button())
+        row.addWidget(self._build_similar_options())
 
         self._btn_prev = QPushButton("Back")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -4477,7 +4525,7 @@ class AnnotateScreen(QWidget):
         button.setIcon(iconset.icon("classify"))
         button.setCursor(Qt.PointingHandCursor)
         button.setToolTip(tr(
-            "Show the 100 crops whose measurements are most like the "
+            "Show the requested number of crops whose measurements are most like the "
             "selected crop, the one with the ring, most similar first, so a "
             "rare class found once can be labelled many times. The first "
             "search on a source reads its measurements and takes a few "
@@ -4487,6 +4535,32 @@ class AnnotateScreen(QWidget):
         _apply_alpha_widgets(button)
         self._btn_similar = button
         return button
+
+    def _build_similar_options(self) -> QWidget:
+        """Expose neighbour count and unanswered-only filtering beside Like this."""
+        from ..preferences import _apply_alpha_widgets
+
+        panel = QWidget(self)
+        panel.setObjectName("AnnotateSimilarityOptions")
+        layout = QHBoxLayout(panel)
+        layout.setContentsMargins(0, 0, 0, 0)
+        label = QLabel(tr("Similar crops"), panel)
+        self._similar_k = QSpinBox(panel)
+        self._similar_k.setObjectName("AnnotateSimilarCount")
+        self._similar_k.setRange(1, 1000000)
+        self._similar_k.setValue(100)
+        self._similar_k.setToolTip(tr("Maximum number of similar crops; the reference crop is shown separately."))
+        label.setBuddy(self._similar_k)
+        layout.addWidget(label)
+        layout.addWidget(self._similar_k)
+        self._similar_unlabelled = QCheckBox(tr("Unlabelled only"), panel)
+        self._similar_unlabelled.setToolTip(tr(
+            "Only retrieve crops without a human class label in the current annotation column. "
+            "Cleared labels (blank or 0) and unanswered model suggestions remain eligible. "
+            "The selected reference crop stays visible even when labelled."))
+        layout.addWidget(self._similar_unlabelled)
+        _apply_alpha_widgets(panel)
+        return panel
 
     def _similar_query_key(self) -> Optional[str]:
         """The ``png_path`` of the selected crop, ``None`` on an empty page."""
@@ -4520,7 +4594,11 @@ class AnnotateScreen(QWidget):
             else tr("Reading the measurements to compare crops by…"))
         worker = _SimilarityWorker(self._settings.db_path,
                                    self._settings.image_type, key,
-                                   index=index, parent=self)
+                                   index=index, k=self._similar_k.value(), parent=self,
+                                   unlabelled_only=self._similar_unlabelled.isChecked(),
+                                   annotation_column=self._settings.annotation_column,
+                                   png_table=self._settings.png_table,
+                                   pending_labels=self._pending_updates, writer=self._worker)
         worker.done.connect(self._on_similar_done)
         worker.failed.connect(self._on_similar_failed)
         worker.finished.connect(self._on_similar_finished)
@@ -4532,7 +4610,10 @@ class AnnotateScreen(QWidget):
         """Keep the index and pin the grid to the query and its matches."""
         from ...selection import ObjectRequest
 
-        if result["db_path"] != self._settings.db_path:
+        if (result["db_path"] != self._settings.db_path or
+                result.get("image_type", self._settings.image_type) != self._settings.image_type or
+                result.get("annotation_column", self._settings.annotation_column) != self._settings.annotation_column or
+                result.get("png_table", self._settings.png_table) != self._settings.png_table):
             return
         self._similar_cache = (result["db_path"], result["image_type"],
                                result["index"])
@@ -4544,13 +4625,17 @@ class AnnotateScreen(QWidget):
             reason=tr("{name} and the {n} crops most like it, most similar "
                       "first").format(name=name, n=len(hits)),
             source="similarity",
-            context={"similarity": dict(zip(hits["key"],
-                                            hits["similarity"]))})
+            context={"similarity": dict(zip(hits["key"], hits["similarity"])),
+                     "unlabelled_only": result.get("unlabelled_only", False),
+                     "requested_k": result.get("requested_k", 100)})
         self.open_object_request(request)
         self._status_label.setText(
             tr("Searched {n} crops in {ms} ms.").format(
                 n=f"{len(result['index']):,}",
                 ms=f"{result['seconds'] * 1000:.0f}"))
+        if result.get("unlabelled_only"):
+            self._status_label.setText(self._status_label.text() + " " +
+                tr("{n} unlabelled matches; selected reference kept separately.", n=len(hits)))
 
     @Slot(str)
     def _on_similar_failed(self, message: str) -> None:
