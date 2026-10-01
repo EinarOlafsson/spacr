@@ -31,8 +31,10 @@ Acceptance 2026-10-01:
   genotype/replicate/condition example. Both replicate lists assign
   'replicate 1'. c10 and missing metadata stay unassigned in genotype and
   condition. Applying preserves every original source value.
-- Inspected offscreen dark-theme renders at 1400x950 with all three preview
-  columns and the exact-value editor. Evidence is local at
+- Inspected offscreen dark-theme renders at 1400x950 and light-theme renders
+  at 1200x800 with all three preview columns and the exact-value editor.
+  The capture harness flushes Qt deferred deletions between column switches.
+  Evidence is local at
   /tmp/spacr-ui-evidence/625/. No native-window/platform coverage inferred.
 - User guide documents these controls and the complete example. API source
   manifest refreshed separately; translation/tutorial publication remains
