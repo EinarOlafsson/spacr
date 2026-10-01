@@ -14,8 +14,8 @@ recipe with real-control and full-row checks; its new media remains unpublished.
 
 Current publication blocker: features/data/615_release_storage_block_2026-10-01.json.
 The exact CI distributions are preserved locally and match the upload log's
-SHA256 hashes. A 20 GiB project-limit request is prepared, awaiting explicit
-authorization to contact PyPI's maintainers. No historical release was deleted,
+SHA256 hashes. The user-authorized 20 GiB project-limit request is posted at
+https://github.com/pypi/support/issues/12512; awaiting PyPI's decision. No historical release was deleted,
 no additional version/tag was created, and the failed upload was not retried.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex implementation session.

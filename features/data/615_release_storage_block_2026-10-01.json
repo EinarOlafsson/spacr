@@ -37,9 +37,16 @@
       }
     ]
   },
-  "next_step": "Prepared 20 GiB project-limit request; external posting awaits user authorization.",
+  "next_step": "20 GiB project-limit request posted with user authorization; awaiting PyPI decision before retrying the existing release.",
   "request_draft": "/tmp/spacr-implementation-20261001/review/pypi-project-limit-request.txt",
   "historical_files_deleted": false,
   "extra_version_or_tag_created": false,
-  "upload_retried": false
+  "upload_retried": false,
+  "quota_request": {
+    "url": "https://github.com/pypi/support/issues/12512",
+    "author": "EinarOlafsson",
+    "state": "OPEN",
+    "approved_body_verified": true,
+    "label_attempt": "GitHub denied AddLabelsToLabelable; issue remains posted without labels."
+  }
 }
