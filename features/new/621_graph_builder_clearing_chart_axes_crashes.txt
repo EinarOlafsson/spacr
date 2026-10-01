@@ -9,3 +9,10 @@ discarding the selected plot kind. Validate every channel and preserve valid
 plot behaviors. Include regression tests for pinned bar and other plot kinds.
 
 Status: IN PROGRESS. Shared UI agent owns widget/spec/tests.
+
+Implemented and validated 2026-10-01: GraphSpec.binding_error checks incomplete
+and incompatible bindings before plotting. Canvas empty states clear stale
+brush/selection state while preserving the selected kind for rebinding.
+174 named tests pass, including clearing/rebinding every drawable kind and
+the real GraphBuilderPanel.clear_channels pinned-bar path reported by the user.
+Status: COMPLETE on nightly; publication is tracked separately.

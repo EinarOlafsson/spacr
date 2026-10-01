@@ -430,6 +430,52 @@ class GraphSpec:
             return self.kind
         return _kind_and_note(self, kinds)[0]
 
+    def binding_error(self, kinds: Mapping[str, str]) -> str:
+        """Explain incomplete or incompatible bindings, or return an empty string.
+
+        A pinned plot kind survives channel edits. Its temporary inability to
+        draw is an editable state, not an invalid spec or a reason to silently
+        choose another chart. The map must describe all available columns,
+        including role overrides, as returned by :meth:`kinds_for`.
+
+        :param kinds: column kinds for the current table.
+        :returns: an actionable canvas message, or ``""`` when drawable.
+        """
+        for channel in CHANNELS:
+            column = self.column_for(channel)
+            if column and column not in kinds:
+                return (f"Column '{column}' on {channel.replace('_', ' ').title()} "
+                        "is unavailable. Clear it or choose a column from this table.")
+        if self.is_empty:
+            return "Drag a column onto X or Y to draw a chart."
+        kind = self.resolved_kind(kinds)
+        x_kind, y_kind = _axis_kind(self.x, kinds), _axis_kind(self.y, kinds)
+        label = kind.replace('_', ' + ').title()
+        if kind in (SCATTER, LINE):
+            if not self.x or not self.y:
+                return f"{label} needs columns on both X and Y."
+        elif kind == HISTOGRAM:
+            if (x_kind or y_kind) != CONTINUOUS:
+                return "Histogram needs a continuous column on X or Y."
+        elif kind == BAR:
+            # Explicit bars also support low-cardinality numeric Y (classified
+            # categorical) and count fallback when Y has no numeric values.
+            if (x_kind or y_kind) != CATEGORICAL:
+                return ("Bar needs a categorical column on X, or a single "
+                        "categorical column on Y for category counts.")
+        elif kind == BAR_JITTER:
+            if x_kind != CATEGORICAL or y_kind != CONTINUOUS:
+                return ("Bar + Jitter needs a categorical column on X and a "
+                        "continuous column on Y.")
+        elif kind in (BOX, VIOLIN, JITTER):
+            if {x_kind, y_kind} != {CATEGORICAL, CONTINUOUS}:
+                return (f"{label} needs one categorical axis and one continuous "
+                        "axis. Bind columns to both X and Y.")
+        elif kind == HEATMAP:
+            if x_kind != CATEGORICAL or y_kind != CATEGORICAL:
+                return "Heatmap needs categorical columns on both X and Y."
+        return ""
+
     def _kind_note(self, kinds: Mapping[str, str]) -> str:
         """Why the drawn kind is not the chosen one, or ``""``.
 
