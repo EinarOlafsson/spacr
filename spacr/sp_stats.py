@@ -4910,14 +4910,11 @@ def _score_anomalies(frame: pd.DataFrame, *,
     wells["enrichment"] = wells["outlier_fraction"] / (1.0 - float(quantile))
     is_negative = (wells["role"] == ROLE_NEGATIVE).to_numpy()
     control_medians = wells.loc[is_negative, "median_score"].to_numpy()
-    if len(control_medians):
-        centre = float(np.median(control_medians))
-        scale = 1.4826 * float(np.median(np.abs(control_medians - centre)))
-        if not scale > 0:
-            scale = float(np.std(control_medians)) or 1.0
-        wells["anomaly_z"] = (wells["median_score"] - centre) / scale
-    else:
-        wells["anomaly_z"] = np.nan
+    centre = float(np.median(control_medians))
+    scale = 1.4826 * float(np.median(np.abs(control_medians - centre)))
+    if not scale > 0:
+        scale = float(np.std(control_medians)) or 1.0
+    wells["anomaly_z"] = (wells["median_score"] - centre) / scale
     wanted = {str(v) for v in (known_hits or ())}
     known = (wells["role"] == ROLE_POSITIVE).to_numpy(copy=True)
     if wanted:

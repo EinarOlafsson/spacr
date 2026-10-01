@@ -170,3 +170,161 @@ def test_an_unreadable_smiles_is_noted_not_fatal():
     chem = _structure_activity(_scored(frame), layout)
     assert not bool(_by_name(chem.sar).loc["cpd6", "smiles_valid"])
     assert any("could not be read" in note for note in chem.notes)
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36794763761)
+# ---------------------------------------------------------------------------
+
+def test_a_well_id_column_places_compounds_and_empty_smiles_are_refused():
+    table = _read_compound_map(pd.DataFrame({
+        "wellID": ["A02", "B03"], "smiles": ["CCO", "CCCO"]}))
+    assert list(table["row_index"]) == [1, 2]
+    assert "plateID" not in table.columns
+    with pytest.raises(HitScoringError, match="lists no SMILES"):
+        _read_compound_map(pd.DataFrame({"smiles": ["", None]}))
+    unplaced = _read_compound_map(pd.DataFrame({
+        "well": ["??"], "smiles": ["CCO"]}))
+    assert "row_index" not in unplaced.columns
+
+
+def test_a_layout_without_plates_applies_to_every_plate():
+    frame, layout, _host = _screen()
+    one_plate = layout[layout["plateID"] == "P1"].drop(columns=["plateID"])
+    chem = _structure_activity(_scored(frame), one_plate, cluster=False)
+    assert len(chem.sar)
+
+
+def test_host_toxicity_reads_its_tables_and_tolerates_what_is_not_a_db(
+        tmp_path):
+    import sqlite3
+
+    from spacr.sp_stats import _host_toxicity
+
+    assert _host_toxicity(None) == (None, None)
+    assert _host_toxicity(str(tmp_path / "missing.db")) == (None, None)
+    bad = tmp_path / "bad.db"
+    bad.write_bytes(b"not a database at all")
+    assert _host_toxicity(str(bad)) == (None, None)
+    db = tmp_path / "measurements.db"
+    with sqlite3.connect(db) as conn:
+        conn.execute("CREATE TABLE viability_well (plateID TEXT, viability REAL)")
+        conn.execute("INSERT INTO viability_well VALUES ('P1', 90.0)")
+        conn.execute("CREATE TABLE viability_selectivity (compound TEXT, si REAL)")
+        conn.execute("INSERT INTO viability_selectivity VALUES ('cpd0', 3.0)")
+    wells, selectivity = _host_toxicity(str(db))
+    assert list(wells["viability"]) == [90.0]
+    assert list(selectivity["si"]) == [3.0]
+
+
+def test_host_wells_that_cannot_be_placed_leave_the_scores_alone():
+    from spacr.sp_stats import _host_by_well
+
+    scored = pd.DataFrame({"plateID": ["P1"], "row_index": [1],
+                           "column_index": [1]})
+    host = pd.DataFrame({"viability": [50.0]})
+    assert _host_by_well(scored, host) is scored
+
+
+def test_similarity_and_matching_are_checked(monkeypatch):
+    frame, layout, _host = _screen()
+    with pytest.raises(HitScoringError, match="similarity must be in"):
+        _structure_activity(_scored(frame), layout, similarity=0.0)
+    other = layout.assign(plateID="P9")
+    with pytest.raises(HitScoringError, match="no sample well matched"):
+        _structure_activity(_scored(frame), other, cluster=False)
+    partial = layout.iloc[: len(layout) // 2]
+    chem = _structure_activity(_scored(frame), partial, cluster=False)
+    assert any("have no compound" in note for note in chem.notes)
+
+
+def test_without_hits_nothing_is_clustered_or_drawn(tmp_path):
+    pytest.importorskip("rdkit")
+    from matplotlib.figure import Figure
+
+    from spacr.sp_stats import _draw_hit_structures
+
+    frame, layout, _host = _screen()
+    flat = frame.assign(signal=50.0)
+    flat.loc[flat["well_type"] == "pos", "signal"] = 70.0
+    chem = _structure_activity(_scored(flat), layout)
+    assert not chem.sar["hit"].any()
+    figure = Figure()
+    assert _draw_hit_structures(figure, chem) == 0
+
+
+def test_host_toxicity_from_a_database_without_viability_tables(tmp_path):
+    import sqlite3
+
+    from spacr.sp_stats import _host_toxicity
+
+    db = tmp_path / "measurements.db"
+    with sqlite3.connect(db) as conn:
+        conn.execute("CREATE TABLE cell (object_label INTEGER)")
+    assert _host_toxicity(str(db)) == (None, None)
+
+
+def test_a_single_hit_has_no_other_hit_to_be_nearest_to():
+    pytest.importorskip("rdkit")
+    import spacr.sp_stats as sp
+
+    sar = pd.DataFrame({"compound": ["a", "b"], "smiles": ["CCO", "CCCO"],
+                        "hit": [True, False], "potency": [3.0, 0.1],
+                        "best_rank": [1, 2]})
+    clustered, clusters = sp._cluster_sar(sar, 0.4, [])
+    first = clustered.set_index("compound")
+    assert first.loc["a", "nearest_hit"] is None
+    assert first.loc["b", "nearest_hit"] == "a"
+
+
+def test_an_unclustered_result_draws_the_install_note_and_no_structures(
+        monkeypatch, tmp_path):
+    from matplotlib.figure import Figure
+
+    import spacr.sp_stats as sp
+
+    def absent():
+        raise ImportError(sp._RDKIT_INSTALL.format(module="rdkit"))
+
+    monkeypatch.setattr(sp, "_rdkit", absent)
+    frame, layout, host = _screen()
+    chem = _structure_activity(_scored(frame), layout, host=host)
+    figure = Figure()
+    assert sp._draw_hit_structures(figure, chem) == 0
+    pytest.importorskip("rdkit")
+    monkeypatch.undo()
+    clustered = _structure_activity(_scored(frame), layout, host=host)
+    monkeypatch.setattr(sp, "_draw_hit_structures",
+                        lambda figure, chemistry, target=None: 0)
+    written = _write_sar_report(clustered, tmp_path / "sar")
+    assert "hit_structures" not in written
+
+
+def test_a_read_map_is_passed_through_and_an_empty_result_reports_no_hits():
+    import spacr.sp_stats as sp
+
+    table = _read_compound_map(pd.DataFrame({"well": ["A02"],
+                                             "smiles": ["CCO"]}))
+    assert _read_compound_map(table) is not table
+    assert _read_compound_map(table).equals(table)
+    empty = sp._ChemistryResult(sar=pd.DataFrame({"hit": []}),
+                                clusters=pd.DataFrame(),
+                                wells=pd.DataFrame(), options={})
+    assert empty.report().startswith("0 compound(s), 0 hit compound(s).")
+
+
+def test_hits_without_a_validity_column_are_drawn_without_toxicity():
+    pytest.importorskip("rdkit")
+    from matplotlib.figure import Figure
+
+    import spacr.sp_stats as sp
+
+    sar = pd.DataFrame({"compound": ["a"], "smiles": ["c1ccccc1O"],
+                        "hit": [True], "cluster": [1], "potency": [2.0],
+                        "best_rank": [1]})
+    chem = sp._ChemistryResult(sar=sar, clusters=pd.DataFrame(),
+                               wells=pd.DataFrame(), options={},
+                               clustered=True)
+    figure = Figure()
+    assert sp._draw_hit_structures(figure, chem) == 1
+    assert "cytotoxicity" not in figure.axes[0].get_xlabel()
