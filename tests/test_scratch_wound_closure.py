@@ -306,6 +306,24 @@ def test_a_wound_floor_with_a_flat_bright_stretch_stays_open_whole():
     assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.04
 
 
+def test_a_saturated_stretch_of_floor_does_not_set_the_open_level():
+    """Floor at the camera's ceiling is left out of the later frame's levels.
+
+    Half of a later wound's floor is saturated, so perfectly flat; the
+    other half carries more texture than the first frame's floor did.
+    Read from the saturated half, the open level sits so low that the
+    textured half of the floor is called covered.
+    """
+    first, later = _straight(192, 80), _straight(192, 50)
+    image = _textured(later, 1, floor=25.0)
+    image[later & (np.indices(SHAPE)[1] < SHAPE[1] // 2)] = image.max()
+    frame, status, _masks = _wound_series(
+        [_textured(first, 10, floor=10.0), image], (0, 1), source="texture")
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.03
+
+
 def test_a_closed_wound_of_flatter_cells_reads_closed():
     """Cells that close a wound flatter than the monolayer still cover it."""
     first = _straight(192, 80)
@@ -316,6 +334,63 @@ def test_a_closed_wound_of_flatter_cells_reads_closed():
         source="texture")
     assert status == "ok"
     assert frame["relative_open_area"].iloc[1] <= 0.05
+
+
+def test_only_a_continuous_cell_front_closes_the_wound():
+    """Loose cells on the floor stay open; a front from the monolayer does not.
+
+    Two clumps of cells lie on a later wound's floor where it runs off the
+    field, so they are not holes in the open area, and a tongue of cells
+    reaches into the wound from the monolayer. The clumps count as open
+    and the tongue as covered.
+    """
+    first = _straight(192, 80)
+    open_floor = _straight(192, 50)
+    clumps = np.zeros(SHAPE, dtype=bool)
+    clumps[165:215, :60] = True
+    clumps[170:220, -60:] = True
+    tongue = np.zeros(SHAPE, dtype=bool)
+    tongue[130:185, 230:290] = True
+    later = open_floor & ~clumps & ~tongue
+    frame, status, masks = _wound_series(
+        [_brightfield(first, seed=10), _brightfield(later, seed=11)],
+        (0, 1), source="texture", keep=(1,))
+    assert status == "ok"
+    truth = (open_floor & ~tongue).sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.02
+    wound = masks[1][1]
+    assert wound[175:205, 10:50].mean() > 0.9
+    assert wound[150:170, 245:275].mean() < 0.1
+
+
+def test_a_hand_set_threshold_is_used_on_every_frame():
+    """``threshold`` replaces the automatic cut and its recalibration."""
+    truths, planes = _series("texture")
+    auto, _status, _masks = _wound_series(planes, range(len(planes)))
+    cut = float(auto["wound_level"].iloc[0])
+    low, _s, _m = _wound_series(planes, range(len(planes)), threshold=cut / 4)
+    high, _s, _m = _wound_series(planes, range(len(planes)), threshold=cut * 4)
+    assert np.allclose(low["wound_level"], cut / 4)
+    assert np.allclose(high["wound_level"], cut * 4)
+    assert (high["open_area_px"].iloc[:-1] >= low["open_area_px"].iloc[:-1]).all()
+    assert high["open_area_px"].iloc[0] > low["open_area_px"].iloc[0]
+    zero, _s, _m = _wound_series(planes, range(len(planes)), threshold=0)
+    assert np.allclose(zero["wound_level"].iloc[0], cut)
+
+
+def test_the_threshold_setting_reaches_the_measurement():
+    """The Measure setting is checked and handed to the wound finder."""
+    open_mask = _band(120)
+    data = _brightfield(open_mask)[..., None]
+    settings = {"wound_source": "texture", "channels": [0],
+                "wound_window": 15, "wound_threshold": 0.02}
+    row, _plane, _wound, _status = _measure_field_wound(data, settings)
+    assert row["wound_level"] == pytest.approx(0.02)
+    with pytest.raises(ValueError, match="wound_threshold"):
+        _wound_settings_check({"wound_threshold": -1})
+    with pytest.raises(ValueError, match="wound_threshold"):
+        _wound_settings_check({"wound_threshold": "abc"})
+    assert _wound_settings_check({"wound_threshold": None}) == "texture"
 
 
 def test_closure_metrics_on_a_known_curve():
