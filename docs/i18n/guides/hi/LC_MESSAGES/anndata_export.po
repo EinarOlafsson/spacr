@@ -35,13 +35,13 @@ msgid "Select the measured project as the source."
 msgstr "मापे गए प्रोजेक्ट को स्रोत के रूप में चुनें।"
 
 msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
-msgstr "**Anndata आउटपुट** को एक नए ``.h5ad`` फ़ाइल नाम पर सेट करें। खाली छोड़ने पर फ़ाइल प्रोजेक्ट के ``results`` फ़ोल्डर के अंतर्गत लिखी जाती है। सफल निर्यात चुने गए पथ पर मौजूद फ़ाइल को बदल देता है; दोनों संस्करण रखने के लिए अलग-अलग नाम उपयोग करें।"
+msgstr "**Anndata आउटपुट फ़ाइल** को एक नए ``.h5ad`` फ़ाइल नाम पर सेट करें। खाली छोड़ने पर फ़ाइल प्रोजेक्ट के ``results`` फ़ोल्डर के अंतर्गत लिखी जाती है। सफल निर्यात चुने गए पथ पर मौजूद फ़ाइल को बदल देता है; दोनों संस्करण रखने के लिए अलग-अलग नाम उपयोग करें।"
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
 msgstr "प्रति कोशिका एक पंक्ति और उस तालिका की विशेषताओं के लिए **Anndata एकल तालिका** को ``cell`` पर सेट करें। उन ऑब्जेक्ट प्रकारों के लिए ``nucleus`` या ``pathogen`` का उपयोग करें। कोशिका-स्तरीय संयुक्त निर्यात के लिए इसे खाली छोड़ें; इसमें चाइल्ड मापन उनकी पैरेंट कोशिकाओं पर समेकित किए जाते हैं।"
 
 msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
-msgstr "**Anndata NaN नीति** चुनें, फिर **चलाएँ** पर क्लिक करें। पूर्ण होने का संदेश पढ़ें और आउटपुट फ़ाइल खोलकर उसका आकार और विशेषताओं के नाम जाँचें।"
+msgstr "**Anndata nan नीति** चुनें, फिर **चलाएँ** पर क्लिक करें। पूर्ण होने का संदेश पढ़ें और आउटपुट फ़ाइल खोलकर उसका आकार और विशेषताओं के नाम जाँचें।"
 
 msgid "Choose how to handle missing features"
 msgstr "अनुपस्थित विशेषताओं को संभालने का तरीका चुनें"

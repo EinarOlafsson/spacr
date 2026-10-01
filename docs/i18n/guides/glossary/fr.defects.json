@@ -2,63 +2,6 @@
  "schema": 1,
  "language": "fr",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {
-  "Anndata out": "'Annoncés' means 'announced'; the setting is the AnnData output file ('Sortie AnnData')",
-  "Anndata nan policy": "'Politique des données' reads 'data policy' and loses the missing-value (NaN) meaning ('Politique NaN AnnData')",
-  "Model zoo…": "'Modèle zoo...' is a word-for-word rendering; the screen is 'Bibliothèque de modèles'",
-  "Promote calls to annotation": "'Promouvoir les appels à l'annotation' reads 'promote calls for annotation'; the action turns calls into annotations",
-  "Undo promotion": "'Annulation de la promotion' reads as cancelling a (sales/job) promotion",
-  "Re-flood below the escape": "'Refonte au-dessous de l'échappée' ('recasting below the breakaway') has no meaning here",
-  "Taper onto the gradient": "'Taper sur le dégradé' means 'to type/hit on the colour gradient'",
-  "Train": "'Le train' is a railway train; the Workbench tab means 'Entraîner'",
-  "Walk": "'Marcher' means walking on foot; the switch selects the local step-by-step search ('Recherche pas à pas')",
-  "Outputs": "'Produits' means 'products'; the workflow card lists outputs ('Sorties')",
-  "Setting animations": "'Configuration des animations' reads 'configuring animations'; the preference means animations for settings ('Animations des paramètres')"
- },
- "snapshot": {
-  "Anndata out": {
-   "runtime": "Annoncés",
-   "guide": "Sortie AnnData"
-  },
-  "Anndata nan policy": {
-   "runtime": "Politique des données",
-   "guide": "Politique NaN AnnData"
-  },
-  "Model zoo…": {
-   "runtime": "Modèle zoo...",
-   "guide": "Bibliothèque de modèles…"
-  },
-  "Promote calls to annotation": {
-   "runtime": "Promouvoir les appels à l'annotation",
-   "guide": "Convertir les appels en annotations"
-  },
-  "Undo promotion": {
-   "runtime": "Annulation de la promotion",
-   "guide": "Annuler la conversion"
-  },
-  "Re-flood below the escape": {
-   "runtime": "Refonte au-dessous de l'échappée",
-   "guide": "Réinonder sous le point de fuite"
-  },
-  "Taper onto the gradient": {
-   "runtime": "Taper sur le dégradé",
-   "guide": "Raccorder au gradient"
-  },
-  "Train": {
-   "runtime": "Le train",
-   "guide": "Entraîner"
-  },
-  "Walk": {
-   "runtime": "Marcher",
-   "guide": "Recherche pas à pas"
-  },
-  "Outputs": {
-   "runtime": "Produits",
-   "guide": "Sorties"
-  },
-  "Setting animations": {
-   "runtime": "Configuration des animations",
-   "guide": ""
-  }
- }
+ "defects": {},
+ "snapshot": {}
 }

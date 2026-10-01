@@ -77,13 +77,13 @@ msgid "Walk search and stopping"
 msgstr "行走搜索与停止"
 
 msgid "Switch on **Walk** to search locally from the values in the parameter fields instead of sweeping a grid. Each round scores the neighbourhood around the current centre and moves to the best configuration in it; with the default axes, ``n_neighbors`` and ``min_dist`` at resolution 2, that is the four diagonal corners. **Axes…** adds other structural parameters and sets each axis's step and resolution. The weighted multi-objective score chooses the direction of the next move. Search stops at **maximum rounds**, when a round fails to exceed **minimum improvement**, or after **Stop** is requested. A stopped result is explicitly marked partial."
-msgstr "打开 **行走** 可从参数字段中的值出发进行局部搜索，而不是遍历网格。每一轮对当前中心周围的邻域打分，并移动到其中最佳的配置；使用默认轴（``n_neighbors`` 和 ``min_dist``，分辨率为 2）时，即四个对角角点。**坐标轴…** 可添加其他结构参数，并设置每个轴的步长和分辨率。加权多目标分数决定下一步移动的方向。搜索在达到 **maximum rounds**、某一轮未能超过 **minimum improvement**，或请求 **停止** 后结束。被停止的结果会明确标记为部分结果。"
+msgstr "打开 **逐步搜索** 可从参数字段中的值出发进行局部搜索，而不是遍历网格。每一轮对当前中心周围的邻域打分，并移动到其中最佳的配置；使用默认轴（``n_neighbors`` 和 ``min_dist``，分辨率为 2）时，即四个对角角点。**坐标轴…** 可添加其他结构参数，并设置每个轴的步长和分辨率。加权多目标分数决定下一步移动的方向。搜索在达到 **maximum rounds**、某一轮未能超过 **minimum improvement**，或请求 **停止** 后结束。被停止的结果会明确标记为部分结果。"
 
 msgid "Resume behavior"
 msgstr "断点续跑行为"
 
 msgid "Enable **Resume checkpoint** to continue from ``results/.spacr_checkpoints/umap_search.json`` under the current project (or from an explicit ``checkpoint_path`` in the Python API). Each completed trial is written atomically and its primary embedding is stored beside the JSON. An interrupted Walk round evaluates only its missing candidates before choosing a direction."
-msgstr "启用 **从检查点继续**，即可从当前项目下的 ``results/.spacr_checkpoints/umap_search.json`` （或 Python API 中显式指定的 ``checkpoint_path``）继续。每次完成的试验都会以原子方式写入，其主嵌入存储在 JSON 旁边。中断的行走轮次在选择方向前只评估缺失的候选。"
+msgstr "启用 **从检查点恢复**，即可从当前项目下的 ``results/.spacr_checkpoints/umap_search.json`` （或 Python API 中显式指定的 ``checkpoint_path``）继续。每次完成的试验都会以原子方式写入，其主嵌入存储在 JSON 旁边。中断的行走轮次在选择方向前只评估缺失的候选。"
 
 msgid "Resume refuses to combine incompatible work. Feature and label hashes, search space, criterion, seed, output dimensions, neighborhood size, the ``n_neighbors``/``min_dist`` increments, stopping threshold, stability repeat count, objective weights, embedder identity, backend and the cluster-during-search settings must match the checkpoint."
 msgstr "断点续跑拒绝合并不兼容的工作。特征和标签哈希、搜索空间、准则、随机种子、输出维度、邻域大小、``n_neighbors``/``min_dist`` 步长、停止阈值、稳定性重复次数、目标权重、嵌入器标识、后端以及搜索期间聚类的设置都必须与检查点一致。"

@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: Spaceout's Magnifier size slider and its help, and the rewritten camera-path description (items 604-606), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Magnifier size",
+      "source": "Magnifier size",
+      "source_sha256": "ac81ccf39c390183a17bf2ca5a47a7a1b13f19b282f8a5d02d0e180ee474eeba",
+      "translation": "आवर्धक का आकार"
+    },
+    {
+      "table": "ui",
+      "key": "How big the magnifying glass under the pointer is, as a share of its usual size. The whole lens scales together: the bulge under the cursor and the soft edge around it. 25% is a small loupe; 300% bends most of the window. Applies wherever the pointer bends the picture: both orbit folds, and the cascade and space on the GPU renderer. The Mandelbrot is dragged instead. Default 100%.",
+      "source": "How big the magnifying glass under the pointer is, as a share of its usual size. The whole lens scales together: the bulge under the cursor and the soft edge around it. 25% is a small loupe; 300% bends most of the window. Applies wherever the pointer bends the picture: both orbit folds, and the cascade and space on the GPU renderer. The Mandelbrot is dragged instead. Default 100%.",
+      "source_sha256": "d8ba2a6891810350357555ec889c14e254e9686a56909c1556c0fb26fc9ac7aa",
+      "translation": "पॉइंटर के नीचे आवर्धक काँच कितना बड़ा है, उसके सामान्य आकार के अनुपात में। पूरा लेंस एक साथ बदलता है: कर्सर के नीचे का उभार और उसके चारों ओर का कोमल किनारा। 25% एक छोटा आवर्धक है; 300% विंडो के अधिकांश भाग को मोड़ देता है। जहाँ भी पॉइंटर चित्र को मोड़ता है वहाँ लागू होता है: दोनों कक्षा मोड़, और GPU रेंडरर पर कैस्केड और अंतरिक्ष। Mandelbrot को इसके बजाय खींचा जाता है। डिफ़ॉल्ट 100%।"
+    },
+    {
+      "table": "ui",
+      "key": "Straight down descends to one point on the boundary and stays pointed at it — the steadiest picture, and what the published settings use.\n\nSearch as it goes looks for somewhere more interesting every so often and moves the camera onto it. It finds more variety, and moving the camera is visible: the Steering control below sets how much.\n\nTour the interesting places measures the view as it descends and glides toward the part with the most colours in it, never toward a single-colour patch. The camera eases in and out of every move and turns away before the detail runs out, and at the end of a dive it glides back up. Dragging the view stops the tour; Ctrl+R hands the camera back to it.",
+      "source": "Straight down descends to one point on the boundary and stays pointed at it — the steadiest picture, and what the published settings use.\n\nSearch as it goes looks for somewhere more interesting every so often and moves the camera onto it. It finds more variety, and moving the camera is visible: the Steering control below sets how much.\n\nTour the interesting places measures the view as it descends and glides toward the part with the most colours in it, never toward a single-colour patch. The camera eases in and out of every move and turns away before the detail runs out, and at the end of a dive it glides back up. Dragging the view stops the tour; Ctrl+R hands the camera back to it.",
+      "source_sha256": "2bb17930bf3f6e4cfa74b3efe32ccabdb5dd57237615690d25596af7f376d41a",
+      "translation": "सीधे नीचे सीमा पर एक बिंदु की ओर उतरता है और उसी की ओर इंगित रहता है — सबसे स्थिर चित्र, और वही जो प्रकाशित सेटिंग्स उपयोग करती हैं।\n\nचलते-चलते खोजें समय-समय पर कुछ अधिक रोचक खोजता है और कैमरा वहाँ ले जाता है। इससे अधिक विविधता मिलती है, और कैमरे की गति दिखाई देती है: नीचे का दिशा नियंत्रण तय करता है कि कितनी।\n\nरोचक स्थानों की सैर उतरते समय दृश्य को मापती है और सबसे अधिक रंगों वाले भाग की ओर सरकती है, कभी एक-रंगी हिस्से की ओर नहीं। कैमरा हर गति में धीरे से प्रवेश करता और निकलता है, विवरण समाप्त होने से पहले मुड़ जाता है, और एक गोते के अंत में फिर ऊपर सरक आता है। दृश्य को खींचने से सैर रुक जाती है; Ctrl+R कैमरा फिर उसे सौंप देता है।"
+    }
+  ]
+}

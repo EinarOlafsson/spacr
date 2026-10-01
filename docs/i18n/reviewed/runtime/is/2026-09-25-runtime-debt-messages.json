@@ -538,13 +538,6 @@
     },
     {
       "table": "ui",
-      "key": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
-      "translation": "Veldu pör mynda/gríma fyrir þjálfun hlutunar, eða notaðu FEATURES til að úthluta myndum og grímum og kalla á mælingu. Vistun grímu þjálfar ekki flokkara."
-    },
-    {
-      "table": "ui",
       "key": "Cut an object with two centres in two, at the ridge between them, on the distance to the background. It is the Otsu category's own split offered to every other method. The Otsu mode is not affected by this box and keeps using its own: applying both would join what Otsu had just separated and cut it again.",
       "source": "Cut an object with two centres in two, at the ridge between them, on the distance to the background. It is the Otsu category's own split offered to every other method. The Otsu mode is not affected by this box and keeps using its own: applying both would join what Otsu had just separated and cut it again.",
       "source_sha256": "669c789a02614f85ef84871f5d12468bbb596ee197c145d6a02f13d1ce01a0db",
@@ -2932,13 +2925,6 @@
     },
     {
       "table": "ui",
-      "key": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
-      "translation": "Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
-    },
-    {
-      "table": "ui",
       "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
       "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
       "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
@@ -3400,7 +3386,22 @@
       "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
       "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
       "translation": "Tíu sjónsvið úr gagnasafninu sem birt líkan var þjálfað á, með grímunum sem því voru kenndar. Þau opnast til breytinga, svo það sem þú sérð er það sem líkanið sá."
+    },
+    {
+      "table": "ui",
+      "key": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
+      "translation": "Veldu pör mynda/gríma fyrir þjálfun hlutunar, eða notaðu FEATURES til að úthluta myndum og grímum og kalla á mælingu. Vistun grímu þjálfar ekki flokkara."
+    },
+    {
+      "table": "ui",
+      "key": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
+      "translation": "Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
     }
   ],
-  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",
+  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded."
 }

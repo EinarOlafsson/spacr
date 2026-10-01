@@ -35,13 +35,13 @@ msgid "Select the measured project as the source."
 msgstr "Seleccione el proyecto medido como origen."
 
 msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
-msgstr "Establezca **Salida de AnnData** en un nuevo nombre de archivo ``.h5ad``. Si se deja vacío, se escribe en la carpeta ``results`` del proyecto. Una exportación correcta sustituye un archivo existente en la ruta elegida; use nombres distintos para conservar ambas versiones."
+msgstr "Establezca **Salida de Anndata** en un nuevo nombre de archivo ``.h5ad``. Si se deja vacío, se escribe en la carpeta ``results`` del proyecto. Una exportación correcta sustituye un archivo existente en la ruta elegida; use nombres distintos para conservar ambas versiones."
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
-msgstr "Establezca **Cuadro único de datos** en ``cell`` para obtener una fila por célula con las características de esa tabla. Use ``nucleus`` o ``pathogen`` para esos tipos de objeto. Déjelo vacío para una exportación combinada a nivel de célula, en la que las mediciones de los objetos hijos se agregan en sus células madre."
+msgstr "Establezca **Anndata en una sola tabla** en ``cell`` para obtener una fila por célula con las características de esa tabla. Use ``nucleus`` o ``pathogen`` para esos tipos de objeto. Déjelo vacío para una exportación combinada a nivel de célula, en la que las mediciones de los objetos hijos se agregan en sus células madre."
 
 msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
-msgstr "Elija la **Política de NaN de AnnData** y haga clic en **Ejecutar**. Lea el mensaje de finalización y abra el archivo de salida para comprobar sus dimensiones y los nombres de las características."
+msgstr "Elija la **Política de nan de Anndata** y haga clic en **Ejecutar**. Lea el mensaje de finalización y abra el archivo de salida para comprobar sus dimensiones y los nombres de las características."
 
 msgid "Choose how to handle missing features"
 msgstr "Elegir cómo tratar las características ausentes"

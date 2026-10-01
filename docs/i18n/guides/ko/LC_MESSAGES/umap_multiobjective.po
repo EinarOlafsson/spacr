@@ -77,7 +77,7 @@ msgid "Walk search and stopping"
 msgstr "걷기 검색과 중지"
 
 msgid "Switch on **Walk** to search locally from the values in the parameter fields instead of sweeping a grid. Each round scores the neighbourhood around the current centre and moves to the best configuration in it; with the default axes, ``n_neighbors`` and ``min_dist`` at resolution 2, that is the four diagonal corners. **Axes…** adds other structural parameters and sets each axis's step and resolution. The weighted multi-objective score chooses the direction of the next move. Search stops at **maximum rounds**, when a round fails to exceed **minimum improvement**, or after **Stop** is requested. A stopped result is explicitly marked partial."
-msgstr "**걷기** 를 켜면 그리드를 훑는 대신 매개변수 필드의 값에서 출발하여 국소적으로 검색합니다. 각 라운드는 현재 중심 주변의 이웃에 점수를 매기고 그중 가장 좋은 구성으로 이동합니다. 기본 축(``n_neighbors`` 와 ``min_dist``, 해상도 2)에서는 대각선의 네 모서리가 이에 해당합니다. **축…** 은 다른 구조적 매개변수를 추가하고 각 축의 간격과 해상도를 설정합니다. 가중 다중 목표 점수가 다음 이동 방향을 정합니다. 검색은 **maximum rounds** 에 도달하거나, 한 라운드가 **minimum improvement** 를 넘지 못하거나, **중지** 가 요청되면 멈춥니다. 중지된 결과는 부분 결과로 명시적으로 표시됩니다."
+msgstr "**단계별 탐색** 를 켜면 그리드를 훑는 대신 매개변수 필드의 값에서 출발하여 국소적으로 검색합니다. 각 라운드는 현재 중심 주변의 이웃에 점수를 매기고 그중 가장 좋은 구성으로 이동합니다. 기본 축(``n_neighbors`` 와 ``min_dist``, 해상도 2)에서는 대각선의 네 모서리가 이에 해당합니다. **축…** 은 다른 구조적 매개변수를 추가하고 각 축의 간격과 해상도를 설정합니다. 가중 다중 목표 점수가 다음 이동 방향을 정합니다. 검색은 **maximum rounds** 에 도달하거나, 한 라운드가 **minimum improvement** 를 넘지 못하거나, **중지** 가 요청되면 멈춥니다. 중지된 결과는 부분 결과로 명시적으로 표시됩니다."
 
 msgid "Resume behavior"
 msgstr "재개 동작"

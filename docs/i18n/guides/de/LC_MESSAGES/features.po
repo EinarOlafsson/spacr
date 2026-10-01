@@ -86,7 +86,7 @@ msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and l
 msgstr "**QC Dashboard** vereint Prüfungen zu Segmentierung, Platten, Annotatorenübereinstimmung und Leakage."
 
 msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
-msgstr "**Stapelkorrektur** bietet Zentrierung, z-Standardisierung, robuste z-Standardisierung, Kontrollzentrierung und ComBat mit geschützten biologischen Kovariaten."
+msgstr "**Batch-Korrektur** bietet Zentrierung, z-Standardisierung, robuste z-Standardisierung, Kontrollzentrierung und ComBat mit geschützten biologischen Kovariaten."
 
 msgid "**Graph Builder, gates and linked views** connect summary plots to the object crops behind them."
 msgstr "**Graph Builder, gates and linked views** verbinden zusammenfassende Diagramme mit den dahinterliegenden Objektausschnitten."
@@ -188,7 +188,7 @@ msgid "**A module's right-hand column** (console, actions and the other panels) 
 msgstr "**Die rechte Spalte eines Moduls** (Konsole, Aktionen und die übrigen Bereiche) ändert ihre Größe als Ganzes, wenn Sie ihren linken Rand ziehen. Halten Sie **Ctrl** gedrückt und scrollen Sie darüber, um den Text zu vergrößern oder zu verkleinern; **Ctrl+0** über der Spalte stellt die Standardgröße wieder her."
 
 msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
-msgstr "**Kurzinfos** erscheinen, nachdem der Zeiger zwei Sekunden verweilt hat, und bleiben sichtbar, solange sich der Zeiger darauf befindet. Schalten Sie alle über **Präferenzen → Erscheinungsbild → Kurzinfos** aus."
+msgstr "**Kurzinfos** erscheinen, nachdem der Zeiger zwei Sekunden verweilt hat, und bleiben sichtbar, solange sich der Zeiger darauf befindet. Schalten Sie alle über **Einstellungen → Erscheinungsbild → Kurzinfos** aus."
 
 msgid "These sizes are remembered between sessions."
 msgstr "Diese Größen werden zwischen Sitzungen gespeichert."

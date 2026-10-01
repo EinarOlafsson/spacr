@@ -680,7 +680,7 @@ msgid "**Open:** the application's Help/tools menus."
 msgstr "**Opna:** hjálpar-/verkfæravalmyndir forritsins."
 
 msgid "**Run queue** — Saved module/plate/settings job definitions and dependency order."
-msgstr "**Farið í Queue** — Vistaðar skilgreiningar verka fyrir einingu/plötu/stillingar og röð ákvæða."
+msgstr "**Keyrsluröð** — Vistaðar skilgreiningar verka fyrir einingu/plötu/stillingar og röð ákvæða."
 
 msgid "**Run history and artifacts** — Project run records, settings, output paths, artifact provenance, status and logs."
 msgstr "**Keyrslusaga og afurðir** — Keyrsluskrár verkefnis, stillingar, úttaksslóðir, uppruni afurða, staða og annálar."

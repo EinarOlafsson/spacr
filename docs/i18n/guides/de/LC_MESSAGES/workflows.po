@@ -287,7 +287,7 @@ msgid "**Segmentation checkpoint** — Saved Cellpose-compatible checkpoint or a
 msgstr "**Segmentierungs-Checkpoint** — Gespeicherter Cellpose-kompatibler Checkpoint oder ein kompatibles installiertes Backend, das mit eigener Konfiguration gewählt wird."
 
 msgid "**Outputs**"
-msgstr "**Ergebnisse**"
+msgstr "**Ausgaben**"
 
 msgid "**Images and label masks** — merged/\\*.npy in the project; channels and integer label planes share each field array."
 msgstr "**Bilder und Labelmasken** — merged/\\*.npy im Projekt; Kanäle und ganzzahlige Label-Ebenen teilen sich das Array jedes Bildfelds."

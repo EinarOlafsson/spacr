@@ -35,13 +35,13 @@ msgid "Select the measured project as the source."
 msgstr "측정이 끝난 프로젝트를 소스로 선택합니다."
 
 msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
-msgstr "**Anndata 출력** 항목에 새 ``.h5ad`` 파일 이름을 지정합니다. 비워 두면 프로젝트의 ``results`` 폴더 아래에 파일이 기록됩니다. 내보내기에 성공하면 선택한 경로의 기존 파일이 대체되므로, 두 버전을 모두 보관하려면 서로 다른 이름을 사용합니다."
+msgstr "**Anndata 출력 파일** 항목에 새 ``.h5ad`` 파일 이름을 지정합니다. 비워 두면 프로젝트의 ``results`` 폴더 아래에 파일이 기록됩니다. 내보내기에 성공하면 선택한 경로의 기존 파일이 대체되므로, 두 버전을 모두 보관하려면 서로 다른 이름을 사용합니다."
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
-msgstr "**싱글 테이블** 항목을 ``cell`` 값으로 설정하면 해당 테이블의 특징을 사용하여 세포당 한 행을 내보냅니다. 해당 객체 유형에는 ``nucleus`` 또는 ``pathogen`` 값을 사용합니다. 비워 두면 세포 수준의 결합 내보내기가 수행되며, 하위 객체의 측정값이 상위 세포로 집계됩니다."
+msgstr "**Anndata 단일 테이블** 항목을 ``cell`` 값으로 설정하면 해당 테이블의 특징을 사용하여 세포당 한 행을 내보냅니다. 해당 객체 유형에는 ``nucleus`` 또는 ``pathogen`` 값을 사용합니다. 비워 두면 세포 수준의 결합 내보내기가 수행되며, 하위 객체의 측정값이 상위 세포로 집계됩니다."
 
 msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
-msgstr "**Anndata NaN 정책** 을 선택한 다음 **실행** 을 클릭합니다. 완료 메시지를 읽고 출력 파일을 열어 형태와 특징 이름을 확인합니다."
+msgstr "**Anndata nan 처리 정책** 을 선택한 다음 **실행** 을 클릭합니다. 완료 메시지를 읽고 출력 파일을 열어 형태와 특징 이름을 확인합니다."
 
 msgid "Choose how to handle missing features"
 msgstr "누락된 특징의 처리 방법 선택"

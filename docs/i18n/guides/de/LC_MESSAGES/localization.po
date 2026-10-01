@@ -65,7 +65,7 @@ msgid "Language support covers the presentation layer of the Qt application:"
 msgstr "Die Sprachunterstützung umfasst die Darstellungsebene der Qt-Anwendung:"
 
 msgid "navigation, Preferences, common actions, tabs and section headings;"
-msgstr "Navigation, Präferenzen, allgemeine Aktionen, Registerkarten und Abschnittsüberschriften;"
+msgstr "Navigation, Einstellungen, allgemeine Aktionen, Registerkarten und Abschnittsüberschriften;"
 
 msgid "the **AI** and **Live** controls, AI-provider setup, chat placeholders, streaming status and other chat chrome;"
 msgstr "die Bedienelemente **KI** und **Live**, die Einrichtung von KI-Anbietern, Platzhalter im Chat, den Streaming-Status und weitere Chat-Elemente;"
@@ -140,7 +140,7 @@ msgid ":mod:`spacr.qt.i18n` — language catalogs and runtime widget retranslati
 msgstr ":mod:`spacr.qt.i18n` — Sprachkataloge und Neuübersetzung von Widgets zur Laufzeit."
 
 msgid ":mod:`spacr.qt.preferences` — persisted language selection and Preferences."
-msgstr ":mod:`spacr.qt.preferences` — gespeicherte Sprachauswahl und Präferenzen."
+msgstr ":mod:`spacr.qt.preferences` — gespeicherte Sprachauswahl und Einstellungen."
 
 msgid ":mod:`spacr.qt.i18n_module_summaries` — built-in module help lookup."
 msgstr ":mod:`spacr.qt.i18n_module_summaries` — Abruf der Hilfe für integrierte Module."

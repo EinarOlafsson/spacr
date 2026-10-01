@@ -32,7 +32,7 @@ msgid "Choose the source folder and select an image in the preview picker."
 msgstr "स्रोत फ़ोल्डर चुनें और पूर्वावलोकन चयनकर्ता में एक छवि चुनें।"
 
 msgid "Select **Plaque** mode. In **Settings… → Plaque detection**, choose the plaque checkpoint, diameter, flow threshold and cell-probability threshold. Use **Model zoo…** to inspect available models or **Browse…** for a local checkpoint. A model key is different from a detector backend: both the checkpoint and a compatible runtime must be available."
-msgstr "**प्लाक** मोड चुनें। **सेटिंग्स… → प्लाक पहचान** में प्लाक चेकपॉइंट, व्यास, प्रवाह सीमा और कोशिका-संभावना सीमा चुनें। उपलब्ध मॉडल देखने के लिए **मॉडल संग्रह…** या स्थानीय चेकपॉइंट के लिए **ब्राउज़ करें…** का उपयोग करें। मॉडल कुंजी डिटेक्टर बैकएंड से भिन्न होती है: चेकपॉइंट और संगत रनटाइम दोनों उपलब्ध होने चाहिए।"
+msgstr "**प्लाक** मोड चुनें। **सेटिंग्स… → प्लाक पहचान** में प्लाक चेकपॉइंट, व्यास, प्रवाह सीमा और कोशिका-संभावना सीमा चुनें। उपलब्ध मॉडल देखने के लिए **मॉडल लाइब्रेरी…** या स्थानीय चेकपॉइंट के लिए **ब्राउज़ करें…** का उपयोग करें। मॉडल कुंजी डिटेक्टर बैकएंड से भिन्न होती है: चेकपॉइंट और संगत रनटाइम दोनों उपलब्ध होने चाहिए।"
 
 msgid "Run the preview and inspect the labels against the image. Counts and mean areas describe the proposed segmentation, so check merged plaques, missed plaques and non-plaque regions before interpreting them."
 msgstr "पूर्वावलोकन चलाएँ और लेबलों की छवि से तुलना करें। गिनतियाँ और औसत क्षेत्रफल प्रस्तावित विभाजन का वर्णन करते हैं, इसलिए उनकी व्याख्या से पहले जुड़े हुए प्लाक, छूटे हुए प्लाक और प्लाक-रहित क्षेत्रों की जाँच करें।"
@@ -86,7 +86,7 @@ msgid "Inspect the result views"
 msgstr "परिणाम दृश्यों की जाँच करें"
 
 msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
-msgstr "पूर्वावलोकन के ऊपर का दृश्य चयनकर्ता दोनों मोड में **ओवरले**, **मास्क**, **प्रवाह** और **कोशिका संभावना** देता है। चित्र मोड में हर विभाजित कूप के आउटपुट चित्र पर उसके बॉक्स में रखे जाते हैं। ओवरले विकल्पों के लिए छवि पर राइट-क्लिक करें: रूपरेखा या भरे हुए ऑब्जेक्ट, यादृच्छिक रंग, **ओवरले सेटिंग…** और **चित्र सहेजें…**। ओवरले सेटिंग्स में रूपरेखा और भराव के रंग, भराव की अपारदर्शिता और **वेल बॉक्स** की **रेखा की मोटाई** शामिल हैं। **रूलर** छवि पर दूरी मापता है, पिक्सेल आकार ज्ञात होने पर µm में और अन्यथा पिक्सेल में; राइट-क्लिक उसे साफ़ करता है।"
+msgstr "पूर्वावलोकन के ऊपर का दृश्य चयनकर्ता दोनों मोड में **ओवरले**, **मास्क**, **प्रवाह** और **कोशिका प्रायिकता** देता है। चित्र मोड में हर विभाजित कूप के आउटपुट चित्र पर उसके बॉक्स में रखे जाते हैं। ओवरले विकल्पों के लिए छवि पर राइट-क्लिक करें: रूपरेखा या भरे हुए ऑब्जेक्ट, यादृच्छिक रंग, **ओवरले सेटिंग…** और **चित्र सहेजें…**। ओवरले सेटिंग्स में रूपरेखा और भराव के रंग, भराव की अपारदर्शिता और **वेल बॉक्स** की **रेखा की मोटाई** शामिल हैं। **रूलर** छवि पर दूरी मापता है, पिक्सेल आकार ज्ञात होने पर µm में और अन्यथा पिक्सेल में; राइट-क्लिक उसे साफ़ करता है।"
 
 msgid "Contribute training data"
 msgstr "ट्रेनिंग डेटा योगदान करें"

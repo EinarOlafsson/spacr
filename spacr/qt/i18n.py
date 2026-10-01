@@ -2254,8 +2254,8 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Les rapports de plantage sont envoyés au dépôt GitHub PUBLIC de spaCR. Ils sont lisibles partout, indexés et ne peuvent pas être retirés de manière fiable. Le rapport est expurgé, affiché dans un aperçu modifiable et envoyé uniquement lorsque vous cliquez sur Envoyer pour ce rapport précis. La configuration des comptes utilise les interfaces en ligne de commande officielles de GitHub, Claude, Codex (GPT) et Gemini ; spaCR ne conserve ni mots de passe ni jetons. Tous les choix sont facultatifs et révocables dans les Préférences."),
 
     "Hit List": _row(
-        "Träfflista", "Trefferliste", "Lista de aciertos", "命中列表",
-        "Lista de acertos", "हिट सूची", "히트 목록", "Niðurstöðulisti",
+        "Träfflista", "Trefferliste", "Lista de candidatos", "命中列表",
+        "Lista de candidatos", "हिट सूची", "히트 목록", "Niðurstöðulisti",
         "Liste des résultats"),
     "Methods & Results": _row(
         "Metod och resultat", "Methoden und Ergebnisse",

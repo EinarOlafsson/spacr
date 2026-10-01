@@ -273,13 +273,6 @@
     },
     {
       "table": "ui",
-      "key": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
-      "translation": "विभाजन प्रशिक्षण के लिए छवि और मास्क के जोड़े तैयार करें, या FEATURES से छवियाँ और मास्क निर्धारित करके मापन शुरू करें। मास्क सहेजने से वर्गीकारक प्रशिक्षित नहीं होता।"
-    },
-    {
-      "table": "ui",
       "key": "Curated training fields",
       "source": "Curated training fields",
       "source_sha256": "4a9e103549efe90cfb11969a371b9d5d7008407b163f92f8bb95245a6d7c683f",
@@ -1309,13 +1302,6 @@
     },
     {
       "table": "ui",
-      "key": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
-      "translation": "छवियों और मास्क को जोड़कर मापी गई परियोजना लिखने के लिए FEATURES लें; अलग मास्क मर्ज किए गए ऐरे नहीं हैं।"
-    },
-    {
-      "table": "ui",
       "key": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
       "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
@@ -1495,6 +1481,21 @@
       },
       "reason": "2026-09-23: c94a48cd7 replaced this workflow-map prose. Original source-bound translation retained; new source requires separate review.",
       "source_change_commit": "c94a48cd778b035ea9d95637329c5db6eefa8c79"
+    },
+    {
+      "table": "ui",
+      "key": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
+      "translation": "विभाजन प्रशिक्षण के लिए छवि और मास्क के जोड़े तैयार करें, या FEATURES से छवियाँ और मास्क निर्धारित करके मापन शुरू करें। मास्क सहेजने से वर्गीकारक प्रशिक्षित नहीं होता।"
+    },
+    {
+      "table": "ui",
+      "key": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
+      "translation": "छवियों और मास्क को जोड़कर मापी गई परियोजना लिखने के लिए FEATURES लें; अलग मास्क मर्ज किए गए ऐरे नहीं हैं।"
     }
-  ]
+  ],
+  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded."
 }

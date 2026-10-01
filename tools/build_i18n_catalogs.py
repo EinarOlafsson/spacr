@@ -285,6 +285,8 @@ _IDENTITY_TEXT = {
     # 316, 2026-09-27: backend and workflow-engine names shown alone.
     "CellProfiler", "CellProfiler (Alpha)", "CellProfiler α", "CAREamics Noise2Void", "Nextflow…", "Snakemake…",
     "Visium", "Visium HD", "Xenium",
+    # 316, 2026-09-30 (eleventh pass): the spaCR command-line entry point.
+    "spacr-run",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",

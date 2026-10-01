@@ -41,7 +41,7 @@ msgid "Set **Anndata single table** to ``cell`` for one row per cell using that 
 msgstr "Stilltu **Anndata stök tafla** á ``cell`` til að fá eina röð á hverja frumu með eiginleikum þeirrar töflu. Notaðu ``nucleus`` eða ``pathogen`` fyrir þær hlutagerðir. Skildu reitinn eftir auðan fyrir samtengdan útflutning á frumustigi, þar sem mælingar undirhluta eru teknar saman á móðurfrumur þeirra."
 
 msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
-msgstr "Veldu **Ákvarðanir NAN** og smelltu síðan á **Keyra**. Lestu lokaskilaboðin og opnaðu úttaksskrána til að athuga lögun hennar og heiti eiginleika."
+msgstr "Veldu **Anndata-regla um nan** og smelltu síðan á **Keyra**. Lestu lokaskilaboðin og opnaðu úttaksskrána til að athuga lögun hennar og heiti eiginleika."
 
 msgid "Choose how to handle missing features"
 msgstr "Veldu hvernig farið er með eiginleika sem vantar"
