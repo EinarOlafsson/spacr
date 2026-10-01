@@ -198,6 +198,7 @@ tutorial_colab.ipynb
 !/docs/source/system_requirements.rst
 !/docs/source/features.rst
 !/docs/source/make_masks.rst
+!/docs/source/measure_live.rst
 !/docs/source/cellpose_training.rst
 !/docs/source/point_spread.rst
 !/docs/source/recruitment.rst

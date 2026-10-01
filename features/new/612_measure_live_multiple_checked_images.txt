@@ -2,7 +2,7 @@
 MEASURE LIVE DISPLAYS OBJECTS FROM MULTIPLE CHECKED IMAGES
 ================================================================================
 
-Status: OPEN — requirements recorded; acceptance not yet verified.
+Status: IMPLEMENTED AND VERIFIED 2026-10-01 — checked-source runtime complete; catalog/tutorial publication in N615.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex inventory session (tracking only).
 
@@ -85,3 +85,28 @@ tests/qt/test_615_measure_live_multi_image.py: two images with the same
 labels give distinct keys; check/uncheck adds/removes only that image;
 empty selection; an image without objects; stale results after a
 selection change are dropped; filters still apply.
+
+2026-10-01 — IMPLEMENTED AND VERIFIED
+Measure Live now has an independent Checked images menu. Checked fields
+contribute to one crop grid, grouped by phenotype and source filename. Each
+crop retains its canonical source path and (path, object role, label) key;
+repeated labels cannot collide. Double-click navigates to that exact source.
+Unchecking removes only that source, and an empty selection clears the grid.
+Single-field dropdown navigation retains its prior replace behavior. A new
+folder starts a new selection; changing the sample retains already checked
+fields. Preview selection never becomes a measurement/export selection.
+
+One crop job runs at a time, with only the newest pending request retained.
+It streams additional files through read-only NumPy mappings, shares the
+existing maximum-crop budget across selected sources, and rejects stale
+results and old-grid clicks. Failed sources are named without discarding
+valid fields. Existing channels, object settings and filters apply to all.
+
+Validation: final 26-check root cohort passed, including six checked-source
+cases and the existing preview-edge/Measure-entry checks. Earlier relevant
+cohorts passed the ordinary preview/source-loading checks and 81 additional
+checks before two incidental expectation fixes. A 1280x720 rendered panel
+with two fields/four crops was inspected at
+/tmp/spacr-implementation-20261001/review/measure/checked-images.png.
+User guide: docs/source/measure_live.rst. Shared translations, API manifest
+and tutorial captures remain in N615; no native-platform claim is added.

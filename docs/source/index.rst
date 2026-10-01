@@ -134,6 +134,7 @@ Contents
    installers
    features
    make_masks
+   measure_live
    cellpose_training
    point_spread
    recruitment
