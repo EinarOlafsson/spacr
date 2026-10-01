@@ -323,3 +323,13 @@ def test_both_engines_give_the_same_tables(tmp_path):
     np.testing.assert_allclose(ours['cox']['se'], theirs['cox']['se'],
                                rtol=1e-4)
     assert set(theirs['cox']['engine']) == {'lifelines'}
+
+
+def test_a_curve_at_one_half_up_to_round_off_has_its_median_there():
+    times = [1.0, 2.0, 3.0]
+    survival = [0.6, 0.5000000000000001, 0.4]
+    assert sp_stats._first_time_at_or_below(times, survival) == 2.0
+    assert sp_stats._first_time_at_or_below(times, [0.6, 0.51, 0.4]) == 3.0
+    durations = np.array([1, 2, 3, 4, 5, 6] * 2, dtype=float)
+    curve = sp_stats._kaplan_meier(durations, np.ones(12), engine='builtin')
+    assert sp_stats._median_survival(curve)[0] == 3.0

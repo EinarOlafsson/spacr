@@ -30,7 +30,9 @@ from collections import OrderedDict
 from typing import Dict, Iterable, List, Mapping, Optional, Tuple
 
 from .object_roles import organelle_index, organelle_label
-from .organelle_types import ALL_ORGANELLE_ROLES
+from .organelle_types import (ALL_ORGANELLE_ROLES, _background_switch_key,
+                              _background_switch_role,
+                              _legacy_background_switch_role)
 
 __all__ = [
     "OBJECT_ORDER",
@@ -78,10 +80,16 @@ def _split(key: str) -> Optional[Tuple[str, str]]:
     """``('cell', 'min_area')`` for ``'cell_min_area'``, else ``None``.
 
     Also ``('cell', 'remove_background')`` for ``'remove_background_cell'``
-    and ``('cell', 'adjust_cells')`` for ``'adjust_cells'``.
+    and ``('cell', 'adjust_cells')`` for ``'adjust_cells'``. An organelle
+    slot's switch is numbered -- ``remove_background_organelle_2`` is
+    ``('organelleb', 'remove_background')`` -- and the lettered spelling it
+    had before 2026-09-30 is still read (item 76).
     """
     if key in _SINGLE_OBJECT_KEYS:
         return _SINGLE_OBJECT_KEYS[key]
+    slot = _background_switch_role(key) or _legacy_background_switch_role(key)
+    if slot is not None:
+        return slot, "remove_background"
     for question in _OBJECT_LAST_QUESTIONS:
         head = question + "_"
         if key.startswith(head) and key[len(head):] in OBJECT_ORDER:
@@ -97,7 +105,9 @@ def _settings_key(obj: str, question: str) -> str:
 
     The inverse of the split: ``('cell', 'min_area')`` is ``cell_min_area``,
     ``('cell', 'remove_background')`` is ``remove_background_cell`` and
-    ``('cell', 'adjust_cells')`` is ``adjust_cells``.
+    ``('cell', 'adjust_cells')`` is ``adjust_cells``. An organelle slot's
+    switch is numbered: ``('organelleb', 'remove_background')`` is
+    ``remove_background_organelle_2`` (item 76, 2026-09-30).
 
     :param obj: the object, a column of the table.
     :param question: the row.
@@ -105,6 +115,8 @@ def _settings_key(obj: str, question: str) -> str:
     for key, pair in _SINGLE_OBJECT_KEYS.items():
         if pair == (obj, question):
             return key
+    if question == "remove_background" and obj in ALL_ORGANELLE_ROLES:
+        return _background_switch_key(obj)
     if question in _OBJECT_LAST_QUESTIONS:
         return f"{question}_{obj}"
     return f"{obj}_{question}"

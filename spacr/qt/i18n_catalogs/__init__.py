@@ -92,28 +92,29 @@ def ui_text(source: str, language: str) -> Optional[str]:
 def _numbered_background_value(
     key: str, source: str, language: str, table_name: str,
 ) -> Optional[str]:
-    """Reuse slot two only for an exact current numbered-switch source."""
-    prefix = "remove_background_"
-    if not str(key).startswith(prefix):
-        return None
+    """Reuse slot two only for an exact current numbered-switch source.
+
+    Slot N's switch is ``remove_background_organelle_N`` (item 76,
+    2026-09-30); its label and tooltip are slot 2's with the number and the
+    floor setting's prefix changed.
+    """
     from spacr.organelle_types import (
-        CATALOGUED_ORGANELLE_SLOTS, organelle_number, organelle_role_of,
+        CATALOGUED_ORGANELLE_SLOTS, _background_switch_role, organelle_number,
     )
 
-    tail = str(key).removeprefix(prefix)
-    role = organelle_role_of(tail)
-    if role != tail:
+    role = _background_switch_role(str(key))
+    if role is None:
         return None
     number = organelle_number(role)
     if number <= CATALOGUED_ORGANELLE_SLOTS:
         return None
-    template_key = "remove_background_organelleb"
+    template_key = "remove_background_organelle_2"
     canonical = getattr(_english(), table_name, {})
     template_source = canonical.get(template_key)
     if not isinstance(template_source, str):
         return None
     expected = template_source.replace("organelleb", role).replace(
-        "organelle 2 channel", f"organelle {number} channel")
+        "organelle 2", f"organelle {number}")
     if expected != str(source):
         return None
     module = _module(language)

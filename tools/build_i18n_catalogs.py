@@ -4234,15 +4234,22 @@ def canonical_sources() -> dict[str, object]:
     # primary translation for higher numbered slots.
     from spacr.organelle_types import (
         CATALOGUED_ORGANELLE_SLOTS,
+        _background_switch_role,
         organelle_number,
         organelle_role_of,
     )
 
     def catalogued_setting(key: object) -> bool:
+        """True when ``key`` is a setting the materialized catalogs carry.
+
+        :param key: a settings key; slot N's background switch is
+            ``remove_background_organelle_N`` (item 76, 2026-09-30).
+        """
         text = str(key)
         role = organelle_role_of(text)
         if text.startswith("remove_background_"):
-            role = organelle_role_of(text.removeprefix("remove_background_"))
+            role = (_background_switch_role(text)
+                    or organelle_role_of(text.removeprefix("remove_background_")))
         return role is None or organelle_number(role) <= (
             CATALOGUED_ORGANELLE_SLOTS
         )

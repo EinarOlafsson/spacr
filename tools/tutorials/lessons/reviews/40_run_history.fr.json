@@ -1,10 +1,10 @@
 {
   "lesson": "40_run_history",
-  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Terminez une tâche spaCR pour créer un enregistrement d’exécution local. L’exemple parcourt des enregistrements d’exécutions de conversion, de Recruitment et de Regression.",
   "scenes": [
-    "Ouvrez Help, puis Run history pour parcourir les enregistrements d’exécution sauvegardés sur cet ordinateur.",
+    "Ouvrez Help, puis Run History pour parcourir les enregistrements d’exécution sauvegardés sur cet ordinateur.",
     "Cliquez sur Refresh pour charger les enregistrements disponibles. Sélectionnez une exécution pour en examiner les détails, et faites glisser le séparateur si vous avez besoin de plus de place.",
     "Choisissez un module et un état, puis saisissez un terme de recherche pour restreindre la liste. Par exemple, sélectionnez convert et Success pour trouver les conversions terminées.",
     "Ouvrez Files and models pour les détails enregistrés des entrées et des sorties. Les exécutions qui ont sauté le calcul des empreintes de fichiers peuvent avoir un inventaire vide ; utilisez alors les chemins de sortie des paramètres ou des journaux pour trouver leurs résultats.",

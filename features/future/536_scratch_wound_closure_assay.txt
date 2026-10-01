@@ -5,7 +5,7 @@ every frame (texture, intensity or cell masks), writes area, mean/min width,
 closure rate and half-closure time per field, well and condition, with
 closure curves and a plate map; the Measure preview draws the wound edge.
 Hidden with Alpha features. DONE WHEN not met on the public data (below);
-the 2026-09-30 accuracy pass narrowed the gap but did not close it.
+two 2026-09-30 accuracy passes narrowed the gap but did not close it.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -156,6 +156,63 @@ DONE WHEN
     base.csv); cached arrays in /mnt/wd4tb/scratch/536.
     Left: the 5 % DONE WHEN; relevelling for the intensity source; a
     manual threshold override; the other items listed above.
+2026-09-30 (second pass) — Same-position time-lapses (BBBC019); DONE WHEN still not met
+    Data: BBBC019 (Zaritsky et al. 2013, BMC Bioinformatics 14:319, CC BY),
+    whose wound-healing sets have hand cellular/non-cellular masks of frames
+    of the same stage position through time: SN15 (DA3, DIC; 22 positions,
+    the 0 h frame and one or two later ones), Init (DA3, DIC; positions a
+    and b, 11 frames each) and MDCK (DIC; 5 positions, 2-3 frames). The
+    reference is each hand mask run through the same wound geometry
+    (_wound_series with source masks), so only the image-to-open step
+    differs; 50 later frames in 28 series (MDCK L2 has no hand wound). Its
+    TScratch and Melanoma sets are re-imaged time points and fail the same
+    way the Zenodo set does. Scripts, cached arrays and per-frame CSVs:
+    /mnt/wd4tb/scratch/536/bbbc (eval_bbbc.py, exp2.py, base/final CSVs).
+    Shipped (spacr/measure.py, private, no new settings): later texture and
+    intensity frames are clipped to within one texture window of the first
+    frame's wound, since a wound only narrows. _wound_follow moves that
+    first wound across the scratch to the offset (up to half the band) at
+    which its profile best overlaps the later frame's open regions of at
+    least half the largest one's size, so a scratch imaged again
+    off-centre is followed and a flat patch of monolayer beside the wound
+    (glare, an over-exposed stretch) is neither counted nor followed. Two
+    synthetic tests pin both (a flat patch inside the band outside the
+    wound; a later wound 60 px off-centre); each fails without the change.
+    Held-out: the series were split into two folds (A: SN15 even
+    positions, Init a, MDCK L1/L18; B: the rest). Both folds, picking
+    among ten variants on their own frames, picked a containment variant;
+    the shipped details (following the offset, largest regions) were
+    chosen for the Zenodo re-imaged set and the synthetic glare case, not
+    on BBBC. Later frames, closure error in points:
+                        within 5  within 10  median  mean
+        BBBC before        48 %      84 %      5.3    7.5
+        BBBC now           60 %      82 %      3.0    6.9
+          fold A / B now  48/72 %  72/92 %  5.1/2.5  9.9/3.9
+          SN15 / Init / MDCK now  60/60/60 %, median 2.9/4.5/2.8
+        Zenodo before      47 %      65 %      5.9   12.0
+        Zenodo now         42 %      66 %      5.6   11.8
+    17 of 28 BBBC series have a mean closure error within 5 points (was
+    15). Fold A gains nothing: its misses are wounds whose later floor
+    carries sparse cells or debris that the hand masks call open (SN15 L4,
+    L38, L40) and MDCK L18, where the wound floor has two looks and the
+    later frame's recalibrated cut splits the wound itself (0.08 hand,
+    0.75 measured).
+    Tried and not shipped (same scoring): bridging covered gaps of up to 8
+    windows across the first frame's fronts (first-frame IoU 0.86 -> 0.92
+    on BBBC, but closure unchanged, since both areas move together);
+    bridging later frames across the scratch (no gain); a looser later
+    cut, 0.3 or 0.4 of the way (BBBC 50 % / 30 % within 5); containment in
+    the previous frame instead of the first (60 %); containment without
+    following the offset (BBBC 64-68 % but Zenodo mean 13.1-13.4);
+    fronts from a smoothed texture profile crossing a fixed fraction
+    (first-frame IoU 0.75 or lower); frame registration as a
+    same-position test (phase-correlation scores overlap between
+    same-position and re-imaged series).
+    Left: the 5 % DONE WHEN (60 % of later frames within 5 points on
+    same-position data); wounds whose floor carries sparse cells
+    (a per-pixel comparison with the first frame's texture at the same
+    position might separate them); two-tone wound floors; the items
+    listed above.
 ALPHA: settings wound_closure, wound_source, wound_channel, wound_window,
 wound_hours_per_frame, wound_conditions (Measure category "Wound Closure
 (Alpha)"); widget MeasureWoundToggle (its MeasureWoundOverlay label shows

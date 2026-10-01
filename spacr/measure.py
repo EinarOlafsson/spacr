@@ -5284,6 +5284,8 @@ _WOUND_RELEVEL_MIN_FAR = 0.05
 _WOUND_FRONT_SPAN = 0.3
 _WOUND_FRONT_MIN_WIDTH = 0.3
 _WOUND_FRONT_DEVIATION = 0.25
+_WOUND_FOLLOW_MARGIN = 1.0
+_WOUND_FOLLOW_MIN_REGION = 0.5
 
 
 @dataclass
@@ -5667,6 +5669,57 @@ def _wound_fronts(wound, window):
             & (offset < right[position] + 0.5))
 
 
+def _wound_follow(first, later, axis):
+    """The first frame's wound moved across the scratch to meet a later one.
+
+    A wound only narrows, so a later frame's open pixels outside the first
+    wound are monolayer that reads as open (a flat or over-exposed patch),
+    not wound. Imaged at the same position the first wound is where the
+    later one is; imaged again, the stage may put the scratch elsewhere
+    across the field. The first wound is therefore moved across the scratch
+    by the offset, up to half the band, at which its profile across the
+    scratch best overlaps the later frame's largest open region, the
+    wound itself rather than a patch beside it (the product of the two
+    profiles, summed; ties go to the smaller offset).
+
+    :param first: boolean first-frame wound.
+    :param later: boolean later-frame open pixels in the band.
+    :param axis: the series' :class:`_WoundAxis`.
+    :returns: boolean plane, the first wound at the later frame's offset.
+    """
+    from scipy.ndimage import label as label_regions, shift as shift_plane
+    regions, count = label_regions(later)
+    if count > 1:
+        sizes = np.bincount(regions.ravel())
+        sizes[0] = 0
+        later = np.isin(regions, np.nonzero(
+            sizes >= _WOUND_FOLLOW_MIN_REGION * sizes.max())[0])
+    across = np.round(_wound_across(axis, first.shape)).astype(np.int64)
+    low = int(across.min())
+    size = int(across.max()) - low + 1
+    before = np.bincount(across[first] - low, minlength=size).astype(
+        np.float64)
+    after = np.bincount(across[later] - low, minlength=size).astype(
+        np.float64)
+    if not before.any() or not after.any():
+        return first
+    overlap = np.correlate(after, before, mode='full')
+    lags = np.arange(-(size - 1), size)
+    limit = max(0, int(axis.half_band))
+    allowed = np.abs(lags) <= limit
+    lags, overlap = lags[allowed], overlap[allowed]
+    best = overlap.max()
+    candidates = lags[overlap >= best]
+    offset = int(candidates[np.argmin(np.abs(candidates))])
+    if offset == 0:
+        return first
+    dy, dx = axis.direction
+    moved = shift_plane(first.astype(np.uint8),
+                        (offset * (-dx), offset * dy), order=0,
+                        mode='constant')
+    return moved > 0
+
+
 def _wound_relevel(plane, axis, level, start_area, window):
     """The texture cut for a later frame, recalibrated on that frame.
 
@@ -5726,7 +5779,10 @@ def _wound_series(planes, times, *, source='texture', window=15,
     and be open across at least :data:`_WOUND_MIN_SPAN` of the positions
     along its axis, or the series is not a scratch and every metric is left
     blank. Later frames count the open regions inside the first frame's
-    band. The cut between open and covered is decided on the first frame
+    band and, for ``texture`` and ``intensity``, within a window of the
+    first frame's wound moved across the scratch to meet them
+    (:func:`_wound_follow`), since a wound only narrows. The cut between
+    open and covered is decided on the first frame
     (:func:`_wound_level`); for ``texture`` each later frame recalibrates it
     on its own open and covered levels (:func:`_wound_relevel`), and for
     ``texture`` and ``intensity`` a first frame that is a scratch is
@@ -5786,10 +5842,15 @@ def _wound_series(planes, times, *, source='texture', window=15,
                                  0.25 * float(first_widths.mean()))
                     axis = _wound_axis(wound, margin)
             start_area = int(wound.sum())
+            first_wound = wound
         elif status == 'ok':
             wound, regions = _wound_select(open_mask, axis, window * window)
             wound = _wound_grow(wound, share, window, source) & _wound_band(
                 axis, wound.shape)
+            if source != 'masks':
+                wound &= binary_dilation(
+                    _wound_follow(first_wound, wound, axis),
+                    iterations=max(1, int(_WOUND_FOLLOW_MARGIN * window)))
         else:
             wound, regions = np.zeros(open_mask.shape, dtype=bool), 0
         area = int(wound.sum())
@@ -9003,6 +9064,8 @@ def _run_bleach_correction_step(db_path, settings):
     Runs :func:`spacr.timelapse._correct_timelapse_bleaching` with the
     ``bleach_correction`` method. A failure is reported and does not fail
     the run: the measured tables are already written and are not changed.
+    With ``histogram``, series whose trend rises more than 10% above its
+    first timepoint are reported, since matching removes that rise too.
 
     :param db_path: the ``measurements.db`` the run produced.
     :param settings: Measure settings.
@@ -9020,6 +9083,12 @@ def _run_bleach_correction_step(db_path, settings):
     print(f"Bleach correction ({method}): {len(fits)} field-channel series in "
           f"{', '.join(f'{t}_bleach_corrected' for t in tables)}; fits in "
           f"measurements.db:bleach_correction")
+    rising = fits['trend_peak_rise'] > 0.1 if 'trend_peak_rise' in fits else pd.Series([], dtype=bool)
+    if method == 'histogram' and rising.any():
+        print(f"Bleach correction: {int(rising.sum())} of {len(fits)} series "
+              f"brighten by more than 10% at some point, which bleaching "
+              f"cannot do; histogram matching maps that rise away with the "
+              f"decay, so compare intensities after ratio or exponential.")
     return fits
 
 

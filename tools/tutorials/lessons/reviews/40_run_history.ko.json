@@ -1,10 +1,10 @@
 {
   "lesson": "40_run_history",
-  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "spaCR 작업을 하나 완료해 로컬 실행 기록을 만드세요. 예제는 변환, Recruitment, Regression 실행 기록을 살펴봅니다.",
   "scenes": [
-    "Help를 연 뒤 Run history를 열어 이 컴퓨터에 저장된 실행 기록을 살펴보세요.",
+    "Help를 연 뒤 Run History를 열어 이 컴퓨터에 저장된 실행 기록을 살펴보세요.",
     "Refresh를 클릭해 사용 가능한 기록을 불러오세요. 실행을 선택해 세부 정보를 확인하고, 공간이 더 필요하면 구분선을 드래그하세요.",
     "모듈과 상태를 고른 뒤 검색어를 입력해 목록을 좁히세요. 예를 들어 완료된 변환을 찾으려면 convert와 Success를 선택하세요.",
     "Files and models를 열어 기록된 입력과 출력 세부 정보를 확인하세요. 파일 해시 계산을 건너뛴 실행은 목록이 비어 있을 수 있으니, 설정이나 로그의 출력 경로로 결과를 찾으세요.",

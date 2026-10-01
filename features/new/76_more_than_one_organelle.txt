@@ -702,3 +702,63 @@ API manifest regenerated with --sources-only.
 
 STILL OPEN: the per-slot remove_background_<slot> switch (needs the
 maintainer's name; item 364 has the candidates).
+
+--------------------------------------------------------------------------------
+2026-09-30 (work, Claude) -- THE PER-SLOT BACKGROUND SWITCH IS
+remove_background_organelle_N, BY THE MAINTAINER'S NAME
+--------------------------------------------------------------------------------
+
+The last open point. The maintainer named it: remove_background_organelle_N,
+following remove_background_<object>. Slot 1 keeps remove_background_organelle;
+slot N is remove_background_organelle_N (2..702), numbered as the user counts.
+Found while building it: item 364 had already declared a switch for every slot
+on 2026-09-21, under the lettered storage prefix (remove_background_organelleb
+...). So this change is a rename of those switches, not a new setting.
+
+WHAT CHANGED
+  spacr/organelle_types.py  private _background_switch_key(role),
+      _background_switch_role(key) and _legacy_background_switch_role(key).
+      These are the one place the numbered name is spelt.
+  spacr/settings.py  SLOT_BACKGROUND_SWITCHES, the types, the tooltips and the
+      Organelle-advanced category now use the numbered keys. The lettered keys
+      are folded onto them by a rename rule (_renamed_background_switch in
+      _resolve_rename), so an old settings file still works and the doctor
+      reports "'remove_background_organelleb' was renamed to
+      'remove_background_organelle_2'". If a file names both, the new name
+      wins. OLD FILES WITH NO SWITCH: the Mask factory defaults an enabled
+      slot's switch to the generic remove_background, which is the old shared
+      behaviour. From 364 it was a hard False.
+  spacr/io.py  _normalize_img_batch reads the numbered key, then the lettered
+      one for callers that never went through the fold.
+  spacr/object_settings_table.py  the per-object table (592) splits
+      remove_background_organelle_N into (slot, 'remove_background'), and
+      _settings_key writes it back numbered. An unfolded lettered key is still
+      read.
+  spacr/qt/screens/settings_model.py  object_of_setting hides the numbered
+      switch with its slot. spacr/qt/widgets/live_preview.py writes and reads
+      the slot's numbered key.
+  i18n  the four materialized slot-switch rows in all ten catalogs and the nine
+      reviewed runtime files are re-keyed. Tooltips are unchanged. The labels
+      "Remove background organelle{b,c,d}" became "Remove background organelle
+      {2,3,4}", with new source hashes, and the reviewed translations already
+      said "Organelle 2/3/4". Slots 5 and up borrow slot 2's translation at
+      runtime from the numbered key (i18n_catalogs._numbered_background_value,
+      tools/build_i18n_catalogs.py). No caption is owed, so
+      _AWAITING_CATALOG_REBUILD is unchanged.
+
+TESTS: tests/test_organelle_background_switch_is_numbered.py (new). It covers
+key <-> slot for 1, 2, 7, 27 and 702, keys that are not a switch, declaration,
+the tooltip, the fold and the doctor message, the new name winning, the
+default following the generic remove_background, preprocessing by either
+spelling, and a round trip through the per-object table. Also moved:
+tests/test_every_organelle_slot_is_preprocessed_and_measured.py and
+tests/qt/test_numbered_background_help_is_translated.py. Before the RAM guard
+closed, those three files ran: 67 passed.
+
+OWED, BECAUSE THE RAM GUARD BLOCKED PYTHON (107 GB in use by another job):
+three generated artefacts need regenerating. They are
+tools/build_setting_consumer_map.py (docs/setting_consumers.json;
+spacr/qt/screens/setting_api_targets.py was hand-re-keyed to match),
+tools/build_documentation_i18n.py --sources-only (object_of_setting's source
+hash), and tools/build_instruction_index.py. The settings, i18n, docstring and
+API-catalog suites are still to run.

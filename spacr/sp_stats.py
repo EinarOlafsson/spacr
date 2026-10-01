@@ -3613,10 +3613,13 @@ def _first_time_at_or_below(times, values, level=0.5):
 
     :param times: the curve's timeline.
     :param values: the curve, or one of its bands, on that timeline.
-    :param level: the survival level asked about.
+    :param level: the survival level asked about. A curve within 1e-9 of
+        it counts as there: a product of Kaplan-Meier factors that is one
+        half exactly on paper comes out as 0.5000000000000001 in floating
+        point, and the median must not move to the next event for that.
     :returns: the time as a float.
     """
-    hit = np.flatnonzero(np.asarray(values, dtype=float) <= level)
+    hit = np.flatnonzero(np.asarray(values, dtype=float) <= level + 1e-9)
     return (float(np.asarray(times, dtype=float)[hit[0]]) if hit.size
             else np.nan)
 
