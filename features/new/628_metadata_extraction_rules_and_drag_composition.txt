@@ -1,0 +1,40 @@
+628. Build metadata columns from extraction rules and compose labels with draggable tokens
+
+Status: IN PROGRESS — clarified by the user 2026-10-01.
+
+N625's exact-value labels and simple ordered combination are insufficient for
+the user's actual filename metadata workflow. Build arbitrary additional
+columns from existing columns, then compose a final column from the generated
+values. Persist every intermediate column as well as the final column.
+
+Required:
+- Choose any source column, including original filename metadata restored by
+  N623. Use regex capture groups to extract variable text, not merely test
+  whether a pattern matches and assign a fixed label. One named-group regex
+  can generate cell_type, replicate, timepoint and drug columns together.
+- Offer readable predicates: contains, does not contain, equals, starts with,
+  ends with and regex matching. Rules may assign a literal value. Support
+  multiple criteria across source columns with clear All/Any behavior.
+- Provide a composition field with draggable column tokens, reordering,
+  separators and fixed text. It can use existing or earlier generated columns.
+  Preview the intermediate and composed values before applying.
+- Keep v1/v2 recipes readable, existing row drag assignments, exact-value
+  behavior, missing-value handling, conflict detection, stable positional
+  identity, immutable source data, and SQLite/CSV/reopen recipe persistence.
+- Make extraction and composition the clear workflow; provide contextual
+  tooltips/examples. Invalid patterns/groups/dependencies cannot silently
+  create a plausible incorrect condition column.
+
+Illustrative acceptance: HeLa_rep2_24h_DMSO.tif generates cell_type=HeLa,
+replicate=rep2, timepoint=24h and drug=DMSO, then condition assembled in the
+user-selected order. Test variable filenames, missing captures, malformed
+patterns, Unicode/literal punctuation, nonmatching/null rows, multi-column
+All/Any predicates, conflicting labels, token drag reorder, fixed text,
+older recipes, saved-table reopen and source preservation. User's real example
+is requested optionally; development does not require their specific dataset.
+
+Reference interaction patterns: CellProfiler's NamesAndTypes rule controls
+and Metadata regex extraction, reviewed from the official manual:
+https://cellprofiler-manual.s3.amazonaws.com/CPmanual/NamesAndTypes.html
+https://cellprofiler-manual.s3.amazonaws.com/CPmanual/Metadata.html
+The implementation operates on spaCR tables and retains its provenance checks.
