@@ -434,7 +434,9 @@
       "source_sha256": "e9ff59a619aaf56368f17e36a85317c5c38e787ea795b80921507e0c26c75c7c",
       "context": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place (item 518).",
       "translation": "这是一个 :class:`ImportError`，因此所有已经在报告读取器缺失的调用方仍会照常报告；Plaque Assay 会捕获此异常，以便就地提供安装选项（条目 518）。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.ReaderNeedsInstall#2",
@@ -3434,7 +3436,9 @@
       "source_sha256": "b5d33d503c17395b6bb6224dc4cb5658d264808b5776fb30c00ed549fe49d21d",
       "context": "Item 509: the calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
       "translation": "第 509 项：校准会自动填充。显微镜物镜、相机和荧光团选择器，或 \"Infer from images…\"，会填入放大倍数、数值孔径、折射率、发射波长、相机像素、图像像素大小和高斯 FWHM，每个字段都会说明其值的来源。只显示操作和物镜这一行；其余内容位于一个初始折叠、并会记住曾被展开的折叠区中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.qc_field_browser.QCFieldBrowser.closeEvent#1",
@@ -4394,7 +4398,9 @@
       "source_sha256": "0b9f3aa6e3b48fabeed1ae527d7b299f0b987d758a6005b56782d566cdf5a6d7",
       "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred (item 512). Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
       "translation": "1. “建议绝不会与决定混淆。”建议以其自身的值存储——建议的 1 变为 11——因此读取标注列的任何代码都不会把建议误认为人工的答案，而一次出错的运行只需删除一个值即可撤销，无需记住改动过哪些行。2. “建议绝不会覆盖标注。”写入操作带有 ``IS NULL``。模型置信度高时不会，重新运行时也不会。人工标签是模型拟合所依据的参考标注；悄无声息地丢失一个会耗费数小时，而且要到某次运行结果出错时才会被发现。3. “没有置信度下限，因此由排序承载不确定性。”每个未标注的裁剪图都会得到一条建议，按置信度从高到低排序，审阅者在不再认同之处停下即可。阈值会替他们做出这个决定，而且用的是一个无人选择的数字。4. “判定是被记录的，而不是推断的”（第 512 项）。确认一条建议会把它变为普通标签，拒绝则会清除它——两者都会记录在该列旁边的 ``<column>_verdict`` 中，记为被确认（``+c``）或被拒绝（``-c``）的类别。拒绝是下一轮训练可以利用的信息——在二分类列中，\"not class 1\" 就是类别 2 的一个样本——而 NULL 则什么也不表达。判定列会在首次打开数据源时添加，因此在它出现之前创建的表无需迁移步骤即可获得该列。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.ensure_verdict_column#0",

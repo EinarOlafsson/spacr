@@ -2050,7 +2050,9 @@
       "source_sha256": "072bce659d2996778747500ba3c7bbe5e5376a6afff0328d9bad6e44f37ddfce",
       "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements (item 512) go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
       "translation": "要写入的列；省略时为标注列。Annotate 界面的判定（条目 512）通过同一个写入器写入 ``<column>_verdict`` 列，而不是通过第二个连接：一个写入器、一个队列、一种顺序。无法写入的其他列的批次会按其列保存在 ``_failed_extra`` 中，与 ``_failed_batch`` 分开，从而使标注批次保持其所有读取方所期望的结构。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.annotate_engine.add_colored_border#2",

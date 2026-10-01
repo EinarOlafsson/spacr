@@ -2558,7 +2558,9 @@
       "source_sha256": "9f5df3d601c570edb7c19f0e2332ea71cd19b0fbba16b2b435d739f41d24e3bd",
       "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. Item 473's raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
       "translation": "spaCR 早已有一个加载时适配、滚轮缩放、拖动平移的图像画布：QC 视野浏览器自己的 ``_FieldView``。第 473 项的原始与增强对比窗口需要两个同样的东西，而第三份 “一个装着 pixmap 的 QGraphicsView” 副本，正是代码库最终出现三个行为略有不同的实现的原因。因此，视野浏览器的视图被原样移到这里，换了一个表明它是共享组件的名称，而浏览器继续以旧名称使用它。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#2",

@@ -762,7 +762,9 @@
       "source_sha256": "5853f6cd5be1179d1340dd4b1219aa90013d5e943b6b7af5c410bead612343ae",
       "context": "Three inversions live here and they do different things (items 435 and 419 point 9). :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
       "translation": "这里有三种反转，它们的作用各不相同（条目 435 以及条目 419 第 9 点）。:func:`invert_intensity` 是图像的摄影学补色——``dtype_max - value``，即查看器的 Invert 所做的操作，在所有整数 dtype 上都可以精确还原——Make Masks 界面的 \"Invert image\" 就是用它绘制的。:func:`invert_for_detection` 则是把图像关于其自身的取值范围进行镜像，界面的 \"Invert for detection\" 交给检测器的就是它；其文档字符串中给出了说明为什么检测器不能使用补色的测量结果，而且它并不是一个应当合并掉的重复函数。:func:`invert_mask` 翻转标签图像的前景和背景；在普通视野上，这会得到一个覆盖整个画面的对象，这就是它曾被报告为不起任何作用的原因。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine#5",
@@ -810,7 +812,9 @@
       "source_sha256": "680fdcbb8bea819fa4d8fd7853559d6a26d9847d442def1bc678c86829040936",
       "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list (item 511), so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
       "translation": "它们不再是第二个过滤器。:func:`legacy_filters` 会把它们转换为唯一那个过滤器列表中的条目（条目 511），因此仍然传入 ``min_area=20`` 的调用方，会与添加了 ``area`` 行的用户经过同一次 regionprops 计算来评判，而 :class:`FilterRemoval` 仍会指明对象未通过的旧式边界，从而使旧的台账读起来保持一致。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.FILTER_KEYS#0",
@@ -1186,7 +1190,9 @@
       "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
       "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
       "translation": "第 471 项，B 部分。两个请求最终其实是一个：每个容器都可以折叠（“每当有东西被折叠时，它都应该自动固定到所在容器的底部”），每个容器也都可以“通过拖动边缘展开或缩小”。:class:`~PySide6.QtWidgets.QSplitter` 本来就两者兼备——一个可拖动的拖动柄，以及一个可以缩到无的子控件——因此这两部分在这里作为“同一个”机制实现，分隔器中任何可折叠的内容也都可以调整大小，反之亦然。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter#2",
@@ -1690,7 +1696,9 @@
       "source_sha256": "d4832655134edc2bd98d98f8baaa9ea71afc520147f331b1f390a9775eefbda5",
       "context": "Item 471: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "第 471 项：“当实时预览打开时，它占据整个界面的高度：控制台、System 容器以及 System 下方的按钮区块自动折叠，设置向左折叠”，每当出现图形时也是如此。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#2",
@@ -1850,7 +1858,9 @@
       "source_sha256": "d7c96a305b7af08faf05d55e039bb388e2d301b27ed513a56c3e006de0b602fe",
       "context": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "第 471 项，C 部分：“图形或实时预览容器内的任何区块也都应该可以折叠……每个 GUI 元素，无论是图形还是表格”。这是界面内的区块获得折叠控件的唯一方式，因此它们的外观和行为都一致：主体上方有一个箭头和名称（与控制台和 System 使用的相同 :class:`~spacr.qt.widgets.foldable.Folder`），点击即可折叠，折叠后的区块只剩被固定在所分配空间“底部”的标题（:func:`lock_folded_to_bottom`）。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#10",
@@ -1898,7 +1908,9 @@
       "source_sha256": "43b80d0f63a9a4c8798f2872cecbf15370b54233bef26ebc087517cd5bcd0277",
       "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
       "translation": "“主体自身的可见性仍由其所有者决定。”折叠隐藏的是内部容器，而不是主体本身，因此展开时不会显示所有者已隐藏的面板，也不会构建首次显示时才构建的面板（第 284/380 项）。反过来，区块会跟随其主体：当所有者保持主体隐藏时，整个区块（包括标题）也会隐藏，并在所有者显示主体时重新出现。为此只读取主体的隐藏标志，因此不会为了判断而显示、测量或构建任何内容。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#3",
@@ -2202,7 +2214,9 @@
       "source_sha256": "4e2e6595cfbd138b4c4a186481d80353527e3fb0d5c4c000f1cf7cefdd2cb3cb",
       "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
       "translation": "折叠后的面板如果获得了超过其标题所需的空间——分隔器中的最后一个窗格、被其所在列拉伸的区块——以前会把标题布置在该空间的中间，这正是第 471 项指出的缺陷（“当我折叠控制台时，它折叠到了中间”）。折叠时在标题“上方”放置一个伸缩项，由它占据多余的空间。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#2",

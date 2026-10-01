@@ -10,7 +10,9 @@
       "source_sha256": "6467c122ba95cbd8a1ce59c9da016c3861359485632fdaefee0b661778576c4e",
       "context": "``{image: mask path}`` naming each image's mask outright (item 600's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
       "translation": "``{image: mask path}``，直接指定每张图像的掩膜（item 600 的掩膜列）；不在其中的图像没有掩膜。None 时用 :func:`mask_for` 查找每个掩膜。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.channel_sorting.mask_for#1",
@@ -58,7 +60,9 @@
       "source_sha256": "b24e354801f91a030e12c0d067448976a7fc8906225a1cd2e76972b5968436cb",
       "context": "Item 600. Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
       "translation": "Item 600。Make Masks 接受拖放的文件、文件夹或两者，用户的意图取决于拖放了什么。:func:`classify_drop` 读取这些路径——名称、文件夹布局，以及对少数 TIFFs 读取其像素——并判定属于以下哪一种情况，不提任何问题，也不使用任何控件：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification#2",
@@ -194,7 +198,9 @@
       "source_sha256": "0b463bfe023187936515c9f5f78594a1a516a222e11fa84d56c3f93baa7d842b",
       "context": "Item 600: a folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
       "translation": "Item 600：图像只位于子文件夹中的文件夹，以及 spaCR 写出的文件夹（``merged/*.npy``、``sorted_channels``）也会被接受，``.npy`` 同样接受，以便界面说明它是什么；拖放的含义由 :func:`spacr.drop_classification.classify_drop` 决定。配对稍后查找，此处不要求。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#0",
@@ -210,7 +216,9 @@
       "source_sha256": "69334d1a082d3f29421c9886c5b3eaffe80c893614f2310e735a8415bf32cc75",
       "context": "Item 600. :func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
       "translation": "Item 600。:func:`spacr.drop_classification.classify_drop` 说明拖放了什么，然后：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#11",
@@ -242,7 +250,9 @@
       "source_sha256": "d6cfe7dc8f5efd9740d06ece07a39d601c18295bf1f4f87dbbe487802815feab",
       "context": "one folder whose subfolders look like image data channels (DAPI/, GFP/..., or the same microscope fields of view in each) opens \"Organize for Measure\" with an image data channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation (item 593);",
       "translation": "子文件夹看起来像通道的文件夹（DAPI/、GFP/...，或每个子文件夹中都是相同的视野）会打开 \"Organize for Measure\"，每个子文件夹一个通道列；其他图像位于子文件夹中的文件夹则提供合并（item 593）；",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#5",
@@ -298,7 +308,9 @@
       "source_sha256": "4145d60284cd1c41324b691b5ceb3a7b1e50f5918b463f4cdfb711ecf8072e33",
       "context": "Item 600, replacing item 593's string of prompts and its separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
       "translation": "Item 600，取代 item 593 的一连串提示及其单独的 \"Sort into channels\" 对话框作为入口。只用一个弹出窗口就把图像及其掩膜放入 Measure 读取的布局——Yokogawa 命名的通道文件夹、掩膜以及 ``merged/*.npy``——途径是 :mod:`spacr.channel_sorting` 和 :mod:`spacr.folder_consolidation`，所有决定都由二者作出：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.organize_for_measure#2",

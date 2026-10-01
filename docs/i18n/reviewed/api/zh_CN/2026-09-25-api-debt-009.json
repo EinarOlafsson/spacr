@@ -2310,7 +2310,9 @@
       "source_sha256": "798d232e63aa0da820756129186df9d3bbf8aceded8617bd3fe318500fec424c",
       "context": "A panel in its default state is removed rather than stored. Most panels default to open, so storing that would grow the key-value mapping by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (item 509: the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
       "translation": "处于默认状态的面板会被移除，而不是存储。大多数面板默认是展开的，因此存储这种状态会让字典为用户碰过的每个面板增加一个条目，而且永远不会缩小。初始为折叠状态的面板（条目 509：高级 PSF、复原和 CLAHE 行）会传入 ``default_shut=True``，因此被存储的是展开它这一操作（存为 False），再次折叠时就会遗忘该记录。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences.set_folded_panel#2",
@@ -4294,7 +4296,9 @@
       "source_sha256": "4fdaae1db8987abfa8b9fd8d63c4aefc84a97dd1fd067712b35b38c46b27fc16",
       "context": "A suggestion is judged, not relabelled (item 512). An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
       "translation": "建议会被评判，而不是被重新标记（条目 512）。Suggest 为其建议了类别的裁剪图，会在虚线圆环旁边带有一个琥珀色的 ``?`` 徽标。单击或按 ``Y`` 表示确认（它会成为普通标签并带上绿色对勾）；右键单击或按 ``N`` 表示拒绝（它会回到未回答状态并带上红色叉号）；``U`` 可撤销以上任一操作。按键图例上方的栏会说明这一点，并统计本页和本列中的内容。每次评判都会写入 ``<column>_verdict`` 列，形式为 ``+c`` 或 ``-c``，因此重启后仍然保留，下一轮 Suggest 也会获得这些拒绝结果用于训练。参见 :meth:`AnnotateScreen._judge` 和 :func:`spacr.suggest.verdict_column`。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate#9",
@@ -4302,7 +4306,9 @@
       "source_sha256": "cae822239c94b804ff9338aa4d1846cf19ad53d231e49525ab832c099283b2bd",
       "context": "A page is what fits (item 512). The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
       "translation": "一页就是能放下的内容（条目 512）。网格恰好容纳按照设置所要求的裁剪图尺寸、在裁剪图窗格所给空间中能放下的裁剪图，而且永远不会滚动：打开控制台、折叠窗格、更改 GUI 缩放比例或调整窗口大小，都会重新计算页面并把其余内容推到下一页，页码也会随之更新，而界面上的第一个裁剪图保持在原来的位置。参见 :func:`grid_that_fits` 和 :meth:`AnnotateScreen._refit_grid`。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.AnnotateScreen.closeEvent#1",
@@ -4366,7 +4372,9 @@
       "source_sha256": "0c2206c2088e848e5484cc623481cf99006ab4f39513f371125b9f4fcd00950e",
       "context": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
       "translation": "条目 512。建议为琥珀色，已确认的建议为绿色，已拒绝的为红色——即主题自身的警告、成功和错误颜色，因此徽标会像界面其他部分一样随主题变化。字形以主题的背景色绘制，在深色主题上为黑色，在浅色主题上接近白色；每种填充色都是针对它选择的，在两种主题下的对比度都优于 4.5:1。这三种颜色中没有一种（None）是类别颜色，因此徽标永远不会被误读为类别。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.badge_colors#2",

@@ -1624,7 +1624,9 @@
       "source_sha256": "d048cede84fa699b4cfbae74d3065d82b8e540d4748c6a350f3e18b266038874",
       "context": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
       "translation": "模式随拖放内容而定（条目 518）：在 Plaque 模式下拖入 PDFs 或包含它们的文件夹时，会询问是否切换到 Figure 模式；在 Figure 模式下拖入图像时，会询问是否切换到 Plaque 模式；同时拖入 PDFs 和图像时，会说明 PDFs 在 Figure 模式下读取、图像在 Plaque 模式下读取，并询问要读取哪一种。留在 Figure 模式会把图像当作图来读取；留在 Plaque 模式则不读取这些 PDFs。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#4",
@@ -2938,7 +2940,9 @@
       "source_sha256": "c8e94f5cacf7fda58b3fa8d23e4f2e18af349831d3d7183e4b5c6f7b436cdf72",
       "context": "False when the program folds it on the user's behalf (item 471: a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
       "translation": "当程序代替用户进行折叠时为 False（第 471 项：打开实时预览）。这样的折叠不会在重启后被记住，监听者也会得到相应通知。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.foldable.Folder.set_shut#3",
@@ -2962,7 +2966,9 @@
       "source_sha256": "ec2222cb59ae6cbb6c53b544638e73e8c58e2683108291f0ae4b306d857fa018",
       "context": "start folded unless the user opened this panel before (item 509: advanced rows that most people never change).",
       "translation": "除非用户之前打开过此面板，否则初始为折叠状态（第 509 项：大多数人从不更改的高级行）。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.folding_summary.FoldingSummaryView.setReadOnly#2",
@@ -4453,7 +4459,9 @@
       "source_sha256": "4e9e46511a7bc261ae82185b1937bd36319e36dac451378ffb1e819acb20289d",
       "context": "A window opened from the preview is not the preview (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
       "translation": "“从预览中打开的窗口不属于预览”（第 522 项）。以面板为父对象的对话框本身是一个独立窗口，但 Qt 会把面板的缩放样式表级联到其中，而遍历也会在面板的子对象中找到它：在 150 % 时，某个设置对话框的按钮高 59 px，而不是其他所有对话框的 40 px。这样的窗口及其中的所有内容都保持在 100 %，并且该窗口自身的样式表会在 100 % 下重新声明原本会以缩放形式继承的尺寸——在其 polish 时设置，因此在首次布局之前生效。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#11",
