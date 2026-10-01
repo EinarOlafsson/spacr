@@ -2,7 +2,7 @@
 MAKE MASKS THUMBNAIL QUALITY: LOW, MEDIUM AND HIGH
 ================================================================================
 
-Status: OPEN — requirements recorded; acceptance not yet verified.
+Status: IMPLEMENTED AND VERIFIED 2026-10-01 — runtime and persistence complete; catalog publication in N615.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex inventory session (tracking only).
 
@@ -111,3 +111,19 @@ tests/qt/test_611_thumbnail_quality.py: Low equals the old decode exactly;
 Medium/High have more pixels, bounded by the source; mask reductions only
 contain 0/255; switching quality re-decodes the shown cells; the choice
 survives a reload of the preference; default is Low.
+
+2026-10-01 — IMPLEMENTED AND VERIFIED
+Low preserves the existing 64 px source sampling. Medium uses 256 px and
+High 1024 px, capped by the original image. Quality is shared and persisted
+under make_masks/thumbnail_quality, independent of logical thumbnail size.
+Make Masks Display and Organize for Measure both expose it. Image/mask
+previews refresh in open views; source masks use nearest-neighbour sampling.
+The organizer loads visible cells through one worker, rejects stale results,
+and bounds cache storage to 64 MiB/512 entries. Source size/mtime, quality
+and display scaling invalidate cached thumbnails. Scientific data are unchanged.
+
+Validation: 119 checks passed across the six named thumbnail/layout/organizer
+regression files; the ten new quality/layout cases also passed at scale 2.
+Before/after quality captures and the unchanged logical cell geometry were
+inspected. Evidence is in /tmp/spacr-implementation-20261001/review/masks/.
+The shared nine-language catalog refresh remains tracked under N615.

@@ -40,12 +40,13 @@ from __future__ import annotations
 
 import json
 import os
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Sequence
 
 import numpy as np
 from PySide6.QtCore import (QByteArray, QEvent, QMimeData, QRect, QSize, Qt,
-                            Signal)
+                            Signal, QTimer)
 from PySide6.QtGui import QColor, QImage, QPainter, QPalette, QPen, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox,
@@ -386,7 +387,7 @@ class _CellDelegate(QStyledItemDelegate):
         self._table = table
         self.view = "text"
         self.text_color = QColor("white")
-        self.pixmaps: Dict[str, QPixmap] = {}
+        self.pixmaps: Dict[str, QPixmap] = OrderedDict()
         #: The (row, column) whose × the mouse is over, or None.
         self.hover = None
 
@@ -1177,6 +1178,12 @@ class OrganizeForMeasureDialog(QDialog):
         self.size_slider.setValue(self.thumb_size)
         self.size_slider.valueChanged.connect(self._set_thumb_size)
         view_row.addWidget(self.size_slider)
+        from ..mask_thumbnail_quality import quality_combo, changes
+
+        view_row.addWidget(QLabel(tr("Thumbnail quality")))
+        self.quality_box = quality_combo(self)
+        view_row.addWidget(self.quality_box)
+        changes.changed.connect(self._quality_changed)
         layout.addLayout(view_row)
         self._editors_row = QHBoxLayout()
         layout.addLayout(self._editors_row)
@@ -1191,6 +1198,17 @@ class OrganizeForMeasureDialog(QDialog):
         self.table.setItemDelegate(self.delegate)
         self._thumb_workers: list = []
         self._thumb_pending: set = set()
+        self._thumb_generation = 0
+        self._thumb_signatures = {}
+        self._thumb_requested = {}
+        self._thumb_closed = False
+        self._thumb_render_ratio = None
+        self._thumb_poll = QTimer(self)
+        self._thumb_poll.setInterval(750)
+        self._thumb_poll.timeout.connect(self._load_thumbnails)
+        self._thumb_poll.start()
+        self.table.verticalScrollBar().valueChanged.connect(self._load_thumbnails)
+        self.table.horizontalScrollBar().valueChanged.connect(self._load_thumbnails)
         self.finished.connect(lambda _code: self._stop_thumbs())
         table_row.addWidget(self.table, 1)
         self.new_zone = _NewColumnZone()
@@ -2154,6 +2172,7 @@ class OrganizeForMeasureDialog(QDialog):
         if remember:
             _save_thumb_pref(self.thumb_size)
         self._size_cells()
+        self._quality_changed("")
 
     def _size_cells(self) -> None:
         """Size the rows and columns for the view and the thumbnail size.
@@ -2227,39 +2246,136 @@ class OrganizeForMeasureDialog(QDialog):
         if color.isValid():
             self._set_text_color(color, remember=True)
 
-    def _load_thumbnails(self) -> None:
-        """Read the thumbnails the table shows but has not got, off-thread."""
-        wanted = [p for row in self.rows for p in row
-                  if p and p not in self.delegate.pixmaps
-                  and p not in self._thumb_pending]
+    def _quality_changed(self, _quality: str) -> None:
+        """Discard display samples and asynchronously reload at the new quality.
+
+        :param _quality: the newly persisted quality key.
+        """
+        self._thumb_generation += 1
+        for worker in self._thumb_workers:
+            worker.stop()
+        self._thumb_pending.clear()
+        self._thumb_signatures.clear()
+        self._thumb_requested.clear()
+        self.delegate.pixmaps.clear()
+        self.table.viewport().update()
+        self._load_thumbnails()
+
+    @staticmethod
+    def _thumbnail_signature(path):
+        """Identify the current file contents for cache invalidation.
+
+        :param path: image or mask file.
+        :returns: modification time and size, or None for an unavailable file.
+        """
+        try:
+            stat = os.stat(path)
+            return stat.st_mtime_ns, stat.st_size
+        except OSError:
+            return None
+
+    def _load_thumbnails(self, *_args) -> None:
+        """Read only visible rows off-thread, with one bounded batch at a time."""
+        if (self._thumb_closed or self.delegate.view == "text"
+                or not self.rows or self._thumb_workers):
+            return
+        from ..hidpi import device_ratio
+
+        ratio = device_ratio(self.table)
+        previous_ratio, self._thumb_render_ratio = self._thumb_render_ratio, ratio
+        if previous_ratio is not None and previous_ratio != ratio:
+            self._quality_changed("")
+            return
+        viewport = self.table.viewport()
+        first = max(0, self.table.rowAt(0))
+        last = self.table.rowAt(max(0, viewport.height() - 1))
+        if last < 0:
+            last = len(self.rows) - 1
+        first_col = max(0, self.table.columnAt(0))
+        last_col = self.table.columnAt(max(0, viewport.width() - 1))
+        if last_col < 0:
+            last_col = len(self.columns) - 1
+        paths = list(dict.fromkeys(
+            p for row in self.rows[first:last + 1]
+            for p in row[first_col:last_col + 1] if p))
+        wanted = []
+        for path in paths:
+            signature = self._thumbnail_signature(path)
+            if (path in self.delegate.pixmaps
+                    and self._thumb_signatures.get(path) == signature):
+                self.delegate.pixmaps.move_to_end(path)
+                continue
+            self.delegate.pixmaps.pop(path, None)
+            self._thumb_requested[path] = signature
+            wanted.append(path)
         if not wanted:
             return
         from .channel_sort_dialog import _ThumbWorker
 
         self._thumb_pending.update(wanted)
         worker = _ThumbWorker("", wanted, None, self)
+        worker.generation = self._thumb_generation
         worker.ready.connect(self._take_thumbnail)
+        worker.finished.connect(self._thumbnail_worker_finished)
         self._thumb_workers.append(worker)
         worker.start()
 
-    def _take_thumbnail(self, path: str, image, _mask) -> None:
-        """Cache one thumbnail and redraw.
+    def _thumbnail_worker_finished(self) -> None:
+        """Release completed workers and service the latest quality/viewport."""
+        worker = self.sender()
+        if worker in self._thumb_workers:
+            self._thumb_workers.remove(worker)
+        if worker is not None:
+            worker.deleteLater()
+        if (not self._thumb_closed and worker is not None
+                and worker.generation != self._thumb_generation):
+            QTimer.singleShot(0, self._load_thumbnails)
 
-        :param path: the file.
-        :param image: its 2-D ``uint8`` thumbnail, or None.
-        :param _mask: its mask thumbnail, unused here.
+    def _take_thumbnail(self, path: str, image, _mask) -> None:
+        """Cache a current thumbnail, with a 64 MiB/512-entry display budget.
+
+        :param path: the image or mask file.
+        :param image: its 2-D uint8 source-sampled thumbnail, or None.
+        :param _mask: paired overlay, unused in this separate-column table.
         """
+        worker = self.sender()
+        if (self._thumb_closed or (worker is not None
+                and worker.generation != self._thumb_generation)):
+            return
         self._thumb_pending.discard(path)
         if image is None:
+            return
+        signature = self._thumb_requested.get(path)
+        if signature != self._thumbnail_signature(path):
             return
         array = np.ascontiguousarray(image)
         qimage = QImage(array.data, array.shape[1], array.shape[0],
                         array.shape[1], QImage.Format_Grayscale8)
-        self.delegate.pixmaps[path] = QPixmap.fromImage(qimage.copy())
+        pixmap = QPixmap.fromImage(qimage.copy())
+        # Keep only useful display pixels; source reads still use the selected
+        # quality. This bounds a large grid without retaining full-size fields.
+        from ..hidpi import device_ratio
+
+        display_cap = max(1, round((self.thumb_size + 24) * device_ratio(self.table)))
+        if max(pixmap.width(), pixmap.height()) > display_cap:
+            pixmap = pixmap.scaled(display_cap, display_cap, Qt.KeepAspectRatio,
+                                   Qt.SmoothTransformation)
+        self.delegate.pixmaps[path] = pixmap
+        self._thumb_signatures[path] = signature
+        cache = self.delegate.pixmaps
+        budget = 64 * 1024 * 1024
+        total = sum(p.width() * p.height() * 4 for p in cache.values())
+        while len(cache) > 512 or (total > budget and len(cache) > 1):
+            old, pixmap = cache.popitem(last=False)
+            total -= pixmap.width() * pixmap.height() * 4
+            self._thumb_signatures.pop(old, None)
+            self._thumb_requested.pop(old, None)
         self.table.viewport().update()
 
     def _stop_thumbs(self) -> None:
-        """End the thumbnail threads and wait for them."""
+        """Stop polling and end thumbnail threads before destroying the popup."""
+        self._thumb_closed = True
+        self._thumb_poll.stop()
         for worker in self._thumb_workers:
             if worker.isRunning():
                 worker.stop()

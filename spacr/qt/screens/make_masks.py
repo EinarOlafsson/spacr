@@ -10656,6 +10656,10 @@ class MakeMasksScreen(QWidget):
 
         norm_card = self._settings_category("Display")
         norm_form = QFormLayout()
+        from ..mask_thumbnail_quality import quality_combo
+
+        self._thumbnail_quality = quality_combo(self)
+        norm_form.addRow(tr("Thumbnail quality"), self._thumbnail_quality)
         self._norm_lo = QDoubleSpinBox()
         self._norm_lo.setDecimals(PERCENTILE_DECIMALS)
         self._norm_lo.setRange(0.0, 100.0)

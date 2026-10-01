@@ -19,6 +19,20 @@ popup; each control remembers its own reveal state. Image-enhancement help
 links to the detection-chain documentation. A control without a matching
 animation still keeps its written explanation and API link.
 
+Thumbnail display quality
+-------------------------
+
+Choose **Thumbnail quality** in **Display** or **Organize for Measure…**.
+**Low** retains the original 64-pixel source sampling. **Medium** uses up to
+256 pixels and **High** up to 1024 pixels on the longest side, capped by the
+source resolution. These choices read the source image and mask again;
+they do not enlarge a Low-quality bitmap. The separate **Size** control
+sets the logical cell size.
+
+The choice is remembered and updates open thumbnail views. Only visible
+organizer cells are loaded, with a bounded cache. Changing quality affects
+display only; saved images, masks and measurements are unchanged.
+
 Open a field and save an edit
 -----------------------------
 

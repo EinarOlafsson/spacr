@@ -80,15 +80,19 @@ class _ThumbWorker(QThread):
     ready = Signal(str, object, object)
 
     def __init__(self, folder: str, names: List[str],
-                 masks_dir: Optional[str] = None, parent=None):
+                 masks_dir: Optional[str] = None, parent=None, *, size=None):
         """Remember what to read.
 
         :param folder: the image folder.
         :param names: the images, in list order.
         :param masks_dir: an explicit masks folder.
         :param parent: the Qt parent.
+        :param size: source sampling limit; defaults to the persisted quality.
         """
         super().__init__(parent)
+        from ..mask_thumbnail_quality import QUALITY_SIZES, get_quality
+
+        self._size = int(size or QUALITY_SIZES[get_quality()])
         self._folder = folder
         self._names = list(names)
         self._masks_dir = masks_dir
@@ -104,9 +108,9 @@ class _ThumbWorker(QThread):
             if self._stop:
                 return
             try:
-                image = cs.thumbnail(os.path.join(self._folder, name), THUMB)
+                image = cs.thumbnail(os.path.join(self._folder, name), self._size)
                 mask_path = cs.mask_for(self._folder, name, self._masks_dir)
-                mask = (cs.mask_thumbnail(mask_path, THUMB)
+                mask = (cs.mask_thumbnail(mask_path, self._size)
                         if mask_path else None)
             except Exception:
                 image, mask = None, None
@@ -139,15 +143,16 @@ class ExampleSetsDialog(QDialog):
         keys = list(sets)
         picks = sorted({0, len(keys) // 2, len(keys) - 1}) if keys else []
         self.shown = [keys[i] for i in picks]
+        self._preview_tiles = []
         grid = QGridLayout()
         for row, key in enumerate(self.shown):
             for column, (channel, name) in enumerate(sorted(sets[key].items())):
                 path = os.path.join(folder, name)
                 mask_path = cs.mask_for(folder, name, masks_dir)
                 tile = QLabel()
-                tile.setPixmap(_grey_icon(
-                    cs.thumbnail(path, 160),
-                    cs.mask_thumbnail(mask_path, 160) if mask_path else None))
+                tile.setFixedSize(160, 160)
+                tile.setAlignment(Qt.AlignCenter)
+                self._preview_tiles.append((tile, path, mask_path))
                 caption = QLabel(tr("Channel {channel}: {name}",
                                     channel=channel, name=name))
                 caption.setWordWrap(True)
@@ -158,6 +163,10 @@ class ExampleSetsDialog(QDialog):
                 holder.setLayout(cell)
                 grid.addWidget(holder, row, column)
         layout.addLayout(grid)
+        from ..mask_thumbnail_quality import changes
+
+        changes.changed.connect(self._refresh_previews)
+        self._refresh_previews()
         buttons = QHBoxLayout()
         self.yes_button = QPushButton(tr("Yes, these are right"))
         self.no_button = QPushButton(tr("No"))
@@ -167,6 +176,20 @@ class ExampleSetsDialog(QDialog):
         buttons.addWidget(self.no_button)
         buttons.addWidget(self.yes_button)
         layout.addLayout(buttons)
+
+    def _refresh_previews(self, _quality=None):
+        """Refresh aligned source/mask previews without changing tile geometry.
+
+        :param _quality: optional notification of a shared quality change.
+        """
+        from ..hidpi import scaled_for
+        from ..mask_thumbnail_quality import QUALITY_SIZES, get_quality
+
+        size = max(160, QUALITY_SIZES[get_quality()])
+        for tile, path, mask_path in self._preview_tiles:
+            picture = _grey_icon(cs.thumbnail(path, size),
+                                cs.mask_thumbnail(mask_path, size) if mask_path else None)
+            tile.setPixmap(scaled_for(picture, tile, 160))
 
 
 class RegexWindow(QDialog):
@@ -458,16 +481,55 @@ class ChannelSortDialog(QDialog):
         layout.addLayout(buttons)
 
         self.refresh()
-        self._thumbs = _ThumbWorker(folder, self.names, masks_dir, self)
-        self._thumbs.ready.connect(self._take_thumbnail)
-        self._thumbs.start()
+        self._thumb_generation = 0
+        self._thumb_workers = []
+        self._thumb_closed = False
+        from ..mask_thumbnail_quality import changes
+
+        changes.changed.connect(self._restart_thumbnails)
+        self._restart_thumbnails()
         self.finished.connect(lambda _code: self._stop_thumbs())
+
+    def _restart_thumbnails(self, _quality=None):
+        """Refresh source-resolution thumbnails, rejecting old worker results.
+
+        :param _quality: optional shared setting-change notification.
+        """
+        if self._thumb_closed:
+            return
+        self._thumb_generation += 1
+        for worker in self._thumb_workers:
+            worker.stop()
+        for item in self._items.values():
+            item.setIcon(QIcon(_grey_icon(None)))
+        if self._thumb_workers:
+            return
+        self._start_thumbnails()
+
+    def _start_thumbnails(self):
+        """Start one worker for the latest generation."""
+        self._thumbs = _ThumbWorker(self.folder, self.names, self.masks_dir, self)
+        self._thumbs.generation = self._thumb_generation
+        self._thumbs.ready.connect(self._take_thumbnail)
+        self._thumbs.finished.connect(self._thumbnails_finished)
+        self._thumb_workers.append(self._thumbs)
+        self._thumbs.start()
+
+    def _thumbnails_finished(self):
+        """Release one worker and start the newest requested quality if needed."""
+        worker = self.sender()
+        self._thumb_workers.remove(worker)
+        stale = worker.generation != self._thumb_generation
+        worker.deleteLater()
+        if stale and not self._thumb_closed:
+            self._start_thumbnails()
 
     def _stop_thumbs(self) -> None:
         """End the thumbnail thread and wait for it."""
-        if self._thumbs.isRunning():
-            self._thumbs.stop()
-            self._thumbs.wait(5000)
+        self._thumb_closed = True
+        for worker in self._thumb_workers:
+            worker.stop()
+            worker.wait(5000)
 
     def _take_thumbnail(self, name: str, image, mask) -> None:
         """Put one thumbnail, mask in red, on its list item.
@@ -476,9 +538,15 @@ class ChannelSortDialog(QDialog):
         :param image: its thumbnail, or None.
         :param mask: its mask thumbnail, or None.
         """
+        worker = self.sender()
+        if (self._thumb_closed or (worker is not None
+                and worker.generation != self._thumb_generation)):
+            return
         item = self._items.get(name)
         if item is not None and image is not None:
-            item.setIcon(QIcon(_grey_icon(image, mask)))
+            from ..hidpi import scaled_for
+
+            item.setIcon(QIcon(scaled_for(_grey_icon(image, mask), self.list, THUMB)))
 
     def _add_channel_button(self, channel: int) -> None:
         """Add the "Channel N" button that assigns the selection to N.
