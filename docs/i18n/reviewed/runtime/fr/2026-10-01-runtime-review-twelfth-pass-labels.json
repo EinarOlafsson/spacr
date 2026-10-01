@@ -1,0 +1,3515 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, twelfth pass 2026-10-01: AI meaning review of the setting label rows that had only a machine translation. Rows whose machine translation was correct are recorded unchanged; rows wrong in meaning, garbled or incomplete are re-translated. Technically reviewed by AI against the English source and its code context; no human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "agg_type",
+      "source": "Agg type",
+      "source_sha256": "97de4adf7043e2139649278d8f3b2e11be83082fd4c1e32c6d909ec80eadcd97",
+      "translation": "Type d’agrégation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "analysis_mode",
+      "source": "Analysis mode",
+      "source_sha256": "aa1676cea04a9858124c1d8fbbe92d26e77d3f0f63653b0a814777224739568d",
+      "translation": "Mode d’analyse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "analysis_unit",
+      "source": "Analysis unit",
+      "source_sha256": "fdae93ff1405e6a9d30d0312e5d7ed5c73eab0b30594ce17162da5c2bac46d53",
+      "translation": "Unité d’analyse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "analyze_clusters",
+      "source": "Analyze clusters",
+      "source_sha256": "50fd26129753a43b1224020e0a1cec8bbcb86969fc1e9eda9198a8bfaf18568f",
+      "translation": "Analyser les clusters"
+    },
+    {
+      "table": "setting_labels",
+      "key": "analyze_plaques",
+      "source": "Analyze plaques",
+      "source_sha256": "c4a7a3ed7780bcf36ae4269282ca7811644c9e7caffd251fec59a23190429cd6",
+      "translation": "Analyser les plaques"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anisotropy",
+      "source": "Anisotropy",
+      "source_sha256": "8d92c2498f5ca083b4554452796bb60e0c21fed9667a057002c36465571d949d",
+      "translation": "Anisotropie"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_compression",
+      "source": "Anndata compression",
+      "source_sha256": "2d8985803d6cf3ac3b49f71b5372c34514092f8db463d7fbd4aee9b1452a3d93",
+      "translation": "Anndata : compression"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_compute_umap",
+      "source": "Anndata compute UMAP",
+      "source_sha256": "32d8582152d58f1aabc7a9dd3be53196ecba9b4a7d7ebea4597a79878c298921",
+      "translation": "Anndata : calculer l’UMAP"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_dtype",
+      "source": "Anndata dtype",
+      "source_sha256": "fb32310cf89537f704ab0be03fb340fc8f5083fad210849b63915f5a1899ab88",
+      "translation": "Anndata : dtype"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_export",
+      "source": "Anndata export",
+      "source_sha256": "982547e4748ac352f006e7bf07924da091075a358083e8b15409c88056712c17",
+      "translation": "Export Anndata"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_register_artifact",
+      "source": "Anndata register artifact",
+      "source_sha256": "aaf747084c26b40b5c943a6fcae7e7cdf21a61b5bb553837fea62138c64988a8",
+      "translation": "Anndata : enregistrer l’artefact"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_row_limit",
+      "source": "Anndata row limit",
+      "source_sha256": "d93c382f59c61077798007d123885016893cbdfabd2548c74122c7f89e6e43eb",
+      "translation": "Anndata : nombre maximal de lignes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_single_table",
+      "source": "Anndata single table",
+      "source_sha256": "afe46de411d26132509a9d8bcfb028b91f4d30a1821d4ef6d8afb8cd56e3fa32",
+      "translation": "Anndata : table unique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_tables",
+      "source": "Anndata tables",
+      "source_sha256": "8b04f19b55dac8ac75f4662ab48c41383b8419afd874cf827384aec58a5ee22a",
+      "translation": "Anndata : tables"
+    },
+    {
+      "table": "setting_labels",
+      "key": "annotated_classes",
+      "source": "Annotated classes",
+      "source_sha256": "bfd698b530f04dbe4472ff3039bb7e335f7822eac8b093de33a0ac4e199fea07",
+      "translation": "Classes annotées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "annotation_source",
+      "source": "Annotation source",
+      "source_sha256": "a6962dbec8e50cbab9a3111829ce6e26d16323c41941ff96b4bfc7c7e7e1e9a1",
+      "translation": "Source d’annotation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "attribution_baseline",
+      "source": "Attribution baseline",
+      "source_sha256": "f6ab852ea7db24f5c95ea0dbe4ed967d63387d6fe0444ae969b5b4361810230e",
+      "translation": "Référence de l’attribution"
+    },
+    {
+      "table": "setting_labels",
+      "key": "attribution_steps",
+      "source": "Attribution steps",
+      "source_sha256": "88995f02bfe88a48af183a4f447f250b5893caca01fbcc043292d1a6268ed233",
+      "translation": "Étapes d’attribution"
+    },
+    {
+      "table": "setting_labels",
+      "key": "augment",
+      "source": "Augment",
+      "source_sha256": "bbe057c584cb53c4de02e707087568f88fbf9c7ef90a26f3ef03e05ca6fc4ebd",
+      "translation": "Augmenter les données"
+    },
+    {
+      "table": "setting_labels",
+      "key": "balance_to_smallest",
+      "source": "Balance to smallest",
+      "source_sha256": "6bda198cacf7a06ff74afb379918cfd2e7d35846a6cb0bd6b16083921bedf26d",
+      "translation": "Équilibrer sur la plus petite classe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "barcode_mismatches",
+      "source": "Barcode mismatches",
+      "source_sha256": "94a40261a0b506b120c60e2358e78f86c419b29ff015fc4346b0bf6199657eb0",
+      "translation": "Mésappariements du code-barres"
+    },
+    {
+      "table": "setting_labels",
+      "key": "baseline",
+      "source": "Baseline",
+      "source_sha256": "cc9ea7f7c64e772c81eb80854c0e7db8f504943549c0675d893a983b8f545152",
+      "translation": "Référence"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_column",
+      "source": "Batch column",
+      "source_sha256": "64abf3ea665b155fc8dca7e278f40881787d0fde6275994c14006e2817e396c7",
+      "translation": "Colonne de lot"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_correction",
+      "source": "Batch correction",
+      "source_sha256": "571d92e52e6f3347665e9b3a64a508ef97af7c9f1e17d0b5cdb62afcb140cfd9",
+      "translation": "Correction des lots"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_size",
+      "source": "Batch size",
+      "source_sha256": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
+      "translation": "Taille de lot"
+    },
+    {
+      "table": "setting_labels",
+      "key": "bimodality_cutoff",
+      "source": "Bimodality cutoff",
+      "source_sha256": "2708b77320b277536c8f564077c98d3e69ec123ee6e8e59a4de516dd07b9ecce",
+      "translation": "Seuil de bimodalité"
+    },
+    {
+      "table": "setting_labels",
+      "key": "black_background",
+      "source": "Black background",
+      "source_sha256": "653efaed27f38b8ffb15063e17ff334393057cf41450454e66ed8b5c21515e2a",
+      "translation": "Fond noir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "bounding_box",
+      "source": "Bounding box",
+      "source_sha256": "c1af2bd9fa64d4ea415cd277f6dfc7fdafbe34442db1e1e7e73129bc06fbe13d",
+      "translation": "Boîte englobante"
+    },
+    {
+      "table": "setting_labels",
+      "key": "bystander_measurements",
+      "source": "Bystander measurements",
+      "source_sha256": "4e86dde71a4ffd515f06033a4d7eb6bec25553aedfc96c38797fd7368cb10118",
+      "translation": "Mesures des cellules voisines (bystander)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "bystander_reach_in_diameters",
+      "source": "Bystander reach in diameters",
+      "source_sha256": "7551fc0ca7aa7bbaff2d4065cfc3d7590579b083405d36f19eafc99fa24a221f",
+      "translation": "Portée des cellules voisines en diamètres"
+    },
+    {
+      "table": "setting_labels",
+      "key": "csv_name",
+      "source": "CSV name",
+      "source_sha256": "0fe97987c13a16f014519d2fa0cc09bb639c6bd41802a4f23f35de19de49534f",
+      "translation": "Nom du CSV"
+    },
+    {
+      "table": "setting_labels",
+      "key": "calculate_correlation",
+      "source": "Calculate correlation",
+      "source_sha256": "2cecc1deaa04b418c8704ba03f5e1e3a0b61a1f4ecdbe30a12bd2f32af74f7c7",
+      "translation": "Calculer la corrélation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cam_type",
+      "source": "Cam type",
+      "source_sha256": "2ed09c6c999083f26d1e69bd4b4226c4c7922a33907469ab320161861ed2d10f",
+      "translation": "Type de carte d’activation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cap",
+      "source": "Cap",
+      "source_sha256": "1257ac04471db97becf0cd70818dbd6e4437f11afefd321065f199a14d986cb9",
+      "translation": "Plafond d’objets"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_plate_metadata",
+      "source": "Cell plate metadata",
+      "source_sha256": "7204277b47111f0fc3f0601fb14878ed4b276f00240c46d64a162bdcf0c81703",
+      "translation": "Métadonnées de plaque des cellules"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_types",
+      "source": "Cell types",
+      "source_sha256": "7f86f9c454935b3da197de6f702e1fd506cab308d1f87af69884a6de5fa6b98d",
+      "translation": "Types de cellules"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose_masks",
+      "source": "Cellpose masks",
+      "source_sha256": "1bd115a9697a27fc1aa8740d9b77762c4c79e20ea2f7e1ba2bdc4e78e160c41a",
+      "translation": "Masques Cellpose"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose_model",
+      "source": "Cellpose model",
+      "source_sha256": "ce3402a395d41ebc587926d9ebd628c8a93f70226b38fd1c7a3f07e2cc39e59c",
+      "translation": "Modèle Cellpose"
+    },
+    {
+      "table": "setting_labels",
+      "key": "channel_arrays",
+      "source": "Channel arrays",
+      "source_sha256": "7a2ac76dde22d28692522ded853d1e62e2e06ef51e16ed83c929fb11397a301b",
+      "translation": "Tableaux de canaux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "circularize",
+      "source": "Circularize",
+      "source_sha256": "a12adc3b522bb450dbf0e884365c711fd73c8e7123ca68931f0796433e825690",
+      "translation": "Circulariser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "class_balance",
+      "source": "Class balance",
+      "source_sha256": "0b4c28dc7716f4a1e6a645574dcf3ab3e59c492a943b93472c7147edf307e1c0",
+      "translation": "Équilibrage des classes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "class_column",
+      "source": "Class column",
+      "source_sha256": "a11cd0267a2e0fb295eecae67edd8db11cf88d0321c61f6b6dda96684c360100",
+      "translation": "Colonne de classe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "class_folder_names",
+      "source": "Class folder names",
+      "source_sha256": "d875417c1bb62616d7024c212cb6189eab8960e8627b846715f1f882e1525e35",
+      "translation": "Noms des dossiers de classe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "class_metadata",
+      "source": "Class metadata",
+      "source_sha256": "d51e068fa48a09a8e0de0c77021dd594fa6c92387408fc7beb725a7fd5dd5e99",
+      "translation": "Métadonnées de classe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "classifier_evaluation",
+      "source": "Classifier evaluation",
+      "source_sha256": "72a495de4598e15697dae4cf30bd07b46a311d5b6464d28c75f91d400897f4be",
+      "translation": "Évaluation du classificateur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "classifier_family",
+      "source": "Classifier family",
+      "source_sha256": "766d34119a85e7a767f6382652c5603d8639504bd2a38800cb0290985ee15a9e",
+      "translation": "Famille de classificateurs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cmap",
+      "source": "Cmap",
+      "source_sha256": "ad38f43cdab7b09c437c1ad9df40861304dfbdeb2966b5f867d32d2d9e5b86f3",
+      "translation": "Carte de couleurs (Cmap)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "col_to_compare",
+      "source": "Col to compare",
+      "source_sha256": "3aebdaf0f2a92b1b15067b53158393729c007daa30a42285e237cf06f3e15ba8",
+      "translation": "Colonne à comparer"
+    },
+    {
+      "table": "setting_labels",
+      "key": "collision_max_distance",
+      "source": "Collision max distance",
+      "source_sha256": "f2daed44dbc85c5b1e67813da3b0eeb7b526e182dc3fa487771d202c98d6db34",
+      "translation": "Distance maximale de collision"
+    },
+    {
+      "table": "setting_labels",
+      "key": "color_by",
+      "source": "Color by",
+      "source_sha256": "26e43ef8709fee68365fba0b2ecb94eb2cbb9cfde3a0a3b32ac82a09b4f221a5",
+      "translation": "Colorer selon"
+    },
+    {
+      "table": "setting_labels",
+      "key": "column_csv",
+      "source": "Column CSV",
+      "source_sha256": "f829ef27a11b0fe8fb1fe953290340c3827cafd90e7a4bf83f9ea63fed16ade8",
+      "translation": "CSV des colonnes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "columnID",
+      "source": "Column ID",
+      "source_sha256": "0af14874225f3541e9f680439360f053b658a3cf99c8cc4eb2ccc783c665c8b3",
+      "translation": "ID de colonne"
+    },
+    {
+      "table": "setting_labels",
+      "key": "comp_level",
+      "source": "Comp level",
+      "source_sha256": "5f7d257e408f2147547a1be78ec2491b72a8b06744cd81dff4a8b917817d5b8e",
+      "translation": "Niveau de compression"
+    },
+    {
+      "table": "setting_labels",
+      "key": "comp_type",
+      "source": "Comp type",
+      "source_sha256": "2b914e0f1ef0c96a55c5647ba74b40cec776e15ac86f9e576f8d3795cfee124b",
+      "translation": "Type de compression"
+    },
+    {
+      "table": "setting_labels",
+      "key": "compartment",
+      "source": "Compartment",
+      "source_sha256": "9050c3e32af449db61deb4e3fc1d5836534f3b541494e411f7f55f350e58366c",
+      "translation": "Compartiment"
+    },
+    {
+      "table": "setting_labels",
+      "key": "console_aware",
+      "source": "Console aware",
+      "source_sha256": "dd4656a3d3b51ee885a42eaafd99dd568a285cc88ed94cd4dd383d8d1bc761ab",
+      "translation": "Tenir compte de la console"
+    },
+    {
+      "table": "setting_labels",
+      "key": "consolidate",
+      "source": "Consolidate",
+      "source_sha256": "2f36130ebccc5c754f9c67d800a2b199cb14840a7894623ec33f66de36953e1c",
+      "translation": "Consolider"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nontargeting_control_grnas",
+      "source": "Control gRNA/Gene",
+      "source_sha256": "a5ab4e0d8fd163069ef38ae0f22e7256a94e7799096f97d5459e1bcefa8d1396",
+      "translation": "gRNA/gène de contrôle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "control_quantile",
+      "source": "Control quantile",
+      "source_sha256": "976a3f4bcead250a0c7e37114dbe9ea32de1d0c780f20cad7e519dde9c834952",
+      "translation": "Quantile des contrôles"
+    },
+    {
+      "table": "setting_labels",
+      "key": "coordinate_columns",
+      "source": "Coordinate columns",
+      "source_sha256": "b094b599180dd7197e3828fc9c0212836876ef74a705073ab980287f2ead94ae",
+      "translation": "Colonnes de coordonnées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "correlation",
+      "source": "Correlation",
+      "source_sha256": "5f1a25573a30bf774abb8d8a74cfb828962908592550ba04753cb14cd3a498cd",
+      "translation": "Corrélation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "count_data",
+      "source": "Count data",
+      "source_sha256": "2cb742a09037e75d26125432f6b8d5b07505206d14286dd748d65a217fea4878",
+      "translation": "Données de comptage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "count_grna_column",
+      "source": "Count gRNA column",
+      "source_sha256": "f7ea49e6326d9314b352807f2cd01c23d9f631cfa70088a616a7151033290b22",
+      "translation": "Colonne gRNA des comptages"
+    },
+    {
+      "table": "setting_labels",
+      "key": "count_value_column",
+      "source": "Count value column",
+      "source_sha256": "12042bb52a2b110a4aa665983b3265a7dcf8740699392c4c5a2bb975cb8b5c42",
+      "translation": "Colonne des valeurs de comptage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cov_type",
+      "source": "Cov type",
+      "source_sha256": "5fa8cbc3353d33cc5af4ba966b90c042939247e87cbbbb20264bed6f515b60e8",
+      "translation": "Type de covariance"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_mode",
+      "source": "Crop mode",
+      "source_sha256": "5bb62f6b96ebd79ddbd4c746592e6392c45e55375c2642708dd4cffb88fa5317",
+      "translation": "Mode de recadrage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_shape",
+      "source": "Crop shape",
+      "source_sha256": "7182ab1777c7be7ab38c2c63faef87321c3e90164abbf45edde5bf4a26b2bcb7",
+      "translation": "Forme des vignettes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_source",
+      "source": "Crop source",
+      "source_sha256": "16a56151b4a03323e284e07e41d4f4ea9e8459fbc03957d09d7fd969ddfcbbab",
+      "translation": "Source des vignettes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cross_validation",
+      "source": "Cross validation",
+      "source_sha256": "43dae3f36aec99e41ff1ca0198a893512e93fdcd2effd90637f8e63f03a5c692",
+      "translation": "Validation croisée"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cross_validation_enabled",
+      "source": "Cross validation enabled",
+      "source_sha256": "a1c1208a72c615f2737057a60d0d30cfcde08b2e282e74f7c0b2de4bcbb3bec3",
+      "translation": "Validation croisée activée"
+    },
+    {
+      "table": "setting_labels",
+      "key": "custom_model",
+      "source": "Custom model",
+      "source_sha256": "f69ace0ec707481d61ab3e9a23ee59568226d687a0cef476279f8d03cad322ca",
+      "translation": "Modèle personnalisé"
+    },
+    {
+      "table": "setting_labels",
+      "key": "custom_model_path",
+      "source": "Custom model path",
+      "source_sha256": "97129ec46477568f528254563a2f90e3bbb23167b9ba9d71e40db3c937d5c01d",
+      "translation": "Chemin du modèle personnalisé"
+    },
+    {
+      "table": "setting_labels",
+      "key": "custom_regex",
+      "source": "Custom regex",
+      "source_sha256": "285779196896bf754306e69de4188d0b94b4cf9853f09e3daec09f324516107c",
+      "translation": "Regex personnalisé"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cv_csv",
+      "source": "Cv CSV",
+      "source_sha256": "3334f965201a72a078a74fd500041e702c5842a7224d1580236ca2380a8a687b",
+      "translation": "CSV de validation croisée"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cv_group_by",
+      "source": "Cv group by",
+      "source_sha256": "5ba00ff8bc39f9c7f95a21eaae31b1cfbea62fa7260777b342de32bed01b9d2a",
+      "translation": "Regroupement de la validation croisée"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cytoplasm_min_size",
+      "source": "Cytoplasm min size",
+      "source_sha256": "cc353435ac05626c7d0fb46dd7246bba1fa8c93b66a97adb6f230a314ee47bd0",
+      "translation": "Taille minimale du cytoplasme"
+    },
+    {
+      "table": "setting_labels",
+      "key": "data_column",
+      "source": "Data column",
+      "source_sha256": "60022b01ff0177e1e78d521e375f6483112fcfc38accee3b56856898ebf11500",
+      "translation": "Colonne de données"
+    },
+    {
+      "table": "setting_labels",
+      "key": "data_column_cv",
+      "source": "Data column cv",
+      "source_sha256": "e95530a3f1e8fe0f4db1b35a4412fad2a8dfba369e9d697dbb3a23d20ddcda9d",
+      "translation": "Colonne de données cv"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dataset",
+      "source": "Dataset",
+      "source_sha256": "4411e525721e7dd801755882fd2361b2c4fb90a8bd23b456782616601397ef4e",
+      "translation": "Ensemble de données"
+    },
+    {
+      "table": "setting_labels",
+      "key": "db_path",
+      "source": "Db path",
+      "source_sha256": "014f2fddcbc785bc9f6e5481674e23d8e3953691261a120f8c4f02ad507de276",
+      "translation": "Chemin de la base de données"
+    },
+    {
+      "table": "setting_labels",
+      "key": "db_table_name",
+      "source": "Db table name",
+      "source_sha256": "38e586bc1beed033841bc19d2526ac487d4aff589dfc5fa50fd50ac6804ee03e",
+      "translation": "Nom de la table de la base de données"
+    },
+    {
+      "table": "setting_labels",
+      "key": "delete_intermediate",
+      "source": "Delete intermediate",
+      "source_sha256": "e4159040d1d21690447c73a597124d7a2854baa92acfb549ead28b5bd5595895",
+      "translation": "Supprimer les fichiers intermédiaires"
+    },
+    {
+      "table": "setting_labels",
+      "key": "distance_gaussian_sigma",
+      "source": "Distance gaussian sigma",
+      "source_sha256": "58959a7255b69598bce699e5f99e0e1f448aad353b03dbc0fa6fca00d1d25944",
+      "translation": "Sigma gaussien des distances"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dot_size",
+      "source": "Dot size",
+      "source_sha256": "97c5bc43ff30746809df15753febb7109f9ac885d96690b7b0bbe48a1fc40b13",
+      "translation": "Taille des points"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dropout_rate",
+      "source": "Dropout rate",
+      "source_sha256": "a2f78d220555d64e3f4a803975855fb3cc072b4b524db43ef066628d107d514b",
+      "translation": "Taux de dropout"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dst",
+      "source": "Dst",
+      "source_sha256": "b191c7433f42c4576f1d347ebf5a3108de9aad9fa98e249dd894a6697501cf1d",
+      "translation": "Dossier de destination"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dst_root",
+      "source": "Dst root",
+      "source_sha256": "70fe4163bfdf5be8e92777b6c97917c03f756415c6d388cc9c63bfdc7a76c958",
+      "translation": "Racine de destination"
+    },
+    {
+      "table": "setting_labels",
+      "key": "early_stopping_patience",
+      "source": "Early stopping patience",
+      "source_sha256": "e38994cd52e2810e999bec94278ce6a7789c7e7db0d0aca8fcd82e4c9dfa0595",
+      "translation": "Patience de l’arrêt précoce"
+    },
+    {
+      "table": "setting_labels",
+      "key": "edge_image",
+      "source": "Edge image",
+      "source_sha256": "2c9a433b84ee67f0c30cc60d18697d766df77c0bbdc09da1653d0ca2d6afe4ac",
+      "translation": "Image des contours"
+    },
+    {
+      "table": "setting_labels",
+      "key": "evaluation_calibration",
+      "source": "Evaluation calibration",
+      "source_sha256": "b699ff591b6eb5a03d9e4d26557f0f4673795abc435559b0db4dce0b10947a84",
+      "translation": "Calibration de l’évaluation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "evaluation_fail_on_leakage",
+      "source": "Evaluation fail on leakage",
+      "source_sha256": "28036235a59998c3ef6d43a7806d8a2b839c8c9f0e3ab8bde89c038e60f25156",
+      "translation": "Échec de l’évaluation en cas de fuite"
+    },
+    {
+      "table": "setting_labels",
+      "key": "examples_to_plot",
+      "source": "Examples to plot",
+      "source_sha256": "1c5949eb2d827fe192ba32bbbeb2d37a14da821d77c52b5fa67b17ee24682031",
+      "translation": "Exemples à tracer"
+    },
+    {
+      "table": "setting_labels",
+      "key": "exclude",
+      "source": "Exclude",
+      "source_sha256": "5b76f62e1ba0401f8f18752e4bfd03c076de0a21eefcf26422725ffa28f6b4cd",
+      "translation": "Exclure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "exclude_conditions",
+      "source": "Exclude conditions",
+      "source_sha256": "b5565bcb10139fd220cdeb7cfccdb2f6ebd094b2a188b8a19bc3653e847005e8",
+      "translation": "Exclure les conditions"
+    },
+    {
+      "table": "setting_labels",
+      "key": "umap.exclude",
+      "source": "Exclude features",
+      "source_sha256": "284bd1568aabd3563d85b91466cbcfff7d365a7a69bdf0d0335b6ae92cdda9e7",
+      "translation": "Exclure les caractéristiques"
+    },
+    {
+      "table": "setting_labels",
+      "key": "exclude_grnas",
+      "source": "Exclude gRNAs",
+      "source_sha256": "4dc1f988e8215839b260f4a4a9495fa0b7957b936e338faf384569f853522fd0",
+      "translation": "Exclure des gRNAs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "exclude_rows",
+      "source": "Exclude rows",
+      "source_sha256": "2bd23c7d892c33ea2e74715ae871f087456fbbdc3765e8e57ca189b0e8fe9b81",
+      "translation": "Exclure les lignes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "explain_cv",
+      "source": "Explain cv",
+      "source_sha256": "33ebcdf4fce367fd6f399ed3781fe9cde36438ff15f4bcc3334a708ee3ead8da",
+      "translation": "Expliquer cv"
+    },
+    {
+      "table": "setting_labels",
+      "key": "external_masks",
+      "source": "External masks",
+      "source_sha256": "f7918d4043f2d703917874243422001e7dddb980b2345fd657c522196511471a",
+      "translation": "Masques externes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "extracellular_class",
+      "source": "Extracellular class",
+      "source_sha256": "67f599b7e60ae168821d936ccf9e68e703506bbf0cdd00fa6b80182bad2cbe26",
+      "translation": "Classe extracellulaire"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fdr_alpha",
+      "source": "Fdr alpha",
+      "source_sha256": "71676ec98fe21aaa1a925303bedeb13d9aace732fdd6131459677d2024ab6dd6",
+      "translation": "Alpha du FDR"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fields",
+      "source": "Fields",
+      "source_sha256": "616f48c1db195b6f23031e5064d19920ab9f1c394100bbad51800d1020f7702d",
+      "translation": "Champs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "file_metadata",
+      "source": "File metadata",
+      "source_sha256": "eafcd1d42c0273a8513ba168a592d79706d9c3b8836db53ceb9fe00b6fc1c8b5",
+      "translation": "Métadonnées de fichiers"
+    },
+    {
+      "table": "setting_labels",
+      "key": "file_type",
+      "source": "File type",
+      "source_sha256": "ea1df05210c29d1e19a43b81680faf3bb72b5a1b908420e1e241480385362b74",
+      "translation": "Type de fichier"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fill_in",
+      "source": "Fill in",
+      "source_sha256": "cd8a65c384d04be7b39fd53c369215966fb1240b2f6a6f9de4b7d134ef5b975b",
+      "translation": "Remplir les trous"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fill_na",
+      "source": "Fill na",
+      "source_sha256": "dfa8805452d9108d68a7962a10d83da82d8728ca47cd02bcd6c12ee16d3243d8",
+      "translation": "Remplir les valeurs manquantes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_1",
+      "source": "Filter 1",
+      "source_sha256": "6c1b7686b6cb55429c12b697f1c8431eece8aa58cb64c55043ce4b67cc733750",
+      "translation": "Filtre 1"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_by",
+      "source": "Filter by",
+      "source_sha256": "d00f52454412f75aa75c339978114a91584dfc58c73e585e0d5c49b550f5ce80",
+      "translation": "Filtrer par"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_column",
+      "source": "Filter column",
+      "source_sha256": "1f07042814265cca07671c8ccf3aabc751f5ddfedd823e8cc12bf62f050980c1",
+      "translation": "Colonne de filtre"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_min_max",
+      "source": "Filter min max",
+      "source_sha256": "8d567bbabfdb98afd7866e4a3c8d37ba30d24acac902dd47dd6e8dbb1f519e1b",
+      "translation": "Filtre min max"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_value",
+      "source": "Filter value",
+      "source_sha256": "d9542a271957e5da6241a181f50baa24e710645a5007dfa3e45c27bbad587791",
+      "translation": "Valeur du filtre"
+    },
+    {
+      "table": "setting_labels",
+      "key": "focal_alpha",
+      "source": "Focal alpha",
+      "source_sha256": "563a75350f818e18f0d24e69b720318b059c6d1ca062cdbc755c62db931b1797",
+      "translation": "Alpha focal"
+    },
+    {
+      "table": "setting_labels",
+      "key": "focal_gamma",
+      "source": "Focal gamma",
+      "source_sha256": "0ef1a3751ab5545fa1808f669c7e3b991c455ff85dab955c5efde2c6520d1c17",
+      "translation": "Gamma focal"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fps",
+      "source": "Fps",
+      "source_sha256": "2df9e7d0461d2dc9b97c2fac64f6d36801a4a848fa52a659b16eb3b8ce037732",
+      "translation": "Images par seconde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fraction_grna",
+      "source": "Fraction gRNA",
+      "source_sha256": "e0cb6113c6d17fdf0cd22097d81f8f00837248d3adcc806975d5ab1f309ace24",
+      "translation": "Fraction de gRNA"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fraction_threshold",
+      "source": "Fraction threshold",
+      "source_sha256": "41344e7fd5d607504a75bd3131002e817456d95a65d660693eb76a7873ed9108",
+      "translation": "Seuil de fraction"
+    },
+    {
+      "table": "setting_labels",
+      "key": "frame_interval_s",
+      "source": "Frame interval s",
+      "source_sha256": "f822101f6f2d192a5547b790f7d35d656cfd776bb5d0bcf63d2e19de18c9b60e",
+      "translation": "Intervalle entre images (s)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "from_scratch",
+      "source": "From scratch",
+      "source_sha256": "15bd8dcf953dff90450f8c50313f9892623c84820a2d363c7782585dbb3d1415",
+      "translation": "Entraîner à partir de zéro"
+    },
+    {
+      "table": "setting_labels",
+      "key": "genotype_source",
+      "source": "Genotype source",
+      "source_sha256": "bc3e98f58e461a415a6c99e28b585beeeafa67f8de9b390bcbf98bb0d7e97492",
+      "translation": "Source du génotype"
+    },
+    {
+      "table": "setting_labels",
+      "key": "glm_transform_conflict",
+      "source": "Glm transform conflict",
+      "source_sha256": "c8e634242635c2b8dd08f01a77d5c536c28cbb61a59155f6b929abea8a3d4729",
+      "translation": "Conflit de transformation GLM"
+    },
+    {
+      "table": "setting_labels",
+      "key": "gradient_accumulation",
+      "source": "Gradient accumulation",
+      "source_sha256": "24cafc994d02acb4dbb05f8e9edda2bf9b4d623db230bf6235a0babddd10e99d",
+      "translation": "Accumulation de gradient"
+    },
+    {
+      "table": "setting_labels",
+      "key": "gradient_accumulation_steps",
+      "source": "Gradient accumulation steps",
+      "source_sha256": "241139d7628730047f26587a11614f99ae5e4427cca496c5c9527203092d4937",
+      "translation": "Étapes d’accumulation de gradient"
+    },
+    {
+      "table": "setting_labels",
+      "key": "grayscale",
+      "source": "Grayscale",
+      "source_sha256": "93638ea9e0b0aae93af40fcc1a36e7b4ea1dea761d27de2c369563fbe5a411f3",
+      "translation": "Niveaux de gris"
+    },
+    {
+      "table": "setting_labels",
+      "key": "group_by_class",
+      "source": "Group by class",
+      "source_sha256": "d8d95261c64c823b74e20901553d39fb07c530fe79c62c41454bd941af75e0f6",
+      "translation": "Grouper par classe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "group_column",
+      "source": "Group column",
+      "source_sha256": "f3b87445e7c93df10ed2223c2d5d4f363e98b07a1c4c5abb1a9318afa8426f4b",
+      "translation": "Colonne de groupe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "group_lasso_lambda",
+      "source": "Group lasso lambda",
+      "source_sha256": "bd82aa70bca389d7eec0d152e6fe05b7655263314ee6403f3e53a704924e09de",
+      "translation": "Lambda du group lasso"
+    },
+    {
+      "table": "setting_labels",
+      "key": "grouping",
+      "source": "Grouping",
+      "source_sha256": "b3c6e63fa9679a23c1d76910f6fc574d71dcd6ffb6079b757a4a9d8c85398e86",
+      "translation": "Regroupement"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_fractions_file",
+      "source": "Guide fractions file",
+      "source_sha256": "fc4abaa2a39cdd8d4fb4703688fb550c0a4f5a8450705bd67bd9d5ec31a57265",
+      "translation": "Fichier des fractions de guides"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_nuisance_columns",
+      "source": "Guide nuisance columns",
+      "source_sha256": "6aeda8ceebc376233b4fcb2a78f1ffc310eaa15e1004df6a6326c440e6962969",
+      "translation": "Colonnes de nuisance des guides"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_permutation_block",
+      "source": "Guide permutation block",
+      "source_sha256": "f971620d45df94cef7e7c54fdc92793049924a8dff914564c1faf79c54aaf307",
+      "translation": "Bloc de permutation des guides"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_permutations",
+      "source": "Guide permutations",
+      "source_sha256": "12ae581ea6052fac665e6a1872e9670bd4d9e2a0eb54beadcb23610dd196e061",
+      "translation": "Permutations de guides"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_presence_threshold",
+      "source": "Guide presence threshold",
+      "source_sha256": "e5ba43cb543bf18d2c98d70e80ff8966e15822fc54e14b7d11843bc206442749",
+      "translation": "Seuil de présence du guide"
+    },
+    {
+      "table": "setting_labels",
+      "key": "half_widths",
+      "source": "Half widths",
+      "source_sha256": "76e3d3678df19f7abc9a87c712cf8d721d0d75d4ebc9a25396a3699bc4199d1f",
+      "translation": "Demi-largeurs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hinge_n_boot",
+      "source": "Hinge n boot",
+      "source_sha256": "542d0256da17d9d112e5a0b1fb7f6f7a20c09442762183c1bb74ffa2cdf8ec2d",
+      "translation": "Rééchantillonnages bootstrap de la charnière (n)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "homogeneity",
+      "source": "Homogeneity",
+      "source_sha256": "d3f80b50ec13cf9197588cfcac4361a3629b4dc41a6a35a3490c3c13cd4a4d46",
+      "translation": "Homogénéité"
+    },
+    {
+      "table": "setting_labels",
+      "key": "homogeneity_distances",
+      "source": "Homogeneity distances",
+      "source_sha256": "bdd7958d4996013f062cb62909d69e71bad259bd85451b8178710c3b20ca508e",
+      "translation": "Distances d’homogénéité"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ig_steps",
+      "source": "Ig steps",
+      "source_sha256": "8000554e30e8191a0e25932e19329b20466e4ce8ecd673f695102b3d4421acf7",
+      "translation": "Étapes des gradients intégrés"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_qc",
+      "source": "Illumination QC",
+      "source_sha256": "f816202647eb2c1397be695760468d7f22d70b3698bacd6d8d313aa6fbbb8895",
+      "translation": "QC de l’éclairage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_correction",
+      "source": "Illumination correction",
+      "source_sha256": "b0462aa54c1d32a8c7fb3c559ca19072761478e589095cece9f77ea38e8b8bba",
+      "translation": "Correction de l’éclairage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_dark",
+      "source": "Illumination dark",
+      "source_sha256": "57957b97736ae1f844fa9c4fbc7024097e3c89866dbd98d28123d1fabbb44a0b",
+      "translation": "Obscurité de l’éclairage (offset)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_degree",
+      "source": "Illumination degree",
+      "source_sha256": "c45eba67319ac92d85e93f4fc036deab87dfd7b72487fa556e66a7e598f99cd6",
+      "translation": "Degré de la surface d’éclairage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_estimator",
+      "source": "Illumination estimator",
+      "source_sha256": "f6beb821fb737d85905bfea58271ffb3b13df9741a762d396a2ba245b183569e",
+      "translation": "Estimateur de l’éclairage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_max_fields",
+      "source": "Illumination max fields",
+      "source_sha256": "19aa76d4dd0e9ed262eb2fcab30994d42c7e8f5f476366672e95aa07dbff3026",
+      "translation": "Champs max. pour l’éclairage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_model",
+      "source": "Illumination model",
+      "source_sha256": "603d17ef42bce22bf4a669c4d1673cace9bcedd88899073bcc5f729eac04eeb0",
+      "translation": "Modèle d’éclairage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_on_missing",
+      "source": "Illumination on missing",
+      "source_sha256": "6efa3268fa57b92f455ad1d3e59bc968242a786a6af3d9bc791f8396bd403940",
+      "translation": "Éclairage : modèle manquant"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_per_plate",
+      "source": "Illumination per plate",
+      "source_sha256": "7777a88ad2faf52d93522591e8b3079917531e728bec37374b0e3c2de36f5152",
+      "translation": "Éclairage par plaque"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_nr",
+      "source": "Image nr",
+      "source_sha256": "55b0c54e00f87b6f2769f58eac5bf637d4ab45f55874f62af9ea1582d602acdc",
+      "translation": "Nombre d’images"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_size",
+      "source": "Image size",
+      "source_sha256": "80bb38dca36b0439367670908cfe04711b4e9d5dfabc789bf4dd8f21935cd4f9",
+      "translation": "Taille de l’image"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_type",
+      "source": "Image type",
+      "source_sha256": "a77e1c4782f423342dba6bf19a56fe25355824424d623e459ed78a4d47867439",
+      "translation": "Type d’image"
+    },
+    {
+      "table": "setting_labels",
+      "key": "img_zoom",
+      "source": "Img zoom",
+      "source_sha256": "dea9ab8027ddf27ce99bf71445b47a696d59e5e68909ddf0861a53474ec8af94",
+      "translation": "Zoom des vignettes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "include_all",
+      "source": "Include all",
+      "source_sha256": "01b9b50f220dff8f5c6126c192b3d32b93d7c4a2b7ff3f700393a0038b8992ed",
+      "translation": "Inclure tout"
+    },
+    {
+      "table": "setting_labels",
+      "key": "independent_variable_layout",
+      "source": "Independent variable layout",
+      "source_sha256": "4a538b768ecd545dc76487432156e13657b34e81c7a6b7de42592286c401daeb",
+      "translation": "Format de la variable indépendante"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_intensity_mode",
+      "source": "Infection intensity mode",
+      "source_sha256": "7b67723f23af2b3b70acff8f09208e1be016088f26586d390a61e6be17725e5d",
+      "translation": "Mode d’intensité de l’infection"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_intensity_strategy",
+      "source": "Infection intensity strategy",
+      "source_sha256": "3c0596dd809b019e492c103e0c100333bfda197c969025f098399f09f257e126",
+      "translation": "Stratégie d’intensité de l’infection"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_min_dist",
+      "source": "Infection pca UMAP min dist",
+      "source_sha256": "2be2fd3662b88d03f7315e16af6f701ed0c2e4e5cd331a2d8171036c65ff7ca9",
+      "translation": "Infection pca UMAP : dist min"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_min_dist_grid",
+      "source": "Infection pca UMAP min dist grid",
+      "source_sha256": "079f3d3bd68a312db95bc1e5648c2a1b1e7f520e02eff8f478717d0a239beaf5",
+      "translation": "Infection pca UMAP : grille de dist min"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_n_neighbors",
+      "source": "Infection pca UMAP n neighbors",
+      "source_sha256": "1e46d70b453d5ca2bd6b178d100e0a839e16ac76e20ea85e3909a125fd88267c",
+      "translation": "Infection pca UMAP : n voisins"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_n_neighbors_grid",
+      "source": "Infection pca UMAP n neighbors grid",
+      "source_sha256": "b49a0bc3728a9641dbfd8c0b7e139ff4db5bb2d8ea5fa0fa6d42e2062d83a5ff",
+      "translation": "Infection pca UMAP : grille de n voisins"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_search",
+      "source": "Infection pca UMAP search",
+      "source_sha256": "245bd32483b1a4b5618a744e59ca35a4d406ed36ed9f13dc67081e7019b35555",
+      "translation": "Infection pca UMAP : recherche"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_max_cells",
+      "source": "Infection pca max cells",
+      "source_sha256": "82d3b4f998ea1cd71996b373fcc665c96a55abf72e4b05b9bbe96050c6d237b1",
+      "translation": "Infection pca : cellules max."
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_method",
+      "source": "Infection pca method",
+      "source_sha256": "51116e668566912a8a11c183f14823af8c3acb112c090740cc4c95cb01895323",
+      "translation": "Infection pca : méthode"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_min_gt_separation",
+      "source": "Infection pca min gt separation",
+      "source_sha256": "4db8736b92f127cd6af6a8cb1caf9386da6101e8f369b04bce49f692af419552",
+      "translation": "Infection pca : séparation min. par rapport à la vérité terrain"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_min_silhouette",
+      "source": "Infection pca min silhouette",
+      "source_sha256": "12e22eac3aa93cf336e5562a175c76e60a670bf1403e82bf6c0187ecabdfba88",
+      "translation": "Infection pca : silhouette min."
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_random_state",
+      "source": "Infection pca random state",
+      "source_sha256": "dec6bc0626a88ee6459ff5ddf1069e4b4f3e21451895b79c382bfe9be8c917b1",
+      "translation": "Infection pca : graine aléatoire"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_tsne_learning_rate_grid",
+      "source": "Infection pca tsne learning rate grid",
+      "source_sha256": "036341e214fe28dc216be1e0b977db0faaf6cd5f826b17aa0319f6703bd28dd1",
+      "translation": "Infection pca tsne : grille de taux d’apprentissage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_tsne_perplexity",
+      "source": "Infection pca tsne perplexity",
+      "source_sha256": "97949b6468aba9923d2a5bf8667fbe2f1b1159a32ebaea88e3ae77ed7c710393",
+      "translation": "Infection pca tsne : perplexité"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_tsne_perplexity_grid",
+      "source": "Infection pca tsne perplexity grid",
+      "source_sha256": "e91dcffaa1b69293fad491c5b1d95407460b7f906a1a05e239b11a1b25e06cc4",
+      "translation": "Infection pca tsne : grille de perplexité"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_tsne_search",
+      "source": "Infection pca tsne search",
+      "source_sha256": "aa0de5e2277502d4b6062bb77d9e11bd6a1316f518cb7c0dafe5a6e774fd2202",
+      "translation": "Infection pca tsne : recherche"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_ambiguous_high",
+      "source": "Infection xgb ambiguous high",
+      "source_sha256": "71749ca69bc88de218be027ad5916c266c83afc781ad4f7c9aeabc35ac96268a",
+      "translation": "Infection xgb : seuil ambigu haut"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_ambiguous_low",
+      "source": "Infection xgb ambiguous low",
+      "source_sha256": "4791ccb26d19c7e05ce1dab84160ba3439ed8549bb7da96a95179d6d2e90d515",
+      "translation": "Infection xgb : seuil ambigu bas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_colsample_bytree",
+      "source": "Infection xgb colsample bytree",
+      "source_sha256": "00f65f91c0d86600a6be641446a33e037cb28cd9026ce8586d09c5f4ba4b2c0d",
+      "translation": "Infection xgb : colsample bytree"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_drop_ambiguous",
+      "source": "Infection xgb drop ambiguous",
+      "source_sha256": "5eb6b5e20cbf57e7d74521908e2e8977c07199e1c4109520df2c41a2bf9e1d4e",
+      "translation": "Infection xgb : écarter les ambigus"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_learning_rate",
+      "source": "Infection xgb learning rate",
+      "source_sha256": "478691d911efc6e98f43ef2c887124e35abe86775c1e4d48c52deaf74ce40722",
+      "translation": "Infection xgb : taux d’apprentissage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_margin",
+      "source": "Infection xgb margin",
+      "source_sha256": "522bc18f7ddd50ad1c09a14a80ac3ac797712d920ebd2ee2ce3a6abd270c340e",
+      "translation": "Infection xgb : marge"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_max_depth",
+      "source": "Infection xgb max depth",
+      "source_sha256": "0ca885300f310165707563281f3e10565f40dc976b3740baacac256f3397bc18",
+      "translation": "Infection xgb : profondeur max."
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_min_cells_per_class",
+      "source": "Infection xgb min cells per class",
+      "source_sha256": "3a28fc941041c3103e0571ce53a8f182fa856be59c39fca8c5f2ab197638f12c",
+      "translation": "Infection xgb : cellules min. par classe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_n_estimators",
+      "source": "Infection xgb n estimators",
+      "source_sha256": "d50d7d63da41bd0c07ffb6d789db0dbf347775d6c613a3ca276a7191c2cf24e4",
+      "translation": "Infection xgb : n estimateurs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_proba_column",
+      "source": "Infection xgb proba column",
+      "source_sha256": "805f3812206291dd7890f30c2d3949c4b0729af3977187d01299c036655e9e1d",
+      "translation": "Infection xgb : colonne de probabilité"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_random_state",
+      "source": "Infection xgb random state",
+      "source_sha256": "4659e12088b8ce5d6be355ab8139c3b8c6699e35762f9acccfe343508438ee0c",
+      "translation": "Infection xgb : graine aléatoire"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_reg_lambda",
+      "source": "Infection xgb reg lambda",
+      "source_sha256": "7b5c396dc408f4ed9377aa81b3d2c7d9230c1bee75608693b2640b9e6110afff",
+      "translation": "Infection xgb : reg lambda"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_subsample",
+      "source": "Infection xgb subsample",
+      "source_sha256": "eab2fc6a3c5721e205b027d6b4401bee1ecfc60dbb46fad2a250085519a45cc7",
+      "translation": "Infection xgb : sous-échantillon"
+    },
+    {
+      "table": "setting_labels",
+      "key": "inflation_warn",
+      "source": "Inflation warn",
+      "source_sha256": "443fd277387e0180d8fd5257ca6897074017a01aab5f659d963577cdfa1fcf40",
+      "translation": "Alerte d’inflation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "input_mean",
+      "source": "Input mean",
+      "source_sha256": "cf62b534cbc448f096fec28f1ff6ae2ae7af018a72303cf923cd6ebc46959da7",
+      "translation": "Moyenne des entrées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "input_statistics",
+      "source": "Input statistics",
+      "source_sha256": "dbd9035825fa2807f1745e1a9b1f4602d8ae5c1defe0603e702fa565210f262d",
+      "translation": "Statistiques des entrées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "input_std",
+      "source": "Input std",
+      "source_sha256": "b696c940f3d055a5f224485a93b328a359de9f94eeb90e2c7f13d7e1bdc2ec06",
+      "translation": "std des entrées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "inputs",
+      "source": "Inputs",
+      "source_sha256": "7abc49dfa87bc183179762b87f9914ceadc46c29a5621493a4a91e54d401c1ed",
+      "translation": "Entrées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_statistic",
+      "source": "Intensity statistic",
+      "source_sha256": "1eb7dd13a32ad85e22fce025d436073739b83336346c02e40a9892e5a5f300d0",
+      "translation": "Statistique d’intensité"
+    },
+    {
+      "table": "setting_labels",
+      "key": "invert",
+      "source": "Invert",
+      "source_sha256": "7e04f2ffb9334e3d19a15c949a73818d4b271b0e713dbfad612b29491b46bc1b",
+      "translation": "Inverser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "invert_dependent_variable",
+      "source": "Invert dependent variable",
+      "source_sha256": "f2d7f5b641cf8f825bfd2e198726680a47f1daa68a22f7df0fb6a9172c02e25a",
+      "translation": "Inverser la variable dépendante"
+    },
+    {
+      "table": "setting_labels",
+      "key": "isomap_n_neighbors",
+      "source": "Isomap n neighbors",
+      "source_sha256": "794cd8d2d0b9e62d59be5cf95e42f5cdbcd9b163343acedbe0af6a0c0f1fa009",
+      "translation": "Isomap n voisins"
+    },
+    {
+      "table": "setting_labels",
+      "key": "isomap_path_method",
+      "source": "Isomap path method",
+      "source_sha256": "450e5dad01dd32244e9ba832cf46004591f141cbd6e16eac3dd99b1d8707c9ff",
+      "translation": "Méthode du chemin d’Isomap"
+    },
+    {
+      "table": "setting_labels",
+      "key": "keep_intermediate",
+      "source": "Keep intermediate",
+      "source_sha256": "05422a29d62d232966676b0cc30b31023dcb41337e6a6cc553e55a32a10504d9",
+      "translation": "Conserver les fichiers intermédiaires"
+    },
+    {
+      "table": "setting_labels",
+      "key": "keep_npz",
+      "source": "Keep npz",
+      "source_sha256": "116e50315706b80104372d5797dbb2660e441176a5248c3d634f02ccc3d10a2a",
+      "translation": "Conserver les npz"
+    },
+    {
+      "table": "setting_labels",
+      "key": "keep_original_images",
+      "source": "Keep original images",
+      "source_sha256": "ea07c269b7c0f541e3bd5a9d2dd5660c5dd86d2ac30f29529c2f628d7819b674",
+      "translation": "Conserver les images originales"
+    },
+    {
+      "table": "setting_labels",
+      "key": "l1_ratio",
+      "source": "L1 ratio",
+      "source_sha256": "827940671155650cb96b4e32985af491ff5709e4946d562e2156d65a4306c455",
+      "translation": "Ratio L1"
+    },
+    {
+      "table": "setting_labels",
+      "key": "lasso_n_boot",
+      "source": "Lasso n boot",
+      "source_sha256": "910833dc0b834100b84eb9763fb1f9027b5a8123aaee66d0c47f028a5486e7c6",
+      "translation": "Lasso : rééchantillonnages bootstrap (n)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "lasso_selection_threshold",
+      "source": "Lasso selection threshold",
+      "source_sha256": "88e5fa8afbb4c360d42d11910eb5d55fe63edd3bc0d40194133663cc13b7e195",
+      "translation": "Seuil de sélection Lasso"
+    },
+    {
+      "table": "setting_labels",
+      "key": "layout",
+      "source": "Layout",
+      "source_sha256": "a511909161e1b84fb81b52028fc2ce79525a96b40ccda823caa4a66ee64772b5",
+      "translation": "Disposition des noms de fichiers"
+    },
+    {
+      "table": "setting_labels",
+      "key": "leakage_hash_content",
+      "source": "Leakage hash content",
+      "source_sha256": "6771c67a75d3da153d9dbf30f97561a44e145be03cff1650bf43c35a0dca27e1",
+      "translation": "Hachage du contenu pour l’audit de fuite"
+    },
+    {
+      "table": "setting_labels",
+      "key": "leakage_require_identity",
+      "source": "Leakage require identity",
+      "source_sha256": "f0fb26368d7d34d1313feac2ebcc21679d7fcf5bfa60b6efb67c7e3e2ce178e9",
+      "translation": "Audit de fuite : identité requise"
+    },
+    {
+      "table": "setting_labels",
+      "key": "learning_rate",
+      "source": "Learning rate",
+      "source_sha256": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
+      "translation": "Taux d’apprentissage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "location_column",
+      "source": "Location column",
+      "source_sha256": "be4288e182c20d5bee64902ec0daec9e7a03ed6d517c1c7ef54a5494406fca05",
+      "translation": "Colonne de localisation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "log_x",
+      "source": "Logarithmic x",
+      "source_sha256": "6b49c36fa41a2e25edfcef36fab7030e65fc8768548147985e6027c6bfb41abc",
+      "translation": "Axe x logarithmique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "log_y",
+      "source": "Logarithmic y",
+      "source_sha256": "6e75a3bc8b7a5d6ad3da1e054dfc6750feb35ae16f28601995fef2417216993f",
+      "translation": "Axe y logarithmique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "logit_adjust_tau",
+      "source": "Logit adjust tau",
+      "source_sha256": "ecba8e5d03df03e25bb4a7c69ef88a9e082a82c3ce0e9ab494ce71379de061f6",
+      "translation": "Tau de l’ajustement des logits"
+    },
+    {
+      "table": "setting_labels",
+      "key": "loss_type",
+      "source": "Loss type",
+      "source_sha256": "27f6caa41ac562631de3fe79f3c5de18d83e04409180cfd9faac76db422691b2",
+      "translation": "Type de perte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "magnification",
+      "source": "Magnification",
+      "source_sha256": "cfa79416971407aaa8b5e8cc904b03d0f7809259ed6c933c22cf8f82be6ffd4a",
+      "translation": "Grossissement"
+    },
+    {
+      "table": "setting_labels",
+      "key": "manders_thresholds",
+      "source": "Manders thresholds",
+      "source_sha256": "d6f1569c7c53558a42ba6264958d6afa35c0d89cfa256ad7042a25c9e500ae4e",
+      "translation": "Seuils de Manders"
+    },
+    {
+      "table": "setting_labels",
+      "key": "map_barcodes",
+      "source": "Map barcodes",
+      "source_sha256": "327c469230e2cd8c5ddbf70fd93873dd3a6fd7492a2363271b5d18a9e6f5b1e7",
+      "translation": "Mapper les codes-barres"
+    },
+    {
+      "table": "setting_labels",
+      "key": "max_failure_rate",
+      "source": "Max failure rate",
+      "source_sha256": "b9495974b89375f445157d4eddfbf503d1645d0bfac26108d5ea9fd182855305",
+      "translation": "Taux d’échec maximal"
+    },
+    {
+      "table": "setting_labels",
+      "key": "max_parasites_per_vacuole",
+      "source": "Max parasites per vacuole",
+      "source_sha256": "d04898bd2b02477b652a4855157dbe8ec717c07acb4d937f9874194896069ce9",
+      "translation": "Maximum de parasites par vacuole"
+    },
+    {
+      "table": "setting_labels",
+      "key": "external_masks.cytoplasm",
+      "source": "Measure cytoplasm",
+      "source_sha256": "bdd944d013bc903462492d38303ce6bee84f4b1c238b04f8c3d3240982b5b172",
+      "translation": "Mesurer le cytoplasme"
+    },
+    {
+      "table": "setting_labels",
+      "key": "external_masks.merge_edge_pathogen_cells",
+      "source": "Merge edge-pathogen cells",
+      "source_sha256": "527defc4a03262c2c28691496dd1490158c622e6ab2315cef4edc195aa0621de",
+      "translation": "Fusionner les cellules avec pathogène en bordure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "merge_pathogens",
+      "source": "Merge pathogens",
+      "source_sha256": "3716e464a88f5fac87e371215d26ddc3f366ad35740f133fcbcefa7f33b7bc29",
+      "translation": "Fusionner les pathogènes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_files",
+      "source": "Metadata files",
+      "source_sha256": "0511a3cb7204886ca8d67e786dd4ae7e5363b7713d480cac57fe9fa15ff9992e",
+      "translation": "Fichiers de métadonnées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_item_1_name",
+      "source": "Metadata item 1 name",
+      "source_sha256": "7e405f5cfb2580ea60073206be554da236801b8806cf853ebe2d4f280bd5d36a",
+      "translation": "Nom de l’élément de métadonnées 1"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_item_1_value",
+      "source": "Metadata item 1 value",
+      "source_sha256": "1bb183fafb7a25c944fd66b34d727ded69b83d689214b28f2e4795f60c4e0b47",
+      "translation": "Valeur de l’élément de métadonnées 1"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_item_2_name",
+      "source": "Metadata item 2 name",
+      "source_sha256": "d652255ce1b5557b6cb0467a5a2193b5fc5f2f611d66573bb8fc01abb775978d",
+      "translation": "Nom de l’élément de métadonnées 2"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_item_2_value",
+      "source": "Metadata item 2 value",
+      "source_sha256": "d01a7ce2aa2684a83f80d91e134b83565e53be48ab2c1042637efc2074ba2493",
+      "translation": "Valeur de l’élément de métadonnées 2"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_type",
+      "source": "Metadata type",
+      "source_sha256": "0f50c9be66af0bef046200aab45dbb791d7fd9afeeeacccd072e2235f0189e02",
+      "translation": "Type de métadonnées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metric",
+      "source": "Metric",
+      "source_sha256": "2d275a74912cca2e02e6d41f9cae3a75ceef3ed0ef734eff3710e10eb7112228",
+      "translation": "Métrique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_control_objects",
+      "source": "Min control objects",
+      "source_sha256": "6cad3cb02fa8d68197ec60b4014b4fbbf184a4039c2ace979de0329179548416",
+      "translation": "Min. objets de contrôle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_dist",
+      "source": "Min dist",
+      "source_sha256": "194f949dac122f5fb9f7aa9532d50faaad142dcbd0e0fa5ebc2bb03afbe372e6",
+      "translation": "Distance min."
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_max",
+      "source": "Min max",
+      "source_sha256": "e4f97245b8484cd5afe17847ea21da1e07f76eb64d0760f57b33a7845b1697ae",
+      "translation": "Limites min max"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_objects_for_bimodality",
+      "source": "Min objects for bimodality",
+      "source_sha256": "b582c57c06c894df497fe07763bed41a6818db8d9fec1a989b377c083a834838",
+      "translation": "Min. objets pour la bimodalité"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_samples",
+      "source": "Min samples",
+      "source_sha256": "13ee0110571d9ef9250da454738cfbc7acb19fede198bfab91835d7ff5d5c9b7",
+      "translation": "Min. échantillons"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_total_intensity",
+      "source": "Min total intensity",
+      "source_sha256": "54be388355de8f0aa7cece6d5a6e1792a304f2f7fd3d3b27bc7dcb1f20e44430",
+      "translation": "Intensité totale min."
+    },
+    {
+      "table": "setting_labels",
+      "key": "mix",
+      "source": "Mix",
+      "source_sha256": "dce6eb4447ef655f33b7baeb0a16ab3d27257c65bf45f760a44b9bff8d5b6663",
+      "translation": "Mélange"
+    },
+    {
+      "table": "setting_labels",
+      "key": "mixed_control_wells",
+      "source": "Mixed control wells",
+      "source_sha256": "b8fa5e1ad563d3fa4f0b634cf1bb3c9552695040342821c9d03765d46f023253",
+      "translation": "Puits de contrôle mixtes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "mixed_precision",
+      "source": "Mixed precision",
+      "source_sha256": "cae03fa5499b9ae41aae0f53d87fb5ab839aa7d1e534a48bdeec007c767e0d1a",
+      "translation": "Précision mixte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ml_analyze",
+      "source": "Ml analyze",
+      "source_sha256": "a818ac7c3616737b00c7d37516f8761a4b8b60b8159c3ffd6e06fc4543c566ea",
+      "translation": "Analyse ML"
+    },
+    {
+      "table": "setting_labels",
+      "key": "model_name",
+      "source": "Model name",
+      "source_sha256": "a3c3370cc7323c7127109bab88721b47e604949a462c19a5d5c3e38237ccc817",
+      "translation": "Nom du modèle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "model_path",
+      "source": "Model path",
+      "source_sha256": "a47a45fc35da8ac068670c3cec92de4e84ec15ee5fd7c050e1706ff513ca998e",
+      "translation": "Chemin du modèle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "model_type",
+      "source": "Model type",
+      "source_sha256": "d2c9a11a72846b34f1e7c48f4b0c2664d8e398d941b729a7bed039872966436e",
+      "translation": "Type de modèle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "motility_analysis",
+      "source": "Motility analysis",
+      "source_sha256": "63cc5e2bbefec1e2426046024034f8a9b8c332dfceefb21ccd7c656a6df8a4f5",
+      "translation": "Analyse de la motilité"
+    },
+    {
+      "table": "setting_labels",
+      "key": "motility_xlim",
+      "source": "Motility xlim",
+      "source_sha256": "08aa3288f2056294938849ab5fd9389daa8993d2c1030849457809ec5d6c452f",
+      "translation": "Motilité xlim"
+    },
+    {
+      "table": "setting_labels",
+      "key": "motility_ylim",
+      "source": "Motility ylim",
+      "source_sha256": "df21071bb6e494cf1b3210dfec8f6aa41496a1542c27bb07e55e288f6d14ce58",
+      "translation": "Motilité ylim"
+    },
+    {
+      "table": "setting_labels",
+      "key": "multiple_testing_method",
+      "source": "Multiple testing method",
+      "source_sha256": "f339b1d95a19fc959da4ac964ca40faf4d6f22b621e03115f635bc35b8e5e36a",
+      "translation": "Méthode de tests multiples"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_epochs",
+      "source": "N epochs",
+      "source_sha256": "6c0a3fce1014fb7cc8452f2667916922d1e93230c439b147ddf39e24547e19c2",
+      "translation": "N époques"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_estimators",
+      "source": "N estimators",
+      "source_sha256": "73d505efb979eb91a84f9c191497cdc41b6c95d639f2fa4705337a145bd43ad3",
+      "translation": "N estimateurs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_neighbors",
+      "source": "N neighbors",
+      "source_sha256": "d622f7cc4d68c562ecd717f3dc25bf926b5fcf494f1296f378e127d75acf9c7f",
+      "translation": "N voisins"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_repeats",
+      "source": "N repeats",
+      "source_sha256": "236fdab80621d5e0380d155963d94b964b2a784c1d8b7529d38ed96a0a195906",
+      "translation": "N répétitions"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_top_examples",
+      "source": "N top examples",
+      "source_sha256": "a6de1509dc5600c9ba02536e89f7cfee86eb8ebeff02deea83a0730dc752d63b",
+      "translation": "N meilleurs exemples"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_workers",
+      "source": "N workers",
+      "source_sha256": "3bcaadb2bbf7f161cae5cf1236aefe7fd425d8fcfeb6e43746da804242168a8b",
+      "translation": "N processus (workers)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "neg",
+      "source": "Neg",
+      "source_sha256": "ee02b7e6deb6343d4ffd86d2b3294042746361615464a21f6bbb9a736d9457c1",
+      "translation": "Négatif"
+    },
+    {
+      "table": "setting_labels",
+      "key": "negative_control_id",
+      "source": "Negative control ID",
+      "source_sha256": "7f6e6ed3b7a3a45e7bb3c7eaeb8818cbe4bd92223c1d20cc384473a5eb179012",
+      "translation": "ID de contrôle négatif"
+    },
+    {
+      "table": "setting_labels",
+      "key": "negative_control_wells",
+      "source": "Negative control wells",
+      "source_sha256": "420f872d82474589b502fa7eada5cd4a5714d188e2837850a1818e487903958a",
+      "translation": "Puits de contrôle négatifs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "non_power_of_two_warn",
+      "source": "Non power of two warn",
+      "source_sha256": "f960e31bdd7842a1c6d70fa3f84e97878584174c4fbe1e6270183c3ba04d6d6a",
+      "translation": "Alerte hors puissance de deux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "normalise_fraction",
+      "source": "Normalise fraction",
+      "source_sha256": "4aaaea23000909798b8902e9555c325c97fe2290aa255b63037d70d1737bdaae",
+      "translation": "Normaliser la fraction"
+    },
+    {
+      "table": "setting_labels",
+      "key": "normalization_percentiles",
+      "source": "Normalization percentiles",
+      "source_sha256": "37070612287f0306231582eb586e1c301edc3f01b985ca9fccb73fba8bf3c9c5",
+      "translation": "Percentiles de normalisation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "normalize",
+      "source": "Normalize",
+      "source_sha256": "427ed16be627e7e8e438785650717fe2c7ce111d831be4bc0350290ef5d3cb6e",
+      "translation": "Normaliser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "normalize_by",
+      "source": "Normalize by",
+      "source_sha256": "069d407bfc21e8256894443615f8b50a5d95dcf00465bdee0db62d459bed1426",
+      "translation": "Normaliser par"
+    },
+    {
+      "table": "setting_labels",
+      "key": "normalize_channels",
+      "source": "Normalize channels",
+      "source_sha256": "2d43f3a3d1f7885f586aadf887c6d944edbe44b1d2a95804fdd15baea7249815",
+      "translation": "Normaliser les canaux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "normalize_input",
+      "source": "Normalize input",
+      "source_sha256": "051f26e33bbb74459170bd1942bee2b294156c2f6f47aefb93998d680d579930",
+      "translation": "Normaliser l’entrée"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nr",
+      "source": "Nr",
+      "source_sha256": "03b66ae36db99ca7641726ee9a9d0c834b120038ae8d765b9e61e2abe2b2e5d2",
+      "translation": "Nombre"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nr_imgs",
+      "source": "Nr imgs",
+      "source_sha256": "9f8b0730c1fb2f35c3ea0c54671ae967e9ae7864faa3358804487fa86f72b81e",
+      "translation": "Nombre d’images"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_background",
+      "source": "Nucleus background",
+      "source_sha256": "7947be6798a389382f8a12a57a8e8627c8265ab376117a5d4bf9f84770098bce",
+      "translation": "Fond du noyau"
+    },
+    {
+      "table": "setting_labels",
+      "key": "number_of_organelles",
+      "source": "Number of organelles",
+      "source_sha256": "023ce7d9c46fe2b6bdba91a4f56644f34a73c4744016579aa918fba5186a53e7",
+      "translation": "Nombre d’organites"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_array",
+      "source": "Object array",
+      "source_sha256": "ad9dd7138ccb8b1f0c209c4849065e3b08be1022465a9360f5bd1591aece68e7",
+      "translation": "Tableau d’objets"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_distance_maxima",
+      "source": "Object distance maxima",
+      "source_sha256": "70e385a1f577660a9f843f54abf973b08cfb022b752a32db4183dadb35d2b167",
+      "translation": "Maxima pour les distances des objets"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_distances",
+      "source": "Object distances",
+      "source_sha256": "930b42a7ade118490ad89d074db401fd33c2aeed9d13c11a0cbbfc837e1f6b4a",
+      "translation": "Distances des objets"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_size",
+      "source": "Object size",
+      "source_sha256": "1cd6f96a2a64a722de9f7a57bcb69e26cfd340d962a89206367ef9c5783e1d09",
+      "translation": "Taille de l’objet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_type",
+      "source": "Object type",
+      "source_sha256": "46e7c345a4106f8dba31dee33a1559a12f24d16a1678241d55e84ae55c107d81",
+      "translation": "Type d’objet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "occlusion_stride",
+      "source": "Occlusion stride",
+      "source_sha256": "8e6d914402d91c8dda43e5808bb220c10b3812284c2f0698479a556a59c5f762",
+      "translation": "Pas d’occlusion"
+    },
+    {
+      "table": "setting_labels",
+      "key": "occlusion_window",
+      "source": "Occlusion window",
+      "source_sha256": "706f4405eaeb398bf46e7b73f07372b4acb53728429c58fd15007c258c25ee28",
+      "translation": "Fenêtre d’occlusion"
+    },
+    {
+      "table": "setting_labels",
+      "key": "offset_start",
+      "source": "Offset start",
+      "source_sha256": "697f1dcc96743f08a3e9724824c2d1576575d8f2f42c1cf3a7debfd8774cde93",
+      "translation": "Décalage de départ"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops",
+      "source": "Ops",
+      "source_sha256": "ca70b50942518156a4da9c9b1ad831583012a507da9dc9da3c90169d27fd2e0e",
+      "translation": "Criblage OPS"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_gpu",
+      "source": "Ops GPU",
+      "source_sha256": "6431b4b2a326b932b713d77ea777b656384bcd439a31b5a29b2824b8ceb67864",
+      "translation": "GPU pour OPS"
+    },
+    {
+      "table": "setting_labels",
+      "key": "optimizer_type",
+      "source": "Optimizer type",
+      "source_sha256": "fd92d3bb7e71faf613bf438d81e4202bae379c46158c90f2253b929f49fbbcee",
+      "translation": "Type d’optimiseur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_adaptive_block_size",
+      "source": "Organelle 1 — Adaptive block size",
+      "source_sha256": "5ecd4a6a8407fb9210ee8403e78a7ef919df88b248dcebb221669ea65492c7a8",
+      "translation": "Organelle 1 — Taille du bloc adaptatif"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_hysteresis_high",
+      "source": "Organelle 1 — Hysteresis high",
+      "source_sha256": "6829a0a0ba933e361d1d355e6352625ee8c54d89c983e674b4decdf98164b60e",
+      "translation": "Organelle 1 — Seuil haut d’hystérésis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_hysteresis_low",
+      "source": "Organelle 1 — Hysteresis low",
+      "source_sha256": "10d778647127a3e80f2e43d668aa08ed4ba209834629373c94dcc02dfb5599ee",
+      "translation": "Organelle 1 — Seuil bas d’hystérésis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_log_max_sigma",
+      "source": "Organelle 1 — LoG max sigma",
+      "source_sha256": "965045436e5dd057cd202cf902573cd6b2c0f8b7709c9b7a18932585e460749c",
+      "translation": "Organelle 1 — LoG sigma max"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_mask_within_cells",
+      "source": "Organelle 1 — Mask within cells",
+      "source_sha256": "bf57e11906b62e2e7b1a5de513ded070a526741f4ef25e25f561ec9417db393d",
+      "translation": "Organelle 1 — Masque à l’intérieur des cellules"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_method",
+      "source": "Organelle 1 — Method",
+      "source_sha256": "d3cad58b712af65c3652d4543632b5d841c4a62755359b84e07bb4ddd3e28a31",
+      "translation": "Organelle 1 — Méthode"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_model_name",
+      "source": "Organelle 1 — Model name",
+      "source_sha256": "e5e780e2970f79eb672580c885f242d50f459dda04f5b88c1fe27f6999eabd83",
+      "translation": "Organelle 1 — Nom du modèle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_morph_radius",
+      "source": "Organelle 1 — Morph radius",
+      "source_sha256": "0825fce1b0f9f339f38b3d370a8245d4e7d81202a745434dcb0e6a15eb0aa8b9",
+      "translation": "Organelle 1 — Rayon morphologique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_morphology",
+      "source": "Organelle 1 — Morphology",
+      "source_sha256": "4570b80bf2843214f4659a5ee4c5158c0208dc18acf3dc49954e249c7e76f8ae",
+      "translation": "Organelle 1 — Morphologie"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_network_threshold",
+      "source": "Organelle 1 — Network threshold",
+      "source_sha256": "9cd8b5683515cd62fb93de3a920c1dd62c95fbcb7df346dcd3a5ef15fa0d0031",
+      "translation": "Organelle 1 — Seuil de réseau"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_remove_border",
+      "source": "Organelle 1 — Remove border",
+      "source_sha256": "5eced22131dcdac0a0bf321bbfe83922e42ea4a4b9bcf8d3fac32a4bdf72a2e8",
+      "translation": "Organelle 1 — Supprimer la bordure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_remove_border_objects",
+      "source": "Organelle 1 — Remove border objects",
+      "source_sha256": "0058ad2a88309ad139f6acccc9a1eb8fa8b035ce8b248d39081d96d54ea35211",
+      "translation": "Organelle 1 — Supprimer les objets de bordure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_ring_fill_method",
+      "source": "Organelle 1 — Ring fill method",
+      "source_sha256": "5e2a5a6683f535f5d855ddc51294a316fe99560b333cb5790e60ebb90e516cad",
+      "translation": "Organelle 1 — Méthode de remplissage des anneaux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_tophat_radius",
+      "source": "Organelle 1 — Tophat radius",
+      "source_sha256": "52ffb6247d38b6ad285f710fb73de37c66191a06ee455e9850c7323bc96c7a00",
+      "translation": "Organelle 1 — Rayon du top-hat"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_unet_model_path",
+      "source": "Organelle 1 — Unet model path",
+      "source_sha256": "f50e21049fed853f256308a9c9a32ef87ac8ad8d91858bfe9c5af26bd4d3d540",
+      "translation": "Organelle 1 — Chemin du modèle Unet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_adaptive_block_size",
+      "source": "Organelle 2 — Adaptive block size",
+      "source_sha256": "f25aae4ea63d03e01e82eee80cc003b946b2c3ac4fcc1b76dede49d10dcaa773",
+      "translation": "Organelle 2 — Taille du bloc adaptatif"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_hysteresis_high",
+      "source": "Organelle 2 — Hysteresis high",
+      "source_sha256": "704483b270fdef50bf6071756076f2d274b33ad1ee321035145f0d427d686495",
+      "translation": "Organelle 2 — Seuil haut d’hystérésis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_hysteresis_low",
+      "source": "Organelle 2 — Hysteresis low",
+      "source_sha256": "1c09d499f42de8fea4b384ba04e84145d4492e173ecf944584d70335e1dd0f85",
+      "translation": "Organelle 2 — Seuil bas d’hystérésis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_log_max_sigma",
+      "source": "Organelle 2 — LoG max sigma",
+      "source_sha256": "6c821f9a99397b6b29a46a040527a9a6fd4bb234708e489513a2809fa696d577",
+      "translation": "Organelle 2 — LoG sigma max"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_mask_within_cells",
+      "source": "Organelle 2 — Mask within cells",
+      "source_sha256": "17c5dc97276a0efc4cccd4da45f48baa47bb26af33178048d839fe92de7619e1",
+      "translation": "Organelle 2 — Masque à l’intérieur des cellules"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_method",
+      "source": "Organelle 2 — Method",
+      "source_sha256": "fb18444a1e078a80f0927e13e544a7770cbaffc8c67f1ff250e761e98ce50005",
+      "translation": "Organelle 2 — Méthode"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_model_name",
+      "source": "Organelle 2 — Model name",
+      "source_sha256": "f67f134eade17f669a391286e6e25d78baceeec79be9158b63460fd3bbce20c4",
+      "translation": "Organelle 2 — Nom du modèle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_morph_radius",
+      "source": "Organelle 2 — Morph radius",
+      "source_sha256": "868f46473f3bf23afc7c2e4fc803ae1fb7639b0ce5864b665e889e45f77712c3",
+      "translation": "Organelle 2 — Rayon morphologique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_morphology",
+      "source": "Organelle 2 — Morphology",
+      "source_sha256": "ef704603b3ab0834825980112b873842064abc47e4a0f745e13353c75bd762de",
+      "translation": "Organelle 2 — Morphologie"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_network_threshold",
+      "source": "Organelle 2 — Network threshold",
+      "source_sha256": "f4d1b2b52c50413291c50b0867550b5737dd332a26249fd5a133762d6871b99a",
+      "translation": "Organelle 2 — Seuil de réseau"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_remove_border",
+      "source": "Organelle 2 — Remove border",
+      "source_sha256": "8d9a85152f47f1ef36e4085097d13fb35a2a04bc656122fc41194a9e8209326b",
+      "translation": "Organelle 2 — Supprimer la bordure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_remove_border_objects",
+      "source": "Organelle 2 — Remove border objects",
+      "source_sha256": "66975807cbdbbef640fa58d29c987db02e4a07154d94d6dab835ca2e1898cd63",
+      "translation": "Organelle 2 — Supprimer les objets de bordure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_ring_fill_method",
+      "source": "Organelle 2 — Ring fill method",
+      "source_sha256": "f8e5c98be4d866e47e48a858cbc32d16231324176694cfd5739cc19feacdbaac",
+      "translation": "Organelle 2 — Méthode de remplissage des anneaux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_tophat_radius",
+      "source": "Organelle 2 — Tophat radius",
+      "source_sha256": "2111213c373097138623782b1f7738a1a05041330b37bc943c8f49e16dac1fca",
+      "translation": "Organelle 2 — Rayon du top-hat"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_unet_model_path",
+      "source": "Organelle 2 — Unet model path",
+      "source_sha256": "1d2dae44a566a6ffc2009212cc6bed781e3ef60697398ed7ae6dddb9d194187c",
+      "translation": "Organelle 2 — Chemin du modèle Unet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_adaptive_block_size",
+      "source": "Organelle 3 — Adaptive block size",
+      "source_sha256": "3d6b7eaf79c41a16d0c818a77dcf352321ea47151981892eb61678a88144c9d9",
+      "translation": "Organelle 3 — Taille du bloc adaptatif"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_hysteresis_high",
+      "source": "Organelle 3 — Hysteresis high",
+      "source_sha256": "688f2e51a2982de5173318834e271158247eeee7a5e5ab44f25acff11a7c4b78",
+      "translation": "Organelle 3 — Seuil haut d’hystérésis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_hysteresis_low",
+      "source": "Organelle 3 — Hysteresis low",
+      "source_sha256": "754ce11e862e4c31471c99ab223f2f8b3089e6b71b216cb94e748a18c5e4856f",
+      "translation": "Organelle 3 — Seuil bas d’hystérésis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_log_max_sigma",
+      "source": "Organelle 3 — LoG max sigma",
+      "source_sha256": "15c5b4016dce9263d11ebf93c3fef7d43edb32e8857bbb6f445529043685373b",
+      "translation": "Organelle 3 — LoG sigma max"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_mask_within_cells",
+      "source": "Organelle 3 — Mask within cells",
+      "source_sha256": "24af612690b018b072b85339e0d781281947e8a5f034381be04f53f7be198555",
+      "translation": "Organelle 3 — Masque à l’intérieur des cellules"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_method",
+      "source": "Organelle 3 — Method",
+      "source_sha256": "4a594cc27449826159497162a3e65da9a4b28765724dbafc47f57b4bfbb5342f",
+      "translation": "Organelle 3 — Méthode"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_model_name",
+      "source": "Organelle 3 — Model name",
+      "source_sha256": "92e459aa371d535b91515714c37a00550a0d593c8755d1bb23d3234bc5208ce0",
+      "translation": "Organelle 3 — Nom du modèle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_morph_radius",
+      "source": "Organelle 3 — Morph radius",
+      "source_sha256": "64231c447efefae1331d77f93fbdd2f1c275b4820d8006e5df739e273dad9a7a",
+      "translation": "Organelle 3 — Rayon morphologique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_morphology",
+      "source": "Organelle 3 — Morphology",
+      "source_sha256": "fbe4c658ee87515cc9bd80be60a4424047aad3d6a32058ea8bafe9a8ae39442a",
+      "translation": "Organelle 3 — Morphologie"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_network_threshold",
+      "source": "Organelle 3 — Network threshold",
+      "source_sha256": "8b3da5a91c35b006710af6934f99f6e85371e7a279772a40564c7fb4d5c8b95c",
+      "translation": "Organelle 3 — Seuil de réseau"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_remove_border",
+      "source": "Organelle 3 — Remove border",
+      "source_sha256": "2fd6c7c189a6077e76f1d65227d48e0efae9ee0c6c8bd4e5b90082eac14bbe29",
+      "translation": "Organelle 3 — Supprimer la bordure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_remove_border_objects",
+      "source": "Organelle 3 — Remove border objects",
+      "source_sha256": "cbfa4e777c039c6486491e5099d6deefffe2aa45a52e2bcdd88fe47c0aa6edba",
+      "translation": "Organelle 3 — Supprimer les objets de bordure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_ring_fill_method",
+      "source": "Organelle 3 — Ring fill method",
+      "source_sha256": "30d280d3d9493f23da34bb07ea690e35b685aa672e95a9a0a28787a550ce6b41",
+      "translation": "Organelle 3 — Méthode de remplissage des anneaux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_tophat_radius",
+      "source": "Organelle 3 — Tophat radius",
+      "source_sha256": "f3af62fbac9b109369a9bfb3bf7644fde0b095101556452e236257177655e27b",
+      "translation": "Organelle 3 — Rayon du top-hat"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_unet_model_path",
+      "source": "Organelle 3 — Unet model path",
+      "source_sha256": "b6e42175e97d6d3ef52c1a3d0dc2d14ab103e65411cac5248107576fe4469f7f",
+      "translation": "Organelle 3 — Chemin du modèle Unet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_adaptive_block_size",
+      "source": "Organelle 4 — Adaptive block size",
+      "source_sha256": "a38e7767ceeec168e138d757a7fab5b837140dfc7867ea0831b9bc673b3ac340",
+      "translation": "Organelle 4 — Taille du bloc adaptatif"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_hysteresis_high",
+      "source": "Organelle 4 — Hysteresis high",
+      "source_sha256": "4e80d33f0fde66e07e968e9195eb8851c1495b9eaa9188eed89f0889b0fdeb9d",
+      "translation": "Organelle 4 — Seuil haut d’hystérésis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_hysteresis_low",
+      "source": "Organelle 4 — Hysteresis low",
+      "source_sha256": "84e4b9159a02fac5423eda2b7bdf17d4e0f8e5f787439b1284414e1e05eaf5da",
+      "translation": "Organelle 4 — Seuil bas d’hystérésis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_log_max_sigma",
+      "source": "Organelle 4 — LoG max sigma",
+      "source_sha256": "4541f980fa898adfcc35297259d2f99cdc45b0570f49e7fa80fc8f0a2bfeaff5",
+      "translation": "Organelle 4 — LoG sigma max"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_mask_within_cells",
+      "source": "Organelle 4 — Mask within cells",
+      "source_sha256": "53f16c9c895fedc06ed15edce6a650af9a864da4779c4af5bbd4281f33444eaa",
+      "translation": "Organelle 4 — Masque à l’intérieur des cellules"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_method",
+      "source": "Organelle 4 — Method",
+      "source_sha256": "d954901c39795e617121ea892d61e541ec74e8eedb5e83c73ca24f2f3438f418",
+      "translation": "Organelle 4 — Méthode"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_model_name",
+      "source": "Organelle 4 — Model name",
+      "source_sha256": "4e93a944b9e213b840d6094c7d5768e680a9892c3c09d5bfb00b4a3b680cfb5d",
+      "translation": "Organelle 4 — Nom du modèle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_morph_radius",
+      "source": "Organelle 4 — Morph radius",
+      "source_sha256": "deff7aa19e48b4c37902d261449ed47b476132f27aa5d751065187bbd2a286e2",
+      "translation": "Organelle 4 — Rayon morphologique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_morphology",
+      "source": "Organelle 4 — Morphology",
+      "source_sha256": "b839d605375fd1f2a1de3eb3ee022205d46b877b6fb63805fb3c85561282e068",
+      "translation": "Organelle 4 — Morphologie"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_network_threshold",
+      "source": "Organelle 4 — Network threshold",
+      "source_sha256": "55a9083d181d17836da5cf63655875fc8a14f8b7a620b549719497ad4d73c231",
+      "translation": "Organelle 4 — Seuil de réseau"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_remove_border",
+      "source": "Organelle 4 — Remove border",
+      "source_sha256": "3ee4582ff8bab58eaf0b1003265d58fab1ce14704d531dc3cf32b46ff7d3d978",
+      "translation": "Organelle 4 — Supprimer la bordure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_remove_border_objects",
+      "source": "Organelle 4 — Remove border objects",
+      "source_sha256": "557f69a5990a7263925ae2ff6cf7dc3fa9aa46129459cfb8cc713c8912aab7b1",
+      "translation": "Organelle 4 — Supprimer les objets de bordure"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_ring_fill_method",
+      "source": "Organelle 4 — Ring fill method",
+      "source_sha256": "e330918ac025f34f65fef3c53db6c2e857185b0dff5eecaf53f22db04b094d45",
+      "translation": "Organelle 4 — Méthode de remplissage des anneaux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_tophat_radius",
+      "source": "Organelle 4 — Tophat radius",
+      "source_sha256": "4ab8b746f2b9ebfa022ce44df58331c5d40e68bb5a64c1dbb75c1812c11d1bd4",
+      "translation": "Organelle 4 — Rayon du top-hat"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_unet_model_path",
+      "source": "Organelle 4 — Unet model path",
+      "source_sha256": "fac0de0518f6edee7430511ccf0b733103d4595f53e5977333788b563ae83fcd",
+      "translation": "Organelle 4 — Chemin du modèle Unet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outlier_detection",
+      "source": "Outlier detection",
+      "source_sha256": "39ee22395ba19c9604a50a11ea5c01f373e850c01eba33cabc136177fcbec486",
+      "translation": "Détection des valeurs aberrantes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline",
+      "source": "Outline",
+      "source_sha256": "eabbf3abaf8d98abb9763d83f29b04716524a9d697dfdd06ae3ed77bdd12c929",
+      "translation": "Contour"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_color",
+      "source": "Outline color",
+      "source_sha256": "375b9bf724fc2783033f5d171c93e301516b4b27bbf6b0a47758c1d1b2351f4f",
+      "translation": "Couleur des contours"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_palette",
+      "source": "Outline palette",
+      "source_sha256": "ffe3a9fe5c77c14bb2b83ef12bb8b3b740958a680e0009603b4893ecff1a3801",
+      "translation": "Palette des contours"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_sigma",
+      "source": "Outline sigma",
+      "source_sha256": "93628edfe5055bf4b4c6a25711a142402526e92eeed204ca747d42bd68676fe7",
+      "translation": "Sigma du contour"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_thickness",
+      "source": "Outline thickness",
+      "source_sha256": "416bfea0ba6b75be9f362dc9e9cf8a7e0bf962fa95860d2244c39fdf117762f5",
+      "translation": "Épaisseur du contour"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_width",
+      "source": "Outline width",
+      "source_sha256": "ce044329ef92f8fa16b702a00601cea4a57df687cdd90bd12d478b71fc8cac67",
+      "translation": "Largeur des contours"
+    },
+    {
+      "table": "setting_labels",
+      "key": "regression.src",
+      "source": "Output directory",
+      "source_sha256": "c94c0d681c64bb7c28d8a2afb1a426d7fdd0ce00aed508a2218a4f8c6bef788a",
+      "translation": "Répertoire des sorties"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outside_threshold",
+      "source": "Outside threshold",
+      "source_sha256": "88357f880c1f6c35f1d1c8318ebda3d0d8d32e9e12ce108b8e97021ce9e235d5",
+      "translation": "Seuil du marquage extérieur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "overlay_chans",
+      "source": "Overlay chans",
+      "source_sha256": "875e4a02bfebcba5c54de935cc162ecd0146ff7e11a967c27821547fe73d6fff",
+      "translation": "Canaux superposés"
+    },
+    {
+      "table": "setting_labels",
+      "key": "overwrite",
+      "source": "Overwrite",
+      "source_sha256": "b24963ea2cbc74b97321a347754137aa207b126695a95c860406098528966b55",
+      "translation": "Écraser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "p_threshold_alpha",
+      "source": "P threshold alpha",
+      "source_sha256": "417fe4dc33fbd41d08f282f56bf3a044aa949b809430fe3eb915829bbf35b1b0",
+      "translation": "Seuil P alpha"
+    },
+    {
+      "table": "setting_labels",
+      "key": "p_threshold_kind",
+      "source": "P threshold kind",
+      "source_sha256": "07145c6dca9fd358d6596525b009f13abfa1d5ff75fad951162ea2836219745a",
+      "translation": "Type de seuil P"
+    },
+    {
+      "table": "setting_labels",
+      "key": "png_dims",
+      "source": "PNG dims",
+      "source_sha256": "2dc2bd26f5f2b239afee604f5e455706607be68d1c988f5535dfd94ae1760359",
+      "translation": "Dimensions PNG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "png_size",
+      "source": "PNG size",
+      "source_sha256": "f31dd000e10505afa4aeb65df67e007df8f44812b708097ab8ca94b04f57bfd2",
+      "translation": "Taille PNG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "png_type",
+      "source": "PNG type",
+      "source_sha256": "a3c8b761a5e0f4e0d0b7fe91584812309430b4a4699640bb80c78015e59a7a4b",
+      "translation": "Type de PNG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "paired_data",
+      "source": "Paired data",
+      "source_sha256": "ac97f796b10bf79de240594da06a8b37273efdbcbb543b8cd0ad8377e553676c",
+      "translation": "Données appariées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "parasite_count_column",
+      "source": "Parasite count column",
+      "source_sha256": "d2d69a6f8ae5f1b7e7dd16dfb25dbe13a08a6a1e94baaa1fa99c163579787880",
+      "translation": "Colonne de comptage des parasites"
+    },
+    {
+      "table": "setting_labels",
+      "key": "parasite_table",
+      "source": "Parasite table",
+      "source_sha256": "d89330c16de70af7a65fbc56f626aaaf38ef53dde225c6451abc3c5ad97e2de3",
+      "translation": "Table des parasites"
+    },
+    {
+      "table": "setting_labels",
+      "key": "path_column",
+      "source": "Path column",
+      "source_sha256": "516cf829126889a5ce455eaa9f2fbe6ac5f6ed5ca685a65293cbf63a577d8da0",
+      "translation": "Colonne de chemin"
+    },
+    {
+      "table": "setting_labels",
+      "key": "path_string",
+      "source": "Path string",
+      "source_sha256": "9a9832518709a64e2da48d05b97cee0a925eb42e8db882c39201d075958dc410",
+      "translation": "Chaîne de chemin"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_types",
+      "source": "Pathogen types",
+      "source_sha256": "d8060ed58aa9e72537adaafed63cc280a52b2b11935be631e463177c6c8ecd18",
+      "translation": "Types de pathogènes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogens",
+      "source": "Pathogens",
+      "source_sha256": "d1c26412d54a71636c245e4ab495bbaac450a1d5dd7906b818fce5d3fa06ee4d",
+      "translation": "Pathogènes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pca_svd_solver",
+      "source": "Pca svd solver",
+      "source_sha256": "b218f9d9ed8a6827b5ae23ca6c0b9dcb8a02d7c7e85777cf06c12815a48b2bb8",
+      "translation": "Solveur svd de la Pca"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pca_whiten",
+      "source": "Pca whiten",
+      "source_sha256": "410a072c668e0db1acf92ddaef2ad1b862d0b684deefc2a48b19af5b63cf7e3f",
+      "translation": "Blanchiment de la Pca"
+    },
+    {
+      "table": "setting_labels",
+      "key": "permutation_importance",
+      "source": "Permutation importance",
+      "source_sha256": "a72c0fad7617979386b123fc1867a406d8b959e3ab91dcb20ce76806b0f4dbc5",
+      "translation": "Importance par permutation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pin_memory",
+      "source": "Pin memory",
+      "source_sha256": "af50a74fce829f7cc5ad8533aabcf5708741edd0a108a6bfbee5920541a3cb37",
+      "translation": "Épingler la mémoire"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pixels_per_um",
+      "source": "Pixels per um",
+      "source_sha256": "bc8baf9224ac185134a36977375fdccee55dee1625387ee0fa694f7f597e8b7b",
+      "translation": "Pixels par um"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plate_format",
+      "source": "Plate format",
+      "source_sha256": "8b18706a4c654e8b3cb6e7977b9c99e0f254ebb33b6569d0a279f4c7d97d21a7",
+      "translation": "Format de la plaque"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_by_cluster",
+      "source": "Plot by cluster",
+      "source_sha256": "ad589932454c1830472845c253be10926f8f6e2a5eca21bf9f7235091017d2be",
+      "translation": "Tracer par cluster"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_cluster_grids",
+      "source": "Plot cluster grids",
+      "source_sha256": "854ba1e83dcd7c63328185a6234368adf25b74193c799cfd3e2ac1d9f7210df5",
+      "translation": "Tracer les grilles de clusters"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_control",
+      "source": "Plot control",
+      "source_sha256": "5d772a51baa386186e15c45e114dc37aa8b897a3e19a7a3d6ccadf90167a60d5",
+      "translation": "Tracer le contrôle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_images",
+      "source": "Plot images",
+      "source_sha256": "9e8d4347b5a8acd80a149155486d288f80fa1ac07be79d38efb73729456d7119",
+      "translation": "Tracer des images"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_nr",
+      "source": "Plot nr",
+      "source_sha256": "5268974385136fc54c286dbdd8006b5bc08be51b52e381b7501396dd33bf6e78",
+      "translation": "Nombre d’images tracées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_outlines",
+      "source": "Plot outlines",
+      "source_sha256": "f0ee2e9259ce2dbd4a2ef8418f6e75771e12149494d96215327ba2af9b2b7480",
+      "translation": "Tracer les contours"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_points",
+      "source": "Plot points",
+      "source_sha256": "aa9a3478f42e7785f75505cba28126014bcfe244028f0ba353f0ddaca37de21e",
+      "translation": "Tracer les points"
+    },
+    {
+      "table": "setting_labels",
+      "key": "point_alpha",
+      "source": "Point alpha",
+      "source_sha256": "8cd7220365d3c0170952a575d419874bcc1e43c48711786632022b7fc931ea20",
+      "translation": "Alpha des points"
+    },
+    {
+      "table": "setting_labels",
+      "key": "point_color",
+      "source": "Point color",
+      "source_sha256": "82581c7dc3622dde02cb38a046b505402d6e7d7b308af63ab0dab3bae111196e",
+      "translation": "Couleur des points"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pos",
+      "source": "Pos",
+      "source_sha256": "704e75860aa0d98d434c24c9bbb8ef327dcba607294281b2cbf8d8a3d38d2b17",
+      "translation": "Positif"
+    },
+    {
+      "table": "setting_labels",
+      "key": "position_effect_ratio",
+      "source": "Position effect ratio",
+      "source_sha256": "ef8d1c7f309781dfd4f429f935f2cba2d9587cec6dd3efc202b7fd6080897303",
+      "translation": "Ratio d’effet de position"
+    },
+    {
+      "table": "setting_labels",
+      "key": "positive_control_id",
+      "source": "Positive control ID",
+      "source_sha256": "5461b7c566fd98285951bf7bfdca00f91c015588a030009283bb5ba431f7a295",
+      "translation": "ID de contrôle positif"
+    },
+    {
+      "table": "setting_labels",
+      "key": "positive_control_wells",
+      "source": "Positive control wells",
+      "source_sha256": "462e38219a78a7356fe27c275a7c8cb4d6ec340c24d7d7bc48d3b620e978a297",
+      "translation": "Puits de contrôle positifs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "prediction_column",
+      "source": "Prediction column",
+      "source_sha256": "2583a89972fe80762245481acaf1f44db9b23cd2ad494332917156f3a26694c7",
+      "translation": "Colonne de prédiction"
+    },
+    {
+      "table": "setting_labels",
+      "key": "preprocess",
+      "source": "Preprocess",
+      "source_sha256": "abb4f06f813555ec1b798931331162902b8921694f925bfcaf578642a664993e",
+      "translation": "Prétraitement"
+    },
+    {
+      "table": "setting_labels",
+      "key": "preview_only",
+      "source": "Preview only",
+      "source_sha256": "3673f9c181ba494ad134bffa93039cab6f59e95655a213e848ba8c10cfd2bc28",
+      "translation": "Aperçu uniquement"
+    },
+    {
+      "table": "setting_labels",
+      "key": "qc_data",
+      "source": "QC data",
+      "source_sha256": "bf591d0452c2a6f9a7dfdfd22cbaf486c04f14b25e95b24d9871f39d02cf9369",
+      "translation": "Données QC"
+    },
+    {
+      "table": "setting_labels",
+      "key": "qc_plot_max_panels",
+      "source": "QC plot max panels",
+      "source_sha256": "a3d2eed1ba8b16462745529ee4cea924a05074187f5cac8d054aeab1e75a756e",
+      "translation": "QC : nombre max. de panneaux du graphique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "quantile",
+      "source": "Quantile",
+      "source_sha256": "cdcbd431a056cd2ea1e259d312de2417e8f3432d10b40d24624c2fde0e3235bb",
+      "translation": "Niveau de quantile"
+    },
+    {
+      "table": "setting_labels",
+      "key": "queue_limit",
+      "source": "Queue limit",
+      "source_sha256": "185459f33b12847bb5a270fad30b7555aa478e57cd7a77201dfafbf22217cec7",
+      "translation": "Limite de la file d’attente"
+    },
+    {
+      "table": "setting_labels",
+      "key": "radial_dist",
+      "source": "Radial dist",
+      "source_sha256": "5ab159e781914f608b9cff1b902cf2af5258e5bccb258f7e30a711ce2f4f0c96",
+      "translation": "Distribution radiale"
+    },
+    {
+      "table": "setting_labels",
+      "key": "random_row_column_effects",
+      "source": "Random row column effects",
+      "source_sha256": "1ab4c1a8c6b3ec56b127af53e78e11d0e68124884ad120e32246aeeabd72aff0",
+      "translation": "Effets aléatoires de ligne et de colonne"
+    },
+    {
+      "table": "setting_labels",
+      "key": "random_test",
+      "source": "Random test",
+      "source_sha256": "12c66c276d7987e27291694f7ef48fcf1b0a32a7816b7ba16286da06d23e1e20",
+      "translation": "Tirage aléatoire fixe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "randomize",
+      "source": "Randomize",
+      "source_sha256": "1f7483c8a10473d3d369e45e15775a286449f3934eec0c370dbf46e0af413366",
+      "translation": "Randomiser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "recursive",
+      "source": "Recursive",
+      "source_sha256": "6e7bc12c5b82601bf19c9c4f74453a7564fdc1847fade23bea0991d06d3ed46d",
+      "translation": "Récursif"
+    },
+    {
+      "table": "setting_labels",
+      "key": "reduction_method",
+      "source": "Reduction method",
+      "source_sha256": "0f057b8d816fa2491b569040af519c6ed5b8068f2fca05f1fac6e7e0817f01c2",
+      "translation": "Méthode de réduction"
+    },
+    {
+      "table": "setting_labels",
+      "key": "reg_alpha",
+      "source": "Reg alpha",
+      "source_sha256": "3159fe133902953b5140a5633187c77ea90f12c5ee0f8e8967a267fa2df685c5",
+      "translation": "Alpha de régularisation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "reg_lambda",
+      "source": "Reg lambda",
+      "source_sha256": "1cd1d0b88c2bf3b5d8eba4d989f64454533d80d48414a384eb5ad2e58cbd5458",
+      "translation": "Lambda de régularisation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "regression_qc",
+      "source": "Regression QC",
+      "source_sha256": "7dc444c9340550641b29f794a8870e8299c853f4af38b75609e43f9b93a274f4",
+      "translation": "QC de la régression"
+    },
+    {
+      "table": "setting_labels",
+      "key": "regression_panel_manifest",
+      "source": "Regression panel manifest",
+      "source_sha256": "2fd9838859b0fdaeefe64a5f067675f7faa99116aff93098f0c21af7617e9b5d",
+      "translation": "Manifeste des panneaux de régression"
+    },
+    {
+      "table": "setting_labels",
+      "key": "regression_type",
+      "source": "Regression type",
+      "source_sha256": "859225850c159cfd0f6921259dc77e0e9157c61af58a93113ab51818696ce6f6",
+      "translation": "Type de régression"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_highly_correlated_features",
+      "source": "Remove highly correlated features",
+      "source_sha256": "74746ee537a6e794882f7bde42359c2e9cc3633accc8cece0f3ed399a96e38a9",
+      "translation": "Supprimer les caractéristiques fortement corrélées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_low_variance_features",
+      "source": "Remove low variance features",
+      "source_sha256": "7b110d6da0d120975ee5c570f0b67c2d04a45d8fc55c6282728b782385986e83",
+      "translation": "Supprimer les caractéristiques de faible variance"
+    },
+    {
+      "table": "setting_labels",
+      "key": "require_host_cell",
+      "source": "Require host cell",
+      "source_sha256": "008c9c5c53ab0cd8a377883173cf1794c20dee16a71a4d5c41225f2a149e8269",
+      "translation": "Exiger une cellule hôte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "resample",
+      "source": "Resample",
+      "source_sha256": "3bc33c3710f2642a65fc3fe725976865812b94dec56ae34a26e6116e4bc0446d",
+      "translation": "Rééchantillonner"
+    },
+    {
+      "table": "setting_labels",
+      "key": "rescale",
+      "source": "Rescale",
+      "source_sha256": "0454bec47b892f05694d2b01af4ac2678399fd12f74455f6d7b2e9623e673c01",
+      "translation": "Remise à l’échelle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "resize",
+      "source": "Resize",
+      "source_sha256": "2956e06ac0651084bbd5558dfe469615e9a5fc3072f60a09a9cb3c597a19324c",
+      "translation": "Redimensionner"
+    },
+    {
+      "table": "setting_labels",
+      "key": "response_speed",
+      "source": "Response speed",
+      "source_sha256": "b4621bc8fe28066169e4ed3b9cb05747c94e733831978b19dd50671523031fa5",
+      "translation": "Vitesse de réponse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "resume_checkpoint",
+      "source": "Resume checkpoint",
+      "source_sha256": "e7ad24454b48542e9b028c97c56428c7ebc7b25981afd2795d5b4dabab865323",
+      "translation": "Point de contrôle de reprise"
+    },
+    {
+      "table": "setting_labels",
+      "key": "resume_search",
+      "source": "Resume search",
+      "source_sha256": "6b439ad792da0ff594950ae3200903b853c0d7d14ad41bf1f5f7de7bd5757d08",
+      "translation": "Reprendre la recherche"
+    },
+    {
+      "table": "setting_labels",
+      "key": "reuse_existing_measurements",
+      "source": "Reuse existing measurements",
+      "source_sha256": "bfcafc35c996c810b649913a6e7805bc09b40eb1fb5670b08da480440bf9cbc6",
+      "translation": "Réutiliser les mesures existantes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "route_errors_through_ai",
+      "source": "Route errors through ai",
+      "source_sha256": "fcd54713368ecbb03fe21fa8c7f56984402aa91d723069fc41521bf8ef4c6a2c",
+      "translation": "Envoyer les erreurs à l’IA"
+    },
+    {
+      "table": "setting_labels",
+      "key": "row_csv",
+      "source": "Row CSV",
+      "source_sha256": "133426483be29294ffd3488b6772d893afac3c5153f0fb2002ccd13bb55eaa63",
+      "translation": "CSV des lignes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "row_limit",
+      "source": "Row limit",
+      "source_sha256": "bf8d8a8b6f48be6d71e1801598e6ea507e36349c316835f07adf1bde228643be",
+      "translation": "Nombre maximal de lignes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "rra_alpha",
+      "source": "Rra alpha",
+      "source_sha256": "ddb35eef07de13022b61a5107515b0807989d3a6976694c8e6449d0b97d3493d",
+      "translation": "Alpha RRA"
+    },
+    {
+      "table": "setting_labels",
+      "key": "rra_permutations",
+      "source": "Rra permutations",
+      "source_sha256": "2eff7d8d09b88e2ed1b3e25db08847d22f8f5acb62afd2106acbf2a1a4d3efc5",
+      "translation": "Permutations RRA"
+    },
+    {
+      "table": "setting_labels",
+      "key": "sample",
+      "source": "Sample size limit",
+      "source_sha256": "c93783378fbb4f764806c9964c65f2c674268934d5ea9701f341cea934e8bda1",
+      "translation": "Taille maximale de l’échantillon"
+    },
+    {
+      "table": "setting_labels",
+      "key": "sanity_check",
+      "source": "Sanity check",
+      "source_sha256": "6b1b1bfbc6ff52e1391eea85e29abd1000886849bec554370227360b3e5efb13",
+      "translation": "Contrôle de cohérence"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save_png",
+      "source": "Save PNG",
+      "source_sha256": "f38f79763d122bfa76922a03b3f04d653847e220238e71704c9a245c59e21e7c",
+      "translation": "Enregistrer PNG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save_arrays",
+      "source": "Save arrays",
+      "source_sha256": "c61ae92f7f6ba930adf6e17123d2ada6f7195ab5c7b53468680fcee2d92cb046",
+      "translation": "Enregistrer les tableaux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save_dtype",
+      "source": "Save dtype",
+      "source_sha256": "88cb451f5eb0745e2696ad72818f682ca7b505a700504662243914d7de5a5a6a",
+      "translation": "Enregistrer dtype"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save_h5",
+      "source": "Save h5",
+      "source_sha256": "317409cf62c8409baf5f75978b7b6e8dccc1fbc83327c499cf80d59b2959faa6",
+      "translation": "Enregistrer h5"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save_measurements",
+      "source": "Save measurements",
+      "source_sha256": "e8ac777599eba6295d02d6d7b4ba13d74eecc2b61383369c8bf9c99134423063",
+      "translation": "Enregistrer les mesures"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save_original_images",
+      "source": "Save original images",
+      "source_sha256": "bbba65f1b2d01495faaee8b35ab77b5053a223d0a42e0fab60755a92dd2b5b2b",
+      "translation": "Enregistrer les images originales"
+    },
+    {
+      "table": "setting_labels",
+      "key": "schedule",
+      "source": "Schedule",
+      "source_sha256": "f4830a1dae2980447c716bd4b5779b7013575ef09f70ef4731457218792487b3",
+      "translation": "Planificateur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "score_column",
+      "source": "Score column",
+      "source_sha256": "e2bbc4a5284659088354be5e2aa6491f5032ca89109eb41e642871e974effdee",
+      "translation": "Colonne de score"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seconds_per_frame",
+      "source": "Seconds per frame",
+      "source_sha256": "035136d67269888323621d1598c97d96747d4b88c8f5d40ad46f06e91a172080",
+      "translation": "Secondes par image"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_size_ratio",
+      "source": "Seg QC size ratio",
+      "source_sha256": "b089b6e5b652a7cdad9830df4c7ce06dc1a777745dc740af5e8d4460f14c9048",
+      "translation": "Ratio de taille QC de segmentation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "shap",
+      "source": "Shap",
+      "source_sha256": "ff41019ea438dd1466a5bfd58215eda02783c3c0a5157a97ba4505af7f811489",
+      "translation": "Valeurs Shap"
+    },
+    {
+      "table": "setting_labels",
+      "key": "shap_sample",
+      "source": "Shap sample",
+      "source_sha256": "0903ccb65d335efe7fdcbcb5b0d4808fc94d66fedf0503d6b6cd6ae0d1bee649",
+      "translation": "Échantillon Shap"
+    },
+    {
+      "table": "setting_labels",
+      "key": "shuffle",
+      "source": "Shuffle",
+      "source_sha256": "317cb3a7efadd989cf93430f492995c8a33f10a31ea74699f2c0152bb6c3b9fb",
+      "translation": "Mélanger"
+    },
+    {
+      "table": "setting_labels",
+      "key": "single_direction",
+      "source": "Single direction",
+      "source_sha256": "3ebe541f7cc2af7455f9990984c9678bf7a446f9764d70d42cb31dafd8cb66ca",
+      "translation": "Direction unique"
+    },
+    {
+      "table": "setting_labels",
+      "key": "size",
+      "source": "Size",
+      "source_sha256": "1af851907331c0ed99e7c63b4e55df808bc5fc4c990a1cf80ca8c0f76daf1f3b",
+      "translation": "Taille"
+    },
+    {
+      "table": "setting_labels",
+      "key": "smooth_lines",
+      "source": "Smooth lines",
+      "source_sha256": "ca8b852d58693a7c877c1c489570679c0710eb99ce187f02a3eb4f5431a833dc",
+      "translation": "Lignes lisses"
+    },
+    {
+      "table": "setting_labels",
+      "key": "smoothgrad_samples",
+      "source": "Smoothgrad samples",
+      "source_sha256": "7195953425a6a07c5e4b9b1617e4458759f4acfa603ac11f9ccf1d31f351c9e2",
+      "translation": "Échantillons SmoothGrad"
+    },
+    {
+      "table": "setting_labels",
+      "key": "smoothgrad_sigma",
+      "source": "Smoothgrad sigma",
+      "source_sha256": "11444ad1df25a111e81bbb922bf6fe3ed7272dc5487320cbe9de98e73348fcae",
+      "translation": "Sigma SmoothGrad"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_measurements",
+      "source": "Spatial measurements",
+      "source_sha256": "0ba141b4d2632d482263913bfd17b9aed067d83b5e3e720f850e0749dce053ab",
+      "translation": "Mesures spatiales"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_neighbor_radius",
+      "source": "Spatial neighbor radius",
+      "source_sha256": "0afc55775e310d134a362b4e5242f99fb0e1d8452ddd4fbc60b9b2e508d67e97",
+      "translation": "Rayon de voisinage spatial"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spectral_affinity",
+      "source": "Spectral affinity",
+      "source_sha256": "84dc2a77ea18addc44f01f8625cac2d5249c079a86085ae720e5cdae684ca292",
+      "translation": "Affinité spectrale"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spectral_n_neighbors",
+      "source": "Spectral n neighbors",
+      "source_sha256": "d18272808c9e592e0a617324a679b626945c9a23bdd0e29c5a5342e6be36c09d",
+      "translation": "Spectral n voisins"
+    },
+    {
+      "table": "setting_labels",
+      "key": "starved_read_fraction",
+      "source": "Starved read fraction",
+      "source_sha256": "7f1425f9a36c5a97a9f5b24f918485d1e5970d85ae6a68a20a0af8d91a9aaec2",
+      "translation": "Fraction de lectures pour la carence"
+    },
+    {
+      "table": "setting_labels",
+      "key": "straightness_threshold",
+      "source": "Straightness threshold",
+      "source_sha256": "7759bb4725200a2c206c45f556dbfda08f71b4b43662a49d5ccbcacbf5e33fc2",
+      "translation": "Seuil de rectitude"
+    },
+    {
+      "table": "setting_labels",
+      "key": "stream_method",
+      "source": "Stream method",
+      "source_sha256": "c394b7f49c13b3c4417ce1ab3eb975e1a4f71c6fab0d014f4e47bf0293c057f4",
+      "translation": "Méthode de flux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "strict_errors",
+      "source": "Strict errors",
+      "source_sha256": "9a52a7e4f46d632dd404cb86e57bea16f4d6efb3b51b97e2a5e0148e2c89be32",
+      "translation": "Erreurs strictes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "summarize_organelles_by",
+      "source": "Summarize organelles by",
+      "source_sha256": "4f1774a594ce877f1254398706e2bc3592c005d63e8a126fbd85240d2560ce72",
+      "translation": "Résumer les organites par"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_exclude",
+      "source": "Surrogate exclude",
+      "source_sha256": "95f9ef000ab29cc45965a29c808056bc71c9c22da8cc30f4866268dee720ca34",
+      "translation": "Exclusions du modèle de substitution"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_min_fidelity_improvement",
+      "source": "Surrogate min fidelity improvement",
+      "source_sha256": "dd3c93da71ab6fbcd86e795aab7573706a801ec6aeec2696bdaf3de023ef0fc7",
+      "translation": "Amélioration min. de la fidélité du modèle de substitution"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_n_estimators",
+      "source": "Surrogate n estimators",
+      "source_sha256": "1c413ae4668e05b6ee95e75b85a46aac8f47172d3a42d0e5e12cc2de051f4285",
+      "translation": "N estimateurs du modèle de substitution"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_n_repeats",
+      "source": "Surrogate n repeats",
+      "source_sha256": "ebbaf23e88c4d3b9d61da785ca123f68e4f4c8c014df25d0d1e1508ebb9a6b9d",
+      "translation": "N répétitions du modèle de substitution"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_shap_max_samples",
+      "source": "Surrogate shap max samples",
+      "source_sha256": "fee2b8902e2b1b32d03f04db229b964a9b8cff2ff79a2620327e272331a7160e",
+      "translation": "Échantillons shap max. du modèle de substitution"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_axis",
+      "source": "T axis",
+      "source_sha256": "24a0fe9ac14b076177da98cb3d4cf4c771d597dd1fdb0bfdf9e1c6654fbd0717",
+      "translation": "Axe T"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_axis_order",
+      "source": "T axis order",
+      "source_sha256": "80dfe82d993399a92425f503b75064eca5d550b90ade8ea9a7969df318551652",
+      "translation": "Ordre de l’axe T"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_max_displacement_px",
+      "source": "T max displacement px",
+      "source_sha256": "26091376b63cabed8b4e4b725f86c085ae50b2ae2b0e6ee22f66987681047f8a",
+      "translation": "Déplacement max. T (px)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_max_displacement_um",
+      "source": "T max displacement um",
+      "source_sha256": "093a4c567208985ac596b279bb6fdfeb2993d69453b4e13e4f4f9e69b633cd74",
+      "translation": "Déplacement max. T (um)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_stack",
+      "source": "T stack",
+      "source_sha256": "76dbac2576e63f03998f92653a9f203de5d42100256682b9213623900d9ae023",
+      "translation": "Pile T"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tar_path",
+      "source": "Tar path",
+      "source_sha256": "16de3e3d93bcbc9defb943508647c8e9f2fb1eaceffe372f367ddb04b1b0c430",
+      "translation": "Chemin du tar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target",
+      "source": "Target",
+      "source_sha256": "978354db0c00fc78c3a5524f462a73bc425df3fb2767e51a5f46352ae26ae6f9",
+      "translation": "Cible"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_gene",
+      "source": "Target gene",
+      "source_sha256": "97e713639f9ae126cf1c5ef77c019f20f2dde3a7d72f56ff84d71ca83832661d",
+      "translation": "Gène cible"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_guides",
+      "source": "Target guides",
+      "source_sha256": "8b25ef1e5d0903e1f8216e6486d8d98a9f02d9cf9a42b34a7a6b277a65066e21",
+      "translation": "Guides cibles"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_height",
+      "source": "Target height",
+      "source_sha256": "79ebdad98fcba72b0008c479978f1246def67f96d10235d9c5089bb2eeb5a293",
+      "translation": "Hauteur cible"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_intensity_min",
+      "source": "Target intensity min",
+      "source_sha256": "b1c05a5dd7032c7c58cf21520093ef6dbd38a107dab0af9609ff19d3b49d7835",
+      "translation": "Intensité cible min"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_layer",
+      "source": "Target layer",
+      "source_sha256": "3532260c61d0664a288e1d4d438b0780a23805e7126ba094396734b66e152ffa",
+      "translation": "Couche cible"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_sequence",
+      "source": "Target sequence",
+      "source_sha256": "a4fe674baffdaa03a84f3acb150ea31bd61ab745b33e51f38c65e9532ea4acc8",
+      "translation": "Séquence cible"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_size",
+      "source": "Target size",
+      "source_sha256": "60899c152ac2bb003a4ba414c744639c0a48f0395d77cfab6e883fe04b2689dc",
+      "translation": "Taille cible"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_statistic",
+      "source": "Target statistic",
+      "source_sha256": "fb3e7524851be46dc13860ba3f8c68d0369b203532538428ae8e5ad3b0bdb94f",
+      "translation": "Statistique cible"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_unique_count",
+      "source": "Target unique count",
+      "source_sha256": "045b300d4a66dc80496fc040d34b804bd1a9259b80d5df157bf17749c2e7e7d3",
+      "translation": "Nombre cible de guides distincts"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_width",
+      "source": "Target width",
+      "source_sha256": "74637b4d3c9ced9966cdad98284135e714d74bbda57ea2f43056403dc0a2cb95",
+      "translation": "Largeur cible"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_images",
+      "source": "Test images",
+      "source_sha256": "fc173404ba8695ec4fc7d48e30104f0ab1178e9f24569f55e20b4b0b3982f561",
+      "translation": "Images de test"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_mode",
+      "source": "Test mode",
+      "source_sha256": "29218d14d595bcf885c5fcbe786ba1d4a7145a49bf6bc13868152fd0bb878cb4",
+      "translation": "Mode test"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_nr",
+      "source": "Test nr",
+      "source_sha256": "f4467e5c34ea902fb2a885db92ca44cfe1f762ae07b6376758e748aef1f7d09f",
+      "translation": "Nombre de test"
+    },
+    {
+      "table": "setting_labels",
+      "key": "threshold",
+      "source": "Threshold",
+      "source_sha256": "0da627ada476c179bb6421d267cb6de8c9f770a2274b5d673d898e33cea29247",
+      "translation": "Seuil"
+    },
+    {
+      "table": "setting_labels",
+      "key": "threshold_method",
+      "source": "Threshold method",
+      "source_sha256": "8f9ad82749204b045e7e153ce17a826ddf45df4d3103d673d3193df2e0c62181",
+      "translation": "Méthode de seuil"
+    },
+    {
+      "table": "setting_labels",
+      "key": "threshold_multiplier",
+      "source": "Threshold multiplier",
+      "source_sha256": "f719521b037a09b7312dae668e9089f4853f9fd97e73b353b5b64efa905efe43",
+      "translation": "Multiplicateur de seuil"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_memory",
+      "source": "Timelapse memory",
+      "source_sha256": "3e84307ff05625f8f39a0a726b526e67cd3b8aab72b8044e41c2c9d51adcc8ce",
+      "translation": "Mémoire timelapse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_mode",
+      "source": "Timelapse mode",
+      "source_sha256": "3139ca0d06968288eeeda6941f5c98517265dc70dc96e7f4c6abd4d7ba22d682",
+      "translation": "Mode timelapse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_objects",
+      "source": "Timelapse objects",
+      "source_sha256": "3e6ee3b073661aee9656e589efadbf81f945e87e710b71d9d8511967d67c0034",
+      "translation": "Objets timelapse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tolerance",
+      "source": "Tolerance",
+      "source_sha256": "f71041bb481fcfb42b6e8fd8c081fa11320ff3ce7ceae2634a285814dee860c3",
+      "translation": "Tolérance"
+    },
+    {
+      "table": "setting_labels",
+      "key": "top_features",
+      "source": "Top features",
+      "source_sha256": "953f36868599be5d68b2886ed1000679af238f9794827cf26eaf7f5eb8790173",
+      "translation": "Caractéristiques principales"
+    },
+    {
+      "table": "setting_labels",
+      "key": "trackastra_linking",
+      "source": "Trackastra linking",
+      "source_sha256": "73ae73e53412aab9795ca8c99fe0cf91e2b13548d37058e82c6e5243b8f75f28",
+      "translation": "Liaison Trackastra"
+    },
+    {
+      "table": "setting_labels",
+      "key": "trackastra_model",
+      "source": "Trackastra model",
+      "source_sha256": "1cdaf6dcb4fa0c57bc7ee3871e59fbe64fc4a68616ca6ccf01ac898f53f1591e",
+      "translation": "Modèle Trackastra"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tracked_object",
+      "source": "Tracked object",
+      "source_sha256": "8ec04ef8dbe346686be240ca542a3fd84010d417f8acac43f61d272778adfe58",
+      "translation": "Objet suivi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "transform",
+      "source": "Transform",
+      "source_sha256": "d2d68041b53daa7577b38494eb66792f9bd9a3450f025587347a00610c67fbce",
+      "translation": "Transformation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "treatment_loc",
+      "source": "Treatment loc",
+      "source_sha256": "ec3ecb70d47171e78c74bdd54d7d3506c7992d6f3e35dc8b8b98adb68047968c",
+      "translation": "Puits de traitement"
+    },
+    {
+      "table": "setting_labels",
+      "key": "treatment_plate_metadata",
+      "source": "Treatment plate metadata",
+      "source_sha256": "dbb043c480e674562f42beaaf795aa23192e3f4a218885b18a2d4726d3ca11d7",
+      "translation": "Métadonnées des plaques de traitement"
+    },
+    {
+      "table": "setting_labels",
+      "key": "treatments",
+      "source": "Treatments",
+      "source_sha256": "e2c27349de5533aefad5c3ee898af79d356bf42acad11406959ced100c42b2ac",
+      "translation": "Traitements"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tsne_early_exaggeration",
+      "source": "Tsne early exaggeration",
+      "source_sha256": "705a78a64bc0db9488beb465d6a70a90ee10f2ea01fbb5bc196fc4515657228a",
+      "translation": "Exagération précoce Tsne"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tsne_learning_rate",
+      "source": "Tsne learning rate",
+      "source_sha256": "929e654f628a049a3c62315d9fa3bb64f1b432a1402e08e6292461debf3b0218",
+      "translation": "Taux d’apprentissage Tsne"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tsne_max_iter",
+      "source": "Tsne max iter",
+      "source_sha256": "f18c18bc38584647186a71e233ba8d0f6336e750dd810494b86c43e8da892bd3",
+      "translation": "Itérations max. Tsne"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tsne_perplexity",
+      "source": "Tsne perplexity",
+      "source_sha256": "2b483ddf58ce11276e138cf5085982b5d9e00843005e4b55813c65ce6e6c3e7e",
+      "translation": "Perplexité Tsne"
+    },
+    {
+      "table": "setting_labels",
+      "key": "umap_sidebar_width",
+      "source": "UMAP sidebar width",
+      "source_sha256": "7a5310edfee7948be584500277986f378332000beb0d78292ac47eae95a2e3bd",
+      "translation": "Largeur de la barre latérale UMAP"
+    },
+    {
+      "table": "setting_labels",
+      "key": "umap_stability_repeats",
+      "source": "UMAP stability repeats",
+      "source_sha256": "c1ebeb5172ed64867cb8f1a4dc6ff4482ebb356dbede26d6ba65101ad819c512",
+      "translation": "Répétitions de stabilité UMAP"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ultrack_contour_sigma",
+      "source": "Ultrack contour sigma",
+      "source_sha256": "b6dba856d1772e93a58aa2ea73e8167df85e4eccea3a53a53875b1394aaf9a67",
+      "translation": "Sigma de contour Ultrack"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ultrack_max_distance",
+      "source": "Ultrack max distance",
+      "source_sha256": "c38493119da6f1160d7f80f5b8f5994744bfd01e78c3fe9a2e30b4d14e40c3d2",
+      "translation": "Distance maximale Ultrack"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ultrack_n_workers",
+      "source": "Ultrack n workers",
+      "source_sha256": "679dda7fac58034e733de6f0080ea7f3439888d8f2eba0f211d2f45246bc0fd9",
+      "translation": "N processus Ultrack"
+    },
+    {
+      "table": "setting_labels",
+      "key": "um_per_pixel",
+      "source": "Um per pixel",
+      "source_sha256": "5ba8fc62bf1d790199050742ae2b78b72476b987a8cd3a214d0f7b6a87004810",
+      "translation": "um par pixel"
+    },
+    {
+      "table": "setting_labels",
+      "key": "um_per_px",
+      "source": "Um per px",
+      "source_sha256": "b913736650a734396a9e140b54de4df7391ddc198a11b85eaadfcc69ef76aa8e",
+      "translation": "um par px"
+    },
+    {
+      "table": "setting_labels",
+      "key": "uninfected",
+      "source": "Uninfected",
+      "source_sha256": "c056576f5809837baee7559371a18fd6b11e84dc69043d51a3a4d810d493542c",
+      "translation": "Non infectées"
+    },
+    {
+      "table": "setting_labels",
+      "key": "use_bounding_box",
+      "source": "Use bounding box",
+      "source_sha256": "3376f836219eb85fbdfc2b5f289a1d82292f769ea6be3defe79747e825e4c168",
+      "translation": "Utiliser la boîte englobante"
+    },
+    {
+      "table": "setting_labels",
+      "key": "vacuole_key",
+      "source": "Vacuole key",
+      "source_sha256": "1cef4c3a513b6fb52fdb23cf7a5360da026e44a916cb6f759231f554b7e36086",
+      "translation": "Clé de vacuole"
+    },
+    {
+      "table": "setting_labels",
+      "key": "vacuole_link_distance",
+      "source": "Vacuole link distance",
+      "source_sha256": "a178165637f75edede4b535fd5ffe79128dcf66a10368afe35ed1f750f53131d",
+      "translation": "Distance de liaison des vacuoles"
+    },
+    {
+      "table": "setting_labels",
+      "key": "vacuole_link_factor",
+      "source": "Vacuole link factor",
+      "source_sha256": "c0a98e79fd4ba5e1901002557c267a31fa69249d58bda18ae583bee5577e5f17",
+      "translation": "Facteur de liaison des vacuoles"
+    },
+    {
+      "table": "setting_labels",
+      "key": "value_col",
+      "source": "Value col",
+      "source_sha256": "f585bf866d33119e22a291b4cb6f4018c89e0ccf1988ba3e09b01f3835dbe382",
+      "translation": "Colonne de valeurs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "well_detection",
+      "source": "Well detection",
+      "source_sha256": "36f8e074ce9d0b66e8f0689c534fa419e4675e6b44a21317fc252dd50d7cc4a8",
+      "translation": "Détection des puits"
+    },
+    {
+      "table": "setting_labels",
+      "key": "well_diameter_mm",
+      "source": "Well diameter mm",
+      "source_sha256": "4eca73bbce764faf0a45d725e8461459e64389460209102bc0aca6570cb66d1e",
+      "translation": "Diamètre du puits (mm)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "wide_predictor_columns",
+      "source": "Wide predictor columns",
+      "source_sha256": "81fcf79e8459eda424c76c52a4688a8a2d879d82be27c698babb2046869b37c4",
+      "translation": "Colonnes de prédicteurs (format large)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "width_height",
+      "source": "Width height",
+      "source_sha256": "64918b26e7ed5c146850316cc7bc9264ddcca9bcf8d151341edbebca4751ac93",
+      "translation": "Largeur et hauteur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "window_length",
+      "source": "Window length",
+      "source_sha256": "337653ea35b069dd05d92453158af694ba743ac3580b53ae4ac451f3b73d9ebd",
+      "translation": "Longueur de la fenêtre"
+    },
+    {
+      "table": "setting_labels",
+      "key": "write_random_annotation_column",
+      "source": "Write random annotation column",
+      "source_sha256": "8a62bc5c7174a46545d8869a8f1dd7542f353cef6ce9ddc0a6abfa44f5329c99",
+      "translation": "Écrire la colonne d’annotation aléatoire"
+    },
+    {
+      "table": "setting_labels",
+      "key": "x_lim",
+      "source": "X lim",
+      "source_sha256": "98024bcf0118c6fee134a6e9b12525a6b252a745a3fac0e2ac6a8b093a315dad",
+      "translation": "Limites de l’axe x"
+    },
+    {
+      "table": "setting_labels",
+      "key": "z_axis",
+      "source": "Z axis",
+      "source_sha256": "aab7694710dcc8d1a6c89cf47e8950e862b7309dd4fadb280d1ca91c8649094e",
+      "translation": "Axe Z"
+    },
+    {
+      "table": "setting_labels",
+      "key": "z_projection",
+      "source": "Z projection",
+      "source_sha256": "3fa3166ae4c55d7aee8a96439c492d57e3e6a41f349ac971bd225d86af6bffab",
+      "translation": "Projection Z"
+    },
+    {
+      "table": "setting_labels",
+      "key": "z_segmentation_mode",
+      "source": "Z segmentation mode",
+      "source_sha256": "f6e2711f870fb2d94276ffe90c239d9b49e5054d18b83d249c83c81e1b9d3e00",
+      "translation": "Mode de segmentation Z"
+    },
+    {
+      "table": "setting_labels",
+      "key": "grna_statistic",
+      "source": "gRNA statistic",
+      "source_sha256": "4609b014b22c194e6df3e952d8ac468dfe3b89099c62e4e3cd34c010bb9e96ad",
+      "translation": "Statistique gRNA"
+    }
+  ]
+}
