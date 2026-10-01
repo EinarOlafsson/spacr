@@ -300,3 +300,28 @@ source-bound terminology adaptations in all nine languages. Standard full
 runtime audit, all nine exact targets/placeholders and 14 focused checks
 passed. Related-source provenance and AI review are explicit. API translation
 refresh and full documentation/publication acceptance remain open.
+
+2026-10-01 — NINE-LOCALE API AUDIT AND FULL ENGLISH DOCUMENTATION BUILD
+All nine API catalogs passed the standard strict audit against 12,035 English
+symbols, including 80,098 source-bound reviewed blocks. Seventeen new technical
+corrections received independent AI peer review; provenance does not claim
+human/native-speaker review. Catalog and history hashes remained unchanged
+through the audit and commit cc8bf7884. This closes the earlier API refresh
+checkpoint for that source snapshot; publication remains separate.
+
+The earlier full-build memory failure was resolved without raising its cap:
+a strict dummy/read phase creates the complete Sphinx environment, followed
+by a fresh strict HTML process reusing it. Both phases exited zero with 4 GiB
+memory, zero swap and actual single-CPU affinity. CPUQuota100% was configured,
+but this host does not delegate a kernel CPU quota controller; affinity is
+the effective one-core limit. The earlier quota-only wording above describes
+configuration, not verified kernel enforcement.
+
+All 2,535 source/config/asset fingerprints stayed unchanged during this build.
+It produced 1,288 HTML files, all 634 API pages and 615 source-view pages; both
+existing rendered publication/markup checks passed. Full English Sphinx
+acceptance is now established for that exact snapshot. F583's new guide and
+pagination, and F585's later planner changes, require subsequent integration
+validation; this result does not claim those later changes were included.
+Guide translations and tutorial media publication remain open.
+Receipt: features/data/615_api_and_full_docs_2026-10-01.json.
