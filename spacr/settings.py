@@ -6345,6 +6345,18 @@ def get_setting_dependencies():
             f"segments without a checkpoint. The value is kept and saved."),
     )
 
+    setting_dependencies['illumination_vendor_channel_map'] = rule(
+        ('illumination_correction', 'illumination_vendor_profile', 'illumination_model'),
+        lambda settings, context: (
+            bool(settings.get('illumination_correction', False))
+            and bool(str(settings.get('illumination_vendor_profile') or '').strip())
+            and not str(settings.get('illumination_model') or '').strip()),
+        lambda settings, context: (
+            "Vendor channel assignments are used only when illumination correction "
+            "is enabled, a vendor profile is selected, and no saved illumination "
+            "model overrides it. The value is kept and saved."),
+    )
+
     setting_dependencies['bleach_correction'] = rule(
         ('timelapse',),
         lambda settings, context: bool(settings.get('timelapse', False)),
