@@ -434,6 +434,155 @@ def apply_conditions(frame, definition, source):
     return output
 
 
+_SCHEMA_MAX_BYTES = 8 * 1024 * 1024
+
+
+def _schema_columns(columns, *, importing):
+    """Copy only portable recipe fields; never import source-bound memberships."""
+    allowed = {
+        "rules": {"column", "kind", "conditions"},
+        "extract": {"column", "kind", "metadata_column", "pattern", "group"},
+        "combine": {"column", "kind", "columns", "separator"},
+        "template": {"column", "kind", "parts"},
+    }
+    rule_fields = {"name", "metadata_column", "include", "exclude", "manual_rows",
+                   "match_mode", "match_text", "include_values", "exclude_values",
+                   "criteria", "match"}
+    if not isinstance(columns, list) or not columns:
+        raise AnnotationError("The annotation schema needs at least one output column.")
+    try:
+        result = json.loads(json.dumps(columns, allow_nan=False))
+    except (TypeError, ValueError, RecursionError) as exc:
+        raise AnnotationError("The annotation schema must contain finite JSON values.") from exc
+    omitted = 0
+    for entry in result:
+        if not isinstance(entry, dict):
+            raise AnnotationError("Each schema output must be a column definition.")
+        kind = entry.setdefault("kind", "rules")
+        if not isinstance(kind, str) or kind not in allowed or set(entry) - allowed[kind]:
+            raise AnnotationError("The annotation schema contains unsupported column fields.")
+        if not isinstance(entry.get("column"), str):
+            raise AnnotationError("Schema output column names must be text.")
+        if kind == "rules":
+            conditions = entry.get("conditions", [])
+            if not isinstance(conditions, list):
+                raise AnnotationError("Schema conditions must be a list.")
+            for rule in conditions:
+                if not isinstance(rule, dict) or set(rule) - rule_fields:
+                    raise AnnotationError("The annotation schema contains unsupported rule fields.")
+                if not isinstance(rule.get("name"), str):
+                    raise AnnotationError("Schema labels must be text.")
+                manual = rule.get("manual_rows", [])
+                if not isinstance(manual, list) or (importing and manual):
+                    raise AnnotationError("Reusable schemas cannot contain manual row assignments.")
+                omitted += len(manual)
+                rule["manual_rows"] = []
+                if rule.get("match_mode") in ("contains", "not_contains", "equals"):
+                    if "criteria" not in rule:
+                        rule["criteria"] = [{"metadata_column": rule.get("metadata_column"),
+                                             "operator": rule["match_mode"],
+                                             "value": rule.get("match_text")}]
+                        rule["match"] = "all"
+                    rule["match_mode"] = "regex"
+                    rule["include"] = ""
+                    rule.pop("match_text", None)
+                if "criteria" in rule:
+                    criteria = rule["criteria"]
+                    if not isinstance(criteria, list) or any(
+                            not isinstance(c, dict)
+                            or set(c) != {"metadata_column", "operator", "value"}
+                            for c in criteria):
+                        raise AnnotationError("Schema criteria need a column, operator and text value.")
+        elif kind == "template":
+            parts = entry.get("parts")
+            if not isinstance(parts, list) or any(
+                    not isinstance(part, dict)
+                    or (part.get("kind") == "column" and set(part) != {"kind", "column"})
+                    or (part.get("kind") == "text" and set(part) != {"kind", "text"})
+                    or part.get("kind") not in ("column", "text") for part in parts):
+                raise AnnotationError("Schema composition parts must be column references or fixed text.")
+    return result, omitted
+
+
+def _save_schema(path, frame, definition, source):
+    """Validate a snapshot and atomically save portable rules, returning omitted rows."""
+    from .run_journal import _atomic_write_text
+
+    target = Path(path).expanduser()
+    source_path = source.get("path")
+    if source_path:
+        original = Path(source_path)
+        if (target.resolve() == original.resolve()
+                or (target.exists() and original.exists() and target.samefile(original))):
+            raise AnnotationError("Save the annotation schema separately from the source table.")
+    report = preview(frame, definition, source)
+    if len(report.overlaps):
+        raise AnnotationError("Resolve overlapping labels before saving the annotation schema.")
+    columns, omitted = _schema_columns(_entries(definition), importing=False)
+    payload = {"format": "spacr.annotation-schema", "version": 1,
+               "recipe_version": definition["version"], "manual_rows": "excluded",
+               "columns": columns}
+    text = json.dumps(payload, ensure_ascii=False, allow_nan=False, indent=2) + "\n"
+    if len(text.encode("utf-8")) > _SCHEMA_MAX_BYTES:
+        raise AnnotationError("The annotation schema exceeds the 8 MiB size limit.")
+    _atomic_write_text(target, text)
+    return omitted
+
+
+def _schema_object(pairs):
+    """Reject ambiguous duplicate JSON keys rather than silently selecting one."""
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise AnnotationError(f"The annotation schema repeats the JSON key {key!r}.")
+        result[key] = value
+    return result
+
+
+def _schema_constant(value):
+    raise AnnotationError(f"The annotation schema contains a nonfinite value: {value}.")
+
+
+def _load_schema(path, frame, source):
+    """Read a bounded portable recipe and preview it against this table snapshot."""
+    target = Path(path).expanduser()
+    if not target.is_file():
+        raise AnnotationError("Choose an annotation schema JSON file.")
+    with target.open("rb") as handle:
+        raw = handle.read(_SCHEMA_MAX_BYTES + 1)
+    if len(raw) > _SCHEMA_MAX_BYTES:
+        raise AnnotationError("The annotation schema exceeds the 8 MiB size limit.")
+    try:
+        payload = json.loads(raw.decode("utf-8-sig"), object_pairs_hook=_schema_object,
+                             parse_constant=_schema_constant)
+    except (UnicodeError, ValueError, RecursionError) as exc:
+        raise AnnotationError(f"Could not read the annotation schema: {exc}") from exc
+    if (not isinstance(payload, dict)
+            or set(payload) != {"format", "version", "recipe_version", "manual_rows", "columns"}
+            or payload.get("format") != "spacr.annotation-schema"
+            or type(payload.get("version")) is not int or payload["version"] != 1
+            or type(payload.get("recipe_version")) is not int
+            or payload["recipe_version"] not in (1, 2, 3)
+            or payload.get("manual_rows") != "excluded"):
+        raise AnnotationError("Unsupported annotation schema format or version.")
+    columns, _omitted = _schema_columns(payload["columns"], importing=True)
+    version = payload["recipe_version"]
+    if version == 1 and (len(columns) != 1 or columns[0]["kind"] != "rules"):
+        raise AnnotationError("A legacy annotation schema must contain one rules column.")
+    if version < 3 and any(entry["kind"] in ("extract", "template")
+                           or any("criteria" in rule for rule in entry.get("conditions", []))
+                           for entry in columns):
+        raise AnnotationError("This annotation schema needs recipe version 3.")
+    definition = new_definition(frame, source)
+    if version == 1:
+        definition.update(column=columns[0]["column"], conditions=columns[0].get("conditions", []))
+    else:
+        definition.pop("column")
+        definition.pop("conditions")
+        definition.update(version=version, columns=columns)
+    return definition, preview(frame, definition, source)
+
+
 PROVENANCE_TABLE = "_spacr_condition_annotations"
 
 
