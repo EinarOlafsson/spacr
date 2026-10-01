@@ -241,3 +241,9 @@ updated; their nine-language refresh is tracked separately.
 Receipt: features/data/542_dilution_csv_2026-10-01.json.
 Real detector cross-validation and external-lab biological acceptance remain
 open; completing CSV input does not promote this alpha feature.
+
+2026-10-01 — CSV INPUT TRANSLATION CHECKPOINT
+The CSV dilution tooltip and guide paragraph are now source-bound and
+technically AI-reviewed in all nine languages. Standard runtime generation,
+exact target verification and complete guide coverage audit pass.
+See features/data/615_preview_controls_runtime_2026-10-01.json.

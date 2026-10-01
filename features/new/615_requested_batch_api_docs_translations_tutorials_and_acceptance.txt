@@ -347,3 +347,17 @@ This is technical AI review, not native-speaker or listening signoff.
 Receipt: docs/i18n/reviewed/guides/2026-10-01-table-workflows-receipt.json.
 The next 42 missing messages per language and a later colony CSV paragraph
 remain in progress. A full current HTML rendering is not yet claimed.
+
+2026-10-01 — CURRENT GUIDE COVERAGE AND PREVIEW CONTROLS
+387 new independently AI-reviewed guide messages complete all nine languages:
+25,758/25,758 current messages, no missing, stale or invalid translations.
+54 catalogs compile; 10,296 historical translations/comments are preserved.
+30 guide/provenance checks passed. No human/native-speaker signoff is claimed.
+76 runtime targets, including all nine colony CSV tooltips, match reviewed
+source hashes. Four indirectly generated captions are now extracted, raising
+the inventory to 6,489. The normal generator audit, 60 runtime/chrome checks
+and the pinned inventory check pass under unchanged resource caps.
+Receipts: docs/i18n/reviewed/guides/2026-10-01-preview-model-and-plugin-guides-receipt.json
+and features/data/615_preview_controls_runtime_2026-10-01.json.
+Full current English HTML validation is the next checkpoint; translated
+rendering, tutorial media and publication remain separate acceptance work.

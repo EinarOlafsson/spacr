@@ -1,0 +1,83 @@
+{
+  "ui_source_count": 6489,
+  "added_ui_sources": [
+    "High",
+    "Low",
+    "Medium",
+    "Plugins"
+  ],
+  "changed_setting_tooltips": [
+    "colony_dilution"
+  ],
+  "other_English_inventory_unchanged": true,
+  "exact_records": 76,
+  "locales": [
+    {
+      "language": "de",
+      "verified": 9
+    },
+    {
+      "language": "es",
+      "verified": 7
+    },
+    {
+      "language": "fr",
+      "verified": 9
+    },
+    {
+      "language": "hi",
+      "verified": 8
+    },
+    {
+      "language": "is",
+      "verified": 10
+    },
+    {
+      "language": "ko",
+      "verified": 10
+    },
+    {
+      "language": "pt",
+      "verified": 6
+    },
+    {
+      "language": "sv",
+      "verified": 8
+    },
+    {
+      "language": "zh_CN",
+      "verified": 9
+    }
+  ],
+  "date": "2026-10-01",
+  "review": "Codex AI authorship and independent agent technical review; no human/native-speaker signoff",
+  "generator": {
+    "exit_code": 0,
+    "elapsed": "7:36.34",
+    "max_rss_kib": 733872,
+    "limits": "4GiB, zero swap, one CPU affinity"
+  },
+  "tests": {
+    "runtime_chrome": {
+      "passed": 60,
+      "seconds": 6.55
+    },
+    "pinned_inventory": {
+      "passed": 1,
+      "seconds": 5.08
+    }
+  },
+  "guide_receipt": "docs/i18n/reviewed/guides/2026-10-01-preview-model-and-plugin-guides-receipt.json",
+  "catalog_hashes": {
+    "spacr/qt/i18n_catalogs/de.py": "0814af5369c884862841573d8c34d7f7f8d230420a191a98485e381a6c475e3d",
+    "spacr/qt/i18n_catalogs/en.py": "1aaa077973026c0b62d33d188c6acf1ac5ac6e1f740fc4e5961459349ed026e1",
+    "spacr/qt/i18n_catalogs/es.py": "d70fdc19ecd62de5998797ffe1a19ad105e0525423859f20bc69fba24179f8d5",
+    "spacr/qt/i18n_catalogs/fr.py": "9c06b4744a985ec0aad8bc08bfacc5a0475c41cb26a96c12d819d8cdf15a1997",
+    "spacr/qt/i18n_catalogs/hi.py": "cd63aab685d530d7e5d8b4b32c7faccb3edbc6252dd94c4b8d722e4f492f5f1e",
+    "spacr/qt/i18n_catalogs/is.py": "1b2a025e816ae77612a1cac3a73b1b725d708c585b7f35845c19c293ab0547b9",
+    "spacr/qt/i18n_catalogs/ko.py": "d7d6aa92c3edc20ec0199b5ece07440eb56e96079b47c1112ea04b098c77335d",
+    "spacr/qt/i18n_catalogs/pt.py": "18d57087570e76f98cce250d5fa9de7d5890e0ea27a8e9dec4f720e2cc6bc0dd",
+    "spacr/qt/i18n_catalogs/sv.py": "62ffbda9435e20771105b2c4e3a9d0f320235c098c9890731c87502444850fa7",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "52c7e4594b61adcf029c80ab28438c47a85a692a32ad805d3913024d4847f0ed"
+  }
+}
