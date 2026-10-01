@@ -59,7 +59,7 @@ def check_annotation_recipe(base, annotated, definition):
             or not base.equals(annotated.loc[:, base.columns])):
         raise ValueError('Annotation changed source columns, row order or index')
     columns = definition.get('columns', [])
-    if definition.get('version') != 2 or [c['column'] for c in columns] != outputs:
+    if definition.get('version') != 3 or [c['column'] for c in columns] != outputs:
         raise ValueError('Expected the ordered three-column recipe')
     rules = [
         [('WildType', 'columnID', {'c1', 'c2', 'c3'}),
@@ -77,7 +77,9 @@ def check_annotation_recipe(base, annotated, definition):
                     or set(rule.get('include_values', [])) != values
                     or any(rule.get(key) for key in ('exclude_values', 'manual_rows', 'include', 'exclude'))):
                 raise ValueError('Exact-value rule differs from the lesson')
-    if columns[2] != dict(column='condition', kind='combine', columns=outputs[:2], separator='_'):
+    if columns[2] != dict(column='condition', kind='template', parts=[
+            dict(kind='column', column='genotype'), dict(kind='text', text='_'),
+            dict(kind='column', column='replicate')]):
         raise ValueError('Combination order or separator differs')
     expected_rows = []
     for column, row in zip(base.columnID, base.rowID):

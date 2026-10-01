@@ -68,6 +68,11 @@ def test_real_controls_apply_and_check_every_row(tmp_path, real_example):
         assert set(proof['counts']['condition']) <= {'WildType_replicate 1', 'mutant_replicate 1'}
         assert proof['actual_dialog_controls']
         assert proof['illustrative_labels_only'] and not proof['published']
+        assert screen._condition_definition['version'] == 3
+        assert screen._condition_definition['columns'][-1] == {
+            'column': 'condition', 'kind': 'template', 'parts': [
+                {'kind': 'column', 'column': 'genotype'}, {'kind': 'text', 'text': '_'},
+                {'kind': 'column', 'column': 'replicate'}]}
         if real_example:
             assert len(frame) == 2341
             assert set(frame.columnID) == {'c1', 'c2'}

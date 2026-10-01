@@ -74,7 +74,7 @@
     },
     {
       "visual": "13_genotype_exact_values",
-      "narration": "Click Annotate conditions. Name the first output genotype. In Exact values mode, label columnID values c1, c2 and c3 as WildType. Add a second box named mutant for c7, c4, c5 and c6. These are illustrative labels, not validated genotypes. The downloaded table contains only c1 and c2, so every cell matches WildType and none matches mutant. Exact values match whole values: c1 does not match c10.",
+      "narration": "Click Annotate conditions. Name the first output genotype and use Assign values. Choose Exact values, then label columnID values c1, c2 and c3 as WildType. Add a second box named mutant for c7, c4, c5 and c6. These are illustrative labels, not validated genotypes. The downloaded table contains only c1 and c2, so every cell matches WildType and none matches mutant. Exact values match whole values: c1 does not match c10.",
       "hold_after": 0.7
     },
     {
@@ -84,7 +84,7 @@
     },
     {
       "visual": "15_composed_condition_preview",
-      "narration": "Add a third output named condition and choose Combine columns. Append genotype first and replicate second, with an underscore separator. Preview all three outputs. Matched r5 cells become WildType underscore replicate 1. A missing component leaves the combination blank, so r12 does not produce a label containing None or nan.",
+      "narration": "Add a third output named condition and choose Compose column. Select genotype under Available columns and click Add column token. Enter an underscore and click Add text token. Select replicate and click Add column token. The ordered tokens now read genotype, underscore, replicate. You can drag tokens or use Move token up and Move token down to change their order. Preview all three outputs. Matched r5 cells become WildType underscore replicate 1. A missing component leaves the combination blank, so r12 does not produce a label containing None or nan.",
       "hold_after": 0.7
     },
     {

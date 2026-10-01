@@ -55,9 +55,20 @@ def fill_annotation_controls(dialog, capture, settle, timeout):
 
     def rule(box, label, column, values):
         fill(box.name, label)
-        choose(box.column, column)
         choose(box.match_mode, 'values', data=True)
+        choose(box.column, column)
         fill(box.include_values, ','.join(values))
+
+    def append_column_token(column):
+        palette = dialog.template_palette
+        items = palette.findItems(column, Qt.MatchExactly)
+        if len(items) != 1:
+            raise RuntimeError(f'Missing annotation column token: {column}')
+        reveal(palette)
+        palette.scrollToItem(items[0])
+        QTest.mouseClick(palette.viewport(), Qt.LeftButton,
+                         pos=palette.visualItemRect(items[0]).center())
+        click(dialog.template_add_column)
 
     fill(dialog.output_column, 'genotype')
     rule(dialog.boxes[0], 'WildType', 'columnID', ['c1', 'c2', 'c3'])
@@ -73,10 +84,10 @@ def fill_annotation_controls(dialog, capture, settle, timeout):
     click(dialog.add_column)
     fill(dialog.output_column, 'condition')
     choose(dialog.column_kind, 'combine', data=True)
-    for column in ('genotype', 'replicate'):
-        choose(dialog.combine_available, column)
-        click(dialog.add_combine_input)
-    fill(dialog.combine_separator, '_')
+    append_column_token('genotype')
+    fill(dialog.template_text, '_')
+    click(dialog.template_add_text)
+    append_column_token('replicate')
     preview('15_composed_condition_preview')
     click(dialog.apply_button)
 
