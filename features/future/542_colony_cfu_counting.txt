@@ -221,3 +221,23 @@ exactly, and 14 focused catalog checks passed. Inventory increased by exactly
 one UI source, to 6,485. Translation provenance records AI terminology
 adaptation of reviewed plaque captions and independent technical review,
 without claiming a new model draft or human/native-speaker signoff.
+
+2026-10-01 — PER-PLATE CSV DILUTIONS
+Colony dilution now accepts a UTF-8 CSV path with file,dilution headers, as
+well as its existing scalar and dictionary inputs. The form uses a text
+editor even with its numeric default, allowing direct path/dictionary entry.
+CSV data is validated once before batch/preview detection or output writes;
+invalid later rows cannot leave partial analysis output. Exact filenames
+precede stems, and unmatched images retain counts without CFU/mL.
+Duplicate identifiers, invalid factors and malformed/oversized files fail
+with explicit messages. Preview and batch use the same resolved map.
+
+51 backend checks and two Qt field round-trip/deferred-control checks pass.
+The backend cohort writes actual SQLite/CSV from temporary TIFFs using a
+deterministic segmentation fixture, preserving source data and verifying
+preview parity and one consistent dilution snapshot per run. Existing
+public signatures/docstrings are unchanged. Guide and tooltip source were
+updated; their nine-language refresh is tracked separately.
+Receipt: features/data/542_dilution_csv_2026-10-01.json.
+Real detector cross-validation and external-lab biological acceptance remain
+open; completing CSV input does not promote this alpha feature.

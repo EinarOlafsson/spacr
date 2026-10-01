@@ -51,6 +51,16 @@ Colony counting produces no flow or cell-probability output, so those views
 show an unavailable-output message. Preview writes no analysis database and
 does not change the source image. Colony counting is ignored in Figure mode.
 
+For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The
+required headers are ``file,dilution``; each row names an image filename
+(including its extension) or a filename stem and a positive, finite dilution.
+For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution
+factor of 10000. Exact filenames take priority over stems. Duplicate identifiers
+and malformed rows stop preview or analysis before detection or output writes;
+plates absent from the mapping still receive counts but no CFU/mL. A single
+number or a Python dictionary remains supported. Set the plated volume in µL
+separately; CFU/mL uses the volume converted to mL.
+
 Read a published figure
 ------------------------
 

@@ -1052,10 +1052,11 @@ def _colony_preview_pass(path, settings):
     """Count original photo pixels through the run's colony engine, without writes."""
     from cellpose.io import imread
 
-    from ...plaque import _count_colony_plate, crop_well, detect_wells
+    from ...plaque import _count_colony_plate, _load_colony_dilutions, crop_well, detect_wells
 
     path = Path(path)
     settings = dict(settings)
+    settings['colony_dilution'] = _load_colony_dilutions(settings.get('colony_dilution', 1))
     weights = {}
     for key in ("well_detection", "colony_detector"):
         requested = settings.get(key)

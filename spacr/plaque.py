@@ -1071,6 +1071,68 @@ def _colony_count_flag(count: int, too_many: Any = _COLONY_TOO_MANY,
     return "countable"
 
 
+def _load_colony_dilutions(value):
+    """Resolve an optional UTF-8 CSV with ``file,dilution`` columns.
+
+    Numeric inputs and dictionaries retain their existing behavior. A CSV
+    is read and validated completely before returning its filename/stem
+    mapping, so a bad later row cannot yield a partially usable map.
+    """
+    import csv
+    import io
+    import os
+    from pathlib import Path
+
+    if not isinstance(value, (str, os.PathLike)):
+        return value
+    if isinstance(value, str):
+        if not value.strip():
+            return value
+        try:
+            float(value)
+        except ValueError:
+            pass
+        else:
+            return value  # Numeric strings were accepted before CSV support.
+    path = Path(value).expanduser()
+    limit = 8 * 1024 * 1024
+    try:
+        with path.open('rb') as handle:
+            content = handle.read(limit + 1)
+        if len(content) > limit:
+            raise ValueError('CSV exceeds the 8 MiB limit')
+        reader = csv.DictReader(io.StringIO(content.decode('utf-8-sig'), newline=''),
+                                strict=True)
+        headers = reader.fieldnames
+        if not headers:
+            raise ValueError('CSV needs file,dilution headers and at least one plate')
+        headers = [name.strip() for name in headers]
+        if any(not name for name in headers) or len(headers) != len(set(headers)):
+            raise ValueError('CSV headers must be nonempty and unique')
+        if not {'file', 'dilution'} <= set(headers):
+            raise ValueError('CSV needs file,dilution headers')
+        reader.fieldnames = headers
+        mapping = {}
+        for row in reader:
+            line = reader.line_num
+            if None in row or any(cell is None for cell in row.values()):
+                raise ValueError(f'CSV row {line} has a different number of fields than the header')
+            name = row['file'].strip()
+            if not name or name in ('.', '..') or any(c in name for c in ('/', '\\', '\x00')):
+                raise ValueError(f'CSV row {line}: file must be a filename or stem, not a path')
+            if name in mapping:
+                raise ValueError(f'CSV row {line}: duplicate file identifier {name!r}')
+            raw = row['dilution'].strip()
+            if _dilution_factor(raw) is None:
+                raise ValueError(f'CSV row {line}: dilution must be positive, finite and representable')
+            mapping[name] = float(raw)
+        if not mapping:
+            raise ValueError('CSV contains no plate dilutions')
+    except (OSError, UnicodeError, csv.Error, ValueError) as exc:
+        raise ValueError(f'colony_dilution CSV {str(path)!r}: {exc}') from exc
+    return mapping
+
+
 def _dilution_for(name: str, dilution: Any) -> Any:
     """The dilution factor that applies to one plate.
 
@@ -1079,6 +1141,7 @@ def _dilution_for(name: str, dilution: Any) -> Any:
         file stem to factor.
     :returns: the factor, or ``None`` when a dict does not name this plate.
     """
+    dilution = _load_colony_dilutions(dilution)
     if isinstance(dilution, dict):
         stem = name.rsplit(".", 1)[0]
         for key in (name, stem):
@@ -1148,6 +1211,7 @@ def _count_colony_plate(image: np.ndarray, *, name: str = "",
         pixels per original pixel, and the crop's corner in the photo.
     """
     settings = dict(settings or {})
+    dilution = _dilution_for(name, settings.get("colony_dilution", 1))
     method = "detector"
     if well is None:
         well, method = _find_dish(image)
@@ -1194,7 +1258,6 @@ def _count_colony_plate(image: np.ndarray, *, name: str = "",
     dish_area = np.pi * (well.diameter_px / 2.0) ** 2
     flag = _colony_count_flag(count, settings.get("colony_too_many", _COLONY_TOO_MANY),
                               settings.get("colony_too_few", _COLONY_TOO_FEW))
-    dilution = _dilution_for(name, settings.get("colony_dilution", 1))
     volume = _number(settings, "colony_plated_volume_ul", 100.0)
     summary = dict(
         colony_count=count, count_flag=flag,

@@ -9901,6 +9901,9 @@ class SettingsWidgets:
                 parent=parent,
             )
         actual_default = self._defaults.get(key, default)
+        if key == "colony_dilution":
+            # A numeric default must still allow a per-plate dict or CSV path.
+            return "plain", {"control": "text", "value": actual_default}
         if key == "timelapse_objects" or (
             key in CHANNEL_LIST_KEYS
             and list_shape_for(key, actual_default) is not None
