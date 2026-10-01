@@ -194,6 +194,7 @@ _DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     "gate_library",
     "gpu_reduce",
     "merge_tables",
+    "derived_tables",
     "model_check",
     "openmp_guard",
     "surrogate",

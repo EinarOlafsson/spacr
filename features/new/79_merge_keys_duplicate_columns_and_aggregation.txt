@@ -468,3 +468,31 @@ HOW TO KNOW IT WORKED
 
 tests/test_614_merge_config.py and tests/qt/test_614_merge_tables_dialog.py
 green; Regression's existing merge tests unchanged and green.
+
+2026-10-01 IMPLEMENTATION — shared default/custom merge engine and popup
+Implemented in spacr/derived_tables.py and the shared merge_tables_dialog.
+Default mode delegates to merge_tables/MergePolicy and Regression's shared
+roll_up, preserving static scientific aggregation and per-role join semantics.
+Composite temporal keys now remain distinct in both merge_tables and Regression;
+all-missing numeric sums remain missing. Qualified table.column overrides avoid
+cross-table ambiguity without changing the legacy six default aggregation names.
+
+Custom mode requires explicit acknowledgment, base observation keys, per-child
+composite mappings, one-to-one or one-to-many relationships, and left/inner
+joins. Full validation rejects missing keys, duplicate base observations,
+incompatible cardinality/types and identifier averaging; children aggregate
+independently. Preview reports row/group counts, unmatched/missing records,
+repeated child keys and representative output. Explicit custom key values are
+not interpreted as spaCR object labels. Cancel preserves the prior configuration;
+Reset restores default relationships and rules. Named definitions persist in
+source-adjacent .spacr-merges.json files with source-path/schema validation.
+Source databases remain byte-identical after merge/configuration persistence.
+
+Validation: 197 focused backend/Regression/Qt checks passed; subsequent targeted
+93-check cohort also passed after temporal export coverage. Includes repeated
+IDs across images/time, multiple children, missing values, type/cardinality
+refusals, external schemas, custom acknowledgment/reset, source scoping and
+Regression-default equivalence. Offscreen Linux dark/light popup renders were
+inspected; no native Windows/macOS display acceptance claimed.
+Graph Builder and Gate Editor integration are tracked in N613 and N41. Catalog,
+API-generation and tutorial-publication integration remain in N615.

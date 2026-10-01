@@ -12748,6 +12748,115 @@
       "source_sha256": "fae802b474e2297db23ed2c3cf86c3ee0d1550bec1a019c7696b9b5874ed810a",
       "text": "Convert a well name to canonical row and column identifiers.\n\nParameters\n----------\nwell : str\n    Well name such as ``\"A01\"`` or canonical identifier such as\n    ``\"r1c1\"``.\n\nReturns\n-------\ntuple of str\n    Canonical ``(rowID, columnID)`` values, for example ``(\"r1\", \"c1\")``.\n    Invalid well names return two empty strings."
     },
+    "spacr.derived_tables": {
+      "source_blocks_sha256": [
+        "4cada122a4bc0fc56971842a1823501c990a258ec3b516e63ccc647ed099a869",
+        "723bda54c5244a0612702371bc6e36b415e68a7eb160dd9fbe76705359c4838b"
+      ],
+      "source_sha256": "c484c0442e1eb9ab46b6d3fd05ef98138082a9f1d344337f7005eba3f62c5eda",
+      "text": "Reproducible, read-only derived tables shared by plotting and gating.\n\nDefault definitions delegate to :mod:`spacr.merge_tables`, the measurement\naggregation used by Regression. Custom definitions describe explicit joins\nonto unique base observations; children are aggregated before joining. JSON\nsidecars preserve definitions without altering source tables. A definition is\nbound to a canonical database path and the selected tables' column schemas."
+    },
+    "spacr.derived_tables.allowed_methods": {
+      "source_blocks_sha256": [
+        "829a0100d0e7b0293cfda3ff4d0c5f08ee6e709eb2e5c4716797aac4f51d6647",
+        "98ca539257487d54146d53fbe9520737d57604c3ddb6df88a6f6af0ff3d0be0a",
+        "ae3c1a31693dd350c8f2518c131f22416afa27943485df8886ed1b53a0d7d7a6",
+        "7f13fd34e5dcdf79b3b2d76da62ffb1f44b7db07911c06388430235eb6e7b181"
+      ],
+      "source_sha256": "74a81f0b6d18a38be2c0acc894757dfc9153f19f08a6db833c29a7b8596e7661",
+      "text": "List aggregations compatible with a column's actual values.\n\n:param series: Source column values.\n:param identifier: Whether these values identify observations.\n:returns: Supported deterministic method names."
+    },
+    "spacr.derived_tables.column_sample": {
+      "source_blocks_sha256": [
+        "6071af9fa1d8757e5995b87d9af42fd34a9e0bc1456022445ca946fd63d906b2",
+        "afc3f6c813541a6053438f2fdb30c70c295cf801bdb2391b25d29ec38b775afe",
+        "721260843f4b1b3f1576bbc250988c90b869774236944590a90c437acbc753e2",
+        "95366c1a86c1802b2d9f2d0a7b94016469a3fdf747ddee1ab2ad99e9e3d200e4",
+        "ded5e883950fa4e75cc5a71fbdf5de402289c63624061e0700d383a6f2dda6a3"
+      ],
+      "source_sha256": "693d37998504b913bbeaf6cd25d4dea2c7619d49fb92029190bc9c67be7b0410",
+      "text": "Read a bounded sample for controls; execution always validates all rows.\n\n:param path: Database path.\n:param table: Source table name.\n:param limit: Maximum sampled rows.\n:returns: Sample frame preserving SQLite column types when possible."
+    },
+    "spacr.derived_tables.default_definition": {
+      "source_blocks_sha256": [
+        "4d22bbdba119ebaf6a9661258c24067bb740e57974d559643df9f6893eeda546",
+        "71d58d5734944fda5e5a15bef06eb62f042610e6c53cba5de6510b2a014caa1e",
+        "d530c0548ec5e6521f1a8572ed6cc31e229756276e2660c97b8e169af43e9c2b",
+        "b542b7d307b18fce184c04973ad1b8ed425a96ec8d5cee4531f99ba453279703",
+        "d79f98a2ee5b1842e9407b39a7d50cbaab0eaf8816a32185ed792c3b1f43032b",
+        "663cf30a133f41c3374fd4aba2a1066acfc8dfd54a08cec876f4a2ca2b6c4068",
+        "c41f4deb256f9c3075291d139fb083b6f6d754beddfb1e7c82f6bb32393e3c87"
+      ],
+      "source_sha256": "b23c82ebb04695758c9ba15046b431124e94884a3c50b32c4c0915bbc7eda636",
+      "text": "Describe the established spaCR merge, with no inferred external keys.\n\n:param path: SQLite data source.\n:param tables: Tables to combine, including the output observation table.\n:param name: Display name for this derived table.\n:param base: Output table; defaults to cell, cytoplasm, or the first table.\n:param policy: Optional existing ``MergePolicy`` to retain user choices.\n:returns: JSON-serializable definition; execution validates the schema."
+    },
+    "spacr.derived_tables.execute": {
+      "source_blocks_sha256": [
+        "0cb1dfa91c52485e444111dede9015f1021875898b8c3afd94cf55a365b7554a",
+        "e61f6b324f2818c2b6a0eb7b655f4c288f6b639ac40d710efb553670e939883e",
+        "d1535faeb124db0e73c7e838e0ffbdbff55ac9709cfedba3ac64a1622b219b88",
+        "35448be657c804a52e0cd05f047731befbd4a390ebfb1fa11aae1e085a429fd7",
+        "d17f1aadd16f0a5ccc989e42ab350d9ed5ed3d89f331871325d652290bd65de5"
+      ],
+      "source_sha256": "7e6a534265d5e75c3bffe744db7803f76513544dc32aadbca13dd60a8fed9115",
+      "text": "Revalidate and materialize a merge without writing source tables.\n\n:param path: Source SQLite database.\n:param definition: Default or acknowledged custom merge configuration.\n:returns: ``(frame, diagnostics)`` with full counts and actual aggregation rules.\n:raises MergeError: Missing keys, changed schemas, cardinality or type violations."
+    },
+    "spacr.derived_tables.identity_columns": {
+      "source_blocks_sha256": [
+        "48c6eaaa753a0adca0b1c3dd363e1e556b84f338f0fa024eb20e6f134da991df",
+        "e4fb7db855ef6b072dc31d0e727005afa63bf44a36281007c0935ab7c2d92616",
+        "0c98c1c7bb6819c8a36369b0d5a3ea9c70c06ccdb5fd6c782f01bec4351e8987"
+      ],
+      "source_sha256": "b77ab6bad4ff907d4156a204c70301ae32a7c24b14f2e4bff3e3ccc7ce80c696",
+      "text": "Return image and time provenance actually present in a frame.\n\n:param frame: An object measurement frame.\n:returns: Ordered identity columns, excluding the object label."
+    },
+    "spacr.derived_tables.load_definitions": {
+      "source_blocks_sha256": [
+        "faebec9a62b3c9b5ed7f90460553664e39ffd55d612171e92a1c334f29db6a98",
+        "afc3f6c813541a6053438f2fdb30c70c295cf801bdb2391b25d29ec38b775afe",
+        "088ccfc0fdae1d40628398a73d1e230400052a4a6aa3c30ae15ccc8b4472a278"
+      ],
+      "source_sha256": "71405e6c81c8789a21f0cf030e62cc59ce77759740f463e066149fc67f7c5dc6",
+      "text": "Read saved definitions scoped to one database; execution revalidates schemas.\n\n:param path: Database path.\n:returns: Name-to-definition mapping, empty when no definitions exist."
+    },
+    "spacr.derived_tables.save_definition": {
+      "source_blocks_sha256": [
+        "ebfa0188e4eca2acdea15c7a1732400cdc5a2d94c8763a931516dd6d4d919f5e",
+        "afc3f6c813541a6053438f2fdb30c70c295cf801bdb2391b25d29ec38b775afe",
+        "0410ed4e1a5864fe189fc34616284e6e04f9d5ee679cf2c03381520099c320ec",
+        "1c9011892a31e4d0f4ddad7bbc247aefde41928034c1e7bbd69126d6a6bb69aa"
+      ],
+      "source_sha256": "72c493fd13043adb561541f117c8a975efb7fb2ea42cc40a6b64cc35ccd95ea1",
+      "text": "Validate then atomically save a named definition alongside its source.\n\n:param path: Database path.\n:param definition: Reproducible configuration, including the display name.\n:returns: Saved display name."
+    },
+    "spacr.derived_tables.schemas": {
+      "source_blocks_sha256": [
+        "7e2b45ab2ea3e6c67c464224e2714ebd2d200c871e33c3265c8161f1de68445b",
+        "ae3ab4df63ffcd920513b692f16b41850977e018504315873076deda5dcc06d1",
+        "ea258ef7f8c93c9e0364f9126a95a95c3704321221ad58f8f3661331679b3eaa"
+      ],
+      "source_sha256": "63f66aca4a8e2b668c5d9adb2492ca530782975e0907a7ee3efac0fe2344f697",
+      "text": "Discover user tables and declared column types without changing them.\n\n:param path: SQLite database path.\n:returns: Table names mapped to lists of column-name/type pairs."
+    },
+    "spacr.derived_tables.sidecar_path": {
+      "source_blocks_sha256": [
+        "dd05c20b4f56f2e2efc88b958575ed72f89d9445e0717edf26ef340e8ffe2f10",
+        "afc3f6c813541a6053438f2fdb30c70c295cf801bdb2391b25d29ec38b775afe",
+        "adc178807082e08cf811033eb441135ae903daedaaa1e4e8b3a8f9aea6f6392d"
+      ],
+      "source_sha256": "bbd237c1b7c9cd81985e3a4b5e2abe5f453c485c6a63661d6b315260b08e5159",
+      "text": "Return the source-adjacent definition file without modifying the database.\n\n:param path: Database path.\n:returns: Path to its JSON derived-table definitions."
+    },
+    "spacr.derived_tables.validate_source": {
+      "source_blocks_sha256": [
+        "f618202054f3a3c8085975f7853343951416da870831f7747b55b5c69ef872de",
+        "6468f4004f003258bf0d88caf73a6cdac9417317e71efbe7630bd62ae07b115a",
+        "15bce0f9ca56f850185d0bb4b1515149bebaf98466685b56407fcafc935cc6fa",
+        "6c4ba91ddaa554878d6c2e67b153038b4fd40afd761cd532690c4c44f8c11f0a"
+      ],
+      "source_sha256": "e16939c369dab8ca62984c1f449984bb5216770ac313d0c0fe7bdd7866c1c339",
+      "text": "Refuse reuse on another database or a changed selected-table schema.\n\n:param path: Database being used now.\n:param definition: Saved derived-table definition.\n:raises MergeError: Source or schema no longer matches."
+    },
     "spacr.diameter": {
       "source_blocks_sha256": [
         "a57091df2067410fe6158f2b7c0c8acc67cf8c3f175ed443a3bf9efeab6f61b8",
@@ -26905,6 +27014,16 @@
       ],
       "source_sha256": "c96803f9030ea7d6674d993fcd17ee80d1e371b597458d720eb5328dccdf956d",
       "text": "How ``column`` combines when several children roll up into one parent.\n\n:param column: measurement column name matched against the ordered\n    :data:`AGGREGATION_RULES`.\n:param numeric: text columns take the first value whatever their name.\n:param overrides: explicit choices, which always win.\n:returns: one of :data:`AGGREGATIONS`."
+    },
+    "spacr.merge_tables.aggregation_overrides": {
+      "source_blocks_sha256": [
+        "a29fe8beb028e3bad530f5e73ce89feb1fbd1ca565224660819bf01063dba607",
+        "5ec7c872be0073a67d6cf0008fc2a15c35f49f41fe9683d15879b0cc0e4bbba4",
+        "d91aaac7015661c21953c27e4d6a9eb6bd022d3478d6a1e40879dcba1a5188a9",
+        "bf53d2606a2bab71544218a14860bd14621dff5804e059c3ad59afc72bb09f91"
+      ],
+      "source_sha256": "04d54445af629b4333c689bf4d35042c8c1fe0f30c81abbb9eae0228fdea97bc",
+      "text": "Resolve global rules and table-qualified per-column overrides.\n\n:param policy: Shared merge policy.\n:param table: Source table whose aggregation rules are requested.\n:returns: Unqualified column-to-method mapping for this table."
     },
     "spacr.merge_tables.aggregation_plan": {
       "source_blocks_sha256": [
@@ -49026,6 +49145,38 @@
       ],
       "source_sha256": "162c5cd0ae3f9016537ff834c4c4b033bd0eef48c68b88512cb69f1a09a4ba96",
       "text": "Write a recropped field, mask, and curation record.\n\nThe image is stored as an unscaled uint16 TIFF beside the source images,\nand the relabelled mask is stored in ``<folder>/masks``. The curation\nrecord distinguishes deliberately removed boundary objects from missed\nsegmentation objects.\n\nA field cut from a ``_seg.npy`` bundle becomes a bundle of its own,\nholding ``img``, ``masks``, empty ``flows`` and a ``filename`` naming the\nparent and the box -- the form the external curation tool gave its\nrecrops, so either tool can open the other's.\n\n:param folder: Image-queue directory.\n:param filename: Source image filename.\n:param image: Source microscopy image.\n:param mask: Label image aligned with ``image``.\n:param box: Coordinates returned by :func:`recrop_box`.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``.\n:returns: Filename and retained-object count for the new field."
+    },
+    "spacr.qt.mask_thumbnail_quality": {
+      "source_blocks_sha256": [
+        "fac0c0bea05e69cdac56478afe2042d22e7318f4c1488b8bb98b6bed331daef8",
+        "e481429c5c8fd67a7f73fde3df9516a4e6578fae8ddc05d8f6524af529139f8a"
+      ],
+      "source_sha256": "534f9289495f83dbf137fe26e338f599f598ba7259254d904ef194eafa8a155e",
+      "text": "Persistent display quality for Make Masks' image-organizing thumbnails.\n\nLow retains the original 64-pixel sampling. Medium and High sample the\noriginal image and mask at 256 and 1024 pixels respectively, never enlarging\nthe source. Logical cell size remains the separate Size preference."
+    },
+    "spacr.qt.mask_thumbnail_quality.get_quality": {
+      "source_blocks_sha256": [
+        "578d724824a693979d5e301c7f4fa42a45d47e22a90218f974b5e141723443b6"
+      ],
+      "source_sha256": "578d724824a693979d5e301c7f4fa42a45d47e22a90218f974b5e141723443b6",
+      "text": "Return the persisted quality, with Low for old or invalid settings."
+    },
+    "spacr.qt.mask_thumbnail_quality.quality_combo": {
+      "source_blocks_sha256": [
+        "46fdfdedbef165348cb3a9a8ce96ca9f3f35c930619ce42814f7a01f24565da3",
+        "0a5f91e835fd601429dddbfee739c5a85c0beeef9f2b5e07e02f1d20bd4cedc4",
+        "964c9b6db319f835efd83ca8ae29c2dbae41ef5128973248f14bc29f4c908201"
+      ],
+      "source_sha256": "eb6876f6e193a7128f7f3d6f7dfb40def75e296ad931321c86900cf1efc246d5",
+      "text": "Build a live synchronized quality selector.\n\n:param parent: owning widget, if any.\n:returns: a combo whose item data uses stable untranslated quality keys."
+    },
+    "spacr.qt.mask_thumbnail_quality.set_quality": {
+      "source_blocks_sha256": [
+        "b2049d707c54b9d057605cdb4803b8511c2a9b4d1371c682705971871698ff17",
+        "6ef5e3c8b51d1ff23c754e1bda44a3acb5597048c8f1757343c712477ae1c100"
+      ],
+      "source_sha256": "8e3db069232f62306079928e8df0a21174a688b04a029a445adf5877bd7278d8",
+      "text": "Persist and broadcast a display-only quality choice.\n\n:param value: low, medium or high; an invalid value resets to low."
     },
     "spacr.qt.maturity": {
       "source_blocks_sha256": [
@@ -72746,6 +72897,26 @@
       "source_sha256": "5b14b333422439d491786ffd2381993ea6f515bc843179b6c91e2f544fa5cbce",
       "text": "The name of the tool this panel is installing or signing in to.\n\n:returns: its label, such as ``\"Claude\"``, or ``\"\"`` before the\n    panel has been given a tool."
     },
+    "spacr.qt.widgets.collapse_arrow": {
+      "source_blocks_sha256": [
+        "dc6cb67ab488d47a33c5af76b05d83947764cab157853e0151bf0cd08b4ed836"
+      ],
+      "source_sha256": "dc6cb67ab488d47a33c5af76b05d83947764cab157853e0151bf0cd08b4ed836",
+      "text": "Consistent collapse glyphs with unchanged pointer targets."
+    },
+    "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow": {
+      "source_blocks_sha256": [
+        "26103d5586292e4ede82b4b8153296a52efa9ffbce89e105873a5114949ac6bd",
+        "a918a1278f9992588a4f9f61de457588b5c28b8a052ef9a7c959eb40c6a2c3d7",
+        "a335302e7c5b874906658e748af0ab1d20e802560fc6a937026b70de1bc58765",
+        "a70bf2d842e6d1c3a37ee4f6934abb85dcc2649d852d162111223205c40e1e11",
+        "ec6df8d27b64749e9f6c99fdcf13122066024cf973b503c44ed93fdedde86699",
+        "c89e105e3b16eb3fc4b3538a4326c44736837843f61b265da262a181e43b9a9d",
+        "9f811bfef96389a123fcf3d93f951922a0085c0d4ebfd0520c9ee9e0d77b1adb"
+      ],
+      "source_sha256": "6cd8e659f248abeb9f409ac31827f123d39e598bd367e7ef73720436715b2d84",
+      "text": "Draw the existing tab with its arrow at 75 percent of baseline.\n\n:param painter: active painter on the handle.\n:param rect: unchanged clickable handle rectangle.\n:param orientation: splitter orientation (horizontal means a vertical bar).\n:param towards_start: point left/up when true, right/down otherwise.\n:param palette: active theme colors.\n:param hovered: whether to accent the glyph and tab border."
+    },
     "spacr.qt.widgets.collapsible_section": {
       "source_blocks_sha256": [
         "82a0e7705ef9efa6d9915130fa6e7af50f4925ce04a79b27c1df34811fb21f96",
@@ -74910,6 +75081,35 @@
       "source_sha256": "d01a81273f700b4f344ed4c30886f842141d5ada357d91ec629a1f3c900fb900",
       "text": "The database a chosen source names.\n\n:param source: what the user picked -- a database file in ``'database'``\n    mode, a spaCR project/plate folder in ``'folder'`` mode.\n:param mode: ``'database'`` or ``'folder'``.\n:returns: the path to open. Nothing is checked for existence; a source\n    whose database is missing is reported by the summary rather than\n    removed from the set behind the user's back."
     },
+    "spacr.qt.widgets.derived_table_source": {
+      "source_blocks_sha256": [
+        "c2493f377c626080299eedd1abeb4327074a5625b6eadd067df8345a2ac991a8"
+      ],
+      "source_sha256": "c2493f377c626080299eedd1abeb4327074a5625b6eadd067df8345a2ac991a8",
+      "text": "Shared derived-table actions for plotting and gating screens."
+    },
+    "spacr.qt.widgets.derived_table_source.DerivedTableSource": {
+      "source_blocks_sha256": [
+        "b057c1a3b3ecc1b2a889f56b7387d34bba3b0cbc65e6b05e73542a20bd780d73"
+      ],
+      "source_sha256": "b057c1a3b3ecc1b2a889f56b7387d34bba3b0cbc65e6b05e73542a20bd780d73",
+      "text": "Add named merges to an existing table screen without owning its loader."
+    },
+    "spacr.qt.widgets.derived_table_source.DerivedTableSource.open_merge_dialog": {
+      "source_blocks_sha256": [
+        "d55cfb57654aa6f23a61cf2dffcb4dde647628109b69029c5fde711a66c17b34"
+      ],
+      "source_sha256": "d55cfb57654aa6f23a61cf2dffcb4dde647628109b69029c5fde711a66c17b34",
+      "text": "Create a validated persistent result and load it through the normal path."
+    },
+    "spacr.qt.widgets.derived_table_source.DerivedTableSource.use_derived_table": {
+      "source_blocks_sha256": [
+        "2c6e2ccdce35e8b3c8b97b4623f064e9c5d3aeb82cdc02f6b678f6cc0368109b",
+        "ee17b708341bc8da79a0943a412bf5e58fa6943b435bfee272cbe534b6e01a3d"
+      ],
+      "source_sha256": "c9289b8fdb4829a0fb85ccf94452c9483b236211a1b7db844c4d72407e4b546e",
+      "text": "Validate and persist a definition, then use the screen's ordinary loader.\n\n:param definition: Named definition bound to the currently loaded database."
+    },
     "spacr.qt.widgets.divider": {
       "source_blocks_sha256": [
         "1fececc276856d5c8dbcb3b750efe95c57db045f48ad9bd5621c9cb29282ad1d"
@@ -75905,6 +76105,21 @@
       "source_sha256": "2d7e4665227e41a8bb5f6a29b5ea2022f7a93704ab6898521a15453c8d3c09d1",
       "text": "Light the line up under the pointer.\n\n:param event: the event."
     },
+    "spacr.qt.widgets.dock.DockEdge.is_collapsed": {
+      "source_blocks_sha256": [
+        "b4e4d18884f85bb2dd3c5d00e0e507184d943968d068846f3476a2646d7eed9a"
+      ],
+      "source_sha256": "b4e4d18884f85bb2dd3c5d00e0e507184d943968d068846f3476a2646d7eed9a",
+      "text": "Whether the dock slot is collapsed; the handle stays visible."
+    },
+    "spacr.qt.widgets.dock.DockEdge.keyPressEvent": {
+      "source_blocks_sha256": [
+        "9c9e049fb87928ef19e8359c9d16155e768fcf1418700aa778aaabf2ae22a078",
+        "4a2a1b288707569f32d625185833368417bc76b051f2487856a29eb54b0c6b92"
+      ],
+      "source_sha256": "cd5fdc8d12d05eeefddf487cedf98536a99ec0237a0ed2d4b1afd40ee32432e6",
+      "text": "Let a keyboard user activate the same collapse control.\n\n:param event: key press; Space, Return and Enter toggle the dock."
+    },
     "spacr.qt.widgets.dock.DockEdge.leaveEvent": {
       "source_blocks_sha256": [
         "d8a55c2ecf503472d3d0db55f9637f76c004572a27b6967c8aafb71e86c0a9a2",
@@ -75955,10 +76170,18 @@
     },
     "spacr.qt.widgets.dock.DockEdge.retranslate_dynamic_content": {
       "source_blocks_sha256": [
-        "6c86973ad901a5dc365fdbcba22ce5f97bc5bcf2af41acb9a191c7f233eff514"
+        "c959f07d85f7413f043bd83e9cde860c3526df919d1bb41baaf2fda4c99462ca"
       ],
-      "source_sha256": "6c86973ad901a5dc365fdbcba22ce5f97bc5bcf2af41acb9a191c7f233eff514",
-      "text": "Rewrite the tooltip in ``language``."
+      "source_sha256": "c959f07d85f7413f043bd83e9cde860c3526df919d1bb41baaf2fda4c99462ca",
+      "text": "Explain the current collapse action and the resize gesture."
+    },
+    "spacr.qt.widgets.dock.DockEdge.set_collapsed": {
+      "source_blocks_sha256": [
+        "3a924495cdee95ca6c64ac99c759e68385f450f833c1856e53cc78d36b4a387a",
+        "3017f63fa44509e30f72b904c1ed8e9608b5f5912d45d708d15420aa66173d32"
+      ],
+      "source_sha256": "6cb32d832024bfa254a6689862ac680c2f3bfd85598c2a3b1e7f615fb93782c7",
+      "text": "Hide or restore the slot without changing its dock's saved width.\n\n:param collapsed: true hides the slot; false restores its contents."
     },
     "spacr.qt.widgets.dock.DockRow": {
       "source_blocks_sha256": [
@@ -86099,13 +86322,14 @@
     },
     "spacr.qt.widgets.glass.round_the_corners": {
       "source_blocks_sha256": [
-        "d5c404d42ca86179e7b2f0916d69335a8786bb9a140dd7730850eaa9d389a4e3",
-        "1b76e2a883fdf43d72adfc16ef670e0e6250ef4cdd1421bec60f8f6af83515f1",
-        "b9db4dfb717c5640268bbdae86a724f0edf6e8591352cfaba8fcebe14230b40b",
-        "4428cd346435e56b7b911f51f7767ad89a060bd4a69cac3a2dbfbb013018908e"
+        "6d7433678ee058342c2ce9bf28abdf778be33f65197f7d2b29588768f6b61c99",
+        "99d89642d0b2f863c377de7b714051c77540ca613ed0390981579d44440baa99",
+        "4cabc230e6127c33baabb45ea629f6b91dd76493cbcc4b90f73eeebbbb7f156c",
+        "cee6db11bc34f0cb85c2a71c0fe85b04d024065fdcbe1e04e382e4463d21b4ae",
+        "da1240f84dbcff6fbf2d84bd599ca3103c7c15be57bf663e4b2c6b9ccba66965"
       ],
-      "source_sha256": "e8a31d4f086e64823eaeaac10ec92b0350a0f76855c99952d09909c6ac8ef21c",
-      "text": "Cut the window itself to the card's rounded shape. True if applied.\n\nTRANSLUCENCY IS NOT ENOUGH, AND THAT IS THE WHOLE POINT OF THIS.\n`WA_TranslucentBackground` asks the window manager to composite the\ncorner pixels away; a mask REMOVES them from the window's shape, so\nthe corners are gone whether or not anything is compositing, and\nwhether or not the surface came back with an alpha channel after its\nflags were rewritten. It is the one way to be sure no square is left\nround a rounded card, which is what kept coming back.\n\nThe mask is rebuilt on every resize -- see :class:`_Backdrop` -- and\nit follows the same radius the card paints, so the cut edge sits\nunder the rim rather than beside it.\n\n:param dialog: the widget whose window mask is cut to a rounded rectangle\n    of its current size; an empty size returns ``False``."
+      "source_sha256": "44febc6ef9a29d605fdb94f2786fdd8bd55e0be66f920637b1884da7af18dece",
+      "text": "Keep antialiased alpha edges on translucent windows.\n\nA QRegion is binary and quantizes its outline to logical pixels, even\non high-DPI screens. Cutting the antialiased card to that shape erased\npartially covered edge pixels, producing a jagged white/dark fringe\nagainst the desktop. Translucent windows already carry the card's\nexact per-pixel alpha; clear any old mask and let that alpha compose.\nOpaque fallback windows retain the rounded platform mask.\n\n:param dialog: window carrying the shared rounded card.\n:param radius: corner radius in logical pixels for the opaque fallback.\n:returns: false for an empty or deleted widget, true after adjustment."
     },
     "spacr.qt.widgets.glass.spin_on_every_button": {
       "source_blocks_sha256": [
@@ -90777,6 +91001,79 @@
       ],
       "source_sha256": "e7835f55e078c26aef8d32051481acd883d701b7b7c72fca8818c274e56d9bc1",
       "text": "Reuse or fetch the example plate, then hand it to the screen.\n\n:param screen: a screen :func:`install_test_data_button` was called on.\n:param ask: replaces :func:`spacr.qt.hf_download.download_annotate_example`,\n    with the same ``(parent, destination, on_done)`` signature. For tests.\n:returns: ``{\"folder\": ..., \"db\": ...}`` when the plate was handed over\n    before returning -- always, when it was already cached -- and an\n    empty mapping while a download is still running or after it failed."
+    },
+    "spacr.qt.widgets.merge_tables_dialog": {
+      "source_blocks_sha256": [
+        "8017f7ce98c8e516f57960f94c6911f1aa379a4938980b811c8e8df37023cfe7",
+        "e8e9583a5ced85e1558ac9a07dca97e9e9f798b0fe6dce08435b2e280df348bb"
+      ],
+      "source_sha256": "eaf7625c8818457ea6c132627d82cccc58c25a2804ceabac77d97c5df91a92b0",
+      "text": "Shared table merging workflow for Graph Builder and Gate Editor.\n\nUsers can preview standard spaCR aggregation or explicitly configure external\nschemas. The custom editor works on a private copy, and applying requires both\nacknowledgment and a successful full-data validation."
+    },
+    "spacr.qt.widgets.merge_tables_dialog.CustomMergeDialog": {
+      "source_blocks_sha256": [
+        "f59f9230897dc14b2acc0373bd3acf5e6a7ab2b3d09439681fc77b6a0253a757",
+        "20c091c66a6807e0a8a158d37663ad0c5b20a2bee83a72f723f66b4b94db9275",
+        "bf28f50f7e95e44b01ca9b3b3d0b88aabdeba206fbc6c94f641bd782d366ca50",
+        "b6e605063504d9a579e41efad1073e95aaa9df55878ccde7758355fea5d3fbf6",
+        "8e4af84c537164bab7d642b77c1fa0ae7f5d0580266de1093458930317752674",
+        "e61f6b324f2818c2b6a0eb7b655f4c288f6b639ac40d710efb553670e939883e",
+        "00d200097d2f86e12af4ae29ed900f0f8f538b6e6ebb343c7675ab263a6ffcc9",
+        "b6e605063504d9a579e41efad1073e95aaa9df55878ccde7758355fea5d3fbf6"
+      ],
+      "source_sha256": "b39640f52624bd2824815aa659028b6f537e82c22d2abc55381d845538eb4391",
+      "text": "Edit an isolated explicit key mapping; Cancel has no side effects.\n\n:param path: Source database path.\n:param definition: Initial merge configuration to copy.\n:param parent: Owning merge popup.\nBuild isolated mapping controls.\n\n:param path: Source SQLite database.\n:param definition: Configuration copied before editing.\n:param parent: Owning merge popup."
+    },
+    "spacr.qt.widgets.merge_tables_dialog.CustomMergeDialog.accept": {
+      "source_blocks_sha256": [
+        "b3ca4eab76572ac2da97e6b12a2bc5c9221ed313423efe0933b6848f3746117f"
+      ],
+      "source_sha256": "b3ca4eab76572ac2da97e6b12a2bc5c9221ed313423efe0933b6848f3746117f",
+      "text": "Commit edited controls to the private copy after acknowledgment."
+    },
+    "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog": {
+      "source_blocks_sha256": [
+        "b3bc260a19fbd5222437e3454f9c6733fb50d7b3f506bca23ed90fd6ac739446",
+        "5020fe6134ec91862f9322e0c50401e321dc4e4cbbd745f1ae1738159aabe376",
+        "080e1bebb9c43632aa80886e62c0d6c11deb0fc7f826429609a0876a5d14e27d",
+        "a9b96d3a439951310ecfa08e284171a5f818f57ed6abc402da21690bab51fcf7",
+        "e88a7300d51786fe2b59c4e45fea25b1adc7822e55a6b627fb71f5e021093eb4",
+        "b62a15c14e73a1e6c5aa3b6d935fea726287d571ba2c1c3d5bae9fdf23a2adef",
+        "e61f6b324f2818c2b6a0eb7b655f4c288f6b639ac40d710efb553670e939883e",
+        "080e1bebb9c43632aa80886e62c0d6c11deb0fc7f826429609a0876a5d14e27d",
+        "a9b96d3a439951310ecfa08e284171a5f818f57ed6abc402da21690bab51fcf7",
+        "52270e55ca72d905d7471b85c5c2971b72593ddce2dc77b7adff79ee2de8bba2"
+      ],
+      "source_sha256": "bf66c92b1b29f6739febfb8a17f14cec18af7226b337a16f89abfb1449545320",
+      "text": "Select tables, customize aggregation, preview, and create a derived table.\n\n:param path: SQLite source database.\n:param parent: Owning screen.\n:param selected: Initially checked source tables.\n:param threaded: Validate on a worker; false is intended for interaction tests.\nBuild the shared merge workflow.\n\n:param path: Source SQLite database.\n:param parent: Owning screen.\n:param selected: Initially checked source tables.\n:param threaded: Run full validation on a worker when true."
+    },
+    "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.accept": {
+      "source_blocks_sha256": [
+        "f930b2d42679984e72042e225ec202629b21b4989aeee24f763b79ec9c9066a5"
+      ],
+      "source_sha256": "f930b2d42679984e72042e225ec202629b21b4989aeee24f763b79ec9c9066a5",
+      "text": "Apply only a validated current configuration."
+    },
+    "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.configuration": {
+      "source_blocks_sha256": [
+        "b35e1ec81c3c8d1a8f2255ccb5bcf6a3c16b3b214fcbd44473dad567dcc6d4a1"
+      ],
+      "source_sha256": "b35e1ec81c3c8d1a8f2255ccb5bcf6a3c16b3b214fcbd44473dad567dcc6d4a1",
+      "text": "Read a reproducible configuration reflecting the current controls."
+    },
+    "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.reject": {
+      "source_blocks_sha256": [
+        "3997f98be79679c233c56571be5f2ccaf4051a5de68264c25e3f67835868623a"
+      ],
+      "source_sha256": "3997f98be79679c233c56571be5f2ccaf4051a5de68264c25e3f67835868623a",
+      "text": "Cancel outstanding work before dismissing the popup."
+    },
+    "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.validate_preview": {
+      "source_blocks_sha256": [
+        "184302d5a4c66ecf2951f8478c0bc330512e01191a99da6fe56d875815e7df9b"
+      ],
+      "source_sha256": "184302d5a4c66ecf2951f8478c0bc330512e01191a99da6fe56d875815e7df9b",
+      "text": "Materialize the full merge off-thread and expose counts and sample rows."
     },
     "spacr.qt.widgets.metadata_mapper": {
       "source_blocks_sha256": [
