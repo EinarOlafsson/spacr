@@ -271,3 +271,35 @@ def test_guide_selector_targets_are_computed_from_the_script_location():
     assert 'new URL("../", scriptUrl)' in script
     assert "setupGuideSelector(apiArticle)" in script
     assert 'safeStorageSet(select.value)' in script
+
+
+def test_fixed_runtime_defect_switches_the_guides_to_the_app_name(tmp_path, monkeypatch):
+    """When the runtime agent corrects a wrong-sense UI row, retarget adopts it."""
+    pytest.importorskip("babel")
+    pot = tmp_path / "pot"
+    locale = tmp_path / "locale"
+    glossary = tmp_path / "glossary"
+    glossary.mkdir()
+    monkeypatch.setattr(guide, "GLOSSARY_DIR", glossary)
+    _write_pot(pot, "cellpose_training", ["Choose **Train**.", "Train"])
+    guide.update_language("sv", pot, locale)
+    catalog = guide.read_catalog(locale / "sv/LC_MESSAGES/cellpose_training.po")
+    catalog.get("Choose **Train**.").string = "Välj **Träna**."
+    catalog.get("Train").string = "Träna"
+    guide.write_catalog(locale / "sv/LC_MESSAGES/cellpose_training.po", catalog)
+    (glossary / "sv.defects.json").write_text(json.dumps(
+        {"schema": 1, "language": "sv", "defects": {"Train": "railway train"}}))
+
+    app = {"Train": "Tåg"}
+    monkeypatch.setattr(guide, "runtime_ui_name", lambda name, language: app.get(name))
+    snapshot = guide.snapshot_defects("sv", locale)
+    assert snapshot["Train"] == {"runtime": "Tåg", "guide": "Träna"}
+    assert guide.retarget_fixed_defects("sv", locale) == {}     # still wrong
+
+    app["Train"] = "Träning"                                     # runtime fix lands
+    result = guide.retarget_fixed_defects("sv", locale)
+    assert result["fixed"] == ["Train"] and result["messages"] == 2
+    catalog = guide.read_catalog(locale / "sv/LC_MESSAGES/cellpose_training.po")
+    assert catalog.get("Choose **Train**.").string == "Välj **Träning**."
+    assert catalog.get("Train").string == "Träning"
+    assert "Train" not in json.loads((glossary / "sv.defects.json").read_text())["defects"]

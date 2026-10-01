@@ -13,5 +13,47 @@
   "Outputs": "'Utfall' means outcome; the workflow card means 'Utdata'",
   "Re-flood below the escape": "'Översvämmande under flykten' is a word-for-word rendering with no meaning",
   "Taper onto the gradient": "'Tejpare på lutningen' reads 'taper (tape) on the slope'"
+ },
+ "snapshot": {
+  "Train": {
+   "runtime": "Tåg",
+   "guide": "Träna"
+  },
+  "Promote calls to annotation": {
+   "runtime": "Främja samtal till kommentarer",
+   "guide": "Promote calls to annotation"
+  },
+  "Undo promotion": {
+   "runtime": "Ångra marknadsföring",
+   "guide": "Undo promotion"
+  },
+  "Model zoo…": {
+   "runtime": "Förlaga zoo...",
+   "guide": "Modellbibliotek…"
+  },
+  "Model zoo": {
+   "runtime": "Förlaga till djurpark",
+   "guide": "Modellbibliotek"
+  },
+  "Setting animations": {
+   "runtime": "Ställa in animeringar",
+   "guide": ""
+  },
+  "Inputs": {
+   "runtime": "Ingångar",
+   "guide": "Indata"
+  },
+  "Outputs": {
+   "runtime": "Utfall",
+   "guide": "Utdata"
+  },
+  "Re-flood below the escape": {
+   "runtime": "Översvämmande under flykten",
+   "guide": "Re-flood below the escape"
+  },
+  "Taper onto the gradient": {
+   "runtime": "Tejpare på lutningen",
+   "guide": "Taper onto the gradient"
+  }
  }
 }

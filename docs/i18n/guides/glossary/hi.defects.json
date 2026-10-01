@@ -23,5 +23,87 @@
   "Nucleus flow threshold": "'परमाणु प्रवाह सीमा' uses परमाणु (atom/atomic); the cell nucleus is केंद्रक: 'केंद्रक प्रवाह सीमा'",
   "Nucleus diameter": "'परमाणु डायमेटर' means 'atomic diameter'; the setting is 'केंद्रक व्यास'",
   "Z projection": "'Z प्रोजेक्ट' means 'Z project' (a work project); the setting is 'Z प्रक्षेपण'"
+ },
+ "snapshot": {
+  "Anndata nan policy": {
+   "runtime": "एनडीए नैन नीति",
+   "guide": "Anndata NaN नीति"
+  },
+  "Anndata out": {
+   "runtime": "एंड्रॉयड",
+   "guide": "Anndata आउटपुट"
+  },
+  "Anndata single table": {
+   "runtime": "एंड्रॉयड एकल टेबल",
+   "guide": "Anndata एकल तालिका"
+  },
+  "Cell probability": {
+   "runtime": "संभावनाओं सेल",
+   "guide": "कोशिका संभावना"
+  },
+  "Clear all": {
+   "runtime": "सब स्पष्ट",
+   "guide": "सब साफ़ करें"
+  },
+  "Model zoo…": {
+   "runtime": "जानवरों का मॉडल...",
+   "guide": "मॉडल संग्रह…"
+  },
+  "Open folder…": {
+   "runtime": "खुले फ़ोल्डर...",
+   "guide": "फ़ोल्डर खोलें…"
+  },
+  "Parameter sweep": {
+   "runtime": "पैरामीटर स्विप",
+   "guide": "पैरामीटर स्वीप"
+  },
+  "Promote calls to annotation": {
+   "runtime": "नोटिस के लिए कॉल करने के लिए प्रोत्साहित करें",
+   "guide": "निर्णयों को एनोटेशन में पदोन्नत करें"
+  },
+  "Re-flood below the escape": {
+   "runtime": "भागने के नीचे फिर से बारिश",
+   "guide": "निकास-स्तर के नीचे फिर से भरें"
+  },
+  "Resume checkpoint": {
+   "runtime": "चेक पॉइंट",
+   "guide": "चेकपॉइंट से फिर शुरू करें"
+  },
+  "Save mask": {
+   "runtime": "मास्क बचाएं",
+   "guide": "मास्क सहेजें"
+  },
+  "Taper onto the gradient": {
+   "runtime": "ग्रेडिएंट के लिए टैप",
+   "guide": "ग्रेडिएंट पर पतला करें"
+  },
+  "Train": {
+   "runtime": "ट्रेन",
+   "guide": "प्रशिक्षण"
+  },
+  "Undo promotion": {
+   "runtime": "और प्रोत्साहन",
+   "guide": "पदोन्नति पूर्ववत करें"
+  },
+  "Setting animations": {
+   "runtime": "एनीमेशन सेट करें",
+   "guide": ""
+  },
+  "Activation Maps": {
+   "runtime": "कार्रवाई के नक्शे",
+   "guide": ""
+  },
+  "Nucleus flow threshold": {
+   "runtime": "परमाणु प्रवाह सीमा",
+   "guide": "केंद्रक प्रवाह सीमा"
+  },
+  "Nucleus diameter": {
+   "runtime": "परमाणु डायमेटर",
+   "guide": "केंद्रक व्यास"
+  },
+  "Z projection": {
+   "runtime": "Z प्रोजेक्ट",
+   "guide": "Z प्रक्षेपण"
+  }
  }
 }
