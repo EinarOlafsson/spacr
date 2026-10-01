@@ -1739,15 +1739,77 @@ def _plate_barcodes(src: str, plates: Sequence[str],
             for p in plates}
 
 
+_LIMS_MAX_PAGE_BYTES = 16 * 1024 * 1024
+_LIMS_MAX_TOTAL_BYTES = 64 * 1024 * 1024
+_LIMS_MAX_PAGES = 1000
+_LIMS_MAX_RECORDS = 100000
+_LIMS_PAGING_FIELDS = frozenset(('next', 'next_url', '@odata.nextLink', 'links'))
+
+
+class _LimsPage(bytes):
+    def __new__(cls, body, response_url):
+        page = super().__new__(cls, body)
+        page.response_url = response_url
+        return page
+
+
+def _lims_origin(url):
+    from urllib.parse import urlsplit
+
+    parsed = urlsplit(url)
+    if parsed.scheme.lower() not in ('http', 'https') or not parsed.hostname:
+        raise ValueError('LIMS page links must use HTTP or HTTPS')
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError('LIMS page links must not contain user credentials')
+    return (parsed.scheme.lower(), parsed.hostname.lower(),
+            parsed.port or (443 if parsed.scheme.lower() == 'https' else 80))
+
+
+def _lims_next_url(payload, current, initial):
+    from urllib.parse import urldefrag, urljoin
+
+    if not isinstance(payload, dict):
+        return None
+    candidates = [payload.get(key) for key in ('next', 'next_url', '@odata.nextLink')]
+    links = payload.get('links')
+    if isinstance(links, dict):
+        candidates.append(links.get('next'))
+    urls = set()
+    for candidate in candidates:
+        if candidate is None or candidate == '':
+            continue
+        if isinstance(candidate, dict):
+            candidate = candidate.get('href')
+        if not isinstance(candidate, str) or not candidate.strip():
+            raise ValueError('LIMS next-page value must be a URL or null')
+        url = urldefrag(urljoin(current, candidate.strip()))[0]
+        if _lims_origin(url) != _lims_origin(initial):
+            raise ValueError('LIMS next-page link must stay on the original service origin')
+        urls.add(url)
+    if len(urls) > 1:
+        raise ValueError('LIMS response contains conflicting next-page links')
+    return next(iter(urls), None)
+
+
 def _default_lims_fetch(url: str, headers: Dict[str, str]) -> bytes:
     """GET ``url`` with ``headers`` and return the body.
 
     :raises OSError: when the service cannot be reached or answers an error.
     """
-    from urllib.request import Request, urlopen
+    from urllib.request import HTTPRedirectHandler, Request, build_opener
 
-    with urlopen(Request(url, headers=headers), timeout=30) as reply:
-        return reply.read()
+    class SameOriginRedirect(HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, response_headers, newurl):
+            if _lims_origin(newurl) != _lims_origin(url):
+                raise ValueError('LIMS redirect must stay on the original service origin')
+            return super().redirect_request(req, fp, code, msg, response_headers, newurl)
+
+    with build_opener(SameOriginRedirect()).open(Request(url, headers=headers), timeout=30) as reply:
+        body = reply.read(_LIMS_MAX_PAGE_BYTES + 1)
+        response_url = reply.geturl()
+    if len(body) > _LIMS_MAX_PAGE_BYTES:
+        raise ValueError('LIMS response exceeds the page byte limit')
+    return _LimsPage(body, response_url)
 
 
 def _lims_url(source: str, barcode: str) -> str:
@@ -1782,7 +1844,7 @@ def _lims_payload_records(payload: Any, barcode: str,
                 f"The LIMS answer for barcode {barcode!r} has no list of "
                 f"well records (wells, records, results, data or items).")
         shared = {k: v for k, v in payload.items()
-                  if not isinstance(v, (list, dict))}
+                  if k not in _LIMS_PAGING_FIELDS and not isinstance(v, (list, dict))}
         records = payload[key]
     if not isinstance(records, list):
         raise ValueError(
@@ -1804,7 +1866,7 @@ def _lims_records(source: str, barcodes: Sequence[str], *,
     """Sample records for ``barcodes`` from a table or a LIMS web service.
 
     A path is read as a table (CSV, TSV, Excel, Parquet) holding every
-    plate. An ``http://`` or ``https://`` address is asked once per
+    plate. An ``http://`` or ``https://`` address is asked per
     barcode for JSON, with ``Authorization: Bearer <token>`` when the
     environment variable ``token_env`` is set; the token is never stored.
 
@@ -1830,18 +1892,48 @@ def _lims_records(source: str, barcodes: Sequence[str], *,
     if token:
         headers["Authorization"] = f"Bearer {token}"
     records: List[Dict[str, Any]] = []
+    total_bytes = 0
     for barcode in dict.fromkeys(str(b) for b in barcodes):
-        body = fetch(_lims_url(source, barcode), dict(headers))
-        if isinstance(body, bytes):
-            body = body.decode("utf-8")
-        try:
-            payload = json.loads(body) if str(body).strip() else []
-        except json.JSONDecodeError as exc:
-            raise ValueError(
-                f"The LIMS answer for barcode {barcode!r} is not JSON: "
-                f"{exc}.") from None
-        records.extend(_lims_payload_records(payload, barcode,
-                                             barcode_column))
+        initial = url = _lims_url(source, barcode)
+        _lims_origin(initial)
+        seen = set()
+        shared = {}
+        while url is not None:
+            if url in seen:
+                raise ValueError('LIMS pagination repeats a previously requested page')
+            if len(seen) >= _LIMS_MAX_PAGES:
+                raise ValueError('LIMS pagination exceeds the page limit')
+            seen.add(url)
+            body = fetch(url, dict(headers))
+            effective_url = getattr(body, 'response_url', url)
+            if effective_url != url:
+                if effective_url in seen:
+                    raise ValueError('LIMS redirect repeats a previously requested page')
+                if _lims_origin(effective_url) != _lims_origin(initial):
+                    raise ValueError('LIMS response must stay on the original service origin')
+                seen.add(effective_url)
+            size = len(body) if isinstance(body, bytes) else len(str(body).encode('utf-8'))
+            total_bytes += size
+            if size > _LIMS_MAX_PAGE_BYTES or total_bytes > _LIMS_MAX_TOTAL_BYTES:
+                raise ValueError('LIMS response exceeds the byte limit')
+            if isinstance(body, bytes):
+                body = body.decode("utf-8")
+            try:
+                payload = json.loads(body) if str(body).strip() else []
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    f"The LIMS answer for barcode {barcode!r} is not JSON: "
+                    f"{exc}.") from None
+            next_url = _lims_next_url(payload, effective_url, initial)
+            if isinstance(payload, dict):
+                shared.update({k: v for k, v in payload.items()
+                               if k not in _LIMS_PAGING_FIELDS
+                               and not isinstance(v, (list, dict))})
+            page = _lims_payload_records(payload, barcode, barcode_column)
+            if len(records) + len(page) > _LIMS_MAX_RECORDS:
+                raise ValueError('LIMS response exceeds the record limit')
+            records.extend({**shared, **record} for record in page)
+            url = next_url
     return pd.DataFrame(records)
 
 
