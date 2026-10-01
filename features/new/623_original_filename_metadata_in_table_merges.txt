@@ -1,0 +1,18 @@
+623. Recover original filename metadata for condition annotation
+
+Requested 2026-10-01: Add an action inside Merge tables to bring original
+filenames into the annotation table when inputs were renamed to Yokogawa
+format for spaCR compatibility. Read the actual conversion/rename manifests,
+preserve source measurements and observation counts, and expose restored
+names as selectable condition metadata. Support field/channel/z mappings
+without multiplying object rows or guessing ambiguous plate identities.
+Preserve reproducible mapping provenance across saved merges and charts.
+
+Also requested: tooltips for new annotation settings, and explanatory text
+above the first condition row with copyable column-aware regex examples for
+multiple strings, variable characters and include/exclude rules. This extends
+N620; its completed core and SQLite persistence remain independently tracked.
+
+Status: IN PROGRESS. Backend, merge integration and annotation guidance are
+being implemented in disjoint agent scopes. No original source files or
+measurement tables are renamed or overwritten by this feature.
