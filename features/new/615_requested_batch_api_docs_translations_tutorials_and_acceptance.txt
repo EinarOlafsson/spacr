@@ -377,3 +377,24 @@ Receipt: features/data/615_current_full_docs_2026-10-01.json.
 This includes the current guides and F542/F574/F583/F584/F585 changes.
 Later CellProfiler/lineage/anomaly work is not claimed by this snapshot.
 Translated HTML, tutorial media and live publication remain open.
+
+2026-10-01 — ALL NINE TRANSLATED GUIDE SITES BUILD
+Eighteen new reviewed passages cover the CellProfiler example export and
+calibrated lineage times. All nine catalogs contain 2,864/2,864 current guide
+messages (25,776 total). The strict translated HTML build initially found
+inline-markup boundary defects in Korean and Chinese. Escaped whitespace
+repairs 78 Korean passages and one Chinese heading without changing any
+visible wording, identifiers or labels. The other seven languages passed
+on their initial builds; both repaired sites then passed with no warnings.
+All guide inputs except the eight repaired PO files remained unchanged.
+The existing rendered-markup check passes across all nine completed sites.
+All attempts retain the same 1 GiB, zero-swap, single-CPU limits.
+Receipt: features/data/615_translated_guides_build_2026-10-01.json.
+
+The five CellProfiler export captions now have 45 source-bound reviewed
+translations. Normal runtime generation and four source/placeholder checks
+pass; the UI inventory increases by exactly five to 6,494, proved by
+subtraction from the prior digest. Receipt:
+features/data/546_example_export_i18n_2026-10-01.json.
+No live deployment, native-language visual review or completed media
+publication is claimed. Later feature changes require their own validation.

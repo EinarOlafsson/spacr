@@ -12,12 +12,12 @@ msgstr ""
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.9.1\n"
 
 msgid "Make Masks: editing, detection and measurement"
 msgstr "마스크 만들기: 편집, 검출, 측정"
@@ -63,7 +63,7 @@ msgstr "**유지** 또는 **버리기** 로 시야 단위의 선별 판정을 �
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
-msgstr "**마스크 저장**, **이전 이미지**, **다음 이미지**는 편집 도구와 함께 상단 작업 행에 있습니다. 창이 좁으면 이 행을 가로로 스크롤하여 보이는 영역 밖의 컨트롤을 사용할 수 있습니다."
+msgstr "**마스크 저장**, **이전 이미지**, **다음 이미지**\\ 는 편집 도구와 함께 상단 작업 행에 있습니다. 창이 좁으면 이 행을 가로로 스크롤하여 보이는 영역 밖의 컨트롤을 사용할 수 있습니다."
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트에서 시야 표본을 제공합니다."
@@ -401,15 +401,15 @@ msgstr "마스크 생성에서 대형 플레이트 처리"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used."
-msgstr "**마스크** 일괄 생성 모듈은 플레이트를 처리하고 **마스크 만들기**는 현재 열린 시야를 편집합니다. 원본 플레이트 처리 중 충돌이 발생하면 일괄 처리 모듈의 콘솔과 저장된 ``settings/gen_mask_settings.json``을 확인하여 사용한 단계와 설정을 파악하세요."
+msgstr "**마스크** 일괄 생성 모듈은 플레이트를 처리하고 **마스크 만들기**\\ 는 현재 열린 시야를 편집합니다. 원본 플레이트 처리 중 충돌이 발생하면 일괄 처리 모듈의 콘솔과 저장된 ``settings/gen_mask_settings.json``\\ 을 확인하여 사용한 단계와 설정을 파악하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate."
-msgstr "V1 일괄 처리 파이프라인에서 원본 파일 전처리는 한 번에 한 시야를 투영하고 ``stack/``에 기록합니다. 플레이트 전체의 파일명은 유지하지만 모든 시야의 픽셀 데이터를 보관하지는 않습니다. Z 평면은 점진적으로 결합됩니다. 완성된 시야 스택은 원자적으로 저장되며 전처리를 재개할 때 재사용할 수 있습니다. 따라서 이 단계의 픽셀 메모리는 플레이트의 시야 수가 아니라 한 시야의 크기와 채널 수에 따라 달라집니다."
+msgstr "V1 일괄 처리 파이프라인에서 원본 파일 전처리는 한 번에 한 시야를 투영하고 ``stack/``\\ 에 기록합니다. 플레이트 전체의 파일명은 유지하지만 모든 시야의 픽셀 데이터를 보관하지는 않습니다. Z 평면은 점진적으로 결합됩니다. 완성된 시야 스택은 원자적으로 저장되며 전처리를 재개할 때 재사용할 수 있습니다. 따라서 이 단계의 픽셀 메모리는 플레이트의 시야 수가 아니라 한 시야의 크기와 채널 수에 따라 달라집니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis."
-msgstr "정규화와 분할에는 여전히 배치와 모델을 위한 작업 메모리가 필요합니다. 완료된 분할 입력, 마스크 및 흐름 버퍼는 다음 배치 전에 해제됩니다. 플레이트 전체의 데이터 보관량을 줄여도 매우 큰 개별 이미지나 모델의 메모리 비용이 없어지지는 않습니다. V1의 ``batch_size``는 정규화에 사용하는 데이터 묶음도 설정하므로 변경하면 정규화 값과 이후 마스크가 달라질 수 있습니다. 이전 분석을 재현하려면 이 값을 유지하세요."
+msgstr "정규화와 분할에는 여전히 배치와 모델을 위한 작업 메모리가 필요합니다. 완료된 분할 입력, 마스크 및 흐름 버퍼는 다음 배치 전에 해제됩니다. 플레이트 전체의 데이터 보관량을 줄여도 매우 큰 개별 이미지나 모델의 메모리 비용이 없어지지는 않습니다. V1의 ``batch_size``\\ 는 정규화에 사용하는 데이터 묶음도 설정하므로 변경하면 정규화 값과 이후 마스크가 달라질 수 있습니다. 이전 분석을 재현하려면 이 값을 유지하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."

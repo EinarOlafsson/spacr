@@ -102,3 +102,10 @@ covering the real settings path, exact packaged bytes, successful atomic
 replacement, cancellation, failure cases and the existing alpha visibility
 gate. No new real-backend or biological acceptance is claimed; the remaining
 Python provisioning and concave-object matching limitations above stay open.
+
+2026-10-01 — EXAMPLE EXPORT HELP IN ALL NINE LANGUAGES
+All five new captions/tooltips have independently technically reviewed,
+source-bound translations. The normal catalog builder and four inventory,
+hash and placeholder checks pass. The workflow paragraph is translated and
+renders in every strict guide site. See
+features/data/546_example_export_i18n_2026-10-01.json.

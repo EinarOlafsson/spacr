@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Codex AI technical markup review; no human/native signoff",
+  "change": "Insert reStructuredText escaped whitespace at inline markup boundaries. Escaped whitespace does not add rendered whitespace; Korean particles and Chinese punctuation stay attached. No wording, identifiers or UI labels change.",
+  "validation": "Every repaired message parses without inline start-string warnings; removing escaped whitespace proves character-for-character prose identity; normal glossary/literal validation passes. Full strict localized HTML rebuild passed, followed by the existing rendered-markup check over all nine sites.",
+  "records": [
+    {
+      "domain": "model_zoo",
+      "source": "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))",
+      "source_sha256": "8630f2684cb70791658865cd97a72baf1211a3c86f577b791acf85ef3f7f4481",
+      "previous_translation": "``toxoplasma_pv_v4``（Cellpose-SAM (cpsam_v2)）",
+      "translation": "``toxoplasma_pv_v4``\\ （Cellpose-SAM (cpsam_v2)）"
+    }
+  ]
+}

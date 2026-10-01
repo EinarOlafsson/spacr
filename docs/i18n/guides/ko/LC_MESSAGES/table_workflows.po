@@ -12,12 +12,12 @@ msgstr ""
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.9.1\n"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Combine measurement tables for plots and gates"
@@ -25,7 +25,7 @@ msgstr "그래프와 게이트에 사용할 측정 테이블 결합"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
-msgstr "Home에서 **Graph Builder** 또는 **Gate Editor**를 열어 측정값을 탐색합니다. 두 화면 모두 테이블 선택기 바로 옆에 **테이블 병합**이 있습니다. 같은 병합 정의를 사용하면 어느 화면에서든 같은 측정값이 생성됩니다. 전체 작업 흐름은 :doc:`workflows`를 참조하세요."
+msgstr "Home에서 **Graph Builder** 또는 **Gate Editor**\\ 를 열어 측정값을 탐색합니다. 두 화면 모두 테이블 선택기 바로 옆에 **테이블 병합**\\ 이 있습니다. 같은 병합 정의를 사용하면 어느 화면에서든 같은 측정값이 생성됩니다. 전체 작업 흐름은 :doc:`workflows`\\ 를 참조하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose a source and an observation level"
@@ -33,7 +33,7 @@ msgstr "데이터 원본과 관측 단위 선택"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Load table** opens a SQLite measurement database or a CSV/TSV table. A physical table is an existing table in that database. A derived table is a named result calculated from physical tables using a saved merge definition. Creating a derived table preserves the original measurement tables."
-msgstr "**Load table**은 SQLite 측정 데이터베이스 또는 CSV/TSV 테이블을 엽니다. 물리 테이블은 해당 데이터베이스에 이미 존재하는 테이블입니다. 파생 테이블은 저장된 병합 정의를 사용하여 물리 테이블에서 계산한, 이름이 있는 결과입니다. 파생 테이블을 만들어도 원본 측정 테이블은 보존됩니다."
+msgstr "**Load table**\\ 은 SQLite 측정 데이터베이스 또는 CSV/TSV 테이블을 엽니다. 물리 테이블은 해당 데이터베이스에 이미 존재하는 테이블입니다. 파생 테이블은 저장된 병합 정의를 사용하여 물리 테이블에서 계산한, 이름이 있는 결과입니다. 파생 테이블을 만들어도 원본 측정 테이블은 보존됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Merging requires one SQLite database. The button is unavailable for a single CSV/TSV or a Gate Editor session combining several databases. Load the one database containing the tables you want to join."
@@ -45,7 +45,7 @@ msgstr "Graph Builder에서 테이블을 선택하면 차트의 원본이 바뀝
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The **Output observation table** determines what one result row represents. For example, a cell-level result has one row per cell even when that cell contains several pathogens. A nucleus count, total pathogen area and cell intensity can then be compared on the same row."
-msgstr "**출력 관찰 테이블**은 결과 한 행이 무엇을 나타내는지 결정합니다. 예를 들어 세포 수준 결과는 세포 안에 여러 병원체가 있어도 세포당 한 행을 가집니다. 따라서 핵 수, 병원체 총면적, 세포 강도를 같은 행에서 비교할 수 있습니다."
+msgstr "**출력 관찰 테이블**\\ 은 결과 한 행이 무엇을 나타내는지 결정합니다. 예를 들어 세포 수준 결과는 세포 안에 여러 병원체가 있어도 세포당 한 행을 가집니다. 따라서 핵 수, 병원체 총면적, 세포 강도를 같은 행에서 비교할 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Create a standard spaCR merge"
@@ -53,15 +53,15 @@ msgstr "표준 spaCR 병합 만들기"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Load your measurement database and press **Merge tables**."
-msgstr "측정 데이터베이스를 불러오고 **테이블 병합**을 누릅니다."
+msgstr "측정 데이터베이스를 불러오고 **테이블 병합**\\ 을 누릅니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Tick the source tables and choose **Output observation table**. The base table is included automatically. Standard merges use compatible spaCR object tables and cell/cytoplasm observation levels; the list also shows other tables whose relationships may require customization."
-msgstr "원본 테이블을 체크하고 **출력 관찰 테이블**을 선택합니다. 기준 테이블은 자동으로 포함됩니다. 표준 병합은 호환되는 spaCR 객체 테이블과 세포/세포질 관측 단위를 사용합니다. 목록에는 관계를 사용자 지정해야 할 수 있는 다른 테이블도 표시됩니다."
+msgstr "원본 테이블을 체크하고 **출력 관찰 테이블**\\ 을 선택합니다. 기준 테이블은 자동으로 포함됩니다. 표준 병합은 호환되는 spaCR 객체 테이블과 세포/세포질 관측 단위를 사용합니다. 목록에는 관계를 사용자 지정해야 할 수 있는 다른 테이블도 표시됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Enter a **Result name**, such as ``Cell and pathogen measurements``. It must differ from every physical table name."
-msgstr "``Cell and pathogen measurements`` 같은 **결과 이름**을 입력합니다. 모든 물리 테이블의 이름과 달라야 합니다."
+msgstr "``Cell and pathogen measurements`` 같은 **결과 이름**\\ 을 입력합니다. 모든 물리 테이블의 이름과 달라야 합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Review the **spaCR defaults active** summary and the per-column **Aggregation** choices. For an ordinary compatible database, no manual key mapping is needed."
@@ -69,11 +69,11 @@ msgstr "**spaCR defaults active** 요약과 열별 **집계** 선택을 검토�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Validate and preview**. Inspect the input and output row counts, join keys, unmatched records, missing child keys, repeated child-key rows and the first 12 output rows. Validation examines the full input, even though only a few result rows are displayed."
-msgstr "**검증 및 미리보기**를 누릅니다. 입력·출력 행 수, 조인 키, 일치하지 않는 레코드, 누락된 하위 테이블 키, 반복된 하위 키 행, 처음 12개의 출력 행을 확인합니다. 결과 행을 일부만 표시하더라도 검증은 전체 입력을 검사합니다."
+msgstr "**검증 및 미리보기**\\ 를 누릅니다. 입력·출력 행 수, 조인 키, 일치하지 않는 레코드, 누락된 하위 테이블 키, 반복된 하위 키 행, 처음 12개의 출력 행을 확인합니다. 결과 행을 일부만 표시하더라도 검증은 전체 입력을 검사합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates."
-msgstr "검증이 성공하면 **병합 테이블 만들기**를 누릅니다. 결과가 일반 테이블 선택기에서 선택되며, 그 열들을 차트와 게이트에 사용할 수 있습니다."
+msgstr "검증이 성공하면 **병합 테이블 만들기**\\ 를 누릅니다. 결과가 일반 테이블 선택기에서 선택되며, 그 열들을 차트와 게이트에 사용할 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them."
@@ -157,7 +157,7 @@ msgstr "기본 핵 조인은 일치하는 기준 관측값만 유지합니다. �
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Available overrides depend on column values and role. Numeric measurements offer mean, median, sum, minimum, maximum, count and other compatible choices; text supports choices such as first/last, count and distinct count; Boolean-valued data also support **any** and **all**. **count** counts nonmissing values. Default one-to-one rows attach intact, so their aggregation controls are disabled until custom merging is selected."
-msgstr "사용 가능한 재정의는 열의 값과 역할에 따라 달라집니다. 수치 측정값에는 평균, 중앙값, 합계, 최솟값, 최댓값, 개수 등의 호환 선택지가 있습니다. 텍스트에는 처음/마지막 값, 개수, 고유값 개수 등이 있으며, 불리언 데이터는 **하나 이상**과 **all**도 지원합니다. **count**는 결측이 아닌 값의 수를 셉니다. 기본 일대일 행은 그대로 연결되므로, 사용자 지정 병합을 선택하기 전에는 집계 컨트롤이 비활성화됩니다."
+msgstr "사용 가능한 재정의는 열의 값과 역할에 따라 달라집니다. 수치 측정값에는 평균, 중앙값, 합계, 최솟값, 최댓값, 개수 등의 호환 선택지가 있습니다. 텍스트에는 처음/마지막 값, 개수, 고유값 개수 등이 있으며, 불리언 데이터는 **하나 이상**\\ 과 **all**\\ 도 지원합니다. **count**\\ 는 결측이 아닌 값의 수를 셉니다. 기본 일대일 행은 그대로 연결되므로, 사용자 지정 병합을 선택하기 전에는 집계 컨트롤이 비활성화됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Customize an alternative schema"
@@ -165,23 +165,23 @@ msgstr "다른 스키마에 맞게 사용자 지정"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose **Customize merging** when the database uses different table names, identifiers or deliberately different relationships. Choose the base and child tables in the main popup first. Mapping their actual columns does not rename or modify the source tables."
-msgstr "데이터베이스가 다른 테이블 이름이나 식별자를 사용하거나 의도적으로 다른 관계를 사용한다면 **병합 사용자 지정**을 선택합니다. 먼저 기본 팝업에서 기준 테이블과 하위 테이블을 선택하세요. 실제 열을 매핑해도 원본 테이블의 이름이나 내용은 바뀌지 않습니다."
+msgstr "데이터베이스가 다른 테이블 이름이나 식별자를 사용하거나 의도적으로 다른 관계를 사용한다면 **병합 사용자 지정**\\ 을 선택합니다. 먼저 기본 팝업에서 기준 테이블과 하위 테이블을 선택하세요. 실제 열을 매핑해도 원본 테이블의 이름이나 내용은 바뀌지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The warning explains that incorrect relationships can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Read it and check **I understand the warning and will check the merge preview.** before accepting the custom settings. Acknowledgment does not bypass validation."
-msgstr "경고문은 잘못된 관계가 무관한 객체를 연결하거나 관측값을 중복·누락시키고, 그래프와 게이트에 쓰이는 측정값을 바꿀 수 있다고 설명합니다. 이를 읽고 **경고를 이해했으며 병합 미리보기를 확인하겠습니다.**를 체크한 뒤 사용자 지정 설정을 수락하세요. 경고를 확인해도 검증을 건너뛰지 않습니다."
+msgstr "경고문은 잘못된 관계가 무관한 객체를 연결하거나 관측값을 중복·누락시키고, 그래프와 게이트에 쓰이는 측정값을 바꿀 수 있다고 설명합니다. 이를 읽고 **경고를 이해했으며 병합 미리보기를 확인하겠습니다.**\\ 를 체크한 뒤 사용자 지정 설정을 수락하세요. 경고를 확인해도 검증을 건너뛰지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Base observation keys** identify one unique, nonmissing base row. Include field and time columns when IDs repeat across images or timepoints."
-msgstr "**기본 관찰 키**는 결측이 없는 유일한 기준 행 하나를 식별합니다. 이미지나 시점마다 ID가 반복된다면 시야와 시간 열을 포함하세요."
+msgstr "**기본 관찰 키**\\ 는 결측이 없는 유일한 기준 행 하나를 식별합니다. 이미지나 시점마다 ID가 반복된다면 시야와 시간 열을 포함하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Each child row in the configuration specifies **Base keys** and **Child keys**. Enter comma-separated column names in matching order. For example, base ``image_id, cell_id`` can map to child ``image_id, parent_cell_id``."
-msgstr "설정의 각 하위 테이블 행에는 **기본 키**와 **하위 키**를 지정합니다. 서로 대응하는 순서대로 쉼표로 구분한 열 이름을 입력합니다. 예를 들어 기준 ``image_id, cell_id``를 하위 ``image_id, parent_cell_id``에 매핑할 수 있습니다."
+msgstr "설정의 각 하위 테이블 행에는 **기본 키**\\ 와 **하위 키**\\ 를 지정합니다. 서로 대응하는 순서대로 쉼표로 구분한 열 이름을 입력합니다. 예를 들어 기준 ``image_id, cell_id``\\ 를 하위 ``image_id, parent_cell_id``\\ 에 매핑할 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose **one-to-one** when at most one child row belongs to each base key, or **one-to-many** when several child rows must first be aggregated."
-msgstr "각 기준 키에 하위 행이 최대 하나만 속하면 **one-to-one**을, 여러 하위 행을 먼저 집계해야 하면 **one-to-many**를 선택합니다."
+msgstr "각 기준 키에 하위 행이 최대 하나만 속하면 **one-to-one**\\ 을, 여러 하위 행을 먼저 집계해야 하면 **one-to-many**\\ 를 선택합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "A **left** join keeps unmatched base observations with missing child measurements. An **inner** join retains only matching observations. Child rows with missing join keys do not match a base row."
@@ -189,15 +189,15 @@ msgstr "**왼쪽** 조인은 일치하지 않는 기준 관측값도 유지하�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Identifiers** to identify additional child columns that must not be treated as continuous measurements. Review the per-column aggregation controls in the main popup after accepting the mapping."
-msgstr "연속형 측정값으로 취급하면 안 되는 추가 하위 열은 **식별자**로 지정합니다. 매핑을 수락한 후 기본 팝업에서 열별 집계 컨트롤을 검토하세요."
+msgstr "연속형 측정값으로 취급하면 안 되는 추가 하위 열은 **식별자**\\ 로 지정합니다. 매핑을 수락한 후 기본 팝업에서 열별 집계 컨트롤을 검토하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The popup now says **Custom rules active**. Validate and inspect the preview before creating the result. Duplicate base identities, contradictory one-to-one mappings, missing keys and incompatible operations produce an error. Repeated child keys can be expected in a one-to-many relationship; they require investigation when the relationship is supposed to be one-to-one."
-msgstr "팝업에 이제 **Custom rules active**가 표시됩니다. 결과를 만들기 전에 검증하고 미리보기를 확인하세요. 중복된 기준 식별자, 모순되는 일대일 매핑, 누락된 키, 호환되지 않는 연산은 오류를 발생시킵니다. 일대다 관계에서는 하위 키의 반복이 예상될 수 있지만, 일대일이어야 하는 관계라면 조사해야 합니다."
+msgstr "팝업에 이제 **Custom rules active**\\ 가 표시됩니다. 결과를 만들기 전에 검증하고 미리보기를 확인하세요. 중복된 기준 식별자, 모순되는 일대일 매핑, 누락된 키, 호환되지 않는 연산은 오류를 발생시킵니다. 일대다 관계에서는 하위 키의 반복이 예상될 수 있지만, 일대일이어야 하는 관계라면 조사해야 합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults."
-msgstr "**취소**는 이전 설정을 그대로 유지합니다. **spaCR 기본값으로 재설정**은 사용자 지정 관계와 재정의를 제거합니다. 원본이나 출력 테이블을 변경해도 기본값이 다시 구성됩니다."
+msgstr "**취소**\\ 는 이전 설정을 그대로 유지합니다. **spaCR 기본값으로 재설정**\\ 은 사용자 지정 관계와 재정의를 제거합니다. 원본이나 출력 테이블을 변경해도 기본값이 다시 구성됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use, save and reload the result"
@@ -209,15 +209,15 @@ msgstr "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 �
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."
-msgstr "이름이 있는 정의는 데이터베이스 옆에 저장됩니다. ``measurements.db``의 경우 파일은 ``measurements.db.spacr-merges.json``입니다. 원본을 새로 고치거나 다시 열면 결과를 다시 사용할 수 있으며 원본에서 재계산합니다. 이는 재현 가능한 레시피이지, 모든 결과 행을 고정한 복사본이 아닙니다. 재사용 시 원본 경로와 선택된 테이블의 스키마를 확인합니다. 다른 데이터베이스나 변경된 스키마에는 새로 검토한 매핑이 필요하며, 무관한 원본에 정의를 조용히 적용하지 않습니다."
+msgstr "이름이 있는 정의는 데이터베이스 옆에 저장됩니다. ``measurements.db``\\ 의 경우 파일은 ``measurements.db.spacr-merges.json``\\ 입니다. 원본을 새로 고치거나 다시 열면 결과를 다시 사용할 수 있으며 원본에서 재계산합니다. 이는 재현 가능한 레시피이지, 모든 결과 행을 고정한 복사본이 아닙니다. 재사용 시 원본 경로와 선택된 테이블의 스키마를 확인합니다. 다른 데이터베이스나 변경된 스키마에는 새로 검토한 매핑이 필요하며, 무관한 원본에 정의를 조용히 적용하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Save chart** in Graph Builder saves chart channels, the source and the full merge definition to JSON. **Load chart** reconstructs and validates the table before plotting. **Save gates…** also embeds the merge definition; load the original database before using **Load gates…**. These saved files can reconstruct the merge even if its sidecar is missing. They still require the original source data."
-msgstr "Graph Builder의 **차트 저장**은 차트 채널, 원본, 전체 병합 정의를 JSON에 저장합니다. **차트 불러오기**는 그래프를 그리기 전에 테이블을 재구성하고 검증합니다. **게이트 저장…**에도 병합 정의가 포함됩니다. **게이트 불러오기…**를 사용하기 전에 원래 데이터베이스를 불러오세요. 이 저장 파일들은 사이드카 파일이 없어도 병합을 재구성할 수 있지만, 원본 데이터는 여전히 필요합니다."
+msgstr "Graph Builder의 **차트 저장**\\ 은 차트 채널, 원본, 전체 병합 정의를 JSON에 저장합니다. **차트 불러오기**\\ 는 그래프를 그리기 전에 테이블을 재구성하고 검증합니다. **게이트 저장…**\\ 에도 병합 정의가 포함됩니다. **게이트 불러오기…**\\ 를 사용하기 전에 원래 데이터베이스를 불러오세요. 이 저장 파일들은 사이드카 파일이 없어도 병합을 재구성할 수 있지만, 원본 데이터는 여전히 필요합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Export gates…** writes gate membership columns to the database's ``filters`` table, preserving the base object's identity. This explicit export is a database write; constructing and previewing a merge does not write into the source measurement tables. **Save graph** exports the Gate Editor figure as PNG or PDF, separately from saving its gating strategy."
-msgstr "**게이트 내보내기…**는 기준 객체의 식별자를 유지하면서 데이터베이스의 ``filters`` 테이블에 게이트 소속 열을 씁니다. 이 명시적 내보내기는 데이터베이스 쓰기 작업입니다. 병합을 구성하고 미리보는 작업은 원본 측정 테이블에 쓰지 않습니다. **그래프 저장**은 게이팅 전략 저장과 별개로 Gate Editor 그림을 PNG 또는 PDF로 내보냅니다."
+msgstr "**게이트 내보내기…**\\ 는 기준 객체의 식별자를 유지하면서 데이터베이스의 ``filters`` 테이블에 게이트 소속 열을 씁니다. 이 명시적 내보내기는 데이터베이스 쓰기 작업입니다. 병합을 구성하고 미리보는 작업은 원본 측정 테이블에 쓰지 않습니다. **그래프 저장**\\ 은 게이팅 전략 저장과 별개로 Gate Editor 그림을 PNG 또는 PDF로 내보냅니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "A custom result without verified spaCR image/object provenance remains usable for plotting and tabular gating. Image navigation, image annotation and gate export to the measurement database are unavailable for that result, with an explanation in the interface. Keep the saved chart or gating strategy for tabular reuse; column names alone cannot establish links to microscopy objects."
@@ -229,7 +229,7 @@ msgstr "조건 레이블 지정 전에 원본 파일명 복구"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
-msgstr "이미지가 Yokogawa 형식으로 바뀌었다면 **원본 파일명 병합…** 안의 **테이블 병합**을 사용하여 변환 시 기록된 이름을 복구합니다. ``conversion_map.csv``, 이전 형식의 ``rename_log.csv``, ``channel_sorting_manifest.csv``, 또는 ``conversion_map`` 테이블이 있는 SQLite 데이터베이스를 선택합니다. 측정 데이터베이스 옆이나 상위 폴더에서 알려진 매핑을 찾으면 파일 선택기가 그 근처에서 열립니다. 매핑에는 기록된 원본-출력 관계가 있어야 합니다. 이 작업은 변경된 이미지 이름에서 처리 조건 이름을 추론하지 않습니다."
+msgstr "이미지가 Yokogawa 형식으로 바뀌었다면 **원본 파일명 병합…** 안의 **테이블 병합**\\ 을 사용하여 변환 시 기록된 이름을 복구합니다. ``conversion_map.csv``, 이전 형식의 ``rename_log.csv``, ``channel_sorting_manifest.csv``, 또는 ``conversion_map`` 테이블이 있는 SQLite 데이터베이스를 선택합니다. 측정 데이터베이스 옆이나 상위 폴더에서 알려진 매핑을 찾으면 파일 선택기가 그 근처에서 열립니다. 매핑에는 기록된 원본-출력 관계가 있어야 합니다. 이 작업은 변경된 이미지 이름에서 처리 조건 이름을 추론하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations."
@@ -237,11 +237,11 @@ msgstr "파일명 메타데이터만 필요하다면 주석을 추가할 테이�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Merge original filenames…** and select the mapping."
-msgstr "**원본 파일명 병합…**을 누르고 매핑을 선택합니다."
+msgstr "**원본 파일명 병합…**\\ 을 누르고 매핑을 선택합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Set a new **Result name**, then press **Validate and preview**."
-msgstr "새 **결과 이름**을 설정한 다음 **검증 및 미리보기**를 누릅니다."
+msgstr "새 **결과 이름**\\ 을 설정한 다음 **검증 및 미리보기**\\ 를 누릅니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Inspect the matched and unmatched row counts and the preview's ``original_filename`` and ``original_path`` columns."
@@ -249,7 +249,7 @@ msgstr "일치한 행과 일치하지 않은 행의 수, 미리보기의 ``origi
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Create merged table**, then open **Annotate conditions** and choose ``original_filename`` as a rule's metadata column."
-msgstr "**병합 테이블 만들기**를 누른 다음 **조건 주석 추가**를 열고, 규칙의 메타데이터 열로 ``original_filename``을 선택합니다."
+msgstr "**병합 테이블 만들기**\\ 를 누른 다음 **조건 주석 추가**\\ 를 열고, 규칙의 메타데이터 열로 ``original_filename``\\ 을 선택합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Several channels or z-planes belonging to one field produce a sorted, deduplicated list separated by a semicolon and a space in the new columns. They do not multiply the table's observations. Plate and timepoint identities remain distinct; ambiguous or conflicting identities cause validation to fail. Unmatched names remain blank. Existing ``original_filename`` or ``original_path`` columns are preserved by refusing to overwrite them."
@@ -257,11 +257,11 @@ msgstr "한 시야에 속한 여러 채널 또는 z 평면의 이름은 정렬�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``original_path`` is the path recorded in the mapping; the original files need not still exist at that location. Image files and source measurement tables are never renamed or rewritten by this action. Adding filename text does not establish missing microscopy object provenance."
-msgstr "``original_path``는 매핑에 기록된 경로이며, 원본 파일이 지금도 그 위치에 있을 필요는 없습니다. 이 작업은 이미지 파일이나 원본 측정 테이블의 이름을 바꾸거나 내용을 다시 쓰지 않습니다. 파일명 텍스트를 추가해도 누락된 현미경 객체 출처 정보가 생기지는 않습니다."
+msgstr "``original_path``\\ 는 매핑에 기록된 경로이며, 원본 파일이 지금도 그 위치에 있을 필요는 없습니다. 이 작업은 이미지 파일이나 원본 측정 테이블의 이름을 바꾸거나 내용을 다시 쓰지 않습니다. 파일명 텍스트를 추가해도 누락된 현미경 객체 출처 정보가 생기지는 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping."
-msgstr "저장된 병합에는 매핑의 위치와 내용 체크섬이 기록됩니다. 병합이나 차트를 다시 열려면 매핑이 변경되지 않은 채 사용 가능해야 합니다. 데이터베이스에 포함된 ``conversion_map`` 테이블의 경우, 다른 테이블에 대한 무관한 변경은 매핑을 무효화하지 않습니다. 매핑이 바뀌면 다시 선택하고 새 결과를 검증한 뒤 적용하세요. **파일명 매핑 제거**는 파일을 삭제하지 않고 초안에서 추가 정보를 제거합니다. **spaCR 기본값으로 재설정**도 매핑을 지웁니다."
+msgstr "저장된 병합에는 매핑의 위치와 내용 체크섬이 기록됩니다. 병합이나 차트를 다시 열려면 매핑이 변경되지 않은 채 사용 가능해야 합니다. 데이터베이스에 포함된 ``conversion_map`` 테이블의 경우, 다른 테이블에 대한 무관한 변경은 매핑을 무효화하지 않습니다. 매핑이 바뀌면 다시 선택하고 새 결과를 검증한 뒤 적용하세요. **파일명 매핑 제거**\\ 는 파일을 삭제하지 않고 초안에서 추가 정보를 제거합니다. **spaCR 기본값으로 재설정**\\ 도 매핑을 지웁니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Annotate experimental conditions in Graph Builder"
@@ -269,7 +269,7 @@ msgstr "Graph Builder에서 실험 조건 주석 추가"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Annotate conditions** adds annotation columns to the working table in Graph Builder. It works with a physical database table, a named derived table or an imported CSV/TSV. Use rules to assign labels or extract variable metadata, then compose a final column from those values. Every generated column is retained. These table operations do not require image links or write image annotations."
-msgstr "**조건 주석 추가**는 Graph Builder의 작업 테이블에 주석 열을 추가합니다. 물리 데이터베이스 테이블, 이름이 있는 파생 테이블, 가져온 CSV/TSV에서 사용할 수 있습니다. 규칙으로 레이블을 지정하거나 가변 메타데이터를 추출한 뒤, 그 값들로 최종 열을 구성합니다. 생성된 모든 열은 유지됩니다. 이러한 테이블 작업에는 이미지 연결이 필요하지 않으며 이미지 주석을 쓰지 않습니다."
+msgstr "**조건 주석 추가**\\ 는 Graph Builder의 작업 테이블에 주석 열을 추가합니다. 물리 데이터베이스 테이블, 이름이 있는 파생 테이블, 가져온 CSV/TSV에서 사용할 수 있습니다. 규칙으로 레이블을 지정하거나 가변 메타데이터를 추출한 뒤, 그 값들로 최종 열을 구성합니다. 생성된 모든 열은 유지됩니다. 이러한 테이블 작업에는 이미지 연결이 필요하지 않으며 이미지 주석을 쓰지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
@@ -277,15 +277,15 @@ msgstr "**조건 주석 추가**를 열고 **출력 열**의 이름을 지정한
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together."
-msgstr "해당 출력의 값 지정 규칙, 텍스트 추출 또는 조합을 정의합니다. 다른 출력을 추가하려면 **콜럼 추가**를 사용합니다. 이름 있는 그룹을 사용한 정규식으로 여러 메타데이터 열을 한꺼번에 만들 수도 있습니다."
+msgstr "해당 출력의 값 지정 규칙, 텍스트 추출 또는 조합을 정의합니다. 다른 출력을 추가하려면 **콜럼 추가**\\ 를 사용합니다. 이름 있는 그룹을 사용한 정규식으로 여러 메타데이터 열을 한꺼번에 만들 수도 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Inspect all generated values beside the source columns. **Preview assignments** reruns the check; edits also refresh the preview."
-msgstr "원본 열 옆에서 생성된 모든 값을 확인합니다. **할당 미리보기**는 검사를 다시 실행하며, 편집해도 미리보기가 새로 고쳐집니다."
+msgstr "원본 열 옆에서 생성된 모든 값을 확인합니다. **할당 미리보기**\\ 는 검사를 다시 실행하며, 편집해도 미리보기가 새로 고쳐집니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve invalid rules, missing dependencies and conflicting assignments, then choose **Apply conditions**. Every generated column becomes available for chart channels and filtering. **Cancel** discards the draft changes."
-msgstr "유효하지 않은 규칙, 누락된 종속 열, 충돌하는 할당을 해결한 뒤 **조건을 적용하기**를 선택합니다. 생성된 모든 열을 차트 채널과 필터링에 사용할 수 있습니다. **취소**는 초안의 변경을 버립니다."
+msgstr "유효하지 않은 규칙, 누락된 종속 열, 충돌하는 할당을 해결한 뒤 **조건을 적용하기**\\ 를 선택합니다. 생성된 모든 열을 차트 채널과 필터링에 사용할 수 있습니다. **취소**\\ 는 초안의 변경을 버립니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Extract several metadata columns from a filename"
@@ -293,15 +293,15 @@ msgstr "파일명에서 여러 메타데이터 열 추출"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose **Extract text** and select the source column, such as ``original_filename``. A regular expression extracts the matching text into the output column. Select a named or numbered capture group to choose which part of the match becomes the value."
-msgstr "**텍스트 추출**을 선택하고 ``original_filename`` 같은 원본 열을 지정합니다. 정규식은 일치하는 텍스트를 출력 열로 추출합니다. 이름이나 번호로 캡처 그룹을 선택하여 일치 부분 중 어느 부분을 값으로 사용할지 지정합니다."
+msgstr "**텍스트 추출**\\ 을 선택하고 ``original_filename`` 같은 원본 열을 지정합니다. 정규식은 일치하는 텍스트를 출력 열로 추출합니다. 이름이나 번호로 캡처 그룹을 선택하여 일치 부분 중 어느 부분을 값으로 사용할지 지정합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:"
-msgstr "예를 들어 다음 패턴은 ``HeLa_rep2_24h_DMSO.tif``를 나타냅니다."
+msgstr "예를 들어 다음 패턴은 ``HeLa_rep2_24h_DMSO.tif``\\ 를 나타냅니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named groups describe four output columns: ``cell_type``, ``replicate``, ``timepoint`` and ``drug``. **Create columns from named groups** creates these outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and ``DMSO``. Another matching filename produces its own values; they are not fixed labels copied from the example. Adapt the pattern to your own filenames and inspect the preview before applying it."
-msgstr "이름 있는 그룹은 ``cell_type``, ``replicate``, ``timepoint``, ``drug``의 네 출력 열을 정의합니다. **이름 있는 캡처 그룹으로 열 만들기**는 이 출력들을 함께 만듭니다. 예시 행에서는 ``HeLa``, ``rep2``, ``24h``, ``DMSO``가 생성됩니다. 다른 일치 파일명에서는 그 파일명 자체의 값이 추출되며, 예시의 고정 레이블을 복사하지 않습니다. 실제 파일명에 맞게 패턴을 조정하고 적용 전에 미리보기를 확인하세요."
+msgstr "이름 있는 그룹은 ``cell_type``, ``replicate``, ``timepoint``, ``drug``\\ 의 네 출력 열을 정의합니다. **이름 있는 캡처 그룹으로 열 만들기**\\ 는 이 출력들을 함께 만듭니다. 예시 행에서는 ``HeLa``, ``rep2``, ``24h``, ``DMSO``\\ 가 생성됩니다. 다른 일치 파일명에서는 그 파일명 자체의 값이 추출되며, 예시의 고정 레이블을 복사하지 않습니다. 실제 파일명에 맞게 패턴을 조정하고 적용 전에 미리보기를 확인하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Extraction uses the first regex match. Nonmatching rows and missing or empty captures remain blank. Invalid patterns or capture groups stop the preview with an error. Existing source column names cannot be overwritten."
@@ -317,7 +317,7 @@ msgstr "일치하는 행에 ``WildType`` 또는 ``control``처럼 직접 입력�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly."
-msgstr "모든 조건이 일치해야 한다면 **모든 규칙이 일치함**을, 하나 이상 일치하면 된다면 **하나 이상의 규칙이 일치함**을 선택합니다. 조건들은 서로 다른 원본 열이나 앞서 생성된 열을 검사할 수 있습니다. 예를 들어 ``drug``가 ``DMSO``와 같고 ``cell_type``이 ``HeLa``와 같을 때 ``control``을 지정합니다. 원본 값이 결측이면 부정 조건도 충족하지 않습니다. 실제 빈 문자열은 하나의 값이며 명시적으로 일치시킬 수 있습니다."
+msgstr "모든 조건이 일치해야 한다면 **모든 규칙이 일치함**\\ 을, 하나 이상 일치하면 된다면 **하나 이상의 규칙이 일치함**\\ 을 선택합니다. 조건들은 서로 다른 원본 열이나 앞서 생성된 열을 검사할 수 있습니다. 예를 들어 ``drug``\\ 가 ``DMSO``\\ 와 같고 ``cell_type``\\ 이 ``HeLa``\\ 와 같을 때 ``control``\\ 을 지정합니다. 원본 값이 결측이면 부정 조건도 충족하지 않습니다. 실제 빈 문자열은 하나의 값이며 명시적으로 일치시킬 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Several rules may assign the same value without a conflict. Different values assigned to one row in the same output column require resolution before Apply."
@@ -329,11 +329,11 @@ msgstr "최종 열 구성"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Add an output column, name it ``condition`` or another name you choose, and select **Compose column**. Drag available columns into the composition field. Drag its tokens to change their order. Insert fixed text to add separators, prefixes or words between the values."
-msgstr "출력 열을 추가하고 ``condition`` 또는 원하는 이름을 지정한 뒤 **열 조합**을 선택합니다. 사용 가능한 열을 조합 필드로 드래그합니다. 토큰을 드래그하여 순서를 바꿉니다. 값 사이에 구분자, 접두사, 단어를 넣으려면 고정 텍스트를 삽입합니다."
+msgstr "출력 열을 추가하고 ``condition`` 또는 원하는 이름을 지정한 뒤 **열 조합**\\ 을 선택합니다. 사용 가능한 열을 조합 필드로 드래그합니다. 토큰을 드래그하여 순서를 바꿉니다. 값 사이에 구분자, 접두사, 단어를 넣으려면 고정 텍스트를 삽입합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example above. Reordering the column tokens changes the result without changing their extraction rules. Fixed text is literal; it cannot execute code."
-msgstr "예를 들어 ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` 토큰은 위 예시에서 ``HeLa_rep2_24h_DMSO``를 생성합니다. 열 토큰의 순서를 바꾸면 추출 규칙은 그대로 두고 결과를 변경할 수 있습니다. 고정 텍스트는 문자 그대로 사용되며 코드를 실행할 수 없습니다."
+msgstr "예를 들어 ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` 토큰은 위 예시에서 ``HeLa_rep2_24h_DMSO``\\ 를 생성합니다. 열 토큰의 순서를 바꾸면 추출 규칙은 그대로 두고 결과를 변경할 수 있습니다. 고정 텍스트는 문자 그대로 사용되며 코드를 실행할 수 없습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "A composition can reference original source columns and earlier generated columns. A missing or empty column value leaves the composed value blank. The preview shows all intermediate columns and the final column together. Applying, exporting or saving a new SQLite table retains every generated column and the editable recipe. The original measurements remain unchanged."
@@ -345,7 +345,7 @@ msgstr "유전자형, 반복 및 결합 조건 만들기"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Name the first **Output column** ``genotype`` and keep its mode set to **Assign values**. Use **Add condition** for its labels. Press **Add column** to create ``replicate`` with its own boxes. In each box, choose **Exact values** to enter lists of metadata values without writing a regular expression. For example:"
-msgstr "첫 **출력 열**의 이름을 ``genotype``으로 지정하고 모드를 **값을 할당**으로 유지합니다. 레이블에는 **조건 추가**를 사용합니다. **콜럼 추가**를 눌러 자체 상자들을 가진 ``replicate``를 만듭니다. 각 상자에서 **정확한 값**을 선택하면 정규식을 작성하지 않고 메타데이터 값 목록을 입력할 수 있습니다. 예:"
+msgstr "첫 **출력 열**\\ 의 이름을 ``genotype``\\ 으로 지정하고 모드를 **값을 할당**\\ 으로 유지합니다. 레이블에는 **조건 추가**\\ 를 사용합니다. **콜럼 추가**\\ 를 눌러 자체 상자들을 가진 ``replicate``\\ 를 만듭니다. 각 상자에서 **정확한 값**\\ 을 선택하면 정규식을 작성하지 않고 메타데이터 값 목록을 입력할 수 있습니다. 예:"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Example annotation rules"
@@ -402,11 +402,11 @@ msgstr "``r7,r9,r10``"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect. Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign the same label may select the same row; two different labels in one output column require a correction before applying. Each output column has its own assignments, so a row can have both a genotype and a replicate."
-msgstr "``c1,c1``이나 ``r7,r7`` 같은 반복 입력은 추가 효과가 없습니다. 정확한 일치는 ``c1``과 ``c10``을 구분합니다. 같은 레이블을 지정하는 두 규칙은 같은 행을 선택해도 되지만, 한 출력 열에서 서로 다른 두 레이블을 지정하면 적용 전에 수정해야 합니다. 출력 열마다 할당이 독립적이므로 한 행에 유전자형과 반복 레이블이 함께 있을 수 있습니다."
+msgstr "``c1,c1``\\ 이나 ``r7,r7`` 같은 반복 입력은 추가 효과가 없습니다. 정확한 일치는 ``c1``\\ 과 ``c10``\\ 을 구분합니다. 같은 레이블을 지정하는 두 규칙은 같은 행을 선택해도 되지만, 한 출력 열에서 서로 다른 두 레이블을 지정하면 적용 전에 수정해야 합니다. 출력 열마다 할당이 독립적이므로 한 행에 유전자형과 반복 레이블이 함께 있을 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Add column**, name it ``condition``, and choose **Compose column**. Drag ``genotype`` into the composition field, insert a text token containing ``_``, then drag in ``replicate``. The token order determines the joining order. A row labelled ``WildType`` and ``replicate 1`` then receives ``WildType_replicate 1``. The label's space is retained. Column names, labels, component order and separator are editable; the example does not prescribe the names for your experiment."
-msgstr "**콜럼 추가**를 누르고 이름을 ``condition``으로 지정한 뒤 **열 조합**을 선택합니다. ``genotype``을 조합 필드로 드래그하고 ``_``가 들어 있는 텍스트 토큰을 삽입한 다음 ``replicate``를 드래그합니다. 토큰 순서가 연결 순서를 결정합니다. ``WildType``과 ``replicate 1``로 레이블된 행에는 ``WildType_replicate 1``이 지정됩니다. 레이블의 공백은 유지됩니다. 열 이름, 레이블, 구성 요소 순서, 구분자는 편집할 수 있습니다. 예시는 실험에서 사용할 이름을 강제하지 않습니다."
+msgstr "**콜럼 추가**\\ 를 누르고 이름을 ``condition``\\ 으로 지정한 뒤 **열 조합**\\ 을 선택합니다. ``genotype``\\ 을 조합 필드로 드래그하고 ``_``\\ 가 들어 있는 텍스트 토큰을 삽입한 다음 ``replicate``\\ 를 드래그합니다. 토큰 순서가 연결 순서를 결정합니다. ``WildType``\\ 과 ``replicate 1``\\ 로 레이블된 행에는 ``WildType_replicate 1``\\ 이 지정됩니다. 레이블의 공백은 유지됩니다. 열 이름, 레이블, 구성 요소 순서, 구분자는 편집할 수 있습니다. 예시는 실험에서 사용할 이름을 강제하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe."
@@ -418,7 +418,7 @@ msgstr "규칙과 수동 선택"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **Assign values**, choose **Regular expression** in a condition box to use its Include and Exclude fields. Choose **Manual rows only** to assign only the rows you drop into that box, without a comparison rule."
-msgstr "**값을 할당**에서 조건 상자의 **정규식**을 선택하면 Include와 Exclude 필드를 사용할 수 있습니다. **수동으로 할당한 행만**을 선택하면 비교 규칙 없이 해당 상자에 드롭한 행만 할당합니다."
+msgstr "**값을 할당**\\ 에서 조건 상자의 **정규식**\\ 을 선택하면 Include와 Exclude 필드를 사용할 수 있습니다. **수동으로 할당한 행만**\\ 을 선택하면 비교 규칙 없이 해당 상자에 드롭한 행만 할당합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically."
@@ -430,7 +430,7 @@ msgstr "``drug_A_rep1.tif``와 ``control_rep1.tif`` 같은 원본 이름의 경�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``drug_A|control`` matches either text."
-msgstr "``drug_A|control``은 두 텍스트 중 어느 하나와 일치합니다."
+msgstr "``drug_A|control``\\ 은 두 텍스트 중 어느 하나와 일치합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``drug_A_rep.`` allows one character after ``rep``."
@@ -438,23 +438,23 @@ msgstr "``drug_A_rep.``은 ``rep`` 뒤에 문자 하나를 허용합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``drug_A.*rep`` allows any intervening text, including none."
-msgstr "``drug_A.*rep``은 두 부분 사이에 텍스트가 없거나 어떤 텍스트가 있어도 허용합니다."
+msgstr "``drug_A.*rep``\\ 은 두 부분 사이에 텍스트가 없거나 어떤 텍스트가 있어도 허용합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``^drug_A_rep1\\.tif$`` matches that entire value."
-msgstr "``^drug_A_rep1\\.tif$``는 해당 값 전체와 일치합니다."
+msgstr "``^drug_A_rep1\\.tif$``\\ 는 해당 값 전체와 일치합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``(?i)drug_a`` ignores letter case."
-msgstr "``(?i)drug_a``는 대소문자를 구분하지 않습니다."
+msgstr "``(?i)drug_a``\\ 는 대소문자를 구분하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use Include to select the group and Exclude to remove exceptions, such as Include ``drug_A`` with Exclude ``failed|outlier``. A filename column containing several original names separated by semicolons is searched as one string, so a contains pattern can match any recorded name; a whole-value anchor applies to the entire combined string."
-msgstr "Include로 그룹을 선택하고 Exclude로 예외를 제거하세요. 예를 들어 Include에는 ``drug_A``, Exclude에는 ``failed|outlier``를 사용합니다. 세미콜론으로 구분된 여러 원본 이름이 들어 있는 파일명 열은 하나의 문자열로 검색되므로, 포함 패턴은 기록된 어떤 이름과도 일치할 수 있습니다. 전체 값 앵커는 결합된 문자열 전체에 적용됩니다."
+msgstr "Include로 그룹을 선택하고 Exclude로 예외를 제거하세요. 예를 들어 Include에는 ``drug_A``, Exclude에는 ``failed|outlier``\\ 를 사용합니다. 세미콜론으로 구분된 여러 원본 이름이 들어 있는 파일명 열은 하나의 문자열로 검색되므로, 포함 패턴은 기록된 어떤 이름과도 일치할 수 있습니다. 전체 값 앵커는 결합된 문자열 전체에 적용됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Patterns search the chosen column's displayed string values. They are case-sensitive unless the expression includes a flag such as ``(?i)``. Use anchors when the whole value must match: ``^A0[1-3]$`` selects wells ``A01``, ``A02`` and ``A03``. ``.*`` includes all nonmissing values in the chosen column. A blank Include expression selects no rows automatically."
-msgstr "패턴은 선택한 열에 표시되는 문자열 값을 검색합니다. 표현식에 ``(?i)`` 같은 플래그가 없으면 대소문자를 구분합니다. 전체 값이 일치해야 할 때는 앵커를 사용하세요. ``^A0[1-3]$``는 웰 ``A01``, ``A02``, ``A03``을 선택합니다. ``.*``는 선택한 열의 결측이 아닌 모든 값을 포함합니다. 빈 Include 표현식은 어떤 행도 자동으로 선택하지 않습니다."
+msgstr "패턴은 선택한 열에 표시되는 문자열 값을 검색합니다. 표현식에 ``(?i)`` 같은 플래그가 없으면 대소문자를 구분합니다. 전체 값이 일치해야 할 때는 앵커를 사용하세요. ``^A0[1-3]$``\\ 는 웰 ``A01``, ``A02``, ``A03``\\ 을 선택합니다. ``.*``\\ 는 선택한 열의 결측이 아닌 모든 값을 포함합니다. 빈 Include 표현식은 어떤 행도 자동으로 선택하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Manual rows are added to the rows matched by Include. Exclude then removes matches from both sets, including rows you dropped manually. Missing metadata values do not match a regex; they can still be assigned manually."
@@ -466,11 +466,11 @@ msgstr "원본 테이블에서 여러 행을 선택하여 조건 상자로 드�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Remove selected manual rows** or **Clear manual rows** to remove dropped memberships. An Include rule can still match those rows; change the rule or add an Exclude expression when they must leave the condition. **Remove condition** removes the whole box and its rules."
-msgstr "드롭한 행의 소속을 제거하려면 **선택한 수동 행 제거** 또는 **수동 행 지우기**를 사용합니다. Include 규칙은 여전히 그 행과 일치할 수 있습니다. 해당 조건에서 완전히 제외해야 한다면 규칙을 바꾸거나 Exclude 표현식을 추가하세요. **조건 제거**는 상자 전체와 그 규칙들을 제거합니다."
+msgstr "드롭한 행의 소속을 제거하려면 **선택한 수동 행 제거** 또는 **수동 행 지우기**\\ 를 사용합니다. Include 규칙은 여전히 그 행과 일치할 수 있습니다. 해당 조건에서 완전히 제외해야 한다면 규칙을 바꾸거나 Exclude 표현식을 추가하세요. **조건 제거**\\ 는 상자 전체와 그 규칙들을 제거합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "A row may receive only one distinct label within each annotation column. If boxes assign different labels to it, the preview shows those competing labels and **Apply conditions** stays disabled. Adjust the include/exclude patterns or manual assignments until the overlap count is zero. No condition silently wins. Unmatched rows remain blank in the output column and remain present in the table."
-msgstr "행 하나는 각 주석 열에서 서로 구별되는 레이블을 하나만 받을 수 있습니다. 여러 상자가 서로 다른 레이블을 지정하면 미리보기에 충돌하는 레이블이 표시되고 **조건을 적용하기**는 비활성화 상태를 유지합니다. 중복 충돌 수가 0이 될 때까지 포함/제외 패턴이나 수동 할당을 조정하세요. 어떤 조건도 조용히 우선하지 않습니다. 일치하지 않는 행은 출력 열에서 빈칸으로 남고 테이블에서도 유지됩니다."
+msgstr "행 하나는 각 주석 열에서 서로 구별되는 레이블을 하나만 받을 수 있습니다. 여러 상자가 서로 다른 레이블을 지정하면 미리보기에 충돌하는 레이블이 표시되고 **조건을 적용하기**\\ 는 비활성화 상태를 유지합니다. 중복 충돌 수가 0이 될 때까지 포함/제외 패턴이나 수동 할당을 조정하세요. 어떤 조건도 조용히 우선하지 않습니다. 일치하지 않는 행은 출력 열에서 빈칸으로 남고 테이블에서도 유지됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Reuse an annotation schema on another table"
@@ -478,15 +478,15 @@ msgstr "다른 테이블에서 주석 스키마 재사용"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose **Save schema** after the preview is valid. The JSON file retains the output-column names and order, extraction patterns and capture groups, matching rules, labels, and composition tokens. It contains the instructions for generating values, rather than a copy of the table or its generated values."
-msgstr "미리보기가 유효하면 **스키마 저장**을 선택합니다. JSON 파일에는 출력 열 이름과 순서, 추출 패턴과 캡처 그룹, 일치 규칙, 레이블, 조합 토큰이 유지됩니다. 이 파일에는 테이블이나 생성 값의 복사본이 아니라, 값을 생성하는 지침이 들어 있습니다."
+msgstr "미리보기가 유효하면 **스키마 저장**\\ 을 선택합니다. JSON 파일에는 출력 열 이름과 순서, 추출 패턴과 캡처 그룹, 일치 규칙, 레이블, 조합 토큰이 유지됩니다. 이 파일에는 테이블이나 생성 값의 복사본이 아니라, 값을 생성하는 지침이 들어 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Open another table, choose **Annotate conditions**, then **Load schema** and select the JSON file. The new table may have different rows and values, but must provide the columns referenced by the schema. All outputs are previewed against this table. Inspect the values and any overlapping assignments before choosing **Apply conditions**. Loading alone does not change the working table."
-msgstr "다른 테이블을 열고 **조건 주석 추가**, **스키마 불러오기**를 차례로 선택한 뒤 JSON 파일을 선택합니다. 새 테이블의 행과 값은 달라도 되지만 스키마가 참조하는 열은 있어야 합니다. 이 테이블을 기준으로 모든 출력을 미리봅니다. **조건을 적용하기**를 선택하기 전에 값과 겹치는 할당을 확인하세요. 불러오기만으로 작업 테이블이 바뀌지는 않습니다."
+msgstr "다른 테이블을 열고 **조건 주석 추가**, **스키마 불러오기**\\ 를 차례로 선택한 뒤 JSON 파일을 선택합니다. 새 테이블의 행과 값은 달라도 되지만 스키마가 참조하는 열은 있어야 합니다. 이 테이블을 기준으로 모든 출력을 미리봅니다. **조건을 적용하기**\\ 를 선택하기 전에 값과 겹치는 할당을 확인하세요. 불러오기만으로 작업 테이블이 바뀌지는 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Manually dragged row assignments are specific to their source table and are omitted from reusable schemas. The save result reports how many assignments were omitted. Manual-only condition boxes remain available as empty groups to fill for the new table. To preserve manual assignments for the original analysis, use **Save chart** or **Save annotated table…** instead."
-msgstr "수동으로 드래그한 행 할당은 해당 원본 테이블에 한정되므로 재사용 가능한 스키마에서는 제외됩니다. 저장 결과는 제외된 할당 수를 알립니다. 수동 전용 조건 상자는 새 테이블에서 채울 수 있는 빈 그룹으로 남습니다. 원래 분석의 수동 할당을 유지하려면 대신 **차트 저장** 또는 **주석이 있는 테이블 저장…**을 사용하세요."
+msgstr "수동으로 드래그한 행 할당은 해당 원본 테이블에 한정되므로 재사용 가능한 스키마에서는 제외됩니다. 저장 결과는 제외된 할당 수를 알립니다. 수동 전용 조건 상자는 새 테이블에서 채울 수 있는 빈 그룹으로 남습니다. 원래 분석의 수동 할당을 유지하려면 대신 **차트 저장** 또는 **주석이 있는 테이블 저장…**\\ 을 사용하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Malformed files, unsupported versions, unavailable columns, invalid patterns and invalid output dependencies leave the existing dialog draft unchanged. An existing source column cannot be overwritten by a schema output. Schema files are written atomically; saving a schema over the source table itself is refused. The file size limit is 8 MiB."
@@ -498,7 +498,7 @@ msgstr "분석과 함께 조건 유지"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Reopen **Annotate conditions** to edit the current assignments. They survive table refreshes in the current Graph Builder session when the source is unchanged. Use **Save chart** to preserve the rules, manual assignments, output-column definitions and any merge definition with the chart. **Load chart** reconstructs the source and checks its identity before applying those labels."
-msgstr "현재 할당을 편집하려면 **조건 주석 추가**를 다시 엽니다. 원본이 바뀌지 않았다면 현재 Graph Builder 세션에서 테이블을 새로 고쳐도 유지됩니다. **차트 저장**으로 규칙, 수동 할당, 출력 열 정의, 병합 정의를 차트와 함께 저장하세요. **차트 불러오기**는 원본을 재구성하고 식별 정보를 확인한 후 레이블을 적용합니다."
+msgstr "현재 할당을 편집하려면 **조건 주석 추가**\\ 를 다시 엽니다. 원본이 바뀌지 않았다면 현재 Graph Builder 세션에서 테이블을 새로 고쳐도 유지됩니다. **차트 저장**\\ 으로 규칙, 수동 할당, 출력 열 정의, 병합 정의를 차트와 함께 저장하세요. **차트 불러오기**\\ 는 원본을 재구성하고 식별 정보를 확인한 후 레이블을 적용합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Saved conditions belong to the exact source table, including its row order, values and schema. Changed source data or a different merge definition requires reviewing and recreating the conditions. Sorting the dialog's view does not change that source identity. This check prevents saved manual selections from labelling unrelated rows after a source changes."
@@ -506,7 +506,7 @@ msgstr "저장된 조건은 행 순서, 값, 스키마를 포함한 정확히 �
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For a SQLite source, **Save annotated table…** saves the working values as a new physical table in the same database. The prompt **New table name (existing tables are preserved)** proposes the current table name followed by ``_annotated``. Existing tables, views and saved merged-table names cannot be overwritten; names beginning with ``sqlite_`` or ``_spacr_`` are reserved. This action adds a table and its annotation provenance while preserving the original measurement tables."
-msgstr "SQLite 원본에서 **주석이 있는 테이블 저장…**은 작업 값을 같은 데이터베이스의 새 물리 테이블에 저장합니다. **새 테이블 이름 (기존 테이블은 보존됩니다)** 프롬프트는 현재 테이블 이름 뒤에 ``_annotated``를 붙인 이름을 제안합니다. 기존 테이블, 뷰, 저장된 병합 테이블 이름은 덮어쓸 수 없습니다. ``sqlite_`` 또는 ``_spacr_``로 시작하는 이름은 예약되어 있습니다. 이 작업은 원본 측정 테이블을 보존하면서 테이블과 그 주석 출처 정보를 추가합니다."
+msgstr "SQLite 원본에서 **주석이 있는 테이블 저장…**\\ 은 작업 값을 같은 데이터베이스의 새 물리 테이블에 저장합니다. **새 테이블 이름 (기존 테이블은 보존됩니다)** 프롬프트는 현재 테이블 이름 뒤에 ``_annotated``\\ 를 붙인 이름을 제안합니다. 기존 테이블, 뷰, 저장된 병합 테이블 이름은 덮어쓸 수 없습니다. ``sqlite_`` 또는 ``_spacr_``\\ 로 시작하는 이름은 예약되어 있습니다. 이 작업은 원본 측정 테이블을 보존하면서 테이블과 그 주석 출처 정보를 추가합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The saved table is selected in the picker and can be loaded in other table screens, including Gate Editor. It contains a snapshot of the annotated values, unlike a derived merge that is recalculated from its inputs. Reopening it in Graph Builder restores editable condition rules when the saved rows and schema are unchanged. Save revised values under a new table name. Changed saved data are still readable, but old editable rules are not silently restored onto them. Image-specific actions continue to require appropriate object provenance."
@@ -514,5 +514,5 @@ msgstr "저장된 테이블은 선택기에서 선택되며 Gate Editor를 포�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Export table…** writes the working table, including every annotation column, to a new CSV and records its source, merge definition and condition rules in ``<export>.csv.conditions.json``. It exports the working table rather than just a brushed selection. The original database or imported file is preserved, and exporting over that source path is refused. Reopening the CSV gives you its saved labels; use the saved chart to reopen the original source and editable condition rules."
-msgstr "**테이블 내보내기…**는 모든 주석 열을 포함한 작업 테이블을 새 CSV에 쓰고, 원본, 병합 정의, 조건 규칙을 ``<export>.csv.conditions.json``에 기록합니다. 브러시로 선택한 부분만이 아니라 작업 테이블 전체를 내보냅니다. 원래 데이터베이스나 가져온 파일은 보존되며, 그 원본 경로에 덮어쓰는 내보내기는 거부됩니다. CSV를 다시 열면 저장된 레이블을 사용할 수 있습니다. 원본과 편집 가능한 조건 규칙을 다시 열려면 저장된 차트를 사용하세요."
+msgstr "**테이블 내보내기…**\\ 는 모든 주석 열을 포함한 작업 테이블을 새 CSV에 쓰고, 원본, 병합 정의, 조건 규칙을 ``<export>.csv.conditions.json``\\ 에 기록합니다. 브러시로 선택한 부분만이 아니라 작업 테이블 전체를 내보냅니다. 원래 데이터베이스나 가져온 파일은 보존되며, 그 원본 경로에 덮어쓰는 내보내기는 거부됩니다. CSV를 다시 열면 저장된 레이블을 사용할 수 있습니다. 원본과 편집 가능한 조건 규칙을 다시 열려면 저장된 차트를 사용하세요."
 

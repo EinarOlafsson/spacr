@@ -242,6 +242,8 @@ Measure
 
 Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.
 
+With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment.
+
 **Open:** Home → Measure.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
@@ -2025,6 +2027,8 @@ Timelapse
 ~~~~~~~~~
 
 Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis.
+
+Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames.
 
 **Open:** Mask → Timelapse.
 

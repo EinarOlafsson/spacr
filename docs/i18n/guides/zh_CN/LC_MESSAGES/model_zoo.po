@@ -12,12 +12,12 @@ msgstr ""
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.9.1\n"
 
 msgid "Model zoo"
 msgstr "动物园模型"
@@ -111,7 +111,7 @@ msgstr "在 11 个锚定孔上，IoU 0.5 时 F1 为 0.860，而原版 cpsam_v2 �
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
-msgstr "``toxoplasma_pv_v4``（Cellpose-SAM (cpsam_v2)）"
+msgstr "``toxoplasma_pv_v4``\\ （Cellpose-SAM (cpsam_v2)）"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7"

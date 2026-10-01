@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"POT-Creation-Date: 2026-10-01 18:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -334,6 +334,10 @@ msgstr "测量"
 
 msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
 msgstr "Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
+msgstr "启用测试阶段功能后，使用 ``cellprofiler_pipeline`` 旁的保存图标导出随附示例。该示例要求两个图像通道：``_ch0.tif`` (DNA) 和 ``_ch1.tif`` (Actin)，以及 ``_nucleus_mask.tif`` (Nuclei) 和 ``_cell_mask.tif`` (Cells)。运行前，请根据您的数据调整其通道和对象定义。保存成功后会选中导出路径；取消或保存失败时保留原先选择。CellProfiler 在其独立环境中运行。"
 
 msgid "**Open:** Home → Measure."
 msgstr "**打开：** 主页 → 测量。"
@@ -1578,6 +1582,10 @@ msgstr "延时成像"
 
 msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
 msgstr "在 Mask 中打开 Timelapse，对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
+msgstr "谱系导出保留以帧为单位的世代时间，并添加 ``generation_time_hours`` 及经过校准的汇总统计量。请提供正数 ``frame_interval_s``，或在轨迹表中提供完整、递增的 ``time_s`` 值。如果两者都存在，则必须一致；不设固定间隔时可使用不规则时间戳。缺少校准或细胞周期不完整时，不提供以小时为单位的世代时间。导出表会记录校准来源和单位。树的坐标轴和 Newick 分支长度仍以帧为单位。"
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**打开：** 掩膜 → 延时成像。"

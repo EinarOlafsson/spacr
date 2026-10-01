@@ -12,12 +12,12 @@ msgstr ""
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.9.1\n"
 
 msgid "Installer guide"
 msgstr "설치 안내서"
@@ -79,11 +79,11 @@ msgstr "macOS 온라인 설치: 업데이트 후 다시 열기"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again."
-msgstr "**도움말 → Check for updates**를 선택하고 사용 가능한 업데이트를 수락한 다음, 현재 환경에 spaCR을 다시 설치하는 것을 확인합니다. spaCR은 종료된 뒤 설치본에 포함된 ``uv``로 기존 전용 환경을 업그레이드하고, 설치된 버전을 확인한 후 자동으로 다시 열립니다. 이 과정에서 앱 실행기와 환경은 그대로 유지됩니다. 최초 실행용 설치 프로그램을 실행하거나 터미널 질문을 다시 표시하지 않습니다."
+msgstr "**도움말 → Check for updates**\\ 를 선택하고 사용 가능한 업데이트를 수락한 다음, 현재 환경에 spaCR을 다시 설치하는 것을 확인합니다. spaCR은 종료된 뒤 설치본에 포함된 ``uv``\\ 로 기존 전용 환경을 업그레이드하고, 설치된 버전을 확인한 후 자동으로 다시 열립니다. 이 과정에서 앱 실행기와 환경은 그대로 유지됩니다. 최초 실행용 설치 프로그램을 실행하거나 터미널 질문을 다시 표시하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow."
-msgstr "실행하는 명령은 아래의 macOS 복구 명령과 같으며, 실제 설치 디렉터리를 사용합니다. 업그레이드나 버전 확인에 실패하면 ``~/.spacr/logs/update.log``에 기록되며, 업데이트 성공 시의 자동 재실행은 수행되지 않습니다. spaCR이 안전하게 종료되지 못해도 업데이트가 중단됩니다. 별도의 독립 실행형 앱 번들은 번들 교체 절차를 사용합니다."
+msgstr "실행하는 명령은 아래의 macOS 복구 명령과 같으며, 실제 설치 디렉터리를 사용합니다. 업그레이드나 버전 확인에 실패하면 ``~/.spacr/logs/update.log``\\ 에 기록되며, 업데이트 성공 시의 자동 재실행은 수행되지 않습니다. spaCR이 안전하게 종료되지 못해도 업데이트가 중단됩니다. 별도의 독립 실행형 앱 번들은 번들 교체 절차를 사용합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Older installations and full installers"
@@ -91,7 +91,7 @@ msgstr "이전 설치본과 전체 설치 프로그램"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so two versions never sit side by side with one of them on the path. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update."
-msgstr "전체 설치 프로그램과 다른 설치 프로그램 기반 업데이트 경로는 이전 설치 프로그램이 만든 spaCR 설치본을 찾아 제거합니다. 따라서 두 버전이 나란히 설치되어 그중 하나가 실행 경로에 남는 일이 없습니다. Windows 온라인·오프라인 설치본, macOS 앱과 사용자별 환경, Linux 온라인 설치본과 Debian 패키지뿐 아니라 실행기, 바로가기, 메뉴 항목, 제거 등록 정보도 찾습니다. 직접 만든 환경과 소스 체크아웃은 목록에 표시하지만 제거하지 않으며, 프로젝트 폴더와 결과도 건드리지 않습니다. 예를 들어 관리자 권한이 필요한 ``/Applications``의 macOS 앱처럼 제거할 수 없는 설치본이 있으면, 어떤 설치본인지 알리고 아무것도 설치하지 않습니다. 따라서 업데이트가 절반만 적용된 상태로 남지 않습니다."
+msgstr "전체 설치 프로그램과 다른 설치 프로그램 기반 업데이트 경로는 이전 설치 프로그램이 만든 spaCR 설치본을 찾아 제거합니다. 따라서 두 버전이 나란히 설치되어 그중 하나가 실행 경로에 남는 일이 없습니다. Windows 온라인·오프라인 설치본, macOS 앱과 사용자별 환경, Linux 온라인 설치본과 Debian 패키지뿐 아니라 실행기, 바로가기, 메뉴 항목, 제거 등록 정보도 찾습니다. 직접 만든 환경과 소스 체크아웃은 목록에 표시하지만 제거하지 않으며, 프로젝트 폴더와 결과도 건드리지 않습니다. 예를 들어 관리자 권한이 필요한 ``/Applications``\\ 의 macOS 앱처럼 제거할 수 없는 설치본이 있으면, 어떤 설치본인지 알리고 아무것도 설치하지 않습니다. 따라서 업데이트가 절반만 적용된 상태로 남지 않습니다."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "아무것도 바꾸지 않고 무엇을 찾을지 보려면 spaCR 체크아웃에서 찾기 도구를 실행합니다: ``python spacr/install_cleanup.py find``."

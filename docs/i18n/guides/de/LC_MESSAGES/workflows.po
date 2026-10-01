@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"POT-Creation-Date: 2026-10-01 18:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -334,6 +334,10 @@ msgstr "Messen"
 
 msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
 msgstr "Measure liest Bilder und Labelebenen gemeinsam. Aktivieren Sie das Speichern von Bildausschnitten, wenn Sie PNG-Dateien benötigen; bewahren Sie für gestreamte Ausschnitte die Datenbank und das Quellprojekt zusammen auf."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
+msgstr "Verwenden Sie bei aktivierten Alpha-Funktionen das Speichersymbol neben ``cellprofiler_pipeline``, um ein mitgeliefertes Beispiel zu exportieren. Es erwartet zwei Bildkanäle, ``_ch0.tif`` (DNA) und ``_ch1.tif`` (Actin), sowie ``_nucleus_mask.tif`` (Nuclei) und ``_cell_mask.tif`` (Cells). Passen Sie vor der Ausführung die Kanal- und Objektdefinitionen an Ihre Daten an. Beim Speichern wird der exportierte Pfad ausgewählt; bei Abbruch oder Fehler bleibt die vorherige Auswahl erhalten. CellProfiler läuft in seiner separaten Umgebung."
 
 msgid "**Open:** Home → Measure."
 msgstr "**Öffnen:** Startseite → Messen."
@@ -1578,6 +1582,10 @@ msgstr "Zeitraffer"
 
 msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
 msgstr "Öffnen Sie Timelapse innerhalb von Mask, um Objekte über geordnete Einzelbilder hinweg zu segmentieren und zu verknüpfen; prüfen Sie die Verknüpfungen vor der nachfolgenden Motilitätsanalyse."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
+msgstr "Abstammungsexporte behalten die Generationszeiten in Einzelbildern bei und ergänzen ``generation_time_hours`` mit kalibrierten zusammenfassenden Statistiken. Geben Sie einen positiven Wert für ``frame_interval_s`` oder vollständige, ansteigende ``time_s``-Werte in der Track-Tabelle an. Wenn beides vorhanden ist, müssen die Angaben übereinstimmen; unregelmäßige Zeitstempel werden auch ohne festes Intervall unterstützt. Bei fehlender Kalibrierung oder unvollständigen Zellzyklen wird keine Generationszeit in Stunden angegeben. Die exportierten Tabellen dokumentieren die Kalibrierungsquelle und die Einheiten. Die Baumachse und die Newick-Astlängen bleiben in Einzelbildern angegeben."
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**Öffnen:** Masken → Zeitraffer."

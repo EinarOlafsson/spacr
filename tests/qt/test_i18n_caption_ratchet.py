@@ -502,7 +502,9 @@ EXTERNAL_SOURCE_COUNTS = {
     # 2026-10-01: +4 indirect tr() captions: Low/Medium/High from the
     # thumbnail quality selector and Plugins from Preferences._page.
     # All nine source-bound reviewed targets passed the normal builder.
-    "UI": 6489,
+    # 2026-10-01: +5 CellProfiler example export captions; subtracting
+    # those exact source keys reproduces the previous 6,489-key inventory.
+    "UI": 6494,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -615,7 +617,8 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # 47: one reviewed UI arrival, "Checking compatible GPUs…", no removals.
     # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
     # Removing those four indirect UI keys reproduces fa4c72cf...e02433.
-    'f4809f012900e0ca40c662e1dcf0b965e82071f7118193214a915d20efa70741'
+    # Subtracting the five example-export UI keys reproduces f4809f01...70741.
+    'e4ee6a9c1ac0577d20f20bd55bdb9fcfecaca06133f8abf10ee346e45c6d87d3'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

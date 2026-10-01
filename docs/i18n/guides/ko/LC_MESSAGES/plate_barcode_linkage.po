@@ -12,12 +12,12 @@ msgstr ""
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.9.1\n"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Link plate barcodes to sample metadata"
@@ -25,7 +25,7 @@ msgstr "플레이트 바코드와 시료 메타데이터 연결"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **Measure**, enable **Show alpha features** in Preferences and open **Plate Barcode Linkage (Alpha)**. Set ``plate_barcode_source`` to a table or a LIMS service URL. The linkage runs after measurement."
-msgstr "**측정**에서 Preferences의 **알파 기능 표시**를 활성화하고 **Plate Barcode Linkage (Alpha)**를 엽니다. ``plate_barcode_source``를 테이블 또는 LIMS 서비스 URL로 설정합니다. 연결 작업은 측정 후에 실행됩니다."
+msgstr "**측정**\\ 에서 Preferences의 **알파 기능 표시**\\ 를 활성화하고 **Plate Barcode Linkage (Alpha)**\\ 를 엽니다. ``plate_barcode_source``\\ 를 테이블 또는 LIMS 서비스 URL로 설정합니다. 연결 작업은 측정 후에 실행됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "A local CSV, TSV, Excel or Parquet table needs a barcode column, a well column and the sample metadata to attach. For example::"
@@ -33,7 +33,7 @@ msgstr "로컬 CSV, TSV, Excel 또는 Parquet 테이블에는 바코드 열, 웰
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata."
-msgstr "바코드 열의 이름이 다르면 ``plate_barcode_column``을 설정합니다. ``plate_barcodes``는 촬영된 플레이트의 이름을 바코드에 매핑합니다. 이 매핑이 없으면 spaCR은 플레이트 폴더의 ``barcode.txt``를 읽거나 플레이트 이름을 사용합니다. 메타데이터에는 농도의 의미를 알 수 있도록 단위를 유지하세요."
+msgstr "바코드 열의 이름이 다르면 ``plate_barcode_column``\\ 을 설정합니다. ``plate_barcodes``\\ 는 촬영된 플레이트의 이름을 바코드에 매핑합니다. 이 매핑이 없으면 spaCR은 플레이트 폴더의 ``barcode.txt``\\ 를 읽거나 플레이트 이름을 사용합니다. 메타데이터에는 농도의 의미를 알 수 있도록 단위를 유지하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Read records from a LIMS service"
@@ -42,7 +42,7 @@ msgstr "LIMS 서비스에서 레코드 읽기"
 # AI technical review (Codex), no native-speaker signoff.
 #, python-brace-format
 msgid "Use a URL such as ``https://lims.example/plates/{barcode}/wells``. spaCR substitutes the encoded barcode. Without ``{barcode}``, it adds a ``barcode`` query parameter. If authentication is needed, set the token in an environment variable and put that variable's name in ``plate_barcode_token_env``. Do not put the token in the URL or settings."
-msgstr "``https://lims.example/plates/{barcode}/wells`` 같은 URL을 사용합니다. spaCR은 인코딩된 바코드를 대입합니다. ``{barcode}``가 없으면 ``barcode`` 쿼리 매개변수를 추가합니다. 인증이 필요하면 토큰을 환경 변수에 저장하고, 해당 변수의 이름을 ``plate_barcode_token_env``에 입력합니다. 토큰 자체를 URL이나 설정에 넣지 마세요."
+msgstr "``https://lims.example/plates/{barcode}/wells`` 같은 URL을 사용합니다. spaCR은 인코딩된 바코드를 대입합니다. ``{barcode}``\\ 가 없으면 ``barcode`` 쿼리 매개변수를 추가합니다. 인증이 필요하면 토큰을 환경 변수에 저장하고, 해당 변수의 이름을 ``plate_barcode_token_env``\\ 에 입력합니다. 토큰 자체를 URL이나 설정에 넣지 마세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The service may return a list of well records, or an object containing that list under ``wells``, ``records``, ``results``, ``data`` or ``items``. Plain fields outside the list supply metadata defaults for its wells::"
@@ -62,9 +62,9 @@ msgstr "결과 확인"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The filled map is written to ``measurements/plate_map_lims.csv``. It fills an empty ``profiling_metadata`` setting. When compound and concentration columns exist, it also fills an empty ``viability_plate_map``. An existing user-supplied map is compared, not silently replaced."
-msgstr "완성된 맵은 ``measurements/plate_map_lims.csv``에 저장됩니다. ``profiling_metadata`` 설정이 비어 있으면 이 맵으로 채웁니다. 화합물과 농도 열이 있으면 비어 있는 ``viability_plate_map``도 채웁니다. 사용자가 이미 제공한 맵은 조용히 교체하지 않고 비교합니다."
+msgstr "완성된 맵은 ``measurements/plate_map_lims.csv``\\ 에 저장됩니다. ``profiling_metadata`` 설정이 비어 있으면 이 맵으로 채웁니다. 화합물과 농도 열이 있으면 비어 있는 ``viability_plate_map``\\ 도 채웁니다. 사용자가 이미 제공한 맵은 조용히 교체하지 않고 비교합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Review ``measurements/plate_barcode_mismatches.csv`` and the log for missing barcodes, shared barcodes, unmatched wells, conflicting records and disagreements with an existing map. Resolve those mismatches before interpreting treatment comparisons."
-msgstr "``measurements/plate_barcode_mismatches.csv``와 로그에서 누락된 바코드, 여러 플레이트가 공유하는 바코드, 일치하지 않는 웰, 충돌하는 레코드, 기존 맵과의 불일치를 검토합니다. 처리 조건 간 비교를 해석하기 전에 이러한 불일치를 해결하세요."
+msgstr "``measurements/plate_barcode_mismatches.csv``\\ 와 로그에서 누락된 바코드, 여러 플레이트가 공유하는 바코드, 일치하지 않는 웰, 충돌하는 레코드, 기존 맵과의 불일치를 검토합니다. 처리 조건 간 비교를 해석하기 전에 이러한 불일치를 해결하세요."
 
