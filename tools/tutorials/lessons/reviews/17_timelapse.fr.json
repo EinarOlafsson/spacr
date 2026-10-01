@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Téléchargez et extrayez SYNTHETIC_timelapse_preview.zip. L’exemple pédagogique contient huit images de cellules et les images d’étiquettes correspondantes. Pour une exécution Mask complète sur vos propres données, préparez des images de microscopie ordonnées dans le temps et notez l’intervalle d’acquisition.",
   "scenes": [
-    "Depuis Home, ouvrez Mask et cliquez sur l’icône Timelapse en haut à droite pour activer le suivi. Timelapse relie les objets entre images consécutives. Nous allons d’abord essayer l’exemple lié dans Track preview, puis revoir les paramètres pour traiter votre propre séquence d’images.",
+    "Depuis Home, ouvrez Mask, activez Time dans la rangée Actions puis Timelapse pour activer le suivi. Timelapse relie les objets d’une image à la suivante. Nous essaierons d’abord l’exemple lié dans Track preview, puis nous passerons en revue les réglages pour traiter votre propre séquence d’images.",
     "Téléchargez et extrayez l’archive d’exemple ci-dessous, puis cliquez sur Track preview à droite de l’en-tête Actions. L’archive contient une séquence d’images et la séquence de masques correspondante, sur huit images. Gardez les deux dossiers ensemble pour pouvoir sélectionner les images et étiquettes qui se correspondent.",
     "Choisissez image_sequences, puis field_A01, comme dossier d’images. Sélectionnez le canal zéro : chaque image d’exemple contient un seul canal d’intensité cellulaire. Réglez Frames previewed sur huit et Fields sur un.",
     "Cliquez sur Masks et sélectionnez label_sequences, puis field_A01. Chaque étiquette identifie un objet dans l’image correspondante. Laissez d’abord Keep only full-length tracks désactivé afin d’inspecter les trajectoires qui commencent ou se terminent au cours de la séquence.",

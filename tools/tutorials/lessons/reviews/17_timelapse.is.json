@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Sæktu og afþjappaðu SYNTHETIC_timelapse_preview.zip. Kennsludæmið inniheldur átta ramma af frumumyndum og samsvarandi merkingamyndir. Fyrir fulla Mask-keyrslu á eigin gögnum útbýrðu smásjármyndir í tímaröð og skráir tímabilið milli mynda.",
   "scenes": [
-    "Frá Home opnarðu Mask og smellir á Timelapse-táknið efst til hægri til að kveikja á rakningu. Notaðu Timelapse til að tengja hluti milli samliggjandi mynda. Fyrst prófum við tengda dæmið í Track preview og förum síðan yfir stillingarnar til að vinna úr þinni eigin myndaröð.",
+    "Opnaðu Mask frá Home, kveiktu á Time í Actions-röðinni og kveiktu á Timelapse til að virkja rakningu. Timelapse tengir hluti milli samliggjandi mynda. Fyrst prófum við tengda dæmið í Track preview og förum svo yfir stillingarnar fyrir þína eigin myndaröð.",
     "Sæktu og afþjappaðu dæmasafnið hér fyrir neðan og smelltu svo á Track preview hægra megin við fyrirsögnina Actions. Safnið inniheldur myndaröð og samsvarandi grímuröð með átta römmum. Hafðu báðar möppurnar saman svo þú getir valið myndir og merkingar sem eiga saman.",
     "Veldu image_sequences og síðan field_A01 sem myndamöppu. Veldu rás 0: hver dæmamynd inniheldur eina rás fyrir styrk frumna. Stilltu Frames previewed á 8 og Fields á 1.",
     "Smelltu á Masks og veldu label_sequences og síðan field_A01. Hver merking auðkennir hlut í samsvarandi mynd. Hafðu slökkt á Keep only full-length tracks í fyrstu svo þú getir skoðað ferla sem byrja eða enda innan raðarinnar.",

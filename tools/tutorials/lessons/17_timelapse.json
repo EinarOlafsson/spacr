@@ -20,14 +20,8 @@
   "scenes": [
     {
       "visual": "02_timelapse_fold",
-      "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+      "narration": "From Home, open Mask, turn on Time in the Actions row and switch on Timelapse to turn tracking on. Timelapse links objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
       "hold_after": 0.7,
-      "focus": [
-        3708,
-        33,
-        126,
-        116
-      ],
       "related_lessons": [
         "07_mask",
         "18_motility"

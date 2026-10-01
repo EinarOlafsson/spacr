@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Laden Sie SYNTHETIC_timelapse_preview.zip herunter und entpacken Sie es. Das Lehrbeispiel enthält acht Zellbild-Frames und passende Label-Bilder. Für einen vollständigen Mask-Lauf mit eigenen Daten bereiten Sie zeitlich geordnete Mikroskopiebilder vor und notieren das Aufnahmeintervall.",
   "scenes": [
-    "Öffnen Sie von Home aus Mask und klicken Sie oben rechts auf das Timelapse-Symbol, um das Tracking einzuschalten. Mit Timelapse verknüpfen Sie Objekte über aufeinanderfolgende Bilder. Zuerst probieren wir das verlinkte Beispiel in Track preview aus und sehen uns dann die Einstellungen für Ihre eigene Bildsequenz an.",
+    "Öffnen Sie von Home aus Mask, schalten Sie in der Actions-Zeile Time ein und aktivieren Sie Timelapse, um das Tracking einzuschalten. Mit Timelapse verknüpfen Sie Objekte über aufeinanderfolgende Bilder. Zuerst probieren wir das verlinkte Beispiel in Track preview aus und sehen uns dann die Einstellungen für Ihre eigene Bildsequenz an.",
     "Laden Sie das Beispielarchiv unten herunter, entpacken Sie es und klicken Sie dann auf Track preview rechts neben der Überschrift Actions. Das Archiv enthält eine Bildsequenz und eine passende Maskensequenz mit acht Frames. Halten Sie beide Ordner zusammen, damit Sie die zusammengehörigen Bilder und Labels auswählen können.",
     "Wählen Sie image_sequences und dann field_A01 als Bildordner. Wählen Sie Kanal 0: Jedes Beispielbild enthält einen einzigen Zellintensitätskanal. Setzen Sie Frames previewed auf 8 und Fields auf 1.",
     "Klicken Sie auf Masks und wählen Sie label_sequences und dann field_A01. Jedes Label kennzeichnet ein Objekt im entsprechenden Bild. Lassen Sie Keep only full-length tracks zunächst ausgeschaltet, damit Sie Tracks prüfen können, die innerhalb der Sequenz beginnen oder enden.",
