@@ -220,3 +220,11 @@ repairs. Source refresh does not establish translated API acceptance.
 Validation: eight focused inventory, extractor, source-signature, docless,
 required-parameter and ghost-parameter checks passed in 79.36 seconds under
 a 4 GB CPU-only cap. Existing completeness gates were preserved.
+
+2026-10-01 — AUTOMATIC RELEASE PROGRESS
+
+Workflow 36904849867 has completed both Prepare repository version and
+Build and validate PyPI distributions successfully. Publish to PyPI is queued
+at this observation; neither PyPI publication nor the final GitHub release
+is claimed. This workflow releases the earlier main merge (PR 135), not the
+subsequent N625 or plugin-catalogue changes pushed only to nightly.
