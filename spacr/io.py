@@ -6158,6 +6158,13 @@ def generate_dataset(settings=None):
         no images are selected, no image could be written, or the
         destination folder cannot be resolved.
 
+    The tar-writing pool is closed and joined, not left to the ``with``
+    block's ``terminate()``: that sends SIGTERM to idle workers, and a
+    worker whose SIGTERM handler needs a lock the interrupted code holds
+    (coverage's ``sigterm = True`` data save does) never exits, so the
+    shutdown waited on it for ever. Workers that finished their tasks are
+    let go by a normal exit instead.
+
     Example:
         .. code-block:: python
 
@@ -6290,6 +6297,8 @@ def generate_dataset(settings=None):
             add_images_to_tar,
             [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)]
         )
+        pool.close()
+        pool.join()
 
     print(f"Merging temporary files")
 
