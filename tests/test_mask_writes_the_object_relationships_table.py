@@ -210,3 +210,43 @@ def test_an_unparsable_field_name_keeps_its_file_name(tmp_path, name):
     rows = _rows(db)
     assert rows and {r["file_name"] for r in rows} == {name}
     assert {r["prcf"] for r in rows} == {None}
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36794763761)
+# ---------------------------------------------------------------------------
+
+def test_no_layout_no_pairs_no_planes_or_no_overlap_is_an_empty_table(tmp_path):
+    from spacr.filters import _object_relationships_frame
+
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    assert _object_relationships_frame(str(merged)).empty
+    (merged / MERGED_LAYOUT_SIDECAR).write_text(
+        json.dumps({"mask_dims": {"cell": 2}}))
+    assert _object_relationships_frame(str(merged)).empty
+    (merged / MERGED_LAYOUT_SIDECAR).write_text(
+        json.dumps({"mask_dims": {"cell": 2, "nucleus": 9}}))
+    np.save(merged / "plate1_A01_1.npy", np.zeros((8, 8, 3), np.float32))
+    frame = _object_relationships_frame(str(merged))
+    assert frame.empty
+    assert list(frame.columns) == list(_OBJECT_RELATIONSHIPS_COLUMNS)
+
+
+def test_write_relationships_rebuilds_the_parent_table(monkeypatch):
+    """The public writer is ensure_relationships_table(rebuild=True)."""
+    from spacr import filters
+
+    calls = []
+    monkeypatch.setattr(filters, "ensure_relationships_table",
+                        lambda db, rebuild=False: (
+                            calls.append((db, rebuild)) or "frame"))
+    assert filters.write_relationships("m.db") == "frame"
+    assert calls == [("m.db", True)]
+
+
+def test_values_pandas_cannot_test_for_missing_are_stored_as_they_are():
+    from spacr.filters import _sqlite_value
+
+    assert _sqlite_value([1, 2]) == [1, 2]
+    assert _sqlite_value(np.float32(1.5)) == 1.5 and _sqlite_value(None) is None
