@@ -39,3 +39,18 @@ Acceptance 2026-10-01:
 - User guide documents these controls and the complete example. API source
   manifest refreshed separately; translation/tutorial publication remains
   tracked by N615 rather than claimed by this implementation receipt.
+
+2026-10-01 — TUTORIAL AUTHORING AND REAL-CONTROL EVIDENCE
+Graph Builder lesson58 now authors four annotation scenes and captures the
+actual editor controls after its existing chart/filter/brush acceptance.
+An independent oracle checks the complete recipe, every output row and the
+unchanged source columns/index. Both boxes retain the exact label
+'replicate 1', including its space. Fourteen focused checks pass under a
+1 GB single-thread CPU cap, including the actual threaded editor on the
+read-only example archive's 2,341 cell rows and worker shutdown after Apply.
+The example has only c1/c2 and r5/r12: 2,341 illustrative WildType labels,
+zero mutant matches, 1,140 composed labels and 1,201 blank conditions.
+These practice labels are not biological genotype/replicate validation.
+The existing broken image-annotation handoff evidence is retained separately.
+Native capture, narration, screenshot/video regeneration and publication have
+not been performed for these new scenes; those remain in N615.

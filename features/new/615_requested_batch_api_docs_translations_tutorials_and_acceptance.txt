@@ -8,6 +8,8 @@ promotion completed through PR #135 at 2429976f0 on 2026-10-01. Subsequent
 N625 multi-column annotations and N626 organizer repairs are nightly changes.
 Release run 36904849867 built and validated the distributions successfully;
 its PyPI publication job is queued, not verified published.
+Graph Builder lesson58 authoring now covers N625's complete three-column
+recipe with real-control and full-row checks; its new media remains unpublished.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex implementation session.
 
