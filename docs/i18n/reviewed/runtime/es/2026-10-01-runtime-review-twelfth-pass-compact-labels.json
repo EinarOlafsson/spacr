@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, twelfth pass 2026-10-01: AI meaning review of the setting label rows that had only a machine translation. Rows whose machine translation was correct are recorded unchanged; rows wrong in meaning, garbled or incomplete are re-translated. Technically reviewed by AI against the English source and its code context; no human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "activation",
+      "source": "Activation",
+      "source_sha256": "5d939d40080b779bb839248229f1b944ce8f70e067ff9061f6fc8f1982db9b2a",
+      "translation": "Activación"
+    },
+    {
+      "table": "setting_labels",
+      "key": "alpha",
+      "source": "Alpha",
+      "source_sha256": "b1a96dd646bccaa24cef7a3db22a6f995f05658f4f1c3272913e258c03e6fb24",
+      "translation": "Alfa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "background",
+      "source": "Background",
+      "source_sha256": "ea2b8a878841df5955c78edc6cae47446483b86e3f5ccb04e1a8d940cf7e59fd",
+      "translation": "Fondo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "barcode_qc",
+      "source": "Barcode QC",
+      "source_sha256": "9b24abd1d89e50d426b108c551fe8be50be414794f8ce6c0170f5218931177bd",
+      "translation": "QC de códigos de barras"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cells",
+      "source": "Cells",
+      "source_sha256": "6e0aea0573b97d40b2a3e4274b8ddb686fa4e9614684c0e2822db86ad97888a2",
+      "translation": "Células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "channels",
+      "source": "Channels",
+      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
+      "translation": "Canales"
+    },
+    {
+      "table": "setting_labels",
+      "key": "classes",
+      "source": "Classes",
+      "source_sha256": "84637286c5b731d749ff9574416ae2de473f72c85aca744fcd192a35c70913ca",
+      "translation": "Clases"
+    },
+    {
+      "table": "setting_labels",
+      "key": "classify",
+      "source": "Classify",
+      "source_sha256": "dabe0f6c6a45b61a078c2fc84f0cfff0ac383d5faeb29a119f78770d2b8be767",
+      "translation": "Clasificar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "clustering",
+      "source": "Clustering",
+      "source_sha256": "5ea655fb5364a7de3141cddea528b0eedd7779c675ece71c7e5e41c4958dd643",
+      "translation": "Agrupamiento"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination",
+      "source": "Illumination",
+      "source_sha256": "7bd89aac862b8c75b75c5b17a099fd8dc67010805d9ce4d97d890ff4db993856",
+      "translation": "Iluminación"
+    },
+    {
+      "table": "setting_labels",
+      "key": "inference",
+      "source": "Inference",
+      "source_sha256": "ae5b8a4c6ac9aa79b9fa5676a05734984afeba28277a24d2f3baffa9354ccc7f",
+      "translation": "Inferencia"
+    },
+    {
+      "table": "setting_labels",
+      "key": "mask",
+      "source": "Mask",
+      "source_sha256": "e368929abd3614e92ad17e56175b67d1f6ba94aca92ab43b7f16f31764ff7447",
+      "translation": "Máscara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "masks",
+      "source": "Masks",
+      "source_sha256": "450b4855f814f27e1161ac14f3a7b4ac8a81f686d3c1794c7febb1a01398dafa",
+      "translation": "Máscaras"
+    },
+    {
+      "table": "setting_labels",
+      "key": "measure",
+      "source": "Measure",
+      "source_sha256": "ebf940f2b3eaa86c4ca34f4bfe7241f2c2815c1358cbb6b841818ca7a4aaadc7",
+      "translation": "Medir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "measurement",
+      "source": "Measurement",
+      "source_sha256": "385165e2ff59804537e732dc51e2b6058a5a11016e0bb01febe8a738614ed728",
+      "translation": "Medición"
+    },
+    {
+      "table": "setting_labels",
+      "key": "overlay",
+      "source": "Overlay",
+      "source_sha256": "2af93aeb435dff6322f51a7be60ec25c3ea7b6bee86d3177324aa96a232e9710",
+      "translation": "Superposición"
+    },
+    {
+      "table": "setting_labels",
+      "key": "recruitment",
+      "source": "Recruitment",
+      "source_sha256": "9396ed8f2948bfa6e6a7b666a407746891f7b4d5be46b978ee025b96420dd901",
+      "translation": "Reclutamiento"
+    },
+    {
+      "table": "setting_labels",
+      "key": "regression",
+      "source": "Regression",
+      "source_sha256": "f9f0955ea4a62478023055e8ef7ad1dde05e6742688eb5e5bc8990a2f4295815",
+      "translation": "Regresión"
+    },
+    {
+      "table": "setting_labels",
+      "key": "results_folder",
+      "source": "Results folder",
+      "source_sha256": "46bd822638f75b6e8f1c02c1e340582437eaf53af496ea4eda65c715b6a2200c",
+      "translation": "Carpeta de resultados"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save",
+      "source": "Save",
+      "source_sha256": "1509f561f2416598629b886ad7d3c05a7e221e4e0675c84bbff4ee6d9e03913d",
+      "translation": "Guardar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test",
+      "source": "Test",
+      "source_sha256": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25",
+      "translation": "Evaluación de prueba"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse",
+      "source": "Timelapse",
+      "source_sha256": "5cbf3acc816d1e899a9082c05c70f38ee1ea1c61ffe270c94e919dc942638eff",
+      "translation": "Serie temporal"
+    }
+  ]
+}
