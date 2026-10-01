@@ -11,7 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
@@ -26,15 +26,21 @@ class AnnotationError(ValueError):
 class ConditionPreview:
     """Validated membership counts and row labels before application.
 
-    :param values: Candidate labels in source row order; overlaps are diagnostic.
-    :param counts: Matched row count per condition.
-    :param unmatched: Rows assigned to no condition.
-    :param overlaps: Source row positions assigned to multiple conditions.
+    :param values: Final output labels in source row order; conflicts are diagnostic.
+    :param counts: Final output row counts per distinct label.
+    :param unmatched: Rows missing a value in the final output.
+    :param overlaps: Union of positions assigned different labels within any output.
+    :param column_values: Candidate values for every ordered output column.
+    :param column_previews: Per-column membership and conflict reports.
+    :param rule_counts: Individual rule counts before same-label unions.
     """
     values: pd.Series
     counts: dict
     unmatched: int
     overlaps: np.ndarray
+    column_values: dict = field(default_factory=dict)
+    column_previews: dict = field(default_factory=dict)
+    rule_counts: list = field(default_factory=list)
 
 
 def source_context(path=None, table=None, merge_definition=None):
@@ -84,69 +90,168 @@ def new_definition(frame, source, *, column="condition"):
             "column": column, "conditions": []}
 
 
-def preview(frame, definition, source):
-    """Evaluate rules without mutating the frame or accepting conflicting labels.
-
-    An include pattern selects matching nonmissing metadata values. Blank include
-    means manual assignments only. Exclude always removes matching rows, including
-    manually added rows. Different conditions may overlap in a preview, but Apply
-    refuses until those overlaps are resolved.
-
-    :param frame: Original source frame, not a previously annotated copy.
-    :param definition: Saved or edited condition rules.
-    :param source: Current file/table/merge identity.
-    :returns: ConditionPreview with explicit unmatched and overlap diagnostics.
-    """
-    if definition.get("version") != 1:
+def _entries(definition):
+    """Normalize legacy definitions without changing their serialized shape."""
+    if definition.get("version") == 1:
+        return [{"column": definition.get("column", ""), "kind": "rules",
+                 "conditions": definition.get("conditions", [])}]
+    if definition.get("version") != 2:
         raise AnnotationError("Unsupported annotation version; recreate the conditions.")
-    if definition.get("source") != source:
-        raise AnnotationError("These conditions belong to another source or table; recreate them here.")
-    schema, digest, tokens = table_identity(frame)
-    if schema != definition.get("schema") or digest != definition.get("content_sha256"):
-        raise AnnotationError("The source rows, order, values or schema changed; review and recreate the conditions.")
-    column = str(definition.get("column", "")).strip()
-    if not column:
-        raise AnnotationError("Give the condition output column a name.")
-    if column in frame.columns:
-        raise AnnotationError(f"The source already has a {column!r} column; choose a new name to preserve it.")
+    entries = definition.get("columns")
+    if not isinstance(entries, list) or not entries:
+        raise AnnotationError("Add at least one annotation output column.")
+    if any(not isinstance(entry, dict) for entry in entries):
+        raise AnnotationError("Each annotation output needs a column definition.")
+    return entries
+
+
+def annotation_columns(definition):
+    """Return the ordered output names from a legacy definition or recipe.
+
+    :param definition: Version 1 condition definition or version 2 column recipe.
+    :returns: Distinct, nonempty output names in recipe order.
+    """
     names = []
-    for condition in definition.get("conditions", []):
-        name = str(condition.get("name", "")).strip()
-        if not name or name in names:
-            raise AnnotationError("Each condition needs a distinct, nonempty name.")
+    for entry in _entries(definition):
+        name = str(entry.get("column", "")).strip()
+        if not name or "\x00" in name:
+            raise AnnotationError("Give each annotation output column a nonempty name.")
+        if name in names:
+            raise AnnotationError("Annotation output column names must be distinct.")
         names.append(name)
-    locations = {token: index for index, token in enumerate(tokens)}
-    counts = {}
-    memberships = np.zeros(len(frame), dtype=np.int32)
-    values = pd.Series(pd.NA, index=pd.RangeIndex(len(frame)), dtype="string")
-    for name, condition in zip(names, definition.get("conditions", [])):
+    return names
+
+
+def _exact_values(condition, key, name):
+    """Validate exact-value selectors without treating a string as characters."""
+    values = condition.get(key, [])
+    if not isinstance(values, (list, tuple)) or any(
+            value is None or not isinstance(value, (str, int, float, bool))
+            or (isinstance(value, float) and not np.isfinite(value)) for value in values):
+        raise AnnotationError(f"{name}: {key} must be a list of nonmissing metadata values.")
+    return {str(value) for value in values}
+
+
+def _rules_preview(frame, conditions, locations, *, legacy):
+    """Evaluate one output, unioning repeated labels before conflict detection."""
+    if not isinstance(conditions, list):
+        raise AnnotationError("Conditions must be a list of rules.")
+    masks = {}
+    rule_counts = []
+    for condition in conditions:
+        if not isinstance(condition, dict):
+            raise AnnotationError("Each condition needs a rule definition.")
+        name = str(condition.get("name", "")).strip()
+        if not name or (legacy and name in masks):
+            raise AnnotationError("Each condition needs a distinct, nonempty name.")
         column_name = condition.get("metadata_column")
         if column_name not in frame.columns:
             raise AnnotationError(f"{name}: choose an available metadata column.")
-        compiled = {}
-        for mode in ("include", "exclude"):
-            pattern = str(condition.get(mode, ""))
-            try:
-                compiled[mode] = re.compile(pattern) if pattern else None
-            except re.error as exc:
-                raise AnnotationError(f"{name}: invalid {mode} regular expression: {exc}") from exc
         text = frame[column_name].reset_index(drop=True).astype("string")
-        selected = np.zeros(len(frame), dtype=bool)
-        if compiled["include"]:
-            selected |= text.str.contains(compiled["include"], na=False).to_numpy(dtype=bool)
+        mode = condition.get("match_mode", "regex")
+        if mode == "values":
+            selected = text.isin(_exact_values(condition, "include_values", name)).to_numpy(dtype=bool)
+            excluded = text.isin(_exact_values(condition, "exclude_values", name)).to_numpy(dtype=bool)
+        elif mode == "regex":
+            compiled = {}
+            for selector in ("include", "exclude"):
+                pattern = str(condition.get(selector, ""))
+                try:
+                    compiled[selector] = re.compile(pattern) if pattern else None
+                except re.error as exc:
+                    raise AnnotationError(f"{name}: invalid {selector} regular expression: {exc}") from exc
+            selected = (text.str.contains(compiled["include"], na=False).to_numpy(dtype=bool)
+                        if compiled["include"] else np.zeros(len(frame), dtype=bool))
+            excluded = (text.str.contains(compiled["exclude"], na=False).to_numpy(dtype=bool)
+                        if compiled["exclude"] else np.zeros(len(frame), dtype=bool))
+        else:
+            raise AnnotationError(f"{name}: choose regex or values matching.")
         for token in condition.get("manual_rows", []):
             if token not in locations:
                 raise AnnotationError(f"{name}: a manually selected row no longer belongs to this source.")
             selected[locations[token]] = True
-        if compiled["exclude"]:
-            selected &= ~text.str.contains(compiled["exclude"], na=False).to_numpy(dtype=bool)
-        counts[name] = int(selected.sum())
+        selected &= ~excluded
+        rule_counts.append(int(selected.sum()))
+        if name in masks:
+            masks[name] |= selected
+        else:
+            masks[name] = selected
+    memberships = np.zeros(len(frame), dtype=np.int32)
+    values = pd.Series(pd.NA, index=pd.RangeIndex(len(frame)), dtype="string")
+    for name, selected in masks.items():
         already = selected & (memberships > 0)
         values.loc[selected & ~already] = name
         values.loc[already] = values.loc[already] + " / " + name
         memberships += selected
-    return ConditionPreview(values=values, counts=counts, unmatched=int((memberships == 0).sum()),
-                            overlaps=np.flatnonzero(memberships > 1))
+    return ConditionPreview(values, {name: int(mask.sum()) for name, mask in masks.items()},
+                            int((memberships == 0).sum()), np.flatnonzero(memberships > 1),
+                            rule_counts=rule_counts)
+
+
+def _combine_preview(frame, entry):
+    """Combine available columns positionally, keeping missing components missing."""
+    columns = entry.get("columns")
+    if not isinstance(columns, list) or not columns or any(
+            not isinstance(column, str) or column not in frame.columns for column in columns):
+        raise AnnotationError("Combine columns must name source columns or earlier annotation outputs.")
+    separator = entry.get("separator", "_")
+    if not isinstance(separator, str):
+        raise AnnotationError("The combination separator must be text.")
+    values = None
+    missing = np.zeros(len(frame), dtype=bool)
+    for column in columns:
+        component = frame[column].reset_index(drop=True).astype("string")
+        missing |= (component.isna() | component.eq("").fillna(False)).to_numpy(dtype=bool)
+        values = component if values is None else values + separator + component
+    values = values.mask(missing, pd.NA)
+    return ConditionPreview(values, {str(key): int(value) for key, value in values.value_counts().items()},
+                            int(missing.sum()), np.array([], dtype=np.int64))
+
+
+def preview(frame, definition, source):
+    """Evaluate ordered outputs without mutating the source or accepting conflicts.
+
+    Regex or exact-value includes select metadata rows. Manual row assignments
+    join those selections, and excludes remove matches. Version 2 rules with the
+    same label are unioned; different labels within a column remain conflicts.
+    Combinations may reference source columns and earlier recipe outputs only.
+
+    :param frame: Original source frame, not a previously annotated copy.
+    :param definition: Saved legacy rules or an ordered version 2 recipe.
+    :param source: Current file/table/merge identity.
+    :returns: ConditionPreview with all outputs and per-column diagnostics.
+    """
+    names = annotation_columns(definition)
+    if definition.get("source") != source:
+        raise AnnotationError("These conditions belong to another source or table; recreate them here.")
+    schema, digest, tokens = table_identity(frame)
+    if (schema != definition.get("schema") or digest != definition.get("content_sha256")
+            or definition.get("row_count", len(frame)) != len(frame)):
+        raise AnnotationError("The source rows, order, values or schema changed; review and recreate the conditions.")
+    for name in names:
+        if name in frame.columns:
+            raise AnnotationError(f"The source already has a {name!r} column; choose a new name to preserve it.")
+    locations = {token: index for index, token in enumerate(tokens)}
+    available = frame.copy(deep=False)
+    reports = {}
+    outputs = {}
+    conflicts = np.zeros(len(frame), dtype=bool)
+    for name, entry in zip(names, _entries(definition)):
+        kind = entry.get("kind", "rules")
+        if kind == "rules":
+            report = _rules_preview(available, entry.get("conditions", []), locations,
+                                    legacy=definition["version"] == 1)
+        elif kind == "combine":
+            report = _combine_preview(available, entry)
+        else:
+            raise AnnotationError(f"{name}: choose rules or combine for the output kind.")
+        reports[name] = report
+        outputs[name] = report.values
+        conflicts[report.overlaps] = True
+        available[name] = report.values.array
+    last = reports[names[-1]]
+    return ConditionPreview(last.values, last.counts, last.unmatched, np.flatnonzero(conflicts),
+                            outputs, reports, last.rule_counts)
 
 
 def apply_conditions(frame, definition, source):
@@ -155,7 +260,7 @@ def apply_conditions(frame, definition, source):
     :param frame: Original source frame.
     :param definition: Complete condition configuration.
     :param source: Current source context.
-    :returns: Copy with the requested condition column; original remains unchanged.
+    :returns: Copy with every requested output column; original remains unchanged.
     """
     result = preview(frame, definition, source)
     if len(result.overlaps):
@@ -164,8 +269,9 @@ def apply_conditions(frame, definition, source):
     output = frame.copy()
     # Assign by position, never Series index alignment: duplicated pandas
     # indices are legal input and have no role in condition identity.
-    output[str(definition["column"]).strip()] = result.values.array
-    output.attrs["condition_annotation"] = definition
+    for column, values in result.column_values.items():
+        output[column] = values.array
+    output.attrs["condition_annotation"] = json.loads(json.dumps(definition))
     return output
 
 
@@ -182,7 +288,7 @@ def save_annotated_table(path, name, frame, definition, source, *, merge_definit
 
     :param path: Existing SQLite source database, never a delimited input file.
     :param name: New table name; physical, view and saved-derived collisions fail.
-    :param frame: Working frame including the annotation output column.
+    :param frame: Working frame including every annotation output column.
     :param definition: Validated annotation rules used for the working frame.
     :param source: Original annotation source context.
     :param merge_definition: Original merged-source configuration, if applicable.
@@ -202,10 +308,12 @@ def save_annotated_table(path, name, frame, definition, source, *, merge_definit
         raise AnnotationError("Save the annotated table in its current source database.")
     if name.casefold() in {item.casefold() for item in load_definitions(path)}:
         raise AnnotationError("That name belongs to a saved merged table; choose a new name.")
-    column = definition['column'].strip()
-    base = frame.drop(columns=[column])
+    output_columns = annotation_columns(definition)
+    if any(column not in frame.columns for column in output_columns):
+        raise AnnotationError("Apply every annotation output before saving the table.")
+    base = frame.drop(columns=output_columns)
     expected = apply_conditions(base, definition, source)
-    if not expected[column].equals(frame[column]):
+    if any(not expected[column].equals(frame[column]) for column in output_columns):
         raise AnnotationError("The working annotations changed; apply the conditions again before saving.")
     columns = list(frame.columns)
     types = ['INTEGER' if pd.api.types.is_integer_dtype(dtype) or pd.api.types.is_bool_dtype(dtype)
@@ -244,16 +352,20 @@ def save_annotated_table(path, name, frame, definition, source, *, merge_definit
         # Bind reopen/edit to what SQLite actually stored, including dtype
         # normalization, rather than assuming a pandas/SQL roundtrip is lossless.
         materialized = pd.read_sql_query(f'SELECT * FROM {_quote(name)}', db)
-        editable_base = materialized.drop(columns=[column])
-        editable = new_definition(editable_base, source_context(path, name), column=column)
-        editable['conditions'] = json.loads(json.dumps(definition['conditions']))
+        editable_base = materialized.drop(columns=output_columns)
+        editable = json.loads(json.dumps(definition))
+        rebound = new_definition(editable_base, source_context(path, name))
+        for key in ('source', 'schema', 'content_sha256', 'row_count'):
+            editable[key] = rebound[key]
         old_tokens = table_identity(base)[2]
         new_tokens = table_identity(editable_base)[2]
         token_mapping = dict(zip(old_tokens, new_tokens))
-        for condition in editable['conditions']:
-            condition['manual_rows'] = [token_mapping[token] for token in condition.get('manual_rows', [])]
+        for entry in _entries(editable):
+            for condition in entry.get('conditions', []):
+                condition['manual_rows'] = [token_mapping[token] for token in condition.get('manual_rows', [])]
         reproduced = apply_conditions(editable_base, editable, source_context(path, name))
-        if reproduced[column].fillna('').tolist() != materialized[column].fillna('').tolist():
+        if any(reproduced[column].fillna('').tolist() != materialized[column].fillna('').tolist()
+               for column in output_columns):
             raise AnnotationError("SQLite storage changed a rule's matches; export CSV or adjust the rules before saving.")
         schema, digest, _tokens = table_identity(materialized)
         payload = {'version': 1, 'source': source, 'merge_definition': merge_definition,
@@ -269,7 +381,7 @@ def saved_table_annotation(path, name, frame):
 
     :param path: SQLite source database opened read-only.
     :param name: Physical table name.
-    :param frame: Actual stored table including the condition output column.
+    :param frame: Actual stored table including every annotation output column.
     :returns: Editable annotation definition or None for an ordinary table.
     """
     import sqlite3
