@@ -167,13 +167,6 @@
     },
     {
       "table": "ui",
-      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
-      "translation": "선택한 크롭(고리가 있는 크롭)과 측정값이 가장 비슷한 크롭 100개를 가장 비슷한 순서로 표시하여, 한 번 찾은 희귀 클래스에 여러 번 라벨을 붙일 수 있게 합니다. 한 소스의 첫 검색은 측정값을 읽느라 몇 초 걸리고, 이후 검색은 즉시 끝납니다. 소스를 다시 열면 모든 크롭으로 돌아갑니다. 기본값 실행하지 않음."
-    },
-    {
-      "table": "ui",
       "key": "Table to read when the pilot is a database. Default cell.",
       "source": "Table to read when the pilot is a database. Default cell.",
       "source_sha256": "ebb868e88f74f60a2598c8f9917c1ecb9ad3935de0976b0889835b4280762cb5",
@@ -249,5 +242,15 @@
       "source_sha256": "dbebf09b299ee4154abd444eaa9e4ab4105650ca147893ac2d670a05d6b3b05e",
       "translation": "{name} 및 가장 비슷한 크롭 {n}개, 가장 비슷한 순서"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
+      "translation": "선택한 크롭(고리가 있는 크롭)과 측정값이 가장 비슷한 크롭 100개를 가장 비슷한 순서로 표시하여, 한 번 찾은 희귀 클래스에 여러 번 라벨을 붙일 수 있게 합니다. 한 소스의 첫 검색은 측정값을 읽느라 몇 초 걸리고, 이후 검색은 즉시 끝납니다. 소스를 다시 열면 모든 크롭으로 돌아갑니다. 기본값 실행하지 않음."
+    }
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

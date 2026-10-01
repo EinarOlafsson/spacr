@@ -1314,7 +1314,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 on 2026-09-29, +13 / -0, item 600: spacr.drop_classification
     # (module, DropClassification, classify_drop) and spacr.qt.widgets.
     # organize_for_measure (module, OrganizeForMeasureDialog and eight methods).
-    expected = 11_942
+    # 2026-10-01: merge, uncertainty and condition APIs; exact source delta
+    # recorded in features/data/615_public_api_delta_2026-10-01.json.
+    expected = 12_034
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1361,7 +1363,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,816 -> 11,834 with `expected` above.
     # 11,865 -> 11,929 with `expected` above, for item 593's 64.
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_942
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_034
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

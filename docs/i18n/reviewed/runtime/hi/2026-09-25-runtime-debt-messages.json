@@ -909,13 +909,6 @@
     },
     {
       "table": "ui",
-      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
-      "translation": "किसी बटन, फ़ील्ड या स्तंभ शीर्षक पर पॉइंटर दो सेकंड रखने से एक छोटा लेबल दिखता है जो बताता है कि वह क्या है। पॉइंटर उस पर रहने तक लेबल बना रहता है और पॉइंटर हटने के एक सेकंड बाद चला जाता है। इसे बंद करने पर spaCR में कहीं भी टूलटिप नहीं दिखता।"
-    },
-    {
-      "table": "ui",
       "key": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
       "source": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
       "source_sha256": "85f568bd32906370d0fa5772855a856fa6f854b9d10c87557110b6ad54cbc950",
@@ -1993,7 +1986,15 @@
       "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
       "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
       "translation": "उस डेटासेट के दस दृश्य क्षेत्र जिस पर एक प्रकाशित मॉडल प्रशिक्षित हुआ था, उन मास्क के साथ जो उसे सिखाए गए। ये संपादन के लिए खुलते हैं, इसलिए आप वही देखते हैं जो मॉडल ने देखा।"
+    },
+    {
+      "table": "ui",
+      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
+      "translation": "किसी बटन, फ़ील्ड या स्तंभ शीर्षक पर पॉइंटर दो सेकंड रखने से एक छोटा लेबल दिखता है जो बताता है कि वह क्या है। पॉइंटर उस पर रहने तक लेबल बना रहता है और पॉइंटर हटने के एक सेकंड बाद चला जाता है। इसे बंद करने पर spaCR में कहीं भी टूलटिप नहीं दिखता।"
     }
   ],
-  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
 }

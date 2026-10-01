@@ -167,13 +167,6 @@
     },
     {
       "table": "ui",
-      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
-      "translation": "显示测量值与所选裁剪图（带圆环的那个）最相似的 100 个裁剪图，按相似度从高到低排列，这样只发现一次的罕见类别也能被多次标注。对一个来源的首次搜索需读取其测量值，耗时几秒；之后的搜索即时完成。重新打开来源即可回到全部裁剪图。默认不运行。"
-    },
-    {
-      "table": "ui",
       "key": "Table to read when the pilot is a database. Default cell.",
       "source": "Table to read when the pilot is a database. Default cell.",
       "source_sha256": "ebb868e88f74f60a2598c8f9917c1ecb9ad3935de0976b0889835b4280762cb5",
@@ -249,5 +242,15 @@
       "source_sha256": "dbebf09b299ee4154abd444eaa9e4ab4105650ca147893ac2d670a05d6b3b05e",
       "translation": "{name} 以及与其最相似的 {n} 个裁剪图，按相似度从高到低排列"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
+      "translation": "显示测量值与所选裁剪图（带圆环的那个）最相似的 100 个裁剪图，按相似度从高到低排列，这样只发现一次的罕见类别也能被多次标注。对一个来源的首次搜索需读取其测量值，耗时几秒；之后的搜索即时完成。重新打开来源即可回到全部裁剪图。默认不运行。"
+    }
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

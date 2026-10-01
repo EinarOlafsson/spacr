@@ -706,13 +706,6 @@
     },
     {
       "table": "ui",
-      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
-      "translation": "När pekaren vilar på en knapp, ett fält eller en kolumnrubrik i två sekunder visas en liten etikett som säger vad det är. Etiketten stannar medan pekaren är på den och försvinner en sekund efter att pekaren lämnat den. Avmarkerat visas inga verktygstips någonstans i spaCR."
-    },
-    {
-      "table": "ui",
       "key": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
       "source": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
       "source_sha256": "85f568bd32906370d0fa5772855a856fa6f854b9d10c87557110b6ad54cbc950",
@@ -1628,5 +1621,15 @@
       "source_sha256": "870a50738e7def3643fb71bd772bc2274d4d9dd902212e61f8a17e5f561a2d0c",
       "translation": "{paper}: {n} figurer, {m} med figurtexter (licens {licence}), i {path}."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
+      "translation": "När pekaren vilar på en knapp, ett fält eller en kolumnrubrik i två sekunder visas en liten etikett som säger vad det är. Etiketten stannar medan pekaren är på den och försvinner en sekund efter att pekaren lämnat den. Avmarkerat visas inga verktygstips någonstans i spaCR."
+    }
+  ],
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
 }

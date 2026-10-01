@@ -167,13 +167,6 @@
     },
     {
       "table": "ui",
-      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
-      "translation": "Zeigt die 100 Ausschnitte, deren Messungen dem ausgewählten Ausschnitt (dem mit dem Ring) am ähnlichsten sind, ähnlichste zuerst, sodass eine einmal gefundene seltene Klasse vielfach annotiert werden kann. Die erste Suche in einer Quelle liest deren Messungen und dauert einige Sekunden; spätere sind sofort da. Zurück zu allen Ausschnitten durch erneutes Öffnen der Quelle. Standard nicht ausgeführt."
-    },
-    {
-      "table": "ui",
       "key": "Table to read when the pilot is a database. Default cell.",
       "source": "Table to read when the pilot is a database. Default cell.",
       "source_sha256": "ebb868e88f74f60a2598c8f9917c1ecb9ad3935de0976b0889835b4280762cb5",
@@ -249,5 +242,15 @@
       "source_sha256": "dbebf09b299ee4154abd444eaa9e4ab4105650ca147893ac2d670a05d6b3b05e",
       "translation": "{name} und die {n} ähnlichsten Ausschnitte, ähnlichste zuerst"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
+      "translation": "Zeigt die 100 Ausschnitte, deren Messungen dem ausgewählten Ausschnitt (dem mit dem Ring) am ähnlichsten sind, ähnlichste zuerst, sodass eine einmal gefundene seltene Klasse vielfach annotiert werden kann. Die erste Suche in einer Quelle liest deren Messungen und dauert einige Sekunden; spätere sind sofort da. Zurück zu allen Ausschnitten durch erneutes Öffnen der Quelle. Standard nicht ausgeführt."
+    }
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

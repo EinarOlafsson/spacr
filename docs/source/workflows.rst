@@ -27,7 +27,7 @@ Combine image-derived phenotypes with guide abundance to rank perturbations. Seg
 #. :ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.
 #. :ref:`Measure <workflow-module-measure>`: Open Measure with the Mask project and create measurements and object crops.
 #. :ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels.
-#. :ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
+#. :ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
 #. :ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.
 #. :ref:`Classify <workflow-module-classify_merged>`: Open Classify, choose images or measured features, and inspect held-out predictions.
 #. :ref:`Regression <workflow-module-regression>`: Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics.
@@ -1300,7 +1300,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Graph Builder
 ~~~~~~~~~~~~~
 
-Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.
+Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.
 
 **Open:** Home → Graph Builder.
 
@@ -1360,7 +1360,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Gate Editor
 ~~~~~~~~~~~
 
-Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
+Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.
 
 **Open:** Home → Gate Editor.
 

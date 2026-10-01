@@ -175,13 +175,6 @@
     },
     {
       "table": "ui",
-      "key": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
-      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
-      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
-      "translation": "लोड की गई तालिका से चर, समूह और चित्रांकन सेटिंग चुनें, फिर चित्र को उसके विश्लेषण संदर्भ के साथ निर्यात करें।"
-    },
-    {
-      "table": "ui",
       "key": "Classifier evaluation bundle",
       "source": "Classifier evaluation bundle",
       "source_sha256": "89adad7599d0938534d8d4406f3b4cfa8c6bc70d9664d88c81e4bbfe818fd3a5",
@@ -1495,7 +1488,15 @@
       "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
       "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
       "translation": "छवियों और मास्क को जोड़कर मापी गई परियोजना लिखने के लिए FEATURES लें; अलग मास्क मर्ज किए गए ऐरे नहीं हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
+      "translation": "लोड की गई तालिका से चर, समूह और चित्रांकन सेटिंग चुनें, फिर चित्र को उसके विश्लेषण संदर्भ के साथ निर्यात करें।"
     }
   ],
-  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded."
+  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded.",
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

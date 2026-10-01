@@ -386,7 +386,7 @@
     },
     {
       "visual": "module_graph_builder",
-      "narration": "Open Graph Builder from Home. Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context. Graph Builder reads the measured objects. From those, Graph Builder produces the figures and table exports. Measure can supply the measured objects. Choose explicit variables, groups and filters.",
+      "narration": "Open Graph Builder from Home. Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context. Graph Builder reads the measured objects. From those, Graph Builder produces the figures and table exports. Measure can supply the measured objects. Choose explicit variables, groups and filters.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",
@@ -403,7 +403,7 @@
     },
     {
       "visual": "module_gate_editor",
-      "narration": "Open Gate Editor from Home. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels. Gate Editor reads the measured objects, and the projection and clusters. From those, Gate Editor produces the reusable gates and the training annotations. Image UMAP can supply the projection and clusters. Supply the matching coordinate/feature columns when defining a selection. Annotate picks up the reusable gates next. Apply compatible gates, then review candidate labels. If you start in Measure, it provides the measured objects. Use the actual measured feature definitions and units. You can also take the training annotations on to Classify. Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+      "narration": "Open Gate Editor from Home. Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels. Gate Editor reads the measured objects, and the projection and clusters. From those, Gate Editor produces the reusable gates and the training annotations. Image UMAP can supply the projection and clusters. Supply the matching coordinate/feature columns when defining a selection. Annotate picks up the reusable gates next. Apply compatible gates, then review candidate labels. If you start in Measure, it provides the measured objects. Use the actual measured feature definitions and units. You can also take the training annotations on to Classify. Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure",

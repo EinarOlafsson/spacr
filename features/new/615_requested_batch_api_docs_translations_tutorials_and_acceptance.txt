@@ -2,9 +2,10 @@
 REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
 ================================================================================
 
-Status: OPEN — requirements recorded; acceptance not yet verified.
+Status: IN PROGRESS — implementation pushed to nightly; supporting
+acceptance, translations, tutorials and release integration remain.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
-Owner: Codex inventory session (tracking only).
+Owner: Codex implementation session.
 
 This update records requirements, not implementation or acceptance. The current
 user request is to update the lists and report scope; implementation and release
@@ -177,3 +178,25 @@ Exclusive agent scopes (isolated worktrees; root integrates commits):
   settings.py, generated artifacts, catalogs, integration and feature index.
 Agents request root-owned edits and do not touch other scopes. No GPU training
 or unrelated live_cell services are started. Named tests use hard memory caps.
+
+2026-10-01 — IMPLEMENTATION AND API INTEGRATION
+The user subsequently authorized implementation, parallel agents, and a
+commit/push after each completed item. The inventory-only statements above
+are historical, not the current task scope. Initial checklist checkpoint and
+priority implementation commits were pushed and verified on nightly.
+
+English API manifest now contains 12,034 symbols. Source-derived callable
+inventory is 9,989 (+83, no removals), with 19,840 parameters and 10,218
+required parameters. The two changed existing signatures add optional immediate= on shared
+hover/availability tooltips. New merge-dialog APIs include initial_definition=. Full before/after
+signature rows and the matching baseline digest are preserved in
+features/data/615_public_api_delta_2026-10-01.json. Exact counts and hashes
+were advanced; docless, required-parameter and ghost-parameter checks remain
+unchanged. Four focused source/extractor correctness checks passed.
+
+New user guides cover streamed Mask preprocessing and memory, merged tables,
+Graph Builder condition rules, drag/drop, CSV exports and atomic SQLite saves.
+Current Preferences Theme/Animation scenes were captured and reviewed, but
+full narration-timed tutorial publication remains pending. Nine-locale runtime
+and API repairs are running with bounded CPU memory. Main integration and
+release publication remain separate and have not been performed.

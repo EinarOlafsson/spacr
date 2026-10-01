@@ -962,7 +962,7 @@
       "outputs": [
         "figures"
       ],
-      "guidance": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
+      "guidance": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
     },
     "investigate_hit": {
       "name": "Investigate Hit",
@@ -994,7 +994,7 @@
         "gates",
         "labels"
       ],
-      "guidance": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+      "guidance": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
     },
     "feature_dict": {
       "name": "Feature Dictionary",
@@ -1904,7 +1904,7 @@
         },
         {
           "module": "gate_editor",
-          "action": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "action": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
           "after": [
             "measure"
           ]

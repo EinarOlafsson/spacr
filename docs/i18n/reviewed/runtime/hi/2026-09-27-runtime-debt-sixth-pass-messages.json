@@ -167,13 +167,6 @@
     },
     {
       "table": "ui",
-      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
-      "translation": "वे 100 क्रॉप दिखाएँ जिनके माप चयनित क्रॉप (वलय वाला) से सबसे अधिक मिलते हैं, सबसे समान पहले, ताकि एक बार मिला दुर्लभ वर्ग कई बार लेबल किया जा सके। किसी स्रोत पर पहली खोज उसके माप पढ़ती है और कुछ सेकंड लेती है; बाद की खोजें तुरंत होती हैं। स्रोत दोबारा खोलकर सभी क्रॉप पर लौटें। डिफ़ॉल्ट नहीं चलाया गया।"
-    },
-    {
-      "table": "ui",
       "key": "Table to read when the pilot is a database. Default cell.",
       "source": "Table to read when the pilot is a database. Default cell.",
       "source_sha256": "ebb868e88f74f60a2598c8f9917c1ecb9ad3935de0976b0889835b4280762cb5",
@@ -249,5 +242,15 @@
       "source_sha256": "dbebf09b299ee4154abd444eaa9e4ab4105650ca147893ac2d670a05d6b3b05e",
       "translation": "{name} और उससे सबसे मिलते-जुलते {n} क्रॉप, सबसे समान पहले"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
+      "translation": "वे 100 क्रॉप दिखाएँ जिनके माप चयनित क्रॉप (वलय वाला) से सबसे अधिक मिलते हैं, सबसे समान पहले, ताकि एक बार मिला दुर्लभ वर्ग कई बार लेबल किया जा सके। किसी स्रोत पर पहली खोज उसके माप पढ़ती है और कुछ सेकंड लेती है; बाद की खोजें तुरंत होती हैं। स्रोत दोबारा खोलकर सभी क्रॉप पर लौटें। डिफ़ॉल्ट नहीं चलाया गया।"
+    }
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

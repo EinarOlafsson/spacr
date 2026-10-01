@@ -6,13 +6,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "Map where the segmentation of this field is least sure, or rank the open fields with the most uncertain first. The same menu as the Uncertainty button on the bottom row; four detection runs per field.",
-      "source": "Map where the segmentation of this field is least sure, or rank the open fields with the most uncertain first. The same menu as the Uncertainty button on the bottom row; four detection runs per field.",
-      "source_sha256": "efe26d769933eee393d2278c47e64fc6b01b83ccde576d3ae0b5166a8d2559d7",
-      "translation": "Mapeia onde a segmentação deste campo é menos segura, ou ordena os campos abertos com os mais incertos primeiro. O mesmo menu do botão Incerteza na linha inferior; quatro execuções de detecção por campo."
-    },
-    {
-      "table": "ui",
       "key": "The arrow offers a sample of each training dataset a published model was trained on, with its masks, to edit here.",
       "source": "The arrow offers a sample of each training dataset a published model was trained on, with its masks, to edit here.",
       "source_sha256": "e14645a5cff638bbac4512e39b0f7a5fc9dd5e8bfe3a0282f8af3d04a4f6e16a",
@@ -53,5 +46,15 @@
       "source_sha256": "6fe6a77551d7ea3b1fd55b3ad0945747e8e0e7e31dbf9e8ae2fc1a9ea0cf1fa1",
       "translation": "Enviar dados…"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Map where the segmentation of this field is least sure, or rank the open fields with the most uncertain first. The same menu as the Uncertainty button on the bottom row; four detection runs per field.",
+      "source": "Map where the segmentation of this field is least sure, or rank the open fields with the most uncertain first. The same menu as the Uncertainty button on the bottom row; four detection runs per field.",
+      "source_sha256": "efe26d769933eee393d2278c47e64fc6b01b83ccde576d3ae0b5166a8d2559d7",
+      "translation": "Mapeia onde a segmentação deste campo é menos segura, ou ordena os campos abertos com os mais incertos primeiro. O mesmo menu do botão Incerteza na linha inferior; quatro execuções de detecção por campo."
+    }
+  ],
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
 }

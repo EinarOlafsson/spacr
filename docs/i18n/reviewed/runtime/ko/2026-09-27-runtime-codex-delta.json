@@ -250,13 +250,6 @@
       "translation": "이 시야의 불확실성 매핑"
     },
     {
-      "table": "ui",
-      "key": "Mapping segmentation uncertainty: four detection runs…",
-      "source": "Mapping segmentation uncertainty: four detection runs…",
-      "source_sha256": "c9c443b58a7546c273183ee8ab5dc5d323afeb3b7f72b7cfc3d628267d64f3d7",
-      "translation": "분할 불확실성 매핑 중: 검출 네 번 실행…"
-    },
-    {
       "table": "setting_labels",
       "key": "measure_gpu",
       "source": "Measure GPU",
@@ -453,13 +446,6 @@
       "translation": "불확실성에 따른 정렬은 눈가림 순서를 해제합니다. 먼저 눈가림을 해제하십시오."
     },
     {
-      "table": "ui",
-      "key": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
-      "source": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
-      "source_sha256": "6c519545d490a13d4c697f617549327dcccf8e2e02377b2a1e9422fb38dbcb3b",
-      "translation": "분할 불확실성에 따라 시야 {count}개 정렬 중: 시야마다 검출 네 번 실행…"
-    },
-    {
       "table": "categories",
       "key": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
       "source": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
@@ -549,13 +535,6 @@
       "source": "Seconds between the timelapse images of one event when microscope_timepoints is above 1. The watch waits at the event meanwhile, so long timelapses delay later fields. Default 0.",
       "source_sha256": "7ee11ee687c387671716d7c7329f9f57bd1fe0aedee4ec51d0fa5ec1c4d29955",
       "translation": "microscope_timepoints가 1보다 클 때 한 이벤트의 타임랩스 이미지 사이 간격(초)입니다. 감시 기능은 그동안 해당 이벤트에서 대기하므로 긴 타임랩스는 이후 시야를 지연시킵니다. 기본값: 0."
-    },
-    {
-      "table": "ui",
-      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
-      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
-      "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
-      "translation": "객체 검출 설정으로 각 시야를 원본, 두 방향으로 뒤집은 이미지, 90도 회전한 이미지의 네 가지로 분할하고 네 결과가 불일치하는 위치를 측정합니다. 이 시야 매핑은 별도 탭에 불일치를 히트맵으로 표시합니다. 시야 정렬은 가장 불확실한 시야를 먼저 배치하고 spacr-make-masks --order uncertain에 사용할 점수를 “curate_uncertainty.csv”로 저장합니다. 시야당 검출 네 번이 필요합니다."
     },
     {
       "table": "ui",
@@ -956,5 +935,29 @@
       "source_sha256": "e52c06fed71e307e6c87388838799babb056a41ff4544e9e0d7bb8e74b794dbd",
       "translation": "s3://bucket/folder, gs://, az:// 또는 https://"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Mapping segmentation uncertainty: four detection runs…",
+      "source": "Mapping segmentation uncertainty: four detection runs…",
+      "source_sha256": "c9c443b58a7546c273183ee8ab5dc5d323afeb3b7f72b7cfc3d628267d64f3d7",
+      "translation": "분할 불확실성 매핑 중: 검출 네 번 실행…"
+    },
+    {
+      "table": "ui",
+      "key": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source_sha256": "6c519545d490a13d4c697f617549327dcccf8e2e02377b2a1e9422fb38dbcb3b",
+      "translation": "분할 불확실성에 따라 시야 {count}개 정렬 중: 시야마다 검출 네 번 실행…"
+    },
+    {
+      "table": "ui",
+      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
+      "translation": "객체 검출 설정으로 각 시야를 원본, 두 방향으로 뒤집은 이미지, 90도 회전한 이미지의 네 가지로 분할하고 네 결과가 불일치하는 위치를 측정합니다. 이 시야 매핑은 별도 탭에 불일치를 히트맵으로 표시합니다. 시야 정렬은 가장 불확실한 시야를 먼저 배치하고 spacr-make-masks --order uncertain에 사용할 점수를 “curate_uncertainty.csv”로 저장합니다. 시야당 검출 네 번이 필요합니다."
+    }
+  ],
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
 }

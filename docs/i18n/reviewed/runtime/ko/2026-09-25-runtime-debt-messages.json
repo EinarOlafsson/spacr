@@ -286,13 +286,6 @@
     },
     {
       "table": "ui",
-      "key": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
-      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
-      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
-      "translation": "불러온 테이블에서 변수, 그룹, 그래프 설정을 선택한 다음 분석 맥락과 함께 그림을 내보내세요."
-    },
-    {
-      "table": "ui",
       "key": "Click a well on the figure or a row in the table.",
       "source": "Click a well on the figure or a row in the table.",
       "source_sha256": "834b51840ae2426f3d278cfec39d3e40066c333a5e35a1a738bbf489a73e9462",
@@ -1571,13 +1564,6 @@
       "source": "Resolving crop paths for database {number} of {total} ({rows} objects)…",
       "source_sha256": "6a890d3d1f06a0c4c325f46781fa793fc78cad0ed7871dfaa2d9565748401856",
       "translation": "데이터베이스 {number}/{total}의 크롭 경로를 확인하는 중(객체 {rows}개)…"
-    },
-    {
-      "table": "ui",
-      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
-      "translation": "버튼, 입력란 또는 열 머리글에 포인터를 2초간 올려 두면 무엇인지 알려 주는 작은 레이블이 표시됩니다. 레이블은 포인터가 그 위에 있는 동안 유지되고, 포인터가 벗어나면 1초 뒤 사라집니다. 체크를 해제하면 spaCR 어디에서도 툴팁이 나타나지 않습니다."
     },
     {
       "table": "ui",
@@ -3239,8 +3225,23 @@
       "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
       "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
       "translation": "FEATURES로 이미지와 마스크를 짝짓고 측정된 프로젝트를 쓰세요. 독립 마스크는 병합 배열이 아닙니다."
+    },
+    {
+      "table": "ui",
+      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
+      "translation": "버튼, 입력란 또는 열 머리글에 포인터를 2초간 올려 두면 무엇인지 알려 주는 작은 레이블이 표시됩니다. 레이블은 포인터가 그 위에 있는 동안 유지되고, 포인터가 벗어나면 1초 뒤 사라집니다. 체크를 해제하면 spaCR 어디에서도 툴팁이 나타나지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
+      "translation": "불러온 테이블에서 변수, 그룹, 그래프 설정을 선택한 다음 분석 맥락과 함께 그림을 내보내세요."
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",
-  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded."
+  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded.",
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }
