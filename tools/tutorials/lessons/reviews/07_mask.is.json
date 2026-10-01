@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
+  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,7 @@
   "objectives": [
     "Hlaða inn smásjárdæminu og greina styrkleikarásir þess.",
     "Bera saman stillingar líkans og stærðarsíur hluta í Live-forskoðun.",
-    "Setja upp afmarkaða prófkeyrslu og vita hvert sameinuð úttök hennar eru skrifuð."
+    "Keyra skiptingu, skoða myndir hennar og finna sameinuð úttök."
   ],
   "prerequisite": "Opnaðu Mask og veldu Load test data. Fyrir eigin myndir útbýrðu upprunamöppu með samræmdum skráarheitum og þekktum rásum. Dæmið notar kjarnarás 0, frumurás 1 og sýkilrás 2, auk viðbótarstyrkleikarásar 3.",
   "scenes": [
@@ -28,7 +28,8 @@
     "Þegar forskoðuninni lýkur skaltu bera útlínurnar saman við myndina. Leitaðu að hlutum sem misstust og nágrannahlutum sem runnu saman í einn. Stöðulínan segir hve margir hlutir fundust.",
     "Notaðu síu fyrir lágmarksflatarmál til að fela hluti sem eru minni en valinn fjöldi díla. Hærra gildi fjarlægir litlar merkingar úr forskoðuninni. Sían uppfærir grímuniðurstöðu sem þegar er til, svo þú getur borið stærðarmörk saman hratt.",
     "Settu lágmarksflatarmálið aftur á núll til að fá alla hluti til baka. Ef líkanið skiptir eða sameinar hluti í rangri stærð skaltu breyta Diameter og keyra forskoðunina aftur, og skoða bæði jaðrana og fjöldann. Settu inn þær stillingar sem þú vilt áður en keyrt er á öllu.",
-    "Fyrir litla fyrstu keyrslu skaltu kveikja á Test mode með tveimur prófmyndum og hafa Plot á. Taflan fyrir hvern hlut geymir þvermálin fyrir þessa keyrslu; athugaðu líka flæðimörkin fyrir frumu, kjarna og sýkil. Hafðu Save á undir Quality Control svo keyrslan vistar grímur sínar og gæðaskýrslur.",
-    "Smelltu á Run og fylgstu með stjórnborðinu, og skoðaðu svið sem mistókust eða gröf sem vantar. Keyrslan skrifar merged-möppu með styrk myndanna og endanlegum merkjum hlutanna, og geymir lýsigögn um lagaskipan við hlið fylkjanna svo Measure þekki hverja rás og grímu. Haltu inntaki, stillingum, grímum og gæðaskýrslum saman og haltu svo áfram í Measure til að draga út eiginleika og búta hlutanna."
+    "Fyrir fljótlega fyrstu keyrslu beinir þessi upptaka Source að miðjubútum úr tveimur dæmasviðum; með þínum eigin gögnum kveikirðu frekar á Test mode og velur nokkrar prófmyndir. Hafðu Plot á, athugaðu þvermál og flæðimörk hvers hlutar, hafðu Save á undir Quality Control og smelltu svo á Run.",
+    "Þegar keyrslunni lýkur fyllist myndalistinn af gröfum hennar. Síðasta myndin teiknar útlínur hvers hlutar á eigin rás, kjarna, frumur og sýkla, og sameinuðu hlutina hægra megin. Athugaðu litla hluti, frumur sem snertast og svæði sem misstust á hverri mynd.",
+    "Hinar myndirnar sýna hverja rás og grímu- og flæðifylkin sem líkanið bjó til. Keyrslan skrifar merged-möppu með styrk myndanna og endanlegum merkjum hlutanna, og geymir lýsigögn um lagaskipan við hlið fylkjanna svo Measure þekki hverja rás og grímu. Haltu inntaki, stillingum, grímum og gæðaskýrslum saman og haltu svo áfram í Measure til að draga út eiginleika og búta hlutanna."
   ]
 }

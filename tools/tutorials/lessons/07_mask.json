@@ -10,7 +10,7 @@
   "objectives": [
     "Load the microscopy example and identify its intensity channels.",
     "Compare model settings and object-size filters in Live preview.",
-    "Configure a bounded test run and know where its merged outputs are written."
+    "Run segmentation, inspect its figures and find the merged outputs."
   ],
   "prerequisite": "Open Mask and choose Load test data. For your own images, prepare a source folder with consistent filenames and known channel identities. This example uses nucleus channel 0, cell channel 1 and pathogen channel 2, with an additional intensity channel 3.",
   "scenes": [
@@ -65,13 +65,18 @@
       "hold_after": 0.7
     },
     {
-      "visual": "20_batch_settings",
-      "narration": "For a small first run, turn on Test mode with two test images and keep Plot on. The per-object table carries the diameters for this run; check the flow thresholds for cell, nucleus and pathogen as well. Keep Save on under Quality Control so the run records its masks and quality reports.",
+      "visual": "run_20_batch_settings",
+      "narration": "For a quick first run, this recording points Source at centred crops of two example fields; with your own data, turn on Test mode and choose a few test images instead. Keep Plot on, check the per-object diameters and flow thresholds, keep Save on under Quality Control, then click Run.",
       "hold_after": 0.7
     },
     {
-      "visual": "20_batch_settings",
-      "narration": "Click Run and follow the console, inspecting any failed fields or missing plots. The run writes a merged folder with the image intensities and the final object labels, and keeps its plane-layout metadata beside the arrays so Measure can identify each channel and mask. Keep the inputs, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
+      "visual": "run_23_batch_finished",
+      "narration": "When the run finishes, the figure list fills with its plots. The last figure draws each object's outlines on its own channel, nuclei, cells and pathogens, and the combined objects on the right. Check small objects, touching cells and missed regions in each figure.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "run_25_mask_figure_02",
+      "narration": "The other figures show each channel and the mask and flow arrays the model produced. The run writes a merged folder with the image intensities and the final object labels, and keeps its plane-layout metadata beside the arrays so Measure can identify each channel and mask. Keep the inputs, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure"

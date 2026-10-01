@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
+  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,7 @@
   "objectives": [
     "Cargar el ejemplo de microscopía e identificar sus canales de intensidad.",
     "Comparar ajustes del modelo y filtros de tamaño de objeto en la vista previa Live.",
-    "Configurar una ejecución de prueba acotada y saber dónde se escriben sus salidas combinadas."
+    "Ejecutar la segmentación, revisar sus figuras y encontrar las salidas combinadas."
   ],
   "prerequisite": "Abre Mask y elige Load test data. Para tus propias imágenes, prepara una carpeta de origen con nombres de archivo coherentes y canales conocidos. Este ejemplo usa el canal de núcleos 0, el canal de células 1 y el canal de patógenos 2, con un canal de intensidad adicional 3.",
   "scenes": [
@@ -28,7 +28,8 @@
     "Cuando termine la vista previa, compare los contornos con la imagen. Busque objetos omitidos y objetos vecinos unidos en uno solo. La línea de estado indica cuántos objetos se encontraron.",
     "Usa el filtro de área mínima para ocultar los objetos más pequeños que el número de píxeles elegido. Al aumentarlo desaparecen las etiquetas pequeñas de la vista previa. Este filtro actualiza un resultado de máscara ya existente, así que puedes comparar límites de tamaño rápidamente.",
     "Vuelva a poner el área mínima en cero para recuperar todos los objetos. Si el modelo divide o une objetos a una escala incorrecta, cambie Diameter y vuelva a ejecutar la vista previa, revisando tanto los bordes como el recuento. Restablezca los ajustes que desea antes de la ejecución por lotes.",
-    "Para una primera ejecución pequeña, active Test mode con dos imágenes de prueba y deje Plot activado. La tabla por objeto contiene los diámetros de esta ejecución; revise también los umbrales de flujo de célula, núcleo y patógeno. Deje Save activado en Quality Control para que la ejecución guarde sus máscaras e informes de calidad.",
-    "Haga clic en Run y siga la consola, revisando los campos fallidos o los gráficos que falten. La ejecución escribe una carpeta merged con las intensidades de la imagen y las etiquetas finales de los objetos, y guarda junto a los arrays los metadatos de disposición de planos para que Measure identifique cada canal y máscara. Mantenga juntas las entradas, los ajustes, las máscaras y los informes de calidad, y continúe con Measure para extraer características y recortes de los objetos."
+    "Para una primera ejecución rápida, esta grabación apunta Source a recortes centrados de dos campos de ejemplo; con sus propios datos, active Test mode y elija unas pocas imágenes de prueba. Deje Plot activado, revise los diámetros y umbrales de flujo por objeto, deje Save activado en Quality Control y haga clic en Run.",
+    "Cuando termina la ejecución, la lista de figuras se llena con sus gráficos. La última figura dibuja los contornos de cada objeto sobre su propio canal, núcleos, células y patógenos, y a la derecha los objetos combinados. Revise en cada figura los objetos pequeños, las células que se tocan y las regiones omitidas.",
+    "Las demás figuras muestran cada canal y los arrays de máscara y de flujo que produjo el modelo. La ejecución escribe una carpeta merged con las intensidades de la imagen y las etiquetas finales de los objetos, y guarda junto a los arrays los metadatos de disposición de planos para que Measure identifique cada canal y máscara. Mantenga juntas las entradas, los ajustes, las máscaras y los informes de calidad, y continúe con Measure para extraer características y recortes de los objetos."
   ]
 }

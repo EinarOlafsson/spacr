@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
+  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,7 @@
   "objectives": [
     "Caricare l’esempio di microscopia e identificarne i canali di intensità.",
     "Confrontare impostazioni del modello e filtri di dimensione degli oggetti nell’anteprima Live.",
-    "Impostare un’esecuzione di prova limitata e sapere dove vengono scritti i suoi risultati uniti."
+    "Eseguire la segmentazione, esaminarne le figure e trovare i risultati uniti."
   ],
   "prerequisite": "Apri Mask e scegli Load test data. Per le tue immagini, prepara una cartella di origine con nomi di file coerenti e canali noti. Questo esempio usa il canale dei nuclei 0, il canale delle cellule 1 e il canale dei patogeni 2, con un ulteriore canale di intensità 3.",
   "scenes": [
@@ -28,7 +28,8 @@
     "Al termine dell’anteprima, confronta i contorni con l’immagine. Cerca oggetti mancati e oggetti vicini uniti in uno solo. La riga di stato indica quanti oggetti sono stati trovati.",
     "Usa il filtro di area minima per nascondere gli oggetti più piccoli del numero di pixel scelto. Aumentandolo, le etichette piccole spariscono dall’anteprima. Questo filtro aggiorna un risultato di maschera già esistente, quindi puoi confrontare rapidamente diverse soglie di dimensione.",
     "Riporta l’area minima a zero per riavere tutti gli oggetti. Se il modello divide o unisce gli oggetti alla scala sbagliata, cambia Diameter ed esegui di nuovo l’anteprima, controllando i bordi oltre al conteggio. Ripristina le impostazioni desiderate prima dell’elaborazione in batch.",
-    "Per una prima esecuzione ridotta, attiva Test mode con due immagini di prova e lascia attivo Plot. La tabella per oggetto contiene i diametri di questa esecuzione; controlla anche le soglie di flusso per cellula, nucleo e patogeno. Lascia attivo Save in Quality Control, così l’esecuzione salva le sue maschere e i rapporti di qualità.",
-    "Fai clic su Run e segui la console, controllando i campi non riusciti o i grafici mancanti. L’esecuzione scrive una cartella merged con le intensità delle immagini e le etichette finali degli oggetti, e tiene accanto agli array i metadati della disposizione dei piani perché Measure riconosca ogni canale e maschera. Tieni insieme input, impostazioni, maschere e rapporti di qualità, poi prosegui con Measure per estrarre caratteristiche e ritagli degli oggetti."
+    "Per una prima esecuzione rapida, questa registrazione punta Source su ritagli centrati di due campi di esempio; con i tuoi dati, attiva invece Test mode e scegli alcune immagini di prova. Lascia attivo Plot, controlla i diametri e le soglie di flusso per oggetto, lascia attivo Save in Quality Control, poi fai clic su Run.",
+    "Al termine dell’esecuzione, l’elenco delle figure si riempie dei suoi grafici. L’ultima figura disegna i contorni di ogni oggetto sul proprio canale, nuclei, cellule e patogeni, e a destra gli oggetti combinati. Controlla in ogni figura gli oggetti piccoli, le cellule a contatto e le regioni mancate.",
+    "Le altre figure mostrano ogni canale e gli array di maschere e di flusso prodotti dal modello. L’esecuzione scrive una cartella merged con le intensità delle immagini e le etichette finali degli oggetti, e tiene accanto agli array i metadati della disposizione dei piani perché Measure riconosca ogni canale e maschera. Tieni insieme input, impostazioni, maschere e rapporti di qualità, poi prosegui con Measure per estrarre caratteristiche e ritagli degli oggetti."
   ]
 }

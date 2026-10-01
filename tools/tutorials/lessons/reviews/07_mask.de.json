@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
+  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,7 @@
   "objectives": [
     "Das Mikroskopiebeispiel laden und seine Intensitätskanäle erkennen.",
     "Modelleinstellungen und Objektgrößenfilter in der Live-Vorschau vergleichen.",
-    "Einen begrenzten Testlauf einrichten und wissen, wohin seine zusammengeführten Ausgaben geschrieben werden."
+    "Die Segmentierung ausführen, ihre Abbildungen prüfen und die zusammengeführten Ausgaben finden."
   ],
   "prerequisite": "Öffnen Sie Mask und wählen Sie Load test data. Bereiten Sie für eigene Bilder einen Quellordner mit einheitlichen Dateinamen und bekannten Kanälen vor. Dieses Beispiel verwendet Kernkanal 0, Zellkanal 1 und Pathogenkanal 2 sowie einen zusätzlichen Intensitätskanal 3.",
   "scenes": [
@@ -28,7 +28,8 @@
     "Wenn die Vorschau fertig ist, vergleichen Sie die Umrisse mit dem Bild. Achten Sie auf übersehene Objekte und auf benachbarte Objekte, die zu einem verschmolzen sind. Die Statuszeile meldet, wie viele Objekte gefunden wurden.",
     "Blenden Sie mit dem Mindestflächenfilter Objekte aus, die kleiner als die gewählte Pixelzahl sind. Ein höherer Wert entfernt kleine Labels aus der Vorschau. Dieser Filter aktualisiert ein vorhandenes Maskenergebnis, sodass Sie Größengrenzen schnell vergleichen können.",
     "Setzen Sie die Mindestfläche wieder auf null, um alle Objekte zurückzuholen. Wenn das Modell Objekte im falschen Maßstab teilt oder verbindet, ändern Sie Diameter und führen Sie die Vorschau erneut aus; prüfen Sie dabei die Grenzen ebenso wie die Anzahl. Stellen Sie vor dem Batch-Lauf die gewünschten Einstellungen wieder her.",
-    "Schalten Sie für einen kleinen ersten Lauf Test mode mit zwei Testbildern ein und lassen Sie Plot an. Die objektbezogene Tabelle enthält die Durchmesser für diesen Lauf; prüfen Sie auch die Flow-Schwellen für Zelle, Kern und Pathogen. Lassen Sie Save unter Quality Control an, damit der Lauf seine Masken und Qualitätsberichte speichert.",
-    "Klicken Sie auf Run und verfolgen Sie die Konsole; prüfen Sie fehlgeschlagene Felder oder fehlende Plots. Der Lauf schreibt einen merged-Ordner mit den Bildintensitäten und den endgültigen Objektlabels und legt die Metadaten zum Ebenenlayout neben die Arrays, damit Measure jeden Kanal und jede Maske erkennt. Bewahren Sie Eingaben, Einstellungen, Masken und Qualitätsberichte zusammen auf und fahren Sie dann mit Measure fort, um Objektmerkmale und Ausschnitte zu extrahieren."
+    "Für einen schnellen ersten Lauf richtet diese Aufnahme Source auf zentrierte Ausschnitte zweier Beispielfelder; bei Ihren eigenen Daten schalten Sie stattdessen Test mode ein und wählen einige Testbilder. Lassen Sie Plot an, prüfen Sie die objektbezogenen Durchmesser und Flow-Schwellen, lassen Sie Save unter Quality Control an und klicken Sie dann auf Run.",
+    "Wenn der Lauf fertig ist, füllt sich die Abbildungsliste mit seinen Plots. Die letzte Abbildung zeichnet die Umrisse jedes Objekts auf seinem eigenen Kanal, Kerne, Zellen und Pathogene, und rechts die kombinierten Objekte. Prüfen Sie in jeder Abbildung kleine Objekte, sich berührende Zellen und übersehene Bereiche.",
+    "Die übrigen Abbildungen zeigen jeden Kanal sowie die Masken- und Flow-Arrays, die das Modell erzeugt hat. Der Lauf schreibt einen merged-Ordner mit den Bildintensitäten und den endgültigen Objektlabels und legt die Metadaten zum Ebenenlayout neben die Arrays, damit Measure jeden Kanal und jede Maske erkennt. Bewahren Sie Eingaben, Einstellungen, Masken und Qualitätsberichte zusammen auf und fahren Sie dann mit Measure fort, um Objektmerkmale und Ausschnitte zu extrahieren."
   ]
 }

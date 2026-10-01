@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
+  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,7 @@
   "objectives": [
     "Charger l’exemple de microscopie et identifier ses canaux d’intensité.",
     "Comparer les paramètres du modèle et les filtres de taille dans l’aperçu Live.",
-    "Configurer une exécution de test limitée et savoir où ses sorties fusionnées sont écrites."
+    "Lancer la segmentation, examiner ses figures et trouver les sorties fusionnées."
   ],
   "prerequisite": "Ouvrez Mask et choisissez Load test data. Pour vos propres images, préparez un dossier source aux noms de fichiers cohérents et aux canaux connus. Cet exemple utilise le canal noyaux 0, le canal cellules 1 et le canal pathogènes 2, avec un canal d’intensité supplémentaire 3.",
   "scenes": [
@@ -28,7 +28,8 @@
     "Une fois l’aperçu terminé, comparez les contours à l’image. Repérez les objets manqués et les objets voisins fusionnés en un seul. La ligne d’état indique combien d’objets ont été trouvés.",
     "Utilisez le filtre d’aire minimale pour masquer les objets plus petits que le nombre de pixels choisi. L’augmenter retire de l’aperçu les petites étiquettes. Ce filtre met à jour un résultat de masque existant ; vous pouvez donc comparer rapidement des seuils de taille.",
     "Remettez l’aire minimale à zéro pour faire revenir tous les objets. Si le modèle coupe ou fusionne des objets à la mauvaise échelle, modifiez Diameter et relancez l’aperçu, en vérifiant les contours autant que le nombre. Rétablissez les réglages voulus avant le traitement par lots.",
-    "Pour un premier essai réduit, activez Test mode avec deux images de test et laissez Plot activé. Le tableau par objet porte les diamètres de cette exécution ; vérifiez aussi les seuils de flux pour la cellule, le noyau et le pathogène. Laissez Save activé dans Quality Control pour que l’exécution enregistre ses masques et ses rapports de qualité.",
-    "Cliquez sur Run et suivez la console, en examinant les champs en échec ou les graphiques manquants. L’exécution écrit un dossier merged contenant les intensités des images et les étiquettes finales des objets, et conserve les métadonnées de disposition des plans à côté des tableaux pour que Measure identifie chaque canal et chaque masque. Gardez ensemble les entrées, les réglages, les masques et les rapports de qualité, puis passez à Measure pour extraire les caractéristiques et les découpes des objets."
+    "Pour un premier essai rapide, cet enregistrement fait pointer Source vers des découpes centrées de deux champs d’exemple ; avec vos propres données, activez plutôt Test mode et choisissez quelques images de test. Laissez Plot activé, vérifiez les diamètres et les seuils de flux par objet, laissez Save activé dans Quality Control, puis cliquez sur Run.",
+    "À la fin de l’exécution, la liste des figures se remplit de ses graphiques. La dernière figure trace les contours de chaque objet sur son propre canal, noyaux, cellules et pathogènes, et à droite les objets combinés. Vérifiez dans chaque figure les petits objets, les cellules qui se touchent et les régions manquées.",
+    "Les autres figures montrent chaque canal ainsi que les tableaux de masques et de flux produits par le modèle. L’exécution écrit un dossier merged contenant les intensités des images et les étiquettes finales des objets, et conserve les métadonnées de disposition des plans à côté des tableaux pour que Measure identifie chaque canal et chaque masque. Gardez ensemble les entrées, les réglages, les masques et les rapports de qualité, puis passez à Measure pour extraire les caractéristiques et les découpes des objets."
   ]
 }

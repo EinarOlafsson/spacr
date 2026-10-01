@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
+  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,7 @@
   "objectives": [
     "Indlæse mikroskopieksemplet og identificere dets intensitetskanaler.",
     "Sammenligne modelindstillinger og størrelsesfiltre i Live-forhåndsvisningen.",
-    "Opsætte en afgrænset testkørsel og vide, hvor dens samlede output skrives."
+    "Køre segmentering, gennemgå dens figurer og finde de samlede output."
   ],
   "prerequisite": "Åbn Mask, og vælg Load test data. Til dine egne billeder forbereder du en kildemappe med ensartede filnavne og kendte kanaler. Eksemplet bruger kernekanal 0, cellekanal 1 og patogenkanal 2 samt en ekstra intensitetskanal 3.",
   "scenes": [
@@ -28,7 +28,8 @@
     "Når forhåndsvisningen er færdig, så sammenlign konturerne med billedet. Se efter oversete objekter og nabobjekter, der er smeltet sammen til ét. Statuslinjen viser, hvor mange objekter der blev fundet.",
     "Brug filteret for mindste areal til at skjule objekter, der er mindre end det valgte antal pixels. Hæver du det, forsvinder små labels fra forhåndsvisningen. Filteret opdaterer et eksisterende maskeresultat, så du hurtigt kan sammenligne størrelsesgrænser.",
     "Sæt minimumsarealet tilbage til nul for at få alle objekter tilbage. Hvis modellen deler eller samler objekter i den forkerte skala, så ændr Diameter og kør forhåndsvisningen igen, og kontroller både grænserne og antallet. Gendan de ønskede indstillinger før batchkørslen.",
-    "Til en lille første kørsel slår du Test mode til med to testbilleder og lader Plot være slået til. Tabellen pr. objekt indeholder diametrene til denne kørsel; kontroller også flow-tærsklerne for celle, kerne og patogen. Lad Save under Quality Control være slået til, så kørslen gemmer sine masker og kvalitetsrapporter.",
-    "Klik på Run og følg konsollen, og undersøg eventuelle mislykkede felter eller manglende plots. Kørslen skriver en merged-mappe med billedintensiteterne og de endelige objektetiketter og gemmer metadata om planlayoutet ved siden af arrays, så Measure kan genkende hver kanal og maske. Hold input, indstillinger, masker og kvalitetsrapporter samlet, og fortsæt derefter til Measure for at udtrække objektegenskaber og udsnit."
+    "Til en hurtig første kørsel peger denne optagelse Source på centrerede udsnit af to eksempelfelter; med dine egne data slår du i stedet Test mode til og vælger nogle få testbilleder. Lad Plot være slået til, kontroller diametre og flow-tærskler pr. objekt, lad Save under Quality Control være slået til, og klik derefter på Run.",
+    "Når kørslen er færdig, fyldes figurlisten med dens plots. Den sidste figur tegner hvert objekts konturer på dets egen kanal, kerner, celler og patogener, og de samlede objekter til højre. Kontroller små objekter, celler der rører hinanden, og oversete områder i hver figur.",
+    "De øvrige figurer viser hver kanal og de maske- og flow-arrays, modellen producerede. Kørslen skriver en merged-mappe med billedintensiteterne og de endelige objektetiketter og gemmer metadata om planlayoutet ved siden af arrays, så Measure kan genkende hver kanal og maske. Hold input, indstillinger, masker og kvalitetsrapporter samlet, og fortsæt derefter til Measure for at udtrække objektegenskaber og udsnit."
   ]
 }
