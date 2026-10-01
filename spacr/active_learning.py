@@ -3560,11 +3560,13 @@ def _flow_errors(labels: np.ndarray, vectors: np.ndarray
     if not ids.size:
         return {}
     try:
+        import torch
         from cellpose.dynamics import flow_error
     except Exception:                                        # noqa: BLE001
         return {}
     compact = np.searchsorted(np.concatenate([[0], ids]), labels)
-    errors, _ = flow_error(compact.astype(np.int32), np.asarray(vectors))
+    errors, _ = flow_error(compact.astype(np.int32), np.asarray(vectors),
+                           device=torch.device("cpu"))
     return {int(label): float(error) for label, error in zip(ids, errors)}
 
 
