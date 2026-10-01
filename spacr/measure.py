@@ -9292,6 +9292,10 @@ def _cellprofiler_tables(reply, merged_folder, settings):
             mask = field_masks(stem).get(role)
             if mask is None:
                 continue
+            # A centre outside the image cannot identify an edge object.
+            # Check before rounding so negative subpixels stay unmatched.
+            if not (0 <= x < mask.shape[1] and 0 <= y < mask.shape[0]):
+                continue
             row = int(min(max(round(y), 0), mask.shape[0] - 1))
             col = int(min(max(round(x), 0), mask.shape[1] - 1))
             found[i] = mask[row, col]
