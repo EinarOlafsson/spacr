@@ -546,7 +546,9 @@
       "source_sha256": "4fdaae1db8987abfa8b9fd8d63c4aefc84a97dd1fd067712b35b38c46b27fc16",
       "context": "A suggestion is judged, not relabelled (item 512). An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
       "translation": "सुझाव को आँका जाता है, फिर से लेबल नहीं किया जाता (आइटम 512)। जिस क्रॉप के लिए Suggest ने कोई वर्ग प्रस्तावित किया, उस पर उसकी डैश वाली अंगूठी के बगल में एम्बर ``?`` बैज होता है। क्लिक या ``Y`` इसकी पुष्टि करता है (यह सामान्य लेबल बनता है और हरा टिक पहनता है); दायाँ-क्लिक या ``N`` इसे अस्वीकार करता है (यह फिर अनुत्तरित हो जाता है और लाल क्रॉस पहनता है); ``U`` दोनों को पूर्ववत करता है। कुंजी-सूची के ऊपर की पट्टी यह बताती है, और गिनती करती है कि पेज और स्तंभ में क्या है। हर निर्णय ``<column>_verdict`` स्तंभ में ``+c`` या ``-c`` के रूप में लिखा जाता है, ताकि वह पुनः आरंभ के बाद भी बचे, और अगले Suggest दौर को प्रशिक्षण के लिए अस्वीकृतियाँ दी जाती हैं। :meth:`AnnotateScreen._judge` और :func:`spacr.suggest.verdict_column` देखें।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate#9",
@@ -554,7 +556,9 @@
       "source_sha256": "cae822239c94b804ff9338aa4d1846cf19ad53d231e49525ab832c099283b2bd",
       "context": "A page is what fits (item 512). The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
       "translation": "एक पेज वह है जो समा जाए (आइटम 512)। ग्रिड में ठीक उतने क्रॉप होते हैं जितने क्रॉप पैन द्वारा दी गई जगह में, सेटिंग्स द्वारा माँगे गए क्रॉप आकार पर, समाते हैं, और यह कभी स्क्रॉल नहीं होता: कंसोल खोलना, पैन मोड़ना, GUI पैमाना बदलना या विंडो का आकार बदलना पेज को फिर से गणना करता है और बाकी को अगले पेज पर भेजता है, पेज काउंटर साथ चलता है, और पेज पर पहला क्रॉप वहीं रहता है जहाँ था। :func:`grid_that_fits` और :meth:`AnnotateScreen._refit_grid` देखें।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.AnnotateScreen.closeEvent#1",
@@ -618,7 +622,9 @@
       "source_sha256": "0c2206c2088e848e5484cc623481cf99006ab4f39513f371125b9f4fcd00950e",
       "context": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
       "translation": "आइटम 512। सुझाव एम्बर है, पुष्टि किया गया सुझाव हरा और अस्वीकृत लाल -- थीम के अपने चेतावनी, सफलता और त्रुटि रंग, ताकि बैज थीम परिवर्तन का वैसे ही अनुसरण करे जैसे बाकी सजावट करती है। ग्लिफ़ थीम के पृष्ठभूमि रंग में बनाया जाता है, जो dark थीम पर काला और light पर लगभग सफ़ेद है; हर भराव उसके विरुद्ध चुना गया और दोनों में 4.5:1 से बेहतर पढ़ा जाता है। तीनों में से कोई भी (None) वर्ग रंग नहीं है, इसलिए बैज को कभी वर्ग नहीं समझा जाता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.badge_colors#2",
@@ -2816,7 +2822,9 @@
       "source_sha256": "514d99889366f19ab73e99610c4fb2bf4c88e0493e039613dd453d7b299a0cb1",
       "context": "Item 511. The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
       "translation": "आइटम 511। Filter श्रेणी में पहले चार निश्चित बॉक्स होते थे -- न्यूनतम और अधिकतम क्षेत्रफल, न्यूनतम और अधिकतम माध्य तीव्रता। अब यह खाली शुरू होती है, और \"Add a filter\" हर वह अदिश गुण प्रस्तुत करता है जिसकी :func:`skimage.measure.regionprops` गणना करता है (:func:`mask_engine.filter_properties` देखें); हर जोड़ी गई पंक्ति में गुण, एक न्यूनतम, एक अधिकतम और Remove बटन होता है। खाली सीमा बंद है। पुराने चार उन पंक्तियों में से दो हैं जिन्हें उपयोगकर्ता जोड़ सकता है: ``area`` और ``intensity_mean``।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.ObjectFilterList#2",
@@ -2984,7 +2992,9 @@
       "source_sha256": "a86a8067fdb3fa397a29ac228e7abc5b050582c25af080b5ad44e88c530a8404",
       "context": "A key-value mapping of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before item 511 opens as the rows it meant.",
       "translation": "पुरानी चार सीमाओं की dict (``min_area`` और बाकी) :func:`mask_engine.legacy_filters` द्वारा स्थानांतरित की जाती है, ताकि आइटम 511 से पहले की सहेजी गई स्थिति उन्हीं पंक्तियों के रूप में खुले जिनका उसका अर्थ था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.ObjectFilterList.set_filters#2",

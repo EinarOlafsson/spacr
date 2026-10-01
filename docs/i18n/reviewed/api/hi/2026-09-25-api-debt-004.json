@@ -3376,7 +3376,9 @@
       "source_sha256": "798d232e63aa0da820756129186df9d3bbf8aceded8617bd3fe318500fec424c",
       "context": "A panel in its default state is removed rather than stored. Most panels default to open, so storing that would grow the key-value mapping by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (item 509: the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
       "translation": "अपनी डिफ़ॉल्ट स्थिति वाला पैनल संग्रहीत करने के बजाय हटा दिया जाता है। अधिकांश पैनल डिफ़ॉल्ट रूप से खुले होते हैं, इसलिए यह संग्रहीत करने से उपयोगकर्ता द्वारा छुए गए हर पैनल के लिए dict में एक प्रविष्टि जुड़ती और कभी घटती नहीं। मुड़ा हुआ शुरू होने वाला पैनल (आइटम 509: उन्नत PSF, पुनर्स्थापन और CLAHE पंक्तियाँ) ``default_shut=True`` देता है, इसलिए उसे खोलना ही False के रूप में संग्रहीत होता है, और फिर से मोड़ने पर वह भुला दिया जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences.set_folded_panel#2",

@@ -1962,7 +1962,9 @@
       "source_sha256": "072bce659d2996778747500ba3c7bbe5e5376a6afff0328d9bad6e44f37ddfce",
       "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements (item 512) go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
       "translation": "लिखा जाने वाला स्तंभ; छोड़ने पर एनोटेशन स्तंभ। Annotate पेज के निर्णय (आइटम 512) दूसरे कनेक्शन के बजाय इसी राइटर के माध्यम से ``<column>_verdict`` स्तंभ में जाते हैं: एक राइटर, एक कतार, एक क्रम। किसी अन्य स्तंभ का बैच जो लिखा नहीं जा सकता, ``_failed_extra`` में उसके स्तंभ के अंतर्गत रखा जाता है, ``_failed_batch`` से अलग, ताकि एनोटेशन बैच वही आकार बनाए रखे जिसकी उसका हर पाठक अपेक्षा करता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.annotate_engine.add_colored_border#2",
@@ -4274,7 +4276,9 @@
       "source_sha256": "d048cede84fa699b4cfbae74d3065d82b8e540d4748c6a350f3e18b266038874",
       "context": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
       "translation": "मोड गिराई गई सामग्री का अनुसरण करता है (आइटम 518): Plaque मोड में गिराई गई PDFs, या उनका फ़ोल्डर, Figure मोड पर जाने के लिए पूछते हैं; Figure मोड में गिराई गई छवियाँ Plaque मोड पर जाने के लिए पूछती हैं; PDFs और छवियाँ एक साथ बताती हैं कि PDFs Figure मोड में और छवियाँ Plaque मोड में पढ़ी जाती हैं, और पूछती हैं कि कौन-सा पढ़ना है। Figure मोड में रहने पर छवियाँ चित्रों के रूप में पढ़ी जाती हैं; Plaque मोड में रहने पर PDFs अपठित रहती हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#4",

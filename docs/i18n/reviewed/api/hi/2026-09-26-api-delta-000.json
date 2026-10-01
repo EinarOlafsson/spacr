@@ -478,7 +478,9 @@
       "source_sha256": "bd92c5a8a636a6c26299ac17f3fff81857eb9dda91794caae4c676d6975a463c",
       "context": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own (item 526) -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
       "translation": "पेपर फ़ोल्डर, या फ़िगर छवियों का फ़ोल्डर, जैसा है वैसा ही पढ़ा जाता है। पेपर फ़ोल्डरों वाला फ़ोल्डर -- एक साथ पढ़ी गई कई PDFs, हर एक अपने फ़ोल्डर में (आइटम 526) -- पेपर दर पेपर पढ़ा जाता है: पहले उसकी अपनी फ़िगर छवियाँ, यदि हों, फिर हर पेपर फ़ोल्डर नाम के क्रम में।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figure_folders#2",
@@ -510,7 +512,9 @@
       "source_sha256": "ebfca499c127ca36d153e8dbb1f93a2834390ea0f10741cd27fa5a8f0ba275e2",
       "context": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs (item 526); other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
       "translation": "यह प्लाक छवियाँ, उनके फ़ोल्डर, दोनों का मिश्रण, और Figure मोड में कितनी भी PDFs (आइटम 526) स्वीकार करता है; उनके साथ छोड़ी गई अन्य फ़ाइलें चुपचाप अलग रख दी जाती हैं। इस हैंडलर से पहले Plaque Assay को Make Masks की नीति दी गई थी, जो उस फ़ोल्डर को जिसका वह उपयोग नहीं कर सकता था, Make Masks के वाक्य के साथ अस्वीकार कर देती थी।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.can_accept#0",
@@ -542,7 +546,9 @@
       "source_sha256": "12b7724d5e8f4393bf3d17b45f5200797f19fbfae31ce2475d5bba3bbddbc568",
       "context": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused (item 526); hidden files are not counted, nor is what a paper folder holds.",
       "translation": "जो फ़ाइल न प्लाक छवि है न PDF, चाहे छोड़ी गई हो या छोड़े गए फ़ोल्डर के शीर्ष स्तर पर हो, उसे अस्वीकार करने के बजाय अनदेखा किया जाता है (आइटम 526); छिपी फ़ाइलें नहीं गिनी जातीं, और न ही पेपर फ़ोल्डर की सामग्री।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.plaque_others#4",
@@ -816,7 +822,9 @@
       "source_sha256": "615bd642923f957d025255290ade03a8ca66eee789325bf0e3a40377206b296b",
       "context": "Let Ctrl + wheel over ``root`` size the text inside it (item 529).",
       "translation": "``root`` पर Ctrl + व्हील को उसके भीतर के टेक्स्ट का आकार बदलने दें (आइटम 529)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.live_zoom.register_text_column#1",
@@ -992,7 +1000,9 @@
       "source_sha256": "60652ae47f42a76671a5c9e165ec4b2bb86c7b7397d8144e7ca2facec778471d",
       "context": "Item 529. Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
       "translation": "आइटम 529। लॉजिकल पिक्सेल में संग्रहीत; डॉक इसे लागू करते समय अपनी खींचने की सीमाओं में बाँध देता है, देखें :meth:`spacr.qt.widgets.dock.Dock.column_width`।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences.get_runtime_text_scale#0",
@@ -1064,7 +1074,9 @@
       "source_sha256": "5fe6dcb0cd577368cdd80761c4d0900ce9351f2e76a6059693436f7975514698",
       "context": "Asked for in item 533: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "आइटम 533 में माँगा गया: \"mask generation में व्यास की गणना मुख्य पेज पर नहीं बल्कि model zoo बटन की पॉपअप विंडो में एक बटन होनी चाहिए। बटन दबाने पर वर्तमान कंटेनर की सारी जानकारी के साथ एक और पॉपअप आना चाहिए।\" इसलिए यह पूरे :class:`DiameterPanel` को रखता है -- मापने का बटन, हर ऑब्जेक्ट प्रकार के लिए उसके प्रमाण और टिप्पणी सहित एक पंक्ति, हर पंक्ति पर *उपयोग करें* और *सभी का उपयोग करें* -- और पैनल अब भी उसी पेज की सेटिंग्स में लिखता है जिसने zoo खोला था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#2",
@@ -1532,7 +1544,9 @@
       "source_sha256": "dee2b0e9c6b69f58c76d953a98d369eda60fd293c28be1c60428a160552c4d3c",
       "context": "Why a saved pattern used to wait for a restart (item 530). The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the application views to the window.",
       "translation": "सहेजा गया पैटर्न पहले रीस्टार्ट की प्रतीक्षा क्यों करता था (आइटम 530)। विंडो डॉक और पेज के पीछे एक ही बैकड्रॉप बनाती है और उसे सत्र भर रखती है। Preferences सहेजने से रनटाइम संख्याएँ उसमें पहुँच जाती थीं (`apply_saved_controls`), लेकिन पैटर्न, बैकएंड, गुणवत्ता और स्केल उसके बनते समय तय हो जाते हैं, और उसे फिर से किसी ने नहीं बनाया -- पुरानी टिप्पणी कि \"changing a screen\" से यह हो जाएगा, तब सच नहीं रही जब बैकड्रॉप पेजों से विंडो पर चला गया।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops#3",
@@ -1548,7 +1562,9 @@
       "source_sha256": "fe3cbf5b4a074c22e0e00adfd8ea712983812acb1af9759c67465e519601d626",
       "context": "Size the console's text with the column it sits in (item 529).",
       "translation": "कंसोल के टेक्स्ट का आकार उस कॉलम के साथ तय करें जिसमें वह है (आइटम 529)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.console_panel.ConsolePanel.apply_column_text_scale#1",
@@ -1588,7 +1604,9 @@
       "source_sha256": "355b92461558599fed53862ce5021bea77e82febc99c1f046d3a98c3920916e9",
       "context": "Item 529. A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
       "translation": "आइटम 529। उपयोगकर्ता द्वारा चुनी गई चौड़ाई हर रीफ़्रेश, हर छिपाने और दिखाने, और हर सत्र में बनी रहती है; कोई संग्रहीत न होने पर कॉलम अपने सबसे लंबे नाम में फ़िट होता है, जैसा :meth:`fitting_width` हमेशा करता आया है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.set_column_width#0",
@@ -1628,7 +1646,9 @@
       "source_sha256": "f3d58e9e35ff88a829521ea646d1fdfab3c41c3792227c19b955bce269f7ffaa",
       "context": "The strip along the dock's right edge that drags its width (item 529).",
       "translation": "डॉक के दाएँ किनारे के साथ की पट्टी जो उसकी चौड़ाई खींचती है (आइटम 529)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.DockEdge#1",
@@ -1752,7 +1772,9 @@
       "source_sha256": "e90427760c1087d342ec63026a99da6bbd15903adb586a28de6b1b4e884e911c",
       "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting (item 531); two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
       "translation": "`samples` यह है कि हर पिक्सेल प्रति भुजा कितने सैंपल लेता है, जिसे विजेट Supersampling सेटिंग से सेट करता है (आइटम 531); दो प्रकाशित 2x2 है, और जिस इंजन को किसी ने कॉन्फ़िगर नहीं किया वह इसे रखता है। कैस्केड इंजन बनाएँ, अभी उसका बफ़र आवंटित किए बिना।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_cascade.render_into#0",
@@ -1776,7 +1798,9 @@
       "source_sha256": "13ae3c6d85887f3cee6c9451c6745656fe22478840b0c5473126cf47297f8775",
       "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting (item 531). ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
       "translation": "`samples` यह है कि हर पिक्सेल प्रति भुजा कितने सैंपल लेता है, जिसे विजेट Supersampling सेटिंग से सेट करता है (आइटम 531)। ``None`` -- ऐसा इंजन जिसे किसी ने कॉन्फ़िगर नहीं किया -- छोटे फ़्रेम पर दो और बड़े पर एक का पुराना नियम रखता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_space.render_space_frame#9",
@@ -1784,7 +1808,9 @@
       "source_sha256": "5414c4d751eede660b968e9aec01104868442719f6b408f035ffa1db564d477d",
       "context": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (item 531: it used to be 2 x 2 whatever the number said).",
       "translation": "``1`` या उससे कम हर पिक्सेल केंद्र पर एक सैंपल लेता है; उससे बड़ा कोई भी मान प्रति पिक्सेल ``samples`` x ``samples`` सैंपल ग्रिड का औसत लेता है (आइटम 531: पहले यह संख्या चाहे जो हो, 2 x 2 होता था)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel.OrbitEngine#2",
@@ -1792,7 +1818,9 @@
       "source_sha256": "46b3806160f3df28123793714b9061bb2be59ce72a830bb637e11fbbf85a18f8",
       "context": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting (item 531), makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
       "translation": "चार प्रकाशित 2x2 है। `samples`, जिसे विजेट Supersampling सेटिंग से सेट करता है (आइटम 531), इसे N * N फ़्रेमों में चले गए N x N फ़ेज़ बनाता है; प्रति भुजा एक कोई इतिहास नहीं रखता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel.Settings#1",
@@ -1800,7 +1828,9 @@
       "source_sha256": "02a2fc8b29ef07a7e1e0adb575498dc137dc8a55035197b01bbe5baceb8a0e39",
       "context": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said (item 531); now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
       "translation": "`supersampling` हर अक्ष के साथ प्रति पिक्सेल सैंपल है, Fractal टैब की Supersampling पंक्ति। हर रेंडरर एक स्थिर 2x2 उपयोग करता था, चाहे वह कुछ भी कहे (आइटम 531); अब शेडर और CPU कर्नेल इससे N x N ग्रिड लेते हैं। दो प्रकाशित ग्रिड है, इसलिए जिस `Settings()` को किसी ने नहीं भरा वह वही बनाता है जो हमेशा बनाता था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel.apply_saved_controls#3",
@@ -1808,7 +1838,9 @@
       "source_sha256": "08dba1ddd3af29c3553d22a2fff33e5440b0ff39a751e3f6436b78f12c704ce3",
       "context": "Everything that can change while a backdrop is on application view is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved (item 530).",
       "translation": "बैकड्रॉप के पेज पर रहते हुए जो कुछ भी बदल सकता है, वह यहाँ भेजा जाता है। जो नहीं बदल सकता -- पैटर्न, बैकएंड, गुणवत्ता, स्केल और Mandelbrot संदर्भ कक्षा -- उसके लिए बैकड्रॉप को फिर से बनाना पड़ता है, जो Preferences सहेजे जाने पर :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` करता है (आइटम 530)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.image_ruler.ImageRuler#2",
@@ -1864,7 +1896,9 @@
       "source_sha256": "ed583203453911451f7e78d25390fc23e7ef616cefc590ba915b433825357431",
       "context": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25 (item 511); for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
       "translation": "Cellpose कम्पार्टमेंट का हर सीमा नियंत्रण ``object_filters`` में कहाँ रहता है। Mask का ``{object}_min_area`` परिवार 2026-09-25 को हटा दिया गया (आइटम 511); cell, nucleus और pathogen के लिए ये चार नियंत्रण इसके बजाय ऑब्जेक्ट की ``area`` और ``intensity_mean`` पंक्तियाँ पढ़ते और लिखते हैं। ऑर्गेनेल स्लॉट अपनी सेटिंग्स रखते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3",
@@ -2376,7 +2410,9 @@
       "source_sha256": "73551fc681a8a39be630ae80a95031a5505ca3fbecc281444db06acbab5fc747",
       "context": "Also the consent step and the upload shared by every community training-data contribution (item 523), so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
       "translation": "साथ ही, हर सामुदायिक प्रशिक्षण-डेटा योगदान द्वारा साझा किया गया सहमति चरण और अपलोड (आइटम 523), ताकि योगदान करने वाला हर पेज एक ही प्रश्न एक बार पूछे और एक ही तरह भेजे, और Make Masks का वह संवाद जो छवियों को उनके मास्क के साथ उपयोगकर्ता द्वारा नामित सामुदायिक डेटासेट में भेजता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share_dialog.ConsentDialog#0",
@@ -2736,7 +2772,9 @@
       "source_sha256": "54431e5fe8bf18c5487fd62154d6c0fee278f05af874baf7e54d27562aec8718",
       "context": "Open the annotate-then-upload window for this mode (item 523).",
       "translation": "इस मोड के लिए एनोटेट-फिर-अपलोड विंडो खोलें (आइटम 523)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data#1",
@@ -2784,7 +2822,9 @@
       "source_sha256": "99beb40523eeea98e7322760ad8cfd976fe6e502536a3d8bfc21a891f910a27c",
       "context": "Read several PDFs, one after another, off the main GUI execution path (item 526).",
       "translation": "कई PDFs, एक के बाद एक, GUI थ्रेड से बाहर पढ़ें (आइटम 526)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_papers#1",
@@ -2832,7 +2872,9 @@
       "source_sha256": "813c3eaf25f9c1e3870a43126887b9cf7f40d4dd080439bbcc51024e02f3cf31",
       "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are (item 526), so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
       "translation": "हर स्रोत और मोड के लिए एक बार पूछा जाता है, और केवल तब जब पेज दिखाई दे रहा हो। Figure मोड में -- पहले से, या उत्तर के बाद उस पर स्विच होने पर -- PDF या PDFs के फ़ोल्डर को नामित करने वाले ``src`` की हर PDF उसी तरह पढ़ी जाती है जैसे छोड़ी गई फ़ाइलें (आइटम 526), ताकि पूर्वावलोकन और रन को ऐसी PDF के बजाय पेपर का फ़िगर फ़ोल्डर मिले जिसे वे खोल नहीं सकते।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.images_in#2",

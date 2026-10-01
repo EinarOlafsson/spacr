@@ -970,7 +970,9 @@
       "source_sha256": "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
       "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
       "translation": "बॉडी को एक स्ट्रेच के साथ लेआउट किया जाता है, और लेआउट उस स्ट्रेच को तब भी गिनता है जब बॉडी छिपी हो, इसलिए मोड़ा गया कार्ड फिर भी जगह माँगता था और उसे उस स्ट्रेच के साथ बराबर बाँटता था जो मोड़े गए शीर्षक को उसके पेन के नीचे बाँधे रखता है (आइटम 515): मोड़ा गया Console पेन की आधी ऊँचाई का निकलता था। मोड़े जाने पर बॉडी अपना स्ट्रेच छोड़ देती है; खोले जाने पर उसे वापस ले लेती है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.card.Card.follow_fold#2",
@@ -1362,7 +1364,9 @@
       "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
       "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
       "translation": "आइटम 471, स्लाइस B। दो अनुरोध जो अंततः एक ही निकलते हैं: हर कंटेनर सिमटता है (\"जब भी कुछ सिमटा हो तो उसे अपने कंटेनर के नीचे स्वतः लॉक हो जाना चाहिए\"), और हर कंटेनर को \"किनारों को खींचकर बड़ा या छोटा किया जा सके\"। एक :class:`~PySide6.QtWidgets.QSplitter` पहले से दोनों करता है -- खींचने के लिए एक हैंडल, और एक चाइल्ड जिसे शून्य तक घटाया जा सकता है -- इसलिए दोनों हिस्से यहाँ एक ही तंत्र के रूप में रहते हैं, और स्प्लिटर में जो कुछ भी सिमटता है उसका आकार भी बदला जा सकता है, और इसका उल्टा भी।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter#2",
@@ -1866,7 +1870,9 @@
       "source_sha256": "d4832655134edc2bd98d98f8baaa9ea71afc520147f331b1f390a9775eefbda5",
       "context": "Item 471: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "आइटम 471: \"जब लाइव प्रीव्यू खुलता है, तो यह डिस्प्ले की पूरी ऊँचाई ले लेता है: कंसोल, System कंटेनर और System के नीचे का बटन सेक्शन स्वतः सिमट जाते हैं, और सेटिंग्स बाईं ओर सिमट जाती हैं\", और जब भी फ़िगर दिखाई दें तब भी यही।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#2",
@@ -2026,7 +2032,9 @@
       "source_sha256": "d7c96a305b7af08faf05d55e039bb388e2d301b27ed513a56c3e006de0b602fe",
       "context": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "आइटम 471, स्लाइस C: \"फ़िगर या लाइव प्रीव्यू कंटेनरों के भीतर के सभी सेक्शन भी सिमटने योग्य होने चाहिए ... हर GUI तत्व, चाहे वह फ़िगर हो या तालिका\"। यही एकमात्र तरीका है जिससे किसी पेज के भीतर का सेक्शन मोड़ने का नियंत्रण पाता है, इसलिए वे सभी एक जैसे दिखते और व्यवहार करते हैं: बॉडी के ऊपर एक तीर और एक नाम (वही :class:`~spacr.qt.widgets.foldable.Folder` जिसका उपयोग कंसोल और System करते हैं), एक क्लिक उसे मोड़ता है, और मोड़ा गया सेक्शन उसे दी गई जगह के निचले सिरे पर लॉक किया गया उसका शीर्षक होता है (:func:`lock_folded_to_bottom`)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#10",
@@ -2074,7 +2082,9 @@
       "source_sha256": "43b80d0f63a9a4c8798f2872cecbf15370b54233bef26ebc087517cd5bcd0277",
       "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
       "translation": "बॉडी की अपनी दृश्यता उसके स्वामी की ही रहती है। मोड़ना एक भीतरी होल्डर को छिपाता है, कभी बॉडी को नहीं, इसलिए खोलना न तो ऐसा पैनल दिखा सकता है जिसे उसके स्वामी ने छिपाया, न ऐसा पैनल बना सकता है जो पहली बार दिखाए जाने पर बनता है (आइटम 284/380)। उल्टी दिशा में, सेक्शन अपनी बॉडी का अनुसरण करता है: जब तक स्वामी बॉडी को छिपाए रखता है, पूरा सेक्शन -- शीर्षक सहित -- भी छिपा रहता है, और जब स्वामी बॉडी दिखाता है तो वह लौट आता है। इसके लिए केवल बॉडी का छिपा होने का फ़्लैग पढ़ा जाता है, इसलिए पता लगाने के लिए कुछ भी दिखाया, मापा या बनाया नहीं जाता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#3",
@@ -2378,7 +2388,9 @@
       "source_sha256": "4e2e6595cfbd138b4c4a186481d80353527e3fb0d5c4c000f1cf7cefdd2cb3cb",
       "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
       "translation": "अपने शीर्षक की ज़रूरत से अधिक जगह पाने वाला मोड़ा गया पैनल -- स्प्लिटर का अंतिम पेन, अपने कॉलम द्वारा फैलाया गया सेक्शन -- पहले अपने शीर्षक को उस जगह के बीच में लेआउट करता था, और यही वह बग है जिसका नाम आइटम 471 लेता है (\"जब मैं कंसोल को सिमटाता हूँ तो वह बीच में सिमट जाता है\")। मोड़े रहने के दौरान शीर्षक के ऊपर रखा गया एक स्ट्रेच इसके बजाय अतिरिक्त जगह ले लेता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#2",
@@ -3994,7 +4006,9 @@
       "source_sha256": "9f5df3d601c570edb7c19f0e2332ea71cd19b0fbba16b2b435d739f41d24e3bd",
       "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. Item 473's raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
       "translation": "spaCR में पहले से लोड पर फ़िट होने वाला, व्हील से ज़ूम और ड्रैग से पैन होने वाला एक छवि कैनवास था: QC फ़ील्ड ब्राउज़र का अपना ``_FieldView``। आइटम 473 की कच्ची-बनाम-संवर्धित विंडो को यही चीज़ दो बार चाहिए थी, और \"पिक्समैप वाला एक QGraphicsView\" की तीसरी प्रति ही वह तरीका है जिससे किसी कोडबेस में तीन ऐसी प्रतियाँ हो जाती हैं जो सूक्ष्म रूप से अलग व्यवहार करती हैं। इसलिए फ़ील्ड ब्राउज़र का व्यू बिना बदलाव के यहाँ ले जाया गया, ऐसे नाम के साथ जो बताता है कि यह साझा है, और ब्राउज़र इसे अपने पुराने नाम से उपयोग करता रहता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#2",

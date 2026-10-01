@@ -326,7 +326,9 @@
       "source_sha256": "15261313469c9c3e67f145132d2fe6448057d81da96d40e0f7f2952dd4fc23ac",
       "context": "Item 518: PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
       "translation": "आइटम 518: PDFs Figure मोड में और प्लाक छवियाँ Plaque मोड में पढ़ी जाती हैं, इसलिए दूसरे मोड का इनपुट बदलने के लिए पूछता है, और दोनों के लिए इनपुट पूछता है कि कौन-सा पढ़ना है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_question#3",
@@ -1694,7 +1696,9 @@
       "source_sha256": "ee8bf065edb400a30ce7dbc6e4720c9e272fc20a3e6afc71c7d19b68cc0404a8",
       "context": "One scale slider per live preview, scaling that preview alone (item 471).",
       "translation": "हर लाइव पूर्वावलोकन के लिए एक स्केल स्लाइडर, जो केवल उसी पूर्वावलोकन को स्केल करता है (आइटम 471)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#1",
@@ -1710,7 +1714,9 @@
       "source_sha256": "4e9e46511a7bc261ae82185b1937bd36319e36dac451378ffb1e819acb20289d",
       "context": "A window opened from the preview is not the preview (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
       "translation": "पूर्वावलोकन से खोली गई विंडो पूर्वावलोकन नहीं है (आइटम 522)। पैनल को पैरेंट मानने वाला डायलॉग अपनी अलग विंडो है, फिर भी Qt पैनल की स्केल की गई शीट उसमें भी लागू कर देता है, और ट्रैवर्सल ने उसे पैनल के चाइल्ड में पाया: 150 % पर एक सेटिंग्स डायलॉग के बटन 59 px ऊँचे थे, हर दूसरे डायलॉग के 40 px नहीं। ऐसी विंडो और उसके भीतर सब कुछ 100 % पर रखा जाता है, और विंडो की अपनी शीट उन आकारों को, जो उसे अन्यथा स्केल होकर विरासत में मिलते, 100 % पर फिर से कहती है -- पॉलिश होते समय सेट की गई, इसलिए पहली बार लेआउट होने से पहले।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#11",

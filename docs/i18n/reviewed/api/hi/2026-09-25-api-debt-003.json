@@ -2930,7 +2930,9 @@
       "source_sha256": "5853f6cd5be1179d1340dd4b1219aa90013d5e943b6b7af5c410bead612343ae",
       "context": "Three inversions live here and they do different things (items 435 and 419 point 9). :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
       "translation": "यहाँ तीन उलटाव हैं और वे अलग-अलग काम करते हैं (आइटम 435 और 419 बिंदु 9)। :func:`invert_intensity` किसी छवि का फ़ोटोग्राफ़िक पूरक है -- ``dtype_max - value``, जो किसी व्यूअर का Invert करता है, हर पूर्णांक dtype पर ठीक-ठीक उलटा जा सकने वाला -- और Make Masks पेज का \"Invert image\" इसी से बनाता है। :func:`invert_for_detection` इसके बजाय छवि को उसकी अपनी सीमा के सापेक्ष परावर्तित करता है, और पेज का \"Invert for detection\" डिटेक्टरों को यही देता है; इसके docstring में वह माप है जो बताता है कि डिटेक्टर पूरक का उपयोग क्यों नहीं कर सकता, और यह मिलाकर हटाया जाने वाला डुप्लिकेट नहीं है। :func:`invert_mask` किसी लेबल छवि की अग्रभूमि और पृष्ठभूमि उलटता है; सामान्य फ़ील्ड पर इससे पूरे फ़्रेम को ढकने वाला एक ऑब्जेक्ट बनता है, इसीलिए इसकी रिपोर्ट कुछ न करने के रूप में हुई थी।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine#5",
@@ -2978,7 +2980,9 @@
       "source_sha256": "680fdcbb8bea819fa4d8fd7853559d6a26d9847d442def1bc678c86829040936",
       "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list (item 511), so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
       "translation": "वे अब दूसरा फ़िल्टर नहीं हैं। :func:`legacy_filters` उन्हें एकमात्र फ़िल्टर सूची की प्रविष्टियों में बदलता है (आइटम 511), इसलिए जो कॉलर अब भी ``min_area=20`` देता है उसे उसी regionprops पास से आँका जाता है जिससे ``area`` पंक्ति जोड़ने वाले उपयोगकर्ता को, और :class:`FilterRemoval` अब भी उस पुरानी सीमा का नाम देता है जिसमें ऑब्जेक्ट विफल हुआ, ताकि पुराने लेजर पहले जैसे पढ़े जाएँ।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.FILTER_KEYS#0",
