@@ -199,6 +199,7 @@ tutorial_colab.ipynb
 !/docs/source/features.rst
 !/docs/source/make_masks.rst
 !/docs/source/measure_live.rst
+!/docs/source/plate_barcode_linkage.rst
 !/docs/source/table_workflows.rst
 !/docs/source/cellpose_training.rst
 !/docs/source/point_spread.rst

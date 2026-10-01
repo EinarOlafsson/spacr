@@ -43,8 +43,24 @@ ALPHA: 2026-09-27
     CPU only; no real LIMS contacted.
 
 LEFT
-    No vendor-specific LIMS adapters (Benchling, LabKey, etc.) or paging;
-    the API path expects one JSON answer per barcode. Barcodes are not read
+    No vendor-specific LIMS adapters (Benchling, LabKey, etc.). Barcodes are not read
     from image metadata or plate-reader files; the linkage runs from
     Measure only, not at import (convert) time, and there is no Qt
     plate-map view of the mismatches.
+
+STATUS 2026-10-01 — paginated LIMS retrieval implemented and verified
+    Complete each barcode lookup across next, next_url, @odata.nextLink and
+    links.next URL pages, including relative/href links and same-origin HTTP
+    redirects. Carry plate metadata defaults across pages. Reject conflicting
+    links, cycles, foreign origins and oversized collections before returning
+    any partial map. Bearer credentials never follow a cross-origin redirect.
+    Limits: 16 MiB per page, 64 MiB and 100,000 records per lookup, 1,000
+    page addresses per barcode. Existing maps, measurement files and settings
+    remain intact if a later page fails. The user guide documents behavior.
+    Validation: 40 focused pagination and existing barcode-linkage checks
+    passed (3.23 seconds), including real local HTTP pagination/redirects
+    and preservation after a later-page failure. Strict guide RST parse passed
+    after fixing its heading lengths. No production LIMS was contacted.
+    Receipt: features/data/583_pagination_2026-10-01.json.
+    Vendor adapters, metadata acquisition, Convert integration and a Qt
+    mismatch map remain open; this is partial progress, not whole-item closure.

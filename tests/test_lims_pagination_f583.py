@@ -9,6 +9,38 @@ import pytest
 from spacr import plate_qc as qc
 
 
+def test_later_page_failure_preserves_existing_measurement_outputs(tmp_path, capsys):
+    from spacr.measure import _run_plate_barcode_step
+
+    merged = tmp_path / 'plate1' / 'merged'
+    merged.mkdir(parents=True)
+    np.save(merged / 'plate1_A01_1.npy', np.zeros((2, 2, 1)))
+    output = merged.parent / 'measurements'
+    output.mkdir()
+    originals = {'plate_map_lims.csv': b'previous complete map\n',
+                 'plate_barcode_mismatches.csv': b'previous mismatch report\n',
+                 'measurements.db': b'existing measurement data\n'}
+    for name, content in originals.items():
+        (output / name).write_bytes(content)
+    settings = {'src': str(merged), 'plate_barcode_source': 'https://example.test/plates',
+                'profiling_metadata': '', 'viability_plate_map': '', 'timelapse': False}
+    before = settings.copy()
+    calls = []
+
+    def fetch(url, headers):
+        calls.append(url)
+        if len(calls) == 2:
+            raise OSError('second page unavailable')
+        return json.dumps({'wells': [{'well': 'A01', 'compound': 'new', 'concentration': 1}],
+                           'next': '?page=2'})
+
+    assert _run_plate_barcode_step(settings, fetch=fetch) is None
+    assert len(calls) == 2
+    assert settings == before
+    assert {p.name: p.read_bytes() for p in output.iterdir()} == originals
+    assert 'second page unavailable' in capsys.readouterr().out
+
+
 @pytest.mark.parametrize('next_field', ['next', 'next_url', 'links', '@odata.nextLink'])
 def test_multiple_pages_keep_order_metadata_and_each_barcode(next_field):
     calls = []
