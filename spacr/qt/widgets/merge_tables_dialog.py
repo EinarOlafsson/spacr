@@ -98,11 +98,13 @@ class CustomMergeDialog(QDialog):
         warning = QLabel(tr(WARNING), self)
         warning.setWordWrap(True)
         outer.addWidget(warning)
-        schema_note = QLabel("Enter the column names for a composite key in matching order, separated by commas. "
-                            "Each output row represents one observation in the base table. "
-                            "Related rows with missing keys cannot match. A left join retains unmatched "
-                            "base observations with missing measurements. For a one-to-many relationship, "
-                            "each related table is aggregated independently before joining.", self)
+        schema_note = QLabel(" ".join((
+            tr("Enter the column names for a composite key in matching order, separated by commas."),
+            tr("Each output row represents one observation in the base table."),
+            tr("Related rows with missing keys cannot match."),
+            tr("A left join retains unmatched base observations with missing measurements."),
+            tr("For a one-to-many relationship, each related table is aggregated independently before joining."),
+        )), self)
         schema_note.setWordWrap(True)
         outer.addWidget(schema_note)
         form = QFormLayout()
@@ -322,9 +324,11 @@ class MergeTablesDialog(QDialog):
         filename_only = bool(self._filename_map and len(self._selected()) == 1
                              and (not self._custom or self._custom.get("mode") == "metadata"))
         if filename_only:
-            text = tr("Original filenames are added to {base}. All input rows and columns are preserved. "
-                      "Mappings for multiple channels or image planes do not add rows.",
-                      base=self.base.currentText())
+            text = " ".join((
+                tr("Original filenames are added to {base}.", base=self.base.currentText()),
+                tr("All input rows and columns are preserved."),
+                tr("Mappings for multiple channels or image planes do not add rows."),
+            ))
         elif self._custom and self._custom.get("mode") == "custom":
             text = tr("Custom rules active — one row per {base}. "
                       "Explicit relationships and join types are shown in Customize merging.",
@@ -457,8 +461,10 @@ class MergeTablesDialog(QDialog):
                 "Unmatched base rows: {unmatched_base:,}; unmatched related rows: {unmatched_child:,}.",
                 unmatched_base=joined["unmatched_base"], unmatched_child=joined["unmatched_child"]))
             lines.append("  " + tr(
-                "Related rows with missing keys: {missing_keys:,}. Related rows with repeated keys: {duplicate_rows:,}.",
-                missing_keys=joined["missing_key_rows"], duplicate_rows=joined["duplicate_key_rows"]))
+                "Related rows with missing keys: {missing_keys:,}.",
+                missing_keys=joined["missing_key_rows"]) + " " + tr(
+                "Related rows with repeated keys: {duplicate_rows:,}.",
+                duplicate_rows=joined["duplicate_key_rows"]))
         if report.get("original_filenames"):
             metadata = report["original_filenames"]
             lines.append(tr("Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. "

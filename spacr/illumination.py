@@ -2600,13 +2600,14 @@ _TOOLTIPS = {
         'The figure has low computational cost and provides direct '
         'verification of the correction. Default True.'),
     'illumination_vendor_channel_map': (
-        '(str) - Optional channel assignments for a vendor flat-field profile: '
-        '0:2,1:1 maps persisted intensity channel 0 to vendor channel 2 and '
-        'intensity channel 1 to vendor channel 1. Intensity channels start at '
-        '0; Harmony channels and reference-image planes start at 1. Include '
-        'every corrected intensity channel. Empty keeps the original order '
-        'and applies a single reference plane to all channels. Used only '
-        'with illumination_vendor_profile; a saved illumination_model wins. '
+        '(str) - Match intensity channels to a vendor profile. '
+        'Use pairs such as 0:2,1:1. This example maps intensity channel 0 to '
+        'vendor channel 2, and intensity channel 1 to vendor channel 1. '
+        'Use saved intensity channel numbers, starting at 0. Vendor channels and reference '
+        'image planes start at 1. Map every corrected intensity channel. '
+        'Leave empty to keep the original channel order. With an empty map, '
+        'a single reference plane applies to all channels. Choose a vendor '
+        'profile to use this mapping. A saved illumination model overrides it. '
         'Default empty.'),
     'illumination_vendor_profile': (
         '(str) - Path to the flat-field correction the microscope software '

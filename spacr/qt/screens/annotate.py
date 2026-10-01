@@ -5482,9 +5482,11 @@ class AnnotateScreen(QWidget):
         """
         self._console.append_notice(
             "This classifier used a random split because too few laboratory "
-            "wells have labels. Its accuracy may be overestimated. The "
-            "suggestions are unaffected. Label crops from more wells for "
-            "validation with independent wells. ({why})\n",
+            "wells have labels. ")
+        self._console.append_notice("Its accuracy may be overestimated. ")
+        self._console.append_notice("The suggestions are unaffected. ")
+        self._console.append_notice(
+            "Label crops from more wells for validation with independent wells. ({why})\n",
             why=self._blind_text(str(reason)))
 
     @Slot(object)
