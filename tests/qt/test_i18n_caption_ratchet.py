@@ -372,6 +372,9 @@ COMPACT_CAPTION_SHA256 = (
 # 2026-10-01 N628/N629: measured canonical inventory after the complete nine-locale
 # generator audit. 72 identities added and 14 removed relative to the
 # preceding committed English catalogue. Translation quality gates unchanged.
+# 2026-10-01 F542: measured canonical inventory after the complete nine-locale
+# generator audit. One identity added and none removed relative to the
+# preceding committed English catalogue. Translation quality gates unchanged.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -496,7 +499,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
     # Every new prose row has a reviewed record in each of the nine locales.
     # The runtime pass preserved every pre-existing translated value.
-    "UI": 6484,
+    "UI": 6485,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -608,7 +611,7 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # EXTERNAL_SOURCE_COUNTS give this current source digest.
     # 47: one reviewed UI arrival, "Checking compatible GPUs…", no removals.
     # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
-    '132ce2a55c581610ee487dad60233099166154094775283e14f6f8b1166623b8'
+    'fa4c72cf3762d11065cb717442a3cd15db80ca5b8cc4ae32f3210d51f6e02433'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
