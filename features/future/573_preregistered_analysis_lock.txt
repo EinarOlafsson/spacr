@@ -188,3 +188,27 @@ TIMING, HTML (item complete; still ALPHA)
     Still not done: settings edits are timed when a check first meets them,
     not keystroke by keystroke on the form; a Gate Editor export to the
     filters table is not itself checked.
+
+2026-10-01 — GATE EDITOR EXPORT CHECK AND ATTACHED PROVENANCE
+Implemented the explicit remaining filters-export check. The screen retains the
+last saved/loaded strategy path and snapshots the live GateSet at export. Locks
+holding that path are checked against the live gates, including changes not saved
+to disk, using the existing lock digest and first-seen/post-hoc verdict helpers.
+The export feedback displays the resulting gate-specific verdicts. No matching
+strategy lock produces no verification claim; existing verdict policy is preserved.
+
+Successful gate columns receive a receipt in filter_export_provenance alongside
+filters: export time, source table, saved strategy path, exact exported gates,
+merge definition when applicable, written columns/object counts and lock verdicts.
+The receipt explicitly scopes verification to the exported gating strategy; it
+does not claim verification of unrelated settings or unrecorded merge mappings.
+Failed gate writes never receive receipts. Receipt insertion is atomic, after the
+established filter writer commits; these are separate transactions because the
+existing filter writer owns its connection. Receipt failure is reported explicitly.
+
+Validation: 17 focused checks passed across live-export provenance, named/temporal
+Gate exports and existing multi-pipeline/gate/model lock behavior. Includes live
+unsaved changes with unchanged disk gates, first-seen edits before unblinding,
+new post-hoc edits, tampered locks, no-lock exports and failed-write/no-receipt
+behavior. Existing Gate Editor export/screen cohort also checked. No run_journal
+code changed. API/catalog publication is coordinated in the session integration.

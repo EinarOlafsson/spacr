@@ -32,7 +32,11 @@ combinations of other gates. Publishing a gate narrows every linked view to
 that population. The gating strategy saves to and loads from a JSON file
 (``gates.json`` by default) so that the next plate is gated the same way;
 Export writes each gate as a column of the ``filters`` table in the
-measurements database, and the graph saves as PNG or PDF.
+measurements database, and the graph saves as PNG or PDF. Exports compare the
+live gates (including unsaved edits) with analysis locks holding their saved
+strategy and record gate-specific verdicts in ``filter_export_provenance``.
+A missing lock never implies verification. This receipt covers exported gates;
+unrecorded merge definitions and unrelated pipeline settings are not verified.
 
 **What to do next.** Look at the gated population in the views that follow
 the shared filter, such as Image UMAP, Graph Builder and the crop grid, and
@@ -289,6 +293,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         #: The plan for a multi-database load, or None for a single file.
         #: Kept so the screen can say what the merge cost -- which columns
         #: were dropped and which plates were qualified.
+        self._gate_strategy_path = ""
         self._merge_plan = None
         #: The working set: every table whose measurements are on offer.
         self._tables: List[str] = []
@@ -1574,8 +1579,11 @@ class GateEditorScreen(DerivedTableSource, QWidget):
 
         self._source.setText(f"exporting {len(gates)} gate(s)…")
         self._jobs.cancel()
+        gate_snapshot = GateSet.from_dict(gates.to_dict())
         self._jobs.submit(
-            lambda p=path, t=table, g=gates: self._write_gates(p, t, g),
+            lambda p=path, t=table, g=gate_snapshot,
+                   strategy=self._gate_strategy_path:
+                self._write_gates_checked(p, t, g, strategy),
             self._on_exported)
 
     @staticmethod
@@ -1612,6 +1620,26 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                 LOG.info("could not export gate %r", gate.name, exc_info=True)
                 failed.append((gate.name, str(exc)))
         return written, failed
+
+    @staticmethod
+    def _write_gates_checked(path: str, table: str, gates: GateSet, strategy: str):
+        """Check live gates and record provenance only for successful writes.
+
+        :param path: Destination measurement database.
+        :param table: Source table or saved derived-table name.
+        :param gates: Snapshot of the live gates actually being exported.
+        :param strategy: Saved strategy path used to identify applicable locks.
+        :returns: Written columns, failures, and gate-specific lock verdicts.
+        """
+        verdicts = _gate_export_lock_verdicts(strategy, gates)
+        written, failed = GateEditorScreen._write_gates(path, table, gates)
+        if written:
+            try:
+                _record_gate_export_provenance(path, table, gates, strategy, written, verdicts)
+            except Exception as exc:
+                LOG.exception("gate columns written but export provenance could not be saved")
+                failed.append(("export provenance", str(exc)))
+        return written, failed, verdicts
 
     def annotate_from_gates(self) -> None:
         """Label every object from the gates currently shown.
@@ -1701,12 +1729,17 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         :param payload: the worker's ``(written, failed)`` pair -- ``written`` as
             ``(column, n_marked)`` and ``failed`` as ``(name, reason)``.
         """
-        written, failed = payload
+        written, failed = payload[:2]
+        verdicts = payload[2] if len(payload) > 2 else []
         parts = [f"{column} ({marked:,} objects)" for column, marked in written]
         message = ("wrote " + ", ".join(parts)) if parts else "nothing written"
         if failed:
             message += " · could not export " + ", ".join(
                 f"{name} ({why})" for name, why in failed)
+        if written and verdicts:
+            from ..i18n import tr
+            message += " · " + "; ".join(tr("Gate export: {summary}", summary=verdict["summary"])
+                                         for verdict in verdicts)
         self._source.setText(message)
 
     def _on_load_failed(self, message: str) -> None:
@@ -2029,6 +2062,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         if self._merge_definition:
             payload["merge_definition"] = self._merge_definition
         Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        self._gate_strategy_path = str(Path(path).resolve())
         self._source.setText(_with_lock_notes(
             f"gates saved to {os.path.basename(path)}", path))
         return path
@@ -2071,6 +2105,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                 self._rebuild_chips()
                 self.set_frame(frame)
             self.gates.set_gates(GateSet.from_dict(payload))
+            self._gate_strategy_path = str(Path(path).resolve())
         except (GateError, OSError, ValueError) as exc:
             LOG.info("could not load gates from %s: %s", path, exc)
             self._source.setText(f"could not load those gates: {exc}")
@@ -2088,6 +2123,73 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._jobs.shutdown()
         self.gates.close()
         super().closeEvent(event)
+
+
+def _gate_export_lock_verdicts(strategy: str, gates: GateSet) -> list:
+    """Compare the exported live strategy against locks holding its saved path.
+
+    This checks gating-strategy coverage, not unrelated pipeline settings or
+    unrecorded merge definitions. Existing journal helpers retain lock digest,
+    first-seen edit timing and post-hoc semantics. No applicable lock produces
+    no verification claim.
+
+    :param strategy: Last successfully saved or loaded strategy path.
+    :param gates: Snapshot of the live gates being exported, including unsaved edits.
+    :returns: Gate-specific verdicts for every applicable analysis lock.
+    """
+    if not strategy:
+        return []
+    from ...run_journal import _gate_deviations, _lock_verdict, _locks_root
+    label = str(Path(strategy).resolve())
+    verdicts = []
+    for lock_path in sorted(_locks_root().glob("*.json")):
+        try:
+            record = json.loads(lock_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            LOG.warning("could not read analysis lock %s during gate export", lock_path)
+            continue
+        if not isinstance(record, dict) or label not in (record.get("gates") or {}):
+            continue
+        deviations = [change for change in _gate_deviations(record, {label: gates})
+                      if change["key"] == "gates:" + label]
+        verdict = _lock_verdict(record, deviations)
+        verdict["scope"] = "exported_gating_strategy"
+        verdicts.append(verdict)
+    return verdicts
+
+
+def _record_gate_export_provenance(path: str, table: str, gates: GateSet,
+                                   strategy: str, written: list, verdicts: list) -> None:
+    """Attach an atomic provenance receipt for successfully written gate columns.
+
+    Filters are written by the established writer before this separate receipt
+    transaction. Failed gate writes never receive a receipt; a receipt failure
+    is reported to the user without claiming the successful filter writes failed.
+
+    :param path: Destination measurement database.
+    :param table: Physical or derived source name.
+    :param gates: Exact gate definitions used for export.
+    :param strategy: Saved strategy path, or empty for unsaved gates.
+    :param written: Successfully exported column/count pairs.
+    :param verdicts: Applicable gate-specific analysis lock verdicts.
+    """
+    import sqlite3
+
+    from ...derived_tables import load_definitions
+    from ...run_journal import _utc_now
+    receipt = {"schema": 1, "exported_utc": _utc_now(), "source_table": table,
+               "strategy_path": strategy or None, "gates": gates.to_dict(),
+               "merge_definition": load_definitions(path).get(table),
+               "analysis_locks": verdicts,
+               "lock_coverage": "checked" if verdicts else "no_applicable_strategy_lock",
+               "written": [{"column": column, "marked_objects": count} for column, count in written]}
+    with sqlite3.connect(path) as db:
+        db.execute("CREATE TABLE IF NOT EXISTS filter_export_provenance "
+                   "(exported_utc TEXT NOT NULL, source_table TEXT NOT NULL, "
+                   "gate_column TEXT NOT NULL, receipt_json TEXT NOT NULL)")
+        db.executemany("INSERT INTO filter_export_provenance VALUES (?, ?, ?, ?)",
+                       [(receipt["exported_utc"], table, column,
+                         json.dumps(receipt, sort_keys=True)) for column, _count in written])
 
 
 def _with_lock_notes(text: str, path: str) -> str:
