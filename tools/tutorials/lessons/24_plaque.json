@@ -10,7 +10,8 @@
   "objectives": [
     "Open Plaque Assay from Toxoplasma and select the image folder.",
     "Choose a model, inspect a preview and set area filters.",
-    "Run the analysis and inspect counts, areas and calibration in the output database."
+    "Run the analysis and inspect counts, areas and calibration in the output database.",
+    "Read plaque wells and their conditions from a published figure in Figure mode."
   ],
   "example_files": [
     "SYNTHETIC_plaque_example.zip"
@@ -177,6 +178,21 @@
         1420,
         410
       ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "30_figure_mode",
+      "narration": "Plaque Assay also reads published figures. Switch the preview's Mode from Plaque to Figure. In Figure mode the run finds the plaque wells inside each figure, reads the text printed around them to name each condition, and then segments the plaques. Drop PDFs or figure pictures anywhere on the screen, or fetch a paper.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "30b_from_a_paper",
+      "narration": "Click From a paper and enter a DOI, PubMed or PMC id. spaCR fetches the paper's figures and their legends from Europe PMC into a new folder, notes the licence, and points the preview at them. This example uses an open-access paper.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "31_figure_wells",
+      "narration": "Choose a figure and click Run preview. Each well found is boxed on the figure and listed in the table with the label text read beside it; here two wells and their labels were found. Check each condition, correct it where needed, and click Save annotations before Run so the measurements carry the right names.",
       "hold_after": 0.7
     }
   ],

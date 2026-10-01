@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "1fdd5a4b67ede085b515e75b9a60eedb3e8469d6b9ab7e36ae1347a1523570de",
+  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,8 @@
   "objectives": [
     "Plaque Assay über Toxoplasma öffnen und den Bildordner auswählen.",
     "Ein Modell wählen, eine Vorschau prüfen und Flächenfilter einstellen.",
-    "Die Analyse ausführen und Anzahlen, Flächen und Kalibrierung in der Ausgabedatenbank prüfen."
+    "Die Analyse ausführen und Anzahlen, Flächen und Kalibrierung in der Ausgabedatenbank prüfen.",
+    "Plaque-Wells und ihre Bedingungen im Figure-Modus aus einer veröffentlichten Abbildung lesen."
   ],
   "prerequisite": "Laden Sie SYNTHETIC_plaque_example.zip herunter und entpacken Sie es. Es enthält vier Graustufen-TIFF-Bilder und ihre gespeicherten Labelmasken. Verwenden Sie eine Arbeitskopie, wenn Sie eine neue Segmentierung ausprobieren. Halten Sie einen lokalen Plaque-Checkpoint bereit oder laden Sie einen über Model Zoo herunter. Das synthetische Beispiel hat keine physikalische Kalibrierung.",
   "scenes": [
@@ -33,6 +34,9 @@
     "Öffnen Sie Help und dann Database browser. Wählen Sie plaques_analysis.db im Ordner masks. Lassen Sie Edit mode beim Prüfen der Ausgabe ausgeschaltet und wählen Sie eine Tabelle aus der Tabellenliste.",
     "Öffnen Sie summary für eine Übersicht pro Bild. Ordnen Sie die Zeilen über ihre Dateinamen zu. Die mitgelieferten synthetischen Masken enthalten vier, drei, zwei und ein Objekt. Die mittlere Größe gibt ihre mittlere Fläche in Pixeln an.",
     "Öffnen Sie stats, um für jedes Bild Plaque-Anzahl, mittlere Fläche und Flächenstreuung zu vergleichen. Die Standardabweichung beschreibt die Spannweite der Plaque-Größen in diesem Bild. Verwenden Sie unabhängige experimentelle Replikate, wenn Sie biologische Bedingungen vergleichen.",
-    "Öffnen Sie details, um einzelne Plaque-Flächen zu prüfen. Spalten mit physikalischer Fläche bleiben leer, wenn keine Kalibrierung vorliegt. Speichern Sie die Datenbank zusammen mit Bildern, Masken und Einstellungen."
+    "Öffnen Sie details, um einzelne Plaque-Flächen zu prüfen. Spalten mit physikalischer Fläche bleiben leer, wenn keine Kalibrierung vorliegt. Speichern Sie die Datenbank zusammen mit Bildern, Masken und Einstellungen.",
+    "Plaque Assay liest auch veröffentlichte Abbildungen. Stellen Sie Mode in der Vorschau von Plaque auf Figure um. Im Figure-Modus findet der Lauf die Plaque-Wells in jeder Abbildung, liest den Text um sie herum, um jede Bedingung zu benennen, und segmentiert dann die Plaques. Ziehen Sie PDFs oder Abbildungen irgendwo auf den Bildschirm oder holen Sie ein Paper.",
+    "Klicken Sie auf From a paper und geben Sie eine DOI, PubMed- oder PMC-ID ein. spaCR lädt die Abbildungen des Papers und ihre Legenden von Europe PMC in einen neuen Ordner, vermerkt die Lizenz und richtet die Vorschau darauf aus. Dieses Beispiel verwendet ein frei zugängliches Paper.",
+    "Wählen Sie eine Abbildung und klicken Sie auf Run preview. Jedes gefundene Well wird in der Abbildung umrahmt und in der Tabelle mit dem daneben gelesenen Beschriftungstext aufgeführt; hier wurden zwei Wells und ihre Beschriftungen gefunden. Prüfen Sie jede Bedingung, korrigieren Sie sie bei Bedarf und klicken Sie vor Run auf Save annotations, damit die Messungen die richtigen Namen tragen."
   ]
 }

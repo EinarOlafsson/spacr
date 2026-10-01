@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "1fdd5a4b67ede085b515e75b9a60eedb3e8469d6b9ab7e36ae1347a1523570de",
+  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,8 @@
   "objectives": [
     "Åbne Plaque Assay fra Toxoplasma og vælge billedmappen.",
     "Vælge en model, undersøge en forhåndsvisning og indstille arealfiltre.",
-    "Køre analysen og undersøge antal, arealer og kalibrering i outputdatabasen."
+    "Køre analysen og undersøge antal, arealer og kalibrering i outputdatabasen.",
+    "Læse plaque-brønde og deres betingelser fra en publiceret figur i Figure-tilstand."
   ],
   "prerequisite": "Hent og udpak SYNTHETIC_plaque_example.zip. Det indeholder fire TIFF-billeder i gråtoner og deres gemte labelmasker. Brug en arbejdskopi, når du afprøver ny segmentering. Hav et lokalt plaque-checkpoint klar, eller hent et via Model Zoo. Det syntetiske eksempel har ingen fysisk kalibrering.",
   "scenes": [
@@ -33,6 +34,9 @@
     "Åbn Help og derefter Database browser. Vælg plaques_analysis.db i mappen masks. Lad Edit mode være slået fra, mens du undersøger outputtet, og vælg en tabel på tabellisten.",
     "Åbn summary for en oversigt pr. billede. Match rækkerne via filnavnene. De medfølgende syntetiske masker indeholder fire, tre, to og ét objekt. Gennemsnitsstørrelsen angiver deres gennemsnitlige areal i pixel.",
     "Åbn stats for at sammenligne hvert billedes antal plaques, gennemsnitlige areal og arealspredning. Standardafvigelsen beskriver spændet af plaquestørrelser i billedet. Brug uafhængige eksperimentelle replikater, når du sammenligner biologiske betingelser.",
-    "Åbn details for at undersøge arealet af hver enkelt plaque. Kolonner med fysisk areal er tomme, når kalibrering mangler. Gem databasen sammen med billederne, maskerne og indstillingerne."
+    "Åbn details for at undersøge arealet af hver enkelt plaque. Kolonner med fysisk areal er tomme, når kalibrering mangler. Gem databasen sammen med billederne, maskerne og indstillingerne.",
+    "Plaque Assay læser også publicerede figurer. Skift Mode i forhåndsvisningen fra Plaque til Figure. I Figure-tilstand finder kørslen plaque-brøndene i hver figur, læser teksten omkring dem for at navngive hver betingelse og segmenterer derefter plaquerne. Træk PDF'er eller figurbilleder hvor som helst ind på skærmen, eller hent en artikel.",
+    "Klik på From a paper og indtast en DOI, PubMed- eller PMC-id. spaCR henter artiklens figurer og deres figurtekster fra Europe PMC til en ny mappe, noterer licensen og peger forhåndsvisningen på dem. Dette eksempel bruger en frit tilgængelig artikel.",
+    "Vælg en figur og klik på Run preview. Hver fundet brønd markeres med en ramme på figuren og vises i tabellen med den etikettekst, der er læst ved siden af; her blev to brønde og deres etiketter fundet. Kontroller hver betingelse, ret den om nødvendigt, og klik på Save annotations før Run, så målingerne får de rigtige navne."
   ]
 }

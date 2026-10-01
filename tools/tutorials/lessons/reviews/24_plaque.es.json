@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "1fdd5a4b67ede085b515e75b9a60eedb3e8469d6b9ab7e36ae1347a1523570de",
+  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,8 @@
   "objectives": [
     "Abrir Plaque Assay desde Toxoplasma y seleccionar la carpeta de imágenes.",
     "Elegir un modelo, revisar una vista previa y ajustar los filtros de área.",
-    "Ejecutar el análisis y revisar recuentos, áreas y calibración en la base de datos de salida."
+    "Ejecutar el análisis y revisar recuentos, áreas y calibración en la base de datos de salida.",
+    "Leer los pocillos de placas y sus condiciones de una figura publicada en el modo Figure."
   ],
   "prerequisite": "Descarga y extrae SYNTHETIC_plaque_example.zip. Contiene cuatro imágenes TIFF en escala de grises y sus máscaras de etiquetas guardadas. Usa una copia de trabajo cuando pruebes una segmentación nueva. Ten disponible un punto de control local de placas o descarga uno desde Model Zoo. El ejemplo sintético no tiene calibración física.",
   "scenes": [
@@ -33,6 +34,9 @@
     "Abre Help y luego Database browser. Selecciona plaques_analysis.db en la carpeta masks. Deja Edit mode desactivado mientras revisas la salida y elige una tabla de la lista de tablas.",
     "Abre summary para ver un resumen por imagen. Relaciona las filas mediante sus nombres de archivo. Las máscaras sintéticas proporcionadas contienen cuatro, tres, dos y un objeto. El tamaño medio indica su área media en píxeles.",
     "Abre stats para comparar el número de placas, el área media y la dispersión de áreas de cada imagen. La desviación estándar describe el rango de tamaños de placa dentro de esa imagen. Usa réplicas experimentales independientes cuando compares condiciones biológicas.",
-    "Abre details para revisar el área de cada placa. Las columnas de área física quedan vacías cuando no hay calibración. Guarda la base de datos junto con las imágenes, las máscaras y los ajustes."
+    "Abre details para revisar el área de cada placa. Las columnas de área física quedan vacías cuando no hay calibración. Guarda la base de datos junto con las imágenes, las máscaras y los ajustes.",
+    "Plaque Assay también lee figuras publicadas. Cambie Mode en la vista previa de Plaque a Figure. En el modo Figure, la ejecución encuentra los pocillos de placas en cada figura, lee el texto impreso a su alrededor para nombrar cada condición y luego segmenta las placas. Arrastre PDF o imágenes de figuras a cualquier parte de la pantalla, u obtenga un artículo.",
+    "Haga clic en From a paper e introduzca un DOI, o un identificador de PubMed o PMC. spaCR descarga las figuras del artículo y sus leyendas desde Europe PMC en una carpeta nueva, anota la licencia y dirige la vista previa a ellas. Este ejemplo usa un artículo de acceso abierto.",
+    "Elija una figura y haga clic en Run preview. Cada pocillo encontrado se enmarca en la figura y aparece en la tabla con el texto de etiqueta leído a su lado; aquí se encontraron dos pocillos y sus etiquetas. Revise cada condición, corríjala si hace falta y haga clic en Save annotations antes de Run para que las mediciones lleven los nombres correctos."
   ]
 }

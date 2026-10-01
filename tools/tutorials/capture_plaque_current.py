@@ -7,6 +7,7 @@ each panel, saved as a PDF. It is labelled synthetic on the figure itself and
 is never presented as published data.
 """
 from pathlib import Path
+import os
 import time
 
 from plaque_demo import prepare
@@ -45,7 +46,13 @@ def make_synthetic_figure(source: Path, folder: Path) -> Path:
         low, high = np.percentile(array, (1, 99.5))
         scaled = np.clip((array - low) / max(high - low, 1e-6), 0, 1) * 255
         tile = Image.fromarray(scaled.astype("uint8")).convert("RGB").resize((panel, panel))
-        figure.paste(tile, (x, y + label_h))
+        # Show each image as a round well of a plate: the image inside a
+        # circle, a dark plate rim around it.
+        well = Image.new("L", (panel, panel), 0)
+        ImageDraw.Draw(well).ellipse((12, 12, panel - 12, panel - 12), fill=255)
+        plate = Image.new("RGB", (panel, panel), (60, 60, 64))
+        plate.paste(tile, (0, 0), well)
+        figure.paste(plate, (x, y + label_h))
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / "SYNTHETIC_plaque_figure.pdf"
     figure.save(path, "PDF", resolution=150)
@@ -58,6 +65,25 @@ def _wait(settle, condition, timeout, what):
         if time.monotonic() > deadline:
             raise TimeoutError(what)
         settle(0.2)
+
+
+def _run_with_download(panel, settle, timeout, state, key):
+    """Press Run preview; if a model must be downloaded, use the panel's own button and run again."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    QTest.mouseClick(panel._run_btn, Qt.LeftButton)
+    settle(3)
+    _wait(settle, lambda: not panel.preview_running(), timeout, "Preview did not settle")
+    if panel._download_btn.isVisible():
+        state[key] = panel._download_btn.text()
+        QTest.mouseClick(panel._download_btn, Qt.LeftButton)
+        settle(2)
+        _wait(settle, lambda: panel._download_btn.isHidden() or panel._download_btn.isEnabled(),
+              timeout, "Download did not finish: " + panel._status.text())
+        settle(2)
+        QTest.mouseClick(panel._run_btn, Qt.LeftButton)
+        settle(1)
+    _wait(settle, lambda: not panel.preview_running(), timeout, "Preview did not finish")
 
 
 def record_plaque_current(app, window, screen, stage, captures, capture, settle,
@@ -166,57 +192,118 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
         raise ValueError("The Figure switch did not change the preview's mode")
     state["frames"]["30_figure_mode"] = capture_rect(panel, window)
     capture("30_figure_mode")
-    # Drop the PDF on the screen, as a user does: Figure mode reads the
-    # paper into a folder of figures and lists them. A question box, if one
-    # opens, is answered with its Figure-mode choice and recorded.
-    from PySide6.QtCore import QMimeData, QPointF, QTimer, QUrl
-    from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
-    from PySide6.QtWidgets import QApplication, QMessageBox
-
+    paper = os.environ.get("SPACR_TUTORIAL_PLAQUE_PAPER")
     answered = []
+    if paper:
+        # From a paper…: an open-access paper by DOI, fetched into the stage.
+        from PySide6.QtCore import QTimer
+        from PySide6.QtWidgets import QApplication, QDialog
+        papers = stage / "plaque_papers"
+        papers.mkdir(exist_ok=True)
+        filled = []
 
-    def answer():
-        for box in QApplication.topLevelWidgets():
-            if isinstance(box, QMessageBox) and box.isVisible():
-                for button in box.buttons():
-                    if button.property("plaque_mode") == ppv.FIGURE_MODE:
-                        answered.append(button.text())
-                        capture("30b_figure_question")
-                        button.click()
-                        return
-        if len(answered) == 0 and time.monotonic() < answer.until:
-            QTimer.singleShot(300, answer)
-    answer.until = time.monotonic() + 60
-    QTimer.singleShot(300, answer)
+        def fill():
+            dialogs = [w for w in QApplication.topLevelWidgets()
+                       if isinstance(w, QDialog) and w.objectName() == "PlaquePaperDialog" and w.isVisible()]
+            if not dialogs:
+                if len(filled) < 100:
+                    filled.append(None)
+                    QTimer.singleShot(200, fill)
+                return
+            dialog = dialogs[0]
+            dialog.reference.setText(paper)
+            dialog.folder.setText(str(papers))
+            settle(0.5)
+            capture("30b_from_a_paper")
+            filled.append(dialog)
+            dialog.accept()
+        QTimer.singleShot(300, fill)
+        QTest.mouseClick(panel._paper_btn, Qt.LeftButton)
+        if not any(filled):
+            raise ValueError("The From a paper dialog did not open")
+        state["paper"] = paper
+        settle(3)
+        _wait(settle, lambda: getattr(panel, "_paper_batch", None) is None
+              and not panel._paper_jobs.is_busy() and panel.current_path() is not None,
+              timeout, "The paper's figures were not read: " + panel._status.text())
+        settle(2)
+        wanted = os.environ.get("SPACR_TUTORIAL_PLAQUE_FIGURE", "")
+        if wanted:
+            names = [panel._picker.itemText(i) for i in range(panel._picker.count())]
+            state["paper_figures"] = names
+            match = [i for i, name in enumerate(names) if wanted in name]
+            if not match:
+                raise ValueError(f"No figure named like {wanted!r}: {names}")
+            panel._picker.setCurrentIndex(match[0])
+            settle(2)
+    else:
+        # Drop the PDF on the screen, as a user does: Figure mode reads the
+        # paper into a folder of figures and lists them. A question box, if one
+        # opens, is answered with its Figure-mode choice and recorded.
+        from PySide6.QtCore import QMimeData, QPointF, QTimer, QUrl
+        from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+        from PySide6.QtWidgets import QApplication, QMessageBox
 
-    def mime():
-        data = QMimeData()
-        data.setUrls([QUrl.fromLocalFile(str(figures))])
-        return data
-    point = screen.rect().center()
-    QApplication.sendEvent(screen, QDragEnterEvent(point, Qt.CopyAction, mime(), Qt.LeftButton, Qt.NoModifier))
-    QApplication.sendEvent(screen, QDragMoveEvent(point, Qt.CopyAction, mime(), Qt.LeftButton, Qt.NoModifier))
-    QApplication.sendEvent(screen, QDropEvent(QPointF(point), Qt.CopyAction, mime(), Qt.LeftButton, Qt.NoModifier))
-    settle(3)
-    _wait(settle, lambda: getattr(panel, "_paper_batch", None) is None
-          and not panel._paper_jobs.is_busy() and panel.current_path() is not None,
-          timeout, "Figure mode did not read the PDF: " + panel._status.text())
-    settle(2)
+        answered = []
+
+        def answer():
+            for box in QApplication.topLevelWidgets():
+                if isinstance(box, QMessageBox) and box.isVisible():
+                    for button in box.buttons():
+                        if button.property("plaque_mode") == ppv.FIGURE_MODE:
+                            answered.append(button.text())
+                            button.click()
+                            return
+            if len(answered) == 0 and time.monotonic() < answer.until:
+                QTimer.singleShot(300, answer)
+        answer.until = time.monotonic() + 60
+        QTimer.singleShot(300, answer)
+
+        def mime():
+            data = QMimeData()
+            data.setUrls([QUrl.fromLocalFile(str(figures))])
+            return data
+        point = screen.rect().center()
+        # Keep every mime object and event alive until Qt is done with it.
+        state["_keep"] = held = [mime(), mime(), mime()]
+        events = [QDragEnterEvent(point, Qt.CopyAction, held[0], Qt.LeftButton, Qt.NoModifier),
+                  QDragMoveEvent(point, Qt.CopyAction, held[1], Qt.LeftButton, Qt.NoModifier),
+                  QDropEvent(QPointF(point), Qt.CopyAction, held[2], Qt.LeftButton, Qt.NoModifier)]
+        for event in events:
+            QApplication.sendEvent(screen, event)
+        held.extend(events)
+        settle(3)
+        _wait(settle, lambda: getattr(panel, "_paper_batch", None) is None
+              and not panel._paper_jobs.is_busy() and panel.current_path() is not None,
+              timeout, "Figure mode did not read the PDF: " + panel._status.text())
+        settle(2)
     state["figure_question"] = answered
+    state.pop("_keep", None)
     state["figure_listing"] = str(panel.current_path())
     settle(2)
-    QTest.mouseClick(panel._run_btn, Qt.LeftButton)
-    settle(1)
-    _wait(settle, lambda: not panel.preview_running(), timeout,
-          "Figure preview did not finish: " + panel._status.text())
+    _run_with_download(panel, settle, timeout, state, "detector_download")
     settle(3)
     state["figure_preview"] = {"status": panel._status.text(),
                                "figure": figures.name,
                                "legend_visible": panel._legend_box.isVisible(),
                                "wells": len((getattr(panel, "_figure", None) or {}).get("regions", []) or [])
                                if isinstance(getattr(panel, "_figure", None), dict) else None}
+    fit = [b for b in panel.findChildren(QPushButton) if b.text().replace("&", "") == "Fit image"
+           and b.isVisible()]
+    if fit:
+        QTest.mouseClick(fit[0], Qt.LeftButton)
+        settle(1.5)
     capture("31_figure_wells")
     write_json(captures / "plaque_current.json", state)
+    if panel._all_btn.isVisible() and panel._all_btn.isEnabled():
+        QTest.mouseClick(panel._all_btn, Qt.LeftButton)
+        settle(2)
+        _wait(settle, lambda: not panel.preview_running(), timeout,
+              "Find plaques in all wells did not finish: " + panel._status.text())
+        settle(3)
+        state["all_wells"] = panel._status.text()
+        capture("32_figure_all_wells")
+        write_json(captures / "plaque_current.json", state)
     if panel._legend_box.isVisible():
         QTest.mouseClick(panel._legend_skip, Qt.LeftButton)
         settle(2)

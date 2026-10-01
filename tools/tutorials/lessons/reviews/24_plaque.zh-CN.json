@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "1fdd5a4b67ede085b515e75b9a60eedb3e8469d6b9ab7e36ae1347a1523570de",
+  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,8 @@
   "objectives": [
     "从Toxoplasma打开Plaque Assay并选择图像文件夹。",
     "选择模型，检查预览，并设置面积过滤。",
-    "运行分析，并在输出数据库中检查计数、面积和标定。"
+    "运行分析，并在输出数据库中检查计数、面积和标定。",
+    "在 Figure 模式下从已发表的图中读取噬斑孔及其条件。"
   ],
   "prerequisite": "下载并解压SYNTHETIC_plaque_example.zip。其中包含四张灰度TIFF图像及其保存的标签掩膜。尝试新的分割时请使用工作副本。准备一个本地噬斑检查点，或通过Model Zoo下载。该合成示例没有物理标定。",
   "scenes": [
@@ -33,6 +34,9 @@
     "打开Help，再打开Database browser。选择masks文件夹中的plaques_analysis.db。检查输出时保持Edit mode关闭，并从表列表中选择一个表。",
     "打开summary查看按图像的概览。根据文件名对应各行。提供的合成掩膜分别包含四个、三个、两个和一个对象。平均大小给出它们以像素为单位的平均面积。",
     "打开stats，比较每张图像的噬斑数量、平均面积和面积离散程度。标准差描述该图像中噬斑大小的范围。比较生物学条件时，请使用独立的实验重复。",
-    "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。"
+    "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。",
+    "Plaque Assay 也能读取已发表的图。将预览中的 Mode 从 Plaque 切换为 Figure。在 Figure 模式下，运行会在每张图中找到噬斑孔，读取周围印刷的文字来命名每个条件，然后分割噬斑。把 PDF 或图片拖放到屏幕任意位置，或获取一篇论文。",
+    "点击 From a paper，输入 DOI、PubMed 或 PMC 编号。spaCR 会从 Europe PMC 把论文的图及其图注下载到新文件夹，记录许可证，并让预览指向这些图。本例使用一篇开放获取论文。",
+    "选择一张图并点击 Run preview。找到的每个孔都会在图上框出，并连同旁边读取的标签文字列在表中；这里找到了两个孔及其标签。检查每个条件，必要时更正，并在 Run 之前点击 Save annotations，使测量结果带有正确的名称。"
   ]
 }

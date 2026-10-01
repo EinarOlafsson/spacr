@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "1fdd5a4b67ede085b515e75b9a60eedb3e8469d6b9ab7e36ae1347a1523570de",
+  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,8 @@
   "objectives": [
     "Opna Plaque Assay úr Toxoplasma og velja myndamöppuna.",
     "Velja líkan, skoða forskoðun og stilla flatarmálssíur.",
-    "Keyra greininguna og skoða fjölda, flatarmál og kvörðun í úttaksgagnagrunninum."
+    "Keyra greininguna og skoða fjölda, flatarmál og kvörðun í úttaksgagnagrunninum.",
+    "Lesa skellubrunna og skilyrði þeirra úr birtri mynd í Figure-ham."
   ],
   "prerequisite": "Sæktu og dragðu út SYNTHETIC_plaque_example.zip. Það inniheldur fjórar TIFF-myndir í gráskala og vistaðar merkjagrímur þeirra. Notaðu vinnuafrit þegar þú prófar nýja aðgreiningu. Hafðu staðbundinn vistunarpunkt fyrir skellur tiltækan eða sæktu hann í gegnum Model Zoo. Tilbúna dæmið hefur enga eðlisfræðilega kvörðun.",
   "scenes": [
@@ -33,6 +34,9 @@
     "Opnaðu Help og svo Database browser. Veldu plaques_analysis.db í möppunni masks. Hafðu slökkt á Edit mode meðan þú skoðar úttakið og veldu töflu úr töflulistanum.",
     "Opnaðu summary til að fá yfirlit eftir myndum. Paraðu línurnar saman eftir skráarheitum. Meðfylgjandi tilbúnu grímurnar innihalda fjóra, þrjá, tvo og einn hlut. Meðalstærð gefur meðalflatarmál þeirra í dílum.",
     "Opnaðu stats til að bera saman fjölda skellna, meðalflatarmál og dreifingu flatarmáls fyrir hverja mynd. Staðalfrávikið lýsir bili skellustærða innan myndarinnar. Notaðu óháðar tilraunaendurtekningar þegar þú berð saman líffræðilegar aðstæður.",
-    "Opnaðu details til að skoða flatarmál einstakra skellna. Dálkar fyrir eðlisfræðilegt flatarmál eru tómir þegar kvörðun vantar. Vistaðu gagnagrunninn með myndunum, grímunum og stillingunum."
+    "Opnaðu details til að skoða flatarmál einstakra skellna. Dálkar fyrir eðlisfræðilegt flatarmál eru tómir þegar kvörðun vantar. Vistaðu gagnagrunninn með myndunum, grímunum og stillingunum.",
+    "Plaque Assay les líka birtar myndir. Skiptu Mode í forskoðuninni úr Plaque í Figure. Í Figure-ham finnur keyrslan skellubrunnana á hverri mynd, les textann umhverfis þá til að nefna hvert skilyrði og skiptir síðan skellunum. Slepptu PDF-skjölum eða myndum hvar sem er á skjáinn, eða sæktu grein.",
+    "Smelltu á From a paper og sláðu inn DOI, PubMed- eða PMC-auðkenni. spaCR sækir myndir greinarinnar og myndatexta þeirra frá Europe PMC í nýja möppu, skráir leyfið og beinir forskoðuninni að þeim. Þetta dæmi notar grein í opnum aðgangi.",
+    "Veldu mynd og smelltu á Run preview. Hver brunnur sem finnst er rammaður inn á myndinni og skráður í töfluna með merkitextanum sem lesinn var við hlið hans; hér fundust tveir brunnar og merki þeirra. Athugaðu hvert skilyrði, leiðréttu ef þarf og smelltu á Save annotations fyrir Run svo mælingarnar beri rétt nöfn."
   ]
 }

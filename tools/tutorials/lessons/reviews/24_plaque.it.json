@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "1fdd5a4b67ede085b515e75b9a60eedb3e8469d6b9ab7e36ae1347a1523570de",
+  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,8 @@
   "objectives": [
     "Aprire Plaque Assay da Toxoplasma e selezionare la cartella delle immagini.",
     "Scegliere un modello, esaminare un’anteprima e impostare i filtri sull’area.",
-    "Eseguire l’analisi ed esaminare conteggi, aree e calibrazione nel database di output."
+    "Eseguire l’analisi ed esaminare conteggi, aree e calibrazione nel database di output.",
+    "Leggere i pozzetti con le placche e le loro condizioni da una figura pubblicata in modalità Figure."
   ],
   "prerequisite": "Scarica ed estrai SYNTHETIC_plaque_example.zip. Contiene quattro immagini TIFF in scala di grigi e le relative maschere di etichette salvate. Usa una copia di lavoro quando provi una nuova segmentazione. Tieni disponibile un checkpoint locale per le placche, oppure scaricane uno tramite Model Zoo. L’esempio sintetico non ha calibrazione fisica.",
   "scenes": [
@@ -33,6 +34,9 @@
     "Apri Help e poi Database browser. Seleziona plaques_analysis.db nella cartella masks. Lascia disattivato Edit mode mentre esamini l’output e scegli una tabella dall’elenco delle tabelle.",
     "Apri summary per una panoramica per immagine. Abbina le righe tramite i nomi dei file. Le maschere sintetiche fornite contengono quattro, tre, due e un oggetto. La dimensione media riporta la loro area media in pixel.",
     "Apri stats per confrontare per ogni immagine il numero di placche, l’area media e la dispersione delle aree. La deviazione standard descrive l’intervallo delle dimensioni delle placche nell’immagine. Usa repliche sperimentali indipendenti quando confronti condizioni biologiche.",
-    "Apri details per esaminare l’area di ogni singola placca. Le colonne dell’area fisica restano vuote quando manca la calibrazione. Salva il database insieme a immagini, maschere e impostazioni."
+    "Apri details per esaminare l’area di ogni singola placca. Le colonne dell’area fisica restano vuote quando manca la calibrazione. Salva il database insieme a immagini, maschere e impostazioni.",
+    "Plaque Assay legge anche le figure pubblicate. Nell’anteprima, passa Mode da Plaque a Figure. In modalità Figure l’esecuzione trova i pozzetti con le placche in ogni figura, legge il testo stampato intorno per dare un nome a ogni condizione, poi segmenta le placche. Trascina PDF o immagini di figure in qualsiasi punto dello schermo, oppure scarica un articolo.",
+    "Fai clic su From a paper e inserisci un DOI, o un identificativo PubMed o PMC. spaCR scarica le figure dell’articolo e le loro didascalie da Europe PMC in una nuova cartella, annota la licenza e punta l’anteprima su di esse. Questo esempio usa un articolo ad accesso aperto.",
+    "Scegli una figura e fai clic su Run preview. Ogni pozzetto trovato viene riquadrato nella figura ed elencato nella tabella con il testo dell’etichetta letto accanto; qui sono stati trovati due pozzetti e le loro etichette. Controlla ogni condizione, correggila se serve e fai clic su Save annotations prima di Run, così le misurazioni portano i nomi giusti."
   ]
 }

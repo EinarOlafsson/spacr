@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "1fdd5a4b67ede085b515e75b9a60eedb3e8469d6b9ab7e36ae1347a1523570de",
+  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,8 @@
   "objectives": [
     "Abrir o Plaque Assay a partir de Toxoplasma e selecionar a pasta de imagens.",
     "Escolher um modelo, inspecionar uma pré-visualização e definir os filtros de área.",
-    "Executar a análise e inspecionar contagens, áreas e calibração no banco de dados de saída."
+    "Executar a análise e inspecionar contagens, áreas e calibração no banco de dados de saída.",
+    "Ler os poços com placas e suas condições a partir de uma figura publicada no modo Figure."
   ],
   "prerequisite": "Baixe e extraia SYNTHETIC_plaque_example.zip. Ele contém quatro imagens TIFF em tons de cinza e as máscaras de rótulos salvas. Use uma cópia de trabalho ao testar uma segmentação nova. Tenha um checkpoint local de placas disponível ou baixe um pelo Model Zoo. O exemplo sintético não tem calibração física.",
   "scenes": [
@@ -33,6 +34,9 @@
     "Abra Help e depois Database browser. Selecione plaques_analysis.db na pasta masks. Deixe Edit mode desativado enquanto inspeciona a saída e escolha uma tabela na lista de tabelas.",
     "Abra summary para ter uma visão geral por imagem. Associe as linhas pelos nomes dos arquivos. As máscaras sintéticas fornecidas contêm quatro, três, dois e um objeto. O tamanho médio informa a área média deles em pixels.",
     "Abra stats para comparar, em cada imagem, o número de placas, a área média e a dispersão das áreas. O desvio padrão descreve a faixa de tamanhos de placa dentro da imagem. Use réplicas experimentais independentes ao comparar condições biológicas.",
-    "Abra details para inspecionar a área de cada placa. As colunas de área física ficam vazias quando não há calibração. Salve o banco de dados junto com as imagens, as máscaras e as configurações."
+    "Abra details para inspecionar a área de cada placa. As colunas de área física ficam vazias quando não há calibração. Salve o banco de dados junto com as imagens, as máscaras e as configurações.",
+    "Plaque Assay também lê figuras publicadas. Mude Mode na prévia de Plaque para Figure. No modo Figure, a execução encontra os poços com placas em cada figura, lê o texto impresso ao redor para nomear cada condição e depois segmenta as placas. Solte PDFs ou imagens de figuras em qualquer lugar da tela, ou busque um artigo.",
+    "Clique em From a paper e digite um DOI ou um identificador do PubMed ou do PMC. spaCR busca as figuras do artigo e suas legendas na Europe PMC para uma pasta nova, registra a licença e aponta a prévia para elas. Este exemplo usa um artigo de acesso aberto.",
+    "Escolha uma figura e clique em Run preview. Cada poço encontrado é enquadrado na figura e listado na tabela com o texto do rótulo lido ao lado; aqui foram encontrados dois poços e seus rótulos. Confira cada condição, corrija-a se necessário e clique em Save annotations antes de Run para que as medições levem os nomes certos."
   ]
 }

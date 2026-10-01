@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "1fdd5a4b67ede085b515e75b9a60eedb3e8469d6b9ab7e36ae1347a1523570de",
+  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,8 @@
   "objectives": [
     "Ouvrir Plaque Assay depuis Toxoplasma et sélectionner le dossier d’images.",
     "Choisir un modèle, examiner un aperçu et régler les filtres d’aire.",
-    "Lancer l’analyse et examiner les effectifs, les aires et la calibration dans la base de données de sortie."
+    "Lancer l’analyse et examiner les effectifs, les aires et la calibration dans la base de données de sortie.",
+    "Lire les puits de plages et leurs conditions dans une figure publiée en mode Figure."
   ],
   "prerequisite": "Téléchargez et extrayez SYNTHETIC_plaque_example.zip. Il contient quatre images TIFF en niveaux de gris et leurs masques d’étiquettes enregistrés. Utilisez une copie de travail pour essayer une nouvelle segmentation. Ayez un point de contrôle local pour les plages, ou téléchargez-en un via Model Zoo. L’exemple synthétique n’a pas de calibration physique.",
   "scenes": [
@@ -33,6 +34,9 @@
     "Ouvrez Help, puis Database browser. Sélectionnez plaques_analysis.db dans le dossier masks. Laissez Edit mode désactivé pendant l’examen de la sortie et choisissez une table dans la liste.",
     "Ouvrez summary pour une vue d’ensemble par image. Associez les lignes grâce aux noms de fichier. Les masques synthétiques fournis contiennent quatre, trois, deux et un objets. La taille moyenne indique leur aire moyenne en pixels.",
     "Ouvrez stats pour comparer, pour chaque image, le nombre de plages, l’aire moyenne et la dispersion des aires. L’écart-type décrit l’étendue des tailles de plages dans l’image. Utilisez des réplicats expérimentaux indépendants pour comparer des conditions biologiques.",
-    "Ouvrez details pour examiner l’aire de chaque plage. Les colonnes d’aire physique restent vides sans calibration. Enregistrez la base de données avec les images, les masques et les paramètres."
+    "Ouvrez details pour examiner l’aire de chaque plage. Les colonnes d’aire physique restent vides sans calibration. Enregistrez la base de données avec les images, les masques et les paramètres.",
+    "Plaque Assay lit aussi les figures publiées. Faites passer Mode, dans l’aperçu, de Plaque à Figure. En mode Figure, l’exécution trouve les puits de plages dans chaque figure, lit le texte imprimé autour pour nommer chaque condition, puis segmente les plages. Déposez des PDF ou des images de figures n’importe où sur l’écran, ou récupérez un article.",
+    "Cliquez sur From a paper et saisissez un DOI, ou un identifiant PubMed ou PMC. spaCR récupère les figures de l’article et leurs légendes depuis Europe PMC dans un nouveau dossier, note la licence et oriente l’aperçu vers elles. Cet exemple utilise un article en libre accès.",
+    "Choisissez une figure et cliquez sur Run preview. Chaque puits trouvé est encadré sur la figure et listé dans le tableau avec le texte d’étiquette lu à côté ; ici, deux puits et leurs étiquettes ont été trouvés. Vérifiez chaque condition, corrigez-la si besoin et cliquez sur Save annotations avant Run pour que les mesures portent les bons noms."
   ]
 }

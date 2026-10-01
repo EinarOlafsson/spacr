@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "1fdd5a4b67ede085b515e75b9a60eedb3e8469d6b9ab7e36ae1347a1523570de",
+  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -15,7 +15,8 @@
   "objectives": [
     "Öppna Plaque Assay från Toxoplasma och välja bildmappen.",
     "Välja en modell, granska en förhandsvisning och ställa in ytfilter.",
-    "Köra analysen och granska antal, ytor och kalibrering i utdatadatabasen."
+    "Köra analysen och granska antal, ytor och kalibrering i utdatadatabasen.",
+    "Läsa plackbrunnar och deras villkor från en publicerad figur i Figure-läget."
   ],
   "prerequisite": "Hämta och packa upp SYNTHETIC_plaque_example.zip. Det innehåller fyra TIFF-bilder i gråskala och deras sparade etikettmasker. Använd en arbetskopia när du provar ny segmentering. Ha en lokal kontrollpunkt för plack tillgänglig eller hämta en via Model Zoo. Det syntetiska exemplet saknar fysisk kalibrering.",
   "scenes": [
@@ -33,6 +34,9 @@
     "Öppna Help och sedan Database browser. Välj plaques_analysis.db i mappen masks. Låt Edit mode vara avstängt medan du granskar utdata och välj en tabell i tabellistan.",
     "Öppna summary för en översikt per bild. Matcha raderna med hjälp av filnamnen. De medföljande syntetiska maskerna innehåller fyra, tre, två och ett objekt. Medelstorleken anger deras genomsnittliga yta i pixlar.",
     "Öppna stats för att jämföra varje bilds antal plack, medelyta och ytspridning. Standardavvikelsen beskriver spannet av plackstorlekar i bilden. Använd oberoende experimentella replikat när du jämför biologiska förhållanden.",
-    "Öppna details för att granska enskilda placks ytor. Kolumner med fysisk yta är tomma när kalibrering saknas. Spara databasen tillsammans med bilderna, maskerna och inställningarna."
+    "Öppna details för att granska enskilda placks ytor. Kolumner med fysisk yta är tomma när kalibrering saknas. Spara databasen tillsammans med bilderna, maskerna och inställningarna.",
+    "Plaque Assay läser även publicerade figurer. Byt Mode i förhandsvisningen från Plaque till Figure. I Figure-läget hittar körningen plackbrunnarna i varje figur, läser texten runt dem för att namnge varje villkor och segmenterar sedan placken. Släpp PDF-filer eller figurbilder var som helst på skärmen, eller hämta en artikel.",
+    "Klicka på From a paper och ange en DOI, PubMed- eller PMC-id. spaCR hämtar artikelns figurer och deras figurtexter från Europe PMC till en ny mapp, noterar licensen och riktar förhandsvisningen mot dem. Det här exemplet använder en fritt tillgänglig artikel.",
+    "Välj en figur och klicka på Run preview. Varje brunn som hittas ramas in i figuren och listas i tabellen med etikettexten som lästs bredvid; här hittades två brunnar och deras etiketter. Kontrollera varje villkor, rätta det vid behov och klicka på Save annotations före Run så att mätningarna får rätt namn."
   ]
 }
