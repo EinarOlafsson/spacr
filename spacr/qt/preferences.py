@@ -6763,8 +6763,30 @@ class PreferencesDialog:
 
         form = _page("General", "PreferencesTabGeneral")
         appearance = _page("Appearance", "PreferencesTabAppearance")
-        theme_tab = _page("Theme", "PreferencesTabTheme")
-        animation = _page("Animation", "PreferencesTabAnimation")
+        from .widgets.section import Section
+
+        def _category(title: str, object_name: str):
+            """Add a folded category to Appearance and return its form.
+
+            The category is the same widget the module screens group their
+            settings with, so it folds and looks the way every other
+            settings category does. Its rows sit in a holder named
+            ``object_name``, which is what the Help search opens the dialog
+            on; the navigation unfolds the category on the way to a row.
+            """
+            category = Section(title)
+            holder = QWidget()
+            holder.setObjectName(object_name)
+            category_form = QFormLayout(holder)
+            category_form.setContentsMargins(0, 0, 0, 0)
+            category_form.setFieldGrowthPolicy(
+                QFormLayout.AllNonFixedFieldsGrow)
+            category.add_prose(holder)
+            return category, category_form
+
+        theme_category, theme_tab = _category("Theme", "PreferencesTabTheme")
+        animation_category, animation = _category(
+            "Animation", "PreferencesTabAnimation")
         performance = _page("Performance", "PreferencesTabPerformance")
         modules = _page("Modules", "PreferencesTabModules")
         figures = _page("Figures", "PreferencesTabFigures")
@@ -7892,6 +7914,8 @@ class PreferencesDialog:
         font_weight.setCurrentIndex(
             max(0, font_weight.findData(get_interface_font_weight())))
         appearance.addRow(tr("Interface font"), font_weight)
+        appearance.addRow(theme_category)
+        appearance.addRow(animation_category)
 
         if spaceout_enabled():
             fractal = _page("Fractal", "PreferencesTabFractal")
