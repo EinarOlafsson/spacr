@@ -14562,6 +14562,56 @@ class MakeMasksScreen(QWidget):
         self._mag_mode.setCurrentIndex(max(previous, 0))
         self._offer_backend_install(mode)
 
+    def _refresh_alpha_visibility(self) -> None:
+        """Refresh alpha model choices immediately after Preferences changes.
+
+        The app already calls this hook on open screens. Hidden rows remain
+        in the model so an explicitly selected backend keeps its value and
+        remains executable; they cannot be chosen from the popup or keyboard.
+        """
+        from ..._segmentation_backends import _prefixed_backend
+        from ..preferences import _apply_alpha_widgets, _get_show_alpha_features
+
+        if _get_show_alpha_features():
+            _offer_prefixed_modes()
+            _offer_cellpose_dino_modes()
+            self._mag_mode.blockSignals(True)
+            try:
+                for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
+                    if self._mag_mode.findData(mode) < 0:
+                        self._mag_mode.addItem(label, mode)
+            finally:
+                self._mag_mode.blockSignals(False)
+            self._fill_zoo_models()
+            ensemble = getattr(self, '_uncertainty_ensemble', None)
+            if ensemble is not None:
+                ensemble.blockSignals(True)
+                try:
+                    for index in range(self._cp_model.count()):
+                        value = self._cp_model.itemData(index)
+                        if value and ensemble.findData(value) < 0:
+                            ensemble.addItem(self._cp_model.itemText(index), value)
+                finally:
+                    ensemble.blockSignals(False)
+        for combo in (self._mag_mode, self._cp_model,
+                      getattr(self, '_uncertainty_ensemble', None)):
+            if combo is None:
+                continue
+            for index in range(combo.count()):
+                value = str(combo.itemData(index) or '')
+                backend = _prefixed_backend(value)
+                if backend is None:
+                    continue
+                model = value.partition(':')[2]
+                hidden = _prefixed_alpha_hidden(backend, model)
+                combo.view().setRowHidden(index, hidden)
+                item = combo.model().item(index)
+                if item is not None:
+                    item.setEnabled(not hidden)
+                    item.setSelectable(not hidden)
+        self._resync_magnifier_modes()
+        _apply_alpha_widgets(self)
+
     def _resync_magnifier_modes(self) -> None:
         """Re-read where each backend stands and redraw the Mode box.
 

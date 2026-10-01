@@ -206,3 +206,13 @@ NOT DONE
   * The Make Masks Mode box re-reads the alpha switch when it is built,
     not live.
   * i18n catalog rows for the strings above.
+
+2026-10-01 — LIVE ALPHA VISIBILITY IMPLEMENTED
+Make Masks now refreshes Mode, Model and uncertainty-ensemble choices when
+Preferences changes the alpha switch. Hidden entries are disabled as well
+as hidden, including keyboard access. Existing selected model/mode is
+preserved so changing visibility never silently changes scientific settings;
+turning alpha back on restores choices without duplicates.
+Validation: 33 focused alpha/uncertainty checks passed.
+Remaining: GPU and volumetric StarDist acceptance and translated catalogue
+refresh. This UI improvement does not close those scientific/runtime gaps.
