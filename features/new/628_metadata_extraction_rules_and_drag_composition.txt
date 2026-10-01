@@ -1,6 +1,7 @@
 628. Build metadata columns from extraction rules and compose labels with draggable tokens
 
-Status: IN PROGRESS — clarified by the user 2026-10-01.
+Status: DONE — implementation and focused acceptance completed 2026-10-01.
+Supporting API, translation and tutorial refresh is tracked under N615.
 
 N625's exact-value labels and simple ordered combination are insufficient for
 the user's actual filename metadata workflow. Build arbitrary additional
@@ -38,3 +39,40 @@ and Metadata regex extraction, reviewed from the official manual:
 https://cellprofiler-manual.s3.amazonaws.com/CPmanual/NamesAndTypes.html
 https://cellprofiler-manual.s3.amazonaws.com/CPmanual/Metadata.html
 The implementation operates on spaCR tables and retains its provenance checks.
+
+Implementation and acceptance 2026-10-01:
+- Version 3 annotation recipes add text extraction, All/Any readable criteria
+  and ordered column/text composition. A named-group expression can create
+  several outputs atomically. All generated values persist alongside the
+  source columns; existing source columns cannot be overwritten.
+- Assign values offers contains/not-contains, equals/not-equals, prefix,
+  suffix and regex/not-regex operators, across source or earlier generated
+  columns. Exact-value lists, manual row drops, excludes and v1/v2 recipes
+  remain supported. Empty broad-matching predicates are rejected explicitly.
+- Extract text selects named or numbered groups; nonmatches and missing
+  captures remain empty. Invalid patterns, groups and forward dependencies
+  fail before Apply. Source filenames and measurements remain unchanged.
+- Compose column uses draggable column references and editable literal text.
+  Palette drops, internal reordering and keyboard controls update the preview.
+  Missing column inputs leave the composed result empty.
+- 81 backend checks passed, covering new recipe behavior and legacy cases.
+  19 UI controls/legacy checks passed, including actual drag-enter/move/drop
+  events, text editing, named-group creation and stale-Apply invalidation.
+  Five threaded preview checks passed for responsiveness, stale delivery,
+  Apply and safe cancellation/close. Five Graph integration checks passed for
+  chart availability, CSV sidecars, actual SQLite save/reopen/edit, and failure
+  preservation. These 110 focused checks ran under a 1 GB single-CPU cap.
+- Two actual-control workflows passed in dark and light themes, including
+  named-group creation, rules based on generated columns, composed values,
+  missing rows, source preservation and Apply. Rendered extraction, assignment
+  and composition views were inspected offscreen on Linux. Native platform
+  drag interaction and the user's own filename scheme remain unverified.
+- docs/source/table_workflows.rst documents extraction, rules and composition;
+  the annotation section parses without reStructuredText warnings.
+  Acceptance details: features/data/628_metadata_recipe_2026-10-01.json.
+
+Supporting work remains explicit under N615: refresh the existing tutorial
+authoring controls and narrative, new runtime translations, and public API
+prose/catalogs. Previously reviewed runtime translations must be retired when
+their exact English source changes; generated catalogs use the normal builder.
+No new tutorial media or package release is claimed by this implementation.
