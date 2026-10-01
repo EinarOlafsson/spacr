@@ -32,7 +32,13 @@ pytestmark = pytest.mark.qt
 
 
 def _enter(bar, widget):
+    # These are content/translation tests; actual elapsed/display timing is
+    # exercised by test_603_all_hover_surfaces_wait with an unmocked timer.
     bar.eventFilter(widget, QEvent(QEvent.Enter))
+    callback = bar._hover_delay._callback
+    bar._hover_delay.cancel()
+    if callback is not None:
+        callback()
 
 
 def _leave(bar, widget):

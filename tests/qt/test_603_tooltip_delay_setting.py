@@ -91,9 +91,8 @@ def test_no_tooltip_before_the_delay_and_one_after(policy, button, qapp,
     prefs._set_tooltip_delay(seconds)
     QToolTip.hideText()
     _wait(qapp, 350)
-    wake = tooltip_policy._style_wake_up_ms()
     _hover(button)
-    remaining = max(0, int(seconds * 1000) - wake)
+    remaining = int(seconds * 1000)
     assert policy._show_timer.interval() == remaining
     _wait(qapp, max(0, remaining - 250))
     assert not _shown(), "the tooltip arrived before its delay"

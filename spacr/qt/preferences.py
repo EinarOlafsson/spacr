@@ -7165,7 +7165,7 @@ class PreferencesDialog:
         tooltips_all_check.setObjectName("TooltipsEnabled")
         tooltips_all_check.setToolTip(
             "Resting the pointer on a button, a field or a column header "
-            "for two seconds shows a small label saying what it is. The "
+            "for the chosen Tooltip delay shows a small label saying what it is. The "
             "label stays while the pointer is on it and leaves a second "
             "after the pointer goes. Cleared, no tooltip appears anywhere "
             "in spaCR."

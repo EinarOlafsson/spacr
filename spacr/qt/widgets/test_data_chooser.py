@@ -95,6 +95,8 @@ class TestDataChooser(QDialog):
         :param parent: parent widget, or ``None``.
         """
         super().__init__(parent)
+        from ..tooltip_policy import HoverDelay
+        self._hover_delay = HoverDelay(self)
         self.setWindowTitle(tr("Load test data"))
         self.chosen = ""
         self.setMinimumWidth(self.DIALOG_WIDTH)
@@ -153,9 +155,12 @@ class TestDataChooser(QDialog):
             key = str(watched.property("routeKey") or "")
             for route_key, _label, description in self.ROUTES:
                 if route_key == key:
-                    self._description.setText(tr(description))
+                    self._hover_delay.schedule(
+                        watched, lambda text=description:
+                        self._description.setText(tr(text)))
                     break
         elif kind == QEvent.Leave:
+            self._hover_delay.cancel_for(watched)
             self._description.setText(tr(self.RESTING_TEXT))
         return super().eventFilter(watched, event)
 

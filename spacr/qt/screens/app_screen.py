@@ -6730,8 +6730,8 @@ class AppScreen(QWidget):
             ``settingKey`` property decides whether a category blurb or a
             setting's help is shown.
         :param event: the filtered event; a ``ToolTip`` on a widget with
-            hover help is swallowed, ``Enter`` shows the help and ``Leave``
-            hides it, and every event is otherwise passed to the base class.
+            hover help is swallowed, ``Enter`` schedules the help after the
+            global delay and ``Leave`` cancels pending help, and every event is otherwise passed to the base class.
         """
         event_type = event.type()
         if event_type == QEvent.ToolTip:
@@ -6740,49 +6740,58 @@ class AppScreen(QWidget):
                 return True
         if event_type not in (QEvent.Enter, QEvent.Leave):
             return super().eventFilter(obj, event)
+        from ..tooltip_policy import HoverDelay
+        from ..widgets.hover_tooltip import HoverTooltip
+        delay = getattr(self, "_hint_hover_delay", None)
+        if delay is None:
+            delay = self._hint_hover_delay = HoverDelay(self)
+        if event_type == QEvent.Enter:
+            delay.schedule(obj, lambda: self._show_hover_hint(obj))
+        else:
+            delay.cancel_for(obj)
+            if obj.property("settingsCategory"):
+                self.clear_category_hint()
+            HoverTooltip.instance().start_hide()
+        return super().eventFilter(obj, event)
+
+    def _show_hover_hint(self, obj) -> None:
+        """Show setting/category help after uninterrupted global hover delay."""
         from ..widgets.hover_tooltip import HoverTooltip
         category = obj.property("settingsCategory")
         if category:
-            if event_type == QEvent.Enter:
-                self.show_category_hint(str(category))
-            else:
-                self.clear_category_hint()
-            return super().eventFilter(obj, event)
-        if event_type == QEvent.Enter:
-            key = obj.property("settingKey")
-            if key:
-                from .settings_model import refresh_api_tooltips
-                refresh_api_tooltips(obj)
-                hint = self._settings_model.plain_tooltip_for(str(key))
-                html = obj.property("apiTooltipHtml")
-                self._hint_map[obj] = hint
-                self._html_tip_map[obj] = html
-            else:
-                hint = self._hint_map.get(obj)
-                html = self._html_tip_map.get(obj)
-            from ..preferences import (get_tooltips_bottom_enabled,
-                                       get_tooltips_box_enabled)
-            want_bottom = get_tooltips_bottom_enabled()
-            want_box = get_tooltips_box_enabled()
-            shown_at_the_bottom = False
-            if hint and want_bottom and hasattr(self, "_hint_strip"):
-                link = ""
-                if key:
-                    try:
-                        from .settings_model import api_docs_url
-                        link = api_docs_url(self.app_key, str(key))
-                    except Exception:                        # noqa: BLE001
-                        link = ""
-                self._hinted_widget = obj
-                self._hinted_html = html
-                self._write_hint(hint, link, hold=True,
-                                 animated=_setting_has_an_animation(key))
-                shown_at_the_bottom = True
-            if html and (want_box or not shown_at_the_bottom):
-                HoverTooltip.instance().show_for(obj, html)
+            self.show_category_hint(str(category))
+            return
+        key = obj.property("settingKey")
+        if key:
+            from .settings_model import refresh_api_tooltips
+            refresh_api_tooltips(obj)
+            hint = self._settings_model.plain_tooltip_for(str(key))
+            html = obj.property("apiTooltipHtml")
+            self._hint_map[obj] = hint
+            self._html_tip_map[obj] = html
         else:
-            HoverTooltip.instance().start_hide()
-        return super().eventFilter(obj, event)
+            hint = self._hint_map.get(obj)
+            html = self._html_tip_map.get(obj)
+        from ..preferences import (get_tooltips_bottom_enabled,
+                                   get_tooltips_box_enabled)
+        want_bottom = get_tooltips_bottom_enabled()
+        want_box = get_tooltips_box_enabled()
+        shown_at_the_bottom = False
+        if hint and want_bottom and hasattr(self, "_hint_strip"):
+            link = ""
+            if key:
+                try:
+                    from .settings_model import api_docs_url
+                    link = api_docs_url(self.app_key, str(key))
+                except Exception:                        # noqa: BLE001
+                    link = ""
+            self._hinted_widget = obj
+            self._hinted_html = html
+            self._write_hint(hint, link, hold=True,
+                             animated=_setting_has_an_animation(key))
+            shown_at_the_bottom = True
+        if html and (want_box or not shown_at_the_bottom):
+            HoverTooltip.instance().show_for(obj, html, immediate=True)
 
     def show_module_hint(self, key: str, summary: str = "") -> bool:
         """Explain a MODULE in this screen's strip, for a dock hover.
@@ -8157,7 +8166,7 @@ class AppScreen(QWidget):
         from ..widgets.hover_tooltip import HoverTooltip
 
         popup = HoverTooltip.instance()
-        popup.show_for(widget, html)
+        popup.show_for(widget, html, immediate=True)
         popup.toggle_animation()
 
     def _release_the_hint(self) -> None:

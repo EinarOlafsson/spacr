@@ -54523,10 +54523,10 @@
       "source_blocks_sha256": [
         "961e61fb1b1e2a182bb72b3f7a6ca2219a883c6598e962a52a834ab73b584e86",
         "d7fa144a6cd7dfb7588bc2bee4d63e0af8fa147b69862ee2dc4139efe056a831",
-        "0977194cb24229afdd2b33cd834c5f4974541c8bc07e11858abf6a119366d1a9"
+        "5fe1d9343d56858882af1ed9935bff51ce9cd17b355b4dc34bb4531cf2e807f3"
       ],
-      "source_sha256": "0160f33de7865734cff9145e0ea471aabb1a895595ac3be2a034f359ee3b0d3d",
-      "text": "Show/hide the hover tooltip and update the hint strip on Enter/Leave.\n\n:param obj: the watched widget; its ``settingsCategory`` or\n    ``settingKey`` property decides whether a category blurb or a\n    setting's help is shown.\n:param event: the filtered event; a ``ToolTip`` on a widget with\n    hover help is swallowed, ``Enter`` shows the help and ``Leave``\n    hides it, and every event is otherwise passed to the base class."
+      "source_sha256": "e3797017f0b9ec55316ee12813e1316958e12cf0822dccebe260145616f167f2",
+      "text": "Show/hide the hover tooltip and update the hint strip on Enter/Leave.\n\n:param obj: the watched widget; its ``settingsCategory`` or\n    ``settingKey`` property decides whether a category blurb or a\n    setting's help is shown.\n:param event: the filtered event; a ``ToolTip`` on a widget with\n    hover help is swallowed, ``Enter`` schedules the help after the\n    global delay and ``Leave`` cancels pending help, and every event is otherwise passed to the base class."
     },
     "spacr.qt.screens.app_screen.AppScreen.example_images_destination": {
       "source_blocks_sha256": [
@@ -68931,6 +68931,49 @@
       "source_sha256": "c6acd741b23f903899c4bbc1a5fe13ddc55a9e2a348f5f877f58b6517669373b",
       "text": "One rule for every tooltip in spaCR: when it appears and when it goes.\n\nQt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most\nstyles set to about 700 ms and which nothing in spaCR was choosing. Tooltips\ntherefore arrived while the pointer was still travelling, and left the\ninstant it moved off the widget -- too fast to read, and impossible to reach\nif the text ran long.\n\nThis module installs ONE event filter on ``QApplication`` and takes the\ndecision away from the style:\n\n* a tooltip appears after the Tooltip delay preference of hovering, not\n  before (:data:`SHOW_DELAY_MS` when nothing is stored);\n* it stays while the pointer is on the widget OR on the tooltip itself;\n* it leaves :data:`LINGER_MS` after the pointer leaves both.\n\nBecause the filter sits on the application object, a widget written later\nobeys the rule without anyone remembering to ask for it: its ``ToolTip``\nevent travels to the application like every other one.\n\nThe filter shows the text itself, with ``QToolTip.showText`` and no owning\nwidget, rather than letting Qt show it. Handing Qt the widget hands Qt the\nhiding as well -- Qt hides on the widget's ``Leave`` event, immediately,\nwhich is the one behaviour this module exists to change.\n\nTwo things follow from taking the event, and both are handled rather than\naccepted:\n\n* Qt PROPAGATES a tooltip event to the parent widget when the widget under\n  the pointer has no tooltip of its own, which is how a card explains\n  itself while the pointer is on the label written on it. The text is\n  therefore resolved with :func:`tooltip_text_for`, up the parent chain,\n  exactly as Qt would have.\n* A table, a header or a list answers from ``Qt::ToolTipRole`` inside its\n  own ``event``, not from a ``toolTip()`` any filter can read. When\n  nothing in the parent chain has a tooltip, the event is SENT AGAIN after\n  the wait, with the filter standing aside, so those still appear -- and\n  appear on the same two-second rule as everything else.\n\n:func:`tooltips_enabled` is the preference switch, on by default. Cleared,\nthe ``ToolTip`` event is swallowed and no tooltip is shown anywhere."
     },
+    "spacr.qt.tooltip_policy.HoverDelay": {
+      "source_blocks_sha256": [
+        "c74b22be3be9f083a028f3267d322849d34ce879b0a658cbbd31bb8b8ad44fff",
+        "cad6cdea8238a0dcc48d19a2383a28b3c4f13b3b40eabe835428db7e374e0b4f",
+        "d763c7d3d8bc3489c4b2b480464332d713d73c6df54b6a6b8a1d3a31826c1c6f",
+        "fc1bee22ad00e896d593b930294d81098f39422ac6e464e3cb9218a249582b7d"
+      ],
+      "source_sha256": "6ba33429e79ef9996d2e85a6e95458ad07952edd527257515e5be7076e7d0634",
+      "text": "Schedule custom hover help using the global delay in seconds.\n\n:param parent: QObject owning this hover surface and its timer.\nCreate an idle timer owned by ``parent``.\n\n:param parent: QObject whose lifetime owns this timer."
+    },
+    "spacr.qt.tooltip_policy.HoverDelay.cancel": {
+      "source_blocks_sha256": [
+        "f9909b5da5d631320f06442d56c3b00e450df3c249cfeb9da0570f0b7d3386ce"
+      ],
+      "source_sha256": "f9909b5da5d631320f06442d56c3b00e450df3c249cfeb9da0570f0b7d3386ce",
+      "text": "Cancel pending help and release its target and callback."
+    },
+    "spacr.qt.tooltip_policy.HoverDelay.cancel_for": {
+      "source_blocks_sha256": [
+        "488d7442b6ab5968f054f80453cc0ea5107f7353e4ab97b2e4bb2356efb8fa61",
+        "d4188543e9a3d55b46dd6cd363af56df10f66f07af4c71731818b6e7bd701a68"
+      ],
+      "source_sha256": "253d4c80b8c9e82d09bb298ca6c99cd29a1646f3b05e7ed7bb75d8bff9f4b99d",
+      "text": "Cancel only the target that left, allowing late neighbouring leaves.\n\n:param anchor: widget sending the leave event."
+    },
+    "spacr.qt.tooltip_policy.HoverDelay.eventFilter": {
+      "source_blocks_sha256": [
+        "b8f8ec8511edc32862258e418ee49f9630668d0186459f0c3f71a90fba9781d2",
+        "25ed20c91bb130b0090382decdc39721b41b242bfa7badb4f3688253f89d2f98",
+        "96fe57af29ccd042ffeca08dfb41547dd4952c2870307101dc50493467059f6b"
+      ],
+      "source_sha256": "070c1b111e963a2a07f04e606904c55b765ebd57c5b4176faf3e2b9c5adc19ff",
+      "text": "Cancel when the target leaves or its window is hidden/closed.\n\n:param obj: anchor or its top-level window.\n:param event: event observed without consuming it."
+    },
+    "spacr.qt.tooltip_policy.HoverDelay.schedule": {
+      "source_blocks_sha256": [
+        "02d539324044d46cb07191f7783f5d2f0600557e59990a5fcfbfa9041476158e",
+        "cbdfad1a1764409d351a91d90b63f017aaf8b719cc1d0a2fdfd7e1a4d30dd51e",
+        "415e46ccd02e3819fd053112587a8b924d7e77d16e79ed9ed6e97ef7246d7be1"
+      ],
+      "source_sha256": "2682b81a79f043ff674eb1ca586a13431880b6273aa26f5cab3b69dfdff429c0",
+      "text": "Wait a full continuous hover before invoking ``callback``.\n\n:param anchor: widget being hovered; leaving or hiding cancels.\n:param callback: zero-argument callable that presents the help."
+    },
     "spacr.qt.tooltip_policy.install_tooltip_policy": {
       "source_blocks_sha256": [
         "37cd103a757b68df3b8333cfd8dba473ebcf712efda96513fa9e95a2dcc6a108",
@@ -71747,10 +71790,11 @@
         "07a651cb1a40b9f016a13774576d0019b05524459f21ed4f2ec81481a099d7de",
         "2037da97ec06f20b1a67e733783836b95b7110e3685ddaf05ed7bc53e98656db",
         "40627c939281497697ca53edcc9aa91ed264e66c78673c8c95155edd97565b01",
-        "1abf97ffedd00b28209ee75647c30c20e6edeb619021d67431c9a8c885912e82"
+        "1abf97ffedd00b28209ee75647c30c20e6edeb619021d67431c9a8c885912e82",
+        "2407fe0e324d9921dde721294b7d920b4160310a98b7cdef87f99b19519646db"
       ],
-      "source_sha256": "c12aaaedc895120fbcf2081560a0a84e0b4b7d8a0863e4e3dbbad5d868fe869c",
-      "text": "Show the panel for ``entries[index]``, docked under ``anchor``.\n\n:param anchor: the widget the panel belongs to. Used for placement\n    and as one half of the corridor the pointer may cross.\n:param entries: mappings as\n    :func:`spacr.regression_backends.availability_entry` returns --\n    ``{title, reason, url, offer}``. More than one makes the panel\n    cyclable with Up/Down when it is pinned.\n:param index: which of them to show.\n:param anchor_rect: the anchor's rectangle in GLOBAL coordinates,\n    when the thing being explained is smaller than the widget -- a\n    single row of an open combo popup, for instance.\n:param pinned: opened by keyboard. See :meth:`open_for`."
+      "source_sha256": "9f16003651b07828ac910951485d90c9115a041b8c2eba87d9f06c8903288ed0",
+      "text": "Show the panel for ``entries[index]``, docked under ``anchor``.\n\n:param anchor: the widget the panel belongs to. Used for placement\n    and as one half of the corridor the pointer may cross.\n:param entries: mappings as\n    :func:`spacr.regression_backends.availability_entry` returns --\n    ``{title, reason, url, offer}``. More than one makes the panel\n    cyclable with Up/Down when it is pinned.\n:param index: which of them to show.\n:param anchor_rect: the anchor's rectangle in GLOBAL coordinates,\n    when the thing being explained is smaller than the widget -- a\n    single row of an open combo popup, for instance.\n:param pinned: opened by keyboard. See :meth:`open_for`.\n:param immediate: explicit click/keyboard request, bypassing hover delay."
     },
     "spacr.qt.widgets.availability_panel.AvailabilityPanel.start_hide": {
       "source_blocks_sha256": [
@@ -88368,10 +88412,11 @@
         "d050d3076e2509b8857325f76d1fc0e992713d8898319ce84b6a09faac10b8c0",
         "54d12ff847789fc6590014a768e990de89771c1dff8629c2f152c57c347e9e76",
         "125d9cc5f257ac8d9969621dcfa0f34f7862c21a605d2557f63b201666afa559",
-        "fd364149ec10c5b8968437f882d2394543fbe82fa595ca6ba133e6cd5438a24d"
+        "fd364149ec10c5b8968437f882d2394543fbe82fa595ca6ba133e6cd5438a24d",
+        "858512df41e4b6931f1210443a78473a0f2adbab2c59d0640ebf0cfc8b5913a9"
       ],
-      "source_sha256": "cb7194d98f31775abb8b7de087a88fff3ea2a3f455c2416e367afd9413be1f1b",
-      "text": "Show the tooltip beneath ``anchor`` with body ``html``.\n\n:param anchor: widget the popup docks to (clamped to its screen).\n:param html: rich-text body; empty strings are ignored. A trailing\n    documentation link is moved out of the prose and into the **API**\n    word at the foot of the popup.\n:param animation: a :class:`spacr.setting_animations.SettingAnimation`\n    to play beside the text, or ``None`` for text only. Left out, it\n    is derived from the anchor's ``settingKey`` property — every\n    caller that attaches setting help already sets that, so none of\n    them had to change."
+      "source_sha256": "ecdebd0caf11c8c8f7d064366f565588da07e8e1d698ce13d9a701a90fadeb15",
+      "text": "Show the tooltip beneath ``anchor`` with body ``html``.\n\n:param anchor: widget the popup docks to (clamped to its screen).\n:param html: rich-text body; empty strings are ignored. A trailing\n    documentation link is moved out of the prose and into the **API**\n    word at the foot of the popup.\n:param animation: a :class:`spacr.setting_animations.SettingAnimation`\n    to play beside the text, or ``None`` for text only. Left out, it\n    is derived from the anchor's ``settingKey`` property — every\n    caller that attaches setting help already sets that, so none of\n    them had to change.\n:param immediate: show now for an explicit click or an already delayed\n    hover callback; ordinary hover callers leave this false."
     },
     "spacr.qt.widgets.hover_tooltip.HoverTooltip.start_hide": {
       "source_blocks_sha256": [

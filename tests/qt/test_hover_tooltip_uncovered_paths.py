@@ -72,7 +72,7 @@ def test_a_destroyed_popup_reports_the_pointer_is_not_on_it(qapp):
 
 def test_a_live_popup_answers_from_its_own_geometry(tooltip, anchor):
     """The geometry decides, so a popup nowhere near the pointer says so."""
-    tooltip.show_for(anchor, "<p>Expected cell diameter in pixels.</p>")
+    tooltip.show_for(anchor, "<p>Expected cell diameter in pixels.</p>", immediate=True)
     tooltip.move(4000, 4000)
 
     assert tooltip._pointer_is_on_me() is False
@@ -82,7 +82,7 @@ def test_a_live_popup_answers_from_its_own_geometry(tooltip, anchor):
 
 def test_a_popup_that_has_lost_its_anchor_simply_hides(tooltip, anchor):
     """Nothing can be hovering a label that is no longer there."""
-    tooltip.show_for(anchor, "<p>Expected cell diameter in pixels.</p>")
+    tooltip.show_for(anchor, "<p>Expected cell diameter in pixels.</p>", immediate=True)
     tooltip.move(4000, 4000)
     tooltip._anchor = None
 
@@ -96,7 +96,7 @@ def test_a_popup_whose_anchor_was_destroyed_forgets_it_and_hides(tooltip,
     """The dead reference is dropped, so the next hide does not ask again."""
     label = QLabel("Cell diameter")
     label.show()
-    tooltip.show_for(label, "<p>Expected cell diameter in pixels.</p>")
+    tooltip.show_for(label, "<p>Expected cell diameter in pixels.</p>", immediate=True)
     tooltip.move(4000, 4000)
     shiboken6.delete(label)
 

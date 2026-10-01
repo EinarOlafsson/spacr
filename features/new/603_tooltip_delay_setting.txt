@@ -106,3 +106,41 @@ Cross-reference 506 and 371 rather than treating the prior implementation as
 proof that the newly reported four-second defect is fixed.
 
 Supporting API, docs, translations, tutorials and validation are tracked in 615.
+
+2026-10-01 — GLOBAL HOVER DELAY IMPLEMENTED
+The stored preference remains seconds (0–10, default 2); the shared precise Qt
+single-shot scheduler converts it once to milliseconds. Native tooltips start
+on Enter and no longer subtract an assumed style wake-up interval, which Qt's
+recent-tooltip fast path need not actually wait. Different controls with the
+same text restart the wait. View/delegate-owned ToolTip events are intercepted
+and replayed after waiting; pointer movement cancels stale cell help.
+
+HoverDelay now covers rich setting popups, Preferences HintBar, Home module
+hints, dock descriptions, per-object cell help, test-data descriptions and
+availability panels. Pending work cancels on leave, target destruction, hide,
+window close and preference changes. Late Leave events from an earlier target
+cannot cancel the current target. QObject slot/lifetime guards cover teardown.
+The root integration supplies the same helper for AppScreen setting/category
+strips. Explicit animation-help clicks, keyboard availability help and the GPU
+availability action retain immediate display through an explicit parameter.
+
+Validation: final native/rich/availability/policy/animation cohort 108 passed
+in 76.30 s; affected HintBar/test-data/object-grid cohort 33 passed (69 outside
+its named selection). Actual unmocked event-loop tests verify both native and
+rich help stays hidden before 3.75 s and appears after the 4 s setting; shorter
+and zero delay, switch-off, changing settings, dynamic targets, leaving and
+re-entering, destruction, delegate replay, repeated availability-row mouse
+movement and late neighbouring Leave events also pass. Content/geometry tests
+explicitly request immediate presentation rather than bypassing runtime hover
+rules. No native-platform GUI timing claim beyond these Linux offscreen runs.
+
+Preferences explanation now refers to the chosen Tooltip delay instead of
+claiming two seconds. API/catalog freshness and tutorial updates remain in the
+root documentation lane (615); the original exclusion of help boxes/strips
+above is superseded by this implementation.
+
+Root integration verified: AppScreen setting and category strips now schedule
+through HoverDelay and cancel on leave. Both real-screen timer tests pass;
+41 existing help-content/hold/layout checks pass after explicitly exercising
+the post-delay presentation seam. Shared native/rich four-second tests above
+verify the reported long delay. Implementation complete on nightly.

@@ -168,7 +168,7 @@ def test_custom_api_popup_prevents_delayed_native_duplicate(
     if native_request_first:
         request(label)
         assert native_policy._show_timer.isActive()
-    popup.show_for(label, html, animation=None)
+    popup.show_for(label, html, animation=None, immediate=True)
     assert popup.isVisible()
     assert popup._api_url and popup._label.text()
     request(label)

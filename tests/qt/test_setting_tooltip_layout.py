@@ -87,7 +87,7 @@ def _reveal(tooltip, anchor, html: str = HTML):
     the measured layout is what the click actually produces, not what the
     widget could produce if something else had switched it on.
     """
-    tooltip.show_for(anchor, html)
+    tooltip.show_for(anchor, html, immediate=True)
     assert not tooltip.animation_view().isVisible(), (
         "the animation was already showing; the reveal proves nothing")
     tooltip.animation_link().clicked.emit()
@@ -202,7 +202,7 @@ def test_the_first_hover_of_a_session_measures_its_prose_in_the_right_font(
     _reveal(tooltip, anchor)
     first = (tooltip.text_column().width(), tooltip.text_label().height())
 
-    tooltip.show_for(anchor, HTML)
+    tooltip.show_for(anchor, HTML, immediate=True)
     assert (tooltip.text_column().width(),
             tooltip.text_label().height()) == first, (
         f"the first hover laid out at {first} and the second at "
@@ -214,7 +214,7 @@ def test_the_first_hover_of_a_session_measures_its_prose_in_the_right_font(
 
 def test_a_plain_hover_leaves_the_animation_out(tooltip, qtbot):
     """The default, and the whole point of the change."""
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot), HTML, immediate=True)
 
     view = tooltip.animation_view()
     assert tooltip.animation() is None
@@ -248,15 +248,15 @@ def test_the_preference_is_read_on_every_hover(tooltip, qtbot):
     which is exactly the complaint the preference exists to answer.
     """
     anchor = _anchor(qtbot)
-    tooltip.show_for(anchor, HTML)
+    tooltip.show_for(anchor, HTML, immediate=True)
     assert tooltip.animation() is None
 
     prefs.set_setting_animations_enabled(True)
-    tooltip.show_for(anchor, HTML)
+    tooltip.show_for(anchor, HTML, immediate=True)
     assert tooltip.animation() is not None
 
     prefs.set_setting_animations_enabled(False)
-    tooltip.show_for(anchor, HTML)
+    tooltip.show_for(anchor, HTML, immediate=True)
     assert tooltip.animation() is None
 
 
@@ -273,16 +273,16 @@ def test_a_press_reaches_one_setting_and_the_preference_reaches_the_rest(
     assert tooltip.animations_shown() is True
 
     other = _anchor(qtbot, "cell_cellprob_threshold")
-    tooltip.show_for(other, HTML)
+    tooltip.show_for(other, HTML, immediate=True)
     assert tooltip.animations_shown() is False, "the press leaked sideways"
 
     prefs.set_setting_animations_enabled(True)
-    tooltip.show_for(other, HTML)
+    tooltip.show_for(other, HTML, immediate=True)
     assert tooltip.animation() is not None
     assert tooltip.animation_view().isVisible()
 
     prefs.set_setting_animations_enabled(False)
-    tooltip.show_for(other, HTML)
+    tooltip.show_for(other, HTML, immediate=True)
     assert tooltip.animation() is None
     assert not tooltip.animation_view().isVisible()
 
@@ -397,7 +397,7 @@ def test_re_hovering_the_same_setting_does_not_restart_the_animation(
     frames = view.frame_count()
     assert frames > 1
 
-    tooltip.show_for(anchor, HTML)
+    tooltip.show_for(anchor, HTML, immediate=True)
     assert view.slug() == first
     assert view.frame_count() == frames
 
@@ -408,7 +408,7 @@ def test_re_hovering_the_same_setting_does_not_restart_the_animation(
 
 def test_a_tooltip_without_a_setting_key_is_text_only(tooltip, qtbot):
     """Section headers and tiles share this popup and have no animation."""
-    tooltip.show_for(_anchor(qtbot, key=""), "<b>Some section</b>")
+    tooltip.show_for(_anchor(qtbot, key=""), "<b>Some section</b>", immediate=True)
 
     assert tooltip.animation() is None
     assert not tooltip.animation_view().isVisible()
@@ -421,7 +421,7 @@ def test_a_setting_with_no_packaged_animation_is_text_only(tooltip, qtbot):
     key = "src"
     assert animation_for_setting(key) is None, (
         f"{key} gained an animation; pick another unmapped key")
-    tooltip.show_for(_anchor(qtbot, key=key), HTML)
+    tooltip.show_for(_anchor(qtbot, key=key), HTML, immediate=True)
     assert tooltip.animation() is None
     assert not tooltip.animation_view().isVisible()
 
@@ -450,7 +450,7 @@ def test_a_real_decorated_settings_form_gets_the_animation(tooltip, qtbot):
 
     assert label.property("settingKey") == ANIMATED_KEY
     html = str(label.property("apiTooltipHtml"))
-    tooltip.show_for(label, html)
+    tooltip.show_for(label, html, immediate=True)
     # The animation is known but not shown, so the word is there to click.
     assert tooltip.animation() is None
     assert tooltip.offered_animation() is not None
@@ -464,20 +464,20 @@ def test_a_real_decorated_settings_form_gets_the_animation(tooltip, qtbot):
 
 def test_an_explicit_animation_argument_wins_over_the_anchor(tooltip, qtbot):
     """Callers keep the option of saying which animation, or none."""
-    tooltip.show_for(_anchor(qtbot), HTML, None)
+    tooltip.show_for(_anchor(qtbot), HTML, None, immediate=True)
     assert tooltip.animation() is None
     assert not tooltip.animation_view().isVisible()
 
 
 def test_the_two_argument_call_still_works(tooltip, qtbot):
     """Both existing call sites pass exactly ``(anchor, html)``."""
-    tooltip.show_for(_anchor(qtbot, key=""), "<b>Plain</b>")
+    tooltip.show_for(_anchor(qtbot, key=""), "<b>Plain</b>", immediate=True)
     assert tooltip.isVisible()
     assert tooltip.text_label().text() == "<b>Plain</b>"
 
 
 def test_an_empty_body_shows_nothing(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot), "")
+    tooltip.show_for(_anchor(qtbot), "", immediate=True)
     assert not tooltip.isVisible()
 
 
@@ -493,7 +493,7 @@ def test_a_dead_anchor_does_not_take_the_event_loop_down(tooltip, qtbot):
     import shiboken6
 
     anchor = _anchor(qtbot)
-    tooltip.show_for(anchor, HTML)
+    tooltip.show_for(anchor, HTML, immediate=True)
     assert tooltip.isVisible()
 
     # `deleteLater()` + `del` did NOT reproduce the bug: the deferred delete

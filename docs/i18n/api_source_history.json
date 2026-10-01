@@ -1,6 +1,15 @@
 {
   "schema": 1,
   "sources": {
+    "0160f33de7865734cff9145e0ea471aabb1a895595ac3be2a034f359ee3b0d3d": {
+      "source_blocks_sha256": [
+        "961e61fb1b1e2a182bb72b3f7a6ca2219a883c6598e962a52a834ab73b584e86",
+        "d7fa144a6cd7dfb7588bc2bee4d63e0af8fa147b69862ee2dc4139efe056a831",
+        "0977194cb24229afdd2b33cd834c5f4974541c8bc07e11858abf6a119366d1a9"
+      ],
+      "source_sha256": "0160f33de7865734cff9145e0ea471aabb1a895595ac3be2a034f359ee3b0d3d",
+      "text": "Show/hide the hover tooltip and update the hint strip on Enter/Leave.\n\n:param obj: the watched widget; its ``settingsCategory`` or\n    ``settingKey`` property decides whether a category blurb or a\n    setting's help is shown.\n:param event: the filtered event; a ``ToolTip`` on a widget with\n    hover help is swallowed, ``Enter`` shows the help and ``Leave``\n    hides it, and every event is otherwise passed to the base class."
+    },
     "0f5c68a8f3d1fc9e9b73b30158b5690065c52d2be0614ba4deb40ae436b17580": {
       "source_blocks_sha256": [
         "5030e42d22b328fd76334c053eb8ad1a8f846b7431a7d0bfaeb8af8125937851",
@@ -25,6 +34,24 @@
       ],
       "source_sha256": "0f5c68a8f3d1fc9e9b73b30158b5690065c52d2be0614ba4deb40ae436b17580",
       "text": "Plot image and mask overlays.\n\nLoads the merged ``.npy`` stack, draws one panel per requested channel\nwith the object masks applied as contours or filled labels, and closes\nwith a panel showing every object combined.\n\n:param file: Path to the merged ``.npy`` stack for one field of view.\n:param channels: Indices of the image channels to draw, one panel each.\n:param cell_channel: Intensity channel the cell mask belongs to, or\n    ``None`` when there is no cell mask.\n:param nucleus_channel: Intensity channel the nucleus mask belongs to,\n    or ``None``.\n:param pathogen_channel: Intensity channel the pathogen mask belongs to,\n    or ``None``.\n:param organelle_channel: Intensity channel the organelle mask belongs\n    to, or ``None``. Default ``None``.\n:param figuresize: Figure height in inches; the figure is drawn four\n    times as wide. Default ``10``.\n:param percentiles: Two-element percentile pair used to normalise each\n    channel. Default ``(2, 98)``.\n:param thickness: Contour line width in pixels. Default ``3``.\n:param save_pdf: If True, save the figure into ``results/overlay/``\n    two directories above ``file``, in the configured figure format\n    rather than always as PDF. Default ``True``.\n:param mode: ``'outlines'`` draws mask contours; any other value\n    overlays filled, randomly coloured labels. Default ``'outlines'``.\n:param export_tiffs: If True, also write every stack plane as a\n    grayscale TIFF into ``results/<stem>/tiff/`` alongside it. Default\n    ``False``.\n:param all_on_all: If True, draw every mask on every channel. Default\n    ``False``.\n:param all_outlines: If True, draw every mask on the channels that own\n    no mask themselves. Default ``False``.\n:param filter_dict: Optional per-object limits keyed by ``'cell'``,\n    ``'nucleus'``, ``'pathogen'`` or ``'organelle'``, each holding\n    ``((min_area, max_area), (min_intensity, max_intensity))``; objects\n    outside the limits are dropped before plotting.\n:param outline_palette: which outline colours to draw, a key of\n    :data:`OUTLINE_PALETTES`. ``'default'`` is what spaCR has always\n    drawn; ``'colourblind'`` is legible under red-green and blue-yellow\n    deficiency, where the default's worst pair scores 27 out of 255 --\n    cell is drawn red and pathogen green, the one pair the commonest\n    deficiency removes. Default ``'default'``, because changing every\n    figure a user has already made would be worse than the defect.\n:returns: The generated matplotlib ``Figure``."
+    },
+    "0f9a610811ebe1868e56031c2260f0233c40b688c22733bdf7d8b71da5ed516d": {
+      "source_blocks_sha256": [
+        "5802a5d8275282f0f72141bf1462df06a34d7b4f8269613b8f1ea2f34a83df9d",
+        "b100953b648dee0da13118c718b50f3bbc6ec1848db3f4e790e8936ffa541e2d",
+        "18e88c1de632fb65b473bfc7400fad34a4ec90391d438e4706e8845d7725da7d",
+        "7ad8256125910d7c6e53f73988b70e80fc3d3bf0ce1fcc171194312a2b7da1c6",
+        "9a7a051375217ca9fe0ae5acab2dcd6b132a8f9f2b52abee0aa101d0a1485e67",
+        "777cec7724e961ebd556bc885987088c4853a206dd3f0bc9d57635416f42ba26",
+        "f2e07f4c4f4a7b317bdd09396ec936f51f62be2a1767fa5e83d3227345627dc0",
+        "1f3de1f7408fc69b5b0d3e50c09aac04245ac1c893084fed33fe47ef75c13e51",
+        "83775803759b01bce2a4dc2c359fd85e093d19fd13059ecc9af3b89677167e09",
+        "5029e886f6d4dae46bbdcd276073bdb493c1c6438bd6e9ddc6efdae4753529f7",
+        "d817afd7af7b2b1deda426695a25f7fce5a937cc99f330485cd202de72c28739",
+        "c5d1b4df1d2e90149574a5a81b450c98d9605bab862161e8ed5fd0a340eebc8e"
+      ],
+      "source_sha256": "0f9a610811ebe1868e56031c2260f0233c40b688c22733bdf7d8b71da5ed516d",
+      "text": "V2 — Gate Editor: draw a region, name it, and it becomes a filter.\n\nThe flow-cytometry gesture, on spaCR measurement tables. Drag a threshold\nacross a histogram or a polygon round the cloud on a two-parameter scatter, name\nit, and the shape becomes a :class:`spacr.selection.DataFilter` clause that\nevery open view honours — the UMAP, the plate map, the crop grid, the Graph\nBuilder, Small Multiples.\n\n**What it is for.** Selecting a population by its measurements once Measure\nhas run: the cells above an intensity threshold, or one cluster in a\ntwo-feature scatter. Gates can sit inside other gates, and each shows its\nobject count and its percentage of both its parent gate and the whole table.\n\n**What it needs.** A measurement table: one table of a ``measurements.db``,\nwhere the object tables are offered first, or a CSV or TSV file. Several\ndatabases can be loaded as one table; plate identifiers that collide between\nthem are reported rather than silently pooled. Database tables are read as a\nsample set by ``sample_fraction`` and capped by ``max_points``, both in the\nGate Editor settings.\n\n**What it produces.** Threshold, rectangle, oval, polygon and wand gates on\none or two measurements, box, cylinder and prism gates in the 3D view, and\ncombinations of other gates. Publishing a gate narrows every linked view to\nthat population. The gating strategy saves to and loads from a JSON file\n(``gates.json`` by default) so that the next plate is gated the same way;\nExport writes each gate as a column of the ``filters`` table in the\nmeasurements database, and the graph saves as PNG or PDF.\n\n**What to do next.** Look at the gated population in the views that follow\nthe shared filter, such as Image UMAP, Graph Builder and the crop grid, and\nload the saved gating strategy on the next plate.\n\nAssembles:\n\n* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate\n  tools and the hierarchy with its percentages;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data\n  Filter, which the gate composes *onto* rather than replacing;\n* :class:`spacr.qt.widgets.formula_editor.FormulaPanel` — so a gate can be\n  drawn on a computed column;\n* Save / Load, because a gating strategy is the reusable part: the whole point\n  of a gate over a lasso is that it re-applies to the next plate.\n\n:func:`register` is not called at import; read its docstring."
     },
     "1f44b0e90c2bd134cec8fec26412255e5daad816fe165973eec3341bcc13cc7f": {
       "source_blocks_sha256": [
@@ -111,6 +138,30 @@
       "source_sha256": "6b10b5ea09d10e40ef81fea558a8e260ee683414c33bf623550966487d46128f",
       "text": "Check a run's settings against its preregistered analysis lock.\n\nThe lock is the newest one :func:`lock_analysis` made for ``app_key``\non the settings' ``src``, unless one is passed. The lock is first\nchecked against its own hash, so an edited lock file is caught; then\nevery setting and every hashed file is compared.\n\n:param settings: the settings of the run being checked.\n:param app_key: the pipeline running them.\n:param lock: a lock record to check against instead of the newest one.\n:returns: ``status`` -- ``\"unlocked\"`` (no lock applies),\n    ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, and no\n    key on the folder has been unblinded since the lock),\n    ``\"post_hoc\"`` (changed, and a key on the folder was unblinded\n    after the lock), ``\"not_preregistered\"`` (unchanged, but the lock\n    was made after an unblinding) or ``\"tampered\"`` (the lock no\n    longer matches its hash) -- with ``lock_id``, ``sha256``,\n    ``locked_utc``, ``locked_by``, ``deviations`` (``key``, ``locked``,\n    ``now``), ``unblinded_utc`` and a one-sentence ``summary``."
     },
+    "6c86973ad901a5dc365fdbcba22ce5f97bc5bcf2af41acb9a191c7f233eff514": {
+      "source_blocks_sha256": [
+        "6c86973ad901a5dc365fdbcba22ce5f97bc5bcf2af41acb9a191c7f233eff514"
+      ],
+      "source_sha256": "6c86973ad901a5dc365fdbcba22ce5f97bc5bcf2af41acb9a191c7f233eff514",
+      "text": "Rewrite the tooltip in ``language``."
+    },
+    "90f99a96fd4b9a39a7be00008e08899eec9d0527a814d19a1a66af09d8bd814f": {
+      "source_blocks_sha256": [
+        "50846868223931deb5b33352a7424a53f20dc3ef3af8fd41c950b05edbc12980",
+        "8bf304cdba591c363bc177f9ad24be9e89dde789abb65525322c42dd29e88620",
+        "bd33dc4428a43118653d5839d0c5b8aa431b8626cf495b2e8e0090cc420433d8",
+        "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
+        "58885444c5041d11f4db3d30697030ab9510bcbc12246b05593ab29c6f9e372b",
+        "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
+        "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+        "3a6684acc216fc722fce4a8dbaca2669c9e3215b99b2928bfe1bf88902336342",
+        "1fb2849ed26e00028887d9edfd4a71b8965f154677187d9305111e2b83c1bf3f",
+        "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
+        "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae"
+      ],
+      "source_sha256": "90f99a96fd4b9a39a7be00008e08899eec9d0527a814d19a1a66af09d8bd814f",
+      "text": "The Graph Builder screen — a table, a filter, and a chart you drag together.\n\nAssembles three things that already exist into one surface:\n\n* :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the drop zones\n  and the canvas;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data\n  Filter, unchanged, because a filter that narrows *every* view is worth more\n  than a private one that narrows this chart;\n* :mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells\n  in the UMAP and on the plate map, and a lasso there highlights them here.\n\n**What it is for.** Exploring a measurement table without plotting code,\nusually after Measure or Classify: drag columns onto the chart and it\nredraws as each one lands.\n\n**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file,\nchosen with Load table. The object tables and ``png_list`` are offered first;\nevery other table in the database stays available.\n\n**What it produces.** A chart with six drop zones: x, y, colour, size, facet\nrow and facet column. Only x and y decide the chart type -- one continuous\ncolumn gives a histogram, one categorical column a bar chart of counts, two\ncontinuous columns a scatter plot, one of each a box plot and two categorical\ncolumns a heatmap of counts -- and violin and line plots are explicit choices.\nA brushed rectangle becomes the shared selection, highlighted in the UMAP and\non the plate map.\n\n**What to do next.** Press Open selection in Annotate to see the brushed\nobjects as image crops, narrow every view with the Local Data Filter beside\nthe chart, or move to Gate Editor when a population should become a named\ngate that can be saved and re-applied.\n\nThe screen goes into the app registry through\n:func:`spacr.qt.app.register_app` rather than through a row in the table\ninside ``app.py``, and its styling goes through\n:func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen\nbuilt in parallel with five others is a new file rather than a merge conflict\nin two thousand-line ones.\n\n:func:`register` is **not** called at import — read its docstring for why, and\nfor the one line plus four side-table entries that finish the wiring. The\nscreen itself is complete: build it with :func:`make_graph_builder_screen`,\nhand it a frame, and everything below works."
+    },
     "b971f240dda7e74813cc4e911ecf25af1a75c5a29ad931025da4f547cd109891": {
       "source_blocks_sha256": [
         "be380ada8c3205fd1f2ec92a57b0fe58c25e0be581f6b84ab87cd630731d4eda",
@@ -125,6 +176,28 @@
       ],
       "source_sha256": "b971f240dda7e74813cc4e911ecf25af1a75c5a29ad931025da4f547cd109891",
       "text": "Run journal — reproducibility record for every pipeline invocation.\n\nEvery time a spaCR pipeline runs (mask / measure / classify / …),\n:func:`open_run` writes a timestamped folder under ``~/.spacr/runs/``\ncontaining everything a reviewer needs to reproduce the result:\n\n::\n\n    ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask/\n        settings.csv          # exact settings dict, Key,Value CSV\n        settings.json         # same, JSON (source of truth for machines)\n        manifest.json         # spaCR version, git hash, python, packages,\n                              # torch / cuda / cellpose, start time,\n                              # end time, elapsed, exit status, model hashes\n        log.txt               # tail of ~/.spacr/logs/spacr.log for the run\n        outputs/              # optional — any pipeline-emitted artifacts\n                              # (masks, DBs, CSVs, plots) copied in\n\nPublic API::\n\n    from spacr.run_journal import open_run\n\n    with open_run(\"mask\", settings) as run:\n        preprocess_generate_masks(settings)\n        run.attach_output(Path(\"/path/to/mask.tif\"))\n        run.set_status(\"success\")\n\nThe context manager records start / end timestamps and yields the\n:class:`Run` object, whose ``dir`` attribute is the run folder. When\nsomething raises it stamps ``\"status\": \"failed\"`` (plus the traceback)\ninto ``manifest.json`` and re-raises; no marker file is written.\n\nConsumers of the journal:\n\n* ``spacr repro <run-folder>`` — replays the run (see\n  :mod:`spacr.cli_repro`).\n* AI Console → \"File as issue\" — includes the last run's manifest\n  when present so bug reports are self-contained.\n* Home screen \"Recent runs\" list — enumerated from\n  :func:`recent_runs` newest first.\n\nBeside the runs, the journal keeps two records for blinded work.\n:func:`start_blinding` writes a blinding key (coded names and a shuffled\norder) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and\nwhen. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped,\nin ``~/.spacr/analysis_locks``; every later run of the same pipeline on the\nsame ``src`` is checked against it by :func:`check_analysis_lock`, and the\nverdict is written into that run's ``manifest.json`` under\n``analysis_lock``, with any difference also listed in\n``provenance_warnings``."
+    },
+    "c12aaaedc895120fbcf2081560a0a84e0b4b7d8a0863e4e3dbbad5d868fe869c": {
+      "source_blocks_sha256": [
+        "32b298b556985a0a14eea521d7418fe715eb2db48aaab03b6bbcab954b07db8a",
+        "09e1f8ce228ecb76b41d7e4410eaac064e9cf804369c79eb05474ad2d2a1eac5",
+        "07a651cb1a40b9f016a13774576d0019b05524459f21ed4f2ec81481a099d7de",
+        "2037da97ec06f20b1a67e733783836b95b7110e3685ddaf05ed7bc53e98656db",
+        "40627c939281497697ca53edcc9aa91ed264e66c78673c8c95155edd97565b01",
+        "1abf97ffedd00b28209ee75647c30c20e6edeb619021d67431c9a8c885912e82"
+      ],
+      "source_sha256": "c12aaaedc895120fbcf2081560a0a84e0b4b7d8a0863e4e3dbbad5d868fe869c",
+      "text": "Show the panel for ``entries[index]``, docked under ``anchor``.\n\n:param anchor: the widget the panel belongs to. Used for placement\n    and as one half of the corridor the pointer may cross.\n:param entries: mappings as\n    :func:`spacr.regression_backends.availability_entry` returns --\n    ``{title, reason, url, offer}``. More than one makes the panel\n    cyclable with Up/Down when it is pinned.\n:param index: which of them to show.\n:param anchor_rect: the anchor's rectangle in GLOBAL coordinates,\n    when the thing being explained is smaller than the widget -- a\n    single row of an open combo popup, for instance.\n:param pinned: opened by keyboard. See :meth:`open_for`."
+    },
+    "cb7194d98f31775abb8b7de087a88fff3ea2a3f455c2416e367afd9413be1f1b": {
+      "source_blocks_sha256": [
+        "d050d3076e2509b8857325f76d1fc0e992713d8898319ce84b6a09faac10b8c0",
+        "54d12ff847789fc6590014a768e990de89771c1dff8629c2f152c57c347e9e76",
+        "125d9cc5f257ac8d9969621dcfa0f34f7862c21a605d2557f63b201666afa559",
+        "fd364149ec10c5b8968437f882d2394543fbe82fa595ca6ba133e6cd5438a24d"
+      ],
+      "source_sha256": "cb7194d98f31775abb8b7de087a88fff3ea2a3f455c2416e367afd9413be1f1b",
+      "text": "Show the tooltip beneath ``anchor`` with body ``html``.\n\n:param anchor: widget the popup docks to (clamped to its screen).\n:param html: rich-text body; empty strings are ignored. A trailing\n    documentation link is moved out of the prose and into the **API**\n    word at the foot of the popup.\n:param animation: a :class:`spacr.setting_animations.SettingAnimation`\n    to play beside the text, or ``None`` for text only. Left out, it\n    is derived from the anchor's ``settingKey`` property — every\n    caller that attaches setting help already sets that, so none of\n    them had to change."
     },
     "d3df3dd95e9aefb462e69d0131621679f793edc8c59e5d4a6854dc87b56c7787": {
       "source_blocks_sha256": [
@@ -157,6 +230,16 @@
       ],
       "source_sha256": "dff35ca64af93eb70488dcdcadf52b0f3b095d107b3e1174a0922c875c1b4fe6",
       "text": "Train the time head, then the whole network, on track-labelled pairs.\n\nA two-stage curriculum: the backbone's segmentation is already\npaid for, so it is frozen while the new head learns, then everything is\ntrained at a low learning rate. Every pair is augmented identically on\nboth frames before its targets are computed.\n\nA training crop keeps supervision only for complete source masks and,\nwhen present in the full target frame, complete successor masks. A\nsuccessor outside the tile is not a disappearance. Absences in the\nsupplied full-frame labels remain supervised; this does not validate\nthose annotations. Unusable crops are retried up to 32 times per step.\nCensoring prevents incorrect targets at crop boundaries but removes some\nfast-motion examples; it does not establish full-motion accuracy.\n\n:param net: from :func:`TimeflowsNet`.\n:param pairs: the training pairs.\n:param head_steps: steps with the backbone frozen.\n:param full_steps: steps with everything trainable.\n:param lr_head: learning rate for the head stage.\n:param lr_full: learning rate for the full stage.\n:param weights: sampling weight per pair (:func:`pair_sampling_weights`);\n    uniform when None.\n:param seed: the random seed.\n:param device: ``'cpu'`` or ``'cuda'``.\n:param log: ``fn(line)`` for progress.\n:param validation_pairs: optional held-out full-frame pairs. Exact input\n    overlap with training is rejected before any optimizer update.\n:param validation_every: updates between held-out checks; defaults to one\n    epoch of ``len(pairs)`` sampled updates. Initial and stage-end checks\n    are always included. Must be positive when supplied.\n:param on_validation: callback receiving each stratified validation report,\n    including the stage, update count and current training loss. Optional\n    validation never changes the returned loss-list contract.\n:returns: the loss at every step.\n:raises ValueError: no usable supervision remains after 32 sampled crops\n    for a step; inspect the full masks and motion relative to the tile."
+    },
+    "e8a31d4f086e64823eaeaac10ec92b0350a0f76855c99952d09909c6ac8ef21c": {
+      "source_blocks_sha256": [
+        "d5c404d42ca86179e7b2f0916d69335a8786bb9a140dd7730850eaa9d389a4e3",
+        "1b76e2a883fdf43d72adfc16ef670e0e6250ef4cdd1421bec60f8f6af83515f1",
+        "b9db4dfb717c5640268bbdae86a724f0edf6e8591352cfaba8fcebe14230b40b",
+        "4428cd346435e56b7b911f51f7767ad89a060bd4a69cac3a2dbfbb013018908e"
+      ],
+      "source_sha256": "e8a31d4f086e64823eaeaac10ec92b0350a0f76855c99952d09909c6ac8ef21c",
+      "text": "Cut the window itself to the card's rounded shape. True if applied.\n\nTRANSLUCENCY IS NOT ENOUGH, AND THAT IS THE WHOLE POINT OF THIS.\n`WA_TranslucentBackground` asks the window manager to composite the\ncorner pixels away; a mask REMOVES them from the window's shape, so\nthe corners are gone whether or not anything is compositing, and\nwhether or not the surface came back with an alpha channel after its\nflags were rewritten. It is the one way to be sure no square is left\nround a rounded card, which is what kept coming back.\n\nThe mask is rebuilt on every resize -- see :class:`_Backdrop` -- and\nit follows the same radius the card paints, so the cut edge sits\nunder the rim rather than beside it.\n\n:param dialog: the widget whose window mask is cut to a rounded rectangle\n    of its current size; an empty size returns ``False``."
     }
   }
 }

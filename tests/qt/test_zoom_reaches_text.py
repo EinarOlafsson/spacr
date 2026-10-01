@@ -214,7 +214,7 @@ def test_zoom_reaches_the_hover_tooltip(qtbot, app_theme_restored):
     def measure(scale):
         _at(scale)
         tip = HoverTooltip.instance()
-        tip.show_for(anchor, "A description that wraps a little.", None)
+        tip.show_for(anchor, "A description that wraps a little.", None, immediate=True)
         QApplication.processEvents()
         labels = [lab for lab in tip.findChildren(QLabel)
                   if lab.text().strip()]

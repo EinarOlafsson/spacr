@@ -7354,15 +7354,16 @@ class _RegressionBackendField(QWidget):
             position = event.pos()
         index = view.indexAt(position)
         if not index.isValid():
+            AvailabilityPanel.instance().start_hide()
             return
         statuses = self.availability_entries()
         if index.row() >= len(statuses):
+            AvailabilityPanel.instance().start_hide()
             return
         entry = statuses[index.row()]
         if entry['enabled']:
             panel = AvailabilityPanel.instance()
-            if panel.isVisible():
-                panel.start_hide()
+            panel.start_hide()
             return
         rect = view.visualRect(index)
         top_left = view.viewport().mapToGlobal(rect.topLeft())

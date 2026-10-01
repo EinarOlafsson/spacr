@@ -42,7 +42,7 @@ class TestItSurvivesBeingRead:
         anchor = QLabel("setting")
         qtbot.addWidget(anchor)
         anchor.show()
-        tooltip.show_for(anchor, "<b>help</b>")
+        tooltip.show_for(anchor, "<b>help</b>", immediate=True)
         QCursor.setPos(tooltip.geometry().center())
 
         assert tooltip._pointer_is_on_me()
@@ -57,7 +57,7 @@ class TestItSurvivesBeingRead:
         anchor = QLabel("setting")
         qtbot.addWidget(anchor)
         anchor.show()
-        tooltip.show_for(anchor, "<b>help</b>")
+        tooltip.show_for(anchor, "<b>help</b>", immediate=True)
         QCursor.setPos(tooltip.geometry().center())
 
         # `underMouse()` is not consulted at all any more -- it was found to
@@ -77,7 +77,7 @@ class TestItSurvivesBeingRead:
         anchor = QLabel("setting")
         qtbot.addWidget(anchor)
         anchor.show()
-        tooltip.show_for(anchor, "<b>help</b>")
+        tooltip.show_for(anchor, "<b>help</b>", immediate=True)
         box = tooltip.geometry()
         # A POINT THE PLATFORM WILL ACTUALLY ACCEPT. `setPos` is clamped to
         # the virtual desktop, so asking for one 500 px past the corner can
@@ -215,7 +215,7 @@ class TestTheJourneyFromTheTitleToTheBox:
         # hide-timer ordering once it IS up -- hide first and ask afterwards
         # passes every geometry assertion while taking the box away mid-read
         # -- and that logic is unchanged.
-        tip.show_for(titles[0], "<b>Setting</b><br>Its description.")
+        tip.show_for(titles[0], "<b>Setting</b><br>Its description.", immediate=True)
         QApplication.processEvents()
         return titles[0], tip
 

@@ -316,8 +316,15 @@ class Dock(QWidget):
         pointer.
         """
         self._light_only(key if entered else None)
-        if entered:
-            self.module_hovered.emit(key)
+        from ..tooltip_policy import HoverDelay
+        if not hasattr(self, "_hover_help_delay"):
+            self._hover_help_delay = HoverDelay(self)
+        row = next((row for row in self._rows if row.key == key), None)
+        if entered and row is not None:
+            self._hover_help_delay.schedule(
+                row, lambda: self.module_hovered.emit(key))
+        elif row is not None:
+            self._hover_help_delay.cancel_for(row)
 
     def _light_only(self, key) -> None:
         """Ink the row named by ``key`` and no other. ``None`` clears all.
