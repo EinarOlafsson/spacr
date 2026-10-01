@@ -2586,6 +2586,81 @@ def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
     return (popen or subprocess.Popen)([str(a) for a in argv], **options).pid
 
 
+
+def _macos_online_update_record(records, *, system=None, strict=False):
+    # Recognize a damaged bootstrap too: it must fail without entering cleanup.
+    machine = system or _Machine()
+    if machine.platform != "macos" or getattr(sys, "frozen", False):
+        return None
+    candidates = [record for record in records if record.kind == "installer"
+                  and record.running and record.platform == "macos"
+                  and record.layout in {"macos-runtime", "macos-online"}]
+    if strict and len(candidates) != 1:
+        raise ValueError("the running macOS online environment is ambiguous or unavailable")
+    return candidates[0] if candidates else None
+
+
+def _macos_online_version(value):
+    import re
+
+    if not re.fullmatch(r"[0-9]+(?:\.[0-9]+){2,3}", str(value)):
+        raise ValueError("unsupported macOS online update version")
+    parts = tuple(int(part) for part in str(value).split("."))
+    return parts + (0,) * (4 - len(parts))
+
+
+def _macos_online_commands(record, version, workdir):
+    _macos_online_version(version)
+    python = os.path.join(record.root, "venv", "bin", "python")
+    uv = os.path.join(record.root, "bootstrap", "uv")
+    if record.python is None or os.path.abspath(record.python) != os.path.abspath(python):
+        raise ValueError("the running macOS environment does not match its private Python")
+    for path in (uv, python):
+        if not os.path.isfile(path) or not os.access(path, os.X_OK):
+            raise ValueError(f"the existing macOS update executable is unavailable: {path}")
+    if _inside(os.path.realpath(workdir), os.path.realpath(record.root)):
+        raise ValueError("the updater folder must be outside the installed environment")
+    install = [uv, "pip", "install", "--upgrade", "--python", python, "spacr"]
+    probe = [python, "-I", "-c",
+             "from importlib.metadata import version; print(version('spacr'))"]
+    relaunch = [python, "-m", "spacr.qt"]
+    return install, probe, relaunch
+
+
+def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
+    records = [_record_from_json(data) for data in plan["records"]]
+    record = _macos_online_update_record(records, system=machine, strict=True)
+    if record is None or plan.get("frozen_application"):
+        raise ValueError("this update requires a running non-frozen macOS online environment")
+    install, probe, relaunch = _macos_online_commands(record, plan["version"], plan["workdir"])
+    if plan.get("fetch") is not None or plan.get("install") != install or plan.get("relaunch") != relaunch:
+        raise ValueError("the macOS online update commands differ from the approved environment")
+    handshake = _FrozenUpdateHandshake(plan)
+    handshake.ready()
+    handshake.wait_for_shutdown(wait)
+    # Recheck the actual paths after shutdown; never substitute PATH's uv/Python.
+    _macos_online_commands(record, plan["version"], plan["workdir"])
+    runner = run or _run
+    code, output = runner(install)
+    if code:
+        raise RuntimeError(f"The package upgrade failed with exit code {code}: {output}")
+    code, observed = runner(probe)
+    try:
+        observed_version = _macos_online_version(observed.strip())
+        offered_version = _macos_online_version(plan["version"])
+        previous_version = _macos_online_version(record.version) if record.version else None
+        verified = (code == 0 and observed_version >= offered_version
+                    and (previous_version is None or observed_version > previous_version))
+    except ValueError:
+        verified = False
+    if not verified:
+        raise RuntimeError(
+            f"The package command completed, but spaCR {plan['version']} could not be verified "
+            f"in the existing environment: {observed.strip()}. No relaunch was requested.")
+    (spawn or _spawn_detached)(relaunch, None, plan["workdir"])
+    return observed.strip(), output
+
+
 def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                         ticked: Iterable[str] = (), pid: Optional[int] = None,
                         workdir: Optional[str] = None, system=None,
@@ -2620,7 +2695,7 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     running = next((r for r in records if r.kind == "installer" and r.running), None)
     environment = None
     workdir = workdir or tempfile.mkdtemp(prefix="spacr-update-")
-    os.makedirs(workdir, exist_ok=True)
+    os.makedirs(workdir, mode=0o700, exist_ok=True)
     module = os.path.join(workdir, "install_cleanup.py")
     plan_path = os.path.join(workdir, "plan.json")
     plan: Dict = {
@@ -2638,6 +2713,21 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     }
     if running is None:
         plan["error"] = "the running spaCR is not an installer-made copy"
+    elif _macos_online_update_record(records, system=machine) is not None:
+        plan["adapter"] = "macos-online-uv-v1"
+        plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
+        plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
+                             "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
+        try:
+            running = _macos_online_update_record(records, system=machine, strict=True)
+            plan["install"], _probe, plan["relaunch"] = _macos_online_commands(
+                running, str(version), workdir)
+            _FrozenUpdateHandshake(plan)
+            with open(__file__, "rb") as source, open(module, "wb") as copy:
+                copy.write(source.read())
+            plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
+        except (OSError, ValueError) as error:
+            plan["error"] = f"could not prepare the macOS environment update: {error}. Nothing was removed."
     elif (plan["frozen_application"] and running.layout == "macos-app"
           and running.root.endswith(".app") and machine.platform == "macos"):
         plan["adapter"] = "macos-frozen-v1"
@@ -2834,6 +2924,18 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return code
 
     planned_records = [_record_from_json(data) for data in plan["records"]]
+    if plan.get("adapter") == "macos-online-uv-v1":
+        try:
+            observed, output = _run_macos_online_update(plan, machine, wait=wait, run=run, spawn=spawn)
+        except Exception as error:
+            lines.append(f"macOS environment update stopped: {error}")
+            try:
+                _FrozenUpdateHandshake(plan).failed(error)
+            except Exception:
+                lines.append("The update error could not be published to the readiness channel.")
+            return _finish(6)
+        lines.extend([output, f"Verified spaCR {observed} in the existing environment; relaunch requested."])
+        return _finish(0)
     if plan.get("adapter") == "macos-frozen-v1":
         try:
             if machine.platform != "macos":

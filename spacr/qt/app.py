@@ -4065,8 +4065,10 @@ class MainWindow(QMainWindow):
 
         records = list(records or ())
         ticked = ()
-        if any(r.kind == "installer" or (r.kind == "environment" and not r.running)
-               for r in records):
+        online_macos = install_cleanup._macos_online_update_record(records) is not None
+        if not online_macos and any(
+                r.kind == "installer" or (r.kind == "environment" and not r.running)
+                for r in records):
             ticked = self._confirm_old_installs(records)
             if ticked is None:
                 return
@@ -4081,7 +4083,7 @@ class MainWindow(QMainWindow):
                        error=self._removal_reason_text(
                            str(plan.get("error")))))
                 return
-            if plan.get("adapter") == "macos-frozen-v1" and plan.get("handshake"):
+            if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1"} and plan.get("handshake"):
                 from PySide6.QtCore import QTimer
 
                 self._frozen_update_plan = plan
@@ -4138,11 +4140,17 @@ class MainWindow(QMainWindow):
             if status["state"] == "error":
                 raise RuntimeError(status["error"])
             self._frozen_update_timer.stop()
+            if self._frozen_update_plan.get("adapter") == "macos-online-uv-v1":
+                message = tr(
+                    "This will reinstall spaCR in its current environment. "
+                    "spaCR will close before the update starts. "
+                    "It will reopen automatically after the update succeeds.")
+            else:
+                message = tr("spaCR will close, remove the older copies, install "
+                             "{version} and start again.",
+                             version=self._frozen_update_plan["version"])
             answer = QMessageBox.information(
-                self, "Updates",
-                tr("spaCR will close, remove the older copies, install "
-                   "{version} and start again.", version=self._frozen_update_plan["version"]),
-                QMessageBox.Ok | QMessageBox.Cancel)
+                self, "Updates", message, QMessageBox.Ok | QMessageBox.Cancel)
             if answer != QMessageBox.Ok or self._closing:
                 self._cancel_frozen_update()
                 return
