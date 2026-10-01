@@ -213,3 +213,42 @@ def test_the_uncertain_order_falls_back_to_value_and_says_so(tmp_path):
     items = list(queue.items)
     assert order_items(items, "uncertain", probs={"b": 0.9},
                        announce=notes.append)[0].stem == "b"
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_an_unknown_transform_cannot_be_undone_either():
+    with pytest.raises(ValueError, match="unknown test-time transform"):
+        _tta_inverse(np.zeros((4, 4)), "rot45")
+
+
+def test_maps_of_the_wrong_shape_are_not_kept():
+    image = _field()
+
+    def mismatched(field):
+        labels = _threshold(field)
+        return labels, np.zeros((3, 3), np.float32), np.zeros((2, 3, 3))
+
+    passes = _tta_passes(image, mismatched)
+    assert passes["probabilities"] is None and passes["vectors"] is None
+
+
+def test_without_cellpose_flows_cannot_be_scored(monkeypatch):
+    import sys
+
+    from spacr.active_learning import _flow_errors
+
+    monkeypatch.setitem(sys.modules, "cellpose.dynamics", None)
+    labels = _threshold(_field())
+    assert _flow_errors(labels, np.zeros((2,) + labels.shape)) == {}
+
+
+def test_an_empty_reference_is_certain_everywhere_its_passes_agree():
+    """No reference objects: nothing to paint per object, and a pass that
+    finds nothing either agrees with it."""
+    empty = np.zeros((40, 40), np.int32)
+    result = _segmentation_uncertainty([empty, empty, empty])
+    assert result["field"] == pytest.approx(0.0)
+    assert not result["map"].any()
