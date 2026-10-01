@@ -4,7 +4,7 @@ Identified 2026-10-01 while auditing the unfinished backlog. The pre-session
 N593/N600 implementations are retained; this tracks a newly identified defect
 in their integration rather than reopening those completed feature requests.
 
-Status: IN PROGRESS.
+Status: DONE — implemented and verified 2026-10-01.
 
 OrganizeForMeasureDialog._consolidate ignores ConsolidationResult.failed,
 discards the copy log, replaces the selected source with the output folder
@@ -23,3 +23,28 @@ verify the visible failure, unchanged source/table, preserved originals and
 successful copies, and no downstream operation. A retry after correcting the
 failure succeeds without silently dropping or duplicating images. Verify
 all caller paths handle the failure without an uncaught Qt-slot exception.
+
+Implementation 2026-10-01:
+- A partial consolidation displays the existing translated failure title and
+  failed-file count plus the exact rename_manifest.csv path. The wait cursor
+  is restored before reporting failure.
+- A private failure signal stops source enumeration before any table change.
+  Sort by regex, Auto regex and Teach me stop immediately; Detect sets also
+  stops if its initial sort fails, preserving the specific failure message.
+- The prior source, consolidation option, columns and table stay intact.
+  Original files, successful copies and the failure manifest remain available.
+  Retrying after correcting the copy error creates a new complete output and
+  includes each image once; existing successful/no-op behavior is preserved.
+- No public signatures, public docstrings, or translation captions changed.
+
+Validation under a 1 GB, single-thread CPU cap:
+- Five new Qt cases passed in 1.53 seconds: an actual button click for each
+  of the four callers with an induced real copy failure, preserved working
+  state/data, blocked downstream work, successful retry, plus the no-op case.
+- Five focused existing checks passed separately in 1.14 seconds: successful
+  consolidation, Auto regex, Teach-to-regex reuse, Detect's channel guard,
+  and backend partial-copy cleanup.
+- An earlier combined selection included a merge-writing test and stopped
+  after three passes at the test guard's 0.9 GB ceiling (exit 3). That was
+  not a completed cohort. The independent focused results above cover this
+  change without increasing the memory limit or running a full suite.

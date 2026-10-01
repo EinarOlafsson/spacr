@@ -72,6 +72,10 @@ _NOT_CONSOLIDATED = ("masks", "orig", cs.DEFAULT_DEST_NAME)
 _DEFAULT_METADATA_TYPE = "auto"
 
 
+class _ConsolidationFailed(RuntimeError):
+    """A reported partial copy that must not replace the current working table."""
+
+
 def _headless() -> bool:
     """Whether no one can answer a modal box (offscreen/minimal platform)."""
     from PySide6.QtGui import QGuiApplication
@@ -1556,6 +1560,13 @@ class OrganizeForMeasureDialog(QDialog):
                 log=lambda _text: None)
         finally:
             QApplication.restoreOverrideCursor()
+        if result.failed:
+            self.status.setText("\n".join((
+                tr("Consolidation failed"),
+                tr("{n} file(s) could not be copied; see the manifest.", n=result.failed),
+                str(result.manifest),
+            )))
+            raise _ConsolidationFailed()
         self.consolidate_check.setChecked(False)
         self.source_edit.setText(str(result.output))
         return str(result.output)
@@ -1589,7 +1600,10 @@ class OrganizeForMeasureDialog(QDialog):
         channels: Dict[str, int] = {}
         masks: Dict[str, str] = {}
         if source and os.path.isdir(source):
-            source = self._consolidate(source)
+            try:
+                source = self._consolidate(source)
+            except _ConsolidationFailed:
+                return None
             paths = [os.path.join(source, n)
                      for n in cs.list_folder_images(source)]
             for path in paths:
@@ -1631,7 +1645,10 @@ class OrganizeForMeasureDialog(QDialog):
             default the regex's chanID values are channels in natural order.
         :returns: the set report, or None when there was nothing to read.
         """
-        paths, channels, masks = self._paths_to_sort()
+        pending = self._paths_to_sort()
+        if pending is None:
+            return None
+        paths, channels, masks = pending
         if not paths:
             self.status.setText(tr(
                 "Nothing to sort: give a source folder of images, or drop "
@@ -1721,7 +1738,10 @@ class OrganizeForMeasureDialog(QDialog):
 
         :returns: the regex, or None when none was found.
         """
-        paths, by_path, _masks = self._paths_to_sort()
+        pending = self._paths_to_sort()
+        if pending is None:
+            return None
+        paths, by_path, _masks = pending
         names = [self._alias(p) for p in paths]
         channels = ({self._alias(p): c for p, c in by_path.items()}
                     if by_path else None)
@@ -1751,7 +1771,10 @@ class OrganizeForMeasureDialog(QDialog):
 
         :returns: the learned regex, or None when none was learned.
         """
-        paths, _channels, _masks = self._paths_to_sort()
+        pending = self._paths_to_sort()
+        if pending is None:
+            return None
+        paths, _channels, _masks = pending
         if not paths:
             self.status.setText(tr(
                 "Nothing to sort: give a source folder of images, or drop "
@@ -1865,7 +1888,8 @@ class OrganizeForMeasureDialog(QDialog):
         :returns: whether the detected sets were kept.
         """
         if not self.rows and self._source():
-            self.sort_by_regex()
+            if self.sort_by_regex() is None:
+                return False
         if len([c for c in self._channel_columns() if self._column_files(c)]) < 2:
             self.status.setText(tr(
                 "Detect sets needs at least two channel columns with images: "
