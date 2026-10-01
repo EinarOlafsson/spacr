@@ -20,7 +20,7 @@ Done when: a test shows frame-to-frame centre/zoom deltas are bounded (no
 jumps) and that chosen targets score above a complexity threshold; rendered
 frame strips in /mnt/wd4tb/scratch/604 show a smooth glide.
 
-Status: IMPLEMENTED 2026-09-30
+Status: COMPLETE — hardware GPU acceptance verified 2026-10-01
 
 Why it jumped (2026-09-30): three causes. (1) The "tour" path aimed the
 camera at the twenty committed region coordinates, which are ABSOLUTE
@@ -60,3 +60,40 @@ and test_cov_r5_fractal_travel.
 Left: RegionTour/_TourPilot and fractal_regions.py are no longer used by
 the canvas (kept; their own tests still exercise them). Not run on a real
 GPU here; the shader was rendered on llvmpipe only.
+
+2026-10-01 — HARDWARE GPU ACCEPTANCE VERIFIED
+The previously missing hardware check now passes on Ubuntu/GNOME X11,
+DISPLAY=:0, native scale 1, NVIDIA driver 580.178.04. The actual OpenGL context
+reported "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2" (not llvmpipe). A real
+_make_gpu_widget Mandelbrot canvas ran the published tour path with speed 4,
+640x400 pixels, 2x2 supersampling, and a 60-fps target. Its real asynchronous
+reference-orbit and complexity-survey workers were used. Settings were
+isolated in a temporary directory; no user's preferences were saved.
+
+Over 12.54 seconds, 683 camera steps were recorded and 24 actual shader frames
+were captured at half-second intervals. The inspected frame strip shows
+continuous descent into branching boundary detail, rather than a flat target
+or a position cut. Minimum selected-target complexity was 1.7911, above the
+1.5 floor. Largest per-frame centre displacement was 0.006190 viewport
+half-heights; maximum normalized speed was 0.11375 half-heights/second, below
+the 0.45 cap. Depth advanced from 0 to 1.4372 decades; maximum depth step was
+0.010669 decades. Every successive captured frame changed, and every capture
+contained a nontrivial colour range. The canvas remained alive with no shader
+or worker errors. This short hardware check covers the descent; long-dive
+rewind/rebase behavior remains covered by the existing measured tests.
+
+The matching named glide, tour/shader-edge, and fractal-travel cohorts passed:
+93 tests in 4.54 seconds, offscreen, capped at 4 GiB and two threads.
+No production change was needed. Legacy RegionTour/_TourPilot/fractal_regions
+remain intentionally retained with their existing tests; their removal is
+not required for the requested camera behavior.
+
+Evidence is /tmp/spacr-ui-evidence/604/native_gpu_glide_strip.png,
+native_gpu_frame_00.png through native_gpu_frame_23.png,
+native_gpu_glide_trace.json, native_gpu_glide_report.json, and native_glide.py.
+The earlier /mnt/wd4tb/scratch/604 volume is absent on this machine, so these
+new captures use the session evidence directory. Frames were read from the
+actual VisPy GL drawing target; an initial Qt grabFramebuffer attempt read
+black pixels from a different target and was rejected before acceptance.
+Native Windows/macOS, other GPU vendors, and other native scales were not
+checked. This completes the previously outstanding hardware-render check.
