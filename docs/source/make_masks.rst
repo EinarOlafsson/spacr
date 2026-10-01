@@ -476,6 +476,34 @@ The masthead also opens Cellpose Workbench, Mask the whole folder, Model
 Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts
 are linked from the :ref:`module map <workflow-module-make_masks>`.
 
+Large plates in Mask generation
+-------------------------------
+
+The **Mask** batch-generation module processes a plate; **Make Masks** edits
+the field currently open. For a crash while processing a raw plate, check
+the batch module's console and saved ``settings/gen_mask_settings.json``
+to identify the stage and settings used.
+
+In the V1 batch pipeline, raw-file preprocessing projects and writes one
+field at a time to ``stack/``. It retains filenames across the plate, not
+every field's pixel data. Z planes are combined incrementally. Completed
+field stacks are published atomically and can be reused when preprocessing
+resumes. This stage's pixel memory therefore follows the size and channels
+of a field, rather than the number of fields in the plate.
+
+Normalization and segmentation still need working memory for a batch and
+the model. Completed segmentation input, mask and flow buffers are released
+before the next batch; reducing plate-wide retention does not make an
+individual very large image or model cost-free. The V1 ``batch_size`` also
+sets the normalization pool, so changing it can change normalized values
+and subsequent masks. Retain it when reproducing a previous analysis.
+
+If memory still rises unexpectedly, record whether the last console stage
+was preprocessing filenames, normalization or model evaluation, together
+with image dimensions, channel count and the saved settings. Existing
+``stack/`` files help distinguish a completed ingestion stage from a failure
+before the first field was written.
+
 Engine parameter reference
 --------------------------
 
