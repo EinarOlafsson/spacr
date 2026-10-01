@@ -251,6 +251,17 @@ def split_group_values(*, group_by: Any = "well",
     )
 
 
+class _GroupedSplitImpossible(ValueError):
+    """Raised when the labelled groups cannot give a grouped holdout.
+
+    Every labelled object comes from one group, or no arrangement of the
+    groups puts every class on both sides. A ``ValueError``, so every caller
+    that already catches one is unchanged; the subclass lets a caller whose
+    product is not the held-out score tell this refusal apart from a
+    missing label or a bad setting.
+    """
+
+
 def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
                   seed: int = 0, *, group_by: Any = "well",
                   hold_out_groups: Optional[Sequence[Any]] = None
@@ -364,7 +375,7 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
         if len(distinct) < 2:
             where = distinct[0] if len(distinct) else "unknown"
             unit = "object" if level == "cell" else level
-            raise ValueError(
+            raise _GroupedSplitImpossible(
                 f"A {unit}-grouped held-out split is impossible: every "
                 f"labelled cell comes from one {unit} ({where}). A random "
                 "cell split would only measure how well the model memorised "
@@ -407,7 +418,7 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
                 str(label): int(len(np.unique(group_values[y == label])))
                 for label in classes
             }
-            raise ValueError(
+            raise _GroupedSplitImpossible(
                 f"A leakage-safe {level}-grouped split cannot put every "
                 "class in both train and test. Independent groups per class: "
                 f"{per_class}. Add independent {level}s, choose a finer "

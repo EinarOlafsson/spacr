@@ -1206,8 +1206,28 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # pickers and its plan/load error lines (alpha); "Load plan…" already has
 # a row.
 # 603, 2026-09-30: Preferences' Tooltip delay row and its explanation.
+# 610, 2026-10-01: Annotate's Suggest run -- its step n of N line and step
+# names, the Cancel button's tooltip and cancel lines, and the console note
+# for a round checked on a random split.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Control percentile",
+    "Cancelling the suggestion run after its current step…",
+    "Stop the suggestion run at its next step. Nothing is written if it "
+    "stops before the writing step; your annotations are never touched. "
+    "Shown only while a run is going.",
+    "Suggest cancelled.",
+    "Suggest cancelled. Suggestions already in the column were cleared; no "
+    "new ones were written.",
+    "Suggest: step {n} of {total} — {what}…",
+    "The labels so far do not span enough wells to hold whole wells out, so "
+    "this round was checked on a random split and its accuracy reads high. "
+    "The suggestions are unaffected. Label crops from more wells for a "
+    "well-separated check. ({why})",
+    "clearing the outstanding suggestions",
+    "fitting on the labels so far",
+    "ranking the proposals",
+    "reading the measurements",
+    "writing the suggestions",
 })
 
 

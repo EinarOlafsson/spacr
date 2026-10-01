@@ -351,6 +351,8 @@ def test_the_next_suggest_round_is_handed_the_rejections(
 
     import spacr.active_learning as al
     import spacr.suggest as sug
+    monkeypatch.setattr(al, "round_features",
+                        lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(al, "retrain_round", fake_retrain)
     monkeypatch.setattr(sug, "suggest_from_scores",
                         lambda *a, **k: FakeProposal())

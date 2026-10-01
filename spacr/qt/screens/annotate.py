@@ -902,6 +902,10 @@ class _SimilarityWorker(QThread):
             pass
 
 
+class _SuggestCancelled(Exception):
+    """Raised inside a suggestion run when Cancel was pressed."""
+
+
 class _SuggestWorker(QThread):
     """Fit a round, then write its opinion down as proposed labels.
 
@@ -920,13 +924,35 @@ class _SuggestWorker(QThread):
     because the round it fits is the round that writes the scores
     :func:`spacr.suggest.suggest_from_scores` then reads.
 
-    Nothing here touches a widget: ``done``/``failed`` are ordinary signals
-    connected to bound methods of the screen, so Qt queues them onto the GUI
-    thread.
+    FIVE STEPS, EACH ANNOUNCED. ``progress`` carries ``(step, STEPS, stage)``
+    before each of: clearing the outstanding suggestions, reading the
+    measurements, fitting, ranking, writing. Cancel is
+    ``requestInterruption()``; it is honoured at the next step boundary and
+    the run then emits ``cancelled`` instead of ``done``. A cancel before
+    the writing step writes no suggestion; a cancel after the fit leaves
+    that round's scores, which only reorder the queue.
+
+    A SUGGESTION DOES NOT NEED A WELL-SEPARATED SCORE. The fit's held-out
+    check keeps wells apart, and labels from one page often put a whole
+    class in a single well, where no well-separated split exists. That is a
+    reason to distrust the round's accuracy, not to withhold the
+    suggestions, so the round is refitted on a random split, the round's
+    split rule says it is not grouped, and ``split_relaxed`` carries the
+    refusal so the screen can say why. The Retrain button keeps the refusal:
+    its product is the accuracy.
+
+    Nothing here touches a widget: the signals are ordinary signals
+    connected to bound methods of the screen, so Qt queues them onto the
+    GUI thread.
     """
+
+    STEPS = 5
 
     done = Signal(object)
     failed = Signal(str)
+    progress = Signal(int, int, str)
+    cancelled = Signal()
+    split_relaxed = Signal(str)
 
     def __init__(self, db_path: str, annotation_column: str,
                  options: Dict[str, object], *,
@@ -955,6 +981,45 @@ class _SuggestWorker(QThread):
         self._only = None if only_paths is None else [str(p)
                                                       for p in only_paths]
 
+    def _step(self, step: int, stage: str) -> None:
+        """Stop here if Cancel was pressed, else announce the next step.
+
+        :param step: the step about to start, counted from 1.
+        :param stage: its name: ``clear``, ``features``, ``fit``, ``rank``
+            or ``write``.
+        :raises _SuggestCancelled: when interruption was requested.
+        """
+        if self.isInterruptionRequested():
+            raise _SuggestCancelled()
+        try:
+            self.progress.emit(int(step), self.STEPS, str(stage))
+        except RuntimeError:
+            pass
+
+    def _fit(self, al, options: Dict[str, object]) -> None:
+        """Fit the round, on a random split when wells cannot be kept apart.
+
+        :param al: the ``spacr.active_learning`` module.
+        :param options: keyword arguments for ``retrain_round``.
+        """
+        from ...classifier_evaluation import _GroupedSplitImpossible
+
+        try:
+            al.retrain_round(self._db_path, self._column, **options)
+            return
+        except _GroupedSplitImpossible as exc:
+            if str(options.get("group_by", "well")).lower() in ("none",
+                                                                "cell"):
+                raise
+            reason = str(exc)
+        relaxed = dict(options)
+        relaxed["group_by"] = "none"
+        al.retrain_round(self._db_path, self._column, **relaxed)
+        try:
+            self.split_relaxed.emit(reason)
+        except RuntimeError:
+            pass
+
     def run(self):
         """Fit, propose, write, and hand back what was proposed.
 
@@ -964,11 +1029,10 @@ class _SuggestWorker(QThread):
         """
         try:
             from ... import active_learning as al
-            from ...suggest import (resolve_suggestions, suggest_from_scores,
-                                    write_suggestions)
+            from ...suggest import (rejected_suggestions, resolve_suggestions,
+                                    suggest_from_scores, write_suggestions)
 
-            from ...suggest import rejected_suggestions
-
+            self._step(1, "clear")
             resolve_suggestions(self._db_path, self._column, keep=False,
                                 png_table=self._png_table)
             rejections = rejected_suggestions(
@@ -976,7 +1040,15 @@ class _SuggestWorker(QThread):
             options = dict(self._options)
             if rejections:
                 options["rejections"] = rejections
-            al.retrain_round(self._db_path, self._column, **options)
+            self._step(2, "features")
+            if options.get("features") is None:
+                options["features"] = al.round_features(
+                    self._db_path,
+                    table=str(options.get("table", al.PNG_TABLE)),
+                    key=str(options.get("key", al.PNG_KEY)))
+            self._step(3, "fit")
+            self._fit(al, options)
+            self._step(4, "rank")
             proposal = suggest_from_scores(
                 self._db_path, self._column, png_table=self._png_table)
             frame = proposal.frame
@@ -985,11 +1057,18 @@ class _SuggestWorker(QThread):
                 frame = frame.reset_index(drop=True)
                 proposal.frame = frame
                 proposal.scored = int(len(frame))
+            self._step(5, "write")
             written = 0
             if not frame.empty:
                 written = write_suggestions(
                     self._db_path, self._column, frame,
                     png_table=self._png_table)
+        except _SuggestCancelled:
+            try:
+                self.cancelled.emit()
+            except RuntimeError:
+                pass
+            return
         except Exception as exc:
             try:
                 self.failed.emit(f"{type(exc).__name__}: {exc}")
@@ -998,6 +1077,7 @@ class _SuggestWorker(QThread):
             return
         try:
             if self.isInterruptionRequested():
+                self.cancelled.emit()
                 return
             self.done.emit((proposal, written, len(rejections)))
         except RuntimeError:
@@ -3311,6 +3391,17 @@ class AnnotateScreen(QWidget):
         self._btn_suggest.clicked.connect(self._on_suggest_menu)
         row.addWidget(self._btn_suggest)
 
+        self._btn_suggest_cancel = QPushButton(tr("Cancel"))
+        self._btn_suggest_cancel.setObjectName("AnnotateSuggestCancel")
+        self._btn_suggest_cancel.setCursor(Qt.PointingHandCursor)
+        self._btn_suggest_cancel.setToolTip(tr(
+            "Stop the suggestion run at its next step. Nothing is written "
+            "if it stops before the writing step; your annotations are "
+            "never touched. Shown only while a run is going."))
+        self._btn_suggest_cancel.clicked.connect(self._cancel_suggest)
+        self._btn_suggest_cancel.hide()
+        row.addWidget(self._btn_suggest_cancel)
+
         self._btn_curve = QPushButton("Rounds")
         self._btn_curve.setIcon(iconset.icon("chart"))
         self._btn_curve.setCursor(Qt.PointingHandCursor)
@@ -5210,6 +5301,8 @@ class AnnotateScreen(QWidget):
 
         self._suggestions_are_a_ranking = bool(synthetic)
         self._btn_suggest.setEnabled(False)
+        self._btn_suggest_cancel.setEnabled(True)
+        self._btn_suggest_cancel.show()
         self._status_label.setText(
             "Fitting on the labels so far, then suggesting…")
         self._console.append_notice(
@@ -5228,8 +5321,82 @@ class AnnotateScreen(QWidget):
         worker.done.connect(self._on_suggest_done)
         worker.failed.connect(self._on_suggest_failed)
         worker.finished.connect(self._on_suggest_finished)
+        for signal, slot in self._suggest_extra_slots(worker):
+            signal.connect(slot)
         self._suggest_worker = worker
         worker.start()
+
+    def _suggest_extra_slots(self, worker):
+        """The progress, cancel and split signals a suggestion run carries.
+
+        :param worker: the run.
+        :returns: ``(signal, slot)`` pairs; a stand-in worker without the
+            signals yields none.
+        """
+        pairs = []
+        for name, slot in (("progress", self._on_suggest_progress),
+                           ("cancelled", self._on_suggest_cancelled),
+                           ("split_relaxed", self._on_suggest_split_relaxed)):
+            signal = getattr(worker, name, None)
+            if signal is not None and hasattr(signal, "connect"):
+                pairs.append((signal, slot))
+        return pairs
+
+    def _cancel_suggest(self) -> None:
+        """Ask the running suggestion run to stop at its next step."""
+        worker = self._suggest_worker
+        if worker is None:
+            return
+        try:
+            worker.requestInterruption()
+        except (RuntimeError, AttributeError):
+            return
+        self._btn_suggest_cancel.setEnabled(False)
+        self._status_label.setText(tr(
+            "Cancelling the suggestion run after its current step…"))
+
+    @Slot(int, int, str)
+    def _on_suggest_progress(self, step: int, total: int, stage: str) -> None:
+        """Say which step of the run is going, as n of N.
+
+        :param step: the step that started, counted from 1.
+        :param total: how many steps the run has.
+        :param stage: the step's name.
+        """
+        what = {
+            "clear": tr("clearing the outstanding suggestions"),
+            "features": tr("reading the measurements"),
+            "fit": tr("fitting on the labels so far"),
+            "rank": tr("ranking the proposals"),
+            "write": tr("writing the suggestions"),
+        }.get(str(stage), str(stage))
+        self._status_label.setText(tr(
+            "Suggest: step {n} of {total} — {what}…",
+            n=int(step), total=int(total), what=what))
+
+    @Slot()
+    def _on_suggest_cancelled(self) -> None:
+        """The run stopped on Cancel: say so, and show what is there now."""
+        self._console.append_notice(
+            "Suggest cancelled. Suggestions already in the column were "
+            "cleared; no new ones were written.\n")
+        self._status_label.setText(tr("Suggest cancelled."))
+        if self._worker is not None:
+            self._recount_judgements()
+            self._refresh_total(then=self._load_page)
+
+    @Slot(str)
+    def _on_suggest_split_relaxed(self, reason: str) -> None:
+        """Say that this round's accuracy comes from a random split.
+
+        :param reason: the grouped split's refusal.
+        """
+        self._console.append_notice(
+            "The labels so far do not span enough wells to hold whole wells "
+            "out, so this round was checked on a random split and its "
+            "accuracy reads high. The suggestions are unaffected. Label "
+            "crops from more wells for a well-separated check. ({why})\n",
+            why=self._blind_text(str(reason)))
 
     @Slot(object)
     def _on_suggest_done(self, payload) -> None:
@@ -5282,12 +5449,17 @@ class AnnotateScreen(QWidget):
         self._console.append_notice(
             "Suggest failed: {msg}\n", msg=message)
         self._status_label.setText(f"Suggest failed — {message}")
-        self._blind_warning(
-            "Suggest failed",
-            f"{message}\n\nNothing was written; your annotations are "
-            f"untouched. The usual causes are too few labels, only one class "
-            f"annotated so far — a classifier needs an example of both — or "
-            f"no measurement tables to build features from.")
+        box = QMessageBox(
+            QMessageBox.Warning, "Suggest failed",
+            self._blind_text(
+                f"{message}\n\nNothing was written; your annotations are "
+                f"untouched. The usual causes are too few labels, only one "
+                f"class annotated so far — a classifier needs an example of "
+                f"both — or no measurement tables to build features from."),
+            QMessageBox.Ok, self)
+        box.setObjectName("AnnotateSuggestFailedBox")
+        box.setAttribute(Qt.WA_DeleteOnClose)
+        box.open()
 
     @Slot()
     def _on_suggest_finished(self) -> None:
@@ -5296,13 +5468,15 @@ class AnnotateScreen(QWidget):
         self._suggest_worker = None
         try:
             self._btn_suggest.setEnabled(True)
+            self._btn_suggest_cancel.hide()
         except RuntimeError:
             return
         if worker is None:
             return
         for signal, slot in ((worker.done, self._on_suggest_done),
                              (worker.failed, self._on_suggest_failed),
-                             (worker.finished, self._on_suggest_finished)):
+                             (worker.finished, self._on_suggest_finished),
+                             *self._suggest_extra_slots(worker)):
             try:
                 signal.disconnect(slot)
             except (RuntimeError, TypeError):
@@ -6908,7 +7082,8 @@ class AnnotateScreen(QWidget):
             for signal, slot in ((suggest.done, self._on_suggest_done),
                                  (suggest.failed, self._on_suggest_failed),
                                  (suggest.finished,
-                                  self._on_suggest_finished)):
+                                  self._on_suggest_finished),
+                                 *self._suggest_extra_slots(suggest)):
                 try:
                     signal.disconnect(slot)
                 except (RuntimeError, TypeError):
