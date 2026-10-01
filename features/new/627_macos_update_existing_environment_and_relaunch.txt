@@ -1,0 +1,26 @@
+627. macOS updates must upgrade the existing spaCR environment and relaunch
+
+Status: IN PROGRESS — requested 2026-10-01; implementation not yet verified.
+
+The user reports Check for updates > Install update closes spaCR, but reopening
+its app prompts an interactive reinstall and ultimately starts the older
+version. Their reliable workaround uses the existing bundled executable:
+"$HOME/Library/Application Support/SpaCR/bootstrap/uv" pip install --upgrade --python "$HOME/Library/Application Support/SpaCR/venv/bin/python" spacr
+
+Required: for this macOS online installation, confirm that spaCR will be
+reinstalled, close it, upgrade the existing environment using its bundled uv,
+and reopen automatically after successful installation and version verification.
+Do not invoke the full first-install bootstrap, remove the working environment,
+or leave the user answering installer y/n prompts. Investigate launcher version
+checks so reopening cannot restore an older installer-pinned version. Preserve
+settings, data, and the existing environment. Report upgrade failures without
+claiming success. Keep Linux's working update behavior and supported Windows
+and frozen-bundle update paths intact. Cross-reference N53 and N416; this
+specific user-reported macOS online update loop is a new regression request.
+
+Acceptance: exercise the confirmation/close/helper/relaunch path; verify exact
+bundled uv and venv targeting, paths with spaces, parent-process wait, failed
+upgrade handling, updated-version readback and a single automatic relaunch.
+Verify a newer installed version does not trigger the launcher's older pinned
+installer. Run relevant existing updater/platform checks. Distinguish modeled
+macOS checks on Linux from actual native macOS acceptance.
