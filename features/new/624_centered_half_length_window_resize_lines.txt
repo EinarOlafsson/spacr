@@ -1,0 +1,8 @@
+624. Center window resize lines at half the side length
+
+Requested 2026-10-01: The lines indicating where to expand/shrink windows
+should span 50% of each side and be centered on that side.
+
+Status: IN PROGRESS. Update the shared resize-edge hint painting. Preserve
+the full edge/corner drag hit area, native pointer, rounded rim, and resizing
+behavior. Verify horizontal and vertical guides after a window size change.
