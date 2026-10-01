@@ -260,3 +260,102 @@ def test_anndata_export_carries_positions_and_measurements(tmp_path):
     assert adata.shape == (20, 2)
     assert adata.obsm["spatial"].shape == (20, 2)
     assert adata.obs["infected"].sum() == 10
+
+
+# ---------------------------------------------------------------------------
+# Visium layouts the coverage ratchet found untested (dispatch 36794763761)
+# ---------------------------------------------------------------------------
+
+def _hd_bundle(root, *, positions="parquet"):
+    """A Visium HD outs folder: one 8 um bin, a prefixed matrix name, a
+    full-resolution image beside binned_outputs, microns given."""
+    outs = root / "outs"
+    bin_dir = outs / "binned_outputs" / "square_008um"
+    visium_bundle(bin_dir)
+    os.rename(bin_dir / "filtered_feature_bc_matrix.h5",
+              bin_dir / "sample_filtered_feature_bc_matrix.h5")
+    spatial = bin_dir / "spatial"
+    table = pd.read_csv(spatial / "tissue_positions.csv")
+    os.remove(spatial / "tissue_positions.csv")
+    if positions == "parquet":
+        table.to_parquet(spatial / "tissue_positions.parquet", index=False)
+    elif positions == "legacy":
+        table.to_csv(spatial / "tissue_positions_list.csv", index=False,
+                     header=False)
+    with open(spatial / "scalefactors_json.json", "w") as handle:
+        json.dump({"tissue_hires_scalef": 0.5, "spot_diameter_fullres": 4.0,
+                   "microns_per_pixel": 0.27}, handle)
+    import tifffile
+    tifffile.imwrite(outs / "full_image.btf", np.zeros((8, 8), np.uint8))
+    return outs
+
+
+@pytest.mark.parametrize("positions", ["parquet", "legacy"])
+def test_a_visium_hd_bin_is_read_from_its_own_folder(tmp_path, positions):
+    outs = _hd_bundle(tmp_path, positions=positions)
+    bundle = oe._st_read_visium(str(outs), bin_um=8)
+    assert bundle["platform"] == "visium_hd"
+    assert bundle["spot_shape"] == "square"
+    assert bundle["microns_per_pixel"] == pytest.approx(0.27)
+    assert bundle["images"]["full"].endswith("full_image.btf")
+    assert bundle["obs"]["x_full"].tolist() == [100, 300, 100, 300]
+
+
+def test_a_visium_folder_without_a_matrix_or_positions_says_which(tmp_path):
+    empty = tmp_path / "empty"
+    (empty / "spatial").mkdir(parents=True)
+    with pytest.raises(FileNotFoundError, match="filtered_feature_bc_matrix"):
+        oe._st_read_visium(str(empty))
+    outs = _hd_bundle(tmp_path / "nopos", positions="none")
+    with pytest.raises(FileNotFoundError, match="No tissue_positions"):
+        oe._st_read_visium(str(outs), bin_um=8)
+
+
+def test_matrix_barcodes_without_a_position_are_refused(tmp_path):
+    root = tmp_path / "v"
+    visium_bundle(root)
+    table = pd.read_csv(root / "spatial" / "tissue_positions.csv")
+    table.iloc[1:].to_csv(root / "spatial" / "tissue_positions.csv",
+                          index=False)
+    with pytest.raises(ValueError, match="barcodes of the matrix have no"):
+        oe._st_read_visium(str(root))
+
+
+def test_landmarks_are_read_and_a_table_missing_columns_is_refused(tmp_path):
+    good = tmp_path / "landmarks.csv"
+    pd.DataFrame({"source_x": [1.0, 2.0], "source_y": [3.0, 4.0],
+                  "target_x": [5.0, 6.0], "target_y": [7.0, 8.0]}).to_csv(
+        good, index=False)
+    source, target = oe._st_read_landmarks(str(good))
+    assert source.tolist() == [[1.0, 3.0], [2.0, 4.0]]
+    assert target.tolist() == [[5.0, 7.0], [6.0, 8.0]]
+    bad = tmp_path / "bad.csv"
+    pd.DataFrame({"source_x": [1.0]}).to_csv(bad, index=False)
+    with pytest.raises(ValueError, match="lacks the landmark columns"):
+        oe._st_read_landmarks(str(bad))
+
+
+def test_featureless_images_fall_back_to_phase_correlation_at_scale():
+    """Blank images give the keypoint matcher nothing, so the transform
+    comes from phase correlation; a larger moving image is matched at a
+    shared scale and the matrix states that scale."""
+    moving = np.zeros((300, 300))
+    fixed = np.zeros((100, 100))
+    matrix, info = oe._st_register_intensity(moving, fixed, max_side=128)
+    assert info["method"] == "phase_correlation"
+    assert matrix[0, 0] == pytest.approx(128 / 300)
+    assert matrix[1, 1] == pytest.approx(128 / 300)
+
+
+def test_masks_are_read_from_npz_and_images_and_must_be_one_plane(tmp_path):
+    import tifffile
+
+    mask = np.zeros((6, 6), np.uint16)
+    mask[1:3, 1:3] = 4
+    np.savez(tmp_path / "mask.npz", labels=mask)
+    assert oe._st_load_mask(str(tmp_path / "mask.npz")).max() == 4
+    tifffile.imwrite(tmp_path / "mask.tif", mask)
+    assert oe._st_load_mask(str(tmp_path / "mask.tif")).max() == 4
+    np.save(tmp_path / "stack.npy", np.zeros((2, 3, 6, 6)))
+    with pytest.raises(ValueError, match="not one mask"):
+        oe._st_load_mask(str(tmp_path / "stack.npy"))
