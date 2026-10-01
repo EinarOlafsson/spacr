@@ -1,6 +1,6 @@
 A SAMPLE-SIZE PLANNER FOR ARRAYED ASSAYS
 
-Status: IMPLEMENTED AS ALPHA 2026-09-28; audit gaps closed and checked on a real pilot 2026-09-30.
+Status: DONE AS ALPHA 2026-10-01; real-pilot control acceptance and integrated regression checks passed.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -112,3 +112,37 @@ STATUS 2026-09-30 — audit gaps closed; checked on a real pilot (still alpha)
     Receipt: features/data/585_real_pilot_check_2026-09-30.json.
     Open: the new captions await the catalog lane (_AWAITING_CATALOG_REBUILD);
     promotion out of alpha is the maintainer's call.
+
+STATUS 2026-10-01 — current alpha acceptance complete
+    Malformed saved plans now undergo schema, numeric range/type/precision
+    and readout checks before replacing the working form or design table.
+    Duplicate JSON keys and non-finite values are rejected. Existing v1
+    plans retain compatible defaults. The status line explains failures.
+    A low-degrees-of-freedom noncentral-t CDF failure previously produced
+    false 100% power; the equivalent mirrored survival tail avoids that
+    numerical failure, and remaining non-finite results raise an error.
+    The GUI resolves the harmonic cell count to a whole number once, then
+    uses that same count for planning, simulation and the saved inputs.
+
+    Integrated acceptance: 134 unique engine and Qt checks passed in 13.29
+    seconds, including actual Plan/Save/Load controls, malformed-file state
+    preservation, uneven fields, legacy defaults, independent probability
+    quadrature and existing planner/alpha-gate regressions. Runs use 1 GiB,
+    zero swap, one actual CPU affinity and one numerical thread.
+
+    Actual offscreen controls on the four TSG101 pilot plates (14,200
+    negative-control cells) passed all five reachable paired/unpaired
+    continuous/count/proportion recommendations. Each recommendation was
+    saved, loaded and resaved unchanged; planned power differed from its
+    500 same-design simulations by at most 0.022909. The unreachable
+    unpaired proportion design correctly disables Save. Databases were
+    read-only and their sizes/timestamps did not change.
+
+    All 54 relevant caption sources are present and current in nine runtime
+    locales; the historical catalog-waiting note is resolved. No human
+    native-speaker review or native desktop verification is claimed.
+    Receipt: features/data/585_current_acceptance_2026-10-01.json.
+    The original DONE WHEN and current alpha behavior are accepted. The
+    documented model assumptions, proportion optimism against model-free
+    resampling and need for a two-condition pilot to estimate interaction
+    remain explicit. Promotion out of alpha remains a maintainer decision.
