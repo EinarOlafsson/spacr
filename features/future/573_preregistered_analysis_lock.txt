@@ -253,3 +253,36 @@ Validation: 23 named gate-file, live-edit, export and journal checks passed with
 two compute threads under the 4 GiB CPU/offscreen cap, including actual Gate Editor
 Save/Load after a pre-unblinding edit, a new post-hoc change, tampered and late locks,
 and no reads of another locked strategy. No public API or lock-policy changes.
+
+2026-10-01 — FIRST-SEEN OBSERVATIONS ON COMMITTED SETTINGS EDITS
+The remaining settings-form timing gap is closed. Valid text edits are observed
+when committed, while checkbox choices, completed list/row-exclusion edits and
+numeric arrow steps are observed immediately. Numeric typing and editable-combo
+text remain drafts until committed; a private input-event guard distinguishes
+numeric text from arrow/wheel changes without changing keyboard tracking.
+
+Existing and deferred controls use the same observation hook, installed before
+form-shaping callbacks so a replacement cannot lose an edit. Imported settings
+are observed after their complete bulk application. A source switch binds the
+complete valid snapshot to the new source's existing lock, never the old one.
+Invalid types, numeric ranges, incomplete numeric lists and invalid barcode
+expressions stay untouched and produce no false first-seen entry. An invalid
+bulk snapshot also produces no entries for its other partially applied values.
+
+Observation is explicitly limited to committed settings. It finds the existing
+pipeline/source lock, checks the lock record's own digest, and calls the same
+first-seen journal policy used by subsequent runs. It never reads or hashes
+model/checkpoint/gate files and never returns or displays a verified verdict.
+The normal run/dialog checks still perform complete verification. Duplicate
+signals do not duplicate first-seen records. Journal failures preserve the edit
+and report the failure through the existing console error channel.
+
+Validation: 13 new focused checks pass, including actual AppScreen import and
+late-built controls, before/after-unblinding timing, typed text versus numeric
+steps, source switching, invalid drafts, tampered locks, failed writes and no
+model/gate reads. Nine existing journal/lock-dialog checks and seven existing
+list/row-exclusion compatibility checks pass. Jobs used one actual CPU, zero
+swap and a 4 GiB memory ceiling; the canonical public-docstring extraction used
+1 GiB and confirms 12,035 unchanged symbols. Existing public signatures and
+docstrings are unchanged, no new runtime captions, and no new Ruff findings.
+Receipt: features/data/573_committed_settings_edits_2026-10-01.json.

@@ -3391,6 +3391,33 @@ def _lock_verdict(record: Dict[str, Any],
     return result
 
 
+def _observe_settings_changes(settings, app_key, keys=None):
+    """Record committed setting differences without checking files or gates.
+
+    Only an existing, intact lock on this pipeline and source is eligible.
+    ``keys`` scopes a field commit; omitted keys mean a complete bulk load.
+    The return value is observation evidence, never a verification verdict.
+    """
+    record = _find_lock(app_key, (settings or {}).get("src"))
+    if not record:
+        return None
+    if record.get("sha256") != _lock_digest(record):
+        raise ValueError("The analysis lock has changed; edit timing was not recorded.")
+    entry = _lock_entries(record).get(str(app_key)) or {}
+    locked = entry.get("settings") or {}
+    current = _lock_settings(settings)
+    selected = (set(locked) | set(current)) if keys is None else set(keys)
+    selected = {key for key in selected if not str(key).startswith("_")
+                and key not in _LOCK_IGNORED_KEYS}
+    differences = [{"key": key, "locked": locked.get(key),
+                    "now": current.get(key)}
+                   for key in sorted(selected)
+                   if not values_equal(locked.get(key), current.get(key))]
+    _note_first_seen(record, differences)
+    return {"lock_id": record.get("lock_id"), "deviations": differences,
+            "scope": "committed settings only"}
+
+
 def check_analysis_lock(settings: Dict[str, Any], *, app_key: str,
                         lock: Optional[Dict[str, Any]] = None,
                         gates: Any = None) -> Dict[str, Any]:

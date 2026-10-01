@@ -8376,6 +8376,8 @@ class _ListEditor(QWidget):
     special case beyond knowing the class.
     """
 
+    _committed = Signal()
+
     def __init__(self, key: str = "", default: Any = None,
                  nested_capable: bool = False, allow_none: bool = False,
                  element_type: Any = None, container: Any = list, parent=None):
@@ -8499,6 +8501,7 @@ class _ListEditor(QWidget):
         else:
             self._add_strip(list(value))
         self._refresh_footer()
+        self._committed.emit()
 
     def _add_strip(self, values) -> _ChipStrip:
         """Append one chip strip and wire it back to this editor."""
@@ -8508,6 +8511,7 @@ class _ListEditor(QWidget):
         self._rows.addWidget(strip)
         self._strips.append(strip)
         strip.set_values(values)
+        strip.changed.connect(self._committed)
         return strip
 
     def _drop_strip(self, strip) -> None:
@@ -8525,6 +8529,7 @@ class _ListEditor(QWidget):
         strip.setParent(None)
         strip.deleteLater()
         self._refresh_footer()
+        self._committed.emit()
 
     def _on_footer(self) -> None:
         """Add a group when grouped, or a value when flat."""
@@ -8854,6 +8859,7 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
             self._order.pop(key, None)
             return
         self._built[key] = widget
+        self._model._watch_setting_commit(key, widget)
 
     def __getitem__(self, key):
         """Build a pending setting on first access and return its editor."""
@@ -8865,6 +8871,7 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
         """Replace a pending or built editor while retaining its position in the key order."""
         self._to_come.pop(key, None)
         self._built[key] = widget
+        self._model._watch_setting_commit(key, widget)
         self._order[key] = None
 
     def __delitem__(self, key) -> None:
@@ -8909,6 +8916,30 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
         """Describe the built and pending editor counts without forcing lazy construction."""
         return (f"<controls: {len(self._built)} built, "
                 f"{len(self._to_come)} to come>")
+
+
+class _SpinCommitInput(QObject):
+    """Distinguish typed numeric drafts from completed arrow/wheel changes."""
+
+    def __init__(self, widget):
+        super().__init__(widget)
+        self._widget = widget
+        widget.installEventFilter(self)
+        widget.lineEdit().installEventFilter(self)
+
+    def eventFilter(self, watched, event):  # noqa: N802 - Qt override
+        """Remember input kind before Qt emits synchronous valueChanged."""
+        kind = event.type()
+        if kind == QEvent.KeyPress:
+            self._widget._spacr_numeric_draft = event.key() not in (
+                Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown,
+                Qt.Key_Return, Qt.Key_Enter, Qt.Key_Tab, Qt.Key_Backtab)
+        elif kind == QEvent.InputMethod:
+            self._widget._spacr_numeric_draft = True
+        elif kind in (QEvent.KeyRelease, QEvent.MouseButtonPress,
+                      QEvent.Wheel, QEvent.FocusOut):
+            self._widget._spacr_numeric_draft = False
+        return False
 
 
 class SettingsWidgets:
@@ -10153,6 +10184,99 @@ class SettingsWidgets:
             return _value_a_plain_control_holds(plan)
         return None
 
+    def _enable_commit_observation(self, callback):
+        """Watch existing and future controls without constructing hidden rows."""
+        self._commit_observer = callback
+        for key, widget in self._built_controls():
+            self._watch_setting_commit(key, widget)
+
+    def _watch_setting_commit(self, key, widget):
+        """Connect settled-value signals, including editors created on demand."""
+        if not callable(getattr(self, "_commit_observer", None)):
+            return
+        if getattr(widget, "_spacr_commit_model", None) is self:
+            return
+        widget._spacr_commit_model = self
+        callback = partial(self._setting_committed, key)
+        if isinstance(widget, QLineEdit):
+            widget.editingFinished.connect(callback)
+        elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+            widget._spacr_commit_input = _SpinCommitInput(widget)
+            widget.editingFinished.connect(callback)
+            widget.valueChanged.connect(partial(self._discrete_setting_changed,
+                                                key, widget))
+        elif isinstance(widget, QComboBox):
+            widget.currentIndexChanged.connect(partial(
+                self._discrete_setting_changed, key, widget))
+            if widget.isEditable():
+                widget.lineEdit().editingFinished.connect(callback)
+        elif isinstance(widget, (_ListEditor, RowExclusionEditor)):
+            widget._committed.connect(callback)
+        else:
+            # Composite fields may emit value_changed on each typed character.
+            # Their focused text editors commit on editingFinished instead.
+            for edit in widget.findChildren(QLineEdit):
+                edit.editingFinished.connect(callback)
+            for name in ("value_changed", "valueChanged", "changed", "toggled"):
+                signal = getattr(widget, name, None)
+                if signal is not None:
+                    signal.connect(partial(self._discrete_setting_changed,
+                                           key, widget))
+                    break
+
+    def _discrete_setting_changed(self, key, widget, *_args):
+        """Observe choices immediately, leaving typed drafts until commit."""
+        if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+            if getattr(widget, "_spacr_numeric_draft", False):
+                return
+        elif any(edit.hasFocus() and edit.isModified()
+                 for edit in widget.findChildren(QLineEdit)):
+            return
+        self._setting_committed(key)
+
+    def _setting_committed(self, key, *_args):
+        """Publish one completed edit outside construction and bulk loading."""
+        if (getattr(self, "_applying_settings", False)
+                or getattr(self, "_applying_organelle_preset", False)
+                or self._controls_arriving):
+            return
+        callback = getattr(self, "_commit_observer", None)
+        if callable(callback):
+            callback(key)
+
+    def _valid_committed_value(self, key):
+        """Read one locally valid value; refuse incomplete text without editing it."""
+        from ...validate import ERROR, _check_numeric_sanity, _check_types
+
+        widget = self._built_control(key)
+        edits = ([widget] if isinstance(widget, QLineEdit) else
+                 widget.findChildren(QLineEdit) if widget is not None else [])
+        if any(not edit.hasAcceptableInput() for edit in edits):
+            raise ValueError("Incomplete setting input")
+        value = (self._canonical(key, self._coerce_to_expected_type(
+            key, self._read_value(key))) if key in self._widgets else
+            self._defaults.get(key))
+        if isinstance(widget, BarcodeRegexWidget) and value:
+            from ..widgets.barcode_regex import evaluate_barcode_regex
+            if not evaluate_barcode_regex(value).valid:
+                raise ValueError("Invalid barcode expression")
+        problems = (_check_types({key: value}, self.app_key)
+                    + _check_numeric_sanity({key: value}))
+        if any(problem.severity == ERROR for problem in problems):
+            raise ValueError("Invalid setting input")
+        if isinstance(widget, _ListEditor) and any(
+                strip._entry.text().strip() for strip in widget._strips):
+            raise ValueError("Uncommitted list input")
+        if isinstance(widget, _ListEditor) and widget._element_type in (int, float):
+            pending = list(value or [])
+            while pending:
+                item = pending.pop()
+                if isinstance(item, (list, tuple)):
+                    pending.extend(item)
+                elif not isinstance(item, widget._element_type):
+                    raise ValueError("Invalid numeric list item")
+        return value
+
     def collect(self) -> Dict[str, Any]:
         """Read all widgets and return the current settings dict.
 
@@ -10278,6 +10402,7 @@ class SettingsWidgets:
             self._refresh_analysis_unit_lock()
         if key == "mask_parallel":
             self._refresh_mask_gpu_enablement()
+        self._setting_committed(key)
         return True
 
     def set_hidden_value(self, key: str, value: Any) -> bool:
@@ -10309,6 +10434,7 @@ class SettingsWidgets:
                     or key not in expected_types):
                 return False
         self._defaults[key] = self._coerce_to_expected_type(key, value)
+        self._setting_committed(key)
         return True
 
     def _on_regression_type_changed(self, *_args) -> None:

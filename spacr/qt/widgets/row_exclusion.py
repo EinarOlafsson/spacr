@@ -200,6 +200,8 @@ class _CheckableValueCombo(QComboBox):
     :param parent: parent widget; ownership only.
     """
 
+    _committed = Signal()
+
     def __init__(self, parent=None):
         """Build the combo: editable for its display line, but read-only.
 
@@ -221,6 +223,7 @@ class _CheckableValueCombo(QComboBox):
         item.setCheckState(
             Qt.Unchecked if state == Qt.Checked else Qt.Checked)
         self._refresh_text()
+        self._committed.emit()
 
     def set_options(self, options, selected=()) -> None:
         """Offer these values, ticking the ones already chosen.
@@ -344,6 +347,7 @@ class RowExclusionEditor(QWidget):
     #: Emitted after a background read has been applied to the widget.
     #: Carries True for a schema read, False for a value read.
     loaded = Signal(bool)
+    _committed = Signal()
 
     def __init__(self, value=None, parent=None, *, threaded: bool = True,
                  debounce_ms: int = DEBOUNCE_MS):
@@ -475,6 +479,9 @@ class RowExclusionEditor(QWidget):
                 index = row.column.count() - 1
             row.column.setCurrentIndex(index)
         self._refresh_values(row, selected=values)
+        row.values._committed.connect(self._committed)
+        row.column.activated.connect(self._committed)
+        row.column.lineEdit().editingFinished.connect(self._committed)
 
     def _remove_row(self, row) -> None:
         """Remove one rule row, adding a fresh one if it was the last.
@@ -491,6 +498,7 @@ class RowExclusionEditor(QWidget):
         row.deleteLater()
         if not self._rows:
             self._add_row()
+        self._committed.emit()
 
     def _clear_rows(self) -> None:
         """Remove every rule row and forget what they were waiting for."""

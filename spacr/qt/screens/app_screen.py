@@ -2009,6 +2009,7 @@ class AppScreen(QWidget):
 
         self._categories_wait = bool(getattr(
             _screens_package, "_categories_wait_to_be_opened", False))
+        self._settings_lock_observation_ready = False
         self._settings_panel = self._build_settings_panel()
         body.add_pane(self._settings_panel, "Settings", mode=EDGE,
                       fold_key=f"{app_key}/Settings", stretch=1, extent=400)
@@ -2087,6 +2088,8 @@ class AppScreen(QWidget):
         except Exception:                                       # noqa: BLE001
             LOG.debug("could not take the tab scroll arrows off",
                       exc_info=True)
+
+        self._settings_lock_observation_ready = True
 
     def _heavy_lock_is_free(self) -> bool:
         """Whether the heavy-import lock could be taken right now.
@@ -2579,6 +2582,8 @@ class AppScreen(QWidget):
         self._settings_model = SettingsWidgets(
             self.app_key, parent=content,
             current=AppScreen.values_the_next_screen_is_built_for)
+        self._settings_model._enable_commit_observation(
+            self._observe_settings_commit)
         self._rows_awaiting_layout = {}
         self._run_has_no_object_for = None
         #: Headings that gained a caption since the last pass, so the language
@@ -11185,6 +11190,39 @@ class AppScreen(QWidget):
                 "still finishing in the background and may keep writing for "
                 "a while. The window is yours again.\n")
 
+    def _observe_settings_commit(self, key=None):
+        """Timestamp valid committed settings only, without a full lock verdict."""
+        from ...run_journal import _observe_settings_changes
+
+        model = getattr(self, "_settings_model", None)
+        if (model is None or getattr(model, "_applying_settings", False)
+                or not getattr(self, "_settings_lock_observation_ready", True)):
+            return
+        try:
+            source = model._valid_committed_value("src")
+            if key not in (None, "src"):
+                settings = {"src": source,
+                            key: model._valid_committed_value(key)}
+                keys = [key]
+            else:
+                # A source switch or completed bulk load binds its complete
+                # valid snapshot to the NEW source, never the previous lock.
+                settings = dict(model.collect())
+                for name in settings:
+                    settings[name] = model._valid_committed_value(name)
+                keys = None
+        except (TypeError, ValueError, RuntimeError):
+            return  # Leave drafts untouched; failed validation is not an edit.
+        try:
+            self._settings_lock_observation = _observe_settings_changes(
+                settings, self.app_key, keys)
+        except (OSError, ValueError) as error:
+            self._settings_lock_observation = None
+            LOG.warning("Could not record committed analysis settings: %s", error)
+            console = getattr(self, "_console", None)
+            if console is not None:
+                console.append_error(str(error) + "\n")
+
     def _build_analysis_lock_button(self) -> QPushButton:
         """The Lock analysis button: preregister these settings before results.
 
@@ -11745,6 +11783,7 @@ class AppScreen(QWidget):
             if model is not None:
                 model._applying_settings = False
         self._refresh_after_bulk_apply(settings)
+        self._observe_settings_commit()
         return applied
 
     def _refresh_after_bulk_apply(self, settings: dict) -> None:
