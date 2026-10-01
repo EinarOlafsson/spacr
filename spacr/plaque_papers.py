@@ -2295,6 +2295,10 @@ def _zoo_path(key: str, cache: Path) -> Tuple[str, str]:
 def _cellpose_segmenter(path: str) -> Callable[[np.ndarray], np.ndarray]:
     """A plaque segmenter from a Cellpose checkpoint.
 
+    A Cellpose 3 checkpoint, which Cellpose 4 refuses, segments through the
+    Cellpose 3 backend when it is installed, and is refused with advice when
+    it is not.
+
     :param path: the checkpoint.
     :returns: ``fn(crop) -> labels``.
     """
@@ -2307,7 +2311,19 @@ def _cellpose_segmenter(path: str) -> Callable[[np.ndarray], np.ndarray]:
     except Exception:
         kwargs = {"gpu": False}
     kwargs.pop("device", None)
-    model = models.CellposeModel(pretrained_model=path, device=None, **kwargs)
+    try:
+        model = models.CellposeModel(pretrained_model=path, device=None,
+                                     **kwargs)
+    except ValueError as exc:
+        from .submodules import (Cellpose3Checkpoint,
+                                 _cellpose3_plaque_backend, explain_cellpose3)
+
+        explained = explain_cellpose3(exc, path)
+        if not isinstance(explained, Cellpose3Checkpoint):
+            raise
+        model = _cellpose3_plaque_backend(path)
+        if model is None:
+            raise explained from exc
 
     def segment(crop: np.ndarray) -> np.ndarray:
         """The Cellpose label mask of one plaque image crop."""

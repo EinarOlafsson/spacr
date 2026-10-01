@@ -6382,6 +6382,11 @@ class AppScreen(QWidget):
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self)
+        if not self._part_is_owed(_LIVE_PREVIEW):
+            columns = getattr(getattr(self, "_live_preview", None),
+                              "_apply_alpha_columns", None)
+            if callable(columns):
+                columns()
 
     def setting_row_is_visible(self, key: str) -> bool:
         """Whether ``key``'s row is currently on the form.
