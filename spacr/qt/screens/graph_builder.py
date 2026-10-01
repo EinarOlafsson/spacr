@@ -16,7 +16,16 @@ redraws as each one lands.
 
 **What it needs.** One table of a ``measurements.db`` or a CSV or TSV file,
 chosen with Load table. The object tables and ``png_list`` are offered first;
-every other table in the database stays available.
+every other table in the database stays available. Use **Merge tables** beside
+that picker to combine tables at a cell/cytoplasm observation level. The popup
+shows the shared spaCR aggregation rules, per-column overrides and a validated
+preview. **Customize merging** supplies explicit composite keys, relationships
+and join types for external schemas, with acknowledgment and reset controls.
+Named results persist beside the database in ``.spacr-merges.json`` and are
+revalidated on reuse. **Save chart** includes the chart channels and merge
+definition; **Load chart** reconstructs the data before plotting. External
+results without verified image provenance support plotting and tabular
+filtering, while the image navigation action explains why it is unavailable.
 
 **What it produces.** A chart with six drop zones: x, y, colour, size, facet
 row and facet column. Only x and y decide the chart type -- one continuous
@@ -45,12 +54,13 @@ hand it a frame, and everything below works.
 """
 from __future__ import annotations
 
+import json
 import logging
 import os
 import sqlite3
 import traceback
-from typing import (TYPE_CHECKING, Callable, Dict, List, NamedTuple,
-                    Optional, Tuple)
+from pathlib import Path
+from typing import TYPE_CHECKING, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 import pandas as pd
 
@@ -58,20 +68,27 @@ if TYPE_CHECKING:
     from ..widgets.fold_strip import FoldStrip
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton,
-    QVBoxLayout, QWidget,
+    QComboBox,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
+from ..app_catalog import declared_app, register_declared
 from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
+from ..widgets.derived_table_source import DerivedTableSource
 from ..widgets.graph_builder import GraphBuilderPanel
 from ..widgets.measurements_example import (
-    EXAMPLE_TABLE, install_test_data_button,
+    EXAMPLE_TABLE,
+    install_test_data_button,
 )
 from .app_screen import ModuleHeader
-from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.graph_builder")
 
@@ -103,7 +120,8 @@ def table_names(path: str) -> List[str]:
             "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
     found = [row[0] for row in rows]
     ranked = [name for name in _PREFERRED_TABLES if name in found]
-    return ranked + [name for name in found if name not in ranked]
+    from ...derived_tables import load_definitions
+    return ranked + [name for name in found if name not in ranked] + list(load_definitions(path))
 
 
 def read_table(path: str, table: Optional[str] = None,
@@ -121,7 +139,12 @@ def read_table(path: str, table: Optional[str] = None,
         sep = "\t" if str(path).lower().endswith(".tsv") else ","
         return pd.read_csv(path, sep=sep, nrows=limit)
     name = table or (table_names(path) or ["object"])[0]
-    query = f'SELECT * FROM "{name}"'
+    from ...derived_tables import execute, load_definitions
+    definitions = load_definitions(path)
+    if name in definitions:
+        frame, _report = execute(path, definitions[name])
+        return frame.head(limit) if limit else frame
+    query = 'SELECT * FROM "' + name.replace('"', '""') + '"'
     if limit:
         query += f" LIMIT {int(limit)}"
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
@@ -175,7 +198,7 @@ class _Loaded(NamedTuple):
     problem: Optional[str]
 
 
-class GraphBuilderScreen(QWidget):
+class GraphBuilderScreen(DerivedTableSource, QWidget):
     """Drag columns onto channels; the chart follows.
 
     :param link: a private :class:`~spacr.qt.linked_selection.LinkedSelection`
@@ -240,12 +263,19 @@ class GraphBuilderScreen(QWidget):
         self._table_picker.setVisible(False)
         self._table_picker.currentTextChanged.connect(self._on_table_picked)
         head.addWidget(self._table_picker)
+        self._install_merge_button(head)
 
         load = QPushButton("Load table…", self)
         load.setObjectName("PrimaryButton")
         load.setToolTip("A measurements.db, or a CSV of measurements")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
+        save_graph = QPushButton("Save chart…", self)
+        save_graph.clicked.connect(self.choose_save_chart)
+        head.addWidget(save_graph)
+        load_graph = QPushButton("Load chart…", self)
+        load_graph.clicked.connect(self.choose_load_chart)
+        head.addWidget(load_graph)
         install_test_data_button(
             self, head, lambda _folder, db: self.load_path(
                 str(db), table=EXAMPLE_TABLE),
@@ -287,6 +317,7 @@ class GraphBuilderScreen(QWidget):
             unless ``label`` is given.
         """
         self._frame = frame
+        self._derived_frame_loaded(frame)
         self.builder.set_frame(frame)
         self.filters.set_frame(frame)
         self._source.setText(
@@ -428,7 +459,8 @@ class GraphBuilderScreen(QWidget):
         :param _data: the render payload; the selection is re-read from the
             canvas, so it is not used.
         """
-        self._to_annotate.setEnabled(self.builder.canvas.selected_count() > 0)
+        self._to_annotate.setEnabled(self._has_merge_image_provenance() and
+                                     self.builder.canvas.selected_count() > 0)
 
     def _open_selection(self) -> None:
         """Send the brushed objects to whatever shows crops.
@@ -436,6 +468,9 @@ class GraphBuilderScreen(QWidget):
         Routed through :func:`spacr.qt.linked_selection.open_objects`, so this
         screen never imports Annotate and Annotate grows no method for it.
         """
+        if not self._has_merge_image_provenance():
+            self._source.setText("This merge has no verified image/object provenance.")
+            return
         from ..linked_selection import has_object_opener
         canvas = self.builder.canvas
         selection = canvas.link.selection
@@ -454,6 +489,74 @@ class GraphBuilderScreen(QWidget):
         except Exception as exc:
             LOG.info("could not open the brushed objects", exc_info=True)
             self._source.setText(f"could not open those objects: {exc}")
+
+    def choose_save_chart(self):
+        """Choose a file for the chart and its reproducible data-source definition."""
+        path, _ = QFileDialog.getSaveFileName(self, "Save chart", "chart.json", "Charts (*.json)")
+        if path:
+            try:
+                self.save_chart(path)
+            except (OSError, ValueError) as exc:
+                self._source.setText(f"Could not save chart: {exc}")
+
+    def choose_load_chart(self):
+        """Choose a saved chart and revalidate its source before plotting."""
+        path, _ = QFileDialog.getOpenFileName(self, "Load chart", "", "Charts (*.json)")
+        if path:
+            try:
+                self.load_chart(path)
+            except (OSError, ValueError) as exc:
+                self._source.setText(f"Could not load chart: {exc}")
+
+    def save_chart(self, path):
+        """Save chart channels and a source-bound merge definition when applicable.
+
+        :param path: Destination JSON file.
+        :returns: Saved path.
+        """
+        if not self._path:
+            raise ValueError("Load a source table before saving a chart.")
+        payload = {"source": str(Path(self._path).resolve()),
+                   "table": self._table_picker.currentText(),
+                   "chart": self.builder.spec.to_dict(),
+                   "merge_definition": self._merge_definition}
+        Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        return path
+
+    def load_chart(self, path):
+        """Reconstruct a saved chart, validating any embedded merge configuration.
+
+        :param path: Saved chart JSON file.
+        """
+        from ...derived_tables import execute, save_definition
+        from ..widgets.graph_spec import GraphSpec
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+        source, table = payload["source"], payload.get("table")
+        definition = payload.get("merge_definition")
+        spec = GraphSpec.from_dict(payload["chart"])
+        self._jobs.cancel()
+        self._source.setText("Loading chart…")
+
+        def work():
+            """Reconstruct saved data on the worker before the chart is restored."""
+            if definition:
+                frame, _report = execute(source, definition)
+                save_definition(source, definition)
+            else:
+                frame = read_table(source, table)
+            names = table_names(source) if not source.lower().endswith((".csv", ".tsv", ".txt")) else []
+            return _Loaded(names, table, frame, None)
+
+        def done(loaded):
+            """Apply source and chart only after successful reconstruction.
+
+            :param loaded: Revalidated source frame and available table names.
+            """
+            self._path = source
+            self._on_frame_loaded(loaded)
+            self.builder.set_spec(spec)
+
+        self._jobs.submit(work, done)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
         """Stop background work and unlink before going away.

@@ -58509,14 +58509,14 @@
         "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
         "58885444c5041d11f4db3d30697030ab9510bcbc12246b05593ab29c6f9e372b",
         "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
-        "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+        "2205a234029d2679e9b0bee509e0a6c2be6c8dd55e39005bb1e8913f7f0c2f96",
         "3a6684acc216fc722fce4a8dbaca2669c9e3215b99b2928bfe1bf88902336342",
         "1fb2849ed26e00028887d9edfd4a71b8965f154677187d9305111e2b83c1bf3f",
         "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
         "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae"
       ],
-      "source_sha256": "90f99a96fd4b9a39a7be00008e08899eec9d0527a814d19a1a66af09d8bd814f",
-      "text": "The Graph Builder screen — a table, a filter, and a chart you drag together.\n\nAssembles three things that already exist into one surface:\n\n* :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the drop zones\n  and the canvas;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data\n  Filter, unchanged, because a filter that narrows *every* view is worth more\n  than a private one that narrows this chart;\n* :mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells\n  in the UMAP and on the plate map, and a lasso there highlights them here.\n\n**What it is for.** Exploring a measurement table without plotting code,\nusually after Measure or Classify: drag columns onto the chart and it\nredraws as each one lands.\n\n**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file,\nchosen with Load table. The object tables and ``png_list`` are offered first;\nevery other table in the database stays available.\n\n**What it produces.** A chart with six drop zones: x, y, colour, size, facet\nrow and facet column. Only x and y decide the chart type -- one continuous\ncolumn gives a histogram, one categorical column a bar chart of counts, two\ncontinuous columns a scatter plot, one of each a box plot and two categorical\ncolumns a heatmap of counts -- and violin and line plots are explicit choices.\nA brushed rectangle becomes the shared selection, highlighted in the UMAP and\non the plate map.\n\n**What to do next.** Press Open selection in Annotate to see the brushed\nobjects as image crops, narrow every view with the Local Data Filter beside\nthe chart, or move to Gate Editor when a population should become a named\ngate that can be saved and re-applied.\n\nThe screen goes into the app registry through\n:func:`spacr.qt.app.register_app` rather than through a row in the table\ninside ``app.py``, and its styling goes through\n:func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen\nbuilt in parallel with five others is a new file rather than a merge conflict\nin two thousand-line ones.\n\n:func:`register` is **not** called at import — read its docstring for why, and\nfor the one line plus four side-table entries that finish the wiring. The\nscreen itself is complete: build it with :func:`make_graph_builder_screen`,\nhand it a frame, and everything below works."
+      "source_sha256": "1c32b49307beaa037c45cb2bd72932948cbe7a14b0ac8bcba4e20055606e3bf4",
+      "text": "The Graph Builder screen — a table, a filter, and a chart you drag together.\n\nAssembles three things that already exist into one surface:\n\n* :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the drop zones\n  and the canvas;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data\n  Filter, unchanged, because a filter that narrows *every* view is worth more\n  than a private one that narrows this chart;\n* :mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells\n  in the UMAP and on the plate map, and a lasso there highlights them here.\n\n**What it is for.** Exploring a measurement table without plotting code,\nusually after Measure or Classify: drag columns onto the chart and it\nredraws as each one lands.\n\n**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file,\nchosen with Load table. The object tables and ``png_list`` are offered first;\nevery other table in the database stays available. Use **Merge tables** beside\nthat picker to combine tables at a cell/cytoplasm observation level. The popup\nshows the shared spaCR aggregation rules, per-column overrides and a validated\npreview. **Customize merging** supplies explicit composite keys, relationships\nand join types for external schemas, with acknowledgment and reset controls.\nNamed results persist beside the database in ``.spacr-merges.json`` and are\nrevalidated on reuse. **Save chart** includes the chart channels and merge\ndefinition; **Load chart** reconstructs the data before plotting. External\nresults without verified image provenance support plotting and tabular\nfiltering, while the image navigation action explains why it is unavailable.\n\n**What it produces.** A chart with six drop zones: x, y, colour, size, facet\nrow and facet column. Only x and y decide the chart type -- one continuous\ncolumn gives a histogram, one categorical column a bar chart of counts, two\ncontinuous columns a scatter plot, one of each a box plot and two categorical\ncolumns a heatmap of counts -- and violin and line plots are explicit choices.\nA brushed rectangle becomes the shared selection, highlighted in the UMAP and\non the plate map.\n\n**What to do next.** Press Open selection in Annotate to see the brushed\nobjects as image crops, narrow every view with the Local Data Filter beside\nthe chart, or move to Gate Editor when a population should become a named\ngate that can be saved and re-applied.\n\nThe screen goes into the app registry through\n:func:`spacr.qt.app.register_app` rather than through a row in the table\ninside ``app.py``, and its styling goes through\n:func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen\nbuilt in parallel with five others is a new file rather than a merge conflict\nin two thousand-line ones.\n\n:func:`register` is **not** called at import — read its docstring for why, and\nfor the one line plus four side-table entries that finish the wiring. The\nscreen itself is complete: build it with :func:`make_graph_builder_screen`,\nhand it a frame, and everything below works."
     },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen": {
       "source_blocks_sha256": [
@@ -58540,6 +58540,20 @@
       "source_sha256": "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8",
       "text": "How many worker threads are still winding down."
     },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_load_chart": {
+      "source_blocks_sha256": [
+        "1c8a2a117c38c8fce99d700fc1345c83ec79ec5ffccf8e2b44027bf13f6589b2"
+      ],
+      "source_sha256": "1c8a2a117c38c8fce99d700fc1345c83ec79ec5ffccf8e2b44027bf13f6589b2",
+      "text": "Choose a saved chart and revalidate its source before plotting."
+    },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_save_chart": {
+      "source_blocks_sha256": [
+        "97f7ae476b8b88e2dfd860cf53393acc0c3ba12f2872f84e91dac64f76be7821"
+      ],
+      "source_sha256": "97f7ae476b8b88e2dfd860cf53393acc0c3ba12f2872f84e91dac64f76be7821",
+      "text": "Choose a file for the chart and its reproducible data-source definition."
+    },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_table": {
       "source_blocks_sha256": [
         "412f4f6f0044e682dedd25a72f7d3c0f333327098254cc3d7dfbf1b2dac6a04a"
@@ -58562,6 +58576,14 @@
       "source_sha256": "15a6bf9e940a7b2c14af2364abc3d0cbd33acf48add8c72e1d168a940f85e370",
       "text": "True while a table read is in flight."
     },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.load_chart": {
+      "source_blocks_sha256": [
+        "85102fe320c172cd8c8870aeeb42fe6bf46ada4d184ce3fe93758765bd3770a4",
+        "bf66fdbd7c62a0e727e412a7035528af23a8bf8fb2319a6e2e4c52bb3c6c6a6d"
+      ],
+      "source_sha256": "49da2cf5153e858b36ae91c5bb2bee8965042605d7563c5198aab8444893e6ef",
+      "text": "Reconstruct a saved chart, validating any embedded merge configuration.\n\n:param path: Saved chart JSON file."
+    },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.load_path": {
       "source_blocks_sha256": [
         "d93ee4dfbd458d38d9367505d9b204695aad43b7d5967100b4af57909582dd10",
@@ -58572,6 +58594,15 @@
       ],
       "source_sha256": "e335afea3df4d426a4d179e3089f7a50e8af0cff6c601193da4afcf3fe7d3be5",
       "text": "Load a CSV or one table of a SQLite measurement database.\n\nNOTHING HERE TOUCHES THE FILE. The read has always run on a worker\nthread -- ``SELECT * FROM cell`` into pandas measures 1.5 s for a\n200 000-row measurement table on a warm local SSD -- but listing the\ntables was kept inline on the argument that one ``sqlite_master``\nquery costs 0.4 ms. That argument holds only for a disk that answers.\nMeasured on one workstation, a single ``stat``\nunder ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep --\nhad not returned after TWENTY SECONDS, and ``sqlite3.connect`` opens\nthe file before it can read a byte of ``sqlite_master``. A user\npicking a measurements.db off a sleeping share, or dropping a project\nfolder that resolves onto one, froze the whole window with no\ntraceback: a stalled event loop is not a crash.\n\nSo the listing goes to the worker with the read, as one job, and the\npicker is populated by :meth:`_on_frame_loaded` when the answer\narrives. A ``path_probe`` pre-flight would not have helped: it answers\noptimistically from cache, and it is the ``connect`` itself that\nparks.\n\nReturns as soon as the job is dispatched; :meth:`_on_frame_loaded`\nfinishes on the GUI thread, whether the file read or not -- a failure\ncomes back as data in the :class:`_Loaded` rather than as an\nexception, so that it is dropped along with everything else when the\nload it belongs to has been superseded.\n\n:param path: a ``.csv``, ``.tsv`` or ``.txt`` file, read as delimited\n    text, or any other file, opened read-only as a SQLite database."
+    },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.save_chart": {
+      "source_blocks_sha256": [
+        "1b3b928defb8097be45c65cbaf0d43237a303ab60d6a244d9bdc9e5efc5c3b74",
+        "62d4985c9b6471195a2f52a15633236d91bf27a8888df0a1ee913e02a0d414ae",
+        "4fc55b07c072f81c08e35d14bb264e3a491e8711051f86a4405f509d376ca9ab"
+      ],
+      "source_sha256": "7b648b1834cd06dcb071bd1278aa91852157c96f0ed30a2ae8fb161af37c1a41",
+      "text": "Save chart channels and a source-bound merge definition when applicable.\n\n:param path: Destination JSON file.\n:returns: Saved path."
     },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.set_frame": {
       "source_blocks_sha256": [

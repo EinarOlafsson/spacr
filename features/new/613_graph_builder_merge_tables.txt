@@ -2,14 +2,12 @@
 GRAPH BUILDER MERGE-TABLES INTERFACE AND DERIVED-TABLE LIFECYCLE
 ================================================================================
 
-Status: OPEN — requirements recorded; acceptance not yet verified.
+Status: IMPLEMENTED 2026-10-01 — focused backend/Qt acceptance passed; publication in N615.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
-Owner: Codex inventory session (tracking only).
+Owner: Graph Builder and shared table-merge implementation scope.
 
-This update records requirements, not implementation or acceptance. The current
-user request is to update the lists and report scope; implementation and release
-operations are not performed by this inventory session. Earlier evidence remains
-historical and does not prove the newly requested acceptance conditions.
+The initial inventory recorded the requirements below. The 2026-10-01
+implementation and acceptance evidence at the end supersede its initial open status.
 
 WHAT TO DO AND HOW TO KNOW IT WORKED
 
@@ -85,3 +83,22 @@ read_table but no Merge tables button in the inspected header. Shared merge
 requirements are canonical in 79; Gate Editor integration is tracked in 41.
 
 Supporting API, docs, translations, tutorials and validation are tracked in 615.
+
+2026-10-01 IMPLEMENTATION AND ACCEPTANCE
+Merge tables now sits immediately right of GraphTablePicker and opens the shared
+N79 default/custom workflow. Validated named results persist in source-scoped
+sidecars, appear in the normal picker, survive refresh/reopen and reconstruct on
+load. The real GraphBuilderPanel plots their columns; unsupported image linking
+is disabled with an explanation while external-schema tabular plotting works.
+
+Save chart/Load chart retain chart channels, source and the full merge definition.
+Loading rebuilds and validates the result off-thread before applying chart axes;
+removing a sidecar does not break a chart carrying its embedded definition.
+The screen's workflow/API docstring documents the complete user-facing behavior.
+
+Validation: tests/qt/test_requested_graph_table_merges.py exercises actual scatter
+rendering, selection of named tables, refresh persistence, external-data plotting
+and saved chart reconstruction. Included in the passing 198-check merge cohort;
+existing Graph Builder screen/threaded-loading checks also passed in a 93-check
+targeted follow-up. Ruff and git diff checks pass. Translations, generated API
+and tutorial publication remain coordinated in N615.
