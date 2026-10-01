@@ -4,8 +4,9 @@ MAKE MASKS OFFERS EVERY DETECTION METHOD, AND WAYS TO MAKE OBJECTS EASIER TO SEE
 
 Status:    DONE 2026-09-25 (runtime). DONE WHEN met; the open question on
            Mask preprocessing was answered and built by 508 (on nightly).
-           Owed elsewhere: catalog rows (catalog lane), API/tutorial prose
-           (docs lane, 411); a U-Net measurement needs a checkpoint.
+           Caption rows were covered by the September27 catalogue pass.
+           Supporting API/tutorial acceptance remains in the docs lane
+           (411/615); a U-Net measurement needs a checkpoint.
 Owner:     Claude (spacr/qt/screens/make_masks.py and the detection engine).
 Requested: 2026-09-22, by the maintainer, in these words:
 

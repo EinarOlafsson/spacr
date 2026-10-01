@@ -2,10 +2,18 @@
 REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
 ================================================================================
 
-Status: IN PROGRESS — implementation pushed to nightly; supporting
-acceptance, translations, tutorials and release integration remain.
+Status: IN PROGRESS — runtime implementation pushed to nightly; supporting
+translation, tutorial and platform acceptance remains. The requested main
+promotion completed through PR #135 at 2429976f0 on 2026-10-01. Subsequent
+N625 multi-column annotations and N626 organizer repairs are nightly changes.
+Release run 36904849867 built and validated the distributions successfully;
+its PyPI publication job is queued, not verified published.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex implementation session.
+
+Historical inventory-only scope follows. The later implementation authorization
+and dated acceptance records below supersede its original no-implementation
+and no-push limitations.
 
 This update records requirements, not implementation or acceptance. The current
 user request is to update the lists and report scope; implementation and release
