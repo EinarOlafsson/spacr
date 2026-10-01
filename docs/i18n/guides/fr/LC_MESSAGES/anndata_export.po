@@ -38,7 +38,7 @@ msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes 
 msgstr "Définissez **Sortie Anndata** sur un nouveau nom de fichier ``.h5ad``. Si le champ reste vide, l’écriture se fait dans le dossier ``results`` du projet. Un export réussi remplace un fichier existant au chemin choisi ; utilisez des noms distincts pour conserver les deux versions."
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
-msgstr "Réglez **Tableau unique des données** sur ``cell`` pour obtenir une ligne par cellule avec les caractéristiques de cette table. Utilisez ``nucleus`` ou ``pathogen`` pour ces types d’objets. Laissez-le vide pour un export joint au niveau de la cellule, dans lequel les mesures des objets enfants sont agrégées sur leurs cellules parentes."
+msgstr "Réglez **Anndata : table unique** sur ``cell`` pour obtenir une ligne par cellule avec les caractéristiques de cette table. Utilisez ``nucleus`` ou ``pathogen`` pour ces types d’objets. Laissez-le vide pour un export joint au niveau de la cellule, dans lequel les mesures des objets enfants sont agrégées sur leurs cellules parentes."
 
 msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
 msgstr "Choisissez la **Règle nan pour Anndata**, puis cliquez sur **Exécuter**. Lisez le message de fin et ouvrez le fichier de sortie pour vérifier ses dimensions et les noms des caractéristiques."

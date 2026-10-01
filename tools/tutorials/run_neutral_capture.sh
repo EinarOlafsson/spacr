@@ -24,11 +24,14 @@ esac
 capture_repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 mkdir -p -- "$capture_stage"
 capture_stage=$(realpath -- "$capture_stage")
-capture_python=$(realpath --no-symlinks -- "$capture_python")
+capture_python=$(realpath -m --no-symlinks -- "$capture_python")
 capture_mount=/tmp/spacr-tutorials
 capture_network=()
 # A fixed display (SPACR_TUTORIAL_XVFB_SERVER=93) keeps parallel recorders apart.
 capture_display=(-a)
+# A Python bound inside the namespace (e.g. the conda tree at /tmp/conda, so
+# library warnings print a neutral path) is not runnable outside it; the
+# policy step then uses SPACR_TUTORIAL_HOST_PYTHON.
 # Extra read-only inputs a recorder reads beside its stage, as "SRC:DEST" pairs
 # (e.g. a retained catalog or synthetic database at DEST=/tmp/catalog).
 capture_binds=()
@@ -62,7 +65,7 @@ for capture_config in "$capture_stage"/config/*/; do
     [[ -d $capture_config ]] && capture_profiles+=("${capture_config%/}")
 done
 "$capture_repo/tools/run_capped.sh" 2G env QT_QPA_PLATFORM=offscreen \
-    "$capture_python" "$capture_repo/tools/tutorials/capture_policy.py" \
+    "${SPACR_TUTORIAL_HOST_PYTHON:-$capture_python}" "$capture_repo/tools/tutorials/capture_policy.py" \
     --force-alpha-off "${capture_profiles[@]}"
 
 exec "$capture_repo/tools/run_capped.sh" "${SPACR_TUTORIAL_MEMORY_CAP:-6G}" \

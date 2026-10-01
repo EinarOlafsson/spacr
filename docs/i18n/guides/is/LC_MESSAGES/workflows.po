@@ -278,7 +278,7 @@ msgid "Inputs and outputs below include conditional alternatives. The guidance a
 msgstr "Inntök og úttök hér að neðan innihalda skilyrta valkosti. Leiðbeiningarnar og afhendingarathugasemdirnar segja hvaða leið á við."
 
 msgid "**Inputs**"
-msgstr "**inntök**"
+msgstr "**Inntök**"
 
 msgid "**Microscope images** — Source image folder; original files, supported vendor files or imported TIFFs."
 msgstr "**Smásjármyndir** — Mappa upprunamynda; upprunalegar skrár, studdar framleiðandaskrár eða innfluttar TIFFs."

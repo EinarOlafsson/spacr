@@ -35,7 +35,7 @@ msgid "Select the measured project as the source."
 msgstr "Veldu mælda verkefnið sem uppruna."
 
 msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
-msgstr "Stilltu **Anndata út** á nýtt ``.h5ad``-skráarheiti. Ef reiturinn er skilinn eftir auður er skrifað undir möppuna ``results`` í verkefninu. Vel heppnaður útflutningur kemur í stað fyrirliggjandi skrár á valinni slóð; notaðu aðskilin heiti til að halda báðum útgáfum."
+msgstr "Stilltu **Anndata-úttaksskrá** á nýtt ``.h5ad``-skráarheiti. Ef reiturinn er skilinn eftir auður er skrifað undir möppuna ``results`` í verkefninu. Vel heppnaður útflutningur kemur í stað fyrirliggjandi skrár á valinni slóð; notaðu aðskilin heiti til að halda báðum útgáfum."
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
 msgstr "Stilltu **Anndata stök tafla** á ``cell`` til að fá eina röð á hverja frumu með eiginleikum þeirrar töflu. Notaðu ``nucleus`` eða ``pathogen`` fyrir þær hlutagerðir. Skildu reitinn eftir auðan fyrir samtengdan útflutning á frumustigi, þar sem mælingar undirhluta eru teknar saman á móðurfrumur þeirra."
