@@ -745,6 +745,8 @@ class ConditionAnnotationDialog(QDialog):
         self._columns = copy.deepcopy(self._initial.get("columns") or [{
             "column": self._initial.get("column", "condition"), "kind": "rules",
             "conditions": self._initial.get("conditions", [])}])
+        if definition is None:
+            self._columns[0]["_new_editor"] = True
         self._jobs = JobRunner(self, threaded=threaded, app_key="graph_builder")
         self._jobs.job_failed.connect(self._failed)
         self._schema_saves = JobRunner(self, threaded=threaded, app_key="graph_builder")
@@ -1233,7 +1235,7 @@ class ConditionAnnotationDialog(QDialog):
         self._composition_legacy = kind == "combine"
         for condition in item.get("conditions", []):
             self.add_box(condition)
-        if not self.boxes and kind == "rules":
+        if not self.boxes and kind == "rules" and item.pop("_new_editor", False):
             self.add_box()
         self._show_kind()
         self._loading_column = False
@@ -1290,7 +1292,7 @@ class ConditionAnnotationDialog(QDialog):
         while name in names:
             number += 1
             name = f"condition_{number}"
-        self._columns.append({"column": name, "kind": "rules", "conditions": []})
+        self._columns.append({"column": name, "kind": "rules", "conditions": [], "_new_editor": True})
         self._active_column = len(self._columns) - 1
         self._refresh_column_selector()
         self._load_column()

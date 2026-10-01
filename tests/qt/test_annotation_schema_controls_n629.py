@@ -90,6 +90,13 @@ def test_bad_schema_keeps_valid_draft_preview_and_apply(qtbot, tmp_path, monkeyp
     assert dialog.configuration() == previous
     assert dialog.result_frame is result
     assert dialog.apply_button.isEnabled()
+    payload['columns'] = [{'column': 'invalid', 'kind': 'rules', 'conditions': [{
+        'name': 'bad', 'metadata_column': ['filename'], 'include': 'WT'}]}]
+    path.write_text(json.dumps(payload))
+    click(qtbot, dialog.load_schema_button)
+    assert dialog.configuration() == previous
+    assert dialog.result_frame is result
+    assert dialog.apply_button.isEnabled()
 
 
 def test_manual_row_tokens_omitted_with_notice_but_regex_reused(qtbot, tmp_path, monkeypatch):
@@ -200,3 +207,28 @@ def test_threaded_save_keeps_chosen_snapshot_while_editor_changes(qtbot, tmp_pat
     assert json.loads(path.read_text())['columns'][-1]['column'] == 'condition'
     assert dialog.configuration()['columns'][-1]['column'] == 'renamed'
     dialog.reject()
+
+
+def test_explicit_empty_rules_survive_schema_save_load_and_column_switch(qtbot, tmp_path, monkeypatch):
+    path = tmp_path / 'empty.json'
+    files(monkeypatch, path)
+    dialog = dialog_for(qtbot)
+    dialog.remove_box(dialog.boxes[0])
+    click(qtbot, dialog.preview_button)
+    assert dialog.apply_button.isEnabled()
+    assert dialog.result_frame.condition.isna().all()
+    click(qtbot, dialog.save_schema_button)
+    target = dialog_for(qtbot)
+    click(qtbot, target.load_schema_button)
+    assert target.boxes == []
+    assert target.configuration()['conditions'] == []
+    assert target.apply_button.isEnabled(), target.status.text()
+    assert target.result_frame.condition.isna().all()
+    click(qtbot, target.add_column)
+    assert len(target.boxes) == 1  # New columns still offer a fresh rule editor.
+    target.column_selector.setCurrentIndex(0)
+    assert target.boxes == []
+    reopened = ui.ConditionAnnotationDialog(target.frame, backend.source_context(),
+                                            definition=target.configuration(), threaded=False)
+    qtbot.addWidget(reopened)
+    assert reopened.boxes == []
