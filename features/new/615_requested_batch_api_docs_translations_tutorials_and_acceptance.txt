@@ -335,3 +335,15 @@ independently technically reviewed by Codex agents; no native-speaker claim.
 Two focused placeholder/source-key tests pass. A broader mixed cohort hit its
 1GiB guard after nine pass markers; its failure is retained, with no cap raise.
 Receipt: features/data/615_table_controls_runtime_2026-10-01.json.
+
+2026-10-01 — CURRENT TABLE AND INSTALLATION GUIDES IN NINE LANGUAGES
+Commit ba7924264 adds 1,224 independently AI-reviewed messages across
+table_workflows, installer_guide, plaque_assay and plate_barcode_linkage.
+All 2,763 active messages in those four domains are translated; 36 catalogs
+compile, 26 guide/provenance tests pass, and 1,440 historical translations
+and their review comments remain unchanged. Source hashes, original drafts,
+corrections and final targets are retained in the permanent guide records.
+This is technical AI review, not native-speaker or listening signoff.
+Receipt: docs/i18n/reviewed/guides/2026-10-01-table-workflows-receipt.json.
+The next 42 missing messages per language and a later colony CSV paragraph
+remain in progress. A full current HTML rendering is not yet claimed.

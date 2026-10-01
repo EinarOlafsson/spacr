@@ -43,7 +43,7 @@ explicit mask-plane settings against this record before using them.
 pathogen mask plane valid.
 
 If a saved form disagrees with the folder, **Run** explains the mismatch.
-Choose **Use stored plane layout** to copy the recorded planes into the
+Choose **Use stored image layout** to copy the recorded planes into the
 form, review the object settings, then press **Run** again. An absent object
 uses ``None``. **Cancel** leaves the form unchanged. Sources with different
 or unknown layouts must be run separately with their matching settings.
