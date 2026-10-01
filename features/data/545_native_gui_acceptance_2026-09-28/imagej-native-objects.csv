@@ -1,9 +1,0 @@
-name,x,y,width,height,area,selection_type,class,object_id,object_type
-cell-3,5,5,25,20,416,9,infected,3,cell
-cell-4,0,0,96,3,288,4,cell,4,cell
-cell-7,30,5,15,20,300,4,cell,7,cell
-cell-9,30,30,22,20,71,9,dividing,9,cell
-cell-12,60,50,2,3,3,9,cell,12,cell
-cell-20,5,40,10,8,78,9,cell,20,cell
-cell-65535,90,60,6,4,24,4,cell,65535,cell
-nucleus-2,30,5,15,20,300,4,nucleus,2,nucleus
