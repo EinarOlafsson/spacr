@@ -95,13 +95,13 @@
       "hold_after": 0.7
     },
     {
-      "visual": "16_readable_preview",
+      "visual": "16b_overlay_settings",
       "narration": "Choose an example image and click Run preview. Right-click the picture and open Overlay settings, where Display switches between outlines and a filled overlay, to check whether the predicted regions follow plaque boundaries. Inspect several representative images before running a plate.",
       "focus": [
-        1510,
-        1248,
-        2300,
-        598
+        1700,
+        280,
+        1100,
+        1320
       ],
       "hold_after": 0.7
     },
@@ -139,7 +139,7 @@
       "hold_after": 0.7
     },
     {
-      "visual": "20_actual_database_help_route",
+      "visual": "20_help_route",
       "narration": "Open Help, then Database browser. Select plaques_analysis.db in the masks folder. Leave Edit mode off while inspecting the output, and choose a table from the table list.",
       "related_lessons": [
         "34_database"
