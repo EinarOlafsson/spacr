@@ -551,6 +551,135 @@ def runtime_defects(language: str) -> dict[str, str]:
     return json.loads(path.read_text(encoding="utf-8"))["defects"]
 
 
+def runtime_ui_name(name: str, language: str):
+    """The name the running app shows: exact UI row, else the setting label."""
+    sys.path.insert(0, str(ROOT))
+    from spacr.qt.i18n import _exact_translation
+    from spacr.qt.i18n_catalogs import en as _english_catalog, setting_label
+
+    exact = _exact_translation(name, language)
+    if exact:
+        return exact
+    for key, label in getattr(_english_catalog, "SETTING_LABELS", {}).items():
+        if "." not in key and label == name:
+            return setting_label(key, name, language)
+    return None
+
+
+def defect_snapshot(language: str) -> dict[str, dict[str, str]]:
+    """``{English: {"runtime": wrong app value, "guide": term the guides use}}``.
+
+    A defect is open while the app still shows exactly ``runtime``. Once the
+    runtime catalog is corrected the glossary adopts the app's new name and
+    :func:`retarget_fixed_defects` switches the guides over to it.
+    """
+    path = GLOSSARY_DIR / f"{language}.defects.json"
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8")).get("snapshot", {})
+
+
+def _bold_alignment(msgid: str, msgstr: str):
+    """Pairs of (English part, translated part) for aligned bold spans."""
+    source, target = _BOLD_RE.findall(msgid), _BOLD_RE.findall(msgstr)
+    if len(source) != len(target):
+        return []
+    pairs = []
+    for left, right in zip(source, target):
+        left_parts = re.split(r"\s*→\s*", left)
+        right_parts = re.split(r"\s*→\s*", right)
+        if len(left_parts) == len(right_parts):
+            pairs.extend(zip((x.strip() for x in left_parts),
+                             (y.strip() for y in right_parts)))
+    return pairs
+
+
+def snapshot_defects(language: str, locale_dir: Path = LOCALE_DIR) -> dict:
+    """Record each open defect's wrong runtime value and the guides' term."""
+    path = GLOSSARY_DIR / f"{language}.defects.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    used: dict[str, dict[str, int]] = {}
+    for po in sorted((locale_dir / language / "LC_MESSAGES").glob("*.po")):
+        for message in read_catalog(po):
+            if message.id and message.string and not message.fuzzy:
+                pairs = _bold_alignment(message.id, message.string)
+                if message.id in data["defects"]:   # a heading or table cell
+                    pairs.append((message.id, message.string))
+                for english, term in pairs:
+                    if english in data["defects"]:
+                        used.setdefault(english, {}).setdefault(term, 0)
+                        used[english][term] += 1
+    snapshot = data.get("snapshot", {})
+    for english in data["defects"]:
+        runtime = runtime_ui_name(english, language)
+        if english in used:
+            guide = max(used[english], key=used[english].get)
+        else:
+            guide = snapshot.get(english, {}).get("guide", "")
+        snapshot[english] = {"runtime": runtime or "", "guide": guide}
+    data["snapshot"] = snapshot
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n",
+                    encoding="utf-8")
+    return snapshot
+
+
+def retarget_fixed_defects(language: str, locale_dir: Path = LOCALE_DIR) -> dict:
+    """Switch the guides to corrected runtime names and close those defects.
+
+    A defect is fixed when the app's row differs from the recorded wrong
+    value. Every bold occurrence of the guides' interim term for that UI name
+    becomes the app's new name; the result must still pass
+    :func:`message_problems`, and the defect leaves ``defects.json``.
+    """
+    path = GLOSSARY_DIR / f"{language}.defects.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    fixed = {}
+    for english, record in data.get("snapshot", {}).items():
+        current = runtime_ui_name(english, language) or ""
+        if english in data["defects"] and current and current != record["runtime"]:
+            fixed[english] = (record["guide"], current)
+    if not fixed:
+        return {}
+    changed = 0
+    for po in sorted((locale_dir / language / "LC_MESSAGES").glob("*.po")):
+        catalog = read_catalog(po)
+        touched = False
+        for message in catalog:
+            if not message.id or not message.string or message.fuzzy:
+                continue
+            text = message.string
+            for english, (old, new) in fixed.items():
+                if not old or english not in message.id:
+                    continue
+                if english in ui_names(message.id):
+                    text = re.sub(r"\*\*([^*]+)\*\*",
+                                  lambda m: "**" + re.sub(
+                                      r"(^|(?<=→ ))" + re.escape(old) + r"(?=$| →)",
+                                      new, m.group(1)) + "**", text)
+                else:
+                    # Headings, table cells and image alt text name the
+                    # control in plain text: replace the interim term there.
+                    text = text.replace(old, new)
+            if text != message.string:
+                message.string = text
+                touched = True
+                changed += 1
+        if touched:
+            write_catalog(po, catalog)
+    for english in fixed:
+        data["defects"].pop(english, None)
+        data["snapshot"].pop(english, None)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n",
+                    encoding="utf-8")
+    manual = sorted(english for english, (old, _new) in fixed.items() if not old)
+    return {"fixed": sorted(fixed), "messages": changed,
+            "check_by_hand": manual}
+
+
 def build_glossary(language: str, pot_dir: Path) -> dict[str, str]:
     """English UI names in the guides -> the running app's translation."""
     sys.path.insert(0, str(ROOT))
@@ -578,6 +707,7 @@ def build_glossary(language: str, pot_dir: Path) -> dict[str, str]:
                 names.update(ui_names(msgid))
     terms, suspect = {}, {}
     defects = runtime_defects(language)
+    snapshots = defect_snapshot(language)
     for name in sorted(names):
         if len(name) > 60 or "``" in name or not re.search(r"[A-Za-z]", name):
             continue
@@ -586,7 +716,8 @@ def build_glossary(language: str, pot_dir: Path) -> dict[str, str]:
         translated = runtime_name(name)
         if not translated or translated == name:
             continue
-        if name in defects:
+        record = snapshots.get(name)
+        if name in defects and (record is None or record["runtime"] == translated):
             suspect[name] = translated
             continue
         words = set(re.findall(r"[a-z]+", translated.lower()))
@@ -844,6 +975,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--language", required=True, choices=LANGUAGES)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--page", action="append")
+    p = sub.add_parser("defects", help="snapshot open runtime defects, or "
+                       "switch the guides to runtime names that were fixed")
+    p.add_argument("action", choices=("snapshot", "retarget"))
+    p.add_argument("--language", action="append", choices=LANGUAGES)
     p = sub.add_parser("prefill", help="reuse exact runtime UI translations")
     p.add_argument("--language", action="append", choices=LANGUAGES)
     p.add_argument("--page", action="append")
@@ -878,6 +1013,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "glossary":
         for language in languages:
             print(f"{language}: {len(build_glossary(language, args.pot))} UI names")
+        return 0
+    if args.command == "defects":
+        for language in languages:
+            if args.action == "snapshot":
+                print(f"{language}: {len(snapshot_defects(language))} open defects recorded")
+            else:
+                print(f"{language}: {retarget_fixed_defects(language) or 'no fixed defects'}")
         return 0
     if args.command == "prefill":
         for language in languages:

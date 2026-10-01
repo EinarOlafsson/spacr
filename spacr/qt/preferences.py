@@ -216,6 +216,7 @@ _KEY_TOOLTIPS_BOTTOM = "prefs/tooltips_bottom"
 #: SETTINGS surfaces above: those answer "what is this setting", this one
 #: answers "do small labels pop up at all".
 _KEY_TOOLTIPS_ENABLED = "prefs/tooltips_enabled"
+_KEY_TOOLTIP_DELAY = "prefs/tooltip_delay"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
 _KEY_FONT_WEIGHT = "prefs/interface_font_weight"
@@ -3716,6 +3717,59 @@ def set_tooltips_enabled(on: bool) -> None:
 
 
 
+#: Seconds the pointer rests before a tooltip appears, out of the box.
+_TOOLTIP_DELAY_DEFAULT = 2.0
+_TOOLTIP_DELAY_MIN = 0.0
+_TOOLTIP_DELAY_MAX = 10.0
+
+
+def _clamped_tooltip_delay(value) -> float:
+    """``value`` as seconds within the allowed range; the default if junk.
+
+    :param value: anything a store or a caller may hand over.
+    :returns: seconds between the minimum and the maximum.
+    """
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError):
+        return _TOOLTIP_DELAY_DEFAULT
+    if seconds != seconds:
+        return _TOOLTIP_DELAY_DEFAULT
+    return max(_TOOLTIP_DELAY_MIN, min(_TOOLTIP_DELAY_MAX, seconds))
+
+
+def _get_tooltip_delay() -> float:
+    """How long the pointer rests before a tooltip appears, in seconds.
+
+    Two seconds unless chosen otherwise, clamped to 0-10 on read so a
+    hand-edited store cannot make tooltips unreachable. Read by
+    :mod:`spacr.qt.tooltip_policy`, which caches it.
+    """
+    return _clamped_tooltip_delay(
+        _settings().value(_KEY_TOOLTIP_DELAY, _TOOLTIP_DELAY_DEFAULT))
+
+
+def _set_tooltip_delay(seconds) -> float:
+    """Store the tooltip delay and apply it at once, everywhere.
+
+    Drops the tooltip policy's cached delay, so the next hover anywhere in
+    the application waits the new time.
+
+    :param seconds: the delay; clamped to 0-10, junk stores the default.
+    :returns: the value stored.
+    """
+    value = _clamped_tooltip_delay(seconds)
+    settings = _settings()
+    settings.setValue(_KEY_TOOLTIP_DELAY, value)
+    settings.sync()
+    try:
+        from .tooltip_policy import invalidate_tooltip_policy
+        invalidate_tooltip_policy()
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("could not refresh the tooltip policy", exc_info=True)
+    return value
+
+
 def get_setting_animations_enabled() -> bool:
     """Whether setting tooltips show their animation WITHOUT being asked.
 
@@ -6318,6 +6372,7 @@ PREFERENCE_TIPS = {
     "Colour-blind mode": "Use interface and figure colours designed to remain distinguishable for common colour-vision deficiencies.",
     "Module visibility": "Select the module maturity levels shown in navigation: stable only, or stable with beta and alpha modules.",
     "Show busy spinner after": "Delay before displaying the busy indicator for a running task.",
+    "Tooltip delay": "Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.",
     "Page opacity": "Page opacity relative to the animated background.",
     "Animation detail": "Backdrop rendering detail. Reduce this value if animation affects interface performance.",
     "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
@@ -6763,8 +6818,30 @@ class PreferencesDialog:
 
         form = _page("General", "PreferencesTabGeneral")
         appearance = _page("Appearance", "PreferencesTabAppearance")
-        theme_tab = _page("Theme", "PreferencesTabTheme")
-        animation = _page("Animation", "PreferencesTabAnimation")
+        from .widgets.section import Section
+
+        def _category(title: str, object_name: str):
+            """Add a folded category to Appearance and return its form.
+
+            The category is the same widget the module screens group their
+            settings with, so it folds and looks the way every other
+            settings category does. Its rows sit in a holder named
+            ``object_name``, which is what the Help search opens the dialog
+            on; the navigation unfolds the category on the way to a row.
+            """
+            category = Section(title)
+            holder = QWidget()
+            holder.setObjectName(object_name)
+            category_form = QFormLayout(holder)
+            category_form.setContentsMargins(0, 0, 0, 0)
+            category_form.setFieldGrowthPolicy(
+                QFormLayout.AllNonFixedFieldsGrow)
+            category.add_prose(holder)
+            return category, category_form
+
+        theme_category, theme_tab = _category("Theme", "PreferencesTabTheme")
+        animation_category, animation = _category(
+            "Animation", "PreferencesTabAnimation")
         performance = _page("Performance", "PreferencesTabPerformance")
         modules = _page("Modules", "PreferencesTabModules")
         figures = _page("Figures", "PreferencesTabFigures")
@@ -7085,6 +7162,34 @@ class PreferencesDialog:
         )
         tooltips_all_check.setChecked(get_tooltips_enabled())
         appearance.addRow(tr("Tooltips"), tooltips_all_check)
+
+        tooltip_delay_slider = QSlider(Qt.Horizontal)
+        tooltip_delay_slider.setObjectName("TooltipDelay")
+        tooltip_delay_slider.setRange(int(_TOOLTIP_DELAY_MIN * 10),
+                                      int(_TOOLTIP_DELAY_MAX * 10))
+        tooltip_delay_slider.setSingleStep(1)
+        tooltip_delay_slider.setPageStep(5)
+        tooltip_delay_slider.setTickInterval(10)
+        tooltip_delay_slider.setValue(
+            int(round(_get_tooltip_delay() * 10)))
+        tooltip_delay_slider.setToolTip(PREFERENCE_TIPS["Tooltip delay"])
+        tooltip_delay_value = QLabel()
+
+        def _update_tooltip_delay_lbl(v):
+            """Show the tooltip delay in seconds, or "show immediately" at zero."""
+            tooltip_delay_value.setText(
+                tr("show immediately") if v == 0 else f"{v / 10:.1f} s")
+
+        tooltip_delay_slider.valueChanged.connect(_update_tooltip_delay_lbl)
+        _update_tooltip_delay_lbl(tooltip_delay_slider.value())
+        tooltips_all_check.toggled.connect(tooltip_delay_slider.setEnabled)
+        tooltip_delay_slider.setEnabled(tooltips_all_check.isChecked())
+        tooltip_delay_column = QVBoxLayout()
+        tooltip_delay_column.setContentsMargins(0, 0, 0, 0)
+        tooltip_delay_column.addWidget(tooltip_delay_slider)
+        tooltip_delay_column.addWidget(tooltip_delay_value)
+        appearance.addRow(tr("Tooltip delay"),
+                          _hbox_wrap(tooltip_delay_column))
 
         tooltips_box_check = Toggle(tr("Tooltips box"))
         tooltips_box_check.setObjectName("TooltipsBox")
@@ -7892,6 +7997,8 @@ class PreferencesDialog:
         font_weight.setCurrentIndex(
             max(0, font_weight.findData(get_interface_font_weight())))
         appearance.addRow(tr("Interface font"), font_weight)
+        appearance.addRow(theme_category)
+        appearance.addRow(animation_category)
 
         if spaceout_enabled():
             fractal = _page("Fractal", "PreferencesTabFractal")
@@ -8416,6 +8523,8 @@ class PreferencesDialog:
                 setting_anim_check.setChecked(
                     get_setting_animations_enabled())
                 tooltips_all_check.setChecked(get_tooltips_enabled())
+                tooltip_delay_slider.setValue(
+                    int(round(_get_tooltip_delay() * 10)))
                 field_fade_check.setChecked(get_field_fade_enabled())
                 hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
@@ -8476,6 +8585,7 @@ class PreferencesDialog:
             set_spinner_delay(spinner_slider.value() / 10.0)
             set_setting_animations_enabled(setting_anim_check.isChecked())
             set_tooltips_enabled(tooltips_all_check.isChecked())
+            _set_tooltip_delay(tooltip_delay_slider.value() / 10.0)
             set_tooltips_box_enabled(tooltips_box_check.isChecked())
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())

@@ -16,5 +16,59 @@
   "Resume checkpoint": "'Reanudar el puesto de control' uses a police/border checkpoint; the setting resumes from a saved checkpoint ('Reanudar desde el punto de control')",
   "Hit List": "'Lista de aciertos' means a list of correct answers; screen hits are candidates ('Lista de candidatos')",
   "Setting animations": "'Configuración de animaciones' reads 'animation configuration'; the preference means animations for settings ('Animaciones de ajustes')"
+ },
+ "snapshot": {
+  "Anndata nan policy": {
+   "runtime": "Política de la empresa Anndata nan",
+   "guide": "Política de NaN de AnnData"
+  },
+  "Anndata out": {
+   "runtime": "Annadata out",
+   "guide": "Salida de AnnData"
+  },
+  "Inputs": {
+   "runtime": "Aportaciones",
+   "guide": "Entradas"
+  },
+  "Outputs": {
+   "runtime": "Productos",
+   "guide": "Salidas"
+  },
+  "Model zoo…": {
+   "runtime": "Zoológico modelo...",
+   "guide": "Biblioteca de modelos…"
+  },
+  "Promote calls to annotation": {
+   "runtime": "Promover llamadas a la anotación",
+   "guide": "Convertir llamadas en anotaciones"
+  },
+  "Undo promotion": {
+   "runtime": "Deshacer la promoción",
+   "guide": "Deshacer la conversión"
+  },
+  "Taper onto the gradient": {
+   "runtime": "Cinta en el gradiente",
+   "guide": "Ajustar al gradiente"
+  },
+  "Train": {
+   "runtime": "Tren",
+   "guide": "Entrenar"
+  },
+  "Walk": {
+   "runtime": "Caminar",
+   "guide": "Búsqueda paso a paso"
+  },
+  "Resume checkpoint": {
+   "runtime": "Reanudar el puesto de control",
+   "guide": "Reanudar desde el punto de control"
+  },
+  "Hit List": {
+   "runtime": "Lista de aciertos",
+   "guide": "Lista de candidatos"
+  },
+  "Setting animations": {
+   "runtime": "Configuración de animaciones",
+   "guide": ""
+  }
  }
 }

@@ -459,6 +459,12 @@ class PCAScoresCanvas(GraphCanvas):
         self._result = result
         self.set_frame(frame)
 
+    def _take_result(self, result: PCAResult, frame: pd.DataFrame) -> None:
+        """:meth:`set_result` without the draw, for a caller that sets the
+        spec next and so draws the new scores once."""
+        self._result = result
+        self._take_frame(frame)
+
     @property
     def result(self) -> Optional[PCAResult]:
         """The decomposition being plotted, if any.
@@ -852,8 +858,7 @@ class PCAPanel(QWidget):
         self._result = result
         self._scores = outcome["scores"]
         self._sync_component_pickers(result)
-        self.scree.set_result(result, highlight=self._plane())
-        self.canvas.set_result(result, self._scores)
+        self.canvas._take_result(result, self._scores)
         self._apply_view()
         self.report.setText(result.report())
         self.computed.emit(result)

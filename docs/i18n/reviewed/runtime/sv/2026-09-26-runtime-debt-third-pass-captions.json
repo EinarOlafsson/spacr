@@ -62,13 +62,6 @@
     },
     {
       "table": "ui",
-      "key": "Contribute images and masks…",
-      "source": "Contribute images and masks…",
-      "source_sha256": "29c248e5c0248a139b862abbbf0d233d877c8c924c428ce32fe8e47141ae0985",
-      "translation": "Bidra med bilder och masker…"
-    },
-    {
-      "table": "ui",
       "key": "Contribute training data",
       "source": "Contribute training data",
       "source_sha256": "275f11bfbc2cbfa2205294a60eb9c8ba374151cdc38c2ff59e6818526d1b1606",

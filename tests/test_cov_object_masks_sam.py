@@ -695,3 +695,23 @@ def test_empty_npz_batch_is_handled_gracefully(tmp_path, fake_model):
 
     assert O.generate_cellpose_masks_sam(str(src), _settings(src), "cell") is None
     assert _mask_files(src) == []
+
+
+def test_timelapse_lineage_and_events_run_after_tracking(
+        tmp_path, fake_model, fake_timelapse, monkeypatch):
+    import spacr.timelapse as TL
+
+    calls = []
+    monkeypatch.setattr(TL, "_run_lineage_step",
+                        lambda src, name, obj, mode, settings:
+                        calls.append(("lineage", obj, mode)))
+    monkeypatch.setattr(TL, "_run_event_features_step",
+                        lambda src, name, obj, stack, images, mode, settings:
+                        calls.append(("events", obj, mode)))
+    src = tmp_path / "stack"
+    _write_npz(src, n=2)
+    settings = _tl_settings(src, batch_size=2, timelapse_mode="trackpy",
+                            timelapse_lineage=True, timelapse_events=True)
+    O.generate_cellpose_masks_sam(str(src), settings, "cell")
+    assert calls == [("lineage", "cell", "trackpy"),
+                     ("events", "cell", "trackpy")]

@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "HomeのToolsカテゴリーからAlign and Stitchを開きます。タイルを選び、Planで配置を確認してから、Write stackでモザイクを作ります。",
     "下の例をダウンロードして展開し、そのtilesフォルダーを選びます。三かける三のグリッドに並んだ、重なり合う九枚の切り出し画像が入っています。自分の取得データでは、元のタイルの順序とステージのメタデータを用意しておきます。",
+    "公開データで練習する場合は、Load test dataを押します。spaCRは光学的プールドスクリーンから重なり合う九枚のタイルをダウンロードし、タイルのフォルダー、グリッド、順序、重なり、出力フォルダーを入力するので、すぐにPlanを押せます。次の手順では、ダウンロードできる例の設定を使います。",
     "この例では、グリッドを三かける三、行優先の順序、重なりをゼロ点二五にします。これらの設定は取得条件に合わせます。一行ごとに逆方向で取得した場合は、蛇行順を使います。",
     "Reference channelに、位置合わせに使う画像の面を設定します。この例ではチャネル一、つまりゼロから数えて二番目の面を使います。重なりの部分に構造が見えるチャネルを選びます。得られた配置は、画像のすべてのチャネルに適用されます。",
     "位置合わせを受け入れる基準としてMinimum confidenceを、比べる近くのタイルの範囲としてNeighbour radiusを設定します。この例ではゼロ点三と一を使い、重なりの部分はなめらかにつなぎます。バンドバッファーの上限は、画像の書き出しに使うメモリーを制御します。",

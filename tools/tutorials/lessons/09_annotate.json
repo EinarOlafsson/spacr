@@ -153,8 +153,26 @@
       ]
     },
     {
-      "visual": "14_restored_rgb",
-      "narration": "Suggest can propose labels for you to review. Retrain updates the model after you add labels, and Rounds helps you follow that review cycle. Check suggested labels before accepting them.",
+      "visual": "19_labels_for_suggest",
+      "narration": "Suggest proposes labels for the crops you have not answered yet, so it needs examples of both classes first. Label a handful of each, here ten of class one and ten of class two, and move to the next page so they are saved.",
+      "focus": [
+        360,
+        380,
+        3450,
+        1000
+      ],
+      "related_lessons": [],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_suggest_menu",
+      "narration": "Then open Suggest and choose Suggest for the images on this page. Each suggested crop wears a question-mark badge: click it or press Y to confirm, right-click it or press N to reject. Both answers are recorded, rejections train the next round, and Rounds shows how the model improves as you go.",
+      "focus": [
+        1600,
+        190,
+        450,
+        110
+      ],
       "hold_after": 0.7
     },
     {

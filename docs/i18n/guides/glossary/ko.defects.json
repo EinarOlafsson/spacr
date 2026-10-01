@@ -26,5 +26,99 @@
   "Nucleus diameter": "'핵 다이아몬드' means 'nucleus diamond'; the setting is '핵 직경'",
   "Pathogen diameter": "'병성 다이아몬드' means 'pathological diamond'; the setting is '병원체 직경'",
   "Z projection": "'Z 프로젝트' means 'Z project' (a work project); the setting is 'Z 투영'"
+ },
+ "snapshot": {
+  "Anndata nan policy": {
+   "runtime": "안다타 나노 정책",
+   "guide": "Anndata NaN 정책"
+  },
+  "Anndata out": {
+   "runtime": "안다타 밖으로",
+   "guide": "Anndata 출력"
+  },
+  "Batch correction": {
+   "runtime": "배치 수정",
+   "guide": "배치 보정"
+  },
+  "Cell probability": {
+   "runtime": "셀 가능성",
+   "guide": "세포 확률"
+  },
+  "Clear all": {
+   "runtime": "명확한 모든",
+   "guide": "모두 지우기"
+  },
+  "Model zoo…": {
+   "runtime": "동물원 모델...",
+   "guide": "모델 라이브러리…"
+  },
+  "Open folder…": {
+   "runtime": "개방된 폴더",
+   "guide": "폴더 열기…"
+  },
+  "Outputs": {
+   "runtime": "출구",
+   "guide": "출력"
+  },
+  "Parameter sweep": {
+   "runtime": "파라미터 스프레이",
+   "guide": "매개변수 탐색"
+  },
+  "Preferences": {
+   "runtime": "우선순위",
+   "guide": "환경설정"
+  },
+  "Promote calls to annotation": {
+   "runtime": "Annotation에 대한 호출을 홍보하기",
+   "guide": "판정을 어노테이션으로 승격"
+  },
+  "Re-flood below the escape": {
+   "runtime": "탈출 아래로 다시 비가 내린다.",
+   "guide": "이탈 지점 아래에서 다시 채우기"
+  },
+  "Resume checkpoint": {
+   "runtime": "체크 포인트",
+   "guide": "체크포인트에서 재개"
+  },
+  "Run queue": {
+   "runtime": "라운드 퀴즈",
+   "guide": "라운드 퀴즈"
+  },
+  "Save mask": {
+   "runtime": "마스크를 구하라",
+   "guide": "마스크 저장"
+  },
+  "Taper onto the gradient": {
+   "runtime": "그라디언트를 향한 타이퍼",
+   "guide": "기울기에 맞춰 가늘게 다듬기"
+  },
+  "Train": {
+   "runtime": "기차",
+   "guide": "학습"
+  },
+  "Undo promotion": {
+   "runtime": "홍보도 안다",
+   "guide": "승격 취소"
+  },
+  "Activation Maps": {
+   "runtime": "활성화 지도",
+   "guide": ""
+  },
+  "Cell diameter": {
+   "runtime": "세포 다이아몬드",
+   "guide": "세포 직경"
+  },
+  "Nucleus diameter": {
+   "runtime": "핵 다이아몬드",
+   "guide": "핵 직경"
+  },
+  "Pathogen diameter": {
+   "runtime": "병성 다이아몬드",
+   "guide": "병원체 직경"
+  },
+  "Z projection": {
+   "runtime": "Z 프로젝트",
+   "guide": "Z 투영"
+  }
  }
 }

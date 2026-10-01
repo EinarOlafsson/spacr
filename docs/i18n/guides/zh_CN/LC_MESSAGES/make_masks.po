@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-09-30 21:19-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -49,8 +49,8 @@ msgstr "切换到另一个视野之前，请按 **保存掩膜** 或 **Ctrl+S**�
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "使用 **保留** 或 **放弃** 记录视野级的整理结论并前进到下一个视野。这些结论写入 ``csv/keep_discard.csv``；放弃只记录决定，不会删除图像或其掩膜。编辑需要单独保存。"
 
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. **Training datasets…** opens a sample of fields from the dataset each published model was trained on."
-msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。**训练数据集…** 会从每个已发布模型的训练数据集中打开一个视野样本。"
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
+msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。同一按钮上的箭头可打开每个已发布模型所用训练数据集中的视野样本。"
 
 msgid "Drop images and folders"
 msgstr "拖放图像和文件夹"
@@ -370,11 +370,11 @@ msgstr "选择 **教我…**，一次针对一张图像回答“这是哪个通�
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**添加通道** 和 **添加掩膜** 用于添加列；每个掩膜列都会注明其对象类别（细胞、细胞核、病原体或细胞器）以及其勾勒的图像所在的通道。合并后的文件夹按其文件的原始名称读取。缺少图像的行会阻止 **应用** 并说明如何修复；RGB 图像和 z 栈可转换为单个灰度平面，原始文件会被保留。在 **应用** 之前不会移动任何内容。之后，图像会被移入源文件夹内的 ``sorted_channels/``，每个通道一个文件夹，另有掩膜和 ``merged/``，每次移动都记录在 ``channel_sorting_manifest.csv`` 中。将测量模块的 ``src`` 指向该 ``sorted_channels`` 文件夹。参见 :func:`spacr.channel_sorting.build_plan` 和 :ref:`测量的输入和输出 <workflow-module-measure>`。"
 
-msgid "Contribute images and masks"
-msgstr "贡献图像和掩膜"
+msgid "Upload data"
+msgstr "上传数据"
 
-msgid "**Contribute images and masks…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
-msgstr "**贡献图像和掩膜…** 会将屏幕上的图像及其掩膜、文件夹中每张已整理的图像及其保存的掩膜，或所选的图像文件夹和掩膜文件夹，发送到 spaCR 在 Hugging Face 上的社区数据集，用于训练未来的模型。每张图像都需要一个同名且尺寸相同的已保存掩膜。为数据集命名、添加说明并同意许可协议；对话框会将目标位置显示为一个可以打开、选择和复制的链接。新数据集会随其第一次上传而出现，每份贡献在使用前都会经过审查。"
+msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**上传数据…** 会将屏幕上的图像及其掩膜、文件夹中每张已整理的图像及其保存的掩膜，或所选的图像文件夹和掩膜文件夹，发送到 spaCR 在 Hugging Face 上的社区数据集，用于训练未来的模型。每张图像都需要一个同名且尺寸相同的已保存掩膜。为数据集命名、添加说明并同意许可协议；对话框会将目标位置显示为一个可以打开、选择和复制的链接。新数据集会随其第一次上传而出现，每份贡献在使用前都会经过审查。"
 
 msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
 msgstr "标题栏还可打开 Cellpose 工作台、为整个文件夹生成掩膜、模型比较、模型库、校正和 napari 桥接。它们的输入/输出约定链接自 :ref:`模块图 <workflow-module-make_masks>`。"

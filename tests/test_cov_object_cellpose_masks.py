@@ -1266,3 +1266,24 @@ def test_module_imports_and_display_is_a_no_op_when_ipython_is_unavailable(
 
     # and the module is intact afterwards
     assert callable(O.generate_cellpose_masks)
+
+
+def test_timelapse_lineage_and_events_run_after_tracking(
+        tmp_path, fake_cellpose, fake_timelapse, monkeypatch):
+    """With lineage trees and event detection on, each tracked field is
+    handed to both steps with the tracker that produced its tracks."""
+    import spacr.timelapse as TL
+
+    calls = []
+    monkeypatch.setattr(TL, "_run_lineage_step",
+                        lambda src, name, obj, mode, settings:
+                        calls.append(("lineage", name, obj, mode)))
+    monkeypatch.setattr(TL, "_run_event_features_step",
+                        lambda src, name, obj, stack, images, mode, settings:
+                        calls.append(("events", name, obj, mode, len(stack))))
+    src = tmp_path / "stack"
+    _write_npz(src, n=3)
+    O.generate_cellpose_masks(str(src), _tl(src, timelapse_lineage=True,
+                                            timelapse_events=True), "nucleus")
+    assert calls == [("lineage", "batch1", "nucleus", "trackpy"),
+                     ("events", "batch1", "nucleus", "trackpy", 3)]

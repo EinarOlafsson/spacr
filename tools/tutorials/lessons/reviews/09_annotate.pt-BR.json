@@ -1,10 +1,10 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a3acb3d56217b54087148d2878efa6bce013ff9177d326bc4d388b3680bb96d5",
+  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -36,7 +36,8 @@
     "Esta é a paleta CMY. Você pode voltar para RGB nas mesmas configurações. Mantenha a mesma visualização enquanto compara e rotula objetos.",
     "Abra o Annotator Agreement pelo ícone no canto superior direito para comparar colunas de anotação. Use-o para encontrar objetos que revisores rotularam de formas diferentes.",
     "Quando seus rótulos estiverem prontos, abra Train. Escolha imagens para um classificador de imagens ou características medidas para um classificador tabular. As aulas de Classify indicadas explicam as configurações de treinamento.",
-    "O Suggest pode propor rótulos para você revisar. O Retrain atualiza o modelo depois que você adiciona rótulos, e o Rounds ajuda a acompanhar esse ciclo de revisão. Confira os rótulos sugeridos antes de aceitá-los.",
+    "Suggest propõe rótulos para os recortes que você ainda não respondeu, por isso precisa primeiro de exemplos das duas classes. Rotule alguns de cada, aqui dez da classe um e dez da classe dois, e vá para a próxima página para que sejam salvos.",
+    "Depois abra Suggest e escolha Suggest for the images on this page. Cada recorte sugerido recebe um ponto de interrogação: clique nele ou pressione Y para confirmar, clique com o botão direito ou pressione N para rejeitar. As duas respostas são registradas, as rejeições treinam a próxima rodada e Rounds mostra como o modelo melhora ao longo do trabalho.",
     "Generate annotation database cria um conjunto de recortes a partir de dados de origem adequados. Use-o ao preparar um novo projeto de anotação; o exemplo baixado já inclui os recortes e o banco de dados necessários aqui.",
     "Abra o Console para conferir as mensagens de carregamento da origem e de salvamento. Sua coluna de anotação fica guardada no banco de dados do projeto e pode ser selecionada quando você preparar os dados de treinamento no Classify.",
     "Para obter ajuda com uma configuração, abra o spaCR AI no Console depois de configurar um provedor em Preferences. Quando terminar de rotular, continue no Classify com seu projeto e a coluna de anotação escolhida."

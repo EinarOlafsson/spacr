@@ -32,7 +32,7 @@ def test_flat_and_tiny_fields_have_no_separation():
 
 def test_a_source_without_its_input_is_refused():
     with pytest.raises(ValueError, match="unknown confluency source"):
-        m._field_confluency(np.zeros((8, 8)), source="phase")
+        m._field_confluency(np.zeros((8, 8)), source="holography")
     with pytest.raises(ValueError, match="needs a cell mask"):
         m._field_confluency(np.zeros((8, 8)), source="masks")
     with pytest.raises(ValueError, match="the intensity confluency source "

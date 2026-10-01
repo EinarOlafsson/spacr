@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "Na categoria Tools da tela Home, abra Align and Stitch. Escolha os blocos, revise o layout deles com Plan e depois use Write stack para criar o mosaico.",
     "Baixe e descompacte o exemplo abaixo e selecione a pasta tiles dele. Ela contém nove recortes sobrepostos dispostos numa grade de três por três. Na sua própria aquisição, mantenha disponíveis a ordem original dos blocos e os metadados da platina.",
+    "Para praticar com dados publicados, pressione Load test data. O spaCR baixa nove blocos sobrepostos de uma triagem óptica em pool e preenche a pasta dos blocos, a grade, a ordem, a sobreposição e a pasta de saída, para você pressionar Plan na hora. Os próximos passos usam as configurações do exemplo para download.",
     "Neste exemplo, defina a grade como três por três, ordem por linhas e sobreposição de zero vírgula dois cinco. Ajuste esses valores à sua aquisição; use a ordem em serpentina quando linhas alternadas foram adquiridas em sentidos opostos.",
     "Defina Reference channel como o plano de imagem usado para o registro. Este exemplo usa o canal um, o segundo plano na numeração a partir de zero. Escolha um canal com estruturas visíveis nas sobreposições; o posicionamento resultante vale para todos os canais da imagem.",
     "Defina Minimum confidence para aceitar um registro e Neighbour radius para os blocos vizinhos a comparar. O exemplo usa zero vírgula três e um, com transição suave nas sobreposições. O orçamento do buffer de faixas controla a memória usada pela gravação das imagens.",

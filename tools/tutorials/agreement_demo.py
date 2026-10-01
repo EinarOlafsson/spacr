@@ -49,7 +49,7 @@ def prepare(stage):
     target = root / 'measurements/measurements.db'
     path_index = columns.index('png_path')
     entries, copied = [], []
-    source_prefix = Path('/home/olafsson/.cache/spacr/example_data/plate1')
+    source_prefix = Path.home() / '.cache/spacr/example_data/plate1'
     with sqlite3.connect(target) as db:
         db.execute(schema)
         for name in COLUMNS:

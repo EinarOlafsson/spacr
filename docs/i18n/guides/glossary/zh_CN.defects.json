@@ -22,5 +22,83 @@
   "Cell flow threshold": "'细胞流量限制' means 'cell flow-rate (traffic) limit'; the Cellpose setting is '细胞流场阈值'",
   "Nucleus flow threshold": "'核流量限制' means 'nuclear flow-rate limit'; the setting is '细胞核流场阈值'",
   "Pathogen flow threshold": "'病原体流量限制' means 'pathogen flow-rate limit'; the setting is '病原体流场阈值'"
+ },
+ "snapshot": {
+  "Anndata nan policy": {
+   "runtime": "安德塔纳政策",
+   "guide": "Anndata NaN 策略"
+  },
+  "Anndata out": {
+   "runtime": "安德烈出",
+   "guide": "Anndata 输出"
+  },
+  "Anndata single table": {
+   "runtime": "Anndata 单一桌子",
+   "guide": "Anndata 单表"
+  },
+  "Batch correction": {
+   "runtime": "Batch 修复",
+   "guide": "批次校正"
+  },
+  "Clear all": {
+   "runtime": "清晰一切",
+   "guide": "全部清除"
+  },
+  "Inputs": {
+   "runtime": "入口",
+   "guide": "输入"
+  },
+  "Outputs": {
+   "runtime": "出口",
+   "guide": "输出"
+  },
+  "Model zoo…": {
+   "runtime": "动物园模型",
+   "guide": "模型库…"
+  },
+  "Parameter sweep": {
+   "runtime": "参数 Sweep",
+   "guide": "参数扫描"
+  },
+  "Promote calls to annotation": {
+   "runtime": "促销呼叫登记",
+   "guide": "将判定提升为标注"
+  },
+  "Re-flood below the escape": {
+   "runtime": "降雨在逃亡之下",
+   "guide": "在溢出点以下重新漫水"
+  },
+  "Resume checkpoint": {
+   "runtime": "回复检查点",
+   "guide": "从检查点继续"
+  },
+  "Taper onto the gradient": {
+   "runtime": "打到格拉迪安",
+   "guide": "沿梯度收缩"
+  },
+  "Train": {
+   "runtime": "火车",
+   "guide": "训练"
+  },
+  "Undo promotion": {
+   "runtime": "无晋升",
+   "guide": "撤销提升"
+  },
+  "Activation Maps": {
+   "runtime": "活动地图",
+   "guide": ""
+  },
+  "Cell flow threshold": {
+   "runtime": "细胞流量限制",
+   "guide": "细胞流场阈值"
+  },
+  "Nucleus flow threshold": {
+   "runtime": "核流量限制",
+   "guide": "细胞核流场阈值"
+  },
+  "Pathogen flow threshold": {
+   "runtime": "病原体流量限制",
+   "guide": "病原体流场阈值"
+  }
  }
 }

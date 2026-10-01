@@ -31,19 +31,21 @@ CONTROLS = {
     # moved with it, so eighteen of these have been failing since -- the
     # inventory said Appearance and the controls were on Theme and Animation.
     # Corrected by MEASURING where each one actually is rather than by
-    # reasoning about where it ought to be.
-    "AmbientTheme": "Animation",
-    "AmbientPalette": "Animation",
-    "AmbientDriftDirection": "Animation",
-    "AmbientResolution": "Animation",
-    "AmbientBlur": "Animation",
-    "AmbientSpeed": "Animation",
-    "AmbientSize": "Animation",
-    "AmbientDensity": "Animation",
-    "SettingAnimationsEnabled": "Animation",
+    # reasoning about where it ought to be. On 2026-09-30 (item 601) Theme
+    # and Animation became folded categories of Appearance, so every one
+    # of them is on Appearance again.
+    "AmbientTheme": "Appearance",
+    "AmbientPalette": "Appearance",
+    "AmbientDriftDirection": "Appearance",
+    "AmbientResolution": "Appearance",
+    "AmbientBlur": "Appearance",
+    "AmbientSpeed": "Appearance",
+    "AmbientSize": "Appearance",
+    "AmbientDensity": "Appearance",
+    "SettingAnimationsEnabled": "Appearance",
     "SpinnerDelay": "Appearance",
-    "PaneOpacity": "Theme",
-    "FieldFadeEnabled": "Theme",
+    "PaneOpacity": "Appearance",
+    "FieldFadeEnabled": "Appearance",
     "FontScale": "General",
     "PerformanceLevel": "Performance",
     "PerformanceLevelNote": "Performance",  # the note under the level selector
@@ -113,7 +115,7 @@ SPACEOUT_CONTROLS = {
 #: "Logging" was appended on 2026-08-05 by f1183805, and "Sound" on
 #: 2026-09-19 by item 427 -- last, and it must stay last. Sound and Fractal
 #: exist only in spaceout mode (:data:`EXPECTED_SPACEOUT_TABS`).
-EXPECTED_TABS = ("General", "Appearance", "Theme", "Animation", "Performance",
+EXPECTED_TABS = ("General", "Appearance", "Performance",
                  "Modules", "Figures", "Logging", "AI")
 EXPECTED_SPACEOUT_TABS = EXPECTED_TABS + ("Fractal", "Sound")
 
@@ -311,6 +313,16 @@ def _open(dialog, qtbot):
     return dialog
 
 
+def _category_of(widget):
+    """The settings category that folds ``widget`` away, or ``None``."""
+    from spacr.qt.widgets.section import Section
+
+    holder = widget.parentWidget()
+    while holder is not None and not isinstance(holder, Section):
+        holder = holder.parentWidget()
+    return holder
+
+
 def _tabs_with_their_page(dialog) -> set:
     """The tabs whose page is in the window rather than waiting outside it."""
     tabs = _tabs(dialog)
@@ -371,10 +383,11 @@ def test_a_walk_of_the_dialog_sees_every_page(dialog, qtbot):
 def test_choosing_a_tab_brings_its_page_back(dialog, qtbot):
     speed = dialog.findChild(QSlider, "AmbientSpeed")
     _open(dialog, qtbot)
-    _tabs(dialog).setCurrentIndex(EXPECTED_TABS.index("Animation"))
-    assert _tabs_with_their_page(dialog) == {"General", "Animation"}
+    _tabs(dialog).setCurrentIndex(EXPECTED_TABS.index("Appearance"))
+    assert _tabs_with_their_page(dialog) == {"General", "Appearance"}
     assert dialog.findChild(QSlider, "AmbientSpeed") is speed
-    assert _tab_of(dialog, "AmbientSpeed") == "Animation"
+    assert _tab_of(dialog, "AmbientSpeed") == "Appearance"
+    _category_of(speed).set_expanded(True)
     assert speed.isVisible()
 
 
@@ -556,3 +569,61 @@ def test_a_late_part_that_will_not_go_transparent_is_only_logged(
     with caplog.at_level(logging.DEBUG, logger=glass.LOG.name):
         assert glass._glass_a_part_that_came_later(dialog, part) == 0
     assert "a late part would not go transparent" in caplog.text
+
+
+#: The categories of the Appearance tab, in order, and a control in each.
+APPEARANCE_CATEGORIES = (("Theme", "PaneOpacity"),
+                         ("Animation", "AmbientSpeed"))
+
+
+def test_theme_and_animation_are_categories_of_appearance(dialog):
+    """Asked for on 2026-09-30: "in preferences theme and animation can be
+    categories in appearence instead of their own tabs". Each is a folded
+    settings category on the Appearance tab, under the tab's own rows."""
+    from spacr.qt.widgets.section import Section
+
+    tabs = _tabs(dialog)
+    for title, _control in APPEARANCE_CATEGORIES:
+        assert title not in [tabs.tabText(i) for i in range(tabs.count())]
+    page = dialog.findChild(QWidget, "PreferencesTabAppearance")
+    categories = [c for c in page.findChildren(Section)]
+    assert [c._title_source for c in categories] == [
+        title for title, _control in APPEARANCE_CATEGORIES]
+    for (title, control), category in zip(APPEARANCE_CATEGORIES, categories):
+        widget = dialog.findChild(QWidget, control)
+        assert _category_of(widget) is category
+        assert category.objectName() == "SectionCard"
+        assert not category.is_expanded()
+    tooltips = dialog.findChild(QWidget, "TooltipsEnabled")
+    assert _category_of(tooltips) is None
+
+
+def test_a_category_folds_and_unfolds_its_settings(dialog, qtbot):
+    """Opening a category shows its rows; closing it hides them again."""
+    _open(dialog, qtbot)
+    _tabs(dialog).setCurrentIndex(EXPECTED_TABS.index("Appearance"))
+    for _title, control in APPEARANCE_CATEGORIES:
+        widget = dialog.findChild(QWidget, control)
+        category = _category_of(widget)
+        assert not widget.isVisible()
+        category.header().click()
+        assert category.is_expanded() and widget.isVisible()
+        category.header().click()
+        assert not category.is_expanded() and not widget.isVisible()
+
+
+@pytest.mark.parametrize("page,label,control", [
+    ("PreferencesTabTheme", "Page opacity", "PaneOpacity"),
+    ("PreferencesTabAnimation", "Animation speed", "AmbientSpeed"),
+])
+def test_the_help_search_lands_inside_a_folded_category(
+        dialog, qtbot, page, label, control):
+    """A preference result opens Appearance, unfolds the category and marks
+    the row, as it did when the category was a tab of its own."""
+    from spacr.qt.preferences_navigation import reveal_row, show_tab
+
+    assert show_tab(dialog, page, label)
+    assert _tabs(dialog).tabText(_tabs(dialog).currentIndex()) == "Appearance"
+    widget = dialog.findChild(QWidget, control)
+    assert _category_of(widget).is_expanded()
+    assert reveal_row(dialog.findChild(QWidget, page), label)
