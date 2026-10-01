@@ -4885,6 +4885,76 @@ def _cellprofiler_started(adapters):
     return adapters["cellprofiler"]
 
 
+def _cellprofiler_capture_labels(workspace, output):
+    """Save bounded final 2D object planes without modifying their pixels.
+
+    Unsupported, cropped, or oversized objects have an explicit empty path
+    list so the importer does not guess from their centres. At most 64 planes
+    and 256 MiB are written per image set; each plane has at most 16M pixels.
+    """
+    captured = {}
+    number = int(workspace.measurements.image_set_number)
+    planes_written, bytes_written = 0, 0
+    for index, name in enumerate(workspace.object_set.object_names):
+        captured[name] = []
+        paths = []
+        try:
+            objects = workspace.object_set.get_objects(name)
+            parent = objects.parent_image
+            if parent is not None and getattr(parent, "has_crop_mask", False):
+                raise ValueError("cropped object coordinates")
+            planes = objects.get_labels()
+            if not isinstance(planes, (list, tuple)) or len(planes) > 64:
+                raise ValueError("too many object planes")
+            for plane_index, (labels, _indices) in enumerate(planes):
+                labels = np.asarray(labels)
+                if (labels.ndim != 2 or labels.dtype.kind not in "iu"
+                        or labels.size > 16 * 1024 * 1024
+                        or planes_written >= 64
+                        or bytes_written + labels.nbytes > 256 * 1024 * 1024):
+                    raise ValueError("unsupported or oversized object plane")
+                path = os.path.join(output,
+                    f"labels_{number}_{index}_{plane_index}.npy")
+                np.save(path, labels, allow_pickle=False)
+                paths.append(path)
+                planes_written += 1
+                bytes_written += labels.nbytes
+            captured[name] = paths
+        except (AttributeError, OSError, TypeError, ValueError) as exc:
+            LOG.warning("CellProfiler overlap unavailable for %s image %s: %s",
+                        name, number, exc)
+            for path in paths:
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+    return captured
+
+
+def _cellprofiler_run_with_labels(pipeline, output):
+    """Observe the last successful module per image, returning measurements and paths."""
+    labels = {}
+    modules = list(pipeline.modules())
+    if not modules:
+        return pipeline.run(), labels
+    final_module = modules[-1]
+    run_module = pipeline.run_module
+
+    def _capture_module(module, workspace):
+        """Run the original module, then persist final object label planes."""
+        result = run_module(module, workspace)
+        if module is final_module:
+            labels[str(int(workspace.measurements.image_set_number))] = (
+                _cellprofiler_capture_labels(workspace, output))
+        return result
+
+    pipeline.run_module = _capture_module
+    try:
+        return pipeline.run(), labels
+    finally:
+        pipeline.run_module = run_module
+
+
 def _worker_run_cellprofiler(request, adapters):
     """Run one CellProfiler pipeline on a list of images.
 
@@ -4917,7 +4987,7 @@ def _worker_run_cellprofiler(request, adapters):
     pipeline = Pipeline()
     pipeline.load(pipeline_path)
     pipeline.add_pathnames_to_file_list(files)
-    measurements = pipeline.run()
+    measurements, label_images = _cellprofiler_run_with_labels(pipeline, output)
     if measurements is None:
         raise RuntimeError("the CellProfiler pipeline produced no "
                            "measurements; its input modules matched no "
@@ -4973,7 +5043,8 @@ def _worker_run_cellprofiler(request, adapters):
         np.save(path, np.vstack(blocks), allow_pickle=False)
         objects[name] = {"columns": ["ImageNumber", "ObjectNumber"] + columns,
                          "path": path}
-    return {"image_sets": len(numbers), "images": images, "objects": objects}
+    return {"image_sets": len(numbers), "images": images, "objects": objects,
+            "labels": label_images}
 
 
 def _worker_read_text(request, adapters):

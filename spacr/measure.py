@@ -9256,6 +9256,52 @@ def _cellprofiler_role(name, roles):
     return None
 
 
+def _cellprofiler_overlap_labels(paths, mask):
+    """Map each CP object to a strict pixel-majority spaCR label, or leave it unmatched.
+
+    Supplied planes must be integer 2D labels in the same coordinates and
+    shape as the spaCR mask. Background counts against a majority. Repeated
+    object IDs across planes, malformed arrays, and ties are not guessed.
+    Files are mapped read-only; at most 64 planes of 16M pixels are accepted.
+    """
+    if not isinstance(paths, (list, tuple)) or not paths or len(paths) > 64:
+        return {}
+    matched, seen = {}, set()
+    try:
+        if (mask.ndim != 2 or mask.size > 16 * 1024 * 1024
+                or mask.dtype.kind not in 'iuf' or not np.isfinite(mask).all()
+                or np.any(mask < 0) or np.any(mask >= 2**63)
+                or np.any(mask != np.floor(mask))):
+            return {}
+        for path in paths:
+            plane = np.load(path, mmap_mode='r', allow_pickle=False)
+            if not isinstance(plane, np.ndarray):
+                if hasattr(plane, 'close'):
+                    plane.close()
+                return {}
+            if (plane.shape != mask.shape or plane.dtype.kind not in 'iu'
+                    or np.any(plane < 0) or np.any(plane >= 2**63)):
+                return {}
+            positive = plane > 0
+            objects, totals = np.unique(plane[positive], return_counts=True)
+            ids = set(int(value) for value in objects)
+            if seen.intersection(ids):
+                return {}
+            seen.update(ids)
+            # Include background in totals so a tiny edge overlap is rejected.
+            foreground = positive & (mask > 0)
+            pairs, counts = np.unique(np.column_stack((
+                plane[foreground].astype(np.int64),
+                mask[foreground].astype(np.int64))), axis=0, return_counts=True)
+            sizes = dict(zip((int(value) for value in objects), totals))
+            for (cp_id, label), count in zip(pairs, counts):
+                if count > sizes[int(cp_id)] / 2:
+                    matched[int(cp_id)] = int(label)
+    except (OSError, TypeError, ValueError, OverflowError):
+        return {}
+    return matched
+
+
 def _cellprofiler_tables(reply, merged_folder, settings):
     """CellProfiler's per-object tables keyed by spaCR's object ids.
 
@@ -9279,11 +9325,15 @@ def _cellprofiler_tables(reply, merged_folder, settings):
 
     stems = {}
     for number, names in (reply.get('images') or {}).items():
+        matched_stems = []
         for file_name in names:
             match = _CELLPROFILER_FILE.match(os.path.basename(str(file_name)))
             if match:
-                stems[int(number)] = match.group('stem')
-                break
+                matched_stems.append(match.group('stem'))
+        if matched_stems:
+            supplied = str(int(number)) in (reply.get('labels') or {})
+            if not supplied or len(set(matched_stems)) == 1:
+                stems[int(number)] = matched_stems[0]
     masks = {}
 
     def field_masks(stem):
@@ -9300,12 +9350,23 @@ def _cellprofiler_tables(reply, merged_folder, settings):
     def lookup(role, image_numbers, xs, ys):
         """The spaCR label under each centre in ``role``'s mask."""
         found = np.zeros(len(xs))
+        overlaps = {}
+        supplied = reply.get('labels') or {}
         for i, (number, x, y) in enumerate(zip(image_numbers, xs, ys)):
             stem = stems.get(int(number))
-            if stem is None or not np.isfinite(x) or not np.isfinite(y):
+            if stem is None:
                 continue
             mask = field_masks(stem).get(role)
             if mask is None:
+                continue
+            planes = supplied.get(str(int(number)), {})
+            if cp_name in planes:
+                if int(number) not in overlaps:
+                    overlaps[int(number)] = _cellprofiler_overlap_labels(
+                        planes[cp_name], mask)
+                found[i] = overlaps[int(number)].get(int(object_numbers[i]), 0)
+                continue
+            if not np.isfinite(x) or not np.isfinite(y):
                 continue
             # A centre outside the image cannot identify an edge object.
             # Check before rounding so negative subpixels stay unmatched.
@@ -9322,25 +9383,35 @@ def _cellprofiler_tables(reply, merged_folder, settings):
         columns = list(block['columns'])
         values = np.load(block['path'], allow_pickle=False)
         frame = pd.DataFrame(values.reshape(-1, len(columns)), columns=columns)
-        if 'Location_Center_X' not in frame or 'Location_Center_Y' not in frame:
+        has_centres = ('Location_Center_X' in frame and 'Location_Center_Y' in frame)
+        has_labels = any(cp_name in objects for objects in
+                         (reply.get('labels') or {}).values())
+        if not has_centres and not has_labels:
             print(f"CellProfiler object {cp_name} has no Location_Center_X/Y "
                   f"(add MeasureObjectSizeShape), so it cannot be matched to "
                   f"spaCR objects; it was not imported.")
             continue
         numbers = frame['ImageNumber'].to_numpy()
-        xs = frame['Location_Center_X'].to_numpy(dtype=float)
-        ys = frame['Location_Center_Y'].to_numpy(dtype=float)
+        xs = (frame['Location_Center_X'].to_numpy(dtype=float) if has_centres
+              else np.full(len(frame), np.nan))
+        ys = (frame['Location_Center_Y'].to_numpy(dtype=float) if has_centres
+              else np.full(len(frame), np.nan))
+        object_numbers = frame['ObjectNumber'].to_numpy()
         roles = sorted({r for s in set(stems.values())
                         for r in field_masks(s)})
         role = _cellprofiler_role(cp_name, roles)
         if role is not None:
             labels = lookup(role, numbers, xs, ys)
         else:
-            best = None
+            best, tied = None, False
             for candidate in roles:
                 hits = lookup(candidate, numbers, xs, ys)
                 if best is None or (hits > 0).sum() > (best[1] > 0).sum():
-                    best = (candidate, hits)
+                    best, tied = (candidate, hits), False
+                elif (hits > 0).sum() == (best[1] > 0).sum():
+                    tied = True
+            if has_labels and tied:
+                best = None
             role, labels = best if best else (None, np.zeros(len(frame)))
         prcf = []
         for number in numbers:
