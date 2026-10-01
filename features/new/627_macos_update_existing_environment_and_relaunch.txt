@@ -60,8 +60,10 @@ Implementation and validation 2026-10-01:
   their focused lint checks; git diff --check is clean.
 
 Supporting work tracked under N615: the new confirmation has technically
-reviewed translations in all nine locales, with catalog rebuild/audit ongoing.
-Public API prose will be refreshed in the coordinated documentation pass.
+reviewed translations in all nine locales. The standard catalog build and
+full runtime audit passed in 0fb8102a2, including explicit close-before-update
+and reopen-after-success wording. Public API prose will be refreshed in the
+coordinated documentation pass.
 No real package was installed during tests. A real native macOS update/relaunch
 and Windows desktop acceptance were not performed. This fix is on nightly;
 publication requires a future release containing it. The earlier 1.5.1.1 release
