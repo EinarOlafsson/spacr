@@ -14,7 +14,7 @@ A malformed or failing plugin is isolated and reported by
 from starting.
 
 Browse and install from a catalogue
-----------------------------------
+-----------------------------------
 
 Enable **Show alpha features** in Preferences, then open its **Plugins** tab.
 Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in

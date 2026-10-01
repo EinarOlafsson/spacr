@@ -247,3 +247,26 @@ Build and validate PyPI distributions successfully. Publish to PyPI is queued
 at this observation; neither PyPI publication nor the final GitHub release
 is claimed. This workflow releases the earlier main merge (PR 135), not the
 subsequent N625 or plugin-catalogue changes pushed only to nightly.
+
+2026-10-01 — N628 SUPPORTING WORK AND DOCUMENTATION CHECK
+
+The metadata extraction/rule/composition implementation is pushed to nightly
+as f00362a9d. Its 110 focused checks and two actual-control theme workflows
+pass. Graph Builder tutorial authoring uses the current controls and v3
+composition in 4b0110385; 16 checks pass against the real 2,341-row example.
+New tutorial media and narration remain unpublished.
+
+A strict guide-only Sphinx HTML check exposed two short title underlines in
+the Measure and Plugin SDK guides, now corrected. The follow-up strict gettext
+check confirms those warnings are gone. Both guide-only checks still fail on
+81 unresolved API document links because the English guide-only invocation
+omits the API tree and does not use the translated-guide inventory resolver.
+No warning was reported in the annotation or installer guide. These checks
+are not a substitute for the pending full strict Sphinx build. Logs are at
+/tmp/spacr-implementation-20261001/guides-n628.log and
+/tmp/spacr-implementation-20261001/guides-gettext-n628.log.
+
+The PyPI storage request pypi/support#12512 remains open with an automated
+acknowledgment only; no quota increase or publication is claimed. The release
+run's final failure and preserved distributions are recorded in the receipt
+linked at the top of this ledger, superseding the earlier queued observations.

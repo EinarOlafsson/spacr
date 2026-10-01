@@ -1,5 +1,5 @@
 Measure: preview checked images and verify mask planes
-=====================================================
+======================================================
 
 Open **Measure** with a run folder or its ``merged`` folder. The **Live**
 view loads a field and shows crops from its configured object mask. Use
