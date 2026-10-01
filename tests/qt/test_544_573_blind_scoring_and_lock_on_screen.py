@@ -200,9 +200,13 @@ def test_blinding_hides_settings_and_console_history_then_restores_them(
             dialog.reject()
 
     def abort_modal():
-        expired.append(True)
+        # The deadline runs from before the dialog is built, so on a slow
+        # coverage runner it can come due in the same event pass in which
+        # the 20 ms hook already closed it. Only a dialog still open is a
+        # hang.
         dialog = QApplication.activeModalWidget()
         if dialog is not None:
+            expired.append(True)
             dialog.reject()
 
     monkeypatch.setattr(_SettingsDialog, 'exec', _REAL_DIALOG_EXEC)
@@ -323,9 +327,13 @@ def test_make_masks_blinds_raw_status_failures_and_actual_folder_confirmation(
             dialog.done(QMessageBox.No)
 
     def abort_modal():
-        expired.append(True)
+        # The deadline runs from before the dialog is built, so on a slow
+        # coverage runner it can come due in the same event pass in which
+        # the 20 ms hook already closed it. Only a dialog still open is a
+        # hang.
         dialog = QApplication.activeModalWidget()
         if dialog is not None:
+            expired.append(True)
             dialog.reject()
 
     timer = QTimer(screen)
