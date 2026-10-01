@@ -568,3 +568,25 @@ def test_visualize_integrated_gradients_no_save_default_channels(tmp_path, model
     overlay = np.asarray(axes[2].images[0].get_array())
     assert overlay.shape == (32, 32, 3)      # IG map broadcast back to RGB
     assert overlay.min() >= 0.0 and overlay.max() <= 1.0
+
+
+def test_counterfactual_crops_are_collected_up_to_the_limit(tmp_path,
+                                                            model_path,
+                                                            monkeypatch):
+    """With counterfactuals on, crops are kept until counterfactual_crops is
+    reached, and the generator runs once on them after the maps."""
+    import spacr.deep_spacr as ds
+
+    seen = []
+    monkeypatch.setattr(ds, "_run_counterfactuals",
+                        lambda settings, model, crops, names, out, device:
+                        seen.append((sum(len(c) for c in crops), list(names),
+                                     out)))
+    _root, tar_path, _names = _project(tmp_path, n_images=6)
+    ds.generate_activation_map(_settings(tar_path, model_path, save=False,
+                                         counterfactuals=True,
+                                         counterfactual_crops=3))
+    assert len(seen) == 1
+    count, names, out = seen[0]
+    assert count == len(names) == 3
+    assert out.endswith("counterfactuals")
