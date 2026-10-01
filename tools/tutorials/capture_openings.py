@@ -107,6 +107,9 @@ def record_openings(app, window, captures, capture, settle, write_json):
         record['hosts'][name] = {'module': key, 'buttons': buttons}
         capture(name)
     go_home()
+    # Installer lessons end on Preferences > Performance over Home.
+    from capture_home import record_performance
+    record_performance(window, capture, settle)
     write_json(captures / 'openings.json', record)
 
 
