@@ -29,3 +29,12 @@ Python and imported scientific libraries. Original NAS images were untouched.
 Status: Primary plate-wide retention fixed and validated. Downstream mask
 batch copy/lifetime audit is in progress. Full plate segmentation has not
 been rerun; model/device-dependent peak memory is not claimed by this sample.
+
+Downstream audit complete: selected model channels now make one isolated
+copy; unused Cellpose outputs and completed input/mask/flow/3D/archive
+buffers release before the next inference or archive read. 59 CPU-only
+checks pass under 4 GB, including lifetime assertions via weak references
+and unchanged saved masks. Batch sizes and scientific/model settings are
+unchanged. Primary preprocessing and downstream buffer fixes are complete
+on nightly. Full-plate segmentation remains an operational run, not a
+claimed automated acceptance test.

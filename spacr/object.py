@@ -1296,6 +1296,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                     print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
 
         if len(stack) == 0:
+            del stack, filenames
             if on_batch_done is not None:
                 on_batch_done(path)
             continue
@@ -1303,12 +1304,9 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         for i in range(0, stack.shape[0], batch_size):
             cancellation_checkpoint()
             mask_stack = []
-            if z_plan is not None or t_plan is not None:
-                batch = stack[i: i+batch_size][..., channels].astype(stack.dtype)
-            elif stack.shape[3] == 1:
-                batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
-            else:
-                batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
+            selected_channels = (channels if z_plan is not None or t_plan is not None
+                                 or stack.shape[-1] != 1 else [0])
+            batch = np.take(stack[i:i + batch_size], selected_channels, axis=-1)
 
 
             batch_filenames = filenames[i: i+batch_size].tolist()
@@ -1320,6 +1318,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                     batch, batch_filenames, output_folder,
                     resume=settings.get('resume', False))
             if batch.size == 0:
+                del batch
                 continue
             
             cp_batch = prepare_batch_for_segmentation(batch)
@@ -1332,6 +1331,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                 _npz_to_movie(cp_batch, batch_filenames, save_path, fps=2)
                 
             
+            beta_intensity = t_result = z_results = result = None
             if z_plan is None and t_plan is None and segmentation_backend == _CELLPOSE3:
                 masks, flows = _cellpose3_masks(
                     model, batch_list, settings, object_type,
@@ -1354,7 +1354,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                     resample=object_settings['resample']
                     )
 
-                masks, flows, _, _, _ = parse_cellpose4_output(output)
+                masks, flows = parse_cellpose4_output(output)[:2]
+                del output
             else:
                 z_eval_kwargs = dict(
                     batch_size=1,
@@ -1583,6 +1584,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                 mask_stack = []
                 batch_filenames = []
 
+            del batch, cp_batch, batch_list, masks, flows, filter_images, mask_stack
+            beta_intensity = t_result = z_results = result = mask = planes = None
+
+        del stack, filenames
         gc.collect()
         if on_batch_done is not None:
             on_batch_done(path)
