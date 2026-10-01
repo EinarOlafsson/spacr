@@ -169,8 +169,6 @@ WHAT IS LEFT
       from another lab before claiming 5 % beyond this dataset.
     - Thresholding stays at ~14 % on real photos: glare rejection and rim
       recovery were not solved classically.
-    - No live preview: the Plaque preview still shows the plaque model; a
-      colony overlay in the preview is not wired.
     - Per-plate dilution only via a dict in settings (or a settings file);
       no plate-map/CSV column for it.
     - Colony counting in Figure mode is out of scope.
@@ -184,3 +182,35 @@ their existing results. Commit 7a38adfea; 17 focused scalar and legacy checks
 passed under a 1 GiB memory cap, zero swap and 100% CPU quota. Public API
 signatures/docstrings and translation sources are unchanged. This does not
 complete the biological validation and preview work listed above.
+
+2026-10-01 — COLONY LIVE PREVIEW
+Commit 079df8e02 routes the actual Run preview button to the colony engine
+when Colony counting is enabled in Plaque mode. It reads original pixels,
+uses the same per-well counting helper as the run, remaps reduced-size labels
+to the full photo and keeps detector row counts authoritative when ellipse
+labels overlap. The preview reports colonies and original-pixel mean area,
+provides no invented flow/probability maps, snapshots nested settings and
+rejects stale worker output. Changing colony settings clears the old result.
+
+Local checkpoints are resolved without automatic downloads. A missing
+selected detector dependency is reported explicitly rather than silently
+switching to the batch run's threshold/outline fallback. Thus parity is
+claimed for available selected methods, not for missing optional dependencies.
+
+Validation: 14 distinct focused preview/legacy cases passed (13 initially,
+then the affected actual-button case plus a new zero-colony case). Tests used
+4 GiB memory, zero swap, and numerical threads limited to one; they did not
+set an OS CPU quota. Public API signatures/docstrings remained unchanged.
+The independent actual Run-button harness passed in dark and light themes:
+eight synthetic colonies, mean area 340.875 original pixels, unchanged input,
+no analysis files written. Its 4 GiB cap additionally had a 100% CPU quota.
+The first screenshots captured a transparent child panel without its host;
+acceptance images were recaptured in a themed parent with Fit image pressed.
+No product code was changed for that capture correction.
+
+The guide describes colony preview, missing detector behavior and the lack of
+flow/probability output. Its new section parses as strict reStructuredText.
+Receipt: features/data/542_colony_preview_2026-10-01.json. The new status
+caption is under the standard nine-locale runtime rebuild. Real detector
+cross-validation, external-lab data and per-plate CSV dilution input remain
+outstanding; this feature is still alpha/partial overall.

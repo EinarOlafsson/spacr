@@ -31,6 +31,26 @@ appropriate download. Keep the selected model and settings with the results;
 ``bundled`` names the historical packaged checkpoint, not an alias for the
 current Model Zoo model.
 
+Preview colony counting (alpha)
+--------------------------------
+
+Enable **Preferences → Show alpha features**, then turn on **Colony counting**
+in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode
+selected and press **Run preview**. The preview uses the colony-counting
+settings and original image pixels, shows the colony overlay and reports the
+count and mean area in original-image pixels. With well detection enabled,
+the detected wells are counted separately and displayed at their positions
+on the original photo. No plaque segmentation model is needed for this path.
+
+Leave the colony detector blank to use thresholding, or select an installed
+colony detector. Preview reports a missing checkpoint or detector dependency
+instead of silently switching methods; the batch run can fall back to
+thresholding when its optional detector dependency is unavailable. Check that
+the intended method is available when comparing preview and batch results.
+Colony counting produces no flow or cell-probability output, so those views
+show an unavailable-output message. Preview writes no analysis database and
+does not change the source image. Colony counting is ignored in Figure mode.
+
 Read a published figure
 ------------------------
 
