@@ -1,0 +1,25 @@
+626. Organize for Measure must report incomplete folder consolidation
+
+Identified 2026-10-01 while auditing the unfinished backlog. The pre-session
+N593/N600 implementations are retained; this tracks a newly identified defect
+in their integration rather than reopening those completed feature requests.
+
+Status: IN PROGRESS.
+
+OrganizeForMeasureDialog._consolidate ignores ConsolidationResult.failed,
+discards the copy log, replaces the selected source with the output folder
+and continues automatic sorting. A permission, disk or file-copy failure can
+therefore silently omit images from the measurement setup.
+
+Required: surface the failed-copy count and manifest location. Stop automatic
+sorting/teaching/detection for that attempt. Keep the prior source selection,
+consolidation option and existing table intact so the user can correct the
+problem and retry. Preserve original images and successful copies; never
+roll back by deleting user files. Fully successful and no-op operations keep
+their existing behavior. Reuse the existing translated consolidation captions.
+
+Acceptance: induce a real copy failure in a temporary nested-image fixture;
+verify the visible failure, unchanged source/table, preserved originals and
+successful copies, and no downstream operation. A retry after correcting the
+failure succeeds without silently dropping or duplicating images. Verify
+all caller paths handle the failure without an uncaught Qt-slot exception.
