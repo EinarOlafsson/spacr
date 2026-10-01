@@ -160,7 +160,7 @@ def test_catalog_languages_are_known_and_labelled():
         files = _po_files(language)
         assert files, language
         for path in files:
-            assert guide.catalog_review_kind(path) == guide.REVIEW_KIND, path
+            assert guide.catalog_review_kind(path) in guide.SUPPORTED_REVIEW_KINDS, path
         assert (guide.GLOSSARY_DIR / f"{language}.json").is_file()
 
 

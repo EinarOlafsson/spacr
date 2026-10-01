@@ -1,0 +1,70 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Link plate barcodes to sample metadata"
+msgstr "将板条码与样本元数据关联"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Measure**, enable **Show alpha features** in Preferences and open **Plate Barcode Linkage (Alpha)**. Set ``plate_barcode_source`` to a table or a LIMS service URL. The linkage runs after measurement."
+msgstr "在 **测量** 中，先在 Preferences 中启用 **显示 Alpha 功能**，再打开 **Plate Barcode Linkage (Alpha)**。将 ``plate_barcode_source`` 设为一个表或 LIMS 服务 URL。关联步骤在测量完成后运行。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A local CSV, TSV, Excel or Parquet table needs a barcode column, a well column and the sample metadata to attach. For example::"
+msgstr "本地 CSV、TSV、Excel 或 Parquet 表需要条码列、孔位列以及要附加的样本元数据。例如::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata."
+msgstr "如果条码列使用其他名称，请设置 ``plate_barcode_column``。``plate_barcodes`` 将成像板的名称映射到其条码。否则，spaCR 会读取板文件夹中的 ``barcode.txt``，或使用板名称。请在元数据中保留有意义的浓度单位。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Read records from a LIMS service"
+msgstr "从 LIMS 服务读取记录"
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "Use a URL such as ``https://lims.example/plates/{barcode}/wells``. spaCR substitutes the encoded barcode. Without ``{barcode}``, it adds a ``barcode`` query parameter. If authentication is needed, set the token in an environment variable and put that variable's name in ``plate_barcode_token_env``. Do not put the token in the URL or settings."
+msgstr "使用类似 ``https://lims.example/plates/{barcode}/wells`` 的 URL。spaCR 会替换为经过编码的条码。如果没有 ``{barcode}``，则添加 ``barcode`` 查询参数。如果需要身份验证，请将令牌放入环境变量，并将该变量的名称填入 ``plate_barcode_token_env``。不要将令牌放入 URL 或设置中。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The service may return a list of well records, or an object containing that list under ``wells``, ``records``, ``results``, ``data`` or ``items``. Plain fields outside the list supply metadata defaults for its wells::"
+msgstr "服务可以返回孔记录列表，也可以返回一个对象，将列表放在 ``wells``、``records``、``results``、``data`` 或 ``items`` 下。列表之外的普通字段为其中各孔提供元数据默认值::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR follows ``next``, ``next_url``, ``@odata.nextLink`` or ``links.next``. The link may be a URL string or an object with an ``href`` field. Relative links resolve against the response URL. A missing link, null or empty string ends the list. Metadata defaults carry forward to later pages; explicit fields on a well override those defaults. Pagination fields do not become sample metadata."
+msgstr "spaCR 会跟随 ``next``、``next_url``、``@odata.nextLink`` 或 ``links.next``。链接可以是 URL 字符串，也可以是含 ``href`` 字段的对象。相对链接根据响应 URL 解析。链接缺失、为 null 或为空字符串时，列表结束。元数据默认值会延续到后续页面；孔记录中明确给出的字段会覆盖这些默认值。分页字段不会成为样本元数据。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Every link and HTTP redirect must stay on the same scheme, host and port as the original service. Conflicting links and repeated pages are errors. Collection is limited to 16 MiB per response, 64 MiB across the lookup, 1,000 page addresses per barcode and 100,000 records across the lookup. An error stops the metadata lookup without returning a partial plate map. Existing measurement results remain available. Vendor-specific cursor protocols that do not provide a next-page URL need a separate adapter."
+msgstr "每个链接和 HTTP 重定向必须与原始服务保持相同的协议、主机和端口。链接冲突或页面重复均视为错误。收集限制为每个响应 16 MiB、整个查询共 64 MiB、每个条码 1,000 个页面地址，以及整个查询共 100,000 条记录。出现错误时会停止元数据查询，不返回不完整的板映射。现有测量结果仍然可用。不提供下一页 URL 的供应商专用游标协议需要单独的适配器。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the result"
+msgstr "检查结果"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The filled map is written to ``measurements/plate_map_lims.csv``. It fills an empty ``profiling_metadata`` setting. When compound and concentration columns exist, it also fills an empty ``viability_plate_map``. An existing user-supplied map is compared, not silently replaced."
+msgstr "填好的映射写入 ``measurements/plate_map_lims.csv``。它会填充空的 ``profiling_metadata`` 设置。如果存在化合物和浓度列，还会填充空的 ``viability_plate_map``。对于用户已提供的映射，只进行比较，不会静默替换。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review ``measurements/plate_barcode_mismatches.csv`` and the log for missing barcodes, shared barcodes, unmatched wells, conflicting records and disagreements with an existing map. Resolve those mismatches before interpreting treatment comparisons."
+msgstr "检查 ``measurements/plate_barcode_mismatches.csv`` 和日志，查找缺失条码、共用条码、未匹配孔、冲突记录，以及与现有映射不一致的情况。在解读处理条件之间的比较前，请先解决这些差异。"
+

@@ -1,5 +1,5 @@
 # spaCR user guide translation (sv).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 17:36-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -45,6 +45,18 @@ msgstr "Välj **Använd dessa inställningar** för att kopiera de justerade vä
 
 msgid "The preview resolves local checkpoints without downloading them implicitly. When a model is absent, the panel explains what is missing and offers the appropriate download. Keep the selected model and settings with the results; ``bundled`` names the historical packaged checkpoint, not an alias for the current Model Zoo model."
 msgstr "Förhandsvisningen löser upp lokala kontrollpunkter utan att ladda ner dem i det tysta. När en modell saknas förklarar panelen vad som saknas och erbjuder rätt nedladdning. Behåll den valda modellen och inställningarna tillsammans med resultaten; ``bundled`` anger den historiska paketerade kontrollpunkten, inte ett alias för den aktuella modellen i Modellbibliotek."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview colony counting (alpha)"
+msgstr "Förhandsgranska koloniräkning (alfa)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path."
+msgstr "Aktivera **Inställningar → Visa alfafunktioner** och slå sedan på **Koloniräkning** i modulens inställningar för **Colony Counting (Alpha)**. Behåll läget **Plack** och tryck på **Kör förhandsgranskning**. Förhandsgranskningen använder koloniräkningsinställningarna och originalbildens pixlar, visar koloniöverlägget och rapporterar antalet och medelarean i originalbildens pixlar. Om brunnsdetektering är aktiverad räknas de detekterade brunnarna separat och visas på sina positioner i originalfotot. Den här vägen behöver ingen placksegmenteringsmodell."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode."
+msgstr "Lämna kolonidetektorn tom för att använda tröskling, eller välj en installerad kolonidetektor. Förhandsgranskningen rapporterar en saknad checkpoint eller ett saknat detektorberoende i stället för att tyst byta metod; batchkörningen kan falla tillbaka på tröskling när dess valfria detektorberoende saknas. Kontrollera att den avsedda metoden är tillgänglig när du jämför förhandsgranskning och batchresultat. Koloniräkning ger inga flödes- eller cellsannolikhetsdata, så dessa vyer visar ett meddelande om otillgängliga utdata. Förhandsgranskningen skriver ingen analysdatabas och ändrar inte källbilden. Koloniräkning ignoreras i Figure-läget."
 
 msgid "Read a published figure"
 msgstr "Läs en publicerad figur"

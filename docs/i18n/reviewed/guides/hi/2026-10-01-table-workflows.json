@@ -1,0 +1,1270 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "method": "Direct Codex AI technical translation with independent Codex-agent technical review; no local-model generation or native-speaker/human signoff claimed. Normal guide worklist importer enforces protected literals, roles, URLs, substitutions and current exact UI bindings. Historical PO author attribution remains preserved.",
+  "draft_author": "Codex agent shared_ui",
+  "independent_technical_reviewer": "Codex agent merge_interfaces",
+  "worklist_sha256": "04382acd03e89ee9df7bc121782e096327b30a61949fdedcd94d162ca3ad1a9f",
+  "draft_sha256": "aadd588cbe31e55b1c6c250bc5f058e56c352e0bcc82312ab7419ef76eabf126",
+  "peer_review_sha256": "64af20b0c51b132f09115279926367803fd74965f0411270fbbe4e3b644e4151",
+  "peer_review_corrections": [
+    {
+      "index": 36,
+      "source": "The shared spaCR rules aggregate each child table independently before joining it to the base observations. Adding both pathogens and organelles does not multiply their rows together. Identity includes the available plate, well, field and time metadata together with the relevant object/parent ID; an object number alone is not a globally unique identity.",
+      "source_sha256": "5182a1d21f7773e0417bd43f30a29345648eabfdef739eb73ffd986eed48af04",
+      "original": "साझा spaCR नियम हर अधीनस्थ तालिका को आधार अवलोकनों से जोड़ने से पहले स्वतंत्र रूप से समेकित करते हैं। रोगजनक और कोशिकांग दोनों जोड़ने से उनकी पंक्तियाँ आपस में गुणित नहीं होतीं। पहचान में उपलब्ध प्लेट, वेल, दृश्य-क्षेत्र और समय मेटाडेटा तथा संबंधित ऑब्जेक्ट/मूल ऑब्जेक्ट ID शामिल होते हैं; केवल ऑब्जेक्ट संख्या सर्वत्र अद्वितीय पहचान नहीं है।",
+      "proposed_correction": "साझा spaCR नियम हर अधीनस्थ तालिका को आधार अवलोकनों से जोड़ने से पहले स्वतंत्र रूप से समेकित करते हैं। रोगजनक और कोशिकांग दोनों जोड़ने से उनकी पंक्तियाँ आपस में गुणित नहीं होतीं। पहचान में उपलब्ध प्लेट, वेल, दृश्य-क्षेत्र और समय मेटाडेटा तथा संबंधित ऑब्जेक्ट/पैरेंट ऑब्जेक्ट ID शामिल होते हैं; केवल ऑब्जेक्ट संख्या सर्वत्र अद्वितीय पहचान नहीं है।",
+      "reason": "Parent-object identity must not be read as original/root object identity; name the parent explicitly."
+    },
+    {
+      "index": 109,
+      "source": "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe.",
+      "source_sha256": "a7e58cd6468d9491f0b796ed241248cae56102fe11062b9709ac5106bb11b40d",
+      "original": "संयोजन नियम स्रोत स्तंभ या पहले बने एनोटेशन स्तंभ उपयोग कर सकते हैं। निर्भर स्तंभों को स्तंभ क्रम में पहले रखें। अनुपलब्ध घटक संयुक्त मान खाली छोड़ते हैं; वे ``nan`` जैसा पाठ नहीं बनाते। लागू करने से पहले सभी बनाए स्तंभों का पूर्वावलोकन करें। चार्ट सहेजना, तालिका निर्यात करना या नई एनोटेटेड SQLite तालिका सहेजना पूरी विधि सुरक्षित रखता है।",
+      "proposed_correction": "संयोजन नियम स्रोत स्तंभ या पहले बने एनोटेशन स्तंभ उपयोग कर सकते हैं। जिन स्तंभों के मान उपयोग होते हैं, उन्हें स्तंभ क्रम में पहले रखें। अनुपलब्ध घटक संयुक्त मान खाली छोड़ते हैं; वे ``nan`` जैसा पाठ नहीं बनाते। लागू करने से पहले सभी बनाए स्तंभों का पूर्वावलोकन करें। चार्ट सहेजना, तालिका निर्यात करना या नई एनोटेटेड SQLite तालिका सहेजना पूरी विधि सुरक्षित रखता है।",
+      "reason": "Dependencies must precede the composed output; dependent columns wording can reverse that ordering. Explicitly place referenced input columns earlier."
+    },
+    {
+      "index": 115,
+      "source": "``drug_A_rep.`` allows one character after ``rep``.",
+      "source_sha256": "9a7482eca5b9274a46f8fe27209c240fa10068755b4f908f473e3ec86da39f87",
+      "original": "``drug_A_rep.`` में ``rep`` के बाद एक अक्षर हो सकता है।",
+      "proposed_correction": "``drug_A_rep.`` में ``rep`` के बाद कोई भी एक कैरेक्टर हो सकता है।",
+      "reason": "The wildcard allows a character, including a digit or punctuation; अक्षर can be read as only a letter. Use an unambiguous character term."
+    }
+  ],
+  "source_files": {
+    "docs/source/installer_guide.rst": "8e3ae817ba7141674a6aaaa0ed7b808eef218858ec09e460ab78d5ebbc100ab3",
+    "docs/source/plaque_assay.rst": "d69525fef8a644487c8b3af58948b77eefe0c516c3f3df60416eff6be105d299",
+    "docs/source/plate_barcode_linkage.rst": "148cc9c0455c28d1dda86c315adfd063ae497b3d11420e7bd2cff143287f355c",
+    "docs/source/table_workflows.rst": "dc000bbd7c4ba0f9cf932e14933cb78e5c66e8235dfa31616a98ac7b9c479a1f"
+  },
+  "runtime_catalog_sha256": "a0fbdb50ddbf3a541f98432aca76c29a2dff5969fb0d1fad607e9ba8a5ac08da",
+  "records": [
+    {
+      "domain": "installer_guide",
+      "source": "macOS online installation: update and reopen",
+      "source_sha256": "de9e4508bcbc5e4e37c952e2a030439f3d983740c374f39ea60bbff37893a6a2",
+      "original_ai_draft": "macOS ऑनलाइन स्थापना: अपडेट करके फिर खोलना",
+      "reviewed_translation": "macOS ऑनलाइन स्थापना: अपडेट करके फिर खोलना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again.",
+      "source_sha256": "00503c9b2788b3e8dacd073ae089fe27f0f090a9c464aa1a49ebc6d4db52ba1a",
+      "original_ai_draft": "**सहायता → Check for updates** चुनें, उपलब्ध अपडेट स्वीकार करें और पुष्टि करें कि spaCR अपने वर्तमान परिवेश में फिर स्थापित होगा। spaCR बंद होता है, स्थापना के साथ उपलब्ध ``uv`` से अपने मौजूदा निजी परिवेश को अपडेट करता है, स्थापित संस्करण की जाँच करता है और अपने आप फिर खुलता है। इस प्रक्रिया में अनुप्रयोग लॉन्चर और परिवेश अपनी जगह बने रहते हैं। यह पहली बार वाला इंस्टॉलर नहीं चलाती और उसके टर्मिनल प्रश्न दोबारा नहीं पूछती।",
+      "reviewed_translation": "**सहायता → Check for updates** चुनें, उपलब्ध अपडेट स्वीकार करें और पुष्टि करें कि spaCR अपने वर्तमान परिवेश में फिर स्थापित होगा। spaCR बंद होता है, स्थापना के साथ उपलब्ध ``uv`` से अपने मौजूदा निजी परिवेश को अपडेट करता है, स्थापित संस्करण की जाँच करता है और अपने आप फिर खुलता है। इस प्रक्रिया में अनुप्रयोग लॉन्चर और परिवेश अपनी जगह बने रहते हैं। यह पहली बार वाला इंस्टॉलर नहीं चलाती और उसके टर्मिनल प्रश्न दोबारा नहीं पूछती।",
+      "ui_bindings": {
+        "Help": "सहायता"
+      }
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow.",
+      "source_sha256": "5e3efa7262c2307e309d8291d3ad3a9d08ee70d8578ceab40da6a16448e5a759",
+      "original_ai_draft": "यह नीचे दिए गए macOS पुनर्प्राप्ति कमांड के समान कमांड है, जिसमें वास्तविक स्थापना डायरेक्टरी का उपयोग होता है। असफल अपडेट या संस्करण जाँच का विवरण ``~/.spacr/logs/update.log`` में दर्ज होता है और सफल अपडेट के बाद होने वाला पुनः लॉन्च नहीं होता। यदि spaCR सुरक्षित रूप से बंद नहीं हो पाता, तो भी अपडेट रुक जाता है। अलग से पैकेज किए गए फ्रोज़न अनुप्रयोग बंडल के लिए बंडल बदलने की प्रक्रिया उपयोग होती है।",
+      "reviewed_translation": "यह नीचे दिए गए macOS पुनर्प्राप्ति कमांड के समान कमांड है, जिसमें वास्तविक स्थापना डायरेक्टरी का उपयोग होता है। असफल अपडेट या संस्करण जाँच का विवरण ``~/.spacr/logs/update.log`` में दर्ज होता है और सफल अपडेट के बाद होने वाला पुनः लॉन्च नहीं होता। यदि spaCR सुरक्षित रूप से बंद नहीं हो पाता, तो भी अपडेट रुक जाता है। अलग से पैकेज किए गए फ्रोज़न अनुप्रयोग बंडल के लिए बंडल बदलने की प्रक्रिया उपयोग होती है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Older installations and full installers",
+      "source_sha256": "8b46d93d57db34f7ec55e6dac2079ea3eb241252825e959adbbd0ab55ff25ba9",
+      "original_ai_draft": "पुरानी स्थापनाएँ और पूर्ण इंस्टॉलर",
+      "reviewed_translation": "पुरानी स्थापनाएँ और पूर्ण इंस्टॉलर",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so two versions never sit side by side with one of them on the path. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update.",
+      "source_sha256": "31bbb9211b1ba571834a3614a3cb08f753a73e79765bd0a5b2301ed440dbe1ec",
+      "original_ai_draft": "पूर्ण इंस्टॉलर और इंस्टॉलर की अन्य अपडेट प्रक्रियाएँ पहले के इंस्टॉलर द्वारा स्थापित spaCR की प्रतियाँ खोजकर हटाती हैं, ताकि दो संस्करण साथ मौजूद न रहें जिनमें से एक खोज पथ पर हो। वे Windows की ऑनलाइन और ऑफलाइन स्थापनाएँ, macOS अनुप्रयोग और उसका प्रति-उपयोगकर्ता परिवेश, Linux ऑनलाइन स्थापना और Debian पैकेज खोजती हैं; साथ ही उनके लॉन्चर, शॉर्टकट, मेनू प्रविष्टियाँ और अनइंस्टॉल पंजीकरण भी। आपके स्वयं बनाए परिवेश और स्रोत चेकआउट सूची में दिखते हैं, लेकिन कभी हटाए नहीं जाते; आपके परियोजना फ़ोल्डर और परिणाम भी अछूते रहते हैं। यदि कोई प्रति हटाई नहीं जा सकती—जैसे ``/Applications`` में macOS अनुप्रयोग जिसे हटाने के लिए प्रशासक चाहिए—तो इंस्टॉलर उसका विवरण बताता है और कुछ स्थापित नहीं करता, ताकि अपडेट अधूरा न रहे।",
+      "reviewed_translation": "पूर्ण इंस्टॉलर और इंस्टॉलर की अन्य अपडेट प्रक्रियाएँ पहले के इंस्टॉलर द्वारा स्थापित spaCR की प्रतियाँ खोजकर हटाती हैं, ताकि दो संस्करण साथ मौजूद न रहें जिनमें से एक खोज पथ पर हो। वे Windows की ऑनलाइन और ऑफलाइन स्थापनाएँ, macOS अनुप्रयोग और उसका प्रति-उपयोगकर्ता परिवेश, Linux ऑनलाइन स्थापना और Debian पैकेज खोजती हैं; साथ ही उनके लॉन्चर, शॉर्टकट, मेनू प्रविष्टियाँ और अनइंस्टॉल पंजीकरण भी। आपके स्वयं बनाए परिवेश और स्रोत चेकआउट सूची में दिखते हैं, लेकिन कभी हटाए नहीं जाते; आपके परियोजना फ़ोल्डर और परिणाम भी अछूते रहते हैं। यदि कोई प्रति हटाई नहीं जा सकती—जैसे ``/Applications`` में macOS अनुप्रयोग जिसे हटाने के लिए प्रशासक चाहिए—तो इंस्टॉलर उसका विवरण बताता है और कुछ स्थापित नहीं करता, ताकि अपडेट अधूरा न रहे।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Preview colony counting (alpha)",
+      "source_sha256": "ff03710311d373bdc7e7756f702c1cbfe7b31f9fba7e22eda9b650b36b264753",
+      "original_ai_draft": "कॉलोनी गणना का पूर्वावलोकन (अल्फा)",
+      "reviewed_translation": "कॉलोनी गणना का पूर्वावलोकन (अल्फा)",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path.",
+      "source_sha256": "545e42e929b9520e7ef1925c215ef32e4af3456a9b9fbf5112fe9762b6c3d107",
+      "original_ai_draft": "**प्राथमिकताएं → अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें, फिर मॉड्यूल की **Colony Counting (Alpha)** सेटिंग्स में **कॉलोनी गणना** चालू करें। **प्लाक** मोड चुना रहने दें और **पूर्वावलोकन चलाएँ** दबाएँ। पूर्वावलोकन कॉलोनी गणना सेटिंग्स और मूल चित्र के पिक्सेल का उपयोग करता है, कॉलोनी ओवरले दिखाता है और संख्या तथा औसत क्षेत्रफल मूल चित्र के पिक्सेल में बताता है। वेल पहचान सक्षम होने पर, पहचाने गए वेल की कॉलोनियाँ अलग-अलग गिनी जाती हैं और मूल फोटो में उनकी जगह पर दिखाई जाती हैं। इस प्रक्रिया के लिए प्लाक विभाजन मॉडल आवश्यक नहीं है।",
+      "reviewed_translation": "**प्राथमिकताएं → अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें, फिर मॉड्यूल की **कॉलोनी गणना** सेटिंग्स में **कॉलोनी गणना** चालू करें। **प्लाक** मोड चुना रहने दें और **पूर्वावलोकन चलाएँ** दबाएँ। पूर्वावलोकन कॉलोनी गणना सेटिंग्स और मूल चित्र के पिक्सेल का उपयोग करता है, कॉलोनी ओवरले दिखाता है और संख्या तथा औसत क्षेत्रफल मूल चित्र के पिक्सेल में बताता है। वेल पहचान सक्षम होने पर, पहचाने गए वेल की कॉलोनियाँ अलग-अलग गिनी जाती हैं और मूल फोटो में उनकी जगह पर दिखाई जाती हैं। इस प्रक्रिया के लिए प्लाक विभाजन मॉडल आवश्यक नहीं है।",
+      "ui_bindings": {
+        "Preferences": "प्राथमिकताएं",
+        "Show alpha features": "अल्फ़ा सुविधाएँ दिखाएँ",
+        "Colony counting": "कॉलोनी गणना",
+        "Plaque": "प्लाक",
+        "Run preview": "पूर्वावलोकन चलाएँ"
+      }
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode.",
+      "source_sha256": "458811f9cae7a50afc7bda496b0d72ee0a791dfb001b0ae27b695ebad5b8ac77",
+      "original_ai_draft": "थ्रेशोल्डिंग के लिए कॉलोनी डिटेक्टर खाली छोड़ें, या कोई स्थापित कॉलोनी डिटेक्टर चुनें। पूर्वावलोकन चुपचाप विधि बदलने के बजाय अनुपलब्ध चेकपॉइंट या डिटेक्टर निर्भरता की जानकारी देता है; बैच प्रक्रिया में वैकल्पिक डिटेक्टर निर्भरता अनुपलब्ध होने पर थ्रेशोल्डिंग का उपयोग हो सकता है। पूर्वावलोकन और बैच परिणामों की तुलना करते समय जाँचें कि इच्छित विधि उपलब्ध है। कॉलोनी गणना फ्लो या कोशिका-प्रायिकता परिणाम नहीं बनाती, इसलिए उन दृश्यों में परिणाम अनुपलब्ध होने का संदेश दिखता है। पूर्वावलोकन कोई विश्लेषण डेटाबेस नहीं लिखता और स्रोत चित्र नहीं बदलता। Figure मोड में कॉलोनी गणना अनदेखी की जाती है।",
+      "reviewed_translation": "थ्रेशोल्डिंग के लिए कॉलोनी डिटेक्टर खाली छोड़ें, या कोई स्थापित कॉलोनी डिटेक्टर चुनें। पूर्वावलोकन चुपचाप विधि बदलने के बजाय अनुपलब्ध चेकपॉइंट या डिटेक्टर निर्भरता की जानकारी देता है; बैच प्रक्रिया में वैकल्पिक डिटेक्टर निर्भरता अनुपलब्ध होने पर थ्रेशोल्डिंग का उपयोग हो सकता है। पूर्वावलोकन और बैच परिणामों की तुलना करते समय जाँचें कि इच्छित विधि उपलब्ध है। कॉलोनी गणना फ्लो या कोशिका-प्रायिकता परिणाम नहीं बनाती, इसलिए उन दृश्यों में परिणाम अनुपलब्ध होने का संदेश दिखता है। पूर्वावलोकन कोई विश्लेषण डेटाबेस नहीं लिखता और स्रोत चित्र नहीं बदलता। Figure मोड में कॉलोनी गणना अनदेखी की जाती है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Link plate barcodes to sample metadata",
+      "source_sha256": "44e2d0cb3798096fe7554760faa45b12d412e2e21b1d273b740599d0c0243358",
+      "original_ai_draft": "प्लेट बारकोड को नमूने के मेटाडेटा से जोड़ना",
+      "reviewed_translation": "प्लेट बारकोड को नमूने के मेटाडेटा से जोड़ना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "In **Measure**, enable **Show alpha features** in Preferences and open **Plate Barcode Linkage (Alpha)**. Set ``plate_barcode_source`` to a table or a LIMS service URL. The linkage runs after measurement.",
+      "source_sha256": "20e7ed4d020e572416717b1931d5d6fb68ebe0988217965b4bcd856096d6ec13",
+      "original_ai_draft": "**मापन** में, Preferences से **अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें और **Plate Barcode Linkage (Alpha)** खोलें। ``plate_barcode_source`` में तालिका या LIMS सेवा का URL दें। यह जोड़ने की प्रक्रिया मापन के बाद चलती है।",
+      "reviewed_translation": "**मापन** में, Preferences से **अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें और **Plate Barcode Linkage (Alpha)** खोलें। ``plate_barcode_source`` में तालिका या LIMS सेवा का URL दें। यह जोड़ने की प्रक्रिया मापन के बाद चलती है।",
+      "ui_bindings": {
+        "Measure": "मापन",
+        "Show alpha features": "अल्फ़ा सुविधाएँ दिखाएँ"
+      }
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "A local CSV, TSV, Excel or Parquet table needs a barcode column, a well column and the sample metadata to attach. For example::",
+      "source_sha256": "232b1a454fac5c23976df96e842ebe4ba4900098adb1540f650173541179cd17",
+      "original_ai_draft": "स्थानीय CSV, TSV, Excel या Parquet तालिका में बारकोड स्तंभ, वेल स्तंभ और जोड़ने के लिए नमूने का मेटाडेटा होना चाहिए। उदाहरण::",
+      "reviewed_translation": "स्थानीय CSV, TSV, Excel या Parquet तालिका में बारकोड स्तंभ, वेल स्तंभ और जोड़ने के लिए नमूने का मेटाडेटा होना चाहिए। उदाहरण::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata.",
+      "source_sha256": "7fcede6a934cae46f467fdde4555ac094e10870cf1800cdb93ba58b68de8f404",
+      "original_ai_draft": "यदि बारकोड स्तंभ का नाम अलग है, तो ``plate_barcode_column`` सेट करें। ``plate_barcodes`` चित्रित प्लेट के नाम को उसके बारकोड से जोड़ता है। अन्यथा spaCR प्लेट फ़ोल्डर में ``barcode.txt`` पढ़ता है या प्लेट के नाम का उपयोग करता है। मेटाडेटा में सांद्रता की उपयोगी इकाइयाँ बनाए रखें।",
+      "reviewed_translation": "यदि बारकोड स्तंभ का नाम अलग है, तो ``plate_barcode_column`` सेट करें। ``plate_barcodes`` चित्रित प्लेट के नाम को उसके बारकोड से जोड़ता है। अन्यथा spaCR प्लेट फ़ोल्डर में ``barcode.txt`` पढ़ता है या प्लेट के नाम का उपयोग करता है। मेटाडेटा में सांद्रता की उपयोगी इकाइयाँ बनाए रखें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Read records from a LIMS service",
+      "source_sha256": "c0a23cd8b5ed04a568c81761b0eae461c222a4f8a45f4131adde8ba4c847f189",
+      "original_ai_draft": "LIMS सेवा से रिकॉर्ड पढ़ना",
+      "reviewed_translation": "LIMS सेवा से रिकॉर्ड पढ़ना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Use a URL such as ``https://lims.example/plates/{barcode}/wells``. spaCR substitutes the encoded barcode. Without ``{barcode}``, it adds a ``barcode`` query parameter. If authentication is needed, set the token in an environment variable and put that variable's name in ``plate_barcode_token_env``. Do not put the token in the URL or settings.",
+      "source_sha256": "8ad434bde363eb3f21f8475acd71bd6204ba876e4d1273e27cec44e55c08e633",
+      "original_ai_draft": "``https://lims.example/plates/{barcode}/wells`` जैसे URL का उपयोग करें। spaCR उसमें एन्कोड किया हुआ बारकोड डालता है। ``{barcode}`` न होने पर यह ``barcode`` क्वेरी पैरामीटर जोड़ता है। प्रमाणीकरण आवश्यक हो, तो टोकन किसी परिवेश चर में रखें और उस चर का नाम ``plate_barcode_token_env`` में दें। टोकन URL या सेटिंग्स में न रखें।",
+      "reviewed_translation": "``https://lims.example/plates/{barcode}/wells`` जैसे URL का उपयोग करें। spaCR उसमें एन्कोड किया हुआ बारकोड डालता है। ``{barcode}`` न होने पर यह ``barcode`` क्वेरी पैरामीटर जोड़ता है। प्रमाणीकरण आवश्यक हो, तो टोकन किसी परिवेश चर में रखें और उस चर का नाम ``plate_barcode_token_env`` में दें। टोकन URL या सेटिंग्स में न रखें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The service may return a list of well records, or an object containing that list under ``wells``, ``records``, ``results``, ``data`` or ``items``. Plain fields outside the list supply metadata defaults for its wells::",
+      "source_sha256": "6244ec071c830f9d6901864e977aa929fd44754a90f4df036be3e1c82c49a68c",
+      "original_ai_draft": "सेवा वेल रिकॉर्ड की सूची या ``wells``, ``records``, ``results``, ``data`` अथवा ``items`` के अंतर्गत ऐसी सूची वाला ऑब्जेक्ट लौटा सकती है। सूची के बाहर साधारण फ़ील्ड उसके वेल के लिए मेटाडेटा के डिफ़ॉल्ट मान देते हैं::",
+      "reviewed_translation": "सेवा वेल रिकॉर्ड की सूची या ``wells``, ``records``, ``results``, ``data`` अथवा ``items`` के अंतर्गत ऐसी सूची वाला ऑब्जेक्ट लौटा सकती है। सूची के बाहर साधारण फ़ील्ड उसके वेल के लिए मेटाडेटा के डिफ़ॉल्ट मान देते हैं::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "spaCR follows ``next``, ``next_url``, ``@odata.nextLink`` or ``links.next``. The link may be a URL string or an object with an ``href`` field. Relative links resolve against the response URL. A missing link, null or empty string ends the list. Metadata defaults carry forward to later pages; explicit fields on a well override those defaults. Pagination fields do not become sample metadata.",
+      "source_sha256": "f507435c5c47b43dc9aefd6be8165a2e4039f2bba6955fcecdc1b916ab398935",
+      "original_ai_draft": "spaCR ``next``, ``next_url``, ``@odata.nextLink`` या ``links.next`` का अनुसरण करता है। लिंक URL स्ट्रिंग या ``href`` फ़ील्ड वाला ऑब्जेक्ट हो सकता है। सापेक्ष लिंक उत्तर के URL के आधार पर हल होते हैं। लिंक न होना, null या खाली स्ट्रिंग सूची समाप्त करता है। मेटाडेटा के डिफ़ॉल्ट अगले पृष्ठों पर भी लागू रहते हैं; वेल पर दिए गए स्पष्ट फ़ील्ड उन डिफ़ॉल्ट को बदल देते हैं। पृष्ठ क्रमण के फ़ील्ड नमूने के मेटाडेटा में शामिल नहीं होते।",
+      "reviewed_translation": "spaCR ``next``, ``next_url``, ``@odata.nextLink`` या ``links.next`` का अनुसरण करता है। लिंक URL स्ट्रिंग या ``href`` फ़ील्ड वाला ऑब्जेक्ट हो सकता है। सापेक्ष लिंक उत्तर के URL के आधार पर हल होते हैं। लिंक न होना, null या खाली स्ट्रिंग सूची समाप्त करता है। मेटाडेटा के डिफ़ॉल्ट अगले पृष्ठों पर भी लागू रहते हैं; वेल पर दिए गए स्पष्ट फ़ील्ड उन डिफ़ॉल्ट को बदल देते हैं। पृष्ठ क्रमण के फ़ील्ड नमूने के मेटाडेटा में शामिल नहीं होते।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Every link and HTTP redirect must stay on the same scheme, host and port as the original service. Conflicting links and repeated pages are errors. Collection is limited to 16 MiB per response, 64 MiB across the lookup, 1,000 page addresses per barcode and 100,000 records across the lookup. An error stops the metadata lookup without returning a partial plate map. Existing measurement results remain available. Vendor-specific cursor protocols that do not provide a next-page URL need a separate adapter.",
+      "source_sha256": "97ee2f1a5e5a52c2ed6ac167d29c5655de55b4b826e4509b4a967a0a54031ad6",
+      "original_ai_draft": "हर लिंक और HTTP रीडायरेक्ट की स्कीम, होस्ट और पोर्ट मूल सेवा के समान होने चाहिए। परस्पर विरोधी लिंक और दोहराए गए पृष्ठ त्रुटियाँ हैं। संग्रह की सीमा प्रति उत्तर 16 MiB, पूरी खोज में 64 MiB, प्रति बारकोड 1,000 पृष्ठ पते और पूरी खोज में 100,000 रिकॉर्ड है। त्रुटि होने पर मेटाडेटा खोज रुकती है और अधूरा प्लेट मानचित्र नहीं लौटाती। मौजूदा मापन परिणाम उपलब्ध रहते हैं। ऐसे विक्रेता-विशिष्ट कर्सर प्रोटोकॉल के लिए अलग अडैप्टर चाहिए जो अगले पृष्ठ का URL नहीं देते।",
+      "reviewed_translation": "हर लिंक और HTTP रीडायरेक्ट की स्कीम, होस्ट और पोर्ट मूल सेवा के समान होने चाहिए। परस्पर विरोधी लिंक और दोहराए गए पृष्ठ त्रुटियाँ हैं। संग्रह की सीमा प्रति उत्तर 16 MiB, पूरी खोज में 64 MiB, प्रति बारकोड 1,000 पृष्ठ पते और पूरी खोज में 100,000 रिकॉर्ड है। त्रुटि होने पर मेटाडेटा खोज रुकती है और अधूरा प्लेट मानचित्र नहीं लौटाती। मौजूदा मापन परिणाम उपलब्ध रहते हैं। ऐसे विक्रेता-विशिष्ट कर्सर प्रोटोकॉल के लिए अलग अडैप्टर चाहिए जो अगले पृष्ठ का URL नहीं देते।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Inspect the result",
+      "source_sha256": "363e3d412470c6dd54ad52412672a831acc15a69fdbe833d89a6719f1c723968",
+      "original_ai_draft": "परिणाम की जाँच",
+      "reviewed_translation": "परिणाम की जाँच",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The filled map is written to ``measurements/plate_map_lims.csv``. It fills an empty ``profiling_metadata`` setting. When compound and concentration columns exist, it also fills an empty ``viability_plate_map``. An existing user-supplied map is compared, not silently replaced.",
+      "source_sha256": "49a70757afd7a6730218f674ec09e24a4557331c2bd397dd145efd18a6838d31",
+      "original_ai_draft": "भरा हुआ मानचित्र ``measurements/plate_map_lims.csv`` में लिखा जाता है। यह खाली ``profiling_metadata`` सेटिंग भरता है। यौगिक और सांद्रता स्तंभ होने पर खाली ``viability_plate_map`` भी भरता है। उपयोगकर्ता द्वारा दिए गए मौजूदा मानचित्र से तुलना होती है; उसे चुपचाप बदला नहीं जाता।",
+      "reviewed_translation": "भरा हुआ मानचित्र ``measurements/plate_map_lims.csv`` में लिखा जाता है। यह खाली ``profiling_metadata`` सेटिंग भरता है। यौगिक और सांद्रता स्तंभ होने पर खाली ``viability_plate_map`` भी भरता है। उपयोगकर्ता द्वारा दिए गए मौजूदा मानचित्र से तुलना होती है; उसे चुपचाप बदला नहीं जाता।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Review ``measurements/plate_barcode_mismatches.csv`` and the log for missing barcodes, shared barcodes, unmatched wells, conflicting records and disagreements with an existing map. Resolve those mismatches before interpreting treatment comparisons.",
+      "source_sha256": "5698a5c34c4657dde2609dc2a8e7133685c6c378847a04bff8a78389fc6fcf0c",
+      "original_ai_draft": "अनुपलब्ध बारकोड, साझा बारकोड, मेल न खाने वाले वेल, विरोधी रिकॉर्ड और मौजूदा मानचित्र से अंतर के लिए ``measurements/plate_barcode_mismatches.csv`` तथा लॉग देखें। उपचारों की तुलना का अर्थ निकालने से पहले इन अंतरों को सुलझाएँ।",
+      "reviewed_translation": "अनुपलब्ध बारकोड, साझा बारकोड, मेल न खाने वाले वेल, विरोधी रिकॉर्ड और मौजूदा मानचित्र से अंतर के लिए ``measurements/plate_barcode_mismatches.csv`` तथा लॉग देखें। उपचारों की तुलना का अर्थ निकालने से पहले इन अंतरों को सुलझाएँ।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combine measurement tables for plots and gates",
+      "source_sha256": "1300eddc7951b9ac3b501f2dec89bc071cc7ceada1a558141b2921fcb30da7c7",
+      "original_ai_draft": "प्लॉट और गेट के लिए मापन तालिकाएँ जोड़ना",
+      "reviewed_translation": "प्लॉट और गेट के लिए मापन तालिकाएँ जोड़ना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`.",
+      "source_sha256": "fa4fc670ef8e642d3791bc8b14223ab8aaaf1377f1f9c0df7c181008223b665c",
+      "original_ai_draft": "मापन देखने के लिए Home से **Graph Builder** या **Gate Editor** खोलें। दोनों स्क्रीन में तालिका चयनक के ठीक पास **टेबल मिश्रण** उपलब्ध है। एक ही मर्ज परिभाषा दोनों स्क्रीन में एक जैसे मापन देती है। संबंधित पूरी प्रक्रिया के लिए :doc:`workflows` देखें।",
+      "reviewed_translation": "मापन देखने के लिए Home से **Graph Builder** या **Gate Editor** खोलें। दोनों स्क्रीन में तालिका चयनक के ठीक पास **तालिकाएँ मर्ज करें** उपलब्ध है। एक ही मर्ज परिभाषा दोनों स्क्रीन में एक जैसे मापन देती है। संबंधित पूरी प्रक्रिया के लिए :doc:`workflows` देखें।",
+      "ui_bindings": {
+        "Merge tables": "तालिकाएँ मर्ज करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose a source and an observation level",
+      "source_sha256": "fd8d7835e26141e11278364cd50fa58dafc0f6cdc57c335ebf755e5765d65392",
+      "original_ai_draft": "स्रोत और अवलोकन स्तर चुनना",
+      "reviewed_translation": "स्रोत और अवलोकन स्तर चुनना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Load table** opens a SQLite measurement database or a CSV/TSV table. A physical table is an existing table in that database. A derived table is a named result calculated from physical tables using a saved merge definition. Creating a derived table preserves the original measurement tables.",
+      "source_sha256": "6156fa2643fba52e0d51b287610b3773efdfe34d48ccff3539e4d5ab97a39734",
+      "original_ai_draft": "**Load table** SQLite मापन डेटाबेस या CSV/TSV तालिका खोलता है। भौतिक तालिका उस डेटाबेस में पहले से मौजूद तालिका है। व्युत्पन्न तालिका, सहेजी गई मर्ज परिभाषा से भौतिक तालिकाओं से गणना किया गया नामित परिणाम है। व्युत्पन्न तालिका बनाने पर मूल मापन तालिकाएँ सुरक्षित रहती हैं।",
+      "reviewed_translation": "**Load table** SQLite मापन डेटाबेस या CSV/TSV तालिका खोलता है। भौतिक तालिका उस डेटाबेस में पहले से मौजूद तालिका है। व्युत्पन्न तालिका, सहेजी गई मर्ज परिभाषा से भौतिक तालिकाओं से गणना किया गया नामित परिणाम है। व्युत्पन्न तालिका बनाने पर मूल मापन तालिकाएँ सुरक्षित रहती हैं।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Merging requires one SQLite database. The button is unavailable for a single CSV/TSV or a Gate Editor session combining several databases. Load the one database containing the tables you want to join.",
+      "source_sha256": "a17323cc6ee40ca694711fdbf722c523427ab6d172dd6ff741bd59a1eff217c1",
+      "original_ai_draft": "मर्ज करने के लिए एक SQLite डेटाबेस आवश्यक है। एक CSV/TSV या कई डेटाबेस जोड़ने वाले Gate Editor सत्र में यह बटन उपलब्ध नहीं होता। जिन तालिकाओं को जोड़ना है, उन्हें रखने वाला एक डेटाबेस खोलें।",
+      "reviewed_translation": "मर्ज करने के लिए एक SQLite डेटाबेस आवश्यक है। एक CSV/TSV या कई डेटाबेस जोड़ने वाले Gate Editor सत्र में यह बटन उपलब्ध नहीं होता। जिन तालिकाओं को जोड़ना है, उन्हें रखने वाला एक डेटाबेस खोलें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, choosing a table changes the chart's source. Gate Editor also supports a working set of compatible physical object tables, shown as removable chips; selecting another compatible table adds its measurements. The last remaining chip stays in place so the editor always has a source. A named derived table is selected as a complete source. Use the merge popup when you need a named, reproducible result or explicit custom relationships.",
+      "source_sha256": "18d1637b149858c659b68fb2d611ce2abf333c7a7d8ad79281f0b74be2a53d07",
+      "original_ai_draft": "Graph Builder में तालिका चुनने से चार्ट का स्रोत बदलता है। Gate Editor संगत भौतिक ऑब्जेक्ट तालिकाओं का कार्यसमूह भी समर्थित करता है, जो हटाए जा सकने वाले चिप्स के रूप में दिखता है; दूसरी संगत तालिका चुनने पर उसके मापन जुड़ते हैं। अंतिम बचा चिप अपनी जगह रहता है, ताकि संपादक में हमेशा एक स्रोत रहे। नामित व्युत्पन्न तालिका पूर्ण स्रोत के रूप में चुनी जाती है। नामित, पुनरुत्पादनीय परिणाम या स्पष्ट कस्टम संबंधों के लिए मर्ज पॉपअप का उपयोग करें।",
+      "reviewed_translation": "Graph Builder में तालिका चुनने से चार्ट का स्रोत बदलता है। Gate Editor संगत भौतिक ऑब्जेक्ट तालिकाओं का कार्यसमूह भी समर्थित करता है, जो हटाए जा सकने वाले चिप्स के रूप में दिखता है; दूसरी संगत तालिका चुनने पर उसके मापन जुड़ते हैं। अंतिम बचा चिप अपनी जगह रहता है, ताकि संपादक में हमेशा एक स्रोत रहे। नामित व्युत्पन्न तालिका पूर्ण स्रोत के रूप में चुनी जाती है। नामित, पुनरुत्पादनीय परिणाम या स्पष्ट कस्टम संबंधों के लिए मर्ज पॉपअप का उपयोग करें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The **Output observation table** determines what one result row represents. For example, a cell-level result has one row per cell even when that cell contains several pathogens. A nucleus count, total pathogen area and cell intensity can then be compared on the same row.",
+      "source_sha256": "b6f1186a467ff6c4ab6bda35ae32e2448f4d05d8437b02cfefeee60f83631c8e",
+      "original_ai_draft": "**आउटपुट अवलोकन तालिका** तय करती है कि परिणाम की एक पंक्ति क्या दर्शाती है। उदाहरण के लिए, कोशिका-स्तरीय परिणाम में प्रति कोशिका एक पंक्ति होती है, भले उसमें कई रोगजनक हों। तब नाभिक संख्या, रोगजनकों का कुल क्षेत्रफल और कोशिका की तीव्रता की तुलना उसी पंक्ति में की जा सकती है।",
+      "reviewed_translation": "**आउटपुट अवलोकन तालिका** तय करती है कि परिणाम की एक पंक्ति क्या दर्शाती है। उदाहरण के लिए, कोशिका-स्तरीय परिणाम में प्रति कोशिका एक पंक्ति होती है, भले उसमें कई रोगजनक हों। तब नाभिक संख्या, रोगजनकों का कुल क्षेत्रफल और कोशिका की तीव्रता की तुलना उसी पंक्ति में की जा सकती है।",
+      "ui_bindings": {
+        "Output observation table": "आउटपुट अवलोकन तालिका"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Create a standard spaCR merge",
+      "source_sha256": "d7f8553f0262ec95c5c53914fac2a4e326f47cdf2b60c15f63e0bf9b42f8cf62",
+      "original_ai_draft": "मानक spaCR मर्ज बनाना",
+      "reviewed_translation": "मानक spaCR मर्ज बनाना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Load your measurement database and press **Merge tables**.",
+      "source_sha256": "943f30e115129bbebd878be10e6c200dba521d8587c2bf730e91534da640a041",
+      "original_ai_draft": "मापन डेटाबेस खोलें और **टेबल मिश्रण** दबाएँ।",
+      "reviewed_translation": "मापन डेटाबेस खोलें और **तालिकाएँ मर्ज करें** दबाएँ।",
+      "ui_bindings": {
+        "Merge tables": "तालिकाएँ मर्ज करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Tick the source tables and choose **Output observation table**. The base table is included automatically. Standard merges use compatible spaCR object tables and cell/cytoplasm observation levels; the list also shows other tables whose relationships may require customization.",
+      "source_sha256": "7c06e9ca10f4ede108a8a2bc0f29aa8c20569a027e20a0ce278882737c37d7ab",
+      "original_ai_draft": "स्रोत तालिकाएँ चुनें और **आउटपुट अवलोकन तालिका** चुनें। आधार तालिका अपने आप शामिल होती है। मानक मर्ज संगत spaCR ऑब्जेक्ट तालिकाओं और कोशिका/कोशिकाद्रव्य अवलोकन स्तरों का उपयोग करते हैं; सूची अन्य तालिकाएँ भी दिखाती है जिनके संबंधों को अनुकूलित करना पड़ सकता है।",
+      "reviewed_translation": "स्रोत तालिकाएँ चुनें और **आउटपुट अवलोकन तालिका** चुनें। आधार तालिका अपने आप शामिल होती है। मानक मर्ज संगत spaCR ऑब्जेक्ट तालिकाओं और कोशिका/कोशिकाद्रव्य अवलोकन स्तरों का उपयोग करते हैं; सूची अन्य तालिकाएँ भी दिखाती है जिनके संबंधों को अनुकूलित करना पड़ सकता है।",
+      "ui_bindings": {
+        "Output observation table": "आउटपुट अवलोकन तालिका"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Enter a **Result name**, such as ``Cell and pathogen measurements``. It must differ from every physical table name.",
+      "source_sha256": "68f4e79c5e729b4d3c3bacdb4f9c2412da034d68a11f119bb44ef692b60c85ab",
+      "original_ai_draft": "``Cell and pathogen measurements`` जैसा **परिणाम नाम** दर्ज करें। यह हर भौतिक तालिका के नाम से अलग होना चाहिए।",
+      "reviewed_translation": "``Cell and pathogen measurements`` जैसा **परिणाम नाम** दर्ज करें। यह हर भौतिक तालिका के नाम से अलग होना चाहिए।",
+      "ui_bindings": {
+        "Result name": "परिणाम नाम"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Review the **spaCR defaults active** summary and the per-column **Aggregation** choices. For an ordinary compatible database, no manual key mapping is needed.",
+      "source_sha256": "b174926db0ee37fb959dbd246058838d2d86a1c3b6c9cbeb37334fff6d0480d7",
+      "original_ai_draft": "**spaCR defaults active** सारांश और हर स्तंभ के **Aggregation के बारे में** विकल्प देखें। साधारण संगत डेटाबेस के लिए कुंजियों का मैनुअल मिलान आवश्यक नहीं है।",
+      "reviewed_translation": "**spaCR defaults active** सारांश और हर स्तंभ के **समेकन** विकल्प देखें। साधारण संगत डेटाबेस के लिए कुंजियों का मैनुअल मिलान आवश्यक नहीं है।",
+      "ui_bindings": {
+        "Aggregation": "समेकन"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Validate and preview**. Inspect the input and output row counts, join keys, unmatched records, missing child keys, repeated child-key rows and the first 12 output rows. Validation examines the full input, even though only a few result rows are displayed.",
+      "source_sha256": "bd97d12dd20f09eb06790909df7b8f657ad4cce8f8cd7cfc6d153476a0ef4ee6",
+      "original_ai_draft": "**प्रविष्टि और पूर्वावलोकन** दबाएँ। इनपुट और आउटपुट पंक्तियों की संख्या, जोड़ने वाली कुंजियाँ, मेल न खाने वाले रिकॉर्ड, अनुपलब्ध अधीनस्थ कुंजियाँ, दोहराई गई अधीनस्थ-कुंजी पंक्तियाँ और पहली 12 परिणाम पंक्तियाँ देखें। सत्यापन पूरे इनपुट की जाँच करता है, यद्यपि केवल कुछ परिणाम पंक्तियाँ दिखाई जाती हैं।",
+      "reviewed_translation": "**सत्यापित करें और पूर्वावलोकन देखें** दबाएँ। इनपुट और आउटपुट पंक्तियों की संख्या, जोड़ने वाली कुंजियाँ, मेल न खाने वाले रिकॉर्ड, अनुपलब्ध अधीनस्थ कुंजियाँ, दोहराई गई अधीनस्थ-कुंजी पंक्तियाँ और पहली 12 परिणाम पंक्तियाँ देखें। सत्यापन पूरे इनपुट की जाँच करता है, यद्यपि केवल कुछ परिणाम पंक्तियाँ दिखाई जाती हैं।",
+      "ui_bindings": {
+        "Validate and preview": "सत्यापित करें और पूर्वावलोकन देखें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates.",
+      "source_sha256": "f6bed99671cb8a2675492fff57dad6635347bfdd29191ae9fabbba1891323541",
+      "original_ai_draft": "सत्यापन सफल होने के बाद **मिश्रित टेबल बनाएं** दबाएँ। परिणाम सामान्य तालिका चयनक में चुना जाता है। उसके स्तंभ चार्ट और गेट के लिए उपलब्ध होते हैं।",
+      "reviewed_translation": "सत्यापन सफल होने के बाद **मर्ज की हुई तालिका बनाएँ** दबाएँ। परिणाम सामान्य तालिका चयनक में चुना जाता है। उसके स्तंभ चार्ट और गेट के लिए उपलब्ध होते हैं।",
+      "ui_bindings": {
+        "Create merged table": "मर्ज की हुई तालिका बनाएँ"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them.",
+      "source_sha256": "dff285d0c223c722eee3a1ef9e37890c369c81e34b46a624c25493fc0e6470be",
+      "original_ai_draft": "तालिका, नाम या नियम बदलने से पूर्वावलोकन अमान्य होता है। परिणाम बनाने से पहले दोबारा सत्यापन करें। दूसरी तालिका या आधार चुनने से कस्टम संबंध और ओवरराइड भी रीसेट होते हैं, इसलिए अनुकूलन से पहले स्रोत चुनें।",
+      "reviewed_translation": "तालिका, नाम या नियम बदलने से पूर्वावलोकन अमान्य होता है। परिणाम बनाने से पहले दोबारा सत्यापन करें। दूसरी तालिका या आधार चुनने से कस्टम संबंध और ओवरराइड भी रीसेट होते हैं, इसलिए अनुकूलन से पहले स्रोत चुनें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "How the defaults combine measurements",
+      "source_sha256": "3f8bbf2e3053eecfb17f72c741ad6763e8cf32d4eb78d43f2e074564929db760",
+      "original_ai_draft": "डिफ़ॉल्ट नियम मापन कैसे जोड़ते हैं",
+      "reviewed_translation": "डिफ़ॉल्ट नियम मापन कैसे जोड़ते हैं",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The shared spaCR rules aggregate each child table independently before joining it to the base observations. Adding both pathogens and organelles does not multiply their rows together. Identity includes the available plate, well, field and time metadata together with the relevant object/parent ID; an object number alone is not a globally unique identity.",
+      "source_sha256": "5182a1d21f7773e0417bd43f30a29345648eabfdef739eb73ffd986eed48af04",
+      "original_ai_draft": "साझा spaCR नियम हर अधीनस्थ तालिका को आधार अवलोकनों से जोड़ने से पहले स्वतंत्र रूप से समेकित करते हैं। रोगजनक और कोशिकांग दोनों जोड़ने से उनकी पंक्तियाँ आपस में गुणित नहीं होतीं। पहचान में उपलब्ध प्लेट, वेल, दृश्य-क्षेत्र और समय मेटाडेटा तथा संबंधित ऑब्जेक्ट/मूल ऑब्जेक्ट ID शामिल होते हैं; केवल ऑब्जेक्ट संख्या सर्वत्र अद्वितीय पहचान नहीं है।",
+      "reviewed_translation": "साझा spaCR नियम हर अधीनस्थ तालिका को आधार अवलोकनों से जोड़ने से पहले स्वतंत्र रूप से समेकित करते हैं। रोगजनक और कोशिकांग दोनों जोड़ने से उनकी पंक्तियाँ आपस में गुणित नहीं होतीं। पहचान में उपलब्ध प्लेट, वेल, दृश्य-क्षेत्र और समय मेटाडेटा तथा संबंधित ऑब्जेक्ट/पैरेंट ऑब्जेक्ट ID शामिल होते हैं; केवल ऑब्जेक्ट संख्या सर्वत्र अद्वितीय पहचान नहीं है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Default aggregation for child measurements",
+      "source_sha256": "355c3446c127a77c39a80c94a57f1f5c750864771bef4c9772637677833b0d08",
+      "original_ai_draft": "अधीनस्थ मापन के लिए डिफ़ॉल्ट समेकन",
+      "reviewed_translation": "अधीनस्थ मापन के लिए डिफ़ॉल्ट समेकन",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Measurement",
+      "source_sha256": "385165e2ff59804537e732dc51e2b6058a5a11016e0bb01febe8a738614ed728",
+      "original_ai_draft": "मापन",
+      "reviewed_translation": "मापन",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rule",
+      "source_sha256": "62845f31a2fe00be3ebaaeb93f5b27af82ab81dfcbaa1871c76f596cd98cf3c9",
+      "original_ai_draft": "नियम",
+      "reviewed_translation": "नियम",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Area, integrated/total intensity and counts",
+      "source_sha256": "c179d58e053b42c8abaaa518ecf4e850c30112190ac25c3a1c0c6fede0a1d832",
+      "original_ai_draft": "क्षेत्रफल, एकीकृत/कुल तीव्रता और संख्याएँ",
+      "reviewed_translation": "क्षेत्रफल, एकीकृत/कुल तीव्रता और संख्याएँ",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Sum the child values.",
+      "source_sha256": "f1c10d040b2a2f34721745b710a66fe7672f4523b8415ed4191c2c180970ef75",
+      "original_ai_draft": "अधीनस्थ मानों का योग लें।",
+      "reviewed_translation": "अधीनस्थ मानों का योग लें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Minimum intensity",
+      "source_sha256": "78b5b8d4cff61a7420d3bd0b32ae573261689e0b940c7c92b4fb81f4efc1c402",
+      "original_ai_draft": "न्यूनतम तीव्रता",
+      "reviewed_translation": "न्यूनतम तीव्रता",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the minimum child value.",
+      "source_sha256": "2ad720165339a35ea45fc398a31666cfe936eea573fbe58b406fa9a1a0bbf5ea",
+      "original_ai_draft": "अधीनस्थ मानों में न्यूनतम रखें।",
+      "reviewed_translation": "अधीनस्थ मानों में न्यूनतम रखें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Maximum intensity",
+      "source_sha256": "54361a85a53a5e337d24985acaff806d213f860d4738b26acce7cfea125d1a50",
+      "original_ai_draft": "अधिकतम तीव्रता",
+      "reviewed_translation": "अधिकतम तीव्रता",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the maximum child value.",
+      "source_sha256": "a4a34d4612df23ca3181b5b3ba804bb1d0127081d3ff8a89fe5db7881b4df1d9",
+      "original_ai_draft": "अधीनस्थ मानों में अधिकतम रखें।",
+      "reviewed_translation": "अधीनस्थ मानों में अधिकतम रखें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Median measurements",
+      "source_sha256": "30c85c03af7732fa87bfc1a634762faccd85a833f7dcf5bda09360f99fda3542",
+      "original_ai_draft": "माध्यिका मापन",
+      "reviewed_translation": "माध्यिका मापन",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the median of the child measurements.",
+      "source_sha256": "535c4b425445b54d6dff1745551f675fdd87595f79ff4cc3e14c8f2837044931",
+      "original_ai_draft": "अधीनस्थ मापनों की माध्यिका लें।",
+      "reviewed_translation": "अधीनस्थ मापनों की माध्यिका लें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Other numeric measurements, including means",
+      "source_sha256": "7922dbebd8af8e77a0aa5dc97022d5b17d860a25cb9ca2cbf960179adb9f76d1",
+      "original_ai_draft": "अन्य संख्यात्मक मापन, जिनमें औसत शामिल हैं",
+      "reviewed_translation": "अन्य संख्यात्मक मापन, जिनमें औसत शामिल हैं",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the mean of the child measurements.",
+      "source_sha256": "60223377fe3545d1265d76ec08dfde0812252f37d26c8f4b29813773f6a59242",
+      "original_ai_draft": "अधीनस्थ मापनों का औसत लें।",
+      "reviewed_translation": "अधीनस्थ मापनों का औसत लें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Text and identifiers",
+      "source_sha256": "257a74ad575a360eb386bb697513fb7dde408562606335ec62b50e54f49c59e0",
+      "original_ai_draft": "पाठ और पहचानकर्ता",
+      "reviewed_translation": "पाठ और पहचानकर्ता",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the first nonmissing value in source order by default; identifiers cannot be averaged or summed.",
+      "source_sha256": "eb91a749839161d5a59b65178ebaf8ea0d918c5a0aa1f03fa3dc05cfb1dee9a6",
+      "original_ai_draft": "डिफ़ॉल्ट रूप से स्रोत क्रम में पहला गैर-अनुपलब्ध मान रखें; पहचानकर्ताओं का औसत या योग नहीं लिया जा सकता।",
+      "reviewed_translation": "डिफ़ॉल्ट रूप से स्रोत क्रम में पहला गैर-अनुपलब्ध मान रखें; पहचानकर्ताओं का औसत या योग नहीं लिया जा सकता।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For four pathogens with areas 1, 2, 4 and 8, total pathogen area is 15. A mean intensity is the mean of the four object measurements, not an intensity recalculated from all their pooled pixels. Inspect the rule shown for each column when its name does not describe its measurement convention.",
+      "source_sha256": "bbf284dd7b4a834e806dd56eae7e5def4245810cca385f1033e6b310e2237369",
+      "original_ai_draft": "1, 2, 4 और 8 क्षेत्रफल वाले चार रोगजनकों का कुल क्षेत्रफल 15 है। औसत तीव्रता उन चार ऑब्जेक्ट मापनों का औसत है, उनके सभी पिक्सेल मिलाकर दोबारा गणना की गई तीव्रता नहीं। स्तंभ का नाम उसकी मापन पद्धति स्पष्ट न करे, तो उसके लिए दिखाया गया नियम जाँचें।",
+      "reviewed_translation": "1, 2, 4 और 8 क्षेत्रफल वाले चार रोगजनकों का कुल क्षेत्रफल 15 है। औसत तीव्रता उन चार ऑब्जेक्ट मापनों का औसत है, उनके सभी पिक्सेल मिलाकर दोबारा गणना की गई तीव्रता नहीं। स्तंभ का नाम उसकी मापन पद्धति स्पष्ट न करे, तो उसके लिए दिखाया गया नियम जाँचें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The default nucleus join retains only matching base observations. Pathogen and organelle joins retain uninfected cells. Missing measurements remain missing, including a sum for which every contributing value is missing. An absent intensity measurement is not converted to a measured zero. Child columns use table-qualified names where needed to distinguish them.",
+      "source_sha256": "6cdd4f6399e4f1c6d59a18351817957a6530bada5f9cd14017d9b7001fd35b38",
+      "original_ai_draft": "डिफ़ॉल्ट नाभिक जॉइन केवल मेल खाने वाले आधार अवलोकन रखता है। रोगजनक और कोशिकांग जॉइन असंक्रमित कोशिकाएँ भी रखते हैं। अनुपलब्ध मापन अनुपलब्ध ही रहते हैं, जिसमें ऐसा योग भी शामिल है जिसके सभी योगदान अनुपलब्ध हों। अनुपस्थित तीव्रता मापन को मापा हुआ शून्य नहीं बनाया जाता। अधीनस्थ स्तंभों को अलग पहचानने के लिए आवश्यकतानुसार उनके नाम में तालिका का नाम जोड़ा जाता है।",
+      "reviewed_translation": "डिफ़ॉल्ट नाभिक जॉइन केवल मेल खाने वाले आधार अवलोकन रखता है। रोगजनक और कोशिकांग जॉइन असंक्रमित कोशिकाएँ भी रखते हैं। अनुपलब्ध मापन अनुपलब्ध ही रहते हैं, जिसमें ऐसा योग भी शामिल है जिसके सभी योगदान अनुपलब्ध हों। अनुपस्थित तीव्रता मापन को मापा हुआ शून्य नहीं बनाया जाता। अधीनस्थ स्तंभों को अलग पहचानने के लिए आवश्यकतानुसार उनके नाम में तालिका का नाम जोड़ा जाता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Available overrides depend on column values and role. Numeric measurements offer mean, median, sum, minimum, maximum, count and other compatible choices; text supports choices such as first/last, count and distinct count; Boolean-valued data also support **any** and **all**. **count** counts nonmissing values. Default one-to-one rows attach intact, so their aggregation controls are disabled until custom merging is selected.",
+      "source_sha256": "27997f400eb3ca7daa589a8e37e1d0a35846a8e64b0a98303dca8eb28eebdef6",
+      "original_ai_draft": "उपलब्ध ओवरराइड स्तंभ के मानों और भूमिका पर निर्भर करते हैं। संख्यात्मक मापनों में औसत, माध्यिका, योग, न्यूनतम, अधिकतम, संख्या और अन्य संगत विकल्प होते हैं; पाठ में पहला/अंतिम, संख्या और अलग-अलग मानों की संख्या जैसे विकल्प होते हैं; बूलियन डेटा में **किसी भी** और **all** भी उपलब्ध हैं। **count** गैर-अनुपलब्ध मानों को गिनता है। डिफ़ॉल्ट एक-से-एक पंक्तियाँ पूरी जुड़ती हैं, इसलिए कस्टम मर्ज चुने जाने तक उनके समेकन नियंत्रण निष्क्रिय रहते हैं।",
+      "reviewed_translation": "उपलब्ध ओवरराइड स्तंभ के मानों और भूमिका पर निर्भर करते हैं। संख्यात्मक मापनों में औसत, माध्यिका, योग, न्यूनतम, अधिकतम, संख्या और अन्य संगत विकल्प होते हैं; पाठ में पहला/अंतिम, संख्या और अलग-अलग मानों की संख्या जैसे विकल्प होते हैं; बूलियन डेटा में **किसी भी** और **all** भी उपलब्ध हैं। **count** गैर-अनुपलब्ध मानों को गिनता है। डिफ़ॉल्ट एक-से-एक पंक्तियाँ पूरी जुड़ती हैं, इसलिए कस्टम मर्ज चुने जाने तक उनके समेकन नियंत्रण निष्क्रिय रहते हैं।",
+      "ui_bindings": {
+        "any": "किसी भी"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Customize an alternative schema",
+      "source_sha256": "40c5a0d561073a633ebfc4c0b5111516141bf0b2d2c67149bb97cce732829303",
+      "original_ai_draft": "वैकल्पिक स्कीमा के लिए अनुकूलन",
+      "reviewed_translation": "वैकल्पिक स्कीमा के लिए अनुकूलन",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Customize merging** when the database uses different table names, identifiers or deliberately different relationships. Choose the base and child tables in the main popup first. Mapping their actual columns does not rename or modify the source tables.",
+      "source_sha256": "833529de728577eb88cbbadcfbf9fc31472e2b723dc070157c789e3183b4f5f7",
+      "original_ai_draft": "जब डेटाबेस में अलग तालिका नाम, पहचानकर्ता या जानबूझकर अलग संबंध हों, तब **मिश्रण के लिए कस्टम** चुनें। पहले मुख्य पॉपअप में आधार और अधीनस्थ तालिकाएँ चुनें। उनके वास्तविक स्तंभों का मिलान करने से स्रोत तालिकाओं का नाम या सामग्री नहीं बदलती।",
+      "reviewed_translation": "जब डेटाबेस में अलग तालिका नाम, पहचानकर्ता या जानबूझकर अलग संबंध हों, तब **मर्ज प्रक्रिया अनुकूलित करें** चुनें। पहले मुख्य पॉपअप में आधार और अधीनस्थ तालिकाएँ चुनें। उनके वास्तविक स्तंभों का मिलान करने से स्रोत तालिकाओं का नाम या सामग्री नहीं बदलती।",
+      "ui_bindings": {
+        "Customize merging": "मर्ज प्रक्रिया अनुकूलित करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The warning explains that incorrect relationships can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Read it and check **I understand the warning and will check the merge preview.** before accepting the custom settings. Acknowledgment does not bypass validation.",
+      "source_sha256": "93c1ec840f46fb19b804a98a60fee9aad5a21c1b4bef8c4458e697440f6b95c0",
+      "original_ai_draft": "चेतावनी बताती है कि गलत संबंध असंबंधित ऑब्जेक्ट जोड़ सकते हैं, अवलोकन दोहरा या हटा सकते हैं, और प्लॉट व गेट में उपयोग होने वाले मापन बदल सकते हैं। इसे पढ़ें और कस्टम सेटिंग्स स्वीकार करने से पहले **मैं चेतावनी को समझता हूं और संयुक्त पूर्वावलोकन की जांच करूंगा।** चुनें। स्वीकार करने से सत्यापन टलता नहीं है।",
+      "reviewed_translation": "चेतावनी बताती है कि गलत संबंध असंबंधित ऑब्जेक्ट जोड़ सकते हैं, अवलोकन दोहरा या हटा सकते हैं, और प्लॉट व गेट में उपयोग होने वाले मापन बदल सकते हैं। इसे पढ़ें और कस्टम सेटिंग्स स्वीकार करने से पहले **मैं चेतावनी को समझता हूं और संयुक्त पूर्वावलोकन की जांच करूंगा।** चुनें। स्वीकार करने से सत्यापन टलता नहीं है।",
+      "ui_bindings": {
+        "I understand the warning and will check the merge preview.": "मैं चेतावनी को समझता हूं और संयुक्त पूर्वावलोकन की जांच करूंगा।"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Base observation keys** identify one unique, nonmissing base row. Include field and time columns when IDs repeat across images or timepoints.",
+      "source_sha256": "6976d56c448e4039af698b1eb63a1c596e5cf1af195e54b6840d378dd03fb5e4",
+      "original_ai_draft": "**आधार अवलोकन कुंजी** एक अद्वितीय, गैर-अनुपलब्ध आधार पंक्ति पहचानती हैं। ID अलग चित्रों या समयबिंदुओं में दोहराए जाते हों, तो दृश्य-क्षेत्र और समय स्तंभ शामिल करें।",
+      "reviewed_translation": "**आधार अवलोकन कुंजी** एक अद्वितीय, गैर-अनुपलब्ध आधार पंक्ति पहचानती हैं। ID अलग चित्रों या समयबिंदुओं में दोहराए जाते हों, तो दृश्य-क्षेत्र और समय स्तंभ शामिल करें।",
+      "ui_bindings": {
+        "Base observation keys": "आधार अवलोकन कुंजी"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Each child row in the configuration specifies **Base keys** and **Child keys**. Enter comma-separated column names in matching order. For example, base ``image_id, cell_id`` can map to child ``image_id, parent_cell_id``.",
+      "source_sha256": "bbfecc3225fb288fb99962e7ac85e4432f95552eef50b236949e18f4226fa57c",
+      "original_ai_draft": "कॉन्फ़िगरेशन में हर अधीनस्थ पंक्ति **आधार कुंजी** और **बच्चों की कुंजी** बताती है। स्तंभ नाम अल्पविराम से अलग करके समान मिलान क्रम में दर्ज करें। उदाहरण के लिए, आधार ``image_id, cell_id`` का मिलान अधीनस्थ ``image_id, parent_cell_id`` से हो सकता है।",
+      "reviewed_translation": "कॉन्फ़िगरेशन में हर अधीनस्थ पंक्ति **आधार कुंजी** और **अधीनस्थ कुंजियाँ** बताती है। स्तंभ नाम अल्पविराम से अलग करके समान मिलान क्रम में दर्ज करें। उदाहरण के लिए, आधार ``image_id, cell_id`` का मिलान अधीनस्थ ``image_id, parent_cell_id`` से हो सकता है।",
+      "ui_bindings": {
+        "Base keys": "आधार कुंजी",
+        "Child keys": "अधीनस्थ कुंजियाँ"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **one-to-one** when at most one child row belongs to each base key, or **one-to-many** when several child rows must first be aggregated.",
+      "source_sha256": "62d0b5ef44badd8da475cfe794a297afe6cc46f48379fdd24e31c3c9ee1c9dbe",
+      "original_ai_draft": "प्रति आधार कुंजी अधिकतम एक अधीनस्थ पंक्ति हो तो **one-to-one** चुनें, या कई अधीनस्थ पंक्तियों को पहले समेकित करना हो तो **one-to-many** चुनें।",
+      "reviewed_translation": "प्रति आधार कुंजी अधिकतम एक अधीनस्थ पंक्ति हो तो **one-to-one** चुनें, या कई अधीनस्थ पंक्तियों को पहले समेकित करना हो तो **one-to-many** चुनें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A **left** join keeps unmatched base observations with missing child measurements. An **inner** join retains only matching observations. Child rows with missing join keys do not match a base row.",
+      "source_sha256": "1486c2a942521198b467ee39b02b071bccd53548ae60f1fee9b659298cffc5ad",
+      "original_ai_draft": "**बाएँ** जॉइन मेल न खाने वाले आधार अवलोकनों को अनुपलब्ध अधीनस्थ मापन के साथ रखता है। **inner** जॉइन केवल मेल खाने वाले अवलोकन रखता है। जोड़ने की कुंजियाँ अनुपलब्ध होने पर अधीनस्थ पंक्ति किसी आधार पंक्ति से मेल नहीं खाती।",
+      "reviewed_translation": "**बाएँ** जॉइन मेल न खाने वाले आधार अवलोकनों को अनुपलब्ध अधीनस्थ मापन के साथ रखता है। **inner** जॉइन केवल मेल खाने वाले अवलोकन रखता है। जोड़ने की कुंजियाँ अनुपलब्ध होने पर अधीनस्थ पंक्ति किसी आधार पंक्ति से मेल नहीं खाती।",
+      "ui_bindings": {
+        "left": "बाएँ"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Identifiers** to identify additional child columns that must not be treated as continuous measurements. Review the per-column aggregation controls in the main popup after accepting the mapping.",
+      "source_sha256": "6fd72e9f8d2b2823b8ab7a5ad2d78dbd9158a642dacb6d11d6df95049f4ac4bf",
+      "original_ai_draft": "ऐसे अतिरिक्त अधीनस्थ स्तंभ बताने के लिए **पहचानकर्ता** का उपयोग करें जिन्हें सतत मापन नहीं मानना चाहिए। मिलान स्वीकार करने के बाद मुख्य पॉपअप में हर स्तंभ के समेकन नियंत्रण जाँचें।",
+      "reviewed_translation": "ऐसे अतिरिक्त अधीनस्थ स्तंभ बताने के लिए **पहचानकर्ता** का उपयोग करें जिन्हें सतत मापन नहीं मानना चाहिए। मिलान स्वीकार करने के बाद मुख्य पॉपअप में हर स्तंभ के समेकन नियंत्रण जाँचें।",
+      "ui_bindings": {
+        "Identifiers": "पहचानकर्ता"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The popup now says **Custom rules active**. Validate and inspect the preview before creating the result. Duplicate base identities, contradictory one-to-one mappings, missing keys and incompatible operations produce an error. Repeated child keys can be expected in a one-to-many relationship; they require investigation when the relationship is supposed to be one-to-one.",
+      "source_sha256": "556a8db14dc1ba6072d35196fc4e92aba0b7f107132eaf80b35e679bd7bfdf40",
+      "original_ai_draft": "पॉपअप अब **Custom rules active** दिखाता है। परिणाम बनाने से पहले सत्यापन करें और पूर्वावलोकन देखें। दोहराई गई आधार पहचानें, विरोधी एक-से-एक मिलान, अनुपलब्ध कुंजियाँ और असंगत क्रियाएँ त्रुटि देती हैं। एक-से-अनेक संबंध में अधीनस्थ कुंजियों का दोहराना अपेक्षित हो सकता है; संबंध एक-से-एक होना चाहिए तो इसकी जाँच आवश्यक है।",
+      "reviewed_translation": "पॉपअप अब **Custom rules active** दिखाता है। परिणाम बनाने से पहले सत्यापन करें और पूर्वावलोकन देखें। दोहराई गई आधार पहचानें, विरोधी एक-से-एक मिलान, अनुपलब्ध कुंजियाँ और असंगत क्रियाएँ त्रुटि देती हैं। एक-से-अनेक संबंध में अधीनस्थ कुंजियों का दोहराना अपेक्षित हो सकता है; संबंध एक-से-एक होना चाहिए तो इसकी जाँच आवश्यक है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults.",
+      "source_sha256": "e95f449d9a1453cd18642ceab6945c1d66b8a044b3cf648a2c97f9b820954e54",
+      "original_ai_draft": "**रद्द करें** पिछला कॉन्फ़िगरेशन ज्यों का त्यों रखता है। **spaCR डिफ़ॉल्ट पर पुनर्स्थापित करें** कस्टम संबंध और ओवरराइड हटाता है। स्रोत या आउटपुट तालिका बदलने पर भी डिफ़ॉल्ट फिर बनाए जाते हैं।",
+      "reviewed_translation": "**रद्द करें** पिछला कॉन्फ़िगरेशन ज्यों का त्यों रखता है। **spaCR डिफ़ॉल्ट पर पुनर्स्थापित करें** कस्टम संबंध और ओवरराइड हटाता है। स्रोत या आउटपुट तालिका बदलने पर भी डिफ़ॉल्ट फिर बनाए जाते हैं।",
+      "ui_bindings": {
+        "Cancel": "रद्द करें",
+        "Reset to spaCR defaults": "spaCR डिफ़ॉल्ट पर पुनर्स्थापित करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use, save and reload the result",
+      "source_sha256": "1b7458342f06a25b368a2b0c5649b7231b53eced379e53e1b58722ff7ebb067d",
+      "original_ai_draft": "परिणाम उपयोग करना, सहेजना और फिर खोलना",
+      "reviewed_translation": "परिणाम उपयोग करना, सहेजना और फिर खोलना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table.",
+      "source_sha256": "c8b0a9df5e61aeb785e2e14f04ca441b4e28bd1b7d3020049018dc6363203c7c",
+      "original_ai_draft": "Graph Builder में परिणाम स्तंभों को **X**, **Y**, रंग, आकार या फ़ैसेट चैनलों में रखें। Gate Editor में स्तंभों का उपयोग थ्रेशोल्ड, बहुभुज और अन्य गेट आकृतियों के लिए करें। Gate Editor अपनी ``sample_fraction`` और ``max_points`` सेटिंग्स के अनुसार नमूना दिखा सकता है; गेट निर्यात पूरी मर्ज की हुई तालिका का मूल्यांकन करता है।",
+      "reviewed_translation": "Graph Builder में परिणाम स्तंभों को **X**, **Y**, रंग, आकार या फ़ैसेट चैनलों में रखें। Gate Editor में स्तंभों का उपयोग थ्रेशोल्ड, बहुभुज और अन्य गेट आकृतियों के लिए करें। Gate Editor अपनी ``sample_fraction`` और ``max_points`` सेटिंग्स के अनुसार नमूना दिखा सकता है; गेट निर्यात पूरी मर्ज की हुई तालिका का मूल्यांकन करता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources.",
+      "source_sha256": "139b41870785e8b538921aed9433412adf50acca4fdd985e680417761945cdc9",
+      "original_ai_draft": "नामित परिभाषा डेटाबेस के पास सहेजी जाती है। ``measurements.db`` के लिए फ़ाइल ``measurements.db.spacr-merges.json`` है। स्रोत ताज़ा करने या फिर खोलने पर परिणाम फिर उपलब्ध होता है और स्रोत से उसकी पुनर्गणना होती है। यह पुनरुत्पादनीय विधि है, सभी परिणाम पंक्तियों की स्थिर प्रतिलिपि नहीं। दोबारा उपयोग में स्रोत पथ और चुनी हुई तालिकाओं के स्कीमा जाँचे जाते हैं। अलग डेटाबेस या बदले स्कीमा के लिए नया, जाँचा हुआ मिलान चाहिए; परिभाषाएँ चुपचाप असंबंधित स्रोतों पर लागू नहीं होतीं।",
+      "reviewed_translation": "नामित परिभाषा डेटाबेस के पास सहेजी जाती है। ``measurements.db`` के लिए फ़ाइल ``measurements.db.spacr-merges.json`` है। स्रोत ताज़ा करने या फिर खोलने पर परिणाम फिर उपलब्ध होता है और स्रोत से उसकी पुनर्गणना होती है। यह पुनरुत्पादनीय विधि है, सभी परिणाम पंक्तियों की स्थिर प्रतिलिपि नहीं। दोबारा उपयोग में स्रोत पथ और चुनी हुई तालिकाओं के स्कीमा जाँचे जाते हैं। अलग डेटाबेस या बदले स्कीमा के लिए नया, जाँचा हुआ मिलान चाहिए; परिभाषाएँ चुपचाप असंबंधित स्रोतों पर लागू नहीं होतीं।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Save chart** in Graph Builder saves chart channels, the source and the full merge definition to JSON. **Load chart** reconstructs and validates the table before plotting. **Save gates…** also embeds the merge definition; load the original database before using **Load gates…**. These saved files can reconstruct the merge even if its sidecar is missing. They still require the original source data.",
+      "source_sha256": "deca8d86ecde7ec405e14983b00669c0902584316c5947497a3244cbde963590",
+      "original_ai_draft": "Graph Builder में **चार्ट बचाएं** चार्ट चैनल, स्रोत और पूरी मर्ज परिभाषा JSON में सहेजता है। **लोड चार्ट** प्लॉट बनाने से पहले तालिका फिर बनाता और सत्यापित करता है। **गेट सहेजें…** में भी मर्ज परिभाषा शामिल होती है; **गेट लोड करें…** उपयोग करने से पहले मूल डेटाबेस खोलें। पास की सहायक फ़ाइल न होने पर भी ये सहेजी फ़ाइलें मर्ज फिर बना सकती हैं। इनके लिए मूल स्रोत डेटा फिर भी आवश्यक है।",
+      "reviewed_translation": "Graph Builder में **चार्ट सहेजें** चार्ट चैनल, स्रोत और पूरी मर्ज परिभाषा JSON में सहेजता है। **चार्ट लोड करें** प्लॉट बनाने से पहले तालिका फिर बनाता और सत्यापित करता है। **गेट सहेजें…** में भी मर्ज परिभाषा शामिल होती है; **गेट लोड करें…** उपयोग करने से पहले मूल डेटाबेस खोलें। पास की सहायक फ़ाइल न होने पर भी ये सहेजी फ़ाइलें मर्ज फिर बना सकती हैं। इनके लिए मूल स्रोत डेटा फिर भी आवश्यक है।",
+      "ui_bindings": {
+        "Save chart": "चार्ट सहेजें",
+        "Load chart": "चार्ट लोड करें",
+        "Save gates…": "गेट सहेजें…",
+        "Load gates…": "गेट लोड करें…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export gates…** writes gate membership columns to the database's ``filters`` table, preserving the base object's identity. This explicit export is a database write; constructing and previewing a merge does not write into the source measurement tables. **Save graph** exports the Gate Editor figure as PNG or PDF, separately from saving its gating strategy.",
+      "source_sha256": "9f34e2594ebf0b5b3803d71fd46ba15a78b4067f83b445d2d206e57ff79b7c48",
+      "original_ai_draft": "**गेट निर्यात करें…** गेट सदस्यता स्तंभ डेटाबेस की ``filters`` तालिका में लिखता है और आधार ऑब्जेक्ट की पहचान सुरक्षित रखता है। यह स्पष्ट निर्यात डेटाबेस में लिखता है; मर्ज बनाना और उसका पूर्वावलोकन स्रोत मापन तालिकाओं में नहीं लिखते। **ग्राफ़ सहेजें** Gate Editor चित्र को PNG या PDF में निर्यात करता है; यह गेटिंग रणनीति सहेजने से अलग है।",
+      "reviewed_translation": "**गेट निर्यात करें…** गेट सदस्यता स्तंभ डेटाबेस की ``filters`` तालिका में लिखता है और आधार ऑब्जेक्ट की पहचान सुरक्षित रखता है। यह स्पष्ट निर्यात डेटाबेस में लिखता है; मर्ज बनाना और उसका पूर्वावलोकन स्रोत मापन तालिकाओं में नहीं लिखते। **ग्राफ़ सहेजें** Gate Editor चित्र को PNG या PDF में निर्यात करता है; यह गेटिंग रणनीति सहेजने से अलग है।",
+      "ui_bindings": {
+        "Export gates…": "गेट निर्यात करें…",
+        "Save graph": "ग्राफ़ सहेजें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A custom result without verified spaCR image/object provenance remains usable for plotting and tabular gating. Image navigation, image annotation and gate export to the measurement database are unavailable for that result, with an explanation in the interface. Keep the saved chart or gating strategy for tabular reuse; column names alone cannot establish links to microscopy objects.",
+      "source_sha256": "889465c090a74781306176ec78cbd8c35976890b204b2b44b391645194874d68",
+      "original_ai_draft": "सत्यापित spaCR चित्र/ऑब्जेक्ट उत्पत्ति की जानकारी के बिना कस्टम परिणाम भी प्लॉट और तालिका-आधारित गेटिंग में उपयोग हो सकता है। उस परिणाम के लिए चित्र नेविगेशन, चित्र एनोटेशन और मापन डेटाबेस में गेट निर्यात अनुपलब्ध होते हैं; इंटरफ़ेस कारण बताता है। तालिका-आधारित पुनः उपयोग के लिए सहेजा हुआ चार्ट या गेटिंग रणनीति रखें; केवल स्तंभ नाम माइक्रोस्कोपी ऑब्जेक्ट से संबंध स्थापित नहीं कर सकते।",
+      "reviewed_translation": "सत्यापित spaCR चित्र/ऑब्जेक्ट उत्पत्ति की जानकारी के बिना कस्टम परिणाम भी प्लॉट और तालिका-आधारित गेटिंग में उपयोग हो सकता है। उस परिणाम के लिए चित्र नेविगेशन, चित्र एनोटेशन और मापन डेटाबेस में गेट निर्यात अनुपलब्ध होते हैं; इंटरफ़ेस कारण बताता है। तालिका-आधारित पुनः उपयोग के लिए सहेजा हुआ चार्ट या गेटिंग रणनीति रखें; केवल स्तंभ नाम माइक्रोस्कोपी ऑब्जेक्ट से संबंध स्थापित नहीं कर सकते।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Recover original filenames before labelling conditions",
+      "source_sha256": "3a46efccb6b5e1c3b23f2b7a82b92b1255153a3441a2bff0fafae77b27c5e8f9",
+      "original_ai_draft": "स्थितियों के लेबल देने से पहले मूल फ़ाइल नाम वापस पाना",
+      "reviewed_translation": "स्थितियों के लेबल देने से पहले मूल फ़ाइल नाम वापस पाना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images.",
+      "source_sha256": "0c6ea6663bf8ab0b8a76f9fc0220f13cb5fbea99cfc28842f075bd78f27d6a3a",
+      "original_ai_draft": "यदि चित्रों का नाम Yokogawa प्रारूप में बदला गया था, तो रूपांतरण के दौरान दर्ज नाम पाने के लिए **टेबल मिश्रण** में **मूल फ़िल्टर के साथ...** उपयोग करें। ``conversion_map.csv``, पुरानी ``rename_log.csv``, ``channel_sorting_manifest.csv`` या ``conversion_map`` तालिका वाला SQLite डेटाबेस चुनें। मापन डेटाबेस के पास या उसके ऊपरी फ़ोल्डरों में ज्ञात मैपिंग मिलने पर फ़ाइल चयनक वहीं से शुरू होता है। मैपिंग में दर्ज स्रोत-से-आउटपुट संबंध होने चाहिए; यह क्रिया नाम बदले चित्रों से उपचार नामों का अनुमान नहीं लगाती।",
+      "reviewed_translation": "यदि चित्रों का नाम Yokogawa प्रारूप में बदला गया था, तो रूपांतरण के दौरान दर्ज नाम पाने के लिए **मूल फ़ाइल नाम जोड़ें…** में **तालिकाएँ मर्ज करें** उपयोग करें। ``conversion_map.csv``, पुरानी ``rename_log.csv``, ``channel_sorting_manifest.csv`` या ``conversion_map`` तालिका वाला SQLite डेटाबेस चुनें। मापन डेटाबेस के पास या उसके ऊपरी फ़ोल्डरों में ज्ञात मैपिंग मिलने पर फ़ाइल चयनक वहीं से शुरू होता है। मैपिंग में दर्ज स्रोत-से-आउटपुट संबंध होने चाहिए; यह क्रिया नाम बदले चित्रों से उपचार नामों का अनुमान नहीं लगाती।",
+      "ui_bindings": {
+        "Merge original filenames…": "मूल फ़ाइल नाम जोड़ें…",
+        "Merge tables": "तालिकाएँ मर्ज करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations.",
+      "source_sha256": "7ff200bcee646dfee5be676b9d7ee53970d6c23472607418c743c94792e44826",
+      "original_ai_draft": "केवल फ़ाइल नाम मेटाडेटा के लिए वही तालिका चुनें जिसे एनोटेट करना है। इससे हर पंक्ति और मौजूदा स्तंभ सुरक्षित रहता है, उन तालिकाओं में भी जिनमें spaCR ऑब्जेक्ट ID नहीं हैं। मौजूदा मर्ज परिणाम में फ़ाइल नाम मैपिंग जोड़ते समय जाँचे हुए संबंध और समेकन बनाए रखने के लिए उसका मर्ज पॉपअप खोलें। कई स्रोत तालिकाएँ चुनी हों तो पहले मापन मर्ज होते हैं, फिर मूल नाम परिणामी अवलोकनों में जुड़ते हैं।",
+      "reviewed_translation": "केवल फ़ाइल नाम मेटाडेटा के लिए वही तालिका चुनें जिसे एनोटेट करना है। इससे हर पंक्ति और मौजूदा स्तंभ सुरक्षित रहता है, उन तालिकाओं में भी जिनमें spaCR ऑब्जेक्ट ID नहीं हैं। मौजूदा मर्ज परिणाम में फ़ाइल नाम मैपिंग जोड़ते समय जाँचे हुए संबंध और समेकन बनाए रखने के लिए उसका मर्ज पॉपअप खोलें। कई स्रोत तालिकाएँ चुनी हों तो पहले मापन मर्ज होते हैं, फिर मूल नाम परिणामी अवलोकनों में जुड़ते हैं।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Merge original filenames…** and select the mapping.",
+      "source_sha256": "5d44468e33b05e15ec11b7a583e040485cd2676d214ef24b1adac551a95bddf9",
+      "original_ai_draft": "**मूल फ़िल्टर के साथ...** दबाएँ और मैपिंग चुनें।",
+      "reviewed_translation": "**मूल फ़ाइल नाम जोड़ें…** दबाएँ और मैपिंग चुनें।",
+      "ui_bindings": {
+        "Merge original filenames…": "मूल फ़ाइल नाम जोड़ें…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Set a new **Result name**, then press **Validate and preview**.",
+      "source_sha256": "f503607c91c854729d51e0e3fc13dd0dd3a4cd2c9e1d75a834d21294d1406421",
+      "original_ai_draft": "नया **परिणाम नाम** दें, फिर **प्रविष्टि और पूर्वावलोकन** दबाएँ।",
+      "reviewed_translation": "नया **परिणाम नाम** दें, फिर **सत्यापित करें और पूर्वावलोकन देखें** दबाएँ।",
+      "ui_bindings": {
+        "Result name": "परिणाम नाम",
+        "Validate and preview": "सत्यापित करें और पूर्वावलोकन देखें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect the matched and unmatched row counts and the preview's ``original_filename`` and ``original_path`` columns.",
+      "source_sha256": "9b1d07979afddd65757e0d9c95d0d89d04185ddbc080d2d5485bc5946483c54c",
+      "original_ai_draft": "मेल खाने और न खाने वाली पंक्तियों की संख्या तथा पूर्वावलोकन के ``original_filename`` और ``original_path`` स्तंभ देखें।",
+      "reviewed_translation": "मेल खाने और न खाने वाली पंक्तियों की संख्या तथा पूर्वावलोकन के ``original_filename`` और ``original_path`` स्तंभ देखें।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table**, then open **Annotate conditions** and choose ``original_filename`` as a rule's metadata column.",
+      "source_sha256": "43239788ae988d04aa28a76161dd92d004db537efcac89a247d06a07bdd64bb4",
+      "original_ai_draft": "**मिश्रित टेबल बनाएं** दबाएँ, फिर **शर्तों का उल्लेख** खोलें और नियम के मेटाडेटा स्तंभ के रूप में ``original_filename`` चुनें।",
+      "reviewed_translation": "**मर्ज की हुई तालिका बनाएँ** दबाएँ, फिर **प्रयोग की स्थितियाँ एनोटेट करें** खोलें और नियम के मेटाडेटा स्तंभ के रूप में ``original_filename`` चुनें।",
+      "ui_bindings": {
+        "Create merged table": "मर्ज की हुई तालिका बनाएँ",
+        "Annotate conditions": "प्रयोग की स्थितियाँ एनोटेट करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several channels or z-planes belonging to one field produce a sorted, deduplicated list separated by a semicolon and a space in the new columns. They do not multiply the table's observations. Plate and timepoint identities remain distinct; ambiguous or conflicting identities cause validation to fail. Unmatched names remain blank. Existing ``original_filename`` or ``original_path`` columns are preserved by refusing to overwrite them.",
+      "source_sha256": "085e6e107eece91b01fa51ab6a5ccd61bf2255cd46e8119f7c74fccc6dc9c89c",
+      "original_ai_draft": "एक दृश्य-क्षेत्र के कई चैनल या z-प्लेन नए स्तंभों में अर्धविराम और एक स्पेस से अलग की हुई क्रमबद्ध, बिना दोहराव की सूची बनाते हैं। वे तालिका के अवलोकनों की संख्या नहीं बढ़ाते। प्लेट और समयबिंदु की पहचान अलग रहती है; अस्पष्ट या विरोधी पहचान होने पर सत्यापन असफल होता है। मेल न खाने वाले नाम खाली रहते हैं। मौजूदा ``original_filename`` या ``original_path`` स्तंभों को अधिलेखित करने से इनकार करके सुरक्षित रखा जाता है।",
+      "reviewed_translation": "एक दृश्य-क्षेत्र के कई चैनल या z-प्लेन नए स्तंभों में अर्धविराम और एक स्पेस से अलग की हुई क्रमबद्ध, बिना दोहराव की सूची बनाते हैं। वे तालिका के अवलोकनों की संख्या नहीं बढ़ाते। प्लेट और समयबिंदु की पहचान अलग रहती है; अस्पष्ट या विरोधी पहचान होने पर सत्यापन असफल होता है। मेल न खाने वाले नाम खाली रहते हैं। मौजूदा ``original_filename`` या ``original_path`` स्तंभों को अधिलेखित करने से इनकार करके सुरक्षित रखा जाता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``original_path`` is the path recorded in the mapping; the original files need not still exist at that location. Image files and source measurement tables are never renamed or rewritten by this action. Adding filename text does not establish missing microscopy object provenance.",
+      "source_sha256": "365f83e58365391aa025c350de7675c3cc7b538faf62fff04a75d46f2e62a32f",
+      "original_ai_draft": "``original_path`` मैपिंग में दर्ज पथ है; मूल फ़ाइलों का अब भी वहाँ होना आवश्यक नहीं। यह क्रिया चित्र फ़ाइलों और स्रोत मापन तालिकाओं के नाम नहीं बदलती, न उन्हें फिर लिखती है। फ़ाइल नाम का पाठ जोड़ने से अनुपलब्ध माइक्रोस्कोपी ऑब्जेक्ट उत्पत्ति की जानकारी स्थापित नहीं होती।",
+      "reviewed_translation": "``original_path`` मैपिंग में दर्ज पथ है; मूल फ़ाइलों का अब भी वहाँ होना आवश्यक नहीं। यह क्रिया चित्र फ़ाइलों और स्रोत मापन तालिकाओं के नाम नहीं बदलती, न उन्हें फिर लिखती है। फ़ाइल नाम का पाठ जोड़ने से अनुपलब्ध माइक्रोस्कोपी ऑब्जेक्ट उत्पत्ति की जानकारी स्थापित नहीं होती।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping.",
+      "source_sha256": "09c2a48f61321ed6edd6760cbfc35dc2fb3c291c56a251c5536e1aff3a906d3f",
+      "original_ai_draft": "सहेजे मर्ज में मैपिंग का स्थान और सामग्री का चेकसम दर्ज रहता है। मर्ज या चार्ट फिर खोलने के लिए मैपिंग उपलब्ध और अपरिवर्तित रहनी चाहिए। अंतर्निहित ``conversion_map`` तालिका होने पर डेटाबेस की अन्य तालिकाओं में असंबंधित बदलाव मैपिंग अमान्य नहीं करते। मैपिंग बदले तो उसे फिर चुनें और लागू करने से पहले नया परिणाम सत्यापित करें। **फ़ाइल नाम मैपिंग को हटा दें** फ़ाइल हटाए बिना मसौदे से जोड़ा हुआ मेटाडेटा हटाता है। **spaCR डिफ़ॉल्ट पर पुनर्स्थापित करें** भी मैपिंग साफ़ करता है।",
+      "reviewed_translation": "सहेजे मर्ज में मैपिंग का स्थान और सामग्री का चेकसम दर्ज रहता है। मर्ज या चार्ट फिर खोलने के लिए मैपिंग उपलब्ध और अपरिवर्तित रहनी चाहिए। अंतर्निहित ``conversion_map`` तालिका होने पर डेटाबेस की अन्य तालिकाओं में असंबंधित बदलाव मैपिंग अमान्य नहीं करते। मैपिंग बदले तो उसे फिर चुनें और लागू करने से पहले नया परिणाम सत्यापित करें। **फ़ाइल नाम मैपिंग को हटा दें** फ़ाइल हटाए बिना मसौदे से जोड़ा हुआ मेटाडेटा हटाता है। **spaCR डिफ़ॉल्ट पर पुनर्स्थापित करें** भी मैपिंग साफ़ करता है।",
+      "ui_bindings": {
+        "Remove filename mapping": "फ़ाइल नाम मैपिंग को हटा दें",
+        "Reset to spaCR defaults": "spaCR डिफ़ॉल्ट पर पुनर्स्थापित करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Annotate experimental conditions in Graph Builder",
+      "source_sha256": "006a60c49e2f3ebd422d545c4520cfd6e76286277d1aa7d4387f721ae53082bd",
+      "original_ai_draft": "Graph Builder में प्रयोग की स्थितियों का एनोटेशन",
+      "reviewed_translation": "Graph Builder में प्रयोग की स्थितियों का एनोटेशन",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Annotate conditions** adds annotation columns to the working table in Graph Builder. It works with a physical database table, a named derived table or an imported CSV/TSV. Use rules to assign labels or extract variable metadata, then compose a final column from those values. Every generated column is retained. These table operations do not require image links or write image annotations.",
+      "source_sha256": "1b49041603233ce97eb2a2ab884993688fae4a9f587f655167ec039055c517e2",
+      "original_ai_draft": "**शर्तों का उल्लेख** Graph Builder की कार्य तालिका में एनोटेशन स्तंभ जोड़ता है। यह भौतिक डेटाबेस तालिका, नामित व्युत्पन्न तालिका या आयातित CSV/TSV के साथ काम करता है। नियमों से लेबल दें या बदलता मेटाडेटा निकालें, फिर उन मानों से अंतिम स्तंभ बनाएँ। हर बनाया हुआ स्तंभ सुरक्षित रहता है। इन तालिका क्रियाओं के लिए चित्र लिंक आवश्यक नहीं और ये चित्र एनोटेशन नहीं लिखतीं।",
+      "reviewed_translation": "**प्रयोग की स्थितियाँ एनोटेट करें** Graph Builder की कार्य तालिका में एनोटेशन स्तंभ जोड़ता है। यह भौतिक डेटाबेस तालिका, नामित व्युत्पन्न तालिका या आयातित CSV/TSV के साथ काम करता है। नियमों से लेबल दें या बदलता मेटाडेटा निकालें, फिर उन मानों से अंतिम स्तंभ बनाएँ। हर बनाया हुआ स्तंभ सुरक्षित रहता है। इन तालिका क्रियाओं के लिए चित्र लिंक आवश्यक नहीं और ये चित्र एनोटेशन नहीं लिखतीं।",
+      "ui_bindings": {
+        "Annotate conditions": "प्रयोग की स्थितियाँ एनोटेट करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced.",
+      "source_sha256": "4a32bd1f0d92f2459d4df173e183c348f2e9581a98362e84963a3191648511a1",
+      "original_ai_draft": "**शर्तों का उल्लेख** खोलें, **आउटपुट स्तंभ** का नाम दें और **मान दें**, **पाठ निकालें** या **स्तंभ जोड़कर बनाएं** चुनें। मौजूदा स्रोत स्तंभ बदले नहीं जा सकते।",
+      "reviewed_translation": "**प्रयोग की स्थितियाँ एनोटेट करें** खोलें, **आउटपुट स्तंभ** का नाम दें और **मान दें**, **पाठ निकालें** या **स्तंभ जोड़कर बनाएं** चुनें। मौजूदा स्रोत स्तंभ बदले नहीं जा सकते।",
+      "ui_bindings": {
+        "Annotate conditions": "प्रयोग की स्थितियाँ एनोटेट करें",
+        "Output column": "आउटपुट स्तंभ",
+        "Assign values": "मान दें",
+        "Extract text": "पाठ निकालें",
+        "Compose column": "स्तंभ जोड़कर बनाएं"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together.",
+      "source_sha256": "d600b2e0cd6acd53d474b89475c2d7b0300de099f1c2ac89f12a636be910c448",
+      "original_ai_draft": "उस आउटपुट के लिए मान देने के नियम, पाठ निष्कर्षण या संयोजन निर्धारित करें। दूसरा आउटपुट जोड़ने के लिए **स्तंभ जोड़ें** उपयोग करें। नामित समूह वाला regex कई मेटाडेटा स्तंभ एक साथ भी बना सकता है।",
+      "reviewed_translation": "उस आउटपुट के लिए मान देने के नियम, पाठ निष्कर्षण या संयोजन निर्धारित करें। दूसरा आउटपुट जोड़ने के लिए **स्तंभ जोड़ें** उपयोग करें। नामित समूह वाला regex कई मेटाडेटा स्तंभ एक साथ भी बना सकता है।",
+      "ui_bindings": {
+        "Add column": "स्तंभ जोड़ें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect all generated values beside the source columns. **Preview assignments** reruns the check; edits also refresh the preview.",
+      "source_sha256": "d7253f2c56ddd51a733699ac4563652e09a249079fbec056c48aa67a69be3771",
+      "original_ai_draft": "स्रोत स्तंभों के साथ सभी बनाए हुए मान देखें। **पूर्वावलोकन कार्य** जाँच फिर चलाता है; संपादन से भी पूर्वावलोकन ताज़ा होता है।",
+      "reviewed_translation": "स्रोत स्तंभों के साथ सभी बनाए हुए मान देखें। **मान आवंटन का पूर्वावलोकन करें** जाँच फिर चलाता है; संपादन से भी पूर्वावलोकन ताज़ा होता है।",
+      "ui_bindings": {
+        "Preview assignments": "मान आवंटन का पूर्वावलोकन करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Resolve invalid rules, missing dependencies and conflicting assignments, then choose **Apply conditions**. Every generated column becomes available for chart channels and filtering. **Cancel** discards the draft changes.",
+      "source_sha256": "a198951df0a1fa58526be496cfa21363ba324e0f4f66171072a66fa6135e726f",
+      "original_ai_draft": "अमान्य नियम, अनुपलब्ध निर्भरताएँ और विरोधी मान आवंटन सुलझाएँ, फिर **शर्तें लागू करें** चुनें। हर बनाया स्तंभ चार्ट चैनलों और फ़िल्टरिंग के लिए उपलब्ध होता है। **रद्द करें** मसौदे के बदलाव छोड़ देता है।",
+      "reviewed_translation": "अमान्य नियम, अनुपलब्ध निर्भरताएँ और विरोधी मान आवंटन सुलझाएँ, फिर **शर्तें लागू करें** चुनें। हर बनाया स्तंभ चार्ट चैनलों और फ़िल्टरिंग के लिए उपलब्ध होता है। **रद्द करें** मसौदे के बदलाव छोड़ देता है।",
+      "ui_bindings": {
+        "Apply conditions": "शर्तें लागू करें",
+        "Cancel": "रद्द करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extract several metadata columns from a filename",
+      "source_sha256": "476d39e97a580e88b3a49d978965b71f2fdc856c7442e91e64ba23b01a7e37ca",
+      "original_ai_draft": "फ़ाइल नाम से कई मेटाडेटा स्तंभ निकालना",
+      "reviewed_translation": "फ़ाइल नाम से कई मेटाडेटा स्तंभ निकालना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Extract text** and select the source column, such as ``original_filename``. A regular expression extracts the matching text into the output column. Select a named or numbered capture group to choose which part of the match becomes the value.",
+      "source_sha256": "d4c480ab4bb730de91dd4f8405f968c1872a8f0c592155ce8b033e1d3c7cbbf5",
+      "original_ai_draft": "**पाठ निकालें** चुनें और ``original_filename`` जैसा स्रोत स्तंभ चुनें। नियमित अभिव्यक्ति मेल खाने वाला पाठ आउटपुट स्तंभ में निकालती है। नामित या क्रमांकित कैप्चर समूह चुनें, जो तय करेगा कि मिलान का कौन-सा भाग मान बनेगा।",
+      "reviewed_translation": "**पाठ निकालें** चुनें और ``original_filename`` जैसा स्रोत स्तंभ चुनें। नियमित अभिव्यक्ति मेल खाने वाला पाठ आउटपुट स्तंभ में निकालती है। नामित या क्रमांकित कैप्चर समूह चुनें, जो तय करेगा कि मिलान का कौन-सा भाग मान बनेगा।",
+      "ui_bindings": {
+        "Extract text": "पाठ निकालें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:",
+      "source_sha256": "a6f7fdde181aff092d27e510af111034b6c4d19902023cc8995d70ce9a118fef",
+      "original_ai_draft": "उदाहरण के लिए, यह पैटर्न ``HeLa_rep2_24h_DMSO.tif`` का वर्णन करता है:",
+      "reviewed_translation": "उदाहरण के लिए, यह पैटर्न ``HeLa_rep2_24h_DMSO.tif`` का वर्णन करता है:",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named groups describe four output columns: ``cell_type``, ``replicate``, ``timepoint`` and ``drug``. **Create columns from named groups** creates these outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and ``DMSO``. Another matching filename produces its own values; they are not fixed labels copied from the example. Adapt the pattern to your own filenames and inspect the preview before applying it.",
+      "source_sha256": "004f0328bc2bbe334865d877a33f7e64bdc192c9eae469676db4b2fb9e183779",
+      "original_ai_draft": "नामित समूह चार आउटपुट स्तंभ बताते हैं: ``cell_type``, ``replicate``, ``timepoint`` और ``drug``। **नाम वाले कैप्चर समूहों से स्तंभ बनाएं** ये आउटपुट एक साथ बनाता है। उदाहरण पंक्ति से ``HeLa``, ``rep2``, ``24h`` और ``DMSO`` मिलते हैं। दूसरा मेल खाता फ़ाइल नाम अपने मान देता है; ये उदाहरण से कॉपी किए स्थिर लेबल नहीं हैं। अपने फ़ाइल नामों के अनुसार पैटर्न बदलें और लागू करने से पहले पूर्वावलोकन देखें।",
+      "reviewed_translation": "नामित समूह चार आउटपुट स्तंभ बताते हैं: ``cell_type``, ``replicate``, ``timepoint`` और ``drug``। **नाम वाले कैप्चर समूहों से स्तंभ बनाएं** ये आउटपुट एक साथ बनाता है। उदाहरण पंक्ति से ``HeLa``, ``rep2``, ``24h`` और ``DMSO`` मिलते हैं। दूसरा मेल खाता फ़ाइल नाम अपने मान देता है; ये उदाहरण से कॉपी किए स्थिर लेबल नहीं हैं। अपने फ़ाइल नामों के अनुसार पैटर्न बदलें और लागू करने से पहले पूर्वावलोकन देखें।",
+      "ui_bindings": {
+        "Create columns from named groups": "नाम वाले कैप्चर समूहों से स्तंभ बनाएं"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extraction uses the first regex match. Nonmatching rows and missing or empty captures remain blank. Invalid patterns or capture groups stop the preview with an error. Existing source column names cannot be overwritten.",
+      "source_sha256": "a04b979f4cee9bd86c99ed6684537edee9df1b997763aa35c446d1660b256178",
+      "original_ai_draft": "निष्कर्षण पहले regex मिलान का उपयोग करता है। मेल न खाने वाली पंक्तियाँ और अनुपलब्ध या खाली कैप्चर खाली रहते हैं। अमान्य पैटर्न या कैप्चर समूह त्रुटि के साथ पूर्वावलोकन रोकते हैं। मौजूदा स्रोत स्तंभ नाम अधिलेखित नहीं किए जा सकते।",
+      "reviewed_translation": "निष्कर्षण पहले regex मिलान का उपयोग करता है। मेल न खाने वाली पंक्तियाँ और अनुपलब्ध या खाली कैप्चर खाली रहते हैं। अमान्य पैटर्न या कैप्चर समूह त्रुटि के साथ पूर्वावलोकन रोकते हैं। मौजूदा स्रोत स्तंभ नाम अधिलेखित नहीं किए जा सकते।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assign values with readable rules",
+      "source_sha256": "4132ee4b18bbebb48df948025243b3f26096207971c21fcf6cb611c7adcb18db",
+      "original_ai_draft": "पढ़ने योग्य नियमों से मान देना",
+      "reviewed_translation": "पढ़ने योग्य नियमों से मान देना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string.",
+      "source_sha256": "1611d19f699daa929a7ec862c34b2265a23e8ce4c615d3073b767f700df730db",
+      "original_ai_draft": "**मान दें** चुनें जब मेल खाने वाली पंक्तियों को आपके टाइप किए ``WildType`` या ``control`` जैसे मान देने हों। हर नियम में स्तंभ, ऑपरेटर और तुलना मान चुनते हैं। ऑपरेटरों में शामिल है, शामिल नहीं है, बराबर है, बराबर नहीं है, इससे शुरू होता है, इससे समाप्त होता है और regex मिलान शामिल हैं। पाठ ऑपरेटर विराम चिह्नों को अक्षरशः लेते हैं; regex ऑपरेटर उन्हें पैटर्न मानते हैं। मिलान में बड़े और छोटे अक्षर अलग हैं। शामिल होने, उपसर्ग, प्रत्यय और regex मानदंडों को गैर-खाली पाठ चाहिए। सभी गैर-अनुपलब्ध पाठ चुनने के लिए स्पष्ट ``.*`` regex दें, या वास्तविक खाली स्ट्रिंग चुनने के लिए बराबर है के साथ खाली मान दें।",
+      "reviewed_translation": "**मान दें** चुनें जब मेल खाने वाली पंक्तियों को आपके टाइप किए ``WildType`` या ``control`` जैसे मान देने हों। हर नियम में स्तंभ, ऑपरेटर और तुलना मान चुनते हैं। ऑपरेटरों में शामिल है, शामिल नहीं है, बराबर है, बराबर नहीं है, इससे शुरू होता है, इससे समाप्त होता है और regex मिलान शामिल हैं। पाठ ऑपरेटर विराम चिह्नों को अक्षरशः लेते हैं; regex ऑपरेटर उन्हें पैटर्न मानते हैं। मिलान में बड़े और छोटे अक्षर अलग हैं। शामिल होने, उपसर्ग, प्रत्यय और regex मानदंडों को गैर-खाली पाठ चाहिए। सभी गैर-अनुपलब्ध पाठ चुनने के लिए स्पष्ट ``.*`` regex दें, या वास्तविक खाली स्ट्रिंग चुनने के लिए बराबर है के साथ खाली मान दें।",
+      "ui_bindings": {
+        "Assign values": "मान दें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly.",
+      "source_sha256": "c6ddd59741adfc48ac2ecc42955d17b0fcf1c81d0c3bb083d34697b1cdf082b9",
+      "original_ai_draft": "हर मानदंड का मिलना आवश्यक हो तो **सभी नियम मेल खाते हैं** चुनें, या कम से कम एक का मिलना पर्याप्त हो तो **कम से कम एक नियम मेल खाता है** चुनें। मानदंड अलग स्रोत स्तंभ या पहले बनाए गए स्तंभ जाँच सकते हैं। उदाहरण के लिए, ``drug`` का मान ``DMSO`` और ``cell_type`` का मान ``HeLa`` होने पर ``control`` दें। अनुपलब्ध स्रोत मान नकारात्मक मानदंड भी पूरा नहीं करते। वास्तविक खाली स्ट्रिंग एक मान है और उसे स्पष्ट रूप से चुना जा सकता है।",
+      "reviewed_translation": "हर मानदंड का मिलना आवश्यक हो तो **सभी नियम मेल खाते हैं** चुनें, या कम से कम एक का मिलना पर्याप्त हो तो **कम से कम एक नियम मेल खाता है** चुनें। मानदंड अलग स्रोत स्तंभ या पहले बनाए गए स्तंभ जाँच सकते हैं। उदाहरण के लिए, ``drug`` का मान ``DMSO`` और ``cell_type`` का मान ``HeLa`` होने पर ``control`` दें। अनुपलब्ध स्रोत मान नकारात्मक मानदंड भी पूरा नहीं करते। वास्तविक खाली स्ट्रिंग एक मान है और उसे स्पष्ट रूप से चुना जा सकता है।",
+      "ui_bindings": {
+        "all rules match": "सभी नियम मेल खाते हैं",
+        "any rule matches": "कम से कम एक नियम मेल खाता है"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several rules may assign the same value without a conflict. Different values assigned to one row in the same output column require resolution before Apply.",
+      "source_sha256": "cddbbee8852ac03aeceb6bf603d28d63c31edcbe6b7513ff3c94d485bbb1d21b",
+      "original_ai_draft": "कई नियम बिना विरोध के एक ही मान दे सकते हैं। एक आउटपुट स्तंभ में एक ही पंक्ति को अलग मान दिए जाएँ, तो लागू करने से पहले उन्हें सुलझाना आवश्यक है।",
+      "reviewed_translation": "कई नियम बिना विरोध के एक ही मान दे सकते हैं। एक आउटपुट स्तंभ में एक ही पंक्ति को अलग मान दिए जाएँ, तो लागू करने से पहले उन्हें सुलझाना आवश्यक है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Compose the final column",
+      "source_sha256": "1c3880c4d0e3f3987f658796eb6ef3a523dae94144ed167c54dd532f97382f1f",
+      "original_ai_draft": "अंतिम स्तंभ बनाना",
+      "reviewed_translation": "अंतिम स्तंभ बनाना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Add an output column, name it ``condition`` or another name you choose, and select **Compose column**. Drag available columns into the composition field. Drag its tokens to change their order. Insert fixed text to add separators, prefixes or words between the values.",
+      "source_sha256": "c49ff5c82c4a5fe0a5a2d85f4bc13c1ac229783a45f63eaeecde25a8c57f476d",
+      "original_ai_draft": "आउटपुट स्तंभ जोड़ें, उसे ``condition`` या अपनी पसंद का नाम दें और **स्तंभ जोड़कर बनाएं** चुनें। उपलब्ध स्तंभों को संयोजन क्षेत्र में खींचें। टोकन खींचकर उनका क्रम बदलें। मानों के बीच विभाजक, उपसर्ग या शब्द जोड़ने के लिए स्थिर पाठ डालें।",
+      "reviewed_translation": "आउटपुट स्तंभ जोड़ें, उसे ``condition`` या अपनी पसंद का नाम दें और **स्तंभ जोड़कर बनाएं** चुनें। उपलब्ध स्तंभों को संयोजन क्षेत्र में खींचें। टोकन खींचकर उनका क्रम बदलें। मानों के बीच विभाजक, उपसर्ग या शब्द जोड़ने के लिए स्थिर पाठ डालें।",
+      "ui_bindings": {
+        "Compose column": "स्तंभ जोड़कर बनाएं"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example above. Reordering the column tokens changes the result without changing their extraction rules. Fixed text is literal; it cannot execute code.",
+      "source_sha256": "8eac6582cfd0f986149e9bae1c298bbc5ac089bc808e178ba25c09fba3bd8ae0",
+      "original_ai_draft": "उदाहरण के लिए, ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` टोकन ऊपर के उदाहरण के लिए ``HeLa_rep2_24h_DMSO`` बनाते हैं। स्तंभ टोकन का क्रम बदलने से निष्कर्षण नियम बदले बिना परिणाम बदलता है। स्थिर पाठ अक्षरशः लिया जाता है; वह कोड नहीं चला सकता।",
+      "reviewed_translation": "उदाहरण के लिए, ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` टोकन ऊपर के उदाहरण के लिए ``HeLa_rep2_24h_DMSO`` बनाते हैं। स्तंभ टोकन का क्रम बदलने से निष्कर्षण नियम बदले बिना परिणाम बदलता है। स्थिर पाठ अक्षरशः लिया जाता है; वह कोड नहीं चला सकता।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A composition can reference original source columns and earlier generated columns. A missing or empty column value leaves the composed value blank. The preview shows all intermediate columns and the final column together. Applying, exporting or saving a new SQLite table retains every generated column and the editable recipe. The original measurements remain unchanged.",
+      "source_sha256": "2ba90664638983dedd250700cc15f16503da22091b7a8bdd32a272cbc45bb97c",
+      "original_ai_draft": "संयोजन मूल स्रोत स्तंभों और पहले बनाए गए स्तंभों का संदर्भ ले सकता है। किसी स्तंभ का मान अनुपलब्ध या खाली होने पर संयोजित मान खाली रहता है। पूर्वावलोकन सभी मध्यवर्ती स्तंभ और अंतिम स्तंभ एक साथ दिखाता है। लागू करना, निर्यात करना या नई SQLite तालिका सहेजना हर बनाए स्तंभ और संपादन योग्य विधि को रखता है। मूल मापन अपरिवर्तित रहते हैं।",
+      "reviewed_translation": "संयोजन मूल स्रोत स्तंभों और पहले बनाए गए स्तंभों का संदर्भ ले सकता है। किसी स्तंभ का मान अनुपलब्ध या खाली होने पर संयोजित मान खाली रहता है। पूर्वावलोकन सभी मध्यवर्ती स्तंभ और अंतिम स्तंभ एक साथ दिखाता है। लागू करना, निर्यात करना या नई SQLite तालिका सहेजना हर बनाए स्तंभ और संपादन योग्य विधि को रखता है। मूल मापन अपरिवर्तित रहते हैं।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Build genotype, replicate and a combined condition",
+      "source_sha256": "578338f38c061a12e58cbce9ed4ff96001c78a241abe8f0f70926f0837c310af",
+      "original_ai_draft": "जीनोटाइप, प्रतिकृति और संयुक्त स्थिति बनाना",
+      "reviewed_translation": "जीनोटाइप, प्रतिकृति और संयुक्त स्थिति बनाना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Name the first **Output column** ``genotype`` and keep its mode set to **Assign values**. Use **Add condition** for its labels. Press **Add column** to create ``replicate`` with its own boxes. In each box, choose **Exact values** to enter lists of metadata values without writing a regular expression. For example:",
+      "source_sha256": "b40fba7d5641ac718af3e19c0085e92469608c8a8f30abd8d68407769c9bf50e",
+      "original_ai_draft": "पहले **आउटपुट स्तंभ** का नाम ``genotype`` रखें और उसका मोड **मान दें** रहने दें। उसके लेबल के लिए **शर्तें जोड़ें** उपयोग करें। **स्तंभ जोड़ें** दबाकर अपने बॉक्स वाला ``replicate`` बनाएँ। हर बॉक्स में नियमित अभिव्यक्ति लिखे बिना मेटाडेटा मानों की सूची देने के लिए **सटीक मूल्य** चुनें। उदाहरण:",
+      "reviewed_translation": "पहले **आउटपुट स्तंभ** का नाम ``genotype`` रखें और उसका मोड **मान दें** रहने दें। उसके लेबल के लिए **शर्तें जोड़ें** उपयोग करें। **स्तंभ जोड़ें** दबाकर अपने बॉक्स वाला ``replicate`` बनाएँ। हर बॉक्स में नियमित अभिव्यक्ति लिखे बिना मेटाडेटा मानों की सूची देने के लिए **सटीक मान** चुनें। उदाहरण:",
+      "ui_bindings": {
+        "Output column": "आउटपुट स्तंभ",
+        "Assign values": "मान दें",
+        "Add condition": "शर्तें जोड़ें",
+        "Add column": "स्तंभ जोड़ें",
+        "Exact values": "सटीक मान"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Example annotation rules",
+      "source_sha256": "7398a3452de45c41caaed97e175f51bc9c9986149be53b4e2ed786ec0036215f",
+      "original_ai_draft": "एनोटेशन नियमों का उदाहरण",
+      "reviewed_translation": "एनोटेशन नियमों का उदाहरण",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Output column",
+      "source_sha256": "20fbdf96eddc6805ac9af13d4ee1d4ec0e718a14be9604895cbbd23edf45b0fd",
+      "original_ai_draft": "आउटपुट स्तंभ",
+      "reviewed_translation": "आउटपुट स्तंभ",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Metadata column",
+      "source_sha256": "20a3552adc5b2b8a6472197eb105902fb6d0ff89454967bfef004188d99e3b2a",
+      "original_ai_draft": "मेटाडेटा स्तंभ",
+      "reviewed_translation": "मेटाडेटा स्तंभ",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Included values",
+      "source_sha256": "213cdb0d334027b9c678a9e6820813919fb14f543b211ac13ea3eb3d0bc636de",
+      "original_ai_draft": "शामिल मान",
+      "reviewed_translation": "शामिल मान",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assigned label",
+      "source_sha256": "8d27c73d75545e7f3aaf1fdacb9575b20fe0dedc3d40319fc0ce63e6f202c58d",
+      "original_ai_draft": "दिया गया लेबल",
+      "reviewed_translation": "दिया गया लेबल",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect. Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign the same label may select the same row; two different labels in one output column require a correction before applying. Each output column has its own assignments, so a row can have both a genotype and a replicate.",
+      "source_sha256": "bb480aa32277c86ce1a3383fb2ece9d92eb1055c500701999bcdd45fa5ad046c",
+      "original_ai_draft": "``c1,c1`` या ``r7,r7`` जैसी दोहराई प्रविष्टियों का अतिरिक्त प्रभाव नहीं होता। सटीक मिलान ``c1`` को ``c10`` से अलग रखता है। एक ही लेबल देने वाले दो नियम एक ही पंक्ति चुन सकते हैं; एक आउटपुट स्तंभ में दो अलग लेबल होने पर लागू करने से पहले सुधार आवश्यक है। हर आउटपुट स्तंभ के अपने आवंटन होते हैं, इसलिए एक पंक्ति में जीनोटाइप और प्रतिकृति दोनों हो सकते हैं।",
+      "reviewed_translation": "``c1,c1`` या ``r7,r7`` जैसी दोहराई प्रविष्टियों का अतिरिक्त प्रभाव नहीं होता। सटीक मिलान ``c1`` को ``c10`` से अलग रखता है। एक ही लेबल देने वाले दो नियम एक ही पंक्ति चुन सकते हैं; एक आउटपुट स्तंभ में दो अलग लेबल होने पर लागू करने से पहले सुधार आवश्यक है। हर आउटपुट स्तंभ के अपने आवंटन होते हैं, इसलिए एक पंक्ति में जीनोटाइप और प्रतिकृति दोनों हो सकते हैं।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Add column**, name it ``condition``, and choose **Compose column**. Drag ``genotype`` into the composition field, insert a text token containing ``_``, then drag in ``replicate``. The token order determines the joining order. A row labelled ``WildType`` and ``replicate 1`` then receives ``WildType_replicate 1``. The label's space is retained. Column names, labels, component order and separator are editable; the example does not prescribe the names for your experiment.",
+      "source_sha256": "4acda61613512a79cf540fe0e7da2d200957329b04de0679281a5c43ba51265b",
+      "original_ai_draft": "**स्तंभ जोड़ें** दबाएँ, नाम ``condition`` दें और **स्तंभ जोड़कर बनाएं** चुनें। ``genotype`` को संयोजन क्षेत्र में खींचें, ``_`` वाला पाठ टोकन डालें, फिर ``replicate`` खींचें। टोकन का क्रम जोड़ने का क्रम तय करता है। ``WildType`` और ``replicate 1`` लेबल वाली पंक्ति को तब ``WildType_replicate 1`` मिलता है। लेबल का स्पेस सुरक्षित रहता है। स्तंभ नाम, लेबल, घटकों का क्रम और विभाजक संपादन योग्य हैं; यह उदाहरण आपके प्रयोग के नाम निर्धारित नहीं करता।",
+      "reviewed_translation": "**स्तंभ जोड़ें** दबाएँ, नाम ``condition`` दें और **स्तंभ जोड़कर बनाएं** चुनें। ``genotype`` को संयोजन क्षेत्र में खींचें, ``_`` वाला पाठ टोकन डालें, फिर ``replicate`` खींचें। टोकन का क्रम जोड़ने का क्रम तय करता है। ``WildType`` और ``replicate 1`` लेबल वाली पंक्ति को तब ``WildType_replicate 1`` मिलता है। लेबल का स्पेस सुरक्षित रहता है। स्तंभ नाम, लेबल, घटकों का क्रम और विभाजक संपादन योग्य हैं; यह उदाहरण आपके प्रयोग के नाम निर्धारित नहीं करता।",
+      "ui_bindings": {
+        "Add column": "स्तंभ जोड़ें",
+        "Compose column": "स्तंभ जोड़कर बनाएं"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe.",
+      "source_sha256": "a7e58cd6468d9491f0b796ed241248cae56102fe11062b9709ac5106bb11b40d",
+      "original_ai_draft": "संयोजन नियम स्रोत स्तंभ या पहले बने एनोटेशन स्तंभ उपयोग कर सकते हैं। निर्भर स्तंभों को स्तंभ क्रम में पहले रखें। अनुपलब्ध घटक संयुक्त मान खाली छोड़ते हैं; वे ``nan`` जैसा पाठ नहीं बनाते। लागू करने से पहले सभी बनाए स्तंभों का पूर्वावलोकन करें। चार्ट सहेजना, तालिका निर्यात करना या नई एनोटेटेड SQLite तालिका सहेजना पूरी विधि सुरक्षित रखता है।",
+      "reviewed_translation": "संयोजन नियम स्रोत स्तंभ या पहले बने एनोटेशन स्तंभ उपयोग कर सकते हैं। जिन स्तंभों के मान उपयोग होते हैं, उन्हें स्तंभ क्रम में पहले रखें। अनुपलब्ध घटक संयुक्त मान खाली छोड़ते हैं; वे ``nan`` जैसा पाठ नहीं बनाते। लागू करने से पहले सभी बनाए स्तंभों का पूर्वावलोकन करें। चार्ट सहेजना, तालिका निर्यात करना या नई एनोटेटेड SQLite तालिका सहेजना पूरी विधि सुरक्षित रखता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rules and manual selection",
+      "source_sha256": "b2686f8c97e23d9160c1437c96e3ffdf0f7aef27396a8ecb07d80aac2e58be5c",
+      "original_ai_draft": "नियम और मैनुअल चयन",
+      "reviewed_translation": "नियम और मैनुअल चयन",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In **Assign values**, choose **Regular expression** in a condition box to use its Include and Exclude fields. Choose **Manual rows only** to assign only the rows you drop into that box, without a comparison rule.",
+      "source_sha256": "33bd26a475b9c1a4c1938ba81c27baa710a1c6be03f45b62f0d0483e5332a4dd",
+      "original_ai_draft": "**मान दें** में Include और Exclude फ़ील्ड उपयोग करने के लिए स्थिति बॉक्स में **नियमित अभिव्यक्ति** चुनें। तुलना नियम के बिना केवल बॉक्स में खींची हुई पंक्तियों को मान देने के लिए **केवल हाथ से सौंपी गई पंक्तियां** चुनें।",
+      "reviewed_translation": "**मान दें** में Include और Exclude फ़ील्ड उपयोग करने के लिए स्थिति बॉक्स में **नियमित अभिव्यक्ति** चुनें। तुलना नियम के बिना केवल बॉक्स में खींची हुई पंक्तियों को मान देने के लिए **केवल हाथ से सौंपी गई पंक्तियां** चुनें।",
+      "ui_bindings": {
+        "Assign values": "मान दें",
+        "Regular expression": "नियमित अभिव्यक्ति",
+        "Manual rows only": "केवल हाथ से सौंपी गई पंक्तियां"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically.",
+      "source_sha256": "f17bab0541d7173086b0e8010729a5c2f279fd14bf9e9c24bcba33bb75cbe5e7",
+      "original_ai_draft": "स्थिति बॉक्सों के ऊपर **स्तंभ के उदाहरण** चुने स्तंभ के मानों पर आधारित कॉपी करने योग्य पैटर्न देता है। उदाहरण का प्रकार चुनें, उसका पाठ देखें या बदलें, **Regex के बारे में टिप्पणियाँ** दबाएँ, फिर स्थिति के **शामिल है** या **बाहर रखें** फ़ील्ड में पेस्ट करें। उदाहरण कॉपी करने से स्थिति नियम नहीं बदलते। नमूना मानों के शाब्दिक विराम चिह्न अपने आप एस्केप किए जाते हैं।",
+      "reviewed_translation": "स्थिति बॉक्सों के ऊपर **स्तंभ के उदाहरण** चुने स्तंभ के मानों पर आधारित कॉपी करने योग्य पैटर्न देता है। उदाहरण का प्रकार चुनें, उसका पाठ देखें या बदलें, **Regex कॉपी करें** दबाएँ, फिर स्थिति के **शामिल है** या **बाहर रखें** फ़ील्ड में पेस्ट करें। उदाहरण कॉपी करने से स्थिति नियम नहीं बदलते। नमूना मानों के शाब्दिक विराम चिह्न अपने आप एस्केप किए जाते हैं।",
+      "ui_bindings": {
+        "Examples for column": "स्तंभ के उदाहरण",
+        "Copy regex": "Regex कॉपी करें",
+        "Include": "शामिल है",
+        "Exclude": "बाहर रखें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:",
+      "source_sha256": "0ec3d40be229cf507c39851a2a687873393c3e29b8e0838a1eeaa126bd92c120",
+      "original_ai_draft": "``drug_A_rep1.tif`` और ``control_rep1.tif`` जैसे मूल नामों के लिए:",
+      "reviewed_translation": "``drug_A_rep1.tif`` और ``control_rep1.tif`` जैसे मूल नामों के लिए:",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A|control`` matches either text.",
+      "source_sha256": "296e56b1058f15b74ae9b0af697f2061a0b664e1c4baf4392798df54070d8827",
+      "original_ai_draft": "``drug_A|control`` दोनों में से किसी पाठ से मेल खाता है।",
+      "reviewed_translation": "``drug_A|control`` दोनों में से किसी पाठ से मेल खाता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A_rep.`` allows one character after ``rep``.",
+      "source_sha256": "9a7482eca5b9274a46f8fe27209c240fa10068755b4f908f473e3ec86da39f87",
+      "original_ai_draft": "``drug_A_rep.`` में ``rep`` के बाद एक अक्षर हो सकता है।",
+      "reviewed_translation": "``drug_A_rep.`` में ``rep`` के बाद कोई भी एक कैरेक्टर हो सकता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A.*rep`` allows any intervening text, including none.",
+      "source_sha256": "ad9b2ba896fea76fbf1a28435722cf6b5d9bdc6bd527703c0ec1893548f6d60c",
+      "original_ai_draft": "``drug_A.*rep`` बीच में कोई भी पाठ स्वीकार करता है, जिसमें कोई पाठ न होना भी शामिल है।",
+      "reviewed_translation": "``drug_A.*rep`` बीच में कोई भी पाठ स्वीकार करता है, जिसमें कोई पाठ न होना भी शामिल है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``^drug_A_rep1\\.tif$`` matches that entire value.",
+      "source_sha256": "94037beb8a22bd708f5282468cc4d0c678a5aff5b9c73226f3716c57994fe6f0",
+      "original_ai_draft": "``^drug_A_rep1\\.tif$`` उस पूरे मान से मेल खाता है।",
+      "reviewed_translation": "``^drug_A_rep1\\.tif$`` उस पूरे मान से मेल खाता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``(?i)drug_a`` ignores letter case.",
+      "source_sha256": "0afe46a5be8707706ace4be00e7d35cbbe2009bde4a5197b67cb4b24bd32338b",
+      "original_ai_draft": "``(?i)drug_a`` बड़े और छोटे अक्षर का अंतर अनदेखा करता है।",
+      "reviewed_translation": "``(?i)drug_a`` बड़े और छोटे अक्षर का अंतर अनदेखा करता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use Include to select the group and Exclude to remove exceptions, such as Include ``drug_A`` with Exclude ``failed|outlier``. A filename column containing several original names separated by semicolons is searched as one string, so a contains pattern can match any recorded name; a whole-value anchor applies to the entire combined string.",
+      "source_sha256": "90fb96e0a62a5e60c9d04aa9656d84465242ab647c638c38191763f84345a68a",
+      "original_ai_draft": "समूह चुनने के लिए Include और अपवाद हटाने के लिए Exclude उपयोग करें, जैसे Include में ``drug_A`` और Exclude में ``failed|outlier``। अर्धविराम से अलग कई मूल नामों वाला फ़ाइल नाम स्तंभ एक स्ट्रिंग के रूप में खोजा जाता है, इसलिए शामिल होने वाला पैटर्न किसी भी दर्ज नाम से मेल खा सकता है; पूरे मान का एंकर पूरी संयुक्त स्ट्रिंग पर लागू होता है।",
+      "reviewed_translation": "समूह चुनने के लिए Include और अपवाद हटाने के लिए Exclude उपयोग करें, जैसे Include में ``drug_A`` और Exclude में ``failed|outlier``। अर्धविराम से अलग कई मूल नामों वाला फ़ाइल नाम स्तंभ एक स्ट्रिंग के रूप में खोजा जाता है, इसलिए शामिल होने वाला पैटर्न किसी भी दर्ज नाम से मेल खा सकता है; पूरे मान का एंकर पूरी संयुक्त स्ट्रिंग पर लागू होता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Patterns search the chosen column's displayed string values. They are case-sensitive unless the expression includes a flag such as ``(?i)``. Use anchors when the whole value must match: ``^A0[1-3]$`` selects wells ``A01``, ``A02`` and ``A03``. ``.*`` includes all nonmissing values in the chosen column. A blank Include expression selects no rows automatically.",
+      "source_sha256": "f741f84d7134a3217129b724f82b19ee8f27674185bf869515acd3c11123620c",
+      "original_ai_draft": "पैटर्न चुने स्तंभ के प्रदर्शित स्ट्रिंग मानों में खोजते हैं। ``(?i)`` जैसे फ़्लैग के बिना बड़े और छोटे अक्षर अलग माने जाते हैं। पूरे मान का मिलना आवश्यक हो तो एंकर उपयोग करें: ``^A0[1-3]$`` वेल ``A01``, ``A02`` और ``A03`` चुनता है। ``.*`` चुने स्तंभ के सभी गैर-अनुपलब्ध मान शामिल करता है। खाली Include अभिव्यक्ति अपने आप कोई पंक्ति नहीं चुनती।",
+      "reviewed_translation": "पैटर्न चुने स्तंभ के प्रदर्शित स्ट्रिंग मानों में खोजते हैं। ``(?i)`` जैसे फ़्लैग के बिना बड़े और छोटे अक्षर अलग माने जाते हैं। पूरे मान का मिलना आवश्यक हो तो एंकर उपयोग करें: ``^A0[1-3]$`` वेल ``A01``, ``A02`` और ``A03`` चुनता है। ``.*`` चुने स्तंभ के सभी गैर-अनुपलब्ध मान शामिल करता है। खाली Include अभिव्यक्ति अपने आप कोई पंक्ति नहीं चुनती।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manual rows are added to the rows matched by Include. Exclude then removes matches from both sets, including rows you dropped manually. Missing metadata values do not match a regex; they can still be assigned manually.",
+      "source_sha256": "1a0f065d2fe082c441dca25faa0acfc82b6bef224b968f250857d0a4e64fa253",
+      "original_ai_draft": "मैनुअल पंक्तियाँ Include से मेल खाने वाली पंक्तियों में जोड़ी जाती हैं। फिर Exclude दोनों समूहों से मेल खाने वाली पंक्तियाँ हटाता है, जिनमें मैनुअल खींची हुई पंक्तियाँ भी हैं। अनुपलब्ध मेटाडेटा मान regex से मेल नहीं खाते; उन्हें फिर भी मैनुअल मान दिया जा सकता है।",
+      "reviewed_translation": "मैनुअल पंक्तियाँ Include से मेल खाने वाली पंक्तियों में जोड़ी जाती हैं। फिर Exclude दोनों समूहों से मेल खाने वाली पंक्तियाँ हटाता है, जिनमें मैनुअल खींची हुई पंक्तियाँ भी हैं। अनुपलब्ध मेटाडेटा मान regex से मेल नहीं खाते; उन्हें फिर भी मैनुअल मान दिया जा सकता है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Select multiple rows in the source table and drag them into a condition box. Use Shift for a range and Ctrl/Cmd for individual rows. Sorting by a column or using **Filter source metadata or preview conditions** changes the visible view, while assignments still refer to the original source rows. The filter box is a case-insensitive text search, separate from the condition regex rules. Dropping a row twice into the same box does not duplicate its assignment.",
+      "source_sha256": "5317f1b5c8183fe89141345c095a346d9f7842b87b360f61c586466d8d78fc46",
+      "original_ai_draft": "स्रोत तालिका में कई पंक्तियाँ चुनकर उन्हें स्थिति बॉक्स में खींचें। रेंज के लिए Shift और अलग-अलग पंक्तियों के लिए Ctrl/Cmd उपयोग करें। स्तंभ से क्रमबद्ध करने या **फ़िल्टर स्रोत मेटाडेटा या पूर्वावलोकन परिस्थितियां** उपयोग करने से दिखाई देने वाला दृश्य बदलता है, पर आवंटन मूल स्रोत पंक्तियों का संदर्भ ही रखते हैं। फ़िल्टर बॉक्स बड़े और छोटे अक्षर का अंतर अनदेखा करने वाली पाठ खोज है, जो स्थिति regex नियमों से अलग है। एक पंक्ति को उसी बॉक्स में दो बार डालने से आवंटन दोहरता नहीं है।",
+      "reviewed_translation": "स्रोत तालिका में कई पंक्तियाँ चुनकर उन्हें स्थिति बॉक्स में खींचें। रेंज के लिए Shift और अलग-अलग पंक्तियों के लिए Ctrl/Cmd उपयोग करें। स्तंभ से क्रमबद्ध करने या **स्रोत मेटाडेटा या पूर्वावलोकित स्थिति मान फ़िल्टर करें** उपयोग करने से दिखाई देने वाला दृश्य बदलता है, पर आवंटन मूल स्रोत पंक्तियों का संदर्भ ही रखते हैं। फ़िल्टर बॉक्स बड़े और छोटे अक्षर का अंतर अनदेखा करने वाली पाठ खोज है, जो स्थिति regex नियमों से अलग है। एक पंक्ति को उसी बॉक्स में दो बार डालने से आवंटन दोहरता नहीं है।",
+      "ui_bindings": {
+        "Filter source metadata or preview conditions": "स्रोत मेटाडेटा या पूर्वावलोकित स्थिति मान फ़िल्टर करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Remove selected manual rows** or **Clear manual rows** to remove dropped memberships. An Include rule can still match those rows; change the rule or add an Exclude expression when they must leave the condition. **Remove condition** removes the whole box and its rules.",
+      "source_sha256": "c1d263671d4f88e38ab21b2160e64239289b3a0a35135b74f3dca2c3c11228d6",
+      "original_ai_draft": "खींची हुई सदस्यता हटाने के लिए **चुने हुए मैनुअल लाइनों को हटा दें** या **स्पष्ट मैनुअल लाइन** उपयोग करें। Include नियम फिर भी उन पंक्तियों से मेल खा सकता है; उन्हें स्थिति से बाहर रखना हो तो नियम बदलें या Exclude अभिव्यक्ति जोड़ें। **शर्तों को हटाना** पूरा बॉक्स और उसके नियम हटाता है।",
+      "reviewed_translation": "खींची हुई सदस्यता हटाने के लिए **चुनी हुई मैनुअल पंक्तियाँ हटाएँ** या **मैनुअल पंक्ति आवंटन साफ़ करें** उपयोग करें। Include नियम फिर भी उन पंक्तियों से मेल खा सकता है; उन्हें स्थिति से बाहर रखना हो तो नियम बदलें या Exclude अभिव्यक्ति जोड़ें। **स्थिति हटाएँ** पूरा बॉक्स और उसके नियम हटाता है।",
+      "ui_bindings": {
+        "Remove selected manual rows": "चुनी हुई मैनुअल पंक्तियाँ हटाएँ",
+        "Clear manual rows": "मैनुअल पंक्ति आवंटन साफ़ करें",
+        "Remove condition": "स्थिति हटाएँ"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A row may receive only one distinct label within each annotation column. If boxes assign different labels to it, the preview shows those competing labels and **Apply conditions** stays disabled. Adjust the include/exclude patterns or manual assignments until the overlap count is zero. No condition silently wins. Unmatched rows remain blank in the output column and remain present in the table.",
+      "source_sha256": "3669165734ba3865f4d030298f6b62cddf4a01369b195276410a614ab83013c4",
+      "original_ai_draft": "हर एनोटेशन स्तंभ में एक पंक्ति को केवल एक अलग लेबल मिल सकता है। यदि बॉक्स उसे अलग लेबल दें, तो पूर्वावलोकन वे विरोधी लेबल दिखाता है और **शर्तें लागू करें** निष्क्रिय रहता है। include/exclude पैटर्न या मैनुअल आवंटन बदलें, जब तक विरोध वाली पंक्तियों की संख्या शून्य न हो जाए। कोई स्थिति चुपचाप प्राथमिकता नहीं पाती। मेल न खाने वाली पंक्तियाँ आउटपुट स्तंभ में खाली रहती हैं और तालिका में मौजूद रहती हैं।",
+      "reviewed_translation": "हर एनोटेशन स्तंभ में एक पंक्ति को केवल एक अलग लेबल मिल सकता है। यदि बॉक्स उसे अलग लेबल दें, तो पूर्वावलोकन वे विरोधी लेबल दिखाता है और **शर्तें लागू करें** निष्क्रिय रहता है। include/exclude पैटर्न या मैनुअल आवंटन बदलें, जब तक विरोध वाली पंक्तियों की संख्या शून्य न हो जाए। कोई स्थिति चुपचाप प्राथमिकता नहीं पाती। मेल न खाने वाली पंक्तियाँ आउटपुट स्तंभ में खाली रहती हैं और तालिका में मौजूद रहती हैं।",
+      "ui_bindings": {
+        "Apply conditions": "शर्तें लागू करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reuse an annotation schema on another table",
+      "source_sha256": "01433562336c97ab7e3fee9f1c47d8fe764d2beeb40c7718d6405d18c729efa5",
+      "original_ai_draft": "दूसरी तालिका पर एनोटेशन स्कीमा दोबारा उपयोग करना",
+      "reviewed_translation": "दूसरी तालिका पर एनोटेशन स्कीमा दोबारा उपयोग करना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Save schema** after the preview is valid. The JSON file retains the output-column names and order, extraction patterns and capture groups, matching rules, labels, and composition tokens. It contains the instructions for generating values, rather than a copy of the table or its generated values.",
+      "source_sha256": "bd83d7148ce0d61f3b8fe168d47155f8232e059489a8f115499c5008216ec645",
+      "original_ai_draft": "पूर्वावलोकन वैध होने के बाद **स्कीमा सहेजें** चुनें। JSON फ़ाइल आउटपुट स्तंभों के नाम और क्रम, निष्कर्षण पैटर्न और कैप्चर समूह, मिलान नियम, लेबल और संयोजन टोकन रखती है। इसमें मान बनाने के निर्देश होते हैं, तालिका या उसके बनाए मानों की प्रतिलिपि नहीं।",
+      "reviewed_translation": "पूर्वावलोकन वैध होने के बाद **स्कीमा सहेजें** चुनें। JSON फ़ाइल आउटपुट स्तंभों के नाम और क्रम, निष्कर्षण पैटर्न और कैप्चर समूह, मिलान नियम, लेबल और संयोजन टोकन रखती है। इसमें मान बनाने के निर्देश होते हैं, तालिका या उसके बनाए मानों की प्रतिलिपि नहीं।",
+      "ui_bindings": {
+        "Save schema": "स्कीमा सहेजें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open another table, choose **Annotate conditions**, then **Load schema** and select the JSON file. The new table may have different rows and values, but must provide the columns referenced by the schema. All outputs are previewed against this table. Inspect the values and any overlapping assignments before choosing **Apply conditions**. Loading alone does not change the working table.",
+      "source_sha256": "8e7f243ddee4e48bb7fd7cc3c35652e89f0126d14b66c0d53d68cff81ce04b5d",
+      "original_ai_draft": "दूसरी तालिका खोलें, **शर्तों का उल्लेख** चुनें, फिर **स्कीमा लोड करें** से JSON फ़ाइल चुनें। नई तालिका की पंक्तियाँ और मान अलग हो सकते हैं, लेकिन उसमें स्कीमा द्वारा संदर्भित स्तंभ होने चाहिए। सभी आउटपुट का इसी तालिका पर पूर्वावलोकन होता है। **शर्तें लागू करें** चुनने से पहले मान और परस्पर विरोधी आवंटन देखें। केवल लोड करने से कार्य तालिका नहीं बदलती।",
+      "reviewed_translation": "दूसरी तालिका खोलें, **प्रयोग की स्थितियाँ एनोटेट करें** चुनें, फिर **स्कीमा लोड करें** से JSON फ़ाइल चुनें। नई तालिका की पंक्तियाँ और मान अलग हो सकते हैं, लेकिन उसमें स्कीमा द्वारा संदर्भित स्तंभ होने चाहिए। सभी आउटपुट का इसी तालिका पर पूर्वावलोकन होता है। **शर्तें लागू करें** चुनने से पहले मान और परस्पर विरोधी आवंटन देखें। केवल लोड करने से कार्य तालिका नहीं बदलती।",
+      "ui_bindings": {
+        "Annotate conditions": "प्रयोग की स्थितियाँ एनोटेट करें",
+        "Load schema": "स्कीमा लोड करें",
+        "Apply conditions": "शर्तें लागू करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manually dragged row assignments are specific to their source table and are omitted from reusable schemas. The save result reports how many assignments were omitted. Manual-only condition boxes remain available as empty groups to fill for the new table. To preserve manual assignments for the original analysis, use **Save chart** or **Save annotated table…** instead.",
+      "source_sha256": "0a89a72ed4624345c77188b5697072dbccd2c74e1d55bc8fb020be5ef34c7440",
+      "original_ai_draft": "मैनुअल खींची पंक्तियों के आवंटन अपनी स्रोत तालिका से जुड़े होते हैं और पुनः उपयोग योग्य स्कीमा में शामिल नहीं होते। सहेजने का परिणाम बताता है कि कितने आवंटन छोड़े गए। केवल मैनुअल स्थिति बॉक्स नई तालिका के लिए भरने योग्य खाली समूह बने रहते हैं। मूल विश्लेषण के मैनुअल आवंटन सुरक्षित रखने के लिए इसके बजाय **चार्ट बचाएं** या **लिखे गए टेबल को बचाने के लिए...** उपयोग करें।",
+      "reviewed_translation": "मैनुअल खींची पंक्तियों के आवंटन अपनी स्रोत तालिका से जुड़े होते हैं और पुनः उपयोग योग्य स्कीमा में शामिल नहीं होते। सहेजने का परिणाम बताता है कि कितने आवंटन छोड़े गए। केवल मैनुअल स्थिति बॉक्स नई तालिका के लिए भरने योग्य खाली समूह बने रहते हैं। मूल विश्लेषण के मैनुअल आवंटन सुरक्षित रखने के लिए इसके बजाय **चार्ट सहेजें** या **एनोटेट की हुई तालिका सहेजें…** उपयोग करें।",
+      "ui_bindings": {
+        "Save chart": "चार्ट सहेजें",
+        "Save annotated table…": "एनोटेट की हुई तालिका सहेजें…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Malformed files, unsupported versions, unavailable columns, invalid patterns and invalid output dependencies leave the existing dialog draft unchanged. An existing source column cannot be overwritten by a schema output. Schema files are written atomically; saving a schema over the source table itself is refused. The file size limit is 8 MiB.",
+      "source_sha256": "0253fd2bc29fcc74e60e7dc6792756c53adf9a9e81524933af6b4ae6d3e8f49b",
+      "original_ai_draft": "गलत फ़ाइलें, असमर्थित संस्करण, अनुपलब्ध स्तंभ, अमान्य पैटर्न और अमान्य आउटपुट निर्भरताएँ संवाद का मौजूदा मसौदा नहीं बदलतीं। स्कीमा आउटपुट किसी मौजूदा स्रोत स्तंभ को अधिलेखित नहीं कर सकता। स्कीमा फ़ाइलें परमाण्विक रूप से लिखी जाती हैं; स्रोत तालिका के ऊपर ही स्कीमा सहेजने से इनकार होता है। फ़ाइल आकार सीमा 8 MiB है।",
+      "reviewed_translation": "गलत फ़ाइलें, असमर्थित संस्करण, अनुपलब्ध स्तंभ, अमान्य पैटर्न और अमान्य आउटपुट निर्भरताएँ संवाद का मौजूदा मसौदा नहीं बदलतीं। स्कीमा आउटपुट किसी मौजूदा स्रोत स्तंभ को अधिलेखित नहीं कर सकता। स्कीमा फ़ाइलें परमाण्विक रूप से लिखी जाती हैं; स्रोत तालिका के ऊपर ही स्कीमा सहेजने से इनकार होता है। फ़ाइल आकार सीमा 8 MiB है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Keep conditions with the analysis",
+      "source_sha256": "a70fc2d79873e608521539b1a50af663cd9f96640577e0ea11b6256ddeb8ff56",
+      "original_ai_draft": "स्थितियों को विश्लेषण के साथ रखना",
+      "reviewed_translation": "स्थितियों को विश्लेषण के साथ रखना",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reopen **Annotate conditions** to edit the current assignments. They survive table refreshes in the current Graph Builder session when the source is unchanged. Use **Save chart** to preserve the rules, manual assignments, output-column definitions and any merge definition with the chart. **Load chart** reconstructs the source and checks its identity before applying those labels.",
+      "source_sha256": "f3813160466dcf9c2c4224acde05d1c020ff4f93c15051a7cb76cc12ff684896",
+      "original_ai_draft": "वर्तमान आवंटन संपादित करने के लिए **शर्तों का उल्लेख** फिर खोलें। स्रोत अपरिवर्तित होने पर वे वर्तमान Graph Builder सत्र में तालिका ताज़ा करने पर बने रहते हैं। नियम, मैनुअल आवंटन, आउटपुट स्तंभ परिभाषाएँ और मर्ज परिभाषा चार्ट के साथ रखने के लिए **चार्ट बचाएं** उपयोग करें। **लोड चार्ट** स्रोत फिर बनाता है और लेबल लागू करने से पहले उसकी पहचान जाँचता है।",
+      "reviewed_translation": "वर्तमान आवंटन संपादित करने के लिए **प्रयोग की स्थितियाँ एनोटेट करें** फिर खोलें। स्रोत अपरिवर्तित होने पर वे वर्तमान Graph Builder सत्र में तालिका ताज़ा करने पर बने रहते हैं। नियम, मैनुअल आवंटन, आउटपुट स्तंभ परिभाषाएँ और मर्ज परिभाषा चार्ट के साथ रखने के लिए **चार्ट सहेजें** उपयोग करें। **चार्ट लोड करें** स्रोत फिर बनाता है और लेबल लागू करने से पहले उसकी पहचान जाँचता है।",
+      "ui_bindings": {
+        "Annotate conditions": "प्रयोग की स्थितियाँ एनोटेट करें",
+        "Save chart": "चार्ट सहेजें",
+        "Load chart": "चार्ट लोड करें"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Saved conditions belong to the exact source table, including its row order, values and schema. Changed source data or a different merge definition requires reviewing and recreating the conditions. Sorting the dialog's view does not change that source identity. This check prevents saved manual selections from labelling unrelated rows after a source changes.",
+      "source_sha256": "88df7609be398b1081c73a201d0afbae294e8060055bac6f83c25b00b1978ea5",
+      "original_ai_draft": "सहेजी स्थितियाँ उसी सटीक स्रोत तालिका से जुड़ी हैं, जिसमें उसकी पंक्ति का क्रम, मान और स्कीमा शामिल हैं। स्रोत डेटा बदलने या अलग मर्ज परिभाषा होने पर स्थितियों की समीक्षा करके उन्हें फिर बनाना आवश्यक है। संवाद के दृश्य को क्रमबद्ध करने से स्रोत पहचान नहीं बदलती। यह जाँच स्रोत बदलने के बाद सहेजे मैनुअल चयन को असंबंधित पंक्तियों पर लेबल लगाने से रोकती है।",
+      "reviewed_translation": "सहेजी स्थितियाँ उसी सटीक स्रोत तालिका से जुड़ी हैं, जिसमें उसकी पंक्ति का क्रम, मान और स्कीमा शामिल हैं। स्रोत डेटा बदलने या अलग मर्ज परिभाषा होने पर स्थितियों की समीक्षा करके उन्हें फिर बनाना आवश्यक है। संवाद के दृश्य को क्रमबद्ध करने से स्रोत पहचान नहीं बदलती। यह जाँच स्रोत बदलने के बाद सहेजे मैनुअल चयन को असंबंधित पंक्तियों पर लेबल लगाने से रोकती है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For a SQLite source, **Save annotated table…** saves the working values as a new physical table in the same database. The prompt **New table name (existing tables are preserved)** proposes the current table name followed by ``_annotated``. Existing tables, views and saved merged-table names cannot be overwritten; names beginning with ``sqlite_`` or ``_spacr_`` are reserved. This action adds a table and its annotation provenance while preserving the original measurement tables.",
+      "source_sha256": "fe835bc6b97298939c766006b989ce65c84e7e64323a13162b89b2d60feaab7a",
+      "original_ai_draft": "SQLite स्रोत के लिए **लिखे गए टेबल को बचाने के लिए...** कार्य मानों को उसी डेटाबेस में नई भौतिक तालिका के रूप में सहेजता है। **नई तालिका नाम (अस्तित्व में तालिकाओं को संरक्षित किया जाता है)** संकेत वर्तमान तालिका नाम के बाद ``_annotated`` सुझाता है। मौजूदा तालिकाएँ, दृश्य और सहेजे मर्ज-तालिका नाम अधिलेखित नहीं किए जा सकते; ``sqlite_`` या ``_spacr_`` से शुरू नाम आरक्षित हैं। यह क्रिया मूल मापन तालिकाओं को सुरक्षित रखते हुए एक तालिका और उसके एनोटेशन की उत्पत्ति जानकारी जोड़ती है।",
+      "reviewed_translation": "SQLite स्रोत के लिए **एनोटेट की हुई तालिका सहेजें…** कार्य मानों को उसी डेटाबेस में नई भौतिक तालिका के रूप में सहेजता है। **नई तालिका नाम (अस्तित्व में तालिकाओं को संरक्षित किया जाता है)** संकेत वर्तमान तालिका नाम के बाद ``_annotated`` सुझाता है। मौजूदा तालिकाएँ, दृश्य और सहेजे मर्ज-तालिका नाम अधिलेखित नहीं किए जा सकते; ``sqlite_`` या ``_spacr_`` से शुरू नाम आरक्षित हैं। यह क्रिया मूल मापन तालिकाओं को सुरक्षित रखते हुए एक तालिका और उसके एनोटेशन की उत्पत्ति जानकारी जोड़ती है।",
+      "ui_bindings": {
+        "Save annotated table…": "एनोटेट की हुई तालिका सहेजें…",
+        "New table name (existing tables are preserved)": "नई तालिका नाम (अस्तित्व में तालिकाओं को संरक्षित किया जाता है)"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved table is selected in the picker and can be loaded in other table screens, including Gate Editor. It contains a snapshot of the annotated values, unlike a derived merge that is recalculated from its inputs. Reopening it in Graph Builder restores editable condition rules when the saved rows and schema are unchanged. Save revised values under a new table name. Changed saved data are still readable, but old editable rules are not silently restored onto them. Image-specific actions continue to require appropriate object provenance.",
+      "source_sha256": "54d5a9423ed60c393d69c62d296d18381b4370227db393816e85a372705732ab",
+      "original_ai_draft": "सहेजी तालिका चयनक में चुनी जाती है और Gate Editor सहित अन्य तालिका स्क्रीन में खोली जा सकती है। इसमें एनोटेटेड मानों का स्नैपशॉट होता है, जबकि व्युत्पन्न मर्ज अपने इनपुट से फिर गणना करता है। सहेजी पंक्तियाँ और स्कीमा अपरिवर्तित हों, तो Graph Builder में फिर खोलने पर संपादन योग्य स्थिति नियम लौटते हैं। संशोधित मान नए तालिका नाम से सहेजें। बदला हुआ सहेजा डेटा फिर भी पढ़ा जा सकता है, लेकिन पुराने संपादन योग्य नियम उस पर चुपचाप वापस लागू नहीं होते। चित्र-विशिष्ट क्रियाओं के लिए उपयुक्त ऑब्जेक्ट उत्पत्ति जानकारी अभी भी आवश्यक है।",
+      "reviewed_translation": "सहेजी तालिका चयनक में चुनी जाती है और Gate Editor सहित अन्य तालिका स्क्रीन में खोली जा सकती है। इसमें एनोटेटेड मानों का स्नैपशॉट होता है, जबकि व्युत्पन्न मर्ज अपने इनपुट से फिर गणना करता है। सहेजी पंक्तियाँ और स्कीमा अपरिवर्तित हों, तो Graph Builder में फिर खोलने पर संपादन योग्य स्थिति नियम लौटते हैं। संशोधित मान नए तालिका नाम से सहेजें। बदला हुआ सहेजा डेटा फिर भी पढ़ा जा सकता है, लेकिन पुराने संपादन योग्य नियम उस पर चुपचाप वापस लागू नहीं होते। चित्र-विशिष्ट क्रियाओं के लिए उपयुक्त ऑब्जेक्ट उत्पत्ति जानकारी अभी भी आवश्यक है।",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export table…** writes the working table, including every annotation column, to a new CSV and records its source, merge definition and condition rules in ``<export>.csv.conditions.json``. It exports the working table rather than just a brushed selection. The original database or imported file is preserved, and exporting over that source path is refused. Reopening the CSV gives you its saved labels; use the saved chart to reopen the original source and editable condition rules.",
+      "source_sha256": "84eda5b7ce75960b3766d612a8671a3475a5041706ad15dff9770a4fad74d18a",
+      "original_ai_draft": "**आउटपुट टेबल...** हर एनोटेशन स्तंभ सहित कार्य तालिका को नई CSV में लिखता है और उसका स्रोत, मर्ज परिभाषा और स्थिति नियम ``<export>.csv.conditions.json`` में दर्ज करता है। यह पूरी कार्य तालिका निर्यात करता है, केवल ब्रश से चुना भाग नहीं। मूल डेटाबेस या आयातित फ़ाइल सुरक्षित रहती है और उसी स्रोत पथ पर निर्यात करने से इनकार होता है। CSV फिर खोलने पर उसके सहेजे लेबल मिलते हैं; मूल स्रोत और संपादन योग्य स्थिति नियम फिर खोलने के लिए सहेजा चार्ट उपयोग करें।",
+      "reviewed_translation": "**तालिका निर्यात करें…** हर एनोटेशन स्तंभ सहित कार्य तालिका को नई CSV में लिखता है और उसका स्रोत, मर्ज परिभाषा और स्थिति नियम ``<export>.csv.conditions.json`` में दर्ज करता है। यह पूरी कार्य तालिका निर्यात करता है, केवल ब्रश से चुना भाग नहीं। मूल डेटाबेस या आयातित फ़ाइल सुरक्षित रहती है और उसी स्रोत पथ पर निर्यात करने से इनकार होता है। CSV फिर खोलने पर उसके सहेजे लेबल मिलते हैं; मूल स्रोत और संपादन योग्य स्थिति नियम फिर खोलने के लिए सहेजा चार्ट उपयोग करें।",
+      "ui_bindings": {
+        "Export table…": "तालिका निर्यात करें…"
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+# spaCR user guide translation (hi).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Link plate barcodes to sample metadata"
+msgstr "प्लेट बारकोड को नमूने के मेटाडेटा से जोड़ना"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Measure**, enable **Show alpha features** in Preferences and open **Plate Barcode Linkage (Alpha)**. Set ``plate_barcode_source`` to a table or a LIMS service URL. The linkage runs after measurement."
+msgstr "**मापन** में, Preferences से **अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें और **Plate Barcode Linkage (Alpha)** खोलें। ``plate_barcode_source`` में तालिका या LIMS सेवा का URL दें। यह जोड़ने की प्रक्रिया मापन के बाद चलती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A local CSV, TSV, Excel or Parquet table needs a barcode column, a well column and the sample metadata to attach. For example::"
+msgstr "स्थानीय CSV, TSV, Excel या Parquet तालिका में बारकोड स्तंभ, वेल स्तंभ और जोड़ने के लिए नमूने का मेटाडेटा होना चाहिए। उदाहरण::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata."
+msgstr "यदि बारकोड स्तंभ का नाम अलग है, तो ``plate_barcode_column`` सेट करें। ``plate_barcodes`` चित्रित प्लेट के नाम को उसके बारकोड से जोड़ता है। अन्यथा spaCR प्लेट फ़ोल्डर में ``barcode.txt`` पढ़ता है या प्लेट के नाम का उपयोग करता है। मेटाडेटा में सांद्रता की उपयोगी इकाइयाँ बनाए रखें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Read records from a LIMS service"
+msgstr "LIMS सेवा से रिकॉर्ड पढ़ना"
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "Use a URL such as ``https://lims.example/plates/{barcode}/wells``. spaCR substitutes the encoded barcode. Without ``{barcode}``, it adds a ``barcode`` query parameter. If authentication is needed, set the token in an environment variable and put that variable's name in ``plate_barcode_token_env``. Do not put the token in the URL or settings."
+msgstr "``https://lims.example/plates/{barcode}/wells`` जैसे URL का उपयोग करें। spaCR उसमें एन्कोड किया हुआ बारकोड डालता है। ``{barcode}`` न होने पर यह ``barcode`` क्वेरी पैरामीटर जोड़ता है। प्रमाणीकरण आवश्यक हो, तो टोकन किसी परिवेश चर में रखें और उस चर का नाम ``plate_barcode_token_env`` में दें। टोकन URL या सेटिंग्स में न रखें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The service may return a list of well records, or an object containing that list under ``wells``, ``records``, ``results``, ``data`` or ``items``. Plain fields outside the list supply metadata defaults for its wells::"
+msgstr "सेवा वेल रिकॉर्ड की सूची या ``wells``, ``records``, ``results``, ``data`` अथवा ``items`` के अंतर्गत ऐसी सूची वाला ऑब्जेक्ट लौटा सकती है। सूची के बाहर साधारण फ़ील्ड उसके वेल के लिए मेटाडेटा के डिफ़ॉल्ट मान देते हैं::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR follows ``next``, ``next_url``, ``@odata.nextLink`` or ``links.next``. The link may be a URL string or an object with an ``href`` field. Relative links resolve against the response URL. A missing link, null or empty string ends the list. Metadata defaults carry forward to later pages; explicit fields on a well override those defaults. Pagination fields do not become sample metadata."
+msgstr "spaCR ``next``, ``next_url``, ``@odata.nextLink`` या ``links.next`` का अनुसरण करता है। लिंक URL स्ट्रिंग या ``href`` फ़ील्ड वाला ऑब्जेक्ट हो सकता है। सापेक्ष लिंक उत्तर के URL के आधार पर हल होते हैं। लिंक न होना, null या खाली स्ट्रिंग सूची समाप्त करता है। मेटाडेटा के डिफ़ॉल्ट अगले पृष्ठों पर भी लागू रहते हैं; वेल पर दिए गए स्पष्ट फ़ील्ड उन डिफ़ॉल्ट को बदल देते हैं। पृष्ठ क्रमण के फ़ील्ड नमूने के मेटाडेटा में शामिल नहीं होते।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Every link and HTTP redirect must stay on the same scheme, host and port as the original service. Conflicting links and repeated pages are errors. Collection is limited to 16 MiB per response, 64 MiB across the lookup, 1,000 page addresses per barcode and 100,000 records across the lookup. An error stops the metadata lookup without returning a partial plate map. Existing measurement results remain available. Vendor-specific cursor protocols that do not provide a next-page URL need a separate adapter."
+msgstr "हर लिंक और HTTP रीडायरेक्ट की स्कीम, होस्ट और पोर्ट मूल सेवा के समान होने चाहिए। परस्पर विरोधी लिंक और दोहराए गए पृष्ठ त्रुटियाँ हैं। संग्रह की सीमा प्रति उत्तर 16 MiB, पूरी खोज में 64 MiB, प्रति बारकोड 1,000 पृष्ठ पते और पूरी खोज में 100,000 रिकॉर्ड है। त्रुटि होने पर मेटाडेटा खोज रुकती है और अधूरा प्लेट मानचित्र नहीं लौटाती। मौजूदा मापन परिणाम उपलब्ध रहते हैं। ऐसे विक्रेता-विशिष्ट कर्सर प्रोटोकॉल के लिए अलग अडैप्टर चाहिए जो अगले पृष्ठ का URL नहीं देते।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the result"
+msgstr "परिणाम की जाँच"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The filled map is written to ``measurements/plate_map_lims.csv``. It fills an empty ``profiling_metadata`` setting. When compound and concentration columns exist, it also fills an empty ``viability_plate_map``. An existing user-supplied map is compared, not silently replaced."
+msgstr "भरा हुआ मानचित्र ``measurements/plate_map_lims.csv`` में लिखा जाता है। यह खाली ``profiling_metadata`` सेटिंग भरता है। यौगिक और सांद्रता स्तंभ होने पर खाली ``viability_plate_map`` भी भरता है। उपयोगकर्ता द्वारा दिए गए मौजूदा मानचित्र से तुलना होती है; उसे चुपचाप बदला नहीं जाता।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review ``measurements/plate_barcode_mismatches.csv`` and the log for missing barcodes, shared barcodes, unmatched wells, conflicting records and disagreements with an existing map. Resolve those mismatches before interpreting treatment comparisons."
+msgstr "अनुपलब्ध बारकोड, साझा बारकोड, मेल न खाने वाले वेल, विरोधी रिकॉर्ड और मौजूदा मानचित्र से अंतर के लिए ``measurements/plate_barcode_mismatches.csv`` तथा लॉग देखें। उपचारों की तुलना का अर्थ निकालने से पहले इन अंतरों को सुलझाएँ।"
+

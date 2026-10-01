@@ -43,6 +43,14 @@ LANGUAGES = ("sv", "de", "es", "pt", "fr", "is", "zh_CN", "ko", "hi")
 
 REVIEW_KIND = "AI technical review (Claude Opus 5.5), no native-speaker signoff"
 TRANSLATOR = "Claude Opus 5.5 (direct AI translation)"
+_REVIEWERS = {"claude-opus-5.5": "Claude Opus 5.5", "codex": "Codex"}
+_REVIEW_AUTHORS = {
+    REVIEW_KIND: ("Claude Opus 5.5",),
+    "AI technical review (Codex), no native-speaker signoff": ("Codex",),
+    "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff":
+        ("Claude Opus 5.5", "Codex"),
+}
+SUPPORTED_REVIEW_KINDS = frozenset(_REVIEW_AUTHORS)
 
 # Pages served only in English. ``settings_flow`` is 23,000 lines of
 # generated call-graph listings (3.6 MB of HTML) regenerated from the source
@@ -197,11 +205,16 @@ def _page_context(app, pagename, templatename, context, doctree):
 
     depth = pagename.count("/") + 1
     original = "../" * depth + pagename + ".html"
+    catalog_path = LOCALE_DIR / language / "LC_MESSAGES" / f"{pagename}.po"
+    review_kind = (catalog_review_kind(catalog_path)
+                   if catalog_path.is_file() else None) or REVIEW_KIND
+    authors = " / ".join(_REVIEW_AUTHORS.get(review_kind, ("Claude Opus 5.5",)))
+    review_text = text["review"].replace("Claude Opus 5.5", authors)
     banner = (
         f'<aside class="spacr-guide-translation" lang="{language.replace("_", "-")}"'
-        f' data-review-kind="{escape(REVIEW_KIND)}">'
+        f' data-review-kind="{escape(review_kind)}">'
         f'<p class="spacr-guide-translation__label">{escape(text["label"])}</p>'
-        f'<p>{escape(text["review"])} <span lang="en">({escape(REVIEW_KIND)})</span> '
+        f'<p>{escape(review_text)} <span lang="en">({escape(review_kind)})</span> '
         f'<span class="spacr-guide-translation__swatch"></span>'
         f'{escape(text["fallback"])} '
         f'<a href="{escape(original)}">{escape(text["original"])}</a></p>'
@@ -424,15 +437,18 @@ def _babel():
 def read_catalog(path: Path):
     pofile, _Catalog = _babel()
     with path.open("rb") as stream:
-        return pofile.read_po(stream, ignore_obsolete=True)
+        catalog = pofile.read_po(stream, ignore_obsolete=True)
+    catalog._spacr_review_kind = catalog_review_kind(path) or REVIEW_KIND
+    return catalog
 
 
 def write_catalog(path: Path, catalog) -> None:
     pofile, _Catalog = _babel()
+    review_kind = getattr(catalog, "_spacr_review_kind", REVIEW_KIND)
     path.parent.mkdir(parents=True, exist_ok=True)
     catalog.header_comment = (
         f"# spaCR user guide translation ({catalog.locale_identifier or ''}).\n"
-        f"# {REVIEW_KIND}.\n"
+        f"# {review_kind}.\n"
         "# English source: docs/source (authoritative). Built by\n"
         "# tools/build_guide_i18n.py; a changed English message is kept only\n"
         "# as a fuzzy hint and renders in English until re-translated."
@@ -445,7 +461,7 @@ def write_catalog(path: Path, catalog) -> None:
                         include_previous=False, ignore_obsolete=True)
     text = tmp.read_text(encoding="utf-8")
     # Babel drops unknown headers; add the review label after Language.
-    header = f'"X-Review-Kind: {REVIEW_KIND}\\n"\n'
+    header = f'"X-Review-Kind: {review_kind}\\n"\n'
     if "X-Review-Kind:" not in text:
         text = text.replace('"MIME-Version:', header + '"MIME-Version:', 1)
     tmp.write_text(text, encoding="utf-8")
@@ -500,7 +516,8 @@ def update_language(language: str, pot_dir: Path,
         catalog.update(template, no_fuzzy_matching=False,
                        update_header_comment=False)
         catalog.language_team = "spaCR AI translation <noreply@spacr>"
-        catalog.last_translator = TRANSLATOR
+        if not catalog.last_translator:
+            catalog.last_translator = TRANSLATOR
         catalog.fuzzy = False
         for message in list(catalog):
             message.locations = []
@@ -770,13 +787,16 @@ def export_worklist(language: str, output: Path, domains: Iterable[str] | None =
 
 
 def import_worklist(language: str, worklist: Path, strings: Path | None = None,
-                    locale_dir: Path = LOCALE_DIR) -> tuple[int, list[str]]:
+                    locale_dir: Path = LOCALE_DIR,
+                    reviewer: str | None = None) -> tuple[int, list[str]]:
     """Apply a filled worklist; rejects rows that fail validation.
 
     ``strings`` optionally holds the translations as a JSON list aligned with
     the worklist rows (or ``{"<row index>": translation}``), so a translator
     does not have to copy the English back out.
     """
+    if reviewer is not None and reviewer not in _REVIEWERS:
+        raise ValueError(f"Unsupported guide reviewer: {reviewer}")
     rows = json.loads(worklist.read_text(encoding="utf-8"))
     if strings is not None:
         filled = json.loads(strings.read_text(encoding="utf-8"))
@@ -794,6 +814,15 @@ def import_worklist(language: str, worklist: Path, strings: Path | None = None,
     for domain, domain_rows in by_domain.items():
         path = locale_dir / language / "LC_MESSAGES" / f"{domain}.po"
         catalog = read_catalog(path)
+        existing_reviewers = set()
+        if reviewer is not None:
+            kind = getattr(catalog, "_spacr_review_kind", REVIEW_KIND)
+            if kind not in SUPPORTED_REVIEW_KINDS:
+                raise ValueError(f"Unsupported guide review label in {path}: {kind}")
+            if any(message.id and message.string and not message.fuzzy
+                   and has_prose(message.id) for message in catalog):
+                existing_reviewers.update(_REVIEW_AUTHORS[kind])
+        domain_applied = 0
         for row in domain_rows:
             msgstr = row.get("msgstr", "")
             if not msgstr:
@@ -808,7 +837,19 @@ def import_worklist(language: str, worklist: Path, strings: Path | None = None,
                 continue
             message.string = msgstr
             message.flags.discard("fuzzy")
+            if reviewer is not None:
+                comment = (f"AI technical review ({_REVIEWERS[reviewer]}), "
+                           "no native-speaker signoff.")
+                if comment not in message.user_comments:
+                    message.user_comments.append(comment)
             applied += 1
+            domain_applied += 1
+        if reviewer is not None and domain_applied:
+            existing_reviewers.add(_REVIEWERS[reviewer])
+            catalog._spacr_review_kind = next(
+                kind for kind, authors in _REVIEW_AUTHORS.items()
+                if set(authors) == existing_reviewers)
+            catalog.last_translator = f"{_REVIEWERS[reviewer]} (AI technical translation)"
         write_catalog(path, catalog)
     return applied, rejected
 
@@ -878,12 +919,15 @@ def audit(pot_dir: Path, languages: Iterable[str],
     lists published translations that fail :func:`message_problems`.
     """
     templates = load_templates(pot_dir)
-    report = {"schema": 1, "review_kind": REVIEW_KIND, "languages": {}}
+    report = {"schema": 1,
+              "review_kind": "AI technical review; recorded per page, no native-speaker signoff",
+              "languages": {}}
     for language in languages:
         glossary = load_glossary(language)
         pages = {}
         invalid = []
         label_missing = []
+        review_kinds = {}
         for domain, msgids in templates.items():
             path = locale_dir / language / "LC_MESSAGES" / f"{domain}.po"
             current = {msgid for msgid in msgids
@@ -892,7 +936,8 @@ def audit(pot_dir: Path, languages: Iterable[str],
                 pages[domain] = {"total": len(current), "translated": 0,
                                  "stale": 0, "missing": len(current)}
                 continue
-            if catalog_review_kind(path) != REVIEW_KIND:
+            review_kinds[domain] = catalog_review_kind(path)
+            if review_kinds[domain] not in SUPPORTED_REVIEW_KINDS:
                 label_missing.append(domain)
             catalog = read_catalog(path)
             translated = stale = 0
@@ -922,6 +967,7 @@ def audit(pot_dir: Path, languages: Iterable[str],
             "stale": sum(page["stale"] for page in pages.values()),
             "invalid": invalid, "label_missing": label_missing,
             "pages": pages,
+            "review_kinds": review_kinds,
         }
     return report
 
@@ -987,6 +1033,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("worklist", type=Path)
     p.add_argument("--strings", type=Path,
                    help="translations as a JSON list aligned with the worklist")
+    p.add_argument("--reviewer", choices=tuple(_REVIEWERS),
+                   help="record the actual AI reviewer for imported messages")
     p = sub.add_parser("audit", help="coverage, staleness and label report")
     p.add_argument("--pot", type=Path, default=ROOT / "docs/_build/guide-gettext")
     p.add_argument("--language", action="append", choices=LANGUAGES)
@@ -1032,7 +1080,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{count} pending messages -> {args.output}")
         return 0
     if args.command == "import":
-        applied, rejected = import_worklist(args.language, args.worklist, args.strings)
+        applied, rejected = import_worklist(args.language, args.worklist, args.strings,
+                                           reviewer=args.reviewer)
         print(f"applied {applied}; rejected {len(rejected)}")
         for line in rejected:
             print("  " + line)

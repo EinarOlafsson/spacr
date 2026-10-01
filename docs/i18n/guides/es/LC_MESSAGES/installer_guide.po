@@ -1,5 +1,5 @@
 # spaCR user guide translation (es).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:59-0400\n"
+"POT-Creation-Date: 2026-10-01 17:36-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -73,11 +73,25 @@ msgstr "Actualización"
 msgid "Download and run the installer for the newer version. Installation is staged and validated before it replaces the active private environment; a failed update leaves the previous working environment in place. Project folders and results are not stored in the installation directory and are not removed by an update."
 msgstr "Descargue y ejecute el instalador de la versión más reciente. La instalación se prepara y se valida antes de sustituir el entorno privado activo; una actualización fallida deja en su lugar el entorno anterior que funcionaba. Las carpetas de proyectos y los resultados no se guardan en la carpeta de instalación y una actualización no los elimina."
 
-msgid "Older installations are removed first"
-msgstr "Primero se eliminan las instalaciones antiguas"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "macOS online installation: update and reopen"
+msgstr "Instalación en línea de macOS: actualizar y volver a abrir"
 
-msgid "Before it installs, every installer -- and **Help → Check for updates** -- looks for spaCR installations an earlier installer made and removes them, so two versions never sit side by side with one of them on the path. It finds the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update."
-msgstr "Antes de instalar, cada instalador -- y **Ayuda → Check for updates** -- busca instalaciones de spaCR creadas por un instalador anterior y las elimina, de modo que nunca haya dos versiones a la vez con una de ellas en la ruta. Encuentra las instalaciones de Windows en línea y sin conexión, la aplicación de macOS y su entorno por usuario, la instalación en línea de Linux y el paquete Debian, junto con sus lanzadores, accesos directos, entradas de menú y registros de desinstalación. Los entornos que usted haya creado y las copias de trabajo del código fuente se enumeran, pero nunca se eliminan, y sus carpetas de proyectos y resultados nunca se tocan. Si una copia no puede eliminarse -- por ejemplo, una aplicación de macOS en ``/Applications`` que necesita un administrador --, el instalador indica cuál y no instala nada, de modo que nunca se queda con una actualización a medias."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again."
+msgstr "Elija **Ayuda → Check for updates**, acepte la actualización disponible y confirme que spaCR se reinstalará en su entorno actual. spaCR se cierra, utiliza el ``uv`` incluido en la instalación para actualizar su entorno privado existente, comprueba la versión instalada y se abre de nuevo automáticamente. Este procedimiento conserva el lanzador de la aplicación y el entorno. No ejecuta el instalador inicial ni vuelve a hacer sus preguntas en el terminal."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow."
+msgstr "El comando es el mismo que el de recuperación de macOS indicado a continuación, con el directorio de instalación real. Una actualización o comprobación de versión fallida se registra en ``~/.spacr/logs/update.log`` y no activa la reapertura correspondiente a una actualización correcta. La actualización también se detiene si spaCR no puede terminar de cerrarse de forma segura. El paquete de aplicación congelado independiente utiliza su procedimiento de sustitución del paquete."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Older installations and full installers"
+msgstr "Instalaciones anteriores e instaladores completos"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so two versions never sit side by side with one of them on the path. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update."
+msgstr "Los instaladores completos y las demás vías de actualización del instalador buscan y eliminan instalaciones de spaCR creadas por un instalador anterior, para evitar que coexistan dos versiones con una de ellas en la ruta de búsqueda. Detectan las instalaciones en línea y sin conexión de Windows, la aplicación macOS y su entorno por usuario, la instalación en línea de Linux y el paquete Debian, junto con sus lanzadores, accesos directos, entradas de menú y registros de desinstalación. Los entornos creados por usted y las copias del código fuente se enumeran, pero nunca se eliminan; tampoco se modifican las carpetas de proyectos ni los resultados. Si no se puede eliminar una copia -- por ejemplo, una aplicación macOS en ``/Applications`` que requiere permisos de administrador --, el instalador indica cuál es y no instala nada, evitando una actualización incompleta."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "Para ver qué encontraría sin cambiar nada, ejecute el buscador desde una copia de trabajo de spaCR: ``python spacr/install_cleanup.py find``."

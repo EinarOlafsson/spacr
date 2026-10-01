@@ -1,0 +1,518 @@
+# spaCR user guide translation (es).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Combine measurement tables for plots and gates"
+msgstr "Combinar tablas de mediciones para gráficos y compuertas"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "Abra **Graph Builder** o **Gate Editor** desde Inicio para explorar mediciones. Ambas pantallas ofrecen **Combinar tablas** justo al lado del selector de tablas. La misma definición de combinación produce las mismas mediciones en ambas pantallas. Para el flujo de trabajo general, consulte :doc:`workflows`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose a source and an observation level"
+msgstr "Elegir una fuente y un nivel de observación"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Load table** opens a SQLite measurement database or a CSV/TSV table. A physical table is an existing table in that database. A derived table is a named result calculated from physical tables using a saved merge definition. Creating a derived table preserves the original measurement tables."
+msgstr "**Load table** abre una base de datos de mediciones SQLite o una tabla CSV/TSV. Una tabla física es una tabla existente en esa base de datos. Una tabla derivada es un resultado con nombre calculado a partir de tablas físicas mediante una definición de combinación guardada. Crear una tabla derivada conserva las tablas de mediciones originales."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Merging requires one SQLite database. The button is unavailable for a single CSV/TSV or a Gate Editor session combining several databases. Load the one database containing the tables you want to join."
+msgstr "La combinación requiere una sola base de datos SQLite. El botón no está disponible para un CSV/TSV individual ni para una sesión de Gate Editor que combine varias bases de datos. Cargue la única base de datos que contiene las tablas que desea unir."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Graph Builder, choosing a table changes the chart's source. Gate Editor also supports a working set of compatible physical object tables, shown as removable chips; selecting another compatible table adds its measurements. The last remaining chip stays in place so the editor always has a source. A named derived table is selected as a complete source. Use the merge popup when you need a named, reproducible result or explicit custom relationships."
+msgstr "En Graph Builder, elegir una tabla cambia la fuente del gráfico. Gate Editor también admite un conjunto de trabajo de tablas físicas de objetos compatibles, mostrado mediante fichas que pueden quitarse; seleccionar otra tabla compatible añade sus mediciones. La última ficha restante se mantiene para que el editor siempre tenga una fuente. Una tabla derivada con nombre se selecciona como una fuente completa. Use el diálogo de combinación cuando necesite un resultado reproducible con nombre o relaciones personalizadas explícitas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Output observation table** determines what one result row represents. For example, a cell-level result has one row per cell even when that cell contains several pathogens. A nucleus count, total pathogen area and cell intensity can then be compared on the same row."
+msgstr "La **Tabla de observaciones de salida** determina qué representa una fila del resultado. Por ejemplo, un resultado a nivel de célula tiene una fila por célula aunque esta contenga varios patógenos. Así, se pueden comparar en la misma fila el número de núcleos, el área total de patógenos y la intensidad celular."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Create a standard spaCR merge"
+msgstr "Crear una combinación estándar de spaCR"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load your measurement database and press **Merge tables**."
+msgstr "Cargue su base de datos de mediciones y pulse **Combinar tablas**."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Tick the source tables and choose **Output observation table**. The base table is included automatically. Standard merges use compatible spaCR object tables and cell/cytoplasm observation levels; the list also shows other tables whose relationships may require customization."
+msgstr "Marque las tablas de origen y elija **Tabla de observaciones de salida**. La tabla base se incluye automáticamente. Las combinaciones estándar utilizan tablas de objetos spaCR compatibles y niveles de observación de célula/citoplasma; la lista también muestra otras tablas cuyas relaciones pueden requerir personalización."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enter a **Result name**, such as ``Cell and pathogen measurements``. It must differ from every physical table name."
+msgstr "Introduzca un **Nombre del resultado**, como ``Cell and pathogen measurements``. Debe ser distinto de todos los nombres de tablas físicas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review the **spaCR defaults active** summary and the per-column **Aggregation** choices. For an ordinary compatible database, no manual key mapping is needed."
+msgstr "Revise el resumen **spaCR defaults active** y las opciones **Agregación** de cada columna. Una base de datos compatible ordinaria no necesita una asignación manual de claves."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Validate and preview**. Inspect the input and output row counts, join keys, unmatched records, missing child keys, repeated child-key rows and the first 12 output rows. Validation examines the full input, even though only a few result rows are displayed."
+msgstr "Pulse **Validar y previsualizar**. Inspeccione el número de filas de entrada y salida, las claves de unión, los registros sin correspondencia, las claves secundarias ausentes, las filas con claves secundarias repetidas y las primeras 12 filas de salida. La validación examina toda la entrada, aunque solo se muestren unas pocas filas del resultado."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates."
+msgstr "Pulse **Crear una tabla fusionada** después de que la validación finalice correctamente. El resultado se selecciona en el selector habitual de tablas. Sus columnas están disponibles para gráficos y compuertas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them."
+msgstr "Cambiar una tabla, un nombre o una regla invalida la vista previa. Valide de nuevo antes de crear el resultado. Seleccionar otra tabla o base también restablece las relaciones personalizadas y las opciones modificadas, por lo que debe elegir las fuentes antes de personalizarlas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "How the defaults combine measurements"
+msgstr "Cómo combinan las mediciones los valores predeterminados"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The shared spaCR rules aggregate each child table independently before joining it to the base observations. Adding both pathogens and organelles does not multiply their rows together. Identity includes the available plate, well, field and time metadata together with the relevant object/parent ID; an object number alone is not a globally unique identity."
+msgstr "Las reglas compartidas de spaCR agregan cada tabla secundaria de forma independiente antes de unirla a las observaciones base. Añadir patógenos y orgánulos no multiplica sus filas entre sí. La identidad incluye los metadatos disponibles de placa, pocillo, campo y tiempo junto con el identificador de objeto/objeto padre correspondiente; un número de objeto por sí solo no es una identidad globalmente única."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Default aggregation for child measurements"
+msgstr "Agregación predeterminada de mediciones secundarias"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measurement"
+msgstr "Medición"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Rule"
+msgstr "Regla"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Area, integrated/total intensity and counts"
+msgstr "Área, intensidad integrada/total y recuentos"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Sum the child values."
+msgstr "Sumar los valores secundarios."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Minimum intensity"
+msgstr "Intensidad mínima"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Retain the minimum child value."
+msgstr "Conservar el menor valor secundario."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Maximum intensity"
+msgstr "Intensidad máxima"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Retain the maximum child value."
+msgstr "Conservar el mayor valor secundario."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Median measurements"
+msgstr "Mediciones de mediana"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Take the median of the child measurements."
+msgstr "Calcular la mediana de las mediciones secundarias."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Other numeric measurements, including means"
+msgstr "Otras mediciones numéricas, incluidas las medias"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Take the mean of the child measurements."
+msgstr "Calcular la media de las mediciones secundarias."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Text and identifiers"
+msgstr "Texto e identificadores"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Retain the first nonmissing value in source order by default; identifiers cannot be averaged or summed."
+msgstr "Conservar por defecto el primer valor no ausente en el orden de origen; los identificadores no pueden promediarse ni sumarse."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For four pathogens with areas 1, 2, 4 and 8, total pathogen area is 15. A mean intensity is the mean of the four object measurements, not an intensity recalculated from all their pooled pixels. Inspect the rule shown for each column when its name does not describe its measurement convention."
+msgstr "Para cuatro patógenos con áreas 1, 2, 4 y 8, el área total de patógenos es 15. Una intensidad media es la media de las cuatro mediciones de objetos, no una intensidad recalculada a partir de todos sus píxeles agrupados. Inspeccione la regla de cada columna cuando su nombre no describa la convención de medición."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The default nucleus join retains only matching base observations. Pathogen and organelle joins retain uninfected cells. Missing measurements remain missing, including a sum for which every contributing value is missing. An absent intensity measurement is not converted to a measured zero. Child columns use table-qualified names where needed to distinguish them."
+msgstr "La unión predeterminada de núcleos conserva únicamente las observaciones base coincidentes. Las uniones de patógenos y orgánulos conservan las células no infectadas. Las mediciones ausentes siguen ausentes, incluida una suma en la que faltan todos los valores contribuyentes. Una medición de intensidad ausente no se convierte en un cero medido. Las columnas secundarias incorporan el nombre de la tabla cuando es necesario para distinguirlas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Available overrides depend on column values and role. Numeric measurements offer mean, median, sum, minimum, maximum, count and other compatible choices; text supports choices such as first/last, count and distinct count; Boolean-valued data also support **any** and **all**. **count** counts nonmissing values. Default one-to-one rows attach intact, so their aggregation controls are disabled until custom merging is selected."
+msgstr "Las opciones modificables dependen de los valores y la función de la columna. Las mediciones numéricas ofrecen media, mediana, suma, mínimo, máximo, recuento y otras opciones compatibles; el texto admite opciones como primero/último, recuento y recuento de valores distintos; los datos booleanos también admiten **cualquier** y **all**. **count** cuenta los valores no ausentes. Las filas uno a uno predeterminadas se adjuntan intactas, por lo que sus controles de agregación están desactivados hasta que se selecciona una combinación personalizada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Customize an alternative schema"
+msgstr "Personalizar un esquema alternativo"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Customize merging** when the database uses different table names, identifiers or deliberately different relationships. Choose the base and child tables in the main popup first. Mapping their actual columns does not rename or modify the source tables."
+msgstr "Elija **Personalizar la fusión** cuando la base de datos utilice nombres de tabla, identificadores o relaciones deliberadamente diferentes. Elija primero las tablas base y secundarias en el diálogo principal. Asignar sus columnas reales no cambia el nombre ni modifica las tablas de origen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The warning explains that incorrect relationships can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Read it and check **I understand the warning and will check the merge preview.** before accepting the custom settings. Acknowledgment does not bypass validation."
+msgstr "La advertencia explica que unas relaciones incorrectas pueden vincular objetos no relacionados, duplicar u omitir observaciones y cambiar las mediciones utilizadas en gráficos y compuertas. Léala y marque **Entiendo la advertencia y comprobaré la vista previa de la fusión.** antes de aceptar los ajustes personalizados. La confirmación no omite la validación."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Base observation keys** identify one unique, nonmissing base row. Include field and time columns when IDs repeat across images or timepoints."
+msgstr "**Claves de observación de base** identifica una fila base única y no ausente. Incluya columnas de campo y tiempo cuando los identificadores se repitan entre imágenes o momentos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each child row in the configuration specifies **Base keys** and **Child keys**. Enter comma-separated column names in matching order. For example, base ``image_id, cell_id`` can map to child ``image_id, parent_cell_id``."
+msgstr "Cada fila secundaria de la configuración especifica **Claves de la tabla base** y **Claves de la tabla secundaria**. Introduzca nombres de columna separados por comas en el orden correspondiente. Por ejemplo, las claves base ``image_id, cell_id`` pueden corresponder a las secundarias ``image_id, parent_cell_id``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **one-to-one** when at most one child row belongs to each base key, or **one-to-many** when several child rows must first be aggregated."
+msgstr "Elija **one-to-one** cuando a cada clave base le corresponda como máximo una fila secundaria, o **one-to-many** cuando primero haya que agregar varias filas secundarias."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A **left** join keeps unmatched base observations with missing child measurements. An **inner** join retains only matching observations. Child rows with missing join keys do not match a base row."
+msgstr "Una unión **izquierda** conserva las observaciones base sin correspondencia con mediciones secundarias ausentes. Una unión **inner** conserva solo las observaciones coincidentes. Las filas secundarias con claves de unión ausentes no coinciden con ninguna fila base."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Identifiers** to identify additional child columns that must not be treated as continuous measurements. Review the per-column aggregation controls in the main popup after accepting the mapping."
+msgstr "Use **Identificadores** para identificar columnas secundarias adicionales que no deben tratarse como mediciones continuas. Revise los controles de agregación por columna en el diálogo principal después de aceptar la asignación."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The popup now says **Custom rules active**. Validate and inspect the preview before creating the result. Duplicate base identities, contradictory one-to-one mappings, missing keys and incompatible operations produce an error. Repeated child keys can be expected in a one-to-many relationship; they require investigation when the relationship is supposed to be one-to-one."
+msgstr "El diálogo muestra ahora **Custom rules active**. Valide e inspeccione la vista previa antes de crear el resultado. Las identidades base duplicadas, las asignaciones uno a uno contradictorias, las claves ausentes y las operaciones incompatibles producen un error. Las claves secundarias repetidas pueden ser normales en una relación uno a muchos; requieren investigación cuando la relación debería ser uno a uno."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults."
+msgstr "**Cancelar** deja intacta la configuración anterior. **Reiniciar a valores predeterminados spaCR** elimina las relaciones personalizadas y las opciones modificadas. Cambiar las fuentes o la tabla de salida también reconstruye los valores predeterminados."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use, save and reload the result"
+msgstr "Usar, guardar y volver a cargar el resultado"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
+msgstr "En Graph Builder, coloque columnas del resultado en **X**, **Y**, color, tamaño o canales de facetas. En Gate Editor, use las columnas para umbrales, polígonos y otras formas de compuerta. Gate Editor puede mostrar una muestra según sus ajustes ``sample_fraction`` y ``max_points``; la exportación de compuertas evalúa toda la tabla combinada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."
+msgstr "La definición con nombre se guarda junto a su base de datos. Para ``measurements.db``, el archivo es ``measurements.db.spacr-merges.json``. Actualizar o volver a abrir la fuente hace que el resultado vuelva a estar disponible y lo recalcula a partir del origen. Es una receta reproducible, no una copia congelada de todas las filas del resultado. La reutilización comprueba la ruta de origen y los esquemas de las tablas seleccionadas. Una base de datos distinta o un esquema modificado requiere una asignación revisada de nuevo; las definiciones no se aplican silenciosamente a fuentes ajenas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save chart** in Graph Builder saves chart channels, the source and the full merge definition to JSON. **Load chart** reconstructs and validates the table before plotting. **Save gates…** also embeds the merge definition; load the original database before using **Load gates…**. These saved files can reconstruct the merge even if its sidecar is missing. They still require the original source data."
+msgstr "**Guardar gráfico** en Graph Builder guarda los canales del gráfico, la fuente y la definición completa de combinación en JSON. **Cargar gráfica** reconstruye y valida la tabla antes de dibujar. **Guardar regiones de selección…** también incorpora la definición de combinación; cargue la base de datos original antes de usar **Cargar regiones de selección…**. Estos archivos guardados pueden reconstruir la combinación aunque falte su archivo auxiliar. Siguen necesitando los datos de origen originales."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export gates…** writes gate membership columns to the database's ``filters`` table, preserving the base object's identity. This explicit export is a database write; constructing and previewing a merge does not write into the source measurement tables. **Save graph** exports the Gate Editor figure as PNG or PDF, separately from saving its gating strategy."
+msgstr "**Exportar gates…** escribe columnas de pertenencia a compuertas en la tabla ``filters`` de la base de datos, conservando la identidad del objeto base. Esta exportación explícita escribe en la base de datos; construir y previsualizar una combinación no escribe en las tablas de mediciones de origen. **Guardar gráfico** exporta la figura de Gate Editor como PNG o PDF, por separado de guardar su estrategia de selección por compuertas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A custom result without verified spaCR image/object provenance remains usable for plotting and tabular gating. Image navigation, image annotation and gate export to the measurement database are unavailable for that result, with an explanation in the interface. Keep the saved chart or gating strategy for tabular reuse; column names alone cannot establish links to microscopy objects."
+msgstr "Un resultado personalizado sin procedencia de imagen/objeto spaCR verificada sigue siendo utilizable para gráficos y selección tabular por compuertas. La navegación por imágenes, la anotación de imágenes y la exportación de compuertas a la base de datos de mediciones no están disponibles para ese resultado, y la interfaz explica el motivo. Conserve el gráfico o la estrategia de compuertas guardados para reutilizarlos en tablas; los nombres de columna por sí solos no pueden establecer vínculos con objetos de microscopía."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Recover original filenames before labelling conditions"
+msgstr "Recuperar nombres originales de archivos antes de etiquetar condiciones"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
+msgstr "Si las imágenes se renombraron al formato Yokogawa, use **Fusionar nombres de archivo originales...** dentro de **Combinar tablas** para recuperar los nombres registrados durante la conversión. Seleccione ``conversion_map.csv``, un ``rename_log.csv`` antiguo, un ``channel_sorting_manifest.csv`` o una base de datos SQLite que contenga la tabla ``conversion_map``. El selector de archivos comienza cerca de una asignación conocida cuando encuentra una junto a la base de datos de mediciones o en sus carpetas superiores. La asignación debe contener relaciones registradas entre origen y salida; esta acción no deduce nombres de tratamientos a partir de imágenes renombradas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations."
+msgstr "Para añadir únicamente metadatos de nombres de archivo, seleccione solo la tabla que desea anotar. Se conservan todas las filas y columnas existentes, incluso en tablas sin identificadores de objetos spaCR. Para un resultado ya combinado, abra su diálogo de combinación para conservar las relaciones y la agregación revisadas al añadir la asignación de nombres de archivo. Si selecciona varias tablas de origen, primero se combinan las mediciones y después se adjuntan los nombres originales a las observaciones resultantes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Merge original filenames…** and select the mapping."
+msgstr "Pulse **Fusionar nombres de archivo originales...** y seleccione la asignación."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set a new **Result name**, then press **Validate and preview**."
+msgstr "Establezca un nuevo **Nombre del resultado** y pulse **Validar y previsualizar**."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the matched and unmatched row counts and the preview's ``original_filename`` and ``original_path`` columns."
+msgstr "Inspeccione los recuentos de filas coincidentes y no coincidentes y las columnas ``original_filename`` y ``original_path`` de la vista previa."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Create merged table**, then open **Annotate conditions** and choose ``original_filename`` as a rule's metadata column."
+msgstr "Pulse **Crear una tabla fusionada**, abra **Anotar las condiciones** y elija ``original_filename`` como columna de metadatos de una regla."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Several channels or z-planes belonging to one field produce a sorted, deduplicated list separated by a semicolon and a space in the new columns. They do not multiply the table's observations. Plate and timepoint identities remain distinct; ambiguous or conflicting identities cause validation to fail. Unmatched names remain blank. Existing ``original_filename`` or ``original_path`` columns are preserved by refusing to overwrite them."
+msgstr "Varios canales o planos z pertenecientes a un campo producen una lista ordenada y sin duplicados, separada por punto y coma y un espacio, en las nuevas columnas. No multiplican las observaciones de la tabla. Las identidades de placa y de momento permanecen diferenciadas; las identidades ambiguas o contradictorias hacen fallar la validación. Los nombres sin correspondencia quedan vacíos. Las columnas ``original_filename`` u ``original_path`` existentes se conservan al impedir que se sobrescriban."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``original_path`` is the path recorded in the mapping; the original files need not still exist at that location. Image files and source measurement tables are never renamed or rewritten by this action. Adding filename text does not establish missing microscopy object provenance."
+msgstr "``original_path`` es la ruta registrada en la asignación; no es necesario que los archivos originales sigan existiendo allí. Esta acción nunca renombra ni reescribe los archivos de imagen ni las tablas de mediciones de origen. Añadir texto de nombres de archivo no establece la procedencia de objetos de microscopía que falte."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping."
+msgstr "La combinación guardada registra la ubicación de la asignación y una suma de comprobación de su contenido. Para volver a abrir una combinación o un gráfico, la asignación debe seguir disponible y sin cambios. Si la tabla ``conversion_map`` está integrada, los cambios ajenos en otras tablas de la base de datos no invalidan la asignación. Si esta cambia, selecciónela de nuevo y valide un nuevo resultado antes de aplicarlo. **Eliminar la asignación de nombres de archivo** elimina el enriquecimiento del borrador sin borrar el archivo. **Reiniciar a valores predeterminados spaCR** también elimina la asignación del borrador."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Annotate experimental conditions in Graph Builder"
+msgstr "Anotar condiciones experimentales en Graph Builder"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Annotate conditions** adds annotation columns to the working table in Graph Builder. It works with a physical database table, a named derived table or an imported CSV/TSV. Use rules to assign labels or extract variable metadata, then compose a final column from those values. Every generated column is retained. These table operations do not require image links or write image annotations."
+msgstr "**Anotar las condiciones** añade columnas de anotación a la tabla de trabajo en Graph Builder. Funciona con una tabla física de base de datos, una tabla derivada con nombre o un CSV/TSV importado. Use reglas para asignar etiquetas o extraer metadatos variables y después componga una columna final a partir de esos valores. Se conserva cada columna generada. Estas operaciones tabulares no requieren vínculos con imágenes ni escriben anotaciones de imagen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
+msgstr "Abra **Anotar las condiciones**, asigne un nombre a **Columna de salida** y elija **Asignar valores**, **Extraer texto** o **Componer columna**. Las columnas de origen existentes no pueden sustituirse."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together."
+msgstr "Defina las reglas de valores, la extracción de texto o la composición para esa salida. Use **Añadir columna** para otra salida. Una expresión regular con grupos con nombre también puede crear varias columnas de metadatos a la vez."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect all generated values beside the source columns. **Preview assignments** reruns the check; edits also refresh the preview."
+msgstr "Inspeccione todos los valores generados junto a las columnas de origen. **Previsualizar las asignaciones** vuelve a ejecutar la comprobación; las modificaciones también actualizan la vista previa."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Resolve invalid rules, missing dependencies and conflicting assignments, then choose **Apply conditions**. Every generated column becomes available for chart channels and filtering. **Cancel** discards the draft changes."
+msgstr "Resuelva las reglas no válidas, las dependencias ausentes y las asignaciones contradictorias, y después elija **Aplicar condiciones**. Cada columna generada queda disponible para canales de gráficos y filtros. **Cancelar** descarta los cambios del borrador."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Extract several metadata columns from a filename"
+msgstr "Extraer varias columnas de metadatos de un nombre de archivo"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Extract text** and select the source column, such as ``original_filename``. A regular expression extracts the matching text into the output column. Select a named or numbered capture group to choose which part of the match becomes the value."
+msgstr "Elija **Extraer texto** y seleccione la columna de origen, como ``original_filename``. Una expresión regular extrae el texto coincidente a la columna de salida. Seleccione un grupo de captura con nombre o numerado para elegir qué parte de la coincidencia se convierte en el valor."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:"
+msgstr "Por ejemplo, este patrón describe ``HeLa_rep2_24h_DMSO.tif``:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The named groups describe four output columns: ``cell_type``, ``replicate``, ``timepoint`` and ``drug``. **Create columns from named groups** creates these outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and ``DMSO``. Another matching filename produces its own values; they are not fixed labels copied from the example. Adapt the pattern to your own filenames and inspect the preview before applying it."
+msgstr "Los grupos con nombre describen cuatro columnas de salida: ``cell_type``, ``replicate``, ``timepoint`` y ``drug``. **Crear columnas a partir de grupos con nombre** crea estas salidas a la vez. La fila de ejemplo produce ``HeLa``, ``rep2``, ``24h`` y ``DMSO``. Otro nombre de archivo coincidente produce sus propios valores; no son etiquetas fijas copiadas del ejemplo. Adapte el patrón a sus nombres de archivo e inspeccione la vista previa antes de aplicarlo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Extraction uses the first regex match. Nonmatching rows and missing or empty captures remain blank. Invalid patterns or capture groups stop the preview with an error. Existing source column names cannot be overwritten."
+msgstr "La extracción utiliza la primera coincidencia de la expresión regular. Las filas sin coincidencia y las capturas ausentes o vacías quedan en blanco. Los patrones o grupos de captura no válidos detienen la vista previa con un error. No pueden sobrescribirse los nombres de columnas de origen existentes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assign values with readable rules"
+msgstr "Asignar valores con reglas legibles"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string."
+msgstr "Elija **Asignar valores** cuando las filas coincidentes deban recibir un valor que usted escriba, como ``WildType`` o ``control``. Cada regla selecciona una columna, un operador y un valor de comparación. Los operadores incluyen contiene, no contiene, igual, distinto, comienza por, termina en y coincidencia de expresión regular. Los operadores de texto interpretan la puntuación literalmente; los de expresión regular la interpretan como un patrón. La comparación distingue mayúsculas y minúsculas. Los criterios de contenido, prefijo, sufijo y expresión regular necesitan texto no vacío. Use una expresión explícita ``.*`` para coincidir con todo texto no ausente, o igualdad con un valor vacío para coincidir con una cadena realmente vacía."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly."
+msgstr "Elija **se cumplen todas las reglas** cuando deban cumplirse todos los criterios, o **se cumple al menos una regla** cuando baste con uno. Los criterios pueden inspeccionar distintas columnas de origen o columnas generadas anteriormente. Por ejemplo, asigne ``control`` cuando ``drug`` sea igual a ``DMSO`` y ``cell_type`` sea igual a ``HeLa``. Los valores de origen ausentes no satisfacen un criterio negativo. Una cadena realmente vacía es un valor y puede compararse explícitamente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Several rules may assign the same value without a conflict. Different values assigned to one row in the same output column require resolution before Apply."
+msgstr "Varias reglas pueden asignar el mismo valor sin conflicto. Asignar valores diferentes a una fila en la misma columna de salida requiere resolver el conflicto antes de aplicar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compose the final column"
+msgstr "Componer la columna final"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Add an output column, name it ``condition`` or another name you choose, and select **Compose column**. Drag available columns into the composition field. Drag its tokens to change their order. Insert fixed text to add separators, prefixes or words between the values."
+msgstr "Añada una columna de salida, llámela ``condition`` o elija otro nombre y seleccione **Componer columna**. Arrastre columnas disponibles al campo de composición. Arrastre sus fichas para cambiar el orden. Inserte texto fijo para añadir separadores, prefijos o palabras entre los valores."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example above. Reordering the column tokens changes the result without changing their extraction rules. Fixed text is literal; it cannot execute code."
+msgstr "Por ejemplo, las fichas ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` producen ``HeLa_rep2_24h_DMSO`` para el ejemplo anterior. Reordenar las fichas de columna cambia el resultado sin modificar sus reglas de extracción. El texto fijo es literal; no puede ejecutar código."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A composition can reference original source columns and earlier generated columns. A missing or empty column value leaves the composed value blank. The preview shows all intermediate columns and the final column together. Applying, exporting or saving a new SQLite table retains every generated column and the editable recipe. The original measurements remain unchanged."
+msgstr "Una composición puede referenciar columnas originales y columnas generadas anteriormente. Un valor de columna ausente o vacío deja vacío el valor compuesto. La vista previa muestra juntas todas las columnas intermedias y la columna final. Aplicar, exportar o guardar una nueva tabla SQLite conserva cada columna generada y la receta editable. Las mediciones originales permanecen intactas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Build genotype, replicate and a combined condition"
+msgstr "Crear genotipo, réplica y una condición combinada"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Name the first **Output column** ``genotype`` and keep its mode set to **Assign values**. Use **Add condition** for its labels. Press **Add column** to create ``replicate`` with its own boxes. In each box, choose **Exact values** to enter lists of metadata values without writing a regular expression. For example:"
+msgstr "Llame ``genotype`` a la primera **Columna de salida** y mantenga el modo **Asignar valores**. Use **Añadir condición** para sus etiquetas. Pulse **Añadir columna** para crear ``replicate`` con sus propios recuadros. En cada recuadro, elija **Valores exactos** para introducir listas de valores de metadatos sin escribir una expresión regular. Por ejemplo:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Example annotation rules"
+msgstr "Ejemplos de reglas de anotación"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Output column"
+msgstr "Columna de salida"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Metadata column"
+msgstr "Columna de metadatos"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Included values"
+msgstr "Valores incluidos"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assigned label"
+msgstr "Etiqueta asignada"
+
+msgid "``genotype``"
+msgstr "``genotype``"
+
+msgid "``columnID``"
+msgstr "``columnID``"
+
+msgid "``c1,c2,c3``"
+msgstr "``c1,c2,c3``"
+
+msgid "``WildType``"
+msgstr "``WildType``"
+
+msgid "``c7,c4,c5,c6``"
+msgstr "``c7,c4,c5,c6``"
+
+msgid "``mutant``"
+msgstr "``mutant``"
+
+msgid "``replicate``"
+msgstr "``replicate``"
+
+msgid "``rowID``"
+msgstr "``rowID``"
+
+msgid "``r1,r4,r5,r6``"
+msgstr "``r1,r4,r5,r6``"
+
+msgid "``replicate 1``"
+msgstr "``replicate 1``"
+
+msgid "``r7,r9,r10``"
+msgstr "``r7,r9,r10``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect. Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign the same label may select the same row; two different labels in one output column require a correction before applying. Each output column has its own assignments, so a row can have both a genotype and a replicate."
+msgstr "Las entradas repetidas como ``c1,c1`` o ``r7,r7`` no tienen efecto adicional. La coincidencia exacta distingue ``c1`` de ``c10``. Dos reglas que asignan la misma etiqueta pueden seleccionar la misma fila; dos etiquetas diferentes en una columna de salida requieren una corrección antes de aplicar. Cada columna de salida tiene sus propias asignaciones, por lo que una fila puede tener tanto genotipo como réplica."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Add column**, name it ``condition``, and choose **Compose column**. Drag ``genotype`` into the composition field, insert a text token containing ``_``, then drag in ``replicate``. The token order determines the joining order. A row labelled ``WildType`` and ``replicate 1`` then receives ``WildType_replicate 1``. The label's space is retained. Column names, labels, component order and separator are editable; the example does not prescribe the names for your experiment."
+msgstr "Pulse **Añadir columna**, asígnele el nombre ``condition`` y elija **Componer columna**. Arrastre ``genotype`` al campo de composición, inserte una ficha de texto que contenga ``_`` y después arrastre ``replicate``. El orden de las fichas determina el orden de unión. Una fila etiquetada con ``WildType`` y ``replicate 1`` recibe entonces ``WildType_replicate 1``. Se conserva el espacio de la etiqueta. Los nombres de columnas, las etiquetas, el orden de componentes y el separador pueden editarse; el ejemplo no impone nombres para su experimento."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe."
+msgstr "Las reglas de combinación pueden usar columnas de origen o columnas de anotación creadas previamente. Sitúe las dependencias antes en el orden de columnas. Los componentes ausentes dejan vacío el valor combinado; no producen texto como ``nan``. Previsualice todas las columnas generadas antes de aplicar. Guardar un gráfico, exportar la tabla o guardar una nueva tabla SQLite anotada conserva la receta completa."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Rules and manual selection"
+msgstr "Reglas y selección manual"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Assign values**, choose **Regular expression** in a condition box to use its Include and Exclude fields. Choose **Manual rows only** to assign only the rows you drop into that box, without a comparison rule."
+msgstr "En **Asignar valores**, elija **Expresión regular** en un recuadro de condición para usar sus campos Include y Exclude. Elija **Solo filas asignadas manualmente** para asignar únicamente las filas que arrastre a ese recuadro, sin una regla de comparación."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically."
+msgstr "Encima de los recuadros de condiciones, **Ejemplos de columna** ofrece patrones copiables basados en los valores de la columna seleccionada. Elija un tipo de ejemplo, inspeccione o edite su texto, pulse **Copiar regex** y péguelo en el campo **Incluir** o **Excluir** de una condición. Copiar un ejemplo no cambia las reglas de las condiciones. Los signos de puntuación literales en los valores de muestra se escapan automáticamente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:"
+msgstr "Para nombres originales como ``drug_A_rep1.tif`` y ``control_rep1.tif``:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``drug_A|control`` matches either text."
+msgstr "``drug_A|control`` coincide con cualquiera de los dos textos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``drug_A_rep.`` allows one character after ``rep``."
+msgstr "``drug_A_rep.`` permite un carácter después de ``rep``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``drug_A.*rep`` allows any intervening text, including none."
+msgstr "``drug_A.*rep`` permite cualquier texto intermedio, incluido ninguno."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``^drug_A_rep1\\.tif$`` matches that entire value."
+msgstr "``^drug_A_rep1\\.tif$`` coincide con ese valor completo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``(?i)drug_a`` ignores letter case."
+msgstr "``(?i)drug_a`` ignora las diferencias entre mayúsculas y minúsculas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use Include to select the group and Exclude to remove exceptions, such as Include ``drug_A`` with Exclude ``failed|outlier``. A filename column containing several original names separated by semicolons is searched as one string, so a contains pattern can match any recorded name; a whole-value anchor applies to the entire combined string."
+msgstr "Use Include para seleccionar el grupo y Exclude para quitar excepciones, por ejemplo Include ``drug_A`` con Exclude ``failed|outlier``. Una columna de nombres de archivo que contiene varios nombres originales separados por punto y coma se busca como una sola cadena; un patrón de contenido puede coincidir con cualquier nombre registrado, mientras que un anclaje de valor completo se aplica a toda la cadena combinada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Patterns search the chosen column's displayed string values. They are case-sensitive unless the expression includes a flag such as ``(?i)``. Use anchors when the whole value must match: ``^A0[1-3]$`` selects wells ``A01``, ``A02`` and ``A03``. ``.*`` includes all nonmissing values in the chosen column. A blank Include expression selects no rows automatically."
+msgstr "Los patrones buscan en los valores mostrados como cadenas de la columna elegida. Distinguen mayúsculas y minúsculas salvo que la expresión incluya una bandera como ``(?i)``. Use anclajes cuando deba coincidir el valor completo: ``^A0[1-3]$`` selecciona los pocillos ``A01``, ``A02`` y ``A03``. ``.*`` incluye todos los valores no ausentes de la columna elegida. Una expresión Include vacía no selecciona filas automáticamente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Manual rows are added to the rows matched by Include. Exclude then removes matches from both sets, including rows you dropped manually. Missing metadata values do not match a regex; they can still be assigned manually."
+msgstr "Las filas manuales se añaden a las filas coincidentes con Include. Después Exclude elimina coincidencias de ambos conjuntos, incluidas las filas arrastradas manualmente. Los valores de metadatos ausentes no coinciden con una expresión regular; aun así, pueden asignarse manualmente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select multiple rows in the source table and drag them into a condition box. Use Shift for a range and Ctrl/Cmd for individual rows. Sorting by a column or using **Filter source metadata or preview conditions** changes the visible view, while assignments still refer to the original source rows. The filter box is a case-insensitive text search, separate from the condition regex rules. Dropping a row twice into the same box does not duplicate its assignment."
+msgstr "Seleccione varias filas en la tabla de origen y arrástrelas a un recuadro de condición. Use Mayús para un intervalo y Ctrl/Cmd para filas individuales. Ordenar por una columna o usar **Filtrar metadatos de origen o condiciones de la vista previa** cambia la vista visible, mientras que las asignaciones siguen referidas a las filas originales. El filtro es una búsqueda de texto que no distingue mayúsculas y minúsculas, independiente de las reglas de expresión regular de las condiciones. Arrastrar dos veces una fila al mismo recuadro no duplica su asignación."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Remove selected manual rows** or **Clear manual rows** to remove dropped memberships. An Include rule can still match those rows; change the rule or add an Exclude expression when they must leave the condition. **Remove condition** removes the whole box and its rules."
+msgstr "Use **Eliminar las filas manuales seleccionadas** o **Limpiar filas manuales** para quitar pertenencias añadidas arrastrando. Una regla Include puede seguir coincidiendo con esas filas; cambie la regla o añada una expresión Exclude cuando deban salir de la condición. **Eliminar condición** elimina todo el recuadro y sus reglas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A row may receive only one distinct label within each annotation column. If boxes assign different labels to it, the preview shows those competing labels and **Apply conditions** stays disabled. Adjust the include/exclude patterns or manual assignments until the overlap count is zero. No condition silently wins. Unmatched rows remain blank in the output column and remain present in the table."
+msgstr "Cada fila puede recibir una sola etiqueta distinta dentro de cada columna de anotación. Si los recuadros le asignan etiquetas diferentes, la vista previa muestra esas etiquetas en conflicto y **Aplicar condiciones** permanece desactivado. Ajuste los patrones de inclusión/exclusión o las asignaciones manuales hasta que el número de solapamientos sea cero. Ninguna condición prevalece silenciosamente. Las filas sin correspondencia quedan vacías en la columna de salida y permanecen en la tabla."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Reuse an annotation schema on another table"
+msgstr "Reutilizar un esquema de anotación en otra tabla"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Save schema** after the preview is valid. The JSON file retains the output-column names and order, extraction patterns and capture groups, matching rules, labels, and composition tokens. It contains the instructions for generating values, rather than a copy of the table or its generated values."
+msgstr "Elija **Guardar esquema** cuando la vista previa sea válida. El archivo JSON conserva nombres y orden de columnas de salida, patrones de extracción y grupos de captura, reglas de coincidencia, etiquetas y fichas de composición. Contiene las instrucciones para generar valores, no una copia de la tabla ni de sus valores generados."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open another table, choose **Annotate conditions**, then **Load schema** and select the JSON file. The new table may have different rows and values, but must provide the columns referenced by the schema. All outputs are previewed against this table. Inspect the values and any overlapping assignments before choosing **Apply conditions**. Loading alone does not change the working table."
+msgstr "Abra otra tabla, elija **Anotar las condiciones**, después **Cargar esquema** y seleccione el archivo JSON. La tabla nueva puede tener filas y valores distintos, pero debe proporcionar las columnas referenciadas por el esquema. Se previsualizan todas las salidas para esa tabla. Inspeccione los valores y los solapamientos de asignaciones antes de elegir **Aplicar condiciones**. La carga por sí sola no modifica la tabla de trabajo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Manually dragged row assignments are specific to their source table and are omitted from reusable schemas. The save result reports how many assignments were omitted. Manual-only condition boxes remain available as empty groups to fill for the new table. To preserve manual assignments for the original analysis, use **Save chart** or **Save annotated table…** instead."
+msgstr "Las asignaciones de filas arrastradas manualmente son específicas de su tabla de origen y se omiten en los esquemas reutilizables. El resultado del guardado informa cuántas asignaciones se omitieron. Los recuadros de condición exclusivamente manuales siguen disponibles como grupos vacíos para rellenarlos con la nueva tabla. Para conservar las asignaciones manuales del análisis original, use **Guardar gráfico** o **Guardar tabla anotada...**."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Malformed files, unsupported versions, unavailable columns, invalid patterns and invalid output dependencies leave the existing dialog draft unchanged. An existing source column cannot be overwritten by a schema output. Schema files are written atomically; saving a schema over the source table itself is refused. The file size limit is 8 MiB."
+msgstr "Los archivos mal formados, las versiones no admitidas, las columnas no disponibles, los patrones no válidos y las dependencias de salida no válidas dejan intacto el borrador del diálogo. Una salida del esquema no puede sobrescribir una columna de origen existente. Los archivos de esquema se escriben de forma atómica; se rechaza guardar un esquema sobre la propia tabla de origen. El límite de tamaño del archivo es 8 MiB."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Keep conditions with the analysis"
+msgstr "Conservar las condiciones junto con el análisis"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Reopen **Annotate conditions** to edit the current assignments. They survive table refreshes in the current Graph Builder session when the source is unchanged. Use **Save chart** to preserve the rules, manual assignments, output-column definitions and any merge definition with the chart. **Load chart** reconstructs the source and checks its identity before applying those labels."
+msgstr "Vuelva a abrir **Anotar las condiciones** para editar las asignaciones actuales. Se mantienen al actualizar la tabla en la sesión actual de Graph Builder si la fuente no cambia. Use **Guardar gráfico** para conservar con el gráfico las reglas, asignaciones manuales, definiciones de columnas de salida y cualquier definición de combinación. **Cargar gráfica** reconstruye la fuente y comprueba su identidad antes de aplicar esas etiquetas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saved conditions belong to the exact source table, including its row order, values and schema. Changed source data or a different merge definition requires reviewing and recreating the conditions. Sorting the dialog's view does not change that source identity. This check prevents saved manual selections from labelling unrelated rows after a source changes."
+msgstr "Las condiciones guardadas pertenecen a la tabla de origen exacta, incluidos su orden de filas, valores y esquema. Un cambio en los datos de origen o una definición de combinación diferente requiere revisar y recrear las condiciones. Ordenar la vista del diálogo no cambia esa identidad de origen. Esta comprobación impide que las selecciones manuales guardadas etiqueten filas ajenas después de cambiar la fuente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For a SQLite source, **Save annotated table…** saves the working values as a new physical table in the same database. The prompt **New table name (existing tables are preserved)** proposes the current table name followed by ``_annotated``. Existing tables, views and saved merged-table names cannot be overwritten; names beginning with ``sqlite_`` or ``_spacr_`` are reserved. This action adds a table and its annotation provenance while preserving the original measurement tables."
+msgstr "Para una fuente SQLite, **Guardar tabla anotada...** guarda los valores de trabajo como una nueva tabla física en la misma base de datos. El aviso **Nuevo nombre de la tabla (se conservan los tablas existentes)** propone el nombre de la tabla actual seguido de ``_annotated``. No pueden sobrescribirse tablas, vistas ni nombres de tablas combinadas guardadas existentes; los nombres que empiezan por ``sqlite_`` o ``_spacr_`` están reservados. Esta acción añade una tabla y la procedencia de sus anotaciones, conservando las tablas de mediciones originales."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved table is selected in the picker and can be loaded in other table screens, including Gate Editor. It contains a snapshot of the annotated values, unlike a derived merge that is recalculated from its inputs. Reopening it in Graph Builder restores editable condition rules when the saved rows and schema are unchanged. Save revised values under a new table name. Changed saved data are still readable, but old editable rules are not silently restored onto them. Image-specific actions continue to require appropriate object provenance."
+msgstr "La tabla guardada se selecciona en el selector y puede cargarse en otras pantallas tabulares, incluido Gate Editor. Contiene una instantánea de los valores anotados, a diferencia de una combinación derivada que se recalcula desde sus entradas. Volver a abrirla en Graph Builder restaura las reglas de condición editables cuando las filas y el esquema guardados no han cambiado. Guarde los valores revisados con un nombre de tabla nuevo. Los datos guardados modificados siguen siendo legibles, pero las reglas editables antiguas no se restauran silenciosamente sobre ellos. Las acciones específicas de imágenes siguen requiriendo una procedencia de objetos adecuada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export table…** writes the working table, including every annotation column, to a new CSV and records its source, merge definition and condition rules in ``<export>.csv.conditions.json``. It exports the working table rather than just a brushed selection. The original database or imported file is preserved, and exporting over that source path is refused. Reopening the CSV gives you its saved labels; use the saved chart to reopen the original source and editable condition rules."
+msgstr "**Exportar tabla...** escribe la tabla de trabajo, incluidas todas las columnas de anotación, en un CSV nuevo y registra su fuente, definición de combinación y reglas de condiciones en ``<export>.csv.conditions.json``. Exporta la tabla de trabajo, no solo una selección marcada interactivamente. La base de datos o el archivo importado original se conserva y se rechaza exportar sobre esa ruta de origen. Al volver a abrir el CSV se obtienen las etiquetas guardadas; use el gráfico guardado para volver a abrir la fuente original y las reglas de condiciones editables."
+
