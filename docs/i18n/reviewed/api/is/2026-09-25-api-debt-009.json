@@ -2510,7 +2510,9 @@
       "source_sha256": "c8e94f5cacf7fda58b3fa8d23e4f2e18af349831d3d7183e4b5c6f7b436cdf72",
       "context": "False when the program folds it on the user's behalf (item 471: a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
       "translation": "False þegar forritið brýtur saman fyrir hönd notandans (liður 471: lifandi forsýn sem opnast). Slíkt samanbrot er ekki munað milli endurræsinga, og hlustendunum er sagt það.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.foldable.Folder.set_shut#3",
@@ -2534,7 +2536,9 @@
       "source_sha256": "ec2222cb59ae6cbb6c53b544638e73e8c58e2683108291f0ae4b306d857fa018",
       "context": "start folded unless the user opened this panel before (item 509: advanced rows that most people never change).",
       "translation": "byrja samanbrotið nema notandinn hafi opnað þetta spjald áður (liður 509: ítarlegar raðir sem flestir breyta aldrei).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.folding_summary.FoldingSummaryView.setReadOnly#2",
@@ -3825,7 +3829,9 @@
       "source_sha256": "ba4fe9d0fd56b23ff22c22769cc3813c0ad0d55c44e55772e75f18476fedab2a",
       "context": "build an installed backend again (item 518).",
       "translation": "byggja uppsettan bakenda aftur (liður 518).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.install_backend#6",
@@ -4758,7 +4764,9 @@
       "source_sha256": "9f5df3d601c570edb7c19f0e2332ea71cd19b0fbba16b2b435d739f41d24e3bd",
       "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. Item 473's raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
       "translation": "spaCR hafði þegar myndastriga sem aðlagast við hleðslu, dregur að með hjóli og hliðrast með drætti: eigin ``_FieldView`` QC-sjónsviðsvafrans. Gluggi liðar 473 fyrir hrátt á móti bættu þurfti það sama tvisvar, og þriðja afritið af \"QGraphicsView með pixmap-mynd í\" er leiðin til þess að kóðasafn endi með þrjú sem hegða sér á fínlega ólíkan hátt. Svo sýn sjónsviðsvafrans var flutt hingað óbreytt, undir heiti sem segir að hún sé sameiginleg, og vafrinn heldur áfram að nota hana undir gamla heitinu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#2",

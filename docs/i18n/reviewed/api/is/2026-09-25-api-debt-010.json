@@ -2676,7 +2676,9 @@
       "source_sha256": "ea2c524a335b5143cd5020eb02dde69bdd0ad5882bf127178d68721c59f05e5d",
       "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install (item 518).",
       "translation": "True þegar sóknin var hafin, eða þegar PDF-skrá sem þarf myndalesarann var svarað með uppsetningu hans (liður 518).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#7",
@@ -3696,7 +3698,9 @@
       "source_sha256": "15261313469c9c3e67f145132d2fe6448057d81da96d40e0f7f2952dd4fc23ac",
       "context": "Item 518: PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
       "translation": "Liður 518: PDFs eru lesnar í Figure-ham og skellumyndir í Plaque-ham, svo inntak fyrir hinn haminn biður um að skipta, og inntak fyrir báða spyr hvort eigi að lesa.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_question#3",

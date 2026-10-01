@@ -1962,7 +1962,9 @@
       "source_sha256": "072bce659d2996778747500ba3c7bbe5e5376a6afff0328d9bad6e44f37ddfce",
       "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements (item 512) go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
       "translation": "dálkurinn sem á að skrifa; athugasemdadálkurinn þegar honum er sleppt. Mat Annotate-skjámyndarinnar (liður 512) fer í ``<column>_verdict`` dálkinn í gegnum sama skrifara frekar en í gegnum aðra tengingu: einn skrifari, ein biðröð, ein röð. Lota fyrir annan dálk sem ekki er hægt að skrifa er geymd í ``_failed_extra`` undir dálki sínum, aðskilin frá ``_failed_batch``, svo athugasemdalotan haldi þeirri lögun sem hver lesandi hennar býst við.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.annotate_engine.add_colored_border#2",
@@ -4274,7 +4276,9 @@
       "source_sha256": "d048cede84fa699b4cfbae74d3065d82b8e540d4748c6a350f3e18b266038874",
       "context": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
       "translation": "Hamurinn fylgir því sem var sleppt (liður 518): PDFs, eða mappa með þeim, sem er sleppt í Plaque-ham biðja um að skipta í Figure-ham; myndir sem er sleppt í Figure-ham biðja um að skipta í Plaque-ham; PDFs og myndir saman segja að PDFs séu lesin í Figure-ham og myndir í Plaque-ham, og spyrja hvort eigi að lesa. Að vera áfram í Figure-ham les myndirnar sem myndir í grein; að vera áfram í Plaque-ham skilur PDFs eftir ólesin.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#4",

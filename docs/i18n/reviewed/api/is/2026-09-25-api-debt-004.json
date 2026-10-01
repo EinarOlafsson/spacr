@@ -3376,7 +3376,9 @@
       "source_sha256": "798d232e63aa0da820756129186df9d3bbf8aceded8617bd3fe318500fec424c",
       "context": "A panel in its default state is removed rather than stored. Most panels default to open, so storing that would grow the key-value mapping by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (item 509: the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
       "translation": "SPJALD Í SJÁLFGEFNU ÁSTANDI ER FJARLÆGT frekar en vistað. Flest spjöld eru sjálfgefið opin, svo að vista það myndi stækka orðabókina um eina færslu fyrir hvert spjald sem notandinn hefur nokkurn tíma snert og aldrei minnka hana. Spjald sem byrjar samanbrotið (liður 509: ítarlegu PSF-, endurheimtar- og CLAHE-raðirnar) sendir ``default_shut=True``, svo það að opna það er það sem vistast, sem False, og að brjóta það saman aftur gleymir því.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences.set_folded_panel#2",
