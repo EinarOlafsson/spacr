@@ -1,10 +1,10 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a3acb3d56217b54087148d2878efa6bce013ff9177d326bc4d388b3680bb96d5",
+  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -36,7 +36,8 @@
     "Ecco la tavolozza CMY. Puoi tornare a RGB dalle stesse impostazioni. Mantieni la stessa vista mentre confronti ed etichetti gli oggetti.",
     "Apri Annotator Agreement dall’icona in alto a destra per confrontare le colonne di annotazione. Usalo per trovare gli oggetti a cui diversi revisori hanno assegnato etichette diverse.",
     "Quando le etichette sono pronte, apri Train. Scegli le immagini per un classificatore di immagini, oppure le caratteristiche misurate per un classificatore tabellare. Le lezioni collegate su Classify spiegano le impostazioni di addestramento.",
-    "Suggest può proporti etichette da rivedere. Retrain aggiorna il modello dopo che hai aggiunto etichette, e Rounds ti aiuta a seguire questo ciclo di revisione. Controlla le etichette suggerite prima di accettarle.",
+    "Suggest propone etichette per i ritagli a cui non ha ancora risposto, quindi prima ha bisogno di esempi di entrambe le classi. Etichetti alcuni ritagli di ciascuna, qui dieci della classe uno e dieci della classe due, e passi alla pagina successiva per salvarli.",
+    "Poi apra Suggest e scelga Suggest for the images on this page. Ogni ritaglio suggerito porta un punto interrogativo: clicchi o prema Y per confermare, clic destro o N per rifiutare. Entrambe le risposte vengono registrate, i rifiuti addestrano il turno successivo e Rounds mostra come migliora il modello man mano.",
     "Generate annotation database crea un insieme di ritagli da dati di origine adatti. Usalo quando prepari un nuovo progetto di annotazione; l’esempio scaricato include già i ritagli e il database necessari qui.",
     "Apri Console per controllare i messaggi di caricamento dell’origine e di salvataggio. La tua colonna di annotazione è salvata nel database del progetto e si può selezionare quando prepari i dati di addestramento in Classify.",
     "Per un aiuto su un’impostazione, apri spaCR AI in Console dopo aver configurato un fornitore in Preferences. Quando hai finito di etichettare, prosegui con Classify usando il tuo progetto e la colonna di annotazione scelta."

@@ -1,10 +1,10 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
+  "english_sha256": "fd729b5ee7ddf2a66468231a860d549a59b4c972fc409b9cf15d583aaf66bb13",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Fullfør en Timelapse-kjøring, eller last ned og pakk ut SYNTHETIC_motility_tracks.zip. Velg mappen som inneholder merged. Eksemplet har åtte bilder, kjerneintensitet i kanal 0, celleintensitet i kanal 1, sporede cellemasker i plan 2 og kjernemasker i plan 3. Det har verken patogenmaske eller fysisk kalibrering.",
   "scenes": [
-    "Fra Home åpner du Measure og bruker deretter Time for å åpne Motility Assay. Begynn med sporede bilder fra Timelapse, eller last ned eksempelarkivet nedenfor for å følge med.",
+    "Fra Home åpner du Measure og velger deretter Motility Assay øverst til høyre. Begynn med sporede bilder fra Timelapse, eller last ned eksempelarkivet nedenfor for å følge med.",
     "Pakk ut eksemplet og sett Source til mappen som inneholder merged. Velg cells som sporede objekter, kjernekanal 0 og cellekanal 1. La patogenkanalen være uinnstilt i dette eksemplet.",
     "Slå på Live for å åpne Motility preview, og velg den samme prosjektmappen. Bruk forhåndsvisningen til å undersøke spor og prøve filtre før du kjører hele analysen. La Propagate settings være av mens du prøver midlertidige valg.",
     "Angi to intensitetskanaler, sporet maskeplan 2 og patogenmaskeplan −1, som betyr ingen. Forhåndsvis alle de åtte bildene. I forhåndsvisningen setter du begge kalibreringsverdiene til 0 for dette ukalibrerte eksemplet, og klikker deretter på Run preview.",

@@ -27,6 +27,17 @@ capture_stage=$(realpath -- "$capture_stage")
 capture_python=$(realpath --no-symlinks -- "$capture_python")
 capture_mount=/tmp/spacr-tutorials
 capture_network=()
+# A fixed display (SPACR_TUTORIAL_XVFB_SERVER=93) keeps parallel recorders apart.
+capture_display=(-a)
+# Extra read-only inputs a recorder reads beside its stage, as "SRC:DEST" pairs
+# (e.g. a retained catalog or synthetic database at DEST=/tmp/catalog).
+capture_binds=()
+for capture_pair in ${SPACR_TUTORIAL_EXTRA_RO_BINDS:-}; do
+    capture_binds+=(--ro-bind "${capture_pair%%:*}" "${capture_pair#*:}")
+done
+if [[ -n ${SPACR_TUTORIAL_XVFB_SERVER:-} ]]; then
+    capture_display=(-n "$SPACR_TUTORIAL_XVFB_SERVER")
+fi
 if [[ ${SPACR_TUTORIAL_OFFLINE:-0} == 1 ]]; then
     capture_network=(--unshare-net)
 fi
@@ -58,11 +69,11 @@ exec "$capture_repo/tools/run_capped.sh" "${SPACR_TUTORIAL_MEMORY_CAP:-6G}" \
     bwrap --unshare-user --uid 65534 --gid 65534 "${capture_network[@]}" \
     --bind / / --dev-bind /dev /dev --proc /proc --tmpfs /nas_mnt \
     --ro-bind "$capture_repo" /tmp/spacr-code --chdir /tmp/spacr-code \
-    --bind "$capture_stage" "$capture_mount" \
+    --bind "$capture_stage" "$capture_mount" "${capture_binds[@]}" \
     --ro-bind "$capture_stage/passwd" /etc/passwd \
     --unsetenv HOME --unsetenv USER --unsetenv LOGNAME \
     --unsetenv USERNAME --unsetenv SUDO_UID --unsetenv PKEXEC_UID -- \
     env CUDA_VISIBLE_DEVICES= PYTHONUNBUFFERED=1 \
     OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
-    xvfb-run -a -s '-screen 0 3840x2160x24' "$capture_python" \
+    xvfb-run "${capture_display[@]}" -s '-screen 0 3840x2160x24' "$capture_python" \
     tools/tutorials/capture_refresh.py --stage "$capture_mount" --platform xcb "$@"

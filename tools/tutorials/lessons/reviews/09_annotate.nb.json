@@ -1,10 +1,10 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a3acb3d56217b54087148d2878efa6bce013ff9177d326bc4d388b3680bb96d5",
+  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -36,7 +36,8 @@
     "Her er CMY-paletten. Du kan gå tilbake til RGB via de samme innstillingene. Hold visningen lik mens du sammenligner og merker objekter.",
     "Åpne Annotator Agreement fra ikonet øverst til høyre for å sammenligne annoteringskolonner. Bruk det til å finne objekter der kontrollører har satt ulike merkelapper.",
     "Når merkelappene er klare, åpner du Train. Velg bilder for en bildeklassifikator eller målte egenskaper for en tabellklassifikator. De koblede Classify-leksjonene forklarer treningsinnstillingene.",
-    "Suggest kan foreslå merkelapper som du går gjennom. Retrain oppdaterer modellen etter at du har lagt til merkelapper, og Rounds hjelper deg å følge denne gjennomgangssyklusen. Kontroller foreslåtte merkelapper før du godtar dem.",
+    "Suggest foreslår merker for utsnittene du ikke har besvart ennå, så det trenger først eksempler på begge klassene. Merk en håndfull av hver, her ti i klasse én og ti i klasse to, og gå til neste side slik at de lagres.",
+    "Åpne deretter Suggest og velg Suggest for the images on this page. Hvert foreslåtte utsnitt får et spørsmålstegn: klikk på det eller trykk Y for å bekrefte, høyreklikk eller trykk N for å avvise. Begge svarene registreres, avvisninger trener neste runde, og Rounds viser hvordan modellen blir bedre underveis.",
     "Generate annotation database lager et sett med utsnitt fra egnede kildedata. Bruk det når du forbereder et nytt annoteringsprosjekt; det nedlastede eksemplet inneholder allerede utsnittene og databasen som trengs her.",
     "Åpne Console for å kontrollere meldinger om innlasting av kilden og lagring. Annoteringskolonnen din lagres i prosjektdatabasen og kan velges når du forbereder treningsdata i Classify.",
     "For hjelp med en innstilling åpner du spaCR AI i Console etter å ha satt opp en leverandør i Preferences. Når du er ferdig med merkingen, fortsetter du til Classify med prosjektet og den valgte annoteringskolonnen."

@@ -181,3 +181,127 @@ def test_an_unknown_file_kind_is_refused(tmp_path):
     other.write_bytes(b"\0")
     with pytest.raises(ill.IlluminationError, match="not a vendor"):
         ill._vendor_illumination(str(other), [0], verbose=False)
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_bare_booleans_and_empty_values_survive_the_lenient_reader():
+    parsed = ill._lenient_profile_json(
+        "{Character: NonFlat, Fitted: true, Note: , Missing: null}")
+    assert parsed == {"Character": "NonFlat", "Fitted": True, "Note": "",
+                      "Missing": None}
+    with pytest.raises(ill.IlluminationError, match="could not be parsed"):
+        ill._lenient_profile_json("{Coefficients: [[1.0}")
+
+
+def test_only_polynomial_profiles_are_evaluated():
+    profile = _profile(FOREGROUND[1])
+    profile["Profile"]["Type"] = "Spline"
+    with pytest.raises(ill.IlluminationError, match="is not supported"):
+        ill._harmony_surface(profile)
+
+
+def test_unreadable_xml_is_refused(tmp_path):
+    broken = tmp_path / "Index.idx.xml"
+    broken.write_text("<Root><unclosed></Root>")
+    with pytest.raises(ill.IlluminationError, match="could not be read as XML"):
+        ill._vendor_illumination(str(broken), [0], verbose=False)
+
+
+def test_profiles_are_numbered_by_entry_or_by_order_and_flat_ones_skipped(
+        tmp_path):
+    """A blob without a Channel takes its entry's ChannelID, or failing that
+    the next number; a profile with no foreground polynomial is skipped."""
+    no_channel = {k: v for k, v in _blob(1).items() if k != "Channel"}
+    flat = dict(_blob(2), Foreground={"Character": "Flat"})
+    path = tmp_path / "Index.idx.xml"
+    path.write_text(
+        '<Root><Entry ChannelID="3"><FlatfieldProfile>'
+        + json.dumps(no_channel) + '</FlatfieldProfile></Entry>'
+        '<FlatfieldProfile>' + json.dumps(no_channel)
+        + '</FlatfieldProfile>'
+        '<FlatfieldProfile>' + json.dumps(flat) + '</FlatfieldProfile></Root>')
+    profiles = ill._harmony_profiles(str(path))
+    assert sorted(profiles) == [2, 3]
+
+
+def test_a_harmony_channel_without_a_background_gets_a_zero_offset(tmp_path):
+    blob = dict(_blob(1))
+    del blob["Background"]
+    path = tmp_path / "Index.idx.xml"
+    path.write_text('<Root><Entry><FlatfieldProfile>' + json.dumps(_blob(2))
+                    + '</FlatfieldProfile></Entry><Entry><FlatfieldProfile>'
+                    + json.dumps(blob) + '</FlatfieldProfile></Entry></Root>')
+    model = ill._vendor_illumination(str(path), [0, 1], verbose=False)
+    darkfield = model.fields[ill.ALL_PLATES].darkfield
+    assert not darkfield[0].any() and darkfield[1].any()
+
+
+def test_a_reference_image_read_from_npy_or_czi(tmp_path, monkeypatch):
+    plane = np.full((H, W), 2.0)
+    np.save(tmp_path / "flat.npy", np.stack([plane, plane * 2]))
+    model = ill._vendor_illumination(str(tmp_path / "flat.npy"), [1],
+                                     verbose=False)
+    assert model.fields[ill.ALL_PLATES].flatfield.shape == (1, H, W)
+    with pytest.raises(ill.IlluminationError, match="plane\\(s\\), but merged"):
+        ill._vendor_illumination(str(tmp_path / "flat.npy"), [5],
+                                 verbose=False)
+
+    czi = tmp_path / "shading.czi"
+    czi.write_bytes(b"not a czi")
+    import sys
+    import types
+
+    fake = types.ModuleType("czifile")
+    fake.imread = lambda path: plane[None, None]
+    monkeypatch.setitem(sys.modules, "czifile", fake)
+    assert ill._vendor_reference_image(str(czi)).shape == (1, H, W)
+    monkeypatch.setitem(sys.modules, "czifile", None)
+    with pytest.raises(ill.IlluminationError, match="needs czifile"):
+        ill._vendor_reference_image(str(czi))
+
+
+def test_a_reference_image_that_is_broken_or_not_a_plane_is_refused(tmp_path):
+    bad = tmp_path / "flat.tif"
+    bad.write_bytes(b"not a tiff")
+    with pytest.raises(ill.IlluminationError, match="could not be read"):
+        ill._vendor_reference_image(str(bad))
+    np.save(tmp_path / "cube.npy", np.ones((2, 3, 4, 5)))
+    with pytest.raises(ill.IlluminationError, match="expected one plane"):
+        ill._vendor_reference_image(str(tmp_path / "cube.npy"))
+
+
+def test_a_missing_file_no_channels_mixed_sizes_or_a_zero_gain_are_refused(
+        tmp_path):
+    with pytest.raises(ill.IlluminationError, match="does not exist"):
+        ill._vendor_illumination(str(tmp_path / "gone.xml"), [0],
+                                 verbose=False)
+    np.save(tmp_path / "flat.npy", np.ones((H, W)))
+    with pytest.raises(ill.IlluminationError, match="at least one channel"):
+        ill._vendor_illumination(str(tmp_path / "flat.npy"), [],
+                                 verbose=False)
+    zero = np.ones((H, W))
+    zero[0, 0] = 0.0
+    np.save(tmp_path / "zero.npy", zero)
+    with pytest.raises(ill.IlluminationError, match="not strictly positive"):
+        ill._vendor_illumination(str(tmp_path / "zero.npy"), [0],
+                                 verbose=False)
+    small = dict(_blob(2))
+    small["Foreground"] = _profile(FOREGROUND[2])
+    small["Foreground"]["Profile"]["Dims"] = [W // 2, H // 2]
+    small["Background"] = _profile(BACKGROUND[2])
+    small["Background"]["Profile"]["Dims"] = [W // 2, H // 2]
+    path = tmp_path / "Index.idx.xml"
+    path.write_text('<Root><FlatfieldProfile>' + json.dumps(_blob(1))
+                    + '</FlatfieldProfile><FlatfieldProfile>'
+                    + json.dumps(small) + '</FlatfieldProfile></Root>')
+    with pytest.raises(ill.IlluminationError, match="differ in size"):
+        ill._vendor_illumination(str(path), [0, 1], verbose=False)
+
+
+def test_reading_a_profile_says_so_when_verbose(tmp_path, capsys):
+    path = _write_index(tmp_path / "Index.idx.xml")
+    ill._vendor_illumination(str(path), [0], verbose=True)
+    assert "illumination field read from vendor profile" in capsys.readouterr().out

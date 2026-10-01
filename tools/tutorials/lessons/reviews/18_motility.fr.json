@@ -1,10 +1,10 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
+  "english_sha256": "fd729b5ee7ddf2a66468231a860d549a59b4c972fc409b9cf15d583aaf66bb13",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Terminez une exécution de Timelapse, ou téléchargez et extrayez SYNTHETIC_motility_tracks.zip. Sélectionnez le dossier qui contient merged. L’exemple comporte huit images, l’intensité nucléaire dans le canal 0, l’intensité cellulaire dans le canal 1, les masques de cellules suivies dans le plan 2 et les masques de noyaux dans le plan 3. Il n’a ni masque de pathogène ni calibration physique.",
   "scenes": [
-    "Depuis Home, ouvrez Measure, puis utilisez Time pour ouvrir Motility Assay. Commencez avec des images suivies issues de Timelapse, ou téléchargez l’archive d’exemple ci-dessous pour suivre la leçon.",
+    "Depuis Home, ouvrez Measure, puis choisissez Motility Assay en haut à droite. Commencez avec des images suivies issues de Timelapse, ou téléchargez l’archive d’exemple ci-dessous pour suivre la leçon.",
     "Extrayez l’exemple et réglez Source sur le dossier qui contient merged. Choisissez cells comme objets suivis, le canal nucléaire zéro et le canal cellulaire un. Laissez le canal des pathogènes non défini pour cet exemple.",
     "Activez Live pour ouvrir Motility preview et choisissez le même dossier de projet. Utilisez l’aperçu pour examiner les trajectoires et essayer des filtres avant de lancer l’analyse complète. Laissez Propagate settings désactivé pendant que vous explorez des choix temporaires.",
     "Réglez deux canaux d’intensité, le plan de masque suivi sur deux et le plan de masque des pathogènes sur moins un, c’est-à-dire aucun. Prévisualisez les huit images. Dans l’aperçu, réglez les deux valeurs de calibration sur zéro pour cet exemple non calibré, puis cliquez sur Run preview.",

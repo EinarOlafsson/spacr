@@ -1205,6 +1205,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 585, 2026-09-30: the arrayed-assay planner's readout and condition
 # pickers and its plan/load error lines (alpha); "Load plan…" already has
 # a row.
+# 603, 2026-09-30: Preferences' Tooltip delay row and its explanation.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # Spaceout (2026-09-30): the Magnifier size slider and the tour path's
     # new description (the camera now glides to detail it measures).
@@ -1231,41 +1232,10 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "detail runs out, and at the end of a dive it glides back "
     "up. Dragging the view stops the tour; Ctrl+R hands the "
     "camera back to it.",
-    # The Make Masks button re-layout (2026-09-30); reviewed records exist
-    # (tenth-pass make-masks-layout), awaiting the catalog rebuild.
-    "Map where the segmentation of this field is least sure, or rank the "
-    "open fields with the most uncertain first. The same menu as the "
-    "Uncertainty button on the bottom row; four detection runs per field.",
-    "The arrow offers a sample of each training dataset a published model "
-    "was trained on, with its masks, to edit here.",
-    "Toxoplasma vacuoles (test data)",
-    "Training dataset: {name}",
-    "Upload data",
-    "Upload data: send images and their masks to a community training dataset.",
-    "Upload data…",
+    "Tooltip delay",
+    "Seconds the pointer rests on a control before its tooltip appears. 0 "
+    "shows tooltips at once. Default 2.0 s.",
     "Control percentile",
-    "Gate files",
-    "Saved Gate Editor gate files, separated by semicolons.",
-    "API reference",
-    "API reference — reads {settings}",
-    "Preferences ▸ {tab}",
-    "Reads {settings}.",
-    "{summary} Reads {settings}.",
-    "Column naming the treatment when the pilot holds more than one: "
-    "components are pooled within conditions, and with a replicate column "
-    "the replicate-by-condition variance, which pairing does not cancel, is "
-    "estimated. Default empty.",
-    "Condition column",
-    "Continuous",
-    "Could not load the plan: {error}",
-    "Could not plan the design: {error}",
-    "Count per cell",
-    "How the measurement behaves. A proportion's or a count's cell variance "
-    "follows its mean, so the effect is the signed change from the pilot "
-    "mean. Default Continuous.",
-    "Proportion (0 or 1 per cell)",
-    "Readout",
-    "Replicate-by-condition variance {value}.",
 })
 
 

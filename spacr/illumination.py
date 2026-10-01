@@ -1072,10 +1072,6 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
                 f"{[c + 1 for c in missing]}.")
         planes = [profiles[c + 1]['foreground'] for c in channels]
         backgrounds = [profiles[c + 1]['background'] for c in channels]
-        if any(b is not None for b in backgrounds):
-            darkfield = np.stack(
-                [np.zeros_like(planes[i]) if b is None else b
-                 for i, b in enumerate(backgrounds)]).astype(np.float32)
         estimator = 'harmony'
         degree = max(profiles[c + 1]['degree'] for c in channels)
     elif suffix in _VENDOR_IMAGE_SUFFIXES:
@@ -1102,6 +1098,10 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
         raise IlluminationError(
             f"the profiles in {path!r} differ in size between channels "
             f"({sorted(shapes)}); one correction cannot cover them all.")
+    if suffix == '.xml' and any(b is not None for b in backgrounds):
+        darkfield = np.stack(
+            [np.zeros_like(planes[i]) if b is None else b
+             for i, b in enumerate(backgrounds)]).astype(np.float32)
     flatfield = np.stack(planes).astype(np.float32)
     low = float(flatfield.min())
     if not np.isfinite(low) or low <= 0:

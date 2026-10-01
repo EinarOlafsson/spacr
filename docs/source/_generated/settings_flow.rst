@@ -3545,7 +3545,7 @@ Read by ``_write_confluency_record``, ``measure_crop``, ``_compute_confluency_pr
 confluency_source
 -----------------
 
-(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model trained on phase-contrast images of eight cell lines, for phase contrast and brightfield. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.
+(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.
 
 | ``_measure_crop_core``
 |     ``_measure_field_confluency``
