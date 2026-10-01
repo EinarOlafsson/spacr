@@ -1,12 +1,22 @@
-"""Find every older spaCR on this computer, and remove the installer-made ones.
+"""Find spaCR installations and run the appropriate update or removal procedure.
 
-An update or an install runs three steps, in this order, whether it starts
-from the in-app **Check for updates** or from a native installer:
+The standard replacement procedure runs three steps in order:
 
 1. find old spaCR files -- :func:`find_old_installs`
 2. delete old spaCR files -- :func:`remove_install`
 3. install new spaCR -- :func:`run_update_sequence` runs the install only
    after step 2 removed every installer-made copy.
+
+In-app updates use a different procedure for supported macOS installations.
+An online installation upgrades spaCR in its existing Python environment
+using its bundled ``uv`` executable. It keeps the environment, bootstrap
+files, application launcher, and installed packages that need no update.
+It verifies the installed spaCR version before restarting the application.
+
+A supported frozen macOS application uses a verified DMG replacement and
+retains its complete previous application bundle. These macOS update paths
+do not run the standard deletion procedure. Other frozen application
+families require a supported replacement adapter before an update can start.
 
 Removal never runs an old version's own uninstaller, so a copy whose
 ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed
@@ -1205,8 +1215,8 @@ def remove_install(record: InstallRecord, *, ticked: bool = False,
     ``ticked``; the environment itself stays. A source checkout is skipped.
 
     The running copy is not removed here, because on Windows an installation
-    cannot delete itself while it runs: :func:`start_update_helper` removes
-    it after spaCR has closed.
+    cannot delete itself while it runs. :func:`start_update_helper` runs the
+    appropriate update procedure after spaCR has closed.
 
     :param record: an installation from :func:`find_old_installs`.
     :param ticked: whether the user ticked this environment for removal.
@@ -2406,7 +2416,9 @@ def _reinstall_steps(record: InstallRecord, version: str, workdir: str,
     """Return how the new version replaces an installer-made copy.
 
     :param record: the running installer-made copy.
-    :param version: the version to install.
+    :param version: Release selected for a replacement installer. For a macOS
+        online upgrade, the minimum acceptable version after an unpinned
+        package upgrade.
     :param workdir: the helper's folder, outside every installation.
     :param machine: the computer.
     :returns: ``(fetch, install, relaunch)``: the installer download, the
@@ -2665,14 +2677,22 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                         ticked: Iterable[str] = (), pid: Optional[int] = None,
                         workdir: Optional[str] = None, system=None,
                         spawn=None) -> Dict:
-    """Hand deleting and installing to a process that outlives spaCR.
+    """Run an installation update in a process that outlives spaCR.
 
-    Used when the running spaCR is itself an installer-made copy, which on
-    Windows cannot delete itself while it runs. The helper waits for this
-    process to exit, downloads the new installer, removes every older copy
-    including the one that was running, runs the installer, and starts the new
-    version. If any installer-made copy cannot be removed, nothing is
-    installed and the reason is written to the update log.
+    The running spaCR must be an installer-made copy. The helper waits for
+    this process to exit before changing the installation.
+
+    For a supported macOS online installation, use the existing bundled
+    ``uv`` and private Python to upgrade spaCR in the same environment.
+    Preserve the environment directory, bootstrap files, application launcher,
+    and installed packages that need no update. Restart only after verifying
+    that the installed version is at least ``version`` and newer than the
+    previous version, when that previous version is known. A failed upgrade
+    or version check does not trigger removal or a replacement installer.
+
+    The standard replacement path downloads the new installer, removes older
+    installer-made copies, installs the new version, and starts it. If any
+    required removal fails, skip installation and write the reason to the log.
 
     :param records: installations from :func:`find_old_installs`.
     :param version: the version to install.

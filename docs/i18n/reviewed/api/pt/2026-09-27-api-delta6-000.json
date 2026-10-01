@@ -1,24 +1,24 @@
 {
-  "schema": 1,
   "language": "pt",
-  "review_kind": "AI technical review (Codex), no native-speaker signoff",
   "note": "API delta 6, items 47/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
   "records": [
     {
-      "label": "spacr.install_cleanup.start_update_helper#10",
+      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
+      "label": "spacr.install_cleanup.start_update_helper#12",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
       "source_sha256": "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759",
-      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
-      "translation": "Um pacote de aplicativo macOS congelado em um local no qual o usuário pode gravar usa seu adaptador de substituição por DMG verificado e mantém o pacote anterior completo. As outras famílias de aplicativos congelados retornam um erro antes de remover qualquer coisa; o programa auxiliar não habilita uma alternativa por instalador on-line para esses aplicativos.",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "Um pacote de aplicativo macOS congelado em um local no qual o usuário pode gravar usa seu adaptador de substituição por DMG verificado e mantém o pacote anterior completo. As outras famílias de aplicativos congelados retornam um erro antes de remover qualquer coisa; o programa auxiliar não habilita uma alternativa por instalador on-line para esses aplicativos."
     },
     {
+      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
       "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "An accepted close also joins the owned backdrop renderer. Showing the screen again creates a fresh backdrop from the current settings.",
       "source_sha256": "90b9bbc56d70e06f3d9b420eba571bf6e6feaa6fdfef03c90449e01033cd8b88",
-      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
-      "translation": "Quando o fechamento é aceito, também se aguarda o término do renderizador de fundo pertencente a essa tela. Ao exibir a tela novamente, um novo fundo é criado com base nas configurações atuais.",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "Quando o fechamento é aceito, também se aguarda o término do renderizador de fundo pertencente a essa tela. Ao exibir a tela novamente, um novo fundo é criado com base nas configurações atuais."
     }
-  ]
+  ],
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "schema": 1
 }

@@ -3098,12 +3098,12 @@ def lock_analysis(settings: Dict[str, Any], *, app_key: str,
         JSON-compatible form.
     :param files: further files the plan depends on.
     :param note: anything else worth keeping with the plan.
-    :param gates: Gate Editor gating strategies the plan depends on: a gate
-        set, its dict, a saved gate file, a list of these, or a mapping from
-        a label to one. Gate files named by any setting are taken as well.
-        A gate file is checked on every run; gates handed over as objects
-        are checked when :func:`check_analysis_lock` is given them under the
-        same label.
+    :param gates: Strategies for selecting measurement rows. Accept a gate
+        set, its dictionary representation, a saved strategy file, a list of
+        these values, or a mapping from labels to these values. Also include
+        strategy files referenced by settings. Check strategy files on every
+        run. To check a strategy supplied as an object, pass it to
+        :func:`check_analysis_lock` using the same label.
     :param models: ``{name: checkpoint path}`` for the models the analysis
         loads, under the names the pipeline records them by.
     :param pipelines: further pipelines of the same plan, as
@@ -3396,11 +3396,11 @@ def check_analysis_lock(settings: Dict[str, Any], *, app_key: str,
                         gates: Any = None) -> Dict[str, Any]:
     """Check a run's settings against its preregistered analysis lock.
 
-    The lock is the newest one :func:`lock_analysis` made covering
-    ``app_key`` on the settings' ``src``, unless one is passed. The lock is
-    first checked against its own hash, so an edited lock file is caught;
-    then every setting, every hashed file and every locked gating strategy
-    is compared.
+    Use the supplied analysis plan, or find the newest plan created by
+    :func:`lock_analysis` for ``app_key`` and the settings' ``src``.
+    Check the plan against its stored hash to detect changes to the file.
+    Then compare each setting, each hashed file, and each recorded strategy
+    for selecting measurement rows.
 
     Each difference is stamped with when it was first seen (kept beside the
     lock), and it is post-hoc only when it was first seen after a blinding

@@ -423,7 +423,10 @@ class MergeTablesDialog(QDialog):
         self._selection_changed()
 
     def validate_preview(self):
-        """Materialize the full merge off-thread and expose counts and sample rows."""
+        """Calculate the full merged table in a background task.
+
+        Show its row counts and example rows after validation succeeds.
+        """
         self._invalidate()
         try:
             definition = self.configuration()

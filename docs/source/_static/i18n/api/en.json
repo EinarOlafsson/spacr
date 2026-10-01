@@ -7967,10 +7967,11 @@
     "spacr.condition_annotations": {
       "source_blocks_sha256": [
         "a48b5fc12bb53272b7a4977df0de0b3fcc6e3f3db41cb687c435fe9ef924f9c1",
-        "90d7574658c0e89efc43fd1d6cf36d184f2f5d60a5681c2281fe78a9466c5244"
+        "11eae6fdc773feb5b55c4dbe7288da2c8625f50a3a4dc9d241ff67dbe461c78c",
+        "7106ed2a12479c1e903e71d8d039695cf8c755bba9209b57fdef72216d2c5c5a"
       ],
-      "source_sha256": "1b5edef5713be3493d36de305fd8ada248dbc745987d47c45e396197b7d543cb",
-      "text": "Reproducible condition labels on an unchanged source table.\n\nAssignments use content-bound positional row tokens, never pandas index labels\nor the sorted/filtered row number shown by a view. Definitions retain their\nsource, selected table, schema, full ordered content fingerprint, regex rules\nand manually selected tokens. A changed source is refused before any labels\nare applied. Source measurements are never overwritten."
+      "source_sha256": "c167b4317a9d2be5be9e4f28d9c7032d3097616a44baa87aaaf918bd7a15de3a",
+      "text": "Reproducible condition labels on an unchanged source table.\n\nAssignments use content-bound positional row tokens, never pandas index labels\nor the sorted/filtered row number shown by a view. Definitions retain their\nsource, selected table, schema, full ordered content fingerprint, metadata\nrules, and manually selected tokens. A changed source is refused before any\nlabels are applied. Source measurements are never overwritten.\n\nVersion 1 defines one label column. Version 2 defines ordered label columns\nand combinations. Version 3 also extracts text with regular expressions,\ntests metadata with readable comparison rules, and composes values from\nordered column references and fixed text. Each output may use source columns\nand earlier outputs, but cannot replace a source column."
     },
     "spacr.condition_annotations.AnnotationError": {
       "source_blocks_sha256": [
@@ -7996,11 +7997,11 @@
     "spacr.condition_annotations.annotation_columns": {
       "source_blocks_sha256": [
         "8b47252404c18af241e69dddd6a33d4e7e68b7565be310cdd7aa04963d8605a9",
-        "ece78fba4a10ddf84fe773cec1b9fffccf141a618fe7e13e78cd32de5fcd3fd5",
+        "0b1e60af15be8b473a6fa0ac15481f8ae5411bc4a139b8e6897964d9c3d41fb5",
         "2b46690d607a1e473cdc20a44e2f0d91162123c00960ed93b32ef9d8abb498f6"
       ],
-      "source_sha256": "2aced30119c844881faf5549eba0f990c651ca2014b8da1d4abbe5f76c9307cf",
-      "text": "Return the ordered output names from a legacy definition or recipe.\n\n:param definition: Version 1 condition definition or version 2 column recipe.\n:returns: Distinct, nonempty output names in recipe order."
+      "source_sha256": "70cd58de3f5fbec02772396ca60747c19265beb20ed7d0f42674b1559a62c325",
+      "text": "Return the ordered output names from a legacy definition or recipe.\n\n:param definition: Version 1 condition definition, or an ordered column\n    recipe using version 2 or 3.\n:returns: Distinct, nonempty output names in recipe order."
     },
     "spacr.condition_annotations.apply_conditions": {
       "source_blocks_sha256": [
@@ -8026,15 +8027,19 @@
     },
     "spacr.condition_annotations.preview": {
       "source_blocks_sha256": [
-        "02a132fb7e17a387c284fd63b02d8df25a1e27aa0bd5c41416ecb8d0b431995f",
-        "7bdcbb0c5af24060f43095cbd2bbb8c451e49edd9f4c66ee4f71ff864501d399",
+        "69c8570d42632c8768962e34f2bcc88c38dd926ec0bdf34f634fc1619987b24e",
+        "bba5f75704b28942bd7718532ca7bfa8c474bee778382d29610c39330f34898f",
+        "cc33aee31df7fc09d258da99ecfa6bfd8c072549950165f37bfe8a961ce6c24b",
+        "f8612b7f4d14542139c30fde86de1245e5370c5152862e751eb2db645ea104e0",
+        "e758ba8ba6c6b8daac0b875cc0d080968e7962a0718d626e8967d26d472320a3",
+        "58d27178e73a69ab7311c8dc01fced86d4901675c59d1d93c41a35cc43c3efad",
         "66be453f942c13ed8f78dd12beb1ba0663d691c08e95628dbc930361ee57bbd1",
-        "8e15aaed95d500da40f914936a3f61a56d027726b0fef60bbf0c69d23472b8eb",
+        "344c4d6637bc02c6682f4e0bbab16bf48a97afcf9d18a03c8e53872d1b07c3e1",
         "21402f6e22009c0a2243e4b6ea4203231dd834077e9952ddbf38b702f6427bca",
         "ffda6618c0700219fd10ade7525aee26261a554b471e5e1667311fc0c680a422"
       ],
-      "source_sha256": "bab47032c58862b084cc463c235f4ed52c7ff7bd8d141353567168d1c6047535",
-      "text": "Evaluate ordered outputs without mutating the source or accepting conflicts.\n\nRegex or exact-value includes select metadata rows. Manual row assignments\njoin those selections, and excludes remove matches. Version 2 rules with the\nsame label are unioned; different labels within a column remain conflicts.\nCombinations may reference source columns and earlier recipe outputs only.\n\n:param frame: Original source frame, not a previously annotated copy.\n:param definition: Saved legacy rules or an ordered version 2 recipe.\n:param source: Current file/table/merge identity.\n:returns: ConditionPreview with all outputs and per-column diagnostics."
+      "source_sha256": "c50bd8fc610dce990a40f7b90d1055a72a8a23452a3c70a68cb86222cac6980b",
+      "text": "Evaluate ordered outputs and report conflicts without changing source data.\n\nRegex or exact-value includes select metadata rows. Manual row assignments\njoin those selections, and excludes remove matches, including manual rows.\nIn versions 2 and 3, combine selections that assign the same label.\nDifferent labels assigned to one row within a column remain conflicts.\n\nVersion 3 criteria can require all comparisons or any comparison to match.\nSupported comparisons include literal containment, equality, prefixes,\nsuffixes, and regular expressions. Containment, equality, and regex\ncomparisons also have negative forms. Missing metadata never matches,\nincluding negative comparisons. Matching is case-sensitive unless a regex\nexplicitly changes that behavior. Criteria for containment, prefixes,\nsuffixes, and regex matching require nonempty comparison text.\n\nAn empty legacy regex Include field selects no rows. This allows a rule\nthat assigns only its manually selected rows; an empty regex criterion\nin version 3 is invalid.\n\nVersion 3 extraction searches each value for the first regex match.\nReturn the selected numbered or named capture group; group zero returns\nthe entire match. An absent match or empty capture produces a missing value.\n\nCombinations join columns with a separator. Version 3 templates concatenate\nordered column references and fixed text. An empty or missing column value\nmakes the composed result missing. A template that produces empty text is\nalso missing. Outputs may reference source columns and earlier outputs only.\n\n:param frame: Original source frame, not a previously annotated copy.\n:param definition: Saved version 1 rules, or an ordered version 2 or 3 recipe.\n:param source: Current file/table/merge identity.\n:returns: ConditionPreview with all outputs and per-column diagnostics."
     },
     "spacr.condition_annotations.save_annotated_table": {
       "source_blocks_sha256": [
@@ -12867,11 +12872,12 @@
     },
     "spacr.derived_tables": {
       "source_blocks_sha256": [
-        "4cada122a4bc0fc56971842a1823501c990a258ec3b516e63ccc647ed099a869",
+        "2cfa617aa86d86bc226e5a0e57b3e2a8c68ec0f2c88d50f408190272cb3ebc10",
+        "b3c032f98928a2c2f2a302d38b3feaee13edbae5614a3b3a409436935b9ab34b",
         "723bda54c5244a0612702371bc6e36b415e68a7eb160dd9fbe76705359c4838b"
       ],
-      "source_sha256": "c484c0442e1eb9ab46b6d3fd05ef98138082a9f1d344337f7005eba3f62c5eda",
-      "text": "Reproducible, read-only derived tables shared by plotting and gating.\n\nDefault definitions delegate to :mod:`spacr.merge_tables`, the measurement\naggregation used by Regression. Custom definitions describe explicit joins\nonto unique base observations; children are aggregated before joining. JSON\nsidecars preserve definitions without altering source tables. A definition is\nbound to a canonical database path and the selected tables' column schemas."
+      "source_sha256": "dacc758f1e25696998635de18c42631a0b2a6dd384fbf7abe59a8200fe2dda68",
+      "text": "Recreate tables from saved definitions without changing input data.\n\nUse the same derived tables for charts and measurement filters.\n\nDefault definitions delegate to :mod:`spacr.merge_tables`, the measurement\naggregation used by Regression. Custom definitions describe explicit joins\nonto unique base observations; children are aggregated before joining. JSON\nsidecars preserve definitions without altering source tables. A definition is\nbound to a canonical database path and the selected tables' column schemas."
     },
     "spacr.derived_tables.allowed_methods": {
       "source_blocks_sha256": [
@@ -22304,15 +22310,17 @@
     },
     "spacr.install_cleanup": {
       "source_blocks_sha256": [
-        "fc72c12d5368fe8c1e458068f4cea0c92fb3305cd2a2c0b164e76e66a35f3f00",
-        "e8addc4ae0ad599dcbfc5d127f10148da39e82b6c48f7fe15cf2ecb4a44ab4fb",
+        "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
+        "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
         "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
+        "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
+        "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
         "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893"
       ],
-      "source_sha256": "a06170a8b2b0cbf279a309e7ee92d54e91928347cba7d25d730bcd7fc0563770",
-      "text": "Find every older spaCR on this computer, and remove the installer-made ones.\n\nAn update or an install runs three steps, in this order, whether it starts\nfrom the in-app **Check for updates** or from a native installer:\n\n1. find old spaCR files -- :func:`find_old_installs`\n2. delete old spaCR files -- :func:`remove_install`\n3. install new spaCR -- :func:`run_update_sequence` runs the install only\n   after step 2 removed every installer-made copy.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo]\n    python -I install_cleanup.py run-plan PLAN.json"
+      "source_sha256": "a7140f7f57d2bdb41d40a4c36b2ea25a813737e5057ebc0b867c350e6775bbef",
+      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe standard replacement procedure runs three steps in order:\n\n1. find old spaCR files -- :func:`find_old_installs`\n2. delete old spaCR files -- :func:`remove_install`\n3. install new spaCR -- :func:`run_update_sequence` runs the install only\n   after step 2 removed every installer-made copy.\n\nIn-app updates use a different procedure for supported macOS installations.\nAn online installation upgrades spaCR in its existing Python environment\nusing its bundled ``uv`` executable. It keeps the environment, bootstrap\nfiles, application launcher, and installed packages that need no update.\nIt verifies the installed spaCR version before restarting the application.\n\nA supported frozen macOS application uses a verified DMG replacement and\nretains its complete previous application bundle. These macOS update paths\ndo not run the standard deletion procedure. Other frozen application\nfamilies require a supported replacement adapter before an update can start.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo]\n    python -I install_cleanup.py run-plan PLAN.json"
     },
     "spacr.install_cleanup.InstallRecord": {
       "source_blocks_sha256": [
@@ -22366,15 +22374,15 @@
       "source_blocks_sha256": [
         "2b532f8660f6c200865a7c60727acd65daea951cffa01360369b54fb784c3f0e",
         "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
-        "a9653bfcfb994d827a61358cc2130db1d98ee6c09fcae986d61be3fdfbeb3ad6",
+        "f52072a1b49616e15acdb24b4dad1ea554ae869e24ff5497e82292c8cc1d8212",
         "697f2bf859f1f4c749e6749d315aba0ea5a26283f1769192f44a9457d2c3bc9f",
         "c349a54c16603802a98f5ec3c8aa72b3de6cad94ef39d46d34afa9e990e0bf0d",
         "168f9714cc4b89c880d2335fb7457443bd0d8527f9b18d71931970c6491f81c1",
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "e82d84566e43d71d630068922b9a66e43ba249b1ad02cbbd8b72285d992e566b"
       ],
-      "source_sha256": "d4da4db5af39b94a94a5a2410e669db524277b73ac7fa6235344f1187c84b313",
-      "text": "Remove one installation, without running its own uninstaller.\n\nAn installer-made copy is removed completely: its folder, launchers,\nshortcuts, menu entries and uninstall registrations. A Debian package is\nremoved through the package manager, and reported as needing\nadministrator rights when that is what stops it. From an environment the\nuser made, only the spaCR package is uninstalled, and only when\n``ticked``; the environment itself stays. A source checkout is skipped.\n\nThe running copy is not removed here, because on Windows an installation\ncannot delete itself while it runs: :func:`start_update_helper` removes\nit after spaCR has closed.\n\n:param record: an installation from :func:`find_old_installs`.\n:param ticked: whether the user ticked this environment for removal.\n:param keep: paths to leave in place, such as the log of the install\n    that is about to start.\n:param system: the computer; ``None`` means this one.\n:returns: what was removed, what could not be, and why."
+      "source_sha256": "61fb9a18ee523c1f9655e8b356a0ccbbfa40521558f838aff75c2185fb2631c8",
+      "text": "Remove one installation, without running its own uninstaller.\n\nAn installer-made copy is removed completely: its folder, launchers,\nshortcuts, menu entries and uninstall registrations. A Debian package is\nremoved through the package manager, and reported as needing\nadministrator rights when that is what stops it. From an environment the\nuser made, only the spaCR package is uninstalled, and only when\n``ticked``; the environment itself stays. A source checkout is skipped.\n\nThe running copy is not removed here, because on Windows an installation\ncannot delete itself while it runs. :func:`start_update_helper` runs the\nappropriate update procedure after spaCR has closed.\n\n:param record: an installation from :func:`find_old_installs`.\n:param ticked: whether the user ticked this environment for removal.\n:param keep: paths to leave in place, such as the log of the install\n    that is about to start.\n:param system: the computer; ``None`` means this one.\n:returns: what was removed, what could not be, and why."
     },
     "spacr.install_cleanup.run_update_sequence": {
       "source_blocks_sha256": [
@@ -22394,8 +22402,10 @@
     },
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
-        "53a4372d5ee733dcea5beb653cc2903c614acadd319e859a11ad2dcabec09aeb",
-        "4db8f45182e856b247dcc77a715e53910750bbda9d4389daecdaf8cdc0fecea6",
+        "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
+        "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
+        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
+        "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -22406,8 +22416,8 @@
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
         "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "826d63f21829c58371d1ca0c20316d118868819a14b529aacb6f0aa0a60b208c",
-      "text": "Hand deleting and installing to a process that outlives spaCR.\n\nUsed when the running spaCR is itself an installer-made copy, which on\nWindows cannot delete itself while it runs. The helper waits for this\nprocess to exit, downloads the new installer, removes every older copy\nincluding the one that was running, runs the installer, and starts the new\nversion. If any installer-made copy cannot be removed, nothing is\ninstalled and the reason is written to the update log.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nA frozen macOS bundle in a user-writable location uses its verified DMG\nreplacement adapter and retains its complete prior bundle. Other frozen\napplication families return an error before removing anything; the helper\ndoes not enable an online-installer fallback for these applications."
+      "source_sha256": "7036c695cf013f2260b456984cc02a023d51243732380a7e0c9b40cafb15c1bd",
+      "text": "Run an installation update in a process that outlives spaCR.\n\nThe running spaCR must be an installer-made copy. The helper waits for\nthis process to exit before changing the installation.\n\nFor a supported macOS online installation, use the existing bundled\n``uv`` and private Python to upgrade spaCR in the same environment.\nPreserve the environment directory, bootstrap files, application launcher,\nand installed packages that need no update. Restart only after verifying\nthat the installed version is at least ``version`` and newer than the\nprevious version, when that previous version is known. A failed upgrade\nor version check does not trigger removal or a replacement installer.\n\nThe standard replacement path downloads the new installer, removes older\ninstaller-made copies, installs the new version, and starts it. If any\nrequired removal fails, skip installation and write the reason to the log.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nA frozen macOS bundle in a user-writable location uses its verified DMG\nreplacement adapter and retains its complete prior bundle. Other frozen\napplication families return an error before removing anything; the helper\ndoes not enable an online-installer fallback for these applications."
     },
     "spacr.install_profile": {
       "source_blocks_sha256": [
@@ -33840,10 +33850,11 @@
     "spacr.original_filenames": {
       "source_blocks_sha256": [
         "c9779ef1be36c3f81b742a5b49db39f8012f5bb2e193db1d98dbb4a41c78a01b",
-        "6f49453a240d705607afc75fd2dc7053129a49318c0486c809b77a49c931efb9"
+        "432552d6668d7cd8fe3b185123bb187c829c84167ec80c701020eeee8c91c19b",
+        "bf77ae9e8174ac2352e3c76727917585e66281d1c3027239027585e8dd66935c"
       ],
-      "source_sha256": "a09ec6f79337a83ad4a011556bc04faf6ca685b1902a8f1db6b274c3849c56dd",
-      "text": "Recover original image names on measurement rows without changing sources.\n\nOnly spaCR conversion maps, legacy Yokogawa rename logs and channel-sorting\nmanifests are accepted. Channel/z contributions are grouped at field level;\ntimepoints and plates remain distinct. Images are never read; an embedded conversion_map table is read-only."
+      "source_sha256": "eb68dded7bd4b5e5e275c6ae4ac03ad2a8a1f390fc69f8eee9b3dd2949738a8d",
+      "text": "Recover original image names on measurement rows without changing sources.\n\nAccept spaCR conversion records, older Yokogawa rename logs, and records\nproduced by sorting image channels. Group records from image channels and\nz slices by microscope field. Keep timepoints and plates separate.\n\nDo not read image data. Read an embedded ``conversion_map`` table without\nmodifying it."
     },
     "spacr.original_filenames.discover_maps": {
       "source_blocks_sha256": [
@@ -58295,7 +58306,9 @@
         "b100953b648dee0da13118c718b50f3bbc6ec1848db3f4e790e8936ffa541e2d",
         "18e88c1de632fb65b473bfc7400fad34a4ec90391d438e4706e8845d7725da7d",
         "f654424b9dad1d2428a110aaba4ba932c73e9dd9d36832e1eb25d01f172ece69",
-        "6f431e7cfcfe7b1076a9cc3a4253151dc221ba1836977e1cbe8c9c464d081c03",
+        "b79fce7f05daba381a03f1531a7a0c00be0b0bb650596a399eba36889e294cea",
+        "163a29792aa91f074905f074d29d737bc1f341a21f08ce4534aa873fe5ff4656",
+        "eea63889a3493016cfcd725193772fc5b7ddf2eed01d385ade03b75821ad3ea5",
         "777cec7724e961ebd556bc885987088c4853a206dd3f0bc9d57635416f42ba26",
         "f2e07f4c4f4a7b317bdd09396ec936f51f62be2a1767fa5e83d3227345627dc0",
         "1f3de1f7408fc69b5b0d3e50c09aac04245ac1c893084fed33fe47ef75c13e51",
@@ -58304,8 +58317,8 @@
         "d817afd7af7b2b1deda426695a25f7fce5a937cc99f330485cd202de72c28739",
         "c5d1b4df1d2e90149574a5a81b450c98d9605bab862161e8ed5fd0a340eebc8e"
       ],
-      "source_sha256": "21de03d6e4218487765fbe7e8e39183858c6ebd912f34fb3c19565795fc46361",
-      "text": "V2 — Gate Editor: draw a region, name it, and it becomes a filter.\n\nThe flow-cytometry gesture, on spaCR measurement tables. Drag a threshold\nacross a histogram or a polygon round the cloud on a two-parameter scatter, name\nit, and the shape becomes a :class:`spacr.selection.DataFilter` clause that\nevery open view honours — the UMAP, the plate map, the crop grid, the Graph\nBuilder, Small Multiples.\n\n**What it is for.** Selecting a population by its measurements once Measure\nhas run: the cells above an intensity threshold, or one cluster in a\ntwo-feature scatter. Gates can sit inside other gates, and each shows its\nobject count and its percentage of both its parent gate and the whole table.\n\n**What it needs.** A measurement table: one table of a ``measurements.db``,\nwhere the object tables are offered first, or a CSV or TSV file. Several\ndatabases can be loaded as one table; plate identifiers that collide between\nthem are reported rather than silently pooled. Database tables are read as a\nsample set by ``sample_fraction`` and capped by ``max_points``, both in the\nGate Editor settings. **Merge tables** beside the table picker opens the same\nvalidated default/custom merge workflow as Graph Builder. Name the result,\ninspect row counts, unmatched records and the aggregation preview, then create\nit. Multiple child tables are aggregated independently onto composite image,\ntime and object keys. Saved gates embed the derived-table definition and\nreconstruct it against the same source/schema. Export evaluates the full merged\ntable and writes gates using the original base object's identity. External\ntabular merges remain gateable; image annotation/export are unavailable when\nimage/object provenance cannot be verified.\n\n**What it produces.** Threshold, rectangle, oval, polygon and wand gates on\none or two measurements, box, cylinder and prism gates in the 3D view, and\ncombinations of other gates. Publishing a gate narrows every linked view to\nthat population. The gating strategy saves to and loads from a JSON file\n(``gates.json`` by default) so that the next plate is gated the same way;\nExport writes each gate as a column of the ``filters`` table in the\nmeasurements database, and the graph saves as PNG or PDF. Exports compare the\nlive gates (including unsaved edits) with analysis locks holding their saved\nstrategy and record gate-specific verdicts in ``filter_export_provenance``.\nA missing lock never implies verification. This receipt covers exported gates;\nunrecorded merge definitions and unrelated pipeline settings are not verified.\n\n**What to do next.** Look at the gated population in the views that follow\nthe shared filter, such as Image UMAP, Graph Builder and the crop grid, and\nload the saved gating strategy on the next plate.\n\nAssembles:\n\n* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate\n  tools and the hierarchy with its percentages;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data\n  Filter, which the gate composes *onto* rather than replacing;\n* :class:`spacr.qt.widgets.formula_editor.FormulaPanel` — so a gate can be\n  drawn on a computed column;\n* Save / Load, because a gating strategy is the reusable part: the whole point\n  of a gate over a lasso is that it re-applies to the next plate.\n\n:func:`register` is not called at import; read its docstring."
+      "source_sha256": "15c96aee803bb1711654bff978796430503630e8777d85088b3b8a925b26ca3f",
+      "text": "V2 — Gate Editor: draw a region, name it, and it becomes a filter.\n\nThe flow-cytometry gesture, on spaCR measurement tables. Drag a threshold\nacross a histogram or a polygon round the cloud on a two-parameter scatter, name\nit, and the shape becomes a :class:`spacr.selection.DataFilter` clause that\nevery open view honours — the UMAP, the plate map, the crop grid, the Graph\nBuilder, Small Multiples.\n\n**What it is for.** Selecting a population by its measurements once Measure\nhas run: the cells above an intensity threshold, or one cluster in a\ntwo-feature scatter. Gates can sit inside other gates, and each shows its\nobject count and its percentage of both its parent gate and the whole table.\n\n**What it needs.** A measurement table: one table of a ``measurements.db``,\nwhere the object tables are offered first, or a CSV or TSV file. Several\ndatabases can be loaded as one table; plate identifiers that collide between\nthem are reported rather than silently pooled. Database tables are read as a\nsample set by ``sample_fraction`` and capped by ``max_points``, both in the\nGate Editor settings. **Merge tables** beside the table picker opens the same\nvalidated default/custom merge workflow as Graph Builder. Name the result,\ninspect row counts, unmatched records and the aggregation preview, then create\nit. Multiple child tables are aggregated independently onto composite image,\ntime and object keys. Saved gates embed the derived-table definition and\nreconstruct it against the same source/schema. Export evaluates the full merged\ntable and writes gates using the original base object's identity. External\ntabular merges remain gateable; image annotation/export are unavailable when\nimage/object provenance cannot be verified.\n\n**What it produces.** Select measurement rows with threshold, rectangle,\nellipse, polygon, or ``wand`` tools. Use box, cylinder, or prism shapes in\nthe 3D view. Combine existing gates to define additional populations.\nPublishing a gate restricts each linked view to its selected population.\n\nSave the selection strategy to a JSON file and load it for another plate.\nThe default filename is ``gates.json``. Export each gate as a column of the\n``filters`` table in the measurements database. Save the graph as PNG or PDF.\n\nBefore export, compare the current gates, including unsaved edits, with\nanalysis locks that contain their saved strategy. Record the verdict for\neach gate in ``filter_export_provenance``. A missing lock does not mean\nthe gates were verified. These records describe only the exported gates.\nThey do not verify unrecorded merge definitions or unrelated pipeline settings.\n\n**What to do next.** Look at the gated population in the views that follow\nthe shared filter, such as Image UMAP, Graph Builder and the crop grid, and\nload the saved gating strategy on the next plate.\n\nAssembles:\n\n* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate\n  tools and the hierarchy with its percentages;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data\n  Filter, which the gate composes *onto* rather than replacing;\n* :class:`spacr.qt.widgets.formula_editor.FormulaPanel` — so a gate can be\n  drawn on a computed column;\n* Save / Load, because a gating strategy is the reusable part: the whole point\n  of a gate over a lasso is that it re-applies to the next plate.\n\n:func:`register` is not called at import; read its docstring."
     },
     "spacr.qt.screens.gate_editor.GateEditorScreen": {
       "source_blocks_sha256": [
@@ -74346,10 +74359,11 @@
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview": {
       "source_blocks_sha256": [
-        "4b3aa67f3742bfa5f574e6bba1aa6141c74bd1656dde46fbbfb4a72f4435893e"
+        "74b20049e70500611cfa288e905e2a4e3ca60b2cdefae02cd92743169cb97392",
+        "5b90fed506681d69e2fd56844b0bf3cc233ce27b9e9204f87c0d0cf6b9f427e9"
       ],
-      "source_sha256": "4b3aa67f3742bfa5f574e6bba1aa6141c74bd1656dde46fbbfb4a72f4435893e",
-      "text": "Validate patterns and assignments off-thread before enabling Apply."
+      "source_sha256": "8074287eac8f213d18260c1a8118e9f22fc108a2b67653db1db8566502f084d6",
+      "text": "Check metadata rules and row labels in a background task.\n\nEnable the ``Apply`` button after validation succeeds without conflicts."
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.reject": {
       "source_blocks_sha256": [
@@ -91579,10 +91593,11 @@
     },
     "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.validate_preview": {
       "source_blocks_sha256": [
-        "184302d5a4c66ecf2951f8478c0bc330512e01191a99da6fe56d875815e7df9b"
+        "3540973afa5870b1c1927654c486f0410efbec77cfa24444ae71d78761c0573a",
+        "d8249bef179b8183bed0f5bee19eaf1ac7b60bcebb5014b0e2dfd5ba0d3c3d79"
       ],
-      "source_sha256": "184302d5a4c66ecf2951f8478c0bc330512e01191a99da6fe56d875815e7df9b",
-      "text": "Materialize the full merge off-thread and expose counts and sample rows."
+      "source_sha256": "955bcc2fa936f515d71ad1e4f8223b0a13463cbc7b71ca3b38c2e128aeafcb81",
+      "text": "Calculate the full merged table in a background task.\n\nShow its row counts and example rows after validation succeeds."
     },
     "spacr.qt.widgets.metadata_mapper": {
       "source_blocks_sha256": [
@@ -107251,7 +107266,7 @@
     "spacr.run_journal.check_analysis_lock": {
       "source_blocks_sha256": [
         "a7dab553cf176267f0dc83ae6090ff6b64dd890fcd37a0b970343a4cc8bb9a66",
-        "31b6f08effa0bb154920756a3b05b21674f528631602289a62e43370f6f75fe2",
+        "e008a76eb56576730597bfc7da805eb146a9c98ea7141736edd40c6dbbd7cf39",
         "0e9b1bd83a5212f9b03a777a393293d6e6846a585f641bfb4d9fcb08650910d2",
         "21c35046c8d05f886c15bdd8240f3c09c0e79b554dc0b7ae203f18b786ae19c0",
         "09f82ec376a95edec730570ef26a0339cd6171afc441c2382de7f6f3fa6212e1",
@@ -107259,8 +107274,8 @@
         "83e6764c0d22590aaddbe5d378fc6debe0fb82a03fc36fcb42173d43f87ad4fe",
         "10074b649025364697478b9f51d822bb0471c8b4b66bf5fce5e7d1234be82eac"
       ],
-      "source_sha256": "d2d207e2f5911543ba644b9082f315c95c4abc915026ba8733b6d1c662f0e66f",
-      "text": "Check a run's settings against its preregistered analysis lock.\n\nThe lock is the newest one :func:`lock_analysis` made covering\n``app_key`` on the settings' ``src``, unless one is passed. The lock is\nfirst checked against its own hash, so an edited lock file is caught;\nthen every setting, every hashed file and every locked gating strategy\nis compared.\n\nEach difference is stamped with when it was first seen (kept beside the\nlock), and it is post-hoc only when it was first seen after a blinding\nkey on a folder of the plan was opened: an edit made while still blind\nstays a deviation even when the run that uses it comes later.\n\n:param settings: the settings of the run being checked.\n:param app_key: the pipeline running them.\n:param lock: a lock record to check against instead of the newest one.\n:param gates: the Gate Editor gating strategies in use, for gates the\n    lock took as objects (see :func:`lock_analysis`).\n:returns: ``status`` -- ``\"unlocked\"`` (no lock applies),\n    ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every\n    change first seen while still blind), ``\"post_hoc\"`` (a change first\n    seen after a key on the plan's folders was unblinded),\n    ``\"not_preregistered\"`` (unchanged, but the lock was made after an\n    unblinding) or ``\"tampered\"`` (the lock no longer matches its hash)\n    -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``,\n    ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``,\n    ``first_seen_utc``, ``post_hoc``, and ``detail`` for gates),\n    ``unblinded_utc`` and a one-sentence ``summary``."
+      "source_sha256": "5a7cf43e8f22a1cf980039f133924a77361795d025270d186f876a7924b76354",
+      "text": "Check a run's settings against its preregistered analysis lock.\n\nUse the supplied analysis plan, or find the newest plan created by\n:func:`lock_analysis` for ``app_key`` and the settings' ``src``.\nCheck the plan against its stored hash to detect changes to the file.\nThen compare each setting, each hashed file, and each recorded strategy\nfor selecting measurement rows.\n\nEach difference is stamped with when it was first seen (kept beside the\nlock), and it is post-hoc only when it was first seen after a blinding\nkey on a folder of the plan was opened: an edit made while still blind\nstays a deviation even when the run that uses it comes later.\n\n:param settings: the settings of the run being checked.\n:param app_key: the pipeline running them.\n:param lock: a lock record to check against instead of the newest one.\n:param gates: the Gate Editor gating strategies in use, for gates the\n    lock took as objects (see :func:`lock_analysis`).\n:returns: ``status`` -- ``\"unlocked\"`` (no lock applies),\n    ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every\n    change first seen while still blind), ``\"post_hoc\"`` (a change first\n    seen after a key on the plan's folders was unblinded),\n    ``\"not_preregistered\"`` (unchanged, but the lock was made after an\n    unblinding) or ``\"tampered\"`` (the lock no longer matches its hash)\n    -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``,\n    ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``,\n    ``first_seen_utc``, ``post_hoc``, and ``detail`` for gates),\n    ``unblinded_utc`` and a one-sentence ``summary``."
     },
     "spacr.run_journal.current_run": {
       "source_blocks_sha256": [
@@ -107362,15 +107377,15 @@
         "fc63e888b1d52c57db4bfd324e65810dbfbba29f34361f37ca4ecde985adfaf8",
         "4a542f32b49e522cc1bc53100214caede0cb0ad59623ddab592f09bdd5a6794f",
         "0063f5e246bb561726b8d059577ccdb5c8807e677342a2eeacd3470d2c452a43",
-        "d72aaaa3f7c96e24c95d82afbadce1697625b231112f73391da0bfc7d34a18c5",
+        "c9e3b2ccb73fe6cfda5fd5d14029de4ed825f3f6acd7a86f8766d850e8f3f5d9",
         "3c4b8b275641a7e3a2dd87ceea44afd2afbb65818cd57aeb9880beaa85e8357d",
         "a7e6f1b731dd9b29d6deaca655cf8606d4590b79121ef9cded3512466e49ffa2",
         "07d8ff4c8fd4fc1d666e2a6174a9471f98898a75a1efce1495955d616fe8c72b",
         "e8932485173c773b75462c0aadd3759a958eb1e3852c7eb430e5b247100bcf96",
         "be7a364edec56cf8622a173492817885ba526e84a6bfb38c743c4ac441c563ba"
       ],
-      "source_sha256": "04c74f969b182ca2fc4f2ec7e43723d440025973e419d517008345a37726baef",
-      "text": "Freeze an analysis plan before its results are seen.\n\nThe settings, the stated hypotheses and thresholds, the SHA-256 of every\nmodel, gate or threshold file the settings name (plus ``files``), the\ngating strategies and the models are written with the time and the user\nto ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on\nevery journalled run of a locked pipeline on its ``src`` is checked\nagainst the newest lock by :func:`check_analysis_lock`, and every model a\nrun records is checked as it is recorded; the verdict goes into the\nrun's ``manifest.json``, and a difference is listed in the manifest's\nwarnings, the report and the methods text.\n\nA lock made after a blinding key on a folder it covers was unblinded is\nmarked as such, because it was not made blind.\n\n:param settings: the settings the analysis will run with.\n:param app_key: the pipeline it will run in, such as ``\"classify\"``.\n:param hypotheses: the hypotheses, in words.\n:param thresholds: the decision thresholds and gates, in any\n    JSON-compatible form.\n:param files: further files the plan depends on.\n:param note: anything else worth keeping with the plan.\n:param gates: Gate Editor gating strategies the plan depends on: a gate\n    set, its dict, a saved gate file, a list of these, or a mapping from\n    a label to one. Gate files named by any setting are taken as well.\n    A gate file is checked on every run; gates handed over as objects\n    are checked when :func:`check_analysis_lock` is given them under the\n    same label.\n:param models: ``{name: checkpoint path}`` for the models the analysis\n    loads, under the names the pipeline records them by.\n:param pipelines: further pipelines of the same plan, as\n    ``{app_key: settings}``; each is checked against its own settings on\n    its own ``src``, and one unblinding on any of their folders counts\n    for the whole plan.\n:returns: the stored lock, including ``lock_id``, ``locked_utc`` and\n    ``sha256``.\n:raises ValueError: when ``pipelines`` repeats ``app_key``, or ``gates``\n    holds something that is not a gating strategy.\n:raises FileNotFoundError: when a model in ``models`` is not a file."
+      "source_sha256": "e8a300f69ff73c7fb7a3598dfa61abe2177e74a2382d6867e9119fe87e666c59",
+      "text": "Freeze an analysis plan before its results are seen.\n\nThe settings, the stated hypotheses and thresholds, the SHA-256 of every\nmodel, gate or threshold file the settings name (plus ``files``), the\ngating strategies and the models are written with the time and the user\nto ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on\nevery journalled run of a locked pipeline on its ``src`` is checked\nagainst the newest lock by :func:`check_analysis_lock`, and every model a\nrun records is checked as it is recorded; the verdict goes into the\nrun's ``manifest.json``, and a difference is listed in the manifest's\nwarnings, the report and the methods text.\n\nA lock made after a blinding key on a folder it covers was unblinded is\nmarked as such, because it was not made blind.\n\n:param settings: the settings the analysis will run with.\n:param app_key: the pipeline it will run in, such as ``\"classify\"``.\n:param hypotheses: the hypotheses, in words.\n:param thresholds: the decision thresholds and gates, in any\n    JSON-compatible form.\n:param files: further files the plan depends on.\n:param note: anything else worth keeping with the plan.\n:param gates: Strategies for selecting measurement rows. Accept a gate\n    set, its dictionary representation, a saved strategy file, a list of\n    these values, or a mapping from labels to these values. Also include\n    strategy files referenced by settings. Check strategy files on every\n    run. To check a strategy supplied as an object, pass it to\n    :func:`check_analysis_lock` using the same label.\n:param models: ``{name: checkpoint path}`` for the models the analysis\n    loads, under the names the pipeline records them by.\n:param pipelines: further pipelines of the same plan, as\n    ``{app_key: settings}``; each is checked against its own settings on\n    its own ``src``, and one unblinding on any of their folders counts\n    for the whole plan.\n:returns: the stored lock, including ``lock_id``, ``locked_utc`` and\n    ``sha256``.\n:raises ValueError: when ``pipelines`` repeats ``app_key``, or ``gates``\n    holds something that is not a gating strategy.\n:raises FileNotFoundError: when a model in ``models`` is not a file."
     },
     "spacr.run_journal.open_run": {
       "source_blocks_sha256": [
@@ -109869,16 +109884,16 @@
         "342c0aadc8ed005d20afc2b6c5eedf1e2dea5a92485e5b894f612d91ac19dcba",
         "cbf7d145d48b5c0bcb31679c3856c297eee90f8be8eff53ad7038f540c4ade1e",
         "4fd9a8ec575ba3bbb403079947fd140f9f3fc0dc7518d25e7e7ce78825590e3f",
-        "dc486af15bc3843fc3cb9d562afc5bf444a67978bdd7a7e75edcfa2b47ec1607",
+        "0462c2b4755741381bd9b49ddbcda72c1f526ee1adcad37d435f54764daa9772",
         "d162804e7feb4e6e91224eaecc3515e01f40851ac440b737adf56899bce9b272",
         "27118736105a345dbfe17d2d8e3bf749b0fbd5604870603f53db1fefe1223a55",
         "0bd5c1eea2376f10eaf3ee1b4435784fadaae0f20a000f52bed1fc04e3250ff7",
         "155ba524fc152b8be353f2d95abf6d7c7f18fc06dc01958444e00a284858e2a1",
-        "eeece28df3f4f4734b94bdaa1535102914d291c0cf2ff58a66a68e9691a4474b",
+        "74045502865d03b13b3c4e2cdb554874d8d5114489db5c0ff71f516afbf421eb",
         "e1e0b97061c7c68475fb47db2612c0a808cfa4588aa0bfca9715853ece568a33"
       ],
-      "source_sha256": "356a5a67fee86738f6618ec33518285173a3fd11f1f4ae1903c380659334e2d8",
-      "text": "Score a bounded curation queue headlessly and persist its ranking.\n\n:param queue: an existing CurationQueue; only its pending selected fields run.\n:param model: primary model name or checkpoint, default cpsam.\n:param second_model: optional distinct second model; absent means four passes.\n:param device: explicit inference device, cpu by default.\n:param map_folder: optional folder for lossless maps and embedded provenance.\n:param parameters: inference overrides for diameter, normalize and thresholds.\n:param progress: optional callback receiving one completed field's stem.\n:param segmenter_factory: injectable model/device/parameters loader for tests.\n:returns: scored stem-to-result mapping without large pixel maps.\n:raises ValueError: for duplicate ensemble models or a field that cannot run."
+      "source_sha256": "dfa5ba8a03dcd90978126f20af1ddbdb6c6622a0e93fc2c338e58aa1f5f44fda",
+      "text": "Score a bounded curation queue headlessly and persist its ranking.\n\n:param queue: an existing CurationQueue; only its pending selected fields run.\n:param model: primary model name or checkpoint, default cpsam.\n:param second_model: optional distinct second model; absent means four passes.\n:param device: Device used for model predictions. The default is ``cpu``.\n:param map_folder: optional folder for lossless maps and embedded provenance.\n:param parameters: inference overrides for diameter, normalize and thresholds.\n:param progress: optional callback receiving one completed field's stem.\n:param segmenter_factory: injectable model/device/parameters loader for tests.\n:returns: Dictionary of score summaries keyed by image filename without\n    its extension. Each summary excludes the pixel map.\n:raises ValueError: for duplicate ensemble models or a field that cannot run."
     },
     "spacr.segmentation_uncertainty.compute_uncertainty": {
       "source_blocks_sha256": [

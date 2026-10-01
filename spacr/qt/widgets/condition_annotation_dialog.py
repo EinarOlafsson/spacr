@@ -1394,7 +1394,10 @@ class ConditionAnnotationDialog(QDialog):
             self.example.setText(tr("Preview to see source and generated values."))
 
     def refresh_preview(self):
-        """Validate patterns and assignments off-thread before enabling Apply."""
+        """Check metadata rules and row labels in a background task.
+
+        Enable the ``Apply`` button after validation succeeds without conflicts.
+        """
         self._timer.stop()
         self._jobs.cancel()
         self.apply_button.setEnabled(False)

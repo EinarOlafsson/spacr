@@ -2,9 +2,15 @@
 
 Assignments use content-bound positional row tokens, never pandas index labels
 or the sorted/filtered row number shown by a view. Definitions retain their
-source, selected table, schema, full ordered content fingerprint, regex rules
-and manually selected tokens. A changed source is refused before any labels
-are applied. Source measurements are never overwritten.
+source, selected table, schema, full ordered content fingerprint, metadata
+rules, and manually selected tokens. A changed source is refused before any
+labels are applied. Source measurements are never overwritten.
+
+Version 1 defines one label column. Version 2 defines ordered label columns
+and combinations. Version 3 also extracts text with regular expressions,
+tests metadata with readable comparison rules, and composes values from
+ordered column references and fixed text. Each output may use source columns
+and earlier outputs, but cannot replace a source column.
 """
 from __future__ import annotations
 
@@ -108,7 +114,8 @@ def _entries(definition):
 def annotation_columns(definition):
     """Return the ordered output names from a legacy definition or recipe.
 
-    :param definition: Version 1 condition definition or version 2 column recipe.
+    :param definition: Version 1 condition definition, or an ordered column
+        recipe using version 2 or 3.
     :returns: Distinct, nonempty output names in recipe order.
     """
     names = []
@@ -336,15 +343,36 @@ def _template_preview(frame, entry):
 
 
 def preview(frame, definition, source):
-    """Evaluate ordered outputs without mutating the source or accepting conflicts.
+    """Evaluate ordered outputs and report conflicts without changing source data.
 
     Regex or exact-value includes select metadata rows. Manual row assignments
-    join those selections, and excludes remove matches. Version 2 rules with the
-    same label are unioned; different labels within a column remain conflicts.
-    Combinations may reference source columns and earlier recipe outputs only.
+    join those selections, and excludes remove matches, including manual rows.
+    In versions 2 and 3, combine selections that assign the same label.
+    Different labels assigned to one row within a column remain conflicts.
+
+    Version 3 criteria can require all comparisons or any comparison to match.
+    Supported comparisons include literal containment, equality, prefixes,
+    suffixes, and regular expressions. Containment, equality, and regex
+    comparisons also have negative forms. Missing metadata never matches,
+    including negative comparisons. Matching is case-sensitive unless a regex
+    explicitly changes that behavior. Criteria for containment, prefixes,
+    suffixes, and regex matching require nonempty comparison text.
+
+    An empty legacy regex Include field selects no rows. This allows a rule
+    that assigns only its manually selected rows; an empty regex criterion
+    in version 3 is invalid.
+
+    Version 3 extraction searches each value for the first regex match.
+    Return the selected numbered or named capture group; group zero returns
+    the entire match. An absent match or empty capture produces a missing value.
+
+    Combinations join columns with a separator. Version 3 templates concatenate
+    ordered column references and fixed text. An empty or missing column value
+    makes the composed result missing. A template that produces empty text is
+    also missing. Outputs may reference source columns and earlier outputs only.
 
     :param frame: Original source frame, not a previously annotated copy.
-    :param definition: Saved legacy rules or an ordered version 2 recipe.
+    :param definition: Saved version 1 rules, or an ordered version 2 or 3 recipe.
     :param source: Current file/table/merge identity.
     :returns: ConditionPreview with all outputs and per-column diagnostics.
     """

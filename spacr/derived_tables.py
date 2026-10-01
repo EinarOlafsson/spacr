@@ -1,4 +1,6 @@
-"""Reproducible, read-only derived tables shared by plotting and gating.
+"""Recreate tables from saved definitions without changing input data.
+
+Use the same derived tables for charts and measurement filters.
 
 Default definitions delegate to :mod:`spacr.merge_tables`, the measurement
 aggregation used by Regression. Custom definitions describe explicit joins

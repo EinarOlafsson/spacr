@@ -1,8 +1,11 @@
 """Recover original image names on measurement rows without changing sources.
 
-Only spaCR conversion maps, legacy Yokogawa rename logs and channel-sorting
-manifests are accepted. Channel/z contributions are grouped at field level;
-timepoints and plates remain distinct. Images are never read; an embedded conversion_map table is read-only.
+Accept spaCR conversion records, older Yokogawa rename logs, and records
+produced by sorting image channels. Group records from image channels and
+z slices by microscope field. Keep timepoints and plates separate.
+
+Do not read image data. Read an embedded ``conversion_map`` table without
+modifying it.
 """
 from __future__ import annotations
 
