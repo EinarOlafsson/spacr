@@ -13,7 +13,8 @@ checked too.
 Done when: default 2 s; a hover shows no tooltip before the delay and does
 show one after it (Qt tests).
 
-Status: IMPLEMENTED 2026-09-30
+Status: REOPENED 2026-10-01 -- the setting exists (IMPLEMENTED 2026-09-30),
+but a 4 s delay is not honoured everywhere; see the 2026-10-01 section.
 
 What was built: a Tooltip delay slider (object name TooltipDelay, 0-10 s
 in 0.1 s steps, shown as "2.0 s" or "show immediately") under the Tooltips
@@ -36,3 +37,32 @@ tooltips; say so if they should wait as well.
 Left: the two new captions wait in _AWAITING_CATALOG_REBUILD. The
 "Tooltips" row's own explanation still says "for two seconds" (true by
 default); reword it at the next catalog pass.
+
+2026-10-01 -- REOPENED: A 4-SECOND DELAY STILL SHOWS TOOLTIPS AT ONCE
+
+Requested 2026-10-01 by the maintainer: "There is already a tooltip-delay
+setting. The user set it to 4 seconds, but tooltips appear immediately.
+Fix this throughout spaCR, not just in one window."
+
+Traced 2026-10-01 (read-only). The filter in spacr/qt/tooltip_policy.py
+honours prefs/tooltip_delay (seconds, converted to ms in
+_preferred_delay_ms). These paths do not:
+  a. AppScreen.eventFilter (screens/app_screen.py ~6737): the setting help
+     box (HoverTooltip.show_for) and the bottom strip open on Enter -- the
+     "left on purpose" note above. These ARE the tooltips a user sees on
+     every setting, so the maintainer's report is about them.
+  b. settings_model._ApiTooltipFilter (~4711), installed on six surfaces:
+     HoverTooltip on Enter, immediately.
+  c. widgets/object_settings_grid.py: HELP_SHOW_DELAY_MS = 350 hard-coded.
+  d. Dock rows -> bottom strip (widgets/dock.py DockRow.enterEvent),
+     hint_bar.py, and the category strip: immediate on Enter.
+  e. module_hints._ModuleHints: fires at Qt's own ~700 ms wake-up.
+  f. tooltip_policy.remaining_delay_ms subtracts Qt's full wake-up delay,
+     but Qt shortens its wake-up to ~20 ms for ~2 s after a tooltip, so
+     moving between controls showed the next tooltip early.
+Subtasks: one shared scheduler (single-shot QTimer, cancelled on
+Leave/Hide/Destroy/close, re-read on preference change) used by every
+hover path above; tests at 4 s, a short delay, 0, leave/re-enter, moving
+between controls, a widget created later, a setting change, and a widget
+destroyed with a pending timer. Click-to-open help panels and
+notifications keep their behaviour.

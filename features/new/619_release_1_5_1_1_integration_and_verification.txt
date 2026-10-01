@@ -1,0 +1,47 @@
+================================================================================
+RELEASE 1.5.1.1: TRACK, IMPLEMENT ON NIGHTLY, PROMOTE TO MAIN, VERIFY
+================================================================================
+
+Status:    in progress (filed 2026-10-01)
+Requested: 2026-10-01 -- "merge the complete, tested nightly branch into
+           main using the repository's permitted workflow ... The user
+           reports that nightly has already been bumped from 1.5.1.0 to
+           1.5.1.1 and expects merging into main to trigger an automatic
+           release. Verify the version and release workflow. Do not bump the
+           version again, downgrade a newer version, or create a duplicate
+           release."
+Owner:     1.5.1.1 implementation session (Claude)
+Covers:    611, 612, 603 (reopened), 614, 615, 616, 617, 618 (GitHub #134),
+           plus tests, settings, translations-pending captions and docs.
+           (613 is deliberately unused: the tooltip report reopened 603
+           rather than filing a duplicate.)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS (verified 2026-10-01)
+--------------------------------------------------------------------------------
+
+* Version: setup.py VERSION = "1.5.1.1" and spacr/_version.py = "1.5.1.1"
+  on nightly (52ddec096). main (09383fb35, protected) carries 1.5.1.0.
+  Latest GitHub release: v1.5.1.0 (2026-09-24). No v1.5.1.1 tag/release.
+* Trigger: .github/workflows/release.yml runs on a push to main that
+  touches setup.py, and only releases when VERSION differs from the
+  previous commit's (release_required). Promoting 1.5.1.1 therefore
+  triggers exactly one release; no manual tag or dispatch is needed.
+* Promotion: tools/promote_to_main.py (merge nightly into main, then drop
+  features/, skill/, proposals/, .claude/ from main's index). main is not
+  an ancestor of nightly; the tool settles conflicts inside the dropped
+  folders and stops on any other.
+* Open issues at start: one, #134 (item 618). Open PRs: none.
+
+--------------------------------------------------------------------------------
+STEPS
+--------------------------------------------------------------------------------
+
+1. Tracking commit to nightly (this file and 611-618, 603 reopened).
+2. Implement and test each item on nightly.
+3. Re-check issues; reprint the table.
+4. Promote with tools/promote_to_main.py --execute; push main through the
+   permitted path (main is protected -- a refused push is reported, not
+   bypassed).
+5. Observe the release workflow run, the tag and PyPI; record the state
+   actually seen.

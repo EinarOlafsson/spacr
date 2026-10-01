@@ -1,0 +1,40 @@
+================================================================================
+MAKE MASKS: SAVE MASK, PREVIOUS AND NEXT JOIN THE ACTION-BUTTON ROW
+================================================================================
+
+Status:    not started (filed 2026-10-01; scoped, see below)
+Requested: 2026-10-01 -- "Place Save mask, Previous, and Next on the same
+           horizontal row and vertical level as the other Make Masks action
+           buttons. They must not remain on a separate lower row."
+Owner:     1.5.1.1 implementation session (Claude)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr/qt/screens/make_masks.py, _build_ui (~8560-8661): the bottom bar
+`nav` (outer_row) holds the left toolbar strip (Open folder, Organize for
+Measure, Load test data, Uncertainty) and, right, _nav_curate_group
+(Discard, Keep, Skip, Blind, ROIs, Upload data). _nav_step_group (Save mask,
+Prev image, Next image) is put in _image_nav_row under the view tabs
+(~8659), i.e. a separate row. Item 600c's test
+(tests/qt/test_600_popup_layout_and_selection.py::
+test_the_maintainers_button_layout) pins that older layout and is updated
+by this item, since the maintainer has now asked for a single row.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Move _nav_step_group into outer_row with the same alignment as the other
+groups (keep the group widget so the three never wrap apart). Callbacks,
+shortcuts (Left/Right/Ctrl+S), enabled states and the recrop-before-navigate
+behaviour are unchanged. Keep the status label where it is.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The 600c layout test asserts one shared top y for toolbar, step and curate
+buttons at 1600x900 and at a narrow width, no overlap between groups, and
+that Save/Prev/Next still fire their slots.

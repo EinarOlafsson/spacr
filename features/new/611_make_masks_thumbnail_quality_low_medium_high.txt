@@ -1,0 +1,66 @@
+================================================================================
+MAKE MASKS: THUMBNAIL QUALITY -- LOW, MEDIUM AND HIGH
+================================================================================
+
+Status:    not started (filed 2026-10-01; scoped, see below)
+Requested: 2026-10-01 -- "The current Make Masks thumbnails are not
+           high-resolution enough. Add a user-facing quality setting with
+           three choices: Low: the current thumbnail resolution and behavior.
+           Medium: genuinely higher-resolution thumbnail data than Low. High:
+           genuinely higher-resolution thumbnail data than Medium, within the
+           available source-image resolution."
+Owner:     1.5.1.1 implementation session (Claude)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Make Masks' main canvas has no thumbnails. The thumbnails a Make Masks user
+sees are in the two popups opened from it:
+
+  * Organize for Measure (spacr/qt/widgets/organize_for_measure.py): its
+    table's "image" / "both" views draw each file through _CellDelegate,
+    fed by channel_sort_dialog._ThumbWorker (_load_thumbnails, ~2230).
+    The cell is sized by a persisted slider (32-320 px,
+    organize_for_measure/thumb_size).
+  * Sort into channels (spacr/qt/widgets/channel_sort_dialog.py): the list
+    icons and the "Are these sets right?" example grid, with the mask
+    overlaid in red (_grey_icon).
+
+Both decode through spacr.channel_sorting.thumbnail(path, THUMB) and
+mask_thumbnail(path, THUMB), with THUMB = 64. The decode keeps every
+ceil(max_side / 64)-th pixel (array[::step, ::step]) -- nearest-neighbour
+decimation, so a 2048 px field becomes a 64 px bitmap -- and the delegate
+then stretches that 64 px bitmap to the slider size (up to 320 px). That is
+why the thumbnails look soft and aliased. Nothing caches across popups;
+the delegate keeps one pixmap per path for the popup's life.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A preference "Thumbnail quality" (Low / Medium / High), persisted via
+   the normal QSettings store, default Low when absent. Exposed in the
+   popups' existing control row (beside the size slider) so it is where
+   the thumbnails are.
+2. Concrete decode sizes (longest side, source pixels permitting):
+     Low    = 64 px,  stride decimation -- byte-identical to today.
+     Medium = 256 px, area (block-mean) reduction of the original image.
+     High   = 768 px, area reduction of the original image.
+   Never upsampled beyond the source. Masks are reduced by a block
+   max/any, never interpolated, so no label value is invented and the
+   overlay stays aligned to the image grid (same step for both).
+3. Cache keyed by (path, quality); changing quality drops and reloads the
+   shown thumbnails off the GUI thread. Logical cell footprint is still the
+   size slider; quality changes pixels, not widget size.
+4. Display only: segmentation, saved masks, sources and measurements are
+   untouched.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/qt/test_611_thumbnail_quality.py: Low equals the old decode exactly;
+Medium/High have more pixels, bounded by the source; mask reductions only
+contain 0/255; switching quality re-decodes the shown cells; the choice
+survives a reload of the preference; default is Low.

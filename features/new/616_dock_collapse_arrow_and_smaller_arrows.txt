@@ -1,0 +1,52 @@
+================================================================================
+THE DOCK: A COLLAPSE/EXPAND ARROW ON ITS EDGE, AND EVERY HANDLE ARROW AT 75%
+================================================================================
+
+Status:    not started (filed 2026-10-01; scoped, see below)
+Requested: 2026-10-01 -- "Add a visible hide/collapse arrow on the dock line
+           or divider so the user can shrink/collapse the dock and expand it
+           again ... Reduce the visual size of all arrows on these dock
+           controls and corresponding collapse/expand handles by 25% relative
+           to their current size. The resulting size must be 75% of the
+           existing baseline, including the new control."
+Owner:     1.5.1.1 implementation session (Claude)
+Related:   529 (the dock edge resizes), 376/369/348 (dock layout).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The dock (spacr/qt/widgets/dock.py Dock / app.py Sidebar) has a resize
+divider, DockEdge (dock.py ~619-748): a 6 px grab area painting a 1 px line,
+drag 150-520 px, width saved in prefs/dock_width, double-click resets. It
+has no arrow and the dock cannot be collapsed from it; only Preferences'
+dock mode (locked/hidden, app.py apply_dock_mode) hides it.
+
+The collapse/expand handles that do carry arrows are CollapsibleSplitter's
+_PaneHandle (widgets/collapsible_splitter.py _paint_arrow ~537-586): a
+rounded tab with a chevron of half-size s = max(2, w // 4) and pen
+max(1, w // 6), w = handle width. Those chevrons are the baseline.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. One arrow geometry helper (Qt-free numbers + one painter) used by both
+   _PaneHandle and DockEdge, with ARROW_SCALE = 0.75 applied once to the
+   baseline formula (never multiplied again on repaint/resize).
+2. DockEdge paints a tab with a chevron pointing at the action (left =
+   collapse, right = expand). Clicking the tab (not a drag) collapses the
+   dock to zero width with the edge still visible; clicking again restores
+   the remembered width. Contents and section state are not rebuilt. The
+   state persists (prefs/dock_collapsed). Tooltip ("Collapse the dock" /
+   "Expand the dock") goes through the global tooltip delay (603).
+3. The click target stays the full tab; only the glyph shrinks.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/qt/test_616_dock_collapse_arrow.py: collapse/expand repeatedly keeps
+the rows and the width; collapsed edge stays visible and clickable; the
+arrow direction flips; chevron size equals 0.75 x the old formula for
+several widths, in both themes, unchanged after repeated repaints.

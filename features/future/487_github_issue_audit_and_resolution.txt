@@ -385,3 +385,9 @@ The latest discussion still reports pending institutional access and no actual
 Apple notarization acceptance. Record the external issue state without
 inventing that missing technical evidence. User now owns the version bump
 and main publication, per the latest491note.
+
+2026-10-01 -- ONE OPEN ISSUE AGAIN: #134
+A fresh listing (GitHub API, all pages, state=open) returns one issue,
+#134 (auto-filed PlaneLayoutConflict in Measure, spaCR 1.5.1.1). It is
+promoted into the 1.5.1.1 implementation batch as features/new/618; the
+fix, tests and closing comment are recorded there. Open PRs: none.
