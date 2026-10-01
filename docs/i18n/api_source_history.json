@@ -80,6 +80,25 @@
       "source_sha256": "4ad31e08c656e39bf86d9de51afb3dc52fde2da49d7036309e9036a4ad57d525",
       "text": "Return the Gini coefficient of ``x`` via the ranked-sum formulation.\n\nReference: StatsDirect non-parametric methods\n(http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm).\n\n:param x: 1-D array-like; all values treated equally.\n:returns: Gini coefficient in ``[0, 1]``."
     },
+    "5534fde2d4d1c33dbb0f2e4e1db028926652b5b81256b408de7d31114f8bcae3": {
+      "source_blocks_sha256": [
+        "7f74883049e4aa1c431dd26281a8ab77985ab3239fcbe93b3419f19681a15554",
+        "8e9e41ecb517db9dd98177e786bb4956de023c4ee8cd704faad633d08935ece6",
+        "3f234ba95717918c0bce94ecb8c447417f1028ab17a4ee9cddaa150b1c3a11ab",
+        "b56f351b7541303d725349dbd0e272707598636be60ba080a1fea22636786e27",
+        "99a1bcb0f405762548c3dd7aed1277d7f38d67ab6459fe5c8a191ba41c4dcc7c",
+        "8910b4add656caa331ead69084c17cfb726e7e9a0a0d00a4ddae76cb3b34f000",
+        "795d1f814ec98f2e2eab50733ed535be3dc16cfbebb624ba37731d8c18713d19",
+        "a230869dca881c0d8ea88b3c2383bae1820d67611938aa1e9bf57ffc2b5b297b",
+        "b2e6764059eb27d3154e30b1fbbcf7d3b1abaef4e4e973fe79422f6e5ea8c2cf",
+        "45923f5d1fd91c832fdbbf89fddb4910cb05248ee9d1146068d8c546bddfdc93",
+        "2aa0af3ed3fd1fb34dcc4bf3eac5afc61ccfbe0af006df5c2e6de2320ad3fd8b",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "7db01117c10308411a1dc319acba0ade73770ab7120aa3c654c9b4038d977d9b"
+      ],
+      "source_sha256": "5534fde2d4d1c33dbb0f2e4e1db028926652b5b81256b408de7d31114f8bcae3",
+      "text": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.\n\nSelects PNG paths (via the ``png_list`` table plus optional\n``file_metadata`` filter) from each source's measurements database,\noptionally random-subsamples, then bundles the images in parallel\ninto a dated tar under the first source's ``datasets/`` folder.\nUse this to produce the ``tar_path`` consumed by\n:func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.\n\n``crop_source`` chooses where the images come from. ``'png'`` (and\n``'auto'`` wherever a crop folder exists) is the behaviour above,\nunchanged for uniform source formats: files are byte-copied into the tar\nwith their format marker. Mixed formats are decoded into declared uint8\ncopies in the archive only. ``'merged'`` (and\n``'auto'`` on a project with no crop folder) cuts every crop out of\n``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be\nbuilt with no PNG folder on disk at all, and is rebuilt at the *current*\ncrop settings rather than whatever the folder was generated with. The\nmembers are named exactly as the PNG folder would have named them, so\neverything that parses a crop file name downstream -- fold grouping,\n``prcfo``, the prediction merge -- keeps working either way.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_generate_dataset_defaults`. Key\n    entries:\n\n    - ``src`` (str or list of str) — folder(s) containing\n      ``measurements/measurements.db`` and the PNG crops.\n    - ``file_metadata`` — filter/join key applied against\n      ``png_list``.\n    - ``sample`` — ``int`` or ``[int]`` cap on selected PNGs\n      (random subsample); omit for all.\n    - ``experiment`` — string suffix used in the tar filename.\n    - ``crop_source`` — ``'auto'`` | ``'png'`` | ``'merged'``.\n\n:returns: Absolute path to the created ``…/datasets/<date>_<\n    experiment>.tar``.\n:raises RuntimeError: if ``src`` is not a string / list of strings,\n    no images are selected, no image could be written, or the\n    destination folder cannot be resolved.\n\nExample:\n    .. code-block:: python\n\n        from spacr.io import generate_dataset\n        tar_path = generate_dataset({\n            'src': ['/data/plate01', '/data/plate02'],\n            'experiment': 'screen_v1',\n            'sample': 100000,\n        })\n\nSee Also:\n    :func:`training_dataset_from_annotation` — build a labeled\n    ``train/`` / ``test/`` tree instead of a flat tar.\n    :func:`spacr.deep_spacr.deep_spacr` — consumes the tar via\n    ``apply_model_to_tar``."
+    },
     "6b10b5ea09d10e40ef81fea558a8e260ee683414c33bf623550966487d46128f": {
       "source_blocks_sha256": [
         "a7dab553cf176267f0dc83ae6090ff6b64dd890fcd37a0b970343a4cc8bb9a66",
@@ -106,6 +125,14 @@
       ],
       "source_sha256": "b971f240dda7e74813cc4e911ecf25af1a75c5a29ad931025da4f547cd109891",
       "text": "Run journal — reproducibility record for every pipeline invocation.\n\nEvery time a spaCR pipeline runs (mask / measure / classify / …),\n:func:`open_run` writes a timestamped folder under ``~/.spacr/runs/``\ncontaining everything a reviewer needs to reproduce the result:\n\n::\n\n    ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask/\n        settings.csv          # exact settings dict, Key,Value CSV\n        settings.json         # same, JSON (source of truth for machines)\n        manifest.json         # spaCR version, git hash, python, packages,\n                              # torch / cuda / cellpose, start time,\n                              # end time, elapsed, exit status, model hashes\n        log.txt               # tail of ~/.spacr/logs/spacr.log for the run\n        outputs/              # optional — any pipeline-emitted artifacts\n                              # (masks, DBs, CSVs, plots) copied in\n\nPublic API::\n\n    from spacr.run_journal import open_run\n\n    with open_run(\"mask\", settings) as run:\n        preprocess_generate_masks(settings)\n        run.attach_output(Path(\"/path/to/mask.tif\"))\n        run.set_status(\"success\")\n\nThe context manager records start / end timestamps and yields the\n:class:`Run` object, whose ``dir`` attribute is the run folder. When\nsomething raises it stamps ``\"status\": \"failed\"`` (plus the traceback)\ninto ``manifest.json`` and re-raises; no marker file is written.\n\nConsumers of the journal:\n\n* ``spacr repro <run-folder>`` — replays the run (see\n  :mod:`spacr.cli_repro`).\n* AI Console → \"File as issue\" — includes the last run's manifest\n  when present so bug reports are self-contained.\n* Home screen \"Recent runs\" list — enumerated from\n  :func:`recent_runs` newest first.\n\nBeside the runs, the journal keeps two records for blinded work.\n:func:`start_blinding` writes a blinding key (coded names and a shuffled\norder) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and\nwhen. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped,\nin ``~/.spacr/analysis_locks``; every later run of the same pipeline on the\nsame ``src`` is checked against it by :func:`check_analysis_lock`, and the\nverdict is written into that run's ``manifest.json`` under\n``analysis_lock``, with any difference also listed in\n``provenance_warnings``."
+    },
+    "d3df3dd95e9aefb462e69d0131621679f793edc8c59e5d4a6854dc87b56c7787": {
+      "source_blocks_sha256": [
+        "6959658b20354ac8c3f28a31ca0cf48d1ff01797a661a4d456701905e098ddf4",
+        "ac1c4e6d00e6125047a7598591facd6974b9986f1b7510ff4d52cf0053dffd3d"
+      ],
+      "source_sha256": "d3df3dd95e9aefb462e69d0131621679f793edc8c59e5d4a6854dc87b56c7787",
+      "text": "Show the controls ``mode`` needs, without announcing the change.\n\n:param mode: ``'plaque'`` or ``'figure'``."
     },
     "dff35ca64af93eb70488dcdcadf52b0f3b095d107b3e1174a0922c875c1b4fe6": {
       "source_blocks_sha256": [

@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Baixe e extraia SYNTHETIC_timelapse_preview.zip. O exemplo didático contém oito quadros de imagens de células e as imagens de rótulos correspondentes. Para uma execução completa de Mask com seus próprios dados, prepare imagens de microscopia em ordem temporal e registre o intervalo de aquisição.",
   "scenes": [
-    "Na tela Home, abra Mask e clique no ícone Timelapse no canto superior direito para ativar o rastreamento. Use Timelapse para ligar objetos entre imagens consecutivas. Primeiro vamos experimentar o exemplo vinculado em Track preview e depois revisar as configurações para processar sua própria sequência de imagens.",
+    "Na Home, abra Mask, ative Time na linha Actions e ligue Timelapse para ativar o rastreamento. Timelapse liga objetos entre imagens consecutivas. Primeiro vamos testar o exemplo vinculado em Track preview e depois revisar as configurações para processar sua própria sequência de imagens.",
     "Baixe e extraia o arquivo de exemplo abaixo e clique em Track preview, à direita do título Actions. O arquivo contém uma sequência de imagens e a sequência de máscaras correspondente, com oito quadros. Mantenha as duas pastas juntas para poder selecionar as imagens e os rótulos que se correspondem.",
     "Escolha image_sequences e depois field_A01 como pasta de imagens. Selecione o canal zero: cada imagem de exemplo contém um único canal de intensidade celular. Defina Frames previewed como oito e Fields como um.",
     "Clique em Masks e selecione label_sequences e depois field_A01. Cada rótulo identifica um objeto na imagem correspondente. Deixe Keep only full-length tracks desativado no início para poder inspecionar as trajetórias que começam ou terminam dentro da sequência.",
