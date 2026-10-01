@@ -97,3 +97,12 @@ WHAT IS LEFT
     This closes the channel-assignment implementation gap. Comparing a real
     Operetta/Harmony original and its corrected export, and reading proprietary
     embedded CZI/ND2/Olympus shading formats, remain open. Status stays alpha.
+
+    Settings integration: the new string key is registered with a blank
+    default, alpha visibility, help and all four existing illumination
+    settings groups. The API-consumer and settings-flow artifacts were
+    regenerated from source. The mapping field is inactive unless correction
+    is on and a vendor profile is selected without an overriding saved
+    model; disabling or hiding it retains its saved value. Thirteen focused
+    alpha, real-form visibility, value-retention and dependency/layout
+    checks passed under the same 4 GiB CPU/offscreen cap.

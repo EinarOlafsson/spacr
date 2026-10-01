@@ -8353,8 +8353,9 @@ Estimate the uneven illumination of the microscope from the fields themselves an
 | :py:func:`~spacr.methods_export.build_digest`
 |     ``_illumination`` **-- reads it**
 |     ``len(...)  [UNRESOLVED]``
+| :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``preprocess_generate_masks``, ``illumination_settings``, ``load_segmentation_illumination_resume``, ``prepare_illumination_model``, ``validate_measurement_illumination_inputs``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_illumination``.
+Read by ``preprocess_generate_masks``, ``illumination_settings``, ``load_segmentation_illumination_resume``, ``prepare_illumination_model``, ``validate_measurement_illumination_inputs``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_illumination``, ``get_setting_dependencies``.
 
 .. _setting-flow-illumination_dark:
 
@@ -8471,8 +8472,9 @@ Path to an illumination model saved earlier. Empty means estimate a fresh one fr
 | :py:func:`~spacr.methods_export.build_digest`
 |     ``_illumination`` **-- reads it**
 |     ``len(...)  [UNRESOLVED]``
+| :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``illumination_settings``, ``load_segmentation_illumination_resume``, ``prepare_illumination_model``, ``_illumination``.
+Read by ``illumination_settings``, ``load_segmentation_illumination_resume``, ``prepare_illumination_model``, ``_illumination``, ``get_setting_dependencies``.
 
 .. _setting-flow-illumination_on_missing:
 
@@ -8581,8 +8583,9 @@ Path to the flat-field correction the microscope software saved, used instead of
 |         :py:func:`~spacr.illumination.prepare_illumination_model` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``illumination_settings``, ``prepare_illumination_model``.
+Read by ``illumination_settings``, ``prepare_illumination_model``, ``get_setting_dependencies``.
 
 .. _setting-flow-image_key:
 
