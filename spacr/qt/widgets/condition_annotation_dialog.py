@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
     QDialog,
+    QFileDialog,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -556,6 +557,7 @@ class ConditionBox(QFrame):
             result.update(criteria=criteria, match=self.criteria_match.currentData())
             excluded = _exact_values(self.exclude_values.toPlainText())
             if excluded:
+                result["match_mode"] = "values"
                 result["exclude_values"] = excluded
         elif self.match_mode.currentData() == "manual":
             result.update(include="")
@@ -745,6 +747,8 @@ class ConditionAnnotationDialog(QDialog):
             "conditions": self._initial.get("conditions", [])}])
         self._jobs = JobRunner(self, threaded=threaded, app_key="graph_builder")
         self._jobs.job_failed.connect(self._failed)
+        self._schema_saves = JobRunner(self, threaded=threaded, app_key="graph_builder")
+        self._schema_saves.job_failed.connect(self._schema_save_failed)
         self._timer = QTimer(self)
         self._timer.setSingleShot(True)
         self._timer.setInterval(180)
@@ -874,6 +878,17 @@ class ConditionAnnotationDialog(QDialog):
         self.preview_button.setToolTip(tr("Check expressions and show each condition's matches, unmatched rows and overlaps without modifying the working table."))
         self.preview_button.clicked.connect(self.refresh_preview)
         actions.addWidget(self.preview_button)
+        self.save_schema_button = QPushButton(tr("Save schema"), self)
+        self.save_schema_button.setObjectName("save_annotation_schema")
+        self.save_schema_button.setToolTip(tr("Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted."))
+        self.save_schema_button.setEnabled(False)
+        self.save_schema_button.clicked.connect(self._save_schema)
+        actions.addWidget(self.save_schema_button)
+        self.load_schema_button = QPushButton(tr("Load schema"), self)
+        self.load_schema_button.setObjectName("load_annotation_schema")
+        self.load_schema_button.setToolTip(tr("Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments."))
+        self.load_schema_button.clicked.connect(self._load_schema)
+        actions.addWidget(self.load_schema_button)
         self.apply_button = QPushButton(tr("Apply conditions"), self)
         self.apply_button.setEnabled(False)
         self.apply_button.setToolTip(tr("Add all generated columns to the working table after validation. Invalid expressions and overlapping conditions must be resolved first."))
@@ -892,6 +907,96 @@ class ConditionAnnotationDialog(QDialog):
         self._load_column()
         self.refresh_preview()
 
+    def _save_schema(self):
+        """Write a validated snapshot without carrying source-bound row tokens."""
+        if not self.save_schema_button.isEnabled() or self.definition != self.configuration():
+            return
+        path, _filter = QFileDialog.getSaveFileName(
+            self, tr("Save schema"), "annotation.schema.json", tr("JSON files (*.json)"))
+        if not path:
+            return
+        definition = copy.deepcopy(self.definition)
+        self.save_schema_button.setEnabled(False)
+        self.status.setText(tr("Saving annotation schema…"))
+
+        def work():
+            from ...condition_annotations import _save_schema
+            try:
+                return path, _save_schema(path, self.frame, definition, self.source), None
+            except (ValueError, OSError) as exc:
+                return path, 0, str(exc)
+
+        self._schema_saves.submit(work, self._schema_saved)
+
+    def _schema_saved(self, payload):
+        """Report the completed snapshot independently of subsequent draft edits."""
+        path, omitted, error = payload
+        if error:
+            self.status.setText(error)
+        elif omitted:
+            self.status.setText(tr("Schema saved to {path}. {count:,} manual row assignments were omitted.",
+                                   path=path, count=omitted))
+        else:
+            self.status.setText(tr("Schema saved to {path}.", path=path))
+        self.save_schema_button.setEnabled(self.apply_button.isEnabled())
+
+    def _schema_save_failed(self, message):
+        """Restore the save action if an unexpected worker failure occurs."""
+        self.status.setText(str(message))
+        self.save_schema_button.setEnabled(self.apply_button.isEnabled())
+
+    def _load_schema(self):
+        """Validate a portable file on a worker before replacing the current draft."""
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Load schema"), "", tr("JSON files (*.json)"))
+        if not path:
+            return
+        self._timer.stop()
+        self._jobs.cancel()
+        prior_valid = self.apply_button.isEnabled()
+        self.apply_button.setEnabled(False)
+        self.save_schema_button.setEnabled(False)
+        self.status.setText(tr("Checking annotation schema for this table…"))
+
+        def work():
+            from ...condition_annotations import _load_schema
+            try:
+                definition, report = _load_schema(path, self.frame, self.source)
+                result = None
+                if not len(report.overlaps):
+                    result = self.frame.copy()
+                    for column, values in report.column_values.items():
+                        result[column] = values.array
+                    result.attrs["condition_annotation"] = copy.deepcopy(definition)
+                return definition, report, result, prior_valid
+            except (ValueError, OSError) as exc:
+                return None, str(exc), None, prior_valid
+
+        self._jobs.submit(work, self._schema_loaded)
+
+    def _schema_loaded(self, payload):
+        """Install only a successfully validated schema; never accept the dialog."""
+        definition, report, result, prior_valid = payload
+        if definition is None:
+            self.status.setText(tr("Schema was not loaded: {reason}", reason=report))
+            self.apply_button.setEnabled(prior_valid)
+            self.save_schema_button.setEnabled(prior_valid and not self._schema_saves.is_busy())
+            return
+        self._initial = copy.deepcopy(definition)
+        self._columns = copy.deepcopy(definition.get("columns") or [{
+            "column": definition["column"], "kind": "rules", "conditions": definition.get("conditions", [])}])
+        self._active_column = 0
+        self._refresh_column_selector()
+        self._load_column()
+        if self.configuration() != definition:
+            # A hand-edited portable recipe can use a newer version for a
+            # simpler legacy shape. Validate the editor's normalized recipe.
+            self.refresh_preview()
+            return
+        self._previewed((definition, report, result))
+        self.status.setText(tr("Schema loaded for preview. Review the generated columns, then apply when ready.")
+                            + " " + self.status.text())
+
     def _build_extract_panel(self):
         """Build a source, capture-pattern and capture-group editor."""
         panel = QWidget(self)
@@ -902,7 +1007,7 @@ class ConditionAnnotationDialog(QDialog):
         self.extract_pattern = QLineEdit(panel)
         self.extract_pattern.setObjectName("extract_pattern")
         self.extract_pattern.setPlaceholderText(r"(?P<cell_type>[^_]+)_(?P<replicate>[^.]+)")
-        self.extract_pattern.setToolTip(tr("Capture the text to keep in parentheses. Name captures with (?P<name>...) to create several output columns at once."))
+        self.extract_pattern.setToolTip(tr("Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.", example="(?P<name>...)"))
         self.extract_group = QComboBox(panel)
         self.extract_group.setEditable(True)
         self.extract_group.setObjectName("extract_group")
@@ -1015,7 +1120,7 @@ class ConditionAnnotationDialog(QDialog):
             self._failed(str(exc))
             return
         if not names:
-            self._failed(tr("Add named captures such as (?P<cell_type>...) before creating columns."))
+            self._failed(tr("Add named captures such as {example} before creating columns.", example="(?P<cell_type>...)"))
             return
         self._save_column()
         current = self._columns[self._active_column]
@@ -1388,6 +1493,7 @@ class ConditionAnnotationDialog(QDialog):
             return
         self._jobs.cancel()
         self.apply_button.setEnabled(False)
+        self.save_schema_button.setEnabled(False)
         self.result_frame = None
         self._timer.start()
         if hasattr(self, "example"):
@@ -1401,6 +1507,7 @@ class ConditionAnnotationDialog(QDialog):
         self._timer.stop()
         self._jobs.cancel()
         self.apply_button.setEnabled(False)
+        self.save_schema_button.setEnabled(False)
         definition = self.configuration()
         self.status.setText(tr("Checking condition assignments…"))
         def work():
@@ -1454,6 +1561,7 @@ class ConditionAnnotationDialog(QDialog):
         if len(report.overlaps):
             self.status.setText(self.status.text() + " " + tr("Resolve overlaps before applying."))
         self.apply_button.setEnabled(not len(report.overlaps))
+        self.save_schema_button.setEnabled(not len(report.overlaps) and not self._schema_saves.is_busy())
 
     def _failed(self, message):
         """Preserve the source and applied annotations after invalid input.
@@ -1461,6 +1569,7 @@ class ConditionAnnotationDialog(QDialog):
         :param message: Validation or source mismatch explanation.
         """
         self.apply_button.setEnabled(False)
+        self.save_schema_button.setEnabled(False)
         self.status.setText(str(message))
 
     def accept(self):
@@ -1472,10 +1581,12 @@ class ConditionAnnotationDialog(QDialog):
             return
         self._timer.stop()
         self._jobs.shutdown()
+        self._schema_saves.shutdown()
         super().accept()
 
     def reject(self):
         """Discard draft edits and stop delivery of pending preview results."""
         self._timer.stop()
         self._jobs.shutdown()
+        self._schema_saves.shutdown()
         super().reject()
