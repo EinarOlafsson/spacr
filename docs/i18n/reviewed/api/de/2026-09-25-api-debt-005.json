@@ -3444,7 +3444,9 @@
       "source_sha256": "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
       "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
       "translation": "Der Rumpf wird mit einem Stretch angeordnet, und ein Layout zählt diesen Stretch auch, während der Rumpf ausgeblendet ist, sodass eine eingeklappte Karte trotzdem Platz verlangte und ihn gleichmäßig mit dem Stretch teilte, der eine eingeklappte Überschrift am unteren Rand ihres Bereichs festhält (Eintrag 515): Die eingeklappte Console wurde halb so hoch wie der Bereich. Eingeklappt gibt der Rumpf seinen Stretch ab; geöffnet nimmt er ihn zurück.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.card.Card.follow_fold#2",
@@ -3772,7 +3774,9 @@
       "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
       "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
       "translation": "Eintrag 471, Teil B. Zwei Anforderungen, die sich als eine herausstellen: Jeder Container klappt ein (\"wann immer etwas eingeklappt ist, soll es automatisch am unteren Rand seines Containers einrasten\"), und jeder Container lässt sich \"durch Ziehen der Kanten vergrößern oder verkleinern\". Ein :class:`~PySide6.QtWidgets.QSplitter` kann bereits beides -- einen Griff zum Ziehen und ein Kind, das bis auf nichts verkleinert werden kann --, daher leben beide Hälften hier als EIN Mechanismus, und alles, was in einem Splitter einklappt, ändert auch seine Größe, und umgekehrt.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter#2",
@@ -4132,7 +4136,9 @@
       "source_sha256": "d4832655134edc2bd98d98f8baaa9ea71afc520147f331b1f390a9775eefbda5",
       "context": "Item 471: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "Eintrag 471: \"wenn sich eine Live-Vorschau öffnet, nimmt sie die ganze Bildschirmhöhe ein: die Konsole, der Container System und der Schaltflächenbereich unter System klappen automatisch ein, und die Einstellungen klappen nach links ein\", und dasselbe, wann immer Abbildungen erscheinen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#2",
@@ -4236,7 +4242,9 @@
       "source_sha256": "d7c96a305b7af08faf05d55e039bb388e2d301b27ed513a56c3e006de0b602fe",
       "context": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "Eintrag 471, Teil C: \"alle Abschnitte in den Containern für Abbildungen oder Live-Vorschau sollen ebenfalls einklappbar sein ... jedes GUI-Element, sei es eine Abbildung oder eine Tabelle\". Dies ist der einzige Weg, auf dem ein Abschnitt in einer Ansicht ein Einklapp-Steuerelement erhält, sodass alle gleich aussehen und sich gleich verhalten: ein Pfeil und ein Name über dem Rumpf (derselbe :class:`~spacr.qt.widgets.foldable.Folder`, den die Konsole und System verwenden), ein Klick klappt ihn ein, und ein eingeklappter Abschnitt ist seine Überschrift, festgesetzt am UNTEREN Rand des Platzes, den er erhält (:func:`lock_folded_to_bottom`).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#10",
@@ -4276,7 +4284,9 @@
       "source_sha256": "43b80d0f63a9a4c8798f2872cecbf15370b54233bef26ebc087517cd5bcd0277",
       "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
       "translation": "DIE SICHTBARKEIT DES RUMPFS SELBST BLEIBT SACHE SEINES BESITZERS. Das Einklappen blendet einen inneren Halter aus, nie den Rumpf, sodass das Aufklappen kein Panel anzeigen kann, das sein Besitzer ausgeblendet hat, und kein Panel aufbauen kann, das bei der ersten Anzeige aufgebaut wird (Einträge 284/380). Umgekehrt folgt der Abschnitt seinem Rumpf: Solange der Besitzer den Rumpf ausgeblendet hält, ist der ganze Abschnitt -- einschließlich der Überschrift -- ebenfalls ausgeblendet, und er kommt zurück, wenn der Besitzer den Rumpf anzeigt. Dafür wird nur das Ausgeblendet-Flag des Rumpfs gelesen, sodass nichts angezeigt, gemessen oder aufgebaut wird, um es herauszufinden.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#3",
@@ -4532,7 +4542,9 @@
       "source_sha256": "4e2e6595cfbd138b4c4a186481d80353527e3fb0d5c4c000f1cf7cefdd2cb3cb",
       "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
       "translation": "Ein eingeklapptes Panel, das mehr Platz erhält, als seine Überschrift braucht -- der letzte Bereich in einem Splitter, ein von seiner Spalte gestreckter Abschnitt --, ordnete seine Überschrift früher in der Mitte dieses Platzes an, und das ist der Fehler, den Eintrag 471 nennt (\"wenn ich die Konsole einklappe, klappt sie in die Mitte ein\"). Ein Stretch, der im eingeklappten Zustand ÜBER die Überschrift gesetzt wird, nimmt stattdessen den überschüssigen Platz ein.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#2",

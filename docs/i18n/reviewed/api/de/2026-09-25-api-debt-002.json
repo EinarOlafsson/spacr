@@ -736,7 +736,9 @@
       "source_sha256": "d048cede84fa699b4cfbae74d3065d82b8e540d4748c6a350f3e18b266038874",
       "context": "The mode follows what was dropped (item 518): PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
       "translation": "Der Modus folgt dem, was abgelegt wurde (Punkt 518): PDFs oder ein Ordner damit, im Plaque-Modus abgelegt, fragen, ob in den Figure-Modus gewechselt werden soll; im Figure-Modus abgelegte Bilder fragen, ob in den Plaque-Modus gewechselt werden soll; PDFs und Bilder zusammen melden, dass PDFs im Figure-Modus und Bilder im Plaque-Modus gelesen werden, und fragen, was gelesen werden soll. Bleibt man im Figure-Modus, werden die Bilder als Abbildungen gelesen; bleibt man im Plaque-Modus, bleiben die PDFs ungelesen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#4",
@@ -3698,7 +3700,9 @@
       "source_sha256": "5853f6cd5be1179d1340dd4b1219aa90013d5e943b6b7af5c410bead612343ae",
       "context": "Three inversions live here and they do different things (items 435 and 419 point 9). :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
       "translation": "HIER LEBEN DREI INVERSIONEN, UND SIE TUN VERSCHIEDENES (Punkte 435 und 419, Unterpunkt 9). :func:`invert_intensity` ist das fotografische Komplement eines BILDES -- ``dtype_max - value``, was die Funktion Invert eines Viewers tut, auf jedem ganzzahligen dtype exakt umkehrbar --, und damit zeichnet \"Invert image\" der Make Masks-Ansicht. :func:`invert_for_detection` spiegelt ein Bild stattdessen an seinem EIGENEN Wertebereich und ist das, was \"Invert for detection\" der Ansicht an die Detektoren übergibt; sein Docstring enthält die Messung, die zeigt, warum ein Detektor das Komplement nicht verwenden kann, und es ist KEIN Duplikat, das wegfusioniert werden sollte. :func:`invert_mask` vertauscht Vordergrund und Hintergrund eines LABEL-Bildes; bei einem gewöhnlichen Sichtfeld ergibt das ein einziges Objekt, das den ganzen Rahmen bedeckt, weshalb gemeldet wurde, dass es nichts tue.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine#6",
@@ -3738,7 +3742,9 @@
       "source_sha256": "680fdcbb8bea819fa4d8fd7853559d6a26d9847d442def1bc678c86829040936",
       "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list (item 511), so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
       "translation": "Sie sind kein zweiter Filter mehr. :func:`legacy_filters` macht aus ihnen Einträge der einen Filterliste (Punkt 511), sodass ein Aufrufer, der noch ``min_area=20`` übergibt, im selben regionprops-Durchlauf beurteilt wird wie ein Benutzer, der eine ``area``-Zeile hinzugefügt hat, und ein :class:`FilterRemoval` nennt weiterhin die Legacy-Grenze, an der ein Objekt gescheitert ist, damit die älteren Ledger gleich zu lesen sind.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.FILTER_KEYS#0",

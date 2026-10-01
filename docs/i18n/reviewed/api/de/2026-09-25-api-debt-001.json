@@ -364,7 +364,9 @@
       "source_sha256": "e9ff59a619aaf56368f17e36a85317c5c38e787ea795b80921507e0c26c75c7c",
       "context": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place (item 518).",
       "translation": "Ein :class:`ImportError`, sodass jeder Aufrufer, der bereits einen fehlenden Leser gemeldet hat, das weiterhin tut; Plaque Assay fängt genau diesen ab, um die Installation an Ort und Stelle anzubieten (Punkt 518).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.ReaderNeedsInstall#2",
@@ -4228,7 +4230,9 @@
       "source_sha256": "072bce659d2996778747500ba3c7bbe5e5376a6afff0328d9bad6e44f37ddfce",
       "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements (item 512) go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
       "translation": "die zu schreibende Spalte; die Annotationsspalte, wenn weggelassen. Die Urteile der Annotate-Ansicht (Punkt 512) gehen über denselben Schreiber in die Spalte ``<column>_verdict`` statt über eine zweite Verbindung: ein Schreiber, eine Warteschlange, eine Reihenfolge. Ein Stapel für eine andere Spalte, der nicht geschrieben werden kann, wird in ``_failed_extra`` unter seiner Spalte aufbewahrt, getrennt von ``_failed_batch``, sodass der Annotationsstapel die Form behält, die jeder seiner Leser erwartet.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.annotate_engine.add_colored_border#2",

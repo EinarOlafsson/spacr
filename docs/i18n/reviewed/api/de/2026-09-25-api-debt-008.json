@@ -26,7 +26,9 @@
       "source_sha256": "ba4fe9d0fd56b23ff22c22769cc3813c0ad0d55c44e55772e75f18476fedab2a",
       "context": "build an installed backend again (item 518).",
       "translation": "ein installiertes Backend erneut aufbauen (Eintrag 518).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.install_backend#6",
@@ -1607,7 +1609,9 @@
       "source_sha256": "ea2c524a335b5143cd5020eb02dde69bdd0ad5882bf127178d68721c59f05e5d",
       "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install (item 518).",
       "translation": "True, wenn der Abruf gestartet wurde oder wenn ein PDF, das den Abbildungsleser braucht, mit dessen Installation beantwortet wurde (Eintrag 518).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#7",
@@ -2427,7 +2431,9 @@
       "source_sha256": "15261313469c9c3e67f145132d2fe6448057d81da96d40e0f7f2952dd4fc23ac",
       "context": "Item 518: PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
       "translation": "Eintrag 518: PDFs werden im Figure-Modus und Plaque-Bilder im Plaque-Modus gelesen, daher fragt eine Eingabe für den anderen Modus, ob gewechselt werden soll, und eine Eingabe für beide, welche gelesen werden soll.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_question#3",

@@ -138,7 +138,9 @@
       "source_sha256": "b4a646adb6c987e4a0a9006e09a7cf4574f09cbc6d1f479beaa31d5cfe648704",
       "context": "The second half of this module moves label masks to and from the formats other tools curate and train on (item 545): :func:`masks_to_geojson` and :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and :func:`coco_to_masks` for COCO-style training sets, and :func:`export_rois` / :func:`import_rois` choosing among them by file name.",
       "translation": "Die zweite Hälfte dieses Moduls überträgt Label-Masken in die und aus den Formaten, mit denen andere Werkzeuge kuratieren und trainieren (Punkt 545): :func:`masks_to_geojson` und :func:`geojson_to_masks` für QuPath, :func:`masks_to_roiset` und :func:`roiset_to_masks` für den ROI Manager von Fiji, :func:`masks_to_coco` und :func:`coco_to_masks` für Trainingsdatensätze im COCO-Stil sowie :func:`export_rois` / :func:`import_rois`, die anhand des Dateinamens zwischen ihnen wählen.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.mask_io#9",
@@ -754,7 +756,9 @@
       "source_sha256": "dd4a963e2f04dba4853a1c63f327c6b229864b11ad0b7ac61622e72baf7a5f6a",
       "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes (item 525). So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest, items 551-553), each in its own backend's worker.",
       "translation": "Ein Objekt, dessen Modelleinstellung ``cellpose3:<model or weights path>`` lautet, oder jedes Objekt, wenn ``segmentation_backend`` ``'cellpose3'`` ist, wird von ``_cellpose3_masks`` in der eigenen Umgebung des Cellpose 3-Backends segmentiert; was es zurückgibt, durchläuft dieselben Zeilen wie ein Cellpose-SAM-Ergebnis, sodass die gespeicherten Masken und Datenbankzeilen gleich geschrieben werden. Eines, dessen Modelleinstellung ``cellpose_dino:<checkpoint path>`` lautet, wird vom Worker des Cellpose-DINO-Backends segmentiert, der genau denselben ``eval``-Aufruf wie ein Cellpose-SAM-Modell entgegennimmt und dessen Formen zurückgibt (Punkt 525). Ebenso eines, dessen Modelleinstellung ein StarDist-, InstanSeg- oder Omnipose-Präfix trägt (``stardist:<model>`` und die übrigen, Punkte 551-553), jeweils im Worker seines eigenen Backends.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ome_zarr.OmeZarrImage#11",
@@ -794,7 +798,9 @@
       "source_sha256": "060511a5963a45a4ab93c54df11f2ded756daf66838d7b13c50a91a4335828fd",
       "context": "Holes are filled per object by :func:`fill_label_holes`, never by filling the foreground and labelling it again: that joined every pair of touching cells into one object (item 588).",
       "translation": "Löcher werden pro Objekt von :func:`fill_label_holes` gefüllt, niemals durch Füllen des Vordergrunds und erneutes Labeln: Das hat jedes Paar sich berührender Zellen zu einem Objekt verschmolzen (Punkt 588).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.fill_holes#3",
@@ -818,7 +824,9 @@
       "source_sha256": "528849e3ad3b9f0f32a552a64d14952125f367b5606308d916d8357d08a9bf99",
       "context": "The one hole filler for label images. :func:`fill_holes`, the propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the Cellpose ``fill_in`` step) all come here. Filling the binary foreground and labelling it afresh with ``ndimage.label`` is what this replaces: it makes every pair of TOUCHING objects one object, so a microscope field of view of 74 adjacent cells came back as 8 (item 588). Here nothing is relabelled.",
       "translation": "DER EINZIGE LOCHFÜLLER FÜR LABEL-BILDER. :func:`fill_holes`, der Propagationsschritt oben und :func:`spacr.utils.fill_holes_in_mask` (der Cellpose-Schritt ``fill_in``) landen alle hier. Ersetzt wird damit das Füllen des binären Vordergrunds mit anschließendem Neu-Labeln über ``ndimage.label``: Das macht jedes Paar SICH BERÜHRENDER Objekte zu einem Objekt, sodass ein Sichtfeld mit 74 benachbarten Zellen als 8 zurückkam (Punkt 588). Hier wird nichts neu gelabelt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.fill_label_holes#2",
@@ -1082,7 +1090,9 @@
       "source_sha256": "d50fb5f80a1805a55156234d7f1f653bd561a1f9fbb0686e5bb315d1b86640b2",
       "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend (item 525), and a ``stardist:``, ``instanseg:`` or ``omnipose:`` model in its own backend (items 551-553).",
       "translation": "Ein Modell ``cellpose3:<name or path>`` -- ein Cellpose 3-Standardmodell oder ein Cellpose 3-Checkpoint von bioimage.io -- ist überhaupt kein Cellpose 4-Modell: Cellpose 4 würde einen solchen Checkpoint laden und damit Unsinn segmentieren. Es wird von :func:`_backend_model` in der eigenen Umgebung des Cellpose 3-Backends geladen, so wie Mask generation es lädt. Ein Modell ``cellpose_dino:<path>``, ein Cellpose-DINO-Checkpoint, wird ebenso im Cellpose-DINO-Backend geladen (Punkt 525), und ein Modell ``stardist:``, ``instanseg:`` oder ``omnipose:`` in seinem eigenen Backend (Punkte 551-553).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.settings_model.SettingsWidgets.spawn_organelle_slots#1",
@@ -1106,7 +1116,9 @@
       "source_sha256": "ef2bf0295c68d121226542d4f7cbc5c166131857cca8d6bce5867832630e9eb6",
       "context": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
       "translation": "WARUM (Punkt 502). Das Theme zeichnet jede ``QProgressBar`` als 8 px hohe Spur (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). Ein Balken, der zusätzlich seinen eigenen Text malt -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- zeichnet eine 13 px hohe Beschriftung in diese 8 px, sodass nur die obere Hälfte jedes Zeichens den Bildschirm erreicht, und bei 50 % GUI-Skalierung ist die Spur 4 px hoch und fast nichts kommt an. Eine Beschriftung wie \"step 1 of 3\" oder \"10%\" wird abgeschnitten.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#4",
@@ -1124,7 +1136,7 @@
       "translation": "Neben den Verarbeitungsläufen führt das Journal zwei Aufzeichnungen für verblindete Arbeit. :func:`start_blinding` schreibt einen Verblindungsschlüssel (codierte Namen und eine gemischte Reihenfolge) nach ``~/.spacr/blinding``, und :func:`unblind` protokolliert, wer ihn wann geöffnet hat. :func:`lock_analysis` friert einen Analyseplan ein, gehasht und mit Zeitstempel, in ``~/.spacr/analysis_locks``; jeder spätere Verarbeitungslauf derselben Pipeline auf demselben ``src`` wird von :func:`check_analysis_lock` dagegen geprüft, und das Urteil wird in die ``manifest.json`` dieses Laufs unter ``analysis_lock`` geschrieben, wobei jeder Unterschied auch in ``provenance_warnings`` aufgeführt wird.",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#0",
@@ -1142,7 +1154,7 @@
       "translation": "Die Sperre ist die neueste, die :func:`lock_analysis` für ``app_key`` auf dem ``src`` der Einstellungen erstellt hat, sofern keine übergeben wird. Die Sperre wird zuerst gegen ihren eigenen Hash geprüft, sodass eine bearbeitete Sperrdatei auffällt; dann wird jede Einstellung und jede gehashte Datei verglichen.",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#3",
@@ -1151,7 +1163,7 @@
       "context": "the settings of the processing session being checked.",
       "translation": "die Einstellungen des geprüften Verarbeitungslaufs.",
       "review_basis": "written from the English (no current MT draft)",
-      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#2"
+      "rebound_from": "spacr.run_journal.check_analysis_lock#2"
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#4",
@@ -1160,7 +1172,7 @@
       "context": "the workflow executing them.",
       "translation": "die Pipeline, die sie ausführt.",
       "review_basis": "written from the English (no current MT draft)",
-      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#3"
+      "rebound_from": "spacr.run_journal.check_analysis_lock#3"
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#5",
@@ -1169,7 +1181,7 @@
       "context": "a lock record to check against instead of the newest one.",
       "translation": "ein Sperrdatensatz, gegen den statt gegen den neuesten geprüft wird.",
       "review_basis": "written from the English (no current MT draft)",
-      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#4"
+      "rebound_from": "spacr.run_journal.check_analysis_lock#4"
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#5",
@@ -1179,7 +1191,7 @@
       "translation": "``status`` -- ``\"unlocked\"`` (keine Sperre greift), ``\"verified\"`` (nichts geändert), ``\"deviation\"`` (geändert, und seit der Sperre wurde kein Schlüssel des Ordners entblindet), ``\"post_hoc\"`` (geändert, und ein Schlüssel des Ordners wurde nach der Sperre entblindet), ``\"not_preregistered\"`` (unverändert, aber die Sperre wurde nach einer Entblindung erstellt) oder ``\"tampered\"`` (die Sperre passt nicht mehr zu ihrem Hash) -- mit ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``deviations`` (``key``, ``locked``, ``now``), ``unblinded_utc`` und einer einsätzigen ``summary``.",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.lock_analysis#0",
@@ -1197,7 +1209,7 @@
       "translation": "Die Einstellungen, die angegebenen Hypothesen und Schwellenwerte sowie der SHA-256 jeder Modell-, Gate- oder Schwellenwertdatei, die die Einstellungen nennen (plus ``files``), werden mit Zeit und Benutzer nach ``~/.spacr/analysis_locks/<lock id>.json`` geschrieben und gehasht. Von da an wird jeder protokollierte Verarbeitungslauf von ``app_key`` auf demselben ``src`` von :func:`check_analysis_lock` gegen die neueste Sperre geprüft; das Urteil landet in der ``manifest.json`` des Laufs, und ein Unterschied wird in den Warnungen des Manifests, im Bericht und im Methodentext aufgeführt.",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.lock_analysis#2",
@@ -1207,7 +1219,7 @@
       "translation": "Eine Sperre, die erstellt wurde, nachdem ein Verblindungsschlüssel für denselben Ordner entblindet worden war, wird entsprechend markiert, da sie nicht verblindet erstellt wurde.",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.lock_analysis#3",
@@ -1264,7 +1276,7 @@
       "context": "the stored lock, including ``lock_id``, ``locked_utc`` and ``sha256``.",
       "translation": "die gespeicherte Sperre, einschließlich ``lock_id``, ``locked_utc`` und ``sha256``.",
       "review_basis": "written from the English (no current MT draft)",
-      "relocated_from_2026_10_01": "spacr.run_journal.lock_analysis#9"
+      "rebound_from": "spacr.run_journal.lock_analysis#9"
     },
     {
       "label": "spacr.run_journal.start_blinding#0",
@@ -1384,9 +1396,7 @@
       "source_sha256": "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
       "context": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation (the factor R's ``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so the residuals agree with the B-score cellHTS2 computes.",
       "translation": "Die Konstanten: ``MAD_SCALE`` ist ``1 / Phi^-1(0.75)`` = 1.4826, womit die MAD einer normalverteilten Stichprobe deren Standardabweichung schätzt (der Faktor, den ``mad()`` in R und damit cellHTS2 anwenden). ``SSMD_ESTIMATORS`` sind ``mm`` (Momentenmethode), ``umvue`` (gleichmäßig minimale Varianz, erwartungstreu) und ``robust`` (Median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` beträgt 3 für jede Statistik: SSMD 3 ist Zhangs \"strong\" Effekt, und 3 robuste Sigma sind die übliche Grenze für robustes z und den B-Score. ``MEDIAN_POLISH_MAX_ITER`` und ``MEDIAN_POLISH_EPS`` sind die Standardwerte von ``medpolish`` in R (10 und 0.01), beibehalten, damit die Residuen mit dem von cellHTS2 berechneten B-Score übereinstimmen.",
-      "review_basis": "written from the English (no current MT draft)",
-      "retired": true,
-      "retired_reason": "2026-10-01: the B-score constants/convergence overview now states the original cellHTS2 settings. Preserve this review for its original source; the changed source receives a separate current technical review."
+      "review_basis": "written from the English (no current MT draft)"
     },
     {
       "label": "spacr.sp_stats#6",
@@ -2290,7 +2300,9 @@
       "source_sha256": "277fc17c4713dbc6268ac5a5c115c3810387121b67d39975ec259903f1ec004d",
       "context": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a microscope field of view of 74 adjacent cells was saved as 8 (item 588). Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
       "translation": "Delegiert an :func:`spacr.qt.mask_engine.fill_label_holes`, den einzigen Lochfüller für Label-Bilder. Früher lief zuerst ``ndimage.label`` über die Maske, wodurch jedes Paar sich berührender Objekte zu einem Objekt wurde: Mit eingeschaltetem Cellpose-Schritt ``fill_in`` (Standard in Apply) wurde ein Sichtfeld mit 74 benachbarten Zellen als 8 gespeichert (Punkt 588). Jetzt wird kein Objekt verschmolzen oder umnummeriert, und ein Loch erhält die ID des Objekts, das es umschließt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.fill_holes_in_mask#2",

@@ -2807,7 +2807,9 @@
       "source_sha256": "4d965f83a69236a3d60c8c66352ad7279f1bfc764d773b28727d3369e0af3ae3",
       "context": "It belongs to the window, not the widget that asked (item 521). A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
       "translation": "ER GEHÖRT ZUM FENSTER, NICHT ZU DEM WIDGET, DAS GEFRAGT HAT (Eintrag 521). Ein Dialog erbt das Stylesheet jedes Widgets über ihm, und Plaque Assay fragt aus seiner Vorschau heraus, deren eigener Skalierungsregler das Anwendungs-Stylesheet in der Skalierung dieser Vorschau neu festlegt: Bei 150 % waren Install und Cancel 59 px hoch statt der 40 px jeder anderen Schaltfläche. Mit ``parent.window()`` als Elternobjekt wird er wie jeder andere Dialog gestaltet und ist trotzdem auf dem Fenster zentriert und modal zu dem Fenster, das ihn geöffnet hat.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#12",
@@ -2855,7 +2857,9 @@
       "source_sha256": "8054ed9d398f84daab6408594ba11a1b03259e10eec6cf57ef5cdcbdfcda489c",
       "context": "build an installed backend's environment again (item 518), for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
       "translation": "die Umgebung eines installierten Backends erneut aufbauen (Eintrag 518), für ein Backend, das installiert wurde, bevor ein Paket, das es jetzt braucht, fixiert war; der Dialog sagt das, und seine Schaltfläche lautet Reinstall.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#8",
@@ -3111,7 +3115,9 @@
       "source_sha256": "0b9f3aa6e3b48fabeed1ae527d7b299f0b987d758a6005b56782d566cdf5a6d7",
       "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred (item 512). Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
       "translation": "1. EIN VORSCHLAG IST NIE MIT EINER ENTSCHEIDUNG ZU VERWECHSELN. Vorschläge werden als eigene Werte gespeichert -- eine vorgeschlagene 1 wird zu 11 --, sodass nichts, was die Annotationsspalte liest, einen davon für die Antwort eines Menschen halten kann, und ein fehlgeschlagener Lauf wird durch Löschen eines Werts rückgängig gemacht statt dadurch, dass man sich merkt, welche Zeilen berührt wurden. 2. EIN VORSCHLAG ÜBERSCHREIBT NIE EINE ANNOTATION. Schreibvorgänge tragen ``IS NULL``. Auch nicht, wenn das Modell sicher ist, und auch nicht bei einem erneuten Lauf. Die Labels eines Menschen sind die Ground Truth, an die das Modell angepasst wurde; eines stillschweigend zu verlieren, würde Stunden kosten und erst bemerkt werden, wenn ein Lauf falsch ausfällt. 3. KEINE KONFIDENZUNTERGRENZE, DAHER TRÄGT DIE REIHENFOLGE DEN ZWEIFEL. Jeder nicht annotierte Bildausschnitt erhält einen Vorschlag, sortiert mit dem sichersten zuerst, und die prüfende Person hört dort auf, wo sie nicht mehr zustimmt. Ein Schwellenwert würde diese Entscheidung für sie treffen, mit einer Zahl, die niemand gewählt hat. 4. EIN URTEIL WIRD AUFGEZEICHNET, NICHT ABGELEITET (Punkt 512). Das Bestätigen eines Vorschlags macht ihn zu einem gewöhnlichen Label, das Ablehnen löscht ihn -- und beides wird neben der Spalte, in ``<column>_verdict``, als die bestätigte (``+c``) oder abgelehnte (``-c``) Klasse festgehalten. Eine Ablehnung ist eine Information, mit der die nächste Runde trainieren kann -- \"not class 1\" ist in einer Spalte mit zwei Klassen ein Beispiel für Klasse 2 --, wo ein NULL Schweigen gewesen wäre. Die Urteilsspalte wird beim ersten Öffnen einer Quelle hinzugefügt, sodass Tabellen, die vor ihrer Existenz angelegt wurden, sie ohne Migrationsschritt erhalten.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.ensure_verdict_column#0",

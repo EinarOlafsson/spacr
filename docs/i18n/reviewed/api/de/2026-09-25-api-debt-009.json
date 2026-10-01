@@ -922,7 +922,9 @@
       "source_sha256": "ee8bf065edb400a30ce7dbc6e4720c9e272fc20a3e6afc71c7d19b68cc0404a8",
       "context": "One scale slider per live preview, scaling that preview alone (item 471).",
       "translation": "Ein Skalierungsregler pro Live-Vorschau, der nur diese Vorschau skaliert (Eintrag 471).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#1",
@@ -938,7 +940,9 @@
       "source_sha256": "4e9e46511a7bc261ae82185b1937bd36319e36dac451378ffb1e819acb20289d",
       "context": "A window opened from the preview is not the preview (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
       "translation": "EIN AUS DER VORSCHAU GEÖFFNETES FENSTER IST NICHT DIE VORSCHAU (Eintrag 522). Ein Dialog mit dem Panel als Elternobjekt ist ein eigenes Fenster, doch Qt kaskadiert das skalierte Stylesheet des Panels hinein, und der Durchlauf fand ihn unter den Kindern des Panels: Bei 150 % waren die Schaltflächen eines Einstellungsdialogs 59 px hoch statt der 40 px jedes anderen Dialogs. Ein solches Fenster und alles darin werden auf 100 % gehalten, und das eigene Stylesheet des Fensters legt bei 100 % die Größen neu fest, die es sonst skaliert erben würde -- gesetzt, während es poliert wird, also bevor es zum ersten Mal angeordnet wird.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#11",
@@ -1466,7 +1470,9 @@
       "source_sha256": "b5d33d503c17395b6bb6224dc4cb5658d264808b5776fb30c00ed549fe49d21d",
       "context": "Item 509: the calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
       "translation": "Eintrag 509: Die Kalibrierung füllt sich selbst. Eine Auswahl von Mikroskopobjektiv, Kamera und Fluorophor oder \"Infer from images…\" füllt Vergrößerung, numerische Apertur, Brechungsindex, Emissionswellenlänge, Kamerapixel, Bildpixelgröße und gaußsche FWHM, wobei jedes Feld angibt, woher sein Wert stammt. Nur die Operation und die Objektivzeile werden angezeigt; der Rest liegt in einem Einklappbereich, der eingeklappt beginnt und sich merkt, dass er geöffnet wurde.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.qc_field_browser.QCFieldBrowser.closeEvent#1",
