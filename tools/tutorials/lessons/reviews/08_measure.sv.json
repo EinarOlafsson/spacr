@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
+  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -24,7 +24,9 @@
     "För att granska de här 16-bitars exempelutsnitten slår du på Normalize innan du öppnar Live. Då blir förhandsvisningen lättare att se. Kom ihåg att den här huvudinställningen också påverkar sparade utsnitt; vi stänger av den före batchkörningen.",
     "Slå på Live och välj ett synfält. Granska objektutsnitten och hur deras masker hänger ihop. Bläddra igenom kategorierna och förstora förhandsvisningen vid behov för att se gränserna tydligt.",
     "Använd väljaren för visad kanal för att granska en intensitetskanal i taget. Kanal 0 visar en gråskalevy; All channels återställer den kombinerade vyn. Väljaren ändrar förhandsvisningen utan att ändra etiketterna eller batchens kanalmappning.",
-    "Välj ett annat synfält och jämför dess objekt. Granska meddelandet om segmenteringskvalitet innan du mäter projektet. Om masker saknas eller är felaktigt sammanslagna rättar du dem eller justerar Mask innan du fortsätter.",
+    "Välj ett annat fält och jämför dess objekt. Om masker saknas eller är felaktigt sammanslagna rättar du dem eller justerar Mask innan du fortsätter.",
+    "För att kontrollera segmenteringskvaliteten i hela projektet före mätning slår du på QC i Actions-raden, bredvid 3D och Time. Fönstret listar fält och brunnar vars masker ser ovanliga ut, till exempel med betydligt färre objekt än resten av plattan, med länkar för att granska dem. Kontrollen är bara vägledande och stoppar aldrig Measure; när du stänger fönstret slås reglaget av.",
+    "Under All settings samlar Image Preprocessing de korrigeringar som Measure kan tillämpa på varje fält före mätning: Image Deconvolution med en punktspridningsfunktion och Illumination Correction med en modell som du skattat tidigare. De ändrar pixlarna som mäts i den här körningen; maskerna och arrayerna på disken ändras inte.",
     "Stäng av Live och återställ Normalize till av för det här exemplet. Välj normaliseringen medvetet när du sparar utsnitt: skalning per utsnitt ändrar de intensitetsskillnader som en senare bildklassificerare ser. Behåll de ursprungliga sammanslagna arrayerna för kvantitativa mätningar.",
     "Aktivera sparande av mätningar och objektutsnitt, låt Plot vara på och välj utsnittsstorlek och utdatakanaler. Använd en arbetsprocess i det här exemplet. Låt Test mode vara avstängt för att bearbeta alla sexton medföljande synfält och klicka sedan på Run.",
     "Följ konsolen tills körningen är klar. Kontrollera vilka synfält som lyckades och undersök eventuella fel innan du går vidare. Behåll de inställningar som sparats med körningen så att du kan återskapa mätningarna.",

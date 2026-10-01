@@ -47,8 +47,21 @@
     },
     {
       "visual": "preview_07_live_second_field",
-      "narration": "Choose another field and compare its objects. Review the segmentation-quality banner before measuring the project. If masks are missing or joined incorrectly, correct them or adjust Mask before continuing.",
+      "narration": "Choose another field and compare its objects. If masks are missing or joined incorrectly, correct them or adjust Mask before continuing.",
       "hold_after": 0.7
+    },
+    {
+      "visual": "09a_qc_popup",
+      "narration": "To check segmentation quality across the project before measuring, turn on QC in the Actions row, beside 3D and Time. Its popup lists the fields and wells whose masks look unusual, such as far fewer objects than the rest of the plate, with links to inspect them. The check is advisory and never stops Measure; closing the popup turns the switch off.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09b_image_preprocessing",
+      "narration": "Under All settings, Image Preprocessing holds the corrections Measure can apply to each field before measuring: Image Deconvolution with a point spread function, and Illumination Correction with a model you estimated earlier. They change the pixels that are measured in this run; the masks and the arrays on disk are not changed.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "43_illumination"
+      ]
     },
     {
       "visual": "preview_08_saved_normalization_restored",

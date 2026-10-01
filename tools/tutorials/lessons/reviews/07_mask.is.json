@@ -1,10 +1,10 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "f3857bc3da727e332cd16993840b67e8b1e444fcfe523266922653700cf7e5e4",
+  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,21 +15,20 @@
   "objectives": [
     "Hlaða inn smásjárdæminu og greina styrkleikarásir þess.",
     "Bera saman stillingar líkans og stærðarsíur hluta í Live-forskoðun.",
-    "Keyra aðgreiningu, skoða yfirlagnir og finna sameinaða úttakið."
+    "Setja upp afmarkaða prófkeyrslu og vita hvert sameinuð úttök hennar eru skrifuð."
   ],
   "prerequisite": "Opnaðu Mask og veldu Load test data. Fyrir eigin myndir útbýrðu upprunamöppu með samræmdum skráarheitum og þekktum rásum. Dæmið notar kjarnarás 0, frumurás 1 og sýkilrás 2, auk viðbótarstyrkleikarásar 3.",
   "scenes": [
     "Frá Home opnarðu Mask. Notaðu þessa einingu til að afmarka frumur, kjarna og sýkla í smásjármyndum. Þessi yfirferð vinnur úr tvívíðum myndum. Verkferlin fyrir Time, þrívídd og OPS hafa eigin kennslur.",
     "Smelltu á Load test data og bíddu þar til smásjárdæmið hefur hlaðist inn. Athugaðu Source áður en þú heldur áfram. Fyrir eigin myndir velurðu möppuna þeirra og staðfestir að skráarheitin tilgreini plötu, brunn, sjónsvið og rás.",
     "Berðu rásaúthlutanirnar saman við myndirnar. Í þessu dæmi er styrkur kjarna rás 0, styrkur frumna rás 1 og styrkur sýkla rás 2. Rás 3 er viðbótarstyrkleikamynd. Veldu aðeins þær gerðir hluta sem eru í tilrauninni þinni.",
+    "Undir inntakinu geymir taflan með stillingum fyrir hvern hlut það sem þú velur fyrir hvern hlut. Hver hlutur er dálkur, hér fruma, kjarni og sýkill, og hver lína spyr einnar spurningar: hvort fjarlægja eigi bakgrunn, þvermál hlutarins, skiptingarlíkanið, bakgrunnsgildið og mörk fyrir hlutfall merkis og suðs. Add a filter bætir við línu sem fjarlægir hluti eftir mældum eiginleika eins og flatarmáli, og Add an organelle bætir við öðrum hlutadálki.",
     "Kveiktu á Live og veldu sjónsvið. Skoðaðu myndina og tillögur að grímum saman áður en þú vinnur úr allri möppunni. Prófaðu nokkur sjónsvið sem endurspegla breidd myndgæða í tilrauninni.",
-    "Opnaðu Live settings og veldu líkanið fyrir hlutinn sem þú vilt aðgreina. Stilltu áætlað þvermál hlutarins og keyrðu forskoðunina. Berðu útlínurnar saman við myndina og gefðu gaum að hlutum sem misstust og hlutum sem runnu saman.",
+    "Opnaðu Live settings og veldu líkanið fyrir hlutinn sem þú vilt skipta. Stilltu áætlað þvermál hlutarins og smelltu svo á Run preview.",
+    "Þegar forskoðuninni lýkur skaltu bera útlínurnar saman við myndina. Leitaðu að hlutum sem misstust og nágrannahlutum sem runnu saman í einn. Stöðulínan segir hve margir hlutir fundust.",
     "Notaðu síu fyrir lágmarksflatarmál til að fela hluti sem eru minni en valinn fjöldi díla. Hærra gildi fjarlægir litlar merkingar úr forskoðuninni. Sían uppfærir grímuniðurstöðu sem þegar er til, svo þú getur borið stærðarmörk saman hratt.",
-    "Breyttu þvermálinu þegar líkanið skiptir eða sameinar hluti á röngum kvarða og keyrðu forskoðunina aftur. Athugaðu mörkin jafnt sem fjölda hluta. Settu aftur inn stillingarnar sem þú vilt nota áður en þú ferð í runukeyrsluna.",
-    "Fyrir litla fyrstu keyrslu velurðu tvær prófunarmyndir, hefur kveikt á Plot og ferð yfir flæðisþröskulda frumna, kjarna og sýkla. Hér eru þeir 0,4. Athugaðu stillingar fyrir úttak og varðveislu upprunalegu myndanna og smelltu svo á Run.",
-    "Fylgstu með stjórnborðinu og skoðaðu sjónsvið sem mistókust eða myndrit sem vantar. Mappan merged inniheldur styrk myndanna og lokamerkingar hlutanna. Geymdu lýsigögn hennar um uppsetningu laga með fylkjunum svo Measure geti greint hverja rás og grímu.",
-    "Ef útflutning yfirlagnar vantar getur tengda teiknihjálpartólið flutt út vistuðu fylkin sérstaklega. Afþjappaðu hjálpartólið og veldu möppuna merged úr þessari keyrslu. Láttu uppsetningarskrána vera á sínum stað; hjálpartólið notar hana til að athuga styrkleika- og grímulögin.",
-    "Keyrðu hjálpartólið með möppuna merged sem uppruna og nýja úttaksmöppu sem áfangastað. Það vistar sérstaka yfirlögn fyrir hvert myndfylki. Opnaðu vistuðu PNG-skrárnar til að skoða niðurstöðurnar.",
-    "Farðu yfir útlínurnar á hverri styrkleikarás og í sameinaðri grímusýn. Athugaðu litla hluti, frumur sem snertast og svæði sem misstust. Haltu inntaksmyndum, stillingum, grímum og gæðaskýrslum saman og haltu svo áfram í Measure til að draga út eiginleika og úrklipp hlutanna."
+    "Settu lágmarksflatarmálið aftur á núll til að fá alla hluti til baka. Ef líkanið skiptir eða sameinar hluti í rangri stærð skaltu breyta Diameter og keyra forskoðunina aftur, og skoða bæði jaðrana og fjöldann. Settu inn þær stillingar sem þú vilt áður en keyrt er á öllu.",
+    "Fyrir litla fyrstu keyrslu skaltu kveikja á Test mode með tveimur prófmyndum og hafa Plot á. Taflan fyrir hvern hlut geymir þvermálin fyrir þessa keyrslu; athugaðu líka flæðimörkin fyrir frumu, kjarna og sýkil. Hafðu Save á undir Quality Control svo keyrslan vistar grímur sínar og gæðaskýrslur.",
+    "Smelltu á Run og fylgstu með stjórnborðinu, og skoðaðu svið sem mistókust eða gröf sem vantar. Keyrslan skrifar merged-möppu með styrk myndanna og endanlegum merkjum hlutanna, og geymir lýsigögn um lagaskipan við hlið fylkjanna svo Measure þekki hverja rás og grímu. Haltu inntaki, stillingum, grímum og gæðaskýrslum saman og haltu svo áfram í Measure til að draga út eiginleika og búta hlutanna."
   ]
 }

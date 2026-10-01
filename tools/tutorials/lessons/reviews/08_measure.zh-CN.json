@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
+  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -24,7 +24,9 @@
     "要查看这些十六位的示例裁剪图像，请在打开Live之前开启Normalize。这样预览更容易看清。请记住，这个主设置也会影响保存的裁剪图像；在本次批量运行之前我们会把它关闭。",
     "打开Live并选择一个视野。检查对象裁剪图像及其掩膜之间的关系。滚动浏览各个类别，必要时放大预览，以便看清边界。",
     "使用显示通道选择器，一次检查一个强度通道。通道零显示灰度视图；All channels恢复合成视图。这个选择器只改变预览，不会改变标签或批量处理的通道映射。",
-    "选择另一个视野并比较其中的对象。测量项目之前，请查看分割质量提示栏。如果掩膜缺失或被错误合并，请先修正它们或调整Mask，然后再继续。",
+    "选择另一个视野并比较其中的对象。如果掩膜缺失或被错误合并，请在继续之前修正它们或调整 Mask。",
+    "要在测量前检查整个项目的分割质量，请打开 Actions 行中 3D 和 Time 旁边的 QC。弹出窗口会列出掩膜看起来异常的视野和孔，例如对象数量远少于板上其他部分，并提供可供检查的链接。该检查仅供参考，从不会阻止 Measure；关闭弹出窗口时开关会随之关闭。",
+    "在 All settings 下，Image Preprocessing 汇集了 Measure 在测量前可对每个视野应用的校正：使用点扩散函数的 Image Deconvolution，以及使用先前估计模型的 Illumination Correction。它们会改变本次运行中被测量的像素；掩膜和磁盘上的数组不会改变。",
     "关闭Live，并在本例中把Normalize恢复为关闭。保存裁剪图像时请有意识地选择归一化方式：逐个裁剪图像进行缩放，会改变之后图像分类器看到的强度差异。定量测量请保留原始的合并数组。",
     "开启测量数据和对象裁剪图像的保存，保持Plot开启，并选择裁剪尺寸和输出通道。本例使用一个工作进程。保持Test mode关闭，以处理提供的全部十六个视野，然后点击Run。",
     "在控制台中跟踪，直到运行完成。检查哪些视野成功，继续之前先排查失败的视野。把与本次运行一起保存的设置留好，以便重现测量结果。",

@@ -1,10 +1,10 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "f3857bc3da727e332cd16993840b67e8b1e444fcfe523266922653700cf7e5e4",
+  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,21 +15,20 @@
   "objectives": [
     "Läsa in mikroskopiexemplet och identifiera dess intensitetskanaler.",
     "Jämföra modellinställningar och storleksfilter i Live-förhandsvisningen.",
-    "Köra segmenteringen, granska överlägg och hitta de sammanslagna utdata."
+    "Ställa in en avgränsad testkörning och veta var dess sammanslagna utdata skrivs."
   ],
   "prerequisite": "Öppna Mask och välj Load test data. För egna bilder förbereder du en källmapp med konsekventa filnamn och kända kanaler. Exemplet använder kärnkanal 0, cellkanal 1 och patogenkanal 2, samt en extra intensitetskanal 3.",
   "scenes": [
     "Från Home öppnar du Mask. Använd modulen för att avgränsa celler, kärnor och patogener i mikroskopbilder. Den här genomgången bearbetar tvådimensionella bilder. Arbetsflödena för Time, 3D och OPS har egna handledningar.",
     "Klicka på Load test data och vänta tills mikroskopiexemplet har lästs in. Kontrollera Source innan du fortsätter. För egna bilder väljer du deras mapp och kontrollerar att filnamnen anger platta, brunn, synfält och kanal.",
     "Kontrollera kanaltilldelningarna mot bilderna. I exemplet är kärnintensiteten kanal 0, cellintensiteten kanal 1 och patogenintensiteten kanal 2. Kanal 3 är en extra intensitetsbild. Välj bara de objekttyper som finns i ditt experiment.",
+    "Under indata samlar tabellen med inställningar per objekt det du väljer för varje objekt. Varje objekt är en kolumn, här cell, kärna och patogen, och varje rad ställer en fråga: om bakgrunden ska tas bort, objektets diameter, segmenteringsmodellen, bakgrundsnivån och gränsen för signal-brus-förhållandet. Add a filter lägger till en rad som tar bort objekt efter en mätt egenskap som yta, och Add an organelle lägger till ytterligare en objektkolumn.",
     "Slå på Live och välj ett synfält. Granska bilden och de föreslagna maskerna tillsammans innan du bearbetar hela mappen. Prova flera synfält som representerar spännvidden i bildkvalitet i ditt experiment.",
-    "Öppna Live settings och välj modellen för det objekt du vill segmentera. Ange den ungefärliga objektdiametern och kör förhandsvisningen. Jämför konturerna med bilden och var uppmärksam på missade och sammanslagna objekt.",
+    "Öppna Live settings och välj modellen för objektet du vill segmentera. Ange ungefärlig objektdiameter och klicka sedan på Run preview.",
+    "När förhandsvisningen är klar jämför du konturerna med bilden. Leta efter missade objekt och närliggande objekt som slagits ihop till ett. Statusraden visar hur många objekt som hittades.",
     "Använd filtret för minsta area för att dölja objekt som är mindre än det valda antalet pixlar. Om du höjer det försvinner små etiketter från förhandsvisningen. Filtret uppdaterar ett befintligt maskresultat, så du kan snabbt jämföra storleksgränser.",
-    "Ändra diametern när modellen delar eller slår ihop objekt i fel skala och kör förhandsvisningen igen. Kontrollera gränserna och inte bara antalet objekt. Återställ de inställningar du vill använda innan du går vidare till batchkörningen.",
-    "För en liten första körning väljer du två testbilder, låter Plot vara på och granskar flödeströsklarna för celler, kärnor och patogener. Här är de 0,4. Kontrollera inställningarna för utdata och för att behålla originalbilderna och klicka sedan på Run.",
-    "Följ konsolen och granska synfält som misslyckats eller figurer som saknas. Mappen merged innehåller bildintensiteterna och objektens slutliga etiketter. Behåll dess metadata om planlayout tillsammans med arrayerna så att Measure kan identifiera varje kanal och mask.",
-    "Om en överläggsexport saknas kan det länkade ritverktyget exportera de sparade arrayerna separat. Packa upp verktyget och välj körningens mapp merged. Låt layoutfilen ligga kvar; verktyget använder den för att kontrollera intensitets- och maskplanen.",
-    "Kör verktyget med mappen merged som källa och en ny utdatamapp som mål. Det sparar ett separat överlägg för varje bildarray. Öppna de sparade PNG-filerna för att granska resultaten.",
-    "Granska konturerna på varje intensitetskanal och i den kombinerade maskvyn. Kontrollera små objekt, celler som rör vid varandra och missade områden. Håll ihop indatabilder, inställningar, masker och kvalitetsrapporter och fortsätt sedan till Measure för att ta fram objektens egenskaper och utsnitt."
+    "Sätt minsta ytan till noll igen för att få tillbaka alla objekt. Om modellen delar eller slår ihop objekt i fel skala ändrar du Diameter och kör förhandsvisningen igen, och kontrollerar både gränserna och antalet. Återställ de inställningar du vill använda före batchkörningen.",
+    "För en liten första körning slår du på Test mode med två testbilder och låter Plot vara på. Tabellen per objekt innehåller diametrarna för den här körningen; kontrollera även flödeströsklarna för cell, kärna och patogen. Låt Save under Quality Control vara på så att körningen sparar sina masker och kvalitetsrapporter.",
+    "Klicka på Run och följ konsolen, och granska misslyckade fält eller saknade diagram. Körningen skriver en merged-mapp med bildintensiteterna och de slutliga objektetiketterna, och lägger metadata om planlayouten bredvid arrayerna så att Measure kan identifiera varje kanal och mask. Håll indata, inställningar, masker och kvalitetsrapporter samlade och fortsätt sedan till Measure för att extrahera objektegenskaper och utsnitt."
   ]
 }

@@ -1,10 +1,10 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "f3857bc3da727e332cd16993840b67e8b1e444fcfe523266922653700cf7e5e4",
+  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,21 +15,20 @@
   "objectives": [
     "Carregar o exemplo de microscopia e identificar os canais de intensidade.",
     "Comparar configurações do modelo e filtros de tamanho de objeto na pré-visualização Live.",
-    "Executar a segmentação, inspecionar as sobreposições e encontrar as saídas combinadas."
+    "Configurar uma execução de teste limitada e saber onde suas saídas combinadas são gravadas."
   ],
   "prerequisite": "Abra Mask e escolha Load test data. Para suas próprias imagens, prepare uma pasta de origem com nomes de arquivo consistentes e canais conhecidos. Este exemplo usa o canal de núcleos 0, o canal de células 1 e o canal de patógenos 2, com um canal de intensidade adicional 3.",
   "scenes": [
     "Na tela Home, abra Mask. Use este módulo para contornar células, núcleos e patógenos em imagens de microscópio. Este passo a passo processa imagens bidimensionais. Os fluxos de Time, tridimensional e OPS têm tutoriais próprios.",
     "Clique em Load test data e aguarde o exemplo de microscopia carregar. Confira Source antes de continuar. Para suas próprias imagens, selecione a pasta delas e confirme que os nomes de arquivo identificam a placa, o poço, o campo e o canal.",
     "Compare as atribuições de canais com as imagens. Neste exemplo, a intensidade dos núcleos é o canal zero, a das células é o canal um e a dos patógenos é o canal dois. O canal três é uma imagem de intensidade adicional. Escolha apenas os tipos de objeto presentes no seu experimento.",
+    "Abaixo das entradas, a tabela de configurações por objeto reúne o que você escolhe para cada objeto. Cada objeto é uma coluna, aqui célula, núcleo e patógeno, e cada linha faz uma pergunta: se o fundo deve ser removido, o diâmetro do objeto, o modelo de segmentação, o nível de fundo e o limite da relação sinal-ruído. Add a filter adiciona uma linha que remove objetos por uma propriedade medida, como a área, e Add an organelle adiciona outra coluna de objeto.",
     "Ative Live e selecione um campo. Inspecione juntos a imagem e as máscaras propostas antes de processar a pasta inteira. Experimente vários campos que representem a variação de qualidade de imagem do seu experimento.",
-    "Abra Live settings e escolha o modelo para o objeto que você quer segmentar. Defina o diâmetro aproximado do objeto e execute a pré-visualização. Compare os contornos com a imagem, prestando atenção a objetos perdidos e objetos unidos.",
+    "Abra Live settings e escolha o modelo para o objeto que deseja segmentar. Defina o diâmetro aproximado do objeto e clique em Run preview.",
+    "Quando a prévia terminar, compare os contornos com a imagem. Procure objetos não detectados e objetos vizinhos unidos em um só. A linha de status informa quantos objetos foram encontrados.",
     "Use o filtro de área mínima para esconder objetos menores que o número de pixels escolhido. Aumentá-lo remove rótulos pequenos da pré-visualização. Esse filtro atualiza um resultado de máscara já existente, então você pode comparar limites de tamanho rapidamente.",
-    "Mude o diâmetro quando o modelo estiver dividindo ou juntando objetos na escala errada e execute a pré-visualização de novo. Confira as bordas além da contagem de objetos. Restaure as configurações que quer usar antes de passar para a execução em lote.",
-    "Para uma primeira execução pequena, selecione duas imagens de teste, mantenha Plot ativado e revise os limiares de fluxo de células, núcleos e patógenos. Aqui eles são zero vírgula quatro. Confira as configurações de saída e de retenção das imagens originais e clique em Run.",
-    "Acompanhe o console e inspecione campos com falha ou gráficos ausentes. A pasta merged contém as intensidades de imagem e os rótulos finais dos objetos. Mantenha os metadados de layout de planos junto com os arranjos para que o Measure possa identificar cada canal e cada máscara.",
-    "Se faltar uma exportação de sobreposição, a ferramenta de gráficos vinculada pode exportar separadamente os arranjos salvos. Extraia a ferramenta e escolha a pasta merged desta execução. Deixe o arquivo de layout no lugar; a ferramenta o usa para conferir os planos de intensidade e de máscara.",
-    "Execute a ferramenta com a pasta merged como origem e uma nova pasta de saída como destino. Ela salva uma sobreposição separada para cada arranjo de imagem. Abra os arquivos PNG salvos para inspecionar os resultados.",
-    "Revise os contornos em cada canal de intensidade e na visualização combinada das máscaras. Confira objetos pequenos, células encostadas e regiões perdidas. Mantenha juntos as imagens de entrada, as configurações, as máscaras e os relatórios de qualidade e continue em Measure para extrair as características e os recortes dos objetos."
+    "Volte a área mínima para zero para trazer todos os objetos de volta. Se o modelo divide ou une objetos na escala errada, altere Diameter e execute a prévia de novo, verificando as bordas além da contagem. Restaure as configurações desejadas antes da execução em lote.",
+    "Para uma primeira execução pequena, ative Test mode com duas imagens de teste e mantenha Plot ativado. A tabela por objeto traz os diâmetros desta execução; confira também os limiares de fluxo de célula, núcleo e patógeno. Mantenha Save ativado em Quality Control para que a execução salve suas máscaras e relatórios de qualidade.",
+    "Clique em Run e acompanhe o console, verificando campos com falha ou gráficos ausentes. A execução grava uma pasta merged com as intensidades da imagem e os rótulos finais dos objetos, e guarda ao lado dos arrays os metadados da disposição dos planos para que Measure identifique cada canal e máscara. Mantenha juntos as entradas, as configurações, as máscaras e os relatórios de qualidade, e siga para Measure para extrair características e recortes dos objetos."
   ]
 }

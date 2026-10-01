@@ -71,6 +71,7 @@ WIDGET_LABELS = {
     "PlaqueEstimateScaleTime": ("Estimate scale / time (experimental)",
                                 "Experimental growth estimates"),
     "PlaqueEstimateScaleTimeNote": ("Published RH/HFF reference",),
+    "MakeMasksUseInMaskGeneration": ("Use in Mask generation",),
     "DistributedAllocatedGpus": ("segment batches on every GPU allocated",),
     "MaskGpuProgress": (),
     "MeasureConfluencyToggle": ("Confluency",),

@@ -100,6 +100,8 @@ def main() -> int:
                         help='With --openings: which shared or lesson-extension frames to record')
     parser.add_argument('--preview-filter-only', action='store_true', help='With --preview-variants, record the size filter but no second model run')
     parser.add_argument('--plaque-current-tour', action='store_true', help='Record the current Plaque preview overlay settings, Help route and Figure mode on the synthetic example')
+    parser.add_argument('--batch-settings-only', action='store_true', help='Configure the bounded run and record its settings, but do not press Run (CPU recordings of slow models)')
+    parser.add_argument('--clear-console-after-load', action='store_true', help='Press Clear console after the example loads (its report lists hidden alpha setting names)')
     parser.add_argument('--measure-qc-tour', action='store_true', help='Record the QC switch popup and the Image Preprocessing category after loading Measure data')
     parser.add_argument('--timeout', type=float, default=600)
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
@@ -909,6 +911,11 @@ def main() -> int:
             screen = window._screens[args.module]
             if not screen.isVisible():
                 raise RuntimeError('The current module screen is not visible after loading data')
+            if args.clear_console_after_load:
+                # The example's load report names every setting the form does
+                # not show, alpha ones included; clear it the way a user does.
+                QTest.mouseClick(screen._btn_clear, Qt.LeftButton)
+                settle(1)
             if not (args.module == 'annotate' and args.annotation_tour):
                 capture('03_data_ready')
             # Annotate's automatic opening displays the real account cache
@@ -1248,7 +1255,7 @@ def main() -> int:
                                      'rerun_completed': True},
                 })
                 dialog.close()
-        if args.run:
+        if args.run or args.batch_settings_only:
             model = screen._settings_model
             if args.module == 'measure' and model.collect().get('normalize'):
                 # Show the real scientific caveat, then choose No. Crops may
@@ -1387,152 +1394,153 @@ def main() -> int:
                 screen._preview_switch.setChecked(False)
             settle()
             capture('20_batch_settings')
-            def reject_unexpected_prompt():
-                for box in app.topLevelWidgets():
-                    if isinstance(box, QMessageBox) and box.isVisible():
-                        capture('21_unexpected_run_prompt')
-                        write_json(captures / 'unexpected_prompt.json', {
-                            'title': box.windowTitle(), 'text': box.text(), 'accepted': False})
-                        box.reject()
-            QTimer.singleShot(1000, reject_unexpected_prompt)
-            QTest.mouseClick(screen._btn_run, Qt.LeftButton)
-            worker = getattr(screen, '_worker', None)
-            if worker is None:
-                capture('21_batch_not_started')
-                raise RuntimeError('The Run button did not start a pipeline worker')
-            outcome = {'finished': False, 'ok': False, 'errors': []}
-            def finished(ok):
-                outcome.update(finished=True, ok=bool(ok))
-            worker.finished.connect(finished)
-            worker.error.connect(lambda text: outcome['errors'].append(str(text)))
-            settle(1)
-            capture('21_batch_running')
-            deadline = time.monotonic() + args.timeout
-            next_frame = time.monotonic() + 20
-            while not outcome['finished'] or screen._worker_thread_is_running():
-                if time.monotonic() > deadline:
-                    QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
-                    settle(3)
-                    raise TimeoutError('Bounded pipeline exceeded the recording time limit')
-                if time.monotonic() >= next_frame:
-                    capture('22_batch_progress')
-                    next_frame = time.monotonic() + 30
-                settle(0.2)
-            settle(2)
-            write_json(captures / 'batch_outcome.json', outcome)
-            blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
-            write_json(captures / 'batch_console.json', blocks)
-            write_json(captures / 'settings_after_run.json', screen._settings_model.collect())
-            for block, _, _ in screen._console._pipeline_console_blocks():
-                # Real text selection/navigation, including an internally
-                # scrollable console block, not a replacement transcript.
-                block.setFocus()
-                QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-            screen._console.jump_to_the_end()
-            settle()
-            capture('23_batch_finished')
-            if not outcome['ok'] or outcome['errors']:
-                raise RuntimeError('The real pipeline failed; see batch_outcome.json')
-            queue = screen._figure_queue
-            requires_figure = args.module != 'map_barcodes'
-            if requires_figure and queue.count() < 1:
-                raise RuntimeError('Plot was enabled but the run produced no inspectable figure')
-            figures = []
-            for index, pixmap in enumerate(queue.all_pixmaps()):
-                path = captures / f'batch_figure_{index:02d}.png'
-                if not pixmap.save(str(path), 'PNG'):
-                    raise RuntimeError(f'Could not preserve figure {index}')
-                figures.append({'image': path.name, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
-            write_json(captures / 'batch_figures.json', figures)
-            acceptance = assess_pipeline(outcome, blocks, len(figures), requires_figure=requires_figure)
-            write_json(captures / 'batch_acceptance.json', acceptance)
-            if not acceptance['accepted']:
-                raise RuntimeError('Recording is not a successful complete example: '
-                                   + '; '.join(acceptance['reasons']))
-            if queue.count():
-                queue.show_index(queue.count() - 1)
-                settle()
-                capture('24_batch_figure')
-            if args.module == 'mask':
-                # The run's own overlay figures, as the figure panel shows them.
-                for index in range(min(3, queue.count())):
-                    queue.show_index(index)
-                    settle(2)
-                    capture(f'25_mask_figure_{index:02d}')
-            if args.module == 'classify_merged' and args.classifier_family == 'ml':
-                # Make room for the complete native charts through the same
-                # splitter a user can drag. Let each live canvas settle after
-                # navigation; never crop or rebuild a chart for the video.
-                screen._runtime_splitter.setSizes([1200, 450])
-                for index in range(queue.count()):
-                    queue.show_index(index)
-                    settle(2)
-                    capture(f'25_ml_figure_{index:02d}')
-            if args.module == 'measure':
-                from capture_settings import require_unchanged_settings
-                before_tour = screen._settings_model.collect()
-                if screen._usage_card.body.isVisible():
-                    QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
-                screen._runtime_splitter.setSizes([1400, 300])
-                for index in (0, 1, 2):
-                    queue.show_index(index)
-                    settle()
-                    capture(f'25_measure_figure_{index:02d}')
-                screen._runtime_splitter.setSizes([300, 1400])
-                screen._console._split.setSizes([1200, 100])
+            if not args.batch_settings_only:
+                def reject_unexpected_prompt():
+                    for box in app.topLevelWidgets():
+                        if isinstance(box, QMessageBox) and box.isVisible():
+                            capture('21_unexpected_run_prompt')
+                            write_json(captures / 'unexpected_prompt.json', {
+                                'title': box.windowTitle(), 'text': box.text(), 'accepted': False})
+                            box.reject()
+                QTimer.singleShot(1000, reject_unexpected_prompt)
+                QTest.mouseClick(screen._btn_run, Qt.LeftButton)
+                worker = getattr(screen, '_worker', None)
+                if worker is None:
+                    capture('21_batch_not_started')
+                    raise RuntimeError('The Run button did not start a pipeline worker')
+                outcome = {'finished': False, 'ok': False, 'errors': []}
+                def finished(ok):
+                    outcome.update(finished=True, ok=bool(ok))
+                worker.finished.connect(finished)
+                worker.error.connect(lambda text: outcome['errors'].append(str(text)))
+                settle(1)
+                capture('21_batch_running')
+                deadline = time.monotonic() + args.timeout
+                next_frame = time.monotonic() + 20
+                while not outcome['finished'] or screen._worker_thread_is_running():
+                    if time.monotonic() > deadline:
+                        QTest.mouseClick(screen._btn_stop, Qt.LeftButton)
+                        settle(3)
+                        raise TimeoutError('Bounded pipeline exceeded the recording time limit')
+                    if time.monotonic() >= next_frame:
+                        capture('22_batch_progress')
+                        next_frame = time.monotonic() + 30
+                    settle(0.2)
+                settle(2)
+                write_json(captures / 'batch_outcome.json', outcome)
+                blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
+                write_json(captures / 'batch_console.json', blocks)
+                write_json(captures / 'settings_after_run.json', screen._settings_model.collect())
                 for block, _, _ in screen._console._pipeline_console_blocks():
+                    # Real text selection/navigation, including an internally
+                    # scrollable console block, not a replacement transcript.
                     block.setFocus()
                     QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
                 screen._console.jump_to_the_end()
                 settle()
-                capture('26_measure_console_complete')
-                require_unchanged_settings(before_tour, screen._settings_model.collect())
-                write_json(captures / 'readable_results_tour.json', {
-                    'display_only': True, 'settings_unchanged': True,
-                    'figure_indices': [0, 1, 2], 'console_complete_shown': True})
-            if args.module == 'recruitment':
-                # Preserve the genuine overlay and every calculated chart.
-                # The archived masks are NOT asserted to be the postprocessed
-                # masks behind the stored measurement rows.
-                if 'Failed to plot images with outlines' in '\n'.join(blocks):
-                    raise RuntimeError('The actual Recruitment overlay failed')
-                if queue.count() < 5:
-                    raise RuntimeError('Recruitment did not produce its overlay and four charts')
-                width = sum(screen._body_splitter.sizes())
-                screen._body_splitter.setSizes([width // 4, width - width // 4])
-                screen._settings_scroll.horizontalScrollBar().setValue(0)
-                if screen._usage_card.body.isVisible():
-                    QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
-                screen._runtime_splitter.setSizes([1200, 450])
-                for index in range(queue.count()):
-                    queue.show_index(index)
+                capture('23_batch_finished')
+                if not outcome['ok'] or outcome['errors']:
+                    raise RuntimeError('The real pipeline failed; see batch_outcome.json')
+                queue = screen._figure_queue
+                requires_figure = args.module != 'map_barcodes'
+                if requires_figure and queue.count() < 1:
+                    raise RuntimeError('Plot was enabled but the run produced no inspectable figure')
+                figures = []
+                for index, pixmap in enumerate(queue.all_pixmaps()):
+                    path = captures / f'batch_figure_{index:02d}.png'
+                    if not pixmap.save(str(path), 'PNG'):
+                        raise RuntimeError(f'Could not preserve figure {index}')
+                    figures.append({'image': path.name, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
+                write_json(captures / 'batch_figures.json', figures)
+                acceptance = assess_pipeline(outcome, blocks, len(figures), requires_figure=requires_figure)
+                write_json(captures / 'batch_acceptance.json', acceptance)
+                if not acceptance['accepted']:
+                    raise RuntimeError('Recording is not a successful complete example: '
+                                       + '; '.join(acceptance['reasons']))
+                if queue.count():
+                    queue.show_index(queue.count() - 1)
                     settle()
-                    capture(f'25_recruitment_figure_{index:02d}')
-                screen._runtime_splitter.setSizes([300, 1350])
-                screen._console._split.setSizes([1200, 100])
-                for block, _, _ in screen._console._pipeline_console_blocks():
-                    block.setFocus()
-                    QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
-                screen._console.jump_to_the_end()
-                settle()
-                capture('26_recruitment_console_counts')
-                screen._runtime_splitter.setSizes([1200, 450])
-            if args.module == 'map_barcodes':
-                from capture_sequencing import inspect_mapping
-                write_json(captures / 'mapping_outputs.json',
-                           inspect_mapping(Path(settings['src']), sequence_choice['run'], 10000))
-                if args.barcode_search_tour:
-                    from map_barcodes_data import verify_counts
-                    references = json.loads((captures / 'mapping_reference_selection.json').read_text())
-                    proof = verify_counts(Path(settings['src']) / (sequence_choice['run'] + '_paired'),
-                                          references, 10000)
-                    write_json(captures / 'scientific_acceptance.json', proof)
-            if args.settings_tour and args.module == 'regression':
-                from capture_settings import record_results
-                record_results(screen, captures, capture, settle, write_json)
-            if args.settings_tour and args.module == 'umap':
-                from capture_umap import record_explorer
-                record_explorer(screen, captures, capture, settle, write_json)
+                    capture('24_batch_figure')
+                if args.module == 'mask':
+                    # The run's own overlay figures, as the figure panel shows them.
+                    for index in range(min(3, queue.count())):
+                        queue.show_index(index)
+                        settle(2)
+                        capture(f'25_mask_figure_{index:02d}')
+                if args.module == 'classify_merged' and args.classifier_family == 'ml':
+                    # Make room for the complete native charts through the same
+                    # splitter a user can drag. Let each live canvas settle after
+                    # navigation; never crop or rebuild a chart for the video.
+                    screen._runtime_splitter.setSizes([1200, 450])
+                    for index in range(queue.count()):
+                        queue.show_index(index)
+                        settle(2)
+                        capture(f'25_ml_figure_{index:02d}')
+                if args.module == 'measure':
+                    from capture_settings import require_unchanged_settings
+                    before_tour = screen._settings_model.collect()
+                    if screen._usage_card.body.isVisible():
+                        QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
+                    screen._runtime_splitter.setSizes([1400, 300])
+                    for index in (0, 1, 2):
+                        queue.show_index(index)
+                        settle()
+                        capture(f'25_measure_figure_{index:02d}')
+                    screen._runtime_splitter.setSizes([300, 1400])
+                    screen._console._split.setSizes([1200, 100])
+                    for block, _, _ in screen._console._pipeline_console_blocks():
+                        block.setFocus()
+                        QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
+                    screen._console.jump_to_the_end()
+                    settle()
+                    capture('26_measure_console_complete')
+                    require_unchanged_settings(before_tour, screen._settings_model.collect())
+                    write_json(captures / 'readable_results_tour.json', {
+                        'display_only': True, 'settings_unchanged': True,
+                        'figure_indices': [0, 1, 2], 'console_complete_shown': True})
+                if args.module == 'recruitment':
+                    # Preserve the genuine overlay and every calculated chart.
+                    # The archived masks are NOT asserted to be the postprocessed
+                    # masks behind the stored measurement rows.
+                    if 'Failed to plot images with outlines' in '\n'.join(blocks):
+                        raise RuntimeError('The actual Recruitment overlay failed')
+                    if queue.count() < 5:
+                        raise RuntimeError('Recruitment did not produce its overlay and four charts')
+                    width = sum(screen._body_splitter.sizes())
+                    screen._body_splitter.setSizes([width // 4, width - width // 4])
+                    screen._settings_scroll.horizontalScrollBar().setValue(0)
+                    if screen._usage_card.body.isVisible():
+                        QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
+                    screen._runtime_splitter.setSizes([1200, 450])
+                    for index in range(queue.count()):
+                        queue.show_index(index)
+                        settle()
+                        capture(f'25_recruitment_figure_{index:02d}')
+                    screen._runtime_splitter.setSizes([300, 1350])
+                    screen._console._split.setSizes([1200, 100])
+                    for block, _, _ in screen._console._pipeline_console_blocks():
+                        block.setFocus()
+                        QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
+                    screen._console.jump_to_the_end()
+                    settle()
+                    capture('26_recruitment_console_counts')
+                    screen._runtime_splitter.setSizes([1200, 450])
+                if args.module == 'map_barcodes':
+                    from capture_sequencing import inspect_mapping
+                    write_json(captures / 'mapping_outputs.json',
+                               inspect_mapping(Path(settings['src']), sequence_choice['run'], 10000))
+                    if args.barcode_search_tour:
+                        from map_barcodes_data import verify_counts
+                        references = json.loads((captures / 'mapping_reference_selection.json').read_text())
+                        proof = verify_counts(Path(settings['src']) / (sequence_choice['run'] + '_paired'),
+                                              references, 10000)
+                        write_json(captures / 'scientific_acceptance.json', proof)
+                if args.settings_tour and args.module == 'regression':
+                    from capture_settings import record_results
+                    record_results(screen, captures, capture, settle, write_json)
+                if args.settings_tour and args.module == 'umap':
+                    from capture_umap import record_explorer
+                    record_explorer(screen, captures, capture, settle, write_json)
         if args.annotation_tour:
             from capture_annotate import record_annotation
             record_annotation(app, window, screen, stage, captures, capture,

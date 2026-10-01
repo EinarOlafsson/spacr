@@ -1,10 +1,10 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "f3857bc3da727e332cd16993840b67e8b1e444fcfe523266922653700cf7e5e4",
+  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,21 +15,20 @@
   "objectives": [
     "Das Mikroskopiebeispiel laden und seine Intensitätskanäle erkennen.",
     "Modelleinstellungen und Objektgrößenfilter in der Live-Vorschau vergleichen.",
-    "Die Segmentierung ausführen, Überlagerungen prüfen und die zusammengeführten Ausgaben finden."
+    "Einen begrenzten Testlauf einrichten und wissen, wohin seine zusammengeführten Ausgaben geschrieben werden."
   ],
   "prerequisite": "Öffnen Sie Mask und wählen Sie Load test data. Bereiten Sie für eigene Bilder einen Quellordner mit einheitlichen Dateinamen und bekannten Kanälen vor. Dieses Beispiel verwendet Kernkanal 0, Zellkanal 1 und Pathogenkanal 2 sowie einen zusätzlichen Intensitätskanal 3.",
   "scenes": [
     "Öffnen Sie von Home aus Mask. Mit diesem Modul umranden Sie Zellen, Kerne und Pathogene in Mikroskopbildern. Diese Anleitung verarbeitet zweidimensionale Bilder. Die Workflows für Time, 3D und OPS haben eigene Tutorials.",
     "Klicken Sie auf Load test data und warten Sie, bis das Mikroskopiebeispiel geladen ist. Prüfen Sie Source, bevor Sie fortfahren. Wählen Sie für eigene Bilder deren Ordner und prüfen Sie, dass die Dateinamen Platte, Well, Bildfeld und Kanal angeben.",
     "Gleichen Sie die Kanalzuordnungen mit den Bildern ab. In diesem Beispiel ist die Kernintensität Kanal 0, die Zellintensität Kanal 1 und die Pathogenintensität Kanal 2. Kanal 3 ist ein zusätzliches Intensitätsbild. Wählen Sie nur die Objekttypen, die in Ihrem Experiment vorkommen.",
+    "Unter den Eingaben enthält die Tabelle der objektbezogenen Einstellungen, was Sie für jedes Objekt wählen. Jedes Objekt ist eine Spalte, hier Zelle, Kern und Pathogen, und jede Zeile stellt eine Frage: ob der Hintergrund entfernt wird, der Objektdurchmesser, das Segmentierungsmodell, der Hintergrundwert und die Grenze für das Signal-Rausch-Verhältnis. Add a filter fügt eine Zeile hinzu, die Objekte nach einer gemessenen Eigenschaft wie der Fläche entfernt, und Add an organelle fügt eine weitere Objektspalte hinzu.",
     "Schalten Sie Live ein und wählen Sie ein Bildfeld. Prüfen Sie Bild und vorgeschlagene Masken gemeinsam, bevor Sie den ganzen Ordner verarbeiten. Probieren Sie mehrere Bildfelder, die die Bandbreite der Bildqualität Ihres Experiments abbilden.",
-    "Öffnen Sie Live settings und wählen Sie das Modell für das zu segmentierende Objekt. Legen Sie den ungefähren Objektdurchmesser fest und starten Sie die Vorschau. Vergleichen Sie die Umrisse mit dem Bild und achten Sie auf übersehene und zusammengefügte Objekte.",
+    "Öffnen Sie Live settings und wählen Sie das Modell für das Objekt, das Sie segmentieren möchten. Legen Sie den ungefähren Objektdurchmesser fest und klicken Sie dann auf Run preview.",
+    "Wenn die Vorschau fertig ist, vergleichen Sie die Umrisse mit dem Bild. Achten Sie auf übersehene Objekte und auf benachbarte Objekte, die zu einem verschmolzen sind. Die Statuszeile meldet, wie viele Objekte gefunden wurden.",
     "Blenden Sie mit dem Mindestflächenfilter Objekte aus, die kleiner als die gewählte Pixelzahl sind. Ein höherer Wert entfernt kleine Labels aus der Vorschau. Dieser Filter aktualisiert ein vorhandenes Maskenergebnis, sodass Sie Größengrenzen schnell vergleichen können.",
-    "Ändern Sie den Durchmesser, wenn das Modell Objekte im falschen Maßstab teilt oder verbindet, und starten Sie die Vorschau erneut. Prüfen Sie die Grenzen ebenso wie die Objektzahl. Stellen Sie die gewünschten Einstellungen wieder her, bevor Sie zum Batch-Lauf wechseln.",
-    "Wählen Sie für einen kleinen ersten Lauf zwei Testbilder, lassen Sie Plot eingeschaltet und prüfen Sie die Flow-Schwellenwerte für Zellen, Kerne und Pathogene. Hier liegen sie bei 0,4. Prüfen Sie die Einstellungen für Ausgabe und Aufbewahrung der Originalbilder und klicken Sie dann auf Run.",
-    "Verfolgen Sie die Konsole und prüfen Sie fehlgeschlagene Bildfelder oder fehlende Plots. Der Ordner merged enthält die Bildintensitäten und die endgültigen Objekt-Labels. Bewahren Sie seine Metadaten zum Ebenenlayout bei den Arrays auf, damit Measure jeden Kanal und jede Maske erkennen kann.",
-    "Fehlt ein Überlagerungsexport, kann das verlinkte Plot-Hilfsprogramm die gespeicherten Arrays separat exportieren. Entpacken Sie das Hilfsprogramm und wählen Sie den Ordner merged dieses Laufs. Lassen Sie die Layoutdatei an ihrem Platz; das Hilfsprogramm prüft damit die Intensitäts- und Maskenebenen.",
-    "Führen Sie das Hilfsprogramm mit dem Ordner merged als Quelle und einem neuen Ausgabeordner als Ziel aus. Es speichert für jedes Bild-Array eine eigene Überlagerung. Öffnen Sie die gespeicherten PNG-Dateien, um die Ergebnisse zu prüfen.",
-    "Prüfen Sie die Umrisse auf jedem Intensitätskanal und in der kombinierten Maskenansicht. Achten Sie auf kleine Objekte, sich berührende Zellen und übersehene Bereiche. Bewahren Sie Eingabebilder, Einstellungen, Masken und Qualitätsberichte zusammen auf und fahren Sie mit Measure fort, um Objektmerkmale und Ausschnitte zu extrahieren."
+    "Setzen Sie die Mindestfläche wieder auf null, um alle Objekte zurückzuholen. Wenn das Modell Objekte im falschen Maßstab teilt oder verbindet, ändern Sie Diameter und führen Sie die Vorschau erneut aus; prüfen Sie dabei die Grenzen ebenso wie die Anzahl. Stellen Sie vor dem Batch-Lauf die gewünschten Einstellungen wieder her.",
+    "Schalten Sie für einen kleinen ersten Lauf Test mode mit zwei Testbildern ein und lassen Sie Plot an. Die objektbezogene Tabelle enthält die Durchmesser für diesen Lauf; prüfen Sie auch die Flow-Schwellen für Zelle, Kern und Pathogen. Lassen Sie Save unter Quality Control an, damit der Lauf seine Masken und Qualitätsberichte speichert.",
+    "Klicken Sie auf Run und verfolgen Sie die Konsole; prüfen Sie fehlgeschlagene Felder oder fehlende Plots. Der Lauf schreibt einen merged-Ordner mit den Bildintensitäten und den endgültigen Objektlabels und legt die Metadaten zum Ebenenlayout neben die Arrays, damit Measure jeden Kanal und jede Maske erkennt. Bewahren Sie Eingaben, Einstellungen, Masken und Qualitätsberichte zusammen auf und fahren Sie dann mit Measure fort, um Objektmerkmale und Ausschnitte zu extrahieren."
   ]
 }

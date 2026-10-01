@@ -1,10 +1,10 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "f3857bc3da727e332cd16993840b67e8b1e444fcfe523266922653700cf7e5e4",
+  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,21 +15,20 @@
   "objectives": [
     "Caricare l’esempio di microscopia e identificarne i canali di intensità.",
     "Confrontare impostazioni del modello e filtri di dimensione degli oggetti nell’anteprima Live.",
-    "Eseguire la segmentazione, esaminare le sovrapposizioni e trovare gli output uniti."
+    "Impostare un’esecuzione di prova limitata e sapere dove vengono scritti i suoi risultati uniti."
   ],
   "prerequisite": "Apri Mask e scegli Load test data. Per le tue immagini, prepara una cartella di origine con nomi di file coerenti e canali noti. Questo esempio usa il canale dei nuclei 0, il canale delle cellule 1 e il canale dei patogeni 2, con un ulteriore canale di intensità 3.",
   "scenes": [
     "Da Home, apri Mask. Usa questo modulo per delineare cellule, nuclei e patogeni nelle immagini al microscopio. Questa procedura elabora immagini bidimensionali. I flussi Time, tridimensionale e OPS hanno tutorial dedicati.",
     "Fai clic su Load test data e attendi il caricamento dell’esempio di microscopia. Controlla Source prima di continuare. Per le tue immagini, seleziona la loro cartella e verifica che i nomi dei file identifichino piastra, pozzetto, campo e canale.",
     "Confronta le assegnazioni dei canali con le immagini. In questo esempio, l’intensità dei nuclei è il canale zero, quella delle cellule il canale uno e quella dei patogeni il canale due. Il canale tre è un’ulteriore immagine di intensità. Scegli solo i tipi di oggetto presenti nel tuo esperimento.",
+    "Sotto gli input, la tabella delle impostazioni per oggetto raccoglie ciò che scegli per ciascun oggetto. Ogni oggetto è una colonna, qui cellula, nucleo e patogeno, e ogni riga pone una domanda: se rimuovere lo sfondo, il diametro dell’oggetto, il modello di segmentazione, il livello di sfondo e la soglia del rapporto segnale-rumore. Add a filter aggiunge una riga che rimuove oggetti in base a una proprietà misurata come l’area, e Add an organelle aggiunge un’altra colonna di oggetto.",
     "Attiva Live e seleziona un campo. Esamina insieme l’immagine e le maschere proposte prima di elaborare tutta la cartella. Prova diversi campi che rappresentino la varietà di qualità delle immagini del tuo esperimento.",
-    "Apri Live settings e scegli il modello per l’oggetto da segmentare. Imposta il diametro approssimativo dell’oggetto ed esegui l’anteprima. Confronta i contorni con l’immagine, facendo attenzione agli oggetti mancati e a quelli uniti tra loro.",
+    "Apri Live settings e scegli il modello per l’oggetto da segmentare. Imposta il diametro approssimativo dell’oggetto, poi fai clic su Run preview.",
+    "Al termine dell’anteprima, confronta i contorni con l’immagine. Cerca oggetti mancati e oggetti vicini uniti in uno solo. La riga di stato indica quanti oggetti sono stati trovati.",
     "Usa il filtro di area minima per nascondere gli oggetti più piccoli del numero di pixel scelto. Aumentandolo, le etichette piccole spariscono dall’anteprima. Questo filtro aggiorna un risultato di maschera già esistente, quindi puoi confrontare rapidamente diverse soglie di dimensione.",
-    "Cambia il diametro quando il modello divide o unisce gli oggetti alla scala sbagliata, poi esegui di nuovo l’anteprima. Controlla i bordi oltre al numero di oggetti. Ripristina le impostazioni che vuoi usare prima di passare all’esecuzione in batch.",
-    "Per una prima esecuzione ridotta, seleziona due immagini di prova, lascia attivo Plot e controlla le soglie di flusso di cellule, nuclei e patogeni. Qui sono zero virgola quattro. Controlla le impostazioni di output e di conservazione delle immagini originali, poi fai clic su Run.",
-    "Segui la console ed esamina eventuali campi non riusciti o grafici mancanti. La cartella merged contiene le intensità delle immagini e le etichette finali degli oggetti. Conserva i suoi metadati sulla disposizione dei piani insieme agli array, così Measure può identificare ogni canale e maschera.",
-    "Se manca un’esportazione di sovrapposizione, lo strumento di grafica collegato può esportare separatamente gli array salvati. Estrai lo strumento e scegli la cartella merged di questa esecuzione. Lascia al suo posto il file di disposizione; lo strumento lo usa per controllare i piani di intensità e di maschera.",
-    "Esegui lo strumento con la cartella merged come origine e una nuova cartella di output come destinazione. Salva una sovrapposizione separata per ogni array di immagine. Apri i file PNG salvati per esaminare i risultati.",
-    "Controlla i contorni su ogni canale di intensità e nella vista combinata delle maschere. Verifica gli oggetti piccoli, le cellule a contatto e le regioni mancate. Conserva insieme immagini di input, impostazioni, maschere e rapporti di qualità, poi passa a Measure per estrarre caratteristiche e ritagli degli oggetti."
+    "Riporta l’area minima a zero per riavere tutti gli oggetti. Se il modello divide o unisce gli oggetti alla scala sbagliata, cambia Diameter ed esegui di nuovo l’anteprima, controllando i bordi oltre al conteggio. Ripristina le impostazioni desiderate prima dell’elaborazione in batch.",
+    "Per una prima esecuzione ridotta, attiva Test mode con due immagini di prova e lascia attivo Plot. La tabella per oggetto contiene i diametri di questa esecuzione; controlla anche le soglie di flusso per cellula, nucleo e patogeno. Lascia attivo Save in Quality Control, così l’esecuzione salva le sue maschere e i rapporti di qualità.",
+    "Fai clic su Run e segui la console, controllando i campi non riusciti o i grafici mancanti. L’esecuzione scrive una cartella merged con le intensità delle immagini e le etichette finali degli oggetti, e tiene accanto agli array i metadati della disposizione dei piani perché Measure riconosca ogni canale e maschera. Tieni insieme input, impostazioni, maschere e rapporti di qualità, poi prosegui con Measure per estrarre caratteristiche e ritagli degli oggetti."
   ]
 }

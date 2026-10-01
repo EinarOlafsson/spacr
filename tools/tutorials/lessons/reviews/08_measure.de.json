@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
+  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -24,7 +24,9 @@
     "Um diese 16-Bit-Beispielausschnitte zu prüfen, schalten Sie Normalize ein, bevor Sie Live öffnen. So ist die Vorschau besser zu erkennen. Denken Sie daran, dass diese Haupteinstellung auch gespeicherte Ausschnitte beeinflusst; wir schalten sie vor diesem Batch-Lauf wieder aus.",
     "Schalten Sie Live ein und wählen Sie ein Bildfeld. Prüfen Sie die Objektausschnitte und die Beziehungen zwischen ihren Masken. Blättern Sie durch die Kategorien und vergrößern Sie die Vorschau bei Bedarf, um die Grenzen deutlich zu sehen.",
     "Prüfen Sie mit der Auswahl des angezeigten Kanals jeweils einen Intensitätskanal. Kanal 0 zeigt eine Graustufenansicht; All channels stellt die kombinierte Ansicht wieder her. Diese Auswahl ändert die Vorschau, ohne die Labels oder die Kanalzuordnung des Batch-Laufs zu ändern.",
-    "Wählen Sie ein anderes Bildfeld und vergleichen Sie dessen Objekte. Prüfen Sie den Hinweis zur Segmentierungsqualität, bevor Sie das Projekt messen. Fehlen Masken oder sind sie falsch verbunden, korrigieren Sie sie oder passen Sie Mask an, bevor Sie fortfahren.",
+    "Wählen Sie ein weiteres Feld und vergleichen Sie seine Objekte. Wenn Masken fehlen oder falsch verbunden sind, korrigieren Sie sie oder passen Sie Mask an, bevor Sie fortfahren.",
+    "Um die Segmentierungsqualität im ganzen Projekt vor dem Messen zu prüfen, schalten Sie QC in der Actions-Zeile neben 3D und Time ein. Das Fenster listet Felder und Wells, deren Masken ungewöhnlich wirken, etwa mit weit weniger Objekten als der Rest der Platte, und verlinkt sie zur Prüfung. Die Prüfung ist nur ein Hinweis und hält Measure nie an; wenn Sie das Fenster schließen, schaltet sich der Schalter aus.",
+    "Unter All settings enthält Image Preprocessing die Korrekturen, die Measure vor dem Messen auf jedes Feld anwenden kann: Image Deconvolution mit einer Punktspreizfunktion und Illumination Correction mit einem zuvor geschätzten Modell. Sie verändern die Pixel, die in diesem Lauf gemessen werden; die Masken und die Arrays auf dem Datenträger bleiben unverändert.",
     "Schalten Sie Live aus und setzen Sie Normalize für dieses Beispiel wieder auf aus. Wählen Sie die Normalisierung beim Speichern von Ausschnitten bewusst: Eine Skalierung pro Ausschnitt verändert die Intensitätsunterschiede, die ein späterer Bildklassifikator sieht. Behalten Sie die ursprünglichen zusammengeführten Arrays für quantitative Messungen.",
     "Aktivieren Sie das Speichern von Messwerten und Objektausschnitten, lassen Sie Plot eingeschaltet und wählen Sie Ausschnittgröße und Ausgabekanäle. Verwenden Sie für dieses Beispiel einen Worker. Lassen Sie Test mode ausgeschaltet, um alle sechzehn mitgelieferten Bildfelder zu verarbeiten, und klicken Sie dann auf Run.",
     "Verfolgen Sie die Konsole, bis der Lauf abgeschlossen ist. Prüfen Sie, welche Bildfelder erfolgreich waren, und untersuchen Sie Fehler, bevor Sie fortfahren. Bewahren Sie die mit diesem Lauf gespeicherten Einstellungen auf, damit Sie die Messungen reproduzieren können.",

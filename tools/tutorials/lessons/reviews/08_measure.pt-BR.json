@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
+  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -24,7 +24,9 @@
     "Para inspecionar estes recortes de exemplo de dezesseis bits, ative Normalize antes de abrir Live. Isso facilita ver a pré-visualização. Lembre-se de que essa configuração principal também afeta os recortes salvos; vamos desativá-la antes desta execução em lote.",
     "Ative Live e escolha um campo. Inspecione os recortes dos objetos e as relações entre as máscaras. Percorra as categorias e amplie a pré-visualização, se necessário, para ver bem as bordas.",
     "Use o seletor de canal exibido para inspecionar um canal de intensidade por vez. O canal zero mostra uma visualização em tons de cinza; All channels restaura a visualização combinada. Esse seletor muda a pré-visualização sem alterar os rótulos nem o mapeamento de canais do lote.",
-    "Escolha outro campo e compare os objetos. Revise o aviso de qualidade da segmentação antes de medir o projeto. Se houver máscaras faltando ou unidas incorretamente, corrija-as ou ajuste o Mask antes de continuar.",
+    "Escolha outro campo e compare seus objetos. Se faltarem máscaras ou houver objetos unidos por engano, corrija-as ou ajuste Mask antes de continuar.",
+    "Para verificar a qualidade da segmentação em todo o projeto antes de medir, ative QC na linha Actions, ao lado de 3D e Time. A janela lista os campos e poços cujas máscaras parecem incomuns, por exemplo com muito menos objetos que o resto da placa, com links para inspecioná-los. A verificação é apenas orientativa e nunca interrompe Measure; fechar a janela desliga o interruptor.",
+    "Em All settings, Image Preprocessing reúne as correções que Measure pode aplicar a cada campo antes de medir: Image Deconvolution com uma função de espalhamento de ponto e Illumination Correction com um modelo estimado antes. Elas alteram os pixels medidos nesta execução; as máscaras e os arrays no disco não mudam.",
     "Desative Live e volte a desativar Normalize para este exemplo. Escolha a normalização com cuidado ao salvar recortes: o escalonamento por recorte muda as diferenças de intensidade que um classificador de imagens verá depois. Mantenha os arranjos combinados originais para as medições quantitativas.",
     "Ative o salvamento de medições e de recortes de objetos, mantenha Plot ativado e escolha o tamanho do recorte e os canais de saída. Use um processo de trabalho neste exemplo. Deixe Test mode desativado para processar os dezesseis campos fornecidos e clique em Run.",
     "Acompanhe o console até a execução terminar. Confira quais campos deram certo e examine as falhas antes de prosseguir. Mantenha as configurações salvas com esta execução para poder reproduzir as medições.",

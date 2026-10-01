@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
+  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -24,7 +24,9 @@
     "Pour inspecter ces vignettes d’exemple en seize bits, activez Normalize avant d’ouvrir Live. L’aperçu est ainsi plus lisible. N’oubliez pas que ce paramètre principal s’applique aussi aux vignettes enregistrées ; nous le désactiverons avant cette exécution par lots.",
     "Activez Live et choisissez un champ. Inspectez les vignettes d’objets et les relations entre leurs masques. Faites défiler les catégories et agrandissez l’aperçu si nécessaire pour bien voir les contours.",
     "Utilisez le sélecteur de canal affiché pour inspecter un canal d’intensité à la fois. Le canal zéro montre une vue en niveaux de gris ; All channels rétablit la vue combinée. Ce sélecteur modifie l’aperçu sans changer les étiquettes ni l’attribution des canaux du lot.",
-    "Choisissez un autre champ et comparez ses objets. Consultez le bandeau de qualité de segmentation avant de mesurer le projet. Si des masques manquent ou sont mal fusionnés, corrigez-les ou ajustez Mask avant de continuer.",
+    "Choisissez un autre champ et comparez ses objets. Si des masques manquent ou sont fusionnés à tort, corrigez-les ou ajustez Mask avant de continuer.",
+    "Pour vérifier la qualité de la segmentation de tout le projet avant de mesurer, activez QC dans la rangée Actions, à côté de 3D et Time. Sa fenêtre liste les champs et les puits dont les masques semblent inhabituels, par exemple avec bien moins d’objets que le reste de la plaque, avec des liens pour les examiner. Ce contrôle n’est qu’indicatif et n’arrête jamais Measure ; fermer la fenêtre désactive l’interrupteur.",
+    "Dans All settings, Image Preprocessing regroupe les corrections que Measure peut appliquer à chaque champ avant la mesure : Image Deconvolution avec une fonction d’étalement du point et Illumination Correction avec un modèle estimé auparavant. Elles modifient les pixels mesurés dans cette exécution ; les masques et les tableaux sur le disque ne sont pas modifiés.",
     "Désactivez Live et remettez Normalize sur désactivé pour cet exemple. Choisissez la normalisation avec soin lorsque vous enregistrez des vignettes : une mise à l’échelle par vignette modifie les différences d’intensité que verra ensuite un classificateur d’images. Conservez les tableaux fusionnés d’origine pour les mesures quantitatives.",
     "Activez l’enregistrement des mesures et des vignettes d’objets, laissez Plot activé et choisissez la taille des vignettes et les canaux de sortie. Utilisez un seul processus pour cet exemple. Laissez Test mode désactivé pour traiter les seize champs fournis, puis cliquez sur Run.",
     "Suivez la console jusqu’à la fin de l’exécution. Vérifiez quels champs ont réussi et examinez les échecs avant de poursuivre. Conservez les paramètres enregistrés avec cette exécution afin de pouvoir reproduire les mesures.",

@@ -99,7 +99,19 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
     panel._model_box.setCurrentText(str(model))
     settle(1)
     QTest.mouseClick(panel._run_btn, Qt.LeftButton)
-    settle(1)
+    settle(3)
+    _wait(settle, lambda: not panel.preview_running(), timeout, "Plaque preview did not settle")
+    if panel._download_btn.isVisible():
+        # The Model Zoo plaque model is not in the private profile yet: use the
+        # preview's own Download button, then run the preview again.
+        state["model_download"] = panel._download_btn.text()
+        QTest.mouseClick(panel._download_btn, Qt.LeftButton)
+        settle(2)
+        _wait(settle, lambda: panel._download_btn.isHidden() or panel._download_btn.isEnabled(),
+              timeout, "Model download did not finish: " + panel._status.text())
+        settle(2)
+        QTest.mouseClick(panel._run_btn, Qt.LeftButton)
+        settle(1)
     _wait(settle, lambda: not panel.preview_running() and (
           panel._plaque_result is not None or "fail" in panel._status.text().lower()),
           timeout, "Plaque preview did not finish: " + panel._status.text())

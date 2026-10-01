@@ -10,10 +10,7 @@
   "objectives": [
     "Load the microscopy example and identify its intensity channels.",
     "Compare model settings and object-size filters in Live preview.",
-    "Run segmentation, inspect overlays and find the merged outputs."
-  ],
-  "example_files": [
-    "Mask_overlay_API_workaround.zip"
+    "Configure a bounded test run and know where its merged outputs are written."
   ],
   "prerequisite": "Open Mask and choose Load test data. For your own images, prepare a source folder with consistent filenames and known channel identities. This example uses nucleus channel 0, cell channel 1 and pathogen channel 2, with an additional intensity channel 3.",
   "scenes": [
@@ -69,13 +66,16 @@
     },
     {
       "visual": "20_batch_settings",
-      "narration": "For a small first run, turn on Test mode with two test images and keep Plot on. The table now carries the diameters for this run, and the recording sets the cell, nucleus and pathogen flow thresholds to zero point four. Keep Save on under Quality Control, then click Run.",
+      "narration": "For a small first run, turn on Test mode with two test images and keep Plot on. The per-object table carries the diameters for this run; check the flow thresholds for cell, nucleus and pathogen as well. Keep Save on under Quality Control so the run records its masks and quality reports.",
       "hold_after": 0.7
     },
     {
-      "visual": "23_batch_finished",
-      "narration": "Follow the console and inspect any failed fields or missing plots. The merged folder contains the image intensities and final object labels. Keep its plane-layout metadata with the arrays so Measure can identify each channel and mask.",
-      "hold_after": 0.7
+      "visual": "20_batch_settings",
+      "narration": "Click Run and follow the console, inspecting any failed fields or missing plots. The run writes a merged folder with the image intensities and the final object labels, and keeps its plane-layout metadata beside the arrays so Measure can identify each channel and mask. Keep the inputs, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure"
+      ]
     }
   ]
 }

@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
+  "english_sha256": "d51fa05ba532327fc646e562da8e3db892506bb674e8a72ceb207efe407dd489",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -24,7 +24,9 @@
     "Per esaminare questi ritagli di esempio a sedici bit, attiva Normalize prima di aprire Live. Così l’anteprima è più leggibile. Ricorda che questa impostazione principale influisce anche sui ritagli salvati; la disattiveremo prima di questa esecuzione in batch.",
     "Attiva Live e scegli un campo. Esamina i ritagli degli oggetti e le relazioni tra le loro maschere. Scorri le categorie e ingrandisci l’anteprima se serve per vedere bene i bordi.",
     "Usa il selettore del canale visualizzato per esaminare un canale di intensità alla volta. Il canale zero mostra una vista in scala di grigi; All channels ripristina la vista combinata. Questo selettore cambia l’anteprima senza modificare le etichette né l’assegnazione dei canali del batch.",
-    "Scegli un altro campo e confronta i suoi oggetti. Controlla il banner sulla qualità della segmentazione prima di misurare il progetto. Se mancano maschere o sono unite in modo errato, correggile o regola Mask prima di continuare.",
+    "Scegli un altro campo e confrontane gli oggetti. Se mancano maschere o ci sono oggetti uniti per errore, correggile o regola Mask prima di proseguire.",
+    "Per controllare la qualità della segmentazione di tutto il progetto prima di misurare, attiva QC nella riga Actions, accanto a 3D e Time. La sua finestra elenca i campi e i pozzetti le cui maschere sembrano insolite, ad esempio con molti meno oggetti del resto della piastra, con collegamenti per esaminarli. Il controllo è solo indicativo e non ferma mai Measure; chiudendo la finestra l’interruttore si spegne.",
+    "In All settings, Image Preprocessing raccoglie le correzioni che Measure può applicare a ogni campo prima di misurare: Image Deconvolution con una funzione di dispersione del punto e Illumination Correction con un modello stimato in precedenza. Cambiano i pixel misurati in questa esecuzione; le maschere e gli array su disco non vengono modificati.",
     "Disattiva Live e rimetti Normalize su disattivato per questo esempio. Scegli con cura la normalizzazione quando salvi i ritagli: il ridimensionamento per singolo ritaglio cambia le differenze di intensità che vedrà poi un classificatore di immagini. Conserva gli array uniti originali per le misure quantitative.",
     "Attiva il salvataggio delle misure e dei ritagli degli oggetti, lascia attivo Plot e scegli la dimensione dei ritagli e i canali di output. Usa un solo processo per questo esempio. Lascia disattivato Test mode per elaborare tutti i sedici campi forniti, poi fai clic su Run.",
     "Segui la console fino al termine dell’esecuzione. Controlla quali campi sono riusciti ed esamina eventuali errori prima di proseguire. Conserva le impostazioni salvate con questa esecuzione, così potrai riprodurre le misure.",

@@ -1,10 +1,10 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "f3857bc3da727e332cd16993840b67e8b1e444fcfe523266922653700cf7e5e4",
+  "english_sha256": "872ce252f07b0d30a1dbd67f048c74df3134701e2f1fbc9cbc617e3ac3e67567",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,21 +15,20 @@
   "objectives": [
     "Charger l’exemple de microscopie et identifier ses canaux d’intensité.",
     "Comparer les paramètres du modèle et les filtres de taille dans l’aperçu Live.",
-    "Lancer la segmentation, inspecter les superpositions et trouver les sorties fusionnées."
+    "Configurer une exécution de test limitée et savoir où ses sorties fusionnées sont écrites."
   ],
   "prerequisite": "Ouvrez Mask et choisissez Load test data. Pour vos propres images, préparez un dossier source aux noms de fichiers cohérents et aux canaux connus. Cet exemple utilise le canal noyaux 0, le canal cellules 1 et le canal pathogènes 2, avec un canal d’intensité supplémentaire 3.",
   "scenes": [
     "Depuis Home, ouvrez Mask. Utilisez ce module pour délimiter cellules, noyaux et pathogènes dans des images de microscopie. Ce parcours traite des images bidimensionnelles. Les flux Time, tridimensionnel et OPS ont leurs propres tutoriels.",
     "Cliquez sur Load test data et attendez le chargement de l’exemple de microscopie. Vérifiez Source avant de continuer. Pour vos propres images, sélectionnez leur dossier et vérifiez que les noms de fichiers identifient la plaque, le puits, le champ et le canal.",
     "Comparez les attributions de canaux aux images. Dans cet exemple, l’intensité des noyaux est le canal zéro, celle des cellules le canal un et celle des pathogènes le canal deux. Le canal trois est une image d’intensité supplémentaire. Ne choisissez que les types d’objets présents dans votre expérience.",
+    "Sous les entrées, le tableau des réglages par objet contient ce que vous choisissez pour chaque objet. Chaque objet est une colonne, ici cellule, noyau et pathogène, et chaque ligne pose une question : retirer ou non le fond, le diamètre de l’objet, le modèle de segmentation, le niveau de fond et le seuil de rapport signal sur bruit. Add a filter ajoute une ligne qui retire des objets selon une propriété mesurée comme l’aire, et Add an organelle ajoute une autre colonne d’objet.",
     "Activez Live et sélectionnez un champ. Inspectez l’image et les masques proposés ensemble avant de traiter tout le dossier. Essayez plusieurs champs représentatifs de la variété de qualité d’image de votre expérience.",
-    "Ouvrez Live settings et choisissez le modèle correspondant à l’objet à segmenter. Réglez le diamètre approximatif de l’objet et lancez l’aperçu. Comparez les contours à l’image, en surveillant les objets manqués et les objets fusionnés.",
+    "Ouvrez Live settings et choisissez le modèle de l’objet à segmenter. Indiquez le diamètre approximatif de l’objet, puis cliquez sur Run preview.",
+    "Une fois l’aperçu terminé, comparez les contours à l’image. Repérez les objets manqués et les objets voisins fusionnés en un seul. La ligne d’état indique combien d’objets ont été trouvés.",
     "Utilisez le filtre d’aire minimale pour masquer les objets plus petits que le nombre de pixels choisi. L’augmenter retire de l’aperçu les petites étiquettes. Ce filtre met à jour un résultat de masque existant ; vous pouvez donc comparer rapidement des seuils de taille.",
-    "Modifiez le diamètre lorsque le modèle scinde ou fusionne des objets à la mauvaise échelle, puis relancez l’aperçu. Vérifiez les contours autant que le nombre d’objets. Rétablissez les paramètres souhaités avant de passer à l’exécution par lots.",
-    "Pour une petite première exécution, sélectionnez deux images de test, laissez Plot activé et vérifiez les seuils de flux des cellules, des noyaux et des pathogènes. Ici, ils valent zéro virgule quatre. Vérifiez les paramètres de sortie et de conservation des images d’origine, puis cliquez sur Run.",
-    "Suivez la console et inspectez les champs en échec ou les graphiques manquants. Le dossier merged contient les intensités d’image et les étiquettes finales des objets. Conservez ses métadonnées de disposition des plans avec les tableaux, afin que Measure puisse identifier chaque canal et chaque masque.",
-    "S’il manque un export de superposition, l’outil de tracé lié peut exporter séparément les tableaux enregistrés. Extrayez l’outil et choisissez le dossier merged de cette exécution. Laissez le fichier de disposition en place ; l’outil s’en sert pour vérifier les plans d’intensité et de masque.",
-    "Lancez l’outil avec le dossier merged comme source et un nouveau dossier de sortie comme destination. Il enregistre une superposition distincte pour chaque tableau d’image. Ouvrez les fichiers PNG enregistrés pour inspecter les résultats.",
-    "Examinez les contours sur chaque canal d’intensité et dans la vue combinée des masques. Vérifiez les petits objets, les cellules qui se touchent et les régions manquées. Gardez ensemble les images d’entrée, les paramètres, les masques et les rapports de qualité, puis passez à Measure pour extraire les caractéristiques et les vignettes des objets."
+    "Remettez l’aire minimale à zéro pour faire revenir tous les objets. Si le modèle coupe ou fusionne des objets à la mauvaise échelle, modifiez Diameter et relancez l’aperçu, en vérifiant les contours autant que le nombre. Rétablissez les réglages voulus avant le traitement par lots.",
+    "Pour un premier essai réduit, activez Test mode avec deux images de test et laissez Plot activé. Le tableau par objet porte les diamètres de cette exécution ; vérifiez aussi les seuils de flux pour la cellule, le noyau et le pathogène. Laissez Save activé dans Quality Control pour que l’exécution enregistre ses masques et ses rapports de qualité.",
+    "Cliquez sur Run et suivez la console, en examinant les champs en échec ou les graphiques manquants. L’exécution écrit un dossier merged contenant les intensités des images et les étiquettes finales des objets, et conserve les métadonnées de disposition des plans à côté des tableaux pour que Measure identifie chaque canal et chaque masque. Gardez ensemble les entrées, les réglages, les masques et les rapports de qualité, puis passez à Measure pour extraire les caractéristiques et les découpes des objets."
   ]
 }
