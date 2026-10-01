@@ -338,5 +338,31 @@
     "spacr/sp_stats.py": "122acbc48a515705ffb555ae0c84a5fac7097caacf60d1e0d53a7d7685b7f835",
     "tests/qt/test_arrayed_plan_validation_f585.py": "08fe70673c57a32c4595a718cc4d56a9bda5de43ffe9ee9327d31a07568be4f0",
     "tests/test_arrayed_power_f585.py": "3516e71b4710f88560a4cf756828cc08730e00a43d814fd6fa87421f9c076c3d"
+  },
+  "documentation_guard_followup": {
+    "commit": "42f9a3558502d6af710125925dc63d8a9dbb41bb",
+    "change": "Move five saved-plan validation helpers to documented private module functions.",
+    "guard": {
+      "nested_missing_after": [],
+      "budget": 0,
+      "moved_helpers": [
+        "_arrayed_plan_finite_tree",
+        "_arrayed_plan_mapping",
+        "_arrayed_plan_number",
+        "_arrayed_plan_text",
+        "_arrayed_plan_unique_keys"
+      ],
+      "runtime_ast": "identical after exact relocation/rename and doc removal",
+      "existing_docs_signatures": "unchanged",
+      "actual_extractor_private_visibility": "all five excluded",
+      "limits": "1 GiB, one CPU, no swap"
+    },
+    "regression": {
+      "selection": "tests/qt/test_arrayed_plan_validation_f585.py",
+      "passed": 61,
+      "elapsed_seconds": 7.45,
+      "log": "/tmp/spacr-implementation-20261001/review/f585-helper-regression.log",
+      "limits": "1 GiB, zero swap, one CPU affinity; configured CPUQuota=100% not independently enforced by cpu.max"
+    }
   }
 }
