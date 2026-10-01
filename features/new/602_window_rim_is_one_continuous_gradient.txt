@@ -34,3 +34,95 @@ tests/qt/test_602_the_rim_is_one_continuous_gradient.py (1 reversal per
 run now).
 
 Left: nothing.
+
+--------------------------------------------------------------------------------
+2026-10-01 — CLAUDE.md REQUIREMENTS RECONCILIATION
+--------------------------------------------------------------------------------
+
+Status: OPEN for the new acceptance below; earlier completed scope is preserved.
+Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
+Owner: Codex inventory session (tracking only).
+
+This update records requirements, not implementation or acceptance. The current
+user request is to update the lists and report scope; implementation and release
+operations are not performed by this inventory session. Earlier evidence remains
+historical and does not prove the newly requested acceptance conditions.
+
+Smooth rounded window edges, preserving the continuous glow
+
+The peripheral glow around windows now looks better. **Preserve that improvement.** However, rounded edges sometimes look slightly jagged and show stray white pixels at the periphery in dark mode. The corresponding defect in light mode is stray black pixels. Remove both the jaggedness and these theme-dependent edge artifacts.
+
+Requirements:
+
+- Inspect the shared window decoration/rendering code and any separate implementations used by dialogs, popups, and other affected windows. Fix the actual rendering/compositing problem rather than patching only one visible window.
+- Investigate the rounded-corner geometry, border/glow alignment, clipping masks, alpha handling, background colors, image resampling, and logical-to-physical pixel conversion where applicable to the actual implementation.
+- Render smooth, properly antialiased rounded edges without isolated high-contrast pixels or a white/dark fringe outside the intended border and glow.
+- Use correct theme-aware colors and transparency. Do not fix dark mode with a hard-coded dark background that creates black artifacts in light mode, or vice versa.
+- Keep the glow, window shape, corner radius, and intended border appearance. Do not remove the glow, make every corner square, or cover the problem with opaque rectangles.
+- Ensure the border, fill, rounded mask, and glow remain aligned during resizing and display-scale changes.
+- Apply the fix through shared rendering infrastructure wherever possible so affected windows remain consistent.
+
+**Acceptance:** Inspect representative windows and popups in both dark and light modes, including resized windows and available display scaling settings. Check the rounded corners at enlarged pixel view as well as normal size. Confirm that jaggedness and stray contrasting edge pixels are gone while the improved glow remains intact. Record which platforms and scaling settings were actually checked; do not claim unperformed visual verification.
+
+SCOPING EVIDENCE
+The continuous-gradient change is in spacr/qt/widgets/setup_card.py and
+tests/qt/test_602_the_rim_is_one_continuous_gradient.py. It addressed rim
+brightness seams; it does not certify alpha fringes, corner aliasing, every
+popup implementation, or all device-pixel ratios under this new report.
+
+Supporting API, docs, translations, tutorials and validation are tracked in 615.
+
+2026-10-01 — CONSOLIDATED CONCURRENT TRACKING RECORD
+The following original record from 25ba0c8ef is retained verbatim as historical
+scoping evidence. Its old numeric references are superseded by the mapping in
+item 615; the user-facing item numbers from the Codex table remain authoritative.
+
+================================================================================
+WINDOW CORNERS: SMOOTH, WITH NO STRAY WHITE (DARK) OR BLACK (LIGHT) PIXELS
+================================================================================
+
+Status:    not started (filed 2026-10-01; scoped, see below)
+Requested: 2026-10-01 -- "The peripheral glow around windows now looks
+           better. Preserve that improvement. However, rounded edges
+           sometimes look slightly jagged and show stray white pixels at the
+           periphery in dark mode. The corresponding defect in light mode is
+           stray black pixels. Remove both the jaggedness and these
+           theme-dependent edge artifacts."
+Owner:     1.5.1.1 implementation session (Claude)
+Related:   602 (the rim is one continuous gradient -- kept), 216, 287.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Shared path: spacr/qt/widgets/glass.py glass() puts a SetupCard
+(widgets/setup_card.py, radius 18) behind every QDialog, makes it frameless
+and translucent, and round_the_corners() (~653-691) sets a QRegion MASK
+built from an integer polygon. A window mask is all-or-nothing per pixel,
+so the corner outline is aliased (the jaggedness), and pixels the mask
+keeps but the antialiased card only partly covers show whatever sits
+behind -- the stray contrasting pixels. No devicePixelRatio handling. The
+card's 1 px border is stroked on rect.adjusted(1,1,-1,-1), i.e. on pixel
+boundaries, so it straddles two pixels. setup_slides.py repeats the mask.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Where the window is translucent and a compositor is present, do not mask:
+let the antialiased card define the shape (pixels outside it are fully
+transparent). Keep the mask only as the fallback when translucency is not
+available, and then build it from the physical-pixel geometry. Stroke the
+border on half-pixel coordinates inside the body and clip the glow to the
+same rounded path so nothing paints outside the card's alpha edge. Theme
+colours stay theme tokens.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Offscreen renders of a glassed dialog in dark and light themes, at two
+sizes and device-pixel ratios 1 and 2: corner pixels outside the rounded
+path are fully transparent, alpha ramps monotonically across the edge (no
+isolated opaque high-contrast pixel), and the 602 rim-continuity test still
+passes. Visual checks record exactly which platform/scaling was looked at.

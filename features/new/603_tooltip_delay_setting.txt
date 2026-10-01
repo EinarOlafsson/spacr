@@ -66,3 +66,43 @@ hover path above; tests at 4 s, a short delay, 0, leave/re-enter, moving
 between controls, a widget created later, a setting change, and a widget
 destroyed with a pending timer. Click-to-open help panels and
 notifications keep their behaviour.
+
+2026-10-01 — CLAUDE.md REQUIREMENTS RECONCILIATION
+
+--------------------------------------------------------------------------------
+
+Status: OPEN for the new acceptance below; earlier completed scope is preserved.
+Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
+Owner: Codex inventory session (tracking only).
+
+This update records requirements, not implementation or acceptance. The current
+user request is to update the lists and report scope; implementation and release
+operations are not performed by this inventory session. Earlier evidence remains
+historical and does not prove the newly requested acceptance conditions.
+
+Global tooltip delay, including the reported four-second failure
+
+There is already a tooltip-delay setting. The user set it to **4 seconds**, but tooltips appear immediately. Fix this throughout spaCR, not just in one window.
+
+Requirements:
+
+- Trace the setting from storage through loading, unit conversion, and tooltip scheduling. Establish the stored units and convert consistently at the timer boundary.
+- Audit all tooltip creation paths: shared helpers, custom widgets, module-specific implementations, icon buttons, toolbars, popup windows, dynamically created controls, and framework-provided tooltips where used.
+- Make every hover tooltip use the same effective global setting. Correct hard-coded delays, immediate-display paths, duplicate bindings, and per-widget overrides that bypass it.
+- At a setting of 4 seconds, a tooltip must not appear before approximately 4 seconds of continuous hover over its target. Normal event-loop scheduling can make it appear slightly later.
+- Cancel scheduled tooltips when the pointer leaves, the target is hidden or destroyed, or its window closes. Moving to a different control must not display a stale tooltip or bypass the delay for the new target.
+- Apply changed settings to existing and newly created controls without requiring an application restart. Cancel or reschedule pending callbacks so they cannot use stale timing.
+- Use nonblocking event-loop scheduling, not a sleep in the GUI thread.
+- Preserve tooltip styling and placement. Explicit click-to-open help panels and notifications are not hover tooltips and should retain their intended behavior.
+
+**Acceptance:** Test the reported 4-second setting, a shorter setting, leaving and re-entering a target, moving between controls, dynamic widget creation, changing the setting, and destroying a target with a pending timer. Test zero delay if supported. Search again for tooltip paths that still bypass the global setting. Verify display timing, not merely that a setting was saved.
+
+SCOPING EVIDENCE
+preferences.py persists prefs/tooltip_delay; tooltip_policy.py implements
+timing; tests/qt/test_603_tooltip_delay_setting.py covers the original setting.
+The earlier note explicitly excluded hover-driven help box/bottom strip paths.
+Audit all hover surfaces under the new requirement; preserve click-open help.
+Cross-reference 506 and 371 rather than treating the prior implementation as
+proof that the newly reported four-second defect is fixed.
+
+Supporting API, docs, translations, tutorials and validation are tracked in 615.

@@ -391,3 +391,11 @@ A fresh listing (GitHub API, all pages, state=open) returns one issue,
 #134 (auto-filed PlaneLayoutConflict in Measure, spaCR 1.5.1.1). It is
 promoted into the 1.5.1.1 implementation batch as features/new/618; the
 fix, tests and closing comment are recorded there. Open PRs: none.
+
+2026-10-01 — CURRENT ISSUE INVENTORY (scoping only)
+The paginated GitHub issue API now returns one open issue, #134, and the
+open pull-request API returns none. #134 has zero comments. Its report and
+acceptance work are tracked in new/614_github_134_measure_plane_layout_conflict.txt.
+The prior zero-open-issues statement remains a dated 2026-09-24 snapshot;
+this update does not reopen any of those historical issue resolutions.
+No issue was changed or closed by this inventory session.
