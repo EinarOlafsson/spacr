@@ -3321,7 +3321,7 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         conn.close()
 
 
-_CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity')
+_CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity', 'phase')
 _CONFLUENCY_TABLE = 'confluency'
 _CONFLUENCY_WELL_TABLE = 'confluency_well'
 _CONFLUENCY_WELL_KEYS = ('plateID', 'rowID', 'columnID')
@@ -3329,6 +3329,12 @@ _CONFLUENCY_SEPARATION_MIN = 3.2
 _CONFLUENCY_TEXTURE_RATIO_MIN = 3.0
 _CONFLUENCY_PHASE_RATIO_MIN = 1.8
 _CONFLUENCY_INTENSITY_FRACTION = 0.25
+_CONFLUENCY_PHASE_WEIGHTS = 'confluency_phase_mlp.csv'
+_CONFLUENCY_PHASE_WINDOW = 15
+_CONFLUENCY_PHASE_SMOOTH = 1.0
+_CONFLUENCY_PHASE_CUT = 0.6
+_CONFLUENCY_PHASE_CLEAN = 3
+_CONFLUENCY_PHASE_NETWORK = []
 
 
 @dataclass
@@ -3554,6 +3560,161 @@ def _intensity_coverage(image, sigma=1.0):
                             level, separation, False)
 
 
+def _confluency_phase_features(x):
+    """The per-pixel description the phase classifier reads.
+
+    Thirty planes, each in units of the field's own pixel noise so that the
+    classifier does not depend on exposure or gain: local standard
+    deviation over 3 to 61 pixels, gradient magnitude and Hessian
+    eigenvalues at several scales, the structure tensor's strength and
+    coherence, the smoothed deviation from the slowly varying background,
+    and the local texture averaged, maximised and minimised over the
+    neighbourhood, which lets a smooth cell interior borrow the texture of
+    its own edge.
+
+    :param x: 0-1 scaled plane.
+    :returns: ``float32`` array of shape ``(Y, X, 30)``.
+    """
+    from scipy.ndimage import maximum_filter, minimum_filter
+    from skimage.feature import (hessian_matrix, hessian_matrix_eigvals,
+                                 structure_tensor,
+                                 structure_tensor_eigenvalues)
+    from skimage.restoration import estimate_sigma
+    noise = max(float(estimate_sigma(x)), 1e-4)
+
+    def log_sd(window):
+        return np.log(_local_sd(x, window) / noise + 1e-3)
+
+    planes = {window: log_sd(window) for window in (3, 7, 15, 31)}
+    out = [planes[3], planes[7], planes[15], planes[31]]
+    for sigma in (1, 2, 4, 8):
+        gy, gx = np.gradient(gaussian_filter(x, sigma))
+        out.append(np.log(np.hypot(gx, gy) * sigma / noise + 1e-3))
+    for sigma in (1, 3):
+        hessian = hessian_matrix(x, sigma=sigma, order='rc',
+                                 use_gaussian_derivatives=False)
+        for eigen in hessian_matrix_eigvals(hessian):
+            out.append(eigen * sigma * sigma / noise)
+    background = gaussian_filter(x, 40)
+    deviation = {sigma: (gaussian_filter(x, sigma) - background) / noise
+                 for sigma in (2, 8)}
+    out += [deviation[2], deviation[8]]
+    out += [gaussian_filter(planes[7], 8), gaussian_filter(planes[7], 24)]
+    for sigma in (2, 6):
+        first, second = structure_tensor_eigenvalues(
+            structure_tensor(x, sigma=sigma, order='rc'))
+        total = first + second
+        out.append(np.log(np.sqrt(np.maximum(total, 0.0)) / noise + 1e-3))
+        out.append((first - second) / (total + 1e-12))
+    out.append(log_sd(61))
+    out.append(gaussian_filter(planes[7], 48))
+    out.append((gaussian_filter(x, 1) - gaussian_filter(x, 4)) / noise)
+    out.append(minimum_filter(gaussian_filter(planes[7], 1), 15))
+    out += [gaussian_filter(planes[3], sigma) for sigma in (4, 16, 32)]
+    out.append(gaussian_filter(planes[15], 16))
+    out.append(maximum_filter(gaussian_filter(planes[7], 2), 21))
+    out.append(np.abs(deviation[8]))
+    return np.stack(out, axis=-1).astype(np.float32)
+
+
+def _confluency_phase_network():
+    """The phase classifier's layers, read once from the bundled weights.
+
+    The weights file is a long table, one row per weight: ``layer``,
+    ``source`` (input unit, or -1 for the bias), ``target`` (output unit)
+    and ``weight``. The input standardisation is already folded into the
+    first layer. Hidden layers are rectified, the output is logistic.
+
+    :returns: list of ``(weights, bias)`` pairs, first layer first.
+    """
+    if _CONFLUENCY_PHASE_NETWORK:
+        return _CONFLUENCY_PHASE_NETWORK
+    from .tabular import read_table
+    path = os.path.join(os.path.dirname(__file__), 'resources', 'data',
+                        _CONFLUENCY_PHASE_WEIGHTS)
+    table = read_table(path, canonicalise=False, report=None)
+    layers = []
+    for layer in sorted(table['layer'].unique()):
+        rows = table[table['layer'] == layer]
+        inputs = int(rows['source'].max()) + 1
+        outputs = int(rows['target'].max()) + 1
+        weights = np.zeros((inputs, outputs))
+        bias = np.zeros(outputs)
+        linked = rows[rows['source'] >= 0]
+        weights[linked['source'].to_numpy(int),
+                linked['target'].to_numpy(int)] = linked['weight'].to_numpy()
+        biased = rows[rows['source'] < 0]
+        bias[biased['target'].to_numpy(int)] = biased['weight'].to_numpy()
+        layers.append((weights, bias))
+    _CONFLUENCY_PHASE_NETWORK[:] = layers
+    return _CONFLUENCY_PHASE_NETWORK
+
+
+def _confluency_phase_probability(x):
+    """Per-pixel probability that a phase-contrast pixel lies in a cell.
+
+    :param x: 0-1 scaled plane.
+    :returns: float plane of the same shape, 0 to 1.
+    """
+    features = _confluency_phase_features(x)
+    flat = features.reshape(-1, features.shape[-1]).astype(np.float64)
+    layers = _confluency_phase_network()
+    probability = np.empty(flat.shape[0])
+    step = 1 << 18
+    for start in range(0, flat.shape[0], step):
+        values = flat[start:start + step]
+        for weights, bias in layers[:-1]:
+            values = np.maximum(values @ weights + bias, 0.0)
+        weights, bias = layers[-1]
+        logit = (values @ weights + bias)[:, 0]
+        probability[start:start + step] = 1.0 / (1.0 + np.exp(-logit))
+    return probability.reshape(x.shape)
+
+
+def _phase_coverage(image, window=15):
+    """Covered area of a phase-contrast or brightfield field, learned.
+
+    A small pixel classifier (a two-layer perceptron over
+    :func:`_confluency_phase_features`) trained on LIVECell (Edlund et al.
+    2021, Nature Methods; CC BY-NC 4.0): Incucyte phase-contrast fields of eight
+    cell lines with expert-drawn cell outlines, together with bare-plastic
+    and fully covered crops and pure-noise fields so that a field of one
+    kind is not forced into two classes. The probability map is smoothed
+    and cut at :data:`_CONFLUENCY_PHASE_CUT`. Unlike the texture source
+    there is no whole-field decision: every pixel is classified.
+
+    The classifier saw cells at LIVECell's pixel size. ``window`` rescales
+    the field by ``15 / window`` before classifying, so a field whose cells
+    are twice as many pixels across is read with ``window=30``; 15 reads it
+    as it is.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param window: cell scale relative to the training images, as above.
+    :returns: :class:`_ConfluencyResult` with ``source='phase'``.
+    """
+    plane = np.asarray(_confluency_plane(image), dtype=np.float64)
+    if np.ptp(plane) == 0:
+        return _ConfluencyResult(np.zeros(plane.shape, dtype=bool), 0.0,
+                                'phase', _CONFLUENCY_PHASE_CUT, None, True)
+    scale = _CONFLUENCY_PHASE_WINDOW / max(3, int(window))
+    work = plane
+    if scale != 1.0:
+        from skimage.transform import rescale
+        work = rescale(plane, scale, order=1, anti_aliasing=scale < 1.0,
+                       preserve_range=True)
+    probability = gaussian_filter(
+        _confluency_phase_probability(_unit_scaled(work)),
+        _CONFLUENCY_PHASE_SMOOTH)
+    if probability.shape != plane.shape:
+        from skimage.transform import resize
+        probability = resize(probability, plane.shape, order=1,
+                             preserve_range=True)
+    covered = _clean_coverage(probability > _CONFLUENCY_PHASE_CUT,
+                              round(_CONFLUENCY_PHASE_CLEAN / scale))
+    return _ConfluencyResult(covered, float(covered.mean()), 'phase',
+                            _CONFLUENCY_PHASE_CUT, None, False)
+
+
 def _mask_coverage(mask):
     """Covered area as the union of every labelled cell.
 
@@ -3573,7 +3734,7 @@ def _resolve_confluency_source(settings):
 
     :param settings: Measure settings; reads ``confluency_source`` and
         ``cell_mask_dim``.
-    :returns: ``'masks'``, ``'texture'`` or ``'intensity'``.
+    :returns: ``'masks'``, ``'texture'``, ``'intensity'`` or ``'phase'``.
     :raises ValueError: for a source outside :data:`_CONFLUENCY_SOURCES`.
     """
     source = str(settings.get('confluency_source') or 'auto').strip().lower()
@@ -3588,12 +3749,12 @@ def _resolve_confluency_source(settings):
         raise ValueError(
             "Setting: confluency_source is 'masks' but cell_mask_dim is "
             "blank, so there are no cell masks to cover the field with. "
-            "Set cell_mask_dim, or choose texture or intensity.")
+            "Set cell_mask_dim, or choose texture, intensity or phase.")
     return source
 
 
 def _confluency_channel(settings):
-    """The merged-array channel a texture or intensity source reads.
+    """The merged-array channel a texture, intensity or phase source reads.
 
     :param settings: Measure settings; reads ``confluency_channel`` and,
         when it is blank, the first entry of ``channels``.
@@ -3613,8 +3774,9 @@ def _field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
     :param image: the channel to read for ``texture`` and ``intensity``.
     :param cell_mask: the cell label image for ``masks``.
     :param source: ``auto`` (masks when ``cell_mask`` is given, else
-        texture), ``masks``, ``texture`` or ``intensity``.
-    :param window: texture window in pixels.
+        texture), ``masks``, ``texture``, ``intensity`` or ``phase``.
+    :param window: texture window in pixels; for ``phase``, the cell scale
+        relative to the classifier's training images (15 = as trained).
     :param channel: recorded on the result; not used to read anything.
     :returns: :class:`_ConfluencyResult`.
     :raises ValueError: for an unknown source or a missing input.
@@ -3631,8 +3793,12 @@ def _field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
         return _mask_coverage(cell_mask)
     if image is None:
         raise ValueError(f"the {source} confluency source needs an image")
-    result = (_texture_coverage(image, window) if source == 'texture'
-              else _intensity_coverage(image))
+    if source == 'texture':
+        result = _texture_coverage(image, window)
+    elif source == 'phase':
+        result = _phase_coverage(image, window)
+    else:
+        result = _intensity_coverage(image)
     result.channel = None if channel is None else int(channel)
     return result
 

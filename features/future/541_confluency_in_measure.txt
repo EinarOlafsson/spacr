@@ -1,9 +1,11 @@
 CONFLUENCY IN MEASURE, FOR ANY CHANNEL
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure writes confluency per field
-and per well with a monolayer QC flag, from texture, intensity or cell masks;
-the infection report and any per-well table use it as filter and denominator;
-the Measure preview draws the covered area. Hidden with Alpha features.
+Status: IMPLEMENTED AS ALPHA 2026-09-26; phase source 2026-09-30.
+Measure writes confluency per field and per well with a monolayer QC
+flag, from texture, intensity, a learned phase classifier or cell masks;
+the infection report and any per-well table use it as filter and
+denominator; the Measure preview draws the covered area. Hidden with
+Alpha features.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -148,3 +150,77 @@ REAL-DATA VALIDATION 2026-09-30 (CPU) -- brightfield/phase against hand-traced c
     Brightfield/phase needs the confluency_window tuned per cell line, or
     a learned model. Still left: a manual threshold override, and
     per-cell-line guidance.
+
+2026-09-30 -- Learned phase source: brightfield/phase validated on LIVECell test
+    New confluency_source choice `phase` (spacr/measure.py: _phase_coverage,
+    _confluency_phase_features, _confluency_phase_network,
+    _confluency_phase_probability). A pixel classifier: 30 per-pixel
+    features in units of the field's own noise (local SD over 3-61 px,
+    gradient magnitude and Hessian eigenvalues at several scales, structure
+    tensor strength/coherence, deviation from a 40 px flat-field background,
+    and neighbourhood mean/max/min of the local texture so flat cell
+    interiors borrow their edges' texture), a 30-24-12-1 perceptron
+    (sklearn MLPClassifier, scaler folded into the first layer), probability
+    smoothed (sigma 1), cut at 0.6, then _clean_coverage(radius 3). No
+    whole-field decision. Weights ship as a 1,057-row long table,
+    spacr/resources/data/confluency_phase_mlp.csv (19 kB, read through
+    spacr.tabular; resources/data/* is already in package_data and
+    MANIFEST.in). Inference is numpy only, no new dependency, about 1 s per
+    704x520 field on one core. confluency_window rescales the field by
+    15/window before classifying, so cells twice as many pixels across as
+    LIVECell's are read with window 30.
+    Training (sklearn, CPU): 1,200 LIVECell train fields (150 per line,
+    2,000 pixels each), bare and fully covered train crops plus 300 noise
+    fields (so a field of one kind is not forced into two classes), and 300
+    synthetic phase fields (granules, dark rim, bright halo and cell walls)
+    so the source also reads clean synthetic phase. Cut, smoothing and
+    cleaning picked on val (539 fields); test scored once.
+    Tried on val and not adopted: logistic regression on the same features
+    (val MAE 4.6, 68 % within 5: not enough); per-image texture quantiles
+    as context features (val-better by 0.1 point, but the model then read
+    any field as covered when its statistics differed from LIVECell's);
+    HistGradientBoosting (too slow to train under this load, and a tree
+    ensemble cannot ship as a small table).
+    Result, LIVECell official test split, 1,512 fields (receipt:
+    features/data/541_phase_confluency_livecell_2026-09-30.json):
+                  texture (before)            phase (now)
+      MAE         9.37 points                 2.77
+      median |e|  6.45                        1.76
+      bias        -3.78                       -0.82
+      within 5    41.8 % of fields            84.7 %
+      mean IoU    0.596                       0.813
+    By cell line (phase source, test): MAE / within 5 points
+      A172   2.04 / 93 %     BT474  2.59 / 83 %     BV2    2.94 / 84 %
+      Huh7   1.52 / 96 %     MCF7   3.46 / 77 %     SHSY5Y 3.57 / 79 %
+      SKOV3  3.44 / 76 %     SkBr3  2.19 / 96 %
+    (texture before: A172 9.1, BT474 4.0, BV2 6.0, Huh7 9.1, MCF7 4.3,
+    SHSY5Y 9.3, SKOV3 19.8, SkBr3 5.2 MAE.)
+    By density (true coverage): <10 % MAE 1.2 (99 % within 5); 10-25 %
+    1.3 (98 %); 25-50 % 2.8 (85 %); 50-75 % 4.8 (69 %); >75 % 4.0 (70 %,
+    bias -2.7: the dense fields under-read thin gaps' borders).
+    Synthetic phase fields 0-90 % covered: within 3 points; a field
+    upsampled 2x read with window 30: within 3 points; bare plastic 0 %.
+    Tests: tests/test_confluency_phase_source.py (8: known synthetic phase
+    coverage, bare and flat fields, window rescaling, network shape against
+    the feature count, source resolution and dispatch, Measure end to end
+    writing phase rows). test_confluency_edges_and_the_run_that_draws_it
+    used "phase" as its example of an unknown source; it now uses another
+    name.
+    Verdict on the DONE WHEN: on average the phase source agrees with
+    hand-drawn coverage well within 5 points on every LIVECell line (worst
+    line MAE 3.6), and 85 % of single fields are within 5 points; the
+    remaining 15 % are mostly fields over 50 % covered. Fluorescence
+    (intensity, Toxo PV and plate1) already passed. auto still resolves to
+    masks or texture; phase must be chosen.
+    For the maintainer: the weights were learned from LIVECell, which is CC
+    BY-NC 4.0, and spaCR is BSD-3. Whether trained weights inherit the
+    non-commercial term is a licensing call; if they do, the CSV should be
+    downloaded on first use rather than shipped, or retrained on
+    permissively licensed data.
+    Still left: a manual threshold override; making phase the auto choice
+    for a brightfield channel (needs the channel's modality known); a
+    hand-drawn brightfield (non-phase) reference field; wiring the QC flag
+    into analyze_plaques.
+ALPHA (2026-09-30): the `phase` choice lives inside confluency_source,
+which is already registered in ALPHA_FEATURES[541], so it is hidden with
+the rest of the Confluency (Alpha) settings; no new setting or widget.
