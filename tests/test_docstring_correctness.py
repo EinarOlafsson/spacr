@@ -2660,7 +2660,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 19,708 -> 19,709 on 2026-09-30 with item 605: the RuntimeControls
     # dataclass gains the optional `magnifier_size` field; no new callable,
     # none required.
-    assert sum(len(item.parameters) for item in callables) == 19_709
+    # 426, 2026-09-30: +2, train_timeflows gains optional lr_schedule and
+    # consistency_weight; no new callable, the required sum does not move.
+    assert sum(len(item.parameters) for item in callables) == 19_711
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2875,7 +2877,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # dataclass constructor gained the optional magnifier_size=; it is the
     # item's only public signature change, and the parameter sum moved by
     # exactly that one.
-) == "b8968cbf787e77269006a07ced6c1ead6a42e3365603992d31e47a2ec872f11b"
+    # Moved 2026-09-30 for item 426: train_timeflows gained the optional
+    # lr_schedule and consistency_weight keywords; no row added or removed.
+) == "fff8dea0bc9be2508cc5fbee90c35fb671f20f438dbf55868540ee6375186b40"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
