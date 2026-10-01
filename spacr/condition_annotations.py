@@ -95,7 +95,7 @@ def _entries(definition):
     if definition.get("version") == 1:
         return [{"column": definition.get("column", ""), "kind": "rules",
                  "conditions": definition.get("conditions", [])}]
-    if definition.get("version") != 2:
+    if definition.get("version") not in (2, 3):
         raise AnnotationError("Unsupported annotation version; recreate the conditions.")
     entries = definition.get("columns")
     if not isinstance(entries, list) or not entries:
@@ -132,7 +132,57 @@ def _exact_values(condition, key, name):
     return {str(value) for value in values}
 
 
-def _rules_preview(frame, conditions, locations, *, legacy):
+def _predicate_selection(frame, criterion, name):
+    # Literal operators never interpret regex metacharacters.
+    if not isinstance(criterion, dict):
+        raise AnnotationError(f"{name}: each criterion needs a column, operator and text value.")
+    column = criterion.get("metadata_column")
+    if not isinstance(column, str) or column not in frame.columns:
+        raise AnnotationError(f"{name}: choose an available metadata column for each criterion.")
+    value = criterion.get("value")
+    if not isinstance(value, str):
+        raise AnnotationError(f"{name}: criterion values must be text.")
+    text = frame[column].reset_index(drop=True).astype("string")
+    present = text.notna().to_numpy(dtype=bool)
+    operator = criterion.get("operator")
+    if not isinstance(operator, str):
+        raise AnnotationError(f"{name}: choose a criterion operator.")
+    if value == "" and operator in {"contains", "not_contains", "starts_with", "ends_with", "regex", "not_regex"}:
+        raise AnnotationError(f"{name}: enter nonempty text for {operator}; use equals to match an empty value.")
+    negative = operator in {"not_contains", "not_equals", "not_regex"}
+    if operator in {"contains", "not_contains"}:
+        selected = text.str.contains(value, regex=False, na=False)
+    elif operator in {"equals", "not_equals"}:
+        selected = text.eq(value).fillna(False)
+    elif operator == "starts_with":
+        selected = text.str.startswith(value, na=False)
+    elif operator == "ends_with":
+        selected = text.str.endswith(value, na=False)
+    elif operator in {"regex", "not_regex"}:
+        try:
+            pattern = re.compile(value)
+        except re.error as exc:
+            raise AnnotationError(f"{name}: invalid criterion regular expression: {exc}") from exc
+        selected = text.map(lambda item: bool(pattern.search(item)) if pd.notna(item) else False)
+    else:
+        raise AnnotationError(f"{name}: unsupported criterion operator {operator!r}.")
+    selected = selected.to_numpy(dtype=bool)
+    return present & (~selected if negative else selected)
+
+
+def _criteria_selection(frame, conditions, name, match):
+    if not isinstance(conditions, list):
+        raise AnnotationError(f"{name}: criteria must be a list.")
+    if not isinstance(match, str) or match not in {"all", "any"}:
+        raise AnnotationError(f"{name}: criteria matching must be all or any.")
+    selections = [_predicate_selection(frame, criterion, name) for criterion in conditions]
+    if not selections:
+        raise AnnotationError(f"{name}: add at least one criterion, or use a manual-only rule without criteria.")
+    return (np.logical_and.reduce(selections) if match == "all"
+            else np.logical_or.reduce(selections))
+
+
+def _rules_preview(frame, conditions, locations, *, legacy, version=2):
     """Evaluate one output, unioning repeated labels before conflict detection."""
     if not isinstance(conditions, list):
         raise AnnotationError("Conditions must be a list of rules.")
@@ -145,27 +195,44 @@ def _rules_preview(frame, conditions, locations, *, legacy):
         if not name or (legacy and name in masks):
             raise AnnotationError("Each condition needs a distinct, nonempty name.")
         column_name = condition.get("metadata_column")
-        if column_name not in frame.columns:
-            raise AnnotationError(f"{name}: choose an available metadata column.")
-        text = frame[column_name].reset_index(drop=True).astype("string")
+        criteria = version == 3 and "criteria" in condition
         mode = condition.get("match_mode", "regex")
+        # A criteria-only rule needs no unused legacy metadata selector.
+        needs_column = (not criteria or bool(condition.get("exclude"))
+                        or (mode == "values" and bool(condition.get("exclude_values"))))
+        if needs_column and column_name not in frame.columns:
+            raise AnnotationError(f"{name}: choose an available metadata column.")
+        text = (frame[column_name].reset_index(drop=True).astype("string")
+                if column_name in frame.columns else None)
+        selected = (_criteria_selection(frame, condition["criteria"], name,
+                                        condition.get("match", "all")) if criteria else None)
+        excluded = np.zeros(len(frame), dtype=bool)
         if mode == "values":
-            selected = text.isin(_exact_values(condition, "include_values", name)).to_numpy(dtype=bool)
-            excluded = text.isin(_exact_values(condition, "exclude_values", name)).to_numpy(dtype=bool)
-        elif mode == "regex":
-            compiled = {}
+            if not criteria:
+                selected = text.isin(_exact_values(condition, "include_values", name)).to_numpy(dtype=bool)
+            exclude_values = _exact_values(condition, "exclude_values", name)
+            if exclude_values:
+                excluded = text.isin(exclude_values).to_numpy(dtype=bool)
+        elif mode == "regex" or (version == 3 and mode in {"contains", "not_contains", "equals"}):
+            if not criteria and mode != "regex":
+                selected = _predicate_selection(frame, {"metadata_column": column_name,
+                    "operator": mode, "value": condition.get("match_text")}, name)
             for selector in ("include", "exclude"):
+                if selector == "include" and (criteria or mode != "regex"):
+                    continue
                 pattern = str(condition.get(selector, ""))
                 try:
-                    compiled[selector] = re.compile(pattern) if pattern else None
+                    compiled = re.compile(pattern) if pattern else None
                 except re.error as exc:
                     raise AnnotationError(f"{name}: invalid {selector} regular expression: {exc}") from exc
-            selected = (text.str.contains(compiled["include"], na=False).to_numpy(dtype=bool)
-                        if compiled["include"] else np.zeros(len(frame), dtype=bool))
-            excluded = (text.str.contains(compiled["exclude"], na=False).to_numpy(dtype=bool)
-                        if compiled["exclude"] else np.zeros(len(frame), dtype=bool))
+                matches = (text.str.contains(compiled, na=False).to_numpy(dtype=bool)
+                           if compiled else np.zeros(len(frame), dtype=bool))
+                if selector == "include":
+                    selected = matches
+                else:
+                    excluded = matches
         else:
-            raise AnnotationError(f"{name}: choose regex or values matching.")
+            raise AnnotationError(f"{name}: choose a supported matching mode.")
         for token in condition.get("manual_rows", []):
             if token not in locations:
                 raise AnnotationError(f"{name}: a manually selected row no longer belongs to this source.")
@@ -208,6 +275,66 @@ def _combine_preview(frame, entry):
                             int(missing.sum()), np.array([], dtype=np.int64))
 
 
+def _value_preview(values):
+    values = values.astype("string")
+    return ConditionPreview(values, {str(key): int(value) for key, value in values.value_counts().items()},
+                            int(values.isna().sum()), np.array([], dtype=np.int64))
+
+
+def _extract_preview(frame, entry):
+    column = entry.get("metadata_column")
+    if not isinstance(column, str) or column not in frame.columns:
+        raise AnnotationError("Extraction must name a source column or an earlier annotation output.")
+    pattern = entry.get("pattern")
+    if not isinstance(pattern, str) or not pattern:
+        raise AnnotationError("Extraction needs a nonempty regular expression.")
+    try:
+        compiled = re.compile(pattern)
+    except re.error as exc:
+        raise AnnotationError(f"Invalid extraction regular expression: {exc}") from exc
+    group = entry.get("group", 1)
+    if (isinstance(group, bool) or not isinstance(group, (str, int))
+            or (isinstance(group, int) and not 0 <= group <= compiled.groups)
+            or (isinstance(group, str) and group not in compiled.groupindex)):
+        raise AnnotationError("Choose an existing numbered or named capture group.")
+    text = frame[column].reset_index(drop=True).astype("string")
+
+    def extract(value):
+        if pd.isna(value):
+            return pd.NA
+        match = compiled.search(value)
+        captured = match.group(group) if match is not None else None
+        return captured if captured is not None and captured != "" else pd.NA
+
+    return _value_preview(text.map(extract))
+
+
+def _template_preview(frame, entry):
+    parts = entry.get("parts")
+    if not isinstance(parts, list) or not parts:
+        raise AnnotationError("Add at least one column or fixed-text part to the composition.")
+    values = pd.Series("", index=pd.RangeIndex(len(frame)), dtype="string")
+    missing = np.zeros(len(frame), dtype=bool)
+    for part in parts:
+        if not isinstance(part, dict):
+            raise AnnotationError("Each composition part must be a column or fixed text.")
+        if part.get("kind") == "text":
+            text = part.get("text")
+            if not isinstance(text, str):
+                raise AnnotationError("Fixed composition text must be a string.")
+            values = values + text
+        elif part.get("kind") == "column":
+            column = part.get("column")
+            if not isinstance(column, str) or column not in frame.columns:
+                raise AnnotationError("Composition columns must name source columns or earlier annotation outputs.")
+            component = frame[column].reset_index(drop=True).astype("string")
+            missing |= (component.isna() | component.eq("").fillna(False)).to_numpy(dtype=bool)
+            values = values + component
+        else:
+            raise AnnotationError("Each composition part must be a column or fixed text.")
+    return _value_preview(values.mask(missing | values.eq("").fillna(False).to_numpy(dtype=bool), pd.NA))
+
+
 def preview(frame, definition, source):
     """Evaluate ordered outputs without mutating the source or accepting conflicts.
 
@@ -240,9 +367,13 @@ def preview(frame, definition, source):
         kind = entry.get("kind", "rules")
         if kind == "rules":
             report = _rules_preview(available, entry.get("conditions", []), locations,
-                                    legacy=definition["version"] == 1)
+                                    legacy=definition["version"] == 1, version=definition["version"])
         elif kind == "combine":
             report = _combine_preview(available, entry)
+        elif kind == "extract" and definition["version"] == 3:
+            report = _extract_preview(available, entry)
+        elif kind == "template" and definition["version"] == 3:
+            report = _template_preview(available, entry)
         else:
             raise AnnotationError(f"{name}: choose rules or combine for the output kind.")
         reports[name] = report
