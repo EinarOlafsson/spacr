@@ -49,6 +49,7 @@ uniform float u_pointer_x;
 uniform float u_pointer_y;
 uniform float u_pull;
 uniform float u_push;
+uniform float u_lens;
 uniform float u_time;
 uniform float u_speed;
 uniform float u_dream;
@@ -165,12 +166,13 @@ vec2 toward_pointer(vec2 uv) {
     // firm under the cursor and gone by the far corner. Distant pixels
     // stay where they were, so there is no global shift to spring back
     // from. A click reverses it.
+    float lens = u_lens > 0.0 ? max(u_lens, 0.05) : 1.0;
     vec2 target = vec2(u_pointer_x, u_pointer_y);
-    vec2 to_pointer = target - uv;
+    vec2 to_pointer = (target - uv) / lens;
     float distance2 = dot(to_pointer, to_pointer) + 0.05;
     float strength = (0.55 * u_pull - 0.95 * u_push) / distance2;
     strength = clamp(strength, -1.4, 0.9);
-    return uv + strength * to_pointer;
+    return uv + strength * to_pointer * lens;
 }
 
 vec3 render_sample(vec2 fragment_position) {

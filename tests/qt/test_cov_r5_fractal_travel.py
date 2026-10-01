@@ -1696,8 +1696,10 @@ def test_the_reference_follows_the_view_down(mandel, monkeypatch, caplog):
 
     canvas._mandelbrot_uniforms(0.0)                 # lands it
     assert canvas._orbit is fresh
-    # The camera is sitting ON the new reference, so its offset starts again.
-    assert canvas._camera.centre == (0.0, 0.0)
+    # The reference moved by (0.1, 0.2) and the camera's offset by the
+    # opposite, so the picture is exactly where it was -- resetting the
+    # offset to zero here was a jump of a whole survey offset every decade.
+    assert canvas._camera.centre == (pytest.approx(0.2), pytest.approx(0.2))
     assert canvas._refine_due == pytest.approx(
         canvas._depth + module.REFINE_EVERY, abs=0.01)
 

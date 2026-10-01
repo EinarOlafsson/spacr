@@ -2657,7 +2657,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # callable and no required parameter.
     # 19,707 -> 19,708 on 2026-09-30 with item 76: plot_image_mask_overlay's
     # optional `organelle_channels`; no new callable, none required.
-    assert sum(len(item.parameters) for item in callables) == 19_708
+    # 19,708 -> 19,709 on 2026-09-30 with item 605: the RuntimeControls
+    # dataclass gains the optional `magnifier_size` field; no new callable,
+    # none required.
+    assert sum(len(item.parameters) for item in callables) == 19_709
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2868,7 +2871,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # optional gates=; no row added or removed.
     # Moved 2026-09-30 for item 76 (was bb1c78a9...): plot_image_mask_overlay
     # gained the optional organelle_channels=; no other row changed.
-) == "a77bd8d11340b2f334bdcf2a8c80b3e5465d66fc15dabb1916f2e0ae1ad7b42a"
+    # Moved 2026-09-30 for item 605 (was a77bd8d1...): the RuntimeControls
+    # dataclass constructor gained the optional magnifier_size=; it is the
+    # item's only public signature change, and the parameter sum moved by
+    # exactly that one.
+) == "b8968cbf787e77269006a07ced6c1ead6a42e3365603992d31e47a2ec872f11b"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
