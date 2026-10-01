@@ -5,7 +5,8 @@ every frame (texture, intensity or cell masks), writes area, mean/min width,
 closure rate and half-closure time per field, well and condition, with
 closure curves and a plate map; the Measure preview draws the wound edge.
 Hidden with Alpha features. DONE WHEN not met on the public data (below);
-two 2026-09-30 accuracy passes narrowed the gap but did not close it.
+three 2026-09-30 accuracy passes narrowed the gap but did not close it
+(same-position BBBC019: 74 % of later frames within 5 points).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -213,6 +214,73 @@ DONE WHEN
     (a per-pixel comparison with the first frame's texture at the same
     position might separate them); two-tone wound floors; the items
     listed above.
+2026-09-30 (third pass) — Wound floors with scattered cells; DONE WHEN still not met
+    Diagnosis: on BBBC019 the per-frame texture ranks hand-open over
+    hand-covered pixels well (AUC 0.89-0.99 inside the first wound), so
+    the misses were the cut, not the signal. _wound_relevel read the open
+    level from the pixels under its own cut and iterated it down, so on a
+    floor carrying scattered cells or debris (SN15 L4, L38, L40) it
+    settled on the cleanest stretch and called the rest covered, and on a
+    floor with a flat saturated stretch beside a faintly textured one
+    (MDCK L18) it split the floor itself.
+    Shipped (spacr/measure.py, private, no new settings): _wound_floor
+    keeps the first frame's open and covered log-texture levels and the
+    first wound widened by a window. For a later texture frame whose usual
+    cut still leaves at least 10 % of the first area open
+    (_WOUND_FLOOR_MIN_OPEN), the open level is read from Otsu's lower class
+    within one window of the first wound and three windows of the pixels
+    that cut leaves open (_WOUND_FLOOR_REACH), if that class lies at least
+    1.75 log units below the covered level (_WOUND_FLOOR_MIN_GAP; a closed
+    wound's monolayer splits much closer); it is held to between 1.0 below
+    and 1.5 above the first frame's open level shifted by the change in the
+    covered level (_WOUND_FLOOR_BELOW/_ABOVE), and the cut goes a fifth of
+    the way up to the covered level as before. Three synthetic tests each
+    fail without the change: scattered cells over 60 % of a later floor
+    (old: 16-33 points too closed); a floor half saturated flat (old: the
+    flat half only); a wound closed by cells at 0.35 of the monolayer's
+    texture amplitude (old: read fully open). MIN_GAP and REACH are pinned
+    only by the real-data scores.
+    Held-out evaluation: same folds as the second pass for BBBC (A: SN15
+    even positions, Init a, MDCK L1/L18) and the first pass for Zenodo.
+    46 configurations (level estimator, gates, clamps, reach); each fold
+    picked by within-5 on its own BBBC and Zenodo frames pooled, scored on
+    the other. Fold A picked the shipped settings; fold B the same with
+    BELOW 0.5 and REACH 2. Out of fold: BBBC 64 % (A) / 80 % (B), 72 %
+    pooled; Zenodo 41 % / 37 %, 39 % pooled. Shipped settings, all frames:
+                        within 5  within 10  median  mean
+        BBBC before        60 %      82 %      3.0    6.9
+        BBBC now           74 %      86 %      2.9    5.0
+          fold A / B now  68/80 %  84/88 %  3.1/2.3  6.8/3.3
+          SN15 / Init / MDCK now  80/70/60 % (were 60/60/60)
+        Zenodo before      42 %      66 %      5.6   11.8
+        Zenodo now         42 %      65 %      7.3   12.0
+          fold A / B now  47/37 %  62/67 %  8.0/6.6  8.9/15.4
+    22 of 28 BBBC series have a mean closure error within 5 points (was
+    17). First frames are unchanged.
+    Tried and not shipped (same scoring): Otsu's lower class alone, no
+    gates (BBBC 70 %, Zenodo 16-23 %: a closed wound's monolayer splits
+    into two classes and half of it reads open); a two-Gaussian fit with
+    the covered class fixed from outside the band (60 %, fraction 0.2) and
+    the histogram mode (54 %); no recalibration at all (BBBC 48 %); a
+    high-pass before the texture so out-of-focus blotches on the floor do
+    not count (BBBC 56 %); gates on Otsu separation or on the gap as a
+    share of the first frame's (they overlap between BBBC sparse floors
+    and Zenodo closed frames); telling same-position from re-imaged frames
+    by how far _wound_follow moves the wound (BBBC median 10 px, Zenodo
+    42 px, overlapping); a smaller REACH (1: BBBC 68 %).
+    What limits it: the two sets' hand masks disagree on sparse cells.
+    BBBC calls a floor with scattered cells open; the Zenodo masks call a
+    sparse leading edge covered (Originais and originais frames lose up
+    to 22 and 14 points to exactly this rule while Migracao and LUIS PET
+    gain up to 11 and 10). MDCK L18 is still read 31-41 points too closed
+    (its flat stretch is out of the reach of the open pixels the first cut
+    finds), SN15 L4 17 points too closed and L22 18 too open.
+    Scripts, sweep logs and per-frame CSVs: /mnt/wd4tb/scratch/536/val
+    (ev.py, p1.py, pickcfg2.py, bbbc_final.csv, zen_final.csv).
+    Left: the 5 % DONE WHEN (74 % of same-position later frames within 5
+    points); a manual threshold override (not built); the dataset
+    disagreement on sparse cells (a per-run choice would settle it); the
+    other items listed above.
 ALPHA: settings wound_closure, wound_source, wound_channel, wound_window,
 wound_hours_per_frame, wound_conditions (Measure category "Wound Closure
 (Alpha)"); widget MeasureWoundToggle (its MeasureWoundOverlay label shows
