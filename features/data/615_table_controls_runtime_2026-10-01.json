@@ -1,0 +1,71 @@
+{
+  "English_catalog_unchanged": true,
+  "ui_source_count": 6485,
+  "exact_records": 144,
+  "locales": [
+    {
+      "language": "de",
+      "verified": 10
+    },
+    {
+      "language": "es",
+      "verified": 6
+    },
+    {
+      "language": "fr",
+      "verified": 10
+    },
+    {
+      "language": "hi",
+      "verified": 20
+    },
+    {
+      "language": "is",
+      "verified": 35
+    },
+    {
+      "language": "ko",
+      "verified": 26
+    },
+    {
+      "language": "pt",
+      "verified": 3
+    },
+    {
+      "language": "sv",
+      "verified": 13
+    },
+    {
+      "language": "zh_CN",
+      "verified": 21
+    }
+  ],
+  "item": "N615",
+  "date": "2026-10-01",
+  "review": "Direct Codex authorship with independent AI technical peer review; no human/native-speaker signoff. Source-bound permanent reviewed records preserve replaced targets and original proposals.",
+  "normal_generator": {
+    "exit_code": 0,
+    "languages": 9,
+    "settings": 1231,
+    "categories": 237,
+    "ui": 6485,
+    "modules": 72,
+    "log": "/tmp/spacr-implementation-20261001/review/runtime-table-controls.log",
+    "limits": "4GiB, zero swap, actual oneCPU affinity; configured CPUQuota100% not kernel-verified"
+  },
+  "tests": {
+    "passed": 2,
+    "elapsed_seconds": 1.16,
+    "selection": [
+      "tests/qt/test_external_i18n_catalogs.py::test_all_external_catalogs_preserve_runtime_placeholders",
+      "tests/qt/test_external_i18n_catalogs.py::test_external_runtime_catalogs_have_exact_current_source_keys"
+    ],
+    "limits": "1GiB, zero swap, oneCPU affinity"
+  },
+  "earlier_attempt": {
+    "selection": "cache precedence + reviewed UI + full external catalog test module",
+    "result": "exit3 memory guard after9 pass markers; not a passing cohort",
+    "limits": "1GiB unchanged for focused followup",
+    "log": "/tmp/spacr-implementation-20261001/review/runtime-table-controls-tests.log"
+  }
+}

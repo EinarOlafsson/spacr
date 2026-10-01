@@ -325,3 +325,13 @@ pagination, and F585's later planner changes, require subsequent integration
 validation; this result does not claim those later changes were included.
 Guide translations and tutorial media publication remain open.
 Receipt: features/data/615_api_and_full_docs_2026-10-01.json.
+
+2026-10-01 — GRAPH BUILDER TRANSLATION CORRECTIONS
+144 source-bound label corrections across all nine runtime languages now pass
+the unchanged generator audit. Corrects table/filename/column terminology,
+Boolean any/all meaning and action labels exposed by the current guide review.
+English inventory remains byte-identical (6,485 UI sources). Authored and
+independently technically reviewed by Codex agents; no native-speaker claim.
+Two focused placeholder/source-key tests pass. A broader mixed cohort hit its
+1GiB guard after nine pass markers; its failure is retained, with no cap raise.
+Receipt: features/data/615_table_controls_runtime_2026-10-01.json.
