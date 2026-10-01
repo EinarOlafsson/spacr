@@ -127,6 +127,23 @@ class TestTheDockWidth:
         dock.refresh_visibility()
         assert dock.width() == wide
 
+    def test_collapse_preserves_a_visible_restore_handle_and_saved_width(
+            self, qtbot, window, prefs_file):
+        dock, edge = window._sidebar, window._dock_edge
+        _drag(edge, 60)
+        width = dock.width()
+        qtbot.mouseClick(edge, Qt.LeftButton)
+        _pump()
+        assert edge.is_collapsed()
+        assert edge.isVisible() and not window._dock_slot.isVisible()
+        assert prefs_file.get_dock_width() == width
+        window.apply_dock_mode("locked")
+        assert not window._dock_slot.isVisible()
+        qtbot.keyClick(edge, Qt.Key_Space)
+        _pump()
+        assert not edge.is_collapsed()
+        assert window._dock_slot.isVisible() and dock.width() == width
+
     def test_the_width_stays_between_its_bounds(self, window, prefs_file):
         from spacr.qt.preferences import scaled_px
 

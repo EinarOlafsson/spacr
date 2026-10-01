@@ -2622,6 +2622,9 @@ class MainWindow(QMainWindow):
         self._sidebar.module_hovered.connect(self._show_module_hint)
         from .widgets.dock import DockEdge
         self._dock_edge = DockEdge(self._sidebar)
+        self._dock_edge.collapsedChanged.connect(
+            lambda collapsed: self._dock_slot.setVisible(
+                not collapsed and self._dock_mode == "locked"))
         row.insertWidget(row.indexOf(self._dock_slot) + 1, self._dock_edge)
 
         from .widgets.drawer import EdgeDrawer
@@ -4484,7 +4487,8 @@ class MainWindow(QMainWindow):
                 slot.layout().addWidget(sidebar)
             sidebar.setFixedWidth(sidebar.column_width())
             sidebar.show()
-            slot.show()
+            edge = getattr(self, "_dock_edge", None)
+            slot.setVisible(edge is None or not edge.is_collapsed())
         else:
             slot.hide()
         edge = getattr(self, "_dock_edge", None)
