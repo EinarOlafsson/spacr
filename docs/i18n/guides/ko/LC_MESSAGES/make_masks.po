@@ -158,7 +158,7 @@ msgid "The Wand's relative tolerance is a fraction of the image intensity range;
 msgstr "Wand의 상대 허용 범위는 이미지 강도 범위에 대한 비율이며, 절대 허용 범위는 처리된 이미지의 강도 단위를 사용합니다. 선택적 폭주 검출기는 채우기가 클릭한 객체를 벗어나면서 갑자기 넓어지는지 살핍니다. **성장 비율**, **Warm-up**, **Min baseline**, **Confirmation** 은 얼마나 넓어져야 하는지, 어디서 확인을 시작할지, 객체의 최소 너비, 넓어짐이 얼마나 지속되어야 하는지를 제어합니다."
 
 msgid "**Re-flood below the escape** searches for a lower tolerance whose region stays inside the object. **Search steps** controls that search's precision. **Taper onto the gradient** refines a provisional cut using the intensity boundary; smoothing, transition-band width and foreground inset determine where the edge may move. These controls help with a bright object connected to another region by a weak bridge; inspect the resulting edge when the bridge and object have similar intensity."
-msgstr "**이탈 지점 아래에서 다시 채우기** 는 영역이 객체 안에 머무는 더 낮은 허용 범위를 찾습니다. **검색 단계 수** 는 그 검색의 정밀도를 제어합니다. **기울기에 맞춰 가늘게 다듬기** 는 강도 경계를 사용하여 임시 절단을 다듬으며, 평활화, 전이 대역 폭, 전경 안쪽 여백이 경계가 움직일 수 있는 범위를 정합니다. 이 컨트롤은 밝은 객체가 약한 다리로 다른 영역과 이어진 경우에 유용합니다. 다리와 객체의 강도가 비슷하면 결과 경계를 검사합니다."
+msgstr "**유출 수위 아래로 다시 채우기** 는 영역이 객체 안에 머무는 더 낮은 허용 범위를 찾습니다. **검색 단계 수** 는 그 검색의 정밀도를 제어합니다. **그래디언트로 점차 전환** 는 강도 경계를 사용하여 임시 절단을 다듬으며, 평활화, 전이 대역 폭, 전경 안쪽 여백이 경계가 움직일 수 있는 범위를 정합니다. 이 컨트롤은 밝은 객체가 약한 다리로 다른 영역과 이어진 경우에 유용합니다. 다리와 객체의 강도가 비슷하면 결과 경계를 검사합니다."
 
 msgid "The Wand uses the currently applied image enhancement. If enhancement is still being calculated, wait for its completion before trying the click again. Post-detection morphology and splitting belong to detector output, not to the manual Wand gesture."
 msgstr "Wand는 현재 적용된 이미지 향상을 사용합니다. 향상이 아직 계산 중이면 끝날 때까지 기다린 뒤 다시 클릭합니다. 검출 후 형태학 처리와 분리는 검출기 출력에 속하며 수동 Wand 동작에는 적용되지 않습니다."

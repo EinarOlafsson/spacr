@@ -1457,7 +1457,7 @@ msgid "`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__."
 msgstr "`Tutorial do módulo <tutorials/#lesson=72_volcano_explorer>`__."
 
 msgid "Hit List"
-msgstr "Lista de acertos"
+msgstr "Lista de candidatos"
 
 msgid "Filter and rank saved hits with their effects, FDR and guide agreement."
 msgstr "Filtre e ordene os resultados salvos pelos efeitos, FDR e concordância entre guias."

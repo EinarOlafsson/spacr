@@ -107,7 +107,7 @@ msgid "A stratified gallery samples high, borderline, low, and false-looking con
 msgstr "층화 갤러리는 점수가 높은, 경계선상의, 낮은, 그리고 위양성처럼 보이는 대조군 객체를 표본으로 뽑습니다. 검토자용 CSV는 섞여 있으며 무작위 검토 ID와 이미지 경로만 표시합니다. 분석자 전용인 별도의 키에는 층과 확률이 보존됩니다. 한 명 이상의 눈가림 검토자가 이진 판정을 돌려주면 ``evaluate_blinded_reviews`` 가 보정 오차, 정밀도, 재현율, 정의되는 경우 ROC AUC, 쌍별 Cohen's kappa를 보고합니다."
 
 msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
-msgstr "데이터베이스 어노테이션은 전용 출처 표에서 버전이 관리됩니다. 기존의 수동 어노테이션은 변경되지 않습니다. **판정을 어노테이션으로 승격** 은 새 열 이름만 받는 별도의 작업이며, **승격 취소** 는 감사 행은 보존하면서 해당 승격이 쓴 값만 정확히 지웁니다."
+msgstr "데이터베이스 어노테이션은 전용 출처 표에서 버전이 관리됩니다. 기존의 수동 어노테이션은 변경되지 않습니다. **모델 판정을 주석으로 승격** 은 새 열 이름만 받는 별도의 작업이며, **승격 취소** 는 감사 행은 보존하면서 해당 승격이 쓴 값만 정확히 지웁니다."
 
 msgid "Evidence ladder"
 msgstr "증거의 단계"

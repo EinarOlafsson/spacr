@@ -107,7 +107,7 @@ msgid "A stratified gallery samples high, borderline, low, and false-looking con
 msgstr "Uma galeria estratificada amostra objetos de controle altos, limítrofes, baixos e de aparência enganosa. O CSV para revisores é embaralhado e revela apenas um ID de revisão aleatório e o caminho da imagem. Sua chave separada, somente para analistas, mantém o estrato e a probabilidade. Depois que um ou mais revisores cegos devolvem avaliações binárias, ``evaluate_blinded_reviews`` informa o erro de calibração, a precisão, a revocação, a AUC ROC quando definida e o kappa de Cohen por pares."
 
 msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
-msgstr "As anotações do banco de dados são versionadas em tabelas de proveniência dedicadas. As anotações manuais existentes não são alteradas. **Converter chamadas em anotações** é uma ação separada que só aceita um nome de coluna novo, e **Desfazer conversão** limpa exatamente os valores gravados por essa conversão, preservando sua linha de auditoria."
+msgstr "As anotações do banco de dados são versionadas em tabelas de proveniência dedicadas. As anotações manuais existentes não são alteradas. **Converter predições em anotações** é uma ação separada que só aceita um nome de coluna novo, e **Desfazer a conversão** limpa exatamente os valores gravados por essa conversão, preservando sua linha de auditoria."
 
 msgid "Evidence ladder"
 msgstr "Escala de evidência"

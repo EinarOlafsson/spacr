@@ -680,7 +680,7 @@ msgid "**Open:** the application's Help/tools menus."
 msgstr "**열기:** 애플리케이션의 도움말/도구 메뉴."
 
 msgid "**Run queue** — Saved module/plate/settings job definitions and dependency order."
-msgstr "**라운드 퀴즈** — 저장된 모듈/플레이트/설정 작업 정의와 의존 순서."
+msgstr "**대기열 실행** — 저장된 모듈/플레이트/설정 작업 정의와 의존 순서."
 
 msgid "**Run history and artifacts** — Project run records, settings, output paths, artifact provenance, status and logs."
 msgstr "**실행 기록 및 산출물** — 프로젝트 실행 기록, 설정, 출력 경로, 산출물 출처, 상태 및 로그."

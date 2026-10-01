@@ -74,7 +74,7 @@ msgid "Use three repeats for routine searches and increase the count when the le
 msgstr "सामान्य खोजों के लिए तीन दोहराव उपयोग करें, और जब अग्रणी पैरेटो विन्यासों की स्थिरता समान हो या अंतिम विश्लेषण विशेष रूप से पुनरुत्पादनीय होना चाहिए, तब संख्या बढ़ाएँ।"
 
 msgid "Walk search and stopping"
-msgstr "चलना खोज और रोकना"
+msgstr "चरणबद्ध खोज और रोकना"
 
 msgid "Switch on **Walk** to search locally from the values in the parameter fields instead of sweeping a grid. Each round scores the neighbourhood around the current centre and moves to the best configuration in it; with the default axes, ``n_neighbors`` and ``min_dist`` at resolution 2, that is the four diagonal corners. **Axes…** adds other structural parameters and sets each axis's step and resolution. The weighted multi-objective score chooses the direction of the next move. Search stops at **maximum rounds**, when a round fails to exceed **minimum improvement**, or after **Stop** is requested. A stopped result is explicitly marked partial."
 msgstr "ग्रिड को पूरा छानने के बजाय पैरामीटर फ़ील्ड के मानों से स्थानीय रूप से खोजने के लिए **चरणबद्ध खोज** चालू करें। हर दौर वर्तमान केंद्र के आसपास के पड़ोस को स्कोर करता है और उसमें सबसे अच्छे विन्यास पर चला जाता है; डिफ़ॉल्ट अक्षों ``n_neighbors`` और ``min_dist`` के साथ रिज़ॉल्यूशन 2 पर ये चार विकर्ण कोने होते हैं। **अक्ष…** अन्य संरचनात्मक पैरामीटर जोड़ता है और हर अक्ष का चरण और रिज़ॉल्यूशन सेट करता है। भारित बहु-उद्देश्य स्कोर अगली चाल की दिशा चुनता है। खोज **maximum rounds** पर, जब कोई दौर **minimum improvement** से आगे नहीं बढ़ता, या **रोकें** का अनुरोध होने पर रुक जाती है। रोका गया परिणाम स्पष्ट रूप से आंशिक के रूप में चिह्नित होता है।"
@@ -83,7 +83,7 @@ msgid "Resume behavior"
 msgstr "फिर से शुरू करने का व्यवहार"
 
 msgid "Enable **Resume checkpoint** to continue from ``results/.spacr_checkpoints/umap_search.json`` under the current project (or from an explicit ``checkpoint_path`` in the Python API). Each completed trial is written atomically and its primary embedding is stored beside the JSON. An interrupted Walk round evaluates only its missing candidates before choosing a direction."
-msgstr "वर्तमान प्रोजेक्ट के अंतर्गत ``results/.spacr_checkpoints/umap_search.json`` (या Python API में स्पष्ट ``checkpoint_path``) से जारी रखने के लिए **चेकपॉइंट से फिर शुरू करें** सक्षम करें। हर पूर्ण परीक्षण परमाणु रूप से लिखा जाता है और उसकी प्राथमिक एम्बेडिंग JSON के बगल में संग्रहीत होती है। बाधित चलना दौर दिशा चुनने से पहले केवल अपने अनुपस्थित उम्मीदवारों का मूल्यांकन करता है।"
+msgstr "वर्तमान प्रोजेक्ट के अंतर्गत ``results/.spacr_checkpoints/umap_search.json`` (या Python API में स्पष्ट ``checkpoint_path``) से जारी रखने के लिए **चेकपॉइंट से फिर शुरू करें** सक्षम करें। हर पूर्ण परीक्षण परमाणु रूप से लिखा जाता है और उसकी प्राथमिक एम्बेडिंग JSON के बगल में संग्रहीत होती है। बाधित चरणबद्ध खोज दौर दिशा चुनने से पहले केवल अपने अनुपस्थित उम्मीदवारों का मूल्यांकन करता है।"
 
 msgid "Resume refuses to combine incompatible work. Feature and label hashes, search space, criterion, seed, output dimensions, neighborhood size, the ``n_neighbors``/``min_dist`` increments, stopping threshold, stability repeat count, objective weights, embedder identity, backend and the cluster-during-search settings must match the checkpoint."
 msgstr "फिर से शुरू करना असंगत काम को जोड़ने से इनकार करता है। विशेषता और लेबल हैश, खोज स्थान, मानदंड, सीड, आउटपुट आयाम, पड़ोस का आकार, ``n_neighbors``/``min_dist`` वृद्धि, रुकने की सीमा, स्थिरता दोहराव संख्या, उद्देश्य भार, एम्बेडर पहचान, बैकएंड और खोज के दौरान क्लस्टरिंग सेटिंग्स चेकपॉइंट से मेल खाने चाहिए।"

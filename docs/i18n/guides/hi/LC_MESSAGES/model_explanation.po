@@ -107,7 +107,7 @@ msgid "A stratified gallery samples high, borderline, low, and false-looking con
 msgstr "एक स्तरित गैलरी उच्च, सीमांत, निम्न और झूठे दिखने वाले नियंत्रण ऑब्जेक्ट का नमूना लेती है। समीक्षक CSV फेंटी हुई होती है और केवल एक यादृच्छिक समीक्षा ID और छवि पथ दिखाती है। उसकी अलग, केवल-विश्लेषक कुंजी स्तर और संभावना सुरक्षित रखती है। एक या अधिक अंधाधुंध समीक्षकों द्वारा द्विआधारी निर्णय लौटाने के बाद ``evaluate_blinded_reviews`` अंशांकन त्रुटि, परिशुद्धता, रिकॉल, परिभाषित होने पर ROC AUC, और युग्मवार Cohen's kappa की सूचना देता है।"
 
 msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
-msgstr "डेटाबेस एनोटेशन समर्पित उद्गम तालिकाओं में संस्करणित होते हैं। मौजूदा मैन्युअल एनोटेशन अपरिवर्तित रहते हैं। **निर्णयों को एनोटेशन में पदोन्नत करें** एक अलग क्रिया है जो केवल नया स्तंभ नाम स्वीकार करती है, और **पदोन्नति पूर्ववत करें** उस पदोन्नति द्वारा लिखे गए मानों को ठीक-ठीक साफ़ करता है, जबकि उसकी ऑडिट पंक्ति सुरक्षित रहती है।"
+msgstr "डेटाबेस एनोटेशन समर्पित उद्गम तालिकाओं में संस्करणित होते हैं। मौजूदा मैन्युअल एनोटेशन अपरिवर्तित रहते हैं। **मॉडल कॉल को एनोटेशन में बदलें** एक अलग क्रिया है जो केवल नया स्तंभ नाम स्वीकार करती है, और **रूपांतरण पूर्ववत करें** उस पदोन्नति द्वारा लिखे गए मानों को ठीक-ठीक साफ़ करता है, जबकि उसकी ऑडिट पंक्ति सुरक्षित रहती है।"
 
 msgid "Evidence ladder"
 msgstr "साक्ष्य की सीढ़ी"

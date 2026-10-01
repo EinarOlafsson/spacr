@@ -35,13 +35,13 @@ msgid "Select the measured project as the source."
 msgstr "选择已测量的项目作为来源。"
 
 msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
-msgstr "将 **Anndata 输出** 设置为新的 ``.h5ad`` 文件名。留空时，文件写入项目的 ``results`` 文件夹下。导出成功后会替换所选路径上的现有文件；如需保留两个版本，请使用不同的文件名。"
+msgstr "将 **Anndata 输出文件** 设置为新的 ``.h5ad`` 文件名。留空时，文件写入项目的 ``results`` 文件夹下。导出成功后会替换所选路径上的现有文件；如需保留两个版本，请使用不同的文件名。"
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
 msgstr "将 **Anndata 单表** 设置为 ``cell``，即可按每个细胞一行导出该表的特征。对于这些对象类型，请使用 ``nucleus`` 或 ``pathogen``。留空则进行细胞级联合导出，此时子对象的测量值会汇总到其父细胞上。"
 
 msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
-msgstr "选择 **Anndata NaN 策略**，然后单击 **运行**。阅读完成消息，并打开输出文件检查其形状和特征名称。"
+msgstr "选择 **Anndata nan 处理策略**，然后单击 **运行**。阅读完成消息，并打开输出文件检查其形状和特征名称。"
 
 msgid "Choose how to handle missing features"
 msgstr "选择缺失特征的处理方式"

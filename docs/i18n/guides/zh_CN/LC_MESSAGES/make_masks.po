@@ -158,7 +158,7 @@ msgid "The Wand's relative tolerance is a fraction of the image intensity range;
 msgstr "Wand 的相对容差是图像强度范围的一个比例；绝对容差使用处理后图像的强度单位。可选的失控检测器会在漫水离开单击的对象时查找突然的变宽。**生长比例**、**Warm-up**、**Min baseline** 和 **Confirmation** 控制需要多大程度的变宽、从何处开始检查、对象的最小宽度，以及变宽必须持续多久。"
 
 msgid "**Re-flood below the escape** searches for a lower tolerance whose region stays inside the object. **Search steps** controls that search's precision. **Taper onto the gradient** refines a provisional cut using the intensity boundary; smoothing, transition-band width and foreground inset determine where the edge may move. These controls help with a bright object connected to another region by a weak bridge; inspect the resulting edge when the bridge and object have similar intensity."
-msgstr "**在溢出点以下重新漫水** 会搜索一个较低的容差，使其区域保持在对象内部。**搜索步数** 控制该搜索的精度。**沿梯度收缩** 使用强度边界细化临时的切割；平滑程度、过渡带宽度和前景内缩决定边缘可以移动到哪里。当一个明亮对象通过一座微弱的桥与另一个区域相连时，这些控件会有所帮助；当桥与对象强度相近时，请检查所得的边缘。"
+msgstr "**在溢出水位以下重新注水** 会搜索一个较低的容差，使其区域保持在对象内部。**搜索步数** 控制该搜索的精度。**渐变过渡到梯度** 使用强度边界细化临时的切割；平滑程度、过渡带宽度和前景内缩决定边缘可以移动到哪里。当一个明亮对象通过一座微弱的桥与另一个区域相连时，这些控件会有所帮助；当桥与对象强度相近时，请检查所得的边缘。"
 
 msgid "The Wand uses the currently applied image enhancement. If enhancement is still being calculated, wait for its completion before trying the click again. Post-detection morphology and splitting belong to detector output, not to the manual Wand gesture."
 msgstr "Wand 使用当前已应用的图像增强。如果增强仍在计算中，请等待其完成后再重新单击。检测后的形态学处理和分割属于检测器输出，而不属于手动的 Wand 手势。"

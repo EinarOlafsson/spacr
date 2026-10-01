@@ -206,10 +206,10 @@ msgid "Segmentation"
 msgstr "छवि विभाजन"
 
 msgid "Cell probability threshold"
-msgstr "कोशिका संभावना सीमा"
+msgstr "कोशिका प्रायिकता सीमा"
 
 msgid "Cell probability threshold setting animation"
-msgstr "सेटिंग एनिमेशन: कोशिका संभावना सीमा"
+msgstr "सेटिंग एनिमेशन: कोशिका प्रायिकता सीमा"
 
 msgid "**Settings:** ``cell_cellprob_threshold``"
 msgstr "**सेटिंग्स:** ``cell_cellprob_threshold``"
@@ -242,19 +242,19 @@ msgid "**Settings:** ``nucleus_cellprob_threshold``"
 msgstr "**सेटिंग्स:** ``nucleus_cellprob_threshold``"
 
 msgid "Nucleus flow threshold"
-msgstr "केंद्रक प्रवाह सीमा"
+msgstr "नाभिक प्रवाह सीमा"
 
 msgid "Nucleus flow threshold setting animation"
-msgstr "सेटिंग एनिमेशन: केंद्रक प्रवाह सीमा"
+msgstr "सेटिंग एनिमेशन: नाभिक प्रवाह सीमा"
 
 msgid "**Settings:** ``nucleus_flow_threshold``"
 msgstr "**सेटिंग्स:** ``nucleus_flow_threshold``"
 
 msgid "Nucleus diameter"
-msgstr "केंद्रक व्यास"
+msgstr "नाभिक व्यास"
 
 msgid "Nucleus diameter setting animation"
-msgstr "सेटिंग एनिमेशन: केंद्रक व्यास"
+msgstr "सेटिंग एनिमेशन: नाभिक व्यास"
 
 msgid "**Settings:** ``nucleus_diameter``"
 msgstr "**सेटिंग्स:** ``nucleus_diameter``"

@@ -23,7 +23,7 @@ msgid "Setting animation gallery"
 msgstr "설정 애니메이션 갤러리"
 
 msgid "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking."
-msgstr "spaCR에는 효과를 눈으로 보는 편이 이해하기 쉬운 설정을 위한 짧고 결정적인 GIF 애니메이션이 포함되어 있습니다. 데스크톱 인터페이스에서 설정 위에 마우스를 올리면 설명이 표시되며, 툴팁 하단의 청록색 **Animation** 단어를 누르면 텍스트 오른쪽에 해당 애니메이션이 나타납니다. 애니메이션은 그 설정에서만 표시됩니다. 다음 설정은 자체 **Animation** 을 누르기 전까지 다시 텍스트만 보이며, 누르기 전에는 아무것도 디코딩되지 않습니다. 묻지 않고 바로 표시하려면 환경설정에서 *애니메이션 설정* 을 켭니다."
+msgstr "spaCR에는 효과를 눈으로 보는 편이 이해하기 쉬운 설정을 위한 짧고 결정적인 GIF 애니메이션이 포함되어 있습니다. 데스크톱 인터페이스에서 설정 위에 마우스를 올리면 설명이 표시되며, 툴팁 하단의 청록색 **Animation** 단어를 누르면 텍스트 오른쪽에 해당 애니메이션이 나타납니다. 애니메이션은 그 설정에서만 표시됩니다. 다음 설정은 자체 **Animation** 을 누르기 전까지 다시 텍스트만 보이며, 누르기 전에는 아무것도 디코딩되지 않습니다. 묻지 않고 바로 표시하려면 환경설정에서 *설정 항목 애니메이션* 을 켭니다."
 
 msgid "The diagrams use a shared biological grammar: white fibroblast or motile immune-cell outlines, blue nuclei with unequal nucleoli, teal Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole, and soft-magenta Golgi cisternae. Filled regions are translucent and the rounded field perimeter remains white on black."
 msgstr "도식은 공통된 생물학적 표현 방식을 사용합니다. 흰색 섬유아세포 또는 운동성 면역 세포 윤곽, 크기가 서로 다른 인을 가진 파란색 핵, 윤곽선으로만 표시된 기생포성 액포 안의 청록색 톡소플라스마 급속 증식형, 부드러운 자홍색 골지 시스터나입니다. 채워진 영역은 반투명하며, 둥근 시야 경계는 검은 바탕 위에 흰색으로 유지됩니다."

@@ -173,7 +173,7 @@ msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Cura
 msgstr "Cellpose 워크벤치, 전체 폴더의 마스크 생성, 모델 비교, 모델 라이브러리, 큐레이트, 나파리 브리지"
 
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
-msgstr "매개변수 탐색은 세 번째 방법으로 도달합니다. 회귀 화면의 패널이며, 설정 양식의 **매개변수 탐색** 스위치로 엽니다."
+msgstr "매개변수 탐색은 세 번째 방법으로 도달합니다. 회귀 화면의 패널이며, 설정 양식의 **파라미터 스윕** 스위치로 엽니다."
 
 msgid "Arranging the window"
 msgstr "창 배치"

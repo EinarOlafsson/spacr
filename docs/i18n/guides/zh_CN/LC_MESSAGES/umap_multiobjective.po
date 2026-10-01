@@ -83,7 +83,7 @@ msgid "Resume behavior"
 msgstr "断点续跑行为"
 
 msgid "Enable **Resume checkpoint** to continue from ``results/.spacr_checkpoints/umap_search.json`` under the current project (or from an explicit ``checkpoint_path`` in the Python API). Each completed trial is written atomically and its primary embedding is stored beside the JSON. An interrupted Walk round evaluates only its missing candidates before choosing a direction."
-msgstr "启用 **从检查点继续**，即可从当前项目下的 ``results/.spacr_checkpoints/umap_search.json`` （或 Python API 中显式指定的 ``checkpoint_path``）继续。每次完成的试验都会以原子方式写入，其主嵌入存储在 JSON 旁边。中断的行走轮次在选择方向前只评估缺失的候选。"
+msgstr "启用 **从检查点恢复**，即可从当前项目下的 ``results/.spacr_checkpoints/umap_search.json`` （或 Python API 中显式指定的 ``checkpoint_path``）继续。每次完成的试验都会以原子方式写入，其主嵌入存储在 JSON 旁边。中断的行走轮次在选择方向前只评估缺失的候选。"
 
 msgid "Resume refuses to combine incompatible work. Feature and label hashes, search space, criterion, seed, output dimensions, neighborhood size, the ``n_neighbors``/``min_dist`` increments, stopping threshold, stability repeat count, objective weights, embedder identity, backend and the cluster-during-search settings must match the checkpoint."
 msgstr "断点续跑拒绝合并不兼容的工作。特征和标签哈希、搜索空间、准则、随机种子、输出维度、邻域大小、``n_neighbors``/``min_dist`` 步长、停止阈值、稳定性重复次数、目标权重、嵌入器标识、后端以及搜索期间聚类的设置都必须与检查点一致。"

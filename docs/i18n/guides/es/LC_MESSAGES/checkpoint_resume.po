@@ -50,7 +50,7 @@ msgid "Image UMAP search"
 msgstr "Búsqueda UMAP de imágenes"
 
 msgid "Open **UMAP settings**, then enable **Resume checkpoint**. Trial metadata is written after every trial and embeddings are stored as adjacent NumPy artifacts. Grid searches skip completed configurations. Adaptive 2×2 searches also persist their centre, best score, completed-round count, and partial-round corners, so only missing corners run after an interruption."
-msgstr "Abra **UMAP settings** y active **Reanudar desde el punto de control**. Los metadatos de cada prueba se escriben después de cada prueba y las incrustaciones se guardan como artefactos NumPy adyacentes. Las búsquedas en cuadrícula omiten las configuraciones completadas. Las búsquedas adaptativas 2×2 también guardan su centro, la mejor puntuación, el número de rondas completadas y las esquinas de las rondas parciales, de modo que tras una interrupción solo se ejecutan las esquinas pendientes."
+msgstr "Abra **UMAP settings** y active **Reanudar desde checkpoint**. Los metadatos de cada prueba se escriben después de cada prueba y las incrustaciones se guardan como artefactos NumPy adyacentes. Las búsquedas en cuadrícula omiten las configuraciones completadas. Las búsquedas adaptativas 2×2 también guardan su centro, la mejor puntuación, el número de rondas completadas y las esquinas de las rondas parciales, de modo que tras una interrupción solo se ejecutan las esquinas pendientes."
 
 msgid "Batch Runner"
 msgstr "Ejecución por lotes"

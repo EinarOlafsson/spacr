@@ -107,7 +107,7 @@ msgid "A stratified gallery samples high, borderline, low, and false-looking con
 msgstr "Ett stratifierat galleri samplar höga, gränsfall, låga och falskt utseende kontrollobjekt. Granskarens CSV blandas och visar bara ett slumpmässigt gransknings-ID och en bildsökväg. Dess separata nyckel, som bara analytikern har, behåller stratum och sannolikhet. När en eller flera blindade granskare har lämnat binära bedömningar rapporterar ``evaluate_blinded_reviews`` kalibreringsfel, precision, täckning, ROC AUC när den är definierad samt Cohens kappa parvis."
 
 msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
-msgstr "Annoteringar i databasen versioneras i särskilda härkomsttabeller. Befintliga handgjorda annoteringar ändras inte. **Promote calls to annotation** är en separat åtgärd som bara accepterar ett nytt kolumnnamn, och **Undo promotion** rensar exakt de värden som den befordran skrev men behåller dess granskningsrad."
+msgstr "Annoteringar i databasen versioneras i särskilda härkomsttabeller. Befintliga handgjorda annoteringar ändras inte. **Gör anrop till annoteringar** är en separat åtgärd som bara accepterar ett nytt kolumnnamn, och **Ångra omvandlingen** rensar exakt de värden som den befordran skrev men behåller dess granskningsrad."
 
 msgid "Evidence ladder"
 msgstr "Beläggstege"

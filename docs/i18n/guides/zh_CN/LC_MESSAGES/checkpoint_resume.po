@@ -50,7 +50,7 @@ msgid "Image UMAP search"
 msgstr "图像 UMAP 搜索"
 
 msgid "Open **UMAP settings**, then enable **Resume checkpoint**. Trial metadata is written after every trial and embeddings are stored as adjacent NumPy artifacts. Grid searches skip completed configurations. Adaptive 2×2 searches also persist their centre, best score, completed-round count, and partial-round corners, so only missing corners run after an interruption."
-msgstr "打开 **UMAP settings**，然后启用 **从检查点继续**。每次试验后都会写入试验元数据，嵌入结果作为相邻的 NumPy 产物存储。网格搜索会跳过已完成的配置。自适应 2×2 搜索还会保存其中心、最佳分数、已完成轮数和未完成轮次的角点，因此中断后只运行缺失的角点。"
+msgstr "打开 **UMAP settings**，然后启用 **从检查点恢复**。每次试验后都会写入试验元数据，嵌入结果作为相邻的 NumPy 产物存储。网格搜索会跳过已完成的配置。自适应 2×2 搜索还会保存其中心、最佳分数、已完成轮数和未完成轮次的角点，因此中断后只运行缺失的角点。"
 
 msgid "Batch Runner"
 msgstr "批处理运行器"

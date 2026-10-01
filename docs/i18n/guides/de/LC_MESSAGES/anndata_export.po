@@ -41,7 +41,7 @@ msgid "Set **Anndata single table** to ``cell`` for one row per cell using that 
 msgstr "Setzen Sie **Anndata-Einzeltabelle** auf ``cell``, um eine Zeile pro Zelle mit den Merkmalen dieser Tabelle zu erhalten. Verwenden Sie ``nucleus`` oder ``pathogen`` für diese Objekttypen. Lassen Sie das Feld leer für einen verknüpften Export auf Zellebene, bei dem die Messungen untergeordneter Objekte auf ihre übergeordneten Zellen aggregiert werden."
 
 msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
-msgstr "Wählen Sie die **Anndata-NaN-Richtlinie** und klicken Sie dann auf **Ausführen**. Lesen Sie die Abschlussmeldung und öffnen Sie die Ausgabedatei, um ihre Dimensionen und Merkmalsnamen zu prüfen."
+msgstr "Wählen Sie die **Anndata-Richtlinie für nan** und klicken Sie dann auf **Ausführen**. Lesen Sie die Abschlussmeldung und öffnen Sie die Ausgabedatei, um ihre Dimensionen und Merkmalsnamen zu prüfen."
 
 msgid "Choose how to handle missing features"
 msgstr "Den Umgang mit fehlenden Merkmalen wählen"

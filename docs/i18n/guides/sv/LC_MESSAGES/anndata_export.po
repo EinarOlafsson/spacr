@@ -41,7 +41,7 @@ msgid "Set **Anndata single table** to ``cell`` for one row per cell using that 
 msgstr "Sätt **Anndata enda tabell** till ``cell`` för en rad per cell med den tabellens egenskaper. Använd ``nucleus`` eller ``pathogen`` för de objekttyperna. Lämna fältet tomt för en sammanfogad export på cellnivå, där underordnade mätningar aggregeras till sina överordnade celler."
 
 msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
-msgstr "Välj **Anndata nan policy** och klicka sedan på **Kör**. Läs meddelandet när exporten är klar och öppna utdatafilen för att kontrollera dess form och egenskapsnamn."
+msgstr "Välj **Anndata-policy för nan** och klicka sedan på **Kör**. Läs meddelandet när exporten är klar och öppna utdatafilen för att kontrollera dess form och egenskapsnamn."
 
 msgid "Choose how to handle missing features"
 msgstr "Välj hur saknade egenskaper ska hanteras"

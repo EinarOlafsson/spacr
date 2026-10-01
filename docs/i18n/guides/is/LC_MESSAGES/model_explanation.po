@@ -107,7 +107,7 @@ msgid "A stratified gallery samples high, borderline, low, and false-looking con
 msgstr "Lagskipt myndasafn tekur sýni af háum, jaðar-, lágum og falskt útlítandi viðmiðunarhlutum. CSV-skrá yfirfarenda er stokkuð og sýnir aðeins slembið yfirferðarauðkenni og myndslóð. Aðskilinn lykill hennar, eingöngu fyrir greinanda, varðveitir lagið og líkurnar. Eftir að einn eða fleiri blindaðir yfirfarendur skila tvíundarákvörðunum tilkynnir ``evaluate_blinded_reviews`` kvörðunarskekkju, nákvæmni, heimt, ROC AUC þegar það er skilgreint og pöruð Cohen's kappa."
 
 msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
-msgstr "Merkingar í gagnagrunni eru útgáfumerktar í sérstökum upprunatöflum. Fyrirliggjandi handvirkar merkingar eru óbreyttar. **Gera greiningar að merkingum** er aðskilin aðgerð sem tekur aðeins við nýju dálkheiti, og **Afturkalla færslu í merkingar** hreinsar nákvæmlega gildin sem sú aðgerð skrifaði en varðveitir úttektarröð hennar."
+msgstr "Merkingar í gagnagrunni eru útgáfumerktar í sérstökum upprunatöflum. Fyrirliggjandi handvirkar merkingar eru óbreyttar. **Breyta spám í merkingar** er aðskilin aðgerð sem tekur aðeins við nýju dálkheiti, og **Afturkalla breytinguna** hreinsar nákvæmlega gildin sem sú aðgerð skrifaði en varðveitir úttektarröð hennar."
 
 msgid "Evidence ladder"
 msgstr "Stigi vísbendinga"

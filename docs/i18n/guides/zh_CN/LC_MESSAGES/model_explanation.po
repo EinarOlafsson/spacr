@@ -107,7 +107,7 @@ msgid "A stratified gallery samples high, borderline, low, and false-looking con
 msgstr "分层图库对高分、临界、低分以及看似假阳性的对照对象进行抽样。审阅者 CSV 经过打乱，只显示随机审阅 ID 和图像路径。单独的仅供分析者使用的密钥保留分层和概率。一名或多名盲评审阅者返回二元判定后，``evaluate_blinded_reviews`` 会报告校准误差、精确率、召回率、ROC AUC（如有定义）以及两两之间的 Cohen's kappa。"
 
 msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
-msgstr "数据库标注在专用的来源表中进行版本管理。现有的手工标注保持不变。**将判定提升为标注** 是一项单独的操作，只接受新的列名；**撤销提升** 会精确清除该次提升写入的值，同时保留其审计行。"
+msgstr "数据库标注在专用的来源表中进行版本管理。现有的手工标注保持不变。**将模型判定转为标注** 是一项单独的操作，只接受新的列名；**撤销转为标注** 会精确清除该次提升写入的值，同时保留其审计行。"
 
 msgid "Evidence ladder"
 msgstr "证据阶梯"
