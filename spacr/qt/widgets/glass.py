@@ -651,22 +651,18 @@ def make_frameless(dialog: QDialog) -> bool:
 
 
 def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
-    """Cut the window itself to the card's rounded shape. True if applied.
+    """Keep antialiased alpha edges on translucent windows.
 
-    TRANSLUCENCY IS NOT ENOUGH, AND THAT IS THE WHOLE POINT OF THIS.
-    `WA_TranslucentBackground` asks the window manager to composite the
-    corner pixels away; a mask REMOVES them from the window's shape, so
-    the corners are gone whether or not anything is compositing, and
-    whether or not the surface came back with an alpha channel after its
-    flags were rewritten. It is the one way to be sure no square is left
-    round a rounded card, which is what kept coming back.
+    A QRegion is binary and quantizes its outline to logical pixels, even
+    on high-DPI screens. Cutting the antialiased card to that shape erased
+    partially covered edge pixels, producing a jagged white/dark fringe
+    against the desktop. Translucent windows already carry the card's
+    exact per-pixel alpha; clear any old mask and let that alpha compose.
+    Opaque fallback windows retain the rounded platform mask.
 
-    The mask is rebuilt on every resize -- see :class:`_Backdrop` -- and
-    it follows the same radius the card paints, so the cut edge sits
-    under the rim rather than beside it.
-
-    :param dialog: the widget whose window mask is cut to a rounded rectangle
-        of its current size; an empty size returns ``False``.
+    :param dialog: window carrying the shared rounded card.
+    :param radius: corner radius in logical pixels for the opaque fallback.
+    :returns: false for an empty or deleted widget, true after adjustment.
     """
     try:
         from PySide6.QtCore import QRectF
@@ -677,6 +673,9 @@ def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
         rect = dialog.rect()
         if rect.width() <= 0 or rect.height() <= 0:
             return False
+        if dialog.testAttribute(Qt.WA_TranslucentBackground):
+            dialog.clearMask()
+            return True
         step = 4.0
         path = QPainterPath()
         path.addRoundedRect(

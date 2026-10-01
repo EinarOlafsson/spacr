@@ -126,3 +126,19 @@ sizes and device-pixel ratios 1 and 2: corner pixels outside the rounded
 path are fully transparent, alpha ramps monotonically across the edge (no
 isolated opaque high-contrast pixel), and the 602 rim-continuity test still
 passes. Visual checks record exactly which platform/scaling was looked at.
+
+2026-10-01 — NEW CORNER ACCEPTANCE IMPLEMENTED
+The shared glass helper now clears binary QRegion masks on translucent windows.
+The previous mask quantized the antialiased card outline to logical pixels and
+removed partially covered edge pixels. The card's existing theme-aware alpha
+now reaches the compositor intact. Opaque fallback windows retain their rounded
+mask; the body, corner radius, border and continuous travelling glow are intact.
+
+Validation: named tooltip/glass/gradient cohort 39 passed at scale 1; named
+corner/gradient/dock cohort 22 passed at QT_SCALE_FACTOR=2. Shared dialog and
+SetupSlides alpha, resized corners, both themes and the previous continuous-
+gradient tests pass. Before/after offscreen captures inspected at normal size
+and enlarged corners against white/black grounds, dark/light at scales 1,
+1.5 and 2 (/tmp/spacr-ui-evidence). Original mask clipping is emulated in the
+baseline montage because the offscreen Qt plugin does not apply native masks.
+No native compositor, Windows or macOS visual verification is claimed.
