@@ -3215,7 +3215,8 @@ def _n2v_worker(root=None, worker_for=None):
 
 
 def _n2v_train(images, output, *, epochs=20, seed=0, device=None, root=None,
-               worker_for=None, should_cancel=None):
+               worker_for=None, should_cancel=None, struct_axes=None,
+               struct_span=5):
     """Train a Noise2Void (N2V2) denoiser on noisy planes, in CAREamics' own
     environment, with no clean targets.
 
@@ -3232,6 +3233,12 @@ def _n2v_train(images, output, *, epochs=20, seed=0, device=None, root=None,
     :param root: the backends folder.
     :param worker_for: :func:`_worker_for`, or a stand-in for tests.
     :param should_cancel: polled while it trains; True stops the worker.
+    :param struct_axes: None for plain N2V2, or ``'horizontal'``,
+        ``'vertical'``, ``'cross'`` or ``'square'`` for structN2V, which also
+        hides the pixels along that axis next to each masked pixel so noise
+        correlated along camera rows or columns is not learned as signal.
+    :param struct_span: the structN2V mask's width in pixels, an odd
+        number centred on the masked pixel.
     :returns: the training record: the checkpoint, the losses per epoch, the patch and batch sizes, the device, the seconds and
         CAREamics' version.
     :raises ImportError: when CAREamics is not installed.
@@ -3260,7 +3267,9 @@ def _n2v_train(images, output, *, epochs=20, seed=0, device=None, root=None,
             "n2v_train", should_cancel=should_cancel, inputs=inputs,
             output=output, epochs=int(epochs), seed=int(seed),
             patch=_N2V_PATCH, batch=_N2V_BATCH, device=device or "auto",
-            work=os.path.join(folder, "work"))
+            work=os.path.join(folder, "work"),
+            **({"struct_axes": str(struct_axes), "struct_span": int(struct_span)}
+               if struct_axes else {}))
     return {key: value for key, value in reply.items()
             if key not in ("protocol", "id", "ok")}
 
@@ -5085,13 +5094,14 @@ def _worker_n2v_train(request, adapters):
     planes for validation, as CAREamics does; with no clean targets there
     is nothing else to validate against. The patches are loaded in the
     worker's own process: a data-loader process forked from a worker that
-    is reading its requests on a thread never starts.
+    is reading its requests on a thread never starts. A ``struct_axes``
+    request trains structN2V (N2V2 with the structured blind-spot mask).
     """
     import careamics
     import lightning
     import torch
     from careamics import CAREamist
-    from careamics.config import create_n2v_config
+    from careamics.config import create_n2v_config, create_structn2v_config
 
     planes = [np.load(path, allow_pickle=False).astype(np.float32)
               for path in request["inputs"]]
@@ -5102,11 +5112,18 @@ def _worker_n2v_train(request, adapters):
     if patches < 2:
         raise ValueError("Noise2Void needs at least two training patches")
     validation = max(1, min(8, patches // 10))
-    config = create_n2v_config(
+    common = dict(
         experiment_name="spacr_n2v", data_type="array", axes="YX",
         patch_size=[patch, patch], batch_size=int(request.get("batch", _N2V_BATCH)),
         num_epochs=int(request.get("epochs", 20)), use_n2v2=True,
         n_val_patches=validation)
+    struct_axes = request.get("struct_axes")
+    if struct_axes:
+        config = create_structn2v_config(
+            struct_n2v_axes=struct_axes,
+            struct_n2v_span=int(request.get("struct_span", 5)), **common)
+    else:
+        config = create_n2v_config(**common)
     data = config.data_config
     for loader in (data.train_dataloader_params, data.val_dataloader_params,
                    data.pred_dataloader_params):
@@ -5126,7 +5143,10 @@ def _worker_n2v_train(request, adapters):
     careamist.trainer.save_checkpoint(output)
     adapters.pop(("n2v", output), None)
     return {"checkpoint": output,
-            "method": "N2V2 (CAREamics)", "epochs": int(params.get(
+            "method": (f"structN2V2 {struct_axes} span "
+                       f"{int(request.get('struct_span', 5))} (CAREamics)"
+                       if struct_axes else "N2V2 (CAREamics)"),
+            "epochs": int(params.get(
                 "max_epochs", request.get("epochs", 20))),
             "patch": patch, "batch": int(request.get("batch", _N2V_BATCH)),
             "planes": len(planes), "shapes": [list(p.shape) for p in planes],
