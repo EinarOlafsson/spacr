@@ -8399,6 +8399,9 @@ class AppScreen(QWidget):
             QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
 
+        if (self.app_key == "measure"
+                and not self._confirm_measure_plane_layout(settings)):
+            return
         if self.app_key == "measure" and not self._confirm_crop_choices(
                 settings):
             log_button_press(f"{self.app_key}.Run",
@@ -9507,6 +9510,69 @@ class AppScreen(QWidget):
                 "stores; streaming from the arrays uses the object masks, so "
                 "it can cut to the object itself.")
         return notes
+
+    def _confirm_measure_plane_layout(self, settings) -> bool:
+        """Resolve a stale form explicitly before starting Measure.
+
+        A saved form does not record which plane indices were typed and
+        which were defaults. Never guess that provenance: offer the stored
+        layout for review, update the form only on request, and require Run
+        again. The pipeline retains its independent conflict check.
+
+        :param settings: the proposed run settings, never mutated here.
+        :returns: whether the current settings may proceed unchanged.
+        """
+        from pathlib import Path
+        from ...crops import (PlaneLayoutConflict, read_merged_plane_layout,
+                              reconcile_merged_mask_dims)
+
+        sources = settings.get("src") or []
+        if isinstance(sources, (str, Path)):
+            sources = [sources]
+        corrections, conflicts = [], []
+        try:
+            for source in sources:
+                folder = Path(str(source)).expanduser()
+                if not folder.name.endswith("merged"):
+                    folder = folder / "merged"
+                if read_merged_plane_layout(folder) is None:
+                    # An unknown legacy layout cannot share a correction.
+                    corrections.append(None)
+                    continue
+                resolved = reconcile_merged_mask_dims(settings, folder)
+                corrections.append({key: value for key, value in resolved.items()
+                                    if key.endswith("_mask_dim")})
+                try:
+                    reconcile_merged_mask_dims(settings, folder,
+                                               explicit_keys=settings)
+                except PlaneLayoutConflict as exc:
+                    conflicts.append(str(exc))
+        except Exception as exc:
+            QMessageBox.warning(self, tr("Check the merged plane layout"), str(exc))
+            return False
+        if not conflicts:
+            return True
+        box = QMessageBox(self)
+        box.setWindowTitle(tr("Check the merged plane layout"))
+        box.setIcon(QMessageBox.Warning)
+        box.setText("\n\n".join(conflicts))
+        box.setStandardButtons(QMessageBox.Cancel)
+        correction = corrections[0] if corrections else None
+        adopt = None
+        if correction is not None and all(c == correction for c in corrections):
+            box.setInformativeText(tr(
+                "Use the stored layout to update the form, review the object "
+                "settings, then press Run again."))
+            adopt = box.addButton(tr("Use stored plane layout"),
+                                  QMessageBox.ActionRole)
+        else:
+            box.setInformativeText(tr(
+                "These sources have different or unknown layouts. Run each "
+                "layout separately with its matching mask settings."))
+        box.exec()
+        if adopt is not None and box.clickedButton() is adopt:
+            self.apply_settings_dict(correction)
+        return False
 
     def _confirm_crop_choices(self, settings) -> bool:
         """Ask before a crop setting that changes every downstream image.

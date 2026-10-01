@@ -2,7 +2,7 @@
 GITHUB #134: MEASURE MASK-PLANE CONFIGURATION CONFLICTS WITH THE STORED LAYOUT
 ================================================================================
 
-Status: OPEN — requirements recorded; acceptance not yet verified.
+Status: IMPLEMENTED AND VERIFIED 2026-10-01 — runtime fix; supporting catalog and release work remains in N615.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex inventory session (tracking only).
 
@@ -89,3 +89,20 @@ HOW TO KNOW IT WORKED
 
 A regression test reproducing #134's settings against a manifest without a
 pathogen plane; the existing reconcile tests stay green.
+
+2026-10-01 — IMPLEMENTED AND VERIFIED
+The Measure form cannot distinguish typed planes from saved/default values.
+Run now checks its values against each source manifest and explains a conflict
+before launching the worker. Use stored plane layout is an explicit action: it
+updates the form, then requires review and another Run. Cancel preserves values.
+Different/unknown source layouts never receive one guessed correction.
+The pipeline still refuses explicit wrong indices and now names the setting
+and correct value. No sidecar is changed or removed.
+
+Six regression cases cover the reported string pathogen plane/uninfected case,
+default reconciliation, refusal in measure_crop, Cancel/adopt, mixed layouts,
+and a real no-pathogen Measure run. That run writes one expected cell row and
+no pathogen table, with identical manifest bytes. The final named root cohort
+passed 26 tests under a 4 GiB memory cap, CPU-only/offscreen.
+API/catalog/user-guide publication is tracked separately in N615; GitHub issue
+closure and main/release promotion are not claimed by this runtime fix.
