@@ -2046,7 +2046,9 @@
       "source_sha256": "e9ff59a619aaf56368f17e36a85317c5c38e787ea795b80921507e0c26c75c7c",
       "context": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place (item 518).",
       "translation": "Une :class:`ImportError`, afin que chaque appelant qui signalait déjà un lecteur manquant continue de le faire ; Plaque Assay intercepte celle-ci pour proposer l’installation sur place (élément 518).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.ReaderNeedsInstall#2",

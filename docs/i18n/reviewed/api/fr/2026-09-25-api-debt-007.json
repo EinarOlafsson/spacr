@@ -1708,7 +1708,9 @@
       "source_sha256": "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
       "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
       "translation": "Le corps est disposé avec un facteur d’étirement, et une mise en page compte cet étirement même lorsque le corps est masqué, si bien qu’une carte repliée réclamait encore de la place et la partageait à parts égales avec l’étirement qui fixe un titre replié en bas de son panneau (point 515) : la Console repliée occupait la moitié de la hauteur du panneau. Replié, le corps cède son étirement ; ouvert, il le reprend.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.card.Card.follow_fold#2",
@@ -2100,7 +2102,9 @@
       "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
       "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
       "translation": "Point 471, tranche B. Deux demandes qui n’en font en réalité qu’une : chaque conteneur se replie (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), et chaque conteneur peut être \"expanded or shrinkable by draging the edges\". Un :class:`~PySide6.QtWidgets.QSplitter` fait déjà les deux -- une poignée à faire glisser, et un enfant qui peut être réduit à rien -- de sorte que les deux moitiés vivent ici sous la forme d’UN SEUL mécanisme, et tout ce qui se replie dans un séparateur se redimensionne aussi, et inversement.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter#2",
@@ -3644,7 +3648,9 @@
       "source_sha256": "9f5df3d601c570edb7c19f0e2332ea71cd19b0fbba16b2b435d739f41d24e3bd",
       "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. Item 473's raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
       "translation": "spaCR disposait déjà d’un canevas d’image ajusté au chargement, avec zoom à la molette et déplacement par glissement : le ``_FieldView`` propre au navigateur de champs QC. La fenêtre brut-contre-amélioré du point 473 avait besoin de la même chose en double, et une troisième copie d’« un QGraphicsView contenant un pixmap » est la façon dont une base de code finit avec trois vues qui se comportent de manière subtilement différente. La vue du navigateur de champs a donc été déplacée ici sans modification, sous un nom qui indique qu’elle est partagée, et le navigateur continue de l’utiliser sous son ancien nom.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#2",
@@ -4748,7 +4754,9 @@
       "source_sha256": "0b9f3aa6e3b48fabeed1ae527d7b299f0b987d758a6005b56782d566cdf5a6d7",
       "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred (item 512). Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
       "translation": "1. UNE SUGGESTION NE PEUT JAMAIS ÊTRE CONFONDUE AVEC UNE DÉCISION. Les suggestions sont stockées sous leurs propres valeurs -- un 1 suggéré devient 11 -- de sorte que rien de ce qui lit la colonne d’annotation ne peut en prendre une pour la réponse d’un humain, et une exécution qui tourne mal s’annule en supprimant une valeur plutôt qu’en se souvenant des lignes touchées. 2. UNE SUGGESTION N’ÉCRASE JAMAIS UNE ANNOTATION. Les écritures portent ``IS NULL``. Pas même lorsque le modèle est confiant, pas même lors d’une réexécution. Les étiquettes d’un humain sont la vérité terrain sur laquelle le modèle a été ajusté ; en perdre une silencieusement coûterait des heures et passerait inaperçu jusqu’à ce qu’une exécution donne un mauvais résultat. 3. PAS DE SEUIL DE CONFIANCE, L’ORDRE PORTE DONC LE DOUTE. Chaque vignette non annotée reçoit une suggestion, triée de la plus confiante à la moins confiante, et la personne qui révise s’arrête là où elle cesse d’être d’accord. Un seuil prendrait cette décision à sa place, avec un nombre que personne n’a choisi. 4. UN JUGEMENT EST ENREGISTRÉ, PAS DÉDUIT (point 512). Confirmer une suggestion la transforme en étiquette ordinaire et en rejeter une l’efface -- et les deux sont consignés à côté de la colonne, dans ``<column>_verdict``, sous la forme de la classe confirmée (``+c``) ou rejetée (``-c``). Un rejet est une information sur laquelle le cycle suivant peut s’entraîner -- \"not class 1\" est un exemple de la classe 2 dans une colonne à deux classes -- là où un NULL n’aurait été que du silence. La colonne de verdict est ajoutée la première fois qu’une source est ouverte, de sorte que les tables créées avant son existence l’obtiennent sans étape de migration.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.ensure_verdict_column#0",

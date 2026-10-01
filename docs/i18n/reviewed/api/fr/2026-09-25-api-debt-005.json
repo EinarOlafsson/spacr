@@ -546,7 +546,9 @@
       "source_sha256": "4fdaae1db8987abfa8b9fd8d63c4aefc84a97dd1fd067712b35b38c46b27fc16",
       "context": "A suggestion is judged, not relabelled (item 512). An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
       "translation": "UNE SUGGESTION EST JUGÉE, PAS RÉÉTIQUETÉE (point 512). Une vignette pour laquelle Suggest a proposé une classe porte un badge ``?`` ambre à côté de son anneau en pointillés. Un clic ou ``Y`` la confirme (elle devient une étiquette ordinaire et porte une coche verte) ; un clic droit ou ``N`` la rejette (elle redevient sans réponse et porte une croix rouge) ; ``U`` annule l’un ou l’autre. La barre au-dessus de la légende l’indique, et compte ce que contiennent la page et la colonne. Chaque jugement est écrit dans la colonne ``<column>_verdict`` sous la forme ``+c`` ou ``-c``, de sorte qu’il survit à un redémarrage, et le cycle Suggest suivant reçoit les rejets pour s’entraîner. Voir :meth:`AnnotateScreen._judge` et :func:`spacr.suggest.verdict_column`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate#9",
@@ -554,7 +556,9 @@
       "source_sha256": "cae822239c94b804ff9338aa4d1846cf19ad53d231e49525ab832c099283b2bd",
       "context": "A page is what fits (item 512). The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
       "translation": "UNE PAGE EST CE QUI TIENT (point 512). La grille contient exactement les vignettes qui tiennent dans l’espace que lui donne le panneau des vignettes, à la taille de vignette demandée par les réglages, et elle ne défile jamais : ouvrir la console, replier un panneau, changer l’échelle de la GUI ou redimensionner la fenêtre recalcule la page et repousse le reste vers la suivante, le compteur de pages suit, et la première vignette affichée reste là où elle était. Voir :func:`grid_that_fits` et :meth:`AnnotateScreen._refit_grid`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.AnnotateScreen.closeEvent#1",
@@ -618,7 +622,9 @@
       "source_sha256": "0c2206c2088e848e5484cc623481cf99006ab4f39513f371125b9f4fcd00950e",
       "context": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
       "translation": "Point 512. Une suggestion est ambre, une suggestion confirmée verte et une suggestion rejetée rouge -- les couleurs d’avertissement, de succès et d’erreur propres au thème, de sorte que le badge suit un changement de thème comme le reste de l’habillage de l’interface. Le glyphe est dessiné dans la couleur d’arrière-plan du thème, qui est noire sur le thème sombre et presque blanche sur le thème clair ; chacun de ces remplissages a été choisi par rapport à elle et offre un contraste supérieur à 4.5:1 dans les deux. Aucune (None) des trois n’est une couleur de classe, de sorte qu’un badge n’est jamais lu comme une classe.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.badge_colors#2",
@@ -2816,7 +2822,9 @@
       "source_sha256": "514d99889366f19ab73e99610c4fb2bf4c88e0493e039613dd453d7b299a0cb1",
       "context": "Item 511. The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
       "translation": "Point 511. La catégorie Filter contenait auparavant quatre zones fixes -- aire minimale et maximale, intensité moyenne minimale et maximale. Elle commence désormais VIDE, et \"Add a filter\" propose toutes les propriétés scalaires que calcule :func:`skimage.measure.regionprops` (voir :func:`mask_engine.filter_properties`) ; chaque ligne ajoutée porte la propriété, un minimum, un maximum et un bouton Remove. Une borne laissée vide est désactivée. Les quatre anciennes zones correspondent à deux des lignes qu’un utilisateur peut ajouter : ``area`` et ``intensity_mean``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.ObjectFilterList#2",
@@ -2984,7 +2992,9 @@
       "source_sha256": "a86a8067fdb3fa397a29ac228e7abc5b050582c25af080b5ad44e88c530a8404",
       "context": "A key-value mapping of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before item 511 opens as the rows it meant.",
       "translation": "Un dictionnaire des quatre anciennes bornes (``min_area`` et les autres) est migré par :func:`mask_engine.legacy_filters`, de sorte qu’un état enregistré avant le point 511 s’ouvre sous forme des lignes qu’il voulait dire.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.ObjectFilterList.set_filters#2",

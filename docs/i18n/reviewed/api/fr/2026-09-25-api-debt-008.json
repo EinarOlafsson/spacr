@@ -122,7 +122,9 @@
       "source_sha256": "d4832655134edc2bd98d98f8baaa9ea71afc520147f331b1f390a9775eefbda5",
       "context": "Item 471: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "Point 471 : \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", et de même chaque fois que des figures apparaissent.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#2",
@@ -282,7 +284,9 @@
       "source_sha256": "d7c96a305b7af08faf05d55e039bb388e2d301b27ed513a56c3e006de0b602fe",
       "context": "Item 471, slice C: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "Point 471, tranche C : \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". C’est l’unique façon dont une section dans une vue obtient un contrôle de repli, de sorte que toutes ont le même aspect et le même comportement : une flèche et un nom au-dessus du corps (le même :class:`~spacr.qt.widgets.foldable.Folder` qu’utilisent la console et System), un clic la replie, et une section repliée se réduit à son titre fixé en BAS de l’espace qui lui est donné (:func:`lock_folded_to_bottom`).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#10",
@@ -330,7 +334,9 @@
       "source_sha256": "43b80d0f63a9a4c8798f2872cecbf15370b54233bef26ebc087517cd5bcd0277",
       "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show (items 284/380). The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
       "translation": "LA VISIBILITÉ PROPRE DU CORPS RESTE CELLE QUE DÉCIDE SON PROPRIÉTAIRE. Le repli masque un conteneur intérieur, jamais le corps, si bien que déplier ne peut ni afficher un panneau que son propriétaire a masqué ni construire un panneau construit au premier affichage (points 284/380). Dans l’autre sens, la section suit son corps : tant que le propriétaire garde le corps masqué, toute la section -- titre compris -- est masquée aussi, et elle revient quand le propriétaire affiche le corps. Seul l’indicateur de masquage du corps est lu pour cela, si bien que rien n’est affiché, mesuré ni construit pour le savoir.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#3",
@@ -634,7 +640,9 @@
       "source_sha256": "4e2e6595cfbd138b4c4a186481d80353527e3fb0d5c4c000f1cf7cefdd2cb3cb",
       "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
       "translation": "Un panneau replié disposant de plus d’espace que son titre n’en exige -- le dernier panneau d’un séparateur, une section étirée par sa colonne -- plaçait auparavant son titre au milieu de cet espace, ce qui est le bogue que nomme le point 471 (\"when i collapse the console it collapses to the middle\"). Un étirement placé AU-DESSUS du titre tant qu’il est replié absorbe désormais l’espace libre.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#2",
@@ -3990,7 +3998,9 @@
       "source_sha256": "ea2c524a335b5143cd5020eb02dde69bdd0ad5882bf127178d68721c59f05e5d",
       "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install (item 518).",
       "translation": "True lorsque la récupération a été lancée, ou lorsqu’un PDF nécessitant le lecteur de figures a reçu en réponse la proposition de son installation (point 518).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#7",
