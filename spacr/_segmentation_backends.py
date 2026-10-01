@@ -40,8 +40,9 @@ seconds; pip then fills it from PyPI, where all three projects publish. Its
 one limit is that the environment's Python is a Python already on the
 computer: spaCR's own when it is in the range a backend's pins install on,
 otherwise a ``python3.X`` on PATH (or ``py -3.X`` on Windows). When there is
-none, the row says so -- "not installable here" with the reason -- rather
-than half-building something.
+none, CellProfiler can use bundled or PATH uv to download a private Python
+3.9 under the backend root. Other backends, or machines without uv, report
+the missing interpreter before building anything.
 
 THE PROTOCOL, version :data:`_PROTOCOL`: one JSON object per line in each
 direction over the worker's stdin and stdout. The worker moves its own
@@ -882,7 +883,8 @@ _SPECS = {
             "pipeline from Measure: spaCR hands it each field's channels "
             "and masks as TIFFs and brings its per-object measurements back "
             "into measurements.db keyed by spaCR's object ids. It needs a "
-            "Python 3.8 or 3.9 on this computer to build its environment."),
+            "Python 3.8 or 3.9. If neither is available, bundled or PATH uv "
+            "downloads a private Python 3.9 for this backend."),
         published=(
             "Published results: Stirling et al., 'CellProfiler 4: "
             "improvements in speed, utility and usability', BMC "
@@ -1558,6 +1560,89 @@ def _nearest_existing(path):
     return path
 
 
+def _provisioning_uv(spec):
+    """Find bundled or PATH uv for CellProfiler without running any command."""
+    if spec.name != _CELLPROFILER:
+        return None
+    executable = "uv.exe" if os.name == "nt" else "uv"
+    bundled = os.path.join(os.path.dirname(sys.prefix), "bootstrap", executable)
+    if os.path.isfile(bundled) and os.access(bundled, os.X_OK):
+        return bundled
+    return shutil.which(executable)
+
+
+def _provision_python(spec, root, *, runner=None, cancel=None, progress=None):
+    """Prepare a backend-owned Python with uv, only during explicit Install.
+
+    The managed interpreter lives outside the replaceable backend venv.
+    Downloads and their cache stay under the backend root; no executables
+    are added to PATH. A failed download can be retried through uv's own
+    atomic installation. Every command uses the cancellable install runner.
+    """
+    uv = _provisioning_uv(spec)
+    if not uv:
+        raise _InstallBlocked("CellProfiler needs Python 3.8 or 3.9, or uv "
+                              "on PATH to download a private Python 3.9.")
+    root = os.path.realpath(root)
+    managed = os.path.join(root, ".cellprofiler-python")
+    cache = os.path.join(managed, "cache")
+    if os.path.realpath(managed) != managed or os.path.realpath(cache) != cache:
+        raise _InstallBlocked("The managed Python folder or cache points "
+                              "outside its backend location.")
+    environment = os.environ.copy()
+    for key in ("PYTHONHOME", "PYTHONPATH", "VIRTUAL_ENV"):
+        environment.pop(key, None)
+    environment.update(UV_PYTHON_INSTALL_DIR=managed,
+                       UV_CACHE_DIR=cache, UV_PYTHON_INSTALL_BIN="0",
+                       UV_PYTHON_INSTALL_REGISTRY="0")
+    label = "Prepare compatible Python"
+    report = progress or (lambda *args: None)
+    report(0, 1, label)
+    log_path = os.path.join(root, f"{spec.name}.log")
+    with open(log_path, "a", encoding="utf-8") as log:
+        def _command(argv):
+            """Log and run one cancellable provisioning command."""
+            if cancel is not None and cancel.is_set():
+                raise _InstallCancelled("the install was cancelled")
+            log.write(f"$ {_quote(argv)}\n")
+            log.flush()
+
+            def _line(text):
+                """Stream provisioning output into the install log and UI."""
+                log.write(text + "\n")
+                log.flush()
+                report(0, 1, f"{label}: {text}")
+
+            code, tail = (runner or _run_step)(
+                argv, env=environment, cwd=root, on_line=_line, cancel=cancel)
+            if code:
+                raise _InstallFailed(
+                    f"{label} failed (exit {code}): " + "\n".join(tail[-40:])
+                    + f"\nThe whole log is {log_path}.")
+            return tail
+
+        _command((uv, "--no-config", "python", "install", "3.9",
+                  "--managed-python", "--no-bin", "--no-registry"))
+        lines = _command((uv, "--no-config", "python", "find", "3.9",
+                          "--managed-python", "--no-project",
+                          "--no-python-downloads"))
+        paths = [line.strip() for line in lines if os.path.isabs(line.strip())
+                 and os.path.isfile(line.strip())]
+        if len(paths) != 1:
+            raise _InstallBlocked("uv did not return one managed Python path.")
+        python = os.path.realpath(paths[0])
+        try:
+            contained = os.path.commonpath((managed, python)) == managed
+        except ValueError:
+            contained = False
+        if not contained:
+            raise _InstallBlocked("uv returned Python outside its backend folder.")
+        lines = _command((python, "-I", "-c", _INTERPRETER_CHECK))
+        if not lines or lines[-1].strip() != "3.9":
+            raise _InstallBlocked("The managed interpreter is not Python 3.9.")
+    return (python,)
+
+
 def _static_blocker(spec, root, candidates):
     """What stops ``spec`` being installed here, from facts that need no
     network and no subprocess; ``''`` when nothing does."""
@@ -1566,7 +1651,7 @@ def _static_blocker(spec, root, candidates):
     if _worker_path() is None:
         return ("this spaCR build ships no Python source for a backend "
                 "worker to run.")
-    if not candidates:
+    if not candidates and not _provisioning_uv(spec):
         lo, hi = (_versions(p) for p in spec.python)
         return (f"{spec.label} needs Python {lo} to {hi}. spaCR runs "
                 f"Python {_versions(sys.version_info[:2])}, and no Python "
@@ -2606,7 +2691,8 @@ def _remove_tree(path, root):
         shutil.rmtree(path, onerror=_retry)
 
 
-def _preflight(spec, root, *, run=None, probe=None):
+def _preflight(spec, root, *, run=None, probe=None, runner=None, cancel=None,
+               progress=None):
     """Check this computer can build ``spec``'s environment; pick its Python.
 
     Writable folder, free disk, a reachable package index, and a Python in
@@ -2661,6 +2747,9 @@ def _preflight(spec, root, *, run=None, probe=None):
         if lo <= got <= hi:
             return tuple(candidate)
         tried.append(f"{shown} is Python {_versions(got)}")
+    if _provisioning_uv(spec):
+        return _provision_python(spec, root, runner=runner, cancel=cancel,
+                                 progress=progress)
     reason = (f"no Python {_versions(lo)} to {_versions(hi)} that can build "
               f"an environment was found")
     if tried:
@@ -2711,17 +2800,27 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
     report(0, 1, "Checking this computer can install it")
     _acquire_lock(root, spec.name)
     log_path = os.path.join(root, f"{spec.name}.log")
+    build_started = False
     try:
-        interpreter = (preflight or _preflight)(spec, root)
+        with open(log_path, "w", encoding="utf-8"):
+            pass
+        if cancel is not None and cancel.is_set():
+            raise _InstallCancelled("the install was cancelled")
+        interpreter = (preflight(spec, root) if preflight else
+                       _preflight(spec, root, runner=runner, cancel=cancel,
+                                  progress=progress))
+        if cancel is not None and cancel.is_set():
+            raise _InstallCancelled("the install was cancelled")
         _PROBED.pop(spec.name, None)
         if os.path.lexists(env):
             _shutdown_workers(spec.name)
             _remove_tree(env, root)
+        build_started = True
         index = _torch_index_url() if torch_index is None else (torch_index or None)
         steps = _install_plan(spec, env, interpreter, torch_index=index,
                               worker=worker)
         hello = None
-        with open(log_path, "w", encoding="utf-8") as log:
+        with open(log_path, "a", encoding="utf-8") as log:
             for number, step in enumerate(steps):
                 report(number, len(steps), step.label)
                 log.write(f"$ {_quote(step.argv)}\n")
@@ -2764,7 +2863,7 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
         })
         report(len(steps), len(steps), f"{spec.label} is installed")
     except BaseException:
-        if os.path.lexists(env):
+        if build_started and os.path.lexists(env):
             try:
                 _remove_tree(env, root)
             except (OSError, RuntimeError):

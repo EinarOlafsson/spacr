@@ -606,6 +606,7 @@ class BackendInstallDialog(QDialog):
         self._label = tr(spec.label)
         self._progress_labels = {
             "Checking this computer can install it": tr("Checking this computer can install it"),
+            "Prepare compatible Python": tr("Prepare compatible Python"),
             "Create the environment": tr("Create the environment"),
             "Update pip": tr("Update pip"),
             "Install PyTorch": tr("Install PyTorch"),
