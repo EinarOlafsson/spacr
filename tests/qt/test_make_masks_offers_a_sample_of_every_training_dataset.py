@@ -390,3 +390,26 @@ def test_the_plaque_figures_are_high_resolution_training_figures_with_wells():
     assert len(stems) == md.SAMPLE_SIZE
     assert all(s in in_pool[:12] for s in stems), (
         "only pooled, well-carrying training figures may be drawn")
+
+
+def test_load_test_data_offers_every_training_dataset_on_its_menu(
+        qtbot, qt_theme_applied, monkeypatch):
+    """The training datasets moved onto Load test data's menu (2026-09-30)."""
+    from spacr.qt.screens import make_masks as mm
+
+    screen = mm.MakeMasksScreen()
+    qtbot.addWidget(screen)
+    button = screen._btn_test_data
+    menu = button.split_menu()
+    assert menu is not None
+    keys = set(screen._test_data_actions)
+    assert keys == {"test_data"} | {d.key for d in md.datasets_for("mask")}
+    picked = []
+    monkeypatch.setattr(md, "open_a_training_dataset",
+                        lambda s, pick=None, **_k: picked.append(pick(s)))
+    # The action looks the function up when triggered.
+    dataset = md.datasets_for("mask")[0]
+    screen._test_data_actions[dataset.key].trigger()
+    assert picked and picked[0].key == dataset.key
+    screen._magnifier.close()
+    screen.close_folded()

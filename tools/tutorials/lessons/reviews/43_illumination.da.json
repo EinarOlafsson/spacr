@@ -1,10 +1,10 @@
 {
   "lesson": "43_illumination",
-  "english_sha256": "733c89c9161df491db3c40feedfcdde7908b25a629f43da184fe9e8f6ff66d99",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,7 +15,7 @@
   "objectives": [
     "Vælge repræsentative synsfelter og intensitetskanaler.",
     "Estimere og undersøge en belysningsmodel.",
-    "Genbruge modellen i Mask eller Measure."
+    "Anvende den gemte model i Measure."
   ],
   "prerequisite": "Brug en mappe med sammenlagte billeder med repræsentative synsfelter fra hver optagegruppe. Eksemplet bruger de seksten synsfelter fra pladeeksemplet, der blev hentet i Measure. Vid, hvilke gemte planer der indeholder intensiteter, og hvilke der indeholder labels.",
   "scenes": [
@@ -31,6 +31,7 @@
     "Åbn den gemte QC-PNG-fil for belysning i mappen illumination. Brug en billedfremviser, hvis den ikke vises i panelet Figures.",
     "Undersøg det estimerede belysningsfelt for jævn variation i lysstyrke og uønskede celleformede strukturer. Korrektionen trækker mørkeforskydningen fra og dividerer med dette felt med middelværdi 1.",
     "Sammenlign de radiale profiler før og efter. Brug flere synsfelter til at vurdere, hvor godt korrektionen virker ud over de billeder, der blev brugt til tilpasningen.",
-    "For at genbruge modellen angiver du dens sti og slår korrektionen til i det tiltænkte Mask- eller Measure-forløb. Behold dens kanaler, pladeidentiteter og indstillinger sammen med den, og undgå at korrigere de samme intensiteter to gange."
+    "Behold den gemte model sammen med dens kanaler, pladeidentiteter og indstillinger. Anvend den én gang på et sæt intensiteter; korrigerer du de samme intensiteter to gange, forvrænges de.",
+    "For at anvende modellen åbner du Measure og søger efter illumination i indstillingerne. Under Image Preprocessing slår du Illumination correction til og sætter Illumination model til den gemte fil. Measure dividerer derefter de modellerede kanaler med feltet, før der måles; maskerne ændres ikke."
   ]
 }

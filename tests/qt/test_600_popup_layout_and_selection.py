@@ -78,43 +78,69 @@ def _mouse(kind, pos, button, buttons, modifiers=Qt.NoModifier):
 
 # -- Make Masks' navigation row --------------------------------------------
 
-def test_skip_sits_with_prev_next_save_and_keep_discard_apart(
-        qtbot, qt_theme_applied):
+def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
+                                      tmp_path):
+    """The Make Masks button layout the maintainer asked for (2026-09-30).
+
+    Bottom row, left: Open folder, Organize for Measure, Load test data,
+    Uncertainty. Under the image, right-aligned: Save mask, Prev, Next.
+    Bottom row, right, under the console: Discard, Keep, Skip, Blind, ROIs,
+    Upload data -- Keep and Discard no longer on a row of their own.
+    """
+    from spacr.qt import preferences
     from spacr.qt.screens import make_masks as mm
 
+    monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                        lambda: True)
     screen = mm.MakeMasksScreen()
     qtbot.addWidget(screen)
     step, curate = screen._nav_step_group, screen._nav_curate_group
-    order = [step.layout().itemAt(i).widget()
-             for i in range(step.layout().count())]
-    assert order == [screen._btn_prev, screen._btn_next, screen._btn_save,
-                     screen._btn_skip]
-    # One widget in the wrapping strip, so Skip can never wrap alone.
-    for button in order:
-        assert button.parent() is step
-    assert screen._btn_keep.parent() is curate
-    assert screen._btn_discard.parent() is curate
-    separator = curate.findChild(mm.QWidget, "NavGroupSeparator")
-    assert separator is not None
+
+    def widgets(group):
+        layout = group.layout()
+        return [layout.itemAt(i).widget() for i in range(layout.count())
+                if layout.itemAt(i).widget() is not None]
+
+    assert widgets(step) == [screen._btn_save, screen._btn_prev,
+                             screen._btn_next]
+    assert widgets(curate) == [screen._btn_discard, screen._btn_keep,
+                               screen._btn_skip, screen._btn_blind,
+                               screen._btn_rois, screen._btn_contribute]
+    # One widget each, so neither group can wrap apart.
+    for group in (step, curate):
+        for button in widgets(group):
+            assert button.parent() is group
+    assert screen._btn_training_datasets is screen._btn_test_data
+    import imageio.v2 as imageio
+    import numpy as np
+
+    (tmp_path / "masks").mkdir()
+    imageio.imwrite(tmp_path / "field.tif", np.zeros((48, 48), np.uint16))
+    screen._open_folder(str(tmp_path))
     screen.resize(1600, 900)
     screen.show()
     qtbot.waitExposed(screen)
-    assert screen._btn_skip.mapTo(screen, screen._btn_skip.rect().topLeft()
-                                  ).y() == screen._btn_prev.mapTo(
-        screen, screen._btn_prev.rect().topLeft()).y()
-    skip_end = screen._btn_skip.mapTo(
-        screen, screen._btn_skip.rect().topRight())
-    discard_start = screen._btn_discard.mapTo(
-        screen, screen._btn_discard.rect().topLeft())
-    if skip_end.y() == discard_start.y():
-        # On one line, Keep / Discard sit clearly apart from Skip.
-        assert discard_start.x() - skip_end.x() >= 24
-    else:
-        # Wrapped: the group starts its own line, never splitting.
-        assert screen._btn_keep.mapTo(screen, screen._btn_keep.rect()
-                                      .topLeft()).y() == discard_start.y()
-    layout = curate.layout()
-    assert layout.itemAt(0).spacerItem() is not None
+
+    def top_left(button):
+        return button.mapTo(screen, button.rect().topLeft())
+
+    toolbar = [screen._btn_open, screen._btn_organize,
+               screen._btn_test_data, screen._btn_uncertainty]
+    xs = [top_left(button).x() for button in toolbar]
+    assert xs == sorted(xs)
+    row_y = {top_left(button).y() for button in toolbar + widgets(curate)}
+    assert len(row_y) == 1, "the toolbar and the curation buttons share a row"
+    assert top_left(screen._btn_open).x() < top_left(screen._btn_discard).x()
+    # Save / Prev / Next sit under the image, right-aligned, above the row.
+    tabs = screen._view_tabs
+    tabs_right = tabs.mapTo(screen, tabs.rect().topRight()).x()
+    tabs_bottom = tabs.mapTo(screen, tabs.rect().bottomLeft()).y()
+    next_right = screen._btn_next.mapTo(
+        screen, screen._btn_next.rect().topRight()).x()
+    assert abs(next_right - tabs_right) <= 8
+    assert tabs_bottom < top_left(screen._btn_next).y() < row_y.pop()
+    xs = [top_left(button).x() for button in widgets(step)]
+    assert xs == sorted(xs)
 
 
 # -- the popup's header ----------------------------------------------------

@@ -11,7 +11,7 @@
   "objectives": [
     "Select representative fields and intensity channels.",
     "Estimate and inspect an illumination model.",
-    "Reuse the model in Mask or Measure."
+    "Apply the saved model in Measure."
   ],
   "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
   "scenes": [
@@ -19,10 +19,10 @@
       "visual": "01_measure_host",
       "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
       "focus": [
-        3625,
-        65,
-        110,
-        100
+        3548,
+        56,
+        116,
+        116
       ],
       "related_lessons": [
         "08_measure"
@@ -156,7 +156,7 @@
     },
     {
       "visual": "09_return_to_illumination",
-      "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
+      "narration": "Keep the saved model with its channels, plate identities and settings. Apply it once to a set of intensities; correcting the same intensities twice distorts them.",
       "focus": [
         363,
         370,
@@ -164,7 +164,20 @@
         800
       ],
       "related_lessons": [
-        "07_mask",
+        "08_measure"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_measure_apply_model",
+      "narration": "To apply the model, open Measure and search the settings for illumination. Under Image Preprocessing, turn on Illumination correction and set Illumination model to the saved file. Measure then divides the field out of the modelled channels before it measures; the masks are not changed.",
+      "focus": [
+        352,
+        440,
+        1150,
+        500
+      ],
+      "related_lessons": [
         "08_measure"
       ],
       "hold_after": 0.7

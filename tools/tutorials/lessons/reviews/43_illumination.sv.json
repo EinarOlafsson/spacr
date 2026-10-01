@@ -1,10 +1,10 @@
 {
   "lesson": "43_illumination",
-  "english_sha256": "733c89c9161df491db3c40feedfcdde7908b25a629f43da184fe9e8f6ff66d99",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,7 +15,7 @@
   "objectives": [
     "Välja representativa synfält och intensitetskanaler.",
     "Skatta och granska en belysningsmodell.",
-    "Återanvända modellen i Mask eller Measure."
+    "Använda den sparade modellen i Measure."
   ],
   "prerequisite": "Använd en mapp med sammanslagna bilder med representativa synfält från varje förvärvsgrupp. Exemplet använder de sexton synfälten från plattexemplet som hämtades i Measure. Ha koll på vilka sparade plan som innehåller intensiteter och vilka som innehåller etiketter.",
   "scenes": [
@@ -31,6 +31,7 @@
     "Öppna den sparade QC-PNG-filen för belysning i mappen illumination. Använd en bildvisare om den inte visas i panelen Figures.",
     "Granska det skattade belysningsfältet efter jämn ljusstyrkevariation och oönskade cellformade strukturer. Korrektionen drar av mörkerförskjutningen och delar med detta fält med medelvärde 1.",
     "Jämför de radiella profilerna före och efter. Använd ytterligare synfält för att bedöma hur väl korrektionen fungerar utöver de bilder som användes för anpassningen.",
-    "För att återanvända modellen anger du dess sökväg och aktiverar korrektionen i det avsedda Mask- eller Measure-flödet. Behåll dess kanaler, plattidentiteter och inställningar tillsammans med den, och undvik att korrigera samma intensiteter två gånger."
+    "Behåll den sparade modellen tillsammans med dess kanaler, plattidentiteter och inställningar. Använd den en gång på en uppsättning intensiteter; korrigeras samma intensiteter två gånger förvrängs de.",
+    "För att använda modellen öppnar du Measure och söker efter illumination i inställningarna. Under Image Preprocessing slår du på Illumination correction och sätter Illumination model till den sparade filen. Measure dividerar sedan de modellerade kanalerna med fältet innan mätningen; maskerna ändras inte."
   ]
 }

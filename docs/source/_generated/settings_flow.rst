@@ -3506,7 +3506,7 @@ Read by ``_measure_crop_core``, ``measure_crop``, ``get_measure_crop_settings``.
 confluency_channel
 ------------------
 
-(int or None) - The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.
+(int or None) - The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.
 
 | ``_measure_crop_core``
 |     ``_measure_field_confluency``
@@ -3545,7 +3545,7 @@ Read by ``_write_confluency_record``, ``measure_crop``, ``_compute_confluency_pr
 confluency_source
 -----------------
 
-(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.
+(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.
 
 | ``_measure_crop_core``
 |     ``_measure_field_confluency``
@@ -3567,7 +3567,7 @@ Read by ``_resolve_confluency_source``, ``get_measure_crop_settings``.
 confluency_window
 -----------------
 
-(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.
+(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.
 
 | ``_measure_crop_core``
 |     ``_measure_field_confluency`` **-- reads it**

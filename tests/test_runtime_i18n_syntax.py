@@ -344,8 +344,9 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert len(pass9) == len(latest_p9) and not latest_p9 & sources
     sources |= latest_p9
     # The 2026-09-30 tenth runtime pass: item 598's contribute-dialog
-    # captions, whose links moved onto their own line; the third-pass record
-    # of the old linked thank-you was retired in place (retired_records).
+    # captions (the third-pass record of the old linked thank-you was retired
+    # in place) and the Make Masks button re-layout (Upload data, the Load
+    # test data menu, the Uncertainty setting).
     pass10 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-tenth-pass-*.json"))
               for record in json.loads(path.read_text())["records"]]
     latest_p10 = {record["source"] for record in pass10}

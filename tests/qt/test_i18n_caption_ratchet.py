@@ -1211,28 +1211,6 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Seconds the pointer rests on a control before its tooltip appears. 0 "
     "shows tooltips at once. Default 2.0 s.",
     "Control percentile",
-    "Gate files",
-    "Saved Gate Editor gate files, separated by semicolons.",
-    "API reference",
-    "API reference — reads {settings}",
-    "Preferences ▸ {tab}",
-    "Reads {settings}.",
-    "{summary} Reads {settings}.",
-    "Column naming the treatment when the pilot holds more than one: "
-    "components are pooled within conditions, and with a replicate column "
-    "the replicate-by-condition variance, which pairing does not cancel, is "
-    "estimated. Default empty.",
-    "Condition column",
-    "Continuous",
-    "Could not load the plan: {error}",
-    "Could not plan the design: {error}",
-    "Count per cell",
-    "How the measurement behaves. A proportion's or a count's cell variance "
-    "follows its mean, so the effect is the signed change from the pilot "
-    "mean. Default Continuous.",
-    "Proportion (0 or 1 per cell)",
-    "Readout",
-    "Replicate-by-condition variance {value}.",
 })
 
 

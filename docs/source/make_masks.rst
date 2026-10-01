@@ -40,9 +40,9 @@ Open a field and save an edit
 
 To try the screen without your own data, **Load test data…** downloads ten
 unsegmented Toxoplasma vacuole fields, with their curated masks kept apart
-in ``ground_truth_masks/``, and opens the first. **Training datasets…**
-opens a sample of fields from the dataset each published model was trained
-on.
+in ``ground_truth_masks/``, and opens the first. The arrow on the same
+button offers a sample of fields from the dataset each published model was
+trained on.
 
 Drop images and folders
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -442,10 +442,10 @@ channel, the masks and ``merged/``, and every move is recorded in
 ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan`
 and :ref:`Measure inputs and outputs <workflow-module-measure>`.
 
-Contribute images and masks
----------------------------
+Upload data
+-----------
 
-**Contribute images and masks…** sends the image on screen with its mask,
+**Upload data…** sends the image on screen with its mask,
 every curated image in the folder with its saved mask, or a chosen images
 folder and masks folder, to spaCR's community datasets on Hugging Face for
 training future models. Every image needs a saved mask of the same name and
