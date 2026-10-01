@@ -9,7 +9,6 @@ import ctypes
 import hashlib
 import time
 from dataclasses import asdict
-from pathlib import Path
 
 
 def digest(path):
@@ -17,14 +16,17 @@ def digest(path):
 
 
 def record_graph(app, window, screen, stage, captures, capture, settle, write_json, timeout, *, review_handoff=False):
+    import sqlite3
+
     import numpy as np
     import pandas as pd
-    import sqlite3
-    from graph_evidence import check_points, check_histogram, check_brush
+    from capture_diagnostics import PrivateDesktop
+    from capture_graph_annotations import record_annotations
+    from graph_evidence import check_brush, check_histogram, check_points
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QFileDialog, QLineEdit, QPushButton, QDialogButtonBox
-    from capture_diagnostics import PrivateDesktop
+    from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QPushButton
+
     from spacr.qt.screens.graph_builder import FOLDED_APPS
     from spacr.qt.widgets.fold_strip import FoldButton
 
@@ -286,10 +288,12 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
             if len(canvas.link.selection) or canvas.selected_count() or screen._to_annotate.isEnabled():
                 raise RuntimeError('The native click failed to clear the brush state')
             capture('12_selection_cleared')
+            annotation_proof = record_annotations(app, screen, capture, settle, timeout)
             if digest(database) != original_hash:
                 raise RuntimeError('Chart exploration changed the source database')
             write_json(captures/'scientific_acceptance.json', {
                 'accepted':True, 'scope':'Actual native charts and reversible filters; annotation handoff explicitly BROKEN',
+                'condition_annotations': annotation_proof,
                 'original_handoff_hold_preserved':True, 'brush_review':brush_review,
                 'database':str(database),'database_sha256':original_hash,'rows':initial_count,
                 'area_filter_cutoff':cutoff,'filtered_rows':filtered_count,'filter_cleared':True,
@@ -308,12 +312,14 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         if canvas.selected_count() != 0 or screen._to_annotate.isEnabled():
             raise RuntimeError('The actual click did not clear the linked selection')
         capture('12_selection_cleared')
+        annotation_proof = record_annotations(app, screen, capture, settle, timeout)
         if digest(database) != original_hash:
             raise RuntimeError('Exploring the chart modified the downloaded database')
         write_json(captures / 'scientific_acceptance.json', {
             'accepted': True, 'database': str(database), 'database_sha256': original_hash,
             'table': 'cell', 'rows': initial_count, 'area_filter_cutoff': cutoff,
             'filtered_rows': filtered_count, 'filter_cleared': True,
+            'condition_annotations': annotation_proof,
             'brushed_rows': selected, 'selection_cleared': True,
             'source_database_unchanged': True, 'actual_native_column_drags': True,
             'folds': list(FOLDED_APPS), 'final_spec': asdict(screen.builder.spec),

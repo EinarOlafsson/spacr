@@ -41,3 +41,34 @@ These APIs do not establish statistical significance or fix the GUI handoff.
 No AI service, new image-analysis pipeline or model was run for this lesson.
 The source_manifest.json records the unchanged database hash and actual native
 chart checks. The original failed-handoff evidence remains preserved separately.
+
+Updated lesson authoring: condition columns (N625)
+------------------------------------------------
+The source lesson and capture inputs now add an illustrative annotation
+exercise after the existing chart, filter and brush checks. This section does
+not assert that narration, screenshots, video or this download were rebuilt
+or published. The recorded-build limitations above remain historical evidence.
+
+In Annotate conditions, create these ordered outputs through the controls:
+1. genotype, Rules: Exact values on columnID; WildType for c1,c2,c3 and
+   mutant for c7,c4,c5,c6 in a separate box.
+2. replicate, Rules: two boxes named replicate1, on rowID: r1,r4,r5,r6
+   and r7,r9,r10 respectively. Same-label boxes union without a conflict.
+3. condition, Combine columns: append genotype then replicate, separator _.
+Preview and Apply. These names are illustrative, not verified genotypes or
+independent biological replicates. This actual source contains only c1/c2
+and r5/r12: all 2,341 cells receive WildType, mutant matches zero, and r12
+keeps replicate and condition blank. Missing components never become text
+like None or nan. Exact matching distinguishes c1 from c10.
+
+The current UI offers Save chart, Export table and Save annotated table for
+SQLite sources; Apply changes the working table only. Saving an annotated
+table requires a new name and retains the source table. The annotation
+exercise does not claim to exercise those persistence buttons or repair the
+separate brush-to-Annotate handoff.
+
+Capture authoring uses capture_graph_annotations.py with actual keyboard and
+button interactions. graph_evidence.py independently checks every output row,
+source column, index and recipe box. Run the named annotation-control and
+graph-evidence tests offscreen before native recapture. Existing native chart
+and brush checks still run first and retain their original acceptance gates.
