@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
+  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -35,6 +35,7 @@
     "Tryk Control-K hvor som helst for at åbne kommandopaletten. Begynd at skrive et navn, for eksempel Measure, og listen bliver kortere, mens du skriver. Tryk Enter for at springe til det markerede modul, en nylig kørsel eller en menuhandling uden at tage musen.",
     "I Preferences vælger du en Performance-profil til din computer. Laptop bruger færre ressourcer; de højere profiler tillader mere caching og baggrundsarbejde. Start med en beskeden profil, hvis hukommelsen er begrænset. Dine analyseindstillinger forbliver under din kontrol i hvert modul.",
     "Fanen General i Preferences indstiller brugerfladens sprog, skrift- og GUI-skalering, om app-docken forbliver åben, og en farveblindvenlig palet til plots. Fanen Figures vælger format og opløsning for gemte figurer, og Appearance styrer, hvornår værktøjstip vises.",
+    "Appearance bestemmer, hvordan hjælpen vises, mens du arbejder. Tooltip delay er, hvor længe markøren skal hvile på et element, før tippet vises: to sekunder som standard, og nul viser tip med det samme. Show tooltips slår dem helt fra, og afsnittene Theme og Animation kan foldes ud nedenfor til vinduets udseende.",
     "Vend tilbage til Home, og klik på Pipeline overviews for at vælge et workflow. Begynd med spaCR screens til en poolet billedbaseret screening, eller vælg en vej for billedanalyse eller sekventering til dine data. De næste vejledninger viser, hvordan modulerne hænger sammen, og modullektionerne gennemgår derefter hver opgave."
   ]
 }

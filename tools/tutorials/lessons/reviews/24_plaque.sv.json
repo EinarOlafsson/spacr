@@ -1,10 +1,10 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "85459d27b582a4c2802a96b468ca4d177be03d7bcbdc663f0307e4bc40ec8a5d",
+  "english_sha256": "f83788a32fa60979a1d0da39b7309e1ab0d21b2563d81beb1293b2e5b0af3a76",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -26,13 +26,13 @@
     "Ställ Plaque model på en lokal kontrollpunkt. Om du behöver en öppnar du Model Zoo, hämtar en plackmodell och anger dess lokala sökväg. Analysen löser upp modellinställningen även när den återanvänder sparade masker.",
     "Öppna Live preview och Live settings. Kontrollera vald modell och bild innan du kör förhandsvisningen. Använd samma modell i förhandsvisningen som du tänker använda för hela analysen.",
     "I Model Zoo väljer du plackmodellen, väljer en mapp i Save to och klickar på Download. Vänta tills modellen finns lokalt och välj sedan den kontrollpunkten för förhandsvisningen. Spara dess sökväg för senare körningar.",
-    "Välj en exempelbild och klicka på Run preview. Växla View mellan konturer och färgade masker för att kontrollera att de predicerade områdena följer plackens gränser. Granska flera representativa bilder innan du kör en platta.",
+    "Välj en exempelbild och klicka på Run preview. Högerklicka på bilden och öppna Overlay settings, där Display växlar mellan konturer och en fylld överlagring, för att kontrollera att de förutsagda områdena följer plackens kanter. Granska flera representativa bilder innan du kör en hel platta.",
     "Höj Min area för att dölja små predicerade områden. Se vilka objekt som försvinner och anpassa tröskeln efter det minsta plack du vill mäta. Ändra en inställning i taget så att effekten blir tydlig.",
     "Sänk Min area för att få tillbaka mindre områden; 0 tar bort den nedre ytgränsen. Kontrollera den slutliga förhandsvisningen och batchinställningarna före Run. Förhandsvisningen visar den valda bilden; Run ger analysens utdata.",
     "Tryck på Run och följ konsolen tills analysen är klar. Med Masks avstängt läser exemplet de medföljande etiketterna och skriver masks/plaques_analysis.db. Databasen innehåller antal och ytor för bilderna i Source.",
     "Öppna Help och sedan Database browser. Välj plaques_analysis.db i mappen masks. Låt Edit mode vara avstängt medan du granskar utdata och välj en tabell i tabellistan.",
     "Öppna summary för en översikt per bild. Matcha raderna med hjälp av filnamnen. De medföljande syntetiska maskerna innehåller fyra, tre, två och ett objekt. Medelstorleken anger deras genomsnittliga yta i pixlar.",
     "Öppna stats för att jämföra varje bilds antal plack, medelyta och ytspridning. Standardavvikelsen beskriver spannet av plackstorlekar i bilden. Använd oberoende experimentella replikat när du jämför biologiska förhållanden.",
-    "Öppna details för att granska enskilda placks ytor. Kolumner med fysisk yta är tomma när kalibrering saknas. Spara databasen tillsammans med bilderna, maskerna och inställningarna. Experimentella tillväxtskattningar kräver dessutom en känd skala för att skatta tid, eller en känd tid för att skatta skala; validera referenskurvan för din analys."
+    "Öppna details för att granska enskilda placks ytor. Kolumner med fysisk yta är tomma när kalibrering saknas. Spara databasen tillsammans med bilderna, maskerna och inställningarna."
   ]
 }

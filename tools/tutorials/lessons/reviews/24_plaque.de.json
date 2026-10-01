@@ -1,10 +1,10 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "85459d27b582a4c2802a96b468ca4d177be03d7bcbdc663f0307e4bc40ec8a5d",
+  "english_sha256": "f83788a32fa60979a1d0da39b7309e1ab0d21b2563d81beb1293b2e5b0af3a76",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -26,13 +26,13 @@
     "Setzen Sie Plaque model auf einen lokalen Checkpoint. Falls Sie einen benötigen, öffnen Sie Model Zoo, laden ein Plaque-Modell herunter und geben dessen lokalen Pfad ein. Die Analyse löst diese Modelleinstellung auch dann auf, wenn sie gespeicherte Masken wiederverwendet.",
     "Öffnen Sie Live preview und Live settings. Prüfen Sie ausgewähltes Modell und Bild, bevor Sie die Vorschau ausführen. Verwenden Sie in der Vorschau dasselbe Modell wie für die vollständige Analyse.",
     "Wählen Sie in Model Zoo das Plaque-Modell, wählen Sie einen Ordner unter Save to und klicken Sie auf Download. Warten Sie, bis das Modell lokal verfügbar ist, und wählen Sie dann diesen Checkpoint für die Vorschau. Bewahren Sie seinen Pfad für spätere Läufe auf.",
-    "Wählen Sie ein Beispielbild und klicken Sie auf Run preview. Wechseln Sie unter View zwischen Umrissen und farbigen Masken, um zu prüfen, ob die vorhergesagten Bereiche den Plaque-Grenzen folgen. Prüfen Sie mehrere repräsentative Bilder, bevor Sie eine Platte verarbeiten.",
+    "Wählen Sie ein Beispielbild und klicken Sie auf Run preview. Klicken Sie mit der rechten Maustaste auf das Bild und öffnen Sie Overlay settings; dort wechselt Display zwischen Umrissen und einer gefüllten Überlagerung, damit Sie prüfen können, ob die vorhergesagten Bereiche den Plaque-Rändern folgen. Prüfen Sie mehrere repräsentative Bilder, bevor Sie eine Platte auswerten.",
     "Erhöhen Sie Min area, um kleine vorhergesagte Bereiche auszublenden. Beobachten Sie, welche Objekte verschwinden, und passen Sie die Schwelle an den kleinsten Plaque an, den Sie messen möchten. Ändern Sie jeweils nur eine Einstellung, damit ihre Wirkung erkennbar bleibt.",
     "Senken Sie Min area, um kleinere Bereiche zurückzuholen; 0 entfernt diese untere Flächengrenze. Prüfen Sie die endgültige Vorschau und die Batch-Einstellungen vor Run. Die Vorschau zeigt das ausgewählte Bild; Run erzeugt die Analyseausgaben.",
     "Drücken Sie Run und verfolgen Sie die Konsole, bis die Analyse abgeschlossen ist. Bei ausgeschaltetem Masks liest das Beispiel die mitgelieferten Labels und schreibt masks/plaques_analysis.db. Die Datenbank enthält Anzahlen und Flächen für die Bilder in Source.",
     "Öffnen Sie Help und dann Database browser. Wählen Sie plaques_analysis.db im Ordner masks. Lassen Sie Edit mode beim Prüfen der Ausgabe ausgeschaltet und wählen Sie eine Tabelle aus der Tabellenliste.",
     "Öffnen Sie summary für eine Übersicht pro Bild. Ordnen Sie die Zeilen über ihre Dateinamen zu. Die mitgelieferten synthetischen Masken enthalten vier, drei, zwei und ein Objekt. Die mittlere Größe gibt ihre mittlere Fläche in Pixeln an.",
     "Öffnen Sie stats, um für jedes Bild Plaque-Anzahl, mittlere Fläche und Flächenstreuung zu vergleichen. Die Standardabweichung beschreibt die Spannweite der Plaque-Größen in diesem Bild. Verwenden Sie unabhängige experimentelle Replikate, wenn Sie biologische Bedingungen vergleichen.",
-    "Öffnen Sie details, um einzelne Plaque-Flächen zu prüfen. Spalten mit physikalischer Fläche bleiben leer, wenn keine Kalibrierung vorliegt. Speichern Sie die Datenbank zusammen mit Bildern, Masken und Einstellungen. Experimentelle Wachstumsschätzungen erfordern zusätzlich einen bekannten Maßstab zur Schätzung der Zeit oder eine bekannte Zeit zur Schätzung des Maßstabs; validieren Sie die Referenzkurve für Ihren Assay."
+    "Öffnen Sie details, um einzelne Plaque-Flächen zu prüfen. Spalten mit physikalischer Fläche bleiben leer, wenn keine Kalibrierung vorliegt. Speichern Sie die Datenbank zusammen mit Bildern, Masken und Einstellungen."
   ]
 }

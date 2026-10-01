@@ -474,6 +474,8 @@ def main() -> int:
         home_focus['12_command_palette'] = record_command_palette(window, capture, settle)
         record_performance(window, capture, settle)
         record_preferences_page(window, capture, settle)
+        record_preferences_page(window, capture, settle, 'PreferencesTabAppearance',
+                                '13b_preferences_appearance')
         write_json(captures / 'home_focus.json', home_focus)
     if args.workflow_overview:
         from capture_workflow_overview import record_overview

@@ -96,7 +96,7 @@
     },
     {
       "visual": "16_readable_preview",
-      "narration": "Choose an example image and click Run preview. Switch View between outlines and coloured masks to check whether the predicted regions follow plaque boundaries. Inspect several representative images before running a plate.",
+      "narration": "Choose an example image and click Run preview. Right-click the picture and open Overlay settings, where Display switches between outlines and a filled overlay, to check whether the predicted regions follow plaque boundaries. Inspect several representative images before running a plate.",
       "focus": [
         1510,
         1248,
@@ -170,7 +170,7 @@
     },
     {
       "visual": "23_actual_details_table",
-      "narration": "Open details to inspect individual plaque areas. Physical-area columns are empty when calibration is unavailable. Save the database together with the images, masks and settings. Experimental growth estimates additionally require a known scale to estimate time, or a known time to estimate scale; validate the reference curve for your assay.",
+      "narration": "Open details to inspect individual plaque areas. Physical-area columns are empty when calibration is unavailable. Save the database together with the images, masks and settings.",
       "focus": [
         345,
         278,

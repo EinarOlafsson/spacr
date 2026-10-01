@@ -66,7 +66,10 @@ WIDGET_LABELS = {
     "ProjectBrowserTestDataButton": (),
     "TrellisTestDataButton": (),
     "MakeMasksUseInMaskGeneration": ("Use in Mask generation",),
-    "PlaqueEstimateScaleTime": ("Estimate scale / time (experimental)",),
+    # The settings category title is listed with the button (501), so
+    # narration naming either is caught.
+    "PlaqueEstimateScaleTime": ("Estimate scale / time (experimental)",
+                                "Experimental growth estimates"),
     "PlaqueEstimateScaleTimeNote": ("Published RH/HFF reference",),
     "DistributedAllocatedGpus": ("segment batches on every GPU allocated",),
     "MaskGpuProgress": (),
@@ -149,11 +152,6 @@ WIDGET_LABELS = {
     "PluginCatalogueStatus": (),
     "MapBarcodesSpatialToggle": ("Spatial transcriptomics",),
     "MapBarcodesSpatialCard": ("Spatial transcriptomics",),
-    # Plaque Figure preview (501). The settings category title is listed
-    # with the button so narration naming either is caught.
-    "PlaqueEstimateScaleTime": ("Estimate scale / time (experimental)",
-                                "Experimental growth estimates"),
-    "PlaqueEstimateScaleTimeNote": (),
 }
 
 #: The setting itself. Allowed only in a Preferences lesson.

@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
+  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -35,6 +35,7 @@
     "Appuyez sur Control-K n’importe où pour ouvrir la palette de commandes. Commencez à taper un nom, comme Measure, et la liste se réduit au fil de la saisie. Appuyez sur Entrée pour aller au module, à l’exécution récente ou à l’action de menu surlignée sans prendre la souris.",
     "Dans Preferences, choisissez un profil Performance adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils plus élevés permettent davantage de cache et de travail en arrière-plan. Commencez par un profil modeste si la mémoire est limitée. Les paramètres de vos analyses restent sous votre contrôle dans chaque module.",
     "L’onglet General de Preferences règle la langue de l’interface, l’échelle de police et de l’interface, le maintien ouvert du dock d’applications et une palette adaptée au daltonisme pour les graphiques. L’onglet Figures choisit le format et la résolution des figures enregistrées, et Appearance détermine quand les infobulles apparaissent.",
+    "Appearance détermine comment l’aide apparaît pendant votre travail. Tooltip delay est le temps pendant lequel le pointeur reste sur un contrôle avant que son info-bulle n’apparaisse : deux secondes par défaut, et zéro les affiche aussitôt. Show tooltips les désactive complètement, et les sections Theme et Animation se déplient en dessous pour l’apparence de la fenêtre.",
     "Revenez à Home et cliquez sur Pipeline overviews pour choisir un flux de travail. Commencez par spaCR screens pour un criblage groupé basé sur l’image, ou choisissez un parcours d’analyse d’images ou de séquençage adapté à vos données. Les tutoriels suivants montrent comment ces modules s’enchaînent, puis les leçons de chaque module détaillent chaque tâche."
   ]
 }

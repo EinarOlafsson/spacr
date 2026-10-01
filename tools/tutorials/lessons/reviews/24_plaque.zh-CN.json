@@ -1,10 +1,10 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "85459d27b582a4c2802a96b468ca4d177be03d7bcbdc663f0307e4bc40ec8a5d",
+  "english_sha256": "f83788a32fa60979a1d0da39b7309e1ab0d21b2563d81beb1293b2e5b0af3a76",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -26,13 +26,13 @@
     "把Plaque model设为一个本地检查点。如果需要，请打开Model Zoo下载噬斑模型，然后输入其本地路径。即使分析重用保存的掩膜，也会解析这个模型设置。",
     "打开Live preview和Live settings。运行预览之前，请检查所选的模型和图像。预览中使用的模型应与完整分析中打算使用的模型一致。",
     "在Model Zoo中选择噬斑模型，在Save to中选择文件夹，然后点击Download。等待模型在本地可用，再为预览选择该检查点。保留其保存路径，供以后的运行使用。",
-    "选择一张示例图像，点击Run preview。在View中切换轮廓和彩色掩膜，检查预测区域是否贴合噬斑边界。处理整块板之前，请检查几张有代表性的图像。",
+    "选择一张示例图像并点击 Run preview。右键点击图片并打开 Overlay settings，在 Display 中切换轮廓和填充叠加，检查预测区域是否沿着噬斑边界。处理整板之前，先检查几张有代表性的图像。",
     "调高Min area以隐藏较小的预测区域。观察哪些对象消失，并把阈值调整到您想测量的最小噬斑。一次只改一个设置，以便看清其效果。",
     "调低Min area可以让较小的区域重新出现；设为零即取消这个面积下限。按Run之前，请检查最终预览和批处理设置。预览只显示所选图像；Run才会生成分析输出。",
     "按Run，并在控制台中跟踪直到分析完成。Masks关闭时，示例会读取提供的标签并写入masks/plaques_analysis.db。该数据库包含Source中各图像的计数和面积。",
     "打开Help，再打开Database browser。选择masks文件夹中的plaques_analysis.db。检查输出时保持Edit mode关闭，并从表列表中选择一个表。",
     "打开summary查看按图像的概览。根据文件名对应各行。提供的合成掩膜分别包含四个、三个、两个和一个对象。平均大小给出它们以像素为单位的平均面积。",
     "打开stats，比较每张图像的噬斑数量、平均面积和面积离散程度。标准差描述该图像中噬斑大小的范围。比较生物学条件时，请使用独立的实验重复。",
-    "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。实验性的生长估计还需要已知的比例尺来估计时间，或已知的时间来估计比例尺；请验证您检测方法的参考曲线。"
+    "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。"
   ]
 }

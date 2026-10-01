@@ -1,10 +1,10 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "85459d27b582a4c2802a96b468ca4d177be03d7bcbdc663f0307e4bc40ec8a5d",
+  "english_sha256": "f83788a32fa60979a1d0da39b7309e1ab0d21b2563d81beb1293b2e5b0af3a76",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -26,13 +26,13 @@
     "Imposta Plaque model su un checkpoint locale. Se te ne serve uno, apri Model Zoo, scarica un modello per le placche e inserisci il suo percorso locale. L’analisi risolve questa impostazione del modello anche quando riusa maschere salvate.",
     "Apri Live preview e Live settings. Controlla il modello e l’immagine selezionati prima di eseguire l’anteprima. Usa nell’anteprima lo stesso modello che intendi usare per l’analisi completa.",
     "In Model Zoo, seleziona il modello per le placche, scegli una cartella in Save to e fai clic su Download. Attendi che il modello sia disponibile in locale, poi seleziona quel checkpoint per l’anteprima. Conserva il suo percorso per le esecuzioni successive.",
-    "Scegli un’immagine di esempio e fai clic su Run preview. Alterna View tra contorni e maschere colorate per controllare se le regioni previste seguono i bordi delle placche. Esamina diverse immagini rappresentative prima di elaborare una piastra.",
+    "Scegli un’immagine di esempio e fai clic su Run preview. Fai clic destro sull’immagine e apri Overlay settings, dove Display passa dai contorni a una sovrapposizione piena, per verificare se le regioni previste seguono i bordi delle placche. Esamina diverse immagini rappresentative prima di elaborare una piastra.",
     "Aumenta Min area per nascondere le piccole regioni previste. Osserva quali oggetti scompaiono e regola la soglia sulla placca più piccola che vuoi misurare. Cambia un’impostazione alla volta, così il suo effetto resta chiaro.",
     "Riduci Min area per far ricomparire le regioni più piccole; zero elimina questo limite inferiore di area. Controlla l’anteprima finale e le impostazioni del batch prima di Run. L’anteprima mostra l’immagine selezionata; Run produce gli output dell’analisi.",
     "Premi Run e segui la console fino al termine dell’analisi. Con Masks disattivato, l’esempio legge le etichette fornite e scrive masks/plaques_analysis.db. Il database contiene i conteggi e le aree delle immagini in Source.",
     "Apri Help e poi Database browser. Seleziona plaques_analysis.db nella cartella masks. Lascia disattivato Edit mode mentre esamini l’output e scegli una tabella dall’elenco delle tabelle.",
     "Apri summary per una panoramica per immagine. Abbina le righe tramite i nomi dei file. Le maschere sintetiche fornite contengono quattro, tre, due e un oggetto. La dimensione media riporta la loro area media in pixel.",
     "Apri stats per confrontare per ogni immagine il numero di placche, l’area media e la dispersione delle aree. La deviazione standard descrive l’intervallo delle dimensioni delle placche nell’immagine. Usa repliche sperimentali indipendenti quando confronti condizioni biologiche.",
-    "Apri details per esaminare l’area di ogni singola placca. Le colonne dell’area fisica restano vuote quando manca la calibrazione. Salva il database insieme a immagini, maschere e impostazioni. Le stime sperimentali di crescita richiedono inoltre una scala nota per stimare il tempo, o un tempo noto per stimare la scala; convalida la curva di riferimento del tuo saggio."
+    "Apri details per esaminare l’area di ogni singola placca. Le colonne dell’area fisica restano vuote quando manca la calibrazione. Salva il database insieme a immagini, maschere e impostazioni."
   ]
 }

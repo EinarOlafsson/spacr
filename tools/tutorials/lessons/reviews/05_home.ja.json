@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
+  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -35,6 +35,7 @@
     "どこからでもControl-Kを押すとコマンドパレットが開きます。Measureのように名前を入力し始めると、入力に合わせて一覧が絞り込まれます。Enterを押すと、選択中のモジュール、最近の実行、メニュー操作へマウスを使わずに移動できます。",
     "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。",
     "PreferencesのGeneralタブでは、表示言語、フォントとGUIの拡大率、アプリドックを開いたままにするかどうか、グラフ用の色覚に配慮したパレットを設定します。Figuresタブでは保存する図の形式と解像度を選び、Appearanceではツールチップを表示するタイミングを決めます。",
+    "Appearanceでは、作業中のヘルプの表示方法を決めます。Tooltip delayは、ポインターをコントロールに置いてからヒントが表示されるまでの時間で、既定は二秒、ゼロにするとすぐに表示されます。Show tooltipsでヒントを完全に消すことができ、その下のThemeとAnimationを開くとウィンドウの見た目を設定できます。",
     "Homeに戻り、Pipeline overviewsをクリックしてワークフローを選びます。プール型の画像スクリーンならspaCR screensから始め、データに応じて画像解析またはシーケンシングの経路を選びます。次のチュートリアルでこれらのモジュールのつながりを示し、各モジュールのレッスンでそれぞれの作業を順に説明します。"
   ]
 }

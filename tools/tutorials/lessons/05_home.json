@@ -133,9 +133,9 @@
       "narration": "Every module screen can be arranged to suit your screen. Drag the handle between the settings and the right-hand panels to give either side more room, or click its arrow to fold the settings away. Hold Control and scroll over the right-hand panels to make their text larger or smaller, and press Control-0 to reset it.",
       "hold_after": 0.7,
       "focus": [
-        2700,
+        3040,
         171,
-        300,
+        320,
         1950
       ]
     },
@@ -185,6 +185,17 @@
     {
       "visual": "13_preferences_general",
       "narration": "The General tab of Preferences sets the interface language, the font and GUI scale, whether the app dock stays open, and a palette for plots that suits colour vision deficiency. The Figures tab chooses the format and resolution of saved figures, and Appearance controls when tooltips appear.",
+      "hold_after": 0.7,
+      "focus": [
+        1310,
+        440,
+        1200,
+        1200
+      ]
+    },
+    {
+      "visual": "13b_preferences_appearance",
+      "narration": "Appearance decides how help appears as you work. Tooltip delay is how long the pointer rests on a control before its tip appears: two seconds by default, and zero shows tips at once. Show tooltips turns them off entirely, and the Theme and Animation sections fold open below for the window's look.",
       "hold_after": 0.7,
       "focus": [
         1310,

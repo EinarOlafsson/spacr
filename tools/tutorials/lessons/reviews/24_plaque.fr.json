@@ -1,10 +1,10 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "85459d27b582a4c2802a96b468ca4d177be03d7bcbdc663f0307e4bc40ec8a5d",
+  "english_sha256": "f83788a32fa60979a1d0da39b7309e1ab0d21b2563d81beb1293b2e5b0af3a76",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -26,13 +26,13 @@
     "Réglez Plaque model sur un point de contrôle local. Si nécessaire, ouvrez Model Zoo, téléchargez un modèle de plages, puis saisissez son chemin local. L’analyse résout ce paramètre de modèle même lorsqu’elle réutilise des masques enregistrés.",
     "Ouvrez Live preview et Live settings. Vérifiez le modèle et l’image sélectionnés avant de lancer l’aperçu. Utilisez dans l’aperçu le modèle que vous prévoyez d’utiliser pour l’analyse complète.",
     "Dans Model Zoo, sélectionnez le modèle de plages, choisissez un dossier dans Save to et cliquez sur Download. Attendez que le modèle soit disponible localement, puis sélectionnez ce point de contrôle pour l’aperçu. Conservez son chemin pour les exécutions suivantes.",
-    "Choisissez une image d’exemple et cliquez sur Run preview. Basculez View entre contours et masques colorés pour vérifier si les régions prédites suivent les bords des plages. Examinez plusieurs images représentatives avant de traiter une plaque.",
+    "Choisissez une image d’exemple et cliquez sur Run preview. Faites un clic droit sur l’image et ouvrez Overlay settings, où Display bascule entre contours et superposition remplie, pour vérifier que les régions prédites suivent les bords des plages. Examinez plusieurs images représentatives avant de traiter une plaque.",
     "Augmentez Min area pour masquer les petites régions prédites. Observez quels objets disparaissent et ajustez le seuil à la plus petite plage que vous voulez mesurer. Modifiez un seul paramètre à la fois pour bien voir son effet.",
     "Baissez Min area pour faire réapparaître les régions plus petites ; zéro supprime ce seuil d’aire minimale. Vérifiez l’aperçu final et les paramètres du lot avant Run. L’aperçu montre l’image sélectionnée ; Run produit les sorties de l’analyse.",
     "Appuyez sur Run et suivez la console jusqu’à la fin de l’analyse. Avec Masks désactivé, l’exemple lit les étiquettes fournies et écrit masks/plaques_analysis.db. La base de données contient les effectifs et les aires des images de Source.",
     "Ouvrez Help, puis Database browser. Sélectionnez plaques_analysis.db dans le dossier masks. Laissez Edit mode désactivé pendant l’examen de la sortie et choisissez une table dans la liste.",
     "Ouvrez summary pour une vue d’ensemble par image. Associez les lignes grâce aux noms de fichier. Les masques synthétiques fournis contiennent quatre, trois, deux et un objets. La taille moyenne indique leur aire moyenne en pixels.",
     "Ouvrez stats pour comparer, pour chaque image, le nombre de plages, l’aire moyenne et la dispersion des aires. L’écart-type décrit l’étendue des tailles de plages dans l’image. Utilisez des réplicats expérimentaux indépendants pour comparer des conditions biologiques.",
-    "Ouvrez details pour examiner l’aire de chaque plage. Les colonnes d’aire physique restent vides sans calibration. Enregistrez la base de données avec les images, les masques et les paramètres. Les estimations expérimentales de croissance exigent en plus une échelle connue pour estimer le temps, ou un temps connu pour estimer l’échelle ; validez la courbe de référence de votre test."
+    "Ouvrez details pour examiner l’aire de chaque plage. Les colonnes d’aire physique restent vides sans calibration. Enregistrez la base de données avec les images, les masques et les paramètres."
   ]
 }

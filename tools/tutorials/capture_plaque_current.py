@@ -70,9 +70,9 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
 
     manifest = prepare(stage)
     root = Path(manifest["root"])
-    model = Path(__file__).resolve().parents[2] / "spacr/resources/models/toxo_plaque_cyto_e25000_X1120_Y1120.CP_model"
-    if not model.is_file():
-        raise ValueError("The bundled plaque checkpoint is missing")
+    # The bundled checkpoint is a Cellpose 3 file that Cellpose 4 refuses;
+    # the preview downloads the Model Zoo plaque model instead.
+    model = "toxoplasma_plaque_v1"
     catalog = Path(__file__).resolve().parent / "authoring/catalog/24_plaque_settings.json"
     requested = read(catalog)
     requested.update(src=str(root), plaque_model=str(model), well_detection=False,
@@ -82,13 +82,13 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
             raise ValueError("No Plaque setting for " + key)
         settle(.03)
     state = {"manifest": manifest, "frames": {}}
-    host = getattr(screen, "_registry_preview", None)
-    if host is None:
-        raise ValueError("The Plaque preview is not attached")
-    if not host.panel.isVisible():
-        QTest.mouseClick(host.toggle, Qt.LeftButton)
-        settle(1)
-    panel = host.panel
+    panel = getattr(screen, "_live_preview", None)
+    switch = getattr(screen, "_preview_switch", None)
+    if panel is None or switch is None:
+        raise ValueError("The Plaque preview or its Live switch is missing")
+    if not panel.isVisible():
+        QTest.mouseClick(switch, Qt.LeftButton)
+        settle(1.5)
     if not panel.isVisible():
         raise ValueError("The Plaque preview is hidden")
     if panel.mode() != ppv.PLAQUE_MODE:
@@ -100,8 +100,12 @@ def record_plaque_current(app, window, screen, stage, captures, capture, settle,
     settle(1)
     QTest.mouseClick(panel._run_btn, Qt.LeftButton)
     settle(1)
-    _wait(settle, lambda: not panel.preview_running() and panel._plaque_result is not None,
+    _wait(settle, lambda: not panel.preview_running() and (
+          panel._plaque_result is not None or "fail" in panel._status.text().lower()),
           timeout, "Plaque preview did not finish: " + panel._status.text())
+    if panel._plaque_result is None:
+        capture("16_preview_failed")
+        raise ValueError("Plaque preview failed: " + panel._status.text())
     settle(2)
     state["plaque_preview"] = {"status": panel._status.text(),
                                "count": panel._plaque_result.get("count")}

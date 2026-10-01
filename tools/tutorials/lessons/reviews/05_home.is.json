@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
+  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -35,6 +35,7 @@
     "Ýttu á Control-K hvar sem er til að opna skipanaspjaldið. Byrjaðu að slá inn nafn, til dæmis Measure, og listinn styttist á meðan þú skrifar. Ýttu á Enter til að fara í valda einingu, nýlega keyrslu eða valmyndaraðgerð án þess að grípa í músina.",
     "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
     "Flipinn General í Preferences stillir tungumál viðmótsins, leturstærð og kvörðun viðmótsins, hvort forritabryggjan haldist opin og litaspjald fyrir litblinda í gröfum. Flipinn Figures velur snið og upplausn vistaðra mynda, og Appearance ræður hvenær vísbendingar birtast.",
+    "Appearance ræður hvernig hjálp birtist á meðan þú vinnur. Tooltip delay er hversu lengi bendillinn hvílir á stjórnhlut áður en ábendingin birtist: tvær sekúndur sjálfgefið, og núll sýnir ábendingar strax. Show tooltips slekkur alveg á þeim, og hlutarnir Theme og Animation opnast fyrir neðan fyrir útlit gluggans.",
     "Farðu aftur í Home og smelltu á Pipeline overviews til að velja verkferli. Byrjaðu á spaCR screens fyrir samsafnaða myndgreiningarskimun, eða veldu leið fyrir myndgreiningu eða raðgreiningu sem hentar gögnunum þínum. Næstu kennslur sýna hvernig þessar einingar tengjast og kennslur einstakra eininga fara síðan í gegnum hvert verk."
   ]
 }

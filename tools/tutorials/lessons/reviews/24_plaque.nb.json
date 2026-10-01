@@ -1,10 +1,10 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "85459d27b582a4c2802a96b468ca4d177be03d7bcbdc663f0307e4bc40ec8a5d",
+  "english_sha256": "f83788a32fa60979a1d0da39b7309e1ab0d21b2563d81beb1293b2e5b0af3a76",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -26,13 +26,13 @@
     "Sett Plaque model til et lokalt sjekkpunkt. Hvis du trenger et, åpner du Model Zoo, laster ned en plakkmodell og oppgir den lokale banen. Analysen løser opp denne modellinnstillingen også når den gjenbruker lagrede masker.",
     "Åpne Live preview og Live settings. Kontroller valgt modell og bilde før du kjører forhåndsvisningen. Bruk den samme modellen i forhåndsvisningen som du planlegger å bruke i hele analysen.",
     "I Model Zoo velger du plakkmodellen, velger en mappe i Save to og klikker på Download. Vent til modellen er tilgjengelig lokalt, og velg deretter det sjekkpunktet for forhåndsvisningen. Behold banen til senere kjøringer.",
-    "Velg et eksempelbilde og klikk på Run preview. Bytt View mellom omriss og fargede masker for å kontrollere om de predikerte områdene følger plakkgrensene. Undersøk flere representative bilder før du kjører en plate.",
+    "Velg et eksempelbilde og klikk Run preview. Høyreklikk på bildet og åpne Overlay settings, der Display bytter mellom konturer og et fylt overlegg, for å sjekke om de forutsagte områdene følger plakkenes kanter. Undersøk flere representative bilder før du kjører en hel plate.",
     "Øk Min area for å skjule små predikerte områder. Se hvilke objekter som forsvinner, og juster terskelen etter det minste plakket du vil måle. Endre én innstilling om gangen slik at effekten blir tydelig.",
     "Senk Min area for å få tilbake mindre områder; 0 fjerner denne nedre arealgrensen. Kontroller den endelige forhåndsvisningen og batchinnstillingene før Run. Forhåndsvisningen viser det valgte bildet; Run lager analysens utdata.",
     "Trykk på Run og følg konsollen til analysen er ferdig. Med Masks av leser eksemplet de medfølgende etikettene og skriver masks/plaques_analysis.db. Databasen inneholder antall og arealer for bildene i Source.",
     "Åpne Help og deretter Database browser. Velg plaques_analysis.db i mappen masks. La Edit mode være av mens du undersøker utdataene, og velg en tabell fra tabellisten.",
     "Åpne summary for en oversikt per bilde. Koble radene via filnavnene. De medfølgende syntetiske maskene inneholder fire, tre, to og ett objekt. Gjennomsnittlig størrelse viser gjennomsnittsarealet i piksler.",
     "Åpne stats for å sammenligne antall plakk, gjennomsnittlig areal og arealspredning for hvert bilde. Standardavviket beskriver spennet i plakkstørrelser i bildet. Bruk uavhengige eksperimentelle replikater når du sammenligner biologiske betingelser.",
-    "Åpne details for å undersøke arealet til hvert enkelt plakk. Kolonner med fysisk areal er tomme når kalibrering mangler. Lagre databasen sammen med bildene, maskene og innstillingene. Eksperimentelle vekstanslag krever i tillegg en kjent skala for å anslå tid, eller en kjent tid for å anslå skala; valider referansekurven for analysen din."
+    "Åpne details for å undersøke arealet til hvert enkelt plakk. Kolonner med fysisk areal er tomme når kalibrering mangler. Lagre databasen sammen med bildene, maskene og innstillingene."
   ]
 }

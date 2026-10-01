@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
+  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -35,6 +35,7 @@
     "在任何地方按 Control-K 都能打开命令面板。开始输入名称，例如 Measure，列表会随着输入不断缩小。按 Enter 即可跳转到高亮的模块、最近的运行或菜单操作，无需动用鼠标。",
     "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
     "Preferences 的 General 选项卡用于设置界面语言、字体和 GUI 缩放、应用停靠栏是否保持打开，以及适合色觉障碍者的绘图配色。Figures 选项卡选择保存图片的格式和分辨率，Appearance 决定工具提示何时出现。",
+    "Appearance 决定工作时帮助信息如何出现。Tooltip delay 是指针停在控件上多久后才显示提示：默认两秒，设为零则立即显示。Show tooltips 可以完全关闭提示，下方的 Theme 和 Animation 部分可以展开，用来设置窗口外观。",
     "回到Home，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从spaCR screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。"
   ]
 }

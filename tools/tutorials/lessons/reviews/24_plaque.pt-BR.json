@@ -1,10 +1,10 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "85459d27b582a4c2802a96b468ca4d177be03d7bcbdc663f0307e4bc40ec8a5d",
+  "english_sha256": "f83788a32fa60979a1d0da39b7309e1ab0d21b2563d81beb1293b2e5b0af3a76",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -26,13 +26,13 @@
     "Defina Plaque model como um checkpoint local. Se precisar de um, abra o Model Zoo, baixe um modelo de placas e informe o caminho local dele. A análise resolve essa configuração de modelo mesmo quando reutiliza máscaras salvas.",
     "Abra Live preview e Live settings. Confira o modelo e a imagem selecionados antes de executar a pré-visualização. Use na pré-visualização o mesmo modelo que pretende usar na análise completa.",
     "No Model Zoo, selecione o modelo de placas, escolha uma pasta em Save to e clique em Download. Aguarde até o modelo estar disponível localmente e selecione esse checkpoint para a pré-visualização. Guarde o caminho dele para as próximas execuções.",
-    "Escolha uma imagem de exemplo e clique em Run preview. Alterne View entre contornos e máscaras coloridas para conferir se as regiões previstas acompanham as bordas das placas. Inspecione várias imagens representativas antes de processar uma placa de cultura.",
+    "Escolha uma imagem de exemplo e clique em Run preview. Clique com o botão direito na imagem e abra Overlay settings, onde Display alterna entre contornos e uma sobreposição preenchida, para verificar se as regiões previstas seguem as bordas das placas. Examine várias imagens representativas antes de processar uma placa.",
     "Aumente Min area para ocultar as regiões previstas pequenas. Observe quais objetos desaparecem e ajuste o limiar para a menor placa que você pretende medir. Mude uma configuração de cada vez para que o efeito fique claro.",
     "Diminua Min area para trazer de volta as regiões menores; zero remove esse limite inferior de área. Confira a pré-visualização final e as configurações do lote antes de Run. A pré-visualização mostra a imagem selecionada; Run gera as saídas da análise.",
     "Pressione Run e acompanhe o console até a análise terminar. Com Masks desativado, o exemplo lê os rótulos fornecidos e grava masks/plaques_analysis.db. O banco de dados contém as contagens e as áreas das imagens de Source.",
     "Abra Help e depois Database browser. Selecione plaques_analysis.db na pasta masks. Deixe Edit mode desativado enquanto inspeciona a saída e escolha uma tabela na lista de tabelas.",
     "Abra summary para ter uma visão geral por imagem. Associe as linhas pelos nomes dos arquivos. As máscaras sintéticas fornecidas contêm quatro, três, dois e um objeto. O tamanho médio informa a área média deles em pixels.",
     "Abra stats para comparar, em cada imagem, o número de placas, a área média e a dispersão das áreas. O desvio padrão descreve a faixa de tamanhos de placa dentro da imagem. Use réplicas experimentais independentes ao comparar condições biológicas.",
-    "Abra details para inspecionar a área de cada placa. As colunas de área física ficam vazias quando não há calibração. Salve o banco de dados junto com as imagens, as máscaras e as configurações. Estimativas experimentais de crescimento exigem também uma escala conhecida para estimar o tempo, ou um tempo conhecido para estimar a escala; valide a curva de referência do seu ensaio."
+    "Abra details para inspecionar a área de cada placa. As colunas de área física ficam vazias quando não há calibração. Salve o banco de dados junto com as imagens, as máscaras e as configurações."
   ]
 }

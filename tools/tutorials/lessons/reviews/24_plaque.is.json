@@ -1,10 +1,10 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "85459d27b582a4c2802a96b468ca4d177be03d7bcbdc663f0307e4bc40ec8a5d",
+  "english_sha256": "f83788a32fa60979a1d0da39b7309e1ab0d21b2563d81beb1293b2e5b0af3a76",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -26,13 +26,13 @@
     "Stilltu Plaque model á staðbundinn vistunarpunkt. Ef þú þarft einn opnarðu Model Zoo, sækir skellulíkan og slærð inn staðbundna slóð þess. Greiningin leysir úr þessari líkanstillingu jafnvel þegar hún endurnýtir vistaðar grímur.",
     "Opnaðu Live preview og Live settings. Athugaðu valið líkan og mynd áður en þú keyrir forskoðunina. Notaðu sama líkan í forskoðuninni og þú ætlar að nota í allri greiningunni.",
     "Í Model Zoo velurðu skellulíkanið, velur möppu í Save to og smellir á Download. Bíddu þar til líkanið er tiltækt staðbundið og veldu svo þann vistunarpunkt fyrir forskoðunina. Haltu vistuðu slóðinni fyrir síðari keyrslur.",
-    "Veldu dæmamynd og smelltu á Run preview. Skiptu View á milli útlína og litaðra grímna til að athuga hvort spáð svæði fylgi mörkum skellnanna. Skoðaðu nokkrar dæmigerðar myndir áður en þú keyrir heila plötu.",
+    "Veldu dæmamynd og smelltu á Run preview. Hægrismelltu á myndina og opnaðu Overlay settings, þar sem Display skiptir milli útlína og fylltrar yfirlagnar, til að athuga hvort spáðu svæðin fylgja jöðrum skellnanna. Skoðaðu nokkrar dæmigerðar myndir áður en þú keyrir heila plötu.",
     "Hækkaðu Min area til að fela lítil spáð svæði. Fylgstu með hvaða hlutir hverfa og stilltu þröskuldinn eftir minnstu skellunni sem þú ætlar að mæla. Breyttu einni stillingu í einu svo áhrif hennar séu skýr.",
     "Lækkaðu Min area til að fá minni svæði aftur; 0 fjarlægir þessi neðri flatarmálsmörk. Athugaðu lokaforskoðunina og runustillingarnar fyrir Run. Forskoðunin sýnir valda mynd; Run býr til úttak greiningarinnar.",
     "Ýttu á Run og fylgstu með stjórnborðinu þar til greiningunni lýkur. Með slökkt á Masks les dæmið meðfylgjandi merki og skrifar masks/plaques_analysis.db. Gagnagrunnurinn inniheldur fjölda og flatarmál fyrir myndirnar í Source.",
     "Opnaðu Help og svo Database browser. Veldu plaques_analysis.db í möppunni masks. Hafðu slökkt á Edit mode meðan þú skoðar úttakið og veldu töflu úr töflulistanum.",
     "Opnaðu summary til að fá yfirlit eftir myndum. Paraðu línurnar saman eftir skráarheitum. Meðfylgjandi tilbúnu grímurnar innihalda fjóra, þrjá, tvo og einn hlut. Meðalstærð gefur meðalflatarmál þeirra í dílum.",
     "Opnaðu stats til að bera saman fjölda skellna, meðalflatarmál og dreifingu flatarmáls fyrir hverja mynd. Staðalfrávikið lýsir bili skellustærða innan myndarinnar. Notaðu óháðar tilraunaendurtekningar þegar þú berð saman líffræðilegar aðstæður.",
-    "Opnaðu details til að skoða flatarmál einstakra skellna. Dálkar fyrir eðlisfræðilegt flatarmál eru tómir þegar kvörðun vantar. Vistaðu gagnagrunninn með myndunum, grímunum og stillingunum. Tilraunamat á vexti krefst auk þess þekkts kvarða til að meta tíma, eða þekkts tíma til að meta kvarða; staðfestu viðmiðunarferilinn fyrir prófið þitt."
+    "Opnaðu details til að skoða flatarmál einstakra skellna. Dálkar fyrir eðlisfræðilegt flatarmál eru tómir þegar kvörðun vantar. Vistaðu gagnagrunninn með myndunum, grímunum og stillingunum."
   ]
 }

@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "11f042d6858da357f4657d8bde6b98825981c2985932cdf6ac2105f307689679",
+  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -35,6 +35,7 @@
     "어디서나 Control-K를 누르면 명령 팔레트가 열립니다. Measure처럼 이름을 입력하기 시작하면 입력하는 대로 목록이 좁혀집니다. Enter를 누르면 강조된 모듈, 최근 실행 또는 메뉴 동작으로 마우스 없이 이동합니다.",
     "Preferences에서 컴퓨터에 맞는 Performance 프로필을 고르세요. Laptop은 자원을 적게 쓰고, 더 높은 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 부족하다면 적당한 프로필로 시작하세요. 분석 설정은 각 모듈에서 여전히 직접 관리합니다.",
     "Preferences의 General 탭에서는 인터페이스 언어, 글꼴과 GUI 배율, 앱 도크를 열어 둘지 여부, 그래프용 색각 이상 친화 팔레트를 설정합니다. Figures 탭은 저장할 그림의 형식과 해상도를 고르고, Appearance는 도움말 풍선이 언제 나타날지 정합니다.",
+    "Appearance는 작업 중 도움말이 나타나는 방식을 정합니다. Tooltip delay는 포인터가 컨트롤 위에 머문 뒤 도움말이 나타나기까지의 시간으로, 기본값은 2초이고 0이면 바로 나타납니다. Show tooltips로 도움말을 완전히 끌 수 있고, 아래의 Theme와 Animation 섹션을 펼치면 창의 모양을 정할 수 있습니다.",
     "Home으로 돌아가 Pipeline overviews를 클릭해 워크플로를 고르세요. 풀링된 이미지 기반 스크린이라면 spaCR screens로 시작하고, 아니면 데이터에 맞는 이미지 분석 또는 시퀀싱 경로를 고르세요. 다음 튜토리얼에서 이 모듈들이 어떻게 연결되는지 보여 주고, 이어서 각 모듈 강의가 작업을 하나씩 안내합니다."
   ]
 }
