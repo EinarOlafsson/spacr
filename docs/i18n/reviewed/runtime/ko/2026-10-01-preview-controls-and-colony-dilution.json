@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Codex AI technical translation with independent Codex-agent technical review; no human or native-speaker signoff",
+  "method": "Direct source-bound AI translation of revised colony-dilution tooltip and exact preview-control labels; includes four previously hidden caption literals. Original proposals and replaced generated values are preserved. Normal candidate gates pass unchanged; no model draft is claimed.",
+  "draft_author": "mask_editor",
+  "independent_reviewer": "root",
+  "original_ui_proposals": {
+    "Thumbnail quality": "썸네일 품질",
+    "Propagate settings": "설정 복사",
+    "Uncheck all images": "모든 이미지 선택 해제",
+    "Checked images ({count})": "선택한 이미지 ({count})",
+    "Working…": "작업 중…",
+    "Low": "낮음",
+    "Medium": "중간",
+    "High": "높음",
+    "Plugins": "플러그인"
+  },
+  "original_tooltip_draft": {
+    "translation": "도말한 현탁액의 희석 배수: 10^-4 희석에는 10000을 사용하며, 0.0001과 같은 분수 값은 역수를 취합니다. CFU/mL = 집락 수 x 희석 배수 / 도말 부피. 숫자 하나, 파일명 또는 확장자를 제외한 파일명을 키로 하는 딕셔너리, 또는 file,dilution 열이 있는 UTF-8 CSV 경로를 입력하세요. 정확한 파일명이 확장자를 제외한 이름보다 우선하며, 일치하는 항목이 없는 플레이트에는 CFU/mL가 제공되지 않습니다. CSV의 희석 값은 양의 유한한 값이어야 하고 파일 식별자는 중복되지 않아야 합니다. 기본값은 1입니다."
+  },
+  "replaced_generated_targets": {
+    "Thumbnail quality": "템플릿 품질",
+    "Propagate settings": "설정을 홍보하기",
+    "Uncheck all images": "모든 사진을 확인하세요",
+    "Checked images ({count})": "검사된 이미지 ({count})",
+    "Working…": "일하는 ...",
+    "Low": null,
+    "Medium": null,
+    "High": null,
+    "Plugins": null,
+    "colony_dilution": "도말한 현탁액의 희석 배수로, 10^-4 희석이면 10000입니다. 0.0001 같은 분수는 희석도로 읽고 역수를 취합니다. CFU/mL = 집락 수 x 희석 배수 / 도말 부피. 파일 이름이나 어간을 배수에 대응시키는 dict로 평판별로 정할 수 있으며, 이름이 없는 평판은 CFU/mL를 받지 않습니다. 기본값 1."
+  },
+  "superseded_review_file": "docs/i18n/reviewed/runtime/ko/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+  "superseded_review_file_sha256": "949603dcadb9a0008be0a5cc70f9724131c2ad3ccffc0ce58a54a42cf64f7b3b",
+  "retired_source_record": {
+    "table": "setting_tooltips",
+    "key": "colony_dilution",
+    "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+    "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+    "translation": "도말한 현탁액의 희석 배수로, 10^-4 희석이면 10000입니다. 0.0001 같은 분수는 희석도로 읽고 역수를 취합니다. CFU/mL = 집락 수 x 희석 배수 / 도말 부피. 파일 이름이나 어간을 배수에 대응시키는 dict로 평판별로 정할 수 있으며, 이름이 없는 평판은 CFU/mL를 받지 않습니다. 기본값 1."
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Thumbnail quality",
+      "source": "Thumbnail quality",
+      "source_sha256": "80258c396c488f6dff11b200f277c450cdf9afaa715ebda72a922cfffa517b9f",
+      "translation": "썸네일 품질"
+    },
+    {
+      "table": "ui",
+      "key": "Propagate settings",
+      "source": "Propagate settings",
+      "source_sha256": "c767061d71bdfb618dbc7e2405f62173d57cf1778aa283e4c479829201b63342",
+      "translation": "설정 복사"
+    },
+    {
+      "table": "ui",
+      "key": "Uncheck all images",
+      "source": "Uncheck all images",
+      "source_sha256": "b27adeb971ee75009b070754afd393e3eae0aaa07a8a5f3e5e5b76db7a108833",
+      "translation": "모든 이미지 선택 해제"
+    },
+    {
+      "table": "ui",
+      "key": "Checked images ({count})",
+      "source": "Checked images ({count})",
+      "source_sha256": "3e3bde96e1b96624d2b29dd06c373860a0b477472a057125984740ef93fa8227",
+      "translation": "선택한 이미지 ({count})"
+    },
+    {
+      "table": "ui",
+      "key": "Working…",
+      "source": "Working…",
+      "source_sha256": "5474eef8d0f179c707cf418e2bbb468c77cc24edc5e9f5f4e137e85e06a8eea0",
+      "translation": "작업 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Low",
+      "source": "Low",
+      "source_sha256": "f793de205ead5ac302c4a1627829dea41f176b1068b993a32373fc869918374b",
+      "translation": "낮음"
+    },
+    {
+      "table": "ui",
+      "key": "Medium",
+      "source": "Medium",
+      "source_sha256": "8e588cd187741f1cd76f5fab77b7208782a8c21d764ce7d7a4cf3ac4e0968873",
+      "translation": "중간"
+    },
+    {
+      "table": "ui",
+      "key": "High",
+      "source": "High",
+      "source_sha256": "c4ebc6d4a5832cd9415f906ad03661110c705a72381c8b8b145761d02e2dd23a",
+      "translation": "높음"
+    },
+    {
+      "table": "ui",
+      "key": "Plugins",
+      "source": "Plugins",
+      "source_sha256": "9514b7ff4860ead73491768e45cce0ce20e6e3473a7b272e496c43c875d80ac5",
+      "translation": "플러그인"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the plated suspension: 10000 for a 10^-4 dilution; fractions such as 0.0001 are inverted. CFU/mL = colonies x dilution factor / plated volume. Enter one number, a dict keyed by filename or stem, or a UTF-8 CSV path with file,dilution columns. Exact filenames take priority over stems; unmatched plates get no CFU/mL. CSV factors must be positive and finite, with unique file identifiers. Default 1.",
+      "source_sha256": "49ba82769ffa15938b3c6f2987c03f8f6b54fed6c71172a0f2ee1c5e85e41174",
+      "translation": "도말한 현탁액의 희석 배수: 10^-4 희석에는 10000을 사용하며, 0.0001과 같은 분수 값은 역수를 취합니다. CFU/mL = 집락 수 x 희석 배수 / 도말 부피. 숫자 하나, 파일명 또는 확장자를 제외한 파일명을 키로 하는 딕셔너리, 또는 file,dilution 열이 있는 UTF-8 CSV 경로를 입력하세요. 정확한 파일명이 확장자를 제외한 이름보다 우선하며, 일치하는 항목이 없는 플레이트에는 CFU/mL가 제공되지 않습니다. CSV의 희석 값은 양의 유한한 값이어야 하고 파일 식별자는 중복되지 않아야 합니다. 기본값은 1입니다."
+    }
+  ]
+}

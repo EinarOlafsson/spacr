@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,8 +67,9 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 在“测量 (Measure)”中�
 msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
 msgstr ":ref:`Annotate <workflow-module-annotate>`: 打开“标注 (Annotate)”，检查有代表性的对象，并保存表型标签。"
 
-msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`：加载表格，或使用 合并表格 通过已验证的键和聚合规则创建工作集。在实际特征或坐标列上定义阈值或多边形门控，然后将保存的门控应用于兼容对象。使用 标注 将显示的门控写入标注列；检查选中的对象并选择二分类或多分类标签。"
 
 msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
 msgstr ":ref:`Image UMAP <workflow-module-umap>`: 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。使用套索和注释控件，将审查后的选择写入对应测量数据库的注释列。单靠几何选择不能确立生物学表型。"
@@ -346,8 +347,9 @@ msgstr "**对象裁剪图** — 启用 save_png 时为 data/\\*\\*/\\*_png；png
 msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
 msgstr ":ref:`Mask <workflow-module-mask>`: 使用同一项目及正确的图像和掩膜通道索引。"
 
-msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Make Masks <workflow-module-make_masks>`: 使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`：使用 为 Measure 整理 将图像及其掩膜合并为 测量 读取的数组；单独的掩膜不是合并数组。"
 
 msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
 msgstr ":ref:`External Masks <workflow-module-external_masks>`: 仅在需要时重新测量；External Masks 本身已可执行测量。"
@@ -1042,8 +1044,9 @@ msgstr "`模块教程 <tutorials/#lesson=32_align_stitch>`__。"
 msgid "Make Masks"
 msgstr "创建掩膜"
 
-msgid "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
-msgstr "整理用于分割训练的图像与掩膜对，或使用 FEATURES 指定图像和掩膜并调用测量。保存掩膜不会训练分类器。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
+msgstr "整理用于分割训练的图像/掩膜对，或使用 为 Measure 整理 将图像及其掩膜合并为 测量 读取的数组。保存掩膜不会训练分类器。"
 
 msgid "**Open:** Home → Make Masks."
 msgstr "**打开：** 主页 → 创建掩膜。"
@@ -1054,8 +1057,9 @@ msgstr "**整理后的训练视野** — 相互独立且视野标识匹配的图
 msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
 msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: 使用经过独立核查的图像与掩膜对。"
 
-msgid ":ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Measure <workflow-module-measure>`: 使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`：使用 为 Measure 整理 将图像及其掩膜合并为 测量 读取的数组；单独的掩膜不是合并数组。"
 
 msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
 msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: 使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。"
@@ -1123,8 +1127,9 @@ msgstr "`模块教程 <tutorials/#lesson=53_prediction_profiler>`__。"
 msgid "Graph Builder"
 msgstr "Graph Builder"
 
-msgid "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
-msgstr "从已加载的表中选择变量、分组和绘图设置，然后连同分析背景信息一起导出图形。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
+msgstr "加载表格，或使用 合并表格 合并兼容的测量数据。对于经过转换的图像，使用 合并原始文件名 从转换映射中恢复名称。使用 标注实验条件，通过元数据 regex 规则或拖入的行分配一个命名列；保存已标注的 SQLite 表格，或导出带规则的 CSV。选择变量、分组和绘图设置，然后连同分析上下文导出图形。"
 
 msgid "**Open:** Home → Graph Builder."
 msgstr "**打开：** 主页 → Graph Builder。"
@@ -1156,8 +1161,9 @@ msgstr ":doc:`API 参考 </api/spacr/hit_investigation/index>`。"
 msgid "Gate Editor"
 msgstr "Gate Editor"
 
-msgid "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr "在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "加载表格，或使用 合并表格 通过已验证的键和聚合规则创建工作集。在实际特征或坐标列上定义阈值或多边形门控，然后将保存的门控应用于兼容对象。使用 标注 将显示的门控写入标注列；检查选中的对象并选择二分类或多分类标签。"
 
 msgid "**Open:** Home → Gate Editor."
 msgstr "**打开：** 主页 → Gate Editor。"

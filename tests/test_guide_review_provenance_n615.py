@@ -104,3 +104,20 @@ def test_rejected_literal_change_adds_no_review_claim(tmp_path):
     assert applied == 0 and rejected
     assert guide.catalog_review_kind(path) == kind
     assert not guide.read_catalog(path).get(source).string
+
+
+@pytest.mark.parametrize("caption, expected", [
+    ("Markerade bilder ({count})", "Markerade bilder"),
+    ("已勾选的图像（{count}）", "已勾选的图像"),
+    ("({count}) selected images", None),
+    ("Selected {count} images ({count})", None),
+])
+def test_counted_guide_name_uses_only_exact_button_prefix(monkeypatch, caption, expected):
+    from spacr.qt import i18n
+
+    def exact(source, language):
+        assert source == "Checked images ({count})"
+        return caption
+
+    monkeypatch.setattr(i18n, "_exact_translation", exact)
+    assert guide.runtime_ui_name("Checked images", "sv") == expected

@@ -1,0 +1,529 @@
+{
+  "schema": 1,
+  "language": "es",
+  "method": "Direct Codex AI technical translation and independent Codex-agent technical review. No local-model generation, native-speaker review or human signoff claimed. Imports use the normal protected-literal, role, URL, substitution and actual UI-name gates. Historical PO attribution remains preserved.",
+  "draft_author": "Codex agent merge_interfaces",
+  "independent_technical_reviewer": "Codex agent root",
+  "draft_sha256": "554a7bf0b83d4f9167eebaeabdc24060242a33bc8e98879d1da3eab1fdd24411",
+  "original_worklist_sha256": "dd20d43ca5b3d233aece78c111063be20b5c9f8ffe67d7a6a1ef0e562393aacf",
+  "current_worklist_sha256": "22cd80e86f13a23eb311302fd1bca0ddeb312722bb60c8fd90ef16c3749376f8",
+  "reviewed_sha256": "55ad90abb5f78f19169c714484b13f40722120ef21537584f5bbd316a3c2e479",
+  "peer_review": {
+    "language": "es",
+    "reviewer": "root (Codex independent AI technical review; no human/native claim)",
+    "draft_sha256": "554a7bf0b83d4f9167eebaeabdc24060242a33bc8e98879d1da3eab1fdd24411",
+    "scope": "All43 messages compared with English source. Scientific model scores/counts, holdout interpretation, memory scope, batch_size caveat, dilution inverse/units/matching, source protection, and plugin-runtime limitations preserved.",
+    "prose_corrections": {},
+    "pending_effective_ui_bindings": [
+      "1: final Thumbnail quality and Low/Medium/High",
+      "12: Checked images dynamic prefix",
+      "18: corrected English Use stored image layout label",
+      "34: final Plugins label",
+      "37-42: actual translated control captions"
+    ],
+    "verdict": "Technical prose accepted. Final UI-bound derivative remains pending."
+  },
+  "peer_review_sha256": "362eb59abae0404254840fbe52f6744e24b314a9b6eb95e8200c76c33536c020",
+  "source_files": {
+    "docs/source/make_masks.rst": "0025fba244c3a87cbbd5d8f67fd70c84746722eae0b4228d866602ac595e60ab",
+    "docs/source/measure_live.rst": "b6f19ee3f307862e15966ed64c0becd88eee16e881d86fc092927ede45c62309",
+    "docs/source/model_zoo.rst": "b2045883b3b4c1f2fbae92c102210a1edd3fb6ad6ca55f08f5f891924f94e79d",
+    "docs/source/plaque_assay.rst": "100a70cf39c28456e140e9996aac00d3d13f8e3c76456295e3e7c4264d6c3b42",
+    "docs/source/plugin_sdk.rst": "a232b8f667d67874a946f48be7b120cc3741349b68609b2f3317113011830ad0",
+    "docs/source/workflows.rst": "afc0f1c14ca17a1d560d54dcb2c650c81bd24f15638970f822d662ad880252c8"
+  },
+  "runtime_catalog_sha256": "d70fdc19ecd62de5998797ffe1a19ad105e0525423859f20bc69fba24179f8d5",
+  "ui_binding_method": "Match the original exact translated label to its source key, then the verified current runtime target; preserve target-language sentence order. Checked images is the exact counted caption prefix with only the final count suffix removed.",
+  "counted_caption_binding": {
+    "source": "Checked images ({count})",
+    "translation": "Imágenes marcadas ({count})"
+  },
+  "derivative_review": {
+    "rejected_positional_derivative_sha256": "55ad90abb5f78f19169c714484b13f40722120ef21537584f5bbd316a3c2e479",
+    "reason": "Positional replacement was rejected before import because it swapped control roles in Chinese, Hindi and Korean row 1. Identity-based rebinding preserves natural word order; Korean Low/High particles corrected.",
+    "additional_receipts": {
+      "root-final-review-es.json": {
+        "language": "es",
+        "reviewer": "root independent Codex AI technical review",
+        "sha256": "55ad90abb5f78f19169c714484b13f40722120ef21537584f5bbd316a3c2e479",
+        "scope": "Read every changed final UI-bound row against accepted initial prose and exact source. Updated dynamic selection/action names preserve instruction roles; row18 matches actual button; unchangedrows rely on initial full43review.",
+        "accepted": true
+      }
+    }
+  },
+  "records": [
+    {
+      "index": 0,
+      "domain": "make_masks",
+      "source": "Thumbnail display quality",
+      "source_sha256": "9db8ef8ecc76015017aa606da6b00c25501c505ef032bf68497675ed4e0e270c",
+      "original_draft_source": "Thumbnail display quality",
+      "original_ai_draft": "Calidad de visualización de miniaturas",
+      "reviewed_translation": "Calidad de visualización de miniaturas",
+      "ui_bindings": {}
+    },
+    {
+      "index": 1,
+      "domain": "make_masks",
+      "source": "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size.",
+      "source_sha256": "3e7673a1b0074415bb25c37d34a2817c1441b95a751c9bda9ee29aa463b20e61",
+      "original_draft_source": "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size.",
+      "original_ai_draft": "Elija **Calidad de las miniaturas** en **Visualización** o **Organizar para Measure…**. **Low** conserva el muestreo original de 64 píxeles de la fuente. **Medium** utiliza hasta 256 píxeles y **High** hasta 1024 en el lado más largo, sin superar la resolución de origen. Estas opciones vuelven a leer la imagen y la máscara originales; no amplían un mapa de bits de calidad Low. El control independiente **Tamaño** establece el tamaño lógico de la celda.",
+      "reviewed_translation": "Elija **Calidad de las miniaturas** en **Visualización** o **Organizar para Measure…**. **Baja** conserva el muestreo original de 64 píxeles de la fuente. **Media** utiliza hasta 256 píxeles y **Alta** hasta 1024 en el lado más largo, sin superar la resolución de origen. Estas opciones vuelven a leer la imagen y la máscara originales; no amplían un mapa de bits de calidad Baja. El control independiente **Tamaño** establece el tamaño lógico de la celda.",
+      "ui_bindings": {
+        "Thumbnail quality": "Calidad de las miniaturas",
+        "Display": "Visualización",
+        "Organize for Measure…": "Organizar para Measure…",
+        "Low": "Baja",
+        "Medium": "Media",
+        "High": "Alta",
+        "Size": "Tamaño"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "make_masks",
+      "source": "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged.",
+      "source_sha256": "eb007019e0e0c274e359f33ce188459ff5ec8b909a734172ed3e5b602347e5de",
+      "original_draft_source": "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged.",
+      "original_ai_draft": "La elección se recuerda y actualiza las vistas de miniaturas abiertas. Solo se cargan las celdas visibles del organizador, con una caché limitada. Cambiar la calidad afecta únicamente a la visualización; las imágenes, máscaras y mediciones guardadas permanecen intactas.",
+      "reviewed_translation": "La elección se recuerda y actualiza las vistas de miniaturas abiertas. Solo se cargan las celdas visibles del organizador, con una caché limitada. Cambiar la calidad afecta únicamente a la visualización; las imágenes, máscaras y mediciones guardadas permanecen intactas.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 3,
+      "domain": "make_masks",
+      "source": "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area.",
+      "source_sha256": "abdc8627caaa73bba97d16e6e90074b61606aea818de76d1d8a57bc10ab3e510",
+      "original_draft_source": "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area.",
+      "original_ai_draft": "**Guardar máscara**, **Imagen anterior** y **Imagen siguiente** comparten la fila superior de acciones con las herramientas de edición. Desplace esa fila horizontalmente en una ventana estrecha para acceder a los controles fuera del área visible.",
+      "reviewed_translation": "**Guardar máscara**, **Imagen anterior** y **Imagen siguiente** comparten la fila superior de acciones con las herramientas de edición. Desplace esa fila horizontalmente en una ventana estrecha para acceder a los controles fuera del área visible.",
+      "ui_bindings": {
+        "Save mask": "Guardar máscara",
+        "Previous image": "Imagen anterior",
+        "Next image": "Imagen siguiente"
+      }
+    },
+    {
+      "index": 4,
+      "domain": "make_masks",
+      "source": "Large plates in Mask generation",
+      "source_sha256": "4ab76e5d89b32266c211a862226f5e3881827612d47a26c95413d4c12cd6c227",
+      "original_draft_source": "Large plates in Mask generation",
+      "original_ai_draft": "Placas grandes en la generación de máscaras",
+      "reviewed_translation": "Placas grandes en la generación de máscaras",
+      "ui_bindings": {}
+    },
+    {
+      "index": 5,
+      "domain": "make_masks",
+      "source": "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used.",
+      "source_sha256": "54d67d58e29e6ee2eadd1e67b56832ecea59fec13f41f97ed14ae8b02e425e6c",
+      "original_draft_source": "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used.",
+      "original_ai_draft": "El módulo de generación por lotes **Máscaras** procesa una placa; **Crear máscaras** edita el campo abierto actualmente. Si se produce un fallo al procesar una placa de imágenes sin procesar, consulte la consola del módulo por lotes y el archivo guardado ``settings/gen_mask_settings.json`` para identificar la etapa y los ajustes utilizados.",
+      "reviewed_translation": "El módulo de generación por lotes **Máscaras** procesa una placa; **Crear máscaras** edita el campo abierto actualmente. Si se produce un fallo al procesar una placa de imágenes sin procesar, consulte la consola del módulo por lotes y el archivo guardado ``settings/gen_mask_settings.json`` para identificar la etapa y los ajustes utilizados.",
+      "ui_bindings": {
+        "Mask": "Máscaras",
+        "Make Masks": "Crear máscaras"
+      }
+    },
+    {
+      "index": 6,
+      "domain": "make_masks",
+      "source": "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate.",
+      "source_sha256": "40abd86c82798160e6e02016719a54472794e64b57b816150699e8e47c3ff071",
+      "original_draft_source": "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate.",
+      "original_ai_draft": "En el flujo por lotes V1, el preprocesamiento de archivos originales proyecta y escribe un campo cada vez en ``stack/``. Conserva los nombres de archivo de toda la placa, no los datos de píxeles de todos los campos. Los planos Z se combinan de forma incremental. Las pilas de campo completas se publican de forma atómica y pueden reutilizarse al reanudar el preprocesamiento. Por tanto, la memoria de píxeles de esta etapa depende del tamaño y los canales de un campo, no del número de campos de la placa.",
+      "reviewed_translation": "En el flujo por lotes V1, el preprocesamiento de archivos originales proyecta y escribe un campo cada vez en ``stack/``. Conserva los nombres de archivo de toda la placa, no los datos de píxeles de todos los campos. Los planos Z se combinan de forma incremental. Las pilas de campo completas se publican de forma atómica y pueden reutilizarse al reanudar el preprocesamiento. Por tanto, la memoria de píxeles de esta etapa depende del tamaño y los canales de un campo, no del número de campos de la placa.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 7,
+      "domain": "make_masks",
+      "source": "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis.",
+      "source_sha256": "f3461f3a66262ad5e986cff897c7630b7db0d1ac29c73caeb92638c416a5aa63",
+      "original_draft_source": "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis.",
+      "original_ai_draft": "La normalización y la segmentación siguen necesitando memoria de trabajo para un lote y el modelo. Los búferes de entrada, máscaras y flujo de una segmentación terminada se liberan antes del siguiente lote; reducir la retención de datos de toda la placa no elimina el coste de una imagen individual muy grande o de un modelo. En V1, ``batch_size`` también determina el conjunto de datos usado para normalizar, por lo que cambiarlo puede alterar los valores normalizados y las máscaras posteriores. Manténgalo al reproducir un análisis anterior.",
+      "reviewed_translation": "La normalización y la segmentación siguen necesitando memoria de trabajo para un lote y el modelo. Los búferes de entrada, máscaras y flujo de una segmentación terminada se liberan antes del siguiente lote; reducir la retención de datos de toda la placa no elimina el coste de una imagen individual muy grande o de un modelo. En V1, ``batch_size`` también determina el conjunto de datos usado para normalizar, por lo que cambiarlo puede alterar los valores normalizados y las máscaras posteriores. Manténgalo al reproducir un análisis anterior.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 8,
+      "domain": "make_masks",
+      "source": "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written.",
+      "source_sha256": "64bd67bf55173c2715cc57f90fc5b64d0d06cd1b80b633c0f28db4891f0d36cc",
+      "original_draft_source": "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written.",
+      "original_ai_draft": "Si la memoria sigue aumentando inesperadamente, registre si la última etapa de la consola era el preprocesamiento de nombres de archivo, la normalización o la evaluación del modelo, junto con las dimensiones de imagen, el número de canales y los ajustes guardados. Los archivos ``stack/`` existentes ayudan a distinguir una etapa de entrada completada de un fallo antes de escribir el primer campo.",
+      "reviewed_translation": "Si la memoria sigue aumentando inesperadamente, registre si la última etapa de la consola era el preprocesamiento de nombres de archivo, la normalización o la evaluación del modelo, junto con las dimensiones de imagen, el número de canales y los ajustes guardados. Los archivos ``stack/`` existentes ayudan a distinguir una etapa de entrada completada de un fallo antes de escribir el primer campo.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 9,
+      "domain": "measure_live",
+      "source": "Measure: preview checked images and verify mask planes",
+      "source_sha256": "79bc5ec4eab6c7ef79efce9b9efa8ea311c915b37478ae7f24706ebffc0243b2",
+      "original_draft_source": "Measure: preview checked images and verify mask planes",
+      "original_ai_draft": "Measure: previsualizar imágenes marcadas y verificar planos de máscara",
+      "reviewed_translation": "Medición: previsualizar imágenes marcadas y verificar planos de máscara",
+      "ui_bindings": {}
+    },
+    {
+      "index": 10,
+      "domain": "measure_live",
+      "source": "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment.",
+      "source_sha256": "b4682bea0eff320769e2769e3a4001d8f257f9a9c3c0d5de9c15add90c7c1933",
+      "original_draft_source": "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment.",
+      "original_ai_draft": "Abra **Medición** con una carpeta de ejecución o su carpeta ``merged``. La vista **En vivo** carga un campo y muestra recortes de la máscara de objetos configurada. Use **Configuración del recorte…** para elegir el objeto, los planos de máscara, los canales de imagen, el tamaño del recorte y los filtros antes de medir todo el experimento.",
+      "reviewed_translation": "Abra **Medición** con una carpeta de ejecución o su carpeta ``merged``. La vista **En vivo** carga un campo y muestra recortes de la máscara de objetos configurada. Use **Configuración del recorte…** para elegir el objeto, los planos de máscara, los canales de imagen, el tamaño del recorte y los filtros antes de medir todo el experimento.",
+      "ui_bindings": {
+        "Measure": "Medición",
+        "Live": "En vivo",
+        "Crop settings…": "Configuración del recorte…"
+      }
+    },
+    {
+      "index": 11,
+      "domain": "measure_live",
+      "source": "Compare objects from several fields",
+      "source_sha256": "addccfed4d174b6f698f0651eaf194792de202ef0484739cb6eba0f5d41800dc",
+      "original_draft_source": "Compare objects from several fields",
+      "original_ai_draft": "Comparar objetos de varios campos",
+      "reviewed_translation": "Comparar objetos de varios campos",
+      "ui_bindings": {}
+    },
+    {
+      "index": 12,
+      "domain": "measure_live",
+      "source": "Open **Checked images** and check the fields to include. Each checkbox is independent. The grid combines their crops and names the source field in each group; it does not superimpose fields. Hover a crop for its full source path, label, area and filter result. Double-click a crop to open that exact source, including when another field contains the same label number.",
+      "source_sha256": "f7c76a147aaa288c379fb2cb4c4f7b7507a42fe6615f4f6ca33099825682115f",
+      "original_draft_source": "Open **Checked images** and check the fields to include. Each checkbox is independent. The grid combines their crops and names the source field in each group; it does not superimpose fields. Hover a crop for its full source path, label, area and filter result. Double-click a crop to open that exact source, including when another field contains the same label number.",
+      "original_ai_draft": "Abra **Checked images** y marque los campos que desea incluir. Cada casilla es independiente. La cuadrícula combina sus recortes e indica el campo de origen en cada grupo; no superpone campos. Pase el cursor sobre un recorte para ver la ruta completa de origen, la etiqueta, el área y el resultado del filtro. Haga doble clic en un recorte para abrir esa fuente exacta, incluso si otro campo contiene el mismo número de etiqueta.",
+      "reviewed_translation": "Abra **Imágenes marcadas** y marque los campos que desea incluir. Cada casilla es independiente. La cuadrícula combina sus recortes e indica el campo de origen en cada grupo; no superpone campos. Pase el cursor sobre un recorte para ver la ruta completa de origen, la etiqueta, el área y el resultado del filtro. Haga doble clic en un recorte para abrir esa fuente exacta, incluso si otro campo contiene el mismo número de etiqueta.",
+      "ui_bindings": {
+        "Checked images": "Imágenes marcadas"
+      }
+    },
+    {
+      "index": 13,
+      "domain": "measure_live",
+      "source": "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection.",
+      "source_sha256": "2f9e17e94218de4a6291663b50bffe2449fd89066941dd6bfc017231de417abd",
+      "original_draft_source": "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection.",
+      "original_ai_draft": "Desmarque un campo para quitar sus recortes o elija **Desmarque todas las imágenes** para vaciar la cuadrícula. Cambiar los canales, el tipo de objeto o los filtros actualiza todos los campos marcados. El desplegable de campos conserva la navegación habitual de un solo campo cuando únicamente está marcado su campo actual. Con varios campos marcados, cambia la fuente activa sin sustituir la selección marcada.",
+      "reviewed_translation": "Desmarque un campo para quitar sus recortes o elija **Desmarque todas las imágenes** para vaciar la cuadrícula. Cambiar los canales, el tipo de objeto o los filtros actualiza todos los campos marcados. El desplegable de campos conserva la navegación habitual de un solo campo cuando únicamente está marcado su campo actual. Con varios campos marcados, cambia la fuente activa sin sustituir la selección marcada.",
+      "ui_bindings": {
+        "Uncheck all images": "Desmarque todas las imágenes"
+      }
+    },
+    {
+      "index": 14,
+      "domain": "measure_live",
+      "source": "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection.",
+      "source_sha256": "de679a9b77bcd3ddd240aead4024c1d54ee19783f878e2bc06cd13bd50bdc3af",
+      "original_draft_source": "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection.",
+      "original_ai_draft": "La lista de imágenes utiliza la muestra aleatoria limitada existente. Los campos ya marcados siguen disponibles cuando cambia la muestra. **Máx. de recortes de vista previa** limita la cuadrícula combinada, repartiendo sus plazas entre los campos marcados. Auméntelo si hay más campos marcados que plazas disponibles. Los campos adicionales se leen de uno en uno. Un fallo de carga identifica el campo y mantiene disponibles los campos válidos para su inspección.",
+      "reviewed_translation": "La lista de imágenes utiliza la muestra aleatoria limitada existente. Los campos ya marcados siguen disponibles cuando cambia la muestra. **Máx. de recortes de vista previa** limita la cuadrícula combinada, repartiendo sus plazas entre los campos marcados. Auméntelo si hay más campos marcados que plazas disponibles. Los campos adicionales se leen de uno en uno. Un fallo de carga identifica el campo y mantiene disponibles los campos válidos para su inspección.",
+      "ui_bindings": {
+        "Maximum preview crops": "Máx. de recortes de vista previa"
+      }
+    },
+    {
+      "index": 15,
+      "domain": "measure_live",
+      "source": "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form.",
+      "source_sha256": "ee2a1ca1358e9adeb3679a11e24d584f7dbb64c9bab89dcc37b7f699e01a8d24",
+      "original_draft_source": "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form.",
+      "original_ai_draft": "Marcar imágenes solo cambia la vista previa. No selecciona los campos que procesa Measure ni modifica mediciones guardadas o exportaciones. **Ajustes de propagación** conserva su función habitual: copiar los ajustes de recortes y filtros al formulario de Measure.",
+      "reviewed_translation": "Marcar imágenes solo cambia la vista previa. No selecciona los campos que procesa Medición ni modifica mediciones guardadas o exportaciones. **Propagar ajustes** conserva su función habitual: copiar los ajustes de recortes y filtros al formulario de Medición.",
+      "ui_bindings": {
+        "Propagate settings": "Propagar ajustes"
+      }
+    },
+    {
+      "index": 16,
+      "domain": "measure_live",
+      "source": "Resolve a stored plane-layout conflict",
+      "source_sha256": "ad68dfe9df2c75cde5a064963e0e70e313b2a2a80ed196bb8831c9634561844e",
+      "original_draft_source": "Resolve a stored plane-layout conflict",
+      "original_ai_draft": "Resolver un conflicto con la distribución de planos guardada",
+      "reviewed_translation": "Resolver un conflicto con la distribución de planos guardada",
+      "ui_bindings": {}
+    },
+    {
+      "index": 17,
+      "domain": "measure_live",
+      "source": "A merged folder can include ``.spacr_plane_layout.json``, which records the image channels and mask planes written with its arrays. Measure checks explicit mask-plane settings against this record before using them. ``uninfected=True`` keeps uninfected cells; it does not make an incorrect pathogen mask plane valid.",
+      "source_sha256": "b06a8f1c6d1b9d148db54e5281bc183804250848ff7e0f488f43178849be8265",
+      "original_draft_source": "A merged folder can include ``.spacr_plane_layout.json``, which records the image channels and mask planes written with its arrays. Measure checks explicit mask-plane settings against this record before using them. ``uninfected=True`` keeps uninfected cells; it does not make an incorrect pathogen mask plane valid.",
+      "original_ai_draft": "Una carpeta de datos combinados puede incluir ``.spacr_plane_layout.json``, que registra los canales de imagen y los planos de máscara escritos con sus matrices. Measure comprueba los ajustes explícitos de planos de máscara frente a este registro antes de utilizarlos. ``uninfected=True`` conserva las células no infectadas; no hace válido un plano de máscara de patógenos incorrecto.",
+      "reviewed_translation": "Una carpeta de datos combinados puede incluir ``.spacr_plane_layout.json``, que registra los canales de imagen y los planos de máscara escritos con sus matrices. Medición comprueba los ajustes explícitos de planos de máscara frente a este registro antes de utilizarlos. ``uninfected=True`` conserva las células no infectadas; no hace válido un plano de máscara de patógenos incorrecto.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 18,
+      "domain": "measure_live",
+      "source": "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored image layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings.",
+      "source_sha256": "9ad9afb3a475927d5cee2ff1eec4eb0a1a5c64325df02f1b3076311636343999",
+      "original_draft_source": "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored plane layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings.",
+      "original_ai_draft": "Si un formulario guardado no concuerda con la carpeta, **Ejecutar** explica la discrepancia. Elija **Use stored plane layout** para copiar los planos registrados al formulario, revise los ajustes de objetos y pulse **Ejecutar** de nuevo. Un objeto ausente utiliza ``None``. **Cancelar** deja intacto el formulario. Las fuentes con distribuciones diferentes o desconocidas deben ejecutarse por separado con sus ajustes correspondientes.",
+      "reviewed_translation": "Si un formulario guardado no concuerda con la carpeta, **Ejecutar** explica la discrepancia. Elija **Usar el diseño de imagen almacenado** para copiar los planos registrados al formulario, revise los ajustes de objetos y pulse **Ejecutar** de nuevo. Un objeto ausente utiliza ``None``. **Cancelar** deja intacto el formulario. Las fuentes con distribuciones diferentes o desconocidas deben ejecutarse por separado con sus ajustes correspondientes.",
+      "ui_bindings": {
+        "Run": "Ejecutar",
+        "Use stored image layout": "Usar el diseño de imagen almacenado",
+        "Cancel": "Cancelar"
+      }
+    },
+    {
+      "index": 19,
+      "domain": "measure_live",
+      "source": "For Python calls, use the plane indices recorded for the selected merged folder. A conflicting explicit index raises :class:`spacr.crops.PlaneLayoutConflict`. Unspecified defaults can be resolved through :func:`spacr.crops.reconcile_merged_mask_dims`. Do not edit or remove the sidecar to bypass the check: that can make an intensity plane look like an object mask.",
+      "source_sha256": "45444dbcc09effb49ec6f47e75ff4d8fd993dec95588efcbb56cd876390aec25",
+      "original_draft_source": "For Python calls, use the plane indices recorded for the selected merged folder. A conflicting explicit index raises :class:`spacr.crops.PlaneLayoutConflict`. Unspecified defaults can be resolved through :func:`spacr.crops.reconcile_merged_mask_dims`. Do not edit or remove the sidecar to bypass the check: that can make an intensity plane look like an object mask.",
+      "original_ai_draft": "En llamadas desde Python, use los índices de plano registrados para la carpeta combinada seleccionada. Un índice explícito contradictorio genera :class:`spacr.crops.PlaneLayoutConflict`. Los valores predeterminados no especificados pueden resolverse mediante :func:`spacr.crops.reconcile_merged_mask_dims`. No edite ni elimine el archivo auxiliar para eludir la comprobación: podría hacer que un plano de intensidad pareciera una máscara de objetos.",
+      "reviewed_translation": "En llamadas desde Python, use los índices de plano registrados para la carpeta combinada seleccionada. Un índice explícito contradictorio genera :class:`spacr.crops.PlaneLayoutConflict`. Los valores predeterminados no especificados pueden resolverse mediante :func:`spacr.crops.reconcile_merged_mask_dims`. No edite ni elimine el archivo auxiliar para eludir la comprobación: podría hacer que un plano de intensidad pareciera una máscara de objetos.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 20,
+      "domain": "model_zoo",
+      "source": "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))",
+      "source_sha256": "8630f2684cb70791658865cd97a72baf1211a3c86f577b791acf85ef3f7f4481",
+      "original_draft_source": "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))",
+      "original_ai_draft": "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))",
+      "reviewed_translation": "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))",
+      "ui_bindings": {}
+    },
+    {
+      "index": 21,
+      "domain": "model_zoo",
+      "source": "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+      "source_sha256": "e2e2af50ef63f9f58be4ceef1c7e761e596eb94c990be23d3db86631df963dc4",
+      "original_draft_source": "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+      "original_ai_draft": "556 campos revisados de la ronda 6 más 80 campos revisados manualmente de una placa nueva (revisión de Anu, Replication09182026 placa 1); 502 entrenamiento / 123 validación / 11 prueba; datos de entrenamiento en einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+      "reviewed_translation": "556 campos revisados de la ronda 6 más 80 campos revisados manualmente de una placa nueva (revisión de Anu, Replication09182026 placa 1); 502 entrenamiento / 123 validación / 11 prueba; datos de entrenamiento en einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+      "ui_bindings": {}
+    },
+    {
+      "index": 22,
+      "domain": "model_zoo",
+      "source": "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+      "source_sha256": "8aa4c6293977aa8c61c66836915b053d6d4ad47f2f5ddf7876bb576bdf8e7ec9",
+      "original_draft_source": "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+      "original_ai_draft": "F1 0.854 frente a 0.765 del cpsam_v2 original en los 11 pocillos de referencia con IoU 0.5; AJI 0.776 frente a 0.505",
+      "reviewed_translation": "F1 0.854 frente a 0.765 del cpsam_v2 original en los 11 pocillos de referencia con IoU 0.5; AJI 0.776 frente a 0.505",
+      "ui_bindings": {}
+    },
+    {
+      "index": 23,
+      "domain": "model_zoo",
+      "source": "Toxoplasma PV v4 (round 7)",
+      "source_sha256": "83bcd289cdd6c3b0e51395ebc7fedba421756c759592c4b46f8adc7af0601354",
+      "original_draft_source": "Toxoplasma PV v4 (round 7)",
+      "original_ai_draft": "Toxoplasma PV v4 (ronda 7)",
+      "reviewed_translation": "Toxoplasma PV v4 (ronda 7)",
+      "ui_bindings": {}
+    },
+    {
+      "index": 24,
+      "domain": "model_zoo",
+      "source": "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2",
+      "source_sha256": "e42e16c3bed6685cf93245669327cf399a8e34dc8735eb74fe8d70c66d0610e7",
+      "original_draft_source": "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2",
+      "original_ai_draft": "**Entrenado con.** Vacuolas parasitóforas de taquizoítos de Toxoplasma: campos DsRed y anti-Toxoplasma-biotina de la ronda 6 más el canal de Toxoplasma de una nueva placa de 384 pocillos. Ronda 7, cellpose 4.2.1.1, 100 épocas, base cpsam_v2",
+      "reviewed_translation": "**Entrenado con.** Vacuolas parasitóforas de taquizoítos de Toxoplasma: campos DsRed y anti-Toxoplasma-biotina de la ronda 6 más el canal de Toxoplasma de una nueva placa de 384 pocillos. Ronda 7, cellpose 4.2.1.1, 100 épocas, base cpsam_v2",
+      "ui_bindings": {}
+    },
+    {
+      "index": 25,
+      "domain": "model_zoo",
+      "source": "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+      "source_sha256": "6a4ffc51c00945db029331050ca8defccf32fdc75daa9a85312636dddbcedbe6",
+      "original_draft_source": "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+      "original_ai_draft": "**Medido.** F1 0.854 frente a 0.765 del cpsam_v2 original en los 11 pocillos de referencia con IoU 0.5; AJI 0.776 frente a 0.505",
+      "reviewed_translation": "**Medido.** F1 0.854 frente a 0.765 del cpsam_v2 original en los 11 pocillos de referencia con IoU 0.5; AJI 0.776 frente a 0.505",
+      "ui_bindings": {}
+    },
+    {
+      "index": 26,
+      "domain": "model_zoo",
+      "source": "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate",
+      "source_sha256": "315eb2c0c11cc6fdf6ade455745ffc8df0d656fe6c4571057f48b60772704904",
+      "original_draft_source": "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate",
+      "original_ai_draft": "LO MÁS NUEVO NO ES LO MEJOR AQUÍ: en 20 campos reservados de la nueva placa usada para entrenar, la ronda 7 alcanza F1 0.748 frente a 0.899 de la ronda 6 (sensibilidad 0.636 frente a 0.829) -- prefiera toxoplasma_pv_v3 para esa placa",
+      "reviewed_translation": "LO MÁS NUEVO NO ES LO MEJOR AQUÍ: en 20 campos reservados de la nueva placa usada para entrenar, la ronda 7 alcanza F1 0.748 frente a 0.899 de la ronda 6 (sensibilidad 0.636 frente a 0.829) -- prefiera toxoplasma_pv_v3 para esa placa",
+      "ui_bindings": {}
+    },
+    {
+      "index": 27,
+      "domain": "model_zoo",
+      "source": "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168",
+      "source_sha256": "4f7ffbf060de8ffc22030757959eb7d67f332636093db8c2c37d07bc98656c3b",
+      "original_draft_source": "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168",
+      "original_ai_draft": "En los 11 pocillos de referencia empata con la ronda 6 (0.8536 frente a 0.8602); F1 de validación cruzada de 5 particiones 0.8142 +/- 0.015 frente a 0.8168 de la ronda 6",
+      "reviewed_translation": "En los 11 pocillos de referencia empata con la ronda 6 (0.8536 frente a 0.8602); F1 de validación cruzada de 5 particiones 0.8142 +/- 0.015 frente a 0.8168 de la ronda 6",
+      "ui_bindings": {}
+    },
+    {
+      "index": 28,
+      "domain": "model_zoo",
+      "source": "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them",
+      "source_sha256": "57efe24ac9e37028995440c11abcc2f50c3c6e7c66d49e8e0c858e53c775a2be",
+      "original_draft_source": "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them",
+      "original_ai_draft": "Delimita más ajustadamente las vacuolas que encuentra que la ronda 6 (AJI 0.827 frente a 0.786 en la nueva placa), pero encuentra menos.",
+      "reviewed_translation": "Delimita más ajustadamente las vacuolas que encuentra que la ronda 6 (AJI 0.827 frente a 0.786 en la nueva placa), pero encuentra menos.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 29,
+      "domain": "model_zoo",
+      "source": "the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation",
+      "source_sha256": "10399be566192b7f49123b3c48446158f715341483a8b09d9a090afe9d89fe6b",
+      "original_draft_source": "the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation",
+      "original_ai_draft": "Se está investigando la caída en la placa nueva: la ronda 7 también presenta subajuste en los propios campos de entrenamiento de esa placa, lo que apunta a cómo se incorporaron esos campos al entrenamiento y no a la generalización.",
+      "reviewed_translation": "Se está investigando la caída en la placa nueva: la ronda 7 también presenta subajuste en los propios campos de entrenamiento de esa placa, lo que apunta a cómo se incorporaron esos campos al entrenamiento y no a la generalización.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 30,
+      "domain": "model_zoo",
+      "source": "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``.",
+      "source_sha256": "1158fae3f7938424740b4691a0eeb9aeba2f3f9ffd1e27d807c736a0ed80d2b5",
+      "original_draft_source": "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``.",
+      "original_ai_draft": "Publicado como `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, con el nombre ``cpsam_v2_toxo_r7``.",
+      "reviewed_translation": "Publicado como `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, con el nombre ``cpsam_v2_toxo_r7``.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 31,
+      "domain": "model_zoo",
+      "source": "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.",
+      "source_sha256": "1cf3609e0384f02008c7b5d1766ce202e1f44ac82e1b44aefd7a03f40b4486dd",
+      "original_draft_source": "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.",
+      "original_ai_draft": "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.",
+      "reviewed_translation": "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 32,
+      "domain": "plaque_assay",
+      "source": "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL.",
+      "source_sha256": "e08a1907de02fa5a2aa2d18a8feab7eb1397085757c763f9bfd88da8c3b080b4",
+      "original_draft_source": "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL.",
+      "original_ai_draft": "Para diluciones por placa, introduzca una ruta CSV UTF-8 en **Dilución de colonias**. Los encabezados obligatorios son ``file,dilution``; cada fila indica un nombre de archivo de imagen, incluida su extensión, o un nombre sin extensión y una dilución positiva y finita. Por ejemplo, ``plate1.png,10000`` y ``plate2,0.0001`` describen ambos un factor de dilución de 10000. Los nombres de archivo exactos tienen prioridad sobre los nombres sin extensión. Los identificadores duplicados y las filas mal formadas detienen la vista previa o el análisis antes de detectar o escribir salidas; las placas ausentes de la asignación reciben recuentos, pero no CFU/mL. Se sigue admitiendo un solo número o un diccionario de Python. Establezca por separado el volumen sembrado en µL; CFU/mL utiliza el volumen convertido a mL.",
+      "reviewed_translation": "Para diluciones por placa, introduzca una ruta CSV UTF-8 en **Dilución de colonias**. Los encabezados obligatorios son ``file,dilution``; cada fila indica un nombre de archivo de imagen, incluida su extensión, o un nombre sin extensión y una dilución positiva y finita. Por ejemplo, ``plate1.png,10000`` y ``plate2,0.0001`` describen ambos un factor de dilución de 10000. Los nombres de archivo exactos tienen prioridad sobre los nombres sin extensión. Los identificadores duplicados y las filas mal formadas detienen la vista previa o el análisis antes de detectar o escribir salidas; las placas ausentes de la asignación reciben recuentos, pero no CFU/mL. Se sigue admitiendo un solo número o un diccionario de Python. Establezca por separado el volumen sembrado en µL; CFU/mL utiliza el volumen convertido a mL.",
+      "ui_bindings": {
+        "Colony dilution": "Dilución de colonias"
+      }
+    },
+    {
+      "index": 33,
+      "domain": "plugin_sdk",
+      "source": "Browse and install from a catalogue",
+      "source_sha256": "05c2f11f36446f5c79f65353cdab16ef68d102e862d4fc4151ada86463554a44",
+      "original_draft_source": "Browse and install from a catalogue",
+      "original_ai_draft": "Explorar e instalar desde un catálogo",
+      "reviewed_translation": "Explorar e instalar desde un catálogo",
+      "ui_bindings": {}
+    },
+    {
+      "index": 34,
+      "domain": "plugin_sdk",
+      "source": "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis.",
+      "source_sha256": "47a48168349fdf25e800c7a2e06ab873ea8db9bc8bfdc9360b8859ad7cc3bd34",
+      "original_draft_source": "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis.",
+      "original_ai_draft": "Active **Mostrar funciones alfa** en Preferencias y abra la pestaña **Plugins**. Introduzca en **Catálogo** un archivo JSON de catálogo, la carpeta que lo contiene o una dirección HTTP(S), y pulse **Lista**. Seleccione una entrada para **Instalar o actualizar** o **Desinstalar**. Para una receta instalada, **Abrir** carga sus ajustes guardados en el módulo correspondiente sin iniciar el análisis.",
+      "reviewed_translation": "Active **Mostrar funciones alfa** en Preferencias y abra la pestaña **Complementos**. Introduzca en **Catálogo** un archivo JSON de catálogo, la carpeta que lo contiene o una dirección HTTP(S), y pulse **Lista**. Seleccione una entrada para **Instalar o actualizar** o **Desinstalar**. Para una receta instalada, **Abrir** carga sus ajustes guardados en el módulo correspondiente sin iniciar el análisis.",
+      "ui_bindings": {
+        "Show alpha features": "Mostrar funciones alfa",
+        "Plugins": "Complementos",
+        "Catalogue": "Catálogo",
+        "List": "Lista",
+        "Install or update": "Instalar o actualizar",
+        "Uninstall": "Desinstalar",
+        "Open": "Abrir"
+      }
+    },
+    {
+      "index": 35,
+      "domain": "plugin_sdk",
+      "source": "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal.",
+      "source_sha256": "33853dc2d7abcf972a6e0d3e391c2db27ff7529d165bde819d524f3f822b18cf",
+      "original_draft_source": "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal.",
+      "original_ai_draft": "El listado, la instalación y la eliminación se ejecutan en segundo plano. La pestaña muestra **Trabajando...** y desactiva temporalmente sus controles de catálogo mientras se ejecuta una acción. Los demás controles de la interfaz siguen disponibles. Cerrar Preferencias no cancela una instalación; esta termina independientemente de la ventana. Vuelva a abrir la pestaña para inspeccionar el resultado instalado. Un fallo al actualizar el catálogo se informa por separado de una instalación o eliminación correcta.",
+      "reviewed_translation": "El listado, la instalación y la eliminación se ejecutan en segundo plano. La pestaña muestra **Trabajando...** y desactiva temporalmente sus controles de catálogo mientras se ejecuta una acción. Los demás controles de la interfaz siguen disponibles. Cerrar Preferencias no cancela una instalación; esta termina independientemente de la ventana. Vuelva a abrir la pestaña para inspeccionar el resultado instalado. Un fallo al actualizar el catálogo se informa por separado de una instalación o eliminación correcta.",
+      "ui_bindings": {
+        "Working…": "Trabajando..."
+      }
+    },
+    {
+      "index": 36,
+      "domain": "plugin_sdk",
+      "source": "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer.",
+      "source_sha256": "f7f43e3ca11dc15c413c2a6bf35f7f4998f8418c8af50605fae57a632594c0e9",
+      "original_draft_source": "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer.",
+      "original_ai_draft": "Los complementos del catálogo utilizan carpetas de instalación separadas, pero comparten el intérprete de Python de spaCR. Este instalador de catálogo todavía no ofrece entornos separados para dependencias en conflicto.",
+      "reviewed_translation": "Los complementos del catálogo utilizan carpetas de instalación separadas, pero comparten el intérprete de Python de spaCR. Este instalador de catálogo todavía no ofrece entornos separados para dependencias en conflicto.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 37,
+      "domain": "workflows",
+      "source": ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "1dd71052b3fd7d2c9392ffd62e57c4a0d0fdc88fb9fd05a46ebac5f40626ab2b",
+      "original_draft_source": ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "original_ai_draft": ":ref:`Gate Editor <workflow-module-gate_editor>`: Cargue una tabla o use Merge tables para crear un conjunto de trabajo con claves y agregación validadas. Defina compuertas de umbral o poligonales sobre columnas reales de características/coordenadas y después aplique la compuerta guardada a objetos compatibles. Use Annotate para escribir las compuertas mostradas en una columna de anotación; revise los objetos seleccionados y elija etiquetas binarias o multiclase.",
+      "reviewed_translation": ":ref:`Gate Editor <workflow-module-gate_editor>`: Cargue una tabla o use Combinar tablas para crear un conjunto de trabajo con claves y agregación validadas. Defina compuertas de umbral o poligonales sobre columnas reales de características/coordenadas y después aplique la compuerta guardada a objetos compatibles. Use Anotación para escribir las compuertas mostradas en una columna de anotación; revise los objetos seleccionados y elija etiquetas binarias o multiclase.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 38,
+      "domain": "workflows",
+      "source": ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "9c498ecda281460a5f3e7f40a0ab43e36aa421f6644c1a2c37749bf8e6928eae",
+      "original_draft_source": ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "original_ai_draft": ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure para combinar imágenes y sus máscaras en las matrices que lee Measure; las máscaras independientes no son matrices combinadas.",
+      "reviewed_translation": ":ref:`Make Masks <workflow-module-make_masks>`: Use Organizar para Measure para combinar imágenes y sus máscaras en las matrices que lee Medición; las máscaras independientes no son matrices combinadas.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 39,
+      "domain": "workflows",
+      "source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source_sha256": "7898685a0a14bdd0d79ca4ff55263a7d39ba16b3c8ebd1ce80074136297c8c3c",
+      "original_draft_source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "original_ai_draft": "Revise pares de imagen/máscara para entrenar segmentación o use Organize for Measure para combinar imágenes y sus máscaras en matrices que lee Measure. Guardar una máscara no entrena un clasificador.",
+      "reviewed_translation": "Revise pares de imagen/máscara para entrenar segmentación o use Organizar para Measure para combinar imágenes y sus máscaras en matrices que lee Medición. Guardar una máscara no entrena un clasificador.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 40,
+      "domain": "workflows",
+      "source": ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "c884fb4d0bec2b8cf9588d135fd62fc3800fb0a9554637b4479784c331010fe0",
+      "original_draft_source": ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "original_ai_draft": ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure para combinar imágenes y sus máscaras en las matrices que lee Measure; las máscaras independientes no son matrices combinadas.",
+      "reviewed_translation": ":ref:`Measure <workflow-module-measure>`: Use Organizar para Measure para combinar imágenes y sus máscaras en las matrices que lee Medición; las máscaras independientes no son matrices combinadas.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 41,
+      "domain": "workflows",
+      "source": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+      "source_sha256": "2745c09669c4b288cfbe3489ff27d0f7df8a5d4c24cba98009099b0a609e4910",
+      "original_draft_source": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+      "original_ai_draft": "Cargue una tabla o use Merge tables para combinar mediciones compatibles. Para imágenes convertidas, use Merge original filenames para recuperar nombres desde una asignación de conversión. Use Annotate conditions para asignar una columna con nombre mediante reglas de expresión regular sobre metadatos o filas arrastradas; guarde una tabla SQLite anotada o exporte CSV con sus reglas. Elija variables, grupos y ajustes de trazado y después exporte la figura con su contexto de análisis.",
+      "reviewed_translation": "Cargue una tabla o use Combinar tablas para combinar mediciones compatibles. Para imágenes convertidas, use Combinar nombres de archivo originales para recuperar nombres desde una asignación de conversión. Use Anotar las condiciones para asignar una columna con nombre mediante reglas de expresión regular sobre metadatos o filas arrastradas; guarde una tabla SQLite anotada o exporte CSV con sus reglas. Elija variables, grupos y ajustes de trazado y después exporte la figura con su contexto de análisis.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 42,
+      "domain": "workflows",
+      "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
+      "original_draft_source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "original_ai_draft": "Cargue una tabla o use Merge tables para crear un conjunto de trabajo con claves y agregación validadas. Defina compuertas de umbral o poligonales sobre columnas reales de características/coordenadas y después aplique la compuerta guardada a objetos compatibles. Use Annotate para escribir las compuertas mostradas en una columna de anotación; revise los objetos seleccionados y elija etiquetas binarias o multiclase.",
+      "reviewed_translation": "Cargue una tabla o use Combinar tablas para crear un conjunto de trabajo con claves y agregación validadas. Defina compuertas de umbral o poligonales sobre columnas reales de características/coordenadas y después aplique la compuerta guardada a objetos compatibles. Use Anotación para escribir las compuertas mostradas en una columna de anotación; revise los objetos seleccionados y elija etiquetas binarias o multiclase.",
+      "ui_bindings": {}
+    }
+  ]
+}

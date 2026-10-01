@@ -1,5 +1,5 @@
 # spaCR user guide translation (es).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -108,6 +108,18 @@ msgstr "los 556 campos de PV curados de la ronda 5, divididos en 437 de entrenam
 
 msgid "F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
 msgstr "F1 0,860 frente a 0,765 de cpsam_v2 estándar en los 11 pocillos de anclaje con IoU 0,5; AJI 0,803 frente a 0,505"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7"
+msgstr "556 campos revisados de la ronda 6 más 80 campos revisados manualmente de una placa nueva (revisión de Anu, Replication09182026 placa 1); 502 entrenamiento / 123 validación / 11 prueba; datos de entrenamiento en einarolafsson/toxoplasma-pv-segmentation-dataset-r7"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
+msgstr "F1 0.854 frente a 0.765 del cpsam_v2 original en los 11 pocillos de referencia con IoU 0.5; AJI 0.776 frente a 0.505"
 
 msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
@@ -387,6 +399,42 @@ msgstr "Publicado en `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https:/
 
 msgid "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
 msgstr "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toxoplasma PV v4 (round 7)"
+msgstr "Toxoplasma PV v4 (ronda 7)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+msgstr "**Entrenado con.** Vacuolas parasitóforas de taquizoítos de Toxoplasma: campos DsRed y anti-Toxoplasma-biotina de la ronda 6 más el canal de Toxoplasma de una nueva placa de 384 pocillos. Ronda 7, cellpose 4.2.1.1, 100 épocas, base cpsam_v2"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
+msgstr "**Medido.** F1 0.854 frente a 0.765 del cpsam_v2 original en los 11 pocillos de referencia con IoU 0.5; AJI 0.776 frente a 0.505"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate"
+msgstr "LO MÁS NUEVO NO ES LO MEJOR AQUÍ: en 20 campos reservados de la nueva placa usada para entrenar, la ronda 7 alcanza F1 0.748 frente a 0.899 de la ronda 6 (sensibilidad 0.636 frente a 0.829) -- prefiera toxoplasma_pv_v3 para esa placa"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168"
+msgstr "En los 11 pocillos de referencia empata con la ronda 6 (0.8536 frente a 0.8602); F1 de validación cruzada de 5 particiones 0.8142 +/- 0.015 frente a 0.8168 de la ronda 6"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them"
+msgstr "Delimita más ajustadamente las vacuolas que encuentra que la ronda 6 (AJI 0.827 frente a 0.786 en la nueva placa), pero encuentra menos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation"
+msgstr "Se está investigando la caída en la placa nueva: la ronda 7 también presenta subajuste en los propios campos de entrenamiento de esa placa, lo que apunta a cómo se incorporaron esos campos al entrenamiento y no a la generalización."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``."
+msgstr "Publicado como `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, con el nombre ``cpsam_v2_toxo_r7``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
+msgstr "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
 
 msgid "Live cell v1 (phase, brightfield, DIC)"
 msgstr "Live cell v1 (contraste de fase, campo claro, DIC)"

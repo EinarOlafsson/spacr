@@ -569,11 +569,24 @@ def runtime_defects(language: str) -> dict[str, str]:
 
 
 def runtime_ui_name(name: str, language: str):
-    """The name the running app shows: exact UI row, else the setting label."""
+    """Return an exact UI row or setting label used by the running app.
+
+    ``Checked images`` uses the prefix of its exact counted button caption;
+    only the known trailing count in parentheses is omitted for the guide.
+    """
     sys.path.insert(0, str(ROOT))
     from spacr.qt.i18n import _exact_translation
     from spacr.qt.i18n_catalogs import en as _english_catalog, setting_label
 
+    if name == "Checked images":
+        # The guide omits the changing count from this actual button caption.
+        template = _exact_translation("Checked images ({count})", language)
+        if not template or template.count("{count}") != 1:
+            return None
+        suffix = re.search(r"\s*(?:\(\{count\}\)|（\{count\}）)\s*$", template)
+        if suffix is None:
+            return None
+        return template[:suffix.start()].strip() or None
     exact = _exact_translation(name, language)
     if exact:
         return exact
@@ -699,24 +712,6 @@ def retarget_fixed_defects(language: str, locale_dir: Path = LOCALE_DIR) -> dict
 
 def build_glossary(language: str, pot_dir: Path) -> dict[str, str]:
     """English UI names in the guides -> the running app's translation."""
-    sys.path.insert(0, str(ROOT))
-    from spacr.qt.i18n import _exact_translation
-    from spacr.qt.i18n_catalogs import en as _english_catalog, setting_label
-
-    # Setting labels are keyed by setting name; map the English label shown
-    # in the app back to its key so the translated label is the app's own.
-    label_keys: dict[str, str] = {}
-    for key, label in getattr(_english_catalog, "SETTING_LABELS", {}).items():
-        if "." not in key:
-            label_keys.setdefault(label, key)
-
-    def runtime_name(name: str):
-        exact = _exact_translation(name, language)
-        if exact:
-            return exact
-        key = label_keys.get(name)
-        return setting_label(key, name, language) if key else None
-
     names = set()
     for domain, messages in load_templates(pot_dir).items():
         for msgid in messages:
@@ -730,7 +725,7 @@ def build_glossary(language: str, pot_dir: Path) -> dict[str, str]:
             continue
         # Exact catalog rows only: the composed/term fallbacks can splice
         # English and translated words, which is not a name the app shows.
-        translated = runtime_name(name)
+        translated = runtime_ui_name(name, language)
         if not translated or translated == name:
             continue
         record = snapshots.get(name)

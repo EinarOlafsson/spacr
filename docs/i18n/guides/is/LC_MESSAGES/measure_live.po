@@ -1,0 +1,65 @@
+# spaCR user guide translation (is).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure: preview checked images and verify mask planes"
+msgstr "Mæling: forskoða merktar myndir og sannreyna grímuplön"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "Opnaðu **Mæling** með vinnslumöppu eða ``merged``-möppunni í henni. Sýnin **Beint** hleður sjónsviði og sýnir myndskurði úr stilltri hlutagrímu þess. Notaðu **Stillingar myndskurðar…** til að velja hlut, grímuplön, myndrásir, skurðarstærð og síur áður en þú mælir alla tilraunina."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compare objects from several fields"
+msgstr "Bera saman hluti úr nokkrum sjónsviðum"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Checked images** and check the fields to include. Each checkbox is independent. The grid combines their crops and names the source field in each group; it does not superimpose fields. Hover a crop for its full source path, label, area and filter result. Double-click a crop to open that exact source, including when another field contains the same label number."
+msgstr "Opnaðu **Valdar myndir** og merktu við sjónsviðin sem eiga að vera með. Hver gátreitur er óháður hinum. Grindin sameinar myndskurði þeirra og nefnir upprunasjónsvið í hverjum hópi; hún leggur sjónsviðin ekki hvert ofan á annað. Haltu bendlinum yfir skurði til að sjá alla upprunaslóðina, auðkenni, flatarmál og niðurstöðu síunar. Tvísmelltu á skurð til að opna nákvæmlega þann uppruna, jafnvel þótt annað sjónsvið hafi sama auðkennisnúmer."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection."
+msgstr "Taktu hakið af sjónsviði til að fjarlægja myndskurði þess, eða veldu **Afvelja allar myndir** til að tæma grindina. Breyting á rásum, hlutagerð eða síum endurnýjar öll merkt sjónsvið. Fellilistinn fyrir sjónsvið heldur venjulegri flettingu um eitt sjónsvið þegar aðeins núverandi sjónsvið er merkt. Þegar nokkur sjónsvið eru merkt breytir hann virkum uppruna án þess að skipta út merkta valinu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
+msgstr "Myndalistinn notar fyrirliggjandi slembiúrtak af takmarkaðri stærð. Sjónsvið sem þegar eru merkt eru áfram tiltæk þegar úrtakið breytist. **Hám. forskoðunarskurðir** takmarkar sameinuðu grindina og sætunum er skipt milli merktra sjónsviða. Hækkaðu gildið ef fleiri sjónsvið eru merkt en sætin leyfa. Viðbótarsjónsvið eru lesin eitt í einu. Ef hleðsla bregst er sjónsviðið nefnt og gild sjónsvið áfram tiltæk til skoðunar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
+msgstr "Merking mynda breytir aðeins forskoðuninni. Hún velur ekki sjónsviðin sem Mæling vinnur úr og breytir hvorki vistuðum mælingum né útflutningi. **Afrita stillingar** heldur fyrra hlutverki sínu: að afrita skurðar- og síustillingar í Mæling-eyðublaðið."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Resolve a stored plane-layout conflict"
+msgstr "Leysa árekstur við vistaða uppröðun plana"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A merged folder can include ``.spacr_plane_layout.json``, which records the image channels and mask planes written with its arrays. Measure checks explicit mask-plane settings against this record before using them. ``uninfected=True`` keeps uninfected cells; it does not make an incorrect pathogen mask plane valid."
+msgstr "Sameinuð mappa getur innihaldið ``.spacr_plane_layout.json``, sem skráir myndrásir og grímuplön sem voru skrifuð með fylkjunum. Mæling ber sérstaklega tilgreindar grímuplansstillingar saman við þessa skrá áður en þær eru notaðar. ``uninfected=True`` heldur ósýktum frumum; það gerir ekki rangt grímuplan sýkils gilt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored image layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings."
+msgstr "Ef vistað eyðublað samræmist ekki möppunni útskýrir **Keyra** misræmið. Veldu **Nota vistaða uppröðun mynda** til að afrita skráð plön í eyðublaðið, yfirfarðu hlutastillingarnar og ýttu aftur á **Keyra**. Hlutur sem vantar notar ``None``. **Hætta við** skilur eyðublaðið eftir óbreytt. Keyra verður upprunagögn með ólíka eða óþekkta uppröðun hvert í sínu lagi með viðeigandi stillingum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For Python calls, use the plane indices recorded for the selected merged folder. A conflicting explicit index raises :class:`spacr.crops.PlaneLayoutConflict`. Unspecified defaults can be resolved through :func:`spacr.crops.reconcile_merged_mask_dims`. Do not edit or remove the sidecar to bypass the check: that can make an intensity plane look like an object mask."
+msgstr "Í Python-köllum skaltu nota plansvísana sem eru skráðir fyrir valda sameinaða möppu. Sérstaklega tilgreindur vísir sem rekst á skráða uppröðun veldur :class:`spacr.crops.PlaneLayoutConflict`. Ótilgreind sjálfgefin gildi má leysa með :func:`spacr.crops.reconcile_merged_mask_dims`. Ekki breyta eða fjarlægja fylgiskrána til að komast fram hjá athuguninni: það getur valdið því að styrkleikaplan sé túlkað sem hlutagríma."
+

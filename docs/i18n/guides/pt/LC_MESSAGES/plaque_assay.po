@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -57,6 +57,10 @@ msgstr "Ative **Preferências → Mostrar recursos alfa** e depois **Contagem de
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode."
 msgstr "Deixe o detector de colônias em branco para usar limiarização ou selecione um detector de colônias instalado. A pré-visualização informa a ausência de um arquivo de pesos do modelo ou de uma dependência do detector, em vez de mudar silenciosamente de método; a execução em lote pode recorrer à limiarização quando sua dependência opcional do detector não está disponível. Verifique se o método pretendido está disponível ao comparar resultados da pré-visualização e do lote. A contagem de colônias não produz saídas de fluxo ou probabilidade celular; essas visualizações mostram uma mensagem de saída indisponível. A pré-visualização não grava um banco de dados de análise nem altera a imagem de origem. A contagem de colônias é ignorada no modo Figure."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL."
+msgstr "Para diluições por placa, informe um caminho de CSV UTF-8 em **Diluição das colônias**. Os cabeçalhos obrigatórios são ``file,dilution``; cada linha informa um nome de arquivo de imagem, incluindo a extensão, ou um nome sem extensão e uma diluição positiva e finita. Por exemplo, ``plate1.png,10000`` e ``plate2,0.0001`` descrevem ambos um fator de diluição de 10000. Nomes de arquivo exatos têm prioridade sobre nomes sem extensão. Identificadores duplicados e linhas malformadas interrompem a pré-visualização ou análise antes da detecção ou gravação de saídas; placas ausentes do mapeamento ainda recebem contagens, mas não CFU/mL. Um único número ou um dicionário Python continua sendo aceito. Defina separadamente o volume plaqueado em µL; CFU/mL usa o volume convertido para mL."
 
 msgid "Read a published figure"
 msgstr "Ler uma figura publicada"

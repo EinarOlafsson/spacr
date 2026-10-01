@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 21:19-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,6 +30,18 @@ msgstr "आसपास के कार्यप्रवाह के इन�
 
 msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
 msgstr "व्याख्या पढ़ने और उसका API सहायता लिंक खोलने के लिए किसी सेटिंग या उसके लेबल पर होवर करें। मेल खाते एनिमेशन वाले नियंत्रण उस पॉपअप में एनिमेशन भी देते हैं; हर नियंत्रण अपनी दिखाने की स्थिति याद रखता है। छवि-संवर्धन सहायता पहचान-श्रृंखला दस्तावेज़ से जुड़ती है। मेल खाते एनिमेशन के बिना नियंत्रण भी अपनी लिखित व्याख्या और API लिंक बनाए रखता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Thumbnail display quality"
+msgstr "थंबनेल की प्रदर्शन गुणवत्ता"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size."
+msgstr "**प्रदर्शन** या **Measure के लिए व्यवस्थित करें…** में **थंबनेल गुणवत्ता** चुनें। **कम** मूल 64-पिक्सेल स्रोत सैंपलिंग रखता है। **मध्यम** में सबसे लंबी भुजा पर अधिकतम 256 पिक्सेल और **उच्च** में अधिकतम 1024 पिक्सेल उपयोग होते हैं, लेकिन स्रोत रिज़ॉल्यूशन से अधिक नहीं। ये विकल्प स्रोत चित्र और मास्क दोबारा पढ़ते हैं; वे कम-गुणवत्ता बिटमैप को बड़ा नहीं करते। अलग **आकार** नियंत्रण इंटरफ़ेस के सेल का तार्किक आकार निर्धारित करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged."
+msgstr "यह चुनाव याद रखा जाता है और खुले थंबनेल दृश्य अपडेट होते हैं। सीमित कैश के साथ केवल दिखाई देने वाले आयोजक सेल लोड होते हैं। गुणवत्ता बदलने का असर केवल प्रदर्शन पर पड़ता है; सहेजे चित्र, मास्क और मापन नहीं बदलते।"
 
 msgid "Open a field and save an edit"
 msgstr "फ़ील्ड खोलें और संपादन सहेजें"
@@ -48,6 +60,10 @@ msgstr "दूसरे फ़ील्ड पर जाने से पहल�
 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "फ़ील्ड-स्तरीय क्यूरेशन निर्णय दर्ज करने और आगे बढ़ने के लिए **रखें** या **त्यागें** का उपयोग करें। ये निर्णय ``csv/keep_discard.csv`` में जाते हैं; त्यागें छवि या उसके मास्क को हटाए बिना निर्णय दर्ज करता है। संपादन अलग से सहेजें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
+msgstr "**मास्क सहेजें**, **पिछली छवि** और **अगली छवि** संपादन उपकरणों के साथ ऊपर की एक ही कार्रवाई पंक्ति में हैं। संकरी विंडो में दिखाई न देने वाले नियंत्रण तक पहुँचने के लिए इस पंक्ति को क्षैतिज रूप से स्क्रॉल करें।"
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "अपने डेटा के बिना स्क्रीन आज़माने के लिए **परीक्षण डेटा लोड करें...** दस बिना विभाजित टोक्सोप्लाज़्मा रिक्तिका फ़ील्ड डाउनलोड करता है, उनके क्यूरेट किए गए मास्क ``ground_truth_masks/`` में अलग रखता है, और पहला फ़ील्ड खोलता है। उसी बटन पर बना तीर हर प्रकाशित मॉडल जिस डेटासेट पर प्रशिक्षित हुआ उससे फ़ील्ड का एक नमूना प्रस्तुत करता है।"
@@ -378,6 +394,26 @@ msgstr "**डेटा अपलोड करें…** स्क्रीन �
 
 msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
 msgstr "शीर्षपट्टी Cellpose वर्कबेंच, पूरे फ़ोल्डर के लिए मास्क बनाएँ, मॉडल तुलना, मॉडल संग्रह, क्यूरेट और नैपारी ब्रिज भी खोलती है। उनके इनपुट/आउटपुट अनुबंध :ref:`मॉड्यूल मानचित्र <workflow-module-make_masks>` से जुड़े हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Large plates in Mask generation"
+msgstr "Mask generation में बड़ी प्लेटें"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used."
+msgstr "**मास्क** बैच-निर्माण मॉड्यूल एक प्लेट संसाधित करता है; **मास्क बनाएँ** वर्तमान खुले दृश्य-क्षेत्र को संपादित करता है। कच्ची प्लेट के प्रसंस्करण में क्रैश होने पर, चरण और उपयोग की गई सेटिंग्स पहचानने के लिए बैच मॉड्यूल का कंसोल और सहेजी ``settings/gen_mask_settings.json`` देखें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate."
+msgstr "V1 बैच प्रक्रिया में कच्ची फ़ाइलों का पूर्वप्रसंस्करण एक समय में एक दृश्य-क्षेत्र का प्रक्षेपण करके ``stack/`` में लिखता है। यह पूरी प्लेट के फ़ाइल नाम रखता है, हर दृश्य-क्षेत्र के पिक्सेल डेटा नहीं। Z प्लेन क्रमशः जोड़े जाते हैं। पूरे हो चुके दृश्य-क्षेत्र स्टैक परमाण्विक रूप से उपलब्ध कराए जाते हैं और पूर्वप्रसंस्करण दोबारा शुरू होने पर फिर उपयोग किए जा सकते हैं। इसलिए इस चरण की पिक्सेल मेमोरी एक दृश्य-क्षेत्र के आकार और चैनलों पर निर्भर करती है, प्लेट में दृश्य-क्षेत्रों की संख्या पर नहीं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis."
+msgstr "सामान्यीकरण और विभाजन के लिए अभी भी एक बैच और मॉडल की कार्य मेमोरी चाहिए। पूरे हो चुके विभाजन के इनपुट, मास्क और फ्लो बफ़र अगले बैच से पहले मुक्त कर दिए जाते हैं; प्लेट-भर के डेटा का मेमोरी में रुकना घटाने से एक बहुत बड़े चित्र या मॉडल का मेमोरी खर्च समाप्त नहीं होता। V1 का ``batch_size`` सामान्यीकरण का डेटा समूह भी निर्धारित करता है, इसलिए इसे बदलने से सामान्यीकृत मान और बाद के मास्क बदल सकते हैं। पुराना विश्लेषण दोहराते समय इसे बनाए रखें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
+msgstr "मेमोरी फिर भी अप्रत्याशित रूप से बढ़े, तो दर्ज करें कि कंसोल का आखिरी चरण फ़ाइल नामों का पूर्वप्रसंस्करण, सामान्यीकरण या मॉडल मूल्यांकन था; साथ में चित्र के आयाम, चैनल संख्या और सहेजी सेटिंग्स भी रखें। मौजूदा ``stack/`` फ़ाइलें यह पहचानने में मदद करती हैं कि डेटा ग्रहण चरण पूरा हुआ था या पहला दृश्य-क्षेत्र लिखने से पहले ही विफलता हुई।"
 
 msgid "Engine parameter reference"
 msgstr "इंजन पैरामीटर संदर्भ"

@@ -27,13 +27,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "colony_dilution",
-      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
-      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
-      "translation": "Facteur de dilution de la suspension étalée, 10000 pour une dilution 10^-4 ; une fraction comme 0.0001 est lue comme la dilution et inversée. UFC/mL = colonies x facteur de dilution / volume étalé. Un dictionnaire associant un nom ou une racine de fichier à un facteur le fixe par boîte ; une boîte non nommée ne reçoit pas d’UFC/mL. Valeur par défaut : 1."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "colony_min_area_px",
       "source": "Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
       "source_sha256": "d74b218d0b7c2a73174a52bc828bb0facfcab5c738269b1fd1b216e632131ba6",
@@ -319,5 +312,15 @@
       "source_sha256": "c7e8987839e53b5d232705c4f4aa9f017e8a437072ad0a260e340bc28bc26f47",
       "translation": "Coupures manuelles [dead, live] en intensité moyenne après soustraction du fond, par exemple [150, None], chacune remplaçant la coupure automatique par plaque de son marqueur ; None garde celle-ci automatique. Sans canaux de marquage, l’entrée dead est le rapport de condensation (intensité par aire rapportée au noyau typique de la plaque, environ 3) au-dessus duquel un noyau est pycnotique. Lisez d’abord les coupures automatiques dans viability_qc ou les figures de seuil. Valeur par défaut : None."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+      "translation": "Facteur de dilution de la suspension étalée, 10000 pour une dilution 10^-4 ; une fraction comme 0.0001 est lue comme la dilution et inversée. UFC/mL = colonies x facteur de dilution / volume étalé. Un dictionnaire associant un nom ou une racine de fichier à un facteur le fixe par boîte ; une boîte non nommée ne reçoit pas d’UFC/mL. Valeur par défaut : 1."
+    }
+  ],
+  "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text."
 }

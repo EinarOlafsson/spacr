@@ -203,6 +203,11 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     # Preferences tabs, resource controls, and colour-vision choices.
     "Modules",
     "Logging",
+    "Plugins",
+    # mask_thumbnail_quality.quality_combo translates a loop's label variable.
+    "Low",
+    "Medium",
+    "High",
     "Clear RAM",
     "Clear VRAM",
     "Clear CPU",

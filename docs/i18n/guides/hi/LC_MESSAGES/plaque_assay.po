@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -57,6 +57,10 @@ msgstr "**प्राथमिकताएं → अल्फ़ा सुव�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode."
 msgstr "थ्रेशोल्डिंग के लिए कॉलोनी डिटेक्टर खाली छोड़ें, या कोई स्थापित कॉलोनी डिटेक्टर चुनें। पूर्वावलोकन चुपचाप विधि बदलने के बजाय अनुपलब्ध चेकपॉइंट या डिटेक्टर निर्भरता की जानकारी देता है; बैच प्रक्रिया में वैकल्पिक डिटेक्टर निर्भरता अनुपलब्ध होने पर थ्रेशोल्डिंग का उपयोग हो सकता है। पूर्वावलोकन और बैच परिणामों की तुलना करते समय जाँचें कि इच्छित विधि उपलब्ध है। कॉलोनी गणना फ्लो या कोशिका-प्रायिकता परिणाम नहीं बनाती, इसलिए उन दृश्यों में परिणाम अनुपलब्ध होने का संदेश दिखता है। पूर्वावलोकन कोई विश्लेषण डेटाबेस नहीं लिखता और स्रोत चित्र नहीं बदलता। Figure मोड में कॉलोनी गणना अनदेखी की जाती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL."
+msgstr "हर प्लेट के लिए अलग तनुकरण देने हेतु **कॉलोनी तनुकरण** में UTF-8 CSV पथ दर्ज करें। आवश्यक हेडर ``file,dilution`` हैं; हर पंक्ति में चित्र का फ़ाइल नाम (एक्सटेंशन सहित) या एक्सटेंशन के बिना नाम और एक धनात्मक, सीमित तनुकरण मान होता है। उदाहरण के लिए, ``plate1.png,10000`` और ``plate2,0.0001`` दोनों 10000 का तनुकरण गुणक बताते हैं। पूरे फ़ाइल नाम को एक्सटेंशन-रहित नाम पर प्राथमिकता मिलती है। दोहराए पहचानकर्ता और गलत पंक्तियाँ पहचान प्रक्रिया या आउटपुट लिखने से पहले पूर्वावलोकन या विश्लेषण रोक देते हैं; मैपिंग में न होने वाली प्लेटों को संख्या मिलती है, लेकिन CFU/mL नहीं। एक संख्या या Python शब्दकोश भी अभी समर्थित हैं। प्लेट पर डाली मात्रा अलग से µL में सेट करें; CFU/mL की गणना में मात्रा mL में बदली जाती है।"
 
 msgid "Read a published figure"
 msgstr "प्रकाशित चित्र पढ़ें"

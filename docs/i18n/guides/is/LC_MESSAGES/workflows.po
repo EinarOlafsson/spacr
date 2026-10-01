@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,8 +67,9 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Opnaðu «Mæling (Measure)» 
 msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
 msgstr ":ref:`Annotate <workflow-module-annotate>`: Opnaðu «Merking (Annotate)», skoðaðu dæmigerða hluti og vistaðu svipgerðarmerkingar."
 
-msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Skilgreindu þröskulds- eða marghyrningslaga valmörk út frá raunverulegum eiginda- eða hnitadálkum og beittu síðan vistuðu valmörkunum á samhæfa hluti. Notaðu Annotate til að skrifa sýnd valmörk í merkingardálk; farðu yfir valda hluti og veldu tvíflokka eða fjölflokka merki."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Hladdu töflu eða notaðu Sameina töflur til að búa til vinnslugagnasafn með staðfestum lyklum og samantekt. Skilgreindu þröskulds- eða marghyrningshlið á raunverulegum eiginleika-/hnitadálkum og beittu síðan vistaða hliðinu á samrýmanlega hluti. Notaðu Merking til að skrifa sýnd hlið í merkingardálk; yfirfarðu valda hluti og veldu tvígild eða fjölflokka merki."
 
 msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
 msgstr ":ref:`Image UMAP <workflow-module-umap>`: Varpaðu mældum eigindum eða fyrirliggjandi eigindum úr kóðara og skoðaðu dæmigerða myndskurði. Klasi er tillaga að hópun, ekki staðfest svipgerð. Notaðu lassó- og merkingartólin til að skrifa yfirfarið val í merkingardálk í samsvarandi mæligagnagrunni. Rúmfræðilegt val eitt og sér staðfestir ekki líffræðilega svipgerð."
@@ -346,8 +347,9 @@ msgstr "**Myndskurðir hluta** — data/\\*\\*/\\*_png þegar save_png er virkt;
 msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
 msgstr ":ref:`Mask <workflow-module-mask>`: Notaðu sama verkefni og réttu rásavísana fyrir myndir/grímur."
 
-msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Notaðu Raða fyrir Measure til að sameina myndir og grímur þeirra í fylkin sem Mæling les; stakar grímur eru ekki sameinuð fylki."
 
 msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
 msgstr ":ref:`External Masks <workflow-module-external_masks>`: Mældu aftur aðeins þegar þörf er á; External Masks getur þegar framkvæmt mælingar."
@@ -1042,8 +1044,9 @@ msgstr "`Kennsla um eininguna <tutorials/#lesson=32_align_stitch>`__."
 msgid "Make Masks"
 msgstr "Búa til grímur"
 
-msgid "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
-msgstr "Veldu pör mynda/gríma fyrir þjálfun hlutunar, eða notaðu FEATURES til að úthluta myndum og grímum og kalla á mælingu. Vistun grímu þjálfar ekki flokkara."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
+msgstr "Veldu og yfirfarðu mynd-/grímupör fyrir þjálfun skiptingarlíkans, eða notaðu Raða fyrir Measure til að sameina myndir og grímur þeirra í fylki sem Mæling les. Vistun grímu þjálfar ekki flokkara."
 
 msgid "**Open:** Home → Make Masks."
 msgstr "**Opna:** Heim → Búa til grímur."
@@ -1054,8 +1057,9 @@ msgstr "**Valin þjálfunarsjónsvið** — Aðskildar skrár mynda og heiltölu
 msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
 msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Notaðu óháð yfirfarin pör mynda og gríma."
 
-msgid ":ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Measure <workflow-module-measure>`: Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`: Notaðu Raða fyrir Measure til að sameina myndir og grímur þeirra í fylkin sem Mæling les; stakar grímur eru ekki sameinuð fylki."
 
 msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
 msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Notaðu skellugrímur með samsvarandi upprunamyndum; frumugrímur eru ekki sjálfkrafa skellumerki."
@@ -1123,8 +1127,9 @@ msgstr "`Kennsla um eininguna <tutorials/#lesson=53_prediction_profiler>`__."
 msgid "Graph Builder"
 msgstr "Graph Builder"
 
-msgid "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
-msgstr "Veldu breytur, hópa og teiknistillingar úr hlaðinni töflu og fluttu svo út myndina ásamt greiningarsamhengi hennar."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
+msgstr "Hladdu töflu eða notaðu Sameina töflur til að sameina samrýmanlegar mælingar. Fyrir umbreyttar myndir skaltu nota Sameina upprunaleg skráarnöfn til að endurheimta heiti úr umbreytingarvörpun. Notaðu Merkja tilraunaskilyrði til að fylla nafngreindan dálk með reglum sem nota reglulegar segðir á lýsigögn eða með röðum sem eru dregnar inn; vistaðu merkta SQLite-töflu eða flyttu út CSV með reglum hennar. Veldu breytur, hópa og teiknistillingar og flyttu síðan myndina út ásamt greiningarsamhengi hennar."
 
 msgid "**Open:** Home → Graph Builder."
 msgstr "**Opna:** Heim → Graph Builder."
@@ -1156,8 +1161,9 @@ msgstr ":doc:`API-tilvísun </api/spacr/hit_investigation/index>`."
 msgid "Gate Editor"
 msgstr "Gate Editor"
 
-msgid "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr "Skilgreindu þröskulds- eða marghyrningslaga valmörk út frá raunverulegum eiginda- eða hnitadálkum og beittu síðan vistuðu valmörkunum á samhæfa hluti. Notaðu Annotate til að skrifa sýnd valmörk í merkingardálk; farðu yfir valda hluti og veldu tvíflokka eða fjölflokka merki."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "Hladdu töflu eða notaðu Sameina töflur til að búa til vinnslugagnasafn með staðfestum lyklum og samantekt. Skilgreindu þröskulds- eða marghyrningshlið á raunverulegum eiginleika-/hnitadálkum og beittu síðan vistaða hliðinu á samrýmanlega hluti. Notaðu Merking til að skrifa sýnd hlið í merkingardálk; yfirfarðu valda hluti og veldu tvígild eða fjölflokka merki."
 
 msgid "**Open:** Home → Gate Editor."
 msgstr "**Opna:** Heim → Gate Editor."

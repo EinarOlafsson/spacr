@@ -1,0 +1,65 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure: preview checked images and verify mask planes"
+msgstr "测量：预览勾选的图像并核对掩膜层"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "在 **测量** 中打开运行文件夹或其 ``merged`` 文件夹。**实时** 视图加载一个视野，并显示从配置的对象掩膜中取得的裁剪图。测量整个实验前，使用 **图像裁剪设置…** 选择对象、掩膜层、图像通道、裁剪尺寸和筛选条件。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compare objects from several fields"
+msgstr "比较多个视野中的对象"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Checked images** and check the fields to include. Each checkbox is independent. The grid combines their crops and names the source field in each group; it does not superimpose fields. Hover a crop for its full source path, label, area and filter result. Double-click a crop to open that exact source, including when another field contains the same label number."
+msgstr "打开 **已勾选的图像**，勾选要包含的视野。每个复选框相互独立。网格把各视野的裁剪图合并显示，并为每组标明来源视野；不会把不同视野叠加。悬停在裁剪图上可查看完整源路径、标签、面积和筛选结果。双击裁剪图可打开其准确来源，即使其他视野也有相同的标签编号。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection."
+msgstr "取消勾选某个视野可移除它的裁剪图，或选择 **取消勾选所有图像** 清空网格。更改通道、对象类型或筛选条件会刷新所有已勾选视野。仅勾选当前视野时，视野下拉框保留普通的单视野导航功能。勾选多个视野时，它只更改活动来源，不会替换已勾选的集合。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
+msgstr "图像列表使用现有的有数量上限的随机样本。样本变化时，已勾选视野仍然可用。**最大预览裁剪图数** 限制合并网格的大小，可用位置分配给各个已勾选视野。若勾选视野数多于可用位置，请提高此限制。额外视野每次只读取一个。加载失败时会指出视野名称，并保留可供检查的有效视野。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
+msgstr "勾选图像只改变预览，不会选择 测量 处理哪些视野，也不会改变已保存的测量结果或导出内容。**传递设置** 保留原有用途：把裁剪和筛选设置复制到 测量 表单。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Resolve a stored plane-layout conflict"
+msgstr "解决已存储图像层布局的冲突"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A merged folder can include ``.spacr_plane_layout.json``, which records the image channels and mask planes written with its arrays. Measure checks explicit mask-plane settings against this record before using them. ``uninfected=True`` keeps uninfected cells; it does not make an incorrect pathogen mask plane valid."
+msgstr "merged 文件夹可以包含 ``.spacr_plane_layout.json``，其中记录与数组一起写出的图像通道和掩膜层。测量 使用显式设置的掩膜层之前，会将其与这份记录核对。``uninfected=True`` 保留未感染细胞，但不会使错误的病原体掩膜层变成有效设置。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored image layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings."
+msgstr "若已保存表单与文件夹不一致，**运行** 会说明不匹配之处。选择 **使用存储的图像配置** 将记录的图像层复制到表单，检查对象设置后再次按 **运行**。不存在的对象使用 ``None``。**取消** 保持表单不变。布局不同或未知的来源必须分别使用匹配的设置运行。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For Python calls, use the plane indices recorded for the selected merged folder. A conflicting explicit index raises :class:`spacr.crops.PlaneLayoutConflict`. Unspecified defaults can be resolved through :func:`spacr.crops.reconcile_merged_mask_dims`. Do not edit or remove the sidecar to bypass the check: that can make an intensity plane look like an object mask."
+msgstr "在 Python 调用中，应使用所选 merged 文件夹记录的图像层索引。显式索引发生冲突时，会引发 :class:`spacr.crops.PlaneLayoutConflict`。未指定的默认值可通过 :func:`spacr.crops.reconcile_merged_mask_dims` 解析。不要编辑或移除辅助文件来绕过检查，否则可能把强度图像层当作对象掩膜。"
+

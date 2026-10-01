@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -57,6 +57,10 @@ msgstr "Aktivera **Inställningar → Visa alfafunktioner** och slå sedan på *
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode."
 msgstr "Lämna kolonidetektorn tom för att använda tröskling, eller välj en installerad kolonidetektor. Förhandsgranskningen rapporterar en saknad checkpoint eller ett saknat detektorberoende i stället för att tyst byta metod; batchkörningen kan falla tillbaka på tröskling när dess valfria detektorberoende saknas. Kontrollera att den avsedda metoden är tillgänglig när du jämför förhandsgranskning och batchresultat. Koloniräkning ger inga flödes- eller cellsannolikhetsdata, så dessa vyer visar ett meddelande om otillgängliga utdata. Förhandsgranskningen skriver ingen analysdatabas och ändrar inte källbilden. Koloniräkning ignoreras i Figure-läget."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL."
+msgstr "För spädningar per platta, ange sökvägen till en UTF-8-CSV-fil i **Koloniutspädning**. De obligatoriska rubrikerna är ``file,dilution``; varje rad anger ett bildfilnamn (inklusive filändelsen) eller ett filnamn utan filändelse samt en positiv, ändlig spädning. Till exempel beskriver både ``plate1.png,10000`` och ``plate2,0.0001`` en spädningsfaktor på 10000. Exakta filnamn prioriteras framför filnamn utan filändelse. Dubblettidentifierare och felaktiga rader stoppar förhandsvisning eller analys före detektion eller skrivning av resultat; plattor som saknas i mappningen får fortfarande antal men inget CFU/mL. Ett enda tal eller en Python-ordbok stöds fortfarande. Ange den utplaterade volymen i µL separat; CFU/mL använder volymen omräknad till mL."
 
 msgid "Read a published figure"
 msgstr "Läs en publicerad figur"

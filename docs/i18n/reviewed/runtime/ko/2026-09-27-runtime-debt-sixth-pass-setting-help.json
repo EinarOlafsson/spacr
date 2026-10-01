@@ -27,13 +27,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "colony_dilution",
-      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
-      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
-      "translation": "도말한 현탁액의 희석 배수로, 10^-4 희석이면 10000입니다. 0.0001 같은 분수는 희석도로 읽고 역수를 취합니다. CFU/mL = 집락 수 x 희석 배수 / 도말 부피. 파일 이름이나 어간을 배수에 대응시키는 dict로 평판별로 정할 수 있으며, 이름이 없는 평판은 CFU/mL를 받지 않습니다. 기본값 1."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "colony_min_area_px",
       "source": "Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
       "source_sha256": "d74b218d0b7c2a73174a52bc828bb0facfcab5c738269b1fd1b216e632131ba6",
@@ -319,5 +312,15 @@
       "source_sha256": "c7e8987839e53b5d232705c4f4aa9f017e8a437072ad0a260e340bc28bc26f47",
       "translation": "배경을 뺀 평균 강도로 나타낸 수동 절단값 [dead, live]로, 예: [150, None]. 각각 해당 염색의 플레이트별 자동 절단값을 대체하며, None은 자동을 유지합니다. 염색 채널이 없으면 dead 항목은 응축 비율(플레이트의 전형적인 핵에 대한 면적당 강도, 약 3)이며 그 위의 핵은 농축핵입니다. 먼저 viability_qc의 자동 절단값이나 임계값 그림을 보세요. 기본값 None."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+      "translation": "도말한 현탁액의 희석 배수로, 10^-4 희석이면 10000입니다. 0.0001 같은 분수는 희석도로 읽고 역수를 취합니다. CFU/mL = 집락 수 x 희석 배수 / 도말 부피. 파일 이름이나 어간을 배수에 대응시키는 dict로 평판별로 정할 수 있으며, 이름이 없는 평판은 CFU/mL를 받지 않습니다. 기본값 1."
+    }
+  ],
+  "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text."
 }

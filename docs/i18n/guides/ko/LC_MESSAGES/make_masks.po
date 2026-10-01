@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 21:19-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,6 +30,18 @@ msgstr "주변 워크플로의 입력과 출력은 :ref:`모듈 맵의 마스크
 
 msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
 msgstr "설정이나 그 레이블 위에 마우스를 올리면 설명을 읽고 API 도움말 링크를 따라갈 수 있습니다. 대응하는 애니메이션이 있는 컨트롤은 그 팝업에서 애니메이션도 제공하며, 각 컨트롤은 자체 표시 상태를 기억합니다. 이미지 향상 도움말은 검출 체인 문서로 연결됩니다. 대응하는 애니메이션이 없는 컨트롤도 글로 된 설명과 API 링크는 그대로 유지합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Thumbnail display quality"
+msgstr "썸네일 표시 품질"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size."
+msgstr "**표시** 또는 **Measure용으로 정리…**에서 **썸네일 품질**을 선택하세요. **낮음**은 기존의 64픽셀 원본 샘플링을 유지합니다. **중간**은 긴 변을 최대 256픽셀, **높음**은 최대 1024픽셀로 사용하며 원본 해상도를 넘지 않습니다. 이 옵션들은 원본 이미지와 마스크를 다시 읽으며 낮음 품질의 비트맵을 확대하지 않습니다. 별도의 **크기** 컨트롤은 논리적 셀 크기를 설정합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged."
+msgstr "선택한 품질은 저장되며 열려 있는 썸네일 보기에 적용됩니다. 정리 화면에서 보이는 셀만 로드하고 캐시 크기는 제한됩니다. 품질 변경은 표시에만 영향을 주며 저장된 이미지, 마스크 및 측정값은 바뀌지 않습니다."
 
 msgid "Open a field and save an edit"
 msgstr "시야를 열고 편집 내용 저장하기"
@@ -48,6 +60,10 @@ msgstr "다른 시야로 이동하기 전에 **마스크 저장** 또는 **Ctrl+
 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "**유지** 또는 **버리기** 로 시야 단위의 선별 판정을 기록하고 다음으로 넘어갑니다. 이 판정은 ``csv/keep_discard.csv`` 에 기록됩니다. 버리기는 이미지나 마스크를 삭제하지 않고 결정만 기록합니다. 편집 내용은 따로 저장합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
+msgstr "**마스크 저장**, **이전 이미지**, **다음 이미지**는 편집 도구와 함께 상단 작업 행에 있습니다. 창이 좁으면 이 행을 가로로 스크롤하여 보이는 영역 밖의 컨트롤을 사용할 수 있습니다."
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트에서 시야 표본을 제공합니다."
@@ -378,6 +394,26 @@ msgstr "**데이터 업로드…** 는 화면의 이미지와 그 마스크, 폴
 
 msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
 msgstr "헤더에서는 Cellpose 워크벤치, 전체 폴더의 마스크 생성, 모델 비교, 모델 라이브러리, 큐레이트, 나파리 브리지도 열 수 있습니다. 이들의 입력/출력 규약은 :ref:`모듈 맵 <workflow-module-make_masks>` 에서 연결됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Large plates in Mask generation"
+msgstr "마스크 생성에서 대형 플레이트 처리"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used."
+msgstr "**마스크** 일괄 생성 모듈은 플레이트를 처리하고 **마스크 만들기**는 현재 열린 시야를 편집합니다. 원본 플레이트 처리 중 충돌이 발생하면 일괄 처리 모듈의 콘솔과 저장된 ``settings/gen_mask_settings.json``을 확인하여 사용한 단계와 설정을 파악하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate."
+msgstr "V1 일괄 처리 파이프라인에서 원본 파일 전처리는 한 번에 한 시야를 투영하고 ``stack/``에 기록합니다. 플레이트 전체의 파일명은 유지하지만 모든 시야의 픽셀 데이터를 보관하지는 않습니다. Z 평면은 점진적으로 결합됩니다. 완성된 시야 스택은 원자적으로 저장되며 전처리를 재개할 때 재사용할 수 있습니다. 따라서 이 단계의 픽셀 메모리는 플레이트의 시야 수가 아니라 한 시야의 크기와 채널 수에 따라 달라집니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis."
+msgstr "정규화와 분할에는 여전히 배치와 모델을 위한 작업 메모리가 필요합니다. 완료된 분할 입력, 마스크 및 흐름 버퍼는 다음 배치 전에 해제됩니다. 플레이트 전체의 데이터 보관량을 줄여도 매우 큰 개별 이미지나 모델의 메모리 비용이 없어지지는 않습니다. V1의 ``batch_size``는 정규화에 사용하는 데이터 묶음도 설정하므로 변경하면 정규화 값과 이후 마스크가 달라질 수 있습니다. 이전 분석을 재현하려면 이 값을 유지하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
+msgstr "메모리 사용량이 계속 예상과 다르게 증가하면 마지막 콘솔 단계가 파일명 전처리, 정규화, 모델 평가 중 무엇이었는지 이미지 크기, 채널 수 및 저장된 설정과 함께 기록하세요. 기존 ``stack/`` 파일은 수집 단계가 완료되었는지, 첫 시야를 기록하기 전에 실패했는지 구분하는 데 도움이 됩니다."
 
 msgid "Engine parameter reference"
 msgstr "엔진 매개변수 참조"

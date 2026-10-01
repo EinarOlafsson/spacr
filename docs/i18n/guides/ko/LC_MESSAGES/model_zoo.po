@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -108,6 +108,18 @@ msgstr "5라운드의 선별 PV 시야 556개, 학습 437 / 검증 108 / 테스�
 
 msgid "F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
 msgstr "기준 웰 11개에서 IoU 0.5 기준 F1 0.860, 기본 cpsam_v2는 0.765; AJI 0.803 대 0.505"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7"
+msgstr "6라운드의 선별된 시야 556개와 새 플레이트의 수작업 선별 시야 80개(Anu revision, Replication09182026 plate 1); 학습 502 / 검증 123 / 테스트 11; 학습 데이터 위치: einarolafsson/toxoplasma-pv-segmentation-dataset-r7"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
+msgstr "기준 웰 11개에서 IoU 0.5 기준 F1 0.854, 기본 cpsam_v2는 0.765; AJI 0.776 대 0.505"
 
 msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
@@ -387,6 +399,42 @@ msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.
 
 msgid "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
 msgstr "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toxoplasma PV v4 (round 7)"
+msgstr "Toxoplasma PV v4(7라운드)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+msgstr "**학습 데이터.** 톡소플라스마 급속 증식형의 기생포성 액포: 6라운드의 DsRed 및 항톡소플라스마-비오틴 시야와 새 384웰 플레이트의 톡소플라스마 채널. 7라운드, cellpose 4.2.1.1, 100 에포크, 기반 cpsam_v2"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
+msgstr "**측정 결과.** 기준 웰 11개에서 IoU 0.5 기준 F1 0.854, 기본 cpsam_v2는 0.765; AJI 0.776 대 0.505"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate"
+msgstr "여기서는 최신 모델이 최선이 아닙니다: 학습에 사용된 새 플레이트에서 학습에 포함하지 않은 시야 20개에 대해 7라운드의 F1은 0.748로 6라운드의 0.899보다 낮습니다(재현율 0.636 대 0.829) -- 이 플레이트에는 toxoplasma_pv_v3를 우선 사용하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168"
+msgstr "기준 웰 11개에서는 6라운드와 비슷합니다(0.8536 대 0.8602); 5겹 교차 검증 F1은 0.8142 +/- 0.015이며 6라운드는 0.8168입니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them"
+msgstr "찾아낸 액포의 경계는 6라운드보다 더 정밀하게 추적하지만(새 플레이트의 AJI 0.827 대 0.786) 찾아내는 액포 수는 더 적습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation"
+msgstr "새 플레이트에서의 성능 저하는 조사 중입니다. 7라운드는 해당 플레이트의 학습 시야에도 과소적합되므로 일반화보다는 이 시야들이 학습에 포함된 방식이 원인일 가능성을 시사합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``."
+msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_ 에 ``cpsam_v2_toxo_r7`` 로 게시되었습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
+msgstr "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
 
 msgid "Live cell v1 (phase, brightfield, DIC)"
 msgstr "살아 있는 세포 v1(위상차, 명시야, DIC)"

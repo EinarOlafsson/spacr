@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "Codex AI technical translation with independent Codex-agent technical review; no human or native-speaker signoff",
+  "method": "Direct source-bound AI translation of revised colony-dilution tooltip and exact preview-control labels; includes four previously hidden caption literals. Original proposals and replaced generated values are preserved. Normal candidate gates pass unchanged; no model draft is claimed.",
+  "draft_author": "merge_interfaces",
+  "independent_reviewer": "root",
+  "original_ui_proposals": {
+    "Low": "Faible",
+    "Medium": "Moyenne",
+    "High": "Élevée",
+    "Plugins": "Extensions",
+    "Thumbnail quality": "Qualité des miniatures",
+    "Propagate settings": "Transférer les paramètres",
+    "Checked images ({count})": "Images cochées ({count})",
+    "Use stored image layout": "Utiliser la disposition des plans d’image enregistrée"
+  },
+  "original_tooltip_draft": {
+    "translation": "Facteur de dilution de la suspension étalée : 10000 pour une dilution de 10^-4 ; les fractions telles que 0.0001 sont inversées. CFU/mL = colonies x facteur de dilution / volume étalé. Saisissez un nombre, un dictionnaire indexé par nom de fichier ou nom sans extension, ou un chemin CSV UTF-8 avec les colonnes file,dilution. Les noms de fichiers exacts priment sur les noms sans extension ; les plaques sans correspondance ne reçoivent pas de CFU/mL. Les facteurs CSV doivent être positifs et finis, avec des identifiants de fichiers uniques. Valeur par défaut 1."
+  },
+  "replaced_generated_targets": {
+    "Low": null,
+    "Medium": null,
+    "High": null,
+    "Plugins": null,
+    "Thumbnail quality": "Qualité de l'ongle",
+    "Propagate settings": "Paramètres de la porte d' accès",
+    "Checked images ({count})": "Images vérifiées ({count})",
+    "Use stored image layout": "Utiliser la mise en page de l'image stockée",
+    "colony_dilution": "Facteur de dilution de la suspension étalée, 10000 pour une dilution 10^-4 ; une fraction comme 0.0001 est lue comme la dilution et inversée. UFC/mL = colonies x facteur de dilution / volume étalé. Un dictionnaire associant un nom ou une racine de fichier à un facteur le fixe par boîte ; une boîte non nommée ne reçoit pas d’UFC/mL. Valeur par défaut : 1."
+  },
+  "superseded_review_file": "docs/i18n/reviewed/runtime/fr/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+  "superseded_review_file_sha256": "70c0a6d6af439e55897096ccc46bf3890dad8b0e2abbff40eff33065e5e08683",
+  "retired_source_record": {
+    "table": "setting_tooltips",
+    "key": "colony_dilution",
+    "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+    "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+    "translation": "Facteur de dilution de la suspension étalée, 10000 pour une dilution 10^-4 ; une fraction comme 0.0001 est lue comme la dilution et inversée. UFC/mL = colonies x facteur de dilution / volume étalé. Un dictionnaire associant un nom ou une racine de fichier à un facteur le fixe par boîte ; une boîte non nommée ne reçoit pas d’UFC/mL. Valeur par défaut : 1."
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Low",
+      "source": "Low",
+      "source_sha256": "f793de205ead5ac302c4a1627829dea41f176b1068b993a32373fc869918374b",
+      "translation": "Faible"
+    },
+    {
+      "table": "ui",
+      "key": "Medium",
+      "source": "Medium",
+      "source_sha256": "8e588cd187741f1cd76f5fab77b7208782a8c21d764ce7d7a4cf3ac4e0968873",
+      "translation": "Moyenne"
+    },
+    {
+      "table": "ui",
+      "key": "High",
+      "source": "High",
+      "source_sha256": "c4ebc6d4a5832cd9415f906ad03661110c705a72381c8b8b145761d02e2dd23a",
+      "translation": "Élevée"
+    },
+    {
+      "table": "ui",
+      "key": "Plugins",
+      "source": "Plugins",
+      "source_sha256": "9514b7ff4860ead73491768e45cce0ce20e6e3473a7b272e496c43c875d80ac5",
+      "translation": "Extensions"
+    },
+    {
+      "table": "ui",
+      "key": "Thumbnail quality",
+      "source": "Thumbnail quality",
+      "source_sha256": "80258c396c488f6dff11b200f277c450cdf9afaa715ebda72a922cfffa517b9f",
+      "translation": "Qualité des miniatures"
+    },
+    {
+      "table": "ui",
+      "key": "Propagate settings",
+      "source": "Propagate settings",
+      "source_sha256": "c767061d71bdfb618dbc7e2405f62173d57cf1778aa283e4c479829201b63342",
+      "translation": "Transférer les paramètres"
+    },
+    {
+      "table": "ui",
+      "key": "Checked images ({count})",
+      "source": "Checked images ({count})",
+      "source_sha256": "3e3bde96e1b96624d2b29dd06c373860a0b477472a057125984740ef93fa8227",
+      "translation": "Images cochées ({count})"
+    },
+    {
+      "table": "ui",
+      "key": "Use stored image layout",
+      "source": "Use stored image layout",
+      "source_sha256": "8f275b3b91eefb672be44a494a3c2e470f476d662469821794a8c2a887943260",
+      "translation": "Utiliser la disposition des plans d’image enregistrée"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the plated suspension: 10000 for a 10^-4 dilution; fractions such as 0.0001 are inverted. CFU/mL = colonies x dilution factor / plated volume. Enter one number, a dict keyed by filename or stem, or a UTF-8 CSV path with file,dilution columns. Exact filenames take priority over stems; unmatched plates get no CFU/mL. CSV factors must be positive and finite, with unique file identifiers. Default 1.",
+      "source_sha256": "49ba82769ffa15938b3c6f2987c03f8f6b54fed6c71172a0f2ee1c5e85e41174",
+      "translation": "Facteur de dilution de la suspension étalée : 10000 pour une dilution de 10^-4 ; les fractions telles que 0.0001 sont inversées. CFU/mL = colonies x facteur de dilution / volume étalé. Saisissez un nombre, un dictionnaire indexé par nom de fichier ou nom sans extension, ou un chemin CSV UTF-8 avec les colonnes file,dilution. Les noms de fichiers exacts priment sur les noms sans extension ; les plaques sans correspondance ne reçoivent pas de CFU/mL. Les facteurs CSV doivent être positifs et finis, avec des identifiants de fichiers uniques. Valeur par défaut 1."
+    }
+  ]
+}

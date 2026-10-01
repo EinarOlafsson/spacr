@@ -1,5 +1,5 @@
 # spaCR user guide translation (pt).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,8 +67,9 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Abra «Medição (Measure)» c
 msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
 msgstr ":ref:`Annotate <workflow-module-annotate>`: Abra «Anotação (Annotate)», examine objetos representativos e salve os rótulos de fenótipo."
 
-msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Defina regiões de seleção por limiar ou polígono em colunas reais de características ou coordenadas; depois aplique a região salva a objetos compatíveis. Use Annotate para gravar as gates exibidas em uma coluna de anotação; revise os objetos selecionados e escolha rótulos binários ou multiclasse."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Carregue uma tabela ou use Mesclar tabelas para criar um conjunto de trabalho com chaves e agregação validadas. Defina gates de limiar ou poligonais em colunas reais de características/coordenadas e aplique o gate salvo a objetos compatíveis. Use Anotação para gravar os gates exibidos em uma coluna de anotação; revise os objetos selecionados e escolha rótulos binários ou multiclasse."
 
 msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
 msgstr ":ref:`Image UMAP <workflow-module-umap>`: Projete características medidas ou características fornecidas pelo codificador e inspecione recortes representativos. Um grupo é um agrupamento candidato, não um fenótipo validado. Use o laço e os controles de anotação para gravar seleções revisadas em uma coluna de anotação do banco de medições correspondente. Uma seleção geométrica isolada não estabelece um fenótipo biológico."
@@ -346,8 +347,9 @@ msgstr "**Recortes de objetos** — data/\\*\\*/\\*_png quando save_png está at
 msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
 msgstr ":ref:`Mask <workflow-module-mask>`: Use o mesmo projeto e os índices corretos dos canais de imagem e máscara."
 
-msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES para associar imagens e máscaras e gravar um projeto medido; máscaras isoladas não são matrizes combinadas."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Use Organizar para o Measure para mesclar imagens e suas máscaras nas matrizes que Medição lê; máscaras isoladas não são matrizes mescladas."
 
 msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
 msgstr ":ref:`External Masks <workflow-module-external_masks>`: Meça novamente apenas quando necessário; External Masks já pode realizar a medição."
@@ -1042,8 +1044,9 @@ msgstr "`Tutorial do módulo <tutorials/#lesson=32_align_stitch>`__."
 msgid "Make Masks"
 msgstr "Criar máscaras"
 
-msgid "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
-msgstr "Prepare pares de imagens e máscaras para treinar a segmentação, ou use FEATURES para associar imagens e máscaras e iniciar a medição. Salvar uma máscara não treina um classificador."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
+msgstr "Revise pares de imagem/máscara para treinamento de segmentação ou use Organizar para o Measure para mesclar imagens e suas máscaras nas matrizes que Medição lê. Salvar uma máscara não treina um classificador."
 
 msgid "**Open:** Home → Make Masks."
 msgstr "**Abrir:** Início → Criar máscaras."
@@ -1054,8 +1057,9 @@ msgstr "**Campos de treinamento revisados** — Arquivos separados de imagens e 
 msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
 msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use pares de imagens e máscaras verificados de forma independente."
 
-msgid ":ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Measure <workflow-module-measure>`: Use FEATURES para associar imagens e máscaras e gravar um projeto medido; máscaras isoladas não são matrizes combinadas."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`: Use Organizar para o Measure para mesclar imagens e suas máscaras nas matrizes que Medição lê; máscaras isoladas não são matrizes mescladas."
 
 msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
 msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use máscaras de placas de lise com as imagens de origem correspondentes; máscaras de células não são automaticamente rótulos de placas de lise."
@@ -1123,8 +1127,9 @@ msgstr "`Tutorial do módulo <tutorials/#lesson=53_prediction_profiler>`__."
 msgid "Graph Builder"
 msgstr "Graph Builder"
 
-msgid "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
-msgstr "Escolha variáveis, grupos e configurações gráficas na tabela carregada; depois exporte a figura com seu contexto de análise."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
+msgstr "Carregue uma tabela ou use Mesclar tabelas para combinar medições compatíveis. Para imagens convertidas, use Mesclar nomes de arquivos originais para recuperar nomes de um mapeamento de conversão. Use Anotar condições para atribuir uma coluna nomeada com regras de expressão regular sobre metadados ou linhas arrastadas; salve uma tabela SQLite anotada ou exporte CSV com suas regras. Escolha variáveis, grupos e configurações de gráficos e exporte a figura com seu contexto de análise."
 
 msgid "**Open:** Home → Graph Builder."
 msgstr "**Abrir:** Início → Graph Builder."
@@ -1156,8 +1161,9 @@ msgstr ":doc:`Referência da API </api/spacr/hit_investigation/index>`."
 msgid "Gate Editor"
 msgstr "Gate Editor"
 
-msgid "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr "Defina regiões de seleção por limiar ou polígono em colunas reais de características ou coordenadas; depois aplique a região salva a objetos compatíveis. Use Annotate para gravar as gates exibidas em uma coluna de anotação; revise os objetos selecionados e escolha rótulos binários ou multiclasse."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "Carregue uma tabela ou use Mesclar tabelas para criar um conjunto de trabalho com chaves e agregação validadas. Defina gates de limiar ou poligonais em colunas reais de características/coordenadas e aplique o gate salvo a objetos compatíveis. Use Anotação para gravar os gates exibidos em uma coluna de anotação; revise os objetos selecionados e escolha rótulos binários ou multiclasse."
 
 msgid "**Open:** Home → Gate Editor."
 msgstr "**Abrir:** Início → Gate Editor."

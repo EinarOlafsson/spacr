@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 21:19-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,6 +30,18 @@ msgstr "Fyrir inntök og úttök verkflæðisins í kring, sjá :ref:`Búa til g
 
 msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
 msgstr "Láttu bendilinn svífa yfir stillingu eða merki hennar til að lesa skýringuna og fylgja API-hjálpartengli hennar. Stýringar sem hafa samsvarandi hreyfimynd bjóða einnig upp á hreyfimynd í þeim sprettiglugga; hver stýring man eigið birtingarástand. Hjálp um myndbætingu tengist skjölun greiningarkeðjunnar. Stýring án samsvarandi hreyfimyndar heldur samt skriflegri skýringu sinni og API-tengli."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Thumbnail display quality"
+msgstr "Birtingargæði smámynda"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size."
+msgstr "Veldu **Gæði smámynda** undir **Birting** eða **Raða fyrir Measure…**. **Lág** heldur upprunalegu 64 punkta sýnatökunni úr upprunamyndinni. **Miðlungs** notar allt að 256 punkta og **Há** allt að 1024 punkta á lengri hliðinni, þó aldrei umfram upplausn upprunans. Þessir valkostir lesa upprunamyndina og grímuna aftur; þeir stækka ekki bitamynd í Lág-gæðum. Sérstaka stillingin **Stærð** ákvarðar rökræna stærð reitsins."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged."
+msgstr "Valið er vistað og uppfærir opnar smámyndasýnir. Aðeins sýnilegir reitir í röðunarsýn eru hlaðnir og skyndiminnið er takmarkað. Gæðabreytingin hefur aðeins áhrif á birtingu; vistaðar myndir, grímur og mælingar breytast ekki."
 
 msgid "Open a field and save an edit"
 msgstr "Opna sjónsvið og vista breytingu"
@@ -48,6 +60,10 @@ msgstr "Ýttu á **Vista grímu** eða **Ctrl+S** áður en þú ferð í annað
 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "Notaðu **Halda** eða **Henda** til að skrá grisjunarúrskurð fyrir sjónsviðið og halda áfram. Þessir úrskurðir fara í ``csv/keep_discard.csv``; Henda skráir ákvörðun án þess að eyða myndinni eða grímu hennar. Vistaðu breytingar sérstaklega."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
+msgstr "**Vista grímu**, **Fyrri mynd** og **Næsta mynd** eru í efstu aðgerðalínunni með breytingaverkfærunum. Skrunaðu línunni lárétt í mjóum glugga til að ná í stýringar utan sýnilega svæðisins."
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "Til að prófa skjáinn án eigin gagna sækir **Hlaða prófunargögnum...** tíu óhlutuð sjónsvið með Toxoplasma-bólum, með grisjuðu grímunum þeirra geymdum sér í ``ground_truth_masks/``, og opnar það fyrsta. Örin á sama hnappi býður upp á úrtak sjónsviða úr gagnasafninu sem hvert birt líkan var þjálfað á."
@@ -378,6 +394,26 @@ msgstr "**Hlaða upp gögnum…** sendir myndina á skjánum með grímu sinni, 
 
 msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
 msgstr "Hausinn opnar einnig Cellpose-vinnuborð, Búa til grímur fyrir alla möppuna, Líkansamanburður, Líkanasafn, Grisja og Napari-brú. Samningar þeirra um inntök/úttök eru tengdir úr :ref:`einingakortinu <workflow-module-make_masks>`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Large plates in Mask generation"
+msgstr "Stórar plötur í grímugerð"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used."
+msgstr "Lotuvinnslueiningin **Grímur** vinnur úr plötu; **Búa til grímur** breytir sjónsviðinu sem er opið hverju sinni. Ef forritið hrynur við vinnslu á hráum plötugögnum skaltu skoða úttak lotuvinnslueiningarinnar og vistaða skrá ``settings/gen_mask_settings.json`` til að finna vinnslustigið og stillingarnar sem voru notaðar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate."
+msgstr "Í V1-lotuvinnslunni varpar forvinnsla hráskráa einu sjónsviði í einu og skrifar það í ``stack/``. Hún geymir skráarnöfn fyrir alla plötuna, ekki punktagögn allra sjónsviða. Z-plön eru sameinuð stig af stigi. Fullbúin sjónsviðsstöfl eru birt með ódeilanlegri skráaraðgerð og má endurnýta þegar forvinnsla heldur áfram. Minnisnotkun punktagagna á þessu stigi fer því eftir stærð og rásafjölda eins sjónsviðs, ekki fjölda sjónsviða á plötunni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis."
+msgstr "Stöðlun og skipting þurfa enn vinnsluminni fyrir lotu og líkan. Inntaks-, grímu- og flæðisbiðminni lokinnar skiptingar eru losuð fyrir næstu lotu; minni varðveisla gagna fyrir alla plötuna gerir ekki mjög stóra staka mynd eða líkan kostnaðarlaust í minni. Í V1 ákvarðar ``batch_size`` einnig gagnahópinn sem notaður er til stöðlunar, svo breyting getur breytt stöðluðum gildum og grímunum sem fylgja. Haltu gildinu óbreyttu þegar fyrri greining er endurtekin."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
+msgstr "Ef minnisnotkun eykst enn óvænt skaltu skrá hvort síðasta stigið í úttakinu var forvinnsla skráarnafna, stöðlun eða mat með líkani, ásamt myndastærð, rásafjölda og vistuðum stillingum. Fyrirliggjandi skrár í ``stack/`` hjálpa til við að greina á milli lokins inntökustigs og bilunar áður en fyrsta sjónsviðið var skrifað."
 
 msgid "Engine parameter reference"
 msgstr "Tilvísun í færibreytur vélarinnar"

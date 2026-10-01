@@ -27,13 +27,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "colony_dilution",
-      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
-      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
-      "translation": "Þynningarstuðull lausnarinnar sem var sáð, 10000 fyrir 10^-4 þynningu; brot eins og 0.0001 er lesið sem þynningin og snúið við. CFU/mL = þyrpingar x þynningarstuðull / sáð rúmmál. Dict frá skráarheiti eða stofni að stuðli stillir hann fyrir hverja plötu; plata sem ekki er nefnd fær ekkert CFU/mL. Sjálfgefið 1."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "colony_min_area_px",
       "source": "Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
       "source_sha256": "d74b218d0b7c2a73174a52bc828bb0facfcab5c738269b1fd1b216e632131ba6",
@@ -319,5 +312,15 @@
       "source_sha256": "c7e8987839e53b5d232705c4f4aa9f017e8a437072ad0a260e340bc28bc26f47",
       "translation": "Handvirk mörk [dead, live] í meðalstyrk að frádregnum bakgrunni, til dæmis [150, None], hvert í stað sjálfvirkra marka litunar sinnar fyrir hverja plötu; None heldur þeim sjálfvirkum. Án litunarrása er dead-færslan þéttingarhlutfallið (styrkur á flatarmál miðað við dæmigerðan kjarna plötunnar, um 3) sem kjarni er kjarnaþéttur yfir. Lestu fyrst sjálfvirku mörkin í viability_qc eða þröskuldsmyndirnar. Sjálfgefið None."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+      "translation": "Þynningarstuðull lausnarinnar sem var sáð, 10000 fyrir 10^-4 þynningu; brot eins og 0.0001 er lesið sem þynningin og snúið við. CFU/mL = þyrpingar x þynningarstuðull / sáð rúmmál. Dict frá skráarheiti eða stofni að stuðli stillir hann fyrir hverja plötu; plata sem ekki er nefnd fær ekkert CFU/mL. Sjálfgefið 1."
+    }
+  ],
+  "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text."
 }

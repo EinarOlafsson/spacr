@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 21:19-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,6 +30,18 @@ msgstr "关于上下游工作流程的输入和输出，请参阅 :ref:`模块�
 
 msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
 msgstr "将鼠标悬停在某个设置或其标签上，即可阅读说明并打开其 API 帮助链接。具有对应动画的控件还会在该弹出窗口中提供动画；每个控件会记住自己的显示状态。图像增强的帮助链接到检测链文档。没有对应动画的控件仍保留其文字说明和 API 链接。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Thumbnail display quality"
+msgstr "缩略图显示质量"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size."
+msgstr "在 **显示** 或 **为 Measure 整理…** 中选择 **缩略图质量**。**低** 保留原来的 64 像素源采样。**中** 的最长边最多为 256 像素，**高** 最多为 1024 像素，均不超过源图像的分辨率。这些选项会重新读取源图像和掩膜，不会把 低 质量的位图放大。独立的 **尺寸** 控件用于设置界面中单元格的逻辑尺寸。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged."
+msgstr "程序会记住这个选择，并更新已打开的缩略图视图。整理器只加载可见单元格，缓存大小有上限。质量变化仅影响显示；保存的图像、掩膜和测量结果保持不变。"
 
 msgid "Open a field and save an edit"
 msgstr "打开视野并保存编辑"
@@ -48,6 +60,10 @@ msgstr "切换到另一个视野之前，请按 **保存掩膜** 或 **Ctrl+S**�
 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "使用 **保留** 或 **放弃** 记录视野级的整理结论并前进到下一个视野。这些结论写入 ``csv/keep_discard.csv``；放弃只记录决定，不会删除图像或其掩膜。编辑需要单独保存。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
+msgstr "**保存掩膜**、**上一张图像** 和 **下一张图像** 与编辑工具共用顶部操作栏。窗口较窄时，可水平滚动此栏以访问可见区域以外的控件。"
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。同一按钮上的箭头可打开每个已发布模型所用训练数据集中的视野样本。"
@@ -378,6 +394,26 @@ msgstr "**上传数据…** 会将屏幕上的图像及其掩膜、文件夹中�
 
 msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
 msgstr "标题栏还可打开 Cellpose 工作台、为整个文件夹生成掩膜、模型比较、模型库、校正和 napari 桥接。它们的输入/输出约定链接自 :ref:`模块图 <workflow-module-make_masks>`。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Large plates in Mask generation"
+msgstr "Mask generation 中的大型实验板"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used."
+msgstr "**掩膜** 批量生成模块处理整块实验板；**创建掩膜** 编辑当前打开的视野。处理原始实验板时若发生崩溃，请查看批量模块的控制台和保存的 ``settings/gen_mask_settings.json``，确认出错阶段及所用设置。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate."
+msgstr "在 V1 批处理流程中，原始文件预处理每次投影并写入一个视野到 ``stack/``。内存中保留整块板的文件名，而不是所有视野的像素数据。Z 层逐步合并。完成的视野堆栈以原子方式写出，恢复预处理时可以复用。因此，此阶段的像素内存取决于单个视野的大小和通道数，而不是整块板的视野数量。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis."
+msgstr "归一化和分割仍需要存放一个批次及模型的工作内存。完成分割的输入、掩膜和流场缓冲区会在下一批次前释放；减少整板数据的内存保留，不代表单个超大图像或模型不再占用内存。V1 的 ``batch_size`` 也决定归一化的数据池，因此改变它可能改变归一化值及后续掩膜。复现以前的分析时应保持这个设置。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
+msgstr "若内存仍异常增加，请记录控制台最后处于文件名预处理、归一化还是模型评估阶段，同时记录图像尺寸、通道数和已保存的设置。现有的 ``stack/`` 文件有助于区分数据读取阶段已经完成，还是在写出第一个视野前就失败了。"
 
 msgid "Engine parameter reference"
 msgstr "引擎参数参考"
