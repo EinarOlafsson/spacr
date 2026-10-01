@@ -1,0 +1,2416 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, twelfth pass 2026-10-01: AI meaning review of the setting label rows that had only a machine translation. Rows whose machine translation was correct are recorded unchanged; rows wrong in meaning, garbled or incomplete are re-translated. Technically reviewed by AI against the English source and its code context; no human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "agg_type",
+      "source": "Agg type",
+      "source_sha256": "97de4adf7043e2139649278d8f3b2e11be83082fd4c1e32c6d909ec80eadcd97",
+      "translation": "Gerð samantektar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "analysis_mode",
+      "source": "Analysis mode",
+      "source_sha256": "aa1676cea04a9858124c1d8fbbe92d26e77d3f0f63653b0a814777224739568d",
+      "translation": "Greiningarhamur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "analysis_unit",
+      "source": "Analysis unit",
+      "source_sha256": "fdae93ff1405e6a9d30d0312e5d7ed5c73eab0b30594ce17162da5c2bac46d53",
+      "translation": "Greiningareining"
+    },
+    {
+      "table": "setting_labels",
+      "key": "analyze_clusters",
+      "source": "Analyze clusters",
+      "source_sha256": "50fd26129753a43b1224020e0a1cec8bbcb86969fc1e9eda9198a8bfaf18568f",
+      "translation": "Greina klasa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "analyze_plaques",
+      "source": "Analyze plaques",
+      "source_sha256": "c4a7a3ed7780bcf36ae4269282ca7811644c9e7caffd251fec59a23190429cd6",
+      "translation": "Greina sýkingarskellur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anisotropy",
+      "source": "Anisotropy",
+      "source_sha256": "8d92c2498f5ca083b4554452796bb60e0c21fed9667a057002c36465571d949d",
+      "translation": "Misátta"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_compression",
+      "source": "Anndata compression",
+      "source_sha256": "2d8985803d6cf3ac3b49f71b5372c34514092f8db463d7fbd4aee9b1452a3d93",
+      "translation": "Anndata-þjöppun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_compute_umap",
+      "source": "Anndata compute UMAP",
+      "source_sha256": "32d8582152d58f1aabc7a9dd3be53196ecba9b4a7d7ebea4597a79878c298921",
+      "translation": "Anndata, reikna UMAP"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_dtype",
+      "source": "Anndata dtype",
+      "source_sha256": "fb32310cf89537f704ab0be03fb340fc8f5083fad210849b63915f5a1899ab88",
+      "translation": "Anndata: dtype gagna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_export",
+      "source": "Anndata export",
+      "source_sha256": "982547e4748ac352f006e7bf07924da091075a358083e8b15409c88056712c17",
+      "translation": "Anndata-útflutningur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_out",
+      "source": "Anndata out",
+      "source_sha256": "2ef327f71f578e9d82258f82faa693211223367b8ea61d6c9ff27f1aea320509",
+      "translation": "Anndata-úttaksskrá"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_register_artifact",
+      "source": "Anndata register artifact",
+      "source_sha256": "aaf747084c26b40b5c943a6fcae7e7cdf21a61b5bb553837fea62138c64988a8",
+      "translation": "Anndata, skrá afurð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_row_limit",
+      "source": "Anndata row limit",
+      "source_sha256": "d93c382f59c61077798007d123885016893cbdfabd2548c74122c7f89e6e43eb",
+      "translation": "Anndata-línuhámark"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_tables",
+      "source": "Anndata tables",
+      "source_sha256": "8b04f19b55dac8ac75f4662ab48c41383b8419afd874cf827384aec58a5ee22a",
+      "translation": "Anndata-töflur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "attribution_baseline",
+      "source": "Attribution baseline",
+      "source_sha256": "f6ab852ea7db24f5c95ea0dbe4ed967d63387d6fe0444ae969b5b4361810230e",
+      "translation": "Grunnlína eignunar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "attribution_steps",
+      "source": "Attribution steps",
+      "source_sha256": "88995f02bfe88a48af183a4f447f250b5893caca01fbcc043292d1a6268ed233",
+      "translation": "Skref eignunar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "augment",
+      "source": "Augment",
+      "source_sha256": "bbe057c584cb53c4de02e707087568f88fbf9c7ef90a26f3ef03e05ca6fc4ebd",
+      "translation": "Gagnaaukning"
+    },
+    {
+      "table": "setting_labels",
+      "key": "balance_to_smallest",
+      "source": "Balance to smallest",
+      "source_sha256": "6bda198cacf7a06ff74afb379918cfd2e7d35846a6cb0bd6b16083921bedf26d",
+      "translation": "Jafna að minnsta flokki"
+    },
+    {
+      "table": "setting_labels",
+      "key": "barcode_mismatches",
+      "source": "Barcode mismatches",
+      "source_sha256": "94a40261a0b506b120c60e2358e78f86c419b29ff015fc4346b0bf6199657eb0",
+      "translation": "Misræmi í strikamerki"
+    },
+    {
+      "table": "setting_labels",
+      "key": "baseline",
+      "source": "Baseline",
+      "source_sha256": "cc9ea7f7c64e772c81eb80854c0e7db8f504943549c0675d893a983b8f545152",
+      "translation": "Grunnlína"
+    },
+    {
+      "table": "setting_labels",
+      "key": "bimodality_cutoff",
+      "source": "Bimodality cutoff",
+      "source_sha256": "2708b77320b277536c8f564077c98d3e69ec123ee6e8e59a4de516dd07b9ecce",
+      "translation": "Þröskuldur tvítoppunar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "bounding_box",
+      "source": "Bounding box",
+      "source_sha256": "c1af2bd9fa64d4ea415cd277f6dfc7fdafbe34442db1e1e7e73129bc06fbe13d",
+      "translation": "Afmörkunarrammi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "csv_name",
+      "source": "CSV name",
+      "source_sha256": "0fe97987c13a16f014519d2fa0cc09bb639c6bd41802a4f23f35de19de49534f",
+      "translation": "Heiti CSV-skrár"
+    },
+    {
+      "table": "setting_labels",
+      "key": "calculate_correlation",
+      "source": "Calculate correlation",
+      "source_sha256": "2cecc1deaa04b418c8704ba03f5e1e3a0b61a1f4ecdbe30a12bd2f32af74f7c7",
+      "translation": "Reikna fylgni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cam_type",
+      "source": "Cam type",
+      "source_sha256": "2ed09c6c999083f26d1e69bd4b4226c4c7922a33907469ab320161861ed2d10f",
+      "translation": "Gerð CAM-korts"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cap",
+      "source": "Cap",
+      "source_sha256": "1257ac04471db97becf0cd70818dbd6e4437f11afefd321065f199a14d986cb9",
+      "translation": "Hámark"
+    },
+    {
+      "table": "setting_labels",
+      "key": "circularize",
+      "source": "Circularize",
+      "source_sha256": "a12adc3b522bb450dbf0e884365c711fd73c8e7123ca68931f0796433e825690",
+      "translation": "Gera hringlaga"
+    },
+    {
+      "table": "setting_labels",
+      "key": "class_balance",
+      "source": "Class balance",
+      "source_sha256": "0b4c28dc7716f4a1e6a645574dcf3ab3e59c492a943b93472c7147edf307e1c0",
+      "translation": "Flokkajafnvægi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "class_column",
+      "source": "Class column",
+      "source_sha256": "a11cd0267a2e0fb295eecae67edd8db11cf88d0321c61f6b6dda96684c360100",
+      "translation": "Flokkadálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "class_metadata",
+      "source": "Class metadata",
+      "source_sha256": "d51e068fa48a09a8e0de0c77021dd594fa6c92387408fc7beb725a7fd5dd5e99",
+      "translation": "Lýsigögn flokka"
+    },
+    {
+      "table": "setting_labels",
+      "key": "classifier_evaluation",
+      "source": "Classifier evaluation",
+      "source_sha256": "72a495de4598e15697dae4cf30bd07b46a311d5b6464d28c75f91d400897f4be",
+      "translation": "Mat á flokkara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "classifier_family",
+      "source": "Classifier family",
+      "source_sha256": "766d34119a85e7a767f6382652c5603d8639504bd2a38800cb0290985ee15a9e",
+      "translation": "Fjölskylda flokkara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cmap",
+      "source": "Cmap",
+      "source_sha256": "ad38f43cdab7b09c437c1ad9df40861304dfbdeb2966b5f867d32d2d9e5b86f3",
+      "translation": "Litakort"
+    },
+    {
+      "table": "setting_labels",
+      "key": "col_to_compare",
+      "source": "Col to compare",
+      "source_sha256": "3aebdaf0f2a92b1b15067b53158393729c007daa30a42285e237cf06f3e15ba8",
+      "translation": "Dálkur til samanburðar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "collision_max_distance",
+      "source": "Collision max distance",
+      "source_sha256": "f2daed44dbc85c5b1e67813da3b0eeb7b526e182dc3fa487771d202c98d6db34",
+      "translation": "Hámarksfjarlægð árekstra"
+    },
+    {
+      "table": "setting_labels",
+      "key": "color_by",
+      "source": "Color by",
+      "source_sha256": "26e43ef8709fee68365fba0b2ecb94eb2cbb9cfde3a0a3b32ac82a09b4f221a5",
+      "translation": "Lita eftir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "column_csv",
+      "source": "Column CSV",
+      "source_sha256": "f829ef27a11b0fe8fb1fe953290340c3827cafd90e7a4bf83f9ea63fed16ade8",
+      "translation": "CSV fyrir dálka"
+    },
+    {
+      "table": "setting_labels",
+      "key": "columnID",
+      "source": "Column ID",
+      "source_sha256": "0af14874225f3541e9f680439360f053b658a3cf99c8cc4eb2ccc783c665c8b3",
+      "translation": "Auðkenni dálks"
+    },
+    {
+      "table": "setting_labels",
+      "key": "comp_level",
+      "source": "Comp level",
+      "source_sha256": "5f7d257e408f2147547a1be78ec2491b72a8b06744cd81dff4a8b917817d5b8e",
+      "translation": "Þjöppunarstig"
+    },
+    {
+      "table": "setting_labels",
+      "key": "comp_type",
+      "source": "Comp type",
+      "source_sha256": "2b914e0f1ef0c96a55c5647ba74b40cec776e15ac86f9e576f8d3795cfee124b",
+      "translation": "Þjöppunargerð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "compartment",
+      "source": "Compartment",
+      "source_sha256": "9050c3e32af449db61deb4e3fc1d5836534f3b541494e411f7f55f350e58366c",
+      "translation": "Hólf"
+    },
+    {
+      "table": "setting_labels",
+      "key": "console_aware",
+      "source": "Console aware",
+      "source_sha256": "dd4656a3d3b51ee885a42eaafd99dd568a285cc88ed94cd4dd383d8d1bc761ab",
+      "translation": "Nota samhengi stjórnborðs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "consolidate",
+      "source": "Consolidate",
+      "source_sha256": "2f36130ebccc5c754f9c67d800a2b199cb14840a7894623ec33f66de36953e1c",
+      "translation": "Safna saman"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nontargeting_control_grnas",
+      "source": "Control gRNA/Gene",
+      "source_sha256": "a5ab4e0d8fd163069ef38ae0f22e7256a94e7799096f97d5459e1bcefa8d1396",
+      "translation": "Viðmiðs-gRNA/gen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "control_quantile",
+      "source": "Control quantile",
+      "source_sha256": "976a3f4bcead250a0c7e37114dbe9ea32de1d0c780f20cad7e519dde9c834952",
+      "translation": "Hlutfallsmark viðmiða"
+    },
+    {
+      "table": "setting_labels",
+      "key": "coordinate_columns",
+      "source": "Coordinate columns",
+      "source_sha256": "b094b599180dd7197e3828fc9c0212836876ef74a705073ab980287f2ead94ae",
+      "translation": "Hnitadálkar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "correlation",
+      "source": "Correlation",
+      "source_sha256": "5f1a25573a30bf774abb8d8a74cfb828962908592550ba04753cb14cd3a498cd",
+      "translation": "Fylgni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "count_data",
+      "source": "Count data",
+      "source_sha256": "2cb742a09037e75d26125432f6b8d5b07505206d14286dd748d65a217fea4878",
+      "translation": "Talningargögn"
+    },
+    {
+      "table": "setting_labels",
+      "key": "count_grna_column",
+      "source": "Count gRNA column",
+      "source_sha256": "f7ea49e6326d9314b352807f2cd01c23d9f631cfa70088a616a7151033290b22",
+      "translation": "gRNA-dálkur talningar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "count_value_column",
+      "source": "Count value column",
+      "source_sha256": "12042bb52a2b110a4aa665983b3265a7dcf8740699392c4c5a2bb975cb8b5c42",
+      "translation": "Dálkur talningargilda"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cov_type",
+      "source": "Cov type",
+      "source_sha256": "5fa8cbc3353d33cc5af4ba966b90c042939247e87cbbbb20264bed6f515b60e8",
+      "translation": "Gerð samdreifni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cross_validation",
+      "source": "Cross validation",
+      "source_sha256": "43dae3f36aec99e41ff1ca0198a893512e93fdcd2effd90637f8e63f03a5c692",
+      "translation": "Krossprófun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cross_validation_enabled",
+      "source": "Cross validation enabled",
+      "source_sha256": "a1c1208a72c615f2737057a60d0d30cfcde08b2e282e74f7c0b2de4bcbb3bec3",
+      "translation": "Krossprófun virk"
+    },
+    {
+      "table": "setting_labels",
+      "key": "custom_regex",
+      "source": "Custom regex",
+      "source_sha256": "285779196896bf754306e69de4188d0b94b4cf9853f09e3daec09f324516107c",
+      "translation": "Sérsniðin regex"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cv_csv",
+      "source": "Cv CSV",
+      "source_sha256": "3334f965201a72a078a74fd500041e702c5842a7224d1580236ca2380a8a687b",
+      "translation": "Cv-CSV-skrá"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cv_group_by",
+      "source": "Cv group by",
+      "source_sha256": "5ba00ff8bc39f9c7f95a21eaae31b1cfbea62fa7260777b342de32bed01b9d2a",
+      "translation": "Cv-hópun eftir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "data_column",
+      "source": "Data column",
+      "source_sha256": "60022b01ff0177e1e78d521e375f6483112fcfc38accee3b56856898ebf11500",
+      "translation": "Gagnadálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "data_column_cv",
+      "source": "Data column cv",
+      "source_sha256": "e95530a3f1e8fe0f4db1b35a4412fad2a8dfba369e9d697dbb3a23d20ddcda9d",
+      "translation": "Gagnadálkur cv"
+    },
+    {
+      "table": "setting_labels",
+      "key": "db_path",
+      "source": "Db path",
+      "source_sha256": "014f2fddcbc785bc9f6e5481674e23d8e3953691261a120f8c4f02ad507de276",
+      "translation": "Slóð gagnagrunns"
+    },
+    {
+      "table": "setting_labels",
+      "key": "db_table_name",
+      "source": "Db table name",
+      "source_sha256": "38e586bc1beed033841bc19d2526ac487d4aff589dfc5fa50fd50ac6804ee03e",
+      "translation": "Heiti töflu í gagnagrunni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "delete_intermediate",
+      "source": "Delete intermediate",
+      "source_sha256": "e4159040d1d21690447c73a597124d7a2854baa92acfb549ead28b5bd5595895",
+      "translation": "Eyða milliskrám"
+    },
+    {
+      "table": "setting_labels",
+      "key": "distance_gaussian_sigma",
+      "source": "Distance gaussian sigma",
+      "source_sha256": "58959a7255b69598bce699e5f99e0e1f448aad353b03dbc0fa6fca00d1d25944",
+      "translation": "Gauss-sigma fyrir fjarlægð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dropout_rate",
+      "source": "Dropout rate",
+      "source_sha256": "a2f78d220555d64e3f4a803975855fb3cc072b4b524db43ef066628d107d514b",
+      "translation": "Brottfallshlutfall"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dst",
+      "source": "Dst",
+      "source_sha256": "b191c7433f42c4576f1d347ebf5a3108de9aad9fa98e249dd894a6697501cf1d",
+      "translation": "Úttaksmappa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dst_root",
+      "source": "Dst root",
+      "source_sha256": "70fe4163bfdf5be8e92777b6c97917c03f756415c6d388cc9c63bfdc7a76c958",
+      "translation": "Rót úttaks"
+    },
+    {
+      "table": "setting_labels",
+      "key": "early_stopping_patience",
+      "source": "Early stopping patience",
+      "source_sha256": "e38994cd52e2810e999bec94278ce6a7789c7e7db0d0aca8fcd82e4c9dfa0595",
+      "translation": "Þolinmæði snemmstöðvunar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "edge_image",
+      "source": "Edge image",
+      "source_sha256": "2c9a433b84ee67f0c30cc60d18697d766df77c0bbdc09da1653d0ca2d6afe4ac",
+      "translation": "Útlína á mynd"
+    },
+    {
+      "table": "setting_labels",
+      "key": "evaluation_calibration",
+      "source": "Evaluation calibration",
+      "source_sha256": "b699ff591b6eb5a03d9e4d26557f0f4673795abc435559b0db4dce0b10947a84",
+      "translation": "Kvörðun mats"
+    },
+    {
+      "table": "setting_labels",
+      "key": "evaluation_fail_on_leakage",
+      "source": "Evaluation fail on leakage",
+      "source_sha256": "28036235a59998c3ef6d43a7806d8a2b839c8c9f0e3ab8bde89c038e60f25156",
+      "translation": "Stöðva mat við leka"
+    },
+    {
+      "table": "setting_labels",
+      "key": "examples_to_plot",
+      "source": "Examples to plot",
+      "source_sha256": "1c5949eb2d827fe192ba32bbbeb2d37a14da821d77c52b5fa67b17ee24682031",
+      "translation": "Dæmi til að teikna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "exclude",
+      "source": "Exclude",
+      "source_sha256": "5b76f62e1ba0401f8f18752e4bfd03c076de0a21eefcf26422725ffa28f6b4cd",
+      "translation": "Útiloka"
+    },
+    {
+      "table": "setting_labels",
+      "key": "exclude_conditions",
+      "source": "Exclude conditions",
+      "source_sha256": "b5565bcb10139fd220cdeb7cfccdb2f6ebd094b2a188b8a19bc3653e847005e8",
+      "translation": "Útiloka aðstæður"
+    },
+    {
+      "table": "setting_labels",
+      "key": "exclude_grnas",
+      "source": "Exclude gRNAs",
+      "source_sha256": "4dc1f988e8215839b260f4a4a9495fa0b7957b936e338faf384569f853522fd0",
+      "translation": "Útiloka gRNAs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "exclude_rows",
+      "source": "Exclude rows",
+      "source_sha256": "2bd23c7d892c33ea2e74715ae871f087456fbbdc3765e8e57ca189b0e8fe9b81",
+      "translation": "Útiloka línur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "explain_cv",
+      "source": "Explain cv",
+      "source_sha256": "33ebcdf4fce367fd6f399ed3781fe9cde36438ff15f4bcc3334a708ee3ead8da",
+      "translation": "Skýra cv"
+    },
+    {
+      "table": "setting_labels",
+      "key": "extracellular_class",
+      "source": "Extracellular class",
+      "source_sha256": "67f599b7e60ae168821d936ccf9e68e703506bbf0cdd00fa6b80182bad2cbe26",
+      "translation": "Flokkur utan frumna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fdr_alpha",
+      "source": "Fdr alpha",
+      "source_sha256": "71676ec98fe21aaa1a925303bedeb13d9aace732fdd6131459677d2024ab6dd6",
+      "translation": "Fdr-alfa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fields",
+      "source": "Fields",
+      "source_sha256": "616f48c1db195b6f23031e5064d19920ab9f1c394100bbad51800d1020f7702d",
+      "translation": "Sjónsvið"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fill_in",
+      "source": "Fill in",
+      "source_sha256": "cd8a65c384d04be7b39fd53c369215966fb1240b2f6a6f9de4b7d134ef5b975b",
+      "translation": "Fylla í göt"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fill_na",
+      "source": "Fill na",
+      "source_sha256": "dfa8805452d9108d68a7962a10d83da82d8728ca47cd02bcd6c12ee16d3243d8",
+      "translation": "Fylla í vantandi gildi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_1",
+      "source": "Filter 1",
+      "source_sha256": "6c1b7686b6cb55429c12b697f1c8431eece8aa58cb64c55043ce4b67cc733750",
+      "translation": "Sía 1"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_by",
+      "source": "Filter by",
+      "source_sha256": "d00f52454412f75aa75c339978114a91584dfc58c73e585e0d5c49b550f5ce80",
+      "translation": "Sía eftir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_column",
+      "source": "Filter column",
+      "source_sha256": "1f07042814265cca07671c8ccf3aabc751f5ddfedd823e8cc12bf62f050980c1",
+      "translation": "Síudálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_min_max",
+      "source": "Filter min max",
+      "source_sha256": "8d567bbabfdb98afd7866e4a3c8d37ba30d24acac902dd47dd6e8dbb1f519e1b",
+      "translation": "Lágmarks-/hámarkssía"
+    },
+    {
+      "table": "setting_labels",
+      "key": "filter_value",
+      "source": "Filter value",
+      "source_sha256": "d9542a271957e5da6241a181f50baa24e710645a5007dfa3e45c27bbad587791",
+      "translation": "Síugildi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "focal_alpha",
+      "source": "Focal alpha",
+      "source_sha256": "563a75350f818e18f0d24e69b720318b059c6d1ca062cdbc755c62db931b1797",
+      "translation": "Focal-alfa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "focal_gamma",
+      "source": "Focal gamma",
+      "source_sha256": "0ef1a3751ab5545fa1808f669c7e3b991c455ff85dab955c5efde2c6520d1c17",
+      "translation": "Focal-gamma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fps",
+      "source": "Fps",
+      "source_sha256": "2df9e7d0461d2dc9b97c2fac64f6d36801a4a848fa52a659b16eb3b8ce037732",
+      "translation": "Rammar á sekúndu"
+    },
+    {
+      "table": "setting_labels",
+      "key": "fraction_grna",
+      "source": "Fraction gRNA",
+      "source_sha256": "e0cb6113c6d17fdf0cd22097d81f8f00837248d3adcc806975d5ab1f309ace24",
+      "translation": "gRNA fyrir hlutfall"
+    },
+    {
+      "table": "setting_labels",
+      "key": "frame_interval_s",
+      "source": "Frame interval s",
+      "source_sha256": "f822101f6f2d192a5547b790f7d35d656cfd776bb5d0bcf63d2e19de18c9b60e",
+      "translation": "Rammabil s"
+    },
+    {
+      "table": "setting_labels",
+      "key": "from_scratch",
+      "source": "From scratch",
+      "source_sha256": "15bd8dcf953dff90450f8c50313f9892623c84820a2d363c7782585dbb3d1415",
+      "translation": "Frá grunni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "genotype_source",
+      "source": "Genotype source",
+      "source_sha256": "bc3e98f58e461a415a6c99e28b585beeeafa67f8de9b390bcbf98bb0d7e97492",
+      "translation": "Uppruni arfgerðar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "glm_transform_conflict",
+      "source": "Glm transform conflict",
+      "source_sha256": "c8e634242635c2b8dd08f01a77d5c536c28cbb61a59155f6b929abea8a3d4729",
+      "translation": "Glm: árekstur umbreytingar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "gradient_accumulation",
+      "source": "Gradient accumulation",
+      "source_sha256": "24cafc994d02acb4dbb05f8e9edda2bf9b4d623db230bf6235a0babddd10e99d",
+      "translation": "Stigulsöfnun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "gradient_accumulation_steps",
+      "source": "Gradient accumulation steps",
+      "source_sha256": "241139d7628730047f26587a11614f99ae5e4427cca496c5c9527203092d4937",
+      "translation": "Skref stigulsöfnunar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "grayscale",
+      "source": "Grayscale",
+      "source_sha256": "93638ea9e0b0aae93af40fcc1a36e7b4ea1dea761d27de2c369563fbe5a411f3",
+      "translation": "Grátóna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "group_by_class",
+      "source": "Group by class",
+      "source_sha256": "d8d95261c64c823b74e20901553d39fb07c530fe79c62c41454bd941af75e0f6",
+      "translation": "Hópa eftir flokki"
+    },
+    {
+      "table": "setting_labels",
+      "key": "group_column",
+      "source": "Group column",
+      "source_sha256": "f3b87445e7c93df10ed2223c2d5d4f363e98b07a1c4c5abb1a9318afa8426f4b",
+      "translation": "Hópdálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "group_lasso_lambda",
+      "source": "Group lasso lambda",
+      "source_sha256": "bd82aa70bca389d7eec0d152e6fe05b7655263314ee6403f3e53a704924e09de",
+      "translation": "Lambda hópa-lasso"
+    },
+    {
+      "table": "setting_labels",
+      "key": "grouping",
+      "source": "Grouping",
+      "source_sha256": "b3c6e63fa9679a23c1d76910f6fc574d71dcd6ffb6079b757a4a9d8c85398e86",
+      "translation": "Hópun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_nuisance_columns",
+      "source": "Guide nuisance columns",
+      "source_sha256": "6aeda8ceebc376233b4fcb2a78f1ffc310eaa15e1004df6a6326c440e6962969",
+      "translation": "Truflunardálkar leiðara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_permutation_block",
+      "source": "Guide permutation block",
+      "source_sha256": "f971620d45df94cef7e7c54fdc92793049924a8dff914564c1faf79c54aaf307",
+      "translation": "Umröðunarblokk leiðara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_permutations",
+      "source": "Guide permutations",
+      "source_sha256": "12ae581ea6052fac665e6a1872e9670bd4d9e2a0eb54beadcb23610dd196e061",
+      "translation": "Umraðanir leiðara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "half_widths",
+      "source": "Half widths",
+      "source_sha256": "76e3d3678df19f7abc9a87c712cf8d721d0d75d4ebc9a25396a3699bc4199d1f",
+      "translation": "Hálfbreiddir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hinge_n_boot",
+      "source": "Hinge n boot",
+      "source_sha256": "542d0256da17d9d112e5a0b1fb7f6f7a20c09442762183c1bb74ffa2cdf8ec2d",
+      "translation": "Hinge: fjöldi bootstrap-úrtaka"
+    },
+    {
+      "table": "setting_labels",
+      "key": "homogeneity",
+      "source": "Homogeneity",
+      "source_sha256": "d3f80b50ec13cf9197588cfcac4361a3629b4dc41a6a35a3490c3c13cd4a4d46",
+      "translation": "Einsleitni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "homogeneity_distances",
+      "source": "Homogeneity distances",
+      "source_sha256": "bdd7958d4996013f062cb62909d69e71bad259bd85451b8178710c3b20ca508e",
+      "translation": "Fjarlægðir einsleitni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ig_steps",
+      "source": "Ig steps",
+      "source_sha256": "8000554e30e8191a0e25932e19329b20466e4ce8ecd673f695102b3d4421acf7",
+      "translation": "IG-skref"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_qc",
+      "source": "Illumination QC",
+      "source_sha256": "f816202647eb2c1397be695760468d7f22d70b3698bacd6d8d313aa6fbbb8895",
+      "translation": "QC lýsingar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_correction",
+      "source": "Illumination correction",
+      "source_sha256": "b0462aa54c1d32a8c7fb3c559ca19072761478e589095cece9f77ea38e8b8bba",
+      "translation": "Lýsingarleiðrétting"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_dark",
+      "source": "Illumination dark",
+      "source_sha256": "57957b97736ae1f844fa9c4fbc7024097e3c89866dbd98d28123d1fabbb44a0b",
+      "translation": "Myrkurhliðrun lýsingar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_degree",
+      "source": "Illumination degree",
+      "source_sha256": "c45eba67319ac92d85e93f4fc036deab87dfd7b72487fa556e66a7e598f99cd6",
+      "translation": "Stig lýsingarflatar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_estimator",
+      "source": "Illumination estimator",
+      "source_sha256": "f6beb821fb737d85905bfea58271ffb3b13df9741a762d396a2ba245b183569e",
+      "translation": "Matsaðferð lýsingar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_max_fields",
+      "source": "Illumination max fields",
+      "source_sha256": "19aa76d4dd0e9ed262eb2fcab30994d42c7e8f5f476366672e95aa07dbff3026",
+      "translation": "Hámark sjónsviða fyrir lýsingu"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_on_missing",
+      "source": "Illumination on missing",
+      "source_sha256": "6efa3268fa57b92f455ad1d3e59bc968242a786a6af3d9bc791f8396bd403940",
+      "translation": "Lýsing þegar líkan vantar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_nr",
+      "source": "Image nr",
+      "source_sha256": "55b0c54e00f87b6f2769f58eac5bf637d4ab45f55874f62af9ea1582d602acdc",
+      "translation": "Fjöldi mynda"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_type",
+      "source": "Image type",
+      "source_sha256": "a77e1c4782f423342dba6bf19a56fe25355824424d623e459ed78a4d47867439",
+      "translation": "Myndagerð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "img_zoom",
+      "source": "Img zoom",
+      "source_sha256": "dea9ab8027ddf27ce99bf71445b47a696d59e5e68909ddf0861a53474ec8af94",
+      "translation": "Stækkun mynda"
+    },
+    {
+      "table": "setting_labels",
+      "key": "include_all",
+      "source": "Include all",
+      "source_sha256": "01b9b50f220dff8f5c6126c192b3d32b93d7c4a2b7ff3f700393a0038b8992ed",
+      "translation": "Taka allt með"
+    },
+    {
+      "table": "setting_labels",
+      "key": "independent_variable_layout",
+      "source": "Independent variable layout",
+      "source_sha256": "4a538b768ecd545dc76487432156e13657b34e81c7a6b7de42592286c401daeb",
+      "translation": "Skipan óháðrar breytu"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_min_dist",
+      "source": "Infection pca UMAP min dist",
+      "source_sha256": "2be2fd3662b88d03f7315e16af6f701ed0c2e4e5cd331a2d8171036c65ff7ca9",
+      "translation": "Sýking: pca UMAP lágm. fjarlægð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_min_dist_grid",
+      "source": "Infection pca UMAP min dist grid",
+      "source_sha256": "079f3d3bd68a312db95bc1e5648c2a1b1e7f520e02eff8f478717d0a239beaf5",
+      "translation": "Sýking: pca UMAP, net lágm. fjarlægðar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_n_neighbors",
+      "source": "Infection pca UMAP n neighbors",
+      "source_sha256": "1e46d70b453d5ca2bd6b178d100e0a839e16ac76e20ea85e3909a125fd88267c",
+      "translation": "Sýking: pca UMAP n nágrannar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_n_neighbors_grid",
+      "source": "Infection pca UMAP n neighbors grid",
+      "source_sha256": "b49a0bc3728a9641dbfd8c0b7e139ff4db5bb2d8ea5fa0fa6d42e2062d83a5ff",
+      "translation": "Sýking: pca UMAP, net n nágranna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_umap_search",
+      "source": "Infection pca UMAP search",
+      "source_sha256": "245bd32483b1a4b5618a744e59ca35a4d406ed36ed9f13dc67081e7019b35555",
+      "translation": "Sýking: pca UMAP-leit"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_max_cells",
+      "source": "Infection pca max cells",
+      "source_sha256": "82d3b4f998ea1cd71996b373fcc665c96a55abf72e4b05b9bbe96050c6d237b1",
+      "translation": "Sýking: pca hámark frumna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_method",
+      "source": "Infection pca method",
+      "source_sha256": "51116e668566912a8a11c183f14823af8c3acb112c090740cc4c95cb01895323",
+      "translation": "Sýking: pca aðferð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_min_gt_separation",
+      "source": "Infection pca min gt separation",
+      "source_sha256": "4db8736b92f127cd6af6a8cb1caf9386da6101e8f369b04bce49f692af419552",
+      "translation": "Sýking: pca lágm. aðskilnaður frá grunnsannindum"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_min_silhouette",
+      "source": "Infection pca min silhouette",
+      "source_sha256": "12e22eac3aa93cf336e5562a175c76e60a670bf1403e82bf6c0187ecabdfba88",
+      "translation": "Sýking: pca lágm. silhouette-gildi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_random_state",
+      "source": "Infection pca random state",
+      "source_sha256": "dec6bc0626a88ee6459ff5ddf1069e4b4f3e21451895b79c382bfe9be8c917b1",
+      "translation": "Sýking: pca slembifræ"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_tsne_learning_rate_grid",
+      "source": "Infection pca tsne learning rate grid",
+      "source_sha256": "036341e214fe28dc216be1e0b977db0faaf6cd5f826b17aa0319f6703bd28dd1",
+      "translation": "Sýking: pca net tsne-lærdómshraða"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_tsne_perplexity",
+      "source": "Infection pca tsne perplexity",
+      "source_sha256": "97949b6468aba9923d2a5bf8667fbe2f1b1159a32ebaea88e3ae77ed7c710393",
+      "translation": "Sýking: pca tsne-perplexity"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_tsne_perplexity_grid",
+      "source": "Infection pca tsne perplexity grid",
+      "source_sha256": "e91dcffaa1b69293fad491c5b1d95407460b7f906a1a05e239b11a1b25e06cc4",
+      "translation": "Sýking: pca net tsne-perplexity"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_tsne_search",
+      "source": "Infection pca tsne search",
+      "source_sha256": "aa0de5e2277502d4b6062bb77d9e11bd6a1316f518cb7c0dafe5a6e774fd2202",
+      "translation": "Sýking: pca tsne-leit"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_ambiguous_high",
+      "source": "Infection xgb ambiguous high",
+      "source_sha256": "71749ca69bc88de218be027ad5916c266c83afc781ad4f7c9aeabc35ac96268a",
+      "translation": "Sýking: xgb efri tvíræðnimörk"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_ambiguous_low",
+      "source": "Infection xgb ambiguous low",
+      "source_sha256": "4791ccb26d19c7e05ce1dab84160ba3439ed8549bb7da96a95179d6d2e90d515",
+      "translation": "Sýking: xgb neðri tvíræðnimörk"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_colsample_bytree",
+      "source": "Infection xgb colsample bytree",
+      "source_sha256": "00f65f91c0d86600a6be641446a33e037cb28cd9026ce8586d09c5f4ba4b2c0d",
+      "translation": "Sýking: xgb dálkaúrtak á tré"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_drop_ambiguous",
+      "source": "Infection xgb drop ambiguous",
+      "source_sha256": "5eb6b5e20cbf57e7d74521908e2e8977c07199e1c4109520df2c41a2bf9e1d4e",
+      "translation": "Sýking: xgb sleppa tvíræðum"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_learning_rate",
+      "source": "Infection xgb learning rate",
+      "source_sha256": "478691d911efc6e98f43ef2c887124e35abe86775c1e4d48c52deaf74ce40722",
+      "translation": "Sýking: xgb lærdómshraði"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_margin",
+      "source": "Infection xgb margin",
+      "source_sha256": "522bc18f7ddd50ad1c09a14a80ac3ac797712d920ebd2ee2ce3a6abd270c340e",
+      "translation": "Sýking: xgb vikmörk"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_max_depth",
+      "source": "Infection xgb max depth",
+      "source_sha256": "0ca885300f310165707563281f3e10565f40dc976b3740baacac256f3397bc18",
+      "translation": "Sýking: xgb hámarksdýpt"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_min_cells_per_class",
+      "source": "Infection xgb min cells per class",
+      "source_sha256": "3a28fc941041c3103e0571ce53a8f182fa856be59c39fca8c5f2ab197638f12c",
+      "translation": "Sýking: xgb lágm. frumur á flokk"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_n_estimators",
+      "source": "Infection xgb n estimators",
+      "source_sha256": "d50d7d63da41bd0c07ffb6d789db0dbf347775d6c613a3ca276a7191c2cf24e4",
+      "translation": "Sýking: xgb fjöldi trjáa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_proba_column",
+      "source": "Infection xgb proba column",
+      "source_sha256": "805f3812206291dd7890f30c2d3949c4b0729af3977187d01299c036655e9e1d",
+      "translation": "Sýking: xgb proba-dálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_random_state",
+      "source": "Infection xgb random state",
+      "source_sha256": "4659e12088b8ce5d6be355ab8139c3b8c6699e35762f9acccfe343508438ee0c",
+      "translation": "Sýking: xgb slembifræ"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_reg_lambda",
+      "source": "Infection xgb reg lambda",
+      "source_sha256": "7b5c396dc408f4ed9377aa81b3d2c7d9230c1bee75608693b2640b9e6110afff",
+      "translation": "Sýking: xgb reglunar-lambda"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_subsample",
+      "source": "Infection xgb subsample",
+      "source_sha256": "eab2fc6a3c5721e205b027d6b4401bee1ecfc60dbb46fad2a250085519a45cc7",
+      "translation": "Sýking: xgb undirúrtak"
+    },
+    {
+      "table": "setting_labels",
+      "key": "inflation_warn",
+      "source": "Inflation warn",
+      "source_sha256": "443fd277387e0180d8fd5257ca6897074017a01aab5f659d963577cdfa1fcf40",
+      "translation": "Viðvörun um uppblástur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "inputs",
+      "source": "Inputs",
+      "source_sha256": "7abc49dfa87bc183179762b87f9914ceadc46c29a5621493a4a91e54d401c1ed",
+      "translation": "Inntök"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intercept",
+      "source": "Intercept",
+      "source_sha256": "1b6926403a45086210ec2fdb5b623a524b91da2733b8612b318a1eb10341a6ba",
+      "translation": "Skurðpunktur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intercept_value",
+      "source": "Intercept value",
+      "source_sha256": "34b8bd264bf59b981e3c05a31ccab201f0f7f510ebe518b28bcca19adbca70d2",
+      "translation": "Gildi skurðpunkts"
+    },
+    {
+      "table": "setting_labels",
+      "key": "invert",
+      "source": "Invert",
+      "source_sha256": "7e04f2ffb9334e3d19a15c949a73818d4b271b0e713dbfad612b29491b46bc1b",
+      "translation": "Snúa við"
+    },
+    {
+      "table": "setting_labels",
+      "key": "invert_dependent_variable",
+      "source": "Invert dependent variable",
+      "source_sha256": "f2d7f5b641cf8f825bfd2e198726680a47f1daa68a22f7df0fb6a9172c02e25a",
+      "translation": "Snúa við háðu breytunni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "isomap_n_neighbors",
+      "source": "Isomap n neighbors",
+      "source_sha256": "794cd8d2d0b9e62d59be5cf95e42f5cdbcd9b163343acedbe0af6a0c0f1fa009",
+      "translation": "Isomap: n nágrannar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "isomap_path_method",
+      "source": "Isomap path method",
+      "source_sha256": "450e5dad01dd32244e9ba832cf46004591f141cbd6e16eac3dd99b1d8707c9ff",
+      "translation": "Isomap: aðferð stystu leiðar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "keep_intermediate",
+      "source": "Keep intermediate",
+      "source_sha256": "05422a29d62d232966676b0cc30b31023dcb41337e6a6cc553e55a32a10504d9",
+      "translation": "Halda milliskrám"
+    },
+    {
+      "table": "setting_labels",
+      "key": "keep_original_images",
+      "source": "Keep original images",
+      "source_sha256": "ea07c269b7c0f541e3bd5a9d2dd5660c5dd86d2ac30f29529c2f628d7819b674",
+      "translation": "Halda upprunalegum myndum"
+    },
+    {
+      "table": "setting_labels",
+      "key": "l1_ratio",
+      "source": "L1 ratio",
+      "source_sha256": "827940671155650cb96b4e32985af491ff5709e4946d562e2156d65a4306c455",
+      "translation": "L1-hlutfall"
+    },
+    {
+      "table": "setting_labels",
+      "key": "lasso_n_boot",
+      "source": "Lasso n boot",
+      "source_sha256": "910833dc0b834100b84eb9763fb1f9027b5a8123aaee66d0c47f028a5486e7c6",
+      "translation": "Lasso: fjöldi bootstrap-úrtaka"
+    },
+    {
+      "table": "setting_labels",
+      "key": "layout",
+      "source": "Layout",
+      "source_sha256": "a511909161e1b84fb81b52028fc2ce79525a96b40ccda823caa4a66ee64772b5",
+      "translation": "Nafnaskipan"
+    },
+    {
+      "table": "setting_labels",
+      "key": "leakage_hash_content",
+      "source": "Leakage hash content",
+      "source_sha256": "6771c67a75d3da153d9dbf30f97561a44e145be03cff1650bf43c35a0dca27e1",
+      "translation": "Leki: tætigildi innihalds"
+    },
+    {
+      "table": "setting_labels",
+      "key": "leakage_require_identity",
+      "source": "Leakage require identity",
+      "source_sha256": "f0fb26368d7d34d1313feac2ebcc21679d7fcf5bfa60b6efb67c7e3e2ce178e9",
+      "translation": "Leki: krefjast auðkennis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "learning_rate",
+      "source": "Learning rate",
+      "source_sha256": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
+      "translation": "Lærdómshraði"
+    },
+    {
+      "table": "setting_labels",
+      "key": "location_column",
+      "source": "Location column",
+      "source_sha256": "be4288e182c20d5bee64902ec0daec9e7a03ed6d517c1c7ef54a5494406fca05",
+      "translation": "Staðsetningardálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "log_x",
+      "source": "Logarithmic x",
+      "source_sha256": "6b49c36fa41a2e25edfcef36fab7030e65fc8768548147985e6027c6bfb41abc",
+      "translation": "Lógaritmískur x"
+    },
+    {
+      "table": "setting_labels",
+      "key": "log_y",
+      "source": "Logarithmic y",
+      "source_sha256": "6e75a3bc8b7a5d6ad3da1e054dfc6750feb35ae16f28601995fef2417216993f",
+      "translation": "Lógaritmískur y"
+    },
+    {
+      "table": "setting_labels",
+      "key": "logit_adjust_tau",
+      "source": "Logit adjust tau",
+      "source_sha256": "ecba8e5d03df03e25bb4a7c69ef88a9e082a82c3ce0e9ab494ce71379de061f6",
+      "translation": "Logit-aðlögun tau"
+    },
+    {
+      "table": "setting_labels",
+      "key": "magnification",
+      "source": "Magnification",
+      "source_sha256": "cfa79416971407aaa8b5e8cc904b03d0f7809259ed6c933c22cf8f82be6ffd4a",
+      "translation": "Stækkun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "manders_thresholds",
+      "source": "Manders thresholds",
+      "source_sha256": "d6f1569c7c53558a42ba6264958d6afa35c0d89cfa256ad7042a25c9e500ae4e",
+      "translation": "Manders-þröskuldar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "map_barcodes",
+      "source": "Map barcodes",
+      "source_sha256": "327c469230e2cd8c5ddbf70fd93873dd3a6fd7492a2363271b5d18a9e6f5b1e7",
+      "translation": "Varpa strikamerkjum"
+    },
+    {
+      "table": "setting_labels",
+      "key": "max_failure_rate",
+      "source": "Max failure rate",
+      "source_sha256": "b9495974b89375f445157d4eddfbf503d1645d0bfac26108d5ea9fd182855305",
+      "translation": "Hámarkshlutfall villna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "max_parasites_per_vacuole",
+      "source": "Max parasites per vacuole",
+      "source_sha256": "d04898bd2b02477b652a4855157dbe8ec717c07acb4d937f9874194896069ce9",
+      "translation": "Hám. sníkjudýr á bólu"
+    },
+    {
+      "table": "setting_labels",
+      "key": "external_masks.cytoplasm",
+      "source": "Measure cytoplasm",
+      "source_sha256": "bdd944d013bc903462492d38303ce6bee84f4b1c238b04f8c3d3240982b5b172",
+      "translation": "Mæla umfrymi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "external_masks.merge_edge_pathogen_cells",
+      "source": "Merge edge-pathogen cells",
+      "source_sha256": "527defc4a03262c2c28691496dd1490158c622e6ab2315cef4edc195aa0621de",
+      "translation": "Sameina sýkla á mörkum frumna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "merge_pathogens",
+      "source": "Merge pathogens",
+      "source_sha256": "3716e464a88f5fac87e371215d26ddc3f366ad35740f133fcbcefa7f33b7bc29",
+      "translation": "Sameina sýkla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_files",
+      "source": "Metadata files",
+      "source_sha256": "0511a3cb7204886ca8d67e786dd4ae7e5363b7713d480cac57fe9fa15ff9992e",
+      "translation": "Lýsigagnaskrár"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_item_1_name",
+      "source": "Metadata item 1 name",
+      "source_sha256": "7e405f5cfb2580ea60073206be554da236801b8806cf853ebe2d4f280bd5d36a",
+      "translation": "Heiti lýsigagnaliðar 1"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_item_1_value",
+      "source": "Metadata item 1 value",
+      "source_sha256": "1bb183fafb7a25c944fd66b34d727ded69b83d689214b28f2e4795f60c4e0b47",
+      "translation": "Gildi lýsigagnaliðar 1"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_item_2_name",
+      "source": "Metadata item 2 name",
+      "source_sha256": "d652255ce1b5557b6cb0467a5a2193b5fc5f2f611d66573bb8fc01abb775978d",
+      "translation": "Heiti lýsigagnaliðar 2"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_item_2_value",
+      "source": "Metadata item 2 value",
+      "source_sha256": "d01a7ce2aa2684a83f80d91e134b83565e53be48ab2c1042637efc2074ba2493",
+      "translation": "Gildi lýsigagnaliðar 2"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metadata_type",
+      "source": "Metadata type",
+      "source_sha256": "0f50c9be66af0bef046200aab45dbb791d7fd9afeeeacccd072e2235f0189e02",
+      "translation": "Gerð lýsigagna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "metric",
+      "source": "Metric",
+      "source_sha256": "2d275a74912cca2e02e6d41f9cae3a75ceef3ed0ef734eff3710e10eb7112228",
+      "translation": "Fjarlægðarmælikvarði"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_control_objects",
+      "source": "Min control objects",
+      "source_sha256": "6cad3cb02fa8d68197ec60b4014b4fbbf184a4039c2ace979de0329179548416",
+      "translation": "Lágm. hlutir í viðmiðum"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_dist",
+      "source": "Min dist",
+      "source_sha256": "194f949dac122f5fb9f7aa9532d50faaad142dcbd0e0fa5ebc2bb03afbe372e6",
+      "translation": "Lágm. fjarlægð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_max",
+      "source": "Min max",
+      "source_sha256": "e4f97245b8484cd5afe17847ea21da1e07f76eb64d0760f57b33a7845b1697ae",
+      "translation": "Litamörk (lágm./hám.)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_objects_for_bimodality",
+      "source": "Min objects for bimodality",
+      "source_sha256": "b582c57c06c894df497fe07763bed41a6818db8d9fec1a989b377c083a834838",
+      "translation": "Lágm. hlutir fyrir tvítoppun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_samples",
+      "source": "Min samples",
+      "source_sha256": "13ee0110571d9ef9250da454738cfbc7acb19fede198bfab91835d7ff5d5c9b7",
+      "translation": "Lágm. sýni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "mix",
+      "source": "Mix",
+      "source_sha256": "dce6eb4447ef655f33b7baeb0a16ab3d27257c65bf45f760a44b9bff8d5b6663",
+      "translation": "Blandaðir brunnar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "mixed_precision",
+      "source": "Mixed precision",
+      "source_sha256": "cae03fa5499b9ae41aae0f53d87fb5ab839aa7d1e534a48bdeec007c767e0d1a",
+      "translation": "Blönduð nákvæmni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ml_analyze",
+      "source": "Ml analyze",
+      "source_sha256": "a818ac7c3616737b00c7d37516f8761a4b8b60b8159c3ffd6e06fc4543c566ea",
+      "translation": "Ml-greining"
+    },
+    {
+      "table": "setting_labels",
+      "key": "motility_analysis",
+      "source": "Motility analysis",
+      "source_sha256": "63cc5e2bbefec1e2426046024034f8a9b8c332dfceefb21ccd7c656a6df8a4f5",
+      "translation": "Hreyfanleikagreining"
+    },
+    {
+      "table": "setting_labels",
+      "key": "motility_xlim",
+      "source": "Motility xlim",
+      "source_sha256": "08aa3288f2056294938849ab5fd9389daa8993d2c1030849457809ec5d6c452f",
+      "translation": "Hreyfanleiki: x-mörk"
+    },
+    {
+      "table": "setting_labels",
+      "key": "motility_ylim",
+      "source": "Motility ylim",
+      "source_sha256": "df21071bb6e494cf1b3210dfec8f6aa41496a1542c27bb07e55e288f6d14ce58",
+      "translation": "Hreyfanleiki: y-mörk"
+    },
+    {
+      "table": "setting_labels",
+      "key": "multiple_testing_method",
+      "source": "Multiple testing method",
+      "source_sha256": "f339b1d95a19fc959da4ac964ca40faf4d6f22b621e03115f635bc35b8e5e36a",
+      "translation": "Leiðréttingaraðferð fjölprófana"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_estimators",
+      "source": "N estimators",
+      "source_sha256": "73d505efb979eb91a84f9c191497cdc41b6c95d639f2fa4705337a145bd43ad3",
+      "translation": "Fjöldi trjáa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_neighbors",
+      "source": "N neighbors",
+      "source_sha256": "d622f7cc4d68c562ecd717f3dc25bf926b5fcf494f1296f378e127d75acf9c7f",
+      "translation": "Fjöldi nágranna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_repeats",
+      "source": "N repeats",
+      "source_sha256": "236fdab80621d5e0380d155963d94b964b2a784c1d8b7529d38ed96a0a195906",
+      "translation": "Fjöldi endurtekninga"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_top_examples",
+      "source": "N top examples",
+      "source_sha256": "a6de1509dc5600c9ba02536e89f7cfee86eb8ebeff02deea83a0730dc752d63b",
+      "translation": "Fjöldi bestu dæma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_workers",
+      "source": "N workers",
+      "source_sha256": "3bcaadb2bbf7f161cae5cf1236aefe7fd425d8fcfeb6e43746da804242168a8b",
+      "translation": "Fjöldi vinnsluferla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "neg",
+      "source": "Neg",
+      "source_sha256": "ee02b7e6deb6343d4ffd86d2b3294042746361615464a21f6bbb9a736d9457c1",
+      "translation": "Neikvæð viðmið"
+    },
+    {
+      "table": "setting_labels",
+      "key": "negative_control_id",
+      "source": "Negative control ID",
+      "source_sha256": "7f6e6ed3b7a3a45e7bb3c7eaeb8818cbe4bd92223c1d20cc384473a5eb179012",
+      "translation": "Auðkenni neikvæðs viðmiðs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "non_power_of_two_warn",
+      "source": "Non power of two warn",
+      "source_sha256": "f960e31bdd7842a1c6d70fa3f84e97878584174c4fbe1e6270183c3ba04d6d6a",
+      "translation": "Viðvörun um fjölda sem er ekki veldi af tveimur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "normalise_fraction",
+      "source": "Normalise fraction",
+      "source_sha256": "4aaaea23000909798b8902e9555c325c97fe2290aa255b63037d70d1737bdaae",
+      "translation": "Staðla hlutfall"
+    },
+    {
+      "table": "setting_labels",
+      "key": "normalization_percentiles",
+      "source": "Normalization percentiles",
+      "source_sha256": "37070612287f0306231582eb586e1c301edc3f01b985ca9fccb73fba8bf3c9c5",
+      "translation": "Hundraðshlutamörk stöðlunar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nr",
+      "source": "Nr",
+      "source_sha256": "03b66ae36db99ca7641726ee9a9d0c834b120038ae8d765b9e61e2abe2b2e5d2",
+      "translation": "Fjöldi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nr_imgs",
+      "source": "Nr imgs",
+      "source_sha256": "9f8b0730c1fb2f35c3ea0c54671ae967e9ae7864faa3358804487fa86f72b81e",
+      "translation": "Fjöldi mynda í neti"
+    },
+    {
+      "table": "setting_labels",
+      "key": "number_of_organelles",
+      "source": "Number of organelles",
+      "source_sha256": "023ce7d9c46fe2b6bdba91a4f56644f34a73c4744016579aa918fba5186a53e7",
+      "translation": "Fjöldi frumulíffæra"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_array",
+      "source": "Object array",
+      "source_sha256": "ad9dd7138ccb8b1f0c209c4849065e3b08be1022465a9360f5bd1591aece68e7",
+      "translation": "Hlutur fyrir myndskurð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_distance_maxima",
+      "source": "Object distance maxima",
+      "source_sha256": "70e385a1f577660a9f843f54abf973b08cfb022b752a32db4183dadb35d2b167",
+      "translation": "Styrkhámörk innan hluta"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_distances",
+      "source": "Object distances",
+      "source_sha256": "930b42a7ade118490ad89d074db401fd33c2aeed9d13c11a0cbbfc837e1f6b4a",
+      "translation": "Fjarlægðir hluta"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_type",
+      "source": "Object type",
+      "source_sha256": "46e7c345a4106f8dba31dee33a1559a12f24d16a1678241d55e84ae55c107d81",
+      "translation": "Gerð hlutar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "occlusion_stride",
+      "source": "Occlusion stride",
+      "source_sha256": "8e6d914402d91c8dda43e5808bb220c10b3812284c2f0698479a556a59c5f762",
+      "translation": "Skref hulningar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "occlusion_window",
+      "source": "Occlusion window",
+      "source_sha256": "706f4405eaeb398bf46e7b73f07372b4acb53728429c58fd15007c258c25ee28",
+      "translation": "Gluggi hulningar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "offset_start",
+      "source": "Offset start",
+      "source_sha256": "697f1dcc96743f08a3e9724824c2d1576575d8f2f42c1cf3a7debfd8774cde93",
+      "translation": "Upphafshliðrun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops",
+      "source": "Ops",
+      "source_sha256": "ca70b50942518156a4da9c9b1ad831583012a507da9dc9da3c90169d27fd2e0e",
+      "translation": "Ops-vinnsla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_gpu",
+      "source": "Ops GPU",
+      "source_sha256": "6431b4b2a326b932b713d77ea777b656384bcd439a31b5a29b2824b8ceb67864",
+      "translation": "Ops á GPU"
+    },
+    {
+      "table": "setting_labels",
+      "key": "optimizer_type",
+      "source": "Optimizer type",
+      "source_sha256": "fd92d3bb7e71faf613bf438d81e4202bae379c46158c90f2253b929f49fbbcee",
+      "translation": "Gerð bestunaraðferðar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outlier_detection",
+      "source": "Outlier detection",
+      "source_sha256": "39ee22395ba19c9604a50a11ea5c01f373e850c01eba33cabc136177fcbec486",
+      "translation": "Útlagagreining"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline",
+      "source": "Outline",
+      "source_sha256": "eabbf3abaf8d98abb9763d83f29b04716524a9d697dfdd06ae3ed77bdd12c929",
+      "translation": "Útlína"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_color",
+      "source": "Outline color",
+      "source_sha256": "375b9bf724fc2783033f5d171c93e301516b4b27bbf6b0a47758c1d1b2351f4f",
+      "translation": "Litur útlína"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_palette",
+      "source": "Outline palette",
+      "source_sha256": "ffe3a9fe5c77c14bb2b83ef12bb8b3b740958a680e0009603b4893ecff1a3801",
+      "translation": "Litaspjald útlína"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_sigma",
+      "source": "Outline sigma",
+      "source_sha256": "93628edfe5055bf4b4c6a25711a142402526e92eeed204ca747d42bd68676fe7",
+      "translation": "Sigma útlínu"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_thickness",
+      "source": "Outline thickness",
+      "source_sha256": "416bfea0ba6b75be9f362dc9e9cf8a7e0bf962fa95860d2244c39fdf117762f5",
+      "translation": "Þykkt útlína"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outline_width",
+      "source": "Outline width",
+      "source_sha256": "ce044329ef92f8fa16b702a00601cea4a57df687cdd90bd12d478b71fc8cac67",
+      "translation": "Breidd útlína"
+    },
+    {
+      "table": "setting_labels",
+      "key": "overlay_chans",
+      "source": "Overlay chans",
+      "source_sha256": "875e4a02bfebcba5c54de935cc162ecd0146ff7e11a967c27821547fe73d6fff",
+      "translation": "Rásir í yfirlögn"
+    },
+    {
+      "table": "setting_labels",
+      "key": "overwrite",
+      "source": "Overwrite",
+      "source_sha256": "b24963ea2cbc74b97321a347754137aa207b126695a95c860406098528966b55",
+      "translation": "Yfirskrifa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "png_dims",
+      "source": "PNG dims",
+      "source_sha256": "2dc2bd26f5f2b239afee604f5e455706607be68d1c988f5535dfd94ae1760359",
+      "translation": "PNG-víddir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "png_type",
+      "source": "PNG type",
+      "source_sha256": "a3c8b761a5e0f4e0d0b7fe91584812309430b4a4699640bb80c78015e59a7a4b",
+      "translation": "PNG-gerð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "paired_data",
+      "source": "Paired data",
+      "source_sha256": "ac97f796b10bf79de240594da06a8b37273efdbcbb543b8cd0ad8377e553676c",
+      "translation": "Pöruð gögn"
+    },
+    {
+      "table": "setting_labels",
+      "key": "parasite_count_column",
+      "source": "Parasite count column",
+      "source_sha256": "d2d69a6f8ae5f1b7e7dd16dfb25dbe13a08a6a1e94baaa1fa99c163579787880",
+      "translation": "Dálkur sníkjudýrafjölda"
+    },
+    {
+      "table": "setting_labels",
+      "key": "parasite_table",
+      "source": "Parasite table",
+      "source_sha256": "d89330c16de70af7a65fbc56f626aaaf38ef53dde225c6451abc3c5ad97e2de3",
+      "translation": "Tafla sníkjudýra"
+    },
+    {
+      "table": "setting_labels",
+      "key": "path_column",
+      "source": "Path column",
+      "source_sha256": "516cf829126889a5ce455eaa9f2fbe6ac5f6ed5ca685a65293cbf63a577d8da0",
+      "translation": "Slóðadálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "path_string",
+      "source": "Path string",
+      "source_sha256": "9a9832518709a64e2da48d05b97cee0a925eb42e8db882c39201d075958dc410",
+      "translation": "Slóðarstrengur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pca_svd_solver",
+      "source": "Pca svd solver",
+      "source_sha256": "b218f9d9ed8a6827b5ae23ca6c0b9dcb8a02d7c7e85777cf06c12815a48b2bb8",
+      "translation": "Pca: svd-lausnari"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pca_whiten",
+      "source": "Pca whiten",
+      "source_sha256": "410a072c668e0db1acf92ddaef2ad1b862d0b684deefc2a48b19af5b63cf7e3f",
+      "translation": "Pca: hvíttun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "permutation_importance",
+      "source": "Permutation importance",
+      "source_sha256": "a72c0fad7617979386b123fc1867a406d8b959e3ab91dcb20ce76806b0f4dbc5",
+      "translation": "Umröðunarmikilvægi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pin_memory",
+      "source": "Pin memory",
+      "source_sha256": "af50a74fce829f7cc5ad8533aabcf5708741edd0a108a6bfbee5920541a3cb37",
+      "translation": "Festa í minni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pixels_per_um",
+      "source": "Pixels per um",
+      "source_sha256": "bc8baf9224ac185134a36977375fdccee55dee1625387ee0fa694f7f597e8b7b",
+      "translation": "Pixlar á um"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_by_cluster",
+      "source": "Plot by cluster",
+      "source_sha256": "ad589932454c1830472845c253be10926f8f6e2a5eca21bf9f7235091017d2be",
+      "translation": "Teikna eftir klasa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_cluster_grids",
+      "source": "Plot cluster grids",
+      "source_sha256": "854ba1e83dcd7c63328185a6234368adf25b74193c799cfd3e2ac1d9f7210df5",
+      "translation": "Teikna klasanet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_control",
+      "source": "Plot control",
+      "source_sha256": "5d772a51baa386186e15c45e114dc37aa8b897a3e19a7a3d6ccadf90167a60d5",
+      "translation": "Teikna viðmið"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_images",
+      "source": "Plot images",
+      "source_sha256": "9e8d4347b5a8acd80a149155486d288f80fa1ac07be79d38efb73729456d7119",
+      "translation": "Teikna myndir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_nr",
+      "source": "Plot nr",
+      "source_sha256": "5268974385136fc54c286dbdd8006b5bc08be51b52e381b7501396dd33bf6e78",
+      "translation": "Fjöldi teiknaðra stafla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_outlines",
+      "source": "Plot outlines",
+      "source_sha256": "f0ee2e9259ce2dbd4a2ef8418f6e75771e12149494d96215327ba2af9b2b7480",
+      "translation": "Teikna útlínur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plot_points",
+      "source": "Plot points",
+      "source_sha256": "aa9a3478f42e7785f75505cba28126014bcfe244028f0ba353f0ddaca37de21e",
+      "translation": "Teikna punkta"
+    },
+    {
+      "table": "setting_labels",
+      "key": "point_alpha",
+      "source": "Point alpha",
+      "source_sha256": "8cd7220365d3c0170952a575d419874bcc1e43c48711786632022b7fc931ea20",
+      "translation": "Gegnsæi punkta"
+    },
+    {
+      "table": "setting_labels",
+      "key": "point_color",
+      "source": "Point color",
+      "source_sha256": "82581c7dc3622dde02cb38a046b505402d6e7d7b308af63ab0dab3bae111196e",
+      "translation": "Litur punkta"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pos",
+      "source": "Pos",
+      "source_sha256": "704e75860aa0d98d434c24c9bbb8ef327dcba607294281b2cbf8d8a3d38d2b17",
+      "translation": "Jákvæð viðmið"
+    },
+    {
+      "table": "setting_labels",
+      "key": "position_effect_ratio",
+      "source": "Position effect ratio",
+      "source_sha256": "ef8d1c7f309781dfd4f429f935f2cba2d9587cec6dd3efc202b7fd6080897303",
+      "translation": "Hlutfall staðsetningaráhrifa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "positive_control_id",
+      "source": "Positive control ID",
+      "source_sha256": "5461b7c566fd98285951bf7bfdca00f91c015588a030009283bb5ba431f7a295",
+      "translation": "Auðkenni jákvæðs viðmiðs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "prediction_column",
+      "source": "Prediction column",
+      "source_sha256": "2583a89972fe80762245481acaf1f44db9b23cd2ad494332917156f3a26694c7",
+      "translation": "Spádálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "preprocess",
+      "source": "Preprocess",
+      "source_sha256": "abb4f06f813555ec1b798931331162902b8921694f925bfcaf578642a664993e",
+      "translation": "Forvinnsla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "qc_data",
+      "source": "QC data",
+      "source_sha256": "bf591d0452c2a6f9a7dfdfd22cbaf486c04f14b25e95b24d9871f39d02cf9369",
+      "translation": "QC-gögn"
+    },
+    {
+      "table": "setting_labels",
+      "key": "qc_plot_max_panels",
+      "source": "QC plot max panels",
+      "source_sha256": "a3d2eed1ba8b16462745529ee4cea924a05074187f5cac8d054aeab1e75a756e",
+      "translation": "QC-graf: hámark reita"
+    },
+    {
+      "table": "setting_labels",
+      "key": "quantile",
+      "source": "Quantile",
+      "source_sha256": "cdcbd431a056cd2ea1e259d312de2417e8f3432d10b40d24624c2fde0e3235bb",
+      "translation": "Hlutfallsmark"
+    },
+    {
+      "table": "setting_labels",
+      "key": "radial_dist",
+      "source": "Radial dist",
+      "source_sha256": "5ab159e781914f608b9cff1b902cf2af5258e5bccb258f7e30a711ce2f4f0c96",
+      "translation": "Geislalæg dreifing"
+    },
+    {
+      "table": "setting_labels",
+      "key": "random_row_column_effects",
+      "source": "Random row column effects",
+      "source_sha256": "1ab4c1a8c6b3ec56b127af53e78e11d0e68124884ad120e32246aeeabd72aff0",
+      "translation": "Slembiáhrif raða og dálka"
+    },
+    {
+      "table": "setting_labels",
+      "key": "random_test",
+      "source": "Random test",
+      "source_sha256": "12c66c276d7987e27291694f7ef48fcf1b0a32a7816b7ba16286da06d23e1e20",
+      "translation": "Fast slembifræ í prófunarham"
+    },
+    {
+      "table": "setting_labels",
+      "key": "randomize",
+      "source": "Randomize",
+      "source_sha256": "1f7483c8a10473d3d369e45e15775a286449f3934eec0c370dbf46e0af413366",
+      "translation": "Stokka"
+    },
+    {
+      "table": "setting_labels",
+      "key": "recursive",
+      "source": "Recursive",
+      "source_sha256": "6e7bc12c5b82601bf19c9c4f74453a7564fdc1847fade23bea0991d06d3ed46d",
+      "translation": "Leita í undirmöppum"
+    },
+    {
+      "table": "setting_labels",
+      "key": "reduction_method",
+      "source": "Reduction method",
+      "source_sha256": "0f057b8d816fa2491b569040af519c6ed5b8068f2fca05f1fac6e7e0817f01c2",
+      "translation": "Víddarminnkunaraðferð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "reg_alpha",
+      "source": "Reg alpha",
+      "source_sha256": "3159fe133902953b5140a5633187c77ea90f12c5ee0f8e8967a267fa2df685c5",
+      "translation": "Reglunar-alfa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "reg_lambda",
+      "source": "Reg lambda",
+      "source_sha256": "1cd1d0b88c2bf3b5d8eba4d989f64454533d80d48414a384eb5ad2e58cbd5458",
+      "translation": "Reglunar-lambda"
+    },
+    {
+      "table": "setting_labels",
+      "key": "regression_qc",
+      "source": "Regression QC",
+      "source_sha256": "7dc444c9340550641b29f794a8870e8299c853f4af38b75609e43f9b93a274f4",
+      "translation": "QC aðhvarfs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "regression_panel_manifest",
+      "source": "Regression panel manifest",
+      "source_sha256": "2fd9838859b0fdaeefe64a5f067675f7faa99116aff93098f0c21af7617e9b5d",
+      "translation": "Skrá yfir aðhvarfsreiti"
+    },
+    {
+      "table": "setting_labels",
+      "key": "regression_type",
+      "source": "Regression type",
+      "source_sha256": "859225850c159cfd0f6921259dc77e0e9157c61af58a93113ab51818696ce6f6",
+      "translation": "Gerð aðhvarfs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "require_host_cell",
+      "source": "Require host cell",
+      "source_sha256": "008c9c5c53ab0cd8a377883173cf1794c20dee16a71a4d5c41225f2a149e8269",
+      "translation": "Krefjast hýsilfrumu"
+    },
+    {
+      "table": "setting_labels",
+      "key": "resample",
+      "source": "Resample",
+      "source_sha256": "3bc33c3710f2642a65fc3fe725976865812b94dec56ae34a26e6116e4bc0446d",
+      "translation": "Endursýna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "rescale",
+      "source": "Rescale",
+      "source_sha256": "0454bec47b892f05694d2b01af4ac2678399fd12f74455f6d7b2e9623e673c01",
+      "translation": "Endurkvarða"
+    },
+    {
+      "table": "setting_labels",
+      "key": "resize",
+      "source": "Resize",
+      "source_sha256": "2956e06ac0651084bbd5558dfe469615e9a5fc3072f60a09a9cb3c597a19324c",
+      "translation": "Breyta stærð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "response_speed",
+      "source": "Response speed",
+      "source_sha256": "b4621bc8fe28066169e4ed3b9cb05747c94e733831978b19dd50671523031fa5",
+      "translation": "Svarhraði"
+    },
+    {
+      "table": "setting_labels",
+      "key": "reuse_existing_measurements",
+      "source": "Reuse existing measurements",
+      "source_sha256": "bfcafc35c996c810b649913a6e7805bc09b40eb1fb5670b08da480440bf9cbc6",
+      "translation": "Endurnýta fyrirliggjandi mælingar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "route_errors_through_ai",
+      "source": "Route errors through ai",
+      "source_sha256": "fcd54713368ecbb03fe21fa8c7f56984402aa91d723069fc41521bf8ef4c6a2c",
+      "translation": "Senda villur til gervigreindar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "row_csv",
+      "source": "Row CSV",
+      "source_sha256": "133426483be29294ffd3488b6772d893afac3c5153f0fb2002ccd13bb55eaa63",
+      "translation": "CSV fyrir raðir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "row_limit",
+      "source": "Row limit",
+      "source_sha256": "bf8d8a8b6f48be6d71e1801598e6ea507e36349c316835f07adf1bde228643be",
+      "translation": "Línuhámark"
+    },
+    {
+      "table": "setting_labels",
+      "key": "rra_alpha",
+      "source": "Rra alpha",
+      "source_sha256": "ddb35eef07de13022b61a5107515b0807989d3a6976694c8e6449d0b97d3493d",
+      "translation": "Rra-alfa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "rra_permutations",
+      "source": "Rra permutations",
+      "source_sha256": "2eff7d8d09b88e2ed1b3e25db08847d22f8f5acb62afd2106acbf2a1a4d3efc5",
+      "translation": "Rra-umraðanir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "sanity_check",
+      "source": "Sanity check",
+      "source_sha256": "6b1b1bfbc6ff52e1391eea85e29abd1000886849bec554370227360b3e5efb13",
+      "translation": "Gátprófun"
+    },
+    {
+      "table": "setting_labels",
+      "key": "schedule",
+      "source": "Schedule",
+      "source_sha256": "f4830a1dae2980447c716bd4b5779b7013575ef09f70ef4731457218792487b3",
+      "translation": "Tímaáætlun lærdómshraða"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seconds_per_frame",
+      "source": "Seconds per frame",
+      "source_sha256": "035136d67269888323621d1598c97d96747d4b88c8f5d40ad46f06e91a172080",
+      "translation": "Sekúndur á ramma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "shap",
+      "source": "Shap",
+      "source_sha256": "ff41019ea438dd1466a5bfd58215eda02783c3c0a5157a97ba4505af7f811489",
+      "translation": "Shap-gildi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "shap_sample",
+      "source": "Shap sample",
+      "source_sha256": "0903ccb65d335efe7fdcbcb5b0d4808fc94d66fedf0503d6b6cd6ae0d1bee649",
+      "translation": "Shap-úrtak"
+    },
+    {
+      "table": "setting_labels",
+      "key": "shuffle",
+      "source": "Shuffle",
+      "source_sha256": "317cb3a7efadd989cf93430f492995c8a33f10a31ea74699f2c0152bb6c3b9fb",
+      "translation": "Stokka gögnum"
+    },
+    {
+      "table": "setting_labels",
+      "key": "single_direction",
+      "source": "Single direction",
+      "source_sha256": "3ebe541f7cc2af7455f9990984c9678bf7a446f9764d70d42cb31dafd8cb66ca",
+      "translation": "Ein lesstefna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "size",
+      "source": "Size",
+      "source_sha256": "1af851907331c0ed99e7c63b4e55df808bc5fc4c990a1cf80ca8c0f76daf1f3b",
+      "translation": "Stærð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "smooth_lines",
+      "source": "Smooth lines",
+      "source_sha256": "ca8b852d58693a7c877c1c489570679c0710eb99ce187f02a3eb4f5431a833dc",
+      "translation": "Mjúkar línur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "smoothgrad_samples",
+      "source": "Smoothgrad samples",
+      "source_sha256": "7195953425a6a07c5e4b9b1617e4458759f4acfa603ac11f9ccf1d31f351c9e2",
+      "translation": "Smoothgrad-sýni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "smoothgrad_sigma",
+      "source": "Smoothgrad sigma",
+      "source_sha256": "11444ad1df25a111e81bbb922bf6fe3ed7272dc5487320cbe9de98e73348fcae",
+      "translation": "Smoothgrad-sigma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_measurements",
+      "source": "Spatial measurements",
+      "source_sha256": "0ba141b4d2632d482263913bfd17b9aed067d83b5e3e720f850e0749dce053ab",
+      "translation": "Rúmfræðilegar mælingar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_neighbor_radius",
+      "source": "Spatial neighbor radius",
+      "source_sha256": "0afc55775e310d134a362b4e5242f99fb0e1d8452ddd4fbc60b9b2e508d67e97",
+      "translation": "Geisli rúmfræðilegra nágranna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spectral_affinity",
+      "source": "Spectral affinity",
+      "source_sha256": "84dc2a77ea18addc44f01f8625cac2d5249c079a86085ae720e5cdae684ca292",
+      "translation": "Spectral-skyldleiki"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spectral_n_neighbors",
+      "source": "Spectral n neighbors",
+      "source_sha256": "d18272808c9e592e0a617324a679b626945c9a23bdd0e29c5a5342e6be36c09d",
+      "translation": "Spectral: n nágrannar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "starved_read_fraction",
+      "source": "Starved read fraction",
+      "source_sha256": "7f1425f9a36c5a97a9f5b24f918485d1e5970d85ae6a68a20a0af8d91a9aaec2",
+      "translation": "Lestrahlutfall fyrir svelta brunna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "stream_method",
+      "source": "Stream method",
+      "source_sha256": "c394b7f49c13b3c4417ce1ab3eb975e1a4f71c6fab0d014f4e47bf0293c057f4",
+      "translation": "Streymisaðferð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "strict_errors",
+      "source": "Strict errors",
+      "source_sha256": "9a52a7e4f46d632dd404cb86e57bea16f4d6efb3b51b97e2a5e0148e2c89be32",
+      "translation": "Strangar villureglur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "summarize_organelles_by",
+      "source": "Summarize organelles by",
+      "source_sha256": "4f1774a594ce877f1254398706e2bc3592c005d63e8a126fbd85240d2560ce72",
+      "translation": "Draga frumulíffæri saman eftir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_exclude",
+      "source": "Surrogate exclude",
+      "source_sha256": "95f9ef000ab29cc45965a29c808056bc71c9c22da8cc30f4866268dee720ca34",
+      "translation": "Staðgöngulíkan: útiloka"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_min_fidelity_improvement",
+      "source": "Surrogate min fidelity improvement",
+      "source_sha256": "dd3c93da71ab6fbcd86e795aab7573706a801ec6aeec2696bdaf3de023ef0fc7",
+      "translation": "Staðgöngulíkan: lágm. bæting tryggðar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_n_estimators",
+      "source": "Surrogate n estimators",
+      "source_sha256": "1c413ae4668e05b6ee95e75b85a46aac8f47172d3a42d0e5e12cc2de051f4285",
+      "translation": "Staðgöngulíkan: fjöldi trjáa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_n_repeats",
+      "source": "Surrogate n repeats",
+      "source_sha256": "ebbaf23e88c4d3b9d61da785ca123f68e4f4c8c014df25d0d1e1508ebb9a6b9d",
+      "translation": "Staðgöngulíkan: fjöldi endurtekninga"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_shap_max_samples",
+      "source": "Surrogate shap max samples",
+      "source_sha256": "fee2b8902e2b1b32d03f04db229b964a9b8cff2ff79a2620327e272331a7160e",
+      "translation": "Staðgöngulíkan: hámark shap-sýna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_axis",
+      "source": "T axis",
+      "source_sha256": "24a0fe9ac14b076177da98cb3d4cf4c771d597dd1fdb0bfdf9e1c6654fbd0717",
+      "translation": "T-ás"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_axis_order",
+      "source": "T axis order",
+      "source_sha256": "80dfe82d993399a92425f503b75064eca5d550b90ade8ea9a7969df318551652",
+      "translation": "Röð T-áss"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_max_displacement_px",
+      "source": "T max displacement px",
+      "source_sha256": "26091376b63cabed8b4e4b725f86c085ae50b2ae2b0e6ee22f66987681047f8a",
+      "translation": "T hámarkstilfærsla px"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_max_displacement_um",
+      "source": "T max displacement um",
+      "source_sha256": "093a4c567208985ac596b279bb6fdfeb2993d69453b4e13e4f4f9e69b633cd74",
+      "translation": "T hámarkstilfærsla um"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_stack",
+      "source": "T stack",
+      "source_sha256": "76dbac2576e63f03998f92653a9f203de5d42100256682b9213623900d9ae023",
+      "translation": "T-stafli"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tar_path",
+      "source": "Tar path",
+      "source_sha256": "16de3e3d93bcbc9defb943508647c8e9f2fb1eaceffe372f367ddb04b1b0c430",
+      "translation": "Slóð tar-skrár"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target",
+      "source": "Target",
+      "source_sha256": "978354db0c00fc78c3a5524f462a73bc425df3fb2767e51a5f46352ae26ae6f9",
+      "translation": "Markprótein"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_gene",
+      "source": "Target gene",
+      "source_sha256": "97e713639f9ae126cf1c5ef77c019f20f2dde3a7d72f56ff84d71ca83832661d",
+      "translation": "Markgen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_guides",
+      "source": "Target guides",
+      "source_sha256": "8b25ef1e5d0903e1f8216e6486d8d98a9f02d9cf9a42b34a7a6b277a65066e21",
+      "translation": "Markleiðarar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_height",
+      "source": "Target height",
+      "source_sha256": "79ebdad98fcba72b0008c479978f1246def67f96d10235d9c5089bb2eeb5a293",
+      "translation": "Markhæð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_sequence",
+      "source": "Target sequence",
+      "source_sha256": "a4fe674baffdaa03a84f3acb150ea31bd61ab745b33e51f38c65e9532ea4acc8",
+      "translation": "Markröð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_statistic",
+      "source": "Target statistic",
+      "source_sha256": "fb3e7524851be46dc13860ba3f8c68d0369b203532538428ae8e5ad3b0bdb94f",
+      "translation": "Tölfræði marks"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_unique_count",
+      "source": "Target unique count",
+      "source_sha256": "045b300d4a66dc80496fc040d34b804bd1a9259b80d5df157bf17749c2e7e7d3",
+      "translation": "Markfjöldi einstakra"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_width",
+      "source": "Target width",
+      "source_sha256": "74637b4d3c9ced9966cdad98284135e714d74bbda57ea2f43056403dc0a2cb95",
+      "translation": "Markbreidd"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_images",
+      "source": "Test images",
+      "source_sha256": "fc173404ba8695ec4fc7d48e30104f0ab1178e9f24569f55e20b4b0b3982f561",
+      "translation": "Prófunarmyndir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_mode",
+      "source": "Test mode",
+      "source_sha256": "29218d14d595bcf885c5fcbe786ba1d4a7145a49bf6bc13868152fd0bb878cb4",
+      "translation": "Prófunarhamur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_nr",
+      "source": "Test nr",
+      "source_sha256": "f4467e5c34ea902fb2a885db92ca44cfe1f762ae07b6376758e748aef1f7d09f",
+      "translation": "Fjöldi prófunarskráa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tolerance",
+      "source": "Tolerance",
+      "source_sha256": "f71041bb481fcfb42b6e8fd8c081fa11320ff3ce7ceae2634a285814dee860c3",
+      "translation": "Vikmörk"
+    },
+    {
+      "table": "setting_labels",
+      "key": "transform",
+      "source": "Transform",
+      "source_sha256": "d2d68041b53daa7577b38494eb66792f9bd9a3450f025587347a00610c67fbce",
+      "translation": "Umbreyting"
+    },
+    {
+      "table": "setting_labels",
+      "key": "treatment_loc",
+      "source": "Treatment loc",
+      "source_sha256": "ec3ecb70d47171e78c74bdd54d7d3506c7992d6f3e35dc8b8b98adb68047968c",
+      "translation": "Staðsetning meðferða"
+    },
+    {
+      "table": "setting_labels",
+      "key": "treatments",
+      "source": "Treatments",
+      "source_sha256": "e2c27349de5533aefad5c3ee898af79d356bf42acad11406959ced100c42b2ac",
+      "translation": "Meðferðir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tsne_early_exaggeration",
+      "source": "Tsne early exaggeration",
+      "source_sha256": "705a78a64bc0db9488beb465d6a70a90ee10f2ea01fbb5bc196fc4515657228a",
+      "translation": "Tsne: upphafsýking"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tsne_learning_rate",
+      "source": "Tsne learning rate",
+      "source_sha256": "929e654f628a049a3c62315d9fa3bb64f1b432a1402e08e6292461debf3b0218",
+      "translation": "Tsne: lærdómshraði"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tsne_max_iter",
+      "source": "Tsne max iter",
+      "source_sha256": "f18c18bc38584647186a71e233ba8d0f6336e750dd810494b86c43e8da892bd3",
+      "translation": "Tsne: hámark ítrana"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tsne_perplexity",
+      "source": "Tsne perplexity",
+      "source_sha256": "2b483ddf58ce11276e138cf5085982b5d9e00843005e4b55813c65ce6e6c3e7e",
+      "translation": "Tsne: perplexity"
+    },
+    {
+      "table": "setting_labels",
+      "key": "umap_sidebar_width",
+      "source": "UMAP sidebar width",
+      "source_sha256": "7a5310edfee7948be584500277986f378332000beb0d78292ac47eae95a2e3bd",
+      "translation": "Breidd UMAP-hliðarstiku"
+    },
+    {
+      "table": "setting_labels",
+      "key": "umap_stability_repeats",
+      "source": "UMAP stability repeats",
+      "source_sha256": "c1ebeb5172ed64867cb8f1a4dc6ff4482ebb356dbede26d6ba65101ad819c512",
+      "translation": "UMAP: endurtekningar stöðugleika"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ultrack_contour_sigma",
+      "source": "Ultrack contour sigma",
+      "source_sha256": "b6dba856d1772e93a58aa2ea73e8167df85e4eccea3a53a53875b1394aaf9a67",
+      "translation": "Ultrack: sigma útlína"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ultrack_max_distance",
+      "source": "Ultrack max distance",
+      "source_sha256": "c38493119da6f1160d7f80f5b8f5994744bfd01e78c3fe9a2e30b4d14e40c3d2",
+      "translation": "Ultrack: hámarksfjarlægð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ultrack_n_workers",
+      "source": "Ultrack n workers",
+      "source_sha256": "679dda7fac58034e733de6f0080ea7f3439888d8f2eba0f211d2f45246bc0fd9",
+      "translation": "Ultrack: fjöldi vinnsluferla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "um_per_pixel",
+      "source": "Um per pixel",
+      "source_sha256": "5ba8fc62bf1d790199050742ae2b78b72476b987a8cd3a214d0f7b6a87004810",
+      "translation": "Um á pixil"
+    },
+    {
+      "table": "setting_labels",
+      "key": "um_per_px",
+      "source": "Um per px",
+      "source_sha256": "b913736650a734396a9e140b54de4df7391ddc198a11b85eaadfcc69ef76aa8e",
+      "translation": "Um á px"
+    },
+    {
+      "table": "setting_labels",
+      "key": "uninfected",
+      "source": "Uninfected",
+      "source_sha256": "c056576f5809837baee7559371a18fd6b11e84dc69043d51a3a4d810d493542c",
+      "translation": "Ósýktar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "use_bounding_box",
+      "source": "Use bounding box",
+      "source_sha256": "3376f836219eb85fbdfc2b5f289a1d82292f769ea6be3defe79747e825e4c168",
+      "translation": "Nota afmörkunarramma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "vacuole_key",
+      "source": "Vacuole key",
+      "source_sha256": "1cef4c3a513b6fb52fdb23cf7a5360da026e44a916cb6f759231f554b7e36086",
+      "translation": "Hópunarregla bóla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "vacuole_link_distance",
+      "source": "Vacuole link distance",
+      "source_sha256": "a178165637f75edede4b535fd5ffe79128dcf66a10368afe35ed1f750f53131d",
+      "translation": "Tengifjarlægð bóla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "vacuole_link_factor",
+      "source": "Vacuole link factor",
+      "source_sha256": "c0a98e79fd4ba5e1901002557c267a31fa69249d58bda18ae583bee5577e5f17",
+      "translation": "Tengistuðull bóla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "value_col",
+      "source": "Value col",
+      "source_sha256": "f585bf866d33119e22a291b4cb6f4018c89e0ccf1988ba3e09b01f3835dbe382",
+      "translation": "Gildisdálkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "wide_predictor_columns",
+      "source": "Wide predictor columns",
+      "source_sha256": "81fcf79e8459eda424c76c52a4688a8a2d879d82be27c698babb2046869b37c4",
+      "translation": "Spábreytudálkar á breiðu sniði"
+    },
+    {
+      "table": "setting_labels",
+      "key": "width_height",
+      "source": "Width height",
+      "source_sha256": "64918b26e7ed5c146850316cc7bc9264ddcca9bcf8d151341edbebca4751ac93",
+      "translation": "Breidd og hæð"
+    },
+    {
+      "table": "setting_labels",
+      "key": "window_length",
+      "source": "Window length",
+      "source_sha256": "337653ea35b069dd05d92453158af694ba743ac3580b53ae4ac451f3b73d9ebd",
+      "translation": "Gluggalengd"
+    },
+    {
+      "table": "setting_labels",
+      "key": "x_lim",
+      "source": "X lim",
+      "source_sha256": "98024bcf0118c6fee134a6e9b12525a6b252a745a3fac0e2ac6a8b093a315dad",
+      "translation": "x-mörk"
+    },
+    {
+      "table": "setting_labels",
+      "key": "grna_statistic",
+      "source": "gRNA statistic",
+      "source_sha256": "4609b014b22c194e6df3e952d8ac468dfe3b89099c62e4e3cd34c010bb9e96ad",
+      "translation": "gRNA-tölfræði"
+    }
+  ]
+}
