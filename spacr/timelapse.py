@@ -3266,7 +3266,80 @@ def summarize_per_well_inf_non_inf(peak_details_df):
 
     return summary_df
 
-def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9):
+def _calcium_shared_bleaching(frame, measurement, method):
+    """Keep raw levels and normalize shared field corrections by initial signal."""
+    match = re.fullmatch(rf'(.+)_channel_(\d+)_(?:{_BLEACH_LEVEL_PATTERN})',
+                         str(measurement))
+    if match is None:
+        raise ValueError('Calcium bleach correction requires a measured intensity level column')
+    role, channel = match.group(1), int(match.group(2))
+    source = frame.reset_index(drop=True).copy()
+    columns = _bleach_channel_columns(source, role).get(channel, [])
+    if measurement not in columns:
+        raise ValueError('Calcium bleach correction requires the selected level and its channel mean')
+    keys = _object_group_keys(source, 'object_label')
+    if source.duplicated(keys).any():
+        raise ValueError('Calcium bleach correction requires unique field/time/object identities')
+    working = source.copy()
+    for column in columns:
+        working[column] = pd.to_numeric(working[column], errors='coerce').replace(
+            [np.inf, -np.inf], np.nan)
+    ring_column = _bleach_ring_column(source, role, channel)
+    if ring_column:
+        working[ring_column] = pd.to_numeric(working[ring_column], errors='coerce').replace(
+            [np.inf, -np.inf], np.nan)
+    corrected, fits = _bleach_correct_table(working, role, method)
+    absolute = corrected[measurement]
+    background = (working[ring_column].copy() if ring_column
+                  else pd.Series(np.nan, index=source.index))
+    if measurement.endswith('_integrated_intensity'):
+        area = pd.to_numeric(source.get(f'{role}_area',
+                             pd.Series(np.nan, index=source.index)), errors='coerce')
+        background *= area.where(np.isfinite(area) & (area > 0))
+    signal = absolute - background
+    raw_signal = working[measurement] - background
+    baseline = pd.Series(np.nan, index=source.index)
+    applied = pd.Series('unavailable', index=source.index, dtype=object)
+    time_key = _resolve_time_key(source)
+    times = _bleach_times(source[time_key])
+    records = []
+    for key, indices in source.groupby(_OBJECT_WELL_KEYS, sort=True,
+                                       dropna=False).groups.items():
+        when = times.loc[indices]
+        first = raw_signal.loc[indices][when == when.min()]
+        initial = first[np.isfinite(first)].median()
+        if np.isfinite(initial) and initial > 0:
+            baseline.loc[indices] = initial
+        selected = fits
+        if not selected.empty:
+            selected = selected[selected['channel'] == channel]
+            for name, value in zip(_OBJECT_WELL_KEYS, key):
+                selected = selected[selected[name] == value]
+        record = (selected.iloc[0].to_dict() if len(selected) == 1 else
+                  dict(zip(_OBJECT_WELL_KEYS, key), channel=channel,
+                       method='unavailable'))
+        applied.loc[indices] = record['method']
+        record.update(measurement=measurement, requested_method=method,
+                      normalization='initial field median signal',
+                      baseline_signal=(float(initial) if np.isfinite(initial)
+                                       and initial > 0 else np.nan),
+                      background=ring_column or '', source_table='cell',
+                      normalized_units='dimensionless')
+        records.append(record)
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        normalized = signal / baseline
+    source['bleach_corrected_' + measurement] = absolute
+    source['corrected_' + measurement] = normalized.where(np.isfinite(normalized))
+    source['bleach_background_' + measurement] = background
+    source['bleach_baseline_' + measurement] = baseline
+    source['bleach_correction_requested'] = method
+    source['bleach_correction_method'] = applied
+    source['bleach_background_column'] = ring_column or ''
+    source['bleach_normalization'] = 'initial field median signal'
+    return source, pd.DataFrame(records)
+
+
+def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9, *, bleach_correction="legacy"):
     """Detect and summarise per-cell calcium oscillation peaks from a measurements DB.
 
     Loads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables,
@@ -3288,12 +3361,28 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     :param remove_transient: drop tracks shorter than the transience threshold.
     :param verbose: print diagnostic information.
     :param transience_threshold: fraction of timepoints a track must span to be retained.
+    :param bleach_correction: ``legacy`` preserves the original global decay
+        fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's
+        per-field correction once on the original table. Raw intensities remain
+        unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected
+        levels. ``corrected_<measurement>`` is dimensionless: corrected signal
+        above the measured outside ring divided by that field's positive,
+        finite initial median signal. Integrated levels subtract ring times
+        area. Missing background or an invalid initial baseline remains NaN;
+        missing intervals are not bridged for peak detection. The actual method,
+        background and baseline accompany traces; ``bleach_correction_fits.csv``
+        records field fits. Histogram matching can erase population changes.
     :returns: tuple ``(result_df, peak_details_df, fig)`` -- the
         photobleach-corrected per-cell traces, the per-peak details and the
         summary matplotlib Figure. The per-well summaries are only written to
         CSV. Returns ``None`` when the database has no time axis, the decay
-        fit fails, or no cells pass the filters.
+        legacy fit fails, or no cells pass the filters.
+    :raises ValueError: an unknown correction method, an unsupported intensity
+        column for an explicit shared method, or ambiguous field/time/object
+        identities.
     """
+    if bleach_correction not in ('legacy', 'ratio', 'exponential', 'histogram'):
+        raise ValueError('bleach_correction must be legacy, ratio, exponential or histogram')
     conn = sqlite3.connect(db_loc, timeout=30)
     cell_df = pd.read_sql(f"SELECT * FROM {'cell'}", conn)
     
@@ -3349,18 +3438,29 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
 
     df = cell_df.copy()
 
-    try:
-        params, _ = curve_fit(exponential_decay, df['time'], df[measurement], p0=[max(df[measurement]), 0.01, min(df[measurement])], maxfev=10000)
-        df['corrected_' + measurement] = df[measurement] / exponential_decay(df['time'], *params)
-    except RuntimeError as e:
-        print(f"Curve fitting failed for the entire dataset with error: {e}")
-        return
+    bleach_fits = None
+    if bleach_correction == 'legacy':
+        try:
+            params, _ = curve_fit(exponential_decay, df['time'], df[measurement], p0=[max(df[measurement]), 0.01, min(df[measurement])], maxfev=10000)
+            df['corrected_' + measurement] = df[measurement] / exponential_decay(df['time'], *params)
+        except RuntimeError as e:
+            print(f"Curve fitting failed for the entire dataset with error: {e}")
+            return
+    else:
+        df, bleach_fits = _calcium_shared_bleaching(df, measurement, bleach_correction)
+        bleach_fits['source_database'] = os.path.abspath(db_loc)
     if verbose:
         print(f'Analyzing: {len(df)} objects')
     
     corrected_dfs = []
     peak_details_list = []
     total_timepoints = df['time'].nunique()
+    field_time_positions = {}
+    if bleach_correction != 'legacy':
+        for key, field in df.groupby(_OBJECT_WELL_KEYS, sort=False, dropna=False):
+            observed_times = sorted(field['time'].unique())
+            field_time_positions[key] = dict(zip(observed_times,
+                                                 range(len(observed_times))))
     size_filter_removed = 0
     transience_removed = 0
     
@@ -3382,7 +3482,17 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
         size_diff = group[size_filter].std() / group[size_filter].mean()
 
         if size_diff <= fluctuation_threshold:
-            group['delta_' + measurement] = group['corrected_' + measurement].diff().fillna(0)
+            if bleach_correction == 'legacy':
+                group['delta_' + measurement] = group['corrected_' + measurement].diff().fillna(0)
+            else:
+                trace = group['corrected_' + measurement]
+                delta = trace.diff()
+                field_key = tuple(group[key].iloc[0] for key in _OBJECT_WELL_KEYS)
+                position = group['time'].map(field_time_positions[field_key])
+                delta = delta.where(position.diff() == 1)
+                if len(delta) and np.isfinite(trace.iloc[0]):
+                    delta.iloc[0] = 0.0
+                group['delta_' + measurement] = delta
             corrected_dfs.append(group)
             
             peaks, properties = find_peaks(group['delta_' + measurement], height=peak_height)
@@ -3460,6 +3570,9 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     summary_df = summarize_per_well(peak_details_df)
     summary_df_inf_non_inf = summarize_per_well_inf_non_inf(peak_details_df)
 
+    if bleach_fits is not None:
+        save_results_dataframe(df=bleach_fits, src=db_loc,
+                               results_name='bleach_correction_fits')
     save_results_dataframe(df=peak_details_df, src=db_loc, results_name='peak_details')
     save_results_dataframe(df=result_df, src=db_loc, results_name='results')
     save_results_dataframe(df=summary_df, src=db_loc, results_name='well_results')
