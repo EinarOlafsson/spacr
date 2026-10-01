@@ -167,3 +167,124 @@ def apply_conditions(frame, definition, source):
     output[str(definition["column"]).strip()] = result.values.array
     output.attrs["condition_annotation"] = definition
     return output
+
+
+PROVENANCE_TABLE = "_spacr_condition_annotations"
+
+
+def _quote(name):
+    """Quote a SQLite identifier without interpreting user-provided SQL."""
+    return '"' + name.replace('"', '""') + '"'
+
+
+def save_annotated_table(path, name, frame, definition, source, *, merge_definition=None):
+    """Atomically save a new physical table plus its source and editable rules.
+
+    :param path: Existing SQLite source database, never a delimited input file.
+    :param name: New table name; physical, view and saved-derived collisions fail.
+    :param frame: Working frame including the annotation output column.
+    :param definition: Validated annotation rules used for the working frame.
+    :param source: Original annotation source context.
+    :param merge_definition: Original merged-source configuration, if applicable.
+    :returns: Saved table name. A failure rolls back both table and provenance.
+    """
+    import sqlite3
+    from datetime import date, datetime
+
+    from .derived_tables import load_definitions
+
+    name = str(name).strip()
+    if not name or '\x00' in name or name.lower().startswith(('sqlite_', '_spacr_')):
+        raise AnnotationError("Choose a nonempty table name outside the reserved sqlite_ and _spacr_ prefixes.")
+    if not definition:
+        raise AnnotationError("Apply conditions before saving an annotated table.")
+    if source.get('path') != str(Path(path).resolve()):
+        raise AnnotationError("Save the annotated table in its current source database.")
+    if name.casefold() in {item.casefold() for item in load_definitions(path)}:
+        raise AnnotationError("That name belongs to a saved merged table; choose a new name.")
+    column = definition['column'].strip()
+    base = frame.drop(columns=[column])
+    expected = apply_conditions(base, definition, source)
+    if not expected[column].equals(frame[column]):
+        raise AnnotationError("The working annotations changed; apply the conditions again before saving.")
+    columns = list(frame.columns)
+    types = ['INTEGER' if pd.api.types.is_integer_dtype(dtype) or pd.api.types.is_bool_dtype(dtype)
+             else 'REAL' if pd.api.types.is_float_dtype(dtype) else 'TEXT' for dtype in frame.dtypes]
+
+    def scalar(value):
+        if value is None or value is pd.NA or value is pd.NaT:
+            return None
+        if isinstance(value, (datetime, date, pd.Timestamp)):
+            return value.isoformat()
+        if isinstance(value, np.generic):
+            value = value.item()
+        if isinstance(value, float) and np.isnan(value):
+            return None
+        return value
+
+    with sqlite3.connect(f"file:{Path(path).resolve()}?mode=rw", uri=True, timeout=30) as db:
+        db.execute('BEGIN IMMEDIATE')
+        found = db.execute('SELECT name FROM sqlite_master WHERE lower(name)=lower(?)', (name,)).fetchone()
+        if found:
+            raise AnnotationError("That table or view already exists; choose a new name to preserve it.")
+        # Validate reserved metadata before creating the user table. A conflicting
+        # unrelated table is never silently repurposed as our receipt store.
+        existing = db.execute('SELECT type FROM sqlite_master WHERE name=?', (PROVENANCE_TABLE,)).fetchone()
+        if existing:
+            fields = [row[1] for row in db.execute(f'PRAGMA table_info({_quote(PROVENANCE_TABLE)})')]
+            if fields != ['table_name', 'payload_json'] or existing[0] != 'table':
+                raise AnnotationError("The annotation provenance table has an incompatible schema.")
+        else:
+            db.execute(f'CREATE TABLE {_quote(PROVENANCE_TABLE)} (table_name TEXT PRIMARY KEY, payload_json TEXT NOT NULL)')
+        sql_columns = ', '.join(f'{_quote(str(column))} {dtype}' for column, dtype in zip(columns, types))
+        db.execute(f'CREATE TABLE {_quote(name)} ({sql_columns})')
+        placeholders = ', '.join('?' for _ in columns)
+        db.executemany(f'INSERT INTO {_quote(name)} VALUES ({placeholders})',
+                       (tuple(scalar(value) for value in row) for row in frame.itertuples(index=False, name=None)))
+        # Bind reopen/edit to what SQLite actually stored, including dtype
+        # normalization, rather than assuming a pandas/SQL roundtrip is lossless.
+        materialized = pd.read_sql_query(f'SELECT * FROM {_quote(name)}', db)
+        editable_base = materialized.drop(columns=[column])
+        editable = new_definition(editable_base, source_context(path, name), column=column)
+        editable['conditions'] = json.loads(json.dumps(definition['conditions']))
+        old_tokens = table_identity(base)[2]
+        new_tokens = table_identity(editable_base)[2]
+        token_mapping = dict(zip(old_tokens, new_tokens))
+        for condition in editable['conditions']:
+            condition['manual_rows'] = [token_mapping[token] for token in condition.get('manual_rows', [])]
+        reproduced = apply_conditions(editable_base, editable, source_context(path, name))
+        if reproduced[column].fillna('').tolist() != materialized[column].fillna('').tolist():
+            raise AnnotationError("SQLite storage changed a rule's matches; export CSV or adjust the rules before saving.")
+        schema, digest, _tokens = table_identity(materialized)
+        payload = {'version': 1, 'source': source, 'merge_definition': merge_definition,
+                   'original_definition': definition, 'editable_definition': editable,
+                   'stored_schema': schema, 'stored_content_sha256': digest}
+        db.execute(f'INSERT INTO {_quote(PROVENANCE_TABLE)} VALUES (?, ?)',
+                   (name, json.dumps(payload)))
+    return name
+
+
+def saved_table_annotation(path, name, frame):
+    """Recover editable rules only when a saved physical table is unchanged.
+
+    :param path: SQLite source database opened read-only.
+    :param name: Physical table name.
+    :param frame: Actual stored table including the condition output column.
+    :returns: Editable annotation definition or None for an ordinary table.
+    """
+    import sqlite3
+
+    with sqlite3.connect(f"file:{Path(path).resolve()}?mode=ro", uri=True, timeout=30) as db:
+        if not db.execute('SELECT 1 FROM sqlite_master WHERE type=\'table\' AND name=?', (PROVENANCE_TABLE,)).fetchone():
+            return None
+        fields = [row[1] for row in db.execute(f'PRAGMA table_info({_quote(PROVENANCE_TABLE)})')]
+        if fields != ['table_name', 'payload_json']:
+            return None
+        row = db.execute(f'SELECT payload_json FROM {_quote(PROVENANCE_TABLE)} WHERE table_name=?', (name,)).fetchone()
+    if not row:
+        return None
+    payload = json.loads(row[0])
+    schema, digest, _tokens = table_identity(frame)
+    if schema != payload.get('stored_schema') or digest != payload.get('stored_content_sha256'):
+        raise AnnotationError("The saved annotated table changed; its previous editable rules were not restored.")
+    return payload['editable_definition']

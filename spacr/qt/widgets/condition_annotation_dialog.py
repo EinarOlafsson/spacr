@@ -33,10 +33,24 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...condition_annotations import apply_conditions, new_definition, preview, table_identity
+from ...condition_annotations import new_definition, preview, table_identity
 from ..i18n import tr
 from ..job_runner import JobRunner
-from ..theme import SPACING
+from ..theme import RADIUS, SPACING, register_widget_qss
+
+
+def _condition_qss(palette, opacity=None):
+    """Keep condition drop boxes visible using the active theme's border."""
+    return f"""
+    QFrame#ConditionBox {{
+        border: 1px solid {palette['border']};
+        border-radius: {RADIUS['sm']}px;
+        background: {palette['surface']};
+    }}
+    """
+
+
+register_widget_qss("ConditionAnnotations", _condition_qss, replace=True)
 
 ROWS_MIME = "application/x-spacr-condition-rows"
 
@@ -194,6 +208,7 @@ class ConditionBox(QFrame):
         :param parent: Owning widget.
         """
         super().__init__(parent)
+        self.setObjectName("ConditionBox")
         self.source_model = source_model
         self.manual_rows = list(dict.fromkeys(condition.get("manual_rows", [])))
         self.setFrameShape(QFrame.StyledPanel)
@@ -389,6 +404,7 @@ class ConditionAnnotationDialog(QDialog):
         self.table.setDragDropMode(QAbstractItemView.DragOnly)
         self.table.setSortingEnabled(True)
         self.table.horizontalHeader().setDefaultSectionSize(150)
+        self.table.horizontalHeader().setStretchLastSection(True)
         source_layout.addWidget(self.table)
         splitter.addWidget(source_panel)
         scroll = QScrollArea(self)
@@ -481,9 +497,15 @@ class ConditionAnnotationDialog(QDialog):
             # Carry failures through the generation-guarded result channel too;
             # a slow invalid draft must not disable a newer valid preview.
             try:
-                return definition, preview(self.frame, definition, self.source)
+                report = preview(self.frame, definition, self.source)
+                result = None
+                if not len(report.overlaps):
+                    result = self.frame.copy()
+                    result[definition["column"]] = report.values.array
+                    result.attrs["condition_annotation"] = copy.deepcopy(definition)
+                return definition, report, result
             except ValueError as exc:
-                return definition, str(exc)
+                return definition, str(exc), None
 
         self._jobs.submit(work, self._previewed)
 
@@ -492,11 +514,12 @@ class ConditionAnnotationDialog(QDialog):
 
         :param payload: Validated definition and assignment diagnostics.
         """
-        definition, report = payload
+        definition, report, result = payload
         if isinstance(report, str):
             self._failed(report)
             return
         self.definition = definition
+        self.result_frame = result
         self.source_model.set_preview(report.values)
         for box in self.boxes:
             box.count.setText(tr("{count:,} matching rows; {manual:,} manual rows",
@@ -521,10 +544,8 @@ class ConditionAnnotationDialog(QDialog):
         """Apply only the current validated draft, leaving source rows untouched."""
         if not self.apply_button.isEnabled():
             return
-        try:
-            self.result_frame = apply_conditions(self.frame, self.configuration(), self.source)
-        except ValueError as exc:
-            self._failed(str(exc))
+        if self.result_frame is None or self.definition != self.configuration():
+            self._failed(tr("Preview the current conditions before applying."))
             return
         self._timer.stop()
         self._jobs.shutdown()

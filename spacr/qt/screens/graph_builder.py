@@ -74,6 +74,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QFileDialog,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QPushButton,
     QVBoxLayout,
@@ -153,7 +154,16 @@ def read_table(path: str, table: Optional[str] = None,
     if limit:
         query += f" LIMIT {int(limit)}"
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        return pd.read_sql_query(query, db)
+        frame = pd.read_sql_query(query, db)
+    if not limit:
+        from ...condition_annotations import saved_table_annotation
+        try:
+            annotation = saved_table_annotation(path, name, frame)
+            if annotation:
+                frame.attrs["saved_condition_definition"] = annotation
+        except ValueError as exc:
+            frame.attrs["condition_annotation_problem"] = str(exc)
+    return frame
 
 
 def _one_line(exc: BaseException) -> str:
@@ -294,6 +304,10 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         self._export_table_button.setEnabled(False)
         self._export_table_button.clicked.connect(self.choose_export_table)
         head.addWidget(self._export_table_button)
+        self._save_annotated_button = QPushButton(tr("Save annotated table…"), self)
+        self._save_annotated_button.setEnabled(False)
+        self._save_annotated_button.clicked.connect(self.choose_save_annotated_table)
+        head.addWidget(self._save_annotated_button)
         install_test_data_button(
             self, head, lambda _folder, db: self.load_path(
                 str(db), table=EXAMPLE_TABLE),
@@ -334,13 +348,18 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
             the filter panel, and its row and column counts label the source
             unless ``label`` is given.
         """
+        saved_annotation = frame.attrs.get("saved_condition_definition")
+        annotation_problem = frame.attrs.get("condition_annotation_problem")
+        if saved_annotation:
+            frame = frame.drop(columns=[saved_annotation["column"]])
+            saved_key = json.dumps(saved_annotation["source"], sort_keys=True)
+            self._condition_definitions.setdefault(saved_key, copy.deepcopy(saved_annotation))
         self._annotation_base_frame = frame
         self._condition_source = source_context(
             self._path, self._table_picker.currentText(), frame.attrs.get("merge_definition"))
         key = json.dumps(self._condition_source, sort_keys=True)
         self._condition_definition = None
         definition = self._condition_definitions.get(key)
-        annotation_problem = None
         if definition:
             try:
                 frame = apply_conditions(frame, definition, self._condition_source)
@@ -350,6 +369,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         self._frame = frame
         self._conditions_button.setEnabled(True)
         self._export_table_button.setEnabled(True)
+        self._update_save_annotated_button()
         self._derived_frame_loaded(frame)
         self.builder.set_frame(frame)
         self.filters.set_frame(frame)
@@ -528,11 +548,19 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         if self._annotation_base_frame is None:
             return
         from ..widgets.condition_annotation_dialog import ConditionAnnotationDialog
+        base = self._annotation_base_frame
+        source = copy.deepcopy(self._condition_source)
         dialog = ConditionAnnotationDialog(
-            self._annotation_base_frame, self._condition_source, self,
-            definition=self._condition_definition, threaded=self._threaded)
-        if dialog.exec() == QDialog.Accepted:
-            self.apply_condition_definition(dialog.definition)
+            base, source, self, definition=self._condition_definition, threaded=self._threaded)
+        try:
+            if dialog.exec() == QDialog.Accepted:
+                if base is not self._annotation_base_frame or source != self._condition_source:
+                    self._source.setText(tr("The current table changed while conditions were open; reopen the editor."))
+                    return
+                self._install_condition_frame(dialog.definition, dialog.result_frame)
+                dialog.result_frame = None
+        finally:
+            dialog.deleteLater()
 
     def apply_condition_definition(self, definition):
         """Apply validated labels to the working table while preserving the source.
@@ -543,15 +571,55 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         if self._annotation_base_frame is None:
             raise ValueError("Load a source table before annotating conditions.")
         frame = apply_conditions(self._annotation_base_frame, definition, self._condition_source)
+        return self._install_condition_frame(definition, frame)
+
+    def _install_condition_frame(self, definition, frame):
+        """Install a validated worker result without copying the full table again."""
         self._condition_definition = copy.deepcopy(definition)
         key = json.dumps(self._condition_source, sort_keys=True)
         self._condition_definitions[key] = copy.deepcopy(definition)
         self._frame = frame
+        self._update_save_annotated_button()
         self.builder.set_frame(frame)
         self.filters.set_frame(frame)
         self._source.setText(tr("Conditions applied to {rows} rows in {column}.",
                                 rows=f"{len(frame):,}", column=definition["column"]))
         return frame
+
+    def _update_save_annotated_button(self):
+        """Allow physical annotation saves only for annotated SQLite sources."""
+        path = (self._condition_source or {}).get("path")
+        self._save_annotated_button.setEnabled(bool(
+            path and self._condition_definition and
+            not path.lower().endswith((".csv", ".tsv", ".txt"))))
+
+    def choose_save_annotated_table(self):
+        """Ask for a new physical table name in the current SQLite database."""
+        current = (self._condition_source or {}).get("table") or "table"
+        name, accepted = QInputDialog.getText(
+            self, tr("Save annotated table"),
+            tr("New table name (existing tables are preserved)"), text=current + "_annotated")
+        if accepted and name.strip():
+            self.save_annotated_table(name)
+
+    def save_annotated_table(self, name):
+        """Create a new physical table and provenance atomically on a worker.
+
+        :param name: New table name in the current SQLite source database.
+        """
+        from ...condition_annotations import save_annotated_table
+        if not self._save_annotated_button.isEnabled():
+            raise ValueError("Apply conditions to a SQLite table before saving it.")
+        path = self._condition_source["path"]
+        frame = self._frame
+        definition = copy.deepcopy(self._condition_definition)
+        source = copy.deepcopy(self._condition_source)
+        merge = copy.deepcopy(self._merge_definition)
+        self._jobs.cancel()
+        self._source.setText(tr("Saving annotated table…"))
+        self._jobs.submit(
+            lambda: save_annotated_table(path, name, frame, definition, source, merge_definition=merge),
+            lambda saved: self.load_path(path, table=saved))
 
     def choose_export_table(self):
         """Choose a CSV destination for the current working table and its rules."""
@@ -656,7 +724,11 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
             else:
                 frame = read_table(source, table)
             if annotation:
-                apply_conditions(frame, annotation, source_context(source, table, definition))
+                annotation_base = frame
+                saved = frame.attrs.get("saved_condition_definition")
+                if saved:
+                    annotation_base = frame.drop(columns=[saved["column"]])
+                apply_conditions(annotation_base, annotation, source_context(source, table, definition))
             names = table_names(source) if not source.lower().endswith((".csv", ".tsv", ".txt")) else []
             return _Loaded(names, table, frame, None)
 
