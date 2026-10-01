@@ -94,6 +94,7 @@ def test_changed_english_becomes_stale_and_is_not_published(tmp_path):
 
 
 def test_import_refuses_a_translation_for_an_old_msgid(tmp_path):
+    pytest.importorskip("babel")
     pot = tmp_path / "pot"
     locale = tmp_path / "locale"
     _write_pot(pot, "page", ["Old text."])
