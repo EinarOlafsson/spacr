@@ -1205,7 +1205,11 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 585, 2026-09-30: the arrayed-assay planner's readout and condition
 # pickers and its plan/load error lines (alpha); "Load plan…" already has
 # a row.
+# 603, 2026-09-30: Preferences' Tooltip delay row and its explanation.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Tooltip delay",
+    "Seconds the pointer rests on a control before its tooltip appears. 0 "
+    "shows tooltips at once. Default 2.0 s.",
     "Control percentile",
     "Gate files",
     "Saved Gate Editor gate files, separated by semicolons.",

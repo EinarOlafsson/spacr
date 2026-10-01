@@ -12748,6 +12748,7 @@ PREFERENCE_ENTRIES = (
     ('Show busy spinner after', 'Appearance', 'PreferencesTabAppearance', 'Delay before displaying the busy indicator for a running task.'),
     ('Starfield direction', 'Appearance', 'PreferencesTabAnimation', 'Everything rises, the way the shipped starfield always did.'),
     ('Theme', 'Appearance', 'PreferencesTabTheme', "Application colour scheme. 'Follow system' uses the desktop colour scheme."),
+    ('Tooltip delay', 'Appearance', 'PreferencesTabAppearance', 'Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.'),
     ('Tooltips', 'Appearance', 'PreferencesTabAppearance', 'Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.'),
     ('Tooltips bottom', 'Appearance', 'PreferencesTabAppearance', "The same explanation appears along the bottom of the window, where a category's help already appears. It holds the LAST setting you hovered for ten seconds, so you can move the pointer down to its API link and press it."),
     ('Tooltips box', 'Appearance', 'PreferencesTabAppearance', "Hovering a setting's title opens a box beside it with the explanation, an API link and an Animation link. The box stays while the pointer moves into it, which is what makes those two links clickable at all."),
