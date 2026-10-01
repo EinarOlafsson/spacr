@@ -5481,10 +5481,10 @@ class AnnotateScreen(QWidget):
         :param reason: the grouped split's refusal.
         """
         self._console.append_notice(
-            "The labels so far do not span enough wells to hold whole wells "
-            "out, so this round was checked on a random split and its "
-            "accuracy reads high. The suggestions are unaffected. Label "
-            "crops from more wells for a well-separated check. ({why})\n",
+            "This classifier used a random split because too few laboratory "
+            "wells have labels. Its accuracy may be overestimated. The "
+            "suggestions are unaffected. Label crops from more wells for "
+            "validation with independent wells. ({why})\n",
             why=self._blind_text(str(reason)))
 
     @Slot(object)

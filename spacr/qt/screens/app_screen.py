@@ -9557,12 +9557,12 @@ class AppScreen(QWidget):
                 except PlaneLayoutConflict as exc:
                     conflicts.append(str(exc))
         except Exception as exc:
-            QMessageBox.warning(self, tr("Check the merged plane layout"), str(exc))
+            QMessageBox.warning(self, tr("Review stored image layout"), str(exc))
             return False
         if not conflicts:
             return True
         box = QMessageBox(self)
-        box.setWindowTitle(tr("Check the merged plane layout"))
+        box.setWindowTitle(tr("Review stored image layout"))
         box.setIcon(QMessageBox.Warning)
         box.setText("\n\n".join(conflicts))
         box.setStandardButtons(QMessageBox.Cancel)
@@ -9572,7 +9572,7 @@ class AppScreen(QWidget):
             box.setInformativeText(tr(
                 "Use the stored layout to update the form, review the object "
                 "settings, then press Run again."))
-            adopt = box.addButton(tr("Use stored plane layout"),
+            adopt = box.addButton(tr("Use stored image layout"),
                                   QMessageBox.ActionRole)
         else:
             box.setInformativeText(tr(

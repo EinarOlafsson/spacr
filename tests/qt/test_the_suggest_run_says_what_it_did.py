@@ -196,7 +196,9 @@ def test_a_failed_fit_says_what_usually_causes_it(screen, monkeypatch):
     box = screen.findChild(QMessageBox, "AnnotateSuggestFailedBox")
     assert box is not None and box.isVisible()
     assert box.windowTitle() == "Suggest failed"
-    assert "Nothing was written" in box.text()
+    assert "No new suggestions from this round were saved" in box.text()
+    assert "Earlier suggestions may have been cleared" in box.text()
+    assert "Your annotations are unchanged" in box.text()
     box.close()
     assert _values(screen.db) == {"/a.png": 1, "/b.png": None,
                                   "/c.png": None}

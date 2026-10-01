@@ -98,10 +98,11 @@ class CustomMergeDialog(QDialog):
         warning = QLabel(tr(WARNING), self)
         warning.setWordWrap(True)
         outer.addWidget(warning)
-        schema_note = QLabel("Composite keys use comma-separated column names in matching order. "
-                            "Each result row is one base observation. Missing child keys never match; "
-                            "left joins retain unmatched base rows with missing measurements. "
-                            "One-to-many joins aggregate each child independently before joining.", self)
+        schema_note = QLabel("Enter the column names for a composite key in matching order, separated by commas. "
+                            "Each output row represents one observation in the base table. "
+                            "Related rows with missing keys cannot match. A left join retains unmatched "
+                            "base observations with missing measurements. For a one-to-many relationship, "
+                            "each related table is aggregated independently before joining.", self)
         schema_note.setWordWrap(True)
         outer.addWidget(schema_note)
         form = QFormLayout()
@@ -321,8 +322,8 @@ class MergeTablesDialog(QDialog):
         filename_only = bool(self._filename_map and len(self._selected()) == 1
                              and (not self._custom or self._custom.get("mode") == "metadata"))
         if filename_only:
-            text = tr("Original filename metadata — every row and source column in {base} is retained. "
-                      "Repeated channel or z-plane mappings do not duplicate observations.",
+            text = tr("Original filenames are added to {base}. All input rows and columns are preserved. "
+                      "Mappings for multiple channels or image planes do not add rows.",
                       base=self.base.currentText())
         elif self._custom and self._custom.get("mode") == "custom":
             text = tr("Custom rules active — one row per {base}. "
@@ -447,14 +448,16 @@ class MergeTablesDialog(QDialog):
                            output_rows=report["output_rows"])]
         for joined in report["joins"]:
             lines.append(tr(
-                "{table}: {input_rows:,} input rows, {groups:,} groups; {relationship}, {how} join\n"
-                "  Keys: {left_keys} ← {right_keys}\n"
-                "  Unmatched base: {unmatched_base:,}; unmatched child: {unmatched_child:,}; "
-                "missing child keys: {missing_keys:,}; repeated child-key rows: {duplicate_rows:,}",
+                "{table}: {input_rows:,} input rows, {groups:,} groups; {relationship}, {how} join",
                 table=joined["table"], input_rows=joined["input_rows"], groups=joined["groups"],
-                relationship=joined["relationship"], how=joined["how"],
-                left_keys=", ".join(joined["left_keys"]), right_keys=", ".join(joined["right_keys"]),
-                unmatched_base=joined["unmatched_base"], unmatched_child=joined["unmatched_child"],
+                relationship=joined["relationship"], how=joined["how"]))
+            lines.append("  " + tr("Keys: {left_keys} ← {right_keys}",
+                left_keys=", ".join(joined["left_keys"]), right_keys=", ".join(joined["right_keys"])))
+            lines.append("  " + tr(
+                "Unmatched base rows: {unmatched_base:,}; unmatched related rows: {unmatched_child:,}.",
+                unmatched_base=joined["unmatched_base"], unmatched_child=joined["unmatched_child"]))
+            lines.append("  " + tr(
+                "Related rows with missing keys: {missing_keys:,}. Related rows with repeated keys: {duplicate_rows:,}.",
                 missing_keys=joined["missing_key_rows"], duplicate_rows=joined["duplicate_key_rows"]))
         if report.get("original_filenames"):
             metadata = report["original_filenames"]
