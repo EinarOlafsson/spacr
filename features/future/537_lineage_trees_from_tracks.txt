@@ -80,3 +80,45 @@ All existing public signatures/docstrings are unchanged. No model download,
 GPU run or native tracker installation was used. This verifies adapter
 contracts with deterministic fixtures; real endodyogeny acceptance,
 post-Measure coloring and calibrated time units above remain open.
+
+2026-10-01 — CALIBRATED GENERATION TIMES (partial item)
+The private lineage engine now exports generation_time_hours alongside every
+original frame quantity, plus per-lineage/all-lineage mean, median and SD
+in hours. CSVs record time_calibration_source, calibration_frame_interval_s,
+generation_time_unit=frames and calibrated_time_unit=hours. Existing Newick
+branch lengths and frame columns are unchanged. generation_time_hours can
+colour the actual lineage figure; its position axis remains labelled frame.
+
+A tracks time_s column supplies exact birth-to-daughter-birth elapsed times,
+including irregular sampling and arbitrary time origins. Observations of one
+frame must agree; observed timestamps must be finite and strictly increasing.
+An explicitly provided positive finite frame_interval_s must agree with the
+per-frame timestamp deltas when both are present. Without time_s, that setting
+provides the conversion. Missing calibration and incomplete cycles produce
+missing hours. Neither playback fps nor seconds_per_frame is used: the latter
+may already contain the motility default 60 without evidence of calibration.
+Invalid/inconsistent calibration fails before that field's output writes.
+
+The self-contained implementation moved to private spacr/_lineage_trees.py;
+spacr.timelapse retains all previous private helper aliases. Seven topology,
+frame-statistic and Newick helpers retain identical ASTs. CSV-only lineage
+work no longer imports optional tracking/model dependencies. Figure export
+still loads the existing common exporter when requested.
+
+Validation: 27 focused new/legacy checks passed in 0.95 s, then 9 timestamp
+checks passed in 0.56 s after tightening tiny-interval conflict detection;
+28 unique checks in total. These exercise actual CSV/statistics/Newick output,
+Matplotlib artists/units, irregular timestamps, non-unit frame steps, complete
+and incomplete cycles, missing calibration, default/fps exclusion, malformed
+input preserving prior outputs, and finite large-number statistics. One
+unchanged legacy common-figure-export integration test was deliberately not
+run in this bounded cohort; no assertion or skip marker was weakened.
+All runs used a single 1 GiB systemd memory scope with zero swap, configured
+CPUQuota 100% and actual affinity to one allowed CPU. The initial eager-import
+cohort stopped at the unchanged pytest RSS guard before results; after the
+private engine extraction the same cap passed, without a guard override.
+Actual English public_docstrings extraction before/after: 12035 entries,
+zero added/removed/changed entries and no private-module documentation entry.
+
+Still open: post-Measure colouring integration and independent real parasite
+endodyogeny validation. This is not full F537 acceptance or alpha promotion.
