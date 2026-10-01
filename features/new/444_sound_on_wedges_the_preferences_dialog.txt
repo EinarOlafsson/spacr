@@ -282,3 +282,85 @@ Three tests in `test_the_resonance_plate_answers_the_music.py` reached
 into `engine._worker._effects`; they now read `engine.player()._effects`,
 which is where the effects are. Nothing else in 427's work changed.
 All 31 of its resonance tests and all 20 music-bed tests pass.
+
+--------------------------------------------------------------------------------
+2026-09-30 -- RE-CHECKED ON origin/nightly: NOT REPRODUCIBLE HERE; ONE TEST ADDED
+--------------------------------------------------------------------------------
+
+Nothing in the sound engine has regressed since the fix (the only later
+change to spacr/qt/sound.py is item 284's event-filter hub). No code was
+changed; the one gap in the tests was closed.
+
+WHERE IT WAS RUN. Not on the maintainer's screen. This box has no Xvfb and
+no Xorg dummy driver; Xephyr exists but opens its window ON :0, so it was not
+used. Everything below is QT_QPA_PLATFORM=offscreen against the REAL sound
+server (PulseAudio protocol 35 on /run/user/1000/pulse/native, PipeWire),
+Qt Multimedia over FFmpeg 7.1.3, volume 0, private HOME/XDG dirs.
+
+WHAT WAS RUN. The real MainWindow, spaceout on, sound on, the engine loaded;
+then `MainWindow._open_preferences()` eight times, alternating the real Save
+button and Cancel, with a 20 ms heartbeat timer measuring GUI-thread stalls.
+Three arms: sound on with the music bed, sound on without it, sound OFF.
+
+    arm          dialogs  tabs each   Qt thread warnings   worst stall
+    sound + bed    8/8       11            0                2.5 s
+    sound, no bed  8/8       11            0                1.8 s
+    sound OFF      8/8       11            0                2.7 s
+
+No wedge, no empty frame, no QSocketNotifier line. The stalls are the
+dialog being BUILT (three arms ran concurrently on a loaded box) and are
+the same with sound off, so they are not sound's.
+
+ONE THING SEEN, NOT 444's. All three arms, sound OFF included, abort at
+interpreter exit with "QThread: Destroyed while thread '' is still running"
+-- an UNNAMED thread, so not `spacr-sound` (which is named and is stopped;
+see test_quitting_... below). The probe tore the MainWindow down without
+ever running app.exec(), which the real launcher never does, so this may be
+the probe's own exit; worth a look by whoever owns MainWindow shutdown,
+recorded here only so it is not mistaken for this item.
+
+TEST ADDED. `test_saving_preferences_with_sound_on_and_reopening_does_not_wedge`
+in tests/qt/test_sound_on_does_not_wedge_the_preferences_dialog.py. The five
+existing tests close the dialog with Cancel, which never reaches
+`apply_preferences_to_app`; Save does, and with sound on it hands a RUNNING
+engine its preferences again right before the next opening -- the only path
+where the engine and a Preferences opening meet. Four rounds, Save/Cancel
+alternating through the real button box, each reopening asked what it
+contains, the engine asked afterwards whether it is still running with its
+effects on the GUI thread. 6/6 pass in that file; 74/74 across the four
+sound test files.
+
+EXACT STEPS FOR THE MAINTAINER (the one thing still open)
+
+  1. Update and start spaCR normally on the desktop, from a terminal so the
+     log is visible:
+         conda activate spacr
+         cd ~/Documents/repo/spacr && git pull && python -m spacr.qt
+     (or however spaCR is normally launched).
+  2. Preferences -> Sound tab -> switch sound ON (and the music bed, if
+     that is how it is normally used) -> Save.
+  3. Wait two seconds. The terminal/log should show ONE INFO line from
+     `spacr.qt.sound` giving the cost of the sound-server connection
+     (about 0.3 s here). That is the only time the device is touched.
+  4. Reopen Preferences, look at any two tabs, press Save. Reopen, press
+     Cancel. Repeat until it has been opened ten times.
+  5. PASS if every opening shows all its tabs filled in, nothing greys out
+     and GNOME never offers "Force Quit", and the terminal never prints
+     "QSocketNotifier: Socket notifiers cannot be enabled or disabled from
+     another thread". Then quit spaCR from its menu: PASS if the terminal
+     does not print "QThread: Destroyed while thread 'spacr-sound' is still
+     running" and there is no core dump.
+  6. If it DOES wedge: from another terminal, before force-quitting, run
+         py-spy dump --pid $(pgrep -f spacr.qt | head -1)
+     (pip install py-spy into the spacr env if absent) and paste the output
+     into this file -- which thread is where is the whole diagnosis. Then
+     recover by putting
+         [sound]
+         enabled=false
+     in ~/.config/spacr/qt.conf (QSettings("spacr", "qt"), key
+     `_KEY_SOUND_ENABLED` = "sound/enabled"; the "[ai]/sound_enabled" in THE
+     WORKAROUND above is not the key the code uses) and starting again.
+
+The automated equivalent, for any machine, is:
+    CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen python -m pytest -q \
+        tests/qt/test_sound_on_does_not_wedge_the_preferences_dialog.py

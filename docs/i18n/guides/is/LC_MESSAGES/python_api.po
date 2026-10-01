@@ -1,0 +1,87 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Python API quickstart"
+msgstr "Flýtileiðarvísir að Python API"
+
+msgid "Use the Python API when a workflow needs to run from a notebook, a reusable script, a server or a scheduler. The desktop application and the Python API call the same pipeline functions and use the same setting names."
+msgstr "Notaðu Python API þegar verkflæði þarf að keyra úr fartölvu (notebook), endurnýtanlegri skriftu, netþjóni eða tímaáætlunarkerfi. Skjáborðsforritið og Python API kalla á sömu vinnslufallin og nota sömu stillingaheiti."
+
+msgid "Install the headless package"
+msgstr "Setja upp pakkann án myndræns viðmóts"
+
+msgid "Add ``[qt]`` only when the same environment also needs the desktop interface."
+msgstr "Bættu ``[qt]`` aðeins við þegar sama umhverfi þarf einnig skjáborðsviðmótið."
+
+msgid "Use the typed workflow configuration"
+msgstr "Nota tögguðu verkflæðisstillingarnar"
+
+msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
+msgstr "API-ið á efsta stigi inniheldur lítið, stöðugt viðmót fyrir helstu verkflæðin. Tagaðir reitir ná yfir þau val sem flestar skriftur gera; ``extra`` tekur við ítarlegum stillingum en hafnar öðru gildi fyrir fyrirliggjandi tagaðan reit."
+
+msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
+msgstr "Kallaðu á ``mask.to_settings()`` þegar þörf er á heildarorðabók fyrir vistaða stillingaskrá. Hún er útvíkkuð með sömu sjálfgildum og myndræna viðmótið notar."
+
+msgid "Validate before a long run"
+msgstr "Sannprófa fyrir langa keyrslu"
+
+msgid "Set ``dry_run`` to inspect the input and return a list of problems without loading a model, using the GPU or writing results."
+msgstr "Stilltu ``dry_run`` til að skoða inntakið og skila lista yfir vandamál án þess að hlaða líkani, nota skjákortið eða skrifa niðurstöður."
+
+msgid "An empty list means that the preflight checks passed. A preflight check cannot guarantee model quality; inspect the segmentation preview before processing a full screen."
+msgstr "Tómur listi þýðir að forathuganirnar stóðust. Forathugun getur ekki tryggt gæði líkansins; skoðaðu forskoðun hlutunarinnar áður en heil skimun er unnin."
+
+msgid "Generate masks"
+msgstr "Búa til grímur"
+
+msgid "A normal run returns ``None`` and writes masks, overlays, object counts and the resolved settings below ``src``. Invalid required inputs raise ``ValueError``; runtime progress and recoverable field failures are written to the spaCR log."
+msgstr "Venjuleg keyrsla skilar ``None`` og skrifar grímur, yfirlög, fjölda hluta og útleystar stillingar undir ``src``. Ógild nauðsynleg inntök kasta ``ValueError``; framvinda keyrslu og endurheimtanlegar villur í sjónsviðum eru skrifaðar í spaCR-annálinn."
+
+msgid "Measure objects and save crops"
+msgstr "Mæla hluti og vista myndskurði"
+
+msgid "Measure writes ``measurements/measurements.db`` and the resolved settings. If ``save_png`` is enabled, it also writes one crop set for each ``crop_mode``."
+msgstr "Mæling skrifar ``measurements/measurements.db`` og útleystu stillingarnar. Ef ``save_png`` er virkt skrifar það einnig eitt sett af myndskurðum fyrir hvert ``crop_mode``."
+
+msgid "Run the same contract from a shell"
+msgstr "Keyra sama samning úr skel"
+
+msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
+msgstr "Skipunin án myndræns viðmóts er gagnleg í tímaáætlunarkerfi vegna þess að hún sannprófar heiti og gildi stillinga áður en þungi vinnslustaflinn er fluttur inn."
+
+msgid "Command-line overrides are applied after the file:"
+msgstr "Yfirskriftum á skipanalínu er beitt á eftir skránni:"
+
+msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+msgstr "Óþekktum stillingum og gildum sem ekki er hægt að umbreyta er hafnað með tillögu. Notaðu ``spacr-doctor`` þegar vandamálið liggur í umhverfinu frekar en í stillingu."
+
+msgid "Continue from notebooks"
+msgstr "Halda áfram úr fartölvum"
+
+msgid "The repository's ``Notebooks/`` directory contains complete Mask, Measure, Classify, barcode and regression examples. Treat the settings helpers and the :doc:`curated API reference <api/index>` as authoritative for the installed version; notebooks are worked examples rather than a compatibility contract."
+msgstr "Mappan ``Notebooks/`` í geymslunni inniheldur heildstæð dæmi um Grímur, Mæling, Flokkun, strikamerki og aðhvarf. Líttu á stillingahjálparana og :doc:`valda API-tilvísun <api/index>` sem áreiðanlegar heimildir fyrir uppsettu útgáfuna; fartölvur eru unnin dæmi frekar en samhæfnissamningur."
+
+msgid "Export measured objects to AnnData"
+msgstr "Flytja mælda hluti út í AnnData"
+
+msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
+msgstr "Fylgdu :doc:`anndata_export` til að flytja mæligagnagrunninn út um sama inngangspunkt og skjáborðsforritið notar, velja stefnu fyrir gildi sem vantar og skoða fylkið af hlutum og eiginleikum sem verður til."
+

@@ -1,0 +1,90 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Recruitment: compartment ratios and channel identity"
+msgstr "Söfnunargreining: hólfahlutföll og auðkenni rása"
+
+msgid "From **Home → Assays → Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
+msgstr "Frá **Heim → Prófanir → Toxoplasma** skaltu opna **Söfnunargreining** eftir hlutun og mælingu. Tilgreindu verkefnið sem inniheldur ``measurements/measurements.db`` og staðfestu að mælingar þess á frumum, kjörnum, sýklum og umfrymi vísi til réttra hluta og rása. Sjá :ref:`Söfnunargreiningu í einingakortinu <workflow-module-recruitment>`, `kennsluna um söfnunargreiningu <tutorials/#lesson=25_recruitment>`_ og :func:`spacr.submodules.analyze_recruitment` fyrir verkflæðið í kring."
+
+msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
+msgstr "Fyrir ástand merkis í heilli bólu (vacuole), skýra nefnara hýsilsýkingar og valkvæða talningu sníkjudýra, sjá :doc:`Greining hýsils og sýkils <host_pathogen>`. Einingarnar tvær eru áfram aðskildir greiningarkostir."
+
+msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. The primary ``recruitment`` column is the pathogen mean intensity divided by the cytoplasm mean intensity in that channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
+msgstr "Veldu ``channel_of_interest`` fyrir flúrljómandi merkið sem þú vilt mæla söfnun á. Aðaldálkurinn ``recruitment`` er meðalstyrkur sýkils deilt með meðalstyrk umfrymis í þeirri rás. Stilltu lýsigögn skilyrða, síur á stærð/styrk hluta og lágmarksfjölda hluta á brunn áður en niðurstöður eru bornar saman. Skoðaðu auðkenni hólfa og styrk nefnara; nefnari sem vantar eða er núll staðfestir ekki söfnun."
+
+msgid "Auxiliary ratios retain their channel"
+msgstr "Aukahlutföll halda rás sinni"
+
+msgid "``channel_dims`` selects image-channel indices for overlays and auxiliary recruitment measurements. The auxiliary calculation also includes ``channel_of_interest`` if it was omitted from that list. Output names follow this pattern::"
+msgstr "``channel_dims`` velur vísa myndrása fyrir yfirlög og aukamælingar á söfnun. Aukaútreikningurinn tekur einnig með ``channel_of_interest`` ef honum var sleppt af þeim lista. Heiti úttaka fylgja þessu mynstri::"
+
+msgid "``compartment`` is ``cell``, ``cytoplasm`` or ``nucleus``. Each denominator is the mean intensity of that compartment in the same channel. ``statistic`` identifies the pathogen numerator:"
+msgstr "``compartment`` er ``cell``, ``cytoplasm`` eða ``nucleus``. Hver nefnari er meðalstyrkur viðkomandi hólfs í sömu rás. ``statistic`` auðkennir teljara sýkilsins:"
+
+msgid "Statistic"
+msgstr "Tölfræði"
+
+msgid "Measurement used as numerator"
+msgstr "Mæling notuð sem teljari"
+
+msgid "``mean``"
+msgstr "``mean``"
+
+msgid "``pathogen_channel_<channel>_mean_intensity``"
+msgstr "``pathogen_channel_<channel>_mean_intensity``"
+
+msgid "``q75``"
+msgstr "``q75``"
+
+msgid "``pathogen_channel_<channel>_percentile_75``"
+msgstr "``pathogen_channel_<channel>_percentile_75``"
+
+msgid "``outside_mean``"
+msgstr "``outside_mean``"
+
+msgid "``pathogen_channel_<channel>_outside_mean``"
+msgstr "``pathogen_channel_<channel>_outside_mean``"
+
+msgid "``outside_q75``"
+msgstr "``outside_q75``"
+
+msgid "``pathogen_channel_<channel>_outside_percentile_75``"
+msgstr "``pathogen_channel_<channel>_outside_percentile_75``"
+
+msgid "``periphery_mean``"
+msgstr "``periphery_mean``"
+
+msgid "``pathogen_channel_<channel>_periphery_mean``"
+msgstr "``pathogen_channel_<channel>_periphery_mean``"
+
+msgid "For example, a channel 2 pathogen mean of 12 and cytoplasm mean of 4 produces ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. If channel 3 has means of 100 and 4, its separate column is ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Calculating channel 3 retains the channel 2 result. These are illustrative intensities, not experiment data."
+msgstr "Til dæmis gefur meðalgildi sýkils 12 og meðalgildi umfrymis 4 í rás 2 ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. Ef rás 3 hefur meðalgildin 100 og 4 er aðskilinn dálkur hennar ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Útreikningur rásar 3 varðveitir niðurstöðu rásar 2. Þetta eru skýringargildi, ekki tilraunagögn."
+
+msgid "The calculation produces fifteen auxiliary ratios per channel. It does not creates constant-one pathogen/nucleus slope columns; these ratios do not estimate a spatial slope. Genuine slope columns already supplied by the caller are preserved. When comparing historical exports, check whether their auxiliary column names identify a channel before combining runs."
+msgstr "Útreikningurinn býr til fimmtán aukahlutföll á hverja rás. Hann býr ekki til halladálka sýkils/kjarna sem eru fastir í einum; þessi hlutföll meta ekki rúmfræðilegan halla. Raunverulegir halladálkar sem kallandinn hefur þegar lagt til eru varðveittir. Þegar sögulegur útflutningur er borinn saman skaltu athuga hvort heiti aukadálka hans auðkenni rás áður en keyrslur eru sameinaðar."
+
+msgid "Saved results"
+msgstr "Vistaðar niðurstöður"
+
+msgid "The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv`` with per-well summaries, alongside recruitment plots. The historical ``cells.csv`` filename does not change the per-PV unit of these rows. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
+msgstr "Keyrslan skrifar ``cells.csv`` með varðveittum röðum á hverja bólu (PV) og ``wells.csv`` með samantektum á hvern brunn, ásamt söfnunarmyndritum. Sögulega skráarheitið ``cells.csv`` breytir ekki einingu þessara raða, sem er ein bóla (PV). Staðfestu úthlutun skilyrða, síun og valda rás þegar þessi tvö samantektarstig eru borin saman."
+

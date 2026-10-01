@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "01_help_history",
-      "narration": "Open Help, then Run history to browse the run records saved on this computer.",
+      "narration": "Open Help, then Run History to browse the run records saved on this computer.",
       "hold_after": 0.7,
       "related_lessons": [
         "37_batch",

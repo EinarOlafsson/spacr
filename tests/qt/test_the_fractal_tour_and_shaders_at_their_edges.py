@@ -2,8 +2,8 @@
 
 Pinned here, each as what the user sees or gets:
 
-* on the "tour" path the deep zoom builds one pilot and keeps it; a drag
-  takes the camera from the tour and Ctrl+R hands it back;
+* on the "tour" path the deep zoom builds one glide camera and keeps it; a
+  drag takes the camera from the tour and Ctrl+R hands it back;
 * a tour with nowhere to go leaves the camera target alone, and a missing
   region list is an empty tour rather than an error;
 * a shader whose main has nested blocks is still rewritten to the N x N
@@ -41,18 +41,20 @@ pytestmark = pytest.mark.qt
 # The tour
 # ---------------------------------------------------------------------------
 
-def test_the_tour_path_builds_one_pilot_and_keeps_it(mandel):  # noqa: F811
+def test_the_tour_path_builds_one_glide_camera_and_keeps_it(mandel):  # noqa: F811
+    from spacr.qt.widgets.fractal_mandelbrot import _GlideCamera
+
     mandel.saved["path"] = "tour"
     canvas = mandel.build()
     canvas._orbit = _StandInOrbit(max_iter=8, digits=20)
 
     values = canvas._mandelbrot_uniforms(0.0)
-    pilot = canvas._pilot
-    assert isinstance(pilot, F._TourPilot)
+    glide = canvas._glide
+    assert isinstance(glide, _GlideCamera)
     assert len(values["u_center_offset"]) == 2
 
     canvas._mandelbrot_uniforms(0.0)
-    assert canvas._pilot is pilot
+    assert canvas._glide is glide
 
 
 def test_a_drag_takes_the_camera_and_a_restart_gives_it_back(mandel):  # noqa: F811
@@ -63,18 +65,17 @@ def test_a_drag_takes_the_camera_and_a_restart_gives_it_back(mandel):  # noqa: F
     pointer = _FixedPointer()
     canvas._pointer = pointer
     canvas._mandelbrot_uniforms(0.0)
-    pilot = canvas._pilot
-    if not pilot.tour.regions:
-        pytest.skip("no committed regions to tour")
-    assert pilot.flying
+    glide = canvas._glide
+    assert not glide.taken
 
     pointer.drag_x, pointer.drag_y = 0.5, -0.25
     canvas._mandelbrot_uniforms(0.0)
-    assert not pilot.flying
+    assert glide.taken
+    assert (pointer.drag_x, pointer.drag_y) == (0.0, 0.0)
 
     controls.restart_token += 1
     canvas._mandelbrot_uniforms(0.0)
-    assert pilot.flying
+    assert not glide.taken
 
 
 def test_a_tour_with_nowhere_to_go_leaves_the_camera_alone():

@@ -1,0 +1,759 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 21:19-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Make Masks: editing, detection and measurement"
+msgstr "Búa til grímur: breytingar, greining og mæling"
+
+msgid "Open **Home → Tools → Make Masks** to inspect an image, correct its integer label mask and save the result. Each positive label identifies one object; zero is background. This screen can also propose objects with a detector, grow cell masks from existing nucleus masks, and organize curated images and masks for Measure with **Organize for Measure…**."
+msgstr "Opnaðu **Heim → Verkfæri → Búa til grímur** til að skoða mynd, leiðrétta heiltölumerkjagrímu hennar og vista niðurstöðuna. Hvert jákvætt merki auðkennir einn hlut; núll er bakgrunnur. Þessi skjár getur einnig lagt til hluti með greini, ræktað frumugrímur út frá fyrirliggjandi kjarnagrímum og raðað grisjuðum myndum og grímum fyrir Mæling með **Raða fyrir Measure…**."
+
+msgid "For the inputs and outputs of the surrounding workflow, see :ref:`Make Masks in the module map <workflow-module-make_masks>` and the `Make Masks tutorial <tutorials/#lesson=14_make_masks>`_. The :doc:`screen API <api/spacr/qt/screens/make_masks/index>` documents the implementation and :mod:`spacr.qt.mask_engine` documents the editing routines."
+msgstr "Fyrir inntök og úttök verkflæðisins í kring, sjá :ref:`Búa til grímur í einingakortinu <workflow-module-make_masks>` og `kennsluna um Búa til grímur <tutorials/#lesson=14_make_masks>`_. :doc:`API skjásins <api/spacr/qt/screens/make_masks/index>` skjalfestir útfærsluna og :mod:`spacr.qt.mask_engine` skjalfestir breytingaföllin."
+
+msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
+msgstr "Láttu bendilinn svífa yfir stillingu eða merki hennar til að lesa skýringuna og fylgja API-hjálpartengli hennar. Stýringar sem hafa samsvarandi hreyfimynd bjóða einnig upp á hreyfimynd í þeim sprettiglugga; hver stýring man eigið birtingarástand. Hjálp um myndbætingu tengist skjölun greiningarkeðjunnar. Stýring án samsvarandi hreyfimyndar heldur samt skriflegri skýringu sinni og API-tengli."
+
+msgid "Open a field and save an edit"
+msgstr "Opna sjónsvið og vista breytingu"
+
+msgid "Choose **Open folder…** and select the image folder. The ordinary layout keeps corresponding masks in its ``masks/`` subfolder. A saved TIFF mask uses the image's filename stem; a missing mask starts empty. The loader also supports the sibling masks layout and Cellpose ``_seg.npy`` bundles."
+msgstr "Veldu **Opna möppu…** og veldu myndamöppuna. Venjulega uppsetningin geymir samsvarandi grímur í undirmöppunni ``masks/``. Vistuð TIFF-gríma notar stofn skráarheitis myndarinnar; gríma sem vantar byrjar tóm. Hleðslan styður einnig uppsetningu með grímum í systurmöppu og Cellpose-pakka ``_seg.npy``."
+
+msgid "Inspect the image and labels. Images and masks must have matching spatial dimensions. An ordinary colour image is converted to grayscale; prepare the intended channel as a separate image when channel identity matters."
+msgstr "Skoðaðu myndina og merkin. Myndir og grímur verða að hafa samsvarandi rúmvíddir. Venjulegri litmynd er breytt í grátóna; undirbúðu ætlaða rás sem sérstaka mynd þegar auðkenni rásar skiptir máli."
+
+msgid "Correct an object with a tool, or choose a detection method and inspect its preview before accepting objects. **Undo** and **Redo** apply to mask edits."
+msgstr "Leiðréttu hlut með verkfæri, eða veldu greiningaraðferð og skoðaðu forskoðun hennar áður en þú samþykkir hluti. **Afturkalla** og **Endurtaka** eiga við breytingar á grímum."
+
+msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a ``uint16`` label TIFF in the ordinary layout; a Cellpose bundle is updated as a bundle. The source image is preserved."
+msgstr "Ýttu á **Vista grímu** eða **Ctrl+S** áður en þú ferð í annað sjónsvið. Vistun skrifar ``uint16``-merkja-TIFF í venjulegu uppsetningunni; Cellpose-pakki er uppfærður sem pakki. Upprunamyndin er varðveitt."
+
+msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
+msgstr "Notaðu **Halda** eða **Henda** til að skrá grisjunarúrskurð fyrir sjónsviðið og halda áfram. Þessir úrskurðir fara í ``csv/keep_discard.csv``; Henda skráir ákvörðun án þess að eyða myndinni eða grímu hennar. Vistaðu breytingar sérstaklega."
+
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
+msgstr "Til að prófa skjáinn án eigin gagna sækir **Hlaða prófunargögnum...** tíu óhlutuð sjónsvið með Toxoplasma-bólum, með grisjuðu grímunum þeirra geymdum sér í ``ground_truth_masks/``, og opnar það fyrsta. Örin á sama hnappi býður upp á úrtak sjónsviða úr gagnasafninu sem hvert birt líkan var þjálfað á."
+
+msgid "Drop images and folders"
+msgstr "Sleppa myndum og möppum"
+
+msgid "You can also drop files and folders onto the screen. Make Masks works out what the drop is:"
+msgstr "Þú getur einnig sleppt skrám og möppum á skjáinn. Búa til grímur greinir hvað var sleppt:"
+
+msgid "images are queued in the order dropped; one folder of images opens as a folder;"
+msgstr "myndir fara í biðröð í þeirri röð sem þeim var sleppt; ein mappa með myndum opnast sem mappa;"
+
+msgid "images dropped together with their masks open with those masks. A ``masks`` folder is used as it is; other mask files are copied, after a question, to ``masks/<image stem>.tif`` beside their images, keeping any mask already there;"
+msgstr "myndir sem sleppt er ásamt grímum sínum opnast með þeim grímum. ``masks``-mappa er notuð eins og hún er; öðrum grímuskrám er, eftir spurningu, afritað í ``masks/<image stem>.tif`` við hlið mynda sinna og öllum grímum sem þar eru fyrir haldið;"
+
+msgid "images kept in subfolders prompt an offer to consolidate them: their images are copied into one folder, each renamed with its folder path so no name is lost, and a ``rename_manifest.csv`` records the original names;"
+msgstr "myndir í undirmöppum kalla fram boð um að sameina þær: myndir þeirra eru afritaðar í eina möppu, hver endurnefnd með möppuslóð sinni svo ekkert heiti glatist, og ``rename_manifest.csv`` skráir upphaflegu heitin;"
+
+msgid "subfolders named like channels (DAPI, GFP, ``ch1``, ``C01``…), or several image folders, open **Organize for Measure** with a channel column per folder. Cancelling it opens the drop as an ordinary folder;"
+msgstr "undirmöppur sem heita eins og rásir (DAPI, GFP, ``ch1``, ``C01``…), eða nokkrar myndamöppur, opna **Raða fyrir Measure** með rásadálki fyrir hverja möppu. Ef hætt er við opnast það sem var sleppt sem venjuleg mappa;"
+
+msgid "a spaCR output folder, such as ``merged/`` or ``sorted_channels``, opens its images."
+msgstr "úttaksmappa spaCR, svo sem ``merged/`` eða ``sorted_channels``, opnar myndirnar sínar."
+
+msgid "Anything not used is listed in the console with the reason."
+msgstr "Allt sem ekki er notað er talið upp í stjórnborðinu ásamt ástæðunni."
+
+msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json``. Opening an image without editing it does not create evidence of manual curation. Existing history is retained when editing a previously curated mask. See :func:`spacr.qt.mask_engine.save_mask` and :class:`spacr.curation.CurationLog` for the file contract."
+msgstr "Vistuð breytingasaga er geymd við hlið grímunnar sem ``<mask>.curation.json``. Að opna mynd án þess að breyta henni býr ekki til vísbendingu um handvirka grisjun. Fyrirliggjandi saga er varðveitt þegar áður grisjaðri grímu er breytt. Sjá :func:`spacr.qt.mask_engine.save_mask` og :class:`spacr.curation.CurationLog` fyrir skráasamninginn."
+
+msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "Vistaða sniðið hefur að hámarki 65.535 jákvæð merki. Vistun hafnar tvíundargrímu með fleiri samtengdum hlutum, eða fyrirliggjandi fjölmerkjagrímu þar sem auðkenni fara yfir það bil; hún vefur ekki of stórum auðkennum í lægri tölur. Höfnuð vistun varðveitir fyrirliggjandi TIFF eða Cellpose-pakka og lýsigögn hans. Í venjulegum ham er gríma með einu forgrunnsgildi túlkuð sem tvíundargríma og samtengdir hlutar hennar fá aðskilin auðkenni. Fyrir tengsl frum- og afleiddra hluta skaltu nota leiðina með nákvæmum auðkennum sem lýst er hér að neðan. Sjá :func:`spacr.qt.mask_engine.canonical_labels` fyrir þessar aðgreindu venjur."
+
+msgid "Canvas tools and navigation"
+msgstr "Verkfæri strigans og leiðsögn"
+
+msgid "Tool"
+msgstr "Verkefni"
+
+msgid "Action"
+msgstr "Aðgerð"
+
+msgid "Brush"
+msgstr "Pensill"
+
+msgid "Paint disks along the pointer path using the active label."
+msgstr "Mála diska eftir ferli bendilsins með virka merkinu."
+
+msgid "Erase"
+msgstr "Strokleður"
+
+msgid "Remove pixels under the brush."
+msgstr "Fjarlægja pixla undir penslinum."
+
+msgid "Erase object"
+msgstr "Erase object"
+
+msgid "Remove the complete label clicked."
+msgstr "Fjarlægja allt merkið sem smellt er á."
+
+msgid "Wand + / Wand −"
+msgstr "Wand + / Wand −"
+
+msgid "Flood from the clicked pixel within the chosen intensity tolerance; add or remove the resulting region."
+msgstr "Flæða frá pixlinum sem smellt er á innan valinna styrkleikavikmarka; bæta svæðinu sem verður til við eða fjarlægja það."
+
+msgid "Draw"
+msgstr "Draw"
+
+msgid "Trace an outline and fill its interior as one object."
+msgstr "Rekja útlínu og fylla innra svæði hennar sem einn hlut."
+
+msgid "Divide"
+msgstr "Divide"
+
+msgid "Draw a cut through a merged object. The larger component retains its ID; the smaller receives a new ID."
+msgstr "Draga skurð í gegnum samrunninn hlut. Stærri hlutinn heldur auðkenni sínu; sá minni fær nýtt auðkenni."
+
+msgid "Zoom"
+msgstr "Aðdráttur"
+
+msgid "Drag a rectangle to change the view without changing labels."
+msgstr "Draga rétthyrning til að breyta sýninni án þess að breyta merkjum."
+
+msgid "Recrop"
+msgstr "Recrop"
+
+msgid "Write a cropped image/mask pair as another field, then retire the original when leaving the field after recropping."
+msgstr "Skrifa skorið mynd/grímu-par sem annað sjónsvið og setja síðan upprunalega sjónsviðið til hliðar þegar farið er úr því eftir endurskurð."
+
+msgid "Ruler"
+msgstr "Reglustika"
+
+msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
+msgstr "Draga línu til að mæla fjarlægð í myndpixlum. Hægrismelltu með Reglustika valda til að hreinsa hana. Aðdráttur og hliðrun varðveita mælinguna."
+
+msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Shift eða Alt + draga** hliðrar. Hjólið þysjar um bendilinn; **Esc** endurstillir aðdrátt. **Left/Right** velur fyrra/næsta sjónsvið. **Ctrl+Z/Ctrl+Y** afturkallar eða endurtekur breytingu. **Ctrl + vinstrismellur** skiptir hlut við mittið; **Ctrl + hægrismellur** fjarlægir hlutinn undir bendlinum. Flýtilyklaspjaldið við hlið sýnarinnar sýnir núverandi bendingar, þar á meðal stýringar stækkunarglersins."
+
+msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
+msgstr "Recrop býr til skrár og breytir biðröð sjónsviða. Hlutum sem jaðar skurðarins sker er sleppt og hlutir sem haldast eru endurnúmeraðir innan nýja skurðarins. Mjög litlum skurðum og nær tvíteknum skurðum er hafnað. Fullunnin upprunaleg sjónsvið færast í ``recropped_originals/``. Notaðu upprunalegu myndina og grímuna þegar auðkennum frum- og afleiddra hluta er viðhaldið yfir allt sjónsviðið; endurnúmeraður skurður er annað pörunarsamhengi. Nákvæm mörk og slóðir eru skjalfest í :func:`spacr.qt.mask_engine.write_recrop`."
+
+msgid "Wand tolerance and leaking regions"
+msgstr "Vikmörk Wand og svæði sem leka"
+
+msgid "The Wand's relative tolerance is a fraction of the image intensity range; absolute tolerance uses the processed image's intensity units. The optional runaway detector looks for sudden widening as the flood leaves the clicked object. **Growth ratio**, **Warm-up**, **Min baseline** and **Confirmation** control how much widening is required, where checking begins, the minimum object width and how long widening must persist."
+msgstr "Hlutfallsleg vikmörk Wand eru hlutfall af styrkleikabili myndarinnar; algild vikmörk nota styrkleikaeiningar unnu myndarinnar. Valkvæði stjórnlausi skynjarinn leitar að skyndilegri breikkun þegar flæðið fer út fyrir hlutinn sem smellt var á. **Vaxtarhlutfall**, **Warm-up**, **Min baseline** og **Confirmation** stjórna því hversu mikil breikkun þarf, hvar athugun hefst, lágmarksbreidd hlutar og hversu lengi breikkun verður að vara."
+
+msgid "**Re-flood below the escape** searches for a lower tolerance whose region stays inside the object. **Search steps** controls that search's precision. **Taper onto the gradient** refines a provisional cut using the intensity boundary; smoothing, transition-band width and foreground inset determine where the edge may move. These controls help with a bright object connected to another region by a weak bridge; inspect the resulting edge when the bridge and object have similar intensity."
+msgstr "**Endurflæða undir útrásarstigi** leitar að lægri vikmörkum þar sem svæðið helst innan hlutarins. **Leitarskref** stjórnar nákvæmni þeirrar leitar. **Mjókka niður á stigulinn** fínpússar bráðabirgðaskurð með styrkleikamörkunum; jöfnun, breidd umskiptabands og innfelling forgrunns ráða því hvert brúnin má færast. Þessar stýringar hjálpa með bjartan hlut sem tengist öðru svæði með veikri brú; skoðaðu brúnina sem verður til þegar brúin og hluturinn hafa svipaðan styrk."
+
+msgid "The Wand uses the currently applied image enhancement. If enhancement is still being calculated, wait for its completion before trying the click again. Post-detection morphology and splitting belong to detector output, not to the manual Wand gesture."
+msgstr "Wand notar myndbætinguna sem nú er beitt. Ef enn er verið að reikna bætinguna skaltu bíða eftir að henni ljúki áður en þú reynir smellinn aftur. Formfræði og skipting eftir greiningu tilheyra úttaki greinisins, ekki handvirku Wand-bendingunni."
+
+msgid "Display, Levels and intensity units"
+msgstr "Birting, Tónsvið og styrkleikaeiningar"
+
+msgid "**Lower %** and **Upper %** set the percentiles drawn as black and white. **Levels…** opens a full-field histogram: drag either marker or enter a black/white intensity cutoff. Changes update the percentile controls. A constant-intensity image has no range to stretch. **Reset levels** uses the full range, 0–100 percentiles."
+msgstr "**Neðra %** og **Efri hundraðshlutamörk %** stilla hundraðsmörkin sem teiknuð eru sem svart og hvítt. **Tónsvið…** opnar stuðlarit alls sjónsviðsins: dragðu annað hvort merkið eða sláðu inn svört/hvít styrkleikamörk. Breytingar uppfæra hundraðsmarkastýringarnar. Mynd með föstum styrk hefur ekkert bil til að teygja. **Endurstilla tónsvið** notar allt bilið, hundraðsmörk 0–100."
+
+msgid "With **Detect on the normalized image** off, these levels affect display. With it on, detectors use the stretched image before any applied enhancement. The normalization is computed for the whole field before extracting a magnifier crop, so moving the magnifier does not redefine the percentile levels. The setting changes future proposals; it does not modify existing labels or rewrite the loaded image."
+msgstr "Þegar slökkt er á **Greina á staðlaðri mynd** hafa þessi stig áhrif á birtingu. Þegar kveikt er á því nota greinar teygðu myndina á undan allri beittri bætingu. Stöðlunin er reiknuð fyrir allt sjónsviðið áður en skurður stækkunarglersins er tekinn, svo færsla stækkunarglersins endurskilgreinir ekki hundraðsmarkastigin. Stillingin breytir tillögum í framtíðinni; hún breytir ekki fyrirliggjandi merkjum né endurskrifar hlaðna mynd."
+
+msgid "**Invert image** affects both the picture and detector input. It normalizes the field to 0–1 and takes its complement, so an absolute detection threshold must be interpreted on that scale. The pixel value in the corner readout follows inversion and detection normalization; object mean intensity and the **Filter** intensity bounds use the original loaded values. Changing contrast or inversion therefore does not change the meaning of a measured object's original mean intensity."
+msgstr "**Snúa við mynd** hefur áhrif bæði á myndina og inntak greinisins. Hún staðlar sjónsviðið á 0–1 og tekur fyllingu þess, svo túlka verður algildan greiningarþröskuld á þeim kvarða. Pixlagildið í hornaflesturinum fylgir viðsnúningi og greiningarstöðlun; meðalstyrkur hlutar og styrkleikamörk **Sía** nota upphaflegu hlöðnu gildin. Breyting á birtuskilum eða viðsnúningi breytir því ekki merkingu upphaflegs meðalstyrks mælds hlutar."
+
+msgid "**Swap object and background**, under Object operations, changes the label mask. Use it only when that label transformation is intended; it does not perform image inversion."
+msgstr "**Víxla hlut og bakgrunni**, undir Hlutaaðgerðir, breytir merkjagrímunni. Notaðu hana aðeins þegar sú umbreyting merkja er ætluð; hún framkvæmir ekki viðsnúning myndar."
+
+msgid "Choose a detection method"
+msgstr "Velja greiningaraðferð"
+
+msgid "The method selector controls the detector used by the live preview and the corresponding whole-image detection action. Only applicable method controls are shown. Model methods require their model or backend; the Model Zoo indicates installation and download state."
+msgstr "Aðferðavalið stjórnar greininum sem lifandi forskoðunin og samsvarandi greiningaraðgerð fyrir alla myndina nota. Aðeins viðeigandi stýringar aðferðar eru sýndar. Líkanaaðferðir krefjast líkans síns eða bakenda; Líkanasafn sýnir stöðu uppsetningar og niðurhals."
+
+msgid "The **Object detection** toolbar action runs model loading, inference and postprocessing in a worker so the window remains responsive. It captures the current input and settings when started. If you switch fields or change the image or mask before it finishes, the result is discarded; run detection again on the intended field. Closing the window does not wait for that result. The Python method :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` remains synchronous and returns zero if another detection is already running."
+msgstr "Tækjastikuaðgerðin **Hlutagreining** keyrir hleðslu líkans, ályktun og eftirvinnslu í vinnsluþræði svo glugginn haldist svörun. Hún fangar núverandi inntak og stillingar þegar hún er ræst. Ef þú skiptir um sjónsvið eða breytir myndinni eða grímunni áður en henni lýkur er niðurstöðunni hent; keyrðu greininguna aftur á ætluðu sjónsviði. Lokun gluggans bíður ekki eftir þeirri niðurstöðu. Python-aðferðin :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` er áfram samstillt og skilar núlli ef önnur greining er þegar í gangi."
+
+msgid "CPU Cellpose inference uses float32 weights through the shared device policy. Supported GPU precision depends on the backend and device. Different precision can produce different predictions, so inspect the masks instead of assuming identical output across devices. This inference policy does not change training precision. See :func:`spacr.accelerator.cellpose_kwargs`. Live Cellpose previews also use float32 when explicitly forced to CPU or when accelerator detection falls back to CPU. A Cellpose 3 checkpoint rejected by Cellpose 4 produces a preview-specific compatibility message; choose a checkpoint supported by the installed preview runtime. See :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`."
+msgstr "Cellpose-ályktun á örgjörva notar float32-vægi í gegnum sameiginlegu tækjastefnuna. Studd nákvæmni á skjákorti fer eftir bakenda og tæki. Mismunandi nákvæmni getur gefið mismunandi spár, svo skoðaðu grímurnar í stað þess að gera ráð fyrir eins úttaki á öllum tækjum. Þessi ályktunarstefna breytir ekki nákvæmni við þjálfun. Sjá :func:`spacr.accelerator.cellpose_kwargs`. Lifandi Cellpose-forskoðanir nota einnig float32 þegar þær eru sérstaklega þvingaðar á örgjörva eða þegar greining hraðals fellur aftur á örgjörva. Cellpose 3-vistunarpunktur sem Cellpose 4 hafnar gefur samhæfnisskilaboð sem eru sértæk fyrir forskoðun; veldu vistunarpunkt sem uppsett keyrsluumhverfi forskoðunar styður. Sjá :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`."
+
+msgid "Method"
+msgstr "Aðferð"
+
+msgid "What to inspect and adjust"
+msgstr "Hvað á að skoða og stilla"
+
+msgid "Otsu"
+msgstr "Otsu-aðferð"
+
+msgid "A global threshold for foreground/background populations. Adjust correction, blur, bright/dark foreground, hole filling, touching-object splitting, border exclusion and minimum area. Local Otsu is an additional option for whole-image detection."
+msgstr "Altækur þröskuldur fyrir þýði forgrunns/bakgrunns. Stilltu leiðréttingu, óskýringu, bjartan/dökkan forgrunn, fyllingu gata, skiptingu hluta sem snertast, útilokun við jaðar og lágmarksflatarmál. Local Otsu er viðbótarvalkostur fyrir greiningu á allri myndinni."
+
+msgid "Li, Yen, Triangle, IsoData, Mean, Minimum"
+msgstr "Li, Yen, Triangle, IsoData, Mean, Minimum"
+
+msgid "Alternative global levels with the shared threshold cleanup controls. Minimum can refuse a histogram without two separable peaks. An algorithm name alone does not establish accuracy on a new image."
+msgstr "Önnur altæk stig með sameiginlegu hreinsistýringunum fyrir þröskuld. Minimum getur hafnað stuðlariti án tveggja aðgreinanlegra toppa. Heiti reiknirits eitt og sér staðfestir ekki nákvæmni á nýrri mynd."
+
+msgid "Multi-Otsu"
+msgstr "Fjöl-Otsu-aðferð"
+
+msgid "Choose the number of intensity classes and the foreground band."
+msgstr "Veldu fjölda styrkleikaflokka og forgrunnsbandið."
+
+msgid "Sauvola, Niblack"
+msgstr "Sauvola, Niblack"
+
+msgid "Local-window statistics with window size and contrast weight ``k``. Niblack uses ``mean - k*standard_deviation``. Sauvola uses a default ``R=1`` on float input without rescaling its range; check the detector input scale when transferring settings."
+msgstr "Tölfræði staðbundins glugga með gluggastærð og birtuskilavægi ``k``. Niblack notar ``mean - k*standard_deviation``. Sauvola notar sjálfgefið ``R=1`` á fleytitöluinntaki án þess að endurkvarða bil þess; athugaðu kvarða inntaks greinisins þegar stillingar eru fluttar."
+
+msgid "Maxima + propagate"
+msgstr "Hágildi + útbreiðsla"
+
+msgid "Find bright centres after Gaussian blur, then grow watershed basins using intensity and a stop rule. Centre spacing and seed level govern proposed seeds; a seed can disappear during subsequent filtering."
+msgstr "Finna bjartar miðjur eftir Gauss-óskýringu og rækta síðan vatnaskilasvæði með styrk og stöðvunarreglu. Bil milli miðja og stig fræja stjórna tillögðum fræjum; fræ getur horfið við síðari síun."
+
+msgid "Secondary objects from primary masks"
+msgstr "Afleiddir hlutir úr frumgrímum"
+
+msgid "Grow from every pixel of each labelled primary object while retaining its ID. See the pairing walkthrough below."
+msgstr "Rækta frá hverjum pixli hvers merkts frumhlutar og halda auðkenni hans. Sjá leiðsögnina um pörun hér að neðan."
+
+msgid "Adaptive threshold"
+msgstr "Aðlögunarþröskuldur"
+
+msgid "Local Gaussian-weighted threshold, offset and morphological cleanup through the irregular-organelle engine."
+msgstr "Staðbundinn Gauss-veginn þröskuldur, hliðrun og formfræðileg hreinsun í gegnum vél fyrir óregluleg frumulíffæri."
+
+msgid "LoG blobs, DoG blobs"
+msgstr "LoG blobs, DoG blobs"
+
+msgid "Spot detection over Gaussian scales. Inspect scale range, response threshold and whether spots grow by watershed rather than disk stamps."
+msgstr "Blettagreining yfir Gauss-kvarða. Skoðaðu kvarðabil, svörunarþröskuld og hvort blettir vaxa með vatnaskilum frekar en diskastimplum."
+
+msgid "Ridge filter"
+msgstr "Hryggjasía"
+
+msgid "Frangi, Sato or Meijering response for network-like structures; select response scales and global or adaptive response threshold."
+msgstr "Frangi-, Sato- eða Meijering-svörun fyrir netlaga byggingar; veldu svörunarkvarða og altækan eða aðlögunarhæfan svörunarþröskuld."
+
+msgid "Hysteresis"
+msgstr "Tvíþröskuldsgreining"
+
+msgid "Grow from strong response through connected weaker response. Values below 1 are interpreted as percentile fractions by this engine."
+msgstr "Rækta frá sterkri svörun í gegnum tengda veikari svörun. Gildi undir 1 eru túlkuð sem hundraðsmarkahlutföll af þessari vél."
+
+msgid "U-Net"
+msgstr "U-Net"
+
+msgid "Load a compatible ``.pt``/``.pth`` checkpoint and choose its sigmoid probability cutoff; optional skeletonization applies to the result."
+msgstr "Hlaða samhæfum ``.pt``/``.pth``-vistunarpunkti og velja líkindamörk sigmoid-úttaksins; valkvæð beinagrindargerð á við niðurstöðuna."
+
+msgid "Cellpose and other installed backends"
+msgstr "Cellpose og aðrir uppsettir bakendar"
+
+msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
+msgstr "Notaðu samsvarandi líkanastýringar. Cellpose sýnir þvermál, þröskuld flæðisvillu, þröskuld fyrir líkur á frumu og stöðlun. Skoðaðu glugga þess fyrir líkur á frumu og flæði við hlið samþykktra merkja."
+
+msgid "Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
+msgstr "Venjulegt Otsu heldur eldri forvinnsluleið stækkunarglersins. Ekki er tryggt að skorin forskoðun þess og greining á öllu sjónsviðinu séu eins upp á pixla. Aðrir þröskuldshamir keyra sameiginlegu vélina á umbeðnum skurði; skurður getur samt haft annað stuðlarit en allt sjónsviðið. Stilltu á nokkrum dæmigerðum sjónsviðum og skoðaðu lokaúttakið fyrir alla myndina."
+
+msgid "Enhancement before and after detection"
+msgstr "Bæting fyrir og eftir greiningu"
+
+msgid "**Compare** previews the configured enhancement; **Apply** enables it for detection and display. The order is percentile stretch, background subtraction, optional point-spread processing, optional restoration, denoise, contrast, sharpen, detection, morphology, then split. Disabled steps leave their input unchanged. Background estimation radius should exceed the structures you want to retain. Denoising and the separate Maxima/secondary blur can compound, so check both settings."
+msgstr "**Bera saman** forskoðar stillta bætingu; **Beita** virkjar hana fyrir greiningu og birtingu. Röðin er hundraðsmarkateyging, frádráttur bakgrunns, valkvæð punktdreifivinnsla, valkvæð endurheimt, suðhreinsun, birtuskil, skerping, greining, formfræði og síðan skipting. Óvirk skref láta inntak sitt óbreytt. Radíus bakgrunnsmats ætti að vera stærri en byggingarnar sem þú vilt halda. Suðhreinsun og aðskilin Maxima-/afleidd óskýring geta lagst saman, svo athugaðu báðar stillingarnar."
+
+msgid "Compare opens with a pending result while enhancement runs. Wait for the right-hand image before judging the effect. Normalization uses the whole field before extracting the displayed crop. If you change the field or settings, open a new comparison for that selection. **Cancel** closes the comparison; an enhancement already running finishes in the background and its abandoned result is discarded."
+msgstr "Samanburður opnast með niðurstöðu í bið á meðan bætingin keyrir. Bíddu eftir myndinni hægra megin áður en þú metur áhrifin. Stöðlun notar allt sjónsviðið áður en birti skurðurinn er tekinn. Ef þú breytir sjónsviðinu eða stillingunum skaltu opna nýjan samanburð fyrir það val. **Hætta við** lokar samanburðinum; bæting sem þegar er í gangi klárast í bakgrunni og yfirgefinni niðurstöðu hennar er hent."
+
+msgid "Post-detection opening/closing and splitting modify label shapes. These steps are bypassed for paired secondary objects to retain primary IDs. Make Masks enhancement is configured separately from the batch Mask pipeline; transfer the intended preprocessing explicitly when training or running a model elsewhere. See :mod:`spacr.qt.detect_chain`."
+msgstr "Opnun/lokun og skipting eftir greiningu breyta lögun merkja. Þessum skrefum er sleppt fyrir paraða afleidda hluti til að halda auðkennum frumhluta. Bæting í Búa til grímur er stillt aðskilið frá lotuvinnslukeðju Grímur; fluttu ætlaða forvinnslu sérstaklega þegar líkan er þjálfað eða keyrt annars staðar. Sjá :mod:`spacr.qt.detect_chain`."
+
+msgid "For calibrated optical processing, choose **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the image pixel height and width in micrometres, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit Y/X full widths at half maximum. Use **Reload** after changing a kernel file. Compare the result before applying it; more deconvolution iterations can amplify noise. The original image intensities stay available for measurement. See :doc:`point_spread` for the complete workflow and Measure settings."
+msgstr "Fyrir kvarðaða ljósfræðilega vinnslu skaltu velja **Falda (gera óskýrt)** eða **Affalda (Richardson–Lucy)** undir **Punktdreififall**. Sláðu inn hæð og breidd myndpixla í míkrómetrum og veldu síðan mældan TIFF/NPY-kjarna með samsvarandi bili eða Gauss-nálgun með skýrum Y/X-breiddum við hálft hámark. Notaðu **Hlaða aftur** eftir að kjarnaskrá er breytt. Berðu niðurstöðuna saman áður en þú beitir henni; fleiri afföldunarítranir geta magnað suð. Upphaflegur styrkur myndarinnar er áfram tiltækur fyrir mælingu. Sjá :doc:`point_spread` fyrir heildarverkflæðið og stillingar Mælingar."
+
+msgid "Restore an image with Cellpose 3"
+msgstr "Endurheimta mynd með Cellpose 3"
+
+msgid "Under **Image enhancement**, choose **Denoise**, **Deblur**, or **One-click restoration** in **Deep image enhancement**. The default is **Off**. If needed, select **Install Cellpose 3…** to install its separate backend environment; this does not replace spaCR's own Cellpose installation. First use may download the selected model's weights."
+msgstr "Undir **Myndbæting** skaltu velja **Suðhreinsun**, **Fjarlægja óskerpu** eða **Endurheimt með einum smelli** í **Myndbæting með djúpnámi**. Sjálfgildið er **Slökkt**. Ef þörf krefur skaltu velja **Setja upp Cellpose 3…** til að setja upp aðskilið bakendaumhverfi þess; þetta kemur ekki í stað eigin Cellpose-uppsetningar spaCR. Fyrsta notkun getur sótt vægi valins líkans."
+
+msgid "Open **Restoration model settings** and choose **Cells (cyto3)**, **Cells (cyto2)**, or **Nuclei**, according to the structures in the selected intensity channel. Set their approximate diameter in pixels. This controls model rescaling, not microscope calibration. **Load / retry model** reloads the current choice. Wait for the ready message before comparing or applying it; that message identifies the device used by the isolated backend."
+msgstr "Opnaðu **Restoration model settings** og veldu **Frumur (cyto3)**, **Frumur (cyto2)** eða **Frumukjarnar** eftir byggingunum í valinni styrkleikarás. Stilltu áætlað þvermál þeirra í pixlum. Þetta stjórnar endurkvörðun líkansins, ekki kvörðun smásjárinnar. **Hlaða líkani / reyna aftur** hleður núverandi vali aftur. Bíddu eftir skilaboðunum um að allt sé tilbúið áður en þú berð saman eða beitir; þau skilaboð tilgreina tækið sem einangraði bakendinn notar."
+
+msgid "Loading and restoration run in the background. On a CPU, a whole field can take tens of seconds; a small magnifier region is quicker. Timing depends on the image, model and computer. A backend installed with supported GPU acceleration can use it, but the workflow also runs on a CPU."
+msgstr "Hleðsla og endurheimt keyra í bakgrunni. Á örgjörva getur heilt sjónsvið tekið tugi sekúndna; lítið svæði í stækkunarglerinu er fljótlegra. Tíminn fer eftir myndinni, líkaninu og tölvunni. Bakendi sem settur er upp með studdri skjákortahröðun getur notað hana, en verkflæðið keyrir einnig á örgjörva."
+
+msgid "Use **Compare** to inspect several representative regions before choosing **Apply**. Restoration follows background and PSF processing and precedes classical denoising and contrast adjustments. Apply feeds the restored floating-point intensities to detection and the Wand while keeping display scaling separate. The image dimensions and loaded source pixels stay unchanged; upsampling models are not offered here."
+msgstr "Notaðu **Bera saman** til að skoða nokkur dæmigerð svæði áður en þú velur **Beita**. Endurheimt kemur á eftir bakgrunns- og PSF-vinnslu og á undan klassískri suðhreinsun og stillingu birtuskila. Beita sendir endurheimtan fleytitölustyrk til greiningar og Wand en heldur birtingarkvörðun aðskilinni. Víddir myndarinnar og hlaðnir upprunapixlar haldast óbreytt; líkön sem auka upplausn eru ekki í boði hér."
+
+msgid "Restored values are normalized model output, not calibrated fluorescence; they can be negative or exceed one. Measurements retain the original intensities. A clearer-looking image does not establish recovered structure or more accurate masks, and these weights are not validated for every organelle or acquisition. Inspect the resulting masks as well as the image. Keep the saved enhancement record with the masks: it identifies the model, Cellpose version, checkpoint hash, device, diameter and processing settings. CARE and Noise2Void are not supplied as ready restoration engines."
+msgstr "Endurheimt gildi eru staðlað úttak líkans, ekki kvörðuð flúrljómun; þau geta verið neikvæð eða yfir einum. Mælingar halda upphaflega styrknum. Mynd sem lítur skýrar út staðfestir ekki endurheimta byggingu eða nákvæmari grímur, og þessi vægi eru ekki sannprófuð fyrir öll frumulíffæri eða myndatökur. Skoðaðu grímurnar sem verða til jafnt sem myndina. Geymdu vistuðu bætingarskráninguna með grímunum: hún auðkennir líkanið, útgáfu Cellpose, tætigildi vistunarpunkts, tæki, þvermál og vinnslustillingar. CARE og Noise2Void fylgja ekki sem tilbúnar endurheimtarvélar."
+
+msgid "Grow secondary objects from a primary mask"
+msgstr "Rækta afleidda hluti út frá frumgrímu"
+
+msgid "Open the image channel in which the secondary objects should grow, such as a cell channel, then select **Secondary objects from primary masks**."
+msgstr "Opnaðu myndrásina sem afleiddu hlutirnir eiga að vaxa í, svo sem frumurás, og veldu síðan **Afleiddir hlutir úr frumgrímum**."
+
+msgid "Choose different **Primary object class** and **Secondary object class** values, for example Nucleus and Cell. Custom class names can be entered."
+msgstr "Veldu ólík gildi fyrir **Flokkur frumhluta** og **Flokkur afleiddra hluta**, til dæmis Nucleus og Cell. Hægt er að slá inn sérsniðin flokkaheiti."
+
+msgid "Use **File…** for a primary label mask belonging to this field, or **Folder…** for masks matched to successive image filename stems. An explicitly selected file is bound to the current field; it is not reused silently when moving to another image."
+msgstr "Notaðu **Skrá…** fyrir frummerkjagrímu sem tilheyrir þessu sjónsviði, eða **Mappa…** fyrir grímur sem paraðar eru við stofna skráarheita samfelldra mynda. Sérstaklega valin skrá er bundin núverandi sjónsviði; hún er ekki endurnýtt án þess að láta vita þegar farið er í aðra mynd."
+
+msgid "Wait for the primary-object count. The primary mask must match the image's height and width and contain valid nonnegative integer IDs within ``uint16`` capacity. Its path must differ from the editable output mask, including aliases. Primary data are read-only."
+msgstr "Bíddu eftir fjölda frumhluta. Frumgríman verður að passa við hæð og breidd myndarinnar og innihalda gild heiltöluauðkenni sem eru ekki neikvæð innan getu ``uint16``. Slóð hennar verður að vera önnur en slóð breytanlegu úttaksgrímunnar, þar á meðal samnefni. Frumgögn eru eingöngu til lesturs."
+
+msgid "Choose **Intensity watershed** or **Distance watershed** under Growth. Intensity follows the negative blurred image; Distance floods a flat surface outward from primary pixels. Both retain the primary labels."
+msgstr "Veldu **Styrkleikavatnaskil** eða **Fjarlægðarmiðuð vatnaskil** undir Vöxtur. Styrkur fylgir neikvæðri óskýrðri mynd; Fjarlægð flæðir flatt yfirborð út frá frumpixlum. Báðar halda frummerkjunum."
+
+msgid "Select a stop rule and inspect the preview. A global threshold is the screen's initial secondary setting. It is useful when primary objects, such as nuclei, are dark in the secondary channel. The separate Maxima mode starts with a fraction-of-peak rule."
+msgstr "Veldu stöðvunarreglu og skoðaðu forskoðunina. Altækur þröskuldur er upphafleg stilling skjásins fyrir afleidda hluti. Hann er gagnlegur þegar frumhlutir, svo sem kjarnar, eru dökkir í afleiddu rásinni. Aðskildi Maxima-hamurinn byrjar með reglu um hlutfall af hámarki."
+
+msgid "Use whole-image **Replace** when starting a new paired output. Adding to an unrelated existing mask is refused even if some numeric IDs happen to match. Clear the existing objects or replace the whole image first."
+msgstr "Notaðu **Skipta út** fyrir alla myndina þegar nýtt parað úttak er hafið. Því er hafnað að bæta við óskylda fyrirliggjandi grímu jafnvel þótt sum töluleg auðkenni passi fyrir tilviljun. Hreinsaðu fyrirliggjandi hluti eða skiptu allri myndinni út fyrst."
+
+msgid "Inspect relationship diagnostics, correct errors and save. A source changed after loading or an output path that would overwrite a primary source is refused; reload the source and inspect a new preview."
+msgstr "Skoðaðu tengslagreiningar, leiðréttu villur og vistaðu. Uppruna sem breyttist eftir hleðslu eða úttaksslóð sem myndi skrifa yfir frumuppruna er hafnað; hlaðaðu upprunanum aftur og skoðaðu nýja forskoðun."
+
+msgid "The four stop rules are **Fraction of the primary object's peak**, **A threshold algorithm's level**, **Absolute intensity** and **Percentile of the image**. Common threshold, absolute and percentile rules constrain four-connected growth paths. Fraction-of-peak trims each basin after growth; it does not constrain those paths during the flood. The fraction is a ratio of intensity, not an image quantile. Neither Growth option implements CellProfiler's Propagation algorithm."
+msgstr "Stöðvunarreglurnar fjórar eru **Hlutfall af hámarki frumhlutarins**, **Stig þröskuldsreiknirits**, **Algildur styrkur** og **Hundraðsmark myndarinnar**. Algengar þröskulds-, algildis- og hundraðsmarkareglur takmarka vaxtarleiðir með fjórtengingu. Hlutfall af hámarki snyrtir hvert svæði eftir vöxt; það takmarkar ekki þær leiðir meðan á flæðinu stendur. Hlutfallið er styrkleikahlutfall, ekki fraktíll myndarinnar. Hvorugur Vöxtur-valkosturinn útfærir Propagation-reiknirit CellProfiler."
+
+msgid "**Matched** reports IDs present in both masks; **Missing secondary** identifies primaries without a secondary label; **No primary** identifies secondary IDs without a primary; **Primary not enclosed** identifies matched secondary labels that do not fully contain their primary pixels. **Not expanded** identifies matched labels that have not grown beyond their own primary. These are relationship checks, not a claim that the cell boundary is biologically correct. Do not use consecutive relabeling to repair a pairing: it changes the association. In this mode, clicking accepts objects and dragging does not merge distinct primary IDs."
+msgstr "**Pöruð** tilkynnir auðkenni sem eru í báðum grímum; **Afleiddan hlut vantar** auðkennir frumhluti án afleidds merkis; **Enginn frumhlutur** auðkennir afleidd auðkenni án frumhlutar; **Frumhlutur ekki umlukinn** auðkennir pöruð afleidd merki sem innihalda ekki að fullu frumpixla sína. **Ekki útvíkkað** auðkennir pöruð merki sem hafa ekki vaxið út fyrir eigin frumhlut. Þetta eru tengslaathuganir, ekki fullyrðing um að frumumörkin séu líffræðilega rétt. Ekki nota samfellda endurmerkingu til að lagfæra pörun: hún breytir tengingunni. Í þessum ham samþykkir smellur hluti og drag sameinar ekki ólík auðkenni frumhluta."
+
+msgid "See :func:`spacr.qt.mask_engine.secondary_object_instances`, :class:`spacr.qt.secondary_masks.PrimaryMaskSource` and :class:`spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector` for label, source and diagnostic contracts."
+msgstr "Sjá :func:`spacr.qt.mask_engine.secondary_object_instances`, :class:`spacr.qt.secondary_masks.PrimaryMaskSource` og :class:`spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector` fyrir samninga um merki, uppruna og greiningar."
+
+msgid "Live magnifier, filtering and measurement"
+msgstr "Lifandi stækkunargler, síun og mæling"
+
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
+msgstr "Kveiktu á **Stækkunargler** eða ýttu á **M** til að skoða tillagða hluti í kringum bendilinn. Hjól þess breytir aðdrætti rammans; **Shift + wheel** breytir stærð rammans. **Ctrl+L+hægrismellur** læsir eða aflæsir rammanum. Bíddu eftir forskoðun sem er að uppfærast áður en þú samþykkir hluti hennar."
+
+msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, dragging can join encountered pieces into one object. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
+msgstr "**Hlutir sem bætt er við** velur alla hluti á aðdráttarsvæðinu eða aðeins hluti undir músinni. Í venjulegum hömum getur drag tengt saman hluta sem verða á vegi þess í einn hlut. Forskoðun fyrir alla myndina samþykkir hluti undir bendlinum; hamur afleiddra hluta varðveitir auðkenni frumhluta í stað þess að tengja þá saman."
+
+msgid "The corner readout identifies the pixel and object under the cursor. The **Filter** category starts empty: choose a property and **Add a filter** to add a row with a minimum and a maximum. Every scalar :func:`skimage.measure.regionprops` property is offered, such as area, eccentricity or solidity; intensity statistics are offered only while an intensity image is open and use the original loaded values. A blank bound is off. The list applies as you edit it and when a field opens; the log below it names each hidden object and the bound that hid it, and removing a row brings back what it hid. The same list is the ``object_filters`` setting of Mask generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object operations also offer hole filling, dilation, shrinking, relabeling and clearing; shrinking can remove thin or small objects entirely."
+msgstr "Hornaflesturinn auðkennir pixlann og hlutinn undir bendlinum. Flokkurinn **Sía** byrjar tómur: veldu eiginleika og **Bæta við síu** til að bæta við röð með lágmarki og hámarki. Allir einvíðir :func:`skimage.measure.regionprops`-eiginleikar eru í boði, svo sem flatarmál, miðskekkja eða þéttleiki; styrkleikatölfræði er aðeins í boði á meðan styrkleikamynd er opin og notar upphaflegu hlöðnu gildin. Autt mark er óvirkt. Listanum er beitt á meðan þú breytir honum og þegar sjónsvið opnast; annállinn fyrir neðan hann nefnir hvern falinn hlut og markið sem faldi hann, og ef röð er fjarlægð kemur aftur það sem hún faldi. Sami listi er stillingin ``object_filters`` í grímugerð. Sjá :func:`spacr.qt.mask_engine.filter_properties`. Hlutaaðgerðir bjóða einnig upp á fyllingu gata, víkkun, rýrnun, endurmerkingu og hreinsun; rýrnun getur fjarlægt þunna eða litla hluti alveg."
+
+msgid "Organize images and masks for Measure"
+msgstr "Raða myndum og grímum fyrir Mæling"
+
+msgid "A folder of images and standalone TIFF masks is not itself a Measure dataset. **Organize for Measure…** arranges it into the layout Measure reads. Fill its table in any of three ways, each on its own:"
+msgstr "Mappa með myndum og sjálfstæðum TIFF-grímum er ekki sjálf gagnasafn fyrir Mæling. **Raða fyrir Measure…** raðar henni í uppsetninguna sem Mæling les. Fylltu út töflu hennar á einhvern af þremur vegu, hvern fyrir sig:"
+
+msgid "give a **Source folder** and choose a filename convention in the **Regex** box — the same conventions as Mask generation, with a custom regex — then press **Sort by regex**. **Auto regex** proposes one and **Detect sets** pairs images into fields and shows example sets to confirm;"
+msgstr "gefðu upp **Upprunamappa** og veldu nafnavenju skráa í reitnum **Regex** — sömu venjur og í grímugerð, með sérsniðnu regex — og ýttu síðan á **Raða eftir regex**. **Sjálfvirkt regex** leggur til eina og **Finna mengi** parar myndir í sjónsvið og sýnir dæmi um mengi til staðfestingar;"
+
+msgid "drop files or folders into the table's columns, one column per channel. Dropped files sort by name and are matched across columns into rows, one row per field;"
+msgstr "slepptu skrám eða möppum í dálka töflunnar, einn dálk fyrir hverja rás. Slepptar skrár raðast eftir heiti og eru paraðar milli dálka í raðir, ein röð fyrir hvert sjónsvið;"
+
+msgid "choose **Teach me…** and answer \"Which channel is this?\" for one image at a time. spaCR learns a regex from the answers and asks again only about a name it cannot yet read."
+msgstr "veldu **Kenndu mér…** og svaraðu „Hvaða rás er þetta?“ fyrir eina mynd í einu. spaCR lærir regex út frá svörunum og spyr aðeins aftur um heiti sem það getur ekki enn lesið."
+
+msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
+msgstr "**Bæta við rás** og **Bæta við grímu** bæta við dálkum; hver grímudálkur nefnir hlutaflokk sinn (fruma, kjarni, sýkill eða frumulíffæri) og rásina sem myndir hennar eru útlínur fyrir. Sameinuð mappa er lesin undir upprunalegum heitum skráa sinna. Raðir sem vantar mynd loka á **Beita** og segja hvernig á að laga þær; RGB-myndir og z-staflar eru boðnir til umbreytingar í eitt grátt plan og upprunalegu útgáfunum er haldið. Ekkert færist fyrr en ýtt er á **Beita**. Myndirnar eru þá færðar í ``sorted_channels/`` inni í upprunamöppunni, með möppu fyrir hverja rás, grímunum og ``merged/``, og hver færsla er skráð í ``channel_sorting_manifest.csv``. Láttu ``src`` í Mæling vísa á þá ``sorted_channels``-möppu. Sjá :func:`spacr.channel_sorting.build_plan` og :ref:`inntök og úttök Mælingar <workflow-module-measure>`."
+
+msgid "Upload data"
+msgstr "Hlaða upp gögnum"
+
+msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**Hlaða upp gögnum…** sendir myndina á skjánum með grímu sinni, allar grisjaðar myndir í möppunni með vistuðum grímum sínum, eða valda myndamöppu og grímumöppu, í samfélagsgagnasöfn spaCR á Hugging Face til að þjálfa framtíðarlíkön. Hver mynd þarf vistaða grímu með sama heiti og stærð. Nefndu gagnasafnið, bættu við athugasemdum og samþykktu leyfið; glugginn sýnir áfangastaðinn sem tengil sem þú getur opnað, valið og afritað. Nýtt gagnasafn birtist með fyrstu upphleðslu sinni og hvert framlag er yfirfarið áður en það er notað."
+
+msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
+msgstr "Hausinn opnar einnig Cellpose-vinnuborð, Búa til grímur fyrir alla möppuna, Líkansamanburður, Líkanasafn, Grisja og Napari-brú. Samningar þeirra um inntök/úttök eru tengdir úr :ref:`einingakortinu <workflow-module-make_masks>`."
+
+msgid "Engine parameter reference"
+msgstr "Tilvísun í færibreytur vélarinnar"
+
+msgid "The following definitions are generated from the same parameter docstrings as the API pages. They include programmatic field names for reproducing a configuration in code. The GUI shows only the subset used by the selected method. Secondary growth has its own controls, independent of Maxima + propagate, and defaults to a global threshold in the screen."
+msgstr "Eftirfarandi skilgreiningar eru búnar til úr sömu docstrings færibreyta og API-síðurnar. Þær innihalda forritunarleg reitaheiti til að endurskapa stillingu í kóða. Myndræna viðmótið sýnir aðeins þann hluta sem valin aðferð notar. Vöxtur afleiddra hluta hefur eigin stýringar, óháðar Hágildi + útbreiðsla, og er sjálfgefið altækur þröskuldur á skjánum."
+
+msgid "CPU detectors"
+msgstr "Greinar á örgjörva"
+
+msgid "Engine settings: :class:`spacr.qt.cpu_modes.CpuParams`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "Stillingar vélarinnar: :class:`spacr.qt.cpu_modes.CpuParams`. Þetta eru forritunarleg sjálfgildi; skjárinn getur notað hamsértæk sjálfgildi eða endurheimt gildi úr núverandi lotu."
+
+msgid "``local_k`` — default ``0.2``"
+msgstr "``local_k`` — sjálfgildi ``0.2``"
+
+msgid "dimensionless local contrast weight; default 0.2 for both modes. Niblack uses ``T = m - k*s``: increasing k lowers the threshold, admitting more bright pixels and fewer dark pixels. Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats without range rescaling, giving scikit-image's default ``R = 1``. Its response to k depends on the local mean m and deviation s; positive k does not guarantee rejection of a flat background."
+msgstr "víddarlaust staðbundið birtuskilavægi; sjálfgildi 0,2 fyrir báða hami. Niblack notar ``T = m - k*s``: aukið k lækkar þröskuldinn og hleypir inn fleiri björtum pixlum og færri dökkum. Sauvola notar ``T = m*(1 + k*(s/R - 1))``. Vélin sendir fleytitölur án endurkvörðunar bils, sem gefur sjálfgefið ``R = 1`` í scikit-image. Svörun þess við k fer eftir staðbundnu meðaltali m og frávikinu s; jákvætt k tryggir ekki höfnun flats bakgrunns."
+
+msgid "``propagate_sigma`` — default ``2.0``"
+msgstr "``propagate_sigma`` — sjálfgildi ``2.0``"
+
+msgid "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
+msgstr "Gauss-óskýringin áður en hágildin finnast, í pixlum. AÐSKILIN FRÁ SUÐHREINSUN MYNDBÆTINGARKEÐJUNNAR, sem hefur þegar keyrt þegar greinir sér myndina: þessi er til vegna þess að óskýringin sem lætur einn hlut hafa eina miðju er yfirleitt mun sterkari en óskýringin sem nokkur vill mæla BRÚN hlutarins í gegnum, og útbreiðslan mælir brúnina á sömu óskýrðu myndinni. Hafðu slökkt á suðhreinsun keðjunnar nema sjónsviðið sé raunverulega suðótt, annars leggjast óskýringarnar tvær saman."
+
+msgid "``propagate_min_distance`` — default ``10``"
+msgstr "``propagate_min_distance`` — sjálfgildi ``10``"
+
+msgid "the smallest gap between two seeds, in pixels; about one object radius."
+msgstr "minnsta bil milli tveggja fræja, í pixlum; um það bil einn radíus hlutar."
+
+msgid "``propagate_seed_level`` — default ``90.0``"
+msgstr "``propagate_seed_level`` — sjálfgildi ``90.0``"
+
+msgid "how bright a maximum must be to be a seed."
+msgstr "hversu bjart hágildi þarf að vera til að vera fræ."
+
+msgid "``propagate_seed_percentile`` — default ``True``"
+msgstr "``propagate_seed_percentile`` — sjálfgildi ``True``"
+
+msgid "read the seed level as a percentile of the blurred image rather than as an absolute intensity."
+msgstr "lesa fræstigið sem hundraðsmark óskýrðu myndarinnar frekar en sem algildan styrk."
+
+msgid "``propagate_exclude_border`` — default ``False``"
+msgstr "``propagate_exclude_border`` — sjálfgildi ``False``"
+
+msgid "drop seeds near the edge."
+msgstr "sleppa fræjum nálægt jaðrinum."
+
+msgid "``propagate_stop`` — default ``'seed_fraction'``"
+msgstr "``propagate_stop`` — sjálfgildi ``'seed_fraction'``"
+
+msgid "a key of :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`."
+msgstr "lykill í :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`."
+
+msgid "``propagate_stop_value`` — default ``0.4``"
+msgstr "``propagate_stop_value`` — sjálfgildi ``0.4``"
+
+msgid "the fraction, intensity or percentile the stop rule reads."
+msgstr "hlutfallið, styrkurinn eða hundraðsmarkið sem stöðvunarreglan les."
+
+msgid "``propagate_stop_algorithm`` — default ``'otsu'``"
+msgstr "``propagate_stop_algorithm`` — sjálfgildi ``'otsu'``"
+
+msgid "which global threshold provides the floor under the ``threshold`` stop rule."
+msgstr "hvaða altæki þröskuldur myndar gólfið undir stöðvunarreglunni ``threshold``."
+
+msgid "``secondary_growth`` — default ``'intensity'``"
+msgstr "``secondary_growth`` — sjálfgildi ``'intensity'``"
+
+msgid "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting."
+msgstr "``intensity``- eða ``distance``-vatnaskil fyrir afleidda hluti; hágildagreining hunsar þessa stillingu."
+
+msgid "Organelle detectors"
+msgstr "Greinar fyrir frumulíffæri"
+
+msgid "Engine settings: :class:`spacr.qt.organelle_modes.MethodParams`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "Stillingar vélarinnar: :class:`spacr.qt.organelle_modes.MethodParams`. Þetta eru forritunarleg sjálfgildi; skjárinn getur notað hamsértæk sjálfgildi eða endurheimt gildi úr núverandi lotu."
+
+msgid "``adaptive_block`` — default ``51``"
+msgstr "``adaptive_block`` — sjálfgildi ``51``"
+
+msgid "the local threshold's window, in pixels, forced odd by the engine. Read by ``adaptive`` and by ``ridge`` when its threshold is adaptive."
+msgstr "gluggi staðbundna þröskuldsins, í pixlum, sem vélin þvingar í oddatölu. Lesinn af ``adaptive`` og af ``ridge`` þegar þröskuldur þess er aðlögunarhæfur."
+
+msgid "``adaptive_offset`` — default ``5.0``"
+msgstr "``adaptive_offset`` — sjálfgildi ``5.0``"
+
+msgid "subtracted from the Gaussian-weighted local mean before the bright-foreground comparison. Increasing it lowers the threshold and admits more pixels before cleanup; a negative offset raises the threshold. Units are those of the processed detector image: smoothed image intensity for ``adaptive``, ridge response for ``ridge`` with an adaptive threshold. Default 5.0; an offset suitable for raw intensities can overwhelm a response whose values lie between 0 and 1."
+msgstr "dregið frá Gauss-vegnu staðbundnu meðaltali á undan samanburði bjarts forgrunns. Aukning þess lækkar þröskuldinn og hleypir inn fleiri pixlum fyrir hreinsun; neikvæð hliðrun hækkar þröskuldinn. Einingar eru þær sem unna greiningarmyndin hefur: jafnaður myndstyrkur fyrir ``adaptive``, hryggjasvörun fyrir ``ridge`` með aðlögunarhæfum þröskuldi. Sjálfgildi 5,0; hliðrun sem hentar hráum styrk getur yfirgnæft svörun þar sem gildin liggja milli 0 og 1."
+
+msgid "``morph_radius`` — default ``3``"
+msgstr "``morph_radius`` — sjálfgildi ``3``"
+
+msgid "the cleanup disk, in pixels. ``adaptive`` also pre-smooths with half of it; the network branches close with half."
+msgstr "hreinsidiskurinn, í pixlum. ``adaptive`` forjafnar einnig með helmingi hans; netgreinarnar loka með helmingi."
+
+msgid "``fill_holes`` — default ``64``"
+msgstr "``fill_holes`` — sjálfgildi ``64``"
+
+msgid "holes up to this area, in square pixels, are filled. ``adaptive`` only."
+msgstr "göt upp að þessu flatarmáli, í fermetrapixlum, eru fyllt. Aðeins ``adaptive``."
+
+msgid "``watershed_spots`` — default ``True``"
+msgstr "``watershed_spots`` — sjálfgildi ``True``"
+
+msgid "whether ``log`` and ``dog`` grow a watershed from each blob centre rather than stamping a disk."
+msgstr "hvort ``log`` og ``dog`` rækta vatnaskil frá miðju hvers bletts frekar en að stimpla disk."
+
+msgid "``log_min_sigma`` — default ``1.0``"
+msgstr "``log_min_sigma`` — sjálfgildi ``1.0``"
+
+msgid "smallest Gaussian scale LoG searches, in pixels; a blob's radius is about sigma times root two."
+msgstr "minnsti Gauss-kvarði sem LoG leitar á, í pixlum; radíus bletts er um sigma sinnum kvaðratrót af tveimur."
+
+msgid "``log_max_sigma`` — default ``10.0``"
+msgstr "``log_max_sigma`` — sjálfgildi ``10.0``"
+
+msgid "the largest."
+msgstr "sá stærsti."
+
+msgid "``log_num_sigma`` — default ``10``"
+msgstr "``log_num_sigma`` — sjálfgildi ``10``"
+
+msgid "how many scales between the two."
+msgstr "hversu margir kvarðar eru á milli þeirra tveggja."
+
+msgid "``log_threshold`` — default ``0.01``"
+msgstr "``log_threshold`` — sjálfgildi ``0.01``"
+
+msgid "the blob-response cut-off, read by ``log`` AND by ``dog``, which has no threshold of its own."
+msgstr "mörk blettasvörunar, lesin af ``log`` OG af ``dog``, sem hefur engan eigin þröskuld."
+
+msgid "``dog_sigma_low`` — default ``1.0``"
+msgstr "``dog_sigma_low`` — sjálfgildi ``1.0``"
+
+msgid "DoG's smallest scale, in pixels."
+msgstr "minnsti kvarði DoG, í pixlum."
+
+msgid "``dog_sigma_high`` — default ``3.0``"
+msgstr "``dog_sigma_high`` — sjálfgildi ``3.0``"
+
+msgid "DoG's largest."
+msgstr "sá stærsti hjá DoG."
+
+msgid "``ridge_filter`` — default ``'frangi'``"
+msgstr "``ridge_filter`` — sjálfgildi ``'frangi'``"
+
+msgid "``frangi``, ``sato`` or ``meijering``."
+msgstr "``frangi``, ``sato`` eða ``meijering``."
+
+msgid "``ridge_sigmas`` — default ``(1.0, 2.0, 3.0)``"
+msgstr "``ridge_sigmas`` — sjálfgildi ``(1.0, 2.0, 3.0)``"
+
+msgid "the filament half-widths to look for, in pixels."
+msgstr "hálfbreiddir þráða sem leita á að, í pixlum."
+
+msgid "``ridge_threshold`` — default ``'otsu'``"
+msgstr "``ridge_threshold`` — sjálfgildi ``'otsu'``"
+
+msgid "``otsu`` or ``adaptive``, how the ridge response is cut."
+msgstr "``otsu`` eða ``adaptive``, hvernig hryggjasvörunin er skorin."
+
+msgid "``skeletonize`` — default ``False``"
+msgstr "``skeletonize`` — sjálfgildi ``False``"
+
+msgid "reduce a network to a one-pixel skeleton and label that, so area measures length rather than thickness."
+msgstr "minnka net í eins pixla beinagrind og merkja hana, svo flatarmál mæli lengd frekar en þykkt."
+
+msgid "``hysteresis_low`` — default ``0.2``"
+msgstr "``hysteresis_low`` — sjálfgildi ``0.2``"
+
+msgid "the weak level; under 1.0 it is read as a fraction and becomes that percentile of the smoothed image."
+msgstr "veika stigið; undir 1,0 er það lesið sem hlutfall og verður það hundraðsmark jöfnuðu myndarinnar."
+
+msgid "``hysteresis_high`` — default ``0.6``"
+msgstr "``hysteresis_high`` — sjálfgildi ``0.6``"
+
+msgid "the seeding level, read the same way."
+msgstr "fræstigið, lesið á sama hátt."
+
+msgid "``unet_model_path`` — default ``''``"
+msgstr "``unet_model_path`` — sjálfgildi ``''``"
+
+msgid "the ``.pt``/``.pth`` file to load."
+msgstr "``.pt``/``.pth``-skráin sem á að hlaða."
+
+msgid "``unet_threshold`` — default ``0.5``"
+msgstr "``unet_threshold`` — sjálfgildi ``0.5``"
+
+msgid "the probability the sigmoid output is cut at."
+msgstr "líkurnar sem sigmoid-úttakið er skorið við."
+
+msgid "Image enhancement"
+msgstr "Myndbæting"
+
+msgid "Engine settings: :class:`spacr.qt.detect_chain.Chain`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "Stillingar vélarinnar: :class:`spacr.qt.detect_chain.Chain`. Þetta eru forritunarleg sjálfgildi; skjárinn getur notað hamsértæk sjálfgildi eða endurheimt gildi úr núverandi lotu."
+
+msgid "``background`` — default ``'none'``"
+msgstr "``background`` — sjálfgildi ``'none'``"
+
+msgid "one of :data:`BACKGROUND_METHODS`."
+msgstr "eitt af :data:`BACKGROUND_METHODS`."
+
+msgid "``background_radius`` — default ``50``"
+msgstr "``background_radius`` — sjálfgildi ``50``"
+
+msgid "the ball's or the top-hat disk's radius, in pixels. Set it comfortably larger than the largest object: a radius under the object size eats the objects along with the background."
+msgstr "radíus kúlunnar eða top-hat-disksins, í pixlum. Stilltu hann vel stærri en stærsta hlutinn: radíus undir stærð hlutarins étur hlutina ásamt bakgrunninum."
+
+msgid "``background_scale`` — default ``0.5``"
+msgstr "``background_scale`` — sjálfgildi ``0.5``"
+
+msgid "the fraction of full size the background is ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what that buys and what it costs; 1.0 is scikit-image's own answer, exactly."
+msgstr "hlutfall af fullri stærð sem bakgrunnurinn er METINN við, 0,1 til 1,0. Sjá :func:`background_surface` um hvað það vinnur og hvað það kostar; 1,0 er nákvæmlega svar scikit-image sjálfs."
+
+msgid "``denoise`` — default ``'none'``"
+msgstr "``denoise`` — sjálfgildi ``'none'``"
+
+msgid "one of :data:`DENOISE_METHODS`."
+msgstr "eitt af :data:`DENOISE_METHODS`."
+
+msgid "``denoise_strength`` — default ``1.0``"
+msgstr "``denoise_strength`` — sjálfgildi ``1.0``"
+
+msgid "the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the estimated noise."
+msgstr "sigma Gauss-síunnar í pixlum, diskradíus miðgildis- og tvíhliða síunnar, eða mörk non-local means í margfeldum af áætluðu suði."
+
+msgid "``gamma`` — default ``1.0``"
+msgstr "``gamma`` — sjálfgildi ``1.0``"
+
+msgid "the exponent the intensities are raised to on 0..1. Below 1 lifts the dim end (faint objects become visible), above 1 pushes it down. 1.0 is off."
+msgstr "veldisvísirinn sem styrkurinn á 0..1 er hafinn í. Undir 1 lyftir daufa endanum (daufir hlutir verða sýnilegir), yfir 1 ýtir honum niður. 1,0 er óvirkt."
+
+msgid "``clahe`` — default ``False``"
+msgstr "``clahe`` — sjálfgildi ``False``"
+
+msgid "contrast-limited adaptive histogram equalisation."
+msgstr "aðlögunarhæf stuðlaritsjöfnun með takmörkuðum birtuskilum."
+
+msgid "``clahe_tile`` — default ``64``"
+msgstr "``clahe_tile`` — sjálfgildi ``64``"
+
+msgid "the side of one CLAHE tile, in pixels."
+msgstr "hlið eins CLAHE-reits, í pixlum."
+
+msgid "``clahe_clip`` — default ``0.01``"
+msgstr "``clahe_clip`` — sjálfgildi ``0.01``"
+
+msgid "CLAHE's clip limit, 0..1. Higher is more contrast and more amplified noise."
+msgstr "klippimörk CLAHE, 0..1. Hærra gefur meiri birtuskil og meira magnað suð."
+
+msgid "``equalize`` — default ``False``"
+msgstr "``equalize`` — sjálfgildi ``False``"
+
+msgid "global histogram equalisation."
+msgstr "altæk stuðlaritsjöfnun."
+
+msgid "``sharpen`` — default ``False``"
+msgstr "``sharpen`` — sjálfgildi ``False``"
+
+msgid "an unsharp mask."
+msgstr "óskerpugríma (unsharp mask)."
+
+msgid "``sharpen_radius`` — default ``1.0``"
+msgstr "``sharpen_radius`` — sjálfgildi ``1.0``"
+
+msgid "the blur radius the mask is built from, in pixels: about the scale of the edges to sharpen."
+msgstr "óskýringarradíusinn sem gríman er byggð úr, í pixlum: um það bil kvarði brúnanna sem á að skerpa."
+
+msgid "``sharpen_amount`` — default ``1.0``"
+msgstr "``sharpen_amount`` — sjálfgildi ``1.0``"
+
+msgid "how much of the mask is added back."
+msgstr "hversu mikið af grímunni er bætt aftur við."
+
+msgid "``morphology`` — default ``'none'``"
+msgstr "``morphology`` — sjálfgildi ``'none'``"
+
+msgid "one of :data:`MORPHOLOGY_OPS`, applied to what was detected. ``open`` separates objects joined by a thin bridge, ``close`` joins objects broken into pieces, ``open_close`` does both in that order."
+msgstr "eitt af :data:`MORPHOLOGY_OPS`, beitt á það sem greindist. ``open`` aðskilur hluti sem tengjast með þunnri brú, ``close`` tengir hluti sem hafa brotnað í búta, ``open_close`` gerir hvort tveggja í þeirri röð."
+
+msgid "``morphology_radius`` — default ``1``"
+msgstr "``morphology_radius`` — sjálfgildi ``1``"
+
+msgid "the disk radius, in pixels."
+msgstr "radíus disksins, í pixlum."
+
+msgid "``split`` — default ``False``"
+msgstr "``split`` — sjálfgildi ``False``"
+
+msgid "a distance-transform watershed on what was detected, cutting an object with two centres in two. It is the Otsu mode's \"Split objects that touch\", offered to every other method."
+msgstr "vatnaskil á fjarlægðarumbreytingu þess sem greindist, sem sker hlut með tvær miðjur í tvennt. Það er „Split objects that touch“ úr Otsu-hamnum, boðið öllum öðrum aðferðum."
+
+msgid "``psf_operation`` — default ``'none'``"
+msgstr "``psf_operation`` — sjálfgildi ``'none'``"
+
+msgid "``none``, ``convolve`` or ``deconvolve``. Runs after background subtraction and before denoising. Off by default."
+msgstr "``none``, ``convolve`` eða ``deconvolve``. Keyrir á eftir frádrætti bakgrunns og á undan suðhreinsun. Sjálfgefið óvirkt."
+
+msgid "``psf`` — default ``None``"
+msgstr "``psf`` — sjálfgildi ``None``"
+
+msgid "immutable calibrated two-dimensional kernel. Required when PSF processing is enabled; missing/invalid kernels stop detection."
+msgstr "óbreytanlegur kvarðaður tvívíður kjarni. Nauðsynlegur þegar PSF-vinnsla er virk; kjarnar sem vantar eða eru ógildir stöðva greiningu."
+
+msgid "``psf_sampling_um`` — default ``(1.0, 1.0)``"
+msgstr "``psf_sampling_um`` — sjálfgildi ``(1.0, 1.0)``"
+
+msgid "image pixel spacing in YX order, in micrometers. Must match the kernel; no implicit resampling is performed."
+msgstr "pixlabil myndar í YX-röð, í míkrómetrum. Verður að passa við kjarnann; engin óbein endursamplun er framkvæmd."
+
+msgid "``psf_iterations`` — default ``20``"
+msgstr "``psf_iterations`` — sjálfgildi ``20``"
+
+msgid "Richardson–Lucy iterations, 1..200."
+msgstr "Richardson–Lucy-ítranir, 1..200."
+
+msgid "``psf_error`` — default ``''``"
+msgstr "``psf_error`` — sjálfgildi ``''``"
+
+msgid "actionable loading/validation error when no kernel is ready."
+msgstr "villa við hleðslu/sannprófun sem hægt er að bregðast við þegar enginn kjarni er tilbúinn."
+
+msgid "``restoration`` — default ``False``"
+msgstr "``restoration`` — sjálfgildi ``False``"
+
+msgid "enable isolated Cellpose 3 restoration after PSF and before classical denoising. Off by default. Run preparation on a worker."
+msgstr "virkja einangraða Cellpose 3-endurheimt á eftir PSF og á undan klassískri suðhreinsun. Sjálfgefið óvirkt. Keyrðu undirbúning í vinnsluþræði."
+
+msgid "``restoration_plan`` — default ``None``"
+msgstr "``restoration_plan`` — sjálfgildi ``None``"
+
+msgid "immutable loaded model identity and diameter in pixels. Model output uses normalized units, not calibrated fluorescence."
+msgstr "óbreytanlegt auðkenni hlaðins líkans og þvermál í pixlum. Úttak líkansins notar staðlaðar einingar, ekki kvarðaða flúrljómun."
+
+msgid "``restoration_error`` — default ``''``"
+msgstr "``restoration_error`` — sjálfgildi ``''``"
+
+msgid "loading error shown instead of silently using unprocessed data when restoration was explicitly requested."
+msgstr "hleðsluvilla sem sýnd er í stað þess að nota óunnin gögn án þess að láta vita þegar sérstaklega var beðið um endurheimt."
+
+msgid "``percentile_clip`` — default ``False``"
+msgstr "``percentile_clip`` — sjálfgildi ``False``"
+
+msgid "clip each plane to two percentiles of its own intensities before the contrast curves, so a hot pixel or a dead one cannot define the interval the curves are drawn on. The intensities keep their units; nothing is stretched."
+msgstr "klippa hvert plan við tvö hundraðsmörk eigin styrks áður en birtuskilaferlarnir eru reiknaðir, svo heitur eða dauður pixill geti ekki skilgreint bilið sem ferlarnir eru teiknaðir á. Styrkurinn heldur einingum sínum; ekkert er teygt."
+
+msgid "``percentile_low`` — default ``1.0``"
+msgstr "``percentile_low`` — sjálfgildi ``1.0``"
+
+msgid "the lower percentile, 0..100."
+msgstr "neðra hundraðsmarkið, 0..100."
+
+msgid "``percentile_high`` — default ``99.0``"
+msgstr "``percentile_high`` — sjálfgildi ``99.0``"
+
+msgid "the upper percentile, 0..100, above the lower."
+msgstr "efra hundraðsmarkið, 0..100, fyrir ofan það neðra."
+
+msgid "``log`` — default ``False``"
+msgstr "``log`` — sjálfgildi ``False``"
+
+msgid "a logarithmic transform on 0..1, ``log(1 + gain·x) / log(1 + gain)``: it compresses the bright end and lifts the dim one, more strongly than a gamma below 1 does near zero."
+msgstr "lograumbreyting á 0..1, ``log(1 + gain·x) / log(1 + gain)``: hún þjappar bjarta endanum og lyftir þeim daufa, sterkar en gamma undir 1 gerir nálægt núlli."
+
+msgid "``log_gain`` — default ``10.0``"
+msgstr "``log_gain`` — sjálfgildi ``10.0``"
+
+msgid "the factor the unit-interval intensities are scaled by before the logarithm. Larger compresses harder; as it goes to zero the curve goes to the identity."
+msgstr "stuðullinn sem styrkur á einingarbilinu er kvarðaður með á undan lograinum. Stærra þjappar harðar; þegar hann stefnir á núll stefnir ferillinn á samsemdina."
+
+msgid "``sqrt`` — default ``False``"
+msgstr "``sqrt`` — sjálfgildi ``False``"
+
+msgid "a square root on 0..1, the curve gamma 0.5 draws, offered by name."
+msgstr "kvaðratrót á 0..1, ferillinn sem gamma 0,5 teiknar, boðin með nafni."
+

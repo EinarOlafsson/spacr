@@ -1,0 +1,42 @@
+605. Spaceout: a slider for the magnifying glass's size
+
+Requested by the maintainer (2026-09-30), verbatim:
+"in spaceout mode the mandelbrot camera should smoothely center on regions with high complexity, i.e. not single color.
+now the camera jumps which looks wierd. please make the camera movement smooth.
+for the other spaceout modes theis a giant magnigying glass where the mouse is. there should be a slider deffining its size.
+for the space mode there are small stars that look great passing like little dots. but there should also be galaxies passing i want the user to feel like they are really passing through space."
+
+Brief (this item is the third sentence; 604 and 606 are the others):
+Add a Preferences slider for the magnifier ("magnifying glass") size, with
+the spaceout settings, with a sensible range. The default is the current
+size. Every spaceout mode that has the magnifier honours it live. Persist
+it and give it a tooltip.
+
+Done when: the slider is in the Fractal page, saved and read back, reaches
+a running backdrop without a rebuild, and the rendered lens visibly scales
+(Qt tests and PNGs in /mnt/wd4tb/scratch/604).
+
+Status: IMPLEMENTED 2026-09-30
+
+The "magnifying glass" is the 1/r^2 pointer warp in toward_pointer; its
+size was fixed by the shader constants ("Pointer reach" only fades the pull
+with the pointer's distance from the window centre, which is why the
+earlier "size of the gravity ball" request did not change the ball).
+
+Built: setting magnifier_size (key spaceout/fractal_magnifier_size,
+default 1.0 = the old lens, range 0.25-3.0, clamped on read and write);
+Preferences > Fractal "Magnifier size" QSlider (FractalMagnifierSize,
+25-300 %, value label, tooltip ending "Default 100%.", greyed with the
+Pointer toggle). It reaches running backdrops through apply_saved_controls
+(RuntimeControls.magnifier_size) and is read every frame: uniform u_lens
+in the orbit, orbit GPU, cascade and space shaders, and the CPU orbit
+kernel's lens argument. Distances are measured in lens radii and the
+displacement scaled back, so the whole lens scales without changing shape.
+
+Not applicable: the CPU cascade and space renderers have no lens (the
+pointer steers them), and the Mandelbrot is dragged.
+
+Frames: /mnt/wd4tb/scratch/604/magnifier_sizes_gpu.png (rows orbit GPU,
+cascade, space, orbit; columns no lens, 50 %, 100 %, 200 %, 300 %).
+Tests: tests/qt/test_the_magnifier_has_a_size.py and the live-apply case
+in test_fractal_changes_apply_without_a_restart.

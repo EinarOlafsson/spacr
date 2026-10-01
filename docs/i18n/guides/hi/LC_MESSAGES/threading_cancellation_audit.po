@@ -1,0 +1,135 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Threading and cancellation audit"
+msgstr "थ्रेडिंग और रद्दीकरण ऑडिट"
+
+msgid "spaCR runs analysis entry points through :class:`spacr.qt.bridge.PipelineWorker` on a dedicated ``QThread``. Large imports, image decoding, model fitting and plate processing therefore do not run on Qt's GUI thread. Stop is cooperative: spaCR never uses ``QThread.terminate()`` on an analysis that may be writing an array, TIFF, database transaction, or checkpoint."
+msgstr "spaCR विश्लेषण प्रवेश बिंदुओं को एक समर्पित ``QThread`` पर :class:`spacr.qt.bridge.PipelineWorker` के माध्यम से चलाता है। इसलिए बड़े आयात, छवि डिकोडिंग, मॉडल फ़िटिंग और प्लेट प्रसंस्करण Qt के GUI थ्रेड पर नहीं चलते। रोकना सहयोगात्मक है: spaCR किसी ऐसे विश्लेषण पर कभी ``QThread.terminate()`` का उपयोग नहीं करता जो कोई ऐरे, TIFF, डेटाबेस लेनदेन या चेकपॉइंट लिख रहा हो।"
+
+msgid "Safe cancellation boundaries"
+msgstr "सुरक्षित रद्दीकरण सीमाएँ"
+
+msgid "The worker installs a thread-local :class:`spacr.cancellation.CancellationToken`. Long workflows call :func:`spacr.cancellation.checkpoint` only after a durable unit, or before the next unit begins:"
+msgstr "वर्कर एक थ्रेड-स्थानीय :class:`spacr.cancellation.CancellationToken` स्थापित करता है। लंबे कार्यप्रवाह :func:`spacr.cancellation.checkpoint` को केवल किसी स्थायी इकाई के बाद, या अगली इकाई शुरू होने से पहले कॉल करते हैं:"
+
+msgid "Mask checks between source plates, object types, and Cellpose batches."
+msgstr "मास्क मॉड्यूल स्रोत प्लेटों, ऑब्जेक्ट प्रकारों और Cellpose बैचों के बीच जाँच करता है।"
+
+msgid "Measure keeps at most one pool-width field batch outstanding and checks after every batch has returned and saved its results."
+msgstr "मापन अधिकतम एक पूल-चौड़ाई वाले फ़ील्ड बैच को लंबित रखता है और हर बैच के लौटने तथा परिणाम सहेजने के बाद जाँच करता है।"
+
+msgid "Format Converter checks before source groups; its atomic :class:`spacr.checkpoint.CheckpointStore` record checks after each complete field."
+msgstr "प्रारूप परिवर्तक स्रोत समूहों से पहले जाँच करता है; उसका परमाणु :class:`spacr.checkpoint.CheckpointStore` रिकॉर्ड हर पूर्ण फ़ील्ड के बाद जाँच करता है।"
+
+msgid "UMAP checks before each grid/adaptive trial. Completed trial artifacts and adaptive state are persisted before cancellation is raised."
+msgstr "UMAP हर ग्रिड/अनुकूली परीक्षण से पहले जाँच करता है। रद्दीकरण उत्पन्न होने से पहले पूर्ण परीक्षणों की फ़ाइलें और अनुकूली अवस्था सहेज दी जाती हैं।"
+
+msgid "Batch Runner checks between jobs. While a child ``spacr-run`` process is active it polls the token, terminates that child, persists the current job as resumable, and then stops the queue."
+msgstr "बैच रनर कार्यों के बीच जाँच करता है। जब कोई चाइल्ड ``spacr-run`` प्रक्रिया सक्रिय हो, तो वह टोकन को पोल करता है, उस चाइल्ड को समाप्त करता है, वर्तमान कार्य को फिर से शुरू करने योग्य के रूप में सहेजता है और फिर कतार रोक देता है।"
+
+msgid "Stop first asks how to stop. **Finish current work** requests cancellation and waits for the current unit; if the run has not reached a boundary after five minutes, the question is asked again. The console reports ``Stopped safely`` when the boundary is reached, and the reproducibility manifest records ``status: cancelled`` rather than a failure traceback."
+msgstr "रोकें पहले पूछता है कि कैसे रोकना है। **Finish current work** रद्दीकरण का अनुरोध करता है और वर्तमान इकाई की प्रतीक्षा करता है; यदि पाँच मिनट बाद भी रन किसी सीमा तक नहीं पहुँचा, तो प्रश्न फिर पूछा जाता है। सीमा तक पहुँचने पर कंसोल ``Stopped safely`` की सूचना देता है, और पुनरुत्पादकता मैनिफ़ेस्ट विफलता ट्रेसबैक के बजाय ``status: cancelled`` दर्ज करता है।"
+
+msgid "**Force stop** gives the window back at once. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
+msgstr "**Force stop** विंडो तुरंत लौटा देता है। जो वर्कर प्रतिक्रिया नहीं देता -- आमतौर पर किसी लंबे Cellpose या PyTorch कॉल के भीतर -- उसे समाप्त करने के बजाय अलग रख दिया जाता है: उसके संदर्भ रखे जाते हैं और वह बैकग्राउंड में पूरा होता है, इसलिए वह जो कुछ लिख रहा है वह आधा-अधूरा रह सकता है। **Force restart** मॉड्यूल और उसकी सेटिंग्स सहेजता है, फिर spaCR को फिर से शुरू करता है और उस मॉड्यूल को दोबारा खोलता है।"
+
+msgid "Shutdown behavior"
+msgstr "बंद होने पर व्यवहार"
+
+msgid "The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to every active worker and thread. On application shutdown it requests cancellation for all jobs and waits against one bounded deadline. If any job that writes results has not reached a safe boundary, the close event is refused and the live references are retained. Read-only housekeeping jobs, such as a Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit finishes. The same rule applies when an individual module screen is closed."
+msgstr "प्रक्रिया-व्यापी :class:`spacr.qt.bridge.RunRegistry` हर सक्रिय वर्कर और थ्रेड के मज़बूत संदर्भ रखता है। एप्लिकेशन बंद होने पर यह सभी कार्यों के रद्दीकरण का अनुरोध करता है और एक सीमित समय-सीमा तक प्रतीक्षा करता है। यदि परिणाम लिखने वाला कोई भी कार्य सुरक्षित सीमा तक नहीं पहुँचा है, तो बंद करने की घटना अस्वीकार कर दी जाती है और सक्रिय संदर्भ रखे जाते हैं। केवल-पढ़ने वाले रखरखाव कार्य, जैसे रन इतिहास ताज़ा करना, उसी तरह रद्द किए जाते हैं लेकिन बंद होने को कभी नहीं रोकते। वर्तमान इकाई पूरी होने के बाद उपयोगकर्ता फिर से बंद कर सकता है। किसी एक मॉड्यूल स्क्रीन को बंद करने पर भी यही नियम लागू होता है।"
+
+msgid "``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt method is thread-safe. This avoids a shutdown deadlock in which the GUI thread waits for a worker while the worker's queued quit request waits for the GUI event loop."
+msgstr "``PipelineWorker.finished`` सीधे ``QThread.quit`` को कॉल करता है, क्योंकि यह Qt विधि थ्रेड-सुरक्षित है। इससे बंद होते समय होने वाला वह गतिरोध टलता है जिसमें GUI थ्रेड वर्कर की प्रतीक्षा करता है, जबकि वर्कर का कतार में लगा बाहर निकलने का अनुरोध GUI इवेंट लूप की प्रतीक्षा करता है।"
+
+msgid "API usage"
+msgstr "API उपयोग"
+
+msgid "Headless and plugin pipelines use the same small API::"
+msgstr "हेडलेस और प्लगइन पाइपलाइन वही छोटा API उपयोग करती हैं::"
+
+msgid "Calling ``checkpoint()`` outside a managed GUI worker is a no-op. Code that catches broad ``Exception`` values must re-raise :class:`spacr.cancellation.PipelineCancelled`; treating it as a failed field would defeat the worker's distinct cancellation status."
+msgstr "किसी प्रबंधित GUI वर्कर के बाहर ``checkpoint()`` कॉल करने से कुछ नहीं होता। व्यापक ``Exception`` मान पकड़ने वाले कोड को :class:`spacr.cancellation.PipelineCancelled` फिर से उत्पन्न करना होगा; इसे विफल फ़ील्ड मानने से वर्कर की अलग रद्दीकरण स्थिति निष्फल हो जाएगी।"
+
+msgid "Stress coverage"
+msgstr "दबाव परीक्षण कवरेज"
+
+msgid "``tests/qt/test_threading_cancellation_audit.py`` exercises fifty rapid Start/Stop cycles, registry-wide shutdown, repeated cancellation, screen close while active, and refusal to destroy a stubborn worker. ``tests/test_cancellation.py`` verifies thread isolation, idempotence, durability-before-cancel, resumable queues, and termination of an active batch subprocess."
+msgstr "``tests/qt/test_threading_cancellation_audit.py`` पचास तीव्र Start/Stop चक्र, रजिस्ट्री-व्यापी बंद होना, बार-बार रद्दीकरण, सक्रिय रहते स्क्रीन बंद करना और हठी वर्कर को नष्ट करने से इनकार का परीक्षण करता है। ``tests/test_cancellation.py`` थ्रेड पृथक्करण, सम-प्रभाविता, रद्दीकरण से पहले स्थायित्व, फिर से शुरू करने योग्य कतारों और सक्रिय बैच उप-प्रक्रिया की समाप्ति की पुष्टि करता है।"
+
+msgid "Cooperative cancellation for long-running spaCR pipelines."
+msgstr "लंबे समय तक चलने वाली spaCR पाइपलाइनों के लिए सहयोगात्मक रद्दीकरण।"
+
+msgid "Qt cannot safely kill a Python thread that may be writing a TIFF, committing a SQLite transaction, or updating several related artifacts.  Instead, the GUI installs one :class:`CancellationToken` in each worker thread and pipeline code calls :func:`checkpoint` only at boundaries where the previous unit is fully durable and the next unit has not started."
+msgstr "Qt किसी ऐसे Python थ्रेड को सुरक्षित रूप से समाप्त नहीं कर सकता जो TIFF लिख रहा हो, SQLite लेनदेन प्रतिबद्ध कर रहा हो या कई संबंधित फ़ाइलें अद्यतन कर रहा हो। इसके बजाय GUI हर वर्कर थ्रेड में एक :class:`CancellationToken` स्थापित करता है और पाइपलाइन कोड :func:`checkpoint` को केवल उन सीमाओं पर कॉल करता है जहाँ पिछली इकाई पूरी तरह स्थायी हो और अगली इकाई शुरू न हुई हो।"
+
+msgid "The module is intentionally standard-library only.  Core workflows may import it without importing Qt, torch, or any GUI dependency."
+msgstr "यह मॉड्यूल जानबूझकर केवल मानक लाइब्रेरी का उपयोग करता है। मुख्य कार्यप्रवाह Qt, torch या किसी GUI निर्भरता को आयात किए बिना इसे आयात कर सकते हैं।"
+
+msgid "Thread-safe, idempotent cancellation request shared with one worker."
+msgstr "एक वर्कर के साथ साझा किया गया थ्रेड-सुरक्षित, सम-प्रभावी रद्दीकरण अनुरोध।"
+
+msgid "Parameters"
+msgstr "पैरामीटर"
+
+msgid "default user-facing reason raised by :meth:`checkpoint`."
+msgstr ":meth:`checkpoint` द्वारा उत्पन्न डिफ़ॉल्ट उपयोगकर्ता-दृश्य कारण।"
+
+msgid "Request cancellation and return True only for the first request."
+msgstr "रद्दीकरण का अनुरोध करें और केवल पहले अनुरोध के लिए True लौटाएँ।"
+
+msgid "Repeated Stop clicks are harmless and do not replace the original reason, which keeps logs and manifests deterministic."
+msgstr "बार-बार Stop क्लिक हानिरहित हैं और मूल कारण को नहीं बदलते, जिससे लॉग और मैनिफ़ेस्ट नियतात्मक रहते हैं।"
+
+msgid "Whether cancellation has been requested."
+msgstr "क्या रद्दीकरण का अनुरोध किया गया है।"
+
+msgid "Raise :class:`PipelineCancelled` when cancellation was requested."
+msgstr "रद्दीकरण का अनुरोध होने पर :class:`PipelineCancelled` उत्पन्न करें।"
+
+msgid "The first cancellation reason supplied to :meth:`cancel`."
+msgstr ":meth:`cancel` को दिया गया पहला रद्दीकरण कारण।"
+
+msgid "Raised at a safe boundary after cancellation has been requested."
+msgstr "रद्दीकरण का अनुरोध होने के बाद किसी सुरक्षित सीमा पर उत्पन्न होता है।"
+
+msgid "This is a normal control-flow outcome, not a pipeline failure.  Callers that catch broad :class:`Exception` values must re-raise it so the worker can record the run as ``cancelled`` rather than as a failed item."
+msgstr "यह नियंत्रण-प्रवाह का सामान्य परिणाम है, पाइपलाइन विफलता नहीं। व्यापक :class:`Exception` मान पकड़ने वाले कॉलर को इसे फिर से उत्पन्न करना होगा ताकि वर्कर रन को विफल आइटम के बजाय ``cancelled`` के रूप में दर्ज कर सके।"
+
+msgid "Return whether the calling worker has a pending cancellation request."
+msgstr "लौटाएँ कि कॉल करने वाले वर्कर का कोई रद्दीकरण अनुरोध लंबित है या नहीं।"
+
+msgid "Stop at this safe boundary when requested; otherwise do nothing."
+msgstr "अनुरोध होने पर इस सुरक्षित सीमा पर रुकें; अन्यथा कुछ न करें।"
+
+msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
+msgstr "प्रबंधित वर्कर के बाहर के कॉल जानबूझकर कुछ नहीं करते, इसलिए वही पाइपलाइन फ़ंक्शन GUI, CLI, नोटबुक और परीक्षणों में काम करते हैं।"
+
+msgid "Return the token installed for the calling thread, if any."
+msgstr "कॉल करने वाले थ्रेड के लिए स्थापित टोकन, यदि कोई हो, लौटाएँ।"
+
+msgid "Install ``token`` for this thread and restore any prior token on exit."
+msgstr "इस थ्रेड के लिए ``token`` स्थापित करें और बाहर निकलने पर कोई भी पिछला टोकन बहाल करें।"
+
+msgid "cancellation token to expose within the context."
+msgstr "संदर्भ के भीतर उपलब्ध कराया जाने वाला रद्दीकरण टोकन।"
+

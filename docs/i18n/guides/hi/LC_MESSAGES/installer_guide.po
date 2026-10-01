@@ -1,0 +1,375 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:59-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Installer guide"
+msgstr "इंस्टॉलर मार्गदर्शिका"
+
+msgid "This page covers the current desktop installers, conda-forge, PyPI and container installation, updates, removal, offline preparation and the files to check when installation fails. For older downloadable versions, use the :doc:`installer archive <installers>`."
+msgstr "यह पेज वर्तमान डेस्कटॉप इंस्टॉलर, conda-forge, PyPI और कंटेनर स्थापना, अद्यतन, हटाने, ऑफ़लाइन तैयारी और स्थापना विफल होने पर जाँचने वाली फ़ाइलों को कवर करता है। पुराने डाउनलोड योग्य संस्करणों के लिए :doc:`इंस्टॉलर संग्रह <installers>` का उपयोग करें।"
+
+msgid "Choose an installation"
+msgstr "स्थापना का तरीका चुनें"
+
+msgid "Use a desktop installer when you want an application launcher and a private Python environment. The installer does not modify an existing Python installation. It downloads a managed Python 3.12 runtime and the exact spaCR version named by the installer, then checks the environment before replacing an existing working installation."
+msgstr "जब आपको एप्लिकेशन लॉन्चर और निजी Python परिवेश चाहिए तब डेस्कटॉप इंस्टॉलर का उपयोग करें। इंस्टॉलर मौजूदा Python स्थापना में बदलाव नहीं करता। यह एक प्रबंधित Python 3.12 रनटाइम और इंस्टॉलर द्वारा नामित सटीक spaCR संस्करण डाउनलोड करता है, फिर मौजूदा कार्यरत स्थापना को बदलने से पहले परिवेश की जाँच करता है।"
+
+msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
+msgstr "जब Conda को spaCR स्थापित करना हो और उसके डेस्कटॉप घटक तथा निर्भरताएँ हल करनी हों, तब आधिकारिक `conda-forge पैकेज <https://anaconda.org/conda-forge/spacr>`_ का उपयोग करें। जब spaCR को किसी मौजूदा Python परिवेश, नोटबुक, सर्वर या क्लस्टर में रहना हो, या जब आपको ऐसा PyPI अतिरिक्त घटक चाहिए जो conda पैकेज का भाग नहीं है, तब PyPI रिलीज़ के लिए ``pip`` का उपयोग करें। वर्तमान में Python 3.12 वैकल्पिक वैज्ञानिक पैकेजों का सबसे व्यापक चयन देता है।"
+
+msgid "Use a :ref:`container image <container-images>` when the install itself is the problem: a cluster node, a cloud instance, a shared machine you cannot change, or an analysis that has to be re-runnable years from now. The images are for the CLI and the pipelines; the desktop interface in a container is a Linux-only extra and is documented as one. On a cluster without Docker, build the same image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a workstation that has no network access at all, use an :ref:`offline installer bundle <offline-bundle>`."
+msgstr "जब स्थापना ही समस्या हो तब :ref:`कंटेनर इमेज <container-images>` का उपयोग करें: कोई क्लस्टर नोड, क्लाउड इंस्टेंस, ऐसी साझा मशीन जिसे आप बदल नहीं सकते, या ऐसा विश्लेषण जिसे वर्षों बाद फिर से चलाया जा सके। इमेज CLI और पाइपलाइनों के लिए हैं; कंटेनर में डेस्कटॉप इंटरफ़ेस केवल-Linux अतिरिक्त सुविधा है और उसी रूप में प्रलेखित है। Docker रहित क्लस्टर पर वही इमेज :ref:`Apptainer या SingularityCE फ़ाइल <apptainer-images>` के रूप में बनाएँ। जिस वर्कस्टेशन के पास बिल्कुल नेटवर्क पहुँच नहीं है, उसके लिए :ref:`ऑफ़लाइन इंस्टॉलर बंडल <offline-bundle>` का उपयोग करें।"
+
+msgid "Desktop installers"
+msgstr "डेस्कटॉप इंस्टॉलर"
+
+msgid "Download the current installer from the `spaCR README <https://github.com/EinarOlafsson/spacr#install-spacr>`_. The installers require an internet connection while they create the private environment."
+msgstr "वर्तमान इंस्टॉलर `spaCR README <https://github.com/EinarOlafsson/spacr#install-spacr>`_ से डाउनलोड करें। निजी परिवेश बनाते समय इंस्टॉलरों को इंटरनेट कनेक्शन चाहिए।"
+
+msgid "Windows 10/11"
+msgstr "Windows 10/11"
+
+msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems and falls back safely elsewhere. Clear the component only when you require the smaller CPU-only installation."
+msgstr "``SpaCR-<version>-Windows-Online-Setup.exe`` चलाएँ। डिफ़ॉल्ट प्रति-उपयोगकर्ता स्थान ``%LOCALAPPDATA%\\spaCR`` है और इसके लिए व्यवस्थापक पहुँच आवश्यक नहीं है। स्वचालित हार्डवेयर त्वरण डिफ़ॉल्ट रूप से चुना जाता है। यह संगत NVIDIA सिस्टम पर CUDA-सक्षम PyTorch बिल्ड स्थापित करता है और अन्यत्र सुरक्षित रूप से वैकल्पिक व्यवस्था अपनाता है। घटक को केवल तब हटाएँ जब आपको छोटी, केवल-CPU स्थापना चाहिए।"
+
+msgid "macOS 11 or later"
+msgstr "macOS 11 या बाद का संस्करण"
+
+msgid "Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed in ``/Applications/spaCR.app``. On first launch, a visible Terminal bootstrap creates the private runtime under ``~/Library/Application Support/spaCR``. The current beta is not notarized. If Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose **Open Anyway** for spaCR."
+msgstr "``SpaCR-<version>-macOS-Universal-Online.pkg`` खोलें। एप्लिकेशन ``/Applications/spaCR.app`` में रखा जाता है। पहली बार लॉन्च करने पर एक दृश्यमान Terminal बूटस्ट्रैप ``~/Library/Application Support/spaCR`` के अंतर्गत निजी रनटाइम बनाता है। वर्तमान बीटा नोटराइज़ नहीं है। यदि Gatekeeper इसे रोकता है, तो **System Settings → Privacy & Security** खोलें और spaCR के लिए **Open Anyway** चुनें।"
+
+msgid "Linux x86-64"
+msgstr "Linux x86-64"
+
+msgid "Make the downloaded installer executable and run it:"
+msgstr "डाउनलोड किए गए इंस्टॉलर को निष्पादन योग्य बनाएँ और उसे चलाएँ:"
+
+msgid "The default installation root is ``~/.local/share/spacr``. The launcher is written to ``~/.local/bin/spacr`` and the desktop entry to ``~/.local/share/applications``. Add ``~/.local/bin`` to ``PATH`` if your shell does not already include it."
+msgstr "डिफ़ॉल्ट स्थापना मूल ``~/.local/share/spacr`` है। लॉन्चर ``~/.local/bin/spacr`` में और डेस्कटॉप प्रविष्टि ``~/.local/share/applications`` में लिखी जाती है। यदि आपके शेल में पहले से ``~/.local/bin`` नहीं है, तो इसे ``PATH`` में जोड़ें।"
+
+msgid "Automatic backend selection is the Linux default. It installs CUDA support when compatible NVIDIA hardware is available. To require the smaller CPU-only build instead, run the installer with ``--torch-backend cpu``."
+msgstr "Linux पर स्वचालित बैकएंड चयन डिफ़ॉल्ट है। संगत NVIDIA हार्डवेयर उपलब्ध होने पर यह CUDA समर्थन स्थापित करता है। इसके बजाय छोटा केवल-CPU बिल्ड अनिवार्य करने के लिए इंस्टॉलर को ``--torch-backend cpu`` के साथ चलाएँ।"
+
+msgid "Updating"
+msgstr "अद्यतन"
+
+msgid "Download and run the installer for the newer version. Installation is staged and validated before it replaces the active private environment; a failed update leaves the previous working environment in place. Project folders and results are not stored in the installation directory and are not removed by an update."
+msgstr "नए संस्करण का इंस्टॉलर डाउनलोड करके चलाएँ। सक्रिय निजी परिवेश को बदलने से पहले स्थापना तैयार और सत्यापित की जाती है; विफल अद्यतन पिछले कार्यरत परिवेश को यथावत छोड़ देता है। प्रोजेक्ट फ़ोल्डर और परिणाम स्थापना निर्देशिका में संग्रहीत नहीं होते और अद्यतन से हटाए नहीं जाते।"
+
+msgid "Older installations are removed first"
+msgstr "पुरानी स्थापनाएँ पहले हटाई जाती हैं"
+
+msgid "Before it installs, every installer -- and **Help → Check for updates** -- looks for spaCR installations an earlier installer made and removes them, so two versions never sit side by side with one of them on the path. It finds the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update."
+msgstr "स्थापना से पहले हर इंस्टॉलर -- और **सहायता → Check for updates** -- किसी पिछले इंस्टॉलर द्वारा बनाई गई spaCR स्थापनाएँ खोजकर हटाता है, ताकि दो संस्करण कभी साथ-साथ न रहें और उनमें से एक पथ पर न हो। यह Windows ऑनलाइन और ऑफ़लाइन स्थापनाएँ, macOS एप्लिकेशन और उसका प्रति-उपयोगकर्ता परिवेश, Linux ऑनलाइन स्थापना और Debian पैकेज, उनके लॉन्चर, शॉर्टकट, मेनू प्रविष्टियों और अनइंस्टॉल पंजीकरणों सहित खोजता है। आपके द्वारा स्वयं बनाए गए परिवेश और स्रोत चेकआउट सूचीबद्ध होते हैं लेकिन कभी हटाए नहीं जाते, और आपके प्रोजेक्ट फ़ोल्डर व परिणाम कभी छुए नहीं जाते। यदि कोई प्रति हटाई नहीं जा सकती -- उदाहरण के लिए ``/Applications`` में कोई macOS एप्लिकेशन जिसे व्यवस्थापक चाहिए -- तो इंस्टॉलर बताता है कि कौन-सी, और कुछ भी स्थापित नहीं करता, ताकि आप कभी आधे अद्यतन के साथ न रह जाएँ।"
+
+msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
+msgstr "कुछ भी बदले बिना यह देखने के लिए कि यह क्या खोजेगा, spaCR चेकआउट से खोजक चलाएँ: ``python spacr/install_cleanup.py find``।"
+
+msgid "Recovering an older desktop installation"
+msgstr "पुरानी डेस्कटॉप स्थापना की पुनर्प्राप्ति"
+
+msgid "Desktop builds at version 1.5.0.1 and earlier, plus the Windows 1.5.0.4 build, can try ``python -m pip`` even though their private environment has no ``pip``. If **Help → Check for updates** reports ``No module named pip``, run the command for the original installation below. It uses the installer's private ``uv`` executable to update that same environment; it needs neither administrator access nor a reinstall."
+msgstr "संस्करण 1.5.0.1 और पहले के डेस्कटॉप बिल्ड, और Windows 1.5.0.4 बिल्ड, अपने निजी परिवेश में ``pip`` न होने पर भी ``python -m pip`` आज़मा सकते हैं। यदि **सहायता → Check for updates** ``No module named pip`` बताता है, तो नीचे मूल स्थापना के लिए कमांड चलाएँ। यह उसी परिवेश को अद्यतन करने के लिए इंस्टॉलर के निजी ``uv`` निष्पादन योग्य का उपयोग करता है; इसके लिए न व्यवस्थापक पहुँच चाहिए और न पुनः स्थापना।"
+
+msgid "Linux:"
+msgstr "Linux:"
+
+msgid "macOS:"
+msgstr "macOS:"
+
+msgid "Windows PowerShell:"
+msgstr "Windows PowerShell:"
+
+msgid "These are the original installers' default roots. If a different destination was selected during installation, replace the root before ``bootstrap`` and ``venv`` with that destination. Installers built from version 1.5.0.5 and later carry the corrected updater and do not depend on ``python -m pip``."
+msgstr "ये मूल इंस्टॉलरों के डिफ़ॉल्ट मूल हैं। यदि स्थापना के दौरान कोई अलग गंतव्य चुना गया था, तो ``bootstrap`` और ``venv`` से पहले के मूल को उस गंतव्य से बदलें। संस्करण 1.5.0.5 और बाद के इंस्टॉलरों में सुधारा गया अद्यतनकर्ता है और वे ``python -m pip`` पर निर्भर नहीं करते।"
+
+msgid "Update an environment installed from conda-forge with:"
+msgstr "conda-forge से स्थापित परिवेश को इससे अद्यतन करें:"
+
+msgid "Update an environment installed from PyPI with:"
+msgstr "PyPI से स्थापित परिवेश को इससे अद्यतन करें:"
+
+msgid "For reproducible work, install an exact version instead of following the latest release. Use the command for the package source already installed in the environment, replacing ``VERSION`` with a release that source publishes:"
+msgstr "पुनरुत्पादनीय काम के लिए नवीनतम रिलीज़ का अनुसरण करने के बजाय सटीक संस्करण स्थापित करें। परिवेश में पहले से स्थापित पैकेज स्रोत के लिए कमांड का उपयोग करें, और ``VERSION`` को उस स्रोत द्वारा प्रकाशित किसी रिलीज़ से बदलें:"
+
+msgid "``python -m pip index versions spacr`` lists the PyPI releases, and ``conda search -c conda-forge spacr`` lists the conda-forge builds. conda-forge can trail PyPI by a release or more, so check the source you install from."
+msgstr "``python -m pip index versions spacr`` PyPI रिलीज़ सूचीबद्ध करता है, और ``conda search -c conda-forge spacr`` conda-forge बिल्ड सूचीबद्ध करता है। conda-forge PyPI से एक या अधिक रिलीज़ पीछे रह सकता है, इसलिए जिस स्रोत से आप स्थापित करते हैं उसकी जाँच करें।"
+
+msgid "Uninstalling"
+msgstr "हटाना"
+
+msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
+msgstr "**Windows:** **सेटिंग्स → ऐप्स → इंस्टॉल किए गए ऐप्स → spaCR → अनइंस्टॉल करें** खोलें, या ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe`` चलाएँ।"
+
+msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
+msgstr "**macOS:** Terminal में ``/Library/Application Support/spaCR/uninstall-spacr.sh`` चलाएँ। यह एप्लिकेशन, कमांड लॉन्चर और सिस्टम इंस्टॉलर समर्थन हटाता है। प्रति-उपयोगकर्ता निजी रनटाइम हटाने के लिए ``~/Library/Application Support/spaCR`` को अलग से हटाएँ।"
+
+msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the launcher, desktop entry and private environment."
+msgstr "**Linux:** ``~/.local/share/spacr/uninstall-spacr.sh`` चलाएँ। यह लॉन्चर, डेस्कटॉप प्रविष्टि और निजी परिवेश हटाता है।"
+
+msgid "**conda-forge:** activate the environment and run ``conda remove spacr``."
+msgstr "**conda-forge:** परिवेश सक्रिय करें और ``conda remove spacr`` चलाएँ।"
+
+msgid "**PyPI:** activate the environment and run ``python -m pip uninstall spacr``."
+msgstr "**PyPI:** परिवेश सक्रिय करें और ``python -m pip uninstall spacr`` चलाएँ।"
+
+msgid "Remove the environment itself if it was created only for spaCR."
+msgstr "यदि परिवेश केवल spaCR के लिए बनाया गया था, तो परिवेश को भी हटा दें।"
+
+msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
+msgstr "हटाने से सूक्ष्मदर्शी प्रोजेक्ट, डेटाबेस या निर्यात किए गए परिणाम नहीं हटते। ``~/.spacr`` के अंतर्गत उपयोगकर्ता प्राथमिकताएँ, रन रिकॉर्ड और लॉग भी यथावत छोड़े जाते हैं ताकि उनकी जाँच या पुनः उपयोग हो सके। उस निर्देशिका को केवल तब अलग से हटाएँ जब उन रिकॉर्ड की अब आवश्यकता न हो।"
+
+msgid "Offline installation"
+msgstr "ऑफ़लाइन स्थापना"
+
+msgid "The small desktop installers are online installers and cannot complete without network access. For a locked-down microscope PC, build an offline bundle on a networked machine. It holds everything the installer would download: the pinned ``uv`` tool, the managed Python 3.12 runtime, every wheel of the locked environment, Cellpose weights (``cpsam`` by default), optional Mask test data, ``bundle.json`` and a ``SHA256SUMS`` file. Bundles target ``linux-x86_64``, ``windows-x86_64`` or ``macos-arm64`` and can be built for another platform than the one building them. The PyTorch wheel line is fixed when the bundle is built: ``cpu``, or a CUDA line such as ``cu126``."
+msgstr "छोटे डेस्कटॉप इंस्टॉलर ऑनलाइन इंस्टॉलर हैं और नेटवर्क पहुँच के बिना पूरे नहीं हो सकते। लॉक किए गए सूक्ष्मदर्शी PC के लिए किसी नेटवर्क से जुड़ी मशीन पर ऑफ़लाइन बंडल बनाएँ। इसमें वह सब होता है जो इंस्टॉलर डाउनलोड करता: निश्चित ``uv`` टूल, प्रबंधित Python 3.12 रनटाइम, लॉक किए गए परिवेश का हर wheel, Cellpose भार (डिफ़ॉल्ट रूप से ``cpsam``), वैकल्पिक मास्क परीक्षण डेटा, ``bundle.json`` और एक ``SHA256SUMS`` फ़ाइल। बंडल ``linux-x86_64``, ``windows-x86_64`` या ``macos-arm64`` को लक्षित करते हैं और उन्हें बनाने वाले प्लेटफ़ॉर्म से भिन्न प्लेटफ़ॉर्म के लिए भी बनाया जा सकता है। PyTorch wheel श्रृंखला बंडल बनाते समय तय होती है: ``cpu``, या ``cu126`` जैसी कोई CUDA श्रृंखला।"
+
+msgid "From a spaCR checkout, on the networked machine:"
+msgstr "नेटवर्क से जुड़ी मशीन पर spaCR चेकआउट से:"
+
+msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
+msgstr "यह ``dist/offline`` के अंतर्गत ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` फ़ोल्डर लिखता है और, ``--archive`` के साथ, उसी फ़ोल्डर को एक ``.tar`` के रूप में भी। ``--extras`` spaCR अतिरिक्त घटक चुनता है (डिफ़ॉल्ट ``qt``), ``--cellpose-model`` Cellpose भार जोड़ता है और दोहराया जा सकता है, ``--test-fields`` परीक्षण फ़ील्ड की संख्या सीमित करता है, और ``--from-source .`` PyPI रिलीज़ के बजाय चेकआउट से बनाया गया spaCR पैक करता है।"
+
+msgid "Copy the bundle to the offline machine and run its installer with the bundle folder. On Linux or macOS:"
+msgstr "बंडल को ऑफ़लाइन मशीन पर कॉपी करें और बंडल फ़ोल्डर के साथ उसका इंस्टॉलर चलाएँ। Linux या macOS पर:"
+
+msgid "On Windows, in PowerShell inside the bundle folder:"
+msgstr "Windows पर, बंडल फ़ोल्डर के भीतर PowerShell में:"
+
+msgid "The installer checks every file against ``SHA256SUMS``, installs Python and the wheels with no package index, and copies the Cellpose weights without overwriting existing ones. ``--check-mask`` (``-CheckMask``) then runs Mask on a scratch copy of the bundled test data and passes when masks and merged stacks are written; on a CPU this can take an hour for two fields."
+msgstr "इंस्टॉलर हर फ़ाइल की ``SHA256SUMS`` से जाँच करता है, बिना पैकेज इंडेक्स के Python और wheel स्थापित करता है, और मौजूदा भारों को अधिलेखित किए बिना Cellpose भार कॉपी करता है। इसके बाद ``--check-mask`` (``-CheckMask``) साथ दिए गए परीक्षण डेटा की अस्थायी प्रति पर मास्क चलाता है और मास्क तथा संयुक्त स्टैक लिखे जाने पर उत्तीर्ण होता है; CPU पर दो फ़ील्ड में एक घंटा लग सकता है।"
+
+msgid "What the bundle does not contain: the separate environments of optional segmentation backends such as Cellpose 3 or StarDist, and Model Zoo models other than the Cellpose weights you chose; those still need a network. On Linux the system Qt libraries are not bundled, so a minimal system without them runs spaCR headless only. ``SHA256SUMS`` detects damaged files, but the bundle is not signed, so transfer it through a channel you trust."
+msgstr "बंडल में क्या नहीं है: Cellpose 3 या StarDist जैसे वैकल्पिक विभाजन बैकएंड के अलग परिवेश, और आपके द्वारा चुने गए Cellpose भारों के अलावा मॉडल संग्रह के मॉडल; उनके लिए अब भी नेटवर्क चाहिए। Linux पर सिस्टम Qt लाइब्रेरी बंडल में शामिल नहीं हैं, इसलिए उनके बिना न्यूनतम सिस्टम spaCR को केवल हेडलेस चलाता है। ``SHA256SUMS`` क्षतिग्रस्त फ़ाइलों का पता लगाता है, लेकिन बंडल हस्ताक्षरित नहीं है, इसलिए इसे किसी भरोसेमंद माध्यम से स्थानांतरित करें।"
+
+msgid "Install into an existing Python environment"
+msgstr "मौजूदा Python परिवेश में स्थापित करें"
+
+msgid "To install spaCR into an existing Python environment offline, prepare a wheel directory on a networked machine with the same operating system, architecture and Python minor version, replacing ``VERSION`` with the release to install:"
+msgstr "spaCR को किसी मौजूदा Python परिवेश में ऑफ़लाइन स्थापित करने के लिए, समान ऑपरेटिंग सिस्टम, संरचना और Python लघु संस्करण वाली नेटवर्क से जुड़ी मशीन पर wheel निर्देशिका तैयार करें, और ``VERSION`` को स्थापित की जाने वाली रिलीज़ से बदलें:"
+
+msgid "Copy ``spacr-wheelhouse`` to the offline machine, create and activate a Python environment, then install without contacting a package index:"
+msgstr "``spacr-wheelhouse`` को ऑफ़लाइन मशीन पर कॉपी करें, एक Python परिवेश बनाकर सक्रिय करें, फिर किसी पैकेज इंडेक्स से संपर्क किए बिना स्थापित करें:"
+
+msgid "Repeat the download for the required optional extras. GPU-enabled PyTorch builds may require a separate wheel source, so prepare and test the complete wheelhouse on a matching connected machine before moving it to an isolated system."
+msgstr "आवश्यक वैकल्पिक अतिरिक्त घटकों के लिए डाउनलोड दोहराएँ। GPU-सक्षम PyTorch बिल्ड को अलग wheel स्रोत की आवश्यकता हो सकती है, इसलिए पृथक सिस्टम पर ले जाने से पहले मेल खाती जुड़ी मशीन पर पूरा wheelhouse तैयार करके उसका परीक्षण करें।"
+
+msgid "Conda-forge installation"
+msgstr "Conda-forge स्थापना"
+
+msgid "Install the official conda-forge package directly into an activated environment. It includes spaCR's desktop and core dependencies:"
+msgstr "आधिकारिक conda-forge पैकेज को सीधे सक्रिय परिवेश में स्थापित करें। इसमें spaCR की डेस्कटॉप और मुख्य निर्भरताएँ शामिल हैं:"
+
+msgid "PyPI installation and extras"
+msgstr "PyPI स्थापना और अतिरिक्त घटक"
+
+msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To install the PyPI release and desktop interface inside a Conda environment:"
+msgstr "PyPI पैकेज Python 3.14.1 को छोड़कर Python 3.9 से 3.14 तक का समर्थन करता है। Conda परिवेश के भीतर PyPI रिलीज़ और डेस्कटॉप इंटरफ़ेस स्थापित करने के लिए:"
+
+msgid "Omit ``qt`` for a headless server. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
+msgstr "हेडलेस सर्वर के लिए ``qt`` छोड़ दें। अतिरिक्त घटकों को जोड़ा जा सकता है, उदाहरण के लिए ``spacr[qt,czi,nd2,lif]``। सामान्य जोड़ ये हैं:"
+
+msgid "Extra"
+msgstr "अतिरिक्त घटक"
+
+msgid "Adds"
+msgstr "जोड़ता है"
+
+msgid "``qt``"
+msgstr "``qt``"
+
+msgid "The PySide6 desktop interface."
+msgstr "PySide6 डेस्कटॉप इंटरफ़ेस।"
+
+msgid "``czi``, ``nd2``, ``lif``"
+msgstr "``czi``, ``nd2``, ``lif``"
+
+msgid "Additional microscopy file readers."
+msgstr "अतिरिक्त सूक्ष्मदर्शी फ़ाइल रीडर।"
+
+msgid "``napari``"
+msgstr "``napari``"
+
+msgid "Transfer images and masks to napari."
+msgstr "छवियों और मास्क को napari में स्थानांतरित करना।"
+
+msgid "``anndata``"
+msgstr "``anndata``"
+
+msgid "AnnData and ``.h5ad`` export support."
+msgstr "AnnData और ``.h5ad`` निर्यात समर्थन।"
+
+msgid "``omero``"
+msgstr "``omero``"
+
+msgid "OMERO import support."
+msgstr "OMERO आयात समर्थन।"
+
+msgid "``trackastra``, ``btrack``, ``ultrack``"
+msgstr "``trackastra``, ``btrack``, ``ultrack``"
+
+msgid "Optional tracking backends."
+msgstr "वैकल्पिक ट्रैकिंग बैकएंड।"
+
+msgid "``boosting``"
+msgstr "``boosting``"
+
+msgid "CatBoost and LightGBM classifiers."
+msgstr "CatBoost और LightGBM वर्गीकारक।"
+
+msgid "``numpyro``, ``pymc``"
+msgstr "``numpyro``, ``pymc``"
+
+msgid "Optional Bayesian regression backends."
+msgstr "वैकल्पिक बेज़ियन प्रतिगमन बैकएंड।"
+
+msgid "``rapids``"
+msgstr "``rapids``"
+
+msgid "RAPIDS acceleration where compatible CUDA wheels are available."
+msgstr "जहाँ संगत CUDA wheel उपलब्ध हों वहाँ RAPIDS त्वरण।"
+
+msgid "``tutorial``"
+msgstr "``tutorial``"
+
+msgid "Packages used by the interactive tutorial environment."
+msgstr "इंटरैक्टिव ट्यूटोरियल परिवेश द्वारा उपयोग किए जाने वाले पैकेज।"
+
+msgid "Container images"
+msgstr "कंटेनर इमेज"
+
+msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed — it must report the version its tag claims, it must not be running as root, and it must complete one real pipeline — so an image that exists is an image that ran. An image that fails a check is not published, and the release run that built it is red."
+msgstr "हर spaCR रिलीज़ के भाग के रूप में, उस संस्करण के PyPI पर पहुँचने के बाद, दो इमेज GitHub Container Registry पर प्रकाशित की जाती हैं। हर इमेज बनाई जाती है और पुश करने से पहले जाँची जाती है — उसे वह संस्करण बताना होगा जिसका उसका टैग दावा करता है, वह root के रूप में नहीं चलनी चाहिए, और उसे एक वास्तविक पाइपलाइन पूरी करनी होगी — इसलिए जो इमेज मौजूद है वह चल चुकी इमेज है। जाँच में विफल इमेज प्रकाशित नहीं होती, और उसे बनाने वाला रिलीज़ रन लाल (विफल) होता है।"
+
+msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every older spaCR release has a container image."
+msgstr "सार्वजनिक `GHCR पैकेज पेज <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ उपलब्ध संस्करण सूचीबद्ध करता है। नीचे की कमांड प्रकाशित **1.5.1.0** इमेज का उपयोग करती हैं; हर पुराने spaCR रिलीज़ की कंटेनर इमेज नहीं है।"
+
+msgid "They exist for the headless half of spaCR: the CLI, the pipelines, a cluster job and a reviewer re-running an analysis a year later. They are not a way to install the desktop application, which the platform installers above do better."
+msgstr "ये spaCR के हेडलेस भाग के लिए हैं: CLI, पाइपलाइन, क्लस्टर कार्य और एक साल बाद विश्लेषण फिर से चलाने वाला समीक्षक। ये डेस्कटॉप एप्लिकेशन स्थापित करने का तरीका नहीं हैं, जिसे ऊपर के प्लेटफ़ॉर्म इंस्टॉलर बेहतर करते हैं।"
+
+msgid "Image"
+msgstr "छवि"
+
+msgid "For"
+msgstr "किसके लिए"
+
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
+
+msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
+msgstr "केवल CPU। Docker या Podman के साथ Linux x86-64 कंटेनर चलाता है और किसी GPU ड्राइवर की आवश्यकता नहीं है।"
+
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
+
+msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
+msgstr "CUDA 12.4। **होस्ट पर 550 या नया** NVIDIA ड्राइवर और NVIDIA Container Toolkit चाहिए। ``--gpus`` के बिना यह CPU इमेज जैसा व्यवहार करता है।"
+
+msgid "``:latest`` and ``:cpu`` follow the newest CPU release; ``:cuda`` and ``:cuda12.4`` follow the newest CUDA release. Name an exact version for anything you intend to reproduce."
+msgstr "``:latest`` और ``:cpu`` नवीनतम CPU रिलीज़ का अनुसरण करते हैं; ``:cuda`` और ``:cuda12.4`` नवीनतम CUDA रिलीज़ का अनुसरण करते हैं। जो कुछ भी आप दोहराना चाहते हैं उसके लिए सटीक संस्करण का नाम दें।"
+
+msgid "Models and data are mounted, never baked in. A cpsam checkpoint is about 1.2 GB and goes stale between releases, so the image ships none: mount a folder on ``/models`` and it becomes both the folder the Model Zoo downloads into and the folder Cellpose loads from. SAMCell and DINOCell are not in the images either, because they pin PyTorch versions that conflict with spaCR's and with each other; install one inside a running container, or let the Model Zoo install it into an isolated environment of its own."
+msgstr "मॉडल और डेटा माउंट किए जाते हैं, कभी इमेज में शामिल नहीं किए जाते। cpsam चेकपॉइंट लगभग 1.2 GB का होता है और रिलीज़ के बीच पुराना हो जाता है, इसलिए इमेज में कोई नहीं होता: ``/models`` पर एक फ़ोल्डर माउंट करें और वह मॉडल संग्रह के डाउनलोड वाला फ़ोल्डर और Cellpose के लोड करने वाला फ़ोल्डर दोनों बन जाता है। SAMCell और DINOCell भी इमेज में नहीं हैं, क्योंकि वे ऐसे PyTorch संस्करण निश्चित करते हैं जो spaCR के संस्करण से और आपस में टकराते हैं; चल रहे कंटेनर के भीतर इनमें से एक स्थापित करें, या मॉडल संग्रह को उसे उसके अपने पृथक परिवेश में स्थापित करने दें।"
+
+msgid "Install Docker and check the image"
+msgstr "Docker स्थापित करें और इमेज जाँचें"
+
+msgid "Install `Docker Desktop <https://docs.docker.com/get-started/get-docker/>`_ or, on a Linux server, `Docker Engine <https://docs.docker.com/engine/install/>`_. Configure it to run Linux containers. These images target x86-64; a native ARM64 image is not provided."
+msgstr "`Docker Desktop <https://docs.docker.com/get-started/get-docker/>`_ स्थापित करें या, Linux सर्वर पर, `Docker Engine <https://docs.docker.com/engine/install/>`_। इसे Linux कंटेनर चलाने के लिए विन्यस्त करें। ये इमेज x86-64 को लक्षित करती हैं; मूल ARM64 इमेज उपलब्ध नहीं है।"
+
+msgid "Check that Docker can start the pinned CPU image and list spaCR's headless pipelines:"
+msgstr "जाँचें कि Docker निश्चित CPU इमेज शुरू कर सकता है और spaCR की हेडलेस पाइपलाइनें सूचीबद्ध कर सकता है:"
+
+msgid "For NVIDIA GPU processing, install the host driver and follow the `NVIDIA Container Toolkit installation guide <https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html>`_ to configure Docker's NVIDIA runtime. The CUDA image's host-driver requirement is listed above; the CPU image needs neither the toolkit nor ``--gpus``."
+msgstr "NVIDIA GPU प्रसंस्करण के लिए होस्ट ड्राइवर स्थापित करें और Docker के NVIDIA रनटाइम को विन्यस्त करने के लिए `NVIDIA Container Toolkit स्थापना मार्गदर्शिका <https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html>`_ का पालन करें। CUDA इमेज की होस्ट-ड्राइवर आवश्यकता ऊपर दी गई है; CPU इमेज को न टूलकिट चाहिए और न ``--gpus``।"
+
+msgid "Running a pipeline"
+msgstr "पाइपलाइन चलाना"
+
+msgid "These examples use a Linux Bash shell. Prepare a ``screen`` folder containing your data and exported settings, and a model-cache folder. The `bind mounts <https://docs.docker.com/engine/storage/bind-mounts/>`_ make them available inside the container as ``/data`` and ``/models``. Paths inside the settings CSV must use these container paths, rather than the host's paths. Write outputs under ``/data`` so they remain in ``screen`` after ``--rm`` removes the container."
+msgstr "ये उदाहरण Linux Bash शेल का उपयोग करते हैं। अपने डेटा और निर्यात की गई सेटिंग्स वाला एक ``screen`` फ़ोल्डर और एक मॉडल-कैश फ़ोल्डर तैयार करें। `बाइंड माउंट <https://docs.docker.com/engine/storage/bind-mounts/>`_ उन्हें कंटेनर के भीतर ``/data`` और ``/models`` के रूप में उपलब्ध कराते हैं। सेटिंग CSV के पथों को होस्ट के पथों के बजाय इन कंटेनर पथों का उपयोग करना चाहिए। आउटपुट ``/data`` के अंतर्गत लिखें ताकि ``--rm`` द्वारा कंटेनर हटाए जाने के बाद भी वे ``screen`` में रहें।"
+
+msgid "On a GPU host, add ``--gpus all`` and use the CUDA tag:"
+msgstr "GPU होस्ट पर ``--gpus all`` जोड़ें और CUDA टैग का उपयोग करें:"
+
+msgid "On Linux, pass ``--user \"$(id -u):$(id -g)\"`` to match your host user and group. Files written to a mounted folder use the container's user ID; without this option, ownership or permissions may differ from your host account. The images already run as a non-root user, and the entrypoint moves the cache directories somewhere writable when the user ID you pass has no home inside the image."
+msgstr "Linux पर अपने होस्ट उपयोगकर्ता और समूह से मेल खाने के लिए ``--user \"$(id -u):$(id -g)\"`` दें। माउंट किए गए फ़ोल्डर में लिखी गई फ़ाइलें कंटेनर की उपयोगकर्ता ID का उपयोग करती हैं; इस विकल्प के बिना स्वामित्व या अनुमतियाँ आपके होस्ट खाते से भिन्न हो सकती हैं। इमेज पहले से गैर-root उपयोगकर्ता के रूप में चलती हैं, और जब आपके द्वारा दी गई उपयोगकर्ता ID का इमेज के भीतर कोई होम नहीं होता तो एंट्रीपॉइंट कैश निर्देशिकाओं को किसी लिखने योग्य स्थान पर ले जाता है।"
+
+msgid "``spacr-run --list`` prints every module that runs headless, and ``spacr-run --describe <module>`` prints what one needs and what it writes. ``spacr-doctor`` reports what the container found, including whether the GPU is visible:"
+msgstr "``spacr-run --list`` हेडलेस चलने वाले हर मॉड्यूल को छापता है, और ``spacr-run --describe <module>`` छापता है कि किसी एक को क्या चाहिए और वह क्या लिखता है। ``spacr-doctor`` बताता है कि कंटेनर ने क्या पाया, इसमें यह भी कि GPU दिखाई देता है या नहीं:"
+
+msgid "The desktop interface in a container"
+msgstr "कंटेनर में डेस्कटॉप इंटरफ़ेस"
+
+msgid "**Linux only, and unsupported elsewhere.** The images carry the Qt runtime libraries, so a Linux host running X11 can pass its display socket in:"
+msgstr "**केवल Linux, और अन्यत्र असमर्थित।** इमेज में Qt रनटाइम लाइब्रेरी होती हैं, इसलिए X11 चलाने वाला Linux होस्ट अपना डिस्प्ले सॉकेट भीतर दे सकता है:"
+
+msgid "Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist inside the container, and Qt complains about it on every start; the image makes its own runtime directory under the container's cache folder instead."
+msgstr "होस्ट का ``XDG_RUNTIME_DIR`` भीतर न दें। वह पथ कंटेनर के भीतर मौजूद नहीं होता, और Qt हर प्रारंभ पर उसकी शिकायत करता है; इमेज इसके बजाय कंटेनर के कैश फ़ोल्डर के अंतर्गत अपनी रनटाइम निर्देशिका बनाती है।"
+
+msgid "A container rarely has a usable OpenGL context, so the animated backdrop may not draw. ``safespacr`` starts the same application with the backdrop and GL switched off, and is the right command when the window is slow or blank:"
+msgstr "कंटेनर में शायद ही कभी उपयोगी OpenGL संदर्भ होता है, इसलिए एनिमेटेड पृष्ठभूमि शायद न बने। ``safespacr`` उसी एप्लिकेशन को पृष्ठभूमि और GL बंद करके शुरू करता है, और जब विंडो धीमी या खाली हो तो यही सही कमांड है:"
+
+msgid "On macOS and Windows this needs a third-party X server and is not tested or supported. Use the desktop installer on those platforms."
+msgstr "macOS और Windows पर इसके लिए तृतीय-पक्ष X सर्वर चाहिए और यह न परीक्षित है न समर्थित। उन प्लेटफ़ॉर्म पर डेस्कटॉप इंस्टॉलर का उपयोग करें।"
+
+msgid "Building the images yourself"
+msgstr "इमेज स्वयं बनाना"
+
+msgid "Build from the repository root; the Dockerfiles expect the checkout as their build context:"
+msgstr "रिपॉज़िटरी मूल से बनाएँ; Dockerfile चेकआउट को अपने बिल्ड संदर्भ के रूप में अपेक्षित करती हैं:"
+
+msgid "``--build-arg SPACR_UID=$(id -u) --build-arg SPACR_GID=$(id -g)`` bakes your own user ID into the image, which is an alternative to passing ``--user`` on every run. ``--build-arg PYTHON_VERSION=3.11`` selects a different interpreter. Each image can be checked the way the release workflow checks it:"
+msgstr "``--build-arg SPACR_UID=$(id -u) --build-arg SPACR_GID=$(id -g)`` आपकी अपनी उपयोगकर्ता ID को इमेज में डाल देता है, जो हर रन पर ``--user`` देने का विकल्प है। ``--build-arg PYTHON_VERSION=3.11`` एक अलग इंटरप्रेटर चुनता है। हर इमेज की जाँच उसी तरह की जा सकती है जैसे रिलीज़ कार्यप्रवाह करता है:"
+
+msgid "The second command runs a real pipeline on a synthetic field and reports one line per check; it needs no model, no GPU and no network."
+msgstr "दूसरी कमांड एक सिंथेटिक फ़ील्ड पर वास्तविक पाइपलाइन चलाती है और हर जाँच के लिए एक पंक्ति बताती है; इसके लिए न मॉडल, न GPU और न नेटवर्क चाहिए।"
+
+msgid "Apptainer and SingularityCE on a cluster"
+msgstr "क्लस्टर पर Apptainer और SingularityCE"
+
+msgid "Where a cluster allows Apptainer or SingularityCE but not Docker, repackage the Docker image as one read-only ``.sif`` file. Build from the repository root as an ordinary user, with Apptainer 1.2 or newer or SingularityCE 4.0 or newer:"
+msgstr "जहाँ क्लस्टर Apptainer या SingularityCE की अनुमति देता है लेकिन Docker की नहीं, वहाँ Docker इमेज को एक केवल-पढ़ने वाली ``.sif`` फ़ाइल के रूप में फिर से पैक करें। Apptainer 1.2 या नए, या SingularityCE 4.0 या नए के साथ, सामान्य उपयोगकर्ता के रूप में रिपॉज़िटरी मूल से बनाएँ:"
+
+msgid "To start from an image you built yourself, add ``--build-arg BOOTSTRAP=docker-daemon --build-arg IMAGE=spacr:cpu``. The build runs the image's smoke test. If a login node has no user namespaces, build on a workstation and copy the ``.sif`` file over. Where ``/etc/subuid`` lists you but ``newuidmap`` is not installed, add ``--ignore-subuid``."
+msgstr "स्वयं बनाई इमेज से शुरू करने के लिए ``--build-arg BOOTSTRAP=docker-daemon --build-arg IMAGE=spacr:cpu`` जोड़ें। बिल्ड इमेज का स्मोक परीक्षण चलाता है। यदि किसी लॉगिन नोड में उपयोगकर्ता नेमस्पेस नहीं हैं, तो वर्कस्टेशन पर बनाएँ और ``.sif`` फ़ाइल कॉपी करें। जहाँ ``/etc/subuid`` में आप सूचीबद्ध हैं लेकिन ``newuidmap`` स्थापित नहीं है, वहाँ ``--ignore-subuid`` जोड़ें।"
+
+msgid "``--nv`` binds the host NVIDIA driver; the CUDA image needs driver 550 or newer. Unlike Docker, the container runs as you, with your real home mounted: models already in ``~/.cellpose/models`` are found, and run manifests go to ``~/.spacr/runs/``. ``$HOME``, the current folder and ``/tmp`` are available by default; add other data folders with ``--bind``. To use a shared model folder, bind it read-only to ``/models``: ``--bind /shared/cellpose_models:/models:ro``. If a host ``PYTHONPATH`` from a conda or module setup leaks into the container, add ``--cleanenv``."
+msgstr "``--nv`` होस्ट के NVIDIA ड्राइवर को बाँधता है; CUDA इमेज को 550 या नया ड्राइवर चाहिए। Docker के विपरीत कंटेनर आपके रूप में चलता है, और आपका वास्तविक होम माउंट होता है: ``~/.cellpose/models`` में पहले से मौजूद मॉडल मिल जाते हैं, और रन मैनिफ़ेस्ट ``~/.spacr/runs/`` में जाते हैं। ``$HOME``, वर्तमान फ़ोल्डर और ``/tmp`` डिफ़ॉल्ट रूप से उपलब्ध हैं; अन्य डेटा फ़ोल्डर ``--bind`` से जोड़ें। साझा मॉडल फ़ोल्डर का उपयोग करने के लिए उसे केवल-पढ़ने के लिए ``/models`` से बाँधें: ``--bind /shared/cellpose_models:/models:ro``। यदि conda या module सेटअप से होस्ट का ``PYTHONPATH`` कंटेनर में रिसता है, तो ``--cleanenv`` जोड़ें।"
+
+msgid "``packaging/apptainer/spacr_slurm.sh`` is a Slurm array job that runs Mask then Measure on one plate per task, from one pair of settings files. Copy it, set ``SIF``, ``PLATES`` (a file with one plate folder per line), ``MASK_SETTINGS`` and ``MEASURE_SETTINGS`` and the ``#SBATCH`` lines for your cluster, then submit it:"
+msgstr "``packaging/apptainer/spacr_slurm.sh`` एक Slurm ऐरे कार्य है जो सेटिंग फ़ाइलों के एक जोड़े से हर कार्य में एक प्लेट पर मास्क और फिर मापन चलाता है। इसे कॉपी करें, अपने क्लस्टर के लिए ``SIF``, ``PLATES`` (हर पंक्ति में एक प्लेट फ़ोल्डर वाली फ़ाइल), ``MASK_SETTINGS`` और ``MEASURE_SETTINGS`` तथा ``#SBATCH`` पंक्तियाँ सेट करें, फिर इसे सबमिट करें:"
+
+msgid "For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG`` line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image."
+msgstr "CPU विभाजन के लिए ``--gres`` पंक्ति हटाएँ, ``GPU_FLAG`` पंक्ति को ``GPU_FLAG=`` से बदलें और ``SIF`` को CPU इमेज की ओर इंगित करें।"
+
+msgid "Troubleshooting"
+msgstr "समस्या निवारण"
+
+msgid "The desktop installers write ``install.log`` inside their private installation root. Windows also writes ``nsis-bootstrap-status.txt`` if the wrapper fails before the Python bootstrap starts. Runtime logs are under ``~/.spacr/logs/spacr.log`` (the equivalent home directory on Windows)."
+msgstr "डेस्कटॉप इंस्टॉलर अपने निजी स्थापना मूल के भीतर ``install.log`` लिखते हैं। यदि Python बूटस्ट्रैप शुरू होने से पहले रैपर विफल हो जाए, तो Windows ``nsis-bootstrap-status.txt`` भी लिखता है। रनटाइम लॉग ``~/.spacr/logs/spacr.log`` (Windows पर समतुल्य होम निर्देशिका) के अंतर्गत होते हैं।"
+
+msgid "For a Python installation, run:"
+msgstr "Python स्थापना के लिए चलाएँ:"
+
+msgid "Include the installer version, operating system, ``install.log`` and the output of ``spacr-doctor`` when filing a `GitHub issue <https://github.com/EinarOlafsson/spacr/issues>`_."
+msgstr "`GitHub मुद्दा <https://github.com/EinarOlafsson/spacr/issues>`_ दर्ज करते समय इंस्टॉलर संस्करण, ऑपरेटिंग सिस्टम, ``install.log`` और ``spacr-doctor`` का आउटपुट शामिल करें।"
+

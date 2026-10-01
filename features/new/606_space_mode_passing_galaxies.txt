@@ -1,0 +1,41 @@
+606. Space mode: galaxies pass by along with the stars
+
+Requested by the maintainer (2026-09-30), verbatim:
+"in spaceout mode the mandelbrot camera should smoothely center on regions with high complexity, i.e. not single color.
+now the camera jumps which looks wierd. please make the camera movement smooth.
+for the other spaceout modes theis a giant magnigying glass where the mouse is. there should be a slider deffining its size.
+for the space mode there are small stars that look great passing like little dots. but there should also be galaxies passing i want the user to feel like they are really passing through space."
+
+Brief (this item is the last sentence; 604 and 605 are the others):
+In space mode, add galaxies that pass by along with the star dots.
+- Procedural spiral/elliptical galaxies with varied size, tilt, colour and
+  brightness, drawn as soft glowing sprites, sparser than the stars.
+- They approach with perspective (grow and speed up as they near the
+  camera), with parallax, then pass and fade.
+- Keep the frame rate: precompute sprites and cap the count. It must work
+  in the CPU fallback path.
+
+Done when: both renderers draw them (tests), and a frame sequence in
+/mnt/wd4tb/scratch/604 shows galaxies approaching, growing and passing.
+
+Status: IMPLEMENTED 2026-09-30
+
+Built in fractal_space.py: eight galaxy pictures (two-armed, three-armed,
+barred and flocculent spirals with bulges, dust lanes and blue knots, and
+de Vaucouleurs ellipticals) drawn once into an atlas (_galaxy_atlas).
+_galaxies_at(t, speed) places up to GALAXY_SLOTS = 4: each slot carries
+one galaxy from depth 7 to 0.35 over 70 s at speed 1, so its position
+(offset / depth) and size grow ever faster -- perspective -- and slots at
+different offsets and depths cross at different rates (parallax). Each has
+its own size, tilt (squash), turn, tint and brightness, fades in from the
+distance and out as it passes; about one slot in five stays empty.
+
+CPU fallback: _add_galaxies (numba) lays them over the star field visiting
+only each galaxy's own pixels (0.4 ms at 480x270 against 55 ms for the
+star field). GPU: the atlas is uploaded once as RGBA8 holding sqrt(light),
+and the canvas sets u_galaxyN_place/_shape/_tint every frame.
+
+Frames: /mnt/wd4tb/scratch/604/galaxies_pass_cpu_every3s.png,
+galaxies_close_cpu.png, galaxies_pass_gpu_every3s.png (llvmpipe),
+galaxy_atlas.png.
+Tests: tests/qt/test_space_galaxies_pass_by.py.

@@ -1194,10 +1194,45 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # empty again.
 # 598, 2026-09-30: the contribute dialogs' dataset-link caption and the
 # thank-you caption before the pull request's link.
+# 316, 2026-09-30 (tenth pass): 598's two captions have rows; empty again.
+# 563, 2026-09-30: the Control Charts anomaly table's Control percentile
+# column (alpha), after the real-screen check ranked wells by it.
+# 573, 2026-09-30: the analysis lock dialog's Gate files row and its
+# placeholder (alpha).
+# 422, 2026-09-30: the Help search result-row templates in help_index.py,
+# now extractable through `_template`. The list's new "and {count} more" row
+# reuses a caption the catalogs already carry, so it owes nothing.
+# 585, 2026-09-30: the arrayed-assay planner's readout and condition
+# pickers and its plan/load error lines (alpha); "Load plan…" already has
+# a row.
+# 603, 2026-09-30: Preferences' Tooltip delay row and its explanation.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    "Goes to this dataset on Hugging Face (a new one appears with its "
-    "first upload):",
-    "Thank you. Your contribution is waiting for review:",
+    # Spaceout (2026-09-30): the Magnifier size slider and the tour path's
+    # new description (the camera now glides to detail it measures).
+    "Magnifier size",
+    "How big the magnifying glass under the pointer is, as a "
+    "share of its usual size. The whole lens scales together: "
+    "the bulge under the cursor and the soft edge around it. "
+    "25% is a small loupe; 300% bends most of the window. "
+    "Applies wherever the pointer bends the picture: both "
+    "orbit folds, and the cascade and space on the GPU "
+    "renderer. The Mandelbrot is dragged instead. "
+    "Default 100%.",
+    "Straight down descends to one point on the boundary and "
+    "stays pointed at it — the steadiest picture, and what the "
+    "published settings use.\n\n"
+    "Search as it goes looks for somewhere more interesting "
+    "every so often and moves the camera onto it. It finds more "
+    "variety, and moving the camera is visible: the Steering "
+    "control below sets how much.\n\n"
+    "Tour the interesting places measures the view as it "
+    "descends and glides toward the part with the most colours "
+    "in it, never toward a single-colour patch. The camera "
+    "eases in and out of every move and turns away before the "
+    "detail runs out, and at the end of a dive it glides back "
+    "up. Dragging the view stops the tour; Ctrl+R hands the "
+    "camera back to it.",
+    "Control percentile",
 })
 
 

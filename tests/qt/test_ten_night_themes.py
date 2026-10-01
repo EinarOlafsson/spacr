@@ -475,8 +475,7 @@ class TestTheSpaceoutDressingStaysCheapAndStaysTheSame:
         T.disable_spaceout()
 
     @pytest.fixture(scope="class")
-    @classmethod
-    def cold_dressing(cls):
+    def cold_dressing(self):
         """Measure startup in a fresh interpreter, independent of cached earlier themes."""
         script = '''
 import json

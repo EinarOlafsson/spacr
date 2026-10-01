@@ -114,6 +114,24 @@ def test_a_field_whose_pixels_do_not_split_is_decided_whole():
     assert full.uniform and full.confluency == 1.0
 
 
+def test_a_faint_phase_monolayer_is_decided_covered():
+    """A monolayer whose fine texture barely exceeds the noise estimate.
+
+    Confluent LIVECell phase fields read a texture ratio of about 2 to 3,
+    bare plastic 1.1 to 1.7; the texture source must call the first
+    covered and the second empty.
+    """
+    rng = np.random.default_rng(3)
+    texture = ndi.gaussian_filter(rng.standard_normal(SHAPE), 1.0)
+    texture /= texture.std()
+    faint = 128.0 + rng.normal(0.0, 2.0, SHAPE) + 5.0 * texture
+    bare = 128.0 + np.random.default_rng(4).normal(0.0, 2.0, SHAPE)
+    covered = _texture_coverage(faint)
+    empty = _texture_coverage(bare)
+    assert covered.uniform and covered.confluency == 1.0
+    assert empty.uniform and empty.confluency == 0.0
+
+
 def test_a_z_stack_is_max_projected():
     truth = _truth(0.35)
     stack = np.stack([np.zeros(SHAPE, dtype=np.uint16), _labels(truth)])

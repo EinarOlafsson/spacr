@@ -1,0 +1,308 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "spaCR plugin SDK"
+msgstr "spaCR 插件 SDK"
+
+msgid "The plugin SDK lets a separately installed Python package add assays, importers, analysis utilities, settings panels, model-zoo entries and report sections without editing spaCR. Plugins use Python package entry points, so spaCR discovers them at startup and keeps them available to both the Qt application and ``spacr-run``."
+msgstr "插件 SDK 允许单独安装的 Python 软件包添加实验分析、导入器、分析工具、设置面板、模型库条目和报告章节，而无需修改 spaCR。插件使用 Python 软件包入口点，因此 spaCR 会在启动时发现它们，并使其同时可用于 Qt 应用程序和 ``spacr-run``。"
+
+msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
+msgstr "当前 SDK API 版本为 ``1.0``。只有主版本号决定兼容性：声明 API ``1.x`` 的插件可与 spaCR 的 ``1.x`` SDK 配合使用。格式错误或出错的插件会被隔离，并由 ``spacr-plugins doctor`` 报告；它无法替换内置模块，也无法阻止 spaCR 启动。"
+
+msgid "Minimal plugin"
+msgstr "最小插件"
+
+msgid "Declare the entry point in the plugin package's ``pyproject.toml``:"
+msgstr "在插件软件包的 ``pyproject.toml`` 中声明入口点："
+
+msgid "Then expose a manifest:"
+msgstr "然后公开一个清单："
+
+msgid "The pipeline callable receives one settings dictionary. The defaults callable must accept an optional settings dictionary and return a dictionary. A validator returns :class:`spacr.validate.Problem` objects (or equivalent mappings). All processing still runs through spaCR's worker, journal, cancellation and reproducibility paths."
+msgstr "流程可调用对象接收一个设置字典。默认值可调用对象必须接受一个可选的设置字典并返回一个字典。验证器返回 :class:`spacr.validate.Problem` 对象（或等价的映射）。所有处理仍通过 spaCR 的工作线程、日志、取消和可重复性路径进行。"
+
+msgid "Settings and custom screens"
+msgstr "设置与自定义屏幕"
+
+msgid "The generic settings screen is preferred: declare ``categories``, ``tooltips`` and optional ``labels`` on :class:`spacr.plugins.AppContribution`. The UI then provides the normal Run/Stop controls, console, progress reporting, API links, drag-and-drop fallback and remote-submit action."
+msgstr "推荐使用通用设置屏幕：在 :class:`spacr.plugins.AppContribution` 上声明 ``categories``、``tooltips`` 和可选的 ``labels``。界面随后会提供常规的 Run/Stop 控件、控制台、进度报告、API 链接、拖放回退以及远程提交操作。"
+
+msgid "For a layout the generic screen cannot express, set ``screen_factory`` to a ``module:callable``. The callable is invoked as ``factory(app_key=...)`` and must return a ``PySide6.QtWidgets.QWidget``. A custom ``drop_handler`` must be a subclass of ``spacr.qt.dnd_handlers.DropHandler``. ``icon`` may name a spaCR semantic icon or an absolute image path; otherwise the normal puzzle piece fallback is used."
+msgstr "对于通用屏幕无法表达的布局，请将 ``screen_factory`` 设置为 ``module:callable``。该可调用对象以 ``factory(app_key=...)`` 形式被调用，并且必须返回一个 ``PySide6.QtWidgets.QWidget``。自定义的 ``drop_handler`` 必须是 ``spacr.qt.dnd_handlers.DropHandler`` 的子类。``icon`` 可以指定 spaCR 的语义图标名称或绝对图像路径；否则使用常规的拼图块图标作为回退。"
+
+msgid "Model providers"
+msgstr "模型提供者"
+
+msgid "Add a :class:`spacr.plugins.ModelProviderContribution`. Its zero-argument callable returns an iterable of :class:`spacr.model_zoo.ModelEntry` objects or the mappings accepted by spaCR's JSON model catalogue."
+msgstr "添加一个 :class:`spacr.plugins.ModelProviderContribution`。其无参数可调用对象返回一个可迭代对象，其中包含 :class:`spacr.model_zoo.ModelEntry` 对象或 spaCR 的 JSON 模型目录所接受的映射。"
+
+msgid "Providers must be read-only during catalogue discovery. Downloads remain an explicit Model Zoo action. A provider exception is shown by ``spacr-plugins doctor`` and built-in models remain available."
+msgstr "在目录发现期间，提供者必须是只读的。下载仍然是模型库中的一个显式操作。提供者抛出的异常会由 ``spacr-plugins doctor`` 显示，内置模型仍然可用。"
+
+msgid "Report sections"
+msgstr "报告章节"
+
+msgid "A :class:`spacr.plugins.ReportSectionContribution` builder receives a read-only :class:`spacr.plugins.ReportContext` and returns a :class:`spacr.report.Section`:"
+msgstr "一个 :class:`spacr.plugins.ReportSectionContribution` 构建器接收只读的 :class:`spacr.plugins.ReportContext`，并返回一个 :class:`spacr.report.Section`："
+
+msgid "If the builder raises, the generated report contains a visible problem chapter with the exception instead of silently omitting the section."
+msgstr "如果构建器抛出异常，生成的报告会包含一个显示该异常的可见问题章节，而不是悄悄省略该章节。"
+
+msgid "Translations"
+msgstr "翻译"
+
+msgid "``SpacrPlugin.translations`` maps spaCR language codes to English-source / translated-text mappings. Supported codes are ``sv``, ``de``, ``es``, ``zh_CN``, ``pt``, ``hi``, ``ko``, ``is`` and ``fr``. Missing strings fall back to English."
+msgstr "``SpacrPlugin.translations`` 将 spaCR 语言代码映射到“英文源文本 / 译文”映射。支持的代码为 ``sv``、``de``、``es``、``zh_CN``、``pt``、``hi``、``ko``、``is`` 和 ``fr``。缺少的字符串会回退为英文。"
+
+msgid "Development and diagnostics"
+msgstr "开发与诊断"
+
+msgid "During local development only, point ``SPACR_PLUGIN_MODULES`` at a comma-separated list of ``module:attribute`` references. Set ``SPACR_DISABLE_PLUGINS=1`` to start spaCR without third-party plugins."
+msgstr "仅在本地开发期间，将 ``SPACR_PLUGIN_MODULES`` 指向以逗号分隔的 ``module:attribute`` 引用列表。设置 ``SPACR_DISABLE_PLUGINS=1`` 可在不加载第三方插件的情况下启动 spaCR。"
+
+msgid "The public SDK lives in :mod:`spacr.plugins`; the diagnostics command lives in :mod:`spacr.cli_plugins`."
+msgstr "公共 SDK 位于 :mod:`spacr.plugins`；诊断命令位于 :mod:`spacr.cli_plugins`。"
+
+msgid "API reference"
+msgstr "API 参考"
+
+msgid "Versioned extension SDK for third-party spaCR plugins."
+msgstr "面向第三方 spaCR 插件的版本化扩展 SDK。"
+
+msgid "Plugins are ordinary Python distributions exposing one entry point in the ``spacr.plugins`` group.  The entry point may resolve to a :class:`SpacrPlugin`, a mapping accepted by :func:`plugin_from_mapping`, or a zero-argument factory returning either.  Discovery is lazy, deterministic and failure-isolated: one malformed plugin is recorded in :func:`diagnostics` without preventing spaCR or the remaining plugins from loading."
+msgstr "插件是普通的 Python 发行包，在 ``spacr.plugins`` 组中公开一个入口点。该入口点可以解析为 :class:`SpacrPlugin`、:func:`plugin_from_mapping` 所接受的映射，或返回二者之一的无参数工厂函数。发现过程是惰性的、确定性的且故障隔离的：一个格式错误的插件会被记录在 :func:`diagnostics` 中，而不会阻止 spaCR 或其余插件加载。"
+
+msgid "For editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a comma-separated list of ``module`` or ``module:attribute`` references. Installed plugins should always use package entry points instead."
+msgstr "在可编辑/本地开发时，``SPACR_PLUGIN_MODULES`` 可以包含以逗号分隔的 ``module`` 或 ``module:attribute`` 引用列表。已安装的插件应始终改用软件包入口点。"
+
+msgid "Plugins and assay recipes can also be installed from a catalogue, a JSON file listing each entry's version, author and licence. A catalogue plugin is installed into its own folder under ``~/.spacr/plugins`` (or ``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never replaces or upgrades a package spaCR itself uses; it is discovered like any other plugin until it is uninstalled."
+msgstr "插件和实验分析方案也可以从目录中安装，目录是一个列出每个条目版本、作者和许可证的 JSON 文件。目录中的插件会连同其所需的库一起安装到 ``~/.spacr/plugins`` （或 ``SPACR_PLUGIN_HOME``）下自己的文件夹中，因此它绝不会替换或升级 spaCR 自身使用的软件包；在被卸载之前，它会像其他插件一样被发现。"
+
+msgid "Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively) skips discovery entirely, so no plugin loads from either source."
+msgstr "将 ``SPACR_DISABLE_PLUGINS`` 设置为 ``1``、``true``、``yes`` 或 ``on`` （不区分大小写）会完全跳过发现，因此不会从任何来源加载插件。"
+
+msgid "One runnable GUI/headless application contributed by a plugin."
+msgstr "插件提供的一个可运行的 GUI/无界面应用。"
+
+#, python-brace-format
+msgid "Discovery rejects the contribution with :exc:`ValueError` when ``section``, ``stage``, ``kind`` or ``call_style`` falls outside the fixed vocabulary listed below, when ``key`` does not match ``^[a-z][a-z0-9_]{1,63}$``, or when any non-empty ``module:callable`` reference is malformed."
+msgstr "当 ``section``、``stage``、``kind`` 或 ``call_style`` 超出下文列出的固定词汇、``key`` 不匹配 ``^[a-z][a-z0-9_]{1,63}$``，或任何非空的 ``module:callable`` 引用格式错误时，发现过程会以 :exc:`ValueError` 拒绝该贡献。"
+
+msgid "Variables"
+msgstr "变量"
+
+#, python-brace-format
+msgid "identifier the CLI accepts and the GUI registers under; must match ``^[a-z][a-z0-9_]{1,63}$``. Reusing another plugin's key fails that plugin's load; colliding with a built-in app skips the contribution and records a diagnostic."
+msgstr "CLI 接受、GUI 注册时使用的标识符；必须匹配 ``^[a-z][a-z0-9_]{1,63}$``。重用其他插件的键会导致该插件加载失败；与内置应用冲突时会跳过该贡献并记录一条诊断信息。"
+
+msgid "human-readable title shown in the sidebar and screen header; cannot be blank."
+msgstr "显示在侧边栏和屏幕标题中的人类可读标题；不能为空。"
+
+msgid "one-line blurb used as the app intro and the ``spacr-run --list`` summary; cannot be blank."
+msgstr "用作应用介绍和 ``spacr-run --list`` 摘要的一行简介；不能为空。"
+
+msgid "``\"module:callable\"`` reference to the callable that does the work."
+msgstr "指向执行实际工作的可调用对象的 ``\"module:callable\"`` 引用。"
+
+#, python-brace-format
+msgid "``\"module:callable\"`` reference to a helper returning the settings dictionary; called with ``{}`` and retried with no argument."
+msgstr "指向返回设置字典的辅助函数的 ``\"module:callable\"`` 引用；以 ``{}`` 调用，失败时再以无参数方式重试。"
+
+msgid "sidebar group; one of ``\"core\"``, ``\"data\"``, ``\"models\"``, ``\"results\"`` or ``\"toxo\"``."
+msgstr "侧边栏分组；为 ``\"core\"``、``\"data\"``、``\"models\"``、``\"results\"`` 或 ``\"toxo\"`` 之一。"
+
+msgid "maturity annotation; one of ``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``."
+msgstr "成熟度标注；为 ``\"alpha\"``、``\"beta\"`` 或 ``\"stable\"`` 之一。"
+
+msgid "what the app is; one of ``\"assay\"``, ``\"importer\"``, ``\"analysis\"`` or ``\"utility\"``."
+msgstr "应用类型；为 ``\"assay\"``、``\"importer\"``、``\"analysis\"`` 或 ``\"utility\"`` 之一。"
+
+msgid "settings-screen tabs, mapping a tab name to the setting keys it holds; empty means the generic ungrouped layout."
+msgstr "设置屏幕的选项卡，将选项卡名称映射到其包含的设置键；为空表示通用的不分组布局。"
+
+msgid "hover text per setting key."
+msgstr "每个设置键的悬停文本。"
+
+msgid "display label per setting key, overriding the generated one."
+msgstr "每个设置键的显示标签，覆盖自动生成的标签。"
+
+msgid "address the settings screen's API link opens."
+msgstr "设置屏幕的 API 链接所打开的地址。"
+
+msgid "extra names the CLI and :mod:`spacr.validate` resolve to :attr:`key`."
+msgstr "CLI 和 :mod:`spacr.validate` 解析为 :attr:`key` 的额外名称。"
+
+msgid "optional ``\"module:callable\"`` reference to a callable taking the settings dict and returning ``spacr.validate.Problem`` objects or equivalent mappings."
+msgstr "可选的 ``\"module:callable\"`` 引用，指向一个接受设置字典并返回 ``spacr.validate.Problem`` 对象或等价映射的可调用对象。"
+
+msgid "optional ``\"module:callable\"`` reference to a factory returning a ``QWidget``, replacing the generic settings screen; it is always invoked as ``factory(app_key=...)`` and so must accept that keyword."
+msgstr "可选的 ``\"module:callable\"`` 引用，指向返回 ``QWidget`` 的工厂函数，用于替换通用设置屏幕；它始终以 ``factory(app_key=...)`` 形式调用，因此必须接受该关键字参数。"
+
+msgid "optional ``\"module:callable\"`` reference to a ``spacr.qt.dnd_handlers.DropHandler`` subclass."
+msgstr "可选的 ``\"module:callable\"`` 引用，指向 ``spacr.qt.dnd_handlers.DropHandler`` 的子类。"
+
+msgid "absolute image path, or the name of a spaCR semantic icon; empty falls back to the puzzle-piece icon."
+msgstr "绝对图像路径或 spaCR 语义图标的名称；为空时回退为拼图块图标。"
+
+msgid "settings the user must supply, phrased for a human."
+msgstr "用户必须提供的设置，以面向人的方式表述。"
+
+msgid "what the app leaves on disk."
+msgstr "应用在磁盘上留下的内容。"
+
+msgid "``\"settings\"`` for ``fn(settings_dict)``; ``\"folder\"`` for a callable taking a bare path."
+msgstr "``\"settings\"`` 表示 ``fn(settings_dict)``；``\"folder\"`` 表示接受单个路径的可调用对象。"
+
+msgid "Immutable record naming a plugin's model-zoo provider."
+msgstr "命名插件模型库提供者的不可变记录。"
+
+msgid "Parameters"
+msgstr "参数"
+
+#, python-brace-format
+msgid "identifier for the provider; must match ``^[a-z][a-z0-9_]{1,63}$`` and be unique across all loaded plugins."
+msgstr "提供者的标识符；必须匹配 ``^[a-z][a-z0-9_]{1,63}$``，并且在所有已加载插件中唯一。"
+
+msgid "``\"module:callable\"`` reference string -- not the callable itself -- resolved at catalogue time to a zero-argument callable returning model-zoo entries or entry mappings."
+msgstr "``\"module:callable\"`` 引用字符串——而不是可调用对象本身——在构建目录时被解析为一个返回模型库条目或条目映射的无参数可调用对象。"
+
+msgid "One discovery or contribution error visible to users and logs."
+msgstr "一条对用户和日志可见的发现或贡献错误。"
+
+msgid "entry-point or manifest name identifying the plugin that could not be loaded."
+msgstr "标识无法加载的插件的入口点或清单名称。"
+
+msgid "diagnostic level, such as ``\"error\"`` or ``\"warning\"``."
+msgstr "诊断级别，例如 ``\"error\"`` 或 ``\"warning\"``。"
+
+msgid "concise user-facing account of the failed operation."
+msgstr "面向用户的、对失败操作的简要说明。"
+
+msgid "captured exception text with the technical cause; empty when no exception accompanied the diagnostic."
+msgstr "捕获的异常文本，包含技术原因；诊断未伴随异常时为空。"
+
+msgid "Read-only inputs passed to plugin report-section builders."
+msgstr "传递给插件报告章节构建器的只读输入。"
+
+msgid "source folder or object from which the core report is built."
+msgstr "构建核心报告所依据的源文件夹或对象。"
+
+msgid "named core report artifacts available for reuse by the plugin section."
+msgstr "可供插件章节重用的具名核心报告产物。"
+
+msgid "immutable sequence of recorded run summaries associated with the report source."
+msgstr "与报告来源相关联的已记录运行摘要的不可变序列。"
+
+msgid "report-generation options supplied by the caller."
+msgstr "调用方提供的报告生成选项。"
+
+msgid "Immutable record naming a builder that adds one report section."
+msgstr "命名一个添加报告章节的构建器的不可变记录。"
+
+msgid ":func:`spacr.report.collect_report` resolves and calls the builder, and substitutes a visible problem section if it fails."
+msgstr ":func:`spacr.report.collect_report` 会解析并调用该构建器，如果它失败，则用一个可见的问题章节代替。"
+
+#, python-brace-format
+msgid "stable section identifier; plugin validation requires ``^[a-z][a-z0-9_]{1,63}$`` and discovery rejects duplicate contribution keys."
+msgstr "稳定的章节标识符；插件验证要求其匹配 ``^[a-z][a-z0-9_]{1,63}$``，发现过程会拒绝重复的贡献键。"
+
+msgid "fallback section heading used when the builder returns no title and when the builder fails; cannot be blank."
+msgstr "当构建器未返回标题或构建器失败时使用的后备章节标题；不能为空。"
+
+msgid "``\"module:callable\"`` reference resolved at report collection to a callable taking :class:`ReportContext` and returning a :class:`spacr.report.Section`."
+msgstr "在收集报告时解析为一个接受 :class:`ReportContext` 并返回 :class:`spacr.report.Section` 的可调用对象的 ``\"module:callable\"`` 引用。"
+
+msgid "existing section key after which this section is inserted; an unmatched key appends it to the report."
+msgstr "本章节插入其后的现有章节键；未匹配的键会将其追加到报告末尾。"
+
+msgid "Validated plugin manifest returned by a ``spacr.plugins`` entry point."
+msgstr "由 ``spacr.plugins`` 入口点返回的、经过验证的插件清单。"
+
+msgid "human-readable plugin name used in diagnostics and discovery output."
+msgstr "在诊断和发现输出中使用的人类可读插件名称。"
+
+msgid "version of the plugin distribution, reported to users without being interpreted by spaCR."
+msgstr "插件发行包的版本，向用户报告但不由 spaCR 解释。"
+
+msgid "plugin SDK version the manifest targets; its major version must match :data:`PLUGIN_API_VERSION`."
+msgstr "清单所针对的插件 SDK 版本；其主版本必须与 :data:`PLUGIN_API_VERSION` 一致。"
+
+msgid "runnable applications the plugin adds to the GUI and headless registry."
+msgstr "插件添加到 GUI 和无界面注册表中的可运行应用。"
+
+msgid "providers that extend the model-zoo catalogue."
+msgstr "扩展模型库目录的提供者。"
+
+msgid "builders that insert plugin-owned sections into generated reports."
+msgstr "将插件拥有的章节插入生成报告中的构建器。"
+
+msgid "locale-to-message mappings that translate the plugin's own visible strings."
+msgstr "从语言区域到消息的映射，用于翻译插件自身的可见字符串。"
+
+msgid "Return discovery and runtime contribution failures."
+msgstr "返回发现和运行时贡献中的失败。"
+
+msgid "Return every valid discovered plugin in deterministic order."
+msgstr "按确定顺序返回所有已发现的有效插件。"
+
+msgid "Returns an empty tuple, with no diagnostic recorded, when ``SPACR_DISABLE_PLUGINS`` is set to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively): nothing is imported at all. The result is cached; :func:`reload_plugins` discards the cache and discovers again."
+msgstr "当 ``SPACR_DISABLE_PLUGINS`` 设置为 ``1``、``true``、``yes`` 或 ``on`` （不区分大小写）时，返回空元组且不记录任何诊断：完全不导入任何内容。结果会被缓存；:func:`reload_plugins` 会丢弃缓存并重新发现。"
+
+msgid "Return a contributed app by key, or ``None``."
+msgstr "按键返回一个贡献的应用，或返回 ``None``。"
+
+msgid "``key`` of an installed plugin's :class:`AppContribution`; converted with ``str()`` before the registry lookup."
+msgstr "已安装插件的 :class:`AppContribution` 的 ``key``；在注册表查找之前会用 ``str()`` 转换。"
+
+msgid "Import and return ``module:attribute`` (nested attributes supported)."
+msgstr "导入并返回 ``module:attribute`` （支持嵌套属性）。"
+
+msgid "string of the form ``\"package.module:attribute\"``; the attribute part may be dotted to reach nested objects. Anything else raises ``ValueError``."
+msgstr "形如 ``\"package.module:attribute\"`` 的字符串；属性部分可以用点号访问嵌套对象。其他任何形式都会抛出 ``ValueError``。"
+
+msgid "Return ``(plugin_name, provider)`` model-zoo contributions."
+msgstr "返回 ``(plugin_name, provider)`` 形式的模型库贡献。"
+
+msgid "Return all contributed applications."
+msgstr "返回所有贡献的应用。"
+
+msgid "Validate a mapping and return its immutable :class:`SpacrPlugin`."
+msgstr "验证一个映射并返回其不可变的 :class:`SpacrPlugin`。"
+
+msgid "manifest mapping whose keys are the :class:`SpacrPlugin` fields; ``apps``, ``model_providers`` and ``report_sections`` may hold mappings or contribution objects, and ``translations`` must map language codes to string mappings. A non-mapping raises ``TypeError``."
+msgstr "清单映射，其键为 :class:`SpacrPlugin` 的字段；``apps``、``model_providers`` 和 ``report_sections`` 可以包含映射或贡献对象，``translations`` 必须将语言代码映射到字符串映射。非映射类型会抛出 ``TypeError``。"
+
+msgid "Record a model/report/runtime plugin failure without aborting spaCR."
+msgstr "记录模型/报告/运行时插件的失败，而不中止 spaCR。"
+
+msgid "name of the plugin that failed, stored on the :class:`PluginDiagnostic` and written to the log."
+msgstr "失败插件的名称，存储在 :class:`PluginDiagnostic` 上并写入日志。"
+
+msgid "user-facing account of the failed operation."
+msgstr "面向用户的、对失败操作的说明。"
+
+msgid "Clear the discovery cache and discover again (primarily for tests/dev)."
+msgstr "清除发现缓存并重新发现（主要用于测试/开发）。"
+
+msgid "Return ``(plugin_name, section)`` report contributions."
+msgstr "返回 ``(plugin_name, section)`` 形式的报告贡献。"
+

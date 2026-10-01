@@ -13,8 +13,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.sp_stats import (HitScoringError, _auroc, _draw_anomaly_review,
-                            _score_anomalies, _write_anomaly_report)
+from spacr.sp_stats import (HitScoringError, _anomaly_halves, _auroc,
+                            _draw_anomaly_review, _score_anomalies,
+                            _write_anomaly_report)
 
 _HITS = ("B03", "C05", "D07", "E02")
 
@@ -66,6 +67,58 @@ def test_controls_are_scored_by_a_detector_that_never_saw_them():
     negative_wells = result.wells[result.wells["role"] == "negative"]
     assert negative_wells["rank"].isna().all()
     assert result.auroc is None
+
+
+def test_a_phenotype_off_the_controls_subspace_is_caught():
+    """Controls vary along two directions; the hits move along a third."""
+    rng = np.random.default_rng(7)
+    loadings = rng.normal(0.0, 1.0, (2, 12))
+    basis, _ = np.linalg.qr(np.vstack([loadings, rng.normal(0.0, 1.0,
+                                                              (1, 12))]).T)
+    away = basis[:, 2]
+    frames = []
+    for row in "ABCDEFGH":
+        for col in range(1, 13):
+            well = f"{row}{col:02d}"
+            values = (rng.normal(0.0, 1.0, (40, 2)) @ loadings
+                      + rng.normal(0.0, 0.02, (40, 12)))
+            if well in _HITS:
+                values += 0.3 * away
+            frame = pd.DataFrame(values,
+                                 columns=[f"feature_{i}" for i in range(12)])
+            frame["plateID"] = "P1"
+            frame["rowID"] = row
+            frame["columnID"] = col
+            frame["condition"] = "neg" if col in (1, 12) else "compound"
+            frames.append(frame)
+    result = _score_anomalies(pd.concat(frames, ignore_index=True),
+                              control_column="condition",
+                              negative_levels="neg", known_hits=_HITS,
+                              components=2)
+    assert result.auroc == pytest.approx(1.0)
+    assert set(result.ranked_wells()["well"].head(4)) == set(_HITS)
+    hits = result.wells[result.wells["known_hit"]]
+    assert (hits["mean_percentile"] > 0.9).all()
+
+
+def test_cross_fitting_keeps_each_control_well_in_one_half():
+    frame = _screen(seed=2)
+    result = _score_anomalies(frame, control_column="condition",
+                              negative_levels="neg")
+    controls = result.wells[result.wells["role"] == "negative"]
+    assert controls["mean_percentile"].between(0.2, 0.8).all()
+    index = np.arange(10)
+    plates = np.array(["P1"] * 10)
+    rows = np.array(["A"] * 6 + ["B"] * 4)
+    cols = np.ones(10, dtype=int)
+    first, second = _anomaly_halves(index, plates, rows, cols,
+                                    np.random.default_rng(0))
+    assert {tuple(first), tuple(second)} == {tuple(range(6)),
+                                             tuple(range(6, 10))}
+    alone = _anomaly_halves(index, plates, np.array(["A"] * 10), cols,
+                            np.random.default_rng(0))
+    assert sorted(np.concatenate(alone)) == list(range(10))
+    assert len(alone[0]) == 5
 
 
 def test_plate_offsets_are_not_phenotypes():

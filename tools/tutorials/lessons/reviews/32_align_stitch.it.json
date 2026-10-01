@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "Nella categoria Tools di Home, apri Align and Stitch. Scegli le tessere, esamina la loro disposizione con Plan, poi usa Write stack per creare il mosaico.",
     "Scarica e decomprimi l’esempio qui sotto, poi seleziona la sua cartella tiles. Contiene nove ritagli sovrapposti disposti in una griglia tre per tre. Per una tua acquisizione, tieni disponibili l’ordine originale delle tessere e i metadati del tavolino.",
+    "Per esercitarti invece su dati pubblicati, premi Load test data. spaCR scarica nove tessere sovrapposte da uno screening ottico in pool e compila la cartella delle tessere, la griglia, l’ordine, la sovrapposizione e la cartella di output, così puoi premere subito Plan. I passaggi successivi usano le impostazioni dell’esempio scaricabile.",
     "Per questo esempio, imposta la griglia su tre per tre, ordine per righe e sovrapposizione di zero virgola due cinque. Adatta questi valori alla tua acquisizione; usa l’ordine a serpentina quando le righe alterne sono state acquisite in direzioni opposte.",
     "Imposta Reference channel sul piano dell’immagine usato per la registrazione. Questo esempio usa il canale uno, cioè il secondo piano con numerazione da zero. Scegli un canale con strutture visibili nelle sovrapposizioni; il posizionamento ottenuto si applica a tutti i canali dell’immagine.",
     "Imposta Minimum confidence per accettare una registrazione e Neighbour radius per le tessere vicine da confrontare. L’esempio usa zero virgola tre e uno, con sfumatura graduale nelle sovrapposizioni. Il budget del buffer a bande controlla la memoria usata dalla scrittura delle immagini.",

@@ -1,10 +1,10 @@
 {
   "lesson": "40_run_history",
-  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "स्थानीय रन रिकॉर्ड बनाने के लिए spaCR का कोई काम पूरा करें। उदाहरण रूपांतरण, Recruitment और Regression रनों के रिकॉर्ड देखता है।",
   "scenes": [
-    "इस कंप्यूटर पर सहेजे गए रन रिकॉर्ड देखने के लिए Help खोलें, फिर Run history।",
+    "इस कंप्यूटर पर सहेजे गए रन रिकॉर्ड देखने के लिए Help खोलें, फिर Run History।",
     "उपलब्ध रिकॉर्ड लोड करने के लिए Refresh पर क्लिक करें। किसी रन का विवरण देखने के लिए उसे चुनें, और ज़्यादा जगह चाहिए तो डिवाइडर खींचें।",
     "एक मॉड्यूल और स्थिति चुनें, फिर सूची छोटी करने के लिए खोज शब्द दर्ज करें। उदाहरण के लिए, पूरे हुए रूपांतरण खोजने के लिए convert और Success चुनें।",
     "दर्ज इनपुट और आउटपुट का विवरण देखने के लिए Files and models खोलें। जिन रनों में फ़ाइल हैश नहीं बनाए गए, उनकी सूची खाली हो सकती है; उनके परिणाम खोजने के लिए सेटिंग या लॉग के आउटपुट पथ इस्तेमाल करें।",

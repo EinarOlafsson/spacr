@@ -1,0 +1,63 @@
+# spaCR user guide translation (de).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: de\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Unified run history"
+msgstr "Einheitlicher Ausführungsverlauf"
+
+msgid "Open **Help → Run History** (or type *Run History* in the command palette, Ctrl+K) to search every pipeline recorded by spaCR. Refreshing a large journal happens on a background worker and does not create another run record."
+msgstr "Öffnen Sie **Hilfe → Ausführungsverlauf** (oder geben Sie *Ausführungsverlauf* in der Befehlspalette ein, Strg+K), um jede von spaCR aufgezeichnete Pipeline zu durchsuchen. Das Aktualisieren eines großen Journals erfolgt in einem Hintergrund-Worker und erzeugt keinen weiteren Ausführungsdatensatz."
+
+msgid "The dashboard combines:"
+msgstr "Das Dashboard vereint:"
+
+msgid "module, status, start/end time, wall time and process CPU time;"
+msgstr "Modul, Status, Start-/Endzeit, Laufzeit (Wanduhrzeit) und Prozess-CPU-Zeit;"
+
+msgid "exact resolved settings;"
+msgstr "die exakt aufgelösten Einstellungen;"
+
+msgid "SHA-256 records for inputs, outputs and models;"
+msgstr "SHA-256-Einträge für Eingaben, Ausgaben und Modelle;"
+
+msgid "structured warnings, provenance warnings and failure tracebacks;"
+msgstr "strukturierte Warnungen, Provenienzwarnungen und Fehler-Tracebacks;"
+
+msgid "package, spaCR, Git and platform versions;"
+msgstr "Paket-, spaCR-, Git- und Plattformversionen;"
+
+msgid "declared seeds and runtime random-state identifiers."
+msgstr "deklarierte Seeds und Kennungen des Laufzeit-Zufallszustands."
+
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt folders stay visible rather than disappearing."
+msgstr "Suchbegriffe werden kombiniert: ``adamw plate_03 warning`` zeigt nur Einträge, die alle drei Begriffe irgendwo in Einstellungen, Pfaden, Warnungen, Fehlern oder Umgebungsdaten enthalten. Modul- und Statusfilter können gleichzeitig angewendet werden. Unterbrochene und beschädigte Ordner bleiben sichtbar, statt zu verschwinden."
+
+msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "Wählen Sie eine Zeile aus, um ihre Details anzuzeigen. **Einstellungen im Modul laden** öffnet das ursprüngliche Modul und überträgt die exakt aufgezeichneten Einstellungen in dessen Bedienelemente; es startet keine Ausführung. **Laufordner öffnen** und **Pfad kopieren** machen den zugrunde liegenden Ordner ``~/.spacr/runs/...`` zugänglich."
+
+msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
+msgstr "Klicken Sie mit der rechten Maustaste auf ausgewählte Zeilen, um deren Ordner zu öffnen oder sie zu löschen; **Alle löschen** löscht jede in der Tabelle aufgeführte Ausführung. Vor dem Löschen erfolgt eine Rückfrage, und es werden nur die Journalordner entfernt; in Ihre Projekte geschriebene Ausgaben bleiben unberührt."
+
+msgid "Headless search"
+msgstr "Suche ohne GUI"
+
+msgid ":func:`spacr.run_journal.search_runs` provides the same resilient records without Qt:"
+msgstr ":func:`spacr.run_journal.search_runs` liefert dieselben robusten Einträge ohne Qt:"
+

@@ -265,7 +265,9 @@ def screen(qtbot, qt_theme_applied, tmp_path):
 
 def test_the_button_is_in_make_masks_with_the_maintainers_tooltip(screen):
     button = screen._btn_contribute
-    assert button.text() == "Contribute images and masks…"
+    # Renamed "Upload data…" at the maintainer's request (2026-09-30).
+    assert button.text() == "Upload data…"
+    assert button.accessibleName() == "Upload data"
     assert button.isEnabled()
     from html import unescape
 

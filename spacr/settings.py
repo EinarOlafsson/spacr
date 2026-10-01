@@ -14,7 +14,9 @@ from .organelle_types import (ALL_ORGANELLE_ROLES,
                               apply_preset, declared_organelle_roles,
                               organelle_count, organelle_number,
                               organelle_slot_label,
-                              slot_setting)
+                              slot_setting,
+                              _background_switch_key,
+                              _legacy_background_switch_role)
 
 LOG = logging.getLogger(__name__)
 
@@ -2057,6 +2059,20 @@ def _renamed_suffix_name(key):
     return None if new is None else f"{role}_{new}"
 
 
+def _renamed_background_switch(key):
+    """The numbered name of a lettered slot background switch, or ``None``.
+
+    ``remove_background_organelleb`` (2026-09-21 to 2026-09-30) is
+    ``remove_background_organelle_2`` today, by the numbered
+    slot naming. A rule rather than 701 table rows, like
+    :func:`_renamed_suffix_name`.
+
+    :param key: the key a settings file carries.
+    """
+    role = _legacy_background_switch_role(key)
+    return None if role is None else _background_switch_key(role)
+
+
 def _resolve_rename(key):
     """Walk ``key`` to the end of its rename chain.
 
@@ -2076,6 +2092,8 @@ def _resolve_rename(key):
             direct = RENAMED_SETTINGS.get(name)
             if direct is None:
                 direct = _renamed_suffix_name(name)
+            if direct is None:
+                direct = _renamed_background_switch(name)
             if direct is None:
                 step += (name,)
             elif isinstance(direct, str):
@@ -4168,8 +4186,11 @@ expected_types = {
 }
 
 _clone_organelle_registry(expected_types)
+#: The background switch of every slot after the first, numbered as the user
+#: counts: ``remove_background_organelle_2`` ... (item 76, the maintainer's
+#: name, 2026-09-30; lettered ``remove_background_organelleb`` before).
 SLOT_BACKGROUND_SWITCHES = tuple(
-    f'remove_background_{role}' for role in ORGANELLE_SLOT_ROLES[1:])
+    _background_switch_key(role) for role in ORGANELLE_SLOT_ROLES[1:])
 for _key in SLOT_BACKGROUND_SWITCHES:
     expected_types.setdefault(_key, bool)
 #: The slot prefixes, built ONCE. `str.startswith` takes a tuple and does the
@@ -4894,9 +4915,9 @@ tooltips = {
     "positive_control_id": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
     "preprocess": "(bool) - Run image preparation before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into floating-point arrays. Keep True for unprocessed input; set False only when the normalized arrays already exist, because segmentation requires those arrays. Default True.",
     "confluency": "(bool) - Measure confluency, the fraction of each field covered by cells, and write it to measurements.db: one row per field in the confluency table and one per well in confluency_well, with a monolayer_ok flag the plaque and infection assays can filter on or divide by. Works for any channel (brightfield, phase or a fluorescent stain) or straight from the cell masks, as confluency_source decides. With plot on, each field also gets an overlay of the covered area. Default False.",
-    "confluency_source": "(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
-    "confluency_channel": "(int or None) - The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
-    "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+    "confluency_source": "(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+    "confluency_channel": "(int or None) - The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+    "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.",
     "bleach_correction": "(str) - Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
     "measure_gpu": "(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
     "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
@@ -5367,7 +5388,7 @@ tooltips = {
 _clone_organelle_registry(tooltips, tooltip=True)
 for _role in ORGANELLE_SLOT_ROLES[1:]:
     tooltips.setdefault(
-        f'remove_background_{_role}',
+        _background_switch_key(_role),
         tooltips['remove_background_organelle']
         .replace('organelle_', f'{_role}_')
         .replace('the organelle channel',
@@ -5816,6 +5837,22 @@ def _advanced_lookup_sets(table):
     return spoken_for, filed
 
 
+def _prefixed_family_key(prefix, obj):
+    """The key a prefix-form family names for one object.
+
+    ``remove_background_<object>`` for every object but an organelle slot
+    after the first, whose background switch is numbered as the user counts
+    slots (``remove_background_organelle_2``, see
+    :func:`spacr.organelle_types._background_switch_key`).
+    """
+    if f"{prefix}_" == "remove_background_" and obj.startswith("organelle"):
+        try:
+            return _background_switch_key(obj)
+        except ValueError:
+            pass
+    return f"{prefix}_{obj}"
+
+
 def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     """Keys belonging to one family, ordered by object then by suffix.
 
@@ -5830,7 +5867,8 @@ def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     seen = set()
     for obj in ADVANCED_OBJECT_ORDER:
         candidates = [f"{obj}_{suffix}" for suffix in family_suffixes]
-        candidates += [f"{prefix}_{obj}" for prefix in family_prefixes]
+        candidates += [_prefixed_family_key(prefix, obj)
+                       for prefix in family_prefixes]
         for key in candidates:
             if key in spoken_for or key in seen:
                 continue
@@ -5886,7 +5924,7 @@ for _role in ORGANELLE_SLOT_ROLES[1:]:
         _organelle_slot_key(key, _role) for key in _organelle_basic_slots)
     categories['Organelle advanced'].extend(
         _organelle_slot_key(key, _role) for key in _organelle_advanced_slots)
-    categories['Organelle advanced'].append(f'remove_background_{_role}')
+    categories['Organelle advanced'].append(_background_switch_key(_role))
     for _suffix in ('channel', 'mask_dim', 'chann_dim'):
         _key = f'{_role}_{_suffix}'
         categories['General'].append(_key)
@@ -7198,7 +7236,10 @@ def _set_organelle_defaults(settings):
             slot_key = _organelle_slot_key(key, role)
             base_value = view.get(key, value)
             settings.setdefault(slot_key, deepcopy(base_value))
-        settings.setdefault(f'remove_background_{role}', False)
+        # An old file without the switch keeps the old shared behaviour: the
+        # slot's channel follows the generic remove_background (item 76).
+        settings.setdefault(_background_switch_key(role),
+                            settings.get('remove_background', False))
     return settings
 
 
@@ -7435,7 +7476,7 @@ ALPHA_FEATURES = {
         'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
     },
     568: {
-        'widgets': ('MakeMasksUncertaintyButton',),
+        'widgets': ('MakeMasksUncertaintyButton', 'MakeMasksUncertaintySetting'),
     },
     578: {
         'settings': ('robustness_report', 'robustness_fields',
@@ -7497,6 +7538,9 @@ ALPHA_FEATURES = {
     564: {
         'settings': ('counterfactuals', 'counterfactual_crops',
                      'counterfactual_epochs'),
+    },
+    508: {
+        'widgets': ('MakeMasksUseInMaskGeneration',),
     },
 }
 

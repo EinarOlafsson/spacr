@@ -1,0 +1,81 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Image quality before segmentation"
+msgstr "분할 전 이미지 품질"
+
+msgid "From **Home → Core → Mask**, open the **Image Quality** settings category before running segmentation. The same settings apply when Mask's **Timelapse** switch is on. Screening measures the raw, unnormalized image channels. Start in ``report`` mode to inspect acquisition problems before deciding which fields to exclude."
+msgstr "분할을 실행하기 전에 **홈 → 핵심 → 마스크** 에서 **이미지 품질** 설정 범주를 엽니다. 마스크의 **타임랩스** 스위치가 켜져 있을 때도 같은 설정이 적용됩니다. 선별 검사는 정규화하지 않은 원시 이미지 채널을 측정합니다. 제외할 시야를 결정하기 전에 먼저 ``report`` 모드로 획득 문제를 검사합니다."
+
+msgid "The policy"
+msgstr "정책"
+
+msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
+msgstr "``image_qc_mode``: ``off`` (기본값), ``report`` (시야에 표시하되 처리함) 또는 ``exclude`` (표시된 시야를 이후 단계에서 건너뜀)."
+
+msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
+msgstr "``image_qc_channels``: 검사할 획득 채널 인덱스입니다. 빈 목록이면 사용 가능한 모든 채널을 검사합니다."
+
+msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
+msgstr "``image_qc_min_focus``: 최소 라플라시안 분산에 대한 채널별 임계값 매핑입니다. 스택은 가장 좋은 평면의 점수를 사용하므로, 초점이 맞지 않은 평면 하나만으로는 사용 가능한 스택이 거부되지 않습니다. 같은 강도 척도와 광학계로 획득한 대조군을 기준으로 임계값을 선택합니다."
+
+msgid "``image_qc_max_saturation``: channel-to-threshold mapping for the maximum fraction of saturated pixels, from zero to one."
+msgstr "``image_qc_max_saturation``: 포화 픽셀의 최대 비율(0~1)에 대한 채널별 임계값 매핑입니다."
+
+msgid "``image_qc_saturation_level``: channel-to-intensity mapping for the acquisition saturation ceiling. For example, a 12-bit acquisition stored in ``uint16`` normally needs its acquisition ceiling rather than the ``uint16`` ceiling. Integer data otherwise use the dtype maximum; floating data require an explicit level when a saturation threshold is enabled."
+msgstr "``image_qc_saturation_level``: 획득 포화 상한에 대한 채널별 강도 매핑입니다. 예를 들어 ``uint16`` 으로 저장된 12비트 획득에는 보통 ``uint16`` 상한이 아니라 획득 상한이 필요합니다. 그 밖의 정수 데이터는 dtype 최댓값을 사용하며, 부동소수점 데이터는 포화 임계값을 사용할 때 수준을 명시해야 합니다."
+
+msgid "``image_qc_max_nonfinite``: maximum fraction of nonfinite pixels, from zero to one; defaults to zero."
+msgstr "``image_qc_max_nonfinite``: 유한하지 않은 픽셀의 최대 비율(0~1)입니다. 기본값은 0입니다."
+
+msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
+msgstr "초점 임계값은 원시 강도 단위의 제곱을 사용합니다. 이는 획득 검사이므로 객체 수가 적다고 해서 제외되지는 않습니다. 관측된 가장 밝은 픽셀이 보정된 포화 수준을 대신하는 일은 없습니다."
+
+msgid "Review and outputs"
+msgstr "검토 및 출력"
+
+msgid "Open **Home → Data → QC** and choose **Review image quality** for a local thumbnail gallery. Flagged fields appear first, with at most 64 previews. Display contrast is stretched for inspection; the metrics still use raw intensities. Stack thumbnails are maximum projections."
+msgstr "**홈 → 데이터 → QC** 를 열고 **이미지 품질 검토** 를 선택하면 로컬 썸네일 갤러리가 표시됩니다. 표시된 시야가 먼저 나오며, 미리보기는 최대 64개입니다. 표시 대비는 검사하기 쉽도록 늘어나 있지만 지표는 여전히 원시 강도를 사용합니다. 스택 썸네일은 최대 투영입니다."
+
+msgid "The project's ``qc`` directory contains:"
+msgstr "프로젝트의 ``qc`` 디렉터리에는 다음이 있습니다."
+
+msgid "``image_quality.csv``: every screened field and channel, its focus variance, saturation level/fraction, nonfinite fraction, status and reasons;"
+msgstr "``image_quality.csv``: 검사한 모든 시야와 채널, 초점 분산, 포화 수준/비율, 비유한값 비율, 상태, 사유;"
+
+msgid "``image_quality.json``: the exact policy and excluded field identities;"
+msgstr "``image_quality.json``: 정확한 정책과 제외된 시야의 식별 정보;"
+
+msgid "``image_quality.html``: the review gallery."
+msgstr "``image_quality.html``: 검토 갤러리."
+
+msgid "Exclusion retains the original inputs. Segmentation, merge and Measure respect the saved exclusions; excluded fields are not represented as successful zero-object detections."
+msgstr "제외해도 원래 입력은 유지됩니다. 분할, 병합, 측정은 저장된 제외 항목을 따르며, 제외된 시야는 객체 0개를 성공적으로 검출한 것으로 표시되지 않습니다."
+
+msgid "Revisiting an analyzed project"
+msgstr "분석한 프로젝트 다시 다루기"
+
+msgid "New exclusions are refused if the affected fields already have retained measurement rows. Use ``report`` to inspect that project without changing its inclusion policy, or run the exclusion policy in a fresh project. Existing measurements and the previous policy are retained when this check refuses a change. Turning screening ``off`` clears the active exclusion policy."
+msgstr "영향을 받는 시야에 이미 보존된 측정 행이 있으면 새로운 제외는 거부됩니다. 포함 정책을 바꾸지 않고 해당 프로젝트를 검사하려면 ``report`` 를 사용하고, 제외 정책은 새 프로젝트에서 실행합니다. 이 검사가 변경을 거부하면 기존 측정값과 이전 정책이 유지됩니다. 선별 검사를 ``off`` 로 설정하면 현재 적용 중인 제외 정책이 지워집니다."
+
+msgid "The Python entry points are :func:`spacr.image_quality.quality_policy`, :func:`spacr.image_quality.assess_image` and :func:`spacr.image_quality.screen_fields`."
+msgstr "Python 진입점은 :func:`spacr.image_quality.quality_policy`, :func:`spacr.image_quality.assess_image`, :func:`spacr.image_quality.screen_fields` 입니다."
+

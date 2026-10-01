@@ -1,0 +1,63 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Unified run history"
+msgstr "통합 실행 기록"
+
+msgid "Open **Help → Run History** (or type *Run History* in the command palette, Ctrl+K) to search every pipeline recorded by spaCR. Refreshing a large journal happens on a background worker and does not create another run record."
+msgstr "**도움말 → 실행 기록** 을 열거나 명령 팔레트(Ctrl+K)에 *실행 기록* 을 입력하면 spaCR이 기록한 모든 파이프라인을 검색할 수 있습니다. 큰 기록을 새로 고치는 작업은 백그라운드 작업자에서 이루어지며 새로운 실행 기록을 만들지 않습니다."
+
+msgid "The dashboard combines:"
+msgstr "대시보드는 다음을 함께 보여 줍니다."
+
+msgid "module, status, start/end time, wall time and process CPU time;"
+msgstr "모듈, 상태, 시작/종료 시간, 경과 시간, 프로세스 CPU 시간;"
+
+msgid "exact resolved settings;"
+msgstr "정확히 확정된 설정;"
+
+msgid "SHA-256 records for inputs, outputs and models;"
+msgstr "입력, 출력, 모델의 SHA-256 기록;"
+
+msgid "structured warnings, provenance warnings and failure tracebacks;"
+msgstr "구조화된 경고, 출처 경고, 실패 트레이스백;"
+
+msgid "package, spaCR, Git and platform versions;"
+msgstr "패키지, spaCR, Git, 플랫폼 버전;"
+
+msgid "declared seeds and runtime random-state identifiers."
+msgstr "선언된 시드와 런타임 난수 상태 식별자."
+
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt folders stay visible rather than disappearing."
+msgstr "검색어는 함께 적용됩니다. ``adamw plate_03 warning`` 은 설정, 경로, 경고, 실패 또는 환경 데이터 어디에든 세 단어를 모두 포함하는 기록만 표시합니다. 모듈 필터와 상태 필터를 동시에 적용할 수 있습니다. 중단되거나 손상된 폴더는 사라지지 않고 계속 표시됩니다."
+
+msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "행을 선택하면 세부 정보를 볼 수 있습니다. **모듈에 설정 불러오기** 는 원래 모듈을 열고 기록된 정확한 설정을 컨트롤에 채우며, 실행을 시작하지는 않습니다. **실행 폴더 열기** 와 **경로 복사** 는 기본 ``~/.spacr/runs/...`` 폴더에 접근할 수 있게 합니다."
+
+msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
+msgstr "선택한 행을 마우스 오른쪽 버튼으로 클릭하여 폴더를 열거나 삭제합니다. **모두 지우기** 는 표에 나열된 모든 실행을 삭제합니다. 삭제 전에 먼저 확인을 요청하며 기록 폴더만 제거합니다. 프로젝트에 기록된 출력은 건드리지 않습니다."
+
+msgid "Headless search"
+msgstr "헤드리스 검색"
+
+msgid ":func:`spacr.run_journal.search_runs` provides the same resilient records without Qt:"
+msgstr ":func:`spacr.run_journal.search_runs` 는 Qt 없이도 같은 견고한 기록을 제공합니다."
+

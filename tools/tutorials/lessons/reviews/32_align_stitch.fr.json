@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "Dans la catégorie Tools de Home, ouvrez Align and Stitch. Choisissez les tuiles, examinez leur disposition avec Plan, puis utilisez Write stack pour créer la mosaïque.",
     "Téléchargez et décompressez l’exemple ci-dessous, puis sélectionnez son dossier tiles. Il contient neuf découpes chevauchantes disposées en grille de trois sur trois. Pour votre propre acquisition, gardez à disposition l’ordre d’origine des tuiles et les métadonnées de la platine.",
+    "Pour vous entraîner plutôt sur des données publiées, appuyez sur Load test data. spaCR télécharge neuf tuiles chevauchantes issues d’un criblage optique groupé et remplit le dossier des tuiles, la grille, l’ordre, le chevauchement et le dossier de sortie, pour que vous puissiez appuyer tout de suite sur Plan. Les étapes suivantes utilisent les paramètres de l’exemple téléchargeable.",
     "Pour cet exemple, réglez la grille sur trois par trois, l’ordre par lignes et un recouvrement de zéro virgule deux cinq. Adaptez ces valeurs à votre acquisition ; utilisez l’ordre en serpentin lorsque les lignes alternées ont été acquises dans des sens opposés.",
     "Réglez Reference channel sur le plan d’image utilisé pour le recalage. Cet exemple utilise le canal un, c’est-à-dire le deuxième plan avec une numérotation à partir de zéro. Choisissez un canal avec des structures visibles dans les recouvrements ; le placement obtenu s’applique à tous les canaux de l’image.",
     "Réglez Minimum confidence pour accepter un recalage et Neighbour radius pour les tuiles voisines à comparer. L’exemple utilise zéro virgule trois et un, avec un fondu progressif dans les recouvrements. Le budget du tampon de bandes contrôle la mémoire utilisée par l’écriture des images.",

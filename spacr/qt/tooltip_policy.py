@@ -9,7 +9,8 @@ if the text ran long.
 This module installs ONE event filter on ``QApplication`` and takes the
 decision away from the style:
 
-* a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;
+* a tooltip appears after the Tooltip delay preference of hovering, not
+  before (:data:`SHOW_DELAY_MS` when nothing is stored);
 * it stays while the pointer is on the widget OR on the tooltip itself;
 * it leaves :data:`LINGER_MS` after the pointer leaves both.
 
@@ -52,7 +53,8 @@ from .gil_priority import (_stop_watching_application_events,
                            _watch_application_events)
 
 _TOOLTIP_MOMENTS = frozenset({
-    QEvent.Type.ToolTip, QEvent.Type.Leave, QEvent.Type.Hide,
+    QEvent.Type.ToolTip, QEvent.Type.Enter, QEvent.Type.Leave,
+    QEvent.Type.Hide,
     QEvent.Type.WindowDeactivate, QEvent.Type.MouseButtonPress,
     QEvent.Type.Wheel, QEvent.Type.KeyPress,
 })
@@ -82,6 +84,38 @@ OPT_OUT_PROPERTY = "spacrNoTooltipPolicy"
 
 _filter: Optional["_TooltipFilter"] = None
 _enabled: Optional[bool] = None
+_delay_ms: Optional[int] = None
+
+
+def _preferred_delay_ms() -> int:
+    """The Tooltip delay preference in milliseconds. Cached.
+
+    Read on every hover, so the answer is kept until
+    :func:`invalidate_tooltip_policy` drops it, which saving the
+    preference does.
+    """
+    global _delay_ms
+    if _delay_ms is None:
+        try:
+            from .preferences import _get_tooltip_delay
+            _delay_ms = int(round(float(_get_tooltip_delay()) * 1000))
+        except Exception:                                   # noqa: BLE001
+            LOG.debug("could not read the tooltip delay", exc_info=True)
+            _delay_ms = SHOW_DELAY_MS
+    return _delay_ms
+
+
+def _style_wake_up_ms() -> int:
+    """How long Qt waits before it sends a ``ToolTip`` event at all."""
+    try:
+        from PySide6.QtWidgets import QStyle
+        style = QApplication.style()
+        if style is not None:
+            return max(0, int(style.styleHint(
+                QStyle.StyleHint.SH_ToolTip_WakeUpDelay)))
+    except Exception:                                        # noqa: BLE001
+        return 0
+    return 0
 
 
 def tooltips_enabled() -> bool:
@@ -106,8 +140,9 @@ def tooltips_enabled() -> bool:
 
 def invalidate_tooltip_policy() -> None:
     """Forget the cached preference, and hide anything already up."""
-    global _enabled
+    global _enabled, _delay_ms
     _enabled = None
+    _delay_ms = None
     if _filter is not None:
         _filter.hide_now()
 
@@ -149,15 +184,17 @@ def tooltip_text_for(widget) -> str:
 class _TooltipFilter(QObject):
     """The application-wide filter. One instance, installed once."""
 
-    def __init__(self, show_delay_ms: int = SHOW_DELAY_MS,
+    def __init__(self, show_delay_ms: Optional[int] = None,
                  linger_ms: int = LINGER_MS) -> None:
         """Set the two timings; the filter is idle until installed.
 
-        :param show_delay_ms: how long the pointer rests before the tip shows.
+        :param show_delay_ms: how long the pointer rests before the tip
+            shows; ``None`` follows the Tooltip delay preference.
         :param linger_ms: how long a shown tip stays after the pointer leaves.
         """
         super().__init__()
-        self.show_delay_ms = int(show_delay_ms)
+        self._fixed_delay_ms = (None if show_delay_ms is None
+                                else int(show_delay_ms))
         self.linger_ms = int(linger_ms)
         self._widget: Optional[object] = None
         self._text = ""
@@ -170,6 +207,18 @@ class _TooltipFilter(QObject):
         self._hide_timer = QTimer(self)
         self._hide_timer.setSingleShot(True)
         self._hide_timer.timeout.connect(self._hide_if_the_pointer_left)
+
+    @property
+    def show_delay_ms(self) -> int:
+        """How long the pointer rests before the tip shows, in ms."""
+        if self._fixed_delay_ms is not None:
+            return self._fixed_delay_ms
+        return _preferred_delay_ms()
+
+    @show_delay_ms.setter
+    def show_delay_ms(self, value) -> None:
+        """Fix the delay; ``None`` follows the preference again."""
+        self._fixed_delay_ms = None if value is None else int(value)
 
     def eventFilter(self, obj, event) -> bool:               # noqa: N802
         """Take over tooltip events; leaving, clicks and keys hide the tip.
@@ -184,6 +233,9 @@ class _TooltipFilter(QObject):
             return False
         if kind == QEvent.Type.ToolTip:
             return self._on_tooltip(obj, event)
+        if kind == QEvent.Type.Enter:
+            self._on_enter(obj)
+            return False
         if kind in (QEvent.Type.Leave, QEvent.Type.Hide,
                     QEvent.Type.WindowDeactivate):
             if obj is self._widget:
@@ -193,6 +245,44 @@ class _TooltipFilter(QObject):
                       QEvent.Type.KeyPress):
             self.hide_now()
         return False
+
+    def _on_enter(self, obj) -> None:
+        """Start the wait on entry when it is shorter than Qt's own.
+
+        Qt sends the ``ToolTip`` event only after the style's wake-up delay
+        (about 700 ms with Fusion), so a shorter preference cannot be met
+        from that event. For those, the wait starts when the pointer enters
+        a widget that has a tooltip, and the later ``ToolTip`` event finds
+        the tip already shown or on its way. A tooltip held inside a view
+        (a table cell, a header section) still waits for Qt's event.
+
+        :param obj: the object the pointer entered.
+        """
+        delay = self.show_delay_ms
+        if delay >= _style_wake_up_ms() or not tooltips_enabled():
+            return
+        if not hasattr(obj, "toolTip"):
+            return
+        try:
+            if bool(obj.property(OPT_OUT_PROPERTY)):
+                return
+        except Exception:                                    # noqa: BLE001
+            return
+        text = tooltip_text_for(obj)
+        if not text:
+            return
+        self._hide_timer.stop()
+        if text == self._text and (self._showing
+                                   or self._show_timer.isActive()):
+            self._widget = obj
+            return
+        if self._showing:
+            self._hide_text()
+        self._show_timer.stop()
+        self._widget = obj
+        self._text = text
+        self._pos = QCursor.pos()
+        self._show_timer.start(delay)
 
     def _on_tooltip(self, obj, event) -> bool:
         """Start (or keep) the show timer for the hovered widget's tip.
@@ -242,16 +332,7 @@ class _TooltipFilter(QObject):
         policy sets. So the style's delay is subtracted, and what
         the reader experiences is two seconds from resting to reading.
         """
-        already = 0
-        try:
-            from PySide6.QtWidgets import QStyle
-            style = QApplication.style()
-            if style is not None:
-                already = int(style.styleHint(
-                    QStyle.StyleHint.SH_ToolTip_WakeUpDelay))
-        except Exception:                                    # noqa: BLE001
-            already = 0
-        return max(0, self.show_delay_ms - max(0, already))
+        return max(0, self.show_delay_ms - _style_wake_up_ms())
 
     def _show_now(self) -> None:
         """The pointer rested long enough. Put the text on screen."""

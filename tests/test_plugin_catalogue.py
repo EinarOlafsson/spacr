@@ -223,3 +223,225 @@ def test_the_command_line_browses_installs_and_uninstalls(
     assert cli_plugins.main(["install", "nope", "--catalogue",
                              str(source)]) == 1
     assert "no entry" in capsys.readouterr().err
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found unexercised (dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_the_command_line_prints_json_and_refuses_a_keyless_install(
+        tmp_path, home, capsys):
+    source = tmp_path / "cat"
+    source.mkdir()
+    _catalogue(source)
+    assert cli_plugins.main(
+        ["catalogue", "--catalogue", str(source), "--json"]) == 0
+    rows = json.loads(capsys.readouterr().out)
+    assert [row["key"] for row in rows] == ["catalogue_probe", "toxo_infection"]
+    assert rows[0]["status"] == "available"
+    assert cli_plugins.main(["install"]) == 1
+    assert "install needs the key" in capsys.readouterr().err
+
+
+def test_a_catalogue_at_an_address_is_downloaded_and_its_sources_resolved(
+        monkeypatch):
+    """An http(s) catalogue is read over the network, and a relative source
+    in it is taken relative to the catalogue's own address."""
+    import urllib.request
+
+    address = "https://plugins.example.invalid/spacr/catalogue.json"
+    payload = json.dumps({"recipes": [{
+        "key": "remote_recipe", "name": "Remote", "version": "1",
+        "source": "recipes/remote.json"}]}).encode()
+    opened = []
+
+    class _Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def read(self):
+            return payload
+
+    def fake_urlopen(location, timeout):
+        opened.append((location, timeout))
+        return _Response()
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    (entry,) = plugins._read_catalogue(address)
+    assert opened == [(address, 60)]
+    assert entry.source == (
+        "https://plugins.example.invalid/spacr/recipes/remote.json")
+
+
+def test_absolute_and_blank_sources_are_left_as_written(tmp_path):
+    absolute = str(tmp_path / "plugin.whl")
+    assert plugins._resolve_source(str(tmp_path / "c.json"), absolute) == absolute
+    assert plugins._resolve_source(str(tmp_path / "c.json"), "") == ""
+
+
+@pytest.mark.parametrize("row,error,match", [
+    (["not", "a", "mapping"], TypeError, "must be a mapping"),
+    ({"kind": "recipe", "key": "k", "name": "N", "version": "1",
+      "colour": "red"}, ValueError, "unknown catalogue fields"),
+    ({"kind": "recipe", "key": "k", "name": "", "version": "1"},
+     ValueError, "missing 'name'"),
+    ({"kind": "theme", "key": "a_key", "name": "N", "version": "1"},
+     ValueError, "kind must be one of"),
+    ({"kind": "recipe", "key": "Not A Key!", "name": "N", "version": "1"},
+     ValueError, "invalid catalogue key"),
+    ({"kind": "recipe", "key": "a_key", "name": "N", "version": "1",
+      "settings": ["a"]}, TypeError, "settings must be a mapping"),
+    ({"kind": "plugin", "key": "a_key", "name": "N", "version": "1",
+      "entry": "no colon here", "source": "x.whl"},
+     ValueError, "needs entry"),
+    ({"kind": "plugin", "key": "a_key", "name": "N", "version": "1",
+      "entry": "pkg.mod:plugin"}, ValueError, "no source to install"),
+    ({"kind": "recipe", "key": "a_key", "name": "N", "version": "1"},
+     ValueError, "neither settings nor source"),
+])
+def test_a_malformed_catalogue_row_says_what_is_wrong(tmp_path, row, error,
+                                                      match):
+    with pytest.raises(error, match=match):
+        plugins._entry_from_mapping(row, str(tmp_path / "catalogue.json"))
+
+
+@pytest.mark.parametrize("document,match", [
+    ([1, 2, 3], "must be a JSON object"),
+    ({"plugins": "catalogue_probe"}, "plugins must be a list"),
+])
+def test_a_malformed_catalogue_file_says_what_is_wrong(tmp_path, document,
+                                                       match):
+    path = tmp_path / "catalogue.json"
+    path.write_text(json.dumps(document))
+    with pytest.raises(ValueError, match=match):
+        plugins._read_catalogue(path)
+
+
+def test_unparseable_versions_compare_by_difference():
+    assert plugins._newer("nightly-b", "nightly-a") is True
+    assert plugins._newer("nightly-a", "nightly-a") is False
+
+
+def test_a_catalogue_plugin_whose_folder_went_missing_is_reported(tmp_path):
+    with pytest.raises(FileNotFoundError, match="is missing"):
+        plugins._load_catalogue_plugin({"path": str(tmp_path / "gone"),
+                                        "entry": "gone:plugin"})
+
+
+def test_pip_failure_carries_its_output():
+    ran = []
+
+    def runner(command, **kwargs):
+        ran.append(command)
+        return type("Result", (), {"returncode": 1, "stderr": "",
+                                   "stdout": "no matching distribution"})()
+
+    with pytest.raises(RuntimeError, match="no matching distribution"):
+        plugins._pip(["nothing-here"], runner)
+    assert ran[0][-1] == "nothing-here"
+
+
+def test_a_plugins_requirements_are_installed_beside_it(tmp_path, home,
+                                                        monkeypatch):
+    """Requirements go into the plugin's own folder in a second pip call."""
+    source = tmp_path / "cat"
+    source.mkdir()
+    _catalogue(source, requirements=["tinydep==1.0"])
+    calls = []
+    real_pip = plugins._pip
+
+    def pip(arguments, runner=None):
+        calls.append(list(arguments))
+        if "tinydep==1.0" in arguments:
+            return None
+        return real_pip(arguments, runner)
+
+    monkeypatch.setattr(plugins, "_pip", pip)
+    record = plugins._install_from_catalogue("catalogue_probe", source)
+    assert calls[-1][:2] == ["--target", calls[0][2]]
+    assert calls[-1][-1] == "tinydep==1.0"
+    assert record["version"] == "1.0.0"
+    assert plugins._uninstall_from_catalogue("catalogue_probe")
+
+
+def test_a_recipe_from_a_file_must_hold_a_settings_object(tmp_path, home):
+    source = tmp_path / "cat"
+    source.mkdir()
+    (source / "listy.json").write_text(json.dumps([1, 2]))
+    (source / "good.json").write_text(json.dumps({"channels": [0]}))
+    (source / "catalogue.json").write_text(json.dumps({"recipes": [
+        {"key": "listy", "name": "Listy", "version": "1",
+         "source": "listy.json"},
+        {"key": "good", "name": "Good", "version": "1",
+         "source": "good.json"}]}))
+    with pytest.raises(ValueError, match="is not a settings object"):
+        plugins._install_from_catalogue("listy", source)
+    record = plugins._install_from_catalogue("good", source)
+    assert json.loads(open(record["path"]).read()) == {"channels": [0]}
+
+
+def test_uninstalling_a_recipe_whose_file_is_gone_still_forgets_it(
+        tmp_path, home):
+    source = tmp_path / "cat"
+    source.mkdir()
+    _catalogue(source)
+    record = plugins._install_from_catalogue("toxo_infection", source)
+    import os
+    os.remove(record["path"])
+    assert plugins._uninstall_from_catalogue("toxo_infection") is True
+    assert "toxo_infection" not in plugins._catalogue_installed()
+
+
+def test_discovery_reports_an_unreadable_install_record(monkeypatch):
+    def unreadable(home=None):
+        raise OSError("install record is locked")
+
+    monkeypatch.setattr(plugins, "_catalogue_installed", unreadable)
+    sources = dict(plugins._installed_sources())
+    with pytest.raises(OSError, match="locked"):
+        sources["catalogue installs"]()
+
+
+def test_discovery_skips_installed_recipes(monkeypatch):
+    monkeypatch.setattr(plugins, "_catalogue_installed", lambda home=None: {
+        "a_recipe": {"kind": "recipe", "path": "/nowhere.json"}})
+    assert "a_recipe" not in dict(plugins._installed_sources())
+
+
+def test_a_catalogue_listing_leaves_out_an_empty_summary(tmp_path, home,
+                                                         capsys):
+    source = tmp_path / "cat"
+    source.mkdir()
+    _catalogue(source, summary="")
+    assert cli_plugins.main(["catalogue", "--catalogue", str(source)]) == 0
+    listing = capsys.readouterr().out.splitlines()
+    probe = listing.index(next(line for line in listing
+                               if "Catalogue probe 1.0.0" in line))
+    assert listing[probe + 1].startswith("  by Test Lab")
+    assert listing[probe + 2].startswith("[recipe]")
+
+
+def test_a_failed_install_from_a_requirement_leaves_no_staging_folder(
+        tmp_path, home, monkeypatch):
+    """A source that is a pip requirement, not a file here, goes to pip as
+    written, with no local index; when pip fails nothing is left behind."""
+    source = tmp_path / "cat"
+    source.mkdir()
+    (source / "catalogue.json").write_text(json.dumps({"plugins": [{
+        "key": "from_pypi", "name": "From PyPI", "version": "1",
+        "source": "spacr-probe-plugin>=1", "entry": "probe:plugin"}]}))
+    seen = []
+
+    def pip(arguments, runner=None):
+        seen.append(list(arguments))
+        raise RuntimeError("pip could not install the plugin")
+
+    monkeypatch.setattr(plugins, "_pip", pip)
+    with pytest.raises(RuntimeError, match="could not install"):
+        plugins._install_from_catalogue("from_pypi", source)
+    assert "--no-index" not in seen[0]
+    assert seen[0][-1] == "spacr-probe-plugin>=1"
+    assert not (home / "site" / ".from_pypi.new").exists()

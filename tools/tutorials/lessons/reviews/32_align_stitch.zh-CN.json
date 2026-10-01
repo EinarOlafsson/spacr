@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "在Home的Tools类别中打开Align and Stitch。选择分块，用Plan检查布局，然后用Write stack生成拼接图。",
     "下载并解压下方的示例，然后选择其中的tiles文件夹。它包含九张相互重叠的裁剪图像，排列成三乘三的网格。对于您自己的采集，请保留原始的分块顺序和载物台元数据。",
+    "如果想改用已发表的数据练习，请按Load test data。spaCR会从一项光学混池筛选中下载九个相互重叠的分块，并填好分块文件夹、网格、顺序、重叠和输出文件夹，您可以立即按Plan。后面的步骤使用可下载示例的设置。",
     "在本例中，把网格设为三乘三，按行顺序，重叠设为零点二五。请根据您的采集调整这些设置；如果相邻行是沿相反方向采集的，请使用蛇形顺序。",
     "把Reference channel设为用于配准的图像平面。本例使用通道一，即从零开始编号的第二个平面。请选择在重叠区域有可见结构的通道；得到的位置会应用到图像的所有通道。",
     "设置Minimum confidence作为接受配准的标准，设置Neighbour radius决定要比较的相邻分块。本例使用零点三和一，并在重叠区域做渐变融合。条带缓冲区预算控制图像写出时使用的内存。",

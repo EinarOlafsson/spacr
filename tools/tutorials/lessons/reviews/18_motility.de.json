@@ -1,10 +1,10 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
+  "english_sha256": "fd729b5ee7ddf2a66468231a860d549a59b4c972fc409b9cf15d583aaf66bb13",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Schließen Sie einen Timelapse-Lauf ab oder laden Sie SYNTHETIC_motility_tracks.zip herunter und entpacken Sie es. Wählen Sie den Ordner, der merged enthält. Das Beispiel hat acht Frames, Kernintensität in Kanal 0, Zellintensität in Kanal 1, verfolgte Zellmasken in Ebene 2 und Kernmasken in Ebene 3. Es hat keine Pathogenmaske und keine physikalische Kalibrierung.",
   "scenes": [
-    "Öffnen Sie von Home aus Measure und dann über Time Motility Assay. Beginnen Sie mit verfolgten Bildern aus Timelapse oder laden Sie das Beispielarchiv unten herunter, um mitzumachen.",
+    "Öffnen Sie von Home aus Measure und wählen Sie dann oben rechts Motility Assay. Beginnen Sie mit verfolgten Bildern aus Timelapse oder laden Sie das Beispielarchiv unten herunter, um mitzumachen.",
     "Entpacken Sie das Beispiel und setzen Sie Source auf den Ordner, der merged enthält. Wählen Sie cells als verfolgte Objekte, Kernkanal 0 und Zellkanal 1. Lassen Sie den Pathogenkanal in diesem Beispiel leer.",
     "Schalten Sie Live ein, um Motility preview zu öffnen, und wählen Sie denselben Projektordner. Prüfen Sie in der Vorschau die Tracks und probieren Sie Filter aus, bevor Sie die vollständige Analyse starten. Lassen Sie Propagate settings ausgeschaltet, solange Sie vorläufige Einstellungen testen.",
     "Stellen Sie zwei Intensitätskanäle ein, die verfolgte Maskenebene auf 2 und die Pathogen-Maskenebene auf −1, also keine. Zeigen Sie alle acht Frames in der Vorschau an. Setzen Sie in der Vorschau für dieses unkalibrierte Beispiel beide Kalibrierwerte auf 0 und klicken Sie dann auf Run preview.",

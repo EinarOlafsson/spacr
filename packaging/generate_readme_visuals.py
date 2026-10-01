@@ -700,6 +700,25 @@ def _hardware_table() -> str:
     return "\n".join(lines)
 
 
+def _published_models() -> "list[dict]":
+    """The shipped catalogue rows a reader of the guides may be shown.
+
+    Every row of ``BUNDLED_REMOTE_MODELS`` except those registered as alpha
+    under ``models`` in :data:`spacr.settings.ALPHA_FEATURES`. An alpha model
+    is hidden in the app unless Preferences -> Show alpha features is on, and
+    the README and the Model Zoo guide page describe only what the app shows
+    by default; the API reference keeps the model's own docstrings.
+
+    :returns: the non-alpha catalogue entries, in catalogue order.
+    """
+    from spacr.model_zoo import BUNDLED_REMOTE_MODELS
+    from spacr.settings import _is_alpha
+
+    return [entry for entry in BUNDLED_REMOTE_MODELS
+            if not _is_alpha("models",
+                             str(entry.get("key") or entry.get("name") or ""))]
+
+
 def _model_zoo_rows() -> "list[tuple[str, str, str, str]]":
     """The published models as ``(key, architecture, dataset, versus stock)``.
 
@@ -722,10 +741,8 @@ def _model_zoo_rows() -> "list[tuple[str, str, str, str]]":
 
     Importing :mod:`spacr.model_zoo` is cheap: no torch, no Qt, no network.
     """
-    from spacr.model_zoo import BUNDLED_REMOTE_MODELS
-
     rows = []
-    for entry in BUNDLED_REMOTE_MODELS:
+    for entry in _published_models():
         rows.append((
             str(entry.get("key") or entry.get("name") or ""),
             str(entry.get("architecture") or "").strip().rstrip("."),
@@ -751,10 +768,8 @@ def _model_zoo_sections() -> str:
     the place to fetch it from -- which is the split 370 asks for between the
     surface with the least room and the one with the most.
     """
-    from spacr.model_zoo import BUNDLED_REMOTE_MODELS
-
     lines: list[str] = []
-    for entry in BUNDLED_REMOTE_MODELS:
+    for entry in _published_models():
         key = str(entry.get("key") or entry.get("name") or "")
         if not key:
             continue

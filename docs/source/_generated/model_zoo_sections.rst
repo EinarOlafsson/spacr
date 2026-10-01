@@ -142,6 +142,24 @@ Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://hugging
 
 SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``.
 
+Toxoplasma PV v4 (round 7)
+--------------------------
+
+**Architecture.** Cellpose-SAM (cpsam_v2)
+
+**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2
+
+**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505
+
+* NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate
+* on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168
+* it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them
+* the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation
+
+Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``.
+
+SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.
+
 Live cell v1 (phase, brightfield, DIC)
 --------------------------------------
 
@@ -212,21 +230,3 @@ Toxoplasma from Hoechst (cross-channel)
 Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``.
 
 SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``.
-
-Colony Detector v1 (alpha)
---------------------------
-
-**Architecture.** YOLO11n (ultralytics), one class 'colony'
-
-**Trained on.** plate photos from Makrai et al. 2023, Scientific Data, figshare doi:10.6084/m9.figshare.22022540 (CC BY 4.0): 369 smartphone photos of 24 species with 56,865 colony boxes
-
-**Measured.** median count error 2.4% on 39 held-out plates with 30-300 colonies, against 16.5% for spaCR's thresholding counter on the same plates
-
-* counts colonies for colony_counting when colony_detector names this key; ultralytics is needed
-* 69% of held-out plates within 5% of the hand count and 87% within 10%
-* one dataset and one split: photos from another lab, agar or species may score worse, and confluent swarming colonies stay hard
-* published in the einarolafsson/models dataset repo under colony_detector/v1/
-
-Published as `einarolafsson/models <https://huggingface.co/datasets/einarolafsson/models>`_, as ``colony_yolo11n_makrai_v1.pt``.
-
-SHA-256 ``1bd99599c1d78fb0841216b798cfc61665be7c2aa8b356b970d0d06ae4b57557``.

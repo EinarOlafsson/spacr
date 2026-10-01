@@ -93,6 +93,9 @@ def main() -> int:
     parser.add_argument('--sweep-input-root', type=Path, help='Private byte-identical copies of the original sweep CSVs; preserve the settings manifest and relative paths')
     parser.add_argument('--pca-host-only', action='store_true',
                         help='Recapture only the native Image UMAP PCA entry point; no data load or fit')
+    parser.add_argument('--openings', action='store_true', help='Record only the shared Home, Help-menu and host openings of the tool lessons')
+    parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data'), default='home',
+                        help='With --openings: which shared or lesson-extension frames to record')
     parser.add_argument('--timeout', type=float, default=600)
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
@@ -108,6 +111,8 @@ def main() -> int:
         parser.error('--sweep-input-root requires --module parameter_sweep')
     if args.pca_host_only and (args.module != 'pca' or args.run or args.download or args.preview):
         parser.error('--pca-host-only requires pca without run/download/preview')
+    if args.openings and (args.module != 'home' or args.run or args.download or args.preview):
+        parser.error('--openings requires --module home without run/download/preview')
     if args.preferences_alpha_toggle_scene and (args.run or args.download or args.preview):
         parser.error('--preferences-alpha-toggle-scene records only the Preferences toggle, without run/download/preview')
     if args.workflow_overview and (args.module != 'workflow_overview' or args.run or args.download or args.preview):
@@ -416,8 +421,17 @@ def main() -> int:
         'folded_children': gui.folded_children(),
     }
     write_json(stage / 'runtime_inventory.json', inventory)
-    capture('00_home')
-    if args.module == 'home':
+    if args.openings:
+        import capture_openings
+        if args.openings_set == 'home':
+            capture_openings.record_openings(app, window, captures, capture, settle, write_json)
+        elif args.openings_set == 'illumination_apply':
+            capture_openings.record_illumination_apply(app, window, stage, captures, capture, settle, write_json)
+        else:
+            capture_openings.record_align_test_data(app, window, stage, captures, capture, settle, write_json, args.timeout)
+    else:
+        capture('00_home')
+    if args.module == 'home' and not args.openings:
         home = window._startup
         tabs = home._tabs
         for index in range(1, tabs.count()):

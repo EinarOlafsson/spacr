@@ -177,3 +177,11 @@ API/publication work remains tracked separately under 411/358.
 Receipt: features/data/316_runtime_codex_delta_2026-09-27.json.
 Review: docs/i18n/2026-09-27-runtime-codex-delta.md.
 AI technical review (Codex), no native-speaker signoff.
+
+ALPHA: gated 2026-09-30 by the maintainer. Make Masks' Enhancement-card
+button "Use in Mask generation" (objectName MakeMasksUseInMaskGeneration)
+is registered under ALPHA_FEATURES[508] widgets and hides unless
+Preferences -> Show alpha features is on. The enhance_* and psf_* settings
+on Mask generation's own form are not gated, so a chain written while the
+button is hidden still reaches the run. Test:
+tests/qt/test_use_in_mask_generation_alpha_gate.py.
