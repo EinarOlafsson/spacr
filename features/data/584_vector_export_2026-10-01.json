@@ -1,0 +1,65 @@
+{
+  "item": "F584",
+  "status": "partial",
+  "changes": [
+    "vector hit_structures.svg exported by existing SAR report action",
+    "exact compound metadata and atomic replacement"
+  ],
+  "final_tests": {
+    "passed": 5,
+    "seconds": 2.68,
+    "log_sha256": "440e7043e84c83eddd0b1a8f2ca57ba5f9c24d937b55b592d392585a0c4982e3",
+    "png_writer_stubbed_in_integration_test": true
+  },
+  "earlier_candidate_checks": {
+    "engine_passed": 18,
+    "qt_alpha_gate_passed": 1
+  },
+  "failed_attempts": [
+    {
+      "log": "/tmp/spacr-implementation-20261001/review/f584-vector-tests.log",
+      "outcome": "memory guard exit3; not acceptance"
+    },
+    {
+      "log": "/tmp/spacr-implementation-20261001/review/f584-vector-part-5.log",
+      "outcome": "memory guard exit3; not acceptance"
+    },
+    {
+      "log": "/tmp/spacr-implementation-20261001/review/f584-vector-final.log",
+      "outcome": "memory guard exit3; not acceptance"
+    },
+    {
+      "log": "/tmp/spacr-implementation-20261001/review/f584-vector-isolated-0.log",
+      "outcome": "memory guard exit3; not acceptance"
+    }
+  ],
+  "renderer": {
+    "tool": "Qt QSvgRenderer",
+    "warnings": false,
+    "size": [
+      1500,
+      400
+    ],
+    "svg_sha256": "3cfa4606d398ccfa66fa9f2e9d3fe0705ac2f590fce029703335b6fe7b7276c2",
+    "visual_review": "Five structures, two cluster frames, readable names/potency/toxicity; molecular bonds and labels remain vectors."
+  },
+  "resources": {
+    "memory_max": 1073741824,
+    "swap_max": 0,
+    "cpu_affinity": [
+      0
+    ],
+    "configured_quota_percent": 100,
+    "kernel_cpu_quota_verified": false
+  },
+  "dependency": {
+    "rdkit": "2026.3.6",
+    "location": "isolated scratch target; user environment unchanged",
+    "existing_extra": "chem"
+  },
+  "reference": "https://www.rdkit.org/docs/source/rdkit.Chem.Draw.html",
+  "remaining": [
+    "real compound-screen SAR validation",
+    "full actual Control Charts export integration within memory cap"
+  ]
+}

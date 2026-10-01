@@ -70,3 +70,28 @@ ALPHA_FEATURES[584]['widgets'] in spacr/settings.py. No settings keys. The
 screen test checks they hide with Show alpha features off, return with it
 on, and that a compound table loaded while hidden still reaches the SAR
 export. New tr() captions wait in _AWAITING_CATALOG_REBUILD.
+
+2026-10-01 — VECTOR STRUCTURE EXPORT
+    Control Charts > Export hits now also writes hit_structures.svg beside
+    the existing image and SAR CSV files. Up to the same 24 valid hit
+    compounds appear in cluster/rank order, with vector molecular bonds,
+    cluster-coloured frames and editable compound/potency/toxicity text.
+    The sheet uses a white publication background. Full unshortened names,
+    SMILES and exact values are embedded as JSON metadata; displayed long
+    names wrap/shorten. Writes replace the destination atomically.
+    The existing optional installation extra already provides RDKit:
+    pip install 'spacr[chem]'. The historical request to add an extra is
+    therefore resolved without introducing another alias.
+
+    Five targeted export checks pass on the final implementation using real
+    RDKit 2026.3.6; the unchanged PNG writer is stubbed only in the report
+    integration check to bound its DPI-dependent bitmap allocation. The
+    18 existing engine tests and one alpha-gate check passed on the first
+    candidate. Later combined/actual-export Qt checks reached the 1 GiB
+    memory guard; caps were not increased and those runs are not passes.
+    Final SVG rendering succeeded through Qt SVG with no warnings and was
+    visually inspected: five structures, two cluster colours, clear names
+    and potency/toxicity labels. This is synthetic-screen export acceptance,
+    not real compound-screen scientific acceptance or full Qt acceptance.
+    Receipt: features/data/584_vector_export_2026-10-01.json.
+    Real compound-screen SAR acceptance remains open.

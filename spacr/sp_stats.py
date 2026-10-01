@@ -1918,7 +1918,9 @@ def _write_sar_report(chemistry: _ChemistryResult, out_dir, *,
     :param target: ``'screen'`` or ``'print'``; default the preference.
     :returns: ``{name: path}``: ``sar_table`` (one row per compound),
         ``sar_wells`` (every well with its compound), ``sar_clusters`` when
-        clustered, and ``hit_structures`` when a structure was drawn.
+        clustered, and ``hit_structures`` plus ``hit_structures_svg`` when
+        a structure was drawn. The SVG contains vector bonds, editable text
+        and full compound metadata; the existing image export is retained.
     """
     import os
 
@@ -1947,7 +1949,99 @@ def _write_sar_report(chemistry: _ChemistryResult, out_dir, *,
             written["hit_structures"] = save_figure(
                 figure, os.path.join(str(out_dir), "hit_structures.png"),
                 close=True, announce_colours=False)
+            vector_path = _write_hit_structures_svg(chemistry, out_dir)
+            if vector_path is not None:
+                written["hit_structures_svg"] = vector_path
     return written
+
+
+def _write_hit_structures_svg(chemistry, out_dir):
+    """Export the displayed hit structures as editable vector artwork."""
+    import json
+    import os
+    from pathlib import Path
+    import tempfile
+    import textwrap
+    import xml.etree.ElementTree as ET
+
+    hits = chemistry.sar[chemistry.sar["hit"]]
+    if "smiles_valid" in hits.columns:
+        hits = hits[hits["smiles_valid"].fillna(False).astype(bool)]
+    if not chemistry.clustered or hits.empty:
+        return None
+    hits = hits.sort_values(["cluster", "best_rank"], na_position="last").head(_STRUCTURE_LIMIT)
+    chem, _data_structs, draw = _rdkit()
+    statistic = HIT_METHOD_LABELS.get(chemistry.sar.attrs.get("statistic", ""),
+                                     chemistry.sar.attrs.get("statistic", "score"))
+    molecules, labels, records = [], [], []
+    for _, row in hits.iterrows():
+        molecule = chem.MolFromSmiles(row["smiles"])
+        if molecule is None:
+            continue
+        name = str(row["compound"])
+        name_lines = textwrap.wrap(textwrap.shorten(name, width=60, placeholder="…"), width=30)
+        caption = f"cluster {int(row['cluster'])} · {statistic} {row['potency']:.3g}"
+        toxicity = row.get("cytotoxicity_index")
+        toxicity_text = (f"cytotoxicity {toxicity:.3g}" if toxicity is not None
+                         and pd.notna(toxicity) else "")
+        molecules.append(molecule)
+        labels.append((name_lines, caption, toxicity_text))
+        records.append({"compound": name, "smiles": str(row["smiles"]),
+                        "cluster": int(row["cluster"]), "statistic": str(statistic),
+                        "potency": float(row["potency"]),
+                        "cytotoxicity_index": (float(toxicity) if toxicity is not None
+                                                and pd.notna(toxicity) else None)})
+    if not molecules:
+        return None
+    from matplotlib import colormaps
+    from matplotlib.colors import to_hex
+
+    namespace = "{http://www.w3.org/2000/svg}"
+    columns = min(6, len(molecules))
+    width, height = columns * 300, int(np.ceil(len(molecules) / columns)) * 400
+    document = ET.Element(namespace + "svg", {"width": str(width), "height": str(height),
+                                               "viewBox": f"0 0 {width} {height}"})
+    ET.SubElement(document, namespace + "rect", {"width": "100%", "height": "100%", "fill": "white"})
+    for index, (molecule, label, record) in enumerate(zip(molecules, labels, records)):
+        tile = ET.SubElement(document, namespace + "g", {
+            "transform": f"translate({index % columns * 300},{index // columns * 400})"})
+        ET.SubElement(tile, namespace + "title").text = record["compound"]
+        drawer = draw.rdMolDraw2D.MolDraw2DSVG(300, 300)
+        draw.rdMolDraw2D.PrepareAndDrawMolecule(drawer, molecule)
+        drawer.FinishDrawing()
+        artwork = ET.fromstring(drawer.GetDrawingText())
+        # RDKit emits empty glyph paths for spaces; omit those harmless paths
+        # so SVG renderers do not report truncated-path warnings.
+        for parent in artwork.iter():
+            for child in list(parent):
+                if child.tag == namespace + "path" and not child.get("d", "").strip():
+                    parent.remove(child)
+        tile.extend(list(artwork))
+        colour = to_hex(colormaps["tab10"]((record["cluster"] - 1) % 10))
+        ET.SubElement(tile, namespace + "rect", {
+            "x": "2", "y": "2", "width": "296", "height": "396",
+            "fill": "none", "stroke": colour, "stroke-width": "2"})
+        name_lines, caption, toxicity_text = label
+        lines = [(318 + n * 17, line) for n, line in enumerate(name_lines)]
+        lines += [(359, caption), (380, toxicity_text)]
+        for y, line in lines:
+            ET.SubElement(tile, namespace + "text", {
+                "x": "150", "y": str(y), "text-anchor": "middle", "fill": "#231F20",
+                "font-family": "sans-serif", "font-size": "13"}).text = line
+    # Preserve full names and exact numeric values even if a tile label is shortened.
+    metadata = ET.SubElement(document, "{http://www.w3.org/2000/svg}metadata")
+    metadata.text = json.dumps({"structures": records}, ensure_ascii=False, allow_nan=False)
+    destination = Path(out_dir) / "hit_structures.svg"
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=destination.parent, suffix=".svg", delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(ET.tostring(document, encoding="utf-8", xml_declaration=True))
+        os.replace(temporary, destination)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+    return str(destination)
 
 
 _PROFILE_KEYS = ("plateID", "rowID", "columnID")
