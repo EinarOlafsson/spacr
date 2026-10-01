@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "item": 43,
+  "date": "2026-10-01",
+  "ci_run": 36856217586,
+  "ci_coverage_artifact": 11171686969,
+  "ci_missing_lines": [973, 1127, 1139, 1197, 1198, 1199, 1200],
+  "ci_missing_branches": [[972,973],[1125,1127],[1138,1139],[1196,1197]],
+  "scope": "Behavior checks for undersized surveys, stale target scores, smooth retreat and screen-speed bounds",
+  "source_sha256": {
+    "spacr/qt/widgets/fractal_mandelbrot.py": "13100638355de3610c865c7f192081f3e598780f92d499d2330911fe1fde551a",
+    "tests/qt/test_43_mandelbrot_glide_boundaries.py": "cd33608756e76788dec32384b92d117a127e8370f6540279efa5296246084962"
+  },
+  "validation": {
+    "passed": 61,
+    "seconds": 8.06,
+    "cap": "4G",
+    "cuda_visible_devices": "",
+    "threads": 2,
+    "new_cases": 9,
+    "files": [
+      "tests/qt/test_43_mandelbrot_glide_boundaries.py",
+      "tests/qt/test_the_mandelbrot_camera_glides_to_detail.py",
+      "tests/qt/test_cov_r5_fractal_mandelbrot.py",
+      "tests/qt/test_the_mandelbrot_theme.py"
+    ],
+    "whole_module_percent_in_selected_cohort": 91.75438596491227,
+    "uncovered_ci_lines_remaining": [],
+    "uncovered_ci_branches_remaining": [],
+    "coverage_report_sha256": "1fcdf5e8ac739b5cfb97f867f0c063c1aedd5f0c4d3e7c329338e61f529c3627"
+  },
+  "limitations": ["Named cohort only; no full-suite green claim", "Production code and quality gates unchanged", "Current exact-source GitHub runs have not completed"]
+}

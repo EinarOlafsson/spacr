@@ -2433,3 +2433,21 @@ MakeMasks, Mandelbrot/Space fractals, report, run_journal, submodules and
 timelapse. Those failures are not hidden by this test repair and no baseline
 was lowered. Final-source green tests/compat evidence is still required.
 Receipt: features/data/43_current_ci_alpha_guard_2026-10-01.json.
+
+2026-10-01 — MANDELBROT CAMERA BOUNDARY COVERAGE
+The completed tests run 36856217586 coverage artifact identifies seven
+uncovered statements and four branches in the Mandelbrot camera. Added nine
+behavior cases for surveys too small to score, stale targets inside/outside
+the surveyed view, backing out of a flat region without jumping, and enforcing
+the screen-speed limit with large target displacement and inherited momentum
+at both surface and deep zoom. Runtime code and all quality gates are unchanged.
+The four-file camera/theme cohort passes 61 tests under a 4G cap with CUDA
+hidden and two compute threads. Its recorded branch coverage exercises all
+seven statements and four branches missing from that actual CI report.
+The selected cohort covers 91.75% of the whole module on its own; that is not
+a full-suite result or a claim that final-source CI has turned green.
+Current 603423d0a push runs are tests 36901660224 pending, docs 36901659804
+pending and compat 36901659963 queued. Latest completed docs failure
+36849859089 is an external docs.python.org inventory HTTP 503 after three
+retries, not evidence of a source documentation defect.
+Receipt: features/data/43_mandelbrot_boundaries_2026-10-01.json.
