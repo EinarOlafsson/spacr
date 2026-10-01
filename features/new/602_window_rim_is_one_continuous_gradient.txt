@@ -174,3 +174,21 @@ normal size; evidence is /tmp/spacr-ui-evidence/native-preferences-{dark,light}
 user's real preferences and saved geometry were not written. Native Windows
 and macOS were not tested. These observations supersede the earlier
 alpha-attribute-only acceptance claim above.
+
+2026-10-01 — NATIVE POPUP COVERAGE EXTENDED
+The corrected shared glass code was also checked on actual Crop settings,
+Organize for Measure, and Merge tables dialogs from the integrated worktree.
+Each was displayed, resized, and hidden/reopened under both dark and light
+on Ubuntu/GNOME X11 DISPLAY=:0 at native scale 1. All 18 captures retained
+an 8-bit native alpha surface and a stable native window ID. Every outside
+corner matched the controlled checkerboard background exactly. The reopened
+screenshots were visually inspected: rounded rims and continuous glow remained,
+with no square black corners. Evidence: /tmp/spacr-ui-evidence/native-
+{crop,organize,merge}-{dark,light}-{0,1,2}.png; probe native_popups.py beside them.
+
+The probe used temporary settings copied before imports and a temporary
+synthetic SQLite database for Merge; no user data, settings or saved geometry
+were changed. A Preferences rerun was obscured by another foreground window
+and those captures were discarded; it adds no acceptance evidence beyond the
+controlled Preferences check above. No additional runtime change was needed.
+Native Windows/macOS and additional native display scales remain untested.
