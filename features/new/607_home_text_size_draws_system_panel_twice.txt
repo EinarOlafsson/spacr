@@ -1,0 +1,61 @@
+================================================================================
+HOME: WITH TEXT SIZE ABOVE 100% THE SYSTEM PANEL IS DRAWN TWICE
+================================================================================
+
+Status:    done 2026-10-01
+Requested: 2026-10-01 -- found by spacr-d7 while re-recording tutorials,
+           2026-10-01: "with the Text size slider above 100%, the System
+           panel is drawn twice."
+Owner:     item-607 agent (master session)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Fixed in spacr/qt/widgets/home.py, Panel._clear_body.
+
+Cause, measured offscreen (QT_QPA_PLATFORM=offscreen, grabs in
+/mnt/wd4tb/scratch/607): every Home panel rebuilds its rows on refresh.
+_clear_body took each old row out of the layout and called deleteLater(),
+but did not hide it. A row queued for deletion stays a visible child of the
+panel box, painted where it last stood, until the event loop next empties
+its deletion queue -- and an offscreen recorder pumping processEvents()
+never does (deferred deletes are not delivered by processEvents at loop
+level 0). At 100% the old and new rows sit at the same heights and overlap
+pixel for pixel, so nothing shows; above 100% the slider rescales the new
+rows to new heights, so both sets showed: GPU/VRAM/Disk twice, the two GPU
+readings overprinting each other.
+
+Before: before_system_direct.png shows "GPU 99%" overprinted with "100%"
+and 12 visible labels in the System box (6 expected). After:
+after_system_direct.png, 6 labels.
+
+Fix: _clear_body hides each row as it leaves (widget.hide() before
+deleteLater()). It is the shared helper, so Totals and Recent runs get the
+same fix.
+
+Test: tests/qt/test_607_home_system_panel_drawn_once.py -- at 100/150/200%
+a double refresh leaves exactly one GPU/VRAM/Disk set visible; the replaced
+rows are hidden at once; a grab before the deferred deletes run equals one
+after. All 5 fail with the hide() line removed and pass with it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Home is the first page of every tutorial; a doubled panel looks broken and
+blocks re-recording the lessons.
+
+--------------------------------------------------------------------------------
+DECISIONS (maintainer asleep)
+--------------------------------------------------------------------------------
+
+* Hide rather than setParent(None): hiding is enough to stop the painting,
+  keeps ownership simple, and the row is still deleted on the next pass.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+* NewsPanel and QueuedPanel build their bodies in their own code paths; they
+  were not seen doubling and were left alone.

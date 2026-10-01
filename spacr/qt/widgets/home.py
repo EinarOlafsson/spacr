@@ -475,11 +475,18 @@ class Panel(QWidget):
         The same six lines were written out in five panels; they are here
         because a panel that forgets the `deleteLater` leaks a widget on
         every Home revisit, and Home is revisited constantly.
+
+        Each row is hidden as it leaves, not only queued for deletion: a
+        queued row stays a child of the box, painted where it last stood,
+        until the event loop next empties its deletion queue. Above 100%
+        text size the new rows sit at new heights, so the old ones showed
+        through and the panel read as drawn twice.
         """
         while self.body_layout.count():
             item = self.body_layout.takeAt(0)
             widget = item.widget()
             if widget is not None:
+                widget.hide()
                 widget.deleteLater()
 
 

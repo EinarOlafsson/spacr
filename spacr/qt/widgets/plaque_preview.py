@@ -177,6 +177,8 @@ TABLE_COLUMNS = ("#", "Panel", "Label text", "Legend passage", "Condition",
                  "Source", "Plaques", "Mean area", "OK", "Well diameter (px)",
                  "Pixels per µm", "Formation time (hours)",
                  "Estimated pixels per µm", "Estimated time (hours)", "Estimate basis")
+_ESTIMATE_COLUMNS = ("Estimated pixels per µm", "Estimated time (hours)",
+                     "Estimate basis")
 CONDITION_COLUMN = 4
 SOURCE_COLUMN = 5
 PLAQUES_COLUMN = 6
@@ -833,7 +835,7 @@ def resolve_plaque_model(settings: Dict[str, Any]) -> Tuple[str, str, Any]:
     """
     from ... import submodules as sm
 
-    requested = str(settings.get("plaque_model") or "bundled")
+    requested = str(settings.get("plaque_model") or DEFAULT_PLAQUE_MODEL)
     note = tr(BUNDLED_NOTE) if requested == "bundled" else ""
     try:
         path = sm._resolve_plaque_model(dict(settings), fetch=False)
@@ -855,7 +857,8 @@ def _explain_model_failure(path: str, exc: BaseException) -> str:
 
     A Cellpose 3 checkpoint loaded under Cellpose 4 fails deep inside torch;
     :func:`spacr.submodules.explain_cellpose3` turns that into a sentence
-    when it recognises it.
+    when it recognises it, in ``exc`` or in the refusal ``exc`` was raised
+    from.
 
     :param path: the checkpoint.
     :param exc: what loading raised.
@@ -864,9 +867,12 @@ def _explain_model_failure(path: str, exc: BaseException) -> str:
     try:
         from ... import submodules as sm
 
-        explained = sm.explain_cellpose3(exc, path)
-        if explained is not exc:
-            return str(explained)
+        for cause in (exc, exc.__cause__):
+            if cause is None:
+                continue
+            explained = sm.explain_cellpose3(cause, path)
+            if explained is not cause:
+                return str(explained)
     except Exception:
         LOG.debug("could not explain the model failure", exc_info=True)
     return preview_failure_message(f"{type(exc).__name__}: {exc}")
@@ -944,7 +950,9 @@ def _serialized_inference(work):
 def _cellpose_model(path: str):
     """One Cellpose model per checkpoint, kept for the next pass.
 
-    Only the last one is kept: a plaque checkpoint is 1.2 GB in memory.
+    Only the last one is kept: a plaque checkpoint is 1.2 GB in memory. A
+    Cellpose 3 checkpoint, which Cellpose 4 refuses, is run by the Cellpose
+    3 backend when it is installed, as the run does.
 
     :param path: the checkpoint.
     :returns: the model.
@@ -954,7 +962,17 @@ def _cellpose_model(path: str):
     with _MODELS_LOCK:
         if path not in _MODELS:
             _MODELS.clear()
-            _MODELS[path] = preview_cellpose_model(path)
+            try:
+                _MODELS[path] = preview_cellpose_model(path)
+            except Exception as exc:
+                from ... import submodules as sm
+
+                if not isinstance(exc, sm.Cellpose3Checkpoint):
+                    raise
+                backend = sm._cellpose3_plaque_backend(path)
+                if backend is None:
+                    raise
+                _MODELS[path] = backend
         return _MODELS[path]
 
 
@@ -3130,6 +3148,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self.setObjectName("PlaquePreviewPanel")
         self._settings: Dict[str, Any] = {}
         self._src = ""
+        self._listed_mode = ""
         self._auto_loaded_src = ""
         self._paths: List[Path] = []
         self._propagate_cb: Optional[Callable[[Dict[str, Any]], None]] = None
@@ -3536,6 +3555,26 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         outer.addWidget(self._growth_note)
         from ..preferences import _apply_alpha_widgets
         _apply_alpha_widgets(self._growth_btn)
+        self._apply_alpha_columns()
+
+    def _apply_alpha_columns(self) -> None:
+        """Show the estimate columns only where Estimate scale / time shows.
+
+        The Wells and Plaques tables carry the experimental growth estimate's
+        three columns; they follow the same Show alpha features gate as the
+        button that fills them, and are hidden, not removed, so a saved
+        estimate is still written.
+        """
+        from ..preferences import _is_alpha_visible
+
+        shown = _is_alpha_visible("widgets", "PlaqueEstimateScaleTime")
+        for table, columns in ((getattr(self, "_table", None), TABLE_COLUMNS),
+                               (getattr(self, "_plaque_table", None),
+                                PLAQUE_COLUMNS)):
+            if table is None:
+                continue
+            for name in _ESTIMATE_COLUMNS:
+                table.setColumnHidden(columns.index(name), not shown)
 
     def _stow_free_widgets(self) -> int:
         """Put every child that is in no layout into the holder that never shows.
@@ -3733,6 +3772,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def set_mode(self, mode: Any) -> None:
         """Show the controls ``mode`` needs, without announcing the change.
 
+        The source is listed again when it was listed for the other mode:
+        the two modes list a folder differently (Figure mode reads a folder
+        of paper folders paper by paper), so a figure folder chosen in
+        Plaque mode would otherwise stay "No images found" after the switch.
+
         :param mode: ``'plaque'`` or ``'figure'``.
         """
         mode = normalise_mode(mode)
@@ -3777,6 +3821,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._clear_figure()
         self._show_overlay(None)
         self._show_selected_image()
+        self._apply_alpha_columns()
+        if self._src and self._listed_mode and self._listed_mode != mode:
+            self.load_source_async(self._src)
 
     def open_settings(self, tab: Optional[str] = None) -> "PlaqueSettingsDialog":
         """Open (or raise) the one settings window, in the tab for this mode.
@@ -3825,7 +3872,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._load_token += 1
         token = self._load_token
         self.set_preview_status(tr("Loading preview from {path}…", path=text))
-        papers = self.mode() == FIGURE_MODE
+        self._listed_mode = self.mode()
+        papers = self._listed_mode == FIGURE_MODE
         self._load_jobs.submit(lambda: images_in(text, papers),
                                lambda paths, t=token: self._on_listing(t, paths))
         return True
@@ -3912,7 +3960,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self.set_mode(s.get(MODE_KEY))
         if s.get("src") and not self._src:
             self._src = str(s["src"])
-        self._fill_model_box(str(s.get("plaque_model") or "bundled"))
+        self._fill_model_box(str(s.get("plaque_model") or DEFAULT_PLAQUE_MODEL))
         self._seeded_model = self._model_box.currentText()
         self._fill_detector_box(str(s.get("figure_detector") or DEFAULT_DETECTOR))
         self._seeded_detector = self._detector_box.currentText()
@@ -4035,7 +4083,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         out.update({
             MODE_KEY: self.mode(),
             "src": self._src or out.get("src"),
-            "plaque_model": self._model_box.currentText() or "bundled",
+            "plaque_model": (self._model_box.currentText()
+                             or DEFAULT_PLAQUE_MODEL),
             "diameter": float(self._diameter.value()),
             "flow_threshold": float(self._flow.value()),
             "CP_prob": float(self._cellprob.value()),

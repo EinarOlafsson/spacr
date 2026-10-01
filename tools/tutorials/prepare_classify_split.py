@@ -75,10 +75,15 @@ def prepare(source, destination):
         rows = [dict(r) for r in con.execute(
             'SELECT png_path,prcfo,plateID,rowID,columnID,infected FROM png_list')]
     records = plan(rows)
-    prefix = Path('/home/olafsson/.cache/spacr/example_data/plate1')
     fingerprints, marker_bytes = set(), set()
     for row in records:
-        raw = (source / Path(row['png_path']).relative_to(prefix)).resolve()
+        # png_path is absolute on the machine that measured the plate; keep
+        # only the part inside the plate folder, wherever that folder was.
+        parts = Path(row['png_path']).parts
+        if source.name not in parts:
+            raise ValueError('A recorded crop path does not name the plate folder')
+        inside = parts[len(parts) - parts[::-1].index(source.name):]
+        raw = source.joinpath(*inside).resolve()
         if not raw.is_relative_to(source) or raw.is_symlink():
             raise ValueError('Source crop leaves the project')
         digest = hashlib.sha256(raw.read_bytes()).hexdigest()
