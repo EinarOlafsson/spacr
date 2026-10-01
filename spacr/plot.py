@@ -1328,6 +1328,75 @@ def outline_palette_colours(palette):
     return dict(OUTLINE_PALETTES.get(name, OUTLINE_PALETTES['default']))
 
 
+#: Outline colours for organelle slots 2 onward, cycled (item 76,
+#: 2026-09-30). The colourblind list is the rest of the Okabe-Ito set the
+#: four fixed colours are taken from.
+_ORGANELLE_SLOT_COLOURS = {
+    'default': ('magenta', 'cyan', 'orange', 'white', 'purple', 'lime'),
+    'colourblind': ('#CC79A7', '#0072B2', '#E69F00', '#FFFFFF'),
+}
+
+
+def _organelle_slot_colour(palette, index):
+    """Outline colour of the ``index``-th organelle slot after the first.
+
+    :param palette: a key of :data:`OUTLINE_PALETTES`; unknown means default.
+    :param index: 0 for the second slot, 1 for the third, and so on.
+    :returns: a matplotlib colour.
+    """
+    name = str(palette or 'default').strip().lower()
+    cycle = _ORGANELLE_SLOT_COLOURS.get(
+        name, _ORGANELLE_SLOT_COLOURS['default'])
+    return cycle[index % len(cycle)]
+
+
+def _extra_organelle_slots(organelle_channels):
+    """``(role, channel)`` for organelle slots 2 onward, in slot order.
+
+    :param organelle_channels: ``{role: channel}`` or ``None``. The first
+        slot and roles that are not organelle slots are ignored, since the
+        first slot has its own ``organelle_channel`` argument.
+    :returns: the slots whose channel is set.
+    """
+    from .object_roles import ORGANELLE_ROLES
+
+    given = dict(organelle_channels or {})
+    return [(role, given[role]) for role in ORGANELLE_ROLES[1:]
+            if given.get(role) is not None]
+
+
+def _overlay_mask_dims(file, names, n_planes):
+    """Which plane of a merged stack holds each object's mask.
+
+    The merged folder's plane layout sidecar is the record, and is used when
+    it names every object drawn: counting planes back from the end put every
+    mask one plane off whenever the stack held an object the caller did not
+    ask for, such as a second organelle slot. Without a usable sidecar the
+    masks are taken to be the last ``len(names)`` planes, in order, as
+    before.
+
+    :param file: path of the merged ``.npy`` stack.
+    :param names: object roles to draw, in mask-plane order.
+    :param n_planes: number of planes in the stack.
+    :returns: ``{role: plane index}``.
+    """
+    import json
+
+    from .crops import MERGED_LAYOUT_SIDECAR
+
+    sidecar = os.path.join(os.path.dirname(str(file)), MERGED_LAYOUT_SIDECAR)
+    try:
+        with open(sidecar, 'r', encoding='utf-8') as handle:
+            dims = dict(json.load(handle).get('mask_dims') or {})
+    except (OSError, ValueError, AttributeError):
+        dims = {}
+    if names and all(name in dims and 0 <= int(dims[name]) < n_planes
+                     for name in names):
+        return {name: int(dims[name]) for name in names}
+    base = n_planes - len(names)
+    return {name: base + offset for offset, name in enumerate(names)}
+
+
 def plot_image_mask_overlay(
     file,
     channels,
@@ -1344,7 +1413,8 @@ def plot_image_mask_overlay(
     all_on_all=False,
     all_outlines=False,
     filter_dict=None,
-    outline_palette='default'
+    outline_palette='default',
+    organelle_channels=None
 ):
     """Plot image and mask overlays.
 
@@ -1390,6 +1460,12 @@ def plot_image_mask_overlay(
         cell is drawn red and pathogen green, the one pair the commonest
         deficiency removes. Default ``'default'``, because changing every
         figure a user has already made would be worse than the defect.
+    :param organelle_channels: Optional ``{slot role: channel}`` for the
+        organelle slots after the first (``{'organelleb': 3}``), each drawn
+        in its own colour. Default ``None`` draws the first slot only, as
+        before. Mask planes are located through the merged folder's plane
+        layout sidecar when one is present, so a slot left out here no
+        longer shifts the planes of the objects that are drawn.
     :returns: The generated matplotlib ``Figure``.
     """
 
@@ -1679,15 +1755,21 @@ def plot_image_mask_overlay(
         ('organelle', organelle_channel, colours['organelle']),
     ]
 
+    for index, (role, channel) in enumerate(
+            _extra_organelle_slots(organelle_channels)):
+        object_specs.append(
+            (role, channel, _organelle_slot_colour(outline_palette, index)))
+
     present_objects = [(name, channel, color) for name, channel, color in object_specs if channel is not None]
-    n_masks = len(present_objects)
-    base_image_planes = stack.shape[2] - n_masks
+    mask_dims = _overlay_mask_dims(
+        file, [name for name, _channel, _color in present_objects],
+        stack.shape[2])
 
     channel_to_outline = {}
     channel_to_label = {}
 
     for mask_offset, (name, channel, color) in enumerate(present_objects):
-        mask_dim = base_image_planes + mask_offset
+        mask_dim = mask_dims[name]
         outline = np.take(stack, mask_dim, axis=2)
 
         if filter_dict is not None and name in filter_dict:

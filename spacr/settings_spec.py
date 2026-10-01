@@ -305,7 +305,7 @@ def convert_settings_dict_for_gui(settings):
         'cv_group_by': ('combo', ['cell', 'field', 'well', 'plate'], 'well'),
         'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
         'psf_measurement_source': ('combo', ['original', 'processed'], 'original'),
-        'confluency_source': ('combo', ['auto', 'masks', 'texture', 'intensity'], 'auto'),
+        'confluency_source': ('combo', ['auto', 'masks', 'texture', 'intensity', 'phase'], 'auto'),
         'colony_polarity': ('combo', ['auto', 'bright', 'dark'], 'auto'),
         'bleach_correction': ('combo', ['none', 'ratio', 'exponential', 'histogram'], 'none'),
         'measurement_backend': ('combo', ['sqlite', 'duckdb', 'parquet', 'postgres'], 'sqlite'),

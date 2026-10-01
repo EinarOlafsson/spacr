@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "I kategorien Tools på Home åbner du Align and Stitch. Vælg fliserne, gennemgå deres layout med Plan, og brug derefter Write stack til at danne mosaikken.",
     "Hent og udpak eksemplet nedenfor, og vælg derefter dets mappe tiles. Den indeholder ni overlappende udsnit i et 3 × 3-gitter. Til din egen optagelse holder du den oprindelige flisrækkefølge og bordets metadata tilgængelige.",
+    "Vil du hellere øve dig på publicerede data, trykker du på Load test data. spaCR henter ni overlappende fliser fra en optisk poolet screening og udfylder flisemappen, gitteret, rækkefølgen, overlappet og outputmappen, så du kan trykke på Plan med det samme. De næste trin bruger indstillingerne fra eksemplet, der kan hentes.",
     "Sæt gitteret til 3 × 3, rækkevis rækkefølge og overlap 0,25 i dette eksempel. Tilpas indstillingerne til din optagelse; brug serpentinrækkefølge, når hver anden række blev optaget i modsat retning.",
     "Sæt Reference channel til det billedplan, der bruges til registreringen. Eksemplet bruger kanal 1, det andet plan ved nummerering fra 0. Vælg en kanal med synlig struktur i overlappene; den resulterende placering gælder for alle billedets kanaler.",
     "Indstil Minimum confidence for at acceptere en registrering og Neighbour radius for de nabofliser, der sammenlignes. Eksemplet bruger 0,3 og 1, med blød overgang i overlappene. Budgettet for båndbufferen styrer den hukommelse, billedskriveren bruger.",

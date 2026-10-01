@@ -1,0 +1,90 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Recruitment: compartment ratios and channel identity"
+msgstr "募集分析：区室比值与通道标识"
+
+msgid "From **Home → Assays → Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
+msgstr "在分割和测量完成后，从 **主页 → 实验分析 → 弓形虫** 打开 **募集分析**。提供包含 ``measurements/measurements.db`` 的项目，并确认其中细胞、细胞核、病原体和细胞质的测量对应预期的对象和通道。有关上下游工作流程，请参阅 :ref:`模块图中的募集分析 <workflow-module-recruitment>`、`募集分析教程 <tutorials/#lesson=25_recruitment>`_ 和 :func:`spacr.submodules.analyze_recruitment`。"
+
+msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
+msgstr "关于整个纳虫泡的标记状态、明确的宿主感染分母以及可选的寄生虫计数，请参阅 :doc:`宿主–病原体分析 <host_pathogen>`。这两个模块仍是相互独立的分析选项。"
+
+msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. The primary ``recruitment`` column is the pathogen mean intensity divided by the cytoplasm mean intensity in that channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
+msgstr "为要测量其募集情况的荧光标记选择 ``channel_of_interest``。主要的 ``recruitment`` 列是该通道中病原体平均强度除以细胞质平均强度。在比较结果之前，请配置条件元数据、对象大小/强度过滤器以及每孔最少对象数。检查区室标识和分母强度；分母缺失或为零并不能确立募集。"
+
+msgid "Auxiliary ratios retain their channel"
+msgstr "辅助比值保留其通道"
+
+msgid "``channel_dims`` selects image-channel indices for overlays and auxiliary recruitment measurements. The auxiliary calculation also includes ``channel_of_interest`` if it was omitted from that list. Output names follow this pattern::"
+msgstr "``channel_dims`` 选择用于叠加图和辅助募集测量的图像通道索引。如果 ``channel_of_interest`` 未包含在该列表中，辅助计算也会将其纳入。输出名称遵循以下模式::"
+
+msgid "``compartment`` is ``cell``, ``cytoplasm`` or ``nucleus``. Each denominator is the mean intensity of that compartment in the same channel. ``statistic`` identifies the pathogen numerator:"
+msgstr "``compartment`` 为 ``cell``、``cytoplasm`` 或 ``nucleus``。每个分母是同一通道中该区室的平均强度。``statistic`` 标识病原体的分子："
+
+msgid "Statistic"
+msgstr "统计量"
+
+msgid "Measurement used as numerator"
+msgstr "用作分子的测量值"
+
+msgid "``mean``"
+msgstr "``mean``"
+
+msgid "``pathogen_channel_<channel>_mean_intensity``"
+msgstr "``pathogen_channel_<channel>_mean_intensity``"
+
+msgid "``q75``"
+msgstr "``q75``"
+
+msgid "``pathogen_channel_<channel>_percentile_75``"
+msgstr "``pathogen_channel_<channel>_percentile_75``"
+
+msgid "``outside_mean``"
+msgstr "``outside_mean``"
+
+msgid "``pathogen_channel_<channel>_outside_mean``"
+msgstr "``pathogen_channel_<channel>_outside_mean``"
+
+msgid "``outside_q75``"
+msgstr "``outside_q75``"
+
+msgid "``pathogen_channel_<channel>_outside_percentile_75``"
+msgstr "``pathogen_channel_<channel>_outside_percentile_75``"
+
+msgid "``periphery_mean``"
+msgstr "``periphery_mean``"
+
+msgid "``pathogen_channel_<channel>_periphery_mean``"
+msgstr "``pathogen_channel_<channel>_periphery_mean``"
+
+msgid "For example, a channel 2 pathogen mean of 12 and cytoplasm mean of 4 produces ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. If channel 3 has means of 100 and 4, its separate column is ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Calculating channel 3 retains the channel 2 result. These are illustrative intensities, not experiment data."
+msgstr "例如，通道 2 中病原体均值为 12、细胞质均值为 4，则得到 ``pathogen_channel_2_cytoplasm_mean_ratio = 3``。如果通道 3 的均值分别为 100 和 4，其单独的列为 ``pathogen_channel_3_cytoplasm_mean_ratio = 25``。计算通道 3 时会保留通道 2 的结果。这些是示意性强度，而非实验数据。"
+
+msgid "The calculation produces fifteen auxiliary ratios per channel. It does not creates constant-one pathogen/nucleus slope columns; these ratios do not estimate a spatial slope. Genuine slope columns already supplied by the caller are preserved. When comparing historical exports, check whether their auxiliary column names identify a channel before combining runs."
+msgstr "该计算为每个通道生成十五个辅助比值。它不会创建恒为 1 的病原体/细胞核斜率列；这些比值并不估计空间斜率。调用方已提供的真实斜率列会被保留。比较历史导出结果时，请在合并运行之前检查其辅助列名称是否标明了通道。"
+
+msgid "Saved results"
+msgstr "保存的结果"
+
+msgid "The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv`` with per-well summaries, alongside recruitment plots. The historical ``cells.csv`` filename does not change the per-PV unit of these rows. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
+msgstr "运行会写入包含保留的逐纳虫泡（PV）行的 ``cells.csv`` 和包含逐孔汇总的 ``wells.csv``，同时生成募集图。历史文件名 ``cells.csv`` 并不改变这些行以纳虫泡（PV）为单位的事实。比较这两个汇总层级时，请核实条件分配、过滤和所选通道。"
+

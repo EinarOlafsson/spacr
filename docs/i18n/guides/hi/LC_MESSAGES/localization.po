@@ -1,0 +1,156 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Language & translation"
+msgstr "भाषा और अनुवाद"
+
+msgid "The spaCR Qt interface includes ten built-in languages:"
+msgstr "spaCR Qt इंटरफ़ेस में दस अंतर्निहित भाषाएँ शामिल हैं:"
+
+msgid "English"
+msgstr "अंग्रेज़ी"
+
+msgid "Swedish (Svenska)"
+msgstr "स्वीडिश (Svenska)"
+
+msgid "German (Deutsch)"
+msgstr "जर्मन (Deutsch)"
+
+msgid "Spanish (Español)"
+msgstr "स्पेनिश (Español)"
+
+msgid "Simplified Chinese / Mandarin (简体中文)"
+msgstr "सरलीकृत चीनी / मंदारिन (简体中文)"
+
+msgid "Portuguese (Português)"
+msgstr "पुर्तगाली (Português)"
+
+msgid "Hindi (हिन्दी)"
+msgstr "हिन्दी"
+
+msgid "Korean (한국어)"
+msgstr "कोरियाई (한국어)"
+
+msgid "Icelandic (Íslenska)"
+msgstr "आइसलैंडिक (Íslenska)"
+
+msgid "French (Français)"
+msgstr "फ़्रेंच (Français)"
+
+msgid "Open **spaCR → Preferences…**, choose a **Language** on the General tab and press Save. Existing windows and lazily opened module screens are translated immediately. The selection is retained by ``QSettings`` for later launches."
+msgstr "**spaCR → प्राथमिकताएँ…** खोलें, General टैब पर **भाषा** चुनें और Save दबाएँ। मौजूदा विंडो और बाद में खुलने वाली मॉड्यूल स्क्रीनें तुरंत अनुवादित हो जाती हैं। चयन ``QSettings`` द्वारा बाद के लॉन्च के लिए सुरक्षित रखा जाता है।"
+
+msgid "What is translated"
+msgstr "क्या अनुवादित होता है"
+
+msgid "Language support covers the presentation layer of the Qt application:"
+msgstr "भाषा समर्थन Qt एप्लिकेशन की प्रस्तुति परत को कवर करता है:"
+
+msgid "navigation, Preferences, common actions, tabs and section headings;"
+msgstr "नेविगेशन, प्राथमिकताएँ, सामान्य क्रियाएँ, टैब और खंड शीर्षक;"
+
+msgid "the **AI** and **Live** controls, AI-provider setup, chat placeholders, streaming status and other chat chrome;"
+msgstr "**एआई** और **लाइव** नियंत्रण, AI-प्रदाता सेटअप, चैट प्लेसहोल्डर, स्ट्रीमिंग स्थिति और चैट का अन्य इंटरफ़ेस;"
+
+msgid "spaCR-authored console notices such as run start, safe stop, completion, settings import and provider guidance;"
+msgstr "spaCR द्वारा लिखी गई कंसोल सूचनाएँ, जैसे रन प्रारंभ, सुरक्षित रोक, पूर्णता, सेटिंग्स आयात और प्रदाता मार्गदर्शन;"
+
+msgid "reviewed one-line descriptions for all built-in modules; and"
+msgstr "सभी अंतर्निहित मॉड्यूल के लिए समीक्षित एक-पंक्ति विवरण; और"
+
+msgid "setting names, type hints, authored explanations, API-link captions, tooltips and accessible help text."
+msgstr "सेटिंग नाम, प्रकार संकेत, लिखित व्याख्याएँ, API-लिंक शीर्षक, टूलटिप और सुलभ सहायता पाठ।"
+
+msgid "Changing the language while a chat is connecting or its Send button is in Cancel mode preserves that state and any provider or path values. Only the surrounding application wording changes."
+msgstr "जब कोई चैट कनेक्ट हो रही हो या उसका Send बटन Cancel मोड में हो, तब भाषा बदलने पर वह स्थिति और कोई भी प्रदाता या पथ मान सुरक्षित रहते हैं। केवल आसपास के एप्लिकेशन शब्द बदलते हैं।"
+
+msgid "Contextual help"
+msgstr "संदर्भ सहायता"
+
+msgid "Module and setting tooltips have complete external catalog entries in every bundled language. Setting tooltips are assembled from separate semantic fields so the setting name, type, authored explanation and API caption can be checked independently. Format fields, code literals, scientific symbols, URLs and option values are immutable during catalog generation. A translation is accepted only when those structural values survive; otherwise spaCR uses the canonical English text."
+msgstr "मॉड्यूल और सेटिंग टूलटिप की हर अंतर्निहित भाषा में पूर्ण बाहरी कैटलॉग प्रविष्टियाँ हैं। सेटिंग टूलटिप अलग-अलग अर्थगत फ़ील्ड से बनाए जाते हैं ताकि सेटिंग नाम, प्रकार, लिखित व्याख्या और API शीर्षक की स्वतंत्र रूप से जाँच की जा सके। कैटलॉग निर्माण के दौरान प्रारूप फ़ील्ड, कोड शाब्दिक, वैज्ञानिक प्रतीक, URL और विकल्प मान अपरिवर्तनीय रहते हैं। अनुवाद केवल तब स्वीकार होता है जब ये संरचनात्मक मान बने रहें; अन्यथा spaCR मानक अंग्रेज़ी पाठ का उपयोग करता है।"
+
+msgid "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping."
+msgstr "हर सेटिंग टूलटिप के नीचे का **API** लिंक हर भाषा में सटीक दस्तावेज़ URL बनाए रखता है। इसका शीर्षक और सुलभ नाम चुनी गई भाषा का अनुसरण करते हैं, और भाषा बदलने से पहले से खुली सेटिंग विंडो ताज़ा हो जाती हैं। जहाँ दृश्य सहायता मौजूद है, वहाँ टूलटिप के निचले भाग में **Animation** शब्द भी मिलता है जो पाठ के बगल में चित्र दिखाता है। वैज्ञानिक चित्र स्वयं भाषा-निरपेक्ष है। हर सटीक मैपिंग के लिए :doc:`सेटिंग एनिमेशन गैलरी <setting_animations>` देखें।"
+
+msgid "Translation safety"
+msgstr "अनुवाद सुरक्षा"
+
+msgid "Translation is presentation-only. Raw worker stdout, logs, tracebacks, filenames, paths, setting values, database contents, annotations, measurements, reports and saved results are never modified. User chat messages and AI responses also remain exactly as written or returned."
+msgstr "अनुवाद केवल प्रस्तुति के लिए है। कच्चा वर्कर stdout, लॉग, ट्रेसबैक, फ़ाइल नाम, पथ, सेटिंग मान, डेटाबेस सामग्री, एनोटेशन, मापन, रिपोर्ट और सहेजे गए परिणाम कभी नहीं बदले जाते। उपयोगकर्ता के चैट संदेश और AI प्रतिक्रियाएँ भी ठीक वैसी ही रहती हैं जैसी लिखी या लौटाई गईं।"
+
+msgid "The console distinguishes spaCR-authored interface notices from analytical output. Notices may be presented in the selected language, while pipeline lines and errors pass through unchanged. Template values such as a path, provider name, function name or error detail are preserved even when the surrounding notice is translated."
+msgstr "कंसोल spaCR द्वारा लिखी गई इंटरफ़ेस सूचनाओं को विश्लेषणात्मक आउटपुट से अलग करता है। सूचनाएँ चुनी गई भाषा में दिखाई जा सकती हैं, जबकि पाइपलाइन पंक्तियाँ और त्रुटियाँ अपरिवर्तित गुज़रती हैं। आसपास की सूचना अनुवादित होने पर भी पथ, प्रदाता नाम, फ़ंक्शन नाम या त्रुटि विवरण जैसे टेम्पलेट मान सुरक्षित रहते हैं।"
+
+msgid "When a scientific or third-party term has no catalog entry, spaCR displays the original English text. This explicit fallback is preferable to guessing the meaning of a technical control."
+msgstr "जब किसी वैज्ञानिक या तृतीय-पक्ष शब्द की कोई कैटलॉग प्रविष्टि नहीं होती, तो spaCR मूल अंग्रेज़ी पाठ दिखाता है। यह स्पष्ट विकल्प किसी तकनीकी नियंत्रण के अर्थ का अनुमान लगाने से बेहतर है।"
+
+msgid "The environment variable ``SPACR_LANGUAGE`` can temporarily override the saved preference, which is useful for screenshots and automated testing:"
+msgstr "परिवेश चर ``SPACR_LANGUAGE`` सहेजी गई प्राथमिकता को अस्थायी रूप से बदल सकता है, जो स्क्रीनशॉट और स्वचालित परीक्षण के लिए उपयोगी है:"
+
+msgid "Contributing translations"
+msgstr "अनुवाद में योगदान"
+
+msgid "Compact, manually reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime catalogs live in ``spacr/qt/i18n_catalogs`` with English strings as stable source keys. Each language file contains the exact current key set for setting names, tooltips, category help, module summaries and extracted Qt text. Tests require every locale to be non-empty and structurally complete. New interface text always has a safe English fallback while a translation is being reviewed."
+msgstr "संक्षिप्त, मैन्युअल रूप से समीक्षित इंटरफ़ेस पाठ :mod:`spacr.qt.i18n` में रहता है। पूर्ण रनटाइम कैटलॉग ``spacr/qt/i18n_catalogs`` में हैं, जिनमें अंग्रेज़ी स्ट्रिंग स्थिर स्रोत कुंजियों के रूप में हैं। हर भाषा फ़ाइल में सेटिंग नामों, टूलटिप, श्रेणी सहायता, मॉड्यूल सारांशों और निकाले गए Qt पाठ के लिए वर्तमान सटीक कुंजी समूह होता है। परीक्षण अपेक्षा करते हैं कि हर भाषा खाली न हो और संरचनात्मक रूप से पूर्ण हो। अनुवाद की समीक्षा के दौरान नए इंटरफ़ेस पाठ के पास हमेशा सुरक्षित अंग्रेज़ी विकल्प रहता है।"
+
+msgid "The generator in ``tools/build_i18n_catalogs.py`` protects runtime fields and applies the reviewed terminology table after translation. False friends such as *screen*, *run*, *crop*, *mask*, *flow*, *plate* and *gate* are reviewed in their software and microscopy context rather than as isolated words. Plugins can provide exact translations through their translation metadata."
+msgstr "``tools/build_i18n_catalogs.py`` का जनरेटर रनटाइम फ़ील्ड की सुरक्षा करता है और अनुवाद के बाद समीक्षित शब्दावली तालिका लागू करता है। *screen*, *run*, *crop*, *mask*, *flow*, *plate* और *gate* जैसे भ्रामक शब्दों की समीक्षा अलग-थलग शब्दों के बजाय सॉफ़्टवेयर और सूक्ष्मदर्शिकी संदर्भ में की जाती है। प्लगइन अपने अनुवाद मेटाडेटा के माध्यम से सटीक अनुवाद दे सकते हैं।"
+
+msgid "API documentation and the project page"
+msgstr "API दस्तावेज़ और प्रोजेक्ट पेज"
+
+msgid "English docstrings remain beside their Python functions. Translated API text is stored separately under ``docs/source/_static/i18n/api`` and keyed by the fully qualified Python symbol plus a SHA-256 hash of the English source. The documentation language picker loads these files on demand; a changed English docstring makes the corresponding translation fail the freshness audit instead of silently displaying obsolete text."
+msgstr "अंग्रेज़ी docstring अपने Python फ़ंक्शनों के बगल में ही रहती हैं। अनुवादित API पाठ ``docs/source/_static/i18n/api`` के अंतर्गत अलग संग्रहीत होता है और पूर्ण योग्य Python प्रतीक तथा अंग्रेज़ी स्रोत के SHA-256 हैश से कुंजीबद्ध होता है। दस्तावेज़ भाषा चयनकर्ता इन फ़ाइलों को आवश्यकता पड़ने पर लोड करता है; बदली हुई अंग्रेज़ी docstring के कारण संबंधित अनुवाद पुराने पाठ को चुपचाप दिखाने के बजाय ताज़गी ऑडिट में विफल हो जाता है।"
+
+msgid "Translated GitHub project pages live under ``docs/i18n/readme``. Their code, commands, URLs, badges and language navigation are preserved exactly, while the explanatory prose is localized. Model and license attribution is recorded in ``docs/i18n/TRANSLATION_MODELS.md``."
+msgstr "अनुवादित GitHub प्रोजेक्ट पेज ``docs/i18n/readme`` के अंतर्गत हैं। उनका कोड, कमांड, URL, बैज और भाषा नेविगेशन ठीक वैसे ही सुरक्षित रहते हैं, जबकि व्याख्यात्मक गद्य स्थानीयकृत किया जाता है। मॉडल और लाइसेंस का श्रेय ``docs/i18n/TRANSLATION_MODELS.md`` में दर्ज है।"
+
+msgid "Installers"
+msgstr "इंस्टॉलर"
+
+msgid "The Windows, macOS and Linux online installers share the ten locale resources in ``packaging/i18n``. They select the operating system's UI language and fall back to English; ``SPACR_INSTALL_LANGUAGE`` provides an explicit override. Shell, PowerShell and NSIS resources are generated by ``packaging/i18n/render.py`` so translated messages never become duplicated inside platform control flow."
+msgstr "Windows, macOS और Linux ऑनलाइन इंस्टॉलर ``packaging/i18n`` के दस भाषा संसाधन साझा करते हैं। वे ऑपरेटिंग सिस्टम की UI भाषा चुनते हैं और अंग्रेज़ी पर लौट आते हैं; ``SPACR_INSTALL_LANGUAGE`` स्पष्ट रूप से बदलने की सुविधा देता है। Shell, PowerShell और NSIS संसाधन ``packaging/i18n/render.py`` द्वारा बनाए जाते हैं, ताकि अनुवादित संदेश कभी भी प्लेटफ़ॉर्म नियंत्रण प्रवाह के भीतर दोहराए न जाएँ।"
+
+msgid "Developers should send raw pipeline output through ``append_stdout`` or ``append_error`` and use ``append_notice`` only for a stable, spaCR-authored UI template. Dynamic application chrome uses a stable source template so runtime language changes cannot translate an earlier translation or overwrite a live path/result label. Catalog tests enforce translation width and format-field parity, and language tests assert that output and chat content remain unchanged."
+msgstr "डेवलपर्स को कच्चा पाइपलाइन आउटपुट ``append_stdout`` या ``append_error`` से भेजना चाहिए और ``append_notice`` का उपयोग केवल स्थिर, spaCR द्वारा लिखे गए UI टेम्पलेट के लिए करना चाहिए। गतिशील एप्लिकेशन इंटरफ़ेस स्थिर स्रोत टेम्पलेट का उपयोग करता है, ताकि रनटाइम पर भाषा बदलने से पहले के अनुवाद का फिर से अनुवाद न हो या किसी सक्रिय पथ/परिणाम लेबल पर लिखा न जाए। कैटलॉग परीक्षण अनुवाद की चौड़ाई और प्रारूप-फ़ील्ड समता लागू करते हैं, और भाषा परीक्षण पुष्टि करते हैं कि आउटपुट और चैट सामग्री अपरिवर्तित रहे।"
+
+msgid "Related API"
+msgstr "संबंधित API"
+
+msgid ":mod:`spacr.qt.i18n` — language catalogs and runtime widget retranslation."
+msgstr ":mod:`spacr.qt.i18n` — भाषा कैटलॉग और रनटाइम विजेट पुनः अनुवाद।"
+
+msgid ":mod:`spacr.qt.preferences` — persisted language selection and Preferences."
+msgstr ":mod:`spacr.qt.preferences` — सहेजा गया भाषा चयन और प्राथमिकताएँ।"
+
+msgid ":mod:`spacr.qt.i18n_module_summaries` — built-in module help lookup."
+msgstr ":mod:`spacr.qt.i18n_module_summaries` — अंतर्निहित मॉड्यूल सहायता खोज।"
+
+msgid ":mod:`spacr.qt.screens.settings_model` — semantic setting tooltips and API links."
+msgstr ":mod:`spacr.qt.screens.settings_model` — अर्थगत सेटिंग टूलटिप और API लिंक।"
+
+msgid ":mod:`spacr.setting_animations` — exact setting-to-animation registry."
+msgstr ":mod:`spacr.setting_animations` — सटीक सेटिंग-से-एनिमेशन रजिस्ट्री।"
+
+msgid ":class:`spacr.qt.widgets.console_panel.ConsolePanel` — separate raw-output and localized-notice paths."
+msgstr ":class:`spacr.qt.widgets.console_panel.ConsolePanel` — कच्चे आउटपुट और स्थानीयकृत सूचनाओं के अलग-अलग मार्ग।"
+

@@ -3321,13 +3321,20 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         conn.close()
 
 
-_CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity')
+_CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity', 'phase')
 _CONFLUENCY_TABLE = 'confluency'
 _CONFLUENCY_WELL_TABLE = 'confluency_well'
 _CONFLUENCY_WELL_KEYS = ('plateID', 'rowID', 'columnID')
 _CONFLUENCY_SEPARATION_MIN = 3.2
 _CONFLUENCY_TEXTURE_RATIO_MIN = 3.0
+_CONFLUENCY_PHASE_RATIO_MIN = 1.8
 _CONFLUENCY_INTENSITY_FRACTION = 0.25
+_CONFLUENCY_PHASE_WEIGHTS = 'confluency_phase_mlp.csv'
+_CONFLUENCY_PHASE_WINDOW = 15
+_CONFLUENCY_PHASE_SMOOTH = 1.0
+_CONFLUENCY_PHASE_CUT = 0.6
+_CONFLUENCY_PHASE_CLEAN = 3
+_CONFLUENCY_PHASE_NETWORK = []
 
 
 @dataclass
@@ -3432,7 +3439,11 @@ def _texture_ratio(x, window):
     About 1 on an empty, flat field and several times that on one covered
     by cells, whatever the stain. It decides a field whose pixels do not
     separate into two classes, because such a field is either all
-    background or all monolayer.
+    background or all monolayer. A confluent phase-contrast monolayer
+    (LIVECell) reads only about 2 to 3, because its fine texture raises the
+    noise estimate too, while bare plastic reads 1.1 to 1.7; the texture
+    source therefore calls such a field covered from 1.8, and the intensity
+    source keeps the stricter 3.
 
     :param x: 0-1 scaled plane.
     :param window: window side in pixels.
@@ -3494,7 +3505,7 @@ def _texture_coverage(image, window=15):
     lo, hi = np.percentile(log_sd, [0.5, 99.5])
     cut, separation = _otsu_separation(np.clip(log_sd, lo, hi))
     if separation < _CONFLUENCY_SEPARATION_MIN:
-        full = _texture_ratio(x, window) >= _CONFLUENCY_TEXTURE_RATIO_MIN
+        full = _texture_ratio(x, window) >= _CONFLUENCY_PHASE_RATIO_MIN
         covered = np.full(x.shape, bool(full))
         return _ConfluencyResult(covered, float(full), 'texture', None,
                                 separation, True)
@@ -3549,6 +3560,166 @@ def _intensity_coverage(image, sigma=1.0):
                             level, separation, False)
 
 
+def _confluency_phase_features(x):
+    """The per-pixel description the phase classifier reads.
+
+    Thirty planes, each in units of the field's own pixel noise so that the
+    classifier does not depend on exposure or gain: local standard
+    deviation over 3 to 61 pixels, gradient magnitude and Hessian
+    eigenvalues at several scales, the structure tensor's strength and
+    coherence, the smoothed deviation from the slowly varying background,
+    and the local texture averaged, maximised and minimised over the
+    neighbourhood, which lets a smooth cell interior borrow the texture of
+    its own edge.
+
+    :param x: 0-1 scaled plane.
+    :returns: ``float32`` array of shape ``(Y, X, 30)``.
+    """
+    from scipy.ndimage import maximum_filter, minimum_filter
+    from skimage.feature import (hessian_matrix, hessian_matrix_eigvals,
+                                 structure_tensor,
+                                 structure_tensor_eigenvalues)
+    from skimage.restoration import estimate_sigma
+    noise = max(float(estimate_sigma(x)), 1e-4)
+
+    def log_sd(window):
+        return np.log(_local_sd(x, window) / noise + 1e-3)
+
+    planes = {window: log_sd(window) for window in (3, 7, 15, 31)}
+    out = [planes[3], planes[7], planes[15], planes[31]]
+    for sigma in (1, 2, 4, 8):
+        gy, gx = np.gradient(gaussian_filter(x, sigma))
+        out.append(np.log(np.hypot(gx, gy) * sigma / noise + 1e-3))
+    for sigma in (1, 3):
+        hessian = hessian_matrix(x, sigma=sigma, order='rc',
+                                 use_gaussian_derivatives=False)
+        for eigen in hessian_matrix_eigvals(hessian):
+            out.append(eigen * sigma * sigma / noise)
+    background = gaussian_filter(x, 40)
+    deviation = {sigma: (gaussian_filter(x, sigma) - background) / noise
+                 for sigma in (2, 8)}
+    out += [deviation[2], deviation[8]]
+    out += [gaussian_filter(planes[7], 8), gaussian_filter(planes[7], 24)]
+    for sigma in (2, 6):
+        first, second = structure_tensor_eigenvalues(
+            structure_tensor(x, sigma=sigma, order='rc'))
+        total = first + second
+        out.append(np.log(np.sqrt(np.maximum(total, 0.0)) / noise + 1e-3))
+        out.append((first - second) / (total + 1e-12))
+    out.append(log_sd(61))
+    out.append(gaussian_filter(planes[7], 48))
+    out.append((gaussian_filter(x, 1) - gaussian_filter(x, 4)) / noise)
+    out.append(minimum_filter(gaussian_filter(planes[7], 1), 15))
+    out += [gaussian_filter(planes[3], sigma) for sigma in (4, 16, 32)]
+    out.append(gaussian_filter(planes[15], 16))
+    out.append(maximum_filter(gaussian_filter(planes[7], 2), 21))
+    out.append(np.abs(deviation[8]))
+    return np.stack(out, axis=-1).astype(np.float32)
+
+
+def _confluency_phase_network():
+    """The phase classifier's layers, read once from the bundled weights.
+
+    The weights were trained on LIVECell (Edlund et al. 2021, Nature
+    Methods) and carry its licence, CC BY-NC 4.0: non-commercial use. The
+    file's ``#`` header says so. It is a long table, one row per weight:
+    ``layer``,
+    ``source`` (input unit, or -1 for the bias), ``target`` (output unit)
+    and ``weight``. The input standardisation is already folded into the
+    first layer. Hidden layers are rectified, the output is logistic.
+
+    :returns: list of ``(weights, bias)`` pairs, first layer first.
+    """
+    if _CONFLUENCY_PHASE_NETWORK:
+        return _CONFLUENCY_PHASE_NETWORK
+    from .tabular import read_table
+    path = os.path.join(os.path.dirname(__file__), 'resources', 'data',
+                        _CONFLUENCY_PHASE_WEIGHTS)
+    table = read_table(path, canonicalise=False, report=None, sep=',',
+                       comment='#')
+    layers = []
+    for layer in sorted(table['layer'].unique()):
+        rows = table[table['layer'] == layer]
+        inputs = int(rows['source'].max()) + 1
+        outputs = int(rows['target'].max()) + 1
+        weights = np.zeros((inputs, outputs))
+        bias = np.zeros(outputs)
+        linked = rows[rows['source'] >= 0]
+        weights[linked['source'].to_numpy(int),
+                linked['target'].to_numpy(int)] = linked['weight'].to_numpy()
+        biased = rows[rows['source'] < 0]
+        bias[biased['target'].to_numpy(int)] = biased['weight'].to_numpy()
+        layers.append((weights, bias))
+    _CONFLUENCY_PHASE_NETWORK[:] = layers
+    return _CONFLUENCY_PHASE_NETWORK
+
+
+def _confluency_phase_probability(x):
+    """Per-pixel probability that a phase-contrast pixel lies in a cell.
+
+    :param x: 0-1 scaled plane.
+    :returns: float plane of the same shape, 0 to 1.
+    """
+    features = _confluency_phase_features(x)
+    flat = features.reshape(-1, features.shape[-1]).astype(np.float64)
+    layers = _confluency_phase_network()
+    probability = np.empty(flat.shape[0])
+    step = 1 << 18
+    for start in range(0, flat.shape[0], step):
+        values = flat[start:start + step]
+        for weights, bias in layers[:-1]:
+            values = np.maximum(values @ weights + bias, 0.0)
+        weights, bias = layers[-1]
+        logit = (values @ weights + bias)[:, 0]
+        probability[start:start + step] = 1.0 / (1.0 + np.exp(-logit))
+    return probability.reshape(x.shape)
+
+
+def _phase_coverage(image, window=15):
+    """Covered area of a phase-contrast or brightfield field, learned.
+
+    A small pixel classifier (a two-layer perceptron over
+    :func:`_confluency_phase_features`) whose weights were trained on
+    LIVECell (Edlund et al. 2021, Nature Methods), CC BY-NC 4.0,
+    non-commercial use: Incucyte phase-contrast fields of eight cell lines
+    with expert-drawn cell outlines, together with bare-plastic and fully
+    covered crops and pure-noise fields so that a field of one
+    kind is not forced into two classes. The probability map is smoothed
+    and cut at :data:`_CONFLUENCY_PHASE_CUT`. Unlike the texture source
+    there is no whole-field decision: every pixel is classified.
+
+    The classifier saw cells at LIVECell's pixel size. ``window`` rescales
+    the field by ``15 / window`` before classifying, so a field whose cells
+    are twice as many pixels across is read with ``window=30``; 15 reads it
+    as it is.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param window: cell scale relative to the training images, as above.
+    :returns: :class:`_ConfluencyResult` with ``source='phase'``.
+    """
+    plane = np.asarray(_confluency_plane(image), dtype=np.float64)
+    if np.ptp(plane) == 0:
+        return _ConfluencyResult(np.zeros(plane.shape, dtype=bool), 0.0,
+                                'phase', _CONFLUENCY_PHASE_CUT, None, True)
+    scale = _CONFLUENCY_PHASE_WINDOW / max(3, int(window))
+    work = plane
+    if scale != 1.0:
+        from skimage.transform import rescale
+        work = rescale(plane, scale, order=1, anti_aliasing=scale < 1.0,
+                       preserve_range=True)
+    probability = gaussian_filter(
+        _confluency_phase_probability(_unit_scaled(work)),
+        _CONFLUENCY_PHASE_SMOOTH)
+    if probability.shape != plane.shape:
+        from skimage.transform import resize
+        probability = resize(probability, plane.shape, order=1,
+                             preserve_range=True)
+    covered = _clean_coverage(probability > _CONFLUENCY_PHASE_CUT,
+                              round(_CONFLUENCY_PHASE_CLEAN / scale))
+    return _ConfluencyResult(covered, float(covered.mean()), 'phase',
+                            _CONFLUENCY_PHASE_CUT, None, False)
+
+
 def _mask_coverage(mask):
     """Covered area as the union of every labelled cell.
 
@@ -3568,7 +3739,7 @@ def _resolve_confluency_source(settings):
 
     :param settings: Measure settings; reads ``confluency_source`` and
         ``cell_mask_dim``.
-    :returns: ``'masks'``, ``'texture'`` or ``'intensity'``.
+    :returns: ``'masks'``, ``'texture'``, ``'intensity'`` or ``'phase'``.
     :raises ValueError: for a source outside :data:`_CONFLUENCY_SOURCES`.
     """
     source = str(settings.get('confluency_source') or 'auto').strip().lower()
@@ -3583,12 +3754,12 @@ def _resolve_confluency_source(settings):
         raise ValueError(
             "Setting: confluency_source is 'masks' but cell_mask_dim is "
             "blank, so there are no cell masks to cover the field with. "
-            "Set cell_mask_dim, or choose texture or intensity.")
+            "Set cell_mask_dim, or choose texture, intensity or phase.")
     return source
 
 
 def _confluency_channel(settings):
-    """The merged-array channel a texture or intensity source reads.
+    """The merged-array channel a texture, intensity or phase source reads.
 
     :param settings: Measure settings; reads ``confluency_channel`` and,
         when it is blank, the first entry of ``channels``.
@@ -3608,8 +3779,9 @@ def _field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
     :param image: the channel to read for ``texture`` and ``intensity``.
     :param cell_mask: the cell label image for ``masks``.
     :param source: ``auto`` (masks when ``cell_mask`` is given, else
-        texture), ``masks``, ``texture`` or ``intensity``.
-    :param window: texture window in pixels.
+        texture), ``masks``, ``texture``, ``intensity`` or ``phase``.
+    :param window: texture window in pixels; for ``phase``, the cell scale
+        relative to the classifier's training images (15 = as trained).
     :param channel: recorded on the result; not used to read anything.
     :returns: :class:`_ConfluencyResult`.
     :raises ValueError: for an unknown source or a missing input.
@@ -3626,8 +3798,12 @@ def _field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
         return _mask_coverage(cell_mask)
     if image is None:
         raise ValueError(f"the {source} confluency source needs an image")
-    result = (_texture_coverage(image, window) if source == 'texture'
-              else _intensity_coverage(image))
+    if source == 'texture':
+        result = _texture_coverage(image, window)
+    elif source == 'phase':
+        result = _phase_coverage(image, window)
+    else:
+        result = _intensity_coverage(image)
     result.channel = None if channel is None else int(channel)
     return result
 
@@ -5279,6 +5455,13 @@ _WOUND_RELEVEL_MIN_FAR = 0.05
 _WOUND_FRONT_SPAN = 0.3
 _WOUND_FRONT_MIN_WIDTH = 0.3
 _WOUND_FRONT_DEVIATION = 0.25
+_WOUND_FOLLOW_MARGIN = 1.0
+_WOUND_FOLLOW_MIN_REGION = 0.5
+_WOUND_FLOOR_MIN_OPEN = 0.1
+_WOUND_FLOOR_MIN_GAP = 1.75
+_WOUND_FLOOR_BELOW = 1.0
+_WOUND_FLOOR_ABOVE = 1.5
+_WOUND_FLOOR_REACH = 3
 
 
 @dataclass
@@ -5662,7 +5845,77 @@ def _wound_fronts(wound, window):
             & (offset < right[position] + 0.5))
 
 
-def _wound_relevel(plane, axis, level, start_area, window):
+def _wound_follow(first, later, axis):
+    """The first frame's wound moved across the scratch to meet a later one.
+
+    A wound only narrows, so a later frame's open pixels outside the first
+    wound are monolayer that reads as open (a flat or over-exposed patch),
+    not wound. Imaged at the same position the first wound is where the
+    later one is; imaged again, the stage may put the scratch elsewhere
+    across the field. The first wound is therefore moved across the scratch
+    by the offset, up to half the band, at which its profile across the
+    scratch best overlaps the later frame's largest open region, the
+    wound itself rather than a patch beside it (the product of the two
+    profiles, summed; ties go to the smaller offset).
+
+    :param first: boolean first-frame wound.
+    :param later: boolean later-frame open pixels in the band.
+    :param axis: the series' :class:`_WoundAxis`.
+    :returns: boolean plane, the first wound at the later frame's offset.
+    """
+    from scipy.ndimage import label as label_regions, shift as shift_plane
+    regions, count = label_regions(later)
+    if count > 1:
+        sizes = np.bincount(regions.ravel())
+        sizes[0] = 0
+        later = np.isin(regions, np.nonzero(
+            sizes >= _WOUND_FOLLOW_MIN_REGION * sizes.max())[0])
+    across = np.round(_wound_across(axis, first.shape)).astype(np.int64)
+    low = int(across.min())
+    size = int(across.max()) - low + 1
+    before = np.bincount(across[first] - low, minlength=size).astype(
+        np.float64)
+    after = np.bincount(across[later] - low, minlength=size).astype(
+        np.float64)
+    if not before.any() or not after.any():
+        return first
+    overlap = np.correlate(after, before, mode='full')
+    lags = np.arange(-(size - 1), size)
+    limit = max(0, int(axis.half_band))
+    allowed = np.abs(lags) <= limit
+    lags, overlap = lags[allowed], overlap[allowed]
+    best = overlap.max()
+    candidates = lags[overlap >= best]
+    offset = int(candidates[np.argmin(np.abs(candidates))])
+    if offset == 0:
+        return first
+    dy, dx = axis.direction
+    moved = shift_plane(first.astype(np.uint8),
+                        (offset * (-dx), offset * dy), order=0,
+                        mode='constant')
+    return moved > 0
+
+
+def _wound_floor(plane, wound, axis, window):
+    """What a later frame's open-floor level is checked against.
+
+    :param plane: the 2-D first frame.
+    :param wound: its boolean wound.
+    :param axis: the series' :class:`_WoundAxis`.
+    :param window: texture window in pixels.
+    :returns: ``(region, open_level, covered_level)``: the first wound
+        widened by one window, and the median log texture of the first
+        wound and of the field outside the band.
+    """
+    values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
+                               1e-18))
+    far = np.abs(_wound_across(axis, values.shape)) > axis.half_band
+    region = binary_dilation(wound, iterations=max(1, int(window)))
+    covered = float(np.median(values[far])) if far.any() else 0.0
+    return region, float(np.median(values[wound])), covered
+
+
+def _wound_relevel(plane, axis, level, start_area, window, floor=None):
     """The texture cut for a later frame, recalibrated on that frame.
 
     A later time point is often imaged again rather than left on the stage,
@@ -5685,6 +5938,25 @@ def _wound_relevel(plane, axis, level, start_area, window):
     :param level: the first frame's cut.
     :param start_area: the first frame's wound area in pixels.
     :param window: texture window in pixels.
+    :param floor: from :func:`_wound_floor` on the first frame, or
+        ``None``. Cells or debris scattered over a wound's floor raise its
+        texture, so the open pixels left under the cut above are only the
+        smoothest part of the floor and the open level read from them sits
+        too low. When given, and the cut above leaves at least
+        :data:`_WOUND_FLOOR_MIN_OPEN` of the first wound's area open, the
+        open level is read instead from Otsu's lower class among the
+        pixels within one window of the first wound and within
+        :data:`_WOUND_FLOOR_REACH` windows of the pixels the cut above
+        leaves open in the band (so a nearly closed wound is not read
+        against the monolayer that has filled the rest of the first
+        wound), provided that class lies at least
+        :data:`_WOUND_FLOOR_MIN_GAP` below the covered level in log
+        texture (a closed wound's monolayer splits into two classes much
+        closer together). That level is held to within
+        :data:`_WOUND_FLOOR_BELOW` below and :data:`_WOUND_FLOOR_ABOVE`
+        above the first frame's open level, shifted by the change in the
+        covered level since then, so a floor with a bright, smooth stretch
+        and a dimmer one is not split between them.
     :returns: the cut for this frame.
     """
     values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
@@ -5709,7 +5981,26 @@ def _wound_relevel(plane, axis, level, start_area, window):
             break
         opened = float(np.median(values[core]))
         cut = opened + _WOUND_TEXTURE_FRACTION * (covered - opened)
-    return float(np.exp(cut))
+    if floor is None or (near & (values <= cut)).sum() < (
+            _WOUND_FLOOR_MIN_OPEN * start_area):
+        return float(np.exp(cut))
+    region, first_open, first_covered = floor
+    reach = distance_transform_edt(~(near & (values <= cut)))
+    inside = values[region & (reach <= _WOUND_FLOOR_REACH * window)]
+    if inside.size <= 100:
+        return float(np.exp(cut))
+    split, _separation = _otsu_separation(inside)
+    lower = inside[inside <= split]
+    if lower.size < _WOUND_RELEVEL_MIN_CORE * start_area:
+        return float(np.exp(cut))
+    opened = float(np.median(lower))
+    if covered - opened < _WOUND_FLOOR_MIN_GAP:
+        return float(np.exp(cut))
+    expected = first_open + covered - first_covered
+    opened = float(np.clip(opened, expected - _WOUND_FLOOR_BELOW,
+                           expected + _WOUND_FLOOR_ABOVE))
+    return float(np.exp(opened + _WOUND_TEXTURE_FRACTION
+                        * (covered - opened)))
 
 
 def _wound_series(planes, times, *, source='texture', window=15,
@@ -5721,9 +6012,14 @@ def _wound_series(planes, times, *, source='texture', window=15,
     and be open across at least :data:`_WOUND_MIN_SPAN` of the positions
     along its axis, or the series is not a scratch and every metric is left
     blank. Later frames count the open regions inside the first frame's
-    band. The cut between open and covered is decided on the first frame
+    band and, for ``texture`` and ``intensity``, within a window of the
+    first frame's wound moved across the scratch to meet them
+    (:func:`_wound_follow`), since a wound only narrows. The cut between
+    open and covered is decided on the first frame
     (:func:`_wound_level`); for ``texture`` each later frame recalibrates it
-    on its own open and covered levels (:func:`_wound_relevel`), and for
+    on its own open and covered levels (:func:`_wound_relevel`), reading
+    the open level of a floor that carries scattered cells against the
+    first frame's (:func:`_wound_floor`), and for
     ``texture`` and ``intensity`` a first frame that is a scratch is
     redrawn between smooth fronts (:func:`_wound_fronts`).
 
@@ -5748,14 +6044,14 @@ def _wound_series(planes, times, *, source='texture', window=15,
     rows, masks = [], {}
     axis, start_area, status = None, None, 'ok'
     keep = set(int(k) for k in keep)
-    level, share, first_separation = None, 0.5, None
+    level, share, first_separation, floor = None, 0.5, None, None
     for index, (plane, time) in enumerate(zip(planes, times)):
         if source != 'masks':
             plane = _confluency_plane(plane)
         frame_level = level
         if index > 0 and status == 'ok' and source == 'texture':
             frame_level = _wound_relevel(plane, axis, level, start_area,
-                                         window)
+                                         window, floor)
         open_mask, frame_level, share, separation = _wound_open(
             plane, source, window, frame_level, share)
         if index == 0:
@@ -5781,10 +6077,17 @@ def _wound_series(planes, times, *, source='texture', window=15,
                                  0.25 * float(first_widths.mean()))
                     axis = _wound_axis(wound, margin)
             start_area = int(wound.sum())
+            first_wound = wound
+            if status == 'ok' and source == 'texture':
+                floor = _wound_floor(plane, wound, axis, window)
         elif status == 'ok':
             wound, regions = _wound_select(open_mask, axis, window * window)
             wound = _wound_grow(wound, share, window, source) & _wound_band(
                 axis, wound.shape)
+            if source != 'masks':
+                wound &= binary_dilation(
+                    _wound_follow(first_wound, wound, axis),
+                    iterations=max(1, int(_WOUND_FOLLOW_MARGIN * window)))
         else:
             wound, regions = np.zeros(open_mask.shape, dtype=bool), 0
         area = int(wound.sum())
@@ -6402,6 +6705,7 @@ _VIABILITY_MIN_SEPARATION = 2.0
 _VIABILITY_MIN_MINOR = 3
 _VIABILITY_MIN_FIT = 20
 _VIABILITY_ROBUST_MADS = 5.0
+_VIABILITY_BACKGROUND_FOLD = 1.65
 _VIABILITY_ZPRIME_PASS = 0.5
 _VIABILITY_LAYOUT = 1536
 _VIABILITY_COMPOUND_COLUMNS = ('compound', 'treatment', 'drug', 'condition')
@@ -6417,11 +6721,16 @@ class _PopulationCut:
     subtracted mean intensity, or the condensation ratio for morphology);
     ``source`` says how it was found: ``mixture`` (two fitted populations,
     cut where they cross), ``single`` (one population, cut
-    :data:`_VIABILITY_ROBUST_MADS` robust SDs from its median), ``pooled``
-    (a plate too small to fit, cut with every plate's objects together),
-    ``manual`` (the user's number) or ``none`` (no signal).
-    ``separation`` is Ashman's D between the two fitted populations and
-    ``positive_fraction`` the share of objects above the cut.
+    :data:`_VIABILITY_ROBUST_MADS` robust SDs from its median),
+    ``background`` (one population of a dead stain measured with the ring
+    around each object: an object is positive when its mean is
+    :data:`_VIABILITY_BACKGROUND_FOLD` times its ring's median, so the
+    threshold differs per object and the one given here is the plate's
+    median), ``pooled`` (a plate too small to fit, cut with every plate's
+    objects together), ``manual`` (the user's number) or ``none`` (no
+    signal). ``separation`` is Ashman's D between the two fitted
+    populations and ``positive_fraction`` the share of objects above the
+    cut.
     """
 
     threshold: float
@@ -6633,11 +6942,25 @@ def _object_signal(objects, object_type, column):
             f"The {object_type} table has no {name} column; add the stain's "
             f"channel to channels so Measure measures it.")
     mean = pd.to_numeric(objects[name], errors='coerce').astype(float)
+    background = _object_background(objects, object_type, column)
+    if background is None:
+        return mean
+    return mean - background.fillna(background.median())
+
+
+def _object_background(objects, object_type, column):
+    """The median of the ring Measure samples just outside each object.
+
+    :param objects: a ``nucleus`` or ``cell`` table.
+    :param object_type: its object name, the prefix of its columns.
+    :param column: the ``channel_<i>`` index of the stain.
+    :returns: a float Series, or None when the table has no ring columns.
+    """
+    prefix = f'{object_type}_channel_{column}_'
     for ring in (prefix + 'outside_percentile_50', prefix + 'outside_mean'):
         if ring in objects.columns:
-            background = pd.to_numeric(objects[ring], errors='coerce')
-            return mean - background.fillna(background.median())
-    return mean
+            return pd.to_numeric(objects[ring], errors='coerce').astype(float)
+    return None
 
 
 def _condensation_score(nuclei, column):
@@ -6766,21 +7089,36 @@ def _viability_states(dead_positive, live_positive, *, dead, live):
 
 
 def _split_by_plate(objects, signal, *, single_is_positive, log_scale=False,
-                    manual=None):
+                    manual=None, background=None):
     """Cut a signal per plate (and time point) and say where.
 
     A plate with fewer than :data:`_VIABILITY_MIN_FIT` objects borrows the
     cut fitted on every plate together.
+
+    A dead stain on a plate that holds one population is cut per object
+    against its own surroundings when ``background`` is given and the
+    plate's background is above zero: positive when the object's mean is
+    at least :data:`_VIABILITY_BACKGROUND_FOLD` times its ring's median.
+    On real stained plates the stain-negative population has a long
+    bright tail (autofluorescence, dye spill-over, light from neighbours),
+    which a cut a few robust SDs above the median falls inside; the ratio
+    to the local background does not depend on how bright a plate is.
+    Objects without a usable ring keep the plate cut.
 
     :param objects: the object table (for the plate columns).
     :param signal: the per-object signal.
     :param single_is_positive: see :func:`_stain_cut`.
     :param log_scale: see :func:`_stain_cut`.
     :param manual: a user threshold, or None.
+    :param background: the per-object ring median of a dead stain's
+        channel (:func:`_object_background`), or None.
     :returns: ``(positive, thresholds, cuts)``: a boolean array, the
         per-object threshold and ``{plate: _PopulationCut}``.
     """
     values = signal.to_numpy(dtype=float)
+    rings = (None if background is None or single_is_positive
+             else pd.to_numeric(background, errors='coerce')
+             .to_numpy(dtype=float))
     positive = np.zeros(len(objects), dtype=bool)
     thresholds = np.full(len(objects), np.nan)
     pooled = None
@@ -6800,10 +7138,23 @@ def _split_by_plate(objects, signal, *, single_is_positive, log_scale=False,
         else:
             cut = _stain_cut(block, single_is_positive=single_is_positive,
                              log_scale=log_scale, manual=manual)
+        local = np.full(block.shape, cut.threshold)
+        if rings is not None and cut.source == 'single':
+            ring = rings[where]
+            usable = np.isfinite(ring) & (ring > 0)
+            if usable.any() and np.median(ring[usable]) > 0:
+                fold = _VIABILITY_BACKGROUND_FOLD - 1.0
+                local[usable] = fold * ring[usable]
+                finite = np.isfinite(block)
+                cut = _PopulationCut(
+                    float(fold * np.median(ring[usable])), 'background',
+                    cut.separation,
+                    float((block[finite] > local[finite]).mean())
+                    if finite.any() else np.nan, cut.n)
         cuts[name] = cut
-        thresholds[where] = cut.threshold
+        thresholds[where] = local
         with np.errstate(invalid='ignore'):
-            positive[where] = np.isfinite(block) & (block > cut.threshold)
+            positive[where] = np.isfinite(block) & (block > local)
     return positive, thresholds, cuts
 
 
@@ -7315,7 +7666,10 @@ def _classify_viability(db_path, settings, *, plot=None):
     ``viability_live_channel`` each object's background-subtracted mean
     intensity of the stain is cut per plate (and time point) into
     positive and negative: two fitted populations split where they cross,
-    or the user's ``viability_thresholds``. A dead stain positive is dead,
+    or the user's ``viability_thresholds``; a dead stain on a plate with
+    one population is positive where an object's mean is at least
+    :data:`_VIABILITY_BACKGROUND_FOLD` times the ring around it. A dead
+    stain positive is dead,
     a live stain positive is live, and with both a cell positive for
     neither is unstained. Without stain channels, nuclei are called dead
     from their morphology: a pyknotic nucleus is small and bright, and its
@@ -7398,7 +7752,8 @@ def _classify_viability(db_path, settings, *, plot=None):
             signal = _object_signal(objects, unit, column)
             dead_positive, thresholds, cuts['dead'] = _split_by_plate(
                 objects, signal, single_is_positive=False,
-                manual=manual_dead)
+                manual=manual_dead,
+                background=_object_background(objects, unit, column))
             table['dead_signal'] = signal
             table['dead_threshold'] = thresholds
         if live_channel is not None:
@@ -8946,6 +9301,8 @@ def _run_bleach_correction_step(db_path, settings):
     Runs :func:`spacr.timelapse._correct_timelapse_bleaching` with the
     ``bleach_correction`` method. A failure is reported and does not fail
     the run: the measured tables are already written and are not changed.
+    With ``histogram``, series whose trend rises more than 10% above its
+    first timepoint are reported, since matching removes that rise too.
 
     :param db_path: the ``measurements.db`` the run produced.
     :param settings: Measure settings.
@@ -8963,6 +9320,12 @@ def _run_bleach_correction_step(db_path, settings):
     print(f"Bleach correction ({method}): {len(fits)} field-channel series in "
           f"{', '.join(f'{t}_bleach_corrected' for t in tables)}; fits in "
           f"measurements.db:bleach_correction")
+    rising = fits['trend_peak_rise'] > 0.1 if 'trend_peak_rise' in fits else pd.Series([], dtype=bool)
+    if method == 'histogram' and rising.any():
+        print(f"Bleach correction: {int(rising.sum())} of {len(fits)} series "
+              f"brighten by more than 10% at some point, which bleaching "
+              f"cannot do; histogram matching maps that rise away with the "
+              f"decay, so compare intensities after ratio or exponential.")
     return fits
 
 

@@ -1,0 +1,81 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Image quality before segmentation"
+msgstr "Bildkvalitet före segmentering"
+
+msgid "From **Home → Core → Mask**, open the **Image Quality** settings category before running segmentation. The same settings apply when Mask's **Timelapse** switch is on. Screening measures the raw, unnormalized image channels. Start in ``report`` mode to inspect acquisition problems before deciding which fields to exclude."
+msgstr "Från **Hem → Kärna → Masker** öppnar du inställningskategorin **Bildkvalitet** innan du kör segmenteringen. Samma inställningar gäller när reglaget **Tidsserie** i Masker är påslaget. Granskningen mäter de råa, onormaliserade bildkanalerna. Börja i läget ``report`` för att granska problem vid bildinsamlingen innan du bestämmer vilka fält som ska uteslutas."
+
+msgid "The policy"
+msgstr "Policyn"
+
+msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
+msgstr "``image_qc_mode``: ``off`` (standard), ``report`` (flagga fält men bearbeta dem) eller ``exclude`` (hoppa över flaggade fält i senare steg)."
+
+msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
+msgstr "``image_qc_channels``: index för de insamlingskanaler som ska granskas; en tom lista granskar alla tillgängliga kanaler."
+
+msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
+msgstr "``image_qc_min_focus``: koppling från kanal till tröskel för lägsta Laplace-varians. En stack använder poängen från sitt bästa plan; ett enskilt oskarpt plan förkastar inte en stack som i övrigt är användbar. Välj trösklar utifrån kontroller som samlats in med samma intensitetsskala och optik."
+
+msgid "``image_qc_max_saturation``: channel-to-threshold mapping for the maximum fraction of saturated pixels, from zero to one."
+msgstr "``image_qc_max_saturation``: koppling från kanal till tröskel för högsta andel mättade pixlar, från noll till ett."
+
+msgid "``image_qc_saturation_level``: channel-to-intensity mapping for the acquisition saturation ceiling. For example, a 12-bit acquisition stored in ``uint16`` normally needs its acquisition ceiling rather than the ``uint16`` ceiling. Integer data otherwise use the dtype maximum; floating data require an explicit level when a saturation threshold is enabled."
+msgstr "``image_qc_saturation_level``: koppling från kanal till intensitet för insamlingens mättnadstak. Till exempel behöver en 12-bitarsinsamling som lagras i ``uint16`` normalt sitt insamlingstak i stället för taket för ``uint16``. Heltalsdata använder annars datatypens maximum; flyttalsdata kräver en uttrycklig nivå när en mättnadströskel är aktiverad."
+
+msgid "``image_qc_max_nonfinite``: maximum fraction of nonfinite pixels, from zero to one; defaults to zero."
+msgstr "``image_qc_max_nonfinite``: högsta andel icke-ändliga pixlar, från noll till ett; standard är noll."
+
+msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
+msgstr "Fokuströsklar anges i råa intensitetsenheter i kvadrat. Detta är kontroller av bildinsamlingen: få objekt leder inte till uteslutning. Den ljusaste observerade pixeln ersätter aldrig en kalibrerad mättnadsnivå."
+
+msgid "Review and outputs"
+msgstr "Granskning och utdata"
+
+msgid "Open **Home → Data → QC** and choose **Review image quality** for a local thumbnail gallery. Flagged fields appear first, with at most 64 previews. Display contrast is stretched for inspection; the metrics still use raw intensities. Stack thumbnails are maximum projections."
+msgstr "Öppna **Hem → Data → QC** och välj **Granska bildkvalitet** för ett lokalt galleri med miniatyrer. Flaggade fält visas först, med högst 64 förhandsvisningar. Visningskontrasten sträcks ut för granskningen; mätvärdena använder fortfarande råa intensiteter. Miniatyrer av stackar är maximala projektioner."
+
+msgid "The project's ``qc`` directory contains:"
+msgstr "Projektets katalog ``qc`` innehåller:"
+
+msgid "``image_quality.csv``: every screened field and channel, its focus variance, saturation level/fraction, nonfinite fraction, status and reasons;"
+msgstr "``image_quality.csv``: varje granskat fält och kanal, dess fokusvarians, mättnadsnivå och mättnadsandel, andel icke-ändliga värden, status och skäl;"
+
+msgid "``image_quality.json``: the exact policy and excluded field identities;"
+msgstr "``image_quality.json``: den exakta policyn och identiteterna för uteslutna fält;"
+
+msgid "``image_quality.html``: the review gallery."
+msgstr "``image_quality.html``: granskningsgalleriet."
+
+msgid "Exclusion retains the original inputs. Segmentation, merge and Measure respect the saved exclusions; excluded fields are not represented as successful zero-object detections."
+msgstr "Uteslutningen behåller de ursprungliga indata. Segmentering, sammanslagning och Mätning respekterar de sparade uteslutningarna; uteslutna fält redovisas inte som lyckade detektioner med noll objekt."
+
+msgid "Revisiting an analyzed project"
+msgstr "Återbesöka ett analyserat projekt"
+
+msgid "New exclusions are refused if the affected fields already have retained measurement rows. Use ``report`` to inspect that project without changing its inclusion policy, or run the exclusion policy in a fresh project. Existing measurements and the previous policy are retained when this check refuses a change. Turning screening ``off`` clears the active exclusion policy."
+msgstr "Nya uteslutningar avvisas om de berörda fälten redan har behållna mätrader. Använd ``report`` för att granska det projektet utan att ändra dess inkluderingspolicy, eller kör uteslutningspolicyn i ett nytt projekt. Befintliga mätningar och den tidigare policyn behålls när den här kontrollen avvisar en ändring. Att stänga av granskningen med ``off`` rensar den aktiva uteslutningspolicyn."
+
+msgid "The Python entry points are :func:`spacr.image_quality.quality_policy`, :func:`spacr.image_quality.assess_image` and :func:`spacr.image_quality.screen_fields`."
+msgstr "Ingångspunkterna i Python är :func:`spacr.image_quality.quality_policy`, :func:`spacr.image_quality.assess_image` och :func:`spacr.image_quality.screen_fields`."
+

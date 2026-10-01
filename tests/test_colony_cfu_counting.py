@@ -514,3 +514,105 @@ def test_the_colony_detector_zoo_row_is_alpha():
     from spacr.settings import ALPHA_FEATURES
 
     assert "colony_yolo11n_makrai_v1" in ALPHA_FEATURES[542]["models"]
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_a_two_channel_photo_counts_on_its_first_plane_and_4d_is_refused():
+    stack = np.zeros((4, 4, 2), np.uint8)
+    stack[..., 0] = 7
+    assert (plaque._colony_gray(stack) == 7).all()
+    with pytest.raises(ValueError, match="must be 2-D or 3-D"):
+        plaque._colony_gray(np.zeros((2, 2, 2, 2)))
+
+
+def test_without_a_circle_the_dish_is_the_largest_disc_or_the_frame(
+        monkeypatch):
+    import cv2
+
+    monkeypatch.setattr(cv2, "HoughCircles", lambda *a, **k: None)
+    image, _count, (cx, cy, big_r), _radii = _plate(0, rgb=False)
+    well, method = _find_dish(image)
+    assert method == "largest disc"
+    assert abs((well.x0 + well.x1) / 2 - cx) < 0.05 * big_r
+    yy, xx = np.mgrid[:300, :400]
+    blank = (((yy // 10) + (xx // 10)) % 2 * 200).astype(np.uint8)
+    well, method = _find_dish(blank)
+    assert method == "frame" and (well.x1, well.y1) == (400, 300)
+
+
+def test_nothing_to_split_or_no_dish_pixels_count_nothing():
+    empty = np.zeros((20, 20), bool)
+    assert plaque._split_colonies(empty, np.zeros((20, 20), np.float32)).max() == 0
+    labels, cut, noise = plaque._colony_candidates(
+        np.zeros((20, 20), np.float32), empty, 5.0, threshold=4.0, min_area=6)
+    assert not labels.any() and (cut, noise) == (0.0, 1.0)
+    image, *_ = _plate(3, rgb=False)
+    found = _segment_colonies(image, centre=(-5000, -5000), radius=10)
+    assert found["method"] == "given" and not found["labels"].any()
+
+
+def test_the_detector_finds_its_own_dish_and_skips_empty_results(monkeypatch):
+    class _Empty:
+        boxes = None
+
+    class _Detector:
+        def predict(self, **kwargs):
+            return [_Empty(), _Result([(190, 190, 210, 210, 0.9)])]
+
+    monkeypatch.setattr(plaque, "_load_detector", lambda weights: _Detector())
+    image, *_ = _plate(0, size=400)
+    found = plaque._detect_colonies(image[..., :1], "colonies.pt")
+    assert found["method"] in ("hough", "largest disc", "frame")
+    assert len(found["boxes"]) == 1
+
+
+def test_a_count_or_volume_that_is_not_a_number_has_no_titre():
+    assert _cfu_per_ml("many", 100, 100) is None
+    assert _cfu_per_ml(10, 100, "a drop") is None
+
+
+def test_a_plate_format_of_none_reads_as_unset_and_a_grey_plate_is_drawn():
+    image, *_ = _plate(4, rgb=False)
+    result = _count_colony_plate(image, settings={"plate_format": "None"})
+    assert result["summary"]["colony_count"] >= 0
+    figure = plaque._colony_overlay_figure(result, title="grey")
+    assert figure is not None
+    import matplotlib.pyplot as plt
+    plt.close(figure)
+
+
+def test_colonies_are_segmented_on_a_dish_found_for_them_and_a_given_scale_is_kept():
+    image, count, *_ = _plate(5, rgb=False, size=500)
+    found = _segment_colonies(image)
+    assert found["method"] in ("hough", "largest disc")
+    well, _method = _find_dish(image)
+    scale = plaque.PlaqueScale(px_per_mm=10.0,
+                               well_diameter_px=well.diameter_px,
+                               well_diameter_mm=well.diameter_px / 10.0,
+                               source="explicit")
+    result = _count_colony_plate(image, well=well, scale=scale)
+    assert result["summary"]["colony_count"] == count
+
+
+def test_of_two_round_regions_the_dish_is_the_larger(monkeypatch):
+    import cv2
+
+    monkeypatch.setattr(cv2, "HoughCircles", lambda *a, **k: None)
+    yy, xx = np.mgrid[:400, :400]
+    image = np.zeros((400, 400), np.uint8)
+    image[np.hypot(xx - 110, yy - 200) < 95] = 200
+    image[np.hypot(xx - 305, yy - 200) < 82] = 200
+    well, method = _find_dish(image)
+    assert method == "largest disc"
+    assert abs((well.x0 + well.x1) / 2 - 110) < 10
+
+
+def test_a_diameter_histogram_with_no_colonies_is_still_drawn():
+    import matplotlib.pyplot as plt
+
+    figure = plaque._colony_size_figure([])
+    assert figure is not None
+    plt.close(figure)

@@ -1,0 +1,135 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Threading and cancellation audit"
+msgstr "线程与取消审查"
+
+msgid "spaCR runs analysis entry points through :class:`spacr.qt.bridge.PipelineWorker` on a dedicated ``QThread``. Large imports, image decoding, model fitting and plate processing therefore do not run on Qt's GUI thread. Stop is cooperative: spaCR never uses ``QThread.terminate()`` on an analysis that may be writing an array, TIFF, database transaction, or checkpoint."
+msgstr "spaCR 通过专用 ``QThread`` 上的 :class:`spacr.qt.bridge.PipelineWorker` 运行分析入口点。因此，大型导入、图像解码、模型拟合和孔板处理都不会在 Qt 的 GUI 线程上运行。停止是协作式的：对于可能正在写入数组、TIFF、数据库事务或检查点的分析，spaCR 绝不使用 ``QThread.terminate()``。"
+
+msgid "Safe cancellation boundaries"
+msgstr "安全的取消边界"
+
+msgid "The worker installs a thread-local :class:`spacr.cancellation.CancellationToken`. Long workflows call :func:`spacr.cancellation.checkpoint` only after a durable unit, or before the next unit begins:"
+msgstr "工作线程会安装一个线程局部的 :class:`spacr.cancellation.CancellationToken`。长时间运行的工作流程只会在一个持久化单元完成之后、或在下一个单元开始之前调用 :func:`spacr.cancellation.checkpoint`："
+
+msgid "Mask checks between source plates, object types, and Cellpose batches."
+msgstr "掩膜模块在源孔板、对象类型和 Cellpose 批次之间进行检查。"
+
+msgid "Measure keeps at most one pool-width field batch outstanding and checks after every batch has returned and saved its results."
+msgstr "测量模块最多保留一批与进程池宽度相同的视野在处理中，并在每批返回并保存结果后进行检查。"
+
+msgid "Format Converter checks before source groups; its atomic :class:`spacr.checkpoint.CheckpointStore` record checks after each complete field."
+msgstr "格式转换器在各源分组之前进行检查；其原子性的 :class:`spacr.checkpoint.CheckpointStore` 记录在每个完整视野之后进行检查。"
+
+msgid "UMAP checks before each grid/adaptive trial. Completed trial artifacts and adaptive state are persisted before cancellation is raised."
+msgstr "UMAP 在每次网格/自适应试验之前进行检查。已完成试验的产物和自适应状态会在引发取消之前持久化。"
+
+msgid "Batch Runner checks between jobs. While a child ``spacr-run`` process is active it polls the token, terminates that child, persists the current job as resumable, and then stops the queue."
+msgstr "批处理运行器在作业之间进行检查。当子进程 ``spacr-run`` 处于活动状态时，它会轮询令牌，终止该子进程，将当前作业保存为可继续状态，然后停止队列。"
+
+msgid "Stop first asks how to stop. **Finish current work** requests cancellation and waits for the current unit; if the run has not reached a boundary after five minutes, the question is asked again. The console reports ``Stopped safely`` when the boundary is reached, and the reproducibility manifest records ``status: cancelled`` rather than a failure traceback."
+msgstr "停止时会先询问停止方式。**Finish current work** 请求取消并等待当前单元完成；如果五分钟后运行仍未到达边界，会再次询问。到达边界时，控制台报告 ``Stopped safely``，可重复性清单记录 ``status: cancelled``，而不是失败回溯。"
+
+msgid "**Force stop** gives the window back at once. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
+msgstr "**Force stop** 会立即交还窗口控制权。无响应的工作线程（通常处于长时间的 Cellpose 或 PyTorch 调用中）会被搁置而不是被终止：其引用会被保留，并在后台完成，因此它正在写入的内容可能只写了一半。**Force restart** 会保存模块及其设置，然后重新启动 spaCR 并重新打开该模块。"
+
+msgid "Shutdown behavior"
+msgstr "关闭时的行为"
+
+msgid "The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to every active worker and thread. On application shutdown it requests cancellation for all jobs and waits against one bounded deadline. If any job that writes results has not reached a safe boundary, the close event is refused and the live references are retained. Read-only housekeeping jobs, such as a Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit finishes. The same rule applies when an individual module screen is closed."
+msgstr "进程级的 :class:`spacr.qt.bridge.RunRegistry` 持有每个活动工作线程和线程的强引用。应用程序关闭时，它会请求取消所有作业，并在一个有限的截止时间内等待。如果任何写入结果的作业尚未到达安全边界，关闭事件会被拒绝，活动引用会被保留。只读的维护作业（例如运行历史刷新）会以同样方式取消，但绝不会阻止关闭。当前单元完成后，用户可以再次关闭。关闭单个模块屏幕时也适用同样的规则。"
+
+msgid "``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt method is thread-safe. This avoids a shutdown deadlock in which the GUI thread waits for a worker while the worker's queued quit request waits for the GUI event loop."
+msgstr "``PipelineWorker.finished`` 直接调用 ``QThread.quit``，因为该 Qt 方法是线程安全的。这样可避免关闭时出现死锁：即 GUI 线程在等待工作线程，而工作线程排队的退出请求又在等待 GUI 事件循环。"
+
+msgid "API usage"
+msgstr "API 用法"
+
+msgid "Headless and plugin pipelines use the same small API::"
+msgstr "无界面流程和插件流程使用同一个小型 API::"
+
+msgid "Calling ``checkpoint()`` outside a managed GUI worker is a no-op. Code that catches broad ``Exception`` values must re-raise :class:`spacr.cancellation.PipelineCancelled`; treating it as a failed field would defeat the worker's distinct cancellation status."
+msgstr "在受管理的 GUI 工作线程之外调用 ``checkpoint()`` 不执行任何操作。捕获宽泛 ``Exception`` 值的代码必须重新抛出 :class:`spacr.cancellation.PipelineCancelled`；将其视为失败的视野会破坏工作线程独立的取消状态。"
+
+msgid "Stress coverage"
+msgstr "压力测试覆盖"
+
+msgid "``tests/qt/test_threading_cancellation_audit.py`` exercises fifty rapid Start/Stop cycles, registry-wide shutdown, repeated cancellation, screen close while active, and refusal to destroy a stubborn worker. ``tests/test_cancellation.py`` verifies thread isolation, idempotence, durability-before-cancel, resumable queues, and termination of an active batch subprocess."
+msgstr "``tests/qt/test_threading_cancellation_audit.py`` 测试五十次快速的 Start/Stop 循环、注册表范围的关闭、重复取消、活动状态下关闭屏幕，以及拒绝销毁顽固的工作线程。``tests/test_cancellation.py`` 验证线程隔离、幂等性、取消前的持久化、可继续的队列以及活动批处理子进程的终止。"
+
+msgid "Cooperative cancellation for long-running spaCR pipelines."
+msgstr "针对长时间运行的 spaCR 流程的协作式取消。"
+
+msgid "Qt cannot safely kill a Python thread that may be writing a TIFF, committing a SQLite transaction, or updating several related artifacts.  Instead, the GUI installs one :class:`CancellationToken` in each worker thread and pipeline code calls :func:`checkpoint` only at boundaries where the previous unit is fully durable and the next unit has not started."
+msgstr "Qt 无法安全地终止一个可能正在写入 TIFF、提交 SQLite 事务或更新多个相关产物的 Python 线程。因此，GUI 在每个工作线程中安装一个 :class:`CancellationToken`，流程代码只在前一个单元已完全持久化、且下一个单元尚未开始的边界处调用 :func:`checkpoint`。"
+
+msgid "The module is intentionally standard-library only.  Core workflows may import it without importing Qt, torch, or any GUI dependency."
+msgstr "该模块有意只使用标准库。核心工作流程可以导入它，而无需导入 Qt、torch 或任何 GUI 依赖。"
+
+msgid "Thread-safe, idempotent cancellation request shared with one worker."
+msgstr "与一个工作线程共享的、线程安全且幂等的取消请求。"
+
+msgid "Parameters"
+msgstr "参数"
+
+msgid "default user-facing reason raised by :meth:`checkpoint`."
+msgstr "由 :meth:`checkpoint` 抛出的、面向用户的默认原因。"
+
+msgid "Request cancellation and return True only for the first request."
+msgstr "请求取消，仅在第一次请求时返回 True。"
+
+msgid "Repeated Stop clicks are harmless and do not replace the original reason, which keeps logs and manifests deterministic."
+msgstr "重复单击 Stop 是无害的，也不会替换最初的原因，从而使日志和清单保持确定。"
+
+msgid "Whether cancellation has been requested."
+msgstr "是否已请求取消。"
+
+msgid "Raise :class:`PipelineCancelled` when cancellation was requested."
+msgstr "已请求取消时抛出 :class:`PipelineCancelled`。"
+
+msgid "The first cancellation reason supplied to :meth:`cancel`."
+msgstr "提供给 :meth:`cancel` 的第一个取消原因。"
+
+msgid "Raised at a safe boundary after cancellation has been requested."
+msgstr "在请求取消后于安全边界处抛出。"
+
+msgid "This is a normal control-flow outcome, not a pipeline failure.  Callers that catch broad :class:`Exception` values must re-raise it so the worker can record the run as ``cancelled`` rather than as a failed item."
+msgstr "这是一种正常的控制流结果，而不是流程失败。捕获宽泛 :class:`Exception` 值的调用方必须重新抛出它，以便工作线程将运行记录为 ``cancelled``，而不是某个失败的项目。"
+
+msgid "Return whether the calling worker has a pending cancellation request."
+msgstr "返回调用方工作线程是否有待处理的取消请求。"
+
+msgid "Stop at this safe boundary when requested; otherwise do nothing."
+msgstr "收到请求时在此安全边界处停止；否则不执行任何操作。"
+
+msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
+msgstr "在受管理的工作线程之外的调用有意不执行任何操作，因此同样的流程函数可以在 GUI、CLI、notebook 和测试中使用。"
+
+msgid "Return the token installed for the calling thread, if any."
+msgstr "返回为调用线程安装的令牌（如果有）。"
+
+msgid "Install ``token`` for this thread and restore any prior token on exit."
+msgstr "为此线程安装 ``token``，并在退出时恢复先前的令牌。"
+
+msgid "cancellation token to expose within the context."
+msgstr "要在上下文中公开的取消令牌。"
+

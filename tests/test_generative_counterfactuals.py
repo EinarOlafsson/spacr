@@ -115,3 +115,67 @@ def test_the_activation_run_skips_counterfactuals_on_too_few_crops(trained,
                                    str(tmp_path / "cf"), "cpu")
     assert summary["train_crops"] + summary["heldout_crops"] == 12
     assert (tmp_path / "cf" / "counterfactual_summary.csv").exists()
+
+
+# ---------------------------------------------------------------------------
+# Helpers at their edges (coverage ratchet, dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_crops_of_another_size_are_resized_and_the_right_size_is_kept():
+    from spacr.attribution import _cf_resize
+
+    batch = torch.rand(2, 1, 20, 20)
+    assert _cf_resize(batch, 20) is batch
+    resized = _cf_resize(batch, 16)
+    assert tuple(resized.shape) == (2, 1, 16, 16)
+
+
+def test_a_constant_ranking_has_no_spearman_correlation():
+    from spacr.attribution import _spearman
+
+    assert np.isnan(_spearman(np.ones(5), np.arange(5.0)))
+    assert np.isnan(_spearman(np.arange(5.0), np.full(5, 2.0)))
+    assert np.isnan(_spearman(np.ones(1), np.ones(1)))
+    assert _spearman(np.arange(5.0), np.arange(5.0) * 3) == pytest.approx(1.0)
+
+
+def test_the_class_mean_baseline_needs_a_training_crop_of_every_class():
+    """A model that calls every crop class 0 leaves class 1 with no mean, so
+    the naive counterfactual has nothing to shift towards."""
+    from spacr.attribution import _class_mean_baseline
+
+    class _AlwaysZero(nn.Module):
+        n_classes = 2
+
+        def forward(self, x):
+            return torch.stack([torch.ones(len(x)), torch.zeros(len(x))], 1)
+
+    x, _y = _crops(6, side=16)
+    flip, edit = _class_mean_baseline(_AlwaysZero(), x[:4], x[4:])
+    assert np.isnan(flip) and np.isnan(edit)
+
+
+def test_without_a_sequence_only_the_tables_are_written(tmp_path):
+    from spacr.attribution import _write_counterfactual_outputs
+    from spacr.tabular import read_table
+
+    _write_counterfactual_outputs(
+        str(tmp_path), {"n_cells": 1, "flip_rate": 1.0},
+        [{"cell": 0, "flipped": True}], np.zeros((0,)))
+    assert read_table(tmp_path / "counterfactual_cells.csv",
+                      report=None)["flipped"].tolist() == [True]
+    assert (tmp_path / "counterfactual_summary.csv").is_file()
+    assert sorted(p.name for p in tmp_path.iterdir()) == [
+        "counterfactual_cells.csv", "counterfactual_summary.csv"]
+
+
+def test_a_report_without_an_output_folder_writes_nothing(trained, tmp_path,
+                                                          monkeypatch):
+    """The summary, rows and frames come back; no folder is created."""
+    monkeypatch.chdir(tmp_path)
+    model, x = trained
+    summary, rows, frames = _counterfactual_report(model, x[:8], epochs=1,
+                                                   show=1)
+    assert summary["heldout_crops"] == len(rows) == 2
+    assert frames.shape[0] == 1
+    assert list(tmp_path.iterdir()) == []

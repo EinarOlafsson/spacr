@@ -1,0 +1,36 @@
+602. The window rim is one continuous gradient
+
+Requested by the maintainer (2026-09-30), verbatim:
+"in preferences theme and animation can be categories in appearence instead of their own tabs.
+
+the rim arround the window perifery looks like it is made up of many small boxes. please make it a continuous gradient with no boxes (e.g. by removing the lines between the boxes.)"
+
+(The first paragraph is item 601.)
+
+Brief:
+Find the window-periphery rim and make it ONE continuous gradient with no
+lines or boxes. Verify by offscreen renders before and after, at several
+window sizes, in light and dark themes, and add a test that samples pixels
+along the rim and asserts there are no seam discontinuities.
+
+Done when: offscreen renders show a smooth run, and a Qt test walking the
+lit run pixel by pixel finds one rise and one fall.
+
+Status: IMPLEMENTED 2026-09-30
+
+Cause: the lit run round every glassed window (SetupCard, in
+spacr/qt/widgets/setup_card.py) was stroked as up to 320 short lines with
+round caps, because a pen carries one colour and the run fades. Every cap
+overlapped its neighbour, the overlap was painted twice, and the rim's
+brightness rose and fell every 2-4 px: 85-218 reversals along the run.
+
+Fix: the run is one filled polygon (its outline sampled along the rim,
+tapering in width as before) shaded by one QConicalGradient centred on the
+card, with a stop per sample. Nothing is painted twice, so there are no
+seams; glow, rainbow, beat and spaceout keep their colours, position and
+length. Renders: /mnt/wd4tb/scratch/602/before and /after (3 sizes, light
+and dark, glow and rainbow; zoomed_* crops). Test:
+tests/qt/test_602_the_rim_is_one_continuous_gradient.py (1 reversal per
+run now).
+
+Left: nothing.

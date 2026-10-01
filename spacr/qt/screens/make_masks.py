@@ -599,7 +599,7 @@ _NOT_CONSOLIDATED = ("masks", "orig", "sorted_channels")
 
 
 def _copy_mask_as_tiff(source: str, target: str) -> None:
-    """Copy a dropped mask to where Make Masks looks for it (item 600).
+    """Copy a dropped mask to where Make Masks looks for it.
 
     A TIFF is copied as it is; a mask saved in another format is read and
     written as a TIFF, because Make Masks keeps every mask as
@@ -650,6 +650,85 @@ class _FolderJobWorker(QThread):
         except Exception as exc:
             self.error = exc
             LOG.exception("Make Masks folder job failed")
+
+
+class _SplitMenuButton(QPushButton):
+    """A push button that also opens a menu from an arrow on its right.
+
+    Pressing the body does what the button always did -- ``clicked`` fires,
+    and :meth:`click` still presses it -- while the arrow, a right-click or
+    Alt+Down opens the menu. Unlike ``QPushButton.setMenu`` the body press
+    is never swallowed by the menu, so the button keeps its own action.
+    """
+
+    #: Width of the arrow zone on the right, in pixels.
+    ARROW = 18
+
+    def __init__(self, text: str = "", parent=None):
+        """A button reading ``text``, with no menu until one is set."""
+        super().__init__(text, parent)
+        self._split_menu: Optional[QMenu] = None
+
+    def set_split_menu(self, menu: QMenu) -> None:
+        """Offer ``menu`` from the arrow."""
+        self._split_menu = menu
+
+    def split_menu(self) -> Optional[QMenu]:
+        """The menu the arrow opens, or ``None``."""
+        return self._split_menu
+
+    def sizeHint(self):
+        """The push button's size, widened by the arrow zone."""
+        hint = super().sizeHint()
+        hint.setWidth(hint.width() + self.ARROW)
+        return hint
+
+    def _pop_menu(self) -> None:
+        """Open the menu under the button, if there is one and it is enabled."""
+        if self._split_menu is not None and self.isEnabled():
+            self._split_menu.popup(self.mapToGlobal(self.rect().bottomLeft()))
+
+    def mousePressEvent(self, event):
+        """A press on the arrow opens the menu; anywhere else presses."""
+        if (self._split_menu is not None and event.button() == Qt.LeftButton
+                and event.position().x() >= self.width() - self.ARROW - 4):
+            event.accept()
+            self._pop_menu()
+            return
+        super().mousePressEvent(event)
+
+    def contextMenuEvent(self, event):
+        """A right-click opens the menu too."""
+        if self._split_menu is None:
+            return super().contextMenuEvent(event)
+        event.accept()
+        self._pop_menu()
+
+    def keyPressEvent(self, event):
+        """Alt+Down opens the menu from the keyboard."""
+        if (event.key() == Qt.Key_Down
+                and event.modifiers() & Qt.AltModifier):
+            event.accept()
+            self._pop_menu()
+            return
+        super().keyPressEvent(event)
+
+    def paintEvent(self, event):
+        """Paint the button, then the down arrow in its right-hand zone."""
+        super().paintEvent(event)
+        if self._split_menu is None:
+            return
+        from PySide6.QtWidgets import QStyle, QStyleOption
+
+        option = QStyleOption()
+        option.initFrom(self)
+        size = 8
+        option.rect.setRect(self.width() - self.ARROW - 2,
+                            (self.height() - size) // 2, size + 4, size)
+        painter = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_IndicatorArrowDown, option,
+                                   painter, self)
+        painter.end()
 
 
 class _StatusLabel(QLabel):
@@ -8478,6 +8557,14 @@ class MakeMasksScreen(QWidget):
 
         outer.addWidget(self._body_stack, 1)
 
+        # The maintainer's layout (2026-09-30). The bottom row is the
+        # toolbar on the left -- Open folder, Organize for Measure, Load
+        # test data, Uncertainty -- and the curation buttons on the right,
+        # under the console: Discard, Keep, Skip, Blind, ROIs, Upload data.
+        # Save mask, Prev and Next sit under the image, right-aligned, in the
+        # row :meth:`_build_view_pane` left for them.
+        from ..i18n import tr
+
         nav = QWidget()
         outer_row = QHBoxLayout(nav)
         outer_row.setContentsMargins(0, 0, 0, 0)
@@ -8485,74 +8572,65 @@ class MakeMasksScreen(QWidget):
         from .app_screen import _WrappingButtonStrip
 
         nav_row = _WrappingButtonStrip(SPACING["sm"])
-        outer_row.addLayout(nav_row)
-        self._btn_open = QPushButton("Open folder…")
+        outer_row.addLayout(nav_row, 1)
+        self._btn_open = QPushButton(tr("Open folder…"))
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
         self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_folder)
         nav_row.addWidget(self._btn_open)
         nav_row.addWidget(self._build_organize_button())
-        from ..make_masks_demo import install_test_data_button
-        nav_row.addWidget(install_test_data_button(self))
-        from ..make_masks_datasets import install_dataset_button
-        nav_row.addWidget(install_dataset_button(self))
-        nav_row.addWidget(self._build_contribute_button())
-        nav_row.addWidget(self._build_roi_button())
-        nav_row.addWidget(self._build_blind_toggle())
+        nav_row.addWidget(self._build_test_data_button())
         nav_row.addWidget(self._build_uncertainty_button())
 
-        # 600c: Prev / Next / Save / Skip travel as ONE group, so the
-        # wrapping strip can never put Skip on a row of its own, and Keep /
-        # Discard are a second group set apart by a separator and a gap.
+        # Save / Prev / Next travel as ONE group under the image, and
+        # Discard / Keep / Skip / Blind / ROIs / Upload data as a second
+        # group on the bottom row, so neither can wrap apart.
         self._nav_step_group, step_row = self._nav_button_group()
-        self._nav_curate_group, curate_row = self._nav_button_group(
-            separated=True)
-        self._btn_prev = QPushButton("Prev image")
+        self._nav_curate_group, curate_row = self._nav_button_group()
+        self._btn_prev = QPushButton(tr("Prev image"))
         self._btn_prev.setIcon(iconset.icon("prev"))
         self._btn_prev.setCursor(Qt.PointingHandCursor)
         self._btn_prev.clicked.connect(self._on_prev)
-        step_row.addWidget(self._btn_prev)
 
-        self._btn_next = QPushButton("Next image")
+        self._btn_next = QPushButton(tr("Next image"))
         self._btn_next.setIcon(iconset.icon("next"))
         self._btn_next.setLayoutDirection(Qt.RightToLeft)
         self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
-        step_row.addWidget(self._btn_next)
 
-        self._btn_discard = QPushButton("Discard")
+        self._btn_discard = QPushButton(tr("Discard"))
         self._btn_discard.setIcon(iconset.icon("trash"))
         self._btn_discard.setCheckable(True)
         self._btn_discard.setCursor(Qt.PointingHandCursor)
-        self._btn_discard.setToolTip(
+        self._btn_discard.setToolTip(tr(
             "Mark this field as one to discard and move to the next. "
             "Nothing is deleted: the verdict goes to csv/keep_discard.csv "
             "beside the images, and the field, its mask and its objects "
-            "stay as they are.")
+            "stay as they are."))
         self._btn_discard.clicked.connect(lambda: self._on_curate(False))
         curate_row.addWidget(self._btn_discard)
 
-        self._btn_keep = QPushButton("Keep")
+        self._btn_keep = QPushButton(tr("Keep"))
         self._btn_keep.setIcon(iconset.icon("check"))
         self._btn_keep.setCheckable(True)
         self._btn_keep.setCursor(Qt.PointingHandCursor)
-        self._btn_keep.setToolTip(
+        self._btn_keep.setToolTip(tr(
             "Mark this field as one to keep and move to the next. The "
             "verdict is written to csv/keep_discard.csv beside the images, "
             "with the image, its mask and the number of objects the mask "
-            "holds right now.")
+            "holds right now."))
         self._btn_keep.clicked.connect(lambda: self._on_curate(True))
         curate_row.addWidget(self._btn_keep)
 
-        self._btn_save = QPushButton("Save mask")
+        self._btn_save = QPushButton(tr("Save mask"))
         self._btn_save.setObjectName("PrimaryButton")
         self._btn_save.setIcon(iconset.contrast_icon("save"))
         self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.clicked.connect(self._on_save)
         step_row.addWidget(self._btn_save)
-
-        from ..i18n import tr
+        step_row.addWidget(self._btn_prev)
+        step_row.addWidget(self._btn_next)
 
         self._btn_skip = QPushButton(tr("Skip"))
         self._btn_skip.setIcon(iconset.icon("next"))
@@ -8562,17 +8640,24 @@ class MakeMasksScreen(QWidget):
             "next. It is written to the session's curate_status.csv as skip, "
             "so the next session does not offer it again. No mask is written."))
         self._btn_skip.clicked.connect(self._on_skip)
-        step_row.addWidget(self._btn_skip)
+        curate_row.addWidget(self._btn_skip)
+        curate_row.addWidget(self._build_blind_toggle())
+        curate_row.addWidget(self._build_roi_button())
+        curate_row.addWidget(self._build_contribute_button())
 
-        nav_row.addWidget(self._nav_step_group)
-        nav_row.addWidget(self._nav_curate_group)
+        outer_row.addWidget(self._nav_curate_group, 0, Qt.AlignBottom)
 
-        outer_row.addStretch(1)
         self._status_label = _StatusLabel("Ready.")
         self._status_label._blind_owner = weakref.ref(self)
         self._status_label.setObjectName("SubtitleSmall")
         self._status_label.said.connect(self._report_status)
-        outer_row.addWidget(self._status_label)
+        # Under the image the line must never widen the pane: a long status
+        # would otherwise push the splitter and resize the canvas mid-edit.
+        self._status_label.setSizePolicy(QSizePolicy.Ignored,
+                                         QSizePolicy.Preferred)
+        self._status_label.setMinimumWidth(0)
+        self._image_nav_row.addWidget(self._status_label, 1)
+        self._image_nav_row.addWidget(self._nav_step_group, 0, Qt.AlignRight)
         outer.addWidget(nav)
 
     def _nav_button_group(self, separated: bool = False):
@@ -8580,8 +8665,7 @@ class MakeMasksScreen(QWidget):
 
         The navigation strip wraps widget by widget, so buttons that must stay
         on one line are put in one of these and the group is added instead.
-        With ``separated`` the group opens with a gap and a vertical line, which
-        is how Keep / Discard are set apart from Prev / Next / Save / Skip.
+        With ``separated`` the group opens with a gap and a vertical line.
 
         :param separated: lead the group with a visible gap and separator.
         :returns: ``(widget, layout)``; add the buttons to ``layout``.
@@ -8881,14 +8965,75 @@ class MakeMasksScreen(QWidget):
         """
         screen._on_run()
 
+    def _build_test_data_button(self):
+        """The "Load test data…" button, with the training datasets on its menu.
+
+        One split button (:class:`_SplitMenuButton`): pressing it loads the
+        Toxoplasma test data, as it always did
+        (:func:`spacr.qt.make_masks_demo.load_the_test_data`), and its arrow
+        opens a menu offering the test data again and a sample of
+        each training dataset a published model was trained on
+        (:func:`spacr.qt.make_masks_datasets.open_a_training_dataset`). It
+        replaces the separate "Training datasets…" button, so the screen
+        keeps it as both ``_btn_test_data`` and ``_btn_training_datasets``
+        and either download disables it while it runs.
+
+        :returns: the button, with its menu.
+        """
+        from ..i18n import tr
+        from .. import make_masks_datasets as datasets
+        from ..make_masks_demo import load_the_test_data
+
+        button = _SplitMenuButton(tr("Load test data…"), self)
+        button.setObjectName("MakeMasksTestDataButton")
+        button.setAccessibleName(tr("Load test data"))
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Download ten example images of Toxoplasma vacuoles (about 40 MB) and "
+            "open the first one. Their curated masks come too, in the "
+            "ground_truth_masks folder, which the editor does not read. Cached "
+            "after the first download.") + " " + tr(
+            "The arrow offers a sample of each training dataset a published "
+            "model was trained on, with its masks, to edit here."))
+        button.clicked.connect(
+            lambda _checked=False: load_the_test_data(self))
+        menu = QMenu(button)
+        self._test_data_actions = {}
+        action = menu.addAction(tr("Toxoplasma vacuoles (test data)"))
+        action.triggered.connect(
+            lambda _checked=False: load_the_test_data(self))
+        self._test_data_actions["test_data"] = action
+        menu.addSeparator()
+        for dataset in datasets.datasets_for("mask"):
+            action = menu.addAction(tr("Training dataset: {name}",
+                                       name=dataset.title))
+            action.setToolTip(dataset.title)
+            action.triggered.connect(
+                lambda _checked=False, chosen=dataset:
+                datasets.open_a_training_dataset(
+                    self, pick=lambda _screen: chosen))
+            self._test_data_actions[dataset.key] = action
+        button.set_split_menu(menu)
+        self._btn_test_data = button
+        self._btn_training_datasets = button
+        return button
+
     def _build_contribute_button(self) -> QPushButton:
-        """The "Contribute images and masks…" button beside the datasets one."""
+        """The "Upload data…" button: send images and masks to a community set.
+
+        It was "Contribute images and masks…"; the object name and the
+        dialog it opens are unchanged.
+        """
         from ..i18n import tr
         from ..widgets.model_share_dialog import contribute_masks_tooltip
 
-        button = QPushButton(tr("Contribute images and masks…"), self)
+        button = QPushButton(tr("Upload data…"), self)
+        button.setObjectName("MakeMasksUploadDataButton")
+        button.setAccessibleName(tr("Upload data"))
         button.setCursor(Qt.PointingHandCursor)
-        button.setToolTip(contribute_masks_tooltip())
+        button.setToolTip(tr(
+            "Upload data: send images and their masks to a community "
+            "training dataset.") + "\n\n" + contribute_masks_tooltip())
         button.clicked.connect(
             lambda _checked=False: self.contribute_images_and_masks())
         self._btn_contribute = button
@@ -9080,7 +9225,23 @@ class MakeMasksScreen(QWidget):
             "the most uncertain fields first and saves the scores as "
             "curate_uncertainty.csv for spacr-make-masks --order uncertain. "
             "Takes four detection runs per field."))
-        menu = QMenu(button)
+        button.setMenu(self._uncertainty_menu())
+        _apply_alpha_widgets(button)
+        self._btn_uncertainty = button
+        return button
+
+    def _uncertainty_menu(self) -> QMenu:
+        """The one Map / Rank menu both Uncertainty buttons open.
+
+        Built on first use and shared, so the toolbar button and the one in
+        the Object operations settings run the same two actions.
+        """
+        menu = getattr(self, "_uncertainty_menu_widget", None)
+        if menu is not None:
+            return menu
+        from ..i18n import tr
+
+        menu = QMenu(self)
         self._uncertainty_actions = {}
         for key, text, slot in (
                 ("map", tr("Map this field's uncertainty"),
@@ -9090,10 +9251,43 @@ class MakeMasksScreen(QWidget):
             action = menu.addAction(text)
             action.triggered.connect(lambda _checked=False, run=slot: run())
             self._uncertainty_actions[key] = action
-        button.setMenu(menu)
+        self._uncertainty_menu_widget = menu
+        return menu
+
+    def _build_uncertainty_setting(self) -> QPushButton:
+        """Uncertainty in the Object operations settings, after Swap.
+
+        The same control as the toolbar's Uncertainty button: it opens the
+        same Map / Rank menu, and :meth:`_set_uncertainty_enabled` disables
+        and re-enables both together while a run is under way. Alpha-gated
+        with it, as ``MakeMasksUncertaintySetting`` under item 568 in
+        :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button, with the shared menu.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Uncertainty…"), self)
+        button.setObjectName("MakeMasksUncertaintySetting")
+        button.setAccessibleName(tr("Uncertainty"))
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Map where the segmentation of this field is least sure, or rank "
+            "the open fields with the most uncertain first. The same menu as "
+            "the Uncertainty button on the bottom row; four detection "
+            "runs per field."))
+        button.setMenu(self._uncertainty_menu())
         _apply_alpha_widgets(button)
-        self._btn_uncertainty = button
+        self._btn_uncertainty_setting = button
         return button
+
+    def _set_uncertainty_enabled(self, enabled: bool) -> None:
+        """Enable or disable both Uncertainty buttons together."""
+        for button in (getattr(self, "_btn_uncertainty", None),
+                       getattr(self, "_btn_uncertainty_setting", None)):
+            if button is not None:
+                button.setEnabled(enabled)
 
     def _uncertainty_detect_request(self) -> dict:
         """The Object detection settings, captured for a worker thread.
@@ -9123,7 +9317,7 @@ class MakeMasksScreen(QWidget):
         if self._uncertainty_request is not None:
             return False
         self._uncertainty_request = request
-        self._btn_uncertainty.setEnabled(False)
+        self._set_uncertainty_enabled(False)
         work = partial(_uncertainty_snapshot, models=self._cp_loaded)
         if not threaded:
             try:
@@ -9212,7 +9406,7 @@ class MakeMasksScreen(QWidget):
         if request is not self._uncertainty_request:
             return
         self._uncertainty_request = None
-        self._btn_uncertainty.setEnabled(True)
+        self._set_uncertainty_enabled(True)
         if error is not None:
             self._warn(tr("Uncertainty failed"), str(error))
             return
@@ -9405,6 +9599,7 @@ class MakeMasksScreen(QWidget):
         self._console_section.setProperty(
             "_spacr_blind_visible", not self._console_section.isHidden())
         self._console_section.hide()
+        self._blind_lock_rois(True)
         self._set_field_pairs([pairs[i] for i in order])
         self._current_index = 0
         self._set_blind_checked(True)
@@ -9456,6 +9651,26 @@ class MakeMasksScreen(QWidget):
         _close_blinding(self._blind["key_id"], reason=reason)
         self._restore_blind_order()
 
+    def _blind_lock_rois(self, on: bool) -> None:
+        """Disable the ROIs menu while blinded, and give it back afterwards.
+
+        Its exports are named after the field (``<stem>.geojson``,
+        ``<stem>_RoiSet.zip``) and carry the image's file name inside, and
+        its file pickers open in the source folder, so each would show the
+        name blinding hides.
+
+        :param on: true when blinding starts.
+        """
+        button = getattr(self, "_btn_rois", None)
+        if button is None:
+            return
+        if on:
+            button.setProperty("_spacr_blind_was", button.isEnabled())
+            button.setEnabled(False)
+        elif button.property("_spacr_blind_was") is not None:
+            button.setEnabled(bool(button.property("_spacr_blind_was")))
+            button.setProperty("_spacr_blind_was", None)
+
     def _restore_blind_order(self) -> None:
         """Put the fields back in their own order and show their names again.
 
@@ -9468,6 +9683,7 @@ class MakeMasksScreen(QWidget):
         self._console_section.setVisible(bool(
             self._console_section.property("_spacr_blind_visible")))
         self._console_section.setProperty("_spacr_blind_visible", None)
+        self._blind_lock_rois(False)
         self._set_blind_checked(False)
         pairs = self._field_pairs()
         current = (pairs[self._current_index]
@@ -10569,6 +10785,7 @@ class MakeMasksScreen(QWidget):
             btn.setToolTip(hint)
             btn.clicked.connect(cb)
             ops_col.addWidget(btn)
+        ops_col.addWidget(self._build_uncertainty_setting())
         remove_row = QHBoxLayout()
         remove_row.setSpacing(SPACING["sm"])
         self._min_area = QSpinBox()
@@ -11706,7 +11923,19 @@ class MakeMasksScreen(QWidget):
             self._masks_console, "Console", persist_key="make_masks/Console",
             stretch=1, extent=240, minimum=120)
         self._shortcut_panel = column
-        pane.add_pane(self._view_tabs, "Views", stretch=1, extent=900)
+        # Under the image: the status line on the left and Save / Prev /
+        # Next right-aligned, filled in by :meth:`_build_ui`.
+        views = QWidget()
+        views.setObjectName("MakeMasksViewsColumn")
+        views_col = QVBoxLayout(views)
+        views_col.setContentsMargins(0, 0, 0, 0)
+        views_col.setSpacing(SPACING["sm"])
+        views_col.addWidget(self._view_tabs, 1)
+        self._image_nav_row = QHBoxLayout()
+        self._image_nav_row.setContentsMargins(0, 0, 0, 0)
+        self._image_nav_row.setSpacing(SPACING["sm"])
+        views_col.addLayout(self._image_nav_row)
+        pane.add_pane(views, "Views", stretch=1, extent=900)
         pane.add_pane(column, "Shortcuts", mode=EDGE, stretch=0,
                       extent=SHORTCUTS_WIDTH, minimum=SHORTCUTS_WIDTH,
                       fold_key="make_masks/Shortcuts",
@@ -13107,9 +13336,13 @@ class MakeMasksScreen(QWidget):
             "plate run applies these steps to every selected channel after "
             "illumination correction and before normalization. Morphology "
             "and split reshape a detector's labels and stay here."))
+        self._btn_to_mask.setObjectName("MakeMasksUseInMaskGeneration")
         self._btn_to_mask.clicked.connect(self._send_chain_to_mask)
         actions.addWidget(self._btn_to_mask)
         card.body_layout.addLayout(actions)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._btn_to_mask)
 
         for widget in (self._enh_background, self._enh_denoise,
                        self._enh_morphology):
@@ -14849,8 +15082,11 @@ class MakeMasksScreen(QWidget):
 
     def _on_pick_folder(self):
         """Ask for a folder of images and open it."""
-        d = QFileDialog.getExistingDirectory(self, "Pick images folder",
-                                              self._folder or os.getcwd())
+        # Blinded, the picker opens at home: in the source its path bar would
+        # name the plate.
+        start = (os.path.expanduser("~") if self._blind is not None
+                 else self._folder or os.getcwd())
+        d = QFileDialog.getExistingDirectory(self, "Pick images folder", start)
         if not d:
             return
         if self._offer_consolidation(d):
@@ -14859,7 +15095,7 @@ class MakeMasksScreen(QWidget):
 
 
     def _build_organize_button(self) -> QPushButton:
-        """The "Organize for Measure…" button beside "Open folder…" (item 600)."""
+        """The "Organize for Measure…" button beside "Open folder…"."""
         from ..i18n import tr
 
         button = QPushButton(tr("Organize for Measure…"), self)
@@ -15036,7 +15272,7 @@ class MakeMasksScreen(QWidget):
             moved=result.moved, stacks=len(result.stacks),
             merged=len(result.merged), dest=result.dest,
             manifest=result.manifest))
-        # Item 600: point Measure at the result, so features are one step away.
+        # Point Measure at the result, so features are one step away.
         prefs.push_recent_source("measure", str(result.dest))
         self._masks_console.post(tr(
             "Ready for Measure: open Measure and use {dest} as its source (it "

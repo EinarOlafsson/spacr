@@ -1,0 +1,84 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plate and batch-effect correction"
+msgstr "Leiðrétting á plötu- og lotuáhrifum"
+
+msgid "spaCR can normalize acquisition-batch effects before Image UMAP, Classify (ML), and phenotype regression. Correction is disabled by default because a plate effect can be real biology when treatments and plates are confounded."
+msgstr "spaCR getur staðlað áhrif myndatökulotu fyrir Mynda-UMAP, Flokkun (ML) og svipgerðaraðhvarf. Leiðrétting er óvirk sjálfgefið vegna þess að plötuáhrif geta verið raunveruleg líffræði þegar meðferðir og plötur eru samtvinnaðar."
+
+msgid "Choosing a method"
+msgstr "Val á aðferð"
+
+msgid "``none``"
+msgstr "``none``"
+
+msgid "Leave measurements unchanged."
+msgstr "Láta mælingar óbreyttar."
+
+msgid "``control_center``"
+msgstr "``control_center``"
+
+msgid "Recommended when every plate contains the same negative/reference control. spaCR estimates the median reference shift on each plate and subtracts only that shift. Treatment dispersion and treatment-to-control differences are retained."
+msgstr "Mælt með þegar hver plata inniheldur sama neikvæða viðmið/samanburðarviðmið. spaCR metur miðgildishliðrun viðmiðsins á hverri plötu og dregur aðeins þá hliðrun frá. Dreifing meðferða og munur milli meðferða og viðmiða varðveitist."
+
+msgid "``robust_zscore``"
+msgstr "``robust_zscore``"
+
+msgid "Align plate medians and median absolute deviations. This is resilient to outliers, but can remove genuine differences if biological conditions are unevenly distributed across plates."
+msgstr "Jafna miðgildi platna og miðgildisfrávik. Þetta er þolið gagnvart útlögum en getur fjarlægt raunverulegan mun ef líffræðilegum skilyrðum er dreift ójafnt á plöturnar."
+
+msgid "``center``"
+msgstr "``center``"
+
+msgid "Align plate means while preserving the overall mean."
+msgstr "Jafna meðaltöl platna en varðveita heildarmeðaltalið."
+
+msgid "``zscore``"
+msgstr "``zscore``"
+
+msgid "Align both plate means and standard deviations. This is the strongest of the per-plate rescalings and should be used only when plate composition is comparable."
+msgstr "Jafna bæði meðaltöl og staðalfrávik platna. Þetta er sterkasta endurkvörðunin á hverja plötu og ætti aðeins að nota þegar samsetning platnanna er sambærileg."
+
+msgid "``combat``"
+msgstr "``combat``"
+
+msgid "Empirical-Bayes ComBat (Johnson, Li & Rabinovich, 2007). Each feature is modelled on batch *and* on the biology named in ``batch_covariate_column``, and only the batch part is removed; per-batch estimates are shrunk across features, which keeps small plates usable. It refuses to run until the covariate is answered: name the column(s) to preserve, or pass ``no_covariate`` to record that every batch holds the same mixture of conditions. ``batch_combat_mean_only=True`` corrects only the additive shift and leaves each batch's spread alone."
+msgstr "Empirical-Bayes ComBat (Johnson, Li & Rabinovich, 2007). Hver eiginleiki er líkanaður út frá lotu *og* út frá líffræðinni sem tilgreind er í ``batch_covariate_column``, og aðeins lotuhlutinn er fjarlægður; mat fyrir hverja lotu er dregið saman yfir eiginleika, sem heldur litlum plötum nothæfum. Aðferðin neitar að keyra þar til fylgibreytunni hefur verið svarað: tilgreindu dálkinn eða dálkana sem á að varðveita, eða sendu ``no_covariate`` til að skrá að hver lota innihaldi sömu blöndu skilyrða. ``batch_combat_mean_only=True`` leiðréttir aðeins samlagningarhliðrunina og lætur dreifingu hverrar lotu ósnerta."
+
+msgid "Settings"
+msgstr "Stillingar"
+
+msgid "Set ``batch_correction`` to a method above and use ``batch_column`` to name the batch identifier (normally ``plateID``). ``batch_min_samples`` rejects unstable estimates from undersized batches."
+msgstr "Stilltu ``batch_correction`` á aðferð hér að ofan og notaðu ``batch_column`` til að tilgreina auðkenni lotunnar (venjulega ``plateID``). ``batch_min_samples`` hafnar óstöðugu mati frá of litlum lotum."
+
+msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` is the safe default; ``skip`` leaves an affected plate unchanged and records a warning."
+msgstr "Fyrir ``control_center`` tilgreinir ``batch_control_column`` lýsigagnareitinn sem inniheldur viðmiðin og ``batch_control_values`` velur eitt eða fleiri viðmiðunargildi. Þegar þetta er autt fylgir Mynda-UMAP ``col_to_compare``/``neg`` og ML-fjölskylda Flokkunar fylgir ``location_column`` (eða ``annotation_column`` þegar merkingar skilgreina flokkana) og ``negative_control_id``. Aðhvarf krefst skýrs viðmiðunargildis. ``batch_missing_control=error`` er örugga sjálfgildið; ``skip`` lætur viðkomandi plötu óbreytta og skráir viðvörun."
+
+msgid "Every regression correction writes ``batch_correction.json`` next to the regression outputs. Image UMAP and Classify print before/after batch-centroid spread in the run log, while the reproducibility manifest records the exact settings used."
+msgstr "Sérhver aðhvarfsleiðrétting skrifar ``batch_correction.json`` við hlið aðhvarfsúttakanna. Mynda-UMAP og Flokkun prenta dreifingu lotumiðja fyrir og eftir í keyrsluskrána, en endurtakanleikaskráin skráir nákvæmar stillingar sem notaðar voru."
+
+msgid "Python API"
+msgstr "Python API"
+
+msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata`, which ensures metadata columns never enter the numeric feature matrix."
+msgstr "Sameiginlega útfærslan er :func:`spacr.batch_correction.correct_batch_effects`. Flestar samþættingar nota :func:`spacr.batch_correction.correct_from_metadata`, sem tryggir að lýsigagnadálkar fari aldrei inn í tölulega eiginleikafylkið."
+

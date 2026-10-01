@@ -531,6 +531,10 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
        (Cellpose-SAM (cpsam_v2))
      - the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset
      - F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505
+   * - ``toxoplasma_pv_v4``
+       (Cellpose-SAM (cpsam_v2))
+     - round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7
+     - F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505
    * - ``live_cell_v1``
        (Cellpose-SAM (cpsam_v2))
      - 11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset
@@ -547,10 +551,6 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
        (Cellpose-SAM (cpsam_v2))
      - Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
      - F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
-   * - ``colony_yolo11n_makrai_v1``
-       (YOLO11n (ultralytics), one class 'colony')
-     - smartphone plate photos of 24 bacterial and fungal species; 369 photos, 56,865 colony boxes, from Makrai et al. 2023 (Scientific Data, CC BY 4.0)
-     - median count error 2.4% on 39 held-out plates with 30-300 colonies, against 16.5% for spaCR's thresholding counter on the same plates
 
 .. spacr-model-zoo-end
 

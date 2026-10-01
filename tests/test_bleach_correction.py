@@ -172,3 +172,94 @@ def test_measure_offers_the_setting_off_by_default():
     settings = get_measure_crop_settings({'src': '/tmp/none'})
     assert settings['bleach_correction'] == 'none'
     assert _BLEACH_METHODS[0] == 'none'
+
+
+def test_timepoints_written_as_measure_writes_them_are_ordered_by_number():
+    df = _bleaching_table(n_frames=12, n_objects=20, fields=(1,))
+    as_text = df.assign(timeID='t' + df['timeID'].astype(str))
+    as_text = as_text.sample(frac=1.0, random_state=0)
+    for method in ('ratio', 'exponential', 'histogram'):
+        numbers, fits_n = _bleach_correct_table(df, 'cell', method)
+        text, fits_t = _bleach_correct_table(as_text, 'cell', method)
+        text = text.sort_index()
+        column = 'cell_channel_0_mean_intensity'
+        assert np.allclose(text[column], numbers[column]), method
+        assert fits_t['corrected_last'].to_numpy() == pytest.approx(
+            fits_n['corrected_last'].to_numpy())
+    if fits_t['decay_b'].notna().any():
+        assert fits_t['decay_b'].to_numpy() == pytest.approx(
+            fits_n['decay_b'].to_numpy())
+
+
+def _offset_series(n_frames=10, offset=1000.0, ring=True):
+    rng = np.random.default_rng(1)
+    rows = []
+    brightness = np.linspace(100.0, 400.0, 30)
+    for t in range(n_frames):
+        decay = np.exp(-0.1 * t)
+        for label, b in enumerate(brightness, start=1):
+            background = offset + rng.normal(0.0, 0.1)
+            level = offset + b * decay
+            row = {'object_label': label, 'plateID': 'p', 'rowID': 'r1',
+                   'columnID': 'c1', 'fieldID': 'f1', 'timeID': f't{t}',
+                   'nucleus_area': 50.0,
+                   'nucleus_channel_1_mean_intensity': level,
+                   'nucleus_channel_1_integrated_intensity': level * 50.0}
+            if ring:
+                row['nucleus_channel_1_outside_percentile_50'] = background
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+@pytest.mark.parametrize('method', ['ratio', 'exponential'])
+def test_a_camera_offset_under_the_ring_is_not_rescaled(method):
+    df = _offset_series()
+    corrected, fits = _bleach_correct_table(df, 'nucleus', method)
+    ring = df['nucleus_channel_1_outside_percentile_50']
+    signal = corrected['nucleus_channel_1_mean_intensity'] - ring
+    by_time = signal.groupby(df['timeID']).median()
+    assert by_time.max() / by_time.min() - 1 < 0.02
+    first, last = df['timeID'] == 't0', df['timeID'] == 't9'
+    ratio_first = signal[first].max() / signal[first].min()
+    ratio_last = signal[last].max() / signal[last].min()
+    assert ratio_last == pytest.approx(ratio_first, rel=0.02)
+    integrated = (corrected['nucleus_channel_1_integrated_intensity']
+                  - ring * 50.0).groupby(df['timeID']).median()
+    assert integrated.max() / integrated.min() - 1 < 0.02
+    assert set(fits['background']) == {'nucleus_channel_1_outside_percentile_50'}
+
+
+def test_without_a_ring_the_offset_is_rescaled_with_the_signal():
+    df = _offset_series(ring=False)
+    corrected, fits = _bleach_correct_table(df, 'nucleus', 'ratio')
+    signal = corrected['nucleus_channel_1_mean_intensity'] - 1000.0
+    by_time = signal.groupby(df['timeID']).median()
+    assert set(fits['background']) == {''}
+    assert abs(by_time['t9'] / by_time['t0'] - 1) < 0.02
+    last = df['timeID'] == 't9'
+    first = df['timeID'] == 't0'
+    assert (signal[last].max() / signal[last].min()
+            < 0.9 * signal[first].max() / signal[first].min())
+
+
+def test_a_rising_trend_is_not_divided_away_by_the_ratio():
+    trend = pd.Series([100.0, 120.0, 150.0, 90.0], index=[0, 1, 2, 3])
+    factors, applied, _ = _bleach_factors(trend, 'ratio')
+    assert applied == 'ratio'
+    assert factors.tolist() == pytest.approx([1.0, 1.0, 1.0, 100.0 / 90.0])
+    rising = pd.Series(100.0 + 10.0 * np.arange(8), index=np.arange(8))
+    factors, applied, params = _bleach_factors(rising, 'exponential')
+    assert np.allclose(factors.to_numpy(), 1.0, atol=1e-6)
+
+
+def test_histogram_matching_of_a_brightening_series_is_reported(tmp_path, capsys):
+    from spacr.measure import _run_bleach_correction_step
+
+    df = _bleaching_table(n_frames=6, n_objects=12, fields=(1,))
+    column = 'cell_channel_0_mean_intensity'
+    df[column] = df[column] * (1.0 + 0.5 * df['timeID'])
+    db = tmp_path / 'measurements' / 'measurements.db'
+    write_database(df, db, 'cell', if_exists='replace', canonicalise=False)
+    fits = _run_bleach_correction_step(str(db), {'bleach_correction': 'histogram'})
+    assert fits['trend_peak_rise'].max() > 0.1
+    assert 'brighten by more than 10%' in capsys.readouterr().out

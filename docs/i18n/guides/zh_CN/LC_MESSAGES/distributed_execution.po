@@ -1,0 +1,411 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Remote and distributed execution"
+msgstr "远程与分布式执行"
+
+msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
+msgstr "spaCR 可以将 ``spacr-run`` 公开的任何模块提交到另一台工作站、Slurm 集群或云/HPC 命令行客户端。关闭 spaCR 图形界面后，作业仍保留在远程系统上。它们的标识符、状态、设置哈希和最新日志存储在本地，并显示在 **帮助 → 分布式作业** 中。"
+
+msgid "Execution profiles"
+msgstr "执行配置文件"
+
+msgid "An execution profile describes *how to reach compute*, not an analysis. Profiles never store passwords or API keys:"
+msgstr "执行配置文件描述的是 *如何访问计算资源*，而不是分析。配置文件绝不存储密码或 API 密钥："
+
+msgid "``SSH workstation``"
+msgstr "``SSH workstation``"
+
+msgid "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code."
+msgstr "通过 SSH 上传解析后的小型设置 JSON，在持久的后台进程中启动 ``spacr-run``，并记录其退出码。"
+
+msgid "``Slurm cluster``"
+msgstr "``Slurm cluster``"
+
+msgid "Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then ``sacct``, and cancels with ``scancel``. The SSH host may be blank when the Slurm commands are installed locally."
+msgstr "上传设置，提交 ``sbatch`` 脚本，先轮询 ``squeue`` 再轮询 ``sacct``，并用 ``scancel`` 取消。当 Slurm 命令安装在本地时，SSH 主机可以留空。"
+
+msgid "``Cloud / custom command``"
+msgstr "``Cloud / custom command``"
+
+msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a safe job identifier and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
+msgstr "运行配置的提交/状态/取消参数模板。这样无需在 spaCR 中嵌入厂商凭据即可支持云 CLI 和站点特定的调度器。命令必须输出一个安全的作业标识符，状态命令应输出常规状态，例如 ``PENDING``、``RUNNING``、``SUCCEEDED``、``FAILED`` 或 ``CANCELLED``。"
+
+msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
+msgstr "请在 spaCR 之外配置 SSH 密钥、云身份验证和 VPN 访问。在提交长时间运行之前，请先在终端中测试相同的连接。"
+
+msgid "Shared data and path mapping"
+msgstr "共享数据与路径映射"
+
+msgid "spaCR transfers the settings document, not an image dataset. Images must already be visible to the execution target through shared storage, a mirrored mount or a cloud-aware wrapper command."
+msgstr "spaCR 传输的是设置文档，而不是图像数据集。图像必须已经能够通过共享存储、镜像挂载或支持云的包装命令被执行目标访问。"
+
+msgid "When the mount paths differ, set a *Local dataset root* and *Remote dataset root*. Every absolute path nested in the settings below the local root is rewritten beneath the remote root. Paths outside it are preserved. For example::"
+msgstr "当挂载路径不同时，请设置 *Local dataset root* 和 *Remote dataset root*。设置中嵌套的、位于本地根目录下的每个绝对路径都会被改写到远程根目录下。根目录之外的路径保持不变。例如::"
+
+msgid "Settings can be dragged onto the Distributed Jobs screen, selected with **Browse**, or handed off directly with **Submit remote…** in any ordinary module."
+msgstr "可以将设置拖放到分布式作业屏幕上，使用 **浏览** 选择，或在任何普通模块中通过 **远程提交…** 直接移交。"
+
+msgid "Command-line workflow"
+msgstr "命令行工作流程"
+
+msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export::"
+msgstr "GUI 和 CLI 共享相同的配置文件存储和作业存储。创建一个工作站配置文件并提交导出的设置::"
+
+msgid "A Slurm profile can be local or reached through a login host::"
+msgstr "Slurm 配置文件可以是本地的，也可以通过登录主机访问::"
+
+msgid "Custom/cloud templates"
+msgstr "自定义/云模板"
+
+msgid "Templates are parsed as argument vectors; spaCR does not execute them with ``shell=True``. Supported placeholders are:"
+msgstr "模板被解析为参数向量；spaCR 不会以 ``shell=True`` 执行它们。支持的占位符包括："
+
+#, python-brace-format
+msgid "``{job_id}``"
+msgstr "``{job_id}``"
+
+msgid "The permanent local spaCR identifier."
+msgstr "永久的本地 spaCR 标识符。"
+
+#, python-brace-format
+msgid "``{module}``"
+msgstr "``{module}``"
+
+msgid "The canonical ``spacr-run`` module name."
+msgstr "规范的 ``spacr-run`` 模块名称。"
+
+#, python-brace-format
+msgid "``{settings}``"
+msgstr "``{settings}``"
+
+msgid "The absolute local resolved-settings JSON. A cloud wrapper is responsible for uploading it if needed."
+msgstr "本地解析后设置 JSON 的绝对路径。如有需要，由云包装器负责上传该文件。"
+
+#, python-brace-format
+msgid "``{external_id}``"
+msgstr "``{external_id}``"
+
+msgid "The identifier printed by the submit command, used by status/cancel/log commands."
+msgstr "由提交命令输出的标识符，供状态/取消/日志命令使用。"
+
+#, python-brace-format
+msgid "``{profile}``"
+msgstr "``{profile}``"
+
+msgid "The profile display name."
+msgstr "配置文件的显示名称。"
+
+msgid "If a cloud CLI prints JSON, set a Job-ID regular expression with a named ``id`` group. For example ``\"jobId\":\\s*\"(?P<id>[A-Za-z0-9-]+)\"``."
+msgstr "如果云 CLI 输出 JSON，请设置一个带有命名 ``id`` 组的作业 ID 正则表达式。例如 ``\"jobId\":\\s*\"(?P<id>[A-Za-z0-9-]+)\"``。"
+
+msgid "Reliability and limitations"
+msgstr "可靠性与限制"
+
+msgid "A temporary polling failure is retained as a visible error and does not falsely mark a remote job failed."
+msgstr "暂时性的轮询失败会作为可见的错误保留，而不会错误地将远程作业标记为失败。"
+
+msgid "SSH jobs write an exit-code file atomically. Slurm uses accounting after a job leaves the queue."
+msgstr "SSH 作业以原子方式写入退出码文件。作业离开队列后，Slurm 使用记账信息。"
+
+msgid "Local job records and profiles use advisory locks plus atomic replacement, so a GUI and ``spacr-remote`` process do not partially write JSON."
+msgstr "本地作业记录和配置文件使用建议锁加原子替换，因此 GUI 和 ``spacr-remote`` 进程不会只写入部分 JSON。"
+
+msgid "Cancellation is a request. A scheduler or remote process may take time to stop, and pipeline-level checkpoint semantics still determine how much work can be resumed."
+msgstr "取消只是一个请求。调度器或远程进程可能需要一段时间才能停止，而流程级的检查点语义仍然决定可以继续多少工作。"
+
+msgid "Cloud templates intentionally do not provide an embedded shell. Put pipelines, uploads, quoting and vendor-specific JSON handling in a reviewed wrapper executable."
+msgstr "云模板有意不提供内嵌的 shell。请将管道、上传、引号处理和厂商特定的 JSON 处理放在一个经过审查的可执行包装程序中。"
+
+msgid "Python API"
+msgstr "Python API"
+
+msgid "Persistent remote and distributed execution for spaCR pipelines."
+msgstr "面向 spaCR 流程的持久化远程和分布式执行。"
+
+msgid "The local GUI and :mod:`spacr.cli` already agree on one headless contract::"
+msgstr "本地 GUI 和 :mod:`spacr.cli` 已经遵循同一个无界面约定::"
+
+msgid "This module transports that contract to a workstation over SSH, submits it to Slurm, or hands it to a user-configured cloud/HPC command.  Submitted jobs are recorded locally and can be polled or cancelled after spaCR itself has closed."
+msgstr "本模块通过 SSH 将该约定传送到工作站、提交到 Slurm，或交给用户配置的云/HPC 命令。提交的作业记录在本地，即使 spaCR 本身已关闭，也可以对其进行轮询或取消。"
+
+msgid "No command uses ``shell=True``.  SSH necessarily invokes a remote login shell; all user-controlled values interpolated into its small fixed scripts are quoted with :func:`shlex.quote`, and host names are validated separately. Custom command profiles are parsed into argument vectors and substitute each placeholder inside one argument, so shell operators have no special meaning."
+msgstr "没有任何命令使用 ``shell=True``。SSH 必然会调用远程登录 shell；插入其小型固定脚本中的所有用户可控值都会用 :func:`shlex.quote` 加引号，主机名会单独验证。自定义命令配置文件被解析为参数向量，每个占位符都在单个参数内替换，因此 shell 运算符没有特殊含义。"
+
+msgid "Result returned by the injectable command runner."
+msgstr "可注入命令运行器返回的结果。"
+
+msgid "Parameters"
+msgstr "参数"
+
+msgid "process exit status, where zero denotes success."
+msgstr "进程退出状态，零表示成功。"
+
+msgid "captured standard-output text."
+msgstr "捕获的标准输出文本。"
+
+msgid "captured standard-error text."
+msgstr "捕获的标准错误文本。"
+
+msgid "Connection and scheduler settings for one execution target."
+msgstr "一个执行目标的连接和调度器设置。"
+
+msgid "``local_root`` and ``remote_root`` describe the same shared or mirrored dataset.  Every absolute string nested in the settings is rewritten when it lies below ``local_root``.  Image datasets are deliberately not copied: accidental recursive transfer of a multi-terabyte plate is worse than a clear pre-flight error."
+msgstr "``local_root`` 和 ``remote_root`` 描述同一个共享或镜像的数据集。设置中嵌套的每个绝对字符串只要位于 ``local_root`` 之下就会被改写。图像数据集有意不被复制：意外递归传输一块数 TB 的孔板，比清晰的预检错误更糟糕。"
+
+#, python-brace-format
+msgid "For ``command`` profiles, command strings are tokenized with :func:`shlex.split` and support ``{job_id}``, ``{module}``, ``{settings}`` and ``{external_id}`` placeholders.  They are argument templates, not shell scripts."
+msgstr "对于 ``command`` 配置文件，命令字符串用 :func:`shlex.split` 进行分词，并支持 ``{job_id}``、``{module}``、``{settings}`` 和 ``{external_id}`` 占位符。它们是参数模板，而不是 shell 脚本。"
+
+msgid "human-readable profile name used to select this target."
+msgstr "用于选择此目标的人类可读配置文件名称。"
+
+msgid "execution mechanism, one of :data:`BACKENDS`."
+msgstr "执行机制，为 :data:`BACKENDS` 之一。"
+
+msgid "OpenSSH target for SSH and remote Slurm; blank permits a Slurm scheduler running on the local host."
+msgstr "SSH 和远程 Slurm 的 OpenSSH 目标；为空时允许使用在本地主机上运行的 Slurm 调度器。"
+
+msgid "absolute execution directory where ``spacr-jobs`` artifacts are created."
+msgstr "创建 ``spacr-jobs`` 产物的绝对执行目录。"
+
+msgid "local dataset prefix paired with ``remote_root`` for nested absolute-path rewriting."
+msgstr "与 ``remote_root`` 配对、用于改写嵌套绝对路径的本地数据集前缀。"
+
+msgid "equivalent dataset prefix visible to the target host."
+msgstr "目标主机可见的等价数据集前缀。"
+
+msgid "headless executable invoked as ``runner module --settings path`` by SSH and Slurm backends."
+msgstr "SSH 和 Slurm 后端以 ``runner module --settings path`` 形式调用的无界面可执行文件。"
+
+msgid "additional shell-free arguments passed to ``sbatch``."
+msgstr "传递给 ``sbatch`` 的额外无 shell 参数。"
+
+#, python-brace-format
+msgid "custom-backend argument template containing ``{settings}`` and printing a job identifier."
+msgstr "包含 ``{settings}`` 并输出作业标识符的自定义后端参数模板。"
+
+#, python-brace-format
+msgid "custom status template containing ``{external_id}`` and returning a state spaCR can normalize."
+msgstr "包含 ``{external_id}`` 并返回 spaCR 可以规范化的状态的自定义状态模板。"
+
+#, python-brace-format
+msgid "custom cancellation template containing ``{external_id}``."
+msgstr "包含 ``{external_id}`` 的自定义取消模板。"
+
+msgid "optional custom template for fetching job output."
+msgstr "用于获取作业输出的可选自定义模板。"
+
+msgid "optional regular expression extracting a named ``id``, first capture, or full match from submission output."
+msgstr "可选的正则表达式，从提交输出中提取命名的 ``id``、第一个捕获组或整个匹配。"
+
+msgid "recommended client polling interval, from 2 through 3600 seconds."
+msgstr "建议的客户端轮询间隔，2 到 3600 秒。"
+
+msgid "Construct and validate a profile from JSON-compatible data."
+msgstr "根据 JSON 兼容数据构造并验证一个配置文件。"
+
+msgid "stored profile fields keyed by their dataclass names."
+msgstr "以数据类字段名为键存储的配置文件字段。"
+
+msgid "Return a JSON-safe representation."
+msgstr "返回 JSON 安全的表示形式。"
+
+msgid "Validate the profile and return ``self`` for fluent callers."
+msgstr "验证配置文件并返回 ``self``，以便链式调用。"
+
+msgid "Atomic persistent store for remote job metadata."
+msgstr "远程作业元数据的原子持久化存储。"
+
+msgid "optional jobs JSON path; by default ``state_directory()/jobs.json``. The advisory lock uses a sibling path with ``.lock`` appended."
+msgstr "可选的作业 JSON 路径；默认为 ``state_directory()/jobs.json``。建议锁使用追加了 ``.lock`` 的同级路径。"
+
+msgid "Return a job by full ID or unambiguous prefix."
+msgstr "按完整 ID 或无歧义前缀返回作业。"
+
+msgid "complete job identifier or an unambiguous prefix."
+msgstr "完整的作业标识符或无歧义前缀。"
+
+msgid "Return newest jobs first."
+msgstr "按从新到旧的顺序返回作业。"
+
+msgid "Insert or replace one job atomically."
+msgstr "以原子方式插入或替换一个作业。"
+
+msgid "remote-job record to persist."
+msgstr "要持久化的远程作业记录。"
+
+msgid "Atomic persistent store for execution profiles."
+msgstr "执行配置文件的原子持久化存储。"
+
+msgid "optional profiles JSON path; by default ``state_directory()/profiles.json``. The advisory lock uses a sibling path with ``.lock`` appended."
+msgstr "可选的配置文件 JSON 路径；默认为 ``state_directory()/profiles.json``。建议锁使用追加了 ``.lock`` 的同级路径。"
+
+msgid "Delete one profile; return whether it existed."
+msgstr "删除一个配置文件；返回它是否存在。"
+
+msgid "profile name to delete case-insensitively."
+msgstr "要删除的配置文件名称，不区分大小写。"
+
+msgid "Return a named profile or raise a user-facing error."
+msgstr "返回指定名称的配置文件，或抛出面向用户的错误。"
+
+msgid "profile name to match case-insensitively."
+msgstr "要匹配的配置文件名称，不区分大小写。"
+
+msgid "Return profiles sorted by case-insensitive name."
+msgstr "返回按名称（不区分大小写）排序的配置文件。"
+
+msgid "Insert or replace one profile atomically."
+msgstr "以原子方式插入或替换一个配置文件。"
+
+msgid "validated execution profile to persist."
+msgstr "要持久化的已验证执行配置文件。"
+
+msgid "A profile, submission, polling, or cancellation error."
+msgstr "配置文件、提交、轮询或取消错误。"
+
+msgid "These errors are safe to show directly in the GUI: passwords and environment variables are never included in command rendering."
+msgstr "这些错误可以直接显示在 GUI 中：渲染命令时绝不会包含密码和环境变量。"
+
+msgid "Persistent local record of one submitted job."
+msgstr "单个已提交作业的持久化本地记录。"
+
+msgid "locally generated stable identifier for the job."
+msgstr "本地生成的作业稳定标识符。"
+
+msgid "resolved spaCR command-line module key to execute."
+msgstr "要执行的已解析 spaCR 命令行模块键。"
+
+msgid "name of the execution profile used for submission."
+msgstr "提交时使用的执行配置文件名称。"
+
+msgid "backend recorded at submission time."
+msgstr "提交时记录的后端。"
+
+msgid "compact lifecycle state, initially ``\"submitting\"``."
+msgstr "简洁的生命周期状态，初始为 ``\"submitting\"``。"
+
+msgid "validated process, scheduler, or provider identifier."
+msgstr "经过验证的进程、调度器或服务提供方标识符。"
+
+msgid "ISO-8601 construction timestamp."
+msgstr "ISO-8601 格式的构造时间戳。"
+
+msgid "timestamp replaced whenever :class:`JobStore` persists the record."
+msgstr "每当 :class:`JobStore` 持久化该记录时都会被替换的时间戳。"
+
+msgid "retained local path of the mapped settings JSON."
+msgstr "映射后设置 JSON 在本地保留的路径。"
+
+msgid "SHA-256 digest of the exact serialized settings."
+msgstr "确切序列化设置的 SHA-256 摘要。"
+
+msgid "uploaded settings path for SSH and Slurm."
+msgstr "SSH 和 Slurm 上传后的设置路径。"
+
+msgid "target-side directory containing job artifacts."
+msgstr "目标端包含作业产物的目录。"
+
+msgid "backend log location or custom-backend marker."
+msgstr "后端日志位置或自定义后端标记。"
+
+msgid "most recently fetched output or availability message."
+msgstr "最近获取的输出或可用性消息。"
+
+msgid "normalized process exit status, or ``None`` until known."
+msgstr "规范化的进程退出状态，未知时为 ``None``。"
+
+msgid "latest submission, polling, or cancellation failure; cleared after a successful refresh or cancellation."
+msgstr "最近一次提交、轮询或取消失败；在成功刷新或取消后清除。"
+
+msgid "submission-time profile snapshot, retained so the job remains operable after profile edits or deletion."
+msgstr "提交时的配置文件快照，保留下来以便在配置文件被编辑或删除后作业仍可操作。"
+
+msgid "Construct a job from a stored mapping, tolerating future fields."
+msgstr "根据存储的映射构造作业，并容忍未来新增的字段。"
+
+msgid "stored job fields keyed by their dataclass names."
+msgstr "以数据类字段名为键存储的作业字段。"
+
+msgid "Submit, monitor, cancel and inspect persistent remote jobs."
+msgstr "提交、监控、取消和检查持久化的远程作业。"
+
+msgid "All methods are synchronous and may perform network I/O.  GUI callers must invoke them on a worker thread; the shipped Distributed Jobs screen does."
+msgstr "所有方法都是同步的，并可能执行网络 I/O。GUI 调用方必须在工作线程上调用它们；随附的分布式作业屏幕正是这样做的。"
+
+msgid "injectable persistent profile store; omitted creates the default :class:`ProfileStore`."
+msgstr "可注入的持久化配置文件存储；省略时创建默认的 :class:`ProfileStore`。"
+
+msgid "injectable persistent job store; omitted creates the default :class:`JobStore`."
+msgstr "可注入的持久化作业存储；省略时创建默认的 :class:`JobStore`。"
+
+msgid "shell-free callable accepting an argument vector, timeout, and optional input and returning :class:`CommandResult`."
+msgstr "无 shell 的可调用对象，接受参数向量、超时和可选输入，并返回 :class:`CommandResult`。"
+
+msgid "Request cancellation and persist the result."
+msgstr "请求取消并持久化结果。"
+
+msgid "complete local job identifier or unambiguous prefix."
+msgstr "完整的本地作业标识符或无歧义前缀。"
+
+msgid "Retrieve and persist the tail of one remote job's log."
+msgstr "获取并持久化单个远程作业日志的末尾部分。"
+
+msgid "Poll one non-terminal job and optionally retain its latest log tail."
+msgstr "轮询一个未结束的作业，并可选择保留其最新的日志末尾。"
+
+msgid "Poll every active job and return the complete newest-first list."
+msgstr "轮询所有活动作业，并按从新到旧返回完整列表。"
+
+msgid "Submit resolved settings through a named execution profile."
+msgstr "通过指定的执行配置文件提交解析后的设置。"
+
+msgid "headless spaCR module name accepted by ``spacr-run``."
+msgstr "``spacr-run`` 接受的无界面 spaCR 模块名称。"
+
+msgid "resolved module settings to serialize for the job."
+msgstr "要为作业序列化的已解析模块设置。"
+
+msgid "name of the execution profile to use."
+msgstr "要使用的执行配置文件名称。"
+
+msgid "Recursively map absolute paths below one local root to a remote root."
+msgstr "递归地将位于某个本地根目录下的绝对路径映射到远程根目录。"
+
+msgid "Non-path strings and paths outside the configured root are unchanged. Mapping keys are intentionally preserved: setting names are not paths."
+msgstr "非路径字符串以及位于配置根目录之外的路径保持不变。映射的键有意保留：设置名称不是路径。"
+
+msgid "nested settings value whose absolute path strings are mapped."
+msgstr "其中的绝对路径字符串会被映射的嵌套设置值。"
+
+msgid "local dataset root that mapped paths must lie below."
+msgstr "被映射路径必须位于其下的本地数据集根目录。"
+
+msgid "remote dataset root that replaces ``local_root``."
+msgstr "替换 ``local_root`` 的远程数据集根目录。"
+
+msgid "Return the persistent directory for profiles, jobs, settings and logs."
+msgstr "返回配置文件、作业、设置和日志的持久化目录。"
+
+msgid "``SPACR_REMOTE_STATE_DIR`` is intentionally supported for tests, portable deployments, and managed lab installations.  Otherwise XDG state storage is used on Linux and a conventional per-user directory elsewhere."
+msgstr "``SPACR_REMOTE_STATE_DIR`` 有意支持测试、便携部署和受管理的实验室安装。否则，在 Linux 上使用 XDG 状态存储，在其他系统上使用常规的每用户目录。"
+

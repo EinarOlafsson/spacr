@@ -114,3 +114,32 @@ def test_a_hub_that_dies_while_being_asked_reports_not_watching(
                         lambda app, create=True: _FailingHub())
     assert _stop_watching_application_events(qapp, QObject()) is False
     assert _application_watchers(qapp) == ()
+
+
+def test_a_watcher_that_takes_a_dead_one_off_first_leaves_nothing_to_forget(
+        qapp):
+    """A dead watcher is noted during dispatch, but the watcher asked after it
+    discards it before the sweep; the sweep then finds everyone alive and
+    keeps the chain exactly as it is."""
+    hub = _application_event_hub_class()()
+    try:
+        doomed = QObject()
+        seen = []
+
+        class _Tidier(QObject):
+            def eventFilter(self, watched, event):            # noqa: N802
+                seen.append(event.type())
+                hub.discard(doomed)
+                return False
+
+        tidier = _Tidier()
+        hub.add(tidier, (QEvent.Type.User,))
+        hub.add(doomed, (QEvent.Type.User,))
+        import shiboken6
+
+        shiboken6.delete(doomed)
+        assert hub.eventFilter(None, QEvent(QEvent.Type.User)) is False
+        assert seen == [QEvent.Type.User]
+        assert hub.watchers() == (tidier,)
+    finally:
+        hub.deleteLater()

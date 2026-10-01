@@ -1,0 +1,87 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Python API quickstart"
+msgstr "Python API 快速入门"
+
+msgid "Use the Python API when a workflow needs to run from a notebook, a reusable script, a server or a scheduler. The desktop application and the Python API call the same pipeline functions and use the same setting names."
+msgstr "当工作流程需要在 notebook、可复用脚本、服务器或调度器中运行时，请使用 Python API。桌面应用程序与 Python API 调用相同的流程函数，并使用相同的设置名称。"
+
+msgid "Install the headless package"
+msgstr "安装无界面软件包"
+
+msgid "Add ``[qt]`` only when the same environment also needs the desktop interface."
+msgstr "仅当同一环境还需要桌面界面时才添加 ``[qt]``。"
+
+msgid "Use the typed workflow configuration"
+msgstr "使用类型化的工作流程配置"
+
+msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
+msgstr "顶层 API 为主要工作流程提供了一个小而稳定的接口。类型化字段涵盖大多数脚本需要做出的选择；``extra`` 接受高级设置，但会拒绝为已有的类型化字段提供第二个值。"
+
+msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
+msgstr "当需要为保存的设置文件生成完整字典时，请调用 ``mask.to_settings()``。它通过与图形界面相同的默认值进行展开。"
+
+msgid "Validate before a long run"
+msgstr "长时间运行前进行验证"
+
+msgid "Set ``dry_run`` to inspect the input and return a list of problems without loading a model, using the GPU or writing results."
+msgstr "设置 ``dry_run`` 可检查输入并返回问题列表，而不会加载模型、使用 GPU 或写入结果。"
+
+msgid "An empty list means that the preflight checks passed. A preflight check cannot guarantee model quality; inspect the segmentation preview before processing a full screen."
+msgstr "空列表表示预检通过。预检无法保证模型质量；在处理整个筛选之前，请检查分割预览。"
+
+msgid "Generate masks"
+msgstr "生成掩膜"
+
+msgid "A normal run returns ``None`` and writes masks, overlays, object counts and the resolved settings below ``src``. Invalid required inputs raise ``ValueError``; runtime progress and recoverable field failures are written to the spaCR log."
+msgstr "正常运行返回 ``None``，并在 ``src`` 下写入掩膜、叠加图、对象计数和解析后的设置。无效的必需输入会引发 ``ValueError``；运行进度和可恢复的视野错误会写入 spaCR 日志。"
+
+msgid "Measure objects and save crops"
+msgstr "测量对象并保存裁剪图"
+
+msgid "Measure writes ``measurements/measurements.db`` and the resolved settings. If ``save_png`` is enabled, it also writes one crop set for each ``crop_mode``."
+msgstr "测量模块会写入 ``measurements/measurements.db`` 和解析后的设置。如果启用了 ``save_png``，它还会为每个 ``crop_mode`` 写入一组裁剪图。"
+
+msgid "Run the same contract from a shell"
+msgstr "在 shell 中执行相同的约定"
+
+msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
+msgstr "无界面命令适合在调度器中使用，因为它会在导入沉重的流程依赖之前验证设置名称和值。"
+
+msgid "Command-line overrides are applied after the file:"
+msgstr "命令行覆盖项在文件之后应用："
+
+msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+msgstr "未知设置和无法转换的值会被拒绝，并给出建议。当问题出在环境而不是设置上时，请使用 ``spacr-doctor``。"
+
+msgid "Continue from notebooks"
+msgstr "从 notebook 继续"
+
+msgid "The repository's ``Notebooks/`` directory contains complete Mask, Measure, Classify, barcode and regression examples. Treat the settings helpers and the :doc:`curated API reference <api/index>` as authoritative for the installed version; notebooks are worked examples rather than a compatibility contract."
+msgstr "仓库的 ``Notebooks/`` 目录包含完整的掩膜、测量、分类、条形码和回归示例。对于已安装的版本，请以设置辅助函数和 :doc:`精选 API 参考 <api/index>` 为准；notebook 只是示例，而不是兼容性约定。"
+
+msgid "Export measured objects to AnnData"
+msgstr "将测量的对象导出为 AnnData"
+
+msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
+msgstr "按照 :doc:`anndata_export` 的说明，通过与桌面应用程序相同的入口点导出测量数据库，选择缺失值策略，并检查生成的对象 × 特征矩阵。"
+

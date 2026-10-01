@@ -1,0 +1,408 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "System requirements"
+msgstr "시스템 요구 사항"
+
+msgid "Choose hardware for the largest images, number of concurrent fields and models you plan to run. These are planning recommendations, not measured minimums or speed guarantees. A GPU is optional for CPU-capable workflows; the acceleration matrix below identifies where particular hardware can help. See the :doc:`installer guide <installer_guide>` for installation and package compatibility."
+msgstr "실행하려는 가장 큰 이미지, 동시 시야 수, 모델에 맞춰 하드웨어를 선택합니다. 아래 내용은 계획을 위한 권장 사항이며, 측정된 최소 요구 사항이나 속도 보장이 아닙니다. CPU로 실행할 수 있는 워크플로에서 GPU는 선택 사항이며, 아래 가속 표에서 특정 하드웨어가 도움이 되는 부분을 확인할 수 있습니다. 설치와 패키지 호환성은 :doc:`설치 안내서 <installer_guide>` 를 참조합니다."
+
+msgid "General hardware recommendations"
+msgstr "일반 하드웨어 권장 사항"
+
+msgid "Suggested workstation configurations"
+msgstr "권장 워크스테이션 구성"
+
+msgid "Resource"
+msgstr "자원"
+
+msgid "Low: learning and small experiments"
+msgstr "낮음: 학습 및 소규모 실험"
+
+msgid "Medium: routine microscopy plates"
+msgstr "중간: 일상적인 현미경 플레이트"
+
+msgid "High: large screens and model training"
+msgstr "높음: 대규모 스크린 및 모델 학습"
+
+msgid "CPU"
+msgstr "CPU"
+
+msgid "4–8 modern cores; about 2.5–3.5 GHz sustained on x86"
+msgstr "최신 코어 4–8개; x86 기준 지속 클럭 약 2.5–3.5 GHz"
+
+msgid "8–16 cores; about 3–4 GHz sustained on x86"
+msgstr "코어 8–16개; x86 기준 지속 클럭 약 3–4 GHz"
+
+msgid "16–32 cores; about 3–4 GHz sustained on x86"
+msgstr "코어 16–32개; x86 기준 지속 클럭 약 3–4 GHz"
+
+msgid "RAM"
+msgstr "RAM"
+
+msgid "16 GB; process a few fields at a time"
+msgstr "16 GB; 한 번에 몇 개 시야만 처리"
+
+msgid "32–64 GB"
+msgstr "32–64 GB"
+
+msgid "128 GB or more"
+msgstr "128 GB 이상"
+
+msgid "GPU memory"
+msgstr "GPU 메모리"
+
+msgid "CPU operation, or a compatible GPU with 8 GB for modest tiled inference"
+msgstr "CPU로 실행하거나, 적당한 타일 단위 추론을 위해 8 GB의 호환 GPU 사용"
+
+msgid "Compatible GPU with 12–16 GB dedicated VRAM; Apple silicon with 32–64 GB unified memory"
+msgstr "전용 VRAM 12–16 GB의 호환 GPU; 또는 통합 메모리 32–64 GB의 Apple 실리콘"
+
+msgid "Compatible GPU with 24–48 GB or more dedicated VRAM; Apple silicon with 64–128 GB or more unified memory for MPS-capable work"
+msgstr "전용 VRAM 24–48 GB 이상의 호환 GPU; 또는 MPS 지원 작업을 위한 통합 메모리 64–128 GB 이상의 Apple 실리콘"
+
+msgid "Storage"
+msgstr "저장"
+
+msgid "SSD; reserve 30 GB for the environment, caches and initial models, plus project space"
+msgstr "SSD; 환경, 캐시, 초기 모델용으로 30 GB와 프로젝트 공간 확보"
+
+msgid "1–2 TB NVMe SSD; reserve 50 GB for software and model caches"
+msgstr "1–2 TB NVMe SSD; 소프트웨어와 모델 캐시용으로 50 GB 확보"
+
+msgid "2–4 TB NVMe scratch storage, separate archive storage; reserve 100 GB for multiple model environments and caches"
+msgstr "2–4 TB NVMe 작업용 저장소와 별도의 보관 저장소; 여러 모델 환경과 캐시용으로 100 GB 확보"
+
+msgid "Typical use"
+msgstr "일반적인 용도"
+
+msgid "Tutorials, annotation, classical segmentation and small CPU analyses"
+msgstr "튜토리얼, 어노테이션, 고전적 분할, 소규모 CPU 분석"
+
+msgid "Mask, Measure, phenotype inference and moderate embeddings"
+msgstr "마스크, 측정, 표현형 추론, 중간 규모 임베딩"
+
+msgid "Larger training batches, many channels, larger volumes and concurrent plate analysis"
+msgstr "더 큰 학습 배치, 많은 채널, 더 큰 볼륨, 동시 플레이트 분석"
+
+msgid "CPU clock figures are rough x86 purchasing targets, not requirements; GHz is not comparable across architectures. Count physical cores separately from threads, and distinguish performance from efficiency cores on hybrid CPUs. Apple unified memory is shared by the OS, CPU and GPU and is not equivalent to the same quantity of dedicated VRAM. Available memory, image dimensions and batch size determine whether a workload fits. Training usually needs more memory than inference; large 3-D images may exceed any of these examples."
+msgstr "CPU 클럭 수치는 대략적인 x86 구매 목표일 뿐 요구 사항이 아니며, GHz는 아키텍처 간에 비교할 수 없습니다. 물리 코어와 스레드를 구분하여 세고, 하이브리드 CPU에서는 성능 코어와 효율 코어를 구분합니다. Apple 통합 메모리는 OS, CPU, GPU가 공유하므로 같은 용량의 전용 VRAM과 같지 않습니다. 작업이 들어맞는지는 사용 가능한 메모리, 이미지 크기, 배치 크기에 달려 있습니다. 학습은 보통 추론보다 메모리가 더 많이 필요하며, 큰 3D 이미지는 위의 어떤 예시도 넘어설 수 있습니다."
+
+msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.14, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. Current Apple MPS requirements include macOS 14 or later; use the requirements for the specific PyTorch build you install. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
+msgstr "64비트 OS와 Python 환경을 사용합니다. 데스크톱 설치 프로그램은 Windows 10/11 x86-64, Linux x86-64, Intel/Apple 실리콘 macOS를 대상으로 하며, 명시된 최소 OS 버전이 더 새로운 GPU 프레임워크의 같은 OS 지원을 보장하지는 않습니다. 가장 폭넓은 spaCR 추가 구성 요소를 쓰려면 Python 3.12가 실용적인 출발점입니다. spaCR이 선언한 Python 범위는 3.9–3.14(3.14.1 제외)이지만, 선택적 패키지와 개별 하드웨어 백엔드가 이 범위를 좁힙니다. 현재 Apple MPS 요구 사항에는 macOS 14 이상이 포함되므로, 설치하는 특정 PyTorch 빌드의 요구 사항을 따릅니다. `Apple의 PyTorch 요구 사항 <https://developer.apple.com/metal/pytorch/>`_ 에 현재 Apple 실리콘 기본 경로가 설명되어 있습니다."
+
+msgid "GPU support by chip and framework"
+msgstr "칩 및 프레임워크별 GPU 지원"
+
+msgid "**Available** means spaCR has a dispatch route when the matching framework, driver and model operators work. It does not mean every configuration in the row has been tested. **Conditional** means an optional or legacy stack needs verification with the intended module. **No** means that framework does not provide that acceleration route; CPU execution may still be available."
+msgstr "**Available** 은 해당 프레임워크, 드라이버, 모델 연산자가 동작할 때 spaCR에 디스패치 경로가 있다는 뜻입니다. 행의 모든 구성이 테스트되었다는 뜻은 아닙니다. **Conditional** 은 선택적이거나 오래된 스택을 대상 모듈로 검증해야 한다는 뜻입니다. **아니요** 는 해당 프레임워크가 그 가속 경로를 제공하지 않는다는 뜻이며, CPU 실행은 여전히 가능할 수 있습니다."
+
+msgid "Compute compatibility, checked 23 September 2026"
+msgstr "컴퓨팅 호환성, 2026년 9월 23일 확인"
+
+msgid "Hardware"
+msgstr "하드웨어"
+
+msgid "PyTorch neural workflows"
+msgstr "PyTorch 신경망 워크플로"
+
+msgid "Cellpose 4 / Cellpose-SAM"
+msgstr "Cellpose 4 / Cellpose-SAM"
+
+msgid "CuPy array operations"
+msgstr "CuPy 배열 연산"
+
+msgid "RAPIDS / cuML embeddings"
+msgstr "RAPIDS / cuML 임베딩"
+
+msgid "Apple M1 family, including Pro, Max and Ultra where offered"
+msgstr "Apple M1 제품군(제공되는 Pro, Max, Ultra 포함)"
+
+msgid "Available: Metal/MPS on compatible macOS"
+msgstr "Available: 호환 macOS의 Metal/MPS"
+
+msgid "Available: MPS network; some flow operations use CPU"
+msgstr "Available: MPS 네트워크; 일부 흐름 연산은 CPU 사용"
+
+msgid "No"
+msgstr "아니요"
+
+msgid "Apple M2 family, including Pro, Max and Ultra where offered"
+msgstr "Apple M2 제품군(제공되는 Pro, Max, Ultra 포함)"
+
+msgid "Available: Metal/MPS"
+msgstr "Available: Metal/MPS"
+
+msgid "Apple M3 family, including Pro, Max and Ultra where offered"
+msgstr "Apple M3 제품군(제공되는 Pro, Max, Ultra 포함)"
+
+msgid "Apple M4 family, including Pro and Max"
+msgstr "Apple M4 제품군(Pro, Max 포함)"
+
+msgid "Newer Apple silicon"
+msgstr "더 새로운 Apple 실리콘"
+
+msgid "Conditional on the installed macOS/PyTorch supporting the GPU"
+msgstr "Conditional: 설치된 macOS/PyTorch가 해당 GPU를 지원하는 경우"
+
+msgid "Same MPS and operator requirements"
+msgstr "동일한 MPS 및 연산자 요구 사항"
+
+msgid "Intel Mac CPU with Intel integrated graphics"
+msgstr "Intel 내장 그래픽이 있는 Intel Mac CPU"
+
+msgid "CPU; Intel integrated graphics is not the MPS route"
+msgstr "CPU; Intel 내장 그래픽은 MPS 경로가 아님"
+
+msgid "Intel Mac with a compatible AMD discrete GPU"
+msgstr "호환되는 AMD 외장 GPU가 있는 Intel Mac"
+
+msgid "Conditional: legacy x86 PyTorch MPS build"
+msgstr "Conditional: 오래된 x86 PyTorch MPS 빌드"
+
+msgid "Conditional: legacy MPS stack; spaCR can use float32 weights and CPU flows"
+msgstr "Conditional: 오래된 MPS 스택; spaCR은 float32 가중치와 CPU 흐름 사용 가능"
+
+msgid "No supported spaCR macOS route"
+msgstr "지원되는 spaCR macOS 경로 없음"
+
+msgid "Intel Arc A/B discrete GPUs, supported Core Ultra Arc integrated GPUs, Data Center GPU Max"
+msgstr "Intel Arc A/B 외장 GPU, 지원되는 Core Ultra Arc 내장 GPU, Data Center GPU Max"
+
+msgid "Available: XPU with a compatible PyTorch build and Intel driver"
+msgstr "Available: 호환 PyTorch 빌드와 Intel 드라이버를 사용하는 XPU"
+
+msgid "Conditional: explicit XPU device; verify Cellpose operators and build"
+msgstr "Conditional: XPU 장치를 명시; Cellpose 연산자와 빌드 확인 필요"
+
+msgid "Older Intel HD/UHD/Iris integrated GPUs on Windows"
+msgstr "Windows의 오래된 Intel HD/UHD/Iris 내장 GPU"
+
+msgid "Conditional: DirectML on DirectX 12 hardware; otherwise CPU"
+msgstr "Conditional: DirectX 12 하드웨어의 DirectML; 그 밖에는 CPU"
+
+msgid "Conditional and unvalidated via DirectML; CPU is the baseline"
+msgstr "Conditional이며 DirectML로는 검증되지 않음; CPU가 기준"
+
+msgid "AMD Radeon RX 7900 / supported RX 9000 models, supported Radeon PRO and Instinct GPUs"
+msgstr "AMD Radeon RX 7900 / 지원되는 RX 9000 모델, 지원되는 Radeon PRO 및 Instinct GPU"
+
+msgid "Available: ROCm on explicitly supported GPU/OS combinations; Windows routes are version-specific"
+msgstr "Available: 명시적으로 지원되는 GPU/OS 조합의 ROCm; Windows 경로는 버전에 따라 다름"
+
+msgid "Available on compatible Linux ROCm; verify other OS combinations"
+msgstr "Available: 호환되는 Linux ROCm에서; 다른 OS 조합은 확인 필요"
+
+msgid "Experimental ROCm upstream; not installed by spaCR's CUDA extra"
+msgstr "업스트림 ROCm은 실험적; spaCR의 CUDA 추가 구성 요소로는 설치되지 않음"
+
+msgid "Other AMD integrated or discrete GPUs"
+msgstr "기타 AMD 내장 또는 외장 GPU"
+
+msgid "Conditional: only if named in AMD's ROCm matrix, or DirectML on Windows; otherwise CPU"
+msgstr "Conditional: AMD ROCm 표에 명시된 경우 또는 Windows의 DirectML에서만; 그 밖에는 CPU"
+
+msgid "Conditional on the selected backend and operators"
+msgstr "Conditional: 선택한 백엔드와 연산자에 따라 다름"
+
+msgid "Experimental only for ROCm-supported hardware"
+msgstr "ROCm이 지원하는 하드웨어에서만 실험적"
+
+msgid "NVIDIA GeForce RTX 20/30/40/50, compatible RTX workstation and data-center GPUs"
+msgstr "NVIDIA GeForce RTX 20/30/40/50, 호환되는 RTX 워크스테이션 및 데이터 센터 GPU"
+
+msgid "Available: CUDA on Linux/Windows with a matching wheel and driver"
+msgstr "Available: 일치하는 wheel과 드라이버를 사용하는 Linux/Windows의 CUDA"
+
+msgid "Available: CUDA; batch/image size must fit VRAM"
+msgstr "Available: CUDA; 배치/이미지 크기가 VRAM에 맞아야 함"
+
+msgid "Available: matching CUDA CuPy package"
+msgstr "Available: 일치하는 CUDA CuPy 패키지"
+
+msgid "Available on supported Linux/WSL2; release-specific compute capability and CUDA requirements"
+msgstr "Available: 지원되는 Linux/WSL2에서; 릴리스별 컴퓨팅 성능 및 CUDA 요구 사항"
+
+msgid "Intel/AMD CPUs without a supported GPU"
+msgstr "지원되는 GPU가 없는 Intel/AMD CPU"
+
+msgid "CPU, not GPU acceleration"
+msgstr "GPU 가속이 아닌 CPU"
+
+msgid "No; use NumPy/SciPy fallbacks"
+msgstr "아니요; NumPy/SciPy 대체 구현 사용"
+
+msgid "No; use CPU embedding implementations"
+msgstr "아니요; CPU 임베딩 구현 사용"
+
+msgid "The processor brand does not determine CUDA availability: an AMD Ryzen or Intel Core host can both use an NVIDIA GPU. Likewise, an NPU or Apple Neural Engine is not a PyTorch GPU device in spaCR. Detection of such hardware is not a claim that Mask or Classify uses it."
+msgstr "프로세서 브랜드가 CUDA 사용 가능 여부를 결정하지는 않습니다. AMD Ryzen 호스트와 Intel Core 호스트 모두 NVIDIA GPU를 사용할 수 있습니다. 마찬가지로 NPU나 Apple Neural Engine은 spaCR에서 PyTorch GPU 장치가 아닙니다. 그런 하드웨어가 감지되었다고 해서 마스크나 분류가 이를 사용한다는 뜻은 아닙니다."
+
+msgid "The Apple rows share the MPS route; increasing the chip generation does not add CUDA or CuPy support. spaCR's device resolver checks the actual runtime and selects float32 Cellpose weights when bfloat16 is unavailable. The current Apple guidance targets Apple silicon; Intel Mac/AMD support is a legacy path with older compatible PyTorch wheels, not a recommendation to buy an Intel Mac. `PyTorch MPS documentation <https://docs.pytorch.org/docs/stable/notes/mps.html>`_ and `Cellpose installation documentation <https://cellpose.readthedocs.io/en/latest/installation.html>`_ explain their backend requirements."
+msgstr "Apple 행은 MPS 경로를 공유하며, 칩 세대가 올라가도 CUDA나 CuPy 지원이 추가되지는 않습니다. spaCR의 장치 확인기는 실제 런타임을 확인하고, bfloat16을 사용할 수 없으면 float32 Cellpose 가중치를 선택합니다. 현재 Apple 지침은 Apple 실리콘을 대상으로 하며, Intel Mac/AMD 지원은 오래된 호환 PyTorch wheel을 사용하는 과거 경로일 뿐 Intel Mac 구매를 권장하는 것이 아닙니다. `PyTorch MPS 문서 <https://docs.pytorch.org/docs/stable/notes/mps.html>`_ 와 `Cellpose 설치 문서 <https://cellpose.readthedocs.io/en/latest/installation.html>`_ 에 각 백엔드의 요구 사항이 설명되어 있습니다."
+
+msgid "Intel's supported devices and OS combinations differ by generation. Check the `PyTorch XPU hardware table <https://docs.pytorch.org/docs/stable/notes/get_start_xpu.html>`_ for the exact Arc/Core Ultra model; an Intel logo alone is insufficient. DirectML is a separate optional Windows backend with its own package and operator limits; Microsoft labels the PyTorch integration public preview. See `PyTorch with DirectML <https://learn.microsoft.com/en-us/windows/ai/directml/pytorch-windows>`_."
+msgstr "Intel이 지원하는 장치와 OS 조합은 세대마다 다릅니다. 정확한 Arc/Core Ultra 모델은 `PyTorch XPU 하드웨어 표 <https://docs.pytorch.org/docs/stable/notes/get_start_xpu.html>`_ 에서 확인합니다. Intel 로고만으로는 충분하지 않습니다. DirectML은 자체 패키지와 연산자 제한이 있는 별도의 선택적 Windows 백엔드이며, Microsoft는 PyTorch 통합을 공개 미리보기로 표시합니다. `PyTorch with DirectML <https://learn.microsoft.com/en-us/windows/ai/directml/pytorch-windows>`_ 을 참조합니다."
+
+msgid "For AMD, select the exact GPU, OS and PyTorch release in the `ROCm compatibility matrix <https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html>`_. Support for one RX 7000 or RX 9000 model does not imply support for every card in that series. spaCR recognizes ROCm through PyTorch's CUDA-compatible API and reports it separately from NVIDIA CUDA."
+msgstr "AMD의 경우 `ROCm 호환성 표 <https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html>`_ 에서 정확한 GPU, OS, PyTorch 릴리스를 선택합니다. RX 7000이나 RX 9000 모델 하나가 지원된다고 해서 그 시리즈의 모든 카드가 지원되는 것은 아닙니다. spaCR은 PyTorch의 CUDA 호환 API를 통해 ROCm을 인식하고 NVIDIA CUDA와 따로 보고합니다."
+
+msgid "For NVIDIA, check the `GPU compute-capability table <https://developer.nvidia.com/cuda/gpus>`_ and use the matching build from the `PyTorch installation selector <https://pytorch.org/get-started/locally/>`_. New GPU generations may require newer CUDA wheels; an older installation can fail despite the card being CUDA-capable. CuPy and RAPIDS are independent of PyTorch: installing a CUDA-enabled torch wheel alone does not install them. `CuPy's installation guide <https://docs.cupy.dev/en/stable/install.html>`_ describes CUDA packages and the experimental AMD path. The `RAPIDS platform requirements <https://docs.rapids.ai/install/>`_ impose their own GPU architecture, CUDA and OS restrictions; native Windows is not the standard RAPIDS route. spaCR's ``rapids`` extra currently requests CUDA 12 packages on Python 3.11–3.12. Check the selected RAPIDS release rather than assuming every CUDA GPU works."
+msgstr "NVIDIA의 경우 `GPU 컴퓨팅 성능 표 <https://developer.nvidia.com/cuda/gpus>`_ 를 확인하고 `PyTorch 설치 선택기 <https://pytorch.org/get-started/locally/>`_ 에서 일치하는 빌드를 사용합니다. 새로운 GPU 세대에는 더 새로운 CUDA wheel이 필요할 수 있으며, 카드가 CUDA를 지원하더라도 오래된 설치는 실패할 수 있습니다. CuPy와 RAPIDS는 PyTorch와 독립적이므로, CUDA 지원 torch wheel을 설치해도 이들은 설치되지 않습니다. `CuPy 설치 안내서 <https://docs.cupy.dev/en/stable/install.html>`_ 에 CUDA 패키지와 실험적인 AMD 경로가 설명되어 있습니다. `RAPIDS 플랫폼 요구 사항 <https://docs.rapids.ai/install/>`_ 은 GPU 아키텍처, CUDA, OS에 대한 자체 제한을 두며, 기본 Windows는 표준 RAPIDS 경로가 아닙니다. spaCR의 ``rapids`` 추가 구성 요소는 현재 Python 3.11–3.12에서 CUDA 12 패키지를 요청합니다. 모든 CUDA GPU가 동작한다고 가정하지 말고 선택한 RAPIDS 릴리스를 확인합니다."
+
+msgid "Which spaCR operations use these backends?"
+msgstr "어떤 spaCR 작업이 이 백엔드를 사용할까요?"
+
+msgid "Runtime paths"
+msgstr "런타임 경로"
+
+msgid "Operation"
+msgstr "작업"
+
+msgid "Acceleration"
+msgstr "가속"
+
+msgid "Practical limit or fallback"
+msgstr "실제 제한 또는 대체 수단"
+
+msgid "Mask / Make Masks / live Cellpose preview"
+msgstr "마스크 / 마스크 만들기 / 실시간 Cellpose 미리보기"
+
+msgid "PyTorch through spaCR's device resolver and Cellpose 4"
+msgstr "spaCR 장치 확인기와 Cellpose 4를 통한 PyTorch"
+
+msgid "Network, flow reconstruction and image preprocessing can use different devices; CPU remains usable"
+msgstr "네트워크, 흐름 재구성, 이미지 전처리가 서로 다른 장치를 사용할 수 있으며, CPU도 계속 사용 가능"
+
+msgid "Phenotype classification, training and neural inference"
+msgstr "표현형 분류, 학습, 신경망 추론"
+
+msgid "PyTorch CUDA, ROCm, MPS, XPU or optional DirectML, as resolved"
+msgstr "확인 결과에 따라 PyTorch CUDA, ROCm, MPS, XPU 또는 선택적 DirectML"
+
+msgid "Model-specific operators, precision and training memory may narrow support"
+msgstr "모델별 연산자, 정밀도, 학습 메모리 때문에 지원 범위가 좁아질 수 있음"
+
+msgid "Optional isolated segmentation backends"
+msgstr "선택적 격리 분할 백엔드"
+
+msgid "Their own environment's torch build; automatic worker selection currently checks CUDA/ROCm, then MPS, then CPU"
+msgstr "자체 환경의 torch 빌드; 자동 작업자 선택은 현재 CUDA/ROCm, MPS, CPU 순으로 확인"
+
+msgid "Host detection does not install a matching worker stack; do not assume automatic XPU/DirectML worker dispatch"
+msgstr "호스트 감지가 일치하는 작업자 스택을 설치하지는 않음; XPU/DirectML 작업자 자동 디스패치를 가정하지 말 것"
+
+msgid "OPS registration, peak finding, unmixing and matching primitives"
+msgstr "OPS 정합, 피크 찾기, 언믹싱, 매칭 기본 연산"
+
+msgid "PyTorch where available, optional CuPy operations, then CPU implementations"
+msgstr "가능하면 PyTorch, 그다음 선택적 CuPy 연산, 그다음 CPU 구현"
+
+msgid "``ops_gpu`` and operation-specific backend options govern use; not every registration step is a GPU operation"
+msgstr "``ops_gpu`` 와 연산별 백엔드 옵션이 사용을 결정; 모든 정합 단계가 GPU 연산은 아님"
+
+msgid "Optional accelerated dimensionality reduction"
+msgstr "선택적 가속 차원 축소"
+
+msgid "RAPIDS/cuML with CUDA and CuPy"
+msgstr "CUDA 및 CuPy를 사용하는 RAPIDS/cuML"
+
+msgid "Explicit opt-in; CPU fallback when unavailable or when deterministic behavior requires it"
+msgstr "명시적으로 켜야 함; 사용할 수 없거나 결정적 동작이 필요하면 CPU로 대체"
+
+msgid "Measurement tables, image I/O and many classical statistics"
+msgstr "측정 표, 이미지 I/O, 많은 고전 통계"
+
+msgid "Predominantly CPU, RAM and disk throughput"
+msgstr "주로 CPU, RAM, 디스크 처리량"
+
+msgid "Adding VRAM does not replace host RAM or speed up every module"
+msgstr "VRAM을 늘려도 호스트 RAM을 대신하거나 모든 모듈이 빨라지지는 않음"
+
+msgid "The matrix is based on spaCR's ``accelerator``, ``object``, ``ops_accel``, ``gpu_reduce`` and isolated-backend dispatch code as well as the linked upstream documentation. Framework capability is broader than a tested spaCR workflow. Verify the device reported by the intended module with a small representative field before scheduling a whole plate."
+msgstr "이 표는 spaCR의 ``accelerator``, ``object``, ``ops_accel``, ``gpu_reduce``, 격리 백엔드 디스패치 코드와 링크된 업스트림 문서를 바탕으로 작성되었습니다. 프레임워크 기능은 테스트된 spaCR 워크플로보다 범위가 넓습니다. 플레이트 전체를 예약하기 전에 작은 대표 시야로 대상 모듈이 보고하는 장치를 확인합니다."
+
+msgid "Servers and shared compute"
+msgstr "서버와 공유 컴퓨팅"
+
+msgid "Suggested server planning ranges"
+msgstr "권장 서버 계획 범위"
+
+msgid "One active analysis job"
+msgstr "활성 분석 작업 1개"
+
+msgid "Several independent jobs / larger training"
+msgstr "여러 독립 작업 / 대규모 학습"
+
+msgid "16–32 physical cores; approximately 2.5–3.5 GHz sustained x86 clock"
+msgstr "물리 코어 16–32개; x86 지속 클럭 약 2.5–3.5 GHz"
+
+msgid "32–64 or more physical cores; approximately 2.5–3.5 GHz sustained, with adequate memory bandwidth"
+msgstr "물리 코어 32–64개 이상; 지속 클럭 약 2.5–3.5 GHz, 충분한 메모리 대역폭"
+
+msgid "128 GB; more for large 3-D fields or large measurement tables"
+msgstr "128 GB; 큰 3D 시야나 큰 측정 표에는 더 필요"
+
+msgid "256–512 GB or more, apportioned per job"
+msgstr "256–512 GB 이상, 작업별로 분배"
+
+msgid "GPU"
+msgstr "GPU"
+
+msgid "One compatible GPU with 24–48 GB VRAM for a broadly useful training/inference node"
+msgstr "범용 학습/추론 노드로 VRAM 24–48 GB의 호환 GPU 1개"
+
+msgid "Multiple compatible GPUs, typically 48–80 GB or more each for larger jobs; assign jobs explicitly"
+msgstr "호환 GPU 여러 개, 큰 작업에는 보통 개당 48–80 GB 이상; 작업을 명시적으로 할당"
+
+msgid "Local disk"
+msgstr "로컬 디스크"
+
+msgid "2–4 TB NVMe scratch, plus 50–100 GB for environments and model caches"
+msgstr "2–4 TB NVMe 작업용 저장소와 환경 및 모델 캐시용 50–100 GB"
+
+msgid "4–8 TB or more NVMe scratch; size for all simultaneously active projects"
+msgstr "4–8 TB 이상의 NVMe 작업용 저장소; 동시에 활성화되는 모든 프로젝트를 기준으로 용량 산정"
+
+msgid "Archive / network storage"
+msgstr "보관 / 네트워크 저장소"
+
+msgid "Capacity for raw data, retained results and an independent backup"
+msgstr "원시 데이터, 보존할 결과, 독립 백업을 위한 용량"
+
+msgid "Shared storage sized for aggregate throughput; 10 GbE or faster is a useful planning target when moving large plates"
+msgstr "총 처리량 기준으로 산정한 공유 저장소; 큰 플레이트를 옮길 때는 10 GbE 이상이 유용한 계획 목표"
+
+msgid "These ranges are recommendations, not a guarantee that a particular volume or model will fit. Several GPUs do not automatically combine their VRAM into a single larger GPU. Independent job scheduling is distinct from distributed model training; use a module's documented multi-GPU capability when available. Limit worker counts and library threads to the scheduler allocation and leave RAM for the OS, caches and the parent process. Begin with one GPU worker per allocated GPU, then measure utilization before increasing concurrency."
+msgstr "이 범위는 권장 사항이며, 특정 볼륨이나 모델이 들어맞는다는 보장이 아닙니다. 여러 GPU의 VRAM이 자동으로 합쳐져 하나의 더 큰 GPU가 되지는 않습니다. 독립 작업 예약은 분산 모델 학습과 다르므로, 모듈에 문서화된 다중 GPU 기능이 있으면 그것을 사용합니다. 작업자 수와 라이브러리 스레드 수를 스케줄러 할당 범위로 제한하고, OS, 캐시, 상위 프로세스를 위한 RAM을 남겨 둡니다. 할당된 GPU마다 GPU 작업자 하나로 시작하고, 사용률을 측정한 뒤에 동시성을 늘립니다."
+
+msgid "Run headless jobs through ``spacr-run`` without launching a desktop or display server; ``spacr-run --list`` shows the available pipelines. Install the correct GPU framework in the environment actually running the job. Containers still require a compatible host driver and access to the assigned GPU. Use local scratch for active array processing and stage completed artifacts to shared storage, with a distinct writable project/output directory for each job."
+msgstr "헤드리스 작업은 데스크톱이나 디스플레이 서버를 띄우지 않고 ``spacr-run`` 으로 실행합니다. ``spacr-run --list`` 로 사용 가능한 파이프라인을 볼 수 있습니다. 실제로 작업을 실행하는 환경에 올바른 GPU 프레임워크를 설치합니다. 컨테이너에도 호환되는 호스트 드라이버와 할당된 GPU에 대한 접근 권한이 필요합니다. 활성 배열 처리에는 로컬 작업용 저장소를 사용하고, 완료된 산출물은 공유 저장소로 옮기며, 작업마다 쓰기 가능한 별도의 프로젝트/출력 디렉터리를 사용합니다."
+
+msgid "Disk and memory budgeting"
+msgstr "디스크 및 메모리 예산"
+
+msgid "Budget from uncompressed data, not only the compressed microscope files. An array needs approximately ``Y × X × Z × channels × bytes_per_value`` bytes, multiplied by the number of fields held at once. A 2048 × 2048, four-channel uint16 field is 32 MiB before masks or working copies; float32 doubles that image allocation. Normalized copies, intermediate arrays, masks, crops, training tensors and tables add separate allocations, and model activations can dominate GPU memory."
+msgstr "압축된 현미경 파일만이 아니라 압축을 푼 데이터를 기준으로 예산을 세웁니다. 배열 하나에는 대략 ``Y × X × Z × channels × bytes_per_value`` 바이트가 필요하며, 여기에 동시에 보유하는 시야 수를 곱합니다. 2048 × 2048 크기의 4채널 uint16 시야는 마스크나 작업 복사본을 빼고도 32 MiB이며, float32이면 그 이미지 할당이 두 배가 됩니다. 정규화된 복사본, 중간 배열, 마스크, 크롭, 학습 텐서, 표는 별도의 할당을 추가하며, 모델 활성화가 GPU 메모리의 대부분을 차지할 수 있습니다."
+
+msgid "As an initial disk reservation, allow 3–5 times the uncompressed input size for an active project, in addition to software/model space and backups. This is a planning allowance, not an upper bound: extensive object crops, many retained checkpoints, volumes or repeated runs can require substantially more. Process a representative subset, measure the actual output multiplier, and reserve free space before expanding to the whole screen. Keep backups outside the working-space allowance. Each optional model environment and its weights can add gigabytes independently of the main spaCR installation."
+msgstr "초기 디스크 확보량으로는 소프트웨어/모델 공간과 백업 외에 활성 프로젝트 하나당 압축을 푼 입력 크기의 3–5배를 잡습니다. 이는 계획용 여유분이지 상한이 아닙니다. 대량의 객체 크롭, 많이 보존한 체크포인트, 볼륨, 반복 실행에는 훨씬 더 많은 공간이 필요할 수 있습니다. 대표적인 일부를 처리하여 실제 출력 배수를 측정하고, 전체 스크린으로 확장하기 전에 여유 공간을 확보합니다. 백업은 작업 공간 여유분 밖에 둡니다. 선택적 모델 환경과 그 가중치는 각각 spaCR 기본 설치와 별도로 수 GB를 더할 수 있습니다."
+

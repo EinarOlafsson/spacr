@@ -1,10 +1,10 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a3acb3d56217b54087148d2878efa6bce013ff9177d326bc4d388b3680bb96d5",
+  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -36,7 +36,8 @@
     "Hér er CMY-litaspjaldið. Þú getur farið aftur í RGB í sömu stillingum. Haltu sama yfirliti meðan þú berð saman og merkir hluti.",
     "Opnaðu Annotator Agreement frá tákninu efst til hægri til að bera saman merkingardálka. Notaðu það til að finna hluti þar sem yfirlesarar settu mismunandi merki.",
     "Þegar merkin eru tilbúin opnarðu Train. Veldu myndir fyrir myndflokkara eða mælda eiginleika fyrir töfluflokkara. Tengdu Classify-kennslustundirnar útskýra þjálfunarstillingarnar.",
-    "Suggest getur stungið upp á merkjum sem þú ferð svo yfir. Retrain uppfærir líkanið eftir að þú bætir við merkjum og Rounds hjálpar þér að fylgja þeirri yfirferðarlotu. Athugaðu tillögð merki áður en þú samþykkir þau.",
+    "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo það þarf fyrst dæmi um báða flokkana. Merktu nokkrar af hvorum, hér tíu í flokki eitt og tíu í flokki tvö, og farðu á næstu síðu svo þær vistist.",
+    "Opnaðu svo Suggest og veldu Suggest for the images on this page. Hver tillaga fær spurningarmerki: smelltu á hana eða ýttu á Y til að staðfesta, hægrismelltu eða ýttu á N til að hafna. Bæði svörin eru skráð, höfnun þjálfar næstu umferð og Rounds sýnir hvernig líkanið batnar jafnóðum.",
     "Generate annotation database býr til safn úrklippa úr hentugum upprunagögnum. Notaðu það þegar þú undirbýrð nýtt merkingarverkefni; sótta dæmið inniheldur þegar úrklippin og gagnagrunninn sem þarf hér.",
     "Opnaðu Console til að athuga skilaboð um innlestur upprunans og vistun. Merkingardálkurinn þinn er geymdur í gagnagrunni verkefnisins og hægt er að velja hann þegar þú undirbýrð þjálfunargögn í Classify.",
     "Til að fá hjálp með stillingu opnarðu spaCR AI í Console eftir að hafa sett upp þjónustuaðila í Preferences. Þegar þú hefur lokið merkingunni heldurðu áfram í Classify með verkefnið og valda merkingardálkinn."

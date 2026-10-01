@@ -78,12 +78,16 @@ def test_the_tutorial_link_is_backed_by_a_file_that_html_extra_path_publishes():
     to stay true is that ``html_extra_path`` is set to the staging directory
     ``docs_media_budget`` writes, and that the lesson index is in the source
     tree it stages FROM; both are asserted instead of the spelling.
+    Since 2026-09-30 both sit in the branch that is not the guides-only
+    build (translated guides link to the English tutorial player), so they
+    may be indented.
     """
     conf = (DOCS_SOURCE / "conf.py").read_text(encoding="utf-8")
-    assert re.search(r"^html_extra_path\s*=\s*\[_staged_extra\]", conf, re.M), (
+    assert re.search(r"^\s*html_extra_path\s*=\s*\[_staged_extra\]", conf,
+                     re.M), (
         "conf.py no longer publishes the staged _extra subset; if the staging "
         "step was removed the 1 GB Pages limit is back in play")
-    assert re.search(r"^_budget\.stage\(", conf, re.M), (
+    assert re.search(r"^\s*_budget\.stage\(", conf, re.M), (
         "html_extra_path names a staging directory nothing stages into")
 
     suffix = TUTORIALS_URL.split("github.io/spacr/", 1)[1].strip("/")

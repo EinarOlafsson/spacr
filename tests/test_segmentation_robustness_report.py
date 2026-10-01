@@ -10,6 +10,7 @@ deliberately drops the dim half of the objects.
 from __future__ import annotations
 
 import numpy as np
+import pytest
 import pandas as pd
 from skimage.measure import label as sk_label
 
@@ -178,3 +179,154 @@ def test_each_grid_point_reaches_the_cellpose_call():
     assert calls[-1]["diameter"] is None
     assert calls[-1]["image"].shape == image.shape
     assert not np.allclose(calls[-1]["image"], image)
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_a_single_number_is_a_list_of_one():
+    assert _number_list(1.5) == [1.5]
+    assert _number_list(2, (9.0,)) == [2.0]
+
+
+def test_a_grid_value_equal_to_the_run_setting_is_not_repeated():
+    grid = _robustness_grid({"cell_flow_threshold": 0.6,
+                             "robustness_flow_thresholds": "0.4, 0.6",
+                             "robustness_cellprob_thresholds": [0.0],
+                             "robustness_diameter_factors": [1.0],
+                             "robustness_enhancement": False}, "cell")
+    moved = [(p["parameter"], p["value"]) for p in grid[1:]]
+    assert moved == [("flow_threshold", "0.4")]
+
+
+def test_objects_that_never_overlap_are_none_found_again():
+    reference = np.zeros((6, 6), int)
+    reference[:2, :2] = 1
+    other = np.zeros((6, 6), int)
+    other[4:, 4:] = 1
+    assert _match_fraction(reference, other) == 0.0
+
+
+def test_relative_changes_at_their_edges():
+    from spacr.seg_qc import _relative_change
+
+    assert _relative_change(float("nan"), float("nan")) == 0.0
+    assert _relative_change(3.0, float("nan")) == float("inf")
+    assert _relative_change(0.0, 0.0) == 0.0
+    assert _relative_change(2.0, 0.0) == float("inf")
+
+
+def test_a_setting_that_loses_the_objects_is_fragile_and_one_that_keeps_them_is_not():
+    """Same count, area and intensity but in other places: only the matched
+    fraction can say the objects are not the ones the baseline found. An
+    image with no intensity channel still scores count and area."""
+    from spacr.seg_qc import _format_robustness
+
+    left = np.zeros((10, 10), int)
+    left[1:4, 1:4] = 1
+    right = np.zeros((10, 10), int)
+    right[6:9, 6:9] = 1
+
+    def segment(image, point):
+        return right if point["parameter"] == "moved" else left
+
+    grid = [{"parameter": "baseline", "value": "run settings"},
+            {"parameter": "moved", "value": "x"}]
+    _per_field, summary = _score_robustness(
+        [("f1", np.ones((10, 10)))], segment, grid)
+    moved = summary.set_index("parameter").loc["moved"]
+    assert moved["fragile"] and "baseline objects found again" in moved["reason"]
+
+    _per_field, steady = _score_robustness(
+        [("f1", np.ones((10, 10)))], lambda image, point: left, grid)
+    assert not steady["fragile"].any()
+    text = _format_robustness(steady, "cell", 0.2)
+    assert text.endswith("No setting in the grid moved the results beyond "
+                         "the tolerance.")
+
+
+def test_a_field_with_no_objects_has_no_intensity_to_report():
+    from spacr.seg_qc import _robustness_stats
+
+    stats = _robustness_stats(np.zeros((4, 4), int), np.ones((4, 4)))
+    assert stats["object_count"] == 0.0
+    assert np.isnan(stats["median_area"]) and np.isnan(stats["mean_intensity"])
+
+
+def test_the_report_skips_stacks_and_plates_with_nothing_to_sample(
+        tmp_path, capsys, monkeypatch):
+    from spacr import object as obj
+
+    monkeypatch.setattr(obj, "_z_stack_plan", lambda settings: object())
+    assert obj._run_robustness_report(str(tmp_path), _settings(), "cell",
+                                      segment=_segment) is None
+    assert "two-dimensional fields only" in capsys.readouterr().out
+    monkeypatch.setattr(obj, "_z_stack_plan", lambda settings: None)
+    empty = tmp_path / "empty" / "masks"
+    empty.mkdir(parents=True)
+    assert obj._run_robustness_report(str(empty), _settings(), "cell",
+                                      segment=_segment) is None
+    assert "found no cell fields to sample" in capsys.readouterr().out
+
+
+def test_without_a_segmenter_the_report_builds_the_runs_own(tmp_path,
+                                                            monkeypatch):
+    from spacr import object as obj
+
+    built = []
+
+    def segmenter(settings, object_type):
+        built.append(object_type)
+        return _segment
+
+    monkeypatch.setattr(obj, "_robustness_segmenter", segmenter)
+    masks = _plate(tmp_path)
+    summary = obj._run_robustness_report(str(masks),
+                                         _settings(robustness_fields=1),
+                                         "cell")
+    assert built == ["cell"] and len(summary)
+
+
+def test_the_sample_needs_the_objects_channels_and_skips_flat_fields(
+        tmp_path):
+    from spacr.object import _robustness_sample
+
+    assert _robustness_sample(str(tmp_path), _settings(), "nucleus") == []
+    masks = tmp_path / "masks"
+    masks.mkdir()
+    np.savez(masks / "batch_0.npz", data=np.zeros((2, 8, 8), np.uint16),
+             filenames=np.array(["a.npy", "b.npy"]))
+    assert _robustness_sample(str(masks), _settings(), "cell") == []
+
+
+def test_the_segmenter_loads_cellpose_sam_and_refuses_other_backends(
+        monkeypatch):
+    from spacr import object as obj
+
+    loaded = []
+
+    class FakeModel:
+        def __init__(self, pretrained_model=None, **kwargs):
+            loaded.append(pretrained_model)
+
+    monkeypatch.setattr(obj.cp_models, "CellposeModel", FakeModel)
+    segment = obj._robustness_segmenter(_settings(), "cell")
+    assert callable(segment) and len(loaded) == 1
+    from spacr.settings import set_default_settings_preprocess_generate_masks
+
+    settings = set_default_settings_preprocess_generate_masks(dict(
+        src="unused", cell_channel=0, nucleus_channel=None,
+        pathogen_channel=1, pathogen_model="cellpose3:cyto2",
+        robustness_report=True))
+    with pytest.raises(ValueError, match="Cellpose-SAM models only"):
+        obj._robustness_segmenter(settings, "pathogen")
+
+
+def test_without_a_crop_the_whole_field_is_sampled(tmp_path):
+    from spacr.object import _robustness_sample
+
+    masks = _plate(tmp_path, n_fields=1)
+    ((name, image),) = _robustness_sample(
+        str(masks), _settings(robustness_fields=1, robustness_crop=0), "cell")
+    assert name == "plate1_A01_1.npy" and image.shape[:2] == (96, 96)

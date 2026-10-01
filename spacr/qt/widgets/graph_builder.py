@@ -712,6 +712,16 @@ class GraphCanvas(LinkedView, QWidget):
         :param frame: the table to plot, or None for no table; channels naming
             a column it lacks are emptied.
         """
+        self._take_frame(frame)
+        self.render_now()
+
+    def _take_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Everything :meth:`set_frame` does except drawing.
+
+        For a caller that sets a new spec straight after, so the table is
+        drawn once, under the spec it is meant for, rather than once under
+        the old spec and again under the new one.
+        """
         self._frame = frame
         self._kinds = self._spec.kinds_for(frame) if frame is not None else {}
         self._keyed = False
@@ -728,7 +738,6 @@ class GraphCanvas(LinkedView, QWidget):
                 if column and column not in frame.columns:
                     spec = spec.with_channel(channel, None)
             self._spec = spec
-        self.render_now()
 
     def figure(self):
         """The matplotlib Figure this canvas draws on.

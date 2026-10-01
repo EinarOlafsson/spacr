@@ -1194,10 +1194,23 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # empty again.
 # 598, 2026-09-30: the contribute dialogs' dataset-link caption and the
 # thank-you caption before the pull request's link.
+# 316, 2026-09-30 (tenth pass): 598's two captions have rows; empty again.
+# 563, 2026-09-30: the Control Charts anomaly table's Control percentile
+# column (alpha), after the real-screen check ranked wells by it.
+# 573, 2026-09-30: the analysis lock dialog's Gate files row and its
+# placeholder (alpha).
+# 422, 2026-09-30: the Help search result-row templates in help_index.py,
+# now extractable through `_template`. The list's new "and {count} more" row
+# reuses a caption the catalogs already carry, so it owes nothing.
+# 585, 2026-09-30: the arrayed-assay planner's readout and condition
+# pickers and its plan/load error lines (alpha); "Load plan…" already has
+# a row.
+# 603, 2026-09-30: Preferences' Tooltip delay row and its explanation.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    "Goes to this dataset on Hugging Face (a new one appears with its "
-    "first upload):",
-    "Thank you. Your contribution is waiting for review:",
+    "Tooltip delay",
+    "Seconds the pointer rests on a control before its tooltip appears. 0 "
+    "shows tooltips at once. Default 2.0 s.",
+    "Control percentile",
 })
 
 

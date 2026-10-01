@@ -244,13 +244,6 @@
     },
     {
       "table": "ui",
-      "key": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
-      "source": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
-      "source_sha256": "5e505544e69aab4e83bfb1f672a6c37fa4676dc3b3fc05e4be2d672244c2c02b",
-      "translation": "Tack. Ditt bidrag väntar på granskning: <a href=\"{url}\">{url}</a>"
-    },
-    {
-      "table": "ui",
       "key": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
       "source": "The image on screen has no mask yet: segment or paint it first. No mask, no upload.",
       "source_sha256": "eb58f954e410e3b478d7ec8c08b8db73fc55c006a28c8e0a01900acfae41f3a5",
@@ -333,5 +326,15 @@
       "source_sha256": "32fc57fd8fa98d4693f0060276e0925fe61578f093fbef44806877ed20c14859",
       "translation": "{judged} överhoppat och erbjuds inte igen  —  det var det sista bildfältet i den här sessionen"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source": "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>",
+      "source_sha256": "5e505544e69aab4e83bfb1f672a6c37fa4676dc3b3fc05e4be2d672244c2c02b",
+      "translation": "Tack. Ditt bidrag väntar på granskning: <a href=\"{url}\">{url}</a>"
+    }
+  ],
+  "retired_note": "2026-09-30: item 598 (b40aa4349) moved the link out of this English string onto its own line; the source is now 'Thank you. Your contribution is waiting for review:' (2026-09-30-runtime-debt-tenth-pass-contribute.json). Kept verbatim as evidence, not loaded."
 }

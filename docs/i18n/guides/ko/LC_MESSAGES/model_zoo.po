@@ -1,0 +1,486 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Model zoo"
+msgstr "모델 동물원"
+
+msgid "spaCR ships a catalogue of trained models and fetches them on demand. Name a key in a settings file — ``pathogen_model: toxoplasma_pv_v1`` — and the model is downloaded and checksum-verified the first time it is needed, or open **Model Zoo** from the **Make Masks** masthead to browse and install them."
+msgstr "spaCR은 학습된 모델 카탈로그를 제공하며 필요할 때 모델을 가져옵니다. 설정 파일에 ``pathogen_model: toxoplasma_pv_v1`` 처럼 키를 지정하면 처음 필요할 때 모델이 다운로드되고 체크섬이 검증됩니다. 또는 **마스크 만들기** 헤더에서 **모델 라이브러리** 를 열어 모델을 둘러보고 설치할 수 있습니다."
+
+msgid "Every published entry carries a SHA-256. An entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one."
+msgstr "게시된 모든 항목에는 SHA-256이 있습니다. SHA-256이 없는 항목은 설치되지 않고 거부됩니다. 잘렸거나 바뀐 체크포인트는 진짜와 구별할 수 없기 때문입니다."
+
+msgid "Model"
+msgstr "모델"
+
+msgid "Training data"
+msgstr "학습 데이터"
+
+msgid "Hold-out performance"
+msgstr "홀드아웃 성능"
+
+msgid "``toxoplasma_pv_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated"
+msgstr "항톡소플라스마-비오틴 및 DsRed PV 내강; 데이터 세트 2개의 이미지 229장, 1라운드 104장과 새로 선별한 125장"
+
+msgid "F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
+msgstr "내부 홀드아웃 웰 11개에서 IoU 0.5 기준 F1 0.864, 기본 cpsam은 0.713; 문헌 홀드아웃 평가는 대기 중"
+
+msgid "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
+msgstr "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
+
+msgid "crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature"
+msgstr "크리스탈 바이올렛 플라크 웰; 데이터 세트 3개의 웰 184개, 내부 95개와 문헌 89개"
+
+msgid "F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
+msgstr "도메인 내 F1 0.856; 문헌 데이터에서 0.806(3겹 교차 검증, SD 0.020)"
+
+msgid "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "488 curated fields across four domains -- 298 wells cropped from published figures, 96 phone-camera wells, 67 PFA and 27 methanol-fixed whole-well microscope scans; 27,582 plaques"
+msgstr "네 도메인의 선별 시야 488개 -- 출판된 그림에서 잘라낸 웰 298개, 휴대폰 카메라 웰 96개, PFA 고정 67개와 메탄올 고정 27개의 웰 전체 현미경 스캔; 플라크 27,582개"
+
+msgid "not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
+msgstr "기본 모델과 비교 점수를 내지 않음; 홀드아웃 시야 81개에서 문헌 데이터는 3라운드와 동률(0.819 대 0.820)이고 휴대폰 카메라 웰에서는 0.166 앞섬(0.415 대 0.249)"
+
+msgid "``toxoplasma_well_detector_v1`` (YOLO11n)"
+msgstr "``toxoplasma_well_detector_v1`` (YOLO11n)"
+
+msgid "whole-plate and multi-well crystal violet images; 562 images from 1 dataset, 190 of them with no well in them"
+msgstr "플레이트 전체 및 다중 웰 크리스탈 바이올렛 이미지; 데이터 세트 1개의 이미지 562장, 그중 190장은 웰이 없음"
+
+msgid "mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457"
+msgstr "자체 홀드아웃 분할에서 mAP50 0.993; v2와 공유하는 테스트 세트에서는 mAP50 0.8838, v2는 0.9457"
+
+msgid "``toxoplasma_well_detector_v2`` (YOLO26n (ultralytics 8.4.155))"
+msgstr "``toxoplasma_well_detector_v2`` (YOLO26n (ultralytics 8.4.155))"
+
+msgid "plate images and literature figures; 1,070 train / 254 val / 129 test, split by PMC article so no paper is in two sets; training data at einarolafsson/toxoplasma-plaque-well-detector-dataset"
+msgstr "플레이트 이미지와 문헌 그림; 학습 1,070 / 검증 254 / 테스트 129, PMC 논문 단위로 분할하여 어떤 논문도 두 세트에 걸치지 않음; 학습 데이터는 einarolafsson/toxoplasma-plaque-well-detector-dataset"
+
+msgid "mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline"
+msgstr "같은(SAME) 테스트 세트에서 mAP50 0.9457, mAP50-95 0.8341, v1(yolo_welldetect_v3.pt)은 0.8838과 0.7630; 기본 YOLO에는 플라크 웰 클래스가 없으므로 v1이 기준선"
+
+msgid "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
+msgstr "숙주 세포 마스크(HOST CELL MASK) 채널만으로 예측한 톡소플라스마 PV 마스크; 학습 시야 2567개와 홀드아웃 시야 463개, 웰 단위 분할, 숙주 HFF/HeLa/THP1"
+
+msgid "F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.606, 기본 cpsam_v2는 0.021"
+
+msgid "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated images accumulated over five rounds"
+msgstr "항톡소플라스마-비오틴 및 DsRed PV 내강; 다섯 라운드에 걸쳐 축적한 선별 이미지 556장"
+
+msgid "F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
+msgstr "619쌍에 대한 5겹 교차 검증으로 F1 0.817 +/- 0.036; 내부 홀드아웃 웰 11개에서 약 0.86, 기본 모델은 0.713"
+
+msgid "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset"
+msgstr "5라운드의 선별 PV 시야 556개, 학습 437 / 검증 108 / 테스트 11로 분할; 학습 데이터는 einarolafsson/toxoplasma-pv-segmentation-dataset"
+
+msgid "F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+msgstr "기준 웰 11개에서 IoU 0.5 기준 F1 0.860, 기본 cpsam_v2는 0.765; AJI 0.803 대 0.505"
+
+msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset"
+msgstr "공개 데이터 세트 14개의 투과광 시야 11,007개, 획득 단위로 학습 6,778 / 검증 2,030 / 테스트 2,199로 분할; 학습 데이터는 einarolafsson/live-cell-segmentation-dataset"
+
+msgid "on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell"
+msgstr "기본 cpsam_v2가 학습한 적 없는 데이터 세트에서 IoU 0.5 기준 F1 0.960 대 0.885; 테스트 시야 2,199개 전체에서는 0.694 대 0.738. 기본 모델이 LIVECell과 YeaZ로 학습되어 LIVECell에서 앞서기 때문"
+
+msgid "``nuclei_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``nuclei_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "nuclei predicted from the HOST CELL MASK channel alone; 453 well-grouped held-out fields, hosts HFF/HeLa/THP1"
+msgstr "숙주 세포 마스크(HOST CELL MASK) 채널만으로 예측한 핵; 웰 단위로 묶은 홀드아웃 시야 453개, 숙주 HFF/HeLa/THP1"
+
+msgid "F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5"
+msgstr "웰 단위로 묶은 홀드아웃 시야 453개에서 IoU 0.5 기준 F1 0.888, 기본 cpsam_v2는 0.201"
+
+msgid "``cell_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``cell_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "the HOST CELL outline predicted from the Hoechst (nuclear) channel alone; 2,578 training fields and 451 held-out test fields, split by well so no well is on both sides"
+msgstr "Hoechst(핵) 채널만으로 예측한 숙주 세포(HOST CELL) 윤곽; 학습 시야 2,578개와 홀드아웃 테스트 시야 451개, 웰 단위로 분할하여 어떤 웰도 양쪽에 있지 않음"
+
+msgid "F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
+msgstr "홀드아웃 시야 451개에서 IoU 0.5 기준 F1 0.870, 기본 cpsam_v2는 0.301 -- 차이 0.569"
+
+msgid "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
+msgstr "HOECHST 채널만으로 예측한 톡소플라스마 PV 마스크; 학습 시야 2567개와 홀드아웃 시야 463개, 웰 단위 분할, 숙주 HFF/HeLa/THP1"
+
+msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.569, 기본 cpsam_v2는 0.002"
+
+msgid "Models are hosted on their author's own Hugging Face account, so contributing one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
+msgstr "모델은 작성자 자신의 Hugging Face 계정에 호스팅되므로, 모델을 기여한다고 해서 다른 사람에게 쓰기 권한을 넘기는 것은 아닙니다. ``spacr.model_zoo`` 의 ``publish_model`` 이 업로드를 수행하고 추가할 카탈로그 행을 출력합니다."
+
+msgid "Choose a model from a form"
+msgstr "양식에서 모델 선택"
+
+msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
+msgstr "마스크 생성, 마스크 만들기, 플라크 분석의 모델 설정에는 **모델 라이브러리…** 버튼이 있습니다. 목록은 출처에 따라 다섯 제목 아래 묶여 있습니다. 기본 Cellpose-SAM 가중치, spaCR 자체 모델, 검토되지 않은 spaCR 커뮤니티 업로드, bioimage.io에 게시된 Cellpose 모델, Cellpose 3 백엔드의 cyto, cyto2, cyto3, nuclei 모델입니다. 제목을 클릭하면 해당 행을 펼치거나 접습니다. **다운로드** 는 선택한 모델을 가져오고 **설치** 는 그 백엔드를 설치하며, 이어서 **Use this model** 이 모델을 설정에 기록합니다. Cellpose 3나 Cellpose-DINO처럼 다른 백엔드가 필요한 모델은 행에 그 사실이 표시되며, ``~/.spacr/backends`` 아래의 자체 환경에 해당 백엔드를 설치하도록 제안합니다. spaCR 자체 환경은 바뀌지 않습니다. spaCR이 실행할 수 없는 행은 제공되지 않고 그 사실이 표시됩니다."
+
+msgid "Opened from Mask generation, the popup also has **Measure diameters…**: it estimates the cell, nucleus and pathogen diameters from a few fields of your own images and can write them into the settings. See :class:`spacr.qt.prerun.DiameterDialog`."
+msgstr "마스크 생성에서 열면 팝업에 **직경 측정…** 도 있습니다. 사용자 이미지의 몇 개 시야로 세포, 핵, 병원체 직경을 추정하고 설정에 기록할 수 있습니다. :class:`spacr.qt.prerun.DiameterDialog` 를 참조합니다."
+
+msgid "Per-model detail"
+msgstr "모델별 세부 정보"
+
+msgid "Toxoplasma PV v1"
+msgstr "Toxoplasma PV v1"
+
+msgid "**Architecture.** Cellpose-SAM (cpsam_v2)"
+msgstr "**아키텍처.** Cellpose-SAM (cpsam_v2)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. Round 2: 229 training images (round 1's 104 plus 125 newly curated RH and ME49 fields), 100 epochs, base cpsam_v2"
+msgstr "**학습 데이터.** 염소 항톡소플라스마-비오틴으로 염색한 톡소플라스마 급속 증식형의 기생포성 액포와, PV 내강에 DsRed를 발현하는 급속 증식형. 2라운드: 학습 이미지 229장(1라운드의 104장과 새로 선별한 RH 및 ME49 시야 125개), 100 에포크, 기반 cpsam_v2"
+
+msgid "**Measured.** F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
+msgstr "**측정 결과.** 내부 홀드아웃 웰 11개에서 IoU 0.5 기준 F1 0.864, 기본 cpsam은 0.713; 문헌 홀드아웃 평가는 대기 중"
+
+msgid "F1 0.864 at IoU 0.5 against 0.713 for stock cpsam on the 11 wells round 1 also held out (round 1 scored 0.867); AJI 0.809 against 0.426"
+msgstr "1라운드에서도 홀드아웃했던 웰 11개에서 IoU 0.5 기준 F1 0.864, 기본 cpsam은 0.713(1라운드 점수 0.867); AJI 0.809 대 0.426"
+
+msgid "accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry"
+msgstr "IoU 0.8을 넘으면 정확도가 급격히 떨어짐 -- 정밀한 형태 측정보다는 계수와 면적 측정에 적합"
+
+msgid "the held-out literature scorecard is pending a stock-seeded re-curation; on the current literature set, whose truth leans toward this model's lineage, it ties stock Cellpose-SAM on detection (F1 0.403 against 0.400)"
+msgstr "문헌 홀드아웃 점수표는 기본 모델에서 시작하는 재선별을 기다리는 중; 정답이 이 모델의 계보 쪽으로 치우친 현재 문헌 세트에서는 검출 성능이 기본 Cellpose-SAM과 동률(F1 0.403 대 0.400)"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_, as ``cpsam_v2_toxo_r2``."
+msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_ 에 ``cpsam_v2_toxo_r2`` 로 게시되었습니다."
+
+msgid "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``."
+msgstr "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``."
+
+msgid "Toxoplasma Plaque v1"
+msgstr "Toxoplasma Plaque v1"
+
+msgid "**Architecture.** Cellpose-SAM (cpsam)"
+msgstr "**아키텍처.** Cellpose-SAM (cpsam)"
+
+msgid "**Trained on.** Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set"
+msgstr "**학습 데이터.** 톡소플라스마 곤디 플라크 어세이; 3라운드, 도메인 내(NAS) 및 문헌 일반화 세트로 평가"
+
+msgid "**Measured.** F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
+msgstr "**측정 결과.** 도메인 내 F1 0.856; 문헌 데이터에서 0.806(3겹 교차 검증, SD 0.020)"
+
+msgid "F1 0.856 in-domain and 0.806 on the literature set (3-fold cross-validated, SD 0.020), against 0.718 for round 1"
+msgstr "도메인 내 F1 0.856, 문헌 세트에서 0.806(3겹 교차 검증, SD 0.020), 1라운드는 0.718"
+
+msgid "round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay"
+msgstr "3라운드는 문헌 세트에서 정밀도(0.939에서 0.858로 하락)를 재현율(0.631에서 0.811로 상승)과 맞바꾸었으며, 이는 계수 어세이에 맞는 방향"
+
+msgid "PREFER THIS ONE FOR MICROSCOPE-ONLY WORK. On the round-5 test split it scores 0.836 on PFA-fixed wells against round 5's 0.808, at precision 0.93 against 0.81. For mixed sources, or any phone-camera image, use toxoplasma_plaque_v2, which round 3 cannot handle at all (0.249 there)"
+msgstr "현미경만 사용하는 작업에는 이 모델을 우선 사용합니다. 5라운드 테스트 분할에서 PFA 고정 웰 점수가 0.836으로 5라운드의 0.808보다 높고, 정밀도는 0.93 대 0.81입니다. 출처가 섞여 있거나 휴대폰 카메라 이미지가 있으면 toxoplasma_plaque_v2를 사용합니다. 3라운드는 이런 이미지를 전혀 처리하지 못합니다(0.249)"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_, as ``cpsam_plaque_r3``."
+msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_ 에 ``cpsam_plaque_r3`` 로 게시되었습니다."
+
+msgid "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``."
+msgstr "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``."
+
+msgid "Toxoplasma Plaque v2 (round 5)"
+msgstr "Toxoplasma Plaque v2(5라운드)"
+
+msgid "**Trained on.** Toxoplasma plaque assays stained with crystal violet, from three microscopes and from published figures. Round 5: 332 training fields grouped by figure and by plate so none straddles the split, 100 epochs, base cpsam_v2, empty wells kept as negatives"
+msgstr "**학습 데이터.** 크리스탈 바이올렛으로 염색한 톡소플라스마 플라크 어세이, 현미경 세 대와 출판된 그림에서 수집. 5라운드: 그림 및 플레이트 단위로 묶어 분할에 걸치지 않게 한 학습 시야 332개, 100 에포크, 기반 cpsam_v2, 빈 웰은 음성 예제로 유지"
+
+msgid "**Measured.** not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
+msgstr "**측정 결과.** 기본 모델과 비교 점수를 내지 않음; 홀드아웃 시야 81개에서 문헌 데이터는 3라운드와 동률(0.819 대 0.820)이고 휴대폰 카메라 웰에서는 0.166 앞섬(0.415 대 0.249)"
+
+msgid "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 (round 3) for microscope-only work, where it scores 0.836 against this model's 0.808 on PFA-fixed wells and is far more precise; prefer this one for mixed or unknown sources"
+msgstr "toxoplasma_plaque_v1을 대체하는 것이 아니라 보완합니다(COMPLEMENTS). 현미경만 사용하는 작업에는 v1(3라운드)을 우선 사용합니다. PFA 고정 웰에서 0.836으로 이 모델의 0.808보다 높고 훨씬 정밀합니다. 출처가 섞여 있거나 알 수 없으면 이 모델을 우선 사용합니다"
+
+msgid "the only plaque model trained on phone-camera wells -- F1 0.415 against round 3's 0.249, though recall there is 0.296, so it still misses most plaques on phone images and is not yet a counting tool"
+msgstr "휴대폰 카메라 웰로 학습한 유일한 플라크 모델 -- F1 0.415로 3라운드의 0.249보다 높지만 재현율이 0.296이어서 휴대폰 이미지의 플라크 대부분을 여전히 놓치며 아직 계수 도구로 쓸 수 없음"
+
+msgid "it did NOT clear the promotion bar of 0.02 literature F1 fixed before the run (it came in at -0.001), so round 3 remains production"
+msgstr "실행 전에 정한 문헌 F1 0.02 승격 기준을 넘지 못했으므로(NOT, 결과 -0.001) 3라운드가 계속 운영 모델"
+
+msgid "balanced precision/recall (0.81/0.83) where round 3 is lopsided (0.93/0.73): round 3's low recall systematically UNDERCOUNTS, which matters more than F1 for a counting assay"
+msgstr "정밀도/재현율이 균형(0.81/0.83)을 이루는 반면 3라운드는 치우쳐 있음(0.93/0.73): 3라운드의 낮은 재현율은 체계적으로 과소 계수(UNDERCOUNTS)하며, 계수 어세이에서는 이것이 F1보다 중요"
+
+msgid "hallucinates 2 objects across 6 blank-lawn wells where round 3 hallucinates 19"
+msgstr "빈 세포층 웰 6개에서 가짜 객체 2개를 만들어 내는 반면 3라운드는 19개"
+
+msgid "first plaque model on cpsam_v2; rounds 1-4 used cpsam v1, so base and data changed together and the gap to round 3 is not attributable to the extra curation alone"
+msgstr "cpsam_v2 기반의 첫 플라크 모델; 1-4라운드는 cpsam v1을 사용했으므로 기반과 데이터가 함께 바뀌었고, 3라운드와의 차이를 추가 선별만의 효과로 볼 수 없음"
+
+msgid "training data: https://huggingface.co/datasets/einarolafsson/toxoplasma-plaque-dataset"
+msgstr "학습 데이터: https://huggingface.co/datasets/einarolafsson/toxoplasma-plaque-dataset"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_, as ``cpsam_plaque_r5``."
+msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_ 에 ``cpsam_plaque_r5`` 로 게시되었습니다."
+
+msgid "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``."
+msgstr "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``."
+
+msgid "Toxoplasma Plaque Well Detector v1"
+msgstr "Toxoplasma Plaque Well Detector v1"
+
+msgid "**Architecture.** YOLO11n"
+msgstr "**아키텍처.** YOLO11n"
+
+msgid "**Trained on.** whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640"
+msgstr "**학습 데이터.** 플레이트 전체 및 다중 웰 톡소플라스마 플라크 어세이 이미지; 기반 yolo11n, 150 에포크, 배치 16, imgsz 640"
+
+msgid "**Measured.** mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457"
+msgstr "**측정 결과.** 자체 홀드아웃 분할에서 mAP50 0.993; v2와 공유하는 테스트 세트에서는 mAP50 0.8838, v2는 0.9457"
+
+msgid "the 0.993 is measured on v3's OWN split, which is easier than the set v2 is measured on; on that shared set this model scores mAP50 0.8838 against v2's 0.9457, so v2 is the better detector"
+msgstr "0.993은 v2를 측정한 세트보다 쉬운 v3 자체(OWN) 분할에서 측정한 값; 공유 세트에서 이 모델은 mAP50 0.8838, v2는 0.9457이므로 v2가 더 나은 검출기"
+
+msgid "kept because the published plaque corpus was measured with these weights, so results in the paper trace back to this row"
+msgstr "출판된 플라크 코퍼스가 이 가중치로 측정되었으므로 유지하며, 논문의 결과는 이 행으로 추적 가능"
+
+msgid "locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes"
+msgstr "플라크가 아니라 웰(WELLS)을 찾음; toxoplasma_plaque_v1과 이루는 2단계 파이프라인의 앞부분이며, 찾은 웰에서 얻는 직경으로 현미경 간 면적을 비교 가능하게 함"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_, as ``yolo_welldetect_v3.pt``."
+msgstr "`einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_ 에 ``yolo_welldetect_v3.pt`` 로 게시되었습니다."
+
+msgid "SHA-256 ``b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c``."
+msgstr "SHA-256 ``b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c``."
+
+msgid "Toxoplasma Plaque Well Detector v2"
+msgstr "Toxoplasma Plaque Well Detector v2"
+
+msgid "**Architecture.** YOLO26n (ultralytics 8.4.155)"
+msgstr "**아키텍처.** YOLO26n (ultralytics 8.4.155)"
+
+msgid "**Trained on.** whole-plate and multi-well Toxoplasma plaque-assay images plus 939 newly reviewed PMC figures, accepted boxes and confirmed negatives alike; yolo26n base, best validation mAP50-95 at epoch 28"
+msgstr "**학습 데이터.** 플레이트 전체 및 다중 웰 톡소플라스마 플라크 어세이 이미지와 새로 검토한 PMC 그림 939개(수락된 상자와 확인된 음성 모두 포함); 기반 yolo26n, 28 에포크에서 검증 mAP50-95 최고"
+
+msgid "**Measured.** mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline"
+msgstr "**측정 결과.** 같은(SAME) 테스트 세트에서 mAP50 0.9457, mAP50-95 0.8341, v1(yolo_welldetect_v3.pt)은 0.8838과 0.7630; 기본 YOLO에는 플라크 웰 클래스가 없으므로 v1이 기준선"
+
+msgid "on the shared test set it beats v1 (the v3 weights) on every measure, and cuts false boxes on no-well figures from 152 to 49"
+msgstr "공유 테스트 세트에서 모든 지표가 v1(v3 가중치)보다 좋고, 웰이 없는 그림의 가짜 상자를 152개에서 49개로 줄임"
+
+msgid "84 of the 129 test images contain no well at all, which is what the false-box count is measured on"
+msgstr "테스트 이미지 129장 중 84장에는 웰이 전혀 없으며, 가짜 상자 수는 이 이미지들에서 측정"
+
+msgid "locates WELLS, not plaques; the front half of a two-stage pipeline with the plaque segmentation model"
+msgstr "플라크가 아니라 웰(WELLS)을 찾음; 플라크 분할 모델과 이루는 2단계 파이프라인의 앞부분"
+
+msgid "the repository publishes this weight as weights/best.pt; spaCR saves it under the name above so two detectors cannot both land as best.pt"
+msgstr "저장소는 이 가중치를 weights/best.pt로 게시하며, spaCR은 두 검출기가 모두 best.pt로 저장되지 않도록 위의 이름으로 저장"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo26 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo26>`_, as ``yolo_welldetect_v4.pt``."
+msgstr "`einarolafsson/toxoplasma-plaque-well-detector-yolo26 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo26>`_ 에 ``yolo_welldetect_v4.pt`` 로 게시되었습니다."
+
+msgid "SHA-256 ``f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7``."
+msgstr "SHA-256 ``f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7``."
+
+msgid "Toxoplasma from Cell Mask (cross-channel)"
+msgstr "세포 마스크로부터 톡소플라스마 예측(교차 채널)"
+
+msgid "**Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks"
+msgstr "**학습 데이터.** 교차 채널: 숙주 세포 이미지가 주어지면 기생충 염색 없이 톡소플라스마 기생포성 액포의 위치를 예측. 100 에포크, 기반 cpsam_v2, AdamW lr 1e-5, 목표는 PV에서 재생성한 마스크"
+
+msgid "**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**측정 결과.** 웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.606, 기본 cpsam_v2는 0.021"
+
+msgid "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all"
+msgstr "IoU 0.5 기준 F1 0.606, AJI 0.494, Dice 0.610, 기본 cpsam_v2는 0.021/0.008/0.020 -- 기본 모델은 이 작업을 전혀 수행하지 못함"
+
+msgid "per host: HeLa 0.711, HFF 0.557, THP1 0.465; THP1 is the weak case"
+msgstr "숙주별: HeLa 0.711, HFF 0.557, THP1 0.465; THP1이 약한 경우"
+
+msgid "the held-out split selects the checkpoint, so it is validation data rather than an independent test set"
+msgstr "홀드아웃 분할로 체크포인트를 선택하므로 독립 테스트 세트가 아니라 검증 데이터"
+
+msgid "accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry"
+msgstr "IoU 0.8을 넘으면 정확도가 떨어짐 -- 정밀한 형태 측정보다는 계수, 점유, 면적 측정에 적합"
+
+msgid "Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``."
+msgstr "`einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_ 에 ``toxoplasma_from_cellmask_pv`` 로 게시되었습니다."
+
+msgid "SHA-256 ``481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab``."
+msgstr "SHA-256 ``481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab``."
+
+msgid "Toxoplasma PV v2 (round 5)"
+msgstr "Toxoplasma PV v2(5라운드)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 5: 556 images, 100 epochs, base cpsam_v2"
+msgstr "**학습 데이터.** 염소 항톡소플라스마-비오틴으로 염색한 톡소플라스마 급속 증식형의 기생포성 액포와, PV 내강에 DsRed를 발현하는 급속 증식형(RH 및 ME49). 5라운드: 이미지 556장, 100 에포크, 기반 cpsam_v2"
+
+msgid "**Measured.** F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
+msgstr "**측정 결과.** 619쌍에 대한 5겹 교차 검증으로 F1 0.817 +/- 0.036; 내부 홀드아웃 웰 11개에서 약 0.86, 기본 모델은 0.713"
+
+msgid "supersedes toxoplasma_pv_v1 (round 2, 229 images): more than twice the training data and cross-validated rather than single-split"
+msgstr "toxoplasma_pv_v1(2라운드, 이미지 229장)을 대체: 학습 데이터가 두 배 이상이며 단일 분할이 아닌 교차 검증을 거침"
+
+msgid "5-fold CV over 619 pairs: F1 0.817 (SD 0.036), AJI 0.714, Dice 0.802"
+msgstr "619쌍에 대한 5겹 교차 검증: F1 0.817(SD 0.036), AJI 0.714, Dice 0.802"
+
+msgid "per-dataset variance is real -- F1 ranges ~0.74 to ~0.93 by screen"
+msgstr "데이터 세트 간 편차가 실제로 존재함 -- 스크린에 따라 F1이 약 0.74에서 약 0.93"
+
+msgid "accuracy falls above IoU 0.8 -- suited to counting and area rather than precise morphometry"
+msgstr "IoU 0.8을 넘으면 정확도가 떨어짐 -- 정밀한 형태 측정보다는 계수와 면적 측정에 적합"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_, as ``cpsam_v2_toxo_r5``."
+msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_ 에 ``cpsam_v2_toxo_r5`` 로 게시되었습니다."
+
+msgid "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``."
+msgstr "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``."
+
+msgid "Toxoplasma PV v3 (round 6)"
+msgstr "Toxoplasma PV v3(6라운드)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 6 retrains round 5's data with cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+msgstr "**학습 데이터.** 염소 항톡소플라스마-비오틴으로 염색한 톡소플라스마 급속 증식형의 기생포성 액포와, PV 내강에 DsRed를 발현하는 급속 증식형(RH 및 ME49). 6라운드는 5라운드 데이터를 cellpose 4.2.1.1로 다시 학습, 100 에포크, 기반 cpsam_v2"
+
+msgid "**Measured.** F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+msgstr "**측정 결과.** 기준 웰 11개에서 IoU 0.5 기준 F1 0.860, 기본 cpsam_v2는 0.765; AJI 0.803 대 0.505"
+
+msgid "NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the anchor wells -- 0.8602 against 0.8648 -- and the PV project still promotes round 5"
+msgstr "여기서는 최신이 최선이 아님: 6라운드는 기준 웰에서 2라운드를 넘지 못하며(0.8602 대 0.8648) PV 프로젝트는 여전히 5라운드를 승격 모델로 사용"
+
+msgid "it is the first PV round whose checkpoint was chosen on a held-out validation set (108 fields) instead of on the test wells"
+msgstr "테스트 웰이 아니라 홀드아웃 검증 세트(시야 108개)로 체크포인트를 선택한 첫 PV 라운드"
+
+msgid "5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424"
+msgstr "출처별로 묶은 5겹 교차 검증: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424"
+
+msgid "the 11 anchor wells have been held out since round 1, so they are the only fields no PV round has ever trained on"
+msgstr "기준 웰 11개는 1라운드부터 홀드아웃되었으므로 어떤 PV 라운드도 학습한 적 없는 유일한 시야"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_, as ``cpsam_v2_toxo_r6``."
+msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_ 에 ``cpsam_v2_toxo_r6`` 로 게시되었습니다."
+
+msgid "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
+msgstr "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
+
+msgid "Live cell v1 (phase, brightfield, DIC)"
+msgstr "살아 있는 세포 v1(위상차, 명시야, DIC)"
+
+msgid "**Trained on.** unstained cells in phase contrast, brightfield and DIC: LIVECell, DeepSea, YeaZ, yeast microstructures, five Cell Tracking Challenge sets, BBBC009, BBBC030, QPI and Revvity. Base cpsam_v2, cellpose 4.2.1.1, lr 1e-5, batch 4; stopped at epoch 37 of 100"
+msgstr "**학습 데이터.** 위상차, 명시야, DIC 조건의 비염색 세포: LIVECell, DeepSea, YeaZ, 효모 미세 구조, Cell Tracking Challenge 세트 5개, BBBC009, BBBC030, QPI, Revvity. 기반 cpsam_v2, cellpose 4.2.1.1, lr 1e-5, 배치 4; 100 에포크 중 37에서 중지"
+
+msgid "**Measured.** on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell"
+msgstr "**측정 결과.** 기본 cpsam_v2가 학습한 적 없는 데이터 세트에서 IoU 0.5 기준 F1 0.960 대 0.885; 테스트 시야 2,199개 전체에서는 0.694 대 0.738. 기본 모델이 LIVECell과 YeaZ로 학습되어 LIVECell에서 앞서기 때문"
+
+msgid "TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell and YeaZ, so its score there is partly memorisation. On the datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, QPI, Revvity, yeast microstructures) this model scores F1 0.960 against 0.885"
+msgstr "기본 모델과의 비교는 하나가 아니라 둘: 기본 cpsam_v2는 LIVECell과 YeaZ로 학습했으므로 그 데이터에서의 점수는 일부 암기의 결과. 기본 모델이 본 적 없는 데이터 세트(DeepSea, CTC 세트, BBBC009, BBBC030, QPI, Revvity, 효모 미세 구조)에서는 이 모델이 F1 0.960 대 0.885"
+
+msgid "it does NOT replace stock on LIVECell-style Incucyte phase: 0.671 against 0.724 there, and it missed its own pre-registered promotion bar"
+msgstr "LIVECell 스타일의 Incucyte 위상차 이미지에서는 기본 모델을 대체하지 않음(NOT): 이 경우 0.671 대 0.724이며, 미리 등록한 자체 승격 기준에도 미달"
+
+msgid "by modality at IoU 0.5: brightfield 0.964 (stock 0.912), DIC +0.026 over stock, phase 0.689 (stock 0.735)"
+msgstr "IoU 0.5 기준 영상 방식별: 명시야 0.964(기본 0.912), DIC는 기본 대비 +0.026, 위상차 0.689(기본 0.735)"
+
+msgid "F1 0.865 on a train sample, 0.696 on validation and 0.694 on test; no per-epoch loss was recorded"
+msgstr "학습 표본에서 F1 0.865, 검증 0.696, 테스트 0.694; 에포크별 손실은 기록되지 않음"
+
+msgid "Published as `einarolafsson/live-cell-segmentation-cpsam <https://huggingface.co/einarolafsson/live-cell-segmentation-cpsam>`_, as ``live_cell_v1``."
+msgstr "`einarolafsson/live-cell-segmentation-cpsam <https://huggingface.co/einarolafsson/live-cell-segmentation-cpsam>`_ 에 ``live_cell_v1`` 로 게시되었습니다."
+
+msgid "SHA-256 ``7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090``."
+msgstr "SHA-256 ``7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090``."
+
+msgid "Cross-channel nuclei-from-cellmask"
+msgstr "교차 채널: 세포 마스크로부터 핵 예측"
+
+msgid "**Trained on.** cross-channel: given the cell image, predicts where the nuclei are, with no nuclear stain -- which frees the DAPI/Hoechst channel for another marker. 100 epochs, base cpsam_v2"
+msgstr "**학습 데이터.** 교차 채널: 세포 이미지가 주어지면 핵 염색 없이 핵의 위치를 예측하므로 DAPI/Hoechst 채널을 다른 마커에 쓸 수 있음. 100 에포크, 기반 cpsam_v2"
+
+msgid "**Measured.** F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5"
+msgstr "**측정 결과.** 웰 단위로 묶은 홀드아웃 시야 453개에서 IoU 0.5 기준 F1 0.888, 기본 cpsam_v2는 0.201"
+
+msgid "F1 0.888, AJI 0.792, Dice 0.877 at IoU 0.5 against stock cpsam_v2's 0.201/0.286/0.449"
+msgstr "IoU 0.5 기준 F1 0.888, AJI 0.792, Dice 0.877, 기본 cpsam_v2는 0.201/0.286/0.449"
+
+msgid "per host: HFF 0.932, HeLa 0.860, THP1 0.861"
+msgstr "숙주별: HFF 0.932, HeLa 0.860, THP1 0.861"
+
+msgid "predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies"
+msgstr "세포 형태로 핵을 예측함 -- 특이하거나 밀집도가 매우 높은 형태에서는 정확도가 떨어질 수 있음"
+
+msgid "Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``."
+msgstr "`einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_ 에 ``nuclei_from_cellmask_best`` 로 게시되었습니다."
+
+msgid "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47``."
+msgstr "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47``."
+
+msgid "Cross-channel cell-from-hoechst"
+msgstr "교차 채널: Hoechst로부터 세포 예측"
+
+msgid "**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+msgstr "**학습 데이터.** 선별된 숙주 세포 마스크와 짝을 이룬 Hoechst 염색 핵; 기본 cpsam_v2에서 미세 조정, 100 에포크, 최적 에포크 70"
+
+msgid "**Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
+msgstr "**측정 결과.** 홀드아웃 시야 451개에서 IoU 0.5 기준 F1 0.870, 기본 cpsam_v2는 0.301 -- 차이 0.569"
+
+msgid "the counterpart of nuclei_from_cellmask_v1: that one predicts nuclei from the cell mask, this one predicts the cell from the nucleus"
+msgstr "nuclei_from_cellmask_v1의 짝: 그 모델은 세포 마스크에서 핵을, 이 모델은 핵에서 세포를 예측"
+
+msgid "precision 0.944 against recall 0.806 -- it misses cells rather than inventing them, which is the safer direction for counting"
+msgstr "정밀도 0.944 대 재현율 0.806 -- 세포를 만들어 내기보다 놓치는 편이며, 이는 계수에 더 안전한 방향"
+
+msgid "quote the DELTA over stock (0.569), not the ratio: stock's mAP of 0.0575 is a near-zero denominator that makes any ratio look huge"
+msgstr "비율이 아니라 기본 모델 대비 차이(DELTA, 0.569)를 인용할 것: 기본 모델의 mAP 0.0575는 0에 가까운 분모여서 어떤 비율이든 엄청나게 커 보이게 함"
+
+msgid "Published as `einarolafsson/cross-channel-cell-from-hoechst-cpsam <https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam>`_, as ``cell_from_hoechst_best``."
+msgstr "`einarolafsson/cross-channel-cell-from-hoechst-cpsam <https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam>`_ 에 ``cell_from_hoechst_best`` 로 게시되었습니다."
+
+msgid "SHA-256 ``d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb``."
+msgstr "SHA-256 ``d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb``."
+
+msgid "Toxoplasma from Hoechst (cross-channel)"
+msgstr "Hoechst로부터 톡소플라스마 예측(교차 채널)"
+
+msgid "**Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks"
+msgstr "**학습 데이터.** 교차 채널: Hoechst/핵 이미지가 주어지면 기생충 염색 없이 톡소플라스마 기생포성 액포의 위치를 예측. 100 에포크, 기반 cpsam_v2, AdamW lr 1e-05, 목표는 PV에서 재생성한 마스크"
+
+msgid "**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**측정 결과.** 웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.569, 기본 cpsam_v2는 0.002"
+
+msgid "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016"
+msgstr "IoU 0.5 기준 F1 0.569, AJI 0.421, Dice 0.546, 기본 cpsam_v2는 0.002/0.006/0.016"
+
+msgid "the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1"
+msgstr "Hoechst 경로가 세포 마스크 경로보다 어려움 -- toxoplasma_from_cellmask_v1과 비교"
+
+msgid "Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``."
+msgstr "`einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_ 에 ``toxoplasma_from_hoechst_pv`` 로 게시되었습니다."
+
+msgid "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
+msgstr "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
+

@@ -21,6 +21,11 @@ cannot reach a dispatched run, and a push still cancels its own predecessor.
 Asserting on the evaluated expressions rather than on the literal text means a
 different but equally correct spelling passes, and a rewrite that quietly drops
 the exemption fails.
+
+2026-09-30: tests.yml goes further. Code pushes to nightly still landed
+faster than its suite, so a push no longer cancels the push run in flight
+there either; one group per ref keeps the backlog to one pending run. Only
+a pull request cancels its predecessor (``_QUEUEING`` below).
 """
 from __future__ import annotations
 
@@ -41,7 +46,17 @@ _REF = "refs/heads/nightly"
 #: Workflows whose in-progress runs may be cancelled, and which therefore need
 #: the dispatch exemption. Suites that never cancel anything are checked
 #: separately by :func:`test_the_deploying_workflows_cancel_nothing_at_all`.
-_CANCELLING = ("tests.yml", "compat-matrix.yml")
+_CANCELLING = ("compat-matrix.yml",)
+
+#: Workflows whose push runs are never cancelled at all: only a pull request
+#: cancels its predecessor. The group still bounds the backlog -- GitHub keeps
+#: one running and at most one pending run per group, a newer pending run
+#: replacing the older -- so a burst of pushes cannot queue thirty suites.
+#: tests.yml moved here on 2026-09-30: code pushes to nightly arrive faster
+#: than its ~2.5 h suite, so cancel-on-push left nightly with no verdict.
+_QUEUEING = ("tests.yml",)
+
+_GUARDED = _CANCELLING + _QUEUEING
 
 
 def _load(name):
@@ -99,7 +114,7 @@ def _cancels(expression, event):
     return bool(eval(body, {"__builtins__": {}}, {}))  # noqa: S307
 
 
-@pytest.mark.parametrize("name", _CANCELLING)
+@pytest.mark.parametrize("name", _GUARDED)
 def test_a_push_cannot_cancel_a_dispatched_run(name):
     """The whole of instruction 101.
 
@@ -119,7 +134,7 @@ def test_a_push_cannot_cancel_a_dispatched_run(name):
     )
 
 
-@pytest.mark.parametrize("name", _CANCELLING)
+@pytest.mark.parametrize("name", _GUARDED)
 def test_a_dispatched_run_is_never_cancelled_by_another(name):
     """Two dispatched runs must not kill each other either.
 
@@ -153,7 +168,7 @@ def test_a_push_still_cancels_the_previous_push(name):
     )
 
 
-@pytest.mark.parametrize("name", _CANCELLING)
+@pytest.mark.parametrize("name", _GUARDED)
 def test_the_dispatch_escape_hatch_actually_exists(name):
     """An exemption for an event the workflow does not accept is decoration.
 
@@ -169,7 +184,7 @@ def test_the_dispatch_escape_hatch_actually_exists(name):
     )
 
 
-@pytest.mark.parametrize("name", _CANCELLING)
+@pytest.mark.parametrize("name", _GUARDED)
 def test_the_group_is_still_per_ref(name):
     """Splitting by event must not have merged the branches together."""
     _triggers, concurrency = _load(name)
@@ -195,8 +210,31 @@ def test_the_deploying_workflows_cancel_nothing_at_all():
         )
 
 
+@pytest.mark.parametrize("name", _QUEUEING)
+def test_a_push_run_is_never_cancelled_and_waits_in_one_lane(name):
+    """A code push lets the run in flight finish; only the newest waits.
+
+    Every push of a ref shares one group, which is what bounds the backlog
+    to one pending run; the run already going is not cancelled, so a push
+    verdict exists even when commits land faster than the suite runs.
+    """
+    triggers, concurrency = _load(name)
+
+    assert _cancels(concurrency["cancel-in-progress"], "push") is False, (
+        f"{name}: a push cancels the push run in flight again, so nightly "
+        f"gets no push verdict while commits land faster than the suite.")
+    assert _substitute(concurrency["group"], "push") == _substitute(
+        concurrency["group"], "push")
+    assert "${{ github.ref }}" in str(concurrency["group"])
+    if "pull_request" in triggers:
+        assert _cancels(concurrency["cancel-in-progress"],
+                        "pull_request") is True, (
+            f"{name}: a new commit on a pull request should replace the "
+            f"run of the commit it superseded.")
+
+
 def test_every_workflow_that_cancels_is_covered_by_this_file():
-    """The list above cannot silently fall behind a new workflow."""
+    """The lists above cannot silently fall behind a new workflow."""
     cancelling = set()
     for path in sorted(WORKFLOWS.glob("*.yml")):
         _triggers, concurrency = _load(path.name)
@@ -204,11 +242,12 @@ def test_every_workflow_that_cancels_is_covered_by_this_file():
             continue
         value = concurrency.get("cancel-in-progress", False)
         # A run that is cancellable under ANY event needs the exemption.
-        if _cancels(value, "push") or _cancels(value, "workflow_dispatch"):
+        if any(_cancels(value, event)
+               for event in ("push", "workflow_dispatch", "pull_request")):
             cancelling.add(path.name)
 
-    assert cancelling == set(_CANCELLING), (
+    assert cancelling == set(_GUARDED), (
         f"workflows that cancel in-progress runs are {sorted(cancelling)}, but "
-        f"this file guards {sorted(_CANCELLING)}. A workflow that cancels and "
+        f"this file guards {sorted(_GUARDED)}. A workflow that cancels and "
         f"is not listed can cancel its own dispatched run."
     )

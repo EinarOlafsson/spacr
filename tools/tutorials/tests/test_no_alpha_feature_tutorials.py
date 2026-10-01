@@ -30,6 +30,9 @@ PUBLISHED_CATALOG = REPO / "docs" / "source" / "_extra" / "tutorials" / "catalog
 #: Every registered widget must appear here: a new alpha widget fails
 #: ``test_every_alpha_widget_has_its_visible_text_listed`` until it is added.
 WIDGET_LABELS = {
+    "MakeMasksUseInMaskGeneration": ("Use in Mask generation",),
+    "PlaqueEstimateScaleTime": ("Estimate scale / time (experimental)",),
+    "PlaqueEstimateScaleTimeNote": ("Published RH/HFF reference",),
     "DistributedAllocatedGpus": ("segment batches on every GPU allocated",),
     "MaskGpuProgress": (),
     "MeasureConfluencyToggle": ("Confluency",),
@@ -96,6 +99,7 @@ WIDGET_LABELS = {
     "ControlChartAnomalySection": ("Anomalies",),
     # With its ellipsis: bare "uncertainty" is ordinary statistics narration.
     "MakeMasksUncertaintyButton": ("Uncertainty…",),
+    "MakeMasksUncertaintySetting": ("Uncertainty…",),
     # Plugin catalogue (Preferences). Its one-word buttons (List, Open,
     # Uninstall) and table headers are left out as ordinary words.
     "PluginCatalogueHelp": ("Browse a catalogue of community plugins",),

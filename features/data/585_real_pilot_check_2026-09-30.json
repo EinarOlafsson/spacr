@@ -1,0 +1,194 @@
+{
+  "item": 585,
+  "date": "2026-09-30",
+  "source": "/media/carruthers/mnt3/claude/toxoplasma_projects/tsg101_screen",
+  "plates": 4,
+  "control_columns": [
+    "c21",
+    "c22",
+    "c23",
+    "c24"
+  ],
+  "n_cells_nc": 14200,
+  "n_cells_all": 27386,
+  "n_sim": 2000,
+  "readouts": {
+    "cell_area (continuous)": {
+      "effect": 3405.0,
+      "components_nc": {
+        "replicate": 4650448.2055681255,
+        "replicate_condition": null,
+        "well": 17688135.135208882,
+        "field": 68315908.23060513,
+        "cell": 496041956.5337902,
+        "mean": 34046.56647887324,
+        "cells_per_field": 8.679706601466993,
+        "cells_per_field_effective": 4.262943097299351,
+        "fields_per_well": 14.350877192982455,
+        "wells_per_replicate": 28.5,
+        "n_replicates": 4,
+        "n_conditions": 1,
+        "n_wells": 114,
+        "n_cells": 14200
+      },
+      "components_nc_pc": {
+        "replicate": 4353190.539047003,
+        "replicate_condition": 0.0,
+        "well": 37303712.363913305,
+        "field": 67812435.92661908,
+        "cell": 490750376.892003,
+        "mean": 34538.28204191923,
+        "cells_per_field": 8.486519987604586,
+        "cells_per_field_effective": 4.014903243803125,
+        "fields_per_well": 14.153508771929825,
+        "wells_per_replicate": 28.5,
+        "n_replicates": 4,
+        "n_conditions": 2,
+        "n_wells": 228,
+        "n_cells": 27386
+      },
+      "designs": {
+        "unpaired": {
+          "replicates": 14,
+          "wells": 8,
+          "fields": 9,
+          "cells_per_field": 4,
+          "planned_power": 0.8019544524568665,
+          "simulated_power": 0.792,
+          "resampled_power_distinct": 0.9015,
+          "resampled_power_with_replacement": 0.674,
+          "power_with_nc_pc_components": 0.7189216847381761,
+          "simulation_gap": -0.009954452456866436,
+          "planned_within_resampling_bracket": true
+        },
+        "paired": {
+          "replicates": 7,
+          "wells": 11,
+          "fields": 9,
+          "cells_per_field": 4,
+          "planned_power": 0.8030911906074449,
+          "simulated_power": 0.8055,
+          "resampled_power_distinct": 0.8825,
+          "resampled_power_with_replacement": 0.607,
+          "power_with_nc_pc_components": 0.6370236033614621,
+          "simulation_gap": 0.0024088093925550558,
+          "planned_within_resampling_bracket": true
+        }
+      }
+    },
+    "parasites (count)": {
+      "effect": 0.16743,
+      "components_nc": {
+        "replicate": 0.0,
+        "replicate_condition": null,
+        "well": 0.0,
+        "field": 0.0,
+        "cell": 3.6405547403700513,
+        "mean": 1.6742957746478873,
+        "cells_per_field": 8.679706601466993,
+        "cells_per_field_effective": 4.262943097299351,
+        "fields_per_well": 14.350877192982455,
+        "wells_per_replicate": 28.5,
+        "n_replicates": 4,
+        "n_conditions": 1,
+        "n_wells": 114,
+        "n_cells": 14200
+      },
+      "components_nc_pc": {
+        "replicate": 0.0,
+        "replicate_condition": 0.0,
+        "well": 0.0,
+        "field": 0.0,
+        "cell": 3.3300046114912205,
+        "mean": 1.6735558314467247,
+        "cells_per_field": 8.486519987604586,
+        "cells_per_field_effective": 4.014903243803125,
+        "fields_per_well": 14.153508771929825,
+        "wells_per_replicate": 28.5,
+        "n_replicates": 4,
+        "n_conditions": 2,
+        "n_wells": 228,
+        "n_cells": 27386
+      },
+      "designs": {
+        "unpaired": {
+          "replicates": 6,
+          "wells": 11,
+          "fields": 10,
+          "cells_per_field": 4,
+          "planned_power": 0.8003323481141037,
+          "simulated_power": 0.819,
+          "resampled_power_distinct": 0.9245,
+          "resampled_power_with_replacement": 0.606,
+          "power_with_nc_pc_components": 0.8338058520373497,
+          "simulation_gap": 0.018667651885896253,
+          "planned_within_resampling_bracket": true
+        },
+        "paired": {
+          "replicates": 8,
+          "wells": 10,
+          "fields": 10,
+          "cells_per_field": 4,
+          "planned_power": 0.834532908786194,
+          "simulated_power": 0.8275,
+          "resampled_power_distinct": 0.9025,
+          "resampled_power_with_replacement": 0.781,
+          "power_with_nc_pc_components": 0.8649927157610219,
+          "simulation_gap": -0.007032908786194003,
+          "planned_within_resampling_bracket": true
+        }
+      }
+    },
+    "multiple_parasites (proportion)": {
+      "effect": 0.032204,
+      "components_nc": {
+        "replicate": 0.0010802342861974041,
+        "replicate_condition": null,
+        "well": 0.0,
+        "field": 0.0,
+        "cell": 0.21339933355852572,
+        "mean": 0.32204225352112675,
+        "cells_per_field": 8.679706601466993,
+        "cells_per_field_effective": 4.262943097299351,
+        "fields_per_well": 14.350877192982455,
+        "wells_per_replicate": 28.5,
+        "n_replicates": 4,
+        "n_conditions": 1,
+        "n_wells": 114,
+        "n_cells": 14200
+      },
+      "components_nc_pc": {
+        "replicate": 0.0,
+        "replicate_condition": 0.0008659091610087569,
+        "well": 0.0023423027019532396,
+        "field": 0.0,
+        "cell": 0.21217412275769806,
+        "mean": 0.3197254071423355,
+        "cells_per_field": 8.486519987604586,
+        "cells_per_field_effective": 4.014903243803125,
+        "fields_per_well": 14.153508771929825,
+        "wells_per_replicate": 28.5,
+        "n_replicates": 4,
+        "n_conditions": 2,
+        "n_wells": 228,
+        "n_cells": 27386
+      },
+      "designs": {
+        "unpaired": null,
+        "paired": {
+          "replicates": 10,
+          "wells": 11,
+          "fields": 10,
+          "cells_per_field": 4,
+          "planned_power": 0.8127563409764608,
+          "simulated_power": 0.805,
+          "resampled_power_distinct": 0.7805,
+          "resampled_power_with_replacement": 0.5145,
+          "power_with_nc_pc_components": 0.36703499651313287,
+          "simulation_gap": -0.007756340976460718,
+          "planned_within_resampling_bracket": false
+        }
+      }
+    }
+  }
+}

@@ -1,10 +1,10 @@
 {
   "lesson": "43_illumination",
-  "english_sha256": "733c89c9161df491db3c40feedfcdde7908b25a629f43da184fe9e8f6ff66d99",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,7 +15,7 @@
   "objectives": [
     "代表的な視野と強度チャネルを選ぶ。",
     "照明モデルを推定して確認する。",
-    "モデルをMaskやMeasureで再利用する。"
+    "保存したモデルをMeasureで適用する。"
   ],
   "prerequisite": "取得グループごとの代表的な視野を含む、結合画像のフォルダーを使います。この例では、Measureでダウンロードしたプレートの例の十六視野を使います。保存されたどの面が強度で、どの面がラベルかを把握しておきます。",
   "scenes": [
@@ -31,6 +31,7 @@
     "illuminationフォルダーに保存された、照明の品質管理のPNGを開きます。Figuresパネルに表示されない場合は、画像ビューアーを使います。",
     "推定された照明の場を確認し、明るさがなめらかに変化しているか、細胞の形をした不要な構造がないかを見ます。補正では、ダークのオフセットを引いてから、この平均が一の場で割ります。",
     "補正前と補正後の放射方向のプロファイルを比べます。当てはめに使った画像以外でも補正がうまく働くかを、別の視野を使って評価します。",
-    "モデルを再利用するには、そのパスを設定し、目的のMaskまたはMeasureの流れで補正を有効にします。チャネル、プレートの識別情報、設定はモデルと一緒に保管し、同じ強度を二回補正しないようにします。"
+    "保存したモデルは、チャネル、プレートの識別情報、設定と一緒に保管します。一組の強度には一度だけ適用します。同じ強度を二回補正すると、値がゆがみます。",
+    "モデルを適用するには、Measureを開き、設定でilluminationを検索します。Image PreprocessingでIllumination correctionをオンにし、Illumination modelに保存したファイルを設定します。するとMeasureは、測定の前にモデル化したチャネルを照明の場で割ります。マスクは変わりません。"
   ]
 }

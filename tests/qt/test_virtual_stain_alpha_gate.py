@@ -79,3 +79,42 @@ def test_a_folder_given_while_hidden_still_reaches_the_run(
     assert seen == [(str(tmp_path), [1, 3], 0, 20)]
     assert screen._vs_summary["predicted_f1_50"] == 0.8
     assert "F1 0.80" in screen._vs_note.text()
+
+
+def test_the_dialogs_ask_for_what_was_not_given(screen, monkeypatch,
+                                                tmp_path):
+    """No folder asks for one and no channels ask for them; dismissing
+    either dialog starts nothing."""
+    import spacr.deep_spacr as ds
+    from PySide6.QtWidgets import QFileDialog, QInputDialog
+
+    seen = []
+    monkeypatch.setattr(ds, "_virtual_stain_from_folder",
+                        lambda folder, sources, target, **kw: seen.append(
+                            (folder, sources, target)) or (None, {
+                                "test_fields": 1, "predicted_f1_50": 0.5,
+                                "input_baseline_f1_50": 0.1,
+                                "predicted_pearson": 0.7}))
+    folders = iter(["", str(tmp_path), str(tmp_path)])
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        staticmethod(lambda *a, **k: next(folders)))
+    answers = iter([("2 > 1", False), ("2 > 1", True)])
+    monkeypatch.setattr(QInputDialog, "getText",
+                        staticmethod(lambda *a, **k: next(answers)))
+    assert screen._virtual_stain() == ""
+    assert screen._virtual_stain() == ""
+    assert seen == []
+    assert screen._virtual_stain() == str(tmp_path)
+    assert seen == [(str(tmp_path), [2], 1)]
+
+
+def test_a_failed_virtual_stain_says_why(screen, monkeypatch, tmp_path):
+    import spacr.deep_spacr as ds
+
+    def broken(*args, **kwargs):
+        raise RuntimeError("no paired fields in the folder")
+
+    monkeypatch.setattr(ds, "_virtual_stain_from_folder", broken)
+    screen._virtual_stain(str(tmp_path), "1 > 0")
+    assert "no paired fields in the folder" in screen._vs_note.text()
+    assert screen._vs_note.text().startswith("Virtual staining failed")

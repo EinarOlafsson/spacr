@@ -135,8 +135,8 @@ heading hides with its rows (AppScreen._alpha_hidden_sections).
     targets, settings-flow page and index, 02_measure_and_crop notebook.
 
 WHAT IS LEFT
-    - Real data: no annotated real timelapse was run; the numbers above are
-      synthetic and public survival data. Run it on a tracked Toxoplasma
+    - Real data (2026-09-30, below): annotated LNCaP death movies and CTC
+      HeLa divisions agree with the ground truth; still no Toxoplasma
       egress or host-lysis movie with hand-annotated event frames.
     - Objects in one well are not independent. The log-rank tests and Cox
       SEs treat them as if they were, so p-values are optimistic when wells
@@ -158,3 +158,53 @@ WHAT IS LEFT
       ends. Cumulative incidence (Aalen-Johansen) would be the fix.
     - Optional dependency for the maintainer: lifelines (pip install
       lifelines) switches the engine; not needed for the feature.
+
+2026-09-30 -- Real-data validation (CPU; scripts in /mnt/wd4tb/scratch/571/scripts;
+lifelines 0.30.3 in the scratch venv as the independent reference)
+    1. Annotated deaths, Vicar et al. 2020 (Sci Rep 10:1566; Zenodo 2601562
+       masks + death table, 4531900 fluorescence): LNCaP under staurosporine,
+       doxorubicin and black phosphorus, 7 fields each, 467/439 frames at
+       3 min, 581 tracked cells, 451 annotated deaths. The published death
+       frames were written to measurements.db:cell as an annotated column
+       and the step run with origin movie, 0.05 h per frame, doxorubicin as
+       reference. Against lifelines on the annotation table itself:
+         KM curves identical (max |diff| 0) in all three conditions;
+         medians 15.35 / 21.20 / 7.45 h; log-rank (3 groups) p 1.09e-19 in
+         both; Cox HR staurosporine 1.897 (1.504-2.392), black phosphorus
+         3.185 (2.475-4.099) in both; every per-cell event frame equal.
+       Found and fixed: the staurosporine median came out 15.45 h instead
+       of 15.35 h because the KM product there is 0.5000000000000001; the
+       median search (sp_stats._first_time_at_or_below) now allows 1e-9.
+       The source table has two inconsistent rows (a death frame after the
+       movie's end; a survivor with a death frame); the step censors the
+       first, and the annotation column must mark only deaths.
+    2. Divisions, Cell Tracking Challenge Fluo-N2DL-HeLa (2 movies, 92 frames
+       at 30 min, 306 GT divisions in man_track.txt). Time from a track's
+       first frame to its division, GT lineage vs spaCR (trackpy on the
+       silver-truth masks + item 567's held-out detected mitoses, through
+       timelapse._event_timing). Before: median 27.0 h vs GT 35.0 h, max
+       curve gap 0.11, log-rank p 8e-4 -- trackpy carries one daughter on
+       under the mother's id, so a spaCR track held several cell cycles and
+       only its first division counted. Fixed: _event_timing splits a track
+       at every detected mitosis (_event_cycles), one row per cell cycle.
+       After: 917 cycles / 314 divisions vs GT 939 / 306; median 35.0 vs
+       35.0 h; max curve gap 0.043; log-rank GT vs spaCR p 0.73 (movie 1
+       25.5 vs 26.5 h, p 0.86; movie 2 median not reached in either, p 0.77).
+    3. Measurement-threshold events are only as good as the marker: on the
+       same LNCaP cells, fold_change of the caspase-3/7 mean (1.3/1.5/2.0x,
+       10 frames) does not reproduce the annotated deaths (HR staurosporine
+       vs doxorubicin 11.7 / 6.3 / 6.9, against 2.08 from the annotations
+       of the same two conditions; 20 % of cells within 10 frames), because
+       surviving cells also gain caspase signal over the movie. The step's
+       arithmetic is right; an event definition has to be checked against
+       annotated cells before it is trusted.
+    4. Deaths detected by item 567 (held out by field, 15-min frames) give
+       Kaplan-Meier curves consistent with the annotated ones: median 21.5
+       vs 21.25 h (doxorubicin), 14.25 vs 15.25 h (staurosporine), max
+       curve gap 0.09 / 0.08, log-rank detected vs annotated p 0.32 / 0.49,
+       HR 2.48 (1.96-3.16) vs 2.08 (1.65-2.62).
+    Tests added: tests/test_time_to_event.py (median at one half up to
+    round-off) and tests/test_event_detection_on_tracks.py (cell cycles,
+    death once per track). Status stays alpha: the per-well dependence,
+    competing risks and left truncation listed above are untouched.
+

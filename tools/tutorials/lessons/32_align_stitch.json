@@ -25,6 +25,17 @@
       "hold_after": 0.7
     },
     {
+      "visual": "02b_align_test_data_loaded",
+      "narration": "To practise on published data instead, press Load test data. spaCR downloads nine overlapping tiles from an optical pooled screen and fills in the tile folder, grid, order, overlap and output folder, so you can press Plan straight away. The next steps use the settings of the downloadable example.",
+      "focus": [
+        340,
+        170,
+        3490,
+        170
+      ],
+      "hold_after": 0.7
+    },
+    {
       "visual": "03_actual_layout_and_budget",
       "narration": "Set the grid to three by three, row-major order and overlap zero point two five for this example. Match these settings to your acquisition; use serpentine order when alternate rows were acquired in opposite directions.",
       "hold_after": 0.7,

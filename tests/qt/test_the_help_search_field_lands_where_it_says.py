@@ -551,7 +551,10 @@ def test_a_result_row_says_where_it_lives_in_the_readers_language(field,
 
     monkeypatch.setattr(help_search, "tr", stub)
     results = field.type_and_search("mask")
-    rows = [field._list.item(i).text() for i in range(field._list.count())]
+    # "and N more" rows (2026-09-30) are not results; pair entries with the
+    # rows that carry one.
+    rows = [field._list.item(i).text() for i in range(field._list.count())
+            if field._list.item(i).data(help_search.MORE_ROLE) is None]
     assert rows, "no results to draw"
     assert {e.kind for e in results} >= {"module", "api"}, results
     for entry, row in zip(results, rows):

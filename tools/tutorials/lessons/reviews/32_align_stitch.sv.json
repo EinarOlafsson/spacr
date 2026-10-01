@@ -1,10 +1,10 @@
 {
   "lesson": "32_align_stitch",
-  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "I kategorin Tools på Home öppnar du Align and Stitch. Välj plattorna, granska deras layout med Plan och använd sedan Write stack för att skapa mosaiken.",
     "Hämta och packa upp exemplet nedan och välj sedan dess mapp tiles. Den innehåller nio överlappande utsnitt i ett rutnät på 3 × 3. För ditt eget förvärv behåller du den ursprungliga plattordningen och bordets metadata tillgängliga.",
+    "Vill du hellre öva på publicerade data trycker du på Load test data. spaCR hämtar nio överlappande plattor från en optisk poolad screening och fyller i plattmappen, rutnätet, ordningen, överlappet och utdatamappen, så att du kan trycka på Plan direkt. Nästa steg använder inställningarna från exemplet som kan hämtas.",
     "Ställ in rutnätet på 3 × 3, radvis ordning och överlapp 0,25 för det här exemplet. Anpassa inställningarna till ditt förvärv; använd serpentinordning när varannan rad förvärvades i motsatt riktning.",
     "Ställ Reference channel på det bildplan som används för registreringen. Exemplet använder kanal 1, det andra planet vid numrering från 0. Välj en kanal med synlig struktur i överlappen; den resulterande placeringen gäller alla bildkanaler.",
     "Ställ in Minimum confidence för att godta en registrering och Neighbour radius för de närliggande plattor som jämförs. Exemplet använder 0,3 och 1, med mjuk övertoning i överlappen. Budgeten för bandbufferten styr minnet som bildskrivaren använder.",

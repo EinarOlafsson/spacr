@@ -1,0 +1,169 @@
+{
+ "schema": 1,
+ "language": "is",
+ "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
+ "defects": {
+  "Anndata single table": "'Sjálfstæði einstaka borð' means 'independence single (furniture) table'; the field is 'Anndata stök tafla'",
+  "Batch correction": "'Batch réttlæti' means 'batch justice'; the term is 'Lotuleiðrétting'",
+  "Cell probability": "'Hugsanlegur sjúkdómur' means 'possible disease'; the field is 'Líkur á frumu'",
+  "Clear all": "'Klár allt' reads 'ready/clever all'; the button is 'Hreinsa allt'",
+  "Custom model": "'Custom móður' means 'custom mother'; the term is 'Sérsniðið líkan'",
+  "Download": "'Láttu niður' means 'put (it) down'; the button is 'Sækja'",
+  "File…": "'Skrif...' means 'writing'; the menu item is 'Skrá…'",
+  "Model zoo…": "'Góðursjöllun...' is not a word; the screen is 'Líkanasafn…'",
+  "Open folder…": "'Öppna fótbolta...' means 'open football'; the item is 'Opna möppu…'",
+  "Outputs": "'Afleiðingar' means 'consequences'; the workflow card means 'Úttök'",
+  "Parameter sweep": "'Parametrar svippa' is a meaningless word-for-word rendering; the term is 'Færibreytuskönnun'",
+  "Preferences": "'Aðferðir' means 'methods'; the dialog is 'Kjörstillingar'",
+  "Promote calls to annotation": "'Tilkynna samtal til annotations' means 'announce conversation to annotations'",
+  "Re-flood below the escape": "'Flóður undir flóttamann' means 'flood under the refugee'",
+  "Resume checkpoint": "'Ráðstefnu Checkpoint' means 'conference checkpoint'",
+  "Run queue": "'Farið í Queue' means 'go into Queue'; the screen is 'Keyrsluröð'",
+  "Save mask": "'Sparaðu maska' means 'economize (on) a mask'; the button is 'Vista grímu'",
+  "Taper onto the gradient": "'Farið í gradientinu' means 'gone in the gradient'",
+  "Train": "'Þjálf' is not an Icelandic word; the tab is 'Þjálfa'",
+  "Undo promotion": "'og stuðning' means 'and support'",
+  "Walk": "'Spurning' means 'question'",
+  "Setting animations": "'Að setja upp animations' means 'to set up animations' (half English); the Preferences item is 'Hreyfimyndir stillinga'",
+  "Activation Maps": "'Aðgerðarkarta' is not a word ('karta' is a toad); the screen is 'Virkjunarkort'",
+  "Cell flow threshold": "'Sjálfflutningar flutninga' means 'self-transports of transports'; the label is 'Flæðisþröskuldur frumu'",
+  "Cell diameter": "'Célur í diametrum' is not Icelandic; the label is 'Þvermál frumu'",
+  "Nucleus flow threshold": "'Kjarnorku flutningarnar' means 'the nuclear-power transports'; the label is 'Flæðisþröskuldur kjarna'",
+  "Nucleus diameter": "'Kjarnorkuð diameter' means 'nuclear-powered diameter'; the label is 'Þvermál kjarna'",
+  "Pathogen flow threshold": "'Pathogene flutning þangað' is meaningless mixed text; the label is 'Flæðisþröskuldur sýkils'",
+  "Pathogen diameter": "'Pathogæna diámeter' is not Icelandic; the label is 'Þvermál sýkils'",
+  "Z projection": "'S sýninguna' means 'S the exhibition'; the label is 'Z-vörpun'",
+  "Remove image canvas": "'Að fjarlægja myndavél kanvas' means 'to remove camera canvas'; the label is 'Fjarlægja myndstriga'",
+  "Remove cluster noise": "'Að fjarlægja cluster rök' means 'to remove cluster arguments'; the label is 'Fjarlægja klasasuð'"
+ },
+ "snapshot": {
+  "Anndata single table": {
+   "runtime": "Sjálfstæði einstaka borð",
+   "guide": "Anndata stök tafla"
+  },
+  "Batch correction": {
+   "runtime": "Batch réttlæti",
+   "guide": "Lotuleiðrétting"
+  },
+  "Cell probability": {
+   "runtime": "Hugsanlegur sjúkdómur",
+   "guide": "Líkur á frumu"
+  },
+  "Clear all": {
+   "runtime": "Klár allt",
+   "guide": "Hreinsa allt"
+  },
+  "Custom model": {
+   "runtime": "Custom móður",
+   "guide": "Sérsniðið líkan"
+  },
+  "Download": {
+   "runtime": "Láttu niður",
+   "guide": "Sækja"
+  },
+  "File…": {
+   "runtime": "Skrif...",
+   "guide": "Skrá…"
+  },
+  "Model zoo…": {
+   "runtime": "Góðursjöllun...",
+   "guide": "Líkanasafn…"
+  },
+  "Open folder…": {
+   "runtime": "Öppna fótbolta...",
+   "guide": "Opna möppu…"
+  },
+  "Outputs": {
+   "runtime": "Afleiðingar",
+   "guide": "Úttök"
+  },
+  "Parameter sweep": {
+   "runtime": "Parametrar svippa",
+   "guide": "Færibreytuskönnun"
+  },
+  "Preferences": {
+   "runtime": "Aðferðir",
+   "guide": "Kjörstillingar"
+  },
+  "Promote calls to annotation": {
+   "runtime": "Tilkynna samtal til annotations",
+   "guide": "Gera greiningar að merkingum"
+  },
+  "Re-flood below the escape": {
+   "runtime": "Flóður undir flóttamann",
+   "guide": "Endurflæða undir útrásarstigi"
+  },
+  "Resume checkpoint": {
+   "runtime": "Ráðstefnu Checkpoint",
+   "guide": "Halda áfram frá vistunarpunkti"
+  },
+  "Run queue": {
+   "runtime": "Farið í Queue",
+   "guide": "Farið í Queue"
+  },
+  "Save mask": {
+   "runtime": "Sparaðu maska",
+   "guide": "Vista grímu"
+  },
+  "Taper onto the gradient": {
+   "runtime": "Farið í gradientinu",
+   "guide": "Mjókka niður á stigulinn"
+  },
+  "Train": {
+   "runtime": "Þjálf",
+   "guide": "Þjálfa"
+  },
+  "Undo promotion": {
+   "runtime": "og stuðning",
+   "guide": "Afturkalla færslu í merkingar"
+  },
+  "Walk": {
+   "runtime": "Spurning",
+   "guide": "Ganga"
+  },
+  "Setting animations": {
+   "runtime": "Að setja upp animations",
+   "guide": ""
+  },
+  "Activation Maps": {
+   "runtime": "Aðgerðarkarta",
+   "guide": ""
+  },
+  "Cell flow threshold": {
+   "runtime": "Sjálfflutningar flutninga",
+   "guide": "Flæðisþröskuldur frumu"
+  },
+  "Cell diameter": {
+   "runtime": "Célur í diametrum",
+   "guide": "Þvermál frumu"
+  },
+  "Nucleus flow threshold": {
+   "runtime": "Kjarnorku flutningarnar",
+   "guide": "Flæðisþröskuldur kjarna"
+  },
+  "Nucleus diameter": {
+   "runtime": "Kjarnorkuð diameter",
+   "guide": "Þvermál kjarna"
+  },
+  "Pathogen flow threshold": {
+   "runtime": "Pathogene flutning þangað",
+   "guide": "Flæðisþröskuldur sýkils"
+  },
+  "Pathogen diameter": {
+   "runtime": "Pathogæna diámeter",
+   "guide": "Þvermál sýkils"
+  },
+  "Z projection": {
+   "runtime": "S sýninguna",
+   "guide": "Z-vörpun"
+  },
+  "Remove image canvas": {
+   "runtime": "Að fjarlægja myndavél kanvas",
+   "guide": "Fjarlægja myndstriga"
+  },
+  "Remove cluster noise": {
+   "runtime": "Að fjarlægja cluster rök",
+   "guide": "Fjarlægja klasasuð"
+  }
+ }
+}

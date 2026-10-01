@@ -1,10 +1,10 @@
 {
   "lesson": "43_illumination",
-  "english_sha256": "733c89c9161df491db3c40feedfcdde7908b25a629f43da184fe9e8f6ff66d99",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,7 +15,7 @@
   "objectives": [
     "选择有代表性的视野和强度通道。",
     "估计并检查光照模型。",
-    "在Mask或Measure中重用该模型。"
+    "在Measure中应用保存的模型。"
   ],
   "prerequisite": "使用包含各采集组代表性视野的合并图像文件夹。示例使用Measure中下载的板示例的十六个视野。请清楚哪些保存的平面是强度，哪些是标签。",
   "scenes": [
@@ -31,6 +31,7 @@
     "打开illumination文件夹中保存的光照质控PNG。如果它没有显示在Figures面板中，请使用图像查看器。",
     "检查估计的光照场：亮度应平滑变化，且没有不需要的细胞形状结构。校正会先减去暗场偏移，再除以这个均值为一的光照场。",
     "比较校正前后的径向剖面。使用更多视野，评估校正在拟合所用图像之外的效果。",
-    "要重用模型，请设置其路径，并在目标Mask或Measure流程中启用校正。把通道、板标识和设置与模型放在一起，避免对同一强度校正两次。"
+    "把保存的模型与其通道、板标识和设置放在一起。对同一组强度只应用一次；对同一强度校正两次会使其失真。",
+    "要应用该模型，请打开Measure，在设置中搜索illumination。在Image Preprocessing下打开Illumination correction，并把Illumination model设为保存的文件。Measure会在测量前将建模的通道除以照明场；掩膜不会改变。"
   ]
 }
