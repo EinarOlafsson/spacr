@@ -1685,11 +1685,8 @@ class PowerScreen(QWidget):
 
     def _on_worker_error_text(self, tb: str) -> None:
         """Turn a worker traceback into one inline line (never a dialog)."""
-        line = ""
-        for candidate in reversed(str(tb).strip().splitlines()):
-            if candidate.strip():
-                line = candidate.strip()
-                break
+        lines = str(tb).strip().splitlines()
+        line = lines[-1].strip() if lines else ""
         self._set_status(f"The sweep failed: {line or 'unknown error'}",
                          error=True)
 

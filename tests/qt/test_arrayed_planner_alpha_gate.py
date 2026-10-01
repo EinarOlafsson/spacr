@@ -456,3 +456,89 @@ def test_cancelling_load_changes_nothing(planner, monkeypatch):
     summary = planner._plan_summary.text()
     assert planner._load_arrayed_plan() is False
     assert planner._plan_summary.text() == summary
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36794763761)
+# ---------------------------------------------------------------------------
+
+def _saved_plan(planner, tmp_path, monkeypatch):
+    from spacr.qt.screens.power import QFileDialog
+
+    planner._plan_from_pilot()
+    target = tmp_path / "plan.json"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        lambda *args: (str(target), ""))
+    assert planner._save_arrayed_plan()
+    return json.loads(target.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("damage,match", [
+    (lambda p: [row.pop("cost") for row in p["designs"]], "designs lack"),
+    (lambda p: p["design_inputs"].__setitem__("readout", "photons"),
+     "unknown readout"),
+])
+def test_a_plan_with_damaged_designs_or_an_unknown_readout_is_refused(
+        planner, tmp_path, monkeypatch, damage, match):
+    plan = _saved_plan(planner, tmp_path, monkeypatch)
+    damage(plan)
+    broken = tmp_path / "broken.json"
+    broken.write_text(json.dumps(plan), encoding="utf-8")
+    assert planner._load_arrayed_plan(str(broken)) is False
+    assert match in planner._plan_summary.text()
+
+
+@pytest.mark.parametrize("failure", ["short", "commit"])
+def test_a_save_the_disk_does_not_finish_is_reported(planner, tmp_path,
+                                                     monkeypatch, failure):
+    from PySide6.QtCore import QSaveFile
+
+    from spacr.qt.screens.power import QFileDialog
+
+    planner._plan_from_pilot()
+    target = tmp_path / "plan.json"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        lambda *args: (str(target), ""))
+    if failure == "short":
+        monkeypatch.setattr(QSaveFile, "write", lambda self, data: 0)
+    else:
+        monkeypatch.setattr(QSaveFile, "commit", lambda self: False)
+    assert planner._save_arrayed_plan() is False
+    assert "Export failed" in planner._plan_summary.text()
+    assert not target.exists()
+
+
+def test_browsing_for_a_pilot_lists_its_columns(planner, tmp_path,
+                                                monkeypatch):
+    from spacr.qt.screens.power import QFileDialog
+
+    other = tmp_path / "other.csv"
+    pd.DataFrame({"intensity": [1.0, 2.0], "plate": ["a", "b"]}).to_csv(
+        other, index=False)
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        lambda *args: (str(other), ""))
+    planner._browse_pilot()
+    assert planner._pilot_path.text() == str(other)
+    combo = planner._pilot_columns["value"]
+    assert "intensity" in [combo.itemText(i) for i in range(combo.count())]
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        lambda *args: ("", ""))
+    planner._browse_pilot()
+    assert planner._pilot_path.text() == str(other)
+
+
+def test_an_empty_or_unreadable_pilot_lists_nothing(planner, tmp_path):
+    combo = planner._pilot_columns["value"]
+    before = [combo.itemText(i) for i in range(combo.count())]
+    planner._pilot_path.setText("")
+    planner._refresh_pilot_columns()
+    planner._pilot_path.setText(str(tmp_path / "missing.csv"))
+    planner._refresh_pilot_columns()
+    assert [combo.itemText(i) for i in range(combo.count())] == before
+
+
+def test_a_worker_traceback_reports_its_last_line(planner):
+    planner._on_worker_error_text("Traceback\n  ...\nValueError: no pilot\n\n")
+    assert planner._status.text() == "The sweep failed: ValueError: no pilot"
+    planner._on_worker_error_text("   ")
+    assert planner._status.text() == "The sweep failed: unknown error"
