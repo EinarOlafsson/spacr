@@ -137,6 +137,9 @@ def test_the_measure_form_hides_the_wound_settings_until_alpha_is_on(
         assert not any(screen.setting_row_is_visible(key) for key in keys)
         assert screen._settings_model.set_value_for_key("wound_closure", True)
         assert screen._settings_model.collect()["wound_closure"] is True
+        assert screen._settings_model.set_value_for_key("wound_threshold",
+                                                        0.05)
+        assert screen._settings_model.collect()["wound_threshold"] == 0.05
 
         preferences._set_show_alpha_features(True)
         screen._refresh_alpha_visibility()

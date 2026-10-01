@@ -376,7 +376,8 @@ def _compute_confluency_preview(data: np.ndarray,
 
 
 _WOUND_SETTING_KEYS = (
-    "wound_source", "wound_channel", "wound_window", "voxel_size_xy_um",
+    "wound_source", "wound_channel", "wound_window", "wound_threshold",
+    "voxel_size_xy_um",
 )
 
 

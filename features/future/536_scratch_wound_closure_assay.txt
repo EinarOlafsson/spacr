@@ -4,9 +4,11 @@ Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure finds the scratch wound in
 every frame (texture, intensity or cell masks), writes area, mean/min width,
 closure rate and half-closure time per field, well and condition, with
 closure curves and a plate map; the Measure preview draws the wound edge.
-Hidden with Alpha features. DONE WHEN not met on the public data (below);
-three 2026-09-30 accuracy passes narrowed the gap but did not close it
-(same-position BBBC019: 74 % of later frames within 5 points).
+Hidden with Alpha features. DONE WHEN not met (below): scored on BBBC019,
+whose hand masks follow the maintainer's convention (scattered cells in the
+wound are open), 76 % of later frames are within 5 points after four
+accuracy passes (2026-09-30 to 10-01). A hand-set cut (wound_threshold)
+covers series the automatic cut misreads.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -29,6 +31,12 @@ WHAT TO BUILD
 DONE WHEN
     A public scratch-assay timelapse gives closure curves matching hand
     measurements within 5 %.
+    Annotation convention (maintainer decision, 2026-10-01): scattered
+    single cells inside the wound count as OPEN; only a continuous cell
+    front closes the wound (the BBBC019 convention). The DONE WHEN is
+    scored on sets whose hand masks follow it (BBBC019). The Zenodo
+    21779854 masks use a different annotation convention (scattered cells
+    = covered) and are reported separately, not as a failure.
 
 2026-09-26 — Implemented as Alpha
     Measure runs it at the end of a run when `wound_closure` is on. Frames
@@ -281,11 +289,86 @@ DONE WHEN
     points); a manual threshold override (not built); the dataset
     disagreement on sparse cells (a per-run choice would settle it); the
     other items listed above.
+2026-10-01 (fourth pass) — Front-only rule, saturated floors, manual cut; DONE WHEN still not met
+    Shipped (spacr/measure.py, private helpers):
+    - _wound_front_only makes the convention explicit for every source:
+      in a later frame, covered pixels inside the first frame's band stay
+      covered only when they belong to a front, a covered region reaching
+      the monolayer outside the band once necks narrower than half a
+      window are cut (_WOUND_SCATTERED_RADIUS); everything else in the
+      band, loose cells and clumps on the floor, counts as open. Before,
+      only clumps wholly surrounded by open floor were filled; a clump on
+      a stretch of wound that runs off the field was not.
+    - _wound_unsaturated: when over 0.1 % of a later frame sits at its
+      maximum, those pixels and everything within one window of them are
+      left out of the levels the frame's cut is read from (they are still
+      classified). A floor at the camera's ceiling is flat, and read as
+      the open level it pulled the cut so low that the rest of the floor
+      was called covered (MDCK L18, where the floor has a saturated
+      stretch and a faintly textured one). The floor branch's lower class
+      now needs 4 % of the first area (_WOUND_FLOOR_MIN_CORE, was 20 %).
+    - wound_threshold (new alpha setting, Measure "Wound Closure α",
+      default None): a hand-set cut on the scale of the wound table's
+      wound_level column (texture: local variance over the field's
+      median; intensity: share of the 95th percentile), used on every
+      frame with no later-frame recalibration; blank or 0 keeps the
+      automatic cut; checked before the run (negative or non-numeric is
+      refused); reaches the run and the Measure preview.
+    Four synthetic tests, each failing without its change: clumps on a
+    wound floor that runs off the field stay open while a tongue of cells
+    from the monolayer stays covered (front-only rule); a later floor half
+    saturated (old: 31 % of the wound read open instead of 62 %); a
+    hand-set cut replaces the automatic one on every frame and higher
+    opens more; the setting is validated and reaches _measure_field_wound.
+    The Qt alpha test also saves wound_threshold while hidden.
+    Held-out evaluation (folds as in the second pass; the reference is
+    the hand masks through the masks geometry with the rule off, as in
+    earlier passes): rule radius 0 / 0.25 / 0.5 window and saturation
+    exclusion off / 0.1 / 0.25 / 0.5 / 1 / 2 windows. Fold A picked
+    radius 0.5 and a 2-window exclusion (scored on B: 80 %, 72 %); fold B
+    picked radius 0 and no exclusion (scored on A: 68 %, 68 %). Out of
+    fold for the saturation choice: 70 % within 5 points. Shipped: radius
+    0.5 and a 1-window exclusion, the setting whose two folds agree.
+    Later frames, closure error in points:
+                        within 5  within 10  median  mean
+        BBBC019 before (09-30 third pass)
+                           74 %      86 %      2.9    5.0
+        BBBC019 now        76 %      92 %      1.9    3.6
+          fold A / B now  76/76 %  92/92 %  1.8/1.9  3.6/3.5
+          SN15 / Init / MDCK now  72/80/80 % (were 80/70/60)
+          reference with the rule applied to the hand masks too: 76 %
+        Zenodo 21779854, different annotation convention (scattered
+        cells = covered), reported separately:
+                           47 %      61 %      6.5   12.3
+          fold A / B      47/47 %  56/67 %  8.1/5.9  9.8/15.0
+    MDCK L18: 41 -> 1 and 31 -> 9 points. 20 of 28 BBBC series have a
+    mean closure error within 5 points (22 in the third pass: SN15 L40
+    went 5 -> 18 and L39 3 -> 10 points while L18, L22 and Init a 8-10
+    gained).
+    Tried and not shipped (same scoring): a cut a fixed distance below
+    the covered level (1-3 log units: 4-66 %, the floor-to-monolayer gap
+    varies too much by frame); a three-class split of the floor when its
+    lowest class is far below the first frame's open level (fixes L18,
+    but reads SN15 L13 11-34 points too open); saturation as the trigger
+    (L13's later frame is 40 % saturated too).
+    What limits it: SN15 L40, L17, L4 and L39 read 10-18 points too
+    closed; parts of their later floors are as textured as the leading
+    edge (L4 and L40 carry speckle and out-of-focus material), and the
+    hand masks call those parts open.
+    Scripts, sweep logs and per-frame CSVs: /mnt/wd4tb/scratch/536/val
+    (ev.py with REF_RULE, p2.py-p6.py, bbbc_final2.csv, zen_final2.csv).
+    Left: the 5 % DONE WHEN on BBBC019 (76 % of later frames within 5
+    points); textured later floors (above); a preview readout of the
+    automatic cut so users can pick a wound_threshold without a run; the
+    other items listed above.
 ALPHA: settings wound_closure, wound_source, wound_channel, wound_window,
-wound_hours_per_frame, wound_conditions (Measure category "Wound Closure
-(Alpha)"); widget MeasureWoundToggle (its MeasureWoundOverlay label shows
-only through it). Registered as ALPHA_FEATURES[536] in spacr/settings.py;
+wound_threshold (added 2026-10-01), wound_hours_per_frame,
+wound_conditions (Measure category "Wound Closure (Alpha)"); widget
+MeasureWoundToggle (its MeasureWoundOverlay label shows only through it). Registered as ALPHA_FEATURES[536] in spacr/settings.py;
 the preview asks preferences._is_alpha_visible. Ratchets: tooltip default
 claims 750 -> 760, six keys in KEYS_ADDED_BY_REGROUP, Measure category
 order, six captions in _AWAITING_CATALOG_REBUILD; flow page, consumer map,
-API targets and the 02 notebook regenerated.
+API targets and the 02 notebook regenerated. 2026-10-01: wound_threshold
+added to ALPHA_FEATURES[536], the category, KEYS_ADDED_BY_REGROUP, and the
+tooltip default-claim census 899 -> 901; flow page, consumer map, API
+targets, Help index and the 02 notebook regenerated.

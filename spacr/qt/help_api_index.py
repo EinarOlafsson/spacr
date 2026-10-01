@@ -12718,6 +12718,7 @@ SETTING_CONSUMERS = {
     'wound_conditions': (('spacr.settings', 'get_measure_crop_settings'),),
     'wound_hours_per_frame': (('spacr.settings', 'get_measure_crop_settings'),),
     'wound_source': (('spacr.settings', 'get_measure_crop_settings'),),
+    'wound_threshold': (('spacr.settings', 'get_measure_crop_settings'),),
     'wound_window': (('spacr.settings', 'get_measure_crop_settings'),),
     'write_random_annotation_column': (('spacr.io', 'generate_training_dataset'),),
     'z_axis': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_4d_from_settings'), ('spacr.zstack', 'plan_from_settings'),),

@@ -956,7 +956,12 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # the colony detector checkpoint, resolved by Plaque Assay only.
     item_542_detector = {("analyze_plaques", "colony_detector")}
     assert item_542_detector <= compared_pairs
-    assert comparisons == 899
+    # 899 -> 901 on 2026-10-01, +2/-0 (item 536): wound_threshold (None),
+    # the hand-set wound cut, resolved by Measure and by External Masks.
+    item_536_threshold = {(app, "wound_threshold")
+                          for app in ("measure", "external_masks")}
+    assert item_536_threshold <= compared_pairs
+    assert comparisons == 901
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -987,6 +992,8 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 4: item 559's image-quality classifier claims in Mask, pinned above.
     # + 2: item 576's measurement_backend_target in two apps, pinned above.
     # + 3: item 557's Noise2Void claims in Mask, pinned above.
+    # + 1: item 542's colony detector in Plaque Assay, pinned above.
+    # + 2: item 536's wound_threshold in two apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
@@ -995,6 +1002,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_583) + len(item_542) + len(item_578)
             + len(item_549) + len(item_566) + len(item_559)
             + len(item_576) + len(item_557) + len(item_542_detector)
+            + len(item_536_threshold)
             == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs

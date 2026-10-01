@@ -1756,6 +1756,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('wound_source', 'texture')
     settings.setdefault('wound_channel', None)
     settings.setdefault('wound_window', 15)
+    settings.setdefault('wound_threshold', None)
     settings.setdefault('wound_hours_per_frame', None)
     settings.setdefault('wound_conditions', {})
     settings.setdefault('intensity_calibration', False)
@@ -3637,6 +3638,7 @@ expected_types = {
     "wound_source": str,
     "wound_channel": (int, type(None)),
     "wound_window": int,
+    "wound_threshold": (float, int, type(None)),
     "wound_hours_per_frame": (float, int, type(None)),
     "wound_conditions": dict,
     "intensity_calibration": bool,
@@ -4926,6 +4928,7 @@ tooltips = {
     "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
     "wound_channel": "(int or None) - The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
     "wound_window": "(int) - Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+    "wound_threshold": "(float or None) - Sets the cut between open wound and monolayer by hand, on the scale of the wound_level column of the wound table: for texture the local variance over the field's median, for intensity a share of the frame's 95th percentile. Use it when the automatic cut misreads a series: run once, read wound_level, then set a value. Higher counts more of the field as open. Used on every frame, with no recalibration of later frames. Blank or 0 keeps the automatic cut. Ignored by the masks source. Default None.",
     "wound_hours_per_frame": "(float or None) - Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
     "wound_conditions": "(dict) - Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
     "confluency_qc_threshold": "(float or None) - Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
@@ -5684,7 +5687,7 @@ categories = {
 
     "Wound Closure α": [
         "wound_closure", "wound_source", "wound_channel", "wound_window",
-        "wound_hours_per_frame", "wound_conditions",
+        "wound_threshold", "wound_hours_per_frame", "wound_conditions",
     ],
 
     "Intensity Calibration α": [
@@ -7313,8 +7316,8 @@ ALPHA_FEATURES = {
     },
     536: {
         'settings': ('wound_closure', 'wound_source', 'wound_channel',
-                     'wound_window', 'wound_hours_per_frame',
-                     'wound_conditions'),
+                     'wound_window', 'wound_threshold',
+                     'wound_hours_per_frame', 'wound_conditions'),
         'widgets': ('MeasureWoundToggle',),
     },
     544: {

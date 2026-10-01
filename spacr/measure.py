@@ -5462,6 +5462,11 @@ _WOUND_FLOOR_MIN_GAP = 1.75
 _WOUND_FLOOR_BELOW = 1.0
 _WOUND_FLOOR_ABOVE = 1.5
 _WOUND_FLOOR_REACH = 3
+_WOUND_FRONT_ONLY = True
+_WOUND_FLOOR_MIN_CORE = 0.04
+_WOUND_SATURATED_MIN = 0.001
+_WOUND_SATURATED_REACH = 1.0
+_WOUND_SCATTERED_RADIUS = 0.5
 
 
 @dataclass
@@ -5518,7 +5523,7 @@ def _wound_signal(plane, source, window):
     return smooth / top if top > 0 else smooth
 
 
-def _wound_level(signal, source):
+def _wound_level(signal, source, manual=None):
     """The cut between open and covered pixels, decided on the first frame.
 
     Otsu's method splits the map (on its logarithm for texture); the cut is
@@ -5539,6 +5544,9 @@ def _wound_level(signal, source):
     than the gap by ``(0.5 - share) * window`` on each side, which
     :func:`_wound_open` grows back.
 
+    :param manual: a cut set by hand on the map's own scale, or ``None``
+        for the automatic one; the share is still worked out from the two
+        classes' levels.
     :returns: ``(level, separation, share)``; ``share`` is 0.5 for
         intensity, whose cut is not smeared by a window.
     """
@@ -5557,6 +5565,9 @@ def _wound_level(signal, source):
     fraction = (_WOUND_TEXTURE_FRACTION if texture
                 else _CONFLUENCY_INTENSITY_FRACTION)
     level = off + fraction * (on - off)
+    if manual is not None:
+        level = (float(np.log(max(float(manual), 1e-18))) if texture
+                 else float(manual))
     if not texture:
         return level, float(separation), 0.5
     low, high, cut = np.exp(off), np.exp(on), np.exp(level)
@@ -5564,7 +5575,8 @@ def _wound_level(signal, source):
     return float(cut), float(separation), float(np.clip(share, 0.0, 0.5))
 
 
-def _wound_open(plane, source='texture', window=15, level=None, share=0.5):
+def _wound_open(plane, source='texture', window=15, level=None, share=0.5,
+                manual=None):
     """The open, cell-free area of one frame.
 
     :param plane: the frame, 2-D or a ``(Z, Y, X)`` stack (max-projected);
@@ -5575,6 +5587,8 @@ def _wound_open(plane, source='texture', window=15, level=None, share=0.5):
     :param level: the cut from the series' first frame; ``None`` decides
         it on this frame.
     :param share: with ``level``, the window share it corresponds to
+        (:func:`_wound_level`).
+    :param manual: with ``level`` ``None``, a cut set by hand
         (:func:`_wound_level`).
     :returns: ``(open, level, share, separation)``: the boolean plane, true
         where no cell covers the field, the cut and share used and, when
@@ -5592,7 +5606,7 @@ def _wound_open(plane, source='texture', window=15, level=None, share=0.5):
     signal = _wound_signal(_confluency_plane(plane), source, window)
     separation = None
     if level is None:
-        level, separation, share = _wound_level(signal, source)
+        level, separation, share = _wound_level(signal, source, manual)
     radius = window // 4 if source == 'texture' else 2
     opened = ~_clean_coverage(signal > level, radius)
     return opened, level, share, separation
@@ -5675,6 +5689,40 @@ def _wound_widths(wound, axis):
     inside = (bins >= 0) & (bins < size)
     counts = np.bincount(bins[inside], minlength=size)[:size]
     return counts[axis.valid].astype(np.float64)
+
+
+def _wound_front_only(open_mask, axis, window):
+    """A later frame's open area with scattered cells inside the wound opened.
+
+    Only a continuous cell front closes a wound: cells that have come loose
+    from the monolayer and lie on the wound's floor, alone or in small
+    clumps, leave it open, as wound-healing hand annotation counts them.
+    Covered pixels inside the first frame's band are kept covered only
+    when they belong to a front, a covered region that reaches the
+    monolayer outside the band once necks narrower than
+    :data:`_WOUND_SCATTERED_RADIUS` of a window are cut, grown back over
+    the covered pixels it was cut from. Every other covered pixel in the
+    band is counted open.
+
+    :param open_mask: boolean open area of the frame.
+    :param axis: the series' :class:`_WoundAxis`.
+    :param window: texture window in pixels.
+    :returns: the boolean open area.
+    """
+    from scipy.ndimage import binary_opening, label as label_regions
+    opened = np.asarray(open_mask, dtype=bool)
+    covered = ~opened
+    band = _wound_band(axis, opened.shape)
+    radius = int(round(_WOUND_SCATTERED_RADIUS * window))
+    core = covered
+    if radius > 0:
+        core = binary_opening(covered, structure=morphology.disk(radius))
+    regions, _count = label_regions(core)
+    fronts = np.unique(regions[core & ~band])
+    front = np.isin(regions, fronts[fronts > 0])
+    if radius > 0:
+        front = binary_dilation(front, structure=morphology.disk(radius))
+    return opened | (covered & band & ~front)
 
 
 def _wound_select(open_mask, axis=None, min_area=0):
@@ -5896,6 +5944,29 @@ def _wound_follow(first, later, axis):
     return moved > 0
 
 
+def _wound_unsaturated(plane, window):
+    """The pixels whose texture says something about the field.
+
+    A stretch of the frame at the camera's ceiling is flat whether it is a
+    bright wound floor or over-exposed monolayer, so its texture reads as
+    open either way. When more than :data:`_WOUND_SATURATED_MIN` of the
+    frame sits at its maximum, those pixels and everything within
+    :data:`_WOUND_SATURATED_REACH` of a window of them are left out of the
+    levels a later frame's cut is read from; they are still classified by
+    that cut.
+
+    :param plane: the 2-D frame.
+    :param window: texture window in pixels.
+    :returns: boolean plane, true where the texture is informative.
+    """
+    x = np.asarray(plane, dtype=np.float64)
+    saturated = x >= float(x.max())
+    if saturated.mean() <= _WOUND_SATURATED_MIN:
+        return np.ones(x.shape, dtype=bool)
+    reach = max(1, int(_WOUND_SATURATED_REACH * window))
+    return ~binary_dilation(saturated, iterations=reach)
+
+
 def _wound_floor(plane, wound, axis, window):
     """What a later frame's open-floor level is checked against.
 
@@ -5956,7 +6027,11 @@ def _wound_relevel(plane, axis, level, start_area, window, floor=None):
         :data:`_WOUND_FLOOR_BELOW` below and :data:`_WOUND_FLOOR_ABOVE`
         above the first frame's open level, shifted by the change in the
         covered level since then, so a floor with a bright, smooth stretch
-        and a dimmer one is not split between them.
+        and a dimmer one is not split between them. The lower class must
+        hold at least :data:`_WOUND_FLOOR_MIN_CORE` of the first wound's
+        area. Every level is read from informative pixels only
+        (:func:`_wound_unsaturated`), so a stretch of floor at the
+        camera's ceiling does not stand in for the open level.
     :returns: the cut for this frame.
     """
     values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
@@ -5966,9 +6041,13 @@ def _wound_relevel(plane, axis, level, start_area, window, floor=None):
     far = distance > axis.half_band
     if far.sum() < _WOUND_RELEVEL_MIN_FAR * values.size:
         return level
-    covered = float(np.median(values[far]))
+    informative = _wound_unsaturated(plane, window)
+    covered = float(np.median(values[far & informative]
+                              if (far & informative).sum() > 100
+                              else values[far]))
     cut = float(np.log(level))
-    band = values[near]
+    measured = near & informative
+    band = values[measured]
     if band.size > 100:
         split, separation = _otsu_separation(band)
         if (separation >= _CONFLUENCY_SEPARATION_MIN
@@ -5976,7 +6055,7 @@ def _wound_relevel(plane, axis, level, start_area, window, floor=None):
                 * start_area):
             cut = split
     for _round in range(_WOUND_RELEVEL_ROUNDS):
-        core = near & (values <= cut)
+        core = measured & (values <= cut)
         if core.sum() < _WOUND_RELEVEL_MIN_CORE * start_area:
             break
         opened = float(np.median(values[core]))
@@ -5986,12 +6065,13 @@ def _wound_relevel(plane, axis, level, start_area, window, floor=None):
         return float(np.exp(cut))
     region, first_open, first_covered = floor
     reach = distance_transform_edt(~(near & (values <= cut)))
-    inside = values[region & (reach <= _WOUND_FLOOR_REACH * window)]
+    inside = values[region & informative
+                    & (reach <= _WOUND_FLOOR_REACH * window)]
     if inside.size <= 100:
         return float(np.exp(cut))
     split, _separation = _otsu_separation(inside)
     lower = inside[inside <= split]
-    if lower.size < _WOUND_RELEVEL_MIN_CORE * start_area:
+    if lower.size < _WOUND_FLOOR_MIN_CORE * start_area:
         return float(np.exp(cut))
     opened = float(np.median(lower))
     if covered - opened < _WOUND_FLOOR_MIN_GAP:
@@ -6004,7 +6084,7 @@ def _wound_relevel(plane, axis, level, start_area, window, floor=None):
 
 
 def _wound_series(planes, times, *, source='texture', window=15,
-                  pixel_size_um=None, keep=()):
+                  pixel_size_um=None, keep=(), threshold=None):
     """Open wound area and width of one field through time.
 
     The first frame decides where the scratch is: its largest open region,
@@ -6021,7 +6101,9 @@ def _wound_series(planes, times, *, source='texture', window=15,
     the open level of a floor that carries scattered cells against the
     first frame's (:func:`_wound_floor`), and for
     ``texture`` and ``intensity`` a first frame that is a scratch is
-    redrawn between smooth fronts (:func:`_wound_fronts`).
+    redrawn between smooth fronts (:func:`_wound_fronts`). In later frames
+    only a continuous cell front closes the wound: scattered cells on its
+    floor count as open (:func:`_wound_front_only`).
 
     :param planes: iterable of frames in time order (2-D, a ``(Z, Y, X)``
         stack, or a label image for ``masks``).
@@ -6031,6 +6113,12 @@ def _wound_series(planes, times, *, source='texture', window=15,
     :param pixel_size_um: micrometres per pixel, for the ``_um`` columns;
         ``None`` leaves them blank.
     :param keep: positions in the series whose wound masks are returned.
+    :param threshold: a cut set by hand, on the scale of the
+        ``wound_level`` column (texture: local variance over the field's
+        median; intensity: a share of the frame's 95th percentile), used
+        on every frame in place of the automatic cut and its later-frame
+        recalibration; ``None`` or 0 leaves the cut automatic. Ignored by
+        ``masks``.
     :returns: ``(frame, status, masks)``: one row per frame with
         ``open_area_px``, ``open_fraction``, ``relative_open_area``,
         ``closure``, ``mean_width_px``, ``min_width_px``, ``max_width_px``,
@@ -6045,15 +6133,18 @@ def _wound_series(planes, times, *, source='texture', window=15,
     axis, start_area, status = None, None, 'ok'
     keep = set(int(k) for k in keep)
     level, share, first_separation, floor = None, 0.5, None, None
+    manual = (float(threshold) if threshold not in (None, '')
+              and float(threshold) > 0 and source != 'masks' else None)
     for index, (plane, time) in enumerate(zip(planes, times)):
         if source != 'masks':
             plane = _confluency_plane(plane)
         frame_level = level
-        if index > 0 and status == 'ok' and source == 'texture':
+        if (index > 0 and status == 'ok' and source == 'texture'
+                and manual is None):
             frame_level = _wound_relevel(plane, axis, level, start_area,
                                          window, floor)
         open_mask, frame_level, share, separation = _wound_open(
-            plane, source, window, frame_level, share)
+            plane, source, window, frame_level, share, manual)
         if index == 0:
             level = frame_level
         if index == 0:
@@ -6081,6 +6172,8 @@ def _wound_series(planes, times, *, source='texture', window=15,
             if status == 'ok' and source == 'texture':
                 floor = _wound_floor(plane, wound, axis, window)
         elif status == 'ok':
+            if _WOUND_FRONT_ONLY:
+                open_mask = _wound_front_only(open_mask, axis, window)
             wound, regions = _wound_select(open_mask, axis, window * window)
             wound = _wound_grow(wound, share, window, source) & _wound_band(
                 axis, wound.shape)
@@ -6378,7 +6471,8 @@ def _wound_settings_check(settings):
     :param settings: Measure settings.
     :returns: the resolved source.
     :raises ValueError: for an unknown source, ``masks`` without a cell
-        mask, or a ``wound_conditions`` entry that is not a well.
+        mask, a negative or non-numeric ``wound_threshold``, or a
+        ``wound_conditions`` entry that is not a well.
     """
     source = str(settings.get('wound_source') or 'texture').strip().lower()
     if source not in _WOUND_SOURCES:
@@ -6390,6 +6484,17 @@ def _wound_settings_check(settings):
             "Setting: wound_source is 'masks' but cell_mask_dim is blank, so "
             "there are no cell masks to find the wound between. Set "
             "cell_mask_dim, or choose texture or intensity.")
+    threshold = settings.get('wound_threshold')
+    if threshold not in (None, ''):
+        try:
+            value = float(threshold)
+        except (TypeError, ValueError):
+            value = -1.0
+        if not np.isfinite(value) or value < 0:
+            raise ValueError(
+                f"Setting: wound_threshold is {threshold!r}; use a positive "
+                "number on the scale of the wound_level column, or leave it "
+                "blank for the automatic cut.")
     _wound_condition_lookup(settings.get('wound_conditions'))
     return source
 
@@ -6433,7 +6538,8 @@ def _measure_field_wound(data, settings):
     frame, status, masks = _wound_series(
         [plane], [0.0], source=source,
         window=int(settings.get('wound_window') or 15),
-        pixel_size_um=settings.get('voxel_size_xy_um'), keep=(0,))
+        pixel_size_um=settings.get('voxel_size_xy_um'), keep=(0,),
+        threshold=settings.get('wound_threshold'))
     shown, wound = masks[0]
     return frame.iloc[0].to_dict(), shown, wound, status
 
@@ -6611,7 +6717,8 @@ def _wound_closure_tables(merged_dir, settings, figures=None):
         frame, status, masks = _wound_series(
             planes(), times, source=source, window=window,
             pixel_size_um=settings.get('voxel_size_xy_um'),
-            keep=shown if figures is not None else ())
+            keep=shown if figures is not None else (),
+            threshold=settings.get('wound_threshold'))
         if items[0][0] != start and status == 'ok':
             status = 'missing_start'
         frame.insert(0, 'fieldID', key[3])
