@@ -996,23 +996,23 @@ class _SuggestWorker(QThread):
         except RuntimeError:
             pass
 
-    def _fit(self, al, options: Dict[str, object]) -> None:
+    def _fit(self, al, round_kwargs: Dict[str, object]) -> None:
         """Fit the round, on a random split when wells cannot be kept apart.
 
         :param al: the ``spacr.active_learning`` module.
-        :param options: keyword arguments for ``retrain_round``.
+        :param round_kwargs: keyword arguments for ``retrain_round``.
         """
         from ...classifier_evaluation import _GroupedSplitImpossible
 
         try:
-            al.retrain_round(self._db_path, self._column, **options)
+            al.retrain_round(self._db_path, self._column, **round_kwargs)
             return
         except _GroupedSplitImpossible as exc:
-            if str(options.get("group_by", "well")).lower() in ("none",
+            if str(round_kwargs.get("group_by", "well")).lower() in ("none",
                                                                 "cell"):
                 raise
             reason = str(exc)
-        relaxed = dict(options)
+        relaxed = dict(round_kwargs)
         relaxed["group_by"] = "none"
         al.retrain_round(self._db_path, self._column, **relaxed)
         try:
@@ -1040,14 +1040,15 @@ class _SuggestWorker(QThread):
             options = dict(self._options)
             if rejections:
                 options["rejections"] = rejections
+            round_kwargs = {**options}
             self._step(2, "features")
-            if options.get("features") is None:
-                options["features"] = al.round_features(
+            if round_kwargs.get("features") is None:
+                round_kwargs["features"] = al.round_features(
                     self._db_path,
-                    table=str(options.get("table", al.PNG_TABLE)),
-                    key=str(options.get("key", al.PNG_KEY)))
+                    table=str(round_kwargs.get("table", al.PNG_TABLE)),
+                    key=str(round_kwargs.get("key", al.PNG_KEY)))
             self._step(3, "fit")
-            self._fit(al, options)
+            self._fit(al, round_kwargs)
             self._step(4, "rank")
             proposal = suggest_from_scores(
                 self._db_path, self._column, png_table=self._png_table)
