@@ -63,10 +63,10 @@ WHAT IS LEFT
       (as _segmentation_backends does) is not built.
     - No hosted community catalogue exists yet; the maintainer has to publish
       one (and decide on signing beyond the optional sha256).
-    - Install runs on the GUI thread under a wait cursor; a worker thread with
-      progress would be nicer for large plugins.
-    - The recipe Open action is implemented; focused runtime verification
-      is pending (see the dated note below).
+    - Background catalogue installation is implemented in the 2026-10-01
+      follow-up below; focused verification passed.
+    - The recipe Open action and its focused runtime verification are
+      complete (see the dated note below).
 
 2026-09-27 — INSTALLED RECIPE OPEN ACTION (focused verification passed)
     Preferences > Plugins now offers Open for installed recipes. It reads
@@ -88,3 +88,38 @@ WHAT IS LEFT
     installed values without a worker. Complete-item acceptance remains open.
     Conflicting dependency isolation, catalogue hosting/signing policy and
     background installation remain open as listed above.
+
+2026-10-01 — BACKGROUND CATALOGUE MUTATIONS
+    Install/update and uninstall run in a non-daemon Python worker with no Qt
+    objects. Preferences polls the result and updates widgets on the GUI thread;
+    controls stay disabled during work and reuse the existing Working caption.
+    Closing or destroying the dialog leaves the requested operation running,
+    without destroying a live QThread or updating deleted controls. Interpreter
+    exit waits for the operation rather than abandoning a partially written
+    install. Catalogue refresh after a mutation also runs off the GUI thread;
+    a refresh failure is distinguished from a failed installation.
+
+    A dedicated reentrant mutation lock serializes installs, removals and
+    registry reloads. The registry lock protects only reading and publishing
+    snapshots, so existing app/model/report lookups remain available while pip
+    or discovery is busy. The previous complete snapshot remains published
+    until its replacement is ready. Existing staging and failed-update behavior
+    is preserved. No new public API or captions are introduced.
+
+    Scope boundary: initial catalogue listing is still synchronous; conflicting
+    dependency isolation, hosted catalogue publication and signing policy remain
+    open. This follow-up does not claim the full feature is complete.
+
+    Validation (CPU, one thread, 1 GB cap): the six named catalogue/plugin
+    test files first produced 144 passes and one existing test that still
+    assumed synchronous uninstall. After changing that assertion to wait for
+    observable completion, the corrected case passed separately (1.29 s);
+    production code was unchanged. All seven new cases passed, covering
+    registry reads during blocked pip/discovery, mutation serialization, failed
+    staging cleanup, event-loop responsiveness, dialog destruction, worker
+    errors, and committed install/uninstall state after catalogue refresh fails.
+    An attempted combined rerun ended after 90 passes at the test guard's
+    0.9 GB ceiling (exit 3), not a completed suite result. Existing real offline
+    wheel install/update/uninstall, failed-update rollback, alpha visibility
+    and installed-recipe Open cases passed in the first run. Backend and new
+    tests pass Ruff; edited legacy UI files introduce no additional findings.

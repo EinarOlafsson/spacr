@@ -85,6 +85,8 @@ def test_a_catalogue_saved_while_hidden_opens_installs_and_uninstalls(
     table.selectRow(0)
     assert install.isEnabled() and not uninstall.isEnabled()
     install.click()
+    qtbot.waitUntil(lambda: "Installed Catalogue probe 1.0.0" in dlg.findChild(
+        QWidget, "PluginCatalogueStatus").text(), timeout=30000)
     assert "Installed Catalogue probe 1.0.0" in dlg.findChild(
         QWidget, "PluginCatalogueStatus").text()
     assert table.item(0, 3).text() == "1.0.0"
@@ -97,6 +99,8 @@ def test_a_catalogue_saved_while_hidden_opens_installs_and_uninstalls(
 
     table.selectRow(0)
     uninstall.click()
+    qtbot.waitUntil(lambda: "Uninstalled Catalogue probe" in dlg.findChild(
+        QWidget, "PluginCatalogueStatus").text(), timeout=30000)
     assert plugins.get_app("catalogue_probe_app") is None
     assert table.item(0, 4).text() == "available"
 
@@ -132,7 +136,7 @@ def test_sorting_keeps_installation_and_reselection_on_the_chosen_entry(
     page.table.selectRow(0)
     assert page.selected()["key"] == "toxo_infection"
     assert page.install_selected()
-    qtbot.wait(1)
+    qtbot.waitUntil(lambda: page._job is None, timeout=30000)
     assert set(plugins._catalogue_installed()) == {"toxo_infection"}
     assert page.selected()["key"] == "toxo_infection"
     assert page.selected()["installed"] == "0.2"
@@ -143,6 +147,7 @@ def test_sorting_keeps_installation_and_reselection_on_the_chosen_entry(
     assert page.table.item(0, 1).text() == "Toxoplasma infection assay"
     assert page.table.item(0, 3).text() == "0.2"
     assert page.uninstall_selected()
+    qtbot.waitUntil(lambda: page._job is None, timeout=30000)
     assert plugins._catalogue_installed() == {}
 
 
@@ -221,6 +226,7 @@ def test_open_requires_installed_recipe_and_readable_settings(
     page._select_key("toxo_infection")
     assert not page.open_button.isEnabled()
     assert page.install_selected()
+    qtbot.waitUntil(lambda: page._job is None, timeout=30000)
     assert page.open_button.isEnabled()
     Path(plugins._catalogue_installed()["toxo_infection"]["path"]).unlink()
     dialog.show()

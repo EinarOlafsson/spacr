@@ -157,6 +157,7 @@ Values:
 from __future__ import annotations
 
 import logging
+import threading
 
 from PySide6.QtCore import QSettings, Qt
 
@@ -5587,6 +5588,48 @@ def _set_plugin_catalogue(source: str) -> None:
     settings.sync()
 
 
+class _PluginCatalogueJob(threading.Thread):
+    """Finish a catalogue mutation independently of the Preferences window.
+
+    No Qt object enters this non-daemon worker. Closing the dialog leaves the
+    install running; interpreter shutdown waits for staging/commit to finish.
+    The GUI polls the result and performs every widget update on its own thread.
+    """
+
+    def __init__(self, row, source, install):
+        """Snapshot the selected entry and its source before starting work."""
+        super().__init__(name="spacr-plugin-catalogue", daemon=False)
+        self.row = dict(row)
+        self.source = source
+        self.install = install
+        self.record = None
+        self.error = None
+        self.rows = None
+        self.refresh_error = None
+
+    def run(self):
+        """Mutate the catalogue and fetch its refreshed rows off the GUI thread."""
+        from ..plugins import (
+            _catalogue_rows,
+            _install_from_catalogue,
+            _uninstall_from_catalogue,
+        )
+
+        try:
+            if self.install:
+                self.record = _install_from_catalogue(self.row["key"], self.source)
+            else:
+                _uninstall_from_catalogue(self.row["key"])
+        except Exception as exc:
+            self.error = str(exc)
+            return
+        try:
+            self.rows = _catalogue_rows(self.source)
+        except Exception as exc:
+            # A refresh failure must not misreport a committed install as failed.
+            self.refresh_error = str(exc)
+
+
 class _PluginCataloguePage:
     """The Plugins tab: browse a catalogue and install plugins and recipes.
 
@@ -5601,14 +5644,25 @@ class _PluginCataloguePage:
 
     def __init__(self, form, dialog) -> None:
         """Build the rows and list the remembered catalogue, if any."""
-        from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QLabel,
-                                       QLineEdit, QPushButton, QTableWidget,
-                                       QWidget)
+        from PySide6.QtCore import QTimer
+        from PySide6.QtWidgets import (
+            QAbstractItemView,
+            QHBoxLayout,
+            QLabel,
+            QLineEdit,
+            QPushButton,
+            QTableWidget,
+            QWidget,
+        )
 
         from .i18n import tr
 
         self._dialog = dialog
         self._rows = []
+        self._job = None
+        self._job_timer = QTimer(dialog)
+        self._job_timer.setInterval(50)
+        self._job_timer.timeout.connect(self._finish_job)
         help_label = QLabel(tr(
             "Browse a catalogue of community plugins and assay recipes. A "
             "plugin is installed into its own folder with the libraries it "
@@ -5687,13 +5741,17 @@ class _PluginCataloguePage:
     def _sync_buttons(self) -> None:
         """Offer only the actions the selected row allows."""
         row = self.selected()
+        busy = self._job is not None
+        self.source.setEnabled(not busy)
+        self.load_button.setEnabled(not busy)
+        self.table.setEnabled(not busy)
         self.install_button.setEnabled(
-            row is not None and row["status"] in ("available",
+            not busy and row is not None and row["status"] in ("available",
                                                   "update available"))
         self.uninstall_button.setEnabled(
-            row is not None and bool(row["installed"]))
+            not busy and row is not None and bool(row["installed"]))
         self.open_button.setEnabled(
-            row is not None and row["kind"] == "recipe"
+            not busy and row is not None and row["kind"] == "recipe"
             and bool(row["installed"]))
 
     def _open_selected(self) -> bool:
@@ -5705,7 +5763,7 @@ class _PluginCataloguePage:
         from .i18n import tr
 
         row = self.selected()
-        if row is None or not _is_alpha_visible(
+        if self._job is not None or row is None or not _is_alpha_visible(
                 "widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET):
             return False
         try:
@@ -5744,10 +5802,11 @@ class _PluginCataloguePage:
         :returns: False, with the reason on the status line, when the
             catalogue could not be read.
         """
-        from .i18n import tr
-        from .widgets.sortable_table import table_item
         from ..plugins import _catalogue_rows
+        from .i18n import tr
 
+        if self._job is not None:
+            return False
         source = self.source.text().strip()
         _set_plugin_catalogue(source)
         try:
@@ -5759,6 +5818,15 @@ class _PluginCataloguePage:
                                 .format(error=exc))
             self._sync_buttons()
             return False
+        self._show_rows(self._rows)
+        return True
+
+    def _show_rows(self, rows):
+        """Render a previously fetched catalogue snapshot on the GUI thread."""
+        from .i18n import tr
+        from .widgets.sortable_table import table_item
+
+        self._rows = rows
         kinds = {"plugin": tr("Plugin"), "recipe": tr("Recipe")}
         states = {"available": tr("available"), "installed": tr("installed"),
                   "update available": tr("update available"),
@@ -5790,46 +5858,63 @@ class _PluginCataloguePage:
                 return
 
     def _act(self, install: bool) -> bool:
-        """Install or uninstall the selected row, then list again."""
-        from PySide6.QtCore import Qt
-        from PySide6.QtWidgets import QApplication
-
+        """Start one catalogue action; return whether it was accepted."""
         from .i18n import tr
-        from ..plugins import _install_from_catalogue, _uninstall_from_catalogue
 
         row = self.selected()
-        if row is None:
+        if row is None or self._job is not None:
             return False
-        QApplication.setOverrideCursor(Qt.WaitCursor)
-        try:
-            if install:
-                record = _install_from_catalogue(
-                    row["key"], self.source.text().strip() or None)
+        self._job = _PluginCatalogueJob(
+            row, self.source.text().strip() or None, install)
+        self.status.setText(tr("Working…"))
+        self._sync_buttons()
+        self._job.start()
+        self._job_timer.start()
+        return True
+
+    def _finish_job(self):
+        """Present a finished operation without coupling its lifetime to Qt."""
+        from .i18n import tr
+
+        job = self._job
+        if job is None or job.is_alive():
+            return False
+        self._job_timer.stop()
+        self._job = None
+        row = job.row
+        if job.error is not None:
+            message = tr("{name} failed: {error}").format(name=row["name"], error=job.error)
+        else:
+            if job.install:
                 message = tr("Installed {name} {version}.").format(
-                    name=row["name"], version=record["version"])
+                    name=row["name"], version=job.record["version"])
                 if row["kind"] == "recipe":
-                    message += " " + tr("Its settings are in {path}.").format(
-                        path=record["path"])
+                    message += " " + tr("Its settings are in {path}.").format(path=job.record["path"])
             else:
-                _uninstall_from_catalogue(row["key"])
                 message = tr("Uninstalled {name}.").format(name=row["name"])
-        except Exception as exc:
-            self.status.setText(tr("{name} failed: {error}").format(
-                name=row["name"], error=exc))
-            return False
-        finally:
-            QApplication.restoreOverrideCursor()
-        self.refresh()
-        self._select_key(row["key"])
+            if job.rows is not None:
+                self._show_rows(job.rows)
+                self._select_key(row["key"])
+            elif job.refresh_error:
+                rows = [dict(item) for item in self._rows]
+                for item in rows:
+                    if item["key"] == row["key"]:
+                        item["installed"] = str(job.record["version"]) if job.install else ""
+                        item["status"] = ("installed" if job.install else
+                                          "incompatible" if item["status"] == "incompatible" else "available")
+                self._show_rows(rows)
+                self._select_key(row["key"])
+                message += " " + tr("Could not read the catalogue: {error}").format(error=job.refresh_error)
         self.status.setText(message)
+        self._sync_buttons()
         return True
 
     def install_selected(self) -> bool:
-        """Install or update the selected entry; True when it worked."""
+        """Start installing the selected entry; True when the action started."""
         return self._act(True)
 
     def uninstall_selected(self) -> bool:
-        """Uninstall the selected entry; True when it worked."""
+        """Start uninstalling the selected entry; True when the action started."""
         return self._act(False)
 
 
