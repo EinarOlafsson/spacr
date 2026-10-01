@@ -1,0 +1,640 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting.build_plan#7",
+      "source": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "source_sha256": "458e0718fd7c8fe44ebb1f16ece2c2ab2690e2bbc1f15c7a079d2da08d7ed031",
+      "context": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "translation": "``{image: mask path}`` que indica diretamente a máscara de cada imagem (as colunas de máscara); uma imagem ausente dele não tem nenhuma. None procura cada máscara com :func:`mask_for`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#1",
+      "source": "Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "source_sha256": "7fc544a3cc6225fd1b7812f065faf628151122fccf7cbf22d99f1726fc58e1e4",
+      "context": "Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "translation": "O Make Masks aceita que se soltem arquivos, pastas ou ambos, e o que o usuário quer dizer depende do que foi solto. :func:`classify_drop` lê os caminhos -- nomes, estrutura de pastas e, para alguns TIFFs, seus pixels -- e diz qual dos casos a seguir é, sem uma única pergunta ou widget:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.mask_io#8",
+      "source": "The second half of this module moves label masks to and from the formats other tools curate and train on: :func:`masks_to_geojson` and :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and :func:`coco_to_masks` for COCO-style training sets, and :func:`export_rois` / :func:`import_rois` choosing among them by file name.",
+      "source_sha256": "7062fc19343d4d5d8071b25be2ca74952f809825f64a59120826923d88660493",
+      "context": "The second half of this module moves label masks to and from the formats other tools curate and train on: :func:`masks_to_geojson` and :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and :func:`coco_to_masks` for COCO-style training sets, and :func:`export_rois` / :func:`import_rois` choosing among them by file name.",
+      "translation": "A segunda metade deste módulo leva máscaras de rótulos para e a partir dos formatos com que outras ferramentas fazem curadoria e treinam: :func:`masks_to_geojson` e :func:`geojson_to_masks` para o QuPath, :func:`masks_to_roiset` e :func:`roiset_to_masks` para o ROI Manager do Fiji, :func:`masks_to_coco` e :func:`coco_to_masks` para conjuntos de treinamento no estilo COCO, e :func:`export_rois` / :func:`import_rois`, que escolhem entre eles pelo nome do arquivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#2",
+      "source": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes. So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest), each in its own backend's worker.",
+      "source_sha256": "a37bac1c01e027cec6ef98504c6846db765e23b96a862563152d27419cd9aea3",
+      "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes. So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest), each in its own backend's worker.",
+      "translation": "Um objeto cuja configuração de modelo é ``cellpose3:<model or weights path>``, ou qualquer objeto quando ``segmentation_backend`` é ``'cellpose3'``, é segmentado por ``_cellpose3_masks`` no ambiente próprio do backend Cellpose 3; o que ele retorna entra nas mesmas linhas que um resultado do Cellpose-SAM, então as máscaras salvas e as linhas do banco de dados são gravadas da mesma forma. Um cuja configuração de modelo é ``cellpose_dino:<checkpoint path>`` é segmentado pelo processo de trabalho do backend Cellpose-DINO, que recebe exatamente a mesma chamada ``eval`` que um modelo Cellpose-SAM e retorna suas formas. O mesmo vale para um cuja configuração de modelo tem um prefixo StarDist, InstanSeg ou Omnipose (``stardist:<model>`` e os demais), cada um no processo de trabalho do seu próprio backend.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.ReaderNeedsInstall#1",
+      "source": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place.",
+      "source_sha256": "ad034697e3a3247bddc8054a4aa04eaf5e0b2504b6ea0c89a17428f8fb5df87c",
+      "context": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place.",
+      "translation": "Uma :class:`ImportError`, para que todo chamador que já informava a falta de um leitor continue informando; o Plaque Assay captura esta para oferecer a instalação ali mesmo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.figure_folders#1",
+      "source": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
+      "source_sha256": "f8323f70ad6be21f5af494bbf970b97367ad794acfe103d3c8d88d31f2d1daec",
+      "context": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
+      "translation": "Uma pasta de artigo, ou uma pasta de imagens de figuras, é lida como está. Uma pasta que contém pastas de artigos -- vários PDFs lidos de uma vez, cada um em uma pasta própria -- é lida artigo por artigo: primeiro suas próprias imagens de figuras, quando houver, depois cada pasta de artigo por nome.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay#18",
+      "source": "Optional ``{slot role: channel}`` for the organelle slots after the first (``{'organelleb': 3}``), each drawn in its own colour. Default ``None`` draws the first slot only, as before. Mask planes are located through the merged folder's plane layout sidecar when one is present, so a slot left out here no longer shifts the planes of the objects that are drawn.",
+      "source_sha256": "20afcb292f47ac539953501ffb5a6cf59295b59f48cff163bfc14b53ba255867",
+      "context": "Optional ``{slot role: channel}`` for the organelle slots after the first (``{'organelleb': 3}``), each drawn in its own colour. Default ``None`` draws the first slot only, as before. Mask image layers are located through the merged folder's image layer layout sidecar when one is present, so a slot left out here no longer shifts the image layers of the objects that are drawn.",
+      "translation": "``{slot role: channel}`` opcional para os slots de organelas depois do primeiro (``{'organelleb': 3}``), cada um desenhado na sua própria cor. O padrão ``None`` desenha só o primeiro slot, como antes. Os planos de máscara são localizados pelo arquivo auxiliar de layout de planos da pasta mesclada quando ele existe, de modo que um slot deixado de fora aqui não desloca mais os planos dos objetos desenhados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.annotate_engine.SaveWorker.submit#2",
+      "source": "the column to write; the annotation column when omitted. The Annotate screen's judgements go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one queue, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
+      "source_sha256": "eb3195b72294dc96abd1f26172a2854d428c89af4a83a77538d6eaa990d46210",
+      "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
+      "translation": "a coluna a gravar; a coluna de anotação quando omitida. Os julgamentos da tela Annotate vão para a coluna ``<column>_verdict`` por meio deste mesmo gravador, e não por uma segunda conexão: um gravador, uma fila, uma ordem. Um lote para outra coluna que não pode ser gravado é guardado em ``_failed_extra`` sob sua coluna, separado de ``_failed_batch``, para que o lote de anotações mantenha a forma que todos os seus leitores esperam.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#1",
+      "source": "A folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "source_sha256": "f0ea7f83f97e0ee55369f435911d29ba349aa47ad84bd137db80f9be84b689b3",
+      "context": "A folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "translation": "Uma pasta cujas imagens ficam só em subpastas e uma pasta que o spaCR escreveu (``merged/*.npy``, ``sorted_channels``) também são aceitas, assim como um ``.npy``, para que a tela possa dizer o que ele é; :func:`spacr.drop_classification.classify_drop` decide o que o conteúdo solto significa. Os pares são encontrados depois e não são exigidos aqui.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler#1",
+      "source": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs; other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "source_sha256": "d5ed8bf1751ac20608c6062ae3650361e716be90e5bf54db03dc0a83eb4a0ff4",
+      "context": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs; other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "translation": "Aceita imagens de placas de lise, pastas delas, as duas coisas misturadas e, no modo Figure, qualquer número de PDFs; outros arquivos soltos junto com eles são deixados de lado silenciosamente. Antes deste handler, o Plaque Assay recebia a política do Make Masks, que recusava uma pasta que não conseguia usar com a frase do Make Masks.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#1",
+      "source": "The mode follows what was dropped: PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "source_sha256": "9140ac09fcc1a71770e76a0759797463235beccaba4a4dc0dfd3f97ecd23cba9",
+      "context": "The mode follows what was dropped: PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "translation": "O modo acompanha o que foi arrastado: PDFs, ou uma pasta deles, arrastados no modo Plaque pedem para mudar para o modo Figure; imagens arrastadas no modo Figure pedem para mudar para o modo Plaque; PDFs e imagens juntos informam que PDFs são lidos no modo Figure e imagens no modo Plaque, e perguntam qual ler. Permanecer no modo Figure lê as imagens como figuras; permanecer no modo Plaque deixa os PDFs sem ler.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_others#1",
+      "source": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused; hidden files are not counted, nor is what a paper folder holds.",
+      "source_sha256": "0156594e489a886de637fd684932187520eba6954bbffee07c215da6bd8598ea",
+      "context": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused; hidden files are not counted, nor is what a paper folder holds.",
+      "translation": "Um arquivo que não é nem imagem de placa de lise nem PDF, solto ou no nível superior de uma pasta solta, é ignorado em vez de recusado; arquivos ocultos não são contados, nem o que uma pasta de artigo contém.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.live_zoom.register_text_column#0",
+      "source": "Let Ctrl + wheel over ``root`` size the text inside it.",
+      "source_sha256": "c3c903c2d683f84d422c83122fa5d7020238f9168cd286d182837a5bd0913e3f",
+      "context": "Let Ctrl + wheel over ``root`` size the text inside it.",
+      "translation": "Faz Ctrl + roda do mouse sobre ``root`` dimensionar o texto dentro dele.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine#2",
+      "source": "THREE INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS. :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary field that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "source_sha256": "94b46744b8530e309187fb5ad64a731e6e100c1ff918a825ccc9139ff2dc9571",
+      "context": "Three inversions live here and they do different things. :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "translation": "TRÊS INVERSÕES VIVEM AQUI E FAZEM COISAS DIFERENTES. :func:`invert_intensity` é o complemento fotográfico de uma IMAGEM -- ``dtype_max - value``, o que o Invert de um visualizador faz, exatamente reversível em qualquer dtype inteiro --, e é com ela que o \"Invert image\" da tela do Make Masks desenha. :func:`invert_for_detection`, em vez disso, reflete uma imagem em torno da sua PRÓPRIA faixa, e é o que o \"Invert for detection\" da tela entrega aos detectores; sua docstring tem a medição que mostra por que um detector não pode usar o complemento, e ela NÃO é uma duplicata a ser eliminada por fusão. :func:`invert_mask` inverte o primeiro plano e o fundo de uma imagem de RÓTULOS; em um campo comum, isso resulta em um único objeto cobrindo o quadro, e é por isso que foi relatado como se não fizesse nada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FILTER_BOUNDS#1",
+      "source": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list, so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "source_sha256": "eee49aff894aec4122fb525057383a50ee6982efc83f0fa60deb0a1453e82df3",
+      "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list, so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "translation": "Eles não são mais um segundo filtro. :func:`legacy_filters` os transforma em entradas da lista única de filtros, de modo que um chamador que ainda passe ``min_area=20`` é julgado pela mesma passagem de regionprops que um usuário que acrescentou uma linha ``area``, e um :class:`FilterRemoval` ainda nomeia o limite legado em que um objeto falhou, para que os registros mais antigos sejam lidos da mesma forma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#1",
+      "source": "Holes are filled per object by :func:`fill_label_holes`, never by filling the foreground and labelling it again: that joined every pair of touching cells into one object.",
+      "source_sha256": "6f538ef16fa487dae97d039709e6887e9b742b58c7f8e81d34f0e67360663cc5",
+      "context": "Holes are filled per object by :func:`fill_label_holes`, never by filling the foreground and labelling it again: that joined every pair of touching cells into one object.",
+      "translation": "Os buracos são preenchidos por objeto por :func:`fill_label_holes`, nunca preenchendo o primeiro plano e rotulando-o de novo: isso juntava cada par de células que se tocam em um só objeto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_label_holes#1",
+      "source": "THE ONE HOLE FILLER FOR LABEL IMAGES. :func:`fill_holes`, the propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the Cellpose ``fill_in`` step) all come here. Filling the binary foreground and labelling it afresh with ``ndimage.label`` is what this replaces: it makes every pair of TOUCHING objects one object, so a field of 74 adjacent cells came back as 8. Here nothing is relabelled.",
+      "source_sha256": "f3e16bdf2fc10742b753b304c92276e2c66e68a76b41b7e38bd7aad0585fcbf0",
+      "context": "The one hole filler for label images. :func:`fill_holes`, the propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the Cellpose ``fill_in`` step) all come here. Filling the binary foreground and labelling it afresh with ``ndimage.label`` is what this replaces: it makes every pair of TOUCHING objects one object, so a microscope field of view of 74 adjacent cells came back as 8. Here nothing is relabelled.",
+      "translation": "O ÚNICO PREENCHEDOR DE BURACOS PARA IMAGENS DE RÓTULOS. :func:`fill_holes`, a etapa de propagação acima e :func:`spacr.utils.fill_holes_in_mask` (a etapa ``fill_in`` do Cellpose) chegam todos aqui. O que isto substitui é preencher o primeiro plano binário e rotulá-lo de novo com ``ndimage.label``: isso transforma cada par de objetos QUE SE TOCAM em um só objeto, de modo que um campo de visão com 74 células adjacentes voltava como 8. Aqui nada é rotulado de novo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_dock_width#1",
+      "source": "Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
+      "source_sha256": "6f8072268a17598efc216ff6ccdce11e1682ed25c8afd326eb56bf0f441eff0d",
+      "context": "Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
+      "translation": "Armazenada em pixels lógicos; o dock a limita aos seus limites de arraste quando a aplica, veja :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_folded_panel#1",
+      "source": "A PANEL IN ITS DEFAULT STATE IS REMOVED rather than stored. Most panels default to open, so storing that would grow the dict by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "source_sha256": "49e101fc9a89834495506773d393ce59a53e0b83103969d41bc5694ca10c31f5",
+      "context": "A panel in its default state is removed rather than stored. Most panels default to open, so storing that would grow the key-value mapping by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "translation": "UM PAINEL EM SEU ESTADO PADRÃO É REMOVIDO, em vez de armazenado. A maioria dos painéis começa aberta, então armazenar isso faria o dicionário crescer uma entrada para cada painel em que o usuário já mexeu, sem nunca diminuir. Um painel que começa recolhido (as linhas avançadas de PSF, restauração e CLAHE) passa ``default_shut=True``, de modo que abri-lo é o que fica armazenado, como False, e recolhê-lo de novo o faz ser esquecido.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.DiameterDialog#1",
+      "source": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the screen that opened the zoo.",
+      "source_sha256": "dcccfc6a6a8bd9d2afdb58ae1f5b43758d38174a1b3def9bc346e52e81b3fe01",
+      "context": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
+      "translation": "O pedido: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" Então isto contém todo o :class:`DiameterPanel` -- o botão de medir, uma linha por tipo de objeto com sua evidência e nota, *Use* por linha e *Use all* -- e o painel continua gravando nas configurações da tela que abriu o zoo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#10",
+      "source": "A SUGGESTION IS JUDGED, NOT RELABELLED. A crop Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the key legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "source_sha256": "37c0c1dc05cbbf7424583dadb899ae43a65eb41fad4f697724cbb06f21e40a13",
+      "context": "A suggestion is judged, not relabelled. An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "translation": "UMA SUGESTÃO É JULGADA, NÃO RERROTULADA. Um recorte para o qual o Suggest propôs uma classe exibe um selo âmbar ``?`` ao lado de seu anel tracejado. Um clique ou ``Y`` a confirma (ele vira um rótulo comum e exibe um visto verde); um clique direito ou ``N`` a rejeita (ele volta a não respondido e exibe um X vermelho); ``U`` desfaz qualquer um dos dois. A barra acima da legenda de atalhos diz isso e conta o que a página e a coluna contêm. Cada julgamento é gravado na coluna ``<column>_verdict`` como ``+c`` ou ``-c``, para que sobreviva a um reinício, e a próxima rodada do Suggest recebe as rejeições para treinar com elas. Veja :meth:`AnnotateScreen._judge` e :func:`spacr.suggest.verdict_column`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#9",
+      "source": "A PAGE IS WHAT FITS. The grid holds exactly the crops that fit the room the crop pane gives it, at the crop size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first crop on screen stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "source_sha256": "6d3bec89fd0c2c09a6cd0b4c5706eb49ce0b8c3b25be9f1dedcd2314aaf773b9",
+      "context": "A page is what fits. The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "translation": "UMA PÁGINA É O QUE CABE. A grade contém exatamente os recortes que cabem no espaço que o painel de recortes lhe dá, no tamanho de recorte que as configurações pedem, e nunca rola: abrir o console, recolher um painel, mudar a escala da GUI ou redimensionar a janela recalcula a página e empurra o resto para a próxima, o contador de páginas acompanha, e o primeiro recorte na tela fica onde estava. Veja :func:`grid_that_fits` e :meth:`AnnotateScreen._refit_grid`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#1",
+      "source": "A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "source_sha256": "46271add4bed5ac1216e935c835f0a0aea6b78af54dc4fa737410bb92a885b10",
+      "context": "A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "translation": "Uma sugestão é âmbar, uma sugestão confirmada é verde e uma rejeitada é vermelha -- as próprias cores de aviso, sucesso e erro do tema, para que o selo acompanhe uma troca de tema como o resto da moldura. O glifo é desenhado na cor de fundo do tema, que é preta no tema escuro e quase branca no claro; cada um desses preenchimentos foi escolhido em relação a ela e tem legibilidade melhor que 4.5:1 nos dois. Nenhuma das três (no original, \"None of the three\") é cor de classe, então um selo nunca é lido como uma classe.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#1",
+      "source": ":func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "source_sha256": "842be1c6e2423fa4b7d993b99ff2fb93e9bc8a6b3011cb46225a85a74b37858a",
+      "context": ":func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "translation": ":func:`spacr.drop_classification.classify_drop` diz o que foi solto, e:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#4",
+      "source": "one folder whose subfolders look like channels (DAPI/, GFP/..., or the same fields in each) opens \"Organize for Measure\" with a channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation;",
+      "source_sha256": "3df3b7e9284be39e6f2c9dc90bb7968a1f03cb61f233266a63a307ebb0684e08",
+      "context": "one folder whose subfolders look like image data channels (DAPI/, GFP/..., or the same microscope fields of view in each) opens \"Organize for Measure\" with an image data channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation;",
+      "translation": "uma pasta cujas subpastas parecem canais (DAPI/, GFP/... ou os mesmos campos de visão em cada uma) abre \"Organize for Measure\" com uma coluna de canal por subpasta; qualquer outra pasta cujas imagens fiquem em subpastas é oferecida para consolidação;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.ObjectFilterList#1",
+      "source": "The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
+      "source_sha256": "461b788e7594350328ac29b2bd8699d69e9f7e4390f32e43f4d709fe247196f1",
+      "context": "The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
+      "translation": "A categoria Filter tinha quatro caixas fixas -- área mínima e máxima, intensidade média mínima e máxima. Agora ela começa VAZIA, e \"Add a filter\" oferece toda propriedade escalar que :func:`skimage.measure.regionprops` calcula (veja :func:`mask_engine.filter_properties`); cada linha adicionada traz a propriedade, um mínimo, um máximo e um botão Remove. Um limite em branco fica desligado. As quatro antigas são duas das linhas que um usuário pode adicionar: ``area`` e ``intensity_mean``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.ObjectFilterList.set_filters#1",
+      "source": "A dict of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before the filter list opens as the rows it meant.",
+      "source_sha256": "773155f16ccbd362cbdd4a2a7237272c68578e3e236418953bff28712f18de1e",
+      "context": "A key-value mapping of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before the filter list opens as the rows it meant.",
+      "translation": "Um dict dos quatro limites antigos (``min_area`` e os demais) é migrado por :func:`mask_engine.legacy_filters`, de modo que um estado salvo de antes da lista de filtros abre como as linhas que ele queria dizer.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.load_cellpose_model#3",
+      "source": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend, and a ``stardist:``, ``instanseg:`` or ``omnipose:`` model in its own backend.",
+      "source_sha256": "4b5737f07e2cf611f471fb900e7051821ff1b79710b4a2e1589a4d1c3ba16d14",
+      "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend, and a ``stardist:``, ``instanseg:`` or ``omnipose:`` model in its own backend.",
+      "translation": "Um modelo ``cellpose3:<name or path>`` -- um modelo padrão do Cellpose 3 ou um checkpoint do Cellpose 3 do bioimage.io -- não é de forma alguma um modelo do Cellpose 4: o Cellpose 4 carregaria esse checkpoint e segmentaria algo sem sentido com ele. Ele é carregado por :func:`_backend_model`, no ambiente próprio do backend Cellpose 3, como o Mask generation o carrega. Um modelo ``cellpose_dino:<path>``, um checkpoint do Cellpose-DINO, é carregado da mesma forma no backend Cellpose-DINO, e um modelo ``stardist:``, ``instanseg:`` ou ``omnipose:``, em seu próprio backend.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#3",
+      "source": "a tooltip appears after the Tooltip delay preference of hovering, not before (:data:`SHOW_DELAY_MS` when nothing is stored);",
+      "source_sha256": "c3b1f7515db2806fe656ebb1d9e8f9868ce51a81a62083fbc488594116f55922",
+      "context": "a tooltip appears after the Tooltip delay preference of hovering, not before (:data:`SHOW_DELAY_MS` when nothing is stored);",
+      "translation": "uma dica de ferramenta aparece depois do tempo da preferência Tooltip delay com o ponteiro parado sobre o item, não antes (:data:`SHOW_DELAY_MS` quando nada está salvo);",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops#2",
+      "source": "WHY A SAVED PATTERN USED TO WAIT FOR A RESTART. The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the screens to the window.",
+      "source_sha256": "4d62c462db52e7d54e7a4c62b3123671bc0d4f3eca29a129054801f6dc79ecb2",
+      "context": "Why a saved pattern used to wait for a restart. The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the application views to the window.",
+      "translation": "POR QUE UM PADRÃO SALVO COSTUMAVA ESPERAR POR UMA REINICIALIZAÇÃO. A janela constrói UM fundo atrás do dock e da página e o mantém durante a sessão. Salvar Preferences empurrava os números de tempo de execução para ele (`apply_saved_controls`), mas o padrão, o backend, a qualidade e a escala são fixados quando ele é construído, e nada o construía de novo -- a nota antiga de que \"changing a screen\" faria isso deixou de ser verdade quando o fundo passou das telas para a janela.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#1",
+      "source": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane: the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "source_sha256": "360a3eea7281d3c28d93ee25fd4b16419cda4f01ebe25d626c1292d8036d1aa2",
+      "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane: the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "translation": "O corpo é disposto com um stretch, e um layout conta esse stretch mesmo enquanto o corpo está oculto, então um cartão recolhido ainda pedia espaço e o dividia igualmente com o stretch que prende um título recolhido na parte de baixo de seu painel: o Console recolhido saía com metade da altura do painel. Recolhido, o corpo abre mão de seu stretch; aberto, ele o retoma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#1",
+      "source": "Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "source_sha256": "92d82faeacdc6b128f4551b1d9a2b9a7d37d71f119d1478e095e5452cef3459f",
+      "context": "Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "translation": "Dois pedidos que acabam sendo um só: todo contêiner se recolhe (\"sempre que algo for recolhido, deve se prender automaticamente à parte de baixo do contêiner em que está\"), e todo contêiner pode ser \"expandido ou encolhido arrastando as bordas\". Um :class:`~PySide6.QtWidgets.QSplitter` já faz as duas coisas -- uma alça para arrastar, e um filho que pode ser reduzido a nada --, então as duas metades vivem aqui como UM mecanismo, e tudo o que se recolhe em um splitter também se redimensiona, e vice-versa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
+      "source": "The request: \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "source_sha256": "623f21c03aef1c8e8342c15cf1af89df40907668b4c800d9c0bb381989bd0358",
+      "context": "The request: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "translation": "O pedido: \"quando uma pré-visualização ao vivo abre, ela ocupa a altura inteira da tela: o console, o contêiner System e a seção de botões abaixo de System se recolhem automaticamente, e as configurações se recolhem para a esquerda\", e o mesmo sempre que figuras aparecem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#1",
+      "source": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside a screen gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "source_sha256": "c575a161fa01047f40f4f06db899ee34572f672da673e4f8c50c9291738ae694",
+      "context": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "translation": "O pedido: \"quaisquer seções dentro dos contêineres de figuras ou de pré-visualização ao vivo também devem ser recolhíveis ... todo elemento da GUI, seja uma figura ou uma tabela\". Esta é a única forma de uma seção dentro de uma tela ganhar um controle de recolhimento, para que todas pareçam e se comportem da mesma maneira: uma seta e um nome acima do corpo (o mesmo :class:`~spacr.qt.widgets.foldable.Folder` que o console e o System usam), um clique a recolhe, e uma seção recolhida é seu título preso à parte de BAIXO de todo o espaço que recebe (:func:`lock_folded_to_bottom`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#2",
+      "source": "THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show. The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "source_sha256": "f8c83ffb7986082749047ff21dd12062f24a20cbf55c50636ed405fdd603ad0e",
+      "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show. The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "translation": "A VISIBILIDADE PRÓPRIA DO CORPO CONTINUA SENDO DO SEU PROPRIETÁRIO. O recolhimento oculta um contêiner interno, nunca o corpo, então expandir não pode mostrar um painel que seu proprietário ocultou nem construir um painel que é construído na primeira exibição. No sentido inverso, a seção segue seu corpo: enquanto o proprietário mantém o corpo oculto, a seção inteira -- título incluído -- também fica oculta, e volta quando o proprietário mostra o corpo. Só o indicador de oculto do corpo é lido para isso, então nada é mostrado, medido ou construído para descobrir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#1",
+      "source": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the reported bug (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "source_sha256": "79e103e46d1472b1eabcd2263ef44b7b0047ac7be0ad8337be0a993d70e2badb",
+      "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the reported bug (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "translation": "Um painel recolhido que recebia mais espaço do que seu título precisa -- o último painel de um splitter, uma seção esticada pela sua coluna -- dispunha seu título no meio desse espaço, que é o bug relatado (\"quando eu recolho o console, ele se recolhe para o meio\"). Um stretch colocado ACIMA do título enquanto ele está recolhido ocupa o espaço sobrando.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.apply_column_text_scale#0",
+      "source": "Size the console's text with the column it sits in.",
+      "source_sha256": "07c4b533ba0a1221b4054b9438e72e1225f8d67a5c0fda0577a666e3987af813",
+      "context": "Size the console's text with the column it sits in.",
+      "translation": "Dimensiona o texto do console com a coluna em que ele está.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.column_width#1",
+      "source": "A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
+      "source_sha256": "a6ac702129fe1b5d118c0dfbd2bb41cc8ab7785aaaafe2dd34263f43ba8bebff",
+      "context": "A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
+      "translation": "Uma largura escolhida pelo usuário é mantida em toda atualização, todo ocultar e mostrar e toda sessão; sem nenhuma armazenada, a coluna se ajusta ao seu nome mais longo, como :meth:`fitting_width` sempre fez.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.DockEdge#0",
+      "source": "The strip along the dock's right edge that drags its width.",
+      "source_sha256": "eed20acf1d3fed6c3913073fcaeef384be349fbc40fcbeaa63af700ad35e4be4",
+      "context": "The strip along the dock's right edge that drags its width.",
+      "translation": "A faixa ao longo da borda direita do dock que arrasta a sua largura.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#3",
+      "source": "WHY. The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the screen, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
+      "source_sha256": "d0f984c6994fa1872f93dc61262278c81e5cc6445abc0348026002ca39cff8c4",
+      "context": "WHY. The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
+      "translation": "POR QUÊ. O tema desenha cada ``QProgressBar`` como uma trilha de 8 px (``height: 8px; max-height: 8px`` em :mod:`spacr.qt.theme`). Uma barra que também pinta o próprio texto -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- desenha uma legenda de 13 px dentro desses 8 px, então apenas a metade superior de cada glifo aparece, e com a GUI em 50 % a trilha tem 4 px e quase nada aparece. Uma legenda como \"step 1 of 3\" ou \"10%\" é cortada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.Folder.set_shut#2",
+      "source": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "source_sha256": "3352e147240549d6dbfdd2bb045862ec2c1431c4518293a96b16ee98b82bcdef",
+      "context": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "translation": "False quando o programa o recolhe em nome do usuário (uma pré-visualização ao vivo abrindo). Esse recolhimento não é lembrado entre reinicializações, e os ouvintes são informados disso.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.make_foldable#5",
+      "source": "start folded unless the user opened this panel before (advanced rows that most people never change).",
+      "source_sha256": "2e6bd5aa4992778539a120e40369f7e478577e44af09041b844205d3fda1086c",
+      "context": "start folded unless the user opened this panel before (advanced rows that most people never change).",
+      "translation": "começa recolhido, a menos que o usuário já tenha aberto este painel antes (linhas avançadas que a maioria das pessoas nunca muda).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_cascade.CascadeEngine#3",
+      "source": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting; two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
+      "source_sha256": "f40d007d7034ec05aba280162f355962931d7198ca5818aa196eb10096bdde04",
+      "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting; two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
+      "translation": "`samples` é quantas amostras por lado cada pixel recebe, definido pelo widget a partir da configuração Supersampling; dois é o 2x2 publicado, e um motor que ninguém configurou o mantém. Cria o motor de cascata sem alocar o buffer ainda.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.SpaceEngine#2",
+      "source": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting. ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
+      "source_sha256": "d8e5f5d2352b325e1601ee773751eb56a4047225446aa3275cabc6d6431ec699",
+      "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting. ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
+      "translation": "`samples` é quantas amostras por lado cada pixel recebe, definido pelo widget a partir da configuração Supersampling. ``None`` -- um motor que ninguém configurou -- mantém a regra antiga de dois em um quadro pequeno e um em um grande.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.render_space_frame#9",
+      "source": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (it used to be 2 x 2 whatever the number said).",
+      "source_sha256": "83e470742723539dc5c32efba72e4a30a02143d93c4f0d9aecd4271fc76f52da",
+      "context": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (it used to be 2 x 2 whatever the number said).",
+      "translation": "``1`` ou menos usa uma amostra no centro de cada pixel; qualquer valor maior faz a média de uma grade ``samples`` x ``samples`` de amostras por pixel (antes era 2 x 2 independentemente do número).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.OrbitEngine#2",
+      "source": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting, makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
+      "source_sha256": "3e55330cbce04e3465d1728d1c30bdbc04d386de4c3889c650d0cb8c3ed26608",
+      "context": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting, makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
+      "translation": "Quatro é o 2x2 publicado. `samples`, definido pelo widget a partir da configuração Supersampling, transforma isso em N x N fases percorridas ao longo de N * N quadros; um por lado não mantém histórico algum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.Settings#1",
+      "source": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said; now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
+      "source_sha256": "4c951aa952e5cf39f1d85b4ca6ff37a99f678c151ff0ec7511a159efa80c8d45",
+      "context": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said; now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
+      "translation": "`supersampling` é o número de amostras por pixel ao longo de cada eixo, a linha Supersampling da aba Fractal. Todo renderizador usava um 2x2 fixo independentemente do que ela dizia; agora os shaders e os kernels de CPU recebem dela uma grade N x N. Dois é a grade publicada, de modo que um `Settings()` que ninguém preencheu desenha o que sempre desenhou.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.apply_saved_controls#3",
+      "source": "Everything that can change while a backdrop is on screen is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved.",
+      "source_sha256": "e6917cbfdc34259d77a5eb43f955187c108960e7a998f4ff3181f82240ee6915",
+      "context": "Everything that can change while a backdrop is on application view is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved.",
+      "translation": "Tudo o que pode mudar enquanto um fundo está na tela é enviado aqui. O que não pode -- o padrão, o backend, a qualidade, a escala e a órbita de referência de Mandelbrot -- exige reconstruir o fundo, o que :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` faz quando Preferences é salvo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.BOUND_ROWS#0",
+      "source": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25; for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
+      "source_sha256": "03ad49454a91154977ff644cd16de6d732918dc4887f650871f4be77251f9153",
+      "context": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25; for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
+      "translation": "Onde cada controle de limite de um compartimento do Cellpose fica em ``object_filters``. A família ``{object}_min_area`` do Mask foi aposentada em 2026-09-25; para célula, núcleo e patógeno, estes quatro controles leem e gravam as linhas ``area`` e ``intensity_mean`` do objeto. Os slots de organelas mantêm suas próprias configurações.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog#1",
+      "source": "Also the consent step and the upload shared by every community training-data contribution, so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
+      "source_sha256": "04237e1387dd8e9516016a9919a6d711880407fc3a2c47b857b43fee4e676edc",
+      "context": "Also the consent step and the upload shared by every community training-data contribution, so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
+      "translation": "Também a etapa de consentimento e o upload compartilhados por toda contribuição de dados de treinamento da comunidade, de modo que cada tela que contribui faz a mesma pergunta uma vez e envia da mesma forma, e o diálogo do Make Masks para enviar imagens com suas máscaras a um dataset da comunidade que o usuário nomeia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
+      "source": "IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED. A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "source_sha256": "2b47680e338a06f4bfb7cda42e28be77e43555b5e7733afdc01ca945cff257a3",
+      "context": "It belongs to the window, not the widget that asked. A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "translation": "ELE PERTENCE À JANELA, NÃO AO WIDGET QUE PEDIU. Um diálogo herda a folha de estilo de todos os widgets acima dele, e o Plaque Assay pede a partir da sua pré-visualização, cujo próprio controle deslizante de escala redeclara a folha do aplicativo na escala dessa pré-visualização: em 150 % Install e Cancel tinham 59 px de altura, e não os 40 px de todos os outros botões. Com ``parent.window()`` como pai, ele recebe o tema como qualquer outro diálogo e continua centralizado na janela que o abriu, e modal em relação a ela.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#7",
+      "source": "build an installed backend's environment again, for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "source_sha256": "97e80d829d2417b86a1c431189bc2097374c6e76bc66845c4a3d864fad3b3be7",
+      "context": "build an installed backend's environment again, for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "translation": "reconstrói o ambiente de um backend já instalado, para um backend instalado antes que um pacote de que ele agora precisa tivesse versão fixada; o diálogo diz isso e seu botão diz Reinstall.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#5",
+      "source": "build an installed backend again.",
+      "source_sha256": "a319160d9854370cf3706a008ee44edcc410a09c69254429ba9a0cf701c6ec52",
+      "context": "build an installed backend again.",
+      "translation": "reconstrói um backend já instalado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#1",
+      "source": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "source_sha256": "07e5c058297cb833a1694e8a850228cd515ebd6e6fe437682bd02a94ce47e74f",
+      "context": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "translation": "Substitui como ponto de entrada a sequência anterior de perguntas e o diálogo separado \"Sort into channels\". UMA única janela pop-up coloca as imagens e suas máscaras na estrutura que o Measure lê -- pastas de canal com nomes Yokogawa, as máscaras e ``merged/*.npy`` -- por meio de :mod:`spacr.channel_sorting` e :mod:`spacr.folder_consolidation`, que tomam todas as decisões:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data#0",
+      "source": "Open the annotate-then-upload window for this mode.",
+      "source_sha256": "c3addd8c1b1149b028b18e66ad36af22467363140cff9696127b24e046d33d14",
+      "context": "Open the annotate-then-upload window for this mode.",
+      "translation": "Abre a janela de anotar e depois enviar para este modo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#6",
+      "source": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install.",
+      "source_sha256": "e72a1e4b0fe39f5d41656b9d4cf5e15ca4a02d8500bcb3072f5b4a3029729ba1",
+      "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install.",
+      "translation": "True quando o download foi iniciado, ou quando um PDF que precisa do leitor de figuras foi respondido com sua instalação.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_papers#0",
+      "source": "Read several PDFs, one after another, off the GUI thread.",
+      "source_sha256": "d503302b6c662818f17f8a2e44b59b9e92bca6a0200359765d4df4c75033f956",
+      "context": "Read several PDFs, one after another, off the main GUI execution path.",
+      "translation": "Lê vários PDFs, um após o outro, fora da thread da GUI.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.check_the_src#1",
+      "source": "Asked once per source and mode, and only while the screen is on screen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are, so the preview and the run get the paper's figure folder rather than a PDF they cannot open.",
+      "source_sha256": "48fe7d9e1d1943d2e943379f66bcc6c46eb654b8b4f17e9ab5f52f88df63317b",
+      "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are, so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
+      "translation": "Perguntado uma vez por fonte e modo, e somente enquanto a tela está visível. Um ``src`` que indica um PDF, ou uma pasta de PDFs, no modo Figure -- já, ou depois que a resposta mudou para ele -- tem todo PDF lido da mesma forma que os soltos, de modo que a pré-visualização e a execução recebem a pasta de figuras do artigo em vez de um PDF que não conseguem abrir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_question#1",
+      "source": "PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "source_sha256": "c0fa55b631496215b251cdc4d6906ed4e39ff658edcdd46fd4275b97c64ed033",
+      "context": "PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "translation": "PDFs são lidos no modo Figure e imagens de placas de lise no modo Plaque, então uma entrada para o outro modo pede para alternar, e uma entrada para ambos pergunta qual ler.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#0",
+      "source": "One scale slider per live preview, scaling that preview alone.",
+      "source_sha256": "312da1f2de492cab07c13c99059f365b5ebde79c7a65ee20d9b497a052bf0782",
+      "context": "One scale slider per live preview, scaling that preview alone.",
+      "translation": "Um controle deslizante de escala por pré-visualização ao vivo, que escala apenas essa pré-visualização.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#10",
+      "source": "A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW. A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "source_sha256": "eef8deb4d5d40c142f2c8a6a69d7f86a5d11ab505ca5d407ef9c8cfbb07ccc70",
+      "context": "A window opened from the preview is not the preview. A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "translation": "UMA JANELA ABERTA A PARTIR DA PRÉ-VISUALIZAÇÃO NÃO É A PRÉ-VISUALIZAÇÃO. Um diálogo cujo pai é o painel é uma janela própria, mas o Qt propaga para ela a folha escalada do painel, e a varredura a encontrava entre os filhos do painel: em 150 % os botões de um diálogo de configurações tinham 59 px de altura, e não os 40 px de todos os outros diálogos. Uma janela assim e tudo o que há nela são mantidos em 100 %, e a folha própria da janela redeclara, em 100 %, os tamanhos que de outra forma herdaria escalados -- definida no momento em que é polida, portanto antes do primeiro layout.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.psf_controls#1",
+      "source": "The calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each field saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
+      "source_sha256": "8097f7099e1f6af666327bd36ba6df4f0313e405703fa7deff5fa791c88b5431",
+      "context": "The calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
+      "translation": "A calibração se preenche sozinha. Um seletor de objetiva de microscópio, câmera e fluoróforo, ou \"Infer from images…\", preenche ampliação, abertura numérica, índice de refração, comprimento de onda de emissão, pixel da câmera, tamanho de pixel da imagem e FWHM gaussiana, e cada campo diz de onde veio seu valor. Só a operação e a linha da objetiva são exibidas; o resto fica em uma seção recolhível que começa fechada e lembra se foi aberta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#1",
+      "source": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC field browser's own ``_FieldView``. The raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the field browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "source_sha256": "a4cc97ccdb80610cdfea7aaedc99d8076b813f370837e48aa8ef818e97c554e4",
+      "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. The raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "translation": "O spaCR já tinha uma área de imagem com ajuste ao carregar, zoom pela roda e deslocamento por arrasto: o próprio ``_FieldView`` do navegador de campos do QC. A janela de bruto versus realçado precisava da mesma coisa duas vezes, e uma terceira cópia de \"um QGraphicsView com um pixmap dentro\" é como uma base de código acaba com três que se comportam de forma sutilmente diferente. Por isso a visualização do navegador de campos veio para cá sem alterações, sob um nome que diz que ela é compartilhada, e o navegador continua a usá-la sob o nome antigo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal#8",
+      "source": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding key (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks`` (settings of one or more pipelines, Gate Editor gating strategies, models and files); every later run of a locked pipeline on its ``src`` is checked against it by :func:`check_analysis_lock`, every model the run records is checked as it is recorded, and the verdict is written into that run's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
+      "source_sha256": "56d8e8c68105660516b94d2a2afb399ebb57c461948aad4eba5372a928a8c1b0",
+      "context": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding structured-data name (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks`` (settings of one or more workflows, Data-selection boundary Editor data-selection filtering strategies, models and files); every later run of a locked workflow on its ``src`` is checked against it by :func:`check_analysis_lock`, every model the processing-session records is checked as it is recorded, and the verdict is written into that processing session's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
+      "translation": "Ao lado das execuções, o diário mantém dois registros para trabalho cego. :func:`start_blinding` grava uma chave de cegamento (nomes codificados e uma ordem embaralhada) em ``~/.spacr/blinding`` e :func:`unblind` registra quem a abriu e quando. :func:`lock_analysis` congela um plano de análise, com hash e carimbo de data/hora, em ``~/.spacr/analysis_locks`` (configurações de um ou mais pipelines, estratégias de gating do Gate Editor, modelos e arquivos); toda execução posterior de um pipeline bloqueado no seu ``src`` é conferida com ele por :func:`check_analysis_lock`, todo modelo que a execução registra é conferido ao ser registrado, e o veredito é gravado no ``manifest.json`` dessa execução em ``analysis_lock``, com qualquer diferença também listada em ``provenance_warnings``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.Run.record_model#3",
+      "source": "Records ``\"<filename>:<digest>\"`` in ``model_hashes``. An unreadable checkpoint is only logged and leaves no entry at all; any other failure is also appended to ``provenance_warnings``, so it reaches ``manifest.json`` — model logging must never itself fail a run. When an analysis lock applies to the run, the model is also checked against it (see :func:`lock_analysis`), and the run's verdict is updated.",
+      "source_sha256": "b2ebeb4767770bd9cba9defdfe6ce9443ee65635cd4003e82db2c0c0d6ac565c",
+      "context": "Records ``\"<filename>:<digest>\"`` in ``model_hashes``. An unreadable checkpoint is only logged and leaves no entry at all; any other failure is also appended to ``provenance_warnings``, so it reaches ``manifest.json`` — model logging must never itself fail a processing session. When an analysis lock applies to the processing session, the model is also checked against it (see :func:`lock_analysis`), and the processing session's verdict is updated.",
+      "translation": "Registra ``\"<filename>:<digest>\"`` em ``model_hashes``. Um checkpoint ilegível é apenas anotado no log e não deixa nenhuma entrada; qualquer outra falha também é acrescentada a ``provenance_warnings``, para que chegue ao ``manifest.json`` — o registro de modelos nunca deve, ele próprio, fazer uma execução falhar. Quando um bloqueio de análise se aplica à execução, o modelo também é conferido com ele (veja :func:`lock_analysis`), e o veredito da execução é atualizado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#1",
+      "source": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked gating strategy is compared.",
+      "source_sha256": "31b6f08effa0bb154920756a3b05b21674f528631602289a62e43370f6f75fe2",
+      "context": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked data-selection filtering strategy is compared.",
+      "translation": "O bloqueio é o mais recente que :func:`lock_analysis` criou abrangendo ``app_key`` no ``src`` das configurações, a menos que um seja passado. O bloqueio é primeiro conferido com o próprio hash, para que um arquivo de bloqueio editado seja detectado; depois, cada configuração, cada arquivo com hash e cada estratégia de gating bloqueada são comparados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#2",
+      "source": "Each difference is stamped with when it was first seen (kept beside the lock), and it is post-hoc only when it was first seen after a blinding key on a folder of the plan was opened: an edit made while still blind stays a deviation even when the run that uses it comes later.",
+      "source_sha256": "0e9b1bd83a5212f9b03a777a393293d6e6846a585f641bfb4d9fcb08650910d2",
+      "context": "Each difference is stamped with when it was first seen (kept beside the lock), and it is post-hoc only when it was first seen after a blinding key on a folder of the plan was opened: an edit made while still blind stays a deviation even when the processing session that uses it comes later.",
+      "translation": "Cada diferença recebe a marca de quando foi vista pela primeira vez (guardada ao lado do bloqueio), e só é post hoc quando foi vista pela primeira vez depois que uma chave de cegamento de uma pasta do plano foi aberta: uma alteração feita ainda às cegas continua sendo um desvio mesmo quando a execução que a usa vem depois.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#6",
+      "source": "the Gate Editor gating strategies in use, for gates the lock took as objects (see :func:`lock_analysis`).",
+      "source_sha256": "83e6764c0d22590aaddbe5d378fc6debe0fb82a03fc36fcb42173d43f87ad4fe",
+      "context": "the Data-selection boundary Editor data-selection filtering strategies in use, for data-selection boundaries the lock took as objects (see :func:`lock_analysis`).",
+      "translation": "as estratégias de gating do Gate Editor em uso, para gates que o bloqueio recebeu como objetos (veja :func:`lock_analysis`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#7",
+      "source": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every change first seen while still blind), ``\"post_hoc\"`` (a change first seen after a key on the plan's folders was unblinded), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, and ``detail`` for gates), ``unblinded_utc`` and a one-sentence ``summary``.",
+      "source_sha256": "10074b649025364697478b9f51d822bb0471c8b4b66bf5fce5e7d1234be82eac",
+      "context": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every change first seen while still blind), ``\"post_hoc\"`` (a change first seen after a key on the plan's folders was unblinded), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, and ``detail`` for data-selection boundaries), ``unblinded_utc`` and a one-sentence ``summary``.",
+      "translation": "``status`` -- ``\"unlocked\"`` (nenhum bloqueio se aplica), ``\"verified\"`` (nada mudou), ``\"deviation\"`` (mudou, cada mudança vista pela primeira vez ainda às cegas), ``\"post_hoc\"`` (uma mudança vista pela primeira vez depois que uma chave das pastas do plano foi revelada), ``\"not_preregistered\"`` (inalterado, mas o bloqueio foi criado depois de uma revelação) ou ``\"tampered\"`` (o bloqueio não corresponde mais ao seu hash) -- com ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc`` e ``detail`` para gates), ``unblinded_utc`` e um ``summary`` de uma frase.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#1",
+      "source": "The settings, the stated hypotheses and thresholds, the SHA-256 of every model, gate or threshold file the settings name (plus ``files``), the gating strategies and the models are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of a locked pipeline on its ``src`` is checked against the newest lock by :func:`check_analysis_lock`, and every model a run records is checked as it is recorded; the verdict goes into the run's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
+      "source_sha256": "642147843641a155f2cf072666516dc9ce9a4e27b2f2332047d55f001f5b4443",
+      "context": "The settings, the stated hypotheses and thresholds, the SHA-256 of every model, data-selection boundary or threshold file the settings name (plus ``files``), the data-selection filtering strategies and the models are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of a locked workflow on its ``src`` is checked against the newest lock by :func:`check_analysis_lock`, and every model a processing-session records is checked as it is recorded; the verdict goes into the processing session's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
+      "translation": "As configurações, as hipóteses e os limiares declarados, o SHA-256 de cada arquivo de modelo, gate ou limiar que as configurações indicam (mais ``files``), as estratégias de gating e os modelos são gravados com a hora e o usuário em ``~/.spacr/analysis_locks/<lock id>.json`` e têm o hash calculado. A partir daí, toda execução registrada no diário de um pipeline bloqueado no seu ``src`` é conferida com o bloqueio mais recente por :func:`check_analysis_lock`, e todo modelo que uma execução registra é conferido ao ser registrado; o veredito vai para o ``manifest.json`` da execução, e uma diferença é listada nos avisos do manifesto, no relatório e no texto de métodos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#10",
+      "source": "``{name: checkpoint path}`` for the models the analysis loads, under the names the pipeline records them by.",
+      "source_sha256": "3c4b8b275641a7e3a2dd87ceea44afd2afbb65818cd57aeb9880beaa85e8357d",
+      "context": "``{name: checkpoint path}`` for the models the analysis loads, under the names the workflow records them by.",
+      "translation": "``{name: checkpoint path}`` para os modelos que a análise carrega, sob os nomes com que o pipeline os registra.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#11",
+      "source": "further pipelines of the same plan, as ``{app_key: settings}``; each is checked against its own settings on its own ``src``, and one unblinding on any of their folders counts for the whole plan.",
+      "source_sha256": "a7e6f1b731dd9b29d6deaca655cf8606d4590b79121ef9cded3512466e49ffa2",
+      "context": "further workflows of the same plan, as ``{app_key: settings}``; each is checked against its own settings on its own ``src``, and one unblinding on any of their folders counts for the whole plan.",
+      "translation": "outros pipelines do mesmo plano, como ``{app_key: settings}``; cada um é conferido com as próprias configurações no próprio ``src``, e uma revelação em qualquer uma das suas pastas vale para o plano inteiro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#13",
+      "source": "when ``pipelines`` repeats ``app_key``, or ``gates`` holds something that is not a gating strategy.",
+      "source_sha256": "e8932485173c773b75462c0aadd3759a958eb1e3852c7eb430e5b247100bcf96",
+      "context": "when ``pipelines`` repeats ``app_key``, or ``gates`` holds something that is not a data-selection filtering strategy.",
+      "translation": "quando ``pipelines`` repete ``app_key``, ou ``gates`` contém algo que não é uma estratégia de gating.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#14",
+      "source": "when a model in ``models`` is not a file.",
+      "source_sha256": "be7a364edec56cf8622a173492817885ba526e84a6bfb38c743c4ac441c563ba",
+      "context": "when a model in ``models`` is not a file.",
+      "translation": "quando um modelo em ``models`` não é um arquivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#2",
+      "source": "A lock made after a blinding key on a folder it covers was unblinded is marked as such, because it was not made blind.",
+      "source_sha256": "a0c46db5eaabf14d4f0fd89598be3bd3300c4ae780c097e59f9cd9efe39abec1",
+      "context": "A lock made after a blinding key on a folder it covers was unblinded is marked as such, because it was not made blind.",
+      "translation": "Um bloqueio criado depois que uma chave de cegamento de uma pasta que ele abrange foi revelada é marcado como tal, porque não foi criado às cegas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#9",
+      "source": "Gate Editor gating strategies the plan depends on: a gate set, its dict, a saved gate file, a list of these, or a mapping from a label to one. Gate files named by any setting are taken as well. A gate file is checked on every run; gates handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
+      "source_sha256": "d72aaaa3f7c96e24c95d82afbadce1697625b231112f73391da0bfc7d34a18c5",
+      "context": "Data-selection boundary Editor data-selection filtering strategies the plan depends on: a data-selection boundary set, its key-value mapping, a saved data-selection boundary file, a list of these, or a mapping from a label to one. Data-selection boundary files named by any setting are taken as well. A data-selection boundary file is checked on every processing session; data-selection boundaries handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
+      "translation": "Estratégias de gating do Gate Editor das quais o plano depende: um conjunto de gates, o seu dict, um arquivo de gates salvo, uma lista desses, ou um mapeamento de um rótulo para um deles. Arquivos de gates indicados por qualquer configuração também são incluídos. Um arquivo de gates é conferido em toda execução; gates entregues como objetos são conferidos quando :func:`check_analysis_lock` os recebe sob o mesmo rótulo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.sim.gini#1",
+      "source": "Reference: StatsDirect non-parametric methods (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "source_sha256": "9b333733f94d94a5ed4d21accd878d60d26212480c91124851ce438bced2189d",
+      "context": "Reference: StatsDirect non-parametric methods (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "translation": "Referência: StatsDirect, métodos não paramétricos (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest#4",
+      "source": "1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a run that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not when the model is confident, not on a re-run. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a run came out wrong. 3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. A JUDGEMENT IS RECORDED, NOT INFERRED. Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "source_sha256": "2b4c477edd721e3ec0897e4354525fb16634855fc3c9c7e4a109eaccbe4495d8",
+      "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred. Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "translation": "1. UMA SUGESTÃO NUNCA PODE SER CONFUNDIDA COM UMA DECISÃO. As sugestões são armazenadas como valores próprios -- um 1 sugerido vira 11 --, de modo que nada que leia a coluna de anotação pode tomar uma delas pela resposta de uma pessoa, e uma execução que dá errado é desfeita excluindo um valor, e não lembrando quais linhas foram alteradas. 2. UMA SUGESTÃO NUNCA SOBRESCREVE UMA ANOTAÇÃO. As gravações levam ``IS NULL``. Nem quando o modelo está confiante, nem em uma nova execução. Os rótulos de uma pessoa são a referência na qual o modelo foi ajustado; perder um silenciosamente custaria horas e só seria notado quando uma execução desse um resultado errado. 3. SEM PISO DE CONFIANÇA, ENTÃO A ORDEM CARREGA A DÚVIDA. Todo recorte não anotado recebe uma sugestão, ordenada da mais confiante para a menos, e o revisor para onde deixa de concordar. Um limiar tomaria essa decisão por ele, com um número que ninguém escolheu. 4. UM JULGAMENTO É REGISTRADO, NÃO INFERIDO. Confirmar uma sugestão a transforma em um rótulo comum e rejeitá-la a apaga -- e as duas ações são anotadas ao lado da coluna, em ``<column>_verdict``, como a classe que foi confirmada (``+c``) ou rejeitada (``-c``). Uma rejeição é informação com que a próxima rodada pode treinar -- \"not class 1\" é um exemplo da classe 2 em uma coluna de duas classes --, onde um NULL teria sido silêncio. A coluna de veredito é adicionada na primeira vez que uma fonte é aberta, de modo que tabelas criadas antes de ela existir a recebem sem uma etapa de migração.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.fill_holes_in_mask#1",
+      "source": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a field of 74 adjacent cells was saved as 8. Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
+      "source_sha256": "fc89df908c0e223a67870157f8dd6ce29e5f5f532766387cab53f2c41c3c7a2d",
+      "context": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a microscope field of view of 74 adjacent cells was saved as 8. Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
+      "translation": "Delega a :func:`spacr.qt.mask_engine.fill_label_holes`, o único preenchedor de buracos para imagens de rótulos. Antes, ``ndimage.label`` rodava primeiro sobre a máscara, o que transformava cada par de objetos que se tocam em um só objeto: com a etapa ``fill_in`` do Cellpose ligada (o padrão em Apply), um campo de visão com 74 células adjacentes era salvo como 8. Agora nenhum objeto é mesclado ou renumerado, e um buraco recebe o id do objeto que o envolve.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
