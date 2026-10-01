@@ -55,11 +55,28 @@ WHAT WAS BUILT (2026-09-27)
     tests/qt/test_lineage_trees_alpha_gate.py.
 
 WHAT IS LEFT
-    - Ultrack and btrack also report division links (to_tracks_layer's
-      lineage graph, btrack track.parent); they still go through inference.
     - Colouring by a Measure-database column needs the step to run after
       Measure (the per-field hook runs at mask time, before measurement);
       today only the private helper accepts a measurement table.
     - Generation time is in frames; no hours-per-frame conversion.
     - Parasite endodyogeny needs the parasite objects tracked
       (timelapse_objects including pathogen); not tested on real data.
+
+2026-10-01 — NATIVE TRACKER PARENTS PRESERVED (partial item)
+Commit 1a983f34a keeps Ultrack's child-to-parent graph and btrack Tracklet
+parents in CSV parent_track_id, with parent_track_id_source identifying
+known native links. Explicit native roots and orphans left by filtering
+are not attached to nearby tracks by inference. Self/nonpositive parents
+normalize to roots; multiple distinct positive parents fail before CSV
+replacement. Missing native metadata and older CSVs retain the prior
+inference fallback. Original observation columns and values are preserved.
+
+43 focused checks pass in 4.25s: new native lineage cases, existing lineage
+statistics, and Ultrack adapter cases. Final actual process scope enforced
+4GiB memory, no swap and CPUQuota100%. The preceding 1GiB cohort stopped at
+the RSS guard after one pass; it is not a success receipt. An earlier
+13-pass run had ambiguous nested CPU/memory scopes and is not relied on.
+All existing public signatures/docstrings are unchanged. No model download,
+GPU run or native tracker installation was used. This verifies adapter
+contracts with deterministic fixtures; real endodyogeny acceptance,
+post-Measure coloring and calibrated time units above remain open.

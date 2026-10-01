@@ -1,6 +1,6 @@
 THE DECK SHOWS FOUR OBJECT CLASSES AND AN ALPHA FEATURES SLIDE
 
-Status:    BUILT 2026-09-28 (see the note of that date).
+Status:    done — current published artifacts verified 2026-10-01.
 Requested: 2026-09-28, by the maintainer, verbatim:
   "to the slide deck, the model used to detect the nuclei needs to be
   changed, or its settigs, and there should be a pathogen object detection
@@ -80,3 +80,41 @@ confirm the categories on slides 3 and 4.
 (de, es, fr, hi, is, ko, pt, sv, zh_CN) now point "Back" at pages/56.md,
 matching README.rst. The README/i18n/logo tests pass (46). Only the
 maintainer's confirmation of the categories on slides 3 and 4 is left.
+
+2026-10-01 — CURRENT ARTIFACT ACCEPTANCE
+The category-confirmation sentence above was a previous agent suggestion,
+not a requirement in the maintainer request or DONE WHEN. Categories were
+reviewed against their contents; no additional approval gate is imposed.
+
+The current registry has 58 alpha entries. Slide 4 had only 51: SAMCell,
+SpotNet, plaque scale/growth-time estimation, passing Make Masks settings
+to Mask Generation, Noise2Void denoising, DINO pretraining, and the grouped
+illumination/enhancement/PSF controls were missing. All seven now appear.
+The eight categories, plain text style and 56-page navigation are retained.
+
+Reproduce with python tools/refresh_alpha_deck.py after any presentation
+rebuild. This repository-native source validates every registry ID exactly
+once and refuses missing, retired or duplicate entries before publishing.
+It draws vector PDF text using the bundled Open Sans font, then renders the
+same PDF page to its 3200x1800 image and 320x180 thumbnail. It completes
+validation/rendering before replacing artifacts. Existing other PDF page
+content/text and all other slide/thumbnail bytes are unchanged.
+
+The original presentation source and raw segmentation assets are currently
+unmounted. They were not recreated or overwritten; the nuclei inference
+remains the recorded September 28 run. This acceptance rechecks the actual
+published output, not new segmentation benchmark accuracy.
+
+Checked all 56 images, thumbnails, page links and PDF page count; all ten
+README Back links target page 56. Viewed slides 3, 4 and 11 at full native
+size: plain Category column, complete readable alpha table, and all four
+labelled object panels. Four new publishing checks pass (1.48s), including
+registry-drift refusal, preserved neighboring pages and renderer failure
+preserving the publication. Existing deck/logo/media checks: 39 passed,
+one animation test skipped because python-pptx is unavailable here. No
+animation asset changed. Initial PDF-text assertions needed whitespace and
+ligature normalization; the final assertions all pass. Ruff and diff check
+pass. Receipt: features/data/590_current_deck_acceptance_2026-10-01.json.
+
+No N590 deliverable remains. Broader documentation deployment/release and
+scientific validation of alpha backends remain in their own tracked items.
