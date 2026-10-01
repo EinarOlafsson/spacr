@@ -8024,6 +8024,31 @@
       "source_sha256": "805813b0fcfbda1d08fac34cb3fadc8d008250c31ab74b24527221ccb8676742",
       "text": "Evaluate rules without mutating the frame or accepting conflicting labels.\n\nAn include pattern selects matching nonmissing metadata values. Blank include\nmeans manual assignments only. Exclude always removes matching rows, including\nmanually added rows. Different conditions may overlap in a preview, but Apply\nrefuses until those overlaps are resolved.\n\n:param frame: Original source frame, not a previously annotated copy.\n:param definition: Saved or edited condition rules.\n:param source: Current file/table/merge identity.\n:returns: ConditionPreview with explicit unmatched and overlap diagnostics."
     },
+    "spacr.condition_annotations.save_annotated_table": {
+      "source_blocks_sha256": [
+        "2088344a8dfd0b772276acb91c1d2b66fb4637494166ffbff4d15a541c68bd0e",
+        "7103b45e92a29acaa6db9ef3f9e80e1fa3834504d42dd6224861890bcea40ad8",
+        "4d54cee5c6afcdb13bd02a749b985d5528effeb287aa5b10188fe0803e219a97",
+        "d8e1a7657a4f9ec477a1486799ffd27229e1d98a8a17e5a7d98788fb0506efd5",
+        "9d348a40e98aa090a529c346d3d191bc2a7f20ecbaeba42a8f6253bffed731b1",
+        "033a347f83a6feaba58b779bf3ec713c551f82c413b70ead2d4b86c78b89a517",
+        "d47ca272b01984ee2223a33664357a8796a6e467fbf326817c5012b7e004de16",
+        "4fdf992728b4c93e29c2ffbc49be4a882554fc4b91fdca68e7509d5efb71826b"
+      ],
+      "source_sha256": "9bfc4d702141f863675f165fcdfafad6809d1a7bcfd66d001677a190e1286dec",
+      "text": "Atomically save a new physical table plus its source and editable rules.\n\n:param path: Existing SQLite source database, never a delimited input file.\n:param name: New table name; physical, view and saved-derived collisions fail.\n:param frame: Working frame including the annotation output column.\n:param definition: Validated annotation rules used for the working frame.\n:param source: Original annotation source context.\n:param merge_definition: Original merged-source configuration, if applicable.\n:returns: Saved table name. A failure rolls back both table and provenance."
+    },
+    "spacr.condition_annotations.saved_table_annotation": {
+      "source_blocks_sha256": [
+        "5c0ffaa62320b8d14988505bd613206c10934d559331786324a7ca7634a848a8",
+        "20099200cdb5cff8c28bcb17a9a300acdf4b305ba6861d186b8b1c97ab29e248",
+        "20cc823026bd32d592e2729d08246fc66a1d25f47d7cabf263d5e5b3a57e27c2",
+        "49b709507205e88b94f25290c37c2bda4fb0910a9a7b237427579ec72db499e0",
+        "412efd4cb990fe1936a69c28e080bf11bab5071f697ccb40ebf1d799f0e380ad"
+      ],
+      "source_sha256": "eca73effac758456e693c3bcea809341fe042c18ae6c43d74f4be22ae0b842c3",
+      "text": "Recover editable rules only when a saved physical table is unchanged.\n\n:param path: SQLite source database opened read-only.\n:param name: Physical table name.\n:param frame: Actual stored table including the condition output column.\n:returns: Editable annotation definition or None for an ordinary table."
+    },
     "spacr.condition_annotations.source_context": {
       "source_blocks_sha256": [
         "49089191a302b1c99915ad546883c5290c314fdcb0af3ff8931921abc923bda5",
@@ -58643,6 +58668,13 @@
       "source_sha256": "1c8a2a117c38c8fce99d700fc1345c83ec79ec5ffccf8e2b44027bf13f6589b2",
       "text": "Choose a saved chart and revalidate its source before plotting."
     },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_save_annotated_table": {
+      "source_blocks_sha256": [
+        "06416e6b38eb52618be624e7a63a3538b21a0636d8c8791e04953592104b2a34"
+      ],
+      "source_sha256": "06416e6b38eb52618be624e7a63a3538b21a0636d8c8791e04953592104b2a34",
+      "text": "Ask for a new physical table name in the current SQLite database."
+    },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_save_chart": {
       "source_blocks_sha256": [
         "97f7ae476b8b88e2dfd860cf53393acc0c3ba12f2872f84e91dac64f76be7821"
@@ -58706,6 +58738,14 @@
       ],
       "source_sha256": "1dcf740102096470b50bf8e5b6092b90911e30e2ba1c67bfe37a7d71e7b0dc9f",
       "text": "Reopen conditions for the current physical, merged or imported table."
+    },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.save_annotated_table": {
+      "source_blocks_sha256": [
+        "4f59cb86d0561e902c9836f6ca12a8c39bffc6d282b3c8ddfc33eb734f409ce2",
+        "dc1db137b1dbeda4fea994241000106d768e28351f22f717491955df2cf5d8bb"
+      ],
+      "source_sha256": "b1a9ed247504534d3bf3e144191815085b7e648b24221061183016736abfb96b",
+      "text": "Create a new physical table and provenance atomically on a worker.\n\n:param name: New table name in the current SQLite source database."
     },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.save_chart": {
       "source_blocks_sha256": [

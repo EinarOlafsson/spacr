@@ -10,7 +10,8 @@ save/load and exports, and report invalid patterns or conflicting membership
 without silently overwriting input data. Sorting/filtering must preserve row
 identity, including duplicate indices.
 
-Status: IN PROGRESS. Merge interface agent owns screen/backend/dialog/tests.
+Status: IMPLEMENTED AND VALIDATED on nightly. Supporting catalogue and
+tutorial publication is tracked with N615.
 Shared chart rendering crash is tracked separately in 621.
 
 2026-10-01 — CORE ANNOTATION WORKFLOW IMPLEMENTED
@@ -27,5 +28,14 @@ retaining every selected row token.
 CSV and derived chart roundtrips, actual sorted/filtered multiselect MIME/drop
 events, source mutation, duplicate rows, invalid-rule preservation and large
 manual assignments. Both themes rendered and visually inspected.
-Remaining immediate follow-up: Save annotated table creates a new named
-SQLite table with atomic provenance, without replacing the source table.
+2026-10-01 — SQLITE PERSISTENCE COMPLETE
+Save annotated table creates a new named SQLite table. The table and rule
+receipt commit in one transaction; any failure rolls both back. Existing
+source tables, views and derived names are protected. Reopening a saved table
+recovers editable regex/manual assignments after verifying stored contents;
+external changes do not silently reuse stale rules. The save runs off the GUI
+thread. Preview results are reused when applying annotations.
+51 focused agent checks passed across annotation, SQLite and existing Graph
+Builder loading paths. Integration rerun: 25 backend/dialog/SQLite checks
+passed. Both light and dark themes were reviewed. User workflow is documented
+in docs/source/table_workflows.rst, including saving a separate SQLite table.

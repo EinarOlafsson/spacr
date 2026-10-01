@@ -131,6 +131,7 @@ Contents
    installer_guide
    system_requirements
    workflows
+   table_workflows
    installers
    features
    make_masks
