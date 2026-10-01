@@ -1588,7 +1588,7 @@
       "translation": "도구 설명은 :data:`SHOW_DELAY_MS` 동안 머문 뒤에 나타나며, 그 전에는 나타나지 않습니다;",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.tooltip_policy#4",

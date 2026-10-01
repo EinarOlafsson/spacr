@@ -212,7 +212,7 @@
       "translation": "une infobulle apparaît après :data:`SHOW_DELAY_MS` de survol, pas avant ;",
       "review_basis": "MT draft edited in AI review",
       "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.tooltip_policy#4",
