@@ -363,8 +363,6 @@ def _trace_rings(binary: np.ndarray) -> List[np.ndarray]:
                 break
         chain_dirs = np.asarray([dirs[e] for e in chain])
         corners = np.nonzero(chain_dirs != np.roll(chain_dirs, 1))[0]
-        if not corners.size:
-            corners = np.asarray([0])
         picked = [chain[i] for i in corners.tolist()]
         ring = np.stack([xs[picked], ys[picked]], axis=1).astype(np.int64)
         rings.append(np.vstack([ring, ring[:1]]))
@@ -493,8 +491,6 @@ def _iter_objects(mask: np.ndarray) -> Iterator[Tuple[int, List[List[np.ndarray]
     compact = (np.searchsorted(ids, labels) + 1).astype(np.int64)
     compact[labels == 0] = 0
     for index, box in enumerate(ndimage.find_objects(compact)):
-        if box is None:
-            continue
         parts, count = ndimage.label(compact[box] == index + 1)
         yield int(ids[index]), _crop_polygons(
             parts, count, box[0].start, box[1].start)
