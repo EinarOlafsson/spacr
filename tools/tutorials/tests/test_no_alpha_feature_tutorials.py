@@ -149,6 +149,11 @@ WIDGET_LABELS = {
     "PluginCatalogueStatus": (),
     "MapBarcodesSpatialToggle": ("Spatial transcriptomics",),
     "MapBarcodesSpatialCard": ("Spatial transcriptomics",),
+    # Plaque Figure preview (501). The settings category title is listed
+    # with the button so narration naming either is caught.
+    "PlaqueEstimateScaleTime": ("Estimate scale / time (experimental)",
+                                "Experimental growth estimates"),
+    "PlaqueEstimateScaleTimeNote": (),
 }
 
 #: The setting itself. Allowed only in a Preferences lesson.

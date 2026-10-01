@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Use Load test data no Plate Viewer para o exemplo disponível para download, ou abra o measurements.db do seu projeto medido. O exemplo contém 2.341 células em quatro poços; use medições que cubram a sua própria placa ao avaliar padrões espaciais.",
   "scenes": [
-    "Na tela Home, abra Graph Builder em Data e escolha Plate Viewer. Use-o para resumir as medições de objetos por poço e inspecionar como elas se distribuem na placa.",
+    "Na tela Home, abra Graph Builder em Tools e escolha Plate Viewer. Use-o para resumir as medições de objetos por poço e inspecionar como elas se distribuem na placa.",
     "Clique em Load test data para abrir o exemplo disponível para download. Para os seus dados, escolha um banco de dados de medições ou a pasta da execução e clique em Open. O exemplo contém quatro poços medidos.",
     "Escolha cell como Table, cell_area como Measurement e plate1 como Plate. Defina Per well como mean para exibir a área celular média. A mediana reduz a influência de objetos excepcionalmente grandes ou pequenos.",
     "Escolha uma escala de cores. A faixa robusta usa do segundo ao nonagésimo oitavo percentil, o que impede que um poço extremo comprima as cores dos outros.",

@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Brug Load test data i Plate Viewer til det downloadbare eksempel, eller åbn measurements.db fra dit målte projekt. Eksemplet indeholder 2.341 celler i fire brønde; brug målinger, der dækker hele din plade, når du vurderer rumlige mønstre.",
   "scenes": [
-    "Fra Home åbner du Graph Builder under Data og vælger derefter Plate Viewer. Brug det til at opsummere objektmålinger pr. brønd og undersøge, hvordan de fordeler sig over en plade.",
+    "Fra Home åbner du Graph Builder under Tools og vælger derefter Plate Viewer. Brug det til at opsummere objektmålinger pr. brønd og undersøge, hvordan de fordeler sig over en plade.",
     "Klik på Load test data for at åbne det downloadbare eksempel. Til dine egne data vælger du en måledatabase eller dens kørselsmappe og klikker på Open. Eksemplet indeholder fire målte brønde.",
     "Vælg cell som Table, cell_area som Measurement og plate1 som Plate. Sæt Per well til mean for at vise det gennemsnitlige celleareal. Medianen mindsker indflydelsen fra usædvanligt store eller små objekter.",
     "Vælg en farveskala. Det robuste interval bruger 2. til 98. percentil, så en ekstrem brønd ikke presser de andres farver sammen.",

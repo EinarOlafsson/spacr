@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Usa Load test data en Plate Viewer para el ejemplo descargable, o abre el measurements.db de tu proyecto medido. El ejemplo contiene 2341 células en cuatro pocillos; usa mediciones que abarquen tu propia placa cuando evalúes patrones espaciales.",
   "scenes": [
-    "Desde Home, abre Graph Builder en Data y elige Plate Viewer. Úsalo para resumir las mediciones de objetos por pocillo y revisar cómo se distribuyen en una placa.",
+    "Desde Home, abre Graph Builder en Tools y elige Plate Viewer. Úsalo para resumir las mediciones de objetos por pocillo y revisar cómo se distribuyen en una placa.",
     "Haz clic en Load test data para abrir el ejemplo descargable. Para tus propios datos, elige una base de datos de mediciones o su carpeta de ejecución y haz clic en Open. El ejemplo contiene cuatro pocillos medidos.",
     "Elige cell como Table, cell_area como Measurement y plate1 como Plate. Pon Per well en mean para mostrar el área celular media. La mediana reduce la influencia de objetos inusualmente grandes o pequeños.",
     "Elige una escala de colores. El rango robusto usa los percentiles del segundo al nonagésimo octavo, así un pocillo extremo no comprime los colores de los demás.",

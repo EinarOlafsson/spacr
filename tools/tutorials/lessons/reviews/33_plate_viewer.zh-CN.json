@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "使用Plate Viewer中的Load test data打开可下载的示例，或者打开您已测量项目的measurements.db。示例包含分布在四个孔中的2,341个细胞；评估空间模式时，请使用覆盖您整块板的测量数据。",
   "scenes": [
-    "从Home打开Data中的Graph Builder，然后选择Plate Viewer。用它按孔汇总对象测量值，并检查它们在板上的分布。",
+    "从Home打开Tools中的Graph Builder，然后选择Plate Viewer。用它按孔汇总对象测量值，并检查它们在板上的分布。",
     "点击Load test data打开可下载的示例。对于您自己的数据，请选择测量数据库或其运行文件夹，然后点击Open。示例包含四个已测量的孔。",
     "在Table中选择cell，在Measurement中选择cell_area，在Plate中选择plate1。把Per well设为mean，以显示平均细胞面积。中位数可以降低异常大或异常小对象的影响。",
     "选择一个颜色标尺。稳健范围使用第二到第九十八百分位数，这样单个极端的孔不会压缩其他孔的颜色差异。",

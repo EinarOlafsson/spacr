@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "ダウンロードできる例を使うにはPlate ViewerのLoad test dataを使い、自分のデータでは測定済みプロジェクトのmeasurements.dbを開きます。例には四つのウェルにわたる2,341個の細胞が含まれています。空間的なパターンを評価するときは、プレート全体にわたる測定値を使ってください。",
   "scenes": [
-    "HomeからDataのGraph Builderを開き、Plate Viewerを選びます。物体の測定値をウェルごとに要約し、プレート上での分布を確認するために使います。",
+    "HomeからToolsのGraph Builderを開き、Plate Viewerを選びます。物体の測定値をウェルごとに要約し、プレート上での分布を確認するために使います。",
     "Load test dataをクリックして、ダウンロードできる例を開きます。自分のデータでは、測定データベースかその実行フォルダーを選び、Openをクリックします。例には測定済みのウェルが四つあります。",
     "Tableでcell、Measurementでcell_area、Plateでplate1を選びます。平均の細胞面積を表示するには、Per wellをmeanにします。中央値を使うと、極端に大きい物体や小さい物体の影響が小さくなります。",
     "カラースケールを選びます。ロバストな範囲では二パーセンタイルから九十八パーセンタイルまでを使うので、極端な一つのウェルがほかのウェルの色の差を押しつぶすことがありません。",

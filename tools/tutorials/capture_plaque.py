@@ -28,7 +28,10 @@ def record_plaque(app, window, screen, stage, captures, capture, settle, write_j
     model = Path(__file__).resolve().parents[2]/'spacr/resources/models/toxo_plaque_cyto_e25000_X1120_Y1120.CP_model'
     if not model.is_file():
         raise ValueError('The actual existing bundled plaque checkpoint is missing')
-    requested = read(stage.parent/'catalog/24_plaque_settings.json')
+    catalog = stage.parent/'catalog/24_plaque_settings.json'
+    if not catalog.is_file():
+        catalog = Path(__file__).resolve().parent/'authoring/catalog/24_plaque_settings.json'
+    requested = read(catalog)
     requested.update(src=str(root), plaque_model=str(model), well_detection=False,
                      plate_format=None, well_diameter_mm=None)
     for key, value in requested.items():

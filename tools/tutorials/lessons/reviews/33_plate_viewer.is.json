@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Notaðu Load test data í Plate Viewer fyrir niðurhalanlega dæmið, eða opnaðu measurements.db úr mælda verkefninu þínu. Dæmið inniheldur 2.341 frumu í fjórum brunnum; notaðu mælingar sem ná yfir alla plötuna þína þegar þú metur rúmfræðileg mynstur.",
   "scenes": [
-    "Frá Home opnarðu Graph Builder undir Data og velur síðan Plate Viewer. Notaðu það til að taka saman mælingar hluta eftir brunnum og skoða dreifingu þeirra yfir plötuna.",
+    "Frá Home opnarðu Graph Builder undir Tools og velur síðan Plate Viewer. Notaðu það til að taka saman mælingar hluta eftir brunnum og skoða dreifingu þeirra yfir plötuna.",
     "Smelltu á Load test data til að opna niðurhalanlega dæmið. Fyrir eigin gögn velurðu mæligagnagrunn eða keyrslumöppu hans og smellir á Open. Dæmið inniheldur fjóra mælda brunna.",
     "Veldu cell sem Table, cell_area sem Measurement og plate1 sem Plate. Stilltu Per well á mean til að sýna meðalflatarmál frumna. Miðgildi dregur úr áhrifum óvenju stórra eða lítilla hluta.",
     "Veldu litakvarða. Trausta bilið notar 2. til 98. hundraðsmark, svo einn öfgabrunnur þjappi ekki litum hinna saman.",

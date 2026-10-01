@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "01_graph_builder_host",
-      "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
+      "narration": "From Home, open Graph Builder in Tools, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
       "hold_after": 0.7,
       "related_lessons": [
         "58_graph_builder"

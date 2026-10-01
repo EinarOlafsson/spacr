@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Utilisez Load test data dans Plate Viewer pour l’exemple téléchargeable, ou ouvrez le fichier measurements.db de votre projet mesuré. L’exemple contient 2 341 cellules réparties dans quatre puits ; utilisez des mesures couvrant votre propre plaque pour évaluer des motifs spatiaux.",
   "scenes": [
-    "Depuis Home, ouvrez Graph Builder dans Data, puis choisissez Plate Viewer. Utilisez-le pour résumer les mesures d’objets par puits et inspecter leur répartition sur une plaque.",
+    "Depuis Home, ouvrez Graph Builder dans Tools, puis choisissez Plate Viewer. Utilisez-le pour résumer les mesures d’objets par puits et inspecter leur répartition sur une plaque.",
     "Cliquez sur Load test data pour ouvrir l’exemple téléchargeable. Pour vos propres données, choisissez une base de données de mesures ou son dossier d’exécution et cliquez sur Open. L’exemple contient quatre puits mesurés.",
     "Choisissez cell comme Table, cell_area comme Measurement et plate1 comme Plate. Réglez Per well sur mean pour afficher l’aire cellulaire moyenne. La médiane réduit l’influence d’objets anormalement grands ou petits.",
     "Choisissez une échelle de couleurs. La plage robuste utilise les percentiles du deuxième au quatre-vingt-dix-huitième, ce qui évite qu’un puits extrême écrase les couleurs des autres.",

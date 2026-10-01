@@ -18,7 +18,7 @@
   "prerequisite": "Open Mask and choose Load test data. For your own images, prepare a source folder with consistent filenames and known channel identities. This example uses nucleus channel 0, cell channel 1 and pathogen channel 2, with an additional intensity channel 3.",
   "scenes": [
     {
-      "visual": "native_01_module",
+      "visual": "01_module",
       "narration": "From Home, open Mask. Use this module to outline cells, nuclei and pathogens in microscope images. This walkthrough processes two-dimensional images. The Time, three-dimensional and OPS workflows have their own tutorials.",
       "related_lessons": [
         "05_home",
@@ -28,79 +28,53 @@
       "hold_after": 0.7
     },
     {
-      "visual": "native_02_download",
+      "visual": "02_cached_load",
       "narration": "Click Load test data and wait for the microscopy example to load. Check Source before continuing. For your own images, select their folder and confirm that the filenames identify the plate, well, field and channel.",
       "hold_after": 0.7
     },
     {
-      "visual": "native_03_data_ready",
+      "visual": "03_data_ready",
       "narration": "Check the channel assignments against the images. In this example, nucleus intensity is channel zero, cell intensity is channel one, and pathogen intensity is channel two. Channel three is an additional intensity image. Choose only the object types present in your experiment.",
       "hold_after": 0.7
     },
     {
-      "visual": "preview_04_live_image",
+      "visual": "03b_object_table",
+      "narration": "Below the inputs, the per-object table holds the settings you choose for each object. Each object is a column, here cell, nucleus and pathogen, and each row asks one question: whether to remove background, the object diameter, the segmentation model, the background level and the signal-to-noise cutoff. Add a filter adds a row that removes objects by a measured property such as area, and Add an organelle adds another object column.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_live_image",
       "narration": "Turn on Live and select a field. Inspect the image and proposed masks together before running the full folder. Try several fields that represent the range of image quality in your experiment.",
       "hold_after": 0.7
     },
     {
-      "visual": "preview_05_live_settings",
-      "narration": "Open Live settings and choose the model for the object you want to segment. Set the approximate object diameter and run the preview. Compare the outlines with the image, paying attention to missed objects and objects joined together.",
+      "visual": "05_live_settings",
+      "narration": "Open Live settings and choose the model for the object you want to segment. Set the approximate object diameter, then click Run preview.",
       "hold_after": 0.7
     },
     {
-      "visual": "preview_09_filters_after",
+      "visual": "07_preview_result",
+      "narration": "When the preview finishes, compare the outlines with the image. Look for missed objects and for neighbouring objects joined into one. The status line reports how many objects were found.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_filters_after",
       "narration": "Use the minimum-area filter to hide objects smaller than the chosen number of pixels. Increasing it removes small labels from the preview. This filter updates an existing mask result, so you can compare size cutoffs quickly.",
       "hold_after": 0.7
     },
     {
-      "visual": "preview_12_model_result",
-      "narration": "Change diameter when the model is splitting or joining objects at the wrong scale, then run the preview again. Check the boundaries as well as the object count. Restore the settings you want to use before moving to the batch run.",
+      "visual": "10_filters_restored",
+      "narration": "Set the minimum area back to zero to bring every object back. If the model splits or joins objects at the wrong scale, change Diameter and run the preview again, checking the boundaries as well as the count. Restore the settings you want before the batch run.",
       "hold_after": 0.7
     },
     {
-      "visual": "native_20_batch_settings",
-      "narration": "For a small first run, select two test images, keep Plot on, and review the cell, nucleus and pathogen flow thresholds. Here they are zero point four. Check the output and original-image retention settings, then click Run.",
+      "visual": "20_batch_settings",
+      "narration": "For a small first run, turn on Test mode with two test images and keep Plot on. The table now carries the diameters for this run, and the recording sets the cell, nucleus and pathogen flow thresholds to zero point four. Keep Save on under Quality Control, then click Run.",
       "hold_after": 0.7
     },
     {
-      "visual": "native_23_batch_finished",
+      "visual": "23_batch_finished",
       "narration": "Follow the console and inspect any failed fields or missing plots. The merged folder contains the image intensities and final object labels. Keep its plane-layout metadata with the arrays so Measure can identify each channel and mask.",
-      "hold_after": 0.7
-    },
-    {
-      "visual": "command_01_explicit_numeric_inputs",
-      "narration": "If an overlay export is missing, the linked plotting helper can export the saved arrays separately. Extract the helper and choose this run’s merged folder. Keep the layout file in place; the helper uses it to check the intensity and mask planes.",
-      "focus": [
-        190,
-        80,
-        3450,
-        1120
-      ],
-      "related_lessons": [
-        "06_api"
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "command_02_explicit_plotting_api",
-      "narration": "Run the helper with the merged folder as its source and a new output folder as its destination. It saves a separate overlay for each image array. Open the saved PNG files to inspect the results.",
-      "focus": [
-        190,
-        80,
-        3450,
-        1000
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "viewer_10_saved_plate1_L02_18_1",
-      "narration": "Review the outlines on each intensity channel and the combined mask view. Check small objects, touching cells and missed regions. Keep the input images, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
-      "focus": [
-        200,
-        680,
-        3440,
-        880
-      ],
       "hold_after": 0.7
     }
   ]

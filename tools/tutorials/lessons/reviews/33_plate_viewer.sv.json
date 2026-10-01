@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Använd Load test data i Plate Viewer för det nedladdningsbara exemplet, eller öppna measurements.db från ditt uppmätta projekt. Exemplet innehåller 2 341 celler i fyra brunnar; använd mätningar som täcker hela din platta när du bedömer rumsliga mönster.",
   "scenes": [
-    "Från Home öppnar du Graph Builder under Data och väljer sedan Plate Viewer. Använd det för att sammanfatta objektmätningar per brunn och granska hur de fördelar sig över en platta.",
+    "Från Home öppnar du Graph Builder under Tools och väljer sedan Plate Viewer. Använd det för att sammanfatta objektmätningar per brunn och granska hur de fördelar sig över en platta.",
     "Klicka på Load test data för att öppna det nedladdningsbara exemplet. För egna data väljer du en mätdatabas eller dess körningsmapp och klickar på Open. Exemplet innehåller fyra uppmätta brunnar.",
     "Välj cell som Table, cell_area som Measurement och plate1 som Plate. Ställ Per well på mean för att visa den genomsnittliga cellarean. Medianen minskar inverkan av ovanligt stora eller små objekt.",
     "Välj en färgskala. Det robusta intervallet använder 2:a till 98:e percentilen, så att en extrem brunn inte trycker ihop färgerna för de andra.",

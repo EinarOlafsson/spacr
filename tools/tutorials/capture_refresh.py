@@ -98,6 +98,8 @@ def main() -> int:
     parser.add_argument('--openings', action='store_true', help='Record only the shared Home, Help-menu and host openings of the tool lessons')
     parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data', 'mask_source_channels'), default='home',
                         help='With --openings: which shared or lesson-extension frames to record')
+    parser.add_argument('--preview-filter-only', action='store_true', help='With --preview-variants, record the size filter but no second model run')
+    parser.add_argument('--plaque-current-tour', action='store_true', help='Record the current Plaque preview overlay settings, Help route and Figure mode on the synthetic example')
     parser.add_argument('--measure-qc-tour', action='store_true', help='Record the QC switch popup and the Image Preprocessing category after loading Measure data')
     parser.add_argument('--timeout', type=float, default=600)
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
@@ -718,7 +720,11 @@ def main() -> int:
             from capture_invasion import record_invasion
             record_invasion(app, window, screen, stage, captures, capture,
                             settle, write_json, args.timeout)
-        if args.module == 'analyze_plaques':
+        if args.module == 'analyze_plaques' and args.plaque_current_tour:
+            from capture_plaque_current import record_plaque_current
+            record_plaque_current(app, window, screen, stage, captures, capture,
+                                  settle, write_json, args.timeout)
+        elif args.module == 'analyze_plaques':
             from capture_plaque import record_plaque
             record_plaque(app, window, screen, stage, captures, capture,
                           settle, write_json, args.timeout, use_zoo_model=args.plaque_zoo_model)
@@ -1197,6 +1203,16 @@ def main() -> int:
                 if restored != before:
                     raise RuntimeError('Restoring the area threshold did not restore the original result')
                 capture('10_filters_restored')
+            if args.preview_variants and args.preview_filter_only:
+                # CPU recordings: the size filter needs no model rerun, and a
+                # second full Cellpose-SAM pass would take an hour on a CPU.
+                write_json(captures / 'live_variants.json', {
+                    'filter': {'minimum_area': cutoff, 'original_minimum_area': original,
+                               'before': before, 'after': after, 'restored': restored,
+                               'raw_mask_unchanged': True, 'model_rerun': False},
+                    'model_option': None})
+                dialog.close()
+            elif args.preview_variants:
                 available_models = [panel._model_box.itemText(i) for i in range(panel._model_box.count())]
                 old_diameter = panel._diameter.value()
                 panel._diameter.setFocus()

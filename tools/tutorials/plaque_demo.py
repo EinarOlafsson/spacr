@@ -2,6 +2,7 @@
 from collections import Counter
 import math
 from pathlib import Path
+import os
 import shutil
 import sqlite3
 import statistics
@@ -67,7 +68,9 @@ def verify_filtered(raw, actual, minimum):
 
 def prepare(stage):
     stage = Path(stage)
-    source = stage.parent/'synthetic/plaque'
+    # A neutral recording stage has no workspace parent: it names the copied
+    # synthetic example through SPACR_TUTORIAL_PLAQUE_SOURCE instead.
+    source = Path(os.environ.get('SPACR_TUTORIAL_PLAQUE_SOURCE') or stage.parent/'synthetic/plaque')
     old = read(source/'manifest.json')
     runs = stage/'plaque_runs'
     runs.mkdir(exist_ok=True)

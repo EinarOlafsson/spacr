@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Verwenden Sie in Plate Viewer Load test data für das herunterladbare Beispiel, oder öffnen Sie die measurements.db Ihres gemessenen Projekts. Das Beispiel enthält 2.341 Zellen in vier Wells; verwenden Sie Messungen über Ihre gesamte Platte, wenn Sie räumliche Muster beurteilen.",
   "scenes": [
-    "Öffnen Sie von Home aus Graph Builder unter Data und wählen Sie dann Plate Viewer. Damit fassen Sie Objektmessungen pro Well zusammen und prüfen ihre Verteilung über eine Platte.",
+    "Öffnen Sie von Home aus Graph Builder unter Tools und wählen Sie dann Plate Viewer. Damit fassen Sie Objektmessungen pro Well zusammen und prüfen ihre Verteilung über eine Platte.",
     "Klicken Sie auf Load test data, um das herunterladbare Beispiel zu öffnen. Wählen Sie für eigene Daten eine Messdatenbank oder ihren Laufordner und klicken Sie auf Open. Das Beispiel enthält vier gemessene Wells.",
     "Wählen Sie cell als Table, cell_area als Measurement und plate1 als Plate. Setzen Sie Per well auf mean, um die mittlere Zellfläche anzuzeigen. Der Median verringert den Einfluss ungewöhnlich großer oder kleiner Objekte.",
     "Wählen Sie eine Farbskala. Der robuste Bereich verwendet das 2. bis 98. Perzentil, sodass ein extremes Well die Farben der übrigen nicht zusammendrückt.",

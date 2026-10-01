@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Bruk Load test data i Plate Viewer for det nedlastbare eksemplet, eller åpne measurements.db fra det målte prosjektet ditt. Eksemplet inneholder 2 341 celler i fire brønner; bruk målinger som dekker hele platen når du vurderer romlige mønstre.",
   "scenes": [
-    "Fra Home åpner du Graph Builder under Data og velger deretter Plate Viewer. Bruk det til å oppsummere objektmålinger per brønn og undersøke hvordan de fordeler seg over en plate.",
+    "Fra Home åpner du Graph Builder under Tools og velger deretter Plate Viewer. Bruk det til å oppsummere objektmålinger per brønn og undersøke hvordan de fordeler seg over en plate.",
     "Klikk på Load test data for å åpne det nedlastbare eksemplet. For egne data velger du en måledatabase eller kjøringsmappen og klikker på Open. Eksemplet inneholder fire målte brønner.",
     "Velg cell som Table, cell_area som Measurement og plate1 som Plate. Sett Per well til mean for å vise gjennomsnittlig celleareal. Medianen reduserer innflytelsen fra uvanlig store eller små objekter.",
     "Velg en fargeskala. Det robuste området bruker 2. til 98. persentil, slik at én ekstrem brønn ikke presser sammen fargene til de andre.",

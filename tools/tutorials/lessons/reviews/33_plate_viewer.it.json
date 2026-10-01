@@ -1,10 +1,10 @@
 {
   "lesson": "33_plate_viewer",
-  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "english_sha256": "001d2791a2103ff9e8d7226cf4b610ad077357e248c51b3c09f774d88ef8bbdc",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Usa Load test data in Plate Viewer per l’esempio scaricabile, oppure apri il file measurements.db del tuo progetto misurato. L’esempio contiene 2.341 cellule in quattro pozzetti; usa misure che coprano l’intera piastra quando valuti pattern spaziali.",
   "scenes": [
-    "Da Home, apri Graph Builder in Data, poi scegli Plate Viewer. Usalo per riassumere le misure degli oggetti per pozzetto ed esaminarne la distribuzione sulla piastra.",
+    "Da Home, apri Graph Builder in Tools, poi scegli Plate Viewer. Usalo per riassumere le misure degli oggetti per pozzetto ed esaminarne la distribuzione sulla piastra.",
     "Fai clic su Load test data per aprire l’esempio scaricabile. Per i tuoi dati, scegli un database di misure o la sua cartella di esecuzione e fai clic su Open. L’esempio contiene quattro pozzetti misurati.",
     "Scegli cell come Table, cell_area come Measurement e plate1 come Plate. Imposta Per well su mean per visualizzare l’area cellulare media. La mediana riduce l’influenza di oggetti insolitamente grandi o piccoli.",
     "Scegli una scala di colori. L’intervallo robusto usa i percentili dal secondo al novantottesimo, così un pozzetto estremo non comprime i colori degli altri.",
