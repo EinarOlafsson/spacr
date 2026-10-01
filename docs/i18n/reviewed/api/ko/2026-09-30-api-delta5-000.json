@@ -1,0 +1,640 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting.build_plan#7",
+      "source": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "source_sha256": "458e0718fd7c8fe44ebb1f16ece2c2ab2690e2bbc1f15c7a079d2da08d7ed031",
+      "context": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "translation": "``{image: mask path}`` 로 각 이미지의 마스크를 직접 지정합니다(마스크 열). 여기에 없는 이미지에는 마스크가 없습니다. None 이면 각 마스크를 :func:`mask_for` 로 찾습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.drop_classification#1",
+      "source": "Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "source_sha256": "7fc544a3cc6225fd1b7812f065faf628151122fccf7cbf22d99f1726fc58e1e4",
+      "context": "Make Masks takes a drop of files, folders or both, and what the user means depends on what they dropped. :func:`classify_drop` reads the paths -- names, folder layout and, for a few TIFFs, their pixels -- and says which of these it is, without a single question or widget:",
+      "translation": "Make Masks 는 파일, 폴더 또는 둘 다를 끌어 놓기로 받으며, 사용자의 의도는 무엇을 끌어 놓았는지에 따라 달라집니다. :func:`classify_drop` 는 경로(이름, 폴더 구조, 그리고 일부 TIFFs 의 경우 픽셀)를 읽고, 질문이나 위젯 하나 없이 다음 중 어느 경우인지 알려 줍니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.mask_io#8",
+      "source": "The second half of this module moves label masks to and from the formats other tools curate and train on: :func:`masks_to_geojson` and :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and :func:`coco_to_masks` for COCO-style training sets, and :func:`export_rois` / :func:`import_rois` choosing among them by file name.",
+      "source_sha256": "7062fc19343d4d5d8071b25be2ca74952f809825f64a59120826923d88660493",
+      "context": "The second half of this module moves label masks to and from the formats other tools curate and train on: :func:`masks_to_geojson` and :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and :func:`coco_to_masks` for COCO-style training sets, and :func:`export_rois` / :func:`import_rois` choosing among them by file name.",
+      "translation": "이 모듈의 후반부는 레이블 마스크를 다른 도구가 큐레이션과 학습에 쓰는 형식으로 옮기고 다시 가져옵니다. QuPath 용 :func:`masks_to_geojson` 과 :func:`geojson_to_masks`, Fiji 의 ROI Manager 용 :func:`masks_to_roiset` 과 :func:`roiset_to_masks`, COCO 형식 학습 세트용 :func:`masks_to_coco` 와 :func:`coco_to_masks`, 그리고 파일 이름으로 이들 중 하나를 고르는 :func:`export_rois` / :func:`import_rois` 가 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#2",
+      "source": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes. So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest), each in its own backend's worker.",
+      "source_sha256": "a37bac1c01e027cec6ef98504c6846db765e23b96a862563152d27419cd9aea3",
+      "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same. One whose model setting reads ``cellpose_dino:<checkpoint path>`` is segmented by the Cellpose-DINO backend's worker, which takes the very ``eval`` call a Cellpose-SAM model takes and returns its shapes. So is one whose model setting carries a StarDist, InstanSeg or Omnipose prefix (``stardist:<model>`` and the rest), each in its own backend's worker.",
+      "translation": "모델 설정이 ``cellpose3:<model or weights path>`` 인 객체, 또는 ``segmentation_backend`` 가 ``'cellpose3'`` 일 때의 모든 객체는 Cellpose 3 백엔드 자체 환경에서 ``_cellpose3_masks`` 로 분할됩니다. 반환된 결과는 Cellpose-SAM 결과와 같은 흐름을 거치므로 저장되는 마스크와 데이터베이스 행도 똑같이 기록됩니다. 모델 설정이 ``cellpose_dino:<checkpoint path>`` 인 객체는 Cellpose-DINO 백엔드의 작업자가 분할하며, 이 작업자는 Cellpose-SAM 모델과 똑같은 ``eval`` 호출을 받아 그 형태를 반환합니다. 모델 설정에 StarDist, InstanSeg, Omnipose 접두사(``stardist:<model>`` 등)가 붙은 객체도 마찬가지로 각 백엔드의 작업자에서 처리됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.ReaderNeedsInstall#1",
+      "source": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place.",
+      "source_sha256": "ad034697e3a3247bddc8054a4aa04eaf5e0b2504b6ea0c89a17428f8fb5df87c",
+      "context": "An :class:`ImportError`, so every caller that already reported a missing reader still does; Plaque Assay catches this one to offer the install in place.",
+      "translation": ":class:`ImportError` 이므로, 판독기 누락을 이미 보고하던 모든 호출자는 계속 그렇게 보고합니다. Plaque Assay 는 이 예외를 잡아 그 자리에서 설치를 제안합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque_papers.figure_folders#1",
+      "source": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
+      "source_sha256": "f8323f70ad6be21f5af494bbf970b97367ad794acfe103d3c8d88d31f2d1daec",
+      "context": "A paper folder, or a folder of figure images, is read as it is. A folder that holds paper folders -- several PDFs read at once, each into a folder of its own -- is read paper by paper: its own figure images first when it has any, then each paper folder by name.",
+      "translation": "논문 폴더 또는 그림 이미지 폴더는 있는 그대로 읽습니다. 논문 폴더들을 담은 폴더(여러 PDFs 를 한 번에 읽어 각각 자체 폴더에 넣은 것)는 논문별로 읽습니다. 자체 그림 이미지가 있으면 그것을 먼저 읽고, 이어서 각 논문 폴더를 이름순으로 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay#18",
+      "source": "Optional ``{slot role: channel}`` for the organelle slots after the first (``{'organelleb': 3}``), each drawn in its own colour. Default ``None`` draws the first slot only, as before. Mask planes are located through the merged folder's plane layout sidecar when one is present, so a slot left out here no longer shifts the planes of the objects that are drawn.",
+      "source_sha256": "20afcb292f47ac539953501ffb5a6cf59295b59f48cff163bfc14b53ba255867",
+      "context": "Optional ``{slot role: channel}`` for the organelle slots after the first (``{'organelleb': 3}``), each drawn in its own colour. Default ``None`` draws the first slot only, as before. Mask image layers are located through the merged folder's image layer layout sidecar when one is present, so a slot left out here no longer shifts the image layers of the objects that are drawn.",
+      "translation": "첫 번째 이후의 소기관 슬롯에 대한 선택적 ``{slot role: channel}`` (``{'organelleb': 3}``)이며, 각 슬롯은 고유한 색으로 그려집니다. 기본값 ``None`` 은 이전처럼 첫 번째 슬롯만 그립니다. 병합 폴더에 평면 레이아웃 부속 파일이 있으면 마스크 평면은 그것을 통해 찾으므로, 여기서 빠진 슬롯 때문에 그려지는 객체의 평면이 더 이상 밀리지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.annotate_engine.SaveWorker.submit#2",
+      "source": "the column to write; the annotation column when omitted. The Annotate screen's judgements go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one queue, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
+      "source_sha256": "eb3195b72294dc96abd1f26172a2854d428c89af4a83a77538d6eaa990d46210",
+      "context": "the column to write; the annotation column when omitted. The Annotate application view's judgements go to the ``<column>_verdict`` column through this same writer rather than through a second connection: one writer, one annotation work list, one order. A batch for another column that cannot be written is kept in ``_failed_extra`` under its column, apart from ``_failed_batch``, so the annotation batch keeps the shape every reader of it expects.",
+      "translation": "기록할 열이며, 생략하면 주석 열입니다. Annotate 화면의 판정은 두 번째 연결이 아니라 이 같은 기록기를 통해 ``<column>_verdict`` 열에 기록됩니다. 기록기 하나, 대기열 하나, 순서 하나입니다. 기록할 수 없는 다른 열의 배치는 ``_failed_extra`` 에 그 열 이름 아래로 보관되며 ``_failed_batch`` 와 분리되므로, 주석 배치는 모든 독자가 기대하는 형태를 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept#1",
+      "source": "A folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "source_sha256": "f0ea7f83f97e0ee55369f435911d29ba349aa47ad84bd137db80f9be84b689b3",
+      "context": "A folder whose images sit only in subfolders, and a folder spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too, and a ``.npy`` so the screen can say what it is; :func:`spacr.drop_classification.classify_drop` decides what the drop means. Pairs are found later, not required here.",
+      "translation": "이미지가 하위 폴더에만 있는 폴더와 spaCR 가 쓴 폴더(``merged/*.npy``, ``sorted_channels``)도 받으며, ``.npy`` 도 받아서 화면이 그것이 무엇인지 알려 줄 수 있게 합니다. 끌어 놓은 것의 의미는 :func:`spacr.drop_classification.classify_drop` 가 결정합니다. 짝은 나중에 찾으며 여기서는 필요하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler#1",
+      "source": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs; other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "source_sha256": "d5ed8bf1751ac20608c6062ae3650361e716be90e5bf54db03dc0a83eb4a0ff4",
+      "context": "It takes plaque images, folders of them, both mixed, and in Figure mode any number of PDFs; other files dropped with them are left aside quietly. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
+      "translation": "플라크 이미지, 그 폴더, 둘이 섞인 것, 그리고 Figure 모드에서는 개수 제한 없이 PDFs 를 받습니다. 함께 드롭된 다른 파일은 조용히 제쳐 둡니다. 이 핸들러가 생기기 전에는 Plaque Assay 에 Make Masks 의 정책이 적용되어, 사용할 수 없는 폴더를 Make Masks 의 문구로 거부했습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all#1",
+      "source": "The mode follows what was dropped: PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "source_sha256": "9140ac09fcc1a71770e76a0759797463235beccaba4a4dc0dfd3f97ecd23cba9",
+      "context": "The mode follows what was dropped: PDFs, or a folder of them, dropped in Plaque mode ask to switch to Figure mode; images dropped in Figure mode ask to switch to Plaque mode; PDFs and images together say that PDFs are read in Figure mode and images in Plaque mode, and ask which to read. Staying in Figure mode reads the images as figures; staying in Plaque mode leaves the PDFs unread.",
+      "translation": "모드는 드롭된 내용을 따릅니다. Plaque 모드에서 PDFs 나 그 폴더를 드롭하면 Figure 모드로 전환할지 묻고, Figure 모드에서 이미지를 드롭하면 Plaque 모드로 전환할지 묻습니다. PDFs 와 이미지를 함께 드롭하면 PDFs 는 Figure 모드에서, 이미지는 Plaque 모드에서 읽는다고 알리고 어느 쪽을 읽을지 묻습니다. Figure 모드에 머무르면 이미지를 그림으로 읽고, Plaque 모드에 머무르면 PDFs 는 읽지 않은 채 남습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.plaque_others#1",
+      "source": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused; hidden files are not counted, nor is what a paper folder holds.",
+      "source_sha256": "0156594e489a886de637fd684932187520eba6954bbffee07c215da6bd8598ea",
+      "context": "A file that is neither a plaque image nor a PDF, dropped or at the top of a dropped folder, is ignored rather than refused; hidden files are not counted, nor is what a paper folder holds.",
+      "translation": "플라크 이미지도 PDF 도 아닌 파일은, 드롭된 것이든 드롭된 폴더의 최상위에 있는 것이든 거부되지 않고 무시됩니다. 숨김 파일은 세지 않으며, 논문 폴더에 들어 있는 것도 세지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.live_zoom.register_text_column#0",
+      "source": "Let Ctrl + wheel over ``root`` size the text inside it.",
+      "source_sha256": "c3c903c2d683f84d422c83122fa5d7020238f9168cd286d182837a5bd0913e3f",
+      "context": "Let Ctrl + wheel over ``root`` size the text inside it.",
+      "translation": "``root`` 위에서 Ctrl + 휠로 그 안의 텍스트 크기를 조절할 수 있게 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine#2",
+      "source": "THREE INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS. :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary field that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "source_sha256": "94b46744b8530e309187fb5ad64a731e6e100c1ff918a825ccc9139ff2dc9571",
+      "context": "Three inversions live here and they do different things. :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "translation": "여기에는 서로 다른 일을 하는 세 가지 반전이 있습니다. :func:`invert_intensity` 는 이미지의 사진적 보색(``dtype_max - value``, 뷰어의 Invert 가 하는 일이며 모든 정수 dtype 에서 정확히 되돌릴 수 있음)이며, Make Masks 화면의 \"Invert image\" 가 이것으로 그립니다. :func:`invert_for_detection` 은 대신 이미지를 자체 범위에 대해 반사하며, 화면의 \"Invert for detection\" 이 검출기에 넘기는 것이 이것입니다. 검출기가 보색을 쓸 수 없는 이유를 보여 주는 측정 결과가 그 docstring 에 있으며, 병합해 없앨 중복이 아닙니다. :func:`invert_mask` 는 레이블 이미지의 전경과 배경을 뒤집습니다. 일반적인 현미경 시야에서는 프레임 전체를 덮는 객체 하나가 되므로, 아무 효과가 없다고 보고되었던 것입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FILTER_BOUNDS#1",
+      "source": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list, so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "source_sha256": "eee49aff894aec4122fb525057383a50ee6982efc83f0fa60deb0a1453e82df3",
+      "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list, so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "translation": "이들은 더 이상 두 번째 필터가 아닙니다. :func:`legacy_filters` 가 이들을 하나의 필터 목록의 항목으로 바꾸므로, 여전히 ``min_area=20`` 을 전달하는 호출자는 ``area`` 행을 추가한 사용자와 같은 regionprops 처리로 판정되며, :class:`FilterRemoval` 은 객체가 통과하지 못한 레거시 경계값을 여전히 명시하므로 이전 원장도 똑같이 읽힙니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#1",
+      "source": "Holes are filled per object by :func:`fill_label_holes`, never by filling the foreground and labelling it again: that joined every pair of touching cells into one object.",
+      "source_sha256": "6f538ef16fa487dae97d039709e6887e9b742b58c7f8e81d34f0e67360663cc5",
+      "context": "Holes are filled per object by :func:`fill_label_holes`, never by filling the foreground and labelling it again: that joined every pair of touching cells into one object.",
+      "translation": "구멍은 :func:`fill_label_holes` 가 객체별로 채우며, 전경을 채운 뒤 다시 레이블을 붙이는 방식은 절대 쓰지 않습니다. 그 방식은 맞닿은 세포 쌍을 모두 하나의 객체로 합쳐 버렸습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_label_holes#1",
+      "source": "THE ONE HOLE FILLER FOR LABEL IMAGES. :func:`fill_holes`, the propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the Cellpose ``fill_in`` step) all come here. Filling the binary foreground and labelling it afresh with ``ndimage.label`` is what this replaces: it makes every pair of TOUCHING objects one object, so a field of 74 adjacent cells came back as 8. Here nothing is relabelled.",
+      "source_sha256": "f3e16bdf2fc10742b753b304c92276e2c66e68a76b41b7e38bd7aad0585fcbf0",
+      "context": "The one hole filler for label images. :func:`fill_holes`, the propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the Cellpose ``fill_in`` step) all come here. Filling the binary foreground and labelling it afresh with ``ndimage.label`` is what this replaces: it makes every pair of TOUCHING objects one object, so a microscope field of view of 74 adjacent cells came back as 8. Here nothing is relabelled.",
+      "translation": "레이블 이미지를 위한 유일한 구멍 채우기 함수입니다. :func:`fill_holes`, 위의 전파 단계, :func:`spacr.utils.fill_holes_in_mask`(Cellpose 의 ``fill_in`` 단계)가 모두 이곳으로 옵니다. 이것이 대체하는 것은 이진 전경을 채운 뒤 ``ndimage.label`` 로 새로 레이블을 붙이는 방식입니다. 그 방식은 맞닿은 객체 쌍을 모두 하나의 객체로 만들어, 인접한 세포 74 개가 있는 시야가 8 개로 돌아왔습니다. 여기서는 아무것도 다시 레이블링하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_dock_width#1",
+      "source": "Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
+      "source_sha256": "6f8072268a17598efc216ff6ccdce11e1682ed25c8afd326eb56bf0f441eff0d",
+      "context": "Stored in logical pixels; the dock clamps it to its drag bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.",
+      "translation": "논리 픽셀 단위로 저장되며, 도크는 이 값을 적용할 때 끌기 한계 범위로 제한합니다. :meth:`spacr.qt.widgets.dock.Dock.column_width` 를 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_folded_panel#1",
+      "source": "A PANEL IN ITS DEFAULT STATE IS REMOVED rather than stored. Most panels default to open, so storing that would grow the dict by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "source_sha256": "49e101fc9a89834495506773d393ce59a53e0b83103969d41bc5694ca10c31f5",
+      "context": "A panel in its default state is removed rather than stored. Most panels default to open, so storing that would grow the key-value mapping by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "translation": "기본 상태인 패널은 저장하지 않고 제거합니다. 대부분의 패널은 기본적으로 열려 있으므로, 이를 저장하면 사용자가 건드린 모든 패널마다 사전에 항목이 하나씩 늘고 결코 줄지 않을 것입니다. 처음에 접혀 시작하는 패널(고급 PSF, 복원, CLAHE 행)은 ``default_shut=True`` 를 전달하므로, 여는 것이 False 로 저장되고 다시 접으면 잊힙니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.DiameterDialog#1",
+      "source": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the screen that opened the zoo.",
+      "source_sha256": "dcccfc6a6a8bd9d2afdb58ae1f5b43758d38174a1b3def9bc346e52e81b3fe01",
+      "context": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
+      "translation": "요청 내용: \"mask generation 에서 직경 계산은 주 화면이 아니라 model zoo 버튼 팝업 창의 버튼이어야 한다. 버튼을 누르면 현재 컨테이너의 모든 정보를 담은 또 다른 팝업이 나와야 한다.\" 따라서 이 대화 상자는 :class:`DiameterPanel` 전체(측정 버튼, 근거와 메모가 있는 객체 유형별 행, 행마다의 *사용* 과 *모두 사용*)를 담으며, 패널은 여전히 Model zoo 를 연 화면의 설정에 기록합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#10",
+      "source": "A SUGGESTION IS JUDGED, NOT RELABELLED. A crop Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the key legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "source_sha256": "37c0c1dc05cbbf7424583dadb899ae43a65eb41fad4f697724cbb06f21e40a13",
+      "context": "A suggestion is judged, not relabelled. An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "translation": "제안은 레이블을 다시 붙이는 것이 아니라 판정하는 것입니다. Suggest 가 클래스를 제안한 추출 이미지 영역에는 점선 고리 옆에 호박색 ``?`` 배지가 붙습니다. 클릭이나 ``Y`` 는 제안을 확정하고(일반 레이블이 되어 초록색 체크 표시가 붙음), 오른쪽 클릭이나 ``N`` 은 거부하며(답하지 않은 상태로 돌아가고 빨간 X 표시가 붙음), ``U`` 는 둘 중 어느 것이든 되돌립니다. 키 범례 위의 막대가 이를 알려 주고, 페이지와 열에 있는 것을 셉니다. 각 판정은 ``<column>_verdict`` 열에 ``+c`` 또는 ``-c`` 로 기록되므로 재시작 후에도 남으며, 다음 Suggest 라운드는 거부된 것을 학습에 사용합니다. :meth:`AnnotateScreen._judge` 와 :func:`spacr.suggest.verdict_column` 을 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#9",
+      "source": "A PAGE IS WHAT FITS. The grid holds exactly the crops that fit the room the crop pane gives it, at the crop size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first crop on screen stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "source_sha256": "6d3bec89fd0c2c09a6cd0b4c5706eb49ce0b8c3b25be9f1dedcd2314aaf773b9",
+      "context": "A page is what fits. The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "translation": "한 페이지는 들어가는 만큼입니다. 그리드는 설정이 요청한 추출 이미지 영역 크기에서 추출 이미지 영역 창이 주는 공간에 들어가는 만큼만 담으며, 절대 스크롤하지 않습니다. 콘솔을 열거나, 창을 접거나, GUI 배율을 바꾸거나, 창 크기를 조정하면 페이지를 다시 계산하여 나머지를 다음 페이지로 넘기고, 페이지 카운터가 따라가며, 화면의 첫 번째 추출 이미지 영역은 제자리에 머뭅니다. :func:`grid_that_fits` 와 :meth:`AnnotateScreen._refit_grid` 를 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#1",
+      "source": "A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "source_sha256": "46271add4bed5ac1216e935c835f0a0aea6b78af54dc4fa737410bb92a885b10",
+      "context": "A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "translation": "제안은 호박색, 확정된 제안은 초록색, 거부된 제안은 빨간색입니다. 테마 자체의 경고, 성공, 오류 색상이므로, 배지는 나머지 화면 요소와 마찬가지로 테마 변경을 따릅니다. 글리프는 테마의 배경 색상으로 그려지는데, 어두운 테마에서는 검정, 밝은 테마에서는 거의 흰색입니다. 각 채우기 색상은 그에 맞춰 선택되어 두 경우 모두 4.5:1 보다 나은 대비로 읽힙니다. 셋 중 어느 것도(None of the three) 클래스 색상이 아니므로 배지가 클래스로 읽히는 일은 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#1",
+      "source": ":func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "source_sha256": "842be1c6e2423fa4b7d993b99ff2fb93e9bc8a6b3011cb46225a85a74b37858a",
+      "context": ":func:`spacr.drop_classification.classify_drop` says what was dropped, and:",
+      "translation": ":func:`spacr.drop_classification.classify_drop` 가 무엇을 끌어 놓았는지 알려 주고, 그에 따라",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_paths#4",
+      "source": "one folder whose subfolders look like channels (DAPI/, GFP/..., or the same fields in each) opens \"Organize for Measure\" with a channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation;",
+      "source_sha256": "3df3b7e9284be39e6f2c9dc90bb7968a1f03cb61f233266a63a307ebb0684e08",
+      "context": "one folder whose subfolders look like image data channels (DAPI/, GFP/..., or the same microscope fields of view in each) opens \"Organize for Measure\" with an image data channel column per subfolder; any other folder whose images sit in subfolders is offered for consolidation;",
+      "translation": "하위 폴더가 채널처럼 보이는 폴더 하나(DAPI/, GFP/..., 또는 각 하위 폴더에 같은 시야)는 하위 폴더마다 채널 열 하나로 \"Organize for Measure\" 를 엽니다. 이미지가 하위 폴더에 들어 있는 그 밖의 폴더는 통합을 제안합니다;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.ObjectFilterList#1",
+      "source": "The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
+      "source_sha256": "461b788e7594350328ac29b2bd8699d69e9f7e4390f32e43f4d709fe247196f1",
+      "context": "The Filter category used to hold four fixed boxes -- minimum and maximum area, minimum and maximum mean intensity. It now starts EMPTY, and \"Add a filter\" offers every scalar property :func:`skimage.measure.regionprops` computes (see :func:`mask_engine.filter_properties`); each added row carries the property, a minimum, a maximum and a Remove button. A blank bound is off. The old four are two of the rows a user can add: ``area`` and ``intensity_mean``.",
+      "translation": "Filter 범주에는 예전에 고정된 입력란 네 개(최소 및 최대 면적, 최소 및 최대 평균 강도)가 있었습니다. 이제는 비어 있는 상태로 시작하며, \"Add a filter\" 가 :func:`skimage.measure.regionprops` 가 계산하는 모든 스칼라 속성을 제공합니다(:func:`mask_engine.filter_properties` 참조). 추가된 각 행에는 속성, 최솟값, 최댓값, Remove 버튼이 있습니다. 비어 있는 경계는 꺼진 것입니다. 이전의 네 가지는 사용자가 추가할 수 있는 행 중 두 가지, 즉 ``area`` 와 ``intensity_mean`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.ObjectFilterList.set_filters#1",
+      "source": "A dict of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before the filter list opens as the rows it meant.",
+      "source_sha256": "773155f16ccbd362cbdd4a2a7237272c68578e3e236418953bff28712f18de1e",
+      "context": "A key-value mapping of the old four bounds (``min_area`` and the rest) is migrated by :func:`mask_engine.legacy_filters`, so a saved state from before the filter list opens as the rows it meant.",
+      "translation": "이전 네 가지 경계의 사전(``min_area`` 등)은 :func:`mask_engine.legacy_filters` 가 마이그레이션하므로, 필터 목록 이전에 저장된 상태도 원래 의도한 행으로 열립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.load_cellpose_model#3",
+      "source": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend, and a ``stardist:``, ``instanseg:`` or ``omnipose:`` model in its own backend.",
+      "source_sha256": "4b5737f07e2cf611f471fb900e7051821ff1b79710b4a2e1589a4d1c3ba16d14",
+      "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it. A ``cellpose_dino:<path>`` model, a Cellpose-DINO checkpoint, is loaded the same way in the Cellpose-DINO backend, and a ``stardist:``, ``instanseg:`` or ``omnipose:`` model in its own backend.",
+      "translation": "``cellpose3:<name or path>`` 모델(표준 Cellpose 3 모델이나 bioimage.io 의 Cellpose 3 체크포인트)은 Cellpose 4 모델이 전혀 아닙니다. Cellpose 4 는 그런 체크포인트를 불러와 엉뚱한 결과로 분할할 것입니다. 이 모델은 Mask generation 이 불러오는 방식대로 Cellpose 3 백엔드 자체 환경에서 :func:`_backend_model` 로 불러옵니다. Cellpose-DINO 체크포인트인 ``cellpose_dino:<path>`` 모델은 같은 방식으로 Cellpose-DINO 백엔드에서 불러오고, ``stardist:``, ``instanseg:``, ``omnipose:`` 모델은 각자의 백엔드에서 불러옵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy#3",
+      "source": "a tooltip appears after the Tooltip delay preference of hovering, not before (:data:`SHOW_DELAY_MS` when nothing is stored);",
+      "source_sha256": "c3b1f7515db2806fe656ebb1d9e8f9868ce51a81a62083fbc488594116f55922",
+      "context": "a tooltip appears after the Tooltip delay preference of hovering, not before (:data:`SHOW_DELAY_MS` when nothing is stored);",
+      "translation": "툴팁은 Tooltip delay 환경 설정에 지정된 시간만큼 마우스를 올려 둔 뒤에 나타나며 그 전에는 나타나지 않습니다(저장된 값이 없으면 :data:`SHOW_DELAY_MS`);",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops#2",
+      "source": "WHY A SAVED PATTERN USED TO WAIT FOR A RESTART. The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the screens to the window.",
+      "source_sha256": "4d62c462db52e7d54e7a4c62b3123671bc0d4f3eca29a129054801f6dc79ecb2",
+      "context": "Why a saved pattern used to wait for a restart. The window builds ONE backdrop behind the dock and the page and keeps it for the session. Saving Preferences pushed the runtime numbers into it (`apply_saved_controls`) but the pattern, backend, quality and scale are fixed when it is constructed, and nothing constructed it again -- the old note that \"changing a screen\" would do it stopped being true when the backdrop moved from the application views to the window.",
+      "translation": "저장된 패턴이 예전에 재시작을 기다려야 했던 이유. 창은 도크와 페이지 뒤에 배경을 하나만 만들어 세션 동안 유지합니다. Preferences 를 저장하면 런타임 수치가 배경에 전달되었지만(`apply_saved_controls`), 패턴, 백엔드, 품질, 배율은 배경을 생성할 때 고정되며 아무것도 배경을 다시 생성하지 않았습니다. \"changing a screen\" 으로 그렇게 된다는 예전 메모는 배경이 화면에서 창으로 옮겨졌을 때 더 이상 사실이 아니게 되었습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#1",
+      "source": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane: the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "source_sha256": "360a3eea7281d3c28d93ee25fd4b16419cda4f01ebe25d626c1292d8036d1aa2",
+      "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane: the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "translation": "본문은 늘림 비율과 함께 배치되며, 레이아웃은 본문이 숨겨져 있어도 그 늘림을 셉니다. 그래서 접힌 카드가 여전히 공간을 요구하고, 접힌 제목을 창 맨 아래에 고정하는 늘림과 공간을 반씩 나눠 가졌습니다: 접힌 Console 이 창 높이의 절반이 되었습니다. 접히면 본문은 늘림을 포기하고, 열리면 다시 가져옵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#1",
+      "source": "Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "source_sha256": "92d82faeacdc6b128f4551b1d9a2b9a7d37d71f119d1478e095e5452cef3459f",
+      "context": "Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "translation": "결국 하나로 밝혀진 두 요청입니다: 모든 컨테이너는 접힌다(\"무엇이든 접히면 그것이 들어 있는 컨테이너의 맨 아래에 자동으로 고정되어야 한다\"), 그리고 모든 컨테이너는 \"가장자리를 끌어 늘리거나 줄일 수 있어야\" 한다. :class:`~PySide6.QtWidgets.QSplitter` 는 이미 둘 다 합니다 -- 끌 손잡이, 그리고 아무것도 없을 때까지 줄일 수 있는 자식 -- 그래서 두 절반이 여기서 반드시 하나의 메커니즘으로 존재하며, 분할기에서 접히는 모든 것은 크기도 조정되고 그 반대도 마찬가지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
+      "source": "The request: \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "source_sha256": "623f21c03aef1c8e8342c15cf1af89df40907668b4c800d9c0bb381989bd0358",
+      "context": "The request: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "translation": "요청 내용: \"실시간 미리 보기가 열리면 화면 높이 전체를 차지한다: 콘솔, System 컨테이너, System 아래의 버튼 섹션이 자동으로 접히고, 설정은 왼쪽으로 접힌다\", 그리고 그림이 나타날 때마다 마찬가지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#1",
+      "source": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside a screen gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "source_sha256": "c575a161fa01047f40f4f06db899ee34572f672da673e4f8c50c9291738ae694",
+      "context": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "translation": "요청 내용: \"그림이나 실시간 미리 보기 컨테이너 안의 모든 섹션도 접을 수 있어야 한다 ... 그림이든 표든 모든 GUI 요소가\". 이것이 화면 안의 섹션이 접기 컨트롤을 얻는 유일한 방법이므로, 모두가 같은 모양과 동작을 가집니다: 본문 위의 화살표와 이름(콘솔과 System 이 쓰는 것과 같은 :class:`~spacr.qt.widgets.foldable.Folder`), 클릭하면 접히고, 접힌 섹션은 주어진 공간의 맨 아래에 고정된 제목이 됩니다(:func:`lock_folded_to_bottom`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#2",
+      "source": "THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show. The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "source_sha256": "f8c83ffb7986082749047ff21dd12062f24a20cbf55c50636ed405fdd603ad0e",
+      "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show. The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
+      "translation": "본문 자체의 표시 여부는 소유자의 몫으로 남습니다. 접기는 본문이 아니라 내부 보관 위젯을 숨기므로, 펼쳐도 소유자가 숨긴 패널을 표시하거나 처음 표시될 때 만들어지는 패널을 만들 수 없습니다. 반대로 섹션은 본문을 따릅니다: 소유자가 본문을 숨기고 있는 동안에는 제목을 포함한 섹션 전체도 숨겨지며, 소유자가 본문을 표시하면 돌아옵니다. 이를 위해 본문의 숨김 플래그만 읽으므로, 확인하려고 무언가를 표시하거나 측정하거나 만들지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#1",
+      "source": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the reported bug (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "source_sha256": "79e103e46d1472b1eabcd2263ef44b7b0047ac7be0ad8337be0a993d70e2badb",
+      "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the reported bug (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "translation": "제목에 필요한 것보다 넓은 공간을 받은 접힌 패널 -- 분할기의 마지막 창, 열에 의해 늘어난 섹션 -- 은 예전에는 그 공간의 가운데에 제목을 배치했는데, 이것이 보고된 버그입니다(\"콘솔을 접으면 가운데로 접힌다\"). 접혀 있는 동안 제목 위에 늘림 공간을 넣으면 그것이 남는 공간을 차지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.apply_column_text_scale#0",
+      "source": "Size the console's text with the column it sits in.",
+      "source_sha256": "07c4b533ba0a1221b4054b9438e72e1225f8d67a5c0fda0577a666e3987af813",
+      "context": "Size the console's text with the column it sits in.",
+      "translation": "콘솔의 텍스트 크기를 콘솔이 들어 있는 열에 맞춥니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.column_width#1",
+      "source": "A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
+      "source_sha256": "a6ac702129fe1b5d118c0dfbd2bb41cc8ab7785aaaafe2dd34263f43ba8bebff",
+      "context": "A width the user chose is kept through every refresh, every hide and show, and every session; with none stored the column fits its longest name, as :meth:`fitting_width` has always done.",
+      "translation": "사용자가 고른 너비는 모든 새로 고침, 모든 숨기기와 표시, 모든 세션에 걸쳐 유지됩니다. 저장된 너비가 없으면 열은 :meth:`fitting_width` 가 늘 해 왔듯이 가장 긴 이름에 맞춥니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.DockEdge#0",
+      "source": "The strip along the dock's right edge that drags its width.",
+      "source_sha256": "eed20acf1d3fed6c3913073fcaeef384be349fbc40fcbeaa63af700ad35e4be4",
+      "context": "The strip along the dock's right edge that drags its width.",
+      "translation": "도크의 오른쪽 가장자리를 따라 있는, 도크 너비를 끌어서 조절하는 띠입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.eliding#3",
+      "source": "WHY. The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the screen, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
+      "source_sha256": "d0f984c6994fa1872f93dc61262278c81e5cc6445abc0348026002ca39cff8c4",
+      "context": "WHY. The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
+      "translation": "이유. 테마는 모든 ``QProgressBar`` 를 8 px 트랙(``height: 8px; max-height: 8px``, :mod:`spacr.qt.theme`)으로 그립니다. 자체 텍스트도 그리는 막대(\"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\")는 13 px 캡션을 그 8 px 안에 그리므로 각 글리프의 위쪽 절반만 화면에 나타나고, GUI 배율 50 % 에서는 트랙이 4 px 이라 거의 아무것도 보이지 않습니다. \"step 1 of 3\" 이나 \"10%\" 같은 캡션은 잘립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.Folder.set_shut#2",
+      "source": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "source_sha256": "3352e147240549d6dbfdd2bb045862ec2c1431c4518293a96b16ee98b82bcdef",
+      "context": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "translation": "프로그램이 사용자를 대신해 접을 때 False 입니다(실시간 미리 보기 열기). 그런 접기는 재시작 후에 기억되지 않으며, 수신자에게도 그렇게 알립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.make_foldable#5",
+      "source": "start folded unless the user opened this panel before (advanced rows that most people never change).",
+      "source_sha256": "2e6bd5aa4992778539a120e40369f7e478577e44af09041b844205d3fda1086c",
+      "context": "start folded unless the user opened this panel before (advanced rows that most people never change).",
+      "translation": "사용자가 이전에 이 패널을 연 적이 없으면 접힌 상태로 시작합니다(대부분의 사람이 바꾸지 않는 고급 행).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_cascade.CascadeEngine#3",
+      "source": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting; two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
+      "source_sha256": "f40d007d7034ec05aba280162f355962931d7198ca5818aa196eb10096bdde04",
+      "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting; two is the published 2x2, and an engine nobody configured keeps it. Create the cascade engine without allocating its buffer yet.",
+      "translation": "`samples` 는 각 픽셀이 한 변에 취하는 샘플 수이며, 위젯이 Supersampling 설정에서 정합니다. 2 는 공개된 2x2 이며, 아무도 구성하지 않은 엔진은 이 값을 유지합니다. 버퍼는 아직 할당하지 않고 캐스케이드 엔진을 만듭니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.SpaceEngine#2",
+      "source": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting. ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
+      "source_sha256": "d8e5f5d2352b325e1601ee773751eb56a4047225446aa3275cabc6d6431ec699",
+      "context": "`samples` is how many samples a side each pixel takes, set by the widget from the Supersampling setting. ``None`` -- an engine nobody configured -- keeps the old rule of two on a small frame and one on a large one.",
+      "translation": "`samples` 는 각 픽셀이 한 변에 취하는 샘플 수이며, 위젯이 Supersampling 설정에서 정합니다. ``None`` (아무도 구성하지 않은 엔진)은 작은 프레임에서는 2, 큰 프레임에서는 1 이라는 예전 규칙을 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.render_space_frame#9",
+      "source": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (it used to be 2 x 2 whatever the number said).",
+      "source_sha256": "83e470742723539dc5c32efba72e4a30a02143d93c4f0d9aecd4271fc76f52da",
+      "context": "``1`` or less takes one sample at each pixel centre; anything larger averages a ``samples`` x ``samples`` grid of samples per pixel (it used to be 2 x 2 whatever the number said).",
+      "translation": "``1`` 이하이면 각 픽셀 중심에서 샘플 하나를 취하고, 그보다 크면 픽셀마다 ``samples`` x ``samples`` 격자 샘플을 평균합니다(예전에는 숫자가 무엇이든 2 x 2 였습니다).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.OrbitEngine#2",
+      "source": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting, makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
+      "source_sha256": "3e55330cbce04e3465d1728d1c30bdbc04d386de4c3889c650d0cb8c3ed26608",
+      "context": "Four is the published 2x2. `samples`, set by the widget from the Supersampling setting, makes it N x N phases walked over N * N frames; one a side keeps no history at all.",
+      "translation": "4 는 공개된 2x2 입니다. `samples` 는 위젯이 Supersampling 설정에서 정하며, 이를 N * N 프레임에 걸쳐 도는 N x N 위상으로 만듭니다. 한 변에 1 이면 이력을 전혀 유지하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.Settings#1",
+      "source": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said; now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
+      "source_sha256": "4c951aa952e5cf39f1d85b4ca6ff37a99f678c151ff0ec7511a159efa80c8d45",
+      "context": "`supersampling` is samples per pixel along each axis, the Fractal tab's Supersampling row. Every renderer used a fixed 2x2 whatever it said; now the shaders and the CPU kernels take an N x N grid from it. Two is the published grid, so a `Settings()` nobody filled in draws what it always drew.",
+      "translation": "`supersampling` 은 각 축을 따른 픽셀당 샘플 수이며, Fractal 탭의 Supersampling 행입니다. 모든 렌더러는 설정값과 관계없이 고정된 2x2 를 사용했습니다. 이제 셰이더와 CPU 커널은 이 값에서 N x N 격자를 받습니다. 2 는 공개된 격자이므로, 아무도 채우지 않은 `Settings()` 는 항상 그리던 것을 그립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel.apply_saved_controls#3",
+      "source": "Everything that can change while a backdrop is on screen is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved.",
+      "source_sha256": "e6917cbfdc34259d77a5eb43f955187c108960e7a998f4ff3181f82240ee6915",
+      "context": "Everything that can change while a backdrop is on application view is pushed here. What cannot -- the pattern, the backend, the quality, the scale and the Mandelbrot reference orbit -- needs the backdrop rebuilding, which :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does when Preferences is saved.",
+      "translation": "배경이 화면에 있는 동안 바뀔 수 있는 모든 것은 여기서 전달됩니다. 바뀔 수 없는 것(패턴, 백엔드, 품질, 배율, Mandelbrot 기준 궤도)은 배경을 다시 만들어야 하며, 이는 Preferences 를 저장할 때 :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` 가 수행합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.BOUND_ROWS#0",
+      "source": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25; for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
+      "source_sha256": "03ad49454a91154977ff644cd16de6d732918dc4887f650871f4be77251f9153",
+      "context": "Where each bound control of a Cellpose compartment lives in ``object_filters``. Mask's ``{object}_min_area`` family was retired on 2026-09-25; for cell, nucleus and pathogen these four controls read and write the object's ``area`` and ``intensity_mean`` rows instead. The organelle slots keep their own settings.",
+      "translation": "Cellpose 구획의 각 경계 컨트롤이 ``object_filters`` 안의 어디에 있는지를 나타냅니다. Mask 의 ``{object}_min_area`` 계열은 2026-09-25 에 폐기되었습니다. cell, nucleus, pathogen 에 대해서는 이 네 컨트롤이 대신 객체의 ``area`` 및 ``intensity_mean`` 행을 읽고 씁니다. 소기관 슬롯은 자체 설정을 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog#1",
+      "source": "Also the consent step and the upload shared by every community training-data contribution, so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
+      "source_sha256": "04237e1387dd8e9516016a9919a6d711880407fc3a2c47b857b43fee4e676edc",
+      "context": "Also the consent step and the upload shared by every community training-data contribution, so each screen that contributes asks the same question once and sends the same way, and Make Masks' dialog for sending images with their masks to a community dataset the user names.",
+      "translation": "또한 모든 커뮤니티 학습 데이터 기여가 공유하는 동의 단계와 업로드이기도 하며, 따라서 기여하는 각 화면은 같은 질문을 한 번만 하고 같은 방식으로 보냅니다. 그리고 이미지를 마스크와 함께 사용자가 이름을 붙인 커뮤니티 데이터셋으로 보내는 Make Masks 의 대화 상자이기도 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
+      "source": "IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED. A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "source_sha256": "2b47680e338a06f4bfb7cda42e28be77e43555b5e7733afdc01ca945cff257a3",
+      "context": "It belongs to the window, not the widget that asked. A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "translation": "요청한 위젯이 아니라 창에 속합니다. 대화 상자는 위에 있는 모든 위젯의 스타일 시트를 상속하는데, Plaque Assay 는 미리 보기에서 요청하고 그 미리 보기의 배율 슬라이더는 애플리케이션 시트를 그 배율로 다시 기술합니다. 150 % 에서 Install 과 Cancel 은 다른 모든 버튼의 40 px 가 아니라 59 px 높이였습니다. ``parent.window()`` 를 부모로 하면 다른 모든 대화 상자처럼 테마가 적용되면서도 여전히 연 창의 중앙에 놓이고 그 창에 대해 모달입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#7",
+      "source": "build an installed backend's environment again, for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "source_sha256": "97e80d829d2417b86a1c431189bc2097374c6e76bc66845c4a3d864fad3b3be7",
+      "context": "build an installed backend's environment again, for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "translation": "설치된 백엔드의 환경을 다시 빌드합니다. 현재 필요한 패키지가 고정되기 전에 설치된 백엔드를 위한 것이며, 대화 상자가 그렇게 알리고 버튼은 Reinstall 로 표시됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.install_backend#5",
+      "source": "build an installed backend again.",
+      "source_sha256": "a319160d9854370cf3706a008ee44edcc410a09c69254429ba9a0cf701c6ec52",
+      "context": "build an installed backend again.",
+      "translation": "설치된 백엔드를 다시 빌드합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#1",
+      "source": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "source_sha256": "07e5c058297cb833a1694e8a850228cd515ebd6e6fe437682bd02a94ce47e74f",
+      "context": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "translation": "이전의 연속된 프롬프트와 별도의 \"Sort into channels\" 대화 상자를 진입점으로서 대체합니다. 팝업 단 하나가 이미지와 그 마스크를 Measure 가 읽는 구조(Yokogawa 이름의 채널 폴더, 마스크, ``merged/*.npy``)로 배치하며, 모든 결정은 :mod:`spacr.channel_sorting` 과 :mod:`spacr.folder_consolidation` 이 내립니다:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data#0",
+      "source": "Open the annotate-then-upload window for this mode.",
+      "source_sha256": "c3addd8c1b1149b028b18e66ad36af22467363140cff9696127b24e046d33d14",
+      "context": "Open the annotate-then-upload window for this mode.",
+      "translation": "이 모드에 대한 주석 후 업로드 창을 엽니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#6",
+      "source": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install.",
+      "source_sha256": "e72a1e4b0fe39f5d41656b9d4cf5e15ca4a02d8500bcb3072f5b4a3029729ba1",
+      "context": "True when the fetch was started, or when a PDF that needs the figure reader was answered with its install.",
+      "translation": "가져오기가 시작되었거나, 그림 판독기가 필요한 PDF 에 설치 제안으로 응답했으면 True 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_papers#0",
+      "source": "Read several PDFs, one after another, off the GUI thread.",
+      "source_sha256": "d503302b6c662818f17f8a2e44b59b9e92bca6a0200359765d4df4c75033f956",
+      "context": "Read several PDFs, one after another, off the main GUI execution path.",
+      "translation": "여러 PDFs 를 GUI 스레드 밖에서 하나씩 차례로 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.check_the_src#1",
+      "source": "Asked once per source and mode, and only while the screen is on screen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are, so the preview and the run get the paper's figure folder rather than a PDF they cannot open.",
+      "source_sha256": "48fe7d9e1d1943d2e943379f66bcc6c46eb654b8b4f17e9ab5f52f88df63317b",
+      "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has every PDF read the way dropped ones are, so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
+      "translation": "소스와 모드마다 한 번, 그리고 화면이 표시되어 있는 동안에만 묻습니다. Figure 모드에서 PDF 또는 PDFs 폴더를 가리키는 ``src`` 는(이미 그 모드이든, 답에 따라 그 모드로 전환했든) 드롭된 파일과 같은 방식으로 모든 PDF 를 읽으므로, 미리 보기와 실행은 열 수 없는 PDF 대신 논문의 그림 폴더를 받습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_question#1",
+      "source": "PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "source_sha256": "c0fa55b631496215b251cdc4d6906ed4e39ff658edcdd46fd4275b97c64ed033",
+      "context": "PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "translation": "PDFs 는 Figure 모드에서, 플라크 이미지는 Plaque 모드에서 읽으므로, 다른 모드용 입력이면 전환을 묻고 두 가지가 모두 있으면 어느 것을 읽을지 묻습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#0",
+      "source": "One scale slider per live preview, scaling that preview alone.",
+      "source_sha256": "312da1f2de492cab07c13c99059f365b5ebde79c7a65ee20d9b497a052bf0782",
+      "context": "One scale slider per live preview, scaling that preview alone.",
+      "translation": "실시간 미리 보기마다 하나의 배율 슬라이더로, 그 미리 보기만 배율을 조정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#10",
+      "source": "A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW. A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "source_sha256": "eef8deb4d5d40c142f2c8a6a69d7f86a5d11ab505ca5d407ef9c8cfbb07ccc70",
+      "context": "A window opened from the preview is not the preview. A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "translation": "미리 보기에서 연 창은 미리 보기가 아닙니다. 패널을 부모로 하는 대화 상자는 별개의 창이지만, Qt 는 패널의 배율 조정된 시트를 그 안으로 전파하며, 순회는 그 창을 패널의 자식들 사이에서 찾았습니다. 150 % 에서 설정 대화 상자의 버튼 높이는 다른 모든 대화 상자의 40 px 가 아니라 59 px 였습니다. 그런 창과 그 안의 모든 것은 100 % 로 유지되며, 창 자체의 시트는 그렇지 않으면 배율 조정된 채 상속될 크기를 100 % 로 다시 기술합니다 -- 창이 polish 될 때 설정되므로 처음 배치되기 전입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.psf_controls#1",
+      "source": "The calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each field saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
+      "source_sha256": "8097f7099e1f6af666327bd36ba6df4f0313e405703fa7deff5fa791c88b5431",
+      "context": "The calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
+      "translation": "보정 값이 저절로 채워집니다. 현미경 대물렌즈, 카메라, 형광체 선택기 또는 \"Infer from images…\" 가 배율, 개구수, 굴절률, 방출 파장, 카메라 픽셀, 이미지 픽셀 크기, Gaussian FWHM 을 채우며, 각 항목은 그 값의 출처를 표시합니다. 작업과 대물렌즈 행만 표시되고, 나머지는 처음에는 접혀 있고 펼친 상태를 기억하는 접이식 영역에 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#1",
+      "source": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC field browser's own ``_FieldView``. The raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the field browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "source_sha256": "a4cc97ccdb80610cdfea7aaedc99d8076b813f370837e48aa8ef818e97c554e4",
+      "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. The raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "translation": "spaCR 에는 이미 로드 시 맞춤, 휠 확대/축소, 끌어서 이동하는 이미지 캔버스가 있었습니다. QC 현미경 시야 브라우저 자체의 ``_FieldView`` 입니다. 원본 대 향상 이미지 창에는 같은 것이 두 개 필요했고, \"픽스맵을 담은 QGraphicsView\" 의 세 번째 사본을 만드는 것이야말로 코드베이스가 미묘하게 다르게 동작하는 세 개의 사본을 갖게 되는 경로입니다. 그래서 현미경 시야 브라우저의 뷰를 공유된다는 것을 나타내는 이름으로 변경 없이 이곳으로 옮겼고, 브라우저는 예전 이름으로 계속 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal#8",
+      "source": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding key (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks`` (settings of one or more pipelines, Gate Editor gating strategies, models and files); every later run of a locked pipeline on its ``src`` is checked against it by :func:`check_analysis_lock`, every model the run records is checked as it is recorded, and the verdict is written into that run's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
+      "source_sha256": "56d8e8c68105660516b94d2a2afb399ebb57c461948aad4eba5372a928a8c1b0",
+      "context": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding structured-data name (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks`` (settings of one or more workflows, Data-selection boundary Editor data-selection filtering strategies, models and files); every later run of a locked workflow on its ``src`` is checked against it by :func:`check_analysis_lock`, every model the processing-session records is checked as it is recorded, and the verdict is written into that processing session's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
+      "translation": "처리 기록 외에도 저널은 맹검 작업을 위한 두 가지 기록을 보관합니다. :func:`start_blinding` 은 맹검 키(코드화된 이름과 섞인 순서)를 ``~/.spacr/blinding`` 에 기록하고, :func:`unblind` 는 누가 언제 열었는지 기록합니다. :func:`lock_analysis` 는 분석 계획을 해시와 타임스탬프와 함께 ``~/.spacr/analysis_locks`` 에 고정합니다(하나 이상의 파이프라인 설정, Gate Editor 게이팅 전략, 모델과 파일). 이후 잠긴 파이프라인을 그 ``src`` 에서 실행하는 모든 처리는 :func:`check_analysis_lock` 이 이에 대해 확인하고, 처리가 기록하는 모든 모델은 기록될 때 확인되며, 판정은 그 처리의 ``manifest.json`` 에 ``analysis_lock`` 아래로 기록되고 차이가 있으면 ``provenance_warnings`` 에도 나열됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.Run.record_model#3",
+      "source": "Records ``\"<filename>:<digest>\"`` in ``model_hashes``. An unreadable checkpoint is only logged and leaves no entry at all; any other failure is also appended to ``provenance_warnings``, so it reaches ``manifest.json`` — model logging must never itself fail a run. When an analysis lock applies to the run, the model is also checked against it (see :func:`lock_analysis`), and the run's verdict is updated.",
+      "source_sha256": "b2ebeb4767770bd9cba9defdfe6ce9443ee65635cd4003e82db2c0c0d6ac565c",
+      "context": "Records ``\"<filename>:<digest>\"`` in ``model_hashes``. An unreadable checkpoint is only logged and leaves no entry at all; any other failure is also appended to ``provenance_warnings``, so it reaches ``manifest.json`` — model logging must never itself fail a processing session. When an analysis lock applies to the processing session, the model is also checked against it (see :func:`lock_analysis`), and the processing session's verdict is updated.",
+      "translation": "``\"<filename>:<digest>\"`` 를 ``model_hashes`` 에 기록합니다. 읽을 수 없는 체크포인트는 로그에만 남고 항목을 전혀 남기지 않습니다. 그 밖의 실패는 ``provenance_warnings`` 에도 추가되어 ``manifest.json`` 에 반영됩니다 — 모델 기록 자체가 처리를 실패시켜서는 절대 안 됩니다. 분석 잠금이 그 처리에 적용되면 모델도 잠금과 대조되며(:func:`lock_analysis` 참조), 처리의 판정이 갱신됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#1",
+      "source": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked gating strategy is compared.",
+      "source_sha256": "31b6f08effa0bb154920756a3b05b21674f528631602289a62e43370f6f75fe2",
+      "context": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked data-selection filtering strategy is compared.",
+      "translation": "잠금을 넘기지 않으면 :func:`lock_analysis` 가 만든 잠금 중 ``app_key`` 를 설정의 ``src`` 에서 포함하는 가장 최신 잠금을 씁니다. 잠금은 먼저 자신의 해시와 대조되므로 편집된 잠금 파일은 잡혀 나오며, 그다음 모든 설정, 해시된 모든 파일, 잠긴 모든 게이팅 전략을 비교합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#2",
+      "source": "Each difference is stamped with when it was first seen (kept beside the lock), and it is post-hoc only when it was first seen after a blinding key on a folder of the plan was opened: an edit made while still blind stays a deviation even when the run that uses it comes later.",
+      "source_sha256": "0e9b1bd83a5212f9b03a777a393293d6e6846a585f641bfb4d9fcb08650910d2",
+      "context": "Each difference is stamped with when it was first seen (kept beside the lock), and it is post-hoc only when it was first seen after a blinding key on a folder of the plan was opened: an edit made while still blind stays a deviation even when the processing session that uses it comes later.",
+      "translation": "각 차이에는 처음 발견된 시각이 찍히며(잠금 옆에 보관), 계획에 속한 폴더의 맹검 키가 열린 뒤에 처음 발견된 경우에만 사후(post hoc) 차이입니다. 아직 맹검 상태일 때 한 수정은 그것을 쓰는 처리가 나중에 오더라도 편차로 남습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#6",
+      "source": "the Gate Editor gating strategies in use, for gates the lock took as objects (see :func:`lock_analysis`).",
+      "source_sha256": "83e6764c0d22590aaddbe5d378fc6debe0fb82a03fc36fcb42173d43f87ad4fe",
+      "context": "the Data-selection boundary Editor data-selection filtering strategies in use, for data-selection boundaries the lock took as objects (see :func:`lock_analysis`).",
+      "translation": "사용 중인 Gate Editor 게이팅 전략으로, 잠금이 객체로 받은 게이트에 대한 것입니다(:func:`lock_analysis` 참조).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.check_analysis_lock#7",
+      "source": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every change first seen while still blind), ``\"post_hoc\"`` (a change first seen after a key on the plan's folders was unblinded), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, and ``detail`` for gates), ``unblinded_utc`` and a one-sentence ``summary``.",
+      "source_sha256": "10074b649025364697478b9f51d822bb0471c8b4b66bf5fce5e7d1234be82eac",
+      "context": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, every change first seen while still blind), ``\"post_hoc\"`` (a change first seen after a key on the plan's folders was unblinded), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations`` (``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, and ``detail`` for data-selection boundaries), ``unblinded_utc`` and a one-sentence ``summary``.",
+      "translation": "``status``: ``\"unlocked\"``(적용되는 잠금 없음), ``\"verified\"``(변경 없음), ``\"deviation\"``(변경되었고 모든 변경이 아직 맹검 상태일 때 처음 발견됨), ``\"post_hoc\"``(계획 폴더의 키가 맹검 해제된 뒤에 처음 발견된 변경), ``\"not_preregistered\"``(변경은 없지만 잠금이 맹검 해제 이후에 만들어짐), ``\"tampered\"``(잠금이 더 이상 해시와 일치하지 않음) 중 하나이며, ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``pipelines``, ``deviations``(``key``, ``locked``, ``now``, ``first_seen_utc``, ``post_hoc``, 게이트의 경우 ``detail``), ``unblinded_utc``, 한 문장짜리 ``summary`` 가 함께 들어 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#1",
+      "source": "The settings, the stated hypotheses and thresholds, the SHA-256 of every model, gate or threshold file the settings name (plus ``files``), the gating strategies and the models are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of a locked pipeline on its ``src`` is checked against the newest lock by :func:`check_analysis_lock`, and every model a run records is checked as it is recorded; the verdict goes into the run's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
+      "source_sha256": "642147843641a155f2cf072666516dc9ce9a4e27b2f2332047d55f001f5b4443",
+      "context": "The settings, the stated hypotheses and thresholds, the SHA-256 of every model, data-selection boundary or threshold file the settings name (plus ``files``), the data-selection filtering strategies and the models are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of a locked workflow on its ``src`` is checked against the newest lock by :func:`check_analysis_lock`, and every model a processing-session records is checked as it is recorded; the verdict goes into the processing session's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
+      "translation": "설정, 명시한 가설과 임곗값, 설정에 나오는 모든 모델, 게이트, 임곗값 파일의 SHA-256(``files`` 포함), 게이팅 전략과 모델을 시각과 사용자와 함께 ``~/.spacr/analysis_locks/<lock id>.json`` 에 기록하고 해시합니다. 그 뒤로 잠긴 파이프라인을 그 ``src`` 에서 실행하는 모든 저널 기록 처리는 :func:`check_analysis_lock` 이 가장 최신 잠금과 대조하고, 처리가 기록하는 모든 모델은 기록될 때 확인됩니다. 판정은 그 처리의 ``manifest.json`` 에 들어가고 차이는 매니페스트 경고, 보고서, 방법 텍스트에 나열됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#10",
+      "source": "``{name: checkpoint path}`` for the models the analysis loads, under the names the pipeline records them by.",
+      "source_sha256": "3c4b8b275641a7e3a2dd87ceea44afd2afbb65818cd57aeb9880beaa85e8357d",
+      "context": "``{name: checkpoint path}`` for the models the analysis loads, under the names the workflow records them by.",
+      "translation": "분석이 불러오는 모델의 ``{name: checkpoint path}`` 로, 파이프라인이 기록하는 이름을 씁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#11",
+      "source": "further pipelines of the same plan, as ``{app_key: settings}``; each is checked against its own settings on its own ``src``, and one unblinding on any of their folders counts for the whole plan.",
+      "source_sha256": "a7e6f1b731dd9b29d6deaca655cf8606d4590b79121ef9cded3512466e49ffa2",
+      "context": "further workflows of the same plan, as ``{app_key: settings}``; each is checked against its own settings on its own ``src``, and one unblinding on any of their folders counts for the whole plan.",
+      "translation": "같은 계획의 추가 파이프라인으로, ``{app_key: settings}`` 형식입니다. 각각은 자신의 ``src`` 에서 자신의 설정과 대조되며, 그 폴더 중 어느 하나에서의 맹검 해제는 계획 전체에 적용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#13",
+      "source": "when ``pipelines`` repeats ``app_key``, or ``gates`` holds something that is not a gating strategy.",
+      "source_sha256": "e8932485173c773b75462c0aadd3759a958eb1e3852c7eb430e5b247100bcf96",
+      "context": "when ``pipelines`` repeats ``app_key``, or ``gates`` holds something that is not a data-selection filtering strategy.",
+      "translation": "``pipelines`` 가 ``app_key`` 를 반복하거나 ``gates`` 에 게이팅 전략이 아닌 것이 들어 있을 때.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#14",
+      "source": "when a model in ``models`` is not a file.",
+      "source_sha256": "be7a364edec56cf8622a173492817885ba526e84a6bfb38c743c4ac441c563ba",
+      "context": "when a model in ``models`` is not a file.",
+      "translation": "``models`` 의 모델이 파일이 아닐 때.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#2",
+      "source": "A lock made after a blinding key on a folder it covers was unblinded is marked as such, because it was not made blind.",
+      "source_sha256": "a0c46db5eaabf14d4f0fd89598be3bd3300c4ae780c097e59f9cd9efe39abec1",
+      "context": "A lock made after a blinding key on a folder it covers was unblinded is marked as such, because it was not made blind.",
+      "translation": "잠금이 포함하는 폴더의 맹검 키가 해제된 뒤에 만든 잠금은 맹검 상태에서 만든 것이 아니므로 그렇게 표시됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_journal.lock_analysis#9",
+      "source": "Gate Editor gating strategies the plan depends on: a gate set, its dict, a saved gate file, a list of these, or a mapping from a label to one. Gate files named by any setting are taken as well. A gate file is checked on every run; gates handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
+      "source_sha256": "d72aaaa3f7c96e24c95d82afbadce1697625b231112f73391da0bfc7d34a18c5",
+      "context": "Data-selection boundary Editor data-selection filtering strategies the plan depends on: a data-selection boundary set, its key-value mapping, a saved data-selection boundary file, a list of these, or a mapping from a label to one. Data-selection boundary files named by any setting are taken as well. A data-selection boundary file is checked on every processing session; data-selection boundaries handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
+      "translation": "계획이 의존하는 Gate Editor 게이팅 전략: 게이트 세트, 그 사전, 저장된 게이트 파일, 이들의 목록, 또는 레이블에서 그중 하나로의 매핑. 어떤 설정이 지정한 게이트 파일도 함께 포함됩니다. 게이트 파일은 모든 처리에서 확인되며, 객체로 넘긴 게이트는 :func:`check_analysis_lock` 이 같은 레이블로 받을 때 확인됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.sim.gini#1",
+      "source": "Reference: StatsDirect non-parametric methods (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "source_sha256": "9b333733f94d94a5ed4d21accd878d60d26212480c91124851ce438bced2189d",
+      "context": "Reference: StatsDirect non-parametric methods (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "translation": "참고: StatsDirect 비모수 방법 (https://www.statsdirect.com/help/nonparametric_methods/gini.htm).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest#4",
+      "source": "1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a run that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not when the model is confident, not on a re-run. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a run came out wrong. 3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. A JUDGEMENT IS RECORDED, NOT INFERRED. Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "source_sha256": "2b4c477edd721e3ec0897e4354525fb16634855fc3c9c7e4a109eaccbe4495d8",
+      "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred. Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "translation": "1. 제안은 결코 결정과 혼동되지 않습니다. 제안은 별도의 값으로 저장되므로 -- 제안된 1 은 11 이 됩니다 -- 어노테이션 열을 읽는 어떤 것도 제안을 사람의 답으로 오인할 수 없고, 잘못된 처리 세션은 어떤 행을 건드렸는지 기억하는 대신 값을 삭제하여 되돌립니다. 2. 제안은 결코 어노테이션을 덮어쓰지 않습니다. 쓰기에는 ``IS NULL`` 조건이 붙습니다. 모델이 확신할 때도, 다시 실행할 때도 마찬가지입니다. 사람의 레이블은 모델이 적합된 정답이며, 하나라도 조용히 잃으면 몇 시간을 허비하게 되고 처리 세션 결과가 잘못 나올 때까지 알아차리지 못합니다. 3. 신뢰도 하한이 없으므로 순서가 불확실성을 전달합니다. 어노테이션이 없는 모든 추출된 이미지 영역은 제안을 받고, 가장 확신하는 것부터 정렬되며, 검토자는 더 이상 동의하지 않는 지점에서 멈춥니다. 임계값은 아무도 고르지 않은 숫자로 그 결정을 대신 내려 버릴 것입니다. 4. 판정은 추론되지 않고 기록됩니다. 제안을 확인하면 일반 레이블이 되고 거부하면 지워지며 -- 둘 다 열 옆의 ``<column>_verdict`` 에 확인된 클래스(``+c``) 또는 거부된 클래스(``-c``)로 기록됩니다. 거부는 다음 회차가 학습할 수 있는 정보입니다 -- 두 클래스 열에서 \"not class 1\" 은 클래스 2 의 예시입니다 -- NULL 이었다면 아무 말도 없었을 것입니다. 판정 열은 소스를 처음 열 때 추가되므로, 이 열이 생기기 전에 만든 테이블도 마이그레이션 단계 없이 이 열을 갖게 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.fill_holes_in_mask#1",
+      "source": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a field of 74 adjacent cells was saved as 8. Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
+      "source_sha256": "fc89df908c0e223a67870157f8dd6ce29e5f5f532766387cab53f2c41c3c7a2d",
+      "context": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a microscope field of view of 74 adjacent cells was saved as 8. Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
+      "translation": "레이블 이미지를 위한 유일한 구멍 채우기 함수인 :func:`spacr.qt.mask_engine.fill_label_holes` 에 위임합니다. 예전에는 먼저 마스크에 ``ndimage.label`` 을 실행했는데, 그러면 맞닿은 객체 쌍이 모두 하나의 객체가 되었습니다. Cellpose 의 ``fill_in``(Apply 의 기본값)이 켜져 있으면 인접한 세포 74 개가 있는 시야가 8 개로 저장되었습니다. 이제는 어떤 객체도 합쳐지거나 번호가 다시 매겨지지 않으며, 구멍은 그것을 둘러싼 객체의 ID 를 받습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
