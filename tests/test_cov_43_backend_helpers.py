@@ -118,3 +118,121 @@ def test_a_restoration_plan_refuses_before_any_worker(model, diameter, match):
     model = model or SB._RESTORATION_MODELS[0]
     with pytest.raises(ValueError, match=match):
         SB._restoration_plan(model, diameter, worker_for=lambda *a: None)
+
+
+class _Measurements:
+    """What CellProfiler's ``Pipeline.run()`` hands back, for two image sets."""
+
+    def __init__(self, status="Complete"):
+        self.status = status
+
+    def has_feature(self, table, feature):
+        return self.status is not None and (table, feature) == (
+            "Experiment", "Exit_Status")
+
+    def get_experiment_measurement(self, feature):
+        return self.status
+
+    def get_image_numbers(self):
+        return [1, 2]
+
+    def get_feature_names(self, table):
+        return {"Image": ["FileName_DNA", "Count_Nuclei", "ObjectsFileName_N"],
+                "Nuclei": ["Number_Object_Number", "AreaShape_Area",
+                           "Label_Text", "Short_Column"],
+                "Empty": ["Number_Object_Number", "AreaShape_Area"]}[table]
+
+    def get_object_names(self):
+        return ["Image", "Experiment", "Nuclei", "Empty"]
+
+    def get_measurement(self, table, feature, number):
+        if table == "Image":
+            return f"{feature}-{number}"
+        if feature == "Number_Object_Number":
+            return [1, 2] if table == "Nuclei" and number == 1 else []
+        return {"AreaShape_Area": [10.0, 20.0], "Label_Text": ["a", "b"],
+                "Short_Column": [5.0]}[feature]
+
+
+def _cellprofiler(monkeypatch, measurements):
+    loaded = []
+
+    class _Pipeline:
+        def load(self, path):
+            loaded.append(("load", path))
+
+        def add_pathnames_to_file_list(self, files):
+            loaded.append(("files", files))
+
+        def run(self):
+            return measurements
+
+    pipeline = types.ModuleType("cellprofiler_core.pipeline")
+    pipeline.Pipeline = _Pipeline
+    monkeypatch.setitem(sys.modules, "cellprofiler_core",
+                        types.ModuleType("cellprofiler_core"))
+    monkeypatch.setitem(sys.modules, "cellprofiler_core.pipeline", pipeline)
+    folders = []
+    preferences = types.SimpleNamespace(
+        set_default_output_directory=lambda path: folders.append(path),
+        set_default_image_directory=lambda path: folders.append(path))
+    return {"cellprofiler": preferences}, loaded, folders
+
+
+def test_a_cellprofiler_run_keeps_only_numeric_object_features(
+        monkeypatch, tmp_path):
+    import numpy as np
+
+    adapters, loaded, folders = _cellprofiler(monkeypatch, _Measurements())
+    pipe = tmp_path / "count.cppipe"
+    pipe.write_text("CellProfiler Pipeline")
+    image = tmp_path / "images" / "A01.tif"
+    output = tmp_path / "out"
+    result = SB._worker_run_cellprofiler(
+        {"pipeline": pipe, "files": [image], "output": output}, adapters)
+    assert result["image_sets"] == 2
+    assert result["images"]["1"] == ["FileName_DNA-1", "ObjectsFileName_N-1"]
+    assert set(result["objects"]) == {"Nuclei"}
+    nuclei = result["objects"]["Nuclei"]
+    assert nuclei["columns"] == ["ImageNumber", "ObjectNumber",
+                                 "AreaShape_Area", "Short_Column"]
+    table = np.load(nuclei["path"])
+    assert table.shape == (2, 4)
+    assert table[:, 2].tolist() == [10.0, 20.0]
+    assert np.isnan(table[:, 3]).all()
+    assert loaded == [("load", str(pipe)), ("files", [str(image)])]
+    assert folders == [str(output), str(image.parent)]
+
+
+def test_a_cellprofiler_run_without_an_exit_status_is_read(
+        monkeypatch, tmp_path):
+    adapters, _loaded, _folders = _cellprofiler(monkeypatch,
+                                                _Measurements(status=None))
+    pipe = tmp_path / "count.cppipe"
+    pipe.write_text("CellProfiler Pipeline")
+    result = SB._worker_run_cellprofiler(
+        {"pipeline": pipe, "files": [tmp_path / "a.tif"],
+         "output": tmp_path / "out"}, adapters)
+    assert result["image_sets"] == 2
+
+
+@pytest.mark.parametrize("case,error,match", [
+    ("no-pipeline", FileNotFoundError, "no CellProfiler pipeline at"),
+    ("no-files", ValueError, "no images were given"),
+    ("no-measurements", RuntimeError, "matched no image set"),
+    ("aborted", RuntimeError, "pipeline stopped: Aborted"),
+])
+def test_a_cellprofiler_run_that_cannot_finish_says_why(
+        monkeypatch, tmp_path, case, error, match):
+    measurements = {"no-measurements": None,
+                    "aborted": _Measurements(status="Aborted")}.get(
+        case, _Measurements())
+    adapters, _loaded, _folders = _cellprofiler(monkeypatch, measurements)
+    pipe = tmp_path / "count.cppipe"
+    if case != "no-pipeline":
+        pipe.write_text("CellProfiler Pipeline")
+    files = [] if case == "no-files" else [tmp_path / "a.tif"]
+    with pytest.raises(error, match=match):
+        SB._worker_run_cellprofiler(
+            {"pipeline": pipe, "files": files, "output": tmp_path / "out"},
+            adapters)
