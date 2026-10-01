@@ -64,6 +64,50 @@
   "records": [
     {
       "table": "ui",
+      "key": "Exact values must match the entire table value.",
+      "source": "Exact values must match the entire table value.",
+      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
+      "translation": "정확한 값은 표의 전체 값과 일치해야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "For example, c1 does not match c10.",
+      "source": "For example, c1 does not match c10.",
+      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
+      "translation": "예를 들어 c1은 c10과 일치하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression mode uses the Include and Exclude fields above.",
+      "source": "Regular expression mode uses the Include and Exclude fields above.",
+      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
+      "translation": "정규 표현식 모드는 위의 포함 및 제외 필드를 사용합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_channel_map",
+      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
+      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
+      "translation": "저장된 강도 채널을 공급업체의 평탄장 보정에 할당합니다. 예시 0:2,1:1은 강도 채널 0과 1을 각각 보정 채널 2와 1에 연결합니다. 강도 채널 번호는 0부터 시작합니다. 보정 채널 또는 이미지 레이어 번호는 1부터 시작합니다. 보정할 모든 강도 채널을 지정하세요. 빈 값은 원래 채널 순서를 유지합니다. 값이 비어 있으면 하나의 보정 이미지 레이어가 모든 채널에 적용됩니다. 먼저 공급업체의 보정 파일을 선택하세요. 저장된 조명 모델이 우선합니다. 기본값은 비어 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
+      "translation": "현재 환경에 spaCR을 다시 설치합니다. 업데이트가 시작되기 전에 spaCR이 종료됩니다. 업데이트가 성공하면 자동으로 다시 열립니다."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
+      "translation": "현재 환경에 spaCR을 다시 설치합니다. 업데이트가 성공하면 spaCR이 자동으로 종료되었다가 다시 열립니다."
+    },
+    {
+      "table": "ui",
       "key": "Create genotype and replicate columns with rules, then combine them in a condition column.",
       "source": "Create genotype and replicate columns with rules, then combine them in a condition column.",
       "source_sha256": "d876737d707c2a650b07e2238fd642bbe56a54f06e97b4f636e70e3a15879900",
@@ -75,13 +119,6 @@
       "source": "Place generated columns before any combined column that uses them.",
       "source_sha256": "dfe8be8cc3405000938408cb7091c89d8e33a4b98a5cc474b944bec7a02bc805",
       "translation": "생성한 열은 해당 열을 사용하는 결합 열보다 앞에 배치합니다."
-    },
-    {
-      "table": "ui",
-      "key": "Exact values must match the entire table value.",
-      "source": "Exact values must match the entire table value.",
-      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
-      "translation": "정확한 값은 표의 전체 값과 일치해야 합니다."
     },
     {
       "table": "ui",
@@ -145,44 +182,8 @@
       "source": "Original source files are not modified.",
       "source_sha256": "eb44a4c106a6cd864ccff03e473d06c0d57b6e260c5688d17d2dcb3f0fb30e58",
       "translation": "원본 소스 파일은 수정되지 않습니다."
-    },
-    {
-      "table": "ui",
-      "key": "For example, c1 does not match c10.",
-      "source": "For example, c1 does not match c10.",
-      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
-      "translation": "예를 들어 c1은 c10과 일치하지 않습니다."
-    },
-    {
-      "table": "ui",
-      "key": "Regular expression mode uses the Include and Exclude fields above.",
-      "source": "Regular expression mode uses the Include and Exclude fields above.",
-      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
-      "translation": "정규 표현식 모드는 위의 포함 및 제외 필드를 사용합니다."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "illumination_vendor_channel_map",
-      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
-      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
-      "translation": "저장된 강도 채널을 공급업체의 평탄장 보정에 할당합니다. 예시 0:2,1:1은 강도 채널 0과 1을 각각 보정 채널 2와 1에 연결합니다. 강도 채널 번호는 0부터 시작합니다. 보정 채널 또는 이미지 레이어 번호는 1부터 시작합니다. 보정할 모든 강도 채널을 지정하세요. 빈 값은 원래 채널 순서를 유지합니다. 값이 비어 있으면 하나의 보정 이미지 레이어가 모든 채널에 적용됩니다. 먼저 공급업체의 보정 파일을 선택하세요. 저장된 조명 모델이 우선합니다. 기본값은 비어 있습니다."
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "현재 환경에 spaCR을 다시 설치합니다. 업데이트가 시작되기 전에 spaCR이 종료됩니다. 업데이트가 성공하면 자동으로 다시 열립니다."
     }
   ],
-  "retired_records": [
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
-      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
-      "translation": "현재 환경에 spaCR을 다시 설치합니다. 업데이트가 성공하면 spaCR이 자동으로 종료되었다가 다시 열립니다."
-    }
-  ],
-  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success."
+  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success.",
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

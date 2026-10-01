@@ -64,6 +64,57 @@
   "records": [
     {
       "table": "ui",
+      "key": "Exact values must match the entire table value.",
+      "source": "Exact values must match the entire table value.",
+      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
+      "translation": "精确值必须与完整的表格值一致。"
+    },
+    {
+      "table": "ui",
+      "key": "For example, c1 does not match c10.",
+      "source": "For example, c1 does not match c10.",
+      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
+      "translation": "例如，c1 不匹配 c10。"
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression mode uses the Include and Exclude fields above.",
+      "source": "Regular expression mode uses the Include and Exclude fields above.",
+      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
+      "translation": "正则表达式模式使用上方的包括和排除字段。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_channel_map",
+      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
+      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
+      "translation": "将已保存的强度通道分配给供应商的平场校准。 示例 0:2,1:1 将强度通道 0 和 1 分别对应到校准通道 2 和 1。 强度通道的编号从 0 开始。 校准通道或图像层的编号从 1 开始。 请指定每个需要校正的强度通道。 空值会保留原始通道顺序。 值为空时，单个校准图像层会应用于所有通道。 请先选择供应商的校准文件。 已保存的照明模型优先使用。 默认值为空。"
+    },
+    {
+      "table": "ui",
+      "key": "Adding names for several image channels or image layers keeps the same number of rows.",
+      "source": "Adding names for several image channels or image layers keeps the same number of rows.",
+      "source_sha256": "302b71f657b1dc6a524b22d9ce941e6ff3e41218a3a1dc77cf96b905058963b0",
+      "translation": "为多个图像通道或图像层添加名称时，表格行数保持不变。"
+    },
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
+      "translation": "这将在 spaCR 当前的环境中重新安装它。spaCR 将在更新开始前关闭。更新成功后，它会自动重新打开。"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
+      "translation": "这将在 spaCR 当前的环境中重新安装它。更新成功后，spaCR 将自动关闭并重新打开。"
+    },
+    {
+      "table": "ui",
       "key": "Create genotype and replicate columns with rules, then combine them in a condition column.",
       "source": "Create genotype and replicate columns with rules, then combine them in a condition column.",
       "source_sha256": "d876737d707c2a650b07e2238fd642bbe56a54f06e97b4f636e70e3a15879900",
@@ -75,13 +126,6 @@
       "source": "Place generated columns before any combined column that uses them.",
       "source_sha256": "dfe8be8cc3405000938408cb7091c89d8e33a4b98a5cc474b944bec7a02bc805",
       "translation": "将生成的列放在使用它们的组合列之前。"
-    },
-    {
-      "table": "ui",
-      "key": "Exact values must match the entire table value.",
-      "source": "Exact values must match the entire table value.",
-      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
-      "translation": "精确值必须与完整的表格值一致。"
     },
     {
       "table": "ui",
@@ -145,51 +189,8 @@
       "source": "Original source files are not modified.",
       "source_sha256": "eb44a4c106a6cd864ccff03e473d06c0d57b6e260c5688d17d2dcb3f0fb30e58",
       "translation": "原始源文件不会被修改。"
-    },
-    {
-      "table": "ui",
-      "key": "For example, c1 does not match c10.",
-      "source": "For example, c1 does not match c10.",
-      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
-      "translation": "例如，c1 不匹配 c10。"
-    },
-    {
-      "table": "ui",
-      "key": "Regular expression mode uses the Include and Exclude fields above.",
-      "source": "Regular expression mode uses the Include and Exclude fields above.",
-      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
-      "translation": "正则表达式模式使用上方的包括和排除字段。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "illumination_vendor_channel_map",
-      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
-      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
-      "translation": "将已保存的强度通道分配给供应商的平场校准。 示例 0:2,1:1 将强度通道 0 和 1 分别对应到校准通道 2 和 1。 强度通道的编号从 0 开始。 校准通道或图像层的编号从 1 开始。 请指定每个需要校正的强度通道。 空值会保留原始通道顺序。 值为空时，单个校准图像层会应用于所有通道。 请先选择供应商的校准文件。 已保存的照明模型优先使用。 默认值为空。"
-    },
-    {
-      "table": "ui",
-      "key": "Adding names for several image channels or image layers keeps the same number of rows.",
-      "source": "Adding names for several image channels or image layers keeps the same number of rows.",
-      "source_sha256": "302b71f657b1dc6a524b22d9ce941e6ff3e41218a3a1dc77cf96b905058963b0",
-      "translation": "为多个图像通道或图像层添加名称时，表格行数保持不变。"
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "这将在 spaCR 当前的环境中重新安装它。spaCR 将在更新开始前关闭。更新成功后，它会自动重新打开。"
     }
   ],
-  "retired_records": [
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
-      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
-      "translation": "这将在 spaCR 当前的环境中重新安装它。更新成功后，spaCR 将自动关闭并重新打开。"
-    }
-  ],
-  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success."
+  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success.",
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

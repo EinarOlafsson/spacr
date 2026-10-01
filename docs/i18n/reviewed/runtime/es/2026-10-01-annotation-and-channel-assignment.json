@@ -64,6 +64,50 @@
   "records": [
     {
       "table": "ui",
+      "key": "Exact values must match the entire table value.",
+      "source": "Exact values must match the entire table value.",
+      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
+      "translation": "Los valores exactos deben coincidir con el valor completo de la tabla."
+    },
+    {
+      "table": "ui",
+      "key": "For example, c1 does not match c10.",
+      "source": "For example, c1 does not match c10.",
+      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
+      "translation": "Por ejemplo, c1 no coincide con c10."
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression mode uses the Include and Exclude fields above.",
+      "source": "Regular expression mode uses the Include and Exclude fields above.",
+      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
+      "translation": "El modo de expresiones regulares utiliza los campos Incluir y Excluir situados arriba."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_channel_map",
+      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
+      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
+      "translation": "Asigne los canales de intensidad guardados a una calibración de campo plano del proveedor. El ejemplo 0:2,1:1 asigna los canales de intensidad 0 y 1 a los canales de calibración 2 y 1, respectivamente. La numeración de los canales de intensidad empieza en 0. La numeración de los canales de calibración o de las capas de imagen empieza en 1. Incluya todos los canales de intensidad que se van a corregir. Un valor vacío conserva el orden original de los canales. Con un valor vacío, una única capa de imagen de calibración se aplica a todos los canales. Seleccione primero un archivo de calibración del proveedor. Un modelo de iluminación guardado tiene prioridad. El valor predeterminado está vacío."
+    },
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
+      "translation": "Esto reinstalará spaCR en su entorno actual. spaCR se cerrará antes de que comience la actualización. Se volverá a abrir automáticamente cuando la actualización se complete correctamente."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
+      "translation": "Esto reinstalará spaCR en su entorno actual. spaCR se cerrará y volverá a abrirse automáticamente cuando la actualización se complete correctamente."
+    },
+    {
+      "table": "ui",
       "key": "Create genotype and replicate columns with rules, then combine them in a condition column.",
       "source": "Create genotype and replicate columns with rules, then combine them in a condition column.",
       "source_sha256": "d876737d707c2a650b07e2238fd642bbe56a54f06e97b4f636e70e3a15879900",
@@ -75,13 +119,6 @@
       "source": "Place generated columns before any combined column that uses them.",
       "source_sha256": "dfe8be8cc3405000938408cb7091c89d8e33a4b98a5cc474b944bec7a02bc805",
       "translation": "Coloque las columnas generadas antes de cualquier columna combinada que las utilice."
-    },
-    {
-      "table": "ui",
-      "key": "Exact values must match the entire table value.",
-      "source": "Exact values must match the entire table value.",
-      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
-      "translation": "Los valores exactos deben coincidir con el valor completo de la tabla."
     },
     {
       "table": "ui",
@@ -145,43 +182,6 @@
       "source": "Original source files are not modified.",
       "source_sha256": "eb44a4c106a6cd864ccff03e473d06c0d57b6e260c5688d17d2dcb3f0fb30e58",
       "translation": "Los archivos de origen originales no se modifican."
-    },
-    {
-      "table": "ui",
-      "key": "For example, c1 does not match c10.",
-      "source": "For example, c1 does not match c10.",
-      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
-      "translation": "Por ejemplo, c1 no coincide con c10."
-    },
-    {
-      "table": "ui",
-      "key": "Regular expression mode uses the Include and Exclude fields above.",
-      "source": "Regular expression mode uses the Include and Exclude fields above.",
-      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
-      "translation": "El modo de expresiones regulares utiliza los campos Incluir y Excluir situados arriba."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "illumination_vendor_channel_map",
-      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
-      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
-      "translation": "Asigne los canales de intensidad guardados a una calibración de campo plano del proveedor. El ejemplo 0:2,1:1 asigna los canales de intensidad 0 y 1 a los canales de calibración 2 y 1, respectivamente. La numeración de los canales de intensidad empieza en 0. La numeración de los canales de calibración o de las capas de imagen empieza en 1. Incluya todos los canales de intensidad que se van a corregir. Un valor vacío conserva el orden original de los canales. Con un valor vacío, una única capa de imagen de calibración se aplica a todos los canales. Seleccione primero un archivo de calibración del proveedor. Un modelo de iluminación guardado tiene prioridad. El valor predeterminado está vacío."
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "Esto reinstalará spaCR en su entorno actual. spaCR se cerrará antes de que comience la actualización. Se volverá a abrir automáticamente cuando la actualización se complete correctamente."
-    }
-  ],
-  "retired_records": [
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
-      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
-      "translation": "Esto reinstalará spaCR en su entorno actual. spaCR se cerrará y volverá a abrirse automáticamente cuando la actualización se complete correctamente."
     }
   ],
   "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success.",
@@ -192,5 +192,6 @@
       "after": "Arrastre las filas seleccionadas de la tabla a un recuadro de condición para asignarlas.",
       "reason": "Recuadro explicitly denotes the condition box; the generic Spanish table contextualizer otherwise changes cuadro into tabla. Codex AI technical review; no gate change."
     }
-  ]
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

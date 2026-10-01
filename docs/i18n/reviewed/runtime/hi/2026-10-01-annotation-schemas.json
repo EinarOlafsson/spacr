@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Codex agents reviewed all 11 local-model schema UI drafts in each locale. Technical errors and omissions were corrected as source-bound targets. Another Codex agent independently reviewed every corrected source/target pair, including load-without-apply, no restored manual memberships, portable rules/extraction/composition, omission counts and placeholders. Standard generator, normalization and translation quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "9fe7e139de5fbd6b8324c6667fbaf9672eeff5bbb2c6fa1a9398d58122f4e2e6",
+  "original_local_model_drafts": [
+    {
+      "source": "Checking annotation schema for this table…",
+      "translation": "इस टेबल के लिए नोटिस शेड्यूल की जांच करें ..."
+    },
+    {
+      "source": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "translation": "वर्तमान तालिका के लिए एक JSON शेड्यूल लोड करें और सभी उत्पन्न स्तंभों को पूर्वावलोकन करें. लोड परिवर्तन लागू नहीं करता है या मैनुअल क्रम सेटिंग्स को पुनर्स्थापित करता है."
+    },
+    {
+      "source": "Load schema",
+      "translation": "लोड योजना"
+    },
+    {
+      "source": "Save schema",
+      "translation": "शेड्यूल"
+    },
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "translation": "वैध नियमों, निष्कर्षण पैटर्न और स्तंभ संरचना को पुन: उपयोग योग्य JSON के रूप में संग्रहीत करें. मैन्युअल रूप से खींची गई पंक्तियों को अनदेखा किया जाता है."
+    },
+    {
+      "source": "Saving annotation schema…",
+      "translation": "नोटबंदी की योजना बनाए रखें..."
+    },
+    {
+      "source": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "translation": "पूर्वावलोकन के लिए शेम लोड. उत्पन्न स्तंभों की समीक्षा करें, फिर तैयार होने पर लागू करें."
+    },
+    {
+      "source": "Schema saved to {path}.",
+      "translation": "शेड्यूल {path} के लिए बचाया गया है।"
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "translation": "योजना {path} तक बचाई गई. {count:,} मैन्युअल पंक्ति अनुभागों को अनदेखा किया गया था."
+    },
+    {
+      "source": "Schema was not loaded: {reason}",
+      "translation": "प्रोग्राम लोड नहीं किया गया था: {reason}"
+    }
+  ],
+  "authorship": [
+    {
+      "source": "Checking annotation schema for this table…",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Load schema",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Save schema",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Saving annotation schema…",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Schema saved to {path}.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Schema was not loaded: {reason}",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Checking annotation schema for this table…",
+      "source": "Checking annotation schema for this table…",
+      "source_sha256": "4681621c288c930cb332f4eb55caf32d5b1b2638016b41a5f1096e0a687a3038",
+      "translation": "इस तालिका के लिए एनोटेशन स्कीमा की जांच की जा रही है…"
+    },
+    {
+      "table": "ui",
+      "key": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "source": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "source_sha256": "ca1c69215670bb54d50daebc437262d0d70ce8e6c8b0708c775d2059d50b0f11",
+      "translation": "वर्तमान तालिका के लिए JSON स्कीमा लोड करें और सभी बनाए गए स्तंभों का पूर्वावलोकन देखें। लोड करने से न बदलाव लागू होते हैं, न मैन्युअल पंक्ति असाइनमेंट बहाल होते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Load schema",
+      "source": "Load schema",
+      "source_sha256": "4f6d03c427e38e5ece1897d5f714150b5eaf727cad06c532a2c5f35c49f1c7c7",
+      "translation": "स्कीमा लोड करें"
+    },
+    {
+      "table": "ui",
+      "key": "Save schema",
+      "source": "Save schema",
+      "source_sha256": "325690c52bc76c499473b9fd574c47647ddf986a7a752e0fca37edc7e6052359",
+      "translation": "स्कीमा सहेजें"
+    },
+    {
+      "table": "ui",
+      "key": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source_sha256": "a643c6cc5eb94070c609badd6bee8466e85ad53c842d5c0d7f47b007cc134f4d",
+      "translation": "सत्यापित नियमों, पाठ निकालने के पैटर्न और स्तंभ संयोजन को दोबारा उपयोग योग्य JSON के रूप में सहेजें। हाथ से खींचकर किए गए पंक्ति असाइनमेंट शामिल नहीं किए जाते।"
+    },
+    {
+      "table": "ui",
+      "key": "Saving annotation schema…",
+      "source": "Saving annotation schema…",
+      "source_sha256": "1b9f2e064c9c3a8ca9ed9dd90af0eb0d293be314a2027fd458c2b98b6e99eb60",
+      "translation": "एनोटेशन स्कीमा सहेजा जा रहा है…"
+    },
+    {
+      "table": "ui",
+      "key": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "source": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "source_sha256": "c31647ee49dedba524246fab2602b806daba4887dc1fd42554833d96cc82f8ea",
+      "translation": "पूर्वावलोकन के लिए स्कीमा लोड हो गया है। बनाए गए स्तंभों की जांच करें, फिर तैयार होने पर बदलाव लागू करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Schema saved to {path}.",
+      "source": "Schema saved to {path}.",
+      "source_sha256": "25f13205287c530732c7f40a227c436d52966ceb9cb2356d40624310bb45dc06",
+      "translation": "स्कीमा {path} में सहेजा गया।"
+    },
+    {
+      "table": "ui",
+      "key": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source_sha256": "4e6fe802043854fd29e948165ba9ff6c57a62c3a4745ec5c7b0ad2bfe9c49e3f",
+      "translation": "स्कीमा {path} में सहेजा गया। {count:,} मैन्युअल पंक्ति असाइनमेंट छोड़ दिए गए।"
+    },
+    {
+      "table": "ui",
+      "key": "Schema was not loaded: {reason}",
+      "source": "Schema was not loaded: {reason}",
+      "source_sha256": "6c4a959a5e9a0b671136a7b9b272b36c7a7f9abfb806c1c46ea0bd8a1bb10530",
+      "translation": "स्कीमा लोड नहीं हुआ: {reason}"
+    }
+  ]
+}

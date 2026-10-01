@@ -1,0 +1,635 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Codex agents reviewed all 59 new local-model UI drafts in each locale. Incorrect technical meanings and omitted instructions were corrected as source-bound targets. Another Codex agent independently reviewed every corrected source/target pair. The two named-group instructions are explicitly AI-authored translations of previously uncatalogued prose, with literal examples retained as placeholders. Standard generator, normalization and translation quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "4ce6d66d97adfb1e41c65387e14f51b8497b03418ff5551e57cc1c8e645f3c12",
+  "original_local_model_drafts": [
+    {
+      "source": "Add column token",
+      "translation": "콜럼 토큰 추가"
+    },
+    {
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "translation": "모든 기준은 각 기준을 필요로 하며, 각 기준은 적어도 하나를 필요로 한다."
+    },
+    {
+      "source": "Append this literal text. Text tokens can be edited or moved independently.",
+      "translation": "이 문자 그대로 텍스트 토큰을 편집하거나 독립적으로 이동할 수 있습니다."
+    },
+    {
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "translation": "고정 값을 지정하거나, 캡처 그룹을 사용하여 텍스트를 추출하거나, 주문한 열과 텍스트 토큰에서 값이 구성됩니다."
+    },
+    {
+      "source": "Assign this value when",
+      "translation": "이 가치를 지정할 때"
+    },
+    {
+      "source": "Available columns",
+      "translation": "사용 가능한 컬러"
+    },
+    {
+      "source": "Capture part of a filename or metadata value. Preview shows the captured text; the source value stays unchanged.",
+      "translation": "파일 이름 또는 메타 데이터 값의 일부를 캡처합니다.예전 보기는 캡틴 된 텍스트를 표시합니다; 출처 값은 변하지 않습니다."
+    },
+    {
+      "source": "Choose a filename or another source or earlier generated column.",
+      "translation": "파일 이름 또는 다른 출처 또는 이전에 생성 된 열을 선택합니다."
+    },
+    {
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "translation": "이름 캡처 또는 그 숫자를 선택합니다.그룹 0은 전체 레지크스 경기를 유지합니다."
+    },
+    {
+      "source": "Column value. Drag to reorder or select and remove this token.",
+      "translation": "열 값 : 이 토큰을 다시 주문하거나 선택하고 제거하십시오."
+    },
+    {
+      "source": "Compose column",
+      "translation": "컬러 구성"
+    },
+    {
+      "source": "Composition order",
+      "translation": "컴포지션 명령"
+    },
+    {
+      "source": "Copy this example and adapt the separators to your filenames.",
+      "translation": "이 예제를 복사하고 파일 이름에 분리기를 적응하십시오."
+    },
+    {
+      "source": "Create columns from named groups",
+      "translation": "이름 그룹에서 열을 만들기"
+    },
+    {
+      "source": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "translation": "각 이름 캡처에 대해 하나의 출력 열을 패턴 순서로 만드십시오.존재하는 출력 및 소스 열 이름은 보호됩니다."
+    },
+    {
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "translation": "구성에 열을 끌거나 두 번 클릭하여 첨부하십시오.소스와 이전에 생성된 열만 사용할 수 있습니다."
+    },
+    {
+      "source": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "translation": "원하는 순서로 열 토큰을 끌고 고정 텍스트 또는 분리기를 입력합니다.이전에 생성 된 열은 다시 사용할 수 있습니다."
+    },
+    {
+      "source": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "translation": "테스트하기 위해 텍스트를 입력합니다. Equals는 빈 줄과 일치할 수 있습니다; 실종된 값은 결코 일치하지 않습니다."
+    },
+    {
+      "source": "Fixed text or separator",
+      "translation": "고정된 텍스트 또는 분리기"
+    },
+    {
+      "source": "Fixed text. Double-click to edit; drag to reorder.",
+      "translation": "고정된 텍스트; 편집을 위해 두 번 클릭; 재구성으로 끌어 올립니다."
+    },
+    {
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "translation": "문자 그대로 텍스트를 입력, 예를 들어, 하위 점수, 공간, 또는 처리 사전."
+    },
+    {
+      "source": "Manual rows only",
+      "translation": "단지 수동 라인"
+    },
+    {
+      "source": "Move token up",
+      "translation": "움직이기 token up"
+    },
+    {
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "translation": "할당할 값을 지정하고, 어떤 메타데이터 규칙이 일치해야 하는지 선택합니다."
+    },
+    {
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "translation": "다른 운영자는 문자 그대로 텍스트를 비교하고 사례 민감합니다."
+    },
+    {
+      "source": "Preview to see source and generated values.",
+      "translation": "출처와 생성된 값을 볼 수 있는 예측."
+    },
+    {
+      "source": "Source column",
+      "translation": "출처 컬러"
+    },
+    {
+      "source": "Text to match",
+      "translation": "텍스트와 일치하기"
+    },
+    {
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "translation": "토큰은 왼쪽에서 오른쪽으로 연결됩니다. 브레이크는 열 값을 식별합니다. 다시 주문하거나 수정하기 위해 고정 텍스트를 두 번 클릭하십시오. 잃어버린 콜럼 값은 결과를 비어 놓습니다."
+    },
+    {
+      "source": "Value to assign",
+      "translation": "할당할 가치"
+    },
+    {
+      "source": "all rules match",
+      "translation": "모든 규칙의 대결"
+    },
+    {
+      "source": "any rule matches",
+      "translation": "모든 규칙 경기"
+    },
+    {
+      "source": "contains",
+      "translation": "컨테이너"
+    },
+    {
+      "source": "does not contain",
+      "translation": "포함되어 있지 않음"
+    },
+    {
+      "source": "does not equal",
+      "translation": "똑같지 않아"
+    },
+    {
+      "source": "does not match regex",
+      "translation": "Regex에 해당되는 글 1건"
+    },
+    {
+      "source": "ends with",
+      "translation": "마무리와 함께"
+    },
+    {
+      "source": "equals",
+      "translation": "동등한"
+    },
+    {
+      "source": "matches regex",
+      "translation": "레지크스 경기"
+    },
+    {
+      "source": "starts with",
+      "translation": "시작하여"
+    }
+  ],
+  "authorship": [
+    {
+      "source": "Add column token",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Append this literal text. Text tokens can be edited or moved independently.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Assign this value when",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Available columns",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Capture part of a filename or metadata value. Preview shows the captured text; the source value stays unchanged.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Choose a filename or another source or earlier generated column.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Column value. Drag to reorder or select and remove this token.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Compose column",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Composition order",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Copy this example and adapt the separators to your filenames.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Create columns from named groups",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Fixed text or separator",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Fixed text. Double-click to edit; drag to reorder.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Manual rows only",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Move token up",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Preview to see source and generated values.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Source column",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Text to match",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Value to assign",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "all rules match",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "any rule matches",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "contains",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "does not contain",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "does not equal",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "does not match regex",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "ends with",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "equals",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "matches regex",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "starts with",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "method": "Codex shared_ui AI technical translation; source prose was previously excluded as regex code"
+    },
+    {
+      "source": "Add named captures such as {example} before creating columns.",
+      "method": "Codex shared_ui AI technical translation; source prose was previously excluded as regex code"
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add column token",
+      "source": "Add column token",
+      "source_sha256": "b389c3aac0b7327a0ca10b9c701896adcfa04a4f8c86c8e38c4c4ca2f49e2d3b",
+      "translation": "열 토큰 추가"
+    },
+    {
+      "table": "ui",
+      "key": "All requires every criterion; any requires at least one criterion.",
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "source_sha256": "d2fdbb0cf59573659db3efdc7314c1fa482f7ce8710e794e9ea8647ef000b6ea",
+      "translation": "모두 일치하려면 모든 기준을 충족해야 합니다. 하나 이상 일치하려면 최소 한 기준을 충족하면 됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Append this literal text. Text tokens can be edited or moved independently.",
+      "source": "Append this literal text. Text tokens can be edited or moved independently.",
+      "source_sha256": "2d2e3a231945eeb0775503a1ba2d015573fea54efb8fbc4acc5cb742de5ab5ec",
+      "translation": "이 텍스트를 그대로 추가합니다. 텍스트 토큰은 각각 편집하거나 이동할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "source_sha256": "30ac1e8d96173ac641dc9c5e30ceea9b0ac5855c0d515e4d83dccb53754a9742",
+      "translation": "고정 값을 할당하거나, 캡처 그룹으로 텍스트를 추출하거나, 지정한 순서의 열 토큰과 텍스트 토큰을 조합해 값을 만듭니다."
+    },
+    {
+      "table": "ui",
+      "key": "Assign this value when",
+      "source": "Assign this value when",
+      "source_sha256": "c2808897d4fd029f072f611366fa75097c250f197005960a8197c4f3ef69a0a4",
+      "translation": "다음 조건에서 이 값 할당"
+    },
+    {
+      "table": "ui",
+      "key": "Available columns",
+      "source": "Available columns",
+      "source_sha256": "bf7179c4438288f242922a8ce04b87874e4866c0c307190e4bedcc05e590519d",
+      "translation": "사용 가능한 열"
+    },
+    {
+      "table": "ui",
+      "key": "Capture part of a filename or metadata value. Preview shows the captured text; the source value stays unchanged.",
+      "source": "Capture part of a filename or metadata value. Preview shows the captured text; the source value stays unchanged.",
+      "source_sha256": "1278da2fd125658345809ba27bea8a0a51269d83dad041853cf0f338cc04417c",
+      "translation": "파일 이름이나 메타데이터 값의 일부를 추출합니다. 미리보기에는 추출한 텍스트가 표시되며 원본 값은 바뀌지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a filename or another source or earlier generated column.",
+      "source": "Choose a filename or another source or earlier generated column.",
+      "source_sha256": "f8a7c4746e714af344ee4ee181921742a55a61af329e3f21f00c7da11e6cb183",
+      "translation": "파일 이름 열, 다른 원본 열 또는 앞서 생성한 열을 선택하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "source_sha256": "20046c00a2f1979885f23be17f795e561451ce52a08cceec7c6f9df6ecbfdb95",
+      "translation": "캡처 그룹의 이름이나 번호를 선택하세요. 그룹 0은 정규식에 일치한 전체 텍스트를 유지합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Column value. Drag to reorder or select and remove this token.",
+      "source": "Column value. Drag to reorder or select and remove this token.",
+      "source_sha256": "df703f49a5878694dc48d4966365d8a7dfb6eee428db6f80812e7bbe521b1b6b",
+      "translation": "열 값입니다. 드래그하여 순서를 바꾸거나 이 토큰을 선택해 제거하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Compose column",
+      "source": "Compose column",
+      "source_sha256": "98f9d5df8c099ac5944d9988653bad8aefacfb021af225845d447cdaf6bf2ea1",
+      "translation": "열 조합"
+    },
+    {
+      "table": "ui",
+      "key": "Composition order",
+      "source": "Composition order",
+      "source_sha256": "82f75f945dafc7303ac39d9b5c40955864998da0b7a46f99b392bac4b85864b3",
+      "translation": "조합 순서"
+    },
+    {
+      "table": "ui",
+      "key": "Copy this example and adapt the separators to your filenames.",
+      "source": "Copy this example and adapt the separators to your filenames.",
+      "source_sha256": "bba3c86e1394f21fb92d6fabca9d750b9ff7ab6b3fb24784dbdc9a8a558b4906",
+      "translation": "이 예제를 복사하고 파일 이름에 맞게 구분자를 바꾸세요."
+    },
+    {
+      "table": "ui",
+      "key": "Create columns from named groups",
+      "source": "Create columns from named groups",
+      "source_sha256": "9338e731b7c3a11ea274b3add1a01d190fedafc60fdaba23dd25e7d817224a5f",
+      "translation": "이름 있는 캡처 그룹으로 열 만들기"
+    },
+    {
+      "table": "ui",
+      "key": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "source": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "source_sha256": "ee38604215d0f417217383991d66643b74ee48e1d92fb521802bf3baa945b193",
+      "translation": "패턴 순서에 따라 이름 있는 각 캡처 그룹에 대해 출력 열을 하나씩 만듭니다. 기존 출력 열과 원본 열의 이름은 보호됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "source_sha256": "02cb54d7af4c3610a970f4e4baf06a5083f7dc71c6b5be2f3814dd7726a15fe4",
+      "translation": "열을 조합 영역으로 드래그하거나 두 번 클릭해 추가하세요. 원본 열과 앞서 생성한 열만 사용할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "source": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "source_sha256": "6fa31cbacdbdb3f663088dd1eef6080b51db3db53b3aa21eef440b8f9189cd74",
+      "translation": "열 토큰을 원하는 순서로 드래그하고 고정 텍스트나 구분자를 삽입하세요. 앞서 생성한 열을 다시 사용할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "source": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "source_sha256": "1377c1dd04a3d7a24d80ee825d677cc202660e77b79f5c67537a95c2d19c9df0",
+      "translation": "비교할 텍스트를 입력하세요. 같음 비교는 빈 문자열과 일치할 수 있지만 결측값은 어떤 조건에도 일치하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Fixed text or separator",
+      "source": "Fixed text or separator",
+      "source_sha256": "043683d41545d02cdfe1740c9d977a7358937853504a96d682139e714f9be51d",
+      "translation": "고정 텍스트 또는 구분자"
+    },
+    {
+      "table": "ui",
+      "key": "Fixed text. Double-click to edit; drag to reorder.",
+      "source": "Fixed text. Double-click to edit; drag to reorder.",
+      "source_sha256": "a71b716f6ace949f4d14c3322e3e158d171910ad6de72cc9e1928fc6b910a9e3",
+      "translation": "고정 텍스트입니다. 두 번 클릭해 편집하거나 드래그하여 순서를 바꾸세요."
+    },
+    {
+      "table": "ui",
+      "key": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "source_sha256": "6a0e2fd434e83c6dff4583b11f8086befb08416f4c1a0cf2990a233a287ab99c",
+      "translation": "밑줄, 공백 또는 처리 조건의 접두사처럼 그대로 삽입할 텍스트입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Manual rows only",
+      "source": "Manual rows only",
+      "source_sha256": "34f132193a9a222c16038235980dbfc9699b67f3015e33a7cf6cd97390078b0e",
+      "translation": "수동으로 할당한 행만"
+    },
+    {
+      "table": "ui",
+      "key": "Move token up",
+      "source": "Move token up",
+      "source_sha256": "d9fd305fbf6039c44dcbdb70072a9867bded43f53db073c3692c741fd667fbc3",
+      "translation": "토큰 위로 이동"
+    },
+    {
+      "table": "ui",
+      "key": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "source_sha256": "94aa4d9b77ebee37ee203f95d76151c88f150c4ce9093100c06a3363d6a82077",
+      "translation": "할당할 값을 입력한 다음 일치해야 하는 메타데이터 규칙을 선택하세요. 원본 표의 행을 상자로 드래그할 수도 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "source_sha256": "47e158a17ef7eba70e6982637ad9b17ca857ce47b225791c7f86d040a54b1a02",
+      "translation": "정규식 연산자만 패턴을 해석합니다. 다른 연산자는 텍스트를 그대로 비교하며 대소문자를 구분합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Preview to see source and generated values.",
+      "source": "Preview to see source and generated values.",
+      "source_sha256": "9e8e8997fa0ec2e946f79125d285980e526fc4a6770e5c6d04e27988fc9c4228",
+      "translation": "원본 값과 생성된 값을 미리보기로 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Source column",
+      "source": "Source column",
+      "source_sha256": "3e17d20e048679b4acbfd5d2a97a57987fd8a62d4ad14cdf94ad9dcb9423478c",
+      "translation": "원본 열"
+    },
+    {
+      "table": "ui",
+      "key": "Text to match",
+      "source": "Text to match",
+      "source_sha256": "19d4d1729415dd75a557707f3d2b51f210b3a01222be35927c445283bad4d315",
+      "translation": "비교할 텍스트"
+    },
+    {
+      "table": "ui",
+      "key": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "source_sha256": "5fae60cc2a8319762c87ae5ba555a771dbc38a9d3fbdf93580509b9f7586a8b3",
+      "translation": "토큰은 왼쪽에서 오른쪽으로 연결됩니다. 중괄호는 열 값을 나타냅니다. 드래그하여 순서를 바꾸거나 고정 텍스트를 두 번 클릭해 편집하세요. 열 값이 없으면 결과는 비어 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Value to assign",
+      "source": "Value to assign",
+      "source_sha256": "dcaf708fbaf0dccb87fa453e0a953ed6e67dcd08138e349a8a45e2d5885b28d4",
+      "translation": "할당할 값"
+    },
+    {
+      "table": "ui",
+      "key": "all rules match",
+      "source": "all rules match",
+      "source_sha256": "4b311bf231e84dcfc1337dab5c782e8954938a13118817a01d682dfc5345cfb4",
+      "translation": "모든 규칙이 일치함"
+    },
+    {
+      "table": "ui",
+      "key": "any rule matches",
+      "source": "any rule matches",
+      "source_sha256": "63934bbadf2bd2daf4b9c197821c5299f127dc7aec3390821d8f712e8deb2cd3",
+      "translation": "하나 이상의 규칙이 일치함"
+    },
+    {
+      "table": "ui",
+      "key": "contains",
+      "source": "contains",
+      "source_sha256": "beeb20fbd67695085c26c5dfa7b5ece4d1985d201cb6f0dd9aa66a36ed987ce5",
+      "translation": "포함함"
+    },
+    {
+      "table": "ui",
+      "key": "does not contain",
+      "source": "does not contain",
+      "source_sha256": "80ccd8c9b9af87acd9ce5bea7f8b6c9978971ca8f81888ab1d2ab3a3de6d2c06",
+      "translation": "포함하지 않음"
+    },
+    {
+      "table": "ui",
+      "key": "does not equal",
+      "source": "does not equal",
+      "source_sha256": "e6f694aa9aed3ad19828853286ef0a7a0a262e074aff48281a1724f089d445d1",
+      "translation": "같지 않음"
+    },
+    {
+      "table": "ui",
+      "key": "does not match regex",
+      "source": "does not match regex",
+      "source_sha256": "f61ae0058149acd17060629b4e3cac50386c7be8f4da5cee3486ec88c3ea12cb",
+      "translation": "정규식과 일치하지 않음"
+    },
+    {
+      "table": "ui",
+      "key": "ends with",
+      "source": "ends with",
+      "source_sha256": "19ecc104ac1b52b3645832bd247ae9fc353060b435aa391e707deb92db017728",
+      "translation": "다음으로 끝남"
+    },
+    {
+      "table": "ui",
+      "key": "equals",
+      "source": "equals",
+      "source_sha256": "e93cb41d4a7d2395d9bdfe4d8616f9b52762523bb44e75bf7701cd9d2e0d1cb7",
+      "translation": "같음"
+    },
+    {
+      "table": "ui",
+      "key": "matches regex",
+      "source": "matches regex",
+      "source_sha256": "ad700316746ce65c272561a3206c268405d87c3402b65ab2b87bc140682e41aa",
+      "translation": "정규식과 일치함"
+    },
+    {
+      "table": "ui",
+      "key": "starts with",
+      "source": "starts with",
+      "source_sha256": "97862730c3a13cd957b766b03489cdf46b415e9d465b67812974158d631d6107",
+      "translation": "다음으로 시작함"
+    },
+    {
+      "table": "ui",
+      "key": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "source": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "source_sha256": "eb73bfa40caa774bc65f8c66af10fb5e29a1e49f807733260187d2d5d835c4fb",
+      "translation": "남길 텍스트를 괄호로 캡처하세요. {example}처럼 캡처 그룹에 이름을 지정하면 여러 출력 열을 한 번에 만들 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Add named captures such as {example} before creating columns.",
+      "source": "Add named captures such as {example} before creating columns.",
+      "source_sha256": "2f7f5d075a67fe31f72c88b1aff3ef3e55a84493063fb3a80ab1c000a10cff86",
+      "translation": "열을 만들기 전에 {example}처럼 이름이 있는 캡처 그룹을 추가하세요."
+    }
+  ]
+}

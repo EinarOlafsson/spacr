@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Codex agents reviewed all 11 local-model schema UI drafts in each locale. Technical errors and omissions were corrected as source-bound targets. Another Codex agent independently reviewed every corrected source/target pair, including load-without-apply, no restored manual memberships, portable rules/extraction/composition, omission counts and placeholders. Standard generator, normalization and translation quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "9fe7e139de5fbd6b8324c6667fbaf9672eeff5bbb2c6fa1a9398d58122f4e2e6",
+  "original_local_model_drafts": [
+    {
+      "source": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "translation": "Charger un schéma JSON pour la table courante et prévisualiser toutes les colonnes générées. Le chargement n'applique pas de modifications ou de restauration manuelle des assignations de lignes."
+    },
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "translation": "Enregistrer les règles validées, les patrons d'extraction et la composition des colonnes comme réutilisables JSON."
+    },
+    {
+      "source": "Saving annotation schema…",
+      "translation": "Enregistrant le schéma d'annotation..."
+    },
+    {
+      "source": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "translation": "Schéma chargé pour prévisualisation. Examiner les colonnes générées, puis appliquer quand prêt."
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "translation": "Schéma enregistré dans {path}. Les assignations manuelles de lignes {count:,} ont été omises."
+    }
+  ],
+  "authorship": [
+    {
+      "source": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    },
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    },
+    {
+      "source": "Saving annotation schema…",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    },
+    {
+      "source": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "source": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "source_sha256": "ca1c69215670bb54d50daebc437262d0d70ce8e6c8b0708c775d2059d50b0f11",
+      "translation": "Chargez un schéma JSON pour la table actuelle et prévisualisez toutes les colonnes générées. Le chargement ne modifie pas la table et ne restaure pas les affectations manuelles de lignes."
+    },
+    {
+      "table": "ui",
+      "key": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source_sha256": "a643c6cc5eb94070c609badd6bee8466e85ad53c842d5c0d7f47b007cc134f4d",
+      "translation": "Enregistrez les règles validées, les motifs d’extraction et la composition des colonnes dans un fichier JSON réutilisable. Les affectations de lignes effectuées par glisser-déposer manuel sont omises."
+    },
+    {
+      "table": "ui",
+      "key": "Saving annotation schema…",
+      "source": "Saving annotation schema…",
+      "source_sha256": "1b9f2e064c9c3a8ca9ed9dd90af0eb0d293be314a2027fd458c2b98b6e99eb60",
+      "translation": "Enregistrement du schéma d’annotation…"
+    },
+    {
+      "table": "ui",
+      "key": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "source": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "source_sha256": "c31647ee49dedba524246fab2602b806daba4887dc1fd42554833d96cc82f8ea",
+      "translation": "Schéma chargé pour prévisualisation. Vérifiez les colonnes générées, puis appliquez les modifications lorsque vous êtes prêt."
+    },
+    {
+      "table": "ui",
+      "key": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source_sha256": "4e6fe802043854fd29e948165ba9ff6c57a62c3a4745ec5c7b0ad2bfe9c49e3f",
+      "translation": "Schéma enregistré dans {path}. {count:,} affectations manuelles de lignes ont été omises."
+    }
+  ]
+}

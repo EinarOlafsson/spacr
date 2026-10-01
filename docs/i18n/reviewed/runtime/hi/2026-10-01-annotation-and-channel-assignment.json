@@ -64,6 +64,50 @@
   "records": [
     {
       "table": "ui",
+      "key": "Exact values must match the entire table value.",
+      "source": "Exact values must match the entire table value.",
+      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
+      "translation": "सटीक मानों को तालिका के पूरे मान से मेल खाना चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "For example, c1 does not match c10.",
+      "source": "For example, c1 does not match c10.",
+      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
+      "translation": "उदाहरण के लिए, c1 का c10 से मेल नहीं होता।"
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression mode uses the Include and Exclude fields above.",
+      "source": "Regular expression mode uses the Include and Exclude fields above.",
+      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
+      "translation": "रेगुलर एक्सप्रेशन मोड ऊपर दिए गए शामिल है और बाहर रखें फ़ील्ड का उपयोग करता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_channel_map",
+      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
+      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
+      "translation": "सहेजे गए तीव्रता चैनलों को विक्रेता के फ्लैट-फ़ील्ड कैलिब्रेशन से जोड़ें। उदाहरण 0:2,1:1 में तीव्रता चैनल 0 और 1 क्रमशः कैलिब्रेशन चैनल 2 और 1 से जुड़ते हैं। तीव्रता चैनलों की संख्या 0 से शुरू होती है। कैलिब्रेशन चैनलों या छवि परतों की संख्या 1 से शुरू होती है। हर उस तीव्रता चैनल को शामिल करें जिसे ठीक करना है। खाली मान मूल चैनल क्रम बनाए रखता है। मान खाली होने पर एक ही कैलिब्रेशन छवि परत सभी चैनलों पर लागू होती है। पहले विक्रेता की कैलिब्रेशन फ़ाइल चुनें। सहेजे गए प्रकाश-सुधार मॉडल को प्राथमिकता मिलती है। डिफ़ॉल्ट मान खाली है।"
+    },
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
+      "translation": "इससे spaCR अपने वर्तमान वातावरण में फिर से इंस्टॉल होगा। अपडेट शुरू होने से पहले spaCR बंद हो जाएगा। अपडेट सफल होने के बाद यह अपने आप फिर खुलेगा।"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
+      "translation": "इससे spaCR अपने वर्तमान वातावरण में फिर से इंस्टॉल होगा। अपडेट सफल होने के बाद spaCR अपने आप बंद होगा और दोबारा खुलेगा।"
+    },
+    {
+      "table": "ui",
       "key": "Create genotype and replicate columns with rules, then combine them in a condition column.",
       "source": "Create genotype and replicate columns with rules, then combine them in a condition column.",
       "source_sha256": "d876737d707c2a650b07e2238fd642bbe56a54f06e97b4f636e70e3a15879900",
@@ -75,13 +119,6 @@
       "source": "Place generated columns before any combined column that uses them.",
       "source_sha256": "dfe8be8cc3405000938408cb7091c89d8e33a4b98a5cc474b944bec7a02bc805",
       "translation": "बनाए गए कॉलम को उनका उपयोग करने वाले संयुक्त कॉलम से पहले रखें।"
-    },
-    {
-      "table": "ui",
-      "key": "Exact values must match the entire table value.",
-      "source": "Exact values must match the entire table value.",
-      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
-      "translation": "सटीक मानों को तालिका के पूरे मान से मेल खाना चाहिए।"
     },
     {
       "table": "ui",
@@ -145,44 +182,8 @@
       "source": "Original source files are not modified.",
       "source_sha256": "eb44a4c106a6cd864ccff03e473d06c0d57b6e260c5688d17d2dcb3f0fb30e58",
       "translation": "मूल स्रोत फ़ाइलें बदली नहीं जाती हैं।"
-    },
-    {
-      "table": "ui",
-      "key": "For example, c1 does not match c10.",
-      "source": "For example, c1 does not match c10.",
-      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
-      "translation": "उदाहरण के लिए, c1 का c10 से मेल नहीं होता।"
-    },
-    {
-      "table": "ui",
-      "key": "Regular expression mode uses the Include and Exclude fields above.",
-      "source": "Regular expression mode uses the Include and Exclude fields above.",
-      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
-      "translation": "रेगुलर एक्सप्रेशन मोड ऊपर दिए गए शामिल है और बाहर रखें फ़ील्ड का उपयोग करता है।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "illumination_vendor_channel_map",
-      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
-      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
-      "translation": "सहेजे गए तीव्रता चैनलों को विक्रेता के फ्लैट-फ़ील्ड कैलिब्रेशन से जोड़ें। उदाहरण 0:2,1:1 में तीव्रता चैनल 0 और 1 क्रमशः कैलिब्रेशन चैनल 2 और 1 से जुड़ते हैं। तीव्रता चैनलों की संख्या 0 से शुरू होती है। कैलिब्रेशन चैनलों या छवि परतों की संख्या 1 से शुरू होती है। हर उस तीव्रता चैनल को शामिल करें जिसे ठीक करना है। खाली मान मूल चैनल क्रम बनाए रखता है। मान खाली होने पर एक ही कैलिब्रेशन छवि परत सभी चैनलों पर लागू होती है। पहले विक्रेता की कैलिब्रेशन फ़ाइल चुनें। सहेजे गए प्रकाश-सुधार मॉडल को प्राथमिकता मिलती है। डिफ़ॉल्ट मान खाली है।"
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "इससे spaCR अपने वर्तमान वातावरण में फिर से इंस्टॉल होगा। अपडेट शुरू होने से पहले spaCR बंद हो जाएगा। अपडेट सफल होने के बाद यह अपने आप फिर खुलेगा।"
     }
   ],
-  "retired_records": [
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
-      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
-      "translation": "इससे spaCR अपने वर्तमान वातावरण में फिर से इंस्टॉल होगा। अपडेट सफल होने के बाद spaCR अपने आप बंद होगा और दोबारा खुलेगा।"
-    }
-  ],
-  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success."
+  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success.",
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }
