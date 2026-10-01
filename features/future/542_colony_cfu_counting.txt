@@ -174,3 +174,13 @@ WHAT IS LEFT
     - Per-plate dilution only via a dict in settings (or a settings file);
       no plate-map/CSV column for it.
     - Colony counting in Figure mode is out of scope.
+
+2026-10-01 — FINITE CONCENTRATION GUARDS
+Private dilution and CFU helpers now reject nonfinite counts, unrepresentable
+float conversions, reciprocal dilution overflow, underflowed volume, and
+nonfinite final concentrations. Invalid inputs yield a missing result instead
+of infinity; valid zero counts and ordinary factor/fraction dilutions retain
+their existing results. Commit 7a38adfea; 17 focused scalar and legacy checks
+passed under a 1 GiB memory cap, zero swap and 100% CPU quota. Public API
+signatures/docstrings and translation sources are unchanged. This does not
+complete the biological validation and preview work listed above.
