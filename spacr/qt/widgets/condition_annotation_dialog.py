@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 
 import pandas as pd
 from PySide6.QtCore import (
@@ -17,9 +18,11 @@ from PySide6.QtCore import (
 from PySide6.QtGui import QDrag
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QApplication,
     QComboBox,
     QDialog,
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -217,21 +220,26 @@ class ConditionBox(QFrame):
         top = QHBoxLayout()
         self.name = QLineEdit(condition.get("name", ""), self)
         self.name.setPlaceholderText(tr("Condition name"))
+        self.name.setToolTip(tr("Label written to the output column for this condition. Give each condition a distinct, nonempty name."))
         top.addWidget(self.name)
         self.column = QComboBox(self)
         self.column.addItems([str(c) for c in source_model.frame.columns])
         self.column.setCurrentText(condition.get("metadata_column", self.column.currentText()))
+        self.column.setToolTip(tr("Metadata column searched by this box's Include and Exclude expressions. Any available source column can be used."))
         top.addWidget(QLabel(tr("Column"), self))
         top.addWidget(self.column)
         self.include = QLineEdit(condition.get("include", ""), self)
         self.include.setPlaceholderText(tr("Include regex (blank: manual only)"))
+        self.include.setToolTip(tr("Regular expression selecting rows from this box's chosen column. Matches anywhere unless anchored with ^ and $. Leave blank to use only manually dropped rows."))
         top.addWidget(QLabel(tr("Include"), self))
         top.addWidget(self.include, 1)
         self.exclude = QLineEdit(condition.get("exclude", ""), self)
         self.exclude.setPlaceholderText(tr("Exclude regex"))
+        self.exclude.setToolTip(tr("Remove rows whose chosen metadata matches this expression, including manually dropped rows. Leave blank to exclude nothing."))
         top.addWidget(QLabel(tr("Exclude"), self))
         top.addWidget(self.exclude, 1)
         remove = QPushButton(tr("Remove condition"), self)
+        remove.setToolTip(tr("Remove this entire condition from the draft. Source measurements and other condition boxes are preserved."))
         remove.clicked.connect(lambda: self.remove_requested.emit(self))
         top.addWidget(remove)
         outer.addLayout(top)
@@ -241,12 +249,15 @@ class ConditionBox(QFrame):
         self.rows.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.rows.setMaximumHeight(115)
         self.rows.setAcceptDrops(False)
+        self.rows.setToolTip(tr("Rows assigned by dragging from the source table. Select rows here to remove manual assignments; regex matches are controlled by Include and Exclude."))
         outer.addWidget(self.rows)
         actions = QHBoxLayout()
         remove_rows = QPushButton(tr("Remove selected manual rows"), self)
+        remove_rows.setToolTip(tr("Remove the selected manual assignments from this box. Rows can still match its Include expression."))
         remove_rows.clicked.connect(self.remove_selected_rows)
         actions.addWidget(remove_rows)
         clear_rows = QPushButton(tr("Clear manual rows"), self)
+        clear_rows.setToolTip(tr("Clear every manually dropped row in this box while keeping its metadata expressions."))
         clear_rows.clicked.connect(self.clear_manual_rows)
         actions.addWidget(clear_rows)
         actions.addStretch()
@@ -331,6 +342,42 @@ class ConditionBox(QFrame):
         self.changed.emit()
 
 
+def _regex_examples(frame, column):
+    """Build safe copyable regex examples from a bounded sample of one column.
+
+    :param frame: Source metadata, never modified by example generation.
+    :param column: Metadata column chosen for examples.
+    :returns: Translatable labels, literal regex patterns and explanations.
+    """
+    values = []
+    if column in frame:
+        for value in frame[column].head(256):
+            text = _display(value)
+            if text and text not in values:
+                values.append(text)
+                if len(values) == 2:
+                    break
+    first = values[0] if values else "sample_value"
+    second = values[1] if len(values) > 1 else "another_value"
+    literal = re.escape(first)
+    middle = len(first) // 2
+    prefix, suffix = re.escape(first[:middle]), re.escape(first[middle + 1:])
+    return [
+        (tr("Contains this text"), literal,
+         tr("Find this literal text anywhere in the selected column. Regex punctuation from the sample is escaped.")),
+        (tr("Either value (a|b)"), "^(?:" + literal + "|" + re.escape(second) + ")$",
+         tr("The vertical bar means OR. Add more alternatives with | inside the parentheses; ^ and $ require a whole-value match.")),
+        (tr("One variable character (.)"), "^" + prefix + "." + suffix + "$",
+         tr("A dot matches one character. This example replaces one character near the middle of a sample value.")),
+        (tr("Variable text (.*)"), "^" + prefix + ".*" + suffix + "$",
+         tr("Dot-star matches zero or more characters between the fixed parts. Edit those parts to match your filenames or metadata.")),
+        (tr("Exact value (^...$)"), "^" + literal + "$",
+         tr("^ marks the start and $ marks the end, so extra text before or after the value does not match.")),
+        (tr("Ignore case ((?i))"), "(?i)" + literal,
+         tr("(?i) makes letter matching case-insensitive. Without it, Include and Exclude distinguish uppercase and lowercase.")),
+    ]
+
+
 class ConditionAnnotationDialog(QDialog):
     """Edit, preview and safely apply labels to any loaded table.
 
@@ -372,8 +419,10 @@ class ConditionAnnotationDialog(QDialog):
         header = QHBoxLayout()
         header.addWidget(QLabel(tr("Output column"), self))
         self.output_column = QLineEdit(self._initial["column"], self)
+        self.output_column.setToolTip(tr("Name of the new condition column. An existing source column cannot be overwritten; choose a distinct name."))
         header.addWidget(self.output_column)
         self.add_condition = QPushButton(tr("Add condition"), self)
+        self.add_condition.setToolTip(tr("Add another named condition box with its own metadata rules and manual row assignments."))
         self.add_condition.clicked.connect(lambda: self.add_box())
         header.addWidget(self.add_condition)
         outer.addLayout(header)
@@ -388,6 +437,7 @@ class ConditionAnnotationDialog(QDialog):
         source_layout = QVBoxLayout(source_panel)
         self.filter = QLineEdit(self)
         self.filter.setPlaceholderText(tr("Filter source metadata or preview conditions"))
+        self.filter.setToolTip(tr("Case-insensitive literal search across the visible source table. This is not a regex field and only changes which rows you see; it does not change condition assignments."))
         source_layout.addWidget(self.filter)
         self.source_model = ConditionRowsModel(frame, self)
         self.proxy = QSortFilterProxyModel(self)
@@ -401,6 +451,7 @@ class ConditionAnnotationDialog(QDialog):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setDragEnabled(True)
+        self.table.setToolTip(tr("Click column headers to sort. Select multiple rows with Ctrl or Shift, then drag them into a condition box. Sorting and filtering preserve row identity."))
         self.table.setDragDropMode(QAbstractItemView.DragOnly)
         self.table.setSortingEnabled(True)
         self.table.horizontalHeader().setDefaultSectionSize(150)
@@ -411,6 +462,7 @@ class ConditionAnnotationDialog(QDialog):
         scroll.setWidgetResizable(True)
         boxes_panel = QWidget(self)
         self.box_layout = QVBoxLayout(boxes_panel)
+        self.box_layout.addWidget(self._build_regex_guide(boxes_panel))
         self.box_layout.addStretch()
         scroll.setWidget(boxes_panel)
         splitter.addWidget(scroll)
@@ -421,13 +473,16 @@ class ConditionAnnotationDialog(QDialog):
         outer.addWidget(self.status)
         actions = QHBoxLayout()
         self.preview_button = QPushButton(tr("Preview assignments"), self)
+        self.preview_button.setToolTip(tr("Check expressions and show each condition's matches, unmatched rows and overlaps without modifying the working table."))
         self.preview_button.clicked.connect(self.refresh_preview)
         actions.addWidget(self.preview_button)
         self.apply_button = QPushButton(tr("Apply conditions"), self)
         self.apply_button.setEnabled(False)
+        self.apply_button.setToolTip(tr("Add the condition column to the working table after validation. Invalid expressions and overlapping conditions must be resolved first."))
         self.apply_button.clicked.connect(self.accept)
         actions.addWidget(self.apply_button)
         cancel = QPushButton(tr("Cancel"), self)
+        cancel.setToolTip(tr("Discard this draft and keep previously applied annotations unchanged."))
         cancel.clicked.connect(self.reject)
         actions.addWidget(cancel)
         outer.addLayout(actions)
@@ -437,6 +492,71 @@ class ConditionAnnotationDialog(QDialog):
         if not self.boxes:
             self.add_box()
         self.refresh_preview()
+
+    def _build_regex_guide(self, parent):
+        """Place column-aware, copyable examples above the first condition box.
+
+        :param parent: Scroll-panel owner.
+        :returns: Compact guide that never changes an annotation rule itself.
+        """
+        guide = QFrame(parent)
+        layout = QGridLayout(guide)
+        layout.setContentsMargins(0, 0, 0, SPACING["sm"])
+        explanation = QLabel(tr(
+            "Regex help: Include selects matches; Exclude removes them, including dropped rows. "
+            "Leave Include blank for a manual-only box. Patterns search within values: | means OR, "
+            ". matches one character, .* matches any length, and ^...$ matches the whole value."), guide)
+        explanation.setWordWrap(True)
+        explanation.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        layout.addWidget(explanation, 0, 0, 1, 5)
+        layout.addWidget(QLabel(tr("Examples for column"), guide), 1, 0)
+        self._regex_column = QComboBox(guide)
+        self._regex_column.addItems([str(column) for column in self.frame.columns])
+        chosen = next((column for column in ("wellID", "columnID", "filename", "plateID")
+                       if column in self.frame), self._regex_column.currentText())
+        self._regex_column.setCurrentText(chosen)
+        self._regex_column.setToolTip(tr("Choose metadata to sample for the examples. Changing a condition box's column updates this selection; examples do not alter the box."))
+        layout.addWidget(self._regex_column, 1, 1)
+        self._regex_kind = QComboBox(guide)
+        self._regex_kind.setToolTip(tr("Choose a regex pattern to learn from. Examples use up to two values from the first 256 source rows; sample_value and another_value are placeholders when values are missing."))
+        layout.addWidget(self._regex_kind, 1, 2)
+        self._regex_pattern = QLineEdit(guide)
+        self._regex_pattern.setToolTip(tr("Copy or edit this example, then paste it into a condition's Include or Exclude field. Copying does not change any condition."))
+        layout.addWidget(self._regex_pattern, 1, 3)
+        self._copy_regex = QPushButton(tr("Copy regex"), guide)
+        self._copy_regex.setToolTip(tr("Copy the exact expression shown here to the clipboard for use in Include or Exclude."))
+        self._copy_regex.clicked.connect(lambda: QApplication.clipboard().setText(self._regex_pattern.text()))
+        layout.addWidget(self._copy_regex, 1, 4)
+        self._regex_help = QLabel(guide)
+        self._regex_help.setWordWrap(True)
+        self._regex_help.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        layout.addWidget(self._regex_help, 2, 0, 1, 5)
+        layout.setColumnStretch(3, 1)
+        self._regex_column.currentTextChanged.connect(self._refresh_regex_examples)
+        self._regex_kind.currentIndexChanged.connect(self._show_regex_example)
+        self._refresh_regex_examples()
+        return guide
+
+    def _refresh_regex_examples(self, *_args):
+        """Regenerate escaped sample patterns after the example column changes."""
+        self._regex_examples = _regex_examples(self.frame, self._regex_column.currentText())
+        selected = max(0, self._regex_kind.currentIndex())
+        self._regex_kind.blockSignals(True)
+        self._regex_kind.clear()
+        self._regex_kind.addItems([row[0] for row in self._regex_examples])
+        self._regex_kind.setCurrentIndex(selected)
+        self._regex_kind.blockSignals(False)
+        self._show_regex_example(selected)
+
+    def _show_regex_example(self, index):
+        """Show the selected pattern as editable, directly copyable plain text.
+
+        :param index: Example type selected in the guide.
+        """
+        if 0 <= index < len(self._regex_examples):
+            _label, pattern, explanation = self._regex_examples[index]
+            self._regex_pattern.setText(pattern)
+            self._regex_help.setText(explanation)
 
     def add_box(self, condition=None):
         """Append another named condition without imposing a fixed count.
@@ -455,8 +575,11 @@ class ConditionAnnotationDialog(QDialog):
                          "include": "", "exclude": "", "manual_rows": []}
         box = ConditionBox(self.source_model, condition, self)
         box.changed.connect(self._changed)
+        box.column.currentTextChanged.connect(self._regex_column.setCurrentText)
         box.problem.connect(self._failed)
         box.remove_requested.connect(self.remove_box)
+        if not self.boxes:
+            self._regex_column.setCurrentText(box.column.currentText())
         self.boxes.append(box)
         self.box_layout.insertWidget(self.box_layout.count() - 1, box)
         self._changed()
