@@ -86963,6 +86963,16 @@
       "source_sha256": "3e531610311ce0af97899b3153f5fd294692f391f2b1e4414ac7cf4fb0f7d041",
       "text": "Normalise the channels and validate the plot settings.\n\n``\"\"`` and ``None`` both mean an empty zone and are normalised to\n``None``, which is what lets ``if spec.x:`` be the whole test everywhere\nelse.\n\n:raises SpecError: if the plot kind is not one this module offers --\n    ``None`` is allowed and means \"infer it from the columns dropped\";\n    if a role override is neither continuous nor categorical; or if\n    ``bins`` is below 1."
     },
+    "spacr.qt.widgets.graph_spec.GraphSpec.binding_error": {
+      "source_blocks_sha256": [
+        "14335f9485e1de8ef65e4dfa1141eed0a1ee56a14d2c41e6064ba2465723da0d",
+        "73199181038d3370904ba1508e189131041dca4e26d43bb771b0fe5b38af6294",
+        "95a37d7ea3eb9559241baf6fb479b3f947b37cdca17da7dc0b2f79154373493e",
+        "e636c9a5e065606e08467ef093bed07ecf23096c3a46dbc5b01affab4164016b"
+      ],
+      "source_sha256": "2ecd95e7650c860016e0284b05503c896ba873e4c0dc1002f942a67156d62dea",
+      "text": "Explain incomplete or incompatible bindings, or return an empty string.\n\nA pinned plot kind survives channel edits. Its temporary inability to\ndraw is an editable state, not an invalid spec or a reason to silently\nchoose another chart. The map must describe all available columns,\nincluding role overrides, as returned by :meth:`kinds_for`.\n\n:param kinds: column kinds for the current table.\n:returns: an actionable canvas message, or ``\"\"`` when drawable."
+    },
     "spacr.qt.widgets.graph_spec.GraphSpec.channels": {
       "source_blocks_sha256": [
         "ad5fb78a98d56bd1f46c69dd6338e70a83dfacb2658f608c4991a12bbb011451"

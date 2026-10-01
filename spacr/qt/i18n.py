@@ -151,9 +151,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Quit": _row(
         "Avsluta", "Beenden", "Salir", "退出", "Sair",
         "बाहर निकलें", "종료", "Hætta", "Quitter"),
-    "Demos": _row(
-        "Demon", "Demos", "Demostraciones", "演示", "Demonstrações",
-        "डेमो", "데모", "Sýnishorn", "Démonstrations"),
     "Help": _row(
         "Hjälp", "Hilfe", "Ayuda", "帮助", "Ajuda",
         "सहायता", "도움말", "Hjálp", "Aide"),
@@ -2085,10 +2082,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Stjärnfält", "Sternenfeld", "Campo estelar", "星空",
         "Campo estelar", "तारों का क्षेत्र", "별빛", "Stjörnusvið",
         "Champ d’étoiles"),
-    "Demos menu": _row(
-        "Demomeny", "Demo-Menü", "Menú de demostraciones", "演示菜单",
-        "Menu de demonstrações", "डेमो मेनू", "데모 메뉴",
-        "Sýnishornavalmynd", "Menu Démonstrations"),
     "protanopia": _row(
         "protanopi", "Protanopie", "protanopía", "红色盲", "protanopia",
         "प्रोटैनोपिया", "제1색맹", "rauðblinda", "protanopie"),
@@ -2304,7 +2297,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Timelapse demo…": _row("Tidsseriedemo…", "Zeitraffer-Demo…", "Demo de lapso de tiempo…", "延时演示…", "Demonstração de time-lapse…", "टाइमलैप्स डेमो…", "타임랩스 데모…", "Tímaraðarsýnishorn…", "Démo time-lapse…"),
     "Sequencing demo…": _row("Sekvenseringsdemo…", "Sequenzierungs-Demo…", "Demo de secuenciación…", "测序演示…", "Demonstração de sequenciação…", "सीक्वेंसिंग डेमो…", "시퀀싱 데모…", "Raðgreiningarsýnishorn…", "Démo de séquençage…"),
     "Choose source data": _row("Välj källdata", "Quelldaten wählen", "Elegir datos de origen", "选择源数据", "Escolher dados de origem", "स्रोत डेटा चुनें", "소스 데이터 선택", "Velja upprunagögn", "Choisir les données source"),
-    "Open Demos menu": _row("Öppna Demo-menyn", "Demos-Menü öffnen", "Abrir el menú Demostraciones", "打开演示菜单", "Abrir o menu Demonstrações", "डेमो मेनू खोलें", "데모 메뉴 열기", "Opna Sýnishorn-valmynd", "Ouvrir le menu Démonstrations"),
 
     "Showing {shown} of {total} settings": _row("Visar {shown} av {total} inställningar", "{shown} von {total} Einstellungen angezeigt", "Mostrando {shown} de {total} ajustes", "显示 {total} 项设置中的 {shown} 项", "A mostrar {shown} de {total} definições", "{total} में से {shown} सेटिंग दिख रही हैं", "설정 {total}개 중 {shown}개 표시", "Sýni {shown} af {total} stillingum", "Affichage de {shown} réglages sur {total}"),
     "Showing all {total} settings.": _row("Visar alla {total} inställningar.", "Alle {total} Einstellungen werden angezeigt.", "Mostrando los {total} ajustes.", "显示全部 {total} 项设置。", "A mostrar todas as {total} definições.", "सभी {total} सेटिंग दिख रही हैं।", "설정 {total}개 모두 표시.", "Sýni allar {total} stillingarnar.", "Affichage des {total} réglages."),
@@ -2919,26 +2911,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "이미지 폴더를 이 창 아무 곳에나 끌어다 놓거나, {offer}. 아래의 소스 필드에 경로를 직접 입력할 수도 있습니다.",
         "Slepptu möppu með myndum hvar sem er í þessum glugga, eða {offer}. Þú getur líka slegið slóð inn í Uppruni-reitinn hér fyrir neðan.",
         "Déposez un dossier d’images n’importe où sur cette fenêtre, ou {offer}. Vous pouvez aussi saisir un chemin dans le champ Source ci-dessous."),
-    "use Demos → {demo} for a synthetic dataset": _row(
-        "använd Demon → {demo} för en syntetisk datauppsättning",
-        "verwenden Sie Demos → {demo} für einen synthetischen Datensatz",
-        "utilice Demostraciones → {demo} para un conjunto de datos sintético",
-        "使用“演示 → {demo}”获取合成数据集",
-        "use Demonstrações → {demo} para um conjunto de dados sintético",
-        "सिंथेटिक डेटासेट के लिए डेमो → {demo} का उपयोग करें",
-        "합성 데이터셋이 필요하면 데모 → {demo}를 사용하세요",
-        "notaðu Sýnishorn → {demo} fyrir tilbúið gagnasafn",
-        "utilisez Démonstrations → {demo} pour un ensemble de données synthétique"),
-    "pick a dataset from the Demos menu": _row(
-        "välj en datauppsättning i menyn Demon",
-        "wählen Sie einen Datensatz aus dem Demos-Menü",
-        "elija un conjunto de datos del menú Demostraciones",
-        "从“演示”菜单中选择一个数据集",
-        "escolha um conjunto de dados no menu Demonstrações",
-        "डेमो मेनू से कोई डेटासेट चुनें",
-        "데모 메뉴에서 데이터셋을 선택하세요",
-        "veldu gagnasafn úr Sýnishorn-valmyndinni",
-        "choisissez un ensemble de données dans le menu Démonstrations"),
     "Remove {value}": _row(
         "Ta bort {value}",
         "{value} entfernen",

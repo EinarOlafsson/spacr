@@ -67,9 +67,8 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [AppScreen.set_dimension](#appscreenset_dimension) (1 entry)
 - [AppScreen._dimension_rows](#appscreen_dimension_rows) (1 entry)
 - [AppScreen._attach_column_picker](#appscreen_attach_column_picker) (2 entries)
-- [AppScreen._build_empty_state_banner](#appscreen_build_empty_state_banner) (7 entries)
+- [AppScreen._build_empty_state_banner](#appscreen_build_empty_state_banner) (5 entries)
 - [AppScreen.choose_source_folder](#appscreenchoose_source_folder) (1 entry)
-- [AppScreen._open_demos_menu](#appscreen_open_demos_menu) (1 entry)
 - [AppScreen.eventFilter](#appscreeneventfilter) (7 entries)
 - [AppScreen._default_hint](#appscreen_default_hint) (1 entry)
 - [AppScreen._build_runtime_panel](#appscreen_build_runtime_panel) (93 entries)
@@ -953,7 +952,7 @@ THE MODEL ASKS THE PANEL FOR A ROW IT IS ABOUT TO SHOW. The rule decides visibil
 self._empty_state_card = self._build_empty_state_banner()
 ```
 
-Empty-state banner — shown ONLY when the src widget is empty. It's a compact "Drop a plate folder here or pick a Demo dataset" card that sits above the settings form; it auto-hides as soon as the user sets src (drag/drop or typing). Users who load settings via Import don't see it a second time.
+Empty-state banner — shown ONLY when the src widget is empty. The compact card above the settings form points to a source folder, the module's Load test data control, and Home's Pipeline overviews; it auto-hides as soon as the user sets src (drag/drop or typing). Users who load settings via Import don't see it a second time.
 
 ### lines 2447-2451
 
@@ -1991,31 +1990,13 @@ title = tr(
 
 Human-friendly title varies per app; the body is the same. THE MODULE NAME IS A VALUE, NOT PART OF THE KEY: baking it into the sentence first asks the catalog for "Point measure at some data" and every other module's variant of it, none of which any catalog can hold. The sentence is looked up as a template and the name itself translated -- put in afterwards.
 
-### lines 5630-5636
-
-```python
-try:
-```
-
-...and so does the demo. This named "Demos → Mask demo…" on every screen, so Measure, Timelapse, Classify and Sequencing all offered a dataset that opens a DIFFERENT module: following the hint on the Measure screen generates raw images, navigates away to Mask, and leaves the empty screen the user was trying to fill exactly as empty. Ask which demo lands HERE, and say nothing specific when none does.
-
-### lines 5642-5645
-
-```python
-offer = (
-```
-
-Same reason as the title above: the clause and the sentence are each looked up on their own, so the demo's name is the only part that is interpolated and the catalog is never asked for a key that contains it.
-
 ### lines 5657-5663
 
 ```python
 cta_label="Choose source data",
 ```
 
-THE BUTTON DOES THE THING THE CARD IS ABOUT. It opened the
-
-Demos menu, which is one way to get data and not the way most people arrive: somebody who already has images wanted the card to take them to their images, and instead it offered them a synthetic dataset. The demo is still offered -- in the sentence above, which names the one that lands on THIS screen -- and the button now sets the source folder.
+The button opens the source-folder picker. The card also points to the module's Load test data control and the Pipeline overviews walkthroughs on Home.
 
 ### lines 5667-5670
 
@@ -2042,16 +2023,6 @@ setter = getattr(self._settings_model, "set_value_for_key", None)
 ```
 
 THROUGH THE MODEL, not by poking the widget. `src` is a plain line edit on most screens and a list of plates on Classify, and the model is what knows the difference -- writing text into the second one would put a folder where a set of databases goes.
-
-## AppScreen._open_demos_menu
-
-### line 5798  _(unsure)_
-
-```python
-m.exec(mw.mapToGlobal(mw.rect().topLeft()))
-```
-
-Show the menu at the top-left of the window
 
 ## AppScreen.eventFilter
 

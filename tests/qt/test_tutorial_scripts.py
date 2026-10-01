@@ -594,22 +594,17 @@ def test_menu_bar_helper_returns_the_windows_menu_bar(main_window):
     assert _menu_bar(main_window) is main_window.menuBar()
 
 
-def test_legacy_demos_lookup_reports_retired_menu_without_popup(main_window,
-                                                                 caplog):
-    """Compatibility lookup reports the absent destination without a popup."""
-    from spacr.qt.tutorial.scripts import _open_demos_menu
-    with caplog.at_level("WARNING", logger="spacr.qt.tutorial"):
-        assert _open_demos_menu(main_window) is None
+def test_tutorial_cannot_target_the_retired_menu(main_window, caplog):
+    """The actual application has no obsolete navigation or helper to open it."""
+    from spacr.qt.tutorial import scripts
     from PySide6.QtWidgets import QApplication
-    assert QApplication.activePopupWidget() is None
 
-    class NoMenus:
-        def menuBar(self):
-            return None
-
+    assert scripts._find_menu(main_window, "Demos") is None
+    assert not hasattr(scripts, "_open_demos_menu")
     with caplog.at_level("WARNING", logger="spacr.qt.tutorial"):
-        assert _open_demos_menu(NoMenus()) is None
-    assert any("no Demos menu" in r.message for r in caplog.records)
+        bar, point = scripts._menu_target(main_window, "Demos")
+    assert bar is main_window.menuBar() and point is None
+    assert QApplication.activePopupWidget() is None
 
 
 def test_find_button_prefers_exact_then_prefix_then_none(qtbot,

@@ -270,4 +270,4 @@ def test_the_removed_demos_menu_is_not_offered_by_the_walkthrough(window):
     from spacr.qt.tutorial import scripts
 
     assert scripts._find_menu(window, "Demos") is None
-    assert scripts._open_demos_menu(window) is None
+    assert not hasattr(scripts, "_open_demos_menu")
