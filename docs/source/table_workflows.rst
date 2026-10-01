@@ -422,6 +422,32 @@ disabled. Adjust the include/exclude patterns or manual assignments until
 the overlap count is zero. No condition silently wins. Unmatched rows remain
 blank in the output column and remain present in the table.
 
+Reuse an annotation schema on another table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choose **Save schema** after the preview is valid. The JSON file retains the
+output-column names and order, extraction patterns and capture groups, matching
+rules, labels, and composition tokens. It contains the instructions for
+generating values, rather than a copy of the table or its generated values.
+
+Open another table, choose **Annotate conditions**, then **Load schema** and
+select the JSON file. The new table may have different rows and values, but
+must provide the columns referenced by the schema. All outputs are previewed
+against this table. Inspect the values and any overlapping assignments before
+choosing **Apply conditions**. Loading alone does not change the working table.
+
+Manually dragged row assignments are specific to their source table and are
+omitted from reusable schemas. The save result reports how many assignments
+were omitted. Manual-only condition boxes remain available as empty groups to
+fill for the new table. To preserve manual assignments for the original
+analysis, use **Save chart** or **Save annotated table…** instead.
+
+Malformed files, unsupported versions, unavailable columns, invalid patterns
+and invalid output dependencies leave the existing dialog draft unchanged.
+An existing source column cannot be overwritten by a schema output. Schema
+files are written atomically; saving a schema over the source table itself is
+refused. The file size limit is 8 MiB.
+
 Keep conditions with the analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

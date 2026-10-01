@@ -437,7 +437,7 @@ def apply_conditions(frame, definition, source):
 _SCHEMA_MAX_BYTES = 8 * 1024 * 1024
 
 
-def _schema_columns(columns, *, importing):
+def _schema_columns(columns, *, importing, version):
     """Copy only portable recipe fields; never import source-bound memberships."""
     allowed = {
         "rules": {"column", "kind", "conditions"},
@@ -472,6 +472,14 @@ def _schema_columns(columns, *, importing):
                     raise AnnotationError("The annotation schema contains unsupported rule fields.")
                 if not isinstance(rule.get("name"), str):
                     raise AnnotationError("Schema labels must be text.")
+                for key in ("metadata_column", "include", "exclude", "match_mode", "match_text", "match"):
+                    if key in rule and not isinstance(rule[key], str):
+                        raise AnnotationError(f"Schema rule field {key!r} must be text.")
+                for key in ("include_values", "exclude_values"):
+                    if key in rule:
+                        _exact_values(rule, key, rule["name"])
+                if "criteria" in rule and version < 3:
+                    raise AnnotationError("Criteria require annotation recipe version 3.")
                 manual = rule.get("manual_rows", [])
                 if not isinstance(manual, list) or (importing and manual):
                     raise AnnotationError("Reusable schemas cannot contain manual row assignments.")
@@ -486,6 +494,14 @@ def _schema_columns(columns, *, importing):
                     rule["match_mode"] = "regex"
                     rule["include"] = ""
                     rule.pop("match_text", None)
+                # Inactive fields must not become active merely because an editor
+                # selects a mode after loading. Preserve the evaluator's meaning.
+                if rule.get("match_mode", "regex") == "values":
+                    rule.pop("include", None)
+                    rule.pop("exclude", None)
+                else:
+                    rule.pop("include_values", None)
+                    rule.pop("exclude_values", None)
                 if "criteria" in rule:
                     criteria = rule["criteria"]
                     if not isinstance(criteria, list) or any(
@@ -515,10 +531,15 @@ def _save_schema(path, frame, definition, source):
         if (target.resolve() == original.resolve()
                 or (target.exists() and original.exists() and target.samefile(original))):
             raise AnnotationError("Save the annotation schema separately from the source table.")
+    version = definition.get("version")
+    if type(version) is not int or version not in (1, 2, 3):
+        raise AnnotationError("Unsupported annotation recipe version.")
+    # Validate portable fields before the legacy evaluator can coerce malformed
+    # values or ignore fields that the schema reader would have to reject.
+    columns, omitted = _schema_columns(_entries(definition), importing=False, version=version)
     report = preview(frame, definition, source)
     if len(report.overlaps):
         raise AnnotationError("Resolve overlapping labels before saving the annotation schema.")
-    columns, omitted = _schema_columns(_entries(definition), importing=False)
     payload = {"format": "spacr.annotation-schema", "version": 1,
                "recipe_version": definition["version"], "manual_rows": "excluded",
                "columns": columns}
@@ -565,8 +586,8 @@ def _load_schema(path, frame, source):
             or payload["recipe_version"] not in (1, 2, 3)
             or payload.get("manual_rows") != "excluded"):
         raise AnnotationError("Unsupported annotation schema format or version.")
-    columns, _omitted = _schema_columns(payload["columns"], importing=True)
     version = payload["recipe_version"]
+    columns, _omitted = _schema_columns(payload["columns"], importing=True, version=version)
     if version == 1 and (len(columns) != 1 or columns[0]["kind"] != "rules"):
         raise AnnotationError("A legacy annotation schema must contain one rules column.")
     if version < 3 and any(entry["kind"] in ("extract", "template")

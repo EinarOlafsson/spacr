@@ -131,6 +131,62 @@ def test_shorthand_predicates_become_editable_criteria_without_changing_values(t
     pd.testing.assert_series_equal(report.values, expected.values)
 
 
+@pytest.mark.parametrize("field,value", [("include", True), ("exclude", 2),
+                                        ("metadata_column", ["filename"]), ("match_mode", {}),
+                                        ("match", False), ("match_text", None),
+                                        ("include_values", "HeLa"), ("exclude_values", [{}])])
+def test_malformed_rule_types_fail_before_save_or_load_evaluation(tmp_path, field, value):
+    frame, source, definition = fixture_recipe(tmp_path)
+    definition["columns"] = [{"column": "condition", "kind": "rules", "conditions": [
+        {"name": "kept", "metadata_column": "filename", "include": "HeLa", field: value}]}]
+    path = tmp_path / "existing.json"
+    path.write_text("previous schema")
+    with pytest.raises(annotations.AnnotationError):
+        annotations._save_schema(path, frame, definition, source)
+    assert path.read_text() == "previous schema"
+    payload = {"format": "spacr.annotation-schema", "version": 1, "recipe_version": 3,
+               "manual_rows": "excluded", "columns": definition["columns"]}
+    path.write_text(json.dumps(payload))
+    with pytest.raises(annotations.AnnotationError):
+        annotations._load_schema(path, frame, source)
+
+
+@pytest.mark.parametrize("version", [1, 2])
+def test_legacy_dormant_criteria_cannot_create_an_unloadable_schema(tmp_path, version):
+    frame, source, _ = fixture_recipe(tmp_path)
+    definition = annotations.new_definition(frame, source)
+    conditions = [{"name": "legacy", "metadata_column": "filename", "include": "HeLa",
+                   "criteria": [{"metadata_column": "filename", "operator": "equals", "value": "U2OS"}]}]
+    if version == 1:
+        definition["conditions"] = conditions
+    else:
+        definition.pop("column")
+        definition.pop("conditions")
+        definition.update(version=2, columns=[{"column": "condition", "kind": "rules", "conditions": conditions}])
+    assert annotations.preview(frame, definition, source).values.fillna("").tolist() == ["legacy", ""]
+    path = tmp_path / "prior.json"
+    path.write_text("previous schema")
+    with pytest.raises(annotations.AnnotationError, match="version 3"):
+        annotations._save_schema(path, frame, definition, source)
+    assert path.read_text() == "previous schema"
+
+
+@pytest.mark.parametrize("mode", ["regex", "values"])
+def test_inactive_exclusion_fields_cannot_change_imported_rule_meaning(tmp_path, mode):
+    frame, source, definition = fixture_recipe(tmp_path)
+    definition["columns"] = [{"column": "condition", "kind": "rules", "conditions": [
+        {"name": "kept", "metadata_column": "filename", "match_mode": mode,
+         "criteria": [{"metadata_column": "filename", "operator": "regex", "value": ".*"}],
+         "exclude": "HeLa", "exclude_values": ["U2OS_rep3.tif"]}]}]
+    expected = annotations.preview(frame, definition, source)
+    path = tmp_path / "active.json"
+    annotations._save_schema(path, frame, definition, source)
+    loaded, report = annotations._load_schema(path, frame, source)
+    rule = loaded["columns"][0]["conditions"][0]
+    assert ("exclude_values" if mode == "regex" else "exclude") not in rule
+    pd.testing.assert_series_equal(report.values, expected.values)
+
+
 @pytest.mark.parametrize("alter", [
     lambda p: p.update(version=2),
     lambda p: p.update(version=True),
