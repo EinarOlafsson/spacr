@@ -228,30 +228,93 @@ Annotate experimental conditions in Graph Builder
 
 **Annotate conditions** adds annotation columns to the working table in
 Graph Builder. It works with a physical database table, a named derived
-table or an imported CSV/TSV. These are experimental group labels for
-tabular analysis; they do not require image links or write image annotations.
+table or an imported CSV/TSV. Use rules to assign labels or extract variable
+metadata, then compose a final column from those values. Every generated
+column is retained. These table
+operations do not require image links or write image annotations.
 
-#. Open **Annotate conditions** and set **Output column**. The default is
-   ``condition``; choose another name, such as ``treatment_group``, if the
-   source already has that column. Existing source columns cannot be replaced.
-#. Press **Add condition** for each group and give each box a nonempty
-   **Condition name**.
-#. In a box, choose the metadata **Column** and matching mode. **Exact values**
-   accepts comma-separated or newline-separated lists in the include and
-   exclude fields. **Regular expression** accepts regex patterns. For manual-only
-   grouping, leave Include blank and drop source rows into the box.
-#. Inspect the generated columns beside the source columns, each box's
-   matching/manual counts, and the assigned, unmatched and overlapping totals.
-   **Preview assignments** reruns this check; edits also refresh the preview.
-#. Resolve invalid patterns and overlapping conditions, then choose
-   **Apply conditions**. The output column becomes available for chart
-   channels and filtering. **Cancel** discards the dialog's draft changes.
+#. Open **Annotate conditions**, name the **Output column**, and choose
+   **Assign values**, **Extract text**, or **Compose column**. Existing source
+   columns cannot be replaced.
+#. Define the value rules, text extraction, or composition for that output.
+   Use **Add column** for another output. A named-group regex can also create
+   several metadata columns together.
+#. Inspect all generated values beside the source columns. **Preview
+   assignments** reruns the check; edits also refresh the preview.
+#. Resolve invalid rules, missing dependencies and conflicting assignments,
+   then choose **Apply conditions**. Every generated column becomes available
+   for chart channels and filtering. **Cancel** discards the draft changes.
+
+Extract several metadata columns from a filename
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choose **Extract text** and select the source column, such as
+``original_filename``. A regular expression extracts the matching text into
+the output column. Select a named or numbered capture group to choose which
+part of the match becomes the value.
+
+For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:
+
+.. code-block:: text
+
+   ^(?P<cell_type>[^_]+)_(?P<replicate>rep\d+)_(?P<timepoint>\d+h)_(?P<drug>.+)\.tif$
+
+The named groups describe four output columns: ``cell_type``, ``replicate``,
+``timepoint`` and ``drug``. **Create columns from named groups** creates these
+outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and
+``DMSO``. Another matching filename produces its own values; they are not
+fixed labels copied from the example. Adapt the pattern to your own filenames
+and inspect the preview before applying it.
+
+Extraction uses the first regex match. Nonmatching rows and missing or empty
+captures remain blank. Invalid patterns or capture groups stop the preview
+with an error. Existing source column names cannot be overwritten.
+
+Assign values with readable rules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choose **Assign values** when matching rows should receive a value you type,
+such as ``WildType`` or ``control``. Each rule selects a column, an operator
+and a comparison value. Operators include contains, does not contain, equals,
+does not equal, starts with, ends with and regex matching. Text operators
+interpret punctuation literally; regex operators interpret it as a pattern.
+Matching is case-sensitive. Contains, prefix, suffix and regex criteria need
+nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or
+equals with an empty value to match an actual empty string.
+
+Choose **all rules match** when every criterion must match, or **any rule
+matches** when at least one must match. Criteria may inspect different source columns or earlier generated
+columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and
+``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative
+criterion. An actual empty string is a value and can be matched explicitly.
+
+Several rules may assign the same value without a conflict. Different values
+assigned to one row in the same output column require resolution before Apply.
+
+Compose the final column
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add an output column, name it ``condition`` or another name you choose, and
+select **Compose column**. Drag available columns into the composition field.
+Drag its tokens to change their order. Insert fixed text to add separators,
+prefixes or words between the values.
+
+For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``,
+``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example
+above. Reordering the column tokens changes the result without changing their
+extraction rules. Fixed text is literal; it cannot execute code.
+
+A composition can reference original source columns and earlier generated
+columns. A missing or empty column value leaves the composed value blank.
+The preview shows all intermediate columns and the final column together.
+Applying, exporting or saving a new SQLite table retains every generated
+column and the editable recipe. The original measurements remain unchanged.
 
 Build genotype, replicate and a combined condition
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Name the first **Output column** ``genotype`` and keep its mode set to
-**Rules**. Use **Add condition** for its labels. Press **Add column** to
+**Assign values**. Use **Add condition** for its labels. Press **Add column** to
 create ``replicate`` with its own boxes. In each box, choose **Exact values**
 to enter lists of metadata values without writing a regular expression.
 For example:
@@ -287,9 +350,9 @@ the same label may select the same row; two different labels in one output
 column require a correction before applying. Each output column has its own
 assignments, so a row can have both a genotype and a replicate.
 
-Press **Add column**, name it ``condition``, and choose **Combine columns**.
-Select ``genotype`` and press **Add input**, then do the same for ``replicate``.
-Keep ``_`` in **Separator**. The input list shows the joining order.
+Press **Add column**, name it ``condition``, and choose **Compose column**.
+Drag ``genotype`` into the composition field, insert a text token containing
+``_``, then drag in ``replicate``. The token order determines the joining order.
 A row labelled ``WildType`` and ``replicate 1`` then receives
 ``WildType_replicate 1``. The label's space is retained. Column names, labels,
 component order and separator are editable; the example does not prescribe
