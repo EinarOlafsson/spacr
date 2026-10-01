@@ -32,7 +32,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QObject, QRect, Qt
+from PySide6.QtCore import QEvent, QLineF, QObject, QRect, Qt
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPen
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QAbstractSpinBox, QAbstractSlider, QGraphicsView, QPlainTextEdit, QApplication,
@@ -346,7 +346,7 @@ def _blue_resize_cursor(edges):
 
 
 class _ResizeEdgeHint(QWidget):
-    """Paint a one-pixel blue line on the edges available for dragging."""
+    """Paint a one-pixel blue line across the middle half of each active edge."""
 
     def __init__(self, window):
         """Create an initially hidden edge overlay that never intercepts mouse input."""
@@ -367,18 +367,20 @@ class _ResizeEdgeHint(QWidget):
             self.update()
 
     def paintEvent(self, event):
-        """Paint thin blue guides along active edges while leaving the corners unobscured."""
+        """Centre half-length guides on active edges without changing the grab band."""
         painter = QPainter(self)
         painter.setPen(QPen(QColor('#168cff'), 1))
         left, top, right, bottom = 1, 1, self.width() - 2, self.height() - 2
+        inset_x = max(7.0, (right - left) * 0.25)
+        inset_y = max(7.0, (bottom - top) * 0.25)
         for edge, line in (
-            (Qt.LeftEdge, (left, 8, left, bottom - 7)),
-            (Qt.RightEdge, (right, 8, right, bottom - 7)),
-            (Qt.TopEdge, (8, top, right - 7, top)),
-            (Qt.BottomEdge, (8, bottom, right - 7, bottom)),
+            (Qt.LeftEdge, (left, top + inset_y, left, bottom - inset_y)),
+            (Qt.RightEdge, (right, top + inset_y, right, bottom - inset_y)),
+            (Qt.TopEdge, (left + inset_x, top, right - inset_x, top)),
+            (Qt.BottomEdge, (left + inset_x, bottom, right - inset_x, bottom)),
         ):
             if self.edges & edge:
-                painter.drawLine(*line)
+                painter.drawLine(QLineF(*line))
 
 
 def _owns_mouse_gesture(widget, window):
