@@ -43,15 +43,15 @@ def _annotation_fixture():
     import pandas as pd
     base = pd.DataFrame({'columnID': ['c1', 'c10', 'c7', None], 'rowID': ['r5', 'r5', 'r12', None]}, index=[4] * 4)
     annotated = base.assign(genotype=['WildType', None, 'mutant', None],
-                            replicate=['replicate1', 'replicate1', None, None],
-                            condition=['WildType_replicate1', None, None, None])
+                            replicate=['replicate 1', 'replicate 1', None, None],
+                            condition=['WildType_replicate 1', None, None, None])
     def rule(label, metadata, values):
         return dict(name=label, metadata_column=metadata, match_mode='values', include_values=values)
     definition = dict(version=2, columns=[
         dict(column='genotype', kind='rules', conditions=[rule('WildType', 'columnID', ['c1', 'c2', 'c3']),
             rule('mutant', 'columnID', ['c7', 'c4', 'c5', 'c6'])]),
-        dict(column='replicate', kind='rules', conditions=[rule('replicate1', 'rowID', ['r1', 'r4', 'r5', 'r6']),
-            rule('replicate1', 'rowID', ['r7', 'r9', 'r10'])]),
+        dict(column='replicate', kind='rules', conditions=[rule('replicate 1', 'rowID', ['r1', 'r4', 'r5', 'r6']),
+            rule('replicate 1', 'rowID', ['r7', 'r9', 'r10'])]),
         dict(column='condition', kind='combine', columns=['genotype', 'replicate'], separator='_')])
     return base, annotated, definition
 

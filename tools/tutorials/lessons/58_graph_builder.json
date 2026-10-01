@@ -74,22 +74,22 @@
     },
     {
       "visual": "13_genotype_exact_values",
-      "narration": "Click Annotate conditions. Name the first output genotype. In Exact values mode, label columnID values c1, c2 and c3 as WildType. Add a second box named mutant for c7, c4, c5 and c6. These are illustrative labels, not validated genotypes. The downloaded table contains only c1 and c2, so every cell matches WildType and none matches mutant. Exact values match whole cells: c1 does not match c10.",
+      "narration": "Click Annotate conditions. Name the first output genotype. In Exact values mode, label columnID values c1, c2 and c3 as WildType. Add a second box named mutant for c7, c4, c5 and c6. These are illustrative labels, not validated genotypes. The downloaded table contains only c1 and c2, so every cell matches WildType and none matches mutant. Exact values match whole values: c1 does not match c10.",
       "hold_after": 0.7
     },
     {
       "visual": "14_replicate_rule_boxes",
-      "narration": "Add an output column named replicate. Match rowID values r1, r4, r5 and r6 in a box named replicate1. Add another box with the same name for r7, r9 and r10. Boxes with the same label form a union; conflicting different labels in one output must be resolved before Apply. The example contains r5 and r12, so r5 matches and r12 remains blank. These practice labels do not establish biological replication.",
+      "narration": "Add an output column named replicate. Match rowID values r1, r4, r5 and r6 in a box named replicate 1. Add another box with the same name for r7, r9 and r10. Boxes with the same label form a union; conflicting different labels in one output must be resolved before Apply conditions. The example contains r5 and r12, so r5 matches and r12 remains blank. These practice labels do not establish biological replication.",
       "hold_after": 0.7
     },
     {
       "visual": "15_composed_condition_preview",
-      "narration": "Add a third output named condition and choose Combine columns. Append genotype first and replicate second, with an underscore separator. Preview all three outputs. Matched r5 cells become WildType underscore replicate1. A missing component leaves the combination blank, so r12 does not produce a label containing None or nan.",
+      "narration": "Add a third output named condition and choose Combine columns. Append genotype first and replicate second, with an underscore separator. Preview all three outputs. Matched r5 cells become WildType underscore replicate 1. A missing component leaves the combination blank, so r12 does not produce a label containing None or nan.",
       "hold_after": 0.7
     },
     {
       "visual": "16_annotations_applied",
-      "narration": "Click Apply to add genotype, replicate and condition to the working table. The original measurement columns and source database remain unchanged. The same annotation editor also works with a merged working table. Use your experimental design to choose meaningful labels before plotting by these new columns.",
+      "narration": "Click Apply conditions to add genotype, replicate and condition to the working table. The original measurement columns and source database remain unchanged. The same annotation editor also works with a merged working table. Use your experimental design to choose meaningful labels before plotting by these new columns.",
       "hold_after": 0.7
     },
     {
@@ -103,7 +103,7 @@
     },
     {
       "visual": "16_annotations_applied",
-      "narration": "Save chart preserves the view and annotation recipe for reloading. Export table includes the generated columns. For a SQLite source, Save annotated table writes a new table and refuses to overwrite an existing one. These are separate persistence actions; Apply alone does not write the source database.",
+      "narration": "Save chart preserves the view and annotation recipe for reloading. Export table includes the generated columns. For a SQLite source, Save annotated table writes a new table and refuses to overwrite an existing one. These are separate persistence actions; Apply conditions alone does not write the source database.",
       "hold_after": 0.7,
       "related_lessons": [
         "06_api"

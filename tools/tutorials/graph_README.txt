@@ -52,17 +52,17 @@ or published. The recorded-build limitations above remain historical evidence.
 In Annotate conditions, create these ordered outputs through the controls:
 1. genotype, Rules: Exact values on columnID; WildType for c1,c2,c3 and
    mutant for c7,c4,c5,c6 in a separate box.
-2. replicate, Rules: two boxes named replicate1, on rowID: r1,r4,r5,r6
+2. replicate, Rules: two boxes named replicate 1, on rowID: r1,r4,r5,r6
    and r7,r9,r10 respectively. Same-label boxes union without a conflict.
 3. condition, Combine columns: append genotype then replicate, separator _.
-Preview and Apply. These names are illustrative, not verified genotypes or
+Preview and Apply conditions. These names are illustrative, not verified genotypes or
 independent biological replicates. This actual source contains only c1/c2
 and r5/r12: all 2,341 cells receive WildType, mutant matches zero, and r12
 keeps replicate and condition blank. Missing components never become text
 like None or nan. Exact matching distinguishes c1 from c10.
 
 The current UI offers Save chart, Export table and Save annotated table for
-SQLite sources; Apply changes the working table only. Saving an annotated
+SQLite sources; Apply conditions changes the working table only. Saving an annotated
 table requires a new name and retains the source table. The annotation
 exercise does not claim to exercise those persistence buttons or repair the
 separate brush-to-Annotate handoff.

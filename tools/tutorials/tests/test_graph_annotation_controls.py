@@ -64,6 +64,8 @@ def test_real_controls_apply_and_check_every_row(tmp_path, real_example):
                 pass
         assert frame.equals(before)
         assert proof['rows_checked'] == len(frame)
+        assert proof['counts']['replicate'] == {'replicate 1': int(frame.rowID.isin(['r1', 'r4', 'r5', 'r6', 'r7', 'r9', 'r10']).sum())}
+        assert set(proof['counts']['condition']) <= {'WildType_replicate 1', 'mutant_replicate 1'}
         assert proof['actual_dialog_controls']
         assert proof['illustrative_labels_only'] and not proof['published']
         if real_example:

@@ -64,8 +64,8 @@ def check_annotation_recipe(base, annotated, definition):
     rules = [
         [('WildType', 'columnID', {'c1', 'c2', 'c3'}),
          ('mutant', 'columnID', {'c7', 'c4', 'c5', 'c6'})],
-        [('replicate1', 'rowID', {'r1', 'r4', 'r5', 'r6'}),
-         ('replicate1', 'rowID', {'r7', 'r9', 'r10'})],
+        [('replicate 1', 'rowID', {'r1', 'r4', 'r5', 'r6'}),
+         ('replicate 1', 'rowID', {'r7', 'r9', 'r10'})],
     ]
     for column, expected in zip(columns[:2], rules):
         actual = column.get('conditions', [])
@@ -83,7 +83,7 @@ def check_annotation_recipe(base, annotated, definition):
     for column, row in zip(base.columnID, base.rowID):
         genotype = ('WildType' if column in {'c1', 'c2', 'c3'} else
                     'mutant' if column in {'c4', 'c5', 'c6', 'c7'} else None)
-        replicate = 'replicate1' if row in {'r1', 'r4', 'r5', 'r6', 'r7', 'r9', 'r10'} else None
+        replicate = 'replicate 1' if row in {'r1', 'r4', 'r5', 'r6', 'r7', 'r9', 'r10'} else None
         expected_rows.append((genotype, replicate,
                               f'{genotype}_{replicate}' if genotype and replicate else None))
     actual_rows = [tuple(None if pd.isna(value) else value for value in row)
