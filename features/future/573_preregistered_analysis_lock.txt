@@ -237,3 +237,19 @@ strategy switching, duplicate signals, no-lock behavior, failed journal checks a
 no unrelated gate-file reads or per-edit source-path resolution. The journal policy
 and public API are unchanged. Settings-form keystroke timing remains outside this
 Gate Editor follow-up; no broader completion claim is added.
+
+2026-10-01 — SAVE/LOAD NOTES USE THE SAME FIRST-SEEN POLICY
+The inherited gate-file notes now call the same scoped gate comparison and
+_lock_verdict policy as live edits, exports and runs. Saving or loading a gate
+change first observed before unblinding continues to say deviation afterward;
+a distinct change first observed after unblinding says post-hoc. Save/Load itself
+records a first-seen observation when no earlier edit check has seen that change.
+Matching gates no longer imply a verified lock when its digest was tampered with
+or the lock was created after unblinding: those statuses are shown explicitly.
+Only the selected strategy is compared, without reading unrelated locked files.
+Existing normal match/difference phrasing remains compatible.
+
+Validation: 23 named gate-file, live-edit, export and journal checks passed with
+two compute threads under the 4 GiB CPU/offscreen cap, including actual Gate Editor
+Save/Load after a pre-unblinding edit, a new post-hoc change, tampered and late locks,
+and no reads of another locked strategy. No public API or lock-policy changes.

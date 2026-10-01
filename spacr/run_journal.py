@@ -3436,9 +3436,10 @@ def check_analysis_lock(settings: Dict[str, Any], *, app_key: str,
 def _gate_file_lock_notes(path: Any, gates: Any = None) -> List[str]:
     """How a saved gate file stands against every lock that holds it.
 
-    What the Gate Editor says after saving or loading a gating strategy, so
-    the person moving a locked gate sees it at once rather than in the next
-    report.
+    What the Gate Editor says after saving or loading a gating strategy.
+    Verdicts use the same first-seen timing, lock-integrity and unblinding
+    policy as runs and exports. Only this strategy is compared; other locked
+    gate files are not opened just to produce its note.
 
     :param path: the gate file.
     :param gates: the gates to compare, when they are not what the file
@@ -3451,7 +3452,6 @@ def _gate_file_lock_notes(path: Any, gates: Any = None) -> List[str]:
         return []
     label = str(target.resolve(strict=False))
     payload = _gate_payload(gates if gates is not None else target)
-    now = _gate_record(payload, "file") if payload is not None else None
     notes = []
     for lock_path in sorted(_locks_root().glob("*.json")):
         try:
@@ -3462,16 +3462,19 @@ def _gate_file_lock_notes(path: Any, gates: Any = None) -> List[str]:
             record, dict) else None
         if not locked:
             continue
+        scoped = {**record, "gates": {label: locked}}
+        deviations = _gate_deviations(scoped, {label: payload})
+        verdict = _lock_verdict(record, deviations)
         sha = str(record.get("sha256") or "")[:16]
-        if now is not None and now.get("sha256") == locked.get("sha256"):
+        if verdict["status"] == "verified":
             notes.append(f"these gates match analysis lock {sha}")
-            continue
-        changes = ", ".join(_gate_changes(locked, now)) or "changed"
-        after = [t for t in _lock_unblindings(record)
-                 if t > str(record.get("locked_utc") or "")]
-        word = "post-hoc, after unblinding" if after else "a deviation"
-        notes.append(f"these gates differ from analysis lock {sha} "
-                     f"({changes}): {word}")
+        elif verdict["status"] in ("deviation", "post_hoc"):
+            changes = ", ".join(change["detail"] for change in deviations) or "changed"
+            word = "post-hoc, after unblinding" if verdict["status"] == "post_hoc" else "a deviation"
+            notes.append(f"these gates differ from analysis lock {sha} "
+                         f"({changes}): {word}")
+        else:
+            notes.append(verdict["summary"])
     return notes
 
 
