@@ -543,3 +543,36 @@ def test_a_round_with_only_rejected_crops_left_says_why(tmp_path):
     proposal = suggest_from_scores(str(db), "annotate")
     assert proposal.frame.empty
     assert "rejected" in proposal.note
+
+
+# ---------------------------------------------------------------------------
+# Refusals and the end of the page (coverage ratchet, 288)
+# ---------------------------------------------------------------------------
+
+def test_judging_nothing_or_during_a_suggest_run_is_refused(judged):
+    screen, _src, _paths = judged
+    assert screen._judge(99, True) is False
+    assert "open a source first" in screen._kbd_hint.text()
+    assert screen._judge(99, True, quiet=True) is False
+    screen._suggest_worker = object()
+    try:
+        assert screen._judge(0, True) is False
+        assert "suggestion run is going" in screen._kbd_hint.text()
+        assert screen._judge(0, True, quiet=True) is False
+    finally:
+        screen._suggest_worker = None
+    assert screen._judge(4, True, quiet=True) is False
+    assert screen._thumbs[0].badge() == "suggested"
+
+
+def test_the_last_suggestion_wraps_to_the_first_then_says_the_page_is_done(
+        judged):
+    screen, _src, _paths = judged
+    assert screen._judge(3, True) is True
+    assert screen.focus_slot == 0, "the search starts again at the top"
+    for slot in (0, 1):
+        screen._judge(slot, False)
+    assert screen._judge(2, True) is True
+    assert "Every suggestion on this page is judged" in \
+        screen._kbd_hint.text()
+    assert screen._next_suggested(0) is None

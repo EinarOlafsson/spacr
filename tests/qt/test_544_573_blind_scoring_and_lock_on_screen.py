@@ -476,3 +476,66 @@ def test_the_lock_dialog_locks_gate_files_and_the_gate_editor_says_so(
     assert "differ from analysis lock" in text and "changed big" in text
     assert json.loads(strategy.read_text())["gates"][0]["low"] == 150.0
     screen.close()
+
+
+# ---------------------------------------------------------------------------
+# The Blind switch's refusals (coverage ratchet, 288)
+# ---------------------------------------------------------------------------
+
+def test_the_switch_goes_back_when_blinding_or_unblinding_is_refused(
+        annotate, monkeypatch, qtbot):
+    screen = annotate
+    answers = iter([QMessageBox.No, QMessageBox.Yes])
+    monkeypatch.setattr(QMessageBox, "question",
+                        staticmethod(lambda *a, **k: next(answers)))
+    screen._btn_blind.setChecked(True)
+    assert screen._blind is not None
+    screen._btn_blind.setChecked(False)
+    assert screen._blind is not None and screen._btn_blind.isChecked(), (
+        "a refused unblind puts the switch back on")
+    screen._btn_blind.setChecked(False)
+    qtbot.waitUntil(lambda: not screen._total_jobs.is_busy(), timeout=10000)
+    assert screen._blind is None and not screen._btn_blind.isChecked()
+    assert screen._end_blind() is True, "nothing blinded is nothing to ask"
+
+
+def test_blinding_without_a_source_is_refused_and_the_switch_goes_back(
+        qtbot, qt_theme_applied, journal, alpha, monkeypatch):
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    told = []
+    monkeypatch.setattr(QMessageBox, "information",
+                        staticmethod(lambda *a, **k: told.append(a[1])))
+    screen = AnnotateScreen()
+    qtbot.addWidget(screen)
+    screen._btn_blind.setChecked(True)
+    assert screen._blind is None and not screen._btn_blind.isChecked()
+    assert told == ["Open a source first"]
+    screen.__dict__["_btn_blind"] = None
+    screen._set_blind_checked(True)
+
+
+def test_a_blinded_total_reads_the_whole_population_in_key_order(annotate):
+    from spacr.qt.screens.annotate import _blinded_total
+
+    screen = annotate
+    outcome = {"total": 3, "filtered_rows": None, "note": "x"}
+    assert _blinded_total(outcome, screen._settings, None) is outcome
+    paths = _all_paths_of(screen)
+    rank = {path: index for index, path in enumerate(reversed(paths))}
+    blinded = _blinded_total(outcome, screen._settings, rank)
+    assert [row[0] for row in blinded["filtered_rows"]] == list(
+        reversed(paths))
+    assert blinded["total"] == len(paths) and blinded["note"] == ""
+    given = [(path, None) for path in paths[:2]]
+    kept = _blinded_total(dict(outcome, filtered_rows=given),
+                          screen._settings, rank)
+    assert [row[0] for row in kept["filtered_rows"]] == [paths[1], paths[0]]
+    screen._on_blind_toggled(False)
+    assert screen._blind is None
+
+
+def _all_paths_of(screen):
+    with sqlite3.connect(screen._settings.db_path) as conn:
+        return [row[0] for row in conn.execute(
+            f'SELECT png_path FROM "{screen._settings.png_table}"')]
