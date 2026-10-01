@@ -198,6 +198,18 @@ def test_training_sends_planes_and_patch_sizes_to_the_worker(installed,
     assert payload["output"] == str(out) and out.parent.is_dir()
 
 
+def test_structn2v_asks_the_worker_for_a_structured_mask_only_when_chosen(
+        installed, tmp_path):
+    planes = [np.ones((64, 64))]
+    SB._n2v_train(planes, tmp_path / "a.ckpt",
+                  worker_for=lambda name, env: installed)
+    SB._n2v_train(planes, tmp_path / "b.ckpt", struct_axes="horizontal",
+                  struct_span=3, worker_for=lambda name, env: installed)
+    plain, struct = (payload for _op, payload in installed.requests)
+    assert "struct_axes" not in plain
+    assert struct["struct_axes"] == "horizontal" and struct["struct_span"] == 3
+
+
 def test_training_refuses_planes_smaller_than_a_patch(installed, tmp_path):
     with pytest.raises(ValueError, match="at least 64"):
         SB._n2v_train([np.ones((32, 128))], tmp_path / "m.ckpt",

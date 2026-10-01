@@ -134,8 +134,9 @@ def test_an_object_whose_flows_disagree_with_its_outline_is_uncertain():
     small = int(reference[10, 10])
     large = int(reference[30, 37])
     torch = pytest.importorskip("torch")
-    implied, _ = dynamics.masks_to_flows_gpu(
+    flows = dynamics.masks_to_flows_gpu(
         reference.astype(np.int32), device=torch.device("cpu"))
+    implied = flows[0] if isinstance(flows, tuple) else flows
     vectors = (5.0 * implied).astype(np.float32)
     vectors[:, reference == large] *= -1.0
     errors = _flow_errors(reference, vectors)

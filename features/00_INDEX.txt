@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-516 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
+522 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -784,3 +784,9 @@ NEW FEATURES
   597  597. Home screen sliders size the right-hand widgets and their text
   598  598. The contribute dialog shows a working dataset link
   600  MAKE MASKS UNDERSTANDS WHAT IS DROPPED, AND ONE POPUP ORGANIZES FOR MEASURE
+  601  601. Preferences: Theme and Animation are categories of Appearance
+  602  602. The window rim is one continuous gradient
+  603  603. A Tooltip delay setting in Preferences
+  604  604. Spaceout: the Mandelbrot camera glides to complex regions
+  605  605. Spaceout: a slider for the magnifying glass's size
+  606  606. Space mode: galaxies pass by along with the stars

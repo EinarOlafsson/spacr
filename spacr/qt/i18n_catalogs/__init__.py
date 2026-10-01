@@ -98,9 +98,13 @@ def _numbered_background_value(
     2026-09-30); its label and tooltip are slot 2's with the number and the
     floor setting's prefix changed.
     """
-    from spacr.organelle_types import (
-        CATALOGUED_ORGANELLE_SLOTS, _background_switch_role, organelle_number,
-    )
+    try:
+        from spacr.organelle_types import (
+            CATALOGUED_ORGANELLE_SLOTS, _background_switch_role,
+            organelle_number,
+        )
+    except ImportError:
+        return None
 
     role = _background_switch_role(str(key))
     if role is None:
