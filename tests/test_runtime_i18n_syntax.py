@@ -360,6 +360,14 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     latest_p11a = {record["source"] for record in pass11a}
     assert len(pass11a) == len(latest_p11a) and not latest_p11a & sources
     sources |= latest_p11a
+    # The 2026-09-30 eleventh runtime pass: meaning fixes for machine-
+    # translated names (train, model zoo, batch, run, seed, hit, well, ...)
+    # that had no reviewed record before; another disjoint slice.
+    pass11 = [record for path in sorted(folder.glob("2026-09-30-runtime-meaning-fixes-eleventh-pass*.json"))
+              for record in json.loads(path.read_text())["records"]]
+    latest_p11 = {record["source"] for record in pass11}
+    assert len(pass11) == len(latest_p11) and not latest_p11 & sources
+    sources |= latest_p11
     assert sources <= reviewed.keys()
     return sources
 

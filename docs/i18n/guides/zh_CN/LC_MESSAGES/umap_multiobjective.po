@@ -77,7 +77,7 @@ msgid "Walk search and stopping"
 msgstr "行走搜索与停止"
 
 msgid "Switch on **Walk** to search locally from the values in the parameter fields instead of sweeping a grid. Each round scores the neighbourhood around the current centre and moves to the best configuration in it; with the default axes, ``n_neighbors`` and ``min_dist`` at resolution 2, that is the four diagonal corners. **Axes…** adds other structural parameters and sets each axis's step and resolution. The weighted multi-objective score chooses the direction of the next move. Search stops at **maximum rounds**, when a round fails to exceed **minimum improvement**, or after **Stop** is requested. A stopped result is explicitly marked partial."
-msgstr "打开 **行走** 可从参数字段中的值出发进行局部搜索，而不是遍历网格。每一轮对当前中心周围的邻域打分，并移动到其中最佳的配置；使用默认轴（``n_neighbors`` 和 ``min_dist``，分辨率为 2）时，即四个对角角点。**坐标轴…** 可添加其他结构参数，并设置每个轴的步长和分辨率。加权多目标分数决定下一步移动的方向。搜索在达到 **maximum rounds**、某一轮未能超过 **minimum improvement**，或请求 **停止** 后结束。被停止的结果会明确标记为部分结果。"
+msgstr "打开 **逐步搜索** 可从参数字段中的值出发进行局部搜索，而不是遍历网格。每一轮对当前中心周围的邻域打分，并移动到其中最佳的配置；使用默认轴（``n_neighbors`` 和 ``min_dist``，分辨率为 2）时，即四个对角角点。**坐标轴…** 可添加其他结构参数，并设置每个轴的步长和分辨率。加权多目标分数决定下一步移动的方向。搜索在达到 **maximum rounds**、某一轮未能超过 **minimum improvement**，或请求 **停止** 后结束。被停止的结果会明确标记为部分结果。"
 
 msgid "Resume behavior"
 msgstr "断点续跑行为"

@@ -1207,31 +1207,6 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # a row.
 # 603, 2026-09-30: Preferences' Tooltip delay row and its explanation.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    # Spaceout (2026-09-30): the Magnifier size slider and the tour path's
-    # new description (the camera now glides to detail it measures).
-    "Magnifier size",
-    "How big the magnifying glass under the pointer is, as a "
-    "share of its usual size. The whole lens scales together: "
-    "the bulge under the cursor and the soft edge around it. "
-    "25% is a small loupe; 300% bends most of the window. "
-    "Applies wherever the pointer bends the picture: both "
-    "orbit folds, and the cascade and space on the GPU "
-    "renderer. The Mandelbrot is dragged instead. "
-    "Default 100%.",
-    "Straight down descends to one point on the boundary and "
-    "stays pointed at it — the steadiest picture, and what the "
-    "published settings use.\n\n"
-    "Search as it goes looks for somewhere more interesting "
-    "every so often and moves the camera onto it. It finds more "
-    "variety, and moving the camera is visible: the Steering "
-    "control below sets how much.\n\n"
-    "Tour the interesting places measures the view as it "
-    "descends and glides toward the part with the most colours "
-    "in it, never toward a single-colour patch. The camera "
-    "eases in and out of every move and turns away before the "
-    "detail runs out, and at the end of a dive it glides back "
-    "up. Dragging the view stops the tour; Ctrl+R hands the "
-    "camera back to it.",
     "Control percentile",
 })
 

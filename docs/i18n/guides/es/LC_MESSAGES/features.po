@@ -173,7 +173,7 @@ msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Cura
 msgstr "Banco de trabajo Cellpose, Generar máscaras para toda la carpeta, Comparar modelos, Biblioteca de modelos, Curación, Puente con napari"
 
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
-msgstr "A Barrido de parámetros se llega por una tercera vía: es un panel de la pantalla Regresión que se abre con el interruptor **Barrer el parámetro** de su formulario de configuración."
+msgstr "A Barrido de parámetros se llega por una tercera vía: es un panel de la pantalla Regresión que se abre con el interruptor **Barrido de parámetros** de su formulario de configuración."
 
 msgid "Arranging the window"
 msgstr "Organizar la ventana"

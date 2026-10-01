@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: the wound_threshold setting label and help (wound-healing assay), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "wound_threshold",
+      "source": "Wound threshold",
+      "source_sha256": "409afe2cf64ce07ae1b98793428c1f701969d710d2ad8da03c2a1ccf34b97ebb",
+      "translation": "Seuil de la plaie"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_threshold",
+      "source": "Sets the cut between open wound and monolayer by hand, on the scale of the wound_level column of the wound table: for texture the local variance over the field's median, for intensity a share of the frame's 95th percentile. Use it when the automatic cut misreads a series: run once, read wound_level, then set a value. Higher counts more of the field as open. Used on every frame, with no recalibration of later frames. Blank or 0 keeps the automatic cut. Ignored by the masks source. Default None.",
+      "source_sha256": "432e21916913adc355038e6fee1b0ffa7a2962cb487fda57830c2b9fc28e0f67",
+      "translation": "Fixe à la main la coupure entre plaie ouverte et monocouche, sur l’échelle de la colonne wound_level de la table des plaies : pour la texture, la variance locale rapportée à la médiane du champ ; pour l’intensité, une fraction du 95e percentile de l’image. Utilisez-le quand la coupure automatique lit mal une série : exécutez une fois, lisez wound_level, puis fixez une valeur. Plus haut compte une plus grande part du champ comme ouverte. Appliqué à chaque image, sans recalibrer les images suivantes. Vide ou 0 garde la coupure automatique. Ignoré par la source masks. Valeur par défaut : None."
+    }
+  ]
+}

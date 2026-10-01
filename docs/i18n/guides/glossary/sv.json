@@ -27,7 +27,7 @@
   "Auto": "Automatiskt",
   "Auto regex": "Automatiskt regex",
   "Axes…": "Axlar…",
-  "Batch correction": "Partikorrigering",
+  "Batch correction": "Batchkorrigering",
   "Browse": "Bläddra",
   "Browse…": "Bläddra…",
   "Bundled organism reference": "Medföljande organismreferens",
@@ -249,7 +249,7 @@
   "Upload data…": "Ladda upp data…",
   "Upper %": "Övre percentil %",
   "Use these settings": "Använd dessa inställningar",
-  "Walk": "Promenad",
+  "Walk": "Stegvis sökning",
   "Walkthrough": "Genomgång",
   "Well boxes": "Brunnsrutor",
   "Workflow & Test Run": "Arbetsflöde och testkörning"
