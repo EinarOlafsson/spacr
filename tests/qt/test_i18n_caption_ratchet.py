@@ -1232,9 +1232,6 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "detail runs out, and at the end of a dive it glides back "
     "up. Dragging the view stops the tour; Ctrl+R hands the "
     "camera back to it.",
-    "Tooltip delay",
-    "Seconds the pointer rests on a control before its tooltip appears. 0 "
-    "shows tooltips at once. Default 2.0 s.",
     "Control percentile",
 })
 
