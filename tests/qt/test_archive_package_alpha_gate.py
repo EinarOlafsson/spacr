@@ -102,3 +102,22 @@ def test_a_package_asked_for_while_hidden_is_still_written(qtbot, alpha,
                          {"authors": "Doe Jane"})
     assert "does not pass" in screen.status_text()
     assert screen._archive_problems
+
+
+def test_without_a_run_folder_the_form_is_not_opened(qtbot, alpha, tmp_path):
+    """Blank, or a path that is not a folder, asks for a folder first."""
+    for src in ("", str(tmp_path / "missing")):
+        screen = _screen(qtbot, src=src)
+        assert screen._archive_dialog() is None
+        screen._on_archive_package()
+        assert "Choose a run folder first" in screen._status.text()
+
+
+def test_the_archive_button_opens_its_form(qtbot, alpha, screen_folder):
+    from PySide6.QtWidgets import QDialog
+
+    screen = _screen(qtbot, src=str(screen_folder))
+    screen._on_archive_package()
+    dialog = screen.findChild(QDialog, "ReportArchiveDialog")
+    assert dialog is not None and dialog.isVisible()
+    dialog.reject()

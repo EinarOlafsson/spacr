@@ -1,10 +1,10 @@
 {
   "lesson": "40_run_history",
-  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "先完成一个spaCR任务，生成本地运行记录。示例浏览的是转换、Recruitment和Regression运行的记录。",
   "scenes": [
-    "打开Help，然后打开Run history，浏览这台电脑上保存的运行记录。",
+    "打开Help，然后打开Run History，浏览这台电脑上保存的运行记录。",
     "点击Refresh加载可用的记录。选择一次运行查看详情；如需更多空间，可拖动分隔条。",
     "选择模块和状态，然后输入搜索词缩小列表范围。例如，选择convert和Success查找已完成的转换。",
     "打开Files and models，查看记录的输入和输出详情。跳过文件哈希计算的运行可能没有文件清单；这时请使用设置或日志中的输出路径查找结果。",

@@ -1,10 +1,10 @@
 {
   "lesson": "40_run_history",
-  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Completa un lavoro di spaCR per creare un record di esecuzione locale. L’esempio scorre record di esecuzioni di conversione, di Recruitment e di Regression.",
   "scenes": [
-    "Apri Help e poi Run history per scorrere i record di esecuzione salvati su questo computer.",
+    "Apri Help e poi Run History per scorrere i record di esecuzione salvati su questo computer.",
     "Fai clic su Refresh per caricare i record disponibili. Seleziona un’esecuzione per esaminarne i dettagli e trascina il divisore se ti serve più spazio.",
     "Scegli un modulo e uno stato, poi inserisci un termine di ricerca per restringere l’elenco. Per esempio, seleziona convert e Success per trovare le conversioni completate.",
     "Apri Files and models per i dettagli registrati di input e output. Le esecuzioni che hanno saltato il calcolo degli hash dei file possono avere un inventario vuoto; usa i percorsi di output nelle impostazioni o nei log per trovarne i risultati.",

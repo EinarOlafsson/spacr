@@ -1,0 +1,411 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Remote and distributed execution"
+msgstr "दूरस्थ और वितरित निष्पादन"
+
+msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
+msgstr "spaCR ``spacr-run`` द्वारा उपलब्ध कराया गया कोई भी मॉड्यूल किसी अन्य वर्कस्टेशन, Slurm क्लस्टर या क्लाउड/HPC कमांड-लाइन क्लाइंट को सबमिट कर सकता है। spaCR GUI बंद होने पर भी कार्य दूरस्थ सिस्टम पर बने रहते हैं। उनके पहचानकर्ता, स्थिति, सेटिंग हैश और नवीनतम लॉग स्थानीय रूप से संग्रहीत होते हैं और **सहायता → वितरित कार्य** में दिखाई देते हैं।"
+
+msgid "Execution profiles"
+msgstr "निष्पादन प्रोफ़ाइल"
+
+msgid "An execution profile describes *how to reach compute*, not an analysis. Profiles never store passwords or API keys:"
+msgstr "निष्पादन प्रोफ़ाइल बताती है कि *कंप्यूट तक कैसे पहुँचें*, कोई विश्लेषण नहीं। प्रोफ़ाइल कभी पासवर्ड या API कुंजियाँ संग्रहीत नहीं करतीं:"
+
+msgid "``SSH workstation``"
+msgstr "``SSH workstation``"
+
+msgid "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code."
+msgstr "छोटी निर्धारित सेटिंग JSON को SSH पर अपलोड करता है, एक टिकाऊ बैकग्राउंड प्रक्रिया में ``spacr-run`` शुरू करता है और उसका निकास कोड दर्ज करता है।"
+
+msgid "``Slurm cluster``"
+msgstr "``Slurm cluster``"
+
+msgid "Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then ``sacct``, and cancels with ``scancel``. The SSH host may be blank when the Slurm commands are installed locally."
+msgstr "सेटिंग्स अपलोड करता है, एक ``sbatch`` स्क्रिप्ट सबमिट करता है, पहले ``squeue`` और फिर ``sacct`` को पोल करता है, और ``scancel`` से रद्द करता है। जब Slurm कमांड स्थानीय रूप से स्थापित हों तो SSH होस्ट खाली छोड़ा जा सकता है।"
+
+msgid "``Cloud / custom command``"
+msgstr "``Cloud / custom command``"
+
+msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a safe job identifier and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
+msgstr "विन्यस्त सबमिट/स्थिति/रद्द तर्क टेम्पलेट चलाता है। यह spaCR में विक्रेता क्रेडेंशियल डाले बिना क्लाउड CLI और साइट-विशिष्ट शेड्यूलर का समर्थन करता है। कमांड को एक सुरक्षित कार्य पहचानकर्ता छापना चाहिए और स्थिति कमांड को ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` या ``CANCELLED`` जैसी पारंपरिक स्थिति छापनी चाहिए।"
+
+msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
+msgstr "SSH कुंजियाँ, क्लाउड प्रमाणीकरण और VPN पहुँच spaCR के बाहर विन्यस्त करें। लंबा रन सबमिट करने से पहले उसी कनेक्शन का टर्मिनल में परीक्षण करें।"
+
+msgid "Shared data and path mapping"
+msgstr "साझा डेटा और पथ मैपिंग"
+
+msgid "spaCR transfers the settings document, not an image dataset. Images must already be visible to the execution target through shared storage, a mirrored mount or a cloud-aware wrapper command."
+msgstr "spaCR सेटिंग दस्तावेज़ स्थानांतरित करता है, छवि डेटासेट नहीं। छवियाँ साझा संग्रहण, प्रतिबिंबित माउंट या क्लाउड-सजग रैपर कमांड के माध्यम से निष्पादन लक्ष्य को पहले से दिखनी चाहिए।"
+
+msgid "When the mount paths differ, set a *Local dataset root* and *Remote dataset root*. Every absolute path nested in the settings below the local root is rewritten beneath the remote root. Paths outside it are preserved. For example::"
+msgstr "जब माउंट पथ भिन्न हों, तो *Local dataset root* और *Remote dataset root* सेट करें। सेटिंग्स में नेस्ट किया गया हर निरपेक्ष पथ जो स्थानीय मूल के अंतर्गत है, दूरस्थ मूल के अंतर्गत फिर से लिखा जाता है। उसके बाहर के पथ सुरक्षित रहते हैं। उदाहरण के लिए::"
+
+msgid "Settings can be dragged onto the Distributed Jobs screen, selected with **Browse**, or handed off directly with **Submit remote…** in any ordinary module."
+msgstr "सेटिंग्स को वितरित कार्य स्क्रीन पर खींचकर छोड़ा जा सकता है, **ब्राउज़ करें** से चुना जा सकता है, या किसी भी सामान्य मॉड्यूल में **दूरस्थ रूप से सबमिट करें…** से सीधे सौंपा जा सकता है।"
+
+msgid "Command-line workflow"
+msgstr "कमांड-लाइन कार्यप्रवाह"
+
+msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export::"
+msgstr "GUI और CLI एक ही प्रोफ़ाइल और कार्य संग्रह साझा करते हैं। एक वर्कस्टेशन प्रोफ़ाइल बनाएँ और सेटिंग निर्यात सबमिट करें::"
+
+msgid "A Slurm profile can be local or reached through a login host::"
+msgstr "Slurm प्रोफ़ाइल स्थानीय हो सकती है या लॉगिन होस्ट के माध्यम से पहुँची जा सकती है::"
+
+msgid "Custom/cloud templates"
+msgstr "कस्टम/क्लाउड टेम्पलेट"
+
+msgid "Templates are parsed as argument vectors; spaCR does not execute them with ``shell=True``. Supported placeholders are:"
+msgstr "टेम्पलेट को तर्क सदिशों के रूप में पार्स किया जाता है; spaCR उन्हें ``shell=True`` के साथ नहीं चलाता। समर्थित प्लेसहोल्डर ये हैं:"
+
+#, python-brace-format
+msgid "``{job_id}``"
+msgstr "``{job_id}``"
+
+msgid "The permanent local spaCR identifier."
+msgstr "स्थायी स्थानीय spaCR पहचानकर्ता।"
+
+#, python-brace-format
+msgid "``{module}``"
+msgstr "``{module}``"
+
+msgid "The canonical ``spacr-run`` module name."
+msgstr "मानक ``spacr-run`` मॉड्यूल नाम।"
+
+#, python-brace-format
+msgid "``{settings}``"
+msgstr "``{settings}``"
+
+msgid "The absolute local resolved-settings JSON. A cloud wrapper is responsible for uploading it if needed."
+msgstr "निरपेक्ष स्थानीय निर्धारित-सेटिंग JSON। आवश्यक होने पर इसे अपलोड करने की ज़िम्मेदारी क्लाउड रैपर की है।"
+
+#, python-brace-format
+msgid "``{external_id}``"
+msgstr "``{external_id}``"
+
+msgid "The identifier printed by the submit command, used by status/cancel/log commands."
+msgstr "सबमिट कमांड द्वारा छापा गया पहचानकर्ता, जिसका उपयोग स्थिति/रद्द/लॉग कमांड करते हैं।"
+
+#, python-brace-format
+msgid "``{profile}``"
+msgstr "``{profile}``"
+
+msgid "The profile display name."
+msgstr "प्रोफ़ाइल का प्रदर्शन नाम।"
+
+msgid "If a cloud CLI prints JSON, set a Job-ID regular expression with a named ``id`` group. For example ``\"jobId\":\\s*\"(?P<id>[A-Za-z0-9-]+)\"``."
+msgstr "यदि कोई क्लाउड CLI JSON छापता है, तो नामित ``id`` समूह वाला Job-ID रेगुलर एक्सप्रेशन सेट करें। उदाहरण के लिए ``\"jobId\":\\s*\"(?P<id>[A-Za-z0-9-]+)\"``।"
+
+msgid "Reliability and limitations"
+msgstr "विश्वसनीयता और सीमाएँ"
+
+msgid "A temporary polling failure is retained as a visible error and does not falsely mark a remote job failed."
+msgstr "अस्थायी पोलिंग विफलता एक दृश्यमान त्रुटि के रूप में बनी रहती है और दूरस्थ कार्य को गलत ढंग से विफल चिह्नित नहीं करती।"
+
+msgid "SSH jobs write an exit-code file atomically. Slurm uses accounting after a job leaves the queue."
+msgstr "SSH कार्य निकास-कोड फ़ाइल परमाणु रूप से लिखते हैं। कार्य के कतार छोड़ने के बाद Slurm लेखांकन का उपयोग करता है।"
+
+msgid "Local job records and profiles use advisory locks plus atomic replacement, so a GUI and ``spacr-remote`` process do not partially write JSON."
+msgstr "स्थानीय कार्य रिकॉर्ड और प्रोफ़ाइल सलाहकारी लॉक और परमाणु प्रतिस्थापन का उपयोग करते हैं, इसलिए GUI और ``spacr-remote`` प्रक्रिया JSON को आंशिक रूप से नहीं लिखतीं।"
+
+msgid "Cancellation is a request. A scheduler or remote process may take time to stop, and pipeline-level checkpoint semantics still determine how much work can be resumed."
+msgstr "रद्दीकरण एक अनुरोध है। शेड्यूलर या दूरस्थ प्रक्रिया को रुकने में समय लग सकता है, और कितना काम फिर से शुरू किया जा सकता है यह अब भी पाइपलाइन-स्तरीय चेकपॉइंट अर्थविज्ञान तय करता है।"
+
+msgid "Cloud templates intentionally do not provide an embedded shell. Put pipelines, uploads, quoting and vendor-specific JSON handling in a reviewed wrapper executable."
+msgstr "क्लाउड टेम्पलेट जानबूझकर अंतर्निहित शेल प्रदान नहीं करते। पाइपलाइन, अपलोड, उद्धरण-चिह्न और विक्रेता-विशिष्ट JSON प्रबंधन को एक समीक्षित रैपर निष्पादन योग्य फ़ाइल में रखें।"
+
+msgid "Python API"
+msgstr "Python API"
+
+msgid "Persistent remote and distributed execution for spaCR pipelines."
+msgstr "spaCR पाइपलाइनों के लिए स्थायी दूरस्थ और वितरित निष्पादन।"
+
+msgid "The local GUI and :mod:`spacr.cli` already agree on one headless contract::"
+msgstr "स्थानीय GUI और :mod:`spacr.cli` पहले से एक हेडलेस अनुबंध पर सहमत हैं::"
+
+msgid "This module transports that contract to a workstation over SSH, submits it to Slurm, or hands it to a user-configured cloud/HPC command.  Submitted jobs are recorded locally and can be polled or cancelled after spaCR itself has closed."
+msgstr "यह मॉड्यूल उस अनुबंध को SSH पर किसी वर्कस्टेशन तक ले जाता है, Slurm को सबमिट करता है, या उपयोगकर्ता-विन्यस्त क्लाउड/HPC कमांड को सौंपता है। सबमिट किए गए कार्य स्थानीय रूप से दर्ज होते हैं और spaCR के बंद होने के बाद भी उन्हें पोल या रद्द किया जा सकता है।"
+
+msgid "No command uses ``shell=True``.  SSH necessarily invokes a remote login shell; all user-controlled values interpolated into its small fixed scripts are quoted with :func:`shlex.quote`, and host names are validated separately. Custom command profiles are parsed into argument vectors and substitute each placeholder inside one argument, so shell operators have no special meaning."
+msgstr "कोई भी कमांड ``shell=True`` का उपयोग नहीं करती। SSH अनिवार्य रूप से एक दूरस्थ लॉगिन शेल बुलाता है; उसकी छोटी निश्चित स्क्रिप्ट में डाले गए सभी उपयोगकर्ता-नियंत्रित मान :func:`shlex.quote` से उद्धृत किए जाते हैं, और होस्ट नामों का अलग से सत्यापन होता है। कस्टम कमांड प्रोफ़ाइल तर्क सदिशों में पार्स की जाती हैं और हर प्लेसहोल्डर एक तर्क के भीतर प्रतिस्थापित होता है, इसलिए शेल ऑपरेटरों का कोई विशेष अर्थ नहीं रहता।"
+
+msgid "Result returned by the injectable command runner."
+msgstr "इंजेक्ट करने योग्य कमांड रनर द्वारा लौटाया गया परिणाम।"
+
+msgid "Parameters"
+msgstr "पैरामीटर"
+
+msgid "process exit status, where zero denotes success."
+msgstr "प्रक्रिया निकास स्थिति, जहाँ शून्य सफलता दर्शाता है।"
+
+msgid "captured standard-output text."
+msgstr "पकड़ा गया मानक-आउटपुट पाठ।"
+
+msgid "captured standard-error text."
+msgstr "पकड़ा गया मानक-त्रुटि पाठ।"
+
+msgid "Connection and scheduler settings for one execution target."
+msgstr "एक निष्पादन लक्ष्य के लिए कनेक्शन और शेड्यूलर सेटिंग्स।"
+
+msgid "``local_root`` and ``remote_root`` describe the same shared or mirrored dataset.  Every absolute string nested in the settings is rewritten when it lies below ``local_root``.  Image datasets are deliberately not copied: accidental recursive transfer of a multi-terabyte plate is worse than a clear pre-flight error."
+msgstr "``local_root`` और ``remote_root`` एक ही साझा या प्रतिबिंबित डेटासेट का वर्णन करते हैं। सेटिंग्स में नेस्ट की गई हर निरपेक्ष स्ट्रिंग ``local_root`` के अंतर्गत होने पर फिर से लिखी जाती है। छवि डेटासेट जानबूझकर कॉपी नहीं किए जाते: कई टेराबाइट की प्लेट का गलती से पुनरावर्ती स्थानांतरण स्पष्ट प्री-फ़्लाइट त्रुटि से बदतर है।"
+
+#, python-brace-format
+msgid "For ``command`` profiles, command strings are tokenized with :func:`shlex.split` and support ``{job_id}``, ``{module}``, ``{settings}`` and ``{external_id}`` placeholders.  They are argument templates, not shell scripts."
+msgstr "``command`` प्रोफ़ाइल के लिए कमांड स्ट्रिंग को :func:`shlex.split` से टोकन में बाँटा जाता है और वे ``{job_id}``, ``{module}``, ``{settings}`` और ``{external_id}`` प्लेसहोल्डर का समर्थन करती हैं। ये तर्क टेम्पलेट हैं, शेल स्क्रिप्ट नहीं।"
+
+msgid "human-readable profile name used to select this target."
+msgstr "इस लक्ष्य को चुनने के लिए उपयोग होने वाला मानव-पठनीय प्रोफ़ाइल नाम।"
+
+msgid "execution mechanism, one of :data:`BACKENDS`."
+msgstr "निष्पादन तंत्र, :data:`BACKENDS` में से एक।"
+
+msgid "OpenSSH target for SSH and remote Slurm; blank permits a Slurm scheduler running on the local host."
+msgstr "SSH और दूरस्थ Slurm के लिए OpenSSH लक्ष्य; खाली होने पर स्थानीय होस्ट पर चलने वाले Slurm शेड्यूलर की अनुमति मिलती है।"
+
+msgid "absolute execution directory where ``spacr-jobs`` artifacts are created."
+msgstr "निरपेक्ष निष्पादन निर्देशिका जहाँ ``spacr-jobs`` फ़ाइलें बनाई जाती हैं।"
+
+msgid "local dataset prefix paired with ``remote_root`` for nested absolute-path rewriting."
+msgstr "नेस्ट किए गए निरपेक्ष पथों को फिर से लिखने के लिए ``remote_root`` के साथ जोड़ा गया स्थानीय डेटासेट उपसर्ग।"
+
+msgid "equivalent dataset prefix visible to the target host."
+msgstr "लक्ष्य होस्ट को दिखने वाला समतुल्य डेटासेट उपसर्ग।"
+
+msgid "headless executable invoked as ``runner module --settings path`` by SSH and Slurm backends."
+msgstr "SSH और Slurm बैकएंड द्वारा ``runner module --settings path`` के रूप में बुलाई जाने वाली हेडलेस निष्पादन योग्य फ़ाइल।"
+
+msgid "additional shell-free arguments passed to ``sbatch``."
+msgstr "``sbatch`` को दिए जाने वाले अतिरिक्त शेल-रहित तर्क।"
+
+#, python-brace-format
+msgid "custom-backend argument template containing ``{settings}`` and printing a job identifier."
+msgstr "``{settings}`` वाला और कार्य पहचानकर्ता छापने वाला कस्टम-बैकएंड तर्क टेम्पलेट।"
+
+#, python-brace-format
+msgid "custom status template containing ``{external_id}`` and returning a state spaCR can normalize."
+msgstr "``{external_id}`` वाला और spaCR द्वारा सामान्यीकृत की जा सकने वाली स्थिति लौटाने वाला कस्टम स्थिति टेम्पलेट।"
+
+#, python-brace-format
+msgid "custom cancellation template containing ``{external_id}``."
+msgstr "``{external_id}`` वाला कस्टम रद्दीकरण टेम्पलेट।"
+
+msgid "optional custom template for fetching job output."
+msgstr "कार्य आउटपुट लाने के लिए वैकल्पिक कस्टम टेम्पलेट।"
+
+msgid "optional regular expression extracting a named ``id``, first capture, or full match from submission output."
+msgstr "सबमिशन आउटपुट से नामित ``id``, पहला कैप्चर या पूरा मिलान निकालने वाला वैकल्पिक रेगुलर एक्सप्रेशन।"
+
+msgid "recommended client polling interval, from 2 through 3600 seconds."
+msgstr "अनुशंसित क्लाइंट पोलिंग अंतराल, 2 से 3600 सेकंड तक।"
+
+msgid "Construct and validate a profile from JSON-compatible data."
+msgstr "JSON-संगत डेटा से प्रोफ़ाइल बनाएँ और उसका सत्यापन करें।"
+
+msgid "stored profile fields keyed by their dataclass names."
+msgstr "उनके dataclass नामों से कुंजीबद्ध संग्रहीत प्रोफ़ाइल फ़ील्ड।"
+
+msgid "Return a JSON-safe representation."
+msgstr "JSON-सुरक्षित निरूपण लौटाएँ।"
+
+msgid "Validate the profile and return ``self`` for fluent callers."
+msgstr "प्रोफ़ाइल का सत्यापन करें और श्रृंखलाबद्ध कॉल के लिए ``self`` लौटाएँ।"
+
+msgid "Atomic persistent store for remote job metadata."
+msgstr "दूरस्थ कार्य मेटाडेटा के लिए परमाणु स्थायी संग्रह।"
+
+msgid "optional jobs JSON path; by default ``state_directory()/jobs.json``. The advisory lock uses a sibling path with ``.lock`` appended."
+msgstr "वैकल्पिक कार्य JSON पथ; डिफ़ॉल्ट रूप से ``state_directory()/jobs.json``। सलाहकारी लॉक ``.lock`` जोड़े गए सहोदर पथ का उपयोग करता है।"
+
+msgid "Return a job by full ID or unambiguous prefix."
+msgstr "पूर्ण ID या असंदिग्ध उपसर्ग से कार्य लौटाएँ।"
+
+msgid "complete job identifier or an unambiguous prefix."
+msgstr "पूर्ण कार्य पहचानकर्ता या असंदिग्ध उपसर्ग।"
+
+msgid "Return newest jobs first."
+msgstr "नवीनतम कार्य पहले लौटाएँ।"
+
+msgid "Insert or replace one job atomically."
+msgstr "एक कार्य को परमाणु रूप से डालें या बदलें।"
+
+msgid "remote-job record to persist."
+msgstr "स्थायी रूप से सहेजा जाने वाला दूरस्थ-कार्य रिकॉर्ड।"
+
+msgid "Atomic persistent store for execution profiles."
+msgstr "निष्पादन प्रोफ़ाइल के लिए परमाणु स्थायी संग्रह।"
+
+msgid "optional profiles JSON path; by default ``state_directory()/profiles.json``. The advisory lock uses a sibling path with ``.lock`` appended."
+msgstr "वैकल्पिक प्रोफ़ाइल JSON पथ; डिफ़ॉल्ट रूप से ``state_directory()/profiles.json``। सलाहकारी लॉक ``.lock`` जोड़े गए सहोदर पथ का उपयोग करता है।"
+
+msgid "Delete one profile; return whether it existed."
+msgstr "एक प्रोफ़ाइल हटाएँ; लौटाएँ कि वह मौजूद थी या नहीं।"
+
+msgid "profile name to delete case-insensitively."
+msgstr "हटाई जाने वाली प्रोफ़ाइल का नाम, अक्षर-आकार की परवाह किए बिना।"
+
+msgid "Return a named profile or raise a user-facing error."
+msgstr "नामित प्रोफ़ाइल लौटाएँ या उपयोगकर्ता-दृश्य त्रुटि उत्पन्न करें।"
+
+msgid "profile name to match case-insensitively."
+msgstr "मिलान के लिए प्रोफ़ाइल नाम, अक्षर-आकार की परवाह किए बिना।"
+
+msgid "Return profiles sorted by case-insensitive name."
+msgstr "अक्षर-आकार-निरपेक्ष नाम से क्रमबद्ध प्रोफ़ाइल लौटाएँ।"
+
+msgid "Insert or replace one profile atomically."
+msgstr "एक प्रोफ़ाइल को परमाणु रूप से डालें या बदलें।"
+
+msgid "validated execution profile to persist."
+msgstr "स्थायी रूप से सहेजी जाने वाली सत्यापित निष्पादन प्रोफ़ाइल।"
+
+msgid "A profile, submission, polling, or cancellation error."
+msgstr "प्रोफ़ाइल, सबमिशन, पोलिंग या रद्दीकरण त्रुटि।"
+
+msgid "These errors are safe to show directly in the GUI: passwords and environment variables are never included in command rendering."
+msgstr "इन त्रुटियों को सीधे GUI में दिखाना सुरक्षित है: कमांड प्रदर्शित करते समय पासवर्ड और परिवेश चर कभी शामिल नहीं किए जाते।"
+
+msgid "Persistent local record of one submitted job."
+msgstr "एक सबमिट किए गए कार्य का स्थायी स्थानीय रिकॉर्ड।"
+
+msgid "locally generated stable identifier for the job."
+msgstr "कार्य के लिए स्थानीय रूप से बनाया गया स्थिर पहचानकर्ता।"
+
+msgid "resolved spaCR command-line module key to execute."
+msgstr "चलाई जाने वाली निर्धारित spaCR कमांड-लाइन मॉड्यूल कुंजी।"
+
+msgid "name of the execution profile used for submission."
+msgstr "सबमिशन के लिए उपयोग की गई निष्पादन प्रोफ़ाइल का नाम।"
+
+msgid "backend recorded at submission time."
+msgstr "सबमिशन के समय दर्ज बैकएंड।"
+
+msgid "compact lifecycle state, initially ``\"submitting\"``."
+msgstr "संक्षिप्त जीवनचक्र स्थिति, प्रारंभ में ``\"submitting\"``।"
+
+msgid "validated process, scheduler, or provider identifier."
+msgstr "सत्यापित प्रक्रिया, शेड्यूलर या प्रदाता पहचानकर्ता।"
+
+msgid "ISO-8601 construction timestamp."
+msgstr "ISO-8601 निर्माण टाइमस्टैम्प।"
+
+msgid "timestamp replaced whenever :class:`JobStore` persists the record."
+msgstr "वह टाइमस्टैम्प जो हर बार :class:`JobStore` द्वारा रिकॉर्ड सहेजने पर बदला जाता है।"
+
+msgid "retained local path of the mapped settings JSON."
+msgstr "मैप की गई सेटिंग JSON का सुरक्षित स्थानीय पथ।"
+
+msgid "SHA-256 digest of the exact serialized settings."
+msgstr "सटीक क्रमबद्ध सेटिंग्स का SHA-256 डाइजेस्ट।"
+
+msgid "uploaded settings path for SSH and Slurm."
+msgstr "SSH और Slurm के लिए अपलोड किया गया सेटिंग पथ।"
+
+msgid "target-side directory containing job artifacts."
+msgstr "लक्ष्य-पक्ष की निर्देशिका जिसमें कार्य फ़ाइलें होती हैं।"
+
+msgid "backend log location or custom-backend marker."
+msgstr "बैकएंड लॉग स्थान या कस्टम-बैकएंड चिह्न।"
+
+msgid "most recently fetched output or availability message."
+msgstr "सबसे हाल में लाया गया आउटपुट या उपलब्धता संदेश।"
+
+msgid "normalized process exit status, or ``None`` until known."
+msgstr "सामान्यीकृत प्रक्रिया निकास स्थिति, या ज्ञात होने तक ``None``।"
+
+msgid "latest submission, polling, or cancellation failure; cleared after a successful refresh or cancellation."
+msgstr "नवीनतम सबमिशन, पोलिंग या रद्दीकरण विफलता; सफल ताज़ा करने या रद्दीकरण के बाद साफ़ हो जाती है।"
+
+msgid "submission-time profile snapshot, retained so the job remains operable after profile edits or deletion."
+msgstr "सबमिशन के समय की प्रोफ़ाइल की प्रति, ताकि प्रोफ़ाइल संपादित या हटाए जाने के बाद भी कार्य संचालन योग्य रहे।"
+
+msgid "Construct a job from a stored mapping, tolerating future fields."
+msgstr "संग्रहीत मैपिंग से कार्य बनाएँ, भविष्य के फ़ील्ड को सहन करते हुए।"
+
+msgid "stored job fields keyed by their dataclass names."
+msgstr "उनके dataclass नामों से कुंजीबद्ध संग्रहीत कार्य फ़ील्ड।"
+
+msgid "Submit, monitor, cancel and inspect persistent remote jobs."
+msgstr "स्थायी दूरस्थ कार्य सबमिट करें, निगरानी करें, रद्द करें और जाँचें।"
+
+msgid "All methods are synchronous and may perform network I/O.  GUI callers must invoke them on a worker thread; the shipped Distributed Jobs screen does."
+msgstr "सभी विधियाँ समकालिक हैं और नेटवर्क I/O कर सकती हैं। GUI कॉलर को इन्हें वर्कर थ्रेड पर बुलाना चाहिए; साथ आने वाली वितरित कार्य स्क्रीन ऐसा करती है।"
+
+msgid "injectable persistent profile store; omitted creates the default :class:`ProfileStore`."
+msgstr "इंजेक्ट करने योग्य स्थायी प्रोफ़ाइल संग्रह; छोड़ने पर डिफ़ॉल्ट :class:`ProfileStore` बनाया जाता है।"
+
+msgid "injectable persistent job store; omitted creates the default :class:`JobStore`."
+msgstr "इंजेक्ट करने योग्य स्थायी कार्य संग्रह; छोड़ने पर डिफ़ॉल्ट :class:`JobStore` बनाया जाता है।"
+
+msgid "shell-free callable accepting an argument vector, timeout, and optional input and returning :class:`CommandResult`."
+msgstr "शेल-रहित कॉलेबल जो तर्क सदिश, टाइमआउट और वैकल्पिक इनपुट स्वीकार करता है और :class:`CommandResult` लौटाता है।"
+
+msgid "Request cancellation and persist the result."
+msgstr "रद्दीकरण का अनुरोध करें और परिणाम सहेजें।"
+
+msgid "complete local job identifier or unambiguous prefix."
+msgstr "पूर्ण स्थानीय कार्य पहचानकर्ता या असंदिग्ध उपसर्ग।"
+
+msgid "Retrieve and persist the tail of one remote job's log."
+msgstr "एक दूरस्थ कार्य के लॉग का अंतिम भाग प्राप्त करें और सहेजें।"
+
+msgid "Poll one non-terminal job and optionally retain its latest log tail."
+msgstr "एक अपूर्ण कार्य को पोल करें और वैकल्पिक रूप से उसके लॉग का नवीनतम अंतिम भाग रखें।"
+
+msgid "Poll every active job and return the complete newest-first list."
+msgstr "हर सक्रिय कार्य को पोल करें और नवीनतम-पहले क्रम में पूरी सूची लौटाएँ।"
+
+msgid "Submit resolved settings through a named execution profile."
+msgstr "नामित निष्पादन प्रोफ़ाइल के माध्यम से निर्धारित सेटिंग्स सबमिट करें।"
+
+msgid "headless spaCR module name accepted by ``spacr-run``."
+msgstr "``spacr-run`` द्वारा स्वीकृत हेडलेस spaCR मॉड्यूल नाम।"
+
+msgid "resolved module settings to serialize for the job."
+msgstr "कार्य के लिए क्रमबद्ध की जाने वाली निर्धारित मॉड्यूल सेटिंग्स।"
+
+msgid "name of the execution profile to use."
+msgstr "उपयोग की जाने वाली निष्पादन प्रोफ़ाइल का नाम।"
+
+msgid "Recursively map absolute paths below one local root to a remote root."
+msgstr "एक स्थानीय मूल के अंतर्गत निरपेक्ष पथों को पुनरावर्ती रूप से दूरस्थ मूल पर मैप करें।"
+
+msgid "Non-path strings and paths outside the configured root are unchanged. Mapping keys are intentionally preserved: setting names are not paths."
+msgstr "पथ-रहित स्ट्रिंग और विन्यस्त मूल के बाहर के पथ अपरिवर्तित रहते हैं। मैपिंग कुंजियाँ जानबूझकर सुरक्षित रखी जाती हैं: सेटिंग नाम पथ नहीं हैं।"
+
+msgid "nested settings value whose absolute path strings are mapped."
+msgstr "नेस्टेड सेटिंग मान जिसकी निरपेक्ष पथ स्ट्रिंग मैप की जाती हैं।"
+
+msgid "local dataset root that mapped paths must lie below."
+msgstr "स्थानीय डेटासेट मूल जिसके अंतर्गत मैप किए गए पथ होने चाहिए।"
+
+msgid "remote dataset root that replaces ``local_root``."
+msgstr "``local_root`` की जगह लेने वाला दूरस्थ डेटासेट मूल।"
+
+msgid "Return the persistent directory for profiles, jobs, settings and logs."
+msgstr "प्रोफ़ाइल, कार्य, सेटिंग्स और लॉग के लिए स्थायी निर्देशिका लौटाएँ।"
+
+msgid "``SPACR_REMOTE_STATE_DIR`` is intentionally supported for tests, portable deployments, and managed lab installations.  Otherwise XDG state storage is used on Linux and a conventional per-user directory elsewhere."
+msgstr "``SPACR_REMOTE_STATE_DIR`` परीक्षणों, पोर्टेबल परिनियोजनों और प्रबंधित प्रयोगशाला स्थापनाओं के लिए जानबूझकर समर्थित है। अन्यथा Linux पर XDG स्थिति संग्रहण और अन्यत्र एक पारंपरिक प्रति-उपयोगकर्ता निर्देशिका का उपयोग होता है।"
+

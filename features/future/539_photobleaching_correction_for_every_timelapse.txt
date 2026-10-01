@@ -62,7 +62,8 @@ WHAT IS LEFT
       still use their own intensity paths; wiring them to these helpers
       is not done. The Measure greying gap
       is resolved by the dated note below.
-    - No run on a real bleaching timelapse yet.
+    - Real bleaching series run 2026-09-30 (below): two bugs and two
+      distortions found and fixed.
 
 2026-09-27 — Measure dependency greying completed
     bleach_correction now uses the existing setting-dependency framework:
@@ -73,3 +74,55 @@ WHAT IS LEFT
     This closes only the editor-state gap. Motility/calcium integration and
     real bleaching-series acceptance remain open; status stays alpha.
     Receipt: features/data/539_measure_dependency_greying_2026-09-27.json.
+
+2026-09-30 -- Real-data validation (CPU; scripts in /mnt/wd4tb/scratch/571/scripts)
+    Data: Cell Tracking Challenge Fluo-N2DL-HeLa (H2B-GFP, 2 movies x 92
+    frames at 30 min, silver-truth nuclei, GT mitoses) and the Vicar et al.
+    2020 LNCaP death movies (Zenodo 4531900/2601562; Hoechst + caspase-3/7,
+    14 fields x 467 frames at 3 min, published tracked masks and death
+    frames). Nucleus tables were measured in Measure's column names,
+    including the 5 px ring median (outside_percentile_50).
+    Found and fixed:
+    - Measure writes timeID as text ('t12'). _bleach_factors read the
+      trend index as float, so every method raised on a real database
+      ("could not convert string to float: 't0'") and the step printed
+      "could not be applied"; the synthetic tests used integer timeIDs.
+      Timepoints are now read as numbers (t2 before t10) by _bleach_times.
+    - The camera offset (33,000 counts under a ~650-count H2B signal) was
+      rescaled with the signal. On HeLa movie 1 the signal above the ring
+      decays to 0.61 of its start (max 48 % below) while the raw level
+      moves 0.6 %; the old ratio left the signal at 0.96 (max dev 7 %) by
+      adding a constant, and changed the mitotic-nucleus/median signal
+      ratio of the 305 GT mitoses by 5.7 % (median). Now, when Measure
+      wrote a ring background, trend and correction use the level less
+      the ring (ring x area for integrated) and add it back: ratio leaves
+      the signal at 0.99 (max dev 1.9 %; movie 2 1.01, 3 %) and the
+      mitotic brightening (1.89x the frame median) is unchanged exactly.
+      exponential: 1.05 / 1.02 last-over-first (it follows only the smooth
+      decay; max dev 25 % and 20 % remain), brightening unchanged.
+    - Rising biology was divided away. In the LNCaP movies nothing bleaches
+      (Hoechst in survivors 1.10x, background flat) but caspase-3/7 rises
+      2.46x across the population as cells die. The old ratio cut the
+      caspase rise across each annotated death (frame -30 to +30, 296
+      cells) from 1.39x to 1.11x and the population rise to 0.99x.
+      Bleaching only dims, so the ratio factor is now clipped at 1 (a
+      timepoint brighter than the first is left as measured): 1.38x and
+      2.43x. exponential (a decay by construction) keeps 1.39x and 2.46x.
+    - histogram matching removes any population change by construction:
+      caspase rise 1.01x, population 1.00x on LNCaP; mitotic brightening
+      1.89x -> 1.57x on HeLa. It stays for display-style matching; the fits
+      table now records trend_peak_rise and Measure prints a warning when
+      histogram is used on series that brighten by more than 10 %.
+    - Float32 columns no longer warn in the histogram path.
+    Tests added to tests/test_bleach_correction.py: text timepoints give
+    the same result as numbers, a ring offset is not rescaled (signal flat,
+    object ratios kept, integrated too), the no-ring case, the clipped
+    ratio / non-darkening exponential on a rising trend, and the histogram
+    brightening report.
+    Recommendation from the data: exponential or ratio with ring columns
+    for quantification; never histogram. Status stays alpha.
+    Still open: cell objects have no ring column (Measure writes rings for
+    nucleus, pathogen and organelle only), so cell tables are still
+    rescaled whole; a population-wide real decrease (e.g. loss of a
+    reporter) cannot be told from bleaching by any median trend; motility
+    and calcium paths are still separate.

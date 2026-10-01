@@ -1,0 +1,261 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Capabilities"
+msgstr "क्षमताएँ"
+
+msgid "spaCR follows an image-based screen from raw microscopy files to a ranked hit list. This page gives the full map; the :doc:`Python API quickstart <python_api>` and interactive tutorials show the individual routes."
+msgstr "spaCR एक छवि-आधारित स्क्रीन को कच्ची सूक्ष्मदर्शी फ़ाइलों से लेकर क्रमबद्ध हिट सूची तक ले जाता है। यह पेज पूरा मानचित्र देता है; :doc:`Python API त्वरित आरंभ <python_api>` और इंटरैक्टिव ट्यूटोरियल अलग-अलग मार्ग दिखाते हैं।"
+
+msgid "Core screen workflow"
+msgstr "मुख्य स्क्रीन कार्यप्रवाह"
+
+msgid "Mask"
+msgstr "मास्क"
+
+msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
+msgstr "मास्क मॉड्यूल TIFF, OME-TIFF, LIF, CZI और ND2 अधिग्रहण तैयार करता है और Cellpose से कोशिकाओं, केंद्रकों, रोगजनकों और कोशिकांगों का विभाजन करता है। यह द्विविमीय, आयतनात्मक और समय-श्रृंखला डेटा का समर्थन करता है, ऑब्जेक्ट व्यास का अनुमान लगाता है, और लेयर व्यूअर या napari के साथ मास्क सुधारों का आदान-प्रदान कर सकता है।"
+
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` asks for -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
+msgstr "ऑब्जेक्ट चार का कोई निश्चित समूह नहीं हैं। एक प्रोजेक्ट में एक कोशिका, एक केंद्रक और एक रोगजनक, उनसे व्युत्पन्न कोशिकाद्रव्य, और ``number_of_organelles`` जितने माँगे उतने कोशिकांग स्लॉट होते हैं -- शून्य से छब्बीस तक। हर स्लॉट स्वतंत्र है, जिसका अपना चैनल, व्यास, पहचान विधि और आकृति होती है।"
+
+msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
+msgstr "किसी स्लॉट को एक आकृति प्रीसेट दिया जाता है -- बिंदुवत, पुटिकीय, गोलाकार, तंतुमय, नलिकाकार, जालिकावत, कुंडिका-रूप, वलयाकार, अर्धचंद्राकार या कस्टम -- और प्रीसेट पहचान रणनीति चुनता है, जो spots, network, irregular या ring में से एक होती है।"
+
+msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and a hidden object's answers are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
+msgstr "मास्क निर्माण प्रति-ऑब्जेक्ट सेटिंग्स को **Per-object settings** के अंतर्गत एक तालिका के रूप में रखता है, जिसमें हर उस ऑब्जेक्ट के लिए एक स्तंभ होता है जिसका चैनल सेट है; कोशिका स्तंभ हमेशा दिखाया जाता है। किसी ऑब्जेक्ट का चैनल सामान्य फ़ॉर्म पर सेट किया जाता है, और छिपे हुए ऑब्जेक्ट के उत्तर उसका चैनल फिर से सेट होने तक सुरक्षित रहते हैं। हर ऑब्जेक्ट में **पृष्ठभूमि हटाने** चेक बॉक्स होता है, और कोशिका स्तंभ में **कोशिकाएँ समायोजित करें** भी होता है। **फ़िल्टर जोड़ें** एक पंक्ति जोड़ता है जो किसी भी scikit-image regionprop, जैसे क्षेत्रफल या औसत तीव्रता, के आधार पर ऑब्जेक्ट फ़िल्टर करती है; हर ऑब्जेक्ट की कोशिका ``200 – 5000``, केवल न्यूनतम (``200``), केवल अधिकतम (``– 5000``) या बिना फ़िल्टर के लिए खाली मान लेती है। ये पंक्तियाँ ``object_filters`` सेटिंग हैं। किसी ऑब्जेक्ट के लिए Cellpose 3 मॉडल चुनने पर उस बैकएंड की अपनी सेटिंग्स वाली **Cellpose 3** श्रेणी दिखाई देती है। **गुणवत्ता नियंत्रण** में आउटपुट, संग्रहण, रनटाइम और विश्वसनीयता सेटिंग्स के साथ विभाजन जाँचें होती हैं।"
+
+msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
+msgstr "मास्क का **लाइव** पूर्वावलोकन परिणाम को **ओवरले**, **मास्क**, **प्रवाह** या **कोशिका संभावना** के रूप में दिखाता है। किसी चित्र पर राइट-क्लिक करके **Save as PNG…** या **Save as PDF…** चुनें। किसी सत्र में एक से अधिक मास्क बनने के बाद **मास्क की तुलना करें…** आपके द्वारा चुने गए मास्क और छवियों को एक अलग पैनल में एक-दूसरे पर रखता है, हर एक की अपनी अपारदर्शिता और स्टैकिंग क्रम के साथ।"
+
+msgid "Measure"
+msgstr "मापन"
+
+msgid "Measure writes per-object morphology, intensity, texture, radial, spatial and colocalization features to ``measurements.db``. It can save classifier-ready object crops, estimate illumination correction from a plate, restrict work to a region of interest and report segmentation quality before a run."
+msgstr "मापन प्रति-ऑब्जेक्ट आकृति, तीव्रता, बनावट, अरीय, स्थानिक और सह-स्थानीयकरण विशेषताएँ ``measurements.db`` में लिखता है। यह वर्गीकारक के लिए तैयार ऑब्जेक्ट क्रॉप सहेज सकता है, किसी प्लेट से प्रदीपन सुधार का अनुमान लगा सकता है, काम को रुचि के क्षेत्र तक सीमित कर सकता है और रन से पहले विभाजन गुणवत्ता की सूचना दे सकता है।"
+
+msgid "Measure's settings are grouped as **Input & Experiment**, **Mask & Channel Mapping**, **Image Preprocessing** (with **Image Deconvolution (PSF)** and **Illumination Correction**), **Features**, **Object Filtering**, **Crop Output**, **3D Calibration (Beta)** and **Postprocessing** (with **Runtime & Reliability**). The segmentation-quality verdict is opt-in: the **QC** switch beside **3D** and **Time** opens it in a popup, and closing the popup turns the switch off."
+msgstr "मापन की सेटिंग्स **इनपुट और प्रयोग**, **मास्क और चैनल मैपिंग**, **छवि पूर्वप्रसंस्करण** (**छवि डीकन्वोल्यूशन (PSF)** और **प्रदीपन सुधार** के साथ), **विशेषताएँ**, **ऑब्जेक्ट फ़िल्टरिंग**, **चित्रांश आउटपुट**, **3D अंशांकन (बीटा)** और **Postprocessing** (**रनटाइम और विश्वसनीयता** के साथ) में समूहित हैं। विभाजन-गुणवत्ता निर्णय वैकल्पिक है: **3D** और **समय** के बगल का **QC** स्विच इसे पॉपअप में खोलता है, और पॉपअप बंद करने पर स्विच बंद हो जाता है।"
+
+msgid "Annotate and Classify"
+msgstr "एनोटेशन और वर्गीकरण"
+
+msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are kept and inform the next round of training. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
+msgstr "एनोटेशन मॉड्यूल कीबोर्ड से चलने वाला क्रॉप ग्रिड देता है, लेबल सीधे प्रोजेक्ट डेटाबेस में दर्ज करता है और अनिश्चितता के आधार पर सक्रिय-अधिगम कतार को क्रमबद्ध कर सकता है। एक पेज में जितने क्रॉप समा सकें उतने होते हैं और वह कभी स्क्रॉल नहीं होता; बाकी अगले पेज पर होते हैं। **सुझाव...** के बाद सुझाए गए क्रॉप पर **?** बैज होता है: पुष्टि के लिए किसी पर क्लिक करें या **Y** दबाएँ, अस्वीकार करने के लिए राइट-क्लिक करें या **N** दबाएँ, और **U** पूर्ववत करता है। **पेज के शेष की पुष्टि करें** और **पेज के शेष को अस्वीकार करें** सभी शेष सुझावों का एक साथ निर्णय करते हैं। अस्वीकृतियाँ सुरक्षित रहती हैं और प्रशिक्षण के अगले दौर को जानकारी देती हैं। वर्गीकरण मापन तालिकाओं से PyTorch छवि मॉडल या पारंपरिक और बूस्टेड मॉडल प्रशिक्षित करता है। चेकपॉइंट अपना डेटासेट, विभाजन नियम, वर्ग संतुलन और अलग रखे गए डेटा के मेट्रिक्स दर्ज करते हैं। वर्गीकरण के **Essentials** दृश्य में किसी भी परिवार को चुनने और प्रशिक्षित करने के लिए आवश्यक सब कुछ होता है — ResNet या MaxViT जैसा छवि मॉडल, या XGBoost या रैंडम फ़ॉरेस्ट जैसा सारणीबद्ध मॉडल — और न चुने गए परिवार की सेटिंग्स धूसर हो जाती हैं।"
+
+msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
+msgstr "वर्गीकरण CV अनुमान के समय वैकल्पिक घुमाव और परावर्तन भी देता है। समेकन विधियों, मूल और औसत संभावनाओं, और अभिविन्यास-स्थिरता चिह्नों के लिए :doc:`classifier_evaluation` देखें।"
+
+msgid "Map Barcodes"
+msgstr "बारकोड मैप करें"
+
+msgid "Barcode mapping decodes row, column and gRNA barcodes from FASTQ reads, joins them to imaged wells and reports abundance, collision, unmapped-read and library-coverage checks."
+msgstr "बारकोड मैपिंग FASTQ रीड से पंक्ति, स्तंभ और gRNA बारकोड डिकोड करती है, उन्हें छवि लिए गए कूपों से जोड़ती है और प्रचुरता, टकराव, बिना मैप हुए रीड तथा लाइब्रेरी कवरेज जाँचों की सूचना देती है।"
+
+msgid "Regression"
+msgstr "प्रतिगमन"
+
+msgid "Regression estimates guide, gene, condition and control effects. Its model families cover continuous, fractional, binary and count responses, robust and quantile fits, penalised high-dimensional designs, mixed effects and guide permutation. Diagnostics and run summaries are written beside the result."
+msgstr "प्रतिगमन गाइड, जीन, स्थिति और नियंत्रण प्रभावों का अनुमान लगाता है। इसके मॉडल परिवार निरंतर, आंशिक, द्विआधारी और गणना प्रतिक्रियाओं, मज़बूत और क्वांटाइल फ़िट, दंडित उच्च-विमीय डिज़ाइनों, मिश्रित प्रभावों और गाइड क्रमचय को कवर करते हैं। निदान और रन सारांश परिणाम के बगल में लिखे जाते हैं।"
+
+msgid "Planning, quality control and exploration"
+msgstr "योजना, गुणवत्ता नियंत्रण और अन्वेषण"
+
+msgid "**Power and Design** estimate cell and well requirements and lay out plates, controls and replicates."
+msgstr "**Power and Design** कोशिकाओं और कूपों की आवश्यकता का अनुमान लगाते हैं और प्लेटें, नियंत्रण और प्रतिकृतियाँ व्यवस्थित करते हैं।"
+
+msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and leakage checks."
+msgstr "**QC Dashboard** विभाजन, प्लेट, एनोटेटर-सहमति और रिसाव जाँचों को जोड़ता है।"
+
+msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
+msgstr "**बैच सुधार** केंद्रण, z-स्कोरिंग, मज़बूत z-स्कोरिंग, नियंत्रण केंद्रण और संरक्षित जैविक सहचरों के साथ ComBat प्रदान करता है।"
+
+msgid "**Graph Builder, gates and linked views** connect summary plots to the object crops behind them."
+msgstr "**Graph Builder, गेट और जुड़े दृश्य** सारांश प्लॉट को उनके पीछे के ऑब्जेक्ट क्रॉप से जोड़ते हैं।"
+
+msgid "**Feature, dose-response, control-chart and outlier views** inspect a result without an export/re-import cycle."
+msgstr "**विशेषता, मात्रा-प्रतिक्रिया, नियंत्रण-चार्ट और बाहरी-मान दृश्य** निर्यात/पुनः आयात चक्र के बिना किसी परिणाम की जाँच करते हैं।"
+
+msgid "**Layer and lineage views** connect images, masks and the cell → nucleus → pathogen object hierarchy."
+msgstr "**लेयर और वंश दृश्य** छवियों, मास्क और कोशिका → केंद्रक → रोगजनक ऑब्जेक्ट पदानुक्रम को जोड़ते हैं।"
+
+msgid "In **Live Preview**, **QC** image views and the raw/enhanced comparison, wheel zoom keeps the image point beneath the pointer in place. This also works when the image is smaller than its viewport; **Fit** or opening a new image resets the extra navigation space. Linked comparison views update together after the zoom. Orthogonal image views zoom around the pointer without moving the crosshair's selected position."
+msgstr "**Live Preview**, **QC** छवि दृश्यों और कच्ची/संवर्धित तुलना में व्हील ज़ूम सूचक के नीचे के छवि बिंदु को अपनी जगह पर रखता है। यह तब भी काम करता है जब छवि अपने व्यूपोर्ट से छोटी हो; **पूरा दिखाएँ** या नई छवि खोलने से अतिरिक्त नेविगेशन स्थान रीसेट हो जाता है। ज़ूम के बाद जुड़े तुलना दृश्य एक साथ अद्यतन होते हैं। लंबकोणीय छवि दृश्य क्रॉसहेयर की चुनी गई स्थिति को हिलाए बिना सूचक के चारों ओर ज़ूम करते हैं।"
+
+msgid "For Toxoplasma compartment-intensity comparisons, see :doc:`recruitment`."
+msgstr "टोक्सोप्लाज़्मा कंपार्टमेंट-तीव्रता तुलनाओं के लिए :doc:`recruitment` देखें।"
+
+msgid "Reproducibility and interoperability"
+msgstr "पुनरुत्पादकता और अंतरसंचालनीयता"
+
+msgid "Every run can record its identifier, seed, resolved settings and outputs. Interrupted workflows can resume from checkpoints, and the run history can compare settings and artefacts. Measurements export to AnnData; optional integrations read or write OME-Zarr, connect to OMERO and send masks to napari."
+msgstr "हर रन अपना पहचानकर्ता, सीड, निर्धारित सेटिंग्स और आउटपुट दर्ज कर सकता है। बाधित कार्यप्रवाह चेकपॉइंट से फिर शुरू हो सकते हैं, और रन इतिहास सेटिंग्स और फ़ाइलों की तुलना कर सकता है। मापन AnnData में निर्यात होते हैं; वैकल्पिक एकीकरण OME-Zarr पढ़ते या लिखते हैं, OMERO से जुड़ते हैं और मास्क napari को भेजते हैं।"
+
+msgid "How a module is reached"
+msgstr "किसी मॉड्यूल तक कैसे पहुँचें"
+
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
+msgstr "मुखपृष्ठ मॉड्यूल को चार श्रेणियों में समूहित करता है -- **मुख्य**, **डेटा**, **उपकरण** और **एसे** -- और इक्कीस मॉड्यूल की इनमें से किसी एक में टाइल है। मुख्य वह पाइपलाइन है जिसे आप क्रम से चलाते हैं; डेटा वह है जो उसमें जाता है और उससे निकलता है; उपकरण वे साधन हैं जिन्हें आप किसी प्रोजेक्ट पर लगाते हैं, न कि पाइपलाइन द्वारा स्वयं उठाए जाने वाले कदम; एसे मात्रात्मक रीडआउट हैं। मास्क बनाएँ **उपकरण** के अंतर्गत रखा गया है।"
+
+msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
+msgstr "टाइल ही प्रवेश का एकमात्र रास्ता नहीं है, और अधिकांश मॉड्यूल की कोई टाइल नहीं है। टाइल का अर्थ है \"यहाँ से शुरू करें\", और जो मॉड्यूल किसी और द्वारा शुरू किए गए रन के बारे में प्रश्न का उत्तर देता है वह शुरुआत की जगह नहीं है। ऐसे मॉड्यूल इन स्थानों से खुलते हैं:"
+
+msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
+msgstr "**अपने होस्ट की शीर्षपट्टी पर एक बटन** -- होस्ट की सेटिंग्स के बगल में एक पेज के रूप में, जो पहले से उसी प्रोजेक्ट की ओर संकेत करता है। Investigate Hit और Prediction Profiler प्रतिगमन से खुलते हैं; प्रारूप परिवर्तक और बाहरी मास्क आयात से; Layer Viewer, Control Charts और Outliers QC से।"
+
+msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
+msgstr "**सहायता मेनू**, उन मॉड्यूल के लिए जो किसी एक मॉड्यूल के पीछे होने के बजाय पहले से मौजूद काम की जाँच या प्रबंधन करते हैं -- रन इतिहास, Pipeline Graph, Project Browser, डेटाबेस ब्राउज़र, रिपोर्ट, डेटा प्रबंधक, प्लेट कतार, बैच रनर और वितरित कार्य।"
+
+msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
+msgstr "**कमांड पैलेट** (Ctrl+K), जो हर मॉड्यूल तक पहुँचता है, टाइल हो या न हो। यह बिना किसी अपवाद वाला एकमात्र मार्ग है और कीबोर्ड उपयोगकर्ता का नेविगेशन है।"
+
+msgid "None of them is second-class: they are shipped, translated and documented like any other module, and the ones that are pipelines still run headlessly under ``spacr-run``."
+msgstr "इनमें से कोई भी दोयम दर्जे का नहीं है: इन्हें किसी भी अन्य मॉड्यूल की तरह जारी, अनुवादित और प्रलेखित किया जाता है, और जो पाइपलाइन हैं वे अब भी ``spacr-run`` के अंतर्गत हेडलेस चलते हैं।"
+
+msgid "Host"
+msgstr "पोषक"
+
+msgid "Opens from its masthead"
+msgstr "अपनी शीर्षपट्टी से खुलता है"
+
+msgid "Timelapse"
+msgstr "टाइमलैप्स"
+
+msgid "Illumination Correction, AnnData Export, Motility Assay"
+msgstr "प्रदीपन सुधार, AnnData निर्यात, गतिशीलता परीक्षण"
+
+msgid "Annotate"
+msgstr "एनोटेशन"
+
+msgid "Annotator Agreement"
+msgstr "एनोटेटर सहमति"
+
+msgid "Classify"
+msgstr "वर्गीकरण"
+
+msgid "Classifier Evaluation, Explain CV Model, Activation Maps"
+msgstr "वर्गीकारक मूल्यांकन, CV मॉडल समझाएँ, सक्रियण मानचित्र"
+
+msgid "Barcode QC"
+msgstr "बारकोड QC"
+
+msgid "Volcano Explorer, Hit List, Methods & Results"
+msgstr "वोल्केनो प्लॉट एक्सप्लोरर, हिट सूची, विधियाँ और परिणाम"
+
+msgid "Image UMAP"
+msgstr "इमेज UMAP"
+
+msgid "Image Scatter, PCA"
+msgstr "छवि स्कैटर प्लॉट, PCA"
+
+msgid "Make Masks"
+msgstr "मास्क बनाएँ"
+
+msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate, Napari Bridge"
+msgstr "Cellpose वर्कबेंच, पूरे फ़ोल्डर के लिए मास्क बनाएँ, मॉडल तुलना, मॉडल संग्रह, क्यूरेट, नैपारी ब्रिज"
+
+msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
+msgstr "पैरामीटर स्वीप तक तीसरे तरीके से पहुँचा जाता है: यह प्रतिगमन स्क्रीन पर एक पैनल है, जो उसके सेटिंग फ़ॉर्म के **पैरामीटर स्वीप** स्विच से खुलता है।"
+
+msgid "Arranging the window"
+msgstr "विंडो की व्यवस्था"
+
+msgid "**Home** keeps its panels in a right-hand column. Drag the column's arrow handle to resize it, or click it to fold the column away and bring it back. The **Text size** slider below the lowest panel scales the text in those panels."
+msgstr "**मुखपृष्ठ** अपने पैनल दाईं ओर के एक स्तंभ में रखता है। उसका आकार बदलने के लिए स्तंभ का तीर हैंडल खींचें, या स्तंभ को मोड़कर छिपाने और वापस लाने के लिए उस पर क्लिक करें। सबसे नीचे के पैनल के नीचे का **पाठ का आकार** स्लाइडर उन पैनलों के पाठ का आकार बदलता है।"
+
+msgid "**The dock**: while it is shown, drag its edge to make it wider or narrower; double-click the edge to fit it to the module names again."
+msgstr "**डॉक**: दिखाई देते समय इसकी किनारी खींचकर इसे चौड़ा या संकरा करें; मॉड्यूल नामों के अनुसार फिर से फ़िट करने के लिए किनारी पर डबल-क्लिक करें।"
+
+msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
+msgstr "**किसी मॉड्यूल का दायाँ स्तंभ** (कंसोल, क्रियाएँ और अन्य पैनल) अपनी बाईं किनारी खींचने पर एक इकाई के रूप में आकार बदलता है। पाठ बड़ा या छोटा करने के लिए **Ctrl** दबाए रखकर उस पर स्क्रॉल करें; स्तंभ पर **Ctrl+0** डिफ़ॉल्ट आकार पर लौटाता है।"
+
+msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
+msgstr "**टूलटिप** सूचक के दो सेकंड रुकने के बाद दिखाई देते हैं और सूचक उन पर रहने तक बने रहते हैं। **प्राथमिकताएं → रूप-रंग → टूलटिप** से इन्हें पूरी तरह बंद करें।"
+
+msgid "These sizes are remembered between sessions."
+msgstr "ये आकार सत्रों के बीच याद रखे जाते हैं।"
+
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "मास्क बनाएँ हाथ से मास्क सुधारता है और अपनी शीर्षपट्टी पर Cellpose लूप रखता है। इसके कैनवास में दस उपकरण हैं: ब्रश, इरेज़र, Erase object, Wand +, Wand −, Draw, Divide, ज़ूम, Recrop और रूलर। :doc:`मास्क बनाएँ संदर्भ <make_masks>` इन उपकरणों, स्तर, पहचान सेटिंग्स, प्राथमिक/द्वितीयक युग्मन, सहेजने और मापन को कवर करता है।"
+
+msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
+msgstr "Draw एक मुक्त-रूप रूपरेखा बनाता है जो बंद होकर एक ऑब्जेक्ट के रूप में भर जाती है -- यह वह काम है जो ब्रश नहीं करता, क्योंकि ब्रश पथ पर डिस्क छापता है, इसलिए उससे किसी किनारे को रेखांकित करने पर किनारा लेबल होता है और बीच का भाग पृष्ठभूमि रह जाता है। Divide किसी जुड़े हुए ऑब्जेक्ट के आर-पार एक रेखा खींचकर उसे दो बनाता है, और किसी अन्य ऑब्जेक्ट के लेबल को नहीं छूता; यह वह सुधार है जिसकी विभाजन को सबसे अधिक आवश्यकता होती है।"
+
+msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
+msgstr "Recrop एकमात्र उपकरण है जो यह बदलता है कि स्क्रीन पर कौन-सा फ़ील्ड है, न कि उस पर क्या रंगा गया है। कई कोशिकाओं वाला तैयार क्रॉप एक प्रशिक्षण उदाहरण नहीं है, और उसे एक मानकर क्यूरेट करने से नेटवर्क यह सीखता है कि दो ऑब्जेक्ट एक चित्र हैं -- इसलिए किसी ऑब्जेक्ट के चारों ओर बना बॉक्स छवि और मास्क दोनों के उस क्षेत्र को एक अलग फ़ील्ड के रूप में लिखता है, जो वर्तमान फ़ील्ड के ठीक बाद कतार में लगता है, और बहु-ऑब्जेक्ट मूल को क्यूरेट करने के बजाय ``recropped_originals/`` में हटा दिया जाता है। न्यूनतम भुजा से छोटा बॉक्स, या पहले से किए गए कट को दोहराने वाला बॉक्स अस्वीकार किया जाता है; बॉक्स जिन ऑब्जेक्ट को काटता है उन्हें हटा दिया जाता है, क्योंकि जिस ऑब्जेक्ट की सीमा वहाँ है जहाँ माउस छोड़ा गया, वह वही ऑब्जेक्ट नहीं है; और बचे हुए लेबल एक से फिर से क्रमांकित होते हैं।"
+
+msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. A mask is a threshold applied to that probability map, and a candidate object is discarded when its flows disagree with the ones the network predicted by more than the flow-error threshold. When a mask is wrong, those two panes are where the reason is visible."
+msgstr "इस स्क्रीन से Cellpose-SAM चलाने पर मास्क के बगल में इसके दो मध्यवर्ती आउटपुट दिखते हैं: कोशिका-संभावना मानचित्र और प्रवाह क्षेत्र। मास्क उस संभावना मानचित्र पर लगाई गई सीमा है, और जब किसी उम्मीदवार ऑब्जेक्ट के प्रवाह नेटवर्क द्वारा पूर्वानुमानित प्रवाहों से प्रवाह-त्रुटि सीमा से अधिक भिन्न होते हैं तो उसे हटा दिया जाता है। जब कोई मास्क गलत हो, तो इन्हीं दो फलकों में कारण दिखाई देता है।"
+
+msgid "Settings that apply"
+msgstr "लागू होने वाली सेटिंग्स"
+
+msgid "The settings panel carries a control when it applies to the run being set up and leaves it off the form when it does not:"
+msgstr "सेटिंग पैनल कोई नियंत्रण तब दिखाता है जब वह सेट किए जा रहे रन पर लागू होता है, और लागू न होने पर उसे फ़ॉर्म से हटा देता है:"
+
+msgid "a slot past ``number_of_organelles`` takes its whole block of settings with it, its channel included -- a slot the run does not have is not a slot with its channel left showing;"
+msgstr "``number_of_organelles`` से आगे का स्लॉट अपनी पूरी सेटिंग्स का खंड, अपने चैनल सहित, साथ ले जाता है -- जो स्लॉट रन में नहीं है वह ऐसा स्लॉट नहीं है जिसका चैनल दिखता रहे;"
+
+msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
+msgstr "जिस ऑब्जेक्ट का चैनल किसी तल का नाम नहीं देता वह रन में है ही नहीं, इसलिए उसकी सेटिंग्स फ़ॉर्म पर नहीं होतीं;"
+
+msgid "a setting belonging to one morphology is dropped for a slot of another: a punctate organelle has no ridge filter."
+msgstr "किसी एक आकृति की सेटिंग किसी अन्य आकृति वाले स्लॉट के लिए हटा दी जाती है: बिंदुवत कोशिकांग में रिज फ़िल्टर नहीं होता।"
+
+msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
+msgstr "3D और समय स्विच घोषित करते हैं कि प्लेट के कौन-से आयाम हैं। ``z_stack`` z अक्ष घोषित करता है और आयतनात्मक सेटिंग्स -- विभाजन मोड, विषमदिशिकता और वॉक्सेल आकार -- सक्षम करता है, और यह अनुमान लगाने के बजाय कि कौन-सा अक्ष z है, त्रुटि के साथ रुक जाता है। ``timelapse`` समय अक्ष घोषित करता है और ट्रैकिंग दिखाता है; एकल-समय-बिंदु वाली प्लेट इसे अनदेखा करती है। 4D सेटिंग्स केवल तब लागू होती हैं जब डेटा z-स्टैक और समय-श्रृंखला दोनों हो, और केवल तभी दिखाई देती हैं।"
+
+msgid "Maturity labels"
+msgstr "परिपक्वता लेबल"
+
+msgid "The API uses these labels consistently:"
+msgstr "API इन लेबलों का लगातार उपयोग करता है:"
+
+msgid "**Stable**"
+msgstr "**स्थिर**"
+
+msgid "Supported entry points used by the principal Mask, Measure, Classify, barcode and regression workflows. Backward-incompatible changes require a deprecation period."
+msgstr "मुख्य मास्क, मापन, वर्गीकरण, बारकोड और प्रतिगमन कार्यप्रवाहों द्वारा उपयोग किए जाने वाले समर्थित प्रवेश बिंदु। पिछड़े-असंगत परिवर्तनों के लिए अप्रचलन अवधि आवश्यक है।"
+
+msgid "**Advanced**"
+msgstr "**उन्नत**"
+
+msgid "Supported specialist functionality whose defaults or result schema may still evolve. Release notes describe material changes."
+msgstr "समर्थित विशेषज्ञ कार्यक्षमता जिसके डिफ़ॉल्ट या परिणाम स्कीमा अभी भी विकसित हो सकते हैं। रिलीज़ नोट्स महत्वपूर्ण परिवर्तनों का वर्णन करते हैं।"
+
+msgid "**Experimental**"
+msgstr "**प्रायोगिक**"
+
+msgid "Early interfaces intended for evaluation. They may change between minor releases and should be pinned before use in an automated workflow."
+msgstr "मूल्यांकन के लिए प्रारंभिक इंटरफ़ेस। ये छोटे रिलीज़ के बीच बदल सकते हैं और स्वचालित कार्यप्रवाह में उपयोग से पहले इनका संस्करण निश्चित किया जाना चाहिए।"
+
+msgid "**Internal**"
+msgstr "**आंतरिक**"
+
+msgid "GUI widgets, workers and implementation helpers. They are documented for contributors but are not a compatibility promise."
+msgstr "GUI विजेट, वर्कर और कार्यान्वयन सहायक। ये योगदानकर्ताओं के लिए प्रलेखित हैं, लेकिन संगतता का वादा नहीं हैं।"
+
+msgid "Optional dependencies"
+msgstr "वैकल्पिक निर्भरताएँ"
+
+msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "मूल पैकेज में हेडलेस पाइपलाइन होती हैं। डेस्कटॉप इंटरफ़ेस के लिए ``spacr[qt]`` स्थापित करें। अन्य अतिरिक्त घटक OME-Zarr, OMERO, napari, एट्रिब्यूशन, ट्रैकिंग, Zernike मापन और विक्रेता रीडर जोड़ते हैं। उपलब्धता Python संस्करण के साथ बदलती है; :doc:`इंस्टॉलर मार्गदर्शिका <installer_guide>` प्रामाणिक संगतता तालिका है।"
+

@@ -1,0 +1,87 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Export measurements to AnnData"
+msgstr "Exportera mätningar till AnnData"
+
+msgid "Create an ``.h5ad`` file containing measured features and object metadata for analysis in AnnData or Scanpy. Start with a spaCR project containing ``measurements/measurements.db``. For a worked example, download the project from the `Annotate tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "Skapa en ``.h5ad``-fil med uppmätta egenskaper och objektmetadata för analys i AnnData eller Scanpy. Börja med ett spaCR-projekt som innehåller ``measurements/measurements.db``. För ett genomarbetat exempel kan du ladda ner projektet från `handledningen för Annotering <tutorials/#lesson=09_annotate>`__."
+
+msgid "Export from the application"
+msgstr "Exportera från programmet"
+
+msgid "From **Home**, open **Measure**, then **AnnData Export**."
+msgstr "Från **Hem** öppnar du **Mätning** och sedan **AnnData-export**."
+
+msgid "Select the measured project as the source."
+msgstr "Välj det uppmätta projektet som källa."
+
+msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
+msgstr "Sätt **Anndata ut** till ett nytt ``.h5ad``-filnamn. Om fältet lämnas tomt skrivs filen under projektets mapp ``results``. En lyckad export ersätter en befintlig fil på den valda sökvägen; använd separata namn för att behålla båda versionerna."
+
+msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
+msgstr "Sätt **Anndata enda tabell** till ``cell`` för en rad per cell med den tabellens egenskaper. Använd ``nucleus`` eller ``pathogen`` för de objekttyperna. Lämna fältet tomt för en sammanfogad export på cellnivå, där underordnade mätningar aggregeras till sina överordnade celler."
+
+msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
+msgstr "Välj **Anndata nan policy** och klicka sedan på **Kör**. Läs meddelandet när exporten är klar och öppna utdatafilen för att kontrollera dess form och egenskapsnamn."
+
+msgid "Choose how to handle missing features"
+msgstr "Välj hur saknade egenskaper ska hanteras"
+
+msgid "``keep`` retains missing values. Choose this when you want to decide how to handle them in the downstream analysis."
+msgstr "``keep`` behåller saknade värden. Välj detta när du själv vill bestämma hur de ska hanteras i den efterföljande analysen."
+
+msgid "``drop_features`` removes feature columns containing missing values."
+msgstr "``drop_features`` tar bort egenskapskolumner som innehåller saknade värden."
+
+msgid "``drop_objects`` removes object rows containing missing feature values."
+msgstr "``drop_objects`` tar bort objektrader som innehåller saknade egenskapsvärden."
+
+msgid "``mean`` replaces missing values with the observed feature mean."
+msgstr "``mean`` ersätter saknade värden med egenskapens observerade medelvärde."
+
+msgid "``zero`` replaces missing values with zero. Use it only when zero is an appropriate value for the intended analysis."
+msgstr "``zero`` ersätter saknade värden med noll. Använd bara detta när noll är ett lämpligt värde för den avsedda analysen."
+
+msgid "The imputing policies retain the original missing positions in ``layers['missing']``. These choices apply to the feature matrix, not to unknown metadata such as unavailable calibration values. Check object and feature counts after choosing a dropping policy. Scanpy operations such as scaling and PCA need missing feature values to be handled before use."
+msgstr "Imputeringspolicyerna behåller de ursprungliga positionerna för saknade värden i ``layers['missing']``. Dessa val gäller egenskapsmatrisen, inte okända metadata som kalibreringsvärden som inte finns tillgängliga. Kontrollera antalet objekt och egenskaper när du har valt en policy som tar bort data. Scanpy-operationer som skalning och PCA kräver att saknade egenskapsvärden har hanterats före användning."
+
+msgid "Inspect the output"
+msgstr "Granska utdata"
+
+msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
+msgstr "``X`` innehåller matrisen med objekt och egenskaper, ``obs`` innehåller objektmetadata och ``var`` beskriver egenskaperna. Behåll källbilderna och deras sökvägar: bildpixlar bäddas inte in i exporten. Med Annotering-exemplet har en export av enbart celler med ``keep`` 2 341 objekt, 261 egenskaper och 28 saknade egenskapsvärden."
+
+msgid "Export from Python"
+msgstr "Exportera från Python"
+
+msgid "The following uses the same entry point as the application's **Run** button:"
+msgstr "Följande använder samma ingångspunkt som programmets knapp **Kör**:"
+
+msgid "For explicit function arguments, see :func:`spacr.anndata_export.export_anndata`."
+msgstr "För uttryckliga funktionsargument, se :func:`spacr.anndata_export.export_anndata`."
+
+msgid "Follow the video"
+msgstr "Följ videon"
+
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
+msgstr "`AnnData-videon <tutorials/#lesson=59_anndata_export>`__ går igenom dessa kontroller med det nedladdningsbara mätexemplet. Den visar sammanfogade exporter, exporter av enbart celler och av enbart kärnor, och jämför policyerna för saknade värden. Den vanliga exportfunktionen hanterar helt saknade metadata direkt. Om det misslyckas att skriva en ersättningsfil bevaras en befintlig färdig utdatafil."
+

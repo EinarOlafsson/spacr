@@ -1,0 +1,774 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Setting animation gallery"
+msgstr "Myndasafn stillingahreyfimynda"
+
+msgid "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking."
+msgstr "spaCR inniheldur stuttar, ákvörðunarbundnar GIF-hreyfimyndir fyrir stillingar þar sem auðveldara er að skilja áhrifin sjónrænt. Í skjáborðsviðmótinu sýnir svif yfir stillingu skýringu hennar; ef ýtt er á blágræna orðið **Animation** í fæti skjábendingarinnar birtist samsvarandi hreyfimynd hægra megin við textann. Hún birtist aðeins fyrir þá stillingu — næsta stilling er aftur texti þar til ýtt er á hennar eigin **Animation**, og ekkert er afkóðað fyrr en það er gert. Stilltu *Hreyfimyndir stillinga* í kjörstillingum til að sýna þær án þess að spyrja."
+
+msgid "The diagrams use a shared biological grammar: white fibroblast or motile immune-cell outlines, blue nuclei with unequal nucleoli, teal Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole, and soft-magenta Golgi cisternae. Filled regions are translucent and the rounded field perimeter remains white on black."
+msgstr "Skýringarmyndirnar nota sameiginlega líffræðilega málfræði: hvítar útlínur trefjakímfrumna eða hreyfanlegra ónæmisfrumna, bláa kjarna með misstórum kjarnakornum, blágræna Toxoplasma-hraðgróa inni í sníkjubólu sem aðeins er sýnd sem útlína, og mjúkar blárauðar Golgi-flögur. Fyllt svæði eru hálfgegnsæ og ávalur jaðar sjónsviðsins er áfram hvítur á svörtu."
+
+msgid "The cell, nucleus and nucleoli, two-parasite vacuole, and Golgi use the reviewed, artist-authored SVG paths checked into ``tools/``. Qt renders those exact Bezier paths at high resolution before each animation frame is composited, keeping the outlines smooth at small sizes. Source-template SHA-256 hashes are recorded in the manifest."
+msgstr "Fruman, kjarninn með kjarnakornum, bólan með tveimur sníkjudýrum og Golgi-kerfið nota yfirfarna SVG-ferla, teiknaða af listamanni, sem eru skráðir inn í ``tools/``. Qt teiknar nákvæmlega þessa Bézier-ferla í mikilli upplausn áður en hver rammi hreyfimyndarinnar er settur saman, svo útlínurnar haldast mjúkar í litlum stærðum. SHA-256-tætigildi upprunasniðmátanna eru skráð í skránni (manifest)."
+
+msgid "Animations are resolved by setting key, with numbered organelle slots reusing the primary slot's animation through :mod:`spacr.setting_animations`; the assets and manifest are generated reproducibly by ``tools/generate_setting_animations.py``."
+msgstr "Hreyfimyndum er flett upp eftir stillingalykli, þar sem númeraðir frumulíffærareitir endurnýta hreyfimynd aðalreitsins í gegnum :mod:`spacr.setting_animations`; eignirnar og skráin eru búnar til á endurtakanlegan hátt af ``tools/generate_setting_animations.py``."
+
+msgid "Mask filtering"
+msgstr "Síun gríma"
+
+msgid "Cell — Remove border objects"
+msgstr "Fruma — Fjarlægja hluti við jaðar"
+
+msgid "Cell — Remove border objects setting animation"
+msgstr "Stillingahreyfimynd: Fruma — Fjarlægja hluti við jaðar"
+
+msgid "**Settings:** ``cell_remove_border_objects``"
+msgstr "**Stillingar:** ``cell_remove_border_objects``"
+
+msgid "Cell — Minimum object area"
+msgstr "Fruma — Lágmarksflatarmál hlutar"
+
+msgid "Cell — Minimum object area setting animation"
+msgstr "Stillingahreyfimynd: Fruma — Lágmarksflatarmál hlutar"
+
+msgid "**Settings:** ``cell_min_size``, ``object_filters``"
+msgstr "**Stillingar:** ``cell_min_size``, ``object_filters``"
+
+msgid "Nucleus — Remove border objects"
+msgstr "Kjarni — Fjarlægja hluti við jaðar"
+
+msgid "Nucleus — Remove border objects setting animation"
+msgstr "Stillingahreyfimynd: Kjarni — Fjarlægja hluti við jaðar"
+
+msgid "**Settings:** ``nucleus_remove_border_objects``"
+msgstr "**Stillingar:** ``nucleus_remove_border_objects``"
+
+msgid "Nucleus — Minimum object area"
+msgstr "Kjarni — Lágmarksflatarmál hlutar"
+
+msgid "Nucleus — Minimum object area setting animation"
+msgstr "Stillingahreyfimynd: Kjarni — Lágmarksflatarmál hlutar"
+
+msgid "**Settings:** ``nucleus_min_size``"
+msgstr "**Stillingar:** ``nucleus_min_size``"
+
+msgid "Pathogen — Remove border objects"
+msgstr "Sýkill — Fjarlægja hluti við jaðar"
+
+msgid "Pathogen — Remove border objects setting animation"
+msgstr "Stillingahreyfimynd: Sýkill — Fjarlægja hluti við jaðar"
+
+msgid "**Settings:** ``pathogen_remove_border_objects``"
+msgstr "**Stillingar:** ``pathogen_remove_border_objects``"
+
+msgid "Pathogen — Minimum object area"
+msgstr "Sýkill — Lágmarksflatarmál hlutar"
+
+msgid "Pathogen — Minimum object area setting animation"
+msgstr "Stillingahreyfimynd: Sýkill — Lágmarksflatarmál hlutar"
+
+msgid "**Settings:** ``pathogen_min_size``"
+msgstr "**Stillingar:** ``pathogen_min_size``"
+
+msgid "Organelle — Remove border objects"
+msgstr "Frumulíffæri — Fjarlægja hluti við jaðar"
+
+msgid "Organelle — Remove border objects setting animation"
+msgstr "Stillingahreyfimynd: Frumulíffæri — Fjarlægja hluti við jaðar"
+
+msgid "**Settings:** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+msgstr "**Stillingar:** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+
+msgid "Organelle — Minimum object area"
+msgstr "Frumulíffæri — Lágmarksflatarmál hlutar"
+
+msgid "Organelle — Minimum object area setting animation"
+msgstr "Stillingahreyfimynd: Frumulíffæri — Lágmarksflatarmál hlutar"
+
+msgid "**Settings:** ``organelle_min_area``"
+msgstr "**Stillingar:** ``organelle_min_area``"
+
+msgid "Organelle — Maximum object area"
+msgstr "Frumulíffæri — Hámarksflatarmál hlutar"
+
+msgid "Organelle — Maximum object area setting animation"
+msgstr "Stillingahreyfimynd: Frumulíffæri — Hámarksflatarmál hlutar"
+
+msgid "**Settings:** ``organelle_max_area``"
+msgstr "**Stillingar:** ``organelle_max_area``"
+
+msgid "Organelle — Minimum mean intensity"
+msgstr "Frumulíffæri — Lágmarksmeðalstyrkur"
+
+msgid "Organelle — Minimum mean intensity setting animation"
+msgstr "Stillingahreyfimynd: Frumulíffæri — Lágmarksmeðalstyrkur"
+
+msgid "**Settings:** ``organelle_min_intensity``"
+msgstr "**Stillingar:** ``organelle_min_intensity``"
+
+msgid "Organelle — Maximum mean intensity"
+msgstr "Frumulíffæri — Hámarksmeðalstyrkur"
+
+msgid "Organelle — Maximum mean intensity setting animation"
+msgstr "Stillingahreyfimynd: Frumulíffæri — Hámarksmeðalstyrkur"
+
+msgid "**Settings:** ``organelle_max_intensity``"
+msgstr "**Stillingar:** ``organelle_max_intensity``"
+
+msgid "Mask repair"
+msgstr "Lagfæring gríma"
+
+msgid "Merge edge-pathogen cells"
+msgstr "Sameinuðu edge-patogennum cellerum"
+
+msgid "Merge edge-pathogen cells setting animation"
+msgstr "Stillingahreyfimynd: Sameina frumur með sýklum við jaðar"
+
+msgid "**Settings:** ``merge_edge_pathogen_cells``"
+msgstr "**Stillingar:** ``merge_edge_pathogen_cells``"
+
+msgid "Adjust fragmented cells"
+msgstr "Lagfæra sundraðar frumur"
+
+msgid "Adjust fragmented cells setting animation"
+msgstr "Stillingahreyfimynd: Lagfæra sundraðar frumur"
+
+msgid "**Settings:** ``adjust_cells``"
+msgstr "**Stillingar:** ``adjust_cells``"
+
+msgid "Cell perimeter merge"
+msgstr "Samruni eftir ummáli frumu"
+
+msgid "Cell perimeter merge setting animation"
+msgstr "Stillingahreyfimynd: Samruni eftir ummáli frumu"
+
+msgid "**Settings:** ``cell_perimeter_fraction``"
+msgstr "**Stillingar:** ``cell_perimeter_fraction``"
+
+msgid "Nucleus perimeter merge"
+msgstr "Samruni eftir ummáli kjarna"
+
+msgid "Nucleus perimeter merge setting animation"
+msgstr "Stillingahreyfimynd: Samruni eftir ummáli kjarna"
+
+msgid "**Settings:** ``nucleus_perimeter_fraction``"
+msgstr "**Stillingar:** ``nucleus_perimeter_fraction``"
+
+msgid "Pathogen perimeter merge"
+msgstr "Samruni eftir ummáli sýkils"
+
+msgid "Pathogen perimeter merge setting animation"
+msgstr "Stillingahreyfimynd: Samruni eftir ummáli sýkils"
+
+msgid "**Settings:** ``pathogen_perimeter_fraction``"
+msgstr "**Stillingar:** ``pathogen_perimeter_fraction``"
+
+msgid "Organelle perimeter merge"
+msgstr "Samruni eftir ummáli frumulíffæris"
+
+msgid "Organelle perimeter merge setting animation"
+msgstr "Stillingahreyfimynd: Samruni eftir ummáli frumulíffæris"
+
+msgid "**Settings:** ``organelle_perimeter_fraction``"
+msgstr "**Stillingar:** ``organelle_perimeter_fraction``"
+
+msgid "Fill holes in masks"
+msgstr "Fylla í göt í grímum"
+
+msgid "Fill holes in masks setting animation"
+msgstr "Stillingahreyfimynd: Fylla í göt í grímum"
+
+msgid "**Settings:** ``fill_in``"
+msgstr "**Stillingar:** ``fill_in``"
+
+msgid "Segmentation"
+msgstr "Hlutun"
+
+msgid "Cell probability threshold"
+msgstr "Líkindaþröskuldur frumu"
+
+msgid "Cell probability threshold setting animation"
+msgstr "Stillingahreyfimynd: Líkindaþröskuldur frumu"
+
+msgid "**Settings:** ``cell_cellprob_threshold``"
+msgstr "**Stillingar:** ``cell_cellprob_threshold``"
+
+msgid "Cell flow threshold"
+msgstr "Flæðisþröskuldur frumu"
+
+msgid "Cell flow threshold setting animation"
+msgstr "Stillingahreyfimynd: Flæðisþröskuldur frumu"
+
+msgid "**Settings:** ``cell_flow_threshold``"
+msgstr "**Stillingar:** ``cell_flow_threshold``"
+
+msgid "Cell diameter"
+msgstr "Þvermál frumu"
+
+msgid "Cell diameter setting animation"
+msgstr "Stillingahreyfimynd: Þvermál frumu"
+
+msgid "**Settings:** ``cell_diameter``"
+msgstr "**Stillingar:** ``cell_diameter``"
+
+msgid "Nucleus probability threshold"
+msgstr "Líkindaþröskuldur kjarna"
+
+msgid "Nucleus probability threshold setting animation"
+msgstr "Stillingahreyfimynd: Líkindaþröskuldur kjarna"
+
+msgid "**Settings:** ``nucleus_cellprob_threshold``"
+msgstr "**Stillingar:** ``nucleus_cellprob_threshold``"
+
+msgid "Nucleus flow threshold"
+msgstr "Flæðisþröskuldur kjarna"
+
+msgid "Nucleus flow threshold setting animation"
+msgstr "Stillingahreyfimynd: Flæðisþröskuldur kjarna"
+
+msgid "**Settings:** ``nucleus_flow_threshold``"
+msgstr "**Stillingar:** ``nucleus_flow_threshold``"
+
+msgid "Nucleus diameter"
+msgstr "Þvermál kjarna"
+
+msgid "Nucleus diameter setting animation"
+msgstr "Stillingahreyfimynd: Þvermál kjarna"
+
+msgid "**Settings:** ``nucleus_diameter``"
+msgstr "**Stillingar:** ``nucleus_diameter``"
+
+msgid "Pathogen probability threshold"
+msgstr "Líkindaþröskuldur sýkils"
+
+msgid "Pathogen probability threshold setting animation"
+msgstr "Stillingahreyfimynd: Líkindaþröskuldur sýkils"
+
+msgid "**Settings:** ``pathogen_cellprob_threshold``"
+msgstr "**Stillingar:** ``pathogen_cellprob_threshold``"
+
+msgid "Pathogen flow threshold"
+msgstr "Flæðisþröskuldur sýkils"
+
+msgid "Pathogen flow threshold setting animation"
+msgstr "Stillingahreyfimynd: Flæðisþröskuldur sýkils"
+
+msgid "**Settings:** ``pathogen_flow_threshold``"
+msgstr "**Stillingar:** ``pathogen_flow_threshold``"
+
+msgid "Pathogen diameter"
+msgstr "Þvermál sýkils"
+
+msgid "Pathogen diameter setting animation"
+msgstr "Stillingahreyfimynd: Þvermál sýkils"
+
+msgid "**Settings:** ``pathogen_diameter``"
+msgstr "**Stillingar:** ``pathogen_diameter``"
+
+msgid "Organelle diameter"
+msgstr "Þvermál frumulíffæris"
+
+msgid "Organelle diameter setting animation"
+msgstr "Stillingahreyfimynd: Þvermál frumulíffæris"
+
+msgid "**Settings:** ``organelle_diameter``"
+msgstr "**Stillingar:** ``organelle_diameter``"
+
+msgid "Organelle probability threshold"
+msgstr "Líkindaþröskuldur frumulíffæris"
+
+msgid "Organelle probability threshold setting animation"
+msgstr "Stillingahreyfimynd: Líkindaþröskuldur frumulíffæris"
+
+msgid "**Settings:** ``organelle_cellprob_threshold``"
+msgstr "**Stillingar:** ``organelle_cellprob_threshold``"
+
+msgid "Organelle flow threshold"
+msgstr "Flæðisþröskuldur frumulíffæris"
+
+msgid "Organelle flow threshold setting animation"
+msgstr "Stillingahreyfimynd: Flæðisþröskuldur frumulíffæris"
+
+msgid "**Settings:** ``organelle_flow_threshold``"
+msgstr "**Stillingar:** ``organelle_flow_threshold``"
+
+msgid "Image preprocessing"
+msgstr "Forvinnsla mynda"
+
+msgid "Cell background subtraction"
+msgstr "Frádráttur bakgrunns frumu"
+
+msgid "Cell background subtraction setting animation"
+msgstr "Stillingahreyfimynd: Frádráttur bakgrunns frumu"
+
+msgid "**Settings:** ``remove_background_cell``, ``cell_background``"
+msgstr "**Stillingar:** ``remove_background_cell``, ``cell_background``"
+
+msgid "Cell signal-to-noise"
+msgstr "Merki-suðhlutfall frumu"
+
+msgid "Cell signal-to-noise setting animation"
+msgstr "Stillingahreyfimynd: Merki-suðhlutfall frumu"
+
+msgid "**Settings:** ``cell_signal_to_noise``"
+msgstr "**Stillingar:** ``cell_signal_to_noise``"
+
+msgid "Nucleus background subtraction"
+msgstr "Frádráttur bakgrunns kjarna"
+
+msgid "Nucleus background subtraction setting animation"
+msgstr "Stillingahreyfimynd: Frádráttur bakgrunns kjarna"
+
+msgid "**Settings:** ``remove_background_nucleus``, ``nucleus_background``"
+msgstr "**Stillingar:** ``remove_background_nucleus``, ``nucleus_background``"
+
+msgid "Nucleus signal-to-noise"
+msgstr "Merki-suðhlutfall kjarna"
+
+msgid "Nucleus signal-to-noise setting animation"
+msgstr "Stillingahreyfimynd: Merki-suðhlutfall kjarna"
+
+msgid "**Settings:** ``nucleus_signal_to_noise``"
+msgstr "**Stillingar:** ``nucleus_signal_to_noise``"
+
+msgid "Pathogen background subtraction"
+msgstr "Frádráttur bakgrunns sýkils"
+
+msgid "Pathogen background subtraction setting animation"
+msgstr "Stillingahreyfimynd: Frádráttur bakgrunns sýkils"
+
+msgid "**Settings:** ``remove_background_pathogen``, ``pathogen_background``"
+msgstr "**Stillingar:** ``remove_background_pathogen``, ``pathogen_background``"
+
+msgid "Pathogen signal-to-noise"
+msgstr "Merki-suðhlutfall sýkils"
+
+msgid "Pathogen signal-to-noise setting animation"
+msgstr "Stillingahreyfimynd: Merki-suðhlutfall sýkils"
+
+msgid "**Settings:** ``pathogen_signal_to_noise``"
+msgstr "**Stillingar:** ``pathogen_signal_to_noise``"
+
+msgid "Image normalization percentiles"
+msgstr "Hundraðsmörk myndstöðlunar"
+
+msgid "Image normalization percentiles setting animation"
+msgstr "Stillingahreyfimynd: Hundraðsmörk myndstöðlunar"
+
+msgid "**Settings:** ``normalization_percentiles``, ``normalize``"
+msgstr "**Stillingar:** ``normalization_percentiles``, ``normalize``"
+
+msgid "Organelle preprocessing"
+msgstr "Forvinnsla frumulíffæra"
+
+msgid "Fill small organelle holes"
+msgstr "Fylla í lítil göt í frumulíffærum"
+
+msgid "Fill small organelle holes setting animation"
+msgstr "Stillingahreyfimynd: Fylla í lítil göt í frumulíffærum"
+
+msgid "**Settings:** ``organelle_fill_holes``"
+msgstr "**Stillingar:** ``organelle_fill_holes``"
+
+msgid "Split touching organelle spots"
+msgstr "Aðskilja frumulíffærabletti sem snertast"
+
+msgid "Split touching organelle spots setting animation"
+msgstr "Stillingahreyfimynd: Aðskilja frumulíffærabletti sem snertast"
+
+msgid "**Settings:** ``organelle_watershed_spots``"
+msgstr "**Stillingar:** ``organelle_watershed_spots``"
+
+msgid "Skeletonize organelle networks"
+msgstr "Beinagrindargera net frumulíffæra"
+
+msgid "Skeletonize organelle networks setting animation"
+msgstr "Stillingahreyfimynd: Beinagrindargera net frumulíffæra"
+
+msgid "**Settings:** ``organelle_skeletonize``"
+msgstr "**Stillingar:** ``organelle_skeletonize``"
+
+msgid "Rolling-ball background correction"
+msgstr "Bakgrunnsleiðrétting með rúllandi kúlu"
+
+msgid "Rolling-ball background correction setting animation"
+msgstr "Stillingahreyfimynd: Bakgrunnsleiðrétting með rúllandi kúlu"
+
+msgid "**Settings:** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+msgstr "**Stillingar:** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+
+msgid "Organelle local contrast (CLAHE)"
+msgstr "Staðbundin birtuskil frumulíffæra (CLAHE)"
+
+msgid "Organelle local contrast (CLAHE) setting animation"
+msgstr "Stillingahreyfimynd: Staðbundin birtuskil frumulíffæra (CLAHE)"
+
+msgid "**Settings:** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+msgstr "**Stillingar:** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+
+msgid "Mask organelles within cells"
+msgstr "Takmarka frumulíffæri við frumur"
+
+msgid "Mask organelles within cells setting animation"
+msgstr "Stillingahreyfimynd: Takmarka frumulíffæri við frumur"
+
+msgid "**Settings:** ``organelle_mask_within_cells``"
+msgstr "**Stillingar:** ``organelle_mask_within_cells``"
+
+msgid "Organelle segmentation threshold"
+msgstr "Hlutunarþröskuldur frumulíffæra"
+
+msgid "Organelle segmentation threshold setting animation"
+msgstr "Stillingahreyfimynd: Hlutunarþröskuldur frumulíffæra"
+
+msgid "**Settings:** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+msgstr "**Stillingar:** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+
+msgid "Plot appearance"
+msgstr "Útlit myndrita"
+
+msgid "Mask outline thickness"
+msgstr "Þykkt grímuútlína"
+
+msgid "Mask outline thickness setting animation"
+msgstr "Stillingahreyfimynd: Þykkt grímuútlína"
+
+msgid "**Settings:** ``outline_thickness``"
+msgstr "**Stillingar:** ``outline_thickness``"
+
+msgid "Crop output"
+msgstr "Úttak myndskurða"
+
+msgid "Keep bounding-box context"
+msgstr "Halda samhengi umlykjandi ramma"
+
+msgid "Keep bounding-box context setting animation"
+msgstr "Stillingahreyfimynd: Halda samhengi umlykjandi ramma"
+
+msgid "**Settings:** ``use_bounding_box``"
+msgstr "**Stillingar:** ``use_bounding_box``"
+
+msgid "Dilate crop masks"
+msgstr "Víkka grímur myndskurða"
+
+msgid "Dilate crop masks setting animation"
+msgstr "Stillingahreyfimynd: Víkka grímur myndskurða"
+
+msgid "**Settings:** ``dialate_pngs``, ``dialate_png_ratios``"
+msgstr "**Stillingar:** ``dialate_pngs``, ``dialate_png_ratios``"
+
+msgid "Choose crop target"
+msgstr "Velja mark myndskurðar"
+
+msgid "Choose crop target setting animation"
+msgstr "Stillingahreyfimynd: Velja mark myndskurðar"
+
+msgid "**Settings:** ``crop_mode``"
+msgstr "**Stillingar:** ``crop_mode``"
+
+msgid "Crop canvas size"
+msgstr "Strigastærð myndskurðar"
+
+msgid "Crop canvas size setting animation"
+msgstr "Stillingahreyfimynd: Strigastærð myndskurðar"
+
+msgid "**Settings:** ``png_size``"
+msgstr "**Stillingar:** ``png_size``"
+
+msgid "Measurement"
+msgstr "Mæling"
+
+msgid "Derive cytoplasm compartment"
+msgstr "Leiða út umfrymishólf"
+
+msgid "Derive cytoplasm compartment setting animation"
+msgstr "Stillingahreyfimynd: Leiða út umfrymishólf"
+
+msgid "**Settings:** ``cytoplasm``"
+msgstr "**Stillingar:** ``cytoplasm``"
+
+msgid "Radial-distance shells"
+msgstr "Skeljar eftir geislafjarlægð"
+
+msgid "Radial-distance shells setting animation"
+msgstr "Stillingahreyfimynd: Skeljar eftir geislafjarlægð"
+
+msgid "**Settings:** ``radial_dist``, ``distance_gaussian_sigma``"
+msgstr "**Stillingar:** ``radial_dist``, ``distance_gaussian_sigma``"
+
+msgid "Keep or remove uninfected cells"
+msgstr "Halda eða fjarlægja ósýktar frumur"
+
+msgid "Keep or remove uninfected cells setting animation"
+msgstr "Stillingahreyfimynd: Halda eða fjarlægja ósýktar frumur"
+
+msgid "**Settings:** ``uninfected``"
+msgstr "**Stillingar:** ``uninfected``"
+
+msgid "Tracking & volumetric"
+msgstr "Rakning og rúmmál"
+
+msgid "Remove transient tracks"
+msgstr "Fjarlægja skammlífar slóðir"
+
+msgid "Remove transient tracks setting animation"
+msgstr "Stillingahreyfimynd: Fjarlægja skammlífar slóðir"
+
+msgid "**Settings:** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+msgstr "**Stillingar:** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+
+msgid "Maximum linking displacement"
+msgstr "Hámarkstilfærsla við tengingu"
+
+msgid "Maximum linking displacement setting animation"
+msgstr "Stillingahreyfimynd: Hámarkstilfærsla við tengingu"
+
+msgid "**Settings:** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+msgstr "**Stillingar:** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+
+msgid "Tracking memory"
+msgstr "Minni rakningar"
+
+msgid "Tracking memory setting animation"
+msgstr "Stillingahreyfimynd: Minni rakningar"
+
+msgid "**Settings:** ``timelapse_memory``"
+msgstr "**Stillingar:** ``timelapse_memory``"
+
+msgid "Timepoint overlap threshold"
+msgstr "Skörunarþröskuldur milli tímapunkta"
+
+msgid "Timepoint overlap threshold setting animation"
+msgstr "Stillingahreyfimynd: Skörunarþröskuldur milli tímapunkta"
+
+msgid "**Settings:** ``t_link_threshold``"
+msgstr "**Stillingar:** ``t_link_threshold``"
+
+msgid "Z-plane stitch threshold"
+msgstr "Saumaþröskuldur Z-plana"
+
+msgid "Z-plane stitch threshold setting animation"
+msgstr "Stillingahreyfimynd: Saumaþröskuldur Z-plana"
+
+msgid "**Settings:** ``stitch_threshold``"
+msgstr "**Stillingar:** ``stitch_threshold``"
+
+msgid "Z projection"
+msgstr "Z-vörpun"
+
+msgid "Z projection setting animation"
+msgstr "Stillingahreyfimynd: Z-vörpun"
+
+msgid "**Settings:** ``z_projection``"
+msgstr "**Stillingar:** ``z_projection``"
+
+msgid "Project volumes for tracking"
+msgstr "Varpa rúmmálum fyrir rakningu"
+
+msgid "Project volumes for tracking setting animation"
+msgstr "Stillingahreyfimynd: Varpa rúmmálum fyrir rakningu"
+
+msgid "**Settings:** ``t_project_for_tracking``"
+msgstr "**Stillingar:** ``t_project_for_tracking``"
+
+msgid "Remove overly straight tracks"
+msgstr "Fjarlægja of beinar slóðir"
+
+msgid "Remove overly straight tracks setting animation"
+msgstr "Stillingahreyfimynd: Fjarlægja of beinar slóðir"
+
+msgid "**Settings:** ``drop_straight_tracks``, ``straightness_threshold``"
+msgstr "**Stillingar:** ``drop_straight_tracks``, ``straightness_threshold``"
+
+msgid "Smooth per-track outliers"
+msgstr "Jafna útlaga innan slóðar"
+
+msgid "Smooth per-track outliers setting animation"
+msgstr "Stillingahreyfimynd: Jafna útlaga innan slóðar"
+
+msgid "**Settings:** ``track_outlier_zscore``"
+msgstr "**Stillingar:** ``track_outlier_zscore``"
+
+msgid "Cell-division linking"
+msgstr "Tenging við frumuskiptingu"
+
+msgid "Cell-division linking setting animation"
+msgstr "Stillingahreyfimynd: Tenging við frumuskiptingu"
+
+msgid "**Settings:** ``ultrack_division_weight``"
+msgstr "**Stillingar:** ``ultrack_division_weight``"
+
+msgid "Contour smoothing"
+msgstr "Jöfnun útlína"
+
+msgid "Contour smoothing setting animation"
+msgstr "Stillingahreyfimynd: Jöfnun útlína"
+
+msgid "**Settings:** ``ultrack_contour_sigma``"
+msgstr "**Stillingar:** ``ultrack_contour_sigma``"
+
+msgid "Image UMAP"
+msgstr "Mynda-UMAP"
+
+msgid "UMAP neighborhood size"
+msgstr "Stærð UMAP-nágrennis"
+
+msgid "UMAP neighborhood size setting animation"
+msgstr "Stillingahreyfimynd: Stærð UMAP-nágrennis"
+
+msgid "**Settings:** ``n_neighbors``"
+msgstr "**Stillingar:** ``n_neighbors``"
+
+msgid "UMAP minimum distance"
+msgstr "Lágmarksfjarlægð UMAP"
+
+msgid "UMAP minimum distance setting animation"
+msgstr "Stillingahreyfimynd: Lágmarksfjarlægð UMAP"
+
+msgid "**Settings:** ``min_dist``"
+msgstr "**Stillingar:** ``min_dist``"
+
+msgid "Show object images"
+msgstr "Sýna myndir hluta"
+
+msgid "Show object images setting animation"
+msgstr "Stillingahreyfimynd: Sýna myndir hluta"
+
+msgid "**Settings:** ``plot_images``"
+msgstr "**Stillingar:** ``plot_images``"
+
+msgid "Remove image canvas"
+msgstr "Fjarlægja myndstriga"
+
+msgid "Remove image canvas setting animation"
+msgstr "Stillingahreyfimynd: Fjarlægja myndstriga"
+
+msgid "**Settings:** ``remove_image_canvas``"
+msgstr "**Stillingar:** ``remove_image_canvas``"
+
+msgid "Show cluster outlines"
+msgstr "Sýna útlínur klasa"
+
+msgid "Show cluster outlines setting animation"
+msgstr "Stillingahreyfimynd: Sýna útlínur klasa"
+
+msgid "**Settings:** ``plot_outlines``"
+msgstr "**Stillingar:** ``plot_outlines``"
+
+msgid "Show embedding points"
+msgstr "Sýna innfellingarpunkta"
+
+msgid "Show embedding points setting animation"
+msgstr "Stillingahreyfimynd: Sýna innfellingarpunkta"
+
+msgid "**Settings:** ``plot_points``"
+msgstr "**Stillingar:** ``plot_points``"
+
+msgid "Smooth cluster outlines"
+msgstr "Jafna útlínur klasa"
+
+msgid "Smooth cluster outlines setting animation"
+msgstr "Stillingahreyfimynd: Jafna útlínur klasa"
+
+msgid "**Settings:** ``smooth_lines``"
+msgstr "**Stillingar:** ``smooth_lines``"
+
+msgid "Remove cluster noise"
+msgstr "Fjarlægja klasasuð"
+
+msgid "Remove cluster noise setting animation"
+msgstr "Stillingahreyfimynd: Fjarlægja klasasuð"
+
+msgid "**Settings:** ``remove_cluster_noise``"
+msgstr "**Stillingar:** ``remove_cluster_noise``"
+
+msgid "Sample images by cluster"
+msgstr "Taka myndasýni eftir klasa"
+
+msgid "Sample images by cluster setting animation"
+msgstr "Stillingahreyfimynd: Taka myndasýni eftir klasa"
+
+msgid "**Settings:** ``plot_by_cluster``"
+msgstr "**Stillingar:** ``plot_by_cluster``"
+
+msgid "Embedding point size"
+msgstr "Stærð innfellingarpunkta"
+
+msgid "Embedding point size setting animation"
+msgstr "Stillingahreyfimynd: Stærð innfellingarpunkta"
+
+msgid "**Settings:** ``dot_size``"
+msgstr "**Stillingar:** ``dot_size``"
+
+msgid "Embedding image zoom"
+msgstr "Aðdráttur mynda í innfellingu"
+
+msgid "Embedding image zoom setting animation"
+msgstr "Stillingahreyfimynd: Aðdráttur mynda í innfellingu"
+
+msgid "**Settings:** ``img_zoom``"
+msgstr "**Stillingar:** ``img_zoom``"
+
+msgid "Density clustering radius"
+msgstr "Radíus þéttleikaklösunar"
+
+msgid "Density clustering radius setting animation"
+msgstr "Stillingahreyfimynd: Radíus þéttleikaklösunar"
+
+msgid "**Settings:** ``eps``, ``min_samples``, ``clustering``"
+msgstr "**Stillingar:** ``eps``, ``min_samples``, ``clustering``"
+
+msgid "Alignment & stitching"
+msgstr "Jöfnun og saumun"
+
+msgid "Tile overlap"
+msgstr "Skörun reita"
+
+msgid "Tile overlap setting animation"
+msgstr "Stillingahreyfimynd: Skörun reita"
+
+msgid "**Settings:** ``overlap``"
+msgstr "**Stillingar:** ``overlap``"
+
+msgid "Tile seam blending"
+msgstr "Blöndun samskeyta reita"
+
+msgid "Tile seam blending setting animation"
+msgstr "Stillingahreyfimynd: Blöndun samskeyta reita"
+
+msgid "**Settings:** ``blend``"
+msgstr "**Stillingar:** ``blend``"
+
+msgid "Point spread function"
+msgstr "Punktdreififall"
+
+msgid "PSF — Gaussian convolution width"
+msgstr "PSF — Breidd Gauss-földunar"
+
+msgid "PSF — Gaussian convolution width setting animation"
+msgstr "Stillingahreyfimynd: PSF — Breidd Gauss-földunar"
+
+msgid "**Settings:** ``psf_fwhm_um``"
+msgstr "**Stillingar:** ``psf_fwhm_um``"
+

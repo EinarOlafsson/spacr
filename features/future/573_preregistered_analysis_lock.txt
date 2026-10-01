@@ -1,9 +1,10 @@
 PRE-REGISTERED ANALYSIS LOCK: HASH SETTINGS AND GATES BEFORE UNBLINDING
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). Lock,
-re-run verification and post-hoc flags in the manifest, report and methods
-text are built; gates are covered as settings and files, not Gate Editor
-objects.
+Status: IMPLEMENTED AS ALPHA 2026-09-26, COMPLETED 2026-09-30 (see the
+notes of those dates). Lock, re-run verification and post-hoc flags in the
+manifest, report and methods text; Gate Editor gating strategies, models
+recorded during the run, multi-pipeline locks and first-seen (post-hoc)
+edit times are covered since 2026-09-30.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -134,3 +135,56 @@ runs never consult the registry).
     API inventory/hash guards under 4G.
     No full-item closure is claimed. The Gate Editor/model capture and
     cross-pipeline limitations documented above remain unchanged.
+
+2026-09-30 -- THE AUDIT'S REMAINDER: GATES, MODELS, PIPELINES, POST-HOC
+TIMING, HTML (item complete; still ALPHA)
+
+    Gate Editor gates. lock_analysis(gates=) takes a GateSet, its dict, a
+    saved gate file, a list, or {label: one}; any setting whose value is a
+    gate file is taken too, whatever its key is called. Gates are hashed as
+    parsed, canonical gates (per gate by name), not bytes, so re-saving or
+    reformatting is not a change and a change names the gate ("changed
+    big", "added x", "removed y"). A locked gate file is re-read on every
+    check; gates locked as objects are compared when check_analysis_lock
+    (gates=) hands them over under the same label. Gate files no longer go
+    into "files". The Gate Editor says after Save and Load whether the file
+    matches every lock holding it, or how it differs (deviation / post-hoc).
+    The lock dialog has a "Gate files" row (paths separated by ";").
+    Models. Run.record_model now re-judges the run against its lock: a
+    model locked by name (lock_analysis(models={name: path})) whose file
+    differs, or an unnamed model when the lock names models, is a
+    "model:<name>" deviation, and the manifest's verdict and warning are
+    replaced, not duplicated. A model the lock cannot speak to is listed as
+    uncovered_models (summary and methods caveat) without changing the
+    status. The dialog locks the models the newest journalled run of that
+    module on that src recorded (_recorded_models).
+    Several pipelines. lock_analysis(pipelines={app_key: settings}) writes
+    one lock (schema 2, "pipelines") whose every pipeline is checked
+    against its own settings on its own src; an unblinding on any folder of
+    the plan counts for all. Schema-1 locks still check.
+    Post-hoc by edit time. Every difference is stamped with when it was
+    first seen (<lock id>.seen.jsonl beside the lock, written by the first
+    check, run or dialog, that met it); it is post-hoc only if first seen
+    after the unblinding. An edit made blind stays a deviation in later
+    runs; mixed runs name each key "(before/after unblinding)", and the
+    methods caveat separates them. The 2026-09-26 test that expected the
+    same pre-unblinding edit to turn post-hoc now expects deviation, and
+    a new edit after unblinding to be post-hoc.
+    HTML report. Parsed with html.parser: one doctype, html > head+body,
+    every end tag matches, unique section ids equal to the TOC links, no
+    script, the POST-HOC run flagged in the first section and both
+    verdicts under "Preregistered analysis lock".
+
+    Tests: tests/test_573_lock_gates_models_pipelines_report.py (9),
+    tests/test_544_573_blind_key_and_analysis_lock.py (updated),
+    tests/qt/test_544_573_blind_scoring_and_lock_on_screen.py (+1: dialog
+    gate files and models, Gate Editor save/load notes). Ratchets: two new
+    captions in _AWAITING_CATALOG_REBUILD; parameter sum 19,703 -> 19,707
+    and the signature digest moved with dated comments; English API
+    manifest regenerated (--sources-only).
+    ALPHA: unchanged, ALPHA_FEATURES[573] = AnalysisLockButton (the dialog
+    and its new row live behind it). The Gate Editor note is passive and
+    shows only for a file a lock holds.
+    Still not done: settings edits are timed when a check first meets them,
+    not keystroke by keystroke on the form; a Gate Editor export to the
+    filters table is not itself checked.

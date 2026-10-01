@@ -247,3 +247,44 @@ def test_a_process_that_never_reaches_aboutToQuit_still_stops_the_thread(
     body = _wait_for_sounds() + "print('NO QUIT, JUST EXIT')\n"
     out = _finished(run_child(body, tmp_path, cache))
     assert "NO QUIT, JUST EXIT" in out, out
+
+
+def test_saving_preferences_with_sound_on_and_reopening_does_not_wedge(
+        tmp_path, cache):
+    """Save, then reopen: the order the maintainer's report implies.
+
+    The tests above close the dialog with Cancel, which never reaches
+    `apply_preferences_to_app`. Save does, and with sound already on it
+    hands a RUNNING engine its preferences again while the next dialog is
+    about to be built -- the one path where the engine and a Preferences
+    opening meet. Four rounds alternate Save and Cancel through the real
+    button box, and every reopening is asked what it contains.
+    """
+    body = _wait_for_sounds() + (
+        "from spacr.qt.preferences import PreferencesDialog\n"
+        "from PySide6.QtWidgets import QDialogButtonBox, QTabWidget\n"
+        "counts = []\n"
+        "for round_number in range(4):\n"
+        "    dialog = PreferencesDialog(None)\n"
+        "    tabs = dialog.findChildren(QTabWidget)\n"
+        "    counts.append(max([t.count() for t in tabs] or [0]))\n"
+        "    if round_number % 2 == 0:\n"
+        "        save = dialog.findChild(QDialogButtonBox).button(\n"
+        "            QDialogButtonBox.Save)\n"
+        "        QTimer.singleShot(60, save.click)\n"
+        "    else:\n"
+        "        QTimer.singleShot(60, dialog.reject)\n"
+        "    dialog.exec()\n"
+        "    dialog.deleteLater()\n"
+        "    app.processEvents()\n"
+        "engine = sound_engine()\n"
+        "assert engine is not None and not engine.closed\n"
+        "assert engine.audio_thread().isRunning()\n"
+        "assert all(e.thread() is app.thread()\n"
+        "           for e in engine.player()._effects.values())\n"
+        "print('TABS', counts)\n")
+    out = _finished(run_child(body, tmp_path, cache))
+    row = [line for line in out.splitlines() if line.startswith("TABS ")][0]
+    counts = ast.literal_eval(row[len("TABS "):])
+    assert len(counts) == 4 and min(counts) > 1, row
+    assert len(set(counts)) == 1, f"a reopening after Save lost tabs: {row}"

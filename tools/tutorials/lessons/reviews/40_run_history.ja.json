@@ -1,10 +1,10 @@
 {
   "lesson": "40_run_history",
-  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "spaCRのジョブを一つ完了して、ローカルの実行記録を作ります。この例では、変換、Recruitment、Regressionの実行記録を閲覧します。",
   "scenes": [
-    "Helpを開き、続いてRun historyを開いて、このコンピューターに保存された実行記録を閲覧します。",
+    "Helpを開き、続いてRun Historyを開いて、このコンピューターに保存された実行記録を閲覧します。",
     "Refreshをクリックして、利用できる記録を読み込みます。実行を選んで詳細を確認し、表示領域が必要なら区切り線をドラッグします。",
     "モジュールと状態を選び、検索語を入力して一覧を絞り込みます。たとえば、完了した変換を探すには、convertとSuccessを選びます。",
     "Files and modelsを開いて、記録された入力と出力の詳細を確認します。ファイルのハッシュ計算を省いた実行では、一覧が空のことがあります。その場合は、設定やログにある出力パスを使って結果を探します。",

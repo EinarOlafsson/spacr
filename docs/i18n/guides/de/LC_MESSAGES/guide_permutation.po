@@ -1,0 +1,48 @@
+# spaCR user guide translation (de).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: de\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plate-aware guide permutation analysis"
+msgstr "Plattenbewusste Guide-Permutationsanalyse"
+
+msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it whenever the simultaneous fit would be unidentifiable; either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
+msgstr "Verwenden Sie die Guide-Permutationsanalyse, wenn die unabhängige experimentelle Einheit ein Well ist und ein simultanes Guide-Modell nicht identifizierbar ist, weil es mehr Guide-Spalten als Wells gibt oder weil die Guide-Anteile stark korreliert sind. ``inference='nonparametric'`` (die Voreinstellung) führt sie aus, und ``inference='auto'`` wählt sie immer dann, wenn die simultane Anpassung nicht identifizierbar wäre; in beiden Fällen zeichnet die Ausführung ``analysis_mode='guide_permutation'`` auf. Der Modus verwendet dieselben gepaarten CSV-Eingaben mit Scores pro Zelle und Sequenzierzählungen (``paired_data``) wie :func:`spacr.ml.perform_regression`."
+
+msgid "Each guide is tested separately after its well-level fraction and the well-level phenotype have both been adjusted for plate (and any optional measured nuisance columns).  Two-sided empirical P values come from Freedman--Lane residual permutations restricted within plate.  Multiple-test correction is then applied separately within each requested minimum-support family.  These are marginal associations: co-occurring guides may share a signal, so the output is not a set of mutually adjusted causal coefficients."
+msgstr "Jeder Guide wird einzeln getestet, nachdem sowohl sein Anteil auf Well-Ebene als auch der Phänotyp auf Well-Ebene um die Platte (und etwaige optionale gemessene Störspalten) bereinigt wurden. Zweiseitige empirische P-Werte stammen aus Freedman--Lane-Residuenpermutationen, die auf die jeweilige Platte beschränkt sind. Die Korrektur für multiples Testen wird anschließend getrennt innerhalb jeder angeforderten Mindestabdeckungs-Familie angewendet. Es handelt sich um marginale Assoziationen: Gemeinsam auftretende Guides können ein Signal teilen, daher ist die Ausgabe keine Menge wechselseitig bereinigter kausaler Koeffizienten."
+
+msgid "Example"
+msgstr "Beispiel"
+
+msgid "The important output columns are ``wells_with_guide``, ``standardized_marginal_effect``, ``permutation_p_value``, ``adjusted_p_value`` and ``significant``.  ``guide_min_wells`` accepts either one positive integer or a list.  The empirical P value for a guide is computed once at the smallest requested threshold; only the multiple-testing family and adjusted value change across support thresholds. ``guide_primary_min_wells`` selects which requested family is returned in ``output['significant']``; when it is ``None``, spaCR uses the smallest family so the primary correction retains every tested guide."
+msgstr "Die wichtigen Ausgabespalten sind ``wells_with_guide``, ``standardized_marginal_effect``, ``permutation_p_value``, ``adjusted_p_value`` und ``significant``. ``guide_min_wells`` akzeptiert entweder eine positive ganze Zahl oder eine Liste. Der empirische P-Wert eines Guides wird einmal beim kleinsten angeforderten Schwellenwert berechnet; über die Abdeckungsschwellen hinweg ändern sich nur die Familie für das multiple Testen und der bereinigte Wert. ``guide_primary_min_wells`` legt fest, welche angeforderte Familie in ``output['significant']`` zurückgegeben wird; ist der Wert ``None``, verwendet spaCR die kleinste Familie, sodass die primäre Korrektur jeden getesteten Guide berücksichtigt."
+
+msgid "Multiple-testing choices"
+msgstr "Optionen für multiples Testen"
+
+msgid "``multiple_testing_method`` accepts ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` or ``none``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
+msgstr "``multiple_testing_method`` akzeptiert ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` oder ``none``. ``fdr_bh`` ist die Voreinstellung. Zur Reproduzierbarkeit sollten Sie die angeforderten Abdeckungsfamilien, die Anzahl der Permutationen, den Seed, die Blockierungsspalte, die Störspalten, den Präsenzschwellenwert, das Korrekturverfahren und Alpha zusammen mit den Prüfsummen der Eingabedateien festhalten."
+
+msgid "Direct analysis of an existing long table"
+msgstr "Direkte Analyse einer vorhandenen Langtabelle"
+
+msgid "If a previous run already produced ``regression_data.csv``, it can be analyzed without re-reading the per-cell and sequencing inputs:"
+msgstr "Wenn eine frühere Ausführung bereits ``regression_data.csv`` erzeugt hat, kann diese analysiert werden, ohne die Eingaben pro Zelle und die Sequenzierdaten erneut einzulesen:"
+

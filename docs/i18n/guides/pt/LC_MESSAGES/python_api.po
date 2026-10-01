@@ -1,0 +1,87 @@
+# spaCR user guide translation (pt).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: pt\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Python API quickstart"
+msgstr "Início rápido da API Python"
+
+msgid "Use the Python API when a workflow needs to run from a notebook, a reusable script, a server or a scheduler. The desktop application and the Python API call the same pipeline functions and use the same setting names."
+msgstr "Use a API Python quando um fluxo de trabalho precisar ser executado a partir de um notebook, de um script reutilizável, de um servidor ou de um agendador. O aplicativo de desktop e a API Python chamam as mesmas funções de pipeline e usam os mesmos nomes de configuração."
+
+msgid "Install the headless package"
+msgstr "Instalar o pacote sem interface gráfica"
+
+msgid "Add ``[qt]`` only when the same environment also needs the desktop interface."
+msgstr "Adicione ``[qt]`` somente quando o mesmo ambiente também precisar da interface de desktop."
+
+msgid "Use the typed workflow configuration"
+msgstr "Usar a configuração tipada do fluxo de trabalho"
+
+msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
+msgstr "A API de nível superior contém uma interface pequena e estável para os principais fluxos de trabalho. Os campos tipados cobrem as escolhas feitas pela maioria dos scripts; ``extra`` aceita configurações avançadas, mas recusa um segundo valor para um campo tipado existente."
+
+msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
+msgstr "Chame ``mask.to_settings()`` quando precisar de um dicionário completo para um arquivo de configurações salvo. Ele é completado com os mesmos padrões usados pela interface gráfica."
+
+msgid "Validate before a long run"
+msgstr "Validar antes de uma execução longa"
+
+msgid "Set ``dry_run`` to inspect the input and return a list of problems without loading a model, using the GPU or writing results."
+msgstr "Ative ``dry_run`` para inspecionar a entrada e retornar uma lista de problemas sem carregar um modelo, usar a GPU nem gravar resultados."
+
+msgid "An empty list means that the preflight checks passed. A preflight check cannot guarantee model quality; inspect the segmentation preview before processing a full screen."
+msgstr "Uma lista vazia significa que as verificações prévias foram aprovadas. Uma verificação prévia não pode garantir a qualidade do modelo; inspecione a prévia da segmentação antes de processar uma triagem completa."
+
+msgid "Generate masks"
+msgstr "Gerar máscaras"
+
+msgid "A normal run returns ``None`` and writes masks, overlays, object counts and the resolved settings below ``src``. Invalid required inputs raise ``ValueError``; runtime progress and recoverable field failures are written to the spaCR log."
+msgstr "Uma execução normal retorna ``None`` e grava máscaras, sobreposições, contagens de objetos e as configurações resolvidas em ``src``. Entradas obrigatórias inválidas geram ``ValueError``; o progresso em tempo de execução e as falhas recuperáveis de campos são gravados no log do spaCR."
+
+msgid "Measure objects and save crops"
+msgstr "Medir objetos e salvar recortes"
+
+msgid "Measure writes ``measurements/measurements.db`` and the resolved settings. If ``save_png`` is enabled, it also writes one crop set for each ``crop_mode``."
+msgstr "Medição grava ``measurements/measurements.db`` e as configurações resolvidas. Se ``save_png`` estiver ativado, também grava um conjunto de recortes para cada ``crop_mode``."
+
+msgid "Run the same contract from a shell"
+msgstr "Executar o mesmo contrato a partir de um shell"
+
+msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
+msgstr "O comando sem interface gráfica é útil em um agendador porque valida os nomes e valores das configurações antes de importar a pesada pilha do pipeline."
+
+msgid "Command-line overrides are applied after the file:"
+msgstr "As substituições de linha de comando são aplicadas depois do arquivo:"
+
+msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+msgstr "Configurações desconhecidas e valores que não podem ser convertidos são recusados com uma sugestão. Use ``spacr-doctor`` quando o problema for o ambiente e não uma configuração."
+
+msgid "Continue from notebooks"
+msgstr "Continuar em notebooks"
+
+msgid "The repository's ``Notebooks/`` directory contains complete Mask, Measure, Classify, barcode and regression examples. Treat the settings helpers and the :doc:`curated API reference <api/index>` as authoritative for the installed version; notebooks are worked examples rather than a compatibility contract."
+msgstr "A pasta ``Notebooks/`` do repositório contém exemplos completos de Máscaras, Medição, Classificar, códigos de barras e regressão. Considere os auxiliares de configuração e a :doc:`referência da API selecionada <api/index>` como referência oficial para a versão instalada; os notebooks são exemplos práticos, e não um contrato de compatibilidade."
+
+msgid "Export measured objects to AnnData"
+msgstr "Exportar objetos medidos para AnnData"
+
+msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
+msgstr "Siga :doc:`anndata_export` para exportar o banco de dados de medições pelo mesmo ponto de entrada usado pelo aplicativo de desktop, escolher uma política para valores ausentes e inspecionar a matriz resultante de objetos por características."
+

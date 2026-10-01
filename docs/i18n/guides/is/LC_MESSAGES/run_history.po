@@ -1,0 +1,63 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Unified run history"
+msgstr "Sameinuð keyrslusaga"
+
+msgid "Open **Help → Run History** (or type *Run History* in the command palette, Ctrl+K) to search every pipeline recorded by spaCR. Refreshing a large journal happens on a background worker and does not create another run record."
+msgstr "Opnaðu **Hjálp → Keyrslusaga** (eða sláðu inn *Keyrslusaga* í skipanaspjaldið, Ctrl+K) til að leita í öllum vinnslukeðjum sem spaCR hefur skráð. Endurnýjun stórrar dagbókar fer fram í bakgrunnsþræði og býr ekki til aðra keyrsluskráningu."
+
+msgid "The dashboard combines:"
+msgstr "Yfirlitið sameinar:"
+
+msgid "module, status, start/end time, wall time and process CPU time;"
+msgstr "einingu, stöðu, upphafs-/lokatíma, rauntíma og örgjörvatíma ferlisins;"
+
+msgid "exact resolved settings;"
+msgstr "nákvæmar útleystar stillingar;"
+
+msgid "SHA-256 records for inputs, outputs and models;"
+msgstr "SHA-256-skráningar fyrir inntök, úttök og líkön;"
+
+msgid "structured warnings, provenance warnings and failure tracebacks;"
+msgstr "skipulagðar viðvaranir, viðvaranir um uppruna og rakningar villna;"
+
+msgid "package, spaCR, Git and platform versions;"
+msgstr "útgáfur pakka, spaCR, Git og stýrikerfis;"
+
+msgid "declared seeds and runtime random-state identifiers."
+msgstr "uppgefin fræ og auðkenni slembistöðu við keyrslu."
+
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt folders stay visible rather than disappearing."
+msgstr "Leitarorð eru sameinuð: ``adamw plate_03 warning`` sýnir aðeins skráningar sem innihalda öll þrjú orðin einhvers staðar í stillingum, slóðum, viðvörunum, villum eða umhverfisgögnum. Hægt er að beita síum á einingu og stöðu á sama tíma. Truflaðar og skemmdar möppur haldast sýnilegar í stað þess að hverfa."
+
+msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "Veldu röð til að skoða upplýsingar hennar. **Hlaða stillingum í einingu** opnar upphaflegu eininguna og færir nákvæmu skráðu stillingarnar inn í stýringar hennar; það ræsir ekki keyrslu. **Opna keyrslumöppu** og **Afrita slóð** sýna undirliggjandi möppu ``~/.spacr/runs/...``."
+
+msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
+msgstr "Hægrismelltu á valdar raðir til að opna möppur þeirra eða eyða þeim; **Hreinsa allt** eyðir öllum keyrslum sem taflan sýnir. Beðið er um staðfestingu áður en eytt er og aðeins dagbókarmöppunum er eytt; úttök sem skrifuð voru í verkefnin þín eru ekki snert."
+
+msgid "Headless search"
+msgstr "Leit án myndræns viðmóts"
+
+msgid ":func:`spacr.run_journal.search_runs` provides the same resilient records without Qt:"
+msgstr ":func:`spacr.run_journal.search_runs` veitir sömu traustu skráningarnar án Qt:"
+

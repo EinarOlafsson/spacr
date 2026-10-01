@@ -128,6 +128,21 @@ OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen", "organelle")
 FIXED_OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen")
 
 
+def _background_switch_of(obj: str) -> str:
+    """The background-removal switch key of one object.
+
+    ``remove_background_cell`` for the fixed kinds; an organelle slot's is
+    numbered, ``remove_background_organelle_2`` for the second (item 76,
+    2026-09-30).
+
+    :param obj: an object role such as ``'cell'`` or ``'organelleb'``.
+    """
+    from spacr.organelle_types import ALL_ORGANELLE_ROLES, _background_switch_key
+
+    if obj in ALL_ORGANELLE_ROLES:
+        return _background_switch_key(obj)
+    return f"remove_background_{obj}"
+
 def organelle_label(number: int) -> str:
     """The dropdown caption for organelle slot ``number``.
 
@@ -1036,7 +1051,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         req.provenance['channels'][obj] = ch_idx
         image_2d = _prepared(ch_idx).copy()
 
-        if req.preprocess_settings.get(f"remove_background_{obj}"):
+        if req.preprocess_settings.get(_background_switch_of(obj)):
             bg = float(req.preprocess_settings.get(
                 f"{obj}_background",
                 req.preprocess_settings.get("background", 100.0)))
@@ -4229,7 +4244,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         for obj in self._selected_object_types():
             out[f"{obj}_signal_to_noise"] = self._widget_value(
                 self._common_widgets["signal_to_noise"])
-            out[f"remove_background_{obj}"] = self._widget_value(
+            out[_background_switch_of(obj)] = self._widget_value(
                 self._common_widgets["remove_background"])
             out[f"{obj}_background"] = self._widget_value(
                 self._common_widgets["background"])

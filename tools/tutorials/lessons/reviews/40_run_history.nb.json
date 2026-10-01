@@ -1,10 +1,10 @@
 {
   "lesson": "40_run_history",
-  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Fullfør en spaCR-jobb for å lage en lokal kjøreoppføring. Eksemplet blar gjennom oppføringer fra konverterings-, Recruitment- og Regression-kjøringer.",
   "scenes": [
-    "Åpne Help og deretter Run history for å bla gjennom kjøreoppføringene som er lagret på denne datamaskinen.",
+    "Åpne Help og deretter Run History for å bla gjennom kjøreoppføringene som er lagret på denne datamaskinen.",
     "Klikk på Refresh for å laste inn tilgjengelige oppføringer. Velg en kjøring for å undersøke detaljene, og dra i skillelinjen hvis du trenger mer plass.",
     "Velg en modul og en status, og skriv deretter inn et søkeord for å snevre inn listen. Velg for eksempel convert og Success for å finne fullførte konverteringer.",
     "Åpne Files and models for registrerte detaljer om inndata og utdata. Kjøringer som hoppet over filhashing, kan ha en tom oversikt; bruk utdatabanene i innstillinger eller logger for å finne resultatene.",

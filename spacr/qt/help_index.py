@@ -113,17 +113,37 @@ class HelpEntry:
         return f"{self.title}\n{self.subtitle}\n{self.description}".lower()
 
 
+def _template(text: str) -> str:
+    """Mark ``text`` as a caption template the catalog builder must collect.
+
+    Returns ``text`` unchanged: this module imports no catalog and renders
+    nothing, so there is nothing to translate HERE. What the call does is
+    make the English visible to ``tools/build_i18n_catalogs.py``, which has
+    a keyed rule for ``("help_index.py", "_template")`` and reads its first
+    argument the way it reads a ``tr(...)`` literal. Before 2026-09-30 these
+    six templates were plain assignments, no ``tr()`` call anywhere named
+    them, and the nine-language catalog pass therefore never saw the words
+    that make up every result row.
+
+    :param text: the English template.
+    :returns: ``text``.
+    """
+    return text
+
+
 #: The words this module writes on a result row ITSELF, as opposed to the
 #: names it copies out of a registry. These are the catalog sources for the
 #: result list: every row the search offers carries one of them, and until
 #: they have rows a reader who does not work in English gets an English list
-#: whatever language the rest of the window is in.
-SUBTITLE_MODULE = "Module"
-SUBTITLE_API = "API reference"
-SUBTITLE_API_READS = "API reference — reads {settings}"
-SUBTITLE_PREFERENCE = "Preferences ▸ {tab}"
-DESCRIPTION_READS = "Reads {settings}."
-DESCRIPTION_SUMMARY_READS = "{summary} Reads {settings}."
+#: whatever language the rest of the window is in. Each is wrapped in
+#: :func:`_template` so the catalog extractor finds it; "Module" is already a
+#: compact-catalog row and the extractor leaves it there.
+SUBTITLE_MODULE = _template("Module")
+SUBTITLE_API = _template("API reference")
+SUBTITLE_API_READS = _template("API reference — reads {settings}")
+SUBTITLE_PREFERENCE = _template("Preferences ▸ {tab}")
+DESCRIPTION_READS = _template("Reads {settings}.")
+DESCRIPTION_SUMMARY_READS = _template("{summary} Reads {settings}.")
 
 #: The subtitle of a setting row. Both halves are names a registry chose --
 #: the module's caption and the category heading -- so there is nothing here
@@ -354,13 +374,14 @@ def score(entry: HelpEntry, terms: Sequence[str]) -> Optional[float]:
 #: and the instruction's whole point is that one query returns several kinds
 #: at once. A cap per kind is how the small kinds keep their seat.
 #:
-#: IT ALSO CLIPS "ONE ROW PER MODULE", and the list does not say so. Measured
-#: over the 767 (module, setting) pairs in this tree, exactly two settings
-#: have more module rows than this: ``src``, which 36 modules take and which
-#: is offered for 8 of them, and ``verbose``, 8 of 10. Every other setting
-#: appears in six modules or fewer and is answered in full. A row saying "and
-#: 28 more" is the fix, and it is a new user-visible string in nine catalogs,
-#: so it is written down here and in the item file rather than half-done.
+#: IT ALSO CLIPS "ONE ROW PER MODULE". Measured over the 767 (module,
+#: setting) pairs in this tree, exactly two settings have more module rows
+#: than this: ``src``, which 36 modules take and which is offered for 8 of
+#: them, and ``verbose``, 8 of 10. Every other setting appears in six modules
+#: or fewer and is answered in full. Since 2026-09-30 the list SAYS so:
+#: :func:`_search_with_overflow` reports how many matches of each kind were
+#: left out, and the field draws an "and 28 more" row that lifts the cap for
+#: that kind when it is opened.
 PER_KIND_LIMIT = 8
 
 
@@ -378,9 +399,37 @@ def search(index: Sequence[HelpEntry], query: str,
     :returns: matching entries, highest score first; ties are broken by kind
         and then by title, so the same query always lists the same way.
     """
+    return _search_with_overflow(index, query, limit=limit,
+                                per_kind=per_kind)[0]
+
+
+def _search_with_overflow(
+        index: Sequence[HelpEntry], query: str,
+        limit: int = 40,
+        per_kind: Optional[int] = PER_KIND_LIMIT,
+        caps: Optional[Dict[str, int]] = None,
+) -> Tuple[List[HelpEntry], Dict[str, int]]:
+    """:func:`search`, plus how many matches of each kind were left out.
+
+    The count is what the "and N more" row says. It is every match of that
+    kind that is not in the list, whether the per-kind cap or the overall
+    ``limit`` dropped it, so the number on the row is the number the user
+    would gain by lifting both -- never an estimate.
+
+    :param index: what :func:`build_index` returned.
+    :param query: raw text from the search box.
+    :param limit: how many rows to return in total.
+    :param per_kind: the default cap on rows of one kind; ``None`` lifts it.
+    :param caps: per-kind caps that override ``per_kind`` -- what the field
+        passes once the user has opened a kind's "more" row.
+    :returns: ``(entries, left_out)`` where ``left_out`` maps a kind to how
+        many of its matches are not in ``entries``; kinds with nothing left
+        out are absent.
+    """
     terms = str(query or "").lower().split()
     if not terms:
-        return []
+        return [], {}
+    caps = dict(caps or {})
     scored: List[Tuple[float, int, str, HelpEntry]] = []
     for entry in index:
         value = score(entry, terms)
@@ -392,14 +441,19 @@ def search(index: Sequence[HelpEntry], query: str,
     scored.sort(key=lambda row: row[:3])
     out: List[HelpEntry] = []
     per: Dict[str, int] = {}
+    matched: Dict[str, int] = {}
     for _value, _rank, _title, entry in scored:
-        if per_kind is not None and per.get(entry.kind, 0) >= per_kind:
+        matched[entry.kind] = matched.get(entry.kind, 0) + 1
+        cap = caps.get(entry.kind, per_kind)
+        if len(out) >= limit or (
+                cap is not None and per.get(entry.kind, 0) >= cap):
             continue
         per[entry.kind] = per.get(entry.kind, 0) + 1
         out.append(entry)
-        if len(out) >= limit:
-            break
-    return out
+    left_out = {kind: count - per.get(kind, 0)
+                for kind, count in matched.items()
+                if count > per.get(kind, 0)}
+    return out, left_out
 
 
 def _visible_apps() -> List[Tuple[str, str, str]]:
