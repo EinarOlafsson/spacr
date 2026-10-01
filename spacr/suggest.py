@@ -296,15 +296,19 @@ def write_suggestions(db_path: str, annotation_column: str,
             if pd.notna(s)]
     if not rows:
         return 0
+    from .database_concurrency import transaction
+
     written = 0
     with _connect_writable(db_path) as db:
-        for value, path in rows:
-            cur = db.execute(
-                f'UPDATE "{png_table}" SET "{annotation_column}" = ? '
-                f'WHERE png_path = ? AND "{annotation_column}" IS NULL',
-                (value, path))
-            written += cur.rowcount
-        db.commit()
+        # Shared connections are in autocommit mode: the connection context
+        # alone does not make these updates one atomic suggestion batch.
+        with transaction(db):
+            for value, path in rows:
+                cur = db.execute(
+                    f'UPDATE "{png_table}" SET "{annotation_column}" = ? '
+                    f'WHERE png_path = ? AND "{annotation_column}" IS NULL',
+                    (value, path))
+                written += cur.rowcount
     return written
 
 

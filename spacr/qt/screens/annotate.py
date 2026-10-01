@@ -1126,9 +1126,9 @@ class _SuggestWorker(QThread):
                 pass
             return
         try:
-            if self.isInterruptionRequested():
-                self.cancelled.emit()
-                return
+            # Cancellation is honored before step 5. Once its transaction
+            # commits, report the saved result even if Cancel arrived during
+            # the write; emitting cancelled here would contradict the database.
             self.done.emit((proposal, written, len(rejections)))
         except RuntimeError:
             pass
@@ -5466,8 +5466,9 @@ class AnnotateScreen(QWidget):
     def _on_suggest_cancelled(self) -> None:
         """The run stopped on Cancel: say so, and show what is there now."""
         self._console.append_notice(
-            "Suggest cancelled. Suggestions already in the column were "
-            "cleared; no new ones were written.\n")
+            "Suggest cancelled before writing new suggestions. Earlier "
+            "suggestions may have been cleared and round scores may have "
+            "been updated.\n")
         self._status_label.setText(tr("Suggest cancelled."))
         if self._worker is not None:
             self._recount_judgements()
@@ -5540,8 +5541,10 @@ class AnnotateScreen(QWidget):
         box = QMessageBox(
             QMessageBox.Warning, "Suggest failed",
             self._blind_text(
-                f"{message}\n\nNothing was written; your annotations are "
-                f"untouched. The usual causes are too few labels, only one "
+                f"{message}\n\nNo new suggestions from this round were saved. "
+                f"Earlier suggestions may have been cleared and round scores "
+                f"may have been updated. Your annotations are unchanged. "
+                f"The usual causes are too few labels, only one "
                 f"class annotated so far — a classifier needs an example of "
                 f"both — or no measurement tables to build features from."),
             QMessageBox.Ok, self)

@@ -105,3 +105,38 @@ WHAT IS LEFT
   catalog pass.
 - Re-run the lesson 09 Suggest segment (SPACR_TUTORIAL_ANNOTATE_SUGGEST=1)
   to record frames 20/21; it should now finish in seconds.
+
+2026-10-01 — CANCELLATION AT THE FINAL WRITE AND ATOMIC PROPOSALS
+A follow-up audit found that a Cancel request arriving during step 5 could
+be checked after write_suggestions returned and emit cancelled, despite the
+new suggestions already being saved. The worker now honors cancellation at
+the existing boundary before step 5 and reports done after a successful
+write, including a cancellation that arrived during that write.
+
+The writer also relied on the SQLite connection context plus db.commit(),
+but the shared connection factory uses autocommit. Each UPDATE could become
+durable independently, leaving a partial new proposal batch if a later row
+failed. write_suggestions now wraps only its final updates in the existing
+database_concurrency.transaction helper. Body/commit errors roll back the
+whole new proposal batch; human annotation protection (IS NULL) is retained.
+No global connection setting or schema changes.
+
+Earlier phases remain separately committed: old pending suggestions can
+already have been cleared and round scores can already have been updated.
+The failure dialog no longer says Nothing was written. It states that no
+new suggestions from this round were saved and names the earlier changes
+that may remain. The cancellation notice likewise no longer claims that
+old proposals were necessarily cleared when cancellation preceded step 1.
+The failure dialog remains nonblocking.
+
+Validation: 40 focused checks passed under a 4 GiB cap, hidden CUDA and two
+numerical threads. The new tests send real QThread interruption requests
+while ranking and while the final write is paused. A real SQLite trigger
+aborts the second proposal UPDATE after the first succeeded, proving that
+both new proposals roll back while the earlier score and old-proposal clear
+remain; a human annotation stays unchanged. Existing bounded CPU round,
+cancel, annotation-protection and multiclass-offset tests also pass.
+
+The original hang fix remains done. Lesson 09 Suggest media rerecording and
+the current caption/catalog publication follow-up remain in their existing
+lanes; no media or native reporter acceptance is claimed here.
