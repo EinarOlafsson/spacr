@@ -2,7 +2,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    open, 83%. 2026-09-25: the three order-dependent Qt failures
+Status:    open, 83%. 2026-10-01: current completed CI was inspected through
+           the GitHub REST API. The tutorial alpha-guard test failure is
+           reproduced and repaired locally; coverage regressions and a
+           completed green run on final source remain outstanding. See the
+           2026-10-01 receipt at the end. Earlier, 2026-09-25:
+           the three order-dependent Qt failures
            (teardown on deleted dialogs; coverage shard 0 SIGABRT) now have
            reproduced causes and fixes, but no nightly CI run has completed
            since 36020180024, so green is not shown. See the 2026-09-25
@@ -2392,3 +2397,39 @@ confluency failures came from absent PyWavelets; an existing private1.10.0 copy
 passes them without modifying the shared environment. Original logs retained.
 Full final-source CI and uninterrupted Qt acceptance remain open.
 Receipt: features/data/43_release_ci_contract_repairs_2026-09-28.json.
+
+2026-10-01 — CURRENT RUN TRIAGE AND TUTORIAL CAPTURE GUARD
+Read actual REST workflow/job/log endpoints after `gh run list` returned an
+older September snapshot. Actions are enabled and the workflows active.
+Nightly a458ea4ad has push runs tests36899011123 pending, compat36899010564
+queued and docs36899010518 pending; these are not completed evidence.
+
+The requested September11 compat34596992887 failures are historical:
+missing PyYAML in the packaging-only job and pandas wheels on Python3.15.
+Current source already handles optional YAML validation in that deliberately
+minimal job and admits Python3.9–3.14 only. Latest completed successful compat
+run36512024533 (September29, 2d0bf5af) has17 successful jobs. Current focused
+packaging checks pass50 with2 skips for the unreleased version; no dependency,
+Python support range or workflow assertion was weakened.
+
+Today's completed tests36856217586 (52ddec096) fails the same single test in
+Qt shard0 and coverage shard9: a source regex demands "$capture_python" where
+the valid Linux recording wrapper now permits SPACR_TUTORIAL_HOST_PYTHON for
+its preflight outside the namespace. Reproduced locally before editing:
+1 failed. Replaced that spelling assertion with execution of the actual shell
+wrapper against a recording command boundary. Four cases cover default and
+host-override interpreters, each with successful and rejected alpha policy.
+They assert the2G offscreen policy runs first, receives every private profile
+and --force-alpha-off, and prevents capture when it fails. Successful launch
+still uses the namespace's interpreter. Paths containing spaces are exercised.
+The real profile-writing and alpha rejection tests remain unchanged. This
+Linux namespace wrapper check is Linux-only; shared policy checks still run
+on other platforms. No wrapper or application code changed.
+
+Focused validation:13 passed, CPU/offscreen,4G hard cap, at most2 compute
+threads. The completed CI coverage gate independently reports uncovered
+branches/statements in core, mask_io, measure, ome_zarr, plot, Preferences,
+MakeMasks, Mandelbrot/Space fractals, report, run_journal, submodules and
+timelapse. Those failures are not hidden by this test repair and no baseline
+was lowered. Final-source green tests/compat evidence is still required.
+Receipt: features/data/43_current_ci_alpha_guard_2026-10-01.json.
