@@ -5,12 +5,14 @@ REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
 Status: IN PROGRESS — runtime implementation pushed to nightly; supporting
 translation, tutorial and platform acceptance remains. The requested main
 promotion completed through PR #135 at 2429976f0 on 2026-10-01. Subsequent
-N625 multi-column annotations and N626 organizer repairs are nightly changes.
+N625 multi-column annotations, N626 organizer repairs, N627 macOS updater and
+N628 metadata extraction/composition are nightly changes.
 Release run 36904849867 built and validated the distributions successfully;
 its PyPI upload failed because the project has exhausted its 10 GiB storage
 quota. No 1.5.1.1 files are published; the downstream release jobs were skipped.
-Graph Builder lesson58 authoring now covers N625's complete three-column
-recipe with real-control and full-row checks; its new media remains unpublished.
+Graph Builder lesson58 authoring now covers the complete three-column recipe
+using N628's current Assign values and Compose column controls, with real-control
+and full-row checks; its new media remains unpublished.
 
 Current publication blocker: features/data/615_release_storage_block_2026-10-01.json.
 The exact CI distributions are preserved locally and match the upload log's

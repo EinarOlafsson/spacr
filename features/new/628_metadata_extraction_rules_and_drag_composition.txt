@@ -71,8 +71,13 @@ Implementation and acceptance 2026-10-01:
   the annotation section parses without reStructuredText warnings.
   Acceptance details: features/data/628_metadata_recipe_2026-10-01.json.
 
-Supporting work remains explicit under N615: refresh the existing tutorial
-authoring controls and narrative, new runtime translations, and public API
-prose/catalogs. Previously reviewed runtime translations must be retired when
+Tutorial authoring was updated in 4b0110385: the existing four genotype,
+replicate and composition scenes use the current visible controls and a v3
+template recipe. All 16 tutorial checks passed, including the real 2,341-row
+example table. A filename-metadata scene was not invented for that dataset.
+New narration, capture media and publication remain separate work under N615.
+
+Supporting work remains explicit under N615: new runtime translations and
+public API prose/catalogs. Previously reviewed runtime translations must be retired when
 their exact English source changes; generated catalogs use the normal builder.
 No new tutorial media or package release is claimed by this implementation.
