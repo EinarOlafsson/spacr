@@ -7,6 +7,7 @@ acknowledgment and a successful full-data validation.
 from __future__ import annotations
 
 import copy
+from pathlib import Path
 
 import pandas as pd
 from PySide6.QtCore import Qt
@@ -15,6 +16,7 @@ from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
     QDialogButtonBox,
+    QFileDialog,
     QFormLayout,
     QHBoxLayout,
     QLabel,
@@ -164,15 +166,17 @@ class MergeTablesDialog(QDialog):
     :param parent: Owning screen.
     :param selected: Initially checked source tables.
     :param threaded: Validate on a worker; false is intended for interaction tests.
+    :param initial_definition: Existing merge to reopen with its relationships preserved.
     """
 
-    def __init__(self, path, parent=None, *, selected=(), threaded=True):
+    def __init__(self, path, parent=None, *, selected=(), threaded=True, initial_definition=None):
         """Build the shared merge workflow.
 
         :param path: Source SQLite database.
         :param parent: Owning screen.
         :param selected: Initially checked source tables.
         :param threaded: Run full validation on a worker when true.
+        :param initial_definition: Existing source-bound merge settings to reuse.
         """
         super().__init__(parent)
         self.path = path
@@ -180,6 +184,7 @@ class MergeTablesDialog(QDialog):
         self.result_frame = None
         self._custom = None
         self._overrides = {}
+        self._filename_map = copy.deepcopy((initial_definition or {}).get("original_filenames"))
         self._jobs = JobRunner(self, threaded=threaded)
         self._jobs.job_failed.connect(self._failed)
         self.setWindowTitle("Merge tables")
@@ -194,6 +199,8 @@ class MergeTablesDialog(QDialog):
         choices = QHBoxLayout()
         self.tables = QListWidget(self)
         available = schemas(path)
+        if initial_definition:
+            selected = [initial_definition["base"]] + [j["table"] for j in initial_definition["joins"]]
         selected = list(selected) or (["cell"] if "cell" in available else list(available)[:1])
         for name in available:
             item = QListWidgetItem(name, self.tables)
@@ -204,6 +211,8 @@ class MergeTablesDialog(QDialog):
         self.base = QComboBox(self)
         self.base.addItems(list(available))
         self.base.setCurrentText("cell" if "cell" in selected else selected[0] if selected else "")
+        if initial_definition:
+            self.base.setCurrentText(initial_definition["base"])
         self.name = QLineEdit("Merged measurements", self)
         form.addRow("Output observation table", self.base)
         form.addRow("Result name", self.name)
@@ -213,6 +222,21 @@ class MergeTablesDialog(QDialog):
         self.reset = QPushButton("Reset to spaCR defaults", self)
         self.reset.clicked.connect(self._reset)
         form.addRow(self.reset)
+        self.original_filenames = QPushButton(tr("Merge original filenames…"), self)
+        self.original_filenames.setObjectName("MergeOriginalFilenames")
+        self.original_filenames.setToolTip(tr(
+            "Read a conversion or rename manifest to recover filenames from before Yokogawa conversion. "
+            "The result gains original_filename and original_path columns for condition annotation. "
+            "Source measurements and image files are preserved."))
+        self.original_filenames.clicked.connect(self._choose_original_filenames)
+        form.addRow(self.original_filenames)
+        self.filename_note = QLabel(self)
+        self.filename_note.setWordWrap(True)
+        form.addRow(self.filename_note)
+        self.clear_filenames = QPushButton(tr("Remove filename mapping"), self)
+        self.clear_filenames.setToolTip(tr("Remove the mapping from this merge without deleting its file."))
+        self.clear_filenames.clicked.connect(self._clear_original_filenames)
+        form.addRow(self.clear_filenames)
         choices.addLayout(form)
         outer.addLayout(choices)
         note = QLabel("Aggregation: numeric measurements use the shared spaCR rules "
@@ -245,6 +269,13 @@ class MergeTablesDialog(QDialog):
         self.base.currentTextChanged.connect(self._selection_changed)
         self.name.textChanged.connect(self._invalidate)
         self._selection_changed()
+        if initial_definition:
+            self._custom = copy.deepcopy(initial_definition)
+            self._overrides = {j["table"]: j.get("overrides", {}).copy()
+                               for j in initial_definition["joins"]}
+            self.name.setText(initial_definition["name"] + tr(" with original filenames"))
+            self._fill_rules()
+            self._show_state()
 
     def _selected(self):
         """Return checked tables plus the explicitly selected base table."""
@@ -277,11 +308,23 @@ class MergeTablesDialog(QDialog):
                 table + "." + column: method
                 for table, values in self._overrides.items()
                 for column, method in values.items()}
+        result.pop("original_filenames", None)
+        if self._filename_map:
+            result["original_filenames"] = copy.deepcopy(self._filename_map)
+            if not result["joins"] and (not self._custom or self._custom.get("mode") == "metadata"):
+                result["mode"] = "metadata"
+                result["base_keys"] = []
         return result
 
     def _show_state(self):
         """Display the active mechanism and actual output observation level."""
-        if self._custom:
+        filename_only = bool(self._filename_map and len(self._selected()) == 1
+                             and (not self._custom or self._custom.get("mode") == "metadata"))
+        if filename_only:
+            text = tr("Original filename metadata — every row and source column in {base} is retained. "
+                      "Repeated channel or z-plane mappings do not duplicate observations.",
+                      base=self.base.currentText())
+        elif self._custom and self._custom.get("mode") == "custom":
             text = tr("Custom rules active — one row per {base}. "
                       "Explicit relationships and join types are shown in Customize merging.",
                       base=self.base.currentText())
@@ -291,6 +334,36 @@ class MergeTablesDialog(QDialog):
                       "Nucleus uses an inner join; pathogen/organelle retain uninfected cells by default.",
                       base=self.base.currentText())
         self.state.setText(text)
+        self.customize.setEnabled(not filename_only)
+        self.filename_note.setText(
+            tr("Mapping: {path}", path=self._filename_map["map_path"]) if self._filename_map else
+            tr("Optional: recover original names before annotating conditions."))
+        self.clear_filenames.setVisible(bool(self._filename_map))
+
+    def _choose_original_filenames(self):
+        """Choose a recorded source-to-converted filename mapping for preview."""
+        from ...original_filenames import discover_maps
+
+        found = discover_maps(self.path)
+        start = str(found[0]) if found else str(Path(self.path).resolve().parent)
+        path, _ = QFileDialog.getOpenFileName(
+            self, tr("Merge original filenames"), start,
+            tr("Conversion maps (*.csv *.db *.sqlite *.sqlite3);;All files (*)"))
+        if path:
+            self._filename_map = {"map_path": str(Path(path).resolve()),
+                                  "output_column": "original_filename"}
+            self._invalidate()
+            self._fill_rules()
+            self._show_state()
+
+    def _clear_original_filenames(self):
+        """Clear this optional enrichment without touching source files."""
+        self._filename_map = None
+        if self._custom and self._custom.get("mode") == "metadata":
+            self._custom = None
+        self._invalidate()
+        self._fill_rules()
+        self._show_state()
 
     def _fill_rules(self):
         """Offer type-compatible rules for selected children, excluding join keys."""
@@ -341,6 +414,7 @@ class MergeTablesDialog(QDialog):
 
     def _reset(self):
         """Discard custom relationships and overrides, restoring shared defaults."""
+        self._filename_map = None
         self._selection_changed()
 
     def validate_preview(self):
@@ -362,6 +436,9 @@ class MergeTablesDialog(QDialog):
         :param payload: Definition and the worker's frame/diagnostics result.
         """
         self.definition, (self.result_frame, report) = payload
+        self.definition = self.result_frame.attrs.get("merge_definition", self.definition)
+        if self.definition.get("original_filenames"):
+            self._filename_map = copy.deepcopy(self.definition["original_filenames"])
         note = (tr("Image/object navigation is unavailable: this merge has no verified spaCR "
                    "image provenance. Plotting and tabular gating remain available.") + "\n"
                 if not report["image_provenance"] else "")
@@ -379,6 +456,12 @@ class MergeTablesDialog(QDialog):
                 left_keys=", ".join(joined["left_keys"]), right_keys=", ".join(joined["right_keys"]),
                 unmatched_base=joined["unmatched_base"], unmatched_child=joined["unmatched_child"],
                 missing_keys=joined["missing_key_rows"], duplicate_rows=joined["duplicate_key_rows"]))
+        if report.get("original_filenames"):
+            metadata = report["original_filenames"]
+            lines.append(tr("Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. "
+                            "Unmatched original names remain blank.\nMapping: {path}",
+                            matched=metadata["matched_rows"], unmatched=metadata["unmatched_rows"],
+                            path=metadata["map_path"]))
         lines.append("\n" + tr("First 12 output rows:") + "\n" +
                      self.result_frame.head(12).to_string(index=False))
         self.preview_text.setPlainText("\n\n".join(lines))

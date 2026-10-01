@@ -720,15 +720,17 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
             """Reconstruct saved data on the worker before the chart is restored."""
             if definition:
                 frame, _report = execute(source, definition)
-                save_definition(source, definition)
             else:
                 frame = read_table(source, table)
+            resolved_definition = frame.attrs.get("merge_definition", definition)
             if annotation:
                 annotation_base = frame
                 saved = frame.attrs.get("saved_condition_definition")
                 if saved:
                     annotation_base = frame.drop(columns=[saved["column"]])
-                apply_conditions(annotation_base, annotation, source_context(source, table, definition))
+                apply_conditions(annotation_base, annotation, source_context(source, table, resolved_definition))
+            if resolved_definition:
+                save_definition(source, resolved_definition)
             names = table_names(source) if not source.lower().endswith((".csv", ".tsv", ".txt")) else []
             return _Loaded(names, table, frame, None)
 
@@ -738,7 +740,8 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
             :param loaded: Revalidated source frame and available table names.
             """
             self._path = source
-            key = json.dumps(source_context(source, table, definition), sort_keys=True)
+            resolved_definition = loaded.frame.attrs.get("merge_definition", definition)
+            key = json.dumps(source_context(source, table, resolved_definition), sort_keys=True)
             if annotation:
                 self._condition_definitions[key] = copy.deepcopy(annotation)
             else:

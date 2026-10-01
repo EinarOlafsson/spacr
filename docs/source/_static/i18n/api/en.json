@@ -33825,6 +33825,38 @@
       "source_sha256": "aaa921f7a53cedf9c1c9d47af41943cc8bd641ddc020855ae0bfee4b9eab90d6",
       "text": "One slot's spelling of a primary ``organelle_*`` key.\n\n:param key: a primary key, e.g. ``'organelle_diameter'``.\n:param role: the prefix to translate it into. Any object's prefix is\n    accepted, not only a slot's: the same translation answers \"what is\n    this decision called for the pathogen\", and the settings tables use\n    it that way. What is checked is the KEY, because translating\n    something that is not a primary organelle setting produces a key no\n    reader has ever heard of.\n:raises ValueError: if ``key`` is not a primary organelle setting."
     },
+    "spacr.original_filenames": {
+      "source_blocks_sha256": [
+        "c9779ef1be36c3f81b742a5b49db39f8012f5bb2e193db1d98dbb4a41c78a01b",
+        "6f49453a240d705607afc75fd2dc7053129a49318c0486c809b77a49c931efb9"
+      ],
+      "source_sha256": "a09ec6f79337a83ad4a011556bc04faf6ca685b1902a8f1db6b274c3849c56dd",
+      "text": "Recover original image names on measurement rows without changing sources.\n\nOnly spaCR conversion maps, legacy Yokogawa rename logs and channel-sorting\nmanifests are accepted. Channel/z contributions are grouped at field level;\ntimepoints and plates remain distinct. Images are never read; an embedded conversion_map table is read-only."
+    },
+    "spacr.original_filenames.discover_maps": {
+      "source_blocks_sha256": [
+        "48057f417754af96d2f0c7fd9559829776d26cc082d8097d68a1002cf6d3de17",
+        "ad63d07ebf936f90c0ffb1919d66ca5333f4b6943e28bd133468c361b878ff4f",
+        "333647ff1076178cc440df9335be15657387459f0c770327a98495199d4c3098",
+        "4e1d4d88d2da20eef322ac0d0bd6f617e94be50c8dde6da6229afc74762744ff"
+      ],
+      "source_sha256": "9c68bb4dbc60553cf4d649db1f3162566e88f43d1ebcbebfda781ee97fe1fd86",
+      "text": "Find known map names beside a database and up to three parent folders.\n\nDiscovery is bounded and nonrecursive, including the usual\n``plate/measurements/measurements.db`` layout. It never scans image trees.\nA SQLite database containing a conversion_map table is also offered.\n\n:param db_path: measurement database path or dataset directory.\n:returns: existing CSV paths, nearest folder first, followed by the\n    database itself when it contains a conversion_map table."
+    },
+    "spacr.original_filenames.enrich": {
+      "source_blocks_sha256": [
+        "d97dc251cbcb9de55d680fee9a64ff1080dd4c1be40cb3ce9692ec50c4126af2",
+        "0656be33345049484739c8f6cd1ad0f1be93ca0ecd521aa21d1d4822bfaa53b4",
+        "787845a8c19a9eaf58153d74051bc0bbab051aafa6d6e3998f3e3c8e0b840ba8",
+        "a22b020c2af133445b19d76e12a0ec1f8541df82a891ca3b047f250bc7089806",
+        "3fccfabfe4a894b9b7f92c3c5905b7056235aad7b4be003b4d3dcc5127f2da10",
+        "134d84006ac014252349e556eaf7000de503d97be6465d941614376e04836071",
+        "74c23cfe07de90bd1b928124549152bac03d741f8a0f4390d2d3ec007c91e6fe",
+        "bb50f5a7a297ec9ce80dde89aa75130e0a65362736f9ba14d9faf6b1f5ed67c1"
+      ],
+      "source_sha256": "0f8c35d38b96dcc3f2d0b4cb5586ddc18457baf4367dcfd3aa96571fffbcca99",
+      "text": "Return an enriched copy and JSON-safe matching/provenance report.\n\nRows, index, order and existing columns are preserved. Multiple original\nimages for one field are deduplicated and sorted, joined with ``'; '``.\nUnmatched values are missing. Existing output columns are never replaced.\nAmbiguous plate or timepoint matches raise ValueError, as do changed maps\nwhen expected_sha256 binds a saved workflow to its reviewed mapping bytes.\n``original_path`` preserves recorded paths, not a promise they still exist.\n\n:param frame: current measurement DataFrame; never modified.\n:param map_path: supported CSV or SQLite database with conversion_map.\n:param expected_sha256: optional digest from an earlier preview. CSV\n    digests bind the exact parsed bytes; SQLite digests bind sorted\n    mapping contents independently of unrelated database writes.\n:param output_column: new filename column name; original_path is also added.\n:returns: (enriched DataFrame, JSON-safe report) with mapping provenance,\n    matched/unmatched row counts and up to ten unmatched identity examples.\n:raises ValueError: for an unsupported or changed map, output collisions,\n    conflicting/ambiguous identities, or zero matches on nonempty data."
+    },
     "spacr.outlier_filter": {
       "source_blocks_sha256": [
         "b90f218dd4731ae577f8e8cb7cf6f7aff3b7974cc737f66e935bd80e63f075c0",
@@ -91501,14 +91533,16 @@
         "080e1bebb9c43632aa80886e62c0d6c11deb0fc7f826429609a0876a5d14e27d",
         "a9b96d3a439951310ecfa08e284171a5f818f57ed6abc402da21690bab51fcf7",
         "e88a7300d51786fe2b59c4e45fea25b1adc7822e55a6b627fb71f5e021093eb4",
+        "7b428f492d29d580a0eaf801228d1fb568607bc060270d64df75a5fb8a995224",
         "b62a15c14e73a1e6c5aa3b6d935fea726287d571ba2c1c3d5bae9fdf23a2adef",
         "e61f6b324f2818c2b6a0eb7b655f4c288f6b639ac40d710efb553670e939883e",
         "080e1bebb9c43632aa80886e62c0d6c11deb0fc7f826429609a0876a5d14e27d",
         "a9b96d3a439951310ecfa08e284171a5f818f57ed6abc402da21690bab51fcf7",
-        "52270e55ca72d905d7471b85c5c2971b72593ddce2dc77b7adff79ee2de8bba2"
+        "52270e55ca72d905d7471b85c5c2971b72593ddce2dc77b7adff79ee2de8bba2",
+        "9dac88d8c2ab9578a9db04b4cf21e4091a57bda86213307b04accb6221876703"
       ],
-      "source_sha256": "bf66c92b1b29f6739febfb8a17f14cec18af7226b337a16f89abfb1449545320",
-      "text": "Select tables, customize aggregation, preview, and create a derived table.\n\n:param path: SQLite source database.\n:param parent: Owning screen.\n:param selected: Initially checked source tables.\n:param threaded: Validate on a worker; false is intended for interaction tests.\nBuild the shared merge workflow.\n\n:param path: Source SQLite database.\n:param parent: Owning screen.\n:param selected: Initially checked source tables.\n:param threaded: Run full validation on a worker when true."
+      "source_sha256": "ef689372ad947e2a09a620bbefd820a4b017ef5ce3255d65514660c3dbbca462",
+      "text": "Select tables, customize aggregation, preview, and create a derived table.\n\n:param path: SQLite source database.\n:param parent: Owning screen.\n:param selected: Initially checked source tables.\n:param threaded: Validate on a worker; false is intended for interaction tests.\n:param initial_definition: Existing merge to reopen with its relationships preserved.\nBuild the shared merge workflow.\n\n:param path: Source SQLite database.\n:param parent: Owning screen.\n:param selected: Initially checked source tables.\n:param threaded: Run full validation on a worker when true.\n:param initial_definition: Existing source-bound merge settings to reuse."
     },
     "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.accept": {
       "source_blocks_sha256": [

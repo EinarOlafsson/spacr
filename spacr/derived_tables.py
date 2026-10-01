@@ -8,6 +8,7 @@ bound to a canonical database path and the selected tables' column schemas.
 """
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
@@ -253,13 +254,29 @@ def execute(path, definition):
     :raises MergeError: Missing keys, changed schemas, cardinality or type violations.
     """
     validate_source(path, definition)
+    definition = copy.deepcopy(definition)
     mode = definition.get("mode")
-    if mode not in ("default", "custom"):
+    if mode not in ("default", "custom", "metadata"):
         raise MergeError("Choose default or custom merging.")
     if mode == "custom" and not definition.get("acknowledged"):
         raise MergeError("Acknowledge the custom merging warning before previewing or applying.")
     base_name = definition["base"]
     base = _read(path, base_name)
+    if mode == "metadata":
+        if definition["joins"] or not definition.get("original_filenames"):
+            raise MergeError("Original filename enrichment requires one source table and a conversion map.")
+        output, metadata = _restore_original_filenames(base, definition)
+        if "time_id" in output and "timeID" not in output:
+            output["timeID"] = output["time_id"]
+        keys = list(IDENTITY) + [OBJECT_COLUMN] + (["timeID"] if "timeID" in output else [])
+        provenance = (base_name in ANCHOR_COLUMN and set(keys).issubset(output.columns)
+                      and not output.duplicated(keys).any()
+                      and not output[keys].isna().any(axis=None))
+        output.attrs["merge_definition"] = definition
+        output.attrs["image_provenance"] = bool(provenance)
+        return output, {"base": base_name, "base_rows": len(base), "output_rows": len(output),
+                        "joins": [], "image_provenance": bool(provenance),
+                        "original_filenames": metadata}
     _require_keys(base, definition["base_keys"], base_name, unique=True)
     if mode == "default" and not is_one_row_per_cell(base_name):
         raise MergeError("Default output is one row per cell or cytoplasm. "
@@ -333,11 +350,30 @@ def execute(path, definition):
     if provenance:
         link_keys = list(IDENTITY) + [OBJECT_COLUMN] + (["timeID"] if "timeID" in output else [])
         provenance = not output.duplicated(link_keys).any() and not output[link_keys].isna().any(axis=None)
+    metadata = None
+    if definition.get("original_filenames"):
+        output, metadata = _restore_original_filenames(output, definition)
     output.attrs["merge_definition"] = definition
     output.attrs["image_provenance"] = bool(provenance)
     report = {"base": base_name, "base_rows": len(base), "output_rows": len(output),
               "joins": reports, "image_provenance": output.attrs["image_provenance"]}
+    if metadata is not None:
+        report["original_filenames"] = metadata
     return output, report
+
+
+def _restore_original_filenames(frame, definition):
+    """Attach read-only conversion metadata and bind its content to the recipe."""
+    from .original_filenames import enrich
+
+    options = definition["original_filenames"]
+    result, report = enrich(frame, options["map_path"],
+                            expected_sha256=options.get("sha256"),
+                            output_column=options.get("output_column", "original_filename"))
+    definition["original_filenames"] = {
+        "map_path": report["map_path"], "sha256": report["sha256"],
+        "output_column": report["output_column"]}
+    return result, report
 
 
 def sidecar_path(path):

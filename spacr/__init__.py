@@ -197,6 +197,7 @@ _DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     "merge_tables",
     "derived_tables",
     "condition_annotations",
+    "original_filenames",
     "model_check",
     "openmp_guard",
     "surrogate",

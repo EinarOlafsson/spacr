@@ -29,7 +29,10 @@ class DerivedTableSource:
             available = schemas(self._path)
             selected = [t for t in getattr(self, "_tables", [self._table_picker.currentText()])
                         if t in available]
-            dialog = MergeTablesDialog(self._path, self, selected=selected)
+            kwargs = {"selected": selected}
+            if self._merge_definition:
+                kwargs["initial_definition"] = self._merge_definition
+            dialog = MergeTablesDialog(self._path, self, **kwargs)
             if dialog.exec() == QDialog.Accepted:
                 self.use_derived_table(dialog.definition)
         except Exception as exc:
@@ -46,8 +49,8 @@ class DerivedTableSource:
 
         def work():
             """Validate and persist the source-bound definition on a worker."""
-            execute(source, definition)
-            return save_definition(source, definition)
+            frame, _report = execute(source, definition)
+            return save_definition(source, frame.attrs.get("merge_definition", definition))
 
         self._jobs.submit(work, lambda name: self.load_path(source, table=name))
 

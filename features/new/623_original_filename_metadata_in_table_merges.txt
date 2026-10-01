@@ -13,6 +13,40 @@ above the first condition row with copyable column-aware regex examples for
 multiple strings, variable characters and include/exclude rules. This extends
 N620; its completed core and SQLite persistence remain independently tracked.
 
-Status: IN PROGRESS. Backend, merge integration and annotation guidance are
-being implemented in disjoint agent scopes. No original source files or
+Status: IMPLEMENTED AND VALIDATED. Backend, merge integration and annotation
+guidance were implemented in disjoint agent scopes. No original source files or
 measurement tables are renamed or overwritten by this feature.
+
+2026-10-01 — IMPLEMENTATION AND ACCEPTANCE
+Merge tables now offers Merge original filenames. It reads conversion_map.csv,
+legacy rename_log.csv, channel_sorting_manifest.csv, or an embedded SQLite
+conversion_map table. Single physical-table enrichment preserves source
+columns and every row; existing derived default/custom recipes retain their
+relationships and aggregation. Original filenames and recorded paths become
+condition metadata. Repeated channels/z planes do not duplicate observations.
+Unmatched rows remain missing with preview counts; zero matches, conflicting
+plate/time identities, and output-column collisions are rejected.
+
+The recipe binds a digest of the parsed mapping. Reopened merges/charts refuse
+a changed map until the user chooses and previews it again. Programmatic
+creation persists the validated bound recipe. Invalid condition rules during
+chart loading cannot replace a previously saved merge recipe.
+
+The annotation popup now explains include/exclude/manual rows above its first
+condition box. Column-aware examples cover escaped literal text, alternatives,
+one/variable characters, anchors and case-insensitive matching. Patterns are
+editable and copyable without changing rules. Main controls have tooltips.
+
+Validation: 21 filename backend checks; 22 merge/annotation integration checks
+including six new end-to-end cases; 18 regex/annotation Qt checks. Broader
+converter cohort: 160 passed, one existing missing-pylibCZIrw CZI test failed.
+Native X11 dark/light merge popups were visually reviewed at 920x760, alpha8,
+with all four corner pixels matching the checkerboard behind the rounded rim.
+Real threaded validation settled, Create remained enabled, and an actual
+mouse click accepted the result. Evidence: /tmp/spacr-ui-evidence/623/.
+User workflow and regex examples are in docs/source/table_workflows.rst.
+Runtime/API locale refresh and full tutorial publication remain tracked N615.
+
+Final source checks: four exact API/parameter correctness checks passed;
+English manifest regenerated (12,034 symbols). Updated table guide passes
+an isolated strict Sphinx build with warnings treated as errors.
