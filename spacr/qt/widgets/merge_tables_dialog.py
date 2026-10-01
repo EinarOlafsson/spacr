@@ -327,7 +327,7 @@ class MergeTablesDialog(QDialog):
             text = " ".join((
                 tr("Original filenames are added to {base}.", base=self.base.currentText()),
                 tr("All input rows and columns are preserved."),
-                tr("Mappings for multiple channels or image planes do not add rows."),
+                tr("Adding names for several image channels or image layers keeps the same number of rows."),
             ))
         elif self._custom and self._custom.get("mode") == "custom":
             text = tr("Custom rules active — one row per {base}. "
@@ -463,8 +463,8 @@ class MergeTablesDialog(QDialog):
             lines.append("  " + tr(
                 "Related rows with missing keys: {missing_keys:,}.",
                 missing_keys=joined["missing_key_rows"]) + " " + tr(
-                "Related rows with repeated keys: {duplicate_rows:,}.",
-                duplicate_rows=joined["duplicate_key_rows"]))
+                "Related rows sharing the same join values: {count:,}.",
+                count=joined["duplicate_key_rows"]))
         if report.get("original_filenames"):
             metadata = report["original_filenames"]
             lines.append(tr("Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. "
