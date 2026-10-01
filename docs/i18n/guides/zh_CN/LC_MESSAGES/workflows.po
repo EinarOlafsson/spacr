@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:59-0400\n"
+"POT-Creation-Date: 2026-10-01 19:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -1586,6 +1586,10 @@ msgstr "在 Mask 中打开 Timelapse，对有序帧中的对象进行分割和�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
 msgstr "谱系导出保留以帧为单位的世代时间，并添加 ``generation_time_hours`` 及经过校准的汇总统计量。请提供正数 ``frame_interval_s``，或在轨迹表中提供完整、递增的 ``time_s`` 值。如果两者都存在，则必须一致；不设固定间隔时可使用不规则时间戳。缺少校准或细胞周期不完整时，不提供以小时为单位的世代时间。导出表会记录校准来源和单位。树的坐标轴和 Newick 分支长度仍以帧为单位。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
+msgstr "要按测量特征为谱系树着色，请先启用 ``timelapse_lineage`` 并追踪，以便 spaCR 保存帧与来源的对应关系。然后在合并后的项目上运行测量模块，设置 ``timelapse=True`` 、匹配的 ``timelapse_objects`` 以及 ``timelapse_lineage=True`` 。启用测试阶段功能和时间维度，即可显示谱系控件。将 ``timelapse_lineage_color_by`` 设为所选对象测量表中的数值列。谱系段的均值使用有测量值的帧计算；完全没有测量值的谱系段保持未着色，同时报告测量覆盖情况。结果保存在 ``tracks/lineage_measured`` ，不会替换之前的谱系结果。旧轨迹若缺少对应关系，则需要重新追踪。沿用已保存的显式时间校准；拒绝与其冲突的时间间隔。"
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**打开：** 掩膜 → 延时成像。"

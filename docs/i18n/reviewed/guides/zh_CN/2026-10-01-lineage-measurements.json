@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Direct Codex AI technical translation with independent Codex agent technical review; no human/native signoff",
+  "draft_author": "shared_ui",
+  "technical_reviewer": "root",
+  "source_file": "docs/source/workflows.rst",
+  "source_file_sha256": "317a2755c402e74c757450f5b0e48a84c1d807ab53822f534921127385a8d04e",
+  "records": [
+    {
+      "source": "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused.",
+      "source_sha256": "4c5222a0348b1e345f4f0a1b1e9680bac8448e95a8eb8a4a6258e1eb27dba974",
+      "translation": "要按测量特征为谱系树着色，请先启用 ``timelapse_lineage`` 并追踪，以便 spaCR 保存帧与来源的对应关系。然后在合并后的项目上运行测量模块，设置 ``timelapse=True`` 、匹配的 ``timelapse_objects`` 以及 ``timelapse_lineage=True`` 。启用测试阶段功能和时间维度，即可显示谱系控件。将 ``timelapse_lineage_color_by`` 设为所选对象测量表中的数值列。谱系段的均值使用有测量值的帧计算；完全没有测量值的谱系段保持未着色，同时报告测量覆盖情况。结果保存在 ``tracks/lineage_measured`` ，不会替换之前的谱系结果。旧轨迹若缺少对应关系，则需要重新追踪。沿用已保存的显式时间校准；拒绝与其冲突的时间间隔。"
+    }
+  ],
+  "review": "Checked setting identifiers, measured source/label mapping, partial observations and uncoloured segments, separate output, old-track requirement and timing calibration. Literal markup checked."
+}

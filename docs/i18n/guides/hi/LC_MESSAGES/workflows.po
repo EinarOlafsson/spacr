@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:59-0400\n"
+"POT-Creation-Date: 2026-10-01 19:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -1586,6 +1586,10 @@ msgstr "क्रमबद्ध फ़्रेम में वस्तुओ
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
 msgstr "वंशावली निर्यात पीढ़ी के समय को फ़्रेम में बनाए रखता है और अंशांकित सारांश आँकड़ों के साथ ``generation_time_hours`` जोड़ता है। धनात्मक ``frame_interval_s`` दें या ट्रैक तालिका में बिना किसी अनुपस्थित मान के बढ़ते ``time_s`` मान दें। दोनों मौजूद हों तो उनका मेल होना चाहिए; निश्चित अंतराल के बिना अनियमित टाइमस्टैम्प समर्थित हैं। अंशांकन अनुपस्थित हो या कोशिका चक्र अधूरा हो, तो घंटों में पीढ़ी का समय नहीं मिलता। निर्यात की गई तालिकाएँ अंशांकन का स्रोत और इकाइयाँ दर्ज करती हैं। वृक्ष का अक्ष और Newick शाखाओं की लंबाई फ़्रेम में बनी रहती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
+msgstr "मापित विशेषताओं से वृक्षों को रंग देने के लिए पहले ``timelapse_lineage`` सक्षम करके ट्रैकिंग करें, ताकि spaCR फ़्रेम/स्रोत मिलान सहेज सके। फिर मर्ज किए गए प्रोजेक्ट पर मापन मॉड्यूल चलाएँ और ``timelapse=True``, मेल खाते ``timelapse_objects`` तथा ``timelapse_lineage=True`` रखें। वंशावली नियंत्रण दिखाने के लिए अल्फ़ा सुविधाएँ और समय आयाम सक्षम करें। ``timelapse_lineage_color_by`` को चुने गए ऑब्जेक्ट की माप तालिका के किसी संख्यात्मक कॉलम पर सेट करें। खंड का औसत उपलब्ध माप वाले फ़्रेमों से निकाला जाता है; जिन खंडों में कोई माप नहीं है, वे बिना रंग के रहते हैं और कवरेज की जानकारी दी जाती है। परिणाम ``tracks/lineage_measured`` में जाते हैं, पुराने वंशावली परिणामों को बदले बिना। जिन पुराने ट्रैक में मिलान नहीं है, उनके लिए ट्रैकिंग दोबारा करनी होगी। सहेजा गया स्पष्ट समय अंशांकन आगे उपयोग होता है; उससे टकराने वाला समय अंतराल अस्वीकार किया जाता है।"
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**खोलें:** मास्क → टाइमलैप्स।"

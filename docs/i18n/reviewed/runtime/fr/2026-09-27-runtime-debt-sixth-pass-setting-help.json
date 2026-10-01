@@ -223,20 +223,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "timelapse_lineage",
-      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
-      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
-      "translation": "Après le suivi de chaque champ, construit des arbres de lignée à partir des liens de division du suivi : une figure d’arbre colorée selon timelapse_lineage_color_by, des arbres Newick, une table de segments par cellule et des statistiques par lignée (temps de génération en images, corrélation entre sœurs), écrits dans tracks/lineage. Les liens de division de Trackastra sont utilisés tels quels ; pour les autres suivis, une division est inférée là où de nouvelles trajectoires commencent à côté d’une mère. Valeur par défaut : False."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "timelapse_lineage_color_by",
-      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
-      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
-      "translation": "Ce qui colore chaque cellule dans les arbres de lignée : generation_time, generation, start_frame ou n_frames, ou le nom d’une colonne numérique de la table des trajectoires, moyennée sur les images de la cellule. Un nom inconnu revient à generation_time avec un message. Ignoré sauf si timelapse_lineage est activé. Valeur par défaut : generation_time."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "timelapse_lineage_max_distance",
       "source": "Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
       "source_sha256": "59c13199dd02b34939ee1f04d722456a8c870637d80fbe93bfbcfda67838906c",
@@ -320,7 +306,22 @@
       "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
       "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
       "translation": "Facteur de dilution de la suspension étalée, 10000 pour une dilution 10^-4 ; une fraction comme 0.0001 est lue comme la dilution et inversée. UFC/mL = colonies x facteur de dilution / volume étalé. Un dictionnaire associant un nom ou une racine de fichier à un facteur le fixe par boîte ; une boîte non nommée ne reçoit pas d’UFC/mL. Valeur par défaut : 1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
+      "translation": "Après le suivi de chaque champ, construit des arbres de lignée à partir des liens de division du suivi : une figure d’arbre colorée selon timelapse_lineage_color_by, des arbres Newick, une table de segments par cellule et des statistiques par lignée (temps de génération en images, corrélation entre sœurs), écrits dans tracks/lineage. Les liens de division de Trackastra sont utilisés tels quels ; pour les autres suivis, une division est inférée là où de nouvelles trajectoires commencent à côté d’une mère. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
+      "translation": "Ce qui colore chaque cellule dans les arbres de lignée : generation_time, generation, start_frame ou n_frames, ou le nom d’une colonne numérique de la table des trajectoires, moyennée sur les images de la cellule. Un nom inconnu revient à generation_time avec un message. Ignoré sauf si timelapse_lineage est activé. Valeur par défaut : generation_time."
     }
   ],
-  "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text."
+  "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text.",
+  "retirement_2026_10_01_lineage_measurements": "Two lineage setting help sources changed to describe saved frame/label mapping and measured-feature coloring. Historical source-bound translations are retained above; revised help has separate review records."
 }

@@ -176,3 +176,13 @@ Malformed numeric run settings are reported as per-field failures before
 publication; an unset maximum distance retains the existing 30-pixel default.
 The two existing lineage tooltips were revised; no new setting or caption was
 introduced. Runtime catalog updates are coordinated by the integration owner.
+
+2026-10-01 — MEASURED-LINEAGE HELP AND GUIDE IN NINE LOCALES
+The two revised runtime setting-help sources now describe the saved source
+mapping, available-frame means, uncoloured gaps, separate measured output and
+calibration. Direct Codex AI technical translations were reviewed for all
+nine supported locales. The old source-bound records remain in retired_records
+with their original source, target and hash. The Timelapse guide gains one
+measured-colour paragraph per locale through the normal guide importer. No
+human or native-speaker signoff is claimed. This documentation pass does not
+close the remaining real parasite endodyogeny acceptance for F537.

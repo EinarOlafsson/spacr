@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "Direct Codex AI technical translation; independent Codex technical review, no human or native-speaker signoff",
+  "draft_author": "merge_interfaces",
+  "technical_reviewer": "root",
+  "source_file": "spacr/settings.py",
+  "source_file_sha256": "3fa147bd9fc3e2002f5d962ecb8fdcef56573c57849b98d86b841e92b3136d6e",
+  "superseded_review_file": "docs/i18n/reviewed/runtime/de/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+  "superseded_review_file_sha256": "553fc735fdb41cf4e3d76736f93ad78cb17ccdb5c8baa14ac59965b52b400a76",
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
+      "translation": "Erstellt nach dem Tracking jedes Bildfelds Stammbäume aus den Teilungsverknüpfungen des Trackers: eine nach timelapse_lineage_color_by gefärbte Baumabbildung, Newick-Bäume, eine Segmenttabelle pro Zelle und Statistiken pro Stammbaum (Generationszeit in Frames, Geschwisterkorrelation), geschrieben nach tracks/lineage. Teilungsverknüpfungen von Trackastra werden wie gemeldet verwendet; bei anderen Trackern wird eine Teilung abgeleitet, wo neue Spuren neben einer Mutter beginnen. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
+      "translation": "Was jede Zelle in den Stammbäumen färbt: generation_time, generation, start_frame oder n_frames oder der Name einer numerischen Spalte der Spurentabelle, über die Frames der Zelle gemittelt. Ein unbekannter Name fällt mit einer Meldung auf generation_time zurück. Wird ignoriert, sofern timelapse_lineage nicht aktiv ist. Standard generation_time."
+    }
+  ],
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "Build lineage trees after tracking, preserving native division links and recording the actual frame filenames and final object labels. Measure can rebuild trees using a numeric measured feature, with outputs in tracks/lineage_measured; original tracks, measurements and pre-Measure lineage outputs remain unchanged. Measured colours require the saved frame/source mapping; rerun tracking with lineage enabled if it is missing. Frame quantities are retained, with hours added only when time_s or frame_interval_s supplies calibration. Default False.",
+      "source_sha256": "bd4f4882cfb159551d67ab7421adafcd618c5d4cf7b45b041a308715cf642204",
+      "translation": "Nach dem Tracking Abstammungsbäume erstellen, dabei native Teilungsverknüpfungen erhalten und die tatsächlichen Dateinamen der Einzelbilder sowie die endgültigen Objektkennungen aufzeichnen. Messen kann die Bäume anhand eines numerischen Messmerkmals neu erstellen und die Ergebnisse in tracks/lineage_measured ablegen; ursprüngliche Tracks, Messungen und vor Messen erzeugte Abstammungsergebnisse bleiben unverändert. Die Färbung anhand von Messwerten erfordert die gespeicherte Zuordnung von Einzelbildern zu Quelldateien; fehlt sie, muss das Tracking mit aktivierter Abstammungsanalyse erneut ausgeführt werden. Größen in Einzelbildern bleiben erhalten; Stunden werden nur ergänzt, wenn time_s oder frame_interval_s eine Kalibrierung liefert. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "Colour each lineage segment by generation_time (frames), generation_time_hours, generation, start_frame or n_frames, or a numeric feature averaged over its observed frames. Tracking reads tracks-table columns; Measure reads the selected tracked object's measurement table using saved frame and label identities. Means use available measured frames; segments with no measured values remain uncoloured. Ambiguous identities or invalid features stop that field's measured-colour export. Default generation_time.",
+      "source_sha256": "6d9fee5227cdd647f3edf8e7f71858da9017cd2dd4c9c41f8734b1fcfce41ae2",
+      "translation": "Jedes Abstammungssegment nach generation_time (Einzelbilder), generation_time_hours, generation, start_frame oder n_frames färben, oder nach einem numerischen Merkmal, das über seine beobachteten Einzelbilder gemittelt wird. Das Tracking liest Spalten der Track-Tabelle; Messen liest die Messtabelle des ausgewählten verfolgten Objekttyps anhand der gespeicherten Einzelbild- und Objektkennungen. Mittelwerte verwenden die verfügbaren gemessenen Einzelbilder; Segmente ohne Messwerte bleiben ungefärbt. Mehrdeutige Kennungen oder ungültige Merkmale stoppen den Export mit messwertbasierter Färbung für dieses Bildfeld. Standard generation_time."
+    }
+  ],
+  "review": "Checked against source and code: actual saved frame/label mapping, only available measured frames in means, uncoloured missing values, ambiguity/invalid feature rejection, separate output, and calibration conditions. Settings IDs and exact output path preserved."
+}

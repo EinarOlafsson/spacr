@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "Direct Codex AI technical translation with independent Codex agent technical review; no human/native signoff",
+  "draft_author": "mask_editor",
+  "technical_reviewer": "root",
+  "source_file": "docs/source/workflows.rst",
+  "source_file_sha256": "317a2755c402e74c757450f5b0e48a84c1d807ab53822f534921127385a8d04e",
+  "records": [
+    {
+      "source": "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused.",
+      "source_sha256": "4c5222a0348b1e345f4f0a1b1e9680bac8448e95a8eb8a4a6258e1eb27dba974",
+      "translation": "Til að lita tré eftir mældum eiginleikum skaltu fyrst keyra rakningu með ``timelapse_lineage`` virkt svo spaCR visti vörpun milli ramma og upprunaskráa. Keyrðu síðan eininguna Mæling á sameinaða verkefninu með ``timelapse=True``, ``timelapse_objects`` sem samsvarar hlutunum sem voru raktir og ``timelapse_lineage=True``. Virkjaðu alfa-eiginleika og tímavíddina til að birta stillingar ættartrjáa. Stilltu ``timelapse_lineage_color_by`` á tölulegan dálk úr mælingatöflu valinnar tegundar hlutar. Meðaltöl fyrir hluta trésins nota þá ramma sem hafa mæligildi; hlutar án mæligilda haldast ólitaðir og tilkynnt er hversu mikið mæligildin ná yfir. Niðurstöður fara í ``tracks/lineage_measured`` án þess að eldri ættartrésniðurstöðum sé skipt út. Fyrir eldri rakningar án vörpunarinnar þarf að keyra rakningu aftur. Vistuð, sérstaklega tilgreind tímakvörðun er notuð áfram; tímabili sem stangast á við hana er hafnað."
+    }
+  ],
+  "review": "Checked setting identifiers, measured source/label mapping, partial observations and uncoloured segments, separate output, old-track requirement and timing calibration. Literal markup checked."
+}
