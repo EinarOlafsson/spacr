@@ -1,10 +1,10 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a3acb3d56217b54087148d2878efa6bce013ff9177d326bc4d388b3680bb96d5",
+  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -36,7 +36,8 @@
     "Esta es la paleta CMY. Puedes volver a RGB desde los mismos ajustes. Mantén la misma vista mientras comparas y etiquetas objetos.",
     "Abre Annotator Agreement desde el icono de arriba a la derecha para comparar columnas de anotación. Úsalo para encontrar objetos a los que distintos revisores asignaron etiquetas diferentes.",
     "Cuando tus etiquetas estén listas, abre Train. Elige imágenes para un clasificador de imágenes o características medidas para un clasificador tabular. Las lecciones de Classify enlazadas explican los ajustes de entrenamiento.",
-    "Suggest puede proponerte etiquetas para que las revises. Retrain actualiza el modelo después de añadir etiquetas, y Rounds te ayuda a seguir ese ciclo de revisión. Comprueba las etiquetas sugeridas antes de aceptarlas.",
+    "Suggest propone etiquetas para los recortes que aún no ha respondido, así que primero necesita ejemplos de ambas clases. Etiquete unos cuantos de cada una, aquí diez de la clase uno y diez de la clase dos, y pase a la página siguiente para que se guarden.",
+    "Después abra Suggest y elija Suggest for the images on this page. Cada recorte sugerido lleva un signo de interrogación: haga clic o pulse Y para confirmarlo, o haga clic derecho o pulse N para rechazarlo. Ambas respuestas se registran, los rechazos entrenan la siguiente ronda y Rounds muestra cómo mejora el modelo sobre la marcha.",
     "Generate annotation database crea un conjunto de recortes a partir de datos de origen adecuados. Úsalo al preparar un proyecto de anotación nuevo; el ejemplo descargado ya incluye los recortes y la base de datos que se necesitan aquí.",
     "Abre Console para revisar los mensajes de carga de origen y de guardado. Tu columna de anotación se guarda en la base de datos del proyecto y puedes seleccionarla al preparar los datos de entrenamiento en Classify.",
     "Si necesitas ayuda con un ajuste, abre spaCR AI en Console después de configurar un proveedor en Preferences. Cuando termines de etiquetar, continúa con Classify usando tu proyecto y la columna de anotación elegida."

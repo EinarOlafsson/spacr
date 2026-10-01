@@ -1,10 +1,10 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a3acb3d56217b54087148d2878efa6bce013ff9177d326bc4d388b3680bb96d5",
+  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -36,7 +36,8 @@
     "これがCMYパレットです。同じ設定からRGBに戻せます。物体を比べてラベルを付ける間は、表示をそろえておきます。",
     "右上のアイコンからAnnotator Agreementを開くと、注釈列を比べられます。評価者によって付けたラベルが異なる物体を見つけるのに使います。",
     "ラベルの準備ができたら、Trainを開きます。画像分類器には画像を、表形式の分類器には測定した特徴量を選びます。学習の設定は、リンク先のClassifyのレッスンで説明しています。",
-    "Suggestは、確認用のラベルを提案できます。Retrainはラベルを追加した後にモデルを更新し、Roundsはその確認の繰り返しを追うのに役立ちます。提案されたラベルは、受け入れる前に確認します。",
+    "Suggestは、まだ回答していない切り出し画像にラベルを提案します。そのため、まず両方のクラスの例が必要です。それぞれいくつかにラベルを付け、ここではクラス1を10個、クラス2を10個付けて、次のページに進んで保存します。",
+    "次にSuggestを開き、Suggest for the images on this pageを選びます。提案された切り出し画像には疑問符のバッジが付きます。クリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答も記録され、却下は次のラウンドの学習に使われます。Roundsでは、作業を進めるにつれてモデルがどう改善するかを確認できます。",
     "Generate annotation databaseは、適切な元データから切り出し画像のセットを作ります。新しい注釈プロジェクトを準備するときに使います。ダウンロードした例には、ここで必要な切り出し画像とデータベースがすでに含まれています。",
     "Consoleを開いて、データの読み込みと保存のメッセージを確認します。注釈列はプロジェクトのデータベースに保存され、Classifyで学習データを準備するときに選べます。",
     "設定について助けが必要なときは、Preferencesでプロバイダーを設定した後、ConsoleでspaCR AIを開きます。ラベル付けが終わったら、プロジェクトと選んだ注釈列を使ってClassifyに進みます。"
