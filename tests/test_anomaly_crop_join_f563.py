@@ -165,3 +165,41 @@ def test_time_normalization_never_strips_a_non_numeric_identifier(tmp_path):
     crops['timeID'] = ['1', 'ime1', '003', None]
     result = _attach_object_crop_paths(_database(tmp_path, crops), frame, 'cell')
     assert result['png_path'].tolist() == ['first.png', None, 'third.png', None]
+
+
+def test_multiple_mode_ids_without_explicit_mode_never_guess_crop_role(tmp_path, caplog):
+    frame = _objects()
+    crops = _crops(frame)
+    crops['nucleus_id'] = ['o7'] * len(crops)
+    db = _database(tmp_path, crops)
+    assert _attach_object_crop_paths(db, frame, 'cell') is frame
+    assert 'ambiguous or conflicting crop modes' in caplog.text
+
+
+def test_explicit_nucleus_crop_with_parent_cell_id_only_matches_nucleus(tmp_path):
+    frame = _objects()
+    crops = _crops(frame)
+    crops['nucleus_id'] = crops['cell_id']
+    crops['crop_mode'] = 'nucleus'
+    db = _database(tmp_path, crops)
+    assert _attach_object_crop_paths(db, frame, 'cell') is frame
+    result = _attach_object_crop_paths(db, frame, 'nucleus')
+    assert result['png_path'].tolist() == crops['png_path'].tolist()
+
+
+@pytest.mark.parametrize('mode,other,matched', [
+    ('cell', 'cell', True), ('cell', 'nucleus', False),
+    ('unknown', 'cell', False), (None, None, False),
+    ('', '', False), ('cell', None, False), (None, 'cell', False),
+])
+def test_explicit_crop_mode_aliases_must_agree(tmp_path, mode, other, matched):
+    frame = _objects()
+    crops = _crops(frame)
+    crops['nucleus_id'] = 'o7'
+    crops['crop_mode'] = mode
+    crops['object_type'] = other
+    result = _attach_object_crop_paths(_database(tmp_path, crops), frame, 'cell')
+    if matched:
+        assert result['png_path'].tolist() == crops['png_path'].tolist()
+    else:
+        assert result is frame

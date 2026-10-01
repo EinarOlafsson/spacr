@@ -109,10 +109,28 @@ def _attach_object_crop_paths(db_path, frame, object_type):
                      object_type)
             return frame
         times = [name for name in ('timeID', 'time_id') if name in columns]
-        selected = required + times
+        mode_ids = [name for name in PNG_LIST_ID_COLUMNS.values()
+                    if name in columns]
+        mode_columns = [name for name in ('crop_mode', 'object_type')
+                        if name in columns]
+        selected = list(dict.fromkeys(required + times + mode_ids + mode_columns))
         crops = pd.read_sql_query(
             'SELECT ' + ', '.join('"' + name + '"' for name in selected)
             + ' FROM "png_list"', db)
+    populated_ids = (crops[mode_ids].notna()
+                     & crops[mode_ids].fillna('').astype(str).ne(''))
+    ambiguous_mode = populated_ids.sum(axis=1) > 1
+    mode_agrees = pd.Series(True, index=crops.index)
+    mode_resolved = pd.Series(bool(mode_columns), index=crops.index)
+    for name in mode_columns:
+        mode = crops[name].fillna('').astype(str).str.strip().str.casefold()
+        mode_resolved &= mode.eq(object_type)
+        mode_agrees &= mode.eq(object_type) | mode.eq('')
+    eligible = mode_agrees & (~ambiguous_mode | mode_resolved)
+    if (~eligible).any():
+        log.warning('Crop review: %d rows have ambiguous or conflicting crop modes; '
+                    'paths not attached for those rows', int((~eligible).sum()))
+    crops = crops.loc[eligible].reset_index(drop=True)
     left_times = [name for name in ('timeID', 'time_id') if name in frame]
     if bool(left_times) != bool(times):
         log.warning('Crop review: measurement and crop timepoint identities '

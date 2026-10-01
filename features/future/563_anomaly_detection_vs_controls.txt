@@ -148,3 +148,19 @@ An added fixture initially triggered pandas' incompatible-dtype warning;
 changing the fixture to replace its column resolved it before the final
 21-check backend pass. No new scientific real-screen acceptance is claimed.
 Existing public signatures/docstrings and runtime captions are unchanged.
+
+2026-10-01 — CROP-MODE AMBIGUITY GUARD
+Independent review checked the producer contract: filepaths_to_database writes
+only the selected crop mode's ID column per row; schema-union appends leave
+other mode IDs NULL. Imported or enriched rows may instead carry several
+populated mode IDs. Those rows now remain unmatched unless an explicit
+crop_mode or object_type identifies the requested mode. If both columns are
+present, both must contain the same known requested mode; unknown, missing or
+conflicting values cannot resolve ambiguous IDs. No role is inferred from a
+filename. A nucleus crop carrying parent cell_id is never attached as a cell
+crop merely because it is the only matching path. Existing nonempty paths
+remain user-owned and untouched.
+Thirty backend checks pass on the final follow-up under 1 GiB, one actual CPU
+and zero swap, including same-path deduplication, all identity/time safeguards,
+the canonical single-mode producer contract and explicit/missing/conflicting
+mode metadata. No public API or runtime caption change is introduced.
