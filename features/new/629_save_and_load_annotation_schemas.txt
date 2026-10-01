@@ -1,0 +1,27 @@
+629. Save and load reusable annotation schemas in Graph Builder
+
+Status: IN PROGRESS — requested by the user 2026-10-01.
+
+Add Save schema and Load schema to Annotate conditions. A portable JSON file
+must retain all output-column names and ordering, extraction expressions and
+groups, readable rules, exact-value/regex selectors, and composition tokens.
+It should work with another compatible source table, including different row
+counts, values and filenames. Bind imported definitions to the current source
+and preview before applying; never reuse another table's positional row tokens.
+
+Manual drag assignments belong to their original table. Schema exports omit
+these memberships with a clear explanation, while preserving the current
+dialog and its existing saved analysis. A manual-only group can remain in the
+schema as an empty group to fill for the new table.
+
+Use readable versioned JSON, bounded reads and atomic writes. Reject malformed
+or unsupported files, conflicting output names, unavailable input columns,
+invalid patterns/groups and forward dependencies without replacing the current
+draft. File-picker cancellation and stale worker delivery must be harmless.
+Loading a valid schema opens a preview; it does not apply or save a data table.
+
+Acceptance: round-trip all N628 modes; use the schema on a different table;
+verify source/manual-row isolation; preserve literal Unicode and punctuation;
+exercise actual Save/Load buttons and file pickers, worker responsiveness,
+error/cancel/stale handling and existing chart/SQLite recipes. Update the guide,
+tooltips and runtime translation sources. Supporting publication remains N615.
