@@ -34,6 +34,7 @@ def test_examples_escape_real_values_and_explain_regex_operators(dialog):
 
 
 def test_guide_above_first_box_follows_column_and_copies_exact_text(dialog, qtbot):
+    dialog.boxes[0].match_mode.setCurrentIndex(0)  # Open the legacy regex editor explicitly.
     before = dialog.configuration()
     box = dialog.boxes[0]
     box.column.setCurrentText('original_filename')

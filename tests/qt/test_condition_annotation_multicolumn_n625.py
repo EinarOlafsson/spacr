@@ -133,6 +133,8 @@ def test_threaded_stale_preview_cannot_restore_changed_multicolumn_draft(qtbot, 
 
     monkeypatch.setattr(module, 'preview', blocked)
     dialog = make_dialog(qtbot, threaded=True)
+    dialog.boxes[0].match_mode.setCurrentIndex(0)  # This checks the legacy v1 worker path.
+    dialog.refresh_preview()
     qtbot.waitUntil(lambda: dialog.apply_button.isEnabled(), timeout=5000)
     dialog.output_column.setText('slow')
     click(qtbot, dialog.preview_button)
