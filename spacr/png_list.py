@@ -99,7 +99,7 @@ def _attach_object_crop_paths(db_path, frame, object_type):
             and frame['png_path'].fillna('').astype(str).str.strip().ne('').all()):
         return frame
     uri = Path(db_path).resolve().as_uri() + '?mode=ro'
-    with sqlite3.connect(uri, uri=True) as db:
+    with sqlite3.connect(uri, uri=True, timeout=30.0) as db:
         columns = {row[1] for row in db.execute('PRAGMA table_info("png_list")')}
         if not columns:
             return frame

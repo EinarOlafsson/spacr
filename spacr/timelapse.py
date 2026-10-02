@@ -8889,7 +8889,7 @@ def automated_motility_assay(settings):
     db_path = os.path.join(measurements_dir, "measurements.db")
     if bleach_method != 'none' and reuse_existing and os.path.isfile(db_path):
         from pathlib import Path
-        with sqlite3.connect(Path(db_path).resolve().as_uri() + '?mode=ro', uri=True) as conn:
+        with sqlite3.connect(Path(db_path).resolve().as_uri() + '?mode=ro', uri=True, timeout=30.0) as conn:
             exists = conn.execute(
                 'SELECT 1 FROM sqlite_master WHERE type="table" AND name=?',
                 (db_table_name,)).fetchone()

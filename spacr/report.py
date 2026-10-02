@@ -3599,7 +3599,8 @@ def _zenodo_stage(src: Any, out: Any, form: Dict[str, Any], *,
                   ) -> Tuple[Path, List[Path], Dict[str, Any]]:
     """Gather the files and metadata of a Zenodo deposit for a finished run.
 
-    Writes into ``out/<title>-zenodo``: the archive package (the IDR,
+    Writes into ``out/<title>-zenodo`` (or a numbered sibling for a retry):
+    the archive package (the IDR,
     BioStudies and MIHCSME metadata with checksums, images not copied) as
     ``<title>-archive.zip`` when the run holds images, ``settings.zip``,
     the journalled runs of this folder as ``run_journal.zip``, the HTML
@@ -3626,11 +3627,17 @@ def _zenodo_stage(src: Any, out: Any, form: Dict[str, Any], *,
     values.update({k: str(v).strip() for k, v in (form or {}).items()
                    if v is not None})
     slug = _archive_slug(values["title"])
-    stage = Path(str(out)).expanduser().resolve() / f"{slug}-zenodo"
-    stage.mkdir(parents=True, exist_ok=True)
-    for old in stage.iterdir():
-        if old.is_file():
-            old.unlink()
+    parent = Path(str(out)).expanduser().resolve()
+    for number in range(1, 10_001):
+        stage = parent / (f"{slug}-zenodo" if number == 1
+                          else f"{slug}-zenodo-{number}")
+        try:
+            stage.mkdir(parents=True, exist_ok=False)
+            break
+        except FileExistsError:
+            continue
+    else:
+        raise ValueError(f"No unused Zenodo staging folder under {parent}.")
     files: List[Path] = []
 
     if _archive_images(src):

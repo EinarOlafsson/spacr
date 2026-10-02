@@ -1434,7 +1434,7 @@ def _watch_snapshot_database(field_dir):
     partial = folder / 'measurements.db.partial'
     incoming = sqlite3.connect(source.resolve().as_uri() + '?mode=ro', uri=True, timeout=1)
     try:
-        outgoing = sqlite3.connect(partial)
+        outgoing = sqlite3.connect(partial, timeout=30.0)
         try:
             incoming.backup(outgoing, pages=256, progress=_watch_backup_progress, sleep=0.05)
             outgoing.execute('PRAGMA journal_mode=DELETE').fetchone()

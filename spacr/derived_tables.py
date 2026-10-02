@@ -45,7 +45,7 @@ def schemas(path):
     :param path: SQLite database path.
     :returns: Table names mapped to lists of column-name/type pairs.
     """
-    with sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True) as db:
+    with sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True, timeout=30.0) as db:
         names = [r[0] for r in db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
             "AND name NOT LIKE 'sqlite_%' ORDER BY name")]
@@ -62,7 +62,7 @@ def column_sample(path, table, limit=200):
     :param limit: Maximum sampled rows.
     :returns: Sample frame preserving SQLite column types when possible.
     """
-    with sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True) as db:
+    with sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True, timeout=30.0) as db:
         return pd.read_sql_query('SELECT * FROM "' + table.replace('"', '""') +
                                  '" LIMIT ?', db, params=(int(limit),))
 

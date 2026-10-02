@@ -93,8 +93,10 @@ def test_exact_values_excludes_regex_and_legacy_combine_roundtrip(tmp_path):
         {"column": "condition", "kind": "combine", "columns": ["genotype", "rowID"],
          "separator": "_"}])
     path = tmp_path / "legacy.json"
-    annotations._save_schema(path, frame, definition, source)
-    loaded, report = annotations._load_schema(path, frame, source)
+    # Copy-on-Write exposes read-only NumPy views from pandas predicates.
+    with pd.option_context("mode.copy_on_write", True):
+        annotations._save_schema(path, frame, definition, source)
+        loaded, report = annotations._load_schema(path, frame, source)
     assert loaded["version"] == 2
     assert report.values.fillna("").tolist() == ["WT_r1", "mutant_r2", ""]
 

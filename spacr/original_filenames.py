@@ -47,7 +47,7 @@ def discover_maps(db_path) -> list[Path]:
              if (candidate := parent / name).is_file()]
     if path.is_file() and path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
         try:
-            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)) as connection:
+            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
                 exists = connection.execute(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='conversion_map'"
                 ).fetchone()
@@ -219,7 +219,7 @@ def enrich(frame, map_path, *, expected_sha256=None, output_column="original_fil
     map_table = None
     if path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
         try:
-            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)) as connection:
+            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
                 stored = pd.read_sql_query('SELECT * FROM "conversion_map"', connection)
             # Order-independent digest: unrelated database writes cannot invalidate it.
             stored = stored.fillna("").astype(str)

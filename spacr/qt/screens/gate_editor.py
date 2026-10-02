@@ -2226,7 +2226,7 @@ def _record_gate_export_provenance(path: str, table: str, gates: GateSet,
                "analysis_locks": verdicts,
                "lock_coverage": "checked" if verdicts else "no_applicable_strategy_lock",
                "written": [{"column": column, "marked_objects": count} for column, count in written]}
-    with sqlite3.connect(path) as db:
+    with sqlite3.connect(path, timeout=30.0) as db:
         db.execute("CREATE TABLE IF NOT EXISTS filter_export_provenance "
                    "(exported_utc TEXT NOT NULL, source_table TEXT NOT NULL, "
                    "gate_column TEXT NOT NULL, receipt_json TEXT NOT NULL)")

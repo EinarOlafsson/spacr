@@ -263,20 +263,20 @@ def test_legacy_database_is_migrated_on_read(legacy_db):
     """The established repair-on-read contract, extended to these two families."""
     from spacr.utils import rename_columns_in_db
 
-    # 3 ring objects x 2 channels x 7 percentiles x 2 rings = 84 ring columns,
-    # plus 2 channels x (mean, std) = 4 organelle-summary columns.
-    expected = 3 * 2 * 7 * 2 + 2 * 2
-    assert expected == 88
+    # The original two-channel fixture has at least 84 ring and four
+    # organelle-summary columns. New measured channels may add more; every
+    # spelling actually aged by this fixture must be migrated.
+    minimum = 3 * 2 * 7 * 2 + 2 * 2
 
     before = _columns(legacy_db)
     stale_before = [col for cols in before.values() for col in cols
                     if (col.endswith('_percentile')
                         and ('periphery' in col or 'outside' in col))
                     or '_organelle_ch0_' in col or '_organelle_ch1_' in col]
-    assert len(stale_before) == expected
+    assert len(stale_before) >= minimum
 
     renamed = rename_columns_in_db(legacy_db)
-    assert len(renamed) == expected
+    assert len(renamed) == len(stale_before)
 
     after = _columns(legacy_db)
     stale_after = [col for cols in after.values() for col in cols

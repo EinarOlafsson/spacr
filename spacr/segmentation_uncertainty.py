@@ -50,6 +50,7 @@ def save_uncertainty_map(path, result, *, provenance=None, protected_paths=()):
     :raises ValueError: for invalid maps or a protected destination.
     """
     import tifffile
+    from .tiff_io import write_tiff
 
     destination = Path(path).expanduser().resolve()
     if destination.suffix.lower() not in {".tif", ".tiff"}:
@@ -77,8 +78,8 @@ def save_uncertainty_map(path, result, *, provenance=None, protected_paths=()):
     fd, temporary = tempfile.mkstemp(prefix=".uncertainty-", suffix=".tif", dir=destination.parent)
     os.close(fd)
     try:
-        tifffile.imwrite(temporary, array, photometric="minisblack", compression="zlib",
-                         metadata={"axes": "YX", "spacr_uncertainty": metadata})
+        write_tiff(temporary, array, photometric="minisblack", compression="zlib",
+                   metadata={"axes": "YX", "spacr_uncertainty": metadata})
         os.replace(temporary, destination)
     finally:
         if os.path.exists(temporary):

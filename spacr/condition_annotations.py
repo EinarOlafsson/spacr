@@ -240,6 +240,9 @@ def _rules_preview(frame, conditions, locations, *, legacy, version=2):
                     excluded = matches
         else:
             raise AnnotationError(f"{name}: choose a supported matching mode.")
+        # pandas may return a read-only view (notably with Copy-on-Write).
+        # Manual assignments and exclusions must own their mask.
+        selected = np.array(selected, dtype=bool, copy=True)
         for token in condition.get("manual_rows", []):
             if token not in locations:
                 raise AnnotationError(f"{name}: a manually selected row no longer belongs to this source.")
