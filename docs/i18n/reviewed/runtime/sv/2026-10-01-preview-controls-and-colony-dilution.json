@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "Codex AI technical translation with independent Codex-agent technical review; no human or native-speaker signoff",
+  "method": "Direct source-bound AI translation of revised colony-dilution tooltip and exact preview-control labels; includes four previously hidden caption literals. Original proposals and replaced generated values are preserved. Normal candidate gates pass unchanged; no model draft is claimed.",
+  "draft_author": "root (except counted-checkbox correction proposed by shared_ui)",
+  "independent_reviewer": "shared_ui (root independently reviewed shared_ui counted-checkbox proposal)",
+  "original_ui_proposals": {
+    "Thumbnail quality": "Miniatyrbildskvalitet",
+    "Propagate settings": "Överför inställningar",
+    "Low": "Låg",
+    "Medium": "Medel",
+    "High": "Hög",
+    "Plugins": "Insticksprogram",
+    "Checked images ({count})": "Markerade bilder ({count})"
+  },
+  "original_tooltip_draft": {
+    "translation": "Spädningsfaktor för den utplaterade suspensionen: 10000 för en spädning på 10^-4; bråktal som 0.0001 inverteras. CFU/mL = kolonier x spädningsfaktor / utplaterad volym. Ange ett tal, en dict med filnamn eller filnamn utan filändelse som nycklar, eller en sökväg till en UTF-8-CSV-fil med kolumnerna file,dilution. Exakta filnamn prioriteras framför filnamn utan filändelse; plattor som saknar matchning får inget CFU/mL. CSV-faktorer måste vara positiva och ändliga, med unika filidentifierare. Standardvärde 1."
+  },
+  "replaced_generated_targets": {
+    "Thumbnail quality": "Kvalitet på tumnagel",
+    "Propagate settings": "Propagate- inställningar",
+    "Low": null,
+    "Medium": null,
+    "High": null,
+    "Plugins": null,
+    "Checked images ({count})": "Kontrollerade bilder ({count})",
+    "colony_dilution": "Utspädningsfaktor för den suspension som ströks ut, 10000 för en utspädning 10^-4; ett bråktal som 0.0001 läses som utspädningen och inverteras. CFU/mL = kolonier x utspädningsfaktor / utstruken volym. Ett dict från filnamn eller filstam till faktor anger den per platta; en platta som inte nämns får ingen CFU/mL. Standard 1."
+  },
+  "superseded_review_file": "docs/i18n/reviewed/runtime/sv/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+  "superseded_review_file_sha256": "2e26d296c294b864e0c4e0a4a880eaa0551e3e90c72531d601ad61070d10c1ae",
+  "retired_source_record": {
+    "table": "setting_tooltips",
+    "key": "colony_dilution",
+    "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+    "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+    "translation": "Utspädningsfaktor för den suspension som ströks ut, 10000 för en utspädning 10^-4; ett bråktal som 0.0001 läses som utspädningen och inverteras. CFU/mL = kolonier x utspädningsfaktor / utstruken volym. Ett dict från filnamn eller filstam till faktor anger den per platta; en platta som inte nämns får ingen CFU/mL. Standard 1."
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Thumbnail quality",
+      "source": "Thumbnail quality",
+      "source_sha256": "80258c396c488f6dff11b200f277c450cdf9afaa715ebda72a922cfffa517b9f",
+      "translation": "Miniatyrbildskvalitet"
+    },
+    {
+      "table": "ui",
+      "key": "Propagate settings",
+      "source": "Propagate settings",
+      "source_sha256": "c767061d71bdfb618dbc7e2405f62173d57cf1778aa283e4c479829201b63342",
+      "translation": "Överför inställningar"
+    },
+    {
+      "table": "ui",
+      "key": "Low",
+      "source": "Low",
+      "source_sha256": "f793de205ead5ac302c4a1627829dea41f176b1068b993a32373fc869918374b",
+      "translation": "Låg"
+    },
+    {
+      "table": "ui",
+      "key": "Medium",
+      "source": "Medium",
+      "source_sha256": "8e588cd187741f1cd76f5fab77b7208782a8c21d764ce7d7a4cf3ac4e0968873",
+      "translation": "Medel"
+    },
+    {
+      "table": "ui",
+      "key": "High",
+      "source": "High",
+      "source_sha256": "c4ebc6d4a5832cd9415f906ad03661110c705a72381c8b8b145761d02e2dd23a",
+      "translation": "Hög"
+    },
+    {
+      "table": "ui",
+      "key": "Plugins",
+      "source": "Plugins",
+      "source_sha256": "9514b7ff4860ead73491768e45cce0ce20e6e3473a7b272e496c43c875d80ac5",
+      "translation": "Insticksprogram"
+    },
+    {
+      "table": "ui",
+      "key": "Checked images ({count})",
+      "source": "Checked images ({count})",
+      "source_sha256": "3e3bde96e1b96624d2b29dd06c373860a0b477472a057125984740ef93fa8227",
+      "translation": "Markerade bilder ({count})"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the plated suspension: 10000 for a 10^-4 dilution; fractions such as 0.0001 are inverted. CFU/mL = colonies x dilution factor / plated volume. Enter one number, a dict keyed by filename or stem, or a UTF-8 CSV path with file,dilution columns. Exact filenames take priority over stems; unmatched plates get no CFU/mL. CSV factors must be positive and finite, with unique file identifiers. Default 1.",
+      "source_sha256": "49ba82769ffa15938b3c6f2987c03f8f6b54fed6c71172a0f2ee1c5e85e41174",
+      "translation": "Spädningsfaktor för den utplaterade suspensionen: 10000 för en spädning på 10^-4; bråktal som 0.0001 inverteras. CFU/mL = kolonier x spädningsfaktor / utplaterad volym. Ange ett tal, en dict med filnamn eller filnamn utan filändelse som nycklar, eller en sökväg till en UTF-8-CSV-fil med kolumnerna file,dilution. Exakta filnamn prioriteras framför filnamn utan filändelse; plattor som saknar matchning får inget CFU/mL. CSV-faktorer måste vara positiva och ändliga, med unika filidentifierare. Standardvärde 1."
+    }
+  ]
+}

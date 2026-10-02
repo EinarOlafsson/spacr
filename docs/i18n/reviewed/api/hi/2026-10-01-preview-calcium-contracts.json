@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "note": "Two public API contract updates: bounded numeric preview loading and shared photobleach correction semantics. Original direct AI drafts retained separately from accepted targets.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#0",
+      "source": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array.",
+      "source_sha256": "4dd0dd18ae912ee6a28b586176283a031a7b577c58d78d7c5562120c447d346a",
+      "context": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array.",
+      "translation": "*path* को (H, W) या (H, W, C) आकार की गैर-रिक्त संख्यात्मक ऐरे में पढ़ें।",
+      "draft_translation": "*path* को (H, W) या (H, W, C) आकार की गैर-रिक्त संख्यात्मक ऐरे में पढ़ें।",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#1",
+      "source": "Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy`` stacks are memory mapped without loading pickled objects. Raises :class:`FileNotFoundError` if the path is bad.",
+      "source_sha256": "a41631004f919cb477bc21ba4078d0379b902ec2061d7dafdb90837fde29db81",
+      "context": "Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy`` stacks are memory mapped without loading pickled objects. Throws :class:`FileNotFoundError` if the path is bad.",
+      "translation": "Tifffile, TIFF की बिट गहराई बनाए रखता है; PNG/JPEG के लिए PIL का उपयोग होता है। NumPy के ``.npy`` स्टैक को pickle से क्रमबद्ध किए गए ऑब्जेक्ट लोड किए बिना मेमोरी मैप किया जाता है। पथ अमान्य होने पर :class:`FileNotFoundError` उठता है।",
+      "draft_translation": "Tifffile, TIFF की बिट गहराई बनाए रखता है; PNG/JPEG के लिए PIL का उपयोग होता है। NumPy के ``.npy`` स्टैक को pickle से क्रमबद्ध किए गए ऑब्जेक्ट लोड किए बिना मेमोरी मैप किया जाता है। पथ अमान्य होने पर :class:`FileNotFoundError` उठता है।",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#2",
+      "source": "image file path (``str`` or :class:`~pathlib.Path`); ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.",
+      "source_sha256": "2bbb0e62ebddaff8a2485199e427b65298b65bd8db902854bee5812d3a73f318",
+      "context": "image file path (``str`` or :class:`~pathlib.Path`); ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.",
+      "translation": "चित्र फ़ाइल का पथ (``str`` या :class:`~pathlib.Path`); ``.tif``/``.tiff`` के लिए tifffile और ``.npy`` के लिए NumPy चुना जाता है।",
+      "draft_translation": "चित्र फ़ाइल का पथ (``str`` या :class:`~pathlib.Path`); ``.tif``/``.tiff`` के लिए tifffile और ``.npy`` के लिए NumPy चुना जाता है।",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#13",
+      "source": "``legacy`` preserves the original global decay fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's per-field correction once on the original table. Raw intensities remain unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected levels. ``corrected_<measurement>`` is dimensionless: corrected signal above the measured outside ring divided by that field's positive, finite initial median signal. Integrated levels subtract ring times area. Missing background or an invalid initial baseline remains NaN; missing intervals are not bridged for peak detection. The actual method, background and baseline accompany traces; ``bleach_correction_fits.csv`` records field fits. Histogram matching can erase population changes.",
+      "source_sha256": "7bab1ec425722eed4dcb6d85016ffdf2972b8cd521e9b8bcec449dc3fcb66c47",
+      "context": "``legacy`` preserves the original global decay fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's per-field correction once on the original table. Raw intensities remain unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected levels. ``corrected_<measurement>`` is dimensionless: corrected signal above the measured outside ring divided by that field's positive, finite initial median signal. Integrated levels subtract ring times area. Missing background or an invalid initial baseline remains NaN; missing intervals are not bridged for peak detection. The actual method, background and baseline accompany traces; ``bleach_correction_fits.csv`` records field fits. Histogram matching can erase population changes.",
+      "translation": "``legacy`` मूल वैश्विक क्षय फ़िट को बनाए रखता है। ``ratio``, ``exponential`` या ``histogram`` को स्पष्ट रूप से चुनने पर मूल तालिका पर Measure का प्रति-दृश्य-क्षेत्र सुधार एक बार लागू होता है। मूल तीव्रताएँ अपरिवर्तित रहती हैं; ``bleach_corrected_<measurement>`` सुधारित निरपेक्ष स्तर संग्रहीत करता है। ``corrected_<measurement>`` विमाहीन है: मापे गए बाहरी वलय से ऊपर के सुधारित संकेत को उस दृश्य-क्षेत्र के धनात्मक और परिमित प्रारंभिक संकेत माध्यिका से भाग दिया जाता है। समाकलित स्तरों से वलय की तीव्रता और क्षेत्रफल का गुणनफल घटाया जाता है। पृष्ठभूमि अनुपलब्ध होने या प्रारंभिक आधाररेखा अमान्य होने पर परिणाम NaN रहता है; शिखर पहचान के लिए अनुपलब्ध अंतरालों के आर-पार जोड़ नहीं बनाया जाता। वास्तव में उपयोग की गई विधि, पृष्ठभूमि और आधाररेखा समय-श्रृंखलाओं के साथ दी जाती हैं; ``bleach_correction_fits.csv`` दृश्य-क्षेत्रों के फ़िट दर्ज करता है। हिस्टोग्राम मिलान आबादी में हुए बदलाव मिटा सकता है।",
+      "draft_translation": "``legacy`` मूल वैश्विक क्षय फ़िट को बनाए रखता है। ``ratio``, ``exponential`` या ``histogram`` को स्पष्ट रूप से चुनने पर मूल तालिका पर Measure का प्रति-दृश्य-क्षेत्र सुधार एक बार लागू होता है। मूल तीव्रताएँ अपरिवर्तित रहती हैं; ``bleach_corrected_<measurement>`` सुधारित निरपेक्ष स्तर संग्रहीत करता है। ``corrected_<measurement>`` विमाहीन है: मापे गए बाहरी वलय से ऊपर के सुधारित संकेत को उस दृश्य-क्षेत्र के धनात्मक और परिमित प्रारंभिक संकेत माध्यिका से भाग दिया जाता है। समाकलित स्तरों से वलय की तीव्रता और क्षेत्रफल का गुणनफल घटाया जाता है। पृष्ठभूमि अनुपलब्ध होने या प्रारंभिक आधाररेखा अमान्य होने पर परिणाम NaN रहता है; शिखर पहचान के लिए अनुपलब्ध अंतरालों के आर-पार जोड़ नहीं बनाया जाता। वास्तव में उपयोग की गई विधि, पृष्ठभूमि और आधाररेखा समय-श्रृंखलाओं के साथ दी जाती हैं; ``bleach_correction_fits.csv`` दृश्य-क्षेत्रों के फ़िट दर्ज करता है। हिस्टोग्राम मिलान आबादी में हुए बदलाव मिटा सकता है।",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#14",
+      "source": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-well summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay legacy fit fails, or no cells pass the filters.",
+      "source_sha256": "dd5af1c9a3f498adbf1671019be464b1f7648645c84f140cde311ed7168c0284",
+      "context": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-microplate sample position summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay legacy fit fails, or no cells pass the filters.",
+      "translation": "टपल ``(result_df, peak_details_df, fig)`` -- फोटोब्लीचिंग के लिए सुधारित प्रति-कोशिका समय-श्रृंखलाएँ, प्रति-शिखर विवरण और सारांश matplotlib Figure। प्रति-वेल सारांश केवल CSV में लिखे जाते हैं। डेटाबेस में समय-अक्ष न होने, legacy मोड का मूल क्षय फ़िट विफल होने या किसी भी कोशिका के फ़िल्टर पार न करने पर ``None`` लौटता है।",
+      "draft_translation": "टपल ``(result_df, peak_details_df, fig)`` -- फोटोब्लीचिंग के लिए सुधारित प्रति-कोशिका समय-श्रृंखलाएँ, प्रति-शिखर विवरण और सारांश matplotlib Figure। प्रति-वेल सारांश केवल CSV में लिखे जाते हैं। डेटाबेस में समय-अक्ष न होने, legacy मोड का मूल क्षय फ़िट विफल होने या किसी भी कोशिका के फ़िल्टर पार न करने पर ``None`` लौटता है।",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#15",
+      "source": "an unknown correction method, an unsupported intensity column for an explicit shared method, or ambiguous field/time/object identities.",
+      "source_sha256": "9a01bb3ec604c1d82af88984f6631a13931cd5de8c2791b21ad83445fe95a3ed",
+      "context": "an unknown correction method, an unsupported intensity column for an explicit shared method, or ambiguous microscope field of view/time/object identities.",
+      "translation": "अज्ञात सुधार विधि, स्पष्ट रूप से चुनी गई साझा विधि के लिए असमर्थित तीव्रता कॉलम, या अस्पष्ट दृश्य-क्षेत्र/समय/ऑब्जेक्ट पहचान।",
+      "draft_translation": "अज्ञात सुधार विधि, स्पष्ट रूप से चुनी गई साझा विधि के लिए असमर्थित तीव्रता कॉलम, या अस्पष्ट दृश्य-क्षेत्र/समय/ऑब्जेक्ट पहचान।",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    }
+  ]
+}

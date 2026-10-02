@@ -1,24 +1,24 @@
 {
-  "schema": 1,
   "language": "zh_CN",
-  "review_kind": "AI technical review (Codex), no native-speaker signoff",
   "note": "API delta 6, items 47/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
   "records": [
     {
-      "label": "spacr.install_cleanup.start_update_helper#10",
+      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
+      "label": "spacr.install_cleanup.start_update_helper#12",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
       "source_sha256": "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759",
-      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
-      "translation": "位于用户可写位置的冻结式 macOS 应用包使用其经过验证的 DMG 替换适配器，并保留完整的旧应用包。其他冻结式应用类型会在删除任何内容之前返回错误；辅助程序不会为这些应用启用在线安装程序回退方式。",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "位于用户可写位置的冻结式 macOS 应用包使用其经过验证的 DMG 替换适配器，并保留完整的旧应用包。其他冻结式应用类型会在删除任何内容之前返回错误；辅助程序不会为这些应用启用在线安装程序回退方式。"
     },
     {
+      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
       "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "An accepted close also joins the owned backdrop renderer. Showing the screen again creates a fresh backdrop from the current settings.",
       "source_sha256": "90b9bbc56d70e06f3d9b420eba571bf6e6feaa6fdfef03c90449e01033cd8b88",
-      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
-      "translation": "关闭请求被接受时，还会等待该界面拥有的背景渲染器结束。再次显示该界面时，会根据当前设置创建新的背景。",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "关闭请求被接受时，还会等待该界面拥有的背景渲染器结束。再次显示该界面时，会根据当前设置创建新的背景。"
     }
-  ]
+  ],
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "schema": 1
 }

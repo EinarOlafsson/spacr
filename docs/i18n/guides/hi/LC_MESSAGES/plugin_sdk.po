@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -27,6 +27,22 @@ msgstr "प्लगइन SDK एक अलग से स्थापित Pyt
 
 msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
 msgstr "वर्तमान SDK API ``1.0`` है। केवल मुख्य संस्करण संगतता नियंत्रित करता है: API ``1.x`` घोषित करने वाला प्लगइन spaCR के ``1.x`` SDK के साथ काम करता है। विकृत या विफल होने वाला प्लगइन पृथक किया जाता है और ``spacr-plugins doctor`` द्वारा सूचित किया जाता है; यह किसी अंतर्निहित मॉड्यूल को नहीं बदल सकता और न ही spaCR को शुरू होने से रोक सकता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Browse and install from a catalogue"
+msgstr "कैटलॉग से ब्राउज़ करना और स्थापित करना"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis."
+msgstr "प्राथमिकताएं में **अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें, फिर उसका **प्लगइन** टैब खोलें। **कैटलॉग** में कैटलॉग JSON फ़ाइल, उसे रखने वाला फ़ोल्डर या HTTP(S) पता दर्ज करें और **सूची** दबाएँ। प्रविष्टि चुनकर उसे **स्थापित या अपडेट करें** या **अनइंस्टॉल करें** करें। स्थापित विश्लेषण विधि के लिए **खोलें** उसकी सहेजी सेटिंग्स संबंधित मॉड्यूल में लोड करता है, विश्लेषण शुरू नहीं करता।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal."
+msgstr "सूची बनाना, स्थापना और हटाना पृष्ठभूमि में चलते हैं। कार्रवाई चलते समय टैब **काम करने...** दिखाता है और कैटलॉग नियंत्रण अस्थायी रूप से निष्क्रिय करता है। अन्य इंटरफ़ेस नियंत्रण उपयोग किए जा सकते हैं। प्राथमिकताएं बंद करने से स्थापना रद्द नहीं होती; वह विंडो से स्वतंत्र पूरी होती है। स्थापित परिणाम देखने के लिए टैब फिर खोलें। कैटलॉग ताज़ा करना असफल हो, तो उसकी जानकारी सफल स्थापना या हटाने से अलग दी जाती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer."
+msgstr "कैटलॉग प्लगइन अलग स्थापना फ़ोल्डर उपयोग करते हैं, लेकिन spaCR का Python इंटरप्रेटर साझा करते हैं। परस्पर विरोधी निर्भरताओं के लिए अलग परिवेश अभी यह कैटलॉग इंस्टॉलर नहीं देता।"
 
 msgid "Minimal plugin"
 msgstr "न्यूनतम प्लगइन"

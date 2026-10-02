@@ -1,0 +1,36 @@
+{
+  "lesson": "86_psf_workflow",
+  "english_sha256": "486874655765fd9afa8dea1a68fd795654b8d909705fdb95230018e32dee4aab",
+  "language": "ja",
+  "review": {
+    "kind": "Codex AI technical translation and independent technical peer review",
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "translator": "Codex AI, translated directly from the frozen English source",
+    "date": "2026-10-01",
+    "independent_peer_review": true,
+    "scope": "Scientific meaning and English video control labels; not native-speaker or listening signoff",
+    "route_rebinding": {
+      "previous_english_sha256": "1b2606bba6a8beb3040c3506eada1a75ea3994c7422875fddac237549881f11d",
+      "reason": "Only app_key changed to null and host_app_key removed; narration and all translated source prose unchanged"
+    },
+    "original_draft_sha256": "37534f0a35d3e385e9603681cdef30c13e5642f33bcf0a77f6dc9bd26058727c"
+  },
+  "title": "PSF：処理を比較し、測定する輝度を選ぶ",
+  "description": "PSF 値の出典ラベルを確認し、画像処理を比較して適用したうえで、Measure で元画像または処理後の輝度を明示的に選びます。",
+  "objectives": [
+    "対物レンズ、推定された画像寸法、校正値の出典ラベルを確認する。",
+    "元ファイルを変更せずに処理を比較し、元画像へ戻る。",
+    "定量測定の前に輝度の取得元を明示的に選ぶ。"
+  ],
+  "prerequisite": "Make Masks で画像フォルダーを開いてください。定量処理には撮像時の既知の校正値を使用します。このチュートリアルでは、付属の Measure サンプルから切り出した画像と説明用の光学値を使います。",
+  "scenes": [
+    "検出や測定に画像処理を使う前に、点像分布関数のコントロールで処理方法を比較します。Make Masks で画像フォルダーと Settings を開き、Image enhancement を展開します。撮像に使用した対物レンズを選び、Infer from images をクリックして利用可能な画像情報を読み取ります。",
+    "PSF optics を展開し、各値の横にある出典ラベルを確認します。ここで選んだ対物レンズは説明用です。カメラと波長の既定値が、ピクセル間隔とガウス幅の計算に使われます。定量解析の前に、これらの仮定を実際の撮像値に置き換えてください。画像寸法だけでは光学校正値は確定しません。",
+    "Convolution を選んで Compare をクリックします。左側が元画像、右側が検出器に使われる処理結果です。ガウス畳み込みはぼけを加えます。Richardson–Lucy デコンボリューションは別の選択肢です。適用前にノイズやアーティファクトを確認してください。",
+    "Apply をクリックすると、選んだ処理が表示と検出に使われます。元画像と既存のオブジェクトラベルは変更されません。マスクを生成または編集する前に結果を確認します。",
+    "Apply をオフにして元画像へ戻ります。エディターでのこの選択は、定量測定に使う輝度の取得元を指定するものではありません。Measure で別途選択してください。",
+    "Measure を開き、PSF 設定を表示します。輝度の取得元は既定で original なので、保存済みの PSF 処理設定は測定輝度を変えません。解析に撮像したままのピクセルを使う場合は original のままにします。",
+    "処理後の輝度を測定するには processed を選び、処理方法を選択します。撮像時の校正値に基づいて、画像のサンプリング間隔とカーネル幅をマイクロメートル単位で入力してください。ここに示す数値は説明用です。ほかの測定設定を確認し、準備ができたら Measure を実行します。PSF の出典と処理履歴を結果とともに保存してください。エディターと Measure のこれらのコントロールはアルファ機能がオフでも使えますが、Mask と Timelapse のバッチ PSF コントロールにはアルファ機能が必要です。"
+  ]
+}

@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -27,6 +27,22 @@ msgstr "插件 SDK 允许单独安装的 Python 软件包添加实验分析、�
 
 msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
 msgstr "当前 SDK API 版本为 ``1.0``。只有主版本号决定兼容性：声明 API ``1.x`` 的插件可与 spaCR 的 ``1.x`` SDK 配合使用。格式错误或出错的插件会被隔离，并由 ``spacr-plugins doctor`` 报告；它无法替换内置模块，也无法阻止 spaCR 启动。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Browse and install from a catalogue"
+msgstr "从目录浏览和安装插件"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis."
+msgstr "在 偏好 中启用 **显示 Alpha 功能**，然后打开 **插件** 选项卡。在 **目录** 中输入目录 JSON 文件、其所在文件夹或 HTTP(S) 地址，按 **列表**。选择条目后可执行 **安装或更新** 或 **卸载**。对于已安装的分析配置，**打开** 会把保存的设置加载到相应模块，不会启动分析。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal."
+msgstr "列出、安装和移除操作在后台运行。操作期间，选项卡显示 **工作...** 并暂时禁用目录控件。其他界面控件仍可用。关闭 偏好 不会取消安装；安装会独立于窗口继续完成。重新打开选项卡可查看安装结果。若目录刷新失败，它会与成功的安装或移除操作分开报告。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer."
+msgstr "目录插件使用各自的安装文件夹，但共享 spaCR 的 Python 解释器。此目录安装程序目前尚不为存在依赖冲突的插件提供独立环境。"
 
 msgid "Minimal plugin"
 msgstr "最小插件"

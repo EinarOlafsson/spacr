@@ -3,6 +3,7 @@ recursive-include spacr/resources/icons *
 recursive-include spacr/resources/images organism_*.svg organism_sources.json
 recursive-include spacr/resources/font *
 recursive-include spacr/resources/data *.csv
+include spacr/resources/data/cellprofiler_example.cppipe
 # The bundled GitHub release notes Home's News panel draws. Built by
 # tools/build_release_notes.py before a tag; a wheel without it shows
 # an empty News panel and no error.

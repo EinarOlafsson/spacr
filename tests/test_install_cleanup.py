@@ -2109,7 +2109,8 @@ def test_no_helper_starts_when_the_running_spacr_is_not_installer_made(tmp_path)
     assert written["error"] == plan["error"] and written["install"] is None
 
 
-def test_a_mac_helper_opens_the_new_package_and_starts_the_app_again(tmp_path):
+@pytest.mark.skipif(os.name == "nt", reason="Models the macOS POSIX readiness handshake")
+def test_a_mac_helper_upgrades_the_discovered_existing_runtime_without_removal(tmp_path):
     box = Box(tmp_path / "box")
     macos_package(box, "1.5.0.5")
     runtime = box.home / "Library" / "Application Support" / "spaCR"
@@ -2118,13 +2119,22 @@ def test_a_mac_helper_opens_the_new_package_and_starts_the_app_again(tmp_path):
     records = ic.find_old_installs(system=machine)
     assert [r.running for r in _installers(records)] == [False, True]
 
+    for executable in (runtime / "venv/bin/python", runtime / "bootstrap/uv"):
+        executable.chmod(0o755)
+    assert ic._macos_online_update_record(records, system=machine).root == str(runtime)
     plan = ic.start_update_helper(records, "9.9.9", workdir=str(tmp_path / "h"),
                                   system=machine, spawn=lambda *args: None)
 
-    assert plan["fetch"]["url"].endswith("/v9.9.9/spaCR-9.9.9-macOS-Universal-Online.pkg")
-    assert plan["install"] == ["open", "-W", plan["fetch"]["path"]]
-    assert plan["relaunch"] == ["open", "-a", "/Applications/spaCR.app"]
-    assert plan["command"][0] == str(tmp_path / "h" / "uv")
+    assert plan["error"] is None
+    assert plan["adapter"] == "macos-online-uv-v1"
+    assert plan["fetch"] is None
+    assert plan["steps"] == ["wait", "upgrade", "verify", "relaunch"]
+    python = str(runtime / "venv/bin/python")
+    assert plan["install"] == [str(runtime / "bootstrap/uv"), "pip", "install",
+                               "--upgrade", "--python", python, "spacr"]
+    assert plan["relaunch"] == [python, "-m", "spacr.qt"]
+    assert plan["command"][0] == python
+    assert runtime.is_dir()
 
 
 @pytest.mark.parametrize("where", ["outside", "inside"])

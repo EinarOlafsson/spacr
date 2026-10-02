@@ -1,5 +1,5 @@
 # spaCR user guide translation (de).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -45,6 +45,22 @@ msgstr "Wählen Sie **Diese Einstellungen verwenden**, um die abgestimmten Werte
 
 msgid "The preview resolves local checkpoints without downloading them implicitly. When a model is absent, the panel explains what is missing and offers the appropriate download. Keep the selected model and settings with the results; ``bundled`` names the historical packaged checkpoint, not an alias for the current Model Zoo model."
 msgstr "Die Vorschau löst lokale Checkpoints auf, ohne sie implizit herunterzuladen. Fehlt ein Modell, erklärt der Bereich, was fehlt, und bietet den passenden Download an. Bewahren Sie das gewählte Modell und die Einstellungen zusammen mit den Ergebnissen auf; ``bundled`` bezeichnet den historisch mitgelieferten Checkpoint und ist kein Alias für das aktuelle Modell im Modellzoo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview colony counting (alpha)"
+msgstr "Koloniezählung in der Vorschau (Alpha)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path."
+msgstr "Aktivieren Sie **Einstellungen → Alpha-Funktionen anzeigen** und dann **Koloniezählung** in den Einstellungen **Colony Counting (Alpha)** des Moduls. Lassen Sie den Modus **Plaque** ausgewählt und drücken Sie **Vorschau ausführen**. Die Vorschau verwendet die Einstellungen zur Koloniezählung und die ursprünglichen Bildpixel, zeigt die Kolonieüberlagerung und meldet Anzahl und mittlere Fläche in Pixeln des Originalbildes. Bei aktivierter Well-Erkennung werden die erkannten Wells getrennt ausgezählt und an ihren Positionen im Originalfoto angezeigt. Für dieses Verfahren ist kein Plaque-Segmentierungsmodell erforderlich."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode."
+msgstr "Lassen Sie den Koloniedetektor leer, um eine Schwellenwertmethode zu verwenden, oder wählen Sie einen installierten Koloniedetektor aus. Die Vorschau meldet einen fehlenden Modellprüfpunkt oder eine fehlende Detektorabhängigkeit, statt unbemerkt die Methode zu wechseln. Die Stapelverarbeitung kann hingegen auf die Schwellenwertmethode zurückgreifen, wenn ihre optionale Detektorabhängigkeit fehlt. Prüfen Sie beim Vergleich von Vorschau- und Stapelergebnissen, ob die gewünschte Methode verfügbar ist. Die Koloniezählung erzeugt weder Fluss- noch Zellwahrscheinlichkeitsausgaben; die entsprechenden Ansichten melden daher, dass diese Ausgabe nicht verfügbar ist. Die Vorschau schreibt keine Analysedatenbank und verändert das Quellbild nicht. Im Figure-Modus wird die Koloniezählung ignoriert."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL."
+msgstr "Geben Sie für plattenweise Verdünnungen unter **Kolonie-Verdünnung** einen Pfad zu einer UTF-8-CSV-Datei ein. Erforderliche Spaltenüberschriften sind ``file,dilution``. Jede Zeile nennt einen Bilddateinamen einschließlich Erweiterung oder einen Dateinamenstamm sowie eine positive, endliche Verdünnung. Beispielsweise beschreiben ``plate1.png,10000`` und ``plate2,0.0001`` beide einen Verdünnungsfaktor von 10000. Exakte Dateinamen haben Vorrang vor Stämmen. Doppelte Identifikatoren und fehlerhafte Zeilen stoppen Vorschau oder Analyse vor der Detektion oder dem Schreiben von Ausgaben. Platten ohne Zuordnung erhalten weiterhin Zählwerte, aber keinen CFU/mL-Wert. Eine einzelne Zahl oder ein Python-Dictionary wird weiterhin unterstützt. Stellen Sie das ausplattierte Volumen separat in µL ein; CFU/mL verwendet das in mL umgerechnete Volumen."
 
 msgid "Read a published figure"
 msgstr "Eine veröffentlichte Abbildung lesen"

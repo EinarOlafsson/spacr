@@ -1043,6 +1043,36 @@ def _ultrack_track_kwargs(track_fn):
     )
 
 
+def _native_lineage_columns(tracks, parents, source):
+    """Keep native roots and filtered-out parents distinct from unknown links."""
+    tracks = tracks.copy()
+    present = set(tracks['track_id'].astype(int))
+    normalized = {}
+    for child, value in parents.items():
+        child = int(child)
+        if child not in present:
+            continue
+        values = value if isinstance(value, (list, tuple, set, np.ndarray)) else [value]
+        candidates = set()
+        for parent in values:
+            if parent is None or pd.isna(parent):
+                continue
+            number = int(parent)
+            if number != float(parent):
+                raise ValueError(f'{source}: non-integer parent for track {child}')
+            if number > 0 and number != child:
+                candidates.add(number)
+        if len(candidates) > 1:
+            raise ValueError(f'{source}: track {child} has multiple parents; '
+                             'a division lineage requires one parent')
+        parent = next(iter(candidates), 0)
+        normalized[child] = parent if parent in present else 0
+    tracks['parent_track_id'] = tracks['track_id'].map(normalized).fillna(0).astype(int)
+    tracks['parent_track_id_source'] = [source if int(t) in normalized else ''
+                                        for t in tracks['track_id']]
+    return tracks
+
+
 def _ultrack_track_cells(src, name, batch_filenames, object_type, masks, images=None,
                          timelapse_remove_transient=False, plot=False, save=False,
                          mode='ultrack', max_distance=25.0, division_weight=-0.1,
@@ -1140,7 +1170,7 @@ def _ultrack_track_cells(src, name, batch_filenames, object_type, masks, images=
             track_kwargs['images'] = [imgs]
         track(config, **track_kwargs)
 
-        tracks_table, _lineage = to_tracks_layer(config)
+        tracks_table, lineage = to_tracks_layer(config)
         masks_tracked = np.asarray(tracks_to_zarr(config, tracks_table))
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
@@ -1155,6 +1185,14 @@ def _ultrack_track_cells(src, name, batch_filenames, object_type, masks, images=
         tracks_df = tracks_df[tracks_df['track_id'].isin(kept_ids)].copy()
         print(f'Removed {before - len(tracks_df)} objects that were not present in all frames')
         masks_tracked = _relabel_masks_based_on_tracks(masks_tracked, tracks_df)
+
+    if lineage is not None:
+        # Napari lineage graph: child track ID -> parent track IDs. Missing
+        # entries are native roots, not invitations to infer nearby parents.
+        parents = {int(child): parent for child, parent in lineage.items()}
+        tracks_df = _native_lineage_columns(
+            tracks_df, {int(t): parents.get(int(t), [])
+                        for t in tracks_df['track_id'].unique()}, 'ultrack')
 
     tracks_path = os.path.join(os.path.dirname(src), 'tracks')
     os.makedirs(tracks_path, exist_ok=True)
@@ -1491,6 +1529,8 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
 
         tracks = tracker.tracks
 
+    native_parents = {int(track.ID): track.parent for track in tracks
+                      if hasattr(track, 'parent')}
     track_data = []
     for track in tracks:
         for t, x, y, z in zip(track.t, track.x, track.y, track.z):
@@ -1541,6 +1581,7 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     logger.debug("merged_df shape: %s", merged_df.shape)
 
     final_df = merged_df[["track_id", "frame", "x", "y", "original_label"]].copy()
+    final_df = _native_lineage_columns(final_df, native_parents, 'btrack')
 
     if final_df.empty:
         logger.warning(
@@ -1590,445 +1631,21 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     return mask_stack
 
 
-_LINEAGE_SEGMENT_STATS = ('generation_time', 'generation', 'start_frame',
-                          'n_frames')
-
-
-def _lineage_explicit_parents(df, spans):
-    """Read the tracker's own division links from a ``parent_track_id`` column.
-
-    Trackers that link divisions natively (Trackastra) write the mother's
-    track id on every row of a daughter track; 0, blank or an id that is not a
-    track in the table means no parent.
-
-    :param df: one field's tracks table.
-    :param spans: first and last frame per track, indexed by track id.
-    :returns: ``{daughter_track_id: mother_track_id}``.
-    """
-    if 'parent_track_id' not in df.columns:
-        return {}
-    links = {}
-    firsts = df.dropna(subset=['parent_track_id']).groupby('track_id')['parent_track_id'].first()
-    for track, parent in firsts.items():
-        parent = int(parent)
-        if parent > 0 and parent != int(track) and parent in spans.index:
-            links[int(track)] = parent
-    return links
-
-
-def _lineage_inferred_parents(df, spans, max_distance, skip):
-    """Infer division links from where new tracks start.
-
-    A track that starts after the field's first frame is a daughter of the
-    object nearest its first position in the frame before, within
-    ``max_distance`` pixels. The event is kept as a division when that mother
-    track goes on (the tracker kept one daughter under the mother's id) or
-    when at least two tracks start beside the mother as it ends (both
-    daughters got new ids). One new track beside an ending one is a broken
-    track rather than a division and is left as its own tree.
-
-    :param df: one field's tracks table with ``frame``, ``track_id``, ``x``
-        and ``y``.
-    :param spans: first and last frame per track, indexed by track id.
-    :param max_distance: largest mother-to-daughter distance in pixels.
-    :param skip: track ids whose parent is already known.
-    :returns: ``{daughter_track_id: mother_track_id}``.
-    """
-    first_frame = spans['start'].min()
-    starts = df.sort_values('frame').groupby('track_id').first()
-    candidates = {}
-    for track, row in starts.iterrows():
-        track = int(track)
-        if track in skip or row['frame'] <= first_frame:
-            continue
-        before = df[(df['frame'] == row['frame'] - 1) & (df['track_id'] != track)]
-        if before.empty:
-            continue
-        dist = np.hypot(before['x'].to_numpy() - row['x'],
-                        before['y'].to_numpy() - row['y'])
-        nearest = int(np.argmin(dist))
-        if dist[nearest] <= max_distance:
-            candidates.setdefault((int(before['track_id'].iloc[nearest]),
-                                   int(row['frame'])), []).append(track)
-    links = {}
-    for (mother, frame), daughters in candidates.items():
-        continues = spans.loc[mother, 'end'] >= frame
-        if continues or len(daughters) >= 2:
-            links.update({d: mother for d in daughters})
-    return links
-
-
-def _lineage_segments(tracks, max_distance=30.0):
-    """Cut one field's tracks into cell-cycle segments linked by divisions.
-
-    A segment is one cell from its birth, or its first frame, to its last
-    frame before it divides, or its last frame. Division links come from a
-    ``parent_track_id`` column where the tracker wrote one and are otherwise
-    inferred (see :func:`_lineage_inferred_parents`). When the tracker kept
-    one daughter under the mother's id, that track is cut at the division
-    and its remainder becomes a daughter segment.
-
-    The generation time of a segment is the number of frames from its birth
-    to its division (the first frame of its daughters minus its own first
-    frame). Only segments born by a division that divide again have one; a
-    tree's root and its leaves are incomplete cycles and get NaN.
-
-    :param tracks: tracks table with ``frame``, ``track_id``, ``x`` and ``y``.
-    :param max_distance: largest mother-to-daughter distance in pixels for an
-        inferred division.
-    :returns: one row per segment with ``segment_id``, ``track_id``,
-        ``parent_segment_id`` (0 for a root), ``lineage_id`` (the root's
-        segment id), ``generation``, ``start_frame``, ``end_frame``,
-        ``n_frames``, ``n_daughters``, ``generation_time`` and
-        ``division_source`` (tracker, inferred or blank).
-    """
-    df = tracks.dropna(subset=['track_id', 'frame', 'x', 'y']).copy()
-    columns = ['segment_id', 'track_id', 'parent_segment_id', 'lineage_id',
-               'generation', 'start_frame', 'end_frame', 'n_frames',
-               'n_daughters', 'generation_time', 'division_source']
-    if df.empty:
-        return pd.DataFrame(columns=columns)
-    df['track_id'] = df['track_id'].astype(int)
-    df['frame'] = df['frame'].astype(int)
-    spans = df.groupby('track_id')['frame'].agg(start='min', end='max')
-
-    explicit = _lineage_explicit_parents(df, spans)
-    inferred = _lineage_inferred_parents(df, spans, float(max_distance),
-                                         set(explicit))
-    parents = {**inferred, **explicit}
-
-    segments = {}
-    by_track = {}
-    for sid, (track, span) in enumerate(spans.iterrows(), start=1):
-        segments[sid] = {'segment_id': sid, 'track_id': int(track),
-                         'parent_segment_id': 0,
-                         'start_frame': int(span['start']),
-                         'end_frame': int(span['end']),
-                         'division_source': ''}
-        by_track[int(track)] = [sid]
-
-    def covering(track, frame):
-        """The segment of ``track`` alive at ``frame``, else its last one before."""
-        chosen = by_track[track][0]
-        for sid in by_track[track]:
-            if segments[sid]['start_frame'] <= frame:
-                chosen = sid
-        return chosen
-
-    for daughter in sorted(parents, key=lambda d: spans.loc[d, 'start']):
-        mother = parents[daughter]
-        birth = int(spans.loc[daughter, 'start'])
-        if spans.loc[mother, 'start'] >= birth:
-            continue
-        msid = covering(mother, birth - 1)
-        mseg = segments[msid]
-        if mseg['end_frame'] >= birth:
-            nsid = max(segments) + 1
-            segments[nsid] = {'segment_id': nsid, 'track_id': mother,
-                              'parent_segment_id': msid, 'start_frame': birth,
-                              'end_frame': mseg['end_frame'],
-                              'division_source': ''}
-            mseg['end_frame'] = birth - 1
-            by_track[mother] = sorted(by_track[mother] + [nsid],
-                                      key=lambda s: segments[s]['start_frame'])
-        dsid = by_track[daughter][0]
-        segments[dsid]['parent_segment_id'] = msid
-        mseg['division_source'] = ('tracker' if daughter in explicit
-                                   else 'inferred')
-
-    seg = pd.DataFrame(list(segments.values()))
-    seg['n_frames'] = seg['end_frame'] - seg['start_frame'] + 1
-    parent_of = dict(zip(seg['segment_id'], seg['parent_segment_id']))
-    children = seg[seg['parent_segment_id'] > 0].groupby('parent_segment_id')
-    seg['n_daughters'] = seg['segment_id'].map(children.size()).fillna(0).astype(int)
-    division_at = children['start_frame'].min()
-
-    def root_and_depth(sid):
-        """The root segment of ``sid`` and how many divisions separate them."""
-        depth = 0
-        while parent_of.get(sid, 0):
-            sid = parent_of[sid]
-            depth += 1
-        return sid, depth
-
-    rooted = [root_and_depth(s) for s in seg['segment_id']]
-    seg['lineage_id'] = [r for r, _ in rooted]
-    seg['generation'] = [d for _, d in rooted]
-    complete = (seg['parent_segment_id'] > 0) & (seg['n_daughters'] > 0)
-    seg['generation_time'] = np.where(
-        complete, seg['segment_id'].map(division_at) - seg['start_frame'],
-        np.nan)
-    return seg[columns].sort_values(['lineage_id', 'start_frame', 'segment_id']).reset_index(drop=True)
-
-
-def _lineage_colour_values(segments, tracks, color_by, measurements=None):
-    """The value each segment is coloured by.
-
-    A segment statistic (``generation_time``, ``generation``,
-    ``start_frame``, ``n_frames``) is used as it is. Any other name is a
-    measurement column, averaged over the segment's frames, looked up first
-    in ``measurements`` (keyed by ``frame`` and ``track_id``) and then in the
-    tracks table.
-
-    :returns: a float Series aligned with ``segments``, NaN where unknown.
-    :raises KeyError: when ``color_by`` is found nowhere.
-    """
-    if color_by in _LINEAGE_SEGMENT_STATS:
-        return segments[color_by].astype(float)
-    source = None
-    for frame in (measurements, tracks):
-        if frame is not None and color_by in frame.columns:
-            source = frame[['frame', 'track_id', color_by]].dropna()
-            break
-    if source is None:
-        raise KeyError(
-            f"color_by {color_by!r} is neither a segment statistic "
-            f"({', '.join(_LINEAGE_SEGMENT_STATS)}) nor a column of the "
-            f"tracks or measurements")
-    values = []
-    for _, row in segments.iterrows():
-        rows = source[(source['track_id'] == row['track_id'])
-                      & source['frame'].between(row['start_frame'], row['end_frame'])]
-        values.append(float(pd.to_numeric(rows[color_by], errors='coerce').mean())
-                      if len(rows) else np.nan)
-    return pd.Series(values, index=segments.index, dtype=float)
-
-
-def _sibling_correlation(segments):
-    """Pearson correlation of sister generation times.
-
-    Sisters are complete-cycle segments with the same mother; every ordered
-    pair counts once each way, so the correlation is symmetric.
-
-    :returns: ``(number_of_sister_pairs, r)``; r is NaN below three pairs.
-    """
-    done = segments.dropna(subset=['generation_time'])
-    a, b = [], []
-    for _, sisters in done.groupby('parent_segment_id'):
-        times = sisters['generation_time'].to_numpy(dtype=float)
-        for i in range(len(times)):
-            for j in range(i + 1, len(times)):
-                a += [times[i], times[j]]
-                b += [times[j], times[i]]
-    pairs = len(a) // 2
-    if pairs < 3 or np.std(a) == 0:
-        return pairs, np.nan
-    return pairs, float(np.corrcoef(a, b)[0, 1])
-
-
-def _lineage_statistics(segments):
-    """Per-lineage statistics, with a last row over every lineage.
-
-    :returns: one row per lineage with ``lineage_id``, ``root_track_id``,
-        ``n_cells``, ``n_divisions``, ``max_generation``,
-        ``n_complete_cycles``, the mean, median and standard deviation of
-        ``generation_time`` in frames, ``sibling_pairs`` and
-        ``sibling_correlation``; the ``all`` row pools every lineage.
-    """
-    rows = []
-    groups = [(lid, g) for lid, g in segments.groupby('lineage_id')]
-    groups.append(('all', segments))
-    for lid, g in groups:
-        times = g['generation_time'].dropna()
-        pairs, r = _sibling_correlation(g)
-        roots = g[g['parent_segment_id'] == 0]
-        rows.append({
-            'lineage_id': lid,
-            'root_track_id': (int(roots['track_id'].iloc[0])
-                              if lid != 'all' and len(roots) else np.nan),
-            'n_cells': len(g),
-            'n_divisions': int((g['n_daughters'] > 0).sum()),
-            'max_generation': int(g['generation'].max()) if len(g) else 0,
-            'n_complete_cycles': len(times),
-            'generation_time_mean': float(times.mean()) if len(times) else np.nan,
-            'generation_time_median': float(times.median()) if len(times) else np.nan,
-            'generation_time_sd': float(times.std()) if len(times) > 1 else np.nan,
-            'sibling_pairs': pairs,
-            'sibling_correlation': r,
-        })
-    return pd.DataFrame(rows)
-
-
-def _lineage_newick(segments):
-    """Write each lineage as a Newick tree, one tree per line.
-
-    Nodes are named ``t<track_id>_f<start_frame>`` and branch lengths are the
-    segment's length in frames.
-
-    :returns: the Newick text, each tree ending in ``;``.
-    """
-    kids = {sid: g['segment_id'].tolist()
-            for sid, g in segments.groupby('parent_segment_id')}
-    by_id = segments.set_index('segment_id')
-
-    def node(sid):
-        """The Newick text of ``sid`` and everything below it."""
-        row = by_id.loc[sid]
-        label = f"t{int(row['track_id'])}_f{int(row['start_frame'])}:{int(row['n_frames'])}"
-        below = kids.get(sid, [])
-        if not below:
-            return label
-        return '(' + ','.join(node(k) for k in below) + ')' + label
-
-    roots = segments.loc[segments['parent_segment_id'] == 0, 'segment_id']
-    return ''.join(node(int(r)) + ';\n' for r in roots)
-
-
-def _lineage_tree_figure(segments, values, color_by, title='', max_lineages=40):
-    """Draw lineages as trees on a frame axis, coloured by ``values``.
-
-    Each segment is a horizontal line from its first frame to where it
-    divides or ends; a vertical line joins sisters at the division. Lineages
-    with divisions are drawn first, at most ``max_lineages`` of them.
-
-    :returns: a :class:`matplotlib.figure.Figure`.
-    """
-    from matplotlib import colormaps
-    from matplotlib.colors import Normalize
-    from matplotlib.cm import ScalarMappable
-
-    seg = segments.assign(_value=values.to_numpy())
-    kids = {sid: g.sort_values('segment_id')['segment_id'].tolist()
-            for sid, g in seg.groupby('parent_segment_id')}
-    by_id = seg.set_index('segment_id')
-    divided = seg.groupby('lineage_id')['n_daughters'].sum().sort_values(ascending=False)
-    lineages = divided.index.tolist()[:max_lineages]
-
-    finite = seg['_value'][np.isfinite(seg['_value'])]
-    norm = Normalize(finite.min(), finite.max()) if len(finite) else Normalize(0, 1)
-    if len(finite) and norm.vmin == norm.vmax:
-        norm = Normalize(norm.vmin - 0.5, norm.vmax + 0.5)
-    cmap = colormaps['viridis']
-
-    leaves = int(sum((seg['lineage_id'].isin(lineages)) & (seg['n_daughters'] == 0)))
-    fig = Figure(figsize=(7.0, max(2.5, 0.22 * leaves + 1.2)), dpi=100)
-    ax = fig.subplots()
-    cursor = [0.0]
-
-    def place(sid):
-        """Draw ``sid`` and its descendants; return the y it was drawn at."""
-        row = by_id.loc[sid]
-        below = kids.get(sid, [])
-        if below:
-            ys = [place(k) for k in below]
-            y = float(np.mean(ys))
-            x_div = min(by_id.loc[k, 'start_frame'] for k in below)
-            ax.plot([x_div, x_div], [min(ys), max(ys)], lw=0.8,
-                    color=ROLES['reference'])
-            x_end = x_div
-        else:
-            y = cursor[0]
-            cursor[0] += 1.0
-            x_end = row['end_frame'] + 1
-        value = row['_value']
-        colour = cmap(norm(value)) if np.isfinite(value) else ROLES['data']
-        ax.plot([row['start_frame'], x_end], [y, y], lw=2.0, color=colour,
-                solid_capstyle='butt')
-        return y
-
-    for lid in lineages:
-        place(int(lid))
-        cursor[0] += 0.8
-    ax.set_yticks([])
-    ax.invert_yaxis()
-    ax.set_xlabel('frame')
-    ax.set_title(title or 'lineage trees')
-    if not lineages:
-        ax.text(0.5, 0.5, 'no tracks', ha='center', va='center',
-                transform=ax.transAxes)
-    mappable = ScalarMappable(norm=norm, cmap=cmap)
-    fig.colorbar(mappable, ax=ax, label=color_by, fraction=0.04)
-    fig.tight_layout()
-    return fig
-
-
-def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
-                               color_by='generation_time', max_distance=30.0,
-                               measurements=None, plot=True):
-    """Build lineage trees from one tracks table and write them beside it.
-
-    Reads a tracks CSV written by any spaCR tracker (one field per file),
-    cuts it into cell-cycle segments linked by divisions
-    (:func:`_lineage_segments`) and writes, under ``out_dir``, the
-    ``<stem>_segments.csv`` table with each segment's colour value,
-    ``<stem>_lineage_stats.csv`` with per-lineage generation times and
-    sibling correlation, ``<stem>.nwk`` with one Newick tree per lineage and,
-    with ``plot``, the ``<stem>_lineage`` figure.
-
-    :param tracks_path: a ``*_tracks_<object>_<field>.csv`` file.
-    :param out_dir: output folder; ``<tracks folder>/lineage`` when None.
-    :param color_by: segment statistic or measurement column to colour by.
-    :param max_distance: largest mother-to-daughter distance in pixels for an
-        inferred division.
-    :param measurements: optional table keyed by ``frame`` and ``track_id``
-        to take ``color_by`` from.
-    :param plot: save the tree figure.
-    :returns: dict with the ``segments`` and ``statistics`` frames and the
-        ``paths`` written.
-    """
-    from .tabular import read_table, write_table
-
-    tracks = read_table(tracks_path, report=None)
-    stem = os.path.splitext(os.path.basename(tracks_path))[0]
-    out_dir = out_dir or os.path.join(os.path.dirname(os.path.abspath(tracks_path)), 'lineage')
-    os.makedirs(out_dir, exist_ok=True)
-
-    segments = _lineage_segments(tracks, max_distance=max_distance)
-    try:
-        values = _lineage_colour_values(segments, tracks, color_by, measurements)
-    except KeyError as exc:
-        print(f"{exc.args[0]}; colouring by generation_time instead.")
-        color_by = 'generation_time'
-        values = segments['generation_time'].astype(float)
-    segments[f'color_{color_by}'] = values.to_numpy()
-    stats = _lineage_statistics(segments)
-
-    paths = {
-        'segments': write_table(segments, os.path.join(out_dir, f'{stem}_segments.csv')),
-        'statistics': write_table(stats, os.path.join(out_dir, f'{stem}_lineage_stats.csv')),
-    }
-    newick = os.path.join(out_dir, f'{stem}.nwk')
-    with open(newick, 'w', encoding='utf-8') as handle:
-        handle.write(_lineage_newick(segments))
-    paths['newick'] = newick
-    if plot:
-        fig = _lineage_tree_figure(segments, values, color_by, title=stem)
-        paths['figure'] = save_figure_to_path(
-            fig, os.path.join(out_dir, f'{stem}_lineage.pdf'), close=True)
-    return {'segments': segments, 'statistics': stats, 'paths': paths}
-
-
-def _run_lineage_step(src, name, object_type, mode, settings):
-    """Draw lineage trees from the tracks one field just produced.
-
-    Looks for ``<dirname(src)>/tracks/<tracker>_tracks_<object>_<name>.csv``
-    and passes it to :func:`_lineage_trees_from_tracks` with the
-    ``timelapse_lineage_color_by`` and ``timelapse_lineage_max_distance``
-    settings. A failure is reported and does not stop the run.
-
-    :returns: the result of :func:`_lineage_trees_from_tracks`, or None.
-    """
-    prefix = 'trackpy' if mode == 'iou' else mode
-    tracks_path = os.path.join(os.path.dirname(src), 'tracks',
-                               f'{prefix}_tracks_{object_type}_{name}.csv')
-    if not os.path.isfile(tracks_path):
-        print(f"Lineage trees skipped: no tracks table at {tracks_path}")
-        return None
-    try:
-        result = _lineage_trees_from_tracks(
-            tracks_path,
-            color_by=settings.get('timelapse_lineage_color_by') or 'generation_time',
-            max_distance=float(settings.get('timelapse_lineage_max_distance') or 30.0),
-            plot=bool(settings.get('save', True) or settings.get('plot', False)))
-    except Exception as exc:
-        print(f"Lineage trees could not be built for {tracks_path}: {exc}")
-        return None
-    overall = result['statistics'].iloc[-1]
-    print(f"Lineage trees ({object_type}, {name}): "
-          f"{int(overall['n_divisions'])} divisions, "
-          f"{int(overall['n_complete_cycles'])} complete cycles; "
-          f"written to {os.path.dirname(result['paths']['segments'])}")
-    return result
+from ._lineage_trees import (
+    _LINEAGE_SEGMENT_STATS,
+    _lineage_explicit_parents,
+    _lineage_inferred_parents,
+    _lineage_segments,
+    _lineage_colour_values,
+    _sibling_correlation,
+    _lineage_statistics,
+    _lineage_newick,
+    _lineage_tree_figure,
+    _lineage_calibrate_time,
+    _lineage_hour_statistics,
+    _lineage_trees_from_tracks,
+    _run_lineage_step,
+)
 
 
 _EVENT_BACKGROUND = 'none'
@@ -3649,7 +3266,80 @@ def summarize_per_well_inf_non_inf(peak_details_df):
 
     return summary_df
 
-def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9):
+def _calcium_shared_bleaching(frame, measurement, method):
+    """Keep raw levels and normalize shared field corrections by initial signal."""
+    match = re.fullmatch(rf'(.+)_channel_(\d+)_(?:{_BLEACH_LEVEL_PATTERN})',
+                         str(measurement))
+    if match is None:
+        raise ValueError('Calcium bleach correction requires a measured intensity level column')
+    role, channel = match.group(1), int(match.group(2))
+    source = frame.reset_index(drop=True).copy()
+    columns = _bleach_channel_columns(source, role).get(channel, [])
+    if measurement not in columns:
+        raise ValueError('Calcium bleach correction requires the selected level and its channel mean')
+    keys = _object_group_keys(source, 'object_label')
+    if source.duplicated(keys).any():
+        raise ValueError('Calcium bleach correction requires unique field/time/object identities')
+    working = source.copy()
+    for column in columns:
+        working[column] = pd.to_numeric(working[column], errors='coerce').replace(
+            [np.inf, -np.inf], np.nan)
+    ring_column = _bleach_ring_column(source, role, channel)
+    if ring_column:
+        working[ring_column] = pd.to_numeric(working[ring_column], errors='coerce').replace(
+            [np.inf, -np.inf], np.nan)
+    corrected, fits = _bleach_correct_table(working, role, method)
+    absolute = corrected[measurement]
+    background = (working[ring_column].copy() if ring_column
+                  else pd.Series(np.nan, index=source.index))
+    if measurement.endswith('_integrated_intensity'):
+        area = pd.to_numeric(source.get(f'{role}_area',
+                             pd.Series(np.nan, index=source.index)), errors='coerce')
+        background *= area.where(np.isfinite(area) & (area > 0))
+    signal = absolute - background
+    raw_signal = working[measurement] - background
+    baseline = pd.Series(np.nan, index=source.index)
+    applied = pd.Series('unavailable', index=source.index, dtype=object)
+    time_key = _resolve_time_key(source)
+    times = _bleach_times(source[time_key])
+    records = []
+    for key, indices in source.groupby(_OBJECT_WELL_KEYS, sort=True,
+                                       dropna=False).groups.items():
+        when = times.loc[indices]
+        first = raw_signal.loc[indices][when == when.min()]
+        initial = first[np.isfinite(first)].median()
+        if np.isfinite(initial) and initial > 0:
+            baseline.loc[indices] = initial
+        selected = fits
+        if not selected.empty:
+            selected = selected[selected['channel'] == channel]
+            for name, value in zip(_OBJECT_WELL_KEYS, key):
+                selected = selected[selected[name] == value]
+        record = (selected.iloc[0].to_dict() if len(selected) == 1 else
+                  dict(zip(_OBJECT_WELL_KEYS, key), channel=channel,
+                       method='unavailable'))
+        applied.loc[indices] = record['method']
+        record.update(measurement=measurement, requested_method=method,
+                      normalization='initial field median signal',
+                      baseline_signal=(float(initial) if np.isfinite(initial)
+                                       and initial > 0 else np.nan),
+                      background=ring_column or '', source_table='cell',
+                      normalized_units='dimensionless')
+        records.append(record)
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        normalized = signal / baseline
+    source['bleach_corrected_' + measurement] = absolute
+    source['corrected_' + measurement] = normalized.where(np.isfinite(normalized))
+    source['bleach_background_' + measurement] = background
+    source['bleach_baseline_' + measurement] = baseline
+    source['bleach_correction_requested'] = method
+    source['bleach_correction_method'] = applied
+    source['bleach_background_column'] = ring_column or ''
+    source['bleach_normalization'] = 'initial field median signal'
+    return source, pd.DataFrame(records)
+
+
+def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intensity', size_filter='cell_area', fluctuation_threshold=0.25, num_lines=None, peak_height=0.01, pathogen=None, cytoplasm=None, remove_transient=True, verbose=False, transience_threshold=0.9, *, bleach_correction="legacy"):
     """Detect and summarise per-cell calcium oscillation peaks from a measurements DB.
 
     Loads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables,
@@ -3671,12 +3361,28 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     :param remove_transient: drop tracks shorter than the transience threshold.
     :param verbose: print diagnostic information.
     :param transience_threshold: fraction of timepoints a track must span to be retained.
+    :param bleach_correction: ``legacy`` preserves the original global decay
+        fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's
+        per-field correction once on the original table. Raw intensities remain
+        unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected
+        levels. ``corrected_<measurement>`` is dimensionless: corrected signal
+        above the measured outside ring divided by that field's positive,
+        finite initial median signal. Integrated levels subtract ring times
+        area. Missing background or an invalid initial baseline remains NaN;
+        missing intervals are not bridged for peak detection. The actual method,
+        background and baseline accompany traces; ``bleach_correction_fits.csv``
+        records field fits. Histogram matching can erase population changes.
     :returns: tuple ``(result_df, peak_details_df, fig)`` -- the
         photobleach-corrected per-cell traces, the per-peak details and the
         summary matplotlib Figure. The per-well summaries are only written to
         CSV. Returns ``None`` when the database has no time axis, the decay
-        fit fails, or no cells pass the filters.
+        legacy fit fails, or no cells pass the filters.
+    :raises ValueError: an unknown correction method, an unsupported intensity
+        column for an explicit shared method, or ambiguous field/time/object
+        identities.
     """
+    if bleach_correction not in ('legacy', 'ratio', 'exponential', 'histogram'):
+        raise ValueError('bleach_correction must be legacy, ratio, exponential or histogram')
     conn = sqlite3.connect(db_loc, timeout=30)
     cell_df = pd.read_sql(f"SELECT * FROM {'cell'}", conn)
     
@@ -3732,18 +3438,29 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
 
     df = cell_df.copy()
 
-    try:
-        params, _ = curve_fit(exponential_decay, df['time'], df[measurement], p0=[max(df[measurement]), 0.01, min(df[measurement])], maxfev=10000)
-        df['corrected_' + measurement] = df[measurement] / exponential_decay(df['time'], *params)
-    except RuntimeError as e:
-        print(f"Curve fitting failed for the entire dataset with error: {e}")
-        return
+    bleach_fits = None
+    if bleach_correction == 'legacy':
+        try:
+            params, _ = curve_fit(exponential_decay, df['time'], df[measurement], p0=[max(df[measurement]), 0.01, min(df[measurement])], maxfev=10000)
+            df['corrected_' + measurement] = df[measurement] / exponential_decay(df['time'], *params)
+        except RuntimeError as e:
+            print(f"Curve fitting failed for the entire dataset with error: {e}")
+            return
+    else:
+        df, bleach_fits = _calcium_shared_bleaching(df, measurement, bleach_correction)
+        bleach_fits['source_database'] = os.path.abspath(db_loc)
     if verbose:
         print(f'Analyzing: {len(df)} objects')
     
     corrected_dfs = []
     peak_details_list = []
     total_timepoints = df['time'].nunique()
+    field_time_positions = {}
+    if bleach_correction != 'legacy':
+        for key, field in df.groupby(_OBJECT_WELL_KEYS, sort=False, dropna=False):
+            observed_times = sorted(field['time'].unique())
+            field_time_positions[key] = dict(zip(observed_times,
+                                                 range(len(observed_times))))
     size_filter_removed = 0
     transience_removed = 0
     
@@ -3765,7 +3482,17 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
         size_diff = group[size_filter].std() / group[size_filter].mean()
 
         if size_diff <= fluctuation_threshold:
-            group['delta_' + measurement] = group['corrected_' + measurement].diff().fillna(0)
+            if bleach_correction == 'legacy':
+                group['delta_' + measurement] = group['corrected_' + measurement].diff().fillna(0)
+            else:
+                trace = group['corrected_' + measurement]
+                delta = trace.diff()
+                field_key = tuple(group[key].iloc[0] for key in _OBJECT_WELL_KEYS)
+                position = group['time'].map(field_time_positions[field_key])
+                delta = delta.where(position.diff() == 1)
+                if len(delta) and np.isfinite(trace.iloc[0]):
+                    delta.iloc[0] = 0.0
+                group['delta_' + measurement] = delta
             corrected_dfs.append(group)
             
             peaks, properties = find_peaks(group['delta_' + measurement], height=peak_height)
@@ -3843,6 +3570,9 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     summary_df = summarize_per_well(peak_details_df)
     summary_df_inf_non_inf = summarize_per_well_inf_non_inf(peak_details_df)
 
+    if bleach_fits is not None:
+        save_results_dataframe(df=bleach_fits, src=db_loc,
+                               results_name='bleach_correction_fits')
     save_results_dataframe(df=peak_details_df, src=db_loc, results_name='peak_details')
     save_results_dataframe(df=result_df, src=db_loc, results_name='results')
     save_results_dataframe(df=summary_df, src=db_loc, results_name='well_results')
@@ -5160,6 +4890,83 @@ def _compute_regionprops_stack(
     return out_df
 
 
+def _motility_role_bleaching(props, masks, images, role, role_channel, times, method):
+    """Correct individual objects before aggregation, retaining their raw levels.
+
+    A five-pixel ring excludes all foreground labels of the current role.
+    Missing ring pixels yield NaN, never an assumed zero camera background.
+    Return corrected properties, fit rows, and columns added only by this path.
+    """
+    from scipy.ndimage import binary_dilation
+
+    if props.empty:
+        return props.copy(), pd.DataFrame(), set()
+    result = props.copy()
+    original_columns = set(result.columns)
+    label_key = 'track_id' if role == 'cell' else f'{role}_label'
+    measured = pd.DataFrame({'timeID': [times[int(t)] for t in result['frame']]})
+    measured[f'{role}_area'] = result[f'{role}_area'].to_numpy()
+    for channel in range(images.shape[-1]):
+        means, backgrounds = [], []
+        for frame, label in zip(result['frame'], result[label_key]):
+            labels = masks[int(frame)]
+            inside = labels == label
+            ring = binary_dilation(inside, iterations=5) & (labels == 0)
+            plane = images[int(frame), :, :, channel]
+            values = plane[inside]
+            values = values[np.isfinite(values)]
+            outside = plane[ring]
+            outside = outside[np.isfinite(outside)]
+            means.append(float(np.mean(values)) if values.size else np.nan)
+            backgrounds.append(float(np.median(outside)) if outside.size else np.nan)
+        mean_key = f'{role}_mean_intensity_ch{channel}'
+        if mean_key not in result:
+            result[mean_key] = means
+        ring_key = f'{role}_channel_{channel}_outside_percentile_50'
+        result[ring_key] = backgrounds
+        measured[ring_key] = backgrounds
+    mapping = {}
+    for column in list(result):
+        match = re.fullmatch(rf'{role}_(mean|max|min|p[0-9]+)_intensity_ch([0-9]+)', column)
+        if match:
+            stat, channel = match.groups()
+            stat = f'percentile_{int(stat[1:])}' if stat.startswith('p') else stat + '_intensity'
+            mapping[column] = f'{role}_channel_{channel}_{stat}'
+        elif role_channel is not None and column in {
+                f'{role}_mean_intensity', f'{role}_max_intensity', f'{role}_min_intensity'}:
+            mapping[column] = f'{role}_channel_{role_channel}_{column[len(role) + 1:]}'
+    for column, canonical in mapping.items():
+        measured[canonical] = result[column].to_numpy()
+    corrected, fits = _bleach_correct_table(measured, role, method)
+    for column, canonical in mapping.items():
+        if column in original_columns:
+            result['raw_' + column] = result[column]
+        result[column] = corrected[canonical].to_numpy()
+    added = set(result) - original_columns
+    return result, fits, added
+
+
+def _motility_raw_frame(corrected, added):
+    """Recover the unchanged measured levels before saving the original table."""
+    raw = corrected.copy()
+    for column in list(raw):
+        if column.startswith('raw_'):
+            raw[column[4:]] = raw[column]
+    return raw.drop(columns=[c for c in added if c in raw])
+
+
+def _motility_smooth_corrected(frame, max_displacement, track_outlier_zscore):
+    """Keep unknown corrected levels unknown when geometric glitches are smoothed."""
+    keys = ['plateID', 'wellID', 'fieldID', 'cellID', 'frame']
+    levels = [c for c in frame if '_intensity' in c]
+    missing = frame.set_index(keys)[levels].isna()
+    result = _smooth_tracks_and_features(frame, max_displacement, track_outlier_zscore)
+    positions = pd.MultiIndex.from_frame(result[keys])
+    for column in levels:
+        result.loc[missing[column].reindex(positions).to_numpy(), column] = np.nan
+    return result
+
+
 def _process_merged_group(args):
     """
     Worker: process one (plate, well, field) group of merged .npy files.
@@ -5169,6 +4976,10 @@ def _process_merged_group(args):
       - cell features
       - aggregated nucleus / pathogen / cytoplasm features
       - per-channel cell mean intensities (cell_mean_intensity_ch{c})
+
+    An optional seventh argument selects bleach correction. That path returns
+    (corrected, raw, fits), correcting individual roles before aggregation.
+    Empty/unusable groups retain the historical empty-DataFrame result.
     """
     import numpy as np
     import pandas as pd
@@ -5181,7 +4992,10 @@ def _process_merged_group(args):
         cell_chan,
         nucleus_chan,
         pathogen_chan,
-    ) = args
+    ) = args[:6]
+    bleach_method = args[6] if len(args) > 6 else 'none'
+    if bleach_method not in _BLEACH_METHODS:
+        raise ValueError(f'Unknown motility bleach correction: {bleach_method!r}')
 
     if not file_basenames:
         print("[_process_merged_group] Empty file_basenames list.")
@@ -5427,6 +5241,29 @@ def _process_merged_group(args):
             f"intensity columns: {added_cols}"
         )
 
+    bleach_fits = []
+    bleach_added = set()
+    if bleach_method != 'none':
+        if cell_intensity_df is not None:
+            cell_props_df = cell_props_df.merge(
+                cell_intensity_df, on=['frame', 'track_id'], validate='one_to_one')
+            cell_intensity_df = None
+        role_frames = []
+        for props, masks, role, channel in (
+                (cell_props_df, cell_masks, 'cell', cell_chan),
+                (nucleus_props_df, nucleus_masks, 'nucleus', nucleus_chan),
+                (pathogen_props_df, pathogen_masks, 'pathogen', pathogen_chan),
+                (cytoplasm_props_df, cytoplasm_masks, 'cytoplasm', cell_chan)):
+            corrected, fits, added = _motility_role_bleaching(
+                props, masks, intensity_stack, role, channel,
+                [m['timeID'] for m in metas_sorted], bleach_method)
+            role_frames.append(corrected)
+            bleach_added.update(added)
+            if not fits.empty:
+                fits = fits.assign(plateID=key[0], wellID=key[1], fieldID=key[2])
+                bleach_fits.append(fits)
+        cell_props_df, nucleus_props_df, pathogen_props_df, cytoplasm_props_df = role_frames
+
     nucleus_summary = None
     if has_nucleus:
         overlaps_cn = _compute_parent_child_overlaps(
@@ -5547,6 +5384,19 @@ def _process_merged_group(args):
         f"unique_tracks={n_tracks}"
     )
 
+    if bleach_method != 'none':
+        import json
+        raw = _motility_raw_frame(enriched_df, bleach_added)
+        enriched_df = enriched_df.drop(columns=[c for c in enriched_df if c.startswith('raw_')])
+        enriched_df['bleach_correction_method'] = bleach_method
+        enriched_df['bleach_background_policy'] = '5px_role_label_zero_median'
+        fits = pd.concat(bleach_fits, ignore_index=True) if bleach_fits else pd.DataFrame()
+        if fits.empty:
+            fits = pd.DataFrame(columns=['object_type', 'channel', 'method'])
+        fits['source_files'] = json.dumps(sorted_basenames)
+        fits['background_policy'] = '5px_role_label_zero_median'
+        fits['time_unit'] = 'source_frame'
+        return enriched_df, raw, fits
     return enriched_df
 
 
@@ -8999,7 +8849,15 @@ def automated_motility_assay(settings):
         ``infection_hist_percentile``, ``make_mask_panel``,
         ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``,
         ``motility_origin_xlim``, ``motility_origin_ylim``, and
-        ``reuse_existing_measurements``.
+        ``reuse_existing_measurements``. Optional ``bleach_correction`` defaults
+        to ``none``; ``ratio``, ``exponential`` or ``histogram`` correct each
+        field/channel and object role before child aggregation and infection
+        QC, using a five-pixel label-zero background ring (missing rings give
+        NaN). Histogram matching can erase biological changes. Opt-in runs
+        require recomputation rather than reuse of cached measurement rows.
+        Original intensity measurements remain raw; separate tables with
+        ``_bleach_corrected`` and ``_bleach_fits`` suffixes and a fits CSV
+        record the corrected levels, source filenames and method.
     :returns: the per-cell measurements DataFrame carrying the final
         (QC-adjusted) labels. Measurements and summary tables are also written
         to ``measurements/measurements.db`` and the QC panels saved under
@@ -9024,9 +8882,25 @@ def automated_motility_assay(settings):
     track_outlier_zscore = settings["track_outlier_zscore"]
 
     reuse_existing = settings.get("reuse_existing_measurements", True)
+    bleach_method = settings.get('bleach_correction', 'none')
+    if bleach_method not in _BLEACH_METHODS:
+        raise ValueError(f'Unknown motility bleach correction: {bleach_method!r}')
     measurements_dir = os.path.join(src, "measurements")
-    os.makedirs(measurements_dir, exist_ok=True)
     db_path = os.path.join(measurements_dir, "measurements.db")
+    if bleach_method != 'none' and reuse_existing and os.path.isfile(db_path):
+        from pathlib import Path
+        with sqlite3.connect(Path(db_path).resolve().as_uri() + '?mode=ro', uri=True, timeout=30.0) as conn:
+            exists = conn.execute(
+                'SELECT 1 FROM sqlite_master WHERE type="table" AND name=?',
+                (db_table_name,)).fetchone()
+        if exists:
+            raise ValueError(
+                'Motility bleach correction needs original per-object backgrounds; '
+                'cached rows cannot verify them. Set reuse_existing_measurements=False '
+                'to recompute from the original merged arrays.')
+    os.makedirs(measurements_dir, exist_ok=True)
+    bleach_raw = None
+    bleach_fits = None
 
     all_df = None
     loaded_from_db = False
@@ -9140,9 +9014,8 @@ def automated_motility_assay(settings):
     if not loaded_from_db:
         worker_args = []
         for key, file_basenames in groups.items():
-            worker_args.append(
-                (src, file_basenames, n_channels, cell_chan, nucleus_chan, pathogen_chan)
-            )
+            args = (src, file_basenames, n_channels, cell_chan, nucleus_chan, pathogen_chan)
+            worker_args.append(args if bleach_method == 'none' else args + (bleach_method,))
 
         if n_jobs is None:
             n_jobs = max(cpu_count() - 1, 1)
@@ -9154,6 +9027,15 @@ def automated_motility_assay(settings):
             with Pool(processes=n_jobs) as pool:
                 dfs = pool.map(_process_merged_group, worker_args)
 
+        if bleach_method != 'none':
+            results = [result for result in dfs if isinstance(result, tuple)]
+            if results:
+                bleach_raw = pd.concat([result[1] for result in results], ignore_index=True)
+                bleach_raw = _smooth_tracks_and_features(
+                    bleach_raw, max_displacement=max_displacement,
+                    track_outlier_zscore=track_outlier_zscore)
+                bleach_fits = pd.concat([result[2] for result in results], ignore_index=True)
+            dfs = [result[0] for result in results]
         non_empty = [df for df in dfs if not df.empty]
         all_df = (
             pd.concat(non_empty, ignore_index=True) if non_empty else pd.DataFrame()
@@ -9175,7 +9057,9 @@ def automated_motility_assay(settings):
             f"{n_tracks_raw}"
         )
 
-        all_df = _smooth_tracks_and_features(
+        smooth = (_smooth_tracks_and_features if bleach_method == 'none'
+                  else _motility_smooth_corrected)
+        all_df = smooth(
             all_df,
             max_displacement=max_displacement,
             track_outlier_zscore=track_outlier_zscore,
@@ -9244,6 +9128,21 @@ def automated_motility_assay(settings):
     )
 
     all_df_original = all_df.copy(deep=True)
+    if bleach_raw is not None:
+        keys = ['plateID', 'wellID', 'fieldID', 'cellID', 'frame']
+        all_df_original = bleach_raw.drop(columns=['infected'], errors='ignore').merge(
+            all_df[keys + ['infected']], on=keys, how='inner', validate='one_to_one')
+        # Persist pre-QC corrected values separately; cached originals stay raw.
+        with sqlite3.connect(db_path, timeout=30) as conn:
+            all_df.to_sql(db_table_name + '_bleach_corrected', conn,
+                          if_exists='replace', index=False)
+            bleach_fits.to_sql(db_table_name + '_bleach_fits', conn,
+                              if_exists='replace', index=False)
+        bleach_fits.to_csv(os.path.join(measurements_dir, db_table_name + '_bleach_fits.csv'),
+                          index=False)
+        if bleach_method == 'histogram':
+            print('Motility histogram matching removes population intensity changes; '
+                  'do not interpret these values as quantitative bleaching correction.')
 
     infection_col = "infected"
     all_df, infection_col = _apply_infection_intensity_qc(

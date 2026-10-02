@@ -74,31 +74,31 @@
     {
       "context": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; laboratory microplate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the Data-selection boundary Editor settings.",
       "label": "spacr.qt.screens.gate_editor#3",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation.",
       "source": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; plate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the Gate Editor settings.",
       "source_sha256": "7ad8256125910d7c6e53f73988b70e80fc3d3bf0ce1fcc171194312a2b7da1c6",
-      "translation": "**Hvað það þarf.** Mælitöflu: eina töflu úr ``measurements.db``, þar sem viðfangstöflurnar eru boðnar fyrst, eða CSV- eða TSV-skrá. Hægt er að hlaða nokkrum gagnagrunnum inn sem einni töflu; plötuauðkenni sem rekast á milli þeirra eru tilkynnt í stað þess að vera sameinuð í hljóði. Gagnagrunnstöflur eru lesnar sem úrtak samkvæmt ``sample_fraction`` og takmarkaðar af ``max_points``, hvort tveggja í stillingum Gate Editor.",
-      "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "translation": "**Hvað það þarf.** Mælitöflu: eina töflu úr ``measurements.db``, þar sem viðfangstöflurnar eru boðnar fyrst, eða CSV- eða TSV-skrá. Hægt er að hlaða nokkrum gagnagrunnum inn sem einni töflu; plötuauðkenni sem rekast á milli þeirra eru tilkynnt í stað þess að vera sameinuð í hljóði. Gagnagrunnstöflur eru lesnar sem úrtak samkvæmt ``sample_fraction`` og takmarkaðar af ``max_points``, hvort tveggja í stillingum Gate Editor."
     },
     {
       "context": "**What it produces.** Threshold, rectangle, oval, polygon and wand data-selection boundaries on one or two measurements, box, cylinder and prism data-selection boundaries in the 3D view, and combinations of other data-selection boundaries. Publishing a data-selection boundary narrows every linked view to that population. The data-selection filtering strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next laboratory microplate is gated the same way; Export writes each data-selection boundary as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
       "label": "spacr.qt.screens.gate_editor#4",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation.",
       "source": "**What it produces.** Threshold, rectangle, oval, polygon and wand gates on one or two measurements, box, cylinder and prism gates in the 3D view, and combinations of other gates. Publishing a gate narrows every linked view to that population. The gating strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next plate is gated the same way; Export writes each gate as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
       "source_sha256": "9a7a051375217ca9fe0ae5acab2dcd6b132a8f9f2b52abee0aa101d0a1485e67",
-      "translation": "**Hvað það skilar.** Þröskulds-, rétthyrnings-, sporbaugs-, marghyrnings- og töfrasprotaafmarkanir á einni eða tveimur mælingum, kassa-, sívalnings- og strendingsafmarkanir í 3D-sýninni og samsetningar annarra afmarkana. Þegar afmörkun er birt þrengist hver tengd sýn að því þýði. Afmörkunaráætlunin vistast í og hleðst úr JSON-skrá (``gates.json`` sjálfgefið) svo að næsta plata sé afmörkuð á sama hátt; útflutningur skrifar hverja afmörkun sem dálk í töflunni ``filters`` í mæligagnagrunninum, og grafið vistast sem PNG eða PDF.",
-      "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "translation": "**Hvað það skilar.** Þröskulds-, rétthyrnings-, sporbaugs-, marghyrnings- og töfrasprotaafmarkanir á einni eða tveimur mælingum, kassa-, sívalnings- og strendingsafmarkanir í 3D-sýninni og samsetningar annarra afmarkana. Þegar afmörkun er birt þrengist hver tengd sýn að því þýði. Afmörkunaráætlunin vistast í og hleðst úr JSON-skrá (``gates.json`` sjálfgefið) svo að næsta plata sé afmörkuð á sama hátt; útflutningur skrifar hverja afmörkun sem dálk í töflunni ``filters`` í mæligagnagrunninum, og grafið vistast sem PNG eða PDF."
     },
     {
       "context": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the extracted-image-region grid, and load the saved data-selection filtering strategy on the next plate.",
-      "label": "spacr.qt.screens.gate_editor#5",
+      "label": "spacr.qt.screens.gate_editor#7",
       "source": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the crop grid, and load the saved gating strategy on the next plate.",
       "source_sha256": "777cec7724e961ebd556bc885987088c4853a206dd3f0bc9d57635416f42ba26",
       "translation": "**Hvað svo.** Skoðaðu afmarkaða þýðið í sýnunum sem fylgja sameiginlegu síunni, svo sem Image UMAP, Graph Builder og myndbútanetinu, og hladdu vistuðu afmörkunaráætluninni inn fyrir næstu plötu."
     },
     {
       "context": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the data-selection boundary tools and the hierarchy with its percentages;",
-      "label": "spacr.qt.screens.gate_editor#7",
+      "label": "spacr.qt.screens.gate_editor#9",
       "source": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate tools and the hierarchy with its percentages;",
       "source_sha256": "1f3de1f7408fc69b5b0d3e50c09aac04245ac1c893084fed33fe47ef75c13e51",
       "translation": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — teiknisvæðið, afmörkunartólin og stigveldið með hlutföllum sínum;"
@@ -113,11 +113,11 @@
     {
       "context": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
       "label": "spacr.qt.screens.graph_builder#6",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation.",
       "source": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
       "source_sha256": "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
-      "translation": "**Hvað það þarf.** Eina töflu úr ``measurements.db`` eða CSV- eða TSV-skrá, valda með hnappinum til að hlaða inn töflu. Viðfangstöflurnar og ``png_list`` eru boðnar fyrst; allar aðrar töflur gagnagrunnsins eru áfram tiltækar.",
-      "retired": true,
-      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
+      "translation": "**Hvað það þarf.** Eina töflu úr ``measurements.db`` eða CSV- eða TSV-skrá, valda með hnappinum til að hlaða inn töflu. Viðfangstöflurnar og ``png_list`` eru boðnar fyrst; allar aðrar töflur gagnagrunnsins eru áfram tiltækar."
     },
     {
       "context": "**What it produces.** A chart with six drop zones: x, y, colour, size, facet row and facet column. Only x and y decide the chart type -- one continuous column gives a histogram, one categorical column a bar chart of counts, two continuous columns a scatter plot, one of each a box plot and two categorical columns a heatmap of counts -- and violin and line plots are explicit choices. A brushed rectangle becomes the shared selection, highlighted in the UMAP and on the laboratory microplate map.",

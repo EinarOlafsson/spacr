@@ -1,0 +1,89 @@
+# spaCR user guide translation (hi).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-02 02:41-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure: preview checked images and verify mask planes"
+msgstr "मापन: चुने चित्रों का पूर्वावलोकन और मास्क प्लेन की जाँच"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "रन फ़ोल्डर या उसके ``merged`` फ़ोल्डर के साथ **मापन** खोलें। **लाइव** दृश्य एक दृश्य-क्षेत्र लोड करता है और उसके कॉन्फ़िगर किए ऑब्जेक्ट मास्क से क्रॉप दिखाता है। पूरा प्रयोग मापने से पहले ऑब्जेक्ट, मास्क प्लेन, चित्र चैनल, क्रॉप आकार और फ़िल्टर चुनने के लिए **इमेज क्रॉप सेटिंग्स…** उपयोग करें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compare objects from several fields"
+msgstr "कई दृश्य-क्षेत्रों के ऑब्जेक्ट की तुलना"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Checked images** and check the fields to include. Each checkbox is independent. The grid combines their crops and names the source field in each group; it does not superimpose fields. Hover a crop for its full source path, label, area and filter result. Double-click a crop to open that exact source, including when another field contains the same label number."
+msgstr "**चेक किए गए चित्र** खोलें और शामिल करने के लिए दृश्य-क्षेत्र चुनें। हर चेकबॉक्स स्वतंत्र है। ग्रिड उनके क्रॉप एक साथ दिखाता है और हर समूह में स्रोत दृश्य-क्षेत्र का नाम देता है; दृश्य-क्षेत्रों को एक-दूसरे पर नहीं चढ़ाता। पूरा स्रोत पथ, लेबल, क्षेत्रफल और फ़िल्टर परिणाम देखने के लिए क्रॉप पर कर्सर रखें। सटीक स्रोत खोलने के लिए क्रॉप पर डबल-क्लिक करें, तब भी जब किसी दूसरे दृश्य-क्षेत्र में वही लेबल संख्या हो।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection."
+msgstr "किसी दृश्य-क्षेत्र के क्रॉप हटाने के लिए उसका चेक हटाएँ, या ग्रिड साफ़ करने के लिए **सभी चित्रों का चयन हटाएँ** चुनें। चैनल, ऑब्जेक्ट प्रकार या फ़िल्टर बदलने पर सभी चुने दृश्य-क्षेत्र ताज़ा होते हैं। केवल वर्तमान दृश्य-क्षेत्र चुना हो तो दृश्य-क्षेत्र ड्रॉपडाउन सामान्य एकल-दृश्य नेविगेशन रखता है। कई दृश्य-क्षेत्र चुने हों तो वह चुने हुए समूह को बदले बिना सक्रिय स्रोत बदलता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
+msgstr "चित्र सूची मौजूदा सीमित यादृच्छिक नमूना उपयोग करती है। नमूना बदलने पर पहले से चुने दृश्य-क्षेत्र उपलब्ध रहते हैं। **अधिकतम पूर्वावलोकन क्रॉप** संयुक्त ग्रिड को सीमित करता है; उपलब्ध स्थान चुने दृश्य-क्षेत्रों में बाँटे जाते हैं। चुने दृश्य-क्षेत्रों की संख्या उपलब्ध स्थानों से अधिक हो तो सीमा बढ़ाएँ। अतिरिक्त दृश्य-क्षेत्र एक-एक करके पढ़े जाते हैं। लोड असफल होने पर दृश्य-क्षेत्र का नाम बताया जाता है और सही दृश्य-क्षेत्र जाँच के लिए उपलब्ध रहते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
+msgstr "चित्र चुनने से केवल पूर्वावलोकन बदलता है। इससे मापन द्वारा संसाधित दृश्य-क्षेत्र नहीं चुने जाते, न सहेजे मापन या निर्यात बदलते हैं। **सेटिंग्स आगे लागू करें** का मौजूदा उद्देश्य वही रहता है: क्रॉप और फ़िल्टर सेटिंग्स को मापन फ़ॉर्म में कॉपी करना।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview and export unmixed crops"
+msgstr "वर्णक्रमीय पृथक्करण वाली क्रॉप छवियों का पूर्वावलोकन और निर्यात"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged."
+msgstr "**अल्फ़ा सुविधाएँ दिखाएँ** सक्षम होने पर **मापन** फ़ॉर्म में ``unmix=True`` सेट करें और ``unmix_controls`` कॉन्फ़िगर करें। क्रॉप पूर्वावलोकन में इन एकल-स्टेन नियंत्रणों का उपयोग करने के लिए **वर्णक्रमीय पृथक्करण के बाद प्रदर्शन** टॉगल करें। डिफ़ॉल्ट प्रदर्शन कच्चा होता है। अमान्य या अनुपस्थित नियंत्रणों की सूचना दी जाती है। यह टॉगल केवल प्रदर्शन बदलता है; रन की सेटिंग, स्रोत ऐरे और बैच PNG आउटपुट अपरिवर्तित रहते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged."
+msgstr "पूर्वावलोकन पूरा होने के बाद **दिखाई गई क्रॉप छवियाँ निर्यात करें…** चुनें, एक पैरेंट फ़ोल्डर चुनें और नए फ़ोल्डर का नाम दर्ज करें। केवल पूरे हुए पूर्वावलोकन की क्रॉप छवियाँ निर्यात होती हैं, उनके प्रदर्शित रंगों और कच्चे या वर्णक्रमीय पृथक्करण वाले पिक्सेल के साथ। ``provenance.json`` स्रोत पथ, ऑब्जेक्ट की पहचान, प्रदर्शन सेटिंग और वर्णक्रमीय पृथक्करण की जानकारी दर्ज करता है। पहले से मौजूद फ़ोल्डर स्वीकार नहीं किए जाते। पूर्वावलोकन रद्द करने या बदलने पर अधूरा निर्यात त्याग दिया जाता है; स्रोत फ़ाइलें और बैच आउटपुट अपरिवर्तित रहते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview reference-well calibration"
+msgstr "संदर्भ वेल अंशांकन का पूर्वावलोकन"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings."
+msgstr "**अल्फ़ा सुविधाएँ दिखाएँ** सक्षम होने पर **मापन** फ़ॉर्म में ``intensity_calibration`` चालू करें और संदर्भ वेल, कैमरा ऑफ़सेट और सांख्यिकीय माप कॉन्फ़िगर करें। **परीक्षण मोड** बंद करें, फिर **तीव्रता अंशांकन वेल** के पास **पूर्वावलोकन** चुनें। स्थानीय रन फ़ोल्डर या उसका ``merged`` फ़ोल्डर उपयोग करें। पूर्वावलोकन वर्तमान सेटिंग पढ़ता है; यह **मापन** नहीं चलाता और न ही छवियाँ, मापन परिणाम या सेटिंग लिखता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop."
+msgstr "हर स्रोत फ़ोल्डर की योजना अलग बनती है। नाम के क्रम में पहली प्लेट संदर्भ होती है। तालिका हर प्लेट और चैनल का गुणक गेन, संदर्भ सांख्यिकीय माप और संदर्भ इमेज फ़ील्ड की संख्या दिखाती है। सेटिंग बदलने पर परिणाम अमान्य हो जाता है। **रद्द करें** पूर्वावलोकन त्याग देता है, जबकि पहले से चल रही स्रोत स्कैन प्रक्रिया सुरक्षित रूप से पूरी होती है; दोबारा खोलने पर उस स्कैन के रुकने की प्रतीक्षा की जाती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Resolve a stored plane-layout conflict"
+msgstr "सहेजे प्लेन विन्यास का विरोध सुलझाना"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A merged folder can include ``.spacr_plane_layout.json``, which records the image channels and mask planes written with its arrays. Measure checks explicit mask-plane settings against this record before using them. ``uninfected=True`` keeps uninfected cells; it does not make an incorrect pathogen mask plane valid."
+msgstr "merged फ़ोल्डर में ``.spacr_plane_layout.json`` हो सकती है, जिसमें उसके एरे के साथ लिखे चित्र चैनल और मास्क प्लेन दर्ज हैं। मापन स्पष्ट मास्क-प्लेन सेटिंग्स उपयोग करने से पहले उन्हें इस रिकॉर्ड से जाँचता है। ``uninfected=True`` असंक्रमित कोशिकाएँ रखता है; इससे गलत रोगजनक मास्क प्लेन वैध नहीं हो जाता।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored image layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings."
+msgstr "सहेजा फ़ॉर्म फ़ोल्डर से मेल न खाए, तो **चलाएँ** अंतर बताता है। दर्ज प्लेन फ़ॉर्म में कॉपी करने के लिए **संग्रहीत छवि लेआउट का उपयोग करें** चुनें, ऑब्जेक्ट सेटिंग्स देखें, फिर **चलाएँ** दोबारा दबाएँ। अनुपस्थित ऑब्जेक्ट के लिए ``None`` उपयोग होता है। **रद्द करें** फ़ॉर्म अपरिवर्तित रखता है। अलग या अज्ञात विन्यास वाले स्रोत उनकी मेल खाती सेटिंग्स के साथ अलग-अलग चलाने चाहिए।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For Python calls, use the plane indices recorded for the selected merged folder. A conflicting explicit index raises :class:`spacr.crops.PlaneLayoutConflict`. Unspecified defaults can be resolved through :func:`spacr.crops.reconcile_merged_mask_dims`. Do not edit or remove the sidecar to bypass the check: that can make an intensity plane look like an object mask."
+msgstr "Python कॉल में चुने merged फ़ोल्डर के लिए दर्ज प्लेन सूचकांक उपयोग करें। विरोधी स्पष्ट सूचकांक से :class:`spacr.crops.PlaneLayoutConflict` उठता है। अनिर्दिष्ट डिफ़ॉल्ट :func:`spacr.crops.reconcile_merged_mask_dims` से तय किए जा सकते हैं। जाँच टालने के लिए सहायक फ़ाइल न बदलें, न हटाएँ: इससे तीव्रता प्लेन ऑब्जेक्ट मास्क जैसा माना जा सकता है।"
+

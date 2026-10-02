@@ -74,7 +74,7 @@ def test_a_catalogue_saved_while_hidden_opens_installs_and_uninstalls(
     qtbot.addWidget(dlg)
     table = dlg.findChild(QWidget, "PluginCatalogueTable")
     assert dlg.findChild(QWidget, "PluginCatalogueSource").text() == str(source)
-    assert table.rowCount() == 2
+    qtbot.waitUntil(lambda: table.rowCount() == 2)
     assert table.item(0, 1).text() == "Catalogue probe"
     assert table.item(0, 5).text() == "Test Lab"
     assert table.item(0, 6).text() == "MIT"
@@ -85,6 +85,8 @@ def test_a_catalogue_saved_while_hidden_opens_installs_and_uninstalls(
     table.selectRow(0)
     assert install.isEnabled() and not uninstall.isEnabled()
     install.click()
+    qtbot.waitUntil(lambda: "Installed Catalogue probe 1.0.0" in dlg.findChild(
+        QWidget, "PluginCatalogueStatus").text(), timeout=30000)
     assert "Installed Catalogue probe 1.0.0" in dlg.findChild(
         QWidget, "PluginCatalogueStatus").text()
     assert table.item(0, 3).text() == "1.0.0"
@@ -97,6 +99,8 @@ def test_a_catalogue_saved_while_hidden_opens_installs_and_uninstalls(
 
     table.selectRow(0)
     uninstall.click()
+    qtbot.waitUntil(lambda: "Uninstalled Catalogue probe" in dlg.findChild(
+        QWidget, "PluginCatalogueStatus").text(), timeout=30000)
     assert plugins.get_app("catalogue_probe_app") is None
     assert table.item(0, 4).text() == "available"
 
@@ -108,6 +112,8 @@ def test_an_unreadable_catalogue_says_so(qtbot, prefs, tmp_path):
     dlg.findChild(QWidget, "PluginCatalogueSource").setText(
         str(tmp_path / "missing.json"))
     dlg.findChild(QWidget, "PluginCatalogueLoad").click()
+    qtbot.waitUntil(lambda: "Could not read the catalogue" in dlg.findChild(
+        QWidget, "PluginCatalogueStatus").text())
     assert "Could not read the catalogue" in dlg.findChild(
         QWidget, "PluginCatalogueStatus").text()
     assert dlg.findChild(QWidget, "PluginCatalogueTable").rowCount() == 0
@@ -126,13 +132,13 @@ def test_sorting_keeps_installation_and_reselection_on_the_chosen_entry(
     host = QWidget()
     qtbot.addWidget(host)
     page = prefs._PluginCataloguePage(QFormLayout(host), host)
-    qtbot.wait(1)
+    qtbot.waitUntil(lambda: page._job is None)
     page.table.sortItems(1, Qt.DescendingOrder)
     assert page.table.item(0, 1).text() == "Toxoplasma infection assay"
     page.table.selectRow(0)
     assert page.selected()["key"] == "toxo_infection"
     assert page.install_selected()
-    qtbot.wait(1)
+    qtbot.waitUntil(lambda: page._job is None, timeout=30000)
     assert set(plugins._catalogue_installed()) == {"toxo_infection"}
     assert page.selected()["key"] == "toxo_infection"
     assert page.selected()["installed"] == "0.2"
@@ -143,6 +149,7 @@ def test_sorting_keeps_installation_and_reselection_on_the_chosen_entry(
     assert page.table.item(0, 1).text() == "Toxoplasma infection assay"
     assert page.table.item(0, 3).text() == "0.2"
     assert page.uninstall_selected()
+    qtbot.waitUntil(lambda: page._job is None, timeout=30000)
     assert plugins._catalogue_installed() == {}
 
 
@@ -183,6 +190,7 @@ def test_open_loads_installed_recipe_into_its_real_module_without_running(
     dialog = QDialog(window)
     qtbot.addWidget(dialog)
     page = prefs._PluginCataloguePage(QFormLayout(dialog), dialog)
+    qtbot.waitUntil(lambda: page._job is None)
     page.table.selectRow(0)
     dialog.show()
     assert page.selected()["status"] == "update available"
@@ -214,6 +222,7 @@ def test_open_requires_installed_recipe_and_readable_settings(
     dialog = QDialog()
     qtbot.addWidget(dialog)
     page = prefs._PluginCataloguePage(QFormLayout(dialog), dialog)
+    qtbot.waitUntil(lambda: page._job is None)
     assert not page.open_button.isEnabled()
     page._select_key("catalogue_probe")
     assert not page.open_button.isEnabled()
@@ -221,6 +230,7 @@ def test_open_requires_installed_recipe_and_readable_settings(
     page._select_key("toxo_infection")
     assert not page.open_button.isEnabled()
     assert page.install_selected()
+    qtbot.waitUntil(lambda: page._job is None, timeout=30000)
     assert page.open_button.isEnabled()
     Path(plugins._catalogue_installed()["toxo_infection"]["path"]).unlink()
     dialog.show()

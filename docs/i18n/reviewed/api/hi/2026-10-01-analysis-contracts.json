@@ -1,0 +1,26 @@
+{
+  "language": "hi",
+  "note": "Source-bound corrections after inspection of actual rejected local-model drafts. The corrected translations are not claimed to be verbatim model output.",
+  "records": [
+    {
+      "context": "Strategies for selecting measurement rows. Accept a data-selection boundary set, its key-value mapping representation, a saved strategy file, a list of these values, or a mapping from labels to these values. Also include strategy files referenced by settings. Check strategy files on every processing session. To check a strategy supplied as an object, pass it to :func:`check_analysis_lock` using the same label.",
+      "label": "spacr.run_journal.lock_analysis#9",
+      "model_draft": "माप पंक्तियों का चयन करने के लिए रणनीतियां. एक डेटा-सेल सीमा सेट स्वीकार करें, इसके कुंजी-मूल्य मैपिंग प्रतिनिधिमंडल, एक सहेजे गए रणनीतिक फ़ाइल, इन मूल्यों की एक सूची, या उन मूल्यों के लिए लेबलों से एक नक्शा. इसके अलावा, सेटिंग्स द्वारा संदर्भित रणनीत फ़ाइलें शामिल हैं. प्रत्येक प्रसंस्करण सत्र पर रणनीय फ़ाइनों की जांच करें. एक वस्तु के रूप में प्रदान की गई रणनीक की जांच करने के लिये, इसे :func:`check_analysis_lock` में स्थानांतरित करें.",
+      "review_basis": "Corrected after inspecting the rejected local-model draft. Codex AI technical review and independent root Codex AI peer review verified accepted strategy input forms, same-label checks, filename-stem keys, and pixel-map exclusion.",
+      "source": "Strategies for selecting measurement rows. Accept a gate set, its dictionary representation, a saved strategy file, a list of these values, or a mapping from labels to these values. Also include strategy files referenced by settings. Check strategy files on every run. To check a strategy supplied as an object, pass it to :func:`check_analysis_lock` using the same label.",
+      "source_sha256": "c9e3b2ccb73fe6cfda5fd5d14029de4ed825f3f6acd7a86f8766d850e8f3f5d9",
+      "translation": "माप की पंक्तियाँ चुनने की रणनीतियाँ। डेटा-चयन सीमाओं का समूह, उसका कुंजी-मूल्य रूप, सहेजी गई रणनीति की फ़ाइल, इन मानों की सूची या लेबल से इन मानों तक की मैपिंग स्वीकार करें। सेटिंग में संदर्भित रणनीति फ़ाइलें भी शामिल करें। हर रन में रणनीति फ़ाइलों की जाँच करें। ऑब्जेक्ट के रूप में दी गई रणनीति की जाँच के लिए, उसे उसी लेबल के साथ :func:`check_analysis_lock` को दें।"
+    },
+    {
+      "context": "Key-value mapping of score summaries keyed by image filename without its extension. Each summary excludes the pixel map.",
+      "label": "spacr.segmentation_uncertainty.compute_queue_uncertainty#9",
+      "model_draft": "Key-value mapping of score summaries keyed by image filename without its extension. प्रत्येक सारांश पिक्सेल मैप को बाहर करता है.",
+      "review_basis": "Corrected after inspecting the rejected local-model draft. Codex AI technical review and independent root Codex AI peer review verified accepted strategy input forms, same-label checks, filename-stem keys, and pixel-map exclusion.",
+      "source": "Dictionary of score summaries keyed by image filename without its extension. Each summary excludes the pixel map.",
+      "source_sha256": "74045502865d03b13b3c4e2cdb554874d8d5114489db5c0ff71f516afbf421eb",
+      "translation": "स्कोर सारांशों की कुंजी-मूल्य मैपिंग, जिसमें हर कुंजी चित्र फ़ाइल का नाम है, उसके एक्सटेंशन के बिना। प्रत्येक सारांश में पिक्सेल मैप शामिल नहीं होता।"
+    }
+  ],
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "schema": 1
+}

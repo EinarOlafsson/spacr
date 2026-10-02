@@ -50,6 +50,7 @@ def save_uncertainty_map(path, result, *, provenance=None, protected_paths=()):
     :raises ValueError: for invalid maps or a protected destination.
     """
     import tifffile
+    from .tiff_io import write_tiff
 
     destination = Path(path).expanduser().resolve()
     if destination.suffix.lower() not in {".tif", ".tiff"}:
@@ -77,8 +78,8 @@ def save_uncertainty_map(path, result, *, provenance=None, protected_paths=()):
     fd, temporary = tempfile.mkstemp(prefix=".uncertainty-", suffix=".tif", dir=destination.parent)
     os.close(fd)
     try:
-        tifffile.imwrite(temporary, array, photometric="minisblack", compression="zlib",
-                         metadata={"axes": "YX", "spacr_uncertainty": metadata})
+        write_tiff(temporary, array, photometric="minisblack", compression="zlib",
+                   metadata={"axes": "YX", "spacr_uncertainty": metadata})
         os.replace(temporary, destination)
     finally:
         if os.path.exists(temporary):
@@ -141,12 +142,13 @@ def compute_queue_uncertainty(queue, *, model="cpsam", second_model=None, device
     :param queue: an existing CurationQueue; only its pending selected fields run.
     :param model: primary model name or checkpoint, default cpsam.
     :param second_model: optional distinct second model; absent means four passes.
-    :param device: explicit inference device, cpu by default.
+    :param device: Device used for model predictions. The default is ``cpu``.
     :param map_folder: optional folder for lossless maps and embedded provenance.
     :param parameters: inference overrides for diameter, normalize and thresholds.
     :param progress: optional callback receiving one completed field's stem.
     :param segmenter_factory: injectable model/device/parameters loader for tests.
-    :returns: scored stem-to-result mapping without large pixel maps.
+    :returns: Dictionary of score summaries keyed by image filename without
+        its extension. Each summary excludes the pixel map.
     :raises ValueError: for duplicate ensemble models or a field that cannot run.
     """
     from .curation_queue import _write_uncertainty

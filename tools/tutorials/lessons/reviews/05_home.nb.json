@@ -1,13 +1,22 @@
 {
   "lesson": "05_home",
-  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
+    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
+    "date": "2026-10-01",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "new_scene_peer_review": {
+      "indices": [
+        10,
+        11,
+        12
+      ],
+      "reviewer": "Independent Codex AI technical review",
+      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
+    }
   },
   "language": "nb",
   "title": "Home-skjermen og navigering",
@@ -29,6 +38,20 @@
     "For å prøve en modul klikker du på Load test data når det finnes. Vent til nedlastingen er ferdig, og gå deretter gjennom de utfylte inndataene og innstillingene. I Mask klikker du på Live for å undersøke et synsfelt før du trykker på Run. Slå på Time for en tidsserie eller 3D for et volumbilde.",
     "Skriv navnet på en modul, en innstilling eller en funksjon i søkefeltet ved siden av Help. Her finner et søk etter Performance den tilsvarende siden i Preferences. Klikk på et resultat for å åpne målet. API-resultater åpner dokumentasjonen for den valgte funksjonen.",
     "I Preferences velger du en Performance-profil for datamaskinen din. Laptop bruker færre ressurser; de høyere profilene tillater mer mellomlagring og bakgrunnsarbeid. Begynn med en moderat profil hvis minnet er begrenset. Analyseinnstillingene dine forblir under din kontroll i hver modul.",
+    "Åpne Appearance i Preferences for å tilpasse grensesnittet. Theme og Animation er seksjoner på denne siden som kan foldes ut og sammen. Klikk på en seksjonsoverskrift for å åpne kontrollene eller folde dem sammen igjen.",
+    "Åpne Theme for å velge tema for grensesnittet og sidenes ugjennomsiktighet. Den samme seksjonen inneholder kontrollene for vinduskanten, blant annet lengde, justering og glødemodus.",
+    "Åpne Animation for å velge animert bakgrunn og fargepalett. Juster detaljnivå, uskarphet, hastighet, størrelse og tetthet her. Du kan også velge om verktøytips for innstillinger skal animeres, og velge bakgrunn for innstillingene.",
     "Gå tilbake til Home og klikk på Pipeline overviews for å velge en arbeidsflyt. Begynn med spaCR screens for en samlet bildebasert screening, eller velg en vei for bildeanalyse eller sekvensering for dataene dine. De neste veiledningene viser hvordan modulene henger sammen, og modulleksjonene går deretter gjennom hver oppgave."
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

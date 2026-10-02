@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.9.1\n"
 
 msgid "Plaque Assay: fields, figures and reviewed conditions"
 msgstr "플라크 분석: 시야, 그림, 검토된 조건"
@@ -45,6 +45,22 @@ msgstr "**이 설정 사용** 을 선택하여 조정한 값을 분석 실행이
 
 msgid "The preview resolves local checkpoints without downloading them implicitly. When a model is absent, the panel explains what is missing and offers the appropriate download. Keep the selected model and settings with the results; ``bundled`` names the historical packaged checkpoint, not an alias for the current Model Zoo model."
 msgstr "미리보기는 로컬 체크포인트를 암묵적으로 다운로드하지 않고 찾습니다. 모델이 없으면 패널이 무엇이 없는지 설명하고 적절한 다운로드를 제안합니다. 선택한 모델과 설정을 결과와 함께 보관합니다. ``bundled`` 는 과거에 패키지에 포함되었던 체크포인트를 가리키며, 현재 모델 라이브러리 모델의 별칭이 아닙니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview colony counting (alpha)"
+msgstr "집락 계수 미리보기(알파)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path."
+msgstr "**환경설정 → 알파 기능 표시**\\ 를 활성화한 다음, 모듈의 **집락 계수** 설정에서 **집락 계수**\\ 를 켭니다. **플라크** 모드를 유지하고 **미리보기 실행**\\ 을 누릅니다. 미리보기는 집락 계수 설정과 원본 이미지 픽셀을 사용하여 집락 오버레이를 표시하고, 집락 수와 원본 이미지 픽셀 기준의 평균 면적을 보고합니다. 웰 검출을 활성화하면 검출된 웰별로 계수하고 원본 사진의 해당 위치에 표시합니다. 이 경로에는 플라크 분할 모델이 필요하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode."
+msgstr "임계값 처리를 사용하려면 집락 검출기 항목을 비워 두고, 그렇지 않으면 설치된 집락 검출기를 선택합니다. 미리보기는 체크포인트나 검출기 종속성이 없을 때 방법을 조용히 바꾸지 않고 이를 알립니다. 반면 배치 실행은 선택적 검출기 종속성이 없으면 임계값 처리로 대체할 수 있습니다. 미리보기와 배치 결과를 비교할 때 의도한 방법을 사용할 수 있는지 확인하세요. 집락 계수는 흐름이나 세포 확률 출력을 생성하지 않으므로, 해당 보기에는 출력을 사용할 수 없다는 메시지가 표시됩니다. 미리보기는 분석 데이터베이스를 쓰거나 원본 이미지를 변경하지 않습니다. Figure 모드에서는 집락 계수를 무시합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL."
+msgstr "플레이트별 희석 배수를 지정하려면 **집락 희석 배수**\\ 에 UTF-8 CSV 경로를 입력하세요. 필수 헤더는 ``file,dilution``\\ 이며 각 행에는 확장자를 포함한 이미지 파일명 또는 확장자를 제외한 파일명과 양의 유한한 희석 값을 지정합니다. 예를 들어 ``plate1.png,10000``\\ 과 ``plate2,0.0001``\\ 은 모두 희석 배수 10000을 나타냅니다. 정확한 파일명이 확장자를 제외한 이름보다 우선합니다. 중복 식별자나 잘못된 행이 있으면 검출 또는 출력 기록 전에 미리보기나 분석이 중단됩니다. 매핑에 없는 플레이트도 집락 수는 계산되지만 CFU/mL는 제공되지 않습니다. 단일 숫자 또는 Python 딕셔너리도 계속 지원합니다. 도말 부피는 µL 단위로 별도로 설정하세요. CFU/mL는 부피를 mL로 변환하여 계산합니다."
 
 msgid "Read a published figure"
 msgstr "출판된 그림 읽기"

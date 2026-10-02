@@ -1025,6 +1025,9 @@ def test_the_network_probe_counts_any_answer_and_names_the_host(monkeypatch):
 
 
 def test_a_background_probe_marks_and_clears_rows(monkeypatch):
+    # This test exercises installable rows. An optional backend imported in
+    # the developer's active environment would otherwise be already installed.
+    monkeypatch.setattr(SB, "_importable", lambda _module: False)
     blocked = SB._probe_blockers(probe=lambda: "no network: down")
     assert set(blocked) >= {"cellpose3", "dinocell"}
     assert SB._backend_state("cellpose3").reason == "no network: down"

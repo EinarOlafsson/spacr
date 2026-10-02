@@ -154,3 +154,22 @@ def test_the_manifest_records_the_form_and_source(screen, tmp_path):
     manifest = json.loads((pkg / "archive_manifest.json").read_text())
     assert manifest["source"] == str(screen.resolve())
     assert manifest["form"]["cell_line"] == "HeLa"
+
+
+def test_unknown_publication_has_the_official_idr_row(screen, tmp_path):
+    """IDR's parser requires the title row; an unknown title stays blank."""
+    package = rep._write_archive_package(screen, tmp_path / "out", _form(screen))
+    study_path = next((package / "idr").glob("*-study.txt"))
+    lines = study_path.read_text().splitlines()
+    assert "Study Publication Title\t" in lines
+    assert rep._archive_read_kv(study_path)["Study Publication Title"] == []
+    assert rep._validate_archive_package(package) == []
+
+    # A missing row differs from an explicitly unknown publication. Check
+    # structure independently of the checksum failure caused by this mutation.
+    study_path.write_text("\n".join(
+        line for line in lines if not line.startswith("Study Publication Title\t")
+    ) + "\n")
+    assert "IDR study: 'Study Publication Title' row is missing" in (
+        rep._validate_archive_package(package, verify_checksums=False)
+    )

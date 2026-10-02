@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -45,6 +45,22 @@ msgstr "选择 **使用这些设置**，将调好的值复制到分析运行所�
 
 msgid "The preview resolves local checkpoints without downloading them implicitly. When a model is absent, the panel explains what is missing and offers the appropriate download. Keep the selected model and settings with the results; ``bundled`` names the historical packaged checkpoint, not an alias for the current Model Zoo model."
 msgstr "预览会解析本地检查点，而不会隐式下载。缺少模型时，面板会说明缺少什么，并提供相应的下载。请将所选模型和设置与结果一起保存；``bundled`` 指的是历史上打包的检查点，而不是当前模型库中模型的别名。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview colony counting (alpha)"
+msgstr "预览菌落计数（Alpha）"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path."
+msgstr "启用 **偏好 → 显示 Alpha 功能**，然后在模块的 **菌落计数** 设置中打开 **菌落计数**。保持 **空斑** 模式并按 **运行预览**。预览使用菌落计数设置和原图像素，显示菌落叠加层，并以原图像素为单位报告数量和平均面积。启用孔检测时，会分别统计检测到的孔，并在原始照片的对应位置显示。此流程不需要空斑分割模型。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode."
+msgstr "将菌落检测器留空可使用阈值法，也可以选择已安装的菌落检测器。预览会报告缺失的检查点或检测器依赖项，而不会静默切换方法；批量运行在可选检测器依赖项不可用时可以回退到阈值法。比较预览和批量结果时，请确认所需方法可用。菌落计数不生成流场或细胞概率输出，因此这些视图会显示输出不可用的提示。预览不写入分析数据库，也不改变源图像。在 Figure 模式下，菌落计数设置会被忽略。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL."
+msgstr "若各实验板的稀释度不同，在 **菌落稀释度** 中输入 UTF-8 CSV 路径。必需的表头为 ``file,dilution``；每行给出图像文件名（包含扩展名）或不带扩展名的文件名，以及一个正的有限稀释数值。例如，``plate1.png,10000`` 和 ``plate2,0.0001`` 都表示稀释倍数为 10000。完整文件名的优先级高于不带扩展名的文件名。重复标识或格式错误的行会在检测或写出结果之前停止预览或分析；不在映射中的板仍会得到计数，但没有 CFU/mL。仍支持单个数值或 Python 字典。铺板体积以 µL 为单位另行设置；计算 CFU/mL 时会将体积换算为 mL。"
 
 msgid "Read a published figure"
 msgstr "读取已发表的图"

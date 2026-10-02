@@ -26,6 +26,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from spacr.qt.screens.app_screen import AppScreen                # noqa: E402
 from spacr.qt.widget_cleanup import retire_pyqtgraph_menus       # noqa: E402
+from PySide6.QtWidgets import QWidget                             # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -275,7 +276,7 @@ class TestReadingThePanelsOwnSettings:
         """The provider must not assume the Measurements tab was built."""
         model = screen._settings_model
 
-        class Refusing:
+        class Refusing(QWidget):
             def get_value(self):
                 raise RuntimeError("the table model has gone")
 

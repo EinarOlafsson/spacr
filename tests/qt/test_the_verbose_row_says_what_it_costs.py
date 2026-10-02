@@ -19,7 +19,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QPointF
 from PySide6.QtGui import QEnterEvent
-from PySide6.QtWidgets import QApplication, QFormLayout, QLabel
+from PySide6.QtWidgets import QApplication, QFormLayout, QLabel, QTabWidget
 
 from spacr.qt.preferences import PreferencesDialog
 from spacr.qt.widgets.hint_bar import HintBar
@@ -47,14 +47,23 @@ def _diagnostics_label(dialog) -> QLabel:
     raise AssertionError("Preferences has no Diagnostics row")
 
 
-def test_hovering_the_row_shows_the_measured_cost(dialog):
+def test_hovering_the_row_shows_the_measured_cost(dialog, qtbot, monkeypatch):
     """Point at the label, as a user does, and read the strip."""
     label = _diagnostics_label(dialog)
     bar = dialog.findChild(HintBar)
     assert bar is not None, "Preferences built no hint strip"
+    tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+    assert tabs is not None
+    modules = next(index for index in range(tabs.count())
+                   if tabs.tabText(index) == "Modules")
+    tabs.setCurrentIndex(modules)
+    qtbot.waitUntil(label.isVisible, timeout=1000)
+    monkeypatch.setattr("spacr.qt.tooltip_policy._preferred_delay_ms",
+                        lambda: 1)
 
     QApplication.sendEvent(
         label, QEnterEvent(QPointF(4, 4), QPointF(4, 4), QPointF(4, 4)))
+    qtbot.waitUntil(lambda: "about 4 seconds" in bar.text(), timeout=1000)
     shown = bar.text()
 
     assert "about 4 seconds" in shown, shown

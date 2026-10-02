@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "language": "de",
+  "method": "Direct Codex AI technical translation with independent Codex AI peer review; no local-model draft or human/native-speaker signoff. Normal guide literal, role, UI and source-bound checks unchanged.",
+  "draft_author": "merge_interfaces",
+  "independent_technical_reviewer": "root",
+  "draft_sha256": "9269b40d5612fc36c454aad07c36bb1eb4659c67260a29721a5a4b90cf20f9ae",
+  "reviewed_sha256": "9269b40d5612fc36c454aad07c36bb1eb4659c67260a29721a5a4b90cf20f9ae",
+  "peer_review": {
+    "reviewer": "root",
+    "languages": [
+      "de",
+      "es",
+      "pt",
+      "fr"
+    ],
+    "source": "exact four-entry worklists",
+    "decision": "accepted after grammar edits to es/pt message 2",
+    "message_count": 16,
+    "literal_and_glossary_checks": "passed",
+    "semantic_checks": [
+      "source vs output plate identity",
+      "plain one-source-plate sidecar and keyed multiple-source-plate mapping",
+      "explicit output assignments and zero/conflict guards",
+      "CSV mismatch/complete receipt and unchanged original inputs",
+      "local CSV versus Measure HTTP LIMS"
+    ]
+  },
+  "peer_review_sha256": "ec281c1bc3c81e2ba69854bcecbb578031dd36637d465691e9ea60247b8bded0",
+  "source_files": {
+    "docs/source/plate_barcode_linkage.rst": "165873b6b15a164964d90bee1a4b19a7cecbf41be9b57b03fdd5afc960c7c5c6"
+  },
+  "runtime_catalog_sha256": "48b8490877dd65f7f44ba50cc94837d79c620c882be88cbf9a8a9034ac37d50d",
+  "derivative": "Accepted original draft unchanged",
+  "records": [
+    {
+      "index": 0,
+      "domain": "plate_barcode_linkage",
+      "source": "Link during Convert",
+      "source_sha256": "4015578abe1bc88031b4db2df45728ae2f08af2a50edd65b8cc3ae4c231a1a5f",
+      "original_ai_draft": "Verknüpfung beim Umrechnen",
+      "reviewed_translation": "Verknüpfung beim Umrechnen",
+      "ui_bindings": {}
+    },
+    {
+      "index": 1,
+      "domain": "plate_barcode_linkage",
+      "source": "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names.",
+      "source_sha256": "631a13528efa95a3c275e7b7ed48671661d8bc77435161b33ed01d942985d5b8",
+      "original_ai_draft": "In **Umrechnen** aktivieren Sie **Alpha-Funktionen anzeigen** und wählen unter **Plattenverknüpfung über Barcodes (Alpha)** eine lokale CSV-Datei mit Probendatensätzen aus. Die CSV-Datei benötigt eine Barcode-Spalte, eine Well-Spalte und die gewünschten Probenfelder für den Plattenplan. Die Vorschau prüft die Verknüpfung, bevor Bilder geschrieben werden. Umrechnen verwendet die in der Vorschau angezeigten Ausgabeplattennamen; diese können von den Namen der Quellordner abweichen.",
+      "reviewed_translation": "In **Umrechnen** aktivieren Sie **Alpha-Funktionen anzeigen** und wählen unter **Plattenverknüpfung über Barcodes (Alpha)** eine lokale CSV-Datei mit Probendatensätzen aus. Die CSV-Datei benötigt eine Barcode-Spalte, eine Well-Spalte und die gewünschten Probenfelder für den Plattenplan. Die Vorschau prüft die Verknüpfung, bevor Bilder geschrieben werden. Umrechnen verwendet die in der Vorschau angezeigten Ausgabeplattennamen; diese können von den Namen der Quellordner abweichen.",
+      "ui_bindings": {
+        "Show alpha features": "Alpha-Funktionen anzeigen",
+        "Convert": "Umrechnen",
+        "Plate barcode linkage (Alpha)": "Plattenverknüpfung über Barcodes (Alpha)"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "plate_barcode_linkage",
+      "source": "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate.",
+      "source_sha256": "cc496d3ac0f42d4c531b3e87265e8258a066687a6dd1e1889d7548cfe9cc08e5",
+      "original_ai_draft": "Weisen Sie den Ausgabeplatten Barcodes im Format ``plate1=BC001; plate2=BC002`` zu oder legen Sie eine UTF-8-Datei ``barcode.txt`` im Stammordner der Aufnahme oder in einem tatsächlichen Quellplattenordner ab. Eine Datei mit nur einem Barcode ohne Zuordnung gilt nur, wenn dieser Ordner genau eine Quellplatte enthält. Für mehrere Platten schreiben Sie je einen Eintrag ``source_plate=barcode``, getrennt durch Zeilenumbrüche oder Semikolons; die Schlüssel sind die Namen der *ursprünglichen Quellplatten*. Explizite Zuweisungen in Umrechnen verwenden die Namen der *Ausgabeplatten* und können noch fehlende Platten ergänzen. spaCR behält führende Nullen bei, lehnt mehrdeutige oder widersprüchliche Zuweisungen ab und verlangt für jede Ausgabeplatte einen Barcode.",
+      "reviewed_translation": "Weisen Sie den Ausgabeplatten Barcodes im Format ``plate1=BC001; plate2=BC002`` zu oder legen Sie eine UTF-8-Datei ``barcode.txt`` im Stammordner der Aufnahme oder in einem tatsächlichen Quellplattenordner ab. Eine Datei mit nur einem Barcode ohne Zuordnung gilt nur, wenn dieser Ordner genau eine Quellplatte enthält. Für mehrere Platten schreiben Sie je einen Eintrag ``source_plate=barcode``, getrennt durch Zeilenumbrüche oder Semikolons; die Schlüssel sind die Namen der *ursprünglichen Quellplatten*. Explizite Zuweisungen in Umrechnen verwenden die Namen der *Ausgabeplatten* und können noch fehlende Platten ergänzen. spaCR behält führende Nullen bei, lehnt mehrdeutige oder widersprüchliche Zuweisungen ab und verlangt für jede Ausgabeplatte einen Barcode.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 3,
+      "domain": "plate_barcode_linkage",
+      "source": "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service.",
+      "source_sha256": "e4a399863efb9348311b70ec2daf99ceebc0154669d043866dd1137539143d55",
+      "original_ai_draft": "Nach einer vollständigen Konvertierung lesen Sie ``plate_barcode_linkage/plate_map_lims.csv`` im Zielordner. Prüfen Sie dort ``plate_barcode_mismatches.csv`` auf Wells ohne Zuordnung und andere Abweichungen. Der Abschlussnachweis ``complete.json`` wird zuletzt geschrieben; fehlt er, ist das Verknüpfungspaket unvollständig. Der Bildschirm Umrechnen zeigt eine begrenzte Vorschau der Abweichungen und die Pfade zu beiden CSV-Dateien. Originalbilder, Barcode-Dateien und vorhandene benutzereigene Plattenpläne bleiben unverändert. Dieser Ablauf in Umrechnen akzeptiert eine lokale CSV-Datei; für einen HTTP LIMS-Dienst verwenden Sie Messen.",
+      "reviewed_translation": "Nach einer vollständigen Konvertierung lesen Sie ``plate_barcode_linkage/plate_map_lims.csv`` im Zielordner. Prüfen Sie dort ``plate_barcode_mismatches.csv`` auf Wells ohne Zuordnung und andere Abweichungen. Der Abschlussnachweis ``complete.json`` wird zuletzt geschrieben; fehlt er, ist das Verknüpfungspaket unvollständig. Der Bildschirm Umrechnen zeigt eine begrenzte Vorschau der Abweichungen und die Pfade zu beiden CSV-Dateien. Originalbilder, Barcode-Dateien und vorhandene benutzereigene Plattenpläne bleiben unverändert. Dieser Ablauf in Umrechnen akzeptiert eine lokale CSV-Datei; für einen HTTP LIMS-Dienst verwenden Sie Messen.",
+      "ui_bindings": {}
+    }
+  ]
+}

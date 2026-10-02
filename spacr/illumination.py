@@ -969,12 +969,26 @@ def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
         if foreground is None:
             continue
         coefficients = blob['Foreground']['Profile']['Coefficients']
-        profiles[int(channel)] = {
+        candidate = {
             'foreground': foreground,
             'background': _harmony_surface(blob.get('Background')),
             'degree': max(len(coefficients) - 1, 0),
             'name': str(blob.get('ChannelName', '') or ''),
         }
+        channel = int(channel)
+        if channel in profiles:
+            previous = profiles[channel]
+            same_foreground = np.array_equal(previous['foreground'], foreground)
+            old_dark, new_dark = previous['background'], candidate['background']
+            same_background = ((old_dark is None and new_dark is None)
+                               or (old_dark is not None and new_dark is not None
+                                   and np.array_equal(old_dark, new_dark)))
+            if not same_foreground or not same_background:
+                raise IlluminationError(
+                    f"{path!r} contains conflicting Harmony flat-field "
+                    f"profiles for channel {channel}; select an unambiguous export.")
+            continue
+        profiles[channel] = candidate
     if not profiles:
         raise IlluminationError(
             f"{path!r} contains no Harmony FlatfieldProfile with a "
@@ -1099,6 +1113,13 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
         raise IlluminationError(
             'a vendor flat-field profile needs at least one channel to apply '
             'to; settings["channels"] is empty.')
+    try:
+        with np.errstate(over='ignore', invalid='ignore'):
+            scalar_dark = np.float32(float(dark))
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise IlluminationError('vendor camera offset must be a finite number') from exc
+    if not np.isfinite(scalar_dark):
+        raise IlluminationError('vendor camera offset must be finite in float32')
     explicit_mapping = _parse_vendor_channel_map(channel_map, channels)
     resolved_mapping = {c: explicit_mapping.get(c, c + 1) for c in channels}
     suffix = os.path.splitext(path)[1].lower()
@@ -1144,12 +1165,26 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
             f"the profiles in {path!r} differ in size between channels "
             f"({sorted(shapes)}); one correction cannot cover them all.")
     if suffix == '.xml' and any(b is not None for b in backgrounds):
-        darkfield = np.stack(
-            [np.zeros_like(planes[i]) if b is None else b
-             for i, b in enumerate(backgrounds)]).astype(np.float32)
-    flatfield = np.stack(planes).astype(np.float32)
+        for channel, plane, background in zip(channels, planes, backgrounds):
+            if background is not None and background.shape != plane.shape:
+                raise IlluminationError(
+                    f"the Harmony background for channel {resolved_mapping[channel]} "
+                    f"has shape {background.shape}, but its foreground has "
+                    f"shape {plane.shape}; calibration grids must match exactly.")
+        with np.errstate(over='ignore', invalid='ignore'):
+            darkfield = np.stack(
+                [np.zeros_like(planes[i]) if b is None else b
+                 for i, b in enumerate(backgrounds)]).astype(np.float32)
+        if not np.isfinite(darkfield).all():
+            raise IlluminationError(
+                f"the vendor spatial background in {path!r} must be finite in float32.")
+    with np.errstate(over='ignore', invalid='ignore'):
+        flatfield = np.stack(planes).astype(np.float32)
+    if not np.isfinite(flatfield).all():
+        raise IlluminationError(
+            f"the vendor flat field in {path!r} must be finite in float32.")
     low = float(flatfield.min())
-    if not np.isfinite(low) or low <= 0:
+    if low <= 0:
         raise IlluminationError(
             f"the vendor flat field in {path!r} reaches {low!r}; a gain map "
             f"that is not strictly positive cannot be inverted.")
@@ -2600,13 +2635,13 @@ _TOOLTIPS = {
         'The figure has low computational cost and provides direct '
         'verification of the correction. Default True.'),
     'illumination_vendor_channel_map': (
-        '(str) - Optional channel assignments for a vendor flat-field profile: '
-        '0:2,1:1 maps persisted intensity channel 0 to vendor channel 2 and '
-        'intensity channel 1 to vendor channel 1. Intensity channels start at '
-        '0; Harmony channels and reference-image planes start at 1. Include '
-        'every corrected intensity channel. Empty keeps the original order '
-        'and applies a single reference plane to all channels. Used only '
-        'with illumination_vendor_profile; a saved illumination_model wins. '
+        '(str) - Assign saved intensity channels to a vendor flat-field calibration. '
+        'Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. '
+        'Intensity channel numbers start at 0. Calibration channel or image-layer '
+        'numbers start at 1. Include every corrected intensity channel. '
+        'An empty value keeps the original channel order. With an empty value, '
+        'a single calibration image layer applies to all channels. Select a vendor calibration '
+        'file first. A saved illumination model takes priority. '
         'Default empty.'),
     'illumination_vendor_profile': (
         '(str) - Path to the flat-field correction the microscope software '

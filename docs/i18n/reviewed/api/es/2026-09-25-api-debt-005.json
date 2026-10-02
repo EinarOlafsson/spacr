@@ -1621,7 +1621,9 @@
       "source_sha256": "7513d0f858711ce00e43fd24a5e8d7902d59b41014ef674debe3844ed538085c",
       "context": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically, with ``sqlite_`` internals left out.",
       "translation": "ruta a una base de datos de mediciones SQLite, abierta en solo lectura; las tablas preferidas (``object``, ``cell``, ``nucleus``, …) van primero, luego el resto por orden alfabético, omitiendo las internas ``sqlite_``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-01: table discovery documentation now describes exclusion of private condition-annotation receipts. The prior source-bound review remains recorded; the revised paragraph requires a new translation."
     },
     {
       "label": "spacr.qt.screens.hit_list.HitListScreen.closeEvent#1",
@@ -4541,7 +4543,9 @@
       "source_sha256": "6b64508bcb3db07b855edf6e851ab479a8ebcab82a7751e795d3f9f19a58adda",
       "context": "key-value mapping of assay settings; see ``get_automated_motility_assay_default_settings`` for structured-data names including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
       "translation": "diccionario de ajustes del ensayo; véase ``get_automated_motility_assay_default_settings`` para las claves, entre ellas ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim`` y ``reuse_existing_measurements``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-01: the motility photobleaching correction contract changed. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.uniprot.Resolution#1",

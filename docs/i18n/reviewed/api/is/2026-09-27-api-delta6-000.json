@@ -1,24 +1,24 @@
 {
-  "schema": 1,
   "language": "is",
-  "review_kind": "AI technical review (Codex), no native-speaker signoff",
   "note": "API delta 6, items 47/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
   "records": [
     {
-      "label": "spacr.install_cleanup.start_update_helper#10",
+      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
+      "label": "spacr.install_cleanup.start_update_helper#12",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
       "source_sha256": "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759",
-      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
-      "translation": "Frosinn macOS-forritapakki á stað þar sem notandinn hefur skrifheimild notar staðfestan DMG-skiptiaðlaga sinn og varðveitir allan fyrri forritapakkann. Aðrar gerðir frosinna forrita skila villu áður en nokkuð er fjarlægt; hjálparforritið virkjar ekki varaleið með netuppsetningarforriti fyrir þessi forrit.",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "Frosinn macOS-forritapakki á stað þar sem notandinn hefur skrifheimild notar staðfestan DMG-skiptiaðlaga sinn og varðveitir allan fyrri forritapakkann. Aðrar gerðir frosinna forrita skila villu áður en nokkuð er fjarlægt; hjálparforritið virkjar ekki varaleið með netuppsetningarforriti fyrir þessi forrit."
     },
     {
+      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
       "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "An accepted close also joins the owned backdrop renderer. Showing the screen again creates a fresh backdrop from the current settings.",
       "source_sha256": "90b9bbc56d70e06f3d9b420eba571bf6e6feaa6fdfef03c90449e01033cd8b88",
-      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
-      "translation": "Þegar lokun er samþykkt er einnig beðið þar til bakgrunnsteiknarinn sem þessi viðmótssýn á hefur lokið. Þegar sýnin er birt aftur er nýr bakgrunnur búinn til út frá núverandi stillingum.",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "Þegar lokun er samþykkt er einnig beðið þar til bakgrunnsteiknarinn sem þessi viðmótssýn á hefur lokið. Þegar sýnin er birt aftur er nýr bakgrunnur búinn til út frá núverandi stillingum."
     }
-  ]
+  ],
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "schema": 1
 }

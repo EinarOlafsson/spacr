@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Codex agents reviewed all 11 local-model schema UI drafts in each locale. Technical errors and omissions were corrected as source-bound targets. Another Codex agent independently reviewed every corrected source/target pair, including load-without-apply, no restored manual memberships, portable rules/extraction/composition, omission counts and placeholders. Standard generator, normalization and translation quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "9fe7e139de5fbd6b8324c6667fbaf9672eeff5bbb2c6fa1a9398d58122f4e2e6",
+  "original_local_model_drafts": [
+    {
+      "source": "JSON files (*.json)",
+      "translation": "JSON arquivos (*.json)"
+    },
+    {
+      "source": "Load schema",
+      "translation": "Esquema de carga"
+    },
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "translation": "Salve as regras validadas, os padrões de extração e a composição da coluna como reutilizáveis JSON. As atribuições de linha arrastadas manualmente são omitidas."
+    },
+    {
+      "source": "Saving annotation schema…",
+      "translation": "Gravar o esquema de anotação..."
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "translation": "Esquema salvo em {path}.  {count:,} as atribuições de linha manual foram omitidas."
+    }
+  ],
+  "authorship": [
+    {
+      "source": "JSON files (*.json)",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    },
+    {
+      "source": "Load schema",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    },
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    },
+    {
+      "source": "Saving annotation schema…",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "JSON files (*.json)",
+      "source": "JSON files (*.json)",
+      "source_sha256": "b83fb9c913aef1ce3447f5bf78d469a8778b6b3348664cca431886b36c64b241",
+      "translation": "Arquivos JSON (*.json)"
+    },
+    {
+      "table": "ui",
+      "key": "Load schema",
+      "source": "Load schema",
+      "source_sha256": "4f6d03c427e38e5ece1897d5f714150b5eaf727cad06c532a2c5f35c49f1c7c7",
+      "translation": "Carregar esquema"
+    },
+    {
+      "table": "ui",
+      "key": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source_sha256": "a643c6cc5eb94070c609badd6bee8466e85ad53c842d5c0d7f47b007cc134f4d",
+      "translation": "Salve as regras validadas, os padrões de extração e a composição de colunas em um arquivo JSON reutilizável. As atribuições de linhas feitas por arraste manual são omitidas."
+    },
+    {
+      "table": "ui",
+      "key": "Saving annotation schema…",
+      "source": "Saving annotation schema…",
+      "source_sha256": "1b9f2e064c9c3a8ca9ed9dd90af0eb0d293be314a2027fd458c2b98b6e99eb60",
+      "translation": "Salvando esquema de anotação…"
+    },
+    {
+      "table": "ui",
+      "key": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source_sha256": "4e6fe802043854fd29e948165ba9ff6c57a62c3a4745ec5c7b0ad2bfe9c49e3f",
+      "translation": "Esquema salvo em {path}. Foram omitidas {count:,} atribuições manuais de linhas."
+    }
+  ]
+}

@@ -30,14 +30,15 @@ located by :mod:`spacr.plate_qc` and controls named in the
 control-chart screen's own :func:`~spacr.qt.widgets.control_chart.zprime_frame`.
 
 The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes
-the MAD of a normal sample estimate its standard deviation (the factor R's
-``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of
-moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust``
+the MAD of a normal sample estimate its standard deviation. B-scores use
+R's rounded factor 1.4826 to match cellHTS2. ``SSMD_ESTIMATORS`` are ``mm``
+(method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust``
 (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic:
 SSMD 3 is Zhang's "strong" effect, and 3 robust sigma is the usual cut-off
 for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and
-``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so
-the residuals agree with the B-score cellHTS2 computes.
+``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01) for
+general median polish. B-scores use cellHTS2's tighter stopping settings:
+200 iterations and a tolerance of 1e-5.
 
 Image-based profiling
 ---------------------
@@ -473,6 +474,7 @@ WELL_ROLES = (ROLE_NEGATIVE, ROLE_POSITIVE, ROLE_SAMPLE)
 DEFAULT_HIT_THRESHOLDS = {"ssmd": 3.0, "robust_z": 3.0, "b_score": 3.0}
 MEDIAN_POLISH_MAX_ITER = 10
 MEDIAN_POLISH_EPS = 0.01
+_BSCORE_MAD_SCALE = 1.4826
 
 
 class HitScoringError(ValueError):
@@ -716,12 +718,14 @@ def b_scores(matrix, *, fit_mask=None, scale: Optional[float] = None
     fit = np.isfinite(values)
     if fit_mask is not None:
         fit &= np.asarray(fit_mask, dtype=bool)
-    polish = median_polish(np.where(fit, values, np.nan))
+    # cellHTS2::Bscore overrides the looser stats::medpolish defaults.
+    polish = median_polish(np.where(fit, values, np.nan),
+                           max_iter=200, eps=1e-5)
     residuals = values - (polish.overall
                           + np.nan_to_num(polish.row)[:, None]
                           + np.nan_to_num(polish.column)[None, :])
     if scale is None:
-        scale = mad(residuals[fit])
+        scale = mad(residuals[fit], scale=False) * _BSCORE_MAD_SCALE
     scale = float(scale)
     if not np.isfinite(scale) or scale <= 0:
         return np.full(values.shape, np.nan), polish, scale
@@ -1075,7 +1079,8 @@ def score_screen(wells: pd.DataFrame, *, scope: str = "plate",
         grids[plate] = (on, rows, cols, grid, fit)
         residuals = grid - polish.fitted()
         residual_pool.append(residuals[fit & np.isfinite(residuals)])
-    pooled_scale = (mad(np.concatenate(residual_pool)) if residual_pool
+    pooled_scale = (mad(np.concatenate(residual_pool), scale=False)
+                    * _BSCORE_MAD_SCALE if residual_pool
                     else float("nan"))
     b = np.full(len(out), np.nan)
     polishes: Dict[str, Tuple[MedianPolish, float]] = {}
@@ -1866,6 +1871,14 @@ def _draw_hit_structures(figure, chemistry: _ChemistryResult, *,
 
     figure.clear()
     ink = resolve_ink(target)
+    if target == "screen":
+        # The automatic figure ground is transparent in both themes, so
+        # theme_target cannot distinguish a light canvas from a dark one.
+        try:
+            from .qt.preferences import get_figure_colors
+            ink = get_figure_colors()[1]
+        except ImportError:
+            pass  # Headless installations may not include Qt.
     sar = chemistry.sar
     hits = sar[sar["hit"]]
     if "smiles_valid" in hits.columns:
@@ -1905,7 +1918,10 @@ def _draw_hit_structures(figure, chemistry: _ChemistryResult, *,
             caption += f"\ncytotoxicity {tox:.3g}"
         ax.set_title(str(row["compound"]), fontsize=8, color=ink)
         ax.set_xlabel(caption, fontsize=7, color=ink)
-    figure.tight_layout(pad=0.6)
+    # A Qt canvas acquires its final geometry after this worker result is
+    # installed. Recompute the layout on draw/resize: a one-shot tight_layout
+    # can leave negative spacing and overlapping molecular tiles afterward.
+    figure.set_layout_engine("constrained", w_pad=0.06, h_pad=0.06)
     return len(hits)
 
 
@@ -1918,7 +1934,9 @@ def _write_sar_report(chemistry: _ChemistryResult, out_dir, *,
     :param target: ``'screen'`` or ``'print'``; default the preference.
     :returns: ``{name: path}``: ``sar_table`` (one row per compound),
         ``sar_wells`` (every well with its compound), ``sar_clusters`` when
-        clustered, and ``hit_structures`` when a structure was drawn.
+        clustered, and ``hit_structures`` plus ``hit_structures_svg`` when
+        a structure was drawn. The SVG contains vector bonds, editable text
+        and full compound metadata; the existing image export is retained.
     """
     import os
 
@@ -1947,7 +1965,102 @@ def _write_sar_report(chemistry: _ChemistryResult, out_dir, *,
             written["hit_structures"] = save_figure(
                 figure, os.path.join(str(out_dir), "hit_structures.png"),
                 close=True, announce_colours=False)
+            vector_path = _write_hit_structures_svg(chemistry, out_dir)
+            if vector_path is not None:
+                written["hit_structures_svg"] = vector_path
     return written
+
+
+def _write_hit_structures_svg(chemistry, out_dir):
+    """Export the displayed hit structures as editable vector artwork."""
+    import json
+    import os
+    from pathlib import Path
+    import tempfile
+    import textwrap
+    import xml.etree.ElementTree as ET
+
+    hits = chemistry.sar[chemistry.sar["hit"]]
+    if "smiles_valid" in hits.columns:
+        hits = hits[hits["smiles_valid"].fillna(False).astype(bool)]
+    if not chemistry.clustered or hits.empty:
+        return None
+    hits = hits.sort_values(["cluster", "best_rank"], na_position="last").head(_STRUCTURE_LIMIT)
+    chem, _data_structs, draw = _rdkit()
+    statistic = HIT_METHOD_LABELS.get(chemistry.sar.attrs.get("statistic", ""),
+                                     chemistry.sar.attrs.get("statistic", "score"))
+    molecules, labels, records = [], [], []
+    for _, row in hits.iterrows():
+        molecule = chem.MolFromSmiles(row["smiles"])
+        if molecule is None:
+            continue
+        name = str(row["compound"])
+        name_lines = textwrap.wrap(textwrap.shorten(name, width=60, placeholder="…"), width=30)
+        if len(name_lines) > 2:
+            name_lines = [name_lines[0], textwrap.shorten(
+                " ".join(name_lines[1:]), width=30, placeholder="…")]
+        caption = f"cluster {int(row['cluster'])} · {statistic} {row['potency']:.3g}"
+        toxicity = row.get("cytotoxicity_index")
+        toxicity_text = (f"cytotoxicity {toxicity:.3g}" if toxicity is not None
+                         and pd.notna(toxicity) else "")
+        molecules.append(molecule)
+        labels.append((name_lines, caption, toxicity_text))
+        records.append({"compound": name, "smiles": str(row["smiles"]),
+                        "cluster": int(row["cluster"]), "statistic": str(statistic),
+                        "potency": float(row["potency"]),
+                        "cytotoxicity_index": (float(toxicity) if toxicity is not None
+                                                and pd.notna(toxicity) else None)})
+    if not molecules:
+        return None
+    from matplotlib import colormaps
+    from matplotlib.colors import to_hex
+
+    namespace = "{http://www.w3.org/2000/svg}"
+    columns = min(6, len(molecules))
+    width, height = columns * 300, int(np.ceil(len(molecules) / columns)) * 400
+    document = ET.Element(namespace + "svg", {"width": str(width), "height": str(height),
+                                               "viewBox": f"0 0 {width} {height}"})
+    ET.SubElement(document, namespace + "rect", {"width": "100%", "height": "100%", "fill": "white"})
+    for index, (molecule, label, record) in enumerate(zip(molecules, labels, records)):
+        tile = ET.SubElement(document, namespace + "g", {
+            "transform": f"translate({index % columns * 300},{index // columns * 400})"})
+        ET.SubElement(tile, namespace + "title").text = record["compound"]
+        drawer = draw.rdMolDraw2D.MolDraw2DSVG(300, 300)
+        draw.rdMolDraw2D.PrepareAndDrawMolecule(drawer, molecule)
+        drawer.FinishDrawing()
+        artwork = ET.fromstring(drawer.GetDrawingText())
+        # RDKit emits empty glyph paths for spaces; omit those harmless paths
+        # so SVG renderers do not report truncated-path warnings.
+        for parent in artwork.iter():
+            for child in list(parent):
+                if child.tag == namespace + "path" and not child.get("d", "").strip():
+                    parent.remove(child)
+        tile.extend(list(artwork))
+        colour = to_hex(colormaps["tab10"]((record["cluster"] - 1) % 10))
+        ET.SubElement(tile, namespace + "rect", {
+            "x": "2", "y": "2", "width": "296", "height": "396",
+            "fill": "none", "stroke": colour, "stroke-width": "2"})
+        name_lines, caption, toxicity_text = label
+        lines = [(318 + n * 17, line) for n, line in enumerate(name_lines)]
+        lines += [(359, caption), (380, toxicity_text)]
+        for y, line in lines:
+            ET.SubElement(tile, namespace + "text", {
+                "x": "150", "y": str(y), "text-anchor": "middle", "fill": "#231F20",
+                "font-family": "sans-serif", "font-size": "13"}).text = line
+    # Preserve full names and exact numeric values even if a tile label is shortened.
+    metadata = ET.SubElement(document, "{http://www.w3.org/2000/svg}metadata")
+    metadata.text = json.dumps({"structures": records}, ensure_ascii=False, allow_nan=False)
+    destination = Path(out_dir) / "hit_structures.svg"
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=destination.parent, suffix=".svg", delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(ET.tostring(document, encoding="utf-8", xml_declaration=True))
+        os.replace(temporary, destination)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+    return str(destination)
 
 
 _PROFILE_KEYS = ("plateID", "rowID", "columnID")
@@ -4103,7 +4216,12 @@ def _arrayed_power(components: Dict[str, Any], effect: float, *,
     crit = student_t.ppf(1.0 - alpha / 2.0, dof)
     with _warnings.catch_warnings():
         _warnings.simplefilter('ignore', RuntimeWarning)
-        achieved = nct.sf(crit, dof, ncp) + nct.cdf(-crit, dof, ncp)
+        # T(df, ncp) reflected about zero is T(df, -ncp).  The mirrored
+        # survival tail avoids SciPy's unstable negative-argument CDF at
+        # low degrees of freedom without dropping a legitimate small tail.
+        achieved = nct.sf(crit, dof, ncp) + nct.sf(crit, dof, -ncp)
+    if not np.isfinite(achieved):
+        raise ValueError('noncentral t power could not be computed reliably')
     return float(min(1.0, achieved))
 
 

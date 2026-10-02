@@ -26,17 +26,20 @@ table and writes gates using the original base object's identity. External
 tabular merges remain gateable; image annotation/export are unavailable when
 image/object provenance cannot be verified.
 
-**What it produces.** Threshold, rectangle, oval, polygon and wand gates on
-one or two measurements, box, cylinder and prism gates in the 3D view, and
-combinations of other gates. Publishing a gate narrows every linked view to
-that population. The gating strategy saves to and loads from a JSON file
-(``gates.json`` by default) so that the next plate is gated the same way;
-Export writes each gate as a column of the ``filters`` table in the
-measurements database, and the graph saves as PNG or PDF. Exports compare the
-live gates (including unsaved edits) with analysis locks holding their saved
-strategy and record gate-specific verdicts in ``filter_export_provenance``.
-A missing lock never implies verification. This receipt covers exported gates;
-unrecorded merge definitions and unrelated pipeline settings are not verified.
+**What it produces.** Select measurement rows with threshold, rectangle,
+ellipse, polygon, or ``wand`` tools. Use box, cylinder, or prism shapes in
+the 3D view. Combine existing gates to define additional populations.
+Publishing a gate restricts each linked view to its selected population.
+
+Save the selection strategy to a JSON file and load it for another plate.
+The default filename is ``gates.json``. Export each gate as a column of the
+``filters`` table in the measurements database. Save the graph as PNG or PDF.
+
+Before export, compare the current gates, including unsaved edits, with
+analysis locks that contain their saved strategy. Record the verdict for
+each gate in ``filter_export_provenance``. A missing lock does not mean
+the gates were verified. These records describe only the exported gates.
+They do not verify unrecorded merge definitions or unrelated pipeline settings.
 
 **What to do next.** Look at the gated population in the views that follow
 the shared filter, such as Image UMAP, Graph Builder and the crop grid, and
@@ -2223,7 +2226,7 @@ def _record_gate_export_provenance(path: str, table: str, gates: GateSet,
                "analysis_locks": verdicts,
                "lock_coverage": "checked" if verdicts else "no_applicable_strategy_lock",
                "written": [{"column": column, "marked_objects": count} for column, count in written]}
-    with sqlite3.connect(path) as db:
+    with sqlite3.connect(path, timeout=30.0) as db:
         db.execute("CREATE TABLE IF NOT EXISTS filter_export_provenance "
                    "(exported_utc TEXT NOT NULL, source_table TEXT NOT NULL, "
                    "gate_column TEXT NOT NULL, receipt_json TEXT NOT NULL)")

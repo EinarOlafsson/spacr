@@ -99,6 +99,37 @@ def test_a_figure_without_image_panels_is_left_alone(tmp_path):
     assert not os.path.exists(plot._provenance_sidecar_path(written))
 
 
+def test_exact_panel_reuse_across_exports_is_recorded(tmp_path):
+    first = _field(302)
+    plot.save_figure(_figure([first], [(0, 3000)]),
+                     tmp_path / "first.png", integrity=True)
+    second = plot.save_figure(_figure([first], [(0, 3000)]),
+                              tmp_path / "second.png", integrity=True)
+    with open(plot._provenance_sidecar_path(second), encoding="utf-8") as handle:
+        report = json.load(handle)
+    repeats = _warnings(report, "cross_figure_duplicate")
+    assert len(repeats) == 1
+    assert repeats[0]["prior_figure"] == "first.png"
+    assert repeats[0]["prior_panel"] == 0
+
+    distinct = plot.save_figure(_figure([_field(303)], [(0, 3000)]),
+                                tmp_path / "distinct.png", integrity=True)
+    with open(plot._provenance_sidecar_path(distinct), encoding="utf-8") as handle:
+        assert not _warnings(json.load(handle), "cross_figure_duplicate")
+
+
+def test_a_stale_prior_sidecar_cannot_flag_an_overwritten_figure(tmp_path):
+    first = plot.save_figure(_figure([_field(304)], [(0, 3000)]),
+                             tmp_path / "first.png", integrity=True)
+    # An image changed after its sidecar was written is no longer evidence.
+    with open(first, "ab") as handle:
+        handle.write(b"newer content")
+    second = plot.save_figure(_figure([_field(304)], [(0, 3000)]),
+                              tmp_path / "second.png", integrity=True)
+    with open(plot._provenance_sidecar_path(second), encoding="utf-8") as handle:
+        assert not _warnings(json.load(handle), "cross_figure_duplicate")
+
+
 def test_mismatched_display_ranges_warn(capsys):
     panels = [_field(i) for i in range(3)]
     shared = _report(_figure(panels, [(300, 2500)] * 3))

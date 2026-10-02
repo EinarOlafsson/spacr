@@ -1083,3 +1083,25 @@ def _no_real_embedded_provider_sign_in(monkeypatch):
             "replace pty_sign_in._spawn with a local stand-in")
 
     monkeypatch.setattr(pty_sign_in, "_spawn", refuse)
+
+
+@pytest.fixture
+def immediate_hover_help(monkeypatch, qtbot):
+    """Exercise hover content through the real timer, with an explicit zero delay.
+
+    Timing tests do not request this fixture and retain the user/default delay.
+    Hidden anchors are rejected by the production policy, so content witnesses
+    must expose their actual control before entering it.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    monkeypatch.setattr("spacr.qt.tooltip_policy._preferred_delay_ms", lambda: 0)
+
+    def hover(widget, ready):
+        """Deliver Enter to a visible anchor and await its real callback."""
+        assert widget.isVisible(), "hover content needs a visible anchor"
+        QApplication.sendEvent(widget, QEvent(QEvent.Type.Enter))
+        qtbot.waitUntil(ready, timeout=1000)
+
+    return hover

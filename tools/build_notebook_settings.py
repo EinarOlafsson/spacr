@@ -1692,6 +1692,9 @@ def _insertion_point(cells: List[dict]) -> int:
         if cell.get("cell_type") == "markdown" and \
                 source.startswith("## 4. Run it"):
             return index
+    for index, cell in enumerate(cells):
+        if _cell_kind(cell) == RUN_CELL_KIND:
+            return index
     for index in range(len(cells) - 1, -1, -1):
         if cells[index].get("cell_type") == "code":
             return index

@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "language": "de",
+  "method": "Direct Codex AI technical translation with independent Codex AI technical peer review; no human or native-speaker signoff. Standard guide import and gates unchanged.",
+  "draft_author": "merge_interfaces",
+  "independent_reviewer": "root",
+  "draft_sha256": "de2936af8b1d7972f30695592242339b2d9606a83c254bc7b6d014b24358e857",
+  "reviewed_sha256": "de2936af8b1d7972f30695592242339b2d9606a83c254bc7b6d014b24358e857",
+  "source_files": {
+    "docs/source/measure_live.rst": "156035ba6d69fe076dadf0066521eb689b05581cbe25a223b3047da79718f9e8"
+  },
+  "runtime_catalog_sha256": "7e3cee9c483b47cff27f14b6b034dc233d020f524b8b6a04c17eebc02a23497a",
+  "records": [
+    {
+      "index": 0,
+      "domain": "measure_live",
+      "source": "Preview and export unmixed crops",
+      "source_sha256": "f9f0a86e7889a7ab6c5b9108cb6c72b5dbc1d137626264db2696cd1ec5f58aff",
+      "original_draft": "Spektral entmischte Bildausschnitte ansehen und exportieren",
+      "target": "Spektral entmischte Bildausschnitte ansehen und exportieren",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged.",
+      "source_sha256": "9cc2e0f7d40c882fe3777428d84c09fe27a13b1d150450bb2bd620267111553b",
+      "original_draft": "Wenn **Alpha-Funktionen anzeigen** aktiviert ist, setzen Sie ``unmix=True`` und konfigurieren Sie ``unmix_controls`` im Formular **Messen**. Schalten Sie **Spektral entmischte Anzeige** um, um diese Einzelfärbungskontrollen in der Bildausschnittvorschau zu verwenden. Standardmäßig werden Rohdaten angezeigt. Ungültige oder fehlende Kontrollen werden gemeldet. Dieser Schalter ändert nur die Anzeige; Laufeinstellungen, Quellarrays und PNG-Ausgaben der Stapelverarbeitung bleiben unverändert.",
+      "target": "Wenn **Alpha-Funktionen anzeigen** aktiviert ist, setzen Sie ``unmix=True`` und konfigurieren Sie ``unmix_controls`` im Formular **Messen**. Schalten Sie **Spektral entmischte Anzeige** um, um diese Einzelfärbungskontrollen in der Bildausschnittvorschau zu verwenden. Standardmäßig werden Rohdaten angezeigt. Ungültige oder fehlende Kontrollen werden gemeldet. Dieser Schalter ändert nur die Anzeige; Laufeinstellungen, Quellarrays und PNG-Ausgaben der Stapelverarbeitung bleiben unverändert.",
+      "ui": {
+        "Show alpha features": "Alpha-Funktionen anzeigen",
+        "Measure": "Messen",
+        "Unmixed display": "Spektral entmischte Anzeige"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "measure_live",
+      "source": "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged.",
+      "source_sha256": "0137b941fdfda25b2abe2d543b2fe916f0dbffbd8b685be8ee2043142c10f03f",
+      "original_draft": "Wählen Sie nach Abschluss der Vorschau **Angezeigte Bildausschnitte exportieren…**, wählen Sie einen übergeordneten Ordner und geben Sie einen neuen Ordnernamen ein. Exportiert werden nur die Bildausschnitte der abgeschlossenen Vorschau, mit ihren angezeigten Farben und den rohen oder spektral entmischten Pixeln. ``provenance.json`` enthält Quellpfade, Objektidentitäten, Anzeigeeinstellungen und Angaben zur spektralen Entmischung. Bereits vorhandene Ordner werden abgelehnt. Abbrechen oder Ändern der Vorschau verwirft einen noch nicht abgeschlossenen Export; Quelldateien und Ausgaben der Stapelverarbeitung bleiben unverändert.",
+      "target": "Wählen Sie nach Abschluss der Vorschau **Angezeigte Bildausschnitte exportieren…**, wählen Sie einen übergeordneten Ordner und geben Sie einen neuen Ordnernamen ein. Exportiert werden nur die Bildausschnitte der abgeschlossenen Vorschau, mit ihren angezeigten Farben und den rohen oder spektral entmischten Pixeln. ``provenance.json`` enthält Quellpfade, Objektidentitäten, Anzeigeeinstellungen und Angaben zur spektralen Entmischung. Bereits vorhandene Ordner werden abgelehnt. Abbrechen oder Ändern der Vorschau verwirft einen noch nicht abgeschlossenen Export; Quelldateien und Ausgaben der Stapelverarbeitung bleiben unverändert.",
+      "ui": {
+        "Export displayed crops…": "Angezeigte Bildausschnitte exportieren…"
+      }
+    },
+    {
+      "index": 3,
+      "domain": "measure_live",
+      "source": "Preview reference-well calibration",
+      "source_sha256": "bae1cd22994d228c8e96460b42666421695b498ef6e9230b6811e44d04922963",
+      "original_draft": "Kalibrierung mit Referenzwells vorab prüfen",
+      "target": "Kalibrierung mit Referenzwells vorab prüfen",
+      "ui": {}
+    },
+    {
+      "index": 4,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings.",
+      "source_sha256": "596b4f770967b84a76d6e345ea4c2ac650410c13028421c4a19dd6be062e4574",
+      "original_draft": "Wenn **Alpha-Funktionen anzeigen** aktiviert ist, aktivieren Sie ``intensity_calibration`` und konfigurieren Sie Referenzwells, Kameraoffset und Statistik im Formular **Messen**. Schalten Sie **Testmodus** aus und wählen Sie dann **Vorschau** neben **Kalibrierungs-Wells der Intensität**. Verwenden Sie einen lokalen Laufordner oder dessen Ordner ``merged``. Die Vorschau liest die aktuellen Einstellungen, ohne **Messen** auszuführen oder Bilder, Messwerte oder Einstellungen zu schreiben.",
+      "target": "Wenn **Alpha-Funktionen anzeigen** aktiviert ist, aktivieren Sie ``intensity_calibration`` und konfigurieren Sie Referenzwells, Kameraoffset und Statistik im Formular **Messen**. Schalten Sie **Testmodus** aus und wählen Sie dann **Vorschau** neben **Kalibrierungs-Wells der Intensität**. Verwenden Sie einen lokalen Laufordner oder dessen Ordner ``merged``. Die Vorschau liest die aktuellen Einstellungen, ohne **Messen** auszuführen oder Bilder, Messwerte oder Einstellungen zu schreiben.",
+      "ui": {
+        "Show alpha features": "Alpha-Funktionen anzeigen",
+        "Measure": "Messen",
+        "Test mode": "Testmodus",
+        "Preview": "Vorschau",
+        "Intensity calibration wells": "Kalibrierungs-Wells der Intensität"
+      }
+    },
+    {
+      "index": 5,
+      "domain": "measure_live",
+      "source": "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop.",
+      "source_sha256": "6e93ba2104a5a978e7bc128eab0fb5c08c9ead258ea906d6d60ca8008d97ca1f",
+      "original_draft": "Jeder Quellordner wird separat geplant. Die nach Namen erste Platte dient als Referenz. Die Tabelle zeigt für jede Platte und jeden Kanal den multiplikativen Verstärkungsfaktor, die Referenzstatistik und die Anzahl der Referenzbildfelder. Eine Änderung der Einstellungen macht das Ergebnis ungültig. **Abbrechen** verwirft die Vorschau, während eine bereits laufende Prüfung der Quelldateien sicher abgeschlossen wird; beim erneuten Öffnen wird gewartet, bis diese Prüfung beendet ist.",
+      "target": "Jeder Quellordner wird separat geplant. Die nach Namen erste Platte dient als Referenz. Die Tabelle zeigt für jede Platte und jeden Kanal den multiplikativen Verstärkungsfaktor, die Referenzstatistik und die Anzahl der Referenzbildfelder. Eine Änderung der Einstellungen macht das Ergebnis ungültig. **Abbrechen** verwirft die Vorschau, während eine bereits laufende Prüfung der Quelldateien sicher abgeschlossen wird; beim erneuten Öffnen wird gewartet, bis diese Prüfung beendet ist.",
+      "ui": {
+        "Cancel": "Abbrechen"
+      }
+    }
+  ],
+  "peer_review": {
+    "reviewer": "root",
+    "accepted_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "draft_sha256": "de2936af8b1d7972f30695592242339b2d9606a83c254bc7b6d014b24358e857",
+    "decision": "Accepted technical meanings, exact UI labels, literals and safeguards; no native-speaker signoff."
+  },
+  "peer_review_receipt_sha256": "f1c4acd71d31595309432444106a3407d74132dc49f734e901b1de0a548f3feb"
+}

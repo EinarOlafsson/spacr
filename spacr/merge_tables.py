@@ -251,8 +251,11 @@ def mergeable_tables(db_path: str) -> Tuple[str, ...]:
 
 def _read(db_path: str, table: str) -> pd.DataFrame:
     """Read every row and column from one quoted database table."""
+    from .tabular import _read_query
+
     with _connect(db_path) as db:
-        return pd.read_sql_query('SELECT * FROM "' + table.replace('"', '""') + '"', db)
+        return _read_query(db, 'SELECT * FROM "' + table.replace('"', '""') + '"',
+                           report=None)
 
 
 def _keys_in(frame: pd.DataFrame) -> List[str]:

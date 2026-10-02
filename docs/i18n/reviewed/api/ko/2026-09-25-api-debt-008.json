@@ -1413,7 +1413,9 @@
       "source_sha256": "7513d0f858711ce00e43fd24a5e8d7902d59b41014ef674debe3844ed538085c",
       "context": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically, with ``sqlite_`` internals left out.",
       "translation": "읽기 전용으로 여는 SQLite 측정 데이터베이스의 경로입니다. 선호 테이블(``object``, ``cell``, ``nucleus``, …)이 먼저 오고, 나머지는 알파벳순이며, ``sqlite_`` 내부 테이블은 제외됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: table discovery documentation now describes exclusion of private condition-annotation receipts. The prior source-bound review remains recorded; the revised paragraph requires a new translation."
     },
     {
       "label": "spacr.qt.screens.hit_list.HitListScreen.closeEvent#1",
@@ -4659,7 +4661,9 @@
       "source_sha256": "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3",
       "context": "image file path (``str`` or :class:`~pathlib.Path`); a ``.tif``/``.tiff`` suffix, in any case, selects tifffile.",
       "translation": "이미지 파일 경로(``str`` 또는 :class:`~pathlib.Path`)입니다. 대소문자와 관계없이 ``.tif``/``.tiff`` 확장자이면 tifffile 을 사용합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: preview loading and calcium-analysis contracts changed. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.qt.widgets.live_preview.load_preview_mip#2",

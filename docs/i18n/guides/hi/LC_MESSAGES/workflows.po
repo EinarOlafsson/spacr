@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 19:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,8 +67,9 @@ msgstr ":ref:`Measure <workflow-module-measure>`: “मास्क (Mask)” �
 msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
 msgstr ":ref:`Annotate <workflow-module-annotate>`: “एनोटेशन (Annotate)” खोलें, प्रतिनिधि वस्तुओं की जाँच करें और फीनोटाइप लेबल सहेजें।"
 
-msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: वास्तविक फ़ीचर या निर्देशांक कॉलम पर सीमा या बहुभुज गेट निर्धारित करें, फिर सहेजे गए गेट को संगत वस्तुओं पर लागू करें। दिखाए गए गेट को एनोटेशन कॉलम में लिखने के लिए Annotate का उपयोग करें; चुने हुए ऑब्जेक्ट की समीक्षा करें और बाइनरी या बहुवर्गीय लेबल चुनें।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: तालिका लोड करें या सत्यापित कुंजियों और समेकन के साथ कार्यसमूह बनाने के लिए तालिकाएँ मर्ज करें उपयोग करें। वास्तविक विशेषता/निर्देशांक स्तंभों पर थ्रेशोल्ड या बहुभुज गेट परिभाषित करें, फिर सहेजा गेट संगत ऑब्जेक्ट पर लागू करें। दिखाए गेट एनोटेशन स्तंभ में लिखने के लिए एनोटेशन उपयोग करें; चुने ऑब्जेक्ट देखें और द्विआधारी या बहुवर्ग लेबल चुनें।"
 
 msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
 msgstr ":ref:`Image UMAP <workflow-module-umap>`: मापे गए फ़ीचर या दिए गए एन्कोडर फ़ीचर का प्रक्षेपण करें और प्रतिनिधि क्रॉप देखें। क्लस्टर संभावित समूह है, सत्यापित फ़ीनोटाइप नहीं। समीक्षा किए हुए चयनों को संबंधित माप डेटाबेस के एनोटेशन कॉलम में लिखने के लिए लैसो और एनोटेशन नियंत्रणों का उपयोग करें। केवल ज्यामितीय चयन से जैविक फ़ीनोटाइप स्थापित नहीं होता।"
@@ -334,6 +335,10 @@ msgstr "मापन"
 msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
 msgstr "Measure छवियाँ और लेबल प्लेन साथ पढ़ता है। PNG फ़ाइलें चाहिए तो क्रॉप सहेजना सक्षम करें; स्ट्रीम किए गए क्रॉप के लिए डेटाबेस और स्रोत परियोजना साथ रखें।"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
+msgstr "अल्फ़ा सुविधाएँ सक्षम होने पर, साथ दिए गए उदाहरण को निर्यात करने के लिए ``cellprofiler_pipeline`` के पास सहेजने वाला आइकन उपयोग करें। इसमें दो चित्र चैनल, ``_ch0.tif`` (DNA) और ``_ch1.tif`` (Actin), तथा ``_nucleus_mask.tif`` (Nuclei) और ``_cell_mask.tif`` (Cells) अपेक्षित हैं। चलाने से पहले इसकी चैनल और ऑब्जेक्ट परिभाषाओं को अपने डेटा के अनुसार बदलें। सहेजने पर निर्यात किया गया पथ चुना जाता है; रद्द करने या विफलता पर पिछला चयन बना रहता है। CellProfiler अपने अलग परिवेश में चलता है।"
+
 msgid "**Open:** Home → Measure."
 msgstr "**खोलें:** मुखपृष्ठ → मापन।"
 
@@ -346,8 +351,9 @@ msgstr "**ऑब्जेक्ट इमेज क्रॉप** — save_png �
 msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
 msgstr ":ref:`Mask <workflow-module-mask>`: उसी परियोजना और सही छवि तथा मास्क चैनल इंडेक्स का उपयोग करें।"
 
-msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Make Masks <workflow-module-make_masks>`: छवियों और मास्क को जोड़कर मापी गई परियोजना लिखने के लिए FEATURES लें; अलग मास्क मर्ज किए गए ऐरे नहीं हैं।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: चित्र और उनके मास्क को मापन द्वारा पढ़े जाने वाले एरे में मिलाने के लिए Measure के लिए व्यवस्थित करें उपयोग करें; अलग मास्क मर्ज किए एरे नहीं हैं।"
 
 msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
 msgstr ":ref:`External Masks <workflow-module-external_masks>`: केवल आवश्यकता होने पर दोबारा मापन करें; External Masks पहले ही मापन कर सकता है।"
@@ -1042,8 +1048,9 @@ msgstr "`मॉड्यूल ट्यूटोरियल <tutorials/#lesson
 msgid "Make Masks"
 msgstr "मास्क बनाएँ"
 
-msgid "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
-msgstr "विभाजन प्रशिक्षण के लिए छवि और मास्क के जोड़े तैयार करें, या FEATURES से छवियाँ और मास्क निर्धारित करके मापन शुरू करें। मास्क सहेजने से वर्गीकारक प्रशिक्षित नहीं होता।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
+msgstr "विभाजन प्रशिक्षण के लिए चित्र/मास्क जोड़े तैयार करें, या चित्र और उनके मास्क को मापन द्वारा पढ़े जाने वाले एरे में मिलाने के लिए Measure के लिए व्यवस्थित करें उपयोग करें। मास्क सहेजने से वर्गीकारक प्रशिक्षित नहीं होता।"
 
 msgid "**Open:** Home → Make Masks."
 msgstr "**खोलें:** मुखपृष्ठ → मास्क बनाएँ।"
@@ -1054,8 +1061,9 @@ msgstr "**समीक्षा किए गए प्रशिक्षण फ
 msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
 msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: स्वतंत्र रूप से जाँचे गए छवि/मास्क जोड़े लें।"
 
-msgid ":ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Measure <workflow-module-measure>`: छवियों और मास्क को जोड़कर मापी गई परियोजना लिखने के लिए FEATURES लें; अलग मास्क मर्ज किए गए ऐरे नहीं हैं।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`: चित्र और उनके मास्क को मापन द्वारा पढ़े जाने वाले एरे में मिलाने के लिए Measure के लिए व्यवस्थित करें उपयोग करें; अलग मास्क मर्ज किए एरे नहीं हैं।"
 
 msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
 msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: संबंधित स्रोत छवियों के साथ प्लाक मास्क लें; कोशिका मास्क अपने आप प्लाक लेबल नहीं होते।"
@@ -1123,8 +1131,9 @@ msgstr "`मॉड्यूल ट्यूटोरियल <tutorials/#lesson
 msgid "Graph Builder"
 msgstr "Graph Builder"
 
-msgid "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
-msgstr "लोड की गई तालिका से चर, समूह और चित्रांकन सेटिंग चुनें, फिर चित्र को उसके विश्लेषण संदर्भ के साथ निर्यात करें।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
+msgstr "तालिका लोड करें या संगत मापन जोड़ने के लिए तालिकाएँ मर्ज करें उपयोग करें। बदले गए चित्रों के लिए रूपांतरण मैपिंग से नाम वापस पाने हेतु मूल फ़ाइल नाम जोड़ें उपयोग करें। मेटाडेटा regex नियमों या खींची पंक्तियों से नामित स्तंभ देने के लिए प्रयोग की स्थितियाँ एनोटेट करें उपयोग करें; एनोटेटेड SQLite तालिका सहेजें या उसके नियमों के साथ CSV निर्यात करें। चर, समूह और प्लॉट सेटिंग्स चुनें, फिर विश्लेषण संदर्भ सहित चित्र निर्यात करें।"
 
 msgid "**Open:** Home → Graph Builder."
 msgstr "**खोलें:** मुखपृष्ठ → Graph Builder।"
@@ -1156,8 +1165,9 @@ msgstr ":doc:`API संदर्भ </api/spacr/hit_investigation/index>`।"
 msgid "Gate Editor"
 msgstr "Gate Editor"
 
-msgid "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr "वास्तविक फ़ीचर या निर्देशांक कॉलम पर सीमा या बहुभुज गेट निर्धारित करें, फिर सहेजे गए गेट को संगत वस्तुओं पर लागू करें। दिखाए गए गेट को एनोटेशन कॉलम में लिखने के लिए Annotate का उपयोग करें; चुने हुए ऑब्जेक्ट की समीक्षा करें और बाइनरी या बहुवर्गीय लेबल चुनें।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "तालिका लोड करें या सत्यापित कुंजियों और समेकन के साथ कार्यसमूह बनाने के लिए तालिकाएँ मर्ज करें उपयोग करें। वास्तविक विशेषता/निर्देशांक स्तंभों पर थ्रेशोल्ड या बहुभुज गेट परिभाषित करें, फिर सहेजा गेट संगत ऑब्जेक्ट पर लागू करें। दिखाए गेट एनोटेशन स्तंभ में लिखने के लिए एनोटेशन उपयोग करें; चुने ऑब्जेक्ट देखें और द्विआधारी या बहुवर्ग लेबल चुनें।"
 
 msgid "**Open:** Home → Gate Editor."
 msgstr "**खोलें:** मुखपृष्ठ → Gate Editor।"
@@ -1572,6 +1582,14 @@ msgstr "टाइमलैप्स"
 
 msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
 msgstr "क्रमबद्ध फ़्रेम में वस्तुओं का विभाजन और उन्हें जोड़ने के लिए Mask के भीतर Timelapse खोलें; आगे की गतिशीलता जाँच से पहले संबंध देखें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
+msgstr "वंशावली निर्यात पीढ़ी के समय को फ़्रेम में बनाए रखता है और अंशांकित सारांश आँकड़ों के साथ ``generation_time_hours`` जोड़ता है। धनात्मक ``frame_interval_s`` दें या ट्रैक तालिका में बिना किसी अनुपस्थित मान के बढ़ते ``time_s`` मान दें। दोनों मौजूद हों तो उनका मेल होना चाहिए; निश्चित अंतराल के बिना अनियमित टाइमस्टैम्प समर्थित हैं। अंशांकन अनुपस्थित हो या कोशिका चक्र अधूरा हो, तो घंटों में पीढ़ी का समय नहीं मिलता। निर्यात की गई तालिकाएँ अंशांकन का स्रोत और इकाइयाँ दर्ज करती हैं। वृक्ष का अक्ष और Newick शाखाओं की लंबाई फ़्रेम में बनी रहती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
+msgstr "मापित विशेषताओं से वृक्षों को रंग देने के लिए पहले ``timelapse_lineage`` सक्षम करके ट्रैकिंग करें, ताकि spaCR फ़्रेम/स्रोत मिलान सहेज सके। फिर मर्ज किए गए प्रोजेक्ट पर मापन मॉड्यूल चलाएँ और ``timelapse=True``, मेल खाते ``timelapse_objects`` तथा ``timelapse_lineage=True`` रखें। वंशावली नियंत्रण दिखाने के लिए अल्फ़ा सुविधाएँ और समय आयाम सक्षम करें। ``timelapse_lineage_color_by`` को चुने गए ऑब्जेक्ट की माप तालिका के किसी संख्यात्मक कॉलम पर सेट करें। खंड का औसत उपलब्ध माप वाले फ़्रेमों से निकाला जाता है; जिन खंडों में कोई माप नहीं है, वे बिना रंग के रहते हैं और कवरेज की जानकारी दी जाती है। परिणाम ``tracks/lineage_measured`` में जाते हैं, पुराने वंशावली परिणामों को बदले बिना। जिन पुराने ट्रैक में मिलान नहीं है, उनके लिए ट्रैकिंग दोबारा करनी होगी। सहेजा गया स्पष्ट समय अंशांकन आगे उपयोग होता है; उससे टकराने वाला समय अंतराल अस्वीकार किया जाता है।"
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**खोलें:** मास्क → टाइमलैप्स।"

@@ -165,6 +165,8 @@ def module_rst(data, key):
     module = data["modules"][key]
     parts = [f".. _workflow-module-{key}:\n\n",
              _heading(module["name"], "~"), module["guidance"] + "\n\n"]
+    if module.get("documentation_note"):
+        parts.append(module["documentation_note"] + "\n\n")
     parent = module["parent"]
     if module.get("api_entry"):
         parts.append(f"**Use from Python:** :func:`{module['api_entry']}`. "

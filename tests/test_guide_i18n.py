@@ -160,7 +160,7 @@ def test_catalog_languages_are_known_and_labelled():
         files = _po_files(language)
         assert files, language
         for path in files:
-            assert guide.catalog_review_kind(path) == guide.REVIEW_KIND, path
+            assert guide.catalog_review_kind(path) in guide.SUPPORTED_REVIEW_KINDS, path
         assert (guide.GLOSSARY_DIR / f"{language}.json").is_file()
 
 
@@ -181,16 +181,11 @@ def test_published_translations_keep_markup_and_app_ui_names(language):
 
 def test_glossary_matches_the_runtime_catalogs():
     pytest.importorskip("PySide6")
-    from spacr.qt.i18n import _exact_translation
-    from spacr.qt.i18n_catalogs import en, setting_label
-
-    keys = {label: key for key, label in reversed(list(en.SETTING_LABELS.items()))
-            if "." not in key}
     for language in LANGUAGES:
         for english, translated in guide.load_glossary(language).items():
-            shown = _exact_translation(english, language)
-            if not shown and english in keys:
-                shown = setting_label(keys[english], english, language)
+            # Use the same exact runtime binding as the guide builder, including
+            # the validated counted-button prefix for "Checked images".
+            shown = guide.runtime_ui_name(english, language)
             assert shown == translated, (language, english)
 
 

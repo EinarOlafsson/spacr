@@ -1097,6 +1097,21 @@ def current_run() -> Optional["Run"]:
     return getattr(_RUN_LOCAL, "active", None)
 
 
+def _raise_if_incomplete(run: Run) -> None:
+    """Refuse success after a finalized item ledger reported partial output."""
+    if run.status not in ("running", "success"):
+        return
+    failures = [ledger for ledger in run._ledgers if ledger["failed"] > 0]
+    if failures:
+        from .errors import PartialRunError
+
+        summary = "; ".join(
+            f"{ledger['name']}: {ledger['failed']} of "
+            f"{ledger['attempted']} items failed" for ledger in failures)
+        raise PartialRunError(
+            f"Run incomplete: {summary}. Partial artifacts were retained.")
+
+
 @contextmanager
 def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     """Open a fresh run journal folder around a pipeline invocation.
@@ -1128,6 +1143,7 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     _RUN_LOCAL.active = run
     try:
         yield run
+        _raise_if_incomplete(run)
         if run.status == "running":
             run.status = "success"
     except BaseException as e:
@@ -3098,12 +3114,12 @@ def lock_analysis(settings: Dict[str, Any], *, app_key: str,
         JSON-compatible form.
     :param files: further files the plan depends on.
     :param note: anything else worth keeping with the plan.
-    :param gates: Gate Editor gating strategies the plan depends on: a gate
-        set, its dict, a saved gate file, a list of these, or a mapping from
-        a label to one. Gate files named by any setting are taken as well.
-        A gate file is checked on every run; gates handed over as objects
-        are checked when :func:`check_analysis_lock` is given them under the
-        same label.
+    :param gates: Strategies for selecting measurement rows. Accept a gate
+        set, its dictionary representation, a saved strategy file, a list of
+        these values, or a mapping from labels to these values. Also include
+        strategy files referenced by settings. Check strategy files on every
+        run. To check a strategy supplied as an object, pass it to
+        :func:`check_analysis_lock` using the same label.
     :param models: ``{name: checkpoint path}`` for the models the analysis
         loads, under the names the pipeline records them by.
     :param pipelines: further pipelines of the same plan, as
@@ -3391,16 +3407,43 @@ def _lock_verdict(record: Dict[str, Any],
     return result
 
 
+def _observe_settings_changes(settings, app_key, keys=None):
+    """Record committed setting differences without checking files or gates.
+
+    Only an existing, intact lock on this pipeline and source is eligible.
+    ``keys`` scopes a field commit; omitted keys mean a complete bulk load.
+    The return value is observation evidence, never a verification verdict.
+    """
+    record = _find_lock(app_key, (settings or {}).get("src"))
+    if not record:
+        return None
+    if record.get("sha256") != _lock_digest(record):
+        raise ValueError("The analysis lock has changed; edit timing was not recorded.")
+    entry = _lock_entries(record).get(str(app_key)) or {}
+    locked = entry.get("settings") or {}
+    current = _lock_settings(settings)
+    selected = (set(locked) | set(current)) if keys is None else set(keys)
+    selected = {key for key in selected if not str(key).startswith("_")
+                and key not in _LOCK_IGNORED_KEYS}
+    differences = [{"key": key, "locked": locked.get(key),
+                    "now": current.get(key)}
+                   for key in sorted(selected)
+                   if not values_equal(locked.get(key), current.get(key))]
+    _note_first_seen(record, differences)
+    return {"lock_id": record.get("lock_id"), "deviations": differences,
+            "scope": "committed settings only"}
+
+
 def check_analysis_lock(settings: Dict[str, Any], *, app_key: str,
                         lock: Optional[Dict[str, Any]] = None,
                         gates: Any = None) -> Dict[str, Any]:
     """Check a run's settings against its preregistered analysis lock.
 
-    The lock is the newest one :func:`lock_analysis` made covering
-    ``app_key`` on the settings' ``src``, unless one is passed. The lock is
-    first checked against its own hash, so an edited lock file is caught;
-    then every setting, every hashed file and every locked gating strategy
-    is compared.
+    Use the supplied analysis plan, or find the newest plan created by
+    :func:`lock_analysis` for ``app_key`` and the settings' ``src``.
+    Check the plan against its stored hash to detect changes to the file.
+    Then compare each setting, each hashed file, and each recorded strategy
+    for selecting measurement rows.
 
     Each difference is stamped with when it was first seen (kept beside the
     lock), and it is post-hoc only when it was first seen after a blinding

@@ -230,6 +230,10 @@ def collect_fields(names: List[str], split: Dict[str, str],
                           split)
             item.extra["channel"] = "last0"
             fields.append(item)
+    if "stardist_demo" in names:
+        folder = (out or Path("/tmp/spacr-bench-scratch/cpu")).parent / "stardist_demo"
+        fields.append(_field("stardist_demo", folder / "nuclei.tif",
+                             folder / "nuclei_labels.tif", split))
     if "toxo_pv" in names:
         for image in sorted(TOXO_PV.glob("*.tif")):
             truth = TOXO_PV / "ground_truth_masks" / image.name
@@ -790,7 +794,7 @@ def main(argv=None) -> int:
                 if not only or strategy.key in only:
                     jobs.append((strategy, dataset))
     wanted = {s.model.split("@", 1)[1] for s, _ in jobs if "@" in s.model}
-    models = resolve_models(out, sorted(wanted | set(PV_KEYS)),
+    models = resolve_models(out, sorted(wanted),
                             allow_fetch=not args.no_fetch)
     (out / "models.json").write_text(json.dumps(models, indent=1))
 

@@ -106,7 +106,7 @@ def test_every_profile_setting_has_label_help_and_remote_api_link(
 
 
 def test_hovering_a_profile_label_shows_its_help_and_its_link(
-    qtbot, qt_theme_applied
+    qtbot, qt_theme_applied, monkeypatch
 ):
     """Measured through the popup the reader gets, not the property alone.
 
@@ -124,10 +124,12 @@ def test_hovering_a_profile_label_shows_its_help_and_its_link(
     qtbot.waitExposed(dialog)
     label = dialog.findChildren(QLabel, "SettingsLabel")[0]
     tooltip = HoverTooltip.instance()
+    monkeypatch.setattr("spacr.qt.tooltip_policy._preferred_delay_ms",
+                        lambda: 1)
 
     QApplication.sendEvent(label, QEvent(QEvent.Type.Enter))
     try:
-        assert tooltip.isVisible()
+        qtbot.waitUntil(tooltip.isVisible, timeout=1000)
         assert tooltip._label.text().strip()
         assert "/spacr/remote_execution/index.html" in tooltip.api_url()
     finally:

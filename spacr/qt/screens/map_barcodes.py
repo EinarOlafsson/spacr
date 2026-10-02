@@ -2583,6 +2583,38 @@ _SPATIAL_ALPHA_WIDGETS: Tuple[str, ...] = ("MapBarcodesSpatialToggle",
                                            "MapBarcodesSpatialCard")
 
 
+class _SpatialPanelLifecycle(QObject):
+    def __init__(self, panel):
+        super().__init__(panel)
+        from weakref import ref
+
+        self._panel = ref(panel)
+
+    def eventFilter(self, watched, event):  # noqa: N802
+        from PySide6.QtCore import QEvent
+
+        if event.type() == QEvent.DeferredDelete:
+            panel = self._panel()
+            if panel is not None:
+                panel._shutdown()
+        elif event.type() == QEvent.Close and watched.isVisible():
+            # A host can veto closing. Inspect its final state after its handler.
+            QTimer.singleShot(0, lambda: self._check_closed(watched))
+        elif event.type() == QEvent.Show:
+            panel = self._panel()
+            if panel is not None:
+                panel._reopen()
+        return False
+
+    def _check_closed(self, watched):
+        panel = self._panel()
+        try:
+            if panel is not None and not watched.isVisible():
+                panel._shutdown()
+        except RuntimeError:  # QObject destruction already ran the fallback.
+            pass
+
+
 class _SpatialTranscriptomicsPanel(QWidget):
     """Visium and Xenium reads registered to an image and assigned to
     spaCR's segmented objects.
@@ -2604,7 +2636,41 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self._registered = None
         self._loaded_key = None
         self.summary = None
+        from threading import Event
+
+        from ..job_runner import JobRunner
+
+        self._jobs = JobRunner(self, app_key=HOST_KEY)
+        self._busy = None
+        self._closed = False
+        self._load_generation = 0
+        self._stop = Event()
+        self._stop_holder = [self._stop]
+        self._active_done = Event()
+        self._active_done.set()
+        self._reopen_timer = QTimer(self)
+        self._reopen_timer.setInterval(25)
+        self._reopen_timer.timeout.connect(self._reopen)
         self._build_ui()
+        self._lifecycle = _SpatialPanelLifecycle(self)
+        self.installEventFilter(self._lifecycle)
+        if screen is not None and screen is not self:
+            screen.installEventFilter(self._lifecycle)
+        jobs, stop_holder = self._jobs, self._stop_holder
+
+        def destroyed(*_args):
+            # Destruction may follow a reopen, after the initial token retired.
+            # This state remains usable without touching the destroyed QWidget.
+            stop_holder[0].set()
+            jobs.shutdown()
+
+        self.destroyed.connect(destroyed)
+        for edit in (self.folder, self.image, self.landmarks):
+            edit.textChanged.connect(self._load_inputs_changed)
+        for combo in (self.platform, self.bin_um):
+            combo.currentIndexChanged.connect(self._load_inputs_changed)
+        for spin in (self.min_qv, self.level):
+            spin.valueChanged.connect(self._load_inputs_changed)
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
@@ -2734,9 +2800,9 @@ class _SpatialTranscriptomicsPanel(QWidget):
         form.addRow(tr("Gene"), self.gene)
         actions = QHBoxLayout()
         self.load_button = QPushButton(tr("Load and register"), self)
-        self.load_button.clicked.connect(self.load)
+        self.load_button.clicked.connect(self._start_load)
         self.assign_button = QPushButton(tr("Assign and write"), self)
-        self.assign_button.clicked.connect(self.run)
+        self.assign_button.clicked.connect(self._start_run)
         actions.addWidget(self.load_button)
         actions.addWidget(self.assign_button)
         actions.addStretch(1)
@@ -2785,33 +2851,45 @@ class _SpatialTranscriptomicsPanel(QWidget):
 
         :returns: True when loaded.
         """
-        from ... import ops_engine
-
+        if self._busy or self._closed:
+            return False
         request = self.request()
         if not request["folder"]:
             self.status.setText(tr("Choose the platform output folder first."))
             return False
         try:
-            self._bundle = ops_engine._st_read_bundle(
-                request["folder"], request["platform"],
-                bin_um=request["bin_um"], min_qv=request["min_qv"])
-            self._registered = ops_engine._st_register(self._bundle, request)
+            loaded = self._read_registered(request)
+            self._show_loaded(request, loaded)
         except Exception as error:
-            self._bundle = self._registered = self._loaded_key = None
+            self._clear_loaded()
             self.status.setText(tr("Could not load: {error}").format(
                 error=error))
             return False
-        self._loaded_key = self._load_key(request)
-        genes = list(self._bundle["genes"])
-        if self._bundle["platform"] == "xenium":
-            totals = self._bundle["transcripts"]["gene"].value_counts()
+        return True
+
+    @staticmethod
+    def _read_registered(request):
+        from ... import ops_engine
+
+        bundle = ops_engine._st_read_bundle(
+            request["folder"], request["platform"],
+            bin_um=request["bin_um"], min_qv=request["min_qv"])
+        registered = ops_engine._st_register(bundle, request)
+        genes = list(bundle["genes"])
+        if bundle["platform"] == "xenium":
+            totals = bundle["transcripts"]["gene"].value_counts()
         else:
             import numpy as np
             import pandas as pd
 
             totals = pd.Series(np.asarray(
-                self._bundle["counts"].sum(axis=0)).ravel(), index=genes)
+                bundle["counts"].sum(axis=0)).ravel(), index=genes)
         top = totals.sort_values(ascending=False).index[0] if genes else ""
+        return bundle, registered, genes, top
+
+    def _show_loaded(self, request, loaded):
+        self._bundle, self._registered, genes, top = loaded
+        self._loaded_key = self._load_key(request)
         wanted = request["gene"] if request["gene"] in genes else top
         self.gene.blockSignals(True)
         self.gene.clear()
@@ -2826,7 +2904,136 @@ class _SpatialTranscriptomicsPanel(QWidget):
                 points=len(self._registered["xy"]), genes=len(genes),
                 method=info.get("method", "")))
         self._draw()
-        return True
+
+    def _load_inputs_changed(self, *_args):
+        self._load_generation += 1
+        self._clear_loaded()
+        if not self._busy:
+            self.status.clear()
+
+    def _clear_loaded(self):
+        self._bundle = self._registered = self._loaded_key = None
+        self.gene.clear()
+        self.figure.clear()
+        self.canvas.draw_idle()
+
+    def _set_busy(self, action):
+        self._busy = action
+        self.load_button.setEnabled(action is None)
+        self.assign_button.setEnabled(action is None)
+        self.gene.setEnabled(action is None)
+        # Reading is safe to supersede; a write keeps its destination visibly fixed.
+        for edit in (self.folder, self.image, self.landmarks, self.region_mask,
+                     self.db, *self.masks.values()):
+            edit.parentWidget().setEnabled(action != "run")
+        for control in (self.platform, self.bin_um, self.min_qv, self.level):
+            control.setEnabled(action != "run")
+
+    def _start_load(self, _checked=False):
+        self._start_action("load")
+
+    def _start_run(self, _checked=False):
+        self._start_action("run")
+
+    def _start_action(self, action):
+        if self._busy or self._closed:
+            return
+        request = self.request()
+        if action == "run" and (not request["masks"] or not request["db"]):
+            self.status.setText(tr("Give at least one mask and the measurement database."))
+            return
+        if not request["folder"]:
+            self.status.setText(tr("Choose the platform output folder first."))
+            return
+        generation = self._load_generation
+        loaded = None
+        if action == "run" and self._loaded_key == self._load_key(request):
+            loaded = (self._bundle, self._registered)
+        stop = self._stop
+        from threading import Event
+
+        done = self._active_done = Event()
+        read_registered = self._read_registered
+
+        def work():
+            from ... import ops_engine
+
+            phase = "load"
+            try:
+                if stop.is_set():
+                    return request, generation, None, None, None
+                data = loaded if loaded is not None else read_registered(request)
+                if stop.is_set():
+                    return request, generation, None, None, None
+                summary = None
+                if action == "run":
+                    phase = "run"
+                    summary = ops_engine._st_run(request, bundle=data[0], registered=data[1])
+                return request, generation, data, summary, None
+            except Exception as error:
+                return request, generation, None, None, (phase, str(error))
+            finally:
+                done.set()
+
+        self._set_busy(action)
+        self.status.setText(tr("Load and register") if action == "load" else tr("Assign and write"))
+        self._jobs.submit(work, self._action_finished)
+
+    def _action_finished(self, payload):
+        if self._closed:
+            return
+        request, generation, loaded, summary, error = payload
+        action = self._busy
+        try:
+            if generation != self._load_generation and action == "load":
+                self.status.clear()
+                return
+            if error is not None:
+                phase, message = error
+                if phase == "load":
+                    self._clear_loaded()
+                self.status.setText((tr("Could not load: {error}") if phase == "load"
+                                     else tr("Could not assign: {error}")).format(error=message))
+                return
+            if loaded is not None and len(loaded) == 4 and generation == self._load_generation:
+                self._show_loaded(request, loaded)
+            if summary is not None:
+                self._show_summary(summary)
+        except Exception as error:
+            if summary is not None:
+                # The write has succeeded even if its GUI overlay cannot draw.
+                self._show_summary(summary)
+                LOG.exception("could not draw the spatial result overlay")
+            else:
+                self._clear_loaded()
+                self.status.setText(tr("Could not load: {error}").format(error=error))
+        finally:
+            self._set_busy(None)
+
+    def _shutdown(self):
+        self._closed = True
+        self._reopen_timer.stop()
+        self._stop.set()
+        self._jobs.shutdown()
+
+    def _reopen(self):
+        if not self._closed:
+            return
+        if not self._active_done.is_set():
+            self._reopen_timer.start()
+            return
+        from threading import Event
+
+        self._reopen_timer.stop()
+        self._stop = Event()  # Never revive the token captured by an older worker.
+        self._stop_holder[0] = self._stop
+        self._closed = False
+        self._set_busy(None)
+
+    def closeEvent(self, event):  # noqa: N802
+        super().closeEvent(event)
+        if event.isAccepted():
+            self._shutdown()
 
     def _draw(self, *_args) -> None:
         """Redraw the overlay for the chosen gene."""
@@ -2849,6 +3056,8 @@ class _SpatialTranscriptomicsPanel(QWidget):
         """
         from ... import ops_engine
 
+        if self._busy or self._closed:
+            return None
         request = self.request()
         if not request["masks"] or not request["db"]:
             self.status.setText(tr(
@@ -2863,6 +3072,10 @@ class _SpatialTranscriptomicsPanel(QWidget):
             self.status.setText(tr("Could not assign: {error}").format(
                 error=error))
             return None
+        self._show_summary(summary)
+        return summary
+
+    def _show_summary(self, summary):
         self.summary = summary
         written = ", ".join(f"{kind} {entry['objects']}"
                             for kind, entry in summary["objects"].items())
@@ -2870,7 +3083,6 @@ class _SpatialTranscriptomicsPanel(QWidget):
             "Wrote counts for {objects} objects to {db}; results in "
             "{output}.").format(objects=written, db=summary["db"],
                                 output=summary["output"]))
-        return summary
 
 
 def _install_spatial_transcriptomics(screen: QWidget):

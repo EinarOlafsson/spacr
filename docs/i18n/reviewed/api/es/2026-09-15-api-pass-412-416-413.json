@@ -74,6 +74,8 @@
     {
       "context": "Find every older spaCR on this computer, and remove the installer-made ones.",
       "label": "spacr.install_cleanup#0",
+      "retired": true,
+      "retired_reason": "2026-10-01: API documentation was clarified after reviewing rejected translation candidates, or corrected for platform-specific update behavior. This review remains recorded for its original source; the revised paragraph requires a new translation.",
       "source": "Find every older spaCR on this computer, and remove the installer-made ones.",
       "source_sha256": "fc72c12d5368fe8c1e458068f4cea0c92fb3305cd2a2c0b164e76e66a35f3f00",
       "translation": "Busca todas las copias antiguas de spaCR en este equipo y elimina las que creó un instalador."
@@ -81,6 +83,8 @@
     {
       "context": "An update or an install runs three steps, in this order, whether it starts from the in-app **Check for updates** or from a native installer:",
       "label": "spacr.install_cleanup#1",
+      "retired": true,
+      "retired_reason": "2026-10-01: API documentation was clarified after reviewing rejected translation candidates, or corrected for platform-specific update behavior. This review remains recorded for its original source; the revised paragraph requires a new translation.",
       "source": "An update or an install runs three steps, in this order, whether it starts from the in-app **Check for updates** or from a native installer:",
       "source_sha256": "e8addc4ae0ad599dcbfc5d127f10148da39e82b6c48f7fe15cf2ecb4a44ab4fb",
       "translation": "Una actualización o una instalación ejecuta tres pasos, en este orden, tanto si empieza desde **Buscar actualizaciones** dentro de la aplicación como desde un instalador nativo:"
@@ -94,21 +98,21 @@
     },
     {
       "context": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry structured-data name on Windows).",
-      "label": "spacr.install_cleanup#3",
+      "label": "spacr.install_cleanup#5",
       "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
       "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
       "translation": "La eliminación nunca ejecuta el desinstalador propio de una versión antigua, así que una copia cuyo ``Uninstall.exe`` o ``uninstall-spacr.sh`` falta o está dañado se elimina igualmente. Las preferencias y los datos del usuario se conservan: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, la caché de Hugging Face y la configuración de ``spacr``/``qt`` (``~/.config/spacr``, el archivo de preferencias de macOS y la clave del registro ``Software\\spacr`` en Windows)."
     },
     {
       "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
-      "label": "spacr.install_cleanup#4",
+      "label": "spacr.install_cleanup#6",
       "source": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
       "source_sha256": "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
       "translation": "Un entorno de pip o conda creado por el usuario se muestra en la lista, pero nunca se borra; el paquete spaCR se desinstala de él solo cuando quien llama indica que se marcó. Un checkout editable del código fuente se notifica y no se toca."
     },
     {
       "context": "The module uses only the standard library and imports nothing from spaCR, so an installer can execute it with its bootstrapped Python before any spaCR exists, and a helper process can execute a copy of it after the executing spaCR has closed",
-      "label": "spacr.install_cleanup#5",
+      "label": "spacr.install_cleanup#7",
       "source": "The module uses only the standard library and imports nothing from spaCR, so an installer can run it with its bootstrapped Python before any spaCR exists, and a helper process can run a copy of it after the running spaCR has closed",
       "source_sha256": "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
       "translation": "El módulo usa solo la biblioteca estándar y no importa nada de spaCR, de modo que un instalador puede ejecutarlo con el Python que él mismo instaló antes de que exista ningún spaCR, y un proceso auxiliar puede ejecutar una copia suya después de que el spaCR en ejecución se haya cerrado"
@@ -291,6 +295,8 @@
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",
       "label": "spacr.install_cleanup.remove_install#2",
+      "retired": true,
+      "retired_reason": "2026-10-01: API documentation was clarified after reviewing rejected translation candidates, or corrected for platform-specific update behavior. This review remains recorded for its original source; the revised paragraph requires a new translation.",
       "source": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",
       "source_sha256": "a9653bfcfb994d827a61358cc2130db1d98ee6c09fcae986d61be3fdfbeb3ad6",
       "translation": "La copia en ejecución no se elimina aquí, porque en Windows una instalación no puede borrarse a sí misma mientras se ejecuta: :func:`start_update_helper` la elimina después de que spaCR se haya cerrado."
@@ -396,6 +402,8 @@
     {
       "context": "Hand deleting and installing to a process that outlives spaCR.",
       "label": "spacr.install_cleanup.start_update_helper#0",
+      "retired": true,
+      "retired_reason": "2026-10-01: API documentation was clarified after reviewing rejected translation candidates, or corrected for platform-specific update behavior. This review remains recorded for its original source; the revised paragraph requires a new translation.",
       "source": "Hand deleting and installing to a process that outlives spaCR.",
       "source_sha256": "53a4372d5ee733dcea5beb653cc2903c614acadd319e859a11ad2dcabec09aeb",
       "translation": "Delega el borrado y la instalación en un proceso que sobrevive a spaCR."
@@ -403,48 +411,50 @@
     {
       "context": "Used when the executing spaCR is itself an installer-made copy, which on Windows cannot delete itself while it executes. The helper waits for this process to exit, downloads the new installer, removes every older copy including the one that was executing, runs the installer, and starts the new version. If any installer-made copy cannot be removed, nothing is installed and the reason is written to the update log.",
       "label": "spacr.install_cleanup.start_update_helper#1",
+      "retired": true,
+      "retired_reason": "2026-10-01: API documentation was clarified after reviewing rejected translation candidates, or corrected for platform-specific update behavior. This review remains recorded for its original source; the revised paragraph requires a new translation.",
       "source": "Used when the running spaCR is itself an installer-made copy, which on Windows cannot delete itself while it runs. The helper waits for this process to exit, downloads the new installer, removes every older copy including the one that was running, runs the installer, and starts the new version. If any installer-made copy cannot be removed, nothing is installed and the reason is written to the update log.",
       "source_sha256": "4db8f45182e856b247dcc77a715e53910750bbda9d4389daecdaf8cdc0fecea6",
       "translation": "Se usa cuando el spaCR en ejecución es a su vez una copia creada por un instalador, que en Windows no puede borrarse a sí misma mientras se ejecuta. El proceso auxiliar espera a que este proceso termine, descarga el nuevo instalador, elimina todas las copias antiguas, incluida la que estaba en ejecución, ejecuta el instalador e inicia la nueva versión. Si alguna copia creada por un instalador no se puede eliminar, no se instala nada y el motivo se escribe en el log de la actualización."
     },
     {
       "context": "installations from :func:`find_old_installs`.",
-      "label": "spacr.install_cleanup.start_update_helper#2",
+      "label": "spacr.install_cleanup.start_update_helper#4",
       "source": "installations from :func:`find_old_installs`.",
       "source_sha256": "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
       "translation": "instalaciones devueltas por :func:`find_old_installs`."
     },
     {
       "context": "the version to install.",
-      "label": "spacr.install_cleanup.start_update_helper#3",
+      "label": "spacr.install_cleanup.start_update_helper#5",
       "source": "the version to install.",
       "source_sha256": "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
       "translation": "la versión que se va a instalar."
     },
     {
       "context": "the process to wait for; this process when ``None``.",
-      "label": "spacr.install_cleanup.start_update_helper#5",
+      "label": "spacr.install_cleanup.start_update_helper#7",
       "source": "the process to wait for; this process when ``None``.",
       "source_sha256": "cc3b6cb25b19441b1007a8196c241f842cf130721109778b50093f3dd9fe8b72",
       "translation": "el proceso al que hay que esperar; este proceso cuando el valor es ``None``."
     },
     {
       "context": "the helper's folder; a new temporary folder when ``None``.",
-      "label": "spacr.install_cleanup.start_update_helper#6",
+      "label": "spacr.install_cleanup.start_update_helper#8",
       "source": "the helper's folder; a new temporary folder when ``None``.",
       "source_sha256": "2a7fd576ab7b59557ffbe2364c244953f75480298685169c67c069f0f4e6658f",
       "translation": "la carpeta del proceso auxiliar; una carpeta temporal nueva cuando el valor es ``None``."
     },
     {
       "context": "replaces the detached process launcher.",
-      "label": "spacr.install_cleanup.start_update_helper#8",
+      "label": "spacr.install_cleanup.start_update_helper#10",
       "source": "replaces the detached process launcher.",
       "source_sha256": "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
       "translation": "sustituye al lanzador del proceso independiente."
     },
     {
       "context": "the plan as written to ``plan.json``. ``plan[\"command\"]`` is the helper's command, or ``None`` with ``plan[\"error\"]`` saying why nothing was started.",
-      "label": "spacr.install_cleanup.start_update_helper#9",
+      "label": "spacr.install_cleanup.start_update_helper#11",
       "source": "the plan as written to ``plan.json``. ``plan[\"command\"]`` is the helper's command, or ``None`` with ``plan[\"error\"]`` saying why nothing was started.",
       "source_sha256": "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
       "translation": "el plan tal como se escribió en ``plan.json``. ``plan[\"command\"]`` es la orden del proceso auxiliar, o ``None``, en cuyo caso ``plan[\"error\"]`` indica por qué no se inició nada."
@@ -459,11 +469,11 @@
     {
       "context": "Ledger item 412. The maintainer asked for ten images of the Toxoplasma PV training set on Hugging Face as \"a small test dataset for make masks\", and \"a button for loading this dataset which automatically triggers opening the first image with make masks\".",
       "label": "spacr.qt.make_masks_demo#1",
+      "retired": true,
+      "retired_reason": "The 2026-09-21 nightly documentation rewrite replaced the historical item-412 request with the current dataset behavior. Original review retained; current replacement reviewed in 2026-09-21-make-masks-demo.json.",
       "source": "Ledger item 412. The maintainer asked for ten images of the Toxoplasma PV training set on Hugging Face as \"a small test dataset for make masks\", and \"a button for loading this dataset which automatically triggers opening the first image with make masks\".",
       "source_sha256": "8c89ddde44409766fcf87b2dd7b794cc41565c81e2d3ecf8a7148f19b85e614e",
-      "translation": "Elemento 412 del registro de tareas. El responsable del proyecto pidió diez imágenes del conjunto de entrenamiento de PV de Toxoplasma en Hugging Face como «un pequeño conjunto de datos de prueba para make masks» y «un botón para cargar este conjunto de datos que active automáticamente la apertura de la primera imagen con make masks».",
-      "retired": true,
-      "retired_reason": "The 2026-09-21 nightly documentation rewrite replaced the historical item-412 request with the current dataset behavior. Original review retained; current replacement reviewed in 2026-09-21-make-masks-demo.json."
+      "translation": "Elemento 412 del registro de tareas. El responsable del proyecto pidió diez imágenes del conjunto de entrenamiento de PV de Toxoplasma en Hugging Face como «un pequeño conjunto de datos de prueba para make masks» y «un botón para cargar este conjunto de datos que active automáticamente la apertura de la primera imagen con make masks»."
     },
     {
       "context": "What is published. :data:`MAKE_MASKS_EXAMPLE_REPO` holds ten of the lab's own acquisitions -- no figure harvested from a paper, no held-out microscope field of view -- at the top level, their curated label masks under ``ground_truth_masks/``, a ``manifest.csv`` carrying each image's row from the in-house manifest, and one archive of all of it. The images open UNSEGMENTED: Make Masks reads drafts from ``masks/``, never from ``ground_truth_masks/``, so the editor starts on raw microscope fields of view and the truth sits beside them.",
@@ -678,11 +688,11 @@
     {
       "context": "``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].",
       "label": "spacr.qt.preferences#9",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.preferences's documentation, which was rewritten by \"427 part C after review: five sound sets claimed a superlative the numbers deny, and no widget ever showed a theme's description\" (bbd05e2f3, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence.",
       "source": "``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].",
       "source_sha256": "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
-      "translation": "``font_scale``: float, 1.0 = 100 % (el valor predeterminado). Limitado a [0.10, 2.0].",
-      "retired": "2026-09-20",
-      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.preferences's documentation, which was rewritten by \"427 part C after review: five sound sets claimed a superlative the numbers deny, and no widget ever showed a theme's description\" (bbd05e2f3, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
+      "translation": "``font_scale``: float, 1.0 = 100 % (el valor predeterminado). Limitado a [0.10, 2.0]."
     },
     {
       "context": "It follows the form. Once a search has been asked for, changing any setting the search reads -- the sequencing folder, a reference table, the barcode set or the anchor -- starts it again after the form has been still for a moment, the way the Mask live preview follows its settings. Settings the search does not read never start one. Apply is the exception to everything live about this panel: the form changes only when it is pressed, so a value somebody typed is never replaced by a measurement that arrived while they were typing.",

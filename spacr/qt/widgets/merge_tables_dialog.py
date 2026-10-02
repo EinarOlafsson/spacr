@@ -25,7 +25,6 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QPushButton,
     QTableWidget,
-    QTableWidgetItem,
     QTextEdit,
     QVBoxLayout,
 )
@@ -40,6 +39,7 @@ from ...derived_tables import (
 from ...merge_tables import MergeError, aggregation_for
 from ..i18n import tr
 from ..job_runner import JobRunner
+from .sortable_table import install_sorting, table_item
 from ..theme import SPACING
 
 WARNING = (
@@ -98,10 +98,13 @@ class CustomMergeDialog(QDialog):
         warning = QLabel(tr(WARNING), self)
         warning.setWordWrap(True)
         outer.addWidget(warning)
-        schema_note = QLabel("Composite keys use comma-separated column names in matching order. "
-                            "Each result row is one base observation. Missing child keys never match; "
-                            "left joins retain unmatched base rows with missing measurements. "
-                            "One-to-many joins aggregate each child independently before joining.", self)
+        schema_note = QLabel(" ".join((
+            tr("Enter the column names for a composite key in matching order, separated by commas."),
+            tr("Each output row represents one observation in the base table."),
+            tr("Related rows with missing keys cannot match."),
+            tr("A left join retains unmatched base observations with missing measurements."),
+            tr("For a one-to-many relationship, each related table is aggregated independently before joining."),
+        )), self)
         schema_note.setWordWrap(True)
         outer.addWidget(schema_note)
         form = QFormLayout()
@@ -109,11 +112,12 @@ class CustomMergeDialog(QDialog):
         form.addRow("Base observation keys", self.base_keys)
         outer.addLayout(form)
         self.joins = QTableWidget(len(definition["joins"]), 6, self)
+        install_sorting(self.joins)
         self.joins.setHorizontalHeaderLabels(
             ["Child table", "Base keys", "Child keys", "Relationship", "Join", "Identifiers"])
         self._rows = []
         for row, join in enumerate(definition["joins"]):
-            item = QTableWidgetItem(join["table"])
+            item = table_item(join["table"])
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             self.joins.setItem(row, 0, item)
             left = QLineEdit(", ".join(join["left_keys"]), self)
@@ -247,6 +251,7 @@ class MergeTablesDialog(QDialog):
         note.setWordWrap(True)
         outer.addWidget(note)
         self.rules = QTableWidget(0, 3, self)
+        install_sorting(self.rules)
         self.rules.setHorizontalHeaderLabels(["Table", "Column", "Aggregation"])
         self.rules.horizontalHeader().setStretchLastSection(True)
         outer.addWidget(self.rules, 1)
@@ -321,9 +326,11 @@ class MergeTablesDialog(QDialog):
         filename_only = bool(self._filename_map and len(self._selected()) == 1
                              and (not self._custom or self._custom.get("mode") == "metadata"))
         if filename_only:
-            text = tr("Original filename metadata — every row and source column in {base} is retained. "
-                      "Repeated channel or z-plane mappings do not duplicate observations.",
-                      base=self.base.currentText())
+            text = " ".join((
+                tr("Original filenames are added to {base}.", base=self.base.currentText()),
+                tr("All input rows and columns are preserved."),
+                tr("Adding names for several image channels or image layers keeps the same number of rows."),
+            ))
         elif self._custom and self._custom.get("mode") == "custom":
             text = tr("Custom rules active — one row per {base}. "
                       "Explicit relationships and join types are shown in Customize merging.",
@@ -379,7 +386,7 @@ class MergeTablesDialog(QDialog):
                 row = self.rules.rowCount()
                 self.rules.insertRow(row)
                 for index, text in enumerate((join["table"], column)):
-                    item = QTableWidgetItem(text)
+                    item = table_item(text)
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                     self.rules.setItem(row, index, item)
                 method = self._overrides.get(join["table"], {}).get(column, aggregation_for(
@@ -418,7 +425,10 @@ class MergeTablesDialog(QDialog):
         self._selection_changed()
 
     def validate_preview(self):
-        """Materialize the full merge off-thread and expose counts and sample rows."""
+        """Calculate the full merged table in a background task.
+
+        Show its row counts and example rows after validation succeeds.
+        """
         self._invalidate()
         try:
             definition = self.configuration()
@@ -447,15 +457,19 @@ class MergeTablesDialog(QDialog):
                            output_rows=report["output_rows"])]
         for joined in report["joins"]:
             lines.append(tr(
-                "{table}: {input_rows:,} input rows, {groups:,} groups; {relationship}, {how} join\n"
-                "  Keys: {left_keys} ← {right_keys}\n"
-                "  Unmatched base: {unmatched_base:,}; unmatched child: {unmatched_child:,}; "
-                "missing child keys: {missing_keys:,}; repeated child-key rows: {duplicate_rows:,}",
+                "{table}: {input_rows:,} input rows, {groups:,} groups; {relationship}, {how} join",
                 table=joined["table"], input_rows=joined["input_rows"], groups=joined["groups"],
-                relationship=joined["relationship"], how=joined["how"],
-                left_keys=", ".join(joined["left_keys"]), right_keys=", ".join(joined["right_keys"]),
-                unmatched_base=joined["unmatched_base"], unmatched_child=joined["unmatched_child"],
-                missing_keys=joined["missing_key_rows"], duplicate_rows=joined["duplicate_key_rows"]))
+                relationship=joined["relationship"], how=joined["how"]))
+            lines.append("  " + tr("Keys: {left_keys} ← {right_keys}",
+                left_keys=", ".join(joined["left_keys"]), right_keys=", ".join(joined["right_keys"])))
+            lines.append("  " + tr(
+                "Unmatched base rows: {unmatched_base:,}; unmatched related rows: {unmatched_child:,}.",
+                unmatched_base=joined["unmatched_base"], unmatched_child=joined["unmatched_child"]))
+            lines.append("  " + tr(
+                "Related rows with missing keys: {missing_keys:,}.",
+                missing_keys=joined["missing_key_rows"]) + " " + tr(
+                "Related rows sharing the same join values: {count:,}.",
+                count=joined["duplicate_key_rows"]))
         if report.get("original_filenames"):
             metadata = report["original_filenames"]
             lines.append(tr("Original filenames: {matched:,} matched rows; {unmatched:,} unmatched rows. "

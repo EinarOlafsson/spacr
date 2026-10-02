@@ -1,5 +1,5 @@
 # spaCR user guide translation (sv).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -27,6 +27,22 @@ msgstr "SDK:t för tillägg låter ett separat installerat Python-paket lägga t
 
 msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
 msgstr "Den aktuella SDK-API-versionen är ``1.0``. Bara huvudversionen styr kompatibiliteten: ett tillägg som deklarerar API ``1.x`` fungerar med spaCR:s SDK ``1.x``. Ett felformat eller felande tillägg isoleras och rapporteras av ``spacr-plugins doctor``; det kan inte ersätta en inbyggd modul eller hindra spaCR från att starta."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Browse and install from a catalogue"
+msgstr "Bläddra och installera från en katalog"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis."
+msgstr "Aktivera **Visa alfafunktioner** i Inställningar och öppna sedan fliken **Insticksprogram**. Ange en JSON-katalogfil, dess mapp eller en HTTP(S)-adress i **Katalog** och tryck på **Lista**. Välj en post för att **Installera eller uppdatera** eller **Avinstallera** den. För ett installerat recept läser **Öppna** in dess sparade inställningar i motsvarande modul utan att starta analysen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal."
+msgstr "Listning, installation och borttagning körs i bakgrunden. Fliken visar **Jobbar...** och inaktiverar tillfälligt katalogkontrollerna medan en åtgärd pågår. Andra gränssnittskontroller kan fortfarande användas. Att stänga Inställningar avbryter inte en installation; den slutförs oberoende av fönstret. Öppna fliken igen för att granska installationsresultatet. Ett misslyckat kataloguppdateringsförsök rapporteras separat från en lyckad installation eller borttagning."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer."
+msgstr "Katalogens insticksprogram använder separata installationsmappar men delar spaCR:s Python-tolk. Kataloginstallationen tillhandahåller ännu inte separata miljöer för motstridiga beroenden."
 
 msgid "Minimal plugin"
 msgstr "Minimalt tillägg"

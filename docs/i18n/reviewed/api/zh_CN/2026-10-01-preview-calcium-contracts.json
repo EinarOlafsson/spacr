@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "note": "Two public API contract updates: bounded numeric preview loading and shared photobleach correction semantics. Original direct AI drafts retained separately from accepted targets.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#0",
+      "source": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array.",
+      "source_sha256": "4dd0dd18ae912ee6a28b586176283a031a7b577c58d78d7c5562120c447d346a",
+      "context": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array.",
+      "translation": "将 *path* 读取为非空的数值数组，形状为 (H, W) 或 (H, W, C)。",
+      "draft_translation": "将 *path* 读取为非空的数值数组，形状为 (H, W) 或 (H, W, C)。",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#1",
+      "source": "Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy`` stacks are memory mapped without loading pickled objects. Raises :class:`FileNotFoundError` if the path is bad.",
+      "source_sha256": "a41631004f919cb477bc21ba4078d0379b902ec2061d7dafdb90837fde29db81",
+      "context": "Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy`` stacks are memory mapped without loading pickled objects. Throws :class:`FileNotFoundError` if the path is bad.",
+      "translation": "Tifffile 保留 TIFF 位深；PNG/JPEG 使用 PIL。NumPy ``.npy`` 堆栈通过内存映射读取，不加载用 pickle 序列化的对象。如果路径无效，则引发 :class:`FileNotFoundError`。",
+      "draft_translation": "Tifffile 保留 TIFF 位深；PNG/JPEG 使用 PIL。NumPy ``.npy`` 堆栈通过内存映射读取，不加载用 pickle 序列化的对象。如果路径无效，则引发 :class:`FileNotFoundError`。",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#2",
+      "source": "image file path (``str`` or :class:`~pathlib.Path`); ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.",
+      "source_sha256": "2bbb0e62ebddaff8a2485199e427b65298b65bd8db902854bee5812d3a73f318",
+      "context": "image file path (``str`` or :class:`~pathlib.Path`); ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.",
+      "translation": "图像文件路径（``str`` 或 :class:`~pathlib.Path`）；``.tif``/``.tiff`` 选择 tifffile，``.npy`` 选择 NumPy。",
+      "draft_translation": "图像文件路径（``str`` 或 :class:`~pathlib.Path`）；``.tif``/``.tiff`` 选择 tifffile，``.npy`` 选择 NumPy。",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#13",
+      "source": "``legacy`` preserves the original global decay fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's per-field correction once on the original table. Raw intensities remain unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected levels. ``corrected_<measurement>`` is dimensionless: corrected signal above the measured outside ring divided by that field's positive, finite initial median signal. Integrated levels subtract ring times area. Missing background or an invalid initial baseline remains NaN; missing intervals are not bridged for peak detection. The actual method, background and baseline accompany traces; ``bleach_correction_fits.csv`` records field fits. Histogram matching can erase population changes.",
+      "source_sha256": "7bab1ec425722eed4dcb6d85016ffdf2972b8cd521e9b8bcec449dc3fcb66c47",
+      "context": "``legacy`` preserves the original global decay fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's per-field correction once on the original table. Raw intensities remain unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected levels. ``corrected_<measurement>`` is dimensionless: corrected signal above the measured outside ring divided by that field's positive, finite initial median signal. Integrated levels subtract ring times area. Missing background or an invalid initial baseline remains NaN; missing intervals are not bridged for peak detection. The actual method, background and baseline accompany traces; ``bleach_correction_fits.csv`` records field fits. Histogram matching can erase population changes.",
+      "translation": "``legacy`` 保留原始的全局衰减拟合。显式选择 ``ratio``、``exponential`` 或 ``histogram`` 时，会对原始表执行一次 Measure 的逐视野校正。原始强度保持不变；``bleach_corrected_<measurement>`` 存储校正后的绝对值。``corrected_<measurement>`` 无量纲：将高于所测外环的校正信号，除以该视野为正且有限的初始信号中位数。积分值减去外环强度与面积的乘积。背景缺失或初始基线无效时，结果仍为 NaN；检测峰值时不会跨越缺失区间进行连接。实际使用的方法、背景和基线与时间曲线一同提供；``bleach_correction_fits.csv`` 记录各视野的拟合。直方图匹配可能抹去群体变化。",
+      "draft_translation": "``legacy`` 保留原始的全局衰减拟合。显式选择 ``ratio``、``exponential`` 或 ``histogram`` 时，会对原始表执行一次 Measure 的逐视野校正。原始强度保持不变；``bleach_corrected_<measurement>`` 存储校正后的绝对值。``corrected_<measurement>`` 无量纲：将高于所测外环的校正信号，除以该视野为正且有限的初始信号中位数。积分值减去外环强度与面积的乘积。背景缺失或初始基线无效时，结果仍为 NaN；检测峰值时不会跨越缺失区间进行连接。实际使用的方法、背景和基线与时间曲线一同提供；``bleach_correction_fits.csv`` 记录各视野的拟合。直方图匹配可能抹去群体变化。",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#14",
+      "source": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-well summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay legacy fit fails, or no cells pass the filters.",
+      "source_sha256": "dd5af1c9a3f498adbf1671019be464b1f7648645c84f140cde311ed7168c0284",
+      "context": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-microplate sample position summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay legacy fit fails, or no cells pass the filters.",
+      "translation": "元组 ``(result_df, peak_details_df, fig)`` -- 经光漂白校正的逐细胞时间曲线、逐峰详情，以及 matplotlib 汇总 Figure。逐孔汇总仅写入 CSV。当数据库没有时间轴、legacy 模式的原始衰减拟合失败或没有细胞通过筛选时，返回 ``None``。",
+      "draft_translation": "元组 ``(result_df, peak_details_df, fig)`` -- 经光漂白校正的逐细胞时间曲线、逐峰详情，以及 matplotlib 汇总 Figure。逐孔汇总仅写入 CSV。当数据库没有时间轴、legacy 模式的原始衰减拟合失败或没有细胞通过筛选时，返回 ``None``。",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#15",
+      "source": "an unknown correction method, an unsupported intensity column for an explicit shared method, or ambiguous field/time/object identities.",
+      "source_sha256": "9a01bb3ec604c1d82af88984f6631a13931cd5de8c2791b21ad83445fe95a3ed",
+      "context": "an unknown correction method, an unsupported intensity column for an explicit shared method, or ambiguous microscope field of view/time/object identities.",
+      "translation": "未知的校正方法、显式选择共享方法时不受支持的强度列，或存在歧义的视野/时间/对象标识。",
+      "draft_translation": "未知的校正方法、显式选择共享方法时不受支持的强度列，或存在歧义的视野/时间/对象标识。",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by shared_ui and root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    }
+  ]
+}

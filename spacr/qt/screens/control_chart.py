@@ -347,6 +347,20 @@ class ControlChartCanvas(QWidget):
         super().closeEvent(event)
 
 
+def _read_control_chart_table(path, table):
+    """Load chart rows and safe crop links in the existing background worker.
+
+    :param path: CSV or SQLite measurement source.
+    :param table: selected physical or derived table name.
+    :returns: original measurement rows with any uniquely matched crop paths.
+    """
+    frame = read_table(path, table)
+    if not str(path).lower().endswith((".csv", ".tsv", ".txt")):
+        from ...png_list import _attach_object_crop_paths
+        frame = _attach_object_crop_paths(path, frame, table)
+    return frame
+
+
 class ControlChartScreen(QWidget):
     """A table, the columns that say what a control is, and the chart.
 
@@ -1546,7 +1560,7 @@ class ControlChartScreen(QWidget):
             f"loading {os.path.basename(path)}"
             + (f" · {chosen}" if chosen else "") + "…")
         self._jobs.submit(
-            lambda p=path, t=chosen: (t, read_table(p, t)),
+            lambda p=path, t=chosen: (t, _read_control_chart_table(p, t)),
             self._on_frame_loaded)
 
     def _on_frame_loaded(self, payload) -> None:

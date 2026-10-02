@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Direct Codex context review of table-merge and annotation controls during guide drafting, independently peer-reviewed by a second Codex agent. Corrects concrete relational/table, action and Boolean-operator mistranslations. Existing candidate gates and normal generator remain unchanged. Original proposals and replaced generated targets retained here.",
+  "author": "root",
+  "peer_reviewer": "shared_ui",
+  "original_proposals": {
+    "Annotate conditions": "Annotera villkor",
+    "Base keys": "Basnycklar",
+    "Base observation keys": "Basobservationernas nycklar",
+    "Child keys": "Underordnade nycklar",
+    "Examples for column": "Exempel för kolumn",
+    "Filter source metadata or preview conditions": "Filtrera källmetadata eller förhandsgranskade villkor",
+    "Identifiers": "Identifierare",
+    "Output observation table": "Observationstabell för resultatet",
+    "Preview assignments": "Förhandsgranska tilldelningar",
+    "Remove condition": "Ta bort villkor",
+    "Remove filename mapping": "Ta bort filnamnsmappning",
+    "Save annotated table…": "Spara annoterad tabell…",
+    "any": "något"
+  },
+  "replaced_generated_targets": {
+    "Annotate conditions": "Anteckna villkor",
+    "Base keys": "Bastangenter",
+    "Base observation keys": "Nyckeln till basobservation",
+    "Child keys": "Nycklarna till barn",
+    "Examples for column": "Exempel på kolumn",
+    "Filter source metadata or preview conditions": "Filtermetadata eller förhandsgranskningsförhållanden",
+    "Identifiers": "Identifieringskod",
+    "Output observation table": "Tabell över observation av utdata",
+    "Preview assignments": "Förhandsgranskningsuppgifter",
+    "Remove condition": "Ta bort tillstånd",
+    "Remove filename mapping": "Ta bort filnamnsavbildning",
+    "Save annotated table…": "Spara kommenterat bord...",
+    "any": "någon av följande egenskaper:"
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Annotate conditions",
+      "source": "Annotate conditions",
+      "source_sha256": "538773c6959c7b3faa4c56aa2a08afff47813434d18932033ef3e5ae25758f09",
+      "translation": "Annotera villkor"
+    },
+    {
+      "table": "ui",
+      "key": "Base keys",
+      "source": "Base keys",
+      "source_sha256": "46ae4c7e8b2b4a13059e9b34357fbb18678470497edc92a3d111f660ed9ac0b8",
+      "translation": "Basnycklar"
+    },
+    {
+      "table": "ui",
+      "key": "Base observation keys",
+      "source": "Base observation keys",
+      "source_sha256": "d470d25343c9d4034038489028978c76c740d23288d4a4a46b8de0195c032db5",
+      "translation": "Basobservationernas nycklar"
+    },
+    {
+      "table": "ui",
+      "key": "Child keys",
+      "source": "Child keys",
+      "source_sha256": "742a9fafde02f1bf710c88966a21e45c5f9f02358f15b2035501d6a81f06ea3d",
+      "translation": "Underordnade nycklar"
+    },
+    {
+      "table": "ui",
+      "key": "Examples for column",
+      "source": "Examples for column",
+      "source_sha256": "e47e788e9c5dc6e02a3d81dc2f21299cf3c617378d93cba5caa2a51babaedfae",
+      "translation": "Exempel för kolumn"
+    },
+    {
+      "table": "ui",
+      "key": "Filter source metadata or preview conditions",
+      "source": "Filter source metadata or preview conditions",
+      "source_sha256": "418177badab7ffd82d6357a95ee1feb0133a443a4f1095e7dda87b15903cd2f2",
+      "translation": "Filtrera källmetadata eller förhandsgranskade villkor"
+    },
+    {
+      "table": "ui",
+      "key": "Identifiers",
+      "source": "Identifiers",
+      "source_sha256": "8d6b1f41b51aaeea2c17b386ec89b98efd073af339b30b22cd003debc979e984",
+      "translation": "Identifierare"
+    },
+    {
+      "table": "ui",
+      "key": "Output observation table",
+      "source": "Output observation table",
+      "source_sha256": "e2f9375f50bc8b387a4730f9216fe79e7274a88626429442ba59f6b890951036",
+      "translation": "Observationstabell för resultatet"
+    },
+    {
+      "table": "ui",
+      "key": "Preview assignments",
+      "source": "Preview assignments",
+      "source_sha256": "6538e0a531066450e2c69cf12f718ffff6b80885ebf199428f4cc1a928c6cff5",
+      "translation": "Förhandsgranska tilldelningar"
+    },
+    {
+      "table": "ui",
+      "key": "Remove condition",
+      "source": "Remove condition",
+      "source_sha256": "5ac0b06fc9f0d038a09cc4dd62fb7a69d62ee1f1c0d84646ff519d6025d6e766",
+      "translation": "Ta bort villkor"
+    },
+    {
+      "table": "ui",
+      "key": "Remove filename mapping",
+      "source": "Remove filename mapping",
+      "source_sha256": "fd6cb2334e5ac6b94598fa1fa32c42f2046cbdd2a2068748a880a9667561e3f5",
+      "translation": "Ta bort filnamnsmappning"
+    },
+    {
+      "table": "ui",
+      "key": "Save annotated table…",
+      "source": "Save annotated table…",
+      "source_sha256": "2a93d8121bf2812a6c0c918e981a90d297c691e976daefcd5177da8e4cf306d6",
+      "translation": "Spara annoterad tabell…"
+    },
+    {
+      "table": "ui",
+      "key": "any",
+      "source": "any",
+      "source_sha256": "d6a7cd2a7371b1a15d543196979ff74fdb027023ebf187d5d329be11055c77fd",
+      "translation": "något"
+    }
+  ]
+}

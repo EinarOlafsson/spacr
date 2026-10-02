@@ -105,13 +105,25 @@ def test_the_zoo_lists_each_backend_with_its_state_and_licence(tmp_path):
     rows = {e.key: e for e in zoo.installable_backend_entries()}
     for name in PREFIXED:
         row = rows[f"{name}_v1"]
-        assert (row.kind, row.source, row.uri) == (
-            "backend", "installable", f"backend:{name}")
+        assert (row.kind, row.uri) == ("backend", f"backend:{name}")
+        assert row.source in ("installable", "not installable here")
+        if row.source == "not installable here":
+            assert "needs Python" in row.notes[0]
         assert row.notes[1] == SB._SPECS[name].licence_note
     env = _finish(tmp_path, "stardist")
     ready = {e.key: e for e in zoo.installable_backend_entries()}
     assert ready["stardist_v1"].source == "installed"
     assert ready["stardist_v1"].path == str(env)
+
+
+def test_omnipose_uses_python_with_a_wheel_for_its_lxml_dependency():
+    spec = SB._SPECS["omnipose"]
+    assert spec.python == ((3, 11), (3, 12))
+    candidates = SB._interpreter_candidates(
+        spec, executable="/python3.13", version=(3, 13), frozen=False,
+        which=lambda name: "/python3.12" if name == "python3.12" else None,
+        windows=False)
+    assert candidates == [("/python3.12",)]
 
 
 # ===========================================================================
@@ -292,6 +304,36 @@ def test_mask_generation_sends_the_object_through_the_sam_call(
     for name in masks:
         saved = np.load(src / "cell_mask_stack" / name)
         assert saved.max() >= 2
+
+
+def test_instanseg_mask_generation_passes_all_selected_intensity_channels(
+        tmp_path, monkeypatch):
+    seen = []
+
+    def _eval(x, **kwargs):
+        seen.extend(np.asarray(image).copy() for image in x)
+        return ([_known_labels(image.shape[:2]).astype(np.uint16)
+                 for image in x],
+                [[None, None, None, None] for _ in x], None)
+
+    monkeypatch.setattr(SB, "_load_backend", lambda *args, **kwargs:
+                        types.SimpleNamespace(name="instanseg", eval=_eval))
+    monkeypatch.setattr(O, "cp_models",
+                        types.SimpleNamespace(CellposeModel=_no_cellpose))
+    src = tmp_path / "plate" / "masks"
+    original = _write_npz(src, (1, 24, 24, 3))
+    settings = _base_settings(
+        src, cell_channel=2, nucleus_channel=0, pathogen_channel=1,
+        cell_model_name="instanseg:fluorescence_nuclei_and_cells")
+    O.generate_cellpose_masks_sam(str(src), settings, "cell")
+    assert len(seen) == 1 and seen[0].shape == (24, 24, 3)
+    # Dense archive positions follow role extraction, so the cell channel
+    # resolves to 1; InstanSeg receives it first, then every other plane.
+    for position, source in enumerate((1, 0, 2)):
+        np.testing.assert_allclose(
+            seen[0][..., position],
+            original[0, ..., source].astype(np.float32) / original.max())
+    assert (src / "cell_mask_stack" / "plate1_A01_1.npy").is_file()
 
 
 def test_prefixed_masks_makes_v1s_call_and_returns_the_probability():
@@ -580,13 +622,50 @@ def test_instanseg_answers_in_cellpose_sams_shapes(tmp_path):
                for c in calls)
     assert calls[0]["pixel_size"] == pytest.approx(
         0.5 * SB._INSTANSEG_DIAMETER / 17.0), "the diameter, as a pixel size"
-    assert calls[0]["shape"] == (1, 24, 30)
+    assert calls[0]["shape"] == (2, 24, 30)
     assert calls[1]["tile_size"] == 512
     assert adapter.ignored == {"flow_threshold", "cellprob_threshold",
                                "resample"}
     adapter.eval([np.ones((8, 8), np.float32)], diameter=None)
     assert _FakeInstanSeg.built[0].calls[-1]["pixel_size"] is None
     assert any("normalize=False" in t for t in adapter.translated)
+
+
+def test_instanseg_keeps_all_selected_channels_in_model_order():
+    _FakeInstanSeg.built = []
+    adapter = SB._InstanSegAdapter("fluorescence_nuclei_and_cells", "cpu",
+                                   instanseg_class=_FakeInstanSeg)
+    image = np.stack([np.full((24, 30), value, np.float32)
+                      for value in (3, 7, 11)], axis=0)
+    labels, _, _ = adapter.eval([image], channel_axis=0)
+    assert labels[0].shape == (24, 30)
+    assert _FakeInstanSeg.built[0].calls[0]["shape"] == (3, 24, 30)
+    assert O._segmentation_input_channels([2], 3, adapter) == [2, 0, 1]
+    assert O._segmentation_input_channels([2], 3, object()) == [2]
+
+
+def test_instanseg_live_preview_uses_the_same_selected_channels(monkeypatch):
+    from spacr.qt.widgets import live_preview as preview
+
+    image = np.stack([np.full((24, 30), value, np.float32)
+                      for value in (3, 7, 11)], axis=-1)
+    request = preview.PreviewRequest(
+        image=image, model="instanseg:fluorescence_nuclei_and_cells",
+        channels={"nucleus": 2, "cell": 0, "pathogen": 1})
+    monkeypatch.setattr(SB, "_load_backend", lambda *args, **kwargs: object())
+    seen = []
+
+    def _masks(model, images, settings, obj, **kwargs):
+        seen.extend(images)
+        return ([np.ones((24, 30), np.uint16)], [None], [None])
+
+    prepared = lambda index: image[..., index]
+    mask, _, _ = preview._backend_preview_pass(
+        request, "nucleus", prepared(2), ("instanseg", _masks), prepared)
+    assert mask.shape == (24, 30)
+    assert len(seen) == 1 and seen[0].shape == (24, 30, 3)
+    for position, source in enumerate((2, 0, 1)):
+        np.testing.assert_array_equal(seen[0][..., position], image[..., source])
 
 
 def test_instanseg_loads_a_torchscript_file_and_refuses_a_missing_one(

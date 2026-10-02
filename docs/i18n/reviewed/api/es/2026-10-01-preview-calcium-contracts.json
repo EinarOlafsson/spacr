@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "note": "Two public API contract updates: bounded numeric preview loading and shared photobleach correction semantics. Original direct AI drafts retained separately from accepted targets.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#0",
+      "source": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array.",
+      "source_sha256": "4dd0dd18ae912ee6a28b586176283a031a7b577c58d78d7c5562120c447d346a",
+      "context": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array.",
+      "translation": "Lee *path* en un array numérico no vacío con forma (H, W) o (H, W, C).",
+      "draft_translation": "Lee *path* en un array numérico no vacío con forma (H, W) o (H, W, C).",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#1",
+      "source": "Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy`` stacks are memory mapped without loading pickled objects. Raises :class:`FileNotFoundError` if the path is bad.",
+      "source_sha256": "a41631004f919cb477bc21ba4078d0379b902ec2061d7dafdb90837fde29db81",
+      "context": "Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy`` stacks are memory mapped without loading pickled objects. Throws :class:`FileNotFoundError` if the path is bad.",
+      "translation": "Tifffile conserva la profundidad de bits de TIFF; PNG/JPEG utilizan PIL. Las pilas ``.npy`` de NumPy se mapean en memoria sin cargar objetos serializados con pickle. Lanza :class:`FileNotFoundError` si la ruta no es válida.",
+      "draft_translation": "Tifffile conserva la profundidad de bits de TIFF; PNG/JPEG utilizan PIL. Las pilas ``.npy`` de NumPy se mapean en memoria sin cargar objetos serializados con pickle. Lanza :class:`FileNotFoundError` si la ruta no es válida.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#2",
+      "source": "image file path (``str`` or :class:`~pathlib.Path`); ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.",
+      "source_sha256": "2bbb0e62ebddaff8a2485199e427b65298b65bd8db902854bee5812d3a73f318",
+      "context": "image file path (``str`` or :class:`~pathlib.Path`); ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.",
+      "translation": "ruta del archivo de imagen (``str`` o :class:`~pathlib.Path`); ``.tif``/``.tiff`` selecciona tifffile y ``.npy`` selecciona NumPy.",
+      "draft_translation": "ruta del archivo de imagen (``str`` o :class:`~pathlib.Path`); ``.tif``/``.tiff`` selecciona tifffile y ``.npy`` selecciona NumPy.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#13",
+      "source": "``legacy`` preserves the original global decay fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's per-field correction once on the original table. Raw intensities remain unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected levels. ``corrected_<measurement>`` is dimensionless: corrected signal above the measured outside ring divided by that field's positive, finite initial median signal. Integrated levels subtract ring times area. Missing background or an invalid initial baseline remains NaN; missing intervals are not bridged for peak detection. The actual method, background and baseline accompany traces; ``bleach_correction_fits.csv`` records field fits. Histogram matching can erase population changes.",
+      "source_sha256": "7bab1ec425722eed4dcb6d85016ffdf2972b8cd521e9b8bcec449dc3fcb66c47",
+      "context": "``legacy`` preserves the original global decay fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's per-field correction once on the original table. Raw intensities remain unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected levels. ``corrected_<measurement>`` is dimensionless: corrected signal above the measured outside ring divided by that field's positive, finite initial median signal. Integrated levels subtract ring times area. Missing background or an invalid initial baseline remains NaN; missing intervals are not bridged for peak detection. The actual method, background and baseline accompany traces; ``bleach_correction_fits.csv`` records field fits. Histogram matching can erase population changes.",
+      "translation": "``legacy`` conserva el ajuste global original del decaimiento. Al seleccionar explícitamente ``ratio``, ``exponential`` o ``histogram``, se aplica una sola vez a la tabla original la corrección por campo de Measure. Las intensidades originales permanecen sin cambios; ``bleach_corrected_<measurement>`` almacena niveles absolutos corregidos. ``corrected_<measurement>`` es adimensional: la señal corregida por encima del anillo exterior medido se divide por la mediana inicial positiva y finita de la señal de ese campo. Los niveles integrados restan la intensidad del anillo multiplicada por el área. La ausencia de fondo o una referencia inicial no válida da como resultado NaN; no se conectan intervalos faltantes para detectar picos. El método realmente utilizado, el fondo y la referencia acompañan a las trazas; ``bleach_correction_fits.csv`` registra los ajustes por campo. La igualación de histogramas puede eliminar cambios en la población.",
+      "draft_translation": "``legacy`` conserva el ajuste global original del decaimiento. Al seleccionar explícitamente ``ratio``, ``exponential`` o ``histogram``, se aplica una sola vez a la tabla original la corrección por campo de Measure. Las intensidades originales permanecen sin cambios; ``bleach_corrected_<measurement>`` almacena niveles absolutos corregidos. ``corrected_<measurement>`` es adimensional: la señal corregida por encima del anillo exterior medido se divide por la mediana inicial positiva y finita de la señal de ese campo. Los niveles integrados restan la intensidad del anillo multiplicada por el área. La ausencia de fondo o una referencia inicial no válida da como resultado NaN; no se conectan intervalos faltantes para detectar picos. El método realmente utilizado, el fondo y la referencia acompañan a las trazas; ``bleach_correction_fits.csv`` registra los ajustes por campo. La igualación de histogramas puede eliminar cambios en la población.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#14",
+      "source": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-well summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay legacy fit fails, or no cells pass the filters.",
+      "source_sha256": "dd5af1c9a3f498adbf1671019be464b1f7648645c84f140cde311ed7168c0284",
+      "context": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-microplate sample position summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay legacy fit fails, or no cells pass the filters.",
+      "translation": "tupla ``(result_df, peak_details_df, fig)`` -- las trazas por célula corregidas por fotoblanqueo, los detalles por pico y la Figure de resumen de matplotlib. Los resúmenes por pocillo solo se escriben en CSV. Devuelve ``None`` cuando la base de datos no tiene eje temporal, falla el ajuste original del decaimiento del modo legacy o ninguna célula supera los filtros.",
+      "draft_translation": "tupla ``(result_df, peak_details_df, fig)`` -- las trazas por célula corregidas por fotoblanqueo, los detalles por pico y la Figure de resumen de matplotlib. Los resúmenes por pocillo solo se escriben en CSV. Devuelve ``None`` cuando la base de datos no tiene eje temporal, falla el ajuste original del decaimiento del modo legacy o ninguna célula supera los filtros.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#15",
+      "source": "an unknown correction method, an unsupported intensity column for an explicit shared method, or ambiguous field/time/object identities.",
+      "source_sha256": "9a01bb3ec604c1d82af88984f6631a13931cd5de8c2791b21ad83445fe95a3ed",
+      "context": "an unknown correction method, an unsupported intensity column for an explicit shared method, or ambiguous microscope field of view/time/object identities.",
+      "translation": "un método de corrección desconocido, una columna de intensidad no compatible con un método compartido seleccionado explícitamente o identidades ambiguas de campo/tiempo/objeto.",
+      "draft_translation": "un método de corrección desconocido, una columna de intensidad no compatible con un método compartido seleccionado explícitamente o identidades ambiguas de campo/tiempo/objeto.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by root Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    }
+  ]
+}

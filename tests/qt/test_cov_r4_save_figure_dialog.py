@@ -266,7 +266,7 @@ class TestTheSaveCarriesTheIntegrityStamp:
         seen = {}
         monkeypatch.setattr(plot, "_figure_integrity_enabled", lambda: True)
         monkeypatch.setattr(plot, "_integrity_report",
-                            lambda figure, fmt, dpi: report)
+                            lambda figure, fmt, dpi, destination: report)
         monkeypatch.setattr(plot, "_integrity_metadata",
                             lambda rep, written: stamp)
 
@@ -288,7 +288,7 @@ class TestTheSaveCarriesTheIntegrityStamp:
             self, dialog, tmp_path, monkeypatch):
         report = {"panels": 1}
         seen = self._integrity(monkeypatch, report=report,
-                               stamp={"Description": "spaCR integrity"})
+                               stamp={"Subject": "spaCR integrity"})
         out = tmp_path / "stamped.pdf"
         assert dialog.save(str(out)) == str(out)
         assert out.is_file()

@@ -201,7 +201,7 @@ def test_a_preview_of_a_prefixed_model_runs_in_its_backend(monkeypatch, name):
     assert [load["name"] for load in loads] == [name]
     assert loads[0]["object_type"] == "nucleus"
     [call] = calls
-    assert call["shapes"] == [(16, 16, 1)]
+    assert call["shapes"] == [(16, 16, 2 if name == "instanseg" else 1)]
     assert call["normalize"] is False and call["diameter"] == 25.0
     assert set(np.unique(masks["nucleus"])) == {0, 1, 2}
     assert "nucleus" in request.cellprob_maps

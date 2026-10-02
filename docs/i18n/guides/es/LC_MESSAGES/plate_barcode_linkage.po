@@ -1,0 +1,86 @@
+# spaCR user guide translation (es).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 23:56-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Link plate barcodes to sample metadata"
+msgstr "Vincular códigos de barras de placas con metadatos de muestras"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Measure**, enable **Show alpha features** in Preferences and open **Plate Barcode Linkage (Alpha)**. Set ``plate_barcode_source`` to a table or a LIMS service URL. The linkage runs after measurement."
+msgstr "En **Medición**, active **Mostrar funciones alfa** en Preferencias y abra **Plate Barcode Linkage (Alpha)**. Establezca ``plate_barcode_source`` en una tabla o en la URL de un servicio LIMS. La vinculación se ejecuta después de la medición."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A local CSV, TSV, Excel or Parquet table needs a barcode column, a well column and the sample metadata to attach. For example::"
+msgstr "Una tabla local CSV, TSV, Excel o Parquet necesita una columna de código de barras, una columna de pocillo y los metadatos de muestra que se adjuntarán. Por ejemplo::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata."
+msgstr "Establezca ``plate_barcode_column`` si su columna de código de barras tiene otro nombre. ``plate_barcodes`` relaciona el nombre de una placa fotografiada con su código de barras. De lo contrario, spaCR lee ``barcode.txt`` en la carpeta de la placa o utiliza el nombre de la placa. Conserve unidades de concentración significativas en los metadatos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Link during Convert"
+msgstr "Vinculación en Convertir"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names."
+msgstr "En **Convertir**, active **Mostrar funciones alfa** y elija un CSV local de registros de muestras en **Vinculación de placas por código de barras (Alpha)**. El CSV necesita una columna de código de barras, una columna de pocillo y los campos de muestra que desee incluir en el mapa de placa. La vista previa valida la vinculación antes de escribir imágenes. Convertir utiliza los nombres de las placas de salida que aparecen en su vista previa; pueden diferir de los nombres de las carpetas de origen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate."
+msgstr "Asigne códigos de barras a las placas de salida con el formato ``plate1=BC001; plate2=BC002``, o coloque un archivo ``barcode.txt`` en UTF-8 en la raíz de la adquisición o en una carpeta real de placa de origen. Un archivo que contiene un único código de barras sin asignación solo se aplica cuando esa carpeta contiene una única placa de origen. Para varias placas, escriba una entrada ``source_plate=barcode`` por placa, separadas por saltos de línea o puntos y coma; las claves son los *nombres originales de las placas de origen*. Las asignaciones explícitas en Convertir utilizan los nombres de las placas de *salida* y pueden completar las placas restantes. spaCR conserva los ceros iniciales, rechaza las asignaciones ambiguas o contradictorias y exige un código de barras para cada placa de salida."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service."
+msgstr "Tras una conversión completa, lea ``plate_barcode_linkage/plate_map_lims.csv`` en el destino. Revise allí ``plate_barcode_mismatches.csv`` para ver los pocillos sin correspondencia y otras discrepancias. El registro de finalización ``complete.json`` se escribe al final; su ausencia significa que el paquete de vinculación está incompleto. La pantalla Convertir muestra una vista previa limitada de las discrepancias y las rutas de ambos archivos CSV. Las imágenes originales, los archivos de códigos de barras y los mapas de placa existentes del usuario permanecen sin cambios. Esta ruta de Convertir acepta un CSV local; utilice Medición para un servicio HTTP LIMS."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Read records from a LIMS service"
+msgstr "Leer registros de un servicio LIMS"
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "Use a URL such as ``https://lims.example/plates/{barcode}/wells``. spaCR substitutes the encoded barcode. Without ``{barcode}``, it adds a ``barcode`` query parameter. If authentication is needed, set the token in an environment variable and put that variable's name in ``plate_barcode_token_env``. Do not put the token in the URL or settings."
+msgstr "Utilice una URL como ``https://lims.example/plates/{barcode}/wells``. spaCR sustituye el código de barras codificado. Sin ``{barcode}``, añade un parámetro de consulta ``barcode``. Si se necesita autenticación, guarde el token en una variable de entorno e indique su nombre en ``plate_barcode_token_env``. No incluya el token en la URL ni en los ajustes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The service may return a list of well records, or an object containing that list under ``wells``, ``records``, ``results``, ``data`` or ``items``. Plain fields outside the list supply metadata defaults for its wells::"
+msgstr "El servicio puede devolver una lista de registros de pocillos o un objeto que contenga esa lista bajo ``wells``, ``records``, ``results``, ``data`` o ``items``. Los campos simples fuera de la lista proporcionan metadatos predeterminados para sus pocillos::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR follows ``next``, ``next_url``, ``@odata.nextLink`` or ``links.next``. The link may be a URL string or an object with an ``href`` field. Relative links resolve against the response URL. A missing link, null or empty string ends the list. Metadata defaults carry forward to later pages; explicit fields on a well override those defaults. Pagination fields do not become sample metadata."
+msgstr "spaCR sigue ``next``, ``next_url``, ``@odata.nextLink`` o ``links.next``. El enlace puede ser una cadena URL o un objeto con un campo ``href``. Los enlaces relativos se resuelven con respecto a la URL de la respuesta. Un enlace ausente, null o una cadena vacía finaliza la lista. Los metadatos predeterminados se mantienen en las páginas siguientes; los campos explícitos de un pocillo prevalecen sobre esos valores. Los campos de paginación no se convierten en metadatos de muestra."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Every link and HTTP redirect must stay on the same scheme, host and port as the original service. Conflicting links and repeated pages are errors. Collection is limited to 16 MiB per response, 64 MiB across the lookup, 1,000 page addresses per barcode and 100,000 records across the lookup. An error stops the metadata lookup without returning a partial plate map. Existing measurement results remain available. Vendor-specific cursor protocols that do not provide a next-page URL need a separate adapter."
+msgstr "Cada enlace y redirección HTTP debe mantener el mismo esquema, servidor y puerto que el servicio original. Los enlaces contradictorios y las páginas repetidas son errores. La recopilación se limita a 16 MiB por respuesta, 64 MiB por consulta, 1.000 direcciones de página por código de barras y 100.000 registros por consulta. Un error detiene la consulta de metadatos sin devolver un mapa de placa parcial. Los resultados de medición existentes siguen disponibles. Los protocolos de cursor específicos de un proveedor que no facilitan una URL de página siguiente necesitan un adaptador independiente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the result"
+msgstr "Inspeccionar el resultado"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The filled map is written to ``measurements/plate_map_lims.csv``. It fills an empty ``profiling_metadata`` setting. When compound and concentration columns exist, it also fills an empty ``viability_plate_map``. An existing user-supplied map is compared, not silently replaced."
+msgstr "El mapa completo se escribe en ``measurements/plate_map_lims.csv``. Rellena el ajuste ``profiling_metadata`` si está vacío. Cuando existen columnas de compuesto y concentración, también rellena ``viability_plate_map`` si está vacío. Un mapa existente proporcionado por el usuario se compara, no se sustituye silenciosamente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review ``measurements/plate_barcode_mismatches.csv`` and the log for missing barcodes, shared barcodes, unmatched wells, conflicting records and disagreements with an existing map. Resolve those mismatches before interpreting treatment comparisons."
+msgstr "Revise ``measurements/plate_barcode_mismatches.csv`` y el registro para detectar códigos de barras ausentes o compartidos, pocillos sin correspondencia, registros contradictorios y discrepancias con un mapa existente. Resuelva esas discrepancias antes de interpretar comparaciones entre tratamientos."
+

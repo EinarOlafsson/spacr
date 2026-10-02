@@ -4008,7 +4008,9 @@
       "source_sha256": "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3",
       "context": "image file path (``str`` or :class:`~pathlib.Path`); a ``.tif``/``.tiff`` suffix, in any case, selects tifffile.",
       "translation": "chemin du fichier image (``str`` ou :class:`~pathlib.Path`) ; un suffixe ``.tif``/``.tiff``, quelle que soit sa casse, sélectionne tifffile.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-01: preview loading and calcium-analysis contracts changed. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.qt.widgets.live_preview.load_preview_mip#2",

@@ -6,6 +6,8 @@ Measure
 
 Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.
 
+With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment.
+
 **Open:** Home → Measure.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.

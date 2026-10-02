@@ -1,8 +1,11 @@
 """Recover original image names on measurement rows without changing sources.
 
-Only spaCR conversion maps, legacy Yokogawa rename logs and channel-sorting
-manifests are accepted. Channel/z contributions are grouped at field level;
-timepoints and plates remain distinct. Images are never read; an embedded conversion_map table is read-only.
+Accept spaCR conversion records, older Yokogawa rename logs, and records
+produced by sorting image channels. Group records from image channels and
+z slices by microscope field. Keep timepoints and plates separate.
+
+Do not read image data. Read an embedded ``conversion_map`` table without
+modifying it.
 """
 from __future__ import annotations
 
@@ -44,7 +47,7 @@ def discover_maps(db_path) -> list[Path]:
              if (candidate := parent / name).is_file()]
     if path.is_file() and path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
         try:
-            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)) as connection:
+            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
                 exists = connection.execute(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='conversion_map'"
                 ).fetchone()
@@ -216,8 +219,11 @@ def enrich(frame, map_path, *, expected_sha256=None, output_column="original_fil
     map_table = None
     if path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
         try:
-            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)) as connection:
-                stored = pd.read_sql_query('SELECT * FROM "conversion_map"', connection)
+            from .tabular import _read_query
+
+            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
+                stored = _read_query(connection, 'SELECT * FROM "conversion_map"',
+                                     canonicalise=False, report=None)
             # Order-independent digest: unrelated database writes cannot invalidate it.
             stored = stored.fillna("").astype(str)
             stored = stored.reindex(sorted(stored.columns), axis=1)

@@ -197,7 +197,8 @@ def test_b_score_scales_by_the_scaled_mad_of_the_fitted_residuals():
     plate = rng.normal(0, 1, (8, 12))
     scores, polish, scale = S.b_scores(plate)
     residuals = plate - polish.fitted()
-    assert scale == pytest.approx(S.mad(residuals))
+    # R/cellHTS2 uses the rounded normal-consistency constant.
+    assert scale == pytest.approx(S.mad(residuals, scale=False) * 1.4826, rel=1e-12)
     assert np.allclose(scores, residuals / scale)
 
 

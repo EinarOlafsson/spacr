@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "method": "Direct Codex AI technical translation with independent Codex AI technical peer review; no human or native-speaker signoff. Standard guide import and gates unchanged.",
+  "draft_author": "merge_interfaces",
+  "independent_reviewer": "root",
+  "draft_sha256": "55ae84842355e9e8e65bf81ad1e316086268537a115b7405d96dac4b963e9d95",
+  "reviewed_sha256": "55ae84842355e9e8e65bf81ad1e316086268537a115b7405d96dac4b963e9d95",
+  "source_files": {
+    "docs/source/measure_live.rst": "156035ba6d69fe076dadf0066521eb689b05581cbe25a223b3047da79718f9e8"
+  },
+  "runtime_catalog_sha256": "a37e62b32aef13ec329aabffd4ed61537fe5818ad8b64ba2bd4e1c50c6557cb0",
+  "records": [
+    {
+      "index": 0,
+      "domain": "measure_live",
+      "source": "Preview and export unmixed crops",
+      "source_sha256": "f9f0a86e7889a7ab6c5b9108cb6c72b5dbc1d137626264db2696cd1ec5f58aff",
+      "original_draft": "Visualizar e exportar recortes com separação espectral",
+      "target": "Visualizar e exportar recortes com separação espectral",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged.",
+      "source_sha256": "9cc2e0f7d40c882fe3777428d84c09fe27a13b1d150450bb2bd620267111553b",
+      "original_draft": "Com **Mostrar recursos alfa** ativado, defina ``unmix=True`` e configure ``unmix_controls`` no formulário **Medição**. Alterne **Visualização com separação espectral** para usar esses controles de coloração única na prévia dos recortes. A visualização padrão não aplica separação espectral. Controles inválidos ou ausentes são informados. Esse botão altera somente a visualização; as configurações da execução, as matrizes de origem e os PNGs de saída do processamento em lote permanecem inalterados.",
+      "target": "Com **Mostrar recursos alfa** ativado, defina ``unmix=True`` e configure ``unmix_controls`` no formulário **Medição**. Alterne **Visualização com separação espectral** para usar esses controles de coloração única na prévia dos recortes. A visualização padrão não aplica separação espectral. Controles inválidos ou ausentes são informados. Esse botão altera somente a visualização; as configurações da execução, as matrizes de origem e os PNGs de saída do processamento em lote permanecem inalterados.",
+      "ui": {
+        "Show alpha features": "Mostrar recursos alfa",
+        "Measure": "Medição",
+        "Unmixed display": "Visualização com separação espectral"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "measure_live",
+      "source": "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged.",
+      "source_sha256": "0137b941fdfda25b2abe2d543b2fe916f0dbffbd8b685be8ee2043142c10f03f",
+      "original_draft": "Após a conclusão da prévia, escolha **Exportar recortes apresentados…**, selecione uma pasta que conterá a exportação e digite um novo nome de pasta. Somente os recortes da prévia concluída são exportados, com as cores exibidas e seus pixels sem separação espectral ou com ela. ``provenance.json`` registra os caminhos de origem, as identidades dos objetos, as configurações de visualização e as informações de separação espectral. Pastas já existentes são recusadas. Cancelar ou alterar a prévia descarta uma exportação inacabada; os arquivos de origem e as saídas em lote permanecem inalterados.",
+      "target": "Após a conclusão da prévia, escolha **Exportar recortes apresentados…**, selecione uma pasta que conterá a exportação e digite um novo nome de pasta. Somente os recortes da prévia concluída são exportados, com as cores exibidas e seus pixels sem separação espectral ou com ela. ``provenance.json`` registra os caminhos de origem, as identidades dos objetos, as configurações de visualização e as informações de separação espectral. Pastas já existentes são recusadas. Cancelar ou alterar a prévia descarta uma exportação inacabada; os arquivos de origem e as saídas em lote permanecem inalterados.",
+      "ui": {
+        "Export displayed crops…": "Exportar recortes apresentados…"
+      }
+    },
+    {
+      "index": 3,
+      "domain": "measure_live",
+      "source": "Preview reference-well calibration",
+      "source_sha256": "bae1cd22994d228c8e96460b42666421695b498ef6e9230b6811e44d04922963",
+      "original_draft": "Visualizar a calibração com poços de referência",
+      "target": "Visualizar a calibração com poços de referência",
+      "ui": {}
+    },
+    {
+      "index": 4,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings.",
+      "source_sha256": "596b4f770967b84a76d6e345ea4c2ac650410c13028421c4a19dd6be062e4574",
+      "original_draft": "Com **Mostrar recursos alfa** ativado, ative ``intensity_calibration`` e configure os poços de referência, o offset da câmera e a estatística no formulário **Medição**. Desative **Modo de teste** e escolha **Pré-visualização** ao lado de **Poços de calibração de intensidade**. Use uma pasta de execução local ou sua pasta ``merged``. A prévia lê as configurações atuais sem executar **Medição** nem gravar imagens, medições ou configurações.",
+      "target": "Com **Mostrar recursos alfa** ativado, ative ``intensity_calibration`` e configure os poços de referência, o offset da câmera e a estatística no formulário **Medição**. Desative **Modo de teste** e escolha **Pré-visualização** ao lado de **Poços de calibração de intensidade**. Use uma pasta de execução local ou sua pasta ``merged``. A prévia lê as configurações atuais sem executar **Medição** nem gravar imagens, medições ou configurações.",
+      "ui": {
+        "Show alpha features": "Mostrar recursos alfa",
+        "Measure": "Medição",
+        "Test mode": "Modo de teste",
+        "Preview": "Pré-visualização",
+        "Intensity calibration wells": "Poços de calibração de intensidade"
+      }
+    },
+    {
+      "index": 5,
+      "domain": "measure_live",
+      "source": "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop.",
+      "source_sha256": "6e93ba2104a5a978e7bc128eab0fb5c08c9ead258ea906d6d60ca8008d97ca1f",
+      "original_draft": "Cada pasta de origem é planejada separadamente. A primeira placa em ordem de nome é a referência. A tabela mostra, para cada placa e canal, o fator de ganho multiplicativo, a estatística de referência e a contagem de campos de imagem de referência. Alterar as configurações invalida o resultado. **Cancelar** descarta a prévia enquanto qualquer varredura de arquivos de origem já iniciada termina com segurança; ao reabrir, é preciso aguardar o fim dessa varredura.",
+      "target": "Cada pasta de origem é planejada separadamente. A primeira placa em ordem de nome é a referência. A tabela mostra, para cada placa e canal, o fator de ganho multiplicativo, a estatística de referência e a contagem de campos de imagem de referência. Alterar as configurações invalida o resultado. **Cancelar** descarta a prévia enquanto qualquer varredura de arquivos de origem já iniciada termina com segurança; ao reabrir, é preciso aguardar o fim dessa varredura.",
+      "ui": {
+        "Cancel": "Cancelar"
+      }
+    }
+  ],
+  "peer_review": {
+    "reviewer": "root",
+    "accepted_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "draft_sha256": "55ae84842355e9e8e65bf81ad1e316086268537a115b7405d96dac4b963e9d95",
+    "decision": "Accepted technical meanings, exact UI labels, literals and safeguards; no native-speaker signoff."
+  },
+  "peer_review_receipt_sha256": "f1c4acd71d31595309432444106a3407d74132dc49f734e901b1de0a548f3feb"
+}

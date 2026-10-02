@@ -6,11 +6,12 @@
   "app_key": "graph_builder",
   "section": "Explore",
   "title": "Graph Builder: plot measurements and filter objects",
-  "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+  "description": "Load a measurement table, compare groups, filter objects and build illustrative genotype, replicate and combined condition columns.",
   "objectives": [
     "Load an example measurement table.",
     "Build a histogram, scatter plot and grouped panels.",
-    "Filter objects and choose a follow-up view."
+    "Filter objects and choose a follow-up view.",
+    "Assign exact-value labels in separate output columns and combine them without changing source measurements."
   ],
   "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
   "example_files": [
@@ -72,6 +73,26 @@
       "hold_after": 0.7
     },
     {
+      "visual": "13_genotype_exact_values",
+      "narration": "Click Annotate conditions. Name the first output genotype and use Assign values. Choose Exact values, then label columnID values c1, c2 and c3 as WildType. Add a second box named mutant for c7, c4, c5 and c6. These are illustrative labels, not validated genotypes. The downloaded table contains only c1 and c2, so every cell matches WildType and none matches mutant. Exact values match whole values: c1 does not match c10.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_replicate_rule_boxes",
+      "narration": "Add an output column named replicate. Match rowID values r1, r4, r5 and r6 in a box named replicate 1. Add another box with the same name for r7, r9 and r10. Boxes with the same label form a union; conflicting different labels in one output must be resolved before Apply conditions. The example contains r5 and r12, so r5 matches and r12 remains blank. These practice labels do not establish biological replication.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_composed_condition_preview",
+      "narration": "Add a third output named condition and choose Compose column. Select genotype under Available columns and click Add column token. Enter an underscore and click Add text token. Select replicate and click Add column token. The ordered tokens now read genotype, underscore, replicate. You can drag tokens or use Move token up and Move token down to change their order. Preview all three outputs. Matched r5 cells become WildType underscore replicate 1. A missing component leaves the combination blank, so r12 does not produce a label containing None or nan.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_annotations_applied",
+      "narration": "Click Apply conditions to add genotype, replicate and condition to the working table. The original measurement columns and source database remain unchanged. The same annotation editor also works with a merged working table. Use your experimental design to choose meaningful labels before plotting by these new columns.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "02_fold_trellis",
       "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
       "hold_after": 0.7,
@@ -81,8 +102,8 @@
       ]
     },
     {
-      "visual": "12_selection_cleared",
-      "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
+      "visual": "16_annotations_applied",
+      "narration": "Save chart preserves the view and annotation recipe for reloading. Export table includes the generated columns. For a SQLite source, Save annotated table writes a new table and refuses to overwrite an existing one. These are separate persistence actions; Apply conditions alone does not write the source database.",
       "hold_after": 0.7,
       "related_lessons": [
         "06_api"

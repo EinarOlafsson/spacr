@@ -271,7 +271,10 @@ class _Registry:
     diagnostics: List[PluginDiagnostic] = field(default_factory=list)
 
 
+# Registry readers only hold this lock for snapshot access/publication.
 _LOCK = threading.RLock()
+# Serialize filesystem/module mutations without blocking cached registry reads.
+_CATALOGUE_MUTATION_LOCK = threading.RLock()
 _REGISTRY: Optional[_Registry] = None
 
 
@@ -536,11 +539,17 @@ def _build_registry() -> _Registry:
 
 def _registry() -> _Registry:
     """Return the lazily built process-wide plugin registry under its lock."""
-    global _REGISTRY
     with _LOCK:
-        if _REGISTRY is None:
-            _REGISTRY = _build_registry()
-        return _REGISTRY
+        registry = _REGISTRY
+    if registry is None:
+        with _CATALOGUE_MUTATION_LOCK:
+            with _LOCK:
+                registry = _REGISTRY
+            if registry is None:
+                reload_plugins()
+                with _LOCK:
+                    registry = _REGISTRY
+    return registry
 
 
 def discover_plugins() -> Tuple[SpacrPlugin, ...]:
@@ -557,9 +566,11 @@ def discover_plugins() -> Tuple[SpacrPlugin, ...]:
 def reload_plugins() -> Tuple[SpacrPlugin, ...]:
     """Clear the discovery cache and discover again (primarily for tests/dev)."""
     global _REGISTRY
-    with _LOCK:
-        _REGISTRY = None
-    return discover_plugins()
+    with _CATALOGUE_MUTATION_LOCK:
+        registry = _build_registry()
+        with _LOCK:
+            _REGISTRY = registry
+    return registry.plugins
 
 
 def plugin_apps() -> Tuple[AppContribution, ...]:
@@ -603,8 +614,9 @@ def record_diagnostic(
     diagnostic = PluginDiagnostic(
         str(plugin), str(severity), str(message), str(exception or "")
     )
+    registry = _registry()
     with _LOCK:
-        _registry().diagnostics.append(diagnostic)
+        registry.diagnostics.append(diagnostic)
     LOG.error("%s: %s%s", plugin, message, f" ({exception})" if exception else "")
 
 
@@ -994,15 +1006,17 @@ def _install_from_catalogue(key: str, source: Any = None, home: Any = None,
     if entry is None:
         raise KeyError(f"the catalogue has no entry {key!r}")
     root = _plugin_home(home)
-    with _LOCK:
+    # Keep the previous, complete registry available throughout pip and imports.
+    _registry()
+    with _CATALOGUE_MUTATION_LOCK:
         record = (_install_plugin(entry, root, runner) if entry.kind == "plugin"
                   else _install_recipe(entry, root))
         records = _catalogue_installed(root)
         records[entry.key] = {**record, "author": entry.author,
                               "licence": entry.licence}
         _write_installed(records, root)
-    if entry.kind == "plugin":
-        reload_plugins()
+        if entry.kind == "plugin":
+            reload_plugins()
     return records[entry.key]
 
 
@@ -1016,7 +1030,8 @@ def _uninstall_from_catalogue(key: str, home: Any = None) -> bool:
     import shutil
 
     root = _plugin_home(home)
-    with _LOCK:
+    _registry()
+    with _CATALOGUE_MUTATION_LOCK:
         records = _catalogue_installed(root)
         record = records.pop(str(key), None)
         if record is None:
@@ -1028,6 +1043,6 @@ def _uninstall_from_catalogue(key: str, home: Any = None) -> bool:
         elif os.path.isfile(path):
             os.remove(path)
         _write_installed(records, root)
-    if record.get("kind") == "plugin":
-        reload_plugins()
+        if record.get("kind") == "plugin":
+            reload_plugins()
     return True

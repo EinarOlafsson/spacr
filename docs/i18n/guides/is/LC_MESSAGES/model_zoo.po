@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -108,6 +108,18 @@ msgstr "556 grisjuðu PV-sjónsviðin úr umferð 5, skipt í 437 þjálfun / 10
 
 msgid "F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
 msgstr "F1 0,860 á móti 0,765 hjá stöðluðu cpsam_v2 á 11 akkerisbrunnum við IoU 0,5; AJI 0,803 á móti 0,505"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7"
+msgstr "556 yfirfarin sjónsvið úr umferð 6 ásamt 80 handvöldum og yfirförnum sjónsviðum af nýrri plötu (Anu revision, Replication09182026 plate 1); 502 til þjálfunar / 123 til staðfestingar / 11 til prófunar; þjálfunargögn á einarolafsson/toxoplasma-pv-segmentation-dataset-r7"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
+msgstr "F1 0.854 samanborið við 0.765 fyrir óbreytt cpsam_v2 á 11 viðmiðunarbrunnum við IoU 0.5; AJI 0.776 samanborið við 0.505"
 
 msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
@@ -387,6 +399,42 @@ msgstr "Birt sem `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://hug
 
 msgid "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
 msgstr "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toxoplasma PV v4 (round 7)"
+msgstr "Toxoplasma PV v4 (umferð 7)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+msgstr "**Þjálfað á.** Sníkjudýraberandi frymisbólur Toxoplasma-hraðfjölgara: DsRed- og anti-Toxoplasma-biotin-sjónsvið úr umferð 6 ásamt Toxoplasma-rás nýrrar 384-brunna plötu. Umferð 7, cellpose 4.2.1.1, 100 þjálfunarlotur, grunnur cpsam_v2"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
+msgstr "**Mælt.** F1 0.854 samanborið við 0.765 fyrir óbreytt cpsam_v2 á 11 viðmiðunarbrunnum við IoU 0.5; AJI 0.776 samanborið við 0.505"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate"
+msgstr "NÝJAST ER EKKI BEST HÉR: á 20 sjónsviðum sem voru tekin frá á nýju plötunni sem líkanið var þjálfað á fær umferð 7 F1 0.748 á móti 0.899 fyrir umferð 6 (heimt 0.636 á móti 0.829) -- veldu frekar toxoplasma_pv_v3 fyrir þá plötu"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168"
+msgstr "á 11 viðmiðunarbrunnunum er það á pari við umferð 6 (0.8536 á móti 0.8602); F1 úr 5-faldri krossprófun er 0.8142 +/- 0.015 á móti 0.8168 fyrir umferð 6"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them"
+msgstr "það afmarkar frymisbólurnar sem það finnur nákvæmar en umferð 6 (AJI 0.827 á móti 0.786 á nýju plötunni) en finnur færri þeirra"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation"
+msgstr "verið er að rannsaka lækkunina á nýju plötunni: líkanið úr umferð 7 nær heldur ekki nægri aðlögun að þjálfunarsjónsviðum plötunnar sjálfrar, sem bendir frekar til þess hvernig þau sjónsvið komu inn í þjálfunina en til alhæfingar"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``."
+msgstr "Birt sem `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, undir heitinu ``cpsam_v2_toxo_r7``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
+msgstr "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
 
 msgid "Live cell v1 (phase, brightfield, DIC)"
 msgstr "Lifandi frumur v1 (fasi, bjartsvið, DIC)"

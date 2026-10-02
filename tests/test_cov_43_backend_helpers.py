@@ -164,6 +164,9 @@ def _cellprofiler(monkeypatch, measurements):
         def add_pathnames_to_file_list(self, files):
             loaded.append(("files", files))
 
+        def modules(self):
+            return []
+
         def run(self):
             return measurements
 

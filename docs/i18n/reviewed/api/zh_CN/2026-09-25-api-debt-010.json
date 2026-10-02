@@ -1042,7 +1042,9 @@
       "source_sha256": "7513d0f858711ce00e43fd24a5e8d7902d59b41014ef674debe3844ed538085c",
       "context": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically, with ``sqlite_`` internals left out.",
       "translation": "SQLite 测量数据库的路径，以只读方式打开；优先的表（``object``、``cell``、``nucleus``……）排在最前，其余按字母顺序排列，``sqlite_`` 内部表会被排除。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: table discovery documentation now describes exclusion of private condition-annotation receipts. The prior source-bound review remains recorded; the revised paragraph requires a new translation."
     },
     {
       "label": "spacr.qt.screens.hit_list.HitListScreen.closeEvent#1",

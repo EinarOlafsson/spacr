@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "language": "is",
+  "method": "Direct Codex AI technical translation with independent Codex AI technical peer review; no human or native-speaker signoff. Standard guide import and gates unchanged.",
+  "draft_author": "mask_editor",
+  "independent_reviewer": "shared_ui",
+  "draft_sha256": "52eb543fa09abc0d1e54e16bce2f35a73c1c4d57ab5abaac10abbcac3d8cc847",
+  "reviewed_sha256": "52eb543fa09abc0d1e54e16bce2f35a73c1c4d57ab5abaac10abbcac3d8cc847",
+  "source_files": {
+    "docs/source/measure_live.rst": "156035ba6d69fe076dadf0066521eb689b05581cbe25a223b3047da79718f9e8"
+  },
+  "runtime_catalog_sha256": "3fe3218552d3b0635845810826a605f4c49b1db6b0caf914813244256faac52d",
+  "records": [
+    {
+      "index": 0,
+      "domain": "measure_live",
+      "source": "Preview and export unmixed crops",
+      "source_sha256": "f9f0a86e7889a7ab6c5b9108cb6c72b5dbc1d137626264db2696cd1ec5f58aff",
+      "original_draft": "Forskoða og flytja út litrófsaðgreind myndútsnið",
+      "target": "Forskoða og flytja út litrófsaðgreind myndútsnið",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged.",
+      "source_sha256": "9cc2e0f7d40c882fe3777428d84c09fe27a13b1d150450bb2bd620267111553b",
+      "original_draft": "Þegar **Sýna alfa-eiginleika** er virkt skal setja ``unmix=True`` og stilla ``unmix_controls`` í eyðublaðinu **Mæling**. Kveiktu á **Birting eftir litrófsaðgreiningu** til að nota þessi einlitunarviðmið við forskoðun myndútsniða. Sjálfgefið eru hrá gögn sýnd. Tilkynnt er um viðmið sem eru ógild eða vantar. Þessi rofi breytir eingöngu birtingunni; keyrslustillingar, upprunafylki og PNG-úttak lotuvinnslu haldast óbreytt.",
+      "target": "Þegar **Sýna alfa-eiginleika** er virkt skal setja ``unmix=True`` og stilla ``unmix_controls`` í eyðublaðinu **Mæling**. Kveiktu á **Birting eftir litrófsaðgreiningu** til að nota þessi einlitunarviðmið við forskoðun myndútsniða. Sjálfgefið eru hrá gögn sýnd. Tilkynnt er um viðmið sem eru ógild eða vantar. Þessi rofi breytir eingöngu birtingunni; keyrslustillingar, upprunafylki og PNG-úttak lotuvinnslu haldast óbreytt.",
+      "ui": {
+        "Show alpha features": "Sýna alfa-eiginleika",
+        "Measure": "Mæling",
+        "Unmixed display": "Birting eftir litrófsaðgreiningu"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "measure_live",
+      "source": "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged.",
+      "source_sha256": "0137b941fdfda25b2abe2d543b2fe916f0dbffbd8b685be8ee2043142c10f03f",
+      "original_draft": "Þegar forskoðuninni er lokið skaltu velja **Flytja út sýnd myndútsnið…**, velja yfirskipaða möppu og slá inn heiti á nýrri möppu. Aðeins myndútsnið úr fullgerðri forskoðun eru flutt út, með litunum sem eru sýndir og hráum eða litrófsaðgreindum mynddílum. ``provenance.json`` skráir slóðir upprunagagna, auðkenni hluta, birtingarstillingar og upplýsingar um litrófsaðgreiningu. Möppum sem þegar eru til er hafnað. Ef hætt er við forskoðunina eða henni breytt er óloknum útflutningi fargað; upprunaskrár og úttak lotuvinnslu haldast óbreytt.",
+      "target": "Þegar forskoðuninni er lokið skaltu velja **Flytja út sýnd myndútsnið…**, velja yfirskipaða möppu og slá inn heiti á nýrri möppu. Aðeins myndútsnið úr fullgerðri forskoðun eru flutt út, með litunum sem eru sýndir og hráum eða litrófsaðgreindum mynddílum. ``provenance.json`` skráir slóðir upprunagagna, auðkenni hluta, birtingarstillingar og upplýsingar um litrófsaðgreiningu. Möppum sem þegar eru til er hafnað. Ef hætt er við forskoðunina eða henni breytt er óloknum útflutningi fargað; upprunaskrár og úttak lotuvinnslu haldast óbreytt.",
+      "ui": {
+        "Export displayed crops…": "Flytja út sýnd myndútsnið…"
+      }
+    },
+    {
+      "index": 3,
+      "domain": "measure_live",
+      "source": "Preview reference-well calibration",
+      "source_sha256": "bae1cd22994d228c8e96460b42666421695b498ef6e9230b6811e44d04922963",
+      "original_draft": "Forskoða kvörðun með viðmiðunarbrunnum",
+      "target": "Forskoða kvörðun með viðmiðunarbrunnum",
+      "ui": {}
+    },
+    {
+      "index": 4,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings.",
+      "source_sha256": "596b4f770967b84a76d6e345ea4c2ac650410c13028421c4a19dd6be062e4574",
+      "original_draft": "Þegar **Sýna alfa-eiginleika** er virkt skaltu kveikja á ``intensity_calibration`` og stilla viðmiðunarbrunna, myndavélarhliðrun og tölfræðistærð í eyðublaðinu **Mæling**. Slökktu á **Prófunarhamur** og veldu síðan **Forskoðun** við hliðina á **Brunnar styrkkvörðunar**. Notaðu staðbundna keyrslumöppu eða ``merged``-möppuna í henni. Forskoðunin les núverandi stillingar án þess að keyra **Mæling** eða skrifa myndir, mælingar eða stillingar.",
+      "target": "Þegar **Sýna alfa-eiginleika** er virkt skaltu kveikja á ``intensity_calibration`` og stilla viðmiðunarbrunna, myndavélarhliðrun og tölfræðistærð í eyðublaðinu **Mæling**. Slökktu á **Prófunarhamur** og veldu síðan **Forskoðun** við hliðina á **Brunnar styrkkvörðunar**. Notaðu staðbundna keyrslumöppu eða ``merged``-möppuna í henni. Forskoðunin les núverandi stillingar án þess að keyra **Mæling** eða skrifa myndir, mælingar eða stillingar.",
+      "ui": {
+        "Show alpha features": "Sýna alfa-eiginleika",
+        "Measure": "Mæling",
+        "Test mode": "Prófunarhamur",
+        "Preview": "Forskoðun",
+        "Intensity calibration wells": "Brunnar styrkkvörðunar"
+      }
+    },
+    {
+      "index": 5,
+      "domain": "measure_live",
+      "source": "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop.",
+      "source_sha256": "6e93ba2104a5a978e7bc128eab0fb5c08c9ead258ea906d6d60ca8008d97ca1f",
+      "original_draft": "Áætlun er gerð sérstaklega fyrir hverja upprunamöppu. Fyrsta platan í röð eftir heiti er viðmiðið. Taflan sýnir margföldunarstuðul styrks, viðmiðunartölfræðistærð og fjölda viðmiðunarsjónsviða fyrir hverja plötu og rás. Breytingar á stillingum ógilda niðurstöðuna. **Hætta við** fargar forskoðuninni á meðan skönnun upprunagagna sem þegar er hafin lýkur á öruggan hátt; þegar forskoðunin er opnuð aftur er beðið eftir að þeirri skönnun ljúki.",
+      "target": "Áætlun er gerð sérstaklega fyrir hverja upprunamöppu. Fyrsta platan í röð eftir heiti er viðmiðið. Taflan sýnir margföldunarstuðul styrks, viðmiðunartölfræðistærð og fjölda viðmiðunarsjónsviða fyrir hverja plötu og rás. Breytingar á stillingum ógilda niðurstöðuna. **Hætta við** fargar forskoðuninni á meðan skönnun upprunagagna sem þegar er hafin lýkur á öruggan hátt; þegar forskoðunin er opnuð aftur er beðið eftir að þeirri skönnun ljúki.",
+      "ui": {
+        "Cancel": "Hætta við"
+      }
+    }
+  ],
+  "peer_review": {
+    "reviewer": "shared_ui and root",
+    "accepted_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "draft_sha256": "52eb543fa09abc0d1e54e16bce2f35a73c1c4d57ab5abaac10abbcac3d8cc847"
+  },
+  "peer_review_receipt_sha256": "f1c4acd71d31595309432444106a3407d74132dc49f734e901b1de0a548f3feb"
+}

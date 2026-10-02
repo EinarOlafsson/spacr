@@ -1817,14 +1817,15 @@ def _analyze_colony_plates(settings):
     overlay per plate and a colony-size histogram in ``colonies/``.
     """
     from .plaque import (_colony_overlay_figure, _colony_size_figure,
-                         _count_colony_plate, detect_wells)
+                         _count_colony_plate, _load_colony_dilutions, detect_wells)
     from .tabular import write_table
 
+    settings = dict(settings)
+    settings['colony_dilution'] = _load_colony_dilutions(settings.get('colony_dilution', 1))
     src = settings['src']
     out_dir = os.path.join(src, 'colonies')
     os.makedirs(out_dir, exist_ok=True)
     weights = _resolve_well_detector(settings)
-    settings = dict(settings)
     if settings.get('colony_detector'):
         settings['colony_detector'] = _resolve_detector_weights(
             str(settings['colony_detector']), 'colony_detector')

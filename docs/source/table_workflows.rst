@@ -226,28 +226,151 @@ the file. **Reset to spaCR defaults** also clears the mapping.
 Annotate experimental conditions in Graph Builder
 --------------------------------------------------
 
-**Annotate conditions** adds a condition column to the working table in
+**Annotate conditions** adds annotation columns to the working table in
 Graph Builder. It works with a physical database table, a named derived
-table or an imported CSV/TSV. These are experimental group labels for
-tabular analysis; they do not require image links or write image annotations.
+table or an imported CSV/TSV. Use rules to assign labels or extract variable
+metadata, then compose a final column from those values. Every generated
+column is retained. These table
+operations do not require image links or write image annotations.
 
-#. Open **Annotate conditions** and set **Output column**. The default is
-   ``condition``; choose another name, such as ``treatment_group``, if the
-   source already has that column. Existing source columns cannot be replaced.
-#. Press **Add condition** for each group and give each box a distinct,
-   nonempty **Condition name**.
-#. In a box, choose the metadata **Column** to match, then enter an **Include**
-   regular expression, an **Exclude** expression, or both. For manual-only
-   grouping, leave Include blank and drop source rows into the box.
-#. Inspect **Preview condition** beside the source columns, each box's
-   matching/manual counts, and the assigned, unmatched and overlapping totals.
-   **Preview assignments** reruns this check; edits also refresh the preview.
-#. Resolve invalid patterns and overlapping conditions, then choose
-   **Apply conditions**. The output column becomes available for chart
-   channels and filtering. **Cancel** discards the dialog's draft changes.
+#. Open **Annotate conditions**, name the **Output column**, and choose
+   **Assign values**, **Extract text**, or **Compose column**. Existing source
+   columns cannot be replaced.
+#. Define the value rules, text extraction, or composition for that output.
+   Use **Add column** for another output. A named-group regex can also create
+   several metadata columns together.
+#. Inspect all generated values beside the source columns. **Preview
+   assignments** reruns the check; edits also refresh the preview.
+#. Resolve invalid rules, missing dependencies and conflicting assignments,
+   then choose **Apply conditions**. Every generated column becomes available
+   for chart channels and filtering. **Cancel** discards the draft changes.
+
+Extract several metadata columns from a filename
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choose **Extract text** and select the source column, such as
+``original_filename``. A regular expression extracts the matching text into
+the output column. Select a named or numbered capture group to choose which
+part of the match becomes the value.
+
+For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:
+
+.. code-block:: text
+
+   ^(?P<cell_type>[^_]+)_(?P<replicate>rep\d+)_(?P<timepoint>\d+h)_(?P<drug>.+)\.tif$
+
+The named groups describe four output columns: ``cell_type``, ``replicate``,
+``timepoint`` and ``drug``. **Create columns from named groups** creates these
+outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and
+``DMSO``. Another matching filename produces its own values; they are not
+fixed labels copied from the example. Adapt the pattern to your own filenames
+and inspect the preview before applying it.
+
+Extraction uses the first regex match. Nonmatching rows and missing or empty
+captures remain blank. Invalid patterns or capture groups stop the preview
+with an error. Existing source column names cannot be overwritten.
+
+Assign values with readable rules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choose **Assign values** when matching rows should receive a value you type,
+such as ``WildType`` or ``control``. Each rule selects a column, an operator
+and a comparison value. Operators include contains, does not contain, equals,
+does not equal, starts with, ends with and regex matching. Text operators
+interpret punctuation literally; regex operators interpret it as a pattern.
+Matching is case-sensitive. Contains, prefix, suffix and regex criteria need
+nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or
+equals with an empty value to match an actual empty string.
+
+Choose **all rules match** when every criterion must match, or **any rule
+matches** when at least one must match. Criteria may inspect different source
+columns or earlier generated columns. For example, assign ``control`` when
+``drug`` equals ``DMSO`` and
+``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative
+criterion. An actual empty string is a value and can be matched explicitly.
+
+Several rules may assign the same value without a conflict. Different values
+assigned to one row in the same output column require resolution before Apply.
+
+Compose the final column
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add an output column, name it ``condition`` or another name you choose, and
+select **Compose column**. Drag available columns into the composition field.
+Drag its tokens to change their order. Insert fixed text to add separators,
+prefixes or words between the values.
+
+For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``,
+``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example
+above. Reordering the column tokens changes the result without changing their
+extraction rules. Fixed text is literal; it cannot execute code.
+
+A composition can reference original source columns and earlier generated
+columns. A missing or empty column value leaves the composed value blank.
+The preview shows all intermediate columns and the final column together.
+Applying, exporting or saving a new SQLite table retains every generated
+column and the editable recipe. The original measurements remain unchanged.
+
+Build genotype, replicate and a combined condition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Name the first **Output column** ``genotype`` and keep its mode set to
+**Assign values**. Use **Add condition** for its labels. Press **Add column** to
+create ``replicate`` with its own boxes. In each box, choose **Exact values**
+to enter lists of metadata values without writing a regular expression.
+For example:
+
+.. list-table:: Example annotation rules
+   :header-rows: 1
+   :widths: 18 18 32 32
+
+   * - Output column
+     - Metadata column
+     - Included values
+     - Assigned label
+   * - ``genotype``
+     - ``columnID``
+     - ``c1,c2,c3``
+     - ``WildType``
+   * - ``genotype``
+     - ``columnID``
+     - ``c7,c4,c5,c6``
+     - ``mutant``
+   * - ``replicate``
+     - ``rowID``
+     - ``r1,r4,r5,r6``
+     - ``replicate 1``
+   * - ``replicate``
+     - ``rowID``
+     - ``r7,r9,r10``
+     - ``replicate 1``
+
+Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect.
+Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign
+the same label may select the same row; two different labels in one output
+column require a correction before applying. Each output column has its own
+assignments, so a row can have both a genotype and a replicate.
+
+Press **Add column**, name it ``condition``, and choose **Compose column**.
+Drag ``genotype`` into the composition field, insert a text token containing
+``_``, then drag in ``replicate``. The token order determines the joining order.
+A row labelled ``WildType`` and ``replicate 1`` then receives
+``WildType_replicate 1``. The label's space is retained. Column names, labels,
+component order and separator are editable; the example does not prescribe
+the names for your experiment.
+
+Combination rules can use source columns or previously created annotation
+columns. Keep dependencies earlier in the column order. Missing components
+leave the combined value blank; they do not produce text such as ``nan``.
+Preview all generated columns before applying. Saving a chart, exporting the
+table or saving a new annotated SQLite table retains the complete recipe.
 
 Rules and manual selection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In **Assign values**, choose **Regular expression** in a condition box to
+use its Include and Exclude fields. Choose **Manual rows only** to assign
+only the rows you drop into that box, without a comparison rule.
 
 Above the condition boxes, **Examples for column** offers copyable patterns
 based on the selected column's values. Choose an example type, inspect or
@@ -292,11 +415,38 @@ dropped memberships. An Include rule can still match those rows; change
 the rule or add an Exclude expression when they must leave the condition.
 **Remove condition** removes the whole box and its rules.
 
-A row may belong to only one condition when applying. If two boxes match it,
-the preview shows the competing labels and **Apply conditions** stays
+A row may receive only one distinct label within each annotation column.
+If boxes assign different labels to it, the preview shows those competing
+labels and **Apply conditions** stays
 disabled. Adjust the include/exclude patterns or manual assignments until
 the overlap count is zero. No condition silently wins. Unmatched rows remain
 blank in the output column and remain present in the table.
+
+Reuse an annotation schema on another table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choose **Save schema** after the preview is valid. The JSON file retains the
+output-column names and order, extraction patterns and capture groups, matching
+rules, labels, and composition tokens. It contains the instructions for
+generating values, rather than a copy of the table or its generated values.
+
+Open another table, choose **Annotate conditions**, then **Load schema** and
+select the JSON file. The new table may have different rows and values, but
+must provide the columns referenced by the schema. All outputs are previewed
+against this table. Inspect the values and any overlapping assignments before
+choosing **Apply conditions**. Loading alone does not change the working table.
+
+Manually dragged row assignments are specific to their source table and are
+omitted from reusable schemas. The save result reports how many assignments
+were omitted. Manual-only condition boxes remain available as empty groups to
+fill for the new table. To preserve manual assignments for the original
+analysis, use **Save chart** or **Save annotated table…** instead.
+
+Malformed files, unsupported versions, unavailable columns, invalid patterns
+and invalid output dependencies leave the existing dialog draft unchanged.
+An existing source column cannot be overwritten by a schema output. Schema
+files are written atomically; saving a schema over the source table itself is
+refused. The file size limit is 8 MiB.
 
 Keep conditions with the analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -304,7 +454,7 @@ Keep conditions with the analysis
 Reopen **Annotate conditions** to edit the current assignments. They survive
 table refreshes in the current Graph Builder session when the source is
 unchanged. Use **Save chart** to preserve the rules, manual assignments,
-output-column name and any merge definition with the chart. **Load chart**
+output-column definitions and any merge definition with the chart. **Load chart**
 reconstructs the source and checks its identity before applying those labels.
 
 Saved conditions belong to the exact source table, including its row order,
@@ -330,7 +480,7 @@ name. Changed saved data are still readable, but old editable rules are not
 silently restored onto them. Image-specific actions continue to require
 appropriate object provenance.
 
-**Export table…** writes the working table, including the condition column,
+**Export table…** writes the working table, including every annotation column,
 to a new CSV and records its source, merge definition and condition rules in
 ``<export>.csv.conditions.json``. It exports the working table rather than
 just a brushed selection. The original database or imported file is

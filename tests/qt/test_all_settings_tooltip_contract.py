@@ -73,7 +73,7 @@ def test_every_registered_displayed_setting_has_authored_help():
         f"Mask displays retired controls: {sorted(retired_controls & mask_shown)}")
 
 
-def test_a_hand_built_setting_uses_the_shared_label_only_popup(qtbot):
+def test_a_hand_built_setting_uses_the_shared_label_only_popup(qtbot, immediate_hover_help):
     """The retargeting pass is a behaviour adapter, not only a text move."""
     from spacr.qt.screens.settings_model import retarget_field_tooltips
     from spacr.qt.widgets.hover_tooltip import HoverTooltip
@@ -91,6 +91,8 @@ def test_a_hand_built_setting_uses_the_shared_label_only_popup(qtbot):
     assert field.toolTip() == ""
     assert label.property("apiTooltipHtml")
 
+    host.show()
+    qtbot.waitExposed(host)
     popup = HoverTooltip.instance()
     popup.cancel_hide()
     popup.hide()
@@ -98,8 +100,7 @@ def test_a_hand_built_setting_uses_the_shared_label_only_popup(qtbot):
     QApplication.processEvents()
     assert not popup.isVisible(), "hovering the input field opened its help"
 
-    QApplication.sendEvent(label, QEvent(QEvent.Enter))
-    QApplication.processEvents()
+    immediate_hover_help(label, popup.isVisible)
     assert popup.isVisible(), "hovering the setting text opened no help"
     assert popup._anchor is label
     assert "measured score column" in popup.text_label().text()

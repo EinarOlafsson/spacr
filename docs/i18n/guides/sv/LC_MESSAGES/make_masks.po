@@ -1,5 +1,5 @@
 # spaCR user guide translation (sv).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 21:19-0400\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,6 +30,18 @@ msgstr "För indata och utdata i det omgivande arbetsflödet, se :ref:`Skapa mas
 
 msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
 msgstr "Håll pekaren över en inställning eller dess etikett för att läsa förklaringen och följa dess länk till API-hjälpen. Kontroller med en matchande animation erbjuder också en animation i det popupfönstret; varje kontroll kommer ihåg sitt eget visningsläge. Hjälpen för bildförbättring länkar till dokumentationen för detektionskedjan. En kontroll utan matchande animation har ändå sin skrivna förklaring och sin API-länk."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Thumbnail display quality"
+msgstr "Visningskvalitet för miniatyrbilder"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size."
+msgstr "Välj **Miniatyrbildskvalitet** i **Visning** eller **Ordna för Measure…**. **Låg** behåller den ursprungliga nedsamplingen till 64 pixlar. **Medel** använder upp till 256 pixlar och **Hög** upp till 1024 pixlar längs den längsta sidan, begränsat av källbildens upplösning. Dessa val läser in källbilden och masken på nytt; de förstorar inte en bitmapp av låg kvalitet. Det separata reglaget **Storlek** anger den logiska cellstorleken."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged."
+msgstr "Valet sparas och uppdaterar öppna miniatyrvyer. Endast synliga celler i organiseringsvyn läses in, med en begränsad cache. Kvalitetsändringen påverkar bara visningen; sparade bilder, masker och mätningar ändras inte."
 
 msgid "Open a field and save an edit"
 msgstr "Öppna ett fält och spara en ändring"
@@ -48,6 +60,10 @@ msgstr "Tryck på **Spara mask** eller **Ctrl+S** innan du går till ett annat f
 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "Använd **Behåll** eller **Kassera** för att registrera ett kureringsbeslut för fältet och gå vidare. Besluten skrivs till ``csv/keep_discard.csv``; Kassera registrerar ett beslut utan att radera bilden eller dess mask. Spara ändringar separat."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
+msgstr "**Spara mask**, **Föregående bild** och **Nästa bild** finns på den översta åtgärdsraden tillsammans med redigeringsverktygen. Rulla raden i sidled i ett smalt fönster för att nå kontroller utanför det synliga området."
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "För att prova skärmen utan egna data laddar **Ladda testdata...** ner tio osegmenterade fält med Toxoplasma-vakuoler, med deras kurerade masker undanlagda i ``ground_truth_masks/``, och öppnar det första. Pilen på samma knapp erbjuder ett urval fält från den datamängd som varje publicerad modell tränades på."
@@ -378,6 +394,26 @@ msgstr "**Ladda upp data…** skickar bilden på skärmen med dess mask, varje k
 
 msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
 msgstr "Huvudraden öppnar också Cellpose-verkstad, Maskera hela mappen, Modelljämförelse, Modellbibliotek, Kurera och Napari-brygga. Deras kontrakt för indata och utdata länkas från :ref:`modulkartan <workflow-module-make_masks>`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Large plates in Mask generation"
+msgstr "Stora plattor vid maskgenerering"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used."
+msgstr "Modulen **Masker** för satsvis generering bearbetar en platta; **Skapa masker** redigerar det bildfält som är öppet. Vid en krasch under bearbetning av en platta med råbilder, kontrollera satsmodulens konsol och den sparade filen ``settings/gen_mask_settings.json`` för att identifiera steget och inställningarna som användes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate."
+msgstr "I V1-pipelinen projicerar och skriver förbehandlingen av råfiler ett bildfält i taget till ``stack/``. Den behåller plattans filnamn, inte pixeldata för alla bildfält. Z-plan kombineras stegvis. Färdiga bildfältsstackar sparas atomärt och kan återanvändas när förbehandlingen återupptas. Pixelminnet i detta steg följer därför ett bildfälts storlek och kanaler, snarare än antalet bildfält på plattan."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis."
+msgstr "Normalisering och segmentering behöver fortfarande arbetsminne för en sats och modellen. Färdigbehandlade indata-, mask- och flödesbuffertar frigörs före nästa sats; minskad lagring för hela plattan gör inte en enskild mycket stor bild eller modell minnesfri. V1-inställningen ``batch_size`` bestämmer också vilka bilder som normaliseras tillsammans, så en ändring kan påverka normaliserade värden och efterföljande masker. Behåll värdet när en tidigare analys ska återskapas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
+msgstr "Om minnesanvändningen fortfarande stiger oväntat, notera om det senaste konsolsteget var förbehandling av filnamn, normalisering eller modellutvärdering, tillsammans med bilddimensioner, antal kanaler och sparade inställningar. Befintliga filer i ``stack/`` hjälper till att skilja avslutad inläsning från ett fel som inträffade innan det första bildfältet skrevs."
 
 msgid "Engine parameter reference"
 msgstr "Referens för motorparametrar"

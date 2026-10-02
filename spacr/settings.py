@@ -1812,6 +1812,9 @@ def get_measure_crop_settings(settings=None):
 
     settings.setdefault('timelapse', False)
     settings.setdefault('timelapse_objects', ['cell'])
+    settings.setdefault('timelapse_lineage', False)
+    settings.setdefault('timelapse_lineage_color_by', 'generation_time')
+    settings.setdefault('timelapse_lineage_max_distance', 30.0)
 
     settings.setdefault('plot',False)
     settings.setdefault('n_jobs', _default_worker_count(reserve=2))
@@ -3371,7 +3374,7 @@ expected_types = {
     "plaque_pixels_per_um": (float, int, type(None)),
     "plaque_formation_hours": (float, int, type(None)),
     "colony_counting": bool,
-    "colony_dilution": (float, int, dict),
+    "colony_dilution": (float, int, dict, str),
     "colony_plated_volume_ul": (float, int),
     "colony_too_many": (int, float, type(None)),
     "colony_too_few": (int, float, type(None)),
@@ -4668,7 +4671,7 @@ tooltips = {
     "plaque_pixels_per_um": "(float, int or None) - Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
     "plaque_formation_hours": "(float, int or None) - Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
     "colony_counting": "(bool) - Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
-    "colony_dilution": "(float, int or dict) - Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+    "colony_dilution": "(float, int, dict or str) - Dilution factor of the plated suspension: 10000 for a 10^-4 dilution; fractions such as 0.0001 are inverted. CFU/mL = colonies x dilution factor / plated volume. Enter one number, a dict keyed by filename or stem, or a UTF-8 CSV path with file,dilution columns. Exact filenames take priority over stems; unmatched plates get no CFU/mL. CSV factors must be positive and finite, with unique file identifiers. Default 1.",
     "colony_plated_volume_ul": "(float) - Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
     "colony_too_many": "(int or None) - Plates with more colonies than this are flagged 'too many to count' (TNTC) in per_plate: neighbouring colonies merge and compete, so the count underestimates what was plated. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 300.",
     "colony_too_few": "(int or None) - Plates with fewer colonies than this are flagged 'too few to count' (TFTC) in per_plate: so few colonies carry a sampling error too large for the CFU/mL they imply. Their CFU/mL is still written, so filter on the flag. Blank turns the check off. Default 30.",
@@ -5086,8 +5089,8 @@ tooltips = {
     "ultrack_n_workers": "(int) - How many worker processes Ultrack runs during its candidate-segmentation and linking passes; they all write into the same temporary sqlite store, so extra workers cut wall-clock on long movies but add database contention and memory. Leave it at one for short batches or a busy machine. Only consulted when timelapse_mode='ultrack'. Default 1.",
     "timelapse_frame_limits": "(list) - Slice of frame indices [start, end] kept from each batch before tracking, e.g. [0,10] to work on the first ten frames while tuning settings. The list is ignored unless it has at least two elements, which is why the shipped default [5,] has no effect. Default [5,].",
     "timelapse_objects": "(list) - Which segmented objects are tracked across frames and relabelled with track IDs: any subset of ['cell', 'nucleus', 'pathogen']; any other value aborts the run with a message. Each extra entry costs a full additional tracking pass. Tracking nuclei is often more stable than cells when cells touch. Default ['cell'].",
-    "timelapse_lineage": "(bool) - After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
-    "timelapse_lineage_color_by": "(str) - What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+    "timelapse_lineage": "(bool) - Build lineage trees after tracking, preserving native division links and recording the actual frame filenames and final object labels. Measure can rebuild trees using a numeric measured feature, with outputs in tracks/lineage_measured; original tracks, measurements and pre-Measure lineage outputs remain unchanged. Measured colours require the saved frame/source mapping; rerun tracking with lineage enabled if it is missing. Frame quantities are retained, with hours added only when time_s or frame_interval_s supplies calibration. Default False.",
+    "timelapse_lineage_color_by": "(str) - Colour each lineage segment by generation_time (frames), generation_time_hours, generation, start_frame or n_frames, or a numeric feature averaged over its observed frames. Tracking reads tracks-table columns; Measure reads the selected tracked object's measurement table using saved frame and label identities. Means use available measured frames; segments with no measured values remain uncoloured. Ambiguous identities or invalid features stop that field's measured-colour export. Default generation_time.",
     "timelapse_lineage_max_distance": "(float) - Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
     "timelapse_events": "(bool) - After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. Runs on the CPU. Default False.",
     "timelapse_events_annotations": "(str or None) - Table of hand-annotated events with columns field (the tracks file's field name), track_id, frame and event, plus an optional object column. Every event of an annotated field must be listed. The detector is scored on held-out annotated fields (precision, recall and timing error in frames, matched within 2 frames), trained on all of them and saved as tracks/events/event_model.pt. Blank uses timelapse_events_model. Default None.",
@@ -7479,6 +7482,7 @@ ALPHA_FEATURES = {
     583: {
         'settings': ('plate_barcode_source', 'plate_barcodes',
                      'plate_barcode_column', 'plate_barcode_token_env'),
+        'widgets': ('ConvertPlateBarcodeLinkage',),
     },
     543: {
         'settings': ('illumination_vendor_profile', 'illumination_vendor_channel_map'),

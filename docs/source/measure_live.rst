@@ -33,6 +33,39 @@ that Measure processes or change saved measurements or exports.
 **Propagate settings** retains its existing purpose: copying crop and
 filter settings into the Measure form.
 
+Preview and export unmixed crops
+--------------------------------
+
+With **Show alpha features** enabled, set ``unmix=True`` and configure
+``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use
+those single-stain controls in the crop preview. The default display is raw.
+Invalid or missing controls are reported. This toggle changes the display
+only; it leaves run settings, source arrays and batch PNG outputs unchanged.
+
+After the preview finishes, choose **Export displayed crops…**, select a
+parent folder and enter a new folder name. Only the completed preview's crops
+are exported, with their displayed colours and raw or unmixed pixels.
+``provenance.json`` records source paths, object identities, display settings
+and unmixing information. Existing folders are refused. Cancelling or changing
+the preview discards an unfinished export; source files and batch outputs
+remain unchanged.
+
+Preview reference-well calibration
+----------------------------------
+
+With **Show alpha features** enabled, turn on ``intensity_calibration`` and
+configure the reference wells, camera offset and statistic in the **Measure**
+form. Turn off **Test mode**, then choose **Preview** beside
+**Intensity calibration wells**. Use a local run folder or its ``merged``
+folder. The preview reads the current settings without running **Measure** or
+writing images, measurements or settings.
+
+Each source folder is planned separately. The first plate in name order is
+the reference. The table shows each plate and channel's multiplicative gain,
+reference statistic and reference-field count. Changing settings invalidates
+the result. **Cancel** discards the preview while any source scan already
+running finishes safely; reopening waits for that scan to stop.
+
 Resolve a stored plane-layout conflict
 --------------------------------------
 
@@ -43,7 +76,7 @@ explicit mask-plane settings against this record before using them.
 pathogen mask plane valid.
 
 If a saved form disagrees with the folder, **Run** explains the mismatch.
-Choose **Use stored plane layout** to copy the recorded planes into the
+Choose **Use stored image layout** to copy the recorded planes into the
 form, review the object settings, then press **Run** again. An absent object
 uses ``None``. **Cancel** leaves the form unchanged. Sources with different
 or unknown layouts must be run separately with their matching settings.

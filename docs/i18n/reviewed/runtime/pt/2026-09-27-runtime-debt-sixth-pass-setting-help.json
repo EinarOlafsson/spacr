@@ -27,13 +27,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "colony_dilution",
-      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
-      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
-      "translation": "Fator de diluição da suspensão semeada, 10000 para uma diluição de 10^-4; uma fração como 0.0001 é lida como a diluição e invertida. UFC/mL = colônias x fator de diluição / volume semeado. Um dicionário de nome ou radical de arquivo para fator o define por placa; uma placa não nomeada não recebe UFC/mL. Padrão 1."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "colony_min_area_px",
       "source": "Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
       "source_sha256": "d74b218d0b7c2a73174a52bc828bb0facfcab5c738269b1fd1b216e632131ba6",
@@ -230,20 +223,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "timelapse_lineage",
-      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
-      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
-      "translation": "Após o rastreamento de cada campo, monta árvores de linhagem a partir das ligações de divisão do rastreador: uma figura de árvore colorida por timelapse_lineage_color_by, árvores Newick, uma tabela de segmentos por célula e estatísticas por linhagem (tempo de geração em quadros, correlação entre irmãs), gravadas em tracks/lineage. As ligações de divisão do Trackastra são usadas como informadas; para outros rastreadores, uma divisão é inferida onde novas trajetórias começam ao lado de uma mãe. Padrão False."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "timelapse_lineage_color_by",
-      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
-      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
-      "translation": "O que colore cada célula nas árvores de linhagem: generation_time, generation, start_frame ou n_frames, ou o nome de uma coluna numérica da tabela de trajetórias, com média sobre os quadros da célula. Um nome desconhecido volta para generation_time com uma mensagem. Ignorado a menos que timelapse_lineage esteja ativado. Padrão generation_time."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "timelapse_lineage_max_distance",
       "source": "Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
       "source_sha256": "59c13199dd02b34939ee1f04d722456a8c870637d80fbe93bfbcfda67838906c",
@@ -319,5 +298,30 @@
       "source_sha256": "c7e8987839e53b5d232705c4f4aa9f017e8a437072ad0a260e340bc28bc26f47",
       "translation": "Cortes manuais [dead, live] em intensidade média com fundo subtraído, por exemplo [150, None], cada um substituindo o corte automático por placa da sua coloração; None mantém esse automático. Sem canais de coloração, a entrada dead é a razão de condensação (intensidade por área em relação ao núcleo típico da placa, cerca de 3) acima da qual um núcleo é picnótico. Leia antes os cortes automáticos em viability_qc ou as figuras de limiar. Padrão None."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "colony_dilution",
+      "source": "Dilution factor of the suspension that was plated, 10000 for a 10^-4 dilution; a fraction such as 0.0001 is read as the dilution and inverted. CFU/mL = colonies x dilution factor / plated volume. A dict from file name or stem to factor sets it per plate; a plate it does not name gets no CFU/mL. Default 1.",
+      "source_sha256": "eed70e28de941f15b8644d10b2edc4a594e7cd12b47ee95e3b99007cd45a7bf7",
+      "translation": "Fator de diluição da suspensão semeada, 10000 para uma diluição de 10^-4; uma fração como 0.0001 é lida como a diluição e invertida. UFC/mL = colônias x fator de diluição / volume semeado. Um dicionário de nome ou radical de arquivo para fator o define por placa; uma placa não nomeada não recebe UFC/mL. Padrão 1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
+      "translation": "Após o rastreamento de cada campo, monta árvores de linhagem a partir das ligações de divisão do rastreador: uma figura de árvore colorida por timelapse_lineage_color_by, árvores Newick, uma tabela de segmentos por célula e estatísticas por linhagem (tempo de geração em quadros, correlação entre irmãs), gravadas em tracks/lineage. As ligações de divisão do Trackastra são usadas como informadas; para outros rastreadores, uma divisão é inferida onde novas trajetórias começam ao lado de uma mãe. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
+      "translation": "O que colore cada célula nas árvores de linhagem: generation_time, generation, start_frame ou n_frames, ou o nome de uma coluna numérica da tabela de trajetórias, com média sobre os quadros da célula. Um nome desconhecido volta para generation_time com uma mensagem. Ignorado a menos que timelapse_lineage esteja ativado. Padrão generation_time."
+    }
+  ],
+  "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text.",
+  "retirement_2026_10_01_lineage_measurements": "Two lineage setting help sources changed to describe saved frame/label mapping and measured-feature coloring. Historical source-bound translations are retained above; revised help has separate review records."
 }

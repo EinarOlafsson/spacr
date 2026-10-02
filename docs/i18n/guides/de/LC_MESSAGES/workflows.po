@@ -1,5 +1,5 @@
 # spaCR user guide translation (de).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 19:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,8 +67,9 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Öffnen Sie «Messen (Measure)
 msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
 msgstr ":ref:`Annotate <workflow-module-annotate>`: Öffnen Sie «Annotieren (Annotate)», prüfen Sie repräsentative Objekte und speichern Sie Phänotyp-Labels."
 
-msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlich vorhandenen Merkmals- beziehungsweise Koordinatenspalten und wenden Sie das gespeicherte Gate anschließend auf kompatible Objekte an. Mit Annotate die angezeigten Gates in eine Annotationsspalte schreiben; die ausgewählten Objekte prüfen und binäre oder Mehrklassenlabels wählen."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Laden Sie eine Tabelle oder verwenden Sie Tabellen zusammenführen, um einen Arbeitssatz mit validierten Schlüsseln und Aggregationen zu erstellen. Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlichen Merkmals-/Koordinatenspalten und wenden Sie das gespeicherte Gate auf kompatible Objekte an. Verwenden Sie Annotieren, um die angezeigten Gates in eine Annotationsspalte zu schreiben; prüfen Sie die ausgewählten Objekte und wählen Sie binäre oder mehrklassige Beschriftungen."
 
 msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
 msgstr ":ref:`Image UMAP <workflow-module-umap>`: Projizieren Sie gemessene oder bereitgestellte Encodermerkmale und prüfen Sie repräsentative Bildausschnitte. Ein Cluster ist eine mögliche Gruppierung, kein validierter Phänotyp. Mit den Lasso- und Annotationswerkzeugen geprüfte Auswahlen in eine Annotationsspalte der passenden Messdatenbank schreiben. Eine geometrische Auswahl allein belegt keinen biologischen Phänotyp."
@@ -334,6 +335,10 @@ msgstr "Messen"
 msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
 msgstr "Measure liest Bilder und Labelebenen gemeinsam. Aktivieren Sie das Speichern von Bildausschnitten, wenn Sie PNG-Dateien benötigen; bewahren Sie für gestreamte Ausschnitte die Datenbank und das Quellprojekt zusammen auf."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
+msgstr "Verwenden Sie bei aktivierten Alpha-Funktionen das Speichersymbol neben ``cellprofiler_pipeline``, um ein mitgeliefertes Beispiel zu exportieren. Es erwartet zwei Bildkanäle, ``_ch0.tif`` (DNA) und ``_ch1.tif`` (Actin), sowie ``_nucleus_mask.tif`` (Nuclei) und ``_cell_mask.tif`` (Cells). Passen Sie vor der Ausführung die Kanal- und Objektdefinitionen an Ihre Daten an. Beim Speichern wird der exportierte Pfad ausgewählt; bei Abbruch oder Fehler bleibt die vorherige Auswahl erhalten. CellProfiler läuft in seiner separaten Umgebung."
+
 msgid "**Open:** Home → Measure."
 msgstr "**Öffnen:** Startseite → Messen."
 
@@ -346,8 +351,9 @@ msgstr "**Objekt-Bildausschnitte** — data/\\*\\*/\\*_png, wenn save_png aktivi
 msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
 msgstr ":ref:`Mask <workflow-module-mask>`: Verwenden Sie dasselbe Projekt und die korrekten Kanalindizes für Bilder und Masken."
 
-msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Verwenden Sie FEATURES, um Bilder und Masken zu paaren und ein vermessenes Projekt zu schreiben; eigenständige Masken sind keine zusammengeführten Arrays."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Verwenden Sie Für Measure ordnen, um Bilder und ihre Masken zu den von Messen gelesenen Arrays zusammenzuführen. Einzelne Masken sind keine zusammengeführten Arrays."
 
 msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
 msgstr ":ref:`External Masks <workflow-module-external_masks>`: Vermessen Sie nur bei Bedarf erneut; External Masks kann die Messung bereits durchführen."
@@ -1042,8 +1048,9 @@ msgstr "`Modul-Tutorial <tutorials/#lesson=32_align_stitch>`__."
 msgid "Make Masks"
 msgstr "Masken erstellen"
 
-msgid "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
-msgstr "Kuratieren Sie Bild-Masken-Paare für das Segmentierungstraining oder verwenden Sie FEATURES, um Bilder und Masken zuzuordnen und die Messung aufzurufen. Das Speichern einer Maske trainiert keinen Klassifikator."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
+msgstr "Kuratieren Sie Bild-/Maskenpaare für das Segmentierungstraining oder verwenden Sie Für Measure ordnen, um Bilder und ihre Masken zu den von Messen gelesenen Arrays zusammenzuführen. Das Speichern einer Maske trainiert keinen Klassifikator."
 
 msgid "**Open:** Home → Make Masks."
 msgstr "**Öffnen:** Startseite → Masken erstellen."
@@ -1054,8 +1061,9 @@ msgstr "**Kuratierte Trainingsbildfelder** — Separate Bild- und ganzzahlige Ma
 msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
 msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Verwenden Sie unabhängig geprüfte Bild-Masken-Paare."
 
-msgid ":ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Measure <workflow-module-measure>`: Verwenden Sie FEATURES, um Bilder und Masken zu paaren und ein vermessenes Projekt zu schreiben; eigenständige Masken sind keine zusammengeführten Arrays."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`: Verwenden Sie Für Measure ordnen, um Bilder und ihre Masken zu den von Messen gelesenen Arrays zusammenzuführen. Einzelne Masken sind keine zusammengeführten Arrays."
 
 msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
 msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Verwenden Sie Plaquemasken mit passenden Quellbildern; Zellmasken sind nicht automatisch Plaquelabels."
@@ -1123,8 +1131,9 @@ msgstr "`Modul-Tutorial <tutorials/#lesson=53_prediction_profiler>`__."
 msgid "Graph Builder"
 msgstr "Graph Builder"
 
-msgid "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
-msgstr "Wählen Sie Variablen, Gruppen und Darstellungseinstellungen aus der geladenen Tabelle und exportieren Sie dann die Abbildung mit ihrem Analysekontext."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
+msgstr "Laden Sie eine Tabelle oder verwenden Sie Tabellen zusammenführen, um kompatible Messungen zu kombinieren. Für konvertierte Bilder stellt Original Dateinamen zusammenführen Namen aus einer Konvertierungszuordnung wieder her. Verwenden Sie Bedingungen annotieren, um einer benannten Spalte mit Metadaten-Regex-Regeln oder hineingezogenen Zeilen Werte zuzuweisen. Speichern Sie eine annotierte SQLite-Tabelle oder exportieren Sie CSV mit den Regeln. Wählen Sie Variablen, Gruppen und Diagrammeinstellungen und exportieren Sie die Abbildung mit ihrem Analysekontext."
 
 msgid "**Open:** Home → Graph Builder."
 msgstr "**Öffnen:** Startseite → Graph Builder."
@@ -1156,8 +1165,9 @@ msgstr ":doc:`API-Referenz </api/spacr/hit_investigation/index>`."
 msgid "Gate Editor"
 msgstr "Gate Editor"
 
-msgid "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr "Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlich vorhandenen Merkmals- beziehungsweise Koordinatenspalten und wenden Sie das gespeicherte Gate anschließend auf kompatible Objekte an. Mit Annotate die angezeigten Gates in eine Annotationsspalte schreiben; die ausgewählten Objekte prüfen und binäre oder Mehrklassenlabels wählen."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "Laden Sie eine Tabelle oder verwenden Sie Tabellen zusammenführen, um einen Arbeitssatz mit validierten Schlüsseln und Aggregationen zu erstellen. Definieren Sie Schwellenwert- oder Polygon-Gates auf tatsächlichen Merkmals-/Koordinatenspalten und wenden Sie das gespeicherte Gate auf kompatible Objekte an. Verwenden Sie Annotieren, um die angezeigten Gates in eine Annotationsspalte zu schreiben; prüfen Sie die ausgewählten Objekte und wählen Sie binäre oder mehrklassige Beschriftungen."
 
 msgid "**Open:** Home → Gate Editor."
 msgstr "**Öffnen:** Startseite → Gate Editor."
@@ -1572,6 +1582,14 @@ msgstr "Zeitraffer"
 
 msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
 msgstr "Öffnen Sie Timelapse innerhalb von Mask, um Objekte über geordnete Einzelbilder hinweg zu segmentieren und zu verknüpfen; prüfen Sie die Verknüpfungen vor der nachfolgenden Motilitätsanalyse."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
+msgstr "Abstammungsexporte behalten die Generationszeiten in Einzelbildern bei und ergänzen ``generation_time_hours`` mit kalibrierten zusammenfassenden Statistiken. Geben Sie einen positiven Wert für ``frame_interval_s`` oder vollständige, ansteigende ``time_s``-Werte in der Track-Tabelle an. Wenn beides vorhanden ist, müssen die Angaben übereinstimmen; unregelmäßige Zeitstempel werden auch ohne festes Intervall unterstützt. Bei fehlender Kalibrierung oder unvollständigen Zellzyklen wird keine Generationszeit in Stunden angegeben. Die exportierten Tabellen dokumentieren die Kalibrierungsquelle und die Einheiten. Die Baumachse und die Newick-Astlängen bleiben in Einzelbildern angegeben."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
+msgstr "Um Bäume nach Messmerkmalen zu färben, führen Sie zuerst das Tracking mit aktiviertem ``timelapse_lineage`` aus, damit spaCR die Zuordnung von Einzelbildern zu Quelldateien speichert. Führen Sie anschließend Messen für das zusammengeführte Projekt mit ``timelapse=True``, passenden ``timelapse_objects`` und ``timelapse_lineage=True`` aus. Aktivieren Sie die Alpha-Funktionen und die Zeitdimension, um die Abstammungssteuerung einzublenden. Setzen Sie ``timelapse_lineage_color_by`` auf eine numerische Spalte aus der Messtabelle des ausgewählten Objekttyps. Segmentmittelwerte verwenden die verfügbaren gemessenen Einzelbilder; Segmente ohne Messwerte bleiben ungefärbt, und die Abdeckung wird angegeben. Die Ergebnisse werden in ``tracks/lineage_measured`` gespeichert, ohne frühere Abstammungsergebnisse zu ersetzen. Alte Tracks ohne diese Zuordnung erfordern ein erneutes Tracking. Eine gespeicherte explizite Zeitkalibrierung wird übernommen; ein widersprüchliches Intervall wird abgelehnt."
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**Öffnen:** Masken → Zeitraffer."

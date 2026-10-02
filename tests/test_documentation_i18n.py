@@ -224,7 +224,14 @@ TOOLS = ROOT / "tools"
 # spacr.qt.widgets.organize_for_measure).
 # 2026-10-01: merge, uncertainty and condition APIs; exact source delta
 # recorded in features/data/615_public_api_delta_2026-10-01.json.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_034
+# 2026-10-02 F580: +1/-0, the calibration_preview module overview only;
+# all 12,035 previous symbols unchanged. Exact subtraction and nine-locale
+# strict audit: features/data/615_translation_acceptance_2026-10-02.json.
+# 2026-10-02 F411: +2/-0, tabular._write_workbook._write and
+# qt.command_palette.CommandPalette._collect_commands.app_is_visible.
+# All 12,036 prior source keys/texts unchanged; nested private parents
+# remain hidden. Exact subtraction is recorded in the F411 slice receipt.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_038
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

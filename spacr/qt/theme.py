@@ -3174,6 +3174,7 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.widgets.table_chip",
     "spacr.qt.widgets.gate_console",
     "spacr.qt.widgets.class_editor",
+    "spacr.qt.widgets.condition_annotation_dialog",
     "spacr.qt.widgets.field_fade",
     "spacr.qt.widgets.formula_editor",
     "spacr.qt.widgets.graph_builder",

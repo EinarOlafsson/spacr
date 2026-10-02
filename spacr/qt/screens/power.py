@@ -127,6 +127,58 @@ __all__ = [
     "run_power_sweep",
 ]
 
+
+def _arrayed_plan_mapping(value, name):
+    """Return ``value`` when it is a dictionary; otherwise reject the named field."""
+    if not isinstance(value, dict):
+        raise ValueError(f'{name} must be an object')
+    return value
+
+
+def _arrayed_plan_number(value, name, low=None, high=None, integer=False):
+    """Return finite numeric ``value`` within optional inclusive bounds.
+
+    ``integer`` requires an integer input; ``name`` identifies rejected fields.
+    """
+    if type(value) not in (int, float) or (integer and type(value) is not int):
+        raise ValueError(f'{name} must be a number' + (' (integer)' if integer else ''))
+    if not math.isfinite(value) or (low is not None and value < low) or (high is not None and value > high):
+        raise ValueError(f'{name} is outside its allowed range')
+    return value
+
+
+def _arrayed_plan_text(value, name, empty=True):
+    """Return string ``value``, optionally requiring nonblank text for the named field."""
+    if not isinstance(value, str) or (not empty and not value.strip()):
+        raise ValueError(f'{name} must be text' + (' (nonempty)' if not empty else ''))
+    return value
+
+
+def _arrayed_plan_finite_tree(value):
+    """Check decoded plan ``value`` recursively for non-finite floats.
+
+    Return None when valid; raise ValueError for a non-finite float.
+    """
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError('saved plan contains a non-finite number')
+    if isinstance(value, dict):
+        for child in value.values():
+            _arrayed_plan_finite_tree(child)
+    elif isinstance(value, list):
+        for child in value:
+            _arrayed_plan_finite_tree(child)
+
+
+def _arrayed_plan_unique_keys(pairs):
+    """Build a dictionary from decoded JSON key/value pairs, rejecting duplicate keys."""
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f'duplicate saved-plan key: {key}')
+        result[key] = value
+    return result
+
+
 LOG = logging.getLogger(__name__)
 
 #: Stable app id. Chosen once; `bridge`, `cli` and saved user state key off it.
@@ -1073,8 +1125,11 @@ class PowerScreen(QWidget):
         paired = self._plan_paired.isChecked()
         alpha = self._plan_alpha.value()
         readout = self._plan_readout.currentData() or "continuous"
+        # Compare the plan with a simulation of exactly the same whole-cell
+        # design, as the real-pilot validation does.
+        cells = max(1, int(round(_default_cells(components))))
         inputs = dict(effect=effect, power=self._plan_power.value(),
-                      alpha=alpha, paired=paired, cells=None,
+                      alpha=alpha, paired=paired, cells=cells,
                       max_replicates=self._plan_limits["replicates"].value(),
                       max_wells=self._plan_limits["wells"].value(),
                       max_fields=self._plan_limits["fields"].value(),
@@ -1113,11 +1168,10 @@ class PowerScreen(QWidget):
             self._show_arrayed_designs(designs, summary)
             return designs
         best = designs.iloc[0]
-        cells = max(1, int(round(_default_cells(components))))
         simulated = _simulate_arrayed_power(
             components, effect, replicates=int(best.replicates),
             wells=int(best.wells), fields=int(best.fields), alpha=alpha,
-            paired=paired, n_sim=500, seed=0, readout=readout)
+            cells=cells, paired=paired, n_sim=500, seed=0, readout=readout)
         summary = variances + " " + tr(
             "Cheapest design: {replicates} replicates, {wells} wells per "
             "condition, {fields} fields per well; power {power:.2f}, "
@@ -1162,6 +1216,100 @@ class PowerScreen(QWidget):
                 self._plan_table.setItem(row, col, table_item(text))
         self._plan_summary.setText(summary)
 
+    def _validate_arrayed_plan(self, plan):
+        """Preflight a saved snapshot without changing any widget or result."""
+        _arrayed_plan_mapping(plan, 'plan')
+        _arrayed_plan_finite_tree(plan)
+        if plan.get('schema') != 'spacr-arrayed-plan-v1':
+            raise ValueError('not a saved arrayed plan')
+        inputs = _arrayed_plan_mapping(plan['design_inputs'], 'design_inputs')
+        pilot = _arrayed_plan_mapping(plan['pilot'], 'pilot')
+        _arrayed_plan_text(pilot['path'], 'pilot path', empty=False)
+        _arrayed_plan_text(pilot.get('table', ''), 'pilot table')
+        columns = _arrayed_plan_mapping(pilot['columns'], 'pilot columns')
+        for key in self._pilot_columns:
+            value = columns.get(key)
+            if key in ('replicate', 'condition') and value is None:
+                continue
+            _arrayed_plan_text(value, f'pilot column {key}', empty=key in ('replicate', 'condition'))
+        _arrayed_plan_text(plan['summary'], 'summary')
+        readout = inputs.get('readout', 'continuous')
+        if readout not in ('continuous', 'count', 'proportion'):
+            raise ValueError(f'unknown readout {readout!r}')
+        if type(inputs.get('paired', False)) is not bool:
+            raise ValueError('paired must be a boolean')
+        values = []
+        for key, control in (('effect', self._plan_effect), ('power', self._plan_power),
+                             ('alpha', self._plan_alpha)):
+            values.append((control, _arrayed_plan_number(inputs[key], key, control.minimum(), control.maximum())))
+        costs = inputs['costs']
+        if not isinstance(costs, list) or len(costs) != 3:
+            raise ValueError('costs must contain exactly three numbers')
+        for (key, control), cost in zip(self._plan_costs.items(), costs):
+            values.append((control, _arrayed_plan_number(cost, f'{key} cost', control.minimum(), control.maximum())))
+        for key, control in self._plan_limits.items():
+            values.append((control, _arrayed_plan_number(inputs['max_' + key], 'max_' + key,
+                                          control.minimum(), control.maximum(), integer=True)))
+        for key in ('cells', 'baseline'):
+            if inputs.get(key) is not None:
+                _arrayed_plan_number(inputs[key], key, low=0 if key == 'cells' else None)
+                if key == 'cells' and inputs[key] == 0:
+                    raise ValueError('cells must be positive')
+        # Reject silent QDoubleSpinBox rounding of a hand-edited saved form.
+        for control, value in values:
+            if isinstance(control, QDoubleSpinBox) and round(value, control.decimals()) != value:
+                raise ValueError('saved setting exceeds the control precision')
+        components = _arrayed_plan_mapping(plan['variance_components'], 'variance_components')
+        estimated = _arrayed_plan_mapping(components['estimated'], 'variance estimation flags')
+        for key in ('replicate', 'well', 'field', 'cell', 'replicate_condition'):
+            if key == 'replicate_condition' and key not in components:
+                continue  # Earlier v1 plans predate interaction estimation.
+            flag = estimated.get(key)
+            if type(flag) is not bool:
+                raise ValueError(f'{key} estimation flag must be a boolean')
+            value = components[key]
+            if value is None:
+                if flag:
+                    raise ValueError(f'{key} is estimated but has no variance')
+            else:
+                _arrayed_plan_number(value, f'{key} variance', 0)
+        _arrayed_plan_number(components['mean'], 'pilot mean')
+        for key in ('cells_per_field', 'cells_per_field_effective', 'fields_per_well',
+                    'wells_per_replicate', 'n_replicates', 'n_conditions', 'n_wells', 'n_cells'):
+            if key in components:
+                _arrayed_plan_number(components[key], key, 1, integer=key.startswith('n_'))
+        if readout != 'continuous':
+            baseline = inputs.get('baseline')
+            baseline = components['mean'] if baseline is None else baseline
+            if baseline <= 0 or (readout == 'proportion' and baseline >= 1):
+                raise ValueError('baseline is outside the readout range')
+            for mean in (baseline, baseline + inputs['effect']):
+                _arrayed_plan_number(mean, 'condition mean', 0, 1 if readout == 'proportion' else None)
+        rows = plan['designs']
+        if not isinstance(rows, list) or not rows:
+            raise ValueError('designs must be a nonempty list')
+        for row in rows:
+            _arrayed_plan_mapping(row, 'design')
+            for key in ('replicates', 'wells', 'fields', 'power', 'cost'):
+                if key not in row:
+                    raise ValueError(f'designs lack {key!r}')
+            for key in ('replicates', 'wells', 'fields'):
+                _arrayed_plan_number(row[key], key, 2 if key == 'replicates' else 1,
+                       inputs['max_' + key], integer=True)
+            _arrayed_plan_number(row['power'], 'design power', 0, 1)
+            _arrayed_plan_number(row['cost'], 'design cost', 0)
+            for key in ('cells_per_field', 'cells_per_condition'):
+                if key in row:
+                    _arrayed_plan_number(row[key], key, 1)
+        _arrayed_plan_number(plan['recommendation_index'], 'recommendation_index', 0, len(rows) - 1, integer=True)
+        simulation = _arrayed_plan_mapping(plan['simulation'], 'simulation')
+        _arrayed_plan_number(simulation['design_index'], 'simulation design_index', 0, len(rows) - 1, integer=True)
+        _arrayed_plan_number(simulation['n_sim'], 'simulation n_sim', 1, integer=True)
+        _arrayed_plan_number(simulation['seed'], 'simulation seed', 0, integer=True)
+        _arrayed_plan_number(simulation['cells_per_field'], 'simulation cells_per_field', 1, integer=True)
+        _arrayed_plan_number(simulation['power'], 'simulation power', 0, 1)
+        return inputs, pilot, columns, values, self._plan_readout.findData(readout)
+
     def _load_arrayed_plan(self, path: Optional[str] = None) -> bool:
         """Open a saved plan and put it back on the form and the table.
 
@@ -1185,28 +1333,10 @@ class PowerScreen(QWidget):
             return False
         try:
             with open(path, encoding="utf-8") as handle:
-                plan = json.load(handle)
-            if plan.get("schema") != "spacr-arrayed-plan-v1":
-                raise ValueError(f"not a saved arrayed plan: {path}")
-            inputs = plan["design_inputs"]
-            pilot = plan["pilot"]
+                plan = json.load(handle, object_pairs_hook=_arrayed_plan_unique_keys)
+            inputs, pilot, columns, values, index = self._validate_arrayed_plan(plan)
             designs = pd.DataFrame(plan["designs"])
-            for key in ("replicates", "wells", "fields", "power", "cost"):
-                if key not in designs.columns and len(designs):
-                    raise ValueError(f"designs lack {key!r}")
-            readout = inputs.get("readout", "continuous")
-            index = self._plan_readout.findData(readout)
-            if index < 0:
-                raise ValueError(f"unknown readout {readout!r}")
-            values = [(self._plan_effect, float(inputs["effect"])),
-                      (self._plan_power, float(inputs["power"])),
-                      (self._plan_alpha, float(inputs["alpha"]))]
-            values += [(self._plan_costs[key], float(cost)) for key, cost in
-                       zip(("replicate", "well", "field"), inputs["costs"])]
-            values += [(self._plan_limits[key], int(inputs["max_" + key]))
-                       for key in ("replicates", "wells", "fields")]
-            columns = dict(pilot.get("columns") or {})
-        except (OSError, KeyError, TypeError, ValueError) as exc:
+        except (OSError, KeyError, TypeError, ValueError, OverflowError, RecursionError) as exc:
             self._plan_summary.setText(
                 tr("Could not load the plan: {error}", error=exc))
             return False

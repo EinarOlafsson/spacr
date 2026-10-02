@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-01 19:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,8 +67,9 @@ msgstr ":ref:`Measure <workflow-module-measure>`: “마스크 (Mask)” 프로�
 msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
 msgstr ":ref:`Annotate <workflow-module-annotate>`: “어노테이션 (Annotate)”를 열고 대표적인 객체를 살펴본 다음 표현형 라벨을 저장하세요."
 
-msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 실제 특징/좌표 열에 임계값 또는 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate를 사용해 표시된 게이트를 어노테이션 열에 기록하세요. 선택된 객체를 검토하고 이진 또는 다중 클래스 레이블을 선택하세요."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 표를 불러오거나 테이블 병합을 사용하여 키와 집계를 검증한 작업 데이터 집합을 만드세요. 실제 특징/좌표 열에 임계값 또는 다각형 게이트를 정의한 뒤 저장한 게이트를 호환되는 객체에 적용하세요. 어노테이션을 사용해 표시된 게이트를 어노테이션 열에 기록하고 선택된 객체를 검토한 뒤 이진 또는 다중 클래스 레이블을 선택하세요."
 
 msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
 msgstr ":ref:`Image UMAP <workflow-module-umap>`: 측정 특징 또는 제공된 인코더 특징을 투영하고 대표적인 잘라낸 이미지를 확인하세요. 클러스터는 후보 그룹이며 검증된 표현형이 아닙니다. 올가미와 어노테이션 도구를 사용해 검토된 선택 영역을 해당 측정 데이터베이스의 어노테이션 열에 기록하세요. 기하학적 선택 영역만으로 생물학적 표현형이 입증되지는 않습니다."
@@ -334,6 +335,10 @@ msgstr "측정"
 msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
 msgstr "측정은 이미지와 레이블 평면을 함께 읽습니다. PNG 파일이 필요하면 크롭 저장을 켜고, 스트리밍 크롭을 쓰려면 데이터베이스와 소스 프로젝트를 함께 보관하세요."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
+msgstr "알파 기능을 활성화한 상태에서 ``cellprofiler_pipeline`` 옆의 저장 아이콘으로 번들 예제를 내보내세요. 이 예제는 두 이미지 채널 ``_ch0.tif`` (DNA)와 ``_ch1.tif`` (Actin), 그리고 ``_nucleus_mask.tif`` (Nuclei)와 ``_cell_mask.tif`` (Cells)를 사용합니다. 실행하기 전에 채널 및 객체 정의를 데이터에 맞게 수정하세요. 저장하면 내보낸 경로가 선택되며 취소하거나 실패하면 기존 선택이 유지됩니다. CellProfiler는 별도의 환경에서 실행됩니다."
+
 msgid "**Open:** Home → Measure."
 msgstr "**열기:** 홈 → 측정."
 
@@ -346,8 +351,9 @@ msgstr "**객체 자르기 이미지** — save_png가 켜져 있으면 data/\\*
 msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
 msgstr ":ref:`Mask <workflow-module-mask>`: 같은 프로젝트와 올바른 이미지/마스크 채널 인덱스를 사용하세요."
 
-msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Make Masks <workflow-module-make_masks>`: FEATURES로 이미지와 마스크를 짝짓고 측정된 프로젝트를 쓰세요. 독립 마스크는 병합 배열이 아닙니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Measure용으로 정리를 사용하여 이미지와 마스크를 측정이 읽는 배열로 병합하세요. 독립된 마스크는 병합 배열이 아닙니다."
 
 msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
 msgstr ":ref:`External Masks <workflow-module-external_masks>`: 필요할 때만 다시 측정하세요. External Masks도 이미 측정을 수행할 수 있습니다."
@@ -1042,8 +1048,9 @@ msgstr "`모듈 튜토리얼 <tutorials/#lesson=32_align_stitch>`__."
 msgid "Make Masks"
 msgstr "마스크 만들기"
 
-msgid "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
-msgstr "분할 학습을 위해 이미지/마스크 쌍을 선별하거나, FEATURES로 이미지와 마스크를 할당하고 측정을 실행하세요. 마스크를 저장한다고 분류기가 학습되지는 않습니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
+msgstr "분할 학습을 위해 이미지/마스크 쌍을 선별하거나 Measure용으로 정리로 이미지와 마스크를 측정이 읽는 배열로 병합하세요. 마스크를 저장한다고 분류기가 학습되지는 않습니다."
 
 msgid "**Open:** Home → Make Masks."
 msgstr "**열기:** 홈 → 마스크 만들기."
@@ -1054,8 +1061,9 @@ msgstr "**선별된 학습 시야** — 시야 식별 정보가 일치하는 이
 msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
 msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: 독립적으로 검증된 이미지/마스크 쌍을 사용하세요."
 
-msgid ":ref:`Measure <workflow-module-measure>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
-msgstr ":ref:`Measure <workflow-module-measure>`: FEATURES로 이미지와 마스크를 짝짓고 측정된 프로젝트를 쓰세요. 독립 마스크는 병합 배열이 아닙니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`: Measure용으로 정리를 사용하여 이미지와 마스크를 측정이 읽는 배열로 병합하세요. 독립된 마스크는 병합 배열이 아닙니다."
 
 msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
 msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: 일치하는 원본 이미지와 함께 플라크 마스크를 사용하세요. 세포 마스크가 자동으로 플라크 레이블이 되지는 않습니다."
@@ -1123,8 +1131,9 @@ msgstr "`모듈 튜토리얼 <tutorials/#lesson=53_prediction_profiler>`__."
 msgid "Graph Builder"
 msgstr "Graph Builder"
 
-msgid "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
-msgstr "불러온 테이블에서 변수, 그룹, 그래프 설정을 선택한 다음 분석 맥락과 함께 그림을 내보내세요."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
+msgstr "표를 불러오거나 테이블 병합으로 호환되는 측정값을 결합하세요. 변환된 이미지의 경우 원본 파일명 병합으로 변환 매핑에서 이름을 복원하세요. 조건 주석 추가에서 메타데이터 정규식 규칙이나 끌어온 행으로 이름이 있는 열에 값을 지정하세요. 어노테이션을 추가한 SQLite 표를 저장하거나 규칙과 함께 CSV로 내보내세요. 변수, 그룹 및 그래프 설정을 선택한 뒤 분석 맥락과 함께 그림을 내보내세요."
 
 msgid "**Open:** Home → Graph Builder."
 msgstr "**열기:** 홈 → Graph Builder."
@@ -1156,8 +1165,9 @@ msgstr ":doc:`API 참조 </api/spacr/hit_investigation/index>`."
 msgid "Gate Editor"
 msgstr "Gate Editor"
 
-msgid "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
-msgstr "실제 특징/좌표 열에 임계값 또는 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate를 사용해 표시된 게이트를 어노테이션 열에 기록하세요. 선택된 객체를 검토하고 이진 또는 다중 클래스 레이블을 선택하세요."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "표를 불러오거나 테이블 병합을 사용하여 키와 집계를 검증한 작업 데이터 집합을 만드세요. 실제 특징/좌표 열에 임계값 또는 다각형 게이트를 정의한 뒤 저장한 게이트를 호환되는 객체에 적용하세요. 어노테이션을 사용해 표시된 게이트를 어노테이션 열에 기록하고 선택된 객체를 검토한 뒤 이진 또는 다중 클래스 레이블을 선택하세요."
 
 msgid "**Open:** Home → Gate Editor."
 msgstr "**열기:** 홈 → Gate Editor."
@@ -1572,6 +1582,14 @@ msgstr "타임랩스"
 
 msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
 msgstr "마스크에서 타임랩스를 열어 순서가 있는 프레임에 걸쳐 객체를 분할하고 연결하세요. 하위 운동성 분석 전에 연결을 검사하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
+msgstr "계보 내보내기는 프레임 단위의 세대 시간을 유지하면서 ``generation_time_hours``와 보정된 요약 통계를 추가합니다. 양의 ``frame_interval_s``를 지정하거나 추적 표에 누락 없이 증가하는 ``time_s`` 값을 제공하세요. 둘 다 있으면 서로 일치해야 하며, 고정 간격이 없을 때는 불규칙한 타임스탬프도 지원합니다. 보정 정보가 없거나 세포 주기가 불완전하면 시간 단위의 세대 시간은 제공되지 않습니다. 내보낸 표에는 보정 정보의 출처와 단위가 기록됩니다. 트리 축과 Newick 가지 길이는 프레임 단위로 유지됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
+msgstr "측정한 특성으로 트리의 색상을 지정하려면 먼저 ``timelapse_lineage``\\ 를 활성화하여 추적을 실행하세요. 그러면 spaCR이 프레임/원본 매핑을 저장합니다. 그런 다음 병합된 프로젝트에서 ``timelapse=True``\\ 와 ``timelapse_lineage=True``\\ 를 설정하고 ``timelapse_objects``\\ 를 추적에 사용한 객체와 일치시킨 뒤 측정을 실행하세요. 계보 제어 항목을 표시하려면 알파 기능과 시간 차원을 활성화하세요. ``timelapse_lineage_color_by``\\ 를 선택한 객체의 측정 테이블에 있는 수치형 열로 설정하세요. 구간 평균은 측정값이 있는 프레임을 사용하며, 측정값이 전혀 없는 구간에는 색상을 지정하지 않고 측정값이 있는 범위를 보고합니다. 결과는 기존 계보 출력을 대체하지 않고 ``tracks/lineage_measured``\\ 에 저장됩니다. 매핑이 없는 이전 추적 결과는 추적을 다시 실행해야 합니다. 저장된 명시적 시간 보정을 이어서 사용하며, 이와 충돌하는 시간 간격은 거부합니다."
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**열기:** 마스크 → 타임랩스."

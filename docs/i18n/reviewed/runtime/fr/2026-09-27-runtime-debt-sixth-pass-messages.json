@@ -34,13 +34,6 @@
     },
     {
       "table": "ui",
-      "key": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
-      "source": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
-      "source_sha256": "1d6230c16b5fa3946e5a4f086fcbdfeb4924ee62727ebb25d2b4272151347fe1",
-      "translation": "CellProfiler 4.2, exécuté sans interface sur le pipeline .cppipe propre à un laboratoire depuis Measure : spaCR lui transmet les canaux et masques de chaque champ sous forme de TIFFs et rapatrie ses mesures par objet dans measurements.db, indexées par les identifiants d’objet de spaCR. Il faut un Python 3.8 ou 3.9 sur cet ordinateur pour construire son environnement."
-    },
-    {
-      "table": "ui",
       "key": "CellProfiler 4.2.8.1 and cellprofiler-core are BSD-3-Clause (Broad Institute). They read images through Bio-Formats (GPL-2.0, shipped inside prokaryote) on a Java 11 development kit that the install fetches from Eclipse Adoptium (GPL-2.0 with the Classpath Exception) into the backend's own folder. CellProfiler's desktop interface (wxPython) and its MySQL export are not installed: pipelines run headless. spaCR ships none of it.",
       "source": "CellProfiler 4.2.8.1 and cellprofiler-core are BSD-3-Clause (Broad Institute). They read images through Bio-Formats (GPL-2.0, shipped inside prokaryote) on a Java 11 development kit that the install fetches from Eclipse Adoptium (GPL-2.0 with the Classpath Exception) into the backend's own folder. CellProfiler's desktop interface (wxPython) and its MySQL export are not installed: pipelines run headless. spaCR ships none of it.",
       "source_sha256": "d883e64c77616effcdec6fc434062f21448f86a427dcdebdd3c7cbfe4ca54ce5",
@@ -250,7 +243,15 @@
       "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
       "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
       "translation": "Affiche les 100 découpes dont les mesures ressemblent le plus à celles de la découpe sélectionnée, celle entourée d’un anneau, de la plus proche à la moins proche, afin qu’une classe rare trouvée une fois puisse être étiquetée de nombreuses fois. La première recherche sur une source lit ses mesures et prend quelques secondes ; les suivantes sont instantanées. Revenez à toutes les découpes en rouvrant la source. Non exécuté par défaut."
+    },
+    {
+      "table": "ui",
+      "key": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source_sha256": "1d6230c16b5fa3946e5a4f086fcbdfeb4924ee62727ebb25d2b4272151347fe1",
+      "translation": "CellProfiler 4.2, exécuté sans interface sur le pipeline .cppipe propre à un laboratoire depuis Measure : spaCR lui transmet les canaux et masques de chaque champ sous forme de TIFFs et rapatrie ses mesures par objet dans measurements.db, indexées par les identifiants d’objet de spaCR. Il faut un Python 3.8 ou 3.9 sur cet ordinateur pour construire son environnement."
     }
   ],
-  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text.",
+  "retirement_2026_10_01_cellprofiler_python": "The CellProfiler blurb now explains compatible Python provisioning by bundled/PATH uv. The former source-bound target is retained as history, not reused for changed text."
 }

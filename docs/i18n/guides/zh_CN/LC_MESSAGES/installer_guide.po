@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:59-0400\n"
+"POT-Creation-Date: 2026-10-01 17:36-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -73,11 +73,25 @@ msgstr "更新"
 msgid "Download and run the installer for the newer version. Installation is staged and validated before it replaces the active private environment; a failed update leaves the previous working environment in place. Project folders and results are not stored in the installation directory and are not removed by an update."
 msgstr "下载并运行较新版本的安装程序。安装会先在暂存区进行并通过验证，然后才替换当前的私有环境；更新失败时，之前可用的环境会保持不变。项目文件夹和结果不存储在安装目录中，更新不会删除它们。"
 
-msgid "Older installations are removed first"
-msgstr "先移除旧的安装"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "macOS online installation: update and reopen"
+msgstr "macOS 在线安装：更新并重新打开"
 
-msgid "Before it installs, every installer -- and **Help → Check for updates** -- looks for spaCR installations an earlier installer made and removes them, so two versions never sit side by side with one of them on the path. It finds the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update."
-msgstr "在安装之前，每个安装程序——以及 **帮助 → Check for updates**——都会查找由较早安装程序创建的 spaCR 安装并将其移除，以免两个版本并存且其中一个位于路径中。它会找到 Windows 在线和离线安装、macOS 应用程序及其每用户环境、Linux 在线安装和 Debian 软件包，以及它们的启动器、快捷方式、菜单项和卸载注册信息。您自己创建的环境和源代码检出只会被列出而绝不会被移除，您的项目文件夹和结果也绝不会被触及。如果某个副本无法移除——例如 ``/Applications`` 中需要管理员权限的 macOS 应用程序——安装程序会指出是哪一个，并且不安装任何内容，因此您绝不会只得到半个更新。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again."
+msgstr "选择 **帮助 → Check for updates**，接受可用更新，并确认要在当前环境中重新安装 spaCR。spaCR 会关闭，使用安装目录内自带的 ``uv`` 升级现有私有环境，检查已安装的版本，然后自动重新打开。此流程保留应用启动器和现有环境，不会重新运行首次安装程序，也不会再次询问其终端问题。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow."
+msgstr "该命令与下方的 macOS 恢复命令相同，但使用实际安装目录。升级或版本检查失败会记录在 ``~/.spacr/logs/update.log`` 中，且不会触发更新成功后的重新启动。如果 spaCR 无法安全完成关闭，更新也会停止。独立的冻结应用程序包使用其程序包替换流程。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Older installations and full installers"
+msgstr "旧版安装与完整安装程序"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so two versions never sit side by side with one of them on the path. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update."
+msgstr "完整安装程序和其他安装程序更新流程会查找并删除早期安装程序创建的 spaCR 安装，避免两个版本并存且其中一个仍位于搜索路径中。它们查找 Windows 在线和离线安装、macOS 应用及其用户专用环境、Linux 在线安装和 Debian 软件包，以及对应的启动器、快捷方式、菜单项和卸载注册信息。自行创建的环境和源代码检出目录会被列出，但不会被删除；项目文件夹和结果也不会受到影响。如果无法删除某个副本，例如 ``/Applications`` 中需要管理员权限的 macOS 应用，安装程序会说明是哪一个，并且不安装任何内容，避免更新只完成一半。"
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "如需在不做任何更改的情况下查看它会找到什么，请从 spaCR 源代码检出中运行查找程序：``python spacr/install_cleanup.py find``。"

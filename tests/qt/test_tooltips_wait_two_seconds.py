@@ -175,6 +175,7 @@ def test_moving_to_another_widget_hands_the_tooltip_over(policy, qapp):
     second.setToolTip("the second")
     host.resize(200, 80)
     host.show()
+    qapp.processEvents()
     try:
         policy.eventFilter(first, _tooltip_event(first))
         policy._show_now()

@@ -84,7 +84,7 @@ from ...organelle_types import (organelle_count, organelle_role,
 
 LOG = logging.getLogger("spacr.qt.live_preview")
 
-SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
+SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".npy")
 
 _PLANE_ROLE = int(Qt.UserRole) + 1
 
@@ -346,18 +346,26 @@ in memory for a popup that lists eight comfortably."""
 
 
 def load_preview_image(path: Path) -> np.ndarray:
-    """Read *path* into an (H, W) or (H, W, C) uint8/uint16 array.
+    """Read *path* into a nonempty (H, W) or (H, W, C) numeric array.
 
-    Tifffile is used for TIFFs to preserve bit-depth; other formats fall
-    back to PIL. Raises :class:`FileNotFoundError` if the path is bad.
+    Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy``
+    stacks are memory mapped without loading pickled objects. Raises
+    :class:`FileNotFoundError` if the path is bad.
 
-    :param path: image file path (``str`` or :class:`~pathlib.Path`); a
-        ``.tif``/``.tiff`` suffix, in any case, selects tifffile.
+    :param path: image file path (``str`` or :class:`~pathlib.Path`);
+        ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.
     """
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(path)
     suf = path.suffix.lower()
+    if suf == ".npy":
+        array = np.load(path, mmap_mode="r", allow_pickle=False)
+        if array.ndim not in (2, 3) or not all(array.shape):
+            raise ValueError("Preview NPY must contain a nonempty (H,W) or (H,W,C) array")
+        if not np.issubdtype(array.dtype, np.number):
+            raise ValueError("Preview NPY must contain numeric image pixels")
+        return array
     if suf in (".tif", ".tiff"):
         import tifffile
         return tifffile.imread(str(path))
@@ -974,6 +982,44 @@ def _check_preview_cancel(req: PreviewRequest) -> None:
         raise PipelineCancelled('Preview cancelled')
 
 
+def _unmix_preview_field(req):
+    """Unmix an organized intensity stack without modifying its source."""
+    if not req.preprocess_settings.get('unmix', False):
+        return req.image, None
+    from ...psf_pipeline import _prepare_unmixing
+    from ...schema import parse_field_stem
+
+    source = Path(req.source_path)
+    if (source.suffix.lower() != '.npy' or source.parent.name != 'stack'
+            or not source.is_file()):
+        raise ValueError(
+            'Spectral unmixing preview requires an organized NPY intensity '
+            'field from the project stack folder; select that field instead '
+            'of a raw single-channel image or merged mask array.')
+    parse_field_stem(source.name, strict=True)
+    if req.image.ndim != 3 or not all(req.image.shape):
+        raise ValueError('Spectral unmixing preview requires a nonempty (H,W,C) stack')
+
+    def load_control(path):
+        """Read controls cooperatively and reject incompatible channel layouts."""
+        _check_preview_cancel(req)
+        field = np.load(path, mmap_mode='r', allow_pickle=False)
+        if field.ndim != 3 or field.shape[-1] != req.image.shape[-1]:
+            raise ValueError('Unmixing controls and preview must have the same intensity channels')
+        return field
+
+    _check_preview_cancel(req)
+    plan = _prepare_unmixing(req.preprocess_settings, source.parent,
+                            load=load_control)
+    _check_preview_cancel(req)
+    image = plan.apply(req.image)
+    _check_preview_cancel(req)
+    record = plan.provenance()
+    record['source_directory'] = str(source.parent.resolve())
+    record['stage'] = 'before channel selection, PSF and enhancement'
+    return image, record
+
+
 def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     """Run one Cellpose pass per requested object type.
 
@@ -1001,6 +1047,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     from ..detect_chain import provenance as chain_provenance
 
     _check_preview_cancel(req)
+    preview_image, unmixing = _unmix_preview_field(req)
     inferred = fill_psf_settings(req.preprocess_settings,
                                  req.source_path or None)
     plan = prepare_psf(req.preprocess_settings)
@@ -1018,6 +1065,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         'stage': 'loaded preview field, before background and model normalization',
         'normalization': 'field-local Cellpose defaults; classical method specific',
         'illumination': 'no preview illumination correction',
+        'unmixing': unmixing or {'operation': 'none'},
         'input_modified': False,
         'filter_intensity_source': 'original loaded preview field',
         'input_shape': list(req.image.shape),
@@ -1033,7 +1081,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     def _prepared(ch_idx: int) -> np.ndarray:
         """One channel's plane after the PSF or enhancement chain, once."""
         if ch_idx not in processed:
-            plane = _select_channel(req.image, ch_idx)
+            plane = _select_channel(preview_image, ch_idx)
             if chain is not None:
                 processed[ch_idx] = apply_chain(
                     plane[..., None], chain, cancel=req.cancel)[..., 0]
@@ -1133,9 +1181,9 @@ def _backend_preview_pass(req: PreviewRequest, obj: str,
     :param image_2d: the object's own plane, prepared as for Cellpose-SAM.
     :param route: ``(backend, masks function)`` from
         :func:`spacr.object._prefixed_model_route`.
-    :param prepared: a channel index's plane, prepared the way
-        ``image_2d`` was; a cell is given its nucleus plane from it when the
-        request has a nucleus channel.
+    :param prepared: a channel index's prepared plane. InstanSeg receives
+        every configured intensity channel, with the object channel first;
+        other backends retain their existing role-specific input.
     :returns: ``(mask, RGB flow or None, cell probability or None)``.
     """
     from ... import _segmentation_backends
@@ -1147,7 +1195,15 @@ def _backend_preview_pass(req: PreviewRequest, obj: str,
     settings[f"{obj}_cellprob_threshold"] = float(req.cellprob)
     image = image_2d
     nucleus = req.channels.get("nucleus")
-    if (obj == "cell" and nucleus is not None and req.image.ndim == 3
+    if backend == "instanseg" and req.image.ndim == 3:
+        count = req.image.shape[-1]
+        own = int(req.channels.get(obj, 0)) % count
+        configured = {int(value) % count for value in req.channels.values()
+                      if value is not None}
+        order = [own] + sorted(configured - {own})
+        image = np.stack([image_2d if index == own else prepared(index)
+                          for index in order], axis=-1)
+    elif (obj == "cell" and nucleus is not None and req.image.ndim == 3
             and req.image.shape[-1] > 1):
         index = int(nucleus) % req.image.shape[-1]
         image = np.stack([image_2d, prepared(index)], axis=-1)

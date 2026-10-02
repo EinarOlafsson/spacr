@@ -1,0 +1,37 @@
+{
+  "lesson": "86_psf_workflow",
+  "english_sha256": "486874655765fd9afa8dea1a68fd795654b8d909705fdb95230018e32dee4aab",
+  "language": "is",
+  "review": {
+    "kind": "Codex AI technical translation and independent technical peer review",
+    "translator": "Codex AI, translated directly from the frozen English source",
+    "date": "2026-10-01",
+    "independent_peer_review": true,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Scientific meaning and English video control labels; not native-speaker or listening signoff",
+    "route_rebinding": {
+      "previous_english_sha256": "1b2606bba6a8beb3040c3506eada1a75ea3994c7422875fddac237549881f11d",
+      "reason": "Only app_key changed to null and host_app_key removed; narration and all translated source prose unchanged"
+    },
+    "original_draft_sha256": "cb29c5083a6751974f52f5e8dd4b414c8c6c365324858185b23206c8f29c396c"
+  },
+  "title": "PSF: berðu saman vinnslu og veldu styrkgildi fyrir mælingar",
+  "description": "Skoðaðu upprunamerkingar PSF-gilda, berðu saman og beittu myndvinnslu og veldu sérstaklega upprunaleg eða unnin styrkgildi í Measure.",
+  "objectives": [
+    "Athugaðu hlutlinsu, ályktaðar myndastærðir og upprunamerkingar kvörðunargilda.",
+    "Berðu saman vinnslu og farðu aftur í upprunalegu myndina án þess að breyta upprunaskrám.",
+    "Veldu sérstaklega hvaðan styrkgildi koma áður en þú framkvæmir magnbundnar mælingar."
+  ],
+  "prerequisite": "Opnaðu myndamöppu í Make Masks. Notaðu þekkta kvörðun úr myndatökunni við magnbundna vinnslu; kennslan notar úrklippu úr meðfylgjandi Measure-dæmi og ljósfræðileg sýnigildi.",
+  "section": "Myndgreining",
+  "scenes": [
+    "Notaðu stýringar punktdreififallsins til að bera saman valda myndvinnslu áður en þú notar hana við greiningu eða mælingar. Opnaðu myndamöppuna í Make Masks, opnaðu Settings og felldu út Image enhancement. Veldu hlutlinsuna sem var notuð við myndatökuna og smelltu síðan á Infer from images til að lesa þær myndupplýsingar sem eru tiltækar.",
+    "Felldu út PSF optics og athugaðu upprunamerkinguna við hvert gildi. Hlutlinsan er hér valin til skýringar. Sjálfgefin gildi fyrir myndavél og bylgjulengd eru notuð til að reikna pixlabil og Gauss-breidd. Skiptu þessum forsendum út fyrir gildin úr þinni myndatöku áður en þú vinnur magnbundið. Stærð myndarinnar ein og sér ákvarðar ekki ljósfræðilega kvörðun.",
+    "Veldu Convolution og smelltu á Compare. Vinstri myndin er upprunaleg; sú hægri sýnir vinnsluna sem greinirinn notar. Gauss-földun eykur óskerpu. Richardson–Lucy-afföldun er annar valkostur; skoðaðu suð og vinnslugalla áður en þú beitir henni.",
+    "Smelltu á Apply til að nota valda vinnslu við birtingu og greiningu. Upprunalega myndin og núverandi hlutamerkingar haldast óbreyttar. Skoðaðu niðurstöðuna áður en þú býrð til eða breytir grímum.",
+    "Slökktu á Apply til að fara aftur í upprunalegu myndina. Þetta val í ritlinum velur ekki uppruna styrkgilda fyrir magnbundnar mælingar. Veldu hann sérstaklega í Measure.",
+    "Opnaðu Measure og birtu PSF-stillingarnar. Uppruni styrkgilda er sjálfgefið original, svo vistaðar PSF-vinnslustillingar breyta ekki mældum styrkgildum. Haltu original þegar greiningin á að nota pixlana úr myndatökunni.",
+    "Til að mæla unnin styrkgildi skaltu velja processed og velja aðgerðina. Sláðu inn sýnatökubil myndarinnar og breidd kjarnans í míkrómetrum samkvæmt kvörðun myndatökunnar; tölurnar sem hér sjást eru sýnigildi. Farðu yfir aðrar mælistillingar og keyrðu síðan Measure þegar þú ert tilbúin eða tilbúinn. Geymdu upplýsingar um uppruna og vinnslu PSF með niðurstöðunum. Þessar stýringar í ritlinum og Measure eru tiltækar þegar slökkt er á alfa-eiginleikum; PSF-stýringar fyrir lotuvinnslu í Mask og Timelapse krefjast alfa-eiginleika."
+  ]
+}

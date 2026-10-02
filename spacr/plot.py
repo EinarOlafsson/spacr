@@ -454,7 +454,8 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
         try:
             report = _integrity_report(
                 fig, fmt=chosen_fmt, dpi=write_dpi,
-                requested_fmt=requested.strip().lower().lstrip("."))
+                requested_fmt=requested.strip().lower().lstrip("."),
+                destination=destination)
             if report is not None:
                 kwargs[_SAVEFIG_METADATA] = _integrity_metadata(
                     report, chosen_fmt, kwargs.get(_SAVEFIG_METADATA))
@@ -590,21 +591,141 @@ def _apply_display_ranges(image, ranges):
     return out
 
 
-def _raw_clip_stats(raw, ranges):
+def _ome_pixels_for_ifd(root, ifd):
+    """Resolve one TIFF IFD to one OME Pixels element without reading planes.
+
+    :param root: parsed, size-bounded OME XML root.
+    :param ifd: the zero-based IFD currently displayed by the image reader.
+    :returns: the uniquely mapped Pixels element.
+    :raises ValueError: the mapping is absent, ambiguous or unsupported.
+    """
+    namespace = root.tag.rsplit('}', 1)[0] + '}'
+    if (not root.tag.endswith('}OME')
+            or not namespace.startswith('{http://www.openmicroscopy.org/Schemas/OME/')):
+        raise ValueError('not an OME metadata document')
+    matches = []
+    for pixels in root.findall(f'{namespace}Image/{namespace}Pixels'):
+        sizes = {axis: int(pixels.attrib['Size' + axis]) for axis in 'ZTC'}
+        if any(value <= 0 for value in sizes.values()):
+            raise ValueError('invalid OME dimensions')
+        channels = pixels.findall(namespace + 'Channel')
+        samples = [int(channel.get('SamplesPerPixel', '1')) for channel in channels]
+        if samples and (any(value <= 0 for value in samples)
+                        or sum(samples) != sizes['C']):
+            raise ValueError('inconsistent OME channel dimensions')
+        if samples and len(set(samples)) != 1:
+            raise ValueError('mixed OME channel sample counts are unsupported')
+        order = pixels.get('DimensionOrder', '')
+        if order not in ('XYZCT', 'XYZTC', 'XYCTZ', 'XYCZT', 'XYTCZ', 'XYTZC'):
+            raise ValueError('invalid OME dimension order')
+        logical_sizes = dict(sizes, C=len(channels) or sizes['C'])
+        plane_count = logical_sizes['Z'] * logical_sizes['T'] * logical_sizes['C']
+        for mapping in pixels.findall(namespace + 'TiffData'):
+            uuid = mapping.find(namespace + 'UUID')
+            if uuid is not None:
+                file_uuid = (uuid.text or '').strip()
+                if not file_uuid or not root.get('UUID'):
+                    raise ValueError('unresolved external TIFF identity')
+                if file_uuid != root.get('UUID'):
+                    continue
+            if 'PlaneCount' not in mapping.attrib and 'IFD' not in mapping.attrib:
+                raise ValueError('OME TIFF mapping has no explicit IFD or PlaneCount')
+            first = int(mapping.get('IFD', '0'))
+            count = int(mapping.get('PlaneCount', '1'))
+            if first < 0 or count < 0 or count > plane_count:
+                raise ValueError('invalid OME TIFF plane mapping')
+            coordinates = {axis: int(mapping.get('First' + axis, '0'))
+                           for axis in 'ZTC'}
+            if any(not 0 <= coordinates[axis] < sizes[axis] for axis in 'ZTC'):
+                raise ValueError('invalid OME plane coordinate')
+            if samples and samples[0] > 1:
+                if coordinates['C'] != 0:
+                    raise ValueError('nonzero packed-channel OME origin is unsupported')
+            offset, stride = 0, 1
+            for axis in order[2:]:
+                offset += coordinates[axis] * stride
+                stride *= logical_sizes[axis]
+            if offset + count > plane_count:
+                raise ValueError('OME TIFF mapping exceeds the series dimensions')
+            if first <= ifd < first + count:
+                matches.append(pixels)
+    if len(matches) != 1:
+        raise ValueError('TIFF plane has no unique OME Pixels mapping')
+    return matches[0]
+
+
+def _source_sensor_range(opened, raw):
+    """Read bounded existing TIFF metadata for the displayed source plane.
+
+    :param opened: already-open Pillow image at the displayed IFD.
+    :param raw: already-decoded, unchanged source array.
+    :returns: JSON-ready ceiling, evidence and fallback reason. Only validated
+        unsigned OME SignificantBits overrides the storage dtype ceiling.
+    """
+    import xml.etree.ElementTree as ET
+
+    raw = np.asarray(raw)
+    integer = np.issubdtype(raw.dtype, np.integer)
+    record = {'ceiling': int(np.iinfo(raw.dtype).max) if integer else None,
+              'source': 'storage dtype', 'reason': 'no OME TIFF metadata'}
+    tags = getattr(opened, 'tag_v2', None)
+    if tags is None:
+        return record
+    try:
+        record['ifd'] = int(opened.tell())
+        description = tags.get(270, '')
+        if isinstance(description, bytes):
+            if len(description) > 1024 * 1024:
+                raise ValueError('OME metadata exceeds 1 MiB')
+            description = description.decode('utf-8')
+        if not isinstance(description, str) or not description:
+            return record
+        if len(description) > 1024 * 1024 or len(description.encode('utf-8')) > 1024 * 1024:
+            raise ValueError('OME metadata exceeds 1 MiB')
+        if '<!DOCTYPE' in description.upper() or '<!ENTITY' in description.upper():
+            raise ValueError('XML declarations with entities are unsupported')
+        root = ET.fromstring(description)
+        pixels = _ome_pixels_for_ifd(root, record['ifd'])
+        record['pixels_id'] = pixels.get('ID')
+        bits = pixels.get('SignificantBits')
+        if bits is None:
+            raise ValueError('OME SignificantBits is absent')
+        record['declared_significant_bits'] = bits
+        if (raw.dtype.kind != 'u' or pixels.get('Type') != raw.dtype.name
+                or int(pixels.attrib['SizeX']) != raw.shape[1]
+                or int(pixels.attrib['SizeY']) != raw.shape[0]):
+            raise ValueError('OME pixel type or dimensions contradict the displayed array')
+        bits = int(bits)
+        if not 1 <= bits <= np.iinfo(raw.dtype).bits:
+            raise ValueError('OME SignificantBits is outside the storage type')
+        ceiling = (1 << bits) - 1
+        if raw.size and int(raw.max()) > ceiling:
+            raise ValueError('source pixels exceed the declared significant-bit ceiling')
+        record.update(ceiling=ceiling, source='OME Pixels SignificantBits',
+                      significant_bits=bits, reason=None)
+    except (ValueError, TypeError, KeyError, IndexError, OSError, ET.ParseError) as error:
+        record['reason'] = str(error)
+    return record
+
+
+def _raw_clip_stats(raw, ranges, *, sensor_ceiling=None):
     """How much of the source image a display range throws away.
 
     :param raw: the source pixels, before any display mapping.
     :param ranges: per-channel ``[low, high]`` in source units.
+    :param sensor_ceiling: validated acquisition ceiling; None uses the dtype.
     :returns: ``{'clipped_high', 'clipped_low', 'sensor_saturated'}``, each
         the largest per-channel fraction of pixels above ``high``, below
-        ``low``, or at the ceiling the source's integer type can hold.
+        ``low``, or at the validated sensor ceiling (the integer storage
+        limit when no explicit ceiling is supplied).
     """
     raw = np.asarray(raw)
     planes = ([raw] if raw.ndim == 2 or not ranges or len(ranges) == 1
               else [raw[..., c] for c in range(min(raw.shape[-1],
                                                    len(ranges)))])
     high = low = sensor = 0.0
-    ceiling = (np.iinfo(raw.dtype).max
+    ceiling = (sensor_ceiling if sensor_ceiling is not None else
+               np.iinfo(raw.dtype).max
                if np.issubdtype(raw.dtype, np.integer) else None)
     for c, plane in enumerate(planes):
         if plane.size == 0:
@@ -620,7 +741,7 @@ def _raw_clip_stats(raw, ranges):
 
 
 def _tag_panel(artist, source=None, steps=(), display_range=None,
-               channel=None, compare=None, raw=None):
+               channel=None, compare=None, raw=None, sensor_range=None):
     """Attach provenance to an image artist so an export can trace it.
 
     Nothing is hashed or read here; the file hashes are taken only when a
@@ -639,6 +760,7 @@ def _tag_panel(artist, source=None, steps=(), display_range=None,
     :param compare: a comparison group name that overrides ``channel``.
     :param raw: the source pixels, used once to measure clipping and
         detector saturation.
+    :param sensor_range: validated acquisition ceiling and metadata evidence.
     :returns: the artist.
     """
     sources = ([] if source is None else
@@ -652,9 +774,12 @@ def _tag_panel(artist, source=None, steps=(), display_range=None,
         "channel": None if channel is None else str(channel),
         "compare": None if compare is None else str(compare),
     }
+    if sensor_range is not None:
+        record["sensor_range"] = dict(sensor_range)
     if raw is not None:
         try:
-            record["raw_stats"] = _raw_clip_stats(raw, ranges)
+            record["raw_stats"] = _raw_clip_stats(
+                raw, ranges, sensor_ceiling=(sensor_range or {}).get("ceiling"))
             record["raw_dtype"] = str(np.asarray(raw).dtype)
         except Exception:
             record["raw_stats"] = None
@@ -830,6 +955,8 @@ def _panel_record(index, axes_index, axes, artist, fig, dpi):
     record["clipped_high"] = clipped_high
     record["clipped_low"] = clipped_low
     record["sensor_saturated"] = sensor
+    if tag.get("sensor_range") is not None:
+        record["sensor_range"] = dict(tag["sensor_range"])
     record["clip_measured_on"] = ("source" if raw_stats else
                                   "displayed array")
     try:
@@ -915,8 +1042,9 @@ def _range_findings(panels):
 def _saturation_findings(panels):
     """Panels with detector saturation or clipped highlights.
 
-    Warns when more than 0.1 % of source pixels sit at the ceiling their
-    integer type can hold, or more than 5 % are pushed above the top of the
+    Warns when more than 0.1 % of source pixels sit at the validated
+    acquisition ceiling (the storage type limit without metadata), or more
+    than 5 % are pushed above the top of the
     display range. On an untagged colour panel the measurement cannot tell a
     saturated pixel from an annotation colour, so it is a note there.
     """
@@ -924,13 +1052,18 @@ def _saturation_findings(panels):
     for panel in panels:
         sensor = panel.get("sensor_saturated")
         if sensor is not None and sensor > _SENSOR_WARN_FRACTION:
+            sensor_range = panel.get("sensor_range") or {}
+            limit = (f"the acquisition ceiling {sensor_range['ceiling']} declared "
+                     "by OME SignificantBits"
+                     if sensor_range.get("source") == "OME Pixels SignificantBits"
+                     else "the largest value the image type can hold")
             findings.append({
                 "check": "saturation", "severity": "warning",
                 "panels": [panel["panel"]], "fraction": round(sensor, 5),
                 "message": (
                     f"Panel {panel['panel']}: {sensor:.2%} of the source "
-                    f"pixels are at the largest value the image type can "
-                    f"hold. They are saturated at acquisition and no display "
+                    f"pixels are at {limit}. They are saturated at acquisition "
+                    f"and no display "
                     f"setting recovers them."),
             })
         high = panel.get("clipped_high")
@@ -1073,13 +1206,104 @@ def _spacr_version():
         return "unknown"
 
 
-def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None):
+def _prior_figure_findings(panels, destination):
+    """Find exact panel reuse in recent checked exports beside this figure.
+
+    Only closed, small sidecars for existing figures are considered. This is
+    intentionally an exact pixel check: approximate matches across figures
+    need stronger evidence than a single thumbnail to avoid false alarms.
+    """
+    import heapq
+    import json
+    import stat
+
+    destination = os.path.abspath(os.fspath(destination))
+    folder = os.path.dirname(destination)
+    suffix = _PROVENANCE_SUFFIX
+    recent = []
+    try:
+        with os.scandir(folder) as entries:
+            for entry in entries:
+                if not entry.name.endswith(suffix) or entry.path == destination + suffix:
+                    continue
+                try:
+                    info = entry.stat(follow_symlinks=False)
+                except OSError:
+                    continue
+                if not stat.S_ISREG(info.st_mode) or info.st_size > 1024 * 1024:
+                    continue
+                previous_figure = entry.path[:-len(suffix)]
+                try:
+                    figure_info = os.stat(previous_figure, follow_symlinks=False)
+                except OSError:
+                    continue
+                if (not stat.S_ISREG(figure_info.st_mode)
+                        or figure_info.st_mtime_ns > info.st_mtime_ns):
+                    continue
+                item = (info.st_mtime_ns, entry.path, previous_figure)
+                if len(recent) < 64:
+                    heapq.heappush(recent, item)
+                elif item > recent[0]:
+                    heapq.heapreplace(recent, item)
+    except OSError:
+        return []
+    current = {panel["displayed_sha256"]: panel for panel in panels}
+    findings, seen = [], set()
+    for _mtime, sidecar, old_figure in sorted(recent, reverse=True):
+        try:
+            with open(sidecar, "r", encoding="utf-8") as handle:
+                old = json.load(handle)
+            if old.get("schema") != _PROVENANCE_SCHEMA:
+                continue
+            if not any(p.get("displayed_sha256") in current
+                       for p in old.get("panels", [])):
+                continue
+            # A stale sidecar must not report a repeat after its figure was
+            # replaced, even on filesystems with coarse modification times.
+            from .run_journal import hash_file
+            if old.get("figure_sha256") != hash_file(old_figure, full=True):
+                continue
+            for previous in old.get("panels", []):
+                digest = previous.get("displayed_sha256")
+                if digest not in current or digest in seen:
+                    continue
+                panel = current[digest]
+                seen.add(digest)
+                prior_sources = [s.get("path") for s in previous.get("source", [])]
+                sources = [s.get("path") for s in panel.get("source", [])]
+                declared = bool(sources and sources == prior_sources)
+                findings.append({
+                    "check": "cross_figure_duplicate",
+                    "severity": "note" if declared else "warning",
+                    "panels": [panel["panel"]],
+                    "prior_figure": os.path.basename(old_figure),
+                    "prior_panel": previous.get("panel"),
+                    "identical": True,
+                    "message": (
+                        f"Panel {panel['panel']} has identical pixels to panel "
+                        f"{previous.get('panel')} in an earlier export "
+                        f"({os.path.basename(old_figure)}). "
+                        + ("They share a recorded source; explain the reuse in "
+                           "the legend." if declared else
+                           "If this reuse is intentional, explain it in the legend.")),
+                })
+        except (OSError, ValueError, TypeError, AttributeError):
+            continue
+        if len(seen) == len(current):
+            break
+    return findings
+
+
+def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
+                      destination=None):
     """Check ``fig``'s image panels and assemble its provenance.
 
     :param fig: the figure about to be written.
     :param fmt: the format that will be written.
     :param requested_fmt: the format the caller asked for, if different.
     :param dpi: the resolution it will be written at.
+    :param destination: optional output path for checking earlier exports in
+        the same folder for an identical image panel.
     :returns: a JSON-ready report, or ``None`` when the figure holds no
         image panel of at least 16x16 pixels.
     """
@@ -1103,6 +1327,8 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None):
                 + _duplicate_findings(panels, arrays)
                 + _lossy_findings(requested, written, panels)
                 + _resampling_findings(panels))
+    if destination is not None:
+        findings += _prior_figure_findings(panels, destination)
     run = None
     try:
         from .run_journal import current_run
@@ -1130,7 +1356,7 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None):
         "panels": panels,
         "integrity": {
             "checks": ["display_range", "saturation", "duplicate",
-                       "lossy_format", "resampling"],
+                       "lossy_format", "resampling", "cross_figure_duplicate"],
             "warnings": sum(f["severity"] == "warning" for f in findings),
             "notes": sum(f["severity"] == "note" for f in findings),
             "findings": findings,
@@ -6567,12 +6793,13 @@ def plot_image_grid(image_paths, percentiles):
 
             with Image.open(img_path) as opened:
                 raw = np.array(opened)
+                sensor_range = _source_sensor_range(opened, raw)
             stretched, ranges = _percentile_display(raw, percentiles)
             shown = Image.fromarray((stretched * 255).astype(np.uint8))
 
             artist = ax.imshow(shown)
             _tag_panel(artist, source=img_path, display_range=ranges,
-                       raw=raw,
+                       raw=raw, sensor_range=sensor_range,
                        steps=[{"op": "rescale", "ranges": ranges,
                                "percentiles": [float(p) for p in
                                                percentiles]},

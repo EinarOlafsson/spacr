@@ -1283,10 +1283,11 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "scipy.ndimage.binary_dilation(iterations=5) — in 3-D a "
         "distance_transform_edt(sampling=spacing) thresholded at 5 xy pixels — "
         "minus the object, in spacr.measure._outside_intensity",
-        "Only emitted for nucleus, pathogen and organelle objects. The ring is "
-        "NOT masked against neighbouring objects, so for crowded fields it can "
-        "include signal from adjacent cells or pathogens. NaN when the ring is "
-        "empty. The ring width is 5 xy pixels in both 2-D and 3-D: iterated "
+        "Emitted for cells, nuclei, pathogens and organelles. Cell rings exclude "
+        "every foreground cell label, measuring only local background. Other "
+        "object rings retain their historical surroundings, including signal "
+        "from neighbouring objects. NaN when no eligible ring pixels remain. The "
+        "ring width is 5 xy pixels in both 2-D and 3-D: iterated "
         "dilation on a stack would grow the shell dz/dxy times further in z, "
         "so the 3-D ring is built from a sampled distance transform instead.",
     ),
@@ -1297,9 +1298,11 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         _INTENSITY,
         "numpy.percentile over the dilation ring (3-D: the sampled "
         "distance-transform ring) in spacr.measure._outside_intensity",
-        "Emitted for p in 5, 10, 25, 50, 75, 85, 95. Only for nucleus, "
-        "pathogen and organelle objects. The ring is not masked against "
-        "neighbouring objects. Databases written before this spelling spell it "
+        "Emitted for p in 5, 10, 25, 50, 75, 85, 95 for cells, nuclei, "
+        "pathogens and organelles. Cell rings exclude every foreground cell "
+        "label; other object rings include neighbouring objects. NaN when "
+        "no eligible ring pixels remain. Databases written before this spelling "
+        "spell it "
         "outside_{p}_percentile; spacr.utils.rename_columns_in_db renames them "
         "on first read.",
     ),
@@ -2106,9 +2109,8 @@ _LINK_COLUMNS: dict[str, PropertyInfo] = {
 
 #: Every object type a per-object feature can be written for.
 _ALL_OBJECTS = OBJECT_TYPES
-#: The three the periphery / outside / radial blocks are guarded to.
-#: measure.py:1207, :1213 (`if ls[j] in (...)`) and the radial block at
-#: measure.py:1240-1256, which appends to dfs[1], dfs[2] and dfs[3] only.
+#: Object types with periphery/radial measurements and historical surrounds.
+#: Cell outside-ring measurements additionally sample label-zero background.
 _RING_OBJECTS = ("nucleus", "pathogen", *ORGANELLE_ROLES)
 #: Zernike is computed for the four masks `_morphological_measurements`
 #: calls `_calculate_zernike` on — cytoplasm is measured but never gets it.
@@ -2160,9 +2162,8 @@ _ALWAYS_MORPH = _scope(_ALL_OBJECTS, CHANNEL_NONE)
 _ALWAYS_INTENSITY = _scope(_ALL_OBJECTS, CHANNEL_SINGLE)
 _RING_INTENSITY = _scope(
     _RING_OBJECTS, CHANNEL_SINGLE,
-    when="periphery=True / outside=True (the default). Never written for "
-         "cell or cytoplasm — measure.py:1207 and :1213 guard the block with "
-         "`if ls[j] in ('nucleus', 'pathogen', 'organelle')`.")
+    when="periphery=True (the default). Written for nuclei, pathogens and "
+         "organelles, never for cells or cytoplasm.")
 
 #: Scope for every key of :data:`KNOWN_PROPERTIES`, keyed identically —
 #: parameterised keys use the same ``<placeholder>`` template.
@@ -2234,9 +2235,13 @@ _set_scope(
                 "2-D images only."))
 _set_scope(("blur",), _ALWAYS_INTENSITY)
 _set_scope(
-    ("periphery_mean", "periphery_percentile_<p>", "periphery_<p>_percentile",
-     "outside_mean", "outside_percentile_<p>", "outside_<p>_percentile"),
+    ("periphery_mean", "periphery_percentile_<p>", "periphery_<p>_percentile"),
     _RING_INTENSITY)
+_set_scope(
+    ("outside_mean", "outside_percentile_<p>", "outside_<p>_percentile"),
+    _scope(("cell", *_RING_OBJECTS), CHANNEL_SINGLE,
+           when="outside=True. Cell rings contain only label-zero background; "
+                "other object rings retain neighbouring foreground."))
 _set_scope(
     ("rad_dist_channel_<c>_bin_<b>",),
     _scope(_RING_OBJECTS, CHANNEL_SINGLE,

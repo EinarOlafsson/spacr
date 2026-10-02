@@ -203,6 +203,11 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     # Preferences tabs, resource controls, and colour-vision choices.
     "Modules",
     "Logging",
+    "Plugins",
+    # mask_thumbnail_quality.quality_combo translates a loop's label variable.
+    "Low",
+    "Medium",
+    "High",
     "Clear RAM",
     "Clear VRAM",
     "Clear CPU",
@@ -221,6 +226,8 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     "Swap object and background",
     "Outline colour",
     "Upper percentile",
+    # Control Charts translates this _ANOMALY_COLUMNS header via tr(label).
+    "Control percentile",
     # Figure-settings rows. QFormLayout.addRow is intentionally not treated
     # as a generic text call: many panels use its first argument for dynamic
     # data labels, so this reviewed finite set avoids cataloguing data.
@@ -307,6 +314,9 @@ _IDENTITY_TEXT = {
     "EAF1_g1, EAF1_g2", "Huber t", "RdBu_r", "Tensorboard", "dst", "xD",
     "gRNA", "gRNA CSV", "image_path", "metadata_column_map.json",
     "png_list", "png_path", "{report}", "■ {note}",
+    # Convert's assignment placeholder is executable plate/barcode syntax;
+    # translating either identifier would teach a different assignment.
+    "plate1=BC001; plate2=BC002",
     # The plaque scale caption contains only runtime fields and a scientific
     # unit. Translating px/mm would change the displayed calibration unit.
     "{source}: {ppm} px/mm",

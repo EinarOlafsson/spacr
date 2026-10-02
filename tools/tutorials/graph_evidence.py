@@ -1,6 +1,6 @@
 """Independent checks of tutorial chart artists, not the application's renderer."""
-from collections import Counter
 import math
+from collections import Counter
 
 
 def check_points(expected, displayed):
@@ -47,3 +47,54 @@ def check_brush(expected_keys, published_keys, visible_count, handoff_enabled):
     return {'published_object_keys': len(set(published_keys)),
             'visible_selected_rows': visible_count, 'handoff_enabled': False,
             'annotation_handoff_works': False}
+
+
+def check_annotation_recipe(base, annotated, definition):
+    """Check all lesson outputs independently of the application's evaluator."""
+    import pandas as pd
+
+    outputs = ['genotype', 'replicate', 'condition']
+    if (not base.index.equals(annotated.index)
+            or list(annotated.columns) != list(base.columns) + outputs
+            or not base.equals(annotated.loc[:, base.columns])):
+        raise ValueError('Annotation changed source columns, row order or index')
+    columns = definition.get('columns', [])
+    if definition.get('version') != 3 or [c['column'] for c in columns] != outputs:
+        raise ValueError('Expected the ordered three-column recipe')
+    rules = [
+        [('WildType', 'columnID', {'c1', 'c2', 'c3'}),
+         ('mutant', 'columnID', {'c7', 'c4', 'c5', 'c6'})],
+        [('replicate 1', 'rowID', {'r1', 'r4', 'r5', 'r6'}),
+         ('replicate 1', 'rowID', {'r7', 'r9', 'r10'})],
+    ]
+    for column, expected in zip(columns[:2], rules):
+        actual = column.get('conditions', [])
+        if column.get('kind') != 'rules' or len(actual) != len(expected):
+            raise ValueError('Expected separate rule boxes')
+        for rule, (label, metadata, values) in zip(actual, expected):
+            if (rule.get('name') != label or rule.get('metadata_column') != metadata
+                    or rule.get('match_mode') != 'values'
+                    or set(rule.get('include_values', [])) != values
+                    or any(rule.get(key) for key in ('exclude_values', 'manual_rows', 'include', 'exclude'))):
+                raise ValueError('Exact-value rule differs from the lesson')
+    if columns[2] != dict(column='condition', kind='template', parts=[
+            dict(kind='column', column='genotype'), dict(kind='text', text='_'),
+            dict(kind='column', column='replicate')]):
+        raise ValueError('Combination order or separator differs')
+    expected_rows = []
+    for column, row in zip(base.columnID, base.rowID):
+        genotype = ('WildType' if column in {'c1', 'c2', 'c3'} else
+                    'mutant' if column in {'c4', 'c5', 'c6', 'c7'} else None)
+        replicate = 'replicate 1' if row in {'r1', 'r4', 'r5', 'r6', 'r7', 'r9', 'r10'} else None
+        expected_rows.append((genotype, replicate,
+                              f'{genotype}_{replicate}' if genotype and replicate else None))
+    actual_rows = [tuple(None if pd.isna(value) else value for value in row)
+                   for row in annotated[outputs].itertuples(index=False, name=None)]
+    if expected_rows != actual_rows:
+        raise ValueError('Annotation output differs from independent full-row labels')
+    return {'rows_checked': len(base), 'outputs': outputs,
+            'counts': {name: dict(Counter(row[i] for row in expected_rows if row[i] is not None))
+                       for i, name in enumerate(outputs)},
+            'combined_missing_rows': sum(row[2] is None for row in expected_rows),
+            'illustrative_labels_only': True, 'source_columns_unchanged': True,
+            'published': False}

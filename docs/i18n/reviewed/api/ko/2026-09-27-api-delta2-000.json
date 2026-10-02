@@ -1384,7 +1384,9 @@
       "source_sha256": "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
       "context": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation (the factor R's ``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so the residuals agree with the B-score cellHTS2 computes.",
       "translation": "상수: ``MAD_SCALE`` 은 ``1 / Phi^-1(0.75)`` = 1.4826 으로, 정규 표본의 MAD 가 표준 편차를 추정하게 합니다(R 의 ``mad()`` 와 그에 따라 cellHTS2 가 적용하는 계수). ``SSMD_ESTIMATORS`` 는 ``mm``(적률법), ``umvue``(균일 최소 분산 불편) 및 ``robust``(중앙값/MAD, SSMD*)입니다. ``DEFAULT_HIT_THRESHOLDS`` 는 모든 통계량에서 3 입니다. SSMD 3 은 Zhang 이 말하는 \"strong\" 효과이고, 강건 시그마 3 은 강건 z 와 B 점수에 흔히 쓰는 기준입니다. ``MEDIAN_POLISH_MAX_ITER`` 와 ``MEDIAN_POLISH_EPS`` 는 R 의 ``medpolish`` 기본값(10 과 0.01)으로, 잔차가 cellHTS2 가 계산하는 B 점수와 일치하도록 유지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: the B-score constants/convergence overview now states the original cellHTS2 settings. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.sp_stats#6",

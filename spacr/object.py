@@ -1085,6 +1085,23 @@ def _assigned_mask_archives(src, batch_paths):
     return selected
 
 
+def _segmentation_input_channels(channels, extracted_count, model):
+    """Give InstanSeg every selected intensity channel, object channel first.
+
+    Other models retain their existing role-specific channel selection.
+    ``extracted_count`` counts the intensity planes kept in each NPZ stack,
+    before any generated mask planes are appended.
+    """
+    selected = list(channels)
+    if getattr(model, "name", None) != "instanseg" or not selected:
+        return selected
+    first = selected[0]
+    if first < 0 or first >= extracted_count:
+        raise ValueError("InstanSeg object channel is outside the source stack")
+    return [first] + [index for index in range(extracted_count)
+                      if index != first]
+
+
 def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 on_batch_done=None, run_qc=True):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
@@ -1240,6 +1257,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         model = _load_backend(segmentation_backend, z_plan=z_plan,
                               t_plan=t_plan, model_name=model_name,
                               object_type=object_type)
+    channels = _segmentation_input_channels(
+        channels, len(channels_to_extract), model)
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
@@ -1541,7 +1560,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                                           track_by_iou=track_by_iou)
                     if settings.get('timelapse_lineage'):
                         from .timelapse import _run_lineage_step
-                        _run_lineage_step(src, name, object_type, timelapse_mode, settings)
+                        _run_lineage_step(src, name, object_type, timelapse_mode, settings,
+                                          frame_sources=batch_filenames, label_stack=mask_stack)
                     if settings.get('timelapse_events'):
                         from .timelapse import _run_event_features_step
                         _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)
@@ -1822,7 +1842,8 @@ def generate_cellpose_masks(src, settings, object_type):
                                                           track_by_iou=track_by_iou)
                     if settings.get('timelapse_lineage'):
                         from .timelapse import _run_lineage_step
-                        _run_lineage_step(src, name, object_type, timelapse_mode, settings)
+                        _run_lineage_step(src, name, object_type, timelapse_mode, settings,
+                                          frame_sources=batch_filenames, label_stack=mask_stack)
                     if settings.get('timelapse_events'):
                         from .timelapse import _run_event_features_step
                         _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)

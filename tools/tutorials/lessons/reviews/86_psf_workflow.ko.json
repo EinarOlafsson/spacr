@@ -1,0 +1,37 @@
+{
+  "lesson": "86_psf_workflow",
+  "english_sha256": "486874655765fd9afa8dea1a68fd795654b8d909705fdb95230018e32dee4aab",
+  "language": "ko",
+  "review": {
+    "kind": "Codex AI technical translation and independent technical peer review",
+    "translator": "Codex AI, translated directly from the frozen English source",
+    "date": "2026-10-01",
+    "independent_peer_review": true,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Scientific meaning and English video control labels; not native-speaker or listening signoff",
+    "route_rebinding": {
+      "previous_english_sha256": "1b2606bba6a8beb3040c3506eada1a75ea3994c7422875fddac237549881f11d",
+      "reason": "Only app_key changed to null and host_app_key removed; narration and all translated source prose unchanged"
+    },
+    "original_draft_sha256": "3541916a42ede28e6e8ad8bb9d4729de088a5af6dc6d99097471c62d1e6946a8"
+  },
+  "title": "PSF: 처리를 비교하고 측정 강도 선택하기",
+  "description": "PSF 값의 출처 표시를 확인하고, 이미지 처리를 비교하여 적용한 뒤, Measure에서 원본 또는 처리된 강도를 명시적으로 선택합니다.",
+  "objectives": [
+    "대물렌즈, 추론한 이미지 크기, 보정 값의 출처 표시를 확인합니다.",
+    "원본 파일을 바꾸지 않고 처리를 비교한 뒤 원본 이미지로 돌아갑니다.",
+    "정량 측정 전에 강도 출처를 명시적으로 선택합니다."
+  ],
+  "prerequisite": "Make Masks에서 이미지 폴더를 여세요. 정량 처리에는 알고 있는 촬영 보정 값을 사용하세요. 이 튜토리얼은 제공된 Measure 예제에서 잘라낸 이미지와 설명용 광학 값을 사용합니다.",
+  "section": "이미지 분석",
+  "scenes": [
+    "점 확산 함수 컨트롤을 사용하면 이미지 처리를 검출이나 측정에 사용하기 전에 비교할 수 있습니다. Make Masks에서 이미지 폴더를 열고 Settings를 연 다음 Image enhancement를 펼치세요. 촬영에 사용한 대물렌즈를 선택한 뒤 Infer from images를 눌러 이미지에서 얻을 수 있는 정보를 읽으세요.",
+    "PSF optics를 펼치고 각 값 옆의 출처 표시를 확인하세요. 여기서는 설명을 위해 대물렌즈를 선택했습니다. 카메라와 파장의 기본값으로 픽셀 간격과 가우스 폭을 계산합니다. 정량 작업 전에 이러한 가정을 실제 촬영 값으로 바꾸세요. 이미지 크기만으로는 광학 보정 값을 알 수 없습니다.",
+    "Convolution(합성곱)을 선택하고 Compare를 누르세요. 왼쪽은 원본 이미지이고, 오른쪽은 검출기가 사용하는 처리 결과입니다. 가우스 합성곱은 흐림을 더합니다. Richardson–Lucy 역합성곱은 별도의 선택 사항입니다. 적용하기 전에 노이즈와 아티팩트를 확인하세요.",
+    "Apply를 눌러 선택한 처리를 화면 표시와 검출에 사용하세요. 원본 이미지와 기존 객체 라벨은 바뀌지 않습니다. 마스크를 생성하거나 편집하기 전에 결과를 확인하세요.",
+    "Apply를 끄면 원본 이미지로 돌아갑니다. 이 편집기에서 선택한 설정은 정량 측정에 사용할 강도 출처를 정하지 않습니다. Measure에서 별도로 선택하세요.",
+    "Measure를 열고 PSF 설정을 표시하세요. 강도 출처의 기본값은 original이므로 저장된 PSF 처리 설정은 측정 강도를 바꾸지 않습니다. 촬영한 픽셀을 분석에 사용해야 한다면 original을 유지하세요.",
+    "처리된 강도를 측정하려면 processed를 선택하고 연산을 고르세요. 촬영 보정 값에 따라 이미지 샘플링 간격과 커널 폭을 마이크로미터 단위로 입력하세요. 여기에 보이는 숫자는 설명용입니다. 나머지 측정 설정을 검토한 뒤 준비되면 Measure를 실행하세요. 결과와 함께 PSF 처리 이력을 보관하세요. 이 편집기와 Measure의 컨트롤은 알파 기능을 꺼도 사용할 수 있습니다. 일괄 처리용 Mask와 Timelapse의 PSF 컨트롤에는 알파 기능이 필요합니다."
+  ]
+}

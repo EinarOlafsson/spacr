@@ -28,7 +28,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import pytest
 
 from spacr import run_journal
-from spacr.errors import RunLedger
+from spacr.errors import PartialRunError, RunLedger
 
 
 class _FakeSmtp(socketserver.ThreadingTCPServer):
@@ -205,16 +205,17 @@ def _join(threads):
         assert not thread.is_alive()
 
 
-def test_a_finished_run_sends_one_notification_with_its_summary(
+def test_an_incomplete_run_sends_one_failed_notification_with_its_summary(
         monkeypatch, smtp, http, secrets, sent, desktop):
     _configure(monkeypatch, _config(smtp, http, teams=True, webhook=True))
-    with run_journal.open_run("mask", {"src": "/data/plate1"}) as run:
-        ledger = RunLedger("preprocess_generate_masks")
-        for field in range(4):
-            with ledger.item(f"field{field}", stage="mask"):
-                if field == 3:
-                    raise ValueError("unreadable field")
-        ledger.finalize()
+    with pytest.raises(PartialRunError, match="1 of 4 items failed"):
+        with run_journal.open_run("mask", {"src": "/data/plate1"}) as run:
+            ledger = RunLedger("preprocess_generate_masks")
+            for field in range(4):
+                with ledger.item(f"field{field}", stage="mask"):
+                    if field == 3:
+                        raise ValueError("unreadable field")
+            ledger.finalize()
     _join(sent)
 
     assert len(sent) == 1
@@ -223,8 +224,8 @@ def test_a_finished_run_sends_one_notification_with_its_summary(
                                "teams": "sent", "webhook": "sent"}
     assert len(smtp.messages) == 1
     subject, mail = _mail(smtp)
-    assert subject == "spaCR run finished: mask"
-    for expected in ("Outcome: finished", "Duration: ",
+    assert subject == "spaCR run failed: mask"
+    for expected in ("Outcome: failed", "Duration: ",
                      "preprocess_generate_masks: 3 of 4 items processed, "
                      "1 failed", "Output: /data/plate1",
                      f"Run record: {run.dir}"):
@@ -235,16 +236,16 @@ def test_a_finished_run_sends_one_notification_with_its_summary(
     ntfy = [p for p in http.posts if p["path"] == "/spacr-lab-topic-9f3"]
     assert len(slack) == 1 and len(ntfy) == 1
     text = json.loads(slack[0]["body"])["text"]
-    assert text.startswith("*spaCR run finished: mask*")
+    assert text.startswith("*spaCR run failed: mask*")
     assert "3 of 4 items processed, 1 failed" in text
-    assert ntfy[0]["headers"]["Title"] == "spaCR run finished: mask"
-    assert ntfy[0]["headers"]["Priority"] == "default"
+    assert ntfy[0]["headers"]["Title"] == "spaCR run failed: mask"
+    assert ntfy[0]["headers"]["Priority"] == "high"
     assert ntfy[0]["headers"]["Authorization"] == "Bearer tk_secret_token"
-    assert b"Outcome: finished" in ntfy[0]["body"]
+    assert b"Outcome: failed" in ntfy[0]["body"]
     assert len(desktop) == 1
     title, body, failed = desktop[0]
-    assert title == "spaCR run finished: mask" and failed is False
-    assert "Outcome: finished" in body and "Output: /data/plate1" in body
+    assert title == "spaCR run failed: mask" and failed is True
+    assert "Outcome: failed" in body and "Output: /data/plate1" in body
     teams = [p for p in http.posts if p["path"].startswith("/teams?")]
     webhook = [p for p in http.posts if p["path"].startswith("/webhook?")]
     assert len(teams) == 1 and len(webhook) == 1
@@ -263,7 +264,7 @@ def test_a_finished_run_sends_one_notification_with_its_summary(
     assert card["body"][0]["weight"] == "Bolder"
     assert [block["text"] for block in card["body"]] == [title, *body.splitlines()]
     assert json.loads(webhook[0]["body"]) == {
-        "title": title, "body": body, "failed": False}
+        "title": title, "body": body, "failed": True}
     assert webhook[0]["headers"]["Content-Type"] == "application/json"
     assert webhook[0]["headers"]["Authorization"] == "Bearer webhook-bearer-secret"
 

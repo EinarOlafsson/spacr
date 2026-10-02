@@ -1,0 +1,89 @@
+# spaCR user guide translation (ko).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-02 02:41-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure: preview checked images and verify mask planes"
+msgstr "측정: 선택한 이미지 미리보기와 마스크 평면 확인"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "실행 폴더 또는 그 안의 ``merged`` 폴더로 **측정**\\ 을 여세요. **실시간** 보기는 시야를 로드하고 설정된 객체 마스크에서 잘라낸 이미지를 표시합니다. 전체 실험을 측정하기 전에 **이미지 자르기 설정…**\\ 에서 객체, 마스크 평면, 이미지 채널, 잘라내기 크기 및 필터를 선택하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compare objects from several fields"
+msgstr "여러 시야의 객체 비교"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Checked images** and check the fields to include. Each checkbox is independent. The grid combines their crops and names the source field in each group; it does not superimpose fields. Hover a crop for its full source path, label, area and filter result. Double-click a crop to open that exact source, including when another field contains the same label number."
+msgstr "**선택한 이미지**\\ 를 열고 포함할 시야를 선택하세요. 각 체크박스는 독립적입니다. 격자는 선택한 시야의 잘라낸 이미지를 모아 표시하고 각 그룹에 원본 시야 이름을 표시하며, 시야들을 겹쳐 표시하지는 않습니다. 잘라낸 이미지 위에 마우스를 올리면 전체 원본 경로, 레이블, 면적 및 필터 결과를 볼 수 있습니다. 다른 시야에 같은 레이블 번호가 있더라도 잘라낸 이미지를 두 번 클릭하면 해당 원본이 정확히 열립니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection."
+msgstr "시야의 선택을 해제하면 해당 시야의 잘라낸 이미지가 제거됩니다. **모든 이미지 선택 해제**\\ 를 선택하면 격자를 비울 수 있습니다. 채널, 객체 유형 또는 필터를 변경하면 선택된 모든 시야가 새로 고쳐집니다. 시야 드롭다운은 현재 시야만 선택되어 있을 때 일반적인 단일 시야 탐색 방식으로 동작합니다. 여러 시야가 선택되어 있으면 선택 목록을 바꾸지 않고 활성 원본만 변경합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
+msgstr "이미지 목록은 기존의 크기가 제한된 무작위 표본을 사용합니다. 표본이 변경되어도 이미 선택된 시야는 계속 사용할 수 있습니다. **최대 미리보기 크롭 수**\\ 는 전체 격자에 표시할 잘라낸 이미지 수를 제한하고 표시 슬롯을 선택된 시야에 나누어 배정합니다. 선택된 시야가 슬롯보다 많으면 이 값을 늘리세요. 추가 시야는 한 번에 하나씩 읽습니다. 로드에 실패하면 해당 시야 이름이 표시되며 정상적인 시야는 계속 확인할 수 있습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
+msgstr "이미지 선택은 미리보기만 변경합니다. 측정이 처리할 시야를 선택하거나 저장된 측정값 또는 내보내기 결과를 변경하지 않습니다. **설정 복사**\\ 는 기존과 같이 잘라내기 및 필터 설정을 측정 양식으로 복사하는 용도입니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview and export unmixed crops"
+msgstr "스펙트럼 분리된 자르기 이미지 미리보기 및 내보내기"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged."
+msgstr "**알파 기능 표시**\\ 를 활성화한 상태에서 **측정** 양식에 ``unmix=True``\\ 를 설정하고 ``unmix_controls``\\ 를 구성합니다. **스펙트럼 분리 표시**\\ 를 켜면 해당 단일 염색 대조군을 자르기 이미지 미리보기에 사용합니다. 기본 표시는 원시 데이터입니다. 대조군이 잘못되었거나 누락되면 오류가 표시됩니다. 이 전환은 표시만 변경하며 실행 설정, 원본 배열 및 일괄 처리 PNG 출력은 변경하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged."
+msgstr "미리보기가 완료되면 **표시된 자르기 이미지 내보내기…**\\ 를 선택하고 상위 폴더를 고른 다음 새 폴더 이름을 입력합니다. 완료된 미리보기의 자르기 이미지만 표시된 색상과 원시 또는 스펙트럼 분리된 픽셀로 내보냅니다. ``provenance.json``\\ 에는 원본 경로, 객체 식별 정보, 표시 설정 및 스펙트럼 분리 정보가 기록됩니다. 이미 존재하는 폴더는 사용할 수 없습니다. 미리보기를 취소하거나 변경하면 완료되지 않은 내보내기를 폐기하며, 원본 파일과 일괄 처리 출력은 변경하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview reference-well calibration"
+msgstr "기준 웰 보정 미리보기"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings."
+msgstr "**알파 기능 표시**\\ 를 활성화한 상태에서 ``intensity_calibration``\\ 을 켜고 **측정** 양식에서 기준 웰, 카메라 오프셋 및 통계량을 구성합니다. **테스트 모드**\\ 를 끈 다음 **강도 보정 웰** 옆의 **미리보기**\\ 를 선택합니다. 로컬 실행 폴더 또는 그 안의 ``merged`` 폴더를 사용합니다. 미리보기는 현재 설정을 읽기만 하며 **측정**\\ 을 실행하거나 이미지, 측정값 또는 설정을 기록하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop."
+msgstr "각 원본 폴더는 별도로 계획됩니다. 이름순으로 첫 번째 플레이트가 기준입니다. 표에는 각 플레이트와 채널의 곱셈 보정 계수, 기준 통계량 및 기준 현미경 시야 수가 표시됩니다. 설정을 변경하면 결과가 무효화됩니다. **취소**\\ 를 선택하면 미리보기가 폐기되고, 이미 진행 중인 원본 스캔은 안전하게 마무리됩니다. 다시 열 때는 해당 스캔이 끝날 때까지 기다립니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Resolve a stored plane-layout conflict"
+msgstr "저장된 평면 배치 충돌 해결"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A merged folder can include ``.spacr_plane_layout.json``, which records the image channels and mask planes written with its arrays. Measure checks explicit mask-plane settings against this record before using them. ``uninfected=True`` keeps uninfected cells; it does not make an incorrect pathogen mask plane valid."
+msgstr "병합 폴더에는 배열과 함께 기록된 이미지 채널과 마스크 평면을 나타내는 ``.spacr_plane_layout.json``\\ 이 포함될 수 있습니다. 측정는 명시적인 마스크 평면 설정을 사용하기 전에 이 기록과 대조합니다. ``uninfected=True``\\ 는 감염되지 않은 세포를 유지하는 설정이며 잘못된 병원체 마스크 평면을 유효하게 만들지는 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored image layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings."
+msgstr "저장된 양식이 폴더와 일치하지 않으면 **실행**\\ 에서 불일치 내용을 설명합니다. **저장된 이미지 레이아웃을 사용합니다.** 버튼을 선택하여 기록된 평면을 양식에 복사하고 객체 설정을 검토한 뒤 **실행**\\ 을 다시 누르세요. 없는 객체에는 ``None``\\ 을 사용합니다. **취소**\\ 를 선택하면 양식이 바뀌지 않습니다. 배치가 다르거나 알려지지 않은 원본은 각각 맞는 설정으로 별도로 실행해야 합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For Python calls, use the plane indices recorded for the selected merged folder. A conflicting explicit index raises :class:`spacr.crops.PlaneLayoutConflict`. Unspecified defaults can be resolved through :func:`spacr.crops.reconcile_merged_mask_dims`. Do not edit or remove the sidecar to bypass the check: that can make an intensity plane look like an object mask."
+msgstr "Python 호출에서는 선택한 병합 폴더에 기록된 평면 인덱스를 사용하세요. 명시적으로 지정한 인덱스가 충돌하면 :class:`spacr.crops.PlaneLayoutConflict`\\ 가 발생합니다. 지정되지 않은 기본값은 :func:`spacr.crops.reconcile_merged_mask_dims`\\ 로 해결할 수 있습니다. 검사를 우회하려고 사이드카를 수정하거나 제거하지 마세요. 강도 평면을 객체 마스크로 잘못 해석할 수 있습니다."
+
