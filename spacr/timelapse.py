@@ -1708,7 +1708,7 @@ def _event_frame_features(mask_stack, images=None, crop=_EVENT_CROP):
     return features, (np.stack(crops) if crops else None)
 
 
-def _event_track_table(tracks, features=None, radius=30.0):
+def _event_track_table(tracks, features=None, radius=30.0, partners=None):
     """Per-frame inputs of the event detector for one field's tracks.
 
     Joins the tracks with the frame features of
@@ -1723,6 +1723,14 @@ def _event_track_table(tracks, features=None, radius=30.0):
     :param features: optional frame features keyed by ``frame`` and
         ``track_id``.
     :param radius: neighbourhood radius in pixels.
+    :param partners: optional ``{object_type: tracks}`` of other tracked
+        objects in the same field, for events across two object types
+        (parasites leaving or entering a host). For each, the table gains
+        ``<object>_near`` (its objects within ``radius`` pixels in this
+        frame), ``<object>_near_change`` (the change from the previous
+        frame), ``<object>_starts_near`` (its tracks starting within
+        ``radius`` in the next frame) and ``<object>_ends_near`` (its tracks
+        ending within ``radius`` in this frame).
     :returns: the table, sorted by track and frame.
     """
     df = tracks.dropna(subset=['track_id', 'frame', 'x', 'y']).copy()
@@ -1756,7 +1764,40 @@ def _event_track_table(tracks, features=None, radius=30.0):
         end_near.append(int((np.hypot(d['x'] - x, d['y'] - y) <= radius).sum()))
     df['new_tracks_near'] = new_near
     df['ended_tracks_near'] = end_near
+    for name, other in sorted((partners or {}).items()):
+        df = _event_partner_columns(df, other, name, radius)
     return df.reset_index(drop=True)
+
+
+def _event_partner_columns(df, other, name, radius):
+    """Add the neighbourhood counts of another object type's tracks.
+
+    See ``partners`` in :func:`_event_track_table`.
+    """
+    o = other.dropna(subset=['track_id', 'frame', 'x', 'y']).copy()
+    o['frame'] = o['frame'].astype(int)
+    span = o.groupby('track_id')['frame']
+    o_first, o_last = o['frame'].min(), o['frame'].max()
+    starts = o[(o['frame'] == span.transform('min')) & (o['frame'] > o_first)]
+    ends = o[(o['frame'] == span.transform('max')) & (o['frame'] < o_last)]
+    by_frame = {f: g[['x', 'y']].to_numpy(float) for f, g in o.groupby('frame')}
+    s_frame = {f: g[['x', 'y']].to_numpy(float) for f, g in starts.groupby('frame')}
+    e_frame = {f: g[['x', 'y']].to_numpy(float) for f, g in ends.groupby('frame')}
+    empty = np.zeros((0, 2))
+
+    def count(points, x, y):
+        return int((np.hypot(points[:, 0] - x, points[:, 1] - y) <= radius).sum())
+
+    near, born, gone = [], [], []
+    for frame, x, y in zip(df['frame'], df['x'], df['y']):
+        near.append(count(by_frame.get(frame, empty), x, y))
+        born.append(count(s_frame.get(frame + 1, empty), x, y))
+        gone.append(count(e_frame.get(frame, empty), x, y))
+    df[f'{name}_near'] = near
+    df[f'{name}_near_change'] = df[f'{name}_near'].groupby(df['track_id']).diff().fillna(0.0)
+    df[f'{name}_starts_near'] = born
+    df[f'{name}_ends_near'] = gone
+    return df
 
 
 def _event_columns(table):
@@ -1769,6 +1810,9 @@ def _event_columns(table):
              'ended_tracks_near', 'log_area_change', *_EVENT_SHAPE_COLUMNS]
     found = [c for c in fixed if c in table.columns]
     found += sorted(c for c in table.columns if c.startswith('intensity_'))
+    found += sorted(c for c in table.columns if c not in found and c.endswith(
+        ('_near', '_near_change', '_starts_near', '_ends_near'))
+        and c not in ('new_tracks_near', 'ended_tracks_near'))
     return found
 
 
@@ -2114,12 +2158,14 @@ def _event_fields(tracks_dir, object_type, prefix):
     return found
 
 
-def _event_field_inputs(tracks_path, radius):
+def _event_field_inputs(tracks_path, radius, partners=None):
     """The detector's track table and crops of one field.
 
     Reads ``events/<stem>_features.csv`` and ``events/<stem>_crops.npz``
     beside the tracks table when the tracking step wrote them.
 
+    :param partners: optional ``{object_type: tracks path}`` of the other
+        objects tracked in this field (see :func:`_event_track_table`).
     :returns: ``(table, crops)``; ``crops`` maps ``(frame, track_id)`` to
         the crop, or is None.
     """
@@ -2135,7 +2181,9 @@ def _event_field_inputs(tracks_path, radius):
         with np.load(base + '_crops.npz') as store:
             crops = {(int(f), int(t)): c for (f, t), c in
                      zip(store['index'], store['crops'])}
-    return _event_track_table(tracks, features, radius=radius), crops
+    others = {k: read_table(v, report=None) for k, v in (partners or {}).items()}
+    return _event_track_table(tracks, features, radius=radius,
+                              partners=others or None), crops
 
 
 def _event_fit(tables, annotations, *, window=9, epochs=25, seed=0):
@@ -2358,7 +2406,8 @@ def _event_timing(tables, events, conditions=None):
 
 def _event_detection(tracks_dir, object_type, prefix, *, annotations=None,
                      model_path=None, window=9, threshold=0.5, tolerance=2,
-                     conditions=None, max_distance=30.0, epochs=25, plot=True):
+                     conditions=None, max_distance=30.0, epochs=25, plot=True,
+                     partners=()):
     """Detect events on every tracked field of a run and write the results.
 
     With ``annotations``, the detector is scored by cross-validation on the
@@ -2375,6 +2424,9 @@ def _event_detection(tracks_dir, object_type, prefix, *, annotations=None,
     :param tracks_dir: the run's ``tracks`` folder.
     :param object_type: the tracked object.
     :param prefix: the tracker's file prefix.
+    :param partners: other tracked object types read together with this
+        one, field by field, so events across two object types (a parasite
+        egressing from or invading a host) can be learned.
     :returns: dict with ``scores`` (or None), ``events`` and ``paths``.
     :raises ValueError: neither annotations nor a model.
     """
@@ -2387,7 +2439,9 @@ def _event_detection(tracks_dir, object_type, prefix, *, annotations=None,
     fields = _event_fields(tracks_dir, object_type, prefix)
     if not fields:
         raise ValueError(f"No {prefix} tracks of {object_type} in {tracks_dir}.")
-    inputs = {f: _event_field_inputs(p, max_distance) for f, p in fields.items()}
+    other = {k: _event_fields(tracks_dir, k, prefix) for k in partners if k != object_type}
+    inputs = {f: _event_field_inputs(p, max_distance, {
+        k: v[f] for k, v in other.items() if f in v}) for f, p in fields.items()}
     paths, scores = {}, None
     if annotations is not None:
         ann = _event_read_annotations(annotations) if isinstance(annotations, str) else annotations
@@ -2474,7 +2528,8 @@ def _run_event_detection_step(src, settings):
     """Detect events on the tracks of a finished timelapse run.
 
     Runs :func:`_event_detection` for every object in ``timelapse_objects``
-    with the ``timelapse_events_*`` settings. A failure is reported and does
+    with the ``timelapse_events_*`` settings, reading the other tracked
+    objects of each field together with it. A failure is reported and does
     not stop the run.
 
     :param src: the run's source folder, holding ``tracks``.
@@ -2484,7 +2539,8 @@ def _run_event_detection_step(src, settings):
     prefix = 'trackpy' if mode == 'iou' else mode
     tracks_dir = os.path.join(src, 'tracks')
     results = {}
-    for object_type in settings.get('timelapse_objects') or ['cell']:
+    objects = list(settings.get('timelapse_objects') or ['cell'])
+    for object_type in objects:
         try:
             result = _event_detection(
                 tracks_dir, object_type, prefix,
@@ -2494,7 +2550,8 @@ def _run_event_detection_step(src, settings):
                 threshold=float(settings.get('timelapse_events_threshold') or 0.5),
                 conditions=settings.get('timelapse_events_conditions') or None,
                 max_distance=float(settings.get('timelapse_lineage_max_distance') or 30.0),
-                plot=bool(settings.get('save', True) or settings.get('plot', False)))
+                plot=bool(settings.get('save', True) or settings.get('plot', False)),
+                partners=[o for o in objects if o != object_type])
         except Exception as exc:
             print(f"Event detection ({object_type}) failed: {exc}")
             continue

@@ -230,3 +230,73 @@ def test_a_death_is_called_once_per_track_and_mitoses_may_repeat():
     assert found[found['event'] == 'mitosis']['frame'].tolist() == [3, 10]
     assert found[found['event'] == 'host_death']['frame'].tolist() == [9]
     assert tl._event_is_terminal('Lysis') and not tl._event_is_terminal('egress')
+
+
+def _two_object_field(seed, n_frames=30):
+    """Host and parasite tracks with annotated egress and invasion on hosts.
+
+    Egress: a host holding four parasites ends and its parasites scatter.
+    Invasion: an outside parasite glides into a host and stays. Decoys: a
+    parasite gliding past a host, and a host ending with no parasites.
+    """
+    rng = np.random.default_rng(seed)
+    hosts, parasites, ann = [], [], []
+    pid = iter(range(1, 1000))
+    for h, kind in enumerate(['egress', 'invasion', 'passer', 'empty', 'plain', 'egress']):
+        hx, hy = 60.0 + 120 * h, 60.0
+        event = int(rng.integers(10, n_frames - 8))
+        end = event if kind in ('egress', 'empty') else n_frames - 1
+        for t in range(end + 1):
+            hosts.append({'frame': t, 'track_id': h + 1, 'x': hx + rng.normal(0, 0.5),
+                          'y': hy + rng.normal(0, 0.5)})
+        if kind == 'egress':
+            ann.append({'track_id': h + 1, 'frame': event, 'event': 'egress'})
+            for k in range(4):
+                tid, ang = next(pid), k * np.pi / 2 + rng.uniform(0, 0.5)
+                for t in range(n_frames):
+                    r = 4.0 if t <= event else min(4.0 + 12 * (t - event), 50.0)
+                    parasites.append({'frame': t, 'track_id': tid,
+                                      'x': hx + r * np.cos(ang), 'y': hy + r * np.sin(ang)})
+        if kind in ('invasion', 'passer'):
+            tid = next(pid)
+            for t in range(n_frames):
+                d = float(np.clip(12.0 * (event - t), -50, 50))
+                if kind == 'invasion':
+                    d = max(d, 3.0)
+                parasites.append({'frame': t, 'track_id': tid, 'x': hx + d, 'y': hy + 2.0})
+            if kind == 'invasion':
+                ann.append({'track_id': h + 1, 'frame': event, 'event': 'invasion'})
+    return pd.DataFrame(hosts), pd.DataFrame(parasites), pd.DataFrame(ann)
+
+
+def test_partner_columns_count_parasites_near_each_host():
+    hosts, parasites, _ = _two_object_field(3)
+    table = tl._event_track_table(hosts, partners={'parasite': parasites})
+    cols = tl._event_columns(table)
+    assert {'parasite_near', 'parasite_near_change', 'parasite_starts_near',
+            'parasite_ends_near'} <= set(cols)
+    assert table.loc[table['track_id'] == 1, 'parasite_near'].iloc[0] == 4
+    invaded = table.loc[table['track_id'] == 2, 'parasite_near']
+    assert invaded.iloc[0] == 0 and invaded.iloc[-1] == 1
+
+
+@pytest.mark.heavy
+def test_egress_and_invasion_are_read_from_host_and_parasite_tracks(tmp_path):
+    tracks = tmp_path / 'tracks'
+    os.makedirs(tracks)
+    anns = []
+    for k in range(4):
+        name = f'plate1_r1_c1_f{k + 1}'
+        hosts, parasites, ann = _two_object_field(300 + k)
+        hosts.to_csv(tracks / f'trackpy_tracks_host_{name}.csv', index=False)
+        parasites.to_csv(tracks / f'trackpy_tracks_parasite_{name}.csv', index=False)
+        anns.append(ann.assign(field=name))
+    pd.concat(anns).to_csv(tmp_path / 'annotations.csv', index=False)
+    result = tl._event_detection(str(tracks), 'host', 'trackpy',
+                                 annotations=str(tmp_path / 'annotations.csv'),
+                                 epochs=20, plot=False, partners=['parasite', 'host'])
+    scores = result['scores'].set_index('event')
+    assert {'egress', 'invasion'} <= set(scores.index)
+    assert scores.loc['all', 'precision'] >= 0.8
+    assert scores.loc['all', 'recall'] >= 0.8
+    assert scores.loc['all', 'mean_abs_timing_error'] <= 1.0

@@ -75,8 +75,6 @@ WHAT IS LEFT
     - Real data (2026-09-30, below): mitosis on two CTC datasets and host
       death on published LNCaP movies. Still no annotated Toxoplasma
       egress/invasion movie; death timing is good to hours, not frames.
-    - Egress and invasion were not simulated; they need parasite and host
-      tracks read together (events across two object types).
     - No own-env backend and no GPU training; the network is small enough
       for the CPU. A larger pretrained video model would need an isolated
       env via _segmentation_backends.
@@ -139,4 +137,16 @@ shared machine; no GPU turn; scripts in /mnt/wd4tb/scratch/571/scripts)
     good to hours, not frames, and should be read as a population estimate.
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
-    BLOCKED / open: annotated Toxoplasma egress/invasion movie (external data); pretrained video model (GPU, own env). OPEN code over 1 h: two-object-type events, GUI annotation tool.
+    BLOCKED / open: annotated Toxoplasma egress/invasion movie (external data); pretrained video model (GPU, own env). OPEN code over 1 h: GUI annotation tool. (Two-object-type events done 2026-10-02.)
+
+2026-10-02 -- Events across two object types (CPU, alpha, no new settings)
+    _event_detection(partners=...) reads the other tracked objects of each
+    field with the one being classified; the run step passes every other
+    object in timelapse_objects. _event_partner_columns adds per partner
+    type <object>_near, _near_change, _starts_near and _ends_near (within
+    the lineage radius), which _event_columns feeds to the network.
+    Tests (tests/test_event_detection_on_tracks.py): simulated host +
+    parasite movies, 4 fields, egress (host ends, its parasites scatter),
+    invasion (a parasite glides in and stays), decoys (a passing parasite,
+    a host ending empty); held-out P and R >= 0.8, timing error <= 1 frame.
+    Still left: a real annotated Toxoplasma egress/invasion movie.
