@@ -90,3 +90,28 @@ REAL-DATA VALIDATION 2026-09-30 (CPU; no code change)
     6-8 % median per field (not the 2 % of the synthetic check). A
     resolution change between sessions is the main limit. Still left: a
     bead-plate check (no public bead plate imaged twice was found).
+
+2026-10-02 — READ-ONLY ALPHA GAIN PREVIEW IMPLEMENTED; ITEM REMAINS PARTIAL
+Measure's existing reference-well row now offers a compact Preview action. Its worker uses
+exactly the production calibration planner on copied settings, including uint16
+working rescaling, mask-plane exclusion, camera offset, saved QC exclusions and
+separate plans for multiple source folders. The table shows source, plate,
+reference plate, channel, gain, reference statistic and reference-field count.
+Test mode and remote sources are refused rather than creating staging folders.
+No images, measurements, settings or journals are written. Invalid drafts are
+preserved; changing settings invalidates results. Cancel discards results and
+closing safely parks work still finishing, without starting overlapping scans.
+
+Validation: 14 new checks plus 19 existing calibration checks pass. The real
+Preview button opens the real modal and runs its worker in both themes;
+inspected offscreen captures show the known synthetic plate2 gain 0.5, with
+source bytes and collected settings unchanged. CPU0/4GiB/zero-swap limits were
+verified. The button retains the editor's original minimum width and value
+reader. Receipt: features/data/580_gain_preview_2026-10-02.json.
+
+The retained 2026-09-30 JUMP receipt bounds per-channel median absolute error
+below 10%: held-out DMSO 2.79–7.82%, compounds 5.92–7.56%. These are historical
+results, not a fresh rerun. Binning changed and exposure metadata are absent;
+individual fields and p90 exceed that median bound. A known-exposure paired
+acquisition is still unproven, so this GUI addition does not close F580. The
+runtime captions await the coordinated nine-language source-bound refresh.

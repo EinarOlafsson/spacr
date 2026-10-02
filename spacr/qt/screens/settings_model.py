@@ -9310,6 +9310,7 @@ class SettingsWidgets:
                     if owner is not None:
                         widget.setParent(owner)
                     self._add_source_actions(key, widget)
+                    self._add_calibration_preview_action(key, widget)
                     attach_api_tooltip(widget, self.app_key, key,
                                        _descriptions=self._tooltips)
                     self._widgets.settle(key, widget)
@@ -9803,11 +9804,19 @@ class SettingsWidgets:
             self._add_source_actions(key, widget)
         else:
             return None
+        self._add_calibration_preview_action(key, widget)
         owner = getattr(self, "_unmounted_control_owner", self._parent)
         if (widget is not None and owner is not None
                 and widget.parent() in (None, self._parent)):
             widget.setParent(owner)
         return widget
+
+    def _add_calibration_preview_action(self, key, widget):
+        """Keep the read-only preview inside the existing alpha-gated row."""
+        if self.app_key != "measure" or key != "intensity_calibration_wells":
+            return
+        from ..widgets.calibration_preview import _attach_preview
+        _attach_preview(widget, self)
 
     def _add_source_actions(self, key: str, widget: QWidget) -> None:
         """Give the ``src`` field of Make Masks and Measure a cloud browser.
