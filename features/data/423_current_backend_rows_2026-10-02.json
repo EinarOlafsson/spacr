@@ -1,0 +1,19 @@
+{
+  "item": "F423",
+  "date": "2026-10-02",
+  "claim": "Current Linux source retains complete installable Model Zoo rows and isolated adapters; historical real installs are documented in the item file and the F404/F405 records. This verification does not claim Windows/macOS installs or spaCR model scorecards.",
+  "validation": {
+    "command": "tools/run_capped.sh 2G taskset -c 0 env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 QT_QPA_PLATFORM=offscreen /home/carruthers/anaconda3/envs/spacr/bin/python -m pytest -q tests/test_the_zoo_lists_every_backend_and_cellpose3_model.py tests/test_each_segmentation_backend_drives_its_own_package.py tests/qt/test_a_backend_installs_into_its_own_environment.py",
+    "result": "89 passed in 13.81s",
+    "memory_cap": "2G",
+    "gpu": "hidden"
+  },
+  "source_sha256": {
+    "spacr/_segmentation_backends.py": "ad48f860eaa9e9632bebb2433ce007aedc4c1dd5fc29caba9352491498183fee",
+    "spacr/model_zoo.py": "47db3202e77f77409b297041212b5f293c2f9b9ea3a7e0c2165bcee6b4097e50",
+    "spacr/qt/widgets/model_zoo_picker.py": "b1a7c41c2aadc19ae025aeb25a3ca4ff07cdfe3701c8341854043916234ec93d",
+    "tests/test_the_zoo_lists_every_backend_and_cellpose3_model.py": "9414cbf4e34a3a785d576a6abcd85dab74f8792615f02a91c959cfc956594f37",
+    "tests/test_each_segmentation_backend_drives_its_own_package.py": "4e09b7a7f4cf7ef9b49699d286d736dbac7e2d72ec9d2609bcb1c4235d0b3226",
+    "tests/qt/test_a_backend_installs_into_its_own_environment.py": "388bbbd447b02bf44167465f761c61b8667919f769f7c41c75d6d6651d147f45"
+  }
+}

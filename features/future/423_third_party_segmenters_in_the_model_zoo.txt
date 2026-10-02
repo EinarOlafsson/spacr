@@ -33,6 +33,11 @@ Status:    DONE 2026-09-21 on Linux. The last cells are filled: each
            below). Windows/macOS installs and spaCR's own comparative
            scorecards remain open; project-published scores are not those
            comparisons.
+           Current-source verification on 2026-10-02: 89 focused backend,
+           Model Zoo and installer-dialog checks pass. This item's Linux
+           installable rows and isolated adapters are complete; the separate
+           cross-platform installer and spaCR scorecard items remain open.
+           Receipt: data/423_current_backend_rows_2026-10-02.json.
            (Was: PARTLY BUILT, ~60%, corrected 2026-09-19 -- listing and a
            pip install into spaCR's own environment on the GUI thread.)
 
