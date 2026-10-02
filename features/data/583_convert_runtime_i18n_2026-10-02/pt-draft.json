@@ -1,0 +1,14 @@
+{
+  "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.": "Atribua um código de barras a cada placa de saída mostrada na pré-visualização, por exemplo plate1=BC001; plate2=BC002. Os nomes das placas de saída podem ser diferentes dos nomes das pastas de origem.",
+  "Barcode column": "Coluna do código de barras",
+  "CSV files (*.csv)": "Arquivos CSV (*.csv)",
+  "Choose CSV…": "Escolher CSV…",
+  "Column name in the CSV that contains the plate barcode.": "Nome da coluna do CSV que contém o código de barras da placa.",
+  "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.": "CSV local opcional com metadados das amostras. Deixe o campo vazio para ignorar a vinculação por código de barras. Uma nova pasta plate_barcode_linkage é criada no destino; os arquivos de origem e os mapas de placa existentes são preservados.",
+  "Output plate barcodes": "Códigos de barras das placas de saída",
+  "Plate barcode linkage (Alpha)": "Vinculação de placas por código de barras (Alpha)",
+  "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}": "Vinculação de placas por código de barras: {wells} poço(s), {mismatches} divergência(s).\nMapa de placa: {map_path}\nDivergências: {mismatch_path}",
+  "Sample records CSV": "CSV de registros de amostras",
+  "Select sample records CSV": "Selecionar CSV de registros de amostras",
+  "Showing {shown} of {total} mismatches; the CSV contains all rows.": "Mostrando {shown} de {total} divergências; o CSV contém todas as linhas."
+}

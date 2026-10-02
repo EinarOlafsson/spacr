@@ -171,8 +171,10 @@ def _build_barcode_controls(screen, outer):
     screen._barcode_assignments = QLineEdit(panel)
     screen._barcode_assignments.setPlaceholderText('plate1=BC001; plate2=BC002')
     screen._barcode_assignments.setToolTip(tr(
-        "Assign every output plate shown in the preview, for example "
-        "plate1=BC001; plate2=BC002. Output plate names can differ from source folder names."))
+        "Barcodes can be read from barcode.txt at the source root or in a source plate folder. "
+        "Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. "
+        "Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. "
+        "Output plate names can differ from source folder names."))
     screen._barcode_column = QLineEdit('barcode', panel)
     screen._barcode_column.setMaximumWidth(180)
     screen._barcode_column.setToolTip(tr(

@@ -1,0 +1,14 @@
+{
+  "Barcode column": "Barcode-Spalte",
+  "CSV files (*.csv)": "CSV-Dateien (*.csv)",
+  "Choose CSV…": "CSV auswählen…",
+  "Column name in the CSV that contains the plate barcode.": "Name der CSV-Spalte, die den Barcode der Platte enthält.",
+  "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.": "Optionale lokale CSV-Datei mit Probenmetadaten. Lassen Sie das Feld leer, um die Barcode-Verknüpfung zu überspringen. Im Ziel wird ein neuer Ordner plate_barcode_linkage erstellt; Quelldateien und vorhandene Plattenbelegungspläne bleiben erhalten.",
+  "Output plate barcodes": "Barcodes der Ausgabeplatten",
+  "Plate barcode linkage (Alpha)": "Plattenverknüpfung über Barcodes (Alpha)",
+  "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}": "Plattenverknüpfung über Barcodes: Anzahl Wells {wells}, Anzahl Abweichungen {mismatches}.\nPlattenbelegungsplan: {map_path}\nAbweichungen: {mismatch_path}",
+  "Sample records CSV": "CSV mit Probendaten",
+  "Select sample records CSV": "CSV mit Probendaten auswählen",
+  "Showing {shown} of {total} mismatches; the CSV contains all rows.": "{shown} von {total} Abweichungen werden angezeigt; die CSV-Datei enthält alle Zeilen.",
+  "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.": "Barcodes können aus barcode.txt im Quellstammverzeichnis oder in einem Quellplattenordner gelesen werden. Verwenden Sie für eine Quellplatte den reinen Barcode und für mehrere Quellplatten Einträge der Form source_plate=barcode. Ergänzen Sie hier die Barcodes für verbleibende Ausgabeplatten, zum Beispiel plate1=BC001; plate2=BC002. Namen der Ausgabeplatten können von den Namen der Quellordner abweichen."
+}

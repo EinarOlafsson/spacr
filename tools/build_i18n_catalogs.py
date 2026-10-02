@@ -312,6 +312,9 @@ _IDENTITY_TEXT = {
     "EAF1_g1, EAF1_g2", "Huber t", "RdBu_r", "Tensorboard", "dst", "xD",
     "gRNA", "gRNA CSV", "image_path", "metadata_column_map.json",
     "png_list", "png_path", "{report}", "■ {note}",
+    # Convert's assignment placeholder is executable plate/barcode syntax;
+    # translating either identifier would teach a different assignment.
+    "plate1=BC001; plate2=BC002",
     # The plaque scale caption contains only runtime fields and a scientific
     # unit. Translating px/mm would change the displayed calibration unit.
     "{source}: {ppm} px/mm",
