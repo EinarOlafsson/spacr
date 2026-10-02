@@ -1,7 +1,8 @@
 AN OFFLINE / AIR-GAPPED INSTALLER
 
-Status: PARTIAL / ALPHA. Linux offline acceptance was recorded 2026-09-27;
-backend/model packaging and cross-platform acceptance remain below. Packaging
+Status: IMPLEMENTED / ALPHA. The literal DONE WHEN is freshly verified on
+Linux CPU with networking disabled (2026-10-02). Additional backend/model
+packaging and cross-platform acceptance remain separately listed below. Packaging
 only: no GUI, settings or app entry, so there is nothing for the alpha gate to
 hide; the bundle is not linked from README downloads and is labelled alpha in
 packaging/README.md.
@@ -87,3 +88,46 @@ ACCEPTANCE CHECK REPAIR (2026-10-02, partial)
     historical evidence; this follow-up does not claim a new air-gapped run.
     F587 remains partial/alpha for the listed backend and platform requirements.
     Receipt: features/data/587_mask_acceptance_guard_2026-10-02.json.
+
+FRESH LINUX OFFLINE ACCEPTANCE (2026-10-02)
+    Built a new spaCR 1.5.1.1 Linux CPU bundle from pinned source f9e7fd81d:
+    168 wheels, checksum-verified uv 0.11.32, CPython 3.12.13, cpsam, and one
+    complete unmodified four-channel field from the cached example plate.
+    Build and private installation exited 0. Installation and real Mask each
+    ran inside unshare -rn, with only loopback in the network namespace.
+    Stages used CPU0, 4 GiB memory and zero swap; no GPU was used.
+
+    Real Mask exited 0 after 6131.5 seconds (6139.0 seconds for the surrounding
+    check). Normal keep_intermediate=False cleanup removed stack/, masks/ and
+    orig/ after writing merged/plate1_E01_1_1.npy. The retained layout sidecar
+    explicitly binds cell/nucleus/pathogen to planes 4/5/6 after four intensity
+    planes. Independent validation read the genuine 1994 x 1994 x 7 uint16
+    array and found positive label counts: cell=43, nucleus=49, pathogen=71.
+    All three mask planes are nonnegative integer labels with nonzero pixels;
+    plane pixel hashes and the complete array hash are retained in the receipt.
+    Input TIFF, settings and model hashes agree across source, bundle and
+    installed copies. Original cached and installed input data stay unchanged.
+
+    The original loaded checker exited 1 despite the actual Mask child exiting
+    0: its root-only mask glob missed nested intermediate roles, and those roles
+    are normally deleted after merging. The checker now accepts explicit nested
+    role stacks or validates retained embedded masks against the producer's
+    version1 layout. It rejects missing/malformed layouts, overlapping or
+    inconsistent plane indices, truncated arrays, and fractional, negative or
+    nonfinite labels. Metadata reads and label checks are bounded; stale copied
+    outputs and nonzero child exits still fail. Thirty checker/packaging cases
+    passed in 0.67 seconds under 1 GiB after a caught syntax error was corrected.
+
+    The actual corrected helper and final return expression were evaluated on
+    the retained real output and actual child exit: corrected verdict 0, three
+    valid embedded planes. This is explicitly not a second inference run or a
+    rewritten original checker exit. Model execution peaked at 3,866,902,528
+    bytes with zero OOM/max events; final array/hash validation used 1 GiB.
+
+    Bundle, private install and outputs remain at
+    /media/carruthers/mnt3/spacr-offline-f587-20261002. HOME was not reassigned;
+    the CLI also created its normal journal under ~/.spacr/runs, explicitly
+    recorded in the receipt. No bundle was published. The literal Linux offline
+    DONE WHEN is now met; additional backend/platform extensions above are
+    not represented as validated.
+    Receipt: features/data/587_linux_offline_acceptance_2026-10-02.json.
