@@ -26,6 +26,61 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
 
 LOG = logging.getLogger("spacr.qt.save_figure")
 
+# A notice outlives the save dialog, including a parentless dialog used via
+# exec(). Release it when closed or when its owning window is destroyed.
+_integrity_notices = set()
+
+
+def _show_integrity_notice(parent, report, chosen: str, sidecar):
+    """Present saved-output findings without a modal wait or another write."""
+    from pathlib import Path
+
+    from PySide6.QtCore import Qt, QUrl
+    from PySide6.QtGui import QDesktopServices
+    from PySide6.QtWidgets import QPlainTextEdit
+
+    from ..i18n import tr
+
+    warnings = [finding["message"]
+                for finding in report.get("integrity", {}).get("findings", [])
+                if finding.get("severity") == "warning"]
+    if not warnings and sidecar:
+        return None
+    notice = QDialog(parent)
+    notice.setObjectName("FigureIntegrityNotice")
+    notice.setWindowTitle(tr("Figure integrity"))
+    notice.setWindowModality(Qt.WindowModality.NonModal)
+    notice.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+    layout = QVBoxLayout(notice)
+    summary = QLabel(tr("Figure saved. Review these warnings before sharing it."))
+    summary.setWordWrap(True)
+    layout.addWidget(summary)
+    details = QPlainTextEdit()
+    details.setObjectName("FigureIntegrityFindings")
+    details.setReadOnly(True)
+    paths = [tr("Saved figure: {path}").format(path=str(Path(chosen).resolve()))]
+    if sidecar:
+        paths.append(tr("Provenance: {path}").format(path=str(Path(sidecar).resolve())))
+    else:
+        warnings.append(tr(
+            "The provenance sidecar could not be written. "
+            "Check folder permissions and save again."))
+    details.setPlainText("\n".join(paths) + "\n\n" + "\n\n".join(warnings))
+    layout.addWidget(details)
+    buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+    folder = buttons.addButton(tr("Open output folder"), QDialogButtonBox.ButtonRole.ActionRole)
+    folder.setObjectName("FigureIntegrityOpenFolder")
+    destination = QUrl.fromLocalFile(str(Path(chosen).resolve().parent))
+    folder.clicked.connect(lambda: QDesktopServices.openUrl(destination))
+    buttons.rejected.connect(notice.reject)
+    layout.addWidget(buttons)
+    notice.resize(660, 380)
+    _integrity_notices.add(notice)
+    notice.finished.connect(lambda _result: _integrity_notices.discard(notice))
+    notice.destroyed.connect(lambda: _integrity_notices.discard(notice))
+    notice.show()
+    return notice
+
 #: Why the page size is not editable here for a pyqtgraph plot.
 _SIZE_REASON = ("set on the plot's right-click menu, under Canvas: it is one "
                 "page size, read by every export this plot makes")
@@ -917,14 +972,20 @@ class SaveFigureDialog(QDialog):
             LOG.debug("could not save the figure", exc_info=True)
             self._say(f"{SAVE_FAILED} {self._why(exc)}")
             return ""
+        sidecar = None
         if report is not None:
             try:
                 from ...plot import _finish_integrity
 
-                _finish_integrity(report, chosen)
+                sidecar = _finish_integrity(report, chosen)
             except Exception:
                 LOG.debug("could not write the provenance", exc_info=True)
         self.accept()
+        if report is not None:
+            try:
+                _show_integrity_notice(self.parentWidget(), report, chosen, sidecar)
+            except Exception:
+                LOG.debug("could not present figure integrity findings", exc_info=True)
         return chosen
 
     def _integrity_stamp(self, figure, chosen: str, suffix: str):

@@ -176,3 +176,23 @@ under a 2 GiB hard cap, one CPU, zero swap and offscreen Qt. Receipt:
 features/data/572_cross_figure_exact_reuse_2026-10-02.json.
 This is partial: approximate or region reuse across figures, untraced
 panels, splice detection and GUI warning presentation remain open.
+
+2026-10-02 — MODELESS WARNINGS AFTER SAVING A FIGURE (partial)
+The Matplotlib Save figure dialog now presents existing warning findings in
+a separate modeless notice after the figure has been written. It identifies
+the saved file and successful provenance sidecar, retains the backend's panel
+IDs and corrective advice, and offers Open output folder and Close. Closing
+the notice does not alter the exported bytes. Clean, disabled and non-image
+exports stay quiet; a failed provenance write is reported explicitly while
+the successful figure remains saved. The notice survives a parentless Save
+dialog closing, and a presentation failure cannot change a successful save.
+
+Validation: 38 focused checks passed, including 11 new real-write/notice
+cases, existing detector/alpha/save guards, lossless and JPEG exports, source
+figure preservation, cancellation, failed writes, sidecar failure and notice
+lifetime. Actual Save-button captures in dark/light offscreen Qt show readable
+findings and actions. Existing public prose/signatures and plot.py are unchanged.
+Receipt: features/data/572_gui_warning_2026-10-02.json. The six new UI captions
+are handed off for a separate reviewed nine-locale catalog delta. F572 stays
+partial; this does not establish broader tracing, splice or region-reuse
+acceptance.
