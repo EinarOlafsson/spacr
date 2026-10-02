@@ -423,10 +423,15 @@ def test_scopes_name_only_real_object_types_and_channel_arities():
 
 def test_the_ring_features_are_scoped_to_the_three_objects_that_have_them():
     from spacr.object_roles import ORGANELLE_ROLES
-    for key in ("periphery_mean", "outside_mean", "periphery_percentile_<p>",
-                "outside_percentile_<p>", "rad_dist_channel_<c>_bin_<b>"):
+    for key in ("periphery_mean", "periphery_percentile_<p>",
+                "rad_dist_channel_<c>_bin_<b>"):
         assert scope_for(key).objects == (
             "nucleus", "pathogen", *ORGANELLE_ROLES)
+    # 2026-10-02 (item 43): since 8865e0eb6 the cell has an outside ring
+    # too -- its foreground-free background for bleaching correction.
+    for key in ("outside_mean", "outside_percentile_<p>"):
+        assert scope_for(key).objects == (
+            "cell", "nucleus", "pathogen", *ORGANELLE_ROLES)
 
 
 def test_the_correlation_features_are_the_only_channel_pair_ones():

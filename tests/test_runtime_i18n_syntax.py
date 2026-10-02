@@ -137,7 +137,11 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     # 780 -> 778 on 2026-10-01: the Make Masks re-layout rewrote two
     # FEATURES workflow-map phrases; their records were retired in place
     # (2026-09-23-workflow-map-phrases.json, 208 -> 206 records).
-    assert len(additions) == report["later_distinct_additions"] == 778
+    # 778 -> 776 on 2026-10-02 (item 43): 603423d0a retired one more record
+    # in place in each of 2026-09-23-pipeline-workflow-phrases.json (8 -> 7)
+    # and 2026-09-23-workflow-map-phrases.json (206 -> 205); the receipt's
+    # hashes and counts were rebound to those files.
+    assert len(additions) == report["later_distinct_additions"] == 776
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
     for filename, record_count, source_count in (
@@ -307,7 +311,9 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # 139 -> 136 (hi 174 -> 171) on 2026-09-29: items 591-597 renamed the
     # Event Detection, GPU Measurement and Segmentation Robustness categories
     # to their "α" captions, so those three records were deleted (key gone).
-    assert len(seventh) == len(latest7) == (171 if language == "hi" else 136)
+    # 136 -> 133 (hi 171 -> 168) on 2026-10-02 (item 43): 603423d0a moved
+    # three records whose source text changed to the file's retired_records.
+    assert len(seventh) == len(latest7) == (168 if language == "hi" else 133)
     assert not latest7 & sources
     sources |= latest7
     discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text())["records"]
@@ -451,7 +457,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # a fourth-pass record.
     # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
     # caption, so its record left 2026-09-25-runtime-debt-captions.json.
-    debt_sources = _runtime_debt_sources("sv", all_reviewed, 709)  # 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597)
+    debt_sources = _runtime_debt_sources("sv", all_reviewed, 708)  # 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597); 709 -> 708 on 2026-10-02 (item 43): a retired workflow phrase (603423d0a)
     assert not debt_sources & (ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources)
     inherited_sources = _inherited_2026_09_28_sources("sv", all_reviewed)
     assert not inherited_sources & (debt_sources | ui_sources | download_sources | subsequent_sources)
@@ -723,7 +729,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # a fourth-pass record.
     # 711 -> 710 on 2026-09-28: 595 removed the "Measurement Features"
     # caption, so its record left 2026-09-25-runtime-debt-captions.json.
-    debt_sources = _runtime_debt_sources("fr", all_reviewed, 709)  # 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597)
+    debt_sources = _runtime_debt_sources("fr", all_reviewed, 708)  # 710 -> 709 on 2026-09-29: the "Point Spread Function" category caption was renamed (591-597); 709 -> 708 on 2026-10-02 (item 43): a retired workflow phrase (603423d0a)
     assert not debt_sources & (example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources)
     inherited_sources = _inherited_2026_09_28_sources("fr", all_reviewed)
     assert not inherited_sources & (debt_sources | refresh_sources | download_sources | subsequent_sources)

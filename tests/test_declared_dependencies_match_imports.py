@@ -209,7 +209,9 @@ STRING_LITERAL_ONLY = {"umap", "omero"}
 ISOLATED_WORKER_IMPORTS = {
     "deepcell_spots": ("_worker_detect_spots",),
     "stardist": ("_StarDistAdapter",),
-    "csbdeep": ("_StarDistAdapter",),
+    # 2026-10-02 (item 43): native 3-D volumes are normalised in
+    # _stardist_volume_batch, called only from the adapter's eval.
+    "csbdeep": ("_StarDistAdapter", "_stardist_volume_batch"),
     "tensorflow": ("_tensorflow_device",),
     "instanseg": ("_InstanSegAdapter",),
     "cellpose_omni": ("_OmniposeAdapter",),

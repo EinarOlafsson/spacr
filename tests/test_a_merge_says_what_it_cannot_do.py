@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.merge_tables import (AGGREGATIONS, MergeError, MergePolicy,
+from spacr.merge_tables import (AGGREGATIONS, EXPLICIT_AGGREGATIONS, MergeError, MergePolicy,
                                 ReductionError, _apply_na_policy,
                                 aggregation_for, merge_tables, object_keys,
                                 reduce_dimensions)
@@ -24,7 +24,9 @@ def test_an_aggregation_that_does_not_exist_lists_the_ones_that_do():
         aggregation_for("cell_area", overrides={"cell_area": "geomean"})
 
     assert "'geomean' is not an aggregation" in str(caught.value)
-    assert str(list(AGGREGATIONS)) in str(caught.value)
+    # 2026-10-02 (item 43): an override may name any explicit aggregation
+    # (last, count, nunique, any, all too), and the message lists them all.
+    assert str(list(EXPLICIT_AGGREGATIONS)) in str(caught.value)
 
 
 def test_an_override_that_exists_beats_the_rule():

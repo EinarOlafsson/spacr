@@ -1,3 +1,9 @@
+"""Lineage trees built from tracked objects.
+
+Division events are read from explicit parent columns or inferred from
+nearby track starts, then drawn as tree figures, written as Newick text
+and summarised as per-lineage statistics, optionally calibrated to hours.
+"""
 import os
 
 import numpy as np

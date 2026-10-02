@@ -25,13 +25,16 @@ __all__ = ()
 
 
 class _ButtonPosition(QObject):
+    """Keeps the Preview button inside the bottom edge of its field."""
     def __init__(self, edit, button):
+        """Place ``button`` over ``edit`` and follow its resizes."""
         super().__init__(edit)
         self._edit, self._button = edit, button
         edit.installEventFilter(self)
         self._place()
 
     def _place(self):
+        """Reserve room below the text and move the button there."""
         height = self._button.sizeHint().height()
         self._edit.setTextMargins(0, 0, 0, height + 4)
         self._button.setGeometry(2, self._edit.height() - height - 2,
@@ -51,6 +54,7 @@ class _ButtonPosition(QObject):
 
 
 def _attach_preview(widget, model):
+    """Add a Preview button for calibration gains to a settings field."""
     if widget.findChild(QPushButton, 'CalibrationPreviewButton') is not None:
         return
     button = QPushButton(tr('Preview'), widget)
@@ -64,6 +68,7 @@ def _attach_preview(widget, model):
         widget.layout().addWidget(button)
 
     def open_preview():
+        """Open the gains preview for the current settings."""
         dialog = _CalibrationPreview(lambda: _preview_settings(model), widget.window())
         QTimer.singleShot(0, dialog._start)
         dialog.exec()
@@ -76,6 +81,7 @@ def _attach_preview(widget, model):
             watch.setInterval(250)
 
             def retired():
+                """Re-enable the button once every earlier scan thread has ended."""
                 from shiboken6 import isValid
                 if any(isValid(thread) and thread.isRunning() for thread in retiring):
                     return
@@ -92,6 +98,7 @@ def _attach_preview(widget, model):
 
 def _preview_settings(model):
     # Only keys consumed by planning; no form mutation or source reads here.
+    """A copy of the committed settings that gain planning reads."""
     keys = {'src', 'timelapse', 'test_mode', 'intensity_calibration',
             'intensity_calibration_wells', 'intensity_calibration_statistic',
             'intensity_calibration_offset'}
@@ -148,6 +155,7 @@ class _CalibrationPreview(QDialog):
     """An inspect-only table whose worker never owns the editable form."""
 
     def __init__(self, settings_getter, parent=None, *, threaded=True):
+        """A gains preview that reads settings through ``settings_getter``."""
         super().__init__(parent)
         self.setWindowTitle(tr('Calibration gains'))
         self.resize(980, 480)
@@ -201,14 +209,17 @@ class _CalibrationPreview(QDialog):
         self._watch.start()
 
     def _busy(self, busy):
+        """Enable Refresh or Cancel to match whether a scan is running."""
         self.refresh.setEnabled(not busy and not self._runner.active_jobs())
         self.cancel.setEnabled(busy)
 
     def _clear(self):
+        """Empty the gains table."""
         self.table.setRowCount(0)
         self._reports = []
 
     def _check_current(self):
+        """Mark the shown gains stale when the settings have changed since."""
         self._busy(self._runner.is_busy())
         if self._snapshot is None or self._closed:
             return
@@ -224,6 +235,7 @@ class _CalibrationPreview(QDialog):
             self.status.setText(tr('Settings changed. Preview the gains again.'))
 
     def _start(self):
+        """Plan the gains for a snapshot of the settings in the background."""
         if self._runner.active_jobs() or self._closed:
             return
         self._generation += 1
@@ -239,12 +251,14 @@ class _CalibrationPreview(QDialog):
         self.status.setText(tr('Calculating calibration gains…'))
 
         def work():
+            """Plan the gains, returning the reports or the error text."""
             try:
                 return _plan_gains(snapshot), None
             except Exception as exc:
                 return None, str(exc)
 
         def done(result):
+            """Show the planned gains unless a newer scan replaced this one."""
             self._check_current()
             if self._closed or token != self._generation:
                 return
@@ -271,6 +285,7 @@ class _CalibrationPreview(QDialog):
         self._runner.submit(work, done)
 
     def _cancel(self):
+        """Cancel the running scan and clear the table."""
         self._generation += 1
         self._runner.cancel()
         self._snapshot = None

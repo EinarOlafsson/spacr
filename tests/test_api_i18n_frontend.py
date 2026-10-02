@@ -144,7 +144,10 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # qt.command_palette.CommandPalette._collect_commands.app_is_visible.
 # All 12,036 prior source keys/texts unchanged; nested private parents
 # remain hidden. Exact subtraction is recorded in the F411 slice receipt.
-REAL_SYMBOL_COUNT = 12_038
+# 2026-10-02 item 43: +2/-0, the module overviews of spacr._lineage_trees
+# and spacr._lineage_measurements (the API docstring contract requires
+# one per module); all 12,038 prior symbols unchanged.
+REAL_SYMBOL_COUNT = 12_040
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

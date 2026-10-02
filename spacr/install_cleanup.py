@@ -2601,6 +2601,7 @@ def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
 
 def _macos_online_update_record(records, *, system=None, strict=False):
     # Recognize a damaged bootstrap too: it must fail without entering cleanup.
+    """The running macOS online environment's record, or None elsewhere."""
     machine = system or _Machine()
     if machine.platform != "macos" or getattr(sys, "frozen", False):
         return None
@@ -2613,6 +2614,7 @@ def _macos_online_update_record(records, *, system=None, strict=False):
 
 
 def _macos_online_version(value):
+    """A release version as a four-part integer tuple; refuses other text."""
     import re
 
     if not re.fullmatch(r"[0-9]+(?:\.[0-9]+){2,3}", str(value)):
@@ -2622,6 +2624,7 @@ def _macos_online_version(value):
 
 
 def _macos_online_commands(record, version, workdir):
+    """The install, probe and relaunch commands for a macOS online update."""
     _macos_online_version(version)
     python = os.path.join(record.root, "venv", "bin", "python")
     uv = os.path.join(record.root, "bootstrap", "uv")
@@ -2640,6 +2643,7 @@ def _macos_online_commands(record, version, workdir):
 
 
 def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
+    """Carry out an approved macOS online update in its own environment."""
     records = [_record_from_json(data) for data in plan["records"]]
     record = _macos_online_update_record(records, system=machine, strict=True)
     if record is None or plan.get("frozen_application"):

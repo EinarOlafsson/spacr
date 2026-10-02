@@ -61,6 +61,7 @@ def quality_combo(parent=None):
     combo.currentIndexChanged.connect(lambda _index: set_quality(combo.currentData()))
     # Context-bearing QObject slot disconnects automatically on destruction.
     class _Sync(QObject):
+        """Keeps one quality selector in step with changes made elsewhere."""
         def update(self, value):
             """Synchronize the selector after another view changed quality.
 

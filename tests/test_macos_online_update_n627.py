@@ -17,7 +17,7 @@ pytestmark = pytest.mark.skipif(os.name == "nt", reason="Models the macOS POSIX 
 
 @pytest.fixture
 def installation(tmp_path):
-    root = tmp_path / 'user home' / 'Library' / 'Application Support' / 'SpaCR'
+    root = tmp_path / 'user home' / 'Library' / 'Application Support' / 'spaCR'
     python = root / 'venv/bin/python'
     uv = root / 'bootstrap/uv'
     for path in (python, uv):

@@ -1747,6 +1747,7 @@ _LIMS_PAGING_FIELDS = frozenset(('next', 'next_url', '@odata.nextLink', 'links')
 
 
 class _LimsPage(bytes):
+    """Page bytes that also remember the URL the response finally came from."""
     def __new__(cls, body, response_url):
         """Keep the final response URL with the fetched page bytes."""
         page = super().__new__(cls, body)
@@ -1802,6 +1803,7 @@ def _default_lims_fetch(url: str, headers: Dict[str, str]) -> bytes:
     from urllib.request import HTTPRedirectHandler, Request, build_opener
 
     class SameOriginRedirect(HTTPRedirectHandler):
+        """Follows redirects only while they stay on the LIMS service's origin."""
         def redirect_request(self, req, fp, code, msg, response_headers, newurl):
             """Refuse a redirected request that changes the LIMS origin."""
             if _lims_origin(newurl) != _lims_origin(url):

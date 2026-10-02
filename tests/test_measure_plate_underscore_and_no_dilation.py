@@ -1,5 +1,6 @@
 """A plate name with underscores validates, and crop dilation ratios are optional when dilation is off."""
 import pandas as pd
+import pytest
 
 from spacr import schema
 from spacr.measure import _per_crop_mode
@@ -18,8 +19,5 @@ def test_prcf_of_a_plate_with_underscores_validates():
 
 
 def test_empty_ratios_are_still_refused_when_asked_for():
-    try:
+    with pytest.raises(ValueError):
         _per_crop_mode([], 1, "dialate_png_ratios")
-    except ValueError:
-        return
-    raise AssertionError("an empty ratio list must be refused when used")
