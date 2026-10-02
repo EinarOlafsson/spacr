@@ -446,3 +446,19 @@ Receipt: features/data/615_translation_acceptance_2026-10-02.json. This closes
 the Translations support row only. N615 overall, current full-site rendering
 and publication, tutorial media and F411 nested-helper expansion remain open.
 Later source changes require a new bounded translation delta.
+
+2026-10-02 — API SUPPORT TRACK COMPLETE FOR CURRENT SOURCE
+N615.1 is complete at this source checkpoint. The English API manifest and all
+nine strict translated audits agree on 12,036 symbols; the single added
+Calibration Preview overview is reviewed and source-bound. The public callable
+and parameter-description contract checks pass. The generated settings-flow
+page and UI link index were refreshed together from the current 1,327 setting
+reads: 1,302 drawn sections and 6,106 cross-references. This includes the two
+new `_preview_mask_dims` and `watch_measure_snapshot` readers and updated
+call paths for 281 existing sections, rather than leaving links at stale
+targets. The module-count ratchet was updated by the measured +1 symbol.
+The full relevant run passed 154/157 checks before those three stale-artifact
+assertions were fixed; all three repaired assertions plus two companion
+settings-flow checks then passed. No public runtime behavior was changed.
+F411's larger nested-helper API expansion and N615's documentation, tutorial,
+site-rendering and publication work remain separate and open.

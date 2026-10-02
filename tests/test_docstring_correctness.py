@@ -3408,7 +3408,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # spacr.qt.widgets.organize_for_measure.
     # 2026-10-01: merging, uncertainty and condition-annotation APIs plus
     # shared UI contracts; English manifest regenerated from current source.
-    assert len(docs) == 12035
+    # Calibration Preview contributes one current module overview.
+    assert len(docs) == 12036
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
