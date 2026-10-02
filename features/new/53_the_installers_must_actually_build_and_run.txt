@@ -679,3 +679,19 @@ macOS maintainer steps (macOS 14+, local admin account, not CI):
      user, exit 71 for the ACL parent; record journals and codes 70-78.
 Still OPEN: Windows and macOS frozen replacement/interruption/restart, the
 protected macOS flows, backend/account/report-consent tails. No promotion.
+
+2026-10-02 — WINDOWS FROZEN RUNTIME REPLACEMENT GUARD (PARTIAL)
+The NSIS install section now removes only the previous bundled `_internal`
+runtime before copying the new onedir payload. It first moves the installer
+working directory to TEMP; NSIS cannot remove its current working directory.
+If the old runtime remains (for example because spaCR is still running), it
+aborts before copying instead of producing a mixed old/new dependency tree.
+Other files in INSTDIR and the user's separate profile remain untouched.
+This addresses the specific stale imageio-2.37.4 prediction above in the
+installer source; it does not yet claim a real Windows replacement run.
+The template-order/refusal check and 79 companion native packaging/update
+checks passed locally (82 passed, three unrelated optional/release skips).
+NSIS's documented RMDir and IfFileExists behavior was checked against
+https://nsis.sourceforge.io/Docs/Chapter4.html and
+https://nsis.sourceforge.io/Reference/IfFileExists. The whole item stays OPEN
+until actual platform upgrade/restart and the other tails above pass.
