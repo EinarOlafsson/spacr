@@ -1,0 +1,6 @@
+{
+  "remote_main": "5ca135c54ef66fa881ad101ae22263cc537b4d73",
+  "source": "fresh git ls-remote origin refs/heads/main",
+  "publication_commit": "648b87bb5",
+  "publication_ancestor_of_main": true
+}

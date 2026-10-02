@@ -1,9 +1,9 @@
 489 — DEEP IMAGE ENHANCEMENT
 ===========================
-Status: IN PROGRESS 2026-09-30. Runtime complete; full-field Make Masks GUI
-acceptance (Compare/Apply/stale result, CPU) 2026-09-30, crop and host full-field
-2026-09-24. Guide and nine-locale runtime/API coverage verified 2026-09-27.
-Remaining (docs lane only): publish the staged restoration tutorial scenes.
+Status: DONE AS ALPHA 2026-10-01. Runtime acceptance was completed
+2026-09-30; the remaining restoration tutorial publication is now verified
+against actual hosted bytes and five-scene desktop/mobile playback. Later
+unrelated Make Masks authoring scenes remain outside this feature's claim.
 
 2026-09-27 documentation follow-up:
 docs/source/make_masks.rst now explains the isolated Cellpose 3 installation,
@@ -223,3 +223,39 @@ original image; loaded and on-disk source unchanged; Apply off restores raw
 detection. No accuracy/biological claim. Runtime acceptance is complete;
 remaining work is the docs lane's tutorial publication only. Receipt:
 features/data/489_full_field_make_masks_acceptance_2026-09-30.json.
+
+2026-10-01 — PUBLISHED RESTORATION ACCEPTANCE; F489 CLOSED
+The prior remaining-publication note was stale. Publication commit648b87bb5
+added the five restoration scenes to lesson14 on immutable media revision
+6d8def47e0240627cfe9b655d8d73e6b2403273d. Fresh remote-main ancestry proves
+that source publication is on main. All fourteen current hosted catalogs
+match the repository bytes. The pinned web video, English narration and
+timing sidecar match the publication manifest SHA256 and sizes exactly.
+All five restoration narrations match current authoring; every prior27 scene
+remains identical in all fourteen catalogs. Published lesson14 has32scenes.
+
+Actual live Chrome playback passes all five restoration scenes on desktop
+1440x1000 and touch/mobile390x844 at3xDPR: both clocks advance, narration
+hashes match, native sentence captions match, and video/audio deviation is
+at most0.128s (required below0.5s). No JavaScript errors, foreign requests
+or horizontal overflow occurred. Desktop click started playback; mobile
+records the established headless synthetic-tap fallback to video.play.
+The captured restoration settings, model-ready, Compare and Apply frames
+were inspected; root independently reviewed desktop Compare/mobile Apply.
+
+Current supporting checks find27restoration captions in every UI language
+(26generated source-bound entries plus existing static Off), fifteen current
+chain/control API records per locale, and the documented model/input,
+Compare/Apply, original-intensity and provenance contracts. The unchanged
+strict full API audit independently passes all nine locales/12,035symbols.
+Runtime acceptance and original-data/model-unit cautions remain as recorded
+above; no biological improvement or new full-field run is claimed.
+
+This closes F489's tutorial tail, not all current Make Masks authoring. The
+authoring lesson now has41scenes; later curator/organizer additions are not
+published by this receipt. Other26voices retain the immutable historical
+full readback/publication acceptance. Existing N358 review decisions apply;
+this new review is AI technical only, without human/native/listening claims.
+Receipt: features/data/489_published_restoration_acceptance_2026-10-01.json.
+All new readback/support jobs used1GiB and live playback4GiB, CPU0 affinity,
+zero swap. No source, existing master, catalog or hosted media was changed.

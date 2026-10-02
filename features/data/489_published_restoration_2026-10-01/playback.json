@@ -1,0 +1,288 @@
+{
+  "date_utc": "2026-10-02T03:11:45.193189+00:00",
+  "site": "https://einarolafsson.github.io/spacr/tutorials/",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d",
+  "scope": "Actual live player, five restoration scenes each at desktop and touch/mobile geometry; narration/video advancement, native caption cue, exact audio hash and <0.5 second synchronization. Scene seeks use production chapter seekTo handler.",
+  "browser": "installed Google Chrome, headless CPU rendering",
+  "human_or_native_listening_review": false,
+  "passed_scenes": 10,
+  "viewports": [
+    {
+      "viewport": "desktop",
+      "size": [
+        1440,
+        1000
+      ],
+      "device_scale_factor": 1,
+      "layout": {
+        "scroll": 1440,
+        "viewport": 1440,
+        "video": [
+          403.46875,
+          366.65625,
+          975.0625,
+          548.46875
+        ]
+      },
+      "start_method": "native synthetic click",
+      "audio_sha256": "aa60f305f16e11cd169d24b8836926066111a64cb8d16d50063982e1aaf4cb29",
+      "cases": [
+        {
+          "scene_index": 21,
+          "scene_text": "Image enhancement ends with Deep image enhancement. It restores the selected channel with a Cellpose 3 model in its own environment; the image on disk is never changed.",
+          "requested_audio_start": 291.755,
+          "playing": {
+            "audio": 293.085431,
+            "video": 293.208766,
+            "expected": 293.08083594645734,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 293.32,
+          "native_caption": {
+            "audio": 293.32,
+            "video": 293.315401,
+            "cues": [
+              "Image enhancement ends with Deep image enhancement."
+            ]
+          },
+          "screenshot": "desktop-restoration-01.png",
+          "screenshot_sha256": "230db17ba8e336502d5fd947bded57232e175e4dc18e58dddba2bfcd74ee7d95"
+        },
+        {
+          "scene_index": 22,
+          "scene_text": "Choose Denoise, Deblur or One-click restoration, then open Restoration model settings. Pick weights for cells or nuclei and set the typical object diameter in pixels.",
+          "requested_audio_start": 302.89,
+          "playing": {
+            "audio": 304.221056,
+            "video": 304.310553,
+            "expected": 304.216286359843,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 305.695,
+          "native_caption": {
+            "audio": 305.695,
+            "video": 305.690207,
+            "cues": [
+              "Choose Denoise, Deblur or One-click restoration, then open Restoration model settings."
+            ]
+          },
+          "screenshot": "desktop-restoration-02.png",
+          "screenshot_sha256": "e7924544fb5e3d6876020273dfb2459ebf5318455a7dd5b4c43e65c0d8915877"
+        },
+        {
+          "scene_index": 23,
+          "scene_text": "Load the model. On the CPU a whole field takes tens of seconds; the original intensities are kept for measurements.",
+          "requested_audio_start": 314.22499999999997,
+          "playing": {
+            "audio": 315.53849,
+            "video": 315.611377,
+            "expected": 315.5335429227899,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 314.78249999999997,
+          "native_caption": {
+            "audio": 314.785235,
+            "video": 314.777564,
+            "cues": [
+              "Load the model."
+            ]
+          },
+          "screenshot": "desktop-restoration-03.png",
+          "screenshot_sha256": "e590bb4cc2f61a3983b492c9cc58eee8e64168b9d8e440a8c57542287f3e2319"
+        },
+        {
+          "scene_index": 24,
+          "scene_text": "Compare raw and enhanced shows both pictures side by side. The restored picture is model output, not new structure: check it before trusting masks drawn on it.",
+          "requested_audio_start": 322.09,
+          "playing": {
+            "audio": 323.402579,
+            "video": 323.493126,
+            "expected": 323.39750862798843,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 323.92499999999995,
+          "native_caption": {
+            "audio": 323.924999,
+            "video": 323.919921,
+            "cues": [
+              "Compare raw and enhanced shows both pictures side by side."
+            ]
+          },
+          "screenshot": "desktop-restoration-04.png",
+          "screenshot_sha256": "3b8619e21b3e4dca322439d11223d0f0484061e93a4a1b7c1d52e3eb52060fde"
+        },
+        {
+          "scene_index": 25,
+          "scene_text": "Apply uses the restored picture for display and detection only. Measurements still read the original pixels.",
+          "requested_audio_start": 332.655,
+          "playing": {
+            "audio": 334.007163,
+            "video": 334.109431,
+            "expected": 334.0019263671439,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 334.76,
+          "native_caption": {
+            "audio": 334.76,
+            "video": 334.754751,
+            "cues": [
+              "Apply uses the restored picture for display and detection only."
+            ]
+          },
+          "screenshot": "desktop-restoration-05.png",
+          "screenshot_sha256": "2d166f3cc0e5c3a95eeae2a09c3f026cc997c1143748757445952db0e3f52675"
+        }
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "size": [
+        390,
+        844
+      ],
+      "device_scale_factor": 3,
+      "layout": {
+        "scroll": 390,
+        "viewport": 390,
+        "video": [
+          17,
+          416.15625,
+          356,
+          200.25
+        ]
+      },
+      "start_method": "native synthetic tap; explicit production video.play fallback",
+      "audio_sha256": "aa60f305f16e11cd169d24b8836926066111a64cb8d16d50063982e1aaf4cb29",
+      "cases": [
+        {
+          "scene_index": 21,
+          "scene_text": "Image enhancement ends with Deep image enhancement. It restores the selected channel with a Cellpose 3 model in its own environment; the image on disk is never changed.",
+          "requested_audio_start": 291.755,
+          "playing": {
+            "audio": 293.092612,
+            "video": 293.141974,
+            "expected": 293.08801683387213,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 293.32,
+          "native_caption": {
+            "audio": 293.32,
+            "video": 293.315401,
+            "cues": [
+              "Image enhancement ends with Deep image enhancement."
+            ]
+          },
+          "screenshot": "mobile-restoration-01.png",
+          "screenshot_sha256": "716127c5dcb305580d29c7389457f7a114b6361a70658e02336f86f5d6738701"
+        },
+        {
+          "scene_index": 22,
+          "scene_text": "Choose Denoise, Deblur or One-click restoration, then open Restoration model settings. Pick weights for cells or nuclei and set the typical object diameter in pixels.",
+          "requested_audio_start": 302.89,
+          "playing": {
+            "audio": 304.240192,
+            "video": 304.352518,
+            "expected": 304.2354220598249,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 305.695,
+          "native_caption": {
+            "audio": 305.695,
+            "video": 305.690207,
+            "cues": [
+              "Choose Denoise, Deblur or One-click restoration, then open Restoration model settings."
+            ]
+          },
+          "screenshot": "mobile-restoration-02.png",
+          "screenshot_sha256": "2d7cb843e78e5e2497828daeb79edaacbea11fd66d730d87d3d61b5a7cc372e4"
+        },
+        {
+          "scene_index": 23,
+          "scene_text": "Load the model. On the CPU a whole field takes tens of seconds; the original intensities are kept for measurements.",
+          "requested_audio_start": 314.22499999999997,
+          "playing": {
+            "audio": 315.538982,
+            "video": 315.620793,
+            "expected": 315.5340349150762,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 314.78249999999997,
+          "native_caption": {
+            "audio": 314.782769,
+            "video": 314.777564,
+            "cues": [
+              "Load the model."
+            ]
+          },
+          "screenshot": "mobile-restoration-03.png",
+          "screenshot_sha256": "a1908a03ac2124bde565e56099f19f23af93c33bfbbc3e06f3e28bdf4be1ebfb"
+        },
+        {
+          "scene_index": 24,
+          "scene_text": "Compare raw and enhanced shows both pictures side by side. The restored picture is model output, not new structure: check it before trusting masks drawn on it.",
+          "requested_audio_start": 322.09,
+          "playing": {
+            "audio": 323.422378,
+            "video": 323.514987,
+            "expected": 323.41730731757565,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 323.92499999999995,
+          "native_caption": {
+            "audio": 323.924999,
+            "video": 323.919921,
+            "cues": [
+              "Compare raw and enhanced shows both pictures side by side."
+            ]
+          },
+          "screenshot": "mobile-restoration-04.png",
+          "screenshot_sha256": "1b85ac5bb5da036bd57ec76c3dfd98b7cd1ee7a184be306b6790e1f2e042f6e9"
+        },
+        {
+          "scene_index": 25,
+          "scene_text": "Apply uses the restored picture for display and detection only. Measurements still read the original pixels.",
+          "requested_audio_start": 332.655,
+          "playing": {
+            "audio": 333.981488,
+            "video": 334.059883,
+            "expected": 333.9762517696819,
+            "paused": false,
+            "error": null,
+            "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/14_make_masks/web/14_make_masks_silent.mp4"
+          },
+          "caption_midpoint": 334.76,
+          "native_caption": {
+            "audio": 334.769217,
+            "video": 334.754751,
+            "cues": [
+              "Apply uses the restored picture for display and detection only."
+            ]
+          },
+          "screenshot": "mobile-restoration-05.png",
+          "screenshot_sha256": "c6f95ee7b457e1ad228a1d8c4fae4b07133f10d2a6a0de8c310f8ab7d77287e4"
+        }
+      ]
+    }
+  ],
+  "unexpected_requests": [],
+  "javascript_errors": [],
+  "hosted_request_count": 21
+}
