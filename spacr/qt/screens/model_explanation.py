@@ -317,7 +317,10 @@ class ExplainCvPanel(QWidget):
         if not path or not os.path.isfile(path):
             return
         try:
-            columns = [str(value) for value in pd.read_csv(path, nrows=0).columns]
+            from ...tabular import read_table
+
+            columns = [str(value) for value in read_table(
+                path, nrows=0, report=None).columns]
         except Exception as exc:
             self.status.setText(f"Could not read prediction columns: {exc}")
             return

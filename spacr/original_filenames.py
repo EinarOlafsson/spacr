@@ -219,8 +219,11 @@ def enrich(frame, map_path, *, expected_sha256=None, output_column="original_fil
     map_table = None
     if path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
         try:
+            from .tabular import _read_query
+
             with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
-                stored = pd.read_sql_query('SELECT * FROM "conversion_map"', connection)
+                stored = _read_query(connection, 'SELECT * FROM "conversion_map"',
+                                     canonicalise=False, report=None)
             # Order-independent digest: unrelated database writes cannot invalidate it.
             stored = stored.fillna("").astype(str)
             stored = stored.reindex(sorted(stored.columns), axis=1)

@@ -62,9 +62,12 @@ def column_sample(path, table, limit=200):
     :param limit: Maximum sampled rows.
     :returns: Sample frame preserving SQLite column types when possible.
     """
+    from .tabular import _read_query
+
     with sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True, timeout=30.0) as db:
-        return pd.read_sql_query('SELECT * FROM "' + table.replace('"', '""') +
-                                 '" LIMIT ?', db, params=(int(limit),))
+        return _read_query(db, 'SELECT * FROM "' + table.replace('"', '""') +
+                           '" LIMIT ?', params=(int(limit),),
+                           canonicalise=False, report=None)
 
 
 def identity_columns(frame):

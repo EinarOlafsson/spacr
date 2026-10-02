@@ -114,9 +114,11 @@ def _attach_object_crop_paths(db_path, frame, object_type):
         mode_columns = [name for name in ('crop_mode', 'object_type')
                         if name in columns]
         selected = list(dict.fromkeys(required + times + mode_ids + mode_columns))
-        crops = pd.read_sql_query(
-            'SELECT ' + ', '.join('"' + name + '"' for name in selected)
-            + ' FROM "png_list"', db)
+        from .tabular import _read_query
+
+        crops = _read_query(
+            db, 'SELECT ' + ', '.join('"' + name + '"' for name in selected)
+            + ' FROM "png_list"', canonicalise=False, report=None)
     populated_ids = (crops[mode_ids].notna()
                      & crops[mode_ids].fillna('').astype(str).ne(''))
     ambiguous_mode = populated_ids.sum(axis=1) > 1

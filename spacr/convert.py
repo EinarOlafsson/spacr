@@ -2315,7 +2315,9 @@ def read_map(path: str) -> pd.DataFrame:
     if not target.is_file():
         raise ConfigurationError(f'Map file does not exist: {path}')
     try:
-        frame = pd.read_csv(target)
+        from .tabular import read_table
+
+        frame = read_table(target, canonicalise=False, report=None)
     except Exception as exc:
         raise ConfigurationError(
             f'{path} could not be read as a conversion map: {exc}') from exc

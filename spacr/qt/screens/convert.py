@@ -204,8 +204,11 @@ def _barcode_summary(prepared):
         return ''
     bundle = prepared['bundle']
     receipt = json.loads((bundle / 'complete.json').read_text(encoding='utf-8'))
-    report = pd.read_csv(bundle / 'plate_barcode_mismatches.csv', dtype=str,
-                         keep_default_na=False, nrows=100)
+    from ...tabular import read_table
+
+    report = read_table(bundle / 'plate_barcode_mismatches.csv',
+                        canonicalise=False, report=None, dtype=str,
+                        keep_default_na=False, nrows=100)
     text = tr("Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\n"
               "Plate map: {map_path}\nMismatches: {mismatch_path}",
               wells=receipt['linked_wells'], mismatches=receipt['mismatches'],

@@ -231,6 +231,7 @@ def read_run_tables(tables, progress=None):
         and the sibling paths folded into it.
     """
     import pandas as pd
+    from ...tabular import read_table
 
     found = tables[0]
     home = os.path.dirname(found)
@@ -238,7 +239,7 @@ def read_run_tables(tables, progress=None):
                     if os.path.dirname(sibling) == home)
     if progress is not None:
         progress(1, total, os.path.basename(found))
-    frame = pd.read_csv(found)
+    frame = read_table(found, report=None)
     merged = []
     have = set()
     if "level" in frame.columns:
@@ -263,7 +264,7 @@ def read_run_tables(tables, progress=None):
         if progress is not None:
             progress(done, total, name)
         try:
-            extra = pd.read_csv(sibling)
+            extra = read_table(sibling, report=None)
         except Exception:                                    # noqa: BLE001
             continue
         if extra.empty:
