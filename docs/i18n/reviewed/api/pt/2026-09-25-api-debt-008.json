@@ -4523,7 +4523,9 @@
       "source_sha256": "6b64508bcb3db07b855edf6e851ab479a8ebcab82a7751e795d3f9f19a58adda",
       "context": "key-value mapping of assay settings; see ``get_automated_motility_assay_default_settings`` for structured-data names including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
       "translation": "dicionário de configurações do ensaio; veja ``get_automated_motility_assay_default_settings`` para as chaves, incluindo ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim`` e ``reuse_existing_measurements``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: the motility photobleaching correction contract changed. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.uniprot.Resolution#1",

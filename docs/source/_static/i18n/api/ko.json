@@ -183742,16 +183742,16 @@
       "source_blocks_sha256": [
         "44f4b8359c7c7acb43b0a00ad8e0c0f81927a4818b9edf5623396e6ce93d7ae4",
         "4949d6a109be27de332081a3fc968984a7918cb13a23588b9180e53633e207fa",
-        "6b64508bcb3db07b855edf6e851ab479a8ebcab82a7751e795d3f9f19a58adda",
+        "dc6de0b537e6607592f72b56631c06c89233fb0dd611c24852ab79b4ec683ae9",
         "9bdaad58550d3c29fc5070e95b414a236fae2b85cfa4f68695d3de08ec9c8845",
         "b6f04dcac59ff4c128b2b8aa1fb1b5eb96b899de05e43e0dc8cdcbffab37d93e"
       ],
-      "source_sha256": "50e42a15b1e6d42d48a0bd9f642f0e370ba612e42beeceb8f9cb4cebb5b115ed",
-      "text": "세포/병원성 동기 부여 및 감염을위한 최종 결합-npy 작업 흐름 QC.\n\n읽기 ``merged/*.npy`` 프레임, 세포별 측정을 구축하고, 청소하고, 그들을 견딜 수 있습니다. SQLite, 트랙 당 속도를 계산하고, 강도 + 동기 부여를 생성합니다. QC 패널 (마스크 기반 및, 선택적으로, XGBoost 히스토그램 / histogram PCA / UMAP / t-SNE 조정된 라벨), 그리고 마이크로 플레이트 샘플 위치 수준의 동기성 요약을 작성합니다.\n\n:param settings: 분석 설정 사전입니다. ``get_automated_motility_assay_default_settings`` 에서 ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, ``reuse_existing_measurements`` 등의 키를 확인하십시오.\n:returns: per-cell 측정 DataFrame 마지막으로 끝나게 되었으니(QC-조정된) 라벨. 측정 및 요약 테이블은 또한 작성됩니다 ``measurements/measurements.db`` 그리고 The QC 밑에 저장된 패널 ``src``.\n:raises ValueError: ``settings['db_table_name']``가 spaCR 소유 테이블을 이름으로 표시할 때, :func:`_validate_db_table_name`를 참조하십시오.",
+      "source_sha256": "2ef3fc7090e32bfb8a267e643843cc2151335f2efe2940106d7b64364a49e42d",
+      "text": "세포/병원성 동기 부여 및 감염을위한 최종 결합-npy 작업 흐름 QC.\n\n읽기 ``merged/*.npy`` 프레임, 세포별 측정을 구축하고, 청소하고, 그들을 견딜 수 있습니다. SQLite, 트랙 당 속도를 계산하고, 강도 + 동기 부여를 생성합니다. QC 패널 (마스크 기반 및, 선택적으로, XGBoost 히스토그램 / histogram PCA / UMAP / t-SNE 조정된 라벨), 그리고 마이크로 플레이트 샘플 위치 수준의 동기성 요약을 작성합니다.\n\n:param settings: 분석 설정 사전입니다. ``get_automated_motility_assay_default_settings`` 에서 ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, ``reuse_existing_measurements`` 등의 키를 확인하십시오. 선택 사항인 ``bleach_correction``\\ 의 기본값은 ``none``\\ 입니다. ``ratio``, ``exponential`` 또는 ``histogram``\\ 은 하위 객체 집계와 감염 품질 관리(QC) 전에 각 시야/채널 및 객체 역할별로 보정하며, 레이블 값이 0인 폭 5픽셀의 배경 고리를 사용합니다(고리가 없으면 NaN). 히스토그램 매칭은 생물학적 변화를 지울 수 있습니다. 보정을 활성화한 실행에서는 캐시된 측정 행을 재사용하지 않고 다시 계산해야 합니다. 원래의 강도 측정값은 원시 값으로 유지됩니다. ``_bleach_corrected`` 및 ``_bleach_fits`` 접미사가 붙은 별도 테이블과 피팅 CSV에 보정된 수준, 원본 파일 이름 및 방법을 기록합니다.\n:returns: per-cell 측정 DataFrame 마지막으로 끝나게 되었으니(QC-조정된) 라벨. 측정 및 요약 테이블은 또한 작성됩니다 ``measurements/measurements.db`` 그리고 The QC 밑에 저장된 패널 ``src``.\n:raises ValueError: ``settings['db_table_name']``가 spaCR 소유 테이블을 이름으로 표시할 때, :func:`_validate_db_table_name`를 참조하십시오.",
       "translation_source_blocks_sha256": [
         "783a85b9eb1e07378fc0c71a128a2e1d4fdade89bf7a5f17d7eb48bb894aef0b",
         "ffb6f516e6c651448bccbe614f7db5e49ceea332e1f19e4b983aa9e64911f8e4",
-        "ca8c46db9ca864993b684bc5c43c55c287b70628fe25e3ee313df86f365fe637",
+        "6c5dea35755db0fc6d9c5e71df3505d2e99eefe58a53343f145f7930ca2e894b",
         "9bdaad58550d3c29fc5070e95b414a236fae2b85cfa4f68695d3de08ec9c8845",
         "b6f04dcac59ff4c128b2b8aa1fb1b5eb96b899de05e43e0dc8cdcbffab37d93e"
       ]

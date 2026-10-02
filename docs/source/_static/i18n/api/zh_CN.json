@@ -183743,16 +183743,16 @@
       "source_blocks_sha256": [
         "44f4b8359c7c7acb43b0a00ad8e0c0f81927a4818b9edf5623396e6ce93d7ae4",
         "4949d6a109be27de332081a3fc968984a7918cb13a23588b9180e53633e207fa",
-        "6b64508bcb3db07b855edf6e851ab479a8ebcab82a7751e795d3f9f19a58adda",
+        "dc6de0b537e6607592f72b56631c06c89233fb0dd611c24852ab79b4ec683ae9",
         "9bdaad58550d3c29fc5070e95b414a236fae2b85cfa4f68695d3de08ec9c8845",
         "b6f04dcac59ff4c128b2b8aa1fb1b5eb96b899de05e43e0dc8cdcbffab37d93e"
       ],
-      "source_sha256": "50e42a15b1e6d42d48a0bd9f642f0e370ba612e42beeceb8f9cb4cebb5b115ed",
-      "text": "细胞/病原体动力和感染的终端到终端合并NPY工作流 QC。\n\n阅读 ``merged/*.npy`` 框架,构建每个细胞的测量,清洁和坚持它们到 SQLite,计算每个轨道的速度,产生强度 + 动态 QC 面板(基于掩膜和,可选, XGBoost / 歇斯图 / PCA / UMAP / t-SNE 调整标签),并写下一个微板样本位置级动态总结。\n\n:param settings: 实验设置字典；键请参见 ``get_automated_motility_assay_default_settings``，包括 ``src``、``db_table_name``、``n_jobs``、``max_displacement``、``track_outlier_zscore``、``infection_intensity_qc``、``infection_intensity_strategy``、``infection_intensity_mode``、``infection_xgb_drop_ambiguous``、``infection_xgb_ambiguous_low``、``infection_xgb_ambiguous_high``、``infection_xgb_proba_column``、``infection_hist_percentile``、``make_mask_panel``、``make_adjusted_panel``、``motility_xlim``、``motility_ylim``、``motility_origin_xlim``、``motility_origin_ylim`` 和 ``reuse_existing_measurements``。\n:returns: 每个细胞的测量 DataFrame 包含最终(QC 调整)标签. 测量和总结表也写为 ``measurements/measurements.db`` 和 QC 存储在 ``src`` 中。\n:raises ValueError: 当 ``settings['db_table_name']`` 命名一个 spaCR 所属的表时,请参见 :func:`_validate_db_table_name`。",
+      "source_sha256": "2ef3fc7090e32bfb8a267e643843cc2151335f2efe2940106d7b64364a49e42d",
+      "text": "细胞/病原体动力和感染的终端到终端合并NPY工作流 QC。\n\n阅读 ``merged/*.npy`` 框架,构建每个细胞的测量,清洁和坚持它们到 SQLite,计算每个轨道的速度,产生强度 + 动态 QC 面板(基于掩膜和,可选, XGBoost / 歇斯图 / PCA / UMAP / t-SNE 调整标签),并写下一个微板样本位置级动态总结。\n\n:param settings: 实验设置字典；键请参见 ``get_automated_motility_assay_default_settings``，包括 ``src``、``db_table_name``、``n_jobs``、``max_displacement``、``track_outlier_zscore``、``infection_intensity_qc``、``infection_intensity_strategy``、``infection_intensity_mode``、``infection_xgb_drop_ambiguous``、``infection_xgb_ambiguous_low``、``infection_xgb_ambiguous_high``、``infection_xgb_proba_column``、``infection_hist_percentile``、``make_mask_panel``、``make_adjusted_panel``、``motility_xlim``、``motility_ylim``、``motility_origin_xlim``、``motility_origin_ylim`` 和 ``reuse_existing_measurements``。 可选的 ``bleach_correction`` 默认为 ``none``；``ratio``、``exponential`` 或 ``histogram`` 在子对象聚合和感染质控（QC）之前，对每个视野/通道及对象角色进行校正，使用标签值为零、宽五个像素的背景环（缺失背景环时得到 NaN）。直方图匹配可能抹去生物学变化。启用校正的运行必须重新计算，不能复用缓存的测量行。原始强度测量值保持不变；带有 ``_bleach_corrected`` 和 ``_bleach_fits`` 后缀的独立表，以及拟合结果 CSV，记录校正后的水平、源文件名和方法。\n:returns: 每个细胞的测量 DataFrame 包含最终(QC 调整)标签. 测量和总结表也写为 ``measurements/measurements.db`` 和 QC 存储在 ``src`` 中。\n:raises ValueError: 当 ``settings['db_table_name']`` 命名一个 spaCR 所属的表时,请参见 :func:`_validate_db_table_name`。",
       "translation_source_blocks_sha256": [
         "783a85b9eb1e07378fc0c71a128a2e1d4fdade89bf7a5f17d7eb48bb894aef0b",
         "ffb6f516e6c651448bccbe614f7db5e49ceea332e1f19e4b983aa9e64911f8e4",
-        "ca8c46db9ca864993b684bc5c43c55c287b70628fe25e3ee313df86f365fe637",
+        "6c5dea35755db0fc6d9c5e71df3505d2e99eefe58a53343f145f7930ca2e894b",
         "9bdaad58550d3c29fc5070e95b414a236fae2b85cfa4f68695d3de08ec9c8845",
         "b6f04dcac59ff4c128b2b8aa1fb1b5eb96b899de05e43e0dc8cdcbffab37d93e"
       ]
