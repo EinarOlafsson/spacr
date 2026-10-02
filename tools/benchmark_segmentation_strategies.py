@@ -790,7 +790,7 @@ def main(argv=None) -> int:
                 if not only or strategy.key in only:
                     jobs.append((strategy, dataset))
     wanted = {s.model.split("@", 1)[1] for s, _ in jobs if "@" in s.model}
-    models = resolve_models(out, sorted(wanted | set(PV_KEYS)),
+    models = resolve_models(out, sorted(wanted),
                             allow_fetch=not args.no_fetch)
     (out / "models.json").write_text(json.dumps(models, indent=1))
 

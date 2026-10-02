@@ -105,13 +105,25 @@ def test_the_zoo_lists_each_backend_with_its_state_and_licence(tmp_path):
     rows = {e.key: e for e in zoo.installable_backend_entries()}
     for name in PREFIXED:
         row = rows[f"{name}_v1"]
-        assert (row.kind, row.source, row.uri) == (
-            "backend", "installable", f"backend:{name}")
+        assert (row.kind, row.uri) == ("backend", f"backend:{name}")
+        assert row.source in ("installable", "not installable here")
+        if row.source == "not installable here":
+            assert "needs Python" in row.notes[0]
         assert row.notes[1] == SB._SPECS[name].licence_note
     env = _finish(tmp_path, "stardist")
     ready = {e.key: e for e in zoo.installable_backend_entries()}
     assert ready["stardist_v1"].source == "installed"
     assert ready["stardist_v1"].path == str(env)
+
+
+def test_omnipose_uses_python_with_a_wheel_for_its_lxml_dependency():
+    spec = SB._SPECS["omnipose"]
+    assert spec.python == ((3, 11), (3, 12))
+    candidates = SB._interpreter_candidates(
+        spec, executable="/python3.13", version=(3, 13), frozen=False,
+        which=lambda name: "/python3.12" if name == "python3.12" else None,
+        windows=False)
+    assert candidates == [("/python3.12",)]
 
 
 # ===========================================================================

@@ -1,8 +1,9 @@
 OMNIPOSE AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
 
-Status: BUILT AS ALPHA 2026-09-26. Installed for real (CPU); segments Omnipose's own
-bacteria fields through Mask generation and Make Masks; scored against
-Cellpose 3 in item 532. No GPU. Noncommercial licence said before install.
+Status: DONE for the stated 2-D CPU acceptance on 2026-10-02; remains alpha.
+Installed for real, segments Omnipose's bacteria fields through Mask generation
+and Make Masks, and is scored against Cellpose 3. No GPU. The noncommercial
+licence is presented before install.
 Owner: Claude (551-553 worktree). Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -156,3 +157,26 @@ NOT DONE
   * plant_omni (3-D) and Omnipose's 3-D path are not wired (z stacks are
     refused for every backend).
   * i18n catalog rows (551's strings serve Omnipose too; none new here).
+
+2026-10-02 — CURRENT-SOURCE ACCEPTANCE AND PYTHON RANGE REPAIR
+    A fresh installer run on spaCR's Python 3.13 reproduced a real dependency
+    failure: aicsimageio requires lxml<5, and lxml 4.9.4 cannot build against
+    Python 3.13. The Omnipose spec now selects Python 3.11–3.12 rather than
+    advertising 3.13. With Python 3.12.14 discovered on PATH, the normal
+    isolated installer completed in 49.5 s; its self-test loaded Omnipose
+    1.1.4 and CPU torch 2.14.1. Fifty-two focused backend tests pass.
+
+    The bacteria-only benchmark no longer demands unrelated Toxoplasma model
+    files from a missing mount. It ran all seven pinned upstream fields, 621
+    saved reference objects, under a 4 GiB memory cap, zero swap, CPU1 and
+    hidden CUDA. At IoU 0.5, Omnipose bact_phase_omni scored pooled F1 0.952,
+    Cellpose 3 cyto3 scored 0.953 and cyto2 scored 0.573. At IoU 0.75 the
+    corresponding scores were 0.927, 0.937 and 0.518. Omnipose mean matched
+    IoU was 0.920 versus cyto3's 0.883. All 14 upstream input hashes remained
+    unchanged. Receipt: features/data/553_omnipose_cpu_acceptance_2026-10-02.json.
+
+    The reference masks are upstream Omnipose outputs, not independent hand
+    labels. These numbers establish real execution and comparison, not an
+    unbiased accuracy advantage. The stated DONE WHEN is met for the requested
+    2-D bacteria model. GPU, 3-D plant, and broader model comparisons in the
+    earlier NOT DONE list remain future extensions of this alpha backend.

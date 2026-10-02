@@ -605,7 +605,7 @@ _SPECS = {
         probe=("omnipose.core", "cellpose_omni.models"),
         distribution="omnipose",
         requirements=("omnipose==1.1.4", "ncolor==1.5.3"),
-        torch=("torch", "torchvision"), python=((3, 11), (3, 13)),
+        torch=("torch", "torchvision"), python=((3, 11), (3, 12)),
         licence="Omnipose NonCommercial License (University of Washington)",
         licence_note=(
             "Omnipose is NOT open source: omnipose 1.1.4 carries the "
