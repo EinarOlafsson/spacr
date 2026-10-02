@@ -1,0 +1,53 @@
+{
+  "id": "86_psf_workflow",
+  "number": 86,
+  "slug": "psf_workflow",
+  "title": "PSF: compare processing and choose measurement intensities",
+  "series": 3,
+  "app_key": null,
+  "section": "Image analysis",
+  "description": "Inspect PSF source labels, compare and apply image processing, and explicitly select original or processed intensities in Measure.",
+  "objectives": [
+    "Check objective, inferred dimensions and calibration source labels.",
+    "Compare processing and return to the original image without changing source files.",
+    "Choose the intensity source explicitly before quantitative measurement."
+  ],
+  "prerequisite": "Open an image folder in Make Masks. Use known acquisition calibration for quantitative processing; the tutorial uses a crop of the supplied Measure example and illustrative optical values.",
+  "scenes": [
+    {
+      "visual": "01_objective_and_inferred_sources",
+      "narration": "Use the point spread function controls to compare an image processing choice before using it for detection or measurement. In Make Masks, open your image folder, open Settings, and expand Image enhancement. Choose the objective used for acquisition, then click Infer from images to read the available image information.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "01b_explicit_optics_source_labels",
+      "narration": "Expand PSF optics and check the source label beside each value. Here the objective is an illustrative choice. Camera and wavelength defaults feed the calculated pixel spacing and Gaussian width. Replace those assumptions with your acquisition values before quantitative work. Image dimensions alone do not establish optical calibration.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_compare_raw_and_convolved",
+      "narration": "Choose convolution and click Compare. The left image is the original; the right shows the processing used by the detector. Gaussian convolution adds blur. Richardson–Lucy deconvolution is a separate choice; inspect its noise and artifacts before applying it.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_apply_convolution_for_display_and_detection",
+      "narration": "Click Apply to use the selected processing for display and detection. The original image and existing object labels stay unchanged. Inspect the result before generating or editing masks.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_return_to_original",
+      "narration": "Switch Apply off to return to the original image. This editor choice does not select the intensity source for quantitative measurements. Make that choice separately in Measure.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_measure_original_intensities",
+      "narration": "Open Measure and reveal its PSF settings. The intensity source defaults to original, so stored PSF processing settings do not alter the measured intensities. Keep original when your analysis should use the acquired pixels.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_measure_explicit_processed_intensities",
+      "narration": "To measure processed intensities, choose processed and select the operation. Enter the image sampling and kernel width in micrometres using your acquisition calibration; the numbers shown here are illustrative. Review the rest of your measurement settings, then run Measure when ready. Keep the PSF provenance with the results. These editor and Measure controls are available with alpha features off; batch Mask and Timelapse PSF controls require alpha features.",
+      "hold_after": 0.7
+    }
+  ]
+}

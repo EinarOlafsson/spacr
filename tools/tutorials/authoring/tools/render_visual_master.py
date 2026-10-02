@@ -11,10 +11,10 @@ import json
 import math
 import subprocess
 import tempfile
+from fractions import Fraction
 from pathlib import Path
 
 from PIL import Image, ImageDraw
-
 
 ACCENT = (74, 158, 255, 220)
 CLICK_POINT = (255, 0, 153, 255)
@@ -157,7 +157,23 @@ def encode_pointer_scene(
 
 
 def concat(parts: list[Path], output: Path, listing: Path) -> None:
-    listing.write_text("".join(f"file '{part.as_posix()}'\n" for part in parts))
+    lines = []
+    for part in parts:
+        stream = json.loads(subprocess.check_output([
+            "ffprobe", "-v", "error", "-select_streams", "v:0",
+            "-show_entries", "stream=nb_frames,r_frame_rate", "-of", "json",
+            str(part),
+        ]))["streams"][0]
+        count = int(stream["nb_frames"])
+        rate = Fraction(stream["r_frame_rate"])
+        if count <= 0 or rate <= 0:
+            raise ValueError(f"Invalid encoded scene frame count/rate: {part}")
+        # MP4's container duration rounds scene ends to milliseconds. The
+        # concat demuxer otherwise carries that error into every later scene.
+        # These constant-rate parts have an exact count/rate duration instead.
+        duration = Fraction(count, 1) / rate
+        lines.append(f"file '{part.as_posix()}'\nduration {float(duration):.9f}\n")
+    listing.write_text("".join(lines))
     run([
         "ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0",
         "-i", str(listing), "-an", "-c", "copy", "-movflags", "+faststart",
