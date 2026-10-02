@@ -1583,7 +1583,12 @@ def _watch_ready_fields(context, now):
         signature = {name: list(seen[name]['signature'])
                      for name, _channel in members}
         if entry.get('status') == 'done':
-            if signature != entry.get('files') and key not in context['warned']:
+            previous_identity = entry.get('source_identity')
+            identity_changed = isinstance(previous_identity, dict) and {
+                name: seen[name].get('identity') for name, _channel in members
+            } != previous_identity
+            if ((signature != entry.get('files') or identity_changed)
+                    and key not in context['warned']):
                 context['warned'].add(key)
                 print(f'watch_folder: {key} changed after it was analysed; it '
                       f'is not analysed again. Remove its entry from '

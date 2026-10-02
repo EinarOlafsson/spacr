@@ -284,3 +284,25 @@ NESTED CONVERT-MAP COMPANIONS (2026-10-02, partial)
     bytes, resume identity and map hash are preserved. Both processes used 4 GiB,
     CPU0, zero swap and hidden CUDA. Receipt:
     features/data/548_nested_manifest_fields_2026-10-02.json.
+
+COMPLETED SNAPSHOT IDENTITY WARNINGS (2026-10-02, partial)
+    Reproduction showed that a completed TIFF replaced with preserved size and
+    mtime silently retained its old result without the intended changed-input
+    warning. Completed fields now also compare the saved snapshot source identity
+    with the current observed identity. In-place rewrites and inode replacements
+    therefore warn without automatically reanalysing the field. Prior merged
+    outputs, file identities and SHA256 evidence are preserved unchanged.
+
+    Unchanged resumes need no further TIFF decoding. Older ledgers without source
+    identity retain the existing size/mtime comparison. Identity changes are a
+    conservative warning signal, not a claim that pixel content must differ. This
+    adds neither vendor completion semantics nor a filesystem lock; F548 remains
+    partial/alpha for its previously recorded remaining requirements. There are
+    no new settings, public API changes or translatable captions.
+
+    Validation: the pre-fix real-TIFF replacement case failed as expected in
+    6.47 seconds. All 19 focused cases then passed in 20.41 seconds: five new
+    resume cases, 13 existing snapshot cases and the existing no-map synthetic
+    preprocessing/Measure versus batch_size=1 parity case (model forward pass
+    stubbed). Runs used 4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
+    features/data/548_completed_snapshot_identity_2026-10-02.json.
