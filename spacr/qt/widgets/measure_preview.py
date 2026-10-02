@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-from PySide6.QtCore import QRectF, Qt, QTimer, Signal
+from PySide6.QtCore import QDir, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QImage, QPainter, QPainterPath, QPixmap
 from PySide6.QtWidgets import (
     QComboBox,
@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QMenu,
@@ -71,6 +72,92 @@ from ...organelle_types import (
 )
 
 LOG = logging.getLogger("spacr.qt.measure_preview")
+
+
+def _preview_crop_pixels(crop, primaries):
+    """Return the full-size RGB pixels used to draw a crop, without decoration."""
+    array = np.ascontiguousarray(crop.astype(np.uint8))
+    if array.ndim != 3 or array.shape[2] != 3 or not array.size:
+        raise ValueError(tr("A preview crop must contain nonempty RGB pixels."))
+    if primaries != "rgb":
+        from ...crops import apply_display_primaries
+        array = np.ascontiguousarray(apply_display_primaries(array, primaries))
+    return array
+
+
+def _write_preview_crop_export(destination, crops, metadata, primaries, cancelled):
+    """Stage one completed preview; the GUI publishes only its current result.
+
+    TemporaryDirectory owns cleanup even when shutdown discards the job's
+    result. Only one crop is converted at a time; source arrays are not read.
+    """
+    import hashlib
+    import tempfile
+    from PIL import Image
+
+    stage = None
+    try:
+        destination = Path(destination).expanduser().absolute()
+        destination = destination.parent.resolve(strict=True) / destination.name
+        if os.path.lexists(destination):
+            raise FileExistsError(tr("Export folder already exists: {path}",
+                                     path=str(destination)))
+        if not crops:
+            raise ValueError(tr("Run a crop preview before exporting."))
+        if cancelled.is_set():
+            return {"cancelled": True}
+        stage = tempfile.TemporaryDirectory(prefix=".spacr-preview-",
+                                            dir=destination.parent)
+        records = []
+        for index, entry in enumerate(crops):
+            if cancelled.is_set():
+                stage.cleanup()
+                return {"cancelled": True}
+            pixels = _preview_crop_pixels(entry["crop"], primaries)
+            filename = f"crop_{index + 1:06d}.png"
+            Image.fromarray(pixels).save(Path(stage.name) / filename)
+            records.append({
+                "file": filename, "source_path": str(entry["source_path"]),
+                "object_key": [str(entry["object_key"][0]),
+                               str(entry["object_key"][1]),
+                               int(entry["object_key"][2])],
+                "label": int(entry["label"]), "area": int(entry["area"]),
+                "bbox": [int(value) for value in entry["bbox"]],
+                "included": bool(entry.get("included", True)),
+                "category": str(entry.get("category", "")),
+                "unmixing": entry.get("unmixing"),
+                "shape": list(pixels.shape), "dtype": str(pixels.dtype),
+                "rgb_pixels_sha256": hashlib.sha256(pixels).hexdigest(),
+            })
+        manifest = dict(metadata, schema=1, display_primaries=primaries,
+                        export_kind="displayed_preview_crops",
+                        source_files_modified=False, batch_outputs_modified=False,
+                        crop_count=len(records), crops=records)
+        (Path(stage.name) / "provenance.json").write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=2, allow_nan=False)
+            + "\n", encoding="utf-8")
+        if cancelled.is_set():
+            stage.cleanup()
+            return {"cancelled": True}
+        return {"stage": stage, "destination": str(destination),
+                "count": len(records)}
+    except Exception as exc:
+        if stage is not None:
+            stage.cleanup()
+        return {"error": str(exc)}
+
+
+def _publish_preview_crop_export(result):
+    """Rename a staged directory in place without replacing an existing target."""
+    stage = result["stage"]
+    try:
+        destination = result["destination"]
+        if (os.path.lexists(destination)
+                or not QDir().rename(stage.name, destination)):
+            raise OSError(tr("Cannot publish export folder: {path}",
+                             path=destination))
+    finally:
+        stage.cleanup()
 
 #: The organelle slots, as a set to test membership against. There are 702 of
 #: them because `MAX_ORGANELLES` is 702, and this panel used to build a
@@ -443,6 +530,10 @@ def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
             # Crops own their RGB pixels. Release the source mapping now.
             del data
     return {"crops": crops, "error": "", "warnings": errors,
+            "export_settings": {"crop_settings": deepcopy(crop_kwargs),
+                                "object_settings": deepcopy(category_params),
+                                "unmix_settings": deepcopy(unmix_settings),
+                                "checked_sources": [str(path) for path in paths]},
             "limited_fields": max(0, len(paths) - limit)}
 
 
@@ -728,6 +819,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         #: Bumped whenever a load or a re-crop supersedes the one in flight.
         self._load_token = 0
         self._crop_token = 0
+        self._export_token = 0
+        self._export_running = False
+        self._export_job_token = None
+        self._export_source_loading = False
+        self._export_cancel = threading.Event()
+        self._crop_export_metadata = {}
+        self._crop_display_primaries = "rgb"
         self._loading_fov = False
         self._unmix_settings: Dict[str, Any] = {}
         self._confluency_settings: Dict[str, Any] = {}
@@ -982,13 +1080,21 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         actions.addWidget(self._run_btn)
         actions.addWidget(self._cancel_btn)
         actions.addWidget(self._settings_btn)
+        self._export_btn = QPushButton(tr("Export displayed crops…"))
+        self._export_btn.setEnabled(False)
+        self._export_btn.setToolTip(tr(
+            "Save the completed preview as PNG crops and provenance in a new "
+            "folder, including display colours and optional unmixing. "
+            "Batch outputs are unchanged."))
+        self._export_btn.clicked.connect(self._export_displayed_crops)
+        actions.addWidget(self._export_btn)
         self._unmix_btn = QPushButton(tr("Unmixed display"))
         self._unmix_btn.setCheckable(True)
         self._unmix_btn.setEnabled(False)
         self._unmix_btn.setProperty("maturity", "alpha")
         self._unmix_btn.setToolTip(tr(
             "Preview spectral unmixing using the run’s single-stain controls. "
-            "This changes only the displayed crops; PNG exports and source "
+            "This changes only the displayed crops; batch PNG exports and source "
             "files are unchanged."))
         self._unmix_btn.toggled.connect(self.refresh)
         actions.addWidget(self._unmix_btn)
@@ -1448,6 +1554,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         text = str(path).strip() if path else ""
         if not text:
             return False
+        self._cancel_crop_export()
+        self._export_source_loading = True
+        self._export_btn.setEnabled(False)
         self._load_token += 1
         token = self._load_token
         self._status.setText(f"Loading {os.path.basename(text)}…")
@@ -1460,6 +1569,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """Install a loaded array. Always on the GUI thread."""
         if token != self._load_token or not isinstance(payload, dict):
             return
+        self._export_source_loading = False
+        self._export_btn.setEnabled(bool(self._crops) and not self._export_running
+                                    and not self._crop_running)
         sets = payload.get("sets")
         if sets is not None:
             self._sampler.adopt(payload.get("directory"), sets,
@@ -1482,6 +1594,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             :func:`load_merged_array` accepts; a read error is shown in the
             status line and returns ``False``.
         """
+        self._cancel_crop_export()
         payload = load_merged_array(path)
         if payload["error"]:
             self._status.setText(payload["error"])
@@ -1882,6 +1995,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             absent or ``None`` leave their controls unchanged, and a value that
             cannot be applied is skipped.
         """
+        self._cancel_crop_export()
         settings = dict(settings or {})
         for key in ('unmix', 'unmix_controls', 'unmix_background_percentile'):
             if key in settings:
@@ -2076,10 +2190,99 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _cancel_extra_work(self) -> None:
         """Drop the result of the crop (or load) pass in flight."""
+        export_only = self._export_running and not self._crop_running
         self._crop_token += 1
         self._load_token += 1
         self._crop_cancel.set()
         self._pending_crop_request = None
+        self._cancel_crop_export()
+        self._export_source_loading = False
+        if export_only:
+            self._render_grid()
+
+    def _cancel_crop_export(self) -> None:
+        """Invalidate export publication without reading widget state on a worker."""
+        self._export_token += 1
+        self._export_cancel.set()
+
+    def _export_displayed_crops(self) -> None:
+        """Choose a new destination for the completed displayed sample."""
+        if (self._export_running or self._crop_running
+                or self._export_source_loading or not self._crops):
+            return
+        token = self._crop_token
+        parent = QFileDialog.getExistingDirectory(
+            self, tr("Choose an export parent folder"),
+            str(Path(self._data_path).parent) if self._data_path else "")
+        if not parent:
+            return
+        name, accepted = QInputDialog.getText(
+            self, tr("New export folder"), tr("Folder name:"),
+            text="preview_crops")
+        if not accepted:
+            return
+        name = name.strip()
+        if not name or name in {".", ".."} or any(c in name for c in "/\\\0"):
+            self.set_preview_status(tr("Choose a folder name without path separators."))
+            return
+        if token != self._crop_token:
+            self.set_preview_status(tr("Preview changed; export the new preview again."))
+            return
+        self._start_crop_export(Path(parent) / name)
+
+    def _start_crop_export(self, destination) -> None:
+        """Submit a bounded snapshot of crop references and copied metadata."""
+        if (self._export_running or self._crop_running
+                or self._export_source_loading or not self._crops):
+            return
+        self._export_token += 1
+        token, crop_token = self._export_token, self._crop_token
+        cancelled = self._export_cancel = threading.Event()
+        crops = tuple(dict(deepcopy({key: value for key, value in entry.items()
+                                    if key != "crop"}), crop=entry["crop"])
+                      for entry in self._crops)
+        metadata = deepcopy(self._crop_export_metadata)
+        primaries = self._crop_display_primaries
+        self._export_running = True
+        self._export_job_token = token
+        self._export_btn.setEnabled(False)
+        self.set_preview_busy(True)
+        self.set_preview_status(tr("Exporting displayed crops…"))
+        self._jobs.submit(
+            lambda: _write_preview_crop_export(destination, crops, metadata,
+                                                primaries, cancelled),
+            lambda result: self._finish_crop_export(token, crop_token, result))
+
+    def _finish_crop_export(self, token, crop_token, result) -> None:
+        """Publish only the current export, or clean its private staging folder."""
+        stage = result.get("stage") if isinstance(result, dict) else None
+        if token != self._export_job_token:
+            if stage is not None:
+                stage.cleanup()
+            return
+        self._export_job_token = None
+        self._export_running = False
+        self._export_btn.setEnabled(bool(self._crops) and not self._crop_running
+                                    and not self._export_source_loading)
+        if not self._crop_running:
+            self.set_preview_busy(False)
+        if token != self._export_token or crop_token != self._crop_token:
+            if stage is not None:
+                stage.cleanup()
+            return
+        if result.get("cancelled"):
+            self.set_preview_status(tr("Export cancelled."))
+        elif result.get("error"):
+            self.set_preview_status(tr("Export failed: {error}", error=result["error"]))
+        else:
+            try:
+                _publish_preview_crop_export(result)
+            except Exception as exc:
+                self.set_preview_status(tr("Export failed: {error}", error=str(exc)))
+            else:
+                self.set_preview_status(tr("Exported {count} crops to {path}.",
+                                           count=result["count"],
+                                           path=result["destination"]))
 
     def run_preview(self) -> None:
         """Re-crop on demand — the shared name for the shared action.
@@ -2108,6 +2311,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         live view may do.
         """
         self._crop_token += 1
+        self._cancel_crop_export()
         self._crop_cancel.set()
         self._pending_crop_request = None
         self._crops = []
@@ -2197,6 +2401,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self.preview_ready.emit(None)
             return
         self._crops = result.get("crops") or []
+        self._crop_export_metadata = dict(
+            result.get("export_settings") or {},
+            warnings=list(result.get("warnings") or []),
+            limited_fields=int(result.get("limited_fields") or 0))
         self._selected.clear()
         self._render_grid()
         groups = len({entry.get("category") for entry in self._crops})
@@ -2280,6 +2488,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _render_grid(self) -> None:
         """Draw the crops, grouped and headed by phenotype."""
+        primaries = self.display_primaries()
+        if primaries != self._crop_display_primaries:
+            self._cancel_crop_export()
+        self._crop_display_primaries = primaries
+        self._export_btn.setEnabled(bool(self._crops) and not self._crop_running
+                                    and not self._export_running
+                                    and not self._export_source_loading)
         self._clear_grid()
         if not self._crops:
             return
@@ -2329,12 +2544,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         :param crop: the crop's pixels.
         :returns: the pixmap.
         """
-        array = np.ascontiguousarray(crop.astype(np.uint8))
-        primaries = self.display_primaries()
-        if primaries != "rgb" and array.ndim == 3 and array.shape[2] >= 3:
-            from ...crops import apply_display_primaries
-            array = np.ascontiguousarray(
-                apply_display_primaries(array, primaries))
+        array = _preview_crop_pixels(crop, self._crop_display_primaries)
         height, width = array.shape[:2]
         image = QImage(
             array.data, width, height, 3 * width, QImage.Format_RGB888)
