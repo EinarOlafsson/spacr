@@ -2466,3 +2466,28 @@ affected complete files pass 78 tests under 4 GiB/offscreen Qt. The seventh
 failure is the tutorial player's stale source hash, owned by the N601 media
 lane; its historical publication receipt must not be rewritten. The job
 remains red until that repair and a new final-source CI run pass.
+
+2026-10-02 — FURTHER FAILED-SHARD REPAIRS (PARTIAL)
+Run 36977354516 exposed more failures in coverage shards 4, 5, 7 and 11.
+The historical tutorial publication manifest remains immutable; a separately
+reviewed source-only player hash/cache-key/browser receipt fixes its stale
+source assertion (commit 7e683bced, four focused checks and real browser).
+
+The current source fixes several independent real regressions. Newly built
+condition annotation, merge and calibration tables now use the shared three-
+state semantic sorting contract and numeric-aware cells; the annotation
+widget's stylesheet registrar is loaded at startup. Valid repeated Mask
+preview knob changes coalesce the empty-grid redraw into one event-loop turn
+while keeping the latest completed crop rendering. Convert's hand-built
+editors move help from the input field to its label; Annotate's similar-
+count help sits on its label. The timelapse mock now verifies the current
+frame-source and label-stack handoff. The conversion-manifest watch test now
+expects the stricter existing guard to reject a map changed mid-field before
+publishing that field, preserving the source and combined outputs.
+
+The affected table/dialog/watch cohort passed 41 checks, Measure preview
+52 checks (one repeated targeted case), tooltip placement 8 checks and the
+lineage handoff targeted case passed under 4 GiB/offscreen Qt, CPU2, no GPU.
+The remaining hover-delay cases and any later shard failures are still open;
+there is no final-source green CI claim. Receipt:
+features/data/43_failed_shards_followup_2026-10-02.json.

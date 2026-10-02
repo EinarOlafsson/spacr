@@ -46,6 +46,7 @@ from ...condition_annotations import new_definition, preview, table_identity
 from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import RADIUS, SPACING, register_widget_qss
+from .sortable_table import install_sorting
 
 
 def _condition_qss(palette, opacity=None):
@@ -372,6 +373,11 @@ class ConditionRowsModel(QAbstractTableModel):
 
 class ConditionSourceTable(QTableView):
     """Drag selected proxy rows using their original source identities."""
+
+    def setModel(self, model):  # noqa: N802
+        """Use the shared sort cycle without replacing the identity proxy."""
+        super().setModel(model)
+        install_sorting(self)
 
     def startDrag(self, supported_actions):  # noqa: N802
         """Create one token per selected row after sorting/filtering.

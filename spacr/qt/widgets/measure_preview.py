@@ -2317,13 +2317,14 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._crops = []
         self._selected.clear()
         self.set_preview_busy(False)
-        self._render_grid()
         if self._data is not None and not self._checked_sources:
+            self._render_grid()
             self.set_preview_busy(False)
             self.set_preview_status(tr("No images checked."))
             self.preview_ready.emit([])
             return
         if self._data is None:
+            self._render_grid()
             self.set_preview_status(self.PREVIEW_SOURCE_HINT)
             return
         channels = _mapping_to_rgb_list(self._png_channel_mapping())
@@ -2332,6 +2333,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if one is not None and 0 <= one < self._data.shape[2]:
             channels = [one, one, one]
         if not channels:
+            self._render_grid()
             self._status.setText("PNG channels do not exist in this array.")
             return
         mask_dim = self._current_mask_dim()
@@ -2371,6 +2373,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self._pending_crop_request = request
         else:
             self._start_crop_request(request)
+        # Spinbox drags call refresh repeatedly in one event-loop turn. Clear
+        # the old grid once for the latest token, then draw only its result.
+        token = self._crop_token
+        QTimer.singleShot(0, lambda: self._render_grid()
+                          if token == self._crop_token and self._crop_running
+                          else None)
 
     def _start_crop_request(self, request) -> None:
         """Run one crop pass at a time and retain only the newest request."""

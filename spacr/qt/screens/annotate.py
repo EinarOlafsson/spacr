@@ -4553,7 +4553,7 @@ class AnnotateScreen(QWidget):
         self._similar_k.setObjectName("AnnotateSimilarCount")
         self._similar_k.setRange(1, 1000000)
         self._similar_k.setValue(100)
-        self._similar_k.setToolTip(tr("Maximum number of similar crops; the reference crop is shown separately."))
+        label.setToolTip(tr("Maximum number of similar crops; the reference crop is shown separately."))
         label.setBuddy(self._similar_k)
         layout.addWidget(label)
         layout.addWidget(self._similar_k)

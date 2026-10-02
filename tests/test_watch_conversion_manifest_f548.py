@@ -106,7 +106,10 @@ def test_change_between_ready_fields_stops_before_second_analysis(tmp_path):
     assert len(recorder.calls) == 1
     ledger = json.loads(_ledger_bytes(tmp_path))
     assert list(ledger['fields']) == ['plate1_A01_0001_001']
-    assert ledger['fields']['plate1_A01_0001_001']['status'] == 'done'
+    # The metadata changed while A01 was in flight. Its output must not be
+    # published under the old map, even though analysis itself returned.
+    assert ledger['fields']['plate1_A01_0001_001']['status'] == 'failed'
+    assert not (tmp_path / 'spacr_watch/merged/plate1_A01_0001_001.npy').exists()
 
 
 @pytest.mark.parametrize('case', ['duplicate', 'conflict', 'path', 'bad_channel', 'z', 't', 'blank'])

@@ -14,12 +14,12 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QTableWidget,
-    QTableWidgetItem,
     QVBoxLayout,
 )
 
 from ..i18n import tr
 from ..job_runner import JobRunner
+from .sortable_table import install_sorting, table_item
 
 __all__ = ()
 
@@ -165,6 +165,7 @@ class _CalibrationPreview(QDialog):
         help_label.setWordWrap(True)
         layout.addWidget(help_label)
         self.table = QTableWidget(0, 7, self)
+        install_sorting(self.table)
         self.table.setObjectName('CalibrationGainTable')
         self.table.setHorizontalHeaderLabels([
             tr('Source'), tr('Plate'), tr('Reference plate'), tr('Channel'),
@@ -262,7 +263,7 @@ class _CalibrationPreview(QDialog):
                                  f'{gain:.8g}', f"{values['reference_statistic'][channel]:.8g}",
                                  str(values['n_reference_fields'])]
                         for column, value in enumerate(cells):
-                            item = QTableWidgetItem(value)
+                            item = table_item(value)
                             item.setToolTip(value)
                             self.table.setItem(row, column, item)
             self.status.setText(tr('Preview complete. No images or measurements were changed.'))

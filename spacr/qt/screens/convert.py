@@ -482,6 +482,8 @@ class ConvertScreen(QWidget):
         self._status.setObjectName("Muted")
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
 
     def _set_status(self, text: str, error: bool = False) -> None:

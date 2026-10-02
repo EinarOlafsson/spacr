@@ -25,7 +25,6 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QPushButton,
     QTableWidget,
-    QTableWidgetItem,
     QTextEdit,
     QVBoxLayout,
 )
@@ -40,6 +39,7 @@ from ...derived_tables import (
 from ...merge_tables import MergeError, aggregation_for
 from ..i18n import tr
 from ..job_runner import JobRunner
+from .sortable_table import install_sorting, table_item
 from ..theme import SPACING
 
 WARNING = (
@@ -112,11 +112,12 @@ class CustomMergeDialog(QDialog):
         form.addRow("Base observation keys", self.base_keys)
         outer.addLayout(form)
         self.joins = QTableWidget(len(definition["joins"]), 6, self)
+        install_sorting(self.joins)
         self.joins.setHorizontalHeaderLabels(
             ["Child table", "Base keys", "Child keys", "Relationship", "Join", "Identifiers"])
         self._rows = []
         for row, join in enumerate(definition["joins"]):
-            item = QTableWidgetItem(join["table"])
+            item = table_item(join["table"])
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             self.joins.setItem(row, 0, item)
             left = QLineEdit(", ".join(join["left_keys"]), self)
@@ -250,6 +251,7 @@ class MergeTablesDialog(QDialog):
         note.setWordWrap(True)
         outer.addWidget(note)
         self.rules = QTableWidget(0, 3, self)
+        install_sorting(self.rules)
         self.rules.setHorizontalHeaderLabels(["Table", "Column", "Aggregation"])
         self.rules.horizontalHeader().setStretchLastSection(True)
         outer.addWidget(self.rules, 1)
@@ -384,7 +386,7 @@ class MergeTablesDialog(QDialog):
                 row = self.rules.rowCount()
                 self.rules.insertRow(row)
                 for index, text in enumerate((join["table"], column)):
-                    item = QTableWidgetItem(text)
+                    item = table_item(text)
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                     self.rules.setItem(row, index, item)
                 method = self._overrides.get(join["table"], {}).get(column, aggregation_for(
