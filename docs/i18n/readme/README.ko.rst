@@ -153,16 +153,16 @@ The installers bundle their own Python. Conda is not required.
 
 .. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
-   :alt: Windows 10/11용 spaCR 1.5.1.2 다운로드
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.2/spaCR-1.5.1.2-Windows-Online-Setup.exe
+   :alt: Windows 10/11용 spaCR 1.5.1.3 다운로드
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.3/spaCR-1.5.1.3-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
-   :alt: macOS 11+ (Intel 및 Apple Silicon)용 spaCR 1.5.1.2 다운로드
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.2/spaCR-1.5.1.2-macOS-Universal-Online.pkg
+   :alt: macOS 11+ (Intel 및 Apple Silicon)용 spaCR 1.5.1.3 다운로드
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.3/spaCR-1.5.1.3-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
-   :alt: 64비트 Linux용 spaCR 1.5.1.2 다운로드
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.2/spaCR-1.5.1.2-Linux-x86_64-Online.run
+   :alt: 64비트 Linux용 spaCR 1.5.1.3 다운로드
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.3/spaCR-1.5.1.3-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: 이전 spaCR 설치 프로그램
