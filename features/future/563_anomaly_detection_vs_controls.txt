@@ -1,6 +1,7 @@
 ANOMALY / NOVELTY DETECTION AGAINST NEGATIVE CONTROLS
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27
+Status: DONE (ALPHA) 2026-10-02 against the original hit-ranking and
+        outlier-review criterion; external validation remains limited.
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -164,3 +165,25 @@ Thirty backend checks pass on the final follow-up under 1 GiB, one actual CPU
 and zero swap, including same-path deduplication, all identity/time safeguards,
 the canonical single-mode producer contract and explicit/missing/conflicting
 mode metadata. No public API or runtime caption change is introduced.
+
+2026-10-02 — ORIGINAL DONE WHEN ACCEPTED ON CURRENT SOURCE
+    The archived CPJUMP1 real-screen acceptance above shows annotated
+    positive-control wells above DMSO: well AUROC 0.880–0.898 from the
+    single-cell table and 0.953–0.959 from four-plate well profiles.
+    Top-scoring objects reach the review figure; current physical object
+    tables with unambiguous png_list links can show their crops. The source
+    scorer and GUI were rechecked today: 64 focused tests passed under a
+    4 GiB cap, CPU0 and zero swap, covering hit ranking, review output,
+    crop identity and alpha visibility. See
+    features/data/563_current_source_acceptance_2026-10-02.json.
+    The overlooked indirect "Control percentile" review-table heading is
+    now source-bound and reviewed in all nine runtime locales; the full
+    catalog audit and 13 focused checks pass with exactly one new UI identity
+    and no changed historical translations. See
+    features/data/563_control_percentile_i18n_2026-10-02.json.
+
+    This accepts the stated DONE WHEN as an alpha capability. The real
+    object-level AUROC is modest (0.63–0.66), no normalising flow was
+    trained, and independent external-lab replication is still needed
+    before claiming broad biological accuracy. The archived screen result
+    was not rerun today because that scratch dataset is unavailable here.
