@@ -1,0 +1,56 @@
+[
+  {
+    "language": "sv",
+    "new_messages": 4,
+    "existing_messages_and_comments_unchanged": 12,
+    "compiled_mo_bytes": 9597
+  },
+  {
+    "language": "de",
+    "new_messages": 4,
+    "existing_messages_and_comments_unchanged": 12,
+    "compiled_mo_bytes": 10166
+  },
+  {
+    "language": "es",
+    "new_messages": 4,
+    "existing_messages_and_comments_unchanged": 12,
+    "compiled_mo_bytes": 10244
+  },
+  {
+    "language": "pt",
+    "new_messages": 4,
+    "existing_messages_and_comments_unchanged": 12,
+    "compiled_mo_bytes": 10065
+  },
+  {
+    "language": "fr",
+    "new_messages": 4,
+    "existing_messages_and_comments_unchanged": 12,
+    "compiled_mo_bytes": 10470
+  },
+  {
+    "language": "is",
+    "new_messages": 4,
+    "existing_messages_and_comments_unchanged": 12,
+    "compiled_mo_bytes": 10014
+  },
+  {
+    "language": "zh_CN",
+    "new_messages": 4,
+    "existing_messages_and_comments_unchanged": 12,
+    "compiled_mo_bytes": 9153
+  },
+  {
+    "language": "ko",
+    "new_messages": 4,
+    "existing_messages_and_comments_unchanged": 12,
+    "compiled_mo_bytes": 10427
+  },
+  {
+    "language": "hi",
+    "new_messages": 4,
+    "existing_messages_and_comments_unchanged": 12,
+    "compiled_mo_bytes": 14863
+  }
+]

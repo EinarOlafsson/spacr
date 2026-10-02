@@ -341,7 +341,9 @@
   "Thumbnail quality": "Gæði smámynda",
   "Uncheck all images": "Afvelja allar myndir",
   "Use stored image layout": "Nota vistaða uppröðun mynda",
-  "Working…": "Að vinna..."
+  "Working…": "Að vinna...",
+  "Convert": "Konvertir",
+  "Plate barcode linkage (Alpha)": "Tenging plötustrikamerkja (alfa)"
  },
  "runtime_suspect": {}
 }

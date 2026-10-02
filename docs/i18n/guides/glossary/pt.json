@@ -339,7 +339,9 @@
   "Thumbnail quality": "Qualidade das miniaturas",
   "Uncheck all images": "Desmarque todas as imagens",
   "Use stored image layout": "Usar o layout de imagem armazenado",
-  "Working…": "Trabalhando..."
+  "Working…": "Trabalhando...",
+  "Convert": "Converter",
+  "Plate barcode linkage (Alpha)": "Vinculação de placas por código de barras (Alpha)"
  },
  "runtime_suspect": {
   "Secondary objects from primary masks": "Objetos secundários (máscara primária)"

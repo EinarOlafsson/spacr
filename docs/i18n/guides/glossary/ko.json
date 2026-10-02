@@ -341,7 +341,9 @@
   "Thumbnail quality": "썸네일 품질",
   "Uncheck all images": "모든 이미지 선택 해제",
   "Use stored image layout": "저장된 이미지 레이아웃을 사용합니다.",
-  "Working…": "작업 중…"
+  "Working…": "작업 중…",
+  "Convert": "변환",
+  "Plate barcode linkage (Alpha)": "플레이트 바코드 연결 (알파)"
  },
  "runtime_suspect": {}
 }

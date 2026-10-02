@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-01 23:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -34,6 +34,22 @@ msgstr "Una tabla local CSV, TSV, Excel o Parquet necesita una columna de códig
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata."
 msgstr "Establezca ``plate_barcode_column`` si su columna de código de barras tiene otro nombre. ``plate_barcodes`` relaciona el nombre de una placa fotografiada con su código de barras. De lo contrario, spaCR lee ``barcode.txt`` en la carpeta de la placa o utiliza el nombre de la placa. Conserve unidades de concentración significativas en los metadatos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Link during Convert"
+msgstr "Vinculación en Convertir"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names."
+msgstr "En **Convertir**, active **Mostrar funciones alfa** y elija un CSV local de registros de muestras en **Vinculación de placas por código de barras (Alpha)**. El CSV necesita una columna de código de barras, una columna de pocillo y los campos de muestra que desee incluir en el mapa de placa. La vista previa valida la vinculación antes de escribir imágenes. Convertir utiliza los nombres de las placas de salida que aparecen en su vista previa; pueden diferir de los nombres de las carpetas de origen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate."
+msgstr "Asigne códigos de barras a las placas de salida con el formato ``plate1=BC001; plate2=BC002``, o coloque un archivo ``barcode.txt`` en UTF-8 en la raíz de la adquisición o en una carpeta real de placa de origen. Un archivo que contiene un único código de barras sin asignación solo se aplica cuando esa carpeta contiene una única placa de origen. Para varias placas, escriba una entrada ``source_plate=barcode`` por placa, separadas por saltos de línea o puntos y coma; las claves son los *nombres originales de las placas de origen*. Las asignaciones explícitas en Convertir utilizan los nombres de las placas de *salida* y pueden completar las placas restantes. spaCR conserva los ceros iniciales, rechaza las asignaciones ambiguas o contradictorias y exige un código de barras para cada placa de salida."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service."
+msgstr "Tras una conversión completa, lea ``plate_barcode_linkage/plate_map_lims.csv`` en el destino. Revise allí ``plate_barcode_mismatches.csv`` para ver los pocillos sin correspondencia y otras discrepancias. El registro de finalización ``complete.json`` se escribe al final; su ausencia significa que el paquete de vinculación está incompleto. La pantalla Convertir muestra una vista previa limitada de las discrepancias y las rutas de ambos archivos CSV. Las imágenes originales, los archivos de códigos de barras y los mapas de placa existentes del usuario permanecen sin cambios. Esta ruta de Convertir acepta un CSV local; utilice Medición para un servicio HTTP LIMS."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Read records from a LIMS service"

@@ -336,7 +336,9 @@
   "Thumbnail quality": "缩略图质量",
   "Uncheck all images": "取消勾选所有图像",
   "Use stored image layout": "使用存储的图像配置",
-  "Working…": "工作..."
+  "Working…": "工作...",
+  "Convert": "转换",
+  "Plate barcode linkage (Alpha)": "板条码关联（Alpha）"
  },
  "runtime_suspect": {
   "3D Calibration (Beta)": "三维校准（Beta）",

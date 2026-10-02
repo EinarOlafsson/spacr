@@ -1,0 +1,45 @@
+{
+  "author": "shared_ui",
+  "checks": {
+    "hi": {
+      "all_identifiers_preserved": true,
+      "file_sha256": "5ddcf2597145969bbc294cff44cff11040b70877a1a6473b9ecde679720f6567",
+      "meaning_reviewed": true,
+      "one_vs_multiple_source_plates": true,
+      "receipt_last_and_mismatch_review": true,
+      "source_output_plate_distinction": true,
+      "utf8_and_leading_zeroes": true
+    },
+    "is": {
+      "all_identifiers_preserved": true,
+      "file_sha256": "539ec02b59b53aeb4babfc35e865e819eb619ea80a263b4fa61cac91ec98fc83",
+      "meaning_reviewed": true,
+      "one_vs_multiple_source_plates": true,
+      "receipt_last_and_mismatch_review": true,
+      "source_output_plate_distinction": true,
+      "utf8_and_leading_zeroes": true
+    },
+    "ko": {
+      "all_identifiers_preserved": true,
+      "file_sha256": "e26d5beadb1041797739addf4a2e69341628682036226ecad1ff184b3ecce706",
+      "meaning_reviewed": true,
+      "one_vs_multiple_source_plates": true,
+      "receipt_last_and_mismatch_review": true,
+      "source_output_plate_distinction": true,
+      "utf8_and_leading_zeroes": true
+    },
+    "zh_CN": {
+      "all_identifiers_preserved": true,
+      "file_sha256": "c2e891322fa7412d9c46c0eb100097a72aa72e2b1ee29f869bd9f1215dafbe71",
+      "meaning_reviewed": true,
+      "one_vs_multiple_source_plates": true,
+      "receipt_last_and_mismatch_review": true,
+      "source_output_plate_distinction": true,
+      "utf8_and_leading_zeroes": true
+    }
+  },
+  "decision": "accepted",
+  "notes": "Korean RST boundary escapes preserve the visible translated wording. No native-speaker signoff claimed.",
+  "reviewer": "root",
+  "scope": "F583 Convert guide four new source-bound messages in zh_CN, hi, ko, is; independent AI technical review only."
+}

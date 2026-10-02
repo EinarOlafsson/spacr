@@ -342,7 +342,9 @@
   "Thumbnail quality": "थंबनेल गुणवत्ता",
   "Uncheck all images": "सभी चित्रों का चयन हटाएँ",
   "Use stored image layout": "संग्रहीत छवि लेआउट का उपयोग करें",
-  "Working…": "काम करने..."
+  "Working…": "काम करने...",
+  "Convert": "रूपांतरण",
+  "Plate barcode linkage (Alpha)": "प्लेट बारकोड लिंकिंग (अल्फ़ा)"
  },
  "runtime_suspect": {}
 }

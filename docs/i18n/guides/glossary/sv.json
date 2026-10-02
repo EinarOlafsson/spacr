@@ -338,7 +338,9 @@
   "Thumbnail quality": "Miniatyrbildskvalitet",
   "Uncheck all images": "Avmarkera alla bilder",
   "Use stored image layout": "Använd lagrad bildlayout",
-  "Working…": "Jobbar..."
+  "Working…": "Jobbar...",
+  "Convert": "Konvertera",
+  "Plate barcode linkage (Alpha)": "Koppling av plattstreckkoder (alfa)"
  },
  "runtime_suspect": {}
 }

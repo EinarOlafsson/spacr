@@ -337,7 +337,9 @@
   "Thumbnail quality": "Qualität der Vorschaubilder",
   "Uncheck all images": "Alle Bilder abwählen",
   "Use stored image layout": "Gespeichertes Bildlayout verwenden",
-  "Working…": "Arbeiten..."
+  "Working…": "Arbeiten...",
+  "Convert": "Umrechnen",
+  "Plate barcode linkage (Alpha)": "Plattenverknüpfung über Barcodes (Alpha)"
  },
  "runtime_suspect": {}
 }

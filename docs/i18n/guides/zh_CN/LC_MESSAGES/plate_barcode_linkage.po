@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-01 23:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -34,6 +34,22 @@ msgstr "本地 CSV、TSV、Excel 或 Parquet 表需要条码列、孔位列以�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata."
 msgstr "如果条码列使用其他名称，请设置 ``plate_barcode_column``。``plate_barcodes`` 将成像板的名称映射到其条码。否则，spaCR 会读取板文件夹中的 ``barcode.txt``，或使用板名称。请在元数据中保留有意义的浓度单位。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Link during Convert"
+msgstr "转换时关联"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names."
+msgstr "在 **转换** 中，启用 **显示 Alpha 功能**，然后在 **板条码关联（Alpha）** 中选择本地样本记录 CSV。CSV 需要包含条形码列、孔位列，以及您希望填入板图的样本信息列。预览会在写入图像之前验证关联。转换使用预览中显示的输出板名称；这些名称可能与源文件夹名称不同。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate."
+msgstr "按 ``plate1=BC001; plate2=BC002`` 的格式分配输出板条形码，或在采集根目录或实际源板文件夹中放置一个 UTF-8 编码的 ``barcode.txt`` 文件。只包含一个纯条形码的文件，仅适用于该文件夹中只有一个源板的情况。有多个板时，为每个板填写一条 ``source_plate=barcode`` 记录，以换行或分号分隔；这些键是 *原始来源* 的板名称。转换中的显式分配使用 *输出* 板名，可用于补齐其余板的条形码。spaCR 保留前导零，拒绝含义不明确或相互冲突的分配，并要求每个输出板都有条形码。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service."
+msgstr "转换完整完成后，读取目标目录中的 ``plate_barcode_linkage/plate_map_lims.csv`` 。在同一位置检查 ``plate_barcode_mismatches.csv`` ，了解未匹配的孔位及其他不一致情况。``complete.json`` 凭据最后写入；缺少该文件表示关联数据包尚未完整生成。转换界面显示限定数量的不匹配项预览，以及两个 CSV 文件的路径。原始图像、条形码文件和用户已有的板图均保持不变。此转换流程接受本地 CSV；如需使用 HTTP LIMS 服务，请使用测量。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Read records from a LIMS service"

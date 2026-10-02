@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "language": "es",
+  "method": "Direct Codex AI technical translation with independent Codex AI peer review; no local-model draft or human/native-speaker signoff. Normal guide literal, role, UI and source-bound checks unchanged.",
+  "draft_author": "merge_interfaces",
+  "independent_technical_reviewer": "root",
+  "draft_sha256": "d6357c448162bf224681dc5ed008124fae929b898e3620634efcca838e7c07b8",
+  "reviewed_sha256": "c3adb589c36a7e6b5865dfb9457f7ea769e3825e29b83ce78a5e12a3ca147793",
+  "peer_review": {
+    "reviewer": "root",
+    "languages": [
+      "de",
+      "es",
+      "pt",
+      "fr"
+    ],
+    "source": "exact four-entry worklists",
+    "decision": "accepted after grammar edits to es/pt message 2",
+    "message_count": 16,
+    "literal_and_glossary_checks": "passed",
+    "semantic_checks": [
+      "source vs output plate identity",
+      "plain one-source-plate sidecar and keyed multiple-source-plate mapping",
+      "explicit output assignments and zero/conflict guards",
+      "CSV mismatch/complete receipt and unchanged original inputs",
+      "local CSV versus Measure HTTP LIMS"
+    ]
+  },
+  "peer_review_sha256": "ec281c1bc3c81e2ba69854bcecbb578031dd36637d465691e9ea60247b8bded0",
+  "source_files": {
+    "docs/source/plate_barcode_linkage.rst": "165873b6b15a164964d90bee1a4b19a7cecbf41be9b57b03fdd5afc960c7c5c6"
+  },
+  "runtime_catalog_sha256": "5534052de766258dae03e56c21f87b64592e767ceabd9b94a50d659c3af7ece2",
+  "derivative": "Independent root review clarifies original source plate naming",
+  "records": [
+    {
+      "index": 0,
+      "domain": "plate_barcode_linkage",
+      "source": "Link during Convert",
+      "source_sha256": "4015578abe1bc88031b4db2df45728ae2f08af2a50edd65b8cc3ae4c231a1a5f",
+      "original_ai_draft": "Vinculación en Convertir",
+      "reviewed_translation": "Vinculación en Convertir",
+      "ui_bindings": {}
+    },
+    {
+      "index": 1,
+      "domain": "plate_barcode_linkage",
+      "source": "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names.",
+      "source_sha256": "631a13528efa95a3c275e7b7ed48671661d8bc77435161b33ed01d942985d5b8",
+      "original_ai_draft": "En **Convertir**, active **Mostrar funciones alfa** y elija un CSV local de registros de muestras en **Vinculación de placas por código de barras (Alpha)**. El CSV necesita una columna de código de barras, una columna de pocillo y los campos de muestra que desee incluir en el mapa de placa. La vista previa valida la vinculación antes de escribir imágenes. Convertir utiliza los nombres de las placas de salida que aparecen en su vista previa; pueden diferir de los nombres de las carpetas de origen.",
+      "reviewed_translation": "En **Convertir**, active **Mostrar funciones alfa** y elija un CSV local de registros de muestras en **Vinculación de placas por código de barras (Alpha)**. El CSV necesita una columna de código de barras, una columna de pocillo y los campos de muestra que desee incluir en el mapa de placa. La vista previa valida la vinculación antes de escribir imágenes. Convertir utiliza los nombres de las placas de salida que aparecen en su vista previa; pueden diferir de los nombres de las carpetas de origen.",
+      "ui_bindings": {
+        "Show alpha features": "Mostrar funciones alfa",
+        "Convert": "Convertir",
+        "Plate barcode linkage (Alpha)": "Vinculación de placas por código de barras (Alpha)"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "plate_barcode_linkage",
+      "source": "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate.",
+      "source_sha256": "cc496d3ac0f42d4c531b3e87265e8258a066687a6dd1e1889d7548cfe9cc08e5",
+      "original_ai_draft": "Asigne códigos de barras a las placas de salida con el formato ``plate1=BC001; plate2=BC002``, o coloque un archivo ``barcode.txt`` en UTF-8 en la raíz de la adquisición o en una carpeta real de placa de origen. Un archivo que contiene un único código de barras sin asignación solo se aplica cuando esa carpeta contiene una única placa de origen. Para varias placas, escriba una entrada ``source_plate=barcode`` por placa, separadas por saltos de línea o puntos y coma; las claves son los nombres de las placas de *origen originales*. Las asignaciones explícitas en Convertir utilizan los nombres de las placas de *salida* y pueden completar las placas restantes. spaCR conserva los ceros iniciales, rechaza las asignaciones ambiguas o contradictorias y exige un código de barras para cada placa de salida.",
+      "reviewed_translation": "Asigne códigos de barras a las placas de salida con el formato ``plate1=BC001; plate2=BC002``, o coloque un archivo ``barcode.txt`` en UTF-8 en la raíz de la adquisición o en una carpeta real de placa de origen. Un archivo que contiene un único código de barras sin asignación solo se aplica cuando esa carpeta contiene una única placa de origen. Para varias placas, escriba una entrada ``source_plate=barcode`` por placa, separadas por saltos de línea o puntos y coma; las claves son los *nombres originales de las placas de origen*. Las asignaciones explícitas en Convertir utilizan los nombres de las placas de *salida* y pueden completar las placas restantes. spaCR conserva los ceros iniciales, rechaza las asignaciones ambiguas o contradictorias y exige un código de barras para cada placa de salida.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 3,
+      "domain": "plate_barcode_linkage",
+      "source": "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service.",
+      "source_sha256": "e4a399863efb9348311b70ec2daf99ceebc0154669d043866dd1137539143d55",
+      "original_ai_draft": "Tras una conversión completa, lea ``plate_barcode_linkage/plate_map_lims.csv`` en el destino. Revise allí ``plate_barcode_mismatches.csv`` para ver los pocillos sin correspondencia y otras discrepancias. El registro de finalización ``complete.json`` se escribe al final; su ausencia significa que el paquete de vinculación está incompleto. La pantalla Convertir muestra una vista previa limitada de las discrepancias y las rutas de ambos archivos CSV. Las imágenes originales, los archivos de códigos de barras y los mapas de placa existentes del usuario permanecen sin cambios. Esta ruta de Convertir acepta un CSV local; utilice Medición para un servicio HTTP LIMS.",
+      "reviewed_translation": "Tras una conversión completa, lea ``plate_barcode_linkage/plate_map_lims.csv`` en el destino. Revise allí ``plate_barcode_mismatches.csv`` para ver los pocillos sin correspondencia y otras discrepancias. El registro de finalización ``complete.json`` se escribe al final; su ausencia significa que el paquete de vinculación está incompleto. La pantalla Convertir muestra una vista previa limitada de las discrepancias y las rutas de ambos archivos CSV. Las imágenes originales, los archivos de códigos de barras y los mapas de placa existentes del usuario permanecen sin cambios. Esta ruta de Convertir acepta un CSV local; utilice Medición para un servicio HTTP LIMS.",
+      "ui_bindings": {}
+    }
+  ]
+}

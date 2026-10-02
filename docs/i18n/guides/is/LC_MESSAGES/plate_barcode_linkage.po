@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-01 23:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -34,6 +34,22 @@ msgstr "Staðbundin CSV-, TSV-, Excel- eða Parquet-tafla þarf strikamerkjadál
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata."
 msgstr "Stilltu ``plate_barcode_column`` ef strikamerkjadálkurinn heitir öðru nafni. ``plate_barcodes`` varpar nafni myndaðrar plötu á strikamerki hennar. Annars les spaCR ``barcode.txt`` í plötumöppunni eða notar nafn plötunnar. Haltu skýrum styrkleikaeiningum í lýsigögnunum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Link during Convert"
+msgstr "Tengja við Konvertir"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names."
+msgstr "Í **Konvertir** skal virkja **Sýna alfa-eiginleika** og velja staðbundna CSV-skrá með sýnisfærslum í **Tenging plötustrikamerkja (alfa)**. CSV-skráin þarf dálk fyrir strikamerki, dálk fyrir brunna og þá sýnisreiti sem eiga að birtast í plötukortinu. Forskoðun sannreynir tenginguna áður en myndir eru skrifaðar. Konvertir notar nöfn úttaksplatna sem birtast í forskoðuninni; þau geta verið önnur en nöfn upprunamappna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate."
+msgstr "Úthlutið strikamerkjum úttaksplatna á forminu ``plate1=BC001; plate2=BC002`` eða setjið UTF-8-skrá að nafni ``barcode.txt`` í rótarmöppu myndatökugagnanna eða í raunverulega möppu upprunaplötu. Skrá sem inniheldur aðeins eitt strikamerki á aðeins við þegar mappan geymir eina upprunaplötu. Fyrir margar plötur skal skrifa eina ``source_plate=barcode`` færslu fyrir hverja plötu og aðgreina færslurnar með línuskiptum eða semíkommum; lyklarnir eru nöfn *upprunalegu upprunaplatnanna*. Beinar úthlutanir í Konvertir nota nöfn *úttaksplatnanna* og geta fyllt inn strikamerki fyrir þær plötur sem eftir eru. spaCR varðveitir núll fremst í strikamerkjum, hafnar tvíræðum eða ósamhljóða úthlutunum og krefst strikamerkis fyrir hverja úttaksplötu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service."
+msgstr "Eftir að umbreytingu er lokið skal lesa ``plate_barcode_linkage/plate_map_lims.csv`` í úttaksmöppunni. Skoðið ``plate_barcode_mismatches.csv`` þar til að finna brunna sem pössuðu ekki og annað ósamræmi. Kvittunin ``complete.json`` er skrifuð síðust; ef hún vantar er tengingarpakkinn ófullgerður. Konvertir-skjárinn sýnir takmarkaðan fjölda ósamræmisfærslna í forskoðun og slóðir beggja CSV-skránna. Upprunalegum myndum, strikamerkjaskrám og núverandi plötukortum notandans er ekki breytt. Þessi leið í Konvertir tekur við staðbundinni CSV-skrá; notið Mæling fyrir HTTP LIMS-þjónustu."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Read records from a LIMS service"

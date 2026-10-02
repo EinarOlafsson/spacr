@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-01 23:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -34,6 +34,22 @@ msgstr "En lokal CSV-, TSV-, Excel- eller Parquet-tabell behöver en streckkodsk
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata."
 msgstr "Ange ``plate_barcode_column`` om streckkodskolumnen har ett annat namn. ``plate_barcodes`` kopplar en avbildad plattas namn till dess streckkod. Annars läser spaCR ``barcode.txt`` i plattans mapp eller använder plattnamnet. Behåll meningsfulla koncentrationsenheter i dina metadata."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Link during Convert"
+msgstr "Koppla vid konvertering"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names."
+msgstr "I **Konvertera** aktiverar du **Visa alfafunktioner** och väljer en lokal CSV med provposter under **Koppling av plattstreckkoder (alfa)**. CSV-filen behöver en streckkodskolumn, en brunnskolumn och de provuppgifter som ska ingå i plattkartan. Förhandsgranskningen validerar kopplingen innan bilder skrivs. Konvertera använder namnen på utdataplattorna som visas i förhandsgranskningen; de kan skilja sig från namnen på källmapparna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate."
+msgstr "Ange streckkoder för utdataplattorna i formen ``plate1=BC001; plate2=BC002``, eller lägg en UTF-8-kodad ``barcode.txt`` i källans rotmapp eller i en faktisk källplattas mapp. En fil med endast en streckkod gäller bara när mappen innehåller en enda källplatta. För flera plattor skriver du en post av formen ``source_plate=barcode`` per platta, avskild med radbrytning eller semikolon; nycklarna är de *ursprungliga källplattornas* namn. Uttryckliga tilldelningar i Konvertera använder *utdataplattornas* namn och kan fylla i återstående plattor. spaCR bevarar inledande nollor, avvisar tvetydiga eller motstridiga tilldelningar och kräver en streckkod för varje utdataplatta."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service."
+msgstr "Efter en slutförd konvertering hittar du ``plate_barcode_linkage/plate_map_lims.csv`` i målmappen. Granska ``plate_barcode_mismatches.csv`` där för omatchade brunnar och andra avvikelser. Kvittot ``complete.json`` skrivs sist; om det saknas är kopplingspaketet ofullständigt. Skärmen Konvertera visar en begränsad förhandsgranskning av avvikelserna och sökvägarna till båda CSV-filerna. Originalbilder, streckkodsfiler och befintliga användarskapade plattkartor lämnas oförändrade. Den här vägen i Konvertera tar emot en lokal CSV; använd Mätning för en LIMS-tjänst via HTTP."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Read records from a LIMS service"

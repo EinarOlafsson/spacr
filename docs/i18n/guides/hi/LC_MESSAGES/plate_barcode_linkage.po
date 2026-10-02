@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-01 23:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -34,6 +34,22 @@ msgstr "स्थानीय CSV, TSV, Excel या Parquet तालिका 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata."
 msgstr "यदि बारकोड स्तंभ का नाम अलग है, तो ``plate_barcode_column`` सेट करें। ``plate_barcodes`` चित्रित प्लेट के नाम को उसके बारकोड से जोड़ता है। अन्यथा spaCR प्लेट फ़ोल्डर में ``barcode.txt`` पढ़ता है या प्लेट के नाम का उपयोग करता है। मेटाडेटा में सांद्रता की उपयोगी इकाइयाँ बनाए रखें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Link during Convert"
+msgstr "रूपांतरण के दौरान लिंक करें"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names."
+msgstr "**रूपांतरण** में **अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें और **प्लेट बारकोड लिंकिंग (अल्फ़ा)** में स्थानीय नमूना-रिकॉर्ड CSV चुनें। CSV में बारकोड का कॉलम, वेल का कॉलम और प्लेट मैप में शामिल किए जाने वाले नमूना फ़ील्ड होने चाहिए। पूर्वावलोकन छवियाँ लिखने से पहले लिंकिंग को सत्यापित करता है। रूपांतरण अपने पूर्वावलोकन में दिखाए गए आउटपुट प्लेट नामों का उपयोग करता है; ये स्रोत फ़ोल्डर नामों से अलग हो सकते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate."
+msgstr "आउटपुट प्लेट बारकोड ``plate1=BC001; plate2=BC002`` के रूप में दें, या अधिग्रहण के मूल फ़ोल्डर अथवा वास्तविक स्रोत प्लेट के फ़ोल्डर में UTF-8 ``barcode.txt`` रखें। केवल एक बारकोड वाली फ़ाइल तभी लागू होती है जब उस फ़ोल्डर में एक ही स्रोत प्लेट हो। कई प्लेटों के लिए हर प्लेट की एक ``source_plate=barcode`` प्रविष्टि लिखें और प्रविष्टियों को नई पंक्तियों या अर्धविराम से अलग करें; ये कुंजियाँ *मूल स्रोत* प्लेटों के नाम हैं। रूपांतरण में स्पष्ट रूप से दिए गए मान *आउटपुट* प्लेट नामों का उपयोग करते हैं और शेष प्लेटों के बारकोड भर सकते हैं। spaCR शुरुआती शून्य बनाए रखता है, अस्पष्ट या परस्पर विरोधी मान अस्वीकार करता है और हर आउटपुट प्लेट के लिए बारकोड अनिवार्य करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service."
+msgstr "रूपांतरण पूरा होने के बाद गंतव्य में ``plate_barcode_linkage/plate_map_lims.csv`` पढ़ें। बेमेल वेल और अन्य असंगतियाँ देखने के लिए वहीं ``plate_barcode_mismatches.csv`` की जाँच करें। ``complete.json`` रसीद सबसे अंत में लिखी जाती है; इसका न होना बताता है कि लिंकिंग बंडल अधूरा है। रूपांतरण स्क्रीन सीमित संख्या में बेमेल प्रविष्टियों का पूर्वावलोकन और दोनों CSV फ़ाइलों के पथ दिखाती है। मूल छवियाँ, बारकोड फ़ाइलें और उपयोगकर्ता के मौजूदा प्लेट मैप अपरिवर्तित रहते हैं। यह रूपांतरण प्रक्रिया स्थानीय CSV स्वीकार करती है; HTTP LIMS सेवा के लिए मापन का उपयोग करें।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Read records from a LIMS service"

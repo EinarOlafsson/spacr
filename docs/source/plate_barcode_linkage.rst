@@ -17,6 +17,33 @@ Set ``plate_barcode_column`` if your barcode column has another name.
 spaCR reads ``barcode.txt`` in the plate folder or uses the plate name.
 Retain meaningful concentration units in your metadata.
 
+Link during Convert
+-------------------
+
+In **Convert**, enable **Show alpha features** and choose a local sample-records
+CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a
+well column and whichever sample fields you want in the plate map. Preview
+validates the linkage before writing images. Convert uses the output plate
+names shown in its preview; these may differ from source folder names.
+
+Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``,
+or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source
+plate folder. A file containing one plain barcode applies only when that
+folder holds one source plate. For several plates, write one
+``source_plate=barcode`` entry per plate, separated by lines or semicolons;
+those keys are the *original source* plate names. Explicit assignments in
+Convert use the *output* plate names and can fill any remaining plates. spaCR
+keeps leading zeroes, rejects ambiguous or disagreeing assignments, and
+requires a barcode for every output plate.
+
+After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv``
+in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched
+wells and other disagreements. The ``complete.json`` receipt is written last;
+its absence means the linkage bundle is incomplete. The Convert screen shows
+a bounded preview of mismatches and the paths to both CSV files. Original
+images, barcode files and existing user plate maps are left unchanged. This
+Convert path accepts a local CSV; use Measure for an HTTP LIMS service.
+
 Read records from a LIMS service
 ------------------------------------
 
