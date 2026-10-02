@@ -184,3 +184,30 @@ def test_alpha_gate_disarms_processed_display(qtbot, plate, monkeypatch):
     assert not widget._unmix_btn.isChecked()
     assert widget._unmix_btn.isHidden()
     assert all('unmixing' not in entry for entry in widget._crops)
+
+
+@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'pt', 'fr', 'zh_CN', 'hi', 'ko', 'is'])
+def test_unmixed_display_control_uses_source_bound_locale(qtbot, monkeypatch, language):
+    import hashlib
+    import json
+    from pathlib import Path
+
+    from spacr.qt import i18n
+
+    root = Path(__file__).resolve().parents[2]
+    evidence = json.loads((root / 'docs/i18n/reviewed/runtime' / language /
+                           '2026-10-01-measure-unmixed-display.json').read_text())
+    records = evidence['records']
+    assert len(records) == 2
+    for record in records:
+        assert record['table'] == 'ui'
+        assert record['key'] == record['source']
+        assert record['source_sha256'] == hashlib.sha256(
+            record['source'].encode()).hexdigest()
+        assert record['translation'] != record['source']
+    monkeypatch.setattr(i18n, 'current_language', lambda: language)
+    widget = mp.MeasurePreviewPanel(threaded=False)
+    qtbot.addWidget(widget)
+    assert widget._unmix_btn.text() == records[0]['translation']
+    assert widget._unmix_btn.toolTip() == records[1]['translation']
+    assert not widget._unmix_btn.isChecked()
