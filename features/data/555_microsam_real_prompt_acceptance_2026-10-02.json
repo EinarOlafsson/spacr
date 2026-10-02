@@ -1,0 +1,463 @@
+{
+  "feature": "F555",
+  "date": "2026-10-02",
+  "status": "DONE against stated real-field prompt/refinement/acceptance boundary",
+  "scratch": "/media/carruthers/mnt3/spacr-f555-20261002",
+  "install": {
+    "source_commit": "161b95089511f0a73714d0969d70c00884402793",
+    "cpu_affinity": [
+      0
+    ],
+    "free_disk_bytes": 1500153425920,
+    "limits": {
+      "memory.max": "4294967296",
+      "memory.swap.max": "0"
+    },
+    "ready": true,
+    "state": "installed",
+    "environment": "/media/carruthers/mnt3/spacr-f555-20261002/backends/microsam",
+    "marker": {
+      "backend": "microsam",
+      "device": "cpu",
+      "installed": "2026-10-02 03:25:07",
+      "interpreter": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python"
+      ],
+      "licence": "MIT (micro-SAM) / Apache-2.0 (segment-anything) / CC-BY-4.0 (vit_b_lm weights)",
+      "packages": {
+        "micro_sam": "1.8.14",
+        "numpy": "2.5.2",
+        "torch": "2.14.1+cpu"
+      },
+      "protocol": 1,
+      "python": "3.13.14",
+      "requirements": [
+        "segment-anything-py==1.0.1",
+        "python-elf==0.9.2",
+        "bioimage-cpp==0.9.0",
+        "xxhash",
+        "zarr",
+        "pooch",
+        "imageio",
+        "scikit-image",
+        "tqdm",
+        "micro-sam==1.8.14"
+      ],
+      "torch": [
+        "torch",
+        "torchvision"
+      ],
+      "torch_index": "https://download.pytorch.org/whl/cpu"
+    },
+    "seconds": 32.46696260900353,
+    "resources": {
+      "memory.peak": "2520129536",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  "model_acquisition": {
+    "cpu_affinity": [
+      0
+    ],
+    "limits": {
+      "memory.max": "4294967296",
+      "memory.swap.max": "0"
+    },
+    "loaded": true,
+    "predictor_type": "SamPredictor",
+    "seconds": 79.2146675240001,
+    "resources": {
+      "memory.peak": "1458003968",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  "real_gui": {
+    "source": "/media/carruthers/mnt3/spacr-f551-20261002/stardist_demo/nuclei.tif",
+    "source_sha256": "f9ccc1571b92c861ff87e28463068b43f61bd47357ed0503f711e5cd1eb97750",
+    "truth": "/media/carruthers/mnt3/spacr-f551-20261002/stardist_demo/nuclei_labels.tif",
+    "truth_sha256": "59ad5e820b7982ca9d13e946fa6e7f64e2714899e00a2ae6c69aa79aad53d46f",
+    "shape": [
+      512,
+      512
+    ],
+    "affinity": [
+      0
+    ],
+    "network_namespace": "net:[4026533745]",
+    "limits": {
+      "memory.max": "4294967296",
+      "memory.swap.max": "0"
+    },
+    "prompts": [
+      {
+        "seconds": 0.2044557179979165,
+        "score": 0.9014906883239746,
+        "embed_seconds": 32.86432511699968,
+        "tiled": false,
+        "device": "cpu",
+        "model": "vit_b_lm",
+        "versions": {
+          "micro_sam": "1.8.14",
+          "numpy": "2.5.2",
+          "torch": "2.14.1+cpu"
+        },
+        "total_seconds": 37.6053607089998,
+        "key": "8c0f98ec226d27039390722bbf52b33d",
+        "points": [
+          [
+            311,
+            465,
+            true
+          ]
+        ],
+        "box": null,
+        "field": "nuclei.tif",
+        "click_to_preview_seconds": 37.629518317000475,
+        "pixels": 823
+      },
+      {
+        "seconds": 0.1739661100000376,
+        "score": 0.9108935594558716,
+        "embed_seconds": null,
+        "tiled": null,
+        "device": "cpu",
+        "model": "vit_b_lm",
+        "versions": {
+          "micro_sam": "1.8.14",
+          "numpy": "2.5.2",
+          "torch": "2.14.1+cpu"
+        },
+        "total_seconds": 0.17744698699971195,
+        "key": "8c0f98ec226d27039390722bbf52b33d",
+        "points": [
+          [
+            311,
+            465,
+            true
+          ],
+          [
+            318,
+            448,
+            true
+          ]
+        ],
+        "box": null,
+        "field": "nuclei.tif",
+        "click_to_preview_seconds": 0.1874550350039499,
+        "pixels": 829
+      },
+      {
+        "seconds": 0.16384323399688583,
+        "score": 0.9173418283462524,
+        "embed_seconds": null,
+        "tiled": null,
+        "device": "cpu",
+        "model": "vit_b_lm",
+        "versions": {
+          "micro_sam": "1.8.14",
+          "numpy": "2.5.2",
+          "torch": "2.14.1+cpu"
+        },
+        "total_seconds": 0.16545389100065222,
+        "key": "8c0f98ec226d27039390722bbf52b33d",
+        "points": [
+          [
+            311,
+            465,
+            true
+          ],
+          [
+            318,
+            448,
+            true
+          ],
+          [
+            302,
+            481,
+            false
+          ]
+        ],
+        "box": null,
+        "field": "nuclei.tif",
+        "click_to_preview_seconds": 0.1735765999983414,
+        "pixels": 750
+      }
+    ],
+    "target_reference_label": 149,
+    "negative_refinement_changed_pixels": 79,
+    "negative_prompt_excluded": true,
+    "box_prompt": {
+      "seconds": 0.17096081499767024,
+      "score": 0.9307787418365479,
+      "embed_seconds": null,
+      "tiled": null,
+      "device": "cpu",
+      "model": "vit_b_lm",
+      "versions": {
+        "micro_sam": "1.8.14",
+        "numpy": "2.5.2",
+        "torch": "2.14.1+cpu"
+      },
+      "total_seconds": 0.17373570299969288,
+      "key": "8c0f98ec226d27039390722bbf52b33d",
+      "points": [
+        [
+          311,
+          465,
+          true
+        ],
+        [
+          318,
+          448,
+          true
+        ],
+        [
+          302,
+          481,
+          false
+        ]
+      ],
+      "box": [
+        296,
+        443,
+        328,
+        487
+      ],
+      "field": "nuclei.tif",
+      "click_to_preview_seconds": 0.17865081299532903
+    },
+    "edit": {
+      "kind": "prompt",
+      "target": [
+        1
+      ],
+      "when": "2026-10-02T07:30:28+00:00",
+      "who": "carruthers",
+      "n_changed": 820,
+      "detail": {
+        "tool": "micro-SAM",
+        "model": "vit_b_lm",
+        "overlap": "clip",
+        "points": [
+          [
+            311,
+            465,
+            true
+          ],
+          [
+            318,
+            448,
+            true
+          ],
+          [
+            302,
+            481,
+            false
+          ]
+        ],
+        "box": [
+          296,
+          443,
+          328,
+          487
+        ],
+        "score": 0.9307787418365479,
+        "device": "cpu",
+        "versions": {
+          "micro_sam": "1.8.14",
+          "numpy": "2.5.2",
+          "torch": "2.14.1+cpu"
+        },
+        "embedding": "8c0f98ec226d27039390722bbf52b33d",
+        "n_objects": 1
+      }
+    },
+    "saved_mask": "/media/carruthers/mnt3/spacr-f555-20261002/gui/field/masks/nuclei.tif",
+    "saved_sha256": "abee98b5a36b8b3804b03d569029866f0d439b35a74e34302fb06275c65118c3",
+    "saved_pixels": 820,
+    "accepted_labels": [
+      1
+    ],
+    "undo_redo_verified": true,
+    "source_unchanged": true,
+    "all_cached_clicks_under_one_second": true,
+    "passed": true,
+    "resources": {
+      "memory.peak": "3693600768",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "errors": []
+  },
+  "curation_file": {
+    "path": "/media/carruthers/mnt3/spacr-f555-20261002/gui/field/masks/nuclei.tif.curation.json",
+    "sha256": "9930af4eea5003be4183218cd2d995b4f78445de06b91c0da6d294991af57340",
+    "contents": {
+      "artifact": "/media/carruthers/mnt3/spacr-f555-20261002/gui/field/masks/nuclei.tif",
+      "edits": [
+        {
+          "detail": {
+            "box": [
+              296,
+              443,
+              328,
+              487
+            ],
+            "device": "cpu",
+            "embedding": "8c0f98ec226d27039390722bbf52b33d",
+            "model": "vit_b_lm",
+            "n_objects": 1,
+            "overlap": "clip",
+            "points": [
+              [
+                311,
+                465,
+                true
+              ],
+              [
+                318,
+                448,
+                true
+              ],
+              [
+                302,
+                481,
+                false
+              ]
+            ],
+            "score": 0.9307787418365479,
+            "tool": "micro-SAM",
+            "versions": {
+              "micro_sam": "1.8.14",
+              "numpy": "2.5.2",
+              "torch": "2.14.1+cpu"
+            }
+          },
+          "kind": "prompt",
+          "n_changed": 820,
+          "target": [
+            1
+          ],
+          "when": "2026-10-02T07:30:28+00:00",
+          "who": "carruthers"
+        },
+        {
+          "detail": {},
+          "kind": "undo",
+          "n_changed": 820,
+          "target": null,
+          "when": "2026-10-02T07:30:28+00:00",
+          "who": "carruthers"
+        },
+        {
+          "detail": {},
+          "kind": "redo",
+          "n_changed": 820,
+          "target": null,
+          "when": "2026-10-02T07:30:28+00:00",
+          "who": "carruthers"
+        }
+      ],
+      "schema_version": 1,
+      "source": "spacr-qt make_masks"
+    }
+  },
+  "artifacts": {
+    "/media/carruthers/mnt3/spacr-f555-20261002/backends/microsam/micro_sam/models/vit_b_lm": {
+      "sha256": "ffe862fa5b58d78375506041faf0eb3927ced5b5391e8be383e6d7ac07aed924",
+      "bytes": 375023499
+    },
+    "/media/carruthers/mnt3/spacr-f555-20261002/backends/microsam/micro_sam/models/vit_b_lm_decoder": {
+      "sha256": "3a1566aada52e24299286527ec60c966d213db86ee656c67439c71c1b4182c26",
+      "bytes": 38393613
+    },
+    "/media/carruthers/mnt3/spacr-f555-20261002/install.log": {
+      "sha256": "409dad41b8dd3295a9be04c2ff302201eb7cf9995629ab45712f579490bd88db",
+      "bytes": 22384
+    },
+    "/media/carruthers/mnt3/spacr-f555-20261002/acquire.log": {
+      "sha256": "31cdcb46539601850075ca8f034ee8d7167fe5fcc54333cab5ca175af6226df1",
+      "bytes": 58725
+    },
+    "/media/carruthers/mnt3/spacr-f555-20261002/gui.log": {
+      "sha256": "db639c06d831b7feea1fe76935f142aca6b37e51c71b8d424b0273d692762d3f",
+      "bytes": 4757
+    },
+    "/media/carruthers/mnt3/spacr-f555-20261002/focused-tests.log": {
+      "sha256": "cab656891776da4eb8bdffab46c2ec3bcf4b465c9f1b7e190716f607f54b4c81",
+      "bytes": 100
+    },
+    "/media/carruthers/mnt3/spacr-f555-20261002/capture-final.log": {
+      "sha256": "2d20168b74892e0da88bbab650213c42b6080691d800dc712675f88337ddb278",
+      "bytes": 363
+    },
+    "/media/carruthers/mnt3/spacr-f555-20261002/gui/accepted-framed-light.png": {
+      "sha256": "adbc8cdedd953d0403593c3f3b875ef09a6302ecf58d5ab073291335c49c41f3",
+      "bytes": 631836
+    },
+    "/media/carruthers/mnt3/spacr-f555-20261002/gui/accepted-framed-dark.png": {
+      "sha256": "1fd8fa7ada9533a31e0c39f6c82e87cbfea5491370cb11bf7d870599365e3294",
+      "bytes": 636792
+    }
+  },
+  "drivers": {
+    "install.py": {
+      "sha256": "ef980702f20ead3d44b80d9f46081210feede6a46a28af1c09317d53ef4b25a4",
+      "source": "import os,sys,json,time,shutil,subprocess\nfrom pathlib import Path\nos.sched_setaffinity(0,{0})\nbase=Path(__file__).resolve().parent\nrepo=Path('/tmp/spacr-implementation-20261001/merges')\nsys.path.insert(0,str(repo))\nroot=base/'backends';root.mkdir(exist_ok=True)\nscope=Path('/sys/fs/cgroup')/Path('/proc/self/cgroup').read_text().split('::',1)[1].strip().lstrip('/')\nrecord={'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip(),'cpu_affinity':sorted(os.sched_getaffinity(0)),'free_disk_bytes':shutil.disk_usage(base).free,'limits':{k:(scope/k).read_text().strip() for k in ('memory.max','memory.swap.max')}}\nassert record['free_disk_bytes']>10*1024**3\nfrom spacr import _segmentation_backends as sb\nstarted=time.monotonic()\ntry:\n    state=sb._install_backend('microsam',root=str(root),torch_index='https://download.pytorch.org/whl/cpu',progress=lambda step,total,text: print(f'{step}/{total}: {text}',flush=True))\n    record.update(ready=state.ready,state=state.state,environment=state.env,marker=state.record)\n    assert state.ready\nexcept BaseException as exc:\n    record['error']=f'{type(exc).__name__}: {exc}'\n    raise\nfinally:\n    record.update(seconds=time.monotonic()-started,resources={k:(scope/k).read_text().strip() for k in ('memory.peak','memory.events')})\n    (base/'install-receipt.json').write_text(json.dumps(record,indent=2)+'\\n')\n    print(json.dumps(record),flush=True)\n"
+    },
+    "acquire.py": {
+      "sha256": "bfd62780a1fd79bd74308a20c5578bc1cd651a66f67c880a2065cbec1a182649",
+      "source": "import os,time,json,hashlib\nfrom pathlib import Path\nos.sched_setaffinity(0,{0})\nbase=Path(__file__).resolve().parent\nscope=Path('/sys/fs/cgroup')/Path('/proc/self/cgroup').read_text().split('::',1)[1].strip().lstrip('/')\nstart=time.monotonic()\nrecord={'cpu_affinity':sorted(os.sched_getaffinity(0)),'limits':{k:(scope/k).read_text().strip() for k in ('memory.max','memory.swap.max')}}\ntry:\n    import torch\n    torch.set_num_threads(1)\n    assert not torch.cuda.is_available()\n    from micro_sam import util\n    predictor=util.get_sam_model(model_type='vit_b_lm',device='cpu')\n    record.update(loaded=True,predictor_type=type(predictor).__name__)\nexcept BaseException as exc:\n    record['error']=f'{type(exc).__name__}: {exc}'\n    raise\nfinally:\n    record.update(seconds=time.monotonic()-start,resources={k:(scope/k).read_text().strip() for k in ('memory.peak','memory.events')})\n    (base/'acquire-receipt.json').write_text(json.dumps(record,indent=2)+'\\n')\n    print(json.dumps(record),flush=True)\n"
+    },
+    "gui_acceptance.py": {
+      "sha256": "1b7fb3db88353cc05d90153e76cc4c543fe6d31fd8e90ef1355eb00bd5d7ce35",
+      "source": "import os,sys,time,json,hashlib,shutil,dataclasses\nfrom pathlib import Path\nos.sched_setaffinity(0,{0})\nbase=Path(__file__).resolve().parent\nout=base/'gui';out.mkdir(exist_ok=False)\nfor key,folder in [('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache'),('MPLCONFIGDIR','mpl')]:\n    path=out/folder;path.mkdir();os.environ[key]=str(path)\nos.environ['SPACR_BACKENDS_DIR']=str(base/'backends')\nsys.path.insert(0,'/tmp/spacr-implementation-20261001/merges')\nimport numpy as np\nimport tifffile\nfrom scipy.ndimage import distance_transform_edt\nfrom PySide6.QtWidgets import QApplication,QWidget,QVBoxLayout\nfrom PySide6.QtCore import QPointF,Qt\nfrom spacr.qt import preferences,theme,mask_engine\nfrom spacr.qt.screens.make_masks import MakeMasksScreen\nfrom spacr import _segmentation_backends as sb\nscope=Path('/sys/fs/cgroup')/Path('/proc/self/cgroup').read_text().split('::',1)[1].strip().lstrip('/')\ndef sha(p):\n    h=hashlib.sha256()\n    with Path(p).open('rb') as f:\n        for c in iter(lambda:f.read(1048576),b''):h.update(c)\n    return h.hexdigest()\nsource=Path('/media/carruthers/mnt3/spacr-f551-20261002/stardist_demo/nuclei.tif')\ntruth=source.with_name('nuclei_labels.tif')\nfield=out/'field';field.mkdir();shutil.copyfile(source,field/source.name)\ngt=tifffile.imread(truth)\nrecord={'source':str(source),'source_sha256':sha(source),'truth':str(truth),'truth_sha256':sha(truth),'shape':list(gt.shape),'affinity':sorted(os.sched_getaffinity(0)),'network_namespace':os.readlink('/proc/self/ns/net'),'limits':{k:(scope/k).read_text().strip() for k in ('memory.max','memory.swap.max')},'prompts':[]}\napp=QApplication([])\npreferences._get_show_alpha_features=lambda:True\nhost=QWidget();host.setAutoFillBackground(True);layout=QVBoxLayout(host)\nscreen=MakeMasksScreen();layout.addWidget(screen)\ntheme.apply_qpalette(app);app.setStyleSheet(theme.stylesheet())\nhost.resize(1560,1050);host.show()\nerrors=[]\nscreen._prompter.said.connect(lambda text,kind: errors.append(text) if kind=='error' else None)\ndef process():\n    app.processEvents()\ndef wait(predicate,limit=1800):\n    start=time.monotonic()\n    while not predicate():\n        process()\n        if errors:raise RuntimeError(errors[-1])\n        if time.monotonic()-start>limit:raise TimeoutError(screen._masks_console.text())\n        time.sleep(.002)\n    process()\ndef point(y,x):\n    return QPointF(screen._canvas._image_to_canvas(x+.5,y+.5))\ndef submit(y,x,positive=True):\n    old=screen._prompter.pending\n    pos=point(int(y),int(x));button=Qt.LeftButton if positive else Qt.RightButton\n    start=time.monotonic()\n    assert screen._prompter.press(button,pos)\n    assert screen._prompter.release(button,pos)\n    wait(lambda:screen._prompter.pending is not None and screen._prompter.pending is not old)\n    pending=screen._prompter.pending\n    row={k:v for k,v in pending.items() if k!='mask'}\n    row.update(click_to_preview_seconds=time.monotonic()-start,pixels=int(pending['mask'].sum()))\n    record['prompts'].append(row)\n    print('PROMPT '+json.dumps(row,default=str),flush=True)\n    return pending['mask'].copy()\ntry:\n    screen._open_folder(str(field));process();screen._canvas.refresh();process()\n    assert screen._canvas.mask is not None and not screen._canvas.mask.any()\n    assert screen._prompt_ready()\n    screen._btn_prompt.setChecked(True);assert screen._prompter.enabled\n    counts=np.bincount(gt.ravel().astype(int));counts[0]=0;label=int(counts.argmax())\n    target=gt==label;dist=distance_transform_edt(target)\n    y,x=np.unravel_index(dist.argmax(),dist.shape)\n    record['target_reference_label']=label\n    first=submit(y,x)\n    assert first.any() and first[y,x]\n    assert record['prompts'][0]['embed_seconds'] is not None\n    ys,xs=np.where(target & (dist>2));far=((ys-y)**2+(xs-x)**2).argmax()\n    positive=submit(ys[far],xs[far])\n    assert record['prompts'][-1]['embed_seconds'] is None\n    candidates=positive & ~target\n    if not candidates.any():\n        candidates=positive.copy();candidates[max(0,y-3):y+4,max(0,x-3):x+4]=False\n    ny,nx=np.unravel_index(distance_transform_edt(candidates).argmax(),candidates.shape)\n    assert candidates[ny,nx]\n    negative=submit(ny,nx,False)\n    record['negative_refinement_changed_pixels']=int(np.count_nonzero(positive!=negative))\n    record['negative_prompt_excluded']=not bool(negative[ny,nx])\n    assert record['negative_refinement_changed_pixels']>0\n    assert record['negative_prompt_excluded']\n    # Genuine box drag through the same canvas prompt handlers.\n    ys,xs=np.where(target);y0,x0=max(0,int(ys.min())-3),max(0,int(xs.min())-3)\n    y1,x1=min(gt.shape[0]-1,int(ys.max())+3),min(gt.shape[1]-1,int(xs.max())+3)\n    old=screen._prompter.pending;start=time.monotonic()\n    assert screen._prompter.press(Qt.LeftButton,point(y0,x0))\n    assert screen._prompter.move(point(y1,x1))\n    assert screen._prompter.release(Qt.LeftButton,point(y1,x1))\n    wait(lambda:screen._prompter.pending is not None and screen._prompter.pending is not old)\n    pending=screen._prompter.pending;expected=pending['mask'].copy()\n    record['box_prompt']={k:v for k,v in pending.items() if k!='mask'}\n    record['box_prompt']['click_to_preview_seconds']=time.monotonic()-start\n    assert pending['box'] is not None and pending['embed_seconds'] is None and expected.any()\n    assert not screen._canvas.mask.any(),'Unaccepted prediction mutated label image'\n    assert screen._prompter.key(Qt.Key_Return)\n    saved_labels=screen._canvas.mask.copy();assert np.array_equal(saved_labels>0,expected)\n    entry=screen._log.edits[-1]\n    record['edit']=dataclasses.asdict(entry)\n    assert entry.kind=='prompt' and entry.detail['tool']=='micro-SAM'\n    assert entry.detail['points'][-1][2] is False and entry.detail['box'] is not None\n    assert entry.detail['device']=='cpu' and entry.detail['versions']['micro_sam']=='1.8.14'\n    screen._on_save();process()\n    saved=Path(mask_engine.mask_save_path(screen._folder,source.name,**screen._layout_kwargs()))\n    assert saved.exists() and np.array_equal(tifffile.imread(saved),saved_labels)\n    record.update(saved_mask=str(saved),saved_sha256=sha(saved),saved_pixels=int((saved_labels>0).sum()),accepted_labels=[int(v) for v in np.unique(saved_labels) if v])\n    screen._on_undo();assert not screen._canvas.mask.any()\n    screen._on_redo();assert np.array_equal(screen._canvas.mask,saved_labels)\n    screen._on_save();process()\n    record['undo_redo_verified']=True\n    host.grab().save(str(out/'accepted-dark.png'))\n    theme.apply_qpalette(app,'light');app.setStyleSheet(theme.stylesheet('light'));process()\n    host.grab().save(str(out/'accepted-light.png'))\n    record['source_unchanged']=sha(source)==record['source_sha256'] and sha(truth)==record['truth_sha256']\n    assert record['source_unchanged']\n    record['all_cached_clicks_under_one_second']=all(p['click_to_preview_seconds']<1 for p in record['prompts'][1:])\n    record['passed']=record['all_cached_clicks_under_one_second']\n    print('ACCEPTANCE '+json.dumps(record,default=str),flush=True)\nfinally:\n    screen._prompter.close();sb._shutdown_workers()\n    record['resources']={k:(scope/k).read_text().strip() for k in ('memory.peak','memory.events')}\n    record['errors']=errors\n    (out/'receipt.json').write_text(json.dumps(record,indent=2,default=str)+'\\n')\nassert record.get('passed'),record\n"
+    },
+    "capture.py": {
+      "sha256": "7a4f913b1adfd31792add6ced900ad68d09f05f70559d03e7914c368267cfcee",
+      "source": "import os,sys\nfrom pathlib import Path\nos.sched_setaffinity(0,{0})\nbase=Path(__file__).resolve().parent\nos.environ['XDG_CONFIG_HOME']=str(base/'capture-config')\nos.environ['SPACR_BACKENDS_DIR']=str(base/'backends')\nsys.path.insert(0,'/tmp/spacr-implementation-20261001/merges')\nfrom PySide6.QtWidgets import QApplication,QWidget,QVBoxLayout,QScrollArea\nfrom spacr.qt import theme,preferences\nfrom spacr.qt.screens.make_masks import MakeMasksScreen\napp=QApplication([])\npreferences._get_show_alpha_features=lambda:True\nfor name,color in [('dark','#141618'),('light','#f6f7fa')]:\n    preferences.set_theme(name)\n    host=QWidget();host.setObjectName('AcceptanceHost');host.setStyleSheet('#AcceptanceHost { background: '+color+'; }')\n    layout=QVBoxLayout(host);screen=MakeMasksScreen();layout.addWidget(screen)\n    theme.apply_qpalette(app,name);app.setStyleSheet(theme.stylesheet(name))\n    host.resize(1560,1050);host.show()\n    screen._open_folder(str(base/'gui/field'))\n    for _ in range(10):app.processEvents()\n    ancestor=screen._prompt_card.parentWidget()\n    while ancestor is not None and not isinstance(ancestor,QScrollArea):ancestor=ancestor.parentWidget()\n    assert ancestor is not None\n    ancestor.ensureWidgetVisible(screen._prompt_card,0,20)\n    ancestor.horizontalScrollBar().setValue(0)\n    for _ in range(10):app.processEvents()\n    assert host.grab().save(str(base/'gui'/f'accepted-framed-{name}.png'))\n    screen._prompter.close();host.deleteLater();app.processEvents()\nprint('Both opaque-parent theme captures completed without inference.')\n"
+    }
+  },
+  "source_parity": {
+    "spacr/_segmentation_backends.py": {
+      "symbols": {
+        "_PromptClient": "734c3b485a16e39e680789404ae4116d914ef952bf120d08e92f17b596c4ec27",
+        "_sam_predictor": "44d73c4f40216030ed979bb36d3107fd50eb20c43a4d7c48879022b89d008501",
+        "_worker_sam_embed": "a02dc81c08b7f965bcaf3826937a281d96a917672826f9039b57bb95dba8e9a2",
+        "_worker_sam_prompt": "2d0378b54d317c115620c387aa581dc6bcccab233f03a08852dbb608c2cbb929",
+        "_sam_answer": "57c7c0d6e1e3bf7e68574f4436d84454c4d082b04df137d61976cd976d3b655f"
+      },
+      "matches_current_integration": true
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "symbols": {
+        "_prompt_image": "2570020b7499c6b1bbe4dbc50a27e0adc11f8cd34fc5ff2a961287ae022069fa",
+        "_PromptRequest": "28243bbaa6d639efa8abba574069c0386b00eb5b2bd62a88381474a3e66a7d4d",
+        "_PromptSession": "f01873efdeadfd2f34d390ea0a1ee62dcbbaf70e0749ce2c6ca15ca507695a50"
+      },
+      "matches_current_integration": true
+    }
+  },
+  "limitations": [
+    "One complete official StarDist512x512 microscopy field; no GPU timing or general latency claim for larger/tiled fields.",
+    "No accuracy benchmark or biological generalization claim.",
+    "Existing alpha visibility remains. Additional model families, automatic segmentation, 3-D/time-series and cross-tile prompt combinations are outside this prompt acceptance.",
+    "Screenshots remain private. Final theme captures reopen the saved real mask without rerunning inference; captured status text is the application’s own."
+  ],
+  "validation": {
+    "gui_process_exit": 0,
+    "install_process_exit": 0,
+    "model_acquisition_exit": 0,
+    "focused_tests": "11 passed in10.97s",
+    "resource_scope": "4GiB hard memory/CPU affinity[0]/zero swap/CUDA hidden; GUI inference additionally network-disabled"
+  },
+  "environment": {
+    "PYTHONNOUSERSITE": "1",
+    "CUDA_VISIBLE_DEVICES": "",
+    "SPACR_DEVICE": "cpu",
+    "QT_QPA_PLATFORM": "offscreen",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1"
+  }
+}
