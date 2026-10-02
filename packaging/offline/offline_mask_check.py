@@ -10,6 +10,8 @@ The test images are copied to a scratch folder first, because Mask
 reorganises the folder it is pointed at, so the installed copy stays
 reusable. A model name in the settings that points at a model this bundle
 does not carry (``<models>/...``) is replaced by ``--fallback-model``.
+Previously generated merged and role-mask directories are excluded from the
+scratch copy so only this invocation's outputs can satisfy the check.
 
 Exit 0 when Mask ran and wrote masks, 1 otherwise.
 """
@@ -52,7 +54,8 @@ def main(argv=None) -> int:
     work = Path(tempfile.mkdtemp(prefix="spacr-offline-mask-", dir=args.work))
     try:
         src = work / "plate1"
-        shutil.copytree(args.data, src)
+        shutil.copytree(args.data, src,
+                        ignore=shutil.ignore_patterns('merged', '*_mask_stack'))
         command = [sys.executable, "-m", "spacr.cli", "mask",
                    "--settings", str(src / "settings" / "gen_mask_settings.csv"),
                    "--set", f"src={src}", "--no-hash-inputs",
@@ -60,9 +63,8 @@ def main(argv=None) -> int:
                      for part in ("--set", item)]]
         print("+", " ".join(command), flush=True)
         code = subprocess.run(command).returncode
-        masks = [p for p in src.rglob("*") if p.is_file() and "mask" in p.as_posix().lower()
-                 and p.suffix == ".npy"]
-        merged = list(src.rglob("merged/*.npy"))
+        masks = [p for p in src.glob('*_mask_stack/*.npy') if p.is_file()]
+        merged = [p for p in src.glob('merged/*.npy') if p.is_file()]
         print(f"Mask exit code {code}; {len(masks)} mask arrays, "
               f"{len(merged)} merged stacks under {src}")
         return 0 if code == 0 and masks and merged else 1

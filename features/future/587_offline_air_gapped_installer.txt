@@ -1,8 +1,10 @@
 AN OFFLINE / AIR-GAPPED INSTALLER
 
-Status: IMPLEMENTED 2026-09-27 (packaging only: no GUI, settings or app
-entry, so there is nothing for the alpha gate to hide; the bundle is not
-linked from the README downloads and is labelled alpha in packaging/README.md).
+Status: PARTIAL / ALPHA. Linux offline acceptance was recorded 2026-09-27;
+backend/model packaging and cross-platform acceptance remain below. Packaging
+only: no GUI, settings or app entry, so there is nothing for the alpha gate to
+hide; the bundle is not linked from README downloads and is labelled alpha in
+packaging/README.md.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -64,3 +66,24 @@ LEFT
       package manager); a minimal system without them runs headless only.
     - The bundle is not signed; SHA256SUMS guards corruption, not tampering.
 
+ACCEPTANCE CHECK REPAIR (2026-10-02, partial)
+    Two pre-fix tests reproduced false success: every merged .npy was counted as
+    a mask because the scratch directory itself is named spacr-offline-mask-*,
+    and copied pre-existing results could satisfy the check without new output.
+
+    The checker now counts actual root-relative *_mask_stack/*.npy artifacts
+    and root-relative merged/*.npy outputs. Known generated merged and role-mask
+    directories are excluded from the scratch copy, so only this invocation's
+    new outputs can satisfy acceptance. Original test data and existing results
+    remain untouched. Both required output kinds and a zero child exit are still
+    required, and default scratch cleanup is preserved.
+
+    Validation: merged-only and stale-output reproductions failed as expected
+    in 0.38 and 0.76 seconds. All 16 corrected cases passed in 0.53 seconds:
+    six dedicated checker cases and ten existing offline packaging checks. The
+    child Mask process was controlled in these tests; small genuine NPY outputs
+    were written, with no model execution, downloads, GPU use or installation.
+    Runs used 1 GiB, CPU0 and zero swap. The previous Linux acceptance remains
+    historical evidence; this follow-up does not claim a new air-gapped run.
+    F587 remains partial/alpha for the listed backend and platform requirements.
+    Receipt: features/data/587_mask_acceptance_guard_2026-10-02.json.
