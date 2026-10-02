@@ -931,6 +931,40 @@ def _watch_map_bytes(src):
     return data
 
 
+def _watch_validate_map_channels(settings, channels):
+    """Refuse schemas that raw preprocessing would compact or reinterpret.
+
+    Convert assigns channel IDs 1..N; preprocessing writes present planes in
+    ascending channel order. Requiring the same dense set in every field keeps
+    selected zero-based positions attached to the same declared channel IDs.
+
+    :param settings: watch settings containing selected positional channels.
+    :param channels: mapped field keys to sets of assigned channel IDs.
+    :returns: None when each field has one shared dense schema and valid indices.
+    :raises ValueError: for sparse/mixed fields or invalid selected positions.
+    """
+    import ast
+
+    combined = set().union(*channels.values())
+    expected = set(range(1, len(combined) + 1))
+    if combined != expected or any(values != expected for values in channels.values()):
+        raise ValueError('mapped fields must share the same complete C01..CN channel '
+                         'schema; sparse or mixed fields would shift channel positions. '
+                         'Use complete acquisitions or separate watch folders.')
+    selected = settings.get('channels', [0])
+    if isinstance(selected, str):
+        try:
+            selected = ast.literal_eval(selected)
+        except (ValueError, SyntaxError):
+            selected = None
+    if (not isinstance(selected, (list, tuple)) or not selected
+            or any(type(value) is not int or value < 0 or value >= len(expected)
+                   for value in selected)
+            or len(set(selected)) != len(selected)):
+        raise ValueError(f'channels must be distinct zero-based positions in the '
+                         f'mapped channel schema (0..{len(expected) - 1}).')
+
+
 def _watch_map_manifest(src, settings):
     """Validate a fixed Convert map and bind exact target names to each field.
 
@@ -977,6 +1011,7 @@ def _watch_map_manifest(src, settings):
             groups.setdefault(key, set()).add(name)
         if not groups:
             raise ValueError('the conversion map has no output rows')
+        _watch_validate_map_channels(settings, channels)
     except (ValueError, TypeError, KeyError, UnicodeError, csv.Error) as exc:
         raise ValueError(f'watch_folder: invalid conversion_map.csv: {exc}') from exc
     return groups, hashlib.sha256(data).hexdigest()

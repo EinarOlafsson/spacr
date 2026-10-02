@@ -34,7 +34,7 @@ def _ledger_bytes(folder):
 
 
 def test_exact_mapped_channels_wait_despite_matching_legacy_count(tmp_path):
-    _map(tmp_path)
+    _map(tmp_path, (1, 2, 3, 4))
     for channel in (1, 2):
         _write(tmp_path, _name('A01', channel))
     recorder = Recorder()
@@ -43,11 +43,15 @@ def test_exact_mapped_channels_wait_despite_matching_legacy_count(tmp_path):
     assert first['incomplete'] and not recorder.calls
     _write(tmp_path, _name('A01', 4))
     assert core._watch_folder_and_analyse(settings, recorder)['incomplete']
-    assert not recorder.calls  # unexpected C02 is not silently included
-    (tmp_path / _name('A01', 2)).unlink()
+    assert not recorder.calls  # C03 is still a required positional companion
+    _write(tmp_path, _name('A01', 3))
+    _write(tmp_path, _name('A01', 5))
+    assert core._watch_folder_and_analyse(settings, recorder)['incomplete']
+    assert not recorder.calls  # an unexpected fifth channel is not silently included
+    (tmp_path / _name('A01', 5)).unlink()
     result = core._watch_folder_and_analyse(settings, recorder)
     assert result['done'] == ['plate1_A01_0001_001']
-    assert recorder.calls[0][1] == [_name('A01', 1), _name('A01', 4)]
+    assert recorder.calls[0][1] == [_name('A01', n) for n in (1, 2, 3, 4)]
     saved = json.loads(_ledger_bytes(tmp_path))
     assert saved['conversion_map_sha256'] == hashlib.sha256(
         (tmp_path / convert.MAP_FILENAME).read_bytes()).hexdigest()
@@ -60,10 +64,10 @@ def test_missing_entire_mapped_field_and_unexpected_field_are_reported(tmp_path)
     _write(tmp_path, _name('A01', 1))
     _write(tmp_path, _name('A03', 1))
     recorder = Recorder()
-    result = core._watch_folder_and_analyse(_fast(tmp_path), recorder)
+    result = core._watch_folder_and_analyse(dict(_fast(tmp_path), channels=[0]), recorder)
     assert result['done'] == ['plate1_A01_0001_001']
     assert result['incomplete'] == ['plate1_A02_0001_001', 'plate1_A03_0001_001']
-    assert len(recorder.calls) == 1  # map overrides the legacy minimum two channels
+    assert len(recorder.calls) == 1  # unmapped A03 remains unprocessed
 
 
 @pytest.mark.parametrize('mutation', ['changed', 'removed', 'introduced'])
@@ -98,7 +102,7 @@ def test_change_between_ready_fields_stops_before_second_analysis(tmp_path):
             handle.write('\n')
 
     with pytest.raises(ValueError, match='changed since this watch started'):
-        core._watch_folder_and_analyse(_fast(tmp_path), analyse)
+        core._watch_folder_and_analyse(dict(_fast(tmp_path), channels=[0]), analyse)
     assert len(recorder.calls) == 1
     ledger = json.loads(_ledger_bytes(tmp_path))
     assert list(ledger['fields']) == ['plate1_A01_0001_001']

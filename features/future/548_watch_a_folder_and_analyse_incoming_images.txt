@@ -179,3 +179,38 @@ CONVERT-MAP COMPLETENESS FOLLOW-UP (2026-10-02, partial)
     checks pass; Cellpose model execution remains stubbed. Both test processes
     used 4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
     features/data/548_conversion_manifest_watch_2026-10-02.json.
+
+CONVERT-MAP CHANNEL-POSITION GUARD (2026-10-02, partial)
+    A Convert map now must declare the same complete C01..CN channel set for
+    every mapped field before the watcher creates output. Convert assigns these
+    one-based channel IDs; raw preprocessing sorts present planes and skips
+    missing ones, which otherwise compacts a sparse field and shifts selected
+    array positions. Sparse IDs and mixed per-field schemas are refused instead
+    of being interpreted as a smaller complete acquisition. Separate complete
+    acquisitions with different channel sets need separate watch folders.
+
+    Selected channels must be distinct integer zero-based positions within the
+    mapped schema. Negative, duplicate, noninteger, empty and out-of-range
+    selections are refused. Nonconsecutive valid selections such as [0, 3]
+    remain valid when every mapped field declares C01..C04. Every declared
+    companion is still required, including intermediate unselected planes, so
+    array positions remain attached to their assigned channel IDs.
+
+    This is a source-map-derived guard, not a guess about raw vendor numbering.
+    No-map folders retain their existing cardinality readiness behavior. The
+    earlier artificial C01/C04 manifest fixture was replaced by a producer-valid
+    dense C01..C04 fixture, and an actual Convert output with a sparse second
+    field now verifies the refusal path. Previously generated results are not
+    rewritten or claimed to have been repaired. F548 remains partial/alpha for
+    raw vendor identity/completion, unsupported series and real acquisition
+    acceptance. spacr/io.py is unchanged; no new settings, public API changes
+    or translatable UI captions were introduced.
+
+    Validation: 38 named CPU cases passed in 19.94 seconds: 17 new channel
+    schema cases, 20 existing manifest cases, and the existing no-map real
+    preprocessing/Measure one-by-one versus batch_size=1 acceptance. Valid
+    four-channel real Convert TIFFs produce the same raw stacked arrays in
+    batch and watched-field preprocessing, including selected first/last pixel
+    values at [0, 3]. The existing model forward pass remains stubbed. Resource
+    limits were 4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
+    features/data/548_channel_schema_watch_2026-10-02.json.
