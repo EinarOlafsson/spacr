@@ -92,3 +92,38 @@ acceptance.json, snakemake/engine.log and nextflow/engine.log under
 /mnt/wd4tb/scratch/spacr-completion. Receipt hashes match the saved proof.
 This completes the supported explicit file-destination repair. GUI, per-well,
 container and cluster acceptance remain open, so item 575 stays ALPHA.
+
+2026-10-01 — REAL GUI MEASURE → SNAKEMAKE REPLAY; PARTIAL-FAILURE STATUS REPAIR
+A genuine cached demo field supplied a 512×512 seven-channel crop, preserving
+intensity pixels and mask IDs. The actual offscreen Measure Run button wrote
+a nonempty private journal/database; Run History exported its settings.
+Snakemake 9.27.0 ran the exported workflow through the real CLI on an identical
+private copy. All 9 SQLite tables match value-for-value after explicitly
+normalizing only plate-root paths, execution IDs/timestamps and dictionary
+key order; all 18 PNG/NPY output products have identical SHA-256 hashes.
+Original cached input, private inputs and pre-replay GUI journal hashes remain
+unchanged. The GUI and engine ran with 4 GiB RAM, zero swap, actual CPU0 affinity
+and requested CPUQuota 100%; readonly host filesystem/private writable binds.
+
+The first scientific attempt exposed a real provenance defect: Measure's
+finalized failed-item ledger could return normally and be marked successful.
+The journal now raises the existing PartialRunError for finalized failed
+items. The GUI refuses successful result publication (including SystemExit(0)),
+and the existing CLI exception path returns nonzero. The actual generated
+Snakemake rule consequently leaves no done marker. Partial files remain and
+cancellation retains its cancelled status. The failure and corrected runs
+are preserved, rather than presenting a failed scientific run as acceptance.
+
+Validation: 106 unique named journal/bridge/workflow/notification checks passed
+across the 105-pass initial cohort and 14-pass affected rerun. The initial
+cohort's sole failure was a new harness assertion reading the nested error
+from Snakemake stderr instead of the generated job log; no gate was relaxed.
+Existing public signatures/docstrings are unchanged. Fresh patched-source
+GUI→Snakemake acceptance passed after these checks. Source hashes, exact
+normalization rules, bounded-execution receipts, screenshot and harnesses:
+features/data/575_gui_replay_2026-10-01.json and its adjacent evidence folder.
+
+This closes the bounded genuine GUI-Measure/local-Snakemake equivalence gap,
+not the entire feature. It is one representative field, not a full biological
+plate; per-well filtering, container execution and cluster/cloud acceptance
+remain open. Feature 575 stays ALPHA/partial.

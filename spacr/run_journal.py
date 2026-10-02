@@ -1097,6 +1097,21 @@ def current_run() -> Optional["Run"]:
     return getattr(_RUN_LOCAL, "active", None)
 
 
+def _raise_if_incomplete(run: Run) -> None:
+    """Refuse success after a finalized item ledger reported partial output."""
+    if run.status not in ("running", "success"):
+        return
+    failures = [ledger for ledger in run._ledgers if ledger["failed"] > 0]
+    if failures:
+        from .errors import PartialRunError
+
+        summary = "; ".join(
+            f"{ledger['name']}: {ledger['failed']} of "
+            f"{ledger['attempted']} items failed" for ledger in failures)
+        raise PartialRunError(
+            f"Run incomplete: {summary}. Partial artifacts were retained.")
+
+
 @contextmanager
 def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     """Open a fresh run journal folder around a pipeline invocation.
@@ -1128,6 +1143,7 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     _RUN_LOCAL.active = run
     try:
         yield run
+        _raise_if_incomplete(run)
         if run.status == "running":
             run.status = "success"
     except BaseException as e:

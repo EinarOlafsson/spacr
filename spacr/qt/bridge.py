@@ -1342,6 +1342,9 @@ class PipelineWorker(QObject):
             with installed_token(self.cancel_token), responsive_gui():
                 self.cancel_token.checkpoint()
                 payload = self._fn(self._settings)
+            if journal_run is not None:
+                from spacr.run_journal import _raise_if_incomplete
+                _raise_if_incomplete(journal_run)
             ok = True
             if payload is not None:
                 try:
@@ -1382,7 +1385,16 @@ class PipelineWorker(QObject):
             self.error.emit(tb)
         finally:
             if journal_run is not None and ok:
-                journal_run.set_status("success")
+                try:
+                    from spacr.run_journal import _raise_if_incomplete
+                    _raise_if_incomplete(journal_run)
+                except Exception:
+                    ok = False
+                    journal_run.set_status("failed")
+                    journal_run.error_traceback = traceback.format_exc()
+                    self.error.emit(journal_run.error_traceback)
+                else:
+                    journal_run.set_status("success")
             if journal_context is not None:
                 try:
                     journal_context.__exit__(None, None, None)
