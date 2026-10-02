@@ -86,3 +86,24 @@ old one kept as spacr-cuda.pre-glvnd.sif). Rerun (10:26): rc 0, 13 passed,
 6.11.2), gpu PASS, "cuda ok NVIDIA GeForce RTX 3090 12.4".
 Conclusion: --nv now works on a newer host; the --nv Mask + Measure run
 (smoke_pipeline.py --mask) is still the open GPU half of DONE WHEN.
+
+SLURM SETTINGS BIND CORRECTION (2026-10-02, partial)
+    The wrapper accepted separate Mask/Measure settings paths but explicitly
+    bound only the Mask settings directory. A Measure file outside the default
+    home/working-directory mounts could therefore become inaccessible after
+    Mask had already run. A fake-Apptainer reproduction using the original
+    script confirmed that exact second-command failure.
+
+    Both files are now preflighted before Mask, resolved to absolute canonical
+    paths (including symlink targets), and both parent directories are bound
+    into the image. Paths with spaces, separate/shared folders and existing
+    per-task worker limits are preserved. Missing Measure settings fail before
+    any analysis command. No settings or input images are rewritten.
+
+    Validation: 20 unique checks passed across the 19-case initial cohort and
+    five-case affected rerun (1.88 and 1.02 seconds), under 1 GiB, CPU0, zero
+    swap. Five focused cases use a fake Apptainer executable to validate actual
+    shell arguments; the other 15 cover existing definition/entrypoint contracts.
+    This is not a real Slurm, Apptainer or GPU acceptance run. The --nv
+    Mask+Measure and publication gaps above remain open.
+    Receipt: features/data/586_slurm_settings_binds_2026-10-02.json.
