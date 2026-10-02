@@ -1,0 +1,58 @@
+[
+  {
+    "domain": "measure_live",
+    "msgid": "Preview and export unmixed crops",
+    "hint": "",
+    "ui": {},
+    "msgstr": ""
+  },
+  {
+    "domain": "measure_live",
+    "msgid": "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged.",
+    "hint": "",
+    "ui": {
+      "Show alpha features": "알파 기능 표시",
+      "Measure": "측정",
+      "Unmixed display": "스펙트럼 분리 표시"
+    },
+    "msgstr": ""
+  },
+  {
+    "domain": "measure_live",
+    "msgid": "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged.",
+    "hint": "",
+    "ui": {
+      "Export displayed crops…": "표시된 자르기 이미지 내보내기…"
+    },
+    "msgstr": ""
+  },
+  {
+    "domain": "measure_live",
+    "msgid": "Preview reference-well calibration",
+    "hint": "",
+    "ui": {},
+    "msgstr": ""
+  },
+  {
+    "domain": "measure_live",
+    "msgid": "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings.",
+    "hint": "",
+    "ui": {
+      "Show alpha features": "알파 기능 표시",
+      "Measure": "측정",
+      "Test mode": "테스트 모드",
+      "Preview": "미리보기",
+      "Intensity calibration wells": "강도 보정 웰"
+    },
+    "msgstr": ""
+  },
+  {
+    "domain": "measure_live",
+    "msgid": "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop.",
+    "hint": "",
+    "ui": {
+      "Cancel": "취소"
+    },
+    "msgstr": ""
+  }
+]

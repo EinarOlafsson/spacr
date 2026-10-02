@@ -340,7 +340,12 @@
   "Use stored image layout": "Använd lagrad bildlayout",
   "Working…": "Jobbar...",
   "Convert": "Konvertera",
-  "Plate barcode linkage (Alpha)": "Koppling av plattstreckkoder (alfa)"
+  "Plate barcode linkage (Alpha)": "Koppling av plattstreckkoder (alfa)",
+  "Unmixed display": "Spektralt separerad visning",
+  "Export displayed crops…": "Exportera visade bildutsnitt…",
+  "Test mode": "Testläge",
+  "Preview": "Förhandsvisning",
+  "Intensity calibration wells": "Brunnar för intensitetskalibrering"
  },
  "runtime_suspect": {}
 }

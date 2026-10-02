@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"POT-Creation-Date: 2026-10-02 02:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -46,6 +46,30 @@ msgstr "Myndalistinn notar fyrirliggjandi slembiúrtak af takmarkaðri stærð. 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
 msgstr "Merking mynda breytir aðeins forskoðuninni. Hún velur ekki sjónsviðin sem Mæling vinnur úr og breytir hvorki vistuðum mælingum né útflutningi. **Afrita stillingar** heldur fyrra hlutverki sínu: að afrita skurðar- og síustillingar í Mæling-eyðublaðið."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview and export unmixed crops"
+msgstr "Forskoða og flytja út litrófsaðgreind myndútsnið"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged."
+msgstr "Þegar **Sýna alfa-eiginleika** er virkt skal setja ``unmix=True`` og stilla ``unmix_controls`` í eyðublaðinu **Mæling**. Kveiktu á **Birting eftir litrófsaðgreiningu** til að nota þessi einlitunarviðmið við forskoðun myndútsniða. Sjálfgefið eru hrá gögn sýnd. Tilkynnt er um viðmið sem eru ógild eða vantar. Þessi rofi breytir eingöngu birtingunni; keyrslustillingar, upprunafylki og PNG-úttak lotuvinnslu haldast óbreytt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged."
+msgstr "Þegar forskoðuninni er lokið skaltu velja **Flytja út sýnd myndútsnið…**, velja yfirskipaða möppu og slá inn heiti á nýrri möppu. Aðeins myndútsnið úr fullgerðri forskoðun eru flutt út, með litunum sem eru sýndir og hráum eða litrófsaðgreindum mynddílum. ``provenance.json`` skráir slóðir upprunagagna, auðkenni hluta, birtingarstillingar og upplýsingar um litrófsaðgreiningu. Möppum sem þegar eru til er hafnað. Ef hætt er við forskoðunina eða henni breytt er óloknum útflutningi fargað; upprunaskrár og úttak lotuvinnslu haldast óbreytt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview reference-well calibration"
+msgstr "Forskoða kvörðun með viðmiðunarbrunnum"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings."
+msgstr "Þegar **Sýna alfa-eiginleika** er virkt skaltu kveikja á ``intensity_calibration`` og stilla viðmiðunarbrunna, myndavélarhliðrun og tölfræðistærð í eyðublaðinu **Mæling**. Slökktu á **Prófunarhamur** og veldu síðan **Forskoðun** við hliðina á **Brunnar styrkkvörðunar**. Notaðu staðbundna keyrslumöppu eða ``merged``-möppuna í henni. Forskoðunin les núverandi stillingar án þess að keyra **Mæling** eða skrifa myndir, mælingar eða stillingar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop."
+msgstr "Áætlun er gerð sérstaklega fyrir hverja upprunamöppu. Fyrsta platan í röð eftir heiti er viðmiðið. Taflan sýnir margföldunarstuðul styrks, viðmiðunartölfræðistærð og fjölda viðmiðunarsjónsviða fyrir hverja plötu og rás. Breytingar á stillingum ógilda niðurstöðuna. **Hætta við** fargar forskoðuninni á meðan skönnun upprunagagna sem þegar er hafin lýkur á öruggan hátt; þegar forskoðunin er opnuð aftur er beðið eftir að þeirri skönnun ljúki."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"

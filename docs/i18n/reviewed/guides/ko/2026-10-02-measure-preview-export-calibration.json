@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "method": "Direct Codex AI technical translation with independent Codex AI technical peer review; no human or native-speaker signoff. Standard guide import and gates unchanged.",
+  "draft_author": "mask_editor",
+  "independent_reviewer": "shared_ui",
+  "draft_sha256": "23be15316b08991d1f84cb3666b9d261b3066553f1ba4d6d8cc95eed74934a70",
+  "reviewed_sha256": "23be15316b08991d1f84cb3666b9d261b3066553f1ba4d6d8cc95eed74934a70",
+  "source_files": {
+    "docs/source/measure_live.rst": "156035ba6d69fe076dadf0066521eb689b05581cbe25a223b3047da79718f9e8"
+  },
+  "runtime_catalog_sha256": "1ee56d9ff1dff5ee1a1ab16e1691e81b4419b662317129a9d02ab0353b132311",
+  "records": [
+    {
+      "index": 0,
+      "domain": "measure_live",
+      "source": "Preview and export unmixed crops",
+      "source_sha256": "f9f0a86e7889a7ab6c5b9108cb6c72b5dbc1d137626264db2696cd1ec5f58aff",
+      "original_draft": "스펙트럼 분리된 자르기 이미지 미리보기 및 내보내기",
+      "target": "스펙트럼 분리된 자르기 이미지 미리보기 및 내보내기",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged.",
+      "source_sha256": "9cc2e0f7d40c882fe3777428d84c09fe27a13b1d150450bb2bd620267111553b",
+      "original_draft": "**알파 기능 표시**\\ 를 활성화한 상태에서 **측정** 양식에 ``unmix=True``\\ 를 설정하고 ``unmix_controls``\\ 를 구성합니다. **스펙트럼 분리 표시**\\ 를 켜면 해당 단일 염색 대조군을 자르기 이미지 미리보기에 사용합니다. 기본 표시는 원시 데이터입니다. 대조군이 잘못되었거나 누락되면 오류가 표시됩니다. 이 전환은 표시만 변경하며 실행 설정, 원본 배열 및 일괄 처리 PNG 출력은 변경하지 않습니다.",
+      "target": "**알파 기능 표시**\\ 를 활성화한 상태에서 **측정** 양식에 ``unmix=True``\\ 를 설정하고 ``unmix_controls``\\ 를 구성합니다. **스펙트럼 분리 표시**\\ 를 켜면 해당 단일 염색 대조군을 자르기 이미지 미리보기에 사용합니다. 기본 표시는 원시 데이터입니다. 대조군이 잘못되었거나 누락되면 오류가 표시됩니다. 이 전환은 표시만 변경하며 실행 설정, 원본 배열 및 일괄 처리 PNG 출력은 변경하지 않습니다.",
+      "ui": {
+        "Show alpha features": "알파 기능 표시",
+        "Measure": "측정",
+        "Unmixed display": "스펙트럼 분리 표시"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "measure_live",
+      "source": "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged.",
+      "source_sha256": "0137b941fdfda25b2abe2d543b2fe916f0dbffbd8b685be8ee2043142c10f03f",
+      "original_draft": "미리보기가 완료되면 **표시된 자르기 이미지 내보내기…**\\ 를 선택하고 상위 폴더를 고른 다음 새 폴더 이름을 입력합니다. 완료된 미리보기의 자르기 이미지만 표시된 색상과 원시 또는 스펙트럼 분리된 픽셀로 내보냅니다. ``provenance.json``\\ 에는 원본 경로, 객체 식별 정보, 표시 설정 및 스펙트럼 분리 정보가 기록됩니다. 이미 존재하는 폴더는 사용할 수 없습니다. 미리보기를 취소하거나 변경하면 완료되지 않은 내보내기를 폐기하며, 원본 파일과 일괄 처리 출력은 변경하지 않습니다.",
+      "target": "미리보기가 완료되면 **표시된 자르기 이미지 내보내기…**\\ 를 선택하고 상위 폴더를 고른 다음 새 폴더 이름을 입력합니다. 완료된 미리보기의 자르기 이미지만 표시된 색상과 원시 또는 스펙트럼 분리된 픽셀로 내보냅니다. ``provenance.json``\\ 에는 원본 경로, 객체 식별 정보, 표시 설정 및 스펙트럼 분리 정보가 기록됩니다. 이미 존재하는 폴더는 사용할 수 없습니다. 미리보기를 취소하거나 변경하면 완료되지 않은 내보내기를 폐기하며, 원본 파일과 일괄 처리 출력은 변경하지 않습니다.",
+      "ui": {
+        "Export displayed crops…": "표시된 자르기 이미지 내보내기…"
+      }
+    },
+    {
+      "index": 3,
+      "domain": "measure_live",
+      "source": "Preview reference-well calibration",
+      "source_sha256": "bae1cd22994d228c8e96460b42666421695b498ef6e9230b6811e44d04922963",
+      "original_draft": "기준 웰 보정 미리보기",
+      "target": "기준 웰 보정 미리보기",
+      "ui": {}
+    },
+    {
+      "index": 4,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings.",
+      "source_sha256": "596b4f770967b84a76d6e345ea4c2ac650410c13028421c4a19dd6be062e4574",
+      "original_draft": "**알파 기능 표시**\\ 를 활성화한 상태에서 ``intensity_calibration``\\ 을 켜고 **측정** 양식에서 기준 웰, 카메라 오프셋 및 통계량을 구성합니다. **테스트 모드**\\ 를 끈 다음 **강도 보정 웰** 옆의 **미리보기**\\ 를 선택합니다. 로컬 실행 폴더 또는 그 안의 ``merged`` 폴더를 사용합니다. 미리보기는 현재 설정을 읽기만 하며 **측정**\\ 을 실행하거나 이미지, 측정값 또는 설정을 기록하지 않습니다.",
+      "target": "**알파 기능 표시**\\ 를 활성화한 상태에서 ``intensity_calibration``\\ 을 켜고 **측정** 양식에서 기준 웰, 카메라 오프셋 및 통계량을 구성합니다. **테스트 모드**\\ 를 끈 다음 **강도 보정 웰** 옆의 **미리보기**\\ 를 선택합니다. 로컬 실행 폴더 또는 그 안의 ``merged`` 폴더를 사용합니다. 미리보기는 현재 설정을 읽기만 하며 **측정**\\ 을 실행하거나 이미지, 측정값 또는 설정을 기록하지 않습니다.",
+      "ui": {
+        "Show alpha features": "알파 기능 표시",
+        "Measure": "측정",
+        "Test mode": "테스트 모드",
+        "Preview": "미리보기",
+        "Intensity calibration wells": "강도 보정 웰"
+      }
+    },
+    {
+      "index": 5,
+      "domain": "measure_live",
+      "source": "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop.",
+      "source_sha256": "6e93ba2104a5a978e7bc128eab0fb5c08c9ead258ea906d6d60ca8008d97ca1f",
+      "original_draft": "각 원본 폴더는 별도로 계획됩니다. 이름순으로 첫 번째 플레이트가 기준입니다. 표에는 각 플레이트와 채널의 곱셈 보정 계수, 기준 통계량 및 기준 현미경 시야 수가 표시됩니다. 설정을 변경하면 결과가 무효화됩니다. **취소**\\ 를 선택하면 미리보기가 폐기되고, 이미 진행 중인 원본 스캔은 안전하게 마무리됩니다. 다시 열 때는 해당 스캔이 끝날 때까지 기다립니다.",
+      "target": "각 원본 폴더는 별도로 계획됩니다. 이름순으로 첫 번째 플레이트가 기준입니다. 표에는 각 플레이트와 채널의 곱셈 보정 계수, 기준 통계량 및 기준 현미경 시야 수가 표시됩니다. 설정을 변경하면 결과가 무효화됩니다. **취소**\\ 를 선택하면 미리보기가 폐기되고, 이미 진행 중인 원본 스캔은 안전하게 마무리됩니다. 다시 열 때는 해당 스캔이 끝날 때까지 기다립니다.",
+      "ui": {
+        "Cancel": "취소"
+      }
+    }
+  ],
+  "peer_review": {
+    "reviewer": "shared_ui and root",
+    "accepted_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "draft_sha256": "23be15316b08991d1f84cb3666b9d261b3066553f1ba4d6d8cc95eed74934a70",
+    "rst_escaping": "Parsed JSON contains twelve single escaped spaces; no duplicate slash correction required."
+  },
+  "peer_review_receipt_sha256": "f1c4acd71d31595309432444106a3407d74132dc49f734e901b1de0a548f3feb"
+}

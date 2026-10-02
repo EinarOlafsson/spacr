@@ -336,7 +336,12 @@
   "Use stored image layout": "Utiliser la disposition des plans d’image enregistrée",
   "Working…": "Travailler...",
   "Convert": "Convertir",
-  "Plate barcode linkage (Alpha)": "Association des plaques par code-barres (Alpha)"
+  "Plate barcode linkage (Alpha)": "Association des plaques par code-barres (Alpha)",
+  "Unmixed display": "Affichage après démélange spectral",
+  "Export displayed crops…": "Exporter les recadrages affichés…",
+  "Test mode": "Mode test",
+  "Preview": "Aperçu",
+  "Intensity calibration wells": "Puits de calibration d’intensité"
  },
  "runtime_suspect": {
   "Secondary objects from primary masks": "Objets secondaires (masque primaire)"

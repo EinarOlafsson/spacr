@@ -343,7 +343,12 @@
   "Use stored image layout": "저장된 이미지 레이아웃을 사용합니다.",
   "Working…": "작업 중…",
   "Convert": "변환",
-  "Plate barcode linkage (Alpha)": "플레이트 바코드 연결 (알파)"
+  "Plate barcode linkage (Alpha)": "플레이트 바코드 연결 (알파)",
+  "Unmixed display": "스펙트럼 분리 표시",
+  "Export displayed crops…": "표시된 자르기 이미지 내보내기…",
+  "Test mode": "테스트 모드",
+  "Preview": "미리보기",
+  "Intensity calibration wells": "강도 보정 웰"
  },
  "runtime_suspect": {}
 }

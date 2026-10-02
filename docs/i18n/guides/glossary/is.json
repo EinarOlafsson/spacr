@@ -343,7 +343,12 @@
   "Use stored image layout": "Nota vistaða uppröðun mynda",
   "Working…": "Að vinna...",
   "Convert": "Konvertir",
-  "Plate barcode linkage (Alpha)": "Tenging plötustrikamerkja (alfa)"
+  "Plate barcode linkage (Alpha)": "Tenging plötustrikamerkja (alfa)",
+  "Unmixed display": "Birting eftir litrófsaðgreiningu",
+  "Export displayed crops…": "Flytja út sýnd myndútsnið…",
+  "Test mode": "Prófunarhamur",
+  "Preview": "Forskoðun",
+  "Intensity calibration wells": "Brunnar styrkkvörðunar"
  },
  "runtime_suspect": {}
 }

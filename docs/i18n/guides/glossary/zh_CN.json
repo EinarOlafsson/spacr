@@ -338,7 +338,12 @@
   "Use stored image layout": "使用存储的图像配置",
   "Working…": "工作...",
   "Convert": "转换",
-  "Plate barcode linkage (Alpha)": "板条码关联（Alpha）"
+  "Plate barcode linkage (Alpha)": "板条码关联（Alpha）",
+  "Unmixed display": "光谱解混显示",
+  "Export displayed crops…": "导出显示的裁剪图…",
+  "Test mode": "测试模式",
+  "Preview": "预览",
+  "Intensity calibration wells": "强度校准孔"
  },
  "runtime_suspect": {
   "3D Calibration (Beta)": "三维校准（Beta）",

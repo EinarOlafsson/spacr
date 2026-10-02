@@ -462,3 +462,40 @@ assertions were fixed; all three repaired assertions plus two companion
 settings-flow checks then passed. No public runtime behavior was changed.
 F411's larger nested-helper API expansion and N615's documentation, tutorial,
 site-rendering and publication work remain separate and open.
+
+2026-10-02 — DOCUMENTATION: PINNED FULL BUILD AND CURRENT MEASURE WORKFLOWS
+
+615.2 passes on the recorded local snapshot after integrating the refreshed
+settings-flow/API contract artifacts from 5e1338200. The existing Measure guide
+now explains display-only spectral unmixing, completed-preview crop export and
+its provenance/cancellation rules, and read-only reference-well gain planning.
+Six source messages have 54 independently technically reviewed translations;
+all 11 previous Measure translations in each locale remain unchanged. The
+normal full guide audit covers 2,875/2,875 messages in each of nine locales,
+with no stale, invalid, missing or unlabelled translations. Review is by AI,
+not a claim of human/native-speaker certification.
+
+A fresh strict Sphinx dummy/read phase and full HTML write pass under the
+4 GiB/one-CPU/zero-swap cap. The Help regression exposed 94 missing generated
+API search entries; the normal generator restored them, refreshed five API
+summaries and existing setting/tooltip help. Its source update caused AutoAPI
+to rewrite 635 RST timestamps. A combined refresh hit the unchanged memory cap;
+the retained completed read cache was verified, then a separate strict full
+HTML write passed with zero source rereads. No warning/content gate was relaxed.
+
+All nine strict translated guide builds pass under 1 GiB. The resulting local
+site contains 1,614 HTML pages: 1,290 base pages and 324 translated guide pages.
+Every one of the 635 API pages declares the actual all-locale mode and exact
+current catalog fingerprint; all ten copied API JSON files are byte-identical
+to source. An initially misselected English-only publication check is retained
+as a harness mismatch, followed by the applicable all-mode frontend check.
+There are 72 distinct passing existing workflow-map, Help, guide/catalog and
+rendered-content checks. The normal Help generator also reports current.
+
+Evidence: features/data/615_documentation_acceptance_2026-10-02.json and its
+hash-bound source snapshots, reviewed drafts, build logs and rendered manifest.
+This is local acceptance, not new live publication or tutorial-media acceptance.
+The later F552 commit 3d968122d refreshes seven existing Help consumer mappings;
+a narrow source-current follow-up is required before the parent marks the
+Documentation support row complete. Its private backend/source-page delta is
+not represented as part of this earlier full-build snapshot.

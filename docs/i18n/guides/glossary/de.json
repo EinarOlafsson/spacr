@@ -339,7 +339,12 @@
   "Use stored image layout": "Gespeichertes Bildlayout verwenden",
   "Working…": "Arbeiten...",
   "Convert": "Umrechnen",
-  "Plate barcode linkage (Alpha)": "Plattenverknüpfung über Barcodes (Alpha)"
+  "Plate barcode linkage (Alpha)": "Plattenverknüpfung über Barcodes (Alpha)",
+  "Unmixed display": "Spektral entmischte Anzeige",
+  "Export displayed crops…": "Angezeigte Bildausschnitte exportieren…",
+  "Test mode": "Testmodus",
+  "Preview": "Vorschau",
+  "Intensity calibration wells": "Kalibrierungs-Wells der Intensität"
  },
  "runtime_suspect": {}
 }

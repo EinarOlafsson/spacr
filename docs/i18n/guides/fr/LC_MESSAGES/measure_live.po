@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"POT-Creation-Date: 2026-10-02 02:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -46,6 +46,30 @@ msgstr "La liste d’images utilise l’échantillon aléatoire limité existant
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
 msgstr "Cocher des images ne change que l’aperçu. Cela ne sélectionne pas les champs traités par Mesure et ne modifie ni les mesures enregistrées ni les exportations. **Transférer les paramètres** garde sa fonction habituelle : copier les paramètres de recadrage et de filtrage dans le formulaire Mesure."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview and export unmixed crops"
+msgstr "Prévisualiser et exporter des recadrages après démélange spectral"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged."
+msgstr "Lorsque **Afficher les fonctionnalités alpha** est activé, définissez ``unmix=True`` et configurez ``unmix_controls`` dans le formulaire **Mesure**. Basculez **Affichage après démélange spectral** pour utiliser ces témoins de marquage unique dans l’aperçu des recadrages. L’affichage par défaut est brut. Les témoins non valides ou manquants sont signalés. Ce bouton ne modifie que l’affichage ; les paramètres d’exécution, les tableaux source et les sorties PNG du traitement par lots restent inchangés."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged."
+msgstr "Une fois l’aperçu terminé, choisissez **Exporter les recadrages affichés…**, sélectionnez un dossier parent et saisissez un nouveau nom de dossier. Seuls les recadrages de l’aperçu terminé sont exportés, avec les couleurs affichées et leurs pixels bruts ou après démélange spectral. ``provenance.json`` consigne les chemins source, les identités des objets, les paramètres d’affichage et les informations de démélange spectral. Les dossiers existants sont refusés. L’annulation ou la modification de l’aperçu abandonne une exportation inachevée ; les fichiers source et les sorties par lots restent inchangés."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview reference-well calibration"
+msgstr "Prévisualiser la calibration avec des puits de référence"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings."
+msgstr "Lorsque **Afficher les fonctionnalités alpha** est activé, activez ``intensity_calibration`` et configurez les puits de référence, le décalage de la caméra et la statistique dans le formulaire **Mesure**. Désactivez **Mode test**, puis choisissez **Aperçu** à côté de **Puits de calibration d’intensité**. Utilisez un dossier d’exécution local ou son dossier ``merged``. L’aperçu lit les paramètres actuels sans exécuter **Mesure** ni écrire d’images, de mesures ou de paramètres."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop."
+msgstr "Chaque dossier source est planifié séparément. La première plaque par ordre de nom sert de référence. Le tableau présente, pour chaque plaque et canal, le facteur de gain multiplicatif, la statistique de référence et le nombre de champs d’image de référence. Toute modification des paramètres invalide le résultat. **Annuler** abandonne l’aperçu pendant que toute analyse des fichiers source déjà en cours se termine en toute sécurité ; la réouverture attend la fin de cette analyse."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"
