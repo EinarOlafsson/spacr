@@ -161,3 +161,18 @@ This is a bounded partial completion. Untraced image sites, cross-figure/
 region reuse, heavy-noise repeats, splice detection and a GUI warning dialog
 remain open as listed above. Camera metadata absent from source crops cannot
 be reconstructed from pixel values alone.
+
+2026-10-02 — EXACT CROSS-FIGURE REUSE IN AN OUTPUT FOLDER
+Checked figure exports now compare panel byte digests with the 64 newest
+small, regular provenance sidecars beside the destination. A repeated panel
+in a prior figure produces a warning naming that figure and panel; declared
+same-source reuse is a note. The earlier figure's file hash must still match
+its sidecar before it can be used as evidence, so an overwritten/stale figure
+cannot create a false repeat. The same check runs through save_figure and the
+Matplotlib Save figure dialog. It scans metadata only and hashes a prior
+figure only after its panel digest matches; source images are not loaded.
+All 35 focused figure-integrity, alpha-gate and save-dialog tests passed
+under a 2 GiB hard cap, one CPU, zero swap and offscreen Qt. Receipt:
+features/data/572_cross_figure_exact_reuse_2026-10-02.json.
+This is partial: approximate or region reuse across figures, untraced
+panels, splice detection and GUI warning presentation remain open.

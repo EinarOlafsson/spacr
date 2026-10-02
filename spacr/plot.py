@@ -454,7 +454,8 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
         try:
             report = _integrity_report(
                 fig, fmt=chosen_fmt, dpi=write_dpi,
-                requested_fmt=requested.strip().lower().lstrip("."))
+                requested_fmt=requested.strip().lower().lstrip("."),
+                destination=destination)
             if report is not None:
                 kwargs[_SAVEFIG_METADATA] = _integrity_metadata(
                     report, chosen_fmt, kwargs.get(_SAVEFIG_METADATA))
@@ -1205,13 +1206,104 @@ def _spacr_version():
         return "unknown"
 
 
-def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None):
+def _prior_figure_findings(panels, destination):
+    """Find exact panel reuse in recent checked exports beside this figure.
+
+    Only closed, small sidecars for existing figures are considered. This is
+    intentionally an exact pixel check: approximate matches across figures
+    need stronger evidence than a single thumbnail to avoid false alarms.
+    """
+    import heapq
+    import json
+    import stat
+
+    destination = os.path.abspath(os.fspath(destination))
+    folder = os.path.dirname(destination)
+    suffix = _PROVENANCE_SUFFIX
+    recent = []
+    try:
+        with os.scandir(folder) as entries:
+            for entry in entries:
+                if not entry.name.endswith(suffix) or entry.path == destination + suffix:
+                    continue
+                try:
+                    info = entry.stat(follow_symlinks=False)
+                except OSError:
+                    continue
+                if not stat.S_ISREG(info.st_mode) or info.st_size > 1024 * 1024:
+                    continue
+                previous_figure = entry.path[:-len(suffix)]
+                try:
+                    figure_info = os.stat(previous_figure, follow_symlinks=False)
+                except OSError:
+                    continue
+                if (not stat.S_ISREG(figure_info.st_mode)
+                        or figure_info.st_mtime_ns > info.st_mtime_ns):
+                    continue
+                item = (info.st_mtime_ns, entry.path, previous_figure)
+                if len(recent) < 64:
+                    heapq.heappush(recent, item)
+                elif item > recent[0]:
+                    heapq.heapreplace(recent, item)
+    except OSError:
+        return []
+    current = {panel["displayed_sha256"]: panel for panel in panels}
+    findings, seen = [], set()
+    for _mtime, sidecar, old_figure in sorted(recent, reverse=True):
+        try:
+            with open(sidecar, "r", encoding="utf-8") as handle:
+                old = json.load(handle)
+            if old.get("schema") != _PROVENANCE_SCHEMA:
+                continue
+            if not any(p.get("displayed_sha256") in current
+                       for p in old.get("panels", [])):
+                continue
+            # A stale sidecar must not report a repeat after its figure was
+            # replaced, even on filesystems with coarse modification times.
+            from .run_journal import hash_file
+            if old.get("figure_sha256") != hash_file(old_figure, full=True):
+                continue
+            for previous in old.get("panels", []):
+                digest = previous.get("displayed_sha256")
+                if digest not in current or digest in seen:
+                    continue
+                panel = current[digest]
+                seen.add(digest)
+                prior_sources = [s.get("path") for s in previous.get("source", [])]
+                sources = [s.get("path") for s in panel.get("source", [])]
+                declared = bool(sources and sources == prior_sources)
+                findings.append({
+                    "check": "cross_figure_duplicate",
+                    "severity": "note" if declared else "warning",
+                    "panels": [panel["panel"]],
+                    "prior_figure": os.path.basename(old_figure),
+                    "prior_panel": previous.get("panel"),
+                    "identical": True,
+                    "message": (
+                        f"Panel {panel['panel']} has identical pixels to panel "
+                        f"{previous.get('panel')} in an earlier export "
+                        f"({os.path.basename(old_figure)}). "
+                        + ("They share a recorded source; explain the reuse in "
+                           "the legend." if declared else
+                           "If this reuse is intentional, explain it in the legend.")),
+                })
+        except (OSError, ValueError, TypeError, AttributeError):
+            continue
+        if len(seen) == len(current):
+            break
+    return findings
+
+
+def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
+                      destination=None):
     """Check ``fig``'s image panels and assemble its provenance.
 
     :param fig: the figure about to be written.
     :param fmt: the format that will be written.
     :param requested_fmt: the format the caller asked for, if different.
     :param dpi: the resolution it will be written at.
+    :param destination: optional output path for checking earlier exports in
+        the same folder for an identical image panel.
     :returns: a JSON-ready report, or ``None`` when the figure holds no
         image panel of at least 16x16 pixels.
     """
@@ -1235,6 +1327,8 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None):
                 + _duplicate_findings(panels, arrays)
                 + _lossy_findings(requested, written, panels)
                 + _resampling_findings(panels))
+    if destination is not None:
+        findings += _prior_figure_findings(panels, destination)
     run = None
     try:
         from .run_journal import current_run
@@ -1262,7 +1356,7 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None):
         "panels": panels,
         "integrity": {
             "checks": ["display_range", "saturation", "duplicate",
-                       "lossy_format", "resampling"],
+                       "lossy_format", "resampling", "cross_figure_duplicate"],
             "warnings": sum(f["severity"] == "warning" for f in findings),
             "notes": sum(f["severity"] == "note" for f in findings),
             "findings": findings,

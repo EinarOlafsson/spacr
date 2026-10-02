@@ -950,7 +950,8 @@ class SaveFigureDialog(QDialog):
             written = (os.path.splitext(chosen)[1].lstrip(".").lower()
                        or suffix)
             report = _integrity_report(figure, fmt=written,
-                                       dpi=int(self.dpi.value()))
+                                       dpi=int(self.dpi.value()),
+                                       destination=chosen)
             if report is None:
                 return {}, None
             stamp = _integrity_metadata(report, written)

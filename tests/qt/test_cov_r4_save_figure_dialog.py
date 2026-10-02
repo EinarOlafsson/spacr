@@ -266,7 +266,7 @@ class TestTheSaveCarriesTheIntegrityStamp:
         seen = {}
         monkeypatch.setattr(plot, "_figure_integrity_enabled", lambda: True)
         monkeypatch.setattr(plot, "_integrity_report",
-                            lambda figure, fmt, dpi: report)
+                            lambda figure, fmt, dpi, destination: report)
         monkeypatch.setattr(plot, "_integrity_metadata",
                             lambda rep, written: stamp)
 
