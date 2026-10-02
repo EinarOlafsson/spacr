@@ -2,6 +2,18 @@
   "repo": "EinarOlafsson/spacr",
   "releases": [
     {
+      "tag": "v1.5.1.2",
+      "name": "spaCR 1.5.1.2",
+      "published": "2026-10-02",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.1.2",
+      "body": "## What's Changed\n* Promote nightly to main for spaCR 1.5.1.1 by @EinarOlafsson in https://github.com/EinarOlafsson/spacr/pull/135\n\n\n**Full Changelog**: https://github.com/EinarOlafsson/spacr/compare/v1.5.1.0...v1.5.1.2",
+      "links": [
+        "https://github.com/EinarOlafsson/spacr/pull/135",
+        "https://github.com/EinarOlafsson/spacr/compare/v1.5.1.0...v1.5.1.2"
+      ],
+      "prerelease": false
+    },
+    {
       "tag": "v1.5.1.0",
       "name": "spaCR 1.5.1.0",
       "published": "2026-09-24",
