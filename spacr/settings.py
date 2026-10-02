@@ -7416,7 +7416,8 @@ ALPHA_FEATURES = {
         'widgets': ('EmbeddingsDinoPretrainButton',),
     },
     558: {
-        'widgets': ('CellposeWorkbenchVirtualStain',),
+        'widgets': ('CellposeWorkbenchVirtualStain', 'MaskVirtualStainApply',
+                    'MakeMasksVirtualStainApply'),
     },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',

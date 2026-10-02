@@ -8656,6 +8656,13 @@ class MakeMasksScreen(QWidget):
         curate_row.addWidget(self._btn_skip)
         curate_row.addWidget(self._build_blind_toggle())
         curate_row.addWidget(self._build_roi_button())
+        from ..preferences import _apply_alpha_widgets
+        from .train_cellpose import _VirtualStainApply
+
+        self._virtual_stain = _VirtualStainApply(lambda: self._folder, self)
+        self._virtual_stain.button.setObjectName("MakeMasksVirtualStainApply")
+        _apply_alpha_widgets(self._virtual_stain.button)
+        curate_row.addWidget(self._virtual_stain)
         curate_row.addWidget(self._build_contribute_button())
 
         outer_row.addWidget(self._nav_curate_group, 0, Qt.AlignBottom)

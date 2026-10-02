@@ -86,7 +86,7 @@ def test_a_folder_run_writes_model_predictions_and_scores(tmp_path):
         np.save(tmp_path / f"f{i}.npy", _field(i))
     scores, summary = ds._virtual_stain_from_folder(
         str(tmp_path), [1], 0, scale=1, crop=32, per_field=4, epochs=1,
-        base=4, depth=2)
+        base=4, depth=2, segment=ds._vs_segment)
     out = tmp_path / "virtual_stain"
     assert summary["train_fields"] == 3 and summary["test_fields"] == 1
     assert (out / "virtual_stain_c0.pt").exists()
@@ -139,3 +139,50 @@ def test_a_folder_with_one_field_cannot_be_split(tmp_path):
     np.save(tmp_path / "only.npy", _field(0))
     with pytest.raises(ValueError, match="at least two paired fields"):
         ds._virtual_stain_from_folder(str(tmp_path), [1], 0, epochs=1)
+
+
+def test_a_saved_model_is_applied_to_every_field_and_frame(tmp_path):
+    fitted = ds._train_virtual_stain([_field(0), _field(1)], [1], 0, scale=1,
+                                     crop=32, per_field=2, epochs=1, base=4,
+                                     depth=2)
+    model = tmp_path / "m.pt"
+    ds._save_virtual_stain(fitted, model)
+    np.save(tmp_path / "a.npy", _field(2))
+    np.save(tmp_path / "b.npy", np.stack([_field(3), _field(4)]))
+    written = ds._apply_virtual_stain(model, tmp_path)
+    assert len(written) == 2
+    assert np.load(tmp_path / "virtual_stain/a_virtual_c0.npy").shape == (64, 64)
+    assert np.load(tmp_path / "virtual_stain/b_virtual_c0.npy").shape == (2, 64, 64)
+
+
+def test_the_scorecard_segments_with_cellpose_by_default(monkeypatch):
+    import sys
+    import types
+
+    calls = []
+
+    class _Model:
+        def __init__(self, pretrained_model=None, gpu=False):
+            calls.append(pretrained_model)
+
+        def eval(self, plane, diameter=None, channel_axis=None):
+            return (ds._vs_segment(plane, sigma=1, min_size=10),)
+
+    fake = types.ModuleType("cellpose")
+    fake.models = types.SimpleNamespace(CellposeModel=_Model)
+    monkeypatch.setitem(sys.modules, "cellpose", fake)
+    segment = ds._vs_default_segment()
+    assert segment.name == "cellpose" and calls == ["cpsam"]
+    fitted = ds._train_virtual_stain([_field(0)], [1], 0, scale=1, crop=32,
+                                     per_field=2, epochs=1, base=4, depth=2)
+    scores = ds._virtual_stain_scorecard(fitted, [_field(1)])
+    assert len(calls) == 2 and set(scores["kind"]) == {"predicted",
+                                                         "input_baseline"}
+
+
+def test_without_cellpose_the_scorecard_falls_back_to_the_watershed(
+        monkeypatch):
+    import sys
+
+    monkeypatch.setitem(sys.modules, "cellpose", None)
+    assert ds._vs_default_segment().name == "watershed"

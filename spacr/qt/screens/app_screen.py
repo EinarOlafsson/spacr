@@ -7621,6 +7621,14 @@ class AppScreen(QWidget):
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self._btn_analysis_lock)
+        if self.app_key in ("mask", "timelapse"):
+            from .train_cellpose import _VirtualStainApply
+
+            self._virtual_stain = _VirtualStainApply(
+                self._settings_src_path, self)
+            self._virtual_stain.button.setObjectName("MaskVirtualStainApply")
+            _apply_alpha_widgets(self._virtual_stain.button)
+            buttons.addWidget(self._virtual_stain)
 
         self._btn_remote = QPushButton("Submit remote…")
         self._btn_remote.setObjectName("PrimaryButton")

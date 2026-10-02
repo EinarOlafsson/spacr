@@ -51,7 +51,7 @@ def test_the_button_follows_the_alpha_switch(screen, alpha):
     from spacr.qt.preferences import _apply_alpha_widgets
     from spacr.settings import ALPHA_FEATURES
 
-    assert ALPHA_FEATURES[558]["widgets"] == ("CellposeWorkbenchVirtualStain",)
+    assert ALPHA_FEATURES[558]["widgets"][0] == "CellposeWorkbenchVirtualStain"
     button = screen.findChild(QPushButton, "CellposeWorkbenchVirtualStain")
     assert button is not None and button.isHidden()
     alpha["on"] = True
@@ -118,3 +118,32 @@ def test_a_failed_virtual_stain_says_why(screen, monkeypatch, tmp_path):
     screen._virtual_stain(str(tmp_path), "1 > 0")
     assert "no paired fields in the folder" in screen._vs_note.text()
     assert screen._vs_note.text().startswith("Virtual staining failed")
+
+
+def test_apply_buttons_follow_the_alpha_switch_and_run_hidden(
+        qtbot, alpha, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QPushButton
+
+    from spacr import deep_spacr
+    from spacr.qt.job_runner import JobRunner
+    from spacr.qt.preferences import _apply_alpha_widgets
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    button = screen.findChild(QPushButton, "MakeMasksVirtualStainApply")
+    assert button is not None and button.isHidden()
+    alpha["on"] = True
+    _apply_alpha_widgets(screen)
+    assert not button.isHidden()
+    alpha["on"] = False
+    _apply_alpha_widgets(screen)
+    assert button.isHidden()
+    seen = []
+    monkeypatch.setattr(deep_spacr, "_apply_virtual_stain",
+                        lambda m, f: seen.append((m, f)) or ["x.npy"])
+    panel = screen._virtual_stain
+    panel.jobs = JobRunner(panel, threaded=False)
+    screen._folder = str(tmp_path)
+    assert panel.apply(model="m.pt") == str(tmp_path)
+    assert seen == [("m.pt", str(tmp_path))] and panel.result == ["x.npy"]

@@ -140,6 +140,97 @@ def _install_screen_seams(screen: AppScreen) -> None:
         LOG.debug("no preview for %s", screen.app_key, exc_info=True)
 
 
+class _VirtualStainApply(QWidget):
+    """A button that applies a saved virtual-staining model to a folder.
+
+    Asks for a model written by the Cellpose workbench's Virtual staining
+    run and predicts its stain for every field of a folder on the CPU,
+    writing ``<folder>/virtual_stain/<field>_virtual_c<target>.npy``.
+    """
+
+    def __init__(self, folder=None, parent=None):
+        """Build the button and its one-line note.
+
+        The mounting screen names :attr:`button` and applies the alpha gate.
+
+        :param folder: callable returning the screen's current folder.
+        :param parent: owning widget.
+        """
+        super().__init__(parent)
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton
+
+        from ..job_runner import JobRunner
+
+        self._folder = folder or (lambda: "")
+        self.jobs = JobRunner(self, app_key="virtual stain")
+        self.jobs.job_failed.connect(self._on_failed)
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        self.button = QPushButton(tr("Apply virtual stain…"), self)
+        self.button.setToolTip(tr(
+            "Choose a virtual-staining model (.pt) saved by the Cellpose "
+            "workbench and predict its stain for every .npy or .tif field "
+            "of the folder, frame by frame for time stacks, on the CPU. "
+            "Predictions are written to <folder>/virtual_stain. Default "
+            "the screen's source folder."))
+        self.button.clicked.connect(lambda: self.apply())
+        row.addWidget(self.button)
+        self.note = QLabel("", self)
+        self.note.setWordWrap(True)
+        self.note.setVisible(False)
+        row.addWidget(self.note, 1)
+        self.result = None
+
+    def apply(self, model: str = "", folder: str = "") -> str:
+        """Predict the model's stain for every field of a folder.
+
+        :param model: saved model path; asks for one when empty.
+        :param folder: field folder; the screen's folder, else asks.
+        :returns: the folder used, or ``''`` when a dialog was dismissed.
+        """
+        from PySide6.QtWidgets import QFileDialog
+
+        if not model:
+            model = QFileDialog.getOpenFileName(
+                self, tr("Choose a virtual-staining model"), "",
+                tr("Virtual-staining models (*.pt)"))[0]
+        if not model:
+            return ""
+        folder = folder or str(self._folder() or "")
+        if not folder or not os.path.isdir(folder):
+            folder = QFileDialog.getExistingDirectory(
+                self, tr("Choose a folder of fields"))
+        if not folder:
+            return ""
+        model, folder = str(model), str(folder)
+        self._say(tr("Applying the virtual stain…"))
+
+        def work():
+            """Predict off the GUI thread."""
+            from ...deep_spacr import _apply_virtual_stain
+
+            return _apply_virtual_stain(model, folder)
+
+        self.jobs.submit(work, self._on_done)
+        return folder
+
+    def _say(self, text: str) -> None:
+        """Show one line beside the button."""
+        self.note.setText(text)
+        self.note.setVisible(True)
+
+    def _on_done(self, written) -> None:
+        """Say how many predictions were written."""
+        self.result = list(written)
+        self._say(tr("Virtual stain written for {n} fields.").format(
+            n=len(self.result)))
+
+    def _on_failed(self, message: str) -> None:
+        """Show why the job stopped."""
+        self._say(tr("Virtual staining failed: {error}").format(
+            error=message))
+
+
 class CellposeWorkbenchScreen(QWidget):
     """Train and Apply as two tabs of one module page.
 

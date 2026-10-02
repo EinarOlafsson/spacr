@@ -4443,6 +4443,79 @@ def _vs_segment(plane, *, sigma: float = 2.0, min_size: int = 300,
     return watershed(-distance, markers, mask=mask).astype(np.int32)
 
 
+def _vs_cellpose_segment(model, diameter=None):
+    """A plane -> labels callable that runs a Cellpose model on one plane.
+
+    :param model: a ``cellpose.models.CellposeModel``.
+    :param diameter: object diameter in pixels, or ``None`` for the model's.
+    :returns: the callable.
+    """
+    def segment(plane):
+        """Segment one 0-1 plane with Cellpose."""
+        masks = model.eval(np.asarray(plane, dtype=np.float32),
+                           diameter=diameter, channel_axis=None)[0]
+        return np.asarray(masks, dtype=np.int32)
+
+    return segment
+
+
+def _vs_default_segment(device: str = 'cpu'):
+    """The scorecard's default segmenter: Cellpose, else threshold watershed.
+
+    Loads the ``cpsam`` Cellpose model on ``device``; when Cellpose is not
+    installed or its weights cannot be loaded, falls back to
+    :func:`_vs_segment` and says so in the log.
+
+    :returns: a plane -> labels callable with a ``name`` attribute.
+    """
+    try:
+        from cellpose import models as cp_models
+        model = cp_models.CellposeModel(pretrained_model='cpsam',
+                                        gpu=device != 'cpu')
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning(
+            'Cellpose unavailable (%s); scoring with the threshold watershed.',
+            exc)
+        _vs_segment.name = 'watershed'
+        return _vs_segment
+    segment = _vs_cellpose_segment(model)
+    segment.name = 'cellpose'
+    return segment
+
+
+def _apply_virtual_stain(model_path, folder, out_dir=None, device='cpu'):
+    """Predict the stain of a saved model for every field in a folder.
+
+    Each ``.npy`` or TIFF field is read as channels last; a time stack
+    (frames, height, width, channels) is predicted frame by frame. The
+    prediction is written to ``<out_dir>/<field>_virtual_c<target>.npy``,
+    ``out_dir`` defaulting to ``<folder>/virtual_stain``.
+
+    :param model_path: a model written by :func:`_save_virtual_stain`.
+    :param folder: folder of fields with the model's input channels.
+    :param out_dir: where predictions are written.
+    :param device: torch device.
+    :returns: list of written paths.
+    """
+    fitted = _load_virtual_stain(model_path, device=device)
+    out_dir = out_dir or os.path.join(str(folder), 'virtual_stain')
+    os.makedirs(out_dir, exist_ok=True)
+    written = []
+    for path in _vs_folder_fields(folder):
+        array = _vs_read_field(path)
+        if array.ndim == 4:
+            pred = np.stack([_predict_virtual_stain(fitted, frame)
+                             for frame in array])
+        else:
+            pred = _predict_virtual_stain(fitted, array)
+        name = os.path.splitext(os.path.basename(path))[0]
+        out = os.path.join(out_dir, f"{name}_virtual_c{fitted['target']}.npy")
+        np.save(out, pred)
+        written.append(out)
+    return written
+
+
 def _vs_pixel_metrics(real, pred):
     """Pearson r, SSIM, PSNR and NRMSE of two planes in the 0-1 scale."""
     from skimage.metrics import (normalized_root_mse, peak_signal_noise_ratio,
@@ -4474,13 +4547,14 @@ def _virtual_stain_scorecard(fitted, fields, names=None, segment=None):
     :param fields: held-out ``(height, width, channels)`` arrays.
     :param names: one name per field.
     :param segment: callable from a plane to a label image; defaults to
-        :func:`_vs_segment`.
+        :func:`_vs_default_segment` (Cellpose when it is installed, else
+        :func:`_vs_segment`).
     :returns: ``pandas.DataFrame`` with one row per field and ``kind``
         ``predicted`` or ``input_baseline``.
     """
     from .scorecard import match_objects
 
-    segment = segment or _vs_segment
+    segment = segment or _vs_default_segment()
     names = list(names) if names is not None else [
         f'field_{i}' for i in range(len(fields))]
     rows = []
@@ -4525,7 +4599,7 @@ def _load_virtual_stain(path, device: str = 'cpu'):
 
 
 def _virtual_stain_from_folder(folder, sources, target, *, held_out: int = 0,
-                               out_dir=None, **train_kwargs):
+                               out_dir=None, segment=None, **train_kwargs):
     """Train on a folder of paired fields and score the held-out ones.
 
     The fields are the folder's ``.npy`` and TIFF files in name order; the
@@ -4541,6 +4615,7 @@ def _virtual_stain_from_folder(folder, sources, target, *, held_out: int = 0,
     :param target: the channel to predict.
     :param held_out: number of fields scored rather than trained on.
     :param out_dir: where results are written.
+    :param segment: plane -> labels callable for the scorecard.
     :param train_kwargs: passed to :func:`_train_virtual_stain`.
     :returns: ``(scores, summary)``: the per-field table and a dict of
         mean held-out metrics for the prediction and the baseline.
@@ -4564,7 +4639,7 @@ def _virtual_stain_from_folder(folder, sources, target, *, held_out: int = 0,
     for name, field in zip(names, fields):
         np.save(os.path.join(out_dir, f'{name}_virtual_c{target}.npy'),
                 _predict_virtual_stain(fitted, field))
-    scores = _virtual_stain_scorecard(fitted, fields, names)
+    scores = _virtual_stain_scorecard(fitted, fields, names, segment)
     write_table(scores, os.path.join(out_dir, 'virtual_stain_scores.csv'))
     means = scores.groupby('kind')[['pearson', 'ssim', 'f1_50', 'f1_75']].mean()
     summary = {'train_fields': len(train_paths), 'test_fields': len(test_paths),

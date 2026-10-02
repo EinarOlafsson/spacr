@@ -126,3 +126,17 @@ WHAT IS LEFT
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: label-free paired data set (external data). OPEN code over 1 h: default Cellpose scorecard segmenter, apply saved model from Timelapse/Make Masks, pix2pix option.
+
+2026-10-02 — APPLY + CELLPOSE SCORECARD (alpha)
+    ALPHA: 2026-10-02. ALPHA_FEATURES[558] widgets now also
+    MaskVirtualStainApply (Mask/Timelapse run row) and
+    MakeMasksVirtualStainApply (Make Masks curate row): "Apply virtual
+    stain…" picks a saved .pt model and predicts every .npy/.tif field
+    (time stacks frame by frame) of the screen's folder on the CPU via
+    deep_spacr._apply_virtual_stain -> <folder>/virtual_stain.
+    Scorecard default segmenter is now Cellpose cpsam
+    (_vs_default_segment; falls back to the watershed when Cellpose is
+    missing). Tests: stub model in tests/test_virtual_staining.py and
+    tests/qt/test_virtual_stain_alpha_gate.py.
+    LEFT: label-free paired data set (BLOCKED, external); pix2pix /
+    published-model option.

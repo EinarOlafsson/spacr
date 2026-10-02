@@ -1248,6 +1248,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # for a round checked on a random split.
 # 2026-10-01: full nine-locale rebuild completed; pending rows are now
 # catalogued or retired with their source captions. No translation bypass remains.
+# 558, 2026-10-02: the Apply virtual stain button on Mask and Make Masks.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Feature columns",
     "Label column",
@@ -1255,6 +1256,16 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "No crop images: add a 'png_path' column to see the cells with the "
     "highest attention.",
     "Well-label model",
+    "Apply virtual stain…",
+    "Choose a virtual-staining model (.pt) saved by the Cellpose "
+    "workbench and predict its stain for every .npy or .tif field "
+    "of the folder, frame by frame for time stacks, on the CPU. "
+    "Predictions are written to <folder>/virtual_stain. Default "
+    "the screen's source folder.",
+    "Choose a virtual-staining model",
+    "Virtual-staining models (*.pt)",
+    "Applying the virtual stain…",
+    "Virtual stain written for {n} fields.",
 })
 
 
