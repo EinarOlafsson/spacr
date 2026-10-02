@@ -172,7 +172,7 @@ def _load_lineage_sources(tracks_path):
 def _measured_lineage_inputs(db_path, tracks_path, column):
     """Read a single measured feature with exact field, frame and label identities."""
     from .database_concurrency import connect
-    from .tabular import _quote_identifier
+    from .tabular import _quote_identifier, _read_query
 
     tracks, mapping, provenance = _load_lineage_sources(tracks_path)
     table = provenance['object_type']
@@ -189,7 +189,8 @@ def _measured_lineage_inputs(db_path, tracks_path, column):
             wanted = fields[offset:offset + 500]
             query = (f'SELECT prcf, object_label, {quote(column)} FROM {quote(table)} '
                      f'WHERE prcf IN ({",".join("?" for _ in wanted)})')
-            pieces.append(pd.read_sql_query(query, connection, params=wanted))
+            pieces.append(_read_query(connection, query, params=wanted,
+                                      canonicalise=False, report=None))
     measured = pd.concat(pieces, ignore_index=True) if pieces else pd.DataFrame(
         columns=['prcf', 'object_label', column])
     labels = pd.to_numeric(measured['object_label'], errors='coerce')

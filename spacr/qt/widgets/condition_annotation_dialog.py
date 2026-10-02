@@ -374,11 +374,6 @@ class ConditionRowsModel(QAbstractTableModel):
 class ConditionSourceTable(QTableView):
     """Drag selected proxy rows using their original source identities."""
 
-    def setModel(self, model):  # noqa: N802
-        """Use the shared sort cycle without replacing the identity proxy."""
-        super().setModel(model)
-        install_sorting(self)
-
     def startDrag(self, supported_actions):  # noqa: N802
         """Create one token per selected row after sorting/filtering.
 
@@ -856,6 +851,7 @@ class ConditionAnnotationDialog(QDialog):
         self.filter.textChanged.connect(self.proxy.setFilterFixedString)
         self.table = ConditionSourceTable(self)
         self.table.setModel(self.proxy)
+        install_sorting(self.table)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setDragEnabled(True)

@@ -2298,7 +2298,9 @@ def write_map(result: ConversionResult, path: str) -> Path:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     frame = pd.DataFrame(result.rows(), columns=list(MAP_COLUMNS))
-    frame.to_csv(target, index=False)
+    from .tabular import write_table
+
+    write_table(frame, target, canonicalise=False)
     return target
 
 

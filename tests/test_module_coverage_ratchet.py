@@ -430,9 +430,25 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # Masks understands of a drop, and the Organize for Measure popup.
         'spacr/drop_classification.py',
         'spacr/qt/widgets/organize_for_measure.py',
+        # 652 -> 664 on 2026-10-02, +12/-0, measured with
+        # `git diff --diff-filter=A 0f5c0e0af` over spacr/**/*.py: lineage
+        # trees and their measurements (537), condition annotations and
+        # their dialog, derived tables and their source picker, table
+        # merging, original filenames, segmentation uncertainty, the
+        # calibration preview, the mask thumbnail quality check and the
+        # collapse arrow. Nothing left the package.
+        'spacr/_lineage_measurements.py', 'spacr/_lineage_trees.py',
+        'spacr/condition_annotations.py',
+        'spacr/qt/widgets/condition_annotation_dialog.py',
+        'spacr/derived_tables.py', 'spacr/qt/widgets/derived_table_source.py',
+        'spacr/qt/widgets/merge_tables_dialog.py',
+        'spacr/original_filenames.py', 'spacr/segmentation_uncertainty.py',
+        'spacr/qt/widgets/calibration_preview.py',
+        'spacr/qt/mask_thumbnail_quality.py',
+        'spacr/qt/widgets/collapse_arrow.py',
     }
     assert added_since_608 <= shipped
-    assert len(shipped) == 608 + len(added_since_608) == 652
+    assert len(shipped) == 608 + len(added_since_608) == 664
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -755,6 +771,11 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 647 -> 650: item 593's three modules, the same +3 as `shipped`.
     # 650 -> 652 on 2026-09-30: item 600's two modules (81c9b6262), the
     # same +2 as `shipped`, moved with the workflow in one commit (item 43).
+    # 2026-10-02: `shipped` is 664 now (twelve modules, named in the
+    # denominator test), but this line reads the workflow as committed, and
+    # the workflow can only be changed by the maintainer. It moves to 664 in
+    # the same commit that changes `--expected-file-count 652` to 664 in
+    # .github/workflows/tests.yml.
     assert "--expected-file-count 652" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script

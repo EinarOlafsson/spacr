@@ -978,8 +978,8 @@ SETTING_API_TARGETS = {
     'z_axis': ('spacr.zstack', 'plan_from_settings', True),
     'z_handling': ('spacr.convert', 'convert_folder', True),
     'z_projection': ('spacr.zstack', 'plan_from_settings', True),
-    'z_segmentation_mode': ('spacr.zstack', 'plan_from_settings', True),
-    'z_stack': ('spacr.zstack', 'plan_from_settings', True),
+    'z_segmentation_mode': ('spacr.io', 'preprocess_img_data', True),
+    'z_stack': ('spacr.io', 'preprocess_img_data', True),
 }
 
 #: ``key -> {module: (symbol, exact)}``, for the modules an app's
