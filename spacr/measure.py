@@ -8015,7 +8015,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     """
     
     from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects, normalize_to_dtype, filepaths_to_database
-    from .utils import _merge_and_save_to_database, _crop_center, _find_bounding_box, _generate_names, _get_percentiles
+    from .utils import _merge_and_save_to_database, _measurement_store_for, _crop_center, _find_bounding_box, _generate_names, _get_percentiles
 
     from .cancellation import PipelineCancelled
     from .psf_measurement import (prepare_measurement_psf, measurement_psf_record,
@@ -8335,7 +8335,10 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     _merge_and_save_to_database(
                         morphology[role], intensities[role], role,
                         source_folder, file_name, settings['experiment'],
-                        settings['timelapse'], stamp=units_stamp)
+                        settings['timelapse'], stamp=units_stamp,
+                        store=_measurement_store_for(
+                            os.path.join(source_folder, 'measurements',
+                                         'measurements.db'), settings))
 
             requested = settings.get('summarize_organelles_by')
             if isinstance(requested, str):
@@ -8385,7 +8388,10 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     combined, pd.DataFrame(),
                     f'{parent_name}_organelle_summary', source_folder,
                     file_name, settings['experiment'],
-                    settings['timelapse'], stamp=units_stamp)
+                    settings['timelapse'], stamp=units_stamp,
+                    store=_measurement_store_for(
+                        os.path.join(source_folder, 'measurements',
+                                     'measurements.db'), settings))
 
         _write_intensity_rescale_record(
             source_folder, file_name, settings, rescale_record, psf_record)
@@ -9093,7 +9099,10 @@ def _measurement_backend_target(db_path, settings):
 
 
 def _copy_to_measurement_backend(db_path, settings):
-    """Copy every table of a finished run into the chosen measurement store.
+    """Copy the tables a finished run's store still lacks into it.
+
+    The measurement tables reach the store as each field is written; this
+    copies the rest, such as confluency and lineage tables.
 
     ``measurements.db`` stays where it is and every later step keeps reading
     it; the DuckDB, Parquet or PostgreSQL copy is for large screens and
@@ -9105,9 +9114,18 @@ def _copy_to_measurement_backend(db_path, settings):
     """
     from .tabular import _migrate_database
 
+    from .tabular import database_tables
+
     try:
         target = _measurement_backend_target(db_path, settings)
-        _migrate_database(db_path, target)
+        try:
+            streamed = set(database_tables(target))
+        except Exception:
+            streamed = set()
+        missing = [name for name in database_tables(db_path)
+                   if not name.startswith('sqlite_') and name not in streamed]
+        if missing:
+            _migrate_database(db_path, target, tables=missing)
     except (ImportError, OSError, ValueError, RuntimeError) as exc:
         print(f"Measurement backend: copy skipped ({exc}).")
         return None
