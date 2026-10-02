@@ -1,0 +1,2 @@
+plateID,barcode,well,kind,detail
+plate1,0001,A02,well_not_in_lims,"imaged, but no sample record"
