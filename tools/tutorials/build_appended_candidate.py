@@ -107,6 +107,75 @@ def verify_tracks(stage, lesson, catalogs):
     return declared, records
 
 
+def verify_retained_tracks(stage, baseline, lesson, catalogs, manifest):
+    """Decode only exact published narration; never claim new renderer freshness."""
+    from retain_narration import catalog_lesson, require_timing, require_unchanged_lesson
+    sys.path.insert(0, str(REPO / 'tools/tutorials/authoring/tools'))
+    import verify_audio_release as audio
+
+    identity = lesson['id']
+    old = catalog_lesson(baseline / 'web/catalog/lessons_en.json', identity)
+    canonical = deepcopy(old)
+    declared = canonical.pop('narration_voices', None)
+    if canonical != lesson or not isinstance(declared, dict) or not declared:
+        raise ValueError('Retained narration requires unchanged canonical lesson and published voices')
+    expected = set()
+    for language, voices in declared.items():
+        if (language not in audio.LANGUAGES or not isinstance(voices, list) or not voices
+                or len(voices) != len(set(voices))
+                or any(voice not in audio.LANGUAGES[language][1] for voice in voices)):
+            raise ValueError('Invalid published retained voice inventory')
+        expected.update((language, voice) for voice in voices)
+    if ('en', 'af_heart') not in expected:
+        raise ValueError('Retained narration requires published English Heart')
+    for name in CATALOGS:
+        original = catalog_lesson(baseline / 'web/catalog' / name, identity)
+        published = next(row for row in catalogs[name]['lessons'] if row['id'] == identity)
+        staged = catalog_lesson(stage / 'catalog' / name, identity)
+        require_unchanged_lesson(original, published, staged)
+    directory = stage / 'production' / identity / 'audio'
+    for suffix in ('.m4a', '.json'):
+        actual = {path.relative_to(directory).as_posix() for path in directory.rglob('*' + suffix)}
+        if actual != {f'{language}/{voice}{suffix}' for language, voice in expected}:
+            raise ValueError('Retained staged audio/timing inventory differs from published voices')
+    records = {row['path']: row for row in manifest['files']}
+    baseline_tracks = {tuple(Path(path).parts[-2:]) for path in records
+                       if path.startswith(f'media_host/{identity}/audio/') and path.endswith('.m4a')}
+    if baseline_tracks != {(lang, voice + '.m4a') for lang, voice in expected}:
+        raise ValueError('Retained manifest inventory differs from published voices')
+    checked = []
+    for language, voice in sorted(expected):
+        hashes = {}
+        for suffix, key in (('.m4a', 'audio_sha256'), ('.json', 'timing_sha256')):
+            relative = Path('media_host') / identity / 'audio' / language / (voice + suffix)
+            record = records.get(relative.as_posix())
+            source = baseline / relative
+            staged = directory / language / (voice + suffix)
+            if (not record or source.stat().st_size != record['bytes']
+                    or staged.stat().st_size != record['bytes']
+                    or digest(source) != record['sha256'] or digest(staged) != record['sha256']):
+                raise ValueError('Retained narration bytes differ from verified baseline')
+            hashes[key] = record['sha256']
+        path = directory / language / (voice + '.m4a')
+        localized = catalog_lesson(baseline / 'web/catalog' / f'lessons_{language}.json', identity)
+        require_timing(read(path.with_suffix('.json')), localized, language, voice, hashes['audio_sha256'])
+        errors = audio.check_track(path)
+        if errors:
+            raise ValueError(f'{identity}/{language}/{voice}: {errors}')
+        checked.append(dict(language=language, voice=voice, **hashes))
+    return deepcopy(declared), checked
+
+
+def selected_catalogs(published, lessons, voices, reviews, refresh_ids, retained_ids, current_hosts):
+    """Leave retained lesson objects intact while updating other selected lessons."""
+    selected = [lesson for lesson in lessons if lesson['id'] not in retained_ids]
+    if not selected:
+        return deepcopy(published), []
+    return update_catalogs(published, selected, voices, reviews,
+                           [identity for identity in refresh_ids if identity not in retained_ids],
+                           current_hosts=current_hosts)
+
+
 def update_catalogs(published, lessons, voices, reviews, refresh_ids, *, current_hosts=None):
     """Append new lessons and refresh selected existing lessons in one release."""
     identities = [lesson['id'] for lesson in lessons]
@@ -309,17 +378,23 @@ def checked_web_input(stage, identity):
 
 
 def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(),
-          host_web=False, migrate_web=()):
+          host_web=False, migrate_web=(), retain_narration=()):
     """Create a new private candidate; never upload or modify the published tree.
 
     ``host_web`` puts the selected lessons' web copies on the media host;
     ``migrate_web`` moves preserved lessons' verified web copies there too.
+    ``retain_narration`` requires byte-identical baseline audio, timings and
+    lesson objects for explicit visual refreshes, without a runtime freshness claim.
     """
     stage, baseline = Path(stage).resolve(), Path(baseline).resolve()
     if replace and refresh_ids:
         raise ValueError('Use either replace-existing or a refresh subset')
     refresh_ids = list(identities) if replace else list(refresh_ids)
     identities = list(identities) if replace else [*identities, *refresh_ids]
+    retained_ids = list(retain_narration)
+    if (len(retained_ids) != len(set(retained_ids))
+            or set(retained_ids) - set(refresh_ids)):
+        raise ValueError('Retain narration only for unique, explicitly refreshed lessons')
     validate(baseline, include_hosted_media=True, require_browser=True)
     previous = read(baseline / 'release-manifest.json')
     receipt = read(baseline / 'publication-receipt.json')
@@ -350,15 +425,21 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
             if path.exists():
                 reviews[lesson['id'], language] = read(path)
     planned = {lesson['id']: {'en': ['af_heart']} for lesson in lessons}
-    provisional, _ = update_catalogs(catalogs, lessons, planned, reviews, refresh_ids,
-                                      current_hosts=current_hosts)
+    provisional, _ = selected_catalogs(catalogs, lessons, planned, reviews, refresh_ids,
+                                      retained_ids, current_hosts)
     checks, voices = {}, {}
     for lesson in lessons:
         identity = lesson['id']
-        voices[identity], checks[identity] = verify_tracks(stage, lesson, provisional)
-        print(identity, len(checks[identity]), 'current audio tracks verified', flush=True)
-    catalogs, compatibility = update_catalogs(catalogs, lessons, voices, reviews, refresh_ids,
-                                             current_hosts=current_hosts)
+        if identity in retained_ids:
+            voices[identity], checks[identity] = verify_retained_tracks(
+                stage, baseline, lesson, catalogs, previous)
+            label = 'byte-identical published audio tracks verified'
+        else:
+            voices[identity], checks[identity] = verify_tracks(stage, lesson, provisional)
+            label = 'current audio tracks verified'
+        print(identity, len(checks[identity]), label, flush=True)
+    catalogs, compatibility = selected_catalogs(catalogs, lessons, voices, reviews, refresh_ids,
+                                               retained_ids, current_hosts)
     if len(link_ids) != len(set(link_ids)) or set(link_ids) & set(identities):
         raise ValueError('Link updates must select unique, otherwise preserved lessons')
     link_lessons = [read(REPO / 'tools/tutorials/lessons' / (identity + '.json'))
@@ -450,6 +531,10 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                   preserved_lessons=len(english)-len(lessons),
                   appended_lessons=appended,
                   refreshed_lessons=refresh_ids,
+                  retained_narration={identity: dict(track_count=len(checks[identity]),
+                      resynthesized=False, current_runtime_freshness_claimed=False,
+                      baseline_manifest_sha256=digest(baseline / 'release-manifest.json'))
+                      for identity in retained_ids},
                   link_only_updates=list(link_ids),
                   hosted_web_lessons=hosted_web,
                   outstanding_module_tutorials=nav['missing_tutorials'],
@@ -471,6 +556,8 @@ if __name__ == '__main__':
                         help='Refresh only the selected existing lessons; keep all other lesson media and prose')
     parser.add_argument('--refresh-lesson', action='append', default=[],
                         help='Refresh an existing lesson alongside the new lessons being appended')
+    parser.add_argument('--retain-narration', action='append', default=[],
+                        help='Refresh visuals with exact verified baseline narration and lesson objects')
     parser.add_argument('--host-web', action='store_true',
                         help='Put the selected lessons\' web copies on the media host, not in the Pages tree')
     parser.add_argument('--migrate-web', action='append', default=[],
@@ -480,4 +567,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     build(args.stage, args.baseline, args.lesson, replace=args.replace_existing,
           refresh_ids=args.refresh_lesson, link_ids=args.refresh_links,
-          host_web=args.host_web, migrate_web=args.migrate_web)
+          host_web=args.host_web, migrate_web=args.migrate_web, retain_narration=args.retain_narration)
