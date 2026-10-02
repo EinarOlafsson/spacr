@@ -230,6 +230,65 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
     Match it explicitly so neither the second CUDA mention nor another voice
     is silently changed. The resolved speech text enters the fingerprint.
     """
+    if lesson_id == "05_home" and language in {"ja", "zh-CN"}:
+        # Home-only reviewed speech forms. Keep visible captions unchanged,
+        # and leave the existing global Home/Cellpose/UMAP forms in place.
+        forms = [
+            ('Tabular Machine Learning', 'タビュラー マシン ラーニング', '表格机器学习'),
+            ('Classifier Evaluation', 'クラシファイア エバリュエーション', '分类器评估'),
+            ('Pipeline overviews', 'パイプライン オーバービューズ', '流程概览'),
+            ('Classifier family', 'クラシファイア ファミリー', '分类器系列'),
+            ('Experiment Design', 'エクスペリメント デザイン', '实验设计'),
+            ('Align and Stitch', 'アライン アンド スティッチ', '对齐与拼接'),
+            ('Explain CV Model', 'エクスプレイン シー ブイ モデル', '解释计算机视觉模型'),
+            ('Feature Explorer', 'フィーチャー エクスプローラー', '特征浏览器'),
+            ('Computer Vision', 'コンピューター ビジョン', '计算机视觉'),
+            ('Load test data', 'ロード テスト データ', '加载测试数据'),
+            ('Graph Builder', 'グラフ ビルダー', '图表构建器'),
+            ('Training Runs', 'トレーニング ランズ', '训练记录'),
+            ('Map Barcodes', 'マップ バーコード', '条形码映射'),
+            ('Performance', 'パフォーマンス', '性能'),
+            ('Preferences', 'プリファレンシズ', '偏好设置'),
+            ('Run Compare', 'ラン コンペア', '运行比较'),
+            ('Activation', 'アクティベーション', '激活'),
+            ('Appearance', 'アピアランス', '外观'),
+            ('Make Masks', 'メイク マスクス', '制作掩膜编辑器'),
+            ('Plasmodium', 'プラスモディウム', '疟原虫'),
+            ('Regression', 'リグレッション', '回归'),
+            ('Toxoplasma', 'トキソプラズマ', '弓形虫'),
+            ('Animation', 'アニメーション', '动画'),
+            ('Workbench', 'ワークベンチ', '工作台'),
+            ('Annotate', 'アノテート', '标注'),
+            ('Classify', 'クラシファイ', '分类'),
+            ('Candida', 'カンジダ', '念珠菌'),
+            ('Measure', 'メジャー', '测量'),
+            ('screens', 'スクリーンズ', '筛选流程'),
+            ('Assays', 'アッセイズ', '检测'),
+            ('Import', 'インポート', '导入'),
+            ('Laptop', 'ラップトップ', '笔记本电脑'),
+            ('Image', 'イメージ', '图像'),
+            ('Theme', 'テーマ', '主题'),
+            ('Tools', 'ツールズ', '工具'),
+            ('Core', 'コア', '核心'),
+            ('Data', 'データ', '数据'),
+            ('Help', 'ヘルプ', '帮助'),
+            ('Live', 'ライブ', '实时预览'),
+            ('Mask', 'マスク', '批量掩膜模块'),
+            ('Time', 'タイム', '时间'),
+            ('API', 'エー ピー アイ', '应用程序接口'),
+            ('Run', 'ラン', '运行'),
+            ('QC', 'キュー シー', '质量控制'),
+        ]
+        for label, japanese, chinese in sorted(forms, key=lambda row: (-len(row[0]), row[0])):
+            spoken = japanese if language == "ja" else chinese
+            pattern = rf"(?<![A-Za-z]){re.escape(label)}(?![A-Za-z])"
+            if len(re.findall(pattern, speech_text)) != len(re.findall(pattern, display_text)):
+                raise ValueError(f"The Home control pronunciation premise changed: {label}")
+            speech_text = re.sub(pattern, spoken, speech_text)
+            display_text = re.sub(pattern, spoken, display_text)
+        if re.search(r"[A-Za-z]", speech_text):
+            raise ValueError("Unreviewed Latin text in Home Japanese/Chinese narration")
+        return speech_text
     if lesson_id == "86_psf_workflow" and language in {"ja", "zh-CN"}:
         # These frontends otherwise pass English control names through as
         # literal Latin letters, some absent from the model's phoneme set.
