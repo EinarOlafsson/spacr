@@ -7482,6 +7482,7 @@ ALPHA_FEATURES = {
     583: {
         'settings': ('plate_barcode_source', 'plate_barcodes',
                      'plate_barcode_column', 'plate_barcode_token_env'),
+        'widgets': ('ConvertPlateBarcodeLinkage',),
     },
     543: {
         'settings': ('illumination_vendor_profile', 'illumination_vendor_channel_map'),
