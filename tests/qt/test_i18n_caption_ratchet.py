@@ -1250,6 +1250,13 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # catalogued or retired with their source captions. No translation bypass remains.
 # 558, 2026-10-02: the Apply virtual stain button on Mask and Make Masks.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # item 556: SAM2 click-seeding dialog
+    "SAM2 tracking…", "Choose a timelapse movie", "TIFF stacks (*.tif *.tiff)",
+    "SAM2 tracking", "Object", "New object", "Also follow backward",
+    "Propagate", "Click an object to seed it.", "Propagating…",
+    "SAM2 failed: {error}",
+    "Done. Click an object on a wrong frame and propagate again.",
+    "Open a timelapse movie, click each object on any frame to seed it, and let SAM2 follow every object through the movie. Click again on a frame where it went wrong and propagate once more.",
     "Feature columns",
     "Label column",
     "Learn from well labels",

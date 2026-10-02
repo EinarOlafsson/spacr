@@ -111,11 +111,19 @@ Not done
     - A GPU run on whole movies (all frames of U373 / HeLa, and a harder
       crowded set such as Fluo-N2DH-SIM+ or the live_cell movies), where
       the trackers can differ.
-    - User clicks as seeds and a "correct a frame and re-propagate" step in
-      the GUI; the worker accepts corrective seeds on any frame, but no
-      screen offers them.
     - Lineage: a daughter starts a new track (no parent link).
     - Exporting SAM2 tracks as Timeflows (426) training data.
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
-    BLOCKED / open: GPU whole-movie run (GPU). OPEN code over 1 h: click seeds and re-propagate screen, daughter parent links, Timeflows export.
+    BLOCKED / open: GPU whole-movie run (GPU). OPEN code over 1 h: daughter parent links, Timeflows export.
+
+
+2026-10-02 -- CLICK SEEDS AND RE-PROPAGATE IN THE GUI (ALPHA)
+    Make Masks has a "SAM2 tracking…" button (MakeMasksSam2Button, alpha,
+    registered under 556): it opens a TIFF movie in _Sam2SeedDialog
+    (spacr/qt/screens/make_masks.py). Left click seeds the current object
+    on the frame shown, right click removes it; Propagate runs
+    _sam2_propagate in the background (optional backward pass) and draws
+    the labels. To correct, click the object on a wrong frame and propagate
+    again (all seeds are re-sent). Tests stub the worker (no GPU).
+    Left: saving the dialog's labels/tracks to the project.

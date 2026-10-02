@@ -313,3 +313,74 @@ def test_on_the_cpu_the_bfloat16_memory_enters_attention_as_float32():
         memory_pos=torch.zeros(2))
     assert out == "features"
     assert seen == [(torch.float32, torch.float32)]
+
+
+def test_click_seeds_propagate_then_a_corrected_frame_repropagates(qtbot):
+    from spacr.qt.screens.make_masks import _Sam2SeedDialog
+
+    calls = []
+
+    def fake_propagate(frames, seeds, backward=False):
+        calls.append(({t: s.copy() for t, s in seeds.items()}, backward))
+        out = np.zeros(frames.shape, np.int32)
+        for s in seeds.values():
+            out[:] = np.maximum(out, s)
+        return out, {"objects": 1}
+
+    frames = np.zeros((3, 20, 20), np.uint8)
+    dialog = _Sam2SeedDialog(frames, propagate=fake_propagate, radius=1)
+    qtbot.addWidget(dialog)
+    dialog.run()
+    assert not calls
+    dialog.view.clicked.emit(5, 5, False)
+    assert dialog.seeds[0][5, 5] == 1
+    dialog._new_object()
+    assert dialog.object_box.value() == 2
+    dialog.view.clicked.emit(15, 15, False)
+    dialog.run()
+    qtbot.waitUntil(lambda: dialog.labels is not None, timeout=5000)
+    assert dialog.labels[2, 15, 15] == 2 and dialog.run_button.isEnabled()
+    dialog.slider.setValue(2)
+    dialog.object_box.setValue(1)
+    dialog.view.clicked.emit(10, 10, False)
+    dialog.backward_box.setChecked(True)
+    dialog.labels = None
+    dialog.run()
+    qtbot.waitUntil(lambda: dialog.labels is not None, timeout=5000)
+    seeds, backward = calls[-1]
+    assert sorted(seeds) == [0, 2] and backward and seeds[2][10, 10] == 1
+    dialog.view.clicked.emit(10, 10, True)
+    assert 2 not in dialog.seeds
+
+
+def test_a_failed_propagation_is_reported(qtbot):
+    from spacr.qt.screens.make_masks import _Sam2SeedDialog
+
+    def broken(frames, seeds, backward=False):
+        raise ImportError("not installed")
+
+    dialog = _Sam2SeedDialog(np.zeros((2, 8, 8), np.uint8), propagate=broken)
+    qtbot.addWidget(dialog)
+    dialog.view.clicked.emit(3, 3, False)
+    dialog.run()
+    qtbot.waitUntil(lambda: dialog.run_button.isEnabled(), timeout=5000)
+    assert "not installed" in dialog.status.text() and dialog.labels is None
+
+
+def test_the_sam2_button_is_alpha(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QPushButton, QWidget
+
+    import spacr.qt.preferences as P
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    root = QWidget()
+    qtbot.addWidget(root)
+    button = QPushButton(root)
+    button.setObjectName("MakeMasksSam2Button")
+    monkeypatch.setattr(P, "_get_show_alpha_features", lambda: False)
+    P._apply_alpha_widgets(root)
+    assert button.isHidden()
+    monkeypatch.setattr(P, "_get_show_alpha_features", lambda: True)
+    P._apply_alpha_widgets(root)
+    assert not button.isHidden()
+    assert hasattr(MakeMasksScreen, "_build_sam2_button")

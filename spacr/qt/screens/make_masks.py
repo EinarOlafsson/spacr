@@ -8656,6 +8656,7 @@ class MakeMasksScreen(QWidget):
         curate_row.addWidget(self._btn_skip)
         curate_row.addWidget(self._build_blind_toggle())
         curate_row.addWidget(self._build_roi_button())
+        curate_row.addWidget(self._build_sam2_button())
         from ..preferences import _apply_alpha_widgets
         from .train_cellpose import _VirtualStainApply
 
@@ -9186,6 +9187,45 @@ class MakeMasksScreen(QWidget):
         _apply_alpha_widgets(button)
         self._btn_rois = button
         return button
+
+    def _build_sam2_button(self) -> QPushButton:
+        """The SAM2 tracking button: seed objects in a movie by clicking and
+        follow them through it with :class:`_Sam2SeedDialog`.
+
+        An alpha feature, registered as ``MakeMasksSam2Button`` in
+        :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("SAM2 tracking…"), self)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Open a timelapse movie, click each object on any frame to seed "
+            "it, and let SAM2 follow every object through the movie. Click "
+            "again on a frame where it went wrong and propagate once more."))
+        button.clicked.connect(self._on_sam2_tracking)
+        button.setObjectName("MakeMasksSam2Button")
+        _apply_alpha_widgets(button)
+        self._btn_sam2 = button
+        return button
+
+    def _on_sam2_tracking(self) -> None:
+        """Ask for a movie and open the SAM2 seeding dialog on it."""
+        from ..i18n import tr
+
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Choose a timelapse movie"), self._folder or "",
+            tr("TIFF stacks (*.tif *.tiff)"))
+        if not path:
+            return
+        from tifffile import imread
+
+        from ..._segmentation_backends import _sam2_frames
+        dialog = _Sam2SeedDialog(_sam2_frames(imread(path)), parent=self)
+        dialog.exec()
 
     def _build_blind_toggle(self) -> QPushButton:
         """The Blind switch: curate fields without knowing where they are from.
@@ -16361,3 +16401,150 @@ class MakeMasksScreen(QWidget):
             b.setEnabled(editable)
         self._btn_skip.setEnabled(editable and self._queue is not None)
         self._btn_prompt.setEnabled(editable)
+
+
+class _Sam2ClickLabel(QLabel):
+    """A label showing one frame that reports clicks in image pixels."""
+
+    clicked = Signal(int, int, bool)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.scale = 1.0
+
+    def mousePressEvent(self, event):
+        """Emit the clicked pixel and whether it was a right click."""
+        pos = event.position()
+        self.clicked.emit(int(pos.x() / self.scale), int(pos.y() / self.scale),
+                          event.button() == Qt.RightButton)
+
+
+class _Sam2SeedDialog(QDialog):
+    """Seed objects in a movie by clicking and follow them with SAM2.
+
+    A left click on a frame puts a small disc of the current object there; a
+    right click removes that object's seed from the frame. Propagate sends
+    every seed to SAM2 (:func:`spacr._segmentation_backends._sam2_propagate`)
+    in the background and shows the result over the frames. To correct a
+    frame, click the object there again and propagate once more: a label
+    seeded on several frames is corrected on each of them.
+    """
+
+    finished_run = Signal(object, object)
+
+    def __init__(self, frames, propagate=None, radius=4, parent=None):
+        from PySide6.QtWidgets import QCheckBox
+
+        from ..i18n import tr
+        super().__init__(parent)
+        self.setWindowTitle(tr("SAM2 tracking"))
+        self.frames = np.asarray(frames, dtype=np.uint8)
+        self.seeds: dict = {}
+        self.labels = None
+        self.radius = int(radius)
+        self._propagate = propagate
+        self._thread = None
+        layout = QVBoxLayout(self)
+        self.view = _Sam2ClickLabel(self)
+        self.view.clicked.connect(self._on_click)
+        layout.addWidget(self.view)
+        self.slider = QSlider(Qt.Horizontal, self)
+        self.slider.setRange(0, len(self.frames) - 1)
+        self.slider.valueChanged.connect(self._redraw)
+        layout.addWidget(self.slider)
+        row = QHBoxLayout()
+        row.addWidget(QLabel(tr("Object"), self))
+        self.object_box = QSpinBox(self)
+        self.object_box.setRange(1, 65535)
+        row.addWidget(self.object_box)
+        self.new_button = QPushButton(tr("New object"), self)
+        self.new_button.clicked.connect(self._new_object)
+        row.addWidget(self.new_button)
+        self.backward_box = QCheckBox(tr("Also follow backward"), self)
+        row.addWidget(self.backward_box)
+        self.run_button = QPushButton(tr("Propagate"), self)
+        self.run_button.clicked.connect(self.run)
+        row.addWidget(self.run_button)
+        layout.addLayout(row)
+        self.status = QLabel(tr("Click an object to seed it."), self)
+        layout.addWidget(self.status)
+        self.finished_run.connect(self._on_finished)
+        self._redraw()
+
+    def _new_object(self):
+        """Move to an object id not seeded yet."""
+        used = [int(s.max()) for s in self.seeds.values()] or [0]
+        self.object_box.setValue(max(used) + 1)
+
+    def _on_click(self, x, y, remove):
+        """Seed or unseed the current object at a pixel of this frame."""
+        t = self.slider.value()
+        h, w = self.frames.shape[1:3]
+        if not (0 <= x < w and 0 <= y < h):
+            return
+        obj = self.object_box.value()
+        seed = self.seeds.setdefault(t, np.zeros((h, w), np.int32))
+        if remove:
+            seed[seed == obj] = 0
+        else:
+            yy, xx = np.ogrid[:h, :w]
+            seed[(yy - y) ** 2 + (xx - x) ** 2 <= self.radius ** 2] = obj
+        if not seed.any():
+            del self.seeds[t]
+        self._redraw()
+
+    def run(self):
+        """Propagate every seed through the movie in the background."""
+        import threading
+
+        from ..i18n import tr
+        if not self.seeds:
+            self.status.setText(tr("Click an object to seed it."))
+            return
+        propagate = self._propagate
+        if propagate is None:
+            from ..._segmentation_backends import _sam2_propagate as propagate
+        seeds = {t: s.copy() for t, s in self.seeds.items()}
+        backward = self.backward_box.isChecked()
+        self.run_button.setEnabled(False)
+        self.status.setText(tr("Propagating…"))
+
+        def work():
+            try:
+                labels, _reply = propagate(self.frames, seeds,
+                                           backward=backward)
+                self.finished_run.emit(labels, None)
+            except Exception as exc:
+                self.finished_run.emit(None, exc)
+
+        self._thread = threading.Thread(target=work, daemon=True)
+        self._thread.start()
+
+    def _on_finished(self, labels, error):
+        """Show the propagated labels, or why propagation failed."""
+        from ..i18n import tr
+        self.run_button.setEnabled(True)
+        if error is not None:
+            self.status.setText(tr("SAM2 failed: {error}").format(error=error))
+            return
+        self.labels = np.asarray(labels)
+        self.status.setText(tr(
+            "Done. Click an object on a wrong frame and propagate again."))
+        self._redraw()
+
+    def _redraw(self, *_args):
+        """Draw the frame on screen with its labels and seeds over it."""
+        t = self.slider.value()
+        rgb = np.repeat(self.frames[t][..., None], 3, axis=2).copy()
+        if self.labels is not None:
+            rgb[self.labels[t] > 0, 1] = 255
+        if t in self.seeds:
+            rgb[self.seeds[t] > 0] = (255, 0, 0)
+        h, w = rgb.shape[:2]
+        image = QImage(rgb.data, w, h, 3 * w, QImage.Format_RGB888).copy()
+        self.view.scale = min(1.0, 512.0 / max(h, w)) if max(h, w) > 512 \
+            else float(max(1, 512 // max(h, w)))
+        self.view.setPixmap(scaled_for(
+            QPixmap.fromImage(image), self.view,
+            int(w * self.view.scale), int(h * self.view.scale),
+            mode=Qt.FastTransformation))

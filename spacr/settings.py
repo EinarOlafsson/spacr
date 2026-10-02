@@ -7402,6 +7402,7 @@ ALPHA_FEATURES = {
     556: {
         'choices': {'timelapse_mode': ('sam2',)},
         'models': ('sam2_v1',),
+        'widgets': ('MakeMasksSam2Button',),
     },
     565: {
         'widgets': ('AnnotateFindSimilar', 'AnnotateSimilarityOptions'),
