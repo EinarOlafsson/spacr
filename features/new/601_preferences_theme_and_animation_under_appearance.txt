@@ -94,3 +94,35 @@ Published catalogs, existing captions/audio and installer source are unchanged.
 The new narration still needs matching translations and audio, complete Home
 master assembly, timing/player review and paired publication. N601 remains
 open for those tutorial-publication steps; no current-GUI code gap is claimed.
+
+2026-10-01 — COMPLETE FOURTEEN-SCENE PRIVATE HOME STAGE
+New tools/tutorials/capture_home_lesson.py records the existing full Home
+walkthrough with actual Qt controls, guarded private QSettings and a
+read-only filesystem namespace. The current fourteen-scene lesson links
+validate through stage_lesson.py, including all three Appearance scenes.
+Their focus rectangles now bind to actual recorded dialog bounds, avoiding
+the older standalone fragment's fixed-crop mismatch. Lesson prose is unchanged.
+
+Private stage: /tmp/spacr-ui-evidence/601/home-full-run2. It contains original
+3840x2160 captures, a fourteen-scene 1920x1080 H.264 silent review (247.8 s,
+2,478 frames at 10 fps), source-matched provisional WebVTT and a review page.
+The encode fully decodes; all fourteen decoded scene midpoints match their
+render inputs within a per-channel mean absolute pixel error of 2/255, and
+caption words exactly match source narration. All fourteen review stills
+and the decoded Theme scene were inspected; Theme/Animation controls are
+readable. Capture/encode used memory.max4GiB, memory.swap.max0 and CPU0
+affinity. Verification used1GiB, zero swap and CPU0. Ruff/diff checks pass.
+
+Source/frame/video/caption hashes, exact source commit, resource receipt,
+first-attempt temporary-directory failure and publication observations are
+recorded in tools/tutorials/evidence/
+2026-10-01-home-full-private-stage.json. No old master, source audio,
+published catalog or user preference was overwritten. This advances the
+prior three-scene fragment to a complete private stage, not whole N601.
+
+Remaining: translated matching narration for every supported voice, actual
+listening and speech-aligned captions, full player/zoom/readability review,
+and paired media/catalog publication. Existing Classify alpha-marked group
+headings (despite Show alpha features off) and clipped empty-source helper
+text were preserved honestly and must be considered before publication.
+Platform-installer consumers also need current-master review.
