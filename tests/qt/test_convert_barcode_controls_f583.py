@@ -171,18 +171,31 @@ def test_summary_bounds_large_mismatch_preview(tmp_path, monkeypatch):
 @pytest.mark.parametrize('mode', ['light', 'dark'])
 def test_capture_real_convert_controls_in_both_themes(qtbot, prefs, inputs, mode):
     """Capture actual populated widgets when the caller requests evidence images."""
-    from spacr.qt.theme import apply_qpalette, stylesheet
-    from PySide6.QtWidgets import QApplication
+    from spacr.qt.theme import apply_qpalette, palette_for, stylesheet
+    from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
     app = QApplication.instance()
     apply_qpalette(app, theme=mode)
     app.setStyleSheet(stylesheet(theme=mode))
     screen = _screen(qtbot, prefs, inputs)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.setObjectName('F583CaptureHost')
+    host.setAttribute(Qt.WA_StyledBackground, True)
+    host.setStyleSheet('QWidget#F583CaptureHost { background-color: '
+                      + palette_for(mode)['bg'] + '; }')
+    layout = QVBoxLayout(host)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.addWidget(screen)
+    host.resize(1180, 860)
+    host.show()
     assert screen.preview() and screen.run_convert()
     qtbot.wait(30)
     directory = os.environ.get('SPACR_F583_CAPTURE_DIR')
     if directory:
         Path(directory).mkdir(parents=True, exist_ok=True)
-        assert screen.grab().save(str(Path(directory) / f'convert-barcodes-{mode}.png'))
+        capture = host.grab()
+        assert capture.toImage().pixelColor(0, 0).alpha() == 255
+        assert capture.save(str(Path(directory) / f'convert-barcodes-{mode}.png'))
     assert screen._barcode_source.width() > 200
     assert screen._barcode_assignments.width() > 200
