@@ -68628,6 +68628,16 @@
         "ec00822f673fd6ff8413db55449ea8c6775170741dce50038b3da580824028f6"
       ]
     },
+    "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible": {
+      "source_blocks_sha256": [
+        "2491b698ca8075a2cfe1dcebf8f84ca43e137a039e60bfbf39227d544c143da9"
+      ],
+      "source_sha256": "2491b698ca8075a2cfe1dcebf8f84ca43e137a039e60bfbf39227d544c143da9",
+      "text": "Ersatzverhalten, das jede App als sichtbar behandelt.",
+      "translation_source_blocks_sha256": [
+        "2491b698ca8075a2cfe1dcebf8f84ca43e137a039e60bfbf39227d544c143da9"
+      ]
+    },
     "spacr.qt.command_palette.CommandPalette.keyPressEvent": {
       "source_blocks_sha256": [
         "4f40191c3f00b9cd3460c41cb4e1e2a0fdb4d34edebf11e773c28d3e364525ee",
@@ -182264,6 +182274,16 @@
       "text": "Ein Pfad, dessen Suffix kein Format dieses Modul lesen kann.",
       "translation_source_blocks_sha256": [
         "0a2ef3657de33e8280bbab7b1a83c00b78bbb215740995e6d4f38ab6b93a3707"
+      ]
+    },
+    "spacr.tabular._write_workbook._write": {
+      "source_blocks_sha256": [
+        "f3faccbdbd7cbd279a088bf973b7e80a6eb1fb47c93f94e75bd10a6fbbb771a0"
+      ],
+      "source_sha256": "f3faccbdbd7cbd279a088bf973b7e80a6eb1fb47c93f94e75bd10a6fbbb771a0",
+      "text": "Schreibe jedes Tabellenblatt nach ``pending``.",
+      "translation_source_blocks_sha256": [
+        "f3faccbdbd7cbd279a088bf973b7e80a6eb1fb47c93f94e75bd10a6fbbb771a0"
       ]
     },
     "spacr.tabular.database_tables": {

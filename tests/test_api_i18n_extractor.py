@@ -1321,7 +1321,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-10-02 F580: +1/-0, the calibration_preview module overview only;
     # all 12,035 previous symbols unchanged. Exact subtraction and nine-locale
     # strict audit: features/data/615_translation_acceptance_2026-10-02.json.
-    expected = 12_036
+    # 2026-10-02 F411: +2/-0, tabular._write_workbook._write and
+    # qt.command_palette.CommandPalette._collect_commands.app_is_visible.
+    # All 12,036 prior source keys/texts unchanged; nested private parents
+    # remain hidden. Exact subtraction is recorded in the F411 slice receipt.
+    expected = 12_038
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1368,7 +1372,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,816 -> 11,834 with `expected` above.
     # 11,865 -> 11,929 with `expected` above, for item 593's 64.
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_036
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_038
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

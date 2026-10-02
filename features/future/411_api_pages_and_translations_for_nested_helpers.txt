@@ -2,14 +2,13 @@
 API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
 ================================================================================
 
-Status:    SOURCE-CURRENT, CODEX, 2026-09-27. English and all nine translated
-           catalogs contain11865 current symbols; local validation passed.
-           Current deployment acceptance and native-speaker review remain open;
-           Still NOT BLOCKING the 1.5.0.8 release: the release is not held for
-           it, and it must not turn a release gate red while it is built.
-           Filed as FUTURE the same day ("don't work on it now"), then handed
-           to Codex; the file stays under features/future/ so item 368's
-           pointer to it keeps working.
+Status:    PARTIAL, 2026-10-02. Four modules enable 14 of 1,134 canonical
+           documented nested helpers. English and all nine API catalogs have
+           12,038 source-current symbols; the two-helper slice passes strict
+           local API/runtime audits, Sphinx and browser checks. Full rollout
+           (1,120 remaining helpers) and current live acceptance remain open.
+           No human/native-speaker signoff is claimed. Historical checkpoints
+           below retain their original scope; this item is not a release gate.
 Requested: 2026-09-15, by the maintainer, in these words, in this order:
              1. Asked with the question tool whether the nested helpers
                 documented in the source but absent from the API pages (item
@@ -2042,3 +2041,28 @@ API coverage is11865 symbols. Historical reviews are preserved, including
 18 archived originals. Current HTML deployment remains a separate acceptance;
 no native-speaker or listening signoff is claimed.
 Receipt: features/data/411_api_delta6_maintenance_2026-09-27.json.
+
+2026-10-02 — TWO SOURCE-CURRENT NESTED HELPERS ENABLED (PARTIAL)
+The shared extractor/renderer switch now includes spacr.tabular and
+spacr.qt.command_palette. Exact new keys are
+spacr.tabular._write_workbook._write and
+spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible.
+Their private lexical parents remain hidden; private-members is unchanged.
+
+The normal API writer adds exactly two blocks/symbols in English and all nine
+locales (12,036 -> 12,038), with all earlier records unchanged. Eighteen
+source-bound targets received independent Codex AI technical peer review.
+Each English block has only one current API source user. Four symbol pins
+move by the measured +2/-0; public callable/parameter inventories do not move.
+
+Both complete strict i18n audits pass. Fresh strict Sphinx read/cache followed
+by a separate strict complete HTML write passes under the same 4 GiB cap.
+Actual module pages and objects.inv contain each new anchor exactly once,
+with no private parent anchor; the real browser selector renders both new
+helpers in all nine locales. Generated Help adds those same two entries only.
+Detailed named regressions, resource receipts, source/catalog hashes and local
+rendering evidence: features/data/411_nested_tabular_palette_2026-10-02.json.
+
+This is local slice acceptance, not current live publication. Four modules
+now enable 14 of 1,134 canonical documented helpers; 1,120 remain. The whole
+F411 item is still PARTIAL. No human/native-speaker review is implied.

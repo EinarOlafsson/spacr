@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/usr/bin/bash",
+    "/tmp/spacr-implementation-20261001/f411-slice-tabular-palette/resume-post.sh"
+  ],
+  "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r427cd19b895f44e5b04702952d3e32f1.scope",
+  "limits": {
+    "memory.max": "4294967296",
+    "memory.swap.max": "0",
+    "cpu_affinity": [
+      5
+    ],
+    "cpu.max": null,
+    "systemd_properties": [
+      "CPUQuotaPerSecUSec=1s",
+      "MemoryMax=4294967296",
+      "MemorySwapMax=0"
+    ]
+  }
+}

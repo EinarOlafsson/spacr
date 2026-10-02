@@ -140,7 +140,11 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # 2026-10-02 F580: +1/-0, the calibration_preview module overview only;
 # all 12,035 previous symbols unchanged. Exact subtraction and nine-locale
 # strict audit: features/data/615_translation_acceptance_2026-10-02.json.
-REAL_SYMBOL_COUNT = 12_036
+# 2026-10-02 F411: +2/-0, tabular._write_workbook._write and
+# qt.command_palette.CommandPalette._collect_commands.app_is_visible.
+# All 12,036 prior source keys/texts unchanged; nested private parents
+# remain hidden. Exact subtraction is recorded in the F411 slice receipt.
+REAL_SYMBOL_COUNT = 12_038
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

@@ -3409,7 +3409,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-10-01: merging, uncertainty and condition-annotation APIs plus
     # shared UI contracts; English manifest regenerated from current source.
     # Calibration Preview contributes one current module overview.
-    assert len(docs) == 12036
+    # F411: +2 documented nested helpers in tabular and command_palette;
+    # all 12,036 existing source entries and public callable pins unchanged.
+    assert len(docs) == 12038
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

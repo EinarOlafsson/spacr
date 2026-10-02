@@ -299,6 +299,52 @@ def test_real_google_style_helpers_render_both_parameter_contracts(tmp_path):
     assert "generated again" in text
 
 
+def test_tabular_and_palette_helpers_render_without_exposing_private_parents(tmp_path):
+    """The two real helpers retain their keys below hidden lexical parents."""
+    pytest.importorskip("bs4")
+    from bs4 import BeautifulSoup
+
+    modules = {"spacr.tabular", "spacr.qt.command_palette"}
+    expected = {
+        "spacr.tabular._write_workbook._write": "Write every sheet into pending.",
+        "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible":
+            "Fallback that treats every app as visible.",
+    }
+    definitions = helpers.inventory(ROOT, ignore_patterns=builder.AUTOAPI_IGNORE)
+    entries = helpers.entries(definitions, modules=modules)
+    assert {entry.qualified_key for entry in entries} == set(expected)
+    root = tmp_path / "real-helper-source"
+    package = root / "spacr"
+    package.mkdir(parents=True)
+    for name in ("api", "core", "measure", "deep_spacr", "sequencing", "ml",
+                 "artifacts", "settings", "tabular"):
+        (package / f"{name}.py").write_text(f'"""{name} fixture."""\n', encoding="utf-8")
+    (package / "qt").mkdir()
+    (package / "qt/command_palette.py").write_text(
+        '"""Command palette fixture."""\n', encoding="utf-8",
+    )
+    for directory in (package, package / "qt"):
+        (directory / "__init__.py").write_text('"""Fixture package."""\n', encoding="utf-8")
+    output = _build_site(root, modules, "real-tabular-palette", inventory_root=ROOT)
+    payload = (output / "objects.inv").read_bytes().split(b"\n", 4)[4]
+    inventory = zlib.decompress(payload).decode().splitlines()
+    for key, prose in expected.items():
+        module = next(module for module in modules if key.startswith(module + "."))
+        page = BeautifulSoup(
+            (output / "api" / Path(*module.split(".")) / "index.html").read_text(),
+            "html.parser",
+        )
+        signatures = page.find_all(id=key)
+        assert len(signatures) == 1
+        body = signatures[0].parent.find("dd", recursive=False)
+        paragraph = body.find("p", recursive=False)
+        rendered = " ".join(paragraph.get_text(" ", strip=True).split())
+        assert prose == rendered.replace("pending .", "pending.")
+        assert page.find(id=key.rsplit(".", 1)[0]) is None
+        matches = [line for line in inventory if line.startswith(key + " ")]
+        assert len(matches) == 1 and matches[0].split()[1] == "py:function"
+
+
 def test_source_default_expressions_survive_the_sphinx_signature_parser(built_site):
     pytest.importorskip("bs4")
     from bs4 import BeautifulSoup
@@ -468,7 +514,7 @@ def test_enabled_helpers_exist_in_the_full_built_site():
     if not active:
         assert not helpers.ENABLED_MODULES, "A nonempty rollout must produce helper entries"
         return
-    output = ROOT / "docs/_build/html"
+    output = Path(os.environ.get("SPACR_DOCS_BUILD_DIR", ROOT / "docs/_build/html"))
     for entry in active:
         page = output / "api" / Path(*entry.module.split(".")) / "index.html"
         assert page.is_file(), page
@@ -481,6 +527,8 @@ def test_enabled_helpers_exist_in_the_full_built_site():
 @pytest.mark.parametrize("module, count, hidden", [
     ("spacr.object", 3, ("_cellpose_z_segment_fn",)),
     ("spacr.timeflows_model", 9, ("_ctc_track_masks", "_training_window")),
+    ("spacr.tabular", 1, ("_write_workbook",)),
+    ("spacr.qt.command_palette", 1, ("CommandPalette._collect_commands",)),
 ])
 def test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser(
     language, catalog_scope, module, count, hidden,
@@ -494,7 +542,8 @@ def test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser(
     active = helpers.active_entries(ROOT, ignore_patterns=builder.AUTOAPI_IGNORE)
     keys = [entry.qualified_key for entry in active if entry.module == module]
     assert len(keys) == count
-    page = (ROOT / "docs/_build/html/api" / Path(*module.split('.')) / "index.html").read_text()
+    output = Path(os.environ.get("SPACR_DOCS_BUILD_DIR", ROOT / "docs/_build/html"))
+    page = (output / "api" / Path(*module.split('.')) / "index.html").read_text()
     for name in hidden:
         assert f'id="{module}.{name}"' not in page
     english = json.loads((builder.API_DIR / "en.json").read_text())
