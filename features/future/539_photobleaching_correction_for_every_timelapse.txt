@@ -170,3 +170,13 @@ boundary and missing-background regression. Public signature is unchanged;
 its updated docstring has a separate API translation follow-up. Distinguishing
 a real population-wide biological decline from bleaching and image-level
 histogram acceptance remain open, so F539 stays partial.
+
+2026-10-01 — MOTILITY API FOLLOW-UP COMPLETE (partial feature)
+The changed automated_motility_assay public docstring has nine source-bound,
+AI technically reviewed translations. The unchanged strict API audit passed
+all nine locales and 12,035 symbols. Each catalog changes only that symbol;
+all other records and metadata remain identical. Nine superseded reviewed
+records retain their original fields. Protected QC terminology is preserved.
+Receipt: features/data/539_motility_api_2026-10-01.json.
+This closes the motility implementation's API delta, not F539's broader
+population-biology or image-histogram acceptance.
