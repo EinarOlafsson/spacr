@@ -1,0 +1,14 @@
+Group	Key	Value
+Assay	Assay Title	spaCR example screen
+Assay	Assay Type	primary screen
+Assay	Assay Technology Type	phenotypic screen
+Assay	Assay Number of Plates	1
+AssayComponent	Imaging Protocol	Yokogawa CellVoyager, 2 channels
+AssayComponent	Sample Preparation Protocol	
+ImageAcquisition	Microscope	Yokogawa CellVoyager
+ImageAcquisition	Imaging Method	fluorescence microscopy
+ImageAcquisition	Objective Magnification	
+ImageData	Image Number of Channels	2
+ImageData	Image Number of Wells	2
+ImageData	Image Number of Planes	2
+Specimen	Channels	

@@ -3015,6 +3015,8 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
         ["Study Screens Number", 1],
         ["Study Public Release Date", values["release_date"]],
         ["# Study Publication"],
+        # The IDR template requires the row even when no title is known.
+        ["Study Publication Title", ""],
         ["Study Author List", author_list],
         ["# Study Contacts"],
         ["Study Person Last Name"] + [p[0] for p in people[:1]],
@@ -3283,6 +3285,8 @@ def _validate_archive_package(pkg: Any, *, verify_checksums: bool = True
     for key in _IDR_STUDY_REQUIRED if study else ():
         if not study.get(key):
             problems.append(f"IDR study: '{key}' has no value")
+    if study and "Study Publication Title" not in study:
+        problems.append("IDR study: 'Study Publication Title' row is missing")
     library_name = (study.get("Library File Name") or [""])[0]
     library_path = idr / library_name
     plates_listed = set()
