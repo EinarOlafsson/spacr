@@ -1748,12 +1748,14 @@ _LIMS_PAGING_FIELDS = frozenset(('next', 'next_url', '@odata.nextLink', 'links')
 
 class _LimsPage(bytes):
     def __new__(cls, body, response_url):
+        """Keep the final response URL with the fetched page bytes."""
         page = super().__new__(cls, body)
         page.response_url = response_url
         return page
 
 
 def _lims_origin(url):
+    """Return a validated ``(scheme, host, port)`` service origin."""
     from urllib.parse import urlsplit
 
     parsed = urlsplit(url)
@@ -1766,6 +1768,7 @@ def _lims_origin(url):
 
 
 def _lims_next_url(payload, current, initial):
+    """Resolve one same-origin next-page URL, or ``None`` at the last page."""
     from urllib.parse import urldefrag, urljoin
 
     if not isinstance(payload, dict):
@@ -1800,6 +1803,7 @@ def _default_lims_fetch(url: str, headers: Dict[str, str]) -> bytes:
 
     class SameOriginRedirect(HTTPRedirectHandler):
         def redirect_request(self, req, fp, code, msg, response_headers, newurl):
+            """Refuse a redirected request that changes the LIMS origin."""
             if _lims_origin(newurl) != _lims_origin(url):
                 raise ValueError('LIMS redirect must stay on the original service origin')
             return super().redirect_request(req, fp, code, msg, response_headers, newurl)

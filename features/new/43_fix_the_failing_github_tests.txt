@@ -2491,3 +2491,21 @@ lineage handoff targeted case passed under 4 GiB/offscreen Qt, CPU2, no GPU.
 The remaining hover-delay cases and any later shard failures are still open;
 there is no final-source green CI claim. Receipt:
 features/data/43_failed_shards_followup_2026-10-02.json.
+
+2026-10-02 — SHARDS 6 AND 9 NON-HOVER CASES (PARTIAL)
+The two newer failed jobs in the same old-source CI run identified a private
+LIMS helper docstring gap, a test double that no longer met the settings
+model's widget contract, a stale InstanSeg preview input shape assertion,
+an obsolete binary-mask assertion on the Features window, and a SAM lineage
+mock missing the frame-source/label-stack handoff. The first four private
+helpers now have meaningful docstrings. The widget mock is an actual QWidget;
+InstanSeg's configured two-channel preview remains checked. Features must
+show a transparent corner on a real-alpha native surface and uses the mask
+only when that surface is unavailable. Both SAM tracking inputs are asserted.
+
+The 84-case prefixed backend, Features window, screen run-path and SAM mask
+cohort passed under 4 GiB/offscreen Qt/CPU2. The plate-QC documentation
+guard and live installer archive link passed individually. The public archive
+asset is present in the release; GitHub HTTP 5xx/429 is now treated as
+transient service unavailability, while 4xx dead links still fail. The actual
+link passed on retry. Hover/locale/settings cases and final CI remain open.
