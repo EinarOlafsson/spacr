@@ -3446,9 +3446,11 @@ class AnnotateScreen(QWidget):
         self._btn_suggest_cancel.setObjectName("AnnotateSuggestCancel")
         self._btn_suggest_cancel.setCursor(Qt.PointingHandCursor)
         self._btn_suggest_cancel.setToolTip(tr(
-            "Stop the suggestion run at its next step. Nothing is written "
-            "if it stops before the writing step; your annotations are "
-            "never touched. Shown only while a run is going."))
+            "Stop the suggestion run at its next step. No new suggestions "
+            "are written if it stops before the writing step; earlier "
+            "suggestions may have been cleared and round scores may have "
+            "been updated. Your annotations are unchanged. Shown only "
+            "while a run is going."))
         self._btn_suggest_cancel.clicked.connect(self._cancel_suggest)
         self._btn_suggest_cancel.hide()
         row.addWidget(self._btn_suggest_cancel)

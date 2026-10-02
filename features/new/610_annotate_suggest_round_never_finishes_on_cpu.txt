@@ -101,8 +101,9 @@ updated for the separate features step and the non-blocking box.
 WHAT IS LEFT
 --------------------------------------------------------------------------------
 
-- The 11 new captions are in _AWAITING_CATALOG_REBUILD for the next
-  catalog pass.
+- Runtime caption follow-up completed 2026-10-01: all nine locales now
+  carry technically reviewed translations of the 14 current descendants
+  of the original 11 captions; see the runtime receipt below.
 - Re-run the lesson 09 Suggest segment (SPACR_TUTORIAL_ANNOTATE_SUGGEST=1)
   to record frames 20/21; it should now finish in seconds.
 
@@ -167,3 +168,26 @@ in /tmp/spacr-tutorials-610/run2/captures without replacing an old master.
 This completes the requested Suggest-segment capture, not publication of a
 new full lesson09 video/audio or native desktop acceptance. Caption catalog
 publication remains the separate translation lane.
+
+2026-10-01 — SOURCE-BOUND RUNTIME LOCALIZATION COMPLETE
+The original 11-caption wait-list note was stale: the current inventory
+already contained nine unchanged originals and five replacement captions
+for two retired originals. The 14 current captions were technically
+reviewed in all nine locales (126 source-bound records), correcting
+statistical fitting, pending suggestions, laboratory wells, round scores
+and the direction of the accuracy warning. The Cancel tooltip now says
+that no NEW suggestions are written before the final writing step, while
+earlier proposal clears and score updates may remain. No Suggest behavior
+or public signatures/docstrings changed.
+
+Normal generation and the all-nine audit passed: 6,497 UI sources, 1,231
+setting tooltips, 237 categories and 72 module summaries. Only the tooltip
+source key was replaced; no translated value outside the 14-caption scope
+changed. Initial Hindi placeholder-order rejection was resolved by
+peer-reviewed, order-preserving Hindi/Korean wording, without changing
+gates; its failed log is retained in the receipt. All 20 focused checks
+passed, including actual localized controls/console notices in nine
+languages and existing hang, cancellation and atomic-write regressions.
+AI technical review only; no human/native-speaker signoff is claimed.
+Lesson 09 capture/publication evidence is tracked separately.
+Receipt: features/data/610_runtime_localization_2026-10-01.json.

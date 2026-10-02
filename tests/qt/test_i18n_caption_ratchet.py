@@ -624,7 +624,9 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # Removing the two CellProfiler-provisioning arrivals and restoring its
     # retired blurb reproduces e4ee6a9c...c87d3 exactly.
     # Removing the two F538 display captions reproduces fa681c9c...ff8d1d7.
-    'fd808179b63b723676916df0dce52e944a7ae30716125a060b2fb7b9559100cb'
+    # N610: replace only the cancellation tooltip with the accurate
+    # no-new-suggestions / possible earlier clears-and-scores wording.
+    '4e9ff530557c2665575b40fba81e38f2ef8216aab43f93d0808a990a489aa7f2'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
