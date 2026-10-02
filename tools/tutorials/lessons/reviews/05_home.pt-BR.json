@@ -42,5 +42,16 @@
     "Abra Theme para escolher o tema da interface e a opacidade das páginas. A mesma seção contém os controles da borda da janela, incluindo comprimento, alinhamento e modo de brilho.",
     "Abra Animation para escolher o fundo animado e sua paleta de cores. Ajuste aqui o nível de detalhe, desfoque, velocidade, tamanho e densidade. Você também pode escolher se as dicas das configurações serão animadas e selecionar um fundo para as configurações.",
     "Volte à tela Home e clique em Pipeline overviews para escolher um fluxo de trabalho. Comece com spaCR screens para uma triagem agrupada baseada em imagens, ou escolha um caminho de análise de imagens ou de sequenciamento para os seus dados. Os próximos tutoriais mostram como esses módulos se conectam, e as lições de cada módulo percorrem depois cada tarefa."
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

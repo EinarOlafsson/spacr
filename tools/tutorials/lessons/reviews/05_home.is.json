@@ -42,5 +42,16 @@
     "Opnaðu Theme til að velja þema viðmótsins og ógagnsæi síðna. Þar eru einnig stýringar fyrir gluggabrúnina, meðal annars lengd hennar, jöfnun og ljómahátt.",
     "Opnaðu Animation til að velja hreyfanlegan bakgrunn og litavalið hans. Stilltu hér smáatriði, óskerpu, hraða, stærð og þéttleika. Þú getur líka valið hvort ábendingar við stillingar séu hreyfðar og valið bakgrunn fyrir stillingarnar.",
     "Farðu aftur í Home og smelltu á Pipeline overviews til að velja verkferli. Byrjaðu á spaCR screens fyrir samsafnaða myndgreiningarskimun, eða veldu leið fyrir myndgreiningu eða raðgreiningu sem hentar gögnunum þínum. Næstu kennslur sýna hvernig þessar einingar tengjast og kennslur einstakra eininga fara síðan í gegnum hvert verk."
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

@@ -42,5 +42,16 @@
     "Ouvrez Theme pour choisir le thème de l'interface et l'opacité des pages. Cette section contient aussi les réglages du pourtour de la fenêtre, notamment sa longueur, son alignement et son mode lumineux.",
     "Ouvrez Animation pour choisir l'arrière-plan animé et sa palette. Réglez ici son niveau de détail, son flou, sa vitesse, sa taille et sa densité. Vous pouvez aussi choisir d'animer ou non les infobulles des réglages et sélectionner un arrière-plan pour les réglages.",
     "Revenez à Home et cliquez sur Pipeline overviews pour choisir un flux de travail. Commencez par spaCR screens pour un criblage groupé basé sur l’image, ou choisissez un parcours d’analyse d’images ou de séquençage adapté à vos données. Les tutoriels suivants montrent comment ces modules s’enchaînent, puis les leçons de chaque module détaillent chaque tâche."
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

@@ -42,5 +42,16 @@
     "Åbn Theme for at vælge brugerfladens tema og sidernes opacitet. Samme sektion indeholder kontroller til vindueskanten, herunder længde, placering og glødtilstand.",
     "Åbn Animation for at vælge den animerede baggrund og dens farvepalet. Juster detaljegrad, sløring, hastighed, størrelse og tæthed her. Du kan også vælge, om indstillingernes værktøjstip skal animeres, og vælge en baggrund til indstillingerne.",
     "Vend tilbage til Home, og klik på Pipeline overviews for at vælge et workflow. Begynd med spaCR screens til en poolet billedbaseret screening, eller vælg en vej for billedanalyse eller sekventering til dine data. De næste vejledninger viser, hvordan modulerne hænger sammen, og modullektionerne gennemgår derefter hver opgave."
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

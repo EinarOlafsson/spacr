@@ -42,5 +42,16 @@
     "Theme を開き、画面のテーマとページの不透明度を選びます。同じセクションには、長さ、配置、発光モードなど、ウィンドウの縁の設定もあります。",
     "Animation を開き、動く背景とその配色を選びます。ここで細かさ、ぼかし、速度、大きさ、密度を調整します。設定のツールチップをアニメーションにするかどうかや、設定画面の背景も選べます。",
     "Homeに戻り、Pipeline overviewsをクリックしてワークフローを選びます。プール型の画像スクリーンならspaCR screensから始め、データに応じて画像解析またはシーケンシングの経路を選びます。次のチュートリアルでこれらのモジュールのつながりを示し、各モジュールのレッスンでそれぞれの作業を順に説明します。"
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

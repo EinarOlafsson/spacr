@@ -42,5 +42,16 @@
     "Apri Theme per scegliere il tema dell'interfaccia e l'opacità delle pagine. La stessa sezione contiene i controlli del bordo della finestra, tra cui lunghezza, allineamento e modalità bagliore.",
     "Apri Animation per scegliere lo sfondo animato e la sua tavolozza. Regola qui dettaglio, sfocatura, velocità, dimensione e densità. Puoi anche scegliere se animare i suggerimenti delle impostazioni e selezionare uno sfondo per le impostazioni.",
     "Torna a Home e fai clic su Pipeline overviews per scegliere un flusso di lavoro. Inizia con spaCR screens per uno screening in pool basato sulle immagini, oppure scegli un percorso di analisi delle immagini o di sequenziamento per i tuoi dati. I tutorial successivi mostrano come si collegano quei moduli, e le lezioni dei moduli guidano poi in ciascuna attività."
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }
