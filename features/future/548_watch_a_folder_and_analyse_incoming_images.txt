@@ -406,3 +406,26 @@ VERIFIED COLLECTION CHECKPOINT (2026-10-02, partial)
     cases pass. Inference remains stubbed in the existing synthetic batch test.
     All runs used 4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
     features/data/548_collection_checkpoint_2026-10-02.json.
+
+MASK RECIPE SNAPSHOT AND RESUME GUARD (2026-10-02, partial)
+    The watch's Mask inputs are deep-copied before the first field. A UI edit
+    or analysis callback cannot silently change the next field's model,
+    channel or preprocessing settings during the same run. A canonical SHA256
+    of the effective Mask input values is saved in the ledger, without storing
+    those values there. Populated resumes reject changed or missing provenance
+    before rewriting that ledger or starting another field. Empty watches may
+    choose a new recipe. Watch timing, source path and three output/control
+    switches forced by the adapter do not affect the digest. Non-finite or
+    non-JSON settings fail before workspace creation.
+
+    Six new focused cases cover mid-run mutation, changed and unknown resume
+    provenance, timing-only changes, empty workspaces and non-finite inputs.
+    All 38 new and companion watcher cases passed under a 4 GiB cap, one
+    actual CPU, no swap and hidden CUDA. The existing real preprocessing and
+    Measure batch_size=1 parity case remains in that cohort. Receipt:
+    features/data/548_mask_recipe_snapshot_2026-10-02.json.
+
+    This fingerprint covers supplied Mask setting values, not the contents
+    of external model files or defaults added later by the Mask engine.
+    Vendor acquisition completion, unsupported series, pooled normalization,
+    classify/live plate view and other listed requirements remain open.

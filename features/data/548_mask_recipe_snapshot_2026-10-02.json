@@ -1,0 +1,24 @@
+{
+  "item": "F548",
+  "date": "2026-10-02",
+  "status": "partial",
+  "scope": "Snapshot supplied Mask settings during each watch and reject changed or unknown Mask recipe provenance on populated resume",
+  "files": [
+    "spacr/core.py",
+    "tests/test_watch_mask_recipe_f548.py",
+    "features/future/548_watch_a_folder_and_analyse_incoming_images.txt"
+  ],
+  "validation": {
+    "command": "tools/run_capped.sh 4G taskset -c 2 env QT_QPA_PLATFORM=offscreen CUDA_VISIBLE_DEVICES='' OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/carruthers/anaconda3/envs/spacr/bin/python -m pytest tests/test_watch_mask_recipe_f548.py tests/test_watch_measure_recipe_f548.py tests/test_watch_pipeline_resume_f548.py tests/test_watch_folder_and_analyse.py -q",
+    "passed": 38,
+    "failed": 0,
+    "hard_memory_cap_gib": 4,
+    "cpu": 2,
+    "gpu_visible": false,
+    "swap": false
+  },
+  "limits": [
+    "External model-file bytes and software-expanded defaults are not included in this supplied-settings fingerprint",
+    "F548 whole-item acceptance remains open"
+  ]
+}

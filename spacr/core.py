@@ -1236,6 +1236,30 @@ def _watch_measure_recipe(settings):
     return recipe, hashlib.sha256(encoded).hexdigest()
 
 
+def _watch_mask_recipe(settings):
+    """Freeze the effective Mask inputs and fingerprint them for watch resumes.
+
+    Watch timing and source paths do not change the per-field Mask recipe.
+    The three output/control switches below are forced by the field adapter,
+    so their caller-supplied values do not change its result either.
+    """
+    import hashlib
+    import json
+    from copy import deepcopy
+
+    recipe = {key: value for key, value in settings.items()
+              if not str(key).startswith('watch_') and key != 'src'}
+    recipe.update(consolidate=False, dry_run=False, test_mode=False)
+    recipe = deepcopy(recipe)
+    try:
+        encoded = json.dumps(recipe, sort_keys=True, separators=(',', ':'),
+                             ensure_ascii=False, allow_nan=False).encode('utf-8')
+    except (TypeError, ValueError) as exc:
+        raise ValueError('watch_folder: Mask settings must contain finite '
+                         'JSON-compatible values for a reproducible recipe.') from exc
+    return recipe, hashlib.sha256(encoded).hexdigest()
+
+
 def _watch_quote(name):
     """Quote a table or column name for SQLite.
 
@@ -2344,6 +2368,11 @@ def _watch_folder_and_analyse(settings, analyse=None):
     from .cancellation import PipelineCancelled, checkpoint
 
     src, pipeline, settle, poll, idle = _watch_check_settings(settings)
+    # A callback or UI edit must not change the recipe between live fields.
+    from copy import deepcopy
+
+    settings = deepcopy(dict(settings))
+    _, mask_sha256 = _watch_mask_recipe(settings)
     manifest, map_sha256 = _watch_map_manifest(src, settings)
     measure_sha256 = None
     if pipeline == 'mask_measure':
@@ -2369,6 +2398,12 @@ def _watch_folder_and_analyse(settings, analyse=None):
                 'its provenance is unknown; use a separate watch workspace. '
                 'Existing results and the saved record are preserved.')
         ledger['measure_settings_sha256'] = measure_sha256
+    if ledger['fields'] and ledger.get('mask_settings_sha256') != mask_sha256:
+        raise ValueError(
+            'watch_folder: Mask settings differ from the saved recipe or '
+            'its provenance is unknown; use a separate watch workspace. '
+            'Existing results and the saved record are preserved.')
+    ledger['mask_settings_sha256'] = mask_sha256
     ledger['conversion_map_sha256'] = map_sha256
     ledger['pipeline'] = pipeline
     for entry in ledger['fields'].values():
