@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Direct Codex AI technical translation with independent Codex AI peer review; no human/native-speaker signoff.",
+  "draft_author": "shared_ui",
+  "technical_reviewer": "root",
+  "draft_sha256": "377589c1f93ae31642c8b09af2c91d3627f2b61b4c2250ed4569e62f00d0e124",
+  "peer_review_sha256": "b0c5539e7cfde8ca7355308749302814bdf2dd9a04ea21e613a1683ca7fcc23b",
+  "review": "The anomaly table header is a statistical percentile relative to negative controls; not an adjustable interface control. Portuguese phrasing follows the reviewed Brazilian Portuguese correction.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Control percentile",
+      "source": "Control percentile",
+      "source_sha256": "35429fabcfe5b1b78c4c37fc58503e6ef8f2039c318356eb39400c1de0c2df7b",
+      "translation": "नियंत्रण प्रतिशतक"
+    }
+  ]
+}

@@ -226,6 +226,8 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     "Swap object and background",
     "Outline colour",
     "Upper percentile",
+    # Control Charts translates this _ANOMALY_COLUMNS header via tr(label).
+    "Control percentile",
     # Figure-settings rows. QFormLayout.addRow is intentionally not treated
     # as a generic text call: many panels use its first argument for dynamic
     # data labels, so this reviewed finite set avoids cataloguing data.

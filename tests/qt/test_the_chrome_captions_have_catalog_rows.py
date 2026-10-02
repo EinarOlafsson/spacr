@@ -71,6 +71,7 @@ CHROME_CAPTIONS = (
     "Swap object and background",
     "Outline colour",
     "Upper percentile",
+    "Control percentile",
     # Figure settings form labels and its window title.
     "All text size",
     "Correct across pairs",
@@ -167,6 +168,28 @@ def _builder():
         sys.path.remove(tools)
 
 
+def test_anomaly_percentile_header_is_bound_to_its_live_source():
+    """The indirect inventory follows a real translated table header."""
+    import ast
+
+    path = Path(__file__).resolve().parents[2] / "spacr/qt/screens/control_chart.py"
+    tree = ast.parse(path.read_text())
+    columns = next(node.value for node in tree.body
+                   if isinstance(node, ast.Assign)
+                   and any(isinstance(target, ast.Name)
+                           and target.id == "_ANOMALY_COLUMNS"
+                           for target in node.targets))
+    caption = dict(ast.literal_eval(columns))["mean_percentile"]
+    assert caption == "Control percentile"
+    calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Attribute)
+             and node.func.attr == "setHorizontalHeaderLabels"]
+    assert any(ast.unparse(call.args[0]) ==
+               "[tr(label) for _key, label in _ANOMALY_COLUMNS]"
+               for call in calls if call.args)
+    assert caption in _builder().extract_static_ui_sources()
+
+
 @pytest.mark.parametrize("language", LANGUAGES)
 def test_every_chrome_caption_resolves_to_its_catalog_row(language):
     """tr() must return the catalog row, not the English source.
@@ -233,7 +256,7 @@ def test_chrome_and_related_prose_enter_the_source_inventory_once():
     assert len(subtitles) == 1
     assert auxiliary | subtitles <= canonical
 
-    # Fifty-eight chrome rows plus the five constants and one subtitle are the
+    # Fifty-nine chrome rows plus the five constants and one subtitle are the
     # exact gap this regression covers. It was sixty-six until the mean-
     # intensity filter retired "Intensity Handling (all objects)" and the
     # live-preview rows, which the builder now reads from COMPARTMENT_FIELDS
@@ -243,10 +266,11 @@ def test_chrome_and_related_prose_enter_the_source_inventory_once():
     # in all nine catalogs. Removing that exact addition restores 52 rows.
     # The inference-augmentation category is also assembled dynamically.
     # Quality labels travel through tr(label); the Plugins tab through tr(title).
-    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 58
+    # The anomaly table's mean_percentile header also travels through tr(label).
+    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 59
     assert len(builder._INDIRECT_CHROME_UI_SOURCES - {
         "Swap object and background", "Test-time augmentation",
-        "Low", "Medium", "High", "Plugins"}) == 52
+        "Low", "Medium", "High", "Plugins", "Control percentile"}) == 52
     assert builder._INDIRECT_CHROME_UI_SOURCES <= set(CHROME_CAPTIONS)
     assert len(auxiliary | subtitles) == 6
 
