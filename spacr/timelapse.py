@@ -1607,7 +1607,8 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     os.makedirs(tracks_path, exist_ok=True)
     out_csv = os.path.join(tracks_path, f"btrack_tracks_{object_type}_{name}.csv")
     logger.debug("Saving track table to %s", out_csv)
-    final_df.to_csv(out_csv, index=False)
+    from .tabular import write_table
+    write_table(final_df, out_csv)
 
     if plot or save:
         logger.debug("Generating visualisation (plot=%s, save=%s)...", plot, save)
@@ -9133,13 +9134,13 @@ def automated_motility_assay(settings):
         all_df_original = bleach_raw.drop(columns=['infected'], errors='ignore').merge(
             all_df[keys + ['infected']], on=keys, how='inner', validate='one_to_one')
         # Persist pre-QC corrected values separately; cached originals stay raw.
-        with sqlite3.connect(db_path, timeout=30) as conn:
-            all_df.to_sql(db_table_name + '_bleach_corrected', conn,
-                          if_exists='replace', index=False)
-            bleach_fits.to_sql(db_table_name + '_bleach_fits', conn,
-                              if_exists='replace', index=False)
-        bleach_fits.to_csv(os.path.join(measurements_dir, db_table_name + '_bleach_fits.csv'),
-                          index=False)
+        from .tabular import write_database, write_table
+        write_database(all_df, db_path, db_table_name + '_bleach_corrected',
+                       if_exists='replace')
+        write_database(bleach_fits, db_path, db_table_name + '_bleach_fits',
+                       if_exists='replace')
+        write_table(bleach_fits, os.path.join(measurements_dir,
+                                              db_table_name + '_bleach_fits.csv'))
         if bleach_method == 'histogram':
             print('Motility histogram matching removes population intensity changes; '
                   'do not interpret these values as quantitative bleaching correction.')

@@ -9,6 +9,7 @@ import tifffile
 from scipy import ndimage
 
 from spacr import segmentation_uncertainty as uncertainty
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 from spacr.curation_queue import build_queue
 
 
@@ -156,8 +157,9 @@ def test_native_model_loader_keeps_cpu_and_inference_settings(monkeypatch):
             seen.update(model=pretrained_model, device=str(device), gpu=gpu,
                         use_bfloat16=use_bfloat16)
 
-        def eval(self, images, **kwargs):
-            seen['parameters'] = kwargs
+        def eval(self, images, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            check_cellpose_eval_call(images, channel_axis)
+            seen['parameters'] = dict(kwargs, channel_axis=channel_axis)
             image = images[0]
             shape = image.shape
             labels = segment(image)
@@ -172,6 +174,7 @@ def test_native_model_loader_keeps_cpu_and_inference_settings(monkeypatch):
     assert seen['device'] == 'cpu' and not seen['gpu'] and not seen['use_bfloat16']
     assert seen['parameters']['diameter'] == 17
     assert seen['parameters']['normalize'] is False
+    assert seen['parameters']['channel_axis'] is None
     assert labels.shape == logits.shape == (20, 30)
     assert flows.shape == (2, 20, 30)
 

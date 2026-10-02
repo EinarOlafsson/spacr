@@ -11,8 +11,8 @@ mistake there would first surface on a user's machine:
 2. the model and pipeline each backend builds, with its package's constants;
 3. DINOCell's tiling, which must average overlapping tiles, not overwrite them;
 4. DINOCell's flows reaching Cellpose's dynamics in Cellpose's ``(dy, dx)``
-   order with the threshold converted, on a plane upscaled to one tile and
-   resampled back to its own size;
+   order with the threshold converted, on a plane mirror-padded to one tile
+   and cropped back to its own size;
 5. SAMCell's distance map becoming labels through its own pipeline, and a
    failed prediction raising rather than saving an empty field;
 6. a package that is installed but fails to load still naming the Model
@@ -240,36 +240,42 @@ def test_dinocell_averages_overlapping_tiles_instead_of_overwriting_them(
     assert probability[300, 350] == 2.5      # inside all four: their mean
 
 
-def test_a_small_plane_is_upscaled_keeping_its_aspect_and_labelled_at_its_own_size(
+def test_a_small_plane_is_mirror_padded_to_one_tile_and_labelled_at_its_own_size(
         dinocell, compute_masks):
-    """DINOCell sees 512-pixel tiles, so a 64x128 field is upscaled until its
-    SHORT side is one tile -- 512x1024, not a squashed square -- and labels,
-    flows and probability all come back at 64x128, the size spaCR saves.
-    The flows must reach Cellpose as ``(dy, dx)``, with spaCR's logit
-    threshold turned into DINOCell's probability."""
+    """DINOCell sees 512-pixel tiles. A 64x128 field is mirror-padded on its
+    bottom and right edges to 512x512 -- the cells keep their own pixel size
+    and the field costs one tile -- and the flows and probability are
+    cropped back to 64x128 BEFORE Cellpose's dynamics, so labels, flows and
+    probability all come back at the size spaCR saves with nothing
+    resampled. The flows must reach Cellpose as ``(dy, dx)``, with spaCR's
+    logit threshold turned into DINOCell's probability."""
     import torch
 
     backend = SB._load_backend("dinocell", device="cpu")
     seen = []
+    rng = np.random.default_rng(1)
+    dx_full = rng.random((512, 512), dtype=np.float32)
+    dy_full = rng.random((512, 512), dtype=np.float32)
+    prob_full = rng.random((512, 512), dtype=np.float32)
 
     def _predict(work):
         seen.append(work)
-        return (np.full(work.shape, 0.25, np.float32),
-                np.full(work.shape, -0.5, np.float32),
-                np.full(work.shape, 0.75, np.float32))
+        return dx_full, dy_full, prob_full
 
     backend._predict = _predict
-    image = np.random.default_rng(1).integers(0, 256, (64, 128),
-                                              dtype=np.uint8)
+    image = rng.integers(0, 256, (64, 128), dtype=np.uint8)
 
     labels, flow = backend._segment_plane(image, cellprob_threshold=-1.0)
 
     [work] = seen
-    assert work.shape == (512, 1024) and work.dtype == np.uint8
+    assert work.shape == (512, 512) and work.dtype == np.uint8
+    np.testing.assert_array_equal(work[:64, :128], image)
+    np.testing.assert_array_equal(work[64:127, :128], image[-2::-1])
+    np.testing.assert_array_equal(work[:64, 128:255], image[:, -2::-1])
     [call] = compute_masks
-    np.testing.assert_array_equal(call["dP"][0], np.full((512, 1024), -0.5))
-    np.testing.assert_array_equal(call["dP"][1], np.full((512, 1024), 0.25))
-    np.testing.assert_array_equal(call["cellprob"], np.full((512, 1024), 0.75))
+    np.testing.assert_array_equal(call["dP"][0], dy_full[:64, :128])
+    np.testing.assert_array_equal(call["dP"][1], dx_full[:64, :128])
+    np.testing.assert_array_equal(call["cellprob"], prob_full[:64, :128])
     assert call["cellprob_threshold"] == pytest.approx(0.26894, abs=1e-5)
     assert {key: call[key] for key in ("niter", "flow_threshold", "do_3D",
                                         "min_size", "max_size_fraction")} == {
@@ -285,6 +291,25 @@ def test_a_small_plane_is_upscaled_keeping_its_aspect_and_labelled_at_its_own_si
     assert d_p.shape == (2, 64, 128)
     assert cell_probability.shape == (64, 128)
     assert last is None
+
+
+def test_a_mother_machine_channel_costs_one_tile_not_fifteen(
+        dinocell, compute_masks):
+    """A 256x32 field -- one mother-machine channel -- is the case that made
+    the old upscale-to-a-tile rule slow and wrong: it became 4096x512,
+    fifteen tiles of cells sixteen times their size. Padded, it is one tile
+    through the real sliding window, and one call to Cellpose's dynamics
+    at the field's own size."""
+    backend = SB._load_backend("dinocell", device="cpu")
+    field = np.random.default_rng(3).random((256, 32), dtype=np.float32)
+
+    masks, flows, _styles = backend.eval(field, channel_axis=-1)
+
+    assert len(backend._pipeline.tiles) == 1
+    assert backend._pipeline.tiles[0].shape == (512, 512)
+    [call] = compute_masks
+    assert call["dP"].shape == (2, 256, 32)
+    assert len(masks) == 1 and masks[0].shape == (256, 32)
 
 
 def test_a_plane_at_least_one_tile_wide_reaches_the_model_unresized(

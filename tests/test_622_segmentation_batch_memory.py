@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 import spacr.object as objects
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 from tests.test_cov_object_masks_sam import _settings, force_cpu  # noqa: F401
 
 
@@ -55,7 +56,8 @@ def test_completed_arrays_are_released_before_next_batch_and_archive(
         def __init__(self, **kwargs):
             assert kwargs["gpu"] is False
 
-        def eval(self, x, **kwargs):
+        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            check_cellpose_eval_call(x, channel_axis)
             assert all(ref() is None for ref in live), "previous batch retained"
             assert all(ref() is None for ref in auxiliary), "unused flow outputs retained"
             assert len(x) == 1

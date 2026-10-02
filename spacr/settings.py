@@ -6355,9 +6355,12 @@ def get_setting_dependencies():
             and bool(str(settings.get('illumination_vendor_profile') or '').strip())
             and not str(settings.get('illumination_model') or '').strip()),
         lambda settings, context: (
-            "Vendor channel assignments are used only when illumination correction "
-            "is enabled, a vendor profile is selected, and no saved illumination "
-            "model overrides it. The value is kept and saved."),
+            f"illumination_vendor_channel_map is only read when "
+            f"illumination_correction is on, illumination_vendor_profile names a "
+            f"profile and illumination_model is empty. They are "
+            f"{settings.get('illumination_correction', False)!r}, "
+            f"{settings.get('illumination_vendor_profile')!r} and "
+            f"{settings.get('illumination_model')!r}. The value is kept and saved."),
     )
 
     setting_dependencies['bleach_correction'] = rule(

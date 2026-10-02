@@ -188,3 +188,5 @@ def test_a_late_leave_for_old_target_keeps_new_pending_help(hovered, qtbot):
     delay.schedule(second, lambda: seen.append('new'))
     delay.cancel_for(hovered)
     qtbot.waitUntil(lambda: seen == ['new'], timeout=350)
+    qtbot.wait(100)
+    assert seen == ['new']

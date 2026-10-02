@@ -150,7 +150,7 @@ def _build_barcode_controls(screen, outer):
     from ..preferences import _apply_alpha_widgets
 
     panel = QWidget(screen)
-    panel.setObjectName('ConvertPlateBarcodeLinkage')
+    panel.setObjectName("ConvertPlateBarcodeLinkage")
     layout = QVBoxLayout(panel)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.addWidget(QLabel(tr("Plate barcode linkage (Alpha)"), panel))
