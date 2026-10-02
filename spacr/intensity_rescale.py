@@ -7,6 +7,7 @@ decision can be written into ``measurements.db``.
 """
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 import os
 from typing import Any, Dict, Iterable, Mapping, Tuple
 
@@ -109,7 +110,12 @@ def build_plate_plan(src: os.PathLike | str, filenames: Iterable[str],
     failures: Dict[str, str] = {}
     plate_maxima: Dict[str, float] = {}
 
-    for filename in sorted(set(os.fspath(name) for name in filenames)):
+    def _inspect(filename):
+        """Read one field's dtype, intensity maximum and file stats.
+
+        :param filename: merged-array filename inside ``src``.
+        :returns: ``(filename, record, None)`` or ``(filename, None, error)``.
+        """
         path = os.path.join(root, filename)
         try:
             data = np.load(path, mmap_mode="r")
@@ -120,19 +126,30 @@ def build_plate_plan(src: os.PathLike | str, filenames: Iterable[str],
             top, has_intensity = signal_max(data, settings)
             kind = _kind(data.dtype, top, has_intensity)
             stat = os.stat(path)
-            inspected[filename] = {
+            return filename, {
                 "plateID": plate,
                 "original_dtype": str(data.dtype),
                 "original_intensity_max": top,
                 "kind": kind,
                 "size_bytes": int(stat.st_size),
                 "mtime_ns": int(stat.st_mtime_ns),
-            }
-            if kind == "raw":
-                plate_maxima[plate] = max(plate_maxima.get(plate, 0.0), top)
+            }, None
         except Exception as exc:
-            failures[filename] = f"{type(exc).__name__}: {exc}"
+            return filename, None, f"{type(exc).__name__}: {exc}"
 
+    names = sorted(set(os.fspath(name) for name in filenames))
+    workers = max(1, min(32, int(settings.get("n_jobs") or 8), len(names) or 1))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        results = list(pool.map(_inspect, names))
+    for filename, item, error in results:
+        if error is not None:
+            failures[filename] = error
+            continue
+        inspected[filename] = item
+        if item["kind"] == "raw":
+            plate = item["plateID"]
+            plate_maxima[plate] = max(plate_maxima.get(plate, 0.0),
+                                      item["original_intensity_max"])
     fields: Dict[str, Dict[str, Any]] = {}
     for filename, item in inspected.items():
         kind = item["kind"]
