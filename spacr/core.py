@@ -1554,8 +1554,10 @@ def _watch_ready_fields(context, now):
     waiting = sum(entry.get('status') == 'waiting' and key not in groups
                   for key, entry in fields.items())
     for key, members in sorted(groups.items()):
+        # Convert binds exact basenames; relative folders are provenance only.
+        # The guards below still reject split companions and duplicate locations.
         if manifest is not None and (key not in manifest or
-                {name for name, _channel in members} != manifest[key]):
+                {os.path.basename(name) for name, _channel in members} != manifest[key]):
             waiting += 1
             warning = ('manifest', key, tuple(sorted(name for name, _c in members)))
             if warning not in context['warned']:

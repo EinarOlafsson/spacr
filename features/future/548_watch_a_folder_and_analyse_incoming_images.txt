@@ -255,3 +255,32 @@ VERIFIED READY-TO-COPY HANDOFF (2026-10-02, partial)
     model forward pass stubbed. The run used 4 GiB, CPU0, zero swap and hidden
     CUDA. Receipt:
     features/data/548_verified_snapshot_handoff_2026-10-02.json.
+
+NESTED CONVERT-MAP COMPANIONS (2026-10-02, partial)
+    Reproduction first showed that a genuine Convert map and two complete
+    fields, relocated into nested acquisition folders without renaming any TIFF,
+    remained waiting: relative discovery paths were compared directly with the
+    map's target basenames. The bounded correction compares exact basenames for
+    manifest membership, retaining the existing same-parent and duplicate-channel
+    checks. No meaning is inferred from directory names. Each field's companions
+    must still reside together; duplicate copies in different locations, split
+    companions, missing targets and unexpected channels are not analysed.
+
+    Relative paths remain in the ledger and verified snapshot provenance. The
+    map stays byte-identical and hash-bound across runs; a completed nested field
+    is skipped on resume. This permits relocating mapped TIFFs beneath supported
+    acquisition subdirectories. It does not permit ambiguous duplicate fields,
+    bypass generated/hidden-folder pruning, accept custom map names or provide
+    vendor acquisition-complete semantics. All other map schema guards remain.
+    F548 remains partial/alpha. No io.py, Convert GUI, API or caption changes.
+
+    Validation: the pre-fix positive regression failed as expected (1 failed in
+    6.51 seconds; both complete fields waiting). After the correction all 37
+    focused cases passed in 17.74 seconds: six new nested-map tests, 20 existing
+    manifest tests and 11 existing recursive/no-map tests. Genuine Convert TIFFs
+    made from synthetic source images yield identical merged arrays and matching
+    cell/nucleus database rows through nested watching versus flat batch_size=1
+    preprocessing/Measure; the Cellpose forward pass is stubbed. Raw TIFF/map
+    bytes, resume identity and map hash are preserved. Both processes used 4 GiB,
+    CPU0, zero swap and hidden CUDA. Receipt:
+    features/data/548_nested_manifest_fields_2026-10-02.json.
