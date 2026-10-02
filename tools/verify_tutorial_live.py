@@ -21,7 +21,7 @@ LOCAL = ROOT / "docs" / "source" / "_extra" / "tutorials"
 DEFAULT_URL = "https://einarolafsson.github.io/spacr/tutorials/"
 EXPECTED_CACHE_KEY = json.loads((ROOT / "tools/tutorials/release_candidate/publication-receipt.json").read_text())["pages"]["cache_key"]
 EXPECTED_VOICE_KEY = "20260811-50-voices"
-EXPECTED_APP_KEY = "20260923-workflow78-learning-order"
+EXPECTED_APP_KEY = re.search(r'app_v2\.js\?v=([^"\s]+)', (LOCAL / 'index.html').read_text())[1]
 RETIRED_VOICES = {"af_alloy", "af_kore", "af_nicole", "af_nova"}
 
 
@@ -100,6 +100,8 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
     index = remote["index.html"].decode("utf-8")
     voices_source = remote["voice_catalog.js"].decode("utf-8")
     catalog = _catalog_payload(remote["lesson_catalog.js"].decode("utf-8"))
+    local_catalog = _catalog_payload((LOCAL / "lesson_catalog.js").read_text())
+    expected_scenes = sum(len(lesson["scenes"]) for lesson in local_catalog["lessons"])
     languages, voices = _voice_inventory(voices_source)
     lessons = catalog["lessons"]
     scene_count = sum(len(lesson["scenes"]) for lesson in lessons)
@@ -113,6 +115,7 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
         "url": base,
         "lessons": len(lessons),
         "scenes": scene_count,
+        "expected_source_scenes": expected_scenes,
         "languages": len(languages),
         "voices": len(voices),
         "cache_key": versioned("lesson_catalog.js"),
@@ -128,7 +131,7 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
         result["source_equivalent_sha256"] = normalized
         result["hashes_match_local"] = normalized == local_hashes
     assert result["lessons"] == 85, result
-    assert result["scenes"] == 1080, result
+    assert expected_scenes > 0 and result["scenes"] == expected_scenes, result
     assert result["languages"] == 8, result
     assert result["voices"] == 50, result
     assert result["cache_key"] == EXPECTED_CACHE_KEY, result

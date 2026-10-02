@@ -331,7 +331,8 @@ MOBILE_LESSONS = ('01_pypi_github', '04_platform_installers', '14_make_masks', '
                   '53_prediction_profiler', '76_ops', '85_host_pathogen')
 
 
-def verify_live_mobile(url, *, width=390, height=844, lessons=MOBILE_LESSONS):
+def verify_live_mobile(url, *, width=390, height=844, lessons=MOBILE_LESSONS,
+                       tap_timeout_ms=90000):
     """Play lessons on the LIVE Pages site at a phone viewport (touch, 3x DPR).
 
     Reads nothing local: the deployed index must pin one immutable media root,
@@ -341,8 +342,14 @@ def verify_live_mobile(url, *, width=390, height=844, lessons=MOBILE_LESSONS):
     advancing, a chapter seek must keep video and narration within the
     unchanged 0.5 s tolerance, and the page must not scroll sideways with the
     video inside the viewport.
+
+    ``tap_timeout_ms`` bounds only the synthetic tap attempt. Headless native
+    video controls can ignore that tap; the existing explicit-play fallback
+    still has its full 90-second bound, as do playback and seek checks.
     """
     import urllib.request
+    if not isinstance(tap_timeout_ms, int) or isinstance(tap_timeout_ms, bool) or tap_timeout_ms <= 0:
+        raise ValueError('Synthetic tap timeout must be a positive integer in milliseconds')
     url = url.rstrip('/') + '/'
     index = urllib.request.urlopen(url, timeout=60).read().decode('utf-8')
     roots = set(re.findall(r'data-(?:audio|video4k|web)-root="([^"]+)"', index))
@@ -408,7 +415,7 @@ def verify_live_mobile(url, *, width=390, height=844, lessons=MOBILE_LESSONS):
             page.tap('#tutorial-video')
             start = 'tap'
             try:
-                page.wait_for_function('!elements.audio.paused && elements.audio.currentTime > 1.0', timeout=90000)
+                page.wait_for_function('!elements.audio.paused && elements.audio.currentTime > 1.0', timeout=tap_timeout_ms)
             except Exception:
                 page.evaluate('elements.video.play()')
                 start = 'video.play() after the tap did not start playback'
@@ -446,6 +453,7 @@ def verify_live_mobile(url, *, width=390, height=844, lessons=MOBILE_LESSONS):
                      'the deployed index and its pinned hosted media; not a listening review',
             'url': url, 'index_sha256': hashlib.sha256(index.encode('utf-8')).hexdigest(),
             'media_root': media_root,
+            'synthetic_tap_timeout_ms': tap_timeout_ms,
             'viewport': {'width': width, 'height': height, 'is_mobile': True,
                          'has_touch': True, 'device_scale_factor': 3},
             'hosted_requests': len(hosted), 'hosted_hosts': sorted({urlparse(u).hostname for u in hosted}),
@@ -463,12 +471,15 @@ if __name__ == '__main__':
                         help='Play lessons on the live Pages site at a phone viewport; needs no candidate')
     parser.add_argument('--viewport', default='390x844', help='WIDTHxHEIGHT for --live-mobile')
     parser.add_argument('--lessons', default=','.join(MOBILE_LESSONS), help='Comma-separated lessons for --live-mobile')
+    parser.add_argument('--tap-timeout-ms', type=int, default=90000,
+                        help='Synthetic tap attempt only; explicit playback and seek retain 90-second bounds')
     parser.add_argument('--receipt', type=Path, help='Where --live-mobile writes its JSON receipt')
     args = parser.parse_args()
     if args.live_mobile:
         width, height = (int(v) for v in args.viewport.lower().split('x'))
         result = verify_live_mobile(args.live_mobile, width=width, height=height,
-                                    lessons=tuple(args.lessons.split(',')))
+                                    lessons=tuple(args.lessons.split(',')),
+                                    tap_timeout_ms=args.tap_timeout_ms)
         if args.receipt:
             write(args.receipt, result)
         print(json.dumps({k: v for k, v in result.items() if k != 'cases'}))
