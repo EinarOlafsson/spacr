@@ -1,0 +1,369 @@
+{
+  "verified_at_utc": "2026-10-02T03:05:03.923388+00:00",
+  "feature": "N615 API follow-up for F570",
+  "status": "Source-current B-score module overview accepted in all nine catalogs; aggregate API/docs/tutorial/publication remains partial",
+  "source_commit": "5deaabd37",
+  "changed_symbol": "spacr.sp_stats",
+  "changed_block": 5,
+  "canonical_source_sha256": "0dad8590518b6a5b3f6b2d62a09367f2cbefaa421f17d02036ddccf85fd25ad2",
+  "audit": {
+    "status": 0,
+    "languages": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "symbols": 12035,
+    "resource_limit": "4 GiB, CPU 0, zero swap",
+    "source_binding": "normal reviewed_api_block_translations loader; current source/hash/context and target gates unchanged"
+  },
+  "exact_catalog_delta": {
+    "sv": {
+      "changed_blocks": [
+        5
+      ],
+      "repair_mode": "unchanged repair API with intentional one-symbol subset",
+      "changed_symbols": [
+        "spacr.sp_stats"
+      ],
+      "unrelated_records_unchanged": 12034
+    },
+    "de": {
+      "changed_blocks": [
+        5
+      ],
+      "repair_mode": "unchanged repair API with intentional one-symbol subset",
+      "changed_symbols": [
+        "spacr.sp_stats"
+      ],
+      "unrelated_records_unchanged": 12034
+    },
+    "es": {
+      "changed_blocks": [
+        5
+      ],
+      "repair_mode": "unchanged repair API with intentional one-symbol subset",
+      "changed_symbols": [
+        "spacr.sp_stats"
+      ],
+      "unrelated_records_unchanged": 12034
+    },
+    "zh_CN": {
+      "changed_blocks": [
+        5
+      ],
+      "repair_mode": "unchanged repair API with intentional one-symbol subset",
+      "changed_symbols": [
+        "spacr.sp_stats"
+      ],
+      "unrelated_records_unchanged": 12034
+    },
+    "pt": {
+      "changed_blocks": [
+        5
+      ],
+      "repair_mode": "unchanged repair API with intentional one-symbol subset",
+      "changed_symbols": [
+        "spacr.sp_stats"
+      ],
+      "unrelated_records_unchanged": 12034
+    },
+    "hi": {
+      "changed_blocks": [
+        5
+      ],
+      "repair_mode": "unchanged repair API with intentional one-symbol subset",
+      "changed_symbols": [
+        "spacr.sp_stats"
+      ],
+      "unrelated_records_unchanged": 12034
+    },
+    "ko": {
+      "changed_blocks": [
+        5
+      ],
+      "repair_mode": "unchanged repair API with intentional one-symbol subset",
+      "changed_symbols": [
+        "spacr.sp_stats"
+      ],
+      "unrelated_records_unchanged": 12034
+    },
+    "is": {
+      "changed_blocks": [
+        5
+      ],
+      "repair_mode": "unchanged repair API with intentional one-symbol subset",
+      "changed_symbols": [
+        "spacr.sp_stats"
+      ],
+      "unrelated_records_unchanged": 12034
+    },
+    "fr": {
+      "changed_blocks": [
+        5
+      ],
+      "repair_mode": "unchanged repair API with intentional one-symbol subset",
+      "changed_symbols": [
+        "spacr.sp_stats"
+      ],
+      "unrelated_records_unchanged": 12034
+    }
+  },
+  "target_gates": {
+    "targets": 9,
+    "errors": []
+  },
+  "review_preservation": {
+    "files": [
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-27-api-delta2-000.json",
+        "retired_records_preserved": 1,
+        "unrelated_records_unchanged": 284,
+        "historical_header_unchanged": true
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-27-api-delta2-000.json",
+        "retired_records_preserved": 1,
+        "unrelated_records_unchanged": 284,
+        "historical_header_unchanged": true
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-27-api-delta2-000.json",
+        "retired_records_preserved": 1,
+        "unrelated_records_unchanged": 284,
+        "historical_header_unchanged": true
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-27-api-delta2-000.json",
+        "retired_records_preserved": 1,
+        "unrelated_records_unchanged": 284,
+        "historical_header_unchanged": true
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-27-api-delta2-000.json",
+        "retired_records_preserved": 1,
+        "unrelated_records_unchanged": 284,
+        "historical_header_unchanged": true
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-27-api-delta2-000.json",
+        "retired_records_preserved": 1,
+        "unrelated_records_unchanged": 284,
+        "historical_header_unchanged": true
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-27-api-delta2-000.json",
+        "retired_records_preserved": 1,
+        "unrelated_records_unchanged": 284,
+        "historical_header_unchanged": true
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-27-api-delta2-000.json",
+        "retired_records_preserved": 1,
+        "unrelated_records_unchanged": 284,
+        "historical_header_unchanged": true
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-27-api-delta2-000.json",
+        "retired_records_preserved": 1,
+        "unrelated_records_unchanged": 284,
+        "historical_header_unchanged": true
+      }
+    ],
+    "retired_records_preserved": 9,
+    "new_records": 9,
+    "source_history_unchanged_after_normal_final_pruning": true,
+    "source_history_top_level_keys_before": [
+      "schema",
+      "sources"
+    ],
+    "source_history_top_level_keys_after": [
+      "schema",
+      "sources"
+    ]
+  },
+  "authorship": {
+    "method": "Direct Codex AI technical adaptation of an existing reviewed paragraph. Only the rounded R MAD factor and general-vs-B-score convergence explanation changed; no local-model draft or native-speaker review claimed.",
+    "prior_targets_sha256": "e9aa2e8fae939e1fa52f6d02437ce3bf2ceef2c0cdb84b02f7b2184abc86b61e",
+    "worklist_sha256": "7c2536bbbf79b52ef350a44905f4968a552068e9c36e82e39cc8e2ec889c0a0c"
+  },
+  "independent_peer_review": [
+    {
+      "language": "sv",
+      "draft_sha256": "da5092a02940fa349d80d5a188cc6bc1bf5efe0f7c701fdd6a71979acde464f1",
+      "final_sha256": "da5092a02940fa349d80d5a188cc6bc1bf5efe0f7c701fdd6a71979acde464f1",
+      "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+      "native_speaker_signoff": false
+    },
+    {
+      "language": "de",
+      "draft_sha256": "5f09be6306ef0d37eee34b35be0e521371273f31fb62e643815e39827ba43db9",
+      "final_sha256": "5f09be6306ef0d37eee34b35be0e521371273f31fb62e643815e39827ba43db9",
+      "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+      "native_speaker_signoff": false
+    },
+    {
+      "language": "es",
+      "draft_sha256": "a3fabcd63e39a0385898432d8091b40b123d5dfd40e3dedcd15cc89cf9441bbf",
+      "final_sha256": "a3fabcd63e39a0385898432d8091b40b123d5dfd40e3dedcd15cc89cf9441bbf",
+      "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+      "native_speaker_signoff": false
+    },
+    {
+      "language": "zh_CN",
+      "draft_sha256": "7cfd5fc27b5b6ace2b62dc01f07016b71faef3b7ab561f201fa14c50f3ecf27b",
+      "final_sha256": "7cfd5fc27b5b6ace2b62dc01f07016b71faef3b7ab561f201fa14c50f3ecf27b",
+      "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+      "native_speaker_signoff": false
+    },
+    {
+      "language": "pt",
+      "draft_sha256": "d663b8d7bbb121468d0de11df08d32b062df2701b4f38a74db9908446e909a43",
+      "final_sha256": "d663b8d7bbb121468d0de11df08d32b062df2701b4f38a74db9908446e909a43",
+      "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+      "native_speaker_signoff": false
+    },
+    {
+      "language": "hi",
+      "draft_sha256": "6a252c614f72c7212e2f4bc9ff3ed5b038b076bc442aa106380857f750a19a75",
+      "final_sha256": "c37a773638edb6203185097f31977151a0cfad2878de00de1633d8b4376d6fd3",
+      "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+      "native_speaker_signoff": false
+    },
+    {
+      "language": "ko",
+      "draft_sha256": "ffe2cdfeb24e8e233fe2bb04fd903ad35ca5a2e8e50166dc69752b1dd29b8dae",
+      "final_sha256": "ffe2cdfeb24e8e233fe2bb04fd903ad35ca5a2e8e50166dc69752b1dd29b8dae",
+      "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+      "native_speaker_signoff": false
+    },
+    {
+      "language": "is",
+      "draft_sha256": "b1060bc358065bd0a9fdc81e8022f17c8442fbaaa700bc93fd4dc26252359a7b",
+      "final_sha256": "b1060bc358065bd0a9fdc81e8022f17c8442fbaaa700bc93fd4dc26252359a7b",
+      "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+      "native_speaker_signoff": false
+    },
+    {
+      "language": "fr",
+      "draft_sha256": "958c00f430c5fec23259a7728edaf9ee34873306fe6e66d0b29f358cfe4f3353",
+      "final_sha256": "958c00f430c5fec23259a7728edaf9ee34873306fe6e66d0b29f358cfe4f3353",
+      "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+      "native_speaker_signoff": false
+    }
+  ],
+  "resources": {
+    "command": [
+      "/home/carruthers/anaconda3/envs/spacr/bin/python",
+      "-u",
+      "/tmp/spacr-implementation-20261001/api-bscore-delta/targeted.py"
+    ],
+    "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r76bb26bf26a94c1f984310116a966bf3.scope",
+    "limits": {
+      "memory.max": "4294967296",
+      "memory.swap.max": "0",
+      "cpu_affinity": [
+        0
+      ],
+      "cpu.max": null,
+      "systemd_properties": [
+        "CPUQuotaPerSecUSec=1s",
+        "MemoryMax=4294967296",
+        "MemorySwapMax=0"
+      ]
+    }
+  },
+  "limitations": [
+    "AI technical authorship and independent AI technical review, not native-speaker/human signoff",
+    "No claim of regenerated full HTML or live documentation publication",
+    "Original cellHTS2 numerical acceptance is recorded separately in features/data/570_cellhts2_reference_2026-10-01.json"
+  ],
+  "evidence": {
+    "targeted.py": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/targeted.py",
+      "sha256": "5f9855e88155be6613750bbf1b71ca57a839518906bd770c8f8787ece071b129"
+    },
+    "targeted.log": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/targeted.log",
+      "sha256": "cb6a459bc16c35d1eeae7eb4f34b84666a89ac0529d55fb39d9a0562710b8eb5"
+    },
+    "worklist.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/worklist.json",
+      "sha256": "7c2536bbbf79b52ef350a44905f4968a552068e9c36e82e39cc8e2ec889c0a0c"
+    },
+    "prior-targets.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/prior-targets.json",
+      "sha256": "e9aa2e8fae939e1fa52f6d02437ce3bf2ceef2c0cdb84b02f7b2184abc86b61e"
+    },
+    "draft-gates.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/draft-gates.json",
+      "sha256": "2e4b87c927b0f6a1aca0241edc407120eeb268ae8be2176143399573f7b03678"
+    },
+    "final-gates.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/final-gates.json",
+      "sha256": "2e4b87c927b0f6a1aca0241edc407120eeb268ae8be2176143399573f7b03678"
+    },
+    "root-peer-review.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/root-peer-review.json",
+      "sha256": "f8721c757c7497c961322152f9f292e72e7eca35bcd2cbcc7794337e650ac152"
+    },
+    "catalog-diff-proof.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/catalog-diff-proof.json",
+      "sha256": "a9c2cbd88c9a494931095fbad975659e2beae4d27f5fc835365fd7972caf631b"
+    },
+    "review-preservation-proof.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/review-preservation-proof.json",
+      "sha256": "ee8abac7ca2ab7d0474b580e1cda323a0d49320dc6643c59d1ac38e264dde559"
+    },
+    "audit-result.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/audit-result.json",
+      "sha256": "28561789f6e4b8ea4027ecf0571a78db9cd1c823fed78ed1684f7de69d605066"
+    },
+    "resources.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/resources.json",
+      "sha256": "949a9a6a8409a584ebd1805f7c97b40a5becaea29913907ce08fc5a32b315f19"
+    },
+    "freshness.log": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/freshness.log",
+      "sha256": "61af0453bcf3db5d32349c65330be1bbaa0d05780f2326f2eebf202b6bf17ca2"
+    },
+    "freshness-limits.json": {
+      "path": "features/data/615_api_bscore_delta_2026-10-01/freshness-limits.json",
+      "sha256": "9734639a9bd3937bd843514bc2e1b3fd696c474f356e7bd3ea98c8ade351e06d"
+    }
+  },
+  "catalog_sha256": {
+    "en": "493f22fdff55f4bc81664cf4805ad3cd078bb0150978fdce097748e41bab1f09",
+    "sv": "0bf617f51a039bce6eb402ff1fe38c02a7730b7b755c2293cd89579926955ecf",
+    "de": "586ec9e688cc845ed159a55e2e9dbf8027c79b5fc201045813d3b4470d42286e",
+    "es": "dbc1b7344d11d969432e667e6525f98528ea735ade078ea43d6c73a2a8f351a1",
+    "zh_CN": "c0c5cc45fab3e71161ea729c125ee1b904962b40127933cf58dfa6513a1a1ab1",
+    "pt": "a7c6781f6e1d7761490090bbb3cce89e7f78761b8795df45936eacf819db3d12",
+    "hi": "1c057902a30739ee58b5732fe004ec91018bd88bad3a348fa7cb520789e2d818",
+    "ko": "73c390269ead91cc7409cd5139fedfa80833298462d570ec74c00c381bd212c4",
+    "is": "d5645643ea2a69f022111b19f287486cb6b5ab9aba4259b92d1954c2e339eae0",
+    "fr": "62868f579ebecff28fdf12ddd1b215aaed8d3394595ee0c734c04ec0ad271726"
+  },
+  "source_freshness_tests": {
+    "passed": 10,
+    "node": "tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current",
+    "languages": [
+      "en",
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ]
+  }
+}

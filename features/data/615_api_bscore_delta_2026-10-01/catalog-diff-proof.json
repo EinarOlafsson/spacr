@@ -1,0 +1,92 @@
+{
+  "sv": {
+    "changed_blocks": [
+      5
+    ],
+    "repair_mode": "unchanged repair API with intentional one-symbol subset",
+    "changed_symbols": [
+      "spacr.sp_stats"
+    ],
+    "unrelated_records_unchanged": 12034
+  },
+  "de": {
+    "changed_blocks": [
+      5
+    ],
+    "repair_mode": "unchanged repair API with intentional one-symbol subset",
+    "changed_symbols": [
+      "spacr.sp_stats"
+    ],
+    "unrelated_records_unchanged": 12034
+  },
+  "es": {
+    "changed_blocks": [
+      5
+    ],
+    "repair_mode": "unchanged repair API with intentional one-symbol subset",
+    "changed_symbols": [
+      "spacr.sp_stats"
+    ],
+    "unrelated_records_unchanged": 12034
+  },
+  "zh_CN": {
+    "changed_blocks": [
+      5
+    ],
+    "repair_mode": "unchanged repair API with intentional one-symbol subset",
+    "changed_symbols": [
+      "spacr.sp_stats"
+    ],
+    "unrelated_records_unchanged": 12034
+  },
+  "pt": {
+    "changed_blocks": [
+      5
+    ],
+    "repair_mode": "unchanged repair API with intentional one-symbol subset",
+    "changed_symbols": [
+      "spacr.sp_stats"
+    ],
+    "unrelated_records_unchanged": 12034
+  },
+  "hi": {
+    "changed_blocks": [
+      5
+    ],
+    "repair_mode": "unchanged repair API with intentional one-symbol subset",
+    "changed_symbols": [
+      "spacr.sp_stats"
+    ],
+    "unrelated_records_unchanged": 12034
+  },
+  "ko": {
+    "changed_blocks": [
+      5
+    ],
+    "repair_mode": "unchanged repair API with intentional one-symbol subset",
+    "changed_symbols": [
+      "spacr.sp_stats"
+    ],
+    "unrelated_records_unchanged": 12034
+  },
+  "is": {
+    "changed_blocks": [
+      5
+    ],
+    "repair_mode": "unchanged repair API with intentional one-symbol subset",
+    "changed_symbols": [
+      "spacr.sp_stats"
+    ],
+    "unrelated_records_unchanged": 12034
+  },
+  "fr": {
+    "changed_blocks": [
+      5
+    ],
+    "repair_mode": "unchanged repair API with intentional one-symbol subset",
+    "changed_symbols": [
+      "spacr.sp_stats"
+    ],
+    "unrelated_records_unchanged": 12034
+  }
+}

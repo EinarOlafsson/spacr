@@ -1384,7 +1384,9 @@
       "source_sha256": "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
       "context": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation (the factor R's ``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so the residuals agree with the B-score cellHTS2 computes.",
       "translation": "Les constantes : ``MAD_SCALE`` vaut ``1 / Phi^-1(0.75)`` = 1.4826, ce qui fait que la MAD d’un échantillon normal estime son écart-type (le facteur qu’appliquent ``mad()`` de R et donc cellHTS2). ``SSMD_ESTIMATORS`` sont ``mm`` (méthode des moments), ``umvue`` (sans biais de variance uniformément minimale) et ``robust`` (médiane/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` vaut 3 pour chaque statistique : SSMD 3 est l’effet \"strong\" de Zhang, et 3 sigmas robustes est le seuil habituel pour le z robuste et le score B. ``MEDIAN_POLISH_MAX_ITER`` et ``MEDIAN_POLISH_EPS`` sont les valeurs par défaut de ``medpolish`` de R (10 et 0.01), conservées pour que les résidus concordent avec le score B que calcule cellHTS2.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: the B-score constants/convergence overview now states the original cellHTS2 settings. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.sp_stats#6",

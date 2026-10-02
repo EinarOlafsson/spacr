@@ -410,3 +410,17 @@ show only these two symbol records changed in each locale; the other 12,033
 records per catalog are unchanged. No native-speaker signoff is claimed.
 Receipt: features/data/615_api_two_symbol_delta_2026-10-01.json.
 The aggregate API/documentation/tutorial/publication item remains open.
+
+2026-10-01 — B-SCORE REFERENCE API FOLLOW-UP
+The F570 numerical reference correction changed one module-overview block in
+spacr.sp_stats. English and all nine translated API catalogs now state the
+rounded R MAD factor 1.4826 and distinguish general median-polish defaults
+(10 iterations, 0.01) from cellHTS2 B-score settings (200, 1e-5). Nine new
+source-bound targets have independent AI technical review; the nine obsolete
+reviews retain all original fields and attribution. The normal builder and
+unchanged strict all-nine audit pass for 12,035 symbols. Exact diffs prove
+only block 5 of this one symbol changed; 12,034 unrelated symbol records per
+locale remain unchanged. All ten English/locale source-hash checks pass.
+Receipt: features/data/615_api_bscore_delta_2026-10-01.json.
+This is a source-current API checkpoint, not native-speaker review, a new
+full-site build, or live publication. The aggregate item remains partial.

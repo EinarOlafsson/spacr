@@ -1384,7 +1384,9 @@
       "source_sha256": "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
       "context": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation (the factor R's ``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so the residuals agree with the B-score cellHTS2 computes.",
       "translation": "Fastarnir: ``MAD_SCALE`` er ``1 / Phi^-1(0.75)`` = 1.4826, sem lætur MAD normaldreifðs úrtaks meta staðalfrávik þess (stuðullinn sem ``mad()`` í R og þar með cellHTS2 nota). ``SSMD_ESTIMATORS`` eru ``mm`` (vægisaðferð), ``umvue`` (óbjagaður með jafnt lágmarksdreifni) og ``robust`` (miðgildi/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` er 3 fyrir hverja tölfræði: SSMD 3 eru \"strong\" áhrif samkvæmt Zhang, og 3 traust sigma eru venjuleg mörk fyrir robust z og B-skorið. ``MEDIAN_POLISH_MAX_ITER`` og ``MEDIAN_POLISH_EPS`` eru sjálfgildi ``medpolish`` í R (10 og 0.01), haldið svo leifarnar samræmist B-skorinu sem cellHTS2 reiknar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: the B-score constants/convergence overview now states the original cellHTS2 settings. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.sp_stats#6",
