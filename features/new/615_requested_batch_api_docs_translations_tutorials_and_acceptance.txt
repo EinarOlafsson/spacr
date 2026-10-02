@@ -499,3 +499,19 @@ The later F552 commit 3d968122d refreshes seven existing Help consumer mappings;
 a narrow source-current follow-up is required before the parent marks the
 Documentation support row complete. Its private backend/source-page delta is
 not represented as part of this earlier full-build snapshot.
+
+2026-10-02 — DOCUMENTATION SOURCE-CURRENT HELP FOLLOW-UP COMPLETE
+
+The normal Help generator now incorporates the seven existing consumer-map
+relationships refreshed by F552 commit 3d968122d: bleaching, three illumination
+settings and three lineage settings. There are no setting-key additions or
+removals; API search entries, preference help, module prose and guide text are
+unchanged. All 25 Help regressions pass, normal generator freshness passes,
+and the current English API source audit still verifies 12,036 symbols.
+
+Together with the immediately preceding full strict-build/guide acceptance,
+this closes support item 615.2 Documentation. The full rendered snapshot stays
+pinned to its exact earlier source hashes; this bounded follow-up does not
+pretend the later private backend source listings were rebuilt or deployed.
+Tutorial media/publication and broad nested-helper rollout remain separate.
+Evidence: features/data/615_documentation_help_delta_2026-10-02.json.
