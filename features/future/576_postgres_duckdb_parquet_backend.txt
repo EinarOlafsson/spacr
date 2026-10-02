@@ -52,6 +52,17 @@ TESTED 2026-09-28
     per-plate count 2.9 s; fetch one well's 99k rows 6.1 s (55.6 s when the
     query adds LIMIT, which DuckDB runs order-preserving). Build 110 s.
 
+WRITER ROUTED 2026-10-02
+    spacr.utils._append_to_measurements_db takes store=; with
+    measurement_backend != sqlite (helper _measurement_store_for) each
+    field's measurement tables and png_list are written to measurements.db
+    (SQLite path, locking and retry unchanged) and then appended to the
+    chosen store through tabular.write_database. The end-of-run copy now
+    only moves tables the store still lacks (confluency, lineage...).
+    (There is no io._save_to_db; the writer is utils._merge_and_save_to_database.)
+    Test: test_the_measurement_writer_feeds_the_chosen_store (duckdb skips
+    when not installed; parquet ran). Still alpha.
+
 LEFT
     measurements.db stays the working store: the measurement writer
     (io._save_to_db and other direct sqlite3 sites), classification and
@@ -61,4 +72,4 @@ LEFT
     A Settings-side migration button (SQLite <-> store) is not built.
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
-    BLOCKED / open: OPEN code over 1 h: route io._save_to_db and classification/regression through the store, per-backend suites, Settings migration button; PostgreSQL suite needs a server.
+    BLOCKED / open: OPEN code over 1 h: route classification/regression (measurement writer done 2026-10-02) through the store, per-backend suites, Settings migration button; PostgreSQL suite needs a server.

@@ -1159,7 +1159,8 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
 
     _append_to_measurements_db(
         f'{source_folder}/measurements/measurements.db', 'png_list', png_df,
-        required=False)
+        required=False, store=_measurement_store_for(
+            f'{source_folder}/measurements/measurements.db', settings))
 
 
 def activation_maps_to_database(img_paths, source_folder, settings):
@@ -2652,7 +2653,7 @@ def _release_imported_rows_once(db_path, table, frame, timelapse=False):
         writer.close()
 
 
-def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folder, file_name, experiment, timelapse=False, stamp=None):
+def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folder, file_name, experiment, timelapse=False, stamp=None, store=None):
         """Merge morphology and intensity DataFrames and append to the measurements SQLite DB.
 
         ``intensity_df`` may be empty: the ``*_organelle_summary`` tables are
@@ -2731,7 +2732,8 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
         if table_type in schema.CANONICAL_OBJECT_TABLES:
             _release_imported_rows_for_field(
                 db_path, table_type, merged_df, timelapse=timelapse)
-        _append_to_measurements_db(db_path, table_type, merged_df)
+        _append_to_measurements_db(db_path, table_type, merged_df,
+                                   store=store)
 
 
 #: How many times a locked measurements.db write is retried before it fails.
@@ -2907,7 +2909,8 @@ def _append_frame(conn, table, frame):
     raise last
 
 
-def _append_to_measurements_db(db_path, table, frame, required=True):
+def _append_to_measurements_db(db_path, table, frame, required=True,
+                               store=None):
     """Append ``frame`` to ``table``, surviving a lock and a widened schema.
 
     This used to be a bare ``except sqlite3.OperationalError: print(...)``,
@@ -2941,6 +2944,9 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
         index, and aborting the field over it would throw away the
         measurements as well, which are the artifact that matters. Measured -
         raising on png_list took the failure rate from 3 in 20 to 8 in 20.
+    :param store: a DuckDB file, Parquet store or PostgreSQL locator that
+        also receives the rows once ``measurements.db`` holds them, through
+        :func:`spacr.tabular.write_database`. ``None`` writes SQLite only.
     :raises sqlite3.OperationalError: when every attempt fails and ``required``.
     """
     delay = 0.2
@@ -2954,7 +2960,7 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
             from .database_schema import migrate_connection
             migrate_connection(conn, path=os.path.abspath(db_path))
             _append_frame(conn, table, frame)
-            return
+            break
         except sqlite3.OperationalError as e:
             if 'locked' not in str(e).lower():
                 print(f"SQLite error writing {table}: {e}")
@@ -2973,6 +2979,42 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
         finally:
             if conn is not None:
                 conn.close()
+    if store is not None:
+        _append_to_measurement_store(store, table, frame, required)
+
+
+def _measurement_store_for(db_path, settings):
+    """The store ``measurement_backend`` names for ``db_path``, or ``None``.
+
+    :param db_path: the run's measurements.db.
+    :param settings: the run settings.
+    :returns: ``None`` for sqlite, else the DuckDB, Parquet or PostgreSQL
+        locator.
+    """
+    backend = str((settings or {}).get('measurement_backend') or 'sqlite')
+    if backend.lower() == 'sqlite':
+        return None
+    from .measure import _measurement_backend_target
+    return _measurement_backend_target(db_path, settings)
+
+
+def _append_to_measurement_store(store, table, frame, required):
+    """Append ``frame`` to ``table`` in a non-SQLite measurement store.
+
+    :param store: the store locator.
+    :param table: destination table name.
+    :param frame: rows to append; column names are kept as written.
+    :param required: re-raise a failed write when True, else report it.
+    """
+    from .tabular import write_database
+    try:
+        write_database(frame, store, table, if_exists='append',
+                       canonicalise=False)
+    except Exception as exc:
+        if required:
+            raise
+        print(f"measurement store: {table} not written ({exc})")
+
 
 def _safe_int_convert(value, default=0):
     """Return the integer ``value`` denotes, otherwise ``default``.

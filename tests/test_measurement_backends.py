@@ -209,3 +209,27 @@ def test_a_missing_driver_says_how_to_install_it(monkeypatch):
     monkeypatch.setitem(sys.modules, "psycopg", None)
     with pytest.raises(ImportError, match=r"spacr\[databases\]"):
         tabular.database_tables("postgresql://")
+
+
+@pytest.mark.parametrize("backend", ["duckdb", "parquet"])
+def test_the_measurement_writer_feeds_the_chosen_store(tmp_path, backend):
+    """A tiny Measure write lands in measurements.db and in the store."""
+    import sqlite3
+    from spacr.utils import _append_to_measurements_db, _measurement_store_for
+    if backend == "duckdb":
+        pytest.importorskip("duckdb")
+    db = str(tmp_path / "measurements" / "measurements.db")
+    os.makedirs(os.path.dirname(db))
+    settings = {"measurement_backend": backend,
+                "measurement_backend_target": ""}
+    store = _measurement_store_for(db, settings)
+    assert _measurement_store_for(db, {"measurement_backend": "sqlite"}) is None
+    frame = pd.DataFrame({"prcfo": ["p1_r1_c1_f1_o1", "p1_r1_c1_f1_o2"],
+                          "cell_area": [10.0, 20.0]})
+    _append_to_measurements_db(db, "cell", frame, store=store)
+    _append_to_measurements_db(db, "cell", frame, store=store)
+    with sqlite3.connect(db) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM cell").fetchone()[0] == 4
+    got = tabular.read_database(store, ["cell"], canonicalise=False)[0]
+    assert len(got) == 4
+    assert sorted(got["cell_area"].tolist()) == [10.0, 10.0, 20.0, 20.0]
