@@ -111,21 +111,25 @@ def test_a_row_keeps_the_object_name_the_theme_styles(dock):
     assert {row.objectName() for row in dock.rows()} == {"SidebarItem"}
 
 
-def test_hovering_names_the_module_for_the_bottom_strip(dock, qtbot):
+def test_hovering_names_the_module_for_the_bottom_strip(dock, qtbot, immediate_hover_help):
+    dock.show()
+    qtbot.waitExposed(dock)
     seen = []
     dock.module_hovered.connect(seen.append)
-    _hover(dock.rows()[1], True)
+    immediate_hover_help(dock.rows()[1], lambda: seen == ["mask"])
     assert seen == ["mask"]
     assert dock.rows()[1].is_hovered()
 
 
-def test_leaving_does_not_clear_the_bottom_strip(dock):
+def test_leaving_does_not_clear_the_bottom_strip(dock, qtbot, immediate_hover_help):
     """The bar keeps its last module for thirty seconds on purpose: a link
     that vanishes when the pointer sets off toward it cannot be clicked."""
+    dock.show()
+    qtbot.waitExposed(dock)
     seen = []
     dock.module_hovered.connect(seen.append)
     row = dock.rows()[1]
-    _hover(row, True)
+    immediate_hover_help(row, lambda: seen == ["mask"])
     _hover(row, False)
     assert seen == ["mask"], "leaving must not emit, or the bar would empty"
     assert not row.is_hovered()

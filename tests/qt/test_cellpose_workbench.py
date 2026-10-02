@@ -441,7 +441,7 @@ def test_the_api_link_follows_the_visible_half(workbench):
 
 
 def test_the_help_the_hover_shows_carries_the_visible_half_s_link(
-        workbench, qtbot):
+        workbench, qtbot, immediate_hover_help):
     """Measured through the popup, which is what the reader actually gets.
 
     The dot could be pointed at the right page and still be the wrong
@@ -459,14 +459,14 @@ def test_the_help_the_hover_shows_carries_the_visible_half_s_link(
     help_label = workbench._header.api_help
     tooltip = HoverTooltip.instance()
 
-    QApplication.sendEvent(help_label, QEvent(QEvent.Type.Enter))
+    immediate_hover_help(help_label, tooltip.isVisible)
     assert tooltip.isVisible()
     assert WORKBENCH_INTRO in tooltip._label.text()
     assert tooltip.api_url() == api_docs_url(TRAIN_KEY)
     QApplication.sendEvent(help_label, QEvent(QEvent.Type.Leave))
 
     workbench._tabs.setCurrentIndex(1)
-    QApplication.sendEvent(help_label, QEvent(QEvent.Type.Enter))
+    immediate_hover_help(help_label, lambda: tooltip.api_url() == api_docs_url(APPLY_KEY))
     assert tooltip.api_url() == api_docs_url(APPLY_KEY)
     QApplication.sendEvent(help_label, QEvent(QEvent.Type.Leave))
 

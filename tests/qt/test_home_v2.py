@@ -1145,11 +1145,12 @@ def test_the_news_surface_is_still_the_reserved_slot(home):
     assert home._news.grip.isHidden()
 
 
-def test_hovering_a_tile_explains_it_in_the_hint_bar(home):
+def test_hovering_a_tile_explains_it_in_the_hint_bar(home, immediate_hover_help):
+    home._tabs.setCurrentIndex(0)
     tile = next(t for t in home.findChildren(AppTile)
-                if t.text_label == "Mask")
+                if t.text_label == "Mask" and t.isVisible())
     desc = next(d for k, _n, d, _s in APPS if k == "mask")
-    home.eventFilter(tile, QEvent(QEvent.Enter))
+    immediate_hover_help(tile, lambda: desc in home._hint_bar.text())
     # CONTAINS rather than equals: the hint bar also carries the module's
     # stage word ("- Stable"), which moved here when the per-tile tooltip
     # was removed. It cannot go back to the tooltip and it cannot be the

@@ -36,9 +36,8 @@ import pytest
 pytest.importorskip("PySide6")
 pytest.importorskip("pytestqt")
 
-from PySide6.QtCore import QPointF, QSettings                     # noqa: E402
-from PySide6.QtGui import QEnterEvent                             # noqa: E402
-from PySide6.QtWidgets import QApplication, QDialogButtonBox      # noqa: E402
+from PySide6.QtCore import QSettings                     # noqa: E402
+from PySide6.QtWidgets import QDialogButtonBox      # noqa: E402
 
 from spacr.qt import preferences as prefs                          # noqa: E402
 from spacr.qt.widgets.hint_bar import HintBar                     # noqa: E402
@@ -174,16 +173,19 @@ def test_a_console_debug_ticked_while_verbose_is_on_is_kept(qtbot, store):
 
 
 def test_the_held_switch_says_why_in_the_strip(qtbot, store,
-                                               qt_theme_applied):
+                                               qt_theme_applied, immediate_hover_help):
     """Point at the disabled switch, as a user does, and read the strip."""
     dialog, _verbose, debug_file, _console = _open(qtbot)
+    tabs = dialog._page_tabs
+    index = next(i for i in range(tabs.count())
+                 if tabs.widget(i).isAncestorOf(debug_file))
+    tabs.setCurrentIndex(index)
     dialog.show()
     qtbot.waitExposed(dialog)
     bar = dialog.findChild(HintBar)
     assert bar is not None
 
-    QApplication.sendEvent(
-        debug_file, QEnterEvent(QPointF(4, 4), QPointF(4, 4), QPointF(4, 4)))
+    immediate_hover_help(debug_file, lambda: "While verbose logging is on" in bar.text())
 
     assert "While verbose logging is on" in bar.text(), bar.text()
     assert "Turn verbose logging off to choose it yourself" in bar.text()

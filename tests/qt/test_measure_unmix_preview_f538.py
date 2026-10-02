@@ -195,10 +195,21 @@ def test_unmixed_display_control_uses_source_bound_locale(qtbot, monkeypatch, la
     from spacr.qt import i18n
 
     root = Path(__file__).resolve().parents[2]
-    evidence = json.loads((root / 'docs/i18n/reviewed/runtime' / language /
-                           '2026-10-01-measure-unmixed-display.json').read_text())
-    records = evidence['records']
-    assert len(records) == 2
+    sources = [
+        "Unmixed display",
+        "Preview spectral unmixing using the run’s single-stain controls. "
+        "This changes only the displayed crops; batch PNG exports and source files are unchanged.",
+    ]
+    active = [record
+              for path in (root / 'docs/i18n/reviewed/runtime' / language).glob('*.json')
+              for record in json.loads(path.read_text())['records']
+              if record['table'] == 'ui' and record['source'] in sources]
+    records = []
+    for source in sources:
+        matches = [record for record in active if record['source'] == source]
+        assert matches, f"No current reviewed target for {source!r}"
+        assert len({record['translation'] for record in matches}) == 1
+        records.append(matches[0])
     for record in records:
         assert record['table'] == 'ui'
         assert record['key'] == record['source']

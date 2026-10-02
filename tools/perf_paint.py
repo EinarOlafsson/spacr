@@ -790,16 +790,32 @@ def measure_pointer_interaction(app_key: str = "mask") -> List[dict]:
             if home._hint_bar.module_key == tile.property("moduleAppKey"):
                 raise RuntimeError("the hover target was already active")
 
+            from spacr.qt.tooltip_policy import _preferred_delay_ms
+
+            delay_ms = _preferred_delay_ms()
+            entered_at = None
+
             def hover():
-                """Deliver a pointer move and require the real hint-bar update."""
+                """Time pointer dispatch without charging the chosen help delay."""
+                nonlocal entered_at
+                entered_at = time.perf_counter()
                 QTest.mouseMove(tile, tile.rect().center(), delay=0)
                 app.processEvents()
-                if home._hint_bar.module_key != tile.property("moduleAppKey"):
-                    raise RuntimeError("Home hover did not update its module hint")
 
             metrics = _observe_activity(app, home, .2, hover)
+            # The content witness follows the configured delay, outside the
+            # paint/input sample. A missing callback must still fail the run.
+            deadline = entered_at + delay_ms / 1000 + 2.0
+            while (home._hint_bar.module_key != tile.property("moduleAppKey")
+                   and time.perf_counter() < deadline):
+                QTest.qWait(10)
+            if home._hint_bar.module_key != tile.property("moduleAppKey"):
+                raise RuntimeError("Home hover did not update its module hint")
+            witness_ms = (time.perf_counter() - entered_at) * 1000
             rows.append({"measurement": "interaction", "action": "hover Home grid",
                          "module": str(tile.property("moduleAppKey")),
+                         "configured_hint_delay_ms": delay_ms,
+                         "hint_witness_elapsed_ms": witness_ms,
                          "repeat": repeat, **metrics, **_surface(home)})
     finally:
         _shut_down(home, app)

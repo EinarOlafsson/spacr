@@ -197,7 +197,7 @@ def test_a_build_without_the_logo_still_has_a_masthead(qtbot, monkeypatch,
 # ---------------------------------------------------------------------------
 
 def test_hovering_something_that_is_not_a_tile_leaves_the_hint_alone(
-        qtbot, _empty_journal):
+        qtbot, _empty_journal, immediate_hover_help):
     """home.py:2003 -- ``if hint:`` False, straight to the base handler.
 
     ``_tile_hints`` is keyed on the tiles the page installed itself on. An
@@ -207,6 +207,9 @@ def test_hovering_something_that_is_not_a_tile_leaves_the_hint_alone(
     page = HomePage(APPS, lambda key: None)
     qtbot.addWidget(page)
 
+    page.resize(1200, 860)
+    page.show()
+    qtbot.waitExposed(page)
     default = page._hint_bar.text()
     stranger = QWidget(page)
 
@@ -214,7 +217,7 @@ def test_hovering_something_that_is_not_a_tile_leaves_the_hint_alone(
     assert page._hint_bar.text() == default
 
     tile = next(iter(page._tile_hints))
-    page.eventFilter(tile, QEvent(QEvent.Enter))
+    immediate_hover_help(tile, lambda: page._hint_bar.text() != default)
     assert page._hint_bar.text() != default
     assert page._hint_bar.text()
 
