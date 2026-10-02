@@ -64,3 +64,55 @@ STATUS 2026-10-01 — paginated LIMS retrieval implemented and verified
     Receipt: features/data/583_pagination_2026-10-01.json.
     Vendor adapters, metadata acquisition, Convert integration and a Qt
     mismatch map remain open; this is partial progress, not whole-item closure.
+
+2026-10-02 — CONVERT-TIME LOCAL CSV LINKAGE (partial)
+    The existing convert_folder settings entry, including spacr-run convert
+    and notebook calls, now accepts an opt-in plate_barcode_source CSV with
+    plate_barcodes explicitly mapping every OUTPUT plate ID to its barcode.
+    plate_barcode_column selects the identifier column. Blank source preserves
+    ordinary conversion. Source plate-folder names are not guessed as barcodes.
+    CSV identifier text such as 00123 is retained without numeric coercion.
+
+    Example: spacr-run convert --set src=/data/raw --set dst=/data/converted
+    --set plate_barcode_source=/data/samples.csv
+    --set 'plate_barcodes={"plate1":"BC001"}'
+    Preview-only mode validates the linkage but writes nothing. Bad local CSV
+    configuration, incomplete output-plate assignments, an existing bundle or
+    an unsafe output path is refused before image conversion writes anything.
+    The destination must be separate from the source tree, and source/user-map
+    inputs must stay outside the destination. Metadata inputs are capped at
+    16 MiB each. This path does not contact a LIMS service.
+
+    After a complete conversion, actual converted/existing mapping rows supply
+    the imported well identities to the same private join used by Measure.
+    A NEW dst/plate_barcode_linkage directory contains plate_map_lims.csv and
+    plate_barcode_mismatches.csv. complete.json is published atomically LAST
+    and binds the input/map/output SHA256 values, explicit barcode assignments,
+    file/well counts and mismatch count. This is a completion-marked bundle,
+    not an atomic directory rename. A consumer must require complete.json.
+    Prior bundles are never overwritten, including late publication collisions.
+    Cancellation or write failure removes only this run's owned bundle files;
+    converted images remain available. Incomplete conversion or changed input
+    metadata produces no successful linkage bundle. Existing profiling_metadata
+    and viability_plate_map files are checked read-only; settings are unchanged.
+
+    The same existing mismatch policy applies: absent/shared barcodes, missing
+    wells, unreadable well IDs, conflicting records and user-map differences
+    are reported. Conflicting records retain the first record with an explicit
+    diagnostic, as Measure already does. A mismatch report is not a claim that
+    the sample identity is biologically verified.
+
+    This closes the CLI/notebook import-time CSV slice only. Convert's custom
+    Qt screen does not yet expose these controls; automatic barcode extraction
+    from acquisition metadata, vendor LIMS adapters and a Qt mismatch view
+    remain open. F583 stays partial/alpha.
+
+    Validation: 67 named CPU checks passed in 6.26 seconds, including a real
+    CLI settings-file conversion, TIFF pixel/source-byte preservation, metadata
+    mismatch reports, leading-zero barcodes, preview/no-opt-in compatibility,
+    malformed input preflight, existing and late bundle collisions, incomplete
+    conversion, input changes, cancellation after a CSV write, final receipt
+    failure cleanup and existing Measure/LIMS pagination behavior. Resource
+    limits: 4 GiB, CPU0, zero swap, hidden CUDA. Public API signatures and
+    docstrings remain unchanged. Receipt:
+    features/data/583_convert_csv_linkage_2026-10-02.json.

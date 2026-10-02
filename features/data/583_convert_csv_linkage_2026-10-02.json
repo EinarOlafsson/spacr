@@ -1,0 +1,59 @@
+{
+  "item": "F583",
+  "date": "2026-10-02",
+  "status": "partial",
+  "source_base": "dbb0494d08cda37367f5a5756b48413e6eca96f8",
+  "scope": "Opt-in CLI/notebook Convert-time local CSV metadata linkage, no GUI/vendor adapter changes",
+  "files": {
+    "spacr/convert.py": "f7527f0bf4462bbe8dce0937aa8483b220a867a54550668c8902c21b1a1f96ce",
+    "spacr/plate_qc.py": "3c721b5e10197a8c9d6dfc9df360171d3ec4d3cf0cc2afedde997f9505bb837b",
+    "tests/test_convert_barcode_f583.py": "9aaa431b4268bc418fd797f2ae30d9072cd3e606dc46f91985bfb1827f5f8cc9"
+  },
+  "validation": {
+    "passed": 67,
+    "failed": 0,
+    "seconds": 6.26,
+    "log": "/tmp/spacr-implementation-20261001/f583-convert-tests.log",
+    "log_sha256": "ccc1da277533c4adf0f123ffacaf6a127c7882c9409cfe3f1af7e89046effc4d",
+    "configured_memory_max_bytes": 4294967296,
+    "configured_memory_swap_max": 0,
+    "cpu_affinity": [
+      0
+    ],
+    "cuda_visible_devices": "",
+    "actual_tiff_conversion": true,
+    "actual_cli_settings_entry": true,
+    "source_images_and_user_maps_unchanged": true,
+    "model_inference": false,
+    "public_signature_or_docstring_delta": false,
+    "new_ui_captions": false
+  },
+  "publication": {
+    "directory": "<dst>/plate_barcode_linkage",
+    "files": [
+      "plate_map_lims.csv",
+      "plate_barcode_mismatches.csv",
+      "complete.json"
+    ],
+    "policy": "Exclusive new directory; completion receipt published atomically last. Never an atomic directory-rename claim. Existing bundles refused; owned partial metadata cleaned after failure/cancellation. Completed image conversion is preserved."
+  },
+  "covered": [
+    "Explicit output plate barcode identities",
+    "Zero-prefixed CSV barcode strings",
+    "Only actually completed imported wells",
+    "Mismatch reporting matching existing Measure policy",
+    "Preflight before any image output",
+    "Source/checkpoint/map output path protection",
+    "Input snapshot changes refused",
+    "No optional network calls",
+    "Preview and disabled defaults unchanged",
+    "Late collisions and failed receipt publication preserve unrelated paths",
+    "Existing Convert/Measure/LIMS regression cohort"
+  ],
+  "remaining": [
+    "Convert custom Qt controls and mismatch view",
+    "Automatic barcode extraction from image/plate-reader metadata",
+    "Vendor-specific LIMS adapters",
+    "Existing whole-item acceptance beyond this slice remains partial"
+  ]
+}

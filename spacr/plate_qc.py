@@ -2019,6 +2019,19 @@ def _link_plate_barcodes(src: str, source: str, *, barcodes: Any = None,
     records = _lims_records(source, list(plate_codes.values()),
                             barcode_column=wanted, token_env=token_env,
                             fetch=fetch)
+    return _link_barcode_wells(imaged, plate_codes, records,
+                               barcode_column=barcode_column,
+                               existing_maps=existing_maps)
+
+
+def _link_barcode_wells(imaged, plate_codes, records, *, barcode_column=None,
+                        existing_maps=()):
+    """Link explicit plate/well rows using the existing Measure mismatch policy.
+
+    ``imaged`` carries plateID and integer _row/_col. Convert supplies its
+    completed import identities directly; Measure discovers merged fields.
+    Input frames and existing user maps are read-only.
+    """
     lower = {str(c).lower(): c for c in records.columns}
     if barcode_column:
         column = barcode_column if barcode_column in records.columns \
