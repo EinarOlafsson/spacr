@@ -398,3 +398,15 @@ subtraction from the prior digest. Receipt:
 features/data/546_example_export_i18n_2026-10-01.json.
 No live deployment, native-language visual review or completed media
 publication is claimed. Later feature changes require their own validation.
+
+2026-10-01 — PREVIEW AND CALCIUM API CONTRACT DELTA
+The public preview-loader and calcium-correction docstrings changed with their
+opt-in feature implementations. Their two API symbol records now describe the
+current contracts in English and all nine supported locales. Fifty-four
+source-bound API blocks received AI technical review; ten obsolete reviewed
+records were retired without deleting their originals. The unchanged strict
+full API audit passed all nine locales and 12,035 symbols. Exact catalog diffs
+show only these two symbol records changed in each locale; the other 12,033
+records per catalog are unchanged. No native-speaker signoff is claimed.
+Receipt: features/data/615_api_two_symbol_delta_2026-10-01.json.
+The aggregate API/documentation/tutorial/publication item remains open.
