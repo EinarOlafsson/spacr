@@ -153,16 +153,16 @@ Skjáborðsforrit
 
 .. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
-   :alt: Sækja spaCR 1.5.1.2 fyrir Windows 10/11
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.2/spaCR-1.5.1.2-Windows-Online-Setup.exe
+   :alt: Sækja spaCR 1.5.1.3 fyrir Windows 10/11
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.3/spaCR-1.5.1.3-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
-   :alt: Sækja spaCR 1.5.1.2 fyrir macOS 11+ (Intel og Apple Silicon)
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.2/spaCR-1.5.1.2-macOS-Universal-Online.pkg
+   :alt: Sækja spaCR 1.5.1.3 fyrir macOS 11+ (Intel og Apple Silicon)
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.3/spaCR-1.5.1.3-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
-   :alt: Sækja spaCR 1.5.1.2 fyrir 64-bita Linux
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.2/spaCR-1.5.1.2-Linux-x86_64-Online.run
+   :alt: Sækja spaCR 1.5.1.3 fyrir 64-bita Linux
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.3/spaCR-1.5.1.3-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: Eldri spaCR-uppsetningarforrit
