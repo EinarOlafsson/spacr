@@ -1,3 +1,0 @@
-image: "docker://ghcr.io/einarolafsson/spacr:1.5.1.1-cpu"
-spacr_run: "spacr-run"
-threads: 1

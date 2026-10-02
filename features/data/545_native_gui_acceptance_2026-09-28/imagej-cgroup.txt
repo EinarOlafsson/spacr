@@ -1,4 +1,0 @@
-cgroup=/user.slice/user-1000.slice/user@1000.service/app.slice/run-rbd3f0f52227e4596aa8056675fbe600f.scope
-memory.max=4294967296
-memory.swap.max=0
-display=:99
