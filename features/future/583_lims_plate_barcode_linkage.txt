@@ -1,6 +1,7 @@
 LIMS / PLATE-BARCODE LINKAGE
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Status: DONE (ALPHA) 2026-10-02. The original CSV import and mismatch
+        criterion passes in both Measure and the Convert screen.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -153,3 +154,25 @@ STATUS 2026-10-01 — paginated LIMS retrieval implemented and verified
     features/data/583_barcode_sidecar_discovery_2026-10-02.json.
     F583 remains partial/alpha for vendor image/plate-reader metadata discovery
     and vendor-specific LIMS adapters; this closes one local input path only.
+
+2026-10-02 — ORIGINAL DONE WHEN ACCEPTED IN THE CONVERT SCREEN
+    A genuine threaded Convert Preview/Convert action imported two small TIFF
+    wells with barcodes from either explicit output-plate assignments or an
+    acquisition-root barcode.txt. It filled the completed plate map from a
+    local sample-records CSV and visibly reported the deliberately mismatched
+    A02 well. Source bytes and converted pixels matched their references;
+    both light and dark GUI cases passed. The mismatch preview and paths to
+    both CSVs are shown in Convert. The existing Measure path still supports
+    local tables and HTTP LIMS retrieval. See
+    features/data/583_threaded_gui_acceptance_2026-10-02.json and
+    features/data/583_convert_csv_linkage_2026-10-02.json.
+
+    Convert's new labels/help have reviewed runtime catalogs in all nine
+    supported locales. Its source-current barcode.txt/CSV guide has four
+    reviewed new messages in each guide locale; strict full-page Sphinx/Furo
+    rendering passes in English and all nine translations without warnings.
+    See features/data/583_convert_runtime_i18n_2026-10-02.json and
+    features/data/583_convert_guide_i18n_2026-10-02.json. This evidence
+    fulfills the original DONE WHEN. Vendor-specific LIMS adapters and
+    acquisition metadata/plate-reader barcode extraction remain optional
+    extensions outside that criterion; no production LIMS write is claimed.
