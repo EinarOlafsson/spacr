@@ -1,13 +1,22 @@
 {
   "lesson": "05_home",
-  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
+    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
+    "date": "2026-10-01",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "new_scene_peer_review": {
+      "indices": [
+        10,
+        11,
+        12
+      ],
+      "reviewer": "Independent Codex AI technical review",
+      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
+    }
   },
   "language": "de",
   "title": "Home-Bildschirm und Navigation",
@@ -29,6 +38,9 @@
     "Um ein Modul auszuprobieren, klicken Sie auf Load test data, sofern vorhanden. Warten Sie, bis der Download abgeschlossen ist, und prüfen Sie dann die ausgefüllten Eingaben und Einstellungen. Klicken Sie in Mask auf Live, um ein Bildfeld zu prüfen, bevor Sie Run drücken. Schalten Sie Time für eine Zeitreihe oder 3D für ein Volumenbild ein.",
     "Geben Sie den Namen eines Moduls, einer Einstellung oder einer Funktion in das Suchfeld neben Help ein. Hier findet die Suche nach Performance die passende Seite in Preferences. Klicken Sie auf ein Ergebnis, um das Ziel zu öffnen. API-Ergebnisse öffnen die Dokumentation der ausgewählten Funktion.",
     "Wählen Sie in Preferences ein Performance-Profil für Ihren Computer. Laptop verbraucht weniger Ressourcen; die höheren Profile erlauben mehr Caching und Hintergrundarbeit. Beginnen Sie mit einem bescheidenen Profil, wenn der Arbeitsspeicher begrenzt ist. Ihre Analyseeinstellungen bleiben in jedem Modul unter Ihrer Kontrolle.",
+    "Öffnen Sie Appearance in Preferences, um die Oberfläche anzupassen. Theme und Animation sind auf dieser Seite einklappbare Bereiche. Klicken Sie auf eine Bereichsüberschrift, um ihre Einstellungen zu öffnen oder wieder einzuklappen.",
+    "Öffnen Sie Theme, um das Oberflächendesign und die Deckkraft der Seiten zu wählen. Im selben Bereich finden Sie die Einstellungen für den Fensterrand, darunter Länge, Ausrichtung und Leuchtmodus.",
+    "Öffnen Sie Animation, um den animierten Hintergrund und seine Farbpalette zu wählen. Passen Sie hier Detailgrad, Unschärfe, Geschwindigkeit, Größe und Dichte an. Sie können auch festlegen, ob Einstellungshinweise animiert werden, und einen Hintergrund für die Einstellungen wählen.",
     "Kehren Sie zu Home zurück und klicken Sie auf Pipeline overviews, um einen Workflow zu wählen. Beginnen Sie mit spaCR screens für einen gepoolten bildbasierten Screen, oder wählen Sie einen Bildanalyse- oder Sequenzierpfad für Ihre Daten. Die nächsten Tutorials zeigen, wie diese Module zusammenhängen, und die Modul-Lektionen führen anschließend durch jede Aufgabe."
   ]
 }

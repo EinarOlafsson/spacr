@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "feature": "N601 Home Appearance tutorial scene translations",
+  "date": "2026-10-01",
+  "status": "partial",
+  "english_canonical_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
+  "languages": {
+    "da": {
+      "sha256": "c9f000da7c0bb00db67654cd949e89ac78c4d966d39529d51b793f5f176a1332",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "de": {
+      "sha256": "4ebf1c2213392bb7733d3dc3084aaecb12bab7f5edac818d395dba9c349b8cb1",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "es": {
+      "sha256": "3e1f4664cd03af49831532cad22f0f24fd81d79cf403e23ee9b9b2bd114a4124",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "fr": {
+      "sha256": "86712e7a8111e7d7a143ddcb168557756f529689d65e80456c5a57c47598d2bf",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "hi": {
+      "sha256": "369f72cd9f12d97690746e41d6dfe7b301fc17e4316760c2778668e45a547803",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "is": {
+      "sha256": "38a7de52a9519e5a174dcc92998ad2233aef067e56f3aab81bdfd6bc7e063cd4",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "it": {
+      "sha256": "89c20eaa263ab0b19813680ccc8a14e5fa1585fa54846778362a16e85647220f",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "ja": {
+      "sha256": "f9ff936b4691e4692bae6db675b0cce6a2c174d1d3d37874886bbe53a359578b",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "ko": {
+      "sha256": "6e2159d3cf00c6190d96048594c859e7f42833fd56861cdc01499bef74cdf663",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "nb": {
+      "sha256": "60b63ea10f8444b719a1252592c426865dfc4c1cb72d9d069d3efded3c0e4854",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "pt-BR": {
+      "sha256": "64fca87f9909f513022b0a1c787ea9894e98a1dad46bfef62cb0809b5525a9c5",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "sv": {
+      "sha256": "80649c9c36223d89f1e8f1c97d218739fc510957eabcfe71507fc01e70055383",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    },
+    "zh-CN": {
+      "sha256": "4e2a47c5aaa096b99fbe5a5ae95342eb07efb4a47f9f8248c5e0fcea096ee5d2",
+      "new_scenes": 3,
+      "retained_scenes_unchanged": 11,
+      "source_hash_matches": true
+    }
+  },
+  "validation": {
+    "languages": 13,
+    "new_scene_pairs": 39,
+    "existing_scene_text_changes": 0,
+    "corrections": {
+      "nb scene 11": "opacity, not transparency"
+    },
+    "peer_review": "Independent AI technical review of scenes 10-12 only; no native-speaker or listening signoff",
+    "structural_result": "13 source-bound 14-scene records, 11 prior scene strings retained each"
+  },
+  "limits": [
+    "Narration audio not synthesized",
+    "No caption synchronization or player validation",
+    "No paired media/catalog publication",
+    "Platform-installer consumer review pending"
+  ]
+}

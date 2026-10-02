@@ -1,13 +1,22 @@
 {
   "lesson": "05_home",
-  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
+    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
+    "date": "2026-10-01",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "new_scene_peer_review": {
+      "indices": [
+        10,
+        11,
+        12
+      ],
+      "reviewer": "Independent Codex AI technical review",
+      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
+    }
   },
   "language": "zh-CN",
   "title": "Home界面与导航",
@@ -29,6 +38,9 @@
     "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开3D。",
     "在Help旁边的搜索框中输入模块、设置或函数的名称。这里搜索Performance会找到对应的Preferences页面。点击结果即可打开相应位置。API结果会打开所选函数的文档。",
     "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
+    "在 Preferences 中打开 Appearance，调整界面外观。Theme 和 Animation 是此页面上可折叠的分区。点击分区标题即可展开控件或再次折叠。",
+    "打开 Theme，选择界面主题和页面不透明度。同一分区还包含窗口边框控件，包括长度、对齐方式和发光模式。",
+    "打开 Animation，选择动态背景及其配色。可在此调整细节、模糊程度、速度、大小和密度。还可以选择是否为设置提示添加动画，并选择设置页面的背景。",
     "回到Home，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从spaCR screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。"
   ]
 }

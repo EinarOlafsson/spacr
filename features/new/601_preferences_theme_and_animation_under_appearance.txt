@@ -126,3 +126,16 @@ and paired media/catalog publication. Existing Classify alpha-marked group
 headings (despite Show alpha features off) and clipped empty-source helper
 text were preserved honestly and must be considered before publication.
 Platform-installer consumers also need current-master review.
+
+2026-10-01 — SOURCE-BOUND APPEARANCE SCENE TRANSLATIONS (partial item)
+The current fourteen-scene Home authoring lesson now has source-bound review
+records for all thirteen tutorial languages. The three new Appearance,
+Theme and Animation scene narrations were translated and independently
+AI technically reviewed; a Norwegian wording error that called opacity
+"transparency" was corrected before staging. All eleven previously translated
+scenes, titles, objectives and prerequisites retain their prior wording.
+The reviews bind to the canonical current English lesson hash and preserve
+English control labels against the captured UI. This is source text only:
+no synthesized narration, listening review, completed captions, player check
+or paired media/catalog publication is claimed. Native-speaker signoff is
+also not claimed. Receipt: features/data/601_appearance_translations_2026-10-01.json.

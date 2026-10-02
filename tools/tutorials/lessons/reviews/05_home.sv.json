@@ -1,13 +1,22 @@
 {
   "lesson": "05_home",
-  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
+    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
+    "date": "2026-10-01",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "new_scene_peer_review": {
+      "indices": [
+        10,
+        11,
+        12
+      ],
+      "reviewer": "Independent Codex AI technical review",
+      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
+    }
   },
   "language": "sv",
   "title": "Home-skärmen och navigering",
@@ -29,6 +38,9 @@
     "För att prova en modul klickar du på Load test data när det finns. Vänta tills nedladdningen är klar och granska sedan de ifyllda indata och inställningarna. I Mask klickar du på Live för att granska ett synfält innan du trycker på Run. Slå på Time för en tidsserie eller 3D för en volymbild.",
     "Skriv namnet på en modul, en inställning eller en funktion i sökfältet bredvid Help. Här hittar en sökning på Performance motsvarande sida i Preferences. Klicka på ett resultat för att öppna dess mål. API-resultat öppnar dokumentationen för den valda funktionen.",
     "I Preferences väljer du en Performance-profil för din dator. Laptop använder mindre resurser; de högre profilerna tillåter mer cachning och bakgrundsarbete. Börja med en måttlig profil om minnet är begränsat. Dina analysinställningar förblir under din kontroll i varje modul.",
+    "Öppna Appearance i Preferences för att anpassa gränssnittet. Theme och Animation är utfällbara avsnitt på den här sidan. Klicka på en avsnittsrubrik för att öppna dess kontroller eller fälla ihop dem igen.",
+    "Öppna Theme för att välja gränssnittstema och sidornas opacitet. Samma avsnitt innehåller kontroller för fönsterkanten, bland annat längd, justering och glödläge.",
+    "Öppna Animation för att välja den animerade bakgrunden och dess färgpalett. Justera detaljnivå, oskärpa, hastighet, storlek och täthet här. Du kan också välja om inställningarnas verktygstips ska animeras och välja en bakgrund för inställningarna.",
     "Gå tillbaka till Home och klicka på Pipeline overviews för att välja ett arbetsflöde. Börja med spaCR screens för en poolad bildbaserad screening, eller välj en väg för bildanalys eller sekvensering för dina data. Nästa handledningar visar hur modulerna hänger ihop, och modullektionerna går sedan igenom varje uppgift."
   ]
 }
