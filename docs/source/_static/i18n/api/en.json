@@ -89564,12 +89564,12 @@
     },
     "spacr.qt.widgets.live_preview.load_preview_image": {
       "source_blocks_sha256": [
-        "50f26af3bfadc28625bf5dfffa9ab67c8ec657c07ea29f02505a75aa67587ba9",
-        "678a9a7b07a4756b73a45aa89a3f70bdfa578df20ecc9c66ec73d92ea55de3b6",
-        "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3"
+        "4dd0dd18ae912ee6a28b586176283a031a7b577c58d78d7c5562120c447d346a",
+        "a41631004f919cb477bc21ba4078d0379b902ec2061d7dafdb90837fde29db81",
+        "2bbb0e62ebddaff8a2485199e427b65298b65bd8db902854bee5812d3a73f318"
       ],
-      "source_sha256": "d8f88a7d4d830fac7bc4fcf67bfd36b8c02abef237d89ecbb3444569a0a1da09",
-      "text": "Read *path* into an (H, W) or (H, W, C) uint8/uint16 array.\n\nTifffile is used for TIFFs to preserve bit-depth; other formats fall\nback to PIL. Raises :class:`FileNotFoundError` if the path is bad.\n\n:param path: image file path (``str`` or :class:`~pathlib.Path`); a\n    ``.tif``/``.tiff`` suffix, in any case, selects tifffile."
+      "source_sha256": "1c0aaea16fdeddc375b470913f7575b6268503124a9d1e5a1eec1f6f05821f9e",
+      "text": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array.\n\nTifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy``\nstacks are memory mapped without loading pickled objects. Raises\n:class:`FileNotFoundError` if the path is bad.\n\n:param path: image file path (``str`` or :class:`~pathlib.Path`);\n    ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy."
     },
     "spacr.qt.widgets.live_preview.load_preview_mip": {
       "source_blocks_sha256": [
@@ -114969,10 +114969,12 @@
         "9efef7ab1f325638a697c0c3a95df4f9bdd4fc5e3d5e285fe6e672b126c442df",
         "1b7aa69fffd4d664559a6952773c6ee0972ec58e04b4b66bc385265ae47b5664",
         "b2898ce7229c9036cae8697eedb9b7a2074bf84090b24de061dd341fd82a0757",
-        "c739181fa0e801f5c4f677d5977553cf8189fe9b86e4627d2896d46117d72a65"
+        "7bab1ec425722eed4dcb6d85016ffdf2972b8cd521e9b8bcec449dc3fcb66c47",
+        "dd5af1c9a3f498adbf1671019be464b1f7648645c84f140cde311ed7168c0284",
+        "9a01bb3ec604c1d82af88984f6631a13931cd5de8c2791b21ad83445fe95a3ed"
       ],
-      "source_sha256": "22f08c4236005c2d47e0195630ad65420d3ee21638a2fa6e35875a22b34836b0",
-      "text": "Detect and summarise per-cell calcium oscillation peaks from a measurements DB.\n\nLoads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables,\nfilters transient tracks, detects peaks on the chosen intensity trace,\nand writes the per-peak, per-cell and per-well tables to CSV in a\n``results`` folder beside the database.\n\n:param db_loc: path to the measurements SQLite database.\n:param measurement: intensity column analysed for oscillations.\n:param size_filter: object-size column used for gating.\n:param fluctuation_threshold: maximum coefficient of variation\n    (std / mean) of ``size_filter`` within a track; more variable tracks\n    are dropped.\n:param num_lines: cap on the number of traces to plot; plots all when ``None``.\n:param peak_height: minimum absolute peak height, passed to\n    ``scipy.find_peaks(height=...)`` on the delta trace.\n:param pathogen: optional pathogen table name to join for infection status.\n:param cytoplasm: optional cytoplasm table name to join.\n:param remove_transient: drop tracks shorter than the transience threshold.\n:param verbose: print diagnostic information.\n:param transience_threshold: fraction of timepoints a track must span to be retained.\n:returns: tuple ``(result_df, peak_details_df, fig)`` -- the\n    photobleach-corrected per-cell traces, the per-peak details and the\n    summary matplotlib Figure. The per-well summaries are only written to\n    CSV. Returns ``None`` when the database has no time axis, the decay\n    fit fails, or no cells pass the filters."
+      "source_sha256": "d6d34a0c099de83c212db320209141497fae36a6c48379c6ec9c8858df7fa63d",
+      "text": "Detect and summarise per-cell calcium oscillation peaks from a measurements DB.\n\nLoads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables,\nfilters transient tracks, detects peaks on the chosen intensity trace,\nand writes the per-peak, per-cell and per-well tables to CSV in a\n``results`` folder beside the database.\n\n:param db_loc: path to the measurements SQLite database.\n:param measurement: intensity column analysed for oscillations.\n:param size_filter: object-size column used for gating.\n:param fluctuation_threshold: maximum coefficient of variation\n    (std / mean) of ``size_filter`` within a track; more variable tracks\n    are dropped.\n:param num_lines: cap on the number of traces to plot; plots all when ``None``.\n:param peak_height: minimum absolute peak height, passed to\n    ``scipy.find_peaks(height=...)`` on the delta trace.\n:param pathogen: optional pathogen table name to join for infection status.\n:param cytoplasm: optional cytoplasm table name to join.\n:param remove_transient: drop tracks shorter than the transience threshold.\n:param verbose: print diagnostic information.\n:param transience_threshold: fraction of timepoints a track must span to be retained.\n:param bleach_correction: ``legacy`` preserves the original global decay\n    fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's\n    per-field correction once on the original table. Raw intensities remain\n    unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected\n    levels. ``corrected_<measurement>`` is dimensionless: corrected signal\n    above the measured outside ring divided by that field's positive,\n    finite initial median signal. Integrated levels subtract ring times\n    area. Missing background or an invalid initial baseline remains NaN;\n    missing intervals are not bridged for peak detection. The actual method,\n    background and baseline accompany traces; ``bleach_correction_fits.csv``\n    records field fits. Histogram matching can erase population changes.\n:returns: tuple ``(result_df, peak_details_df, fig)`` -- the\n    photobleach-corrected per-cell traces, the per-peak details and the\n    summary matplotlib Figure. The per-well summaries are only written to\n    CSV. Returns ``None`` when the database has no time axis, the decay\n    legacy fit fails, or no cells pass the filters.\n:raises ValueError: an unknown correction method, an unsupported intensity\n    column for an explicit shared method, or ambiguous field/time/object\n    identities."
     },
     "spacr.timelapse.automated_motility_assay": {
       "source_blocks_sha256": [

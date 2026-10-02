@@ -143080,16 +143080,16 @@
     },
     "spacr.qt.widgets.live_preview.load_preview_image": {
       "source_blocks_sha256": [
-        "50f26af3bfadc28625bf5dfffa9ab67c8ec657c07ea29f02505a75aa67587ba9",
-        "678a9a7b07a4756b73a45aa89a3f70bdfa578df20ecc9c66ec73d92ea55de3b6",
-        "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3"
+        "4dd0dd18ae912ee6a28b586176283a031a7b577c58d78d7c5562120c447d346a",
+        "a41631004f919cb477bc21ba4078d0379b902ec2061d7dafdb90837fde29db81",
+        "2bbb0e62ebddaff8a2485199e427b65298b65bd8db902854bee5812d3a73f318"
       ],
-      "source_sha256": "d8f88a7d4d830fac7bc4fcf67bfd36b8c02abef237d89ecbb3444569a0a1da09",
-      "text": "Lire *path* dans un tableau (H, W) ou (H, W, C) uint8/uint16.\n\nTifffile est utilisé pour TIFFs pour préserver bit-profondeur; d'autres formats reviennent à PIL. Lance :class:`FileNotFoundError` si le chemin est mauvais.\n\n:param path: chemin du fichier image (``str`` ou :class:`~pathlib.Path`) ; un suffixe ``.tif``/``.tiff``, quelle que soit sa casse, sélectionne tifffile.",
+      "source_sha256": "1c0aaea16fdeddc375b470913f7575b6268503124a9d1e5a1eec1f6f05821f9e",
+      "text": "Lit *path* dans un tableau numérique non vide de forme (H, W) ou (H, W, C).\n\nTifffile préserve la profondeur de bits des TIFF ; PNG/JPEG utilisent PIL. Les piles NumPy ``.npy`` sont mappées en mémoire sans charger d’objets sérialisés avec pickle. Lève :class:`FileNotFoundError` si le chemin est invalide.\n\n:param path: chemin du fichier image (``str`` ou :class:`~pathlib.Path`) ; ``.tif``/``.tiff`` sélectionne tifffile et ``.npy`` sélectionne NumPy.",
       "translation_source_blocks_sha256": [
-        "50f26af3bfadc28625bf5dfffa9ab67c8ec657c07ea29f02505a75aa67587ba9",
-        "d1242d09306d4a5a53e5ab9886c8f3c5918bfdce4487f8d006491443992620b2",
-        "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3"
+        "4dd0dd18ae912ee6a28b586176283a031a7b577c58d78d7c5562120c447d346a",
+        "ac8d7f351dea4e2601e8a085a45377c8889683f20d2e42869dbf0761c3be6495",
+        "2bbb0e62ebddaff8a2485199e427b65298b65bd8db902854bee5812d3a73f318"
       ]
     },
     "spacr.qt.widgets.live_preview.load_preview_mip": {
@@ -183713,10 +183713,12 @@
         "9efef7ab1f325638a697c0c3a95df4f9bdd4fc5e3d5e285fe6e672b126c442df",
         "1b7aa69fffd4d664559a6952773c6ee0972ec58e04b4b66bc385265ae47b5664",
         "b2898ce7229c9036cae8697eedb9b7a2074bf84090b24de061dd341fd82a0757",
-        "c739181fa0e801f5c4f677d5977553cf8189fe9b86e4627d2896d46117d72a65"
+        "7bab1ec425722eed4dcb6d85016ffdf2972b8cd521e9b8bcec449dc3fcb66c47",
+        "dd5af1c9a3f498adbf1671019be464b1f7648645c84f140cde311ed7168c0284",
+        "9a01bb3ec604c1d82af88984f6631a13931cd5de8c2791b21ad83445fe95a3ed"
       ],
-      "source_sha256": "22f08c4236005c2d47e0195630ad65420d3ee21638a2fa6e35875a22b34836b0",
-      "text": "Détecter et résumer les pics d'oscillation du calcium par cellule à partir d'une mesure DB.\n\nCharge les tables ``cell`` (et éventuellement ``pathogen``/``cytoplasm``), filtre les traces transitoires, détecte les pics sur la trace d'intensité choisie et écrit les tables de position d'échantillon par crête, par cellule et par microplaque dans CSV dans un dossier ``results`` à côté de la base de données.\n\n:param db_loc: chemin vers la base de données SQLite.\n:param measurement: colonne d'intensité analysée pour les oscillations.\n:param size_filter: colonne de taille d'objet utilisée pour le filtrage de sélection de données.\n:param fluctuation_threshold: coefficient maximal de variation (std / moyenne) de ``size_filter`` dans une piste; plus de pistes variables sont abandonnées.\n:param num_lines: le nombre de traces à tracer; les parcelles toutes quand ``None``.\n:param peak_height: hauteur minimale absolue de crête, passée à ``scipy.find_peaks(height=...)`` sur la trace delta.\n:param pathogen: nom de table de pathogène optionnel pour joindre pour l'état de l'infection.\n:param cytoplasm: nom optionnel de table cytoplasmique à joindre.\n:param remove_transient: Des pistes plus courtes que le seuil de transience.\n:param verbose: imprimer des informations diagnostiques.\n:param transience_threshold: fraction des temps d'exécution d'une voie doit être conservée.\n:returns: tuple ``(result_df, peak_details_df, fig)`` -- les traces par cellule corrigées par photobleach, les détails par pic et le résumé matplotlib Figure. Les résumés de la position de l'échantillon par microplaque ne sont écrits qu'à CSV. Retourne ``None`` lorsque la base de données n'a pas d'axe temporel, que la désintégration échoue ou qu'aucune cellule ne passe les filtres.",
+      "source_sha256": "d6d34a0c099de83c212db320209141497fae36a6c48379c6ec9c8858df7fa63d",
+      "text": "Détecter et résumer les pics d'oscillation du calcium par cellule à partir d'une mesure DB.\n\nCharge les tables ``cell`` (et éventuellement ``pathogen``/``cytoplasm``), filtre les traces transitoires, détecte les pics sur la trace d'intensité choisie et écrit les tables de position d'échantillon par crête, par cellule et par microplaque dans CSV dans un dossier ``results`` à côté de la base de données.\n\n:param db_loc: chemin vers la base de données SQLite.\n:param measurement: colonne d'intensité analysée pour les oscillations.\n:param size_filter: colonne de taille d'objet utilisée pour le filtrage de sélection de données.\n:param fluctuation_threshold: coefficient maximal de variation (std / moyenne) de ``size_filter`` dans une piste; plus de pistes variables sont abandonnées.\n:param num_lines: le nombre de traces à tracer; les parcelles toutes quand ``None``.\n:param peak_height: hauteur minimale absolue de crête, passée à ``scipy.find_peaks(height=...)`` sur la trace delta.\n:param pathogen: nom de table de pathogène optionnel pour joindre pour l'état de l'infection.\n:param cytoplasm: nom optionnel de table cytoplasmique à joindre.\n:param remove_transient: Des pistes plus courtes que le seuil de transience.\n:param verbose: imprimer des informations diagnostiques.\n:param transience_threshold: fraction des temps d'exécution d'une voie doit être conservée.\n:param bleach_correction: ``legacy`` conserve l’ajustement global initial de la décroissance. Le choix explicite de ``ratio``, ``exponential`` ou ``histogram`` applique une seule fois à la table d’origine la correction par champ de Measure. Les intensités brutes restent inchangées ; ``bleach_corrected_<measurement>`` stocke les niveaux absolus corrigés. ``corrected_<measurement>`` est sans dimension : le signal corrigé au-dessus de l’anneau extérieur mesuré est divisé par la médiane initiale positive et finie du signal de ce champ. Pour les niveaux intégrés, l’intensité de l’anneau multipliée par l’aire est soustraite. Un fond manquant ou une référence initiale invalide donne NaN ; les intervalles manquants ne sont pas raccordés pour la détection des pics. La méthode effectivement utilisée, le fond et la référence accompagnent les traces ; ``bleach_correction_fits.csv`` enregistre les ajustements par champ. La correspondance des histogrammes peut effacer des changements dans la population.\n:returns: uplet ``(result_df, peak_details_df, fig)`` -- les traces par cellule corrigées du photoblanchiment, les détails par pic et la Figure récapitulative de matplotlib. Les résumés par puits sont uniquement écrits en CSV. Renvoie ``None`` lorsque la base de données n’a pas d’axe temporel, que l’ajustement initial de décroissance du mode legacy échoue ou qu’aucune cellule ne passe les filtres.\n:raises ValueError: une méthode de correction inconnue, une colonne d’intensité non prise en charge par une méthode partagée explicitement choisie, ou des identités de champ/temps/objet ambiguës.",
       "translation_source_blocks_sha256": [
         "652af507f29d1bfb2d772bed80ca94f5bd4bafed3299f86b19d7a542dc8c4eda",
         "b8829c767c238faf9f53b2208a23ad1409ca0a70b785ee26b241b2ce853ec2ea",
@@ -183731,7 +183733,9 @@
         "9efef7ab1f325638a697c0c3a95df4f9bdd4fc5e3d5e285fe6e672b126c442df",
         "1b7aa69fffd4d664559a6952773c6ee0972ec58e04b4b66bc385265ae47b5664",
         "b2898ce7229c9036cae8697eedb9b7a2074bf84090b24de061dd341fd82a0757",
-        "08e94e781889a17a4bf83a4e95fb97d2059297d89dd7d1ab5fd2cefe9146d358"
+        "7bab1ec425722eed4dcb6d85016ffdf2972b8cd521e9b8bcec449dc3fcb66c47",
+        "81a72d1b1b3fc106da77e0cf818b0ea72f4231b0b66ddd9017bda15aed814ba4",
+        "d8404f40648c929f6fd6f4c3f5703ed0997dc98627b14ca477e053ce08f30ad8"
       ]
     },
     "spacr.timelapse.automated_motility_assay": {

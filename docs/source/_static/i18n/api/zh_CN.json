@@ -143081,16 +143081,16 @@
     },
     "spacr.qt.widgets.live_preview.load_preview_image": {
       "source_blocks_sha256": [
-        "50f26af3bfadc28625bf5dfffa9ab67c8ec657c07ea29f02505a75aa67587ba9",
-        "678a9a7b07a4756b73a45aa89a3f70bdfa578df20ecc9c66ec73d92ea55de3b6",
-        "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3"
+        "4dd0dd18ae912ee6a28b586176283a031a7b577c58d78d7c5562120c447d346a",
+        "a41631004f919cb477bc21ba4078d0379b902ec2061d7dafdb90837fde29db81",
+        "2bbb0e62ebddaff8a2485199e427b65298b65bd8db902854bee5812d3a73f318"
       ],
-      "source_sha256": "d8f88a7d4d830fac7bc4fcf67bfd36b8c02abef237d89ecbb3444569a0a1da09",
-      "text": "阅读 *path* 在一个(H、W)或(H,W、C) uint8/uint16 序列。\n\nTifffile 用于 TIFFs 保存比特深度;其他格式返回 PIL. 通过 :class:`FileNotFoundError` 如果路径不好。\n\n:param path: 图像文件路径（``str`` 或 :class:`~pathlib.Path`）；``.tif``/``.tiff`` 后缀（不区分大小写）会选用 tifffile。",
+      "source_sha256": "1c0aaea16fdeddc375b470913f7575b6268503124a9d1e5a1eec1f6f05821f9e",
+      "text": "将 *path* 读取为非空的数值数组，形状为 (H, W) 或 (H, W, C)。\n\nTifffile 保留 TIFF 位深；PNG/JPEG 使用 PIL。NumPy ``.npy`` 堆栈通过内存映射读取，不加载用 pickle 序列化的对象。如果路径无效，则引发 :class:`FileNotFoundError`。\n\n:param path: 图像文件路径（``str`` 或 :class:`~pathlib.Path`）；``.tif``/``.tiff`` 选择 tifffile，``.npy`` 选择 NumPy。",
       "translation_source_blocks_sha256": [
-        "50f26af3bfadc28625bf5dfffa9ab67c8ec657c07ea29f02505a75aa67587ba9",
-        "d1242d09306d4a5a53e5ab9886c8f3c5918bfdce4487f8d006491443992620b2",
-        "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3"
+        "4dd0dd18ae912ee6a28b586176283a031a7b577c58d78d7c5562120c447d346a",
+        "ac8d7f351dea4e2601e8a085a45377c8889683f20d2e42869dbf0761c3be6495",
+        "2bbb0e62ebddaff8a2485199e427b65298b65bd8db902854bee5812d3a73f318"
       ]
     },
     "spacr.qt.widgets.live_preview.load_preview_mip": {
@@ -183714,10 +183714,12 @@
         "9efef7ab1f325638a697c0c3a95df4f9bdd4fc5e3d5e285fe6e672b126c442df",
         "1b7aa69fffd4d664559a6952773c6ee0972ec58e04b4b66bc385265ae47b5664",
         "b2898ce7229c9036cae8697eedb9b7a2074bf84090b24de061dd341fd82a0757",
-        "c739181fa0e801f5c4f677d5977553cf8189fe9b86e4627d2896d46117d72a65"
+        "7bab1ec425722eed4dcb6d85016ffdf2972b8cd521e9b8bcec449dc3fcb66c47",
+        "dd5af1c9a3f498adbf1671019be464b1f7648645c84f140cde311ed7168c0284",
+        "9a01bb3ec604c1d82af88984f6631a13931cd5de8c2791b21ad83445fe95a3ed"
       ],
-      "source_sha256": "22f08c4236005c2d47e0195630ad65420d3ee21638a2fa6e35875a22b34836b0",
-      "text": "检测和总结从一个测量DB的每细胞钙振动峰。\n\n加载 ``cell``(可选为 ``pathogen``/``cytoplasm``) 表,过滤过渡轨道,检测所选择的强度轨道的顶峰,并在数据库旁边的 ``results`` 文件夹中写下每顶、每细胞和每微板样本位置表到 CSV。\n\n:param db_loc: 路径到测量数据库 SQLite。\n:param measurement: 强度列分析为波动。\n:param size_filter: 用于数据选择过滤的对象大小列。\n:param fluctuation_threshold: 最多波动率(std / 中)为 ``size_filter`` 在一条轨道内;更多变量轨道被推翻。\n:param num_lines: 将列表列入列表中的列表数量;列出所有时 ``None``。\n:param peak_height: 最低绝对峰高,在德尔塔轨道上转到 ``scipy.find_peaks(height=...)``。\n:param pathogen: 可选的病原体表名称加入感染状态。\n:param cytoplasm: 可选的细胞膜表名称加入。\n:param remove_transient: 降落轨道比过渡边界更短。\n:param verbose: 印刷诊断信息。\n:param transience_threshold: 时间点的分数,一个轨道必须保持。\n:returns: tuple ``(result_df, peak_details_df, fig)`` -- photobleach 修正的每细胞轨道,每点细节和概述 matplotlib 图. 每微型样品位置总结仅写为 CSV. 返回 ``None`` 当数据库没有时间轴,故障匹配失败,或没有细胞通过过滤器时。",
+      "source_sha256": "d6d34a0c099de83c212db320209141497fae36a6c48379c6ec9c8858df7fa63d",
+      "text": "检测和总结从一个测量DB的每细胞钙振动峰。\n\n加载 ``cell``(可选为 ``pathogen``/``cytoplasm``) 表,过滤过渡轨道,检测所选择的强度轨道的顶峰,并在数据库旁边的 ``results`` 文件夹中写下每顶、每细胞和每微板样本位置表到 CSV。\n\n:param db_loc: 路径到测量数据库 SQLite。\n:param measurement: 强度列分析为波动。\n:param size_filter: 用于数据选择过滤的对象大小列。\n:param fluctuation_threshold: 最多波动率(std / 中)为 ``size_filter`` 在一条轨道内;更多变量轨道被推翻。\n:param num_lines: 将列表列入列表中的列表数量;列出所有时 ``None``。\n:param peak_height: 最低绝对峰高,在德尔塔轨道上转到 ``scipy.find_peaks(height=...)``。\n:param pathogen: 可选的病原体表名称加入感染状态。\n:param cytoplasm: 可选的细胞膜表名称加入。\n:param remove_transient: 降落轨道比过渡边界更短。\n:param verbose: 印刷诊断信息。\n:param transience_threshold: 时间点的分数,一个轨道必须保持。\n:param bleach_correction: ``legacy`` 保留原始的全局衰减拟合。显式选择 ``ratio``、``exponential`` 或 ``histogram`` 时，会对原始表执行一次 Measure 的逐视野校正。原始强度保持不变；``bleach_corrected_<measurement>`` 存储校正后的绝对值。``corrected_<measurement>`` 无量纲：将高于所测外环的校正信号，除以该视野为正且有限的初始信号中位数。积分值减去外环强度与面积的乘积。背景缺失或初始基线无效时，结果仍为 NaN；检测峰值时不会跨越缺失区间进行连接。实际使用的方法、背景和基线与时间曲线一同提供；``bleach_correction_fits.csv`` 记录各视野的拟合。直方图匹配可能抹去群体变化。\n:returns: 元组 ``(result_df, peak_details_df, fig)`` -- 经光漂白校正的逐细胞时间曲线、逐峰详情，以及 matplotlib 汇总 Figure。逐孔汇总仅写入 CSV。当数据库没有时间轴、legacy 模式的原始衰减拟合失败或没有细胞通过筛选时，返回 ``None``。\n:raises ValueError: 未知的校正方法、显式选择共享方法时不受支持的强度列，或存在歧义的视野/时间/对象标识。",
       "translation_source_blocks_sha256": [
         "652af507f29d1bfb2d772bed80ca94f5bd4bafed3299f86b19d7a542dc8c4eda",
         "b8829c767c238faf9f53b2208a23ad1409ca0a70b785ee26b241b2ce853ec2ea",
@@ -183732,7 +183734,9 @@
         "9efef7ab1f325638a697c0c3a95df4f9bdd4fc5e3d5e285fe6e672b126c442df",
         "1b7aa69fffd4d664559a6952773c6ee0972ec58e04b4b66bc385265ae47b5664",
         "b2898ce7229c9036cae8697eedb9b7a2074bf84090b24de061dd341fd82a0757",
-        "08e94e781889a17a4bf83a4e95fb97d2059297d89dd7d1ab5fd2cefe9146d358"
+        "7bab1ec425722eed4dcb6d85016ffdf2972b8cd521e9b8bcec449dc3fcb66c47",
+        "81a72d1b1b3fc106da77e0cf818b0ea72f4231b0b66ddd9017bda15aed814ba4",
+        "d8404f40648c929f6fd6f4c3f5703ed0997dc98627b14ca477e053ce08f30ad8"
       ]
     },
     "spacr.timelapse.automated_motility_assay": {

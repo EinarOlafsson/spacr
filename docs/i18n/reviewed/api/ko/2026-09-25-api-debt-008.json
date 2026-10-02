@@ -4661,7 +4661,9 @@
       "source_sha256": "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3",
       "context": "image file path (``str`` or :class:`~pathlib.Path`); a ``.tif``/``.tiff`` suffix, in any case, selects tifffile.",
       "translation": "이미지 파일 경로(``str`` 또는 :class:`~pathlib.Path`)입니다. 대소문자와 관계없이 ``.tif``/``.tiff`` 확장자이면 tifffile 을 사용합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: preview loading and calcium-analysis contracts changed. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.qt.widgets.live_preview.load_preview_mip#2",
