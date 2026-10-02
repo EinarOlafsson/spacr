@@ -216,3 +216,18 @@ turning alpha back on restores choices without duplicates.
 Validation: 33 focused alpha/uncertainty checks passed.
 Remaining: GPU and volumetric StarDist acceptance and translated catalogue
 refresh. This UI improvement does not close those scientific/runtime gaps.
+
+2026-10-02 — FRESH 2-D CPU CHECK, PARTIAL
+The current isolated installer completed in 41.4 s on Python 3.13.14 and
+loaded StarDist 0.9.2 with TensorFlow 2.21.0 on CPU. The official StarDist
+package's 512×512 nuclei example includes an independently annotated mask
+with 125 objects. Through spaCR's Mask benchmark path, the 2D_versatile_fluo
+model predicted 122 objects and reached F1@0.5 0.972 and F1@0.75 0.891.
+Cellpose 3 nuclei on the identical image and labels predicted 118 objects,
+F1@0.5 0.955 and F1@0.75 0.905. Input and result hashes and the 4 GiB,
+zero-swap, CPU3 scope are recorded in
+features/data/551_stardist_current_2d_2026-10-02.json. Fifty-two focused
+prefixed-backend checks passed on the current source in the same session.
+This is one official annotated 2-D field, not a multi-study holdout. The
+requested 3-D volumetric path and its validation remain open, so F551 is
+not marked complete by this 2-D result.

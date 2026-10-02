@@ -230,6 +230,10 @@ def collect_fields(names: List[str], split: Dict[str, str],
                           split)
             item.extra["channel"] = "last0"
             fields.append(item)
+    if "stardist_demo" in names:
+        folder = (out or Path("/tmp/spacr-bench-scratch/cpu")).parent / "stardist_demo"
+        fields.append(_field("stardist_demo", folder / "nuclei.tif",
+                             folder / "nuclei_labels.tif", split))
     if "toxo_pv" in names:
         for image in sorted(TOXO_PV.glob("*.tif")):
             truth = TOXO_PV / "ground_truth_masks" / image.name
