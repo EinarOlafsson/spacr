@@ -36,7 +36,9 @@ ALPHA NOTE (2026-09-26)
     when that is blank.
       - A file is taken once its size and mtime have not changed for
         watch_settle_seconds and it reads whole (TIFFs are decoded in full).
-        A field is taken once a file for every entry of `channels` is in.
+        A field is taken once the number of distinct parsed channels reaches
+        the number of entries in `channels`; selected channel identities are
+        not yet checked (see the remaining limitation below).
         Fields are grouped by the metadata_type or custom_regex filename
         pattern, and a file whose name has no channel is a field by itself.
         Images already in the folder are analysed first.
@@ -98,7 +100,47 @@ ALPHA NOTE (2026-09-26)
         save_original_images is on), so the watch costs about one extra
         copy of the raw data on disk. Reclaiming it after a field succeeds
         is left for later.
-      - The watched folder is scanned at its top level only; subfolders
-        per well or per timepoint are not followed.
+      - Selected channel identities are not yet source-aware: the readiness
+        check counts distinct parsed channels, not their correspondence to
+        `channels`. For example, [0, 3] can become ready on C01 and C02
+        before C04 arrives. A source-aware one-/zero-based channel mapping
+        is required; the recursive scanner does not guess that convention.
       - The GPU acceptance run on a real acquisition has not been done; all
         tests are CPU-only.
+
+RECURSIVE ACQUISITION FOLLOW-UP (2026-10-02, partial)
+    The scanner now follows nested acquisition directories and retains relative
+    paths in the resume ledger. Root-level ledger names and scientific field
+    keys are unchanged. Each ready field is still copied into its isolated
+    work directory using the original basenames; source images are not moved
+    or altered. Filename metadata, not folder names, defines a field.
+
+    Channel companions must belong to the same parent directory. A parsed
+    field identity appearing in multiple acquisition directories, or repeated
+    channel identities including numeric spellings such as C1 and C01, stays
+    waiting with an actionable diagnostic. Distinct acquisitions need distinct
+    filename field identities; their measurement/output identities cannot be
+    safely invented from directory names. Incomplete and unreadable companions
+    continue to wait, and a restart skips completed fields. A truncated TIFF
+    that tifffile decodes to an empty array (without raising) now explicitly
+    remains unreadable; the new acceptance test exposed this existing bug.
+
+    Hidden entries and symbolic links are not followed. Reserved generated
+    directories spacr_watch, orig, stack, masks, merged, measurements, results
+    and test, plus directories ending in _mask_stack, are excluded at any
+    depth to avoid analysing spaCR's own copies and outputs. Those names are
+    therefore not available as acquisition subdirectory names.
+
+    This does not establish vendor acquisition-complete semantics, timelapse
+    or z-stack completeness, selected-channel identity mapping, or a real GPU
+    acquisition acceptance run. F548 remains partial/alpha.
+
+    Validation: 33 unique named CPU cases passed across the initial 31-case
+    watcher/microscope cohort and a 12-case affected rerun. The initial run
+    exposed the empty-TIFF bug; the affected run passes both root and nested
+    incomplete-TIFF cases. Real preprocessing, merging and Measure on the
+    synthetic acquisition produce identical arrays and cell/nucleus rows to
+    a flat batch_size=1 run; only the Cellpose forward pass is stubbed.
+    Both runs used a 4 GiB cap, CPU0, zero swap and hidden CUDA. Public API
+    signatures/docstrings and translation captions are unchanged. Receipt:
+    features/data/548_recursive_watch_2026-10-02.json.

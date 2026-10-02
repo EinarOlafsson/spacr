@@ -781,6 +781,8 @@ _WATCH_PIPELINES = ('mask', 'mask_measure')
 _WATCH_SUFFIXES = ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2',
                    '.czi', '.lif')
 _WATCH_KEY_GROUPS = ('plateID', 'wellID', 'timeID', 'fieldID')
+_WATCH_OUTPUT_DIRS = frozenset({_WATCH_DIR, 'orig', 'stack', 'masks', 'merged',
+                               'measurements', 'results', 'test'})
 
 
 def _watch_truthy(value):
@@ -879,6 +881,7 @@ def _watch_field_of(name, settings, cache):
     """
     import re
 
+    name = os.path.basename(name)
     stem, extension = os.path.splitext(name)
     pattern = _watch_pattern(settings, extension.lstrip('.').lower(), cache)
     match = pattern.match(name) if pattern is not None else None
@@ -907,7 +910,8 @@ def _watch_unreadable(path):
         if extension in ('.tif', '.tiff'):
             import tifffile
 
-            tifffile.imread(path)
+            if tifffile.imread(path).size == 0:
+                return 'TIFF contains no readable image pixels'
         elif extension in ('.png', '.jpg', '.jpeg', '.bmp'):
             from PIL import Image
 
@@ -925,19 +929,31 @@ def _watch_unreadable(path):
 
 
 def _watch_images(src):
-    """The image files directly in ``src``, hidden files excluded.
+    """List relative acquisition image paths without following output trees.
+
+    Hidden entries, symbolic links and spaCR's generated folders are pruned.
+    Relative paths keep nested file identity in the watch ledger; filename
+    metadata is still parsed from the basename, not guessed from directories.
 
     :param src: the watched folder.
-    :returns: the file names, sorted.
+    :returns: relative image paths, sorted; root-level names stay unchanged.
     """
-    try:
-        names = os.listdir(src)
-    except OSError:
-        return []
-    return sorted(name for name in names
-                  if not name.startswith('.')
-                  and name.lower().endswith(_WATCH_SUFFIXES)
-                  and os.path.isfile(os.path.join(src, name)))
+    from .cancellation import checkpoint
+
+    names = []
+    for directory, folders, files in os.walk(src, followlinks=False):
+        checkpoint()
+        folders[:] = sorted(folder for folder in folders
+                            if not folder.startswith('.')
+                            and folder.lower() not in _WATCH_OUTPUT_DIRS
+                            and not folder.lower().endswith('_mask_stack')
+                            and not os.path.islink(os.path.join(directory, folder)))
+        for name in files:
+            path = os.path.join(directory, name)
+            if (not name.startswith('.') and name.lower().endswith(_WATCH_SUFFIXES)
+                    and not os.path.islink(path) and os.path.isfile(path)):
+                names.append(os.path.relpath(path, src))
+    return sorted(names)
 
 
 def _watch_load_ledger(path, src):
@@ -1237,7 +1253,7 @@ def _watch_run_field(key, members, signature, context):
     try:
         for name, _channel in members:
             shutil.copy2(os.path.join(context['src'], name),
-                         os.path.join(field_dir, name))
+                         os.path.join(field_dir, os.path.basename(name)))
         context['analyse'](field_dir, context['settings'])
         _watch_collect(field_dir, context['work'], key)
     except PipelineCancelled:
@@ -1279,6 +1295,20 @@ def _watch_ready_fields(context, now):
         groups.setdefault(key, []).append((name, channel))
     ready, waiting = [], 0
     for key, members in sorted(groups.items()):
+        parents = {os.path.dirname(name) for name, _channel in members}
+        channels = {str(int(channel)) if str(channel).isdecimal() else channel
+                    for _name, channel in members}
+        ambiguous = (len(parents) != 1 or len(channels) != len(members))
+        if ambiguous:
+            waiting += 1
+            warning = ('ambiguous', key, tuple(sorted(name for name, _c in members)))
+            if warning not in context['warned']:
+                context['warned'].add(warning)
+                print(f'watch_folder: {key} has files in different acquisition '
+                      f'folders or duplicate channels; waiting without combining '
+                      f'them. Use unique filename field identifiers for separate '
+                      f'acquisitions: {", ".join(name for name, _c in members)}')
+            continue
         entry = fields.get(key, {})
         signature = {name: list(seen[name]['signature'])
                      for name, _channel in members}
@@ -1292,7 +1322,6 @@ def _watch_ready_fields(context, now):
         if (key, repr(sorted(signature.items()))) in context['tried']:
             continue
         waiting += 1
-        channels = {channel for _name, channel in members}
         if None not in channels and len(channels) < context['expected']:
             continue
         if any(now - seen[name]['changed'] < context['settle']
