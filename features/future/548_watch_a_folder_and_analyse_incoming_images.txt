@@ -335,3 +335,35 @@ PIPELINE RESUME CONSISTENCY (2026-10-02, partial)
     tests use real TIFF readiness with a Recorder analysis callback. Both runs
     used 4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
     features/data/548_pipeline_resume_guard_2026-10-02.json.
+
+MEASURE RECIPE SNAPSHOT (2026-10-02, partial)
+    A real-TIFF reproduction confirmed that editing watch_measure_settings
+    between fields changed the second field's measurement recipe. The watcher
+    now resolves the Measure file once at start and passes an independent deep
+    copy to each field. Edits to that file during the run cannot mix recipes.
+
+    A canonical SHA256 of the loaded Measure inputs is saved in the watch
+    ledger, without duplicating their potentially sensitive plaintext values.
+    Populated mask_measure resumes refuse changed or missing recipe provenance
+    before altering the saved ledger or outputs. Defaults bind the watch's
+    selected channels. An empty workspace can still select another recipe.
+    Measure's src is excluded because each field supplies its own output path;
+    equivalent settings in a reformatted or relocated file remain compatible.
+    Watch timing remains adjustable, and mask-only watches do not inspect a
+    Measure file. Existing settings dictionaries are not modified.
+
+    This binds explicit Measure input values, not all software-expanded defaults
+    or contents of external files referenced by those values. Mask/model settings
+    are outside this bounded guard. F548 remains partial/alpha for vendor
+    acquisition completion, unsupported series, pooled normalization and the
+    other recorded requirements. No public signatures/docstrings, settings
+    controls or translated captions changed.
+
+    Validation: the pre-fix mutation test failed as expected in 6.73 seconds.
+    All 32 corrected cases passed in 40.05 seconds: eight new recipe cases, eight
+    pipeline-resume cases and 16 existing watcher cases. New cases use real TIFF
+    readiness, the actual field adapter and SQLite collection with mask/Measure
+    stand-ins to observe recipes. The existing real preprocessing/Measure versus
+    batch_size=1 case also passes with only model inference stubbed. Runs used
+    4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
+    features/data/548_measure_recipe_snapshot_2026-10-02.json.

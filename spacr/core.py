@@ -1197,13 +1197,43 @@ def _watch_analyse_field(field_dir, settings):
         return
     from .measure import measure_crop
 
-    measure = _watch_measure_settings(settings)
+    from copy import deepcopy
+
+    measure = (deepcopy(settings['watch_measure_snapshot'])
+               if 'watch_measure_snapshot' in settings
+               else _watch_measure_settings(settings))
     measure['src'] = merged
     measure_crop(measure)
     if not os.path.exists(os.path.join(field_dir, 'measurements',
                                        'measurements.db')):
         raise RuntimeError('Measure wrote no measurements.db for this field; '
                            'the log above says why.')
+
+
+def _watch_measure_recipe(settings):
+    """Capture Measure input settings and hash their canonical JSON content.
+
+    The source folder is excluded by the existing settings loader. Each field
+    receives its own copy, so later file edits or downstream mutations cannot
+    change the recipe of an active watch. Only the digest is stored in the
+    ledger; this avoids duplicating potentially sensitive settings values.
+
+    :param settings: watch settings naming a Measure file or default channels.
+    :returns: independent settings dictionary and SHA256 of its JSON content.
+    :raises ValueError: when settings cannot be represented as finite JSON.
+    """
+    import hashlib
+    import json
+    from copy import deepcopy
+
+    recipe = deepcopy(_watch_measure_settings(settings))
+    try:
+        encoded = json.dumps(recipe, sort_keys=True, separators=(',', ':'),
+                             ensure_ascii=False, allow_nan=False).encode('utf-8')
+    except (TypeError, ValueError) as exc:
+        raise ValueError('watch_folder: Measure settings must contain finite '
+                         'JSON-compatible values for a reproducible recipe.') from exc
+    return recipe, hashlib.sha256(encoded).hexdigest()
 
 
 def _watch_quote(name):
@@ -2158,6 +2188,10 @@ def _watch_folder_and_analyse(settings, analyse=None):
 
     src, pipeline, settle, poll, idle = _watch_check_settings(settings)
     manifest, map_sha256 = _watch_map_manifest(src, settings)
+    measure_sha256 = None
+    if pipeline == 'mask_measure':
+        measure_recipe, measure_sha256 = _watch_measure_recipe(settings)
+        settings = {**settings, 'watch_measure_snapshot': measure_recipe}
     work = os.path.join(src, _WATCH_DIR)
     os.makedirs(work, exist_ok=True)
     ledger_path = os.path.join(work, _WATCH_LEDGER)
@@ -2171,6 +2205,13 @@ def _watch_folder_and_analyse(settings, analyse=None):
             (ledger['fields'] or 'conversion_map_sha256' in ledger)):
         raise ValueError('watch_folder: conversion_map.csv differs from the saved watch '
                          'record; use a separate watch workspace. Existing results are preserved.')
+    if pipeline == 'mask_measure':
+        if ledger['fields'] and ledger.get('measure_settings_sha256') != measure_sha256:
+            raise ValueError(
+                'watch_folder: Measure settings differ from the saved recipe or '
+                'its provenance is unknown; use a separate watch workspace. '
+                'Existing results and the saved record are preserved.')
+        ledger['measure_settings_sha256'] = measure_sha256
     ledger['conversion_map_sha256'] = map_sha256
     ledger['pipeline'] = pipeline
     for entry in ledger['fields'].values():
