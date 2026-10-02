@@ -115,3 +115,10 @@ results, not a fresh rerun. Binning changed and exposure metadata are absent;
 individual fields and p90 exceed that median bound. A known-exposure paired
 acquisition is still unproven, so this GUI addition does not close F580. The
 runtime captions await the coordinated nine-language source-bound refresh.
+
+2026-10-02 — CLOSE/REOPEN SCAN GUARD
+The Preview action now remains disabled after closing until the detached source
+scan has actually stopped, preventing a second dialog from duplicating that scan.
+Six focused worker/cancel/stale/close-reopen checks pass under 4 GiB, CPU0 and
+zero swap. No caption or public API changes. Receipt:
+features/data/580_gain_preview_close_reopen_2026-10-02.json. F580 remains partial.

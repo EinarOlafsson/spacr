@@ -67,6 +67,24 @@ def _attach_preview(widget, model):
         dialog = _CalibrationPreview(lambda: _preview_settings(model), widget.window())
         QTimer.singleShot(0, dialog._start)
         dialog.exec()
+        # Closing detaches safely; do not let a second dialog duplicate a
+        # still-running scan parked by the first one.
+        retiring = list(dialog._retiring_threads)
+        if retiring:
+            button.setEnabled(False)
+            watch = QTimer(button)
+            watch.setInterval(250)
+
+            def retired():
+                from shiboken6 import isValid
+                if any(isValid(thread) and thread.isRunning() for thread in retiring):
+                    return
+                watch.stop()
+                button.setEnabled(True)
+                watch.deleteLater()
+
+            watch.timeout.connect(retired)
+            watch.start()
         dialog.deleteLater()
 
     button.clicked.connect(open_preview)
@@ -138,6 +156,7 @@ class _CalibrationPreview(QDialog):
         self._closed = False
         self._snapshot = None
         self._reports = []
+        self._retiring_threads = []
         layout = QVBoxLayout(self)
         help_label = QLabel(' '.join([
             tr('Preview only: each source folder is planned separately.'),
@@ -262,6 +281,8 @@ class _CalibrationPreview(QDialog):
 
         :param result: Standard Qt dialog result code.
         """
+        if not self._closed:
+            self._retiring_threads = [thread for thread, _worker in self._runner._jobs.values()]
         self._closed = True
         self._watch.stop()
         self._generation += 1

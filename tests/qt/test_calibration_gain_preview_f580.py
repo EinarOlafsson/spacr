@@ -260,3 +260,46 @@ def test_actual_button_opens_read_only_dialog_and_renders(qtbot, tmp_path, monke
         retire_pyqtgraph_menus(screen)
         screen.close()
         screen.deleteLater()
+
+
+def test_close_then_reopen_waits_for_retired_source_scan(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget
+
+    from spacr.qt import bridge
+    entered, release = threading.Event(), threading.Event()
+    starts = []
+    def work(settings):
+        starts.append(1)
+        entered.set()
+        release.wait(10)
+        return []
+    monkeypatch.setattr(preview, '_plan_gains', work)
+    monkeypatch.setattr(preview, '_preview_settings', lambda model: {})
+    monkeypatch.setattr(preview._CalibrationPreview, 'exec', _DIALOG_EXEC)
+    host = QWidget()
+    qtbot.addWidget(host)
+    edit = QLineEdit(host)
+    QVBoxLayout(host).addWidget(edit)
+    preview._attach_preview(edit, object())
+    host.show()
+    button = edit.findChild(QPushButton, 'CalibrationPreviewButton')
+    closed = []
+    def close_started_dialog():
+        dialog = host.findChild(preview._CalibrationPreview)
+        if not entered.is_set() or dialog is None:
+            QTimer.singleShot(10, close_started_dialog)
+            return
+        closed.append(True)
+        dialog.reject()
+    QTimer.singleShot(10, close_started_dialog)
+    try:
+        qtbot.mouseClick(button, Qt.LeftButton)
+        assert closed and not button.isEnabled()
+        button.click()
+        qtbot.wait(30)
+        assert starts == [1], 'closing must not allow a duplicate source scan'
+    finally:
+        release.set()
+        qtbot.waitUntil(button.isEnabled, timeout=10000)
+        bridge.prune_parked_threads()
+        host.close()
