@@ -4890,6 +4890,83 @@ def _compute_regionprops_stack(
     return out_df
 
 
+def _motility_role_bleaching(props, masks, images, role, role_channel, times, method):
+    """Correct individual objects before aggregation, retaining their raw levels.
+
+    A five-pixel ring excludes all foreground labels of the current role.
+    Missing ring pixels yield NaN, never an assumed zero camera background.
+    Return corrected properties, fit rows, and columns added only by this path.
+    """
+    from scipy.ndimage import binary_dilation
+
+    if props.empty:
+        return props.copy(), pd.DataFrame(), set()
+    result = props.copy()
+    original_columns = set(result.columns)
+    label_key = 'track_id' if role == 'cell' else f'{role}_label'
+    measured = pd.DataFrame({'timeID': [times[int(t)] for t in result['frame']]})
+    measured[f'{role}_area'] = result[f'{role}_area'].to_numpy()
+    for channel in range(images.shape[-1]):
+        means, backgrounds = [], []
+        for frame, label in zip(result['frame'], result[label_key]):
+            labels = masks[int(frame)]
+            inside = labels == label
+            ring = binary_dilation(inside, iterations=5) & (labels == 0)
+            plane = images[int(frame), :, :, channel]
+            values = plane[inside]
+            values = values[np.isfinite(values)]
+            outside = plane[ring]
+            outside = outside[np.isfinite(outside)]
+            means.append(float(np.mean(values)) if values.size else np.nan)
+            backgrounds.append(float(np.median(outside)) if outside.size else np.nan)
+        mean_key = f'{role}_mean_intensity_ch{channel}'
+        if mean_key not in result:
+            result[mean_key] = means
+        ring_key = f'{role}_channel_{channel}_outside_percentile_50'
+        result[ring_key] = backgrounds
+        measured[ring_key] = backgrounds
+    mapping = {}
+    for column in list(result):
+        match = re.fullmatch(rf'{role}_(mean|max|min|p[0-9]+)_intensity_ch([0-9]+)', column)
+        if match:
+            stat, channel = match.groups()
+            stat = f'percentile_{int(stat[1:])}' if stat.startswith('p') else stat + '_intensity'
+            mapping[column] = f'{role}_channel_{channel}_{stat}'
+        elif role_channel is not None and column in {
+                f'{role}_mean_intensity', f'{role}_max_intensity', f'{role}_min_intensity'}:
+            mapping[column] = f'{role}_channel_{role_channel}_{column[len(role) + 1:]}'
+    for column, canonical in mapping.items():
+        measured[canonical] = result[column].to_numpy()
+    corrected, fits = _bleach_correct_table(measured, role, method)
+    for column, canonical in mapping.items():
+        if column in original_columns:
+            result['raw_' + column] = result[column]
+        result[column] = corrected[canonical].to_numpy()
+    added = set(result) - original_columns
+    return result, fits, added
+
+
+def _motility_raw_frame(corrected, added):
+    """Recover the unchanged measured levels before saving the original table."""
+    raw = corrected.copy()
+    for column in list(raw):
+        if column.startswith('raw_'):
+            raw[column[4:]] = raw[column]
+    return raw.drop(columns=[c for c in added if c in raw])
+
+
+def _motility_smooth_corrected(frame, max_displacement, track_outlier_zscore):
+    """Keep unknown corrected levels unknown when geometric glitches are smoothed."""
+    keys = ['plateID', 'wellID', 'fieldID', 'cellID', 'frame']
+    levels = [c for c in frame if '_intensity' in c]
+    missing = frame.set_index(keys)[levels].isna()
+    result = _smooth_tracks_and_features(frame, max_displacement, track_outlier_zscore)
+    positions = pd.MultiIndex.from_frame(result[keys])
+    for column in levels:
+        result.loc[missing[column].reindex(positions).to_numpy(), column] = np.nan
+    return result
+
+
 def _process_merged_group(args):
     """
     Worker: process one (plate, well, field) group of merged .npy files.
@@ -4899,6 +4976,10 @@ def _process_merged_group(args):
       - cell features
       - aggregated nucleus / pathogen / cytoplasm features
       - per-channel cell mean intensities (cell_mean_intensity_ch{c})
+
+    An optional seventh argument selects bleach correction. That path returns
+    (corrected, raw, fits), correcting individual roles before aggregation.
+    Empty/unusable groups retain the historical empty-DataFrame result.
     """
     import numpy as np
     import pandas as pd
@@ -4911,7 +4992,10 @@ def _process_merged_group(args):
         cell_chan,
         nucleus_chan,
         pathogen_chan,
-    ) = args
+    ) = args[:6]
+    bleach_method = args[6] if len(args) > 6 else 'none'
+    if bleach_method not in _BLEACH_METHODS:
+        raise ValueError(f'Unknown motility bleach correction: {bleach_method!r}')
 
     if not file_basenames:
         print("[_process_merged_group] Empty file_basenames list.")
@@ -5157,6 +5241,29 @@ def _process_merged_group(args):
             f"intensity columns: {added_cols}"
         )
 
+    bleach_fits = []
+    bleach_added = set()
+    if bleach_method != 'none':
+        if cell_intensity_df is not None:
+            cell_props_df = cell_props_df.merge(
+                cell_intensity_df, on=['frame', 'track_id'], validate='one_to_one')
+            cell_intensity_df = None
+        role_frames = []
+        for props, masks, role, channel in (
+                (cell_props_df, cell_masks, 'cell', cell_chan),
+                (nucleus_props_df, nucleus_masks, 'nucleus', nucleus_chan),
+                (pathogen_props_df, pathogen_masks, 'pathogen', pathogen_chan),
+                (cytoplasm_props_df, cytoplasm_masks, 'cytoplasm', cell_chan)):
+            corrected, fits, added = _motility_role_bleaching(
+                props, masks, intensity_stack, role, channel,
+                [m['timeID'] for m in metas_sorted], bleach_method)
+            role_frames.append(corrected)
+            bleach_added.update(added)
+            if not fits.empty:
+                fits = fits.assign(plateID=key[0], wellID=key[1], fieldID=key[2])
+                bleach_fits.append(fits)
+        cell_props_df, nucleus_props_df, pathogen_props_df, cytoplasm_props_df = role_frames
+
     nucleus_summary = None
     if has_nucleus:
         overlaps_cn = _compute_parent_child_overlaps(
@@ -5277,6 +5384,19 @@ def _process_merged_group(args):
         f"unique_tracks={n_tracks}"
     )
 
+    if bleach_method != 'none':
+        import json
+        raw = _motility_raw_frame(enriched_df, bleach_added)
+        enriched_df = enriched_df.drop(columns=[c for c in enriched_df if c.startswith('raw_')])
+        enriched_df['bleach_correction_method'] = bleach_method
+        enriched_df['bleach_background_policy'] = '5px_role_label_zero_median'
+        fits = pd.concat(bleach_fits, ignore_index=True) if bleach_fits else pd.DataFrame()
+        if fits.empty:
+            fits = pd.DataFrame(columns=['object_type', 'channel', 'method'])
+        fits['source_files'] = json.dumps(sorted_basenames)
+        fits['background_policy'] = '5px_role_label_zero_median'
+        fits['time_unit'] = 'source_frame'
+        return enriched_df, raw, fits
     return enriched_df
 
 
@@ -8729,7 +8849,15 @@ def automated_motility_assay(settings):
         ``infection_hist_percentile``, ``make_mask_panel``,
         ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``,
         ``motility_origin_xlim``, ``motility_origin_ylim``, and
-        ``reuse_existing_measurements``.
+        ``reuse_existing_measurements``. Optional ``bleach_correction`` defaults
+        to ``none``; ``ratio``, ``exponential`` or ``histogram`` correct each
+        field/channel and object role before child aggregation and infection
+        QC, using a five-pixel label-zero background ring (missing rings give
+        NaN). Histogram matching can erase biological changes. Opt-in runs
+        require recomputation rather than reuse of cached measurement rows.
+        Original intensity measurements remain raw; separate tables with
+        ``_bleach_corrected`` and ``_bleach_fits`` suffixes and a fits CSV
+        record the corrected levels, source filenames and method.
     :returns: the per-cell measurements DataFrame carrying the final
         (QC-adjusted) labels. Measurements and summary tables are also written
         to ``measurements/measurements.db`` and the QC panels saved under
@@ -8754,9 +8882,25 @@ def automated_motility_assay(settings):
     track_outlier_zscore = settings["track_outlier_zscore"]
 
     reuse_existing = settings.get("reuse_existing_measurements", True)
+    bleach_method = settings.get('bleach_correction', 'none')
+    if bleach_method not in _BLEACH_METHODS:
+        raise ValueError(f'Unknown motility bleach correction: {bleach_method!r}')
     measurements_dir = os.path.join(src, "measurements")
-    os.makedirs(measurements_dir, exist_ok=True)
     db_path = os.path.join(measurements_dir, "measurements.db")
+    if bleach_method != 'none' and reuse_existing and os.path.isfile(db_path):
+        from pathlib import Path
+        with sqlite3.connect(Path(db_path).resolve().as_uri() + '?mode=ro', uri=True) as conn:
+            exists = conn.execute(
+                'SELECT 1 FROM sqlite_master WHERE type="table" AND name=?',
+                (db_table_name,)).fetchone()
+        if exists:
+            raise ValueError(
+                'Motility bleach correction needs original per-object backgrounds; '
+                'cached rows cannot verify them. Set reuse_existing_measurements=False '
+                'to recompute from the original merged arrays.')
+    os.makedirs(measurements_dir, exist_ok=True)
+    bleach_raw = None
+    bleach_fits = None
 
     all_df = None
     loaded_from_db = False
@@ -8870,9 +9014,8 @@ def automated_motility_assay(settings):
     if not loaded_from_db:
         worker_args = []
         for key, file_basenames in groups.items():
-            worker_args.append(
-                (src, file_basenames, n_channels, cell_chan, nucleus_chan, pathogen_chan)
-            )
+            args = (src, file_basenames, n_channels, cell_chan, nucleus_chan, pathogen_chan)
+            worker_args.append(args if bleach_method == 'none' else args + (bleach_method,))
 
         if n_jobs is None:
             n_jobs = max(cpu_count() - 1, 1)
@@ -8884,6 +9027,15 @@ def automated_motility_assay(settings):
             with Pool(processes=n_jobs) as pool:
                 dfs = pool.map(_process_merged_group, worker_args)
 
+        if bleach_method != 'none':
+            results = [result for result in dfs if isinstance(result, tuple)]
+            if results:
+                bleach_raw = pd.concat([result[1] for result in results], ignore_index=True)
+                bleach_raw = _smooth_tracks_and_features(
+                    bleach_raw, max_displacement=max_displacement,
+                    track_outlier_zscore=track_outlier_zscore)
+                bleach_fits = pd.concat([result[2] for result in results], ignore_index=True)
+            dfs = [result[0] for result in results]
         non_empty = [df for df in dfs if not df.empty]
         all_df = (
             pd.concat(non_empty, ignore_index=True) if non_empty else pd.DataFrame()
@@ -8905,7 +9057,9 @@ def automated_motility_assay(settings):
             f"{n_tracks_raw}"
         )
 
-        all_df = _smooth_tracks_and_features(
+        smooth = (_smooth_tracks_and_features if bleach_method == 'none'
+                  else _motility_smooth_corrected)
+        all_df = smooth(
             all_df,
             max_displacement=max_displacement,
             track_outlier_zscore=track_outlier_zscore,
@@ -8974,6 +9128,21 @@ def automated_motility_assay(settings):
     )
 
     all_df_original = all_df.copy(deep=True)
+    if bleach_raw is not None:
+        keys = ['plateID', 'wellID', 'fieldID', 'cellID', 'frame']
+        all_df_original = bleach_raw.drop(columns=['infected'], errors='ignore').merge(
+            all_df[keys + ['infected']], on=keys, how='inner', validate='one_to_one')
+        # Persist pre-QC corrected values separately; cached originals stay raw.
+        with sqlite3.connect(db_path, timeout=30) as conn:
+            all_df.to_sql(db_table_name + '_bleach_corrected', conn,
+                          if_exists='replace', index=False)
+            bleach_fits.to_sql(db_table_name + '_bleach_fits', conn,
+                              if_exists='replace', index=False)
+        bleach_fits.to_csv(os.path.join(measurements_dir, db_table_name + '_bleach_fits.csv'),
+                          index=False)
+        if bleach_method == 'histogram':
+            print('Motility histogram matching removes population intensity changes; '
+                  'do not interpret these values as quantitative bleaching correction.')
 
     infection_col = "infected"
     all_df, infection_col = _apply_infection_intensity_qc(
