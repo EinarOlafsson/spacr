@@ -2295,6 +2295,31 @@ def _stamp_identity(stamp):
 def _existing_measurement_identity(db_path, table):
     """Return the ``(ndim, units)`` pairs already present in ``table``.
 
+    Retried like the append it guards: with many workers writing one
+    ``measurements.db`` (above all on a network share) a read can find the
+    database locked, and failing the field there loses it for nothing.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: object table name.
+    :returns: see :func:`_existing_measurement_identity_once`.
+    :raises sqlite3.OperationalError: when every attempt finds it locked.
+    """
+    delay = 0.2
+    attempt = 1
+    while True:
+        try:
+            return _existing_measurement_identity_once(db_path, table)
+        except sqlite3.OperationalError as e:
+            if 'locked' not in str(e).lower() or attempt == DB_WRITE_ATTEMPTS:
+                raise
+            time.sleep(delay)
+            delay *= 2
+            attempt += 1
+
+
+def _existing_measurement_identity_once(db_path, table):
+    """Return the ``(ndim, units)`` pairs already present in ``table``.
+
     :returns: a set of pairs; empty when the database or table does not exist
         yet. Rows written before the stamp existed, and rows whose stamp is
         NULL, count as :data:`_LEGACY_STAMP`.
@@ -2710,7 +2735,7 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
 
 
 #: How many times a locked measurements.db write is retried before it fails.
-DB_WRITE_ATTEMPTS = 5
+DB_WRITE_ATTEMPTS = 8
 #: Seconds a single connect() waits for the lock, per attempt. Kept at the
 #: original 5 s: the retry loop, not a long single wait, is what survives
 #: contention, and a long one makes every deliberately-locked-database test
