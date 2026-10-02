@@ -277,7 +277,11 @@ def test_fov_with_no_usable_mip_writes_nothing(tmp_path, monkeypatch, capsys):
         img_format=[".tif"], save_original_images=False)
 
     assert n_channels == 0
-    assert [f for f in os.listdir(src / "stack") if f.endswith(".npy")] == []
+    # The streaming organizer creates stack/ only after a usable field is
+    # decoded (already true at 52146a269); failed reads preserve raw inputs
+    # and directory layout instead of publishing an empty output folder.
+    assert not (src / "stack").exists()
+    assert (src / _cv_name(chan="01")).is_file()
     out = capsys.readouterr().out
     assert "is missing channel 1" in out
     assert "No valid channels to merge for file plate1_A01_1_1.tif" in out
