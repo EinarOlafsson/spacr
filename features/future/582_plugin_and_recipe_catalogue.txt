@@ -1,6 +1,7 @@
 A PLUGIN AND RECIPE CATALOGUE BROWSER
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Status: DONE (ALPHA) 2026-10-02 against the original local test-catalogue
+        list/install/load/uninstall criterion.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -141,3 +142,16 @@ WHAT IS LEFT
     offline installation/uninstallation and installed-recipe Open behavior.
     Backend and public API contracts are unchanged. Hosted publication,
     signing policy and conflicting-dependency isolation remain out of scope.
+
+2026-10-02 — ORIGINAL DONE WHEN ACCEPTED ON CURRENT SOURCE
+    The test catalogue lists both plugin and recipe rows. Its real offline
+    wheel installs, loads and uninstalls, and the installed recipe can be
+    opened in the intended module. The async Preferences catalogue controls
+    retain this behavior. Today's focused backend and Qt cohort passed 51
+    tests under 4 GiB, CPU0 and zero swap. See
+    features/data/582_current_source_acceptance_2026-10-02.json.
+
+    This is DONE (ALPHA) for the stated test-catalogue criterion. A hosted
+    community catalogue and a policy for signing it remain future work;
+    dependency conflicts that require a separate interpreter are likewise
+    outside the measured local install/load acceptance.
