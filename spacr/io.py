@@ -1242,8 +1242,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     sorted_channels = sorted({key[3] for key in image_paths_by_key})
     files_to_process = sum(len(image_paths_by_key[key]) for key in pending_keys)
     time_ls = []
-    if field_keys:
-        os.makedirs(stack_path, exist_ok=True)
     for stem, keys in field_keys.items():
         checkpoint()
         start = time.time()
@@ -1284,6 +1282,10 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             planes.append(np.expand_dims(mip, axis=2))
         if planes:
             checkpoint()
+            # A failed read must leave the input folder untouched, including
+            # its directory layout. Create stack/ only when there is a field
+            # ready to publish.
+            os.makedirs(stack_path, exist_ok=True)
             _save_array_atomic(new_file, np.concatenate(planes, axis=2))
         else:
             print(f"No valid channels to merge for file {output_filename}")
