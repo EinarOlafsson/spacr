@@ -1308,7 +1308,7 @@ def _watch_merge_database(field_db, combined_db, key):
     return True
 
 
-def _watch_collect(field_dir, work, key):
+def _watch_collect(field_dir, work, key, database_snapshot=None):
     """Gather one analysed field into the watch folder's combined outputs.
 
     The field's ``merged`` files are linked into ``<work>/merged`` and its
@@ -1318,6 +1318,7 @@ def _watch_collect(field_dir, work, key):
     :param field_dir: the analysed field's folder.
     :param work: the ``spacr_watch`` folder.
     :param key: the field key.
+    :param database_snapshot: optional closed SQLite snapshot captured after analysis.
     """
     merged = os.path.join(field_dir, 'merged')
     if os.path.isdir(merged):
@@ -1328,11 +1329,141 @@ def _watch_collect(field_dir, work, key):
             destination = os.path.join(target, name)
             if os.path.isfile(source) and not os.path.exists(destination):
                 _watch_link(source, destination)
-    field_db = os.path.join(field_dir, 'measurements', 'measurements.db')
+    field_db = database_snapshot or os.path.join(field_dir, 'measurements', 'measurements.db')
+    if database_snapshot is not None and not os.path.isfile(field_db):
+        raise ValueError('Collection database snapshot disappeared before append.')
     if os.path.exists(field_db):
         _watch_merge_database(
             field_db, os.path.join(work, 'measurements', 'measurements.db'),
             key)
+
+
+def _watch_artifact_sha256(path):
+    """Hash one stable regular output with cancellable, bounded reads.
+
+    :param path: staged or combined artifact; final-component links are refused.
+    :returns: SHA256 of verified bytes.
+    :raises ValueError: when an artifact is missing, nonregular or changes.
+    """
+    import hashlib
+    from .cancellation import checkpoint
+
+    identity = _watch_file_identity(path)
+    if identity is None:
+        raise ValueError(f'Collection artifact is missing or unsafe: {path}')
+    flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise ValueError(f'Collection artifact cannot be opened: {path}') from exc
+    with os.fdopen(descriptor, 'rb') as handle:
+        info = os.fstat(handle.fileno())
+        if [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns] != identity:
+            raise ValueError(f'Collection artifact changed before hashing: {path}')
+        digest, size = hashlib.sha256(), 0
+        while True:
+            checkpoint()
+            chunk = os.read(handle.fileno(), min(1024 * 1024, identity[2] - size + 1))
+            if not chunk:
+                break
+            size += len(chunk)
+            if size > identity[2]:
+                raise ValueError(f'Collection artifact grew while hashing: {path}')
+            digest.update(chunk)
+        if size != identity[2] or _watch_file_identity(path) != identity:
+            raise ValueError(f'Collection artifact changed while hashing: {path}')
+    return digest.hexdigest()
+
+
+def _watch_collection_artifacts(field_dir):
+    """Fingerprint the precise merged files and SQLite output to be collected.
+
+    :param field_dir: completed field staging directory.
+    :returns: relative artifact paths mapped to SHA256 values.
+    :raises ValueError: when no usable outputs exist or an output is unsafe.
+    """
+    artifacts = {}
+    merged = os.path.join(field_dir, 'merged')
+    if os.path.isdir(merged):
+        for name in sorted(os.listdir(merged)):
+            relative = os.path.join('merged', name)
+            artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
+    relative = os.path.join('.watch_collection', 'measurements.db')
+    if os.path.lexists(os.path.join(field_dir, relative)):
+        for suffix in ('-wal', '-journal', '-shm'):
+            if os.path.lexists(os.path.join(field_dir, relative + suffix)):
+                raise ValueError('Collection requires a closed, checkpointed SQLite '
+                                 f'database without sidecars: {relative + suffix}')
+        artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
+    if not artifacts:
+        raise ValueError('Collection has no completed analysis artifacts to preserve.')
+    return artifacts
+
+
+def _watch_backup_progress(status, remaining, total):
+    """Allow Stop between bounded SQLite backup page batches.
+
+    :param status: SQLite status code supplied by the backup API.
+    :param remaining: pages remaining in the source snapshot.
+    :param total: source page count reported by SQLite.
+    :returns: None; cancellation interrupts backup without publishing a snapshot.
+    """
+    from .cancellation import checkpoint
+
+    checkpoint()
+
+
+def _watch_snapshot_database(field_dir):
+    """Capture committed rows, including WAL contents, into a closed private DB.
+
+    :param field_dir: completed field staging directory.
+    :returns: None; publishes a new snapshot only after backup and close succeed.
+    :raises OSError: when the owned destination cannot be created or published.
+    :raises sqlite3.Error: when the source cannot be backed up consistently.
+    """
+    import sqlite3
+    from pathlib import Path
+
+    source = Path(field_dir) / 'measurements' / 'measurements.db'
+    if not source.exists():
+        return
+    if _watch_file_identity(source) is None:
+        raise ValueError('Collection producer database is not a regular file.')
+    folder = Path(field_dir) / '.watch_collection'
+    folder.mkdir()
+    partial = folder / 'measurements.db.partial'
+    incoming = sqlite3.connect(source.resolve().as_uri() + '?mode=ro', uri=True, timeout=1)
+    try:
+        outgoing = sqlite3.connect(partial)
+        try:
+            incoming.backup(outgoing, pages=256, progress=_watch_backup_progress, sleep=0.05)
+            outgoing.execute('PRAGMA journal_mode=DELETE').fetchone()
+        finally:
+            outgoing.close()
+    finally:
+        incoming.close()
+    os.replace(partial, folder / 'measurements.db')
+
+
+def _watch_validate_collection(field_dir, work, saved, *, verify_staged):
+    """Refuse altered checkpoints or conflicting combined pixels before writes.
+
+    :param field_dir: completed field staging directory.
+    :param work: shared watch output directory.
+    :param saved: checkpoint artifact path/hash mapping.
+    :param verify_staged: True on restart; False just after fingerprinting outputs.
+    :returns: None when collection can safely continue.
+    :raises ValueError: for missing/changed outputs or conflicting combined files.
+    """
+    if verify_staged and _watch_collection_artifacts(field_dir) != saved:
+        raise ValueError('Collection checkpoint artifacts changed; preserved outputs '
+                         'must be recovered before resuming this workspace.')
+    for relative, digest in saved.items():
+        if os.path.dirname(relative) != 'merged':
+            continue
+        destination = os.path.join(work, relative)
+        if os.path.lexists(destination) and _watch_artifact_sha256(destination) != digest:
+            raise ValueError(f'Collection conflicts with an existing combined artifact: {destination}')
 
 
 def _watch_status_line(ledger, waiting):
@@ -1508,37 +1639,62 @@ def _watch_run_field(key, members, signature, context):
     seen, ledger = context['seen'], context['ledger']
     arrived = max(seen[name]['changed'] for name, _channel in members)
     entry = ledger['fields'].setdefault(key, {})
-    entry.pop('snapshot_sha256', None)
-    entry.pop('source_identity', None)
-    entry.update(status='running', files=signature,
-                 first_seen=min(seen[name]['first'] for name, _c in members),
-                 stable_since=arrived, started=time.time(), error=None)
+    saved_collection = entry.get('collection_checkpoint')
+    if saved_collection is None:
+        entry.pop('snapshot_sha256', None)
+        entry.pop('source_identity', None)
+        entry.update(status='running', files=signature,
+                     first_seen=min(seen[name]['first'] for name, _c in members),
+                     stable_since=arrived, started=time.time(), error=None)
+    else:
+        arrived = entry['stable_since']
+        entry.update(status='running', error=None)
     _watch_save_ledger(context['ledger_path'], ledger)
     field_dir = os.path.join(context['work'], 'fields', key)
-    if os.path.exists(field_dir):
-        shutil.rmtree(field_dir)
-    os.makedirs(field_dir)
-    print(f'watch_folder: analysing {key} ({len(members)} file(s)).')
     try:
-        snapshots = {}
         identities = {name: seen[name].get('identity') for name, _channel in members}
-        for name, _channel in members:
-            digest = _watch_copy_snapshot(
-                os.path.join(context['src'], name),
-                os.path.join(field_dir, os.path.basename(name)), identities[name])
-            if digest is None:
+        if saved_collection is not None:
+            if entry.get('files') != signature or entry.get('source_identity') != identities:
+                raise ValueError('Collection checkpoint inputs changed; preserved outputs '
+                                 'cannot be combined with a new analysis attempt.')
+            print(f'watch_folder: resuming collection for {key} without reanalysing it.')
+        else:
+            if os.path.exists(field_dir):
+                shutil.rmtree(field_dir)
+            os.makedirs(field_dir)
+            print(f'watch_folder: analysing {key} ({len(members)} file(s)).')
+            snapshots = {}
+            for name, _channel in members:
+                digest = _watch_copy_snapshot(
+                    os.path.join(context['src'], name),
+                    os.path.join(field_dir, os.path.basename(name)), identities[name])
+                if digest is None:
+                    _watch_defer_snapshot(key, members, field_dir, context)
+                    return
+                snapshots[name] = digest
+            if any(_watch_file_identity(os.path.join(context['src'], name)) != identities[name]
+                   for name, _channel in members):
                 _watch_defer_snapshot(key, members, field_dir, context)
                 return
-            snapshots[name] = digest
-        if any(_watch_file_identity(os.path.join(context['src'], name)) != identities[name]
-               for name, _channel in members):
-            _watch_defer_snapshot(key, members, field_dir, context)
-            return
+            _watch_check_map(context)
+            entry.update(snapshot_sha256=snapshots, source_identity=identities)
+            _watch_save_ledger(context['ledger_path'], ledger)
+            context['analyse'](field_dir, context['settings'])
+            _watch_snapshot_database(field_dir)
+            entry['collection_checkpoint'] = {
+                'artifacts': _watch_collection_artifacts(field_dir),
+                'analysis_seconds': time.time() - entry['started']}
+            _watch_save_ledger(context['ledger_path'], ledger)
+        collection_started = time.time()
+        _watch_validate_collection(
+            field_dir, context['work'], entry['collection_checkpoint']['artifacts'],
+            verify_staged=saved_collection is not None)
         _watch_check_map(context)
-        entry.update(snapshot_sha256=snapshots, source_identity=identities)
-        _watch_save_ledger(context['ledger_path'], ledger)
-        context['analyse'](field_dir, context['settings'])
-        _watch_collect(field_dir, context['work'], key)
+        database_relative = os.path.join('.watch_collection', 'measurements.db')
+        database_snapshot = (os.path.join(field_dir, database_relative)
+                             if database_relative in entry['collection_checkpoint']['artifacts']
+                             else None)
+        _watch_collect(field_dir, context['work'], key, database_snapshot=database_snapshot)
     except PipelineCancelled:
         entry.update(status='interrupted', finished=time.time())
         _watch_save_ledger(context['ledger_path'], ledger)
@@ -1552,7 +1708,8 @@ def _watch_run_field(key, members, signature, context):
         return
     finished = time.time()
     entry.update(status='done', finished=finished,
-                 seconds=round(finished - entry['started'], 3),
+                 seconds=round(entry['collection_checkpoint']['analysis_seconds']
+                               + finished - collection_started, 3),
                  waited=round(entry['started'] - arrived, 3))
     _watch_save_ledger(context['ledger_path'], ledger)
     print(f'watch_folder: analysed {key} in {entry["seconds"]:.1f} s, taken '

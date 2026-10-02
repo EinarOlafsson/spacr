@@ -367,3 +367,42 @@ MEASURE RECIPE SNAPSHOT (2026-10-02, partial)
     batch_size=1 case also passes with only model inference stubbed. Runs used
     4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
     features/data/548_measure_recipe_snapshot_2026-10-02.json.
+
+VERIFIED COLLECTION CHECKPOINT (2026-10-02, partial)
+    Fault-injected TIFF/SQLite reproduction showed a collection failure after
+    linking pixels but before appending rows. Restart reran analysis, retained the
+    old combined image and appended new measurements: mean pixel 2.0 was paired
+    with measured intensity 3.0. This violated restart and batch consistency.
+
+    Successful analysis now saves a collection checkpoint before publishing its
+    combined outputs. Merged artifacts receive bounded, cancellable SHA256 checks.
+    SQLite's backup API captures committed rows (including WAL-only rows) into a
+    new private database, closes it in DELETE journal mode and publishes it before
+    recording its hash. The producer DB and WAL bytes remain untouched. Normal
+    Measure can retain WAL state; its main-file bytes alone are not a sufficient
+    fingerprint. Interrupted backup never publishes an incomplete snapshot.
+
+    A failed, interrupted or process-exit collection resumes from that verified
+    checkpoint without rerunning inference. The database append remains exactly
+    once. Missing or changed staged artifacts, changed acquired input identity
+    and conflicting combined images refuse without replacing preserved results.
+    All existing combined-image conflicts are checked before collection writes.
+    Nonregular merged children and sidecars on the private closed database are
+    refused. Ordinary analysis failures retain next-start reanalysis behavior.
+
+    Hashing reads at most 1 MiB at a time; backup checks cancellation every 256
+    pages. Measured fields retain an additional private database copy. This is
+    not a lock against external edits after verification and cannot retroactively
+    reconstruct checkpoints for older failed records. F548 remains partial/alpha
+    for vendor completion, unsupported series, pooled normalization and its other
+    recorded requirements. Public APIs and translated captions are unchanged.
+
+    Validation: the pre-fix case failed in 6.23 seconds and its retained artifacts
+    confirm the 2.0/3.0 mismatch. The initial cohort passed 45 cases in 34.24
+    seconds. A follow-up exposed Measure's live WAL behavior; SQLite backup fixed
+    that while retaining real batch parity. The final affected cohort passed all
+    16 cases in 14.86 seconds, including 15 new checkpoint cases and actual
+    preprocessing/Measure parity. Across initial and affected runs 52 unique
+    cases pass. Inference remains stubbed in the existing synthetic batch test.
+    All runs used 4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
+    features/data/548_collection_checkpoint_2026-10-02.json.
