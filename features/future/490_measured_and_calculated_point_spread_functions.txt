@@ -324,3 +324,14 @@ Receipt: features/data/490_psf_tutorial_private_capture_2026-10-01.json.
 The seven scenes and draft narration are private/unpublished. Full narrated
 media, caption matrix, publication and native desktop focus acceptance remain
 open; the alpha-gated Mask/Timelapse settings are described separately.
+
+2026-10-01 — NESTED PSF SETTINGS SEARCH FOLLOW-UP
+The search-reveal path now expands every containing settings section through
+its existing logical-parent chain. A PSF result in Measure is visibly reachable
+without a manual outer-section click, while unrelated sections still collapse
+and stored values/disclosure preferences are unchanged. The failure was
+reproduced before the fix; the focused search/navigation cohort passed 83
+checks with 29 existing small-module skips under 4 GiB, CPU 0 and zero swap.
+This removes the UI navigation defect observed in the private lesson capture.
+No public API, setting caption or translation changed. F490 remains open for
+narrated/public media acceptance.
