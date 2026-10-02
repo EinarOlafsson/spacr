@@ -1,0 +1,74 @@
+{
+  "item": "F552",
+  "date": "2026-10-02",
+  "scope": "original DONE WHEN gate; isolated CPU install, Mask generation and score; historical actual Make Masks run retained",
+  "installer": {
+    "state": "installed",
+    "python": "3.13.14",
+    "packages": {
+      "instanseg-torch": "0.1.1",
+      "numpy": "2.5.3",
+      "torch": "2.14.1"
+    },
+    "device": "cpu",
+    "selftest": "ok",
+    "in_process": false
+  },
+  "benchmark": {
+    "driver": "tools/benchmark_segmentation_strategies.py",
+    "dataset": "nuclei_plate1",
+    "model_setting": "instanseg:fluorescence_nuclei_and_cells#nuclei",
+    "device": "cpu",
+    "fields": 4,
+    "pooled": {
+      "fields": 4,
+      "tp50": 198,
+      "fp50": 11,
+      "fn50": 25,
+      "precision50": 0.9474,
+      "recall50": 0.8879,
+      "f1_50": 0.9167,
+      "tp75": 187,
+      "fp75": 22,
+      "fn75": 36,
+      "precision75": 0.8947,
+      "recall75": 0.8386,
+      "f1_75": 0.8657,
+      "mean_field_f1_50": 0.9091,
+      "n_truth": 223,
+      "n_pred": 209,
+      "negative_field_fp": 0,
+      "iou_mean": 0.8717,
+      "eval_s_median": 4.07,
+      "eval_s_mean": 4.59,
+      "prep_s_mean": 1.14
+    },
+    "wall_seconds": 28.8,
+    "input_files": [
+      {
+        "path": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_10_1.npy",
+        "sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+        "labels": 65
+      },
+      {
+        "path": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_11_1.npy",
+        "sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+        "labels": 48
+      },
+      {
+        "path": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_9_1.npy",
+        "sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+        "labels": 64
+      },
+      {
+        "path": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E02_10_1.npy",
+        "sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69",
+        "labels": 46
+      }
+    ],
+    "reference": "bundled Cellpose-SAM saved mask plane, not independent human ground truth"
+  },
+  "make_masks": "2026-09-26 actual Make Masks run: plate1_E02_10_1, 37 objects, documented in feature note; fresh 2026-10-02 GUI picker/route tests passed but no repeat GUI inference",
+  "tests": "137 passed: prefixed backend, Model Zoo and Qt picker under 4 GiB cap, single CPU, GPU hidden",
+  "limits": "No GPU result; brightfield model and multi-channel input not newly scored; existing 2D CPU gate passed."
+}
