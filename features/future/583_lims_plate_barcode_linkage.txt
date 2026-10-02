@@ -116,3 +116,40 @@ STATUS 2026-10-01 — paginated LIMS retrieval implemented and verified
     limits: 4 GiB, CPU0, zero swap, hidden CUDA. Public API signatures and
     docstrings remain unchanged. Receipt:
     features/data/583_convert_csv_linkage_2026-10-02.json.
+
+2026-10-02 — SOURCE BARCODE.TXT DISCOVERY (partial)
+    Opt-in Convert CSV linkage can now fill missing plate_barcodes assignments
+    from local barcode.txt files at the acquisition root or actual source plate
+    folders. Discovery uses the scanned layout and source-to-output mappings;
+    it does not interpret folder names as barcode values or invent vendor
+    image metadata. A plain barcode requires exactly one source plate belonging
+    to that folder. Keyed files use ORIGINAL source plate names, for example
+    Alpha plate=00123; Zulu plate=00456, which are mapped to the assigned output
+    plate IDs. Explicit settings remain keyed by OUTPUT plate IDs.
+
+    Identifiers retain leading zeroes. Unknown or duplicate source keys,
+    ambiguous plain codes, malformed text and conflicting explicit/root/plate
+    assignments fail before image output. Matching evidence is retained together;
+    a partial keyed file may be completed by explicit settings or other valid
+    source sidecars. Every output plate must still have one resolved barcode.
+    Sources and existing user maps are never modified. Blank plate_barcode_source
+    leaves ordinary Convert behavior unchanged and does not inspect sidecars.
+
+    Sidecars are bounded to 64 KiB UTF-8 regular files; symbolic links and
+    nonregular inputs are refused. The completion receipt records barcode
+    origins and sidecar hashes, including candidate paths that were absent.
+    Changed, deleted or newly introduced sidecars prevent successful bundle
+    publication. This recheck occurs after TIFF conversion, so converted images
+    can remain available on such a failure, without a misleading metadata bundle.
+    Preview validates but writes nothing. No settings, public API signatures,
+    public docstrings or translatable UI captions are added.
+
+    Validation: 50 focused CPU checks passed in 6.43 seconds, including 22 new
+    real TIFF/CLI sidecar cases plus existing Convert linkage and Qt controls.
+    Coverage includes source-name to output-ID binding, leading zeroes, explicit
+    and automatic evidence, duplicates/conflicts, bounded/unsafe input refusal,
+    late input changes, preview/no-opt-in behavior and source-byte preservation.
+    The run used 4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
+    features/data/583_barcode_sidecar_discovery_2026-10-02.json.
+    F583 remains partial/alpha for vendor image/plate-reader metadata discovery
+    and vendor-specific LIMS adapters; this closes one local input path only.
