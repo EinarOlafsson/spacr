@@ -292,6 +292,7 @@ def _worker(os_scheme, stored_theme, output):
             app.processEvents()
             receipt["passed"] = True
     except Exception:
+        receipt["passed"] = False
         receipt["error"] = traceback.format_exc()
     finally:
         _write(output / "receipt.json", receipt)
