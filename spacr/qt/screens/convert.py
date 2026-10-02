@@ -54,6 +54,7 @@ Design notes:
 from __future__ import annotations
 
 import os
+import json
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -77,6 +78,7 @@ from PySide6.QtWidgets import (
 
 from ... import convert as cvt
 from ..bridge import make_thread
+from ..i18n import tr
 from ..theme import SPACING, active_palette
 from ..widgets import Divider, Toggle
 from ..widgets.collapsible_splitter import CollapsibleSplitter
@@ -132,6 +134,87 @@ PREVIEW_COLUMNS: Tuple[Tuple[str, str], ...] = (
     ("z_handling", "Z handling"),
     ("status", "Status"),
 )
+
+
+def _pick_barcode_source(screen, _checked=False):
+    """Choose a CSV on the GUI thread without replacing text after cancellation."""
+    path, _selected = QFileDialog.getOpenFileName(
+        screen, tr("Select sample records CSV"), screen._barcode_source.text(),
+        tr("CSV files (*.csv)"))
+    if path:
+        screen._barcode_source.setText(path)
+
+
+def _build_barcode_controls(screen, outer):
+    """Add optional alpha-gated linkage controls to the existing Convert form."""
+    from ..preferences import _apply_alpha_widgets
+
+    panel = QWidget(screen)
+    panel.setObjectName('ConvertPlateBarcodeLinkage')
+    layout = QVBoxLayout(panel)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.addWidget(QLabel(tr("Plate barcode linkage (Alpha)"), panel))
+    source_row = QHBoxLayout()
+    screen._barcode_source = QLineEdit(panel)
+    screen._barcode_source.setClearButtonEnabled(True)
+    screen._barcode_source.setToolTip(tr(
+        "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. "
+        "A new plate_barcode_linkage folder is written in the destination; "
+        "source files and existing plate maps are preserved."))
+    screen._barcode_pick = QPushButton(tr("Choose CSV…"), panel)
+    screen._barcode_pick.clicked.connect(partial(_pick_barcode_source, screen))
+    source_row.addWidget(QLabel(tr("Sample records CSV"), panel))
+    source_row.addWidget(screen._barcode_source, 1)
+    source_row.addWidget(screen._barcode_pick)
+    layout.addLayout(source_row)
+    assignments = QHBoxLayout()
+    screen._barcode_assignments = QLineEdit(panel)
+    screen._barcode_assignments.setPlaceholderText('plate1=BC001; plate2=BC002')
+    screen._barcode_assignments.setToolTip(tr(
+        "Assign every output plate shown in the preview, for example "
+        "plate1=BC001; plate2=BC002. Output plate names can differ from source folder names."))
+    screen._barcode_column = QLineEdit('barcode', panel)
+    screen._barcode_column.setMaximumWidth(180)
+    screen._barcode_column.setToolTip(tr(
+        "Column name in the CSV that contains the plate barcode."))
+    assignments.addWidget(QLabel(tr("Output plate barcodes"), panel))
+    assignments.addWidget(screen._barcode_assignments, 1)
+    assignments.addWidget(QLabel(tr("Barcode column"), panel))
+    assignments.addWidget(screen._barcode_column)
+    layout.addLayout(assignments)
+    for edit in (screen._barcode_source, screen._barcode_assignments, screen._barcode_column):
+        edit.textChanged.connect(screen._on_option_changed)
+    screen._barcode_panel = panel
+    outer.addWidget(panel)
+    _apply_alpha_widgets(panel)
+
+
+def _barcode_settings(screen):
+    """Capture linkage values on the GUI thread before launching a worker."""
+    return {'plate_barcode_source': screen._barcode_source.text().strip(),
+            'plate_barcodes': screen._barcode_assignments.text().strip(),
+            'plate_barcode_column': screen._barcode_column.text().strip()}
+
+
+def _barcode_summary(prepared):
+    """Read the completed bundle off-thread and bound the displayed mismatch list."""
+    if prepared is None:
+        return ''
+    bundle = prepared['bundle']
+    receipt = json.loads((bundle / 'complete.json').read_text(encoding='utf-8'))
+    report = pd.read_csv(bundle / 'plate_barcode_mismatches.csv', dtype=str,
+                         keep_default_na=False, nrows=100)
+    text = tr("Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\n"
+              "Plate map: {map_path}\nMismatches: {mismatch_path}",
+              wells=receipt['linked_wells'], mismatches=receipt['mismatches'],
+              map_path=str(bundle / 'plate_map_lims.csv'),
+              mismatch_path=str(bundle / 'plate_barcode_mismatches.csv'))
+    if not report.empty:
+        text += '\n\n' + report.head(100).to_string(index=False, max_colwidth=100)
+        if receipt['mismatches'] > len(report):
+            text += '\n' + tr("Showing {shown} of {total} mismatches; the CSV contains all rows.",
+                               shown=len(report), total=receipt['mismatches'])
+    return text
 
 
 class PlanTableModel(QAbstractTableModel):
@@ -354,6 +437,8 @@ class ConvertScreen(QWidget):
         dst_row.addWidget(self._btn_convert)
         outer.addLayout(dst_row)
 
+        _build_barcode_controls(self, outer)
+
         self._model = PlanTableModel(self)
         split = CollapsibleSplitter(Qt.Vertical, self,
                                     persist_key="convert::body")
@@ -559,12 +644,20 @@ class ConvertScreen(QWidget):
         layout = self.layout_mode()
         z_handling = self.z_handling()
         plate_naming = self.plate_naming()
+        linkage = _barcode_settings(self)
+        dst = self.destination_path() or (os.path.normpath(src) + "_yokogawa")
 
         def _job():
             """Scan the source and plan the conversion. Off the GUI thread."""
             sources = cvt.scan(src, layout=layout)
-            return cvt.plan(sources, z_handling=z_handling,
+            plan = cvt.plan(sources, z_handling=z_handling,
                             plate_naming=plate_naming)
+            if plan.ok and linkage["plate_barcode_source"]:
+                try:
+                    cvt._prepare_conversion_barcodes(linkage, plan, src, dst)
+                except (cvt.ConfigurationError, ValueError, OSError) as exc:
+                    plan.errors.append(str(exc))
+            return plan
 
         self._set_status(f"Scanning {src}…")
         return self._run_job(_job, self._on_plan_ready)
@@ -655,10 +748,16 @@ class ConvertScreen(QWidget):
         plan = self._plan
         emit = self._progress.emit
         resume = self.resume_enabled()
+        linkage = _barcode_settings(self)
+        src = self.source_path()
 
         def _job():
             """Run the conversion. Off the GUI thread."""
-            return cvt.convert(plan, dst, progress=emit, resume=resume)
+            prepared = cvt._prepare_conversion_barcodes(linkage, plan, src, dst)
+            result = cvt.convert(plan, dst, progress=emit, resume=resume)
+            cvt._finish_conversion_barcodes(prepared, result)
+            result._barcode_summary = _barcode_summary(prepared)
+            return result
 
         self._progress_bar.setVisible(True)
         self._progress_bar.setRange(0, max(plan.n_sources, 1))
@@ -680,7 +779,10 @@ class ConvertScreen(QWidget):
             self._set_status("The conversion produced no result.", error=True)
             self._update_controls()
             return
-        self._set_summary(result.summary())
+        summary = result.summary()
+        if getattr(result, "_barcode_summary", ""):
+            summary += "\n\n" + result._barcode_summary
+        self._set_summary(summary)
         if result.is_complete:
             self._set_status(
                 f"Converted {result.n_written} file(s) into {result.dst}. "
@@ -704,7 +806,8 @@ class ConvertScreen(QWidget):
         for widget in (self._btn_pick_src, self._btn_pick_dst,
                        self._btn_preview, self._src_edit, self._dst_edit,
                        self._layout_box, self._z_box, self._plate_box,
-                       self._resume):
+                       self._resume, self._barcode_source, self._barcode_pick,
+                       self._barcode_assignments, self._barcode_column):
             widget.setEnabled(idle)
         self._btn_convert.setEnabled(idle and has_plan)
 
