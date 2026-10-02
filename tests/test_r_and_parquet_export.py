@@ -479,3 +479,140 @@ def test_the_r_loader_builds_a_single_cell_experiment(exported, tmp_path):
     assert float(total) == pytest.approx(
         float(np.nansum(parts["frame"]["cell_area"])))
     assert name == "X_umap"
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36794763761)
+# ---------------------------------------------------------------------------
+
+def test_the_description_names_its_artifact():
+    result = ax._TablesResult(directory="/out", files=("/out/objects.parquet",),
+                              n_objects=3, n_features=2, artifact_id="a1b2")
+    assert "  artifact a1b2" in result.describe().splitlines()
+
+
+def test_a_row_or_column_that_is_not_a_well_has_no_well_name():
+    names = ax._well_names(pd.Series(["r1", "r1"]), pd.Series(["c2", "cX"]))
+    assert names.iloc[0] == schema.well_id("r1", "c2")
+    assert names.iloc[1] is None or pd.isna(names.iloc[1])
+
+
+def test_well_keys_are_added_only_when_the_locators_are_there():
+    bare = pd.DataFrame({"value": [1.0]})
+    assert ax._add_well_keys(bare) is bare
+    keyed = pd.DataFrame({schema.PLATE_KEY: ["p1"], schema.ROW_KEY: ["r1"],
+                          schema.COLUMN_KEY: ["c1"], schema.PRC_KEY: ["kept"],
+                          schema.WELL_KEY: ["W"]})
+    out = ax._add_well_keys(keyed)
+    assert out[schema.PRC_KEY].iloc[0] == "kept"
+    assert out[schema.WELL_KEY].iloc[0] == "W"
+
+
+def test_numeric_categories_with_gaps_become_nullable_values():
+    frame = pd.DataFrame({
+        "count": pd.Categorical([1, None, 3]),
+        "flag": pd.Categorical([True, None, False]),
+    })
+    out = ax._numeric_categoricals_as_values(frame)
+    assert str(out["count"].dtype) == "Int64"
+    assert str(out["flag"].dtype) == "boolean"
+
+
+def test_mixed_object_values_are_written_as_text_and_missing_stays_missing():
+    parts = {"obs": pd.DataFrame({"note": [1, "two", np.nan]},
+                                 index=["k1", "k2", "k3"]),
+             "matrix": np.zeros((3, 1)), "features": ["area"]}
+    objects = ax._objects_table(parts, "float64")
+    assert list(objects["note"].iloc[:2]) == ["1", "two"]
+    assert pd.isna(objects["note"].iloc[2])
+
+
+def test_well_keys_need_the_locators_and_carry_time_in_a_timelapse():
+    assert ax._well_key_columns(pd.DataFrame({"a": [1]}), False) == []
+    frame = pd.DataFrame({schema.PLATE_KEY: ["p"], schema.ROW_KEY: ["r1"],
+                          schema.COLUMN_KEY: ["c1"], schema.TIME_KEY: [1]})
+    assert ax._well_key_columns(frame, True)[-1] == schema.TIME_KEY
+    assert schema.TIME_KEY not in ax._well_key_columns(frame, False)
+
+
+def test_a_wells_condition_is_kept_only_when_its_objects_agree():
+    objects = pd.DataFrame({
+        schema.PLATE_KEY: ["p"] * 4, schema.ROW_KEY: ["r1"] * 4,
+        schema.COLUMN_KEY: ["c1", "c1", "c2", "c2"],
+        "condition": ["dmso", "dmso", "drug", "dmso"],
+        "area": [1.0, 3.0, 5.0, 7.0]})
+    wells = ax._wells_table(objects, ["area"],
+                            [schema.PLATE_KEY, schema.ROW_KEY,
+                             schema.COLUMN_KEY], "mean")
+    by_column = wells.set_index(schema.COLUMN_KEY)["condition"]
+    assert by_column["c1"] == "dmso" and pd.isna(by_column["c2"])
+
+
+def test_umap_on_too_few_objects_is_a_note_and_on_enough_is_written(
+        project, tmp_path):
+    notes = []
+    table, _columns = ax._embeddings_table(
+        pd.Index(["k1", "k2"]), {"matrix": np.zeros((2, 3)),
+                                 "features": ["a", "b", "c"]},
+        None, True, None, False, notes)
+    assert table is None and "UMAP needs at least 3" in notes[0]
+    _root, db = project
+    result = ax._export_tables(db, tmp_path, compute_umap=True,
+                               register=False, verbose=False)
+    names = {os.path.basename(p) for p in result.files}
+    assert "embeddings.parquet" in names
+
+
+def test_objects_without_well_locators_have_no_well_table(project, tmp_path,
+                                                          monkeypatch):
+    _root, db = project
+    monkeypatch.setattr(ax, "_well_key_columns", lambda objects, t: [])
+    result = ax._export_tables(db, tmp_path, register=False, verbose=False,
+                               r_loader=True, rds=False)
+    names = {os.path.basename(p) for p in result.files}
+    assert "wells.parquet" not in names and result.n_wells == 0
+    assert any("no wells.parquet" in note for note in result.warnings)
+
+
+def test_a_registry_that_cannot_register_costs_the_id_not_the_export(
+        project, tmp_path, monkeypatch):
+    from spacr import artifacts
+
+    _root, db = project
+
+    def broken(*args, **kwargs):
+        raise OSError("registry locked")
+
+    monkeypatch.setattr(artifacts, "latest", broken)
+    monkeypatch.setattr(artifacts, "register", broken)
+    with pytest.warns(RuntimeWarning, match="could not be registered"):
+        result = ax._export_tables(db, tmp_path / "t", project=str(tmp_path),
+                                   verbose=False)
+    assert result.artifact_id == ""
+    assert os.path.isfile(os.path.join(result.directory, "objects.parquet"))
+
+
+def test_a_registered_export_names_its_measurement_database(project, tmp_path,
+                                                            monkeypatch):
+    from spacr import artifacts
+
+    _root, db = project
+    upstream = type("Record", (), {"artifact_id": "db-1"})()
+    seen = {}
+    real = artifacts.register
+
+    def register(**kwargs):
+        seen.update(kwargs)
+        return real(**kwargs)
+
+    monkeypatch.setattr(artifacts, "latest", lambda *a, **k: upstream)
+    monkeypatch.setattr(artifacts, "register", register)
+    ax._export_tables(db, tmp_path / "t", project=str(tmp_path),
+                      verbose=False)
+    assert seen["inputs"] == ["db-1"]
+
+
+def test_a_single_table_export_is_named_for_its_table(project):
+    root, db = project
+    path = ax._default_tables_dir(db, single_table="cell")
+    assert path.endswith(f"{os.path.basename(root)}_cell_tables")

@@ -20,21 +20,21 @@ ROLES = ("cell", "cytoplasm", "nucleus", "pathogen")
 MAX_TABLE_ROWS = 50_000
 REL_TOL = 1e-9
 ABS_TOL = 1e-9
+#: ``(statistic, numerator column)``. spaCR names each ratio
+#: ``pathogen_channel_<c>_<compartment>_<statistic>_ratio`` (8f9f568ee); only
+#: the recorded channel one is reconstructed here.
 NUMERATORS = (
-    ("pathogen", "mean_mean", "pathogen_channel_1_mean_intensity"),
-    ("pathogen", "q75_mean", "pathogen_channel_1_percentile_75"),
-    ("pathogen_outside", "mean_mean", "pathogen_channel_1_outside_mean"),
-    ("pathogen_outside", "q75_mean", "pathogen_channel_1_outside_percentile_75"),
-    ("pathogen_periphery", "mean_mean", "pathogen_channel_1_periphery_mean"),
+    ("mean", "pathogen_channel_1_mean_intensity"),
+    ("q75", "pathogen_channel_1_percentile_75"),
+    ("outside_mean", "pathogen_channel_1_outside_mean"),
+    ("outside_q75", "pathogen_channel_1_outside_percentile_75"),
+    ("periphery_mean", "pathogen_channel_1_periphery_mean"),
 )
 RATIO_COLUMNS = tuple(
-    f"{prefix}_{role}_{suffix}"
-    for prefix, suffix, _ in NUMERATORS
+    f"pathogen_channel_1_{role}_{name}_ratio"
+    for name, _ in NUMERATORS
     for role in ("cell", "cytoplasm", "nucleus")
 ) + ("recruitment",)
-# These are the current consumer's actual filter channels, not the mask-plane
-# names: its mask_chans order is nucleus, pathogen, cell but its filter calls
-# use indices cell=0, nucleus=1, pathogen=2. Cell intensity remains disabled.
 NONRESTRICTIVE_INTENSITY_COLUMNS = {
     "nucleus": "nucleus_channel_3_mean_intensity",
     "pathogen": "pathogen_channel_1_mean_intensity",
@@ -188,7 +188,7 @@ def _read_table(connection, role, settings):
     if role in ("nucleus", "pathogen"):
         required.add("cell_id")
     if role == "pathogen":
-        required.update(column for _, _, column in NUMERATORS)
+        required.update(column for _, column in NUMERATORS)
     if (role in NONRESTRICTIVE_INTENSITY_COLUMNS
             and settings[f"{role}_intensity_range"] is not None):
         required.add(NONRESTRICTIVE_INTENSITY_COLUMNS[role])
@@ -324,7 +324,7 @@ def _reconstruct(tables, settings):
             "pathogen_prcfo_count": float(len(pathogens)),
             "cells_per_well": float(source_counts[key[:3]]),
         }
-        for _, _, column in NUMERATORS:
+        for _, column in NUMERATORS:
             numeric[column] = _mean(p[column] for p in pathogens)
         low, high = settings["cell_size_range"]
         if not low < numeric["cell_area"] < high:
@@ -342,16 +342,13 @@ def _reconstruct(tables, settings):
         if not low < numeric["pathogen_area"] < high:
             continue
         stages["after_pathogen_area"] += 1
-        for prefix, suffix, numerator in NUMERATORS:
+        for name, numerator in NUMERATORS:
             for role in ("cell", "cytoplasm", "nucleus"):
-                numeric[f"{prefix}_{role}_{suffix}"] = _divide(
+                numeric[f"pathogen_channel_1_{role}_{name}_ratio"] = _divide(
                     numeric[numerator], numeric[f"{role}_channel_1_mean_intensity"])
         numeric["recruitment"] = _divide(
             numeric["pathogen_channel_1_mean_intensity"],
             numeric["cytoplasm_channel_1_mean_intensity"])
-        for role in ("pathogen", "nucleus"):
-            for channel in range(4):
-                numeric[f"{role}_slope_channel_{channel}"] = 1.0
         if source_counts[key[:3]] >= settings["cells_per_well"]:
             survivors[key] = {"numeric": numeric, "annotations": annotations,
                               "file_name": source.get("file_name")}

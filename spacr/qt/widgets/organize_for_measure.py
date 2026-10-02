@@ -40,12 +40,14 @@ from __future__ import annotations
 
 import json
 import os
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Sequence
 
 import numpy as np
-from PySide6.QtCore import QByteArray, QEvent, QMimeData, QSize, Qt, Signal
-from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
+from PySide6.QtCore import (QByteArray, QEvent, QMimeData, QRect, QSize, Qt,
+                            Signal, QTimer)
+from PySide6.QtGui import QColor, QImage, QPainter, QPalette, QPen, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox,
     QDialog, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit,
@@ -68,6 +70,10 @@ _NOT_CONSOLIDATED = ("masks", "orig", cs.DEFAULT_DEST_NAME)
 
 #: The convention the regex box starts on: spaCR proposes a regex.
 _DEFAULT_METADATA_TYPE = "auto"
+
+
+class _ConsolidationFailed(RuntimeError):
+    """A reported partial copy that must not replace the current working table."""
 
 
 def _headless() -> bool:
@@ -120,7 +126,7 @@ def _mime_slots(mime: Optional[QMimeData]) -> List[List[int]]:
 
 
 def _mime_anchor(mime: Optional[QMimeData]) -> Optional[List[int]]:
-    """The slot a drag out of the table started on (600c).
+    """The slot a drag out of the table started on.
 
     :param mime: the drag's data.
     :returns: ``[row, column]``, or None for any other drag.
@@ -219,7 +225,7 @@ _VIEWS = ("text", "image", "both")
 #: The thumbnail side in the table's image views, in pixels.
 _CELL_THUMB = 96
 
-#: The thumbnail-size slider's range, in pixels (600c).
+#: The thumbnail-size slider's range, in pixels.
 _THUMB_RANGE = (32, 320)
 
 #: The side of the × that clears a cell, in pixels.
@@ -272,7 +278,7 @@ def _clear_cell(rows: List[List[Optional[str]]], mask_of: Dict[int, int],
 
 def _block_moves(cells, anchor, target, width: int,
                  mask_of: Dict[int, int]) -> Dict[tuple, tuple]:
-    """Where each cell of a dragged block lands (600c).
+    """Where each cell of a dragged block lands.
 
     The block keeps its shape: every cell moves by the offset from the cell
     the drag started on (``anchor``) to the slot it was dropped on. A cell
@@ -309,7 +315,7 @@ def _block_moves(cells, anchor, target, width: int,
 
 def _move_block(rows: List[List[Optional[str]]], moves: Dict[tuple, tuple]
                 ) -> List[List[Optional[str]]]:
-    """Move several slots at once; what they land on swaps back (600c).
+    """Move several slots at once; what they land on swaps back.
 
     Every source's file goes to its target. A file already on a target that
     is not itself moving goes to the slot freed at the start of that chain
@@ -346,7 +352,7 @@ def _move_block(rows: List[List[Optional[str]]], moves: Dict[tuple, tuple]
 
 
 def _selection_cells(indexes) -> List[List[int]]:
-    """The filled cells among selected indexes, in reading order (600c).
+    """The filled cells among selected indexes, in reading order.
 
     :param indexes: model indexes (or anything with ``row``, ``column`` and
         ``data``).
@@ -385,7 +391,7 @@ class _CellDelegate(QStyledItemDelegate):
         self._table = table
         self.view = "text"
         self.text_color = QColor("white")
-        self.pixmaps: Dict[str, QPixmap] = {}
+        self.pixmaps: Dict[str, QPixmap] = OrderedDict()
         #: The (row, column) whose × the mouse is over, or None.
         self.hover = None
 
@@ -412,7 +418,8 @@ class _CellDelegate(QStyledItemDelegate):
             painter.drawPixmap(x, y, scaled)
             if self.view == "both":
                 text = os.path.basename(path)
-                box = option.rect.adjusted(4, 4, -4, -4)
+                box = QRect(x, y, int(shown.width()),
+                            int(shown.height())).adjusted(3, 3, -3, -3)
                 painter.setPen(QColor(0, 0, 0, 200))
                 painter.drawText(box.translated(1, 1),
                                  Qt.AlignBottom | Qt.AlignLeft | Qt.TextWordWrap,
@@ -501,7 +508,37 @@ def _save_view_prefs(view: str, color: str) -> None:
         pass
 
 
-#: Where the thumbnail size is remembered (600c).
+def _legible_backdrop(color: QColor, window: QColor) -> str:
+    """A backdrop that keeps a caption in ``color`` readable on ``window``.
+
+    The "Text colour" button writes its caption in the chosen colour; white
+    or yellow on a light window, or black on a dark one, would vanish. Below
+    a 3:1 contrast ratio (WCAG relative luminance) a translucent chip of the
+    opposite shade goes behind it.
+
+    :param color: the caption's colour.
+    :param window: the colour behind the button.
+    :returns: a style-sheet colour, ``transparent`` when none is needed.
+    """
+    def luminance(c: QColor) -> float:
+        """The colour's relative luminance (WCAG 2), 0 for black to 1 for white."""
+        def linear(v: float) -> float:
+            """One sRGB channel, 0..1, converted to linear light."""
+            return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+        c = QColor(c)
+        return (0.2126 * linear(c.redF()) + 0.7152 * linear(c.greenF())
+                + 0.0722 * linear(c.blueF()))
+
+    fore, back = luminance(color), luminance(window)
+    ratio = (max(fore, back) + 0.05) / (min(fore, back) + 0.05)
+    if ratio >= 3.0:
+        return "transparent"
+    if fore >= 0.18:
+        return "rgba(0, 0, 0, 160)"
+    return "rgba(255, 255, 255, 200)"
+
+
+#: Where the thumbnail size is remembered.
 _PREFS_THUMB = "organize_for_measure/thumb_size"
 
 
@@ -551,9 +588,9 @@ class _OrganizeTable(QTableWidget):
     :ivar clear_requested: ``([[row, column], ...])`` -- cells whose × was
         clicked, or that were selected when Delete was pressed.
     :ivar block_moved: ``([[row, column], ...], [anchor row, column],
-        [to row, column])`` -- several cells dragged together (600c).
+        [to row, column])`` -- several cells dragged together.
     :ivar placeholder: the hint painted over the table while it holds no
-        file (600c).
+        file.
     """
 
     dropped = Signal(int, list, int)
@@ -576,7 +613,7 @@ class _OrganizeTable(QTableWidget):
         self.setMouseTracking(True)
         self._pressed_close = None
         self.placeholder = tr("Drag images or folders here")
-        #: Where a rubber-band selection started, and its band (600c).
+        #: Where a rubber-band selection started, and its band.
         self._band_origin = None
         self._band = None
         self._band_extend = False
@@ -704,7 +741,7 @@ class _OrganizeTable(QTableWidget):
                 extend or not index.isValid()
                 or not index.data(Qt.UserRole)):
             # A band starts from an empty slot, from outside the cells, or
-            # with Ctrl/Shift held; a plain press on a file drags it (600c).
+            # with Ctrl/Shift held; a plain press on a file drags it.
             self._band_origin = pos
             self._band_extend = extend
         super().mousePressEvent(event)
@@ -757,7 +794,7 @@ class _OrganizeTable(QTableWidget):
         first cell) and ``paths`` that column's files, which a drop on the
         "new channel" strip moves; ``cells`` are every dragged slot and
         ``anchor`` the one the drag started on, which a drop on the table
-        moves as a block (600c).
+        moves as a block.
 
         :param items: the dragged items.
         :returns: the drag's data.
@@ -816,7 +853,7 @@ class _OrganizeTable(QTableWidget):
         event.accept()
         if not self.columnCount():
             # The empty table's placeholder: the drop makes the first
-            # channel column (600c).
+            # channel column.
             self.dropped.emit(-1, _mime_paths(event.mimeData()), -1)
             return
         column = self.columnAt(int(event.position().x()))
@@ -1027,7 +1064,7 @@ class OrganizeForMeasureDialog(QDialog):
         intro.setWordWrap(True)
         layout.addWidget(intro)
 
-        # 600c: the fields on aligned rows above, every action button on
+        # The fields on aligned rows above, every action button on
         # one line below them, then the view controls over the table.
         from PySide6.QtWidgets import QGridLayout, QSlider
 
@@ -1102,7 +1139,7 @@ class OrganizeForMeasureDialog(QDialog):
             "Take the selected cells' files out of the table; the files "
             "themselves are not touched."))
         self.remove_button.clicked.connect(self._remove_selected)
-        #: The one line of action buttons, in order (600c).
+        #: The one line of action buttons, in order.
         self.action_row = QHBoxLayout()
         for button in (self.sort_button, self.auto_button, self.detect_button,
                        self.teach_button):
@@ -1145,6 +1182,12 @@ class OrganizeForMeasureDialog(QDialog):
         self.size_slider.setValue(self.thumb_size)
         self.size_slider.valueChanged.connect(self._set_thumb_size)
         view_row.addWidget(self.size_slider)
+        from ..mask_thumbnail_quality import quality_combo, changes
+
+        view_row.addWidget(QLabel(tr("Thumbnail quality")))
+        self.quality_box = quality_combo(self)
+        view_row.addWidget(self.quality_box)
+        changes.changed.connect(self._quality_changed)
         layout.addLayout(view_row)
         self._editors_row = QHBoxLayout()
         layout.addLayout(self._editors_row)
@@ -1159,6 +1202,17 @@ class OrganizeForMeasureDialog(QDialog):
         self.table.setItemDelegate(self.delegate)
         self._thumb_workers: list = []
         self._thumb_pending: set = set()
+        self._thumb_generation = 0
+        self._thumb_signatures = {}
+        self._thumb_requested = {}
+        self._thumb_closed = False
+        self._thumb_render_ratio = None
+        self._thumb_poll = QTimer(self)
+        self._thumb_poll.setInterval(750)
+        self._thumb_poll.timeout.connect(self._load_thumbnails)
+        self._thumb_poll.start()
+        self.table.verticalScrollBar().valueChanged.connect(self._load_thumbnails)
+        self.table.horizontalScrollBar().valueChanged.connect(self._load_thumbnails)
         self.finished.connect(lambda _code: self._stop_thumbs())
         table_row.addWidget(self.table, 1)
         self.new_zone = _NewColumnZone()
@@ -1506,6 +1560,13 @@ class OrganizeForMeasureDialog(QDialog):
                 log=lambda _text: None)
         finally:
             QApplication.restoreOverrideCursor()
+        if result.failed:
+            self.status.setText("\n".join((
+                tr("Consolidation failed"),
+                tr("{n} file(s) could not be copied; see the manifest.", n=result.failed),
+                str(result.manifest),
+            )))
+            raise _ConsolidationFailed()
         self.consolidate_check.setChecked(False)
         self.source_edit.setText(str(result.output))
         return str(result.output)
@@ -1539,7 +1600,10 @@ class OrganizeForMeasureDialog(QDialog):
         channels: Dict[str, int] = {}
         masks: Dict[str, str] = {}
         if source and os.path.isdir(source):
-            source = self._consolidate(source)
+            try:
+                source = self._consolidate(source)
+            except _ConsolidationFailed:
+                return None
             paths = [os.path.join(source, n)
                      for n in cs.list_folder_images(source)]
             for path in paths:
@@ -1581,7 +1645,10 @@ class OrganizeForMeasureDialog(QDialog):
             default the regex's chanID values are channels in natural order.
         :returns: the set report, or None when there was nothing to read.
         """
-        paths, channels, masks = self._paths_to_sort()
+        pending = self._paths_to_sort()
+        if pending is None:
+            return None
+        paths, channels, masks = pending
         if not paths:
             self.status.setText(tr(
                 "Nothing to sort: give a source folder of images, or drop "
@@ -1671,7 +1738,10 @@ class OrganizeForMeasureDialog(QDialog):
 
         :returns: the regex, or None when none was found.
         """
-        paths, by_path, _masks = self._paths_to_sort()
+        pending = self._paths_to_sort()
+        if pending is None:
+            return None
+        paths, by_path, _masks = pending
         names = [self._alias(p) for p in paths]
         channels = ({self._alias(p): c for p, c in by_path.items()}
                     if by_path else None)
@@ -1701,7 +1771,10 @@ class OrganizeForMeasureDialog(QDialog):
 
         :returns: the learned regex, or None when none was learned.
         """
-        paths, _channels, _masks = self._paths_to_sort()
+        pending = self._paths_to_sort()
+        if pending is None:
+            return None
+        paths, _channels, _masks = pending
         if not paths:
             self.status.setText(tr(
                 "Nothing to sort: give a source folder of images, or drop "
@@ -1815,7 +1888,8 @@ class OrganizeForMeasureDialog(QDialog):
         :returns: whether the detected sets were kept.
         """
         if not self.rows and self._source():
-            self.sort_by_regex()
+            if self.sort_by_regex() is None:
+                return False
         if len([c for c in self._channel_columns() if self._column_files(c)]) < 2:
             self.status.setText(tr(
                 "Detect sets needs at least two channel columns with images: "
@@ -2000,6 +2074,8 @@ class OrganizeForMeasureDialog(QDialog):
         while self._editors_row.count():
             widget = self._editors_row.takeAt(0).widget()
             if widget is not None:
+                widget.hide()
+                widget.setParent(None)
                 widget.deleteLater()
         channels = len(self._channel_columns())
         for index, column in enumerate(self.columns):
@@ -2087,7 +2163,7 @@ class OrganizeForMeasureDialog(QDialog):
         self._refresh_table()
 
     def _move_slots(self, cells, anchor, target) -> int:
-        """Move several cells together as a block (600c).
+        """Move several cells together as a block.
 
         Each cell moves by the offset from ``anchor`` to ``target``; what
         they land on swaps back into the slots they left, and images keep
@@ -2111,7 +2187,7 @@ class OrganizeForMeasureDialog(QDialog):
         return len(moves)
 
     def _set_thumb_size(self, size: int, remember: bool = True) -> None:
-        """Resize the table's images live (the Size slider, 600c).
+        """Resize the table's images live (the Size slider).
 
         :param size: pixels; clamped to :data:`_THUMB_RANGE`.
         :param remember: store it in the preferences.
@@ -2120,15 +2196,21 @@ class OrganizeForMeasureDialog(QDialog):
         if remember:
             _save_thumb_pref(self.thumb_size)
         self._size_cells()
+        self._quality_changed("")
 
     def _size_cells(self) -> None:
-        """Size the rows and columns for the view and the thumbnail size."""
+        """Size the rows and columns for the view and the thumbnail size.
+
+        In the image views a column is never narrower than its heading.
+        """
         if self.delegate.view == "text":
             self.table.resizeColumnsToContents()
             self.table.resizeRowsToContents()
             return
+        header = self.table.horizontalHeader()
         for column in range(self.table.columnCount()):
-            self.table.setColumnWidth(column, self.thumb_size + 24)
+            self.table.setColumnWidth(column, max(
+                self.thumb_size + 24, header.sectionSizeHint(column)))
         for row in range(self.table.rowCount()):
             self.table.setRowHeight(row, self.thumb_size + 8)
 
@@ -2169,10 +2251,12 @@ class OrganizeForMeasureDialog(QDialog):
         if not color.isValid():
             color = QColor("white")
         self.delegate.text_color = color
-        # Plain text in the chosen colour, no swatch (600c).
+        backdrop = _legible_backdrop(
+            color, self.palette().color(QPalette.Window))
         self.color_button.setStyleSheet(
             f"QPushButton {{ color: {color.name()}; border: none; "
-            f"background: transparent; padding: 2px 4px; }}"
+            f"background: {backdrop}; border-radius: 3px; "
+            f"padding: 2px 4px; }}"
             f"QPushButton:disabled {{ color: {color.name()}80; }}")
         if remember:
             _save_view_prefs(self.delegate.view, color.name())
@@ -2186,39 +2270,136 @@ class OrganizeForMeasureDialog(QDialog):
         if color.isValid():
             self._set_text_color(color, remember=True)
 
-    def _load_thumbnails(self) -> None:
-        """Read the thumbnails the table shows but has not got, off-thread."""
-        wanted = [p for row in self.rows for p in row
-                  if p and p not in self.delegate.pixmaps
-                  and p not in self._thumb_pending]
+    def _quality_changed(self, _quality: str) -> None:
+        """Discard display samples and asynchronously reload at the new quality.
+
+        :param _quality: the newly persisted quality key.
+        """
+        self._thumb_generation += 1
+        for worker in self._thumb_workers:
+            worker.stop()
+        self._thumb_pending.clear()
+        self._thumb_signatures.clear()
+        self._thumb_requested.clear()
+        self.delegate.pixmaps.clear()
+        self.table.viewport().update()
+        self._load_thumbnails()
+
+    @staticmethod
+    def _thumbnail_signature(path):
+        """Identify the current file contents for cache invalidation.
+
+        :param path: image or mask file.
+        :returns: modification time and size, or None for an unavailable file.
+        """
+        try:
+            stat = os.stat(path)
+            return stat.st_mtime_ns, stat.st_size
+        except OSError:
+            return None
+
+    def _load_thumbnails(self, *_args) -> None:
+        """Read only visible rows off-thread, with one bounded batch at a time."""
+        if (self._thumb_closed or self.delegate.view == "text"
+                or not self.rows or self._thumb_workers):
+            return
+        from ..hidpi import device_ratio
+
+        ratio = device_ratio(self.table)
+        previous_ratio, self._thumb_render_ratio = self._thumb_render_ratio, ratio
+        if previous_ratio is not None and previous_ratio != ratio:
+            self._quality_changed("")
+            return
+        viewport = self.table.viewport()
+        first = max(0, self.table.rowAt(0))
+        last = self.table.rowAt(max(0, viewport.height() - 1))
+        if last < 0:
+            last = len(self.rows) - 1
+        first_col = max(0, self.table.columnAt(0))
+        last_col = self.table.columnAt(max(0, viewport.width() - 1))
+        if last_col < 0:
+            last_col = len(self.columns) - 1
+        paths = list(dict.fromkeys(
+            p for row in self.rows[first:last + 1]
+            for p in row[first_col:last_col + 1] if p))
+        wanted = []
+        for path in paths:
+            signature = self._thumbnail_signature(path)
+            if (path in self.delegate.pixmaps
+                    and self._thumb_signatures.get(path) == signature):
+                self.delegate.pixmaps.move_to_end(path)
+                continue
+            self.delegate.pixmaps.pop(path, None)
+            self._thumb_requested[path] = signature
+            wanted.append(path)
         if not wanted:
             return
         from .channel_sort_dialog import _ThumbWorker
 
         self._thumb_pending.update(wanted)
         worker = _ThumbWorker("", wanted, None, self)
+        worker.generation = self._thumb_generation
         worker.ready.connect(self._take_thumbnail)
+        worker.finished.connect(self._thumbnail_worker_finished)
         self._thumb_workers.append(worker)
         worker.start()
 
-    def _take_thumbnail(self, path: str, image, _mask) -> None:
-        """Cache one thumbnail and redraw.
+    def _thumbnail_worker_finished(self) -> None:
+        """Release completed workers and service the latest quality/viewport."""
+        worker = self.sender()
+        if worker in self._thumb_workers:
+            self._thumb_workers.remove(worker)
+        if worker is not None:
+            worker.deleteLater()
+        if (not self._thumb_closed and worker is not None
+                and worker.generation != self._thumb_generation):
+            QTimer.singleShot(0, self._load_thumbnails)
 
-        :param path: the file.
-        :param image: its 2-D ``uint8`` thumbnail, or None.
-        :param _mask: its mask thumbnail, unused here.
+    def _take_thumbnail(self, path: str, image, _mask) -> None:
+        """Cache a current thumbnail, with a 64 MiB/512-entry display budget.
+
+        :param path: the image or mask file.
+        :param image: its 2-D uint8 source-sampled thumbnail, or None.
+        :param _mask: paired overlay, unused in this separate-column table.
         """
+        worker = self.sender()
+        if (self._thumb_closed or (worker is not None
+                and worker.generation != self._thumb_generation)):
+            return
         self._thumb_pending.discard(path)
         if image is None:
+            return
+        signature = self._thumb_requested.get(path)
+        if signature != self._thumbnail_signature(path):
             return
         array = np.ascontiguousarray(image)
         qimage = QImage(array.data, array.shape[1], array.shape[0],
                         array.shape[1], QImage.Format_Grayscale8)
-        self.delegate.pixmaps[path] = QPixmap.fromImage(qimage.copy())
+        pixmap = QPixmap.fromImage(qimage.copy())
+        # Keep only useful display pixels; source reads still use the selected
+        # quality. This bounds a large grid without retaining full-size fields.
+        from ..hidpi import device_ratio
+
+        display_cap = max(1, round((self.thumb_size + 24) * device_ratio(self.table)))
+        if max(pixmap.width(), pixmap.height()) > display_cap:
+            pixmap = pixmap.scaled(display_cap, display_cap, Qt.KeepAspectRatio,
+                                   Qt.SmoothTransformation)
+        self.delegate.pixmaps[path] = pixmap
+        self._thumb_signatures[path] = signature
+        cache = self.delegate.pixmaps
+        budget = 64 * 1024 * 1024
+        total = sum(p.width() * p.height() * 4 for p in cache.values())
+        while len(cache) > 512 or (total > budget and len(cache) > 1):
+            old, pixmap = cache.popitem(last=False)
+            total -= pixmap.width() * pixmap.height() * 4
+            self._thumb_signatures.pop(old, None)
+            self._thumb_requested.pop(old, None)
         self.table.viewport().update()
 
     def _stop_thumbs(self) -> None:
-        """End the thumbnail threads and wait for them."""
+        """Stop polling and end thumbnail threads before destroying the popup."""
+        self._thumb_closed = True
+        self._thumb_poll.stop()
         for worker in self._thumb_workers:
             if worker.isRunning():
                 worker.stop()
@@ -2256,7 +2437,7 @@ class OrganizeForMeasureDialog(QDialog):
         if self.delegate.view != "text":
             self._load_thumbnails()
         # The drop hint lives in the table while it is empty; the "new
-        # channel" strip only once there is something beside it (600c).
+        # channel" strip only once there is something beside it.
         self.new_zone.setVisible(not self.table._is_empty())
         self.table.viewport().update()
         missing = len(self._incomplete_rows())

@@ -508,6 +508,87 @@ def _training_pair_sampling_weights(pairs: Sequence[_Pair], bins: int = 5
     return _motion_sampling_weights(motion, bins)
 
 
+def _cosine_factor(step: int, steps: int) -> float:
+    """The learning-rate multiplier at ``step`` of a ``steps``-long stage.
+
+    Linear warm-up over the first 5 % of the stage (at least one step), then
+    a cosine from 1 down to 0.05 at the last step.
+
+    :param step: the zero-based step.
+    :param steps: the stage length.
+    :returns: the multiplier, in ``(0, 1]``.
+    """
+    warmup = max(1, steps // 20)
+    if step < warmup:
+        return (step + 1) / warmup
+    span = max(1, steps - warmup)
+    progress = min(1.0, (step - warmup) / span)
+    return 0.05 + 0.95 * 0.5 * (1.0 + math.cos(math.pi * progress))
+
+
+def _cycle_consistency(forward, backward, labels_t: np.ndarray,
+                       labels_t1: np.ndarray):
+    """How far the forward and the backward displacements fail to cancel.
+
+    For each object present in both frames, the forward prediction's mean
+    vector times the object's diameter is its implied displacement from
+    ``t`` to ``t+1``; the backward prediction (the pair given in reverse
+    order) gives the displacement from ``t+1`` back to ``t`` the same way.
+    A consistent model predicts displacements that sum to zero. The squared
+    sum, in source diameters, is averaged over those objects. Objects with no
+    counterpart add nothing, so a division or a disappearance is not forced
+    to reverse.
+
+    :param forward: the net's ``(1, 3, H, W)`` output for ``(t, t+1)``.
+    :param backward: its output for ``(t+1, t)``.
+    :param labels_t: frame ``t``'s track labels.
+    :param labels_t1: frame ``t+1``'s track labels.
+    :returns: a scalar tensor, zero when no object is in both frames.
+    """
+    torch = _torch()
+    here = object_centroids(labels_t)
+    there = object_centroids(labels_t1)
+    terms = []
+    for label, (_cy, _cx, diameter) in here.items():
+        if label not in there:
+            continue
+        source = torch.from_numpy(np.asarray(labels_t) == label).to(forward.device)
+        target = torch.from_numpy(np.asarray(labels_t1) == label).to(forward.device)
+        scale = max(diameter, 1.0)
+        ahead = forward[0, :2][:, source].mean(1) * scale
+        back = backward[0, :2][:, target].mean(1) * max(there[label][2], 1.0)
+        terms.append((((ahead + back) / scale) ** 2).sum())
+    if not terms:
+        return forward.sum() * 0.0
+    return torch.stack(terms).mean()
+
+
+def _group_balanced_weights(weights: np.ndarray, groups: Sequence[str]) -> np.ndarray:
+    """Sampling weights in which every group carries the same total share.
+
+    Within a group the relative weights are kept (the displacement balance);
+    across groups each gets ``1 / number of groups``, so a group with many
+    movies or pairs cannot dominate one with few.
+
+    :param weights: one weight per pair.
+    :param groups: one group name per pair, e.g. the movie's organism.
+    :returns: weights summing to one.
+    :raises ValueError: lengths differ.
+    """
+    weights = np.asarray(weights, float)
+    groups = np.asarray(list(groups), dtype=object)
+    if len(groups) != len(weights):
+        raise ValueError("groups must name one group per pair")
+    out = np.zeros_like(weights)
+    names = list(dict.fromkeys(groups.tolist()))
+    for name in names:
+        inside = groups == name
+        total = weights[inside].sum()
+        out[inside] = (weights[inside] / total if total > 0
+                       else np.full(inside.sum(), 1.0 / inside.sum())) / len(names)
+    return out
+
+
 def _to_input(frame: np.ndarray):
     """A frame as a (1, 3, H, W) float tensor, grey replicated to three.
 
@@ -532,7 +613,9 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
                     log: Optional[Callable[[str], None]] = None,
                     validation_pairs: Optional[Sequence[_Pair]] = None,
                     validation_every: Optional[int] = None,
-                    on_validation: Optional[Callable[[dict], None]] = None) -> List[float]:
+                    on_validation: Optional[Callable[[dict], None]] = None,
+                    lr_schedule: str = "constant",
+                    consistency_weight: float = 0.0) -> List[float]:
     """Train the time head, then the whole network, on track-labelled pairs.
 
     A two-stage curriculum: the backbone's segmentation is already
@@ -567,11 +650,24 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
     :param on_validation: callback receiving each stratified validation report,
         including the stage, update count and current training loss. Optional
         validation never changes the returned loss-list contract.
+    :param lr_schedule: ``'constant'`` keeps each stage's rate; ``'cosine'``
+        warms up linearly over the first 5 % of a stage, then decays along a
+        cosine to 5 % of the stage's rate.
+    :param consistency_weight: weight of the forward-backward term. When
+        positive, every step also predicts the pair in reverse order and
+        penalises, per object present in both crops, the forward and the
+        backward displacement not cancelling (:func:`_cycle_consistency`).
+        Zero trains on the forward loss alone.
     :returns: the loss at every step.
     :raises ValueError: no usable supervision remains after 32 sampled crops
-        for a step; inspect the full masks and motion relative to the tile.
+        for a step; inspect the full masks and motion relative to the tile;
+        an unknown schedule or a negative or non-finite consistency weight.
     """
     torch = _torch()
+    if lr_schedule not in ("constant", "cosine"):
+        raise ValueError("lr_schedule must be 'constant' or 'cosine'")
+    if not math.isfinite(consistency_weight) or consistency_weight < 0:
+        raise ValueError("consistency_weight must be finite and non-negative")
     validation_interval = None
     if validation_pairs is not None:
         import operator
@@ -625,6 +721,9 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
         for p in backbone_params:
             p.requires_grad_(not frozen)
         optimiser = torch.optim.AdamW(params, lr=lr)
+        scheduler = (torch.optim.lr_scheduler.LambdaLR(
+            optimiser, lambda step: _cosine_factor(step, steps))
+            if lr_schedule == "cosine" else None)
         net.train()
         for step in range(steps):
             for _attempt in range(32):
@@ -640,9 +739,15 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
             batch = {k: torch.from_numpy(v)[None].to(device) for k, v in target.items()}
             output = net(_to_input(frames[0]).to(device), _to_input(frames[1]).to(device))
             loss = timeflows_loss(output, batch)
+            if consistency_weight > 0:
+                backward = net(_to_input(frames[1]).to(device), _to_input(frames[0]).to(device))
+                loss = loss + consistency_weight * _cycle_consistency(
+                    output, backward, labels[0], labels[1])
             optimiser.zero_grad()
             loss.backward()
             optimiser.step()
+            if scheduler is not None:
+                scheduler.step()
             losses.append(float(loss.detach().cpu()))
             if log and (step % 50 == 0 or step == steps - 1):
                 log(f"{'head' if frozen else 'full'} step {step}: loss {losses[-1]:.4f}")
@@ -1088,7 +1193,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         help="held-out pairs per movie sequence, spaced evenly (0 = all)")
     parser.add_argument("--validation-every", type=int,
                         help="sampled updates per check; default is one training-pair-count epoch")
+    parser.add_argument("--init", help="a Timeflows checkpoint to fine-tune instead of a new head")
+    parser.add_argument("--lr-head", type=float, default=1e-3)
+    parser.add_argument("--lr-full", type=float, default=1e-5)
+    parser.add_argument("--lr-schedule", choices=("constant", "cosine"), default="constant")
+    parser.add_argument("--consistency-weight", type=float, default=0.0,
+                        help="weight of the forward-backward displacement term (0 = off)")
+    parser.add_argument("--groups", nargs="+",
+                        help="one group name per movie (e.g. organism); each group gets an equal sampling share")
     args = parser.parse_args(argv)
+    if args.groups is not None and len(args.groups) != len(args.movies):
+        parser.error("--groups needs one name per movie")
     if any(gap < 1 for gap in args.gaps):
         parser.error("--gaps must be positive frame intervals")
     if args.validation_every is not None and (not args.validation_movies or args.validation_every < 1):
@@ -1098,10 +1213,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if any(Path(movie).resolve() in training_movies for movie in args.validation_movies):
             parser.error("Validation movies must be separate from training movies, including aliases")
     pairs: List[_Pair] = []
-    for movie in args.movies:
+    pair_groups: List[str] = []
+    for index, movie in enumerate(args.movies):
         for sequence in ("01", "02"):
             pairs.extend(ctc_pairs(movie, sequence,
                                    max_pairs=args.max_pairs or None, gaps=args.gaps))
+            group = args.groups[index] if args.groups else movie
+            pair_groups.extend([group] * (len(pairs) - len(pair_groups)))
             print(f"{movie.rsplit('/', 1)[-1]} {sequence}: {len(pairs)} pairs so far",
                   flush=True)
     if not pairs:
@@ -1133,6 +1251,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                            "log_path": args.out + ".validation.jsonl",
                            "scope": "Linking given supplied full masks, not end-to-end tracking"}
     weights = _training_pair_sampling_weights(pairs)
+    if args.groups:
+        weights = _group_balanced_weights(weights, pair_groups)
     with ExitStack() as stack:
         validation_file = (stack.enter_context(open(validation_info["log_path"], "x", encoding="utf-8"))
                            if validation_pairs is not None else None)
@@ -1149,21 +1269,32 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         base = models.CellposeModel(pretrained_model=args.base,
                                     gpu=args.device.startswith("cuda"))
         net = TimeflowsNet(CellposeSamFeatures(base.net))
+        if args.init:
+            net.load_state_dict(torch.load(args.init, map_location="cpu", weights_only=True),
+                                strict=True)
         validation_kwargs = ({"validation_pairs": validation_pairs,
                               "validation_every": args.validation_every,
                               "on_validation": record_validation}
                              if validation_pairs is not None else {})
         losses = train_timeflows(net, pairs, head_steps=args.head_steps,
                                  full_steps=args.full_steps, weights=weights,
-                                 device=args.device, log=print, **validation_kwargs)
+                                 device=args.device, log=print,
+                                 lr_head=args.lr_head, lr_full=args.lr_full,
+                                 lr_schedule=args.lr_schedule,
+                                 consistency_weight=args.consistency_weight,
+                                 **validation_kwargs)
         torch.save(net.state_dict(), args.out)
         with open(args.out + ".json", "w", encoding="utf-8") as handle:
             json.dump({"base": args.base, "movies": args.movies, "pairs": len(pairs),
                    "max_pairs_per_sequence": args.max_pairs,
                    "gaps_frames": list(dict.fromkeys(args.gaps)),
                    "head_steps": args.head_steps, "full_steps": args.full_steps,
+                   "init": args.init, "lr_head": args.lr_head, "lr_full": args.lr_full,
+                   "lr_schedule": args.lr_schedule,
+                   "consistency_weight": args.consistency_weight,
                    "sampling": {"strategy": "inverse_frequency_displacement_bins",
-                                "bins": 5, "weights": weights.tolist()},
+                                "bins": 5, "groups": args.groups,
+                                "weights": weights.tolist()},
                    "window_supervision": {
                        "policy": "complete_source_and_present_successor_masks",
                        "tile_size": TILE, "maximum_attempts_per_step": 32,

@@ -1,0 +1,7 @@
+{
+  "existing_public_callable_signatures_docstrings_unchanged": true,
+  "base_commit": "eca3435d6c1cc55905953ec903dbd25426d77eb1",
+  "sp_stats_sha256": "c682f2016bde91103428d71711c913e312c9be09cb5cc30900beb1821d800d8a",
+  "module_docstring_changed": "One constants paragraph now distinguishes general R median-polish defaults from cellHTS2 B-score stopping settings and rounded MAD factor.",
+  "ruff": "Same six pre-existing module findings; new/changed test files pass."
+}

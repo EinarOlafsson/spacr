@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "SYNTHETIC_timelapse_preview.zip을 내려받아 압축을 푸세요. 교육용 예제에는 세포 이미지 8프레임과 일치하는 라벨 이미지가 들어 있습니다. 자신의 데이터로 Mask를 끝까지 실행하려면 시간 순서대로 정리한 현미경 이미지를 준비하고 촬영 간격을 기록해 두세요.",
   "scenes": [
-    "Home에서 Mask를 열고 오른쪽 위의 Timelapse 아이콘을 클릭해 추적을 켜세요. Timelapse는 연속된 이미지 사이에서 객체를 연결합니다. 먼저 Track preview에서 연결된 예제를 시험해 보고, 이어서 자신의 이미지 시퀀스를 처리하기 위한 설정을 살펴보겠습니다.",
+    "Home에서 Mask를 열고 Actions 줄의 Time을 켠 뒤 Timelapse를 켜서 추적을 활성화하세요. Timelapse는 연속된 이미지 사이에서 객체를 연결합니다. 먼저 Track preview에서 링크된 예제를 사용해 보고, 그다음 자신의 이미지 시퀀스를 처리하기 위한 설정을 살펴봅니다.",
     "아래 예제 압축 파일을 내려받아 풀고 Actions 제목 오른쪽의 Track preview를 클릭하세요. 압축 파일에는 8프레임짜리 이미지 시퀀스와 이에 대응하는 마스크 시퀀스가 들어 있습니다. 서로 대응하는 이미지와 라벨을 고를 수 있도록 두 폴더를 함께 두세요.",
     "이미지 폴더로 image_sequences, 이어서 field_A01을 선택하세요. 채널은 0을 선택합니다. 각 예제 이미지에는 세포 강도 채널이 하나만 있습니다. Frames previewed는 8로, Fields는 1로 설정하세요.",
     "Masks를 클릭하고 label_sequences, 이어서 field_A01을 선택하세요. 각 라벨은 대응하는 이미지에서 객체 하나를 나타냅니다. 시퀀스 중간에 시작하거나 끝나는 궤적도 볼 수 있도록 처음에는 Keep only full-length tracks를 꺼 두세요.",

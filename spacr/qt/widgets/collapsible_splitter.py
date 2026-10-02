@@ -81,8 +81,8 @@ import logging
 from functools import partial
 from typing import Callable, List, Optional
 
-from PySide6.QtCore import QEvent, QObject, QPoint, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QPainter, QPen, QPolygon
+from PySide6.QtCore import QEvent, QObject, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import (QSizePolicy, QSpacerItem, QSplitter,
                                QSplitterHandle, QWidget)
 from shiboken6 import isValid
@@ -546,48 +546,9 @@ class _PaneHandle(QSplitterHandle):
             splitter.widget(self._index()))
         collapsed = pane.is_collapsed()
         towards_start = before != collapsed
-        rect = self.rect()
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        tab = QColor(palette.get("surface_alt", palette.get("surface",
-                                                            "#2a2e37")))
-        tab = tab.lighter(165) if tab.lightness() < 128 else tab.darker(108)
-        accent = QColor(palette.get("accent", "#4c8dff"))
-        edge = accent if hovered else QColor(palette.get("border", "#3a3f4b"))
-        ink = accent if hovered else QColor(palette.get("text_muted",
-                                                        palette.get("text",
-                                                                    "#b9bfca")))
-        if self.orientation() == Qt.Horizontal:
-            w = rect.width()
-            h = max(24, w * 3)
-            top = rect.center().y() - h // 2
-            painter.setPen(edge)
-            painter.setBrush(tab)
-            painter.drawRoundedRect(0, top, w - 1, h, 3, 3)
-            cx, cy, s = rect.center().x(), rect.center().y(), max(2, w // 4)
-            points = ([QPoint(cx + s, cy - 2 * s), QPoint(cx - s, cy),
-                       QPoint(cx + s, cy + 2 * s)] if towards_start else
-                      [QPoint(cx - s, cy - 2 * s), QPoint(cx + s, cy),
-                       QPoint(cx - s, cy + 2 * s)])
-            thickness = max(1, w // 6)
-        else:
-            h = rect.height()
-            w = max(24, h * 3)
-            left = rect.center().x() - w // 2
-            painter.setPen(edge)
-            painter.setBrush(tab)
-            painter.drawRoundedRect(left, 0, w, h - 1, 3, 3)
-            cx, cy, s = rect.center().x(), rect.center().y(), max(2, h // 4)
-            points = ([QPoint(cx - 2 * s, cy + s), QPoint(cx, cy - s),
-                       QPoint(cx + 2 * s, cy + s)] if towards_start else
-                      [QPoint(cx - 2 * s, cy - s), QPoint(cx, cy + s),
-                       QPoint(cx + 2 * s, cy - s)])
-            thickness = max(1, h // 6)
-        stroke = QPen(ink, thickness)
-        stroke.setCapStyle(Qt.RoundCap)
-        stroke.setJoinStyle(Qt.RoundJoin)
-        painter.setPen(stroke)
-        painter.setBrush(Qt.NoBrush)
-        painter.drawPolyline(QPolygon(points))
+        from .collapse_arrow import paint_collapse_arrow
+        paint_collapse_arrow(painter, self.rect(), self.orientation(),
+                             towards_start, palette, hovered)
 
     def _index(self) -> int:
         """This handle's index in its splitter."""

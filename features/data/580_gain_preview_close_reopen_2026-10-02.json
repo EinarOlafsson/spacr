@@ -1,0 +1,18 @@
+{
+  "feature": 580,
+  "status": "partial",
+  "scope": "Prevent reopening the gain preview from launching another source scan while a closed dialog’s worker is still finishing.",
+  "behavior": "Preview remains disabled until all workers detached from the closed dialog have physically stopped. No new captions or public signatures.",
+  "checks": {
+    "command": "pytest -q tests/qt/test_calibration_gain_preview_f580.py -k \"close_then_reopen or blocked_worker or actual_worker\"",
+    "passed": 6,
+    "deselected": 9,
+    "seconds": 11.62
+  },
+  "limits": "4 GiB memory, zero swap and CPU0 affinity verified; systemd CPUQuota=100% requested.",
+  "files": {
+    "features/data/580_gain_preview_close_reopen_2026-10-02/close-reopen-resources.json": "5ac85550be2aa83e546e99a54d536ac20afdc7e4cc5f639e859a34480ea7d931",
+    "features/data/580_gain_preview_close_reopen_2026-10-02/close-reopen-tests.log": "7ed21e6291dbf37ecb9c348f8e4607aad26d9fca662630fe0c0fceb1948ceb80"
+  },
+  "scientific_limit": "Known-exposure paired-session acceptance remains unproven; this lifecycle correction does not close F580."
+}

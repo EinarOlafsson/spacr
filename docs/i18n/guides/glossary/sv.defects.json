@@ -2,16 +2,6 @@
  "schema": 1,
  "language": "sv",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {
-  "Train": "'Tåg' is a railway train; the Workbench tab means 'Träna'",
-  "Promote calls to annotation": "'Främja samtal till kommentarer' reads 'promote phone calls to comments'",
-  "Undo promotion": "'Ångra marknadsföring' means 'undo marketing'",
-  "Model zoo…": "'Förlaga zoo...' is not a name; the screen is 'Modellbibliotek'",
-  "Model zoo": "'Förlaga till djurpark' means 'template for an animal park'",
-  "Setting animations": "'Ställa in animeringar' reads 'to set up animations'",
-  "Inputs": "'Ingångar' means entrances/ports; the workflow card means 'Indata'",
-  "Outputs": "'Utfall' means outcome; the workflow card means 'Utdata'",
-  "Re-flood below the escape": "'Översvämmande under flykten' is a word-for-word rendering with no meaning",
-  "Taper onto the gradient": "'Tejpare på lutningen' reads 'taper (tape) on the slope'"
- }
+ "defects": {},
+ "snapshot": {}
 }

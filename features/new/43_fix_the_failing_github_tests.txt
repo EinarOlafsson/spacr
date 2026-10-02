@@ -2,7 +2,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    open, 83%. 2026-09-25: the three order-dependent Qt failures
+Status:    open, 83%. 2026-10-01: current completed CI was inspected through
+           the GitHub REST API. The tutorial alpha-guard test failure is
+           reproduced and repaired locally; coverage regressions and a
+           completed green run on final source remain outstanding. See the
+           2026-10-01 receipt at the end. Earlier, 2026-09-25:
+           the three order-dependent Qt failures
            (teardown on deleted dialogs; coverage shard 0 SIGABRT) now have
            reproduced causes and fixes, but no nightly CI run has completed
            since 36020180024, so green is not shown. See the 2026-09-25
@@ -2392,3 +2397,115 @@ confluency failures came from absent PyWavelets; an existing private1.10.0 copy
 passes them without modifying the shared environment. Original logs retained.
 Full final-source CI and uninterrupted Qt acceptance remain open.
 Receipt: features/data/43_release_ci_contract_repairs_2026-09-28.json.
+
+2026-10-01 — CURRENT RUN TRIAGE AND TUTORIAL CAPTURE GUARD
+Read actual REST workflow/job/log endpoints after `gh run list` returned an
+older September snapshot. Actions are enabled and the workflows active.
+Nightly a458ea4ad has push runs tests36899011123 pending, compat36899010564
+queued and docs36899010518 pending; these are not completed evidence.
+
+The requested September11 compat34596992887 failures are historical:
+missing PyYAML in the packaging-only job and pandas wheels on Python3.15.
+Current source already handles optional YAML validation in that deliberately
+minimal job and admits Python3.9–3.14 only. Latest completed successful compat
+run36512024533 (September29, 2d0bf5af) has17 successful jobs. Current focused
+packaging checks pass50 with2 skips for the unreleased version; no dependency,
+Python support range or workflow assertion was weakened.
+
+Today's completed tests36856217586 (52ddec096) fails the same single test in
+Qt shard0 and coverage shard9: a source regex demands "$capture_python" where
+the valid Linux recording wrapper now permits SPACR_TUTORIAL_HOST_PYTHON for
+its preflight outside the namespace. Reproduced locally before editing:
+1 failed. Replaced that spelling assertion with execution of the actual shell
+wrapper against a recording command boundary. Four cases cover default and
+host-override interpreters, each with successful and rejected alpha policy.
+They assert the2G offscreen policy runs first, receives every private profile
+and --force-alpha-off, and prevents capture when it fails. Successful launch
+still uses the namespace's interpreter. Paths containing spaces are exercised.
+The real profile-writing and alpha rejection tests remain unchanged. This
+Linux namespace wrapper check is Linux-only; shared policy checks still run
+on other platforms. No wrapper or application code changed.
+
+Focused validation:13 passed, CPU/offscreen,4G hard cap, at most2 compute
+threads. The completed CI coverage gate independently reports uncovered
+branches/statements in core, mask_io, measure, ome_zarr, plot, Preferences,
+MakeMasks, Mandelbrot/Space fractals, report, run_journal, submodules and
+timelapse. Those failures are not hidden by this test repair and no baseline
+was lowered. Final-source green tests/compat evidence is still required.
+Receipt: features/data/43_current_ci_alpha_guard_2026-10-01.json.
+
+2026-10-01 — MANDELBROT CAMERA BOUNDARY COVERAGE
+The completed tests run 36856217586 coverage artifact identifies seven
+uncovered statements and four branches in the Mandelbrot camera. Added nine
+behavior cases for surveys too small to score, stale targets inside/outside
+the surveyed view, backing out of a flat region without jumping, and enforcing
+the screen-speed limit with large target displacement and inherited momentum
+at both surface and deep zoom. Runtime code and all quality gates are unchanged.
+The four-file camera/theme cohort passes 61 tests under a 4G cap with CUDA
+hidden and two compute threads. Its recorded branch coverage exercises all
+seven statements and four branches missing from that actual CI report.
+The selected cohort covers 91.75% of the whole module on its own; that is not
+a full-suite result or a claim that final-source CI has turned green.
+Current 603423d0a push runs are tests 36901660224 pending, docs 36901659804
+pending and compat 36901659963 queued. Latest completed docs failure
+36849859089 is an external docs.python.org inventory HTTP 503 after three
+retries, not evidence of a source documentation defect.
+Receipt: features/data/43_mandelbrot_boundaries_2026-10-01.json.
+
+2026-10-02 — COVERAGE SHARD 3 CURRENT-SOURCE REPAIRS (PARTIAL)
+The actual failed job 110744169875 in tests run 36977354516 names seven
+failures. Six have current-source fixes in this commit: the dimension-switch
+test now checks its own visible rows while separately asserting alpha-only
+rows stay hidden; Mask's dependency test includes the new vendor channel-map
+rule; the folded illumination inventory includes that same real setting;
+two hover checks wait for the configured delayed tooltip and one opens the
+Modules tab before hovering its Diagnostics row; the converted-field watch
+fixture supplies the merged artifact a real completed mask run produces.
+No production gate or user-facing runtime behavior was weakened. The six
+affected complete files pass 78 tests under 4 GiB/offscreen Qt. The seventh
+failure is the tutorial player's stale source hash, owned by the N601 media
+lane; its historical publication receipt must not be rewritten. The job
+remains red until that repair and a new final-source CI run pass.
+
+2026-10-02 — FURTHER FAILED-SHARD REPAIRS (PARTIAL)
+Run 36977354516 exposed more failures in coverage shards 4, 5, 7 and 11.
+The historical tutorial publication manifest remains immutable; a separately
+reviewed source-only player hash/cache-key/browser receipt fixes its stale
+source assertion (commit 7e683bced, four focused checks and real browser).
+
+The current source fixes several independent real regressions. Newly built
+condition annotation, merge and calibration tables now use the shared three-
+state semantic sorting contract and numeric-aware cells; the annotation
+widget's stylesheet registrar is loaded at startup. Valid repeated Mask
+preview knob changes coalesce the empty-grid redraw into one event-loop turn
+while keeping the latest completed crop rendering. Convert's hand-built
+editors move help from the input field to its label; Annotate's similar-
+count help sits on its label. The timelapse mock now verifies the current
+frame-source and label-stack handoff. The conversion-manifest watch test now
+expects the stricter existing guard to reject a map changed mid-field before
+publishing that field, preserving the source and combined outputs.
+
+The affected table/dialog/watch cohort passed 41 checks, Measure preview
+52 checks (one repeated targeted case), tooltip placement 8 checks and the
+lineage handoff targeted case passed under 4 GiB/offscreen Qt, CPU2, no GPU.
+The remaining hover-delay cases and any later shard failures are still open;
+there is no final-source green CI claim. Receipt:
+features/data/43_failed_shards_followup_2026-10-02.json.
+
+2026-10-02 — SHARDS 6 AND 9 NON-HOVER CASES (PARTIAL)
+The two newer failed jobs in the same old-source CI run identified a private
+LIMS helper docstring gap, a test double that no longer met the settings
+model's widget contract, a stale InstanSeg preview input shape assertion,
+an obsolete binary-mask assertion on the Features window, and a SAM lineage
+mock missing the frame-source/label-stack handoff. The first four private
+helpers now have meaningful docstrings. The widget mock is an actual QWidget;
+InstanSeg's configured two-channel preview remains checked. Features must
+show a transparent corner on a real-alpha native surface and uses the mask
+only when that surface is unavailable. Both SAM tracking inputs are asserted.
+
+The 84-case prefixed backend, Features window, screen run-path and SAM mask
+cohort passed under 4 GiB/offscreen Qt/CPU2. The plate-QC documentation
+guard and live installer archive link passed individually. The public archive
+asset is present in the release; GitHub HTTP 5xx/429 is now treated as
+transient service unavailability, while 4xx dead links still fail. The actual
+link passed on retry. Hover/locale/settings cases and final CI remain open.

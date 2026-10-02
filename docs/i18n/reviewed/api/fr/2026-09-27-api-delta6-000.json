@@ -1,24 +1,24 @@
 {
-  "schema": 1,
   "language": "fr",
-  "review_kind": "AI technical review (Codex), no native-speaker signoff",
   "note": "API delta 6, items 47/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
   "records": [
     {
-      "label": "spacr.install_cleanup.start_update_helper#10",
+      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
+      "label": "spacr.install_cleanup.start_update_helper#12",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
       "source_sha256": "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759",
-      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
-      "translation": "Un paquet d’application macOS figé situé dans un emplacement accessible en écriture à l’utilisateur emploie son adaptateur de remplacement par DMG vérifié et conserve l’intégralité du paquet précédent. Les autres familles d’applications figées renvoient une erreur avant toute suppression ; le programme auxiliaire n’active pas de solution de repli par installateur en ligne pour ces applications.",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "Un paquet d’application macOS figé situé dans un emplacement accessible en écriture à l’utilisateur emploie son adaptateur de remplacement par DMG vérifié et conserve l’intégralité du paquet précédent. Les autres familles d’applications figées renvoient une erreur avant toute suppression ; le programme auxiliaire n’active pas de solution de repli par installateur en ligne pour ces applications."
     },
     {
+      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
       "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "An accepted close also joins the owned backdrop renderer. Showing the screen again creates a fresh backdrop from the current settings.",
       "source_sha256": "90b9bbc56d70e06f3d9b420eba571bf6e6feaa6fdfef03c90449e01033cd8b88",
-      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
-      "translation": "Lorsqu’une fermeture est acceptée, elle attend aussi la fin du moteur de rendu de fond appartenant à cette vue. Lorsque la vue est affichée à nouveau, un nouveau fond est créé à partir des paramètres actuels.",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "Lorsqu’une fermeture est acceptée, elle attend aussi la fin du moteur de rendu de fond appartenant à cette vue. Lorsque la vue est affichée à nouveau, un nouveau fond est créé à partir des paramètres actuels."
     }
-  ]
+  ],
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "schema": 1
 }

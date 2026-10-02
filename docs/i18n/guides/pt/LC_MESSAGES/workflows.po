@@ -1,0 +1,1863 @@
+# spaCR user guide translation (pt).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 19:24-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: pt\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Choose a workflow after installation"
+msgstr "Escolher um fluxo de trabalho após a instalação"
+
+msgid "Start on Home with the first module for your experiment. Use that module's example-data control when available, inspect the inputs and preview, then run a bounded example before your own data."
+msgstr "Comece em Início com o primeiro módulo do seu experimento. Use o controle de dados de exemplo desse módulo quando houver, inspecione as entradas e a prévia e execute um exemplo limitado antes de usar seus próprios dados."
+
+msgid "These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically."
+msgstr "Esses caminhos e as transferências para a API compartilham o mapa de fluxos de trabalho dos módulos incluído. Um guia passo a passo explica as etapas; ele não executa um experimento automaticamente."
+
+msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step."
+msgstr "Abra **Visões gerais dos fluxos** para escolher um caminho. Seu grafo inclui nós de entrada externos que explicam os arquivos que você fornece; eles não são módulos executáveis. Cartões explicativos permanentes descrevem os módulos e as conexões abaixo do grafo, com links para a API no final dos cartões de módulos. Selecione um elemento do grafo para destacar seu cartão e arraste o divisor azul para ajustar o espaço entre o grafo e as explicações. **Iniciar exemplo** abre o primeiro módulo real do caminho; **Guia passo a passo** mantém o caminho disponível depois. Os ramos alternativos de entrada e anotação não exigem que você execute todas as etapas listadas."
+
+msgid "A pooled spaCR screen"
+msgstr "Uma triagem agrupada com spaCR"
+
+msgid "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch."
+msgstr "Combine fenótipos derivados de imagens com a abundância de guias para ordenar as perturbações. Segmente e meça imagens, crie rótulos revisados com Annotate, Gate Editor ou Image UMAP e treine e valide um classificador. Mapeie as leituras de sequenciamento correspondentes em uma ramificação independente. Una pontuações fenotípicas e contagens de guias compatíveis pela identidade experimental para Regression. As rotas de anotação e segmentação são alternativas; não é necessário executar todas as ramificações."
+
+msgid "**Choose an input route:**"
+msgstr "**Escolha um caminho de entrada:**"
+
+msgid "**Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Mask <workflow-module-mask>`."
+msgstr "**Imagens de microscopia**: forneça as imagens de microscopia originais com a identidade dos canais e a nomenclatura dos campos. Em uma série temporal, preserve a ordem e o tempo dos quadros. Escolha configurações de segmentação adequadas aos objetos deste experimento. Continue com :ref:`Máscaras <workflow-module-mask>`."
+
+msgid "**Existing masks and matching images**: Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**Máscaras existentes e imagens correspondentes**: importe as imagens de origem junto com as máscaras de rótulos de objeto inteiras correspondentes. Preserve as classes de objeto e a identidade dos campos. É uma alternativa à geração de novas máscaras; inspecione o projeto importado antes de medir. Continue com :ref:`Importar <workflow-module-foreign>`."
+
+msgid "**FASTQ: R1/R2, R1 only or R2 only**: Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation. Continue with :ref:`Map Barcodes <workflow-module-map_barcodes>`."
+msgstr "**FASTQ: R1/R2, somente R1 ou somente R2**: forneça arquivos FASTQ compactados com gzip e os CSVs de referência dos códigos de barras. Use o modo pareado para R1/R2. Para leituras de extremidade única, escolha o modo simples e defina single_direction como R1 ou R2, de acordo com os arquivos e a orientação da extração. Continue com :ref:`Mapear códigos de barras <workflow-module-map_barcodes>`."
+
+msgid "**Module steps and alternatives:**"
+msgstr "**Etapas dos módulos e alternativas:**"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home and open Mask. Load the example data, check channels and segmentation, then run."
+msgstr ":ref:`Mask <workflow-module-mask>`: Comece em «Início (Home)» e abra «Máscaras (Mask)». Carregue os dados de exemplo, confira os canais e a segmentação e, depois, execute a análise."
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Return Home and open Map Barcodes for the matching sequencing reads and references."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Volte a «Início (Home)» e abra «Mapear códigos de barras (Map Barcodes)» para as leituras de sequenciamento e referências correspondentes."
+
+msgid ":ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present."
+msgstr ":ref:`Import <workflow-module-foreign>`: Se a segmentação já existir, importe as imagens correspondentes e as máscaras externas para um projeto spaCR e inspecione as identidades de objetos resultantes. Pule a segmentação e prossiga para Measure quando os arrays necessários estiverem presentes."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure with the Mask project and create measurements and object crops."
+msgstr ":ref:`Measure <workflow-module-measure>`: Abra «Medição (Measure)» com o projeto de «Máscaras (Mask)» e gere medições e recortes de objetos."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Abra «Anotação (Annotate)», examine objetos representativos e salve os rótulos de fenótipo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Carregue uma tabela ou use Mesclar tabelas para criar um conjunto de trabalho com chaves e agregação validadas. Defina gates de limiar ou poligonais em colunas reais de características/coordenadas e aplique o gate salvo a objetos compatíveis. Use Anotação para gravar os gates exibidos em uma coluna de anotação; revise os objetos selecionados e escolha rótulos binários ou multiclasse."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Projete características medidas ou características fornecidas pelo codificador e inspecione recortes representativos. Um grupo é um agrupamento candidato, não um fenótipo validado. Use o laço e os controles de anotação para gravar seleções revisadas em uma coluna de anotação do banco de medições correspondente. Uma seleção geométrica isolada não estabelece um fenótipo biológico."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Open Classify, choose images or measured features, and inspect held-out predictions."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Abra «Classificar (Classify)», escolha imagens ou características medidas e examine as previsões para dados mantidos fora do treinamento."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics."
+msgstr ":ref:`Regression <workflow-module-regression>`: Abra «Regressão (Regression)» com pontuações fenotípicas compatíveis e contagens de guias por poço; examine os resultados positivos e os diagnósticos."
+
+msgid "High-content image analysis"
+msgstr "Análise de imagens de alto conteúdo"
+
+msgid "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently."
+msgstr "Quantifique um experimento de imagem sem sequenciamento. Comece com imagens de microscopia ou importe máscaras existentes com suas imagens de origem, meça os objetos e depois explore representações, defina populações por gates ou crie figuras. Essas ramificações posteriores respondem a perguntas diferentes e podem ser usadas de forma independente."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and inspect segmentation on representative fields."
+msgstr ":ref:`Mask <workflow-module-mask>`: Comece em «Início (Home)» com «Máscaras (Mask)» e examine a segmentação em campos representativos."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure on the resulting project and quantify objects."
+msgstr ":ref:`Measure <workflow-module-measure>`: Abra «Medição (Measure)» no projeto resultante e quantifique os objetos."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP to explore measured phenotypes and inspect crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Abra «Image UMAP» para explorar os fenótipos medidos e examinar os recortes."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Open Gate Editor to define an explicit population filter."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Abra «Editor de gates (Gate Editor)» para definir um filtro explícito de população."
+
+msgid ":ref:`Graph Builder <workflow-module-graph_builder>`: Open Graph Builder to compare the chosen measurements and groups."
+msgstr ":ref:`Graph Builder <workflow-module-graph_builder>`: Abra «Construtor de gráficos (Graph Builder)» para comparar as medições e os grupos escolhidos."
+
+msgid "Other routes for the appropriate question: :ref:`Classify <workflow-module-classify_merged>`, :ref:`Recruitment <workflow-module-recruitment>`, :ref:`Invasion Assay <workflow-module-invasion>`, :ref:`Replication Assay <workflow-module-replication>`."
+msgstr "Outros caminhos para a pergunta adequada: :ref:`Classificar <workflow-module-classify_merged>`, :ref:`Ensaio de recrutamento <workflow-module-recruitment>`, :ref:`Ensaio de invasão <workflow-module-invasion>`, :ref:`Ensaio de replicação <workflow-module-replication>`."
+
+msgid "Train a segmentation model"
+msgstr "Treinar um modelo de segmentação"
+
+msgid "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test."
+msgstr "Construa um modelo de segmentação a partir de pares revisados de imagens e máscaras de inteiros. Corrija imagens representativas em Make Masks, treine em Cellpose Workbench e selecione o ponto de controle resultante em Mask. Avalie campos independentes antes de processar todo o experimento; imagens de treinamento não constituem um teste de acurácia em dados reservados."
+
+msgid "**Microscopy images and optional starting masks**: Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set. Continue with :ref:`Make Masks <workflow-module-make_masks>`."
+msgstr "**Imagens de microscopia e máscaras iniciais opcionais**: abra imagens representativas e, opcionalmente, importe máscaras inteiras existentes para correção. Salve pares curados correspondentes; mantenha imagens de validação separadas fora do conjunto de treinamento. Continue com :ref:`Criar máscaras <workflow-module-make_masks>`."
+
+msgid "**Independent microscopy images**: Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment. Continue with :ref:`Mask <workflow-module-mask>`."
+msgstr "**Imagens de microscopia independentes**: aplique o ponto de verificação treinado a imagens independentes com canais compatíveis. Verifique a qualidade da segmentação antes de processar o experimento completo. Continue com :ref:`Máscaras <workflow-module-mask>`."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Start on Home with Make Masks and curate matching images and integer label masks."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Comece em «Início (Home)» com «Criar máscaras (Make Masks)» e revise e corrija as imagens e suas máscaras correspondentes de rótulos inteiros."
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Inside Make Masks open Cellpose Workbench, choose Train and use the curated pairs."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Dentro de «Criar máscaras (Make Masks)», abra «Bancada Cellpose», escolha «Train» e use os pares revisados."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Return Home, open Mask and select the trained checkpoint; verify separate fields before a full run."
+msgstr ":ref:`Mask <workflow-module-mask>`: Volte a «Início (Home)», abra «Máscaras (Mask)» e selecione o ponto de controle do modelo treinado; verifique campos separados antes de uma execução completa."
+
+msgid "Toxoplasma and parasite imaging assays"
+msgstr "Ensaios de imagem de Toxoplasma e parasitas"
+
+msgid "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another."
+msgstr "Escolha o ensaio adequado ao experimento. Recrutamento, invasão e replicação usam objetos medidos com as identidades de compartimentos e os canais de coloração necessários. O recrutamento compara intensidades dos compartimentos; a invasão distingue parasitas internos e externos por coloração diferencial; a replicação conta parasitas nos vacúolos correspondentes. Plaque Assay é uma ramificação independente que usa imagens ou máscaras de placas, com calibração para áreas em unidades físicas. O diagrama agrupa esses ensaios sem indicar que um precise ser executado antes de outro."
+
+msgid "**Plaque images or existing plaque masks**: Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow. Continue with :ref:`Plaque Assay <workflow-module-analyze_plaques>`."
+msgstr "**Imagens de placas ou máscaras de placas existentes**: escolha imagens de placas para detecção ou máscaras de placas existentes para análise. Forneça a calibração da imagem quando forem necessárias áreas físicas das placas. Este ramo não exige o fluxo de trabalho de Medição de compartimentos celulares. Continue com :ref:`Ensaio de placas <workflow-module-analyze_plaques>`."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and configure the host, parasite and required compartment masks."
+msgstr ":ref:`Mask <workflow-module-mask>`: Comece em «Início (Home)» com «Máscaras (Mask)» e configure as máscaras do hospedeiro, do parasita e dos compartimentos necessários."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure and collect the compartment or staining measurements needed by your assay."
+msgstr ":ref:`Measure <workflow-module-measure>`: Abra «Medição (Measure)» e obtenha as medições de compartimentos ou de coloração necessárias para o ensaio."
+
+msgid ":ref:`Recruitment <workflow-module-recruitment>`: For a recruitment question, open Recruitment and inspect compartment intensity ratios."
+msgstr ":ref:`Recruitment <workflow-module-recruitment>`: Para uma questão de recrutamento, abra «Ensaio de recrutamento (Recruitment)» e examine as razões de intensidade entre compartimentos."
+
+msgid ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+msgstr ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Meça vacúolos inteiros e compartimentos de referência das células hospedeiras, mantendo as células hospedeiras não infectadas no denominador da fração infectada. Selecione os canais dos marcadores e os limiares de razão calibrados com controles. Opcionalmente, conte os parasitas segmentados individualmente a partir de vínculos explícitos com vacúolos ou de uma coluna de contagens medidas. Revise as tabelas de vacúolos, células hospedeiras e poços, os estados conjuntos dos marcadores, as distribuições de replicação e os vínculos de parasitas sem correspondência; as medições desconhecidas permanecem desconhecidas."
+
+msgid ":ref:`Invasion Assay <workflow-module-invasion>`: Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion."
+msgstr ":ref:`Invasion Assay <workflow-module-invasion>`: Use as medições necessárias de coloração diferencial em duas cores e os controles de referência da coloração para distinguir adesão de invasão."
+
+msgid ":ref:`Replication Assay <workflow-module-replication>`: Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole."
+msgstr ":ref:`Replication Assay <workflow-module-replication>`: Conte parasitas usando identidades explícitas dos vacúolos e compare distribuições por condição; a identidade da célula hospedeira sozinha não define um vacúolo."
+
+msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas."
+msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Para um experimento de placas, abra Plaque Assay a partir de Toxoplasma e forneça imagens de placas ou máscaras de placas existentes. Inspecione a detecção e a calibração antes de comparar as contagens e áreas das placas."
+
+msgid "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma."
+msgstr "«Invasion» e «Replication» leem os compartimentos medidos necessários para cada ensaio; «Ensaio de placas (Plaque Assay)» usa imagens ou máscaras de placas. Abra estes ensaios em «Início (Home)» → «Toxoplasma»."
+
+msgid "An optical pooled screen"
+msgstr "Uma triagem óptica agrupada"
+
+msgid "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles."
+msgstr "Decodifique uma triagem óptica agrupada a partir dos ciclos de sequenciamento originais e das imagens fenotípicas correspondentes. Abra OPS por meio de Mask, inspecione o alinhamento de ciclos e posições e a decodificação dos códigos de barras, depois una as identidades de objetos decodificadas às respostas fenotípicas e agregue entradas compatíveis para Regression. Align & Stitch é opcional; uma imagem composta isolada não pode substituir os ciclos de sequenciamento."
+
+msgid "**Sequencing cycles and phenotype images**: Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding. Continue with :ref:`OPS <workflow-module-ops>`."
+msgstr "**Ciclos de sequenciamento e imagens fenotípicas**: forneça as imagens originais por ciclo/sítio, as atribuições de canais e o alinhamento fenotípico correspondente. Preserve a identidade dos ciclos e dos sítios; a saída em mosaico sozinha não basta para a decodificação. Continue com :ref:`OPS <workflow-module-ops>`."
+
+msgid "**Compatible phenotype responses**: Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff. Continue with :ref:`Regression <workflow-module-regression>`."
+msgstr "**Respostas fenotípicas compatíveis**: associe as identidades de objeto decodificadas às respostas fenotípicas e agregue-as na unidade de análise exigida pela regressão. Verifique a identidade objeto/poço e a atribuição dos guias; as tabelas OPS não são uma transferência direta de um CSV de contagens FASTQ. Continue com :ref:`Regressão <workflow-module-regression>`."
+
+msgid ":ref:`OPS <workflow-module-ops>`: Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment."
+msgstr ":ref:`OPS <workflow-module-ops>`: Comece em «Início (Home)», abra «Máscaras (Mask)» e depois «OPS»; forneça as imagens originais dos ciclos e posições e o alinhamento com as imagens de fenótipo."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join and aggregate decoded object identities with compatible phenotype responses before opening Regression."
+msgstr ":ref:`Regression <workflow-module-regression>`: Associe e agregue as identidades decodificadas dos objetos às respostas fenotípicas compatíveis antes de abrir «Regressão (Regression)»."
+
+msgid "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically."
+msgstr "«Alinhar e montar (Align & Stitch)» é opcional quando as imagens precisam de inspeção da geometria dos mosaicos ou de mapeamento de coordenadas; não é um pré-requisito para o exemplo OPS. Uma imagem montada, por si só, não substitui os ciclos de sequenciamento. As tabelas OPS exigem uma junção e agregação explícitas por identidade antes da regressão; o passo a passo não faz essa conversão automaticamente."
+
+msgid "Import existing data"
+msgstr "Importar dados existentes"
+
+msgid "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch."
+msgstr "Traga um experimento existente para o spaCR pela rota adequada ao seu conteúdo. Dados que contêm apenas imagens precisam de segmentação. Imagens e máscaras de inteiros correspondentes podem ser formatadas como um projeto para medição. Tabelas de características existentes exigem mapeamentos explícitos de colunas e objetos e talvez já estejam prontas para exploração. Verifique identidades, canais e caminhos dos recortes antes de seguir uma ramificação posterior."
+
+msgid "**Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**Imagens de microscopia**: forneça as imagens de microscopia originais com a identidade dos canais e a nomenclatura dos campos. Em uma série temporal, preserve a ordem e o tempo dos quadros. Escolha configurações de segmentação adequadas aos objetos deste experimento. Continue com :ref:`Importar <workflow-module-foreign>`."
+
+msgid "**External measurements and object mappings**: Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**Medições externas e mapeamentos de objetos**: importe tabelas de características existentes com mapeamentos explícitos de objetos, campos e colunas. Forneça os caminhos dos recortes correspondentes quando for necessário explorar as imagens. Evite medir novamente linhas já representadas pelas características importadas. Continue com :ref:`Importar <workflow-module-foreign>`."
+
+msgid ":ref:`Import <workflow-module-foreign>`: Start on Home with Import and select the route matching images, external masks or external measurements."
+msgstr ":ref:`Import <workflow-module-foreign>`: Comece em «Início (Home)» com «Importar (Import)» e selecione o caminho correspondente a imagens, máscaras externas ou medições externas."
+
+msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, open Mask to add segmentation; skip this when valid masks already exist."
+msgstr ":ref:`Mask <workflow-module-mask>`: Para importações apenas de imagens, abra «Máscaras (Mask)» para adicionar a segmentação; pule esta etapa se já houver máscaras válidas."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use Measure when features have not already been imported or computed by External Masks."
+msgstr ":ref:`Measure <workflow-module-measure>`: Use «Medição (Measure)» quando as características ainda não tiverem sido importadas ou calculadas por «Máscaras externas (External Masks)»."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP to inspect the resulting measured objects and matching crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Abra «Image UMAP» para examinar os objetos medidos resultantes e os recortes correspondentes."
+
+msgid "Discover phenotypes without labels"
+msgstr "Descobrir fenótipos sem rótulos"
+
+msgid "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation."
+msgstr "Explore um experimento medido e segmentado sem rótulos fenotípicos iniciais. Compare características medidas ou características de imagens codificadas em Image UMAP, inspecione recortes representativos e crie seleções reproduzíveis em Gate Editor. Revise os rótulos candidatos em Annotate antes do treinamento supervisionado. Um cluster ou uma gate é uma hipótese sobre um fenótipo, não sua validação."
+
+msgid "**Segmented image project**: Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring. Continue with :ref:`Measure <workflow-module-measure>`."
+msgstr "**Projeto de imagens segmentadas**: use as matrizes de imagens mescladas e os planos de rótulos de objeto correspondentes de Máscaras ou Importar. Verifique os papéis dos canais, a identidade dos objetos e as configurações de recorte antes de medir. Continue com :ref:`Medição <workflow-module-measure>`."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Start on Home with Measure using an already segmented project, or use its example data."
+msgstr ":ref:`Measure <workflow-module-measure>`: Comece em «Início (Home)» com «Medição (Measure)» e um projeto já segmentado, ou use os dados de exemplo do módulo."
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Open Embeddings to encode object images; retain the object IDs and encoder/channel settings."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: Abra «Incorporações (Embeddings)» para codificar imagens de objetos; preserve os identificadores dos objetos e as configurações do codificador e dos canais."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP with compatible measured or encoder feature columns and inspect candidate groups."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Abra «Image UMAP» com colunas compatíveis de características medidas ou produzidas pelo codificador e examine os grupos candidatos."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define a reproducible selection in Gate Editor using the matching feature or projection columns."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Defina uma seleção reproduzível em «Editor de gates (Gate Editor)» usando as colunas de características ou de projeção correspondentes."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate and review candidate labels before using them as supervised training data."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Abra «Anotação (Annotate)» e revise os rótulos propostos antes de usá-los como dados de treinamento supervisionado."
+
+msgid "Plan a screen"
+msgstr "Planejar uma triagem"
+
+msgid "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment."
+msgstr "Planeje condições, controles, réplicas e atribuições de placas antes da aquisição. Use Power / Design para explorar as necessidades de amostragem sob pressupostos explícitos de tamanho de efeito e variabilidade; medições piloto podem fundamentar esses pressupostos. A transferência do desenho experimental é uma dependência de planejamento, não um experimento executado automaticamente."
+
+msgid "**Conditions, controls and design assumptions**: Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required. Continue with :ref:`Experiment Design <workflow-module-experiment_design>`."
+msgstr "**Condições, controles e pressupostos de planejamento**: informe as condições experimentais, os controles, os requisitos de réplicas e as restrições das placas. Esses dados podem ser informados diretamente; não é necessário um arquivo de dados preexistente. Continue com :ref:`Experiment Design <workflow-module-experiment_design>`."
+
+msgid "**Effect sizes, variability and optional pilot data**: Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort. Continue with :ref:`Power / Design <workflow-module-power>`."
+msgstr "**Tamanhos de efeito, variabilidade e dados piloto opcionais**: forneça pressupostos explícitos de tamanho de efeito e variabilidade; opcionalmente, use medições piloto compatíveis. Examine como a mudança dos pressupostos afeta o esforço de amostragem necessário. Continue com :ref:`Power / Design <workflow-module-power>`."
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Start on Home with Experiment Design; assign conditions, controls, replicates and wells."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Comece em «Início (Home)» com «Desenho do experimento (Experiment Design)»; atribua condições, controles, réplicas e poços."
+
+msgid ":ref:`Power / Design <workflow-module-power>`: Open Power / Design and estimate sampling needs from explicit effect-size and variability assumptions."
+msgstr ":ref:`Power / Design <workflow-module-power>`: Abra «Potência / delineamento (Power / Design)» e estime as necessidades de amostragem com base em hipóteses explícitas sobre tamanho de efeito e variabilidade."
+
+msgid "Track live cells"
+msgstr "Rastrear células vivas"
+
+msgid "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility."
+msgstr "Acompanhe os objetos segmentados em uma sequência ordenada de imagens e quantifique suas medições e seu movimento. Verifique a ordem e o intervalo dos quadros, a identidade dos objetos e a calibração de pixels. Importe máscaras existentes com suas imagens de origem quando disponíveis e confirme que o projeto com rastreamento tem identidades válidas antes de interpretar a motilidade."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and point it at an ordered time-series project."
+msgstr ":ref:`Mask <workflow-module-mask>`: Comece em «Início (Home)» com «Máscaras (Mask)» e selecione um projeto com uma série de imagens em ordem temporal."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Open the Timelapse action in Mask, configure timing and inspect linked objects."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: Abra a ação «Série temporal (Timelapse)» em «Máscaras (Mask)», configure os tempos e examine os objetos vinculados."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure on the tracked project to quantify the objects."
+msgstr ":ref:`Measure <workflow-module-measure>`: Abra «Medição (Measure)» no projeto rastreado para quantificar os objetos."
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Inside Measure open Motility Assay and check frame interval, pixel calibration and track filters."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: Dentro de «Medição (Measure)», abra «Ensaio de motilidade (Motility Assay)» e confira o intervalo entre quadros, a calibração dos pixels e os filtros de trajetórias."
+
+msgid "Module inputs, outputs and next steps"
+msgstr "Entradas, saídas e próximas etapas dos módulos"
+
+msgid "Mask"
+msgstr "Máscaras"
+
+msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
+msgstr "Selecione canais e modelos, inspecione uma prévia e execute Mask. Measure consome as matrizes combinadas; o banco de contagens ainda não é uma tabela de características."
+
+msgid "**Open:** Home → Mask."
+msgstr "**Abrir:** Início → Máscaras."
+
+msgid "Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies."
+msgstr "As entradas e saídas abaixo incluem alternativas condicionais. As orientações e as notas de transferência indicam qual caminho se aplica."
+
+msgid "**Inputs**"
+msgstr "**Entradas**"
+
+msgid "**Microscope images** — Source image folder; original files, supported vendor files or imported TIFFs."
+msgstr "**Imagens de microscópio** — Pasta de imagens de origem; arquivos originais, arquivos de fabricantes compatíveis ou arquivos TIFF importados."
+
+msgid "**Segmentation checkpoint** — Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration."
+msgstr "**Ponto de controle de segmentação** — Ponto de controle salvo compatível com Cellpose ou motor instalado compatível selecionado com sua própria configuração."
+
+msgid "**Outputs**"
+msgstr "**Saídas**"
+
+msgid "**Images and label masks** — merged/\\*.npy in the project; channels and integer label planes share each field array."
+msgstr "**Imagens e máscaras de rótulos** — merged/\\*.npy no projeto; os canais e os planos de rótulos inteiros compartilham a matriz de cada campo."
+
+msgid "**Label masks** — masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup."
+msgstr "**Máscaras de rótulos** — masks/ quando preservada, ou pares de imagens e máscaras salvos explicitamente. A limpeza pode remover máscaras intermediárias."
+
+msgid "**Object counts** — measurements/measurements.db; Mask counts alone are not per-object feature measurements."
+msgstr "**Contagens de objetos** — measurements/measurements.db; as contagens de Mask sozinhas não são medições de características por objeto."
+
+msgid "**Before this module**"
+msgstr "**Antes deste módulo**"
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Select the saved compatible checkpoint in Mask."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Selecione o ponto de controle salvo compatível em Mask."
+
+msgid ":ref:`Import Images <workflow-module-import_images>`: Use imported image planes and identities; image-only imports still need segmentation."
+msgstr ":ref:`Import Images <workflow-module-import_images>`: Use planos de imagem e identidades importados; importações somente de imagens ainda precisam de segmentação."
+
+msgid ":ref:`Format Converter <workflow-module-convert>`: Use the converted layout and preserve source identity mappings."
+msgstr ":ref:`Format Converter <workflow-module-convert>`: Use a disposição convertida e preserve os mapeamentos de identidade com a origem."
+
+msgid ":ref:`Import <workflow-module-foreign>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
+msgstr ":ref:`Import <workflow-module-foreign>`: Para importações apenas de imagens, use Import Images ou Format Converter e indique ao Mask o projeto de imagens formatado. Medições externas isoladas não são uma entrada de segmentação."
+
+msgid "**After this module**"
+msgstr "**Depois deste módulo**"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the same project and the correct image/mask channel indices."
+msgstr ":ref:`Measure <workflow-module-measure>`: Use o mesmo projeto e os índices corretos dos canais de imagem e máscara."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Enable the nested time-series route before generating linked labels."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: Ative a rota interna de séries temporais antes de gerar rótulos vinculados."
+
+msgid ":doc:`API reference </api/spacr/core/index>`."
+msgstr ":doc:`Referência da API </api/spacr/core/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=07_mask>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=07_mask>`__."
+
+msgid "Measure"
+msgstr "Medição"
+
+msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
+msgstr "Measure lê imagens e planos de rótulos em conjunto. Ative o salvamento de recortes se precisar de arquivos PNG; mantenha juntos o banco de dados e o projeto de origem para obter recortes sob demanda."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
+msgstr "Com as funcionalidades alfa ativadas, utilize o ícone de guardar ao lado de ``cellprofiler_pipeline`` para exportar um exemplo incluído. Este espera dois canais de imagem, ``_ch0.tif`` (DNA) e ``_ch1.tif`` (Actin), além de ``_nucleus_mask.tif`` (Nuclei) e ``_cell_mask.tif`` (Cells). Adapte as suas definições de canais e objetos aos seus dados antes de o executar. Ao guardar, o caminho exportado é selecionado; o cancelamento ou uma falha preserva a seleção anterior. O CellProfiler é executado no seu ambiente separado."
+
+msgid "**Open:** Home → Measure."
+msgstr "**Abrir:** Início → Medição."
+
+msgid "**Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks. Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``. Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``."
+msgstr "**Objetos medidos** — measurements/measurements.db; as tabelas de objetos dependem das máscaras de célula, núcleo, patógeno e organela ativadas. Tabelas relevantes, conforme o caminho: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``. Colunas relevantes, conforme o caminho: ``plateID``, ``rowID``, ``columnID``, ``fieldID``."
+
+msgid "**Object crops** — data/\\*\\*/\\*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``png_path``, ``prcfo``."
+msgstr "**Recortes de objetos** — data/\\*\\*/\\*_png quando save_png está ativado; png_list indexa os recortes salvos. Os fluxos de trabalho compatíveis podem, em vez disso, transmitir recortes a partir das matrizes mescladas e das máscaras. Tabelas relevantes, conforme o caminho: ``png_list``. Colunas relevantes, conforme o caminho: ``png_path``, ``prcfo``."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
+msgstr ":ref:`Mask <workflow-module-mask>`: Use o mesmo projeto e os índices corretos dos canais de imagem e máscara."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Use Organizar para o Measure para mesclar imagens e suas máscaras nas matrizes que Medição lê; máscaras isoladas não são matrizes mescladas."
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: Meça novamente apenas quando necessário; External Masks já pode realizar a medição."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Use the time-series project with stable frame/object identities."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: Use o projeto de séries temporais com identidades estáveis de quadros e objetos."
+
+msgid ":ref:`Import <workflow-module-foreign>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table."
+msgstr ":ref:`Import <workflow-module-foreign>`: Importe as imagens correspondentes e as máscaras externas de inteiros para construir os arrays mesclados do projeto e abra Measure nesse projeto. Pule esta etapa se medições compatíveis já tiverem sido importadas ou calculadas. Não acrescente medições duplicadas a uma tabela importada existente."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Save or stream crops with stable object identities."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Salve ou obtenha sob demanda recortes com identidades estáveis dos objetos."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Choose the image or tabular family to match your input."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Escolha a família de imagens ou tabular de acordo com a entrada."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Choose feature columns and inspect representative crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Escolha colunas de características e inspecione recortes representativos."
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Retain encoder and channel-policy provenance."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: Preserve a procedência do codificador e da política de canais."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Use the actual measured feature definitions and units."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Use as definições e unidades reais das características medidas."
+
+msgid ":ref:`Graph Builder <workflow-module-graph_builder>`: Choose explicit variables, groups and filters."
+msgstr ":ref:`Graph Builder <workflow-module-graph_builder>`: Escolha explicitamente variáveis, grupos e filtros."
+
+msgid ":ref:`QC <workflow-module-qc_dashboard>`: Review available checks and missing evidence."
+msgstr ":ref:`QC <workflow-module-qc_dashboard>`: Revise as verificações disponíveis e as evidências ausentes."
+
+msgid ":ref:`Recruitment <workflow-module-recruitment>`: Require the intended compartment intensities and identities."
+msgstr ":ref:`Recruitment <workflow-module-recruitment>`: Exija as intensidades e identidades dos compartimentos pretendidos."
+
+msgid ":ref:`Invasion Assay <workflow-module-invasion>`: Require two-colour stain measurements and appropriate baseline controls."
+msgstr ":ref:`Invasion Assay <workflow-module-invasion>`: Exija medições de coloração em duas cores e controles de referência adequados."
+
+msgid ":ref:`Replication Assay <workflow-module-replication>`: Require explicit parasite-to-vacuole identities."
+msgstr ":ref:`Replication Assay <workflow-module-replication>`: Exija identidades explícitas de parasitas e seus vacúolos."
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Combine measured objects with matching tracks."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: Combine os objetos medidos com as trajetórias correspondentes."
+
+msgid ":ref:`Feature Explorer <workflow-module-feature_explorer>`: Define the class comparison and inspect filtering."
+msgstr ":ref:`Feature Explorer <workflow-module-feature_explorer>`: Defina a comparação entre classes e inspecione a filtragem."
+
+msgid ":ref:`Database Browser <workflow-module-db_browser>`: Inspect actual tables before exporting."
+msgstr ":ref:`Database Browser <workflow-module-db_browser>`: Inspecione as tabelas reais antes de exportar."
+
+msgid ":ref:`AnnData Export <workflow-module-anndata_export>`: Export compatible feature and metadata columns."
+msgstr ":ref:`AnnData Export <workflow-module-anndata_export>`: Exporte colunas compatíveis de características e metadados."
+
+msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Join the measured response to explicit doses and controls."
+msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: Una a resposta medida a doses e controles explícitos."
+
+msgid ":ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+msgstr ":ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Forneça as raízes dos projetos medidos e as tabelas necessárias de objetos e png_list. Verifique a agregação por célula hospedeira e as unidades de área antes de interpretar faixas de tamanho; o banco de contagens de Mask sozinho não basta."
+
+msgid ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
+msgstr ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Mantenha as células não infectadas no Measure. Forneça máscaras de vacúolos inteiros, intensidades de referência do hospedeiro e, opcionalmente, ligações explícitas entre parasita e vacúolo; a identidade do hospedeiro, sozinha, não define um vacúolo."
+
+msgid ":doc:`API reference </api/spacr/measure/index>`."
+msgstr ":doc:`Referência da API </api/spacr/measure/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=08_measure>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=08_measure>`__."
+
+msgid "Annotate"
+msgstr "Anotação"
+
+msgid "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent."
+msgstr "Rotule objetos representativos em png_list antes do treinamento supervisionado. Use anotações separadas para perguntas diferentes e mantenha independentes os grupos de treinamento e avaliação."
+
+msgid "**Open:** Home → Annotate."
+msgstr "**Abrir:** Início → Anotação."
+
+msgid "**Reusable gates** — Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions."
+msgstr "**Gates reutilizáveis** — Definições salvas de regiões de seleção por limiar ou polígono, ou um conjunto selecionado de objetos; aplique uma região às mesmas definições de características."
+
+msgid "**Training annotations** — A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``prcfo``."
+msgstr "**Anotações de treinamento** — Uma coluna de anotação escolhida em measurements/measurements.db, tabela png_list; os rótulos pertencem às identidades dos objetos. Tabelas relevantes, conforme o caminho: ``png_list``. Colunas relevantes, conforme o caminho: ``prcfo``."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Save or stream crops with stable object identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: Salve ou obtenha sob demanda recortes com identidades estáveis dos objetos."
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Keep the newly measured project and crop index together."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: Mantenha juntos o projeto recém-medido e o índice de recortes."
+
+msgid ":ref:`Import <workflow-module-foreign>`: Imported tables require explicit column and object-identity mappings."
+msgstr ":ref:`Import <workflow-module-foreign>`: Tabelas importadas exigem mapeamentos explícitos de colunas e identidades dos objetos."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Apply compatible gates, then review candidate labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Aplique regiões de seleção compatíveis e revise os rótulos candidatos."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Keep labelled training and evaluation groups separate."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Mantenha separados os grupos rotulados de treinamento e avaliação."
+
+msgid ":ref:`Annotator Agreement <workflow-module-agreement>`: Choose independent annotation columns for the same objects."
+msgstr ":ref:`Annotator Agreement <workflow-module-agreement>`: Escolha colunas de anotações independentes para os mesmos objetos."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/annotate/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/annotate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=09_annotate>`__."
+
+msgid "Classify"
+msgstr "Classificar"
+
+msgid "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs."
+msgstr "Escolha Computer Vision para recortes ou imagens de objetos obtidas sob demanda, ou Tabular Machine Learning para colunas de características medidas. As duas famílias consomem entradas diferentes."
+
+msgid "**Open:** Home → Classify."
+msgstr "**Abrir:** Início → Classificar."
+
+msgid "**Object classification scores** — Saved score CSVs and, when merged, measurements/measurements.db, table png_list. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``."
+msgstr "**Pontuações de classificação de objetos** — CSVs de pontuação salvos e, quando mesclados, measurements/measurements.db, tabela png_list. Tabelas relevantes, conforme o caminho: ``png_list``. Colunas relevantes, conforme o caminho: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``."
+
+msgid "**Trained image classifier** — Saved classifier checkpoint, model settings and matching channel/preprocessing configuration."
+msgstr "**Classificador de imagens treinado** — Ponto de controle salvo do classificador, configurações do modelo e configuração correspondente de canais e pré-processamento."
+
+msgid "**Fitted feature classifier** — The fitted tabular classifier and its recorded feature list, training settings and validation results."
+msgstr "**Classificador de características ajustado** — O classificador tabular ajustado e sua lista registrada de características, configurações de treinamento e resultados de validação."
+
+msgid "**Classifier evaluation bundle** — Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run."
+msgstr "**Conjunto de avaliação do classificador** — Predições e rótulos de avaliação independente, metadados da divisão de dados e métricas de calibração e vazamento de dados para uma execução salva do classificador."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose the image or tabular family to match your input."
+msgstr ":ref:`Measure <workflow-module-measure>`: Escolha a família de imagens ou tabular de acordo com a entrada."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Keep labelled training and evaluation groups separate."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Mantenha separados os grupos rotulados de treinamento e avaliação."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Grave as seleções de gates revisadas em uma coluna de anotação e selecione essa mesma coluna e população de objetos em Classify. Mantenha os objetos de validação separados dos rótulos de treinamento."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Grave as seleções de laço revisadas em uma coluna de anotação do banco de objetos correspondente e selecione essa coluna em Classify. Inspecione os recortes e valide os rótulos; grupos no espaço de representação não são a verdade de referência."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Select the intended CV or ML score column and preserve plate/well identity."
+msgstr ":ref:`Regression <workflow-module-regression>`: Selecione a coluna pretendida de pontuação CV ou ML e preserve a identidade de placas e poços."
+
+msgid ":ref:`Classifier Evaluation <workflow-module-classifier_evaluation>`: Use the matching held-out predictions and split metadata."
+msgstr ":ref:`Classifier Evaluation <workflow-module-classifier_evaluation>`: Use as predições de avaliação independente e os metadados correspondentes da divisão de dados."
+
+msgid ":ref:`Activation <workflow-module-activation>`: Also provide the matching crops and channel preprocessing."
+msgstr ":ref:`Activation <workflow-module-activation>`: Forneça também os recortes e o pré-processamento de canais correspondentes."
+
+msgid ":ref:`Explain CV Model <workflow-module-explain_cv>`: Select CV predictions and the matching measured objects."
+msgstr ":ref:`Explain CV Model <workflow-module-explain_cv>`: Selecione predições CV e os objetos medidos correspondentes."
+
+msgid ":doc:`API reference </api/spacr/classify/index>`."
+msgstr ":doc:`Referência da API </api/spacr/classify/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=41_classify>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=41_classify>`__."
+
+msgid "Map Barcodes"
+msgstr "Mapear códigos de barras"
+
+msgid "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores."
+msgstr "Forneça as referências que codificam seu experimento. Inspecione contagens mapeadas e controle de qualidade (QC) de códigos de barras antes de associar contagens de guias por poço a pontuações de fenótipo."
+
+msgid "**Open:** Home → Map Barcodes."
+msgstr "**Abrir:** Início → Mapear códigos de barras."
+
+msgid "**Sequencing reads** — Single-end or paired FASTQ files, with the matching barcode reference tables."
+msgstr "**Leituras de sequenciamento** — Arquivos FASTQ de leitura simples ou pareada, com as tabelas de referência de códigos de barras correspondentes."
+
+msgid "**Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
+msgstr "**Contagens de guias por poço** — pasta da execução de Mapear códigos de barras: unique_combinations.csv e annotated_reads.h5. A identidade dos poços exige as referências de códigos de barras correspondentes. Colunas relevantes, conforme o caminho: ``count``."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Pair guide counts with phenotype scores using consistent plate/well keys."
+msgstr ":ref:`Regression <workflow-module-regression>`: Associe contagens de guias a pontuações de fenótipo usando chaves consistentes de placas e poços."
+
+msgid ":ref:`Barcode QC <workflow-module-barcode_qc>`: Check mapping and coverage before guide filtering."
+msgstr ":ref:`Barcode QC <workflow-module-barcode_qc>`: Verifique o mapeamento e a cobertura antes de filtrar os guias."
+
+msgid ":doc:`API reference </api/spacr/sequencing/index>`."
+msgstr ":doc:`Referência da API </api/spacr/sequencing/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=12_map_barcodes>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=12_map_barcodes>`__."
+
+msgid "Regression"
+msgstr "Regressão"
+
+msgid "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported."
+msgstr "Faça corresponder os identificadores de placas e poços nas entradas de fenótipo e contagens de guias, selecione a resposta e os controles e inspecione os diagnósticos antes de interpretar os resultados. Respostas medidas diretamente também são aceitas."
+
+msgid "**Open:** Home → Regression."
+msgstr "**Abrir:** Início → Regressão."
+
+msgid "**Optical barcode assignments** — OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads. Relevant tables, depending on the route: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_barcodes``, ``ops_reads``."
+msgstr "**Atribuições de códigos de barras ópticos** — measurements.db de destino do OPS: geometria por poço, alinhamento fenotípico, tabelas de núcleos e de códigos de barras; leituras por ciclo opcionais. Tabelas relevantes, conforme o caminho: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_barcodes``, ``ops_reads``."
+
+msgid "**Regression results and hits** — Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures."
+msgstr "**Resultados e candidatos da regressão** — Pasta de resultados da execução selecionada: arquivos CSV de coeficientes e resultados, tabelas de candidatos, configurações e figuras de diagnóstico."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Select the intended CV or ML score column and preserve plate/well identity."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Selecione a coluna pretendida de pontuação CV ou ML e preserve a identidade de placas e poços."
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Pair guide counts with phenotype scores using consistent plate/well keys."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Associe contagens de guias a pontuações de fenótipo usando chaves consistentes de placas e poços."
+
+msgid ":ref:`OPS <workflow-module-ops>`: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
+msgstr ":ref:`OPS <workflow-module-ops>`: Una ou agregue explicitamente os objetos decodificados às entradas de fenótipo e guias antes de Regression; não é uma transferência direta de CSV."
+
+msgid ":ref:`Run Compare <workflow-module-run_compare>`: Compare compatible saved result sets and their settings."
+msgstr ":ref:`Run Compare <workflow-module-run_compare>`: Compare conjuntos compatíveis de resultados salvos e suas configurações."
+
+msgid ":ref:`Hit List <workflow-module-hit_list>`: Inspect ranked hits and guide agreement."
+msgstr ":ref:`Hit List <workflow-module-hit_list>`: Inspecione os resultados ordenados e a concordância entre guias."
+
+msgid ":ref:`Volcano Explorer <workflow-module-volcano_explorer>`: Inspect saved effects and adjusted significance."
+msgstr ":ref:`Volcano Explorer <workflow-module-volcano_explorer>`: Inspecione os efeitos salvos e a significância ajustada."
+
+msgid ":ref:`Diagnostics <workflow-module-regression_diagnostics>`: Open the diagnostics actually written by this run."
+msgstr ":ref:`Diagnostics <workflow-module-regression_diagnostics>`: Abra os diagnósticos que esta execução realmente gravou."
+
+msgid ":ref:`Methods & Results <workflow-module-methods_export>`: Review exported prose and every traced result."
+msgstr ":ref:`Methods & Results <workflow-module-methods_export>`: Revise o texto exportado e cada resultado ao qual ele remete."
+
+msgid ":ref:`Investigate Hit <workflow-module-investigate_hit>`: Join compatible phenotype and object data for the chosen hit."
+msgstr ":ref:`Investigate Hit <workflow-module-investigate_hit>`: Una dados compatíveis de fenótipo e objetos para o resultado escolhido."
+
+msgid ":doc:`API reference </api/spacr/ml/index>`."
+msgstr ":doc:`Referência da API </api/spacr/ml/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=13_regression>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=13_regression>`__."
+
+msgid "Feature Explorer"
+msgstr "Feature Explorer"
+
+msgid "Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking."
+msgstr "Ordene as características medidas para uma comparação de classes escolhida; revise a filtragem e as definições de classes antes de interpretar a ordenação."
+
+msgid "**Open:** Classify → Feature Explorer."
+msgstr "**Abrir:** Classificar → Feature Explorer."
+
+msgid "**Figures and table exports** — The output location chosen by the tool; exports describe the selected data and filters."
+msgstr "**Figuras e exportações de tabelas** — O local de saída escolhido pela ferramenta; as exportações descrevem os dados e filtros selecionados."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Define the class comparison and inspect filtering."
+msgstr ":ref:`Measure <workflow-module-measure>`: Defina a comparação entre classes e inspecione a filtragem."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/feature_explorer/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=65_feature_explorer>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=65_feature_explorer>`__."
+
+msgid "Format Converter"
+msgstr "Conversor de formatos"
+
+msgid "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements."
+msgstr "Converta formatos de microscópio compatíveis para uma disposição TIFF configurada, preservando os mapeamentos de origem. A conversão não gera medições de objetos."
+
+msgid "**Open:** Import → Format Converter."
+msgstr "**Abrir:** Importar → Conversor de formatos."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
+msgstr ":ref:`Mask <workflow-module-mask>`: Use a disposição convertida e preserve os mapeamentos de identidade com a origem."
+
+msgid ":doc:`API reference </api/spacr/convert/index>`."
+msgstr ":doc:`Referência da API </api/spacr/convert/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=35_converter>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=35_converter>`__."
+
+msgid "Import"
+msgstr "Importar"
+
+msgid "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements."
+msgstr "Importe medições externas com mapeamentos explícitos de objetos e colunas, ou escolha Import Images, Format Converter ou External Masks. Medições importadas não são uma nova execução de Measure. Com as imagens de origem correspondentes e máscaras externas de inteiros, Import constrói os arrays mesclados do projeto usados por Measure. Escolha a rota adequada aos arquivos e confira as identidades dos objetos antes de medir; tabelas de características importadas podem ser usadas diretamente se já contiverem as medições necessárias."
+
+msgid "**Open:** Home → Import."
+msgstr "**Abrir:** Início → Importar."
+
+msgid "**External measurements** — Third-party measurement CSV/database tables and their image, mask and object-identity mappings."
+msgstr "**Medições externas** — Tabelas CSV ou de bancos de dados de medições de terceiros e seus mapeamentos de imagens, máscaras e identidades de objetos."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Imported tables require explicit column and object-identity mappings."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Tabelas importadas exigem mapeamentos explícitos de colunas e identidades dos objetos."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table."
+msgstr ":ref:`Measure <workflow-module-measure>`: Importe as imagens correspondentes e as máscaras externas de inteiros para construir os arrays mesclados do projeto e abra Measure nesse projeto. Pule esta etapa se medições compatíveis já tiverem sido importadas ou calculadas. Não acrescente medições duplicadas a uma tabela importada existente."
+
+msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
+msgstr ":ref:`Mask <workflow-module-mask>`: Para importações apenas de imagens, use Import Images ou Format Converter e indique ao Mask o projeto de imagens formatado. Medições externas isoladas não são uma entrada de segmentação."
+
+msgid ":doc:`API reference </api/spacr/foreign/index>`."
+msgstr ":doc:`Referência da API </api/spacr/foreign/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=36_import>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=36_import>`__."
+
+msgid "External Masks"
+msgstr "Máscaras externas"
+
+msgid "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation."
+msgstr "Associe as imagens correspondentes e as máscaras existentes de rótulos inteiros; depois crie e meça um projeto spaCR sem repetir a segmentação."
+
+msgid "**Open:** Import → External Masks."
+msgstr "**Abrir:** Importar → Máscaras externas."
+
+msgid ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
+msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Forneça os arquivos TIFF de rótulos salvos e suas imagens originais a External Masks, atribua papéis aos objetos e crie o projeto combinado antes de Measure."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Re-measure only when needed; External Masks can already perform measurement."
+msgstr ":ref:`Measure <workflow-module-measure>`: Meça novamente apenas quando necessário; External Masks já pode realizar a medição."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Keep the newly measured project and crop index together."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Mantenha juntos o projeto recém-medido e o índice de recortes."
+
+msgid ":doc:`API reference </api/spacr/external_masks/index>`."
+msgstr ":doc:`Referência da API </api/spacr/external_masks/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=31_external_masks>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=31_external_masks>`__."
+
+msgid "Plate Queue"
+msgstr "Fila de placas"
+
+msgid "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately."
+msgstr "Execute o fluxo escolhido em várias placas. As saídas são as de cada módulo enfileirado; preserve cada placa e suas configurações separadamente."
+
+msgid "**Open:** the application's Help/tools menus."
+msgstr "**Abrir:** os menus Ajuda/ferramentas do aplicativo."
+
+msgid "**Run queue** — Saved module/plate/settings job definitions and dependency order."
+msgstr "**Fila de execuções** — Definições salvas de trabalhos de módulos, placas e configurações, e ordem de dependências."
+
+msgid "**Run history and artifacts** — Project run records, settings, output paths, artifact provenance, status and logs."
+msgstr "**Histórico de execuções e produtos** — Registros de execuções do projeto, configurações, caminhos de saída, procedência dos produtos, estado e registros de atividade."
+
+msgid ":doc:`API reference </api/spacr/qt/plate_queue/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/plate_queue/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=30_plate_queue>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=30_plate_queue>`__."
+
+msgid "Batch Runner"
+msgstr "Executor em lote"
+
+msgid "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log."
+msgstr "Valide e execute trabalhos de módulos na ordem das dependências. Cada trabalho grava suas próprias saídas e seu registro."
+
+msgid ":doc:`API reference </api/spacr/batch/index>`."
+msgstr ":doc:`Referência da API </api/spacr/batch/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=37_batch>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=37_batch>`__."
+
+msgid "Distributed Jobs"
+msgstr "Trabalhos distribuídos"
+
+msgid "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis."
+msgstr "Envie uma execução configurada a um destino de execução remoto e inspecione seu estado e registros. Recupere os produtos reais do módulo antes da análise posterior."
+
+msgid ":doc:`API reference </api/spacr/remote_execution/index>`."
+msgstr ":doc:`Referência da API </api/spacr/remote_execution/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=38_distributed_jobs>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=38_distributed_jobs>`__."
+
+msgid "Database Browser"
+msgstr "Navegador de banco de dados"
+
+msgid "Browse selected tables and export rows; table inspection does not rerun image analysis."
+msgstr "Examine tabelas selecionadas e exporte linhas; inspecionar tabelas não executa novamente a análise de imagens."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Inspect actual tables before exporting."
+msgstr ":ref:`Measure <workflow-module-measure>`: Inspecione as tabelas reais antes de exportar."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/db_browser/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/db_browser/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=34_database>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=34_database>`__."
+
+msgid "Run History"
+msgstr "Histórico de execuções"
+
+msgid "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity."
+msgstr "Inspecione o estado, as configurações, as saídas e os registros das execuções salvas; uma execução concluída não estabelece validade biológica."
+
+msgid ":doc:`API reference </api/spacr/run_journal/index>`."
+msgstr ":doc:`Referência da API </api/spacr/run_journal/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=40_run_history>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=40_run_history>`__."
+
+msgid "Report"
+msgstr "Relatório"
+
+msgid "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis."
+msgstr "Reúna resultados registrados, configurações e controle de qualidade (QC) em um relatório compartilhável sem executar a análise novamente de forma inadvertida."
+
+msgid "**Quality-control results** — Stored project checks and QC reports; a missing check is not a passing result."
+msgstr "**Resultados de controle de qualidade** — Verificações do projeto e relatórios de controle de qualidade (QC) armazenados; uma verificação ausente não é um resultado aprovado."
+
+msgid "**Shareable reports** — Exported HTML/PDF or methods/results documents derived from recorded analysis outputs."
+msgstr "**Relatórios compartilháveis** — Documentos HTML/PDF ou de métodos e resultados exportados a partir de saídas de análise registradas."
+
+msgid ":doc:`API reference </api/spacr/report/index>`."
+msgstr ":doc:`Referência da API </api/spacr/report/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=29_report>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=29_report>`__."
+
+msgid "Data Manager"
+msgstr "Gerenciador de dados"
+
+msgid "Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable."
+msgstr "Inspecione arquivos do projeto e uso do disco. Remover produtos derivados invalida os usos posteriores desses arquivos; as imagens originais devem continuar recuperáveis."
+
+msgid ":doc:`API reference </api/spacr/data_manager/index>`."
+msgstr ":doc:`Referência da API </api/spacr/data_manager/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=44_data_manager>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=44_data_manager>`__."
+
+msgid "Pipeline Graph"
+msgstr "Pipeline Graph"
+
+msgid "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts."
+msgstr "Leia as dependências registradas dos produtos e o estado de desatualização ou ausência. O grafo descreve a procedência e não recria produtos ausentes."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/pipeline_graph/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/pipeline_graph/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=52_pipeline_graph>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=52_pipeline_graph>`__."
+
+msgid "QC"
+msgstr "QC"
+
+msgid "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection."
+msgstr "Inspecione as verificações armazenadas de segmentação, unidades, vazamento de dados e efeitos de placa. Abra seus visualizadores internos para uma inspeção detalhada."
+
+msgid "**Open:** Home → QC."
+msgstr "**Abrir:** Início → QC."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Review available checks and missing evidence."
+msgstr ":ref:`Measure <workflow-module-measure>`: Revise as verificações disponíveis e as evidências ausentes."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/qc_dashboard/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/qc_dashboard/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=54_qc_dashboard>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=54_qc_dashboard>`__."
+
+msgid "Lineage"
+msgstr "Lineage"
+
+msgid "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference."
+msgstr "Inspecione os vínculos registrados de contenção entre células, núcleos, patógenos e organelas; trata-se de contenção de objetos, não de inferência de linhagem em séries temporais."
+
+msgid "**Open:** Help search → Database Browser → Lineage."
+msgstr "**Abrir:** Pesquisa da Ajuda → Navegador de banco de dados → Lineage."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/lineage/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=56_lineage>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=56_lineage>`__."
+
+msgid "Experiment Design"
+msgstr "Experiment Design"
+
+msgid "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition."
+msgstr "Informe condições, controles, réplicas e restrições da placa; depois exporte a disposição experimental antes da aquisição."
+
+msgid "**Open:** Home → Experiment Design."
+msgstr "**Abrir:** Início → Experiment Design."
+
+msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
+msgstr "**Desenho da triagem e estimativas de potência** — Tabelas ou figuras de planejamento salvas com base em tamanhos de efeito, variabilidade e pressupostos de amostragem escolhidos explicitamente."
+
+msgid "**Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data."
+msgstr "**Disposição experimental** — Mapa exportado de placas, condições, controles e réplicas. Mantenha seus identificadores de placas e poços consistentes com os dados adquiridos."
+
+msgid ":ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design."
+msgstr ":ref:`Power / Design <workflow-module-power>`: Use a disposição experimental para definir pressupostos de amostragem e revise o desenho em seguida."
+
+msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities."
+msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: Adquira e meça primeiro o experimento, preservando as identidades das doses e condições."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/experiment_design/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/experiment_design/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=67_experiment_design>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=67_experiment_design>`__."
+
+msgid "Layer Viewer"
+msgstr "Layer Viewer"
+
+msgid "Inspect aligned image, label and point/ROI layers for the selected field."
+msgstr "Inspecione as camadas alinhadas de imagem, rótulos e pontos ou regiões de interesse (ROI) do campo selecionado."
+
+msgid "**Open:** QC → Layer Viewer."
+msgstr "**Abrir:** QC → Layer Viewer."
+
+msgid ":doc:`API reference </api/spacr/qt/layer_viewer/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/layer_viewer/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=57_layer_viewer>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=57_layer_viewer>`__."
+
+msgid "Power / Design"
+msgstr "Power / Design"
+
+msgid "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions."
+msgstr "Estime as necessidades de amostragem a partir dos tamanhos de efeito e da variabilidade escolhidos; medições piloto são evidências opcionais para os pressupostos."
+
+msgid "**Open:** Home → Power / Design."
+msgstr "**Abrir:** Início → Power / Design."
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Use a disposição experimental para definir pressupostos de amostragem e revise o desenho em seguida."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/power/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=68_power_design>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=68_power_design>`__."
+
+msgid "Run Compare"
+msgstr "Run Compare"
+
+msgid "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison."
+msgstr "Compare configurações, contagens e listas de resultados salvos compatíveis sem tratar alterações nos dados de entrada como uma comparação controlada de modelos."
+
+msgid "**Open:** Home → Run Compare."
+msgstr "**Abrir:** Início → Run Compare."
+
+msgid "**Run/model comparison** — Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy."
+msgstr "**Comparação de execuções e modelos** — Tabelas e figuras de comparação de execuções ou máscaras salvas compatíveis; concordância não é acurácia em relação a uma referência real."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Compare compatible saved result sets and their settings."
+msgstr ":ref:`Regression <workflow-module-regression>`: Compare conjuntos compatíveis de resultados salvos e suas configurações."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/run_compare/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/run_compare/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=50_run_compare>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=50_run_compare>`__."
+
+msgid "Tabulate"
+msgstr "Tabulate"
+
+msgid "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes."
+msgstr "Escolha variáveis de agrupamento e colunas de medição; depois inspecione tabelas dinâmicas e os tamanhos amostrais por grupo."
+
+msgid "**Open:** Help search → Database Browser → Tabulate."
+msgstr "**Abrir:** Pesquisa da Ajuda → Navegador de banco de dados → Tabulate."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/tabulate/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/tabulate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=61_tabulate>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=61_tabulate>`__."
+
+msgid "Dose–Response"
+msgstr "Dose–Response"
+
+msgid "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing."
+msgstr "Forneça colunas de dose e resposta, controles e unidades antes do ajuste de curvas; essa rota não exige sequenciamento."
+
+msgid "**Open:** Home → Dose–Response."
+msgstr "**Abrir:** Início → Dose–Response."
+
+msgid "**Assay results** — Assay-specific result tables and figures in the configured destination, preserving well and condition identities."
+msgstr "**Resultados do ensaio** — Tabelas de resultados e figuras específicas do ensaio no destino configurado, preservando as identidades dos poços e condições."
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Acquire and measure the experiment first, preserving dose/condition identities."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Adquira e meça primeiro o experimento, preservando as identidades das doses e condições."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Join the measured response to explicit doses and controls."
+msgstr ":ref:`Measure <workflow-module-measure>`: Una a resposta medida a doses e controles explícitos."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/dose_response/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/dose_response/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=69_dose_response>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=69_dose_response>`__."
+
+msgid "Project Browser"
+msgstr "Project Browser"
+
+msgid "Locate projects and inspect their stage, last run, disk use and stale outputs."
+msgstr "Localize projetos e inspecione a etapa, a última execução, o uso do disco e as saídas desatualizadas."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/project_browser/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/project_browser/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=45_project_browser>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=45_project_browser>`__."
+
+msgid "Outliers"
+msgstr "Outliers"
+
+msgid "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis."
+msgstr "Revise as pontuações robustas de valores atípicos de objetos e poços e a regra de exclusão selecionada antes de levar os dados filtrados para a análise."
+
+msgid "**Open:** QC → Outliers."
+msgstr "**Abrir:** QC → Outliers."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/outliers/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/outliers/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=66_outliers>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=66_outliers>`__."
+
+msgid "Embeddings"
+msgstr "Embeddings"
+
+msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
+msgstr "Codifique imagens de objetos com um modelo e uma política de canais escolhidos. Preserve as identidades dos objetos e a procedência do codificador ao fornecer as características para exploração posterior."
+
+msgid "**Open:** Home → Embeddings."
+msgstr "**Abrir:** Início → Embeddings."
+
+msgid "**Image embeddings** — Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent."
+msgstr "**Representações vetoriais de imagens** — Características do codificador indexadas por objeto, com política de canais e procedência do codificador. A API de codificação retorna características; o armazenamento depende de quem a chama."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Retain encoder and channel-policy provenance."
+msgstr ":ref:`Measure <workflow-module-measure>`: Preserve a procedência do codificador e da política de canais."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Forneça a tabela de características do codificador com os identificadores de objetos correspondentes; não presuma que toda rota da GUI a salva automaticamente."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/embeddings/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/embeddings/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=77_embeddings>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=77_embeddings>`__."
+
+msgid "Control Charts"
+msgstr "Control Charts"
+
+msgid "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment."
+msgstr "Compare os controles designados entre placas e inspecione a deriva; a definição de controle vem do experimento."
+
+msgid "**Open:** QC → Control Charts."
+msgstr "**Abrir:** QC → Control Charts."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/control_chart/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/control_chart/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=51_control_charts>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=51_control_charts>`__."
+
+msgid "Training Runs"
+msgstr "Execuções de treinamento"
+
+msgid "Compare saved training histories, metrics and settings from compatible model runs."
+msgstr "Compare históricos de treinamento, métricas e configurações salvos de execuções compatíveis de modelos."
+
+msgid "**Open:** Classify → Training Runs."
+msgstr "**Abrir:** Classificar → Execuções de treinamento."
+
+msgid ":doc:`API reference </api/spacr/train_compare/index>`."
+msgstr ":doc:`Referência da API </api/spacr/train_compare/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=28_training_runs>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=28_training_runs>`__."
+
+msgid "Align & Stitch"
+msgstr "Alinhar e unir"
+
+msgid "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
+msgstr "Inspecione a geometria dos campos, a sobreposição e o mapeamento de canais; depois salve o mosaico com registros de coordenadas. OPS também precisa das identidades originais de ciclos e posições."
+
+msgid "**Open:** Home → Align & Stitch."
+msgstr "**Abrir:** Início → Alinhar e unir."
+
+msgid "**Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it."
+msgstr "**Mosaico alinhado e coordenadas** — Destino do Align & Stitch: imagem composta e registros de coordenadas e disposição dos campos necessários para interpretá-la."
+
+msgid ":ref:`OPS <workflow-module-ops>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
+msgstr ":ref:`OPS <workflow-module-ops>`: Leve as coordenadas dos campos e os ciclos originais de sequenciamento para OPS; um mosaico achatado sozinho não basta."
+
+msgid ":doc:`API reference </api/spacr/align/index>`."
+msgstr ":doc:`Referência da API </api/spacr/align/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=32_align_stitch>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=32_align_stitch>`__."
+
+msgid "Make Masks"
+msgstr "Criar máscaras"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
+msgstr "Revise pares de imagem/máscara para treinamento de segmentação ou use Organizar para o Measure para mesclar imagens e suas máscaras nas matrizes que Medição lê. Salvar uma máscara não treina um classificador."
+
+msgid "**Open:** Home → Make Masks."
+msgstr "**Abrir:** Início → Criar máscaras."
+
+msgid "**Curated training fields** — Separate image and integer-mask files with matching field identities; preserve original images and labels."
+msgstr "**Campos de treinamento revisados** — Arquivos separados de imagens e máscaras inteiras com identidades de campos correspondentes; preserve imagens e rótulos originais."
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use pares de imagens e máscaras verificados de forma independente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`: Use Organizar para o Measure para mesclar imagens e suas máscaras nas matrizes que Medição lê; máscaras isoladas não são matrizes mescladas."
+
+msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use máscaras de placas de lise com as imagens de origem correspondentes; máscaras de células não são automaticamente rótulos de placas de lise."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/make_masks/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/make_masks/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=14_make_masks>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=14_make_masks>`__."
+
+msgid "Plate Viewer"
+msgstr "Visualizador de placas"
+
+msgid "Aggregate the selected measurement by well and inspect plate patterns and controls."
+msgstr "Agregue a medição selecionada por poço e inspecione os padrões da placa e os controles."
+
+msgid "**Open:** Graph Builder → Plate Viewer."
+msgstr "**Abrir:** Graph Builder → Visualizador de placas."
+
+msgid ":doc:`API reference </api/spacr/plate_qc/index>`."
+msgstr ":doc:`Referência da API </api/spacr/plate_qc/index>`."
+
+msgid "Image UMAP"
+msgstr "UMAP de imagens"
+
+msgid "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+msgstr "Projete características medidas ou características fornecidas pelo codificador e inspecione recortes representativos. Um grupo é um agrupamento candidato, não um fenótipo validado. Use o laço e os controles de anotação para gravar seleções revisadas em uma coluna de anotação do banco de medições correspondente. Uma seleção geométrica isolada não estabelece um fenótipo biológico."
+
+msgid "**Open:** Home → Image UMAP."
+msgstr "**Abrir:** Início → UMAP de imagens."
+
+msgid "**Projection and clusters** — Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data."
+msgstr "**Projeção e grupos** — Tabelas de coordenadas do Image UMAP/PCA, grupos selecionados e figuras para os dados de medição carregados."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose feature columns and inspect representative crops."
+msgstr ":ref:`Measure <workflow-module-measure>`: Escolha colunas de características e inspecione recortes representativos."
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: Forneça a tabela de características do codificador com os identificadores de objetos correspondentes; não presuma que toda rota da GUI a salva automaticamente."
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Supply the matching coordinate/feature columns when defining a selection."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: Forneça as colunas de coordenadas ou características correspondentes ao definir uma seleção."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Grave as seleções de laço revisadas em uma coluna de anotação do banco de objetos correspondente e selecione essa coluna em Classify. Inspecione os recortes e valide os rótulos; grupos no espaço de representação não são a verdade de referência."
+
+msgid "`Module tutorial <tutorials/#lesson=15_image_umap>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=15_image_umap>`__."
+
+msgid "Prediction Profiler"
+msgstr "Prediction Profiler"
+
+msgid "Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects."
+msgstr "Inspecione como um modelo ajustado responde quando uma característica de entrada muda; predições não estabelecem efeitos causais."
+
+msgid "**Open:** Regression → Prediction Profiler."
+msgstr "**Abrir:** Regressão → Prediction Profiler."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/profiler/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/profiler/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=53_prediction_profiler>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=53_prediction_profiler>`__."
+
+msgid "Graph Builder"
+msgstr "Graph Builder"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
+msgstr "Carregue uma tabela ou use Mesclar tabelas para combinar medições compatíveis. Para imagens convertidas, use Mesclar nomes de arquivos originais para recuperar nomes de um mapeamento de conversão. Use Anotar condições para atribuir uma coluna nomeada com regras de expressão regular sobre metadados ou linhas arrastadas; salve uma tabela SQLite anotada ou exporte CSV com suas regras. Escolha variáveis, grupos e configurações de gráficos e exporte a figura com seu contexto de análise."
+
+msgid "**Open:** Home → Graph Builder."
+msgstr "**Abrir:** Início → Graph Builder."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose explicit variables, groups and filters."
+msgstr ":ref:`Measure <workflow-module-measure>`: Escolha explicitamente variáveis, grupos e filtros."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/graph_builder/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/graph_builder/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=58_graph_builder>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=58_graph_builder>`__."
+
+msgid "Investigate Hit"
+msgstr "Investigate Hit"
+
+msgid "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit."
+msgstr "Vincule um resultado de regressão a objetos candidatos e evidências quantitativas por poço. Isso não valida o resultado de forma independente."
+
+msgid "**Open:** Regression → Investigate Hit."
+msgstr "**Abrir:** Regressão → Investigate Hit."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join compatible phenotype and object data for the chosen hit."
+msgstr ":ref:`Regression <workflow-module-regression>`: Una dados compatíveis de fenótipo e objetos para o resultado escolhido."
+
+msgid ":doc:`API reference </api/spacr/hit_investigation/index>`."
+msgstr ":doc:`Referência da API </api/spacr/hit_investigation/index>`."
+
+msgid "Gate Editor"
+msgstr "Gate Editor"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "Carregue uma tabela ou use Mesclar tabelas para criar um conjunto de trabalho com chaves e agregação validadas. Defina gates de limiar ou poligonais em colunas reais de características/coordenadas e aplique o gate salvo a objetos compatíveis. Use Anotação para gravar os gates exibidos em uma coluna de anotação; revise os objetos selecionados e escolha rótulos binários ou multiclasse."
+
+msgid "**Open:** Home → Gate Editor."
+msgstr "**Abrir:** Início → Gate Editor."
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Supply the matching coordinate/feature columns when defining a selection."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: Forneça as colunas de coordenadas ou características correspondentes ao definir uma seleção."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the actual measured feature definitions and units."
+msgstr ":ref:`Measure <workflow-module-measure>`: Use as definições e unidades reais das características medidas."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Apply compatible gates, then review candidate labels."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Aplique regiões de seleção compatíveis e revise os rótulos candidatos."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Grave as seleções de gates revisadas em uma coluna de anotação e selecione essa mesma coluna e população de objetos em Classify. Mantenha os objetos de validação separados dos rótulos de treinamento."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/gate_editor/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/gate_editor/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=64_gate_editor>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=64_gate_editor>`__."
+
+msgid "Feature Dictionary"
+msgstr "Dicionário de características"
+
+msgid "Look up feature definitions and units before choosing measurement columns."
+msgstr "Consulte definições de características e unidades antes de escolher colunas de medição."
+
+msgid "**Feature definitions** — The installed feature dictionary; definitions describe existing measurements and do not compute them."
+msgstr "**Definições de características** — O dicionário de características instalado; as definições descrevem medições existentes e não as calculam."
+
+msgid ":doc:`API reference </api/spacr/feature_dict/index>`."
+msgstr ":doc:`Referência da API </api/spacr/feature_dict/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=62_feature_dictionary>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=62_feature_dictionary>`__."
+
+msgid "Small Multiples"
+msgstr "Small Multiples"
+
+msgid "Compare groups in small-multiple plots with explicit shared or independent axes."
+msgstr "Compare grupos em painéis de gráficos com eixos explicitamente compartilhados ou independentes."
+
+msgid "**Open:** Graph Builder → Small Multiples."
+msgstr "**Abrir:** Graph Builder → Small Multiples."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/trellis/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/trellis/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=63_small_multiples>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=63_small_multiples>`__."
+
+msgid "Plaque Assay"
+msgstr "Ensaio de placas"
+
+msgid "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example."
+msgstr "Analise imagens de placas de lise ou máscaras existentes com o modelo de placas configurado. Essa rota não precisa passar por Measure; use o exemplo específico de placas de lise."
+
+msgid "**Open:** Toxoplasma → Plaque Assay."
+msgstr "**Abrir:** Toxoplasma → Ensaio de placas."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Use máscaras de placas de lise com as imagens de origem correspondentes; máscaras de células não são automaticamente rótulos de placas de lise."
+
+msgid ":doc:`API reference </api/spacr/submodules/index>`."
+msgstr ":doc:`Referência da API </api/spacr/submodules/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=24_plaque>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=24_plaque>`__."
+
+msgid "Recruitment"
+msgstr "Ensaio de recrutamento"
+
+msgid "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios."
+msgstr "Use medições de intensidade de compartimentos e identidades correspondentes de hospedeiros e patógenos para calcular razões de recrutamento."
+
+msgid "**Open:** Toxoplasma → Recruitment."
+msgstr "**Abrir:** Toxoplasma → Ensaio de recrutamento."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: Exija as intensidades e identidades dos compartimentos pretendidos."
+
+msgid "`Module tutorial <tutorials/#lesson=25_recruitment>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=25_recruitment>`__."
+
+msgid "Invasion Assay"
+msgstr "Ensaio de invasão"
+
+msgid "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion."
+msgstr "Use as medições necessárias de coloração diferencial em duas cores e os controles de referência da coloração para distinguir adesão de invasão."
+
+msgid "**Open:** Toxoplasma → Invasion Assay."
+msgstr "**Abrir:** Toxoplasma → Ensaio de invasão."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require two-colour stain measurements and appropriate baseline controls."
+msgstr ":ref:`Measure <workflow-module-measure>`: Exija medições de coloração em duas cores e controles de referência adequados."
+
+msgid "`Module tutorial <tutorials/#lesson=26_invasion>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=26_invasion>`__."
+
+msgid "Replication Assay"
+msgstr "Ensaio de replicação"
+
+msgid "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole."
+msgstr "Conte parasitas usando identidades explícitas dos vacúolos e compare distribuições por condição; a identidade da célula hospedeira sozinha não define um vacúolo."
+
+msgid "**Open:** Toxoplasma → Replication Assay."
+msgstr "**Abrir:** Toxoplasma → Ensaio de replicação."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require explicit parasite-to-vacuole identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: Exija identidades explícitas de parasitas e seus vacúolos."
+
+msgid "`Module tutorial <tutorials/#lesson=27_replication>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=27_replication>`__."
+
+msgid "Cellpose Workbench"
+msgstr "Bancada Cellpose"
+
+msgid "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask."
+msgstr "Abra Cellpose Workbench dentro de Make Masks e treine com pares verificados de imagens e máscaras. Avalie em campos separados antes de selecionar o ponto de controle em Mask."
+
+msgid "**Open:** Make Masks → Cellpose Workbench."
+msgstr "**Abrir:** Criar máscaras → Bancada Cellpose."
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use independently checked image/mask pairs."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Use pares de imagens e máscaras verificados de forma independente."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Select the saved compatible checkpoint in Mask."
+msgstr ":ref:`Mask <workflow-module-mask>`: Selecione o ponto de controle salvo compatível em Mask."
+
+msgid ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing."
+msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Passe o ponto de controle treinado como custom_model com os canais de imagem e o pré-processamento correspondentes."
+
+msgid "`Module tutorial <tutorials/#lesson=19_train_cellpose>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=19_train_cellpose>`__."
+
+msgid "Mask the whole folder"
+msgstr "Gerar máscaras para toda a pasta"
+
+msgid "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them."
+msgstr "Aplique o modelo de segmentação selecionado à pasta de imagens aberta por meio de Make Masks; inspecione os rótulos salvos antes de medi-los."
+
+msgid "**Open:** Make Masks → Mask the whole folder."
+msgstr "**Abrir:** Criar máscaras → Gerar máscaras para toda a pasta."
+
+msgid ":doc:`API reference </api/spacr/spacr_cellpose/index>`."
+msgstr ":doc:`Referência da API </api/spacr/spacr_cellpose/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=20_cellpose_masks>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=20_cellpose_masks>`__."
+
+msgid "Model Compare"
+msgstr "Comparar modelos"
+
+msgid "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+msgstr "Compare máscaras de modelos em campos idênticos. Sem rótulos de referência independentes, a concordância não mede a acurácia da segmentação."
+
+msgid "**Open:** Make Masks → Model Compare."
+msgstr "**Abrir:** Criar máscaras → Comparar modelos."
+
+msgid ":doc:`API reference </api/spacr/model_compare/index>`."
+msgstr ":doc:`Referência da API </api/spacr/model_compare/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=21_model_compare>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=21_model_compare>`__."
+
+msgid "Model Zoo"
+msgstr "Biblioteca de modelos"
+
+msgid "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file."
+msgstr "Inspecione a procedência dos modelos e baixe ou instale pontos de controle ou motores compatíveis. Um motor listado não é, por si só, um arquivo de ponto de controle."
+
+msgid "**Open:** Make Masks → Model Zoo."
+msgstr "**Abrir:** Criar máscaras → Biblioteca de modelos."
+
+msgid ":doc:`API reference </api/spacr/model_zoo/index>`."
+msgstr ":doc:`Referência da API </api/spacr/model_zoo/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=22_model_zoo>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=22_model_zoo>`__."
+
+msgid "Curate"
+msgstr "Curadoria"
+
+msgid "Correct labels and track assignments while retaining a record of the edits."
+msgstr "Corrija rótulos e atribuições de trajetórias mantendo um registro das edições."
+
+msgid "**Open:** Make Masks → Curate."
+msgstr "**Abrir:** Criar máscaras → Curadoria."
+
+msgid "**Linked time-series objects** — Tracked labels and frame/object associations from the time-series project, with frame interval and units."
+msgstr "**Objetos vinculados de séries temporais** — Rótulos rastreados e associações de quadros e objetos do projeto de séries temporais, com intervalo entre quadros e unidades."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/curate/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/curate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=42_curate>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=42_curate>`__."
+
+msgid "Napari Bridge"
+msgstr "Ponte para o napari"
+
+msgid "Send the matching image/labels to napari and import the revised labels back with field identity preserved."
+msgstr "Envie a imagem e os rótulos correspondentes ao napari e importe de volta os rótulos revisados, preservando a identidade do campo."
+
+msgid "**Open:** Make Masks → Napari Bridge."
+msgstr "**Abrir:** Criar máscaras → Ponte para o napari."
+
+msgid ":doc:`API reference </api/spacr/napari_bridge/index>`."
+msgstr ":doc:`Referência da API </api/spacr/napari_bridge/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=46_napari_bridge>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=46_napari_bridge>`__."
+
+msgid "Import Images"
+msgstr "Importar imagens"
+
+msgid "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement."
+msgstr "Revise identidades de campos, canais de imagem e máscaras externas opcionais antes de gravar um projeto separado. Importações somente de imagens ainda precisam de segmentação antes da medição."
+
+msgid "**Open:** Import → Import Images."
+msgstr "**Abrir:** Importar → Importar imagens."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use imported image planes and identities; image-only imports still need segmentation."
+msgstr ":ref:`Mask <workflow-module-mask>`: Use planos de imagem e identidades importados; importações somente de imagens ainda precisam de segmentação."
+
+msgid ":doc:`API reference </api/spacr/image_import/index>`."
+msgstr ":doc:`Referência da API </api/spacr/image_import/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=74_import_images>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=74_import_images>`__."
+
+msgid "Barcode QC"
+msgstr "CQ de código de barras"
+
+msgid "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering."
+msgstr "Inspecione a profundidade do mapeamento, a cobertura, as colisões e os efeitos posicionais antes de filtrar contagens de guias."
+
+msgid "**Open:** Map Barcodes → Barcode QC."
+msgstr "**Abrir:** Mapear códigos de barras → CQ de código de barras."
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Check mapping and coverage before guide filtering."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Verifique o mapeamento e a cobertura antes de filtrar os guias."
+
+msgid ":doc:`API reference </api/spacr/sequencing_qc/index>`."
+msgstr ":doc:`Referência da API </api/spacr/sequencing_qc/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=47_barcode_qc>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=47_barcode_qc>`__."
+
+msgid "Image Scatter"
+msgstr "Dispersão de imagens"
+
+msgid "Plot selected measurement columns with object-crop inspection."
+msgstr "Represente as colunas de medição selecionadas com inspeção de recortes de objetos."
+
+msgid "**Open:** Image UMAP → Image Scatter."
+msgstr "**Abrir:** UMAP de imagens → Dispersão de imagens."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/image_scatter/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/image_scatter/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=55_image_scatter>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=55_image_scatter>`__."
+
+msgid "PCA"
+msgstr "PCA"
+
+msgid "Inspect principal components and feature loadings for the selected measured objects."
+msgstr "Inspecione componentes principais e cargas das características para os objetos medidos selecionados."
+
+msgid "**Open:** Image UMAP → PCA."
+msgstr "**Abrir:** UMAP de imagens → PCA."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/pca/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/pca/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=60_pca>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=60_pca>`__."
+
+msgid "Volcano Explorer"
+msgstr "Explorador de gráficos vulcão"
+
+msgid "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records."
+msgstr "Abra um resultado de regressão salvo e inspecione tamanhos de efeito, significância ajustada e registros individuais dos resultados."
+
+msgid "**Open:** Regression → Volcano Explorer."
+msgstr "**Abrir:** Regressão → Explorador de gráficos vulcão."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Inspect saved effects and adjusted significance."
+msgstr ":ref:`Regression <workflow-module-regression>`: Inspecione os efeitos salvos e a significância ajustada."
+
+msgid ":doc:`API reference </api/spacr/volcano_style/index>`."
+msgstr ":doc:`Referência da API </api/spacr/volcano_style/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=72_volcano_explorer>`__."
+
+msgid "Hit List"
+msgstr "Lista de candidatos"
+
+msgid "Filter and rank saved hits with their effects, FDR and guide agreement."
+msgstr "Filtre e ordene os resultados salvos pelos efeitos, FDR e concordância entre guias."
+
+msgid "**Open:** Regression → Hit List."
+msgstr "**Abrir:** Regressão → Lista de candidatos."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Inspect ranked hits and guide agreement."
+msgstr ":ref:`Regression <workflow-module-regression>`: Inspecione os resultados ordenados e a concordância entre guias."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/hit_list/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/hit_list/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=48_hit_list>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=48_hit_list>`__."
+
+msgid "Methods & Results"
+msgstr "Métodos e resultados"
+
+msgid "Draft methods/results text from recorded settings and results; review every claim before publication."
+msgstr "Redija métodos e resultados a partir de configurações e resultados registrados; revise cada afirmação antes da publicação."
+
+msgid "**Open:** Regression → Methods & Results."
+msgstr "**Abrir:** Regressão → Métodos e resultados."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Review exported prose and every traced result."
+msgstr ":ref:`Regression <workflow-module-regression>`: Revise o texto exportado e cada resultado ao qual ele remete."
+
+msgid ":doc:`API reference </api/spacr/methods_export/index>`."
+msgstr ":doc:`Referência da API </api/spacr/methods_export/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=49_methods_results>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=49_methods_results>`__."
+
+msgid "Diagnostics"
+msgstr "Diagnóstico"
+
+msgid "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions."
+msgstr "Inspecione os painéis de diagnóstico salvos pela execução de regressão escolhida; diferencie diagnósticos ausentes de pressupostos verificados."
+
+msgid "**Open:** Regression → Diagnostics."
+msgstr "**Abrir:** Regressão → Diagnóstico."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Open the diagnostics actually written by this run."
+msgstr ":ref:`Regression <workflow-module-regression>`: Abra os diagnósticos que esta execução realmente gravou."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/regression/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/regression/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=75_regression_diagnostics>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=75_regression_diagnostics>`__."
+
+msgid "Illumination"
+msgstr "Iluminação"
+
+msgid "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy."
+msgstr "Estime e aplique a correção de campo plano nas etapas configuradas. Distinga os valores corrigidos para exibição das medições brutas e registre a política aplicada."
+
+msgid "**Open:** Measure → Illumination."
+msgstr "**Abrir:** Medição → Iluminação."
+
+msgid ":doc:`API reference </api/spacr/illumination/index>`."
+msgstr ":doc:`Referência da API </api/spacr/illumination/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=43_illumination>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=43_illumination>`__."
+
+msgid "AnnData Export"
+msgstr "Exportar para AnnData"
+
+msgid "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis."
+msgstr "Exporte um arquivo AnnData .h5ad com metadados de objetos e características medidas para análise posterior de células individuais."
+
+msgid "**Open:** Measure → AnnData Export."
+msgstr "**Abrir:** Medição → Exportar para AnnData."
+
+msgid "**AnnData export** — An exported .h5ad file containing measured features and object metadata."
+msgstr "**Exportação de AnnData** — Um arquivo .h5ad exportado contendo características medidas e metadados dos objetos."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Export compatible feature and metadata columns."
+msgstr ":ref:`Measure <workflow-module-measure>`: Exporte colunas compatíveis de características e metadados."
+
+msgid ":doc:`API reference </api/spacr/anndata_export/index>`."
+msgstr ":doc:`Referência da API </api/spacr/anndata_export/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=59_anndata_export>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=59_anndata_export>`__."
+
+msgid "Motility Assay"
+msgstr "Ensaio de motilidade"
+
+msgid "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration."
+msgstr "Inspecione a velocidade das trajetórias e as medições relacionadas à infecção, com intervalo entre quadros e calibração de pixels explícitos."
+
+msgid "**Open:** Measure → Motility Assay."
+msgstr "**Abrir:** Medição → Ensaio de motilidade."
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Supply frame interval and pixel calibration."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: Forneça o intervalo entre quadros e a calibração de pixels."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Combine measured objects with matching tracks."
+msgstr ":ref:`Measure <workflow-module-measure>`: Combine os objetos medidos com as trajetórias correspondentes."
+
+msgid ":doc:`API reference </api/spacr/timelapse/index>`."
+msgstr ":doc:`Referência da API </api/spacr/timelapse/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=18_motility>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=18_motility>`__."
+
+msgid "Timelapse"
+msgstr "Série temporal"
+
+msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
+msgstr "Abra Timelapse dentro de Mask para segmentar e vincular objetos entre quadros ordenados; inspecione os vínculos antes da análise posterior de motilidade."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
+msgstr "As exportações de linhagens mantêm os tempos de geração em quadros e acrescentam ``generation_time_hours`` com estatísticas de resumo calibradas. Forneça um valor positivo de ``frame_interval_s`` ou valores ``time_s`` completos e crescentes na tabela de trajetórias. Se ambos estiverem presentes, devem concordar; são suportados carimbos de tempo irregulares sem um intervalo fixo. Quando falta a calibração ou os ciclos celulares estão incompletos, não é indicado um tempo de geração em horas. As tabelas exportadas registam a origem da calibração e as unidades. O eixo da árvore e os comprimentos dos ramos Newick continuam expressos em quadros."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
+msgstr "Para colorir árvores com características medidas, efetue primeiro o rastreamento com ``timelapse_lineage`` ativado para que o spaCR guarde a correspondência entre quadros e ficheiros de origem. Em seguida, execute Medição no projeto combinado com ``timelapse=True``, os ``timelapse_objects`` correspondentes e ``timelapse_lineage=True``. Ative as funcionalidades alfa e a dimensão temporal para mostrar os controlos de linhagem. Defina ``timelapse_lineage_color_by`` como uma coluna numérica da tabela de medições do tipo de objeto selecionado. As médias dos segmentos usam os quadros medidos disponíveis; os segmentos sem valores medidos permanecem sem cor e a cobertura é indicada. Os resultados são guardados em ``tracks/lineage_measured`` sem substituir os resultados de linhagem anteriores. As trajetórias antigas sem essa correspondência exigem novo rastreamento. A calibração temporal explícita guardada é herdada; um intervalo contraditório é recusado."
+
+msgid "**Open:** Mask → Timelapse."
+msgstr "**Abrir:** Máscaras → Série temporal."
+
+msgid ":ref:`Mask <workflow-module-mask>`: Enable the nested time-series route before generating linked labels."
+msgstr ":ref:`Mask <workflow-module-mask>`: Ative a rota interna de séries temporais antes de gerar rótulos vinculados."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the time-series project with stable frame/object identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: Use o projeto de séries temporais com identidades estáveis de quadros e objetos."
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Supply frame interval and pixel calibration."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: Forneça o intervalo entre quadros e a calibração de pixels."
+
+msgid "`Module tutorial <tutorials/#lesson=17_timelapse>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=17_timelapse>`__."
+
+msgid "OPS"
+msgstr "OPS"
+
+msgid "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV."
+msgstr "Use imagens de ciclos de sequenciamento e alinhamento de fenótipo para decodificar códigos de barras por núcleo. Agregue ou una as identidades decodificadas a entradas de fenótipo compatíveis antes de Regression; o banco de dados de OPS não substitui diretamente um CSV de contagens FASTQ."
+
+msgid "**Open:** Mask → OPS."
+msgstr "**Abrir:** Máscaras → OPS."
+
+msgid ":ref:`Align & Stitch <workflow-module-align>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
+msgstr ":ref:`Align & Stitch <workflow-module-align>`: Leve as coordenadas dos campos e os ciclos originais de sequenciamento para OPS; um mosaico achatado sozinho não basta."
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
+msgstr ":ref:`Regression <workflow-module-regression>`: Una ou agregue explicitamente os objetos decodificados às entradas de fenótipo e guias antes de Regression; não é uma transferência direta de CSV."
+
+msgid ":doc:`API reference </api/spacr/ops_engine/index>`."
+msgstr ":doc:`Referência da API </api/spacr/ops_engine/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=76_ops>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=76_ops>`__."
+
+msgid "Classifier Evaluation"
+msgstr "Avaliação do classificador"
+
+msgid "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+msgstr "Inspecione predições de avaliação independente, calibração e evidências de divisão e vazamento de dados do classificador correspondente."
+
+msgid "**Open:** Classify → Classifier Evaluation."
+msgstr "**Abrir:** Classificar → Avaliação do classificador."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Use the matching held-out predictions and split metadata."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Use as predições de avaliação independente e os metadados correspondentes da divisão de dados."
+
+msgid ":doc:`API reference </api/spacr/classifier_evaluation/index>`."
+msgstr ":doc:`Referência da API </api/spacr/classifier_evaluation/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=39_classifier_evaluation>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=39_classifier_evaluation>`__."
+
+msgid "Explain CV Model"
+msgstr "Explicar modelo de VC"
+
+msgid "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality."
+msgstr "Ajuste um modelo substituto baseado em características medidas às pontuações existentes de visão computacional, preservando as junções por identidade. Uma explicação por modelo substituto não demonstra causalidade."
+
+msgid "**Open:** Classify → Explain CV Model."
+msgstr "**Abrir:** Classificar → Explicar modelo de VC."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Select CV predictions and the matching measured objects."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Selecione predições CV e os objetos medidos correspondentes."
+
+msgid ":doc:`API reference </api/spacr/surrogate/index>`."
+msgstr ":doc:`Referência da API </api/spacr/surrogate/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=70_explain_cv>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=70_explain_cv>`__."
+
+msgid "Activation"
+msgstr "Ativação"
+
+msgid "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps."
+msgstr "Aplique o classificador de imagens e o pré-processamento correspondentes para inspecionar mapas de saliência ou resposta do modelo."
+
+msgid "**Open:** Classify → Activation."
+msgstr "**Abrir:** Classificar → Ativação."
+
+msgid "**Image attribution maps** — Saved model-response/saliency images for the matching classifier and input preprocessing."
+msgstr "**Mapas de atribuição de imagens** — Imagens salvas de resposta ou saliência do modelo para o classificador e o pré-processamento de entrada correspondentes."
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Also provide the matching crops and channel preprocessing."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: Forneça também os recortes e o pré-processamento de canais correspondentes."
+
+msgid ":doc:`API reference </api/spacr/deep_spacr/index>`."
+msgstr ":doc:`Referência da API </api/spacr/deep_spacr/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=16_activation>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=16_activation>`__."
+
+msgid "Annotator Agreement"
+msgstr "Concordância de anotadores"
+
+msgid "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy."
+msgstr "Compare colunas de anotações independentes e inspecione objetos discordantes; concordância é diferente de acurácia de classificação."
+
+msgid "**Open:** Annotate → Annotator Agreement."
+msgstr "**Abrir:** Anotação → Concordância de anotadores."
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Choose independent annotation columns for the same objects."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: Escolha colunas de anotações independentes para os mesmos objetos."
+
+msgid ":doc:`API reference </api/spacr/agreement/index>`."
+msgstr ":doc:`Referência da API </api/spacr/agreement/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=23_agreement>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=23_agreement>`__."
+
+msgid "Computer Vision"
+msgstr "Visão computacional"
+
+msgid "Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint."
+msgstr "Treine um classificador de imagens com recortes rotulados de objetos, arquivos compactados ou recortes compatíveis obtidos sob demanda. Faça corresponder canais e pré-processamento ao aplicar seu ponto de controle."
+
+msgid "**Open:** Classify → Computer Vision."
+msgstr "**Abrir:** Classificar → Visão computacional."
+
+msgid "`Module tutorial <tutorials/#lesson=10_classify_cv>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=10_classify_cv>`__."
+
+msgid "Tabular Machine Learning"
+msgstr "Aprendizado de máquina tabular"
+
+msgid "Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores."
+msgstr "Treine um classificador de características a partir de objetos medidos e rótulos. Inspecione exclusões por características ausentes e desempenho de avaliação independente por grupos antes de usar pontuações."
+
+msgid "**Open:** Classify → Tabular Machine Learning."
+msgstr "**Abrir:** Classificar → Aprendizado de máquina tabular."
+
+msgid "`Module tutorial <tutorials/#lesson=11_classify_ml>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=11_classify_ml>`__."
+
+msgid "Parameter Sweep"
+msgstr "Varredura de parâmetros"
+
+msgid "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed."
+msgstr "Execute configurações de regressão escolhidas explicitamente e compare seus diagnósticos. Mantenha fixos os dados de entrada e a pergunta de avaliação."
+
+msgid "**Open:** Regression → Parameter Sweep."
+msgstr "**Abrir:** Regressão → Varredura de parâmetros."
+
+msgid ":doc:`API reference </api/spacr/parameter_sweep/index>`."
+msgstr ":doc:`Referência da API </api/spacr/parameter_sweep/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=73_parameter_sweep>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=73_parameter_sweep>`__."
+
+msgid "Toxoplasma"
+msgstr "Toxoplasma"
+
+msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+msgstr "Abra o guia de organismos em Home, inspecione o diagrama de compartimentos e selecione Plaque Assay, Recruitment, Invasion Assay ou Replication Assay. Os quatro blocos Coming soon descrevem propostas e não podem ser executados. O guia em si não analisa um projeto nem produz uma tabela de medições."
+
+msgid "**Open:** Home → Toxoplasma."
+msgstr "**Abrir:** Início → Toxoplasma."
+
+msgid "**Bundled organism reference** — Installed organism descriptions and SwissBioPics cell diagrams; no project input is required."
+msgstr "**Referência de organismos incluída** — Descrições de organismos instaladas e diagramas celulares do SwissBioPics; nenhum projeto de entrada é necessário."
+
+msgid "**Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced."
+msgstr "**Guia de organismos e seleção de ensaios** — Destaques de compartimentos e navegação para ensaios disponíveis somente na GUI; nenhuma medição ou arquivo é produzido."
+
+msgid ":doc:`API reference </api/spacr/qt/screens/organism_screen/index>`."
+msgstr ":doc:`Referência da API </api/spacr/qt/screens/organism_screen/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=82_toxoplasma>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=82_toxoplasma>`__."
+
+msgid "Plasmodium spp."
+msgstr "Plasmodium spp."
+
+msgid "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+msgstr "Abra o guia de organismos em Home para ler os fluxos previstos de imagens de malária e inspecionar o diagrama compartilhado de apicomplexos. Os oito blocos de ensaios indicam Coming soon; nenhum inicia uma análise nem produz resultados."
+
+msgid "**Open:** Home → Plasmodium spp.."
+msgstr "**Abrir:** Início → Plasmodium spp.."
+
+msgid "`Module tutorial <tutorials/#lesson=83_plasmodium>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=83_plasmodium>`__."
+
+msgid "Candida spp."
+msgstr "Candida spp."
+
+msgid "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+msgstr "Abra o guia de organismos em Home para ler os fluxos previstos de imagens de fungos e inspecionar o diagrama genérico de levedura em brotamento. Os oito blocos de ensaios indicam Coming soon; nenhum inicia uma análise nem produz resultados."
+
+msgid "**Open:** Home → Candida spp.."
+msgstr "**Abrir:** Início → Candida spp.."
+
+msgid "`Module tutorial <tutorials/#lesson=84_candida>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=84_candida>`__."
+
+msgid "Endodyogeny size proxy"
+msgstr "Proxy de tamanho por endodiogenia"
+
+msgid "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional."
+msgstr "Leia as áreas medidas dos compartimentos, anote as condições e agrupe area ** 1.5 em duplicações de tamanho log2. Por padrão, a área do patógeno é agregada por célula hospedeira, não por vacúolo: vários vacúolos na mesma célula são combinados. Isso é um indicador de tamanho derivado da área, não um volume medido nem uma contagem de parasitas. Use Replication Assay com identidades explícitas dos vacúolos para contar parasitas por vacúolo. Configure compartimento, filtros de área, calibração, condições e agrupamento antes de chamar a API; salvar é opcional."
+
+msgid "**Use from Python:** :func:`spacr.submodules.analyze_endodyogeny`. This API-only workflow has no Home tile or menu entry."
+msgstr "**Uso a partir do Python:** :func:`spacr.submodules.analyze_endodyogeny`. Este fluxo de trabalho disponível apenas pela API não tem bloco na tela Início nem entrada de menu."
+
+msgid "**Host-cell-aggregated compartment areas** — Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell. Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``, ``png_list``. Relevant columns, depending on the route: ``cell_id``, ``pathogen_area``."
+msgstr "**Áreas de compartimentos agregadas por célula hospedeira** — measurements/measurements.db na raiz de cada projeto src; as tabelas padrão são cell, nucleus, pathogen e cytoplasm, com png_list adicionada para a mesclagem. A configuração compartment escolhe a coluna de área; por padrão, pathogen_area é somada por célula hospedeira. Tabelas relevantes, conforme o caminho: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``, ``png_list``. Colunas relevantes, conforme o caminho: ``cell_id``, ``pathogen_area``."
+
+msgid "**Area-derived size-proxy results** — Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/. Relevant columns, depending on the route: ``pathogen_area``, ``pathogen_volume``, ``pathogen_volume_bin``, ``bin_index``."
+msgstr "**Resultados do indicador de tamanho derivado da área** — DataFrames data e chi_squared retornados; save=True também grava data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv e uma figura em results/analyze_endodyogeny/ na raiz do primeiro projeto. Colunas relevantes, conforme o caminho: ``pathogen_area``, ``pathogen_volume``, ``pathogen_volume_bin``, ``bin_index``."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+msgstr ":ref:`Measure <workflow-module-measure>`: Forneça as raízes dos projetos medidos e as tabelas necessárias de objetos e png_list. Verifique a agregação por célula hospedeira e as unidades de área antes de interpretar faixas de tamanho; o banco de contagens de Mask sozinho não basta."
+
+msgid "Direct Cellpose mask generation"
+msgstr "Geração direta de máscaras com Cellpose"
+
+msgid "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project."
+msgstr "Execute um modelo Cellpose padrão ou personalizado em campos TIFF pela API Python. Apesar do nome histórico identify_masks_finetune, essa função realiza inferência, não treinamento. Revise normalização, canais, redimensionamento e parâmetros do modelo; máscaras são gravadas somente quando save está ativado. Importe pares compatíveis de imagens e máscaras por External Masks antes de Measure, ou revise os pares antes de treinar. Essa chamada não cria um projeto combinado pronto para Measure."
+
+msgid "**Use from Python:** :func:`spacr.spacr_cellpose.identify_masks_finetune`. This API-only workflow has no Home tile or menu entry."
+msgstr "**Uso a partir do Python:** :func:`spacr.spacr_cellpose.identify_masks_finetune`. Este fluxo de trabalho disponível apenas pela API não tem bloco na tela Início nem entrada de menu."
+
+msgid "**TIFF fields for direct Cellpose inference** — Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint."
+msgstr "**Campos TIFF para inferência direta com Cellpose** — Arquivos .tif em minúsculas diretamente em src; arquivos existentes com o mesmo nome em src/masks são ignorados. Forneça os canais configurados e um model_name padrão compatível ou um ponto de controle custom_model."
+
+msgid "**Direct Cellpose TIFF masks** — When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db."
+msgstr "**Máscaras TIFF diretas do Cellpose** — Quando save=True, src/masks/<image-name>.tif contém rótulos inteiros. A chamada retorna None e não produz matrizes combinadas nem measurements.db."
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Passe o ponto de controle treinado como custom_model com os canais de imagem e o pré-processamento correspondentes."
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: Forneça os arquivos TIFF de rótulos salvos e suas imagens originais a External Masks, atribua papéis aos objetos e crie o projeto combinado antes de Measure."
+
+msgid "Pooled-screen simulation sweep"
+msgstr "Varredura de simulação de triagem agrupada"
+
+msgid "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid."
+msgstr "Use a API Python de exploração de parâmetros para investigar pressupostos explícitos do desenho da triagem. Ela expande combinações, executa simulações em um conjunto de processos e grava estatísticas resumidas sintéticas; retorna None. Defina um valor explícito pequeno de max_workers e uma grade limitada de parâmetros antes de executar. A saída não substitui medições nem contagens de códigos de barras para Regression experimental. Use os resultados como evidência para planejamento, com os pressupostos registrados. Revise os resumos sintéticos ao escolher pressupostos de planejamento; transfira-os manualmente para Power / Design ou Experiment Design. Nenhuma dessas ferramentas importa esse banco de simulação nem exporta a grade de configurações da simulação."
+
+msgid "**Use from Python:** :func:`spacr.sim.run_multiple_simulations`. This API-only workflow has no Home tile or menu entry."
+msgstr "**Uso a partir do Python:** :func:`spacr.sim.run_multiple_simulations`. Este fluxo de trabalho disponível apenas pela API não tem bloco na tela Início nem entrada de menu."
+
+msgid "**Pooled-screen simulation assumptions** — Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound."
+msgstr "**Pressupostos da simulação de triagem agrupada** — Dicionário de configurações Python: valores iteráveis para explorar tamanho da triagem, ocupação, acurácia do classificador e pressupostos de sequenciamento, além de replicates, src, name, variable, plot e max_workers. generate_parameters expande seu produto cartesiano; comece com uma exploração pequena e um limite explícito de processos de trabalho."
+
+msgid "**Synthetic screen simulation summaries** — src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits. Relevant tables, depending on the route: ``simulations``."
+msgstr "**Resumos da simulação de triagens sintéticas** — src/<YYMMDD>/<name>/simulations.db; a varredura acrescenta linhas de resumo a simulations e, opcionalmente, grava gráficos. São estimativas de desempenho sintéticas, e não candidatos experimentais medidos. Tabelas relevantes, conforme o caminho: ``simulations``."
+
+msgid ":doc:`API reference </api/spacr/sim/index>`."
+msgstr ":doc:`Referência da API </api/spacr/sim/index>`."
+
+msgid "Host–Pathogen Analysis"
+msgstr "Análise hospedeiro–patógeno"
+
+msgid "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+msgstr "Meça vacúolos inteiros e compartimentos de referência das células hospedeiras, mantendo as células hospedeiras não infectadas no denominador da fração infectada. Selecione os canais dos marcadores e os limiares de razão calibrados com controles. Opcionalmente, conte os parasitas segmentados individualmente a partir de vínculos explícitos com vacúolos ou de uma coluna de contagens medidas. Revise as tabelas de vacúolos, células hospedeiras e poços, os estados conjuntos dos marcadores, as distribuições de replicação e os vínculos de parasitas sem correspondência; as medições desconhecidas permanecem desconhecidas."
+
+msgid "**Open:** Toxoplasma → Host–Pathogen Analysis."
+msgstr "**Abrir:** Toxoplasma → Análise hospedeiro–patógeno."
+
+msgid ":ref:`Measure <workflow-module-measure>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
+msgstr ":ref:`Measure <workflow-module-measure>`: Mantenha as células não infectadas no Measure. Forneça máscaras de vacúolos inteiros, intensidades de referência do hospedeiro e, opcionalmente, ligações explícitas entre parasita e vacúolo; a identidade do hospedeiro, sozinha, não define um vacúolo."
+
+msgid ":doc:`API reference </api/spacr/host_pathogen/index>`."
+msgstr ":doc:`Referência da API </api/spacr/host_pathogen/index>`."
+
+msgid "`Module tutorial <tutorials/#lesson=85_host_pathogen>`__."
+msgstr "`Tutorial do módulo <tutorials/#lesson=85_host_pathogen>`__."
+

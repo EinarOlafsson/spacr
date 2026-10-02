@@ -1,0 +1,165 @@
+{
+  "schema": 1,
+  "status": "Partial F411: two-helper slice accepted locally; whole rollout and live acceptance remain open",
+  "source_revision": "0382c336ae8c3105b0618352d9c72016b757970d",
+  "checked_utc": "2026-10-02T08:05:53.021537+00:00",
+  "source_delta": {
+    "before": 12036,
+    "after": 12038,
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed": []
+  },
+  "canonical_helpers": {
+    "before_enabled": 12,
+    "after_enabled": 14,
+    "eligible_documented_keys": 1134,
+    "remaining": 1120
+  },
+  "new_blocks": 2,
+  "new_reviewed_targets": 18,
+  "review": "Direct Codex AI technical authorship plus independent root Codex AI technical peer review. No human/native-speaker signoff. Each source is used by exactly one current API document.",
+  "preservation": {
+    "prior_symbol_records_per_language": 12036,
+    "changed_existing_records": 0,
+    "removed_symbols": 0,
+    "application_docstrings_changed": false,
+    "private_top_level_policy_changed": false,
+    "runtime_catalogs_changed": false,
+    "source_count_pins": 4,
+    "public_callable_pins_changed": false
+  },
+  "validation": {
+    "initial_harness_failure": "The new test compared the full definition including source provenance to prose alone. It now checks the prose paragraph; product rendering was correct. Original failed receipt preserved; affected case passes.",
+    "strict_api_readme_audit": {
+      "status": 0,
+      "symbols": 12038,
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is",
+        "fr"
+      ],
+      "elapsed_seconds": 1063.52
+    },
+    "strict_runtime_audit_status": 0,
+    "focused_tests": {
+      "focused-tests-initial": {
+        "tests": 109,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 38,
+        "seconds": 155.677
+      },
+      "fixture-recheck": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 17.49
+      },
+      "browser-tests": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 10.896
+      },
+      "real-helper-browser-tests": {
+        "tests": 37,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 363.636
+      }
+    },
+    "strict_sphinx": [
+      "fresh dummy read/cache (-W -E)",
+      "separate complete HTML write (-W -a), no source rereads"
+    ],
+    "actual_browser_translations": 18,
+    "objects_inventory_and_private_parent_checks": "passed",
+    "generated_help_freshness": "passed"
+  },
+  "limits": "API audit:4GiB/CPU4/zero swap. Independent runtime/Help/tests/Sphinx/browser lane:4GiB/CPU5/zero swap. Kernel memory/swap/affinity receipts retained; CPUQuota100% requested. No cap increase.",
+  "review_record_hashes": {
+    "docs/i18n/reviewed/api/is/2026-10-02-nested-tabular-palette.json": "efd566e879b34036cf5daed8bd70162820d4ca557e9ac5052e4072a306a1ff6d",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-02-nested-tabular-palette.json": "9cc3da2db7a0cc96e3bf74ebe39e19c902be72c21f21c0bdcd35b60a7d6e1d7e",
+    "docs/i18n/reviewed/api/pt/2026-10-02-nested-tabular-palette.json": "46ec09d4e160452d02adfefd84f0cfd7126907ab76b95f1c4ebb2e9d2f0c8dab",
+    "docs/i18n/reviewed/api/de/2026-10-02-nested-tabular-palette.json": "522ec91082a6b64edd4fce063fa767e72a839cc882a34acfae40dbfdcb271a7b",
+    "docs/i18n/reviewed/api/es/2026-10-02-nested-tabular-palette.json": "1d7042738e052683f8065a9688e49cf01a3857b55abfdb24560ad3b8befd4420",
+    "docs/i18n/reviewed/api/sv/2026-10-02-nested-tabular-palette.json": "e93c4ff50918db0f27d81c9f44b74810653c8ee9f1fef508716c33dc5cb1f837",
+    "docs/i18n/reviewed/api/ko/2026-10-02-nested-tabular-palette.json": "78a127759202178aa7e13e3a8dd7c941e3650fe941577add607c44ccdb641e1b",
+    "docs/i18n/reviewed/api/fr/2026-10-02-nested-tabular-palette.json": "44b505cde019a4afa8e43689c67d1e066fc259ac5044035c48a70cefde83cc01",
+    "docs/i18n/reviewed/api/hi/2026-10-02-nested-tabular-palette.json": "eaf72b2dd7b8e174943c2e20b0aa710ec7d3c84068fd0c43840c83a8f56a05a9"
+  },
+  "limitations": [
+    "This is a pinned local acceptance, not a new nightly/main deployment or live readback.",
+    "1,120 remaining canonical documented helpers are not enabled by this slice.",
+    "No human/native-speaker or listening review claim."
+  ],
+  "artifacts": {
+    "api-audit-result.json": "fae5fc693e225f3ab2c1da6043624b4cc5fe2be595918e12aba42eb4ccf26500",
+    "api-build.log.gz": "84fa5815c8f8201f9c1f14b8c240cc11d02c6347692cc5bd34ab9ca4c43c83e2",
+    "api-catalog-diff.json": "9a8cfbb6cfc37883bca8bb754317ed925d8700e399874c6018fb9655f9a71521",
+    "api-resources.json": "4dbd1c73ce178cbdbfe1208e963450b2fca3e72d8004147a5dee793e401bf76c",
+    "audit-runtime.py": "1845a3921430308a7b95580436c67378030eef11f81a55041817120832ca28af",
+    "browser-tests.log.gz": "5afa7bc992af9ed681708a932d4a97879032dd2ac8a06f3caa6fb5a88c15802c",
+    "browser-tests.xml.gz": "709bd9d72927095fa732877c32e451b775d0fe5625d23ca0f62f15d8123449ff",
+    "build-api.py": "3d7078801526cc13d8493c6451c34fa928242a9825c7e5a6a9c2659cf52532e5",
+    "build-source-snapshot.json.gz": "60e7410e9748307eb144a9ee42b6d3f089fd696ec64ef753ec92df1a1ebab862",
+    "drafts.json": "0811cbb3ef813c477a1cb03f8bf4d8a35ca867c90e242d038de3ec9327660732",
+    "dummy-command.json": "0ac7f04e5af20f3605bc262d0ffd29911a5d68124b5c39dc28686d67d5b4c54b",
+    "dummy-limits.json": "ca1840601da39526608ed6e01ebff0e251f5e6c002f958d8bebb195e6839cdc1",
+    "dummy.log.gz": "80e0ccc76f3783c51c460fe963c7e811283cb79710cca84f03c02efef697c7c7",
+    "fixture-recheck.log.gz": "06d38e971b6d1388b0000b74aa04093f6972d591fab6d90e32bd521e06d4e921",
+    "fixture-recheck.xml.gz": "3f1d692d3cdbf06616047e7d12ac46169a5cbc39d0ef665920d5786b4154af71",
+    "focused-tests-initial.log.gz": "95f045b99c2789333696fc7de62f77f4a96ca97fca50db16b6ed4d5afffbdbfd",
+    "focused-tests-initial.xml.gz": "2b67d3636614d8c4c327674b470828da14f422158bac079ac64cbd99d811dc24",
+    "help-check.log.gz": "cf236d1fdd776bbb17288abc4448d8fdbf3a745b9eb30a74c9f03a489cba215e",
+    "help-delta.json": "141a3e186a17eefaf7a477210e6678f0b1b129e3f02cc871316f3a010bd369a4",
+    "help-generator.log.gz": "7d65c4af8efdd1c702cf9e1566c5ad12d4aeaecf2998f2320f291c06a27dde7d",
+    "helper-module-1.html.gz": "de205ce84917fb83e1cedc342453d44b7500ee20429c0201cc4ee4d7652b53bd",
+    "helper-module-2.html.gz": "223ce5bf38096c1f42635e81feaa576bbfce37308b4a970835aba06f254dc393",
+    "html-command.json": "7a8474fd56c3d0780f85e9b7e52cc47486bf279825ae3f65095ed5a5e248a697",
+    "html-limits.json": "ca1840601da39526608ed6e01ebff0e251f5e6c002f958d8bebb195e6839cdc1",
+    "html.log.gz": "5b7f30e637a99dc5afe1ef98e0b46998263c2a5eb30e0c3c0abda4162b4859e5",
+    "inventory.json.gz": "3ffc582c096d1a469c59527e18223efde986c288589654050defc0b9ef97b6ef",
+    "peer-review.json": "ca3082b173c9fc97ac28e10e3d4b371c0443f13ff0e4f9d5f74e06be0b0c6c0b",
+    "post-api-resources.json": "8b24f321cebdb57b0daadae0794a150663fe2320548d966c62dfec1b98a3eefa",
+    "post-api.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "post-api.sh": "2b8e03d27de662cd6b6dfdd9d58aa90e0e232810819d49cfd140c1c9c6d9f40c",
+    "prepare-resources.json": "8486a6f05e016ea9b631218c79165f70b6a5d44dbe5b8c2ed79f24dbcc69cf59",
+    "prepare.log.gz": "aec8252b5f1f992f8e7199c8613011ec3906c8584827fcad9cf3ad2166db1cdd",
+    "prepare.py": "7eb6e552b957f9872b4c7ad88dbbe7cefd19910ed02565e2a2a8ade176ae1334",
+    "real-helper-browser-tests.log.gz": "125414339b418ea90375b5789a1a331096efb31bb6582bf317563ffb7cdc3f82",
+    "real-helper-browser-tests.xml.gz": "1da483e1bc3fbd80fb13938279ca9d65939d2990a232e51086f8c2f9ee954921",
+    "rendered-proof.json": "c6795d45d3889b616d119547f5c13346db75b0b2c64a3c00ac3d42941013cd2d",
+    "rendered.log.gz": "3744917f707c1351873dc06c1174403b7f2faf60240bcb54b8b2927cb8876142",
+    "resume-post-resources.json": "d717c0ca41f7524dc91bbef5ff30151dedf17ef5dd06e669278df1ac74966a6b",
+    "resume-post.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "resume-post.sh": "43e67e096295985a93af7cf9e3c53c6e21aacb0d962f8c76187b1b694d119463",
+    "ruff-baseline-proof.json": "cc36f1d6c63af72cfbd4aa111be1b7365446a3615c44f73f43b45b11d02f3b25",
+    "ruff-module.log.gz": "1e7cd29784be50a350a4ff2e44aefd7f993364891e78ed013e0cee18206fc5bd",
+    "ruff.log.gz": "f75d4584266974d9cf27117e202934167325a732536ede5ca449b18570b8bf20",
+    "run-phase.py": "4520b9f25fdf5c692070c0b9a9c1606b0087bd613c269854405e137747f188e9",
+    "runtime-audit-result.json": "5130c15ca9b997ce2af7dcd1c53c9060b245698e4e1d514a3994bf1cdbb79a22",
+    "runtime-audit.log.gz": "9053211f2bd4f1aec1e914a6f3a4f561d6a1421c57f7ec0c95020c6fd59d91dd",
+    "shared-source-uses.json": "d1d4ce1741aacbec8ca3431fb54b45ce48bb844953ed434afc841ec3745be866",
+    "snapshot-after.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "snapshot-before.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "snapshot.py": "037118c5342441d2e986a902a30ff60877f3b32eda05d004e5d45d02310f3a14",
+    "source-delta.json": "9af9a3d371261e476b4d89a1eafcf21f4aed49288a40ac572ff7be258e68fa26",
+    "source-stability.json": "520d12df50aceaeda4584475e2d85574b0ade102bd2576d8b1685be31d1d7ded",
+    "verify-rendered.py": "c3d775d37687137b2e1f1d1125c4be365b0dcced32a3b764e9ad5ac2d5961be4",
+    "write-drafts.py": "5753f8dcacf05a5d31fba38a7385035307ad49ee02c92d01d30e5c19ad09115d"
+  }
+}

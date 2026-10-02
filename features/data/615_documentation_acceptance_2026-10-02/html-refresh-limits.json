@@ -1,0 +1,16 @@
+{
+  "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-rc20b143a154a40f4ab9be8d0d565359a.scope",
+  "limits": {
+    "memory.max": "4294967296",
+    "memory.swap.max": "0",
+    "cpu.max": null,
+    "cpu_affinity": [
+      4
+    ],
+    "systemd_requested_properties": [
+      "CPUQuotaPerSecUSec=1s",
+      "MemoryMax=4294967296",
+      "MemorySwapMax=0"
+    ]
+  }
+}

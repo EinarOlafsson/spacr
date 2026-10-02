@@ -2322,7 +2322,9 @@
       "source_sha256": "4428cd346435e56b7b911f51f7767ad89a060bd4a69cac3a2dbfbb013018908e",
       "context": "the widget whose window mask is cut to a rounded rectangle of its current size; an empty size returns ``False``.",
       "translation": "其窗口遮罩会被裁剪为当前尺寸圆角矩形的控件；尺寸为空时返回 ``False``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.qt.widgets.glass.spin_on_every_button#3",
@@ -3531,7 +3533,9 @@
       "source_sha256": "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3",
       "context": "image file path (``str`` or :class:`~pathlib.Path`); a ``.tif``/``.tiff`` suffix, in any case, selects tifffile.",
       "translation": "图像文件路径（``str`` 或 :class:`~pathlib.Path`）；``.tif``/``.tiff`` 后缀（不区分大小写）会选用 tifffile。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: preview loading and calcium-analysis contracts changed. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.qt.widgets.live_preview.load_preview_mip#2",

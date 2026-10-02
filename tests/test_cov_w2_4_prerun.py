@@ -1207,3 +1207,67 @@ def test_wiring_that_fails_still_returns_a_screen(factories_restored, qtbot,
 
     assert screen is not None
     assert "could not wire measure" in caplog.text
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_estimates_a_screen_cannot_keep_are_still_shown(qtbot):
+    """A host that takes no attributes cannot keep the diameters for the
+    next run; the panel still shows them and still reports them."""
+    holder = QWidget()
+    qtbot.addWidget(holder)
+    panel = prerun.DiameterPanel(object(), parent=holder)
+    heard = []
+    panel.estimated.connect(heard.append)
+    panel._on_estimated({"estimates": {"cell": _estimate()}})
+    assert heard and heard[0]
+    assert panel.estimates["cell"].diameter == pytest.approx(24.0)
+
+
+def test_a_rescore_with_nothing_to_score_still_rereads(banner, monkeypatch):
+    widget = banner(src="")
+    reread = []
+    monkeypatch.setattr(widget, "refresh", lambda: reread.append(True))
+    widget._score_again = True
+    widget._refresh_again = True
+    widget._pending_work()
+    assert widget.busy is False
+    assert reread == [True]
+    assert widget._score_again is False and widget._refresh_again is False
+
+
+def test_restyling_a_widget_without_a_style_is_a_no_op(banner):
+    class _Styleless:
+        def style(self):
+            return None
+
+    assert banner()._restyle(_Styleless()) is None
+
+
+def test_the_qc_popup_follows_its_switch_and_survives_a_refused_glass(
+        qtbot, a_screen, monkeypatch):
+    from PySide6.QtWidgets import QCheckBox
+
+    from spacr.qt.widgets import glass
+
+    assert prerun._on_qc_toggled(a_screen(), True) is None
+    screen = a_screen(widgets={"src": _src_field("")})
+    widget = prerun.SegQCBanner(screen, threaded=False)
+    dialog = prerun._SegQCDialog(screen, widget)
+    screen._seg_qc_dialog = dialog
+    screen._seg_qc_toggle = QCheckBox(screen)
+    prerun._on_qc_toggled(screen, False)
+    assert dialog.isHidden()
+
+    def refuse(_dialog):
+        raise RuntimeError("no glass here")
+
+    monkeypatch.setattr(glass, "glass", refuse)
+    prerun._on_qc_toggled(screen, True)
+    assert dialog.isVisible()
+    screen._seg_qc_toggle.setChecked(False)
+    dialog.close()
+    assert not dialog.isVisible()
+    assert screen._seg_qc_toggle.isChecked() is False

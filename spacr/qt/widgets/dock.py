@@ -316,8 +316,15 @@ class Dock(QWidget):
         pointer.
         """
         self._light_only(key if entered else None)
-        if entered:
-            self.module_hovered.emit(key)
+        from ..tooltip_policy import HoverDelay
+        if not hasattr(self, "_hover_help_delay"):
+            self._hover_help_delay = HoverDelay(self)
+        row = next((row for row in self._rows if row.key == key), None)
+        if entered and row is not None:
+            self._hover_help_delay.schedule(
+                row, lambda: self.module_hovered.emit(key))
+        elif row is not None:
+            self._hover_help_delay.cancel_for(row)
 
     def _light_only(self, key) -> None:
         """Ink the row named by ``key`` and no other. ``None`` clears all.
@@ -631,13 +638,16 @@ class DockEdge(QWidget):
     :param parent: parent widget; ownership only.
     """
 
-    #: The grab area, in pixels: the same as a splitter handle's.
-    GRIP_PX = 6
+    #: The grab area, in pixels: matches the arrow-bearing splitter handle.
+    GRIP_PX = 12
+    collapsedChanged = Signal(bool)
 
     def __init__(self, dock: "Dock", parent=None):
         """Build the edge for ``dock``; hidden until the dock is shown."""
         super().__init__(parent)
         self._dock = dock
+        self._collapsed = False
+        self._dragged = False
         self._pressed_x = None
         self._start_width = 0
         self.setObjectName("DockEdge")
@@ -647,15 +657,48 @@ class DockEdge(QWidget):
         self.setFixedWidth(self.GRIP_PX)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         self.setCursor(Qt.SizeHorCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
         self.setAccessibleName(tr("Dock width"))
         self.retranslate_dynamic_content()
         self.hide()
 
     def retranslate_dynamic_content(self, language=None) -> None:
-        """Rewrite the tooltip in ``language``."""
-        self.setToolTip(tr("Drag to make the dock wider or narrower. "
-                           "Double-click to fit it to the names again.",
-                           language))
+        """Explain the current collapse action and the resize gesture."""
+        action = (tr("Click to show {name} again.", language, name=tr("Dock"))
+                  if self._collapsed else
+                  tr("Click to hide {name}.", language, name=tr("Dock")))
+        self.setToolTip(action + " " + tr(
+            "Drag to make the dock wider or narrower. "
+            "Double-click to fit it to the names again.", language))
+        self.setAccessibleDescription(self.toolTip())
+
+    def is_collapsed(self) -> bool:
+        """Whether the dock slot is collapsed; the handle stays visible."""
+        return self._collapsed
+
+    def set_collapsed(self, collapsed: bool) -> None:
+        """Hide or restore the slot without changing its dock's saved width.
+
+        :param collapsed: true hides the slot; false restores its contents.
+        """
+        collapsed = bool(collapsed)
+        if collapsed == self._collapsed:
+            return
+        self._collapsed = collapsed
+        self.retranslate_dynamic_content()
+        self.update()
+        self.collapsedChanged.emit(collapsed)
+
+    def keyPressEvent(self, event) -> None:  # noqa: N802
+        """Let a keyboard user activate the same collapse control.
+
+        :param event: key press; Space, Return and Enter toggle the dock.
+        """
+        if event.key() in (Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter):
+            self.set_collapsed(not self._collapsed)
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def enterEvent(self, event) -> None:                     # noqa: N802
         """Light the line up under the pointer.
@@ -681,6 +724,7 @@ class DockEdge(QWidget):
         if event.button() != Qt.LeftButton:
             super().mousePressEvent(event)
             return
+        self._dragged = False
         self._pressed_x = event.globalPosition().x()
         self._start_width = self._dock.width()
         self.update()
@@ -695,6 +739,11 @@ class DockEdge(QWidget):
             super().mouseMoveEvent(event)
             return
         moved = event.globalPosition().x() - self._pressed_x
+        if abs(moved) > 4:
+            self._dragged = True
+            self.set_collapsed(False)
+        if not self._dragged:
+            return
         self._dock.set_column_width(self._dragged_to(moved),
                                     remember=False)
         event.accept()
@@ -709,8 +758,10 @@ class DockEdge(QWidget):
             return
         moved = event.globalPosition().x() - self._pressed_x
         self._pressed_x = None
-        if moved:
+        if self._dragged:
             self._dock.set_column_width(self._dragged_to(moved))
+        else:
+            self.set_collapsed(not self._collapsed)
         self.update()
         event.accept()
 
@@ -729,6 +780,7 @@ class DockEdge(QWidget):
         :param event: the event.
         """
         self._pressed_x = None
+        self.set_collapsed(False)
         self._dock.set_column_width(0)
         self.update()
         event.accept()
@@ -745,4 +797,8 @@ class DockEdge(QWidget):
         painter = QPainter(self)
         rect = self.rect()
         painter.fillRect(rect.center().x(), rect.top(), 1, rect.height(), line)
+        from .collapse_arrow import paint_collapse_arrow
+        paint_collapse_arrow(painter, rect, Qt.Horizontal,
+                             not self._collapsed, palette,
+                             hovered or self.hasFocus())
         painter.end()

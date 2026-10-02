@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "date": "2026-10-01",
+  "status": "partial",
+  "integrated_validation": {
+    "result": "66 passed, 3 warnings in 5.03s",
+    "scope": "MemoryMax4G, MemorySwapMax0, CPUQuota100%, CPU0 affinity, single-thread numerical libraries",
+    "log_sha256": "77ed750d3de2d6018573015027e8283cc12c4ae93eca9dd3962d3057d5e5b430"
+  },
+  "feature": "F546",
+  "implemented": [
+    "uv-backed private Python 3.9 provisioning only on explicit Install",
+    "CellProfiler-to-spaCR label matching by pixel overlap, bounded retained planes",
+    "nine source-bound translations of new installer copy"
+  ],
+  "translation_audit_sha256": "5d9c1ffff0d39a45a45bded91d06fa68afd1afdc95df38ec1182edcce83ac561",
+  "catalog_delta_sha256": "45034257af11c4d66e4bb98168524ba2e086806a57a2910ef6360977cfa84c26",
+  "limits": [
+    "real uv Python provisioning pending",
+    "real CellProfiler concave-object acceptance pending",
+    "CellProfiler get_labels may materialize a plane before retained-size guard"
+  ],
+  "source_sha256": {
+    "spacr/_segmentation_backends.py": "ad48f860eaa9e9632bebb2433ce007aedc4c1dd5fc29caba9352491498183fee",
+    "spacr/measure.py": "3d513ee088d2e3b3fd52e3bcb1864e9d732b58b5a2f3fd705b8f8272f8839642",
+    "spacr/qt/widgets/model_zoo_picker.py": "b1a7c41c2aadc19ae025aeb25a3ca4ff07cdfe3701c8341854043916234ec93d",
+    "tests/test_cellprofiler_python_provision_f546.py": "4628d40b9943df727af84f1d995c88e32a906f9ad1dff7a3e1c2a9572e17381f",
+    "tests/test_cellprofiler_overlap_f546.py": "61ae778b9113e3a8786e1c56d5893525f3eeda31222956ae518672b3d1a8859f"
+  }
+}

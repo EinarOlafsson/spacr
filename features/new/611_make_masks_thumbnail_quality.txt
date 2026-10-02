@@ -1,0 +1,129 @@
+================================================================================
+MAKE MASKS THUMBNAIL QUALITY: LOW, MEDIUM AND HIGH
+================================================================================
+
+Status: IMPLEMENTED AND VERIFIED 2026-10-01 — runtime and persistence complete; catalog publication in N615.
+Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
+Owner: Codex inventory session (tracking only).
+
+This update records requirements, not implementation or acceptance. The current
+user request is to update the lists and report scope; implementation and release
+operations are not performed by this inventory session. Earlier evidence remains
+historical and does not prove the newly requested acceptance conditions.
+
+WHAT TO DO AND HOW TO KNOW IT WORKED
+
+The current Make Masks thumbnails are not high-resolution enough. Add a user-facing quality setting with three choices:
+
+- **Low:** the current thumbnail resolution and behavior.
+- **Medium:** genuinely higher-resolution thumbnail data than Low.
+- **High:** genuinely higher-resolution thumbnail data than Medium, within the available source-image resolution.
+
+Inspect current thumbnail dimensions, resizing, display scaling, source data, and caching before selecting the Medium and High values. Define and document concrete pixel sizes or render scales. Do not merely enlarge an already downsampled Low-quality bitmap.
+
+Requirements:
+
+- Expose the setting in the appropriate existing settings interface. Persist and restore it through the normal settings mechanism, using Low for configurations that do not yet contain the setting.
+- Generate the higher-quality thumbnails from the original image and mask data or another sufficiently detailed source. Preserve aspect ratio and correct image/mask alignment. Do not introduce invalid mask labels through interpolation.
+- Apply quality consistently to Make Masks thumbnails and their overlays. Refresh already displayed thumbnails when the setting changes, as well as subsequently loaded thumbnails.
+- Invalidate stale cached images or include quality in their cache keys. Preserve correct invalidation when mask data changes.
+- Keep the existing logical thumbnail footprint unless a layout change is necessary. Higher image resolution must not simply mean larger widgets.
+- Keep navigation and loading responsive. Avoid unnecessary full-resolution copies of every source image or an unbounded cache.
+- Treat this strictly as a display setting. It must not change segmentation, saved masks, source images, measurements, or scientific results.
+
+**Acceptance:** Low reproduces the existing resolution. Medium and High use successively more source detail when available. Switching quality updates the current view, survives settings reload, preserves overlay alignment, and does not change mask or measurement data.
+
+SCOPING EVIDENCE
+spacr/qt/screens/make_masks.py owns the editing and image queue surface;
+spacr/qt/widgets/organize_for_measure.py has a separate thumbnail-size slider.
+A size slider is not evidence of three source-resolution quality levels.
+
+Supporting API, docs, translations, tutorials and validation are tracked in 615.
+
+2026-10-01 — CONSOLIDATED CONCURRENT TRACKING RECORD
+The following original record from 25ba0c8ef is retained verbatim as historical
+scoping evidence. Its old numeric references are superseded by the mapping in
+item 615; the user-facing item numbers from the Codex table remain authoritative.
+
+================================================================================
+MAKE MASKS: THUMBNAIL QUALITY -- LOW, MEDIUM AND HIGH
+================================================================================
+
+Status:    not started (filed 2026-10-01; scoped, see below)
+Requested: 2026-10-01 -- "The current Make Masks thumbnails are not
+           high-resolution enough. Add a user-facing quality setting with
+           three choices: Low: the current thumbnail resolution and behavior.
+           Medium: genuinely higher-resolution thumbnail data than Low. High:
+           genuinely higher-resolution thumbnail data than Medium, within the
+           available source-image resolution."
+Owner:     1.5.1.1 implementation session (Claude)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Make Masks' main canvas has no thumbnails. The thumbnails a Make Masks user
+sees are in the two popups opened from it:
+
+  * Organize for Measure (spacr/qt/widgets/organize_for_measure.py): its
+    table's "image" / "both" views draw each file through _CellDelegate,
+    fed by channel_sort_dialog._ThumbWorker (_load_thumbnails, ~2230).
+    The cell is sized by a persisted slider (32-320 px,
+    organize_for_measure/thumb_size).
+  * Sort into channels (spacr/qt/widgets/channel_sort_dialog.py): the list
+    icons and the "Are these sets right?" example grid, with the mask
+    overlaid in red (_grey_icon).
+
+Both decode through spacr.channel_sorting.thumbnail(path, THUMB) and
+mask_thumbnail(path, THUMB), with THUMB = 64. The decode keeps every
+ceil(max_side / 64)-th pixel (array[::step, ::step]) -- nearest-neighbour
+decimation, so a 2048 px field becomes a 64 px bitmap -- and the delegate
+then stretches that 64 px bitmap to the slider size (up to 320 px). That is
+why the thumbnails look soft and aliased. Nothing caches across popups;
+the delegate keeps one pixmap per path for the popup's life.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A preference "Thumbnail quality" (Low / Medium / High), persisted via
+   the normal QSettings store, default Low when absent. Exposed in the
+   popups' existing control row (beside the size slider) so it is where
+   the thumbnails are.
+2. Concrete decode sizes (longest side, source pixels permitting):
+     Low    = 64 px,  stride decimation -- byte-identical to today.
+     Medium = 256 px, area (block-mean) reduction of the original image.
+     High   = 768 px, area reduction of the original image.
+   Never upsampled beyond the source. Masks are reduced by a block
+   max/any, never interpolated, so no label value is invented and the
+   overlay stays aligned to the image grid (same step for both).
+3. Cache keyed by (path, quality); changing quality drops and reloads the
+   shown thumbnails off the GUI thread. Logical cell footprint is still the
+   size slider; quality changes pixels, not widget size.
+4. Display only: segmentation, saved masks, sources and measurements are
+   untouched.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/qt/test_611_thumbnail_quality.py: Low equals the old decode exactly;
+Medium/High have more pixels, bounded by the source; mask reductions only
+contain 0/255; switching quality re-decodes the shown cells; the choice
+survives a reload of the preference; default is Low.
+
+2026-10-01 — IMPLEMENTED AND VERIFIED
+Low preserves the existing 64 px source sampling. Medium uses 256 px and
+High 1024 px, capped by the original image. Quality is shared and persisted
+under make_masks/thumbnail_quality, independent of logical thumbnail size.
+Make Masks Display and Organize for Measure both expose it. Image/mask
+previews refresh in open views; source masks use nearest-neighbour sampling.
+The organizer loads visible cells through one worker, rejects stale results,
+and bounds cache storage to 64 MiB/512 entries. Source size/mtime, quality
+and display scaling invalidate cached thumbnails. Scientific data are unchanged.
+
+Validation: 119 checks passed across the six named thumbnail/layout/organizer
+regression files; the ten new quality/layout cases also passed at scale 2.
+Before/after quality captures and the unchanged logical cell geometry were
+inspected. Evidence is in /tmp/spacr-implementation-20261001/review/masks/.
+The shared nine-language catalog refresh remains tracked under N615.

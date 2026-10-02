@@ -722,9 +722,9 @@ class ObjectSettingsGrid(QWidget):
         self._claimed: Dict[str, Dict[str, Any]] = {}
 
         #: Fires once the pointer has rested on a cell long enough.
-        self._help_show_timer = QTimer(self)
-        self._help_show_timer.setSingleShot(True)
-        self._help_show_timer.timeout.connect(self._show_pending_help)
+        from ..tooltip_policy import HoverDelay
+        self._help_hover_delay = HoverDelay(self)
+        self._help_show_timer = self._help_hover_delay._timer
         self._help_pending = ""
         #: Fires after the pointer has left, unless it came back.
         self._help_hide_timer = QTimer(self)
@@ -758,13 +758,6 @@ class ObjectSettingsGrid(QWidget):
     #: asked for it. So the square is sized to what the band can afford
     #: rather than the band to the square.
     HELP_ANIMATION_PX = 132
-
-    #: How long the pointer must rest on a cell before help appears, in ms.
-    #:
-    #: Deliberately not instant. Dragging the pointer across a row of
-    #: twenty cells rewrites the band twenty times when there is no delay,
-    #: which reads as flicker rather than as help.
-    HELP_SHOW_DELAY_MS = 350
 
     #: How long the last help stays after the pointer leaves, in ms.
     #:
@@ -850,7 +843,7 @@ class ObjectSettingsGrid(QWidget):
                 self._offer_tooltip(event.position().toPoint())
             elif kind == QEvent.Type.Leave:
                 self._hovered_key = ""
-                self._help_show_timer.stop()
+                self._help_hover_delay.cancel()
                 self._help_hide_timer.start(self.HELP_HIDE_DELAY_MS)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the table could not offer its tooltip", exc_info=True)
@@ -869,11 +862,12 @@ class ObjectSettingsGrid(QWidget):
         self._hovered_key = key
         self._help_hide_timer.stop()
         if not key:
-            self._help_show_timer.stop()
+            self._help_hover_delay.cancel()
             self._help_hide_timer.start(self.HELP_HIDE_DELAY_MS)
             return
         self._help_pending = key
-        self._help_show_timer.start(self.HELP_SHOW_DELAY_MS)
+        self._help_hover_delay.schedule(
+            self._table.viewport(), self._show_pending_help)
 
     def _show_pending_help(self) -> None:
         """Write the help for the cell the pointer settled on."""

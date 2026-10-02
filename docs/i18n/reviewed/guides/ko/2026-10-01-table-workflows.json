@@ -1,0 +1,1245 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "method": "Direct Codex AI technical translation with independent Codex-agent technical review; no local-model generation or native-speaker/human signoff claimed. Normal guide worklist importer enforces protected literals, roles, URLs, substitutions and current exact UI bindings. Historical PO author attribution remains preserved.",
+  "draft_author": "Codex agent mask_editor",
+  "independent_technical_reviewer": "Codex agent root",
+  "worklist_sha256": "7550b80985350bc1b4dd4924e7d899fdc4a995bb5b6058638652f296c60402a1",
+  "draft_sha256": "99b6ac0bfdb86d7381edf24b053f7bd53799da3aebfad8e3d5c0e62f8b0e4800",
+  "peer_review_sha256": "265a079f1ec1fd9818c2ecb769633d932ac1ba01cf3a7e75f26c15130c8ef095",
+  "peer_review_corrections": [],
+  "source_files": {
+    "docs/source/installer_guide.rst": "8e3ae817ba7141674a6aaaa0ed7b808eef218858ec09e460ab78d5ebbc100ab3",
+    "docs/source/plaque_assay.rst": "d69525fef8a644487c8b3af58948b77eefe0c516c3f3df60416eff6be105d299",
+    "docs/source/plate_barcode_linkage.rst": "148cc9c0455c28d1dda86c315adfd063ae497b3d11420e7bd2cff143287f355c",
+    "docs/source/table_workflows.rst": "dc000bbd7c4ba0f9cf932e14933cb78e5c66e8235dfa31616a98ac7b9c479a1f"
+  },
+  "runtime_catalog_sha256": "0db68857619eb8ac64466449b3825f716807c59e271cda104441719d26f3a6bc",
+  "records": [
+    {
+      "domain": "installer_guide",
+      "source": "macOS online installation: update and reopen",
+      "source_sha256": "de9e4508bcbc5e4e37c952e2a030439f3d983740c374f39ea60bbff37893a6a2",
+      "original_ai_draft": "macOS 온라인 설치: 업데이트 후 다시 열기",
+      "reviewed_translation": "macOS 온라인 설치: 업데이트 후 다시 열기",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again.",
+      "source_sha256": "00503c9b2788b3e8dacd073ae089fe27f0f090a9c464aa1a49ebc6d4db52ba1a",
+      "original_ai_draft": "**도움말 → Check for updates**를 선택하고 사용 가능한 업데이트를 수락한 다음, 현재 환경에 spaCR을 다시 설치하는 것을 확인합니다. spaCR은 종료된 뒤 설치본에 포함된 ``uv``로 기존 전용 환경을 업그레이드하고, 설치된 버전을 확인한 후 자동으로 다시 열립니다. 이 과정에서 앱 실행기와 환경은 그대로 유지됩니다. 최초 실행용 설치 프로그램을 실행하거나 터미널 질문을 다시 표시하지 않습니다.",
+      "reviewed_translation": "**도움말 → Check for updates**를 선택하고 사용 가능한 업데이트를 수락한 다음, 현재 환경에 spaCR을 다시 설치하는 것을 확인합니다. spaCR은 종료된 뒤 설치본에 포함된 ``uv``로 기존 전용 환경을 업그레이드하고, 설치된 버전을 확인한 후 자동으로 다시 열립니다. 이 과정에서 앱 실행기와 환경은 그대로 유지됩니다. 최초 실행용 설치 프로그램을 실행하거나 터미널 질문을 다시 표시하지 않습니다.",
+      "ui_bindings": {
+        "Help": "도움말"
+      }
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow.",
+      "source_sha256": "5e3efa7262c2307e309d8291d3ad3a9d08ee70d8578ceab40da6a16448e5a759",
+      "original_ai_draft": "실행하는 명령은 아래의 macOS 복구 명령과 같으며, 실제 설치 디렉터리를 사용합니다. 업그레이드나 버전 확인에 실패하면 ``~/.spacr/logs/update.log``에 기록되며, 업데이트 성공 시의 자동 재실행은 수행되지 않습니다. spaCR이 안전하게 종료되지 못해도 업데이트가 중단됩니다. 별도의 독립 실행형 앱 번들은 번들 교체 절차를 사용합니다.",
+      "reviewed_translation": "실행하는 명령은 아래의 macOS 복구 명령과 같으며, 실제 설치 디렉터리를 사용합니다. 업그레이드나 버전 확인에 실패하면 ``~/.spacr/logs/update.log``에 기록되며, 업데이트 성공 시의 자동 재실행은 수행되지 않습니다. spaCR이 안전하게 종료되지 못해도 업데이트가 중단됩니다. 별도의 독립 실행형 앱 번들은 번들 교체 절차를 사용합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Older installations and full installers",
+      "source_sha256": "8b46d93d57db34f7ec55e6dac2079ea3eb241252825e959adbbd0ab55ff25ba9",
+      "original_ai_draft": "이전 설치본과 전체 설치 프로그램",
+      "reviewed_translation": "이전 설치본과 전체 설치 프로그램",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so two versions never sit side by side with one of them on the path. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update.",
+      "source_sha256": "31bbb9211b1ba571834a3614a3cb08f753a73e79765bd0a5b2301ed440dbe1ec",
+      "original_ai_draft": "전체 설치 프로그램과 다른 설치 프로그램 기반 업데이트 경로는 이전 설치 프로그램이 만든 spaCR 설치본을 찾아 제거합니다. 따라서 두 버전이 나란히 설치되어 그중 하나가 실행 경로에 남는 일이 없습니다. Windows 온라인·오프라인 설치본, macOS 앱과 사용자별 환경, Linux 온라인 설치본과 Debian 패키지뿐 아니라 실행기, 바로가기, 메뉴 항목, 제거 등록 정보도 찾습니다. 직접 만든 환경과 소스 체크아웃은 목록에 표시하지만 제거하지 않으며, 프로젝트 폴더와 결과도 건드리지 않습니다. 예를 들어 관리자 권한이 필요한 ``/Applications``의 macOS 앱처럼 제거할 수 없는 설치본이 있으면, 어떤 설치본인지 알리고 아무것도 설치하지 않습니다. 따라서 업데이트가 절반만 적용된 상태로 남지 않습니다.",
+      "reviewed_translation": "전체 설치 프로그램과 다른 설치 프로그램 기반 업데이트 경로는 이전 설치 프로그램이 만든 spaCR 설치본을 찾아 제거합니다. 따라서 두 버전이 나란히 설치되어 그중 하나가 실행 경로에 남는 일이 없습니다. Windows 온라인·오프라인 설치본, macOS 앱과 사용자별 환경, Linux 온라인 설치본과 Debian 패키지뿐 아니라 실행기, 바로가기, 메뉴 항목, 제거 등록 정보도 찾습니다. 직접 만든 환경과 소스 체크아웃은 목록에 표시하지만 제거하지 않으며, 프로젝트 폴더와 결과도 건드리지 않습니다. 예를 들어 관리자 권한이 필요한 ``/Applications``의 macOS 앱처럼 제거할 수 없는 설치본이 있으면, 어떤 설치본인지 알리고 아무것도 설치하지 않습니다. 따라서 업데이트가 절반만 적용된 상태로 남지 않습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Preview colony counting (alpha)",
+      "source_sha256": "ff03710311d373bdc7e7756f702c1cbfe7b31f9fba7e22eda9b650b36b264753",
+      "original_ai_draft": "집락 계수 미리보기(알파)",
+      "reviewed_translation": "집락 계수 미리보기(알파)",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path.",
+      "source_sha256": "545e42e929b9520e7ef1925c215ef32e4af3456a9b9fbf5112fe9762b6c3d107",
+      "original_ai_draft": "**환경설정 → 알파 기능 표시**를 활성화한 다음, 모듈의 **Colony Counting (Alpha)** 설정에서 **집락 계수**을 켭니다. **플라크** 모드를 유지하고 **미리보기 실행**를 누릅니다. 미리보기는 집락 계수 설정과 원본 이미지 픽셀을 사용하여 집락 오버레이를 표시하고, 집락 수와 원본 이미지 픽셀 기준의 평균 면적을 보고합니다. 웰 검출을 활성화하면 검출된 웰별로 계수하고 원본 사진의 해당 위치에 표시합니다. 이 경로에는 플라크 분할 모델이 필요하지 않습니다.",
+      "reviewed_translation": "**환경설정 → 알파 기능 표시**를 활성화한 다음, 모듈의 **집락 계수** 설정에서 **집락 계수**를 켭니다. **플라크** 모드를 유지하고 **미리보기 실행**을 누릅니다. 미리보기는 집락 계수 설정과 원본 이미지 픽셀을 사용하여 집락 오버레이를 표시하고, 집락 수와 원본 이미지 픽셀 기준의 평균 면적을 보고합니다. 웰 검출을 활성화하면 검출된 웰별로 계수하고 원본 사진의 해당 위치에 표시합니다. 이 경로에는 플라크 분할 모델이 필요하지 않습니다.",
+      "ui_bindings": {
+        "Preferences": "환경설정",
+        "Show alpha features": "알파 기능 표시",
+        "Colony counting": "집락 계수",
+        "Plaque": "플라크",
+        "Run preview": "미리보기 실행"
+      }
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode.",
+      "source_sha256": "458811f9cae7a50afc7bda496b0d72ee0a791dfb001b0ae27b695ebad5b8ac77",
+      "original_ai_draft": "임계값 처리를 사용하려면 집락 검출기 항목을 비워 두고, 그렇지 않으면 설치된 집락 검출기를 선택합니다. 미리보기는 체크포인트나 검출기 종속성이 없을 때 방법을 조용히 바꾸지 않고 이를 알립니다. 반면 배치 실행은 선택적 검출기 종속성이 없으면 임계값 처리로 대체할 수 있습니다. 미리보기와 배치 결과를 비교할 때 의도한 방법을 사용할 수 있는지 확인하세요. 집락 계수는 흐름이나 세포 확률 출력을 생성하지 않으므로, 해당 보기에는 출력을 사용할 수 없다는 메시지가 표시됩니다. 미리보기는 분석 데이터베이스를 쓰거나 원본 이미지를 변경하지 않습니다. Figure 모드에서는 집락 계수를 무시합니다.",
+      "reviewed_translation": "임계값 처리를 사용하려면 집락 검출기 항목을 비워 두고, 그렇지 않으면 설치된 집락 검출기를 선택합니다. 미리보기는 체크포인트나 검출기 종속성이 없을 때 방법을 조용히 바꾸지 않고 이를 알립니다. 반면 배치 실행은 선택적 검출기 종속성이 없으면 임계값 처리로 대체할 수 있습니다. 미리보기와 배치 결과를 비교할 때 의도한 방법을 사용할 수 있는지 확인하세요. 집락 계수는 흐름이나 세포 확률 출력을 생성하지 않으므로, 해당 보기에는 출력을 사용할 수 없다는 메시지가 표시됩니다. 미리보기는 분석 데이터베이스를 쓰거나 원본 이미지를 변경하지 않습니다. Figure 모드에서는 집락 계수를 무시합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Link plate barcodes to sample metadata",
+      "source_sha256": "44e2d0cb3798096fe7554760faa45b12d412e2e21b1d273b740599d0c0243358",
+      "original_ai_draft": "플레이트 바코드와 시료 메타데이터 연결",
+      "reviewed_translation": "플레이트 바코드와 시료 메타데이터 연결",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "In **Measure**, enable **Show alpha features** in Preferences and open **Plate Barcode Linkage (Alpha)**. Set ``plate_barcode_source`` to a table or a LIMS service URL. The linkage runs after measurement.",
+      "source_sha256": "20e7ed4d020e572416717b1931d5d6fb68ebe0988217965b4bcd856096d6ec13",
+      "original_ai_draft": "**측정**에서 Preferences의 **알파 기능 표시**를 활성화하고 **Plate Barcode Linkage (Alpha)**를 엽니다. ``plate_barcode_source``를 테이블 또는 LIMS 서비스 URL로 설정합니다. 연결 작업은 측정 후에 실행됩니다.",
+      "reviewed_translation": "**측정**에서 Preferences의 **알파 기능 표시**를 활성화하고 **Plate Barcode Linkage (Alpha)**를 엽니다. ``plate_barcode_source``를 테이블 또는 LIMS 서비스 URL로 설정합니다. 연결 작업은 측정 후에 실행됩니다.",
+      "ui_bindings": {
+        "Measure": "측정",
+        "Show alpha features": "알파 기능 표시"
+      }
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "A local CSV, TSV, Excel or Parquet table needs a barcode column, a well column and the sample metadata to attach. For example::",
+      "source_sha256": "232b1a454fac5c23976df96e842ebe4ba4900098adb1540f650173541179cd17",
+      "original_ai_draft": "로컬 CSV, TSV, Excel 또는 Parquet 테이블에는 바코드 열, 웰 열, 연결할 시료 메타데이터가 필요합니다. 예::",
+      "reviewed_translation": "로컬 CSV, TSV, Excel 또는 Parquet 테이블에는 바코드 열, 웰 열, 연결할 시료 메타데이터가 필요합니다. 예::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata.",
+      "source_sha256": "7fcede6a934cae46f467fdde4555ac094e10870cf1800cdb93ba58b68de8f404",
+      "original_ai_draft": "바코드 열의 이름이 다르면 ``plate_barcode_column``을 설정합니다. ``plate_barcodes``는 촬영된 플레이트의 이름을 바코드에 매핑합니다. 이 매핑이 없으면 spaCR은 플레이트 폴더의 ``barcode.txt``를 읽거나 플레이트 이름을 사용합니다. 메타데이터에는 농도의 의미를 알 수 있도록 단위를 유지하세요.",
+      "reviewed_translation": "바코드 열의 이름이 다르면 ``plate_barcode_column``을 설정합니다. ``plate_barcodes``는 촬영된 플레이트의 이름을 바코드에 매핑합니다. 이 매핑이 없으면 spaCR은 플레이트 폴더의 ``barcode.txt``를 읽거나 플레이트 이름을 사용합니다. 메타데이터에는 농도의 의미를 알 수 있도록 단위를 유지하세요.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Read records from a LIMS service",
+      "source_sha256": "c0a23cd8b5ed04a568c81761b0eae461c222a4f8a45f4131adde8ba4c847f189",
+      "original_ai_draft": "LIMS 서비스에서 레코드 읽기",
+      "reviewed_translation": "LIMS 서비스에서 레코드 읽기",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Use a URL such as ``https://lims.example/plates/{barcode}/wells``. spaCR substitutes the encoded barcode. Without ``{barcode}``, it adds a ``barcode`` query parameter. If authentication is needed, set the token in an environment variable and put that variable's name in ``plate_barcode_token_env``. Do not put the token in the URL or settings.",
+      "source_sha256": "8ad434bde363eb3f21f8475acd71bd6204ba876e4d1273e27cec44e55c08e633",
+      "original_ai_draft": "``https://lims.example/plates/{barcode}/wells`` 같은 URL을 사용합니다. spaCR은 인코딩된 바코드를 대입합니다. ``{barcode}``가 없으면 ``barcode`` 쿼리 매개변수를 추가합니다. 인증이 필요하면 토큰을 환경 변수에 저장하고, 해당 변수의 이름을 ``plate_barcode_token_env``에 입력합니다. 토큰 자체를 URL이나 설정에 넣지 마세요.",
+      "reviewed_translation": "``https://lims.example/plates/{barcode}/wells`` 같은 URL을 사용합니다. spaCR은 인코딩된 바코드를 대입합니다. ``{barcode}``가 없으면 ``barcode`` 쿼리 매개변수를 추가합니다. 인증이 필요하면 토큰을 환경 변수에 저장하고, 해당 변수의 이름을 ``plate_barcode_token_env``에 입력합니다. 토큰 자체를 URL이나 설정에 넣지 마세요.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The service may return a list of well records, or an object containing that list under ``wells``, ``records``, ``results``, ``data`` or ``items``. Plain fields outside the list supply metadata defaults for its wells::",
+      "source_sha256": "6244ec071c830f9d6901864e977aa929fd44754a90f4df036be3e1c82c49a68c",
+      "original_ai_draft": "서비스는 웰 레코드 목록이나, ``wells``, ``records``, ``results``, ``data``, ``items`` 중 하나의 키 아래에 그 목록을 담은 객체를 반환할 수 있습니다. 목록 바깥의 일반 필드는 해당 웰들의 메타데이터 기본값을 제공합니다::",
+      "reviewed_translation": "서비스는 웰 레코드 목록이나, ``wells``, ``records``, ``results``, ``data``, ``items`` 중 하나의 키 아래에 그 목록을 담은 객체를 반환할 수 있습니다. 목록 바깥의 일반 필드는 해당 웰들의 메타데이터 기본값을 제공합니다::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "spaCR follows ``next``, ``next_url``, ``@odata.nextLink`` or ``links.next``. The link may be a URL string or an object with an ``href`` field. Relative links resolve against the response URL. A missing link, null or empty string ends the list. Metadata defaults carry forward to later pages; explicit fields on a well override those defaults. Pagination fields do not become sample metadata.",
+      "source_sha256": "f507435c5c47b43dc9aefd6be8165a2e4039f2bba6955fcecdc1b916ab398935",
+      "original_ai_draft": "spaCR은 ``next``, ``next_url``, ``@odata.nextLink``, ``links.next``를 따릅니다. 링크는 URL 문자열이거나 ``href`` 필드가 있는 객체일 수 있습니다. 상대 링크는 응답 URL을 기준으로 해석합니다. 링크가 없거나 null 또는 빈 문자열이면 목록이 끝납니다. 메타데이터 기본값은 다음 페이지에도 이어지며, 웰에 명시된 필드는 그 기본값보다 우선합니다. 페이지 탐색 필드는 시료 메타데이터에 포함되지 않습니다.",
+      "reviewed_translation": "spaCR은 ``next``, ``next_url``, ``@odata.nextLink``, ``links.next``를 따릅니다. 링크는 URL 문자열이거나 ``href`` 필드가 있는 객체일 수 있습니다. 상대 링크는 응답 URL을 기준으로 해석합니다. 링크가 없거나 null 또는 빈 문자열이면 목록이 끝납니다. 메타데이터 기본값은 다음 페이지에도 이어지며, 웰에 명시된 필드는 그 기본값보다 우선합니다. 페이지 탐색 필드는 시료 메타데이터에 포함되지 않습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Every link and HTTP redirect must stay on the same scheme, host and port as the original service. Conflicting links and repeated pages are errors. Collection is limited to 16 MiB per response, 64 MiB across the lookup, 1,000 page addresses per barcode and 100,000 records across the lookup. An error stops the metadata lookup without returning a partial plate map. Existing measurement results remain available. Vendor-specific cursor protocols that do not provide a next-page URL need a separate adapter.",
+      "source_sha256": "97ee2f1a5e5a52c2ed6ac167d29c5655de55b4b826e4509b4a967a0a54031ad6",
+      "original_ai_draft": "모든 링크와 HTTP 리디렉션은 최초 서비스와 같은 스킴, 호스트, 포트를 유지해야 합니다. 충돌하는 링크와 반복되는 페이지는 오류입니다. 수집량은 응답당 16 MiB, 전체 조회당 64 MiB, 바코드당 페이지 주소 1,000개, 전체 조회당 레코드 100,000개로 제한됩니다. 오류가 발생하면 부분적인 플레이트 맵을 반환하지 않고 메타데이터 조회를 중단합니다. 기존 측정 결과는 계속 사용할 수 있습니다. 다음 페이지 URL을 제공하지 않는 공급업체별 커서 프로토콜에는 별도의 어댑터가 필요합니다.",
+      "reviewed_translation": "모든 링크와 HTTP 리디렉션은 최초 서비스와 같은 스킴, 호스트, 포트를 유지해야 합니다. 충돌하는 링크와 반복되는 페이지는 오류입니다. 수집량은 응답당 16 MiB, 전체 조회당 64 MiB, 바코드당 페이지 주소 1,000개, 전체 조회당 레코드 100,000개로 제한됩니다. 오류가 발생하면 부분적인 플레이트 맵을 반환하지 않고 메타데이터 조회를 중단합니다. 기존 측정 결과는 계속 사용할 수 있습니다. 다음 페이지 URL을 제공하지 않는 공급업체별 커서 프로토콜에는 별도의 어댑터가 필요합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Inspect the result",
+      "source_sha256": "363e3d412470c6dd54ad52412672a831acc15a69fdbe833d89a6719f1c723968",
+      "original_ai_draft": "결과 확인",
+      "reviewed_translation": "결과 확인",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The filled map is written to ``measurements/plate_map_lims.csv``. It fills an empty ``profiling_metadata`` setting. When compound and concentration columns exist, it also fills an empty ``viability_plate_map``. An existing user-supplied map is compared, not silently replaced.",
+      "source_sha256": "49a70757afd7a6730218f674ec09e24a4557331c2bd397dd145efd18a6838d31",
+      "original_ai_draft": "완성된 맵은 ``measurements/plate_map_lims.csv``에 저장됩니다. ``profiling_metadata`` 설정이 비어 있으면 이 맵으로 채웁니다. 화합물과 농도 열이 있으면 비어 있는 ``viability_plate_map``도 채웁니다. 사용자가 이미 제공한 맵은 조용히 교체하지 않고 비교합니다.",
+      "reviewed_translation": "완성된 맵은 ``measurements/plate_map_lims.csv``에 저장됩니다. ``profiling_metadata`` 설정이 비어 있으면 이 맵으로 채웁니다. 화합물과 농도 열이 있으면 비어 있는 ``viability_plate_map``도 채웁니다. 사용자가 이미 제공한 맵은 조용히 교체하지 않고 비교합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Review ``measurements/plate_barcode_mismatches.csv`` and the log for missing barcodes, shared barcodes, unmatched wells, conflicting records and disagreements with an existing map. Resolve those mismatches before interpreting treatment comparisons.",
+      "source_sha256": "5698a5c34c4657dde2609dc2a8e7133685c6c378847a04bff8a78389fc6fcf0c",
+      "original_ai_draft": "``measurements/plate_barcode_mismatches.csv``와 로그에서 누락된 바코드, 여러 플레이트가 공유하는 바코드, 일치하지 않는 웰, 충돌하는 레코드, 기존 맵과의 불일치를 검토합니다. 처리 조건 간 비교를 해석하기 전에 이러한 불일치를 해결하세요.",
+      "reviewed_translation": "``measurements/plate_barcode_mismatches.csv``와 로그에서 누락된 바코드, 여러 플레이트가 공유하는 바코드, 일치하지 않는 웰, 충돌하는 레코드, 기존 맵과의 불일치를 검토합니다. 처리 조건 간 비교를 해석하기 전에 이러한 불일치를 해결하세요.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combine measurement tables for plots and gates",
+      "source_sha256": "1300eddc7951b9ac3b501f2dec89bc071cc7ceada1a558141b2921fcb30da7c7",
+      "original_ai_draft": "그래프와 게이트에 사용할 측정 테이블 결합",
+      "reviewed_translation": "그래프와 게이트에 사용할 측정 테이블 결합",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`.",
+      "source_sha256": "fa4fc670ef8e642d3791bc8b14223ab8aaaf1377f1f9c0df7c181008223b665c",
+      "original_ai_draft": "Home에서 **Graph Builder** 또는 **Gate Editor**를 열어 측정값을 탐색합니다. 두 화면 모두 테이블 선택기 바로 옆에 **혼합 테이블**가 있습니다. 같은 병합 정의를 사용하면 어느 화면에서든 같은 측정값이 생성됩니다. 전체 작업 흐름은 :doc:`workflows`를 참조하세요.",
+      "reviewed_translation": "Home에서 **Graph Builder** 또는 **Gate Editor**를 열어 측정값을 탐색합니다. 두 화면 모두 테이블 선택기 바로 옆에 **테이블 병합**이 있습니다. 같은 병합 정의를 사용하면 어느 화면에서든 같은 측정값이 생성됩니다. 전체 작업 흐름은 :doc:`workflows`를 참조하세요.",
+      "ui_bindings": {
+        "Merge tables": "테이블 병합"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose a source and an observation level",
+      "source_sha256": "fd8d7835e26141e11278364cd50fa58dafc0f6cdc57c335ebf755e5765d65392",
+      "original_ai_draft": "데이터 원본과 관측 단위 선택",
+      "reviewed_translation": "데이터 원본과 관측 단위 선택",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Load table** opens a SQLite measurement database or a CSV/TSV table. A physical table is an existing table in that database. A derived table is a named result calculated from physical tables using a saved merge definition. Creating a derived table preserves the original measurement tables.",
+      "source_sha256": "6156fa2643fba52e0d51b287610b3773efdfe34d48ccff3539e4d5ab97a39734",
+      "original_ai_draft": "**Load table**은 SQLite 측정 데이터베이스 또는 CSV/TSV 테이블을 엽니다. 물리 테이블은 해당 데이터베이스에 이미 존재하는 테이블입니다. 파생 테이블은 저장된 병합 정의를 사용하여 물리 테이블에서 계산한, 이름이 있는 결과입니다. 파생 테이블을 만들어도 원본 측정 테이블은 보존됩니다.",
+      "reviewed_translation": "**Load table**은 SQLite 측정 데이터베이스 또는 CSV/TSV 테이블을 엽니다. 물리 테이블은 해당 데이터베이스에 이미 존재하는 테이블입니다. 파생 테이블은 저장된 병합 정의를 사용하여 물리 테이블에서 계산한, 이름이 있는 결과입니다. 파생 테이블을 만들어도 원본 측정 테이블은 보존됩니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Merging requires one SQLite database. The button is unavailable for a single CSV/TSV or a Gate Editor session combining several databases. Load the one database containing the tables you want to join.",
+      "source_sha256": "a17323cc6ee40ca694711fdbf722c523427ab6d172dd6ff741bd59a1eff217c1",
+      "original_ai_draft": "병합에는 하나의 SQLite 데이터베이스가 필요합니다. 단일 CSV/TSV나 여러 데이터베이스를 결합하는 Gate Editor 세션에서는 버튼을 사용할 수 없습니다. 연결할 테이블들이 들어 있는 하나의 데이터베이스를 불러오세요.",
+      "reviewed_translation": "병합에는 하나의 SQLite 데이터베이스가 필요합니다. 단일 CSV/TSV나 여러 데이터베이스를 결합하는 Gate Editor 세션에서는 버튼을 사용할 수 없습니다. 연결할 테이블들이 들어 있는 하나의 데이터베이스를 불러오세요.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, choosing a table changes the chart's source. Gate Editor also supports a working set of compatible physical object tables, shown as removable chips; selecting another compatible table adds its measurements. The last remaining chip stays in place so the editor always has a source. A named derived table is selected as a complete source. Use the merge popup when you need a named, reproducible result or explicit custom relationships.",
+      "source_sha256": "18d1637b149858c659b68fb2d611ce2abf333c7a7d8ad79281f0b74be2a53d07",
+      "original_ai_draft": "Graph Builder에서 테이블을 선택하면 차트의 원본이 바뀝니다. Gate Editor는 호환되는 물리 객체 테이블들의 작업 집합도 지원하며, 각 테이블은 제거 가능한 칩으로 표시됩니다. 다른 호환 테이블을 선택하면 그 측정값이 추가됩니다. 편집기에 항상 원본이 있도록 마지막 칩은 유지됩니다. 이름이 있는 파생 테이블은 하나의 완전한 원본으로 선택됩니다. 이름이 있고 재현 가능한 결과나 명시적인 사용자 지정 관계가 필요하면 병합 팝업을 사용하세요.",
+      "reviewed_translation": "Graph Builder에서 테이블을 선택하면 차트의 원본이 바뀝니다. Gate Editor는 호환되는 물리 객체 테이블들의 작업 집합도 지원하며, 각 테이블은 제거 가능한 칩으로 표시됩니다. 다른 호환 테이블을 선택하면 그 측정값이 추가됩니다. 편집기에 항상 원본이 있도록 마지막 칩은 유지됩니다. 이름이 있는 파생 테이블은 하나의 완전한 원본으로 선택됩니다. 이름이 있고 재현 가능한 결과나 명시적인 사용자 지정 관계가 필요하면 병합 팝업을 사용하세요.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The **Output observation table** determines what one result row represents. For example, a cell-level result has one row per cell even when that cell contains several pathogens. A nucleus count, total pathogen area and cell intensity can then be compared on the same row.",
+      "source_sha256": "b6f1186a467ff6c4ab6bda35ae32e2448f4d05d8437b02cfefeee60f83631c8e",
+      "original_ai_draft": "**출력 관찰 테이블**은 결과 한 행이 무엇을 나타내는지 결정합니다. 예를 들어 세포 수준 결과는 세포 안에 여러 병원체가 있어도 세포당 한 행을 가집니다. 따라서 핵 수, 병원체 총면적, 세포 강도를 같은 행에서 비교할 수 있습니다.",
+      "reviewed_translation": "**출력 관찰 테이블**은 결과 한 행이 무엇을 나타내는지 결정합니다. 예를 들어 세포 수준 결과는 세포 안에 여러 병원체가 있어도 세포당 한 행을 가집니다. 따라서 핵 수, 병원체 총면적, 세포 강도를 같은 행에서 비교할 수 있습니다.",
+      "ui_bindings": {
+        "Output observation table": "출력 관찰 테이블"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Create a standard spaCR merge",
+      "source_sha256": "d7f8553f0262ec95c5c53914fac2a4e326f47cdf2b60c15f63e0bf9b42f8cf62",
+      "original_ai_draft": "표준 spaCR 병합 만들기",
+      "reviewed_translation": "표준 spaCR 병합 만들기",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Load your measurement database and press **Merge tables**.",
+      "source_sha256": "943f30e115129bbebd878be10e6c200dba521d8587c2bf730e91534da640a041",
+      "original_ai_draft": "측정 데이터베이스를 불러오고 **혼합 테이블**를 누릅니다.",
+      "reviewed_translation": "측정 데이터베이스를 불러오고 **테이블 병합**을 누릅니다.",
+      "ui_bindings": {
+        "Merge tables": "테이블 병합"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Tick the source tables and choose **Output observation table**. The base table is included automatically. Standard merges use compatible spaCR object tables and cell/cytoplasm observation levels; the list also shows other tables whose relationships may require customization.",
+      "source_sha256": "7c06e9ca10f4ede108a8a2bc0f29aa8c20569a027e20a0ce278882737c37d7ab",
+      "original_ai_draft": "원본 테이블을 체크하고 **출력 관찰 테이블**을 선택합니다. 기준 테이블은 자동으로 포함됩니다. 표준 병합은 호환되는 spaCR 객체 테이블과 세포/세포질 관측 단위를 사용합니다. 목록에는 관계를 사용자 지정해야 할 수 있는 다른 테이블도 표시됩니다.",
+      "reviewed_translation": "원본 테이블을 체크하고 **출력 관찰 테이블**을 선택합니다. 기준 테이블은 자동으로 포함됩니다. 표준 병합은 호환되는 spaCR 객체 테이블과 세포/세포질 관측 단위를 사용합니다. 목록에는 관계를 사용자 지정해야 할 수 있는 다른 테이블도 표시됩니다.",
+      "ui_bindings": {
+        "Output observation table": "출력 관찰 테이블"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Enter a **Result name**, such as ``Cell and pathogen measurements``. It must differ from every physical table name.",
+      "source_sha256": "68f4e79c5e729b4d3c3bacdb4f9c2412da034d68a11f119bb44ef692b60c85ab",
+      "original_ai_draft": "``Cell and pathogen measurements`` 같은 **결과 이름**을 입력합니다. 모든 물리 테이블의 이름과 달라야 합니다.",
+      "reviewed_translation": "``Cell and pathogen measurements`` 같은 **결과 이름**을 입력합니다. 모든 물리 테이블의 이름과 달라야 합니다.",
+      "ui_bindings": {
+        "Result name": "결과 이름"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Review the **spaCR defaults active** summary and the per-column **Aggregation** choices. For an ordinary compatible database, no manual key mapping is needed.",
+      "source_sha256": "b174926db0ee37fb959dbd246058838d2d86a1c3b6c9cbeb37334fff6d0480d7",
+      "original_ai_draft": "**spaCR defaults active** 요약과 열별 **합성** 선택을 검토합니다. 일반적인 호환 데이터베이스에서는 키를 수동으로 매핑할 필요가 없습니다.",
+      "reviewed_translation": "**spaCR defaults active** 요약과 열별 **집계** 선택을 검토합니다. 일반적인 호환 데이터베이스에서는 키를 수동으로 매핑할 필요가 없습니다.",
+      "ui_bindings": {
+        "Aggregation": "집계"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Validate and preview**. Inspect the input and output row counts, join keys, unmatched records, missing child keys, repeated child-key rows and the first 12 output rows. Validation examines the full input, even though only a few result rows are displayed.",
+      "source_sha256": "bd97d12dd20f09eb06790909df7b8f657ad4cce8f8cd7cfc6d153476a0ef4ee6",
+      "original_ai_draft": "**인증 및 사전 검토**를 누릅니다. 입력·출력 행 수, 조인 키, 일치하지 않는 레코드, 누락된 하위 테이블 키, 반복된 하위 키 행, 처음 12개의 출력 행을 확인합니다. 결과 행을 일부만 표시하더라도 검증은 전체 입력을 검사합니다.",
+      "reviewed_translation": "**검증 및 미리보기**를 누릅니다. 입력·출력 행 수, 조인 키, 일치하지 않는 레코드, 누락된 하위 테이블 키, 반복된 하위 키 행, 처음 12개의 출력 행을 확인합니다. 결과 행을 일부만 표시하더라도 검증은 전체 입력을 검사합니다.",
+      "ui_bindings": {
+        "Validate and preview": "검증 및 미리보기"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates.",
+      "source_sha256": "f6bed99671cb8a2675492fff57dad6635347bfdd29191ae9fabbba1891323541",
+      "original_ai_draft": "검증이 성공하면 **혼합 테이블 만들기**을 누릅니다. 결과가 일반 테이블 선택기에서 선택되며, 그 열들을 차트와 게이트에 사용할 수 있습니다.",
+      "reviewed_translation": "검증이 성공하면 **병합 테이블 만들기**를 누릅니다. 결과가 일반 테이블 선택기에서 선택되며, 그 열들을 차트와 게이트에 사용할 수 있습니다.",
+      "ui_bindings": {
+        "Create merged table": "병합 테이블 만들기"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them.",
+      "source_sha256": "dff285d0c223c722eee3a1ef9e37890c369c81e34b46a624c25493fc0e6470be",
+      "original_ai_draft": "테이블, 이름, 규칙을 바꾸면 미리보기가 무효화됩니다. 결과를 만들기 전에 다시 검증하세요. 다른 테이블이나 기준 테이블을 선택하면 사용자 지정 관계와 재정의도 초기화되므로, 사용자 지정 전에 원본을 선택하세요.",
+      "reviewed_translation": "테이블, 이름, 규칙을 바꾸면 미리보기가 무효화됩니다. 결과를 만들기 전에 다시 검증하세요. 다른 테이블이나 기준 테이블을 선택하면 사용자 지정 관계와 재정의도 초기화되므로, 사용자 지정 전에 원본을 선택하세요.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "How the defaults combine measurements",
+      "source_sha256": "3f8bbf2e3053eecfb17f72c741ad6763e8cf32d4eb78d43f2e074564929db760",
+      "original_ai_draft": "기본 규칙이 측정값을 결합하는 방식",
+      "reviewed_translation": "기본 규칙이 측정값을 결합하는 방식",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The shared spaCR rules aggregate each child table independently before joining it to the base observations. Adding both pathogens and organelles does not multiply their rows together. Identity includes the available plate, well, field and time metadata together with the relevant object/parent ID; an object number alone is not a globally unique identity.",
+      "source_sha256": "5182a1d21f7773e0417bd43f30a29345648eabfdef739eb73ffd986eed48af04",
+      "original_ai_draft": "공통 spaCR 규칙은 각 하위 테이블을 독립적으로 집계한 후 기준 관측값에 연결합니다. 병원체와 세포소기관을 함께 추가해도 두 테이블의 행들이 서로 곱해지지 않습니다. 식별에는 사용 가능한 플레이트, 웰, 시야, 시간 메타데이터와 관련 객체/부모 ID가 함께 사용됩니다. 객체 번호만으로는 전체 데이터에서 유일한 식별자가 되지 않습니다.",
+      "reviewed_translation": "공통 spaCR 규칙은 각 하위 테이블을 독립적으로 집계한 후 기준 관측값에 연결합니다. 병원체와 세포소기관을 함께 추가해도 두 테이블의 행들이 서로 곱해지지 않습니다. 식별에는 사용 가능한 플레이트, 웰, 시야, 시간 메타데이터와 관련 객체/부모 ID가 함께 사용됩니다. 객체 번호만으로는 전체 데이터에서 유일한 식별자가 되지 않습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Default aggregation for child measurements",
+      "source_sha256": "355c3446c127a77c39a80c94a57f1f5c750864771bef4c9772637677833b0d08",
+      "original_ai_draft": "하위 측정값의 기본 집계",
+      "reviewed_translation": "하위 측정값의 기본 집계",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Measurement",
+      "source_sha256": "385165e2ff59804537e732dc51e2b6058a5a11016e0bb01febe8a738614ed728",
+      "original_ai_draft": "측정값",
+      "reviewed_translation": "측정값",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rule",
+      "source_sha256": "62845f31a2fe00be3ebaaeb93f5b27af82ab81dfcbaa1871c76f596cd98cf3c9",
+      "original_ai_draft": "규칙",
+      "reviewed_translation": "규칙",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Area, integrated/total intensity and counts",
+      "source_sha256": "c179d58e053b42c8abaaa518ecf4e850c30112190ac25c3a1c0c6fede0a1d832",
+      "original_ai_draft": "면적, 적분/총강도, 개수",
+      "reviewed_translation": "면적, 적분/총강도, 개수",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Sum the child values.",
+      "source_sha256": "f1c10d040b2a2f34721745b710a66fe7672f4523b8415ed4191c2c180970ef75",
+      "original_ai_draft": "하위 값들을 합산합니다.",
+      "reviewed_translation": "하위 값들을 합산합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Minimum intensity",
+      "source_sha256": "78b5b8d4cff61a7420d3bd0b32ae573261689e0b940c7c92b4fb81f4efc1c402",
+      "original_ai_draft": "최소 강도",
+      "reviewed_translation": "최소 강도",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the minimum child value.",
+      "source_sha256": "2ad720165339a35ea45fc398a31666cfe936eea573fbe58b406fa9a1a0bbf5ea",
+      "original_ai_draft": "하위 값의 최솟값을 유지합니다.",
+      "reviewed_translation": "하위 값의 최솟값을 유지합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Maximum intensity",
+      "source_sha256": "54361a85a53a5e337d24985acaff806d213f860d4738b26acce7cfea125d1a50",
+      "original_ai_draft": "최대 강도",
+      "reviewed_translation": "최대 강도",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the maximum child value.",
+      "source_sha256": "a4a34d4612df23ca3181b5b3ba804bb1d0127081d3ff8a89fe5db7881b4df1d9",
+      "original_ai_draft": "하위 값의 최댓값을 유지합니다.",
+      "reviewed_translation": "하위 값의 최댓값을 유지합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Median measurements",
+      "source_sha256": "30c85c03af7732fa87bfc1a634762faccd85a833f7dcf5bda09360f99fda3542",
+      "original_ai_draft": "중앙값 측정치",
+      "reviewed_translation": "중앙값 측정치",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the median of the child measurements.",
+      "source_sha256": "535c4b425445b54d6dff1745551f675fdd87595f79ff4cc3e14c8f2837044931",
+      "original_ai_draft": "하위 측정값들의 중앙값을 구합니다.",
+      "reviewed_translation": "하위 측정값들의 중앙값을 구합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Other numeric measurements, including means",
+      "source_sha256": "7922dbebd8af8e77a0aa5dc97022d5b17d860a25cb9ca2cbf960179adb9f76d1",
+      "original_ai_draft": "평균을 포함한 다른 수치 측정값",
+      "reviewed_translation": "평균을 포함한 다른 수치 측정값",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the mean of the child measurements.",
+      "source_sha256": "60223377fe3545d1265d76ec08dfde0812252f37d26c8f4b29813773f6a59242",
+      "original_ai_draft": "하위 측정값들의 평균을 구합니다.",
+      "reviewed_translation": "하위 측정값들의 평균을 구합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Text and identifiers",
+      "source_sha256": "257a74ad575a360eb386bb697513fb7dde408562606335ec62b50e54f49c59e0",
+      "original_ai_draft": "텍스트와 식별자",
+      "reviewed_translation": "텍스트와 식별자",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the first nonmissing value in source order by default; identifiers cannot be averaged or summed.",
+      "source_sha256": "eb91a749839161d5a59b65178ebaf8ea0d918c5a0aa1f03fa3dc05cfb1dee9a6",
+      "original_ai_draft": "기본적으로 원본 순서에서 처음 나타나는 결측이 아닌 값을 유지합니다. 식별자는 평균을 내거나 합산할 수 없습니다.",
+      "reviewed_translation": "기본적으로 원본 순서에서 처음 나타나는 결측이 아닌 값을 유지합니다. 식별자는 평균을 내거나 합산할 수 없습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For four pathogens with areas 1, 2, 4 and 8, total pathogen area is 15. A mean intensity is the mean of the four object measurements, not an intensity recalculated from all their pooled pixels. Inspect the rule shown for each column when its name does not describe its measurement convention.",
+      "source_sha256": "bbf284dd7b4a834e806dd56eae7e5def4245810cca385f1033e6b310e2237369",
+      "original_ai_draft": "면적이 1, 2, 4, 8인 병원체 네 개의 총면적은 15입니다. 평균 강도는 네 객체 측정값의 평균이며, 모든 픽셀을 합쳐 다시 계산한 강도가 아닙니다. 열 이름만으로 측정 관례를 알 수 없다면 해당 열에 표시된 규칙을 확인하세요.",
+      "reviewed_translation": "면적이 1, 2, 4, 8인 병원체 네 개의 총면적은 15입니다. 평균 강도는 네 객체 측정값의 평균이며, 모든 픽셀을 합쳐 다시 계산한 강도가 아닙니다. 열 이름만으로 측정 관례를 알 수 없다면 해당 열에 표시된 규칙을 확인하세요.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The default nucleus join retains only matching base observations. Pathogen and organelle joins retain uninfected cells. Missing measurements remain missing, including a sum for which every contributing value is missing. An absent intensity measurement is not converted to a measured zero. Child columns use table-qualified names where needed to distinguish them.",
+      "source_sha256": "6cdd4f6399e4f1c6d59a18351817957a6530bada5f9cd14017d9b7001fd35b38",
+      "original_ai_draft": "기본 핵 조인은 일치하는 기준 관측값만 유지합니다. 병원체와 세포소기관 조인은 감염되지 않은 세포도 유지합니다. 기여하는 모든 값이 결측인 합계를 포함하여, 누락된 측정값은 결측 상태로 남습니다. 없는 강도 측정값을 실제 측정된 0으로 바꾸지 않습니다. 구별이 필요하면 하위 열 이름에 테이블 이름을 붙입니다.",
+      "reviewed_translation": "기본 핵 조인은 일치하는 기준 관측값만 유지합니다. 병원체와 세포소기관 조인은 감염되지 않은 세포도 유지합니다. 기여하는 모든 값이 결측인 합계를 포함하여, 누락된 측정값은 결측 상태로 남습니다. 없는 강도 측정값을 실제 측정된 0으로 바꾸지 않습니다. 구별이 필요하면 하위 열 이름에 테이블 이름을 붙입니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Available overrides depend on column values and role. Numeric measurements offer mean, median, sum, minimum, maximum, count and other compatible choices; text supports choices such as first/last, count and distinct count; Boolean-valued data also support **any** and **all**. **count** counts nonmissing values. Default one-to-one rows attach intact, so their aggregation controls are disabled until custom merging is selected.",
+      "source_sha256": "27997f400eb3ca7daa589a8e37e1d0a35846a8e64b0a98303dca8eb28eebdef6",
+      "original_ai_draft": "사용 가능한 재정의는 열의 값과 역할에 따라 달라집니다. 수치 측정값에는 평균, 중앙값, 합계, 최솟값, 최댓값, 개수 등의 호환 선택지가 있습니다. 텍스트에는 처음/마지막 값, 개수, 고유값 개수 등이 있으며, 불리언 데이터는 **어떠한**와 **all**도 지원합니다. **count**는 결측이 아닌 값의 수를 셉니다. 기본 일대일 행은 그대로 연결되므로, 사용자 지정 병합을 선택하기 전에는 집계 컨트롤이 비활성화됩니다.",
+      "reviewed_translation": "사용 가능한 재정의는 열의 값과 역할에 따라 달라집니다. 수치 측정값에는 평균, 중앙값, 합계, 최솟값, 최댓값, 개수 등의 호환 선택지가 있습니다. 텍스트에는 처음/마지막 값, 개수, 고유값 개수 등이 있으며, 불리언 데이터는 **하나 이상**과 **all**도 지원합니다. **count**는 결측이 아닌 값의 수를 셉니다. 기본 일대일 행은 그대로 연결되므로, 사용자 지정 병합을 선택하기 전에는 집계 컨트롤이 비활성화됩니다.",
+      "ui_bindings": {
+        "any": "하나 이상"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Customize an alternative schema",
+      "source_sha256": "40c5a0d561073a633ebfc4c0b5111516141bf0b2d2c67149bb97cce732829303",
+      "original_ai_draft": "다른 스키마에 맞게 사용자 지정",
+      "reviewed_translation": "다른 스키마에 맞게 사용자 지정",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Customize merging** when the database uses different table names, identifiers or deliberately different relationships. Choose the base and child tables in the main popup first. Mapping their actual columns does not rename or modify the source tables.",
+      "source_sha256": "833529de728577eb88cbbadcfbf9fc31472e2b723dc070157c789e3183b4f5f7",
+      "original_ai_draft": "데이터베이스가 다른 테이블 이름이나 식별자를 사용하거나 의도적으로 다른 관계를 사용한다면 **융합을 만드는 방법**을 선택합니다. 먼저 기본 팝업에서 기준 테이블과 하위 테이블을 선택하세요. 실제 열을 매핑해도 원본 테이블의 이름이나 내용은 바뀌지 않습니다.",
+      "reviewed_translation": "데이터베이스가 다른 테이블 이름이나 식별자를 사용하거나 의도적으로 다른 관계를 사용한다면 **병합 사용자 지정**을 선택합니다. 먼저 기본 팝업에서 기준 테이블과 하위 테이블을 선택하세요. 실제 열을 매핑해도 원본 테이블의 이름이나 내용은 바뀌지 않습니다.",
+      "ui_bindings": {
+        "Customize merging": "병합 사용자 지정"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The warning explains that incorrect relationships can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Read it and check **I understand the warning and will check the merge preview.** before accepting the custom settings. Acknowledgment does not bypass validation.",
+      "source_sha256": "93c1ec840f46fb19b804a98a60fee9aad5a21c1b4bef8c4458e697440f6b95c0",
+      "original_ai_draft": "경고문은 잘못된 관계가 무관한 객체를 연결하거나 관측값을 중복·누락시키고, 그래프와 게이트에 쓰이는 측정값을 바꿀 수 있다고 설명합니다. 이를 읽고 **나는 경고를 이해하고 조합 예보를 확인합니다.**를 체크한 뒤 사용자 지정 설정을 수락하세요. 경고를 확인해도 검증을 건너뛰지 않습니다.",
+      "reviewed_translation": "경고문은 잘못된 관계가 무관한 객체를 연결하거나 관측값을 중복·누락시키고, 그래프와 게이트에 쓰이는 측정값을 바꿀 수 있다고 설명합니다. 이를 읽고 **경고를 이해했으며 병합 미리보기를 확인하겠습니다.**를 체크한 뒤 사용자 지정 설정을 수락하세요. 경고를 확인해도 검증을 건너뛰지 않습니다.",
+      "ui_bindings": {
+        "I understand the warning and will check the merge preview.": "경고를 이해했으며 병합 미리보기를 확인하겠습니다."
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Base observation keys** identify one unique, nonmissing base row. Include field and time columns when IDs repeat across images or timepoints.",
+      "source_sha256": "6976d56c448e4039af698b1eb63a1c596e5cf1af195e54b6840d378dd03fb5e4",
+      "original_ai_draft": "**기본 관찰 키**는 결측이 없는 유일한 기준 행 하나를 식별합니다. 이미지나 시점마다 ID가 반복된다면 시야와 시간 열을 포함하세요.",
+      "reviewed_translation": "**기본 관찰 키**는 결측이 없는 유일한 기준 행 하나를 식별합니다. 이미지나 시점마다 ID가 반복된다면 시야와 시간 열을 포함하세요.",
+      "ui_bindings": {
+        "Base observation keys": "기본 관찰 키"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Each child row in the configuration specifies **Base keys** and **Child keys**. Enter comma-separated column names in matching order. For example, base ``image_id, cell_id`` can map to child ``image_id, parent_cell_id``.",
+      "source_sha256": "bbfecc3225fb288fb99962e7ac85e4432f95552eef50b236949e18f4226fa57c",
+      "original_ai_draft": "설정의 각 하위 테이블 행에는 **기본 키**와 **어린이 열쇠**를 지정합니다. 서로 대응하는 순서대로 쉼표로 구분한 열 이름을 입력합니다. 예를 들어 기준 ``image_id, cell_id``를 하위 ``image_id, parent_cell_id``에 매핑할 수 있습니다.",
+      "reviewed_translation": "설정의 각 하위 테이블 행에는 **기본 키**와 **하위 키**를 지정합니다. 서로 대응하는 순서대로 쉼표로 구분한 열 이름을 입력합니다. 예를 들어 기준 ``image_id, cell_id``를 하위 ``image_id, parent_cell_id``에 매핑할 수 있습니다.",
+      "ui_bindings": {
+        "Base keys": "기본 키",
+        "Child keys": "하위 키"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **one-to-one** when at most one child row belongs to each base key, or **one-to-many** when several child rows must first be aggregated.",
+      "source_sha256": "62d0b5ef44badd8da475cfe794a297afe6cc46f48379fdd24e31c3c9ee1c9dbe",
+      "original_ai_draft": "각 기준 키에 하위 행이 최대 하나만 속하면 **one-to-one**을, 여러 하위 행을 먼저 집계해야 하면 **one-to-many**를 선택합니다.",
+      "reviewed_translation": "각 기준 키에 하위 행이 최대 하나만 속하면 **one-to-one**을, 여러 하위 행을 먼저 집계해야 하면 **one-to-many**를 선택합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A **left** join keeps unmatched base observations with missing child measurements. An **inner** join retains only matching observations. Child rows with missing join keys do not match a base row.",
+      "source_sha256": "1486c2a942521198b467ee39b02b071bccd53548ae60f1fee9b659298cffc5ad",
+      "original_ai_draft": "**왼쪽** 조인은 일치하지 않는 기준 관측값도 유지하며 하위 측정값은 결측으로 둡니다. **inner** 조인은 일치하는 관측값만 유지합니다. 조인 키가 누락된 하위 행은 기준 행과 일치하지 않습니다.",
+      "reviewed_translation": "**왼쪽** 조인은 일치하지 않는 기준 관측값도 유지하며 하위 측정값은 결측으로 둡니다. **inner** 조인은 일치하는 관측값만 유지합니다. 조인 키가 누락된 하위 행은 기준 행과 일치하지 않습니다.",
+      "ui_bindings": {
+        "left": "왼쪽"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Identifiers** to identify additional child columns that must not be treated as continuous measurements. Review the per-column aggregation controls in the main popup after accepting the mapping.",
+      "source_sha256": "6fd72e9f8d2b2823b8ab7a5ad2d78dbd9158a642dacb6d11d6df95049f4ac4bf",
+      "original_ai_draft": "연속형 측정값으로 취급하면 안 되는 추가 하위 열은 **식별자**로 지정합니다. 매핑을 수락한 후 기본 팝업에서 열별 집계 컨트롤을 검토하세요.",
+      "reviewed_translation": "연속형 측정값으로 취급하면 안 되는 추가 하위 열은 **식별자**로 지정합니다. 매핑을 수락한 후 기본 팝업에서 열별 집계 컨트롤을 검토하세요.",
+      "ui_bindings": {
+        "Identifiers": "식별자"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The popup now says **Custom rules active**. Validate and inspect the preview before creating the result. Duplicate base identities, contradictory one-to-one mappings, missing keys and incompatible operations produce an error. Repeated child keys can be expected in a one-to-many relationship; they require investigation when the relationship is supposed to be one-to-one.",
+      "source_sha256": "556a8db14dc1ba6072d35196fc4e92aba0b7f107132eaf80b35e679bd7bfdf40",
+      "original_ai_draft": "팝업에 이제 **Custom rules active**가 표시됩니다. 결과를 만들기 전에 검증하고 미리보기를 확인하세요. 중복된 기준 식별자, 모순되는 일대일 매핑, 누락된 키, 호환되지 않는 연산은 오류를 발생시킵니다. 일대다 관계에서는 하위 키의 반복이 예상될 수 있지만, 일대일이어야 하는 관계라면 조사해야 합니다.",
+      "reviewed_translation": "팝업에 이제 **Custom rules active**가 표시됩니다. 결과를 만들기 전에 검증하고 미리보기를 확인하세요. 중복된 기준 식별자, 모순되는 일대일 매핑, 누락된 키, 호환되지 않는 연산은 오류를 발생시킵니다. 일대다 관계에서는 하위 키의 반복이 예상될 수 있지만, 일대일이어야 하는 관계라면 조사해야 합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults.",
+      "source_sha256": "e95f449d9a1453cd18642ceab6945c1d66b8a044b3cf648a2c97f9b820954e54",
+      "original_ai_draft": "**취소**은 이전 설정을 그대로 유지합니다. **spaCR 가짜로 다시 설정**는 사용자 지정 관계와 재정의를 제거합니다. 원본이나 출력 테이블을 변경해도 기본값이 다시 구성됩니다.",
+      "reviewed_translation": "**취소**는 이전 설정을 그대로 유지합니다. **spaCR 기본값으로 재설정**은 사용자 지정 관계와 재정의를 제거합니다. 원본이나 출력 테이블을 변경해도 기본값이 다시 구성됩니다.",
+      "ui_bindings": {
+        "Cancel": "취소",
+        "Reset to spaCR defaults": "spaCR 기본값으로 재설정"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use, save and reload the result",
+      "source_sha256": "1b7458342f06a25b368a2b0c5649b7231b53eced379e53e1b58722ff7ebb067d",
+      "original_ai_draft": "결과 사용, 저장, 다시 불러오기",
+      "reviewed_translation": "결과 사용, 저장, 다시 불러오기",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table.",
+      "source_sha256": "c8b0a9df5e61aeb785e2e14f04ca441b4e28bd1b7d3020049018dc6363203c7c",
+      "original_ai_draft": "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction``과 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다.",
+      "reviewed_translation": "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction``과 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources.",
+      "source_sha256": "139b41870785e8b538921aed9433412adf50acca4fdd985e680417761945cdc9",
+      "original_ai_draft": "이름이 있는 정의는 데이터베이스 옆에 저장됩니다. ``measurements.db``의 경우 파일은 ``measurements.db.spacr-merges.json``입니다. 원본을 새로 고치거나 다시 열면 결과를 다시 사용할 수 있으며 원본에서 재계산합니다. 이는 재현 가능한 레시피이지, 모든 결과 행을 고정한 복사본이 아닙니다. 재사용 시 원본 경로와 선택된 테이블의 스키마를 확인합니다. 다른 데이터베이스나 변경된 스키마에는 새로 검토한 매핑이 필요하며, 무관한 원본에 정의를 조용히 적용하지 않습니다.",
+      "reviewed_translation": "이름이 있는 정의는 데이터베이스 옆에 저장됩니다. ``measurements.db``의 경우 파일은 ``measurements.db.spacr-merges.json``입니다. 원본을 새로 고치거나 다시 열면 결과를 다시 사용할 수 있으며 원본에서 재계산합니다. 이는 재현 가능한 레시피이지, 모든 결과 행을 고정한 복사본이 아닙니다. 재사용 시 원본 경로와 선택된 테이블의 스키마를 확인합니다. 다른 데이터베이스나 변경된 스키마에는 새로 검토한 매핑이 필요하며, 무관한 원본에 정의를 조용히 적용하지 않습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Save chart** in Graph Builder saves chart channels, the source and the full merge definition to JSON. **Load chart** reconstructs and validates the table before plotting. **Save gates…** also embeds the merge definition; load the original database before using **Load gates…**. These saved files can reconstruct the merge even if its sidecar is missing. They still require the original source data.",
+      "source_sha256": "deca8d86ecde7ec405e14983b00669c0902584316c5947497a3244cbde963590",
+      "original_ai_draft": "Graph Builder의 **그래픽을 저장하세요**는 차트 채널, 원본, 전체 병합 정의를 JSON에 저장합니다. **카드 충전**는 그래프를 그리기 전에 테이블을 재구성하고 검증합니다. **게이트 저장…**에도 병합 정의가 포함됩니다. **게이트 불러오기…**를 사용하기 전에 원래 데이터베이스를 불러오세요. 이 저장 파일들은 사이드카 파일이 없어도 병합을 재구성할 수 있지만, 원본 데이터는 여전히 필요합니다.",
+      "reviewed_translation": "Graph Builder의 **차트 저장**은 차트 채널, 원본, 전체 병합 정의를 JSON에 저장합니다. **차트 불러오기**는 그래프를 그리기 전에 테이블을 재구성하고 검증합니다. **게이트 저장…**에도 병합 정의가 포함됩니다. **게이트 불러오기…**를 사용하기 전에 원래 데이터베이스를 불러오세요. 이 저장 파일들은 사이드카 파일이 없어도 병합을 재구성할 수 있지만, 원본 데이터는 여전히 필요합니다.",
+      "ui_bindings": {
+        "Save chart": "차트 저장",
+        "Load chart": "차트 불러오기",
+        "Save gates…": "게이트 저장…",
+        "Load gates…": "게이트 불러오기…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export gates…** writes gate membership columns to the database's ``filters`` table, preserving the base object's identity. This explicit export is a database write; constructing and previewing a merge does not write into the source measurement tables. **Save graph** exports the Gate Editor figure as PNG or PDF, separately from saving its gating strategy.",
+      "source_sha256": "9f34e2594ebf0b5b3803d71fd46ba15a78b4067f83b445d2d206e57ff79b7c48",
+      "original_ai_draft": "**게이트 내보내기…**는 기준 객체의 식별자를 유지하면서 데이터베이스의 ``filters`` 테이블에 게이트 소속 열을 씁니다. 이 명시적 내보내기는 데이터베이스 쓰기 작업입니다. 병합을 구성하고 미리보는 작업은 원본 측정 테이블에 쓰지 않습니다. **그래프 저장**는 게이팅 전략 저장과 별개로 Gate Editor 그림을 PNG 또는 PDF로 내보냅니다.",
+      "reviewed_translation": "**게이트 내보내기…**는 기준 객체의 식별자를 유지하면서 데이터베이스의 ``filters`` 테이블에 게이트 소속 열을 씁니다. 이 명시적 내보내기는 데이터베이스 쓰기 작업입니다. 병합을 구성하고 미리보는 작업은 원본 측정 테이블에 쓰지 않습니다. **그래프 저장**은 게이팅 전략 저장과 별개로 Gate Editor 그림을 PNG 또는 PDF로 내보냅니다.",
+      "ui_bindings": {
+        "Export gates…": "게이트 내보내기…",
+        "Save graph": "그래프 저장"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A custom result without verified spaCR image/object provenance remains usable for plotting and tabular gating. Image navigation, image annotation and gate export to the measurement database are unavailable for that result, with an explanation in the interface. Keep the saved chart or gating strategy for tabular reuse; column names alone cannot establish links to microscopy objects.",
+      "source_sha256": "889465c090a74781306176ec78cbd8c35976890b204b2b44b391645194874d68",
+      "original_ai_draft": "검증된 spaCR 이미지/객체 출처 정보가 없는 사용자 지정 결과도 그래프와 표 기반 게이팅에 사용할 수 있습니다. 해당 결과에서는 이미지 탐색, 이미지 주석, 측정 데이터베이스로의 게이트 내보내기를 사용할 수 없으며 인터페이스에 이유가 표시됩니다. 표 기반 재사용을 위해 차트나 게이팅 전략을 저장하세요. 열 이름만으로 현미경 객체와의 연결을 확인할 수는 없습니다.",
+      "reviewed_translation": "검증된 spaCR 이미지/객체 출처 정보가 없는 사용자 지정 결과도 그래프와 표 기반 게이팅에 사용할 수 있습니다. 해당 결과에서는 이미지 탐색, 이미지 주석, 측정 데이터베이스로의 게이트 내보내기를 사용할 수 없으며 인터페이스에 이유가 표시됩니다. 표 기반 재사용을 위해 차트나 게이팅 전략을 저장하세요. 열 이름만으로 현미경 객체와의 연결을 확인할 수는 없습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Recover original filenames before labelling conditions",
+      "source_sha256": "3a46efccb6b5e1c3b23f2b7a82b92b1255153a3441a2bff0fafae77b27c5e8f9",
+      "original_ai_draft": "조건 레이블 지정 전에 원본 파일명 복구",
+      "reviewed_translation": "조건 레이블 지정 전에 원본 파일명 복구",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images.",
+      "source_sha256": "0c6ea6663bf8ab0b8a76f9fc0220f13cb5fbea99cfc28842f075bd78f27d6a3a",
+      "original_ai_draft": "이미지가 Yokogawa 형식으로 바뀌었다면 **혼합 테이블** 안의 **원래 필리핀을 만들기 위해...**를 사용하여 변환 시 기록된 이름을 복구합니다. ``conversion_map.csv``, 이전 형식의 ``rename_log.csv``, ``channel_sorting_manifest.csv``, 또는 ``conversion_map`` 테이블이 있는 SQLite 데이터베이스를 선택합니다. 측정 데이터베이스 옆이나 상위 폴더에서 알려진 매핑을 찾으면 파일 선택기가 그 근처에서 열립니다. 매핑에는 기록된 원본-출력 관계가 있어야 합니다. 이 작업은 변경된 이미지 이름에서 처리 조건 이름을 추론하지 않습니다.",
+      "reviewed_translation": "이미지가 Yokogawa 형식으로 바뀌었다면 **원본 파일명 병합…** 안의 **테이블 병합**을 사용하여 변환 시 기록된 이름을 복구합니다. ``conversion_map.csv``, 이전 형식의 ``rename_log.csv``, ``channel_sorting_manifest.csv``, 또는 ``conversion_map`` 테이블이 있는 SQLite 데이터베이스를 선택합니다. 측정 데이터베이스 옆이나 상위 폴더에서 알려진 매핑을 찾으면 파일 선택기가 그 근처에서 열립니다. 매핑에는 기록된 원본-출력 관계가 있어야 합니다. 이 작업은 변경된 이미지 이름에서 처리 조건 이름을 추론하지 않습니다.",
+      "ui_bindings": {
+        "Merge original filenames…": "원본 파일명 병합…",
+        "Merge tables": "테이블 병합"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations.",
+      "source_sha256": "7ff200bcee646dfee5be676b9d7ee53970d6c23472607418c743c94792e44826",
+      "original_ai_draft": "파일명 메타데이터만 필요하다면 주석을 추가할 테이블 하나만 선택합니다. spaCR 객체 ID가 없는 테이블도 모든 행과 기존 열을 그대로 유지합니다. 기존 병합 결과에서는 해당 병합 팝업을 열어 검토된 관계와 집계를 유지한 채 파일명 매핑을 추가합니다. 원본 테이블을 여러 개 선택하면 먼저 측정값을 병합하고, 그 결과 관측값에 원본 이름을 연결합니다.",
+      "reviewed_translation": "파일명 메타데이터만 필요하다면 주석을 추가할 테이블 하나만 선택합니다. spaCR 객체 ID가 없는 테이블도 모든 행과 기존 열을 그대로 유지합니다. 기존 병합 결과에서는 해당 병합 팝업을 열어 검토된 관계와 집계를 유지한 채 파일명 매핑을 추가합니다. 원본 테이블을 여러 개 선택하면 먼저 측정값을 병합하고, 그 결과 관측값에 원본 이름을 연결합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Merge original filenames…** and select the mapping.",
+      "source_sha256": "5d44468e33b05e15ec11b7a583e040485cd2676d214ef24b1adac551a95bddf9",
+      "original_ai_draft": "**원래 필리핀을 만들기 위해...**를 누르고 매핑을 선택합니다.",
+      "reviewed_translation": "**원본 파일명 병합…**을 누르고 매핑을 선택합니다.",
+      "ui_bindings": {
+        "Merge original filenames…": "원본 파일명 병합…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Set a new **Result name**, then press **Validate and preview**.",
+      "source_sha256": "f503607c91c854729d51e0e3fc13dd0dd3a4cd2c9e1d75a834d21294d1406421",
+      "original_ai_draft": "새 **결과 이름**을 설정한 다음 **인증 및 사전 검토**를 누릅니다.",
+      "reviewed_translation": "새 **결과 이름**을 설정한 다음 **검증 및 미리보기**를 누릅니다.",
+      "ui_bindings": {
+        "Result name": "결과 이름",
+        "Validate and preview": "검증 및 미리보기"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect the matched and unmatched row counts and the preview's ``original_filename`` and ``original_path`` columns.",
+      "source_sha256": "9b1d07979afddd65757e0d9c95d0d89d04185ddbc080d2d5485bc5946483c54c",
+      "original_ai_draft": "일치한 행과 일치하지 않은 행의 수, 미리보기의 ``original_filename`` 및 ``original_path`` 열을 확인합니다.",
+      "reviewed_translation": "일치한 행과 일치하지 않은 행의 수, 미리보기의 ``original_filename`` 및 ``original_path`` 열을 확인합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table**, then open **Annotate conditions** and choose ``original_filename`` as a rule's metadata column.",
+      "source_sha256": "43239788ae988d04aa28a76161dd92d004db537efcac89a247d06a07bdd64bb4",
+      "original_ai_draft": "**혼합 테이블 만들기**을 누른 다음 **명시된 조건**를 열고, 규칙의 메타데이터 열로 ``original_filename``을 선택합니다.",
+      "reviewed_translation": "**병합 테이블 만들기**를 누른 다음 **조건 주석 추가**를 열고, 규칙의 메타데이터 열로 ``original_filename``을 선택합니다.",
+      "ui_bindings": {
+        "Create merged table": "병합 테이블 만들기",
+        "Annotate conditions": "조건 주석 추가"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several channels or z-planes belonging to one field produce a sorted, deduplicated list separated by a semicolon and a space in the new columns. They do not multiply the table's observations. Plate and timepoint identities remain distinct; ambiguous or conflicting identities cause validation to fail. Unmatched names remain blank. Existing ``original_filename`` or ``original_path`` columns are preserved by refusing to overwrite them.",
+      "source_sha256": "085e6e107eece91b01fa51ab6a5ccd61bf2255cd46e8119f7c74fccc6dc9c89c",
+      "original_ai_draft": "한 시야에 속한 여러 채널 또는 z 평면의 이름은 정렬하고 중복을 제거한 뒤 세미콜론과 공백으로 구분하여 새 열에 넣습니다. 이로 인해 테이블의 관측값 수가 늘어나지는 않습니다. 플레이트와 시점의 식별자는 구분되며, 모호하거나 충돌하는 식별자는 검증 실패를 일으킵니다. 일치하지 않는 이름은 빈칸으로 남습니다. 기존 ``original_filename`` 또는 ``original_path`` 열은 덮어쓰기를 거부하여 보존합니다.",
+      "reviewed_translation": "한 시야에 속한 여러 채널 또는 z 평면의 이름은 정렬하고 중복을 제거한 뒤 세미콜론과 공백으로 구분하여 새 열에 넣습니다. 이로 인해 테이블의 관측값 수가 늘어나지는 않습니다. 플레이트와 시점의 식별자는 구분되며, 모호하거나 충돌하는 식별자는 검증 실패를 일으킵니다. 일치하지 않는 이름은 빈칸으로 남습니다. 기존 ``original_filename`` 또는 ``original_path`` 열은 덮어쓰기를 거부하여 보존합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``original_path`` is the path recorded in the mapping; the original files need not still exist at that location. Image files and source measurement tables are never renamed or rewritten by this action. Adding filename text does not establish missing microscopy object provenance.",
+      "source_sha256": "365f83e58365391aa025c350de7675c3cc7b538faf62fff04a75d46f2e62a32f",
+      "original_ai_draft": "``original_path``는 매핑에 기록된 경로이며, 원본 파일이 지금도 그 위치에 있을 필요는 없습니다. 이 작업은 이미지 파일이나 원본 측정 테이블의 이름을 바꾸거나 내용을 다시 쓰지 않습니다. 파일명 텍스트를 추가해도 누락된 현미경 객체 출처 정보가 생기지는 않습니다.",
+      "reviewed_translation": "``original_path``는 매핑에 기록된 경로이며, 원본 파일이 지금도 그 위치에 있을 필요는 없습니다. 이 작업은 이미지 파일이나 원본 측정 테이블의 이름을 바꾸거나 내용을 다시 쓰지 않습니다. 파일명 텍스트를 추가해도 누락된 현미경 객체 출처 정보가 생기지는 않습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping.",
+      "source_sha256": "09c2a48f61321ed6edd6760cbfc35dc2fb3c291c56a251c5536e1aff3a906d3f",
+      "original_ai_draft": "저장된 병합에는 매핑의 위치와 내용 체크섬이 기록됩니다. 병합이나 차트를 다시 열려면 매핑이 변경되지 않은 채 사용 가능해야 합니다. 데이터베이스에 포함된 ``conversion_map`` 테이블의 경우, 다른 테이블에 대한 무관한 변경은 매핑을 무효화하지 않습니다. 매핑이 바뀌면 다시 선택하고 새 결과를 검증한 뒤 적용하세요. **Filename Mapping 삭제**은 파일을 삭제하지 않고 초안에서 추가 정보를 제거합니다. **spaCR 가짜로 다시 설정**도 매핑을 지웁니다.",
+      "reviewed_translation": "저장된 병합에는 매핑의 위치와 내용 체크섬이 기록됩니다. 병합이나 차트를 다시 열려면 매핑이 변경되지 않은 채 사용 가능해야 합니다. 데이터베이스에 포함된 ``conversion_map`` 테이블의 경우, 다른 테이블에 대한 무관한 변경은 매핑을 무효화하지 않습니다. 매핑이 바뀌면 다시 선택하고 새 결과를 검증한 뒤 적용하세요. **파일명 매핑 제거**는 파일을 삭제하지 않고 초안에서 추가 정보를 제거합니다. **spaCR 기본값으로 재설정**도 매핑을 지웁니다.",
+      "ui_bindings": {
+        "Remove filename mapping": "파일명 매핑 제거",
+        "Reset to spaCR defaults": "spaCR 기본값으로 재설정"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Annotate experimental conditions in Graph Builder",
+      "source_sha256": "006a60c49e2f3ebd422d545c4520cfd6e76286277d1aa7d4387f721ae53082bd",
+      "original_ai_draft": "Graph Builder에서 실험 조건 주석 추가",
+      "reviewed_translation": "Graph Builder에서 실험 조건 주석 추가",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Annotate conditions** adds annotation columns to the working table in Graph Builder. It works with a physical database table, a named derived table or an imported CSV/TSV. Use rules to assign labels or extract variable metadata, then compose a final column from those values. Every generated column is retained. These table operations do not require image links or write image annotations.",
+      "source_sha256": "1b49041603233ce97eb2a2ab884993688fae4a9f587f655167ec039055c517e2",
+      "original_ai_draft": "**명시된 조건**는 Graph Builder의 작업 테이블에 주석 열을 추가합니다. 물리 데이터베이스 테이블, 이름이 있는 파생 테이블, 가져온 CSV/TSV에서 사용할 수 있습니다. 규칙으로 레이블을 지정하거나 가변 메타데이터를 추출한 뒤, 그 값들로 최종 열을 구성합니다. 생성된 모든 열은 유지됩니다. 이러한 테이블 작업에는 이미지 연결이 필요하지 않으며 이미지 주석을 쓰지 않습니다.",
+      "reviewed_translation": "**조건 주석 추가**는 Graph Builder의 작업 테이블에 주석 열을 추가합니다. 물리 데이터베이스 테이블, 이름이 있는 파생 테이블, 가져온 CSV/TSV에서 사용할 수 있습니다. 규칙으로 레이블을 지정하거나 가변 메타데이터를 추출한 뒤, 그 값들로 최종 열을 구성합니다. 생성된 모든 열은 유지됩니다. 이러한 테이블 작업에는 이미지 연결이 필요하지 않으며 이미지 주석을 쓰지 않습니다.",
+      "ui_bindings": {
+        "Annotate conditions": "조건 주석 추가"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced.",
+      "source_sha256": "4a32bd1f0d92f2459d4df173e183c348f2e9581a98362e84963a3191648511a1",
+      "original_ai_draft": "**명시된 조건**를 열고 **출력 컬러**의 이름을 지정한 뒤 **값을 할당**, **텍스트 추출**, **열 조합** 중 하나를 선택합니다. 기존 원본 열은 교체할 수 없습니다.",
+      "reviewed_translation": "**조건 주석 추가**를 열고 **출력 열**의 이름을 지정한 뒤 **값을 할당**, **텍스트 추출**, **열 조합** 중 하나를 선택합니다. 기존 원본 열은 교체할 수 없습니다.",
+      "ui_bindings": {
+        "Annotate conditions": "조건 주석 추가",
+        "Output column": "출력 열",
+        "Assign values": "값을 할당",
+        "Extract text": "텍스트 추출",
+        "Compose column": "열 조합"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together.",
+      "source_sha256": "d600b2e0cd6acd53d474b89475c2d7b0300de099f1c2ac89f12a636be910c448",
+      "original_ai_draft": "해당 출력의 값 지정 규칙, 텍스트 추출 또는 조합을 정의합니다. 다른 출력을 추가하려면 **콜럼 추가**을 사용합니다. 이름 있는 그룹을 사용한 정규식으로 여러 메타데이터 열을 한꺼번에 만들 수도 있습니다.",
+      "reviewed_translation": "해당 출력의 값 지정 규칙, 텍스트 추출 또는 조합을 정의합니다. 다른 출력을 추가하려면 **콜럼 추가**를 사용합니다. 이름 있는 그룹을 사용한 정규식으로 여러 메타데이터 열을 한꺼번에 만들 수도 있습니다.",
+      "ui_bindings": {
+        "Add column": "콜럼 추가"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect all generated values beside the source columns. **Preview assignments** reruns the check; edits also refresh the preview.",
+      "source_sha256": "d7253f2c56ddd51a733699ac4563652e09a249079fbec056c48aa67a69be3771",
+      "original_ai_draft": "원본 열 옆에서 생성된 모든 값을 확인합니다. **사전 임무**는 검사를 다시 실행하며, 편집해도 미리보기가 새로 고쳐집니다.",
+      "reviewed_translation": "원본 열 옆에서 생성된 모든 값을 확인합니다. **할당 미리보기**는 검사를 다시 실행하며, 편집해도 미리보기가 새로 고쳐집니다.",
+      "ui_bindings": {
+        "Preview assignments": "할당 미리보기"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Resolve invalid rules, missing dependencies and conflicting assignments, then choose **Apply conditions**. Every generated column becomes available for chart channels and filtering. **Cancel** discards the draft changes.",
+      "source_sha256": "a198951df0a1fa58526be496cfa21363ba324e0f4f66171072a66fa6135e726f",
+      "original_ai_draft": "유효하지 않은 규칙, 누락된 종속 열, 충돌하는 할당을 해결한 뒤 **조건을 적용하기**를 선택합니다. 생성된 모든 열을 차트 채널과 필터링에 사용할 수 있습니다. **취소**은 초안의 변경을 버립니다.",
+      "reviewed_translation": "유효하지 않은 규칙, 누락된 종속 열, 충돌하는 할당을 해결한 뒤 **조건을 적용하기**를 선택합니다. 생성된 모든 열을 차트 채널과 필터링에 사용할 수 있습니다. **취소**는 초안의 변경을 버립니다.",
+      "ui_bindings": {
+        "Apply conditions": "조건을 적용하기",
+        "Cancel": "취소"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extract several metadata columns from a filename",
+      "source_sha256": "476d39e97a580e88b3a49d978965b71f2fdc856c7442e91e64ba23b01a7e37ca",
+      "original_ai_draft": "파일명에서 여러 메타데이터 열 추출",
+      "reviewed_translation": "파일명에서 여러 메타데이터 열 추출",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Extract text** and select the source column, such as ``original_filename``. A regular expression extracts the matching text into the output column. Select a named or numbered capture group to choose which part of the match becomes the value.",
+      "source_sha256": "d4c480ab4bb730de91dd4f8405f968c1872a8f0c592155ce8b033e1d3c7cbbf5",
+      "original_ai_draft": "**텍스트 추출**를 선택하고 ``original_filename`` 같은 원본 열을 지정합니다. 정규식은 일치하는 텍스트를 출력 열로 추출합니다. 이름이나 번호로 캡처 그룹을 선택하여 일치 부분 중 어느 부분을 값으로 사용할지 지정합니다.",
+      "reviewed_translation": "**텍스트 추출**을 선택하고 ``original_filename`` 같은 원본 열을 지정합니다. 정규식은 일치하는 텍스트를 출력 열로 추출합니다. 이름이나 번호로 캡처 그룹을 선택하여 일치 부분 중 어느 부분을 값으로 사용할지 지정합니다.",
+      "ui_bindings": {
+        "Extract text": "텍스트 추출"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:",
+      "source_sha256": "a6f7fdde181aff092d27e510af111034b6c4d19902023cc8995d70ce9a118fef",
+      "original_ai_draft": "예를 들어 다음 패턴은 ``HeLa_rep2_24h_DMSO.tif``를 나타냅니다.",
+      "reviewed_translation": "예를 들어 다음 패턴은 ``HeLa_rep2_24h_DMSO.tif``를 나타냅니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named groups describe four output columns: ``cell_type``, ``replicate``, ``timepoint`` and ``drug``. **Create columns from named groups** creates these outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and ``DMSO``. Another matching filename produces its own values; they are not fixed labels copied from the example. Adapt the pattern to your own filenames and inspect the preview before applying it.",
+      "source_sha256": "004f0328bc2bbe334865d877a33f7e64bdc192c9eae469676db4b2fb9e183779",
+      "original_ai_draft": "이름 있는 그룹은 ``cell_type``, ``replicate``, ``timepoint``, ``drug``의 네 출력 열을 정의합니다. **이름 있는 캡처 그룹으로 열 만들기**는 이 출력들을 함께 만듭니다. 예시 행에서는 ``HeLa``, ``rep2``, ``24h``, ``DMSO``가 생성됩니다. 다른 일치 파일명에서는 그 파일명 자체의 값이 추출되며, 예시의 고정 레이블을 복사하지 않습니다. 실제 파일명에 맞게 패턴을 조정하고 적용 전에 미리보기를 확인하세요.",
+      "reviewed_translation": "이름 있는 그룹은 ``cell_type``, ``replicate``, ``timepoint``, ``drug``의 네 출력 열을 정의합니다. **이름 있는 캡처 그룹으로 열 만들기**는 이 출력들을 함께 만듭니다. 예시 행에서는 ``HeLa``, ``rep2``, ``24h``, ``DMSO``가 생성됩니다. 다른 일치 파일명에서는 그 파일명 자체의 값이 추출되며, 예시의 고정 레이블을 복사하지 않습니다. 실제 파일명에 맞게 패턴을 조정하고 적용 전에 미리보기를 확인하세요.",
+      "ui_bindings": {
+        "Create columns from named groups": "이름 있는 캡처 그룹으로 열 만들기"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extraction uses the first regex match. Nonmatching rows and missing or empty captures remain blank. Invalid patterns or capture groups stop the preview with an error. Existing source column names cannot be overwritten.",
+      "source_sha256": "a04b979f4cee9bd86c99ed6684537edee9df1b997763aa35c446d1660b256178",
+      "original_ai_draft": "추출은 첫 번째 정규식 일치를 사용합니다. 일치하지 않는 행과 누락되거나 비어 있는 캡처는 빈칸으로 남습니다. 잘못된 패턴이나 캡처 그룹은 오류를 표시하고 미리보기를 중단합니다. 기존 원본 열 이름은 덮어쓸 수 없습니다.",
+      "reviewed_translation": "추출은 첫 번째 정규식 일치를 사용합니다. 일치하지 않는 행과 누락되거나 비어 있는 캡처는 빈칸으로 남습니다. 잘못된 패턴이나 캡처 그룹은 오류를 표시하고 미리보기를 중단합니다. 기존 원본 열 이름은 덮어쓸 수 없습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assign values with readable rules",
+      "source_sha256": "4132ee4b18bbebb48df948025243b3f26096207971c21fcf6cb611c7adcb18db",
+      "original_ai_draft": "읽기 쉬운 규칙으로 값 지정",
+      "reviewed_translation": "읽기 쉬운 규칙으로 값 지정",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string.",
+      "source_sha256": "1611d19f699daa929a7ec862c34b2265a23e8ce4c615d3073b767f700df730db",
+      "original_ai_draft": "일치하는 행에 ``WildType`` 또는 ``control``처럼 직접 입력한 값을 지정하려면 **값을 할당**를 선택합니다. 각 규칙에서 열, 연산자, 비교 값을 선택합니다. 연산자에는 포함, 미포함, 같음, 같지 않음, 접두사 일치, 접미사 일치, 정규식 일치가 있습니다. 텍스트 연산자는 문장부호를 문자 그대로 해석하고, 정규식 연산자는 패턴으로 해석합니다. 일치는 대소문자를 구분합니다. 포함, 접두사, 접미사, 정규식 조건에는 비어 있지 않은 텍스트가 필요합니다. 결측이 아닌 모든 텍스트와 일치시키려면 명시적인 ``.*`` 정규식을 사용하고, 실제 빈 문자열과 일치시키려면 빈 값을 사용하는 같음 조건을 쓰세요.",
+      "reviewed_translation": "일치하는 행에 ``WildType`` 또는 ``control``처럼 직접 입력한 값을 지정하려면 **값을 할당**을 선택합니다. 각 규칙에서 열, 연산자, 비교 값을 선택합니다. 연산자에는 포함, 미포함, 같음, 같지 않음, 접두사 일치, 접미사 일치, 정규식 일치가 있습니다. 텍스트 연산자는 문장부호를 문자 그대로 해석하고, 정규식 연산자는 패턴으로 해석합니다. 일치는 대소문자를 구분합니다. 포함, 접두사, 접미사, 정규식 조건에는 비어 있지 않은 텍스트가 필요합니다. 결측이 아닌 모든 텍스트와 일치시키려면 명시적인 ``.*`` 정규식을 사용하고, 실제 빈 문자열과 일치시키려면 빈 값을 사용하는 같음 조건을 쓰세요.",
+      "ui_bindings": {
+        "Assign values": "값을 할당"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly.",
+      "source_sha256": "c6ddd59741adfc48ac2ecc42955d17b0fcf1c81d0c3bb083d34697b1cdf082b9",
+      "original_ai_draft": "모든 조건이 일치해야 한다면 **모든 규칙이 일치함**를, 하나 이상 일치하면 된다면 **하나 이상의 규칙이 일치함**를 선택합니다. 조건들은 서로 다른 원본 열이나 앞서 생성된 열을 검사할 수 있습니다. 예를 들어 ``drug``가 ``DMSO``와 같고 ``cell_type``이 ``HeLa``와 같을 때 ``control``을 지정합니다. 원본 값이 결측이면 부정 조건도 충족하지 않습니다. 실제 빈 문자열은 하나의 값이며 명시적으로 일치시킬 수 있습니다.",
+      "reviewed_translation": "모든 조건이 일치해야 한다면 **모든 규칙이 일치함**을, 하나 이상 일치하면 된다면 **하나 이상의 규칙이 일치함**을 선택합니다. 조건들은 서로 다른 원본 열이나 앞서 생성된 열을 검사할 수 있습니다. 예를 들어 ``drug``가 ``DMSO``와 같고 ``cell_type``이 ``HeLa``와 같을 때 ``control``을 지정합니다. 원본 값이 결측이면 부정 조건도 충족하지 않습니다. 실제 빈 문자열은 하나의 값이며 명시적으로 일치시킬 수 있습니다.",
+      "ui_bindings": {
+        "all rules match": "모든 규칙이 일치함",
+        "any rule matches": "하나 이상의 규칙이 일치함"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several rules may assign the same value without a conflict. Different values assigned to one row in the same output column require resolution before Apply.",
+      "source_sha256": "cddbbee8852ac03aeceb6bf603d28d63c31edcbe6b7513ff3c94d485bbb1d21b",
+      "original_ai_draft": "여러 규칙이 같은 값을 지정하면 충돌하지 않습니다. 같은 출력 열의 한 행에 서로 다른 값이 지정되면 적용 전에 해결해야 합니다.",
+      "reviewed_translation": "여러 규칙이 같은 값을 지정하면 충돌하지 않습니다. 같은 출력 열의 한 행에 서로 다른 값이 지정되면 적용 전에 해결해야 합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Compose the final column",
+      "source_sha256": "1c3880c4d0e3f3987f658796eb6ef3a523dae94144ed167c54dd532f97382f1f",
+      "original_ai_draft": "최종 열 구성",
+      "reviewed_translation": "최종 열 구성",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Add an output column, name it ``condition`` or another name you choose, and select **Compose column**. Drag available columns into the composition field. Drag its tokens to change their order. Insert fixed text to add separators, prefixes or words between the values.",
+      "source_sha256": "c49ff5c82c4a5fe0a5a2d85f4bc13c1ac229783a45f63eaeecde25a8c57f476d",
+      "original_ai_draft": "출력 열을 추가하고 ``condition`` 또는 원하는 이름을 지정한 뒤 **열 조합**을 선택합니다. 사용 가능한 열을 조합 필드로 드래그합니다. 토큰을 드래그하여 순서를 바꿉니다. 값 사이에 구분자, 접두사, 단어를 넣으려면 고정 텍스트를 삽입합니다.",
+      "reviewed_translation": "출력 열을 추가하고 ``condition`` 또는 원하는 이름을 지정한 뒤 **열 조합**을 선택합니다. 사용 가능한 열을 조합 필드로 드래그합니다. 토큰을 드래그하여 순서를 바꿉니다. 값 사이에 구분자, 접두사, 단어를 넣으려면 고정 텍스트를 삽입합니다.",
+      "ui_bindings": {
+        "Compose column": "열 조합"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example above. Reordering the column tokens changes the result without changing their extraction rules. Fixed text is literal; it cannot execute code.",
+      "source_sha256": "8eac6582cfd0f986149e9bae1c298bbc5ac089bc808e178ba25c09fba3bd8ae0",
+      "original_ai_draft": "예를 들어 ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` 토큰은 위 예시에서 ``HeLa_rep2_24h_DMSO``를 생성합니다. 열 토큰의 순서를 바꾸면 추출 규칙은 그대로 두고 결과를 변경할 수 있습니다. 고정 텍스트는 문자 그대로 사용되며 코드를 실행할 수 없습니다.",
+      "reviewed_translation": "예를 들어 ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` 토큰은 위 예시에서 ``HeLa_rep2_24h_DMSO``를 생성합니다. 열 토큰의 순서를 바꾸면 추출 규칙은 그대로 두고 결과를 변경할 수 있습니다. 고정 텍스트는 문자 그대로 사용되며 코드를 실행할 수 없습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A composition can reference original source columns and earlier generated columns. A missing or empty column value leaves the composed value blank. The preview shows all intermediate columns and the final column together. Applying, exporting or saving a new SQLite table retains every generated column and the editable recipe. The original measurements remain unchanged.",
+      "source_sha256": "2ba90664638983dedd250700cc15f16503da22091b7a8bdd32a272cbc45bb97c",
+      "original_ai_draft": "조합은 원본 열과 앞서 생성된 열을 참조할 수 있습니다. 열 값이 누락되거나 비어 있으면 조합된 값도 빈칸으로 남습니다. 미리보기에는 모든 중간 열과 최종 열이 함께 표시됩니다. 적용, 내보내기, 새 SQLite 테이블 저장 시 모든 생성 열과 편집 가능한 레시피를 유지합니다. 원본 측정값은 변경되지 않습니다.",
+      "reviewed_translation": "조합은 원본 열과 앞서 생성된 열을 참조할 수 있습니다. 열 값이 누락되거나 비어 있으면 조합된 값도 빈칸으로 남습니다. 미리보기에는 모든 중간 열과 최종 열이 함께 표시됩니다. 적용, 내보내기, 새 SQLite 테이블 저장 시 모든 생성 열과 편집 가능한 레시피를 유지합니다. 원본 측정값은 변경되지 않습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Build genotype, replicate and a combined condition",
+      "source_sha256": "578338f38c061a12e58cbce9ed4ff96001c78a241abe8f0f70926f0837c310af",
+      "original_ai_draft": "유전자형, 반복 및 결합 조건 만들기",
+      "reviewed_translation": "유전자형, 반복 및 결합 조건 만들기",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Name the first **Output column** ``genotype`` and keep its mode set to **Assign values**. Use **Add condition** for its labels. Press **Add column** to create ``replicate`` with its own boxes. In each box, choose **Exact values** to enter lists of metadata values without writing a regular expression. For example:",
+      "source_sha256": "b40fba7d5641ac718af3e19c0085e92469608c8a8f30abd8d68407769c9bf50e",
+      "original_ai_draft": "첫 **출력 컬러**의 이름을 ``genotype``으로 지정하고 모드를 **값을 할당**로 유지합니다. 레이블에는 **조건 추가**을 사용합니다. **콜럼 추가**을 눌러 자체 상자들을 가진 ``replicate``를 만듭니다. 각 상자에서 **정확한 가치**를 선택하면 정규식을 작성하지 않고 메타데이터 값 목록을 입력할 수 있습니다. 예:",
+      "reviewed_translation": "첫 **출력 열**의 이름을 ``genotype``으로 지정하고 모드를 **값을 할당**으로 유지합니다. 레이블에는 **조건 추가**를 사용합니다. **콜럼 추가**를 눌러 자체 상자들을 가진 ``replicate``를 만듭니다. 각 상자에서 **정확한 값**을 선택하면 정규식을 작성하지 않고 메타데이터 값 목록을 입력할 수 있습니다. 예:",
+      "ui_bindings": {
+        "Output column": "출력 열",
+        "Assign values": "값을 할당",
+        "Add condition": "조건 추가",
+        "Add column": "콜럼 추가",
+        "Exact values": "정확한 값"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Example annotation rules",
+      "source_sha256": "7398a3452de45c41caaed97e175f51bc9c9986149be53b4e2ed786ec0036215f",
+      "original_ai_draft": "주석 규칙 예시",
+      "reviewed_translation": "주석 규칙 예시",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Output column",
+      "source_sha256": "20fbdf96eddc6805ac9af13d4ee1d4ec0e718a14be9604895cbbd23edf45b0fd",
+      "original_ai_draft": "출력 열",
+      "reviewed_translation": "출력 열",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Metadata column",
+      "source_sha256": "20a3552adc5b2b8a6472197eb105902fb6d0ff89454967bfef004188d99e3b2a",
+      "original_ai_draft": "메타데이터 열",
+      "reviewed_translation": "메타데이터 열",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Included values",
+      "source_sha256": "213cdb0d334027b9c678a9e6820813919fb14f543b211ac13ea3eb3d0bc636de",
+      "original_ai_draft": "포함할 값",
+      "reviewed_translation": "포함할 값",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assigned label",
+      "source_sha256": "8d27c73d75545e7f3aaf1fdacb9575b20fe0dedc3d40319fc0ce63e6f202c58d",
+      "original_ai_draft": "할당할 레이블",
+      "reviewed_translation": "할당할 레이블",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect. Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign the same label may select the same row; two different labels in one output column require a correction before applying. Each output column has its own assignments, so a row can have both a genotype and a replicate.",
+      "source_sha256": "bb480aa32277c86ce1a3383fb2ece9d92eb1055c500701999bcdd45fa5ad046c",
+      "original_ai_draft": "``c1,c1``이나 ``r7,r7`` 같은 반복 입력은 추가 효과가 없습니다. 정확한 일치는 ``c1``과 ``c10``을 구분합니다. 같은 레이블을 지정하는 두 규칙은 같은 행을 선택해도 되지만, 한 출력 열에서 서로 다른 두 레이블을 지정하면 적용 전에 수정해야 합니다. 출력 열마다 할당이 독립적이므로 한 행에 유전자형과 반복 레이블이 함께 있을 수 있습니다.",
+      "reviewed_translation": "``c1,c1``이나 ``r7,r7`` 같은 반복 입력은 추가 효과가 없습니다. 정확한 일치는 ``c1``과 ``c10``을 구분합니다. 같은 레이블을 지정하는 두 규칙은 같은 행을 선택해도 되지만, 한 출력 열에서 서로 다른 두 레이블을 지정하면 적용 전에 수정해야 합니다. 출력 열마다 할당이 독립적이므로 한 행에 유전자형과 반복 레이블이 함께 있을 수 있습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Add column**, name it ``condition``, and choose **Compose column**. Drag ``genotype`` into the composition field, insert a text token containing ``_``, then drag in ``replicate``. The token order determines the joining order. A row labelled ``WildType`` and ``replicate 1`` then receives ``WildType_replicate 1``. The label's space is retained. Column names, labels, component order and separator are editable; the example does not prescribe the names for your experiment.",
+      "source_sha256": "4acda61613512a79cf540fe0e7da2d200957329b04de0679281a5c43ba51265b",
+      "original_ai_draft": "**콜럼 추가**을 누르고 이름을 ``condition``으로 지정한 뒤 **열 조합**을 선택합니다. ``genotype``을 조합 필드로 드래그하고 ``_``가 들어 있는 텍스트 토큰을 삽입한 다음 ``replicate``를 드래그합니다. 토큰 순서가 연결 순서를 결정합니다. ``WildType``과 ``replicate 1``로 레이블된 행에는 ``WildType_replicate 1``이 지정됩니다. 레이블의 공백은 유지됩니다. 열 이름, 레이블, 구성 요소 순서, 구분자는 편집할 수 있습니다. 예시는 실험에서 사용할 이름을 강제하지 않습니다.",
+      "reviewed_translation": "**콜럼 추가**를 누르고 이름을 ``condition``으로 지정한 뒤 **열 조합**을 선택합니다. ``genotype``을 조합 필드로 드래그하고 ``_``가 들어 있는 텍스트 토큰을 삽입한 다음 ``replicate``를 드래그합니다. 토큰 순서가 연결 순서를 결정합니다. ``WildType``과 ``replicate 1``로 레이블된 행에는 ``WildType_replicate 1``이 지정됩니다. 레이블의 공백은 유지됩니다. 열 이름, 레이블, 구성 요소 순서, 구분자는 편집할 수 있습니다. 예시는 실험에서 사용할 이름을 강제하지 않습니다.",
+      "ui_bindings": {
+        "Add column": "콜럼 추가",
+        "Compose column": "열 조합"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe.",
+      "source_sha256": "a7e58cd6468d9491f0b796ed241248cae56102fe11062b9709ac5106bb11b40d",
+      "original_ai_draft": "조합 규칙은 원본 열이나 앞서 만든 주석 열을 사용할 수 있습니다. 종속되는 열은 열 순서에서 앞에 두세요. 구성 요소가 누락되면 결합 값은 빈칸으로 남으며 ``nan`` 같은 텍스트를 만들지 않습니다. 적용 전에 생성된 모든 열을 미리보세요. 차트 저장, 테이블 내보내기, 주석이 있는 새 SQLite 테이블 저장은 전체 레시피를 유지합니다.",
+      "reviewed_translation": "조합 규칙은 원본 열이나 앞서 만든 주석 열을 사용할 수 있습니다. 종속되는 열은 열 순서에서 앞에 두세요. 구성 요소가 누락되면 결합 값은 빈칸으로 남으며 ``nan`` 같은 텍스트를 만들지 않습니다. 적용 전에 생성된 모든 열을 미리보세요. 차트 저장, 테이블 내보내기, 주석이 있는 새 SQLite 테이블 저장은 전체 레시피를 유지합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rules and manual selection",
+      "source_sha256": "b2686f8c97e23d9160c1437c96e3ffdf0f7aef27396a8ecb07d80aac2e58be5c",
+      "original_ai_draft": "규칙과 수동 선택",
+      "reviewed_translation": "규칙과 수동 선택",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In **Assign values**, choose **Regular expression** in a condition box to use its Include and Exclude fields. Choose **Manual rows only** to assign only the rows you drop into that box, without a comparison rule.",
+      "source_sha256": "33bd26a475b9c1a4c1938ba81c27baa710a1c6be03f45b62f0d0483e5332a4dd",
+      "original_ai_draft": "**값을 할당**에서 조건 상자의 **정기적 표현**을 선택하면 Include와 Exclude 필드를 사용할 수 있습니다. **수동으로 할당한 행만**를 선택하면 비교 규칙 없이 해당 상자에 드롭한 행만 할당합니다.",
+      "reviewed_translation": "**값을 할당**에서 조건 상자의 **정규식**을 선택하면 Include와 Exclude 필드를 사용할 수 있습니다. **수동으로 할당한 행만**을 선택하면 비교 규칙 없이 해당 상자에 드롭한 행만 할당합니다.",
+      "ui_bindings": {
+        "Assign values": "값을 할당",
+        "Regular expression": "정규식",
+        "Manual rows only": "수동으로 할당한 행만"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically.",
+      "source_sha256": "f17bab0541d7173086b0e8010729a5c2f279fd14bf9e9c24bcba33bb75cbe5e7",
+      "original_ai_draft": "조건 상자 위의 **콜럼에 대한 예**은 선택한 열의 값을 바탕으로 복사 가능한 패턴을 제공합니다. 예시 유형을 선택하고 텍스트를 확인하거나 편집한 뒤 **레지크스 복사본**를 누르고, 조건의 **포함** 또는 **제외** 필드에 붙여 넣으세요. 예시를 복사해도 조건 규칙은 바뀌지 않습니다. 표본 값에 포함된 실제 문장부호는 자동으로 이스케이프됩니다.",
+      "reviewed_translation": "조건 상자 위의 **콜럼에 대한 예**는 선택한 열의 값을 바탕으로 복사 가능한 패턴을 제공합니다. 예시 유형을 선택하고 텍스트를 확인하거나 편집한 뒤 **정규식 복사**를 누르고, 조건의 **포함** 또는 **제외** 필드에 붙여 넣으세요. 예시를 복사해도 조건 규칙은 바뀌지 않습니다. 표본 값에 포함된 실제 문장부호는 자동으로 이스케이프됩니다.",
+      "ui_bindings": {
+        "Examples for column": "콜럼에 대한 예",
+        "Copy regex": "정규식 복사",
+        "Include": "포함",
+        "Exclude": "제외"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:",
+      "source_sha256": "0ec3d40be229cf507c39851a2a687873393c3e29b8e0838a1eeaa126bd92c120",
+      "original_ai_draft": "``drug_A_rep1.tif``와 ``control_rep1.tif`` 같은 원본 이름의 경우:",
+      "reviewed_translation": "``drug_A_rep1.tif``와 ``control_rep1.tif`` 같은 원본 이름의 경우:",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A|control`` matches either text.",
+      "source_sha256": "296e56b1058f15b74ae9b0af697f2061a0b664e1c4baf4392798df54070d8827",
+      "original_ai_draft": "``drug_A|control``은 두 텍스트 중 어느 하나와 일치합니다.",
+      "reviewed_translation": "``drug_A|control``은 두 텍스트 중 어느 하나와 일치합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A_rep.`` allows one character after ``rep``.",
+      "source_sha256": "9a7482eca5b9274a46f8fe27209c240fa10068755b4f908f473e3ec86da39f87",
+      "original_ai_draft": "``drug_A_rep.``은 ``rep`` 뒤에 문자 하나를 허용합니다.",
+      "reviewed_translation": "``drug_A_rep.``은 ``rep`` 뒤에 문자 하나를 허용합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A.*rep`` allows any intervening text, including none.",
+      "source_sha256": "ad9b2ba896fea76fbf1a28435722cf6b5d9bdc6bd527703c0ec1893548f6d60c",
+      "original_ai_draft": "``drug_A.*rep``은 두 부분 사이에 텍스트가 없거나 어떤 텍스트가 있어도 허용합니다.",
+      "reviewed_translation": "``drug_A.*rep``은 두 부분 사이에 텍스트가 없거나 어떤 텍스트가 있어도 허용합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``^drug_A_rep1\\.tif$`` matches that entire value.",
+      "source_sha256": "94037beb8a22bd708f5282468cc4d0c678a5aff5b9c73226f3716c57994fe6f0",
+      "original_ai_draft": "``^drug_A_rep1\\.tif$``는 해당 값 전체와 일치합니다.",
+      "reviewed_translation": "``^drug_A_rep1\\.tif$``는 해당 값 전체와 일치합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``(?i)drug_a`` ignores letter case.",
+      "source_sha256": "0afe46a5be8707706ace4be00e7d35cbbe2009bde4a5197b67cb4b24bd32338b",
+      "original_ai_draft": "``(?i)drug_a``는 대소문자를 구분하지 않습니다.",
+      "reviewed_translation": "``(?i)drug_a``는 대소문자를 구분하지 않습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use Include to select the group and Exclude to remove exceptions, such as Include ``drug_A`` with Exclude ``failed|outlier``. A filename column containing several original names separated by semicolons is searched as one string, so a contains pattern can match any recorded name; a whole-value anchor applies to the entire combined string.",
+      "source_sha256": "90fb96e0a62a5e60c9d04aa9656d84465242ab647c638c38191763f84345a68a",
+      "original_ai_draft": "Include로 그룹을 선택하고 Exclude로 예외를 제거하세요. 예를 들어 Include에는 ``drug_A``, Exclude에는 ``failed|outlier``를 사용합니다. 세미콜론으로 구분된 여러 원본 이름이 들어 있는 파일명 열은 하나의 문자열로 검색되므로, 포함 패턴은 기록된 어떤 이름과도 일치할 수 있습니다. 전체 값 앵커는 결합된 문자열 전체에 적용됩니다.",
+      "reviewed_translation": "Include로 그룹을 선택하고 Exclude로 예외를 제거하세요. 예를 들어 Include에는 ``drug_A``, Exclude에는 ``failed|outlier``를 사용합니다. 세미콜론으로 구분된 여러 원본 이름이 들어 있는 파일명 열은 하나의 문자열로 검색되므로, 포함 패턴은 기록된 어떤 이름과도 일치할 수 있습니다. 전체 값 앵커는 결합된 문자열 전체에 적용됩니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Patterns search the chosen column's displayed string values. They are case-sensitive unless the expression includes a flag such as ``(?i)``. Use anchors when the whole value must match: ``^A0[1-3]$`` selects wells ``A01``, ``A02`` and ``A03``. ``.*`` includes all nonmissing values in the chosen column. A blank Include expression selects no rows automatically.",
+      "source_sha256": "f741f84d7134a3217129b724f82b19ee8f27674185bf869515acd3c11123620c",
+      "original_ai_draft": "패턴은 선택한 열에 표시되는 문자열 값을 검색합니다. 표현식에 ``(?i)`` 같은 플래그가 없으면 대소문자를 구분합니다. 전체 값이 일치해야 할 때는 앵커를 사용하세요. ``^A0[1-3]$``는 웰 ``A01``, ``A02``, ``A03``을 선택합니다. ``.*``는 선택한 열의 결측이 아닌 모든 값을 포함합니다. 빈 Include 표현식은 어떤 행도 자동으로 선택하지 않습니다.",
+      "reviewed_translation": "패턴은 선택한 열에 표시되는 문자열 값을 검색합니다. 표현식에 ``(?i)`` 같은 플래그가 없으면 대소문자를 구분합니다. 전체 값이 일치해야 할 때는 앵커를 사용하세요. ``^A0[1-3]$``는 웰 ``A01``, ``A02``, ``A03``을 선택합니다. ``.*``는 선택한 열의 결측이 아닌 모든 값을 포함합니다. 빈 Include 표현식은 어떤 행도 자동으로 선택하지 않습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manual rows are added to the rows matched by Include. Exclude then removes matches from both sets, including rows you dropped manually. Missing metadata values do not match a regex; they can still be assigned manually.",
+      "source_sha256": "1a0f065d2fe082c441dca25faa0acfc82b6bef224b968f250857d0a4e64fa253",
+      "original_ai_draft": "수동 행은 Include가 일치시킨 행에 추가됩니다. 그런 다음 Exclude가 수동으로 드롭한 행을 포함한 두 집합 모두에서 일치하는 행을 제거합니다. 메타데이터 값이 결측이면 정규식과 일치하지 않지만, 수동으로는 할당할 수 있습니다.",
+      "reviewed_translation": "수동 행은 Include가 일치시킨 행에 추가됩니다. 그런 다음 Exclude가 수동으로 드롭한 행을 포함한 두 집합 모두에서 일치하는 행을 제거합니다. 메타데이터 값이 결측이면 정규식과 일치하지 않지만, 수동으로는 할당할 수 있습니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Select multiple rows in the source table and drag them into a condition box. Use Shift for a range and Ctrl/Cmd for individual rows. Sorting by a column or using **Filter source metadata or preview conditions** changes the visible view, while assignments still refer to the original source rows. The filter box is a case-insensitive text search, separate from the condition regex rules. Dropping a row twice into the same box does not duplicate its assignment.",
+      "source_sha256": "5317f1b5c8183fe89141345c095a346d9f7842b87b360f61c586466d8d78fc46",
+      "original_ai_draft": "원본 테이블에서 여러 행을 선택하여 조건 상자로 드래그합니다. 범위 선택에는 Shift를, 개별 행 선택에는 Ctrl/Cmd를 사용합니다. 열별 정렬이나 **필터 출처 메타 데이터 또는 예보 조건** 사용은 화면에 보이는 보기만 바꾸며, 할당은 계속 원래 원본 행을 참조합니다. 필터 상자는 대소문자를 구분하지 않는 텍스트 검색이며 조건 정규식 규칙과는 별개입니다. 같은 상자에 행을 두 번 드롭해도 할당이 중복되지 않습니다.",
+      "reviewed_translation": "원본 테이블에서 여러 행을 선택하여 조건 상자로 드래그합니다. 범위 선택에는 Shift를, 개별 행 선택에는 Ctrl/Cmd를 사용합니다. 열별 정렬이나 **원본 메타데이터 또는 미리보기 조건 필터링** 사용은 화면에 보이는 보기만 바꾸며, 할당은 계속 원래 원본 행을 참조합니다. 필터 상자는 대소문자를 구분하지 않는 텍스트 검색이며 조건 정규식 규칙과는 별개입니다. 같은 상자에 행을 두 번 드롭해도 할당이 중복되지 않습니다.",
+      "ui_bindings": {
+        "Filter source metadata or preview conditions": "원본 메타데이터 또는 미리보기 조건 필터링"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Remove selected manual rows** or **Clear manual rows** to remove dropped memberships. An Include rule can still match those rows; change the rule or add an Exclude expression when they must leave the condition. **Remove condition** removes the whole box and its rules.",
+      "source_sha256": "c1d263671d4f88e38ab21b2160e64239289b3a0a35135b74f3dca2c3c11228d6",
+      "original_ai_draft": "드롭한 행의 소속을 제거하려면 **선택한 매뉴얼 라인을 제거합니다.** 또는 **명확한 매뉴얼 라인**를 사용합니다. Include 규칙은 여전히 그 행과 일치할 수 있습니다. 해당 조건에서 완전히 제외해야 한다면 규칙을 바꾸거나 Exclude 표현식을 추가하세요. **조건 제거**은 상자 전체와 그 규칙들을 제거합니다.",
+      "reviewed_translation": "드롭한 행의 소속을 제거하려면 **선택한 수동 행 제거** 또는 **수동 행 지우기**를 사용합니다. Include 규칙은 여전히 그 행과 일치할 수 있습니다. 해당 조건에서 완전히 제외해야 한다면 규칙을 바꾸거나 Exclude 표현식을 추가하세요. **조건 제거**는 상자 전체와 그 규칙들을 제거합니다.",
+      "ui_bindings": {
+        "Remove selected manual rows": "선택한 수동 행 제거",
+        "Clear manual rows": "수동 행 지우기",
+        "Remove condition": "조건 제거"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A row may receive only one distinct label within each annotation column. If boxes assign different labels to it, the preview shows those competing labels and **Apply conditions** stays disabled. Adjust the include/exclude patterns or manual assignments until the overlap count is zero. No condition silently wins. Unmatched rows remain blank in the output column and remain present in the table.",
+      "source_sha256": "3669165734ba3865f4d030298f6b62cddf4a01369b195276410a614ab83013c4",
+      "original_ai_draft": "행 하나는 각 주석 열에서 서로 구별되는 레이블을 하나만 받을 수 있습니다. 여러 상자가 서로 다른 레이블을 지정하면 미리보기에 충돌하는 레이블이 표시되고 **조건을 적용하기**는 비활성화 상태를 유지합니다. 중복 충돌 수가 0이 될 때까지 포함/제외 패턴이나 수동 할당을 조정하세요. 어떤 조건도 조용히 우선하지 않습니다. 일치하지 않는 행은 출력 열에서 빈칸으로 남고 테이블에서도 유지됩니다.",
+      "reviewed_translation": "행 하나는 각 주석 열에서 서로 구별되는 레이블을 하나만 받을 수 있습니다. 여러 상자가 서로 다른 레이블을 지정하면 미리보기에 충돌하는 레이블이 표시되고 **조건을 적용하기**는 비활성화 상태를 유지합니다. 중복 충돌 수가 0이 될 때까지 포함/제외 패턴이나 수동 할당을 조정하세요. 어떤 조건도 조용히 우선하지 않습니다. 일치하지 않는 행은 출력 열에서 빈칸으로 남고 테이블에서도 유지됩니다.",
+      "ui_bindings": {
+        "Apply conditions": "조건을 적용하기"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reuse an annotation schema on another table",
+      "source_sha256": "01433562336c97ab7e3fee9f1c47d8fe764d2beeb40c7718d6405d18c729efa5",
+      "original_ai_draft": "다른 테이블에서 주석 스키마 재사용",
+      "reviewed_translation": "다른 테이블에서 주석 스키마 재사용",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Save schema** after the preview is valid. The JSON file retains the output-column names and order, extraction patterns and capture groups, matching rules, labels, and composition tokens. It contains the instructions for generating values, rather than a copy of the table or its generated values.",
+      "source_sha256": "bd83d7148ce0d61f3b8fe168d47155f8232e059489a8f115499c5008216ec645",
+      "original_ai_draft": "미리보기가 유효하면 **스키마 저장**를 선택합니다. JSON 파일에는 출력 열 이름과 순서, 추출 패턴과 캡처 그룹, 일치 규칙, 레이블, 조합 토큰이 유지됩니다. 이 파일에는 테이블이나 생성 값의 복사본이 아니라, 값을 생성하는 지침이 들어 있습니다.",
+      "reviewed_translation": "미리보기가 유효하면 **스키마 저장**을 선택합니다. JSON 파일에는 출력 열 이름과 순서, 추출 패턴과 캡처 그룹, 일치 규칙, 레이블, 조합 토큰이 유지됩니다. 이 파일에는 테이블이나 생성 값의 복사본이 아니라, 값을 생성하는 지침이 들어 있습니다.",
+      "ui_bindings": {
+        "Save schema": "스키마 저장"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open another table, choose **Annotate conditions**, then **Load schema** and select the JSON file. The new table may have different rows and values, but must provide the columns referenced by the schema. All outputs are previewed against this table. Inspect the values and any overlapping assignments before choosing **Apply conditions**. Loading alone does not change the working table.",
+      "source_sha256": "8e7f243ddee4e48bb7fd7cc3c35652e89f0126d14b66c0d53d68cff81ce04b5d",
+      "original_ai_draft": "다른 테이블을 열고 **명시된 조건**, **스키마 불러오기**를 차례로 선택한 뒤 JSON 파일을 선택합니다. 새 테이블의 행과 값은 달라도 되지만 스키마가 참조하는 열은 있어야 합니다. 이 테이블을 기준으로 모든 출력을 미리봅니다. **조건을 적용하기**를 선택하기 전에 값과 겹치는 할당을 확인하세요. 불러오기만으로 작업 테이블이 바뀌지는 않습니다.",
+      "reviewed_translation": "다른 테이블을 열고 **조건 주석 추가**, **스키마 불러오기**를 차례로 선택한 뒤 JSON 파일을 선택합니다. 새 테이블의 행과 값은 달라도 되지만 스키마가 참조하는 열은 있어야 합니다. 이 테이블을 기준으로 모든 출력을 미리봅니다. **조건을 적용하기**를 선택하기 전에 값과 겹치는 할당을 확인하세요. 불러오기만으로 작업 테이블이 바뀌지는 않습니다.",
+      "ui_bindings": {
+        "Annotate conditions": "조건 주석 추가",
+        "Load schema": "스키마 불러오기",
+        "Apply conditions": "조건을 적용하기"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manually dragged row assignments are specific to their source table and are omitted from reusable schemas. The save result reports how many assignments were omitted. Manual-only condition boxes remain available as empty groups to fill for the new table. To preserve manual assignments for the original analysis, use **Save chart** or **Save annotated table…** instead.",
+      "source_sha256": "0a89a72ed4624345c77188b5697072dbccd2c74e1d55bc8fb020be5ef34c7440",
+      "original_ai_draft": "수동으로 드래그한 행 할당은 해당 원본 테이블에 한정되므로 재사용 가능한 스키마에서는 제외됩니다. 저장 결과는 제외된 할당 수를 알립니다. 수동 전용 조건 상자는 새 테이블에서 채울 수 있는 빈 그룹으로 남습니다. 원래 분석의 수동 할당을 유지하려면 대신 **그래픽을 저장하세요** 또는 **녹음된 테이블을 저장합니다.**를 사용하세요.",
+      "reviewed_translation": "수동으로 드래그한 행 할당은 해당 원본 테이블에 한정되므로 재사용 가능한 스키마에서는 제외됩니다. 저장 결과는 제외된 할당 수를 알립니다. 수동 전용 조건 상자는 새 테이블에서 채울 수 있는 빈 그룹으로 남습니다. 원래 분석의 수동 할당을 유지하려면 대신 **차트 저장** 또는 **주석이 있는 테이블 저장…**을 사용하세요.",
+      "ui_bindings": {
+        "Save chart": "차트 저장",
+        "Save annotated table…": "주석이 있는 테이블 저장…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Malformed files, unsupported versions, unavailable columns, invalid patterns and invalid output dependencies leave the existing dialog draft unchanged. An existing source column cannot be overwritten by a schema output. Schema files are written atomically; saving a schema over the source table itself is refused. The file size limit is 8 MiB.",
+      "source_sha256": "0253fd2bc29fcc74e60e7dc6792756c53adf9a9e81524933af6b4ae6d3e8f49b",
+      "original_ai_draft": "잘못된 파일, 지원하지 않는 버전, 사용할 수 없는 열, 잘못된 패턴, 유효하지 않은 출력 종속성이 있으면 기존 대화상자 초안은 변경되지 않습니다. 스키마 출력으로 기존 원본 열을 덮어쓸 수 없습니다. 스키마 파일은 원자적으로 저장되며, 원본 테이블 자체에 덮어쓰려는 저장은 거부됩니다. 파일 크기 제한은 8 MiB입니다.",
+      "reviewed_translation": "잘못된 파일, 지원하지 않는 버전, 사용할 수 없는 열, 잘못된 패턴, 유효하지 않은 출력 종속성이 있으면 기존 대화상자 초안은 변경되지 않습니다. 스키마 출력으로 기존 원본 열을 덮어쓸 수 없습니다. 스키마 파일은 원자적으로 저장되며, 원본 테이블 자체에 덮어쓰려는 저장은 거부됩니다. 파일 크기 제한은 8 MiB입니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Keep conditions with the analysis",
+      "source_sha256": "a70fc2d79873e608521539b1a50af663cd9f96640577e0ea11b6256ddeb8ff56",
+      "original_ai_draft": "분석과 함께 조건 유지",
+      "reviewed_translation": "분석과 함께 조건 유지",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reopen **Annotate conditions** to edit the current assignments. They survive table refreshes in the current Graph Builder session when the source is unchanged. Use **Save chart** to preserve the rules, manual assignments, output-column definitions and any merge definition with the chart. **Load chart** reconstructs the source and checks its identity before applying those labels.",
+      "source_sha256": "f3813160466dcf9c2c4224acde05d1c020ff4f93c15051a7cb76cc12ff684896",
+      "original_ai_draft": "현재 할당을 편집하려면 **명시된 조건**를 다시 엽니다. 원본이 바뀌지 않았다면 현재 Graph Builder 세션에서 테이블을 새로 고쳐도 유지됩니다. **그래픽을 저장하세요**로 규칙, 수동 할당, 출력 열 정의, 병합 정의를 차트와 함께 저장하세요. **카드 충전**는 원본을 재구성하고 식별 정보를 확인한 후 레이블을 적용합니다.",
+      "reviewed_translation": "현재 할당을 편집하려면 **조건 주석 추가**를 다시 엽니다. 원본이 바뀌지 않았다면 현재 Graph Builder 세션에서 테이블을 새로 고쳐도 유지됩니다. **차트 저장**으로 규칙, 수동 할당, 출력 열 정의, 병합 정의를 차트와 함께 저장하세요. **차트 불러오기**는 원본을 재구성하고 식별 정보를 확인한 후 레이블을 적용합니다.",
+      "ui_bindings": {
+        "Annotate conditions": "조건 주석 추가",
+        "Save chart": "차트 저장",
+        "Load chart": "차트 불러오기"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Saved conditions belong to the exact source table, including its row order, values and schema. Changed source data or a different merge definition requires reviewing and recreating the conditions. Sorting the dialog's view does not change that source identity. This check prevents saved manual selections from labelling unrelated rows after a source changes.",
+      "source_sha256": "88df7609be398b1081c73a201d0afbae294e8060055bac6f83c25b00b1978ea5",
+      "original_ai_draft": "저장된 조건은 행 순서, 값, 스키마를 포함한 정확히 그 원본 테이블에 속합니다. 원본 데이터나 병합 정의가 바뀌면 조건을 검토하고 다시 만들어야 합니다. 대화상자의 보기를 정렬해도 원본 식별 정보는 바뀌지 않습니다. 이 검사는 원본 변경 후 저장된 수동 선택이 무관한 행에 레이블을 붙이지 않도록 합니다.",
+      "reviewed_translation": "저장된 조건은 행 순서, 값, 스키마를 포함한 정확히 그 원본 테이블에 속합니다. 원본 데이터나 병합 정의가 바뀌면 조건을 검토하고 다시 만들어야 합니다. 대화상자의 보기를 정렬해도 원본 식별 정보는 바뀌지 않습니다. 이 검사는 원본 변경 후 저장된 수동 선택이 무관한 행에 레이블을 붙이지 않도록 합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For a SQLite source, **Save annotated table…** saves the working values as a new physical table in the same database. The prompt **New table name (existing tables are preserved)** proposes the current table name followed by ``_annotated``. Existing tables, views and saved merged-table names cannot be overwritten; names beginning with ``sqlite_`` or ``_spacr_`` are reserved. This action adds a table and its annotation provenance while preserving the original measurement tables.",
+      "source_sha256": "fe835bc6b97298939c766006b989ce65c84e7e64323a13162b89b2d60feaab7a",
+      "original_ai_draft": "SQLite 원본에서 **녹음된 테이블을 저장합니다.**는 작업 값을 같은 데이터베이스의 새 물리 테이블에 저장합니다. **새로운 테이블 이름 (존재하는 테이브가 보존됩니다)** 프롬프트는 현재 테이블 이름 뒤에 ``_annotated``를 붙인 이름을 제안합니다. 기존 테이블, 뷰, 저장된 병합 테이블 이름은 덮어쓸 수 없습니다. ``sqlite_`` 또는 ``_spacr_``로 시작하는 이름은 예약되어 있습니다. 이 작업은 원본 측정 테이블을 보존하면서 테이블과 그 주석 출처 정보를 추가합니다.",
+      "reviewed_translation": "SQLite 원본에서 **주석이 있는 테이블 저장…**은 작업 값을 같은 데이터베이스의 새 물리 테이블에 저장합니다. **새 테이블 이름 (기존 테이블은 보존됩니다)** 프롬프트는 현재 테이블 이름 뒤에 ``_annotated``를 붙인 이름을 제안합니다. 기존 테이블, 뷰, 저장된 병합 테이블 이름은 덮어쓸 수 없습니다. ``sqlite_`` 또는 ``_spacr_``로 시작하는 이름은 예약되어 있습니다. 이 작업은 원본 측정 테이블을 보존하면서 테이블과 그 주석 출처 정보를 추가합니다.",
+      "ui_bindings": {
+        "Save annotated table…": "주석이 있는 테이블 저장…",
+        "New table name (existing tables are preserved)": "새 테이블 이름 (기존 테이블은 보존됩니다)"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved table is selected in the picker and can be loaded in other table screens, including Gate Editor. It contains a snapshot of the annotated values, unlike a derived merge that is recalculated from its inputs. Reopening it in Graph Builder restores editable condition rules when the saved rows and schema are unchanged. Save revised values under a new table name. Changed saved data are still readable, but old editable rules are not silently restored onto them. Image-specific actions continue to require appropriate object provenance.",
+      "source_sha256": "54d5a9423ed60c393d69c62d296d18381b4370227db393816e85a372705732ab",
+      "original_ai_draft": "저장된 테이블은 선택기에서 선택되며 Gate Editor를 포함한 다른 테이블 화면에서도 불러올 수 있습니다. 입력에서 재계산되는 파생 병합과 달리, 이 테이블에는 주석 값의 스냅샷이 들어 있습니다. 저장된 행과 스키마가 바뀌지 않았다면 Graph Builder에서 다시 열 때 편집 가능한 조건 규칙이 복원됩니다. 수정한 값은 새 테이블 이름으로 저장하세요. 저장 데이터가 바뀌어도 읽을 수는 있지만, 이전 편집 규칙을 조용히 복원하지 않습니다. 이미지별 작업에는 계속 적절한 객체 출처 정보가 필요합니다.",
+      "reviewed_translation": "저장된 테이블은 선택기에서 선택되며 Gate Editor를 포함한 다른 테이블 화면에서도 불러올 수 있습니다. 입력에서 재계산되는 파생 병합과 달리, 이 테이블에는 주석 값의 스냅샷이 들어 있습니다. 저장된 행과 스키마가 바뀌지 않았다면 Graph Builder에서 다시 열 때 편집 가능한 조건 규칙이 복원됩니다. 수정한 값은 새 테이블 이름으로 저장하세요. 저장 데이터가 바뀌어도 읽을 수는 있지만, 이전 편집 규칙을 조용히 복원하지 않습니다. 이미지별 작업에는 계속 적절한 객체 출처 정보가 필요합니다.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export table…** writes the working table, including every annotation column, to a new CSV and records its source, merge definition and condition rules in ``<export>.csv.conditions.json``. It exports the working table rather than just a brushed selection. The original database or imported file is preserved, and exporting over that source path is refused. Reopening the CSV gives you its saved labels; use the saved chart to reopen the original source and editable condition rules.",
+      "source_sha256": "84eda5b7ce75960b3766d612a8671a3475a5041706ad15dff9770a4fad74d18a",
+      "original_ai_draft": "**수출 테이블 ...**은 모든 주석 열을 포함한 작업 테이블을 새 CSV에 쓰고, 원본, 병합 정의, 조건 규칙을 ``<export>.csv.conditions.json``에 기록합니다. 브러시로 선택한 부분만이 아니라 작업 테이블 전체를 내보냅니다. 원래 데이터베이스나 가져온 파일은 보존되며, 그 원본 경로에 덮어쓰는 내보내기는 거부됩니다. CSV를 다시 열면 저장된 레이블을 사용할 수 있습니다. 원본과 편집 가능한 조건 규칙을 다시 열려면 저장된 차트를 사용하세요.",
+      "reviewed_translation": "**테이블 내보내기…**는 모든 주석 열을 포함한 작업 테이블을 새 CSV에 쓰고, 원본, 병합 정의, 조건 규칙을 ``<export>.csv.conditions.json``에 기록합니다. 브러시로 선택한 부분만이 아니라 작업 테이블 전체를 내보냅니다. 원래 데이터베이스나 가져온 파일은 보존되며, 그 원본 경로에 덮어쓰는 내보내기는 거부됩니다. CSV를 다시 열면 저장된 레이블을 사용할 수 있습니다. 원본과 편집 가능한 조건 규칙을 다시 열려면 저장된 차트를 사용하세요.",
+      "ui_bindings": {
+        "Export table…": "테이블 내보내기…"
+      }
+    }
+  ]
+}

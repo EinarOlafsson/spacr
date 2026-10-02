@@ -5,7 +5,10 @@ gets a tutorial. Every capture path turns the preference off before the app
 is built and refuses a frame while it is on; only a Preferences scene that
 shows the toggle itself may opt in.
 """
+import os
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -113,14 +116,63 @@ def test_profiles_prepared_before_launch_start_with_alpha_off(tmp_path):
     assert kept.value("prefs/theme") == "dark"
 
 
-def test_the_neutral_wrapper_turns_alpha_off_before_it_launches_spacr():
-    script = (TUTORIALS / "run_neutral_capture.sh").read_text()
-    force = script.index("--force-alpha-off")
-    assert force < script.index("exec ")
-    assert '"$capture_stage/profile/.config"' in script
-    assert '"$capture_stage"/config/*/' in script
-    assert re.search(r'run_capped\.sh"? 2G .*\\\n\s*"\$capture_python" '
-                     r'"\$capture_repo/tools/tutorials/capture_policy\.py"', script)
+@pytest.mark.parametrize("host_override", [False, True])
+@pytest.mark.parametrize("policy_status", [0, 23])
+@pytest.mark.skipif(sys.platform != "linux", reason="The bwrap capture wrapper targets Linux")
+def test_the_neutral_wrapper_turns_alpha_off_before_it_launches_spacr(
+    tmp_path, host_override, policy_status,
+):
+    # Exercise shell expansion and ordering without launching a namespace or
+    # touching the user's preferences. The existing profile test above checks
+    # the real policy's QSettings writes; this boundary records capped commands.
+    repo = tmp_path / "capture repo"
+    tutorials = repo / "tools" / "tutorials"
+    tutorials.mkdir(parents=True)
+    script = tutorials / "run_neutral_capture.sh"
+    shutil.copyfile(TUTORIALS / script.name, script)
+    capped = repo / "tools" / "run_capped.sh"
+    capped.write_text(
+        '#!/usr/bin/env bash\n'
+        'printf "%s\\0" "$@" >> "$CAPTURE_COMMAND_LOG"\n'
+        'printf "\\0" >> "$CAPTURE_COMMAND_LOG"\n'
+        'if [[ $1 == 2G ]]; then exit "$CAPTURE_POLICY_STATUS"; fi\n'
+    )
+    capped.chmod(0o755)
+    stage = tmp_path / "private stage"
+    profile = stage / "config" / "mask profile"
+    profile.mkdir(parents=True)
+    command_log = tmp_path / "commands"
+    capture_python = tmp_path / "namespace python"
+    host_python = tmp_path / "host python"
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("SPACR_TUTORIAL_")}
+    env.update(CAPTURE_COMMAND_LOG=str(command_log),
+               CAPTURE_POLICY_STATUS=str(policy_status))
+    if host_override:
+        env["SPACR_TUTORIAL_HOST_PYTHON"] = str(host_python)
+
+    result = subprocess.run(
+        ["bash", str(script), str(stage), str(capture_python)], env=env,
+        capture_output=True, text=True, timeout=10,
+    )
+
+    assert result.returncode == policy_status, result.stderr
+    commands = [command.decode().split("\0")
+                for command in command_log.read_bytes().split(b"\0\0") if command]
+    assert commands[0] == [
+        "2G", "env", "QT_QPA_PLATFORM=offscreen",
+        str(host_python if host_override else capture_python),
+        str(tutorials / "capture_policy.py"), "--force-alpha-off",
+        str(stage / "profile" / ".config"), str(profile),
+    ]
+    if policy_status:
+        assert len(commands) == 1, "A refused alpha policy must prevent capture"
+    else:
+        assert len(commands) == 2
+        assert commands[1][:2] == ["6G", "bwrap"]
+        assert str(capture_python) in commands[1]
+        assert "tools/tutorials/capture_refresh.py" in commands[1]
+        assert str(host_python) not in commands[1]
 
 
 def test_capture_refresh_forces_off_before_the_window_and_passes_only_the_opt_in():

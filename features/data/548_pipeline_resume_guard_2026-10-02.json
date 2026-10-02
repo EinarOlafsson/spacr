@@ -1,0 +1,54 @@
+{
+  "item": "F548",
+  "date": "2026-10-02",
+  "status": "partial",
+  "scope": "Prevent mixed pipeline outputs when resuming a populated watch workspace",
+  "source_base": "44163603306c25e84c0f6b570cf9c7f56254c2d1",
+  "files": {
+    "spacr/core.py": "65465f851513655f89f5f52cbbdcbc537b257b6977f7feed4480fbea5a1958aa",
+    "tests/test_watch_pipeline_resume_f548.py": "2f5190d250825c760f30d7504dc09dcc69d2069dc04f5eb67f15cce3f459300e"
+  },
+  "validation": {
+    "reproduction": {
+      "failed": 1,
+      "seconds": 6.61,
+      "reason": "Mask-to-mask_measure resume skipped old fields, processed new fields and replaced the recorded pipeline"
+    },
+    "after_fix": {
+      "passed": 29,
+      "failed": 0,
+      "seconds": 46.44
+    },
+    "new_cases": 8,
+    "existing_identity_resume_cases": 5,
+    "existing_watch_cases": 16,
+    "logs": {
+      "/tmp/spacr-implementation-20261001/f548-pipeline-resume-reproduction.log": "156257b258fba3421228033fe0940eccd27d3ce58775d8d92b388bfe8bc6c69a",
+      "/tmp/spacr-implementation-20261001/f548-pipeline-resume-tests.log": "2d06727116404bf73758efdc8031901a8c330db4bdceaeb470a5e71b1f3b0ae5"
+    },
+    "configured_memory_max_bytes": 4294967296,
+    "configured_memory_swap_max": 0,
+    "cpu_affinity": [
+      0
+    ],
+    "cuda_visible_devices": "",
+    "source_images": "real TIFFs with synthetic pixels",
+    "new_guard_tests_analysis": "Recorder callback, not model execution",
+    "existing_real_preprocess_measure_batch_parity": true,
+    "existing_parity_model_forward_pass": "painted-object label stub",
+    "public_api_or_caption_changes": false
+  },
+  "coverage": [
+    "mask to mask_measure and reverse switches refused before any saved file changes",
+    "failed field retry cannot change pipeline",
+    "populated legacy ledger without recorded pipeline preserved and refused",
+    "same-pipeline resumes skip prior fields and process newly acquired fields",
+    "empty ledgers can select a pipeline",
+    "source images, saved ledger and prior results byte-preserved on refusal"
+  ],
+  "limits": [
+    "Pipeline name is checked, not a complete settings/model fingerprint",
+    "Populated ledgers missing pipeline provenance require a separate watch workspace",
+    "F548 remains partial for vendor completion, unsupported series, pooled normalization and the other recorded requirements"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/home/carruthers/anaconda3/envs/spacr/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/qt/test_i18n_caption_ratchet.py::test_external_caption_layer_is_complete_exclusive_and_pinned",
+    "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+    "tests/test_guide_i18n.py::test_glossary_matches_the_runtime_catalogs",
+    "tests/test_guide_review_provenance_n615.py::test_counted_guide_name_uses_only_exact_button_prefix"
+  ],
+  "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-rd43fdfea599a48fe8e3da337018f3f32.scope",
+  "limits": {
+    "memory.max": "1073741824",
+    "memory.swap.max": "0",
+    "cpu_affinity": [
+      0
+    ],
+    "cpu.max": null,
+    "systemd_properties": [
+      "CPUQuotaPerSecUSec=1s",
+      "MemoryMax=1073741824",
+      "MemorySwapMax=0"
+    ]
+  }
+}

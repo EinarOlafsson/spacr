@@ -1,30 +1,37 @@
 {
   "lesson": "22_model_zoo",
-  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "english_sha256": "87954acf7425ca91badbab0643a90a8aac3a886ea492cc22f0466884dd4fbbab",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "ko",
   "title": "Model Zoo: 모델을 고르고 내 이미지로 시험하기",
-  "description": "Model Zoo를 열어 체크포인트를 찾거나 내려받고, 세부 정보를 확인한 뒤 시험용 소규모 이미지 세트를 고릅니다.",
+  "description": "Model Zoo를 열어 체크포인트를 찾거나 내려받고, 세부 정보를 확인하고, 소규모 이미지 세트로 시험한 뒤 Mask용 객체 직경을 측정합니다.",
   "objectives": [
     "Model Zoo를 열고 로컬 모델 폴더를 스캔합니다.",
     "모델 계열과 버전을 고른 뒤 세부 정보를 확인합니다.",
-    "소규모 이미지 시험을 실행하고 결과 마스크와 품질 요약을 확인합니다."
+    "소규모 이미지 시험을 실행하고 결과 마스크와 품질 요약을 확인합니다.",
+    "Mask generation의 Model Zoo 팝업에서 내 시야로 객체 직경을 측정합니다."
   ],
   "prerequisite": "연결된 예제의 압축을 풀고 시야 3개 시험에는 그 images 폴더를 쓰세요. 설치된 Cellpose 분할 모델을 고르거나, Model Zoo에서 알맞은 체크포인트를 내려받으세요. 직접 시험하려면 대표적인 TIFF, PNG, NPY, NPZ 이미지를 몇 개 준비하세요.",
   "scenes": [
     "Home에서 Make Masks를 연 뒤 Model Zoo를 선택하세요. 이 페이지에서 분할 모델을 찾아 소규모 이미지 세트로 시험해 볼 수 있습니다.",
-    "Choose folder를 클릭하고 모델 디렉터리를 선택해 스캔하세요. 경로를 직접 입력했다면 Scan을 클릭하세요. Cellpose나 로컬 모델처럼 살펴보려는 소스 제목을 켜세요.",
+    "Choose folder를 클릭하고 모델 디렉터리를 선택해 스캔하세요. 경로를 직접 입력했다면 Scan을 클릭하세요. 표 위의 제목으로 목록에 표시할 소스를 고릅니다. 기본 가중치용 cellposeSAM과 여기서 학습한 모델용 spaCR은 처음부터 켜져 있습니다.",
+    "cellpose3을 켜면 cyto3, nuclei 같은 Cellpose 3 모델이 목록에 나옵니다. 이 모델들은 별도의 Cellpose 3 환경에서 실행되므로, 백엔드가 설치되지 않은 모델은 그렇다고 알려 주고, 선택하면 설치를 제안합니다.",
+    "bioimage.io를 켜면 bioimage.io에 공개된 Cellpose 모델이 목록에 나옵니다. 모델을 고르기 전에 각각 무엇으로 학습했는지 읽어 보세요. 가중치는 요청할 때 내려받습니다.",
     "모델 계열을 고르고 Version 컨트롤로 체크포인트를 선택하세요. 이미지 유형, 학습 정보, 로컬 경로에 관한 세부 정보를 읽으세요. 원격 체크포인트라면 시험하기 전에 Save to에서 폴더를 고르고 Download를 클릭하세요.",
     "연결된 예제의 압축을 풀고 Test on fields에서 그 images 폴더를 고르세요. 시야 수는 3으로 두세요. 자신의 이미지라면 일반적인 시야와 까다로운 사례를 함께 담은 작은 세트로 시작하세요.",
     "로컬 분할 모델을 선택하고 Test on fields를 클릭하세요. 시험이 끝날 때까지 기다리세요. 이미지와 모델이 클수록, 특히 CPU에서는 시간이 더 걸릴 수 있습니다.",
     "결과 행을 선택해 마스크 미리 보기를 확인하세요. 이미지와 대조해 경계, 맞닿은 객체, 놓친 객체를 확인하세요. 객체 수와 품질 표시를 참고해 더 자세히 봐야 할 시야를 찾으세요.",
-    "시야별 요약을 검토한 뒤, 고른 체크포인트 경로를 분석 모듈에 쓰도록 보관하세요. 같은 이미지에서 서로 다른 모델 계열 두 개를 비교하려면 두 행을 모두 선택하고 Compare the two selected를 고르세요. 같은 계열의 다른 버전을 시험하려면 버전 컨트롤을 쓰세요."
+    "시야별 요약을 검토한 뒤, 고른 체크포인트 경로를 분석 모듈에 쓰도록 보관하세요. 같은 이미지에서 서로 다른 모델 계열 두 개를 비교하려면 두 행을 모두 선택하고 Compare the two selected를 고르세요. 같은 계열의 다른 버전을 시험하려면 버전 컨트롤을 쓰세요.",
+    "같은 카탈로그가 Mask generation 안에서도 열리며, 여기서는 객체를 측정할 수도 있습니다. Source를 내 이미지로 설정하고 세포, 핵, 병원체 채널을 채우세요. 이 예제는 Measure 샘플의 원본 이미지를 사용합니다.",
+    "All settings로 전환하고 객체별 표에서 객체의 Model name 칸을 클릭하세요. Model Zoo 팝업이 열리고, 고른 모델이 그 객체의 설정에 기록됩니다.",
+    "왼쪽 아래의 Measure diameters를 클릭하세요. Cellpose는 주어진 직경에 맞춰 각 이미지의 배율을 조정하므로, 내 시야에서 측정한 직경이 추측보다 안전합니다.",
+    "Measure from my images를 누르세요. 객체 유형마다 근거와 신뢰도가 함께 표시된 측정 직경이 나옵니다. Use는 하나를 Mask 설정에 기록하고 Use all은 전부 기록합니다. 누르기 전에는 아무것도 바뀌지 않습니다."
   ]
 }

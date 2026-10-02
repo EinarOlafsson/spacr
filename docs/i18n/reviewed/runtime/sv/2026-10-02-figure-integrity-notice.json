@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical translation and independent Codex peer review; no human or native-speaker signoff",
+  "review_method": "Six source-bound F572 modeless post-save notice captions. Independent peer review covers successful figure save, warning before sharing, local output folder, provenance sidecar failure and permissions/retry, and exact path placeholders. The German sharing referent was clarified from peer review.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Figure integrity",
+      "source": "Figure integrity",
+      "source_sha256": "5cc637b229e774f3b822a8cea683cb364da18bb61ff7e17cff79a1b48bffcd9d",
+      "translation": "Figurintegritet"
+    },
+    {
+      "table": "ui",
+      "key": "Figure saved. Review these warnings before sharing it.",
+      "source": "Figure saved. Review these warnings before sharing it.",
+      "source_sha256": "f9fda9420e410d14c001f890399591cad03916751533c0e4d02b2afd4d94e9dd",
+      "translation": "Figuren har sparats. Granska dessa varningar innan du delar den."
+    },
+    {
+      "table": "ui",
+      "key": "Open output folder",
+      "source": "Open output folder",
+      "source_sha256": "220cd24aaaae351097f577c45e9705e1567d3441adca8dcc144c0545d04a34cc",
+      "translation": "Öppna utdatamappen"
+    },
+    {
+      "table": "ui",
+      "key": "The provenance sidecar could not be written. Check folder permissions and save again.",
+      "source": "The provenance sidecar could not be written. Check folder permissions and save again.",
+      "source_sha256": "c90cebaf62b1a57ae39fc58af015bc880ff1d08fdeeebc4d7c4af0f4e9392571",
+      "translation": "Sidofilen med proveniens kunde inte skrivas. Kontrollera mappens behörigheter och spara igen."
+    },
+    {
+      "table": "ui",
+      "key": "Saved figure: {path}",
+      "source": "Saved figure: {path}",
+      "source_sha256": "d3a1a56352940a37cbbd2943ba55e92c727aedad64fa2de608d226cf54e37f70",
+      "translation": "Sparad figur: {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Provenance: {path}",
+      "source": "Provenance: {path}",
+      "source_sha256": "852577bece56125144c659ff230087d9a10067b4ec3d4b84271060513c2645c2",
+      "translation": "Proveniens: {path}"
+    }
+  ]
+}

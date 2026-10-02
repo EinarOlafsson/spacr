@@ -1,0 +1,1863 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 19:24-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Choose a workflow after installation"
+msgstr "安装后选择工作流程"
+
+msgid "Start on Home with the first module for your experiment. Use that module's example-data control when available, inspect the inputs and preview, then run a bounded example before your own data."
+msgstr "在主页上从适合您实验的第一个模块开始。若该模块提供示例数据控件，请先使用它，检查输入和预览，然后在处理自己的数据之前先运行一个规模受限的示例。"
+
+msgid "These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically."
+msgstr "这些路线和 API 交接共享内置的模块工作流程图。操作指南讲解各个步骤；它不会自动运行实验。"
+
+msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step."
+msgstr "打开 **流程概览** 以选择一条路径。其图中包含说明您所提供文件的外部输入节点；这些节点不是可运行的模块。图下方的常驻说明卡片描述模块和连接，模块卡片末尾附有 API 链接。选择图中的某个元素即可突出显示其卡片，拖动蓝色分隔条可调整图与说明之间的空间。**启动示例** 会打开该路径的第一个实际模块；**操作指南** 会在之后继续保留该路线。可选的输入分支和标注分支并不要求您执行列出的每一个步骤。"
+
+msgid "A pooled spaCR screen"
+msgstr "spaCR 混合筛选"
+
+msgid "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch."
+msgstr "将图像衍生的表型与引导 RNA 丰度结合，对扰动进行排序。分割并测量图像，使用 Annotate、Gate Editor 或 Image UMAP 创建经过审核的标签，然后训练并验证分类器。在独立分支中映射相应的测序读段。按实验身份标识合并兼容的表型分数和引导 RNA 计数，用于 Regression。标注和分割路径是可选方案，无需运行每个分支。"
+
+msgid "**Choose an input route:**"
+msgstr "**选择输入路线：**"
+
+msgid "**Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Mask <workflow-module-mask>`."
+msgstr "**显微图像**：提供带有通道标识和视野命名的原始显微图像。对于时间序列，请保持帧顺序和时间信息。选择适合本实验中对象的分割设置。继续使用 :ref:`掩膜 <workflow-module-mask>`。"
+
+msgid "**Existing masks and matching images**: Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**现有掩膜及匹配图像**：将源图像与匹配的整数对象标签掩膜一起导入。保留对象类别和视野标识。这是生成新掩膜的替代方案；测量前请检查导入的项目。继续使用 :ref:`导入 <workflow-module-foreign>`。"
+
+msgid "**FASTQ: R1/R2, R1 only or R2 only**: Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation. Continue with :ref:`Map Barcodes <workflow-module-map_barcodes>`."
+msgstr "**FASTQ：R1/R2、仅 R1 或仅 R2**：提供 gzip 压缩的 FASTQ 文件和条形码参考 CSV。R1/R2 使用双端模式。对于单端读段，请选择单端模式，并将 single_direction 设置为 R1 或 R2，以匹配文件和提取方向。继续使用 :ref:`映射条形码 <workflow-module-map_barcodes>`。"
+
+msgid "**Module steps and alternatives:**"
+msgstr "**模块步骤及替代方案：**"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home and open Mask. Load the example data, check channels and segmentation, then run."
+msgstr ":ref:`Mask <workflow-module-mask>`: 从“主页 (Home)”打开“掩膜 (Mask)”。加载示例数据，检查通道和分割结果，然后运行。"
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Return Home and open Map Barcodes for the matching sequencing reads and references."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: 返回“主页 (Home)”，打开“映射条形码 (Map Barcodes)”，处理相应的测序读段和参考数据。"
+
+msgid ":ref:`Import <workflow-module-foreign>`: If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present."
+msgstr ":ref:`Import <workflow-module-foreign>`: 如果已有分割结果，将匹配的图像和外部掩膜导入 spaCR 项目，并检查得到的对象身份标识。所需数组齐备时，可跳过分割，直接进入 Measure。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure with the Mask project and create measurements and object crops."
+msgstr ":ref:`Measure <workflow-module-measure>`: 在“测量 (Measure)”中打开“掩膜 (Mask)”生成的项目，生成测量数据和对象裁剪图像。"
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate, inspect representative objects and save phenotype labels."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 打开“标注 (Annotate)”，检查有代表性的对象，并保存表型标签。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`：加载表格，或使用 合并表格 通过已验证的键和聚合规则创建工作集。在实际特征或坐标列上定义阈值或多边形门控，然后将保存的门控应用于兼容对象。使用 标注 将显示的门控写入标注列；检查选中的对象并选择二分类或多分类标签。"
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。使用套索和注释控件，将审查后的选择写入对应测量数据库的注释列。单靠几何选择不能确立生物学表型。"
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Open Classify, choose images or measured features, and inspect held-out predictions."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 打开“分类 (Classify)”，选择图像或测量特征，并检查未参与训练的留出数据的预测结果。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Open Regression with compatible phenotype scores and per-well guide counts; inspect hits and diagnostics."
+msgstr ":ref:`Regression <workflow-module-regression>`: 打开“回归 (Regression)”，提供相互兼容的表型评分和每孔向导序列计数；检查筛选命中结果及诊断信息。"
+
+msgid "High-content image analysis"
+msgstr "高内涵图像分析"
+
+msgid "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently."
+msgstr "在不进行测序的情况下量化成像实验。从显微图像开始，或将现有掩膜与源图像一起导入，测量对象，然后探索嵌入、定义门控群体或制作图表。这些下游分支回答不同问题，可以独立使用。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and inspect segmentation on representative fields."
+msgstr ":ref:`Mask <workflow-module-mask>`: 从“主页 (Home)”打开“掩膜 (Mask)”，检查代表性视野的分割结果。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure on the resulting project and quantify objects."
+msgstr ":ref:`Measure <workflow-module-measure>`: 在“测量 (Measure)”中打开生成的项目，对对象进行定量分析。"
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP to explore measured phenotypes and inspect crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 打开“Image UMAP”，探索测量得到的表型并检查裁剪图像。"
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Open Gate Editor to define an explicit population filter."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 打开“门控编辑器 (Gate Editor)”，明确定义对象群体的筛选条件。"
+
+msgid ":ref:`Graph Builder <workflow-module-graph_builder>`: Open Graph Builder to compare the chosen measurements and groups."
+msgstr ":ref:`Graph Builder <workflow-module-graph_builder>`: 打开“图表构建器 (Graph Builder)”，比较所选的测量数据和分组。"
+
+msgid "Other routes for the appropriate question: :ref:`Classify <workflow-module-classify_merged>`, :ref:`Recruitment <workflow-module-recruitment>`, :ref:`Invasion Assay <workflow-module-invasion>`, :ref:`Replication Assay <workflow-module-replication>`."
+msgstr "针对相应问题的其他路线：:ref:`分类 <workflow-module-classify_merged>`、:ref:`募集分析 <workflow-module-recruitment>`、:ref:`侵袭分析 <workflow-module-invasion>`、:ref:`复制分析 <workflow-module-replication>`。"
+
+msgid "Train a segmentation model"
+msgstr "训练分割模型"
+
+msgid "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test."
+msgstr "使用经过整理和校正的图像与整数掩膜配对数据构建分割模型。在 Make Masks 中校正代表性图像，在 Cellpose Workbench 中训练，然后在 Mask 中选择生成的检查点。在处理整个实验之前，评估独立视野；训练图像不能用作留出数据的准确性测试。"
+
+msgid "**Microscopy images and optional starting masks**: Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set. Continue with :ref:`Make Masks <workflow-module-make_masks>`."
+msgstr "**显微图像及可选的初始掩膜**：打开具有代表性的图像，并可选择导入现有的整数掩膜进行校正。保存匹配的整理后图像对；将独立的验证图像保留在训练集之外。继续使用 :ref:`创建掩膜 <workflow-module-make_masks>`。"
+
+msgid "**Independent microscopy images**: Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment. Continue with :ref:`Mask <workflow-module-mask>`."
+msgstr "**独立显微图像**：将训练好的检查点应用于通道兼容的独立图像。在处理整个实验之前检查分割质量。继续使用 :ref:`掩膜 <workflow-module-mask>`。"
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Start on Home with Make Masks and curate matching images and integer label masks."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: 从“主页 (Home)”打开“创建掩膜 (Make Masks)”，整理并校正相互匹配的图像和整数标签掩膜。"
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Inside Make Masks open Cellpose Workbench, choose Train and use the curated pairs."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: 在“创建掩膜 (Make Masks)”中打开“Cellpose 工作台”，选择“Train”，使用整理后的图像与掩膜对。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Return Home, open Mask and select the trained checkpoint; verify separate fields before a full run."
+msgstr ":ref:`Mask <workflow-module-mask>`: 返回“主页 (Home)”，打开“掩膜 (Mask)”，选择训练好的模型检查点；先在独立视野上验证，再运行完整项目。"
+
+msgid "Toxoplasma and parasite imaging assays"
+msgstr "Toxoplasma 与寄生虫成像分析"
+
+msgid "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another."
+msgstr "选择与实验相符的分析。募集、入侵和复制分析使用已测量对象，并要求相应的区室身份标识和染色通道。募集分析比较区室强度；入侵分析通过差异染色区分细胞内外的寄生虫；复制分析统计相应液泡内的寄生虫。Plaque Assay 是独立分支，使用空斑图像或掩膜，并通过标定获得以物理单位表示的面积。图中将这些分析归为一组，并不意味着必须先运行其中一种才能运行另一种。"
+
+msgid "**Plaque images or existing plaque masks**: Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow. Continue with :ref:`Plaque Assay <workflow-module-analyze_plaques>`."
+msgstr "**空斑图像或现有空斑掩膜**：选择用于检测的空斑图像，或用于分析的现有空斑掩膜。需要物理空斑面积时，请提供图像校准。此分支不需要细胞区室测量工作流程。继续使用 :ref:`空斑分析 <workflow-module-analyze_plaques>`。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and configure the host, parasite and required compartment masks."
+msgstr ":ref:`Mask <workflow-module-mask>`: 从“主页 (Home)”打开“掩膜 (Mask)”，配置宿主、寄生虫及所需细胞区室的掩膜。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure and collect the compartment or staining measurements needed by your assay."
+msgstr ":ref:`Measure <workflow-module-measure>`: 打开“测量 (Measure)”，获取实验所需的区室或染色测量数据。"
+
+msgid ":ref:`Recruitment <workflow-module-recruitment>`: For a recruitment question, open Recruitment and inspect compartment intensity ratios."
+msgstr ":ref:`Recruitment <workflow-module-recruitment>`: 若要研究分子招募，打开“募集分析 (Recruitment)”，检查区室间的强度比值。"
+
+msgid ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+msgstr ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: 测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。"
+
+msgid ":ref:`Invasion Assay <workflow-module-invasion>`: Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion."
+msgstr ":ref:`Invasion Assay <workflow-module-invasion>`: 使用所需的双色差异染色测量值和染色基线对照，区分黏附与侵入。"
+
+msgid ":ref:`Replication Assay <workflow-module-replication>`: Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole."
+msgstr ":ref:`Replication Assay <workflow-module-replication>`: 使用明确的液泡标识统计寄生虫，并比较各条件的分布；仅有宿主标识不能定义液泡。"
+
+msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas."
+msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: 对于空斑实验，从 Toxoplasma 打开 Plaque Assay，提供空斑图像或现有空斑掩膜。在比较空斑数量和面积之前，检查检测结果和标定。"
+
+msgid "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma."
+msgstr "“Invasion”和“Replication”读取各自所需的区室测量数据；“空斑分析 (Plaque Assay)”则使用空斑图像或掩膜。请从“主页 (Home)” → “Toxoplasma”打开这些分析。"
+
+msgid "An optical pooled screen"
+msgstr "光学混合筛选"
+
+msgid "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles."
+msgstr "利用原始测序轮次和相应的表型图像解码光学混池筛选。通过 Mask 进入 OPS，检查轮次/位点配准和条形码解码，然后将解码得到的对象身份标识与表型响应关联，并汇总兼容的输入用于 Regression。Align & Stitch 为可选步骤；仅有拼接图像不能替代测序轮次数据。"
+
+msgid "**Sequencing cycles and phenotype images**: Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding. Continue with :ref:`OPS <workflow-module-ops>`."
+msgstr "**测序轮次和表型图像**：提供原始的轮次/位点图像、通道分配以及相应的表型配准。保留轮次和位点标识；仅有拼接输出不足以完成解码。继续使用 :ref:`OPS <workflow-module-ops>`。"
+
+msgid "**Compatible phenotype responses**: Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff. Continue with :ref:`Regression <workflow-module-regression>`."
+msgstr "**兼容的表型响应**：将解码后的对象标识与表型响应关联，并汇总到回归所需的分析单元。核实对象/孔标识和向导分配；OPS 表格并不是可直接交接的 FASTQ 计数 CSV。继续使用 :ref:`回归 <workflow-module-regression>`。"
+
+msgid ":ref:`OPS <workflow-module-ops>`: Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment."
+msgstr ":ref:`OPS <workflow-module-ops>`: 从“主页 (Home)”开始，打开“掩膜 (Mask)”，然后打开“OPS”；提供各轮次和位置的原始图像，以及与表型图像的配准信息。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join and aggregate decoded object identities with compatible phenotype responses before opening Regression."
+msgstr ":ref:`Regression <workflow-module-regression>`: 打开“回归 (Regression)”之前，按解码后的对象身份与兼容的表型响应进行关联和聚合。"
+
+msgid "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically."
+msgstr "如果图像需要检查图块几何结构或进行坐标映射，可选择使用“对齐与拼接（Align & Stitch）”；它不是运行 OPS 示例的前提。仅凭拼接图像无法替代测序轮次图像。OPS 表格在回归分析前需要按身份明确关联并聚合；本引导不会自动执行该转换。"
+
+msgid "Import existing data"
+msgstr "导入现有数据"
+
+msgid "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch."
+msgstr "根据现有实验的数据内容，选择相应路径导入 spaCR。只有图像的数据需要分割。匹配的图像和整数掩膜可以格式化为用于测量的项目。现有特征表需要明确的列映射和对象映射，也可能已具备直接探索的条件。在继续下游分支之前，检查身份标识、通道和裁剪图像路径。"
+
+msgid "**Microscopy images**: Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**显微图像**：提供带有通道标识和视野命名的原始显微图像。对于时间序列，请保持帧顺序和时间信息。选择适合本实验中对象的分割设置。继续使用 :ref:`导入 <workflow-module-foreign>`。"
+
+msgid "**External measurements and object mappings**: Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features. Continue with :ref:`Import <workflow-module-foreign>`."
+msgstr "**外部测量数据和对象映射**：导入现有的特征表，并提供明确的对象、视野和列映射。需要探索图像时，请提供匹配的裁剪图路径。避免重新测量已由导入特征表示的行。继续使用 :ref:`导入 <workflow-module-foreign>`。"
+
+msgid ":ref:`Import <workflow-module-foreign>`: Start on Home with Import and select the route matching images, external masks or external measurements."
+msgstr ":ref:`Import <workflow-module-foreign>`: 从“主页 (Home)”打开“导入 (Import)”，选择与图像、外部掩膜或外部测量数据相匹配的路径。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, open Mask to add segmentation; skip this when valid masks already exist."
+msgstr ":ref:`Mask <workflow-module-mask>`: 若只导入了图像，打开“掩膜 (Mask)”进行分割；如果已有有效掩膜，则跳过此步骤。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use Measure when features have not already been imported or computed by External Masks."
+msgstr ":ref:`Measure <workflow-module-measure>`: 如果特征尚未导入，也未由“外部掩膜 (External Masks)”计算，请使用“测量 (Measure)”。"
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP to inspect the resulting measured objects and matching crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 打开“Image UMAP”，检查生成的对象测量数据和对应的裁剪图像。"
+
+msgid "Discover phenotypes without labels"
+msgstr "无需标签发现表型"
+
+msgid "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation."
+msgstr "探索已分割、已测量但尚无初始表型标签的实验。在 Image UMAP 中比较测量特征或编码后的图像特征，检查代表性裁剪图像，并在 Gate Editor 中创建可复现的选区。在监督训练之前，通过 Annotate 审核候选标签。聚类或门控是关于表型的假设，而非对表型的验证。"
+
+msgid "**Segmented image project**: Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring. Continue with :ref:`Measure <workflow-module-measure>`."
+msgstr "**已分割的图像项目**：使用来自掩膜或导入的合并图像数组以及匹配的对象标签平面。测量前检查通道角色、对象标识和裁剪设置。继续使用 :ref:`测量 <workflow-module-measure>`。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Start on Home with Measure using an already segmented project, or use its example data."
+msgstr ":ref:`Measure <workflow-module-measure>`: 从“主页 (Home)”打开“测量 (Measure)”，使用已完成分割的项目，或使用该模块的示例数据。"
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Open Embeddings to encode object images; retain the object IDs and encoder/channel settings."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: 打开“嵌入 (Embeddings)”，对对象图像进行编码；保留对象标识以及编码器和通道设置。"
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Open Image UMAP with compatible measured or encoder feature columns and inspect candidate groups."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 打开“Image UMAP”，使用相互兼容的测量特征列或编码器特征列，检查候选群体。"
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Define a reproducible selection in Gate Editor using the matching feature or projection columns."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 在“门控编辑器 (Gate Editor)”中使用相应的特征列或投影列，定义可重复的选择条件。"
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Open Annotate and review candidate labels before using them as supervised training data."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 打开“标注 (Annotate)”，审核候选标签后，再将其用作监督训练数据。"
+
+msgid "Plan a screen"
+msgstr "规划筛选实验"
+
+msgid "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment."
+msgstr "在采集之前设计条件、对照、重复和培养板分配。使用 Power / Design，在明确的效应量和变异性假设下探索采样需求；预实验测量可以为这些假设提供依据。设计交接表示规划上的依赖关系，并非自动执行实验。"
+
+msgid "**Conditions, controls and design assumptions**: Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required. Continue with :ref:`Experiment Design <workflow-module-experiment_design>`."
+msgstr "**条件、对照和设计假设**：输入实验条件、对照、重复要求和孔板约束。这些输入可以直接填写；不需要预先存在的数据文件。继续使用 :ref:`Experiment Design <workflow-module-experiment_design>`。"
+
+msgid "**Effect sizes, variability and optional pilot data**: Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort. Continue with :ref:`Power / Design <workflow-module-power>`."
+msgstr "**效应量、变异性和可选的预实验数据**：提供关于效应量和变异性的明确假设；可选择使用兼容的预实验测量数据。查看假设的变化如何影响所需的抽样工作量。继续使用 :ref:`Power / Design <workflow-module-power>`。"
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Start on Home with Experiment Design; assign conditions, controls, replicates and wells."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: 从“主页 (Home)”打开“实验设计 (Experiment Design)”；分配实验条件、对照、重复和孔位。"
+
+msgid ":ref:`Power / Design <workflow-module-power>`: Open Power / Design and estimate sampling needs from explicit effect-size and variability assumptions."
+msgstr ":ref:`Power / Design <workflow-module-power>`: 打开“检验效能 / 设计 (Power / Design)”，根据明确的效应量和变异性假设估算采样需求。"
+
+msgid "Track live cells"
+msgstr "追踪活细胞"
+
+msgid "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility."
+msgstr "在有序图像序列中跟踪已分割对象，然后量化其测量结果和运动。检查帧顺序、帧间隔、对象身份标识和像素标定。如有现成掩膜，请与其源图像一起导入，并在解释运动性之前，确保跟踪项目中的身份标识有效。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Start on Home with Mask and point it at an ordered time-series project."
+msgstr ":ref:`Mask <workflow-module-mask>`: 从“主页 (Home)”打开“掩膜 (Mask)”，指定按时间排序的图像序列项目。"
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Open the Timelapse action in Mask, configure timing and inspect linked objects."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: 在“掩膜 (Mask)”中打开“延时成像 (Timelapse)”操作，配置时间参数，并检查已关联的对象。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Open Measure on the tracked project to quantify the objects."
+msgstr ":ref:`Measure <workflow-module-measure>`: 在“测量 (Measure)”中打开完成追踪的项目，对对象进行定量分析。"
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Inside Measure open Motility Assay and check frame interval, pixel calibration and track filters."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: 在“测量 (Measure)”中打开“运动性分析 (Motility Assay)”，检查帧间隔、像素标定和轨迹筛选条件。"
+
+msgid "Module inputs, outputs and next steps"
+msgstr "模块的输入、输出和后续步骤"
+
+msgid "Mask"
+msgstr "掩膜"
+
+msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
+msgstr "选择通道和模型，检查预览，然后运行 Mask。Measure 使用合并数组；计数数据库还不是特征表。"
+
+msgid "**Open:** Home → Mask."
+msgstr "**打开：** 主页 → 掩膜。"
+
+msgid "Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies."
+msgstr "下方的输入和输出包括条件性的替代方案。指南和交接说明会指出适用的路线。"
+
+msgid "**Inputs**"
+msgstr "**输入**"
+
+msgid "**Microscope images** — Source image folder; original files, supported vendor files or imported TIFFs."
+msgstr "**显微镜图像** — 源图像文件夹；原始文件、受支持的厂商文件或导入的 TIFF 文件。"
+
+msgid "**Segmentation checkpoint** — Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration."
+msgstr "**分割检查点** — 已保存的 Cellpose 兼容检查点，或根据其自身配置选定的兼容已安装后端。"
+
+msgid "**Outputs**"
+msgstr "**输出**"
+
+msgid "**Images and label masks** — merged/\\*.npy in the project; channels and integer label planes share each field array."
+msgstr "**图像和标签掩膜** — 项目中的 merged/\\*.npy；通道和整数标签平面共享每个视野数组。"
+
+msgid "**Label masks** — masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup."
+msgstr "**标签掩膜** — 保留时为 masks/，或明确保存的图像与掩膜对。中间掩膜可能在清理时被删除。"
+
+msgid "**Object counts** — measurements/measurements.db; Mask counts alone are not per-object feature measurements."
+msgstr "**对象计数** — measurements/measurements.db；仅有 Mask 计数并不构成逐对象特征测量。"
+
+msgid "**Before this module**"
+msgstr "**本模块之前**"
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Select the saved compatible checkpoint in Mask."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: 在 Mask 中选择已保存的兼容检查点。"
+
+msgid ":ref:`Import Images <workflow-module-import_images>`: Use imported image planes and identities; image-only imports still need segmentation."
+msgstr ":ref:`Import Images <workflow-module-import_images>`: 使用导入的图像平面和标识；仅导入图像时仍需分割。"
+
+msgid ":ref:`Format Converter <workflow-module-convert>`: Use the converted layout and preserve source identity mappings."
+msgstr ":ref:`Format Converter <workflow-module-convert>`: 使用转换后的布局，并保留源标识映射。"
+
+msgid ":ref:`Import <workflow-module-foreign>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
+msgstr ":ref:`Import <workflow-module-foreign>`: 仅导入图像时，使用 Import Images 或 Format Converter，并将 Mask 指向格式化后的图像项目。仅有外部测量数据不能作为分割输入。"
+
+msgid "**After this module**"
+msgstr "**本模块之后**"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the same project and the correct image/mask channel indices."
+msgstr ":ref:`Measure <workflow-module-measure>`: 使用同一项目及正确的图像和掩膜通道索引。"
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Enable the nested time-series route before generating linked labels."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: 生成关联标签前，启用嵌套的时间序列路径。"
+
+msgid ":doc:`API reference </api/spacr/core/index>`."
+msgstr ":doc:`API 参考 </api/spacr/core/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=07_mask>`__."
+msgstr "`模块教程 <tutorials/#lesson=07_mask>`__。"
+
+msgid "Measure"
+msgstr "测量"
+
+msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
+msgstr "Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
+msgstr "启用测试阶段功能后，使用 ``cellprofiler_pipeline`` 旁的保存图标导出随附示例。该示例要求两个图像通道：``_ch0.tif`` (DNA) 和 ``_ch1.tif`` (Actin)，以及 ``_nucleus_mask.tif`` (Nuclei) 和 ``_cell_mask.tif`` (Cells)。运行前，请根据您的数据调整其通道和对象定义。保存成功后会选中导出路径；取消或保存失败时保留原先选择。CellProfiler 在其独立环境中运行。"
+
+msgid "**Open:** Home → Measure."
+msgstr "**打开：** 主页 → 测量。"
+
+msgid "**Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks. Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``. Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``."
+msgstr "**已测量对象** — measurements/measurements.db；对象表取决于启用了哪些细胞、细胞核、病原体和细胞器掩膜。相关的表（视路线而定）：``cell``、``nucleus``、``pathogen``、``cytoplasm``。相关的列（视路线而定）：``plateID``、``rowID``、``columnID``、``fieldID``。"
+
+msgid "**Object crops** — data/\\*\\*/\\*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``png_path``, ``prcfo``."
+msgstr "**对象裁剪图** — 启用 save_png 时为 data/\\*\\*/\\*_png；png_list 为已保存的裁剪图建立索引。受支持的工作流程也可以改为从合并数组和掩膜中流式读取裁剪图。相关的表（视路线而定）：``png_list``。相关的列（视路线而定）：``png_path``、``prcfo``。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices."
+msgstr ":ref:`Mask <workflow-module-mask>`: 使用同一项目及正确的图像和掩膜通道索引。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`：使用 为 Measure 整理 将图像及其掩膜合并为 测量 读取的数组；单独的掩膜不是合并数组。"
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: 仅在需要时重新测量；External Masks 本身已可执行测量。"
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Use the time-series project with stable frame/object identities."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: 使用具有稳定帧和对象标识的时间序列项目。"
+
+msgid ":ref:`Import <workflow-module-foreign>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table."
+msgstr ":ref:`Import <workflow-module-foreign>`: 导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。"
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Save or stream crops with stable object identities."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 保存或流式读取裁剪图像，并保持对象标识稳定。"
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Choose the image or tabular family to match your input."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 根据输入选择图像方法或表格方法。"
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Choose feature columns and inspect representative crops."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 选择特征列并检查有代表性的裁剪图像。"
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Retain encoder and channel-policy provenance."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: 保留编码器和通道策略的来源信息。"
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Use the actual measured feature definitions and units."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 使用实际实测特征的定义和单位。"
+
+msgid ":ref:`Graph Builder <workflow-module-graph_builder>`: Choose explicit variables, groups and filters."
+msgstr ":ref:`Graph Builder <workflow-module-graph_builder>`: 明确选择变量、分组和过滤条件。"
+
+msgid ":ref:`QC <workflow-module-qc_dashboard>`: Review available checks and missing evidence."
+msgstr ":ref:`QC <workflow-module-qc_dashboard>`: 检查可用的检查结果和缺失证据。"
+
+msgid ":ref:`Recruitment <workflow-module-recruitment>`: Require the intended compartment intensities and identities."
+msgstr ":ref:`Recruitment <workflow-module-recruitment>`: 需要目标区室的强度测量值和标识。"
+
+msgid ":ref:`Invasion Assay <workflow-module-invasion>`: Require two-colour stain measurements and appropriate baseline controls."
+msgstr ":ref:`Invasion Assay <workflow-module-invasion>`: 需要双色染色测量值和适当的基线对照。"
+
+msgid ":ref:`Replication Assay <workflow-module-replication>`: Require explicit parasite-to-vacuole identities."
+msgstr ":ref:`Replication Assay <workflow-module-replication>`: 需要明确的寄生虫到液泡的标识对应关系。"
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Combine measured objects with matching tracks."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: 将已测量对象与匹配的轨迹关联。"
+
+msgid ":ref:`Feature Explorer <workflow-module-feature_explorer>`: Define the class comparison and inspect filtering."
+msgstr ":ref:`Feature Explorer <workflow-module-feature_explorer>`: 定义类别比较并检查过滤设置。"
+
+msgid ":ref:`Database Browser <workflow-module-db_browser>`: Inspect actual tables before exporting."
+msgstr ":ref:`Database Browser <workflow-module-db_browser>`: 导出前检查实际表格。"
+
+msgid ":ref:`AnnData Export <workflow-module-anndata_export>`: Export compatible feature and metadata columns."
+msgstr ":ref:`AnnData Export <workflow-module-anndata_export>`: 导出兼容的特征列和元数据列。"
+
+msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Join the measured response to explicit doses and controls."
+msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: 将实测响应与明确的剂量及对照关联。"
+
+msgid ":ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+msgstr ":ref:`Endodyogeny size proxy <workflow-module-endodyogeny>`: 提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。"
+
+msgid ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
+msgstr ":ref:`Host–Pathogen Analysis <workflow-module-host_pathogen>`: 在 Measure 中保留未感染的细胞。提供完整空泡掩膜、宿主参考强度以及可选的明确寄生虫–空泡关联；仅凭宿主身份不能定义空泡。"
+
+msgid ":doc:`API reference </api/spacr/measure/index>`."
+msgstr ":doc:`API 参考 </api/spacr/measure/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=08_measure>`__."
+msgstr "`模块教程 <tutorials/#lesson=08_measure>`__。"
+
+msgid "Annotate"
+msgstr "标注"
+
+msgid "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent."
+msgstr "监督训练前，在 png_list 中标注有代表性的对象。不同问题使用独立标注，并保持训练组和评估组相互独立。"
+
+msgid "**Open:** Home → Annotate."
+msgstr "**打开：** 主页 → 标注。"
+
+msgid "**Reusable gates** — Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions."
+msgstr "**可复用门控** — 已保存的阈值门控或多边形门控定义，或选定的对象集合；门控规则应应用于相同的特征定义。"
+
+msgid "**Training annotations** — A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``prcfo``."
+msgstr "**训练标注** — measurements/measurements.db 中 png_list 表内所选的标注列；标签归属于对象标识。相关的表（视路线而定）：``png_list``。相关的列（视路线而定）：``prcfo``。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Save or stream crops with stable object identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: 保存或流式读取裁剪图像，并保持对象标识稳定。"
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Keep the newly measured project and crop index together."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: 将新测量的项目和裁剪图像索引保存在一起。"
+
+msgid ":ref:`Import <workflow-module-foreign>`: Imported tables require explicit column and object-identity mappings."
+msgstr ":ref:`Import <workflow-module-foreign>`: 导入的表需要明确的列映射和对象标识映射。"
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Apply compatible gates, then review candidate labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 应用兼容的门控规则，然后检查候选标签。"
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Keep labelled training and evaluation groups separate."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 保持带标签的训练组和评估组相互独立。"
+
+msgid ":ref:`Annotator Agreement <workflow-module-agreement>`: Choose independent annotation columns for the same objects."
+msgstr ":ref:`Annotator Agreement <workflow-module-agreement>`: 为同一批对象选择相互独立的标注列。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/annotate/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/annotate/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "`模块教程 <tutorials/#lesson=09_annotate>`__。"
+
+msgid "Classify"
+msgstr "分类"
+
+msgid "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs."
+msgstr "对于裁剪图像或流式读取的对象图像，选择 Computer Vision；对于实测特征列，选择 Tabular Machine Learning。这两类方法使用不同的输入。"
+
+msgid "**Open:** Home → Classify."
+msgstr "**打开：** 主页 → 分类。"
+
+msgid "**Object classification scores** — Saved score CSVs and, when merged, measurements/measurements.db, table png_list. Relevant tables, depending on the route: ``png_list``. Relevant columns, depending on the route: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``."
+msgstr "**对象分类评分** — 保存的评分 CSV，合并后还包括 measurements/measurements.db 中的 png_list 表。相关的表（视路线而定）：``png_list``。相关的列（视路线而定）：``pred``、``cv_predictions``、``ml_pred``、``predictions``。"
+
+msgid "**Trained image classifier** — Saved classifier checkpoint, model settings and matching channel/preprocessing configuration."
+msgstr "**已训练的图像分类器** — 已保存的分类器检查点、模型设置以及匹配的通道和预处理配置。"
+
+msgid "**Fitted feature classifier** — The fitted tabular classifier and its recorded feature list, training settings and validation results."
+msgstr "**已拟合的特征分类器** — 已拟合的表格分类器，以及记录的特征列表、训练设置和验证结果。"
+
+msgid "**Classifier evaluation bundle** — Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run."
+msgstr "**分类器评估文件集** — 已保存分类器运行的留出集预测、标签、数据划分元数据以及校准和数据泄漏指标。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose the image or tabular family to match your input."
+msgstr ":ref:`Measure <workflow-module-measure>`: 根据输入选择图像方法或表格方法。"
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Keep labelled training and evaluation groups separate."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 保持带标签的训练组和评估组相互独立。"
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。"
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Select the intended CV or ML score column and preserve plate/well identity."
+msgstr ":ref:`Regression <workflow-module-regression>`: 选择目标 CV 或 ML 评分列，并保留孔板和孔标识。"
+
+msgid ":ref:`Classifier Evaluation <workflow-module-classifier_evaluation>`: Use the matching held-out predictions and split metadata."
+msgstr ":ref:`Classifier Evaluation <workflow-module-classifier_evaluation>`: 使用匹配的留出集预测和数据划分元数据。"
+
+msgid ":ref:`Activation <workflow-module-activation>`: Also provide the matching crops and channel preprocessing."
+msgstr ":ref:`Activation <workflow-module-activation>`: 同时提供匹配的裁剪图像及通道预处理配置。"
+
+msgid ":ref:`Explain CV Model <workflow-module-explain_cv>`: Select CV predictions and the matching measured objects."
+msgstr ":ref:`Explain CV Model <workflow-module-explain_cv>`: 选择 CV 预测及匹配的已测量对象。"
+
+msgid ":doc:`API reference </api/spacr/classify/index>`."
+msgstr ":doc:`API 参考 </api/spacr/classify/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=41_classify>`__."
+msgstr "`模块教程 <tutorials/#lesson=41_classify>`__。"
+
+msgid "Map Barcodes"
+msgstr "映射条形码"
+
+msgid "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores."
+msgstr "提供编码实验信息的参考表。将孔级向导计数与表型评分配对前，检查映射计数和条形码 QC。"
+
+msgid "**Open:** Home → Map Barcodes."
+msgstr "**打开：** 主页 → 映射条形码。"
+
+msgid "**Sequencing reads** — Single-end or paired FASTQ files, with the matching barcode reference tables."
+msgstr "**测序读段** — 单端或双端 FASTQ 文件，以及匹配的条形码参考表。"
+
+msgid "**Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
+msgstr "**各孔的向导计数** — 映射条形码运行文件夹：unique_combinations.csv 和 annotated_reads.h5。孔标识需要相应的条形码参考。相关的列（视路线而定）：``count``。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Pair guide counts with phenotype scores using consistent plate/well keys."
+msgstr ":ref:`Regression <workflow-module-regression>`: 使用一致的孔板和孔键，将向导计数与表型评分配对。"
+
+msgid ":ref:`Barcode QC <workflow-module-barcode_qc>`: Check mapping and coverage before guide filtering."
+msgstr ":ref:`Barcode QC <workflow-module-barcode_qc>`: 过滤向导计数前检查映射情况和覆盖度。"
+
+msgid ":doc:`API reference </api/spacr/sequencing/index>`."
+msgstr ":doc:`API 参考 </api/spacr/sequencing/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=12_map_barcodes>`__."
+msgstr "`模块教程 <tutorials/#lesson=12_map_barcodes>`__。"
+
+msgid "Regression"
+msgstr "回归"
+
+msgid "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported."
+msgstr "匹配表型输入与向导计数输入的孔板和孔标识，选择响应和对照，并在解释命中结果前检查诊断。也支持直接使用实测响应。"
+
+msgid "**Open:** Home → Regression."
+msgstr "**打开：** 主页 → 回归。"
+
+msgid "**Optical barcode assignments** — OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads. Relevant tables, depending on the route: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_barcodes``, ``ops_reads``."
+msgstr "**光学条形码分配结果** — OPS 目标 measurements.db：逐孔几何、表型配准、细胞核和条形码表；可选的逐轮读段。相关的表（视路线而定）：``ops_geometry``、``ops_phenotype``、``ops_objects``、``ops_barcodes``、``ops_reads``。"
+
+msgid "**Regression results and hits** — Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures."
+msgstr "**回归结果和命中项** — 所选运行的结果文件夹：系数和结果 CSV 文件、命中表、设置和诊断图。"
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Select the intended CV or ML score column and preserve plate/well identity."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 选择目标 CV 或 ML 评分列，并保留孔板和孔标识。"
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Pair guide counts with phenotype scores using consistent plate/well keys."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: 使用一致的孔板和孔键，将向导计数与表型评分配对。"
+
+msgid ":ref:`OPS <workflow-module-ops>`: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
+msgstr ":ref:`OPS <workflow-module-ops>`: 在 Regression 前，将解码对象与表型和向导输入明确关联或汇总；这不是直接传递 CSV 文件。"
+
+msgid ":ref:`Run Compare <workflow-module-run_compare>`: Compare compatible saved result sets and their settings."
+msgstr ":ref:`Run Compare <workflow-module-run_compare>`: 比较兼容的已保存结果集及其设置。"
+
+msgid ":ref:`Hit List <workflow-module-hit_list>`: Inspect ranked hits and guide agreement."
+msgstr ":ref:`Hit List <workflow-module-hit_list>`: 检查排序后的命中结果和向导间一致性。"
+
+msgid ":ref:`Volcano Explorer <workflow-module-volcano_explorer>`: Inspect saved effects and adjusted significance."
+msgstr ":ref:`Volcano Explorer <workflow-module-volcano_explorer>`: 检查保存的效应和经校正的显著性。"
+
+msgid ":ref:`Diagnostics <workflow-module-regression_diagnostics>`: Open the diagnostics actually written by this run."
+msgstr ":ref:`Diagnostics <workflow-module-regression_diagnostics>`: 打开本次运行实际写出的诊断结果。"
+
+msgid ":ref:`Methods & Results <workflow-module-methods_export>`: Review exported prose and every traced result."
+msgstr ":ref:`Methods & Results <workflow-module-methods_export>`: 审核导出的文字和每项可追溯结果。"
+
+msgid ":ref:`Investigate Hit <workflow-module-investigate_hit>`: Join compatible phenotype and object data for the chosen hit."
+msgstr ":ref:`Investigate Hit <workflow-module-investigate_hit>`: 为所选命中结果关联兼容的表型数据和对象数据。"
+
+msgid ":doc:`API reference </api/spacr/ml/index>`."
+msgstr ":doc:`API 参考 </api/spacr/ml/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=13_regression>`__."
+msgstr "`模块教程 <tutorials/#lesson=13_regression>`__。"
+
+msgid "Feature Explorer"
+msgstr "Feature Explorer"
+
+msgid "Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking."
+msgstr "针对所选类别比较对实测特征进行排序；解释排名前检查过滤设置和类别定义。"
+
+msgid "**Open:** Classify → Feature Explorer."
+msgstr "**打开：** 分类 → Feature Explorer。"
+
+msgid "**Figures and table exports** — The output location chosen by the tool; exports describe the selected data and filters."
+msgstr "**图形和表格导出** — 工具选择的输出位置；导出内容描述所选数据和过滤条件。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Define the class comparison and inspect filtering."
+msgstr ":ref:`Measure <workflow-module-measure>`: 定义类别比较并检查过滤设置。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/feature_explorer/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=65_feature_explorer>`__."
+msgstr "`模块教程 <tutorials/#lesson=65_feature_explorer>`__。"
+
+msgid "Format Converter"
+msgstr "格式转换器"
+
+msgid "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements."
+msgstr "将受支持的显微镜文件格式转换为配置的 TIFF 布局，同时保留源文件映射。格式转换不会生成对象测量值。"
+
+msgid "**Open:** Import → Format Converter."
+msgstr "**打开：** 导入 → 格式转换器。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
+msgstr ":ref:`Mask <workflow-module-mask>`: 使用转换后的布局，并保留源标识映射。"
+
+msgid ":doc:`API reference </api/spacr/convert/index>`."
+msgstr ":doc:`API 参考 </api/spacr/convert/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=35_converter>`__."
+msgstr "`模块教程 <tutorials/#lesson=35_converter>`__。"
+
+msgid "Import"
+msgstr "导入"
+
+msgid "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements."
+msgstr "通过明确的对象和列映射导入外部测量数据，或选择 Import Images、Format Converter 或 External Masks。导入测量数据不等于重新运行 Measure。有匹配的源图像和外部整数掩膜时，Import 会构建供 Measure 使用的合并项目数组。选择与文件相符的路径，并在测量前检查对象身份；若导入的特征表已包含所需测量值，则可直接使用。"
+
+msgid "**Open:** Home → Import."
+msgstr "**打开：** 主页 → 导入。"
+
+msgid "**External measurements** — Third-party measurement CSV/database tables and their image, mask and object-identity mappings."
+msgstr "**外部测量数据** — 第三方测量 CSV 或数据库表，以及对应的图像、掩膜和对象标识映射。"
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Imported tables require explicit column and object-identity mappings."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 导入的表需要明确的列映射和对象标识映射。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table."
+msgstr ":ref:`Measure <workflow-module-measure>`: 导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
+msgstr ":ref:`Mask <workflow-module-mask>`: 仅导入图像时，使用 Import Images 或 Format Converter，并将 Mask 指向格式化后的图像项目。仅有外部测量数据不能作为分割输入。"
+
+msgid ":doc:`API reference </api/spacr/foreign/index>`."
+msgstr ":doc:`API 参考 </api/spacr/foreign/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=36_import>`__."
+msgstr "`模块教程 <tutorials/#lesson=36_import>`__。"
+
+msgid "External Masks"
+msgstr "外部掩膜"
+
+msgid "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation."
+msgstr "指定对应图像和现有整数标签掩膜，然后创建并测量 spaCR 项目，无需重新分割。"
+
+msgid "**Open:** Import → External Masks."
+msgstr "**打开：** 导入 → 外部掩膜。"
+
+msgid ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
+msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: 向 External Masks 提供保存的标签 TIFF 文件及其原始图像，指定对象角色，并在 Measure 前创建合并项目。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Re-measure only when needed; External Masks can already perform measurement."
+msgstr ":ref:`Measure <workflow-module-measure>`: 仅在需要时重新测量；External Masks 本身已可执行测量。"
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Keep the newly measured project and crop index together."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 将新测量的项目和裁剪图像索引保存在一起。"
+
+msgid ":doc:`API reference </api/spacr/external_masks/index>`."
+msgstr ":doc:`API 参考 </api/spacr/external_masks/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=31_external_masks>`__."
+msgstr "`模块教程 <tutorials/#lesson=31_external_masks>`__。"
+
+msgid "Plate Queue"
+msgstr "孔板队列"
+
+msgid "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately."
+msgstr "在多个孔板上运行所选流程。输出来自各个排队模块；分别保留每个孔板及其设置。"
+
+msgid "**Open:** the application's Help/tools menus."
+msgstr "**打开：** 应用程序的帮助/工具菜单。"
+
+msgid "**Run queue** — Saved module/plate/settings job definitions and dependency order."
+msgstr "**运行队列** — 已保存的模块、孔板和设置作业定义及依赖顺序。"
+
+msgid "**Run history and artifacts** — Project run records, settings, output paths, artifact provenance, status and logs."
+msgstr "**运行历史和产物** — 项目运行记录、设置、输出路径、产物来源、状态和日志。"
+
+msgid ":doc:`API reference </api/spacr/qt/plate_queue/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/plate_queue/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=30_plate_queue>`__."
+msgstr "`模块教程 <tutorials/#lesson=30_plate_queue>`__。"
+
+msgid "Batch Runner"
+msgstr "批处理运行器"
+
+msgid "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log."
+msgstr "按依赖顺序验证并执行模块作业。每个作业写出各自模块的输出和日志。"
+
+msgid ":doc:`API reference </api/spacr/batch/index>`."
+msgstr ":doc:`API 参考 </api/spacr/batch/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=37_batch>`__."
+msgstr "`模块教程 <tutorials/#lesson=37_batch>`__。"
+
+msgid "Distributed Jobs"
+msgstr "分布式作业"
+
+msgid "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis."
+msgstr "将配置好的运行提交到远程执行目标，并检查其状态和日志。后续分析前应取回实际模块产物。"
+
+msgid ":doc:`API reference </api/spacr/remote_execution/index>`."
+msgstr ":doc:`API 参考 </api/spacr/remote_execution/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=38_distributed_jobs>`__."
+msgstr "`模块教程 <tutorials/#lesson=38_distributed_jobs>`__。"
+
+msgid "Database Browser"
+msgstr "数据库浏览器"
+
+msgid "Browse selected tables and export rows; table inspection does not rerun image analysis."
+msgstr "浏览所选表并导出行；查看表格不会重新运行图像分析。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Inspect actual tables before exporting."
+msgstr ":ref:`Measure <workflow-module-measure>`: 导出前检查实际表格。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/db_browser/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/db_browser/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=34_database>`__."
+msgstr "`模块教程 <tutorials/#lesson=34_database>`__。"
+
+msgid "Run History"
+msgstr "运行历史"
+
+msgid "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity."
+msgstr "检查保存的运行状态、设置、输出和日志；运行完成不能证明生物学有效性。"
+
+msgid ":doc:`API reference </api/spacr/run_journal/index>`."
+msgstr ":doc:`API 参考 </api/spacr/run_journal/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=40_run_history>`__."
+msgstr "`模块教程 <tutorials/#lesson=40_run_history>`__。"
+
+msgid "Report"
+msgstr "报告"
+
+msgid "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis."
+msgstr "将记录的结果、设置和 QC 打包为可分享的报告，而不在后台悄悄重新运行分析。"
+
+msgid "**Quality-control results** — Stored project checks and QC reports; a missing check is not a passing result."
+msgstr "**质量控制结果** — 已存储的项目检查结果和 QC 报告；缺少检查不代表通过。"
+
+msgid "**Shareable reports** — Exported HTML/PDF or methods/results documents derived from recorded analysis outputs."
+msgstr "**可分享报告** — 根据记录的分析输出导出的 HTML/PDF 或方法与结果文档。"
+
+msgid ":doc:`API reference </api/spacr/report/index>`."
+msgstr ":doc:`API 参考 </api/spacr/report/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=29_report>`__."
+msgstr "`模块教程 <tutorials/#lesson=29_report>`__。"
+
+msgid "Data Manager"
+msgstr "数据管理器"
+
+msgid "Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable."
+msgstr "检查项目文件和磁盘使用量。删除派生产物会使依赖这些文件的下游用途失效；原始图像必须保持可恢复。"
+
+msgid ":doc:`API reference </api/spacr/data_manager/index>`."
+msgstr ":doc:`API 参考 </api/spacr/data_manager/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=44_data_manager>`__."
+msgstr "`模块教程 <tutorials/#lesson=44_data_manager>`__。"
+
+msgid "Pipeline Graph"
+msgstr "Pipeline Graph"
+
+msgid "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts."
+msgstr "读取记录的产物依赖关系及过期或缺失状态。该图描述来源关系，不会重新生成缺失产物。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/pipeline_graph/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/pipeline_graph/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=52_pipeline_graph>`__."
+msgstr "`模块教程 <tutorials/#lesson=52_pipeline_graph>`__。"
+
+msgid "QC"
+msgstr "QC"
+
+msgid "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection."
+msgstr "检查存储的分割、单位、数据泄漏和孔板效应检查结果。打开其中嵌套的查看器进行详细检查。"
+
+msgid "**Open:** Home → QC."
+msgstr "**打开：** 主页 → QC。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Review available checks and missing evidence."
+msgstr ":ref:`Measure <workflow-module-measure>`: 检查可用的检查结果和缺失证据。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/qc_dashboard/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/qc_dashboard/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=54_qc_dashboard>`__."
+msgstr "`模块教程 <tutorials/#lesson=54_qc_dashboard>`__。"
+
+msgid "Lineage"
+msgstr "Lineage"
+
+msgid "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference."
+msgstr "检查记录的细胞、细胞核、病原体和细胞器包含关系；这是对象包含关系，并非时间序列谱系推断。"
+
+msgid "**Open:** Help search → Database Browser → Lineage."
+msgstr "**打开：** 帮助搜索 → 数据库浏览器 → Lineage。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/lineage/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=56_lineage>`__."
+msgstr "`模块教程 <tutorials/#lesson=56_lineage>`__。"
+
+msgid "Experiment Design"
+msgstr "Experiment Design"
+
+msgid "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition."
+msgstr "输入条件、对照、重复数和孔板约束，然后在采集前导出实验布局。"
+
+msgid "**Open:** Home → Experiment Design."
+msgstr "**打开：** 主页 → Experiment Design。"
+
+msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
+msgstr "**筛选设计和统计功效估计** — 根据明确选定的效应大小、变异性和采样假设保存的规划表或图形。"
+
+msgid "**Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data."
+msgstr "**实验布局** — 导出的孔板、条件、对照和重复布局图。其孔板和孔标识应与采集数据保持一致。"
+
+msgid ":ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design."
+msgstr ":ref:`Power / Design <workflow-module-power>`: 根据实验布局定义采样假设，然后修订设计。"
+
+msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities."
+msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: 先采集并测量实验数据，保留剂量和条件标识。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/experiment_design/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/experiment_design/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=67_experiment_design>`__."
+msgstr "`模块教程 <tutorials/#lesson=67_experiment_design>`__。"
+
+msgid "Layer Viewer"
+msgstr "Layer Viewer"
+
+msgid "Inspect aligned image, label and point/ROI layers for the selected field."
+msgstr "检查所选视野中已对齐的图像层、标签层以及点或 ROI 层。"
+
+msgid "**Open:** QC → Layer Viewer."
+msgstr "**打开：** QC → Layer Viewer。"
+
+msgid ":doc:`API reference </api/spacr/qt/layer_viewer/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/layer_viewer/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=57_layer_viewer>`__."
+msgstr "`模块教程 <tutorials/#lesson=57_layer_viewer>`__。"
+
+msgid "Power / Design"
+msgstr "Power / Design"
+
+msgid "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions."
+msgstr "根据选定的效应大小和变异性估计采样需求；预实验测量可作为假设的可选依据。"
+
+msgid "**Open:** Home → Power / Design."
+msgstr "**打开：** 主页 → Power / Design。"
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: 根据实验布局定义采样假设，然后修订设计。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/power/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=68_power_design>`__."
+msgstr "`模块教程 <tutorials/#lesson=68_power_design>`__。"
+
+msgid "Run Compare"
+msgstr "Run Compare"
+
+msgid "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison."
+msgstr "比较兼容的已保存设置、计数和命中列表；输入数据发生变化时，不应将比较视为受控的模型比较。"
+
+msgid "**Open:** Home → Run Compare."
+msgstr "**打开：** 主页 → Run Compare。"
+
+msgid "**Run/model comparison** — Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy."
+msgstr "**运行与模型比较** — 由兼容的已保存运行或掩膜生成的比较表和图形；一致性不等于相对于真实标签的准确率。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Compare compatible saved result sets and their settings."
+msgstr ":ref:`Regression <workflow-module-regression>`: 比较兼容的已保存结果集及其设置。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/run_compare/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/run_compare/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=50_run_compare>`__."
+msgstr "`模块教程 <tutorials/#lesson=50_run_compare>`__。"
+
+msgid "Tabulate"
+msgstr "Tabulate"
+
+msgid "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes."
+msgstr "选择分组变量和测量列，然后检查透视表及各组样本量。"
+
+msgid "**Open:** Help search → Database Browser → Tabulate."
+msgstr "**打开：** 帮助搜索 → 数据库浏览器 → Tabulate。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/tabulate/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/tabulate/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=61_tabulate>`__."
+msgstr "`模块教程 <tutorials/#lesson=61_tabulate>`__。"
+
+msgid "Dose–Response"
+msgstr "Dose–Response"
+
+msgid "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing."
+msgstr "曲线拟合前提供剂量列、响应列、对照和单位；此路径不需要测序。"
+
+msgid "**Open:** Home → Dose–Response."
+msgstr "**打开：** 主页 → Dose–Response。"
+
+msgid "**Assay results** — Assay-specific result tables and figures in the configured destination, preserving well and condition identities."
+msgstr "**实验分析结果** — 配置的输出目录中的实验专用结果表和图形，保留孔和条件标识。"
+
+msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Acquire and measure the experiment first, preserving dose/condition identities."
+msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: 先采集并测量实验数据，保留剂量和条件标识。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Join the measured response to explicit doses and controls."
+msgstr ":ref:`Measure <workflow-module-measure>`: 将实测响应与明确的剂量及对照关联。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/dose_response/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/dose_response/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=69_dose_response>`__."
+msgstr "`模块教程 <tutorials/#lesson=69_dose_response>`__。"
+
+msgid "Project Browser"
+msgstr "Project Browser"
+
+msgid "Locate projects and inspect their stage, last run, disk use and stale outputs."
+msgstr "定位项目并检查其阶段、最近一次运行、磁盘使用量和过期输出。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/project_browser/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/project_browser/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=45_project_browser>`__."
+msgstr "`模块教程 <tutorials/#lesson=45_project_browser>`__。"
+
+msgid "Outliers"
+msgstr "Outliers"
+
+msgid "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis."
+msgstr "将过滤后的数据用于分析前，检查对象和孔的稳健异常值评分以及所选排除规则。"
+
+msgid "**Open:** QC → Outliers."
+msgstr "**打开：** QC → Outliers。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/outliers/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/outliers/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=66_outliers>`__."
+msgstr "`模块教程 <tutorials/#lesson=66_outliers>`__。"
+
+msgid "Embeddings"
+msgstr "Embeddings"
+
+msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
+msgstr "使用所选模型和通道策略编码对象图像。将特征传递给后续探索步骤时，保留对象标识和编码器来源信息。"
+
+msgid "**Open:** Home → Embeddings."
+msgstr "**打开：** 主页 → Embeddings。"
+
+msgid "**Image embeddings** — Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent."
+msgstr "**图像嵌入** — 按对象索引的编码器特征，附带通道策略和编码器来源信息。编码 API 返回特征；是否持久保存取决于调用方。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Retain encoder and channel-policy provenance."
+msgstr ":ref:`Measure <workflow-module-measure>`: 保留编码器和通道策略的来源信息。"
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/embeddings/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/embeddings/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=77_embeddings>`__."
+msgstr "`模块教程 <tutorials/#lesson=77_embeddings>`__。"
+
+msgid "Control Charts"
+msgstr "Control Charts"
+
+msgid "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment."
+msgstr "跨孔板比较指定对照并检查漂移；对照的定义来自实验设计。"
+
+msgid "**Open:** QC → Control Charts."
+msgstr "**打开：** QC → Control Charts。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/control_chart/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/control_chart/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=51_control_charts>`__."
+msgstr "`模块教程 <tutorials/#lesson=51_control_charts>`__。"
+
+msgid "Training Runs"
+msgstr "训练运行"
+
+msgid "Compare saved training histories, metrics and settings from compatible model runs."
+msgstr "比较兼容模型运行中保存的训练历史、指标和设置。"
+
+msgid "**Open:** Classify → Training Runs."
+msgstr "**打开：** 分类 → 训练运行。"
+
+msgid ":doc:`API reference </api/spacr/train_compare/index>`."
+msgstr ":doc:`API 参考 </api/spacr/train_compare/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=28_training_runs>`__."
+msgstr "`模块教程 <tutorials/#lesson=28_training_runs>`__。"
+
+msgid "Align & Stitch"
+msgstr "对齐与拼接"
+
+msgid "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
+msgstr "检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图像。OPS 还需要原始轮次和位点标识。"
+
+msgid "**Open:** Home → Align & Stitch."
+msgstr "**打开：** 主页 → 对齐与拼接。"
+
+msgid "**Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it."
+msgstr "**对齐后的拼接图像和坐标** — Align & Stitch 的输出目录：拼接图像，以及解释该图像所需的图块坐标和布局记录。"
+
+msgid ":ref:`OPS <workflow-module-ops>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
+msgstr ":ref:`OPS <workflow-module-ops>`: 将图块坐标和原始测序轮次信息一并传入 OPS；只有展平的拼接图像并不足够。"
+
+msgid ":doc:`API reference </api/spacr/align/index>`."
+msgstr ":doc:`API 参考 </api/spacr/align/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=32_align_stitch>`__."
+msgstr "`模块教程 <tutorials/#lesson=32_align_stitch>`__。"
+
+msgid "Make Masks"
+msgstr "创建掩膜"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
+msgstr "整理用于分割训练的图像/掩膜对，或使用 为 Measure 整理 将图像及其掩膜合并为 测量 读取的数组。保存掩膜不会训练分类器。"
+
+msgid "**Open:** Home → Make Masks."
+msgstr "**打开：** 主页 → 创建掩膜。"
+
+msgid "**Curated training fields** — Separate image and integer-mask files with matching field identities; preserve original images and labels."
+msgstr "**整理后的训练视野** — 相互独立且视野标识匹配的图像文件和整数掩膜文件；保留原始图像和标签。"
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Use independently checked image/mask pairs."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: 使用经过独立核查的图像与掩膜对。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
+msgstr ":ref:`Measure <workflow-module-measure>`：使用 为 Measure 整理 将图像及其掩膜合并为 测量 读取的数组；单独的掩膜不是合并数组。"
+
+msgid ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+msgstr ":ref:`Plaque Assay <workflow-module-analyze_plaques>`: 使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/make_masks/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/make_masks/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=14_make_masks>`__."
+msgstr "`模块教程 <tutorials/#lesson=14_make_masks>`__。"
+
+msgid "Plate Viewer"
+msgstr "孔板查看器"
+
+msgid "Aggregate the selected measurement by well and inspect plate patterns and controls."
+msgstr "按孔汇总所选测量值，并检查孔板上的分布模式和对照。"
+
+msgid "**Open:** Graph Builder → Plate Viewer."
+msgstr "**打开：** Graph Builder → 孔板查看器。"
+
+msgid ":doc:`API reference </api/spacr/plate_qc/index>`."
+msgstr ":doc:`API 参考 </api/spacr/plate_qc/index>`。"
+
+msgid "Image UMAP"
+msgstr "图像 UMAP"
+
+msgid "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+msgstr "对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。使用套索和注释控件，将审查后的选择写入对应测量数据库的注释列。单靠几何选择不能确立生物学表型。"
+
+msgid "**Open:** Home → Image UMAP."
+msgstr "**打开：** 主页 → 图像 UMAP。"
+
+msgid "**Projection and clusters** — Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data."
+msgstr "**投影和聚类** — 已加载测量数据的 Image UMAP/PCA 坐标表、所选聚类和图形。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose feature columns and inspect representative crops."
+msgstr ":ref:`Measure <workflow-module-measure>`: 选择特征列并检查有代表性的裁剪图像。"
+
+msgid ":ref:`Embeddings <workflow-module-embeddings>`: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it."
+msgstr ":ref:`Embeddings <workflow-module-embeddings>`: 提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。"
+
+msgid ":ref:`Gate Editor <workflow-module-gate_editor>`: Supply the matching coordinate/feature columns when defining a selection."
+msgstr ":ref:`Gate Editor <workflow-module-gate_editor>`: 定义选择范围时，提供匹配的坐标列或特征列。"
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Write reviewed lasso selections to an annotation column in the matching object database, then select that column in Classify. Inspect crops and validate labels; embedding clusters are not ground truth."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。"
+
+msgid "`Module tutorial <tutorials/#lesson=15_image_umap>`__."
+msgstr "`模块教程 <tutorials/#lesson=15_image_umap>`__。"
+
+msgid "Prediction Profiler"
+msgstr "Prediction Profiler"
+
+msgid "Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects."
+msgstr "检查输入特征变化时已拟合模型的响应；预测不能证明因果效应。"
+
+msgid "**Open:** Regression → Prediction Profiler."
+msgstr "**打开：** 回归 → Prediction Profiler。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/profiler/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/profiler/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=53_prediction_profiler>`__."
+msgstr "`模块教程 <tutorials/#lesson=53_prediction_profiler>`__。"
+
+msgid "Graph Builder"
+msgstr "Graph Builder"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
+msgstr "加载表格，或使用 合并表格 合并兼容的测量数据。对于经过转换的图像，使用 合并原始文件名 从转换映射中恢复名称。使用 标注实验条件，通过元数据 regex 规则或拖入的行分配一个命名列；保存已标注的 SQLite 表格，或导出带规则的 CSV。选择变量、分组和绘图设置，然后连同分析上下文导出图形。"
+
+msgid "**Open:** Home → Graph Builder."
+msgstr "**打开：** 主页 → Graph Builder。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Choose explicit variables, groups and filters."
+msgstr ":ref:`Measure <workflow-module-measure>`: 明确选择变量、分组和过滤条件。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/graph_builder/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/graph_builder/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=58_graph_builder>`__."
+msgstr "`模块教程 <tutorials/#lesson=58_graph_builder>`__。"
+
+msgid "Investigate Hit"
+msgstr "Investigate Hit"
+
+msgid "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit."
+msgstr "将回归命中结果与候选对象及孔级定量证据关联。这本身并不能独立验证该命中结果。"
+
+msgid "**Open:** Regression → Investigate Hit."
+msgstr "**打开：** 回归 → Investigate Hit。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join compatible phenotype and object data for the chosen hit."
+msgstr ":ref:`Regression <workflow-module-regression>`: 为所选命中结果关联兼容的表型数据和对象数据。"
+
+msgid ":doc:`API reference </api/spacr/hit_investigation/index>`."
+msgstr ":doc:`API 参考 </api/spacr/hit_investigation/index>`。"
+
+msgid "Gate Editor"
+msgstr "Gate Editor"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+msgstr "加载表格，或使用 合并表格 通过已验证的键和聚合规则创建工作集。在实际特征或坐标列上定义阈值或多边形门控，然后将保存的门控应用于兼容对象。使用 标注 将显示的门控写入标注列；检查选中的对象并选择二分类或多分类标签。"
+
+msgid "**Open:** Home → Gate Editor."
+msgstr "**打开：** 主页 → Gate Editor。"
+
+msgid ":ref:`Image UMAP <workflow-module-umap>`: Supply the matching coordinate/feature columns when defining a selection."
+msgstr ":ref:`Image UMAP <workflow-module-umap>`: 定义选择范围时，提供匹配的坐标列或特征列。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the actual measured feature definitions and units."
+msgstr ":ref:`Measure <workflow-module-measure>`: 使用实际实测特征的定义和单位。"
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Apply compatible gates, then review candidate labels."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 应用兼容的门控规则，然后检查候选标签。"
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/gate_editor/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/gate_editor/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=64_gate_editor>`__."
+msgstr "`模块教程 <tutorials/#lesson=64_gate_editor>`__。"
+
+msgid "Feature Dictionary"
+msgstr "特征词典"
+
+msgid "Look up feature definitions and units before choosing measurement columns."
+msgstr "选择测量列前，查阅特征定义和单位。"
+
+msgid "**Feature definitions** — The installed feature dictionary; definitions describe existing measurements and do not compute them."
+msgstr "**特征定义** — 已安装的特征字典；定义用于描述已有测量值，并不计算这些测量值。"
+
+msgid ":doc:`API reference </api/spacr/feature_dict/index>`."
+msgstr ":doc:`API 参考 </api/spacr/feature_dict/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=62_feature_dictionary>`__."
+msgstr "`模块教程 <tutorials/#lesson=62_feature_dictionary>`__。"
+
+msgid "Small Multiples"
+msgstr "Small Multiples"
+
+msgid "Compare groups in small-multiple plots with explicit shared or independent axes."
+msgstr "使用明确共享或独立坐标轴的分面图比较各组。"
+
+msgid "**Open:** Graph Builder → Small Multiples."
+msgstr "**打开：** Graph Builder → Small Multiples。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/trellis/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/trellis/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=63_small_multiples>`__."
+msgstr "`模块教程 <tutorials/#lesson=63_small_multiples>`__。"
+
+msgid "Plaque Assay"
+msgstr "空斑分析"
+
+msgid "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example."
+msgstr "使用配置的噬斑模型分析噬斑图像或现有掩膜。此路径不必经过 Measure；请参阅专门的噬斑示例。"
+
+msgid "**Open:** Toxoplasma → Plaque Assay."
+msgstr "**打开：** 弓形虫 → 空斑分析。"
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: 使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。"
+
+msgid ":doc:`API reference </api/spacr/submodules/index>`."
+msgstr ":doc:`API 参考 </api/spacr/submodules/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=24_plaque>`__."
+msgstr "`模块教程 <tutorials/#lesson=24_plaque>`__。"
+
+msgid "Recruitment"
+msgstr "募集分析"
+
+msgid "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios."
+msgstr "使用区室强度测量值和匹配的宿主与病原体标识计算募集比值。"
+
+msgid "**Open:** Toxoplasma → Recruitment."
+msgstr "**打开：** 弓形虫 → 募集分析。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: 需要目标区室的强度测量值和标识。"
+
+msgid "`Module tutorial <tutorials/#lesson=25_recruitment>`__."
+msgstr "`模块教程 <tutorials/#lesson=25_recruitment>`__。"
+
+msgid "Invasion Assay"
+msgstr "侵袭分析"
+
+msgid "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion."
+msgstr "使用所需的双色差异染色测量值和染色基线对照，区分黏附与侵入。"
+
+msgid "**Open:** Toxoplasma → Invasion Assay."
+msgstr "**打开：** 弓形虫 → 侵袭分析。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require two-colour stain measurements and appropriate baseline controls."
+msgstr ":ref:`Measure <workflow-module-measure>`: 需要双色染色测量值和适当的基线对照。"
+
+msgid "`Module tutorial <tutorials/#lesson=26_invasion>`__."
+msgstr "`模块教程 <tutorials/#lesson=26_invasion>`__。"
+
+msgid "Replication Assay"
+msgstr "复制分析"
+
+msgid "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole."
+msgstr "使用明确的液泡标识统计寄生虫，并比较各条件的分布；仅有宿主标识不能定义液泡。"
+
+msgid "**Open:** Toxoplasma → Replication Assay."
+msgstr "**打开：** 弓形虫 → 复制分析。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Require explicit parasite-to-vacuole identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: 需要明确的寄生虫到液泡的标识对应关系。"
+
+msgid "`Module tutorial <tutorials/#lesson=27_replication>`__."
+msgstr "`模块教程 <tutorials/#lesson=27_replication>`__。"
+
+msgid "Cellpose Workbench"
+msgstr "Cellpose 工作台"
+
+msgid "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask."
+msgstr "在 Make Masks 中打开 Cellpose Workbench，并使用核查过的图像与掩膜对训练。在 Mask 中选择检查点前，先在独立视野上评估。"
+
+msgid "**Open:** Make Masks → Cellpose Workbench."
+msgstr "**打开：** 创建掩膜 → Cellpose 工作台。"
+
+msgid ":ref:`Make Masks <workflow-module-make_masks>`: Use independently checked image/mask pairs."
+msgstr ":ref:`Make Masks <workflow-module-make_masks>`: 使用经过独立核查的图像与掩膜对。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Select the saved compatible checkpoint in Mask."
+msgstr ":ref:`Mask <workflow-module-mask>`: 在 Mask 中选择已保存的兼容检查点。"
+
+msgid ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing."
+msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`: 将训练好的检查点作为 custom_model 传入，并匹配图像通道和预处理配置。"
+
+msgid "`Module tutorial <tutorials/#lesson=19_train_cellpose>`__."
+msgstr "`模块教程 <tutorials/#lesson=19_train_cellpose>`__。"
+
+msgid "Mask the whole folder"
+msgstr "为整个文件夹生成掩膜"
+
+msgid "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them."
+msgstr "通过 Make Masks 将所选分割模型应用于已打开的图像文件夹；测量前检查保存的标签。"
+
+msgid "**Open:** Make Masks → Mask the whole folder."
+msgstr "**打开：** 创建掩膜 → 为整个文件夹生成掩膜。"
+
+msgid ":doc:`API reference </api/spacr/spacr_cellpose/index>`."
+msgstr ":doc:`API 参考 </api/spacr/spacr_cellpose/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=20_cellpose_masks>`__."
+msgstr "`模块教程 <tutorials/#lesson=20_cellpose_masks>`__。"
+
+msgid "Model Compare"
+msgstr "模型比较"
+
+msgid "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+msgstr "在相同视野上比较模型掩膜。没有独立参考标签时，一致性不能衡量分割准确率。"
+
+msgid "**Open:** Make Masks → Model Compare."
+msgstr "**打开：** 创建掩膜 → 模型比较。"
+
+msgid ":doc:`API reference </api/spacr/model_compare/index>`."
+msgstr ":doc:`API 参考 </api/spacr/model_compare/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=21_model_compare>`__."
+msgstr "`模块教程 <tutorials/#lesson=21_model_compare>`__。"
+
+msgid "Model Zoo"
+msgstr "模型库"
+
+msgid "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file."
+msgstr "检查模型来源并下载或安装兼容的检查点或后端。列出的后端本身并不是检查点文件。"
+
+msgid "**Open:** Make Masks → Model Zoo."
+msgstr "**打开：** 创建掩膜 → 模型库。"
+
+msgid ":doc:`API reference </api/spacr/model_zoo/index>`."
+msgstr ":doc:`API 参考 </api/spacr/model_zoo/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=22_model_zoo>`__."
+msgstr "`模块教程 <tutorials/#lesson=22_model_zoo>`__。"
+
+msgid "Curate"
+msgstr "校正"
+
+msgid "Correct labels and track assignments while retaining a record of the edits."
+msgstr "修正标签和轨迹分配，同时保留编辑记录。"
+
+msgid "**Open:** Make Masks → Curate."
+msgstr "**打开：** 创建掩膜 → 校正。"
+
+msgid "**Linked time-series objects** — Tracked labels and frame/object associations from the time-series project, with frame interval and units."
+msgstr "**已关联的时间序列对象** — 时间序列项目中的跟踪标签及帧与对象关联，附带帧间隔和单位。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/curate/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/curate/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=42_curate>`__."
+msgstr "`模块教程 <tutorials/#lesson=42_curate>`__。"
+
+msgid "Napari Bridge"
+msgstr "napari 桥接"
+
+msgid "Send the matching image/labels to napari and import the revised labels back with field identity preserved."
+msgstr "将匹配的图像和标签发送到 napari，再导回修改后的标签，同时保留视野标识。"
+
+msgid "**Open:** Make Masks → Napari Bridge."
+msgstr "**打开：** 创建掩膜 → napari 桥接。"
+
+msgid ":doc:`API reference </api/spacr/napari_bridge/index>`."
+msgstr ":doc:`API 参考 </api/spacr/napari_bridge/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=46_napari_bridge>`__."
+msgstr "`模块教程 <tutorials/#lesson=46_napari_bridge>`__。"
+
+msgid "Import Images"
+msgstr "导入图像"
+
+msgid "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement."
+msgstr "写入独立项目前，核查视野标识、图像通道和可选的外部掩膜。仅导入图像时，测量前仍需分割。"
+
+msgid "**Open:** Import → Import Images."
+msgstr "**打开：** 导入 → 导入图像。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Use imported image planes and identities; image-only imports still need segmentation."
+msgstr ":ref:`Mask <workflow-module-mask>`: 使用导入的图像平面和标识；仅导入图像时仍需分割。"
+
+msgid ":doc:`API reference </api/spacr/image_import/index>`."
+msgstr ":doc:`API 参考 </api/spacr/image_import/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=74_import_images>`__."
+msgstr "`模块教程 <tutorials/#lesson=74_import_images>`__。"
+
+msgid "Barcode QC"
+msgstr "条形码质控"
+
+msgid "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering."
+msgstr "过滤向导计数前，检查映射深度、覆盖度、冲突和位置效应。"
+
+msgid "**Open:** Map Barcodes → Barcode QC."
+msgstr "**打开：** 映射条形码 → 条形码质控。"
+
+msgid ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Check mapping and coverage before guide filtering."
+msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: 过滤向导计数前检查映射情况和覆盖度。"
+
+msgid ":doc:`API reference </api/spacr/sequencing_qc/index>`."
+msgstr ":doc:`API 参考 </api/spacr/sequencing_qc/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=47_barcode_qc>`__."
+msgstr "`模块教程 <tutorials/#lesson=47_barcode_qc>`__。"
+
+msgid "Image Scatter"
+msgstr "图像散点图"
+
+msgid "Plot selected measurement columns with object-crop inspection."
+msgstr "绘制所选测量列，并结合对象裁剪图像进行检查。"
+
+msgid "**Open:** Image UMAP → Image Scatter."
+msgstr "**打开：** 图像 UMAP → 图像散点图。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/image_scatter/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/image_scatter/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=55_image_scatter>`__."
+msgstr "`模块教程 <tutorials/#lesson=55_image_scatter>`__。"
+
+msgid "PCA"
+msgstr "PCA"
+
+msgid "Inspect principal components and feature loadings for the selected measured objects."
+msgstr "检查所选已测量对象的主成分和特征载荷。"
+
+msgid "**Open:** Image UMAP → PCA."
+msgstr "**打开：** 图像 UMAP → PCA。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/pca/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/pca/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=60_pca>`__."
+msgstr "`模块教程 <tutorials/#lesson=60_pca>`__。"
+
+msgid "Volcano Explorer"
+msgstr "火山图浏览器"
+
+msgid "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records."
+msgstr "打开已保存的回归结果，检查效应大小、经校正的显著性和各项命中记录。"
+
+msgid "**Open:** Regression → Volcano Explorer."
+msgstr "**打开：** 回归 → 火山图浏览器。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Inspect saved effects and adjusted significance."
+msgstr ":ref:`Regression <workflow-module-regression>`: 检查保存的效应和经校正的显著性。"
+
+msgid ":doc:`API reference </api/spacr/volcano_style/index>`."
+msgstr ":doc:`API 参考 </api/spacr/volcano_style/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__."
+msgstr "`模块教程 <tutorials/#lesson=72_volcano_explorer>`__。"
+
+msgid "Hit List"
+msgstr "命中列表"
+
+msgid "Filter and rank saved hits with their effects, FDR and guide agreement."
+msgstr "根据效应、FDR 和向导间一致性过滤并排序已保存的命中结果。"
+
+msgid "**Open:** Regression → Hit List."
+msgstr "**打开：** 回归 → 命中列表。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Inspect ranked hits and guide agreement."
+msgstr ":ref:`Regression <workflow-module-regression>`: 检查排序后的命中结果和向导间一致性。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/hit_list/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/hit_list/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=48_hit_list>`__."
+msgstr "`模块教程 <tutorials/#lesson=48_hit_list>`__。"
+
+msgid "Methods & Results"
+msgstr "方法与结果"
+
+msgid "Draft methods/results text from recorded settings and results; review every claim before publication."
+msgstr "根据记录的设置和结果起草方法与结果文本；发表前核查每项论断。"
+
+msgid "**Open:** Regression → Methods & Results."
+msgstr "**打开：** 回归 → 方法与结果。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Review exported prose and every traced result."
+msgstr ":ref:`Regression <workflow-module-regression>`: 审核导出的文字和每项可追溯结果。"
+
+msgid ":doc:`API reference </api/spacr/methods_export/index>`."
+msgstr ":doc:`API 参考 </api/spacr/methods_export/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=49_methods_results>`__."
+msgstr "`模块教程 <tutorials/#lesson=49_methods_results>`__。"
+
+msgid "Diagnostics"
+msgstr "诊断"
+
+msgid "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions."
+msgstr "检查所选回归运行保存的诊断面板；区分缺少诊断与假设已通过检查。"
+
+msgid "**Open:** Regression → Diagnostics."
+msgstr "**打开：** 回归 → 诊断。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Open the diagnostics actually written by this run."
+msgstr ":ref:`Regression <workflow-module-regression>`: 打开本次运行实际写出的诊断结果。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/regression/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/regression/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=75_regression_diagnostics>`__."
+msgstr "`模块教程 <tutorials/#lesson=75_regression_diagnostics>`__。"
+
+msgid "Illumination"
+msgstr "照明"
+
+msgid "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy."
+msgstr "在配置的阶段估计并应用平场校正。区分校正后的显示值与原始测量值，并记录所用策略。"
+
+msgid "**Open:** Measure → Illumination."
+msgstr "**打开：** 测量 → 照明。"
+
+msgid ":doc:`API reference </api/spacr/illumination/index>`."
+msgstr ":doc:`API 参考 </api/spacr/illumination/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=43_illumination>`__."
+msgstr "`模块教程 <tutorials/#lesson=43_illumination>`__。"
+
+msgid "AnnData Export"
+msgstr "导出 AnnData"
+
+msgid "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis."
+msgstr "导出包含对象元数据和实测特征的 AnnData .h5ad 文件，用于后续单细胞分析。"
+
+msgid "**Open:** Measure → AnnData Export."
+msgstr "**打开：** 测量 → 导出 AnnData。"
+
+msgid "**AnnData export** — An exported .h5ad file containing measured features and object metadata."
+msgstr "**AnnData 导出** — 导出的 .h5ad 文件，包含实测特征和对象元数据。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Export compatible feature and metadata columns."
+msgstr ":ref:`Measure <workflow-module-measure>`: 导出兼容的特征列和元数据列。"
+
+msgid ":doc:`API reference </api/spacr/anndata_export/index>`."
+msgstr ":doc:`API 参考 </api/spacr/anndata_export/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=59_anndata_export>`__."
+msgstr "`模块教程 <tutorials/#lesson=59_anndata_export>`__。"
+
+msgid "Motility Assay"
+msgstr "运动性分析"
+
+msgid "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration."
+msgstr "结合明确的帧间隔和像素标定，检查轨迹速度及感染相关测量值。"
+
+msgid "**Open:** Measure → Motility Assay."
+msgstr "**打开：** 测量 → 运动性分析。"
+
+msgid ":ref:`Timelapse <workflow-module-timelapse>`: Supply frame interval and pixel calibration."
+msgstr ":ref:`Timelapse <workflow-module-timelapse>`: 提供帧间隔和像素标定。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Combine measured objects with matching tracks."
+msgstr ":ref:`Measure <workflow-module-measure>`: 将已测量对象与匹配的轨迹关联。"
+
+msgid ":doc:`API reference </api/spacr/timelapse/index>`."
+msgstr ":doc:`API 参考 </api/spacr/timelapse/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=18_motility>`__."
+msgstr "`模块教程 <tutorials/#lesson=18_motility>`__。"
+
+msgid "Timelapse"
+msgstr "延时成像"
+
+msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
+msgstr "在 Mask 中打开 Timelapse，对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
+msgstr "谱系导出保留以帧为单位的世代时间，并添加 ``generation_time_hours`` 及经过校准的汇总统计量。请提供正数 ``frame_interval_s``，或在轨迹表中提供完整、递增的 ``time_s`` 值。如果两者都存在，则必须一致；不设固定间隔时可使用不规则时间戳。缺少校准或细胞周期不完整时，不提供以小时为单位的世代时间。导出表会记录校准来源和单位。树的坐标轴和 Newick 分支长度仍以帧为单位。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
+msgstr "要按测量特征为谱系树着色，请先启用 ``timelapse_lineage`` 并追踪，以便 spaCR 保存帧与来源的对应关系。然后在合并后的项目上运行测量模块，设置 ``timelapse=True`` 、匹配的 ``timelapse_objects`` 以及 ``timelapse_lineage=True`` 。启用测试阶段功能和时间维度，即可显示谱系控件。将 ``timelapse_lineage_color_by`` 设为所选对象测量表中的数值列。谱系段的均值使用有测量值的帧计算；完全没有测量值的谱系段保持未着色，同时报告测量覆盖情况。结果保存在 ``tracks/lineage_measured`` ，不会替换之前的谱系结果。旧轨迹若缺少对应关系，则需要重新追踪。沿用已保存的显式时间校准；拒绝与其冲突的时间间隔。"
+
+msgid "**Open:** Mask → Timelapse."
+msgstr "**打开：** 掩膜 → 延时成像。"
+
+msgid ":ref:`Mask <workflow-module-mask>`: Enable the nested time-series route before generating linked labels."
+msgstr ":ref:`Mask <workflow-module-mask>`: 生成关联标签前，启用嵌套的时间序列路径。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Use the time-series project with stable frame/object identities."
+msgstr ":ref:`Measure <workflow-module-measure>`: 使用具有稳定帧和对象标识的时间序列项目。"
+
+msgid ":ref:`Motility Assay <workflow-module-motility>`: Supply frame interval and pixel calibration."
+msgstr ":ref:`Motility Assay <workflow-module-motility>`: 提供帧间隔和像素标定。"
+
+msgid "`Module tutorial <tutorials/#lesson=17_timelapse>`__."
+msgstr "`模块教程 <tutorials/#lesson=17_timelapse>`__。"
+
+msgid "OPS"
+msgstr "OPS"
+
+msgid "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV."
+msgstr "使用测序轮次图像和表型对齐，为每个细胞核解码条形码。在 Regression 前，将解码标识汇总或关联到兼容的表型输入；OPS 数据库不能直接替代 FASTQ 计数 CSV。"
+
+msgid "**Open:** Mask → OPS."
+msgstr "**打开：** 掩膜 → OPS。"
+
+msgid ":ref:`Align & Stitch <workflow-module-align>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
+msgstr ":ref:`Align & Stitch <workflow-module-align>`: 将图块坐标和原始测序轮次信息一并传入 OPS；只有展平的拼接图像并不足够。"
+
+msgid ":ref:`Regression <workflow-module-regression>`: Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
+msgstr ":ref:`Regression <workflow-module-regression>`: 在 Regression 前，将解码对象与表型和向导输入明确关联或汇总；这不是直接传递 CSV 文件。"
+
+msgid ":doc:`API reference </api/spacr/ops_engine/index>`."
+msgstr ":doc:`API 参考 </api/spacr/ops_engine/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=76_ops>`__."
+msgstr "`模块教程 <tutorials/#lesson=76_ops>`__。"
+
+msgid "Classifier Evaluation"
+msgstr "分类器评估"
+
+msgid "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+msgstr "检查匹配分类器的留出集预测、校准以及数据划分和泄漏证据。"
+
+msgid "**Open:** Classify → Classifier Evaluation."
+msgstr "**打开：** 分类 → 分类器评估。"
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Use the matching held-out predictions and split metadata."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 使用匹配的留出集预测和数据划分元数据。"
+
+msgid ":doc:`API reference </api/spacr/classifier_evaluation/index>`."
+msgstr ":doc:`API 参考 </api/spacr/classifier_evaluation/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=39_classifier_evaluation>`__."
+msgstr "`模块教程 <tutorials/#lesson=39_classifier_evaluation>`__。"
+
+msgid "Explain CV Model"
+msgstr "解释 CV 模型"
+
+msgid "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality."
+msgstr "用实测特征拟合现有计算机视觉评分的代理模型，并保留标识关联。代理模型的解释不代表因果关系。"
+
+msgid "**Open:** Classify → Explain CV Model."
+msgstr "**打开：** 分类 → 解释 CV 模型。"
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Select CV predictions and the matching measured objects."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 选择 CV 预测及匹配的已测量对象。"
+
+msgid ":doc:`API reference </api/spacr/surrogate/index>`."
+msgstr ":doc:`API 参考 </api/spacr/surrogate/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=70_explain_cv>`__."
+msgstr "`模块教程 <tutorials/#lesson=70_explain_cv>`__。"
+
+msgid "Activation"
+msgstr "激活"
+
+msgid "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps."
+msgstr "使用匹配的图像分类器和预处理配置，检查显著性图或模型响应图。"
+
+msgid "**Open:** Classify → Activation."
+msgstr "**打开：** 分类 → 激活。"
+
+msgid "**Image attribution maps** — Saved model-response/saliency images for the matching classifier and input preprocessing."
+msgstr "**图像归因图** — 为匹配的分类器和输入预处理保存的模型响应图或显著性图。"
+
+msgid ":ref:`Classify <workflow-module-classify_merged>`: Also provide the matching crops and channel preprocessing."
+msgstr ":ref:`Classify <workflow-module-classify_merged>`: 同时提供匹配的裁剪图像及通道预处理配置。"
+
+msgid ":doc:`API reference </api/spacr/deep_spacr/index>`."
+msgstr ":doc:`API 参考 </api/spacr/deep_spacr/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=16_activation>`__."
+msgstr "`模块教程 <tutorials/#lesson=16_activation>`__。"
+
+msgid "Annotator Agreement"
+msgstr "标注者一致性"
+
+msgid "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy."
+msgstr "比较独立标注列并检查不一致的对象；一致性与分类准确率是不同概念。"
+
+msgid "**Open:** Annotate → Annotator Agreement."
+msgstr "**打开：** 标注 → 标注者一致性。"
+
+msgid ":ref:`Annotate <workflow-module-annotate>`: Choose independent annotation columns for the same objects."
+msgstr ":ref:`Annotate <workflow-module-annotate>`: 为同一批对象选择相互独立的标注列。"
+
+msgid ":doc:`API reference </api/spacr/agreement/index>`."
+msgstr ":doc:`API 参考 </api/spacr/agreement/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=23_agreement>`__."
+msgstr "`模块教程 <tutorials/#lesson=23_agreement>`__。"
+
+msgid "Computer Vision"
+msgstr "计算机视觉"
+
+msgid "Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint."
+msgstr "根据带标签的对象裁剪图像、归档文件或受支持的流式裁剪图像训练图像分类器。应用其检查点时，应匹配通道和预处理配置。"
+
+msgid "**Open:** Classify → Computer Vision."
+msgstr "**打开：** 分类 → 计算机视觉。"
+
+msgid "`Module tutorial <tutorials/#lesson=10_classify_cv>`__."
+msgstr "`模块教程 <tutorials/#lesson=10_classify_cv>`__。"
+
+msgid "Tabular Machine Learning"
+msgstr "表格机器学习"
+
+msgid "Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores."
+msgstr "根据已测量对象和标签训练基于特征的分类器。使用评分前，检查因缺失特征而被排除的对象，以及按组留出评估的性能。"
+
+msgid "**Open:** Classify → Tabular Machine Learning."
+msgstr "**打开：** 分类 → 表格机器学习。"
+
+msgid "`Module tutorial <tutorials/#lesson=11_classify_ml>`__."
+msgstr "`模块教程 <tutorials/#lesson=11_classify_ml>`__。"
+
+msgid "Parameter Sweep"
+msgstr "参数扫描"
+
+msgid "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed."
+msgstr "运行明确选定的回归设置并比较其诊断。保持输入数据和评估问题不变。"
+
+msgid "**Open:** Regression → Parameter Sweep."
+msgstr "**打开：** 回归 → 参数扫描。"
+
+msgid ":doc:`API reference </api/spacr/parameter_sweep/index>`."
+msgstr ":doc:`API 参考 </api/spacr/parameter_sweep/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=73_parameter_sweep>`__."
+msgstr "`模块教程 <tutorials/#lesson=73_parameter_sweep>`__。"
+
+msgid "Toxoplasma"
+msgstr "弓形虫"
+
+msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+msgstr "从 Home 打开生物体指南，查看区室示意图，然后选择 Plaque Assay、Recruitment、Invasion Assay 或 Replication Assay。四个标记为即将推出的入口描述的是提议功能，无法运行。指南本身不会分析项目或生成测量表。"
+
+msgid "**Open:** Home → Toxoplasma."
+msgstr "**打开：** 主页 → 弓形虫。"
+
+msgid "**Bundled organism reference** — Installed organism descriptions and SwissBioPics cell diagrams; no project input is required."
+msgstr "**内置生物体参考资料** — 已安装的生物体描述和 SwissBioPics 细胞示意图；无需项目输入。"
+
+msgid "**Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced."
+msgstr "**生物体指南和实验分析选择** — 仅在 GUI 中显示的区室高亮及可用实验分析的导航；不会生成测量值或文件。"
+
+msgid ":doc:`API reference </api/spacr/qt/screens/organism_screen/index>`."
+msgstr ":doc:`API 参考 </api/spacr/qt/screens/organism_screen/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=82_toxoplasma>`__."
+msgstr "`模块教程 <tutorials/#lesson=82_toxoplasma>`__。"
+
+msgid "Plasmodium spp."
+msgstr "Plasmodium spp."
+
+msgid "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+msgstr "从 Home 打开生物体指南，阅读计划中的疟疾成像工作流程，并查看共用的顶复门生物示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。"
+
+msgid "**Open:** Home → Plasmodium spp.."
+msgstr "**打开：** 主页 → Plasmodium spp.。"
+
+msgid "`Module tutorial <tutorials/#lesson=83_plasmodium>`__."
+msgstr "`模块教程 <tutorials/#lesson=83_plasmodium>`__。"
+
+msgid "Candida spp."
+msgstr "Candida spp."
+
+msgid "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+msgstr "从 Home 打开生物体指南，阅读计划中的真菌成像工作流程，并查看通用的出芽酵母示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。"
+
+msgid "**Open:** Home → Candida spp.."
+msgstr "**打开：** 主页 → Candida spp.。"
+
+msgid "`Module tutorial <tutorials/#lesson=84_candida>`__."
+msgstr "`模块教程 <tutorials/#lesson=84_candida>`__。"
+
+msgid "Endodyogeny size proxy"
+msgstr "内二芽殖面积代理"
+
+msgid "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional."
+msgstr "读取实测区室面积，标注条件，并将 area ** 1.5 按 log2 大小倍增区间分箱。默认按宿主细胞汇总病原体面积，而非按液泡：同一细胞中的多个液泡会合并计算。这是由面积推算的大小代理指标，并非实测体积或寄生虫数量。如需每个液泡的寄生虫计数，请使用 Replication Assay 并提供明确的液泡标识。调用 API 前配置 compartment、面积过滤、标定、条件和分组；保存结果是可选的。"
+
+msgid "**Use from Python:** :func:`spacr.submodules.analyze_endodyogeny`. This API-only workflow has no Home tile or menu entry."
+msgstr "**在 Python 中使用：** :func:`spacr.submodules.analyze_endodyogeny`。这是仅提供 API 的工作流程，没有主页磁贴或菜单项。"
+
+msgid "**Host-cell-aggregated compartment areas** — Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell. Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``, ``png_list``. Relevant columns, depending on the route: ``cell_id``, ``pathogen_area``."
+msgstr "**按宿主细胞汇总的区室面积** — 每个 src 项目根目录下的 measurements/measurements.db；表默认为 cell、nucleus、pathogen 和 cytoplasm，并为合并添加 png_list。compartment 设置选择面积列；默认对每个宿主细胞求和 pathogen_area。相关的表（视路线而定）：``cell``、``nucleus``、``pathogen``、``cytoplasm``、``png_list``。相关的列（视路线而定）：``cell_id``、``pathogen_area``。"
+
+msgid "**Area-derived size-proxy results** — Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/. Relevant columns, depending on the route: ``pathogen_area``, ``pathogen_volume``, ``pathogen_volume_bin``, ``bin_index``."
+msgstr "**由面积推算的大小代理指标结果** — 返回的 data 和 chi_squared DataFrame；save=True 时还会在第一个项目根目录的 results/analyze_endodyogeny/ 下写入 data.csv、chi_squared_results.csv、chi_squared_pairwise_results.csv 和一张图。相关的列（视路线而定）：``pathogen_area``、``pathogen_volume``、``pathogen_volume_bin``、``bin_index``。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient."
+msgstr ":ref:`Measure <workflow-module-measure>`: 提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。"
+
+msgid "Direct Cellpose mask generation"
+msgstr "直接生成 Cellpose 掩膜"
+
+msgid "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project."
+msgstr "通过 Python API，在 TIFF 视野上运行标准或自定义 Cellpose 模型。尽管其历史名称为 identify_masks_finetune，该函数执行的是推理而非训练。检查归一化、通道、尺寸调整和模型参数；只有启用 save 时才会写出掩膜。在 Measure 前通过 External Masks 导入兼容的图像与掩膜对，或在训练前整理这些配对。本调用不会创建可直接用于 Measure 的合并项目。"
+
+msgid "**Use from Python:** :func:`spacr.spacr_cellpose.identify_masks_finetune`. This API-only workflow has no Home tile or menu entry."
+msgstr "**在 Python 中使用：** :func:`spacr.spacr_cellpose.identify_masks_finetune`。这是仅提供 API 的工作流程，没有主页磁贴或菜单项。"
+
+msgid "**TIFF fields for direct Cellpose inference** — Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint."
+msgstr "**用于直接 Cellpose 推理的 TIFF 视野** — src 顶层中扩展名为小写 .tif 的文件；跳过 src/masks 中已存在同名文件的图像。提供配置的通道及兼容的标准 model_name 或 custom_model 检查点。"
+
+msgid "**Direct Cellpose TIFF masks** — When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db."
+msgstr "**直接生成的 Cellpose TIFF 掩膜** — 当 save=True 时，src/masks/<image-name>.tif 包含整数标签。调用返回 None，不会生成合并数组或 measurements.db。"
+
+msgid ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: Pass the trained checkpoint as custom_model with the matching image channels and preprocessing."
+msgstr ":ref:`Cellpose Workbench <workflow-module-train_cellpose>`: 将训练好的检查点作为 custom_model 传入，并匹配图像通道和预处理配置。"
+
+msgid ":ref:`External Masks <workflow-module-external_masks>`: Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure."
+msgstr ":ref:`External Masks <workflow-module-external_masks>`: 向 External Masks 提供保存的标签 TIFF 文件及其原始图像，指定对象角色，并在 Measure 前创建合并项目。"
+
+msgid "Pooled-screen simulation sweep"
+msgstr "混池筛选模拟扫描"
+
+msgid "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid."
+msgstr "使用 Python 扫描 API 探索明确陈述的筛选设计假设。它展开参数组合，在进程池中运行模拟，并写出合成汇总统计；返回值为 None。运行前设置明确且较小的 max_workers 值和有界参数网格。输出不能代替实验 Regression 所需的测量值或条形码计数。将结果作为规划依据，并记录其假设。选择规划假设时，检查合成摘要；手动将这些假设转入 Power / Design 或 Experiment Design。两个工具都不导入此模拟数据库，也不导出模拟设置网格。"
+
+msgid "**Use from Python:** :func:`spacr.sim.run_multiple_simulations`. This API-only workflow has no Home tile or menu entry."
+msgstr "**在 Python 中使用：** :func:`spacr.sim.run_multiple_simulations`。这是仅提供 API 的工作流程，没有主页磁贴或菜单项。"
+
+msgid "**Pooled-screen simulation assumptions** — Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound."
+msgstr "**混合筛选模拟假设** — Python 设置字典：筛选规模、占据率、分类器准确率和测序假设的可迭代扫描值，以及 replicates、src、name、variable、plot 和 max_workers。generate_parameters 展开它们的笛卡尔积；请从小规模扫描和明确的工作进程上限开始。"
+
+msgid "**Synthetic screen simulation summaries** — src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits. Relevant tables, depending on the route: ``simulations``."
+msgstr "**合成筛选模拟摘要** — src/<YYMMDD>/<name>/simulations.db；扫描会向 simulations 追加汇总行，并可选择写入图表。这些是合成的性能估计，而不是实测的实验命中项。相关的表（视路线而定）：``simulations``。"
+
+msgid ":doc:`API reference </api/spacr/sim/index>`."
+msgstr ":doc:`API 参考 </api/spacr/sim/index>`。"
+
+msgid "Host–Pathogen Analysis"
+msgstr "宿主–病原体分析"
+
+msgid "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+msgstr "测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。"
+
+msgid "**Open:** Toxoplasma → Host–Pathogen Analysis."
+msgstr "**打开：** 弓形虫 → 宿主–病原体分析。"
+
+msgid ":ref:`Measure <workflow-module-measure>`: Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
+msgstr ":ref:`Measure <workflow-module-measure>`: 在 Measure 中保留未感染的细胞。提供完整空泡掩膜、宿主参考强度以及可选的明确寄生虫–空泡关联；仅凭宿主身份不能定义空泡。"
+
+msgid ":doc:`API reference </api/spacr/host_pathogen/index>`."
+msgstr ":doc:`API 参考 </api/spacr/host_pathogen/index>`。"
+
+msgid "`Module tutorial <tutorials/#lesson=85_host_pathogen>`__."
+msgstr "`模块教程 <tutorials/#lesson=85_host_pathogen>`__。"
+

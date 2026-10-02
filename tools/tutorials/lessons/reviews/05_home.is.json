@@ -1,13 +1,22 @@
 {
   "lesson": "05_home",
-  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
+    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
+    "date": "2026-10-01",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "new_scene_peer_review": {
+      "indices": [
+        10,
+        11,
+        12
+      ],
+      "reviewer": "Independent Codex AI technical review",
+      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
+    }
   },
   "language": "is",
   "title": "Home-skjárinn og leiðsögn",
@@ -29,6 +38,20 @@
     "Til að prófa einingu smellirðu á Load test data þegar það er í boði. Bíddu þar til niðurhalinu lýkur og farðu svo yfir útfyllt inntök og stillingar. Í Mask smellirðu á Live til að skoða sjónsvið áður en þú ýtir á Run. Kveiktu á Time fyrir tímaröð eða 3D fyrir rúmmálsmynd.",
     "Sláðu inn heiti einingar, stillingar eða falls í leitarreitinn við hliðina á Help. Hér finnur leit að Performance samsvarandi síðu í Preferences. Smelltu á niðurstöðu til að opna áfangastað hennar. API-niðurstöður opna skjölun valins falls.",
     "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
+    "Opnaðu Appearance í Preferences til að stilla viðmótið. Theme og Animation eru hlutar á þessari síðu sem hægt er að fella út og saman. Smelltu á fyrirsögn hluta til að opna stýringarnar eða fella þær saman aftur.",
+    "Opnaðu Theme til að velja þema viðmótsins og ógagnsæi síðna. Þar eru einnig stýringar fyrir gluggabrúnina, meðal annars lengd hennar, jöfnun og ljómahátt.",
+    "Opnaðu Animation til að velja hreyfanlegan bakgrunn og litavalið hans. Stilltu hér smáatriði, óskerpu, hraða, stærð og þéttleika. Þú getur líka valið hvort ábendingar við stillingar séu hreyfðar og valið bakgrunn fyrir stillingarnar.",
     "Farðu aftur í Home og smelltu á Pipeline overviews til að velja verkferli. Byrjaðu á spaCR screens fyrir samsafnaða myndgreiningarskimun, eða veldu leið fyrir myndgreiningu eða raðgreiningu sem hentar gögnunum þínum. Næstu kennslur sýna hvernig þessar einingar tengjast og kennslur einstakra eininga fara síðan í gegnum hvert verk."
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

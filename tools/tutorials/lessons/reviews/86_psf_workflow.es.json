@@ -1,0 +1,36 @@
+{
+  "lesson": "86_psf_workflow",
+  "english_sha256": "486874655765fd9afa8dea1a68fd795654b8d909705fdb95230018e32dee4aab",
+  "language": "es",
+  "review": {
+    "kind": "Codex AI technical translation and independent technical peer review",
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "translator": "Codex AI, translated directly from the frozen English source",
+    "date": "2026-10-01",
+    "independent_peer_review": true,
+    "scope": "Scientific meaning and English video control labels; not native-speaker or listening signoff",
+    "route_rebinding": {
+      "previous_english_sha256": "1b2606bba6a8beb3040c3506eada1a75ea3994c7422875fddac237549881f11d",
+      "reason": "Only app_key changed to null and host_app_key removed; narration and all translated source prose unchanged"
+    },
+    "original_draft_sha256": "a8f603ac319549ede40863f5eddd3fee4564de7e2ae48df6fba5924789a94079"
+  },
+  "title": "PSF: comparar el procesamiento y elegir las intensidades de medición",
+  "description": "Revise las etiquetas de origen de los valores de PSF, compare y aplique el procesamiento de imágenes, y seleccione explícitamente intensidades originales o procesadas en Measure.",
+  "objectives": [
+    "Comprobar el objetivo, las dimensiones de imagen inferidas y las etiquetas de origen de la calibración.",
+    "Comparar el procesamiento y volver a la imagen original sin modificar los archivos de origen.",
+    "Elegir explícitamente la fuente de intensidad antes de la medición cuantitativa."
+  ],
+  "prerequisite": "Abra una carpeta de imágenes en Make Masks. Para el procesamiento cuantitativo, use la calibración conocida de la adquisición; el tutorial utiliza un recorte del ejemplo de Measure incluido y valores ópticos ilustrativos.",
+  "scenes": [
+    "Use los controles de la función de dispersión del punto para comparar una opción de procesamiento antes de emplearla en detección o medición. En Make Masks, abra su carpeta de imágenes, abra Settings y despliegue Image enhancement. Seleccione el objetivo utilizado en la adquisición y haga clic en Infer from images para leer la información disponible de la imagen.",
+    "Despliegue PSF optics y compruebe la etiqueta de origen junto a cada valor. Aquí el objetivo es una elección ilustrativa. Los valores predeterminados de cámara y longitud de onda intervienen en el cálculo del espaciado de píxeles y la anchura gaussiana. Sustituya esas suposiciones por los valores de su adquisición antes del trabajo cuantitativo. Las dimensiones de la imagen por sí solas no establecen una calibración óptica.",
+    "Seleccione Convolution y haga clic en Compare. A la izquierda está la imagen original; a la derecha, el procesamiento que utiliza el detector. La convolución gaussiana añade desenfoque. La deconvolución de Richardson–Lucy es una opción distinta; examine el ruido y los artefactos antes de aplicarla.",
+    "Haga clic en Apply para utilizar el procesamiento elegido en la visualización y la detección. La imagen original y las etiquetas de objetos existentes permanecen intactas. Examine el resultado antes de generar o editar máscaras.",
+    "Desactive Apply para volver a la imagen original. Esta opción del editor no selecciona la fuente de intensidad para las mediciones cuantitativas. Selecciónela por separado en Measure.",
+    "Abra Measure y muestre sus ajustes de PSF. La fuente de intensidad predeterminada es original, por lo que los ajustes de procesamiento PSF guardados no alteran las intensidades medidas. Mantenga original cuando su análisis deba utilizar los píxeles adquiridos.",
+    "Para medir intensidades procesadas, elija processed y seleccione la operación. Introduzca el espaciado de la imagen y la anchura del núcleo en micrómetros según la calibración de su adquisición; los números mostrados aquí son ilustrativos. Revise el resto de los ajustes de medición y ejecute Measure cuando esté listo. Conserve la procedencia del PSF con los resultados. Estos controles del editor y Measure están disponibles con las funciones alfa desactivadas; los controles PSF por lotes de Mask y Timelapse requieren funciones alfa."
+  ]
+}

@@ -1,0 +1,534 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Model zoo"
+msgstr "Góðursvæði"
+
+msgid "spaCR ships a catalogue of trained models and fetches them on demand. Name a key in a settings file — ``pathogen_model: toxoplasma_pv_v1`` — and the model is downloaded and checksum-verified the first time it is needed, or open **Model Zoo** from the **Make Masks** masthead to browse and install them."
+msgstr "spaCR fylgir vörulisti yfir þjálfuð líkön og sækir þau eftir þörfum. Nefndu lykil í stillingaskrá — ``pathogen_model: toxoplasma_pv_v1`` — og líkanið er sótt og gátsumma þess staðfest í fyrsta sinn sem þess er þörf, eða opnaðu **Líkanasafn** úr haus **Búa til grímur** til að skoða og setja þau upp."
+
+msgid "Every published entry carries a SHA-256. An entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one."
+msgstr "Hver birt færsla ber SHA-256-tætigildi. Færslu án þess er hafnað í stað þess að setja hana upp, því að ekki er hægt að greina stýfðan eða útskiptan vistunarpunkt frá þeim raunverulega."
+
+msgid "Model"
+msgstr "Líkan"
+
+msgid "Training data"
+msgstr "Þjálfunargögn"
+
+msgid "Hold-out performance"
+msgstr "Frammistaða á geymdum gögnum"
+
+msgid "``toxoplasma_pv_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated"
+msgstr "anti-Toxoplasma-biotín og DsRed í holrými PV; 229 myndir úr 2 gagnasöfnum, 104 úr umferð 1 og 125 nýgrisjaðar"
+
+msgid "F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
+msgstr "F1 0,864 á móti 0,713 fyrir staðlað cpsam á 11 geymdum eigin brunnum, við IoU 0,5; mat á geymdum gögnum úr vísindaritum er í bið"
+
+msgid "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
+msgstr "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
+
+msgid "crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature"
+msgstr "skellubrunnar litaðir með kristalfjólu; 184 brunnar úr 3 gagnasöfnum, 95 eigin og 89 úr vísindaritum"
+
+msgid "F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
+msgstr "F1 0,856 innan sviðs; 0,806 á gögnum úr vísindaritum (þreföld víxlsannprófun, SD 0,020)"
+
+msgid "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "488 curated fields across four domains -- 298 wells cropped from published figures, 96 phone-camera wells, 67 PFA and 27 methanol-fixed whole-well microscope scans; 27,582 plaques"
+msgstr "488 grisjuð sjónsvið úr fjórum sviðum -- 298 brunnar skornir úr birtum myndum, 96 brunnar teknir með símamyndavél, 67 PFA-festar og 27 metanólfestar smásjárskannanir af heilum brunnum; 27.582 skellur"
+
+msgid "not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
+msgstr "ekki borið saman við staðlaða líkanið; á 81 geymdu sjónsviði jafnast það á við umferð 3 á gögnum úr vísindaritum (0,819 á móti 0,820) og slær hana um 0,166 á brunnum teknum með símamyndavél (0,415 á móti 0,249)"
+
+msgid "``toxoplasma_well_detector_v1`` (YOLO11n)"
+msgstr "``toxoplasma_well_detector_v1`` (YOLO11n)"
+
+msgid "whole-plate and multi-well crystal violet images; 562 images from 1 dataset, 190 of them with no well in them"
+msgstr "myndir af heilum plötum og mörgum brunnum litaðar með kristalfjólu; 562 myndir úr 1 gagnasafni, þar af 190 án brunns"
+
+msgid "mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457"
+msgstr "mAP50 0,993 á eigin geymdri skiptingu; á prófunarsafninu sem deilt er með v2 fær það mAP50 0,8838, á móti 0,9457 hjá v2"
+
+msgid "``toxoplasma_well_detector_v2`` (YOLO26n (ultralytics 8.4.155))"
+msgstr "``toxoplasma_well_detector_v2`` (YOLO26n (ultralytics 8.4.155))"
+
+msgid "plate images and literature figures; 1,070 train / 254 val / 129 test, split by PMC article so no paper is in two sets; training data at einarolafsson/toxoplasma-plaque-well-detector-dataset"
+msgstr "plötumyndir og myndir úr vísindaritum; 1.070 þjálfun / 254 sannprófun / 129 prófun, skipt eftir PMC-grein svo engin grein er í tveimur söfnum; þjálfunargögn á einarolafsson/toxoplasma-plaque-well-detector-dataset"
+
+msgid "mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline"
+msgstr "mAP50 0,9457 og mAP50-95 0,8341 á móti 0,8838 og 0,7630 hjá v1 (yolo_welldetect_v3.pt) á SAMA prófunarsafni; staðlað YOLO hefur engan skellubrunnaflokk, svo v1 er grunnlínan"
+
+msgid "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
+msgstr "Toxoplasma PV-grímur spáðar eingöngu út frá HÝSILFRUMUGRÍMU-rásinni; 2567 þjálfunarsjónsvið og 463 geymd, skipt eftir brunni, hýslar HFF/HeLa/THP1"
+
+msgid "F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "F1 0,606 á móti 0,021 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+
+msgid "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated images accumulated over five rounds"
+msgstr "anti-Toxoplasma-biotín og DsRed í holrými PV; 556 grisjaðar myndir safnaðar yfir fimm umferðir"
+
+msgid "F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
+msgstr "F1 0,817 +/- 0,036 með fimmfaldri víxlsannprófun yfir 619 pör; ~0,86 á móti 0,713 fyrir staðlaða líkanið á 11 geymdu eigin brunnunum"
+
+msgid "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset"
+msgstr "556 grisjuðu PV-sjónsviðin úr umferð 5, skipt í 437 þjálfun / 108 sannprófun / 11 prófun; þjálfunargögn á einarolafsson/toxoplasma-pv-segmentation-dataset"
+
+msgid "F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+msgstr "F1 0,860 á móti 0,765 hjá stöðluðu cpsam_v2 á 11 akkerisbrunnum við IoU 0,5; AJI 0,803 á móti 0,505"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7"
+msgstr "556 yfirfarin sjónsvið úr umferð 6 ásamt 80 handvöldum og yfirförnum sjónsviðum af nýrri plötu (Anu revision, Replication09182026 plate 1); 502 til þjálfunar / 123 til staðfestingar / 11 til prófunar; þjálfunargögn á einarolafsson/toxoplasma-pv-segmentation-dataset-r7"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
+msgstr "F1 0.854 samanborið við 0.765 fyrir óbreytt cpsam_v2 á 11 viðmiðunarbrunnum við IoU 0.5; AJI 0.776 samanborið við 0.505"
+
+msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset"
+msgstr "11.007 sjónsvið í gegnumlýsingu úr 14 opinberum gagnasöfnum, skipt eftir myndatöku í 6.778 þjálfun / 2.030 sannprófun / 2.199 prófun; þjálfunargögn á einarolafsson/live-cell-segmentation-dataset"
+
+msgid "on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell"
+msgstr "á gagnasöfnunum sem staðlað cpsam_v2 var aldrei þjálfað á, F1 0,960 á móti 0,885 við IoU 0,5; yfir öll 2.199 prófunarsjónsviðin, 0,694 á móti 0,738, því að staðlaða líkanið var þjálfað á LIVECell og YeaZ og vinnur á LIVECell"
+
+msgid "``nuclei_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``nuclei_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "nuclei predicted from the HOST CELL MASK channel alone; 453 well-grouped held-out fields, hosts HFF/HeLa/THP1"
+msgstr "kjarnar spáðir eingöngu út frá HÝSILFRUMUGRÍMU-rásinni; 453 geymd sjónsvið hópuð eftir brunni, hýslar HFF/HeLa/THP1"
+
+msgid "F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5"
+msgstr "F1 0,888 á móti 0,201 fyrir staðlað cpsam_v2 á 453 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+
+msgid "``cell_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``cell_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "the HOST CELL outline predicted from the Hoechst (nuclear) channel alone; 2,578 training fields and 451 held-out test fields, split by well so no well is on both sides"
+msgstr "útlína HÝSILFRUMU spáð eingöngu út frá Hoechst-rásinni (kjarnarás); 2.578 þjálfunarsjónsvið og 451 geymt prófunarsjónsvið, skipt eftir brunni svo enginn brunnur er báðum megin"
+
+msgid "F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
+msgstr "F1 0,870 á móti 0,301 hjá stöðluðu cpsam_v2 á 451 geymdu sjónsviði við IoU 0,5 -- munur upp á 0,569"
+
+msgid "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+msgstr "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
+
+msgid "Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
+msgstr "Toxoplasma PV-grímur spáðar eingöngu út frá HOECHST-rásinni; 2567 þjálfunarsjónsvið og 463 geymd, skipt eftir brunni, hýslar HFF/HeLa/THP1"
+
+msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "F1 0,569 á móti 0,002 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+
+msgid "Models are hosted on their author's own Hugging Face account, so contributing one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
+msgstr "Líkön eru hýst á eigin Hugging Face-reikningi höfundar síns, svo framlag líkans felur ekki í sér að veita neinum öðrum skrifaðgang. ``publish_model`` í ``spacr.model_zoo`` sér um upphleðsluna og prentar vörulistaröðina sem á að bæta við."
+
+msgid "Choose a model from a form"
+msgstr "Velja líkan úr eyðublaði"
+
+msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
+msgstr "Líkanastilling í grímugerð, Búa til grímur og Skellugreining hefur hnappinn **Líkanasafn…**. Listi hans er flokkaður eftir uppruna undir fimm fyrirsögnum — stöðluðu Cellpose-SAM-vægin, eigin líkön spaCR, óyfirfarnar upphleðslur úr spaCR-samfélaginu, Cellpose-líkön birt á bioimage.io, og cyto-, cyto2-, cyto3- og nuclei-líkön Cellpose 3-bakendans. Smelltu á fyrirsögn til að sýna eða fella saman raðir hennar. **Sækja** sækir valið líkan, eða **Setja upp** bakenda þess; **Use this model** skrifar síðan líkanið í stillinguna. Líkan sem þarf annan bakenda, svo sem Cellpose 3 eða Cellpose-DINO, segir það í röð sinni og býðst til að setja þann bakenda upp í eigin umhverfi undir ``~/.spacr/backends``; umhverfi spaCR sjálfs er ekki breytt. Röð sem spaCR getur ekki keyrt segir það í stað þess að vera boðin."
+
+msgid "Opened from Mask generation, the popup also has **Measure diameters…**: it estimates the cell, nucleus and pathogen diameters from a few fields of your own images and can write them into the settings. See :class:`spacr.qt.prerun.DiameterDialog`."
+msgstr "Þegar sprettiglugginn er opnaður úr grímugerð hefur hann einnig **Mæla þvermál…**: það metur þvermál frumu, kjarna og sýkils út frá nokkrum sjónsviðum úr þínum eigin myndum og getur skrifað þau í stillingarnar. Sjá :class:`spacr.qt.prerun.DiameterDialog`."
+
+msgid "Per-model detail"
+msgstr "Upplýsingar um hvert líkan"
+
+msgid "Toxoplasma PV v1"
+msgstr "Toxoplasma PV v1"
+
+msgid "**Architecture.** Cellpose-SAM (cpsam_v2)"
+msgstr "**Högun.** Cellpose-SAM (cpsam_v2)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. Round 2: 229 training images (round 1's 104 plus 125 newly curated RH and ME49 fields), 100 epochs, base cpsam_v2"
+msgstr "**Þjálfað á.** sníkjubólum Toxoplasma-hraðgróa litaðra með geita-anti-Toxoplasma-biotíni og hraðgróum sem tjá DsRed í holrými PV. Umferð 2: 229 þjálfunarmyndir (104 úr umferð 1 auk 125 nýgrisjaðra RH- og ME49-sjónsviða), 100 lotur, grunnur cpsam_v2"
+
+msgid "**Measured.** F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
+msgstr "**Mælt.** F1 0,864 á móti 0,713 fyrir staðlað cpsam á 11 geymdum eigin brunnum, við IoU 0,5; mat á geymdum gögnum úr vísindaritum er í bið"
+
+msgid "F1 0.864 at IoU 0.5 against 0.713 for stock cpsam on the 11 wells round 1 also held out (round 1 scored 0.867); AJI 0.809 against 0.426"
+msgstr "F1 0,864 við IoU 0,5 á móti 0,713 fyrir staðlað cpsam á 11 brunnunum sem umferð 1 geymdi líka (umferð 1 fékk 0,867); AJI 0,809 á móti 0,426"
+
+msgid "accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry"
+msgstr "nákvæmni fellur skarpt yfir IoU 0,8 -- hentar til talningar og flatarmálsmælinga frekar en nákvæmrar formmælingar"
+
+msgid "the held-out literature scorecard is pending a stock-seeded re-curation; on the current literature set, whose truth leans toward this model's lineage, it ties stock Cellpose-SAM on detection (F1 0.403 against 0.400)"
+msgstr "skorkort á geymdum gögnum úr vísindaritum bíður endurgrisjunar sem byrjar frá staðlaða líkaninu; á núverandi safni úr vísindaritum, þar sem viðmiðunarsannleikurinn hallast að ætterni þessa líkans, jafnast það á við staðlað Cellpose-SAM í greiningu (F1 0,403 á móti 0,400)"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_, as ``cpsam_v2_toxo_r2``."
+msgstr "Birt sem `einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_, sem ``cpsam_v2_toxo_r2``."
+
+msgid "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``."
+msgstr "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``."
+
+msgid "Toxoplasma Plaque v1"
+msgstr "Toxoplasma Plaque v1"
+
+msgid "**Architecture.** Cellpose-SAM (cpsam)"
+msgstr "**Högun.** Cellpose-SAM (cpsam)"
+
+msgid "**Trained on.** Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set"
+msgstr "**Þjálfað á.** skelluprófum Toxoplasma gondii; umferð 3, metin innan sviðs (NAS) og á alhæfingarsafni úr vísindaritum"
+
+msgid "**Measured.** F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
+msgstr "**Mælt.** F1 0,856 innan sviðs; 0,806 á gögnum úr vísindaritum (þreföld víxlsannprófun, SD 0,020)"
+
+msgid "F1 0.856 in-domain and 0.806 on the literature set (3-fold cross-validated, SD 0.020), against 0.718 for round 1"
+msgstr "F1 0,856 innan sviðs og 0,806 á safninu úr vísindaritum (þreföld víxlsannprófun, SD 0,020), á móti 0,718 fyrir umferð 1"
+
+msgid "round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay"
+msgstr "umferð 3 fórnar nákvæmni (úr 0,939 niður í 0,858) fyrir heimt (úr 0,631 upp í 0,811) á safninu úr vísindaritum, sem er rétta stefnan fyrir talningarpróf"
+
+msgid "PREFER THIS ONE FOR MICROSCOPE-ONLY WORK. On the round-5 test split it scores 0.836 on PFA-fixed wells against round 5's 0.808, at precision 0.93 against 0.81. For mixed sources, or any phone-camera image, use toxoplasma_plaque_v2, which round 3 cannot handle at all (0.249 there)"
+msgstr "VELDU ÞETTA FYRIR VINNU EINGÖNGU MEÐ SMÁSJÁ. Á prófunarskiptingu umferðar 5 fær það 0,836 á PFA-festum brunnum á móti 0,808 hjá umferð 5, með nákvæmni 0,93 á móti 0,81. Fyrir blandaðan uppruna, eða hvaða mynd sem er tekin með símamyndavél, skaltu nota toxoplasma_plaque_v2, sem umferð 3 ræður alls ekki við (0,249 þar)"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_, as ``cpsam_plaque_r3``."
+msgstr "Birt sem `einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_, sem ``cpsam_plaque_r3``."
+
+msgid "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``."
+msgstr "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``."
+
+msgid "Toxoplasma Plaque v2 (round 5)"
+msgstr "Toxoplasma Plaque v2 (umferð 5)"
+
+msgid "**Trained on.** Toxoplasma plaque assays stained with crystal violet, from three microscopes and from published figures. Round 5: 332 training fields grouped by figure and by plate so none straddles the split, 100 epochs, base cpsam_v2, empty wells kept as negatives"
+msgstr "**Þjálfað á.** skelluprófum Toxoplasma lituðum með kristalfjólu, úr þremur smásjám og úr birtum myndum. Umferð 5: 332 þjálfunarsjónsvið hópuð eftir mynd og plötu svo ekkert liggur yfir skiptinguna, 100 lotur, grunnur cpsam_v2, tómum brunnum haldið sem neikvæðum dæmum"
+
+msgid "**Measured.** not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
+msgstr "**Mælt.** ekki borið saman við staðlaða líkanið; á 81 geymdu sjónsviði jafnast það á við umferð 3 á gögnum úr vísindaritum (0,819 á móti 0,820) og slær hana um 0,166 á brunnum teknum með símamyndavél (0,415 á móti 0,249)"
+
+msgid "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 (round 3) for microscope-only work, where it scores 0.836 against this model's 0.808 on PFA-fixed wells and is far more precise; prefer this one for mixed or unknown sources"
+msgstr "BÆTIR VIÐ toxoplasma_plaque_v1 frekar en að leysa það af hólmi: veldu v1 (umferð 3) fyrir vinnu eingöngu með smásjá, þar sem það fær 0,836 á móti 0,808 hjá þessu líkani á PFA-festum brunnum og er mun nákvæmara; veldu þetta fyrir blandaðan eða óþekktan uppruna"
+
+msgid "the only plaque model trained on phone-camera wells -- F1 0.415 against round 3's 0.249, though recall there is 0.296, so it still misses most plaques on phone images and is not yet a counting tool"
+msgstr "eina skellulíkanið sem þjálfað er á brunnum teknum með símamyndavél -- F1 0,415 á móti 0,249 hjá umferð 3, þótt heimtin þar sé 0,296, svo það missir enn af flestum skellum á símamyndum og er ekki enn talningartól"
+
+msgid "it did NOT clear the promotion bar of 0.02 literature F1 fixed before the run (it came in at -0.001), so round 3 remains production"
+msgstr "það náði EKKI kynningarþröskuldinum 0,02 í F1 á gögnum úr vísindaritum sem var ákveðinn fyrir keyrsluna (það endaði í -0,001), svo umferð 3 er áfram í framleiðslu"
+
+msgid "balanced precision/recall (0.81/0.83) where round 3 is lopsided (0.93/0.73): round 3's low recall systematically UNDERCOUNTS, which matters more than F1 for a counting assay"
+msgstr "jöfn nákvæmni/heimt (0,81/0,83) þar sem umferð 3 er skökk (0,93/0,73): lág heimt umferðar 3 VANTELUR kerfisbundið, sem skiptir meira máli en F1 fyrir talningarpróf"
+
+msgid "hallucinates 2 objects across 6 blank-lawn wells where round 3 hallucinates 19"
+msgstr "ímyndar sér 2 hluti í 6 brunnum með auðri frumuþekju þar sem umferð 3 ímyndar sér 19"
+
+msgid "first plaque model on cpsam_v2; rounds 1-4 used cpsam v1, so base and data changed together and the gap to round 3 is not attributable to the extra curation alone"
+msgstr "fyrsta skellulíkanið á cpsam_v2; umferðir 1-4 notuðu cpsam v1, svo grunnur og gögn breyttust saman og muninn á umferð 3 er ekki hægt að rekja til aukagrisjunarinnar einnar"
+
+msgid "training data: https://huggingface.co/datasets/einarolafsson/toxoplasma-plaque-dataset"
+msgstr "þjálfunargögn: https://huggingface.co/datasets/einarolafsson/toxoplasma-plaque-dataset"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_, as ``cpsam_plaque_r5``."
+msgstr "Birt sem `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_, sem ``cpsam_plaque_r5``."
+
+msgid "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``."
+msgstr "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``."
+
+msgid "Toxoplasma Plaque Well Detector v1"
+msgstr "Toxoplasma Plaque Well Detector v1"
+
+msgid "**Architecture.** YOLO11n"
+msgstr "**Högun.** YOLO11n"
+
+msgid "**Trained on.** whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epochs, batch 16, imgsz 640"
+msgstr "**Þjálfað á.** myndum af heilum plötum og mörgum brunnum úr skelluprófum Toxoplasma; grunnur yolo11n, 150 lotur, lotustærð 16, imgsz 640"
+
+msgid "**Measured.** mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457"
+msgstr "**Mælt.** mAP50 0,993 á eigin geymdri skiptingu; á prófunarsafninu sem deilt er með v2 fær það mAP50 0,8838, á móti 0,9457 hjá v2"
+
+msgid "the 0.993 is measured on v3's OWN split, which is easier than the set v2 is measured on; on that shared set this model scores mAP50 0.8838 against v2's 0.9457, so v2 is the better detector"
+msgstr "0,993 er mælt á EIGIN skiptingu v3, sem er auðveldari en safnið sem v2 er mælt á; á því sameiginlega safni fær þetta líkan mAP50 0,8838 á móti 0,9457 hjá v2, svo v2 er betri skynjarinn"
+
+msgid "kept because the published plaque corpus was measured with these weights, so results in the paper trace back to this row"
+msgstr "haldið vegna þess að birta skellusafnið var mælt með þessum vægjum, svo niðurstöður í greininni má rekja til þessarar raðar"
+
+msgid "locates WELLS, not plaques; it is the front half of a two-stage pipeline with toxoplasma_plaque_v1, and the well it finds also gives the diameter that makes areas comparable across microscopes"
+msgstr "finnur BRUNNA, ekki skellur; það er fremri helmingur tveggja þrepa vinnslukeðju með toxoplasma_plaque_v1, og brunnurinn sem það finnur gefur einnig þvermálið sem gerir flatarmál sambærilegt milli smásjáa"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_, as ``yolo_welldetect_v3.pt``."
+msgstr "Birt sem `einarolafsson/toxoplasma-plaque-well-detector-yolo11 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11>`_, sem ``yolo_welldetect_v3.pt``."
+
+msgid "SHA-256 ``b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c``."
+msgstr "SHA-256 ``b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c``."
+
+msgid "Toxoplasma Plaque Well Detector v2"
+msgstr "Toxoplasma Plaque Well Detector v2"
+
+msgid "**Architecture.** YOLO26n (ultralytics 8.4.155)"
+msgstr "**Högun.** YOLO26n (ultralytics 8.4.155)"
+
+msgid "**Trained on.** whole-plate and multi-well Toxoplasma plaque-assay images plus 939 newly reviewed PMC figures, accepted boxes and confirmed negatives alike; yolo26n base, best validation mAP50-95 at epoch 28"
+msgstr "**Þjálfað á.** myndum af heilum plötum og mörgum brunnum úr skelluprófum Toxoplasma auk 939 nýyfirfarinna PMC-mynda, bæði samþykktum römmum og staðfestum neikvæðum dæmum; grunnur yolo26n, besta mAP50-95 í sannprófun við lotu 28"
+
+msgid "**Measured.** mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline"
+msgstr "**Mælt.** mAP50 0,9457 og mAP50-95 0,8341 á móti 0,8838 og 0,7630 hjá v1 (yolo_welldetect_v3.pt) á SAMA prófunarsafni; staðlað YOLO hefur engan skellubrunnaflokk, svo v1 er grunnlínan"
+
+msgid "on the shared test set it beats v1 (the v3 weights) on every measure, and cuts false boxes on no-well figures from 152 to 49"
+msgstr "á sameiginlega prófunarsafninu slær það v1 (v3-vægin) á öllum mælikvörðum og fækkar röngum römmum á myndum án brunna úr 152 í 49"
+
+msgid "84 of the 129 test images contain no well at all, which is what the false-box count is measured on"
+msgstr "84 af 129 prófunarmyndum innihalda engan brunn, og það er á þeim sem fjöldi rangra ramma er mældur"
+
+msgid "locates WELLS, not plaques; the front half of a two-stage pipeline with the plaque segmentation model"
+msgstr "finnur BRUNNA, ekki skellur; fremri helmingur tveggja þrepa vinnslukeðju með skelluhlutunarlíkaninu"
+
+msgid "the repository publishes this weight as weights/best.pt; spaCR saves it under the name above so two detectors cannot both land as best.pt"
+msgstr "geymslan birtir þessi vægi sem weights/best.pt; spaCR vistar þau undir heitinu hér að ofan svo tveir skynjarar geti ekki báðir lent sem best.pt"
+
+msgid "Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo26 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo26>`_, as ``yolo_welldetect_v4.pt``."
+msgstr "Birt sem `einarolafsson/toxoplasma-plaque-well-detector-yolo26 <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo26>`_, sem ``yolo_welldetect_v4.pt``."
+
+msgid "SHA-256 ``f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7``."
+msgstr "SHA-256 ``f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7``."
+
+msgid "Toxoplasma from Cell Mask (cross-channel)"
+msgstr "Toxoplasma út frá frumugrímu (milli rása)"
+
+msgid "**Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks"
+msgstr "**Þjálfað á.** milli rása: út frá mynd af hýsilfrumu spáir það fyrir um hvar sníkjubólur Toxoplasma eru, án litunar á sníkjudýrinu. 100 lotur, grunnur cpsam_v2, AdamW lr 1e-5, mörk eru PV-endursköpuð grímur"
+
+msgid "**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**Mælt.** F1 0,606 á móti 0,021 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+
+msgid "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all"
+msgstr "F1 0,606, AJI 0,494, Dice 0,610 við IoU 0,5 á móti 0,021/0,008/0,020 hjá stöðluðu cpsam_v2 -- staðlaða líkanið ræður alls ekki við þetta verkefni"
+
+msgid "per host: HeLa 0.711, HFF 0.557, THP1 0.465; THP1 is the weak case"
+msgstr "eftir hýsli: HeLa 0,711, HFF 0,557, THP1 0,465; THP1 er veika tilvikið"
+
+msgid "the held-out split selects the checkpoint, so it is validation data rather than an independent test set"
+msgstr "geymda skiptingin velur vistunarpunktinn, svo hún er sannprófunargögn frekar en óháð prófunarsafn"
+
+msgid "accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry"
+msgstr "nákvæmni fellur yfir IoU 0,8 -- hentar til talningar, mats á nýtingu og flatarmáls frekar en nákvæmrar formmælingar"
+
+msgid "Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``."
+msgstr "Birt sem `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, sem ``toxoplasma_from_cellmask_pv``."
+
+msgid "SHA-256 ``481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab``."
+msgstr "SHA-256 ``481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab``."
+
+msgid "Toxoplasma PV v2 (round 5)"
+msgstr "Toxoplasma PV v2 (umferð 5)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 5: 556 images, 100 epochs, base cpsam_v2"
+msgstr "**Þjálfað á.** sníkjubólum Toxoplasma-hraðgróa litaðra með geita-anti-Toxoplasma-biotíni og hraðgróum sem tjá DsRed í holrými PV (RH og ME49). Umferð 5: 556 myndir, 100 lotur, grunnur cpsam_v2"
+
+msgid "**Measured.** F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
+msgstr "**Mælt.** F1 0,817 +/- 0,036 með fimmfaldri víxlsannprófun yfir 619 pör; ~0,86 á móti 0,713 fyrir staðlaða líkanið á 11 geymdu eigin brunnunum"
+
+msgid "supersedes toxoplasma_pv_v1 (round 2, 229 images): more than twice the training data and cross-validated rather than single-split"
+msgstr "leysir toxoplasma_pv_v1 af hólmi (umferð 2, 229 myndir): meira en tvöfalt meiri þjálfunargögn og víxlsannprófað frekar en ein skipting"
+
+msgid "5-fold CV over 619 pairs: F1 0.817 (SD 0.036), AJI 0.714, Dice 0.802"
+msgstr "fimmföld víxlsannprófun yfir 619 pör: F1 0,817 (SD 0,036), AJI 0,714, Dice 0,802"
+
+msgid "per-dataset variance is real -- F1 ranges ~0.74 to ~0.93 by screen"
+msgstr "breytileiki milli gagnasafna er raunverulegur -- F1 er á bilinu ~0,74 til ~0,93 eftir skimun"
+
+msgid "accuracy falls above IoU 0.8 -- suited to counting and area rather than precise morphometry"
+msgstr "nákvæmni fellur yfir IoU 0,8 -- hentar til talningar og flatarmálsmælinga frekar en nákvæmrar formmælingar"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_, as ``cpsam_v2_toxo_r5``."
+msgstr "Birt sem `einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_, sem ``cpsam_v2_toxo_r5``."
+
+msgid "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``."
+msgstr "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``."
+
+msgid "Toxoplasma PV v3 (round 6)"
+msgstr "Toxoplasma PV v3 (umferð 6)"
+
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 6 retrains round 5's data with cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+msgstr "**Þjálfað á.** sníkjubólum Toxoplasma-hraðgróa litaðra með geita-anti-Toxoplasma-biotíni og hraðgróum sem tjá DsRed í holrými PV (RH og ME49). Umferð 6 endurþjálfar gögn umferðar 5 með cellpose 4.2.1.1, 100 lotur, grunnur cpsam_v2"
+
+msgid "**Measured.** F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+msgstr "**Mælt.** F1 0,860 á móti 0,765 hjá stöðluðu cpsam_v2 á 11 akkerisbrunnum við IoU 0,5; AJI 0,803 á móti 0,505"
+
+msgid "NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the anchor wells -- 0.8602 against 0.8648 -- and the PV project still promotes round 5"
+msgstr "NÝJAST ER EKKI BEST HÉR: umferð 6 slær ekki umferð 2 á akkerisbrunnunum -- 0,8602 á móti 0,8648 -- og PV-verkefnið mælir enn með umferð 5"
+
+msgid "it is the first PV round whose checkpoint was chosen on a held-out validation set (108 fields) instead of on the test wells"
+msgstr "þetta er fyrsta PV-umferðin þar sem vistunarpunkturinn var valinn á geymdu sannprófunarsafni (108 sjónsvið) í stað prófunarbrunnanna"
+
+msgid "5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424"
+msgstr "fimmföld víxlsannprófun, hópuð eftir uppruna: F1 0,8168 +/- 0,028, AJI 0,7516, Dice 0,8424"
+
+msgid "the 11 anchor wells have been held out since round 1, so they are the only fields no PV round has ever trained on"
+msgstr "11 akkerisbrunnunum hefur verið haldið til hliðar frá umferð 1, svo þeir eru einu sjónsviðin sem engin PV-umferð hefur nokkru sinni þjálfað á"
+
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_, as ``cpsam_v2_toxo_r6``."
+msgstr "Birt sem `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_, sem ``cpsam_v2_toxo_r6``."
+
+msgid "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
+msgstr "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toxoplasma PV v4 (round 7)"
+msgstr "Toxoplasma PV v4 (umferð 7)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
+msgstr "**Þjálfað á.** Sníkjudýraberandi frymisbólur Toxoplasma-hraðfjölgara: DsRed- og anti-Toxoplasma-biotin-sjónsvið úr umferð 6 ásamt Toxoplasma-rás nýrrar 384-brunna plötu. Umferð 7, cellpose 4.2.1.1, 100 þjálfunarlotur, grunnur cpsam_v2"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
+msgstr "**Mælt.** F1 0.854 samanborið við 0.765 fyrir óbreytt cpsam_v2 á 11 viðmiðunarbrunnum við IoU 0.5; AJI 0.776 samanborið við 0.505"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate"
+msgstr "NÝJAST ER EKKI BEST HÉR: á 20 sjónsviðum sem voru tekin frá á nýju plötunni sem líkanið var þjálfað á fær umferð 7 F1 0.748 á móti 0.899 fyrir umferð 6 (heimt 0.636 á móti 0.829) -- veldu frekar toxoplasma_pv_v3 fyrir þá plötu"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168"
+msgstr "á 11 viðmiðunarbrunnunum er það á pari við umferð 6 (0.8536 á móti 0.8602); F1 úr 5-faldri krossprófun er 0.8142 +/- 0.015 á móti 0.8168 fyrir umferð 6"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them"
+msgstr "það afmarkar frymisbólurnar sem það finnur nákvæmar en umferð 6 (AJI 0.827 á móti 0.786 á nýju plötunni) en finnur færri þeirra"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation"
+msgstr "verið er að rannsaka lækkunina á nýju plötunni: líkanið úr umferð 7 nær heldur ekki nægri aðlögun að þjálfunarsjónsviðum plötunnar sjálfrar, sem bendir frekar til þess hvernig þau sjónsvið komu inn í þjálfunina en til alhæfingar"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``."
+msgstr "Birt sem `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, undir heitinu ``cpsam_v2_toxo_r7``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
+msgstr "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``."
+
+msgid "Live cell v1 (phase, brightfield, DIC)"
+msgstr "Lifandi frumur v1 (fasi, bjartsvið, DIC)"
+
+msgid "**Trained on.** unstained cells in phase contrast, brightfield and DIC: LIVECell, DeepSea, YeaZ, yeast microstructures, five Cell Tracking Challenge sets, BBBC009, BBBC030, QPI and Revvity. Base cpsam_v2, cellpose 4.2.1.1, lr 1e-5, batch 4; stopped at epoch 37 of 100"
+msgstr "**Þjálfað á.** ólituðum frumum í fasaskerpu, bjartsviði og DIC: LIVECell, DeepSea, YeaZ, örbyggingar gersveppa, fimm söfn úr Cell Tracking Challenge, BBBC009, BBBC030, QPI og Revvity. Grunnur cpsam_v2, cellpose 4.2.1.1, lr 1e-5, lotustærð 4; stöðvað við lotu 37 af 100"
+
+msgid "**Measured.** on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell"
+msgstr "**Mælt.** á gagnasöfnunum sem staðlað cpsam_v2 var aldrei þjálfað á, F1 0,960 á móti 0,885 við IoU 0,5; yfir öll 2.199 prófunarsjónsviðin, 0,694 á móti 0,738, því að staðlaða líkanið var þjálfað á LIVECell og YeaZ og vinnur á LIVECell"
+
+msgid "TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell and YeaZ, so its score there is partly memorisation. On the datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, QPI, Revvity, yeast microstructures) this model scores F1 0.960 against 0.885"
+msgstr "TVEIR SAMANBURÐIR VIÐ STAÐLAÐA LÍKANIÐ, EKKI EINN: staðlað cpsam_v2 var þjálfað á LIVECell og YeaZ, svo skor þess þar er að hluta til utanbókarlærdómur. Á gagnasöfnunum sem það sá aldrei (DeepSea, CTC-söfnin, BBBC009, BBBC030, QPI, Revvity, örbyggingar gersveppa) fær þetta líkan F1 0,960 á móti 0,885"
+
+msgid "it does NOT replace stock on LIVECell-style Incucyte phase: 0.671 against 0.724 there, and it missed its own pre-registered promotion bar"
+msgstr "það leysir staðlaða líkanið EKKI af hólmi á Incucyte-fasamyndum í LIVECell-stíl: 0,671 á móti 0,724 þar, og það náði ekki eigin fyrirfram skráða kynningarþröskuldi"
+
+msgid "by modality at IoU 0.5: brightfield 0.964 (stock 0.912), DIC +0.026 over stock, phase 0.689 (stock 0.735)"
+msgstr "eftir myndgerð við IoU 0,5: bjartsvið 0,964 (staðlað 0,912), DIC +0,026 umfram staðlað, fasi 0,689 (staðlað 0,735)"
+
+msgid "F1 0.865 on a train sample, 0.696 on validation and 0.694 on test; no per-epoch loss was recorded"
+msgstr "F1 0,865 á þjálfunarúrtaki, 0,696 í sannprófun og 0,694 í prófun; ekkert tap var skráð fyrir hverja lotu"
+
+msgid "Published as `einarolafsson/live-cell-segmentation-cpsam <https://huggingface.co/einarolafsson/live-cell-segmentation-cpsam>`_, as ``live_cell_v1``."
+msgstr "Birt sem `einarolafsson/live-cell-segmentation-cpsam <https://huggingface.co/einarolafsson/live-cell-segmentation-cpsam>`_, sem ``live_cell_v1``."
+
+msgid "SHA-256 ``7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090``."
+msgstr "SHA-256 ``7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090``."
+
+msgid "Cross-channel nuclei-from-cellmask"
+msgstr "Kjarnar út frá frumugrímu (milli rása)"
+
+msgid "**Trained on.** cross-channel: given the cell image, predicts where the nuclei are, with no nuclear stain -- which frees the DAPI/Hoechst channel for another marker. 100 epochs, base cpsam_v2"
+msgstr "**Þjálfað á.** milli rása: út frá mynd af frumunni spáir það fyrir um hvar kjarnarnir eru, án kjarnalitunar -- sem losar DAPI/Hoechst-rásina fyrir annað merki. 100 lotur, grunnur cpsam_v2"
+
+msgid "**Measured.** F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5"
+msgstr "**Mælt.** F1 0,888 á móti 0,201 fyrir staðlað cpsam_v2 á 453 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+
+msgid "F1 0.888, AJI 0.792, Dice 0.877 at IoU 0.5 against stock cpsam_v2's 0.201/0.286/0.449"
+msgstr "F1 0,888, AJI 0,792, Dice 0,877 við IoU 0,5 á móti 0,201/0,286/0,449 hjá stöðluðu cpsam_v2"
+
+msgid "per host: HFF 0.932, HeLa 0.860, THP1 0.861"
+msgstr "eftir hýsli: HFF 0,932, HeLa 0,860, THP1 0,861"
+
+msgid "predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies"
+msgstr "spáir kjörnum út frá formgerð frumunnar -- búast má við minni nákvæmni á óvenjulegri eða mjög þéttri formgerð"
+
+msgid "Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``."
+msgstr "Birt sem `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, sem ``nuclei_from_cellmask_best``."
+
+msgid "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47``."
+msgstr "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47``."
+
+msgid "Cross-channel cell-from-hoechst"
+msgstr "Fruma út frá Hoechst (milli rása)"
+
+msgid "**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+msgstr "**Þjálfað á.** kjörnum lituðum með Hoechst pöruðum við grisjaðar grímur hýsilfrumna; fínstillt frá stöðluðu cpsam_v2, 100 lotur, besta lota 70"
+
+msgid "**Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
+msgstr "**Mælt.** F1 0,870 á móti 0,301 hjá stöðluðu cpsam_v2 á 451 geymdu sjónsviði við IoU 0,5 -- munur upp á 0,569"
+
+msgid "the counterpart of nuclei_from_cellmask_v1: that one predicts nuclei from the cell mask, this one predicts the cell from the nucleus"
+msgstr "hliðstæða nuclei_from_cellmask_v1: það spáir kjörnum út frá frumugrímunni, þetta spáir frumunni út frá kjarnanum"
+
+msgid "precision 0.944 against recall 0.806 -- it misses cells rather than inventing them, which is the safer direction for counting"
+msgstr "nákvæmni 0,944 á móti heimt 0,806 -- það missir af frumum frekar en að búa þær til, sem er öruggari stefnan fyrir talningu"
+
+msgid "quote the DELTA over stock (0.569), not the ratio: stock's mAP of 0.0575 is a near-zero denominator that makes any ratio look huge"
+msgstr "tilgreindu MUNINN umfram staðlaða líkanið (0,569), ekki hlutfallið: mAP staðlaða líkansins, 0,0575, er nefnari nálægt núlli sem lætur hvaða hlutfall sem er líta út fyrir að vera risastórt"
+
+msgid "Published as `einarolafsson/cross-channel-cell-from-hoechst-cpsam <https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam>`_, as ``cell_from_hoechst_best``."
+msgstr "Birt sem `einarolafsson/cross-channel-cell-from-hoechst-cpsam <https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam>`_, sem ``cell_from_hoechst_best``."
+
+msgid "SHA-256 ``d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb``."
+msgstr "SHA-256 ``d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb``."
+
+msgid "Toxoplasma from Hoechst (cross-channel)"
+msgstr "Toxoplasma út frá Hoechst (milli rása)"
+
+msgid "**Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks"
+msgstr "**Þjálfað á.** milli rása: út frá Hoechst-/kjarnamynd spáir það fyrir um hvar sníkjubólur Toxoplasma eru, án litunar á sníkjudýrinu. 100 lotur, grunnur cpsam_v2, AdamW lr 1e-05, mörk eru PV-endursköpuð grímur"
+
+msgid "**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**Mælt.** F1 0,569 á móti 0,002 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+
+msgid "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016"
+msgstr "F1 0,569, AJI 0,421, Dice 0,546 við IoU 0,5 á móti 0,002/0,006/0,016 hjá stöðluðu cpsam_v2"
+
+msgid "the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1"
+msgstr "Hoechst-leiðin er erfiðari en frumugrímuleiðin -- berðu saman við toxoplasma_from_cellmask_v1"
+
+msgid "Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``."
+msgstr "Birt sem `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, sem ``toxoplasma_from_hoechst_pv``."
+
+msgid "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
+msgstr "SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``."
+

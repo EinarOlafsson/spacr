@@ -94,6 +94,7 @@ def test_changed_english_becomes_stale_and_is_not_published(tmp_path):
 
 
 def test_import_refuses_a_translation_for_an_old_msgid(tmp_path):
+    pytest.importorskip("babel")
     pot = tmp_path / "pot"
     locale = tmp_path / "locale"
     _write_pot(pot, "page", ["Old text."])
@@ -159,7 +160,7 @@ def test_catalog_languages_are_known_and_labelled():
         files = _po_files(language)
         assert files, language
         for path in files:
-            assert guide.catalog_review_kind(path) == guide.REVIEW_KIND, path
+            assert guide.catalog_review_kind(path) in guide.SUPPORTED_REVIEW_KINDS, path
         assert (guide.GLOSSARY_DIR / f"{language}.json").is_file()
 
 
@@ -180,16 +181,11 @@ def test_published_translations_keep_markup_and_app_ui_names(language):
 
 def test_glossary_matches_the_runtime_catalogs():
     pytest.importorskip("PySide6")
-    from spacr.qt.i18n import _exact_translation
-    from spacr.qt.i18n_catalogs import en, setting_label
-
-    keys = {label: key for key, label in reversed(list(en.SETTING_LABELS.items()))
-            if "." not in key}
     for language in LANGUAGES:
         for english, translated in guide.load_glossary(language).items():
-            shown = _exact_translation(english, language)
-            if not shown and english in keys:
-                shown = setting_label(keys[english], english, language)
+            # Use the same exact runtime binding as the guide builder, including
+            # the validated counted-button prefix for "Checked images".
+            shown = guide.runtime_ui_name(english, language)
             assert shown == translated, (language, english)
 
 
@@ -270,3 +266,35 @@ def test_guide_selector_targets_are_computed_from_the_script_location():
     assert 'new URL("../", scriptUrl)' in script
     assert "setupGuideSelector(apiArticle)" in script
     assert 'safeStorageSet(select.value)' in script
+
+
+def test_fixed_runtime_defect_switches_the_guides_to_the_app_name(tmp_path, monkeypatch):
+    """When the runtime agent corrects a wrong-sense UI row, retarget adopts it."""
+    pytest.importorskip("babel")
+    pot = tmp_path / "pot"
+    locale = tmp_path / "locale"
+    glossary = tmp_path / "glossary"
+    glossary.mkdir()
+    monkeypatch.setattr(guide, "GLOSSARY_DIR", glossary)
+    _write_pot(pot, "cellpose_training", ["Choose **Train**.", "Train"])
+    guide.update_language("sv", pot, locale)
+    catalog = guide.read_catalog(locale / "sv/LC_MESSAGES/cellpose_training.po")
+    catalog.get("Choose **Train**.").string = "Välj **Träna**."
+    catalog.get("Train").string = "Träna"
+    guide.write_catalog(locale / "sv/LC_MESSAGES/cellpose_training.po", catalog)
+    (glossary / "sv.defects.json").write_text(json.dumps(
+        {"schema": 1, "language": "sv", "defects": {"Train": "railway train"}}))
+
+    app = {"Train": "Tåg"}
+    monkeypatch.setattr(guide, "runtime_ui_name", lambda name, language: app.get(name))
+    snapshot = guide.snapshot_defects("sv", locale)
+    assert snapshot["Train"] == {"runtime": "Tåg", "guide": "Träna"}
+    assert guide.retarget_fixed_defects("sv", locale) == {}     # still wrong
+
+    app["Train"] = "Träning"                                     # runtime fix lands
+    result = guide.retarget_fixed_defects("sv", locale)
+    assert result["fixed"] == ["Train"] and result["messages"] == 2
+    catalog = guide.read_catalog(locale / "sv/LC_MESSAGES/cellpose_training.po")
+    assert catalog.get("Choose **Train**.").string == "Välj **Träning**."
+    assert catalog.get("Train").string == "Träning"
+    assert "Train" not in json.loads((glossary / "sv.defects.json").read_text())["defects"]

@@ -213,10 +213,11 @@
     },
     {
       "context": "``'plaque'`` or ``'figure'``.",
-      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_mode#1",
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_mode#2",
       "source": "``'plaque'`` or ``'figure'``.",
       "source_sha256": "ac1c4e6d00e6125047a7598591facd6974b9986f1b7510ff4d52cf0053dffd3d",
-      "translation": "``'plaque'`` oder ``'figure'``."
+      "translation": "``'plaque'`` oder ``'figure'``.",
+      "relocated_from_2026_10_01": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_mode#1"
     },
     {
       "context": "``'plaque'`` or ``'figure'``.",

@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "feature": "F539 cell background rings for bleaching",
+  "status": "partial; cell background ring gap closed",
+  "validation": "30 passed in 8.61s: 9 new cases, existing bleaching suite, legacy 2D/3D rings and feature-scope search. MemoryMax4G, MemorySwapMax0, configured CPUQuota100%, actual one-core affinity.",
+  "evidence": {
+    "log_sha256": "3768ebc35125b171f14380e91ce9b75f5c9caea4cd3e7f2eab271c1f08c04d13"
+  },
+  "source_sha256": {
+    "spacr/measure.py": "8e645241f526b50322b60634071f0c139ae74b1f9efa01abace471a62f3a2cbd",
+    "spacr/feature_dict.py": "316b46d3fba2789e8897e615c02710c2e7c51080f0f1892e7d5d56b477c4199d",
+    "tests/test_cell_background_f539.py": "921abee4670ad304ce3aa677a4650a92aaf1965614681f9254d08b532544d37c"
+  },
+  "remaining": [
+    "motility and calcium integration",
+    "image-level histogram matching",
+    "population biology versus bleaching cannot be inferred from median trend alone"
+  ]
+}

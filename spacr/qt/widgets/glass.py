@@ -32,7 +32,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QObject, QRect, Qt
+from PySide6.QtCore import QEvent, QLineF, QObject, QRect, Qt
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPen
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QAbstractSpinBox, QAbstractSlider, QGraphicsView, QPlainTextEdit, QApplication,
@@ -346,7 +346,7 @@ def _blue_resize_cursor(edges):
 
 
 class _ResizeEdgeHint(QWidget):
-    """Paint a one-pixel blue line on the edges available for dragging."""
+    """Paint a one-pixel blue line across the middle half of each active edge."""
 
     def __init__(self, window):
         """Create an initially hidden edge overlay that never intercepts mouse input."""
@@ -367,18 +367,20 @@ class _ResizeEdgeHint(QWidget):
             self.update()
 
     def paintEvent(self, event):
-        """Paint thin blue guides along active edges while leaving the corners unobscured."""
+        """Centre half-length guides on active edges without changing the grab band."""
         painter = QPainter(self)
         painter.setPen(QPen(QColor('#168cff'), 1))
         left, top, right, bottom = 1, 1, self.width() - 2, self.height() - 2
+        inset_x = max(7.0, (right - left) * 0.25)
+        inset_y = max(7.0, (bottom - top) * 0.25)
         for edge, line in (
-            (Qt.LeftEdge, (left, 8, left, bottom - 7)),
-            (Qt.RightEdge, (right, 8, right, bottom - 7)),
-            (Qt.TopEdge, (8, top, right - 7, top)),
-            (Qt.BottomEdge, (8, bottom, right - 7, bottom)),
+            (Qt.LeftEdge, (left, top + inset_y, left, bottom - inset_y)),
+            (Qt.RightEdge, (right, top + inset_y, right, bottom - inset_y)),
+            (Qt.TopEdge, (left + inset_x, top, right - inset_x, top)),
+            (Qt.BottomEdge, (left + inset_x, bottom, right - inset_x, bottom)),
         ):
             if self.edges & edge:
-                painter.drawLine(*line)
+                painter.drawLine(QLineF(*line))
 
 
 def _owns_mouse_gesture(widget, window):
@@ -606,6 +608,31 @@ def _paint_nothing_behind_the_card(dialog: QDialog) -> bool:
         return False
 
 
+def _ensure_alpha_surface(dialog: QWidget) -> bool:
+    """Repair a native surface created before translucent window polishing.
+
+    Qt can create the platform window before sending Polish. Merely setting
+    WA_TranslucentBackground afterwards leaves that existing X11 surface
+    opaque (alphaBufferSize=-1). Recreate its platform resources with an
+    explicit alpha format before it is mapped; keep the QWidget, QWindow,
+    geometry, parentage and all child state intact.
+
+    :param dialog: window whose existing native surface must support alpha.
+    :returns: true when alpha is requested, or no native window exists yet.
+    """
+    window = dialog.windowHandle()
+    if window is None:
+        return True
+    if window.format().alphaBufferSize() >= 8:
+        return True
+    surface_format = window.format()
+    surface_format.setAlphaBufferSize(8)
+    window.destroy()
+    window.setFormat(surface_format)
+    window.create()
+    return window.format().alphaBufferSize() >= 8
+
+
 def make_frameless(dialog: QDialog) -> bool:
     """Drop the title bar and let the card's rounded corners show.
 
@@ -637,6 +664,7 @@ def make_frameless(dialog: QDialog) -> bool:
                                & ~Qt.WindowType.Dialog)
                               | Qt.WindowType.Window
                               | Qt.FramelessWindowHint)
+        _ensure_alpha_surface(dialog)
         dialog.setProperty(DETACHED, True)
         _paint_nothing_behind_the_card(dialog)
         if getattr(dialog, "_spacr_background_drag", None) is None:
@@ -651,22 +679,19 @@ def make_frameless(dialog: QDialog) -> bool:
 
 
 def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
-    """Cut the window itself to the card's rounded shape. True if applied.
+    """Keep antialiased alpha edges on translucent windows.
 
-    TRANSLUCENCY IS NOT ENOUGH, AND THAT IS THE WHOLE POINT OF THIS.
-    `WA_TranslucentBackground` asks the window manager to composite the
-    corner pixels away; a mask REMOVES them from the window's shape, so
-    the corners are gone whether or not anything is compositing, and
-    whether or not the surface came back with an alpha channel after its
-    flags were rewritten. It is the one way to be sure no square is left
-    round a rounded card, which is what kept coming back.
+    A QRegion is binary and quantizes its outline to logical pixels, even
+    on high-DPI screens. Cutting the antialiased card to that shape erased
+    partially covered edge pixels, producing a jagged white/dark fringe
+    against the desktop. Translucent windows already carry the card's
+    exact per-pixel alpha only when their native format has an alpha buffer.
+    Clear the mask in that case; the QWidget attribute alone is not proof.
+    Until a native alpha surface exists, retain the rounded platform mask.
 
-    The mask is rebuilt on every resize -- see :class:`_Backdrop` -- and
-    it follows the same radius the card paints, so the cut edge sits
-    under the rim rather than beside it.
-
-    :param dialog: the widget whose window mask is cut to a rounded rectangle
-        of its current size; an empty size returns ``False``.
+    :param dialog: window carrying the shared rounded card.
+    :param radius: corner radius in logical pixels for the opaque fallback.
+    :returns: false for an empty or deleted widget, true after adjustment.
     """
     try:
         from PySide6.QtCore import QRectF
@@ -677,6 +702,12 @@ def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
         rect = dialog.rect()
         if rect.width() <= 0 or rect.height() <= 0:
             return False
+        window = dialog.windowHandle()
+        if (dialog.testAttribute(Qt.WA_TranslucentBackground)
+                and window is not None
+                and window.format().alphaBufferSize() >= 8):
+            dialog.clearMask()
+            return True
         step = 4.0
         path = QPainterPath()
         path.addRoundedRect(

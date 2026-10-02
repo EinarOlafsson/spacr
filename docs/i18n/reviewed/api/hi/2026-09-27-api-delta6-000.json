@@ -1,24 +1,24 @@
 {
-  "schema": 1,
   "language": "hi",
-  "review_kind": "AI technical review (Codex), no native-speaker signoff",
   "note": "API delta 6, items 47/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
   "records": [
     {
-      "label": "spacr.install_cleanup.start_update_helper#10",
+      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
+      "label": "spacr.install_cleanup.start_update_helper#12",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
       "source_sha256": "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759",
-      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
-      "translation": "उपयोगकर्ता के लिए लिखने योग्य स्थान पर मौजूद फ़्रीज़ किया गया macOS ऐप बंडल अपने सत्यापित DMG प्रतिस्थापन अडैप्टर का उपयोग करता है और पूरा पिछला बंडल सुरक्षित रखता है। फ़्रीज़ किए गए अन्य एप्लिकेशन परिवार कुछ भी हटाने से पहले त्रुटि लौटाते हैं; सहायक प्रोग्राम इन एप्लिकेशन के लिए ऑनलाइन इंस्टॉलर का वैकल्पिक रास्ता सक्षम नहीं करता।",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "उपयोगकर्ता के लिए लिखने योग्य स्थान पर मौजूद फ़्रीज़ किया गया macOS ऐप बंडल अपने सत्यापित DMG प्रतिस्थापन अडैप्टर का उपयोग करता है और पूरा पिछला बंडल सुरक्षित रखता है। फ़्रीज़ किए गए अन्य एप्लिकेशन परिवार कुछ भी हटाने से पहले त्रुटि लौटाते हैं; सहायक प्रोग्राम इन एप्लिकेशन के लिए ऑनलाइन इंस्टॉलर का वैकल्पिक रास्ता सक्षम नहीं करता।"
     },
     {
+      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
       "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "review_basis": "written from current English and technically reviewed by Codex",
       "source": "An accepted close also joins the owned backdrop renderer. Showing the screen again creates a fresh backdrop from the current settings.",
       "source_sha256": "90b9bbc56d70e06f3d9b420eba571bf6e6feaa6fdfef03c90449e01033cd8b88",
-      "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",
-      "translation": "स्क्रीन बंद करने का अनुरोध स्वीकार होने पर उसके अपने पृष्ठभूमि रेंडरर के समाप्त होने की भी प्रतीक्षा की जाती है। स्क्रीन दोबारा दिखाने पर वर्तमान सेटिंग के अनुसार नई पृष्ठभूमि बनती है।",
-      "review_basis": "written from current English and technically reviewed by Codex"
+      "translation": "स्क्रीन बंद करने का अनुरोध स्वीकार होने पर उसके अपने पृष्ठभूमि रेंडरर के समाप्त होने की भी प्रतीक्षा की जाती है। स्क्रीन दोबारा दिखाने पर वर्तमान सेटिंग के अनुसार नई पृष्ठभूमि बनती है।"
     }
-  ]
+  ],
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "schema": 1
 }

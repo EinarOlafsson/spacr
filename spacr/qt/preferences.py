@@ -157,6 +157,7 @@ Values:
 from __future__ import annotations
 
 import logging
+import threading
 
 from PySide6.QtCore import QSettings, Qt
 
@@ -216,6 +217,7 @@ _KEY_TOOLTIPS_BOTTOM = "prefs/tooltips_bottom"
 #: SETTINGS surfaces above: those answer "what is this setting", this one
 #: answers "do small labels pop up at all".
 _KEY_TOOLTIPS_ENABLED = "prefs/tooltips_enabled"
+_KEY_TOOLTIP_DELAY = "prefs/tooltip_delay"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
 _KEY_FONT_WEIGHT = "prefs/interface_font_weight"
@@ -353,6 +355,10 @@ FRACTAL_LIMITS = {
                      "a period of zero would change speed infinitely fast"),
     "pointer_size": (0.0, None, "a reach cannot be negative"),
     "pointer_strength": (0.0, None, "a strength cannot be negative"),
+    "magnifier_size": (0.25, 3.0,
+                       "below a quarter the lens is smaller than the "
+                       "cursor, and above three times it covers the "
+                       "window"),
     "supersampling": (1, None,
                       "fewer than one sample a pixel draws nothing"),
     "seconds_per_decade": (0.1, None,
@@ -489,6 +495,7 @@ _KEY_FRACTAL_POINTER = "spaceout/fractal_pointer_gravity"
 #: How far that pull reaches, and how hard it pulls.
 _KEY_FRACTAL_POINTER_SIZE = "spaceout/fractal_pointer_size"
 _KEY_FRACTAL_POINTER_STRENGTH = "spaceout/fractal_pointer_strength"
+_KEY_FRACTAL_MAGNIFIER_SIZE = "spaceout/fractal_magnifier_size"
 
 #: Supersampling, and the Mandelbrot renderer's own numbers.
 _KEY_FRACTAL_SUPERSAMPLING = "spaceout/fractal_supersampling"
@@ -2653,7 +2660,7 @@ def get_fractal_settings() -> dict:
         DEFAULT_SCALE, DEFAULT_SPEED, DEFAULT_SPEED_MAX, DEFAULT_SPEED_MIN,
         DEFAULT_SPEED_PERIOD, DEFAULT_VARIABLE_SPEED, clamp,
         DEFAULT_FOLLOW_POINTER, DEFAULT_POINTER_SIZE,
-        DEFAULT_POINTER_STRENGTH,
+        DEFAULT_POINTER_STRENGTH, DEFAULT_MAGNIFIER_SIZE,
     )
 
     settings = _settings()
@@ -2730,6 +2737,9 @@ def get_fractal_settings() -> dict:
                                 DEFAULT_POINTER_SIZE, 0.0, None),
         "pointer_strength": _number(_KEY_FRACTAL_POINTER_STRENGTH,
                                     DEFAULT_POINTER_STRENGTH, 0.0, None),
+        "magnifier_size": _number(_KEY_FRACTAL_MAGNIFIER_SIZE,
+                                  DEFAULT_MAGNIFIER_SIZE,
+                                  *FRACTAL_LIMITS["magnifier_size"][:2]),
         "supersampling": int(_number(_KEY_FRACTAL_SUPERSAMPLING,
                           _MANDEL_DEFAULTS["supersampling"],
                           FRACTAL_LIMITS['supersampling'][0], None)),
@@ -2807,6 +2817,8 @@ def set_fractal_settings(**values) -> None:
         "pointer_gravity": (_KEY_FRACTAL_POINTER, None),
         "pointer_size": (_KEY_FRACTAL_POINTER_SIZE, (0.0, None)),
         "pointer_strength": (_KEY_FRACTAL_POINTER_STRENGTH, (0.0, None)),
+        "magnifier_size": (_KEY_FRACTAL_MAGNIFIER_SIZE,
+                           FRACTAL_LIMITS["magnifier_size"][:2]),
         "supersampling": (_KEY_FRACTAL_SUPERSAMPLING,
                 (FRACTAL_LIMITS['supersampling'][0], FRACTAL_LIMITS['supersampling'][1])),
         "seconds_per_decade": (_KEY_FRACTAL_SECONDS_PER_DECADE,
@@ -3714,6 +3726,59 @@ def set_tooltips_enabled(on: bool) -> None:
     except Exception:                                       # noqa: BLE001
         LOG.debug("could not refresh the tooltip policy", exc_info=True)
 
+
+
+#: Seconds the pointer rests before a tooltip appears, out of the box.
+_TOOLTIP_DELAY_DEFAULT = 2.0
+_TOOLTIP_DELAY_MIN = 0.0
+_TOOLTIP_DELAY_MAX = 10.0
+
+
+def _clamped_tooltip_delay(value) -> float:
+    """``value`` as seconds within the allowed range; the default if junk.
+
+    :param value: anything a store or a caller may hand over.
+    :returns: seconds between the minimum and the maximum.
+    """
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError):
+        return _TOOLTIP_DELAY_DEFAULT
+    if seconds != seconds:
+        return _TOOLTIP_DELAY_DEFAULT
+    return max(_TOOLTIP_DELAY_MIN, min(_TOOLTIP_DELAY_MAX, seconds))
+
+
+def _get_tooltip_delay() -> float:
+    """How long the pointer rests before a tooltip appears, in seconds.
+
+    Two seconds unless chosen otherwise, clamped to 0-10 on read so a
+    hand-edited store cannot make tooltips unreachable. Read by
+    :mod:`spacr.qt.tooltip_policy`, which caches it.
+    """
+    return _clamped_tooltip_delay(
+        _settings().value(_KEY_TOOLTIP_DELAY, _TOOLTIP_DELAY_DEFAULT))
+
+
+def _set_tooltip_delay(seconds) -> float:
+    """Store the tooltip delay and apply it at once, everywhere.
+
+    Drops the tooltip policy's cached delay, so the next hover anywhere in
+    the application waits the new time.
+
+    :param seconds: the delay; clamped to 0-10, junk stores the default.
+    :returns: the value stored.
+    """
+    value = _clamped_tooltip_delay(seconds)
+    settings = _settings()
+    settings.setValue(_KEY_TOOLTIP_DELAY, value)
+    settings.sync()
+    try:
+        from .tooltip_policy import invalidate_tooltip_policy
+        invalidate_tooltip_policy()
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("could not refresh the tooltip policy", exc_info=True)
+    return value
 
 
 def get_setting_animations_enabled() -> bool:
@@ -5523,6 +5588,54 @@ def _set_plugin_catalogue(source: str) -> None:
     settings.sync()
 
 
+class _PluginCatalogueJob(threading.Thread):
+    """Finish catalogue reads or mutations independently of Preferences.
+
+    No Qt object enters this non-daemon worker. Closing the dialog leaves the
+    install running; interpreter shutdown waits for staging/commit to finish.
+    The GUI polls the result and performs every widget update on its own thread.
+    """
+
+    def __init__(self, row, source, install):
+        """Snapshot the selected entry and its source before starting work."""
+        super().__init__(name="spacr-plugin-catalogue", daemon=False)
+        self.row = dict(row or {})
+        self.source = source
+        self.install = install
+        self.record = None
+        self.error = None
+        self.rows = None
+        self.refresh_error = None
+
+    def run(self):
+        """Mutate the catalogue and fetch its refreshed rows off the GUI thread."""
+        from ..plugins import (
+            _catalogue_rows,
+            _install_from_catalogue,
+            _uninstall_from_catalogue,
+        )
+
+        if self.install is None:
+            try:
+                self.rows = _catalogue_rows(self.source)
+            except Exception as exc:
+                self.error = str(exc)
+            return
+        try:
+            if self.install:
+                self.record = _install_from_catalogue(self.row["key"], self.source)
+            else:
+                _uninstall_from_catalogue(self.row["key"])
+        except Exception as exc:
+            self.error = str(exc)
+            return
+        try:
+            self.rows = _catalogue_rows(self.source)
+        except Exception as exc:
+            # A refresh failure must not misreport a committed install as failed.
+            self.refresh_error = str(exc)
+
+
 class _PluginCataloguePage:
     """The Plugins tab: browse a catalogue and install plugins and recipes.
 
@@ -5537,14 +5650,25 @@ class _PluginCataloguePage:
 
     def __init__(self, form, dialog) -> None:
         """Build the rows and list the remembered catalogue, if any."""
-        from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QLabel,
-                                       QLineEdit, QPushButton, QTableWidget,
-                                       QWidget)
+        from PySide6.QtCore import QTimer
+        from PySide6.QtWidgets import (
+            QAbstractItemView,
+            QHBoxLayout,
+            QLabel,
+            QLineEdit,
+            QPushButton,
+            QTableWidget,
+            QWidget,
+        )
 
         from .i18n import tr
 
         self._dialog = dialog
         self._rows = []
+        self._job = None
+        self._job_timer = QTimer(dialog)
+        self._job_timer.setInterval(50)
+        self._job_timer.timeout.connect(self._finish_job)
         help_label = QLabel(tr(
             "Browse a catalogue of community plugins and assay recipes. A "
             "plugin is installed into its own folder with the libraries it "
@@ -5623,13 +5747,17 @@ class _PluginCataloguePage:
     def _sync_buttons(self) -> None:
         """Offer only the actions the selected row allows."""
         row = self.selected()
+        busy = self._job is not None
+        self.source.setEnabled(not busy)
+        self.load_button.setEnabled(not busy)
+        self.table.setEnabled(not busy)
         self.install_button.setEnabled(
-            row is not None and row["status"] in ("available",
+            not busy and row is not None and row["status"] in ("available",
                                                   "update available"))
         self.uninstall_button.setEnabled(
-            row is not None and bool(row["installed"]))
+            not busy and row is not None and bool(row["installed"]))
         self.open_button.setEnabled(
-            row is not None and row["kind"] == "recipe"
+            not busy and row is not None and row["kind"] == "recipe"
             and bool(row["installed"]))
 
     def _open_selected(self) -> bool:
@@ -5641,7 +5769,7 @@ class _PluginCataloguePage:
         from .i18n import tr
 
         row = self.selected()
-        if row is None or not _is_alpha_visible(
+        if self._job is not None or row is None or not _is_alpha_visible(
                 "widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET):
             return False
         try:
@@ -5675,26 +5803,31 @@ class _PluginCataloguePage:
         return True
 
     def refresh(self) -> bool:
-        """Read the catalogue and fill the table.
+        """Fetch the current source off-thread and show its result when ready.
 
-        :returns: False, with the reason on the status line, when the
-            catalogue could not be read.
+        :returns: True when the read started, False while another job is busy.
         """
         from .i18n import tr
-        from .widgets.sortable_table import table_item
-        from ..plugins import _catalogue_rows
 
+        if self._job is not None:
+            return False
         source = self.source.text().strip()
         _set_plugin_catalogue(source)
-        try:
-            self._rows = _catalogue_rows(source or None)
-        except Exception as exc:
-            self._rows = []
-            self.table.setRowCount(0)
-            self.status.setText(tr("Could not read the catalogue: {error}")
-                                .format(error=exc))
-            self._sync_buttons()
-            return False
+        self._job = _PluginCatalogueJob(None, source or None, None)
+        self._rows = []
+        self.table.setRowCount(0)
+        self.status.setText(tr("Working…"))
+        self._sync_buttons()
+        self._job.start()
+        self._job_timer.start()
+        return True
+
+    def _show_rows(self, rows):
+        """Render a previously fetched catalogue snapshot on the GUI thread."""
+        from .i18n import tr
+        from .widgets.sortable_table import table_item
+
+        self._rows = rows
         kinds = {"plugin": tr("Plugin"), "recipe": tr("Recipe")}
         states = {"available": tr("available"), "installed": tr("installed"),
                   "update available": tr("update available"),
@@ -5726,46 +5859,74 @@ class _PluginCataloguePage:
                 return
 
     def _act(self, install: bool) -> bool:
-        """Install or uninstall the selected row, then list again."""
-        from PySide6.QtCore import Qt
-        from PySide6.QtWidgets import QApplication
-
+        """Start one catalogue action; return whether it was accepted."""
         from .i18n import tr
-        from ..plugins import _install_from_catalogue, _uninstall_from_catalogue
 
         row = self.selected()
-        if row is None:
+        if row is None or self._job is not None:
             return False
-        QApplication.setOverrideCursor(Qt.WaitCursor)
-        try:
-            if install:
-                record = _install_from_catalogue(
-                    row["key"], self.source.text().strip() or None)
+        self._job = _PluginCatalogueJob(
+            row, self.source.text().strip() or None, install)
+        self.status.setText(tr("Working…"))
+        self._sync_buttons()
+        self._job.start()
+        self._job_timer.start()
+        return True
+
+    def _finish_job(self):
+        """Present a finished operation without coupling its lifetime to Qt."""
+        from .i18n import tr
+
+        job = self._job
+        if job is None or job.is_alive():
+            return False
+        self._job_timer.stop()
+        self._job = None
+        if job.install is None:
+            # A programmatic source change can occur while controls are disabled.
+            # Never attach the old request's results or error to the new source.
+            if (self.source.text().strip() or None) != job.source:
+                self.status.clear()
+                self._sync_buttons()
+                return False
+            self._show_rows(job.rows if job.error is None else [])
+            if job.error is not None:
+                self.status.setText(tr("Could not read the catalogue: {error}").format(error=job.error))
+            return True
+        row = job.row
+        if job.error is not None:
+            message = tr("{name} failed: {error}").format(name=row["name"], error=job.error)
+        else:
+            if job.install:
                 message = tr("Installed {name} {version}.").format(
-                    name=row["name"], version=record["version"])
+                    name=row["name"], version=job.record["version"])
                 if row["kind"] == "recipe":
-                    message += " " + tr("Its settings are in {path}.").format(
-                        path=record["path"])
+                    message += " " + tr("Its settings are in {path}.").format(path=job.record["path"])
             else:
-                _uninstall_from_catalogue(row["key"])
                 message = tr("Uninstalled {name}.").format(name=row["name"])
-        except Exception as exc:
-            self.status.setText(tr("{name} failed: {error}").format(
-                name=row["name"], error=exc))
-            return False
-        finally:
-            QApplication.restoreOverrideCursor()
-        self.refresh()
-        self._select_key(row["key"])
+            if job.rows is not None:
+                self._show_rows(job.rows)
+                self._select_key(row["key"])
+            elif job.refresh_error:
+                rows = [dict(item) for item in self._rows]
+                for item in rows:
+                    if item["key"] == row["key"]:
+                        item["installed"] = str(job.record["version"]) if job.install else ""
+                        item["status"] = ("installed" if job.install else
+                                          "incompatible" if item["status"] == "incompatible" else "available")
+                self._show_rows(rows)
+                self._select_key(row["key"])
+                message += " " + tr("Could not read the catalogue: {error}").format(error=job.refresh_error)
         self.status.setText(message)
+        self._sync_buttons()
         return True
 
     def install_selected(self) -> bool:
-        """Install or update the selected entry; True when it worked."""
+        """Start installing the selected entry; True when the action started."""
         return self._act(True)
 
     def uninstall_selected(self) -> bool:
-        """Uninstall the selected entry; True when it worked."""
+        """Start uninstalling the selected entry; True when the action started."""
         return self._act(False)
 
 
@@ -6318,6 +6479,7 @@ PREFERENCE_TIPS = {
     "Colour-blind mode": "Use interface and figure colours designed to remain distinguishable for common colour-vision deficiencies.",
     "Module visibility": "Select the module maturity levels shown in navigation: stable only, or stable with beta and alpha modules.",
     "Show busy spinner after": "Delay before displaying the busy indicator for a running task.",
+    "Tooltip delay": "Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.",
     "Page opacity": "Page opacity relative to the animated background.",
     "Animation detail": "Backdrop rendering detail. Reduce this value if animation affects interface performance.",
     "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
@@ -6763,8 +6925,30 @@ class PreferencesDialog:
 
         form = _page("General", "PreferencesTabGeneral")
         appearance = _page("Appearance", "PreferencesTabAppearance")
-        theme_tab = _page("Theme", "PreferencesTabTheme")
-        animation = _page("Animation", "PreferencesTabAnimation")
+        from .widgets.section import Section
+
+        def _category(title: str, object_name: str):
+            """Add a folded category to Appearance and return its form.
+
+            The category is the same widget the module screens group their
+            settings with, so it folds and looks the way every other
+            settings category does. Its rows sit in a holder named
+            ``object_name``, which is what the Help search opens the dialog
+            on; the navigation unfolds the category on the way to a row.
+            """
+            category = Section(title)
+            holder = QWidget()
+            holder.setObjectName(object_name)
+            category_form = QFormLayout(holder)
+            category_form.setContentsMargins(0, 0, 0, 0)
+            category_form.setFieldGrowthPolicy(
+                QFormLayout.AllNonFixedFieldsGrow)
+            category.add_prose(holder)
+            return category, category_form
+
+        theme_category, theme_tab = _category("Theme", "PreferencesTabTheme")
+        animation_category, animation = _category(
+            "Animation", "PreferencesTabAnimation")
         performance = _page("Performance", "PreferencesTabPerformance")
         modules = _page("Modules", "PreferencesTabModules")
         figures = _page("Figures", "PreferencesTabFigures")
@@ -7078,13 +7262,41 @@ class PreferencesDialog:
         tooltips_all_check.setObjectName("TooltipsEnabled")
         tooltips_all_check.setToolTip(
             "Resting the pointer on a button, a field or a column header "
-            "for two seconds shows a small label saying what it is. The "
+            "for the chosen Tooltip delay shows a small label saying what it is. The "
             "label stays while the pointer is on it and leaves a second "
             "after the pointer goes. Cleared, no tooltip appears anywhere "
             "in spaCR."
         )
         tooltips_all_check.setChecked(get_tooltips_enabled())
         appearance.addRow(tr("Tooltips"), tooltips_all_check)
+
+        tooltip_delay_slider = QSlider(Qt.Horizontal)
+        tooltip_delay_slider.setObjectName("TooltipDelay")
+        tooltip_delay_slider.setRange(int(_TOOLTIP_DELAY_MIN * 10),
+                                      int(_TOOLTIP_DELAY_MAX * 10))
+        tooltip_delay_slider.setSingleStep(1)
+        tooltip_delay_slider.setPageStep(5)
+        tooltip_delay_slider.setTickInterval(10)
+        tooltip_delay_slider.setValue(
+            int(round(_get_tooltip_delay() * 10)))
+        tooltip_delay_slider.setToolTip(PREFERENCE_TIPS["Tooltip delay"])
+        tooltip_delay_value = QLabel()
+
+        def _update_tooltip_delay_lbl(v):
+            """Show the tooltip delay in seconds, or "show immediately" at zero."""
+            tooltip_delay_value.setText(
+                tr("show immediately") if v == 0 else f"{v / 10:.1f} s")
+
+        tooltip_delay_slider.valueChanged.connect(_update_tooltip_delay_lbl)
+        _update_tooltip_delay_lbl(tooltip_delay_slider.value())
+        tooltips_all_check.toggled.connect(tooltip_delay_slider.setEnabled)
+        tooltip_delay_slider.setEnabled(tooltips_all_check.isChecked())
+        tooltip_delay_column = QVBoxLayout()
+        tooltip_delay_column.setContentsMargins(0, 0, 0, 0)
+        tooltip_delay_column.addWidget(tooltip_delay_slider)
+        tooltip_delay_column.addWidget(tooltip_delay_value)
+        appearance.addRow(tr("Tooltip delay"),
+                          _hbox_wrap(tooltip_delay_column))
 
         tooltips_box_check = Toggle(tr("Tooltips box"))
         tooltips_box_check.setObjectName("TooltipsBox")
@@ -7892,6 +8104,8 @@ class PreferencesDialog:
         font_weight.setCurrentIndex(
             max(0, font_weight.findData(get_interface_font_weight())))
         appearance.addRow(tr("Interface font"), font_weight)
+        appearance.addRow(theme_category)
+        appearance.addRow(animation_category)
 
         if spaceout_enabled():
             fractal = _page("Fractal", "PreferencesTabFractal")
@@ -8050,11 +8264,13 @@ class PreferencesDialog:
                 "every so often and moves the camera onto it. It finds more "
                 "variety, and moving the camera is visible: the Steering "
                 "control below sets how much.\n\n"
-                "Tour the interesting places floats between twenty "
-                "coordinates chosen in advance for keeping their detail "
-                "over four decades of zoom, easing out of one and into "
-                "the next. Dragging the view stops the tour; Ctrl+R hands "
-                "the camera back to it."))
+                "Tour the interesting places measures the view as it "
+                "descends and glides toward the part with the most colours "
+                "in it, never toward a single-colour patch. The camera "
+                "eases in and out of every move and turns away before the "
+                "detail runs out, and at the end of a dive it glides back "
+                "up. Dragging the view stops the tour; Ctrl+R hands the "
+                "camera back to it."))
             fractal.addRow(tr("Path"), fractal_path)
 
             fractal_steering = _tenths(
@@ -8129,6 +8345,46 @@ class PreferencesDialog:
             fractal.addRow(tr("Pointer reach"), fractal_pointer_size)
             fractal_pointer_size.setEnabled(fractal_pointer.isChecked())
             fractal_pointer.toggled.connect(fractal_pointer_size.setEnabled)
+
+            fractal_magnifier = QSlider(Qt.Horizontal)
+            fractal_magnifier.setObjectName("FractalMagnifierSize")
+            _lens_low, _lens_high = FRACTAL_LIMITS["magnifier_size"][:2]
+            fractal_magnifier.setRange(int(round(_lens_low * 100)),
+                                       int(round(_lens_high * 100)))
+            fractal_magnifier.setSingleStep(5)
+            fractal_magnifier.setPageStep(25)
+            fractal_magnifier.setTickInterval(25)
+            fractal_magnifier.setValue(
+                int(round(_fractal_values["magnifier_size"] * 100)))
+            fractal_magnifier.setToolTip(tr(
+                "How big the magnifying glass under the pointer is, as a "
+                "share of its usual size. The whole lens scales together: "
+                "the bulge under the cursor and the soft edge around it. "
+                "25% is a small loupe; 300% bends most of the window. "
+                "Applies wherever the pointer bends the picture: both "
+                "orbit folds, and the cascade and space on the GPU "
+                "renderer. The Mandelbrot is dragged instead. "
+                "Default 100%."))
+            fractal_magnifier_value = QLabel()
+
+            def _magnifier_says(percent):
+                """Show the lens size the slider is at, as a percentage."""
+                fractal_magnifier_value.setText(f"{int(percent)}%")
+
+            fractal_magnifier.valueChanged.connect(_magnifier_says)
+            _magnifier_says(fractal_magnifier.value())
+            _magnifier_column = QVBoxLayout()
+            _magnifier_column.setContentsMargins(0, 0, 0, 0)
+            _magnifier_column.addWidget(fractal_magnifier)
+            _magnifier_column.addWidget(fractal_magnifier_value)
+            _magnifier_row = _hbox_wrap(_magnifier_column)
+            _magnifier_row.setToolTip(fractal_magnifier.toolTip())
+            fractal_magnifier.setAccessibleDescription(
+                fractal_magnifier.toolTip())
+            fractal_magnifier.setToolTip("")
+            fractal.addRow(tr("Magnifier size"), _magnifier_row)
+            fractal_magnifier.setEnabled(fractal_pointer.isChecked())
+            fractal_pointer.toggled.connect(fractal_magnifier.setEnabled)
 
             fractal_pointer_strength = None
 
@@ -8416,6 +8672,8 @@ class PreferencesDialog:
                 setting_anim_check.setChecked(
                     get_setting_animations_enabled())
                 tooltips_all_check.setChecked(get_tooltips_enabled())
+                tooltip_delay_slider.setValue(
+                    int(round(_get_tooltip_delay() * 10)))
                 field_fade_check.setChecked(get_field_fade_enabled())
                 hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
@@ -8476,6 +8734,7 @@ class PreferencesDialog:
             set_spinner_delay(spinner_slider.value() / 10.0)
             set_setting_animations_enabled(setting_anim_check.isChecked())
             set_tooltips_enabled(tooltips_all_check.isChecked())
+            _set_tooltip_delay(tooltip_delay_slider.value() / 10.0)
             set_tooltips_box_enabled(tooltips_box_check.isChecked())
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())
@@ -8542,6 +8801,7 @@ class PreferencesDialog:
                                   else 1.0),
                     pointer_strength=(1.0 if fractal_pointer.isChecked()
                                       else 0.0),
+                    magnifier_size=fractal_magnifier.value() / 100.0,
                     supersampling=int(fractal_ss.value()),
                     path=fractal_path.currentData(),
                     steering=fractal_steering.value(),

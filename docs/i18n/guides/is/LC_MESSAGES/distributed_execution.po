@@ -1,0 +1,411 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Remote and distributed execution"
+msgstr "Fjarkeyrsla og dreifð keyrsla"
+
+msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
+msgstr "spaCR getur sent hvaða einingu sem ``spacr-run`` býður upp á til annarrar vinnustöðvar, Slurm-klasa eða skipanalínubiðlara fyrir ský/HPC. Verk haldast á fjarkerfinu þegar myndræna viðmóti spaCR er lokað. Auðkenni þeirra, staða, tætigildi stillinga og nýjustu annálar eru geymd staðbundið og birtast í **Hjálp → Dreifð verk**."
+
+msgid "Execution profiles"
+msgstr "Keyrslusnið"
+
+msgid "An execution profile describes *how to reach compute*, not an analysis. Profiles never store passwords or API keys:"
+msgstr "Keyrslusnið lýsir *hvernig á að ná í reikniafl*, ekki greiningu. Snið geyma aldrei lykilorð eða API-lykla:"
+
+msgid "``SSH workstation``"
+msgstr "``SSH workstation``"
+
+msgid "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code."
+msgstr "Hleður litlu JSON-skránni með útleystu stillingunum upp yfir SSH, ræsir ``spacr-run`` í varanlegu bakgrunnsferli og skráir útgöngukóða þess."
+
+msgid "``Slurm cluster``"
+msgstr "``Slurm cluster``"
+
+msgid "Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then ``sacct``, and cancels with ``scancel``. The SSH host may be blank when the Slurm commands are installed locally."
+msgstr "Hleður stillingum upp, sendir ``sbatch``-skriftu, kannar ``squeue`` og síðan ``sacct`` og afturkallar með ``scancel``. SSH-hýsillinn má vera auður þegar Slurm-skipanirnar eru uppsettar staðbundið."
+
+msgid "``Cloud / custom command``"
+msgstr "``Cloud / custom command``"
+
+msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a safe job identifier and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
+msgstr "Keyrir stillt viðfangasniðmát fyrir sendingu/stöðu/afturköllun. Þetta styður skýja-CLI og staðbundna tímaáætlara án þess að fella auðkenni framleiðenda inn í spaCR. Skipunin verður að prenta öruggt auðkenni verks og stöðuskipunin ætti að prenta hefðbundna stöðu eins og ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` eða ``CANCELLED``."
+
+msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
+msgstr "Stilltu SSH-lykla, auðkenningu í skýi og VPN-aðgang utan spaCR. Prófaðu sömu tengingu í útstöð áður en löng keyrsla er send."
+
+msgid "Shared data and path mapping"
+msgstr "Sameiginleg gögn og vörpun slóða"
+
+msgid "spaCR transfers the settings document, not an image dataset. Images must already be visible to the execution target through shared storage, a mirrored mount or a cloud-aware wrapper command."
+msgstr "spaCR flytur stillingaskjalið, ekki myndagagnasafn. Myndir verða þegar að vera sýnilegar keyrslumarkinu í gegnum sameiginlega geymslu, speglaða tengingu eða skipunarhjúp sem styður ský."
+
+msgid "When the mount paths differ, set a *Local dataset root* and *Remote dataset root*. Every absolute path nested in the settings below the local root is rewritten beneath the remote root. Paths outside it are preserved. For example::"
+msgstr "Þegar tengislóðir eru ólíkar skaltu stilla *Local dataset root* og *Remote dataset root*. Hverri algildri slóð sem er hreiðruð í stillingunum undir staðbundnu rótinni er endurskrifað undir fjarrótinni. Slóðir utan hennar eru varðveittar. Til dæmis::"
+
+msgid "Settings can be dragged onto the Distributed Jobs screen, selected with **Browse**, or handed off directly with **Submit remote…** in any ordinary module."
+msgstr "Hægt er að draga stillingar á skjáinn Dreifð verk, velja þær með **Velja** eða afhenda þær beint með **Senda fjarvinnslu…** í hvaða venjulegu einingu sem er."
+
+msgid "Command-line workflow"
+msgstr "Verkflæði í skipanalínu"
+
+msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export::"
+msgstr "GUI og CLI deila sömu sniða- og verkageymslum. Búðu til vinnustöðvarsnið og sendu útflutning stillinga::"
+
+msgid "A Slurm profile can be local or reached through a login host::"
+msgstr "Slurm-snið getur verið staðbundið eða náð í gegnum innskráningarhýsil::"
+
+msgid "Custom/cloud templates"
+msgstr "Sérsniðin sniðmát/skýjasniðmát"
+
+msgid "Templates are parsed as argument vectors; spaCR does not execute them with ``shell=True``. Supported placeholders are:"
+msgstr "Sniðmát eru þáttuð sem viðfangavigrar; spaCR keyrir þau ekki með ``shell=True``. Studdir staðgenglar eru:"
+
+#, python-brace-format
+msgid "``{job_id}``"
+msgstr "``{job_id}``"
+
+msgid "The permanent local spaCR identifier."
+msgstr "Varanlega staðbundna spaCR-auðkennið."
+
+#, python-brace-format
+msgid "``{module}``"
+msgstr "``{module}``"
+
+msgid "The canonical ``spacr-run`` module name."
+msgstr "Staðlaða heiti ``spacr-run``-einingarinnar."
+
+#, python-brace-format
+msgid "``{settings}``"
+msgstr "``{settings}``"
+
+msgid "The absolute local resolved-settings JSON. A cloud wrapper is responsible for uploading it if needed."
+msgstr "Algilda staðbundna JSON-skráin með útleystum stillingum. Skýjahjúpur ber ábyrgð á að hlaða henni upp ef þörf krefur."
+
+#, python-brace-format
+msgid "``{external_id}``"
+msgstr "``{external_id}``"
+
+msgid "The identifier printed by the submit command, used by status/cancel/log commands."
+msgstr "Auðkennið sem sendingarskipunin prentar, notað af skipunum fyrir stöðu/afturköllun/annál."
+
+#, python-brace-format
+msgid "``{profile}``"
+msgstr "``{profile}``"
+
+msgid "The profile display name."
+msgstr "Birtingarheiti sniðsins."
+
+msgid "If a cloud CLI prints JSON, set a Job-ID regular expression with a named ``id`` group. For example ``\"jobId\":\\s*\"(?P<id>[A-Za-z0-9-]+)\"``."
+msgstr "Ef skýja-CLI prentar JSON skaltu stilla reglulega segð fyrir Job-ID með nefndum hópi ``id``. Til dæmis ``\"jobId\":\\s*\"(?P<id>[A-Za-z0-9-]+)\"``."
+
+msgid "Reliability and limitations"
+msgstr "Áreiðanleiki og takmarkanir"
+
+msgid "A temporary polling failure is retained as a visible error and does not falsely mark a remote job failed."
+msgstr "Tímabundin villa við könnun er varðveitt sem sýnileg villa og merkir fjarverk ekki ranglega sem misheppnað."
+
+msgid "SSH jobs write an exit-code file atomically. Slurm uses accounting after a job leaves the queue."
+msgstr "SSH-verk skrifa skrá með útgöngukóða frumeindarlega. Slurm notar bókhald eftir að verk yfirgefur röðina."
+
+msgid "Local job records and profiles use advisory locks plus atomic replacement, so a GUI and ``spacr-remote`` process do not partially write JSON."
+msgstr "Staðbundnar verkskráningar og snið nota ráðgefandi læsingar ásamt frumeindarlegri útskiptingu, svo GUI og ``spacr-remote``-ferli skrifi ekki JSON að hluta."
+
+msgid "Cancellation is a request. A scheduler or remote process may take time to stop, and pipeline-level checkpoint semantics still determine how much work can be resumed."
+msgstr "Afturköllun er beiðni. Tímaáætlari eða fjarferli getur tekið tíma að stöðvast, og merking vistunarpunkta á stigi vinnslukeðjunnar ræður enn hversu mikilli vinnu er hægt að halda áfram með."
+
+msgid "Cloud templates intentionally do not provide an embedded shell. Put pipelines, uploads, quoting and vendor-specific JSON handling in a reviewed wrapper executable."
+msgstr "Skýjasniðmát bjóða vísvitandi ekki upp á innbyggða skel. Settu pípur, upphleðslur, gæsalappir og framleiðandasértæka JSON-meðhöndlun í yfirfarna keyranlega hjúpskrá."
+
+msgid "Python API"
+msgstr "Python API"
+
+msgid "Persistent remote and distributed execution for spaCR pipelines."
+msgstr "Varanleg fjarkeyrsla og dreifð keyrsla fyrir vinnslukeðjur spaCR."
+
+msgid "The local GUI and :mod:`spacr.cli` already agree on one headless contract::"
+msgstr "Staðbundna myndræna viðmótið og :mod:`spacr.cli` eru þegar sammála um einn samning án myndræns viðmóts::"
+
+msgid "This module transports that contract to a workstation over SSH, submits it to Slurm, or hands it to a user-configured cloud/HPC command.  Submitted jobs are recorded locally and can be polled or cancelled after spaCR itself has closed."
+msgstr "Þessi eining flytur þann samning til vinnustöðvar yfir SSH, sendir hann til Slurm eða afhendir hann skipun fyrir ský/HPC sem notandi stillir.  Send verk eru skráð staðbundið og hægt er að kanna þau eða afturkalla eftir að spaCR sjálfu hefur verið lokað."
+
+msgid "No command uses ``shell=True``.  SSH necessarily invokes a remote login shell; all user-controlled values interpolated into its small fixed scripts are quoted with :func:`shlex.quote`, and host names are validated separately. Custom command profiles are parsed into argument vectors and substitute each placeholder inside one argument, so shell operators have no special meaning."
+msgstr "Engin skipun notar ``shell=True``.  SSH kallar óhjákvæmilega á innskráningarskel á fjarvélinni; öll gildi sem notandi stjórnar og eru sett inn í litlu föstu skriftur hennar eru sett innan gæsalappa með :func:`shlex.quote` og heiti hýsla eru sannprófuð sérstaklega. Sérsniðin skipanasnið eru þáttuð í viðfangavigra og setja hvern staðgengil inn innan eins viðfangs, svo skeljaraðgerðir hafa enga sérstaka merkingu."
+
+msgid "Result returned by the injectable command runner."
+msgstr "Niðurstaða sem ísetjanlegi skipanakeyrarinn skilar."
+
+msgid "Parameters"
+msgstr "Færibreytur"
+
+msgid "process exit status, where zero denotes success."
+msgstr "útgöngustaða ferlis, þar sem núll táknar árangur."
+
+msgid "captured standard-output text."
+msgstr "gripinn texti af staðalúttaki."
+
+msgid "captured standard-error text."
+msgstr "gripinn texti af staðalvilluúttaki."
+
+msgid "Connection and scheduler settings for one execution target."
+msgstr "Tengingar- og tímaáætlunarstillingar fyrir eitt keyrslumark."
+
+msgid "``local_root`` and ``remote_root`` describe the same shared or mirrored dataset.  Every absolute string nested in the settings is rewritten when it lies below ``local_root``.  Image datasets are deliberately not copied: accidental recursive transfer of a multi-terabyte plate is worse than a clear pre-flight error."
+msgstr "``local_root`` og ``remote_root`` lýsa sama sameiginlega eða speglaða gagnasafninu.  Hverjum algildum streng sem er hreiðraður í stillingunum er endurskrifað þegar hann liggur undir ``local_root``.  Myndagagnasöfn eru vísvitandi ekki afrituð: óviljandi endurkvæmur flutningur á plötu upp á mörg terabæti er verri en skýr villa í forathugun."
+
+#, python-brace-format
+msgid "For ``command`` profiles, command strings are tokenized with :func:`shlex.split` and support ``{job_id}``, ``{module}``, ``{settings}`` and ``{external_id}`` placeholders.  They are argument templates, not shell scripts."
+msgstr "Fyrir ``command``-snið eru skipanastrengir lesbútaðir með :func:`shlex.split` og styðja staðgenglana ``{job_id}``, ``{module}``, ``{settings}`` og ``{external_id}``.  Þeir eru viðfangasniðmát, ekki skeljaskriftur."
+
+msgid "human-readable profile name used to select this target."
+msgstr "læsilegt heiti sniðs notað til að velja þetta mark."
+
+msgid "execution mechanism, one of :data:`BACKENDS`."
+msgstr "keyrsluaðferð, ein af :data:`BACKENDS`."
+
+msgid "OpenSSH target for SSH and remote Slurm; blank permits a Slurm scheduler running on the local host."
+msgstr "OpenSSH-mark fyrir SSH og fjar-Slurm; autt leyfir Slurm-tímaáætlara sem keyrir á staðbundna hýslinum."
+
+msgid "absolute execution directory where ``spacr-jobs`` artifacts are created."
+msgstr "algild keyrslumappa þar sem ``spacr-jobs``-afurðir eru búnar til."
+
+msgid "local dataset prefix paired with ``remote_root`` for nested absolute-path rewriting."
+msgstr "staðbundið forskeyti gagnasafns parað við ``remote_root`` til að endurskrifa hreiðraðar algildar slóðir."
+
+msgid "equivalent dataset prefix visible to the target host."
+msgstr "jafngilt forskeyti gagnasafns sem markhýsillinn sér."
+
+msgid "headless executable invoked as ``runner module --settings path`` by SSH and Slurm backends."
+msgstr "keyranleg skrá án myndræns viðmóts sem SSH- og Slurm-bakendar kalla á sem ``runner module --settings path``."
+
+msgid "additional shell-free arguments passed to ``sbatch``."
+msgstr "viðbótarviðföng án skeljar sem send eru til ``sbatch``."
+
+#, python-brace-format
+msgid "custom-backend argument template containing ``{settings}`` and printing a job identifier."
+msgstr "viðfangasniðmát fyrir sérsniðinn bakenda sem inniheldur ``{settings}`` og prentar auðkenni verks."
+
+#, python-brace-format
+msgid "custom status template containing ``{external_id}`` and returning a state spaCR can normalize."
+msgstr "sérsniðið stöðusniðmát sem inniheldur ``{external_id}`` og skilar stöðu sem spaCR getur staðlað."
+
+#, python-brace-format
+msgid "custom cancellation template containing ``{external_id}``."
+msgstr "sérsniðið afturköllunarsniðmát sem inniheldur ``{external_id}``."
+
+msgid "optional custom template for fetching job output."
+msgstr "valkvætt sérsniðið sniðmát til að sækja úttak verks."
+
+msgid "optional regular expression extracting a named ``id``, first capture, or full match from submission output."
+msgstr "valkvæð regluleg segð sem dregur út nefnt ``id``, fyrsta gripinn hóp eða alla samsvörunina úr úttaki sendingar."
+
+msgid "recommended client polling interval, from 2 through 3600 seconds."
+msgstr "ráðlagt könnunarbil biðlara, frá 2 til 3600 sekúndur."
+
+msgid "Construct and validate a profile from JSON-compatible data."
+msgstr "Smíða og sannprófa snið úr JSON-samhæfðum gögnum."
+
+msgid "stored profile fields keyed by their dataclass names."
+msgstr "vistaðir sniðreitir lyklaðir með heitum sínum í dataclass."
+
+msgid "Return a JSON-safe representation."
+msgstr "Skila JSON-öruggri framsetningu."
+
+msgid "Validate the profile and return ``self`` for fluent callers."
+msgstr "Sannprófa sniðið og skila ``self`` fyrir keðjuköll."
+
+msgid "Atomic persistent store for remote job metadata."
+msgstr "Frumeindarleg varanleg geymsla fyrir lýsigögn fjarverka."
+
+msgid "optional jobs JSON path; by default ``state_directory()/jobs.json``. The advisory lock uses a sibling path with ``.lock`` appended."
+msgstr "valkvæð JSON-slóð verka; sjálfgefið ``state_directory()/jobs.json``. Ráðgefandi læsingin notar systurslóð með ``.lock`` bætt aftan við."
+
+msgid "Return a job by full ID or unambiguous prefix."
+msgstr "Skila verki eftir fullu auðkenni eða ótvíræðu forskeyti."
+
+msgid "complete job identifier or an unambiguous prefix."
+msgstr "heilt auðkenni verks eða ótvírætt forskeyti."
+
+msgid "Return newest jobs first."
+msgstr "Skila nýjustu verkum fyrst."
+
+msgid "Insert or replace one job atomically."
+msgstr "Setja inn eða skipta út einu verki frumeindarlega."
+
+msgid "remote-job record to persist."
+msgstr "skráning fjarverks sem á að varðveita."
+
+msgid "Atomic persistent store for execution profiles."
+msgstr "Frumeindarleg varanleg geymsla fyrir keyrslusnið."
+
+msgid "optional profiles JSON path; by default ``state_directory()/profiles.json``. The advisory lock uses a sibling path with ``.lock`` appended."
+msgstr "valkvæð JSON-slóð sniða; sjálfgefið ``state_directory()/profiles.json``. Ráðgefandi læsingin notar systurslóð með ``.lock`` bætt aftan við."
+
+msgid "Delete one profile; return whether it existed."
+msgstr "Eyða einu sniði; skila hvort það var til."
+
+msgid "profile name to delete case-insensitively."
+msgstr "heiti sniðs sem á að eyða, óháð há- og lágstöfum."
+
+msgid "Return a named profile or raise a user-facing error."
+msgstr "Skila nefndu sniði eða kasta villu fyrir notanda."
+
+msgid "profile name to match case-insensitively."
+msgstr "heiti sniðs til samsvörunar, óháð há- og lágstöfum."
+
+msgid "Return profiles sorted by case-insensitive name."
+msgstr "Skila sniðum röðuðum eftir heiti óháð há- og lágstöfum."
+
+msgid "Insert or replace one profile atomically."
+msgstr "Setja inn eða skipta út einu sniði frumeindarlega."
+
+msgid "validated execution profile to persist."
+msgstr "sannprófað keyrslusnið sem á að varðveita."
+
+msgid "A profile, submission, polling, or cancellation error."
+msgstr "Villa í sniði, sendingu, könnun eða afturköllun."
+
+msgid "These errors are safe to show directly in the GUI: passwords and environment variables are never included in command rendering."
+msgstr "Óhætt er að sýna þessar villur beint í myndræna viðmótinu: lykilorð og umhverfisbreytur eru aldrei teknar með þegar skipanir eru birtar."
+
+msgid "Persistent local record of one submitted job."
+msgstr "Varanleg staðbundin skráning eins sends verks."
+
+msgid "locally generated stable identifier for the job."
+msgstr "staðbundið myndað stöðugt auðkenni verksins."
+
+msgid "resolved spaCR command-line module key to execute."
+msgstr "útleystur einingalykill spaCR-skipanalínunnar sem á að keyra."
+
+msgid "name of the execution profile used for submission."
+msgstr "heiti keyrslusniðsins sem notað var við sendingu."
+
+msgid "backend recorded at submission time."
+msgstr "bakendi skráður á sendingartíma."
+
+msgid "compact lifecycle state, initially ``\"submitting\"``."
+msgstr "þétt lífsferilsstaða, í upphafi ``\"submitting\"``."
+
+msgid "validated process, scheduler, or provider identifier."
+msgstr "sannprófað auðkenni ferlis, tímaáætlara eða þjónustuveitu."
+
+msgid "ISO-8601 construction timestamp."
+msgstr "ISO-8601-tímastimpill smíðinnar."
+
+msgid "timestamp replaced whenever :class:`JobStore` persists the record."
+msgstr "tímastimpill sem skipt er út í hvert sinn sem :class:`JobStore` varðveitir skráninguna."
+
+msgid "retained local path of the mapped settings JSON."
+msgstr "varðveitt staðbundin slóð varpaðrar JSON-stillingaskrár."
+
+msgid "SHA-256 digest of the exact serialized settings."
+msgstr "SHA-256-tætigildi nákvæmra raðgreindra stillinga."
+
+msgid "uploaded settings path for SSH and Slurm."
+msgstr "upphlaðin stillingaslóð fyrir SSH og Slurm."
+
+msgid "target-side directory containing job artifacts."
+msgstr "mappa á markhlið sem inniheldur afurðir verksins."
+
+msgid "backend log location or custom-backend marker."
+msgstr "staðsetning annáls bakenda eða merki sérsniðins bakenda."
+
+msgid "most recently fetched output or availability message."
+msgstr "nýjasta sótta úttak eða skilaboð um framboð."
+
+msgid "normalized process exit status, or ``None`` until known."
+msgstr "stöðluð útgöngustaða ferlis, eða ``None`` þar til hún er þekkt."
+
+msgid "latest submission, polling, or cancellation failure; cleared after a successful refresh or cancellation."
+msgstr "nýjasta villa við sendingu, könnun eða afturköllun; hreinsuð eftir vel heppnaða endurnýjun eða afturköllun."
+
+msgid "submission-time profile snapshot, retained so the job remains operable after profile edits or deletion."
+msgstr "skyndimynd af sniðinu á sendingartíma, varðveitt svo verkið haldist nothæft eftir breytingar á sniðinu eða eyðingu þess."
+
+msgid "Construct a job from a stored mapping, tolerating future fields."
+msgstr "Smíða verk úr vistaðri vörpun og þola framtíðarreiti."
+
+msgid "stored job fields keyed by their dataclass names."
+msgstr "vistaðir verkreitir lyklaðir með heitum sínum í dataclass."
+
+msgid "Submit, monitor, cancel and inspect persistent remote jobs."
+msgstr "Senda, vakta, afturkalla og skoða varanleg fjarverk."
+
+msgid "All methods are synchronous and may perform network I/O.  GUI callers must invoke them on a worker thread; the shipped Distributed Jobs screen does."
+msgstr "Allar aðferðir eru samstilltar og geta framkvæmt I/O yfir net.  Kallendur í GUI verða að kalla á þær í vinnsluþræði; meðfylgjandi skjárinn Dreifð verk gerir það."
+
+msgid "injectable persistent profile store; omitted creates the default :class:`ProfileStore`."
+msgstr "ísetjanleg varanleg sniðageymsla; ef henni er sleppt er sjálfgefin :class:`ProfileStore` búin til."
+
+msgid "injectable persistent job store; omitted creates the default :class:`JobStore`."
+msgstr "ísetjanleg varanleg verkageymsla; ef henni er sleppt er sjálfgefin :class:`JobStore` búin til."
+
+msgid "shell-free callable accepting an argument vector, timeout, and optional input and returning :class:`CommandResult`."
+msgstr "kallanlegt fall án skeljar sem tekur við viðfangavigri, tímamörkum og valkvæðu inntaki og skilar :class:`CommandResult`."
+
+msgid "Request cancellation and persist the result."
+msgstr "Biðja um afturköllun og varðveita niðurstöðuna."
+
+msgid "complete local job identifier or unambiguous prefix."
+msgstr "heilt staðbundið auðkenni verks eða ótvírætt forskeyti."
+
+msgid "Retrieve and persist the tail of one remote job's log."
+msgstr "Sækja og varðveita enda annáls eins fjarverks."
+
+msgid "Poll one non-terminal job and optionally retain its latest log tail."
+msgstr "Kanna eitt verk sem er ekki lokið og halda valkvætt nýjasta enda annáls þess."
+
+msgid "Poll every active job and return the complete newest-first list."
+msgstr "Kanna öll virk verk og skila heildarlistanum, nýjustu fyrst."
+
+msgid "Submit resolved settings through a named execution profile."
+msgstr "Senda útleystar stillingar í gegnum nefnt keyrslusnið."
+
+msgid "headless spaCR module name accepted by ``spacr-run``."
+msgstr "heiti spaCR-einingar án myndræns viðmóts sem ``spacr-run`` tekur við."
+
+msgid "resolved module settings to serialize for the job."
+msgstr "útleystar stillingar einingar sem á að raðgreina fyrir verkið."
+
+msgid "name of the execution profile to use."
+msgstr "heiti keyrslusniðsins sem á að nota."
+
+msgid "Recursively map absolute paths below one local root to a remote root."
+msgstr "Varpa á endurkvæman hátt algildum slóðum undir einni staðbundinni rót á fjarrót."
+
+msgid "Non-path strings and paths outside the configured root are unchanged. Mapping keys are intentionally preserved: setting names are not paths."
+msgstr "Strengir sem eru ekki slóðir og slóðir utan stilltu rótarinnar eru óbreyttir. Lyklar vörpunar eru vísvitandi varðveittir: heiti stillinga eru ekki slóðir."
+
+msgid "nested settings value whose absolute path strings are mapped."
+msgstr "hreiðrað stillingagildi þar sem algildum slóðastrengjum er varpað."
+
+msgid "local dataset root that mapped paths must lie below."
+msgstr "staðbundin rót gagnasafns sem varpaðar slóðir verða að liggja undir."
+
+msgid "remote dataset root that replaces ``local_root``."
+msgstr "fjarrót gagnasafns sem kemur í stað ``local_root``."
+
+msgid "Return the persistent directory for profiles, jobs, settings and logs."
+msgstr "Skila varanlegu möppunni fyrir snið, verk, stillingar og annála."
+
+msgid "``SPACR_REMOTE_STATE_DIR`` is intentionally supported for tests, portable deployments, and managed lab installations.  Otherwise XDG state storage is used on Linux and a conventional per-user directory elsewhere."
+msgstr "``SPACR_REMOTE_STATE_DIR`` er vísvitandi stutt fyrir prófanir, færanlegar uppsetningar og stýrðar uppsetningar á rannsóknastofum.  Annars er XDG-stöðugeymsla notuð á Linux og hefðbundin notandamappa annars staðar."
+

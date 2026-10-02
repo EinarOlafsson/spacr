@@ -1,0 +1,78 @@
+# spaCR user guide translation (de).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: de\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Checkpoint and resume"
+msgstr "Checkpoints und Fortsetzen"
+
+msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "spaCR setzt bei langen Arbeiten erst dann einen Checkpoint, wenn eine sichere Einheit abgeschlossen ist. Ein Checkpoint bedeutet niemals, einen Schreibvorgang mittendrin abzubrechen: Er bedeutet, dass ein späterer Aufruf nachweisen kann, welche Bildfelder, Versuche oder Plattenaufträge abgeschlossen sind, und danach fortfahren kann. Die Qt-Schaltfläche **Stopp** verwendet dieselben Grenzen: Sie fordert einen kooperativen Abbruch an, lässt die aktuelle sichere Einheit fertig werden und behält den Checkpoint für die nächste Ausführung. Siehe :doc:`threading_cancellation_audit`."
+
+msgid "Supported workflows"
+msgstr "Unterstützte Workflows"
+
+msgid "Mask"
+msgstr "Masken"
+
+msgid "Masks are matched to fields by exact filename. An object role is skipped only when every ``.npy`` field in ``stack/`` has a structurally complete mask of the same name; a missing, empty, or truncated mask sends the role back through segmentation. An unrelated mask cannot stand in for a missing field, and extra masks do not force complete fields to run again. Enable ``resume`` under **Workflow & Test Run** to also keep verified ``merged/*.npy`` fields instead of rebuilding them. New mask arrays are written with temporary-file plus atomic replace semantics. Cell adjustment first checks that the pathogen, cell, and nucleus folders hold the same field filenames with complete masks of matching dimensions; if they differ, it stops before changing any mask. With ``timelapse`` and ``motility_analysis`` on, the motility assay runs once per plate, after every object role and merged frame is complete, and rebuilds its measurements from the current masks rather than reusing an earlier table."
+msgstr "Masken werden den Bildfeldern über den exakten Dateinamen zugeordnet. Eine Objektrolle wird nur übersprungen, wenn jedes ``.npy``-Bildfeld in ``stack/`` eine strukturell vollständige Maske gleichen Namens hat; eine fehlende, leere oder abgeschnittene Maske schickt die Rolle erneut durch die Segmentierung. Eine nicht zugehörige Maske kann kein fehlendes Bildfeld ersetzen, und zusätzliche Masken erzwingen keine erneute Ausführung vollständiger Bildfelder. Aktivieren Sie ``resume`` unter **Workflow & Testlauf**, um auch verifizierte ``merged/*.npy``-Bildfelder beizubehalten, statt sie neu aufzubauen. Neue Maskenarrays werden über eine temporäre Datei mit anschließendem atomarem Ersetzen geschrieben. Die Zellanpassung prüft zunächst, ob die Ordner für Pathogen, Zelle und Zellkern dieselben Bildfeld-Dateinamen mit vollständigen Masken passender Abmessungen enthalten; weichen sie ab, stoppt sie, bevor eine Maske geändert wird. Bei eingeschaltetem ``timelapse`` und ``motility_analysis`` läuft der Motilitätsassay einmal pro Platte, nachdem jede Objektrolle und jedes zusammengeführte Einzelbild vollständig sind, und baut seine Messungen aus den aktuellen Masken neu auf, statt eine frühere Tabelle wiederzuverwenden."
+
+msgid "Measure"
+msgstr "Messen"
+
+msgid "Enable ``resume`` under **Postprocessing → Runtime & Reliability**. A field is skipped only when every Measure-owned table in ``measurements.db`` is complete. Partial field rows are cleared in one transaction before remeasurement, while tables owned by conversion, alignment, or other modules are never deleted."
+msgstr "Aktivieren Sie ``resume`` unter **Postprocessing → Laufzeit & Zuverlässigkeit**. Ein Bildfeld wird nur übersprungen, wenn jede zu Messen gehörende Tabelle in ``measurements.db`` vollständig ist. Unvollständige Zeilen eines Bildfelds werden vor der erneuten Messung in einer einzigen Transaktion gelöscht, während Tabellen, die zur Konvertierung, Ausrichtung oder zu anderen Modulen gehören, niemals gelöscht werden."
+
+msgid "Format Converter"
+msgstr "Formatkonverter"
+
+msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+msgstr "Aktivieren Sie den Schalter **Fortsetzen** im Apple-Stil. Der Konverter schreibt ``.spacr_conversion.checkpoint.json``, nachdem ein ganzes Bildfeld vollständig ist. Beim Fortsetzen werden die TIFF-Metadaten jedes Ziels erneut geöffnet, bevor das Bildfeld akzeptiert wird, und ein fehlendes oder beschädigtes Ziel wird atomar repariert. Die Quellidentität und der vollständige Zuordnungsplan müssen übereinstimmen."
+
+msgid "Image UMAP search"
+msgstr "Bild-UMAP-Suche"
+
+msgid "Open **UMAP settings**, then enable **Resume checkpoint**. Trial metadata is written after every trial and embeddings are stored as adjacent NumPy artifacts. Grid searches skip completed configurations. Adaptive 2×2 searches also persist their centre, best score, completed-round count, and partial-round corners, so only missing corners run after an interruption."
+msgstr "Öffnen Sie **UMAP settings** und aktivieren Sie dann **Von Checkpoint fortsetzen**. Die Metadaten eines Versuchs werden nach jedem Versuch geschrieben, und Einbettungen werden als benachbarte NumPy-Artefakte gespeichert. Rastersuchen überspringen abgeschlossene Konfigurationen. Adaptive 2×2-Suchen speichern außerdem ihr Zentrum, den besten Score, die Zahl abgeschlossener Runden und die Ecken unvollständiger Runden, sodass nach einer Unterbrechung nur fehlende Ecken ausgeführt werden."
+
+msgid "Batch Runner"
+msgstr "Stapelverarbeitung"
+
+msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
+msgstr "Eine gespeicherte Warteschlange wird nach jedem Zustandswechsel eines Auftrags geschrieben. Beim Laden und Fortsetzen bleiben erfolgreiche Aufträge unberührt. Ein Masken-, Messen- oder Formatkonverter-Auftrag, der lief, als der Rechner stoppte, wird mit ``resume=True`` neu gestartet, sodass seine eigene verifizierte Bildfeldgrenze wiederverwendet wird. Andere Aufträge starten an der Auftragsgrenze neu."
+
+msgid "Interrupted normalization archives"
+msgstr "Unterbrochene Normalisierungsarchive"
+
+msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
+msgstr "Masken prüft vor der Segmentierung außerdem die normalisierten ``masks/*.npz``-Archive. Geprüft werden die Ausdehnung der ZIP-Einträge, ein lesbarer numerischer ``data.npy``-Header, ausreichend deklarierte Pixelbytes für Form und Datentyp sowie ein Dateiname pro Bildfeld des Batches. Diese strukturelle Prüfung entpackt nicht jedes Pixelarray und führt keine vollständige CRC-Prüfung der Pixel durch."
+
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Legacy object-valued filename arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
+msgstr "Beschädigte Archive werden als ``<name>.damaged`` beiseitegelegt. Bei deaktivierter Vorverarbeitung stoppt die Ausführung und erklärt, wie sie wiederhergestellt werden können. Dieselbe Quarantäne verhindert auch, dass eine spätere Ausführung diese Bildfelder stillschweigend auslässt. Sie wird durch einen gültigen Ersatz gleichen Namens aufgehoben oder durch lesbare Archive, die jedes vorhandene Bildfeld in ``stack/`` abdecken. Ältere Dateinamen-Arrays mit Objektwerten können diese Abdeckung nicht belegen. Wird die Vorverarbeitung aktiviert, lassen sich wiederherstellbare Bildfelder aus den verfügbaren Quelldaten neu aufbauen; gültige Archive und in Quarantäne gestellte Belege bleiben erhalten."
+
+msgid "Safety rules"
+msgstr "Sicherheitsregeln"
+
+msgid "Checkpoint files are atomic JSON documents with a workflow name, format version, boundary, timestamps, input/settings signature, status, completed units, and workflow state. spaCR refuses a resume when this signature differs; start with Resume disabled to create a fresh checkpoint. A corrupt checkpoint is reported and preserved for diagnosis rather than silently discarded."
+msgstr "Checkpoint-Dateien sind atomare JSON-Dokumente mit Workflow-Name, Formatversion, Grenze, Zeitstempeln, Eingabe- und Einstellungssignatur, Status, abgeschlossenen Einheiten und Workflow-Zustand. spaCR verweigert das Fortsetzen, wenn diese Signatur abweicht; starten Sie mit deaktiviertem Fortsetzen, um einen neuen Checkpoint zu erstellen. Ein beschädigter Checkpoint wird gemeldet und zur Diagnose aufbewahrt, statt stillschweigend verworfen zu werden."
+
+msgid "The persistence API is :class:`spacr.checkpoint.CheckpointStore`. Conversion uses :func:`spacr.convert.convert`, UMAP search uses :func:`spacr.hyperparam.umap_search`, Measure uses :func:`spacr.resume.plan_measure_resume`, and queues use :func:`spacr.batch.resume_queue`."
+msgstr "Die Persistenz-API ist :class:`spacr.checkpoint.CheckpointStore`. Die Konvertierung verwendet :func:`spacr.convert.convert`, die UMAP-Suche :func:`spacr.hyperparam.umap_search`, Messen :func:`spacr.resume.plan_measure_resume` und Warteschlangen :func:`spacr.batch.resume_queue`."
+

@@ -1397,7 +1397,72 @@ def explain_cellpose3(exc, model):
         f"{model} is a Cellpose 3 model, and the Cellpose installed here is "
         f"version 4, which cannot load it. Choose "
         f"'{DEFAULT_PLAQUE_MODEL}' (the current plaque model) or "
-        f"'toxoplasma_plaque_v1' in plaque_model.")
+        f"'toxoplasma_plaque_v1' in plaque_model, or install the Cellpose 3 "
+        f"backend from the Model Zoo, which runs this checkpoint in an "
+        f"environment of its own.")
+
+
+class _Cellpose3PlaqueModel:
+    """A Cellpose 3 plaque checkpoint, segmenting through the Cellpose 3 backend.
+
+    Cellpose 4 refuses Cellpose 3 checkpoints, so the historical bundled
+    plaque model reaches its weights only through the isolated Cellpose 3
+    environment. Each image is sent as one grey plane, the channels that
+    checkpoint was trained with (``[0, 0]``), and the answer comes back in
+    the shape ``CellposeModel.eval`` gives for one image.
+
+    :param backend: the Cellpose 3 backend, with Cellpose's batch ``eval``.
+    """
+
+    def __init__(self, backend):
+        """Keep the backend that does the segmenting."""
+        self._backend = backend
+        self.note = str(getattr(backend, 'note', '') or '')
+
+    def eval(self, image, channel_axis=None, diameter=None,
+             flow_threshold=0.4, cellprob_threshold=0.0, **_other):
+        """Segment one image the way ``CellposeModel.eval`` does.
+
+        :param image: ``H x W`` or ``H x W x C``.
+        :param channel_axis: the colour axis of a 3-D image; the last when
+            None.
+        :param diameter: the plaque diameter in pixels, or None for the
+            checkpoint's own.
+        :param flow_threshold: Cellpose's flow error threshold.
+        :param cellprob_threshold: Cellpose's cell probability threshold.
+        :returns: ``(labels, flows, None)``.
+        """
+        plane = np.asarray(image, dtype=np.float32)
+        if plane.ndim == 3:
+            plane = plane.mean(axis=-1 if channel_axis is None
+                               else channel_axis)
+        masks, flows, _styles = self._backend.eval(
+            [plane], diameter=diameter or None,
+            flow_threshold=flow_threshold,
+            cellprob_threshold=cellprob_threshold)
+        return masks[0], (list(flows[0]) if flows else []), None
+
+
+def _cellpose3_plaque_backend(model_path):
+    """The Cellpose 3 backend on ``model_path``, or None when it is not installed.
+
+    :param model_path: a Cellpose 3 checkpoint.
+    :returns: a :class:`_Cellpose3PlaqueModel`, or None.
+    """
+    from ._segmentation_backends import (_CELLPOSE3, _RemoteBackend,
+                                         _backend_state)
+
+    try:
+        state = _backend_state(_CELLPOSE3)
+        if not state.ready or state.in_process:
+            return None
+        backend = _RemoteBackend(_CELLPOSE3,
+                                 model=os.path.abspath(str(model_path)))
+    except Exception:
+        return None
+    print(f"{model_path} is a Cellpose 3 model; it segments through the "
+          f"Cellpose 3 backend, {backend.note}.")
+    return _Cellpose3PlaqueModel(backend)
 
 
 def _requested_plaque_model(settings):
@@ -1408,8 +1473,8 @@ def _requested_plaque_model(settings):
     fallback -- reads the same default rather than restating it.
 
     :param settings: the plaque settings dict.
-    :returns: a path, a :mod:`spacr.model_zoo` key, or ``'bundled'``, which is
-        also what an unset or empty value means.
+    :returns: a path, a :mod:`spacr.model_zoo` key, or ``'bundled'``. An
+        unset or empty value means :data:`DEFAULT_PLAQUE_MODEL`.
     """
     return str(settings.get('plaque_model') or DEFAULT_PLAQUE_MODEL)
 
@@ -1665,8 +1730,13 @@ def _plaque_cellpose_model(model_path):
     """Load the plaque checkpoint on the accelerator spaCR resolved.
 
     :param model_path: the checkpoint.
-    :returns: a ``cellpose.models.CellposeModel``.
-    :raises Cellpose3Checkpoint: when the checkpoint is a Cellpose 3 model.
+    A Cellpose 3 checkpoint, which Cellpose 4 refuses, is run by the
+    Cellpose 3 backend in its own environment when that is installed.
+
+    :returns: a ``cellpose.models.CellposeModel``, or a
+        :class:`_Cellpose3PlaqueModel` for a Cellpose 3 checkpoint.
+    :raises Cellpose3Checkpoint: when the checkpoint is a Cellpose 3 model
+        and the Cellpose 3 backend is not installed.
     """
     try:
         from .accelerator import cellpose_kwargs
@@ -1682,6 +1752,10 @@ def _plaque_cellpose_model(model_path):
         explained = explain_cellpose3(exc, model_path)
         if explained is exc:
             raise
+        if isinstance(explained, Cellpose3Checkpoint):
+            backend = _cellpose3_plaque_backend(model_path)
+            if backend is not None:
+                return backend
         raise explained from exc
 
 
@@ -1743,14 +1817,15 @@ def _analyze_colony_plates(settings):
     overlay per plate and a colony-size histogram in ``colonies/``.
     """
     from .plaque import (_colony_overlay_figure, _colony_size_figure,
-                         _count_colony_plate, detect_wells)
+                         _count_colony_plate, _load_colony_dilutions, detect_wells)
     from .tabular import write_table
 
+    settings = dict(settings)
+    settings['colony_dilution'] = _load_colony_dilutions(settings.get('colony_dilution', 1))
     src = settings['src']
     out_dir = os.path.join(src, 'colonies')
     os.makedirs(out_dir, exist_ok=True)
     weights = _resolve_well_detector(settings)
-    settings = dict(settings)
     if settings.get('colony_detector'):
         settings['colony_detector'] = _resolve_detector_weights(
             str(settings['colony_detector']), 'colony_detector')

@@ -17439,3 +17439,15 @@ content, not theme. 447 stays open for a rendered-audio pype re-check and
 the maintainer's lesson 02 confirmation. 358 stays open for a live
 mobile-viewport case, stale walkthrough-audit flags and the human reviews.
 Only status notes in features/new changed; no media, GPU or release work.
+
+2026-10-01 — CODEX: USER-AUTHORIZED PARALLEL IMPLEMENTATION
+The maintainer assigned the ten priority items from the Codex table, then
+remaining unfinished work, with safe parallel agents. Integration tree is
+/tmp/spacr-implementation-20261001/root; original Documents checkout preserved.
+Concurrent tracking record25ba0c8ef is consolidated with all prose preserved;
+item615 records the old/new number mapping and exclusive ownership. Root owns
+Measure/crops/Live and shared app wiring/settings/generated docs. merge_interfaces
+owns merge backend and Graph Builder/Gate Editor; mask_editor owns Make Masks;
+shared_ui owns tooltip/preferences/decorations/dock. Feature agents do not push.
+Integration alone publishes validated commits. Other worktrees and existing
+GPU/training/services are untouched.

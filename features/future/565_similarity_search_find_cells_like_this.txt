@@ -59,4 +59,23 @@ WHAT IS LEFT
       not stored in measurements.db yet, so the button uses measurements.
     - A GPU FAISS timing (pip install faiss-cpu or faiss-gpu; optional,
       not in setup.py) and a multi-plate/screen-wide index across databases.
-    - Choice of k and of "unlabelled only" from the screen; k is fixed at 100.
+
+FOLLOW-UP IMPLEMENTED 2026-10-01 — SEARCH CONTROLS
+    Annotate now exposes "Similar crops" (1–1,000,000, default 100) and
+    "Unlabelled only" beside Like this, under the same alpha preference.
+    k counts neighbours; the selected reference remains visible separately,
+    including when the reference already has a human label. Search results
+    remain ranked by similarity and filtering fills up to k eligible hits.
+    Unlabelled follows Annotate's own unanswered convention: NULL, cleared
+    zero and unanswered model proposals are eligible. Committed nonzero class
+    labels are excluded in the currently selected annotation column/table.
+    The worker re-reads labels on every query even when reusing the feature
+    index, overlays unsaved local labels and waits off the GUI thread for
+    already-submitted label batches. Save failures are actionable, and late
+    replies after a source/table/annotation-column/image-type change are ignored.
+    Writer startup failures with zero pending batches are also refused, so
+    a stopped writer cannot make an unanswered-only search silently use stale labels.
+    Focused evidence: tests/qt/test_similarity_options_f565.py plus existing
+    tests/qt/test_find_similar_alpha_gate.py — 13 passed on CPU, offscreen,
+    under a 4 GiB cap with two compute threads. No GPU run or biological
+    validation is claimed; the acceptance gaps above remain open.

@@ -1,0 +1,20 @@
+MATCH live-index.html
+MATCH catalog/captions_da.json
+MATCH catalog/captions_de.json
+MATCH catalog/captions_is.json
+MATCH catalog/captions_ko.json
+MATCH catalog/captions_nb.json
+MATCH catalog/captions_sv.json
+MATCH catalog/lessons_en.json
+MATCH catalog/lessons_es.json
+MATCH catalog/lessons_fr.json
+MATCH catalog/lessons_hi.json
+MATCH catalog/lessons_it.json
+MATCH catalog/lessons_ja.json
+MATCH catalog/lessons_pt-BR.json
+MATCH catalog/lessons_zh-CN.json
+Traceback (most recent call last):
+  File "/tmp/spacr-implementation-20261001/f489-publication/readback.py", line 18, in <module>
+    english=lessons['en'];source=json.loads((root/f'tools/tutorials/lessons/{lesson_id}.json').read_text());assert len(english['scenes'])==len(source['scenes'])==32
+                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

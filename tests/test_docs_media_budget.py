@@ -245,6 +245,45 @@ def test_external_narration_is_downloaded_before_media_playback():
     assert "elements.audio.src = audioSource()" not in player
 
 
+def _checked_player_source(tutorials, checkpoint, source_receipt):
+    """Bind source revisions separately from immutable publication history."""
+    import hashlib
+
+    manifest_path = checkpoint / "release-manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text())
+    published = {row["path"]: row for row in manifest["files"]}
+    names = ("app_v2.js", "styles.css")
+    actual = {name: hashlib.sha256((tutorials / name).read_bytes()).hexdigest()
+              for name in names}
+    changed = any(actual[name] != published[f"web/{name}"]["sha256"]
+                  for name in names)
+    index = (tutorials / "index.html").read_text(encoding="utf-8")
+    if changed:
+        source = json.loads(source_receipt.read_text())
+        assert source["published"] is False
+        assert source["historical_manifest_sha256"] == hashlib.sha256(
+            manifest_path.read_bytes()).hexdigest()
+        assert source["historical_media_commit"] == receipt["commit"]
+        assert source["index_sha256"] == hashlib.sha256(index.encode()).hexdigest()
+        assert set(source["assets"]) == set(names)
+        assert source["browser_checks"]["passed"] is True
+        assert source["browser_checks"]["player_sha256"] == actual["app_v2.js"]
+        for name in names:
+            record = source["assets"][name]
+            assert record["sha256"] == actual[name]
+            assert record["published_sha256"] == published[f"web/{name}"]["sha256"]
+            assert source["cache_key"] != receipt["pages"]["versioned_assets"][name]
+            assert f'{name}?v={source["cache_key"]}' in index
+    else:
+        pages = receipt["pages"]
+        for name in names:
+            key = pages["versioned_assets"][name]
+            assert f'{name}?v={key}' in index
+            if name not in pages["unchanged_versioned_assets"]:
+                assert key == pages["cache_key"]
+
+
 @requires_library
 def test_narration_is_the_stable_mobile_clock():
     """Normal playback must never repair drift by editing audible speech.
@@ -298,23 +337,48 @@ def test_narration_is_the_stable_mobile_clock():
     # gave every versioned asset in the committed publication receipt, and
     # issues a new key exactly when the player's bytes change. The page must
     # carry that recorded key; a player change without a new key fails here.
-    receipt = json.loads((REPO_ROOT / "tools" / "tutorials" / "release_candidate"
-                          / "publication-receipt.json").read_text())
-    pages = receipt["pages"]
-    key = pages["versioned_assets"]["app_v2.js"]
-    assert f'app_v2.js?v={key}' in index
-    if "app_v2.js" not in pages["unchanged_versioned_assets"]:
-        assert key == pages["cache_key"]
-    manifest = json.loads((REPO_ROOT / "tools" / "tutorials" / "release_candidate"
-                           / "release-manifest.json").read_text())
-    player_record = next(r for r in manifest["files"] if r["path"] == "web/app_v2.js")
-    import hashlib
-    assert hashlib.sha256(player.encode("utf-8")).hexdigest() == player_record["sha256"]
+    # A source-only player change may precede the next paired media release.
+    # Require its own reviewed hash/cache-key/browser receipt; never rewrite
+    # the historical published manifest to imply an upload that did not occur.
+    _checked_player_source(
+        _LIBRARY / "tutorials",
+        REPO_ROOT / "tools/tutorials/release_candidate",
+        REPO_ROOT / "tools/tutorials/evidence/2026-10-02-player-source-checks.json")
     assert 'app_v2.js?v=20260923-workflow78-learning-order' not in index
     assert 'app_v2.js?v=20260911-narration-captions' not in index
     assert "20260825-folded-routes" not in index
     assert "20260811-audio-end-park-captions" not in index
     assert "20260810-mobile-smooth" not in index
+
+
+@requires_library
+@pytest.mark.parametrize("mutation", ["asset", "cache_key", "history"])
+def test_source_player_receipt_rejects_drift(tmp_path, mutation):
+    """A reviewed source update cannot excuse later bytes or stale caching."""
+    import shutil
+
+    tutorials = tmp_path / "tutorials"
+    checkpoint = tmp_path / "checkpoint"
+    tutorials.mkdir()
+    checkpoint.mkdir()
+    for name in ("app_v2.js", "styles.css", "index.html"):
+        shutil.copyfile(_LIBRARY / "tutorials" / name, tutorials / name)
+    for name in ("publication-receipt.json", "release-manifest.json"):
+        shutil.copyfile(REPO_ROOT / "tools/tutorials/release_candidate" / name,
+                        checkpoint / name)
+    receipt = REPO_ROOT / "tools/tutorials/evidence/2026-10-02-player-source-checks.json"
+    if mutation == "asset":
+        with (tutorials / "app_v2.js").open("a") as stream:
+            stream.write("\n// An unreviewed later player change.\n")
+    elif mutation == "cache_key":
+        source = json.loads(receipt.read_text())
+        index = tutorials / "index.html"
+        index.write_text(index.read_text().replace(source["cache_key"], "old-cache"))
+    else:
+        with (checkpoint / "release-manifest.json").open("a") as stream:
+            stream.write("\n")
+    with pytest.raises(AssertionError):
+        _checked_player_source(tutorials, checkpoint, receipt)
 
 
 @requires_library

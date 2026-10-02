@@ -1,9 +1,9 @@
 CELLPOSE-DINO MODELS RUN IN AN ENVIRONMENT OF THEIR OWN
 
-Status: BUILT 2026-09-25. Backend installed for real, ViT-B real CPU run done. Second pass
-(same day): v2, the Live and Timelapse previews and Make Masks' Mode box / Model list run
-cellpose_dino:; real v2 mask == V1 mask on plate1_A02_12 (see the trailing notes). Open:
-ViT-L run and a GPU run. The nine-locale catalog tail passed 2026-09-27.
+Status: DONE 2026-10-02 against the stated acceptance boundary. Both bioimage.io
+Cellpose-DINO ViT-B and ViT-L completed real full-field CPU Mask runs through
+the existing isolated backend, with objects/F1/time recorded below; missing
+backend rows refuse Use and offer Install. GPU performance remains unmeasured.
 Owner: Claude (525 worktree). Related: 504 (bioimage.io lists Cellpose-DINO ViT-L and
 ViT-B but refuses them: Cellpose 4 needs the `dinov3` package, not installed),
 503/446 (Cellpose 3 in its own environment), 475 (SpotNet), 469 (figure
@@ -300,3 +300,48 @@ REVIEW_SCOPE_2026-09-04.md. Review is AI technical review, with no native-speake
 signoff. This closes the catalog-row handoff only. The existing real backend
 installation and ViT-B CPU/V1-v2 evidence stand; ViT-L and GPU acceptance
 remain open and were not run for this documentation checkpoint.
+
+
+2026-10-02 -- BOTH MODEL ROWS VERIFIED ON A REAL FULL FIELD (N525 COMPLETE)
+
+Reused the installed private Cellpose-DINO environment (October 1 installation
+marker, Cellpose 4.2.1.1, DINOv3 0.0.1 at the pinned source commit, Python
+3.13.14, torch 2.11.0+cu128). CUDA was hidden and SPACR_DEVICE=cpu; the actual
+worker ran on CPU. No install, model download, GPU work or original input
+mutation was performed during this acceptance.
+
+The existing full 1994 x 1994 plate1_A02_12.tif and curated reference mask were
+copied into private scratch. Both file hashes match the dataset manifest.
+Each model independently ran preprocess_generate_masks (V1) with cell channel
+0, diameter 44, batch size 1 and one worker, retaining genuine label arrays.
+No crop, downsampling or fake model was used by the acceptance driver.
+
+  Model    Objects  GT  Matches at IoU 0.5  F1        Mask pipeline wall time
+  ViT-B       44    33           29         0.753247      146.89 seconds
+  ViT-L       44    33           29         0.753247      468.93 seconds
+
+Both separate network-disabled processes exited 0 under a 4 GiB hard memory
+cap, actual CPU affinity [0], and zero swap. ViT-B peaked at 2,698,301,440 bytes.
+ViT-L reached the 4 GiB ceiling while loading; the kernel reclaimed cache
+(max events 1464), with zero OOM and zero OOM kills. The cap was never raised.
+Their output hashes differ; they are independent predictions, not reused masks:
+  ViT-B c96323de4c10ca03c594a14196cbc9f081b440d6d99cddbeb3181cef2db20bfd
+  ViT-L 27e01c5150b5e0e3bb2ebf037ce4c275cbcf926f362d035b243cc1c7faadce16
+
+The existing backend/routing/model-picker cohort passed 51 tests. Two additional
+scratch checks reused the actual picker assertions with the ViT-L row: missing
+backend offers Install, disables Use, and keeps even a downloaded checkpoint
+unusable until its backend exists. Both passed. These UI checks replace the
+install callback and do not claim a second real installation. No product code
+or public API changed. The six DINO-specific helpers/adapter match integration
+source by AST hash at verification time.
+
+Evidence: features/data/525_cellpose_dino_cpu_acceptance_2026-10-02.json includes
+input/checkpoint/output hashes, settings, complete reproducible scratch driver,
+process limits/results, installed package metadata and test-log hashes. Retained
+outputs/logs: /media/carruthers/mnt3/spacr-n525-20261002/{b,l}/.
+
+The reference field belongs to the curated in-house toxoplasma_pv training-data
+set. This is functional model/backend acceptance, not an independent held-out
+accuracy benchmark or a claim about generalization. GPU timing and performance
+on other assays remain unmeasured; neither is required by the stated DONE WHEN.

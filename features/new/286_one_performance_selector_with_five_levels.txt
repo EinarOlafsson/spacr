@@ -2,20 +2,11 @@
 ONE PERFORMANCE SELECTOR WITH FIVE LEVELS
 ================================================================================
 
-Status:    CODE DONE 2026-09-19; ONE PIECE LEFT, AND IT IS MEDIA: lessons
-           04 (installers) and 05 (Home) have current private recaptures and
-           English review masters as of 2026-09-21. Their full narration
-           matrix passes technical verification; listening, captions/player
-           acceptance and publication remain in the tutorial lane (48, 83, 358).
-           Bullets 1-6 MET (6 closed by the maintainer's "No notice"
-           decision, 2026-09-15). Bullet 7's code half is fixed: the Home
-           capture could not run (it looked up a note the dialog named after
-           the removed control), and the narration named the control wrongly
-           and promised "worker limits". See the 2026-09-19 note at the foot.
-           The audit below cites wip/286-audit hashes; that branch is gone
-           and its commits are in nightly under new hashes (same patches:
-           0b9ce9e03=984305663, cbc624113=49a88481a, f8efd070d=e1172328e,
-           272230162=0256e013d).
+Status:    COMPLETE — 2026-10-01. Current main publishes the exact Performance
+           scene in installer/Home lessons04/05; full media readback, decoded
+           scene review, current-main playback and45 current control/setup/
+           capture tests pass. Earlier bullets1–6 remain accepted. The newer
+           N601 private Appearance scenes are not claimed as published.
 Owner:     spacr/qt/preferences.py, startup resource policy, cache policy,
            ambient quality, setup screen, translations, tutorials and tests.
 Follows:   282 and 284. Supersedes the separate Laptop mode selector.
@@ -416,3 +407,45 @@ checkers and coverage audit are clean. Lessons 04/05 still wait only on
 media work that belongs to the publisher (a2fd5eb): composite media
 staging, the 27-track narration, decode/peak/caption/player checks and
 paired publication. Nothing staged here.
+
+2026-10-01 — Performance tutorial publication accepted (Codex AI verification)
+Current main's installer lesson04 and Home lesson05 both contain the exact
+09_performance scene and the current narration: select a Performance profile,
+Laptop uses fewer resources, higher profiles permit more caching/background
+work, and analysis settings remain under the user's control. The old worker-
+limit promise and removed independent Laptop control are absent.
+
+Fresh full-byte readback of both hosted web videos, English narration and
+timing sidecars matches the release manifest at immutable revision
+6d8def47e0240627cfe9b655d8d73e6b2403273d. Decoded scene midpoints were viewed:
+each shows one Performance selector set to Balanced and its readable hardware/
+cache explanation. The selector is closed in these frames; the45 fresh actual
+Preferences/setup/capture checks prove the exact five choices and order,
+migration/persistence, absence of a second override and visible capture note.
+They pass in4.52s under4GiB, CPU0 and zero swap with private settings/offscreen Qt.
+Both lessons also pass N358's current-main mobile playback/hash/chapter-seek
+checks. The27-track published inventories and prior matrix/listening acceptance
+remain inherited from the accepted release; no new human review is claimed.
+
+This closes the remaining media requirement. The installer uses its separately
+recorded Home Preferences scene, not a claim of another native installation or
+changed installer hardware backend. Home's newer14-scene N601 private stage
+is a separate unpublished update; its shared Performance narration matches.
+Receipt: features/data/286_published_performance_acceptance_2026-10-01.json.
+Decoded hosted frames: features/data/286_published_performance_2026-10-01/.
+
+Previous header retained for provenance (superseded by acceptance above):
+Status:    CODE DONE 2026-09-19; ONE PIECE LEFT, AND IT IS MEDIA: lessons
+           04 (installers) and 05 (Home) have current private recaptures and
+           English review masters as of 2026-09-21. Their full narration
+           matrix passes technical verification; listening, captions/player
+           acceptance and publication remain in the tutorial lane (48, 83, 358).
+           Bullets 1-6 MET (6 closed by the maintainer's "No notice"
+           decision, 2026-09-15). Bullet 7's code half is fixed: the Home
+           capture could not run (it looked up a note the dialog named after
+           the removed control), and the narration named the control wrongly
+           and promised "worker limits". See the 2026-09-19 note at the foot.
+           The audit below cites wip/286-audit hashes; that branch is gone
+           and its commits are in nightly under new hashes (same patches:
+           0b9ce9e03=984305663, cbc624113=49a88481a, f8efd070d=e1172328e,
+           272230162=0256e013d).

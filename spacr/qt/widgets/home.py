@@ -475,11 +475,18 @@ class Panel(QWidget):
         The same six lines were written out in five panels; they are here
         because a panel that forgets the `deleteLater` leaks a widget on
         every Home revisit, and Home is revisited constantly.
+
+        Each row is hidden as it leaves, not only queued for deletion: a
+        queued row stays a child of the box, painted where it last stood,
+        until the event loop next empties its deletion queue. Above 100%
+        text size the new rows sit at new heights, so the old ones showed
+        through and the panel read as drawn twice.
         """
         while self.body_layout.count():
             item = self.body_layout.takeAt(0)
             widget = item.widget()
             if widget is not None:
+                widget.hide()
                 widget.deleteLater()
 
 
@@ -1909,6 +1916,8 @@ class HomePage(QWidget):
         self._categories = self._grouping(categories)
         self._bands = self._grouping(bands)
         self._names = {k: n for k, n, _d, _s in self._apps}
+        from ..tooltip_policy import HoverDelay
+        self._tile_hover_delay = HoverDelay(self)
         self._tile_hints: dict = {}
         #: (holder, grid, tiles, tile_width) per grid, so a resize can
         #: rewrap each one at its own column width.
@@ -2877,8 +2886,10 @@ class HomePage(QWidget):
                 summary = module_summary(key, source)
                 mark = STAGE_LABEL.get(
                     str(obj.property("stage") or "stable"), "")
-                self._hint_bar.show_module(key, summary, mark)
+                self._tile_hover_delay.schedule(
+                    obj, lambda: self._hint_bar.show_module(key, summary, mark))
         elif event.type() == QEvent.Leave:
+            self._tile_hover_delay.cancel_for(obj)
             if not self._hint_bar.is_holding():
                 self._hint_bar.release()
         return super().eventFilter(obj, event)

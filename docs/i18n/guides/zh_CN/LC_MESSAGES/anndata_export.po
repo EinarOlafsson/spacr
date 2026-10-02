@@ -1,0 +1,87 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Export measurements to AnnData"
+msgstr "将测量结果导出为 AnnData"
+
+msgid "Create an ``.h5ad`` file containing measured features and object metadata for analysis in AnnData or Scanpy. Start with a spaCR project containing ``measurements/measurements.db``. For a worked example, download the project from the `Annotate tutorial <tutorials/#lesson=09_annotate>`__."
+msgstr "创建一个包含已测量特征和对象元数据的 ``.h5ad`` 文件，以便在 AnnData 或 Scanpy 中进行分析。请从包含 ``measurements/measurements.db`` 的 spaCR 项目开始。如需完整示例，可从 `标注教程 <tutorials/#lesson=09_annotate>`__ 下载该项目。"
+
+msgid "Export from the application"
+msgstr "从应用程序导出"
+
+msgid "From **Home**, open **Measure**, then **AnnData Export**."
+msgstr "在 **主页** 中打开 **测量**，然后打开 **导出 AnnData**。"
+
+msgid "Select the measured project as the source."
+msgstr "选择已测量的项目作为来源。"
+
+msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
+msgstr "将 **Anndata 输出文件** 设置为新的 ``.h5ad`` 文件名。留空时，文件写入项目的 ``results`` 文件夹下。导出成功后会替换所选路径上的现有文件；如需保留两个版本，请使用不同的文件名。"
+
+msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
+msgstr "将 **Anndata 单表** 设置为 ``cell``，即可按每个细胞一行导出该表的特征。对于这些对象类型，请使用 ``nucleus`` 或 ``pathogen``。留空则进行细胞级联合导出，此时子对象的测量值会汇总到其父细胞上。"
+
+msgid "Choose **Anndata nan policy**, then click **Run**. Read the completion message and open the output file to check its shape and feature names."
+msgstr "选择 **Anndata nan 处理策略**，然后单击 **运行**。阅读完成消息，并打开输出文件检查其形状和特征名称。"
+
+msgid "Choose how to handle missing features"
+msgstr "选择缺失特征的处理方式"
+
+msgid "``keep`` retains missing values. Choose this when you want to decide how to handle them in the downstream analysis."
+msgstr "``keep`` 保留缺失值。如果希望在下游分析中自行决定如何处理缺失值，请选择此项。"
+
+msgid "``drop_features`` removes feature columns containing missing values."
+msgstr "``drop_features`` 删除含有缺失值的特征列。"
+
+msgid "``drop_objects`` removes object rows containing missing feature values."
+msgstr "``drop_objects`` 删除含有缺失特征值的对象行。"
+
+msgid "``mean`` replaces missing values with the observed feature mean."
+msgstr "``mean`` 用观测到的特征均值替换缺失值。"
+
+msgid "``zero`` replaces missing values with zero. Use it only when zero is an appropriate value for the intended analysis."
+msgstr "``zero`` 用零替换缺失值。仅当零对预期分析而言是合适的值时才使用此项。"
+
+msgid "The imputing policies retain the original missing positions in ``layers['missing']``. These choices apply to the feature matrix, not to unknown metadata such as unavailable calibration values. Check object and feature counts after choosing a dropping policy. Scanpy operations such as scaling and PCA need missing feature values to be handled before use."
+msgstr "插补策略会在 ``layers['missing']`` 中保留原始缺失值的位置。这些选项作用于特征矩阵，而不作用于未知元数据（例如不可用的校准值）。选择删除类策略后，请检查对象数和特征数。Scanpy 的缩放和 PCA 等操作要求在使用前先处理缺失的特征值。"
+
+msgid "Inspect the output"
+msgstr "检查输出"
+
+msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
+msgstr "``X`` 包含对象 × 特征矩阵，``obs`` 包含对象元数据，``var`` 描述各特征。请保留源图像及其路径：导出文件中不嵌入图像像素。以标注示例为例，使用 ``keep`` 的仅细胞导出包含 2,341 个对象、261 个特征和 28 个缺失特征值。"
+
+msgid "Export from Python"
+msgstr "从 Python 导出"
+
+msgid "The following uses the same entry point as the application's **Run** button:"
+msgstr "以下代码使用与应用程序 **运行** 按钮相同的入口点："
+
+msgid "For explicit function arguments, see :func:`spacr.anndata_export.export_anndata`."
+msgstr "关于显式的函数参数，请参阅 :func:`spacr.anndata_export.export_anndata`。"
+
+msgid "Follow the video"
+msgstr "观看视频"
+
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
+msgstr "`AnnData 视频 <tutorials/#lesson=59_anndata_export>`__ 使用可下载的测量示例逐一讲解这些控件。视频展示了联合导出、仅细胞导出和仅细胞核导出，并比较了各种缺失值策略。常规导出器可直接处理完全缺失的元数据。如果写入替换文件失败，现有的已完成输出会被保留。"
+

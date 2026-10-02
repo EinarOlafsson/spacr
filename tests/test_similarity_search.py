@@ -152,3 +152,62 @@ def test_the_index_reads_a_measured_database(tmp_path):
     labels = {c["png_path"]: c["_class"] for c in project["crops"]}
     table = al._similarity_agreement(index, labels, k=5).set_index("class")
     assert table.loc["all", "lift"] > 1.5
+
+
+# ---------------------------------------------------------------------------
+# FAISS without FAISS installed, and the edges (coverage ratchet, 288)
+# ---------------------------------------------------------------------------
+
+class _FakeFaissIndex:
+    """An inner-product index with the two methods spaCR calls."""
+
+    def __init__(self, dims):
+        self.dims, self.rows = dims, None
+
+    def add(self, matrix):
+        self.rows = np.asarray(matrix, np.float32)
+
+    def search(self, queries, k):
+        scores = queries @ self.rows.T
+        order = np.argsort(-scores, axis=1)[:, :k]
+        return np.take_along_axis(scores, order, 1), order.astype(np.int32)
+
+
+def _fake_faiss(gpus, fail=False):
+    import types
+
+    module = types.ModuleType("faiss")
+    module.IndexFlatIP = _FakeFaissIndex
+    module.get_num_gpus = lambda: gpus
+
+    def to_gpus(index):
+        if fail:
+            raise RuntimeError("no CUDA driver")
+        index.on_gpu = True
+        return index
+
+    module.index_cpu_to_all_gpus = to_gpus
+    return module
+
+
+@pytest.mark.parametrize("gpus,fail,expected", [
+    (0, False, "faiss"), (2, False, "faiss-gpu"), (2, True, "faiss")])
+def test_faiss_is_used_and_moved_to_a_gpu_when_one_answers(
+        monkeypatch, gpus, fail, expected):
+    import sys
+
+    monkeypatch.setitem(sys.modules, "faiss", _fake_faiss(gpus, fail))
+    monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
+    frame, labels = _clusters(n_per=(40, 40, 5))
+    index = al._SimilarityIndex(frame, backend="faiss")
+    assert index.backend == expected
+    numpy_index = al._SimilarityIndex(frame, backend="numpy")
+    key = frame.index[0]
+    assert list(index.like(key, 5)["key"]) == list(
+        numpy_index.like(key, 5)["key"])
+
+
+def test_crops_without_numeric_features_cannot_be_compared():
+    with pytest.raises(ValueError, match="No crop has numeric features"):
+        al._SimilarityIndex(pd.DataFrame({"label": ["a", "b"]},
+                                         index=["x", "y"]))

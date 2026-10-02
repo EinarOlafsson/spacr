@@ -1,0 +1,417 @@
+# spaCR user guide translation (es).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Database concurrency audit"
+msgstr "Auditoría de concurrencia de la base de datos"
+
+msgid "spaCR's measurement workers, annotation writer, run-status ledger, schema migrations, and Database Browser can access the same SQLite file from different processes or threads. The shared :mod:`spacr.database_concurrency` contract makes those accesses explicit:"
+msgstr "Los procesos de trabajo de medición de spaCR, el escritor de anotaciones, el registro de estados de ejecución, las migraciones de esquema y el Explorador de base de datos pueden acceder al mismo archivo SQLite desde distintos procesos o hilos. El contrato compartido :mod:`spacr.database_concurrency` hace explícitos esos accesos:"
+
+msgid "every thread or process owns and closes its own connection;"
+msgstr "cada hilo o proceso posee y cierra su propia conexión;"
+
+msgid "every connection has a finite ``busy_timeout`` and foreign-key enforcement;"
+msgstr "cada conexión tiene un ``busy_timeout`` finito y aplica las claves foráneas;"
+
+msgid "read-only work uses SQLite ``mode=ro`` plus ``query_only``;"
+msgstr "el trabajo de solo lectura usa ``mode=ro`` de SQLite más ``query_only``;"
+
+msgid "multi-statement writes use ``BEGIN IMMEDIATE`` and roll back completely on a body or commit failure;"
+msgstr "las escrituras de varias sentencias usan ``BEGIN IMMEDIATE`` y se revierten por completo si falla el cuerpo o la confirmación;"
+
+msgid "only lock/busy failures while acquiring a transaction are retried, with a bounded exponential backoff;"
+msgstr "solo se reintentan los fallos de bloqueo u ocupación al adquirir una transacción, con un retroceso exponencial limitado;"
+
+msgid "an exhausted lock budget raises :class:`spacr.database_concurrency.DatabaseBusy` instead of dropping a write or continuing silently."
+msgstr "un presupuesto de bloqueo agotado lanza :class:`spacr.database_concurrency.DatabaseBusy` en lugar de descartar una escritura o continuar en silencio."
+
+msgid "Measurement writes retain their specialized recovery for concurrent ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
+msgstr "Las escrituras de medición conservan su recuperación especializada ante ``CREATE TABLE`` concurrentes y carreras al ampliar el esquema. La creación de la tabla de estados de ejecución y la inserción de la fila son una única transacción atómica. La validación de ediciones del Explorador de base de datos y su actualización de una sola fila también comparten una transacción, de modo que la dirección de una fila no puede cambiar entre la comprobación y la escritura. El borrado en varias tablas antes de volver a medir al reanudar se valida y ejecuta en una única transacción de escritura reintentada. Anotación conserva el modo de diario configurado, revierte un lote agrupado fallido, mantiene un estado de no guardado/error e informa de ese estado en el módulo en lugar de marcar como guardada una confirmación fallida."
+
+msgid "Journal mode and network storage"
+msgstr "Modo de diario y almacenamiento en red"
+
+msgid "spaCR enables WAL only where it is known to be safe. WAL lets readers proceed without blocking a committing writer, but SQLite's WAL index requires shared-memory coordination and is not safe on many NFS, SMB, NAS, or distributed filesystems. Before a Measure run, :func:`spacr.database_concurrency.enable_wal_where_safe` switches ``measurements/measurements.db`` to WAL only when its filesystem is positively identified as a local type on an allowlist (ext4, XFS, Btrfs, ZFS, APFS, tmpfs and similar); network, unrecognised and undetectable filesystems keep the rollback (``DELETE``) journal. Other databases retain their journal mode unless a caller explicitly requests ``WAL`` or ``DELETE``."
+msgstr "spaCR activa WAL solo donde se sabe que es seguro. WAL permite que los lectores avancen sin bloquear a un escritor que está confirmando, pero el índice WAL de SQLite requiere coordinación mediante memoria compartida y no es seguro en muchos sistemas de archivos NFS, SMB, NAS o distribuidos. Antes de una ejecución de Medición, :func:`spacr.database_concurrency.enable_wal_where_safe` cambia ``measurements/measurements.db`` a WAL solo cuando su sistema de archivos se identifica positivamente como un tipo local incluido en una lista de permitidos (ext4, XFS, Btrfs, ZFS, APFS, tmpfs y similares); los sistemas de archivos de red, no reconocidos o no detectables mantienen el diario de reversión (``DELETE``). Las demás bases de datos conservan su modo de diario salvo que quien llama solicite explícitamente ``WAL`` o ``DELETE``."
+
+msgid ":func:`spacr.database_concurrency.inspect_database` reports the active journal mode, filesystem type, lock timeout, SQLite threading level, sidecar sizes, and optional ``PRAGMA quick_check`` result. It emits a warning when it detects WAL on a known network filesystem. Filesystem detection is advisory: storage inside a container or automounter can conceal its actual backing system, so vendor guidance remains authoritative."
+msgstr ":func:`spacr.database_concurrency.inspect_database` informa del modo de diario activo, el tipo de sistema de archivos, el tiempo de espera de bloqueo, el nivel de hilos de SQLite, el tamaño de los archivos auxiliares y, opcionalmente, el resultado de ``PRAGMA quick_check``. Emite una advertencia cuando detecta WAL en un sistema de archivos de red conocido. La detección del sistema de archivos es orientativa: el almacenamiento dentro de un contenedor o de un automontador puede ocultar su sistema real subyacente, por lo que las indicaciones del fabricante siguen siendo las que valen."
+
+msgid "Command-line audit"
+msgstr "Auditoría desde la línea de comandos"
+
+msgid "Inspect an existing database without modifying it::"
+msgstr "Inspeccionar una base de datos existente sin modificarla::"
+
+msgid "Run simultaneous readers and writers against a new disposable database::"
+msgstr "Ejecutar lectores y escritores simultáneos sobre una nueva base de datos desechable::"
+
+msgid "Use ``--json`` for CI or monitoring. ``--scratch PATH`` is accepted only when ``PATH`` does not exist; the audit deliberately refuses to place probe tables inside scientific results. Without ``--scratch``, its temporary database is removed after metrics are collected. The command returns nonzero for corrupt input, failed integrity checks, thread errors, timeouts, or a row-count mismatch."
+msgstr "Use ``--json`` para CI o monitorización. ``--scratch PATH`` solo se acepta cuando ``PATH`` no existe; la auditoría se niega deliberadamente a colocar tablas de sondeo dentro de resultados científicos. Sin ``--scratch``, su base de datos temporal se elimina después de recoger las métricas. El comando devuelve un valor distinto de cero ante una entrada dañada, comprobaciones de integridad fallidas, errores de hilos, tiempos de espera agotados o un recuento de filas que no coincide."
+
+msgid "Transaction API"
+msgstr "API de transacciones"
+
+msgid "Plugin and pipeline writers should use the same primitives::"
+msgstr "Los escritores de complementos y canalizaciones deben usar las mismas primitivas::"
+
+msgid "Connections must never be passed between threads. Do not retry statements from inside a transaction: earlier statements might already have run. The context manager retries only transaction acquisition, then either commits the complete body once or rolls it back."
+msgstr "Las conexiones nunca deben pasarse de un hilo a otro. No reintente sentencias dentro de una transacción: puede que sentencias anteriores ya se hayan ejecutado. El gestor de contexto solo reintenta la adquisición de la transacción y después confirma el cuerpo completo una sola vez o lo revierte."
+
+msgid "Stress coverage"
+msgstr "Cobertura de pruebas de estrés"
+
+msgid "``tests/test_database_concurrency.py`` uses real database files to verify:"
+msgstr "``tests/test_database_concurrency.py`` usa archivos de base de datos reales para verificar:"
+
+msgid "exact row counts under simultaneous reader/writer pressure;"
+msgstr "recuentos de filas exactos bajo la presión simultánea de lectores y escritores;"
+
+msgid "lock release and bounded lock exhaustion;"
+msgstr "la liberación de bloqueos y el agotamiento limitado de los bloqueos;"
+
+msgid "atomic success, rollback, and nested-transaction refusal;"
+msgstr "el éxito atómico, la reversión y el rechazo de transacciones anidadas;"
+
+msgid "enforced read-only connections and WAL snapshot visibility;"
+msgstr "las conexiones de solo lectura impuestas y la visibilidad de instantáneas WAL;"
+
+msgid "concurrent run-ledger stamps with no lost rows;"
+msgstr "marcas concurrentes en el registro de ejecuciones sin pérdida de filas;"
+
+msgid "integrity/network-storage diagnostics and CLI exit behavior;"
+msgstr "los diagnósticos de integridad y de almacenamiento en red y el comportamiento de salida de la CLI;"
+
+msgid "refusal to run a destructive probe against an existing database, and removal of a probe's scratch database when it fails."
+msgstr "el rechazo a ejecutar un sondeo destructivo sobre una base de datos existente, y la eliminación de la base de datos desechable de un sondeo cuando falla."
+
+msgid "Annotation-batch rollback and fail-loud status are covered in ``tests/qt/test_annotate.py``, and resume cleanup across every measure-owned table in ``tests/test_resume.py``. The existing Measure multiprocessing, schema migration, unreadable run-status, and Qt Database Browser suites provide integration coverage for their respective production paths."
+msgstr "La reversión de lotes de anotación y el estado de fallo notificado de forma visible se cubren en ``tests/qt/test_annotate.py``, y la limpieza al reanudar en todas las tablas de Medición en ``tests/test_resume.py``. Los conjuntos de pruebas existentes de multiprocesamiento de Medición, migración de esquema, estados de ejecución ilegibles y el Explorador de base de datos de Qt ofrecen cobertura de integración para sus respectivas rutas de producción."
+
+msgid "API reference"
+msgstr "Referencia de la API"
+
+msgid "SQLite connection, transaction, and concurrency-audit primitives."
+msgstr "Primitivas de conexión, transacción y auditoría de concurrencia para SQLite."
+
+msgid "spaCR uses one SQLite database as the meeting point for Measure worker processes, the annotator writer thread, read-only GUI queries, run-status stamps, and schema migrations.  This module provides the rules those paths share:"
+msgstr "spaCR usa una base de datos SQLite como punto de encuentro de los procesos de trabajo de Medición, el hilo escritor del anotador, las consultas de solo lectura de la interfaz gráfica, las marcas de estado de ejecución y las migraciones de esquema. Este módulo proporciona las reglas que comparten esas rutas:"
+
+msgid "every thread/process opens and closes its own connection;"
+msgstr "cada hilo/proceso abre y cierra su propia conexión;"
+
+msgid "busy timeouts are explicit and write transactions retry only lock errors;"
+msgstr "los tiempos de espera por ocupación son explícitos y las transacciones de escritura solo reintentan errores de bloqueo;"
+
+msgid "multi-statement writes use ``BEGIN IMMEDIATE`` with rollback on every error;"
+msgstr "las escrituras de varias sentencias usan ``BEGIN IMMEDIATE`` con reversión ante cualquier error;"
+
+msgid "WAL is opt-in because SQLite WAL shared memory is unsafe on many network filesystems;"
+msgstr "WAL debe activarse explícitamente, porque la memoria compartida WAL de SQLite no es segura en muchos sistemas de archivos de red;"
+
+msgid "a real reader/writer probe can verify the local SQLite/filesystem behavior."
+msgstr "un sondeo real de lectores/escritores puede verificar el comportamiento local de SQLite y del sistema de archivos."
+
+msgid "Only the Python standard library is imported, so image workers can use it without pulling in pandas, Qt, torch, or Cellpose."
+msgstr "Solo se importa la biblioteca estándar de Python, de modo que los procesos de trabajo de imágenes pueden usarlo sin cargar pandas, Qt, torch ni Cellpose."
+
+msgid "Outcome of a disposable simultaneous reader/writer stress probe."
+msgstr "Resultado de un sondeo de estrés con lectores/escritores simultáneos sobre una base de datos desechable."
+
+msgid "Parameters"
+msgstr "Parámetros"
+
+msgid "scratch database path; a clean temporary probe removes it, while explicit or stalled probes retain it for inspection."
+msgstr "ruta de la base de datos desechable; un sondeo temporal que termina limpiamente la elimina, mientras que los sondeos explícitos o bloqueados la conservan para su inspección."
+
+msgid "actual uppercase journal mode read after the run."
+msgstr "modo de diario real, en mayúsculas, leído después de la ejecución."
+
+msgid "validated number of writer threads launched."
+msgstr "número validado de hilos escritores iniciados."
+
+msgid "validated number of polling reader threads launched."
+msgstr "número validado de hilos lectores de consulta iniciados."
+
+msgid "one-row committed transactions each writer tries."
+msgstr "transacciones confirmadas de una fila que intenta cada escritor."
+
+msgid "``writers * writes_per_writer``, independent of any worker failures."
+msgstr "``writers * writes_per_writer``, independientemente de los fallos de los procesos de trabajo."
+
+msgid "final row count verified after the bounded joins."
+msgstr "recuento final de filas verificado después de las uniones limitadas."
+
+msgid "total successful ``COUNT`` queries across readers."
+msgstr "total de consultas ``COUNT`` correctas de todos los lectores."
+
+msgid "monotonic worker start-to-join elapsed time, excluding setup and final verification."
+msgstr "tiempo monotónico transcurrido desde el inicio hasta la unión de los procesos de trabajo, sin la preparación ni la verificación final."
+
+msgid "immutable worker exceptions and surviving-thread timeout messages collected by the probe."
+msgstr "excepciones inmutables de los procesos de trabajo y mensajes de tiempo de espera de hilos supervivientes recogidos por el sondeo."
+
+msgid "True when no thread failed and every committed row exists."
+msgstr "True cuando ningún hilo falló y existe cada fila confirmada."
+
+msgid "Return a JSON-serializable result including :attr:`ok`."
+msgstr "Devuelve un resultado serializable en JSON que incluye :attr:`ok`."
+
+msgid "A lock remained busy after the configured retry budget."
+msgstr "Un bloqueo siguió ocupado tras agotar el presupuesto de reintentos configurado."
+
+msgid "SQLite could not apply a requested safety configuration."
+msgstr "SQLite no pudo aplicar una configuración de seguridad solicitada."
+
+msgid "Read-only SQLite configuration and integrity snapshot."
+msgstr "Instantánea de solo lectura de la configuración y la integridad de SQLite."
+
+msgid "normalized absolute path of the inspected database."
+msgstr "ruta absoluta normalizada de la base de datos inspeccionada."
+
+msgid "SQLite runtime version exposed by Python."
+msgstr "versión de ejecución de SQLite expuesta por Python."
+
+msgid "DB-API thread-safety level reported by :data:`sqlite3.threadsafety`."
+msgstr "nivel de seguridad de hilos de la DB-API indicado por :data:`sqlite3.threadsafety`."
+
+msgid "actual uppercase journal mode read from the database."
+msgstr "modo de diario real, en mayúsculas, leído de la base de datos."
+
+msgid "whether enforcement is enabled on the audit connection, not a persistent database-wide promise."
+msgstr "si la aplicación está activada en la conexión de auditoría; no es una garantía persistente para toda la base de datos."
+
+msgid "audit connection's effective busy timeout in milliseconds."
+msgstr "tiempo de espera por ocupación efectivo de la conexión de auditoría, en milisegundos."
+
+msgid "detected filesystem type, or ``None`` when unavailable."
+msgstr "tipo de sistema de archivos detectado, o ``None`` cuando no está disponible."
+
+msgid "whether the detected type is in the known network-filesystem set; false with an unknown type does not prove the storage is local."
+msgstr "si el tipo detectado pertenece al conjunto de sistemas de archivos de red conocidos; false con un tipo desconocido no demuestra que el almacenamiento sea local."
+
+msgid "joined ``PRAGMA quick_check`` result when requested, otherwise ``None``."
+msgstr "resultado unido de ``PRAGMA quick_check`` cuando se solicita; en caso contrario, ``None``."
+
+msgid "main database-file size at inspection time."
+msgstr "tamaño del archivo principal de la base de datos en el momento de la inspección."
+
+msgid "``-wal`` sidecar size at inspection time, or zero when it is absent."
+msgstr "tamaño del archivo auxiliar ``-wal`` en el momento de la inspección, o cero si no existe."
+
+msgid "``-shm`` sidecar size at inspection time, or zero when it is absent."
+msgstr "tamaño del archivo auxiliar ``-shm`` en el momento de la inspección, o cero si no existe."
+
+msgid "actionable integrity or unsafe network-WAL findings."
+msgstr "hallazgos prácticos sobre la integridad o sobre un WAL de red inseguro."
+
+msgid "Return a JSON-serializable snapshot."
+msgstr "Devuelve una instantánea serializable en JSON."
+
+msgid "Filesystems on which WAL is known to behave. An ALLOWLIST, not the complement of :data:`NETWORK_FILESYSTEMS`: \"not a type I recognise as networked\" is a weaker claim than \"local\", and the gap between them is someone's corrupted database on a cluster nobody here has seen. An unrecognised type stays on DELETE, which is what shipped."
+msgstr "Sistemas de archivos en los que se sabe que WAL se comporta correctamente. Una LISTA DE PERMITIDOS, no el complemento de :data:`NETWORK_FILESYSTEMS`: «no es un tipo que reconozca como de red» es una afirmación más débil que «local», y la diferencia entre ambas es la base de datos dañada de alguien en un clúster que nadie aquí ha visto. Un tipo no reconocido se queda en DELETE, que es lo que se distribuyó."
+
+msgid "exFAT and vfat are deliberately absent: neither has the byte-range locking WAL's shared-memory index depends on."
+msgstr "exFAT y vfat están ausentes deliberadamente: ninguno tiene el bloqueo por rangos de bytes del que depende el índice en memoria compartida de WAL."
+
+msgid "Open one configured connection owned by the calling thread."
+msgstr "Abre una conexión configurada propiedad del hilo que llama."
+
+msgid "SQLite database path."
+msgstr "ruta de la base de datos SQLite."
+
+msgid "open with URI ``mode=ro`` and ``query_only=ON``."
+msgstr "abrir con la URI ``mode=ro`` y ``query_only=ON``."
+
+msgid "seconds SQLite waits inside a lock operation."
+msgstr "segundos que SQLite espera dentro de una operación de bloqueo."
+
+msgid "optional explicit ``\"WAL\"`` or ``\"DELETE\"``. Omit to preserve the database's current mode. WAL must not be enabled blindly on shared/NFS storage; use :func:`filesystem_type` or the concurrency probe first."
+msgstr "``\"WAL\"`` o ``\"DELETE\"`` explícito opcional. Omítalo para conservar el modo actual de la base de datos. WAL no debe activarse a ciegas en almacenamiento compartido/NFS; use primero :func:`filesystem_type` o el sondeo de concurrencia."
+
+msgid "enable SQLite foreign-key enforcement on this connection. SQLite defaults it off per connection."
+msgstr "activa la aplicación de claves foráneas de SQLite en esta conexión. SQLite la desactiva de forma predeterminada en cada conexión."
+
+msgid "Returns"
+msgstr "Devuelve"
+
+msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes."
+msgstr "conexión en modo de confirmación automática; use :func:`transaction` para escrituras de varias sentencias."
+
+msgid "Raises"
+msgstr "Excepciones"
+
+msgid "for an unsafe/unsupported requested journal mode or when SQLite refuses to apply it."
+msgstr "ante un modo de diario solicitado inseguro o no admitido, o cuando SQLite se niega a aplicarlo."
+
+msgid "Put ``path`` into WAL when the filesystem allows it. Never raises."
+msgstr "Pone ``path`` en WAL cuando el sistema de archivos lo permite. Nunca lanza excepciones."
+
+msgid "WHY THIS EXISTS (issue #15, \"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a READ -- before writing. So each worker alternates read, write, read, write against one file."
+msgstr "POR QUÉ EXISTE ESTO (incidencia #15, «measurements sometimes hangs»). Medición ejecuta un proceso de trabajo por campo y cada anexión pasa por ``DataFrame.to_sql`` de pandas, que hace un sondeo ``has_table`` -- una LECTURA -- antes de escribir. Así, cada proceso de trabajo alterna lectura, escritura, lectura, escritura sobre un mismo archivo."
+
+msgid "Under the shipped rollback journal that combination starves the writer. A reader holds SHARED for the length of its statement, and a writer cannot COMMIT until every SHARED lock is gone, so with enough workers there is almost always someone reading and the committing worker waits out its busy timeout and raises \"database is locked\" -- usually surfacing on the next process's ``has_table``, which is the statement in the reporter's traceback."
+msgstr "Con el diario de reversión distribuido, esa combinación deja sin turno al escritor. Un lector mantiene SHARED durante toda su sentencia, y un escritor no puede hacer COMMIT hasta que desaparecen todos los bloqueos SHARED; con suficientes procesos de trabajo casi siempre hay alguien leyendo, y el que confirma agota su tiempo de espera por ocupación y lanza «database is locked» -- normalmente visible en el ``has_table`` del siguiente proceso, que es la sentencia de la traza de quien lo notificó."
+
+msgid "Measured on this exact shape, a commit attempted while one reader holds an open SELECT:"
+msgstr "Medido exactamente en esta configuración, un commit intentado mientras un lector mantiene un SELECT abierto:"
+
+msgid "journal_mode=delete    writer waited 1.037 s journal_mode=wal       writer waited 0.002 s"
+msgstr "journal_mode=delete    el escritor esperó 1.037 s journal_mode=wal       el escritor esperó 0.002 s"
+
+msgid "WAL readers do not block a writer at all, which removes the starvation. It does NOT make two WRITERS concurrent -- SQLite still serialises those -- so this fixes the reader-blocks-writer half, which is the half the traceback is in."
+msgstr "Los lectores WAL no bloquean en absoluto a un escritor, lo que elimina el problema. NO hace concurrentes a dos ESCRITORES -- SQLite sigue serializándolos --, así que esto corrige la mitad «el lector bloquea al escritor», que es donde está la traza."
+
+msgid "(The first version of this note had the direction backwards, claiming reads were blocked by writes. The test written to prove it measured 0.000 s and refuted it: in rollback-journal mode a writer holding RESERVED does not block readers, only its brief EXCLUSIVE commit does.)"
+msgstr "(La primera versión de esta nota tenía la dirección al revés y afirmaba que las lecturas quedaban bloqueadas por las escrituras. La prueba escrita para demostrarlo midió 0,000 s y lo refutó: en modo de diario de reversión, un escritor que mantiene RESERVED no bloquea a los lectores; solo lo hace su breve commit EXCLUSIVE.)"
+
+msgid "Called once when a database is opened for a run rather than per write: the mode is a property of the FILE and persists, so paying for it per connection would buy nothing."
+msgstr "Se llama una vez cuando se abre una base de datos para una ejecución, no en cada escritura: el modo es una propiedad del ARCHIVO y persiste, así que pagarlo en cada conexión no aportaría nada."
+
+msgid "the database to switch. A file that does not exist yet is created by the connection, which is fine -- the mode persists."
+msgstr "la base de datos que se va a cambiar. La conexión crea un archivo que todavía no existe, lo cual no es problema -- el modo persiste."
+
+msgid "the journal mode in force afterwards, or ``None`` when the database could not be opened at all."
+msgstr "el modo de diario vigente después, o ``None`` cuando la base de datos no pudo abrirse en absoluto."
+
+msgid "Best-effort filesystem type for ``path``, or None when unknowable."
+msgstr "Tipo de sistema de archivos de ``path`` en la medida de lo posible, o None si no puede saberse."
+
+msgid "Reads ``/proc/mounts`` on Linux and falls back to psutil's partition table elsewhere, so macOS and Windows get a real answer rather than None. The longest matching mount point wins on both paths. Advisory only--containers and automounters can hide the real backing store."
+msgstr "Lee ``/proc/mounts`` en Linux y recurre a la tabla de particiones de psutil en los demás sistemas, de modo que macOS y Windows obtienen una respuesta real en lugar de None. En ambas vías gana el punto de montaje coincidente más largo. Solo orientativo: los contenedores y los automontadores pueden ocultar el almacenamiento real subyacente."
+
+msgid "file or directory to look up. ``~`` is expanded and the path resolved; on Linux a path that does not exist yet is walked up to its nearest existing parent before the mount table is searched."
+msgstr "archivo o carpeta que se va a consultar. ``~`` se expande y la ruta se resuelve; en Linux, una ruta que aún no existe se recorre hacia arriba hasta su antecesor existente más cercano antes de buscar en la tabla de montajes."
+
+msgid "Inspect journal/locking configuration without changing the database."
+msgstr "Inspecciona la configuración de diario y bloqueo sin modificar la base de datos."
+
+msgid "the SQLite database file (``~`` is expanded). It must already exist and is opened read-only."
+msgstr "el archivo de base de datos SQLite (``~`` se expande). Debe existir ya y se abre en modo de solo lectura."
+
+msgid "also run ``PRAGMA quick_check`` and add a warning unless it reports ``ok``."
+msgstr "ejecuta también ``PRAGMA quick_check`` y añade una advertencia salvo que devuelva ``ok``."
+
+msgid "when ``path`` is not an existing file."
+msgstr "cuando ``path`` no es un archivo existente."
+
+msgid "Return True only for SQLite lock/busy errors worth retrying."
+msgstr "Devuelve True solo para errores de bloqueo/ocupación de SQLite que merece la pena reintentar."
+
+msgid "the exception to classify. Only a :class:`sqlite3.OperationalError` whose message contains \"locked\" or \"busy\" (case-insensitively) counts."
+msgstr "la excepción que se va a clasificar. Solo cuenta un :class:`sqlite3.OperationalError` cuyo mensaje contenga «locked» o «busy» (sin distinguir mayúsculas y minúsculas)."
+
+msgid "Stress a new disposable database with simultaneous readers/writers."
+msgstr "Somete una nueva base de datos desechable a lectores/escritores simultáneos."
+
+msgid "An explicit ``path`` must not exist: the probe never adds audit tables to scientific data. When omitted, a temporary database is created and removed after its metrics are collected."
+msgstr "Un ``path`` explícito no debe existir: el sondeo nunca añade tablas de auditoría a datos científicos. Si se omite, se crea una base de datos temporal que se elimina después de recoger sus métricas."
+
+msgid "scratch database to create. It must not already exist (:exc:`FileExistsError`); missing parent directories are created, and a run that FINISHES leaves the file on disk along with any ``-wal`` and ``-shm`` sidecars, so every explicit run needs a fresh path. Omit it to probe a temporary database instead, which is removed after a clean finish. A run that RAISES -- a ``journal_mode`` :func:`connect` refuses, most often -- removes its scratch database either way: it never ran, so there is nothing in it to keep, and leaving one at an explicit path made the next run on it fail with :exc:`FileExistsError`. The one deliberate survivor is a worker that outlives the 30-second join deadline, whose database is kept for inspection."
+msgstr "base de datos desechable que se va a crear. No debe existir ya (:exc:`FileExistsError`); se crean las carpetas padre que falten, y una ejecución que TERMINA deja el archivo en el disco junto con los posibles archivos auxiliares ``-wal`` y ``-shm``, por lo que cada ejecución explícita necesita una ruta nueva. Omítalo para sondear en su lugar una base de datos temporal, que se elimina tras una finalización limpia. Una ejecución que LANZA una excepción -- casi siempre un ``journal_mode`` que :func:`connect` rechaza -- elimina su base de datos desechable en cualquier caso: nunca llegó a ejecutarse, así que no hay nada que conservar, y dejar una en una ruta explícita hacía fallar la siguiente ejecución sobre ella con :exc:`FileExistsError`. La única superviviente deliberada es la de un proceso de trabajo que supera el plazo de unión de 30 segundos; su base de datos se conserva para inspeccionarla."
+
+msgid "concurrent writer threads. Each owns a connection opened with a 50 ms busy timeout and commits one transaction per row, so ``expected_rows`` is ``writers * writes_per_writer``. Must be a genuine positive integer; booleans, text and floats are refused."
+msgstr "hilos escritores concurrentes. Cada uno posee una conexión abierta con un tiempo de espera por ocupación de 50 ms y confirma una transacción por fila, de modo que ``expected_rows`` es ``writers * writes_per_writer``. Debe ser un entero positivo auténtico; se rechazan booleanos, texto y números de coma flotante."
+
+msgid "concurrent read-only threads polling ``COUNT(*)`` until the last writer exits. They move only ``reader_queries``, never ``expected_rows``; at least one is required, so a writers-only probe cannot be expressed. Must be a genuine positive integer."
+msgstr "hilos concurrentes de solo lectura que consultan ``COUNT(*)`` hasta que termina el último escritor. Solo modifican ``reader_queries``, nunca ``expected_rows``; se requiere al menos uno, por lo que no puede expresarse un sondeo solo con escritores. Debe ser un entero positivo auténtico."
+
+msgid "rows each writer inserts, one row per transaction. Must be a genuine positive integer."
+msgstr "filas que inserta cada escritor, una fila por transacción. Debe ser un entero positivo auténtico."
+
+msgid "mode applied once by the setup connection and then inherited by every worker connection. Only ``\"WAL\"`` (the default) and ``\"DELETE\"`` are accepted, case-insensitively; anything else raises :exc:`DatabaseConfigurationError` after the scratch database has already been created. ``None`` is refused: a stress result must state which locking mode it actually intended to exercise."
+msgstr "modo aplicado una vez por la conexión de preparación y heredado después por cada conexión de proceso de trabajo. Solo se aceptan ``\"WAL\"`` (predeterminado) y ``\"DELETE\"``, sin distinguir mayúsculas y minúsculas; cualquier otro valor lanza :exc:`DatabaseConfigurationError` después de que la base de datos desechable ya se haya creado. ``None`` se rechaza: un resultado de estrés debe indicar qué modo de bloqueo pretendía poner a prueba realmente."
+
+msgid "result whose ``journal_mode`` is read back from the finished database rather than echoed from this argument, and whose ``errors`` carry per-thread failures instead of raising."
+msgstr "resultado cuyo ``journal_mode`` se vuelve a leer de la base de datos terminada en lugar de copiarse de este argumento, y cuyos ``errors`` contienen los fallos por hilo en lugar de lanzar excepciones."
+
+msgid "when ``writers``, ``readers``, or ``writes_per_writer`` is below 1."
+msgstr "cuando ``writers``, ``readers`` o ``writes_per_writer`` es menor que 1."
+
+msgid "when one of the work sizes is not an integer. In particular, ``2.9`` is not silently truncated and ``\"2\"`` is not accepted merely because the CLI parser would have converted it."
+msgstr "cuando alguno de los tamaños de trabajo no es un entero. En particular, ``2.9`` no se trunca en silencio y ``\"2\"`` no se acepta solo porque el analizador de la CLI lo habría convertido."
+
+msgid "when ``journal_mode`` is not an explicit ``\"WAL\"`` or ``\"DELETE\"`` string."
+msgstr "cuando ``journal_mode`` no es una cadena explícita ``\"WAL\"`` o ``\"DELETE\"``."
+
+msgid "Run an all-or-nothing transaction with bounded lock retry."
+msgstr "Ejecuta una transacción de todo o nada con reintentos de bloqueo limitados."
+
+msgid "Only ``BEGIN`` is retried. Once a transaction starts, retrying individual statements could duplicate earlier writes. Any body or commit error rolls the complete transaction back and propagates."
+msgstr "Solo se reintenta ``BEGIN``. Una vez iniciada una transacción, reintentar sentencias individuales podría duplicar escrituras anteriores. Cualquier error del cuerpo o de la confirmación revierte la transacción completa y se propaga."
+
+msgid "calling thread's open autocommit connection."
+msgstr "conexión abierta con confirmación automática del hilo que llama."
+
+msgid "``DEFERRED``, ``IMMEDIATE`` (default), or ``EXCLUSIVE``."
+msgstr "``DEFERRED``, ``IMMEDIATE`` (predeterminado) o ``EXCLUSIVE``."
+
+msgid "maximum attempts to acquire the transaction."
+msgstr "número máximo de intentos para adquirir la transacción."
+
+msgid "first backoff between lock failures."
+msgstr "primer retroceso entre fallos de bloqueo."
+
+msgid "backoff cap."
+msgstr "límite del retroceso."
+
+msgid "total seconds this transaction may spend waiting on locks inside SQLite, shared over ``attempts`` and floored at ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per attempt. Omit to inherit the connection's configured ``busy_timeout``; pass it when the write's own tolerance differs from whatever ``timeout`` the connection happened to be opened with."
+msgstr "segundos totales que esta transacción puede pasar esperando bloqueos dentro de SQLite, repartidos entre ``attempts`` y con un mínimo de ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` por intento. Omítalo para heredar el ``busy_timeout`` configurado de la conexión; páselo cuando la tolerancia propia de la escritura difiera del ``timeout`` con el que se abrió la conexión."
+
+msgid "when the lock outlives the retry budget."
+msgstr "cuando el bloqueo dura más que el presupuesto de reintentos."
+
+msgid "when asked to nest inside an active transaction."
+msgstr "cuando se solicita anidarla dentro de una transacción activa."
+
+msgid "Is ``path`` on a filesystem where WAL is known to behave?"
+msgstr "¿Está ``path`` en un sistema de archivos en el que se sabe que WAL se comporta correctamente?"
+
+msgid "``True`` only for a POSITIVELY IDENTIFIED local filesystem. Anything else -- a network type, an unrecognised type, or a platform where :func:`filesystem_type` cannot tell (it reads ``/proc/mounts``, so macOS and Windows always answer ``None``) -- is ``False``."
+msgstr "``True`` solo para un sistema de archivos local IDENTIFICADO POSITIVAMENTE. Todo lo demás -- un tipo de red, un tipo no reconocido o una plataforma en la que :func:`filesystem_type` no puede saberlo (lee ``/proc/mounts``, así que macOS y Windows siempre responden ``None``) -- es ``False``."
+
+msgid "That asymmetry is the point. The cost of a wrong ``False`` is the lock contention this project already survives; the cost of a wrong ``True`` is WAL shared memory on storage that cannot support it, which is a corrupted database."
+msgstr "Esa asimetría es intencionada. El coste de un ``False`` erróneo es la contención de bloqueos que este proyecto ya soporta; el coste de un ``True`` erróneo es la memoria compartida WAL en un almacenamiento que no la admite, es decir, una base de datos dañada."
+
+msgid "the database file (or its directory) whose filesystem is looked up with :func:`filesystem_type`."
+msgstr "el archivo de base de datos (o su carpeta) cuyo sistema de archivos se consulta con :func:`filesystem_type`."
+
+msgid "Command-line SQLite health and concurrency audit."
+msgstr "Auditoría desde la línea de comandos del estado y la concurrencia de SQLite."
+
+msgid "Build the ``spacr-db-audit`` argument parser."
+msgstr "Construye el analizador de argumentos de ``spacr-db-audit``."
+
+msgid "parser for read-only database checks and disposable concurrency probes."
+msgstr "analizador para comprobaciones de base de datos de solo lectura y sondeos de concurrencia desechables."
+
+msgid "Inspect or probe SQLite and report one combined audit result."
+msgstr "Inspecciona o sondea SQLite e informa de un único resultado de auditoría combinado."
+
+msgid "command-line arguments without the program name; ``None`` reads the process arguments."
+msgstr "argumentos de línea de comandos sin el nombre del programa; ``None`` lee los argumentos del proceso."
+
+msgid "``0`` when every requested integrity check and probe passes, or ``1`` when any requested operation fails or raises an exception."
+msgstr "``0`` cuando se superan todas las comprobaciones de integridad y los sondeos solicitados, o ``1`` cuando alguna operación solicitada falla o lanza una excepción."
+
+msgid "with status ``2`` for invalid arguments or when neither a database nor ``--probe`` is supplied."
+msgstr "con el estado ``2`` ante argumentos no válidos o cuando no se proporciona ni una base de datos ni ``--probe``."
+

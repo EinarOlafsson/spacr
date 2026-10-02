@@ -1,0 +1,325 @@
+<!doctype html>
+<html class="no-js" lang="de" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Stichwortverzeichnis" href="genindex.html"><link rel="search" title="Suche" href="search.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>spaCR guide acceptance Dokumentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="#"><div class="brand">spaCR guide acceptance  Dokumentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+  
+  <span class="sidebar-brand-text">spaCR guide acceptance  Dokumentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Suche" name="q" aria-label="Suche">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/plate_barcode_linkage.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <aside class="spacr-guide-translation" lang="de" data-review-kind="AI technical review (Codex), no native-speaker signoff"><p class="spacr-guide-translation__label">Übersetztes Benutzerhandbuch</p><p>KI-gestützte technische Prüfung (Codex), keine Freigabe durch Muttersprachler. <span lang="en">(AI technical review (Codex), no native-speaker signoff)</span> <span class="spacr-guide-translation__swatch"></span>Absätze, die noch nicht übersetzt sind oder deren englisches Original sich geändert hat, erscheinen auf Englisch. <a href="../plate_barcode_linkage.html">Englisches Original</a></p></aside><section id="link-plate-barcodes-to-sample-metadata">
+<h1>Plattenbarcodes mit Probenmetadaten verknüpfen<a class="headerlink" href="#link-plate-barcodes-to-sample-metadata" title="Link to this heading">¶</a></h1>
+<p>Aktivieren Sie in <strong>Messen</strong> die Option <strong>Alpha-Funktionen anzeigen</strong> in den Einstellungen und öffnen Sie <strong>Plate Barcode Linkage (Alpha)</strong>. Setzen Sie <code class="docutils literal notranslate"><span class="pre">plate_barcode_source</span></code> auf eine Tabelle oder eine LIMS-Dienst-URL. Die Verknüpfung erfolgt nach der Messung.</p>
+<p>Eine lokale CSV-, TSV-, Excel- oder Parquet-Tabelle benötigt eine Barcodespalte, eine Well-Spalte und die anzuhängenden Probenmetadaten. Zum Beispiel:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">barcode</span><span class="p">,</span><span class="n">well</span><span class="p">,</span><span class="n">strain</span><span class="p">,</span><span class="n">compound</span><span class="p">,</span><span class="n">concentration</span>
+<span class="n">BC001</span><span class="p">,</span><span class="n">A01</span><span class="p">,</span><span class="n">RH</span><span class="p">,</span><span class="n">DMSO</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">BC001</span><span class="p">,</span><span class="n">A02</span><span class="p">,</span><span class="n">RH</span><span class="p">,</span><span class="n">pyrimethamine</span><span class="p">,</span><span class="mi">2</span>
+</pre></div>
+</div>
+<p>Setzen Sie <code class="docutils literal notranslate"><span class="pre">plate_barcode_column</span></code>, falls Ihre Barcodespalte anders heißt. <code class="docutils literal notranslate"><span class="pre">plate_barcodes</span></code> ordnet dem Namen einer abgebildeten Platte deren Barcode zu. Andernfalls liest spaCR <code class="docutils literal notranslate"><span class="pre">barcode.txt</span></code> im Plattenordner oder verwendet den Plattennamen. Behalten Sie aussagekräftige Konzentrationseinheiten in Ihren Metadaten bei.</p>
+<section id="link-during-convert">
+<h2>Verknüpfung beim Umrechnen<a class="headerlink" href="#link-during-convert" title="Link to this heading">¶</a></h2>
+<p>In <strong>Umrechnen</strong> aktivieren Sie <strong>Alpha-Funktionen anzeigen</strong> und wählen unter <strong>Plattenverknüpfung über Barcodes (Alpha)</strong> eine lokale CSV-Datei mit Probendatensätzen aus. Die CSV-Datei benötigt eine Barcode-Spalte, eine Well-Spalte und die gewünschten Probenfelder für den Plattenplan. Die Vorschau prüft die Verknüpfung, bevor Bilder geschrieben werden. Umrechnen verwendet die in der Vorschau angezeigten Ausgabeplattennamen; diese können von den Namen der Quellordner abweichen.</p>
+<p>Weisen Sie den Ausgabeplatten Barcodes im Format <code class="docutils literal notranslate"><span class="pre">plate1=BC001;</span> <span class="pre">plate2=BC002</span></code> zu oder legen Sie eine UTF-8-Datei <code class="docutils literal notranslate"><span class="pre">barcode.txt</span></code> im Stammordner der Aufnahme oder in einem tatsächlichen Quellplattenordner ab. Eine Datei mit nur einem Barcode ohne Zuordnung gilt nur, wenn dieser Ordner genau eine Quellplatte enthält. Für mehrere Platten schreiben Sie je einen Eintrag <code class="docutils literal notranslate"><span class="pre">source_plate=barcode</span></code>, getrennt durch Zeilenumbrüche oder Semikolons; die Schlüssel sind die Namen der <em>ursprünglichen Quellplatten</em>. Explizite Zuweisungen in Umrechnen verwenden die Namen der <em>Ausgabeplatten</em> und können noch fehlende Platten ergänzen. spaCR behält führende Nullen bei, lehnt mehrdeutige oder widersprüchliche Zuweisungen ab und verlangt für jede Ausgabeplatte einen Barcode.</p>
+<p>Nach einer vollständigen Konvertierung lesen Sie <code class="docutils literal notranslate"><span class="pre">plate_barcode_linkage/plate_map_lims.csv</span></code> im Zielordner. Prüfen Sie dort <code class="docutils literal notranslate"><span class="pre">plate_barcode_mismatches.csv</span></code> auf Wells ohne Zuordnung und andere Abweichungen. Der Abschlussnachweis <code class="docutils literal notranslate"><span class="pre">complete.json</span></code> wird zuletzt geschrieben; fehlt er, ist das Verknüpfungspaket unvollständig. Der Bildschirm Umrechnen zeigt eine begrenzte Vorschau der Abweichungen und die Pfade zu beiden CSV-Dateien. Originalbilder, Barcode-Dateien und vorhandene benutzereigene Plattenpläne bleiben unverändert. Dieser Ablauf in Umrechnen akzeptiert eine lokale CSV-Datei; für einen HTTP LIMS-Dienst verwenden Sie Messen.</p>
+</section>
+<section id="read-records-from-a-lims-service">
+<h2>Datensätze von einem LIMS-Dienst lesen<a class="headerlink" href="#read-records-from-a-lims-service" title="Link to this heading">¶</a></h2>
+<p>Verwenden Sie eine URL wie <code class="docutils literal notranslate"><span class="pre">https://lims.example/plates/{barcode}/wells</span></code>. spaCR setzt den kodierten Barcode ein. Ohne <code class="docutils literal notranslate"><span class="pre">{barcode}</span></code> wird ein Abfrageparameter <code class="docutils literal notranslate"><span class="pre">barcode</span></code> angefügt. Wenn eine Authentifizierung erforderlich ist, speichern Sie das Token in einer Umgebungsvariable und tragen Sie deren Namen in <code class="docutils literal notranslate"><span class="pre">plate_barcode_token_env</span></code> ein. Tragen Sie das Token nicht in die URL oder die Einstellungen ein.</p>
+<p>Der Dienst kann eine Liste von Well-Datensätzen oder ein Objekt zurückgeben, das diese Liste unter <code class="docutils literal notranslate"><span class="pre">wells</span></code>, <code class="docutils literal notranslate"><span class="pre">records</span></code>, <code class="docutils literal notranslate"><span class="pre">results</span></code>, <code class="docutils literal notranslate"><span class="pre">data</span></code> oder <code class="docutils literal notranslate"><span class="pre">items</span></code> enthält. Einfache Felder außerhalb der Liste liefern Metadatenvorgaben für deren Wells:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;strain&quot;</span><span class="p">:</span> <span class="s2">&quot;RH&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;wells&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;well&quot;</span><span class="p">:</span> <span class="s2">&quot;A01&quot;</span><span class="p">,</span> <span class="s2">&quot;compound&quot;</span><span class="p">:</span> <span class="s2">&quot;DMSO&quot;</span><span class="p">}],</span>
+  <span class="s2">&quot;next&quot;</span><span class="p">:</span> <span class="s2">&quot;?page=2&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>spaCR folgt <code class="docutils literal notranslate"><span class="pre">next</span></code>, <code class="docutils literal notranslate"><span class="pre">next_url</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;odata.nextLink</span></code> oder <code class="docutils literal notranslate"><span class="pre">links.next</span></code>. Der Link kann eine URL-Zeichenfolge oder ein Objekt mit einem Feld <code class="docutils literal notranslate"><span class="pre">href</span></code> sein. Relative Links werden anhand der Antwort-URL aufgelöst. Ein fehlender Link, null oder eine leere Zeichenfolge beendet die Liste. Metadatenvorgaben gelten auch auf Folgeseiten; explizite Felder eines Wells überschreiben diese Vorgaben. Paginierungsfelder werden nicht zu Probenmetadaten.</p>
+<p>Jeder Link und jede HTTP-Weiterleitung muss dasselbe Schema, denselben Host und denselben Port wie der ursprüngliche Dienst verwenden. Widersprüchliche Links und wiederholte Seiten sind Fehler. Die Erfassung ist auf 16 MiB je Antwort, 64 MiB je Abfrage, 1.000 Seitenadressen je Barcode und 100.000 Datensätze je Abfrage begrenzt. Ein Fehler beendet die Metadatenabfrage, ohne eine unvollständige Plattenzuordnung zurückzugeben. Bestehende Messergebnisse bleiben verfügbar. Herstellerspezifische Cursorprotokolle ohne URL für die nächste Seite benötigen einen separaten Adapter.</p>
+</section>
+<section id="inspect-the-result">
+<h2>Ergebnis prüfen<a class="headerlink" href="#inspect-the-result" title="Link to this heading">¶</a></h2>
+<p>Die ausgefüllte Zuordnung wird nach <code class="docutils literal notranslate"><span class="pre">measurements/plate_map_lims.csv</span></code> geschrieben. Sie füllt die Einstellung <code class="docutils literal notranslate"><span class="pre">profiling_metadata</span></code>, wenn diese leer ist. Sind Wirkstoff- und Konzentrationsspalten vorhanden, wird auch eine leere Einstellung <code class="docutils literal notranslate"><span class="pre">viability_plate_map</span></code> gefüllt. Eine bereits vorhandene benutzerdefinierte Zuordnung wird verglichen und nicht unbemerkt ersetzt.</p>
+<p>Prüfen Sie <code class="docutils literal notranslate"><span class="pre">measurements/plate_barcode_mismatches.csv</span></code> und das Protokoll auf fehlende Barcodes, gemeinsam verwendete Barcodes, nicht zugeordnete Wells, widersprüchliche Datensätze und Abweichungen von einer bestehenden Zuordnung. Klären Sie diese Abweichungen, bevor Sie Behandlungsvergleiche interpretieren.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Plattenbarcodes mit Probenmetadaten verknüpfen</a><ul>
+<li><a class="reference internal" href="#link-during-convert">Verknüpfung beim Umrechnen</a></li>
+<li><a class="reference internal" href="#read-records-from-a-lims-service">Datensätze von einem LIMS-Dienst lesen</a></li>
+<li><a class="reference internal" href="#inspect-the-result">Ergebnis prüfen</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=245627df"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/translations.js?v=9bf55d28"></script>
+    </body>
+</html>

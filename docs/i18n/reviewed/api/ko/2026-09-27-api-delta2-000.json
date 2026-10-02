@@ -1122,7 +1122,9 @@
       "source_sha256": "8268982be4a59a166687566f77cbff9be9c2eac1594319ea55bdbd0e07c7e097",
       "context": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding structured-data name (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks``; every later run of the same workflow on the same ``src`` is checked against it by :func:`check_analysis_lock`, and the verdict is written into that processing session's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
       "translation": "처리 기록 외에도 저널은 맹검 작업을 위한 두 가지 기록을 보관합니다. :func:`start_blinding` 은 맹검 키(코드화된 이름과 섞인 순서)를 ``~/.spacr/blinding`` 에 기록하고, :func:`unblind` 는 누가 언제 열었는지 기록합니다. :func:`lock_analysis` 는 분석 계획을 해시와 타임스탬프와 함께 ``~/.spacr/analysis_locks`` 에 고정합니다. 이후 같은 ``src`` 에서 같은 파이프라인으로 실행하는 모든 처리는 :func:`check_analysis_lock` 이 이에 대해 확인하며, 판정은 그 처리의 ``manifest.json`` 에 ``analysis_lock`` 아래로 기록되고 차이가 있으면 ``provenance_warnings`` 에도 나열됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#0",
@@ -1138,31 +1140,36 @@
       "source_sha256": "fa1d435e1c436efdb5877fa024be6c851d6d98011578205654eeacb7f952c4df",
       "context": "The lock is the newest one :func:`lock_analysis` made for ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting and every hashed file is compared.",
       "translation": "잠금을 넘기지 않으면 :func:`lock_analysis` 가 ``app_key`` 에 대해 설정의 ``src`` 에서 만든 가장 최신 잠금을 씁니다. 잠금은 먼저 자신의 해시와 대조되므로 편집된 잠금 파일은 잡혀 나오며, 그다음 모든 설정과 해시된 모든 파일을 비교합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
-      "label": "spacr.run_journal.check_analysis_lock#2",
+      "label": "spacr.run_journal.check_analysis_lock#3",
       "source": "the settings of the run being checked.",
       "source_sha256": "21c35046c8d05f886c15bdd8240f3c09c0e79b554dc0b7ae203f18b786ae19c0",
       "context": "the settings of the processing session being checked.",
       "translation": "확인 대상 처리의 설정입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#2"
     },
     {
-      "label": "spacr.run_journal.check_analysis_lock#3",
+      "label": "spacr.run_journal.check_analysis_lock#4",
       "source": "the pipeline running them.",
       "source_sha256": "09f82ec376a95edec730570ef26a0339cd6171afc441c2382de7f6f3fa6212e1",
       "context": "the workflow executing them.",
       "translation": "그 설정을 실행하는 파이프라인입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#3"
     },
     {
-      "label": "spacr.run_journal.check_analysis_lock#4",
+      "label": "spacr.run_journal.check_analysis_lock#5",
       "source": "a lock record to check against instead of the newest one.",
       "source_sha256": "04cfcc06ecb6198567eb63a5ad798f1401693b1357367656ab5724c2c8604e0f",
       "context": "a lock record to check against instead of the newest one.",
       "translation": "가장 최신 잠금 대신 대조할 잠금 기록입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#4"
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#5",
@@ -1170,7 +1177,9 @@
       "source_sha256": "b0c257c3fb76778206d96f0aaca390e18f89edf8aafb0abc32a1b129979b4626",
       "context": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, and no key on the folder has been unblinded since the lock), ``\"post_hoc\"`` (changed, and a key on the folder was unblinded after the lock), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``deviations`` (``key``, ``locked``, ``now``), ``unblinded_utc`` and a one-sentence ``summary``.",
       "translation": "``status``: ``\"unlocked\"``(적용되는 잠금 없음), ``\"verified\"``(변경 없음), ``\"deviation\"``(변경되었고 잠금 이후 폴더의 어떤 키도 맹검 해제되지 않음), ``\"post_hoc\"``(변경되었고 잠금 이후 폴더의 키가 맹검 해제됨), ``\"not_preregistered\"``(변경은 없지만 잠금이 맹검 해제 이후에 만들어짐), ``\"tampered\"``(잠금이 더 이상 해시와 일치하지 않음) 중 하나이며, ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``deviations``(``key``, ``locked``, ``now``), ``unblinded_utc``, 한 문장짜리 ``summary`` 가 함께 들어 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.lock_analysis#0",
@@ -1186,7 +1195,9 @@
       "source_sha256": "b39a0ffbfd1aa184adf4a8273c3ec2c2646fda3903cc42ea1165bc406dfc1da8",
       "context": "The settings, the stated hypotheses and thresholds, and the SHA-256 of every model, data-selection boundary or threshold file the settings name (plus ``files``) are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of ``app_key`` on the same ``src`` is checked against the newest lock by :func:`check_analysis_lock`; the verdict goes into the processing session's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
       "translation": "설정, 명시한 가설과 임곗값, 그리고 설정에 나오는 모든 모델, 게이트, 임곗값 파일의 SHA-256(``files`` 포함)을 시각과 사용자와 함께 ``~/.spacr/analysis_locks/<lock id>.json`` 에 기록하고 해시합니다. 그 뒤로 ``app_key`` 를 같은 ``src`` 에서 실행하는 모든 저널 기록 처리는 :func:`check_analysis_lock` 이 가장 최신 잠금과 대조하며, 판정은 그 처리의 ``manifest.json`` 에 들어가고 차이는 매니페스트 경고, 보고서, 방법 텍스트에 나열됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.lock_analysis#2",
@@ -1194,7 +1205,9 @@
       "source_sha256": "cf47343d42802b2c2950a7f9bd29025f6e5effa678455bf8687dcb0aaf51a6aa",
       "context": "A lock made after a blinding key on the same folder was unblinded is marked as such, because it was not made blind.",
       "translation": "같은 폴더의 맹검 키가 해제된 뒤에 만든 잠금은 맹검 상태에서 만든 것이 아니므로 그렇게 표시됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.lock_analysis#3",
@@ -1245,12 +1258,13 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.run_journal.lock_analysis#9",
+      "label": "spacr.run_journal.lock_analysis#12",
       "source": "the stored lock, including ``lock_id``, ``locked_utc`` and ``sha256``.",
       "source_sha256": "07d8ff4c8fd4fc1d666e2a6174a9471f98898a75a1efce1495955d616fe8c72b",
       "context": "the stored lock, including ``lock_id``, ``locked_utc`` and ``sha256``.",
       "translation": "저장된 잠금이며, ``lock_id``, ``locked_utc``, ``sha256`` 을 포함합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.lock_analysis#9"
     },
     {
       "label": "spacr.run_journal.start_blinding#0",
@@ -1370,7 +1384,9 @@
       "source_sha256": "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
       "context": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation (the factor R's ``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so the residuals agree with the B-score cellHTS2 computes.",
       "translation": "상수: ``MAD_SCALE`` 은 ``1 / Phi^-1(0.75)`` = 1.4826 으로, 정규 표본의 MAD 가 표준 편차를 추정하게 합니다(R 의 ``mad()`` 와 그에 따라 cellHTS2 가 적용하는 계수). ``SSMD_ESTIMATORS`` 는 ``mm``(적률법), ``umvue``(균일 최소 분산 불편) 및 ``robust``(중앙값/MAD, SSMD*)입니다. ``DEFAULT_HIT_THRESHOLDS`` 는 모든 통계량에서 3 입니다. SSMD 3 은 Zhang 이 말하는 \"strong\" 효과이고, 강건 시그마 3 은 강건 z 와 B 점수에 흔히 쓰는 기준입니다. ``MEDIAN_POLISH_MAX_ITER`` 와 ``MEDIAN_POLISH_EPS`` 는 R 의 ``medpolish`` 기본값(10 과 0.01)으로, 잔차가 cellHTS2 가 계산하는 B 점수와 일치하도록 유지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: the B-score constants/convergence overview now states the original cellHTS2 settings. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.sp_stats#6",

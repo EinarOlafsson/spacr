@@ -15,7 +15,6 @@ from __future__ import annotations
 import pytest
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QFontMetrics
-from PySide6.QtWidgets import QWidget
 
 from spacr.qt.screens.app_screen import HINT_STRIP_LINES
 
@@ -30,12 +29,13 @@ LONG = (
 
 
 @pytest.fixture(params=["mask", "classify_merged", "map_barcodes"])
-def screen(qtbot, request):
+def screen(qtbot, request, immediate_hover_help):
     from spacr.qt.screens.app_screen import AppScreen
     s = AppScreen(request.param)
     qtbot.addWidget(s)
     s.resize(1200, 900)
     s.show()
+    qtbot.waitExposed(s)
     return s
 
 
@@ -46,7 +46,7 @@ def _lines_used(strip) -> int:
     return max(1, round(rect.height() / max(1, metrics.lineSpacing())))
 
 
-def test_hovering_a_setting_pops_no_tooltip(screen, monkeypatch):
+def test_hovering_a_setting_pops_no_tooltip(screen, monkeypatch, immediate_hover_help):
     """One place, not two."""
     from spacr.qt.widgets.hover_tooltip import HoverTooltip
 
@@ -54,23 +54,21 @@ def test_hovering_a_setting_pops_no_tooltip(screen, monkeypatch):
     monkeypatch.setattr(HoverTooltip, "show_for",
                         lambda self, *a, **k: shown.append(a))
 
-    target = next((w for w in screen.findChildren(QWidget)
-                   if w.property("settingKey")), None)
+    target = next((w for w in screen._hint_map if w.isVisible()), None)
     if target is None:
         pytest.skip("this module renders no keyed setting rows")
 
-    screen.eventFilter(target, QEvent(QEvent.Enter))
+    immediate_hover_help(target, lambda: screen._hint_strip.text() != screen._default_hint())
     assert shown == [], "the sticky popup was shown as well as the strip"
 
 
-def test_hovering_a_setting_writes_the_strip(screen):
-    target = next((w for w in screen.findChildren(QWidget)
-                   if w.property("settingKey")), None)
+def test_hovering_a_setting_writes_the_strip(screen, immediate_hover_help):
+    target = next((w for w in screen._hint_map if w.isVisible()), None)
     if target is None:
         pytest.skip("this module renders no keyed setting rows")
 
     before = screen._hint_strip.text()
-    screen.eventFilter(target, QEvent(QEvent.Enter))
+    immediate_hover_help(target, lambda: screen._hint_strip.text() != screen._default_hint())
     assert screen._hint_strip.text() != before
 
 
@@ -114,7 +112,7 @@ def test_the_link_costs_a_line_rather_than_overflowing(screen):
     assert _lines_used(screen._hint_strip) <= HINT_STRIP_LINES
 
 
-def test_leaving_a_setting_holds_the_help_rather_than_blanking_it(screen):
+def test_leaving_a_setting_holds_the_help_rather_than_blanking_it(screen, immediate_hover_help):
     """The pointer leaving is how the user reaches the API link.
 
     The strip's help carries a link, and the only way to click it is to move
@@ -123,11 +121,10 @@ def test_leaving_a_setting_holds_the_help_rather_than_blanking_it(screen):
     existed only while the pointer was somewhere it could not be clicked
     from. So the help is HELD instead, and released on a timer.
     """
-    target = next((w for w in screen.findChildren(QWidget)
-                   if w.property("settingKey")), None)
+    target = next((w for w in screen._hint_map if w.isVisible()), None)
     if target is None:
         pytest.skip("this module renders no keyed setting rows")
-    screen.eventFilter(target, QEvent(QEvent.Enter))
+    immediate_hover_help(target, lambda: screen._hint_strip.text() != screen._default_hint())
     held = screen._hint_strip.text()
     assert held != screen._default_hint(), "nothing was shown to hold"
 
@@ -136,13 +133,12 @@ def test_leaving_a_setting_holds_the_help_rather_than_blanking_it(screen):
     assert screen._hint_strip.text() == held, "the help was dropped on Leave"
 
 
-def test_the_held_help_goes_away_when_the_hold_runs_out(screen):
+def test_the_held_help_goes_away_when_the_hold_runs_out(screen, immediate_hover_help):
     """Held is not permanent: the prompt comes back when the timer fires."""
-    target = next((w for w in screen.findChildren(QWidget)
-                   if w.property("settingKey")), None)
+    target = next((w for w in screen._hint_map if w.isVisible()), None)
     if target is None:
         pytest.skip("this module renders no keyed setting rows")
-    screen.eventFilter(target, QEvent(QEvent.Enter))
+    immediate_hover_help(target, lambda: screen._hint_strip.text() != screen._default_hint())
     screen.eventFilter(target, QEvent(QEvent.Leave))
 
     screen._release_the_hint()

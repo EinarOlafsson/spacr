@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/tmp/spacr-implementation-20261001/n358-playwright-env/bin/python",
+    "-u",
+    "/tmp/spacr-implementation-20261001/f489-publication/playback.py"
+  ],
+  "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r7a7b70a99a9b4571b8f2fd8adb068f4c.scope",
+  "limits": {
+    "memory.max": "4294967296",
+    "memory.swap.max": "0",
+    "cpu_affinity": [
+      0
+    ],
+    "cpu.max": null,
+    "systemd_properties": [
+      "CPUQuotaPerSecUSec=1s",
+      "MemoryMax=4294967296",
+      "MemorySwapMax=0"
+    ]
+  }
+}

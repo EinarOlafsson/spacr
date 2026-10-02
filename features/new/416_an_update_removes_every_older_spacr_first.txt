@@ -24,6 +24,14 @@ Status:    DONE ON REAL WINDOWS, macOS AND LINUX RUNNERS 2026-09-21 (a CI run
            here has run on a real Windows or Mac. Remaining: real runs on each
            OS, tick boxes inside the installers, a live end-to-end run of the
            post-exit helper, macOS removals that need admin rights.)
+Current macOS online update exception (2026-10-01): N627 supersedes removal
+of the running private environment during an in-app macOS online update.
+The user requests an existing-environment uv upgrade and automatic relaunch.
+Deleting that environment caused first-install prompts and restored an older
+installer-pinned package. Full installer and other platform behavior remains
+separate; see 627_macos_update_existing_environment_and_relaunch.txt for
+implementation and native acceptance status.
+
 Requested: 2026-09-15, by the maintainer, in these words (item 3 of three):
            "when updating spacr, the updater must first remove the older
            version of spacr, from all locations, on all operating systems, so

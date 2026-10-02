@@ -40,8 +40,9 @@ seconds; pip then fills it from PyPI, where all three projects publish. Its
 one limit is that the environment's Python is a Python already on the
 computer: spaCR's own when it is in the range a backend's pins install on,
 otherwise a ``python3.X`` on PATH (or ``py -3.X`` on Windows). When there is
-none, the row says so -- "not installable here" with the reason -- rather
-than half-building something.
+none, CellProfiler can use bundled or PATH uv to download a private Python
+3.9 under the backend root. Other backends, or machines without uv, report
+the missing interpreter before building anything.
 
 THE PROTOCOL, version :data:`_PROTOCOL`: one JSON object per line in each
 direction over the worker's stdin and stdout. The worker moves its own
@@ -604,7 +605,7 @@ _SPECS = {
         probe=("omnipose.core", "cellpose_omni.models"),
         distribution="omnipose",
         requirements=("omnipose==1.1.4", "ncolor==1.5.3"),
-        torch=("torch", "torchvision"), python=((3, 11), (3, 13)),
+        torch=("torch", "torchvision"), python=((3, 11), (3, 12)),
         licence="Omnipose NonCommercial License (University of Washington)",
         licence_note=(
             "Omnipose is NOT open source: omnipose 1.1.4 carries the "
@@ -882,7 +883,8 @@ _SPECS = {
             "pipeline from Measure: spaCR hands it each field's channels "
             "and masks as TIFFs and brings its per-object measurements back "
             "into measurements.db keyed by spaCR's object ids. It needs a "
-            "Python 3.8 or 3.9 on this computer to build its environment."),
+            "Python 3.8 or 3.9. If neither is available, bundled or PATH uv "
+            "downloads a private Python 3.9 for this backend."),
         published=(
             "Published results: Stirling et al., 'CellProfiler 4: "
             "improvements in speed, utility and usability', BMC "
@@ -1558,6 +1560,89 @@ def _nearest_existing(path):
     return path
 
 
+def _provisioning_uv(spec):
+    """Find bundled or PATH uv for CellProfiler without running any command."""
+    if spec.name != _CELLPROFILER:
+        return None
+    executable = "uv.exe" if os.name == "nt" else "uv"
+    bundled = os.path.join(os.path.dirname(sys.prefix), "bootstrap", executable)
+    if os.path.isfile(bundled) and os.access(bundled, os.X_OK):
+        return bundled
+    return shutil.which(executable)
+
+
+def _provision_python(spec, root, *, runner=None, cancel=None, progress=None):
+    """Prepare a backend-owned Python with uv, only during explicit Install.
+
+    The managed interpreter lives outside the replaceable backend venv.
+    Downloads and their cache stay under the backend root; no executables
+    are added to PATH. A failed download can be retried through uv's own
+    atomic installation. Every command uses the cancellable install runner.
+    """
+    uv = _provisioning_uv(spec)
+    if not uv:
+        raise _InstallBlocked("CellProfiler needs Python 3.8 or 3.9, or uv "
+                              "on PATH to download a private Python 3.9.")
+    root = os.path.realpath(root)
+    managed = os.path.join(root, ".cellprofiler-python")
+    cache = os.path.join(managed, "cache")
+    if os.path.realpath(managed) != managed or os.path.realpath(cache) != cache:
+        raise _InstallBlocked("The managed Python folder or cache points "
+                              "outside its backend location.")
+    environment = os.environ.copy()
+    for key in ("PYTHONHOME", "PYTHONPATH", "VIRTUAL_ENV"):
+        environment.pop(key, None)
+    environment.update(UV_PYTHON_INSTALL_DIR=managed,
+                       UV_CACHE_DIR=cache, UV_PYTHON_INSTALL_BIN="0",
+                       UV_PYTHON_INSTALL_REGISTRY="0")
+    label = "Prepare compatible Python"
+    report = progress or (lambda *args: None)
+    report(0, 1, label)
+    log_path = os.path.join(root, f"{spec.name}.log")
+    with open(log_path, "a", encoding="utf-8") as log:
+        def _command(argv):
+            """Log and run one cancellable provisioning command."""
+            if cancel is not None and cancel.is_set():
+                raise _InstallCancelled("the install was cancelled")
+            log.write(f"$ {_quote(argv)}\n")
+            log.flush()
+
+            def _line(text):
+                """Stream provisioning output into the install log and UI."""
+                log.write(text + "\n")
+                log.flush()
+                report(0, 1, f"{label}: {text}")
+
+            code, tail = (runner or _run_step)(
+                argv, env=environment, cwd=root, on_line=_line, cancel=cancel)
+            if code:
+                raise _InstallFailed(
+                    f"{label} failed (exit {code}): " + "\n".join(tail[-40:])
+                    + f"\nThe whole log is {log_path}.")
+            return tail
+
+        _command((uv, "--no-config", "python", "install", "3.9",
+                  "--managed-python", "--no-bin", "--no-registry"))
+        lines = _command((uv, "--no-config", "python", "find", "3.9",
+                          "--managed-python", "--no-project",
+                          "--no-python-downloads"))
+        paths = [line.strip() for line in lines if os.path.isabs(line.strip())
+                 and os.path.isfile(line.strip())]
+        if len(paths) != 1:
+            raise _InstallBlocked("uv did not return one managed Python path.")
+        python = os.path.realpath(paths[0])
+        try:
+            contained = os.path.commonpath((managed, python)) == managed
+        except ValueError:
+            contained = False
+        if not contained:
+            raise _InstallBlocked("uv returned Python outside its backend folder.")
+        lines = _command((python, "-I", "-c", _INTERPRETER_CHECK))
+        if not lines or lines[-1].strip() != "3.9":
+            raise _InstallBlocked("The managed interpreter is not Python 3.9.")
+    return (python,)
+
+
 def _static_blocker(spec, root, candidates):
     """What stops ``spec`` being installed here, from facts that need no
     network and no subprocess; ``''`` when nothing does."""
@@ -1566,7 +1651,7 @@ def _static_blocker(spec, root, candidates):
     if _worker_path() is None:
         return ("this spaCR build ships no Python source for a backend "
                 "worker to run.")
-    if not candidates:
+    if not candidates and not _provisioning_uv(spec):
         lo, hi = (_versions(p) for p in spec.python)
         return (f"{spec.label} needs Python {lo} to {hi}. spaCR runs "
                 f"Python {_versions(sys.version_info[:2])}, and no Python "
@@ -2606,7 +2691,8 @@ def _remove_tree(path, root):
         shutil.rmtree(path, onerror=_retry)
 
 
-def _preflight(spec, root, *, run=None, probe=None):
+def _preflight(spec, root, *, run=None, probe=None, runner=None, cancel=None,
+               progress=None):
     """Check this computer can build ``spec``'s environment; pick its Python.
 
     Writable folder, free disk, a reachable package index, and a Python in
@@ -2661,6 +2747,9 @@ def _preflight(spec, root, *, run=None, probe=None):
         if lo <= got <= hi:
             return tuple(candidate)
         tried.append(f"{shown} is Python {_versions(got)}")
+    if _provisioning_uv(spec):
+        return _provision_python(spec, root, runner=runner, cancel=cancel,
+                                 progress=progress)
     reason = (f"no Python {_versions(lo)} to {_versions(hi)} that can build "
               f"an environment was found")
     if tried:
@@ -2711,17 +2800,27 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
     report(0, 1, "Checking this computer can install it")
     _acquire_lock(root, spec.name)
     log_path = os.path.join(root, f"{spec.name}.log")
+    build_started = False
     try:
-        interpreter = (preflight or _preflight)(spec, root)
+        with open(log_path, "w", encoding="utf-8"):
+            pass
+        if cancel is not None and cancel.is_set():
+            raise _InstallCancelled("the install was cancelled")
+        interpreter = (preflight(spec, root) if preflight else
+                       _preflight(spec, root, runner=runner, cancel=cancel,
+                                  progress=progress))
+        if cancel is not None and cancel.is_set():
+            raise _InstallCancelled("the install was cancelled")
         _PROBED.pop(spec.name, None)
         if os.path.lexists(env):
             _shutdown_workers(spec.name)
             _remove_tree(env, root)
+        build_started = True
         index = _torch_index_url() if torch_index is None else (torch_index or None)
         steps = _install_plan(spec, env, interpreter, torch_index=index,
                               worker=worker)
         hello = None
-        with open(log_path, "w", encoding="utf-8") as log:
+        with open(log_path, "a", encoding="utf-8") as log:
             for number, step in enumerate(steps):
                 report(number, len(steps), step.label)
                 log.write(f"$ {_quote(step.argv)}\n")
@@ -2764,7 +2863,7 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
         })
         report(len(steps), len(steps), f"{spec.label} is installed")
     except BaseException:
-        if os.path.lexists(env):
+        if build_started and os.path.lexists(env):
             try:
                 _remove_tree(env, root)
             except (OSError, RuntimeError):
@@ -3212,7 +3311,8 @@ def _n2v_worker(root=None, worker_for=None):
 
 
 def _n2v_train(images, output, *, epochs=20, seed=0, device=None, root=None,
-               worker_for=None, should_cancel=None):
+               worker_for=None, should_cancel=None, struct_axes=None,
+               struct_span=5):
     """Train a Noise2Void (N2V2) denoiser on noisy planes, in CAREamics' own
     environment, with no clean targets.
 
@@ -3229,6 +3329,12 @@ def _n2v_train(images, output, *, epochs=20, seed=0, device=None, root=None,
     :param root: the backends folder.
     :param worker_for: :func:`_worker_for`, or a stand-in for tests.
     :param should_cancel: polled while it trains; True stops the worker.
+    :param struct_axes: None for plain N2V2, or ``'horizontal'``,
+        ``'vertical'``, ``'cross'`` or ``'square'`` for structN2V, which also
+        hides the pixels along that axis next to each masked pixel so noise
+        correlated along camera rows or columns is not learned as signal.
+    :param struct_span: the structN2V mask's width in pixels, an odd
+        number centred on the masked pixel.
     :returns: the training record: the checkpoint, the losses per epoch, the patch and batch sizes, the device, the seconds and
         CAREamics' version.
     :raises ImportError: when CAREamics is not installed.
@@ -3257,7 +3363,9 @@ def _n2v_train(images, output, *, epochs=20, seed=0, device=None, root=None,
             "n2v_train", should_cancel=should_cancel, inputs=inputs,
             output=output, epochs=int(epochs), seed=int(seed),
             patch=_N2V_PATCH, batch=_N2V_BATCH, device=device or "auto",
-            work=os.path.join(folder, "work"))
+            work=os.path.join(folder, "work"),
+            **({"struct_axes": str(struct_axes), "struct_span": int(struct_span)}
+               if struct_axes else {}))
     return {key: value for key, value in reply.items()
             if key not in ("protocol", "id", "ok")}
 
@@ -3336,7 +3444,9 @@ class _RemoteBackend:
         """Segment each image of a batch in the backend's worker.
 
         :param x: a 2-D image, or a list of ``(H, W)`` / ``(H, W, C)``
-            images.
+            images. For a custom StarDist3D model, ``do_3D=True`` accepts
+            one ``(Z, Y, X)`` or ``(Z, Y, X, C)`` volume, or a list of
+            volumes, with explicit ``z_axis`` and positive ``anisotropy``.
         :param normalize: a bool, or Cellpose 3's normalization dict such
             as ``{"normalize": True, "percentile": [1, 99]}``.
         :param augment: Cellpose 3's test-time augmentation; sent only when
@@ -3344,15 +3454,22 @@ class _RemoteBackend:
         :param should_cancel: polled while the worker runs; True stops it.
         :param cellpose_only: other Cellpose arguments, accepted so the call
             site is the same as Cellpose's.
-        :returns: ``(masks, flows, None)`` with one entry per image.
+        :returns: ``(masks, flows, None)`` with one entry per image. A single
+            StarDist3D volume returns one label array and one flows entry,
+            preserving the spatial axis order of that volume.
         :raises _BackendError: with the backend's own message.
         """
-        images = _eval_images(x)
+        volume = self.name == _STARDIST and bool(cellpose_only.get("do_3D"))
+        single_volume = volume and isinstance(x, np.ndarray)
+        images = [x] if single_volume else _eval_images(x)
         params = {"channel_axis": channel_axis, "normalize": normalize,
                   "diameter": diameter, "flow_threshold": flow_threshold,
                   "cellprob_threshold": cellprob_threshold,
                   "min_size": min_size, "resample": resample,
                   "batch_size": batch_size, "augment": augment}
+        if volume:
+            params.update({key: cellpose_only.get(key) for key in
+                           ("do_3D", "z_axis", "anisotropy")})
         params = {k: _plain(v) for k, v in params.items() if v is not None}
         worker = self._worker_for(self.name, self.env)
         scratch = tempfile.mkdtemp(prefix="spacr-backend-")
@@ -3379,6 +3496,8 @@ class _RemoteBackend:
             raise _BackendError(
                 f"The {self.label} backend returned {len(masks)} masks for "
                 f"{len(images)} images.")
+        if single_volume:
+            return masks[0], flows[0], None
         return masks, flows, None
 
     def _report(self, reply):
@@ -4028,20 +4147,27 @@ class _PrefixedAdapter:
                 self.ignored.add(key)
 
     def eval(self, x, channel_axis=-1, min_size=None, **params):
-        """Segment each image's object channel.
+        """Segment each image, keeping the selected input for this backend.
 
         :param x: a list of ``(H, W)`` or ``(H, W, C)`` images; the first
             channel is the object's own, as ``_get_cellpose_channels``
-            orders them.
-        :param min_size: objects smaller than this many pixels are removed.
+            orders them. A StarDist3D model instead takes a list of volumes
+            with ``do_3D=True``, explicit ``z_axis`` and ``anisotropy``.
+        :param min_size: objects smaller than this many pixels, or voxels
+            for a native volume, are removed.
         :param params: the rest of the Cellpose-SAM call.
         :returns: ``(masks, flows, None)``, one entry per image.
         """
         self._note(params)
+        if self.name == _STARDIST and getattr(self, "_ndim", 2) == 3:
+            return _stardist_volume_batch(self, x, channel_axis, min_size, params)
+        if params.get("do_3D"):
+            raise ValueError("Native volumetric segmentation needs a StarDist3D model folder")
         masks, flows = [], []
         for image in x:
             plane = _object_plane(image, channel_axis)
-            labels, parts = self._segment(plane, **params)
+            labels, parts = self._segment(
+                self._input_image(image, channel_axis), **params)
             labels = np.asarray(labels)
             if labels.shape != plane.shape:
                 raise ValueError(
@@ -4057,14 +4183,117 @@ class _PrefixedAdapter:
                 None])
         return masks, flows, None
 
+    def _input_image(self, image, channel_axis):
+        """Use the object's first channel unless a backend supports more."""
+        return _object_plane(image, channel_axis)
+
     def _segment(self, plane, **params):
         """``(labels, [RGB flow, dP, probability])`` for one 2-D plane;
         any of the three may be None, and the list may be shorter."""
         raise NotImplementedError
 
 
+def _stardist_model_ndim(model):
+    """Read a custom model's dimensionality without loading TensorFlow."""
+    path = os.path.join(os.fspath(model), "config.json")
+    if not os.path.isfile(path):
+        return 2
+    with open(path, "rb") as handle:
+        content = handle.read(1024 * 1024 + 1)
+    if len(content) > 1024 * 1024:
+        raise ValueError("StarDist config.json exceeds the 1 MiB metadata limit")
+    config = json.loads(content)
+    ndim = config.get("n_dim") if isinstance(config, dict) else None
+    if type(ndim) is not int or ndim not in (2, 3):
+        raise ValueError("StarDist config.json must declare n_dim as 2 or 3")
+    if ndim == 3 and (config.get("axes") != "ZYXC"
+                      or config.get("n_channel_in") != 1):
+        raise ValueError("StarDist3D requires a single-channel ZYXC model")
+    return ndim
+
+
+def _stardist_volume_input(image, channel_axis, z_axis):
+    """Return the object's ZYX volume and the original spatial z axis."""
+    arr = np.asarray(image)
+    if arr.ndim not in (3, 4) or not arr.size:
+        raise ValueError("StarDist3D needs a nonempty ZYX or ZYXC volume")
+    if not isinstance(z_axis, (int, np.integer)) or not -arr.ndim <= z_axis < arr.ndim:
+        raise ValueError("StarDist3D needs an explicit z_axis")
+    z_axis = int(z_axis) % arr.ndim
+    if arr.ndim == 4:
+        if (not isinstance(channel_axis, (int, np.integer))
+                or not -arr.ndim <= channel_axis < arr.ndim):
+            raise ValueError("StarDist3D needs an explicit channel_axis for 4-D input")
+        channel_axis = int(channel_axis) % arr.ndim
+        if channel_axis == z_axis:
+            raise ValueError("StarDist3D channel_axis and z_axis must differ")
+        arr = np.take(arr, 0, axis=channel_axis)
+        z_axis -= int(channel_axis < z_axis)
+    volume = np.moveaxis(arr, z_axis, 0)
+    if volume.shape[0] < 2 or not np.isfinite(volume).all():
+        raise ValueError("StarDist3D needs at least two finite z planes")
+    return volume, z_axis
+
+
+def _stardist_volume_batch(adapter, images, channel_axis, min_size, params):
+    """Predict native 3-D instances one volume at a time and restore its grid."""
+    from csbdeep.utils import normalize as percentile_normalize
+
+    if not params.get("do_3D"):
+        raise ValueError("A StarDist3D model requires native volumetric do_3D=True")
+    anisotropy = float(params.get("anisotropy") or 0)
+    if not np.isfinite(anisotropy) or anisotropy <= 0:
+        raise ValueError("StarDist3D needs a positive finite input anisotropy")
+    trained = getattr(adapter._model.config, "anisotropy", None)
+    trained = np.asarray([1, 1, 1] if trained is None else trained, dtype=float)
+    if (trained.shape != (3,) or not np.isfinite(trained).all()
+            or np.any(trained <= 0) or not np.isclose(trained[1], trained[2])):
+        raise ValueError("StarDist3D model anisotropy must have positive Z and equal XY spacing")
+    diameter = params.get("diameter")
+    xy_scale = _STARDIST_DIAMETER / float(diameter) if diameter and float(diameter) > 0 else 1.
+    scale = (float(xy_scale * anisotropy / (trained[0] / trained[1])), xy_scale, xy_scale)
+    if not all(np.isfinite(value) and value > 0 for value in scale):
+        raise ValueError("StarDist3D scale must be positive and finite")
+    adapter.translated.add(
+        f"anisotropy={anisotropy:g} became StarDist3D ZYX scale={scale} "
+        "relative to the model's training geometry; labels retain the input grid")
+    if params.get("normalize") is False:
+        adapter.translated.add("normalize=False became StarDist's 1-99.8 percentile normalisation")
+    threshold = params.get("cellprob_threshold")
+    if threshold not in (None, 0, 0.0):
+        threshold = _probability_threshold(threshold)
+        adapter.translated.add(f"cellprob_threshold became StarDist prob_thresh={threshold:.3f}")
+    else:
+        threshold = None
+    masks, flows = [], []
+    for raw in images:
+        volume, original_z_axis = _stardist_volume_input(raw, channel_axis, params.get("z_axis"))
+        image = percentile_normalize(np.asarray(volume, np.float32), 1, 99.8, axis=(0, 1, 2))
+        scaled_shape = tuple(max(1, round(size * factor)) for size, factor in zip(image.shape, scale))
+        guess = getattr(adapter._model, "_guess_n_tiles", None)
+        tiles = guess(np.broadcast_to(np.uint8(0), scaled_shape)) if callable(guess) else None
+        (labels, _details), (probability, _distances) = adapter._model.predict_instances(
+            image, axes="ZYX", prob_thresh=threshold, n_tiles=tiles, scale=scale,
+            show_tile_progress=False, return_predict=True, verbose=False)
+        labels = np.asarray(labels)
+        if (labels.shape != volume.shape or not np.issubdtype(labels.dtype, np.integer)
+                or np.any(labels < 0)):
+            raise ValueError("StarDist3D returned invalid labels or a different volume shape")
+        probability = np.asarray(probability, np.float32)
+        if probability.ndim != 3 or not probability.size:
+            raise ValueError("StarDist3D returned an invalid probability volume")
+        for axis, size in enumerate(volume.shape):
+            positions = np.minimum(
+                ((np.arange(size) + .5) * probability.shape[axis] / size).astype(np.intp),
+                probability.shape[axis] - 1)
+            probability = np.take(probability, positions, axis=axis)
+        masks.append(np.moveaxis(_drop_small(labels, min_size), 0, original_z_axis))
+        flows.append([None, None, np.moveaxis(probability, 0, original_z_axis), None])
+    return masks, flows, None
+
+
 class _StarDistAdapter(_PrefixedAdapter):
-    """StarDist 2-D, inside its own TensorFlow environment (item 551).
+    """StarDist 2-D and 3-D, inside its own TensorFlow environment (item 551).
 
     A named model is StarDist's own pretrained one, which StarDist
     downloads and checks against its pinned digest; a path is a StarDist
@@ -4084,6 +4313,15 @@ class _StarDistAdapter(_PrefixedAdapter):
     those are named as not honoured. The minimum size is applied to its
     objects. Large planes are tiled as StarDist itself guesses.
 
+    A custom model whose ``config.json`` declares ``n_dim=3``, ``ZYXC``
+    axes and one input channel uses StarDist3D. Native volumetric calls
+    normalise the whole object's volume, then scale Z relative to the
+    model's training anisotropy; a diameter applies the same XY scale as
+    the 2-D route. Labels and probability return on the original spatial
+    grid. Input anisotropy must be explicitly positive; it does not supply
+    a physical micrometre calibration. Projection, plane stitching and
+    time-series calls are refused for a 3-D model.
+
     :param model: a name from :data:`_STARDIST_MODELS` or a model folder.
     :param device: accepted for the shared signature; TensorFlow places
         the network itself.
@@ -4100,11 +4338,14 @@ class _StarDistAdapter(_PrefixedAdapter):
         if models_module is None:
             from stardist import models as models_module
         self.model = model
+        self._ndim = _stardist_model_ndim(model)
         if model in _STARDIST_MODELS:
             self._model = models_module.StarDist2D.from_pretrained(model)
         elif os.path.isdir(model):
             folder = os.path.abspath(model)
-            self._model = models_module.StarDist2D(
+            model_class = (models_module.StarDist3D if self._ndim == 3
+                           else models_module.StarDist2D)
+            self._model = model_class(
                 None, name=os.path.basename(folder),
                 basedir=os.path.dirname(folder))
         else:
@@ -4154,9 +4395,10 @@ class _InstanSegAdapter(_PrefixedAdapter):
     unless the model setting ends in ``#nuclei`` or ``#cells``. A model
     with one output ignores it.
 
-    THE SETTINGS. InstanSeg normalises each plane to its own percentiles,
-    as it was trained, whatever ``normalize`` says (spaCR's scaling is
-    linear, so this is the normalisation of the raw plane). InstanSeg
+    THE INPUT. The requested object's channel comes first, followed by the
+    other configured intensity channels. InstanSeg receives all of them in
+    channel-first order and normalises them to its training percentiles,
+    whatever ``normalize`` says (spaCR's scaling is linear). InstanSeg
     rescales by pixel size, and spaCR's mask settings carry none, so a
     diameter is given to it as the pixel size that makes the objects
     :data:`_INSTANSEG_DIAMETER` pixels across at the model's own pixel
@@ -4212,16 +4454,27 @@ class _InstanSegAdapter(_PrefixedAdapter):
             return None
         return float(native) * _INSTANSEG_DIAMETER / float(diameter)
 
+    def _input_image(self, image, channel_axis):
+        """Keep every selected intensity channel for InstanSeg's model."""
+        array = np.asarray(image)
+        if array.ndim == 2:
+            return array
+        axis = -1 if channel_axis is None else channel_axis
+        return np.moveaxis(array, axis, -1)
+
     def _segment(self, plane, normalize=True, diameter=None, **other):
-        """InstanSeg's instances of the chosen target for one plane."""
+        """InstanSeg's instances from a plane or channel-last image."""
         if normalize is False:
             self.translated.add(
                 "normalize=False became InstanSeg's own percentile "
                 "normalisation, which its models were trained on")
-        image = np.asarray(plane, np.float32)[np.newaxis]
+        array = np.asarray(plane, np.float32)
+        image = (array[np.newaxis] if array.ndim == 2 else
+                 np.moveaxis(array, -1, 0))
         pixel_size = self._pixel_size(diameter)
         choose = getattr(self._model, "_get_eval_function_to_use", None)
-        size = choose(plane.size) if callable(choose) else "small"
+        pixels = array.shape[0] * array.shape[1]
+        size = choose(pixels) if callable(choose) else "small"
         if size == "small":
             labels = self._model.eval_small_image(
                 image, pixel_size=pixel_size, normalise=True,
@@ -4791,6 +5044,76 @@ def _cellprofiler_started(adapters):
     return adapters["cellprofiler"]
 
 
+def _cellprofiler_capture_labels(workspace, output):
+    """Save bounded final 2D object planes without modifying their pixels.
+
+    Unsupported, cropped, or oversized objects have an explicit empty path
+    list so the importer does not guess from their centres. At most 64 planes
+    and 256 MiB are written per image set; each plane has at most 16M pixels.
+    """
+    captured = {}
+    number = int(workspace.measurements.image_set_number)
+    planes_written, bytes_written = 0, 0
+    for index, name in enumerate(workspace.object_set.object_names):
+        captured[name] = []
+        paths = []
+        try:
+            objects = workspace.object_set.get_objects(name)
+            parent = objects.parent_image
+            if parent is not None and getattr(parent, "has_crop_mask", False):
+                raise ValueError("cropped object coordinates")
+            planes = objects.get_labels()
+            if not isinstance(planes, (list, tuple)) or len(planes) > 64:
+                raise ValueError("too many object planes")
+            for plane_index, (labels, _indices) in enumerate(planes):
+                labels = np.asarray(labels)
+                if (labels.ndim != 2 or labels.dtype.kind not in "iu"
+                        or labels.size > 16 * 1024 * 1024
+                        or planes_written >= 64
+                        or bytes_written + labels.nbytes > 256 * 1024 * 1024):
+                    raise ValueError("unsupported or oversized object plane")
+                path = os.path.join(output,
+                    f"labels_{number}_{index}_{plane_index}.npy")
+                np.save(path, labels, allow_pickle=False)
+                paths.append(path)
+                planes_written += 1
+                bytes_written += labels.nbytes
+            captured[name] = paths
+        except (AttributeError, OSError, TypeError, ValueError) as exc:
+            LOG.warning("CellProfiler overlap unavailable for %s image %s: %s",
+                        name, number, exc)
+            for path in paths:
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+    return captured
+
+
+def _cellprofiler_run_with_labels(pipeline, output):
+    """Observe the last successful module per image, returning measurements and paths."""
+    labels = {}
+    modules = list(pipeline.modules())
+    if not modules:
+        return pipeline.run(), labels
+    final_module = modules[-1]
+    run_module = pipeline.run_module
+
+    def _capture_module(module, workspace):
+        """Run the original module, then persist final object label planes."""
+        result = run_module(module, workspace)
+        if module is final_module:
+            labels[str(int(workspace.measurements.image_set_number))] = (
+                _cellprofiler_capture_labels(workspace, output))
+        return result
+
+    pipeline.run_module = _capture_module
+    try:
+        return pipeline.run(), labels
+    finally:
+        pipeline.run_module = run_module
+
+
 def _worker_run_cellprofiler(request, adapters):
     """Run one CellProfiler pipeline on a list of images.
 
@@ -4823,7 +5146,7 @@ def _worker_run_cellprofiler(request, adapters):
     pipeline = Pipeline()
     pipeline.load(pipeline_path)
     pipeline.add_pathnames_to_file_list(files)
-    measurements = pipeline.run()
+    measurements, label_images = _cellprofiler_run_with_labels(pipeline, output)
     if measurements is None:
         raise RuntimeError("the CellProfiler pipeline produced no "
                            "measurements; its input modules matched no "
@@ -4879,7 +5202,8 @@ def _worker_run_cellprofiler(request, adapters):
         np.save(path, np.vstack(blocks), allow_pickle=False)
         objects[name] = {"columns": ["ImageNumber", "ObjectNumber"] + columns,
                          "path": path}
-    return {"image_sets": len(numbers), "images": images, "objects": objects}
+    return {"image_sets": len(numbers), "images": images, "objects": objects,
+            "labels": label_images}
 
 
 def _worker_read_text(request, adapters):
@@ -5096,13 +5420,14 @@ def _worker_n2v_train(request, adapters):
     planes for validation, as CAREamics does; with no clean targets there
     is nothing else to validate against. The patches are loaded in the
     worker's own process: a data-loader process forked from a worker that
-    is reading its requests on a thread never starts.
+    is reading its requests on a thread never starts. A ``struct_axes``
+    request trains structN2V (N2V2 with the structured blind-spot mask).
     """
     import careamics
     import lightning
     import torch
     from careamics import CAREamist
-    from careamics.config import create_n2v_config
+    from careamics.config import create_n2v_config, create_structn2v_config
 
     planes = [np.load(path, allow_pickle=False).astype(np.float32)
               for path in request["inputs"]]
@@ -5113,11 +5438,18 @@ def _worker_n2v_train(request, adapters):
     if patches < 2:
         raise ValueError("Noise2Void needs at least two training patches")
     validation = max(1, min(8, patches // 10))
-    config = create_n2v_config(
+    common = dict(
         experiment_name="spacr_n2v", data_type="array", axes="YX",
         patch_size=[patch, patch], batch_size=int(request.get("batch", _N2V_BATCH)),
         num_epochs=int(request.get("epochs", 20)), use_n2v2=True,
         n_val_patches=validation)
+    struct_axes = request.get("struct_axes")
+    if struct_axes:
+        config = create_structn2v_config(
+            struct_n2v_axes=struct_axes,
+            struct_n2v_span=int(request.get("struct_span", 5)), **common)
+    else:
+        config = create_n2v_config(**common)
     data = config.data_config
     for loader in (data.train_dataloader_params, data.val_dataloader_params,
                    data.pred_dataloader_params):
@@ -5137,7 +5469,10 @@ def _worker_n2v_train(request, adapters):
     careamist.trainer.save_checkpoint(output)
     adapters.pop(("n2v", output), None)
     return {"checkpoint": output,
-            "method": "N2V2 (CAREamics)", "epochs": int(params.get(
+            "method": (f"structN2V2 {struct_axes} span "
+                       f"{int(request.get('struct_span', 5))} (CAREamics)"
+                       if struct_axes else "N2V2 (CAREamics)"),
+            "epochs": int(params.get(
                 "max_epochs", request.get("epochs", 20))),
             "patch": patch, "batch": int(request.get("batch", _N2V_BATCH)),
             "planes": len(planes), "shapes": [list(p.shape) for p in planes],
@@ -5632,17 +5967,23 @@ def _load_prefixed(name, model_name, *, device=None, z_plan=None,
         nuclei and every other object the cells.
     :param object_type: the object being segmented.
     :param worker_for: :func:`_worker_for`, or a stand-in for tests.
-    :raises ValueError: for a z_stack or t_stack run.
+    :raises ValueError: for unsupported stack modes. A custom StarDist3D
+        model requires a volumetric ``z_plan`` and no ``t_plan``; other
+        prefixed models keep their single-plane contract.
     :raises FileNotFoundError: when a model path is not there.
     :raises ImportError: when the backend is not installed.
     """
     spec = _SPECS[name]
-    if z_plan is not None or t_plan is not None:
+    model = _prefixed_model(name, model_name)
+    native_volume = name == _STARDIST and _stardist_model_ndim(model) == 3
+    if native_volume:
+        if t_plan is not None or z_plan is None or z_plan.mode != "volumetric":
+            raise ValueError("A StarDist3D model needs z_stack with volumetric mode and no t_stack")
+    elif z_plan is not None or t_plan is not None:
         raise ValueError(
             f"{spec.label} segments single 2-D planes, and this run has "
             f"z_stack or t_stack on. Turn them off, or segment this object "
             f"with a Cellpose-SAM model.")
-    model = _prefixed_model(name, model_name)
     options = _prefixed_options(name, model_name, object_type)
     backend = _RemoteBackend(name, model=model, device=device, root=root,
                              options=options, worker_for=worker_for)

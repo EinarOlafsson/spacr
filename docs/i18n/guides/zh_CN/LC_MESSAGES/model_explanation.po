@@ -1,0 +1,123 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Explain CV models and investigate hits"
+msgstr "解释 CV 模型并调查命中项"
+
+msgid "spaCR separates three questions that are easy to blur together:"
+msgstr "spaCR 将三个容易混淆的问题区分开来："
+
+msgid "activation or occlusion maps show **where** a vision model attended;"
+msgstr "激活图或遮挡图显示视觉模型关注的 **位置**；"
+
+msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
+msgstr "**解释 CV 模型** 模块显示哪些已测量的形态特征能够重现模型的决策；以及"
+
+msgid "**Investigate Hit** asks which cells in wells supporting a regression hit have morphology consistent with that hit."
+msgstr "**Investigate Hit** 询问在支持某个回归命中项的孔中，哪些细胞的形态与该命中项一致。"
+
+msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI and exports therefore use ``EAF1-hit-like`` and ``hit_like_probability`` rather than calling a cell ``EAF1-KO``."
+msgstr "最后一种结果是弱监督证据，而不是细胞分辨率的条形码。因此，界面和导出使用 ``EAF1-hit-like`` 和 ``hit_like_probability``，而不是把某个细胞称为 ``EAF1-KO``。"
+
+msgid "Explain CV Model"
+msgstr "解释 CV 模型"
+
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
+msgstr "该模块从 **分类** 标题栏打开，而没有单独的磁贴，它位于 **分类器评估** 旁边：两者都在回答训练好的分类器实际做了什么。"
+
+msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
+msgstr "选择确切的 ``measurements.db`` 以及现有的逐对象 CV 预测 CSV。该模块绝不会重新运行原始分类器，也不会悄悄替换它。它将预测与已测量对象一一关联，并从替代模型的特征矩阵中排除标识符、预测/类别列、分数、标注和用户排除项。"
+
+msgid "The surrogate family is a fixed choice: Random Forest, scikit-learn histogram gradient boosting, or XGBoost when that optional dependency is installed. The exact backend and package version are saved. Wells are held intact by default; plate-held-out validation is available when the experiment has enough plates."
+msgstr "替代模型系列是固定选项：随机森林、scikit-learn 直方图梯度提升，或在安装了该可选依赖时使用 XGBoost。确切的后端和软件包版本会被保存。默认情况下孔保持完整；当实验包含足够多的孔板时，可以使用留出孔板的验证。"
+
+msgid "Read the output in this order:"
+msgstr "请按以下顺序阅读输出："
+
+msgid "held-out fidelity, the majority-class baseline, and improvement over it;"
+msgstr "留出数据上的保真度、多数类基线以及相对基线的提升；"
+
+msgid "class-wise precision/recall/F1 and the confusion matrix; then"
+msgstr "各类别的精确率/召回率/F1 和混淆矩阵；然后"
+
+msgid "gain, held-out permutation importance, and mean absolute SHAP."
+msgstr "增益、留出数据上的置换重要性以及平均绝对 SHAP。"
+
+msgid "If fidelity does not clear the configured improvement over the majority baseline, spaCR withholds the importance table. This means the surrogate did not reproduce the CV model well enough for its feature ranking to explain that model. Per-cell signed SHAP values, correlated-feature pairs, exact feature and leakage-exclusion lists, split units, random seed, model parameters, and sampled object IDs are retained in the artifacts."
+msgstr "如果保真度未能达到相对多数类基线所设定的提升幅度，spaCR 会隐藏重要性表。这意味着替代模型对 CV 模型的重现不足，其特征排序无法用来解释该模型。逐细胞的带符号 SHAP 值、相关特征对、确切的特征和泄漏排除列表、划分单元、随机种子、模型参数以及抽样的对象 ID 都保留在产物中。"
+
+msgid "Investigate Hit"
+msgstr "Investigate Hit"
+
+msgid "From the **Regression** masthead open **Hit List**, select the exact gene result, and choose **Investigate selected…**. The hand-off carries the result folder, gene, effect direction, FDR, phenotype, and agreeing guides; it does not search for the newest results file. Investigate Hit hashes the selected regression CSV/JSON bytes into its provenance."
+msgstr "从 **回归** 标题栏打开 **命中列表**，选择确切的基因结果，然后选择 **Investigate selected…**。交接内容包括结果文件夹、基因、效应方向、FDR、表型和一致的向导；它不会去搜索最新的结果文件。Investigate Hit 会将所选回归 CSV/JSON 的字节哈希记入其来源信息。"
+
+msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
+msgstr "提供测量数据库、原始的逐对象预测 CSV 和逐孔向导比例 CSV。关联使用显式的对象键和孔板/行/列键。重复的对象键或重复的孔/向导比例会使运行停止。"
+
+msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+msgstr "第一个输出是一个如实的审查队列：含有靶标的孔中的细胞按回归的效应方向排序，并在旁边显示孔水平的靶标向导比例。随后，可选的归因模型会："
+
+msgid "treats wells as bags and cells as instances;"
+msgstr "将孔视为包（bag），将细胞视为实例；"
+
+msgid "learns background and target-like morphology across many wells;"
+msgstr "在许多孔之间学习背景形态和类靶标形态；"
+
+msgid "uses guide fraction as a noisy learned prior, never as a forced cell prevalence;"
+msgstr "将向导比例用作带噪声的学习先验，而绝不作为强制的细胞流行率；"
+
+msgid "scores every cell with a model that excluded its well, or its plate when the design supports plate cross-fitting; and"
+msgstr "使用排除了该细胞所在孔（或在设计支持孔板交叉拟合时排除其所在孔板）的模型为每个细胞打分；以及"
+
+msgid "keeps independent guides visible before reporting gene-level consensus."
+msgstr "在报告基因水平的共识之前，保持各独立向导可见。"
+
+msgid "The original phenotype score is excluded from the morphology model by default. Including it is an explicit, warned setting because selecting, embedding, and validating with the same score would be circular."
+msgstr "默认情况下，原始表型分数被排除在形态模型之外。将其纳入是一项显式且带警告的设置，因为使用同一分数进行选择、嵌入和验证会形成循环论证。"
+
+msgid "Quantitative evidence"
+msgstr "定量证据"
+
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
+msgstr "报告以孔而不是细胞作为独立的实验单元。它报告靶标与对照的候选细胞流行率、孔水平 bootstrap 区间、按孔板分块的置换检验、向导剂量反应、向导特异性效应以及两个更严格的零假设。更严格的向导比例零假设和孔标签零假设会在每次置换中重复交叉拟合流程，而不仅仅是打乱最终的汇总标签。"
+
+msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
+msgstr "二维比较是一个仅在无靶标对照细胞形态上拟合、然后用于变换所有细胞的 PCA。向导标识、靶标孔状态和原始分类器输出都被排除在外。导出的表格包含确切的对象键和样本计数，因此可以将视觉上的聚类追溯到其孔和图像；定量富集仍是主要结论。"
+
+msgid "A stratified gallery samples high, borderline, low, and false-looking control objects. The reviewer CSV is shuffled and reveals only a random review ID and image path. Its separate analyst-only key retains the stratum and probability. After one or more blinded reviewers return binary calls, ``evaluate_blinded_reviews`` reports calibration error, precision, recall, ROC AUC when defined, and pairwise Cohen's kappa."
+msgstr "分层图库对高分、临界、低分以及看似假阳性的对照对象进行抽样。审阅者 CSV 经过打乱，只显示随机审阅 ID 和图像路径。单独的仅供分析者使用的密钥保留分层和概率。一名或多名盲评审阅者返回二元判定后，``evaluate_blinded_reviews`` 会报告校准误差、精确率、召回率、ROC AUC（如有定义）以及两两之间的 Cohen's kappa。"
+
+msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
+msgstr "数据库标注在专用的来源表中进行版本管理。现有的手工标注保持不变。**将模型判定转为标注** 是一项单独的操作，只接受新的列名；**撤销转为标注** 会精确清除该次提升写入的值，同时保留其审计行。"
+
+msgid "Evidence ladder"
+msgstr "证据阶梯"
+
+msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. The strongest validation is an orthogonal experiment that assigns perturbation identity per cell, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
+msgstr "一个连贯的 UMAP/PCA 群体是有用的探索性证据，但并非真值。可信度会随着阴性和阳性对照、独立向导、重复孔板、孔/孔板交叉拟合、重新拟合的零假设、bootstrap 稳定性、盲评审阅以及已测量特征 SHAP 与像素级归因之间的一致性而提高。最有力的验证是逐细胞分配扰动身份的正交实验，例如阵列式扰动/挽救或直接原位向导条形码读取。"
+
+msgid "Headless entry points"
+msgstr "无界面入口点"
+
+msgid "The statistical APIs are :mod:`spacr.surrogate`, :mod:`spacr.hit_attribution`, and :mod:`spacr.hit_investigation`."
+msgstr "统计 API 为 :mod:`spacr.surrogate`、:mod:`spacr.hit_attribution` 和 :mod:`spacr.hit_investigation`。"
+

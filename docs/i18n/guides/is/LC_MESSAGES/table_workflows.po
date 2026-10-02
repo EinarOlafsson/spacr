@@ -1,0 +1,518 @@
+# spaCR user guide translation (is).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Combine measurement tables for plots and gates"
+msgstr "Sameina mælingatöflur fyrir gröf og gates"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "Opnaðu **Graph Builder** eða **Gate Editor** frá Home til að kanna mælingar. Á báðum skjám er **Sameina töflur** rétt við hlið töfluvalsins. Sama sameiningarskilgreining skilar sömu mælingum á hvorum skjánum sem er. Um verkflæðið í kring, sjá :doc:`workflows`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose a source and an observation level"
+msgstr "Velja uppruna og athugunareiningu"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Load table** opens a SQLite measurement database or a CSV/TSV table. A physical table is an existing table in that database. A derived table is a named result calculated from physical tables using a saved merge definition. Creating a derived table preserves the original measurement tables."
+msgstr "**Load table** opnar SQLite-mælingargagnagrunn eða CSV/TSV-töflu. Efnisleg tafla er tafla sem þegar er í gagnagrunninum. Afleidd tafla er nafngreind niðurstaða sem reiknuð er úr efnislegum töflum með vistaðri sameiningarskilgreiningu. Upprunalegu mælingatöflurnar haldast óbreyttar þegar afleidd tafla er búin til."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Merging requires one SQLite database. The button is unavailable for a single CSV/TSV or a Gate Editor session combining several databases. Load the one database containing the tables you want to join."
+msgstr "Sameining krefst eins SQLite-gagnagrunns. Hnappurinn er ekki tiltækur fyrir eina CSV/TSV-skrá eða Gate Editor-setu sem sameinar nokkra gagnagrunna. Hladdu einum gagnagrunni sem inniheldur töflurnar sem þú vilt tengja."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Graph Builder, choosing a table changes the chart's source. Gate Editor also supports a working set of compatible physical object tables, shown as removable chips; selecting another compatible table adds its measurements. The last remaining chip stays in place so the editor always has a source. A named derived table is selected as a complete source. Use the merge popup when you need a named, reproducible result or explicit custom relationships."
+msgstr "Í Graph Builder breytir val á töflu uppruna grafsins. Gate Editor styður einnig vinnumengi samhæfra efnislegra hlutatöflna sem birtast sem fjarlægjanleg merki. Val á annarri samhæfri töflu bætir mælingum hennar við. Síðasta merkið helst á sínum stað svo ritillinn hafi alltaf uppruna. Nafngreind afleidd tafla er valin sem heildstæður uppruni. Notaðu sameiningargluggann þegar þú þarft nafngreinda, endurgeranlega niðurstöðu eða skýrt skilgreind sérsniðin tengsl."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Output observation table** determines what one result row represents. For example, a cell-level result has one row per cell even when that cell contains several pathogens. A nucleus count, total pathogen area and cell intensity can then be compared on the same row."
+msgstr "**Tafla úttaksathugana** ákvarðar hvað ein niðurstöðuröð táknar. Niðurstaða á frumustigi hefur til dæmis eina röð fyrir hverja frumu, jafnvel þótt fruman innihaldi nokkra sýkla. Þá er hægt að bera saman fjölda frumukjarna, heildarflatarmál sýkla og styrkleika frumu í sömu röð."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Create a standard spaCR merge"
+msgstr "Búa til staðlaða spaCR-sameiningu"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load your measurement database and press **Merge tables**."
+msgstr "Hladdu mælingargagnagrunninum og ýttu á **Sameina töflur**."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Tick the source tables and choose **Output observation table**. The base table is included automatically. Standard merges use compatible spaCR object tables and cell/cytoplasm observation levels; the list also shows other tables whose relationships may require customization."
+msgstr "Hakaðu við upprunatöflurnar og veldu **Tafla úttaksathugana**. Grunntaflan er sjálfkrafa tekin með. Staðlaðar sameiningar nota samhæfar spaCR-hlutatöflur og athuganir á frumu-/umfrymisstigi. Listinn sýnir einnig aðrar töflur þar sem gæti þurft að sérsníða tengslin."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enter a **Result name**, such as ``Cell and pathogen measurements``. It must differ from every physical table name."
+msgstr "Sláðu inn **Heiti niðurstöðu**, til dæmis ``Cell and pathogen measurements``. Það verður að vera frábrugðið nafni allra efnislegra taflna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review the **spaCR defaults active** summary and the per-column **Aggregation** choices. For an ordinary compatible database, no manual key mapping is needed."
+msgstr "Farðu yfir samantektina **spaCR defaults active** og valmöguleika **Samantekt** fyrir hvern dálk. Í venjulegum samhæfum gagnagrunni þarf ekki að varpa lyklum handvirkt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Validate and preview**. Inspect the input and output row counts, join keys, unmatched records, missing child keys, repeated child-key rows and the first 12 output rows. Validation examines the full input, even though only a few result rows are displayed."
+msgstr "Ýttu á **Sannprófa og forskoða**. Skoðaðu fjölda inntaks- og úttaksraða, tengilykla, ósamsvarandi færslur, lykla undirtöflu sem vantar, raðir með endurteknum lyklum undirtöflu og fyrstu 12 úttaksraðirnar. Sannprófun skoðar allt inntakið þótt aðeins fáar niðurstöðuraðir séu sýndar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates."
+msgstr "Ýttu á **Búa til sameinaða töflu** eftir að sannprófun tekst. Niðurstaðan er valin í venjulega töfluvalinu. Dálkar hennar eru tiltækir fyrir gröf og gates."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them."
+msgstr "Breyting á töflu, nafni eða reglu ógildir forskoðunina. Sannprófaðu aftur áður en niðurstaðan er búin til. Val á annarri töflu eða grunntöflu endurstillir einnig sérsniðin tengsl og yfirskriftir, svo veldu upprunana áður en þú sérsníður þá."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "How the defaults combine measurements"
+msgstr "Hvernig sjálfgefnu reglurnar sameina mælingar"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The shared spaCR rules aggregate each child table independently before joining it to the base observations. Adding both pathogens and organelles does not multiply their rows together. Identity includes the available plate, well, field and time metadata together with the relevant object/parent ID; an object number alone is not a globally unique identity."
+msgstr "Sameiginlegar spaCR-reglur taka hverja undirtöflu saman sjálfstætt áður en hún er tengd við grunnathuganirnar. Ef bæði sýklum og frumulíffærum er bætt við margfaldast raðir þeirra ekki hver með annarri. Auðkenning notar tiltæk lýsigögn um plötu, brunn, sjónsvið og tíma ásamt viðeigandi auðkenni hlutar/foreldris. Númer hlutar eitt og sér er ekki algilt einkvæmt auðkenni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Default aggregation for child measurements"
+msgstr "Sjálfgefin samantekt mælinga undirtöflu"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measurement"
+msgstr "Mæling"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Rule"
+msgstr "Regla"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Area, integrated/total intensity and counts"
+msgstr "Flatarmál, heildaður/heildarstyrkleiki og fjöldatölur"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Sum the child values."
+msgstr "Leggja saman gildi undirtöflunnar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Minimum intensity"
+msgstr "Lágmarksstyrkleiki"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Retain the minimum child value."
+msgstr "Halda lægsta gildinu úr undirtöflunni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Maximum intensity"
+msgstr "Hámarksstyrkleiki"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Retain the maximum child value."
+msgstr "Halda hæsta gildinu úr undirtöflunni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Median measurements"
+msgstr "Miðgildismælingar"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Take the median of the child measurements."
+msgstr "Taka miðgildi mælinganna í undirtöflunni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Other numeric measurements, including means"
+msgstr "Aðrar tölulegar mælingar, þar á meðal meðaltöl"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Take the mean of the child measurements."
+msgstr "Taka meðaltal mælinganna í undirtöflunni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Text and identifiers"
+msgstr "Texti og auðkenni"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Retain the first nonmissing value in source order by default; identifiers cannot be averaged or summed."
+msgstr "Sjálfgefið er fyrsta gildinu sem ekki vantar haldið í upprunalegri röð. Ekki er hægt að taka meðaltal eða summu auðkenna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For four pathogens with areas 1, 2, 4 and 8, total pathogen area is 15. A mean intensity is the mean of the four object measurements, not an intensity recalculated from all their pooled pixels. Inspect the rule shown for each column when its name does not describe its measurement convention."
+msgstr "Fyrir fjóra sýkla með flatarmál 1, 2, 4 og 8 er heildarflatarmál sýkla 15. Meðalstyrkleiki er meðaltal mælinganna á þessum fjórum hlutum en ekki styrkleiki endurreiknaður úr öllum myndpunktum þeirra saman. Skoðaðu regluna sem birtist fyrir hvern dálk þegar nafn hans lýsir ekki mæliaðferðinni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The default nucleus join retains only matching base observations. Pathogen and organelle joins retain uninfected cells. Missing measurements remain missing, including a sum for which every contributing value is missing. An absent intensity measurement is not converted to a measured zero. Child columns use table-qualified names where needed to distinguish them."
+msgstr "Sjálfgefna tengingin við frumukjarna heldur aðeins grunnathugunum sem eiga samsvörun. Tengingar við sýkla og frumulíffæri halda ósýktum frumum. Mælingar sem vantar haldast óútfylltar, þar með talin summa þar sem öll framlagandi gildi vantar. Styrkleikamælingu sem vantar er ekki breytt í mælt núll. Heiti dálka úr undirtöflum eru auðkennd með töflunafni þegar þess þarf til að greina þá að."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Available overrides depend on column values and role. Numeric measurements offer mean, median, sum, minimum, maximum, count and other compatible choices; text supports choices such as first/last, count and distinct count; Boolean-valued data also support **any** and **all**. **count** counts nonmissing values. Default one-to-one rows attach intact, so their aggregation controls are disabled until custom merging is selected."
+msgstr "Tiltækar yfirskriftir ráðast af gildum og hlutverki dálksins. Tölulegar mælingar bjóða meðaltal, miðgildi, summu, lágmark, hámark, talningu og aðra samhæfa valkosti. Texti styður til dæmis fyrsta/síðasta gildi, talningu og talningu ólíkra gilda. Rökfræðileg gögn styðja einnig **Einhver** og **all**. **count** telur gildi sem ekki vantar. Sjálfgefnar einn-á-móti-einum raðir eru tengdar óbreyttar, svo samantektarstýringar þeirra eru óvirkar þar til sérsniðin sameining er valin."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Customize an alternative schema"
+msgstr "Sérsníða fyrir annað skema"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Customize merging** when the database uses different table names, identifiers or deliberately different relationships. Choose the base and child tables in the main popup first. Mapping their actual columns does not rename or modify the source tables."
+msgstr "Veldu **Sérsníða sameiningu** þegar gagnagrunnurinn notar önnur töflunöfn, auðkenni eða viljandi önnur tengsl. Veldu grunn- og undirtöflur fyrst í aðalglugganum. Vörpun raunverulegra dálka þeirra endurnefnir ekki eða breytir upprunatöflunum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The warning explains that incorrect relationships can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Read it and check **I understand the warning and will check the merge preview.** before accepting the custom settings. Acknowledgment does not bypass validation."
+msgstr "Viðvörunin útskýrir að röng tengsl geti tengt óskylda hluti, tvítekið eða sleppt athugunum og breytt mælingum sem notaðar eru í gröfum og gates. Lestu hana og hakaðu við **Ég skil viðvörunina og mun skoða forskoðun sameiningarinnar.** áður en þú samþykkir sérsniðnu stillingarnar. Staðfesting kemur ekki í stað sannprófunar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Base observation keys** identify one unique, nonmissing base row. Include field and time columns when IDs repeat across images or timepoints."
+msgstr "**Lyklar grunnathugana** auðkenna eina einkvæma grunnröð án vantaðra lykilgilda. Taktu sjónsviðs- og tímadálka með þegar auðkenni endurtaka sig milli mynda eða tímapunkta."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each child row in the configuration specifies **Base keys** and **Child keys**. Enter comma-separated column names in matching order. For example, base ``image_id, cell_id`` can map to child ``image_id, parent_cell_id``."
+msgstr "Hver röð fyrir undirtöflu í uppsetningunni tilgreinir **Grunnlyklar** og **Lyklar undirtöflu**. Sláðu inn dálkanöfn aðskilin með kommum í samsvarandi röð. Til dæmis má varpa grunnlyklunum ``image_id, cell_id`` á lykla undirtöflunnar ``image_id, parent_cell_id``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **one-to-one** when at most one child row belongs to each base key, or **one-to-many** when several child rows must first be aggregated."
+msgstr "Veldu **one-to-one** þegar í mesta lagi ein röð undirtöflu tilheyrir hverjum grunnlykli, eða **one-to-many** þegar taka þarf nokkrar raðir undirtöflu saman fyrst."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A **left** join keeps unmatched base observations with missing child measurements. An **inner** join retains only matching observations. Child rows with missing join keys do not match a base row."
+msgstr "**vinstri** tenging heldur grunnathugunum án samsvörunar með vöntun á mælingum undirtöflu. **inner** tenging heldur aðeins athugunum sem eiga samsvörun. Raðir undirtöflu sem vantar tengilykla samsvara ekki grunnröð."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Identifiers** to identify additional child columns that must not be treated as continuous measurements. Review the per-column aggregation controls in the main popup after accepting the mapping."
+msgstr "Notaðu **Auðkenni** til að tilgreina aðra dálka undirtöflu sem ekki má meðhöndla sem samfelldar mælingar. Farðu yfir samantektarstýringar hvers dálks í aðalglugganum eftir að vörpunin hefur verið samþykkt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The popup now says **Custom rules active**. Validate and inspect the preview before creating the result. Duplicate base identities, contradictory one-to-one mappings, missing keys and incompatible operations produce an error. Repeated child keys can be expected in a one-to-many relationship; they require investigation when the relationship is supposed to be one-to-one."
+msgstr "Glugginn sýnir nú **Custom rules active**. Sannprófaðu og skoðaðu forskoðunina áður en niðurstaðan er búin til. Tvítekin grunnauðkenni, mótsagnakenndar einn-á-móti-einum varpanir, lyklar sem vantar og ósamhæfar aðgerðir valda villu. Endurteknir lyklar undirtöflu geta verið eðlilegir í einn-á-móti-mörgum tengslum en þarf að rannsaka ef tengslin eiga að vera einn-á-móti-einum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults."
+msgstr "**Hætta við** heldur fyrri uppsetningu óbreyttri. **Endurstilla á sjálfgefin gildi spaCR** fjarlægir sérsniðin tengsl og yfirskriftir. Breyting á upprunum eða úttakstöflu endurbyggir einnig sjálfgefnu stillingarnar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use, save and reload the result"
+msgstr "Nota, vista og endurhlaða niðurstöðunni"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
+msgstr "Í Graph Builder seturðu niðurstöðudálka á **X**, **Y**, lit, stærð eða reitaskiptingu. Í Gate Editor notarðu dálkana fyrir þröskulda, marghyrninga og önnur gate-form. Gate Editor kann að sýna úrtak samkvæmt stillingunum ``sample_fraction`` og ``max_points``, en útflutningur gates metur alla sameinuðu töfluna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."
+msgstr "Nafngreinda skilgreiningin er vistuð við hlið gagnagrunnsins. Fyrir ``measurements.db`` heitir skráin ``measurements.db.spacr-merges.json``. Þegar uppruninn er endurnýjaður eða opnaður aftur verður niðurstaðan tiltæk á ný og er endurreiknuð úr upprunanum. Þetta er endurgeranleg uppskrift en ekki frosið afrit allra niðurstöðuraða. Við endurnotkun eru upprunaslóð og skemu valinna taflna athuguð. Annar gagnagrunnur eða breytt skema krefst nýrrar yfirfarinnar vörpunar. Skilgreiningar eru ekki hljóðlega notaðar á óskylda uppruna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save chart** in Graph Builder saves chart channels, the source and the full merge definition to JSON. **Load chart** reconstructs and validates the table before plotting. **Save gates…** also embeds the merge definition; load the original database before using **Load gates…**. These saved files can reconstruct the merge even if its sidecar is missing. They still require the original source data."
+msgstr "**Vista graf** í Graph Builder vistar rásir grafsins, uppruna og alla sameiningarskilgreininguna í JSON. **Hlaða grafi** endurgerir og sannprófar töfluna áður en graf er teiknað. **Vista gates…** felur líka í sér sameiningarskilgreininguna; hladdu upprunalega gagnagrunninum áður en þú notar **Hlaða gates…**. Þessar vistuðu skrár geta endurgert sameininguna þótt fylgiskrá hennar vanti. Þær þurfa samt upprunalegu gögnin."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export gates…** writes gate membership columns to the database's ``filters`` table, preserving the base object's identity. This explicit export is a database write; constructing and previewing a merge does not write into the source measurement tables. **Save graph** exports the Gate Editor figure as PNG or PDF, separately from saving its gating strategy."
+msgstr "**Flytja út gates…** skrifar dálka um gate-aðild í ``filters`` töflu gagnagrunnsins og varðveitir auðkenni grunnhlutarins. Þessi skýri útflutningur er skrif í gagnagrunn. Að setja upp og forskoða sameiningu skrifar ekki í upprunalegu mælingatöflurnar. **Vista graf** flytur mynd Gate Editor út sem PNG eða PDF, óháð vistun gate-stefnunnar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A custom result without verified spaCR image/object provenance remains usable for plotting and tabular gating. Image navigation, image annotation and gate export to the measurement database are unavailable for that result, with an explanation in the interface. Keep the saved chart or gating strategy for tabular reuse; column names alone cannot establish links to microscopy objects."
+msgstr "Sérsniðin niðurstaða án staðfestra upprunatengsla spaCR-mynda/hluta er áfram nothæf í gröfum og töflubundnu gating. Myndskoðun, myndmerkingar og útflutningur gates í mælingargagnagrunn eru ekki tiltæk fyrir þá niðurstöðu og viðmótið útskýrir hvers vegna. Geymdu vistaða grafið eða gate-stefnuna til að endurnota töfluna. Dálkanöfn ein og sér staðfesta ekki tengsl við smásjárhluti."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Recover original filenames before labelling conditions"
+msgstr "Endurheimta upprunaleg skráarnöfn áður en tilraunaskilyrði eru merkt"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
+msgstr "Ef myndir voru endurnefndar á Yokogawa-snið skaltu nota **Sameina upprunaleg skráarnöfn…** innan **Sameina töflur** til að endurheimta nöfnin sem skráð voru við umbreytingu. Veldu ``conversion_map.csv``, eldri ``rename_log.csv``, ``channel_sorting_manifest.csv`` eða SQLite-gagnagrunn með ``conversion_map`` töflu. Skráavalið opnast nálægt þekktri vörpun ef hún finnst við mælingargagnagrunninn eða í yfirmöppum hans. Vörpunin verður að innihalda skráð tengsl frá uppruna til úttaks. Þessi aðgerð ályktar ekki heiti meðferða út frá endurnefndum myndum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations."
+msgstr "Fyrir lýsigögn skráarnafna eingöngu skaltu aðeins velja töfluna sem á að merkja. Þá haldast allar raðir og fyrirliggjandi dálkar, einnig í töflum án spaCR-hlutaauðkenna. Fyrir fyrirliggjandi sameinaða niðurstöðu skaltu opna sameiningarglugga hennar til að halda yfirförnum tengslum og samantektum um leið og vörpun skráarnafna er bætt við. Þegar nokkrar upprunatöflur eru valdar eru mælingar fyrst sameinaðar og síðan eru upprunalegu nöfnin tengd við athuganirnar sem myndast."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Merge original filenames…** and select the mapping."
+msgstr "Ýttu á **Sameina upprunaleg skráarnöfn…** og veldu vörpunina."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set a new **Result name**, then press **Validate and preview**."
+msgstr "Stilltu nýtt **Heiti niðurstöðu** og ýttu síðan á **Sannprófa og forskoða**."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the matched and unmatched row counts and the preview's ``original_filename`` and ``original_path`` columns."
+msgstr "Skoðaðu fjölda raða með og án samsvörunar og dálkana ``original_filename`` og ``original_path`` í forskoðuninni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Create merged table**, then open **Annotate conditions** and choose ``original_filename`` as a rule's metadata column."
+msgstr "Ýttu á **Búa til sameinaða töflu**, opnaðu síðan **Merkja tilraunaskilyrði** og veldu ``original_filename`` sem lýsigagnadálk reglu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Several channels or z-planes belonging to one field produce a sorted, deduplicated list separated by a semicolon and a space in the new columns. They do not multiply the table's observations. Plate and timepoint identities remain distinct; ambiguous or conflicting identities cause validation to fail. Unmatched names remain blank. Existing ``original_filename`` or ``original_path`` columns are preserved by refusing to overwrite them."
+msgstr "Margar rásir eða z-plön sem tilheyra sama sjónsviði gefa raðaðan lista án tvítekninga, aðskilinn með semíkommu og bili, í nýju dálkunum. Þau margfalda ekki athuganir töflunnar. Auðkenni platna og tímapunkta haldast aðgreind; tvíræð eða mótsagnakennd auðkenni valda því að sannprófun bregst. Nöfn án samsvörunar haldast auð. Fyrirliggjandi ``original_filename`` eða ``original_path`` dálkar eru varðveittir með því að hafna yfirskrift."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``original_path`` is the path recorded in the mapping; the original files need not still exist at that location. Image files and source measurement tables are never renamed or rewritten by this action. Adding filename text does not establish missing microscopy object provenance."
+msgstr "``original_path`` er slóðin sem skráð er í vörpuninni; upprunalegu skrárnar þurfa ekki enn að vera á þeim stað. Þessi aðgerð endurnefnir aldrei eða endurskrifar myndskrár eða upprunalegar mælingatöflur. Að bæta við texta skráarnafna staðfestir ekki upprunatengsl smásjárhluta sem vantar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping."
+msgstr "Vistaða sameiningin skráir staðsetningu vörpunarinnar og gátsummu innihaldsins. Til að opna sameiningu eða graf aftur þarf vörpunin að vera áfram tiltæk og óbreytt. Fyrir innbyggða ``conversion_map`` töflu ógilda óskyldar breytingar á öðrum gagnagrunnstöflum ekki vörpunina. Ef vörpunin breytist skaltu velja hana aftur og sannprófa nýja niðurstöðu áður en hún er notuð. **Fjarlægja vörpun skráarnafna** fjarlægir viðbættu upplýsingarnar úr drögunum án þess að eyða skránni. **Endurstilla á sjálfgefin gildi spaCR** hreinsar einnig vörpunina."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Annotate experimental conditions in Graph Builder"
+msgstr "Merkja tilraunaskilyrði í Graph Builder"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Annotate conditions** adds annotation columns to the working table in Graph Builder. It works with a physical database table, a named derived table or an imported CSV/TSV. Use rules to assign labels or extract variable metadata, then compose a final column from those values. Every generated column is retained. These table operations do not require image links or write image annotations."
+msgstr "**Merkja tilraunaskilyrði** bætir merkingadálkum við vinnutöfluna í Graph Builder. Það virkar með efnislegri gagnagrunnstöflu, nafngreindri afleiddri töflu eða innfluttri CSV/TSV-skrá. Notaðu reglur til að úthluta merkimiðum eða draga út breytileg lýsigögn og settu síðan saman lokadálk úr þessum gildum. Allir myndaðir dálkar haldast. Þessar töfluaðgerðir þurfa ekki myndtengingar og skrifa ekki myndmerkingar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
+msgstr "Opnaðu **Merkja tilraunaskilyrði**, nefndu **Úttaksdálkur** og veldu **Úthluta gildum**, **Draga út texta** eða **Setja saman dálk**. Ekki er hægt að skipta út fyrirliggjandi upprunadálkum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together."
+msgstr "Skilgreindu gildisreglur, textaútdrátt eða samsetningu fyrir þetta úttak. Notaðu **Bæta við dálki** fyrir annað úttak. Regluleg segð með nafngreindum hópum getur líka búið til nokkra lýsigagnadálka saman."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect all generated values beside the source columns. **Preview assignments** reruns the check; edits also refresh the preview."
+msgstr "Skoðaðu öll mynduð gildi við hlið upprunadálkanna. **Forskoða úthlutanir** keyrir athugunina aftur; breytingar endurnýja einnig forskoðunina."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Resolve invalid rules, missing dependencies and conflicting assignments, then choose **Apply conditions**. Every generated column becomes available for chart channels and filtering. **Cancel** discards the draft changes."
+msgstr "Leystu úr ógildum reglum, vöntun á nauðsynlegum dálkum og úthlutunum sem stangast á og veldu síðan **Beita skilyrðum**. Allir myndaðir dálkar verða tiltækir fyrir rásir grafa og síun. **Hætta við** hendir breytingum draganna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Extract several metadata columns from a filename"
+msgstr "Draga nokkra lýsigagnadálka úr skráarnafni"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Extract text** and select the source column, such as ``original_filename``. A regular expression extracts the matching text into the output column. Select a named or numbered capture group to choose which part of the match becomes the value."
+msgstr "Veldu **Draga út texta** og upprunadálkinn, til dæmis ``original_filename``. Regluleg segð dregur samsvarandi texta út í úttaksdálkinn. Veldu nafngreindan eða númeraðan föngunarhóp til að velja hvaða hluti samsvörunarinnar verður gildið."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:"
+msgstr "Til dæmis lýsir þetta mynstur ``HeLa_rep2_24h_DMSO.tif``:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The named groups describe four output columns: ``cell_type``, ``replicate``, ``timepoint`` and ``drug``. **Create columns from named groups** creates these outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and ``DMSO``. Another matching filename produces its own values; they are not fixed labels copied from the example. Adapt the pattern to your own filenames and inspect the preview before applying it."
+msgstr "Nafngreindu hóparnir lýsa fjórum úttaksdálkum: ``cell_type``, ``replicate``, ``timepoint`` og ``drug``. **Búa til dálka úr nafngreindum hópum** býr þessi úttök til saman. Dæmiröðin gefur ``HeLa``, ``rep2``, ``24h`` og ``DMSO``. Annað skráarnafn sem passar gefur sín eigin gildi; þau eru ekki fastir merkimiðar afritaðir úr dæminu. Aðlagaðu mynstrið að eigin skráarnöfnum og skoðaðu forskoðunina áður en þú beitir því."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Extraction uses the first regex match. Nonmatching rows and missing or empty captures remain blank. Invalid patterns or capture groups stop the preview with an error. Existing source column names cannot be overwritten."
+msgstr "Útdráttur notar fyrstu samsvörun reglulegu segðarinnar. Raðir án samsvörunar og föng sem vantar eða eru tóm haldast auð. Ógild mynstur eða föngunarhópar stöðva forskoðun með villu. Ekki má skrifa yfir nöfn fyrirliggjandi upprunadálka."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assign values with readable rules"
+msgstr "Úthluta gildum með læsilegum reglum"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string."
+msgstr "Veldu **Úthluta gildum** þegar raðir sem passa eiga að fá gildi sem þú slærð inn, til dæmis ``WildType`` eða ``control``. Hver regla velur dálk, virkja og samanburðargildi. Meðal virkja eru inniheldur, inniheldur ekki, jafnt, ekki jafnt, byrjar á, endar á og samsvörun við reglulega segð. Textavirkjar túlka greinarmerki bókstaflega; virkjar reglulegra segða túlka þau sem mynstur. Samsvörun er hástafanæm. Innihalds-, forskeytis-, viðskeytis- og regex-viðmið þurfa texta sem er ekki tómur. Notaðu skýrt tilgreinda ``.*`` segð til að samsvara öllum texta sem ekki vantar, eða jafngildisreglu með tómu gildi til að samsvara raunverulegum tómum streng."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly."
+msgstr "Veldu **allar reglur passa** þegar öll viðmið verða að passa, eða **að minnsta kosti ein regla passar** þegar að minnsta kosti eitt verður að passa. Viðmiðin mega skoða ólíka upprunadálka eða áður myndaða dálka. Til dæmis má úthluta ``control`` þegar ``drug`` jafngildir ``DMSO`` og ``cell_type`` jafngildir ``HeLa``. Upprunagildi sem vantar uppfylla ekki neikvætt viðmið. Raunverulegur tómur strengur er gildi og má samsvara honum sérstaklega."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Several rules may assign the same value without a conflict. Different values assigned to one row in the same output column require resolution before Apply."
+msgstr "Nokkrar reglur mega úthluta sama gildi án áreksturs. Ef einni röð í sama úttaksdálki eru úthlutuð ólík gildi þarf að leysa úr því áður en breytingum er beitt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compose the final column"
+msgstr "Setja saman lokadálkinn"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Add an output column, name it ``condition`` or another name you choose, and select **Compose column**. Drag available columns into the composition field. Drag its tokens to change their order. Insert fixed text to add separators, prefixes or words between the values."
+msgstr "Bættu við úttaksdálki, nefndu hann ``condition`` eða öðru nafni að eigin vali og veldu **Setja saman dálk**. Dragðu tiltæka dálka inn í samsetningarreitinn. Dragðu tákn hans til að breyta röð þeirra. Settu inn fastan texta til að bæta við skilum, forskeytum eða orðum á milli gildanna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example above. Reordering the column tokens changes the result without changing their extraction rules. Fixed text is literal; it cannot execute code."
+msgstr "Til dæmis gefa táknin ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` gildið ``HeLa_rep2_24h_DMSO`` fyrir dæmið hér að ofan. Breytt röð dálkatákna breytir niðurstöðunni án þess að breyta útdráttarreglum þeirra. Fastur texti er bókstaflegur og getur ekki keyrt kóða."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A composition can reference original source columns and earlier generated columns. A missing or empty column value leaves the composed value blank. The preview shows all intermediate columns and the final column together. Applying, exporting or saving a new SQLite table retains every generated column and the editable recipe. The original measurements remain unchanged."
+msgstr "Samsetning getur vísað í upprunalega dálka og áður myndaða dálka. Ef dálkgildi vantar eða er tómt verður samsetta gildið autt. Forskoðunin sýnir alla millidálka og lokadálkinn saman. Þegar breytingum er beitt, gögn flutt út eða ný SQLite-tafla vistuð haldast allir myndaðir dálkar og breytanlega uppskriftin. Upprunalegu mælingarnar eru óbreyttar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Build genotype, replicate and a combined condition"
+msgstr "Búa til arfgerð, endurtekningu og sameinað tilraunaskilyrði"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Name the first **Output column** ``genotype`` and keep its mode set to **Assign values**. Use **Add condition** for its labels. Press **Add column** to create ``replicate`` with its own boxes. In each box, choose **Exact values** to enter lists of metadata values without writing a regular expression. For example:"
+msgstr "Nefndu fyrsta **Úttaksdálkur** ``genotype`` og hafðu ham hans á **Úthluta gildum**. Notaðu **Bæta við skilyrði** fyrir merkimiða hans. Ýttu á **Bæta við dálki** til að búa til ``replicate`` með eigin reitum. Veldu **Nákvæm gildi** í hverjum reit til að slá inn lista lýsigagnagilda án þess að skrifa reglulega segð. Til dæmis:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Example annotation rules"
+msgstr "Dæmi um merkingarreglur"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Output column"
+msgstr "Úttaksdálkur"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Metadata column"
+msgstr "Lýsigagnadálkur"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Included values"
+msgstr "Gildi sem tekin eru með"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assigned label"
+msgstr "Úthlutaður merkimiði"
+
+msgid "``genotype``"
+msgstr "``genotype``"
+
+msgid "``columnID``"
+msgstr "``columnID``"
+
+msgid "``c1,c2,c3``"
+msgstr "``c1,c2,c3``"
+
+msgid "``WildType``"
+msgstr "``WildType``"
+
+msgid "``c7,c4,c5,c6``"
+msgstr "``c7,c4,c5,c6``"
+
+msgid "``mutant``"
+msgstr "``mutant``"
+
+msgid "``replicate``"
+msgstr "``replicate``"
+
+msgid "``rowID``"
+msgstr "``rowID``"
+
+msgid "``r1,r4,r5,r6``"
+msgstr "``r1,r4,r5,r6``"
+
+msgid "``replicate 1``"
+msgstr "``replicate 1``"
+
+msgid "``r7,r9,r10``"
+msgstr "``r7,r9,r10``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect. Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign the same label may select the same row; two different labels in one output column require a correction before applying. Each output column has its own assignments, so a row can have both a genotype and a replicate."
+msgstr "Endurteknar færslur eins og ``c1,c1`` eða ``r7,r7`` hafa engin viðbótaráhrif. Nákvæm samsvörun heldur ``c1`` aðgreindu frá ``c10``. Tvær reglur sem úthluta sama merkimiða mega velja sömu röð; tveir ólíkir merkimiðar í einum úttaksdálki krefjast leiðréttingar áður en breytingum er beitt. Hver úttaksdálkur hefur eigin úthlutanir, svo röð getur bæði haft arfgerð og endurtekningu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Add column**, name it ``condition``, and choose **Compose column**. Drag ``genotype`` into the composition field, insert a text token containing ``_``, then drag in ``replicate``. The token order determines the joining order. A row labelled ``WildType`` and ``replicate 1`` then receives ``WildType_replicate 1``. The label's space is retained. Column names, labels, component order and separator are editable; the example does not prescribe the names for your experiment."
+msgstr "Ýttu á **Bæta við dálki**, nefndu hann ``condition`` og veldu **Setja saman dálk**. Dragðu ``genotype`` inn í samsetningarreitinn, settu inn textatákn sem inniheldur ``_`` og dragðu síðan ``replicate`` inn. Röð táknanna ræður röð tengingarinnar. Röð merkt ``WildType`` og ``replicate 1`` fær þá ``WildType_replicate 1``. Bilið í merkimiðanum helst. Dálkanöfn, merkimiða, röð hluta og aðskiljara má breyta; dæmið fyrirskipar ekki nöfnin í þinni tilraun."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe."
+msgstr "Samsetningarreglur geta notað upprunadálka eða áður búna merkingadálka. Hafðu dálka sem aðrir byggja á framar í dálkaröðinni. Ef hluta vantar verður sameinaða gildið autt; ekki verður til texti á borð við ``nan``. Forskoðaðu alla myndaða dálka áður en breytingum er beitt. Vistun grafs, útflutningur töflunnar eða vistun nýrrar merktrar SQLite-töflu varðveitir alla uppskriftina."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Rules and manual selection"
+msgstr "Reglur og handvirkt val"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Assign values**, choose **Regular expression** in a condition box to use its Include and Exclude fields. Choose **Manual rows only** to assign only the rows you drop into that box, without a comparison rule."
+msgstr "Í **Úthluta gildum** skaltu velja **Regluleg segð** í skilyrðareit til að nota Include- og Exclude-reiti hans. Veldu **Aðeins handvirkt úthlutaðar raðir** til að úthluta aðeins þeim röðum sem þú sleppir í þann reit, án samanburðarreglu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically."
+msgstr "Ofan við skilyrðareitina býður **Dæmi fyrir dálk** mynstur sem má afrita, byggð á gildum valda dálksins. Veldu tegund dæmis, skoðaðu eða breyttu textanum, ýttu á **Afrita reglulega segð** og límdu síðan í **Taka með** eða **Útiloka** reit skilyrðis. Afritun dæmis breytir ekki skilyrðareglunum. Bókstafleg greinarmerki í úrtaksgildunum eru sjálfkrafa varin með lausnarmerkjum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:"
+msgstr "Fyrir upprunaleg nöfn eins og ``drug_A_rep1.tif`` og ``control_rep1.tif``:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``drug_A|control`` matches either text."
+msgstr "``drug_A|control`` samsvarar öðrum hvorum textanum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``drug_A_rep.`` allows one character after ``rep``."
+msgstr "``drug_A_rep.`` leyfir einn staf á eftir ``rep``."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``drug_A.*rep`` allows any intervening text, including none."
+msgstr "``drug_A.*rep`` leyfir hvaða texta sem er þar á milli, líka engan."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``^drug_A_rep1\\.tif$`` matches that entire value."
+msgstr "``^drug_A_rep1\\.tif$`` samsvarar öllu því gildi."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``(?i)drug_a`` ignores letter case."
+msgstr "``(?i)drug_a`` hunsar há- og lágstafi."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use Include to select the group and Exclude to remove exceptions, such as Include ``drug_A`` with Exclude ``failed|outlier``. A filename column containing several original names separated by semicolons is searched as one string, so a contains pattern can match any recorded name; a whole-value anchor applies to the entire combined string."
+msgstr "Notaðu Include til að velja hópinn og Exclude til að fjarlægja undantekningar, til dæmis Include ``drug_A`` með Exclude ``failed|outlier``. Skráarnafnadálkur með nokkrum upprunalegum nöfnum aðskildum með semíkommum er leitaður sem einn strengur, svo innihaldsmynstur getur samsvarað hvaða skráðu nafni sem er. Akkeri fyrir heilt gildi á við allan sameinaða strenginn."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Patterns search the chosen column's displayed string values. They are case-sensitive unless the expression includes a flag such as ``(?i)``. Use anchors when the whole value must match: ``^A0[1-3]$`` selects wells ``A01``, ``A02`` and ``A03``. ``.*`` includes all nonmissing values in the chosen column. A blank Include expression selects no rows automatically."
+msgstr "Mynstur leita í sýndum strenggildum valda dálksins. Þau eru hástafanæm nema segðin innihaldi flagg á borð við ``(?i)``. Notaðu akkeri þegar allt gildið verður að passa: ``^A0[1-3]$`` velur brunnana ``A01``, ``A02`` og ``A03``. ``.*`` tekur með öll gildi í valda dálkinum sem ekki vantar. Tóm Include-segð velur engar raðir sjálfkrafa."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Manual rows are added to the rows matched by Include. Exclude then removes matches from both sets, including rows you dropped manually. Missing metadata values do not match a regex; they can still be assigned manually."
+msgstr "Handvirkum röðum er bætt við raðirnar sem Include samsvarar. Exclude fjarlægir síðan samsvaranir úr báðum mengjum, þar á meðal raðir sem þú slepptir inn handvirkt. Lýsigagnagildi sem vantar samsvara ekki reglulegri segð en má samt úthluta handvirkt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select multiple rows in the source table and drag them into a condition box. Use Shift for a range and Ctrl/Cmd for individual rows. Sorting by a column or using **Filter source metadata or preview conditions** changes the visible view, while assignments still refer to the original source rows. The filter box is a case-insensitive text search, separate from the condition regex rules. Dropping a row twice into the same box does not duplicate its assignment."
+msgstr "Veldu margar raðir í upprunatöflunni og dragðu þær í skilyrðareit. Notaðu Shift fyrir bil og Ctrl/Cmd fyrir stakar raðir. Röðun eftir dálki eða notkun **Sía lýsigögn uppruna eða forskoðuð skilyrði** breytir því sem sést en úthlutanir vísa áfram í upprunalegu raðirnar. Síureiturinn leitar í texta án tillits til há- og lágstafa og er aðskilinn frá reglulegum segðum skilyrðanna. Að sleppa röð tvisvar í sama reit tvítekur ekki úthlutun hennar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Remove selected manual rows** or **Clear manual rows** to remove dropped memberships. An Include rule can still match those rows; change the rule or add an Exclude expression when they must leave the condition. **Remove condition** removes the whole box and its rules."
+msgstr "Notaðu **Fjarlægja valdar handvirkar raðir** eða **Hreinsa handvirkar raðir** til að fjarlægja aðild raða sem sleppt hefur verið inn. Include-regla getur enn samsvarað þessum röðum; breyttu reglunni eða bættu við Exclude-segð ef þær eiga að yfirgefa skilyrðið. **Fjarlægja skilyrði** fjarlægir allan reitinn og reglur hans."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A row may receive only one distinct label within each annotation column. If boxes assign different labels to it, the preview shows those competing labels and **Apply conditions** stays disabled. Adjust the include/exclude patterns or manual assignments until the overlap count is zero. No condition silently wins. Unmatched rows remain blank in the output column and remain present in the table."
+msgstr "Röð má aðeins fá einn aðgreindan merkimiða í hverjum merkingadálki. Ef reitir úthluta henni ólíkum merkimiðum sýnir forskoðunin þá merkimiða sem keppa og **Beita skilyrðum** helst óvirkt. Stilltu mynstrin sem taka með/útiloka eða handvirkar úthlutanir þar til fjöldi árekstra er núll. Ekkert skilyrði fær hljóðlega forgang. Raðir án samsvörunar verða auðar í úttaksdálkinum og haldast í töflunni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Reuse an annotation schema on another table"
+msgstr "Endurnota merkingaskema á annarri töflu"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Save schema** after the preview is valid. The JSON file retains the output-column names and order, extraction patterns and capture groups, matching rules, labels, and composition tokens. It contains the instructions for generating values, rather than a copy of the table or its generated values."
+msgstr "Veldu **Vista skema** eftir að forskoðunin er gild. JSON-skráin varðveitir nöfn og röð úttaksdálka, útdráttarmynstur og föngunarhópa, samsvörunarreglur, merkimiða og samsetningartákn. Hún inniheldur leiðbeiningarnar til að mynda gildi en ekki afrit af töflunni eða mynduðum gildum hennar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open another table, choose **Annotate conditions**, then **Load schema** and select the JSON file. The new table may have different rows and values, but must provide the columns referenced by the schema. All outputs are previewed against this table. Inspect the values and any overlapping assignments before choosing **Apply conditions**. Loading alone does not change the working table."
+msgstr "Opnaðu aðra töflu, veldu **Merkja tilraunaskilyrði**, síðan **Hlaða inn skema** og veldu JSON-skrána. Nýja taflan má hafa aðrar raðir og gildi en verður að hafa dálkana sem skemað vísar í. Öll úttök eru forskoðuð gagnvart þessari töflu. Skoðaðu gildin og úthlutanir sem skarast áður en þú velur **Beita skilyrðum**. Hleðsla ein og sér breytir ekki vinnutöflunni."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Manually dragged row assignments are specific to their source table and are omitted from reusable schemas. The save result reports how many assignments were omitted. Manual-only condition boxes remain available as empty groups to fill for the new table. To preserve manual assignments for the original analysis, use **Save chart** or **Save annotated table…** instead."
+msgstr "Handvirkar úthlutanir með drætti raða eiga sérstaklega við upprunatöflu sína og eru ekki teknar með í endurnýtanleg skemu. Vistunarniðurstaðan segir hversu mörgum úthlutunum var sleppt. Reitir sem aðeins nota handvirkar raðir haldast sem tómir hópar til að fylla fyrir nýju töfluna. Notaðu **Vista graf** eða **Vista merkta töflu…** í staðinn til að varðveita handvirkar úthlutanir fyrir upprunalegu greininguna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Malformed files, unsupported versions, unavailable columns, invalid patterns and invalid output dependencies leave the existing dialog draft unchanged. An existing source column cannot be overwritten by a schema output. Schema files are written atomically; saving a schema over the source table itself is refused. The file size limit is 8 MiB."
+msgstr "Gallaðar skrár, óstuddar útgáfur, dálkar sem vantar, ógild mynstur og ógild háð milli úttaka skilja fyrirliggjandi gluggadrög eftir óbreytt. Úttak skema má ekki skrifa yfir fyrirliggjandi upprunadálk. Skemaskrár eru skrifaðar í einni órofinni aðgerð; vistun skema yfir upprunatöfluna sjálfa er hafnað. Stærðarmörk skrár eru 8 MiB."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Keep conditions with the analysis"
+msgstr "Varðveita tilraunaskilyrði með greiningunni"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Reopen **Annotate conditions** to edit the current assignments. They survive table refreshes in the current Graph Builder session when the source is unchanged. Use **Save chart** to preserve the rules, manual assignments, output-column definitions and any merge definition with the chart. **Load chart** reconstructs the source and checks its identity before applying those labels."
+msgstr "Opnaðu **Merkja tilraunaskilyrði** aftur til að breyta núverandi úthlutunum. Þær haldast við endurnýjun taflna í núverandi Graph Builder-setu ef uppruninn er óbreyttur. Notaðu **Vista graf** til að varðveita reglur, handvirkar úthlutanir, skilgreiningar úttaksdálka og sameiningarskilgreiningu með grafinu. **Hlaða grafi** endurgerir upprunann og athugar auðkenni hans áður en merkimiðunum er beitt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saved conditions belong to the exact source table, including its row order, values and schema. Changed source data or a different merge definition requires reviewing and recreating the conditions. Sorting the dialog's view does not change that source identity. This check prevents saved manual selections from labelling unrelated rows after a source changes."
+msgstr "Vistuð skilyrði tilheyra nákvæmlega upprunatöflunni, þar á meðal röð raða, gildum og skema hennar. Breytt upprunagögn eða önnur sameiningarskilgreining krefjast þess að skilyrðin séu yfirfarin og búin til aftur. Röðun á sýn gluggans breytir ekki þessu upprunaauðkenni. Athugunin kemur í veg fyrir að vistað handvirkt val merki óskyldar raðir eftir að uppruni breytist."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For a SQLite source, **Save annotated table…** saves the working values as a new physical table in the same database. The prompt **New table name (existing tables are preserved)** proposes the current table name followed by ``_annotated``. Existing tables, views and saved merged-table names cannot be overwritten; names beginning with ``sqlite_`` or ``_spacr_`` are reserved. This action adds a table and its annotation provenance while preserving the original measurement tables."
+msgstr "Fyrir SQLite-uppruna vistar **Vista merkta töflu…** vinnugildin sem nýja efnislega töflu í sama gagnagrunni. Reiturinn **Nýtt töflunafn (fyrirliggjandi töflur haldast)** leggur til núverandi töflunafn með ``_annotated`` á eftir. Ekki má skrifa yfir fyrirliggjandi töflur, sýnir eða nöfn vistaðra sameinaðra taflna; nöfn sem byrja á ``sqlite_`` eða ``_spacr_`` eru frátekin. Þessi aðgerð bætir við töflu og upprunaupplýsingum merkinga hennar en varðveitir upprunalegu mælingatöflurnar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved table is selected in the picker and can be loaded in other table screens, including Gate Editor. It contains a snapshot of the annotated values, unlike a derived merge that is recalculated from its inputs. Reopening it in Graph Builder restores editable condition rules when the saved rows and schema are unchanged. Save revised values under a new table name. Changed saved data are still readable, but old editable rules are not silently restored onto them. Image-specific actions continue to require appropriate object provenance."
+msgstr "Vistaða taflan er valin í töfluvalinu og má hlaða hana í öðrum töfluskjám, þar á meðal Gate Editor. Hún inniheldur afrit af merktum gildum á vistunartíma, ólíkt afleiddri sameiningu sem er endurreiknuð úr inntökum sínum. Þegar hún er opnuð aftur í Graph Builder eru breytanlegar skilyrðareglur endurheimtar ef vistaðar raðir og skema eru óbreytt. Vistaðu endurskoðuð gildi undir nýju töflunafni. Breytt vistuð gögn eru enn læsileg en gamlar breytanlegar reglur eru ekki hljóðlega endurheimtar yfir þau. Myndbundnar aðgerðir þurfa áfram viðeigandi upprunatengsl hluta."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export table…** writes the working table, including every annotation column, to a new CSV and records its source, merge definition and condition rules in ``<export>.csv.conditions.json``. It exports the working table rather than just a brushed selection. The original database or imported file is preserved, and exporting over that source path is refused. Reopening the CSV gives you its saved labels; use the saved chart to reopen the original source and editable condition rules."
+msgstr "**Flytja út töflu…** skrifar vinnutöfluna, með öllum merkingadálkum, í nýja CSV-skrá og skráir uppruna hennar, sameiningarskilgreiningu og skilyrðareglur í ``<export>.csv.conditions.json``. Það flytur út vinnutöfluna en ekki aðeins val sem merkt hefur verið á grafinu. Upprunalegi gagnagrunnurinn eða innflutta skráin er varðveitt og útflutningi yfir þá upprunaslóð er hafnað. Ef CSV-skráin er opnuð aftur fást vistaðir merkimiðar hennar; notaðu vistaða grafið til að opna upprunalegu gögnin og breytanlegar skilyrðareglur aftur."
+

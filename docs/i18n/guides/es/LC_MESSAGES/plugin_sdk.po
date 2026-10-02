@@ -1,0 +1,324 @@
+# spaCR user guide translation (es).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "spaCR plugin SDK"
+msgstr "SDK de complementos de spaCR"
+
+msgid "The plugin SDK lets a separately installed Python package add assays, importers, analysis utilities, settings panels, model-zoo entries and report sections without editing spaCR. Plugins use Python package entry points, so spaCR discovers them at startup and keeps them available to both the Qt application and ``spacr-run``."
+msgstr "El SDK de complementos permite que un paquete de Python instalado por separado añada ensayos, importadores, utilidades de análisis, paneles de configuración, entradas de la biblioteca de modelos y secciones de informes sin modificar spaCR. Los complementos usan puntos de entrada de paquetes de Python, de modo que spaCR los descubre al iniciarse y los pone a disposición tanto de la aplicación Qt como de ``spacr-run``."
+
+msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
+msgstr "La API actual del SDK es ``1.0``. Solo la versión principal determina la compatibilidad: un complemento que declara la API ``1.x`` funciona con el SDK ``1.x`` de spaCR. Un complemento mal formado o que falla se aísla y lo notifica ``spacr-plugins doctor``; no puede sustituir un módulo integrado ni impedir que spaCR se inicie."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Browse and install from a catalogue"
+msgstr "Explorar e instalar desde un catálogo"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis."
+msgstr "Active **Mostrar funciones alfa** en Preferencias y abra la pestaña **Complementos**. Introduzca en **Catálogo** un archivo JSON de catálogo, la carpeta que lo contiene o una dirección HTTP(S), y pulse **Lista**. Seleccione una entrada para **Instalar o actualizar** o **Desinstalar**. Para una receta instalada, **Abrir** carga sus ajustes guardados en el módulo correspondiente sin iniciar el análisis."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal."
+msgstr "El listado, la instalación y la eliminación se ejecutan en segundo plano. La pestaña muestra **Trabajando...** y desactiva temporalmente sus controles de catálogo mientras se ejecuta una acción. Los demás controles de la interfaz siguen disponibles. Cerrar Preferencias no cancela una instalación; esta termina independientemente de la ventana. Vuelva a abrir la pestaña para inspeccionar el resultado instalado. Un fallo al actualizar el catálogo se informa por separado de una instalación o eliminación correcta."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer."
+msgstr "Los complementos del catálogo utilizan carpetas de instalación separadas, pero comparten el intérprete de Python de spaCR. Este instalador de catálogo todavía no ofrece entornos separados para dependencias en conflicto."
+
+msgid "Minimal plugin"
+msgstr "Complemento mínimo"
+
+msgid "Declare the entry point in the plugin package's ``pyproject.toml``:"
+msgstr "Declare el punto de entrada en el ``pyproject.toml`` del paquete del complemento:"
+
+msgid "Then expose a manifest:"
+msgstr "Después, exponga un manifiesto:"
+
+msgid "The pipeline callable receives one settings dictionary. The defaults callable must accept an optional settings dictionary and return a dictionary. A validator returns :class:`spacr.validate.Problem` objects (or equivalent mappings). All processing still runs through spaCR's worker, journal, cancellation and reproducibility paths."
+msgstr "El invocable de la canalización recibe un diccionario de configuración. El invocable de valores predeterminados debe aceptar un diccionario de configuración opcional y devolver un diccionario. Un validador devuelve objetos :class:`spacr.validate.Problem` (o mapeos equivalentes). Todo el procesamiento sigue pasando por las rutas de proceso de trabajo, diario, cancelación y reproducibilidad de spaCR."
+
+msgid "Settings and custom screens"
+msgstr "Configuración y pantallas personalizadas"
+
+msgid "The generic settings screen is preferred: declare ``categories``, ``tooltips`` and optional ``labels`` on :class:`spacr.plugins.AppContribution`. The UI then provides the normal Run/Stop controls, console, progress reporting, API links, drag-and-drop fallback and remote-submit action."
+msgstr "Se prefiere la pantalla de configuración genérica: declare ``categories``, ``tooltips`` y, opcionalmente, ``labels`` en :class:`spacr.plugins.AppContribution`. La interfaz proporciona entonces los controles habituales Ejecutar/Detener, la consola, el informe de progreso, los enlaces a la API, el recurso de arrastrar y soltar y la acción de envío remoto."
+
+msgid "For a layout the generic screen cannot express, set ``screen_factory`` to a ``module:callable``. The callable is invoked as ``factory(app_key=...)`` and must return a ``PySide6.QtWidgets.QWidget``. A custom ``drop_handler`` must be a subclass of ``spacr.qt.dnd_handlers.DropHandler``. ``icon`` may name a spaCR semantic icon or an absolute image path; otherwise the normal puzzle piece fallback is used."
+msgstr "Para una disposición que la pantalla genérica no pueda expresar, establezca ``screen_factory`` en un ``module:callable``. El invocable se llama como ``factory(app_key=...)`` y debe devolver un ``PySide6.QtWidgets.QWidget``. Un ``drop_handler`` personalizado debe ser una subclase de ``spacr.qt.dnd_handlers.DropHandler``. ``icon`` puede nombrar un icono semántico de spaCR o una ruta de imagen absoluta; en caso contrario se usa la pieza de rompecabezas habitual."
+
+msgid "Model providers"
+msgstr "Proveedores de modelos"
+
+msgid "Add a :class:`spacr.plugins.ModelProviderContribution`. Its zero-argument callable returns an iterable of :class:`spacr.model_zoo.ModelEntry` objects or the mappings accepted by spaCR's JSON model catalogue."
+msgstr "Añada una :class:`spacr.plugins.ModelProviderContribution`. Su invocable sin argumentos devuelve un iterable de objetos :class:`spacr.model_zoo.ModelEntry` o de los mapeos que acepta el catálogo de modelos JSON de spaCR."
+
+msgid "Providers must be read-only during catalogue discovery. Downloads remain an explicit Model Zoo action. A provider exception is shown by ``spacr-plugins doctor`` and built-in models remain available."
+msgstr "Los proveedores deben ser de solo lectura durante el descubrimiento del catálogo. Las descargas siguen siendo una acción explícita de la biblioteca de modelos. Una excepción de un proveedor se muestra en ``spacr-plugins doctor`` y los modelos integrados siguen disponibles."
+
+msgid "Report sections"
+msgstr "Secciones de informes"
+
+msgid "A :class:`spacr.plugins.ReportSectionContribution` builder receives a read-only :class:`spacr.plugins.ReportContext` and returns a :class:`spacr.report.Section`:"
+msgstr "Un constructor :class:`spacr.plugins.ReportSectionContribution` recibe un :class:`spacr.plugins.ReportContext` de solo lectura y devuelve una :class:`spacr.report.Section`:"
+
+msgid "If the builder raises, the generated report contains a visible problem chapter with the exception instead of silently omitting the section."
+msgstr "Si el constructor lanza una excepción, el informe generado contiene un capítulo de problema visible con la excepción en lugar de omitir la sección en silencio."
+
+msgid "Translations"
+msgstr "Traducciones"
+
+msgid "``SpacrPlugin.translations`` maps spaCR language codes to English-source / translated-text mappings. Supported codes are ``sv``, ``de``, ``es``, ``zh_CN``, ``pt``, ``hi``, ``ko``, ``is`` and ``fr``. Missing strings fall back to English."
+msgstr "``SpacrPlugin.translations`` asigna códigos de idioma de spaCR a mapeos de texto original en inglés a texto traducido. Los códigos admitidos son ``sv``, ``de``, ``es``, ``zh_CN``, ``pt``, ``hi``, ``ko``, ``is`` y ``fr``. Las cadenas que falten recurren al inglés."
+
+msgid "Development and diagnostics"
+msgstr "Desarrollo y diagnóstico"
+
+msgid "During local development only, point ``SPACR_PLUGIN_MODULES`` at a comma-separated list of ``module:attribute`` references. Set ``SPACR_DISABLE_PLUGINS=1`` to start spaCR without third-party plugins."
+msgstr "Solo durante el desarrollo local, apunte ``SPACR_PLUGIN_MODULES`` a una lista de referencias ``module:attribute`` separadas por comas. Establezca ``SPACR_DISABLE_PLUGINS=1`` para iniciar spaCR sin complementos de terceros."
+
+msgid "The public SDK lives in :mod:`spacr.plugins`; the diagnostics command lives in :mod:`spacr.cli_plugins`."
+msgstr "El SDK público está en :mod:`spacr.plugins`; el comando de diagnóstico está en :mod:`spacr.cli_plugins`."
+
+msgid "API reference"
+msgstr "Referencia de la API"
+
+msgid "Versioned extension SDK for third-party spaCR plugins."
+msgstr "SDK de extensiones versionado para complementos de spaCR de terceros."
+
+msgid "Plugins are ordinary Python distributions exposing one entry point in the ``spacr.plugins`` group.  The entry point may resolve to a :class:`SpacrPlugin`, a mapping accepted by :func:`plugin_from_mapping`, or a zero-argument factory returning either.  Discovery is lazy, deterministic and failure-isolated: one malformed plugin is recorded in :func:`diagnostics` without preventing spaCR or the remaining plugins from loading."
+msgstr "Los complementos son distribuciones de Python normales que exponen un punto de entrada en el grupo ``spacr.plugins``. El punto de entrada puede resolverse en un :class:`SpacrPlugin`, en un mapeo aceptado por :func:`plugin_from_mapping` o en una fábrica sin argumentos que devuelva cualquiera de los dos. El descubrimiento es diferido, determinista y aislado frente a fallos: un complemento mal formado se registra en :func:`diagnostics` sin impedir que se carguen spaCR o los demás complementos."
+
+msgid "For editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a comma-separated list of ``module`` or ``module:attribute`` references. Installed plugins should always use package entry points instead."
+msgstr "Para el desarrollo editable/local, ``SPACR_PLUGIN_MODULES`` puede contener una lista de referencias ``module`` o ``module:attribute`` separadas por comas. Los complementos instalados deben usar siempre los puntos de entrada del paquete."
+
+msgid "Plugins and assay recipes can also be installed from a catalogue, a JSON file listing each entry's version, author and licence. A catalogue plugin is installed into its own folder under ``~/.spacr/plugins`` (or ``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never replaces or upgrades a package spaCR itself uses; it is discovered like any other plugin until it is uninstalled."
+msgstr "Los complementos y las recetas de ensayo también pueden instalarse desde un catálogo, un archivo JSON que indica la versión, el autor y la licencia de cada entrada. Un complemento de catálogo se instala en su propia carpeta en ``~/.spacr/plugins`` (o ``SPACR_PLUGIN_HOME``), junto con las bibliotecas que solicita, de modo que nunca sustituye ni actualiza un paquete que use el propio spaCR; se descubre como cualquier otro complemento hasta que se desinstala."
+
+msgid "Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively) skips discovery entirely, so no plugin loads from either source."
+msgstr "Establecer ``SPACR_DISABLE_PLUGINS`` en ``1``, ``true``, ``yes`` u ``on`` (sin distinguir mayúsculas y minúsculas) omite por completo el descubrimiento, de modo que no se carga ningún complemento de ninguna de las dos fuentes."
+
+msgid "One runnable GUI/headless application contributed by a plugin."
+msgstr "Una aplicación ejecutable, con o sin interfaz gráfica, aportada por un complemento."
+
+#, python-brace-format
+msgid "Discovery rejects the contribution with :exc:`ValueError` when ``section``, ``stage``, ``kind`` or ``call_style`` falls outside the fixed vocabulary listed below, when ``key`` does not match ``^[a-z][a-z0-9_]{1,63}$``, or when any non-empty ``module:callable`` reference is malformed."
+msgstr "El descubrimiento rechaza la contribución con :exc:`ValueError` cuando ``section``, ``stage``, ``kind`` o ``call_style`` quedan fuera del vocabulario fijo indicado abajo, cuando ``key`` no coincide con ``^[a-z][a-z0-9_]{1,63}$`` o cuando una referencia ``module:callable`` no vacía está mal formada."
+
+msgid "Variables"
+msgstr "Variables"
+
+#, python-brace-format
+msgid "identifier the CLI accepts and the GUI registers under; must match ``^[a-z][a-z0-9_]{1,63}$``. Reusing another plugin's key fails that plugin's load; colliding with a built-in app skips the contribution and records a diagnostic."
+msgstr "identificador que acepta la CLI y con el que se registra en la interfaz gráfica; debe coincidir con ``^[a-z][a-z0-9_]{1,63}$``. Reutilizar la clave de otro complemento hace fallar la carga de ese complemento; una colisión con una aplicación integrada omite la contribución y registra un diagnóstico."
+
+msgid "human-readable title shown in the sidebar and screen header; cannot be blank."
+msgstr "título legible que se muestra en la barra lateral y en la cabecera de la pantalla; no puede estar vacío."
+
+msgid "one-line blurb used as the app intro and the ``spacr-run --list`` summary; cannot be blank."
+msgstr "descripción de una línea usada como introducción de la aplicación y como resumen en ``spacr-run --list``; no puede estar vacía."
+
+msgid "``\"module:callable\"`` reference to the callable that does the work."
+msgstr "referencia ``\"module:callable\"`` al invocable que realiza el trabajo."
+
+#, python-brace-format
+msgid "``\"module:callable\"`` reference to a helper returning the settings dictionary; called with ``{}`` and retried with no argument."
+msgstr "referencia ``\"module:callable\"`` a un asistente que devuelve el diccionario de configuración; se llama con ``{}`` y se reintenta sin argumentos."
+
+msgid "sidebar group; one of ``\"core\"``, ``\"data\"``, ``\"models\"``, ``\"results\"`` or ``\"toxo\"``."
+msgstr "grupo de la barra lateral; uno de ``\"core\"``, ``\"data\"``, ``\"models\"``, ``\"results\"`` o ``\"toxo\"``."
+
+msgid "maturity annotation; one of ``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``."
+msgstr "anotación de madurez; una de ``\"alpha\"``, ``\"beta\"`` o ``\"stable\"``."
+
+msgid "what the app is; one of ``\"assay\"``, ``\"importer\"``, ``\"analysis\"`` or ``\"utility\"``."
+msgstr "qué es la aplicación; uno de ``\"assay\"``, ``\"importer\"``, ``\"analysis\"`` o ``\"utility\"``."
+
+msgid "settings-screen tabs, mapping a tab name to the setting keys it holds; empty means the generic ungrouped layout."
+msgstr "pestañas de la pantalla de configuración, que asignan a cada nombre de pestaña las claves de ajuste que contiene; vacío significa la disposición genérica sin agrupar."
+
+msgid "hover text per setting key."
+msgstr "texto flotante por clave de ajuste."
+
+msgid "display label per setting key, overriding the generated one."
+msgstr "etiqueta visible por clave de ajuste, que sustituye a la generada."
+
+msgid "address the settings screen's API link opens."
+msgstr "dirección que abre el enlace a la API de la pantalla de configuración."
+
+msgid "extra names the CLI and :mod:`spacr.validate` resolve to :attr:`key`."
+msgstr "nombres adicionales que la CLI y :mod:`spacr.validate` resuelven como :attr:`key`."
+
+msgid "optional ``\"module:callable\"`` reference to a callable taking the settings dict and returning ``spacr.validate.Problem`` objects or equivalent mappings."
+msgstr "referencia ``\"module:callable\"`` opcional a un invocable que recibe el diccionario de configuración y devuelve objetos ``spacr.validate.Problem`` o mapeos equivalentes."
+
+msgid "optional ``\"module:callable\"`` reference to a factory returning a ``QWidget``, replacing the generic settings screen; it is always invoked as ``factory(app_key=...)`` and so must accept that keyword."
+msgstr "referencia ``\"module:callable\"`` opcional a una fábrica que devuelve un ``QWidget`` y sustituye la pantalla de configuración genérica; siempre se invoca como ``factory(app_key=...)``, por lo que debe aceptar ese argumento con nombre."
+
+msgid "optional ``\"module:callable\"`` reference to a ``spacr.qt.dnd_handlers.DropHandler`` subclass."
+msgstr "referencia ``\"module:callable\"`` opcional a una subclase de ``spacr.qt.dnd_handlers.DropHandler``."
+
+msgid "absolute image path, or the name of a spaCR semantic icon; empty falls back to the puzzle-piece icon."
+msgstr "ruta de imagen absoluta o nombre de un icono semántico de spaCR; vacío recurre al icono de la pieza de rompecabezas."
+
+msgid "settings the user must supply, phrased for a human."
+msgstr "ajustes que debe proporcionar el usuario, redactados para una persona."
+
+msgid "what the app leaves on disk."
+msgstr "lo que la aplicación deja en el disco."
+
+msgid "``\"settings\"`` for ``fn(settings_dict)``; ``\"folder\"`` for a callable taking a bare path."
+msgstr "``\"settings\"`` para ``fn(settings_dict)``; ``\"folder\"`` para un invocable que recibe una ruta sin más."
+
+msgid "Immutable record naming a plugin's model-zoo provider."
+msgstr "Registro inmutable que nombra el proveedor de la biblioteca de modelos de un complemento."
+
+msgid "Parameters"
+msgstr "Parámetros"
+
+#, python-brace-format
+msgid "identifier for the provider; must match ``^[a-z][a-z0-9_]{1,63}$`` and be unique across all loaded plugins."
+msgstr "identificador del proveedor; debe coincidir con ``^[a-z][a-z0-9_]{1,63}$`` y ser único entre todos los complementos cargados."
+
+msgid "``\"module:callable\"`` reference string -- not the callable itself -- resolved at catalogue time to a zero-argument callable returning model-zoo entries or entry mappings."
+msgstr "cadena de referencia ``\"module:callable\"`` -- no el invocable en sí --, resuelta al construir el catálogo en un invocable sin argumentos que devuelve entradas de la biblioteca de modelos o mapeos de entradas."
+
+msgid "One discovery or contribution error visible to users and logs."
+msgstr "Un error de descubrimiento o de contribución visible para los usuarios y en los registros."
+
+msgid "entry-point or manifest name identifying the plugin that could not be loaded."
+msgstr "nombre del punto de entrada o del manifiesto que identifica el complemento que no pudo cargarse."
+
+msgid "diagnostic level, such as ``\"error\"`` or ``\"warning\"``."
+msgstr "nivel de diagnóstico, como ``\"error\"`` o ``\"warning\"``."
+
+msgid "concise user-facing account of the failed operation."
+msgstr "descripción breve, orientada al usuario, de la operación fallida."
+
+msgid "captured exception text with the technical cause; empty when no exception accompanied the diagnostic."
+msgstr "texto capturado de la excepción con la causa técnica; vacío cuando ninguna excepción acompañó al diagnóstico."
+
+msgid "Read-only inputs passed to plugin report-section builders."
+msgstr "Entradas de solo lectura que se pasan a los constructores de secciones de informe de los complementos."
+
+msgid "source folder or object from which the core report is built."
+msgstr "carpeta u objeto de origen a partir del cual se construye el informe principal."
+
+msgid "named core report artifacts available for reuse by the plugin section."
+msgstr "artefactos con nombre del informe principal disponibles para que los reutilice la sección del complemento."
+
+msgid "immutable sequence of recorded run summaries associated with the report source."
+msgstr "secuencia inmutable de resúmenes de ejecución registrados asociados al origen del informe."
+
+msgid "report-generation options supplied by the caller."
+msgstr "opciones de generación del informe proporcionadas por quien llama."
+
+msgid "Immutable record naming a builder that adds one report section."
+msgstr "Registro inmutable que nombra un constructor que añade una sección de informe."
+
+msgid ":func:`spacr.report.collect_report` resolves and calls the builder, and substitutes a visible problem section if it fails."
+msgstr ":func:`spacr.report.collect_report` resuelve y llama al constructor, y lo sustituye por una sección de problema visible si falla."
+
+#, python-brace-format
+msgid "stable section identifier; plugin validation requires ``^[a-z][a-z0-9_]{1,63}$`` and discovery rejects duplicate contribution keys."
+msgstr "identificador de sección estable; la validación de complementos exige ``^[a-z][a-z0-9_]{1,63}$`` y el descubrimiento rechaza claves de contribución duplicadas."
+
+msgid "fallback section heading used when the builder returns no title and when the builder fails; cannot be blank."
+msgstr "título de sección de respaldo que se usa cuando el constructor no devuelve título y cuando falla; no puede estar vacío."
+
+msgid "``\"module:callable\"`` reference resolved at report collection to a callable taking :class:`ReportContext` and returning a :class:`spacr.report.Section`."
+msgstr "referencia ``\"module:callable\"`` resuelta al recopilar el informe en un invocable que recibe un :class:`ReportContext` y devuelve una :class:`spacr.report.Section`."
+
+msgid "existing section key after which this section is inserted; an unmatched key appends it to the report."
+msgstr "clave de sección existente tras la cual se inserta esta sección; una clave sin coincidencia la añade al final del informe."
+
+msgid "Validated plugin manifest returned by a ``spacr.plugins`` entry point."
+msgstr "Manifiesto de complemento validado devuelto por un punto de entrada ``spacr.plugins``."
+
+msgid "human-readable plugin name used in diagnostics and discovery output."
+msgstr "nombre legible del complemento usado en los diagnósticos y en la salida del descubrimiento."
+
+msgid "version of the plugin distribution, reported to users without being interpreted by spaCR."
+msgstr "versión de la distribución del complemento, que se comunica a los usuarios sin que spaCR la interprete."
+
+msgid "plugin SDK version the manifest targets; its major version must match :data:`PLUGIN_API_VERSION`."
+msgstr "versión del SDK de complementos a la que apunta el manifiesto; su versión principal debe coincidir con :data:`PLUGIN_API_VERSION`."
+
+msgid "runnable applications the plugin adds to the GUI and headless registry."
+msgstr "aplicaciones ejecutables que el complemento añade a la interfaz gráfica y al registro sin interfaz gráfica."
+
+msgid "providers that extend the model-zoo catalogue."
+msgstr "proveedores que amplían el catálogo de la biblioteca de modelos."
+
+msgid "builders that insert plugin-owned sections into generated reports."
+msgstr "constructores que insertan secciones propias del complemento en los informes generados."
+
+msgid "locale-to-message mappings that translate the plugin's own visible strings."
+msgstr "mapeos de configuración regional a mensajes que traducen las cadenas visibles propias del complemento."
+
+msgid "Return discovery and runtime contribution failures."
+msgstr "Devuelve los fallos de descubrimiento y de contribución en tiempo de ejecución."
+
+msgid "Return every valid discovered plugin in deterministic order."
+msgstr "Devuelve todos los complementos válidos descubiertos en un orden determinista."
+
+msgid "Returns an empty tuple, with no diagnostic recorded, when ``SPACR_DISABLE_PLUGINS`` is set to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively): nothing is imported at all. The result is cached; :func:`reload_plugins` discards the cache and discovers again."
+msgstr "Devuelve una tupla vacía, sin registrar ningún diagnóstico, cuando ``SPACR_DISABLE_PLUGINS`` vale ``1``, ``true``, ``yes`` u ``on`` (sin distinguir mayúsculas y minúsculas): no se importa nada. El resultado se almacena en caché; :func:`reload_plugins` descarta la caché y vuelve a descubrir."
+
+msgid "Return a contributed app by key, or ``None``."
+msgstr "Devuelve una aplicación aportada por su clave, o ``None``."
+
+msgid "``key`` of an installed plugin's :class:`AppContribution`; converted with ``str()`` before the registry lookup."
+msgstr "``key`` de la :class:`AppContribution` de un complemento instalado; se convierte con ``str()`` antes de buscarla en el registro."
+
+msgid "Import and return ``module:attribute`` (nested attributes supported)."
+msgstr "Importa y devuelve ``module:attribute`` (se admiten atributos anidados)."
+
+msgid "string of the form ``\"package.module:attribute\"``; the attribute part may be dotted to reach nested objects. Anything else raises ``ValueError``."
+msgstr "cadena con la forma ``\"package.module:attribute\"``; la parte del atributo puede contener puntos para llegar a objetos anidados. Cualquier otra cosa lanza ``ValueError``."
+
+msgid "Return ``(plugin_name, provider)`` model-zoo contributions."
+msgstr "Devuelve las contribuciones a la biblioteca de modelos como ``(plugin_name, provider)``."
+
+msgid "Return all contributed applications."
+msgstr "Devuelve todas las aplicaciones aportadas."
+
+msgid "Validate a mapping and return its immutable :class:`SpacrPlugin`."
+msgstr "Valida un mapeo y devuelve su :class:`SpacrPlugin` inmutable."
+
+msgid "manifest mapping whose keys are the :class:`SpacrPlugin` fields; ``apps``, ``model_providers`` and ``report_sections`` may hold mappings or contribution objects, and ``translations`` must map language codes to string mappings. A non-mapping raises ``TypeError``."
+msgstr "mapeo de manifiesto cuyas claves son los campos de :class:`SpacrPlugin`; ``apps``, ``model_providers`` y ``report_sections`` pueden contener mapeos u objetos de contribución, y ``translations`` debe asignar códigos de idioma a mapeos de cadenas. Un valor que no sea un mapeo lanza ``TypeError``."
+
+msgid "Record a model/report/runtime plugin failure without aborting spaCR."
+msgstr "Registra un fallo de un complemento de modelo, informe o ejecución sin interrumpir spaCR."
+
+msgid "name of the plugin that failed, stored on the :class:`PluginDiagnostic` and written to the log."
+msgstr "nombre del complemento que falló, guardado en el :class:`PluginDiagnostic` y escrito en el registro."
+
+msgid "user-facing account of the failed operation."
+msgstr "descripción, orientada al usuario, de la operación fallida."
+
+msgid "Clear the discovery cache and discover again (primarily for tests/dev)."
+msgstr "Borra la caché de descubrimiento y vuelve a descubrir (principalmente para pruebas y desarrollo)."
+
+msgid "Return ``(plugin_name, section)`` report contributions."
+msgstr "Devuelve las contribuciones de informe como ``(plugin_name, section)``."
+

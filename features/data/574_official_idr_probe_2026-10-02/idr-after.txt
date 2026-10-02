@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/spacr-implementation-20261001/f574-official/idr-utils/pyidr/study_parser.py", line 660, in <module>
+    parser = main(sys.argv[1:])
+  File "/tmp/spacr-implementation-20261001/f574-official/idr-utils/pyidr/study_parser.py", line 633, in main
+    p = StudyParser(s)
+  File "/tmp/spacr-implementation-20261001/f574-official/idr-utils/pyidr/study_parser.py", line 148, in __init__
+    self.parse_annotation_file(d)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/tmp/spacr-implementation-20261001/f574-official/idr-utils/pyidr/study_parser.py", line 216, in parse_annotation_file
+    raise Exception("Unmatched name %s" % name)
+Exception: Unmatched name spacr-example-screen/screenA

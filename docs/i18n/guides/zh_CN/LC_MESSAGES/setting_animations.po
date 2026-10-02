@@ -1,0 +1,774 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Setting animation gallery"
+msgstr "设置动画库"
+
+msgid "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking."
+msgstr "spaCR 为那些通过视觉更容易理解其效果的设置提供了简短、确定性的 GIF 动画。在桌面界面中，将鼠标悬停在某个设置上会显示其说明；按下该工具提示底部青色的 **Animation** 一词，会在文字右侧显示对应的动画。它只对该设置显示——下一个设置仍显示文字，直到按下其自己的 **Animation**，在此之前不会解码任何内容。在“偏好”中开启 *设置项动画*，即可无需询问直接显示动画。"
+
+msgid "The diagrams use a shared biological grammar: white fibroblast or motile immune-cell outlines, blue nuclei with unequal nucleoli, teal Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole, and soft-magenta Golgi cisternae. Filled regions are translucent and the rounded field perimeter remains white on black."
+msgstr "这些示意图使用统一的生物学图示语言：白色的成纤维细胞或运动免疫细胞轮廓、带有大小不等核仁的蓝色细胞核、位于仅以轮廓表示的纳虫泡内的青色弓形虫速殖子，以及柔和的品红色高尔基体扁囊。填充区域为半透明，圆角视野边界在黑色背景上保持白色。"
+
+msgid "The cell, nucleus and nucleoli, two-parasite vacuole, and Golgi use the reviewed, artist-authored SVG paths checked into ``tools/``. Qt renders those exact Bezier paths at high resolution before each animation frame is composited, keeping the outlines smooth at small sizes. Source-template SHA-256 hashes are recorded in the manifest."
+msgstr "细胞、细胞核及核仁、含两个寄生虫的纳虫泡以及高尔基体均使用签入 ``tools/`` 的、经过审阅的艺术家绘制 SVG 路径。Qt 在合成每一帧动画之前以高分辨率渲染这些精确的贝塞尔路径，使轮廓在小尺寸下依然平滑。源模板的 SHA-256 哈希记录在清单中。"
+
+msgid "Animations are resolved by setting key, with numbered organelle slots reusing the primary slot's animation through :mod:`spacr.setting_animations`; the assets and manifest are generated reproducibly by ``tools/generate_setting_animations.py``."
+msgstr "动画按设置键解析，编号的细胞器槽位通过 :mod:`spacr.setting_animations` 重用主槽位的动画；资源和清单由 ``tools/generate_setting_animations.py`` 以可重复的方式生成。"
+
+msgid "Mask filtering"
+msgstr "掩膜过滤"
+
+msgid "Cell — Remove border objects"
+msgstr "细胞 — 移除边界对象"
+
+msgid "Cell — Remove border objects setting animation"
+msgstr "设置动画：细胞 — 移除边界对象"
+
+msgid "**Settings:** ``cell_remove_border_objects``"
+msgstr "**设置：** ``cell_remove_border_objects``"
+
+msgid "Cell — Minimum object area"
+msgstr "细胞 — 最小对象面积"
+
+msgid "Cell — Minimum object area setting animation"
+msgstr "设置动画：细胞 — 最小对象面积"
+
+msgid "**Settings:** ``cell_min_size``, ``object_filters``"
+msgstr "**设置：** ``cell_min_size``, ``object_filters``"
+
+msgid "Nucleus — Remove border objects"
+msgstr "细胞核 — 移除边界对象"
+
+msgid "Nucleus — Remove border objects setting animation"
+msgstr "设置动画：细胞核 — 移除边界对象"
+
+msgid "**Settings:** ``nucleus_remove_border_objects``"
+msgstr "**设置：** ``nucleus_remove_border_objects``"
+
+msgid "Nucleus — Minimum object area"
+msgstr "细胞核 — 最小对象面积"
+
+msgid "Nucleus — Minimum object area setting animation"
+msgstr "设置动画：细胞核 — 最小对象面积"
+
+msgid "**Settings:** ``nucleus_min_size``"
+msgstr "**设置：** ``nucleus_min_size``"
+
+msgid "Pathogen — Remove border objects"
+msgstr "病原体 — 移除边界对象"
+
+msgid "Pathogen — Remove border objects setting animation"
+msgstr "设置动画：病原体 — 移除边界对象"
+
+msgid "**Settings:** ``pathogen_remove_border_objects``"
+msgstr "**设置：** ``pathogen_remove_border_objects``"
+
+msgid "Pathogen — Minimum object area"
+msgstr "病原体 — 最小对象面积"
+
+msgid "Pathogen — Minimum object area setting animation"
+msgstr "设置动画：病原体 — 最小对象面积"
+
+msgid "**Settings:** ``pathogen_min_size``"
+msgstr "**设置：** ``pathogen_min_size``"
+
+msgid "Organelle — Remove border objects"
+msgstr "细胞器 — 移除边界对象"
+
+msgid "Organelle — Remove border objects setting animation"
+msgstr "设置动画：细胞器 — 移除边界对象"
+
+msgid "**Settings:** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+msgstr "**设置：** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+
+msgid "Organelle — Minimum object area"
+msgstr "细胞器 — 最小对象面积"
+
+msgid "Organelle — Minimum object area setting animation"
+msgstr "设置动画：细胞器 — 最小对象面积"
+
+msgid "**Settings:** ``organelle_min_area``"
+msgstr "**设置：** ``organelle_min_area``"
+
+msgid "Organelle — Maximum object area"
+msgstr "细胞器 — 最大对象面积"
+
+msgid "Organelle — Maximum object area setting animation"
+msgstr "设置动画：细胞器 — 最大对象面积"
+
+msgid "**Settings:** ``organelle_max_area``"
+msgstr "**设置：** ``organelle_max_area``"
+
+msgid "Organelle — Minimum mean intensity"
+msgstr "细胞器 — 最小平均强度"
+
+msgid "Organelle — Minimum mean intensity setting animation"
+msgstr "设置动画：细胞器 — 最小平均强度"
+
+msgid "**Settings:** ``organelle_min_intensity``"
+msgstr "**设置：** ``organelle_min_intensity``"
+
+msgid "Organelle — Maximum mean intensity"
+msgstr "细胞器 — 最大平均强度"
+
+msgid "Organelle — Maximum mean intensity setting animation"
+msgstr "设置动画：细胞器 — 最大平均强度"
+
+msgid "**Settings:** ``organelle_max_intensity``"
+msgstr "**设置：** ``organelle_max_intensity``"
+
+msgid "Mask repair"
+msgstr "掩膜修复"
+
+msgid "Merge edge-pathogen cells"
+msgstr "合并边缘病原体细胞"
+
+msgid "Merge edge-pathogen cells setting animation"
+msgstr "设置动画：合并边缘病原体细胞"
+
+msgid "**Settings:** ``merge_edge_pathogen_cells``"
+msgstr "**设置：** ``merge_edge_pathogen_cells``"
+
+msgid "Adjust fragmented cells"
+msgstr "调整碎片化细胞"
+
+msgid "Adjust fragmented cells setting animation"
+msgstr "设置动画：调整碎片化细胞"
+
+msgid "**Settings:** ``adjust_cells``"
+msgstr "**设置：** ``adjust_cells``"
+
+msgid "Cell perimeter merge"
+msgstr "按细胞周长合并"
+
+msgid "Cell perimeter merge setting animation"
+msgstr "设置动画：按细胞周长合并"
+
+msgid "**Settings:** ``cell_perimeter_fraction``"
+msgstr "**设置：** ``cell_perimeter_fraction``"
+
+msgid "Nucleus perimeter merge"
+msgstr "按细胞核周长合并"
+
+msgid "Nucleus perimeter merge setting animation"
+msgstr "设置动画：按细胞核周长合并"
+
+msgid "**Settings:** ``nucleus_perimeter_fraction``"
+msgstr "**设置：** ``nucleus_perimeter_fraction``"
+
+msgid "Pathogen perimeter merge"
+msgstr "按病原体周长合并"
+
+msgid "Pathogen perimeter merge setting animation"
+msgstr "设置动画：按病原体周长合并"
+
+msgid "**Settings:** ``pathogen_perimeter_fraction``"
+msgstr "**设置：** ``pathogen_perimeter_fraction``"
+
+msgid "Organelle perimeter merge"
+msgstr "按细胞器周长合并"
+
+msgid "Organelle perimeter merge setting animation"
+msgstr "设置动画：按细胞器周长合并"
+
+msgid "**Settings:** ``organelle_perimeter_fraction``"
+msgstr "**设置：** ``organelle_perimeter_fraction``"
+
+msgid "Fill holes in masks"
+msgstr "填充掩膜中的孔洞"
+
+msgid "Fill holes in masks setting animation"
+msgstr "设置动画：填充掩膜中的孔洞"
+
+msgid "**Settings:** ``fill_in``"
+msgstr "**设置：** ``fill_in``"
+
+msgid "Segmentation"
+msgstr "分割"
+
+msgid "Cell probability threshold"
+msgstr "细胞概率阈值"
+
+msgid "Cell probability threshold setting animation"
+msgstr "设置动画：细胞概率阈值"
+
+msgid "**Settings:** ``cell_cellprob_threshold``"
+msgstr "**设置：** ``cell_cellprob_threshold``"
+
+msgid "Cell flow threshold"
+msgstr "细胞流场阈值"
+
+msgid "Cell flow threshold setting animation"
+msgstr "设置动画：细胞流场阈值"
+
+msgid "**Settings:** ``cell_flow_threshold``"
+msgstr "**设置：** ``cell_flow_threshold``"
+
+msgid "Cell diameter"
+msgstr "细胞直径"
+
+msgid "Cell diameter setting animation"
+msgstr "设置动画：细胞直径"
+
+msgid "**Settings:** ``cell_diameter``"
+msgstr "**设置：** ``cell_diameter``"
+
+msgid "Nucleus probability threshold"
+msgstr "细胞核概率阈值"
+
+msgid "Nucleus probability threshold setting animation"
+msgstr "设置动画：细胞核概率阈值"
+
+msgid "**Settings:** ``nucleus_cellprob_threshold``"
+msgstr "**设置：** ``nucleus_cellprob_threshold``"
+
+msgid "Nucleus flow threshold"
+msgstr "细胞核流场阈值"
+
+msgid "Nucleus flow threshold setting animation"
+msgstr "设置动画：细胞核流场阈值"
+
+msgid "**Settings:** ``nucleus_flow_threshold``"
+msgstr "**设置：** ``nucleus_flow_threshold``"
+
+msgid "Nucleus diameter"
+msgstr "细胞核直径"
+
+msgid "Nucleus diameter setting animation"
+msgstr "设置动画：细胞核直径"
+
+msgid "**Settings:** ``nucleus_diameter``"
+msgstr "**设置：** ``nucleus_diameter``"
+
+msgid "Pathogen probability threshold"
+msgstr "病原体概率阈值"
+
+msgid "Pathogen probability threshold setting animation"
+msgstr "设置动画：病原体概率阈值"
+
+msgid "**Settings:** ``pathogen_cellprob_threshold``"
+msgstr "**设置：** ``pathogen_cellprob_threshold``"
+
+msgid "Pathogen flow threshold"
+msgstr "病原体流场阈值"
+
+msgid "Pathogen flow threshold setting animation"
+msgstr "设置动画：病原体流场阈值"
+
+msgid "**Settings:** ``pathogen_flow_threshold``"
+msgstr "**设置：** ``pathogen_flow_threshold``"
+
+msgid "Pathogen diameter"
+msgstr "病原体直径"
+
+msgid "Pathogen diameter setting animation"
+msgstr "设置动画：病原体直径"
+
+msgid "**Settings:** ``pathogen_diameter``"
+msgstr "**设置：** ``pathogen_diameter``"
+
+msgid "Organelle diameter"
+msgstr "细胞器直径"
+
+msgid "Organelle diameter setting animation"
+msgstr "设置动画：细胞器直径"
+
+msgid "**Settings:** ``organelle_diameter``"
+msgstr "**设置：** ``organelle_diameter``"
+
+msgid "Organelle probability threshold"
+msgstr "细胞器概率阈值"
+
+msgid "Organelle probability threshold setting animation"
+msgstr "设置动画：细胞器概率阈值"
+
+msgid "**Settings:** ``organelle_cellprob_threshold``"
+msgstr "**设置：** ``organelle_cellprob_threshold``"
+
+msgid "Organelle flow threshold"
+msgstr "细胞器流场阈值"
+
+msgid "Organelle flow threshold setting animation"
+msgstr "设置动画：细胞器流场阈值"
+
+msgid "**Settings:** ``organelle_flow_threshold``"
+msgstr "**设置：** ``organelle_flow_threshold``"
+
+msgid "Image preprocessing"
+msgstr "图像预处理"
+
+msgid "Cell background subtraction"
+msgstr "细胞背景扣除"
+
+msgid "Cell background subtraction setting animation"
+msgstr "设置动画：细胞背景扣除"
+
+msgid "**Settings:** ``remove_background_cell``, ``cell_background``"
+msgstr "**设置：** ``remove_background_cell``, ``cell_background``"
+
+msgid "Cell signal-to-noise"
+msgstr "细胞信噪比"
+
+msgid "Cell signal-to-noise setting animation"
+msgstr "设置动画：细胞信噪比"
+
+msgid "**Settings:** ``cell_signal_to_noise``"
+msgstr "**设置：** ``cell_signal_to_noise``"
+
+msgid "Nucleus background subtraction"
+msgstr "细胞核背景扣除"
+
+msgid "Nucleus background subtraction setting animation"
+msgstr "设置动画：细胞核背景扣除"
+
+msgid "**Settings:** ``remove_background_nucleus``, ``nucleus_background``"
+msgstr "**设置：** ``remove_background_nucleus``, ``nucleus_background``"
+
+msgid "Nucleus signal-to-noise"
+msgstr "细胞核信噪比"
+
+msgid "Nucleus signal-to-noise setting animation"
+msgstr "设置动画：细胞核信噪比"
+
+msgid "**Settings:** ``nucleus_signal_to_noise``"
+msgstr "**设置：** ``nucleus_signal_to_noise``"
+
+msgid "Pathogen background subtraction"
+msgstr "病原体背景扣除"
+
+msgid "Pathogen background subtraction setting animation"
+msgstr "设置动画：病原体背景扣除"
+
+msgid "**Settings:** ``remove_background_pathogen``, ``pathogen_background``"
+msgstr "**设置：** ``remove_background_pathogen``, ``pathogen_background``"
+
+msgid "Pathogen signal-to-noise"
+msgstr "病原体信噪比"
+
+msgid "Pathogen signal-to-noise setting animation"
+msgstr "设置动画：病原体信噪比"
+
+msgid "**Settings:** ``pathogen_signal_to_noise``"
+msgstr "**设置：** ``pathogen_signal_to_noise``"
+
+msgid "Image normalization percentiles"
+msgstr "图像归一化百分位"
+
+msgid "Image normalization percentiles setting animation"
+msgstr "设置动画：图像归一化百分位"
+
+msgid "**Settings:** ``normalization_percentiles``, ``normalize``"
+msgstr "**设置：** ``normalization_percentiles``, ``normalize``"
+
+msgid "Organelle preprocessing"
+msgstr "细胞器预处理"
+
+msgid "Fill small organelle holes"
+msgstr "填充细胞器小孔洞"
+
+msgid "Fill small organelle holes setting animation"
+msgstr "设置动画：填充细胞器小孔洞"
+
+msgid "**Settings:** ``organelle_fill_holes``"
+msgstr "**设置：** ``organelle_fill_holes``"
+
+msgid "Split touching organelle spots"
+msgstr "分离相互接触的细胞器斑点"
+
+msgid "Split touching organelle spots setting animation"
+msgstr "设置动画：分离相互接触的细胞器斑点"
+
+msgid "**Settings:** ``organelle_watershed_spots``"
+msgstr "**设置：** ``organelle_watershed_spots``"
+
+msgid "Skeletonize organelle networks"
+msgstr "细胞器网络骨架化"
+
+msgid "Skeletonize organelle networks setting animation"
+msgstr "设置动画：细胞器网络骨架化"
+
+msgid "**Settings:** ``organelle_skeletonize``"
+msgstr "**设置：** ``organelle_skeletonize``"
+
+msgid "Rolling-ball background correction"
+msgstr "滚球法背景校正"
+
+msgid "Rolling-ball background correction setting animation"
+msgstr "设置动画：滚球法背景校正"
+
+msgid "**Settings:** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+msgstr "**设置：** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+
+msgid "Organelle local contrast (CLAHE)"
+msgstr "细胞器局部对比度（CLAHE）"
+
+msgid "Organelle local contrast (CLAHE) setting animation"
+msgstr "设置动画：细胞器局部对比度（CLAHE）"
+
+msgid "**Settings:** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+msgstr "**设置：** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+
+msgid "Mask organelles within cells"
+msgstr "将细胞器限制在细胞内"
+
+msgid "Mask organelles within cells setting animation"
+msgstr "设置动画：将细胞器限制在细胞内"
+
+msgid "**Settings:** ``organelle_mask_within_cells``"
+msgstr "**设置：** ``organelle_mask_within_cells``"
+
+msgid "Organelle segmentation threshold"
+msgstr "细胞器分割阈值"
+
+msgid "Organelle segmentation threshold setting animation"
+msgstr "设置动画：细胞器分割阈值"
+
+msgid "**Settings:** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+msgstr "**设置：** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+
+msgid "Plot appearance"
+msgstr "绘图外观"
+
+msgid "Mask outline thickness"
+msgstr "掩膜轮廓粗细"
+
+msgid "Mask outline thickness setting animation"
+msgstr "设置动画：掩膜轮廓粗细"
+
+msgid "**Settings:** ``outline_thickness``"
+msgstr "**设置：** ``outline_thickness``"
+
+msgid "Crop output"
+msgstr "裁剪图输出"
+
+msgid "Keep bounding-box context"
+msgstr "保留边界框上下文"
+
+msgid "Keep bounding-box context setting animation"
+msgstr "设置动画：保留边界框上下文"
+
+msgid "**Settings:** ``use_bounding_box``"
+msgstr "**设置：** ``use_bounding_box``"
+
+msgid "Dilate crop masks"
+msgstr "膨胀裁剪掩膜"
+
+msgid "Dilate crop masks setting animation"
+msgstr "设置动画：膨胀裁剪图掩膜"
+
+msgid "**Settings:** ``dialate_pngs``, ``dialate_png_ratios``"
+msgstr "**设置：** ``dialate_pngs``, ``dialate_png_ratios``"
+
+msgid "Choose crop target"
+msgstr "选择裁剪目标"
+
+msgid "Choose crop target setting animation"
+msgstr "设置动画：选择裁剪目标"
+
+msgid "**Settings:** ``crop_mode``"
+msgstr "**设置：** ``crop_mode``"
+
+msgid "Crop canvas size"
+msgstr "裁剪画布大小"
+
+msgid "Crop canvas size setting animation"
+msgstr "设置动画：裁剪画布大小"
+
+msgid "**Settings:** ``png_size``"
+msgstr "**设置：** ``png_size``"
+
+msgid "Measurement"
+msgstr "测量"
+
+msgid "Derive cytoplasm compartment"
+msgstr "推导细胞质区室"
+
+msgid "Derive cytoplasm compartment setting animation"
+msgstr "设置动画：推导细胞质区室"
+
+msgid "**Settings:** ``cytoplasm``"
+msgstr "**设置：** ``cytoplasm``"
+
+msgid "Radial-distance shells"
+msgstr "径向距离壳层"
+
+msgid "Radial-distance shells setting animation"
+msgstr "设置动画：径向距离壳层"
+
+msgid "**Settings:** ``radial_dist``, ``distance_gaussian_sigma``"
+msgstr "**设置：** ``radial_dist``, ``distance_gaussian_sigma``"
+
+msgid "Keep or remove uninfected cells"
+msgstr "保留或移除未感染细胞"
+
+msgid "Keep or remove uninfected cells setting animation"
+msgstr "设置动画：保留或移除未感染细胞"
+
+msgid "**Settings:** ``uninfected``"
+msgstr "**设置：** ``uninfected``"
+
+msgid "Tracking & volumetric"
+msgstr "跟踪与体数据"
+
+msgid "Remove transient tracks"
+msgstr "移除短暂轨迹"
+
+msgid "Remove transient tracks setting animation"
+msgstr "设置动画：移除短暂轨迹"
+
+msgid "**Settings:** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+msgstr "**设置：** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+
+msgid "Maximum linking displacement"
+msgstr "最大关联位移"
+
+msgid "Maximum linking displacement setting animation"
+msgstr "设置动画：最大关联位移"
+
+msgid "**Settings:** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+msgstr "**设置：** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+
+msgid "Tracking memory"
+msgstr "跟踪记忆"
+
+msgid "Tracking memory setting animation"
+msgstr "设置动画：跟踪记忆"
+
+msgid "**Settings:** ``timelapse_memory``"
+msgstr "**设置：** ``timelapse_memory``"
+
+msgid "Timepoint overlap threshold"
+msgstr "时间点重叠阈值"
+
+msgid "Timepoint overlap threshold setting animation"
+msgstr "设置动画：时间点重叠阈值"
+
+msgid "**Settings:** ``t_link_threshold``"
+msgstr "**设置：** ``t_link_threshold``"
+
+msgid "Z-plane stitch threshold"
+msgstr "Z 平面拼接阈值"
+
+msgid "Z-plane stitch threshold setting animation"
+msgstr "设置动画：Z 平面拼接阈值"
+
+msgid "**Settings:** ``stitch_threshold``"
+msgstr "**设置：** ``stitch_threshold``"
+
+msgid "Z projection"
+msgstr "Z 投影"
+
+msgid "Z projection setting animation"
+msgstr "设置动画：Z 投影"
+
+msgid "**Settings:** ``z_projection``"
+msgstr "**设置：** ``z_projection``"
+
+msgid "Project volumes for tracking"
+msgstr "投影体数据用于跟踪"
+
+msgid "Project volumes for tracking setting animation"
+msgstr "设置动画：投影体数据用于跟踪"
+
+msgid "**Settings:** ``t_project_for_tracking``"
+msgstr "**设置：** ``t_project_for_tracking``"
+
+msgid "Remove overly straight tracks"
+msgstr "移除过于笔直的轨迹"
+
+msgid "Remove overly straight tracks setting animation"
+msgstr "设置动画：移除过于笔直的轨迹"
+
+msgid "**Settings:** ``drop_straight_tracks``, ``straightness_threshold``"
+msgstr "**设置：** ``drop_straight_tracks``, ``straightness_threshold``"
+
+msgid "Smooth per-track outliers"
+msgstr "平滑轨迹内离群点"
+
+msgid "Smooth per-track outliers setting animation"
+msgstr "设置动画：平滑轨迹内离群点"
+
+msgid "**Settings:** ``track_outlier_zscore``"
+msgstr "**设置：** ``track_outlier_zscore``"
+
+msgid "Cell-division linking"
+msgstr "细胞分裂关联"
+
+msgid "Cell-division linking setting animation"
+msgstr "设置动画：细胞分裂关联"
+
+msgid "**Settings:** ``ultrack_division_weight``"
+msgstr "**设置：** ``ultrack_division_weight``"
+
+msgid "Contour smoothing"
+msgstr "轮廓平滑"
+
+msgid "Contour smoothing setting animation"
+msgstr "设置动画：轮廓平滑"
+
+msgid "**Settings:** ``ultrack_contour_sigma``"
+msgstr "**设置：** ``ultrack_contour_sigma``"
+
+msgid "Image UMAP"
+msgstr "图像 UMAP"
+
+msgid "UMAP neighborhood size"
+msgstr "UMAP 邻域大小"
+
+msgid "UMAP neighborhood size setting animation"
+msgstr "设置动画：UMAP 邻域大小"
+
+msgid "**Settings:** ``n_neighbors``"
+msgstr "**设置：** ``n_neighbors``"
+
+msgid "UMAP minimum distance"
+msgstr "UMAP 最小距离"
+
+msgid "UMAP minimum distance setting animation"
+msgstr "设置动画：UMAP 最小距离"
+
+msgid "**Settings:** ``min_dist``"
+msgstr "**设置：** ``min_dist``"
+
+msgid "Show object images"
+msgstr "显示对象图像"
+
+msgid "Show object images setting animation"
+msgstr "设置动画：显示对象图像"
+
+msgid "**Settings:** ``plot_images``"
+msgstr "**设置：** ``plot_images``"
+
+msgid "Remove image canvas"
+msgstr "移除图像画布"
+
+msgid "Remove image canvas setting animation"
+msgstr "设置动画：移除图像画布"
+
+msgid "**Settings:** ``remove_image_canvas``"
+msgstr "**设置：** ``remove_image_canvas``"
+
+msgid "Show cluster outlines"
+msgstr "显示簇轮廓"
+
+msgid "Show cluster outlines setting animation"
+msgstr "设置动画：显示簇轮廓"
+
+msgid "**Settings:** ``plot_outlines``"
+msgstr "**设置：** ``plot_outlines``"
+
+msgid "Show embedding points"
+msgstr "显示嵌入点"
+
+msgid "Show embedding points setting animation"
+msgstr "设置动画：显示嵌入点"
+
+msgid "**Settings:** ``plot_points``"
+msgstr "**设置：** ``plot_points``"
+
+msgid "Smooth cluster outlines"
+msgstr "平滑簇轮廓"
+
+msgid "Smooth cluster outlines setting animation"
+msgstr "设置动画：平滑簇轮廓"
+
+msgid "**Settings:** ``smooth_lines``"
+msgstr "**设置：** ``smooth_lines``"
+
+msgid "Remove cluster noise"
+msgstr "移除簇噪声"
+
+msgid "Remove cluster noise setting animation"
+msgstr "设置动画：移除簇噪声"
+
+msgid "**Settings:** ``remove_cluster_noise``"
+msgstr "**设置：** ``remove_cluster_noise``"
+
+msgid "Sample images by cluster"
+msgstr "按簇抽样图像"
+
+msgid "Sample images by cluster setting animation"
+msgstr "设置动画：按簇抽样图像"
+
+msgid "**Settings:** ``plot_by_cluster``"
+msgstr "**设置：** ``plot_by_cluster``"
+
+msgid "Embedding point size"
+msgstr "嵌入点大小"
+
+msgid "Embedding point size setting animation"
+msgstr "设置动画：嵌入点大小"
+
+msgid "**Settings:** ``dot_size``"
+msgstr "**设置：** ``dot_size``"
+
+msgid "Embedding image zoom"
+msgstr "嵌入图像缩放"
+
+msgid "Embedding image zoom setting animation"
+msgstr "设置动画：嵌入图像缩放"
+
+msgid "**Settings:** ``img_zoom``"
+msgstr "**设置：** ``img_zoom``"
+
+msgid "Density clustering radius"
+msgstr "密度聚类半径"
+
+msgid "Density clustering radius setting animation"
+msgstr "设置动画：密度聚类半径"
+
+msgid "**Settings:** ``eps``, ``min_samples``, ``clustering``"
+msgstr "**设置：** ``eps``, ``min_samples``, ``clustering``"
+
+msgid "Alignment & stitching"
+msgstr "对齐与拼接"
+
+msgid "Tile overlap"
+msgstr "图块重叠"
+
+msgid "Tile overlap setting animation"
+msgstr "设置动画：图块重叠"
+
+msgid "**Settings:** ``overlap``"
+msgstr "**设置：** ``overlap``"
+
+msgid "Tile seam blending"
+msgstr "图块接缝融合"
+
+msgid "Tile seam blending setting animation"
+msgstr "设置动画：图块接缝融合"
+
+msgid "**Settings:** ``blend``"
+msgstr "**设置：** ``blend``"
+
+msgid "Point spread function"
+msgstr "点扩散函数"
+
+msgid "PSF — Gaussian convolution width"
+msgstr "PSF — 高斯卷积宽度"
+
+msgid "PSF — Gaussian convolution width setting animation"
+msgstr "设置动画：PSF — 高斯卷积宽度"
+
+msgid "**Settings:** ``psf_fwhm_um``"
+msgstr "**设置：** ``psf_fwhm_um``"
+

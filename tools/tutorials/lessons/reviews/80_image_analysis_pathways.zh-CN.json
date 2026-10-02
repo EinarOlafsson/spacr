@@ -1,7 +1,7 @@
 {
   "language": "zh-CN",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "31082f017cb8971f3b4fb79b8185b9270238cf0e756eee105dfe7ade3d76799e",
+  "english_sha256": "248e5aaff34ba0af1c0ea8c170fa82f657332ca16f72cb82cb1364de9572f9a8",
   "title": "图像分析模块及其关系",
   "section": "工作流程",
   "description": "选择一条图像分析路径，涵盖分割、测量、标注、分类、投影、门控、图像配准、质量控制和专项实验分析。",
@@ -14,7 +14,7 @@
   "scenes": [
     "spaCR 中的图像分析跟随您的图像，从像素一直走到答案。原始图像从 Mask 开始，由它找出对象。如果想手动修正掩膜，请使用 Make Masks，或者导入已有的掩膜。然后 Measure 把图像和掩膜变成数字，需要的话也生成裁剪图像。从那里起，您可以选择方向：分类、图像探索、门控或某项检测。当分析需要统一的坐标系时，请先拼接图块。",
     "原始显微图像从 Mask 开始。从 Home 打开它，选择通道和分割模型，并在运行前检查预览。Mask 把每个视野写成一个合并数组，其中图像通道和整数标签平面放在一起，接下来由 Measure 读取的正是这个合并数组。Mask 还会保留一个小型计数数据库，但那只是计数，不是特征表。",
-    "有时掩膜需要人工修正。从 Home 打开 Make Masks，逐个视野修正。您在这里保存的内容可以有两个去向。要训练分割模型，请整理图像与掩膜对，并把它们作为训练视野放在一起。要进行测量，请用 FEATURES 把每张图像与其掩膜配对并写出已测量的项目，这些掩膜正是这样进入 Measure 的；单独的掩膜并不是合并数组。在这里绘制的噬斑掩膜也可以连同对应的源图像用于 Plaque Assay。保存掩膜并不会训练分类器。",
+    "有时掩膜需要人工修正。从 Home 打开 Make Masks，逐个视野修正。您在这里保存的内容可以有两个去向。要训练分割模型，请整理图像与掩膜对，并把它们作为训练视野放在一起。要进行测量，请使用 Organize for Measure，它会把每张图像及其掩膜移入通道文件夹，并合并为 Measure 读取的数组；单独的掩膜并不是合并数组。在这里绘制的噬斑掩膜也可以连同对应的源图像用于 Plaque Assay。保存掩膜并不会训练分类器。",
     "Measure 是整张地图的中心。从 Home 打开它，指向 Mask 构建的项目，并正确设置图像和掩膜的通道索引；在 Make Masks 中配对的掩膜也会来到这里。Measure 把图像和标签平面放在一起读取，并把每个细胞、细胞核或寄生虫写成 measurements.db 中的一行。如果想为每个对象得到一张 PNG，请开启裁剪保存；如果改为流式提供裁剪图像，请把数据库与其源项目放在一起。几乎其他所有内容都从这些行开始。Annotate 和 Classify 使用测量数据和裁剪图像来学习表型。Image UMAP 对它们进行投影，方便您寻找分组；Embeddings 用模型对裁剪图像进行编码，并记录编码器和通道策略。Gate Editor 在真实测得的特征及其真实单位上设置阈值，QC 则显示哪些检查存在、哪些缺失。Toxoplasma 检测也从这里开始：Recruitment 需要合适的区室强度，Invasion Assay 需要带基线对照的双色染色测量，Replication Assay 需要明确的寄生虫与液泡关联。Host–Pathogen Analysis 需要完整液泡掩膜和宿主参考强度，并保留未感染的细胞。内出芽大小替代指标则在您检查过按宿主细胞的汇总方式和面积单位之后，从 Python 读取已测量的项目；仅有 Mask 的计数数据库是不够的。",
     "有了测量数据，Annotate 就是用示例进行教学的地方。从 Home 打开它，它会显示 Measure 保存的、或从项目中流式提供的对象裁剪图像。为有代表性的对象加标签；每个标签都会进入 png_list 表中的一个注释列，并与该对象的标识关联。您不必从零开始：Gate Editor 中保存的门控可以提出候选标签供您审阅。每个问题使用单独的一列，把训练对象和评估对象分开，接下来 Classify 训练使用的就是这一列。",
     "从 Home 打开 Classify，把标签变成预测。它有两类方法，由您的数据决定用哪一类。Computer Vision 从 Measure 保存或流式提供的对象裁剪图像中学习；Tabular Machine Learning 从测量得到的特征列中学习。标签可以来自三个地方。最常见的是来自 Annotate。Gate Editor 可以把审阅过的门控选择写入注释列，Image UMAP 也可以对审阅过的套索选择做同样的事；无论哪种情况，都请在这里选择同一列和同一对象群体。嵌入聚类不是真实参考，所以请检查裁剪图像、验证标签，并让验证对象远离训练。随后 Classify 会保存分数、训练好的模型，以及一个包含预留数据预测结果的评估包。在筛选中，请选择您要使用的 CV 或 ML 分数列，并在保持板和孔标识完整的情况下把它带入 Regression。",
@@ -33,15 +33,13 @@
     "所以，图像路线几乎总是从 Mask 到 Measure，然后根据您的问题分叉。要训练自己的分割模型，请在 Make Masks 中准备图像与掩膜对，在 Cellpose Workbench 中训练，再把保存的模型在 Mask 中打开。如果手头已有兼容的输出，也可以从后面的步骤开始。无论走到哪里，都要为每个结果保留通道标识、单位和对象键。"
   ],
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
-    "phrase_bank_sha256": "3969416438f08436ab1988e19608ca40ec1d048d59d21e50cf88be8eca5575dd",
+    "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
+    "phrase_bank_sha256": "2ba357cdbf037fdc7cbfca483926b60179a24987dfb56d0ff39dddb3dfd5e230",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ],
-    "independent_peer_review": false,
-    "listening_review": false
+    ]
   }
 }

@@ -255,7 +255,8 @@
           }
         ],
         "summary": "merged arrays to per-object measurements and crops"
-      }
+      },
+      "documentation_note": "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
     },
     "annotate": {
       "name": "Annotate",
@@ -856,7 +857,7 @@
         "curated_pairs",
         "masks"
       ],
-      "guidance": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
+      "guidance": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier."
     },
     "plate_view": {
       "name": "Plate Viewer",
@@ -962,7 +963,7 @@
       "outputs": [
         "figures"
       ],
-      "guidance": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context."
+      "guidance": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context."
     },
     "investigate_hit": {
       "name": "Investigate Hit",
@@ -994,7 +995,7 @@
         "gates",
         "labels"
       ],
-      "guidance": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
+      "guidance": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels."
     },
     "feature_dict": {
       "name": "Feature Dictionary",
@@ -1520,7 +1521,8 @@
           }
         ],
         "summary": "mask generation with objects linked across frames"
-      }
+      },
+      "documentation_note": "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames.\n\nTo colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
     },
     "ops": {
       "name": "OPS",
@@ -1904,7 +1906,7 @@
         },
         {
           "module": "gate_editor",
-          "action": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "action": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
           "after": [
             "measure"
           ]
@@ -2556,7 +2558,7 @@
       "artifacts": [
         "masks"
       ],
-      "handoff": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
+      "handoff": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays."
     },
     {
       "from": "external_masks",

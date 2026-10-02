@@ -1,0 +1,285 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Train/test leakage audit"
+msgstr "학습/테스트 누수 감사"
+
+msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "관련된 크롭이 평가 경계의 양쪽에 모두 나타나면 분류기 정확도는 유효하지 않습니다. spaCR은 적합 전에 영구적인 ``train/``/``test/`` 분할, 일반 학습/검증 홀드아웃, 모든 외부 및 내부 교차 검증 경계, 교차 검증 분할 전체를 감사합니다."
+
+msgid "What is verified"
+msgstr "검증 항목"
+
+msgid "The audit checks:"
+msgstr "감사에서 확인하는 내용은 다음과 같습니다."
+
+msgid "the same path or crop identity never crosses a boundary;"
+msgstr "같은 경로나 크롭 식별 정보가 경계를 넘지 않는지;"
+
+msgid "exported augmentations such as ``_rot90``, ``_flip_h`` and ``_aug3`` remain with their source object;"
+msgstr "``_rot90``, ``_flip_h``, ``_aug3`` 같은 내보낸 증강이 원본 객체와 함께 있는지;"
+
+msgid "byte-identical crops are detected by streaming SHA-256 even if renamed;"
+msgstr "이름이 바뀌었더라도 스트리밍 SHA-256으로 바이트가 동일한 크롭을 검출하는지;"
+
+msgid "the requested ``cv_group_by`` identity (field, well or plate) stays intact;"
+msgstr "요청한 ``cv_group_by`` 식별 수준(시야, 웰 또는 플레이트)이 온전히 유지되는지;"
+
+msgid "every CV sample is held out exactly once;"
+msgstr "모든 교차 검증 표본이 정확히 한 번 홀드아웃되는지;"
+
+msgid "no related family is assigned to more than one held-out fold; and"
+msgstr "관련 계열이 둘 이상의 홀드아웃 폴드에 할당되지 않는지;"
+
+msgid "related crops do not carry conflicting class labels."
+msgstr "관련 크롭에 서로 충돌하는 클래스 레이블이 없는지."
+
+msgid "Filename identities follow spaCR's ``<plate>_<well>_<field>_..._<object>.png`` crop convention. With ``leakage_require_identity=True`` (the default), a filename that cannot prove its requested identity fails the audit; an unknown relationship is not reported as independent."
+msgstr "파일 이름 식별 정보는 spaCR의 크롭 규칙 ``<plate>_<well>_<field>_..._<object>.png`` 를 따릅니다. ``leakage_require_identity=True`` (기본값)이면 요청된 식별 정보를 증명할 수 없는 파일 이름은 감사에 실패하며, 알 수 없는 관계는 독립적인 것으로 보고되지 않습니다."
+
+msgid "Ordinary validation is group-aware too. ``cv_group_by='well'`` uses the same group-stratified partitioner as CV and selects the candidate fold closest to ``val_split`` and the full dataset's class distribution. Augmentation is applied only after the split and only to training."
+msgstr "일반 검증도 그룹을 고려합니다. ``cv_group_by='well'`` 은 교차 검증과 같은 그룹 층화 분할기를 사용하며, ``val_split`` 과 전체 데이터 세트의 클래스 분포에 가장 가까운 후보 폴드를 선택합니다. 증강은 분할 후에만, 그리고 학습 데이터에만 적용됩니다."
+
+msgid "Run the audit directly"
+msgstr "감사 직접 실행"
+
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
+msgstr "이 명령은 JSON을 출력하며, 분할이 검증되면 ``0``, 누수나 검증할 수 없는 식별 정보가 발견되면 ``1``, 데이터 세트를 감사할 수 없으면 ``2`` 로 종료합니다. ``--no-content-hash`` 는 I/O를 줄이지만 이름이 바뀐 복사본은 검출할 수 없습니다. ``--allow-unverifiable`` 은 기존 데이터 세트를 진단하기 위한 것이며, 그 성능 추정치를 신뢰할 수 있게 만들지는 않습니다."
+
+msgid "Classify settings"
+msgstr "분류 설정"
+
+msgid "``leakage_audit_train_test``"
+msgstr "``leakage_audit_train_test``"
+
+msgid "Audit ``train/`` against ``test/`` before fitting. Default ``True``."
+msgstr "적합 전에 ``train/`` 과 ``test/`` 를 비교 감사합니다. 기본값 ``True``."
+
+msgid "``leakage_hash_content``"
+msgstr "``leakage_hash_content``"
+
+msgid "Stream SHA-256 for copy/rename detection. Default ``True``."
+msgstr "복사/이름 변경 검출을 위해 SHA-256을 스트리밍 계산합니다. 기본값 ``True``."
+
+msgid "``leakage_require_identity``"
+msgstr "``leakage_require_identity``"
+
+msgid "Fail when protected identity or content cannot be verified. Default ``True``."
+msgstr "보호 대상 식별 정보나 내용을 검증할 수 없으면 실패로 처리합니다. 기본값 ``True``."
+
+msgid "``evaluation_fail_on_leakage``"
+msgstr "``evaluation_fail_on_leakage``"
+
+msgid "Stop before fitting when an audit fails. Default ``True``. Setting it to ``False`` records a failed audit but cannot make the resulting metric valid."
+msgstr "감사에 실패하면 적합 전에 중지합니다. 기본값 ``True``. ``False`` 로 설정하면 실패한 감사가 기록되지만, 그 결과로 나온 지표가 유효해지지는 않습니다."
+
+msgid "Reports are written beside the classifier run as ``train_test_leakage_audit.json`` and ``train_validation_leakage_audit.json``. CV audit records are also included in the Classifier Evaluation workbench's ``leakage.json``."
+msgstr "보고서는 분류기 실행 옆에 ``train_test_leakage_audit.json`` 과 ``train_validation_leakage_audit.json`` 으로 기록됩니다. 교차 검증 감사 기록은 분류기 평가 워크벤치의 ``leakage.json`` 에도 포함됩니다."
+
+msgid "API"
+msgstr "API"
+
+msgid "Classifier evaluation, calibration, and split-leakage diagnostics."
+msgstr "분류기 평가, 보정, 분할 누수 진단입니다."
+
+msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
+msgstr "이 모듈은 모델과 무관하며 레이블, 확률, 폴드 ID, 표본 경로를 사용합니다. 따라서 딥러닝 교차 검증과 향후의 고전적 머신러닝 파이프라인이 같은 평가 번들을 쓸 수 있고, Qt 워크벤치는 하나의 안정적인 산출물 형식을 표시할 수 있습니다."
+
+msgid "Whole-CV proof that each related sample family belongs to one fold."
+msgstr "관련된 각 표본 계열이 하나의 폴드에만 속한다는 교차 검증 전체 차원의 증명입니다."
+
+msgid "Parameters"
+msgstr "매개변수"
+
+msgid "canonical identity level required to remain within one validation fold."
+msgstr "하나의 검증 폴드 안에 머물러야 하는 정규 식별 수준입니다."
+
+msgid "number of source paths whose fold membership was audited."
+msgstr "폴드 소속을 감사한 원본 경로 수입니다."
+
+msgid "number of train/validation fold pairs inspected."
+msgstr "검사한 학습/검증 폴드 쌍의 수입니다."
+
+msgid "up to twenty sample indexes that were never held out for validation."
+msgstr "검증용으로 한 번도 홀드아웃되지 않은 표본 인덱스(최대 20개)입니다."
+
+msgid "up to twenty sample indexes held out in more than one fold."
+msgstr "둘 이상의 폴드에서 홀드아웃된 표본 인덱스(최대 20개)입니다."
+
+msgid "identities assigned to multiple validation folds, counted at each exact, content, family, object, and acquisition level."
+msgstr "여러 검증 폴드에 할당된 식별 정보로, 정확, 내용, 계열, 객체, 획득 수준별로 집계됩니다."
+
+msgid "up to ten conflicting identities per level, annotated with the folds that contain them."
+msgstr "수준별로 충돌하는 식별 정보(최대 10개)로, 이를 포함한 폴드가 함께 표시됩니다."
+
+msgid "completeness, overlap, identity, or label failures that make :attr:`passed` false."
+msgstr ":attr:`passed` 를 거짓으로 만드는 완전성, 겹침, 식별, 레이블 실패입니다."
+
+msgid "non-fatal caveats and explanations accompanying failures."
+msgstr "실패에 동반되는 치명적이지 않은 주의 사항과 설명입니다."
+
+msgid "samples whose requested identity or optional byte-content hash could not be checked, counted by level."
+msgstr "요청된 식별 정보나 선택적 바이트 내용 해시를 확인할 수 없었던 표본으로, 수준별로 집계됩니다."
+
+msgid "up to twenty file-specific content-hashing failures."
+msgstr "파일별 내용 해시 실패(최대 20개)입니다."
+
+msgid "stable label for this whole-CV audit record."
+msgstr "이 교차 검증 전체 감사 기록의 안정적인 레이블입니다."
+
+msgid "Return True only when the fold partition is complete and isolated."
+msgstr "폴드 분할이 완전하고 격리되어 있을 때만 True를 반환합니다."
+
+msgid "Return a JSON-serializable audit record."
+msgstr "JSON으로 직렬화할 수 있는 감사 기록을 반환합니다."
+
+msgid "Overlap counts and examples for one train/validation boundary."
+msgstr "하나의 학습/검증 경계에 대한 겹침 수와 예시입니다."
+
+msgid "protected split level (``cell``, ``field``, ``well``, or ``plate``); the legacy ``none`` spelling is normalized to ``cell``."
+msgstr "보호되는 분할 수준(``cell``, ``field``, ``well`` 또는 ``plate``)입니다. 기존 표기인 ``none`` 은 ``cell`` 로 정규화됩니다."
+
+msgid "number of training paths."
+msgstr "학습 경로 수입니다."
+
+msgid "number of validation paths."
+msgstr "검증 경로 수입니다."
+
+msgid "overlap count at each identity level."
+msgstr "식별 수준별 겹침 수입니다."
+
+msgid "up to ten shared identities per level."
+msgstr "수준별 공유 식별 정보(최대 10개)입니다."
+
+msgid "caller-supplied label for the audited boundary."
+msgstr "감사한 경계에 대해 호출자가 제공한 레이블입니다."
+
+msgid "levels that invalidate the requested split."
+msgstr "요청한 분할을 무효로 만드는 수준입니다."
+
+msgid "non-fatal caveats."
+msgstr "치명적이지 않은 주의 사항입니다."
+
+msgid "samples lacking a requested identity or content hash, counted by the level that could not be verified."
+msgstr "요청된 식별 정보나 내용 해시가 없는 표본으로, 검증할 수 없었던 수준별로 집계됩니다."
+
+msgid "up to twenty file-specific failures from optional byte-content hashing."
+msgstr "선택적 바이트 내용 해시에서 발생한 파일별 실패(최대 20개)입니다."
+
+msgid "Return True when no protected identity crosses the boundary."
+msgstr "보호 대상 식별 정보가 경계를 넘지 않으면 True를 반환합니다."
+
+msgid "Return a JSON-serializable report."
+msgstr "JSON으로 직렬화할 수 있는 보고서를 반환합니다."
+
+msgid "Verify partition coverage and identity isolation across every CV fold."
+msgstr "모든 교차 검증 폴드에 걸쳐 분할 범위와 식별 정보 격리를 검증합니다."
+
+msgid "This checks the fold assignment as one object, rather than trusting a sample of pairwise boundaries. Each index must be validation exactly once; exact paths, byte-identical content, source/augmentation families and the requested plate/well/field group must map to one held-out fold only."
+msgstr "쌍별 경계 일부를 표본으로 믿는 대신 폴드 할당 전체를 하나의 객체로 검사합니다. 각 인덱스는 정확히 한 번 검증에 사용되어야 하며, 정확한 경로, 바이트가 동일한 내용, 원본/증강 계열, 요청된 플레이트/웰/시야 그룹은 하나의 홀드아웃 폴드에만 대응되어야 합니다."
+
+msgid "one source path per sample, indexed by the fold indices."
+msgstr "표본마다 하나의 원본 경로로, 폴드 인덱스로 참조됩니다."
+
+msgid "``(train_indices, validation_indices)`` per fold. Indices outside ``range(len(paths))`` are reported rather than ignored."
+msgstr "폴드별 ``(train_indices, validation_indices)`` 입니다. ``range(len(paths))`` 밖의 인덱스는 무시되지 않고 보고됩니다."
+
+msgid "optional class per path, one value per path. Only used to describe the folds; it does not affect leakage detection."
+msgstr "경로별 선택적 클래스로, 경로마다 값 하나입니다. 폴드를 설명하는 데만 사용되며 누수 검출에는 영향을 주지 않습니다."
+
+msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
+msgstr "폴드 경계를 넘을 수 없는 식별 수준입니다. ``none``, ``field``, ``well`` 또는 ``plate`` 입니다. 웰 단위로 묶은 분할은 같은 플레이트가 양쪽에 있는 것은 허용하지만 같은 웰은 절대 허용하지 않습니다."
+
+msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
+msgstr "파일 내용(CONTENT)도 비교하여 이름이 다른 바이트 동일 복사본을 잡아냅니다. 파일마다 한 번씩 읽어야 합니다."
+
+msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
+msgstr "검증 불가(UNVERIFIABLE)를 심각한 문제로 처리합니다. 그렇지 않으면 요청된 식별 정보를 담지 않은 파일 이름이나 해시를 계산할 수 없는 파일은 경고에 그칩니다. 따라서 이 값을 False로 두면 깨끗한 보고서라도 아무도 확인할 수 없었던 누수를 숨길 수 있습니다."
+
+msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
+msgstr "``passed`` 가 False인 보고서를 반환하는 대신 :class:`LeakageError` 를 발생시킵니다."
+
+msgid "Returns"
+msgstr "반환값"
+
+msgid "a :class:`FoldLeakageAudit` carrying the per-level overlap counts, examples, and which levels were critical."
+msgstr "수준별 겹침 수, 예시, 심각한 수준을 담은 :class:`FoldLeakageAudit` 입니다."
+
+msgid "Raises"
+msgstr "예외"
+
+msgid "for an unsupported ``group_by``, or ``labels`` whose length does not match ``paths``."
+msgstr "지원되지 않는 ``group_by`` 이거나, ``labels`` 의 길이가 ``paths`` 와 맞지 않을 때 발생합니다."
+
+msgid "Audit the permanent ``train/`` versus ``test/`` dataset boundary."
+msgstr "영구적인 ``train/`` 대 ``test/`` 데이터 세트 경계를 감사합니다."
+
+msgid "dataset directory holding ``train/`` and ``test/``. Both are searched recursively, and only ``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``, ``.bmp`` and ``.npy`` files are collected, so a folder of any other format audits as empty."
+msgstr "``train/`` 과 ``test/`` 가 있는 데이터 세트 디렉터리입니다. 두 곳 모두 재귀적으로 검색되며 ``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``, ``.bmp``, ``.npy`` 파일만 수집되므로, 다른 형식으로 된 폴더는 비어 있는 것으로 감사됩니다."
+
+msgid "identity level that may not appear on both sides -- ``none``, ``field``, ``well`` or ``plate``. The default ``well`` still permits the same plate in train and test. It is validated only after the images are found, so a bad value over an empty tree reports the missing images instead."
+msgstr "양쪽에 동시에 나타날 수 없는 식별 수준입니다. ``none``, ``field``, ``well`` 또는 ``plate`` 입니다. 기본값 ``well`` 은 같은 플레이트가 학습과 테스트에 모두 있는 것을 여전히 허용합니다. 이 값은 이미지를 찾은 뒤에만 검증되므로, 빈 트리에서 잘못된 값을 주면 대신 이미지가 없다고 보고됩니다."
+
+msgid "defaults to True here, unlike :func:`audit_split_leakage`, so a byte-identical copy saved under a different name fails the audit -- at the cost of one read per file."
+msgstr "여기서는 :func:`audit_split_leakage` 와 달리 기본값이 True이므로, 다른 이름으로 저장된 바이트 동일 복사본은 감사에 실패합니다. 대신 파일마다 한 번씩 읽어야 합니다."
+
+msgid "defaults to True here: filenames that do not encode the ``group_by`` level, and files that cannot be hashed, become critical instead of a warning, so an unverifiable split cannot report as clean."
+msgstr "여기서는 기본값이 True입니다. ``group_by`` 수준을 담지 않은 파일 이름과 해시를 계산할 수 없는 파일은 경고가 아니라 심각한 문제가 되므로, 검증할 수 없는 분할이 깨끗하다고 보고될 수 없습니다."
+
+msgid "when either side collects no image -- a missing or unreadable folder is never treated as a passing split."
+msgstr "어느 한쪽에서도 이미지를 수집하지 못한 경우입니다. 누락되었거나 읽을 수 없는 폴더는 결코 통과한 분할로 취급되지 않습니다."
+
+msgid "a :class:`LeakageReport` whose ``split_name`` is always ``train_vs_test``; the ``test/`` side is counted as ``validation_samples``."
+msgstr "``split_name`` 이 항상 ``train_vs_test`` 인 :class:`LeakageReport` 이며, ``test/`` 쪽은 ``validation_samples`` 로 집계됩니다."
+
+msgid "Detect related images crossing a train/validation boundary."
+msgstr "학습/검증 경계를 넘는 관련 이미지를 검출합니다."
+
+msgid "Exact/object/augmentation-family overlap is always critical. The requested ``group_by`` level is also critical: a well-grouped split permits the same plate on both sides but never the same well."
+msgstr "정확한 경로/객체/증강 계열의 겹침은 항상 심각한 문제입니다. 요청된 ``group_by`` 수준도 심각한 문제입니다. 웰 단위로 묶은 분할은 같은 플레이트가 양쪽에 있는 것은 허용하지만 같은 웰은 절대 허용하지 않습니다."
+
+msgid "source paths used to fit the model."
+msgstr "모델 적합에 사용한 원본 경로입니다."
+
+msgid "paths used only for evaluation."
+msgstr "평가에만 사용한 경로입니다."
+
+msgid "``cell``, ``field``, ``well``, or ``plate``. Legacy ``none`` aliases ``cell``."
+msgstr "``cell``, ``field``, ``well`` 또는 ``plate`` 입니다. 기존의 ``none`` 은 ``cell`` 의 별칭입니다."
+
+msgid "raise :class:`LeakageError` on a critical overlap."
+msgstr "심각한 겹침이 있으면 :class:`LeakageError` 를 발생시킵니다."
+
+msgid "optional fold/split label stored in the report."
+msgstr "보고서에 저장되는 선택적 폴드/분할 레이블입니다."
+
+msgid ":class:`LeakageReport`."
+msgstr ":class:`LeakageReport`."
+
+msgid "Atomically write a leakage report/audit as JSON and return its path."
+msgstr "누수 보고서/감사를 JSON으로 원자적으로 쓰고 그 경로를 반환합니다."
+
+msgid "destination JSON file; ``~`` is expanded and missing parent folders are created. It is replaced atomically."
+msgstr "대상 JSON 파일입니다. ``~`` 는 확장되고 누락된 상위 폴더는 생성되며, 파일은 원자적으로 교체됩니다."
+
+msgid "leakage report or audit to write: any object with a ``to_dict()`` method, or a mapping."
+msgstr "기록할 누수 보고서 또는 감사입니다. ``to_dict()`` 메서드가 있는 객체나 매핑이면 됩니다."
+

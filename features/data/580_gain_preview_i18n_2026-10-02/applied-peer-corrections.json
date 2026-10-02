@@ -1,0 +1,54 @@
+{
+  "reviewer": "Codex AI root (sv reviewed independently by shared_ui)",
+  "method": "Independent AI technical reviews in task messages; unchanged immutable drafts retained; no native-speaker signoff.",
+  "corrections": {
+    "zh_CN": {
+      "Calculate reference-well gains without running Measure or changing files.": "计算参考孔的增益，不运行 Measure，也不更改文件。",
+      "Discard this preview. Any source scan already running will finish safely.": "丢弃此次预览。已开始的源文件扫描将安全完成。"
+    },
+    "hi": {
+      "Calculate reference-well gains without running Measure or changing files.": "Measure चलाए बिना या फ़ाइलें बदले बिना संदर्भ वेल के गुणक निकालें।",
+      "No eligible merged arrays were found.": "कोई उपयुक्त विलय किया गया ऐरे नहीं मिला।"
+    },
+    "ko": {
+      "Calculate reference-well gains without running Measure or changing files.": "Measure 모듈을 실행하거나 파일을 변경하지 않고 기준 웰의 보정 배율을 계산합니다."
+    },
+    "is": {
+      "Calculate reference-well gains without running Measure or changing files.": "Reiknaðu leiðréttingarstuðla út frá viðmiðunarbrunnum án þess að keyra Measure eða breyta skrám.",
+      "No eligible merged arrays were found.": "Engin sameinuð fylki sem uppfylla skilyrðin fundust.",
+      "Turn off Test mode to preview gains for all source fields.": "Slökktu á prófunarham til að forskoða stuðla fyrir öll sjónsvið í upprunamöppunni."
+    },
+    "de": {
+      "Calculate reference-well gains without running Measure or changing files.": "Kalibrierungsfaktoren der Referenz-Wells berechnen, ohne Measure auszuführen oder Dateien zu ändern.",
+      "Gain": "Faktor",
+      "The first plate by name is the reference.": "Die nach Namen sortierte erste Platte dient als Referenz.",
+      "Enable intensity calibration before previewing gains.": "Vor der Vorschau der Kalibrierungsfaktoren die Intensitätskalibrierung aktivieren.",
+      "Finish valid settings before previewing gains.": "Vor der Vorschau der Kalibrierungsfaktoren alle Einstellungen gültig festlegen.",
+      "Gains use the camera offset and reference wells; images and measurements are unchanged.": "Die Kalibrierungsfaktoren berücksichtigen den Kameraoffset und die Referenz-Wells; Bilder und Messwerte bleiben unverändert.",
+      "Preview gains": "Kalibrierungsfaktoren ansehen",
+      "Settings changed. Preview the gains again.": "Die Einstellungen wurden geändert. Die Kalibrierungsfaktoren erneut in der Vorschau anzeigen.",
+      "Turn off Test mode to preview gains for all source fields.": "Den Testmodus ausschalten, um die Kalibrierungsfaktoren für alle Quellbildfelder anzuzeigen."
+    },
+    "es": {
+      "Calculate reference-well gains without running Measure or changing files.": "Calcular los factores de ganancia de los pocillos de referencia sin ejecutar Measure ni modificar archivos."
+    },
+    "pt": {
+      "Calculate reference-well gains without running Measure or changing files.": "Calcular os fatores de ganho dos poços de referência sem executar Measure nem alterar arquivos.",
+      "Preview gains": "Pré-visualizar fatores de ganho"
+    },
+    "fr": {
+      "Calculate reference-well gains without running Measure or changing files.": "Calculer les facteurs de gain des puits de référence sans exécuter Measure ni modifier les fichiers."
+    }
+  },
+  "draft_sha256": {
+    "sv": "473ddc3b0f026c3b21f5c9896343b7e03e99fffc775ea2ce2d4e8d3eaec8522a",
+    "de": "99f198215de9d9f2e749630f01bd9359e40b43261a918568f6fa832211b6420e",
+    "es": "a7cd2184bda14e27ca65303b6e2bd4ba3d7f8aa174e795b01f7d7ef178fa585c",
+    "zh_CN": "1a0d49a04f81867cf0009f85dd5e6f99a7c50f0a84f68b4fbf4a0f668be0dfc6",
+    "pt": "43caec0b054dc2a633fe4aedc9d74cd4bc06ccb47417acf0421464e5d378bd62",
+    "hi": "76215565a2938445b5179d72ae2ec645fc4a8e92e1807379ac2c07167e38cbe3",
+    "ko": "c73777d5451b5ebf28507aa8a8666c0442f68470fac446b5cc73fa1539fb6a96",
+    "is": "65855ea2c2153ef1ba7b58d6aa0e8b8692c9186fa1a0ba9db7f797305b3b2e8b",
+    "fr": "8f9c89381cfe3d0d6cb1c0e36a9f2f773943b010c08751896d491338e81cfda1"
+  }
+}

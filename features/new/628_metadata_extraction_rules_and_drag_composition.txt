@@ -1,0 +1,84 @@
+628. Build metadata columns from extraction rules and compose labels with draggable tokens
+
+Status: DONE — implementation and focused acceptance completed 2026-10-01.
+Supporting API, translation and tutorial refresh is tracked under N615.
+
+N625's exact-value labels and simple ordered combination are insufficient for
+the user's actual filename metadata workflow. Build arbitrary additional
+columns from existing columns, then compose a final column from the generated
+values. Persist every intermediate column as well as the final column.
+
+Required:
+- Choose any source column, including original filename metadata restored by
+  N623. Use regex capture groups to extract variable text, not merely test
+  whether a pattern matches and assign a fixed label. One named-group regex
+  can generate cell_type, replicate, timepoint and drug columns together.
+- Offer readable predicates: contains, does not contain, equals, starts with,
+  ends with and regex matching. Rules may assign a literal value. Support
+  multiple criteria across source columns with clear All/Any behavior.
+- Provide a composition field with draggable column tokens, reordering,
+  separators and fixed text. It can use existing or earlier generated columns.
+  Preview the intermediate and composed values before applying.
+- Keep v1/v2 recipes readable, existing row drag assignments, exact-value
+  behavior, missing-value handling, conflict detection, stable positional
+  identity, immutable source data, and SQLite/CSV/reopen recipe persistence.
+- Make extraction and composition the clear workflow; provide contextual
+  tooltips/examples. Invalid patterns/groups/dependencies cannot silently
+  create a plausible incorrect condition column.
+
+Illustrative acceptance: HeLa_rep2_24h_DMSO.tif generates cell_type=HeLa,
+replicate=rep2, timepoint=24h and drug=DMSO, then condition assembled in the
+user-selected order. Test variable filenames, missing captures, malformed
+patterns, Unicode/literal punctuation, nonmatching/null rows, multi-column
+All/Any predicates, conflicting labels, token drag reorder, fixed text,
+older recipes, saved-table reopen and source preservation. User's real example
+is requested optionally; development does not require their specific dataset.
+
+Reference interaction patterns: CellProfiler's NamesAndTypes rule controls
+and Metadata regex extraction, reviewed from the official manual:
+https://cellprofiler-manual.s3.amazonaws.com/CPmanual/NamesAndTypes.html
+https://cellprofiler-manual.s3.amazonaws.com/CPmanual/Metadata.html
+The implementation operates on spaCR tables and retains its provenance checks.
+
+Implementation and acceptance 2026-10-01:
+- Version 3 annotation recipes add text extraction, All/Any readable criteria
+  and ordered column/text composition. A named-group expression can create
+  several outputs atomically. All generated values persist alongside the
+  source columns; existing source columns cannot be overwritten.
+- Assign values offers contains/not-contains, equals/not-equals, prefix,
+  suffix and regex/not-regex operators, across source or earlier generated
+  columns. Exact-value lists, manual row drops, excludes and v1/v2 recipes
+  remain supported. Empty broad-matching predicates are rejected explicitly.
+- Extract text selects named or numbered groups; nonmatches and missing
+  captures remain empty. Invalid patterns, groups and forward dependencies
+  fail before Apply. Source filenames and measurements remain unchanged.
+- Compose column uses draggable column references and editable literal text.
+  Palette drops, internal reordering and keyboard controls update the preview.
+  Missing column inputs leave the composed result empty.
+- 81 backend checks passed, covering new recipe behavior and legacy cases.
+  19 UI controls/legacy checks passed, including actual drag-enter/move/drop
+  events, text editing, named-group creation and stale-Apply invalidation.
+  Five threaded preview checks passed for responsiveness, stale delivery,
+  Apply and safe cancellation/close. Five Graph integration checks passed for
+  chart availability, CSV sidecars, actual SQLite save/reopen/edit, and failure
+  preservation. These 110 focused checks ran under a 1 GB memory cap, with
+  OpenMP/OpenBLAS numerical threads limited to one.
+- Two actual-control workflows passed in dark and light themes, including
+  named-group creation, rules based on generated columns, composed values,
+  missing rows, source preservation and Apply. Rendered extraction, assignment
+  and composition views were inspected offscreen on Linux. Native platform
+  drag interaction and the user's own filename scheme remain unverified.
+- docs/source/table_workflows.rst documents extraction, rules and composition;
+  the annotation section parses without reStructuredText warnings.
+  Acceptance details: features/data/628_metadata_recipe_2026-10-01.json.
+
+Tutorial authoring was updated in 4b0110385: the existing four genotype,
+replicate and composition scenes use the current visible controls and a v3
+template recipe. All 16 tutorial checks passed, including the real 2,341-row
+example table. A filename-metadata scene was not invented for that dataset.
+New narration, capture media and publication remain separate work under N615.
+
+Supporting work remains explicit under N615: new runtime translations and
+public API prose/catalogs. Previously reviewed runtime translations must be retired when
+their exact English source changes; generated catalogs use the normal builder.
+No new tutorial media or package release is claimed by this implementation.

@@ -211,6 +211,188 @@ def test_a_later_frame_imaged_again_keeps_its_wound(noise, contrast):
     assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.03
 
 
+def _straight(centre, half, shape=SHAPE):
+    """A straight horizontal scratch, rows ``centre - half`` to ``+ half``."""
+    rows = np.arange(shape[0])[:, None]
+    return np.broadcast_to(np.abs(rows - centre) < half, shape).copy()
+
+
+def test_a_flat_patch_of_monolayer_beside_a_closing_wound_is_not_wound():
+    """Open-looking monolayer outside the first wound is not counted later.
+
+    A later frame whose monolayer has a flat, textureless patch (glare or
+    an over-exposed stretch) inside the first frame's band, but outside
+    where the wound was, would otherwise add that patch to the wound.
+    """
+    first, later = _straight(192, 80), _straight(192, 30)
+    looks_open = later.copy()
+    looks_open[290:312, 60:330] = True
+    frame, status, masks = _wound_series(
+        [_brightfield(first, seed=10), _brightfield(looks_open, seed=11)],
+        (0, 1), source="texture", keep=(1,))
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.02
+    assert not masks[1][1][294:308, 80:310].any()
+
+
+def test_a_later_frame_imaged_at_another_position_keeps_its_wound():
+    """A scratch re-imaged off-centre is followed across the field."""
+    first, later = _straight(192, 70), _straight(252, 40)
+    frame, status, _masks = _wound_series(
+        [_brightfield(first, seed=10), _brightfield(later, seed=11)],
+        (0, 1), source="texture")
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.02
+
+
+def _textured(open_mask, seed, floor=0.0, ratio=None):
+    """Brightfield-like frame whose open floor carries ``floor`` texture.
+
+    With ``ratio`` the monolayer inside ``ratio[0]`` (a mask) is imaged at
+    ``ratio[1]`` of the usual texture amplitude.
+    """
+    rng = np.random.default_rng(seed)
+    texture = ndi.gaussian_filter(rng.standard_normal(SHAPE), 1.5)
+    texture /= texture.std()
+    amplitude = np.where(open_mask, floor, 120.0)
+    if ratio is not None:
+        amplitude = np.where(ratio[0] & ~open_mask, 120.0 * ratio[1],
+                             amplitude)
+    return 1000 + rng.normal(0, 8, SHAPE) + amplitude * texture
+
+
+def test_scattered_cells_on_a_later_wound_floor_count_as_open():
+    """Cells and debris scattered over part of a wound's floor stay open.
+
+    They raise that stretch's texture well above the clean floor's but
+    keep it far below the monolayer's; a cut set from the clean stretch
+    alone calls the scattered stretch covered.
+    """
+    first, later = _straight(192, 80), _straight(192, 50)
+    rng = np.random.default_rng(1)
+    image = _brightfield(later, seed=11).astype(float)
+    texture = ndi.gaussian_filter(rng.standard_normal(SHAPE), 1.5)
+    texture /= texture.std()
+    yy, xx = np.indices(SHAPE)
+    zone = later & (xx < 0.6 * SHAPE[1])
+    ys, xs = np.nonzero(zone)
+    cells = np.zeros(SHAPE, dtype=bool)
+    for i in rng.choice(ys.size, int(zone.sum() / 49), replace=False):
+        cells |= (yy - ys[i]) ** 2 + (xx - xs[i]) ** 2 <= 4
+    image += cells * texture * 45
+    frame, status, _masks = _wound_series(
+        [_brightfield(first, seed=10), image], (0, 1), source="texture")
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.05
+
+
+def test_a_wound_floor_with_a_flat_bright_stretch_stays_open_whole():
+    """A floor that is partly saturated flat is not split at that stretch.
+
+    The first frame's floor carries faint texture; later, part of it is
+    saturated and perfectly flat. Splitting the floor there would call the
+    faintly textured rest of the wound covered.
+    """
+    first, later = _straight(192, 80), _straight(192, 50)
+    image = _textured(later, 1, floor=10.0)
+    image[later & (np.indices(SHAPE)[1] < SHAPE[1] // 2)] = 1000.0
+    frame, status, _masks = _wound_series(
+        [_textured(first, 10, floor=10.0), image], (0, 1), source="texture")
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.04
+
+
+def test_a_saturated_stretch_of_floor_does_not_set_the_open_level():
+    """Floor at the camera's ceiling is left out of the later frame's levels.
+
+    Half of a later wound's floor is saturated, so perfectly flat; the
+    other half carries more texture than the first frame's floor did.
+    Read from the saturated half, the open level sits so low that the
+    textured half of the floor is called covered.
+    """
+    first, later = _straight(192, 80), _straight(192, 50)
+    image = _textured(later, 1, floor=25.0)
+    image[later & (np.indices(SHAPE)[1] < SHAPE[1] // 2)] = image.max()
+    frame, status, _masks = _wound_series(
+        [_textured(first, 10, floor=10.0), image], (0, 1), source="texture")
+    assert status == "ok"
+    truth = later.sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.03
+
+
+def test_a_closed_wound_of_flatter_cells_reads_closed():
+    """Cells that close a wound flatter than the monolayer still cover it."""
+    first = _straight(192, 80)
+    closed = np.zeros(SHAPE, dtype=bool)
+    frame, status, _masks = _wound_series(
+        [_brightfield(first, seed=10),
+         _textured(closed, 1, ratio=(first, 0.35))], (0, 1),
+        source="texture")
+    assert status == "ok"
+    assert frame["relative_open_area"].iloc[1] <= 0.05
+
+
+def test_only_a_continuous_cell_front_closes_the_wound():
+    """Loose cells on the floor stay open; a front from the monolayer does not.
+
+    Two clumps of cells lie on a later wound's floor where it runs off the
+    field, so they are not holes in the open area, and a tongue of cells
+    reaches into the wound from the monolayer. The clumps count as open
+    and the tongue as covered.
+    """
+    first = _straight(192, 80)
+    open_floor = _straight(192, 50)
+    clumps = np.zeros(SHAPE, dtype=bool)
+    clumps[165:215, :60] = True
+    clumps[170:220, -60:] = True
+    tongue = np.zeros(SHAPE, dtype=bool)
+    tongue[130:185, 230:290] = True
+    later = open_floor & ~clumps & ~tongue
+    frame, status, masks = _wound_series(
+        [_brightfield(first, seed=10), _brightfield(later, seed=11)],
+        (0, 1), source="texture", keep=(1,))
+    assert status == "ok"
+    truth = (open_floor & ~tongue).sum() / first.sum()
+    assert abs(frame["relative_open_area"].iloc[1] - truth) <= 0.02
+    wound = masks[1][1]
+    assert wound[175:205, 10:50].mean() > 0.9
+    assert wound[150:170, 245:275].mean() < 0.1
+
+
+def test_a_hand_set_threshold_is_used_on_every_frame():
+    """``threshold`` replaces the automatic cut and its recalibration."""
+    truths, planes = _series("texture")
+    auto, _status, _masks = _wound_series(planes, range(len(planes)))
+    cut = float(auto["wound_level"].iloc[0])
+    low, _s, _m = _wound_series(planes, range(len(planes)), threshold=cut / 4)
+    high, _s, _m = _wound_series(planes, range(len(planes)), threshold=cut * 4)
+    assert np.allclose(low["wound_level"], cut / 4)
+    assert np.allclose(high["wound_level"], cut * 4)
+    assert (high["open_area_px"].iloc[:-1] >= low["open_area_px"].iloc[:-1]).all()
+    assert high["open_area_px"].iloc[0] > low["open_area_px"].iloc[0]
+    zero, _s, _m = _wound_series(planes, range(len(planes)), threshold=0)
+    assert np.allclose(zero["wound_level"].iloc[0], cut)
+
+
+def test_the_threshold_setting_reaches_the_measurement():
+    """The Measure setting is checked and handed to the wound finder."""
+    open_mask = _band(120)
+    data = _brightfield(open_mask)[..., None]
+    settings = {"wound_source": "texture", "channels": [0],
+                "wound_window": 15, "wound_threshold": 0.02}
+    row, _plane, _wound, _status = _measure_field_wound(data, settings)
+    assert row["wound_level"] == pytest.approx(0.02)
+    with pytest.raises(ValueError, match="wound_threshold"):
+        _wound_settings_check({"wound_threshold": -1})
+    with pytest.raises(ValueError, match="wound_threshold"):
+        _wound_settings_check({"wound_threshold": "abc"})
+    assert _wound_settings_check({"wound_threshold": None}) == "texture"
+
+
 def test_closure_metrics_on_a_known_curve():
     times = np.array([0, 4, 8, 12, 16, 20])
     relative = np.array([1.0, 0.8, 0.6, 0.4, 0.2, 0.0])

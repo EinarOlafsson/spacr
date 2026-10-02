@@ -1,0 +1,19 @@
+{
+  "checked_utc": "2026-10-02",
+  "finding": "A failed decode after the plate-memory streaming change created an empty stack/ directory.",
+  "item": "N429",
+  "limits": [
+    "Linux host with simulated AppleDouble files; reporter macOS external-volume confirmation remains external.",
+    "Public docstring translations tracked by documentation/API lane."
+  ],
+  "post_fix": {
+    "cohort": "93 passed, 6 warnings in 29.61s",
+    "command": "QT_QPA_PLATFORM=offscreen OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m pytest -q tests/test_a_failed_regex_conversion_never_renumbers_wells.py tests/test_a_rerun_trusts_nothing_a_killed_run_left.py tests/test_a_stack_file_spacr_wrote_is_one_it_can_read.py tests/test_auto_conversion_preserves_existing_wells.py tests/test_measure_takes_no_macos_sidecar_for_a_field.py tests/test_spacr_masks_load_without_unpickling.py",
+    "resource_scope": "systemd-run --user --scope MemoryMax=4G MemorySwapMax=0 AllowedCPUs=0"
+  },
+  "pre_fix": {
+    "cohort": "1 failed, 92 passed",
+    "failing_case": "test_images_that_match_the_pattern_but_cannot_be_read_stay_put"
+  },
+  "repair": "Create stack/ only when a valid field is ready for atomic publication."
+}

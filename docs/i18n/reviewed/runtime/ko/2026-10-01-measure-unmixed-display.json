@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Direct Codex technical translation followed by independent Codex peer review of all 18 pairs. Both reviewers checked spectral unmixing, the run’s single-stain controls, display-only crop changes, and unchanged PNG exports/source files. No local-model generation or human/native-language approval is claimed. Ordinary generator and candidate gates are unchanged.",
+  "reviewed_candidate_sha256": "d118cf5667f79f2d5c4f90508922c3c7fb05dbe555d7f1836ff96622ffa7c7b5",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Unmixed display",
+      "source": "Unmixed display",
+      "source_sha256": "76e203cab09b647615cee8f51e5749c96ab5d0bfeb267137bf678fd069a5d618",
+      "translation": "스펙트럼 분리 표시"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; PNG exports and source files are unchanged.",
+      "source": "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; PNG exports and source files are unchanged.",
+      "source_sha256": "670cc3a397f6e3f5d9cdf425227ed8a2f9942a9c23b615f48ac48a80800f248c",
+      "translation": "이 실행의 단일 염색 대조군을 사용하여 스펙트럼 분리를 미리 봅니다. 표시되는 잘라낸 이미지만 바뀌며, PNG 내보내기와 원본 파일은 변경되지 않습니다."
+    }
+  ],
+  "retirement_2026_10_02": "The explicit displayed-crop export now writes PNGs. The updated tooltip distinguishes unchanged batch PNG exports; the historical source-bound record is preserved."
+}

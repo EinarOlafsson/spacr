@@ -1,0 +1,89 @@
+# spaCR user guide translation (pt).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-02 02:41-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: pt\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure: preview checked images and verify mask planes"
+msgstr "Medição: pré-visualizar imagens marcadas e verificar planos de máscara"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "Abra **Medição** com uma pasta de execução ou sua pasta ``merged``. A visualização **Ao vivo** carrega um campo e mostra recortes da máscara de objetos configurada. Use **Configurações de recorte…** para escolher o objeto, os planos de máscara, os canais de imagem, o tamanho dos recortes e os filtros antes de medir todo o experimento."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compare objects from several fields"
+msgstr "Comparar objetos de vários campos"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Checked images** and check the fields to include. Each checkbox is independent. The grid combines their crops and names the source field in each group; it does not superimpose fields. Hover a crop for its full source path, label, area and filter result. Double-click a crop to open that exact source, including when another field contains the same label number."
+msgstr "Abra **Imagens marcadas** e marque os campos a incluir. Cada caixa de seleção é independente. A grade combina seus recortes e identifica o campo de origem em cada grupo; não sobrepõe campos. Passe o ponteiro sobre um recorte para ver o caminho completo de origem, o rótulo, a área e o resultado do filtro. Clique duas vezes em um recorte para abrir exatamente aquela fonte, mesmo quando outro campo contém o mesmo número de rótulo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection."
+msgstr "Desmarque um campo para remover seus recortes ou escolha **Desmarque todas as imagens** para limpar a grade. Alterar canais, tipo de objeto ou filtros atualiza todos os campos marcados. O menu de campos mantém a navegação normal por campo individual quando apenas o campo atual está marcado. Com vários campos marcados, ele altera a fonte ativa sem substituir a seleção marcada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
+msgstr "A lista de imagens usa a amostra aleatória limitada existente. Campos já marcados continuam disponíveis quando a amostra muda. **Máx. de recortes na prévia** limita a grade combinada, dividindo seus espaços entre os campos marcados. Aumente esse valor se houver mais campos marcados do que espaços disponíveis. Campos adicionais são lidos um por vez. Uma falha de carregamento identifica o campo e mantém os campos válidos disponíveis para inspeção."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
+msgstr "Marcar imagens altera apenas a pré-visualização. Isso não seleciona os campos que Medição processa nem altera medições salvas ou exportações. **Propagar configurações** mantém sua finalidade existente: copiar configurações de recortes e filtros para o formulário de Medição."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview and export unmixed crops"
+msgstr "Visualizar e exportar recortes com separação espectral"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged."
+msgstr "Com **Mostrar recursos alfa** ativado, defina ``unmix=True`` e configure ``unmix_controls`` no formulário **Medição**. Alterne **Visualização com separação espectral** para usar esses controles de coloração única na prévia dos recortes. A visualização padrão não aplica separação espectral. Controles inválidos ou ausentes são informados. Esse botão altera somente a visualização; as configurações da execução, as matrizes de origem e os PNGs de saída do processamento em lote permanecem inalterados."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged."
+msgstr "Após a conclusão da prévia, escolha **Exportar recortes apresentados…**, selecione uma pasta que conterá a exportação e digite um novo nome de pasta. Somente os recortes da prévia concluída são exportados, com as cores exibidas e seus pixels sem separação espectral ou com ela. ``provenance.json`` registra os caminhos de origem, as identidades dos objetos, as configurações de visualização e as informações de separação espectral. Pastas já existentes são recusadas. Cancelar ou alterar a prévia descarta uma exportação inacabada; os arquivos de origem e as saídas em lote permanecem inalterados."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview reference-well calibration"
+msgstr "Visualizar a calibração com poços de referência"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings."
+msgstr "Com **Mostrar recursos alfa** ativado, ative ``intensity_calibration`` e configure os poços de referência, o offset da câmera e a estatística no formulário **Medição**. Desative **Modo de teste** e escolha **Pré-visualização** ao lado de **Poços de calibração de intensidade**. Use uma pasta de execução local ou sua pasta ``merged``. A prévia lê as configurações atuais sem executar **Medição** nem gravar imagens, medições ou configurações."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop."
+msgstr "Cada pasta de origem é planejada separadamente. A primeira placa em ordem de nome é a referência. A tabela mostra, para cada placa e canal, o fator de ganho multiplicativo, a estatística de referência e a contagem de campos de imagem de referência. Alterar as configurações invalida o resultado. **Cancelar** descarta a prévia enquanto qualquer varredura de arquivos de origem já iniciada termina com segurança; ao reabrir, é preciso aguardar o fim dessa varredura."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Resolve a stored plane-layout conflict"
+msgstr "Resolver um conflito com a disposição de planos armazenada"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A merged folder can include ``.spacr_plane_layout.json``, which records the image channels and mask planes written with its arrays. Measure checks explicit mask-plane settings against this record before using them. ``uninfected=True`` keeps uninfected cells; it does not make an incorrect pathogen mask plane valid."
+msgstr "Uma pasta de dados mesclados pode incluir ``.spacr_plane_layout.json``, que registra os canais de imagem e os planos de máscara gravados com suas matrizes. Medição verifica configurações explícitas de planos de máscara em relação a esse registro antes de utilizá-las. ``uninfected=True`` mantém células não infectadas; não torna válido um plano incorreto de máscara de patógenos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored image layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings."
+msgstr "Se um formulário salvo divergir da pasta, **Executar** explica a incompatibilidade. Escolha **Usar o layout de imagem armazenado** para copiar os planos registrados para o formulário, revise as configurações dos objetos e pressione **Executar** novamente. Um objeto ausente usa ``None``. **Cancelar** mantém o formulário inalterado. Fontes com disposições diferentes ou desconhecidas devem ser executadas separadamente com as configurações correspondentes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For Python calls, use the plane indices recorded for the selected merged folder. A conflicting explicit index raises :class:`spacr.crops.PlaneLayoutConflict`. Unspecified defaults can be resolved through :func:`spacr.crops.reconcile_merged_mask_dims`. Do not edit or remove the sidecar to bypass the check: that can make an intensity plane look like an object mask."
+msgstr "Para chamadas em Python, use os índices de planos registrados para a pasta de dados mesclados selecionada. Um índice explícito conflitante gera :class:`spacr.crops.PlaneLayoutConflict`. Valores padrão não especificados podem ser resolvidos por :func:`spacr.crops.reconcile_merged_mask_dims`. Não edite nem remova o arquivo auxiliar para ignorar a verificação: isso pode fazer um plano de intensidade parecer uma máscara de objetos."
+

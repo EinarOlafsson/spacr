@@ -268,27 +268,20 @@ def test_fov_with_no_usable_mip_writes_nothing(tmp_path, monkeypatch, capsys):
     src.mkdir()
     _write(src / _cv_name(chan="01"), 9)
 
-    real_stack = np.stack
-
-    class _NoMip:
-        """Stands in for a stacked z-series whose reduction yields nothing."""
-
-        def max(self, axis=None, out=None, **kwargs):
-            return None
-
-    def fake_stack(arrays, *args, **kwargs):
-        if isinstance(arrays, list) and arrays and isinstance(arrays[0], np.ndarray):
-            return _NoMip()
-        return real_stack(arrays, *args, **kwargs)
-
-    monkeypatch.setattr(np, "stack", fake_stack)
+    import spacr.io as sio
+    monkeypatch.setattr(sio, "load_images_from_paths",
+                        lambda paths: {key: [] for key in paths})
 
     n_channels = _rename_and_organize_image_files(
         str(src), CV_REGEX, batch_size=10, metadata_type="custom",
         img_format=[".tif"], save_original_images=False)
 
-    assert n_channels == 1
-    assert [f for f in os.listdir(src / "stack") if f.endswith(".npy")] == []
+    assert n_channels == 0
+    # The streaming organizer creates stack/ only after a usable field is
+    # decoded (already true at 52146a269); failed reads preserve raw inputs
+    # and directory layout instead of publishing an empty output folder.
+    assert not (src / "stack").exists()
+    assert (src / _cv_name(chan="01")).is_file()
     out = capsys.readouterr().out
     assert "is missing channel 1" in out
     assert "No valid channels to merge for file plate1_A01_1_1.tif" in out

@@ -74,8 +74,10 @@ from __future__ import annotations
 import inspect
 import logging
 import os
+import re
 import threading
 import time
+import weakref
 from copy import deepcopy
 from collections import deque
 from functools import partial
@@ -854,7 +856,9 @@ class _SimilarityWorker(QThread):
     failed = Signal(str)
 
     def __init__(self, db_path: str, image_type: Optional[str], key: str,
-                 index: Any = None, k: int = 100, parent=None):
+                 index: Any = None, k: int = 100, parent=None, *,
+                 unlabelled_only: bool = False, annotation_column: str = "annotate",
+                 png_table: str = "png_list", pending_labels=None, writer=None):
         """Carry one search's inputs onto a worker thread.
 
         :param db_path: the database whose crops are searched.
@@ -862,8 +866,13 @@ class _SimilarityWorker(QThread):
         :param key: the ``png_path`` of the crop to match.
         :param index: an index built earlier for the same source, or
             ``None`` to build one.
-        :param k: how many similar crops to return.
+        :param k: how many similar crops to return, excluding the query.
         :param parent: parent object.
+        :param unlabelled_only: exclude committed labels, retaining cleared and proposed labels.
+        :param annotation_column: label column currently edited by Annotate.
+        :param png_table: crop table currently selected in Annotate.
+        :param pending_labels: unsaved local labels overriding stored values.
+        :param writer: existing save worker whose submitted batches must settle before reading.
         """
         super().__init__(parent)
         self._db_path = db_path
@@ -871,6 +880,41 @@ class _SimilarityWorker(QThread):
         self._key = key
         self._index = index
         self._k = int(k)
+        self._unlabelled_only = bool(unlabelled_only)
+        self._annotation_column = annotation_column
+        self._png_table = png_table
+        self._pending_labels = dict(pending_labels or {})
+        self._writer = writer
+
+    def _excluded_labels(self, index):
+        """Read fresh human-label state without caching it with the feature index."""
+        import sqlite3
+
+        if not self._unlabelled_only:
+            return None
+        deadline = time.monotonic() + 30
+        while self._writer is not None and self._writer.pending_batches:
+            if self.isInterruptionRequested():
+                return None
+            if self._writer.last_error:
+                raise ValueError("Labels could not be saved; resolve the save error before searching unlabelled crops.")
+            if time.monotonic() >= deadline:
+                raise ValueError("Labels are still being saved; try the unlabelled search after saving finishes.")
+            time.sleep(0.02)
+        if self._writer is not None and self._writer.last_error:
+            raise ValueError("Labels could not be saved; resolve the save error before searching unlabelled crops.")
+        table = '"' + self._png_table.replace('"', '""') + '"'
+        column = '"' + self._annotation_column.replace('"', '""') + '"'
+        with sqlite3.connect(f"file:{self._db_path}?mode=ro", uri=True, timeout=30) as db:
+            fields = {row[1] for row in db.execute(f'PRAGMA table_info({table})')}
+            value = column if self._annotation_column in fields else 'NULL'
+            labels = dict(db.execute(f'SELECT png_path, {value} FROM {table}'))
+        labels.update(self._pending_labels)
+        # Annotate represents cleared labels by NULL or zero and unanswered
+        # model proposals above SUGGESTION_OFFSET; none is a human answer.
+        return {str(key) for key in index.keys if str(key) not in labels or
+                (labels[str(key)] is not None and int(labels[str(key)]) != 0
+                 and int(labels[str(key)]) <= SUGGESTION_OFFSET)}
 
     def run(self):
         """Build the index if needed, search it, and hand back the hits."""
@@ -881,7 +925,10 @@ class _SimilarityWorker(QThread):
                 index = al._similarity_index(self._db_path,
                                              image_type=self._image_type)
             started = time.perf_counter()
-            hits = index.like(self._key, self._k)
+            excluded = self._excluded_labels(index)
+            if self.isInterruptionRequested():
+                return
+            hits = index.like(self._key, self._k, exclude=excluded)
             seconds = time.perf_counter() - started
         except Exception as exc:
             try:
@@ -895,9 +942,17 @@ class _SimilarityWorker(QThread):
             self.done.emit({"index": index, "hits": hits, "key": self._key,
                             "db_path": self._db_path,
                             "image_type": self._image_type,
+                            "annotation_column": self._annotation_column,
+                            "png_table": self._png_table,
+                            "unlabelled_only": self._unlabelled_only,
+                            "requested_k": self._k,
                             "seconds": seconds})
         except RuntimeError:
             pass
+
+
+class _SuggestCancelled(Exception):
+    """Raised inside a suggestion run when Cancel was pressed."""
 
 
 class _SuggestWorker(QThread):
@@ -918,13 +973,35 @@ class _SuggestWorker(QThread):
     because the round it fits is the round that writes the scores
     :func:`spacr.suggest.suggest_from_scores` then reads.
 
-    Nothing here touches a widget: ``done``/``failed`` are ordinary signals
-    connected to bound methods of the screen, so Qt queues them onto the GUI
-    thread.
+    FIVE STEPS, EACH ANNOUNCED. ``progress`` carries ``(step, STEPS, stage)``
+    before each of: clearing the outstanding suggestions, reading the
+    measurements, fitting, ranking, writing. Cancel is
+    ``requestInterruption()``; it is honoured at the next step boundary and
+    the run then emits ``cancelled`` instead of ``done``. A cancel before
+    the writing step writes no suggestion; a cancel after the fit leaves
+    that round's scores, which only reorder the queue.
+
+    A SUGGESTION DOES NOT NEED A WELL-SEPARATED SCORE. The fit's held-out
+    check keeps wells apart, and labels from one page often put a whole
+    class in a single well, where no well-separated split exists. That is a
+    reason to distrust the round's accuracy, not to withhold the
+    suggestions, so the round is refitted on a random split, the round's
+    split rule says it is not grouped, and ``split_relaxed`` carries the
+    refusal so the screen can say why. The Retrain button keeps the refusal:
+    its product is the accuracy.
+
+    Nothing here touches a widget: the signals are ordinary signals
+    connected to bound methods of the screen, so Qt queues them onto the
+    GUI thread.
     """
+
+    STEPS = 5
 
     done = Signal(object)
     failed = Signal(str)
+    progress = Signal(int, int, str)
+    cancelled = Signal()
+    split_relaxed = Signal(str)
 
     def __init__(self, db_path: str, annotation_column: str,
                  options: Dict[str, object], *,
@@ -953,6 +1030,45 @@ class _SuggestWorker(QThread):
         self._only = None if only_paths is None else [str(p)
                                                       for p in only_paths]
 
+    def _step(self, step: int, stage: str) -> None:
+        """Stop here if Cancel was pressed, else announce the next step.
+
+        :param step: the step about to start, counted from 1.
+        :param stage: its name: ``clear``, ``features``, ``fit``, ``rank``
+            or ``write``.
+        :raises _SuggestCancelled: when interruption was requested.
+        """
+        if self.isInterruptionRequested():
+            raise _SuggestCancelled()
+        try:
+            self.progress.emit(int(step), self.STEPS, str(stage))
+        except RuntimeError:
+            pass
+
+    def _fit(self, al, round_kwargs: Dict[str, object]) -> None:
+        """Fit the round, on a random split when wells cannot be kept apart.
+
+        :param al: the ``spacr.active_learning`` module.
+        :param round_kwargs: keyword arguments for ``retrain_round``.
+        """
+        from ...classifier_evaluation import _GroupedSplitImpossible
+
+        try:
+            al.retrain_round(self._db_path, self._column, **round_kwargs)
+            return
+        except _GroupedSplitImpossible as exc:
+            if str(round_kwargs.get("group_by", "well")).lower() in ("none",
+                                                                "cell"):
+                raise
+            reason = str(exc)
+        relaxed = dict(round_kwargs)
+        relaxed["group_by"] = "none"
+        al.retrain_round(self._db_path, self._column, **relaxed)
+        try:
+            self.split_relaxed.emit(reason)
+        except RuntimeError:
+            pass
+
     def run(self):
         """Fit, propose, write, and hand back what was proposed.
 
@@ -962,11 +1078,10 @@ class _SuggestWorker(QThread):
         """
         try:
             from ... import active_learning as al
-            from ...suggest import (resolve_suggestions, suggest_from_scores,
-                                    write_suggestions)
+            from ...suggest import (rejected_suggestions, resolve_suggestions,
+                                    suggest_from_scores, write_suggestions)
 
-            from ...suggest import rejected_suggestions
-
+            self._step(1, "clear")
             resolve_suggestions(self._db_path, self._column, keep=False,
                                 png_table=self._png_table)
             rejections = rejected_suggestions(
@@ -974,7 +1089,16 @@ class _SuggestWorker(QThread):
             options = dict(self._options)
             if rejections:
                 options["rejections"] = rejections
-            al.retrain_round(self._db_path, self._column, **options)
+            round_kwargs = {**options}
+            self._step(2, "features")
+            if round_kwargs.get("features") is None:
+                round_kwargs["features"] = al.round_features(
+                    self._db_path,
+                    table=str(round_kwargs.get("table", al.PNG_TABLE)),
+                    key=str(round_kwargs.get("key", al.PNG_KEY)))
+            self._step(3, "fit")
+            self._fit(al, round_kwargs)
+            self._step(4, "rank")
             proposal = suggest_from_scores(
                 self._db_path, self._column, png_table=self._png_table)
             frame = proposal.frame
@@ -983,11 +1107,18 @@ class _SuggestWorker(QThread):
                 frame = frame.reset_index(drop=True)
                 proposal.frame = frame
                 proposal.scored = int(len(frame))
+            self._step(5, "write")
             written = 0
             if not frame.empty:
                 written = write_suggestions(
                     self._db_path, self._column, frame,
                     png_table=self._png_table)
+        except _SuggestCancelled:
+            try:
+                self.cancelled.emit()
+            except RuntimeError:
+                pass
+            return
         except Exception as exc:
             try:
                 self.failed.emit(f"{type(exc).__name__}: {exc}")
@@ -995,8 +1126,9 @@ class _SuggestWorker(QThread):
                 pass
             return
         try:
-            if self.isInterruptionRequested():
-                return
+            # Cancellation is honored before step 5. Once its transaction
+            # commits, report the saved result even if Cancel arrived during
+            # the write; emitting cancelled here would contradict the database.
             self.done.emit((proposal, written, len(rejections)))
         except RuntimeError:
             pass
@@ -1751,6 +1883,93 @@ def _blinded_total(outcome: dict, s: AnnotateSettings,
                           s.image_type, table=s.png_table)
     ordered = _blind_order(list(rows), rank)
     return dict(outcome, filtered_rows=ordered, total=len(ordered), note="")
+
+
+#: What separates one identifier from the next in a message: whitespace,
+#: quotes, brackets and commas. Colons and dots are kept inside the token so
+#: a Windows drive or a file suffix stays part of the path it belongs to.
+_BLIND_TOKEN = re.compile(r"[^\s'\"()\[\]{}<>,;]+")
+
+
+def _blind_lookup(codes: Dict[str, str], src: str) -> Dict[str, str]:
+    """Every name a blinded crop or its source can be written as, and its stand-in.
+
+    :param codes: the key's ``{png_path: code}``.
+    :param src: the experiment folder; its own name is often the condition.
+    :returns: ``{identifier: replacement}``. A crop's full path, file name
+        and stem map to its code; a name two crops share, and the source
+        folder's name, map to the neutral word "Blind".
+    """
+    lookup: Dict[str, str] = {}
+    for path, code in codes.items():
+        base = os.path.basename(str(path))
+        for identifier in (str(path), os.path.abspath(str(path)), base,
+                           os.path.splitext(base)[0]):
+            if not identifier:
+                continue
+            previous = lookup.get(identifier, code)
+            lookup[identifier] = code if previous == code else tr("Blind")
+    name = os.path.basename(os.path.normpath(src)) if src else ""
+    if name:
+        lookup[name] = tr("Blind")
+    return lookup
+
+
+def _blind_scrub(text: str, lookup: Dict[str, str],
+                 folders: Sequence[str]) -> str:
+    """``text`` with every crop, folder and source name replaced for blinding.
+
+    Tokens are looked up whole rather than searched for inside the text,
+    because a population is often hundreds of thousands of crops -- one
+    alternation over all of them would be slow to build and slower to run --
+    and a short stem searched as a substring would eat ordinary words.
+    Folders are few and hold a separator, so they are replaced as substrings.
+
+    :param text: any message about to be shown.
+    :param lookup: what :func:`_blind_lookup` built.
+    :param folders: folder paths to hide wherever they appear.
+    :returns: the scrubbed text.
+    """
+    text = str(text or "")
+    if not text:
+        return text
+
+    def token(match):
+        """One token's stand-in, keeping trailing punctuation outside it."""
+        word = match.group()
+        core = word.rstrip(".:!?")
+        tail = word[len(core):]
+        hit = lookup.get(core)
+        if hit is None and ("/" in core or "\\" in core):
+            leaf = core.replace("\\", "/").rstrip("/").rsplit("/", 1)[-1]
+            hit = lookup.get(leaf)
+        return word if hit is None else hit + tail
+
+    text = _BLIND_TOKEN.sub(token, text)
+    for folder in sorted({f for f in folders if f and len(f) > 1},
+                         key=len, reverse=True):
+        text = text.replace(folder, tr("Blind"))
+    return text
+
+
+class _BlindStatusLabel(QLabel):
+    """The status line, which a blinded screen scrubs of crop and folder names.
+
+    Messages reach the status line from many places -- a failed save, a
+    suggestion run, a search -- and any of them may quote an exception that
+    names a file. Scrubbing where the text lands, rather than at each caller,
+    is what keeps a message added later from reopening the leak.
+
+    :ivar _blind_owner: a ``weakref`` to the screen, set once it is built.
+    """
+
+    def setText(self, text: str) -> None:
+        """Show ``text``, scrubbed while the owning screen is blinded."""
+        owner_ref = getattr(self, "_blind_owner", None)
+        owner = owner_ref() if owner_ref is not None else None
+        if owner is not None:
+            text = owner._blind_text(text)
+        super().setText(text)
 
 
 def _read_example_settings(path) -> Dict[str, str]:
@@ -3160,6 +3379,7 @@ class AnnotateScreen(QWidget):
         row.addWidget(self._btn_settings)
         row.addWidget(self._build_blind_toggle())
         row.addWidget(self._build_similar_button())
+        row.addWidget(self._build_similar_options())
 
         self._btn_prev = QPushButton("Back")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -3221,6 +3441,19 @@ class AnnotateScreen(QWidget):
         )
         self._btn_suggest.clicked.connect(self._on_suggest_menu)
         row.addWidget(self._btn_suggest)
+
+        self._btn_suggest_cancel = QPushButton(tr("Cancel"))
+        self._btn_suggest_cancel.setObjectName("AnnotateSuggestCancel")
+        self._btn_suggest_cancel.setCursor(Qt.PointingHandCursor)
+        self._btn_suggest_cancel.setToolTip(tr(
+            "Stop the suggestion run at its next step. No new suggestions "
+            "are written if it stops before the writing step; earlier "
+            "suggestions may have been cleared and round scores may have "
+            "been updated. Your annotations are unchanged. Shown only "
+            "while a run is going."))
+        self._btn_suggest_cancel.clicked.connect(self._cancel_suggest)
+        self._btn_suggest_cancel.hide()
+        row.addWidget(self._btn_suggest_cancel)
 
         self._btn_curve = QPushButton("Rounds")
         self._btn_curve.setIcon(iconset.icon("chart"))
@@ -3429,7 +3662,8 @@ class AnnotateScreen(QWidget):
         bottom_row = QHBoxLayout(bottom)
         bottom_row.setContentsMargins(0, 0, 0, 0)
         bottom_row.setSpacing(SPACING["sm"])
-        self._status_label = QLabel(tr("Ready."))
+        self._status_label = _BlindStatusLabel(tr("Ready."))
+        self._status_label._blind_owner = weakref.ref(self)
         self._status_label.setObjectName("SubtitleSmall")
         bottom_row.addWidget(self._status_label, 1)
 
@@ -4175,9 +4409,14 @@ class AnnotateScreen(QWidget):
         re-asked in the background by :func:`_vouched_dir` itself and is
         offered again on the press after next.
 
+        While blinded the picker opens in the home folder instead: opened in
+        the source, its path bar and listing would name the plate.
+
         :returns: a folder to open the picker in, falling back to the
             working directory, which is local by construction.
         """
+        if getattr(self, "_blind", None) is not None:
+            return os.path.expanduser("~")
         for candidate in (self._settings.src, self._suggested_source):
             if _vouched_dir(candidate):
                 return candidate
@@ -4290,7 +4529,7 @@ class AnnotateScreen(QWidget):
         button.setIcon(iconset.icon("classify"))
         button.setCursor(Qt.PointingHandCursor)
         button.setToolTip(tr(
-            "Show the 100 crops whose measurements are most like the "
+            "Show the requested number of crops whose measurements are most like the "
             "selected crop, the one with the ring, most similar first, so a "
             "rare class found once can be labelled many times. The first "
             "search on a source reads its measurements and takes a few "
@@ -4300,6 +4539,32 @@ class AnnotateScreen(QWidget):
         _apply_alpha_widgets(button)
         self._btn_similar = button
         return button
+
+    def _build_similar_options(self) -> QWidget:
+        """Expose neighbour count and unanswered-only filtering beside Like this."""
+        from ..preferences import _apply_alpha_widgets
+
+        panel = QWidget(self)
+        panel.setObjectName("AnnotateSimilarityOptions")
+        layout = QHBoxLayout(panel)
+        layout.setContentsMargins(0, 0, 0, 0)
+        label = QLabel(tr("Similar crops"), panel)
+        self._similar_k = QSpinBox(panel)
+        self._similar_k.setObjectName("AnnotateSimilarCount")
+        self._similar_k.setRange(1, 1000000)
+        self._similar_k.setValue(100)
+        label.setToolTip(tr("Maximum number of similar crops; the reference crop is shown separately."))
+        label.setBuddy(self._similar_k)
+        layout.addWidget(label)
+        layout.addWidget(self._similar_k)
+        self._similar_unlabelled = QCheckBox(tr("Unlabelled only"), panel)
+        self._similar_unlabelled.setToolTip(tr(
+            "Only retrieve crops without a human class label in the current annotation column. "
+            "Cleared labels (blank or 0) and unanswered model suggestions remain eligible. "
+            "The selected reference crop stays visible even when labelled."))
+        layout.addWidget(self._similar_unlabelled)
+        _apply_alpha_widgets(panel)
+        return panel
 
     def _similar_query_key(self) -> Optional[str]:
         """The ``png_path`` of the selected crop, ``None`` on an empty page."""
@@ -4333,7 +4598,11 @@ class AnnotateScreen(QWidget):
             else tr("Reading the measurements to compare crops by…"))
         worker = _SimilarityWorker(self._settings.db_path,
                                    self._settings.image_type, key,
-                                   index=index, parent=self)
+                                   index=index, k=self._similar_k.value(), parent=self,
+                                   unlabelled_only=self._similar_unlabelled.isChecked(),
+                                   annotation_column=self._settings.annotation_column,
+                                   png_table=self._settings.png_table,
+                                   pending_labels=self._pending_updates, writer=self._worker)
         worker.done.connect(self._on_similar_done)
         worker.failed.connect(self._on_similar_failed)
         worker.finished.connect(self._on_similar_finished)
@@ -4345,7 +4614,10 @@ class AnnotateScreen(QWidget):
         """Keep the index and pin the grid to the query and its matches."""
         from ...selection import ObjectRequest
 
-        if result["db_path"] != self._settings.db_path:
+        if (result["db_path"] != self._settings.db_path or
+                result.get("image_type", self._settings.image_type) != self._settings.image_type or
+                result.get("annotation_column", self._settings.annotation_column) != self._settings.annotation_column or
+                result.get("png_table", self._settings.png_table) != self._settings.png_table):
             return
         self._similar_cache = (result["db_path"], result["image_type"],
                                result["index"])
@@ -4357,13 +4629,17 @@ class AnnotateScreen(QWidget):
             reason=tr("{name} and the {n} crops most like it, most similar "
                       "first").format(name=name, n=len(hits)),
             source="similarity",
-            context={"similarity": dict(zip(hits["key"],
-                                            hits["similarity"]))})
+            context={"similarity": dict(zip(hits["key"], hits["similarity"])),
+                     "unlabelled_only": result.get("unlabelled_only", False),
+                     "requested_k": result.get("requested_k", 100)})
         self.open_object_request(request)
         self._status_label.setText(
             tr("Searched {n} crops in {ms} ms.").format(
                 n=f"{len(result['index']):,}",
                 ms=f"{result['seconds'] * 1000:.0f}"))
+        if result.get("unlabelled_only"):
+            self._status_label.setText(self._status_label.text() + " " +
+                tr("{n} unlabelled matches; selected reference kept separately.", n=len(hits)))
 
     @Slot(str)
     def _on_similar_failed(self, message: str) -> None:
@@ -4490,15 +4766,51 @@ class AnnotateScreen(QWidget):
         self._blind = None
         self._apply_blind_chrome(False)
 
+    def _blind_text(self, text: str) -> str:
+        """``text`` as it may be shown: scrubbed of crop and folder names while blinded.
+
+        :param text: a status line or a failure message.
+        :returns: ``text`` unchanged when not blinded; otherwise every crop
+            path, file name and stem replaced by its code, and the source,
+            database and crop folders by the word "Blind".
+        """
+        blind = getattr(self, "_blind", None)
+        if blind is None:
+            return str(text or "")
+        if "lookup" not in blind:
+            src = self._settings.src or ""
+            db_path = self._settings.db_path or ""
+            folders = {src, db_path, os.path.dirname(db_path)}
+            folders.update(os.path.dirname(str(path))
+                           for path in blind["codes"])
+            blind["lookup"] = _blind_lookup(blind["codes"], src)
+            blind["folders"] = sorted(f for f in folders if f)
+        return _blind_scrub(text, blind["lookup"], blind["folders"])
+
+    def _blind_warning(self, title: str, text: str) -> None:
+        """A warning box whose text is scrubbed while blinded.
+
+        Failures quote their exception, and an exception quotes the file it
+        failed on.
+
+        :param title: the box's title.
+        :param text: the message.
+        """
+        QMessageBox.warning(self, title, self._blind_text(text))
+
     def _apply_blind_chrome(self, on: bool) -> None:
         """Hide or restore what on this screen says where the crops are from.
 
         :param on: true while blinded.
         """
         self._set_blind_checked(on)
+        # Train hands the source path to Classify or ML Analyze, and Generate
+        # writes a table named after the source and reports its folder, so
+        # both would carry the source onto a screen while it is hidden here.
         for button in (self._btn_coverage, self._btn_auto,
                        self._btn_browse_db, self._btn_settings,
-                       self._console_switch, self._ai_switch):
+                       self._console_switch, self._ai_switch,
+                       self._btn_train, self._btn_generate):
             if on:
                 button.setProperty("_spacr_blind_was", button.isEnabled())
                 button.setEnabled(False)
@@ -4768,7 +5080,7 @@ class AnnotateScreen(QWidget):
                 self._settings.db_path, self._settings.annotation_column)
             body = al.format_coverage_summary(coverage)
         except Exception as exc:
-            QMessageBox.warning(self, "Coverage unavailable",
+            self._blind_warning("Coverage unavailable",
                                 f"{type(exc).__name__}: {exc}")
             return
         self._show_report("Annotation coverage", body)
@@ -4787,7 +5099,7 @@ class AnnotateScreen(QWidget):
             verdict = al.should_stop(curve)
             body = al.format_learning_curve(curve, verdict)
         except Exception as exc:
-            QMessageBox.warning(self, "Learning curve unavailable",
+            self._blind_warning("Learning curve unavailable",
                                 f"{type(exc).__name__}: {exc}")
             return
         self._show_report("Active-learning rounds", body)
@@ -4848,8 +5160,8 @@ class AnnotateScreen(QWidget):
         """A round could not be fitted — say why rather than going quiet."""
         self._console.append_notice("Retrain failed: {msg}\n", msg=message)
         self._status_label.setText(f"Retrain failed — {message}")
-        QMessageBox.warning(
-            self, "Retrain failed",
+        self._blind_warning(
+            "Retrain failed",
             f"{message}\n\nThe annotations are untouched. The usual causes "
             f"are too few labels, only one class annotated so far, or no "
             f"measurement tables to build features from.")
@@ -5079,6 +5391,8 @@ class AnnotateScreen(QWidget):
 
         self._suggestions_are_a_ranking = bool(synthetic)
         self._btn_suggest.setEnabled(False)
+        self._btn_suggest_cancel.setEnabled(True)
+        self._btn_suggest_cancel.show()
         self._status_label.setText(
             "Fitting on the labels so far, then suggesting…")
         self._console.append_notice(
@@ -5097,8 +5411,85 @@ class AnnotateScreen(QWidget):
         worker.done.connect(self._on_suggest_done)
         worker.failed.connect(self._on_suggest_failed)
         worker.finished.connect(self._on_suggest_finished)
+        for signal, slot in self._suggest_extra_slots(worker):
+            signal.connect(slot)
         self._suggest_worker = worker
         worker.start()
+
+    def _suggest_extra_slots(self, worker):
+        """The progress, cancel and split signals a suggestion run carries.
+
+        :param worker: the run.
+        :returns: ``(signal, slot)`` pairs; a stand-in worker without the
+            signals yields none.
+        """
+        pairs = []
+        for name, slot in (("progress", self._on_suggest_progress),
+                           ("cancelled", self._on_suggest_cancelled),
+                           ("split_relaxed", self._on_suggest_split_relaxed)):
+            signal = getattr(worker, name, None)
+            if signal is not None and hasattr(signal, "connect"):
+                pairs.append((signal, slot))
+        return pairs
+
+    def _cancel_suggest(self) -> None:
+        """Ask the running suggestion run to stop at its next step."""
+        worker = self._suggest_worker
+        if worker is None:
+            return
+        try:
+            worker.requestInterruption()
+        except (RuntimeError, AttributeError):
+            return
+        self._btn_suggest_cancel.setEnabled(False)
+        self._status_label.setText(tr(
+            "Cancelling the suggestion run after its current step…"))
+
+    @Slot(int, int, str)
+    def _on_suggest_progress(self, step: int, total: int, stage: str) -> None:
+        """Say which step of the run is going, as n of N.
+
+        :param step: the step that started, counted from 1.
+        :param total: how many steps the run has.
+        :param stage: the step's name.
+        """
+        what = {
+            "clear": tr("clearing the outstanding suggestions"),
+            "features": tr("reading the measurements"),
+            "fit": tr("fitting on the labels so far"),
+            "rank": tr("ranking the proposals"),
+            "write": tr("writing the suggestions"),
+        }.get(str(stage), str(stage))
+        self._status_label.setText(tr(
+            "Suggest: step {n} of {total} — {what}…",
+            n=int(step), total=int(total), what=what))
+
+    @Slot()
+    def _on_suggest_cancelled(self) -> None:
+        """The run stopped on Cancel: say so, and show what is there now."""
+        self._console.append_notice(
+            "Suggest cancelled before writing new suggestions. Earlier "
+            "suggestions may have been cleared and round scores may have "
+            "been updated.\n")
+        self._status_label.setText(tr("Suggest cancelled."))
+        if self._worker is not None:
+            self._recount_judgements()
+            self._refresh_total(then=self._load_page)
+
+    @Slot(str)
+    def _on_suggest_split_relaxed(self, reason: str) -> None:
+        """Say that this round's accuracy comes from a random split.
+
+        :param reason: the grouped split's refusal.
+        """
+        self._console.append_notice(
+            "This classifier used a random split because too few laboratory "
+            "wells have labels. ")
+        self._console.append_notice("Its accuracy may be overestimated. ")
+        self._console.append_notice("The suggestions are unaffected. ")
+        self._console.append_notice(
+            "Label crops from more wells for validation with independent wells. ({why})\n",
+            why=self._blind_text(str(reason)))
 
     @Slot(object)
     def _on_suggest_done(self, payload) -> None:
@@ -5151,12 +5542,19 @@ class AnnotateScreen(QWidget):
         self._console.append_notice(
             "Suggest failed: {msg}\n", msg=message)
         self._status_label.setText(f"Suggest failed — {message}")
-        QMessageBox.warning(
-            self, "Suggest failed",
-            f"{message}\n\nNothing was written; your annotations are "
-            f"untouched. The usual causes are too few labels, only one class "
-            f"annotated so far — a classifier needs an example of both — or "
-            f"no measurement tables to build features from.")
+        box = QMessageBox(
+            QMessageBox.Warning, "Suggest failed",
+            self._blind_text(
+                f"{message}\n\nNo new suggestions from this round were saved. "
+                f"Earlier suggestions may have been cleared and round scores "
+                f"may have been updated. Your annotations are unchanged. "
+                f"The usual causes are too few labels, only one "
+                f"class annotated so far — a classifier needs an example of "
+                f"both — or no measurement tables to build features from."),
+            QMessageBox.Ok, self)
+        box.setObjectName("AnnotateSuggestFailedBox")
+        box.setAttribute(Qt.WA_DeleteOnClose)
+        box.open()
 
     @Slot()
     def _on_suggest_finished(self) -> None:
@@ -5165,13 +5563,15 @@ class AnnotateScreen(QWidget):
         self._suggest_worker = None
         try:
             self._btn_suggest.setEnabled(True)
+            self._btn_suggest_cancel.hide()
         except RuntimeError:
             return
         if worker is None:
             return
         for signal, slot in ((worker.done, self._on_suggest_done),
                              (worker.failed, self._on_suggest_failed),
-                             (worker.finished, self._on_suggest_finished)):
+                             (worker.finished, self._on_suggest_finished),
+                             *self._suggest_extra_slots(worker)):
             try:
                 signal.disconnect(slot)
             except (RuntimeError, TypeError):
@@ -5339,8 +5739,8 @@ class AnnotateScreen(QWidget):
             ensure_annotation_column(self._settings.db_path, column,
                                      table=self._settings.png_table)
         except Exception as exc:
-            QMessageBox.warning(
-                self, "Could not write",
+            self._blind_warning(
+                "Could not write",
                 f"The annotation column {column!r} could not be created:\n{exc}")
             return 0
 
@@ -6777,7 +7177,8 @@ class AnnotateScreen(QWidget):
             for signal, slot in ((suggest.done, self._on_suggest_done),
                                  (suggest.failed, self._on_suggest_failed),
                                  (suggest.finished,
-                                  self._on_suggest_finished)):
+                                  self._on_suggest_finished),
+                                 *self._suggest_extra_slots(suggest)):
                 try:
                     signal.disconnect(slot)
                 except (RuntimeError, TypeError):

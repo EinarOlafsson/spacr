@@ -1,0 +1,36 @@
+{
+  "lesson": "86_psf_workflow",
+  "english_sha256": "486874655765fd9afa8dea1a68fd795654b8d909705fdb95230018e32dee4aab",
+  "language": "nb",
+  "review": {
+    "kind": "Codex AI technical translation and independent technical peer review",
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "translator": "Codex AI, translated directly from the frozen English source",
+    "date": "2026-10-01",
+    "independent_peer_review": true,
+    "scope": "Scientific meaning and English video control labels; not native-speaker or listening signoff",
+    "route_rebinding": {
+      "previous_english_sha256": "1b2606bba6a8beb3040c3506eada1a75ea3994c7422875fddac237549881f11d",
+      "reason": "Only app_key changed to null and host_app_key removed; narration and all translated source prose unchanged"
+    },
+    "original_draft_sha256": "46a94291890416632dfd77d884677c7c6240eadccf3d09b636511dfdb7938c4d"
+  },
+  "title": "PSF: sammenlign behandling og velg intensiteter for måling",
+  "description": "Undersøk kildeetikettene for PSF-verdiene, sammenlign og bruk bildebehandling, og velg uttrykkelig opprinnelige eller behandlede intensiteter i Measure.",
+  "objectives": [
+    "Kontroller objektiv, utledede bildemål og kalibreringens kildeetiketter.",
+    "Sammenlign behandling og gå tilbake til originalbildet uten å endre kildefiler.",
+    "Velg uttrykkelig intensitetskilde før kvantitativ måling."
+  ],
+  "prerequisite": "Åpne en bildemappe i Make Masks. Bruk kjent kalibrering fra opptaket til kvantitativ behandling; veiledningen bruker et utsnitt fra det medfølgende Measure-eksempelet og illustrative optiske verdier.",
+  "scenes": [
+    "Bruk kontrollene for punktspredningsfunksjonen til å sammenligne et behandlingsvalg før du bruker det til deteksjon eller måling. Åpne bildemappen i Make Masks, åpne Settings og utvid Image enhancement. Velg objektivet som ble brukt ved opptaket, og klikk på Infer from images for å lese tilgjengelig bildeinformasjon.",
+    "Utvid PSF optics og kontroller kildeetiketten ved hver verdi. Objektivet her er et illustrerende valg. Standardverdier for kamera og bølgelengde brukes til å beregne pikselavstand og Gauss-bredde. Erstatt disse antakelsene med verdiene fra opptaket ditt før kvantitativt arbeid. Bildemål alene fastslår ikke optisk kalibrering.",
+    "Velg Convolution og klikk på Compare. Til venstre vises originalen; til høyre vises behandlingen som detektoren bruker. Gaussisk konvolusjon tilfører uskarphet. Richardson–Lucy-dekonvolusjon er et eget valg; undersøk støy og artefakter før du bruker den.",
+    "Klikk på Apply for å bruke den valgte behandlingen til visning og deteksjon. Originalbildet og eksisterende objektetiketter forblir uendret. Undersøk resultatet før du lager eller redigerer masker.",
+    "Slå av Apply for å gå tilbake til originalbildet. Dette valget i redigeringsverktøyet velger ikke intensitetskilde for kvantitative målinger. Velg den separat i Measure.",
+    "Åpne Measure og vis PSF-innstillingene. Intensitetskilden er som standard original, så lagrede innstillinger for PSF-behandling endrer ikke de målte intensitetene. Behold original når analysen skal bruke pikslene fra opptaket.",
+    "For å måle behandlede intensiteter velger du processed og deretter operasjonen. Angi bildets samplingsavstand og kjernens bredde i mikrometer ut fra kalibreringen av opptaket; tallene som vises her, er illustrative. Se over resten av måleinnstillingene, og kjør Measure når du er klar. Ta vare på PSF-proveniensen sammen med resultatene. Disse kontrollene i redigeringsverktøyet og Measure er tilgjengelige når alfafunksjoner er slått av; batch-PSF-kontrollene i Mask og Timelapse krever alfafunksjoner."
+  ]
+}

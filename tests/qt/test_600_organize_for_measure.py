@@ -695,3 +695,87 @@ def test_slot_helpers_ignore_other_drags():
     mime = QMimeData()
     mime.setData(ofm._CELLS_MIME, b"{bad")
     assert ofm._mime_slots(mime) == []
+
+
+def test_a_taught_mask_label_files_the_mask_beside_its_channel(dialog,
+                                                               tmp_path):
+    """A name part taught as "the mask of channel 1, a nucleus" puts those
+    files in a mask column for channel 1 with that role, never in a channel
+    column; a mask label for a channel no set has is left out."""
+    folder = tmp_path / "taught"
+    for i in range(1, 3):
+        _tif(folder / f"nuc_img{i:02d}.tif")
+        _tif(folder / f"cell_img{i:02d}.tif")
+        _tif(folder / f"seg_img{i:02d}.tif", _mask(i))
+        _tif(folder / f"ghost_img{i:02d}.tif", _mask(i))
+    dialog.source_edit.setText(str(folder))
+    chan_map = {"nuc": ("channel", 1), "cell": ("channel", 2),
+                "seg": ("mask", 1, "nucleus"), "ghost": ("mask", 7)}
+    report = dialog.sort_by_regex(
+        r"(?P<chanID>[a-z]+)_img(?P<fieldID>\d+)\.tif", chan_map)
+    assert report is not None
+    assert [c.kind for c in dialog.columns] == ["channel", "channel", "mask"]
+    masks = [c for c in dialog.columns if c.kind == "mask"]
+    assert [c.role for c in masks] == ["nucleus"]
+    mask_index = dialog.columns.index(masks[0])
+    assert all(os.path.basename(row[mask_index]).startswith("seg_")
+               for row in dialog.rows)
+
+
+def test_files_moved_to_another_column_are_rematched_there(dialog, tmp_path):
+    exp = _tree(tmp_path, masks=False)
+    files = sorted(str(p) for p in (exp / "DAPI").glob("*.tif"))
+    dialog.add_column("channel")
+    dialog.add_column("channel")
+    dialog.add_files(0, files)
+    assert dialog._column_files(0)
+    dialog._on_table_drop(0, files[:1], 0)
+    assert files[0] in dialog._column_files(0), "a drop on its own column"
+    dialog._on_table_drop(1, [files[0], ""], 0)
+    assert files[0] in dialog._column_files(1)
+    assert files[0] not in dialog._column_files(0)
+    rows = [list(r) for r in dialog.rows]
+    dialog._move_files([], 1)
+    dialog._move_files(files[:1], 9)
+    assert dialog.rows == rows
+
+
+def test_teach_me_follows_a_marker_the_user_relabels(dialog, tmp_path):
+    folder = _consolidated(tmp_path)
+    dialog.source_edit.setText(str(folder))
+    dialog.ask_label = _answer_by_original(dialog, [])
+    relabelled = []
+
+    def relabel(marker, label):
+        if marker == "c" and not relabelled:
+            relabelled.append(marker)
+            return ("channel", 3)
+        return label
+
+    dialog.ask_marker = relabel
+    assert dialog.teach()
+    assert relabelled == ["c"]
+    assert len([c for c in dialog.columns if c.kind == "channel"]) == 2
+
+
+def test_the_questions_are_asked_in_dialogs_when_someone_can_answer(
+        dialog, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    monkeypatch.setattr(ofm, "_headless", lambda: False)
+
+    def answer_with(self):
+        self.answer = ("channel", 2)
+        return 1
+
+    monkeypatch.setattr(ofm._TeachQuestion, "exec", answer_with)
+    assert dialog._ask_label(__file__, []) == ("channel", 2)
+
+    role = {"wanted": QMessageBox.AcceptRole}
+    monkeypatch.setattr(QMessageBox, "exec", lambda self: 0)
+    monkeypatch.setattr(QMessageBox, "clickedButton", lambda self: next(
+        b for b in self.buttons() if self.buttonRole(b) == role["wanted"]))
+    label = ("mask", 1, "nucleus")
+    assert dialog._ask_marker("seg", label) == label
+    role["wanted"] = QMessageBox.RejectRole
+    assert dialog._ask_marker("", ("channel", 1)) == "field"

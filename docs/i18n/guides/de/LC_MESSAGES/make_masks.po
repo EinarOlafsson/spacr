@@ -1,0 +1,795 @@
+# spaCR user guide translation (de).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: de\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Make Masks: editing, detection and measurement"
+msgstr "Masken erstellen: Bearbeitung, Erkennung und Messung"
+
+msgid "Open **Home → Tools → Make Masks** to inspect an image, correct its integer label mask and save the result. Each positive label identifies one object; zero is background. This screen can also propose objects with a detector, grow cell masks from existing nucleus masks, and organize curated images and masks for Measure with **Organize for Measure…**."
+msgstr "Öffnen Sie **Startseite → Werkzeuge → Masken erstellen**, um ein Bild zu untersuchen, seine ganzzahlige Labelmaske zu korrigieren und das Ergebnis zu speichern. Jedes positive Label kennzeichnet ein Objekt; null ist Hintergrund. Dieser Bildschirm kann außerdem mit einem Detektor Objekte vorschlagen, Zellmasken aus vorhandenen Zellkernmasken wachsen lassen und kuratierte Bilder und Masken mit **Für Measure ordnen…** für Messen organisieren."
+
+msgid "For the inputs and outputs of the surrounding workflow, see :ref:`Make Masks in the module map <workflow-module-make_masks>` and the `Make Masks tutorial <tutorials/#lesson=14_make_masks>`_. The :doc:`screen API <api/spacr/qt/screens/make_masks/index>` documents the implementation and :mod:`spacr.qt.mask_engine` documents the editing routines."
+msgstr "Zu den Eingaben und Ausgaben des umgebenden Workflows siehe :ref:`Masken erstellen in der Modulübersicht <workflow-module-make_masks>` und das `Tutorial zu Masken erstellen <tutorials/#lesson=14_make_masks>`_. Die :doc:`Bildschirm-API <api/spacr/qt/screens/make_masks/index>` dokumentiert die Implementierung, und :mod:`spacr.qt.mask_engine` dokumentiert die Bearbeitungsroutinen."
+
+msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
+msgstr "Bewegen Sie den Zeiger über eine Einstellung oder ihre Beschriftung, um die Erläuterung zu lesen und dem Link zur API-Hilfe zu folgen. Bedienelemente mit passender Animation bieten in diesem Pop-up außerdem eine Animation an; jedes Bedienelement merkt sich seinen eigenen Einblendzustand. Die Hilfe zur Bildverbesserung verweist auf die Dokumentation der Erkennungskette. Ein Bedienelement ohne passende Animation behält dennoch seine schriftliche Erläuterung und seinen API-Link."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Thumbnail display quality"
+msgstr "Anzeigequalität der Vorschaubilder"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size."
+msgstr "Wählen Sie **Qualität der Vorschaubilder** unter **Anzeige** oder **Für Measure ordnen…**. **Niedrig** behält die ursprüngliche Quellabtastung mit 64 Pixeln bei. **Mittel** verwendet bis zu 256 und **Hoch** bis zu 1024 Pixel auf der längsten Seite, begrenzt durch die Quellauflösung. Diese Auswahl liest Quellbild und Maske erneut ein; sie vergrößert keine Bitmap mit niedriger Qualität. Die separate Einstellung **Größe** legt die logische Zellgröße fest."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged."
+msgstr "Die Auswahl wird gespeichert und aktualisiert offene Vorschaubildansichten. Nur sichtbare Zellen im Organizer werden geladen; der Cache ist begrenzt. Eine Qualitätsänderung betrifft ausschließlich die Anzeige. Gespeicherte Bilder, Masken und Messungen bleiben unverändert."
+
+msgid "Open a field and save an edit"
+msgstr "Ein Bildfeld öffnen und eine Bearbeitung speichern"
+
+msgid "Choose **Open folder…** and select the image folder. The ordinary layout keeps corresponding masks in its ``masks/`` subfolder. A saved TIFF mask uses the image's filename stem; a missing mask starts empty. The loader also supports the sibling masks layout and Cellpose ``_seg.npy`` bundles."
+msgstr "Wählen Sie **Ordner öffnen...** und wählen Sie den Bildordner aus. Das gewöhnliche Layout hält die zugehörigen Masken in seinem Unterordner ``masks/``. Eine gespeicherte TIFF-Maske verwendet den Dateinamensstamm des Bildes; eine fehlende Maske beginnt leer. Der Loader unterstützt außerdem das Layout mit benachbartem Maskenordner und Cellpose-Bündel ``_seg.npy``."
+
+msgid "Inspect the image and labels. Images and masks must have matching spatial dimensions. An ordinary colour image is converted to grayscale; prepare the intended channel as a separate image when channel identity matters."
+msgstr "Prüfen Sie Bild und Labels. Bilder und Masken müssen übereinstimmende räumliche Abmessungen haben. Ein gewöhnliches Farbbild wird in Graustufen umgewandelt; bereiten Sie den vorgesehenen Kanal als separates Bild vor, wenn die Kanalidentität wichtig ist."
+
+msgid "Correct an object with a tool, or choose a detection method and inspect its preview before accepting objects. **Undo** and **Redo** apply to mask edits."
+msgstr "Korrigieren Sie ein Objekt mit einem Werkzeug oder wählen Sie ein Erkennungsverfahren und prüfen Sie dessen Vorschau, bevor Sie Objekte übernehmen. **Rückgängig** und **Wiederherstellen** gelten für Maskenbearbeitungen."
+
+msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a ``uint16`` label TIFF in the ordinary layout; a Cellpose bundle is updated as a bundle. The source image is preserved."
+msgstr "Drücken Sie **Maske speichern** oder **Ctrl+S**, bevor Sie zu einem anderen Bildfeld wechseln. Beim Speichern wird im gewöhnlichen Layout ein ``uint16``-Label-TIFF geschrieben; ein Cellpose-Bündel wird als Bündel aktualisiert. Das Quellbild bleibt erhalten."
+
+msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
+msgstr "Verwenden Sie **Behalten** oder **Verwerfen**, um ein Kurationsurteil auf Bildfeldebene festzuhalten und weiterzugehen. Diese Urteile werden in ``csv/keep_discard.csv`` geschrieben; Verwerfen verzeichnet eine Entscheidung, ohne das Bild oder seine Maske zu löschen. Speichern Sie Bearbeitungen separat."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
+msgstr "**Maske speichern**, **Vorheriges Bild** und **Nächstes Bild** stehen zusammen mit den Bearbeitungswerkzeugen in der oberen Aktionsleiste. Scrollen Sie diese Leiste in einem schmalen Fenster horizontal, um Bedienelemente außerhalb des sichtbaren Bereichs zu erreichen."
+
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
+msgstr "Um den Bildschirm ohne eigene Daten auszuprobieren, lädt **Testdaten laden...** zehn unsegmentierte Bildfelder mit Toxoplasma-Vakuolen herunter, deren kuratierte Masken getrennt in ``ground_truth_masks/`` aufbewahrt werden, und öffnet das erste. Der Pfeil an derselben Schaltfläche bietet eine Stichprobe von Bildfeldern aus dem Datensatz, mit dem jedes veröffentlichte Modell trainiert wurde."
+
+msgid "Drop images and folders"
+msgstr "Bilder und Ordner ablegen"
+
+msgid "You can also drop files and folders onto the screen. Make Masks works out what the drop is:"
+msgstr "Sie können Dateien und Ordner auch auf dem Bildschirm ablegen. Masken erstellen ermittelt, worum es sich bei der Ablage handelt:"
+
+msgid "images are queued in the order dropped; one folder of images opens as a folder;"
+msgstr "Bilder werden in der Reihenfolge der Ablage eingereiht; ein einzelner Bildordner wird als Ordner geöffnet;"
+
+msgid "images dropped together with their masks open with those masks. A ``masks`` folder is used as it is; other mask files are copied, after a question, to ``masks/<image stem>.tif`` beside their images, keeping any mask already there;"
+msgstr "Bilder, die zusammen mit ihren Masken abgelegt werden, öffnen sich mit diesen Masken. Ein Ordner ``masks`` wird unverändert verwendet; andere Maskendateien werden nach einer Rückfrage nach ``masks/<image stem>.tif`` neben ihre Bilder kopiert, wobei bereits vorhandene Masken erhalten bleiben;"
+
+msgid "images kept in subfolders prompt an offer to consolidate them: their images are copied into one folder, each renamed with its folder path so no name is lost, and a ``rename_manifest.csv`` records the original names;"
+msgstr "Bilder in Unterordnern lösen das Angebot aus, sie zusammenzuführen: Ihre Bilder werden in einen Ordner kopiert, jeweils mit ihrem Ordnerpfad umbenannt, damit kein Name verloren geht, und eine ``rename_manifest.csv`` verzeichnet die ursprünglichen Namen;"
+
+msgid "subfolders named like channels (DAPI, GFP, ``ch1``, ``C01``…), or several image folders, open **Organize for Measure** with a channel column per folder. Cancelling it opens the drop as an ordinary folder;"
+msgstr "wie Kanäle benannte Unterordner (DAPI, GFP, ``ch1``, ``C01``…) oder mehrere Bildordner öffnen **Für Measure ordnen** mit einer Kanalspalte pro Ordner. Wird dies abgebrochen, wird die Ablage als gewöhnlicher Ordner geöffnet;"
+
+msgid "a spaCR output folder, such as ``merged/`` or ``sorted_channels``, opens its images."
+msgstr "ein spaCR-Ausgabeordner wie ``merged/`` oder ``sorted_channels`` öffnet seine Bilder."
+
+msgid "Anything not used is listed in the console with the reason."
+msgstr "Alles, was nicht verwendet wird, wird mit dem Grund in der Konsole aufgeführt."
+
+msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json``. Opening an image without editing it does not create evidence of manual curation. Existing history is retained when editing a previously curated mask. See :func:`spacr.qt.mask_engine.save_mask` and :class:`spacr.curation.CurationLog` for the file contract."
+msgstr "Ein gespeicherter Bearbeitungsverlauf wird neben der Maske als ``<mask>.curation.json`` abgelegt. Das Öffnen eines Bildes ohne Bearbeitung erzeugt keinen Nachweis einer manuellen Kuratierung. Beim Bearbeiten einer bereits kuratierten Maske bleibt der vorhandene Verlauf erhalten. Den Dateivertrag finden Sie unter :func:`spacr.qt.mask_engine.save_mask` und :class:`spacr.curation.CurationLog`."
+
+msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "Das gespeicherte Format hat höchstens 65.535 positive Labels. Das Speichern verweigert eine Binärmaske mit mehr zusammenhängenden Objekten oder eine vorhandene Mehrlabelmaske, deren IDs diesen Bereich überschreiten; übergroße IDs werden nicht auf kleinere Zahlen umgebrochen. Ein verweigertes Speichern bewahrt ein vorhandenes TIFF oder Cellpose-Bündel samt Metadaten. Im gewöhnlichen Modus wird eine Maske mit nur einem Vordergrundwert als binär interpretiert, und ihre zusammenhängenden Komponenten erhalten separate IDs. Für Beziehungen zwischen primären und sekundären Objekten verwenden Sie den unten beschriebenen Weg mit exakten IDs. Zu diesen unterschiedlichen Konventionen siehe :func:`spacr.qt.mask_engine.canonical_labels`."
+
+msgid "Canvas tools and navigation"
+msgstr "Werkzeuge der Zeichenfläche und Navigation"
+
+msgid "Tool"
+msgstr "Werkzeug"
+
+msgid "Action"
+msgstr "Aktion"
+
+msgid "Brush"
+msgstr "Pinsel"
+
+msgid "Paint disks along the pointer path using the active label."
+msgstr "Malt mit dem aktiven Label Scheiben entlang des Zeigerpfads."
+
+msgid "Erase"
+msgstr "Radierer"
+
+msgid "Remove pixels under the brush."
+msgstr "Entfernt Pixel unter dem Pinsel."
+
+msgid "Erase object"
+msgstr "Erase object"
+
+msgid "Remove the complete label clicked."
+msgstr "Entfernt das gesamte angeklickte Label."
+
+msgid "Wand + / Wand −"
+msgstr "Wand + / Wand −"
+
+msgid "Flood from the clicked pixel within the chosen intensity tolerance; add or remove the resulting region."
+msgstr "Flutet vom angeklickten Pixel aus innerhalb der gewählten Intensitätstoleranz; fügt den entstehenden Bereich hinzu oder entfernt ihn."
+
+msgid "Draw"
+msgstr "Draw"
+
+msgid "Trace an outline and fill its interior as one object."
+msgstr "Zeichnet einen Umriss nach und füllt sein Inneres als ein Objekt."
+
+msgid "Divide"
+msgstr "Divide"
+
+msgid "Draw a cut through a merged object. The larger component retains its ID; the smaller receives a new ID."
+msgstr "Zieht einen Schnitt durch ein verschmolzenes Objekt. Die größere Komponente behält ihre ID; die kleinere erhält eine neue ID."
+
+msgid "Zoom"
+msgstr "Zoom"
+
+msgid "Drag a rectangle to change the view without changing labels."
+msgstr "Ziehen Sie ein Rechteck auf, um die Ansicht zu ändern, ohne Labels zu verändern."
+
+msgid "Recrop"
+msgstr "Recrop"
+
+msgid "Write a cropped image/mask pair as another field, then retire the original when leaving the field after recropping."
+msgstr "Schreibt ein zugeschnittenes Bild/Masken-Paar als weiteres Bildfeld und stellt das Original zurück, wenn das Bildfeld nach dem Zuschneiden verlassen wird."
+
+msgid "Ruler"
+msgstr "Lineal"
+
+msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
+msgstr "Ziehen Sie eine Linie, um einen Abstand in Bildpixeln zu messen. Klicken Sie bei ausgewähltem Lineal mit der rechten Maustaste, um sie zu löschen. Zoomen und Verschieben behalten die Messung bei."
+
+msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Shift oder Alt + ziehen** verschiebt die Ansicht. Das Mausrad zoomt um den Cursor; **Esc** setzt den Zoom zurück. **Left/Right** wählt das vorherige/nächste Bildfeld. **Ctrl+Z/Ctrl+Y** macht eine Bearbeitung rückgängig bzw. stellt sie wieder her. **Ctrl + Linksklick** teilt ein Objekt an seiner Taille; **Ctrl + Rechtsklick** entfernt das Objekt unter dem Cursor. Der Kurzbefehlsbereich neben der Ansicht listet die aktuellen Gesten auf, einschließlich der Lupensteuerung."
+
+msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
+msgstr "Recrop erzeugt Dateien und verändert die Bildfeld-Warteschlange. Objekte, die von der Grenze eines Ausschnitts durchschnitten werden, werden ausgelassen, und beibehaltene Objekte werden innerhalb des neuen Ausschnitts neu nummeriert. Sehr kleine Ausschnitte und Beinahe-Duplikate werden abgelehnt. Abgeschlossene Originale werden nach ``recropped_originals/`` verschoben. Verwenden Sie das ursprüngliche Bild und die ursprüngliche Maske, wenn Sie primäre/sekundäre IDs über das gesamte Bildfeld pflegen; ein neu nummerierter Ausschnitt ist ein anderer Paarungskontext. Die genauen Grenzen und Pfade dokumentiert :func:`spacr.qt.mask_engine.write_recrop`."
+
+msgid "Wand tolerance and leaking regions"
+msgstr "Toleranz des Zauberstabs und auslaufende Bereiche"
+
+msgid "The Wand's relative tolerance is a fraction of the image intensity range; absolute tolerance uses the processed image's intensity units. The optional runaway detector looks for sudden widening as the flood leaves the clicked object. **Growth ratio**, **Warm-up**, **Min baseline** and **Confirmation** control how much widening is required, where checking begins, the minimum object width and how long widening must persist."
+msgstr "Die relative Toleranz des Zauberstabs ist ein Anteil des Intensitätsbereichs des Bildes; die absolute Toleranz verwendet die Intensitätseinheiten des verarbeiteten Bildes. Der optionale Ausreißerdetektor sucht nach einer plötzlichen Verbreiterung, wenn die Flutung das angeklickte Objekt verlässt. **Wachstumsverhältnis**, **Warm-up**, **Min baseline** und **Confirmation** steuern, wie viel Verbreiterung erforderlich ist, wo die Prüfung beginnt, die minimale Objektbreite und wie lange die Verbreiterung anhalten muss."
+
+msgid "**Re-flood below the escape** searches for a lower tolerance whose region stays inside the object. **Search steps** controls that search's precision. **Taper onto the gradient** refines a provisional cut using the intensity boundary; smoothing, transition-band width and foreground inset determine where the edge may move. These controls help with a bright object connected to another region by a weak bridge; inspect the resulting edge when the bridge and object have similar intensity."
+msgstr "**Unterhalb des Überlaufs neu fluten** sucht nach einer niedrigeren Toleranz, deren Bereich innerhalb des Objekts bleibt. **Suchschritte** steuert die Genauigkeit dieser Suche. **Auf den Gradienten auslaufen lassen** verfeinert einen vorläufigen Schnitt anhand der Intensitätsgrenze; Glättung, Breite des Übergangsbands und Einzug des Vordergrunds bestimmen, wohin sich die Kante bewegen darf. Diese Bedienelemente helfen bei einem hellen Objekt, das über eine schwache Brücke mit einem anderen Bereich verbunden ist; prüfen Sie die resultierende Kante, wenn Brücke und Objekt ähnliche Intensität haben."
+
+msgid "The Wand uses the currently applied image enhancement. If enhancement is still being calculated, wait for its completion before trying the click again. Post-detection morphology and splitting belong to detector output, not to the manual Wand gesture."
+msgstr "Der Zauberstab verwendet die aktuell angewendete Bildverbesserung. Wird die Verbesserung noch berechnet, warten Sie deren Abschluss ab, bevor Sie erneut klicken. Morphologie und Trennung nach der Erkennung gehören zur Detektorausgabe, nicht zur manuellen Zauberstab-Geste."
+
+msgid "Display, Levels and intensity units"
+msgstr "Anzeige, Tonwerte und Intensitätseinheiten"
+
+msgid "**Lower %** and **Upper %** set the percentiles drawn as black and white. **Levels…** opens a full-field histogram: drag either marker or enter a black/white intensity cutoff. Changes update the percentile controls. A constant-intensity image has no range to stretch. **Reset levels** uses the full range, 0–100 percentiles."
+msgstr "**Unterer %** und **Oberes Perzentil %** legen die Perzentile fest, die als Schwarz und Weiß dargestellt werden. **Tonwerte…** öffnet ein Histogramm des ganzen Bildfelds: Ziehen Sie eine der beiden Markierungen oder geben Sie eine Intensitätsgrenze für Schwarz/Weiß ein. Änderungen aktualisieren die Perzentil-Bedienelemente. Ein Bild mit konstanter Intensität hat keinen Bereich, der gestreckt werden kann. **Tonwerte zurücksetzen** verwendet den vollen Bereich, die Perzentile 0–100."
+
+msgid "With **Detect on the normalized image** off, these levels affect display. With it on, detectors use the stretched image before any applied enhancement. The normalization is computed for the whole field before extracting a magnifier crop, so moving the magnifier does not redefine the percentile levels. The setting changes future proposals; it does not modify existing labels or rewrite the loaded image."
+msgstr "Ist **Objekterkennung auf dem normalisierten Bild** ausgeschaltet, wirken sich diese Tonwerte auf die Anzeige aus. Ist es eingeschaltet, verwenden die Detektoren das gestreckte Bild vor jeder angewendeten Verbesserung. Die Normalisierung wird für das gesamte Bildfeld berechnet, bevor ein Lupenausschnitt entnommen wird, sodass ein Verschieben der Lupe die Perzentilwerte nicht neu festlegt. Die Einstellung ändert künftige Vorschläge; sie verändert keine vorhandenen Labels und schreibt das geladene Bild nicht um."
+
+msgid "**Invert image** affects both the picture and detector input. It normalizes the field to 0–1 and takes its complement, so an absolute detection threshold must be interpreted on that scale. The pixel value in the corner readout follows inversion and detection normalization; object mean intensity and the **Filter** intensity bounds use the original loaded values. Changing contrast or inversion therefore does not change the meaning of a measured object's original mean intensity."
+msgstr "**Bild invertieren** betrifft sowohl die Darstellung als auch die Detektoreingabe. Es normalisiert das Bildfeld auf 0–1 und bildet das Komplement, sodass ein absoluter Erkennungsschwellenwert auf dieser Skala interpretiert werden muss. Der Pixelwert in der Eckanzeige folgt der Invertierung und der Erkennungsnormalisierung; die mittlere Objektintensität und die Intensitätsgrenzen unter **Filtern** verwenden die ursprünglich geladenen Werte. Eine Änderung von Kontrast oder Invertierung ändert daher nicht die Bedeutung der ursprünglichen mittleren Intensität eines gemessenen Objekts."
+
+msgid "**Swap object and background**, under Object operations, changes the label mask. Use it only when that label transformation is intended; it does not perform image inversion."
+msgstr "**Objekt und Hintergrund vertauschen** unter den Objektoperationen verändert die Labelmaske. Verwenden Sie es nur, wenn diese Labeltransformation beabsichtigt ist; es führt keine Bildinvertierung durch."
+
+msgid "Choose a detection method"
+msgstr "Ein Erkennungsverfahren wählen"
+
+msgid "The method selector controls the detector used by the live preview and the corresponding whole-image detection action. Only applicable method controls are shown. Model methods require their model or backend; the Model Zoo indicates installation and download state."
+msgstr "Die Verfahrensauswahl steuert den Detektor, der von der Live-Vorschau und der entsprechenden Erkennungsaktion für das ganze Bild verwendet wird. Es werden nur die zutreffenden Bedienelemente des Verfahrens angezeigt. Modellverfahren benötigen ihr Modell bzw. Backend; der Modellzoo zeigt den Installations- und Downloadstatus an."
+
+msgid "The **Object detection** toolbar action runs model loading, inference and postprocessing in a worker so the window remains responsive. It captures the current input and settings when started. If you switch fields or change the image or mask before it finishes, the result is discarded; run detection again on the intended field. Closing the window does not wait for that result. The Python method :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` remains synchronous and returns zero if another detection is already running."
+msgstr "Die Symbolleistenaktion **Objekterkennung** führt das Laden des Modells, die Inferenz und die Nachverarbeitung in einem Worker aus, sodass das Fenster reaktionsfähig bleibt. Sie erfasst beim Start die aktuelle Eingabe und die Einstellungen. Wechseln Sie vor Abschluss das Bildfeld oder ändern Sie Bild oder Maske, wird das Ergebnis verworfen; führen Sie die Erkennung auf dem vorgesehenen Bildfeld erneut aus. Das Schließen des Fensters wartet nicht auf dieses Ergebnis. Die Python-Methode :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` bleibt synchron und gibt null zurück, wenn bereits eine andere Erkennung läuft."
+
+msgid "CPU Cellpose inference uses float32 weights through the shared device policy. Supported GPU precision depends on the backend and device. Different precision can produce different predictions, so inspect the masks instead of assuming identical output across devices. This inference policy does not change training precision. See :func:`spacr.accelerator.cellpose_kwargs`. Live Cellpose previews also use float32 when explicitly forced to CPU or when accelerator detection falls back to CPU. A Cellpose 3 checkpoint rejected by Cellpose 4 produces a preview-specific compatibility message; choose a checkpoint supported by the installed preview runtime. See :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`."
+msgstr "Die Cellpose-Inferenz auf der CPU verwendet über die gemeinsame Geräterichtlinie float32-Gewichte. Die unterstützte GPU-Präzision hängt von Backend und Gerät ab. Unterschiedliche Präzision kann zu unterschiedlichen Vorhersagen führen; prüfen Sie daher die Masken, statt identische Ausgaben auf allen Geräten anzunehmen. Diese Inferenzrichtlinie ändert die Trainingspräzision nicht. Siehe :func:`spacr.accelerator.cellpose_kwargs`. Live-Vorschauen mit Cellpose verwenden ebenfalls float32, wenn explizit die CPU erzwungen wird oder die Beschleunigererkennung auf die CPU zurückfällt. Ein Cellpose-3-Checkpoint, den Cellpose 4 ablehnt, erzeugt eine vorschauspezifische Kompatibilitätsmeldung; wählen Sie einen Checkpoint, den die installierte Vorschau-Laufzeit unterstützt. Siehe :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`."
+
+msgid "Method"
+msgstr "Methode"
+
+msgid "What to inspect and adjust"
+msgstr "Was zu prüfen und anzupassen ist"
+
+msgid "Otsu"
+msgstr "Otsu-Verfahren"
+
+msgid "A global threshold for foreground/background populations. Adjust correction, blur, bright/dark foreground, hole filling, touching-object splitting, border exclusion and minimum area. Local Otsu is an additional option for whole-image detection."
+msgstr "Ein globaler Schwellenwert für Vordergrund-/Hintergrundpopulationen. Passen Sie Korrektur, Weichzeichnung, hellen/dunklen Vordergrund, Füllen von Löchern, Trennen sich berührender Objekte, Randausschluss und Mindestfläche an. Lokales Otsu ist eine zusätzliche Option für die Erkennung im ganzen Bild."
+
+msgid "Li, Yen, Triangle, IsoData, Mean, Minimum"
+msgstr "Li, Yen, Triangle, IsoData, Mean, Minimum"
+
+msgid "Alternative global levels with the shared threshold cleanup controls. Minimum can refuse a histogram without two separable peaks. An algorithm name alone does not establish accuracy on a new image."
+msgstr "Alternative globale Schwellen mit den gemeinsamen Bedienelementen zur Bereinigung nach dem Schwellen. Minimum kann ein Histogramm ohne zwei trennbare Spitzen ablehnen. Der Name eines Algorithmus allein belegt keine Genauigkeit auf einem neuen Bild."
+
+msgid "Multi-Otsu"
+msgstr "Multi-Otsu-Verfahren"
+
+msgid "Choose the number of intensity classes and the foreground band."
+msgstr "Wählen Sie die Anzahl der Intensitätsklassen und das Vordergrundband."
+
+msgid "Sauvola, Niblack"
+msgstr "Sauvola, Niblack"
+
+msgid "Local-window statistics with window size and contrast weight ``k``. Niblack uses ``mean - k*standard_deviation``. Sauvola uses a default ``R=1`` on float input without rescaling its range; check the detector input scale when transferring settings."
+msgstr "Statistiken in lokalen Fenstern mit Fenstergröße und Kontrastgewicht ``k``. Niblack verwendet ``mean - k*standard_deviation``. Sauvola verwendet bei Gleitkommaeingaben ein voreingestelltes ``R=1``, ohne deren Bereich zu reskalieren; prüfen Sie die Skala der Detektoreingabe, wenn Sie Einstellungen übertragen."
+
+msgid "Maxima + propagate"
+msgstr "Maxima + Propagation"
+
+msgid "Find bright centres after Gaussian blur, then grow watershed basins using intensity and a stop rule. Centre spacing and seed level govern proposed seeds; a seed can disappear during subsequent filtering."
+msgstr "Findet helle Zentren nach einer Gauß-Weichzeichnung und lässt dann Wasserscheiden-Becken anhand der Intensität und einer Stoppregel wachsen. Zentrenabstand und Seed-Schwelle bestimmen die vorgeschlagenen Seeds; ein Seed kann bei der anschließenden Filterung verschwinden."
+
+msgid "Secondary objects from primary masks"
+msgstr "Sekundäre Objekte aus Primärmasken"
+
+msgid "Grow from every pixel of each labelled primary object while retaining its ID. See the pairing walkthrough below."
+msgstr "Wächst von jedem Pixel jedes gelabelten primären Objekts aus und behält dessen ID bei. Siehe die Anleitung zur Paarung unten."
+
+msgid "Adaptive threshold"
+msgstr "Adaptiver Schwellenwert"
+
+msgid "Local Gaussian-weighted threshold, offset and morphological cleanup through the irregular-organelle engine."
+msgstr "Lokaler, gaußgewichteter Schwellenwert, Offset und morphologische Bereinigung über die Engine für unregelmäßige Organellen."
+
+msgid "LoG blobs, DoG blobs"
+msgstr "LoG-Blobs, DoG-Blobs"
+
+msgid "Spot detection over Gaussian scales. Inspect scale range, response threshold and whether spots grow by watershed rather than disk stamps."
+msgstr "Spot-Erkennung über Gauß-Skalen. Prüfen Sie den Skalenbereich, den Antwortschwellenwert und ob Spots per Wasserscheide statt durch Scheibenstempel wachsen."
+
+msgid "Ridge filter"
+msgstr "Ridge-Filter"
+
+msgid "Frangi, Sato or Meijering response for network-like structures; select response scales and global or adaptive response threshold."
+msgstr "Frangi-, Sato- oder Meijering-Antwort für netzwerkartige Strukturen; wählen Sie die Antwortskalen und einen globalen oder adaptiven Antwortschwellenwert."
+
+msgid "Hysteresis"
+msgstr "Hysterese"
+
+msgid "Grow from strong response through connected weaker response. Values below 1 are interpreted as percentile fractions by this engine."
+msgstr "Wächst von starker Antwort aus über zusammenhängende schwächere Antwort. Werte unter 1 werden von dieser Engine als Perzentilanteile interpretiert."
+
+msgid "U-Net"
+msgstr "U-Net"
+
+msgid "Load a compatible ``.pt``/``.pth`` checkpoint and choose its sigmoid probability cutoff; optional skeletonization applies to the result."
+msgstr "Laden Sie einen kompatiblen ``.pt``/``.pth``-Checkpoint und wählen Sie seine Schwelle für die Sigmoid-Wahrscheinlichkeit; eine optionale Skelettierung wird auf das Ergebnis angewendet."
+
+msgid "Cellpose and other installed backends"
+msgstr "Cellpose und andere installierte Backends"
+
+msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
+msgstr "Verwenden Sie die entsprechenden Modell-Bedienelemente. Cellpose stellt Durchmesser, Flow-Fehlerschwellenwert, Schwellenwert der Zellwahrscheinlichkeit und Normalisierung bereit. Prüfen Sie seine Ansichten für Zellwahrscheinlichkeit und Flow zusammen mit den übernommenen Labels."
+
+msgid "Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
+msgstr "Gewöhnliches Otsu behält einen älteren Vorverarbeitungsweg für die Lupe bei. Seine Ausschnittsvorschau und die Erkennung im ganzen Bildfeld sind nicht garantiert pixelidentisch. Andere Schwellenwertmodi führen die gemeinsame Engine auf dem angeforderten Ausschnitt aus; ein Ausschnitt kann dennoch ein anderes Histogramm haben als das ganze Bildfeld. Stimmen Sie an mehreren repräsentativen Bildfeldern ab und prüfen Sie die endgültige Ausgabe für das ganze Bild."
+
+msgid "Enhancement before and after detection"
+msgstr "Verbesserung vor und nach der Erkennung"
+
+msgid "**Compare** previews the configured enhancement; **Apply** enables it for detection and display. The order is percentile stretch, background subtraction, optional point-spread processing, optional restoration, denoise, contrast, sharpen, detection, morphology, then split. Disabled steps leave their input unchanged. Background estimation radius should exceed the structures you want to retain. Denoising and the separate Maxima/secondary blur can compound, so check both settings."
+msgstr "**Vergleichen** zeigt eine Vorschau der konfigurierten Verbesserung; **Anwenden** aktiviert sie für Erkennung und Anzeige. Die Reihenfolge ist: Perzentilstreckung, Hintergrundabzug, optionale Punktspreizverarbeitung, optionale Wiederherstellung, Entrauschen, Kontrast, Schärfen, Erkennung, Morphologie, dann Trennung. Deaktivierte Schritte lassen ihre Eingabe unverändert. Der Radius der Hintergrundschätzung sollte größer sein als die Strukturen, die Sie erhalten möchten. Entrauschen und die separate Weichzeichnung für Maxima/sekundäre Objekte können sich verstärken; prüfen Sie daher beide Einstellungen."
+
+msgid "Compare opens with a pending result while enhancement runs. Wait for the right-hand image before judging the effect. Normalization uses the whole field before extracting the displayed crop. If you change the field or settings, open a new comparison for that selection. **Cancel** closes the comparison; an enhancement already running finishes in the background and its abandoned result is discarded."
+msgstr "Vergleichen öffnet sich mit einem ausstehenden Ergebnis, während die Verbesserung läuft. Warten Sie auf das rechte Bild, bevor Sie die Wirkung beurteilen. Die Normalisierung verwendet das ganze Bildfeld, bevor der angezeigte Ausschnitt entnommen wird. Ändern Sie Bildfeld oder Einstellungen, öffnen Sie für diese Auswahl einen neuen Vergleich. **Abbrechen** schließt den Vergleich; eine bereits laufende Verbesserung wird im Hintergrund abgeschlossen, und ihr verworfenes Ergebnis wird nicht verwendet."
+
+msgid "Post-detection opening/closing and splitting modify label shapes. These steps are bypassed for paired secondary objects to retain primary IDs. Make Masks enhancement is configured separately from the batch Mask pipeline; transfer the intended preprocessing explicitly when training or running a model elsewhere. See :mod:`spacr.qt.detect_chain`."
+msgstr "Öffnen/Schließen nach der Erkennung und das Trennen verändern die Labelformen. Diese Schritte werden für gepaarte sekundäre Objekte übersprungen, um die primären IDs zu erhalten. Die Verbesserung in Masken erstellen wird getrennt von der Batch-Pipeline Masken konfiguriert; übertragen Sie die vorgesehene Vorverarbeitung explizit, wenn Sie ein Modell anderswo trainieren oder ausführen. Siehe :mod:`spacr.qt.detect_chain`."
+
+msgid "For calibrated optical processing, choose **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the image pixel height and width in micrometres, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit Y/X full widths at half maximum. Use **Reload** after changing a kernel file. Compare the result before applying it; more deconvolution iterations can amplify noise. The original image intensities stay available for measurement. See :doc:`point_spread` for the complete workflow and Measure settings."
+msgstr "Für eine kalibrierte optische Verarbeitung wählen Sie unter **Punktspreizfunktion** die Option **Falten (weichzeichnen)** oder **Dekonvolvieren (Richardson–Lucy)**. Geben Sie Höhe und Breite eines Bildpixels in Mikrometern ein und wählen Sie dann einen gemessenen TIFF/NPY-Kernel mit passendem Abstand oder eine Gaußsche Näherung mit expliziten Halbwertsbreiten in Y/X. Verwenden Sie **Neu laden**, nachdem Sie eine Kerneldatei geändert haben. Vergleichen Sie das Ergebnis, bevor Sie es anwenden; mehr Dekonvolutionsiterationen können Rauschen verstärken. Die ursprünglichen Bildintensitäten bleiben für die Messung verfügbar. Den vollständigen Workflow und die Einstellungen von Messen finden Sie unter :doc:`point_spread`."
+
+msgid "Restore an image with Cellpose 3"
+msgstr "Ein Bild mit Cellpose 3 wiederherstellen"
+
+msgid "Under **Image enhancement**, choose **Denoise**, **Deblur**, or **One-click restoration** in **Deep image enhancement**. The default is **Off**. If needed, select **Install Cellpose 3…** to install its separate backend environment; this does not replace spaCR's own Cellpose installation. First use may download the selected model's weights."
+msgstr "Wählen Sie unter **Bildverbesserung** in **Bildverbesserung mit Deep Learning** die Option **Entrauschen**, **Unschärfe entfernen** oder **Wiederherstellung mit einem Klick**. Die Voreinstellung ist **Aus**. Wählen Sie bei Bedarf **Cellpose 3 installieren…**, um dessen separate Backend-Umgebung zu installieren; dies ersetzt nicht die eigene Cellpose-Installation von spaCR. Bei der ersten Verwendung werden möglicherweise die Gewichte des gewählten Modells heruntergeladen."
+
+msgid "Open **Restoration model settings** and choose **Cells (cyto3)**, **Cells (cyto2)**, or **Nuclei**, according to the structures in the selected intensity channel. Set their approximate diameter in pixels. This controls model rescaling, not microscope calibration. **Load / retry model** reloads the current choice. Wait for the ready message before comparing or applying it; that message identifies the device used by the isolated backend."
+msgstr "Öffnen Sie **Restoration model settings** und wählen Sie **Zellen (cyto3)**, **Zellen (cyto2)** oder **Zellkerne**, je nach den Strukturen im ausgewählten Intensitätskanal. Legen Sie deren ungefähren Durchmesser in Pixeln fest. Dies steuert die Reskalierung des Modells, nicht die Kalibrierung des Mikroskops. **Modell laden / erneut versuchen** lädt die aktuelle Auswahl neu. Warten Sie auf die Bereitschaftsmeldung, bevor Sie vergleichen oder anwenden; diese Meldung nennt das vom isolierten Backend verwendete Gerät."
+
+msgid "Loading and restoration run in the background. On a CPU, a whole field can take tens of seconds; a small magnifier region is quicker. Timing depends on the image, model and computer. A backend installed with supported GPU acceleration can use it, but the workflow also runs on a CPU."
+msgstr "Laden und Wiederherstellung laufen im Hintergrund. Auf einer CPU kann ein ganzes Bildfeld einige zehn Sekunden dauern; ein kleiner Lupenbereich geht schneller. Die Dauer hängt von Bild, Modell und Computer ab. Ein mit unterstützter GPU-Beschleunigung installiertes Backend kann diese nutzen, aber der Workflow läuft auch auf einer CPU."
+
+msgid "Use **Compare** to inspect several representative regions before choosing **Apply**. Restoration follows background and PSF processing and precedes classical denoising and contrast adjustments. Apply feeds the restored floating-point intensities to detection and the Wand while keeping display scaling separate. The image dimensions and loaded source pixels stay unchanged; upsampling models are not offered here."
+msgstr "Verwenden Sie **Vergleichen**, um mehrere repräsentative Bereiche zu prüfen, bevor Sie **Anwenden** wählen. Die Wiederherstellung folgt auf die Hintergrund- und PSF-Verarbeitung und geht dem klassischen Entrauschen und den Kontrastanpassungen voraus. Anwenden übergibt die wiederhergestellten Gleitkommaintensitäten an die Erkennung und den Zauberstab, während die Anzeigeskalierung getrennt bleibt. Die Bildabmessungen und die geladenen Quellpixel bleiben unverändert; Modelle mit Hochskalierung werden hier nicht angeboten."
+
+msgid "Restored values are normalized model output, not calibrated fluorescence; they can be negative or exceed one. Measurements retain the original intensities. A clearer-looking image does not establish recovered structure or more accurate masks, and these weights are not validated for every organelle or acquisition. Inspect the resulting masks as well as the image. Keep the saved enhancement record with the masks: it identifies the model, Cellpose version, checkpoint hash, device, diameter and processing settings. CARE and Noise2Void are not supplied as ready restoration engines."
+msgstr "Wiederhergestellte Werte sind normalisierte Modellausgaben, keine kalibrierte Fluoreszenz; sie können negativ sein oder eins überschreiten. Messungen behalten die ursprünglichen Intensitäten. Ein klarer wirkendes Bild belegt weder wiederhergestellte Strukturen noch genauere Masken, und diese Gewichte sind nicht für jede Organelle oder Aufnahme validiert. Prüfen Sie sowohl die resultierenden Masken als auch das Bild. Bewahren Sie den gespeicherten Verbesserungseintrag zusammen mit den Masken auf: Er nennt Modell, Cellpose-Version, Checkpoint-Hash, Gerät, Durchmesser und Verarbeitungseinstellungen. CARE und Noise2Void werden nicht als fertige Wiederherstellungs-Engines mitgeliefert."
+
+msgid "Grow secondary objects from a primary mask"
+msgstr "Sekundäre Objekte aus einer Primärmaske wachsen lassen"
+
+msgid "Open the image channel in which the secondary objects should grow, such as a cell channel, then select **Secondary objects from primary masks**."
+msgstr "Öffnen Sie den Bildkanal, in dem die sekundären Objekte wachsen sollen, etwa einen Zellkanal, und wählen Sie dann **Sekundäre Objekte aus Primärmasken**."
+
+msgid "Choose different **Primary object class** and **Secondary object class** values, for example Nucleus and Cell. Custom class names can be entered."
+msgstr "Wählen Sie unterschiedliche Werte für **Primäre Objektklasse** und **Sekundäre Objektklasse**, zum Beispiel Zellkern und Zelle. Eigene Klassennamen können eingegeben werden."
+
+msgid "Use **File…** for a primary label mask belonging to this field, or **Folder…** for masks matched to successive image filename stems. An explicitly selected file is bound to the current field; it is not reused silently when moving to another image."
+msgstr "Verwenden Sie **Datei...** für eine primäre Labelmaske, die zu diesem Bildfeld gehört, oder **Ordner…** für Masken, die aufeinanderfolgenden Dateinamensstämmen der Bilder zugeordnet werden. Eine explizit ausgewählte Datei ist an das aktuelle Bildfeld gebunden; sie wird beim Wechsel zu einem anderen Bild nicht stillschweigend wiederverwendet."
+
+msgid "Wait for the primary-object count. The primary mask must match the image's height and width and contain valid nonnegative integer IDs within ``uint16`` capacity. Its path must differ from the editable output mask, including aliases. Primary data are read-only."
+msgstr "Warten Sie auf die Anzahl der primären Objekte. Die Primärmaske muss in Höhe und Breite mit dem Bild übereinstimmen und gültige, nicht negative ganzzahlige IDs im Kapazitätsbereich von ``uint16`` enthalten. Ihr Pfad muss sich von der bearbeitbaren Ausgabemaske unterscheiden, auch über Aliasse. Primärdaten sind schreibgeschützt."
+
+msgid "Choose **Intensity watershed** or **Distance watershed** under Growth. Intensity follows the negative blurred image; Distance floods a flat surface outward from primary pixels. Both retain the primary labels."
+msgstr "Wählen Sie unter Wachstum **Intensitäts-Wasserscheide** oder **Distanz-Wasserscheide**. Intensität folgt dem negativen weichgezeichneten Bild; Distanz flutet eine flache Oberfläche von den primären Pixeln nach außen. Beide behalten die primären Labels bei."
+
+msgid "Select a stop rule and inspect the preview. A global threshold is the screen's initial secondary setting. It is useful when primary objects, such as nuclei, are dark in the secondary channel. The separate Maxima mode starts with a fraction-of-peak rule."
+msgstr "Wählen Sie eine Stoppregel und prüfen Sie die Vorschau. Ein globaler Schwellenwert ist die anfängliche sekundäre Einstellung des Bildschirms. Er ist nützlich, wenn primäre Objekte wie Zellkerne im sekundären Kanal dunkel sind. Der separate Maxima-Modus beginnt mit einer Regel nach Anteil am Spitzenwert."
+
+msgid "Use whole-image **Replace** when starting a new paired output. Adding to an unrelated existing mask is refused even if some numeric IDs happen to match. Clear the existing objects or replace the whole image first."
+msgstr "Verwenden Sie **Ersetzen** für das ganze Bild, wenn Sie eine neue gepaarte Ausgabe beginnen. Das Hinzufügen zu einer nicht zugehörigen vorhandenen Maske wird abgelehnt, auch wenn einige numerische IDs zufällig übereinstimmen. Löschen Sie zuerst die vorhandenen Objekte oder ersetzen Sie das ganze Bild."
+
+msgid "Inspect relationship diagnostics, correct errors and save. A source changed after loading or an output path that would overwrite a primary source is refused; reload the source and inspect a new preview."
+msgstr "Prüfen Sie die Beziehungsdiagnosen, korrigieren Sie Fehler und speichern Sie. Eine nach dem Laden geänderte Quelle oder ein Ausgabepfad, der eine primäre Quelle überschreiben würde, wird abgelehnt; laden Sie die Quelle neu und prüfen Sie eine neue Vorschau."
+
+msgid "The four stop rules are **Fraction of the primary object's peak**, **A threshold algorithm's level**, **Absolute intensity** and **Percentile of the image**. Common threshold, absolute and percentile rules constrain four-connected growth paths. Fraction-of-peak trims each basin after growth; it does not constrain those paths during the flood. The fraction is a ratio of intensity, not an image quantile. Neither Growth option implements CellProfiler's Propagation algorithm."
+msgstr "Die vier Stoppregeln sind **Anteil des Spitzenwerts des primären Objekts**, **Schwelle eines Schwellenwertverfahrens**, **Absolute Intensität** und **Perzentil des Bildes**. Die gemeinsamen Regeln für Schwellenwert, absolute Intensität und Perzentil beschränken vierfach zusammenhängende Wachstumspfade. Die Regel nach Anteil am Spitzenwert beschneidet jedes Becken nach dem Wachstum; sie beschränkt diese Pfade nicht während der Flutung. Der Anteil ist ein Intensitätsverhältnis, kein Bildquantil. Keine der Wachstumsoptionen implementiert den Propagation-Algorithmus von CellProfiler."
+
+msgid "**Matched** reports IDs present in both masks; **Missing secondary** identifies primaries without a secondary label; **No primary** identifies secondary IDs without a primary; **Primary not enclosed** identifies matched secondary labels that do not fully contain their primary pixels. **Not expanded** identifies matched labels that have not grown beyond their own primary. These are relationship checks, not a claim that the cell boundary is biologically correct. Do not use consecutive relabeling to repair a pairing: it changes the association. In this mode, clicking accepts objects and dragging does not merge distinct primary IDs."
+msgstr "**Zugeordnet** meldet IDs, die in beiden Masken vorhanden sind; **Sekundäres Objekt fehlt** kennzeichnet primäre Objekte ohne sekundäres Label; **Kein primäres Objekt** kennzeichnet sekundäre IDs ohne primäres Objekt; **Primäres Objekt nicht eingeschlossen** kennzeichnet zugeordnete sekundäre Labels, die ihre primären Pixel nicht vollständig enthalten. **Nicht erweitert** kennzeichnet zugeordnete Labels, die nicht über ihr eigenes primäres Objekt hinausgewachsen sind. Dies sind Beziehungsprüfungen, keine Aussage darüber, dass die Zellgrenze biologisch korrekt ist. Verwenden Sie keine fortlaufende Neunummerierung, um eine Paarung zu reparieren: Sie ändert die Zuordnung. In diesem Modus übernimmt ein Klick Objekte, und Ziehen verschmilzt keine unterschiedlichen primären IDs."
+
+msgid "See :func:`spacr.qt.mask_engine.secondary_object_instances`, :class:`spacr.qt.secondary_masks.PrimaryMaskSource` and :class:`spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector` for label, source and diagnostic contracts."
+msgstr "Zu den Verträgen für Labels, Quellen und Diagnosen siehe :func:`spacr.qt.mask_engine.secondary_object_instances`, :class:`spacr.qt.secondary_masks.PrimaryMaskSource` und :class:`spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector`."
+
+msgid "Live magnifier, filtering and measurement"
+msgstr "Live-Lupe, Filterung und Messung"
+
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
+msgstr "Schalten Sie die **Lupe** um oder drücken Sie **M**, um vorgeschlagene Objekte um den Zeiger herum zu prüfen. Ihr Mausrad ändert den Zoom des Rahmens; **Shift + wheel** ändert die Rahmengröße. **Ctrl+L+Rechtsklick** sperrt den Rahmen oder gibt ihn frei. Warten Sie auf eine sich aktualisierende Vorschau, bevor Sie ihre Objekte übernehmen."
+
+msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, dragging can join encountered pieces into one object. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
+msgstr "**Hinzugefügte Objekte** wählt jedes Objekt im Zoombereich oder nur Objekte unter der Maus aus. In gewöhnlichen Modi kann das Ziehen angetroffene Teile zu einem Objekt verbinden. Die Vorschau für das ganze Bild übernimmt Objekte unter dem Zeiger; der sekundäre Modus bewahrt primäre Identitäten, statt sie zu verbinden."
+
+msgid "The corner readout identifies the pixel and object under the cursor. The **Filter** category starts empty: choose a property and **Add a filter** to add a row with a minimum and a maximum. Every scalar :func:`skimage.measure.regionprops` property is offered, such as area, eccentricity or solidity; intensity statistics are offered only while an intensity image is open and use the original loaded values. A blank bound is off. The list applies as you edit it and when a field opens; the log below it names each hidden object and the bound that hid it, and removing a row brings back what it hid. The same list is the ``object_filters`` setting of Mask generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object operations also offer hole filling, dilation, shrinking, relabeling and clearing; shrinking can remove thin or small objects entirely."
+msgstr "Die Eckanzeige nennt das Pixel und das Objekt unter dem Cursor. Die Kategorie **Filtern** beginnt leer: Wählen Sie eine Eigenschaft und **Filter hinzufügen**, um eine Zeile mit einem Minimum und einem Maximum hinzuzufügen. Jede skalare Eigenschaft von :func:`skimage.measure.regionprops` wird angeboten, etwa Fläche, Exzentrizität oder Solidität; Intensitätsstatistiken werden nur angeboten, solange ein Intensitätsbild geöffnet ist, und verwenden die ursprünglich geladenen Werte. Eine leere Grenze ist ausgeschaltet. Die Liste wird beim Bearbeiten und beim Öffnen eines Bildfelds angewendet; das Protokoll darunter nennt jedes ausgeblendete Objekt und die Grenze, die es ausgeblendet hat, und das Entfernen einer Zeile bringt zurück, was sie ausgeblendet hat. Dieselbe Liste ist die Einstellung ``object_filters`` der Maskenerzeugung. Siehe :func:`spacr.qt.mask_engine.filter_properties`. Die Objektoperationen bieten außerdem Füllen von Löchern, Dilatation, Schrumpfen, Neunummerieren und Löschen; Schrumpfen kann dünne oder kleine Objekte vollständig entfernen."
+
+msgid "Organize images and masks for Measure"
+msgstr "Bilder und Masken für Messen organisieren"
+
+msgid "A folder of images and standalone TIFF masks is not itself a Measure dataset. **Organize for Measure…** arranges it into the layout Measure reads. Fill its table in any of three ways, each on its own:"
+msgstr "Ein Ordner mit Bildern und eigenständigen TIFF-Masken ist für sich noch kein Datensatz für Messen. **Für Measure ordnen…** bringt ihn in das Layout, das Messen liest. Füllen Sie seine Tabelle auf eine von drei Arten, jede für sich:"
+
+msgid "give a **Source folder** and choose a filename convention in the **Regex** box — the same conventions as Mask generation, with a custom regex — then press **Sort by regex**. **Auto regex** proposes one and **Detect sets** pairs images into fields and shows example sets to confirm;"
+msgstr "geben Sie einen **Quellordner** an und wählen Sie im Feld **Regex** eine Dateinamenskonvention — dieselben Konventionen wie bei der Maskenerzeugung, mit einem benutzerdefinierten regulären Ausdruck — und drücken Sie dann **Nach Regex sortieren**. **Regex automatisch** schlägt einen vor, und **Sätze erkennen** paart Bilder zu Bildfeldern und zeigt Beispielsätze zur Bestätigung;"
+
+msgid "drop files or folders into the table's columns, one column per channel. Dropped files sort by name and are matched across columns into rows, one row per field;"
+msgstr "legen Sie Dateien oder Ordner in den Spalten der Tabelle ab, eine Spalte pro Kanal. Abgelegte Dateien werden nach Namen sortiert und spaltenübergreifend zu Zeilen zusammengeführt, eine Zeile pro Bildfeld;"
+
+msgid "choose **Teach me…** and answer \"Which channel is this?\" for one image at a time. spaCR learns a regex from the answers and asks again only about a name it cannot yet read."
+msgstr "wählen Sie **Anlernen…** und beantworten Sie für jeweils ein Bild die Frage „Welcher Kanal ist das?“. spaCR lernt aus den Antworten einen regulären Ausdruck und fragt nur bei einem Namen erneut, den es noch nicht lesen kann."
+
+msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
+msgstr "**Kanal hinzufügen** und **Maske hinzufügen** fügen Spalten hinzu; jede Maskenspalte benennt ihre Objektklasse (Zelle, Zellkern, Pathogen oder Organelle) und den Kanal, dessen Bilder sie umreißt. Ein zusammengeführter Ordner wird unter den ursprünglichen Namen seiner Dateien gelesen. Zeilen, denen ein Bild fehlt, blockieren **Anwenden** und geben an, wie sie zu beheben sind; RGB-Bilder und z-Stapel werden zur Umwandlung in eine einzige Graustufenebene angeboten, wobei die Originale erhalten bleiben. Vor **Anwenden** wird nichts verschoben. Die Bilder werden dann nach ``sorted_channels/`` im Quellordner verschoben, mit einem Ordner pro Kanal, den Masken und ``merged/``, und jede Verschiebung wird in ``channel_sorting_manifest.csv`` verzeichnet. Richten Sie ``src`` von Messen auf diesen Ordner ``sorted_channels``. Siehe :func:`spacr.channel_sorting.build_plan` und :ref:`Eingaben und Ausgaben von Messen <workflow-module-measure>`."
+
+msgid "Upload data"
+msgstr "Daten hochladen"
+
+msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**Daten hochladen…** sendet das angezeigte Bild mit seiner Maske, jedes kuratierte Bild im Ordner mit seiner gespeicherten Maske oder einen gewählten Bild- und Maskenordner an die Community-Datensätze von spaCR auf Hugging Face, um künftige Modelle zu trainieren. Jedes Bild benötigt eine gespeicherte Maske mit gleichem Namen und gleicher Größe. Benennen Sie den Datensatz, fügen Sie Notizen hinzu und stimmen Sie der Lizenz zu; der Dialog zeigt das Ziel als Link, den Sie öffnen, markieren und kopieren können. Ein neuer Datensatz erscheint mit seinem ersten Upload, und jeder Beitrag wird geprüft, bevor er verwendet wird."
+
+msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
+msgstr "Die Kopfleiste öffnet außerdem Cellpose-Werkbank, Gesamten Ordner maskieren, Modellvergleich, Modellzoo, Kuratieren und Napari-Brücke. Ihre Ein-/Ausgabeverträge sind in der :ref:`Modulübersicht <workflow-module-make_masks>` verlinkt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Large plates in Mask generation"
+msgstr "Große Platten bei der Maskenerzeugung"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used."
+msgstr "Das Stapelverarbeitungsmodul **Masken** verarbeitet eine Platte; **Masken erstellen** bearbeitet das aktuell geöffnete Bildfeld. Prüfen Sie bei einem Absturz während der Verarbeitung einer Rohbildplatte die Konsole des Stapelmoduls und die gespeicherte Datei ``settings/gen_mask_settings.json``, um Verarbeitungsschritt und verwendete Einstellungen zu bestimmen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate."
+msgstr "In der V1-Stapelpipeline projiziert die Rohdateivorverarbeitung jeweils ein Bildfeld und schreibt es nach ``stack/``. Für die gesamte Platte werden Dateinamen behalten, nicht die Pixeldaten sämtlicher Bildfelder. Z-Ebenen werden schrittweise kombiniert. Fertige Bildfeldstapel werden atomar bereitgestellt und können beim Fortsetzen der Vorverarbeitung wiederverwendet werden. Der Pixelspeicherbedarf dieses Schritts richtet sich daher nach Größe und Kanalzahl eines Bildfelds statt nach der Zahl der Bildfelder auf der Platte."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis."
+msgstr "Normalisierung und Segmentierung benötigen weiterhin Arbeitsspeicher für einen Stapel und das Modell. Nicht mehr benötigte Segmentierungseingaben sowie Masken- und Flusspuffer werden vor dem nächsten Stapel freigegeben. Weniger für die gesamte Platte vorgehaltene Daten beseitigen nicht den Speicherbedarf eines einzelnen sehr großen Bilds oder Modells. In V1 bestimmt ``batch_size`` auch den Datenpool für die Normalisierung. Eine Änderung kann deshalb normalisierte Werte und nachfolgende Masken verändern. Behalten Sie den Wert bei, wenn Sie eine frühere Analyse reproduzieren."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
+msgstr "Falls der Speicherbedarf weiterhin unerwartet steigt, notieren Sie, ob die letzte Konsolenphase die Vorverarbeitung von Dateinamen, die Normalisierung oder die Modellauswertung war, sowie Bildabmessungen, Kanalzahl und gespeicherte Einstellungen. Vorhandene Dateien in ``stack/`` helfen, eine abgeschlossene Einlesephase von einem Fehler vor dem Schreiben des ersten Bildfelds zu unterscheiden."
+
+msgid "Engine parameter reference"
+msgstr "Referenz der Engine-Parameter"
+
+msgid "The following definitions are generated from the same parameter docstrings as the API pages. They include programmatic field names for reproducing a configuration in code. The GUI shows only the subset used by the selected method. Secondary growth has its own controls, independent of Maxima + propagate, and defaults to a global threshold in the screen."
+msgstr "Die folgenden Definitionen werden aus denselben Parameter-Docstrings erzeugt wie die API-Seiten. Sie enthalten programmatische Feldnamen, um eine Konfiguration im Code zu reproduzieren. Die GUI zeigt nur die vom gewählten Verfahren verwendete Teilmenge. Das sekundäre Wachstum hat eigene Bedienelemente, unabhängig von Maxima + Propagation, und verwendet im Bildschirm standardmäßig einen globalen Schwellenwert."
+
+msgid "CPU detectors"
+msgstr "CPU-Detektoren"
+
+msgid "Engine settings: :class:`spacr.qt.cpu_modes.CpuParams`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "Engine-Einstellungen: :class:`spacr.qt.cpu_modes.CpuParams`. Dies sind programmatische Voreinstellungen; der Bildschirm kann modusspezifische Voreinstellungen verwenden oder Werte aus der aktuellen Sitzung wiederherstellen."
+
+msgid "``local_k`` — default ``0.2``"
+msgstr "``local_k`` — Voreinstellung ``0.2``"
+
+msgid "dimensionless local contrast weight; default 0.2 for both modes. Niblack uses ``T = m - k*s``: increasing k lowers the threshold, admitting more bright pixels and fewer dark pixels. Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats without range rescaling, giving scikit-image's default ``R = 1``. Its response to k depends on the local mean m and deviation s; positive k does not guarantee rejection of a flat background."
+msgstr "dimensionsloses lokales Kontrastgewicht; Voreinstellung 0,2 für beide Modi. Niblack verwendet ``T = m - k*s``: Ein größeres k senkt den Schwellenwert und lässt mehr helle und weniger dunkle Pixel zu. Sauvola verwendet ``T = m*(1 + k*(s/R - 1))``. Die Engine übergibt Gleitkommazahlen ohne Bereichsreskalierung, was das voreingestellte ``R = 1`` von scikit-image ergibt. Die Reaktion auf k hängt vom lokalen Mittelwert m und der Abweichung s ab; ein positives k garantiert nicht die Ablehnung eines flachen Hintergrunds."
+
+msgid "``propagate_sigma`` — default ``2.0``"
+msgstr "``propagate_sigma`` — Voreinstellung ``2.0``"
+
+msgid "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
+msgstr "die Gauß-Weichzeichnung vor dem Auffinden der Maxima, in Pixeln. GETRENNT VOM ENTRAUSCHEN DER BILDVERBESSERUNGSKETTE, das bereits gelaufen ist, wenn ein Detektor das Bild sieht: Diese Weichzeichnung existiert, weil die Weichzeichnung, die einem Objekt ein einziges Zentrum gibt, meist weit stärker ist als jene, durch die jemand die KANTE des Objekts messen möchte, und die Propagation misst die Kante am selben weichgezeichneten Bild. Lassen Sie das Entrauschen der Kette ausgeschaltet, sofern das Bildfeld nicht wirklich verrauscht ist, sonst verstärken sich die beiden Weichzeichnungen."
+
+msgid "``propagate_min_distance`` — default ``10``"
+msgstr "``propagate_min_distance`` — Voreinstellung ``10``"
+
+msgid "the smallest gap between two seeds, in pixels; about one object radius."
+msgstr "der kleinste Abstand zwischen zwei Seeds, in Pixeln; etwa ein Objektradius."
+
+msgid "``propagate_seed_level`` — default ``90.0``"
+msgstr "``propagate_seed_level`` — Voreinstellung ``90.0``"
+
+msgid "how bright a maximum must be to be a seed."
+msgstr "wie hell ein Maximum sein muss, um ein Seed zu sein."
+
+msgid "``propagate_seed_percentile`` — default ``True``"
+msgstr "``propagate_seed_percentile`` — Voreinstellung ``True``"
+
+msgid "read the seed level as a percentile of the blurred image rather than as an absolute intensity."
+msgstr "die Seed-Schwelle als Perzentil des weichgezeichneten Bildes statt als absolute Intensität lesen."
+
+msgid "``propagate_exclude_border`` — default ``False``"
+msgstr "``propagate_exclude_border`` — Voreinstellung ``False``"
+
+msgid "drop seeds near the edge."
+msgstr "Seeds in Randnähe verwerfen."
+
+msgid "``propagate_stop`` — default ``'seed_fraction'``"
+msgstr "``propagate_stop`` — Voreinstellung ``'seed_fraction'``"
+
+msgid "a key of :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`."
+msgstr "ein Schlüssel aus :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`."
+
+msgid "``propagate_stop_value`` — default ``0.4``"
+msgstr "``propagate_stop_value`` — Voreinstellung ``0.4``"
+
+msgid "the fraction, intensity or percentile the stop rule reads."
+msgstr "der Anteil, die Intensität oder das Perzentil, das die Stoppregel liest."
+
+msgid "``propagate_stop_algorithm`` — default ``'otsu'``"
+msgstr "``propagate_stop_algorithm`` — Voreinstellung ``'otsu'``"
+
+msgid "which global threshold provides the floor under the ``threshold`` stop rule."
+msgstr "welcher globale Schwellenwert die Untergrenze für die Stoppregel ``threshold`` liefert."
+
+msgid "``secondary_growth`` — default ``'intensity'``"
+msgstr "``secondary_growth`` — Voreinstellung ``'intensity'``"
+
+msgid "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting."
+msgstr "``intensity``- oder ``distance``-Wasserscheide für sekundäre Objekte; die Maxima-Erkennung ignoriert diese Einstellung."
+
+msgid "Organelle detectors"
+msgstr "Organellen-Detektoren"
+
+msgid "Engine settings: :class:`spacr.qt.organelle_modes.MethodParams`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "Engine-Einstellungen: :class:`spacr.qt.organelle_modes.MethodParams`. Dies sind programmatische Voreinstellungen; der Bildschirm kann modusspezifische Voreinstellungen verwenden oder Werte aus der aktuellen Sitzung wiederherstellen."
+
+msgid "``adaptive_block`` — default ``51``"
+msgstr "``adaptive_block`` — Voreinstellung ``51``"
+
+msgid "the local threshold's window, in pixels, forced odd by the engine. Read by ``adaptive`` and by ``ridge`` when its threshold is adaptive."
+msgstr "das Fenster des lokalen Schwellenwerts in Pixeln, von der Engine auf eine ungerade Zahl gesetzt. Wird von ``adaptive`` gelesen und von ``ridge``, wenn dessen Schwellenwert adaptiv ist."
+
+msgid "``adaptive_offset`` — default ``5.0``"
+msgstr "``adaptive_offset`` — Voreinstellung ``5.0``"
+
+msgid "subtracted from the Gaussian-weighted local mean before the bright-foreground comparison. Increasing it lowers the threshold and admits more pixels before cleanup; a negative offset raises the threshold. Units are those of the processed detector image: smoothed image intensity for ``adaptive``, ridge response for ``ridge`` with an adaptive threshold. Default 5.0; an offset suitable for raw intensities can overwhelm a response whose values lie between 0 and 1."
+msgstr "wird vor dem Vergleich mit dem hellen Vordergrund vom gaußgewichteten lokalen Mittelwert abgezogen. Ein größerer Wert senkt den Schwellenwert und lässt vor der Bereinigung mehr Pixel zu; ein negativer Offset erhöht den Schwellenwert. Die Einheiten sind die des verarbeiteten Detektorbildes: geglättete Bildintensität für ``adaptive``, Ridge-Antwort für ``ridge`` mit adaptivem Schwellenwert. Voreinstellung 5,0; ein für Rohintensitäten geeigneter Offset kann eine Antwort mit Werten zwischen 0 und 1 überwältigen."
+
+msgid "``morph_radius`` — default ``3``"
+msgstr "``morph_radius`` — Voreinstellung ``3``"
+
+msgid "the cleanup disk, in pixels. ``adaptive`` also pre-smooths with half of it; the network branches close with half."
+msgstr "die Bereinigungsscheibe in Pixeln. ``adaptive`` glättet außerdem vorab mit der Hälfte davon; die Netzwerkzweige schließen mit der Hälfte."
+
+msgid "``fill_holes`` — default ``64``"
+msgstr "``fill_holes`` — Voreinstellung ``64``"
+
+msgid "holes up to this area, in square pixels, are filled. ``adaptive`` only."
+msgstr "Löcher bis zu dieser Fläche in Quadratpixeln werden gefüllt. Nur ``adaptive``."
+
+msgid "``watershed_spots`` — default ``True``"
+msgstr "``watershed_spots`` — Voreinstellung ``True``"
+
+msgid "whether ``log`` and ``dog`` grow a watershed from each blob centre rather than stamping a disk."
+msgstr "ob ``log`` und ``dog`` von jedem Blob-Zentrum aus eine Wasserscheide wachsen lassen, statt eine Scheibe zu stempeln."
+
+msgid "``log_min_sigma`` — default ``1.0``"
+msgstr "``log_min_sigma`` — Voreinstellung ``1.0``"
+
+msgid "smallest Gaussian scale LoG searches, in pixels; a blob's radius is about sigma times root two."
+msgstr "kleinste von LoG durchsuchte Gauß-Skala in Pixeln; der Radius eines Blobs beträgt etwa Sigma mal Wurzel aus zwei."
+
+msgid "``log_max_sigma`` — default ``10.0``"
+msgstr "``log_max_sigma`` — Voreinstellung ``10.0``"
+
+msgid "the largest."
+msgstr "die größte."
+
+msgid "``log_num_sigma`` — default ``10``"
+msgstr "``log_num_sigma`` — Voreinstellung ``10``"
+
+msgid "how many scales between the two."
+msgstr "wie viele Skalen zwischen den beiden."
+
+msgid "``log_threshold`` — default ``0.01``"
+msgstr "``log_threshold`` — Voreinstellung ``0.01``"
+
+msgid "the blob-response cut-off, read by ``log`` AND by ``dog``, which has no threshold of its own."
+msgstr "die Schwelle der Blob-Antwort, gelesen von ``log`` UND von ``dog``, das keinen eigenen Schwellenwert hat."
+
+msgid "``dog_sigma_low`` — default ``1.0``"
+msgstr "``dog_sigma_low`` — Voreinstellung ``1.0``"
+
+msgid "DoG's smallest scale, in pixels."
+msgstr "kleinste Skala von DoG in Pixeln."
+
+msgid "``dog_sigma_high`` — default ``3.0``"
+msgstr "``dog_sigma_high`` — Voreinstellung ``3.0``"
+
+msgid "DoG's largest."
+msgstr "die größte von DoG."
+
+msgid "``ridge_filter`` — default ``'frangi'``"
+msgstr "``ridge_filter`` — Voreinstellung ``'frangi'``"
+
+msgid "``frangi``, ``sato`` or ``meijering``."
+msgstr "``frangi``, ``sato`` oder ``meijering``."
+
+msgid "``ridge_sigmas`` — default ``(1.0, 2.0, 3.0)``"
+msgstr "``ridge_sigmas`` — Voreinstellung ``(1.0, 2.0, 3.0)``"
+
+msgid "the filament half-widths to look for, in pixels."
+msgstr "die zu suchenden Filament-Halbbreiten in Pixeln."
+
+msgid "``ridge_threshold`` — default ``'otsu'``"
+msgstr "``ridge_threshold`` — Voreinstellung ``'otsu'``"
+
+msgid "``otsu`` or ``adaptive``, how the ridge response is cut."
+msgstr "``otsu`` oder ``adaptive``, wie die Ridge-Antwort geschnitten wird."
+
+msgid "``skeletonize`` — default ``False``"
+msgstr "``skeletonize`` — Voreinstellung ``False``"
+
+msgid "reduce a network to a one-pixel skeleton and label that, so area measures length rather than thickness."
+msgstr "reduziert ein Netzwerk auf ein ein Pixel breites Skelett und labelt dieses, sodass die Fläche die Länge statt der Dicke misst."
+
+msgid "``hysteresis_low`` — default ``0.2``"
+msgstr "``hysteresis_low`` — Voreinstellung ``0.2``"
+
+msgid "the weak level; under 1.0 it is read as a fraction and becomes that percentile of the smoothed image."
+msgstr "die schwache Schwelle; unter 1,0 wird sie als Anteil gelesen und wird zu diesem Perzentil des geglätteten Bildes."
+
+msgid "``hysteresis_high`` — default ``0.6``"
+msgstr "``hysteresis_high`` — Voreinstellung ``0.6``"
+
+msgid "the seeding level, read the same way."
+msgstr "die Seed-Schwelle, auf dieselbe Weise gelesen."
+
+msgid "``unet_model_path`` — default ``''``"
+msgstr "``unet_model_path`` — Voreinstellung ``''``"
+
+msgid "the ``.pt``/``.pth`` file to load."
+msgstr "die zu ladende ``.pt``/``.pth``-Datei."
+
+msgid "``unet_threshold`` — default ``0.5``"
+msgstr "``unet_threshold`` — Voreinstellung ``0.5``"
+
+msgid "the probability the sigmoid output is cut at."
+msgstr "die Wahrscheinlichkeit, bei der die Sigmoid-Ausgabe geschnitten wird."
+
+msgid "Image enhancement"
+msgstr "Bildverbesserung"
+
+msgid "Engine settings: :class:`spacr.qt.detect_chain.Chain`. These are programmatic defaults; the screen can use mode-specific defaults or restore values from the current session."
+msgstr "Engine-Einstellungen: :class:`spacr.qt.detect_chain.Chain`. Dies sind programmatische Voreinstellungen; der Bildschirm kann modusspezifische Voreinstellungen verwenden oder Werte aus der aktuellen Sitzung wiederherstellen."
+
+msgid "``background`` — default ``'none'``"
+msgstr "``background`` — Voreinstellung ``'none'``"
+
+msgid "one of :data:`BACKGROUND_METHODS`."
+msgstr "eines aus :data:`BACKGROUND_METHODS`."
+
+msgid "``background_radius`` — default ``50``"
+msgstr "``background_radius`` — Voreinstellung ``50``"
+
+msgid "the ball's or the top-hat disk's radius, in pixels. Set it comfortably larger than the largest object: a radius under the object size eats the objects along with the background."
+msgstr "der Radius der Kugel bzw. der Top-Hat-Scheibe in Pixeln. Wählen Sie ihn deutlich größer als das größte Objekt: Ein Radius unter der Objektgröße frisst die Objekte zusammen mit dem Hintergrund."
+
+msgid "``background_scale`` — default ``0.5``"
+msgstr "``background_scale`` — Voreinstellung ``0.5``"
+
+msgid "the fraction of full size the background is ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what that buys and what it costs; 1.0 is scikit-image's own answer, exactly."
+msgstr "der Anteil der vollen Größe, bei dem der Hintergrund GESCHÄTZT wird, 0,1 bis 1,0. Was das bringt und was es kostet, siehe :func:`background_surface`; 1,0 ist exakt die Antwort von scikit-image selbst."
+
+msgid "``denoise`` — default ``'none'``"
+msgstr "``denoise`` — Voreinstellung ``'none'``"
+
+msgid "one of :data:`DENOISE_METHODS`."
+msgstr "eines aus :data:`DENOISE_METHODS`."
+
+msgid "``denoise_strength`` — default ``1.0``"
+msgstr "``denoise_strength`` — Voreinstellung ``1.0``"
+
+msgid "the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the estimated noise."
+msgstr "das Sigma des Gauß-Filters in Pixeln, der Scheibenradius des Median- und des bilateralen Filters oder die Schwelle von Non-Local Means in Vielfachen des geschätzten Rauschens."
+
+msgid "``gamma`` — default ``1.0``"
+msgstr "``gamma`` — Voreinstellung ``1.0``"
+
+msgid "the exponent the intensities are raised to on 0..1. Below 1 lifts the dim end (faint objects become visible), above 1 pushes it down. 1.0 is off."
+msgstr "der Exponent, mit dem die Intensitäten auf 0..1 potenziert werden. Unter 1 hebt das dunkle Ende an (schwache Objekte werden sichtbar), über 1 drückt es herab. 1,0 ist aus."
+
+msgid "``clahe`` — default ``False``"
+msgstr "``clahe`` — Voreinstellung ``False``"
+
+msgid "contrast-limited adaptive histogram equalisation."
+msgstr "kontrastbegrenzte adaptive Histogrammangleichung."
+
+msgid "``clahe_tile`` — default ``64``"
+msgstr "``clahe_tile`` — Voreinstellung ``64``"
+
+msgid "the side of one CLAHE tile, in pixels."
+msgstr "die Seitenlänge einer CLAHE-Kachel in Pixeln."
+
+msgid "``clahe_clip`` — default ``0.01``"
+msgstr "``clahe_clip`` — Voreinstellung ``0.01``"
+
+msgid "CLAHE's clip limit, 0..1. Higher is more contrast and more amplified noise."
+msgstr "die Clip-Grenze von CLAHE, 0..1. Höher bedeutet mehr Kontrast und stärker verstärktes Rauschen."
+
+msgid "``equalize`` — default ``False``"
+msgstr "``equalize`` — Voreinstellung ``False``"
+
+msgid "global histogram equalisation."
+msgstr "globale Histogrammangleichung."
+
+msgid "``sharpen`` — default ``False``"
+msgstr "``sharpen`` — Voreinstellung ``False``"
+
+msgid "an unsharp mask."
+msgstr "eine Unscharfmaskierung."
+
+msgid "``sharpen_radius`` — default ``1.0``"
+msgstr "``sharpen_radius`` — Voreinstellung ``1.0``"
+
+msgid "the blur radius the mask is built from, in pixels: about the scale of the edges to sharpen."
+msgstr "der Weichzeichnungsradius, aus dem die Maske aufgebaut wird, in Pixeln: etwa die Skala der zu schärfenden Kanten."
+
+msgid "``sharpen_amount`` — default ``1.0``"
+msgstr "``sharpen_amount`` — Voreinstellung ``1.0``"
+
+msgid "how much of the mask is added back."
+msgstr "wie viel von der Maske wieder hinzugefügt wird."
+
+msgid "``morphology`` — default ``'none'``"
+msgstr "``morphology`` — Voreinstellung ``'none'``"
+
+msgid "one of :data:`MORPHOLOGY_OPS`, applied to what was detected. ``open`` separates objects joined by a thin bridge, ``close`` joins objects broken into pieces, ``open_close`` does both in that order."
+msgstr "eines aus :data:`MORPHOLOGY_OPS`, angewendet auf das Erkannte. ``open`` trennt Objekte, die durch eine dünne Brücke verbunden sind, ``close`` verbindet in Stücke zerbrochene Objekte, ``open_close`` tut beides in dieser Reihenfolge."
+
+msgid "``morphology_radius`` — default ``1``"
+msgstr "``morphology_radius`` — Voreinstellung ``1``"
+
+msgid "the disk radius, in pixels."
+msgstr "der Scheibenradius in Pixeln."
+
+msgid "``split`` — default ``False``"
+msgstr "``split`` — Voreinstellung ``False``"
+
+msgid "a distance-transform watershed on what was detected, cutting an object with two centres in two. It is the Otsu mode's \"Split objects that touch\", offered to every other method."
+msgstr "eine Distanztransformations-Wasserscheide auf dem Erkannten, die ein Objekt mit zwei Zentren in zwei teilt. Es ist das „Split objects that touch“ des Otsu-Modus, angeboten für jedes andere Verfahren."
+
+msgid "``psf_operation`` — default ``'none'``"
+msgstr "``psf_operation`` — Voreinstellung ``'none'``"
+
+msgid "``none``, ``convolve`` or ``deconvolve``. Runs after background subtraction and before denoising. Off by default."
+msgstr "``none``, ``convolve`` oder ``deconvolve``. Läuft nach dem Hintergrundabzug und vor dem Entrauschen. Standardmäßig aus."
+
+msgid "``psf`` — default ``None``"
+msgstr "``psf`` — Voreinstellung ``None``"
+
+msgid "immutable calibrated two-dimensional kernel. Required when PSF processing is enabled; missing/invalid kernels stop detection."
+msgstr "unveränderlicher kalibrierter zweidimensionaler Kernel. Erforderlich, wenn die PSF-Verarbeitung aktiviert ist; fehlende/ungültige Kernel stoppen die Erkennung."
+
+msgid "``psf_sampling_um`` — default ``(1.0, 1.0)``"
+msgstr "``psf_sampling_um`` — Voreinstellung ``(1.0, 1.0)``"
+
+msgid "image pixel spacing in YX order, in micrometers. Must match the kernel; no implicit resampling is performed."
+msgstr "Pixelabstand des Bildes in YX-Reihenfolge, in Mikrometern. Muss mit dem Kernel übereinstimmen; es erfolgt keine implizite Neuabtastung."
+
+msgid "``psf_iterations`` — default ``20``"
+msgstr "``psf_iterations`` — Voreinstellung ``20``"
+
+msgid "Richardson–Lucy iterations, 1..200."
+msgstr "Richardson–Lucy-Iterationen, 1..200."
+
+msgid "``psf_error`` — default ``''``"
+msgstr "``psf_error`` — Voreinstellung ``''``"
+
+msgid "actionable loading/validation error when no kernel is ready."
+msgstr "umsetzbarer Lade-/Validierungsfehler, wenn kein Kernel bereit ist."
+
+msgid "``restoration`` — default ``False``"
+msgstr "``restoration`` — Voreinstellung ``False``"
+
+msgid "enable isolated Cellpose 3 restoration after PSF and before classical denoising. Off by default. Run preparation on a worker."
+msgstr "aktiviert die isolierte Cellpose-3-Wiederherstellung nach der PSF und vor dem klassischen Entrauschen. Standardmäßig aus. Führen Sie die Vorbereitung in einem Worker aus."
+
+msgid "``restoration_plan`` — default ``None``"
+msgstr "``restoration_plan`` — Voreinstellung ``None``"
+
+msgid "immutable loaded model identity and diameter in pixels. Model output uses normalized units, not calibrated fluorescence."
+msgstr "unveränderliche Identität des geladenen Modells und Durchmesser in Pixeln. Die Modellausgabe verwendet normalisierte Einheiten, keine kalibrierte Fluoreszenz."
+
+msgid "``restoration_error`` — default ``''``"
+msgstr "``restoration_error`` — Voreinstellung ``''``"
+
+msgid "loading error shown instead of silently using unprocessed data when restoration was explicitly requested."
+msgstr "Ladefehler, der angezeigt wird, statt stillschweigend unverarbeitete Daten zu verwenden, wenn die Wiederherstellung ausdrücklich angefordert wurde."
+
+msgid "``percentile_clip`` — default ``False``"
+msgstr "``percentile_clip`` — Voreinstellung ``False``"
+
+msgid "clip each plane to two percentiles of its own intensities before the contrast curves, so a hot pixel or a dead one cannot define the interval the curves are drawn on. The intensities keep their units; nothing is stretched."
+msgstr "beschneidet jede Ebene vor den Kontrastkurven auf zwei Perzentile ihrer eigenen Intensitäten, sodass ein heißes oder totes Pixel nicht das Intervall festlegen kann, auf dem die Kurven gezeichnet werden. Die Intensitäten behalten ihre Einheiten; nichts wird gestreckt."
+
+msgid "``percentile_low`` — default ``1.0``"
+msgstr "``percentile_low`` — Voreinstellung ``1.0``"
+
+msgid "the lower percentile, 0..100."
+msgstr "das untere Perzentil, 0..100."
+
+msgid "``percentile_high`` — default ``99.0``"
+msgstr "``percentile_high`` — Voreinstellung ``99.0``"
+
+msgid "the upper percentile, 0..100, above the lower."
+msgstr "das obere Perzentil, 0..100, über dem unteren."
+
+msgid "``log`` — default ``False``"
+msgstr "``log`` — Voreinstellung ``False``"
+
+msgid "a logarithmic transform on 0..1, ``log(1 + gain·x) / log(1 + gain)``: it compresses the bright end and lifts the dim one, more strongly than a gamma below 1 does near zero."
+msgstr "eine logarithmische Transformation auf 0..1, ``log(1 + gain·x) / log(1 + gain)``: Sie staucht das helle Ende und hebt das dunkle an, nahe null stärker als ein Gamma unter 1."
+
+msgid "``log_gain`` — default ``10.0``"
+msgstr "``log_gain`` — Voreinstellung ``10.0``"
+
+msgid "the factor the unit-interval intensities are scaled by before the logarithm. Larger compresses harder; as it goes to zero the curve goes to the identity."
+msgstr "der Faktor, mit dem die Intensitäten im Einheitsintervall vor dem Logarithmus skaliert werden. Größer staucht stärker; geht er gegen null, geht die Kurve gegen die Identität."
+
+msgid "``sqrt`` — default ``False``"
+msgstr "``sqrt`` — Voreinstellung ``False``"
+
+msgid "a square root on 0..1, the curve gamma 0.5 draws, offered by name."
+msgstr "eine Quadratwurzel auf 0..1, die Kurve, die Gamma 0,5 zeichnet, unter eigenem Namen angeboten."
+

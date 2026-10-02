@@ -183,14 +183,23 @@ def test_an_ordinary_run_neither_warns_nor_mentions_rejections(screen):
 
 
 def test_a_failed_fit_says_what_usually_causes_it(screen, monkeypatch):
-    warned = []
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda parent, title, text:
-                                     warned.append((title, text))))
+    """The failure box is opened, not exec'd: it must not block the caller.
+
+    A blocking ``QMessageBox.warning`` from a worker's failure slot runs a
+    nested event loop inside whatever pumped the event that delivered it;
+    an unattended recorder pumping events waited behind it for hours.
+    """
+    monkeypatch.setattr(QMessageBox, "warning", staticmethod(
+        lambda *a, **k: pytest.fail("the failure box must not block")))
     screen._on_suggest_failed("only one class")
     assert screen._status_label.text() == "Suggest failed — only one class"
-    assert warned and warned[0][0] == "Suggest failed"
-    assert "Nothing was written" in warned[0][1]
+    box = screen.findChild(QMessageBox, "AnnotateSuggestFailedBox")
+    assert box is not None and box.isVisible()
+    assert box.windowTitle() == "Suggest failed"
+    assert "No new suggestions from this round were saved" in box.text()
+    assert "Earlier suggestions may have been cleared" in box.text()
+    assert "Your annotations are unchanged" in box.text()
+    box.close()
     assert _values(screen.db) == {"/a.png": 1, "/b.png": None,
                                   "/c.png": None}
 

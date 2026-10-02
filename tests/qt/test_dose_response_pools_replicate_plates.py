@@ -91,3 +91,23 @@ def test_a_group_seen_on_one_plate_is_not_pooled(qtbot, frame):
 
     assert widget.result_set() is not None
     assert "geneA" not in widget._pooled
+
+
+def test_a_pooled_fit_that_is_not_reproducible_is_flagged_in_its_line(screen):
+    """The screen does not re-derive agreement; it trusts the pooled fit's
+    own ``reproducible`` and marks the line when the plates disagree."""
+    from dataclasses import fields
+
+    screen.plate_picker.setCurrentText("plate")
+    screen.control_picker.setCurrentText("role")
+    screen.fit()
+    pooled = screen._pooled["geneA"]
+
+    class _Disputed(type(pooled)):
+        reproducible = property(lambda self: False)
+
+    screen._pooled = {"geneA": _Disputed(**{
+        field.name: getattr(pooled, field.name) for field in fields(pooled)})}
+    lines = [line for line in screen._with_plates("").splitlines()
+             if line.startswith("geneA: pooled EC50")]
+    assert len(lines) == 1 and "plates disagree" in lines[0]

@@ -405,13 +405,6 @@
     },
     {
       "table": "ui",
-      "key": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
-      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
-      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
-      "translation": "Veldu breytur, hópa og teiknistillingar úr hlaðinni töflu og fluttu svo út myndina ásamt greiningarsamhengi hennar."
-    },
-    {
-      "table": "ui",
       "key": "Click a well on the figure or a row in the table.",
       "source": "Click a well on the figure or a row in the table.",
       "source_sha256": "834b51840ae2426f3d278cfec39d3e40066c333a5e35a1a738bbf489a73e9462",
@@ -535,13 +528,6 @@
       "source": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
       "source_sha256": "8b9b5e482a8ef174411e0cedabdedbb082b748f9be3fdf40ae8841a9addc3b83",
       "translation": "Telja hve mörg myndaheiti í upprunamöppunni þessi venja getur lesið og sýna það fyrsta sem hún getur ekki lesið. Engu er breytt og ekkert er skrifað."
-    },
-    {
-      "table": "ui",
-      "key": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
-      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
-      "translation": "Veldu pör mynda/gríma fyrir þjálfun hlutunar, eða notaðu FEATURES til að úthluta myndum og grímum og kalla á mælingu. Vistun grímu þjálfar ekki flokkara."
     },
     {
       "table": "ui",
@@ -1735,13 +1721,6 @@
     },
     {
       "table": "ui",
-      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
-      "translation": "Ef bendillinn hvílir á hnappi, reit eða dálkfyrirsögn í tvær sekúndur birtist lítill merkimiði sem segir hvað það er. Merkimiðinn helst meðan bendillinn er á honum og hverfur sekúndu eftir að bendillinn fer. Ef hakið er tekið af birtast engar skjábendingar neins staðar í spaCR."
-    },
-    {
-      "table": "ui",
       "key": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
       "source": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
       "source_sha256": "85f568bd32906370d0fa5772855a856fa6f854b9d10c87557110b6ad54cbc950",
@@ -2932,13 +2911,6 @@
     },
     {
       "table": "ui",
-      "key": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
-      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
-      "translation": "Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
-    },
-    {
-      "table": "ui",
       "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
       "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
       "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
@@ -3400,7 +3372,37 @@
       "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
       "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
       "translation": "Tíu sjónsvið úr gagnasafninu sem birt líkan var þjálfað á, með grímunum sem því voru kenndar. Þau opnast til breytinga, svo það sem þú sérð er það sem líkanið sá."
+    },
+    {
+      "table": "ui",
+      "key": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
+      "translation": "Veldu pör mynda/gríma fyrir þjálfun hlutunar, eða notaðu FEATURES til að úthluta myndum og grímum og kalla á mælingu. Vistun grímu þjálfar ekki flokkara."
+    },
+    {
+      "table": "ui",
+      "key": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
+      "translation": "Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki."
+    },
+    {
+      "table": "ui",
+      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
+      "translation": "Ef bendillinn hvílir á hnappi, reit eða dálkfyrirsögn í tvær sekúndur birtist lítill merkimiði sem segir hvað það er. Merkimiðinn helst meðan bendillinn er á honum og hverfur sekúndu eftir að bendillinn fer. Ef hakið er tekið af birtast engar skjábendingar neins staðar í spaCR."
+    },
+    {
+      "table": "ui",
+      "key": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
+      "translation": "Veldu breytur, hópa og teiknistillingar úr hlaðinni töflu og fluttu svo út myndina ásamt greiningarsamhengi hennar."
     }
   ],
-  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."
+  "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",
+  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded.",
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

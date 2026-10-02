@@ -419,7 +419,7 @@ def test_a_setting_whose_docs_link_fails_still_gets_its_hint(
                         _raise(LookupError))
     monkeypatch.setattr(screen._settings_model, "plain_tooltip_for",
                         lambda key: "Where the images are.")
-    screen.eventFilter(field, QEvent(QEvent.Type.Enter))
+    screen._show_hover_hint(field)
     assert written == [("Where the images are.", "", True)]
 
 
@@ -428,7 +428,7 @@ def test_a_caption_hint_is_written_without_a_link(screen, hint_strip,
     caption = QLabel("Source")
     qtbot.addWidget(caption)
     screen._hint_map[caption] = "The caption's help."
-    screen.eventFilter(caption, QEvent(QEvent.Type.Enter))
+    screen._show_hover_hint(caption)
     assert written == [("The caption's help.", "", True)]
 
 

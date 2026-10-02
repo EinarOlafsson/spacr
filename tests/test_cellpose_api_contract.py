@@ -379,6 +379,24 @@ def test_every_converted_double_declares_the_installed_signature():
             assert fn.args.kwarg is None and fn.args.vararg is None
             assert not fn.args.kwonlyargs
             continue
+        if (rel, cls) == ('test_608_bundled_plaque_checkpoint_runs_through_cellpose3.py',
+                          '_Backend'):
+            # Stands in for spaCR's own _RemoteBackend (the Cellpose 3
+            # worker's proxy), not CellposeModel: pin that class's named
+            # parameters and defaults, in order, without its catch-all.
+            from spacr._segmentation_backends import _RemoteBackend
+
+            remote = [parameter for parameter in inspect.signature(
+                _RemoteBackend.eval).parameters.values()
+                if parameter.name != 'self'
+                and parameter.kind is not inspect.Parameter.VAR_KEYWORD]
+            names = [arg.arg for arg in fn.args.args[1:]]
+            defaults = [ast.literal_eval(value) for value in fn.args.defaults]
+            assert names == [parameter.name for parameter in remote]
+            assert defaults == [parameter.default for parameter in remote
+                                if parameter.default is not inspect.Parameter.empty]
+            assert fn.args.kwarg is None and fn.args.vararg is None
+            continue
         if PARTIAL_SIGNATURE_RATCHET.get((rel, cls)):
             continue
         if not _declares_full_signature(fn):

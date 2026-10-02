@@ -1,0 +1,22 @@
+{
+  "Calculate reference-well gains without running Measure or changing files.": "Measure चलाए बिना या फ़ाइलें बदले बिना संदर्भ वेल के गुणक निकालें।",
+  "Calculating calibration gains…": "अंशांकन गुणकों की गणना हो रही है…",
+  "Calibration gains": "अंशांकन गुणक",
+  "Choose a local source folder containing merged arrays.": "विलय किए गए ऐरे वाला स्थानीय स्रोत फ़ोल्डर चुनें।",
+  "Discard this preview. Any source scan already running will finish safely.": "इस पूर्वावलोकन को छोड़ दें। स्रोत फ़ाइलों को पढ़ने की जो प्रक्रिया पहले से चल रही है, वह सुरक्षित रूप से पूरी होगी।",
+  "Enable intensity calibration before previewing gains.": "गुणकों का पूर्वावलोकन करने से पहले तीव्रता अंशांकन चालू करें।",
+  "Finish valid settings before previewing gains.": "गुणकों का पूर्वावलोकन करने से पहले सेटिंग के सभी मान्य इनपुट पूरे करें।",
+  "Gain": "गुणक",
+  "Gains use the camera offset and reference wells; images and measurements are unchanged.": "गुणक कैमरे के ऑफ़सेट और संदर्भ वेल से निकाले जाते हैं; छवियाँ और मापन डेटा अपरिवर्तित रहते हैं।",
+  "No eligible merged arrays were found.": "कोई उपयुक्त विलय किया गया ऐरे नहीं मिला।",
+  "Preview complete. No images or measurements were changed.": "पूर्वावलोकन पूरा हुआ। कोई छवि या मापन डेटा नहीं बदला गया।",
+  "Preview gains": "गुणकों का पूर्वावलोकन",
+  "Preview only: each source folder is planned separately.": "केवल पूर्वावलोकन: हर स्रोत फ़ोल्डर के लिए अलग योजना बनाई जाती है।",
+  "Reference fields": "संदर्भ दृश्य-क्षेत्र",
+  "Reference plate": "संदर्भ प्लेट",
+  "Reference statistic": "संदर्भ सांख्यिकीय मान",
+  "Settings changed. Preview the gains again.": "सेटिंग बदल गई हैं। गुणकों का पूर्वावलोकन फिर से करें।",
+  "Some merged arrays could not be read. Check the source files.": "कुछ विलय किए गए ऐरे पढ़े नहीं जा सके। स्रोत फ़ाइलें जाँचें।",
+  "The first plate by name is the reference.": "नाम के क्रम में पहली प्लेट को संदर्भ माना जाता है।",
+  "Turn off Test mode to preview gains for all source fields.": "सभी स्रोत दृश्य-क्षेत्रों के गुणकों का पूर्वावलोकन करने के लिए परीक्षण मोड बंद करें।"
+}

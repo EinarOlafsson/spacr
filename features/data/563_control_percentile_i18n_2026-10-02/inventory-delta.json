@@ -1,0 +1,26 @@
+{
+  "old_counts": {
+    "SETTING_LABELS": 1209,
+    "SETTING_TOOLTIPS": 1231,
+    "CATEGORY_HELP": 237,
+    "UI": 6525,
+    "MODULE_SUMMARIES": 72
+  },
+  "new_counts": {
+    "SETTING_LABELS": 1209,
+    "SETTING_TOOLTIPS": 1231,
+    "CATEGORY_HELP": 237,
+    "UI": 6526,
+    "MODULE_SUMMARIES": 72
+  },
+  "new_identity_sha256": "9aabdc179dcd9ab7ef9145b9a01eb14aaed7784be2bf1182997b04fb3c161910",
+  "added": [
+    [
+      "UI",
+      "Control percentile"
+    ]
+  ],
+  "removed": [],
+  "previous_pinned_identity_sha256": "87438d231d9835af4dd84b299d0acc38c8ecd4455e4803c446c49bbec68497bd",
+  "previous_catalog_identity_sha256": "87438d231d9835af4dd84b299d0acc38c8ecd4455e4803c446c49bbec68497bd"
+}

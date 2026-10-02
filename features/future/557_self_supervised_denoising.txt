@@ -1,6 +1,6 @@
 SELF-SUPERVISED DENOISING TRAINED ON THE USER'S OWN IMAGES (Noise2Void / CAREamics)
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27 (CPU-validated; the done-when is NOT met yet, see RESULTS)
+Status: IMPLEMENTED AS ALPHA 2026-09-27; done-when NOT met (GPU rounds 2026-09-30, see ROUND 3: no reliable F1 gain over raw images)
 Owner: item-557-work. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -165,3 +165,68 @@ GPU RUN 2026-09-30 (second attempt, trained on the GPU)
     Next, as planned: N2V + background subtraction or a minimum object
     size before calling the done-when failed. Output:
     /mnt/wd4tb/scratch/557/out_gpu_e150/results_p10_e150.json.
+
+ROUND 3 2026-09-30/10-01 (GPU through gpu_turn.sh, 16:58-19:17, rc 0; then a
+wider threshold grid on the CPU). Branch val-557g.
+    WHAT WAS ADDED
+    - structN2V: _n2v_train(struct_axes=, struct_span=) asks the CAREamics
+      worker for create_structn2v_config (N2V2 + a structured blind-spot
+      bar; span must be odd). Private, no setting yet; test in
+      tests/test_n2v_denoising.py (14 pass).
+    - tools/validate_n2v_lowlight.py: CROP, DATASET=huh7 (real low light),
+      NOISE=correlated (row noise: unit Gaussian box-smoothed over 5 px,
+      3 photons), VARIANT=struct, FLOWS=1 (keeps Cellpose-SAM's flows and
+      cell probability from the real Mask-generation run), and --sweep:
+      Cellpose's own mask step re-run on the kept flows over
+      cell_cellprob_threshold x cell_flow_threshold x object area floor
+      (0-0.5 of the diameter disc), chosen on one fold and scored on the
+      other (alternate toxo fields; the two Huh7 sequences), pooled.
+      The kept flows reproduce the Mask-generation F1 exactly.
+    HELD-OUT F1@.5 (pooled over both folds; default = spaCR defaults)
+      data (N2V epochs)              raw def  raw tuned  N2V def  N2V tuned
+      toxo PEAK 3 (40)               0.163    0.227      0.024    0.077 *
+      toxo PEAK 10 (150)             0.543    0.676      0.540    0.543
+      toxo PEAK 40 (40)              0.714    0.775      0.702    0.753
+      toxo PEAK 10 + row noise:
+        N2V2 (40)                    0.117    0.191 *    0.086    0.213 *
+        structN2V span 9 (40)        0.117    0.191 *    0.003    0.190 *
+      Huh7, CTC Fluo-C2DL-Huh7,
+        real low light, 523 cells    0.549    0.656      0.560    0.721
+      (* narrower grid: cellprob -1..3, flow 0.2-0.6; the others -3..2 and
+      0.4-1.0. Toxo 910 objects, 10 whole fields.)
+    WHAT IT SAYS
+    - Threshold re-tuning does NOT rescue N2V on the simulated data. The
+      353 extra FPs at PEAK 10 are object-shaped (they survive cellprob,
+      flow and size cuts; best N2V precision 0.63), while the same tuning
+      lifts RAW from 0.543 to 0.676. Re-tuning the thresholds on raw images
+      is worth far more than denoising them.
+    - Very low light (PEAK 3) is where N2V is worst: 11,737 FPs from
+      hallucinated blob texture that Cellpose-SAM segments; tuning cannot
+      fix it (0.077 vs raw 0.227).
+    - Correlated noise: N2V2 learns the row noise; structN2V removes it but
+      leaves stripes Cellpose-SAM tiles into 76,000 objects at default
+      thresholds; after tuning both tie raw (0.19-0.21; all poor).
+    - Real low light (Huh7) is the only regime with a gain: +0.011 at
+      default thresholds, +0.065 held-out after tuning (0.721 vs 0.656).
+      Caveat: the best setting in-sample is a tie (0.787 N2V vs 0.792 raw);
+      the held-out gain comes from N2V's best thresholds transferring
+      between the two sequences while raw's did not. Two sequences of one
+      cell line: suggestive, not proof.
+    - Why: Cellpose-SAM is already robust to pixel noise, so N2V buys
+      little recall it could not get from a lower cellprob threshold, and
+      at low photon counts N2V's prediction (the conditional mean) turns
+      noise into smooth cell-sized blobs. N2V helps where cells are large
+      relative to the noise grain and signal is not photon-starved (Huh7,
+      ~88 px cells, 8-bit, SNR ~8); it does not help small objects at
+      under ~40 photons.
+    Outputs: /mnt/wd4tb/scratch/557/out_gpu_e150/flows/p10_e150/sweep.json,
+    /mnt/wd4tb/scratch/557/out_r3/flows/*/sweep.json (sweep_grid1.json =
+    the first, narrower grid), gpu_run2.log, cpu_sweep2.log.
+    WHAT IS LEFT
+    - Keep alpha; do not promote. A Huh7-like real data set with more
+      sequences (or a second cell line) to confirm the +0.065.
+    - Better use of the time: a threshold auto-tune step on raw images
+      (cellprob/flow/area floor from a few annotated fields) gives +0.06 to
+      +0.13 F1 here with no denoiser.
+    - structN2V is backend-only; expose it as a setting only if a real
+      correlated-noise data set shows a gain.

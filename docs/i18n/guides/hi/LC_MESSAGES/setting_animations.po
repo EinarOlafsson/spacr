@@ -1,0 +1,774 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Setting animation gallery"
+msgstr "सेटिंग एनिमेशन गैलरी"
+
+msgid "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking."
+msgstr "spaCR उन सेटिंग्स के लिए छोटे, नियतात्मक GIF शामिल करता है जिनका प्रभाव दृश्य रूप से समझना आसान है। डेस्कटॉप इंटरफ़ेस में किसी सेटिंग पर होवर करने से उसकी व्याख्या दिखती है; उस टूलटिप के निचले भाग में टील रंग के **Animation** शब्द को दबाने से पाठ के दाईं ओर संबंधित एनिमेशन दिखाई देता है। यह केवल उसी सेटिंग के लिए दिखता है — अगली सेटिंग फिर से पाठ ही रहती है जब तक उसका अपना **Animation** न दबाया जाए, और तब तक कुछ भी डिकोड नहीं होता। बिना पूछे इन्हें दिखाने के लिए प्राथमिकताओं में *सेटिंग एनिमेशन* सेट करें।"
+
+msgid "The diagrams use a shared biological grammar: white fibroblast or motile immune-cell outlines, blue nuclei with unequal nucleoli, teal Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole, and soft-magenta Golgi cisternae. Filled regions are translucent and the rounded field perimeter remains white on black."
+msgstr "आरेख एक साझा जैविक शैली का उपयोग करते हैं: सफ़ेद फ़ाइब्रोब्लास्ट या गतिशील प्रतिरक्षा-कोशिका रूपरेखाएँ, असमान केंद्रिकाओं वाले नीले केंद्रक, केवल रूपरेखा वाली परजीवीधानी रिक्तिका के भीतर टील टोक्सोप्लाज़्मा टैकीज़ॉइट, और कोमल मैजेंटा गॉल्जी कुंडिकाएँ। भरे हुए क्षेत्र पारभासी हैं और गोल फ़ील्ड परिधि काले पर सफ़ेद रहती है।"
+
+msgid "The cell, nucleus and nucleoli, two-parasite vacuole, and Golgi use the reviewed, artist-authored SVG paths checked into ``tools/``. Qt renders those exact Bezier paths at high resolution before each animation frame is composited, keeping the outlines smooth at small sizes. Source-template SHA-256 hashes are recorded in the manifest."
+msgstr "कोशिका, केंद्रक और केंद्रिकाएँ, दो-परजीवी रिक्तिका और गॉल्जी ``tools/`` में दर्ज समीक्षित, कलाकार-निर्मित SVG पथों का उपयोग करते हैं। हर एनिमेशन फ़्रेम संयोजित होने से पहले Qt इन्हीं सटीक बेज़ियर पथों को उच्च विभेदन पर प्रस्तुत करता है, जिससे छोटे आकार में भी रूपरेखाएँ सुचारु रहती हैं। स्रोत-टेम्पलेट के SHA-256 हैश मैनिफ़ेस्ट में दर्ज हैं।"
+
+msgid "Animations are resolved by setting key, with numbered organelle slots reusing the primary slot's animation through :mod:`spacr.setting_animations`; the assets and manifest are generated reproducibly by ``tools/generate_setting_animations.py``."
+msgstr "एनिमेशन सेटिंग कुंजी से हल किए जाते हैं, और क्रमांकित कोशिकांग स्लॉट :mod:`spacr.setting_animations` के माध्यम से प्राथमिक स्लॉट के एनिमेशन का पुनः उपयोग करते हैं; परिसंपत्तियाँ और मैनिफ़ेस्ट ``tools/generate_setting_animations.py`` द्वारा पुनरुत्पादनीय रूप से बनाए जाते हैं।"
+
+msgid "Mask filtering"
+msgstr "मास्क फ़िल्टरिंग"
+
+msgid "Cell — Remove border objects"
+msgstr "कोशिका — किनारे के ऑब्जेक्ट हटाएँ"
+
+msgid "Cell — Remove border objects setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिका — किनारे के ऑब्जेक्ट हटाएँ"
+
+msgid "**Settings:** ``cell_remove_border_objects``"
+msgstr "**सेटिंग्स:** ``cell_remove_border_objects``"
+
+msgid "Cell — Minimum object area"
+msgstr "कोशिका — न्यूनतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "Cell — Minimum object area setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिका — न्यूनतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "**Settings:** ``cell_min_size``, ``object_filters``"
+msgstr "**सेटिंग्स:** ``cell_min_size``, ``object_filters``"
+
+msgid "Nucleus — Remove border objects"
+msgstr "केंद्रक — किनारे के ऑब्जेक्ट हटाएँ"
+
+msgid "Nucleus — Remove border objects setting animation"
+msgstr "सेटिंग एनिमेशन: केंद्रक — किनारे के ऑब्जेक्ट हटाएँ"
+
+msgid "**Settings:** ``nucleus_remove_border_objects``"
+msgstr "**सेटिंग्स:** ``nucleus_remove_border_objects``"
+
+msgid "Nucleus — Minimum object area"
+msgstr "केंद्रक — न्यूनतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "Nucleus — Minimum object area setting animation"
+msgstr "सेटिंग एनिमेशन: केंद्रक — न्यूनतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "**Settings:** ``nucleus_min_size``"
+msgstr "**सेटिंग्स:** ``nucleus_min_size``"
+
+msgid "Pathogen — Remove border objects"
+msgstr "रोगजनक — किनारे के ऑब्जेक्ट हटाएँ"
+
+msgid "Pathogen — Remove border objects setting animation"
+msgstr "सेटिंग एनिमेशन: रोगजनक — किनारे के ऑब्जेक्ट हटाएँ"
+
+msgid "**Settings:** ``pathogen_remove_border_objects``"
+msgstr "**सेटिंग्स:** ``pathogen_remove_border_objects``"
+
+msgid "Pathogen — Minimum object area"
+msgstr "रोगजनक — न्यूनतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "Pathogen — Minimum object area setting animation"
+msgstr "सेटिंग एनिमेशन: रोगजनक — न्यूनतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "**Settings:** ``pathogen_min_size``"
+msgstr "**सेटिंग्स:** ``pathogen_min_size``"
+
+msgid "Organelle — Remove border objects"
+msgstr "कोशिकांग — किनारे के ऑब्जेक्ट हटाएँ"
+
+msgid "Organelle — Remove border objects setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग — किनारे के ऑब्जेक्ट हटाएँ"
+
+msgid "**Settings:** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+msgstr "**सेटिंग्स:** ``organelle_remove_border_objects``, ``organelle_remove_border``"
+
+msgid "Organelle — Minimum object area"
+msgstr "कोशिकांग — न्यूनतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "Organelle — Minimum object area setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग — न्यूनतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "**Settings:** ``organelle_min_area``"
+msgstr "**सेटिंग्स:** ``organelle_min_area``"
+
+msgid "Organelle — Maximum object area"
+msgstr "कोशिकांग — अधिकतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "Organelle — Maximum object area setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग — अधिकतम ऑब्जेक्ट क्षेत्रफल"
+
+msgid "**Settings:** ``organelle_max_area``"
+msgstr "**सेटिंग्स:** ``organelle_max_area``"
+
+msgid "Organelle — Minimum mean intensity"
+msgstr "कोशिकांग — न्यूनतम औसत तीव्रता"
+
+msgid "Organelle — Minimum mean intensity setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग — न्यूनतम औसत तीव्रता"
+
+msgid "**Settings:** ``organelle_min_intensity``"
+msgstr "**सेटिंग्स:** ``organelle_min_intensity``"
+
+msgid "Organelle — Maximum mean intensity"
+msgstr "कोशिकांग — अधिकतम औसत तीव्रता"
+
+msgid "Organelle — Maximum mean intensity setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग — अधिकतम औसत तीव्रता"
+
+msgid "**Settings:** ``organelle_max_intensity``"
+msgstr "**सेटिंग्स:** ``organelle_max_intensity``"
+
+msgid "Mask repair"
+msgstr "मास्क मरम्मत"
+
+msgid "Merge edge-pathogen cells"
+msgstr "एडजे-पैथोजेनिक कोशिकाओं का मिश्रण"
+
+msgid "Merge edge-pathogen cells setting animation"
+msgstr "सेटिंग एनिमेशन: किनारे पर रोगजनक वाली कोशिकाएँ मिलाएँ"
+
+msgid "**Settings:** ``merge_edge_pathogen_cells``"
+msgstr "**सेटिंग्स:** ``merge_edge_pathogen_cells``"
+
+msgid "Adjust fragmented cells"
+msgstr "खंडित कोशिकाएँ समायोजित करें"
+
+msgid "Adjust fragmented cells setting animation"
+msgstr "सेटिंग एनिमेशन: खंडित कोशिकाएँ समायोजित करें"
+
+msgid "**Settings:** ``adjust_cells``"
+msgstr "**सेटिंग्स:** ``adjust_cells``"
+
+msgid "Cell perimeter merge"
+msgstr "कोशिका परिधि विलय"
+
+msgid "Cell perimeter merge setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिका परिधि विलय"
+
+msgid "**Settings:** ``cell_perimeter_fraction``"
+msgstr "**सेटिंग्स:** ``cell_perimeter_fraction``"
+
+msgid "Nucleus perimeter merge"
+msgstr "केंद्रक परिधि विलय"
+
+msgid "Nucleus perimeter merge setting animation"
+msgstr "सेटिंग एनिमेशन: केंद्रक परिधि विलय"
+
+msgid "**Settings:** ``nucleus_perimeter_fraction``"
+msgstr "**सेटिंग्स:** ``nucleus_perimeter_fraction``"
+
+msgid "Pathogen perimeter merge"
+msgstr "रोगजनक परिधि विलय"
+
+msgid "Pathogen perimeter merge setting animation"
+msgstr "सेटिंग एनिमेशन: रोगजनक परिधि विलय"
+
+msgid "**Settings:** ``pathogen_perimeter_fraction``"
+msgstr "**सेटिंग्स:** ``pathogen_perimeter_fraction``"
+
+msgid "Organelle perimeter merge"
+msgstr "कोशिकांग परिधि विलय"
+
+msgid "Organelle perimeter merge setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग परिधि विलय"
+
+msgid "**Settings:** ``organelle_perimeter_fraction``"
+msgstr "**सेटिंग्स:** ``organelle_perimeter_fraction``"
+
+msgid "Fill holes in masks"
+msgstr "मास्क के छिद्र भरें"
+
+msgid "Fill holes in masks setting animation"
+msgstr "सेटिंग एनिमेशन: मास्क के छिद्र भरें"
+
+msgid "**Settings:** ``fill_in``"
+msgstr "**सेटिंग्स:** ``fill_in``"
+
+msgid "Segmentation"
+msgstr "छवि विभाजन"
+
+msgid "Cell probability threshold"
+msgstr "कोशिका प्रायिकता सीमा"
+
+msgid "Cell probability threshold setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिका प्रायिकता सीमा"
+
+msgid "**Settings:** ``cell_cellprob_threshold``"
+msgstr "**सेटिंग्स:** ``cell_cellprob_threshold``"
+
+msgid "Cell flow threshold"
+msgstr "कोशिका प्रवाह सीमा"
+
+msgid "Cell flow threshold setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिका प्रवाह सीमा"
+
+msgid "**Settings:** ``cell_flow_threshold``"
+msgstr "**सेटिंग्स:** ``cell_flow_threshold``"
+
+msgid "Cell diameter"
+msgstr "कोशिका व्यास"
+
+msgid "Cell diameter setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिका व्यास"
+
+msgid "**Settings:** ``cell_diameter``"
+msgstr "**सेटिंग्स:** ``cell_diameter``"
+
+msgid "Nucleus probability threshold"
+msgstr "केंद्रक संभावना सीमा"
+
+msgid "Nucleus probability threshold setting animation"
+msgstr "सेटिंग एनिमेशन: केंद्रक संभावना सीमा"
+
+msgid "**Settings:** ``nucleus_cellprob_threshold``"
+msgstr "**सेटिंग्स:** ``nucleus_cellprob_threshold``"
+
+msgid "Nucleus flow threshold"
+msgstr "नाभिक प्रवाह सीमा"
+
+msgid "Nucleus flow threshold setting animation"
+msgstr "सेटिंग एनिमेशन: नाभिक प्रवाह सीमा"
+
+msgid "**Settings:** ``nucleus_flow_threshold``"
+msgstr "**सेटिंग्स:** ``nucleus_flow_threshold``"
+
+msgid "Nucleus diameter"
+msgstr "नाभिक व्यास"
+
+msgid "Nucleus diameter setting animation"
+msgstr "सेटिंग एनिमेशन: नाभिक व्यास"
+
+msgid "**Settings:** ``nucleus_diameter``"
+msgstr "**सेटिंग्स:** ``nucleus_diameter``"
+
+msgid "Pathogen probability threshold"
+msgstr "रोगजनक संभावना सीमा"
+
+msgid "Pathogen probability threshold setting animation"
+msgstr "सेटिंग एनिमेशन: रोगजनक संभावना सीमा"
+
+msgid "**Settings:** ``pathogen_cellprob_threshold``"
+msgstr "**सेटिंग्स:** ``pathogen_cellprob_threshold``"
+
+msgid "Pathogen flow threshold"
+msgstr "रोगजनक प्रवाह सीमा"
+
+msgid "Pathogen flow threshold setting animation"
+msgstr "सेटिंग एनिमेशन: रोगजनक प्रवाह सीमा"
+
+msgid "**Settings:** ``pathogen_flow_threshold``"
+msgstr "**सेटिंग्स:** ``pathogen_flow_threshold``"
+
+msgid "Pathogen diameter"
+msgstr "रोगजनक व्यास"
+
+msgid "Pathogen diameter setting animation"
+msgstr "सेटिंग एनिमेशन: रोगजनक व्यास"
+
+msgid "**Settings:** ``pathogen_diameter``"
+msgstr "**सेटिंग्स:** ``pathogen_diameter``"
+
+msgid "Organelle diameter"
+msgstr "कोशिकांग व्यास"
+
+msgid "Organelle diameter setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग व्यास"
+
+msgid "**Settings:** ``organelle_diameter``"
+msgstr "**सेटिंग्स:** ``organelle_diameter``"
+
+msgid "Organelle probability threshold"
+msgstr "कोशिकांग संभावना सीमा"
+
+msgid "Organelle probability threshold setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग संभावना सीमा"
+
+msgid "**Settings:** ``organelle_cellprob_threshold``"
+msgstr "**सेटिंग्स:** ``organelle_cellprob_threshold``"
+
+msgid "Organelle flow threshold"
+msgstr "कोशिकांग प्रवाह सीमा"
+
+msgid "Organelle flow threshold setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग प्रवाह सीमा"
+
+msgid "**Settings:** ``organelle_flow_threshold``"
+msgstr "**सेटिंग्स:** ``organelle_flow_threshold``"
+
+msgid "Image preprocessing"
+msgstr "छवि पूर्वप्रसंस्करण"
+
+msgid "Cell background subtraction"
+msgstr "कोशिका पृष्ठभूमि घटाव"
+
+msgid "Cell background subtraction setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिका पृष्ठभूमि घटाव"
+
+msgid "**Settings:** ``remove_background_cell``, ``cell_background``"
+msgstr "**सेटिंग्स:** ``remove_background_cell``, ``cell_background``"
+
+msgid "Cell signal-to-noise"
+msgstr "कोशिका संकेत-शोर अनुपात"
+
+msgid "Cell signal-to-noise setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिका संकेत-शोर अनुपात"
+
+msgid "**Settings:** ``cell_signal_to_noise``"
+msgstr "**सेटिंग्स:** ``cell_signal_to_noise``"
+
+msgid "Nucleus background subtraction"
+msgstr "केंद्रक पृष्ठभूमि घटाव"
+
+msgid "Nucleus background subtraction setting animation"
+msgstr "सेटिंग एनिमेशन: केंद्रक पृष्ठभूमि घटाव"
+
+msgid "**Settings:** ``remove_background_nucleus``, ``nucleus_background``"
+msgstr "**सेटिंग्स:** ``remove_background_nucleus``, ``nucleus_background``"
+
+msgid "Nucleus signal-to-noise"
+msgstr "केंद्रक संकेत-शोर अनुपात"
+
+msgid "Nucleus signal-to-noise setting animation"
+msgstr "सेटिंग एनिमेशन: केंद्रक संकेत-शोर अनुपात"
+
+msgid "**Settings:** ``nucleus_signal_to_noise``"
+msgstr "**सेटिंग्स:** ``nucleus_signal_to_noise``"
+
+msgid "Pathogen background subtraction"
+msgstr "रोगजनक पृष्ठभूमि घटाव"
+
+msgid "Pathogen background subtraction setting animation"
+msgstr "सेटिंग एनिमेशन: रोगजनक पृष्ठभूमि घटाव"
+
+msgid "**Settings:** ``remove_background_pathogen``, ``pathogen_background``"
+msgstr "**सेटिंग्स:** ``remove_background_pathogen``, ``pathogen_background``"
+
+msgid "Pathogen signal-to-noise"
+msgstr "रोगजनक संकेत-शोर अनुपात"
+
+msgid "Pathogen signal-to-noise setting animation"
+msgstr "सेटिंग एनिमेशन: रोगजनक संकेत-शोर अनुपात"
+
+msgid "**Settings:** ``pathogen_signal_to_noise``"
+msgstr "**सेटिंग्स:** ``pathogen_signal_to_noise``"
+
+msgid "Image normalization percentiles"
+msgstr "छवि सामान्यीकरण पर्सेंटाइल"
+
+msgid "Image normalization percentiles setting animation"
+msgstr "सेटिंग एनिमेशन: छवि सामान्यीकरण पर्सेंटाइल"
+
+msgid "**Settings:** ``normalization_percentiles``, ``normalize``"
+msgstr "**सेटिंग्स:** ``normalization_percentiles``, ``normalize``"
+
+msgid "Organelle preprocessing"
+msgstr "कोशिकांग पूर्वप्रसंस्करण"
+
+msgid "Fill small organelle holes"
+msgstr "कोशिकांग के छोटे छिद्र भरें"
+
+msgid "Fill small organelle holes setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग के छोटे छिद्र भरें"
+
+msgid "**Settings:** ``organelle_fill_holes``"
+msgstr "**सेटिंग्स:** ``organelle_fill_holes``"
+
+msgid "Split touching organelle spots"
+msgstr "छूते हुए कोशिकांग धब्बों को अलग करें"
+
+msgid "Split touching organelle spots setting animation"
+msgstr "सेटिंग एनिमेशन: छूते हुए कोशिकांग धब्बों को अलग करें"
+
+msgid "**Settings:** ``organelle_watershed_spots``"
+msgstr "**सेटिंग्स:** ``organelle_watershed_spots``"
+
+msgid "Skeletonize organelle networks"
+msgstr "कोशिकांग जालों का कंकालीकरण"
+
+msgid "Skeletonize organelle networks setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग जालों का कंकालीकरण"
+
+msgid "**Settings:** ``organelle_skeletonize``"
+msgstr "**सेटिंग्स:** ``organelle_skeletonize``"
+
+msgid "Rolling-ball background correction"
+msgstr "रोलिंग-बॉल पृष्ठभूमि सुधार"
+
+msgid "Rolling-ball background correction setting animation"
+msgstr "सेटिंग एनिमेशन: रोलिंग-बॉल पृष्ठभूमि सुधार"
+
+msgid "**Settings:** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+msgstr "**सेटिंग्स:** ``organelle_rolling_ball``, ``organelle_rolling_ball_radius``"
+
+msgid "Organelle local contrast (CLAHE)"
+msgstr "कोशिकांग स्थानीय कंट्रास्ट (CLAHE)"
+
+msgid "Organelle local contrast (CLAHE) setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग स्थानीय कंट्रास्ट (CLAHE)"
+
+msgid "**Settings:** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+msgstr "**सेटिंग्स:** ``organelle_clahe``, ``organelle_clahe_clip_limit``"
+
+msgid "Mask organelles within cells"
+msgstr "कोशिकाओं के भीतर कोशिकांगों को मास्क करें"
+
+msgid "Mask organelles within cells setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकाओं के भीतर कोशिकांगों को मास्क करें"
+
+msgid "**Settings:** ``organelle_mask_within_cells``"
+msgstr "**सेटिंग्स:** ``organelle_mask_within_cells``"
+
+msgid "Organelle segmentation threshold"
+msgstr "कोशिकांग विभाजन सीमा"
+
+msgid "Organelle segmentation threshold setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकांग विभाजन सीमा"
+
+msgid "**Settings:** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+msgstr "**सेटिंग्स:** ``organelle_log_threshold``, ``organelle_unet_threshold``"
+
+msgid "Plot appearance"
+msgstr "प्लॉट का रूप"
+
+msgid "Mask outline thickness"
+msgstr "मास्क रूपरेखा की मोटाई"
+
+msgid "Mask outline thickness setting animation"
+msgstr "सेटिंग एनिमेशन: मास्क रूपरेखा की मोटाई"
+
+msgid "**Settings:** ``outline_thickness``"
+msgstr "**सेटिंग्स:** ``outline_thickness``"
+
+msgid "Crop output"
+msgstr "क्रॉप आउटपुट"
+
+msgid "Keep bounding-box context"
+msgstr "बाउंडिंग-बॉक्स संदर्भ रखें"
+
+msgid "Keep bounding-box context setting animation"
+msgstr "सेटिंग एनिमेशन: बाउंडिंग-बॉक्स संदर्भ रखें"
+
+msgid "**Settings:** ``use_bounding_box``"
+msgstr "**सेटिंग्स:** ``use_bounding_box``"
+
+msgid "Dilate crop masks"
+msgstr "चित्रांश मास्क फैलाएँ"
+
+msgid "Dilate crop masks setting animation"
+msgstr "सेटिंग एनिमेशन: क्रॉप मास्क फैलाएँ"
+
+msgid "**Settings:** ``dialate_pngs``, ``dialate_png_ratios``"
+msgstr "**सेटिंग्स:** ``dialate_pngs``, ``dialate_png_ratios``"
+
+msgid "Choose crop target"
+msgstr "क्रॉप लक्ष्य चुनें"
+
+msgid "Choose crop target setting animation"
+msgstr "सेटिंग एनिमेशन: क्रॉप लक्ष्य चुनें"
+
+msgid "**Settings:** ``crop_mode``"
+msgstr "**सेटिंग्स:** ``crop_mode``"
+
+msgid "Crop canvas size"
+msgstr "क्रॉप कैनवास आकार"
+
+msgid "Crop canvas size setting animation"
+msgstr "सेटिंग एनिमेशन: क्रॉप कैनवास आकार"
+
+msgid "**Settings:** ``png_size``"
+msgstr "**सेटिंग्स:** ``png_size``"
+
+msgid "Measurement"
+msgstr "मापन"
+
+msgid "Derive cytoplasm compartment"
+msgstr "कोशिकाद्रव्य कंपार्टमेंट व्युत्पन्न करें"
+
+msgid "Derive cytoplasm compartment setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिकाद्रव्य कंपार्टमेंट व्युत्पन्न करें"
+
+msgid "**Settings:** ``cytoplasm``"
+msgstr "**सेटिंग्स:** ``cytoplasm``"
+
+msgid "Radial-distance shells"
+msgstr "अरीय-दूरी कोश"
+
+msgid "Radial-distance shells setting animation"
+msgstr "सेटिंग एनिमेशन: अरीय-दूरी कोश"
+
+msgid "**Settings:** ``radial_dist``, ``distance_gaussian_sigma``"
+msgstr "**सेटिंग्स:** ``radial_dist``, ``distance_gaussian_sigma``"
+
+msgid "Keep or remove uninfected cells"
+msgstr "असंक्रमित कोशिकाएँ रखें या हटाएँ"
+
+msgid "Keep or remove uninfected cells setting animation"
+msgstr "सेटिंग एनिमेशन: असंक्रमित कोशिकाएँ रखें या हटाएँ"
+
+msgid "**Settings:** ``uninfected``"
+msgstr "**सेटिंग्स:** ``uninfected``"
+
+msgid "Tracking & volumetric"
+msgstr "ट्रैकिंग और आयतनात्मक"
+
+msgid "Remove transient tracks"
+msgstr "अल्पकालिक ट्रैक हटाएँ"
+
+msgid "Remove transient tracks setting animation"
+msgstr "सेटिंग एनिमेशन: अल्पकालिक ट्रैक हटाएँ"
+
+msgid "**Settings:** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+msgstr "**सेटिंग्स:** ``timelapse_remove_transient``, ``timelapse_frame_limits``"
+
+msgid "Maximum linking displacement"
+msgstr "अधिकतम जोड़ विस्थापन"
+
+msgid "Maximum linking displacement setting animation"
+msgstr "सेटिंग एनिमेशन: अधिकतम जोड़ विस्थापन"
+
+msgid "**Settings:** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+msgstr "**सेटिंग्स:** ``timelapse_displacement``, ``ultrack_max_distance``, ``t_max_displacement_px``, ``t_max_displacement_um``"
+
+msgid "Tracking memory"
+msgstr "ट्रैकिंग स्मृति"
+
+msgid "Tracking memory setting animation"
+msgstr "सेटिंग एनिमेशन: ट्रैकिंग स्मृति"
+
+msgid "**Settings:** ``timelapse_memory``"
+msgstr "**सेटिंग्स:** ``timelapse_memory``"
+
+msgid "Timepoint overlap threshold"
+msgstr "समय-बिंदु अधिव्यापन सीमा"
+
+msgid "Timepoint overlap threshold setting animation"
+msgstr "सेटिंग एनिमेशन: समय-बिंदु अधिव्यापन सीमा"
+
+msgid "**Settings:** ``t_link_threshold``"
+msgstr "**सेटिंग्स:** ``t_link_threshold``"
+
+msgid "Z-plane stitch threshold"
+msgstr "Z-तल स्टिच सीमा"
+
+msgid "Z-plane stitch threshold setting animation"
+msgstr "सेटिंग एनिमेशन: Z-तल स्टिच सीमा"
+
+msgid "**Settings:** ``stitch_threshold``"
+msgstr "**सेटिंग्स:** ``stitch_threshold``"
+
+msgid "Z projection"
+msgstr "Z प्रक्षेपण"
+
+msgid "Z projection setting animation"
+msgstr "सेटिंग एनिमेशन: Z प्रक्षेपण"
+
+msgid "**Settings:** ``z_projection``"
+msgstr "**सेटिंग्स:** ``z_projection``"
+
+msgid "Project volumes for tracking"
+msgstr "ट्रैकिंग के लिए आयतनों का प्रक्षेपण"
+
+msgid "Project volumes for tracking setting animation"
+msgstr "सेटिंग एनिमेशन: ट्रैकिंग के लिए आयतनों का प्रक्षेपण"
+
+msgid "**Settings:** ``t_project_for_tracking``"
+msgstr "**सेटिंग्स:** ``t_project_for_tracking``"
+
+msgid "Remove overly straight tracks"
+msgstr "अत्यधिक सीधे ट्रैक हटाएँ"
+
+msgid "Remove overly straight tracks setting animation"
+msgstr "सेटिंग एनिमेशन: अत्यधिक सीधे ट्रैक हटाएँ"
+
+msgid "**Settings:** ``drop_straight_tracks``, ``straightness_threshold``"
+msgstr "**सेटिंग्स:** ``drop_straight_tracks``, ``straightness_threshold``"
+
+msgid "Smooth per-track outliers"
+msgstr "प्रति-ट्रैक बाहरी मानों को सुचारु करें"
+
+msgid "Smooth per-track outliers setting animation"
+msgstr "सेटिंग एनिमेशन: प्रति-ट्रैक बाहरी मानों को सुचारु करें"
+
+msgid "**Settings:** ``track_outlier_zscore``"
+msgstr "**सेटिंग्स:** ``track_outlier_zscore``"
+
+msgid "Cell-division linking"
+msgstr "कोशिका-विभाजन जोड़"
+
+msgid "Cell-division linking setting animation"
+msgstr "सेटिंग एनिमेशन: कोशिका-विभाजन जोड़"
+
+msgid "**Settings:** ``ultrack_division_weight``"
+msgstr "**सेटिंग्स:** ``ultrack_division_weight``"
+
+msgid "Contour smoothing"
+msgstr "रूपरेखा सुचारुकरण"
+
+msgid "Contour smoothing setting animation"
+msgstr "सेटिंग एनिमेशन: रूपरेखा सुचारुकरण"
+
+msgid "**Settings:** ``ultrack_contour_sigma``"
+msgstr "**सेटिंग्स:** ``ultrack_contour_sigma``"
+
+msgid "Image UMAP"
+msgstr "इमेज UMAP"
+
+msgid "UMAP neighborhood size"
+msgstr "UMAP पड़ोस आकार"
+
+msgid "UMAP neighborhood size setting animation"
+msgstr "सेटिंग एनिमेशन: UMAP पड़ोस आकार"
+
+msgid "**Settings:** ``n_neighbors``"
+msgstr "**सेटिंग्स:** ``n_neighbors``"
+
+msgid "UMAP minimum distance"
+msgstr "UMAP न्यूनतम दूरी"
+
+msgid "UMAP minimum distance setting animation"
+msgstr "सेटिंग एनिमेशन: UMAP न्यूनतम दूरी"
+
+msgid "**Settings:** ``min_dist``"
+msgstr "**सेटिंग्स:** ``min_dist``"
+
+msgid "Show object images"
+msgstr "ऑब्जेक्ट छवियाँ दिखाएँ"
+
+msgid "Show object images setting animation"
+msgstr "सेटिंग एनिमेशन: ऑब्जेक्ट छवियाँ दिखाएँ"
+
+msgid "**Settings:** ``plot_images``"
+msgstr "**सेटिंग्स:** ``plot_images``"
+
+msgid "Remove image canvas"
+msgstr "छवि कैनवास हटाएँ"
+
+msgid "Remove image canvas setting animation"
+msgstr "सेटिंग एनिमेशन: छवि कैनवास हटाएँ"
+
+msgid "**Settings:** ``remove_image_canvas``"
+msgstr "**सेटिंग्स:** ``remove_image_canvas``"
+
+msgid "Show cluster outlines"
+msgstr "क्लस्टर रूपरेखाएँ दिखाएँ"
+
+msgid "Show cluster outlines setting animation"
+msgstr "सेटिंग एनिमेशन: क्लस्टर रूपरेखाएँ दिखाएँ"
+
+msgid "**Settings:** ``plot_outlines``"
+msgstr "**सेटिंग्स:** ``plot_outlines``"
+
+msgid "Show embedding points"
+msgstr "एम्बेडिंग बिंदु दिखाएँ"
+
+msgid "Show embedding points setting animation"
+msgstr "सेटिंग एनिमेशन: एम्बेडिंग बिंदु दिखाएँ"
+
+msgid "**Settings:** ``plot_points``"
+msgstr "**सेटिंग्स:** ``plot_points``"
+
+msgid "Smooth cluster outlines"
+msgstr "क्लस्टर रूपरेखाएँ सुचारु करें"
+
+msgid "Smooth cluster outlines setting animation"
+msgstr "सेटिंग एनिमेशन: क्लस्टर रूपरेखाएँ सुचारु करें"
+
+msgid "**Settings:** ``smooth_lines``"
+msgstr "**सेटिंग्स:** ``smooth_lines``"
+
+msgid "Remove cluster noise"
+msgstr "क्लस्टर शोर हटाएँ"
+
+msgid "Remove cluster noise setting animation"
+msgstr "सेटिंग एनिमेशन: क्लस्टर शोर हटाएँ"
+
+msgid "**Settings:** ``remove_cluster_noise``"
+msgstr "**सेटिंग्स:** ``remove_cluster_noise``"
+
+msgid "Sample images by cluster"
+msgstr "क्लस्टर के अनुसार छवियों का नमूना लें"
+
+msgid "Sample images by cluster setting animation"
+msgstr "सेटिंग एनिमेशन: क्लस्टर के अनुसार छवियों का नमूना लें"
+
+msgid "**Settings:** ``plot_by_cluster``"
+msgstr "**सेटिंग्स:** ``plot_by_cluster``"
+
+msgid "Embedding point size"
+msgstr "एम्बेडिंग बिंदु आकार"
+
+msgid "Embedding point size setting animation"
+msgstr "सेटिंग एनिमेशन: एम्बेडिंग बिंदु आकार"
+
+msgid "**Settings:** ``dot_size``"
+msgstr "**सेटिंग्स:** ``dot_size``"
+
+msgid "Embedding image zoom"
+msgstr "एम्बेडिंग छवि ज़ूम"
+
+msgid "Embedding image zoom setting animation"
+msgstr "सेटिंग एनिमेशन: एम्बेडिंग छवि ज़ूम"
+
+msgid "**Settings:** ``img_zoom``"
+msgstr "**सेटिंग्स:** ``img_zoom``"
+
+msgid "Density clustering radius"
+msgstr "घनत्व क्लस्टरिंग त्रिज्या"
+
+msgid "Density clustering radius setting animation"
+msgstr "सेटिंग एनिमेशन: घनत्व क्लस्टरिंग त्रिज्या"
+
+msgid "**Settings:** ``eps``, ``min_samples``, ``clustering``"
+msgstr "**सेटिंग्स:** ``eps``, ``min_samples``, ``clustering``"
+
+msgid "Alignment & stitching"
+msgstr "संरेखण और स्टिचिंग"
+
+msgid "Tile overlap"
+msgstr "टाइल अधिव्यापन"
+
+msgid "Tile overlap setting animation"
+msgstr "सेटिंग एनिमेशन: टाइल अधिव्यापन"
+
+msgid "**Settings:** ``overlap``"
+msgstr "**सेटिंग्स:** ``overlap``"
+
+msgid "Tile seam blending"
+msgstr "टाइल जोड़ सम्मिश्रण"
+
+msgid "Tile seam blending setting animation"
+msgstr "सेटिंग एनिमेशन: टाइल जोड़ सम्मिश्रण"
+
+msgid "**Settings:** ``blend``"
+msgstr "**सेटिंग्स:** ``blend``"
+
+msgid "Point spread function"
+msgstr "बिंदु प्रसार फलन"
+
+msgid "PSF — Gaussian convolution width"
+msgstr "PSF — गॉसियन कन्वोल्यूशन चौड़ाई"
+
+msgid "PSF — Gaussian convolution width setting animation"
+msgstr "सेटिंग एनिमेशन: PSF — गॉसियन कन्वोल्यूशन चौड़ाई"
+
+msgid "**Settings:** ``psf_fwhm_um``"
+msgstr "**सेटिंग्स:** ``psf_fwhm_um``"
+

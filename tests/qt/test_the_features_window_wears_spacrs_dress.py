@@ -103,10 +103,14 @@ def test_the_native_title_bar_and_its_buttons_are_gone(window):
 
 
 def test_the_corners_are_rounded(window):
-    """Cut from the window's shape, not merely composited away."""
-    assert not window.mask().isEmpty(), "the window was never cut to shape"
-    assert not window.mask().contains(window.rect().topLeft()), (
-        "the top-left corner pixel is still part of the window")
+    """The native alpha surface or fallback mask removes the corner pixel."""
+    handle = window.windowHandle()
+    if handle is not None and handle.format().alphaBufferSize() >= 8:
+        assert window.mask().isEmpty(), "a binary mask erased smooth edge alpha"
+        assert window.grab().toImage().pixelColor(0, 0).alpha() == 0
+    else:
+        assert not window.mask().isEmpty(), "the opaque fallback was not cut"
+        assert not window.mask().contains(window.rect().topLeft())
 
 
 def test_measure_is_blue_and_close_is_red_and_to_its_right(window):

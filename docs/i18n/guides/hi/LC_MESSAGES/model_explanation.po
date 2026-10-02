@@ -1,0 +1,123 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Explain CV models and investigate hits"
+msgstr "CV मॉडल समझाएँ और हिट की जाँच करें"
+
+msgid "spaCR separates three questions that are easy to blur together:"
+msgstr "spaCR तीन ऐसे प्रश्नों को अलग करता है जिन्हें आपस में मिलाना आसान है:"
+
+msgid "activation or occlusion maps show **where** a vision model attended;"
+msgstr "सक्रियण या अवरोधन मानचित्र दिखाते हैं कि दृष्टि मॉडल ने **कहाँ** ध्यान दिया;"
+
+msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
+msgstr "**CV मॉडल समझाएँ** मॉड्यूल दिखाता है कि कौन-सी मापी गई आकृति मॉडल के निर्णयों को दोहरा सकती है; और"
+
+msgid "**Investigate Hit** asks which cells in wells supporting a regression hit have morphology consistent with that hit."
+msgstr "**Investigate Hit** पूछता है कि किसी प्रतिगमन हिट का समर्थन करने वाले कूपों की कौन-सी कोशिकाओं की आकृति उस हिट से मेल खाती है।"
+
+msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI and exports therefore use ``EAF1-hit-like`` and ``hit_like_probability`` rather than calling a cell ``EAF1-KO``."
+msgstr "अंतिम परिणाम कमज़ोर पर्यवेक्षित साक्ष्य है, कोशिका-स्तरीय बारकोड नहीं। इसलिए UI और निर्यात किसी कोशिका को ``EAF1-KO`` कहने के बजाय ``EAF1-hit-like`` और ``hit_like_probability`` का उपयोग करते हैं।"
+
+msgid "Explain CV Model"
+msgstr "CV मॉडल समझाएँ"
+
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
+msgstr "यह मॉड्यूल अपनी अलग टाइल के बजाय **वर्गीकरण** शीर्षपट्टी से, **वर्गीकारक मूल्यांकन** के बगल में खुलता है: दोनों पूछते हैं कि प्रशिक्षित वर्गीकारक ने वास्तव में क्या किया।"
+
+msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
+msgstr "सटीक ``measurements.db`` और मौजूदा प्रति-ऑब्जेक्ट CV पूर्वानुमान CSV चुनें। मॉड्यूल मूल वर्गीकारक को कभी दोबारा नहीं चलाता और न ही चुपचाप बदलता है। यह पूर्वानुमानों को मापे गए ऑब्जेक्ट से एक-से-एक जोड़ता है और पहचानकर्ताओं, पूर्वानुमान/वर्ग स्तंभों, स्कोर, एनोटेशन और उपयोगकर्ता बहिष्करणों को सरोगेट विशेषता मैट्रिक्स से बाहर रखता है।"
+
+msgid "The surrogate family is a fixed choice: Random Forest, scikit-learn histogram gradient boosting, or XGBoost when that optional dependency is installed. The exact backend and package version are saved. Wells are held intact by default; plate-held-out validation is available when the experiment has enough plates."
+msgstr "सरोगेट परिवार एक निश्चित विकल्प है: रैंडम फ़ॉरेस्ट, scikit-learn हिस्टोग्राम ग्रेडिएंट बूस्टिंग, या वैकल्पिक निर्भरता स्थापित होने पर XGBoost। सटीक बैकएंड और पैकेज संस्करण सहेजे जाते हैं। कूपों को डिफ़ॉल्ट रूप से अखंड रखा जाता है; प्रयोग में पर्याप्त प्लेटें होने पर प्लेट-अलग सत्यापन उपलब्ध है।"
+
+msgid "Read the output in this order:"
+msgstr "आउटपुट को इस क्रम में पढ़ें:"
+
+msgid "held-out fidelity, the majority-class baseline, and improvement over it;"
+msgstr "अलग रखे गए डेटा पर निष्ठा, बहुसंख्यक-वर्ग आधार रेखा और उस पर सुधार;"
+
+msgid "class-wise precision/recall/F1 and the confusion matrix; then"
+msgstr "वर्ग-वार परिशुद्धता/रिकॉल/F1 और भ्रम मैट्रिक्स; फिर"
+
+msgid "gain, held-out permutation importance, and mean absolute SHAP."
+msgstr "गेन, अलग रखे गए डेटा पर क्रमचय महत्व और औसत निरपेक्ष SHAP।"
+
+msgid "If fidelity does not clear the configured improvement over the majority baseline, spaCR withholds the importance table. This means the surrogate did not reproduce the CV model well enough for its feature ranking to explain that model. Per-cell signed SHAP values, correlated-feature pairs, exact feature and leakage-exclusion lists, split units, random seed, model parameters, and sampled object IDs are retained in the artifacts."
+msgstr "यदि निष्ठा बहुसंख्यक आधार रेखा पर विन्यस्त सुधार को पार नहीं करती, तो spaCR महत्व तालिका रोक लेता है। इसका अर्थ है कि सरोगेट ने CV मॉडल को इतनी अच्छी तरह नहीं दोहराया कि उसकी विशेषता रैंकिंग उस मॉडल की व्याख्या कर सके। प्रति-कोशिका चिह्नित SHAP मान, सहसंबद्ध विशेषता जोड़े, सटीक विशेषता और रिसाव-बहिष्करण सूचियाँ, विभाजन इकाइयाँ, रैंडम सीड, मॉडल पैरामीटर और नमूना किए गए ऑब्जेक्ट ID फ़ाइलों में सुरक्षित रहते हैं।"
+
+msgid "Investigate Hit"
+msgstr "Investigate Hit"
+
+msgid "From the **Regression** masthead open **Hit List**, select the exact gene result, and choose **Investigate selected…**. The hand-off carries the result folder, gene, effect direction, FDR, phenotype, and agreeing guides; it does not search for the newest results file. Investigate Hit hashes the selected regression CSV/JSON bytes into its provenance."
+msgstr "**प्रतिगमन** शीर्षपट्टी से **हिट सूची** खोलें, सटीक जीन परिणाम चुनें और **Investigate selected…** चुनें। हस्तांतरण में परिणाम फ़ोल्डर, जीन, प्रभाव की दिशा, FDR, फ़ेनोटाइप और सहमत गाइड शामिल होते हैं; यह नवीनतम परिणाम फ़ाइल नहीं खोजता। Investigate Hit चुनी गई प्रतिगमन CSV/JSON बाइट्स का हैश अपने उद्गम में दर्ज करता है।"
+
+msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
+msgstr "मापन डेटाबेस, मूल प्रति-ऑब्जेक्ट पूर्वानुमान CSV और प्रति-कूप गाइड-अंश CSV दें। जोड़ स्पष्ट ऑब्जेक्ट और प्लेट/पंक्ति/स्तंभ कुंजियों का उपयोग करते हैं। डुप्लिकेट ऑब्जेक्ट कुंजियाँ या डुप्लिकेट कूप/गाइड अंश रन को रोक देते हैं।"
+
+msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+msgstr "पहला आउटपुट एक ईमानदार समीक्षा कतार है: लक्ष्य वाले कूपों की कोशिकाएँ प्रतिगमन की प्रभाव दिशा में क्रमबद्ध होती हैं, और उनके बगल में कूप-स्तरीय लक्ष्य-गाइड अंश दिखाया जाता है। इसके बाद वैकल्पिक एट्रिब्यूशन मॉडल:"
+
+msgid "treats wells as bags and cells as instances;"
+msgstr "कूपों को बैग और कोशिकाओं को उदाहरण मानता है;"
+
+msgid "learns background and target-like morphology across many wells;"
+msgstr "अनेक कूपों में पृष्ठभूमि और लक्ष्य-जैसी आकृति सीखता है;"
+
+msgid "uses guide fraction as a noisy learned prior, never as a forced cell prevalence;"
+msgstr "गाइड अंश को एक शोरयुक्त सीखे गए पूर्व के रूप में उपयोग करता है, कभी भी बलपूर्वक कोशिका प्रसार के रूप में नहीं;"
+
+msgid "scores every cell with a model that excluded its well, or its plate when the design supports plate cross-fitting; and"
+msgstr "हर कोशिका को ऐसे मॉडल से स्कोर करता है जिसने उसके कूप को, या डिज़ाइन द्वारा प्लेट क्रॉस-फ़िटिंग का समर्थन होने पर उसकी प्लेट को, बाहर रखा हो; और"
+
+msgid "keeps independent guides visible before reporting gene-level consensus."
+msgstr "जीन-स्तरीय सहमति की सूचना देने से पहले स्वतंत्र गाइडों को दृश्यमान रखता है।"
+
+msgid "The original phenotype score is excluded from the morphology model by default. Including it is an explicit, warned setting because selecting, embedding, and validating with the same score would be circular."
+msgstr "मूल फ़ेनोटाइप स्कोर डिफ़ॉल्ट रूप से आकृति मॉडल से बाहर रहता है। इसे शामिल करना एक स्पष्ट, चेतावनी वाली सेटिंग है, क्योंकि एक ही स्कोर से चयन, एम्बेडिंग और सत्यापन करना चक्रीय तर्क होगा।"
+
+msgid "Quantitative evidence"
+msgstr "मात्रात्मक साक्ष्य"
+
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
+msgstr "रिपोर्ट स्वतंत्र प्रायोगिक इकाई के रूप में कोशिकाओं के बजाय कूपों का उपयोग करती है। यह लक्ष्य-बनाम-नियंत्रण उम्मीदवार प्रसार, कूप-बूटस्ट्रैप अंतराल, प्लेट-अवरुद्ध क्रमचय परीक्षण, गाइड-मात्रा प्रतिक्रिया, गाइड-विशिष्ट प्रभाव और दो अधिक कठोर शून्य मॉडल की सूचना देती है। अधिक कठोर गाइड-अंश और कूप-लेबल शून्य मॉडल केवल अंतिम सारांश लेबलों को फेंटने के बजाय हर क्रमचय के भीतर क्रॉस-फ़िटिंग पाइपलाइन दोहराते हैं।"
+
+msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
+msgstr "द्विविमीय तुलना एक PCA है जो केवल लक्ष्य-रहित नियंत्रण-कोशिका आकृति पर फ़िट की जाती है और फिर सभी कोशिकाओं को रूपांतरित करने में उपयोग होती है। गाइड पहचान, लक्ष्य-कूप स्थिति और मूल वर्गीकारक आउटपुट बाहर रखे जाते हैं। निर्यात की गई तालिका में सटीक ऑब्जेक्ट कुंजियाँ और नमूना संख्याएँ होती हैं ताकि किसी दृश्य क्लस्टर को उसके कूपों और छवियों तक खोजा जा सके; मात्रात्मक संवर्धन ही प्राथमिक दावा रहता है।"
+
+msgid "A stratified gallery samples high, borderline, low, and false-looking control objects. The reviewer CSV is shuffled and reveals only a random review ID and image path. Its separate analyst-only key retains the stratum and probability. After one or more blinded reviewers return binary calls, ``evaluate_blinded_reviews`` reports calibration error, precision, recall, ROC AUC when defined, and pairwise Cohen's kappa."
+msgstr "एक स्तरित गैलरी उच्च, सीमांत, निम्न और झूठे दिखने वाले नियंत्रण ऑब्जेक्ट का नमूना लेती है। समीक्षक CSV फेंटी हुई होती है और केवल एक यादृच्छिक समीक्षा ID और छवि पथ दिखाती है। उसकी अलग, केवल-विश्लेषक कुंजी स्तर और संभावना सुरक्षित रखती है। एक या अधिक अंधाधुंध समीक्षकों द्वारा द्विआधारी निर्णय लौटाने के बाद ``evaluate_blinded_reviews`` अंशांकन त्रुटि, परिशुद्धता, रिकॉल, परिभाषित होने पर ROC AUC, और युग्मवार Cohen's kappa की सूचना देता है।"
+
+msgid "Database annotations are versioned in dedicated provenance tables. Existing hand annotations are unchanged. **Promote calls to annotation** is a separate action that accepts only a fresh column name, and **Undo promotion** clears exactly the values written by that promotion while preserving its audit row."
+msgstr "डेटाबेस एनोटेशन समर्पित उद्गम तालिकाओं में संस्करणित होते हैं। मौजूदा मैन्युअल एनोटेशन अपरिवर्तित रहते हैं। **मॉडल कॉल को एनोटेशन में बदलें** एक अलग क्रिया है जो केवल नया स्तंभ नाम स्वीकार करती है, और **रूपांतरण पूर्ववत करें** उस पदोन्नति द्वारा लिखे गए मानों को ठीक-ठीक साफ़ करता है, जबकि उसकी ऑडिट पंक्ति सुरक्षित रहती है।"
+
+msgid "Evidence ladder"
+msgstr "साक्ष्य की सीढ़ी"
+
+msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. The strongest validation is an orthogonal experiment that assigns perturbation identity per cell, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
+msgstr "एक सुसंगत UMAP/PCA समूह उपयोगी अन्वेषणात्मक साक्ष्य है, लेकिन ग्राउंड ट्रुथ नहीं। नकारात्मक और सकारात्मक नियंत्रणों, स्वतंत्र गाइडों, प्रतिकृति प्लेटों, कूप/प्लेट क्रॉस-फ़िटिंग, दोबारा फ़िट किए गए शून्य मॉडल, बूटस्ट्रैप स्थिरता, अंधाधुंध समीक्षा, और मापी गई विशेषताओं के SHAP तथा पिक्सेल-स्तरीय एट्रिब्यूशन के बीच सहमति से विश्वास बढ़ता है। सबसे मज़बूत सत्यापन एक स्वतंत्र प्रयोग है जो प्रति कोशिका विक्षोभ पहचान निर्धारित करता है, जैसे व्यवस्थित विक्षोभ/बचाव या प्रत्यक्ष इन-सीटू गाइड-बारकोड रीडआउट।"
+
+msgid "Headless entry points"
+msgstr "हेडलेस प्रवेश बिंदु"
+
+msgid "The statistical APIs are :mod:`spacr.surrogate`, :mod:`spacr.hit_attribution`, and :mod:`spacr.hit_investigation`."
+msgstr "सांख्यिकीय API :mod:`spacr.surrogate`, :mod:`spacr.hit_attribution` और :mod:`spacr.hit_investigation` हैं।"
+

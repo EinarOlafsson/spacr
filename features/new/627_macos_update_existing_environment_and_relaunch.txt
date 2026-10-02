@@ -1,0 +1,70 @@
+627. macOS updates must upgrade the existing spaCR environment and relaunch
+
+Status: DONE — implemented and focused validation completed 2026-10-01.
+Native macOS acceptance remains unverified on this Linux host.
+
+The user reports Check for updates > Install update closes spaCR, but reopening
+its app prompts an interactive reinstall and ultimately starts the older
+version. Their reliable workaround uses the existing bundled executable:
+"$HOME/Library/Application Support/SpaCR/bootstrap/uv" pip install --upgrade --python "$HOME/Library/Application Support/SpaCR/venv/bin/python" spacr
+
+Required: for this macOS online installation, confirm that spaCR will be
+reinstalled, close it, upgrade the existing environment using its bundled uv,
+and reopen automatically after successful installation and version verification.
+Do not invoke the full first-install bootstrap, remove the working environment,
+or leave the user answering installer y/n prompts. Investigate launcher version
+checks so reopening cannot restore an older installer-pinned version. Preserve
+settings, data, and the existing environment. Report upgrade failures without
+claiming success. Keep Linux's working update behavior and supported Windows
+and frozen-bundle update paths intact. Cross-reference N53 and N416; this
+specific user-reported macOS online update loop is a new regression request.
+
+Acceptance: exercise the confirmation/close/helper/relaunch path; verify exact
+bundled uv and venv targeting, paths with spaces, parent-process wait, failed
+upgrade handling, updated-version readback and a single automatic relaunch.
+Verify a newer installed version does not trigger the launcher's older pinned
+installer. Run relevant existing updater/platform checks. Distinguish modeled
+macOS checks on Linux from actual native macOS acceptance.
+
+Implementation and validation 2026-10-01:
+- Confirmed the prior macOS online path deleted the private runtime, ran a
+  downloaded pkg, then reopened its launcher. With Python missing, that
+  launcher started the interactive first-use installer with its older pin.
+- The new macos-online-uv-v1 adapter uses the existing bootstrap/uv and
+  venv/bin/python paths from the running installation, including case and
+  spaces. Its command ends in unpinned spacr, as explicitly requested.
+- The GUI bypasses removal selection for this path. It confirms reinstall,
+  then closes before the upgrade; the existing readiness protocol authorizes
+  work only after cooperative shutdown passes all veto checks and the process
+  exits. Cancel, expiry, missing executables and ambiguous runtime identities
+  cannot fall back to removal or trigger an update after a later ordinary exit.
+- A fresh private-Python process reads installed package metadata. The observed
+  version must be at least the offered version and newer than the prior one.
+  Only then is one private-Python -m spacr.qt relaunch requested. Failures are
+  logged in ~/.spacr/logs/update.log without a false success or extra launch.
+- The native C launcher already executes an existing runtime directly, without
+  a version-pin comparison. No launcher modification was necessary.
+- 41 backend and existing updater checks passed under a 1 GB single-thread cap,
+  including real discovery, Linux/Windows legacy plan behavior, package target
+  and backend preservation, OS-executed private executable shims, and compiled
+  launcher behavior. Shims are not a real macOS package-install acceptance run.
+- 36 Qt updater/shutdown/restart checks passed (7.46 s); two additional rendered
+  message-box button tests passed (1.24 s). Online and frozen paths both cover
+  cancellation, preparation failure, stale plans, timeout, shutdown vetoes and
+  approval-before-teardown. The online confirmation screenshot was inspected.
+- docs/source/installer_guide.rst describes the new workflow and failure log;
+  the edited section parses without reStructuredText warnings. The N416 ledger
+  records this explicitly requested exception to its historical cleanup policy.
+- Existing Qt files retain their 18 pre-existing Ruff import-order findings;
+  no new findings were introduced. New backend tests and backend checks passed
+  their focused lint checks; git diff --check is clean.
+
+Supporting work tracked under N615: the new confirmation has technically
+reviewed translations in all nine locales. The standard catalog build and
+full runtime audit passed in 0fb8102a2, including explicit close-before-update
+and reopen-after-success wording. Public API prose will be refreshed in the
+coordinated documentation pass.
+No real package was installed during tests. A real native macOS update/relaunch
+and Windows desktop acceptance were not performed. This fix is on nightly;
+publication requires a future release containing it. The earlier 1.5.1.1 release
+attempt remains blocked on the PyPI storage request (pypi/support#12512).

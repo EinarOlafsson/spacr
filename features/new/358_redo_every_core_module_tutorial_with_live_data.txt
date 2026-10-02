@@ -2,14 +2,11 @@
 REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
 ================================================================================
 
-Status:    OPEN, re-checked 2026-09-29 (CLAUDE). All 85 lessons are live
-           with the full 2,295-track voice matrix. The last automatable gaps
-           are now closed: all 85 lessons play on the live nightly Pages site
-           at a 390x844 phone viewport, and the walkthrough audit, re-run
-           against the live catalog, shows 0 unpublished and 0 pending.
-           Waiting on the maintainer: the release merge to main and the
-           catalog-order, listening and native-speaker reviews. See
-           "2026-09-29 (later) — CLAUDE: STATUS" at the end.
+Status:    COMPLETE — 2026-10-01 release closure verified against current main.
+           All 85 published lessons pass current-main mobile playback; exact
+           published catalogs/media and release-merge ancestry are verified.
+           Historical maintainer reviews/waiver are recorded below. Newer
+           private N601/N610 media remains separately tracked and unpublished.
 Requested: 2026-09-02 — "the tutorials for all of the core moduals need to be
            redone. there is now live data for all core moduals that should be
            used in the tutorials, there are also several buttons that have been
@@ -2808,3 +2805,33 @@ main, "Release 1.5.1.1"), which the maintainer's session will open.
 phone ok"; the native-speaker review is waived. Every review item is closed.
 The only remaining step is the release PR (nightly -> main, "Release
 1.5.1.1"), which the maintainer's session opens once CI is green.
+
+2026-10-01 — original release accepted on current main (Codex AI verification)
+Main 5ca135c54ef66fa881ad101ae22263cc537b4d73 descends from the PR135 release
+merge 2429976f07475fa54908f6cb119cd979dfa81dbe and published tutorial commit
+648b87bb590df52ff329e848e344cca067ce3105. Main and nightly English catalogs
+are byte-identical (05cbf8cbc475c7c318a8edcc56b355c751e1e2b5a395bf8fd6beef68e8059b5c).
+The current main player pins media revision 6d8def47e0240627cfe9b655d8d73e6b2403273d.
+Fresh full-byte readback verifies 14 catalogs, five player assets, and all six
+current Core lessons' web videos, English narration and timing sidecars.
+The same immutable release has the retained historical 4,760-file full readback.
+
+All 85 current-main lessons pass headless touch/mobile playback at 390x844:
+pinned hosted media, narration hashes, real advancing playback, chapter seek
+within the existing 0.5-second sync tolerance, visible video and no sideways
+scroll. The existing headless explicit-play fallback is reported honestly;
+the earlier maintainer physical-phone approval is not a new test here.
+Fourteen existing release/route checks pass, including the actual JavaScript
+route case via installed embedded Node, plus six new tap-budget checks.
+The optional 3-second synthetic-tap attempt avoids repeated known headless
+waits; default tap/playback/seek bounds and acceptance gates remain unchanged.
+Static verification now derives its source cache key and positive scene count
+(1,106) from exact hash-matched published source rather than stale constants.
+
+The Sept30 maintainer order/listening/phone approvals and native-speaker waiver
+remain their historical attribution. This run is AI technical verification,
+not new listening or native-speaker signoff. The final release-merge blocker
+is satisfied. The newer N601 14-scene private Home stage and N610 refreshed
+Suggest captures are not claimed as part of this published release.
+Receipt: features/data/358_main_release_acceptance_2026-10-01.json.
+Full mobile evidence: tools/tutorials/evidence/2026-10-01-main-mobile-playback.json.

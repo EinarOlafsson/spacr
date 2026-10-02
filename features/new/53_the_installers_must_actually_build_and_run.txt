@@ -624,3 +624,85 @@ snapshot has no DMG. Protected macOS flows, other update families and the
 remaining installer/backend/account/report-consent gates still remain open.
 Whole53 staysOPEN; no version promotion is claimed. Receipt:
 features/data/53_frozen_readiness_handshake_2026-09-28.json.
+
+STATUS 2026-09-30 — Debian frozen replace/rollback/interruption + GUI restart
+The frozen Linux family updates through dpkg; the in-app helper refuses it.
+tools/accept_frozen_debian_update.py drove real dpkg transactions (fakeroot
+dpkg --root, private database, --force-depends) on the unchanged CI packages
+1.5.1.0 (run36372926331) and 1.5.1.1 (run36419911083), Ubuntu 22.04 host, CPU.
+All scenarios passed: install, upgrade, downgrade rollback and two SIGKILLs
+mid-unpack (~250 .dpkg-new files; dpkg then reports reinstreq half-installed)
+followed by forward repair and by rollback. Every end state equals its
+package payload exactly (10979 files; the 7 old-only imageio-2.37.4 files are
+removed); 104 private profile files survived the upgrade unchanged. The
+installed frozen helper refused a frozen linux-deb run-plan (exit 2, bundle
+byte-identical). The frozen GUI (native xcb on a private scratch Xvfb) ran the
+real Measure Run on 1.5.1.0, after the upgrade and after the interrupted
+repair: complete/1/0, 16 cells, independent read-only recount 16, integrity ok.
+Driver checks: tests/test_frozen_debian_update_acceptance.py, 3 passed.
+Limits: private root, so /usr/bin/spacr and dependency resolution are not
+exercised; apt/dpkg as root on a clean machine was accepted on 2026-09-28.
+Receipt: features/data/53_frozen_debian_replacement_2026-09-30.json.
+
+WINDOWS PREDICTION (static, unconfirmed): the CI portable zips differ by the
+same 7 old-only files. NSIS `File /r` over an existing InstallDir deletes
+nothing and the 1.5.1.1 uninstaller lists only its own files, so an in-place
+upgrade should leave imageio-2.37.4.dist-info beside 2.38.0 and survive
+uninstall. Maintainer steps (Windows 11/2022, admin, no other spaCR):
+  1. From run36372926331/run36419911083 artifact legacy-build-windows, check
+     dist hashes against acceptance/SHA256SUMS (strip CR first).
+  2. spaCR-1.5.1.0-setup.exe /S ; launch spaCR, open Measure, run one field.
+  3. spaCR-1.5.1.1-setup.exe /S (same default folder). Record
+     dir "%ProgramFiles%\spaCR\_internal\imageio-*.dist-info" and the About
+     version; relaunch, run Measure again (restart after update).
+  4. Interruption: start 1.5.1.1-setup.exe /S over 1.5.1.0, and after ~10 s
+     `taskkill /F /T /IM spaCR-1.5.1.1-setup.exe`; try launching; rerun the
+     installer; record whether launch and Measure recover.
+  5. Rollback: run 1.5.1.0-setup.exe /S over 1.5.1.1; record version + stray
+     files; then "%ProgramFiles%\spaCR\Uninstall.exe" /S and list what remains.
+  If step 3 shows two imageio dist-info folders, the fix is an uninstall of
+  the previous $INSTDIR (or RMDir /r of _internal) before File /r.
+
+macOS maintainer steps (macOS 14+, local admin account, not CI):
+  A. User-writable replacement: copy spaCR 1.5.1.0.app from its DMG to
+     ~/Applications; launch; use the in-app Help update action for 1.5.1.1 once a
+     published DMG exists (public 1.5.1.0 assets had none). Expect ready
+     handshake, quit approval, exchange, relaunch; then open Measure and run
+     one field; confirm ~/Applications/.spacr-update-*/ keeps the old bundle.
+  B. Interruption: repeat A and `kill -9` the copied spacr-update-helper after
+     the journal shows "prepared"; then run `spacr-update-helper
+     recover-macos-frozen <transaction>`; expect rolled-back and a launchable
+     1.5.1.0.
+  C. Protected /Applications (root:admin, a standard non-admin user and an
+     admin user, and on a disposable VM one parent ACL `sudo chmod +a "staff allow add_subdirectory" /Applications`): expect
+     the authorization prompt for admin, refusal without change for standard
+     user, exit 71 for the ACL parent; record journals and codes 70-78.
+Still OPEN: Windows and macOS frozen replacement/interruption/restart, the
+protected macOS flows, backend/account/report-consent tails. No promotion.
+
+2026-10-02 — WINDOWS FROZEN RUNTIME REPLACEMENT GUARD (PARTIAL)
+The NSIS install section now removes only the previous bundled `_internal`
+runtime before copying the new onedir payload. It first moves the installer
+working directory to TEMP; NSIS cannot remove its current working directory.
+If the old runtime remains (for example because spaCR is still running), it
+aborts before copying instead of producing a mixed old/new dependency tree.
+Other files in INSTDIR and the user's separate profile remain untouched.
+This addresses the specific stale imageio-2.37.4 prediction above in the
+installer source; it does not yet claim a real Windows replacement run.
+The template-order/refusal check and 79 companion native packaging/update
+checks passed locally (82 passed, three unrelated optional/release skips).
+NSIS's documented RMDir and IfFileExists behavior was checked against
+https://nsis.sourceforge.io/Docs/Chapter4.html and
+https://nsis.sourceforge.io/Reference/IfFileExists. The whole item stays OPEN
+until actual platform upgrade/restart and the other tails above pass.
+
+`tools/accept_frozen_windows_upgrade.ps1` is a prepared native acceptance
+driver for checksum-verified 1.5.1.0 and 1.5.1.1 build artifacts on a clean
+Windows runner. It installs and launches Measure before and after an in-place
+replacement, checks that obsolete imageio disappears, and verifies that an
+unrelated file and the prior analysis database survive replacement. The
+driver keeps JSON and smoke receipts; it has not been run on Windows yet.
+The local packaging cohort passes 82 checks with three known skips.
+An attempted workflow update was rejected by GitHub because the current
+OAuth credential lacks the `workflow` scope; no workflow file was pushed.
+The already-dispatched native build on a327123b1 remains separate.

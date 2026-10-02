@@ -1,10 +1,10 @@
 {
   "lesson": "43_illumination",
-  "english_sha256": "733c89c9161df491db3c40feedfcdde7908b25a629f43da184fe9e8f6ff66d99",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -15,7 +15,7 @@
   "objectives": [
     "Selezionare campi rappresentativi e canali di intensità.",
     "Stimare ed esaminare un modello di illuminazione.",
-    "Riusare il modello in Mask o Measure."
+    "Applicare il modello salvato in Measure."
   ],
   "prerequisite": "Usa una cartella di immagini unite con campi rappresentativi di ogni gruppo di acquisizione. L’esempio usa i sedici campi dell’esempio di piastra scaricato in Measure. Sappi quali piani salvati contengono intensità e quali etichette.",
   "scenes": [
@@ -31,6 +31,7 @@
     "Apri il PNG di controllo qualità dell’illuminazione salvato nella cartella illumination. Usa un visualizzatore di immagini se non compare nel pannello Figures.",
     "Esamina il campo di illuminazione stimato: deve mostrare una variazione graduale della luminosità, senza strutture indesiderate a forma di cellula. La correzione sottrae lo scostamento del buio e divide per questo campo a media uno.",
     "Confronta i profili radiali prima e dopo. Usa campi aggiuntivi per valutare quanto funziona la correzione oltre le immagini usate per stimarla.",
-    "Per riusare il modello, imposta il suo percorso e attiva la correzione nel flusso di Mask o Measure previsto. Conserva con esso canali, identità delle piastre e impostazioni, ed evita di correggere due volte le stesse intensità."
+    "Conserva il modello salvato con i suoi canali, le identità delle piastre e le impostazioni. Applicalo una sola volta a un insieme di intensità; correggere due volte le stesse intensità le distorce.",
+    "Per applicare il modello, apri Measure e cerca illumination nelle impostazioni. In Image Preprocessing attiva Illumination correction e imposta Illumination model sul file salvato. Measure divide quindi i canali modellati per il campo prima di misurare; le maschere non cambiano."
   ]
 }

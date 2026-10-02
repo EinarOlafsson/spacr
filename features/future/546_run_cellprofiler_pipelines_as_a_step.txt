@@ -66,11 +66,84 @@ WHAT IS LEFT
     - The Model Zoo row says the backend needs a Python 3.8 or 3.9 on
       PATH; spaCR does not provision one. Most machines will need one
       (conda or uv) before Install works.
-    - The example pipeline ships only as a test fixture; no GUI button
-      writes it out for users yet.
     - Centre matching misses a concave object whose centre is off its own
       mask; such rows keep an empty prcfo. Overlap matching would need the
       pipeline's label images back from the worker.
     - Maintainer: optional runtime needs (all inside the backend env, none
       in setup.py): network access to PyPI and api.adoptium.net during
       install; about 1.5 GB of disk.
+
+2026-10-01 — OUT-OF-IMAGE CENTRES REMAIN UNMATCHED
+Commit 39e46bcd4 fixes the private centre lookup: coordinates outside image
+bounds are rejected before rounding rather than clamped onto an unrelated
+edge object. Negative subpixel values, exact width/height and farther-out
+values keep empty object_label/prcfo; valid in-frame nearest-pixel rounding
+and all original rows/features remain unchanged. Named and inferred mask
+roles are covered. Seven focused checks passed under a 1 GiB memory cap,
+zero swap and numerical threads limited to one (no OS CPU quota). No model
+installation, GPU or current real-backend acceptance was claimed. Public
+API/docstrings and captions are unchanged. Broader alpha limitations above
+remain open.
+
+2026-10-01 — EXPORT THE BUNDLED EXAMPLE FROM MEASURE
+The alpha CellProfiler pipeline field now offers "Export example CellProfiler
+pipeline…". The installed resource is byte-identical to the previously verified
+test fixture and included in wheels and source distributions. Its tooltip names
+the two required channels (_ch0.tif DNA, _ch1.tif Actin), the nucleus/cell mask
+inputs, and the need to adapt the pipeline to the user's images and masks.
+The save dialog permits choosing a destination and confirming an overwrite.
+QSaveFile commits atomically with direct-write fallback disabled; cancellation,
+resource/read errors, destination errors, short writes and failed commits leave
+the prior pipeline setting and existing destination intact. Only a successful
+save updates the actual setting collected for Measure. Export does not install
+or run CellProfiler.
+Validation: 12 focused Qt tests passed under 1 GiB, one actual CPU and zero swap,
+covering the real settings path, exact packaged bytes, successful atomic
+replacement, cancellation, failure cases and the existing alpha visibility
+gate. No new real-backend or biological acceptance is claimed; the remaining
+Python provisioning and concave-object matching limitations above stay open.
+
+2026-10-01 — EXAMPLE EXPORT HELP IN ALL NINE LANGUAGES
+All five new captions/tooltips have independently technically reviewed,
+source-bound translations. The normal catalog builder and four inventory,
+hash and placeholder checks pass. The workflow paragraph is translated and
+renders in every strict guide site. See
+features/data/546_example_export_i18n_2026-10-01.json.
+
+2026-10-01 — COMPATIBLE PYTHON AND PIXEL-OVERLAP MATCHING (partial item)
+The explicit Install action can now provision a private Python 3.9 through
+bundled or PATH uv when no compatible 3.8/3.9 is installed. Failed or
+cancelled preflight leaves any existing backend environment intact. The
+worker captures final CellProfiler object-label planes and matches each
+object by pixel overlap with spaCR labels. Invalid, cropped and ambiguous
+objects stay unmatched; centre matching remains a fallback only when no
+plane was captured. The capture is bounded to 64 planes/256 MiB per image
+set and 16 million pixels per plane.
+
+The new installer caption and description have source-bound translations in
+all nine locales, with the retired description removed. Normal catalogue
+generation and the full runtime audit passed. The combined relevant suite
+passed 66 tests under a 4 GiB no-swap, single-core scope. The actual uv
+provisioning and a concave object in a real CellProfiler run still need
+acceptance; no completed CellProfiler install is claimed here. See
+features/data/546_python_provision_and_overlap_2026-10-01.json.
+
+2026-10-01 — REAL BACKEND AND CONCAVE-OBJECT ACCEPTANCE (alpha item complete)
+A scratch, headless CellProfiler 4.2.8.1 environment ran the bundled example
+pipeline on hollow nucleus and cell rings. Both CellProfiler centres landed
+on background, while captured label planes correctly matched the database
+rows to spaCR object ids 17 and 31. The worker self-test, pipeline,
+per-object features and SQLite join all passed under 4 GiB, one CPU and zero
+swap. The isolated environment stayed inside a 1.5 GiB hard scratch limit.
+
+The uv provisioning helper also created a private Python 3.9.25 in a 1 GiB
+scope. This environment's default Astral mirror returned HTTP 403, so that
+test supplied the same official Python-build-standalone asset through a
+scratch mirror; it verifies the helper and interpreter, not availability of
+the default mirror from every lab. The real CellProfiler run reused an
+existing Java 11 and cached javabridge wheel, so a fresh JDK download was
+not separately exercised. The 2026-09-27 example already passed through
+the normal backend installer and now the centre-outside-mask gap is closed
+with real pixel-overlap evidence. This meets the stated DONE WHEN for the
+alpha feature; the external network/JDK paths remain operational limits.
+See features/data/546_real_backend_acceptance_2026-10-01.json.

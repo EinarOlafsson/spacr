@@ -2,7 +2,11 @@
 FOUND, CONFIRMED, DELIBERATELY LEFT
 ================================================================================
 
-Status: REOPENED 2026-09-27 — the real Lineage-to-Annotate crop handoff
+Status: COMPLETE — 2026-10-01. The two Sept27 reopened repairs are now
+        published in lessons56/73 on main; source-current public return and
+        summary contracts are verified. See the final dated acceptance note.
+
+Historical status: REOPENED 2026-09-27 — the real Lineage-to-Annotate crop handoff
         substituted unrelated cells for missing typed children. The bounded
         resolver repair now passes 57 focused tests and the original real-data
         query; lesson 56's historical warning and recapture remain pending.
@@ -764,3 +768,30 @@ This repair does not change inference or claim a new lesson 73 acceptance.
 Root-owned genuine recapture and independent saved-output verification are
 next. Public return/summary contracts require the coordinated API refresh.
 The running item 47 frozen serial scope is unchanged and is not closed here.
+
+2026-10-01 — reopened crop/count repairs complete (Codex AI technical review)
+The remaining genuine lesson56 and lesson73 recaptures were published in the
+Sept29 rerecording batch, retained on current immutable media revision
+6d8def47e0240627cfe9b655d8d73e6b2403273d and now served by main after PR135.
+Fresh full-byte readback of both web videos, English narration and timing
+sidecars matches the release manifest. Published lesson56 explicitly shows
+only the matching parent-cell crop and reports two unavailable child crops;
+lesson73 explicitly distinguishes fitted rows and unique wells separately
+for guide/gene fits and calls these sample support, not inference quality.
+Both lessons pass the new full 85-lesson current-main mobile run with exact
+narration hashes, advancing playback and the existing chapter-seek sync gate.
+
+The coordinated public contract refresh is also met: main's served English
+records for perform_regression, build_run_summary, write_run_summary and
+design_summary exactly equal current AST docstrings. They describe prepared
+model_data separately from coefficient results, measured per-level fit_designs,
+saved reopening and missing-count handling. All nine local translated API
+catalogs bind those same English source hashes. No new API prose or generator
+run was needed for these already-current contracts.
+
+The original implementation and independent saved-output/geometry receipts
+remain unchanged, including historical failed attempts; this is closure of
+their remaining published-media/API gates, not a claim to have rerun all
+historical product tests. Broader API/i18n work and item47 serial acceptance
+remain separately tracked. No new human listening or native-language signoff
+is claimed. Receipt: features/data/07_published_repairs_acceptance_2026-10-01.json.

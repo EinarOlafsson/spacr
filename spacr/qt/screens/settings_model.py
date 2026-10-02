@@ -507,12 +507,17 @@ def object_of_setting(key: str) -> Optional[str]:
     :param key: setting key; an organelle-slot prefix, or a
         ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object.
     """
-    from ...organelle_types import organelle_role_of
+    from ...organelle_types import _background_switch_role, organelle_role_of
 
     text = str(key)
     role = organelle_role_of(text)
     if role is not None:
         return role
+    # ``remove_background_organelle_7`` is slot 7's switch (item 76,
+    # 2026-09-30); its last token is a number, not a slot prefix.
+    switch = _background_switch_role(text)
+    if switch is not None:
+        return switch
     tail = organelle_role_of(text.rpartition("_")[2])
     if tail is not None and text.startswith("remove_background_"):
         return tail
@@ -1207,7 +1212,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
-            "illumination_vendor_profile",
+            "illumination_vendor_profile", "illumination_vendor_channel_map",
         )),
         ("Self-Supervised Denoising α",
          ("@Self-Supervised Denoising α",)),
@@ -1268,7 +1273,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark",
             "illumination_per_plate", "illumination_max_fields",
             "illumination_qc", "illumination_on_missing",
-            "illumination_vendor_profile",
+            "illumination_vendor_profile", "illumination_vendor_channel_map",
         )),
         ("Image Enhancement", ("@Image Enhancement",)),
         ("Intensity Calibration α", ("@Intensity Calibration α",)),
@@ -1291,6 +1296,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("CellProfiler α", ("@CellProfiler α",)),
         ("GPU Measurement α", ("@GPU Measurement α",)),
         ("Time To Event α", ("@Time To Event α",)),
+        ("Lineage Trees α", (
+            "timelapse_lineage", "timelapse_lineage_color_by",
+            "timelapse_lineage_max_distance",
+        )),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -1343,7 +1352,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_dark", "illumination_per_plate",
             "illumination_max_fields", "illumination_qc",
             "illumination_on_missing",
-            "illumination_vendor_profile",
+            "illumination_vendor_profile", "illumination_vendor_channel_map",
         )),
         ("Self-Supervised Denoising α",
          ("@Self-Supervised Denoising α",)),
@@ -1648,7 +1657,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Channels", ("src", "channels")),
         ("Correction Model", (
             "illumination_correction", "illumination_model",
-            "illumination_vendor_profile",
+            "illumination_vendor_profile", "illumination_vendor_channel_map",
             "illumination_estimator", "illumination_degree",
             "illumination_dark",
         )),
@@ -6917,6 +6926,82 @@ def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
     return action
 
 
+def _write_cellprofiler_example(path: str) -> None:
+    """Atomically copy the bundled pipeline without falling back to direct writes.
+
+    :param path: selected destination filename.
+    :returns: None after the complete resource has been committed.
+    :raises OSError: the resource or destination cannot be read or written.
+    """
+    from importlib.resources import files
+    from PySide6.QtCore import QIODevice, QSaveFile
+
+    data = files("spacr").joinpath(
+        "resources", "data", "cellprofiler_example.cppipe").read_bytes()
+    destination = QSaveFile(path)
+    destination.setDirectWriteFallback(False)
+    committed = False
+    try:
+        if not destination.open(QIODevice.WriteOnly):
+            raise OSError(destination.errorString())
+        if destination.write(data) != len(data):
+            raise OSError(destination.errorString())
+        if not destination.commit():
+            raise OSError(destination.errorString())
+        committed = True
+    finally:
+        if not committed:
+            destination.cancelWriting()
+
+
+def _export_cellprofiler_example(edit: QLineEdit) -> bool:
+    """Offer a save location and change the pipeline setting only after success.
+
+    :param edit: pipeline setting whose text receives the saved filename.
+    :returns: True after a successful save, False after cancellation or failure.
+    """
+    from PySide6.QtWidgets import QFileDialog, QMessageBox
+    from ..i18n import tr
+
+    path, _ = QFileDialog.getSaveFileName(
+        edit, tr("Export example CellProfiler pipeline…"),
+        "cellprofiler_example.cppipe", tr("CellProfiler pipelines (*.cppipe)"))
+    if not path:
+        return False
+    try:
+        _write_cellprofiler_example(path)
+    except Exception as error:
+        QMessageBox.warning(
+            edit, tr("Could not export pipeline"),
+            tr("The example pipeline could not be saved: {error}").format(error=error))
+        return False
+    edit.setText(path)
+    edit.editingFinished.emit()
+    return True
+
+
+def _add_cellprofiler_example_action(edit: QLineEdit) -> Any:
+    """Attach the bundled example export to Measure's existing alpha field.
+
+    :param edit: the existing pipeline filename editor.
+    :returns: the trailing export action, owned by the editor.
+    """
+    from PySide6.QtWidgets import QStyle
+    from ..i18n import tr
+
+    action = edit.addAction(edit.style().standardIcon(QStyle.SP_DialogSaveButton),
+                            QLineEdit.TrailingPosition)
+    action.setObjectName("CellProfilerExampleExport")
+    action.setText(tr("Export example CellProfiler pipeline…"))
+    action.setToolTip(tr(
+        "Export an example pipeline for two channels: _ch0.tif (DNA) and "
+        "_ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and "
+        "_cell_mask.tif (Cells). Adapt the pipeline to your images and masks "
+        "before running Measure."))
+    action.triggered.connect(lambda: _export_cellprofiler_example(edit))
+    return action
+
+
 class _CsvColumnField(QWidget):
     """A column-name box with a CSV button that offers the columns that exist.
 
@@ -7349,15 +7434,16 @@ class _RegressionBackendField(QWidget):
             position = event.pos()
         index = view.indexAt(position)
         if not index.isValid():
+            AvailabilityPanel.instance().start_hide()
             return
         statuses = self.availability_entries()
         if index.row() >= len(statuses):
+            AvailabilityPanel.instance().start_hide()
             return
         entry = statuses[index.row()]
         if entry['enabled']:
             panel = AvailabilityPanel.instance()
-            if panel.isVisible():
-                panel.start_hide()
+            panel.start_hide()
             return
         rect = view.visualRect(index)
         top_left = view.viewport().mapToGlobal(rect.topLeft())
@@ -8294,6 +8380,8 @@ class _ListEditor(QWidget):
     special case beyond knowing the class.
     """
 
+    _committed = Signal()
+
     def __init__(self, key: str = "", default: Any = None,
                  nested_capable: bool = False, allow_none: bool = False,
                  element_type: Any = None, container: Any = list, parent=None):
@@ -8417,6 +8505,7 @@ class _ListEditor(QWidget):
         else:
             self._add_strip(list(value))
         self._refresh_footer()
+        self._committed.emit()
 
     def _add_strip(self, values) -> _ChipStrip:
         """Append one chip strip and wire it back to this editor."""
@@ -8426,6 +8515,7 @@ class _ListEditor(QWidget):
         self._rows.addWidget(strip)
         self._strips.append(strip)
         strip.set_values(values)
+        strip.changed.connect(self._committed)
         return strip
 
     def _drop_strip(self, strip) -> None:
@@ -8443,6 +8533,7 @@ class _ListEditor(QWidget):
         strip.setParent(None)
         strip.deleteLater()
         self._refresh_footer()
+        self._committed.emit()
 
     def _on_footer(self) -> None:
         """Add a group when grouped, or a value when flat."""
@@ -8772,6 +8863,7 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
             self._order.pop(key, None)
             return
         self._built[key] = widget
+        self._model._watch_setting_commit(key, widget)
 
     def __getitem__(self, key):
         """Build a pending setting on first access and return its editor."""
@@ -8783,6 +8875,7 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
         """Replace a pending or built editor while retaining its position in the key order."""
         self._to_come.pop(key, None)
         self._built[key] = widget
+        self._model._watch_setting_commit(key, widget)
         self._order[key] = None
 
     def __delitem__(self, key) -> None:
@@ -8827,6 +8920,30 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
         """Describe the built and pending editor counts without forcing lazy construction."""
         return (f"<controls: {len(self._built)} built, "
                 f"{len(self._to_come)} to come>")
+
+
+class _SpinCommitInput(QObject):
+    """Distinguish typed numeric drafts from completed arrow/wheel changes."""
+
+    def __init__(self, widget):
+        super().__init__(widget)
+        self._widget = widget
+        widget.installEventFilter(self)
+        widget.lineEdit().installEventFilter(self)
+
+    def eventFilter(self, watched, event):  # noqa: N802 - Qt override
+        """Remember input kind before Qt emits synchronous valueChanged."""
+        kind = event.type()
+        if kind == QEvent.KeyPress:
+            self._widget._spacr_numeric_draft = event.key() not in (
+                Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown,
+                Qt.Key_Return, Qt.Key_Enter, Qt.Key_Tab, Qt.Key_Backtab)
+        elif kind == QEvent.InputMethod:
+            self._widget._spacr_numeric_draft = True
+        elif kind in (QEvent.KeyRelease, QEvent.MouseButtonPress,
+                      QEvent.Wheel, QEvent.FocusOut):
+            self._widget._spacr_numeric_draft = False
+        return False
 
 
 class SettingsWidgets:
@@ -9193,6 +9310,7 @@ class SettingsWidgets:
                     if owner is not None:
                         widget.setParent(owner)
                     self._add_source_actions(key, widget)
+                    self._add_calibration_preview_action(key, widget)
                     attach_api_tooltip(widget, self.app_key, key,
                                        _descriptions=self._tooltips)
                     self._widgets.settle(key, widget)
@@ -9686,11 +9804,19 @@ class SettingsWidgets:
             self._add_source_actions(key, widget)
         else:
             return None
+        self._add_calibration_preview_action(key, widget)
         owner = getattr(self, "_unmounted_control_owner", self._parent)
         if (widget is not None and owner is not None
                 and widget.parent() in (None, self._parent)):
             widget.setParent(owner)
         return widget
+
+    def _add_calibration_preview_action(self, key, widget):
+        """Keep the read-only preview inside the existing alpha-gated row."""
+        if self.app_key != "measure" or key != "intensity_calibration_wells":
+            return
+        from ..widgets.calibration_preview import _attach_preview
+        _attach_preview(widget, self)
 
     def _add_source_actions(self, key: str, widget: QWidget) -> None:
         """Give the ``src`` field of Make Masks and Measure a cloud browser.
@@ -9701,6 +9827,9 @@ class SettingsWidgets:
         if (key == "src" and self.app_key in ("mask", "measure")
                 and isinstance(widget, QLineEdit)):
             _add_cloud_browse_action(widget, self)
+        if (key == "cellprofiler_pipeline" and self.app_key == "measure"
+                and isinstance(widget, QLineEdit)):
+            _add_cellprofiler_example_action(widget)
 
     @staticmethod
     def _build_plain(plan) -> QWidget:
@@ -9895,6 +10024,9 @@ class SettingsWidgets:
                 parent=parent,
             )
         actual_default = self._defaults.get(key, default)
+        if key == "colony_dilution":
+            # A numeric default must still allow a per-plate dict or CSV path.
+            return "plain", {"control": "text", "value": actual_default}
         if key == "timelapse_objects" or (
             key in CHANNEL_LIST_KEYS
             and list_shape_for(key, actual_default) is not None
@@ -10065,6 +10197,99 @@ class SettingsWidgets:
             return _value_a_plain_control_holds(plan)
         return None
 
+    def _enable_commit_observation(self, callback):
+        """Watch existing and future controls without constructing hidden rows."""
+        self._commit_observer = callback
+        for key, widget in self._built_controls():
+            self._watch_setting_commit(key, widget)
+
+    def _watch_setting_commit(self, key, widget):
+        """Connect settled-value signals, including editors created on demand."""
+        if not callable(getattr(self, "_commit_observer", None)):
+            return
+        if getattr(widget, "_spacr_commit_model", None) is self:
+            return
+        widget._spacr_commit_model = self
+        callback = partial(self._setting_committed, key)
+        if isinstance(widget, QLineEdit):
+            widget.editingFinished.connect(callback)
+        elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+            widget._spacr_commit_input = _SpinCommitInput(widget)
+            widget.editingFinished.connect(callback)
+            widget.valueChanged.connect(partial(self._discrete_setting_changed,
+                                                key, widget))
+        elif isinstance(widget, QComboBox):
+            widget.currentIndexChanged.connect(partial(
+                self._discrete_setting_changed, key, widget))
+            if widget.isEditable():
+                widget.lineEdit().editingFinished.connect(callback)
+        elif isinstance(widget, (_ListEditor, RowExclusionEditor)):
+            widget._committed.connect(callback)
+        else:
+            # Composite fields may emit value_changed on each typed character.
+            # Their focused text editors commit on editingFinished instead.
+            for edit in widget.findChildren(QLineEdit):
+                edit.editingFinished.connect(callback)
+            for name in ("value_changed", "valueChanged", "changed", "toggled"):
+                signal = getattr(widget, name, None)
+                if signal is not None:
+                    signal.connect(partial(self._discrete_setting_changed,
+                                           key, widget))
+                    break
+
+    def _discrete_setting_changed(self, key, widget, *_args):
+        """Observe choices immediately, leaving typed drafts until commit."""
+        if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+            if getattr(widget, "_spacr_numeric_draft", False):
+                return
+        elif any(edit.hasFocus() and edit.isModified()
+                 for edit in widget.findChildren(QLineEdit)):
+            return
+        self._setting_committed(key)
+
+    def _setting_committed(self, key, *_args):
+        """Publish one completed edit outside construction and bulk loading."""
+        if (getattr(self, "_applying_settings", False)
+                or getattr(self, "_applying_organelle_preset", False)
+                or self._controls_arriving):
+            return
+        callback = getattr(self, "_commit_observer", None)
+        if callable(callback):
+            callback(key)
+
+    def _valid_committed_value(self, key):
+        """Read one locally valid value; refuse incomplete text without editing it."""
+        from ...validate import ERROR, _check_numeric_sanity, _check_types
+
+        widget = self._built_control(key)
+        edits = ([widget] if isinstance(widget, QLineEdit) else
+                 widget.findChildren(QLineEdit) if widget is not None else [])
+        if any(not edit.hasAcceptableInput() for edit in edits):
+            raise ValueError("Incomplete setting input")
+        value = (self._canonical(key, self._coerce_to_expected_type(
+            key, self._read_value(key))) if key in self._widgets else
+            self._defaults.get(key))
+        if isinstance(widget, BarcodeRegexWidget) and value:
+            from ..widgets.barcode_regex import evaluate_barcode_regex
+            if not evaluate_barcode_regex(value).valid:
+                raise ValueError("Invalid barcode expression")
+        problems = (_check_types({key: value}, self.app_key)
+                    + _check_numeric_sanity({key: value}))
+        if any(problem.severity == ERROR for problem in problems):
+            raise ValueError("Invalid setting input")
+        if isinstance(widget, _ListEditor) and any(
+                strip._entry.text().strip() for strip in widget._strips):
+            raise ValueError("Uncommitted list input")
+        if isinstance(widget, _ListEditor) and widget._element_type in (int, float):
+            pending = list(value or [])
+            while pending:
+                item = pending.pop()
+                if isinstance(item, (list, tuple)):
+                    pending.extend(item)
+                elif not isinstance(item, widget._element_type):
+                    raise ValueError("Invalid numeric list item")
+        return value
+
     def collect(self) -> Dict[str, Any]:
         """Read all widgets and return the current settings dict.
 
@@ -10190,6 +10415,7 @@ class SettingsWidgets:
             self._refresh_analysis_unit_lock()
         if key == "mask_parallel":
             self._refresh_mask_gpu_enablement()
+        self._setting_committed(key)
         return True
 
     def set_hidden_value(self, key: str, value: Any) -> bool:
@@ -10221,6 +10447,7 @@ class SettingsWidgets:
                     or key not in expected_types):
                 return False
         self._defaults[key] = self._coerce_to_expected_type(key, value)
+        self._setting_committed(key)
         return True
 
     def _on_regression_type_changed(self, *_args) -> None:

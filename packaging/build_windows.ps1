@@ -66,6 +66,12 @@ Page instfiles
 UninstPage instfiles
 Section
   SetShellVarContext all
+  ; A previous onedir install can contain dependencies removed from this build.
+  ; Replace only its bundled runtime; leave files outside _internal alone.
+  SetOutPath "$TEMP"
+  RMDir /r "$INSTDIR\_internal"
+  IfFileExists "$INSTDIR\_internal" 0 +2
+    Abort "The previous spaCR runtime is still in use. Close spaCR and retry."
   SetOutPath "$INSTDIR"
   File /r "@SOURCE@\*"
   WriteUninstaller "$INSTDIR\Uninstall.exe"

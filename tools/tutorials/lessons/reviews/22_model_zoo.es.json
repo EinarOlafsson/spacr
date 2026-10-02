@@ -1,30 +1,37 @@
 {
   "lesson": "22_model_zoo",
-  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "english_sha256": "87954acf7425ca91badbab0643a90a8aac3a886ea492cc22f0466884dd4fbbab",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "es",
   "title": "Model Zoo: elegir un modelo y probarlo con tus imágenes",
-  "description": "Abre Model Zoo, encuentra o descarga un punto de control, revisa sus detalles y elige un pequeño conjunto de imágenes para una prueba.",
+  "description": "Abre Model Zoo, encuentra o descarga un punto de control, revisa sus detalles, pruébalo con un pequeño conjunto de imágenes y mide diámetros de objetos para Mask.",
   "objectives": [
     "Abrir Model Zoo y explorar una carpeta local de modelos.",
     "Elegir una familia y una versión de modelo y revisar sus detalles.",
-    "Ejecutar una pequeña prueba con imágenes y revisar las máscaras y los resúmenes de calidad resultantes."
+    "Ejecutar una pequeña prueba con imágenes y revisar las máscaras y los resúmenes de calidad resultantes.",
+    "Medir diámetros de objetos en tus propios campos desde la ventana de Model Zoo de Mask generation."
   ],
   "prerequisite": "Extrae el ejemplo enlazado y usa su carpeta images para la prueba de tres campos. Elige un modelo de segmentación de Cellpose instalado, o descarga un punto de control adecuado desde Model Zoo. Para tu propia prueba, prepara unas pocas imágenes TIFF, PNG, NPY o NPZ representativas.",
   "scenes": [
     "Desde Home, abre Make Masks y luego elige Model Zoo. Usa esta página para encontrar un modelo de segmentación y probarlo con un pequeño conjunto de imágenes.",
-    "Haz clic en Choose folder y selecciona tu directorio de modelos para explorarlo. Si escribes la ruta, haz clic en Scan. Activa los encabezados de origen que quieras recorrer, como Cellpose o los modelos locales.",
+    "Haz clic en Choose folder y selecciona tu directorio de modelos para explorarlo. Si escribes la ruta, haz clic en Scan. Los encabezados sobre la tabla eligen qué orígenes se listan; cellposeSAM, para los pesos de serie, y spaCR, para los modelos entrenados aquí, están activados al principio.",
+    "Activa cellpose3 para listar los modelos de Cellpose 3, como cyto3 y nuclei. Se ejecutan en su propio entorno de Cellpose 3, así que un modelo cuyo backend no está instalado lo indica, y al elegirlo se ofrece la instalación.",
+    "Activa bioimage.io para listar los modelos de Cellpose publicados en bioimage.io. Lee con qué se entrenó cada uno antes de elegirlo; sus pesos se descargan cuando los pides.",
     "Selecciona una familia de modelos y usa su control Version para elegir el punto de control. Lee los detalles sobre el tipo de imagen, la información de entrenamiento y la ruta local. Para un punto de control remoto, elige una carpeta en Save to y haz clic en Download antes de probarlo.",
     "Extrae el ejemplo enlazado y elige su carpeta images en Test on fields. Pon el número de campos en tres. Con tus propias imágenes, empieza con un conjunto pequeño que incluya campos típicos y casos difíciles.",
     "Selecciona el modelo de segmentación local y haz clic en Test on fields. Espera a que termine la prueba. Las imágenes y los modelos más grandes pueden tardar más, sobre todo en una CPU.",
     "Selecciona una fila de resultados para revisar la vista previa de su máscara. Compara con la imagen los bordes, los objetos que se tocan y los objetos no detectados. Usa el recuento de objetos y los avisos de calidad para encontrar campos que requieren una revisión más detallada.",
-    "Revisa los resúmenes de los campos y luego guarda la ruta del punto de control elegido para tu módulo de análisis. Para comparar dos familias de modelos distintas con las mismas imágenes, selecciona ambas filas y elige Compare the two selected. Usa el control de versión para probar otra versión de una misma familia."
+    "Revisa los resúmenes de los campos y luego guarda la ruta del punto de control elegido para tu módulo de análisis. Para comparar dos familias de modelos distintas con las mismas imágenes, selecciona ambas filas y elige Compare the two selected. Usa el control de versión para probar otra versión de una misma familia.",
+    "El mismo catálogo se abre dentro de Mask generation, donde también puede medir tus objetos. Pon Source en tus imágenes y completa los canales de célula, núcleo y patógeno; este ejemplo usa las imágenes sin procesar de la muestra de Measure.",
+    "Cambia a All settings y haz clic en la celda Model name de un objeto en la tabla por objeto. Se abre la ventana de Model Zoo, y el modelo que elijas se escribe en los ajustes de ese objeto.",
+    "Haz clic en Measure diameters, abajo a la izquierda. Cellpose reescala cada imagen según el diámetro que recibe, así que un diámetro medido en tus propios campos es más seguro que una suposición.",
+    "Pulsa Measure from my images. Cada tipo de objeto recibe un diámetro medido con su evidencia y su confianza. Use escribe uno en los ajustes de Mask y Use all los escribe todos; nada cambia hasta que los pulses."
   ]
 }

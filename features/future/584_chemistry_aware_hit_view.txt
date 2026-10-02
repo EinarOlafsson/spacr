@@ -1,11 +1,10 @@
 A CHEMISTRY-AWARE HIT VIEW: SMILES, RDKIT CLUSTERING, SAR TABLES
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27. Control Charts' hit scoring takes a
+Status: DONE AS ALPHA 2026-10-01. Control Charts' hit scoring takes a
 compound table with SMILES, draws the hits' structures grouped by cluster
 (RDKit Morgan fingerprints, Butina), and exports SAR tables linking potency,
-phenotype and host toxicity (item 540). Checked on a synthetic compound
-screen; no real compound screen was on this machine. Hidden with Alpha
-features.
+phenotype and available host toxicity (item 540). Verified on a real CPJUMP1
+compound-screen plate and in the live GUI. Hidden with Alpha features.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -70,3 +69,66 @@ ALPHA_FEATURES[584]['widgets'] in spacr/settings.py. No settings keys. The
 screen test checks they hide with Show alpha features off, return with it
 on, and that a compound table loaded while hidden still reaches the SAR
 export. New tr() captions wait in _AWAITING_CATALOG_REBUILD.
+
+2026-10-01 — VECTOR STRUCTURE EXPORT
+    Control Charts > Export hits now also writes hit_structures.svg beside
+    the existing image and SAR CSV files. Up to the same 24 valid hit
+    compounds appear in cluster/rank order, with vector molecular bonds,
+    cluster-coloured frames and editable compound/potency/toxicity text.
+    The sheet uses a white publication background. Full unshortened names,
+    SMILES and exact values are embedded as JSON metadata; displayed long
+    names wrap/shorten. Writes replace the destination atomically.
+    The existing optional installation extra already provides RDKit:
+    pip install 'spacr[chem]'. The historical request to add an extra is
+    therefore resolved without introducing another alias.
+
+    Six targeted export checks pass on the final implementation using real
+    RDKit 2026.3.6; the unchanged general figure writer is stubbed only in
+    the report integration check to isolate the new SVG export. This writer
+    follows the selected format (including PDF), despite its .png argument. The
+    18 existing engine tests and one alpha-gate check passed on the first
+    candidate. Later combined/actual-export Qt checks reached the 1 GiB
+    memory guard; caps were not increased and those runs are not passes.
+    Final SVG rendering succeeded through Qt SVG with no warnings and was
+    visually inspected: five structures, two cluster colours, clear names
+    and potency/toxicity labels. This is synthetic-screen export acceptance,
+    not real compound-screen scientific acceptance or full Qt acceptance.
+    Receipt: features/data/584_vector_export_2026-10-01.json.
+    Real compound-screen SAR acceptance remains open.
+
+    Independent review caught a three-line long-name overlap with potency;
+    names now occupy at most two lines, covered by an additional regression.
+    All six final checks passed in 3.03 seconds. The memory failures do not
+    establish DPI as their cause; large imports, Qt canvases and three
+    heatmap exports are part of the working set. No cap was increased.
+
+2026-10-01 — REAL COMPOUND-SCREEN ACCEPTANCE; ITEM DONE AS ALPHA
+A pinned public CPJUMP1 BR00117010 augmented profile, its published plate
+map, and JUMP-Target-1 SMILES metadata supplied 384 real wells (64 negative
+controls and 320 sample wells) and 302 named compounds. The profile's
+Cells_Number_Object_Number and Nuclei_AreaShape_Area were passed without
+normalization or fabricated values. The actual threaded Control Charts
+screen loaded the table, scored robust z against the negative controls,
+attached compounds through its picker, clustered hits with RDKit, rendered
+24 molecular structures in light and dark themes, and exported through the
+real Export hits button. Independent calculations matched every robust-z
+score and hit call: 88 hit wells, 77 hit compounds, 74 clusters. The visible
+SAR table intentionally caps at 200 rows; the export contains all 302.
+All four primary CSV exports match the in-memory tables, and the SVG holds
+vector paths/text with no raster image nodes. The two invalid published
+SMILES remain reported/unclustered. Host viability was absent from these
+sources and was not invented; the earlier measured-toxicity synthetic check
+still verifies conditional host-toxicity columns when supplied. Original
+public input bytes remained unchanged. Input URLs, exact hashes, export
+hashes and limits are in features/data/584_real_compound_screen_2026-10-01.json.
+
+The real GUI exposed two display defects: after resize, one-shot tight_layout
+left adjacent molecule tiles overlapping; light-theme labels were too pale.
+The structure renderer now uses constrained layout on draw/resize and the
+resolved figure text colour in screen mode while preserving explicit print
+ink. A resize regression reproduces the old overlap and passes with the
+fix; 25 relevant chemistry/vector checks and the final 3 layout/theme cases
+pass under bounded CPU/memory scopes. Real final light/dark captures were
+visually checked for readable, separated tiles. This meets the feature's
+small real compound-screen DONE WHEN at alpha scope. It is not a claim that
+the source plate measured host toxicity or that clustering validates biology.

@@ -1,13 +1,22 @@
 {
   "lesson": "05_home",
-  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
+    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
+    "date": "2026-10-01",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "new_scene_peer_review": {
+      "indices": [
+        10,
+        11,
+        12
+      ],
+      "reviewer": "Independent Codex AI technical review",
+      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
+    }
   },
   "language": "hi",
   "title": "Home स्क्रीन और नेविगेशन",
@@ -29,6 +38,20 @@
     "किसी मॉड्यूल को आज़माने के लिए, उपलब्ध होने पर Load test data पर क्लिक करें। डाउनलोड पूरा होने तक प्रतीक्षा करें, फिर भरे गए इनपुट और सेटिंग देखें। Mask में Run दबाने से पहले किसी फ़ील्ड को देखने के लिए Live पर क्लिक करें। टाइम सीरीज़ के लिए Time, या वॉल्यूमेट्रिक इमेज के लिए 3D चालू करें।",
     "Help के पास वाले खोज फ़ील्ड में किसी मॉड्यूल, सेटिंग या फ़ंक्शन का नाम लिखें। यहाँ Performance खोजने पर Preferences का मिलता-जुलता पेज मिलता है। किसी परिणाम पर क्लिक करके उसका गंतव्य खोलें। API परिणाम चुने गए फ़ंक्शन का दस्तावेज़ खोलते हैं।",
     "Preferences में अपने कंप्यूटर के लिए कोई Performance प्रोफ़ाइल चुनें। Laptop कम संसाधन इस्तेमाल करता है; ऊँची प्रोफ़ाइल ज़्यादा कैशिंग और पृष्ठभूमि का काम करने देती हैं। अगर मेमोरी सीमित है, तो साधारण प्रोफ़ाइल से शुरू करें। हर मॉड्यूल में आपकी विश्लेषण सेटिंग आपके ही नियंत्रण में रहती हैं।",
+    "इंटरफ़ेस बदलने के लिए Preferences में Appearance खोलें। Theme और Animation इसी पृष्ठ पर खुलने-बंद होने वाले खंड हैं। किसी खंड के शीर्षक पर क्लिक करके उसके नियंत्रण खोलें या फिर बंद करें।",
+    "इंटरफ़ेस थीम और पृष्ठ की अपारदर्शिता चुनने के लिए Theme खोलें। इसी खंड में विंडो की परिधि के नियंत्रण भी हैं, जिनमें उसकी लंबाई, संरेखण और चमक का तरीका शामिल है।",
+    "एनिमेटेड पृष्ठभूमि और उसका रंग-पैलेट चुनने के लिए Animation खोलें। यहाँ विवरण, धुंधलापन, गति, आकार और घनत्व समायोजित करें। आप यह भी चुन सकते हैं कि सेटिंग के टूलटिप एनिमेट हों या नहीं, और सेटिंग की पृष्ठभूमि चुन सकते हैं।",
     "Home पर लौटें और कोई वर्कफ़्लो चुनने के लिए Pipeline overviews पर क्लिक करें। पूल की गई, इमेज पर आधारित स्क्रीन के लिए spaCR screens से शुरू करें, या अपने डेटा के लिए इमेज विश्लेषण या सीक्वेंसिंग का रास्ता चुनें। अगले ट्यूटोरियल दिखाते हैं कि ये मॉड्यूल कैसे जुड़ते हैं, और फिर मॉड्यूल के पाठ हर काम को चरण-दर-चरण समझाते हैं।"
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

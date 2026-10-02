@@ -64,7 +64,8 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
             try:
                 if not isinstance(dialog,QFileDialog):raise ValueError('The actual file dialog did not open')
                 dialog.accepted.connect(lambda:accepted.append(True));dialog.resize(1500,1000)
-                fill(dialog.findChild(QLineEdit,'fileNameEdit'),path);capture(name)
+                dialog.setDirectory(str(Path(path).parent));settle(.4)
+                fill(dialog.findChild(QLineEdit,'fileNameEdit'),Path(path).name);capture(name)
                 box=dialog.findChild(QDialogButtonBox)
                 accept=[b for b in box.buttons() if box.buttonRole(b)==QDialogButtonBox.AcceptRole]
                 if len(accept)!=1:raise ValueError('No unique real file acceptance button')
@@ -74,7 +75,7 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
                 if dialog is not None:dialog.reject()
         watch=QTimer(window);watch.setSingleShot(True)
         watch.timeout.connect(lambda:app.activeModalWidget().reject() if app.activeModalWidget() else None)
-        QTimer.singleShot(300,choose);watch.start(15000);click(button);watch.stop()
+        QTimer.singleShot(300,choose);watch.start(60000);click(button);watch.stop()
         if errors or not accepted:raise ValueError('; '.join(errors) or 'Actual file selection was not accepted')
 
     def snapshot(name,*,desktop=False,**facts):

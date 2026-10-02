@@ -37,9 +37,12 @@ def screen(qtbot):
 
 
 @pytest.fixture
-def chooser(qtbot):
+def chooser(qtbot, monkeypatch):
     d = demo.ImportTestDataChooser()
     qtbot.addWidget(d)
+    # Exercise descriptions/actions here; real hover timing has its own test.
+    monkeypatch.setattr(d._hover_delay, "schedule",
+                        lambda anchor, callback: callback())
     return d
 
 

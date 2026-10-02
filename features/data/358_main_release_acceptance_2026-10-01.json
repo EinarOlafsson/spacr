@@ -1,0 +1,478 @@
+{
+  "item": "N358",
+  "status": "complete",
+  "verified_at_utc": "2026-10-02T01:26:52.642210+00:00",
+  "scope": "Original published 85-lesson release and its current-main acceptance; newer N601 Home and N610 Suggest private media are not represented as published.",
+  "main": {
+    "parents": [
+      "2429976f07475fa54908f6cb119cd979dfa81dbe"
+    ],
+    "sha": "5ca135c54ef66fa881ad101ae22263cc537b4d73",
+    "subject": "Fix Measure Live title underline in main docs"
+  },
+  "release_merge": {
+    "base": "main",
+    "head": "d918328f7a90e7fcd774518496cb50eea730bbea",
+    "html_url": "https://github.com/EinarOlafsson/spacr/pull/135",
+    "merge_commit_sha": "2429976f07475fa54908f6cb119cd979dfa81dbe",
+    "merged": true,
+    "merged_at": "2026-10-01T18:09:50Z"
+  },
+  "ancestry": {
+    "tutorial_publication_commit": "648b87bb590df52ff329e848e344cca067ce3105",
+    "main_commit": "5ca135c54ef66fa881ad101ae22263cc537b4d73",
+    "git_merge_base_is_ancestor_exit": 0
+  },
+  "current_readback": {
+    "accepted": true,
+    "date_utc": "2026-10-02T01:13:48.686807+00:00",
+    "main_url": "https://einarolafsson.github.io/spacr/tutorials/",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d",
+    "catalog_languages": 14,
+    "lessons": 85,
+    "core_lessons": [
+      "07_mask",
+      "08_measure",
+      "09_annotate",
+      "12_map_barcodes",
+      "13_regression",
+      "41_classify"
+    ],
+    "fresh_readback": [
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/",
+        "sha256": "92f7958fd7f4b16a45ea00ac00717ecec3b9864acce1a5c55a56ba9b50047b98",
+        "bytes": 16214,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/main-index.html"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/captions_da.json",
+        "sha256": "30c3b05d21279c063216d6b61256f01dc739152c0b6138a82078ea60e8835c6a",
+        "bytes": 649819,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/captions_da.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/captions_de.json",
+        "sha256": "02d30c29276771d12a158d08ac2fdd0995f83353f81c2737093316c12a4c17a0",
+        "bytes": 693594,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/captions_de.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/captions_is.json",
+        "sha256": "d477c68a14815928254f93c5d2c8e7c86b8011fecdd2824b88a67a833ec47e0b",
+        "bytes": 654240,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/captions_is.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/captions_ko.json",
+        "sha256": "28107a5238a7ffdb8336d6ff7d92015c7a6669ea1aa4a76b0ec3a303116859e1",
+        "bytes": 686650,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/captions_ko.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/captions_nb.json",
+        "sha256": "1fce304303db4d5d9687bc9645c8e81b9a7523a0e571be3b2bbec345343853ff",
+        "bytes": 646271,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/captions_nb.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/captions_sv.json",
+        "sha256": "96c2e3b3264742ff922c1709a30934177d466de627b34a2cd1696e94fca69e38",
+        "bytes": 654370,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/captions_sv.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_en.json",
+        "sha256": "05cbf8cbc475c7c318a8edcc56b355c751e1e2b5a395bf8fd6beef68e8059b5c",
+        "bytes": 628060,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/lessons_en.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_es.json",
+        "sha256": "f1fed0305140a3830d2f5ff4ce61848d5f011e85c9ccfea8ea63aeaebdff3563",
+        "bytes": 1026338,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/lessons_es.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_fr.json",
+        "sha256": "d43caf4f9f38e54bf1861bc147b3bfd8db92ae21e7dbcd06acbc0d784c1d00d7",
+        "bytes": 1066000,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/lessons_fr.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_hi.json",
+        "sha256": "e7c8771311545210a874eb2ffa88bfe028bd38929d413452da368e763213603d",
+        "bytes": 1694490,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/lessons_hi.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_it.json",
+        "sha256": "fbeb8776b88b43f9040a672c47b6dc555b0f8be7db10c4ea620ac6969252c332",
+        "bytes": 1014115,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/lessons_it.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_ja.json",
+        "sha256": "3801776873bcdb7581ccf63c5e9344225a5b82c91ac0bacf48e91a9892f865b6",
+        "bytes": 1132748,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/lessons_ja.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_pt-BR.json",
+        "sha256": "e7c28077587ce790add4a237a9a5bdb4655a2e355927ef1293be0dce78990897",
+        "bytes": 1011192,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/lessons_pt-BR.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_zh-CN.json",
+        "sha256": "36a5507aff4486f4f78809bf3c132f4e8c8b571ca7b9a625623d45d35e2eb302",
+        "bytes": 879509,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/catalog/lessons_zh-CN.json"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/app_v2.js",
+        "sha256": "7c54a1acad25bb735c292267fdf3a35da363060c9a992cdd2690ddc0e6a58ff7",
+        "bytes": 102529,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/app_v2.js",
+        "source_equivalent_sha256": "58a42129a21c2008d9b68ed1c2012942c13403b43965f81d9b92043484d2cae9",
+        "publisher_transform_verified": "existing source_equivalent_assets validates exact manifest/paths then reverses only known helper"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/module_navigation.js",
+        "sha256": "ea4575a05140e464d1e8525c42cc0b2abb7bc8a3222e15d7a49edda86ca1b065",
+        "bytes": 16356,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/module_navigation.js"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/lesson_catalog.js",
+        "sha256": "b4b58d22ec8321b435ee8d6911528d3d71466dc0e16a7c6264a23fa7cb764465",
+        "bytes": 493076,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/lesson_catalog.js"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/voice_catalog.js",
+        "sha256": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4",
+        "bytes": 4947,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/voice_catalog.js"
+      },
+      {
+        "url": "https://einarolafsson.github.io/spacr/tutorials/styles.css",
+        "sha256": "bee7e11147cd09da6627795df1f2fedeca98f80067c0395c8d50e73238926463",
+        "bytes": 35608,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/styles.css"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/07_mask/web/07_mask_silent.mp4",
+        "sha256": "7541435e01295add0f9ea3cf0eabf9538ed800ca125e4e6566257c63589adc36",
+        "bytes": 9040850,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/07_mask/web/07_mask_silent.mp4"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/07_mask/audio/en/af_heart.m4a",
+        "sha256": "29f9f1583b5bacbb9ba7cb178aeef7ce848d3298e1dfede50992c6438c41a6a8",
+        "bytes": 1161853,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/07_mask/audio/en/af_heart.m4a"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/07_mask/audio/en/af_heart.json",
+        "sha256": "0d5c1e0f3b6cdc175110eacf0e12e98d05a7c16e3cc2849629bc82a1ba0221ba",
+        "bytes": 51006,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/07_mask/audio/en/af_heart.json"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/08_measure/web/08_measure_silent.mp4",
+        "sha256": "08d1b25472774bd7b5b67cb063ab30cacf3e5d7eddca72fd00281032edaaaa7e",
+        "bytes": 7279033,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/08_measure/web/08_measure_silent.mp4"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/08_measure/audio/en/af_heart.m4a",
+        "sha256": "9f04a489db6b8f0f69cadc91a69d91b20cf3fd6301c4f453a6d35b35d08b280c",
+        "bytes": 1050632,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/08_measure/audio/en/af_heart.m4a"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/08_measure/audio/en/af_heart.json",
+        "sha256": "4be62f8049a2fceb2fe537967187583fa585ccfd3c568cf9f83815fffc658d7b",
+        "bytes": 46305,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/08_measure/audio/en/af_heart.json"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/09_annotate/web/09_annotate_silent.mp4",
+        "sha256": "59414a19952a6eb71715f545704807f50b7653728d4c00d48e628e817e12af87",
+        "bytes": 6693480,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/09_annotate/web/09_annotate_silent.mp4"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/09_annotate/audio/en/af_heart.m4a",
+        "sha256": "f6b0914afb36b770c97c78a82ccfd457ecb3666dc3a3f2f04eeff9d7cd948b8c",
+        "bytes": 1368851,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/09_annotate/audio/en/af_heart.m4a"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/09_annotate/audio/en/af_heart.json",
+        "sha256": "9154c83f9100dcb9ccb8d903e0cd7baa1e7eb0bb41580655c68771cc27271201",
+        "bytes": 67061,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/09_annotate/audio/en/af_heart.json"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/12_map_barcodes/web/12_map_barcodes_silent.mp4",
+        "sha256": "1b030ae413ab00f965f801b8a4334c20cc9121c178548b0b4fb89a1028ff54a4",
+        "bytes": 3336475,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/12_map_barcodes/web/12_map_barcodes_silent.mp4"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/12_map_barcodes/audio/en/af_heart.m4a",
+        "sha256": "3732e86bdcf7f6b58aeb84213bba4045eb7cd96a85700ee9bd92e853499a8df8",
+        "bytes": 1117916,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/12_map_barcodes/audio/en/af_heart.m4a"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/12_map_barcodes/audio/en/af_heart.json",
+        "sha256": "6b42a0f27073cfbd2325cfc4d919a10f22b1cccaf1fabfe2e1703887b8210cc8",
+        "bytes": 49481,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/12_map_barcodes/audio/en/af_heart.json"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/13_regression/web/13_regression_silent.mp4",
+        "sha256": "aaf7732cb2664c80948996f026ae3dc708e43e52ff55c4df4d879263024ae43a",
+        "bytes": 4980181,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/13_regression/web/13_regression_silent.mp4"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/13_regression/audio/en/af_heart.m4a",
+        "sha256": "906875a42f785bfec00fd271775bc0f057b8b6c2c99011a14dc2258e2fec1491",
+        "bytes": 1310291,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/13_regression/audio/en/af_heart.m4a"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/13_regression/audio/en/af_heart.json",
+        "sha256": "02cd1210ff3261f167a64794ce041c9e5be6ebbfda208d0dc2f7cc7d623b4994",
+        "bytes": 58209,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/13_regression/audio/en/af_heart.json"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/41_classify/web/41_classify_silent.mp4",
+        "sha256": "cbe7d6997b86c559a7af02d3b683948530fd02d371512d051463420c634076e8",
+        "bytes": 1937285,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/41_classify/web/41_classify_silent.mp4"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/41_classify/audio/en/af_heart.m4a",
+        "sha256": "b029d42811ede2257eb5dfa5db22750dbbea615111af173a9692840591ff2ce9",
+        "bytes": 830321,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/41_classify/audio/en/af_heart.m4a"
+      },
+      {
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d/41_classify/audio/en/af_heart.json",
+        "sha256": "f1fdf671281a139610383eeb99d22ca5b94e36450cdf353dcdac3201e9fb816b",
+        "bytes": 39518,
+        "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2/media/41_classify/audio/en/af_heart.json"
+      }
+    ],
+    "historical_full_readback": {
+      "receipt": "tools/tutorials/release_candidate/publication-receipt.json",
+      "commit": "6d8def47e0240627cfe9b655d8d73e6b2403273d",
+      "files": 4760,
+      "same_immutable_revision": true
+    },
+    "scope": "Fresh14catalogs+5playerassets+6Core webvideos/Englishaudio/sidecars; immutable4760-file fullreadback is historical, not repeated."
+  },
+  "final_unchanged_readback": {
+    "https://einarolafsson.github.io/spacr/tutorials/": "92f7958fd7f4b16a45ea00ac00717ecec3b9864acce1a5c55a56ba9b50047b98",
+    "https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_en.json": "05cbf8cbc475c7c318a8edcc56b355c751e1e2b5a395bf8fd6beef68e8059b5c"
+  },
+  "static_audit": {
+    "static": {
+      "app_cache_key": "7c54a1acad25bb735c292267fdf3a35da363060c9a992cdd2690ddc0e6a58ff7",
+      "cache_key": "fix0929-20260929-d8ze6mec",
+      "expected_source_scenes": 1106,
+      "hashes_match_local": true,
+      "languages": 8,
+      "lessons": 85,
+      "local_sha256": {
+        "app_v2.js": "58a42129a21c2008d9b68ed1c2012942c13403b43965f81d9b92043484d2cae9",
+        "index.html": "12e85e627f63e86115c445d34770d3200a77660cdb7bb7c210616357ba970e24",
+        "lesson_catalog.js": "b4b58d22ec8321b435ee8d6911528d3d71466dc0e16a7c6264a23fa7cb764465",
+        "voice_catalog.js": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4"
+      },
+      "retired_voices_present": [],
+      "scenes": 1106,
+      "sha256": {
+        "app_v2.js": "7c54a1acad25bb735c292267fdf3a35da363060c9a992cdd2690ddc0e6a58ff7",
+        "index.html": "92f7958fd7f4b16a45ea00ac00717ecec3b9864acce1a5c55a56ba9b50047b98",
+        "lesson_catalog.js": "b4b58d22ec8321b435ee8d6911528d3d71466dc0e16a7c6264a23fa7cb764465",
+        "voice_catalog.js": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4"
+      },
+      "source_equivalent_sha256": {
+        "app_v2.js": "58a42129a21c2008d9b68ed1c2012942c13403b43965f81d9b92043484d2cae9",
+        "index.html": "12e85e627f63e86115c445d34770d3200a77660cdb7bb7c210616357ba970e24",
+        "lesson_catalog.js": "b4b58d22ec8321b435ee8d6911528d3d71466dc0e16a7c6264a23fa7cb764465",
+        "voice_catalog.js": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4"
+      },
+      "url": "https://einarolafsson.github.io/spacr/tutorials/",
+      "voice_cache_key": "20260811-50-voices",
+      "voices": 50
+    }
+  },
+  "mobile": {
+    "receipt": "tools/tutorials/evidence/2026-10-01-main-mobile-playback.json",
+    "sha256": "1c74c2c6ea6f6356dcfae932dcb234a98a9ad9aecd06ef287212859cb210b653",
+    "lessons": 85,
+    "passed": 85,
+    "hosted_requests": 343,
+    "voice": "en/af_heart",
+    "same_immutable_media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6d8def47e0240627cfe9b655d8d73e6b2403273d",
+    "all_gates_preserved": [
+      "pinned media requests",
+      "narration SHA256 equals sidecar",
+      "actual playback advance",
+      "chapter-seek video/audio agreement within 0.5 seconds",
+      "visible video without horizontal overflow",
+      "decoded video dimensions/no media errors"
+    ]
+  },
+  "tests": {
+    "existing_release_and_routes_unique_passed": 14,
+    "first_run": "13 passed, 1 skipped (Node executable absent)",
+    "actual_js_followup": "Previously skipped production route case passed using installed VSCode embedded Node; no mock",
+    "new_tap_budget_cases_passed": 6,
+    "total_unique_passed": 20
+  },
+  "resources": {
+    "command": [
+      "/tmp/spacr-implementation-20261001/n358-playwright-env/bin/python",
+      "/tmp/spacr-implementation-20261001/review/run_n358_mobile.py"
+    ],
+    "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r1dcdead444b04d5380303f349ac07fde.scope",
+    "limits": {
+      "memory.max": "4294967296",
+      "memory.swap.max": "0",
+      "cpu_affinity": [
+        0
+      ],
+      "cpu.max": null,
+      "systemd_properties": [
+        "CPUQuotaPerSecUSec=1s",
+        "MemoryMax=4294967296",
+        "MemorySwapMax=0"
+      ]
+    }
+  },
+  "test_resources": [
+    {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_tutorial_release_audit.py",
+        "tools/tutorials/tests/test_release_candidate_routes.py"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r29fd5edec0b344518baa0f1444976a4c.scope",
+      "limits": {
+        "memory.max": "4294967296",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=4294967296",
+          "MemorySwapMax=0"
+        ]
+      }
+    },
+    {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_tutorial_release_audit.py::test_player_routes_folded_lessons_through_their_current_host"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r7668b4c361014e188529a661f800ef3d.scope",
+      "limits": {
+        "memory.max": "1073741824",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=1073741824",
+          "MemorySwapMax=0"
+        ]
+      }
+    }
+  ],
+  "verifier_maintenance": {
+    "tap_timeout": "Optional positive synthetic-tap budget; default 90 seconds unchanged, this headless run uses 3 seconds then existing video.play fallback. Actual playback and seek retain 90-second bounds.",
+    "app_cache_key": "Expected source cache key read from current source index instead of stale literal. Existing exact source-equivalent byte/hash checks retained.",
+    "scene_count": "Stale 1080 assertion replaced with positive source-derived count (1106), requiring exact deployed count equality. No deployment regression or removed per-scene/media gate."
+  },
+  "diagnostics_retained": [
+    "Initial mobile attempt stopped to avoid repeating known 90-second headless tap fallback; no acceptance claimed for stopped attempt.",
+    "Initial readback rejected expected publisher injection; existing strict source_equivalent_assets transform validates its manifest/hashes and reverses only known publisher helper.",
+    "Initial static audit hit historical 1080 count despite exact source/deployed 1106.",
+    "Initial new CLI test used nonexistent main(); corrected test executes actual CLI subprocess."
+  ],
+  "review_provenance": {
+    "historical_maintainer_signoff": "N358 ledger 2026-09-30, relayed by spacr-3f: order ok, voices ok, phone ok; native-speaker review waived.",
+    "current_review": "Codex AI technical verification; no new human listening, native-language signoff, or physical phone interaction claimed."
+  },
+  "limits": [
+    "Fresh complete media bytes verified for six current Core lessons; historical complete 4760-file readback applies to the identical immutable revision and was not repeated.",
+    "Mobile run covers one English voice per lesson, not all 2295 narration tracks; their publication matrix and complete historical byte readback remain retained.",
+    "Headless touch uses the existing explicit-play fallback; historical maintainer physical-phone approval remains separately attributed.",
+    "N601 fourteen-scene private silent stage and N610 refreshed Suggest captures are newer unpublished work, not implicitly closed here."
+  ],
+  "logs": {
+    "n358-tests.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-tests.log",
+      "sha256": "9d59c7c56ea652b4b8db92a79911288add4ee322572f1365cbd57eed19c78121"
+    },
+    "n358-js-route.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-js-route.log",
+      "sha256": "b6533422d1630740f5655134f45127452989eca69913155ff0cdf6331ecfe21d"
+    },
+    "n358-tap-tests-run2.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-tap-tests-run2.log",
+      "sha256": "4c4e8be672001438c4a62574637fe80467a8d34c3889065d74e1ac24067b016a"
+    },
+    "n358-mobile-run2.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-mobile-run2.log",
+      "sha256": "509fb2b2d13b30c8fd98e7afd9d4b6cd9da6c70facc5c9de685daa1d0c173441"
+    },
+    "n358-static-live-run2.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-static-live-run2.log",
+      "sha256": "e116687bf473b77a90a5ddae37c2403aed548706da705d37851286109131c987"
+    },
+    "n358-readback-run2.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-readback-run2.log",
+      "sha256": "f70f6b8d6c7c55c3426bd0b8c93ead0144be38d3ddce4b110229812b024212ed"
+    },
+    "n358-playwright-setup.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-playwright-setup.log",
+      "sha256": "188877ee9dcf0352934d7c4cb6c9586eeee7b24058921a1596c61dee32e9229f"
+    },
+    "n358-mobile.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-mobile.log",
+      "sha256": "b4bfe1868ac6337b3f8c3b40a3a14569e004b5995a1d9c9b306703c20184b581"
+    },
+    "n358-static-live.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-static-live.log",
+      "sha256": "2294631540435454d902f5974f5c0dc3b02bacf637c7a205b4c10faebb24ac8f"
+    },
+    "n358-readback.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-readback.log",
+      "sha256": "95070c6a718b7157c8185638db3f6322799fa15ad7352d01f1224ca449940b7e"
+    },
+    "n358-tap-tests.log": {
+      "path": "/tmp/spacr-implementation-20261001/review/n358-tap-tests.log",
+      "sha256": "7ccabfec6e10a34c883cefa361a200aacdd9b79acd99d83c6c2ab39e07d8fd19"
+    }
+  }
+}

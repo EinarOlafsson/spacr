@@ -2898,7 +2898,15 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
             "submission needs the raw images.")
     slug = _archive_slug(values["title"])
     pkg = Path(str(out)).expanduser().resolve() / slug
-    pkg.mkdir(parents=True, exist_ok=True)
+    resolved_pkg = pkg.resolve()
+    if resolved_pkg == src or src in resolved_pkg.parents:
+        raise ValueError("Choose an archive destination outside the source run folder.")
+    try:
+        pkg.mkdir(parents=True, exist_ok=False)
+    except FileExistsError as exc:
+        raise ValueError(
+            f"Archive package already exists: {pkg}. Choose another output folder or title."
+        ) from exc
 
     per_well: Dict[Tuple[str, str], List[Path]] = {}
     for image in images:
@@ -3007,6 +3015,8 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
         ["Study Screens Number", 1],
         ["Study Public Release Date", values["release_date"]],
         ["# Study Publication"],
+        # The IDR template requires the row even when no title is known.
+        ["Study Publication Title", ""],
         ["Study Author List", author_list],
         ["# Study Contacts"],
         ["Study Person Last Name"] + [p[0] for p in people[:1]],
@@ -3275,6 +3285,8 @@ def _validate_archive_package(pkg: Any, *, verify_checksums: bool = True
     for key in _IDR_STUDY_REQUIRED if study else ():
         if not study.get(key):
             problems.append(f"IDR study: '{key}' has no value")
+    if study and "Study Publication Title" not in study:
+        problems.append("IDR study: 'Study Publication Title' row is missing")
     library_name = (study.get("Library File Name") or [""])[0]
     library_path = idr / library_name
     plates_listed = set()
@@ -3587,7 +3599,8 @@ def _zenodo_stage(src: Any, out: Any, form: Dict[str, Any], *,
                   ) -> Tuple[Path, List[Path], Dict[str, Any]]:
     """Gather the files and metadata of a Zenodo deposit for a finished run.
 
-    Writes into ``out/<title>-zenodo``: the archive package (the IDR,
+    Writes into ``out/<title>-zenodo`` (or a numbered sibling for a retry):
+    the archive package (the IDR,
     BioStudies and MIHCSME metadata with checksums, images not copied) as
     ``<title>-archive.zip`` when the run holds images, ``settings.zip``,
     the journalled runs of this folder as ``run_journal.zip``, the HTML
@@ -3614,11 +3627,17 @@ def _zenodo_stage(src: Any, out: Any, form: Dict[str, Any], *,
     values.update({k: str(v).strip() for k, v in (form or {}).items()
                    if v is not None})
     slug = _archive_slug(values["title"])
-    stage = Path(str(out)).expanduser().resolve() / f"{slug}-zenodo"
-    stage.mkdir(parents=True, exist_ok=True)
-    for old in stage.iterdir():
-        if old.is_file():
-            old.unlink()
+    parent = Path(str(out)).expanduser().resolve()
+    for number in range(1, 10_001):
+        stage = parent / (f"{slug}-zenodo" if number == 1
+                          else f"{slug}-zenodo-{number}")
+        try:
+            stage.mkdir(parents=True, exist_ok=False)
+            break
+        except FileExistsError:
+            continue
+    else:
+        raise ValueError(f"No unused Zenodo staging folder under {parent}.")
     files: List[Path] = []
 
     if _archive_images(src):

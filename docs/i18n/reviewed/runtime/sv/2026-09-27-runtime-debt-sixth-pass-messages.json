@@ -34,13 +34,6 @@
     },
     {
       "table": "ui",
-      "key": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
-      "source": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
-      "source_sha256": "1d6230c16b5fa3946e5a4f086fcbdfeb4924ee62727ebb25d2b4272151347fe1",
-      "translation": "CellProfiler 4.2, körd utan gränssnitt på ett labbs egen .cppipe-pipeline från Measure: spaCR lämnar varje bildfälts kanaler och masker som TIFFs och hämtar tillbaka dess mätvärden per objekt till measurements.db, nycklade på spaCR:s objekt-id. Den behöver ett Python 3.8 eller 3.9 på den här datorn för att bygga sin miljö."
-    },
-    {
-      "table": "ui",
       "key": "CellProfiler 4.2.8.1 and cellprofiler-core are BSD-3-Clause (Broad Institute). They read images through Bio-Formats (GPL-2.0, shipped inside prokaryote) on a Java 11 development kit that the install fetches from Eclipse Adoptium (GPL-2.0 with the Classpath Exception) into the backend's own folder. CellProfiler's desktop interface (wxPython) and its MySQL export are not installed: pipelines run headless. spaCR ships none of it.",
       "source": "CellProfiler 4.2.8.1 and cellprofiler-core are BSD-3-Clause (Broad Institute). They read images through Bio-Formats (GPL-2.0, shipped inside prokaryote) on a Java 11 development kit that the install fetches from Eclipse Adoptium (GPL-2.0 with the Classpath Exception) into the backend's own folder. CellProfiler's desktop interface (wxPython) and its MySQL export are not installed: pipelines run headless. spaCR ships none of it.",
       "source_sha256": "d883e64c77616effcdec6fc434062f21448f86a427dcdebdd3c7cbfe4ca54ce5",
@@ -167,13 +160,6 @@
     },
     {
       "table": "ui",
-      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
-      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
-      "translation": "Visa de 100 utsnitt vars mätvärden mest liknar det valda utsnittet, det med ringen, mest lika först, så att en sällsynt klass som hittats en gång kan etiketteras många gånger. Den första sökningen i en källa läser dess mätvärden och tar några sekunder; senare går direkt. Tillbaka till alla utsnitt genom att öppna källan igen. Standard inte körd."
-    },
-    {
-      "table": "ui",
       "key": "Table to read when the pilot is a database. Default cell.",
       "source": "Table to read when the pilot is a database. Default cell.",
       "source_sha256": "ebb868e88f74f60a2598c8f9917c1ecb9ad3935de0976b0889835b4280762cb5",
@@ -249,5 +235,23 @@
       "source_sha256": "dbebf09b299ee4154abd444eaa9e4ab4105650ca147893ac2d670a05d6b3b05e",
       "translation": "{name} och de {n} utsnitt som mest liknar det, mest lika först"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
+      "translation": "Visa de 100 utsnitt vars mätvärden mest liknar det valda utsnittet, det med ringen, mest lika först, så att en sällsynt klass som hittats en gång kan etiketteras många gånger. Den första sökningen i en källa läser dess mätvärden och tar några sekunder; senare går direkt. Tillbaka till alla utsnitt genom att öppna källan igen. Standard inte körd."
+    },
+    {
+      "table": "ui",
+      "key": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source_sha256": "1d6230c16b5fa3946e5a4f086fcbdfeb4924ee62727ebb25d2b4272151347fe1",
+      "translation": "CellProfiler 4.2, körd utan gränssnitt på ett labbs egen .cppipe-pipeline från Measure: spaCR lämnar varje bildfälts kanaler och masker som TIFFs och hämtar tillbaka dess mätvärden per objekt till measurements.db, nycklade på spaCR:s objekt-id. Den behöver ett Python 3.8 eller 3.9 på den här datorn för att bygga sin miljö."
+    }
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text.",
+  "retirement_2026_10_01_cellprofiler_python": "The CellProfiler blurb now explains compatible Python provisioning by bundled/PATH uv. The former source-bound target is retained as history, not reused for changed text."
 }

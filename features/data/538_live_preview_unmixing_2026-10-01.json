@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "feature": "F538 segmentation Live Preview unmixing",
+  "status": "partial",
+  "validation": "33 passed in 9.79s: 15 new cases plus 18 existing PSF preview cases. MemoryMax4G, MemorySwapMax0, configured CPUQuota100%, actual one-core affinity.",
+  "evidence": {
+    "log_sha256": "36e47d27c4943bd01982bd617166f23e809cdec07a57df59a128fe0ff7c28d2a"
+  },
+  "source_sha256": {
+    "spacr/qt/widgets/live_preview.py": "52964acb6297285888b30b1f1ab3cd370df5fa2b5659891a942509b68d80b222",
+    "tests/qt/test_unmix_preview_f538.py": "f91657511cade856ce16a82f8cf23fa01d6294a6d4b83254798c6decf99d34a6"
+  },
+  "remaining": [
+    "Measure processed-intensity crop preview and PNG parity",
+    "real double-stain amount check",
+    "registration/PSF effects on strong spill",
+    "Nine-language API docstring translation of NPY loader semantics"
+  ]
+}

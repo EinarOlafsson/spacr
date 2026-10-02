@@ -2698,10 +2698,11 @@ def _train_counterfactual_generator(model: nn.Module, crops: torch.Tensor, *,
 
 def _spearman(a: np.ndarray, b: np.ndarray) -> float:
     """Spearman rank correlation of two vectors, NaN when one is constant."""
+    a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
+    if a.size < 2 or np.ptp(a) == 0 or np.ptp(b) == 0:
+        return float('nan')
     ra = np.argsort(np.argsort(a)).astype(float)
     rb = np.argsort(np.argsort(b)).astype(float)
-    if ra.std() == 0 or rb.std() == 0:
-        return float('nan')
     return float(np.corrcoef(ra, rb)[0, 1])
 
 

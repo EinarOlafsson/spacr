@@ -203,6 +203,11 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     # Preferences tabs, resource controls, and colour-vision choices.
     "Modules",
     "Logging",
+    "Plugins",
+    # mask_thumbnail_quality.quality_combo translates a loop's label variable.
+    "Low",
+    "Medium",
+    "High",
     "Clear RAM",
     "Clear VRAM",
     "Clear CPU",
@@ -221,6 +226,8 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     "Swap object and background",
     "Outline colour",
     "Upper percentile",
+    # Control Charts translates this _ANOMALY_COLUMNS header via tr(label).
+    "Control percentile",
     # Figure-settings rows. QFormLayout.addRow is intentionally not treated
     # as a generic text call: many panels use its first argument for dynamic
     # data labels, so this reviewed finite set avoids cataloguing data.
@@ -285,6 +292,8 @@ _IDENTITY_TEXT = {
     # 316, 2026-09-27: backend and workflow-engine names shown alone.
     "CellProfiler", "CellProfiler (Alpha)", "CellProfiler α", "CAREamics Noise2Void", "Nextflow…", "Snakemake…",
     "Visium", "Visium HD", "Xenium",
+    # 316, 2026-09-30 (eleventh pass): the spaCR command-line entry point.
+    "spacr-run",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
@@ -305,6 +314,9 @@ _IDENTITY_TEXT = {
     "EAF1_g1, EAF1_g2", "Huber t", "RdBu_r", "Tensorboard", "dst", "xD",
     "gRNA", "gRNA CSV", "image_path", "metadata_column_map.json",
     "png_list", "png_path", "{report}", "■ {note}",
+    # Convert's assignment placeholder is executable plate/barcode syntax;
+    # translating either identifier would teach a different assignment.
+    "plate1=BC001; plate2=BC002",
     # The plaque scale caption contains only runtime fields and a scientific
     # unit. Translating px/mm would change the displayed calibration unit.
     "{source}: {ppm} px/mm",
@@ -3468,6 +3480,12 @@ _HELPER_CAPTION_RULES: dict[
     # and 2 are a Qt setter name and an i18n property name.
     ("help_search.py", "_localize"):
         ("help_search.py", ((3, "text"),)),
+    # The words a Help search result ROW is built from. help_index imports
+    # no catalog, so it marks each template with an identity `_template`
+    # call and help_search renders it through `tr` when the row is drawn.
+    # Added 2026-09-30 (item 422): before it, no `tr()` named these six.
+    ("help_index.py", "_template"):
+        ("help_index.py", ((0, "text"),)),
     ("preferences.py", "_percent_row"):
         ("preferences.py", ((1, "label_text"), (5, "tip"))),
     ("preferences.py", "line"):
@@ -4228,15 +4246,22 @@ def canonical_sources() -> dict[str, object]:
     # primary translation for higher numbered slots.
     from spacr.organelle_types import (
         CATALOGUED_ORGANELLE_SLOTS,
+        _background_switch_role,
         organelle_number,
         organelle_role_of,
     )
 
     def catalogued_setting(key: object) -> bool:
+        """True when ``key`` is a setting the materialized catalogs carry.
+
+        :param key: a settings key; slot N's background switch is
+            ``remove_background_organelle_N`` (item 76, 2026-09-30).
+        """
         text = str(key)
         role = organelle_role_of(text)
         if text.startswith("remove_background_"):
-            role = organelle_role_of(text.removeprefix("remove_background_"))
+            role = (_background_switch_role(text)
+                    or organelle_role_of(text.removeprefix("remove_background_")))
         return role is None or organelle_number(role) <= (
             CATALOGUED_ORGANELLE_SLOTS
         )

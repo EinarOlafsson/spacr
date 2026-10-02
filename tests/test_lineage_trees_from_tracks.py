@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.timelapse import (_lineage_newick, _lineage_segments,
+from spacr._lineage_trees import (_lineage_newick, _lineage_segments,
                              _lineage_statistics, _lineage_trees_from_tracks,
                              _run_lineage_step)
 

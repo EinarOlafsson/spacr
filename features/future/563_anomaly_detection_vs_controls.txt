@@ -1,6 +1,7 @@
 ANOMALY / NOVELTY DETECTION AGAINST NEGATIVE CONTROLS
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27
+Status: DONE (ALPHA) 2026-10-02 against the original hit-ranking and
+        outlier-review criterion; external validation remains limited.
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -116,3 +117,73 @@ was used. No normalising flow. Crops still need png_path in the table.
 "Control percentile" waits in _AWAITING_CATALOG_REBUILD. The anomaly
 score is now a bounded percentile, so it is not a value to feed into
 item 570's robust z/SSMD. Use the well ranking or the outlier fraction.
+
+
+2026-10-01 — AUTOMATIC CROP LINKS FOR OBJECT-TABLE REVIEW
+Control Charts now enriches a physical object table with png_list paths in
+its existing loading worker. The source database is opened read-only and
+only crop identity/path columns are read. A match requires plate, row,
+column, field, the selected object's own crop-mode ID, and timepoint when
+present. Integer, integral-float and o-prefixed object labels are accepted;
+timeID/time_id and t-prefixed integer timepoints are handled explicitly.
+Missing identity values never match one another, and conflicting time aliases
+or one-sided time identity do not fall back to a static join. No object rows
+or measurement values are added, removed, reordered or replaced; duplicate
+pandas indices and existing nonempty png_path values are preserved.
+
+Repeated rows for the same crop path collapse safely. Different paths for
+one object remain unmatched and are logged, rather than choosing a crop
+arbitrarily. Unmatched objects remain in scoring. With readable paths the
+existing anomaly renderer shows crop tiles; unavailable crops retain the
+existing PC1/PC2 review. CSVs, external tables and named derived tables are
+not guessed into a physical crop mode. This closes automatic png_list
+linking for supported physical object tables, not arbitrary imported tables
+or on-demand crop generation when PNG files were never written.
+
+Validation: 21 focused real-SQLite identity/read-only checks passed under
+1 GiB, plus 5 actual Control Charts load/score/crop-render and existing alpha
+checks under a predeclared 4 GiB cap. Both cohorts used one actual CPU and
+zero swap. Source database hashes are unchanged; the actual scoring result
+keeps all input object rows and the review canvas contains crop images.
+An added fixture initially triggered pandas' incompatible-dtype warning;
+changing the fixture to replace its column resolved it before the final
+21-check backend pass. No new scientific real-screen acceptance is claimed.
+Existing public signatures/docstrings and runtime captions are unchanged.
+
+2026-10-01 — CROP-MODE AMBIGUITY GUARD
+Independent review checked the producer contract: filepaths_to_database writes
+only the selected crop mode's ID column per row; schema-union appends leave
+other mode IDs NULL. Imported or enriched rows may instead carry several
+populated mode IDs. Those rows now remain unmatched unless an explicit
+crop_mode or object_type identifies the requested mode. If both columns are
+present, both must contain the same known requested mode; unknown, missing or
+conflicting values cannot resolve ambiguous IDs. No role is inferred from a
+filename. A nucleus crop carrying parent cell_id is never attached as a cell
+crop merely because it is the only matching path. Existing nonempty paths
+remain user-owned and untouched.
+Thirty backend checks pass on the final follow-up under 1 GiB, one actual CPU
+and zero swap, including same-path deduplication, all identity/time safeguards,
+the canonical single-mode producer contract and explicit/missing/conflicting
+mode metadata. No public API or runtime caption change is introduced.
+
+2026-10-02 — ORIGINAL DONE WHEN ACCEPTED ON CURRENT SOURCE
+    The archived CPJUMP1 real-screen acceptance above shows annotated
+    positive-control wells above DMSO: well AUROC 0.880–0.898 from the
+    single-cell table and 0.953–0.959 from four-plate well profiles.
+    Top-scoring objects reach the review figure; current physical object
+    tables with unambiguous png_list links can show their crops. The source
+    scorer and GUI were rechecked today: 64 focused tests passed under a
+    4 GiB cap, CPU0 and zero swap, covering hit ranking, review output,
+    crop identity and alpha visibility. See
+    features/data/563_current_source_acceptance_2026-10-02.json.
+    The overlooked indirect "Control percentile" review-table heading is
+    now source-bound and reviewed in all nine runtime locales; the full
+    catalog audit and 13 focused checks pass with exactly one new UI identity
+    and no changed historical translations. See
+    features/data/563_control_percentile_i18n_2026-10-02.json.
+
+    This accepts the stated DONE WHEN as an alpha capability. The real
+    object-level AUROC is modest (0.63–0.66), no normalising flow was
+    trained, and independent external-lab replication is still needed
+    before claiming broad biological accuracy. The archived screen result
+    was not rerun today because that scratch dataset is unavailable here.

@@ -35,6 +35,7 @@ import logging
 import re
 import sqlite3
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -54,6 +55,9 @@ SUM, MIN, MAX, MEAN, MEDIAN, FIRST = "sum", "min", "max", "mean", "median", "fir
 
 #: The aggregations offered, for a settings dropdown.
 AGGREGATIONS: Tuple[str, ...] = (SUM, MIN, MAX, MEAN, MEDIAN, FIRST)
+
+#: Additional explicit methods offered by the typed custom merge editor.
+EXPLICIT_AGGREGATIONS: Tuple[str, ...] = AGGREGATIONS + ("last", "count", "nunique", "any", "all")
 
 #: Column-name patterns -> aggregation, FIRST MATCH WINS, so the order is the
 #: rule. Anything unmatched falls to :data:`DEFAULT_AGGREGATION`.
@@ -184,10 +188,10 @@ def aggregation_for(column: str, *, numeric: bool = True,
     """
     if overrides and column in overrides:
         chosen = str(overrides[column])
-        if chosen not in AGGREGATIONS:
+        if chosen not in EXPLICIT_AGGREGATIONS:
             raise MergeError(
                 f"{chosen!r} is not an aggregation; choose from "
-                f"{list(AGGREGATIONS)}")
+                f"{list(EXPLICIT_AGGREGATIONS)}")
         return chosen
     if not numeric:
         return TEXT_AGGREGATION
@@ -220,7 +224,7 @@ def aggregation_plan(frame: pd.DataFrame, *,
 
 def _connect(db_path: str) -> sqlite3.Connection:
     """Open a measurement database through SQLite's read-only URI."""
-    return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30)
+    return sqlite3.connect(Path(db_path).resolve().as_uri() + "?mode=ro", uri=True, timeout=30)
 
 
 def table_names(db_path: str) -> Tuple[str, ...]:
@@ -247,13 +251,17 @@ def mergeable_tables(db_path: str) -> Tuple[str, ...]:
 
 def _read(db_path: str, table: str) -> pd.DataFrame:
     """Read every row and column from one quoted database table."""
+    from .tabular import _read_query
+
     with _connect(db_path) as db:
-        return pd.read_sql_query(f'SELECT * FROM "{table}"', db)
+        return _read_query(db, 'SELECT * FROM "' + table.replace('"', '""') + '"',
+                           report=None)
 
 
 def _keys_in(frame: pd.DataFrame) -> List[str]:
     """Return canonical identity columns present, in identity order."""
-    return [c for c in IDENTITY if c in frame.columns]
+    return [c for c in (*IDENTITY, "timeID", "time_id")
+            if c in frame.columns]
 
 
 def object_keys(values: pd.Series) -> pd.Series:
@@ -304,6 +312,19 @@ def _align_keys(left: pd.DataFrame, right: pd.DataFrame,
             right[key] = right[key].astype("string")
 
 
+def aggregation_overrides(policy: MergePolicy, table: str) -> Dict[str, str]:
+    """Resolve global rules and table-qualified per-column overrides.
+
+    :param policy: Shared merge policy.
+    :param table: Source table whose aggregation rules are requested.
+    :returns: Unqualified column-to-method mapping for this table.
+    """
+    overrides = {c: value for c, value in policy.overrides.items() if "." not in c}
+    overrides.update({c[len(table) + 1:]: value for c, value in policy.overrides.items()
+                      if c.startswith(table + ".")})
+    return overrides
+
+
 def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
             name: str, policy: MergePolicy) -> pd.DataFrame:
     """Aggregate ``child`` onto its parent, one rule per column.
@@ -322,31 +343,47 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
             f"{name} has no {', '.join(missing)}, so its rows cannot be "
             f"matched to a parent; re-run Measure with the parent mask set")
 
-    plan = aggregation_plan(child, overrides=policy.overrides, skip=keys)
+    overrides = aggregation_overrides(policy, name)
+    plan = aggregation_plan(child, overrides=overrides, skip=keys)
     grouped = child.groupby(list(keys), dropna=False)
 
+    # An unmeasured group is missing, never a measured zero. Regression and
+    # both interactive merge consumers use this same rule.
     out = grouped.agg(plan)
-    out["count"] = grouped.size()
+    summed = [column for column, how in plan.items() if how == SUM]
+    if summed:
+        out[summed] = grouped[summed].sum(min_count=1)
+    for column, how in plan.items():
+        if how in ("any", "all"):
+            out[column] = out[column].astype("boolean").mask(grouped[column].count().eq(0))
+    count_column = "count"
+    while count_column in out or f"{name}_{count_column}" in out:
+        count_column = "source_" + count_column
+    measured_column = "measured"
+    while measured_column in out or f"{name}_{measured_column}" in out:
+        measured_column = "source_" + measured_column
+    out[count_column] = grouped.size()
 
     measured_columns = [c for c in plan
                         if plan[c] != FIRST and c in child.columns]
     if measured_columns:
         non_null = grouped[measured_columns].count()
-        out["measured"] = non_null.min(axis=1)
-        short = {c: int((non_null[c] < out["count"]).sum())
+        out[measured_column] = non_null.min(axis=1)
+        short = {c: int((non_null[c] < out[count_column]).sum())
                  for c in measured_columns
-                 if (non_null[c] < out["count"]).any()}
+                 if (non_null[c] < out[count_column]).any()}
         if short:
             worst = sorted(short.items(), key=lambda kv: -kv[1])[:5]
             LOG.info(
                 "%s roll-up: %d column(s) had missing values that pandas "
-                "skips silently; worst affected %s. `%s_measured` carries "
+                "skips silently; worst affected %s. `%s` carries "
                 "the smallest contributing count per parent, and is less "
-                "than `%s_count` wherever this happened.",
+                "than `%s` wherever this happened.",
                 name, len(short),
-                ", ".join(f"{c} ({n} parents)" for c, n in worst), name, name)
+                ", ".join(f"{c} ({n} parents)" for c, n in worst),
+                f"{name}_{measured_column}", f"{name}_{count_column}")
     else:
-        out["measured"] = out["count"]
+        out[measured_column] = out[count_column]
 
     out = out.reset_index()
 
@@ -582,7 +619,7 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
         _align_keys(merged, rolled, on)
         how = policy.how_for(table)
         before = len(merged)
-        merged = merged.merge(rolled, on=on, how=how)
+        merged = merged.merge(rolled, on=on, how=how, validate="many_to_one")
         if how == "inner" and len(merged) < before:
             LOG.info(
                 "%s joined %s: %d of %d %s objects had no %s row and were "

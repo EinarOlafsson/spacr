@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Ladda ned och packa upp SYNTHETIC_timelapse_preview.zip. Undervisningsexemplet innehåller åtta bildrutor med cellbilder och matchande etikettbilder. För en fullständig Mask-körning på egna data förbereder du tidsordnade mikroskopibilder och noterar tidsintervallet mellan bilderna.",
   "scenes": [
-    "Från Home öppnar du Mask och klickar på Timelapse-ikonen uppe till höger för att slå på spårningen. Använd Timelapse för att länka objekt mellan på varandra följande bilder. Först provar vi det länkade exemplet i Track preview och går sedan igenom inställningarna för att bearbeta din egen bildsekvens.",
+    "Öppna Mask från Home, slå på Time i Actions-raden och slå på Timelapse för att aktivera spårning. Timelapse länkar objekt mellan på varandra följande bilder. Först provar vi det länkade exemplet i Track preview och går sedan igenom inställningarna för din egen bildserie.",
     "Ladda ned och packa upp exempelarkivet nedan och klicka sedan på Track preview till höger om rubriken Actions. Arkivet innehåller en bildsekvens och en matchande masksekvens med åtta bildrutor. Håll ihop båda mapparna så att du kan välja motsvarande bilder och etiketter.",
     "Välj image_sequences och sedan field_A01 som bildmapp. Välj kanal 0: varje exempelbild innehåller en enda kanal med cellintensitet. Ställ Frames previewed på 8 och Fields på 1.",
     "Klicka på Masks och välj label_sequences och sedan field_A01. Varje etikett identifierar ett objekt i motsvarande bild. Låt Keep only full-length tracks vara avstängt i början så att du kan granska spår som börjar eller slutar inom sekvensen.",

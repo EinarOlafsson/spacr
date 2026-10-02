@@ -5570,3 +5570,9 @@ test_text_reads_in_dark_and_light (Figures tab), which pass locally in CI's
 order and look order- or PySide6 6.11.2-dependent.
 
 2026-09-29 (work, Claude), the maintainer's decision: release 1.5.1.1 as soon as one full nightly CI run is green: tag it, merge nightly into main, then check PyPI, the installers, the Zenodo DOI and the live docs. (work) spacr owns it.
+
+2026-10-01 -- ONE OPEN ISSUE AGAIN: #134
+A fresh listing (GitHub API, all pages, state=open) returns one issue,
+#134 (auto-filed PlaneLayoutConflict in Measure, spaCR 1.5.1.1). It is
+promoted into the 1.5.1.1 implementation batch as features/new/618; the
+fix, tests and closing comment are recorded there. Open PRs: none.

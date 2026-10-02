@@ -56,7 +56,9 @@
       "source_sha256": "c739181fa0e801f5c4f677d5977553cf8189fe9b86e4627d2896d46117d72a65",
       "source": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-well summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay fit fails, or no cells pass the filters.",
       "context": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-microplate sample position summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay fit fails, or no cells pass the filters.",
-      "translation": "튜플 ``(result_df, peak_details_df, fig)``를 반환합니다. 광표백을 보정한 셀별 궤적, 피크별 세부 정보, 요약 matplotlib Figure 입니다. 마이크로플레이트 시료 위치별 요약은 CSV 에만 기록됩니다. 데이터베이스에 시간축이 없거나 감쇠 피팅이 실패하거나 필터를 통과한 셀이 없으면 ``None``을 반환합니다."
+      "translation": "튜플 ``(result_df, peak_details_df, fig)``를 반환합니다. 광표백을 보정한 셀별 궤적, 피크별 세부 정보, 요약 matplotlib Figure 입니다. 마이크로플레이트 시료 위치별 요약은 CSV 에만 기록됩니다. 데이터베이스에 시간축이 없거나 감쇠 피팅이 실패하거나 필터를 통과한 셀이 없으면 ``None``을 반환합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-01: preview loading and calcium-analysis contracts changed. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.roi.RoiSet#1",

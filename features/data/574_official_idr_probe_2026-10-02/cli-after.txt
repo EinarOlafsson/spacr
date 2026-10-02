@@ -1,0 +1,2 @@
+Archive package: /tmp/spacr-implementation-20261001/f574-official/run/after/spacr-example-screen
+spaCR's local template and checksum checks passed. Nothing was uploaded. Archive curator/service approval is still required.

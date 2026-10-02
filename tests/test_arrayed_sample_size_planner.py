@@ -13,9 +13,12 @@ import pytest
 
 from spacr.sp_stats import (
     _arrayed_power,
+    _condition_cell_variances,
+    _default_cells,
     _nested_variance_components,
     _plan_arrayed_design,
     _replicate_mean_variance,
+    _resample_arrayed_power,
     _simulate_arrayed_power,
 )
 
@@ -75,7 +78,11 @@ def test_pilot_components_recover_the_truth():
     assert comps["well"] == pytest.approx(TRUE["well"], abs=0.15)
     assert comps["replicate"] == pytest.approx(TRUE["replicate"], abs=0.45)
     assert comps["n_replicates"] == 5 and comps["n_wells"] == 50
-    assert all(comps["estimated"].values())
+    # 2026-09-30: a one-condition pilot cannot estimate the
+    # replicate-by-condition term added then; every other level it can.
+    estimated = dict(comps["estimated"])
+    assert estimated.pop("replicate_condition") is False
+    assert all(estimated.values())
 
 
 def test_recommendation_reaches_target_in_simulation():
@@ -126,3 +133,269 @@ def test_unreachable_target_and_bad_input():
     with pytest.raises(ValueError):
         _nested_variance_components(
             pd.DataFrame({"v": [np.nan], "prc": ["a"], "fieldID": [1]}), "v")
+
+
+# 2026-09-30: count and proportion readouts, the replicate-by-condition
+# term and a model-free resampling check (item 585's audit).
+
+WITH_RC = {**TRUE, "replicate_condition": 0.15, "mean": 5.0}
+PROPORTION = {"replicate": 0.002, "replicate_condition": 0.001,
+              "well": 0.002, "field": 0.001, "cell": 0.2,
+              "cells_per_field": 30, "mean": 0.3}
+COUNT = {"replicate": 0.05, "replicate_condition": 0.03, "well": 0.05,
+         "field": 0.05, "cell": 6.0, "cells_per_field": 15, "mean": 2.0}
+
+
+def _two_condition_pilot(seed=3, replicates=8, wells=6, fields=5, rc=0.2):
+    """Simulate a pilot with a control and a treated arm on every plate.
+
+    :param seed: random seed.
+    :param replicates: plates, one biological replicate each.
+    :param wells: wells per condition per plate.
+    :param fields: fields per well.
+    :param rc: the replicate-by-condition variance.
+    :returns: one row per cell.
+    """
+    rng = np.random.default_rng(seed)
+    parts = []
+    for r in range(replicates):
+        rep = rng.normal(0, np.sqrt(TRUE["replicate"]))
+        for arm, shift in (("ctrl", 0.0), ("drug", 2.0)):
+            inter = rng.normal(0, np.sqrt(rc))
+            for w in range(wells):
+                well = rng.normal(0, np.sqrt(TRUE["well"]))
+                for f in range(fields):
+                    field = rng.normal(0, np.sqrt(TRUE["field"]))
+                    parts.append(pd.DataFrame({
+                        "intensity": 5 + shift + rep + inter + well + field
+                        + rng.normal(0, np.sqrt(TRUE["cell"]), 20),
+                        "plateID": f"p{r}", "arm": arm,
+                        "prc": f"p{r}_{arm}_c{w}", "fieldID": f}))
+    return pd.concat(parts, ignore_index=True)
+
+
+@pytest.mark.parametrize("readout,comps,effect", [
+    ("continuous", WITH_RC, 1.0), ("proportion", PROPORTION, 0.1),
+    ("proportion", PROPORTION, -0.1), ("count", COUNT, 0.6)])
+@pytest.mark.parametrize("paired", [False, True])
+def test_unequal_variance_power_matches_statsmodels(readout, comps, effect,
+                                                    paired):
+    """Each condition keeps its own replicate-mean variance.
+
+    statsmodels' standardised effect for the same test is the difference
+    over the root mean of the two variances (unpaired) or over the root of
+    their sum (the paired differences).
+    """
+    from statsmodels.stats.power import TTestIndPower, TTestPower
+
+    cell0, cell1 = _condition_cell_variances(comps, effect, readout)
+    v0, v1 = (_replicate_mean_variance(comps, 2, 3, comps["cells_per_field"],
+                                       paired=paired, cell=c)
+              for c in (cell0, cell1))
+    expected = (TTestPower().power(abs(effect) / np.sqrt(v0 + v1), 5, 0.05)
+                if paired else
+                TTestIndPower().power(abs(effect) / np.sqrt((v0 + v1) / 2),
+                                      5, 0.05))
+    got = _arrayed_power(comps, effect, replicates=5, wells=2, fields=3,
+                         cells=comps["cells_per_field"], paired=paired,
+                         readout=readout)
+    assert got == pytest.approx(expected, abs=1e-6)
+
+
+def test_readout_cell_variances_follow_the_mean():
+    upper = sum(PROPORTION[k] for k in ("replicate", "replicate_condition",
+                                        "well", "field"))
+    c0, c1 = _condition_cell_variances(PROPORTION, 0.2, "proportion")
+    assert c0 == pytest.approx(0.3 * 0.7 - upper)
+    assert c1 == pytest.approx(0.5 * 0.5 - upper)
+    c0, c1 = _condition_cell_variances(COUNT, 1.0, "count")
+    assert (c0, c1) == pytest.approx((6.0, 9.0))
+    under = {**COUNT, "cell": 1.0}
+    assert _condition_cell_variances(under, 1.0, "count") == pytest.approx(
+        (2.0, 3.0))
+    assert _condition_cell_variances(TRUE, 3.0) == (4.0, 4.0)
+    for readout, comps, effect in (("proportion", PROPORTION, 0.8),
+                                   ("count", COUNT, -3.0),
+                                   ("ratio", COUNT, 1.0)):
+        with pytest.raises(ValueError):
+            _condition_cell_variances(comps, effect, readout)
+    with pytest.raises(ValueError):
+        _plan_arrayed_design(PROPORTION, 0.9, readout="proportion")
+
+
+@pytest.mark.parametrize("readout,comps,effect,design", [
+    ("continuous", WITH_RC, 1.0, (4, 2, 3)),
+    ("proportion", PROPORTION, 0.1, (4, 2, 3)),
+    ("proportion", PROPORTION, -0.1, (4, 2, 3)),
+    ("count", COUNT, 0.6, (4, 2, 3)),
+    ("count", {**COUNT, "cell": 2.0}, 0.5, (3, 2, 2))])
+@pytest.mark.parametrize("paired", [False, True])
+def test_every_readout_matches_simulation(readout, comps, effect, design,
+                                          paired):
+    """Cells drawn as normal, 0/1 or (overdispersed) counts.
+
+    3000 experiments put the Monte Carlo standard error near 0.009.
+    """
+    replicates, wells, fields = design
+    analytic = _arrayed_power(comps, effect, replicates=replicates,
+                              wells=wells, fields=fields, paired=paired,
+                              readout=readout)
+    simulated = _simulate_arrayed_power(
+        comps, effect, replicates=replicates, wells=wells, fields=fields,
+        paired=paired, readout=readout, n_sim=3000, seed=5)
+    assert simulated == pytest.approx(analytic, abs=0.035)
+
+
+def test_replicate_by_condition_term_is_estimated_and_separated():
+    """Over twenty pilots the interaction is recovered, not left in the
+    replicate component, and a pilot without it estimates about zero."""
+    rc, rep = [], []
+    for seed in range(20):
+        comps = _nested_variance_components(
+            _two_condition_pilot(seed=seed), "intensity",
+            replicate="plateID", condition="arm")
+        rc.append(comps["replicate_condition"])
+        rep.append(comps["replicate"])
+        assert comps["estimated"]["replicate_condition"]
+        assert comps["n_replicates"] == 8 and comps["n_conditions"] == 2
+    assert np.mean(rc) == pytest.approx(0.2, abs=0.06)
+    assert np.mean(rep) == pytest.approx(TRUE["replicate"], abs=0.1)
+    none = [_nested_variance_components(
+        _two_condition_pilot(seed=s, rc=0.0), "intensity",
+        replicate="plateID", condition="arm")["replicate_condition"]
+        for s in range(10)]
+    assert np.mean(none) < 0.05
+    single = _nested_variance_components(_pilot(), "intensity",
+                                         replicate="plateID")
+    assert single["estimated"]["replicate_condition"] is False
+
+
+def test_the_interaction_does_not_cancel_in_a_paired_design():
+    base = {**TRUE, "replicate_condition": 0.0}
+    with_rc = {**TRUE, "replicate_condition": 0.3}
+    kwargs = dict(replicates=4, wells=2, fields=3, paired=True)
+    assert _arrayed_power(with_rc, 1.0, **kwargs) < _arrayed_power(
+        base, 1.0, **kwargs)
+    more = _plan_arrayed_design(with_rc, 1.0, paired=True, max_wells=2,
+                                max_fields=3)
+    fewer = _plan_arrayed_design(base, 1.0, paired=True, max_wells=2,
+                                 max_fields=3)
+    assert more["replicates"].min() > fewer["replicates"].min()
+
+
+def test_default_cells_is_the_harmonic_mean():
+    pilot = _pilot()
+    comps = _nested_variance_components(pilot, "intensity",
+                                        replicate="plateID")
+    sizes = pilot.groupby(["plateID", "prc", "fieldID"]).size()
+    assert comps["cells_per_field_effective"] == pytest.approx(
+        len(sizes) / (1.0 / sizes).sum())
+    assert _default_cells(comps) == comps["cells_per_field_effective"]
+    assert _default_cells({"cells_per_field": 7.0}) == 7.0
+    assert _default_cells({}) == 1.0
+
+
+def test_resampling_brackets_the_model_on_a_normal_pilot():
+    """A large normal pilot: the null holds its level, and the planned
+    power sits between distinct and with-replacement resampling."""
+    pilot = _pilot(seed=4, replicates=6, wells=24, fields=12)
+    comps = _nested_variance_components(pilot, "intensity",
+                                        replicate="plateID")
+    shape = dict(replicates=6, wells=4, fields=4)
+    null = _resample_arrayed_power(pilot, "intensity", 0.0, **shape,
+                                   n_sim=2000, seed=1)
+    assert null == pytest.approx(0.05, abs=0.02)
+    planned = _arrayed_power(comps, 1.0, **shape)
+    distinct = _resample_arrayed_power(pilot, "intensity", 1.0, **shape,
+                                       n_sim=2000, seed=2)
+    repeated = _resample_arrayed_power(pilot, "intensity", 1.0, **shape,
+                                       n_sim=2000, seed=3, replace=True)
+    assert repeated - 0.03 <= planned <= distinct + 0.03
+    for readout, effect in (("proportion", 0.1), ("count", 0.5)):
+        values = ((pilot["intensity"] > 5).astype(float)
+                  if readout == "proportion"
+                  else np.round(np.clip(pilot["intensity"], 0, None)))
+        other = pilot.assign(intensity=values)
+        for signed in (effect, -effect):
+            assert 0.0 <= _resample_arrayed_power(
+                other, "intensity", signed, **shape, readout=readout,
+                n_sim=200, seed=4) <= 1.0
+
+
+def test_resampling_refuses_a_pilot_too_small_for_the_design():
+    with pytest.raises(ValueError):
+        _resample_arrayed_power(_pilot(), "intensity", 1.0, replicates=3,
+                                wells=6, fields=3)
+    with pytest.raises(ValueError):
+        _resample_arrayed_power(_pilot(), "intensity", 1.0, replicates=3,
+                                wells=2, fields=2, readout="ratio")
+    assert 0.0 <= _resample_arrayed_power(
+        _pilot(), "intensity", 1.0, replicates=3, wells=6, fields=3,
+        replace=True, n_sim=100) <= 1.0
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36794763761)
+# ---------------------------------------------------------------------------
+
+def test_variances_with_nothing_to_pool_or_fit_are_nan():
+    from spacr.sp_stats import _additive_residual_variance, _pooled_variance
+
+    variance, dof = _pooled_variance(pd.Series([1.0, 2.0]), ["a", "b"])
+    assert np.isnan(variance) and dof == 0
+    variance, dof = _additive_residual_variance(
+        pd.Series([1.0, 2.0]), pd.Series(["r1", "r2"]), pd.Series(["c", "c"]))
+    assert np.isnan(variance) and dof == 0
+    variance, dof = _additive_residual_variance(
+        pd.Series([1.0, 2.0]), pd.Series(["r1", "r1"]),
+        pd.Series(["a", "b"]))
+    assert np.isnan(variance) and dof == 0
+
+
+def test_a_design_with_no_variance_has_full_power_or_the_false_rate():
+    flat = {"replicate": 0.0, "well": 0.0, "field": 0.0, "cell": 0.0,
+            "cells_per_field": 10}
+    shape = dict(replicates=3, wells=2, fields=2)
+    assert _arrayed_power(flat, 1.0, **shape) == 1.0
+    assert _arrayed_power(flat, 0.0, **shape) == 0.05
+
+
+def test_a_pilot_without_cell_counts_falls_back_to_its_own_mean():
+    comps = dict(TRUE)
+    designs = _plan_arrayed_design(comps, 1.0, max_replicates=4,
+                                   max_wells=2, max_fields=2)
+    assert {"replicates", "wells", "fields"} <= set(designs.columns)
+    power = _simulate_arrayed_power(comps, 1.0, replicates=3, wells=2,
+                                    fields=2, n_sim=50, seed=0)
+    assert 0.0 <= power <= 1.0
+
+
+def test_a_paired_resampled_design_compares_within_replicates():
+    pilot = _pilot(seed=5, replicates=6, wells=12, fields=6)
+    power = _resample_arrayed_power(pilot, "intensity", 1.0, replicates=4,
+                                    wells=2, fields=2, paired=True,
+                                    n_sim=100, seed=0)
+    assert 0.0 <= power <= 1.0
+
+
+def test_one_replicate_per_condition_estimates_no_replicate_terms():
+    """Each condition seen on its own plate: no replicate varies within a
+    condition and no plate is seen under two, so neither the replicate nor
+    the replicate-by-condition term can be estimated."""
+    pilot = _pilot(replicates=2).assign(
+        condition=lambda f: np.where(f["plateID"] == "p0", "dmso", "drug"))
+    comps = _nested_variance_components(pilot, "intensity",
+                                        replicate="plateID",
+                                        condition="condition")
+    assert comps["estimated"]["replicate"] is False
+    assert comps["estimated"]["replicate_condition"] is False
+
+
+def test_a_given_cell_count_is_used_as_is():
+    designs = _plan_arrayed_design(dict(TRUE), 1.0, cells=12, max_replicates=4,
+                                   max_wells=2, max_fields=2)
+    if len(designs):
+        assert set(designs["cells_per_field"]) == {12}
+    power = _simulate_arrayed_power(dict(TRUE), 1.0, replicates=3, wells=2,
+                                    fields=2, cells=12, n_sim=50, seed=0)
+    assert 0.0 <= power <= 1.0

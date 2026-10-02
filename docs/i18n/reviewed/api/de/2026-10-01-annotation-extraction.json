@@ -1,0 +1,17 @@
+{
+  "language": "de",
+  "note": "Source-bound correction of the N628 extraction contract. The recorded local-model draft is evidence; the corrected translation is not claimed to be verbatim model output.",
+  "records": [
+    {
+      "context": "Version 3 extraction searches each value for the first regex match. Return the selected numbered or named capture group; group zero returns the entire match. An absent match or empty capture produces a missing value.",
+      "label": "spacr.condition_annotations.preview#4",
+      "model_draft": "Die Extraktion von Version 3 sucht nach jedem Wert für das erste Regex-Match. Gibt die ausgewählte nummerierte oder benannte Capture-Gruppe zurück; Gruppe Null gibt das gesamte Match zurück. Ein fehlendes Match oder leeres Capture erzeugt einen fehlenden Wert.",
+      "review_basis": "Corrected after inspecting the rejected local-model draft. Codex AI technical review and independent root Codex AI peer review verified first-match search, named/numbered captures, group zero, and missing-value behavior.",
+      "source": "Version 3 extraction searches each value for the first regex match. Return the selected numbered or named capture group; group zero returns the entire match. An absent match or empty capture produces a missing value.",
+      "source_sha256": "e758ba8ba6c6b8daac0b875cc0d080968e7962a0718d626e8967d26d472320a3",
+      "translation": "Die Extraktion in Version 3 sucht in jedem Wert nach dem ersten Treffer des regulären Ausdrucks. Sie gibt die ausgewählte nummerierte oder benannte Erfassungsgruppe zurück; Gruppe null liefert den gesamten Treffer. Fehlt ein Treffer oder ist die erfasste Zeichenfolge leer, ist das Ergebnis ein fehlender Wert."
+    }
+  ],
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "schema": 1
+}

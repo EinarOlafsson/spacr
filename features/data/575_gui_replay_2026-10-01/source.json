@@ -1,0 +1,21 @@
+{
+  "source": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_10_1.npy",
+  "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+  "source_shape": [
+    1994,
+    1994,
+    7
+  ],
+  "crop_yx": [
+    768,
+    512
+  ],
+  "crop_shape": [
+    512,
+    512,
+    7
+  ],
+  "original_mask_labels_preserved": true,
+  "positive_cell_labels": 12,
+  "private_input_sha256": "a1b458ebd8635ffef3ea47f545f600625f44374b200ebc1b56e4dbb6fd3d1628"
+}

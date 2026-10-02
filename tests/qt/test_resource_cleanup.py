@@ -442,7 +442,7 @@ def test_preferences_offers_each_button(action, object_name, qtbot,
 @pytest.mark.parametrize("action,object_name", [("ram", "ClearRamButton")])
 def test_hovering_a_button_writes_its_sentence_at_the_foot(action, object_name,
                                                            qtbot,
-                                                           qt_theme_applied):
+                                                           qt_theme_applied, immediate_hover_help):
     """Registering is not enough -- the hover has to reach the bar."""
     from PySide6.QtCore import QEvent
     from PySide6.QtWidgets import QApplication, QPushButton
@@ -452,10 +452,15 @@ def test_hovering_a_button_writes_its_sentence_at_the_foot(action, object_name,
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
     button = dlg.findChild(QPushButton, object_name)
+    tabs = dlg._page_tabs
+    index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Performance")
+    tabs.setCurrentIndex(index)
+    dlg.show()
+    qtbot.waitExposed(dlg)
     bar = dlg.findChild(HintBar)
     resting = bar.text()
 
-    QApplication.sendEvent(button, QEvent(QEvent.Enter))
+    immediate_hover_help(button, lambda: bar.text() == rc.summary_text(action))
     assert bar.text() == rc.summary_text(action)
     QApplication.sendEvent(button, QEvent(QEvent.Leave))
     assert bar.text() == resting, "the bar must go back to resting"

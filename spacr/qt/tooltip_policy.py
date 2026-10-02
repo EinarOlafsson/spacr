@@ -9,7 +9,8 @@ if the text ran long.
 This module installs ONE event filter on ``QApplication`` and takes the
 decision away from the style:
 
-* a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;
+* a tooltip appears after the Tooltip delay preference of hovering, not
+  before (:data:`SHOW_DELAY_MS` when nothing is stored);
 * it stays while the pointer is on the widget OR on the tooltip itself;
 * it leaves :data:`LINGER_MS` after the pointer leaves both.
 
@@ -42,9 +43,10 @@ the ``ToolTip`` event is swallowed and no tooltip is shown anywhere.
 from __future__ import annotations
 
 import logging
+import weakref
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QObject, QPoint, QTimer, Qt
+from PySide6.QtCore import QEvent, QObject, QPoint, QTimer, Qt, Signal, Slot
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QApplication, QToolTip
 
@@ -52,9 +54,10 @@ from .gil_priority import (_stop_watching_application_events,
                            _watch_application_events)
 
 _TOOLTIP_MOMENTS = frozenset({
-    QEvent.Type.ToolTip, QEvent.Type.Leave, QEvent.Type.Hide,
+    QEvent.Type.ToolTip, QEvent.Type.Enter, QEvent.Type.Leave,
+    QEvent.Type.Hide, QEvent.Type.Close, QEvent.Type.DeferredDelete,
     QEvent.Type.WindowDeactivate, QEvent.Type.MouseButtonPress,
-    QEvent.Type.Wheel, QEvent.Type.KeyPress,
+    QEvent.Type.Wheel, QEvent.Type.KeyPress, QEvent.Type.MouseMove,
 })
 
 LOG = logging.getLogger(__name__)
@@ -82,6 +85,39 @@ OPT_OUT_PROPERTY = "spacrNoTooltipPolicy"
 
 _filter: Optional["_TooltipFilter"] = None
 _enabled: Optional[bool] = None
+_delay_ms: Optional[int] = None
+_hover_delays = weakref.WeakSet()
+
+
+def _preferred_delay_ms() -> int:
+    """The Tooltip delay preference in milliseconds. Cached.
+
+    Read on every hover, so the answer is kept until
+    :func:`invalidate_tooltip_policy` drops it, which saving the
+    preference does.
+    """
+    global _delay_ms
+    if _delay_ms is None:
+        try:
+            from .preferences import _get_tooltip_delay
+            _delay_ms = int(round(float(_get_tooltip_delay()) * 1000))
+        except Exception:                                   # noqa: BLE001
+            LOG.debug("could not read the tooltip delay", exc_info=True)
+            _delay_ms = SHOW_DELAY_MS
+    return _delay_ms
+
+
+def _style_wake_up_ms() -> int:
+    """How long Qt waits before it sends a ``ToolTip`` event at all."""
+    try:
+        from PySide6.QtWidgets import QStyle
+        style = QApplication.style()
+        if style is not None:
+            return max(0, int(style.styleHint(
+                QStyle.StyleHint.SH_ToolTip_WakeUpDelay)))
+    except Exception:                                        # noqa: BLE001
+        return 0
+    return 0
 
 
 def tooltips_enabled() -> bool:
@@ -106,10 +142,116 @@ def tooltips_enabled() -> bool:
 
 def invalidate_tooltip_policy() -> None:
     """Forget the cached preference, and hide anything already up."""
-    global _enabled
+    global _enabled, _delay_ms
     _enabled = None
+    _delay_ms = None
     if _filter is not None:
         _filter.hide_now()
+    from shiboken6 import isValid
+    for pending in list(_hover_delays):
+        if isValid(pending):
+            pending.cancel()
+            pending.invalidated.emit()
+        else:
+            _hover_delays.discard(pending)
+
+
+class HoverDelay(QObject):
+    """Schedule custom hover help using the global delay in seconds.
+
+    :param parent: QObject owning this hover surface and its timer.
+    """
+
+    invalidated = Signal()
+
+    def __init__(self, parent=None):
+        """Create an idle timer owned by ``parent``.
+
+        :param parent: QObject whose lifetime owns this timer.
+        """
+        super().__init__(parent)
+        self._anchor = None
+        self._window = None
+        self._callback = None
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.setTimerType(Qt.PreciseTimer)
+        self._timer.timeout.connect(self._deliver)
+        _hover_delays.add(self)
+
+    def schedule(self, anchor, callback) -> None:
+        """Wait a full continuous hover before invoking ``callback``.
+
+        :param anchor: widget being hovered; leaving or hiding cancels.
+        :param callback: zero-argument callable that presents the help.
+        """
+        self.cancel()
+        if not tooltips_enabled():
+            return
+        self._anchor = anchor
+        self._window = anchor.window()
+        self._callback = callback
+        anchor.installEventFilter(self)
+        anchor.destroyed.connect(self.cancel)
+        if self._window is not anchor:
+            self._window.installEventFilter(self)
+        self._timer.start(_preferred_delay_ms())
+
+    @Slot()
+    def cancel(self) -> None:
+        """Cancel pending help and release its target and callback."""
+        from shiboken6 import isValid
+        timer = getattr(self, "_timer", None)
+        if timer is None or not isValid(timer):
+            return
+        timer.stop()
+        anchor = getattr(self, "_anchor", None)
+        window = getattr(self, "_window", None)
+        for target in (anchor, window):
+            if target is not None:
+                try:
+                    target.removeEventFilter(self)
+                except RuntimeError:
+                    pass
+        if anchor is not None:
+            try:
+                anchor.destroyed.disconnect(self.cancel)
+            except (RuntimeError, TypeError):
+                pass
+        self._anchor = self._window = self._callback = None
+
+    def cancel_for(self, anchor) -> None:
+        """Cancel only the target that left, allowing late neighbouring leaves.
+
+        :param anchor: widget sending the leave event.
+        """
+        if anchor is getattr(self, "_anchor", None):
+            self.cancel()
+
+    def eventFilter(self, obj, event):  # noqa: N802
+        """Cancel when the target leaves or its window is hidden/closed.
+
+        :param obj: anchor or its top-level window.
+        :param event: event observed without consuming it.
+        """
+        kind = event.type()
+        if (kind in (QEvent.Hide, QEvent.Close, QEvent.DeferredDelete)
+                or (obj is getattr(self, "_anchor", None) and kind == QEvent.Leave)):
+            self.cancel()
+        return False
+
+    def _deliver(self):
+        """Present help only while its target still exists and is visible."""
+        anchor, callback = self._anchor, self._callback
+        self.cancel()
+        if anchor is None or callback is None or not tooltips_enabled():
+            return
+        try:
+            visible = anchor.isVisible()
+        except RuntimeError:
+            return
+        if visible:
+            callback()
 
 
 def tooltip_text_for(widget) -> str:
@@ -149,27 +291,43 @@ def tooltip_text_for(widget) -> str:
 class _TooltipFilter(QObject):
     """The application-wide filter. One instance, installed once."""
 
-    def __init__(self, show_delay_ms: int = SHOW_DELAY_MS,
+    def __init__(self, show_delay_ms: Optional[int] = None,
                  linger_ms: int = LINGER_MS) -> None:
         """Set the two timings; the filter is idle until installed.
 
-        :param show_delay_ms: how long the pointer rests before the tip shows.
+        :param show_delay_ms: how long the pointer rests before the tip
+            shows; ``None`` follows the Tooltip delay preference.
         :param linger_ms: how long a shown tip stays after the pointer leaves.
         """
         super().__init__()
-        self.show_delay_ms = int(show_delay_ms)
+        self._fixed_delay_ms = (None if show_delay_ms is None
+                                else int(show_delay_ms))
         self.linger_ms = int(linger_ms)
         self._widget: Optional[object] = None
+        self._watched_widget = None
         self._text = ""
         self._pos = QPoint()
         self._showing = False
         self._replaying = False
         self._show_timer = QTimer(self)
         self._show_timer.setSingleShot(True)
+        self._show_timer.setTimerType(Qt.PreciseTimer)
         self._show_timer.timeout.connect(self._show_now)
         self._hide_timer = QTimer(self)
         self._hide_timer.setSingleShot(True)
         self._hide_timer.timeout.connect(self._hide_if_the_pointer_left)
+
+    @property
+    def show_delay_ms(self) -> int:
+        """How long the pointer rests before the tip shows, in ms."""
+        if self._fixed_delay_ms is not None:
+            return self._fixed_delay_ms
+        return _preferred_delay_ms()
+
+    @show_delay_ms.setter
+    def show_delay_ms(self, value) -> None:
+        """Fix the delay; ``None`` follows the preference again."""
+        self._fixed_delay_ms = None if value is None else int(value)
 
     def eventFilter(self, obj, event) -> bool:               # noqa: N802
         """Take over tooltip events; leaving, clicks and keys hide the tip.
@@ -184,15 +342,92 @@ class _TooltipFilter(QObject):
             return False
         if kind == QEvent.Type.ToolTip:
             return self._on_tooltip(obj, event)
-        if kind in (QEvent.Type.Leave, QEvent.Type.Hide,
-                    QEvent.Type.WindowDeactivate):
+        if (kind == QEvent.Type.MouseMove and obj is self._widget
+                and not self._text and self._show_timer.isActive()):
+            # A view owns many cell targets beneath one viewport widget.
+            # Do not replay a help event for the cell the pointer left.
+            if event.globalPosition().toPoint() != self._pos:
+                self.hide_now()
+            return False
+        if kind == QEvent.Type.Enter:
+            self._on_enter(obj)
+            return False
+        if kind == QEvent.Type.Leave:
             if obj is self._widget:
                 self._start_the_linger()
+        elif kind in (QEvent.Type.Hide, QEvent.Type.Close,
+                      QEvent.Type.DeferredDelete, QEvent.Type.WindowDeactivate):
+            try:
+                belongs = (obj is self._widget or
+                           (kind != QEvent.Type.WindowDeactivate and
+                            self._widget is not None and
+                            obj is self._widget.window()))
+            except RuntimeError:
+                belongs = True
+            if belongs:
+                self.hide_now()
         elif kind in (QEvent.Type.MouseButtonPress,
                       QEvent.Type.Wheel,
                       QEvent.Type.KeyPress):
             self.hide_now()
         return False
+
+    def _track_widget(self, widget) -> None:
+        """Cancel immediately if the current native tooltip target dies.
+
+        :param widget: current target, or None when no target remains.
+        """
+        previous = self._watched_widget
+        self._widget = widget
+        if previous is widget:
+            return
+        self._watched_widget = None
+        if previous is not None:
+            try:
+                previous.destroyed.disconnect(self.hide_now)
+            except (AttributeError, RuntimeError, TypeError):
+                pass
+        if widget is not None:
+            try:
+                widget.destroyed.connect(self.hide_now)
+                self._watched_widget = widget
+            except (AttributeError, RuntimeError):
+                pass
+
+    def _on_enter(self, obj) -> None:
+        """Start a full wait on entry, independently of Qt's style delay.
+
+        Qt may deliver its tooltip request early after another tooltip was
+        visible. Never assume the style's nominal wake-up time has elapsed.
+        View-owned help is scheduled when its ToolTip event arrives.
+
+        :param obj: the object the pointer entered.
+        """
+        delay = self.show_delay_ms
+        if not tooltips_enabled():
+            return
+        if not hasattr(obj, "toolTip"):
+            return
+        try:
+            if bool(obj.property(OPT_OUT_PROPERTY)):
+                return
+        except Exception:                                    # noqa: BLE001
+            return
+        text = tooltip_text_for(obj)
+        if not text:
+            return
+        self._hide_timer.stop()
+        if obj is self._widget and text == self._text and (self._showing
+                                   or self._show_timer.isActive()):
+            self._track_widget(obj)
+            return
+        if self._showing:
+            self._hide_text()
+        self._show_timer.stop()
+        self._track_widget(obj)
+        self._text = text
+        self._pos = QCursor.pos()
+        self._show_timer.start(delay)
 
     def _on_tooltip(self, obj, event) -> bool:
         """Start (or keep) the show timer for the hovered widget's tip.
@@ -226,32 +461,19 @@ class _TooltipFilter(QObject):
             if self._showing:
                 self._hide_text()
             self._show_timer.stop()
-        self._widget = widget
+        self._track_widget(widget)
         self._text = text
         if not self._show_timer.isActive():
             self._show_timer.start(self.remaining_delay_ms())
         return True
 
     def remaining_delay_ms(self) -> int:
-        """How much longer to wait, given the wait Qt has already served.
+        """Wait a full delay when no observed Enter has started the timer.
 
-        Qt does not deliver the ``ToolTip`` event the moment the pointer
-        stops: the style's ``SH_ToolTip_WakeUpDelay`` -- around 700 ms with
-        Fusion -- has already gone by. Adding the full two seconds on top
-        of that would make the total 2.7 s, not the two seconds this
-        policy sets. So the style's delay is subtracted, and what
-        the reader experiences is two seconds from resting to reading.
+        The style wake-up value is not evidence that time elapsed: Qt uses
+        a fast path while moving between recently displayed tooltips.
         """
-        already = 0
-        try:
-            from PySide6.QtWidgets import QStyle
-            style = QApplication.style()
-            if style is not None:
-                already = int(style.styleHint(
-                    QStyle.StyleHint.SH_ToolTip_WakeUpDelay))
-        except Exception:                                    # noqa: BLE001
-            already = 0
-        return max(0, self.show_delay_ms - max(0, already))
+        return self.show_delay_ms
 
     def _show_now(self) -> None:
         """The pointer rested long enough. Put the text on screen."""
@@ -290,7 +512,7 @@ class _TooltipFilter(QObject):
         """
         from PySide6.QtGui import QHelpEvent
 
-        self._widget = None
+        self._track_widget(None)
         self._text = ""
         try:
             local = widget.mapFromGlobal(self._pos)
@@ -309,7 +531,7 @@ class _TooltipFilter(QObject):
         """The pointer left the widget; give it :data:`LINGER_MS` to return."""
         self._show_timer.stop()
         if not self._showing:
-            self._widget = None
+            self._track_widget(None)
             self._text = ""
             return
         self._hide_timer.start(self.linger_ms)
@@ -363,7 +585,7 @@ class _TooltipFilter(QObject):
         self._hide_timer.stop()
         if self._showing:
             self._hide_text()
-        self._widget = None
+        self._track_widget(None)
         self._text = ""
 
 

@@ -6,6 +6,8 @@ Measure
 
 Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.
 
+With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment.
+
 **Open:** Home → Measure.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
@@ -27,7 +29,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **Before this module**
 
 * :ref:`Mask <workflow-module-mask>`: Use the same project and the correct image/mask channel indices.
-* :ref:`Make Masks <workflow-module-make_masks>`: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.
+* :ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.
 * :ref:`External Masks <workflow-module-external_masks>`: Re-measure only when needed; External Masks can already perform measurement.
 * :ref:`Timelapse <workflow-module-timelapse>`: Use the time-series project with stable frame/object identities.
 * :ref:`Import <workflow-module-foreign>`: Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table.

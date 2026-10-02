@@ -1,0 +1,151 @@
+{
+  "scope": "Read-only native Ubuntu/GNOME X11 Preferences corner check, initial show and resize; not Windows/macOS or high-DPI acceptance.",
+  "source_commit": "ed402e5d9",
+  "observed_regression": false,
+  "themes": {
+    "dark": {
+      "accepted_stages": [
+        {
+          "theme": "dark",
+          "stage": 0,
+          "alpha": 8,
+          "mask_empty": true,
+          "window_id": 109051922,
+          "size": [
+            694,
+            610
+          ],
+          "corners": [
+            [
+              "#44ccaa",
+              "#44ccaa"
+            ],
+            [
+              "#44ccaa",
+              "#44ccaa"
+            ],
+            [
+              "#ee66bb",
+              "#ee66bb"
+            ],
+            [
+              "#ee66bb",
+              "#ee66bb"
+            ]
+          ],
+          "active_window": "_NET_ACTIVE_WINDOW(WINDOW): window id # 0x380001c"
+        },
+        {
+          "theme": "dark",
+          "stage": 1,
+          "alpha": 8,
+          "mask_empty": true,
+          "window_id": 109051922,
+          "size": [
+            735,
+            641
+          ],
+          "corners": [
+            [
+              "#44ccaa",
+              "#44ccaa"
+            ],
+            [
+              "#ee66bb",
+              "#ee66bb"
+            ],
+            [
+              "#44ccaa",
+              "#44ccaa"
+            ],
+            [
+              "#ee66bb",
+              "#ee66bb"
+            ]
+          ],
+          "active_window": "_NET_ACTIVE_WINDOW(WINDOW): window id # 0x380001c"
+        }
+      ],
+      "settings_hash": "56280a60808ffe5c0d326b9fabda6ca8906c58900a102805040ecafd1c8fba8b",
+      "active_window_unchanged": true
+    },
+    "light": {
+      "accepted_stages": [
+        {
+          "theme": "light",
+          "stage": 0,
+          "alpha": 8,
+          "mask_empty": true,
+          "window_id": 109051922,
+          "size": [
+            694,
+            610
+          ],
+          "corners": [
+            [
+              "#44ccaa",
+              "#44ccaa"
+            ],
+            [
+              "#44ccaa",
+              "#44ccaa"
+            ],
+            [
+              "#ee66bb",
+              "#ee66bb"
+            ],
+            [
+              "#ee66bb",
+              "#ee66bb"
+            ]
+          ],
+          "active_window": "_NET_ACTIVE_WINDOW(WINDOW): window id # 0x380001c"
+        },
+        {
+          "theme": "light",
+          "stage": 1,
+          "alpha": 8,
+          "mask_empty": true,
+          "window_id": 109051922,
+          "size": [
+            735,
+            641
+          ],
+          "corners": [
+            [
+              "#44ccaa",
+              "#44ccaa"
+            ],
+            [
+              "#ee66bb",
+              "#ee66bb"
+            ],
+            [
+              "#44ccaa",
+              "#44ccaa"
+            ],
+            [
+              "#ee66bb",
+              "#ee66bb"
+            ]
+          ],
+          "active_window": "_NET_ACTIVE_WINDOW(WINDOW): window id # 0x380001c"
+        }
+      ],
+      "settings_hash": "56280a60808ffe5c0d326b9fabda6ca8906c58900a102805040ecafd1c8fba8b",
+      "active_window_unchanged": true
+    }
+  },
+  "reopen": "Both reopen attempts were occluded by the controlled checkerboard host; center-pixel guard failed. Reopen is inconclusive and no reopen screenshot is accepted.",
+  "user_state": "Fresh XDG_CONFIG_HOME; original qt.conf hash unchanged; _NET_ACTIVE_WINDOW unchanged; no activateWindow called.",
+  "runtime_changes": [],
+  "artifacts": {
+    "preferences-dark-1.png": "fcb9fa514c31b99bf543245951c0f2f36d9c4f73b9fab8a84d9325e4c8a19a4a",
+    "check.py": "1393cf25390ef0c2d32dd774d32437bfea1e323df3f8ab2af5fa19e4f97338c4",
+    "light.json": "00f7289d8386efe58f9392b2af160afa1a4d0780065f1ddb7182787593e05f46",
+    "resources-dark.json": "a3213dbbaba22664f53c9d450440b0e0738ec20ba5ce4852b8942fe6b6a5ba8a",
+    "preferences-light-1.png": "015a72abac6ae9bdaacd627cc15dd8d477da34895fff120d2907a4ff82d87d72",
+    "dark.json": "988a578cdc7631accacd4969b4aecc1614292d6491c58b7a97d08aeba720c2d2",
+    "resources-light.json": "c9680c29391542c059a22a52d75d0ff40123fe7125e12bad8228211dbfb639ed"
+  }
+}

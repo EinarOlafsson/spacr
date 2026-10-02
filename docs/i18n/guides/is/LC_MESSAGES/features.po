@@ -1,0 +1,261 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Capabilities"
+msgstr "Getu"
+
+msgid "spaCR follows an image-based screen from raw microscopy files to a ranked hit list. This page gives the full map; the :doc:`Python API quickstart <python_api>` and interactive tutorials show the individual routes."
+msgstr "spaCR fylgir myndbundinni skimun frá hráum smásjárskrám að raðaðum lista yfir marktækar niðurstöður. Þessi síða gefur heildarkortið; :doc:`flýtileiðarvísirinn að Python API <python_api>` og gagnvirku kennslurnar sýna einstakar leiðir."
+
+msgid "Core screen workflow"
+msgstr "Kjarnaverkflæði skimunar"
+
+msgid "Mask"
+msgstr "Grímur"
+
+msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
+msgstr "Grímur undirbýr TIFF-, OME-TIFF-, LIF-, CZI- og ND2-myndatökur og hlutar frumur, kjarna, sýkla og frumulíffæri með Cellpose. Einingin styður tvívíð gögn, rúmmálsgögn og tímaraðagögn, metur þvermál hluta og getur skipst á grímuleiðréttingum við lagaskoðarann eða napari."
+
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` asks for -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
+msgstr "Hlutirnir eru ekki fast sett af fjórum. Verkefni hefur frumu, kjarna og sýkil, umfrymi sem leitt er af þeim, og eins marga frumulíffærareiti og ``number_of_organelles`` biður um -- frá engum upp í tuttugu og sex. Hver reitur er óháður, með eigin rás, þvermál, greiningaraðferð og formgerð."
+
+msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
+msgstr "Reit er gefin formgerðarforstilling -- punktlaga, blöðrulaga, kúlulaga, þráðlaga, pípulaga, netlaga, flögulaga (cisternal), kleinuhringlaga, hálfmánalaga eða sérsniðin -- og forstillingin velur greiningaraðferðina, eina af spots, network, irregular eða ring."
+
+msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and a hidden object's answers are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
+msgstr "Grímugerð setur stillingar fyrir hvern hlut fram sem eina töflu undir **Per-object settings**, með dálki fyrir hvern hlut sem hefur stillta rás; frumudálkurinn er alltaf sýndur. Rás hlutar er stillt á venjulega eyðublaðinu og svör falins hlutar eru geymd þar til rás hans er stillt aftur. Hver hlutur hefur gátreitinn **Fjarlægja bakgrunn** og frumudálkurinn hefur einnig **Aðlaga frumur**. **Bæta við síu** bætir við röð sem síar hluti eftir hvaða regionprop sem er úr scikit-image, svo sem flatarmáli eða meðalstyrk; reitur hvers hlutar tekur ``200 – 5000``, lágmark eitt og sér (``200``), hámark eitt og sér (``– 5000``) eða autt fyrir enga síu. Þessar raðir eru stillingin ``object_filters``. Ef Cellpose 3-líkan er valið fyrir hlut birtist flokkurinn **Cellpose 3** með eigin stillingum þess bakenda. **Gæðaeftirlit** geymir hlutunarathuganirnar ásamt stillingum fyrir úttak, geymslu, keyrslu og áreiðanleika."
+
+msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
+msgstr "Forskoðunin **Beint** í Grímur sýnir niðurstöðuna sem **Yfirlag**, **Grímur**, **Flæði** eða **Líkur á frumu**. Hægrismelltu á mynd til að velja **Save as PNG…** eða **Save as PDF…**. Þegar lota hefur búið til fleiri en eina grímu leggur **Bera saman grímur…** grímurnar og myndirnar sem þú hakar við hverja yfir aðra, hverja með eigið ógegnsæi og staflaröð, í sérstöku spjaldi."
+
+msgid "Measure"
+msgstr "Mæling"
+
+msgid "Measure writes per-object morphology, intensity, texture, radial, spatial and colocalization features to ``measurements.db``. It can save classifier-ready object crops, estimate illumination correction from a plate, restrict work to a region of interest and report segmentation quality before a run."
+msgstr "Mæling skrifar eiginleika formgerðar, styrks, áferðar, geislaþátta, rúmdreifingar og samstaðsetningar fyrir hvern hlut í ``measurements.db``. Einingin getur vistað myndskurði hluta tilbúna fyrir flokkara, metið lýsingarleiðréttingu út frá plötu, takmarkað vinnu við áhugasvæði og tilkynnt um gæði hlutunar fyrir keyrslu."
+
+msgid "Measure's settings are grouped as **Input & Experiment**, **Mask & Channel Mapping**, **Image Preprocessing** (with **Image Deconvolution (PSF)** and **Illumination Correction**), **Features**, **Object Filtering**, **Crop Output**, **3D Calibration (Beta)** and **Postprocessing** (with **Runtime & Reliability**). The segmentation-quality verdict is opt-in: the **QC** switch beside **3D** and **Time** opens it in a popup, and closing the popup turns the switch off."
+msgstr "Stillingar Mælingar eru flokkaðar sem **Inntak og tilraun**, **Grímu- og rásavörpun**, **Forvinnsla mynda** (með **Myndafvöfnun (PSF)** og **Lýsingarleiðrétting**), **Eiginleikar**, **Síun hluta**, **Úttak myndskurða**, **3D-kvörðun (Beta)** og **Postprocessing** (með **Keyrsla og áreiðanleiki**). Mat á gæðum hlutunar er valkvætt: rofinn **QC** við hlið **3D** og **Tími** opnar það í sprettiglugga og þegar sprettiglugganum er lokað slokknar á rofanum."
+
+msgid "Annotate and Classify"
+msgstr "Merking og Flokkun"
+
+msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are kept and inform the next round of training. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
+msgstr "Merking býður upp á lyklaborðsstýrða grind myndskurða, skráir merki beint í gagnagrunn verkefnisins og getur raðað virkri námsbiðröð eftir óvissu. Síða geymir eins marga myndskurði og komast fyrir og skrunar aldrei; hinir eru á næstu síðu. Eftir **Ráð...** bera tillögðu myndskurðirnir merkið **?**: smelltu á einn eða ýttu á **Y** til að staðfesta hann, hægrismelltu eða ýttu á **N** til að hafna honum, og **U** afturkallar. **Staðfesta restina af síðunni** og **Hafna restinni af síðunni** dæma allar eftirstandandi tillögur í einu. Höfnunum er haldið og þær hafa áhrif á næstu þjálfunarumferð. Flokkun þjálfar PyTorch-myndlíkön eða klassísk og efld (boosted) líkön út frá mælitöflum. Vistunarpunktar skrá gagnasafn sitt, skiptingarreglu, jafnvægi flokka og mælikvarða á geymdum gögnum. Sýnin **Essentials** í Flokkun geymir það sem þarf til að velja og þjálfa hvora fjölskylduna sem er — myndlíkan eins og ResNet eða MaxViT, eða töflulíkan eins og XGBoost eða slembiskóg — og gerir stillingar fjölskyldunnar sem ekki er valin gráar."
+
+msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
+msgstr "Flokkun CV býður einnig upp á valkvæða snúninga og speglanir við ályktun. Sjá :doc:`classifier_evaluation` fyrir samantektaraðferðirnar, upphaflegar líkur og meðallíkur og merkingar um stöðugleika stefnu."
+
+msgid "Map Barcodes"
+msgstr "Varpa strikamerkjum"
+
+msgid "Barcode mapping decodes row, column and gRNA barcodes from FASTQ reads, joins them to imaged wells and reports abundance, collision, unmapped-read and library-coverage checks."
+msgstr "Strikamerkjavörpun afkóðar strikamerki raða, dálka og gRNA úr FASTQ-lestrum, tengir þau við myndaða brunna og tilkynnir athuganir á gnægð, árekstrum, óvörpuðum lestrum og þekju safnsins."
+
+msgid "Regression"
+msgstr "Aðhvarf"
+
+msgid "Regression estimates guide, gene, condition and control effects. Its model families cover continuous, fractional, binary and count responses, robust and quantile fits, penalised high-dimensional designs, mixed effects and guide permutation. Diagnostics and run summaries are written beside the result."
+msgstr "Aðhvarf metur áhrif leiðara, gena, skilyrða og viðmiða. Líkanafjölskyldur þess ná yfir samfelld svör, hlutfallssvör, tvíundarsvör og talningarsvör, þolnar mátanir og fraktílsmátanir, refsaðar hávíddarhannanir, blönduð áhrif og umröðun leiðara. Greiningar og samantektir keyrslna eru skrifaðar við hlið niðurstöðunnar."
+
+msgid "Planning, quality control and exploration"
+msgstr "Skipulagning, gæðaeftirlit og könnun"
+
+msgid "**Power and Design** estimate cell and well requirements and lay out plates, controls and replicates."
+msgstr "**Power and Design** meta þörf fyrir frumur og brunna og skipuleggja plötur, viðmið og endurtekningar."
+
+msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and leakage checks."
+msgstr "**QC Dashboard** sameinar athuganir á hlutun, plötum, samræmi merkjara og leka."
+
+msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
+msgstr "**Lotuleiðrétting** býður upp á miðjun, z-stöðlun, þolna z-stöðlun, miðjun út frá viðmiðum og ComBat með vernduðum líffræðilegum fylgibreytum."
+
+msgid "**Graph Builder, gates and linked views** connect summary plots to the object crops behind them."
+msgstr "**Graph Builder, hlið og tengdar sýnir** tengja samantektarmyndrit við myndskurði hlutanna að baki þeim."
+
+msgid "**Feature, dose-response, control-chart and outlier views** inspect a result without an export/re-import cycle."
+msgstr "**Sýnir fyrir eiginleika, skammtasvörun, stýririt og útlaga** skoða niðurstöðu án þess að flytja út og inn aftur."
+
+msgid "**Layer and lineage views** connect images, masks and the cell → nucleus → pathogen object hierarchy."
+msgstr "**Laga- og ætternissýnir** tengja myndir, grímur og stigveldi hlutanna fruma → kjarni → sýkill."
+
+msgid "In **Live Preview**, **QC** image views and the raw/enhanced comparison, wheel zoom keeps the image point beneath the pointer in place. This also works when the image is smaller than its viewport; **Fit** or opening a new image resets the extra navigation space. Linked comparison views update together after the zoom. Orthogonal image views zoom around the pointer without moving the crosshair's selected position."
+msgstr "Í **Live Preview**, myndsýnum **QC** og samanburði hrárra/bættra mynda heldur aðdráttur með músarhjóli myndpunktinum undir bendlinum á sínum stað. Þetta virkar líka þegar myndin er minni en sjónglugginn; **Aðlaga að glugga** eða opnun nýrrar myndar endurstillir aukaleiðsögurýmið. Tengdar samanburðarsýnir uppfærast saman eftir aðdráttinn. Hornréttar myndsýnir þysja í kringum bendilinn án þess að færa valda stöðu krosshársins."
+
+msgid "For Toxoplasma compartment-intensity comparisons, see :doc:`recruitment`."
+msgstr "Fyrir samanburð á styrk í hólfum Toxoplasma, sjá :doc:`recruitment`."
+
+msgid "Reproducibility and interoperability"
+msgstr "Endurtakanleiki og samvirkni"
+
+msgid "Every run can record its identifier, seed, resolved settings and outputs. Interrupted workflows can resume from checkpoints, and the run history can compare settings and artefacts. Measurements export to AnnData; optional integrations read or write OME-Zarr, connect to OMERO and send masks to napari."
+msgstr "Hver keyrsla getur skráð auðkenni sitt, fræ, útleystar stillingar og úttök. Truflað verkflæði getur haldið áfram frá vistunarpunktum og keyrslusagan getur borið saman stillingar og afurðir. Mælingar má flytja út í AnnData; valkvæðar samþættingar lesa eða skrifa OME-Zarr, tengjast OMERO og senda grímur til napari."
+
+msgid "How a module is reached"
+msgstr "Hvernig komist er að einingu"
+
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
+msgstr "Heimaskjárinn flokkar einingar í fjóra flokka -- **Kjarni**, **Gögn**, **Verkfæri** og **Prófanir** -- og tuttugu og ein eining hefur reit í einum þeirra. Kjarni er vinnslukeðjan sem þú keyrir í röð; Gögn er það sem fer inn í hana og kemur út úr henni; Verkfæri eru tækin sem þú beinir að verkefni frekar en skref sem vinnslukeðjan tekur sjálf; Prófanir eru megindlegu aflestrarnir. Búa til grímur er undir **Verkfæri**."
+
+msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
+msgstr "REITUR ER EKKI EINA LEIÐIN INN og flestar einingar hafa engan. Reitur segir „byrjaðu hér“ og eining sem svarar spurningu um keyrslu sem einhver annar hóf er ekki staður til að byrja á. Þær opnast í staðinn frá:"
+
+msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
+msgstr "**hnappi á haus hýsileiningarinnar** -- sem síða við hlið stillinga hýsilsins, sem vísar þegar á sama verkefni. Investigate Hit og Prediction Profiler opnast úr Aðhvarf; Sniðbreytir og Ytri grímur úr Flytja inn; Layer Viewer, Control Charts og Outliers úr QC."
+
+msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
+msgstr "**Hjálp-valmyndinni**, fyrir þær sem skoða eða stjórna vinnu sem þegar er til frekar en að tilheyra einhverri einni einingu -- Keyrslusaga, Pipeline Graph, Project Browser, Gagnagrunnsvafri, Skýrsla, Gagnastjóri, Plöturöð, Lotukeyrsla og Dreifð verk."
+
+msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
+msgstr "**skipanaspjaldinu** (Ctrl+K), sem nær til ALLRA eininga, með reit eða án. Það er eina leiðin án undantekninga og leiðsögn lyklaborðsnotandans."
+
+msgid "None of them is second-class: they are shipped, translated and documented like any other module, and the ones that are pipelines still run headlessly under ``spacr-run``."
+msgstr "Engin þeirra er annars flokks: þær eru afhentar, þýddar og skjalfestar eins og hver önnur eining, og þær sem eru vinnslukeðjur keyra enn án myndræns viðmóts undir ``spacr-run``."
+
+msgid "Host"
+msgstr "Hýsill"
+
+msgid "Opens from its masthead"
+msgstr "Opnast úr haus sínum"
+
+msgid "Timelapse"
+msgstr "Tímaraðir"
+
+msgid "Illumination Correction, AnnData Export, Motility Assay"
+msgstr "Lýsingarleiðrétting, AnnData-útflutningur, Hreyfanleikapróf"
+
+msgid "Annotate"
+msgstr "Merking"
+
+msgid "Annotator Agreement"
+msgstr "Samræmi merkjara"
+
+msgid "Classify"
+msgstr "Flokkun"
+
+msgid "Classifier Evaluation, Explain CV Model, Activation Maps"
+msgstr "Mat á flokkara, Skýra CV-líkan, Virkjunarkort"
+
+msgid "Barcode QC"
+msgstr "Strikamerkja-QC"
+
+msgid "Volcano Explorer, Hit List, Methods & Results"
+msgstr "Eldfjallaritskönnun, Niðurstöðulisti, Aðferðir og niðurstöður"
+
+msgid "Image UMAP"
+msgstr "Mynda-UMAP"
+
+msgid "Image Scatter, PCA"
+msgstr "Mynddreifirit, PCA"
+
+msgid "Make Masks"
+msgstr "Búa til grímur"
+
+msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate, Napari Bridge"
+msgstr "Cellpose-vinnuborð, Búa til grímur fyrir alla möppuna, Líkansamanburður, Líkanasafn, Grisja, Napari-brú"
+
+msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
+msgstr "Færibreytuskönnun er náð í þriðja lagi: það er spjald á skjá Aðhvarfs, opnað með rofanum **Færibreytuskönnun** á stillingaeyðublaði þess."
+
+msgid "Arranging the window"
+msgstr "Uppröðun gluggans"
+
+msgid "**Home** keeps its panels in a right-hand column. Drag the column's arrow handle to resize it, or click it to fold the column away and bring it back. The **Text size** slider below the lowest panel scales the text in those panels."
+msgstr "**Heim** heldur spjöldum sínum í dálki til hægri. Dragðu örvahandfang dálksins til að breyta stærð hans eða smelltu á það til að fella dálkinn saman og fá hann aftur. Sleðinn **Textastærð** fyrir neðan neðsta spjaldið kvarðar textann í þeim spjöldum."
+
+msgid "**The dock**: while it is shown, drag its edge to make it wider or narrower; double-click the edge to fit it to the module names again."
+msgstr "**Stikan**: á meðan hún er sýnd skaltu draga brún hennar til að gera hana breiðari eða mjórri; tvísmelltu á brúnina til að laga hana aftur að heitum eininganna."
+
+msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
+msgstr "**Hægri dálkur einingar** (stjórnborð, aðgerðir og hin spjöldin) breytir stærð sem ein heild þegar vinstri brún hans er dregin. Haltu inni **Ctrl** og skrunaðu yfir hann til að stækka eða minnka texta hans; **Ctrl+0** yfir dálkinum færir hann aftur í sjálfgefna stærð."
+
+msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
+msgstr "**Skjábendingar** birtast eftir að bendillinn hefur hvílt í tvær sekúndur og haldast á meðan bendillinn er á þeim. Slökktu á þeim öllum með **Kjörstillingar → Útlit → Skjábendingar**."
+
+msgid "These sizes are remembered between sessions."
+msgstr "Þessar stærðir eru munaðar milli lota."
+
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Búa til grímur leiðréttir grímur handvirkt og ber Cellpose-lykkjuna á haus sínum. Strigi þess hefur tíu verkfæri: Pensill, Strokleður, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop og Reglustika. :doc:`Tilvísunin fyrir Búa til grímur <make_masks>` fjallar um þessi verkfæri, Tónsvið, greiningarstillingar, pörun frum- og afleiddra hluta, vistun og mælingu."
+
+msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
+msgstr "Draw rekur útlínu að vild sem lokast og fyllist sem einn hlutur -- verkfærið sem pensill er ekki, því að pensill stimplar diska eftir ferlinum, svo ef brún er rakin með honum er brúnin merkt og miðjan skilin eftir sem bakgrunnur. Divide dregur línu þvert yfir samrunninn hlut og gerir úr honum tvo, án þess að snerta merki nokkurs annars hlutar; það er algengasta leiðréttingin sem hlutun þarfnast."
+
+msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
+msgstr "Recrop er eina verkfærið sem breytir því hvaða sjónsvið er á skjánum frekar en því sem er málað á það. Sviðsettur myndskurður sem inniheldur nokkrar frumur er ekki eitt þjálfunardæmi, og ef hann er grisjaður sem eitt kennir það neti að tveir hlutir séu ein mynd -- svo rammi utan um hlut skrifar það svæði bæði myndarinnar og grímunnar sem eigið sjónsvið, sett í biðröð strax á eftir því núverandi, og upphaflega fjölhlutamyndin er sett til hliðar í ``recropped_originals/`` frekar en grisjuð. Ramma sem er minni en lágmarkshliðin, eða sem endurtekur skurð sem þegar hefur verið gerður, er hafnað; hlutum sem ramminn sker í gegnum er sleppt, því að hlutur sem hefur mörk þar sem músinni var sleppt er ekki sá hlutur; og merkin sem eftir standa eru endurnúmeruð frá einum."
+
+msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. A mask is a threshold applied to that probability map, and a candidate object is discarded when its flows disagree with the ones the network predicted by more than the flow-error threshold. When a mask is wrong, those two panes are where the reason is visible."
+msgstr "Þegar Cellpose-SAM er keyrt frá þessum skjá eru tvö milliúttök þess sýnd við hlið grímunnar: líkindakort frumu og flæðisviðið. Gríma er þröskuldur sem beitt er á það líkindakort og kandídathlut er hent þegar flæði hans víkja frá þeim sem netið spáði um meira en flæðisvilluþröskuldinn. Þegar gríma er röng eru það þessir tveir gluggar sem sýna ástæðuna."
+
+msgid "Settings that apply"
+msgstr "Stillingar sem eiga við"
+
+msgid "The settings panel carries a control when it applies to the run being set up and leaves it off the form when it does not:"
+msgstr "Stillingaspjaldið sýnir stýringu þegar hún á við keyrsluna sem verið er að setja upp og sleppir henni af eyðublaðinu þegar hún á ekki við:"
+
+msgid "a slot past ``number_of_organelles`` takes its whole block of settings with it, its channel included -- a slot the run does not have is not a slot with its channel left showing;"
+msgstr "reitur umfram ``number_of_organelles`` tekur alla stillingablokk sína með sér, rásina meðtalda -- reitur sem keyrslan hefur ekki er ekki reitur með rásina sína enn sýnilega;"
+
+msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
+msgstr "hlutur sem hefur rás sem nefnir ekkert plan er alls ekki í keyrslunni, svo stillingar hans eru ekki á eyðublaðinu;"
+
+msgid "a setting belonging to one morphology is dropped for a slot of another: a punctate organelle has no ridge filter."
+msgstr "stillingu sem tilheyrir einni formgerð er sleppt fyrir reit með aðra: punktlaga frumulíffæri hefur enga hryggjasíu."
+
+msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
+msgstr "Rofarnir 3D og Tími gefa til kynna hvaða víddir platan hefur. ``z_stack`` lýsir yfir z-ás og virkjar rúmmálsstillingarnar -- hlutunarham, misáttun og rúmpixlastærð -- og stöðvast með villu frekar en að giska á hvaða ás er z. ``timelapse`` lýsir yfir tímaás og sýnir rakningu; plata með einum tímapunkti hunsar hann. 4D-stillingarnar eiga aðeins við þegar gögnin eru bæði z-stafli og tímaröð, og birtast aðeins þá."
+
+msgid "Maturity labels"
+msgstr "Þroskamerkingar"
+
+msgid "The API uses these labels consistently:"
+msgstr "API-ið notar þessar merkingar með samræmdum hætti:"
+
+msgid "**Stable**"
+msgstr "**Stöðugt**"
+
+msgid "Supported entry points used by the principal Mask, Measure, Classify, barcode and regression workflows. Backward-incompatible changes require a deprecation period."
+msgstr "Studdir inngangspunktar sem helstu verkflæði Grímur, Mæling, Flokkun, strikamerkja og aðhvarfs nota. Breytingar sem rjúfa afturábaksamhæfni krefjast úreldingartímabils."
+
+msgid "**Advanced**"
+msgstr "**Ítarlegt**"
+
+msgid "Supported specialist functionality whose defaults or result schema may still evolve. Release notes describe material changes."
+msgstr "Studd sérhæfð virkni þar sem sjálfgildi eða niðurstöðuskema geta enn þróast. Útgáfuskýringar lýsa efnislegum breytingum."
+
+msgid "**Experimental**"
+msgstr "**Tilraunastig**"
+
+msgid "Early interfaces intended for evaluation. They may change between minor releases and should be pinned before use in an automated workflow."
+msgstr "Snemmbúin viðmót ætluð til mats. Þau geta breyst milli minni útgáfna og ætti að festa útgáfu þeirra áður en þau eru notuð í sjálfvirku verkflæði."
+
+msgid "**Internal**"
+msgstr "**Innra**"
+
+msgid "GUI widgets, workers and implementation helpers. They are documented for contributors but are not a compatibility promise."
+msgstr "Viðmótshlutar myndræna viðmótsins, vinnsluþræðir og útfærsluhjálparar. Þeir eru skjalfestir fyrir þátttakendur en eru ekki loforð um samhæfni."
+
+msgid "Optional dependencies"
+msgstr "Valkvæðir pakkar"
+
+msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "Grunnpakkinn inniheldur vinnslukeðjurnar án myndræns viðmóts. Settu upp ``spacr[qt]`` fyrir skjáborðsviðmótið. Önnur aukasöfn bæta við OME-Zarr, OMERO, napari, eignun, rakningu, Zernike-mælingum og lesurum framleiðenda. Framboð er breytilegt eftir útgáfu Python; :doc:`uppsetningarleiðbeiningarnar <installer_guide>` eru áreiðanlega samhæfnistaflan."
+

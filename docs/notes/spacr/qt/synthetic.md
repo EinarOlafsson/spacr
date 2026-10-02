@@ -246,7 +246,7 @@ The camera offset the images are actually drawn on. All three object channels, n
 
 It was 1.0 from the first commit of this generator (4307d6299, 2026-07-21), and 1.0 was not a choice made for the synthetic data. It was the shipped default of that day. The same dict copied `cell_background` 100, signal-to-noise 10 and `cell_CP_prob` 0, which were all defaults then too. So the demo follows the shipped default, which is 0.4 since 428 (GitHub #123). Nucleus and pathogen are not set here and take the same default.
 
-WHAT THAT COSTS THE DEMO: NOTHING, measured 2026-09-19 through spaCR's own Mask pipeline. `generate_mask_demo` (default `fields=2`, four fields), its settings CSV loaded the way the Demos menu loads it, then `preprocess_generate_masks`, on the GPU; the `gen_mask_settings.csv` each run wrote confirms the thresholds it used. Labels counted in the merged stacks, per field, as cell / nucleus / pathogen / organelle:
+WHAT THAT COSTS THE DEMO: NOTHING, measured 2026-09-19 through spaCR's own Mask pipeline. `generate_mask_demo` (default `fields=2`, four fields), its settings CSV applied through the shared settings loader used by recording and test fixtures, then `preprocess_generate_masks`, on the GPU; the `gen_mask_settings.csv` each run wrote confirms the thresholds it used. Labels counted in the merged stacks, per field, as cell / nucleus / pathogen / organelle:
 
     flow thresholds 0.4 / 0.4 / 0.4 (since 428)      16/16/17/64  16/16/20/64  16/16/18/64  16/16/16/64
     flow thresholds 1.0 / 100 / 100 (before 428)     16/16/17/64  16/16/20/64  16/16/18/64  16/16/16/64

@@ -1,0 +1,22 @@
+[
+  "Calculate reference-well gains without running Measure or changing files.",
+  "Calculating calibration gains…",
+  "Calibration gains",
+  "Choose a local source folder containing merged arrays.",
+  "Discard this preview. Any source scan already running will finish safely.",
+  "Enable intensity calibration before previewing gains.",
+  "Finish valid settings before previewing gains.",
+  "Gain",
+  "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+  "No eligible merged arrays were found.",
+  "Preview complete. No images or measurements were changed.",
+  "Preview gains",
+  "Preview only: each source folder is planned separately.",
+  "Reference fields",
+  "Reference plate",
+  "Reference statistic",
+  "Settings changed. Preview the gains again.",
+  "Some merged arrays could not be read. Check the source files.",
+  "The first plate by name is the reference.",
+  "Turn off Test mode to preview gains for all source fields."
+]

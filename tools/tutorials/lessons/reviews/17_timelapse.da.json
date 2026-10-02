@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Download og udpak SYNTHETIC_timelapse_preview.zip. Undervisningseksemplet indeholder otte billedrammer med cellebilleder og matchende labelbilleder. Til en fuld Mask-kørsel på dine egne data forbereder du tidsordnede mikroskopibilleder og noterer optagelsesintervallet.",
   "scenes": [
-    "Fra Home åbner du Mask og klikker på Timelapse-ikonet øverst til højre for at slå sporing til. Brug Timelapse til at forbinde objekter på tværs af på hinanden følgende billeder. Først prøver vi det linkede eksempel i Track preview og gennemgår derefter indstillingerne til at behandle din egen billedsekvens.",
+    "Åbn Mask fra Home, slå Time til i Actions-rækken, og slå Timelapse til for at aktivere sporing. Timelapse forbinder objekter på tværs af på hinanden følgende billeder. Først prøver vi det linkede eksempel i Track preview, og derefter gennemgår vi indstillingerne til din egen billedserie.",
     "Download og udpak eksempelarkivet nedenfor, og klik derefter på Track preview til højre for overskriften Actions. Arkivet indeholder en billedsekvens og en matchende maskesekvens med otte billedrammer. Hold begge mapper samlet, så du kan vælge billeder og labels, der hører sammen.",
     "Vælg image_sequences og derefter field_A01 som billedmappe. Vælg kanal 0: hvert eksempelbillede indeholder én kanal med celleintensitet. Sæt Frames previewed til 8 og Fields til 1.",
     "Klik på Masks, og vælg label_sequences og derefter field_A01. Hver label identificerer et objekt i det tilsvarende billede. Lad Keep only full-length tracks være slået fra i starten, så du kan undersøge spor, der begynder eller slutter inde i sekvensen.",

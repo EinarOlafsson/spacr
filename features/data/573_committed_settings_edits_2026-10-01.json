@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "feature": "F573 committed settings first-seen observation",
+  "scope": "Existing intact lock; settings-only observation, never whole-lock verification. Full file/gate checks remain on runs/dialogs.",
+  "source_sha256": {
+    "spacr/run_journal.py": "e923b6171343e71d5b3c1e429b85db76dde28d160568c6d1968bf2c9150cdd1b",
+    "spacr/qt/screens/settings_model.py": "ff4a02c147df3a4a3cd012aaa954fc005e3fd42bbb8000a272018fa038155f26",
+    "spacr/qt/screens/app_screen.py": "f8c652e192a90929b1721f3267ac9ecb205afecd3ba3eb2829e0779f3fa2b989",
+    "spacr/qt/widgets/row_exclusion.py": "5ab39986d8298441beb5bb47feee8c117f955ef4d8707f65b360e93b6f0a8776",
+    "tests/qt/test_settings_edit_analysis_lock_f573.py": "ec02b6584ad57f5deb60d9b91eb0986e5d84290fa2d07dc180e3b7c97a1aeddf"
+  },
+  "validation": {
+    "new_control_tests": {
+      "passed": 13,
+      "seconds": 2.5,
+      "file": "tests/qt/test_settings_edit_analysis_lock_f573.py"
+    },
+    "existing_journal_and_lock_dialog_tests": {
+      "passed": 9,
+      "combined_with_prior_12_new_cases": 21,
+      "seconds": 7.07
+    },
+    "existing_list_and_async_row_exclusion_tests": {
+      "passed": 7,
+      "seconds_including_one_then_fixed_new_spin_failure": 11.87
+    },
+    "distinct_passing_checks": 29,
+    "resolved_failures": [
+      "Tiny synthetic settings fixture now retains its Qt parent; no product change was needed.",
+      "The row-exclusion test uses actual exclude_rows rather than unrelated string-valued exclude.",
+      "Actual spin typing exposed premature per-character observation; private input-event guard fixed it and all13newcases passed afterward."
+    ]
+  },
+  "limits": {
+    "f573-settings-spin-fixed-limits.json": {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/qt/test_settings_edit_analysis_lock_f573.py"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-rd12cfd68e8cc46929ff07f07b03a8184.scope",
+      "limits": {
+        "memory.max": "4294967296",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=4294967296",
+          "MemorySwapMax=0"
+        ]
+      }
+    },
+    "f573-settings-final-limits.json": {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/qt/test_settings_edit_analysis_lock_f573.py",
+        "tests/test_573_lock_gates_models_pipelines_report.py",
+        "tests/qt/test_544_573_blind_scoring_and_lock_on_screen.py::test_lock_analysis_dialog_locks_then_verifies"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r82354ccf66f84f1ba6b1d35d4ea62fd3.scope",
+      "limits": {
+        "memory.max": "4294967296",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=4294967296",
+          "MemorySwapMax=0"
+        ]
+      }
+    },
+    "f573-settings-compatibility-limits.json": {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/qt/test_settings_edit_analysis_lock_f573.py::test_spin_typing_waits_for_commit_and_arrow_step_is_immediate",
+        "tests/qt/test_settings_list_editor.py::test_a_chip_can_be_added_and_removed",
+        "tests/qt/test_settings_list_editor.py::test_add_group_adds_a_row_and_removing_the_last_one_flattens",
+        "tests/qt/test_settings_list_editor.py::test_importing_a_settings_dict_reaches_the_custom_editors",
+        "tests/qt/test_settings_list_editor.py::test_live_preview_propagation_reaches_the_chip_editor",
+        "tests/qt/test_umap_row_exclusion_settings.py::test_exclusion_editor_round_trips_imported_rules",
+        "tests/qt/test_umap_row_exclusion_settings.py::test_rapid_column_edits_coalesce_into_a_single_query",
+        "tests/qt/test_umap_row_exclusion_settings.py::test_a_removed_rule_row_is_never_painted_by_a_late_read"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r7a47a035baf54f0d87367f816f63e2d7.scope",
+      "limits": {
+        "memory.max": "4294967296",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=4294967296",
+          "MemorySwapMax=0"
+        ]
+      }
+    },
+    "f573-api-proof-final-limits.json": {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "/tmp/spacr-implementation-20261001/review/f573_extract_proof.py"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-rf24794bd9cc24e9f80a1ebe0b486c0dd.scope",
+      "limits": {
+        "memory.max": "1073741824",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=1073741824",
+          "MemorySwapMax=0"
+        ]
+      }
+    }
+  },
+  "public_surface": {
+    "spacr/run_journal.py": {
+      "existing_signature_and_docstring_changes": [],
+      "new_private_helpers": [
+        "_observe_settings_changes"
+      ],
+      "existing_Ruff_findings": 1,
+      "current_Ruff_findings": 1
+    },
+    "spacr/qt/screens/settings_model.py": {
+      "existing_signature_and_docstring_changes": [],
+      "new_private_helpers": [
+        "SettingsWidgets._discrete_setting_changed",
+        "SettingsWidgets._enable_commit_observation",
+        "SettingsWidgets._setting_committed",
+        "SettingsWidgets._valid_committed_value",
+        "SettingsWidgets._watch_setting_commit",
+        "_SpinCommitInput.__init__",
+        "_SpinCommitInput.eventFilter"
+      ],
+      "existing_Ruff_findings": 31,
+      "current_Ruff_findings": 31
+    },
+    "spacr/qt/screens/app_screen.py": {
+      "existing_signature_and_docstring_changes": [],
+      "new_private_helpers": [
+        "AppScreen._observe_settings_commit"
+      ],
+      "existing_Ruff_findings": 38,
+      "current_Ruff_findings": 38
+    },
+    "spacr/qt/widgets/row_exclusion.py": {
+      "existing_signature_and_docstring_changes": [],
+      "new_private_helpers": [],
+      "existing_Ruff_findings": 1,
+      "current_Ruff_findings": 1
+    }
+  },
+  "canonical_api": {
+    "current_count": 12035,
+    "baseline_count": 12035,
+    "delta": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "method": "Actual public_docstrings extractor on current source and intercepted HEAD-only text for four changed files; no source files replaced or generated catalog writes."
+  },
+  "limitations": "Local control validation rejects known type/range/expression/list errors; it does not replace pipeline preflight or inspect input image/model contents. No native desktop focus, remote publication or full-suite run.",
+  "integrated_regression": {
+    "passed": 22,
+    "seconds": 2.73,
+    "tests": [
+      "tests/qt/test_settings_edit_analysis_lock_f573.py",
+      "tests/qt/test_cellprofiler_example_export_f546.py"
+    ],
+    "limits": "4GiB, zero swap, one actual CPU",
+    "log": "/tmp/spacr-implementation-20261001/review/f573-f546-integrated-tests.log"
+  },
+  "feature_status": "complete as alpha; global release/publication tracked in N615"
+}

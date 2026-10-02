@@ -678,13 +678,6 @@
     },
     {
       "table": "ui",
-      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
-      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
-      "translation": "将指针在按钮、字段或列标题上停留两秒，会显示一个说明其用途的小标签。指针停留期间标签保持显示，指针移开一秒后消失。取消勾选后，spaCR 中任何位置都不会出现工具提示。"
-    },
-    {
-      "table": "ui",
       "key": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
       "source": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
       "source_sha256": "85f568bd32906370d0fa5772855a856fa6f854b9d10c87557110b6ad54cbc950",
@@ -1544,5 +1537,15 @@
       "source_sha256": "ef4d4bf1ff8d454c6b31ff1f643c6083993b403085e624ed6da84ffe17776018",
       "translation": "{n} 条被拒绝的建议已交给本轮拟合：一次拒绝就是另一类别的一个样本。"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
+      "translation": "将指针在按钮、字段或列标题上停留两秒，会显示一个说明其用途的小标签。指针停留期间标签保持显示，指针移开一秒后消失。取消勾选后，spaCR 中任何位置都不会出现工具提示。"
+    }
+  ],
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
 }

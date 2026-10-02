@@ -19,6 +19,20 @@ popup; each control remembers its own reveal state. Image-enhancement help
 links to the detection-chain documentation. A control without a matching
 animation still keeps its written explanation and API link.
 
+Thumbnail display quality
+-------------------------
+
+Choose **Thumbnail quality** in **Display** or **Organize for Measure…**.
+**Low** retains the original 64-pixel source sampling. **Medium** uses up to
+256 pixels and **High** up to 1024 pixels on the longest side, capped by the
+source resolution. These choices read the source image and mask again;
+they do not enlarge a Low-quality bitmap. The separate **Size** control
+sets the logical cell size.
+
+The choice is remembered and updates open thumbnail views. Only visible
+organizer cells are loaded, with a bounded cache. Changing quality affects
+display only; saved images, masks and measurements are unchanged.
+
 Open a field and save an edit
 -----------------------------
 
@@ -38,11 +52,15 @@ Open a field and save an edit
    advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a
    decision without deleting the image or its mask. Save edits separately.
 
+**Save mask**, **Previous image** and **Next image** share the top action
+row with the editing tools. Scroll that row horizontally on a narrow window
+to reach controls outside the visible area.
+
 To try the screen without your own data, **Load test data…** downloads ten
 unsegmented Toxoplasma vacuole fields, with their curated masks kept apart
-in ``ground_truth_masks/``, and opens the first. **Training datasets…**
-opens a sample of fields from the dataset each published model was trained
-on.
+in ``ground_truth_masks/``, and opens the first. The arrow on the same
+button offers a sample of fields from the dataset each published model was
+trained on.
 
 Drop images and folders
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -442,10 +460,10 @@ channel, the masks and ``merged/``, and every move is recorded in
 ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan`
 and :ref:`Measure inputs and outputs <workflow-module-measure>`.
 
-Contribute images and masks
----------------------------
+Upload data
+-----------
 
-**Contribute images and masks…** sends the image on screen with its mask,
+**Upload data…** sends the image on screen with its mask,
 every curated image in the folder with its saved mask, or a chosen images
 folder and masks folder, to spaCR's community datasets on Hugging Face for
 training future models. Every image needs a saved mask of the same name and
@@ -457,6 +475,34 @@ is used.
 The masthead also opens Cellpose Workbench, Mask the whole folder, Model
 Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts
 are linked from the :ref:`module map <workflow-module-make_masks>`.
+
+Large plates in Mask generation
+-------------------------------
+
+The **Mask** batch-generation module processes a plate; **Make Masks** edits
+the field currently open. For a crash while processing a raw plate, check
+the batch module's console and saved ``settings/gen_mask_settings.json``
+to identify the stage and settings used.
+
+In the V1 batch pipeline, raw-file preprocessing projects and writes one
+field at a time to ``stack/``. It retains filenames across the plate, not
+every field's pixel data. Z planes are combined incrementally. Completed
+field stacks are published atomically and can be reused when preprocessing
+resumes. This stage's pixel memory therefore follows the size and channels
+of a field, rather than the number of fields in the plate.
+
+Normalization and segmentation still need working memory for a batch and
+the model. Completed segmentation input, mask and flow buffers are released
+before the next batch; reducing plate-wide retention does not make an
+individual very large image or model cost-free. The V1 ``batch_size`` also
+sets the normalization pool, so changing it can change normalized values
+and subsequent masks. Retain it when reproducing a previous analysis.
+
+If memory still rises unexpectedly, record whether the last console stage
+was preprocessing filenames, normalization or model evaluation, together
+with image dimensions, channel count and the saved settings. Existing
+``stack/`` files help distinguish a completed ingestion stage from a failure
+before the first field was written.
 
 Engine parameter reference
 --------------------------

@@ -265,3 +265,20 @@ def test_the_cli_exports_and_needs_an_out_folder(recorded, tmp_path, capsys):
                            "--out", str(tmp_path / "wf")]) == 0
     assert "Snakefile" in capsys.readouterr().out
     assert (tmp_path / "wf" / "settings" / "p.json").is_file()
+
+
+def test_a_run_named_by_its_folder_name_is_found_in_the_journal(
+        recorded, tmp_path, monkeypatch):
+    run = recorded("mask", {"src": "/p"})
+    monkeypatch.chdir(tmp_path)
+    main_file = cli_repro._export_workflow(run.name, tmp_path / "wf")
+    assert main_file.name == "Snakefile" and main_file.is_file()
+
+
+def test_the_cli_turns_an_export_refusal_into_exit_2(recorded, tmp_path,
+                                                    capsys):
+    gui_only = recorded("annotate", {"src": "/p"})
+    assert cli_repro.main([str(gui_only), "--export", "snakemake",
+                           "--out", str(tmp_path / "wf")]) == 2
+    assert "cannot run headless" in capsys.readouterr().err
+    assert not (tmp_path / "wf").exists()

@@ -170,14 +170,6 @@ def _find_menu(window, title: str):
     Delegates to :func:`spacr.qt.first_run.find_menu`, which is the same
     lookup; a second copy is a second thing to get wrong.
     """
-    if title == "Demos":
-        menu = getattr(window, "_demo_menu", None)
-        try:
-            if menu is not None:
-                menu.title()
-                return menu
-        except RuntimeError:
-            pass
     try:
         from ..first_run import find_menu
     except Exception:
@@ -210,16 +202,6 @@ def _menu_target(window, title: str):
         parent = _top_level_menu_containing(window, menu)
         if parent is not None:
             rect = mb.actionGeometry(parent.menuAction())
-            return (mb, (rect.center().x(), rect.center().y()))
-    if title == "Demos":
-        actions = list(mb.actions())
-        help_action = next(
-            (action for action in actions
-             if action.text().replace("&", "") == "Help"),
-            actions[-1] if actions else None,
-        )
-        if help_action is not None:
-            rect = mb.actionGeometry(help_action)
             if rect.isValid() and rect.width():
                 return (mb, (rect.center().x(), rect.center().y()))
     LOG.warning("tutorial: menu bar has no %r menu", title)
@@ -330,29 +312,6 @@ def _build_home_steps(window) -> List[Step]:
             hold_ms=400,
         ),
     ]
-
-
-def _open_demos_menu(window):
-    """Locate the Demos menu for the narration beat about it.
-
-    Popping the menu up for real would grab input for the rest of the
-    render, so this only resolves it — and returns what it found, so a
-    rename of the menu is detectable instead of silently turning the
-    step into a no-op.
-
-    Resolved through :func:`_find_menu`, which reaches the QMenu as a C++
-    child of the menu bar. The obvious reading — walk ``menuBar().actions()``
-    and call ``QAction.menu()`` — hands back a wrapper that dies with the
-    action wrapper it came off, so it was already invalid by the time this
-    returned.
-
-    :returns: the QMenu titled "Demos", or ``None``.
-    """
-    menu = _find_menu(window, "Demos")
-    if menu is None:
-        LOG.warning("tutorial: no Demos menu on the menu bar")
-    return menu
-
 
 
 def _build_mask_steps(window) -> List[Step]:

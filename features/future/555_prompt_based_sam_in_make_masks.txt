@@ -1,9 +1,11 @@
 CLICK- AND BOX-PROMPTED SEGMENTATION (micro-SAM) IN MAKE MASKS
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). On the
-CPU a click after the first embedding takes 0.2 to 1.3 s on a 1024 px
-field and 0.4 to 2.0 s on a 2 k field, on a machine under heavy load; the
-GPU was not free to time it. What is left is under "Not done".
+Status: DONE 2026-10-02 against the stated real-field acceptance boundary.
+Fresh isolated CPU installation and actual Make Masks prompting passed: cached
+positive/negative clicks and a box reached the preview in 0.17-0.19 seconds;
+Enter/Save wrote the accepted mask and prompt provenance. Alpha remains enabled
+only by preference. GPU and additional model/multidimensional extensions are
+not claimed by this acceptance.
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -160,3 +162,57 @@ Not done
     * The weight download is slow from EBI S3 here (~30 min once); a
       pre-fetch during install was not added.
 
+
+
+2026-10-02 -- REAL CPU MAKE MASKS ACCEPTANCE, F555 COMPLETE
+
+The normal spaCR backend installer built a new private micro-SAM environment
+in scratch, with the official CPU PyTorch index. No dependency workaround or
+product-code change was required: Python 3.13.14, micro-SAM 1.8.14, torch
+2.14.1+cpu and numpy 2.5.2. Installation plus import self-test took 32.47 s,
+peaking at 2,520,129,536 bytes. The normal vit_b_lm acquisition and model load
+took 79.21 s and peaked at 1,458,003,968 bytes. The model and environment remain
+private; nothing was installed into spaCR's own environment.
+
+A full, unresized 512 x 512 official StarDist nuclei example (the same genuine
+microscopy field retained by F551's acceptance) was copied to a scratch folder
+and opened in the real Make Masks screen. The actual _PromptSession, backend
+client and separate micro-SAM process handled the prompts. Only the alpha
+preference getter was enabled in the test process; inference was not faked.
+The GUI ran in a network-disabled namespace with CUDA hidden, actual CPU
+affinity [0], a hard 4 GiB cap and zero swap.
+
+Measured click-to-visible-preview times, including the client/Qt handoff:
+  first positive: 37.63 s total, including 32.86 s image embedding;
+  cached positive refinement: 0.187 s (worker decoder 0.174 s);
+  cached negative refinement: 0.174 s (worker decoder 0.164 s);
+  cached box plus existing points: 0.179 s (worker decoder 0.171 s).
+The cached operations reused the same embedding key and did not embed again.
+The negative point changed 79 mask pixels and excluded the requested pixel.
+
+Before acceptance the label image stayed empty. Enter added one object with
+820 pixels; Save mask wrote exactly those labels to nuclei.tif and persisted
+nuclei.tif.curation.json. The disk JSON retains both positive points, the
+negative point, box coordinates, model, CPU device, package versions, score,
+embedding identifier and accepted object ID. Undo removed the whole object;
+redo restored the exact labels. Saved-mask and original-image/reference hashes
+were independently rechecked. Peak GUI+worker memory was 3,693,600,768 bytes,
+with no OOM or cap events. The run exited 0.
+
+Validation: all 11 existing focused F555 backend/cache/cancellation/GUI tests
+passed in 10.97 s under the same resource bounds. Current integration source
+matches the tested prompt client, worker helpers and Qt prompt session by AST
+hash. No runtime, API, caption or generated-catalog code changed.
+
+Evidence: features/data/555_microsam_real_prompt_acceptance_2026-10-02.json
+contains complete reproducible drivers, install/model/GUI receipts, resource
+limits, all input/model/output hashes, the actual persisted curation record,
+and test/capture hashes. Private screenshots show the actual saved mask and
+Segment by prompt controls in light and dark themes; no images are committed.
+Scratch: /media/carruthers/mnt3/spacr-f555-20261002/.
+
+This verifies the literal DONE WHEN on one real field. It does not assert
+subsecond latency on every larger/tiled field, biological accuracy, GPU
+performance, extra model families, automatic segmentation or 3-D/time-series
+support. Those extensions and the existing cross-tile restriction remain
+outside this accepted click/refine/save workflow.

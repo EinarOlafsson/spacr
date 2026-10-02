@@ -284,3 +284,54 @@ animation. No optical-resolution or biological-improvement claim is made.
   lane, not changed here: the Make Masks Image enhancement card's PSF row
   and Measure's "Image Deconvolution (PSF)" are not gated, so if the
   maintainer wants PSF out of alpha, the tutorial can be re-opened.
+
+2026-09-30 — Non-GPU re-check on nightly 38c8911c6; nothing to implement
+* Mask Live preview already honours PSF settings with its own cancellation
+  and provenance (2026-09-23 note; spacr/qt/widgets/live_preview.py uses
+  psf_pipeline.prepare_psf/apply_chain in the worker, per-run generation,
+  history record). No code change. Offscreen, -n 4: tests/qt/test_live_
+  preview_psf.py, test_enhancement_reaches_mask_preview.py, test_mask_psf_
+  settings.py, test_make_masks_psf.py, tests/test_psf_mask_pipeline.py and
+  test_psf_measurement.py, 99 passed.
+* Measured optical PSF re-run: tools/verify_measured_psf.py (unchanged
+  script hash) on psf-200nm.tif + 30x1000_FS-025_FW-60_AC-170-04.tif from
+  doi:10.5281/zenodo.14203207 (only these ~19.6 MB fetched, to scratch; MD5
+  match). CPU, MemoryMax=8G, peak RSS 1.48 GB. Original-grid mismatch still
+  REFUSED; 10-iteration RL on the explicitly resampled 128x256x256 volume
+  with the 129x71x45 prepared kernel took 34.78 s, 10/10 progress events,
+  float32 finite nonnegative, sources unchanged, 98 saturated input voxels.
+  Normalized kernel sha256 and RL provenance equal the 2026-09-24 receipt;
+  output quantiles agree to 8.1e-7 relative (float32 rounding under the
+  current env; output hash differs, as does the derived TIFF's container
+  hash from tifffile 2026.3.3). Receipt: features/data/490_measured_psf_
+  recheck_2026-09-30.json. Same limits as before: no resolution, accuracy
+  or biological-improvement claim. Tutorial/translations: docs lane.
+
+2026-10-01 — CURRENT PSF WORKFLOW PRIVATE CAPTURE (partial item)
+A new bounded lesson-86 recorder uses actual Make Masks Objective/Infer,
+Compare/Apply, source-label and Measure source controls with Show alpha features
+off. It copies a real cached example crop and mask to scratch without changing
+the originals. Seven offscreen Qt scenes show illustrative optics and the
+explicit source-versus-processed intensity choice; four focused control tests
+pass under 4 GiB, CPU 0 and zero swap. The first capture's framing was
+corrected after visual review; the final Objective/default/calculated source
+labels and selected Measure source are readable. Original image and mask hashes
+remain unchanged. This demonstrates the controls, not optical recovery or a
+quantitative Measure batch. The settings-search target section was revealed
+inside a collapsed ancestor; the helper opened the outer section as a user
+can. That search-navigation issue remains a separate UI fix.
+Receipt: features/data/490_psf_tutorial_private_capture_2026-10-01.json.
+The seven scenes and draft narration are private/unpublished. Full narrated
+media, caption matrix, publication and native desktop focus acceptance remain
+open; the alpha-gated Mask/Timelapse settings are described separately.
+
+2026-10-01 — NESTED PSF SETTINGS SEARCH FOLLOW-UP
+The search-reveal path now expands every containing settings section through
+its existing logical-parent chain. A PSF result in Measure is visibly reachable
+without a manual outer-section click, while unrelated sections still collapse
+and stored values/disclosure preferences are unchanged. The failure was
+reproduced before the fix; the focused search/navigation cohort passed 83
+checks with 29 existing small-module skips under 4 GiB, CPU 0 and zero swap.
+This removes the UI navigation defect observed in the private lesson capture.
+No public API, setting caption or translation changed. F490 remains open for
+narrated/public media acceptance.

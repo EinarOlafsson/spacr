@@ -87,12 +87,28 @@ update leaves the previous working environment in place. Project folders and
 results are not stored in the installation directory and are not removed by
 an update.
 
-Older installations are removed first
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+macOS online installation: update and reopen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Before it installs, every installer -- and **Help → Check for updates** --
-looks for spaCR installations an earlier installer made and removes them, so
-two versions never sit side by side with one of them on the path. It finds
+Choose **Help → Check for updates**, accept the available update, and confirm
+that spaCR will be reinstalled in its current environment. spaCR closes, uses
+the installation's bundled ``uv`` to upgrade its existing private environment,
+checks the installed version, and reopens automatically. This path keeps the
+application launcher and environment in place. It does not run the first-use
+installer or ask its terminal questions again.
+
+The command is the same as the macOS recovery command below, using the actual
+installation directory. An unsuccessful upgrade or version check is recorded
+in ``~/.spacr/logs/update.log`` and does not trigger a successful-update
+relaunch. The update also stops if spaCR cannot finish closing safely. The
+separate frozen application bundle uses its bundle replacement workflow.
+
+Older installations and full installers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The full installers and other installer update paths look for spaCR
+installations an earlier installer made and remove them, so
+two versions never sit side by side with one of them on the path. They find
 the Windows online and offline installs, the macOS application and its
 per-user environment, the Linux online install and the Debian package,
 together with their launchers, shortcuts, menu entries and uninstall

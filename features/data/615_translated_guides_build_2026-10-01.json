@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "status": "all_nine_strict_translated_guide_builds_and_rendered_markup_check_passed",
+  "new_messages": 18,
+  "current_guide_messages_per_language": 2864,
+  "current_guide_messages_all_languages": 25776,
+  "technical_review": "Codex AI authoring with independent agent technical review; no native-speaker signoff",
+  "source_input_count": 420,
+  "source_manifest_sha256": "4236e8ffe0f16a405fcd9a42ef9e08499534719dd612e626f9a122ef79b5f111",
+  "changed_source_files_after_initial_build": [
+    "docs/i18n/guides/ko/LC_MESSAGES/installer_guide.po",
+    "docs/i18n/guides/ko/LC_MESSAGES/make_masks.po",
+    "docs/i18n/guides/ko/LC_MESSAGES/measure_live.po",
+    "docs/i18n/guides/ko/LC_MESSAGES/plaque_assay.po",
+    "docs/i18n/guides/ko/LC_MESSAGES/plate_barcode_linkage.po",
+    "docs/i18n/guides/ko/LC_MESSAGES/plugin_sdk.po",
+    "docs/i18n/guides/ko/LC_MESSAGES/table_workflows.po",
+    "docs/i18n/guides/zh_CN/LC_MESSAGES/model_zoo.po"
+  ],
+  "repairs": {
+    "ko": 78,
+    "zh_CN": 1,
+    "kind": "reStructuredText escaped whitespace boundaries; character-for-character prose equality when escapes removed"
+  },
+  "languages": {
+    "sv": {
+      "strict_exit_code": 0,
+      "html_files": 36,
+      "workflows_sha256": "46897da6342a0e57936ada185b31102729748cb6f06e5405200c54efbad82ee5",
+      "log": "/tmp/spacr-implementation-20261001/guides-current/build.log"
+    },
+    "de": {
+      "strict_exit_code": 0,
+      "html_files": 36,
+      "workflows_sha256": "73282bc43ac018abc7737a8f1713f458e51c95db6ec49d74bd7f5a1806055a20",
+      "log": "/tmp/spacr-implementation-20261001/guides-current/build.log"
+    },
+    "es": {
+      "strict_exit_code": 0,
+      "html_files": 36,
+      "workflows_sha256": "5b44b1d4fc58ab7ebf6d7df04d6ca97ac6098182614ed6a1c7b5786135af8e74",
+      "log": "/tmp/spacr-implementation-20261001/guides-current/build.log"
+    },
+    "pt": {
+      "strict_exit_code": 0,
+      "html_files": 36,
+      "workflows_sha256": "0c7027d53b15dbd71fe8947a9baf17f1871ef7270fefa7d90fd769fa5b32b338",
+      "log": "/tmp/spacr-implementation-20261001/guides-current/build.log"
+    },
+    "fr": {
+      "strict_exit_code": 0,
+      "html_files": 36,
+      "workflows_sha256": "62d1cb0bbbecea59f7e8d0f83db7f2373fb25446cd850e2bd0d5064e77c555bf",
+      "log": "/tmp/spacr-implementation-20261001/guides-current/build.log"
+    },
+    "is": {
+      "strict_exit_code": 0,
+      "html_files": 36,
+      "workflows_sha256": "3ec7388ed3f393786cae9c84e5304bf03f9c276937ad771d8d9d2f498908f540",
+      "log": "/tmp/spacr-implementation-20261001/guides-current/build.log"
+    },
+    "zh_CN": {
+      "strict_exit_code": 0,
+      "html_files": 36,
+      "workflows_sha256": "d2d43a6f1f35f33ab0de713178f7fa39e9ded227e9eea154646c84be97e45a91",
+      "log": "/tmp/spacr-implementation-20261001/guides-current/repaired-build.log"
+    },
+    "ko": {
+      "strict_exit_code": 0,
+      "html_files": 36,
+      "workflows_sha256": "af97a3f4bb20889318e43eb260c7bc274bb40c9600ef9e365cfe6c2eb1cceb92",
+      "log": "/tmp/spacr-implementation-20261001/guides-current/repaired-build.log"
+    },
+    "hi": {
+      "strict_exit_code": 0,
+      "html_files": 36,
+      "workflows_sha256": "ab74c53d66ff0a11ef63f36ce421d13edf859b7748c4258d661be5841e207790",
+      "log": "/tmp/spacr-implementation-20261001/guides-current/build.log"
+    }
+  },
+  "initial_attempt": {
+    "exit_code": 1,
+    "reason": "Chinese and Korean inline markup boundaries; seven other locale builds succeeded",
+    "log_sha256": "08d73735ba86eca6b86c73db0bbcbc46dba6baea615e9655431e62f80c2b90f1"
+  },
+  "repaired_attempt": {
+    "exit_code": 0,
+    "seconds": 44.13,
+    "log_sha256": "3d797338c8795ebaf0e796e441110de727a72ad944a222a9eed856a6220ba90b"
+  },
+  "rendered_check": {
+    "passed": 1,
+    "seconds": 1.99,
+    "test": "test_no_built_page_shows_rest_markup_as_text",
+    "output": "/tmp/spacr-implementation-20261001/guides-current/html",
+    "log_sha256": "7363eff19367d14922702e13ec43a5eb6c584505917cfc1c3ea3cef2fb9b2929"
+  },
+  "limits": "1GiB memory, zero swap, one actual CPU; unchanged for retries. No memory failure.",
+  "publication": "Local translated guides only. English API inventory from the successful full build. No live deployment or browser/native-language visual review claimed."
+}

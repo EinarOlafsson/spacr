@@ -712,6 +712,16 @@ class GraphCanvas(LinkedView, QWidget):
         :param frame: the table to plot, or None for no table; channels naming
             a column it lacks are emptied.
         """
+        self._take_frame(frame)
+        self.render_now()
+
+    def _take_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Everything :meth:`set_frame` does except drawing.
+
+        For a caller that sets a new spec straight after, so the table is
+        drawn once, under the spec it is meant for, rather than once under
+        the old spec and again under the new one.
+        """
         self._frame = frame
         self._kinds = self._spec.kinds_for(frame) if frame is not None else {}
         self._keyed = False
@@ -728,7 +738,6 @@ class GraphCanvas(LinkedView, QWidget):
                 if column and column not in frame.columns:
                     spec = spec.with_channel(channel, None)
             self._spec = spec
-        self.render_now()
 
     def figure(self):
         """The matplotlib Figure this canvas draws on.
@@ -856,6 +865,11 @@ class GraphCanvas(LinkedView, QWidget):
                 "one of each draws boxes.")
             return
 
+        binding_error = spec.binding_error(kinds)
+        if binding_error:
+            self._render_message(binding_error)
+            return
+
         data = prepare_data(self._visible, spec, kinds)
         grid = facet_grid(data.frame, spec, levels_source=self._visible)
         self._brush_grid = (grid if data.frame is self._visible
@@ -915,8 +929,10 @@ class GraphCanvas(LinkedView, QWidget):
                 transform=ax.transAxes)
         self._render_data = None
         self._grid = None
+        self._brush_grid = None
         self._scales = None
         self._selected_mask = None
+        self._live_highlight = False
         self._canvas.draw_idle()
         self._notice.setText("")
 
@@ -1313,6 +1329,8 @@ class GraphCanvas(LinkedView, QWidget):
         repainted cannot be compared with the one in a slide from last week.
         """
         spec, scales = self._spec, self._scales
+        if scales is None:
+            return
         categorical_on_x = bool(scales.x_levels)
         cat_column = spec.x if categorical_on_x else spec.y
         num_column = spec.y if categorical_on_x else spec.x

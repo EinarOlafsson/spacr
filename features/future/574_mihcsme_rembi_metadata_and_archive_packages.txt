@@ -61,6 +61,77 @@ LEFT
     - Term accessions beyond the organism (EFO screen type, FBbi imaging
       method) are left for the curators; no ontology lookup.
     - One screen per package; multi-screen studies are not assembled.
-    - A command-line entry point, and a Notebook cell, are not added.
+    - Command-line and Notebook entry points were added on 2026-10-01;
+      see the headless workflow evidence below.
     - openpyxl is optional; without it only the MIHCSME TSVs are written.
 
+
+2026-10-01 — PRESERVE RUNS AND EXISTING PACKAGE DESTINATIONS
+Commit c78a89c59 enforces the existing promise that exports do not write into
+the run folder. A package path equal to or inside the resolved source folder
+(including parent/leaf symlink aliases) is rejected before any directory or
+metadata is written. Existing package directories, files and dangling symlinks
+are refused with a request to choose another output folder or title. New
+sibling package exports retain their normal behavior. Fifteen focused new
+and existing archive checks passed under 1 GiB memory, zero swap and a
+100% CPU quota; they verify source bytes, existing notes, symlink retention
+and successful ordinary export. Independent code review found no remaining
+issue in this guard. No API signatures/docstrings or captions changed.
+Curator/service template acceptance and other broader alpha requirements
+listed above remain open; this is an output-preservation fix.
+
+
+2026-10-01 — CHECKED LOCAL CLI AND NOTEBOOK WORKFLOW
+The headless command `spacr-run archive-package --src RUN --out OUT
+--metadata FILE` accepts a UTF-8 JSON form; `--metadata-json JSON` provides
+an equivalent inline form for Python callers. Saved settings and existing
+archive defaults fill omitted fields. Duplicate/unknown fields, non-text
+values, missing required metadata, unreadable files and bad source folders
+produce actionable nonzero exits before output is written. `--copy-images`
+opts into copying the images; otherwise their original locations are used.
+The existing backend still refuses output inside the source run and existing
+package destinations. No source files are written and nothing is uploaded.
+
+The command checks the completed package with the existing local template
+and checksum validator. Failed post-write checks return nonzero and identify
+the retained package for inspection; success explicitly says archive curator
+or service approval is still needed. `spacr-run --help` links to the command's
+own lightweight help. No new Python public API signatures or docstrings are
+introduced. The measurement Notebook now includes an explicit opt-in cell
+using `spacr.cli.main` and editable metadata; running the Notebook unchanged
+does not export a package.
+
+Validation: 31 named CLI/backend/destination checks passed under a 1 GiB cap,
+one CPU and zero swap. These include real small-screen packages with and
+without copied images, saved-setting defaults, malformed/duplicate/oversize
+JSON, metadata failures, source/destination preservation, real checksum
+corruption, import-light help and execution of the actual Notebook cell.
+Three existing CLI import/help/list checks and three focused Notebook layout
+checks also passed. The generator now prefers its marked run cell over an
+optional appendix; insertion points are unchanged for all 31 original
+Notebooks. New cell IDs, JSON structure and Python syntax were checked;
+formal nbformat schema validation was unavailable because nbformat is not
+installed in this environment. External IDR/BioStudies template acceptance,
+ontology enrichment and multi-screen studies remain open. This feature
+remains alpha.
+
+
+2026-10-02 — UNMODIFIED OFFICIAL IDR PARSER REPRODUCTION; PARTIAL
+The documented offline IDR study_parser (idr-utils revision
+45ec7dcc02ced093532dd47f6bba9cba70e4f9fd) rejected an actual private CLI
+example package because Study Publication Title was absent, although spaCR's
+local checks passed. The exporter now emits the official template's row with
+an unknown blank value; the local validator requires row presence without
+inventing a publication. The missing-versus-blank regression and existing
+archive/CLI/destination checks pass: 32 tests under 1 GiB, CPU0, zero swap.
+Existing public signatures and docstrings are unchanged.
+
+The same untouched official parser now proceeds to the next real blocker:
+Unmatched name spacr-example-screen/screenA. It expects curator-assigned IDR
+accession/study naming, whereas the submission template explicitly leaves
+those assignments blank. No accession was fabricated and nothing was
+submitted or uploaded. The official BioStudies PageTab specification was
+inspected but no service or full library/curation acceptance is claimed.
+F574 remains partial. Pinned sources, unchanged-image proof, both official
+failures, corrected metadata and resource/test evidence are recorded in
+features/data/574_official_idr_probe_2026-10-02.json.

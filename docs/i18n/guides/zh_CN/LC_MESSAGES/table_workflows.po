@@ -1,0 +1,518 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Combine measurement tables for plots and gates"
+msgstr "合并测量表以用于绘图和门控"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "从 Home 打开 **Graph Builder** 或 **Gate Editor**，以探索测量结果。两个界面都在表选择器旁提供 **合并表格**。同一合并定义在两个界面中生成相同的测量值。相关整体工作流程见 :doc:`workflows`。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose a source and an observation level"
+msgstr "选择数据源和观察层级"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Load table** opens a SQLite measurement database or a CSV/TSV table. A physical table is an existing table in that database. A derived table is a named result calculated from physical tables using a saved merge definition. Creating a derived table preserves the original measurement tables."
+msgstr "**Load table** 打开 SQLite 测量数据库或 CSV/TSV 表。物理表是数据库中已经存在的表。派生表是使用已保存的合并定义，从物理表计算出的命名结果。创建派生表会保留原始测量表。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Merging requires one SQLite database. The button is unavailable for a single CSV/TSV or a Gate Editor session combining several databases. Load the one database containing the tables you want to join."
+msgstr "合并需要一个 SQLite 数据库。对于单个 CSV/TSV，或同时组合多个数据库的 Gate Editor 会话，该按钮不可用。请加载包含所有待连接表的那个数据库。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Graph Builder, choosing a table changes the chart's source. Gate Editor also supports a working set of compatible physical object tables, shown as removable chips; selecting another compatible table adds its measurements. The last remaining chip stays in place so the editor always has a source. A named derived table is selected as a complete source. Use the merge popup when you need a named, reproducible result or explicit custom relationships."
+msgstr "在 Graph Builder 中，选择表会改变图表的数据源。Gate Editor 还支持由兼容物理对象表组成的工作集，并将其显示为可移除的标签；选择另一个兼容表会加入其测量数据。最后一个标签不能移除，从而确保编辑器始终有数据源。命名派生表会作为一个完整数据源被选中。需要命名、可重现的结果或明确的自定义关系时，请使用合并对话框。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Output observation table** determines what one result row represents. For example, a cell-level result has one row per cell even when that cell contains several pathogens. A nucleus count, total pathogen area and cell intensity can then be compared on the same row."
+msgstr "**输出观测表** 决定每个结果行表示什么。例如，细胞层级的结果中每个细胞占一行，即使该细胞含有多个病原体。这样就可以在同一行比较细胞核数量、病原体总面积和细胞强度。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Create a standard spaCR merge"
+msgstr "创建标准 spaCR 合并"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Load your measurement database and press **Merge tables**."
+msgstr "加载测量数据库并按 **合并表格**。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Tick the source tables and choose **Output observation table**. The base table is included automatically. Standard merges use compatible spaCR object tables and cell/cytoplasm observation levels; the list also shows other tables whose relationships may require customization."
+msgstr "勾选源表并选择 **输出观测表**。基础表会自动包含在内。标准合并使用兼容的 spaCR 对象表及细胞／细胞质观察层级；列表也显示其他表，这些表的关系可能需要自定义。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enter a **Result name**, such as ``Cell and pathogen measurements``. It must differ from every physical table name."
+msgstr "输入 **结果名称**，例如 ``Cell and pathogen measurements``。该名称必须不同于所有物理表的名称。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review the **spaCR defaults active** summary and the per-column **Aggregation** choices. For an ordinary compatible database, no manual key mapping is needed."
+msgstr "检查 **spaCR defaults active** 摘要，以及每列的 **聚合** 选项。对于普通的兼容数据库，无需手动映射键。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Validate and preview**. Inspect the input and output row counts, join keys, unmatched records, missing child keys, repeated child-key rows and the first 12 output rows. Validation examines the full input, even though only a few result rows are displayed."
+msgstr "按 **验证和预览**。检查输入和输出行数、连接键、未匹配记录、缺失的子表键、子表键重复的行，以及前 12 个输出行。验证会检查全部输入，即使只显示少量结果行。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates."
+msgstr "验证成功后按 **创建合并表**。结果会在普通表选择器中被选中，其列可用于图表和门控。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them."
+msgstr "更改表、名称或规则后，预览会失效。创建结果前请重新验证。选择不同的表或基础表还会重置自定义关系和覆盖设置，因此应先选定数据源，再进行自定义。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "How the defaults combine measurements"
+msgstr "默认规则如何组合测量值"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The shared spaCR rules aggregate each child table independently before joining it to the base observations. Adding both pathogens and organelles does not multiply their rows together. Identity includes the available plate, well, field and time metadata together with the relevant object/parent ID; an object number alone is not a globally unique identity."
+msgstr "spaCR 的共享规则先独立聚合每个子表，再将其连接到基础观察记录。同时添加病原体和细胞器时，不会将两者的行相互相乘。身份信息包括可用的板、孔、视野和时间元数据，以及相关对象／父对象 ID；单独一个对象编号并不是全局唯一身份。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Default aggregation for child measurements"
+msgstr "子表测量值的默认聚合"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measurement"
+msgstr "测量项"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Rule"
+msgstr "规则"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Area, integrated/total intensity and counts"
+msgstr "面积、积分／总强度及计数"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Sum the child values."
+msgstr "对子表值求和。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Minimum intensity"
+msgstr "最小强度"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Retain the minimum child value."
+msgstr "保留最小的子表值。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Maximum intensity"
+msgstr "最大强度"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Retain the maximum child value."
+msgstr "保留最大的子表值。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Median measurements"
+msgstr "中位数测量项"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Take the median of the child measurements."
+msgstr "取子表测量值的中位数。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Other numeric measurements, including means"
+msgstr "其他数值测量项，包括均值"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Take the mean of the child measurements."
+msgstr "取子表测量值的平均值。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Text and identifiers"
+msgstr "文本和标识符"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Retain the first nonmissing value in source order by default; identifiers cannot be averaged or summed."
+msgstr "默认按源数据顺序保留第一个非缺失值；标识符不能求平均或求和。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For four pathogens with areas 1, 2, 4 and 8, total pathogen area is 15. A mean intensity is the mean of the four object measurements, not an intensity recalculated from all their pooled pixels. Inspect the rule shown for each column when its name does not describe its measurement convention."
+msgstr "对于面积分别为 1、2、4、8 的四个病原体，总病原体面积为 15。平均强度是这四个对象测量值的平均值，而不是从它们的全部合并像素重新计算的强度。如果列名没有说明测量约定，请检查该列显示的规则。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The default nucleus join retains only matching base observations. Pathogen and organelle joins retain uninfected cells. Missing measurements remain missing, including a sum for which every contributing value is missing. An absent intensity measurement is not converted to a measured zero. Child columns use table-qualified names where needed to distinguish them."
+msgstr "默认的细胞核连接只保留匹配的基础观察记录。病原体和细胞器连接会保留未感染细胞。缺失测量值仍然缺失，包括所有参与值都缺失的求和结果。缺失的强度测量不会被转换为实际测得的零。必要时，子表列名会包含表名以便区分。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Available overrides depend on column values and role. Numeric measurements offer mean, median, sum, minimum, maximum, count and other compatible choices; text supports choices such as first/last, count and distinct count; Boolean-valued data also support **any** and **all**. **count** counts nonmissing values. Default one-to-one rows attach intact, so their aggregation controls are disabled until custom merging is selected."
+msgstr "可用的覆盖选项取决于列值和列的角色。数值测量支持均值、中位数、求和、最小值、最大值、计数等兼容选项；文本支持首个／最后一个值、计数和去重计数等选项；布尔数据还支持 **任何** 和 **all**。**count** 统计非缺失值。默认的一对一行会完整附加，因此在选择自定义合并之前，其聚合控件处于禁用状态。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Customize an alternative schema"
+msgstr "自定义其他表结构"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Customize merging** when the database uses different table names, identifiers or deliberately different relationships. Choose the base and child tables in the main popup first. Mapping their actual columns does not rename or modify the source tables."
+msgstr "当数据库使用不同的表名、标识符或有意采用不同关系时，选择 **定制合并**。先在主对话框中选择基础表和子表。映射实际列不会重命名或修改源表。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The warning explains that incorrect relationships can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Read it and check **I understand the warning and will check the merge preview.** before accepting the custom settings. Acknowledgment does not bypass validation."
+msgstr "警告说明，错误的关系可能连接无关对象、重复或遗漏观察记录，并改变绘图和门控所使用的测量值。请阅读警告，并在接受自定义设置前勾选 **我理解警告,我会检查合并预览。**。确认警告并不意味着跳过验证。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Base observation keys** identify one unique, nonmissing base row. Include field and time columns when IDs repeat across images or timepoints."
+msgstr "**基表观测键** 标识唯一且键值不缺失的基础行。如果 ID 在不同图像或时间点重复，请包含视野和时间列。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each child row in the configuration specifies **Base keys** and **Child keys**. Enter comma-separated column names in matching order. For example, base ``image_id, cell_id`` can map to child ``image_id, parent_cell_id``."
+msgstr "配置中的每个子表行都指定 **基表键** 和 **子表键**。以对应顺序输入逗号分隔的列名。例如，基础表的 ``image_id, cell_id`` 可以映射到子表的 ``image_id, parent_cell_id``。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **one-to-one** when at most one child row belongs to each base key, or **one-to-many** when several child rows must first be aggregated."
+msgstr "每个基础键最多对应一个子表行时，选择 **one-to-one**；需要先聚合多个子表行时，选择 **one-to-many**。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A **left** join keeps unmatched base observations with missing child measurements. An **inner** join retains only matching observations. Child rows with missing join keys do not match a base row."
+msgstr "**左侧** 连接保留未匹配的基础观察记录，并将其子表测量值留为缺失。**inner** 连接只保留匹配的观察记录。连接键缺失的子表行不会匹配任何基础行。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Identifiers** to identify additional child columns that must not be treated as continuous measurements. Review the per-column aggregation controls in the main popup after accepting the mapping."
+msgstr "使用 **标识符** 标记其他不应被视为连续测量值的子表列。接受映射后，请在主对话框中检查各列的聚合控件。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The popup now says **Custom rules active**. Validate and inspect the preview before creating the result. Duplicate base identities, contradictory one-to-one mappings, missing keys and incompatible operations produce an error. Repeated child keys can be expected in a one-to-many relationship; they require investigation when the relationship is supposed to be one-to-one."
+msgstr "对话框现在显示 **Custom rules active**。创建结果前请验证并检查预览。重复的基础身份、矛盾的一对一映射、缺失键和不兼容操作都会产生错误。在一对多关系中，子表键重复可能是正常的；如果关系本应为一对一，则需要调查。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults."
+msgstr "**取消** 保留原有配置。**恢复 spaCR 默认设置** 删除自定义关系和覆盖设置。更改数据源或输出表也会重新建立默认设置。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use, save and reload the result"
+msgstr "使用、保存并重新加载结果"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
+msgstr "在 Graph Builder 中，将结果列放到 **X**、**Y**、颜色、大小或分面通道。在 Gate Editor 中，将这些列用于阈值、多边形和其他门控形状。Gate Editor 可能根据 ``sample_fraction`` 和 ``max_points`` 设置显示抽样数据；导出门控时会计算完整的合并表。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."
+msgstr "命名定义保存在数据库旁边。对于 ``measurements.db``，文件名为 ``measurements.db.spacr-merges.json``。刷新或重新打开数据源后，该结果再次可用，并根据数据源重新计算。这是一个可重现的配方，不是全部结果行的固定副本。重新使用时会检查源路径和所选表的结构。不同数据库或结构变化需要重新审查映射；定义不会静默应用于无关数据源。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save chart** in Graph Builder saves chart channels, the source and the full merge definition to JSON. **Load chart** reconstructs and validates the table before plotting. **Save gates…** also embeds the merge definition; load the original database before using **Load gates…**. These saved files can reconstruct the merge even if its sidecar is missing. They still require the original source data."
+msgstr "Graph Builder 中的 **保存图** 将图表通道、数据源和完整合并定义保存为 JSON。**加载图** 会在绘图前重建并验证表。**保存门控区域…** 也会嵌入合并定义；使用 **加载门控区域…** 前应先加载原始数据库。即使合并的旁存文件缺失，这些保存文件仍可重建合并。但它们仍然需要原始源数据。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export gates…** writes gate membership columns to the database's ``filters`` table, preserving the base object's identity. This explicit export is a database write; constructing and previewing a merge does not write into the source measurement tables. **Save graph** exports the Gate Editor figure as PNG or PDF, separately from saving its gating strategy."
+msgstr "**导出门控…** 将门控成员关系列写入数据库的 ``filters`` 表，并保留基础对象身份。这种显式导出会写入数据库；创建和预览合并不会写入源测量表。**保存图表** 将 Gate Editor 图形导出为 PNG 或 PDF，与保存门控策略是两件独立的事。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A custom result without verified spaCR image/object provenance remains usable for plotting and tabular gating. Image navigation, image annotation and gate export to the measurement database are unavailable for that result, with an explanation in the interface. Keep the saved chart or gating strategy for tabular reuse; column names alone cannot establish links to microscopy objects."
+msgstr "缺少已验证 spaCR 图像／对象来源信息的自定义结果，仍可用于绘图和表格门控。该结果不能用于图像导航、图像标注或将门控导出到测量数据库，界面会说明原因。保留已保存的图表或门控策略，以便在表格层面重用；仅凭列名无法建立到显微图像对象的联系。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Recover original filenames before labelling conditions"
+msgstr "标注条件前恢复原始文件名"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
+msgstr "如果图像已重命名为 Yokogawa 格式，请在 **合并原始文件名…** 中使用 **合并表格**，恢复转换时记录的名称。选择 ``conversion_map.csv``、旧版 ``rename_log.csv``、``channel_sorting_manifest.csv``，或包含 ``conversion_map`` 表的 SQLite 数据库。如果在测量数据库旁或其父文件夹找到已知映射，文件选择器会从其附近打开。映射必须包含已记录的源文件到输出文件的关系；此操作不会根据重命名后的图像推断处理条件名称。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations."
+msgstr "如果只需要文件名元数据，只选择要标注的那个表。这样会保留所有行和现有列，也适用于没有 spaCR 对象 ID 的表。对于已有的合并结果，打开其合并对话框，可在添加文件名映射时保留已审查的关系和聚合设置。选择多个源表时，先合并测量值，再将原始名称附加到结果观察记录。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Merge original filenames…** and select the mapping."
+msgstr "按 **合并原始文件名…** 并选择映射。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set a new **Result name**, then press **Validate and preview**."
+msgstr "设置新的 **结果名称**，然后按 **验证和预览**。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the matched and unmatched row counts and the preview's ``original_filename`` and ``original_path`` columns."
+msgstr "检查匹配和未匹配的行数，以及预览中的 ``original_filename`` 和 ``original_path`` 列。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Create merged table**, then open **Annotate conditions** and choose ``original_filename`` as a rule's metadata column."
+msgstr "按 **创建合并表**，然后打开 **标注实验条件**，选择 ``original_filename`` 作为某条规则的元数据列。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Several channels or z-planes belonging to one field produce a sorted, deduplicated list separated by a semicolon and a space in the new columns. They do not multiply the table's observations. Plate and timepoint identities remain distinct; ambiguous or conflicting identities cause validation to fail. Unmatched names remain blank. Existing ``original_filename`` or ``original_path`` columns are preserved by refusing to overwrite them."
+msgstr "同一视野的多个通道或 z 层会在新列中形成排序、去重的列表，用分号和空格分隔。它们不会增加表中观察记录的数量。不同板和时间点的身份仍然分开；身份含糊或冲突会导致验证失败。未匹配名称保持为空。已有的 ``original_filename`` 或 ``original_path`` 列会通过拒绝覆盖而得到保留。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``original_path`` is the path recorded in the mapping; the original files need not still exist at that location. Image files and source measurement tables are never renamed or rewritten by this action. Adding filename text does not establish missing microscopy object provenance."
+msgstr "``original_path`` 是映射中记录的路径；原始文件不必仍位于该位置。此操作从不重命名或重写图像文件和源测量表。添加文件名文本不能补足缺失的显微对象来源信息。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping."
+msgstr "保存的合并会记录映射的位置和内容校验和。重新打开合并或图表时，映射必须仍然可用且未发生变化。对于嵌入的 ``conversion_map`` 表，对数据库其他表进行无关修改不会使映射失效。如果映射改变，请重新选择并验证新的结果后再应用。**移除文件名映射** 从草稿中移除文件名补充信息，而不删除文件。**恢复 spaCR 默认设置** 也会清除映射。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Annotate experimental conditions in Graph Builder"
+msgstr "在 Graph Builder 中标注实验条件"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Annotate conditions** adds annotation columns to the working table in Graph Builder. It works with a physical database table, a named derived table or an imported CSV/TSV. Use rules to assign labels or extract variable metadata, then compose a final column from those values. Every generated column is retained. These table operations do not require image links or write image annotations."
+msgstr "**标注实验条件** 在 Graph Builder 的工作表中添加标注列。它适用于物理数据库表、命名派生表或导入的 CSV/TSV。使用规则分配标签或提取可变元数据，再根据这些值组合最终列。每个生成列都会保留。这些表操作不需要图像链接，也不会写入图像标注。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
+msgstr "打开 **标注实验条件**，为 **输出列** 命名，然后选择 **分配值**、**提取文本** 或 **组合列**。不能替换已有的源列。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together."
+msgstr "为该输出定义值规则、文本提取或组合方式。使用 **添加列** 添加另一个输出。带命名组的正则表达式还可以一次创建多个元数据列。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect all generated values beside the source columns. **Preview assignments** reruns the check; edits also refresh the preview."
+msgstr "在源列旁检查所有生成值。**预览分配结果** 会重新检查；编辑也会刷新预览。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Resolve invalid rules, missing dependencies and conflicting assignments, then choose **Apply conditions**. Every generated column becomes available for chart channels and filtering. **Cancel** discards the draft changes."
+msgstr "解决无效规则、缺失依赖和分配冲突后，选择 **应用条件**。所有生成列都可用于图表通道和筛选。**取消** 放弃草稿中的修改。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Extract several metadata columns from a filename"
+msgstr "从文件名提取多个元数据列"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Extract text** and select the source column, such as ``original_filename``. A regular expression extracts the matching text into the output column. Select a named or numbered capture group to choose which part of the match becomes the value."
+msgstr "选择 **提取文本**，再选择源列，例如 ``original_filename``。正则表达式将匹配文本提取到输出列。选择命名或编号捕获组，以决定将匹配内容的哪一部分作为值。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:"
+msgstr "例如，以下模式描述 ``HeLa_rep2_24h_DMSO.tif``："
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The named groups describe four output columns: ``cell_type``, ``replicate``, ``timepoint`` and ``drug``. **Create columns from named groups** creates these outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and ``DMSO``. Another matching filename produces its own values; they are not fixed labels copied from the example. Adapt the pattern to your own filenames and inspect the preview before applying it."
+msgstr "命名组描述四个输出列：``cell_type``、``replicate``、``timepoint`` 和 ``drug``。**根据命名捕获组创建列** 会一起创建这些输出。示例行生成 ``HeLa``、``rep2``、``24h`` 和 ``DMSO``。另一个匹配文件名会生成其自身的值，而不是复制示例中的固定标签。请根据自己的文件名调整模式，并在应用前检查预览。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Extraction uses the first regex match. Nonmatching rows and missing or empty captures remain blank. Invalid patterns or capture groups stop the preview with an error. Existing source column names cannot be overwritten."
+msgstr "提取使用第一个正则匹配。未匹配行，以及缺失或为空的捕获结果，均保持为空。无效模式或捕获组会导致预览停止并报错。不能覆盖现有源列名称。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assign values with readable rules"
+msgstr "通过易读规则分配值"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string."
+msgstr "如果匹配行应获得您输入的某个值，例如 ``WildType`` 或 ``control``，请选择 **分配值**。每条规则选择列、运算符和比较值。运算符包括包含、不包含、等于、不等于、开头为、结尾为以及正则匹配。文本运算符按字面解释标点；正则运算符将其解释为模式。匹配区分大小写。包含、前缀、后缀和正则条件需要非空文本。要匹配所有非缺失文本，请明确使用 ``.*`` 正则；要匹配实际的空字符串，请使用等于运算符并将比较值留空。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly."
+msgstr "要求每个条件都匹配时，选择 **所有规则均匹配**；要求至少一个条件匹配时，选择 **至少一条规则匹配**。条件可以检查不同源列或先前生成的列。例如，当 ``drug`` 等于 ``DMSO`` 且 ``cell_type`` 等于 ``HeLa`` 时，分配 ``control``。缺失源值不会满足否定条件。实际空字符串属于一个值，可以显式匹配。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Several rules may assign the same value without a conflict. Different values assigned to one row in the same output column require resolution before Apply."
+msgstr "多条规则可以分配相同值而不产生冲突。在同一输出列中，如果同一行被分配不同值，则必须在应用前解决冲突。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compose the final column"
+msgstr "组合最终列"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Add an output column, name it ``condition`` or another name you choose, and select **Compose column**. Drag available columns into the composition field. Drag its tokens to change their order. Insert fixed text to add separators, prefixes or words between the values."
+msgstr "添加输出列，将其命名为 ``condition`` 或自选名称，并选择 **组合列**。将可用列拖入组合字段。拖动其中的标记可以更改顺序。插入固定文本可在值之间添加分隔符、前缀或词语。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example above. Reordering the column tokens changes the result without changing their extraction rules. Fixed text is literal; it cannot execute code."
+msgstr "例如，标记 ``cell_type``、``_``、``replicate``、``_``、``timepoint``、``_``、``drug`` 会为上面的示例生成 ``HeLa_rep2_24h_DMSO``。重新排列列标记会改变结果，而不改变其提取规则。固定文本仅按字面处理，不能执行代码。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A composition can reference original source columns and earlier generated columns. A missing or empty column value leaves the composed value blank. The preview shows all intermediate columns and the final column together. Applying, exporting or saving a new SQLite table retains every generated column and the editable recipe. The original measurements remain unchanged."
+msgstr "组合可以引用原始源列和先前生成的列。列值缺失或为空时，组合结果保持为空。预览会同时显示所有中间列和最终列。应用、导出或保存为新 SQLite 表时，都会保留每个生成列及可编辑配方。原始测量值保持不变。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Build genotype, replicate and a combined condition"
+msgstr "创建基因型、重复编号和组合条件"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Name the first **Output column** ``genotype`` and keep its mode set to **Assign values**. Use **Add condition** for its labels. Press **Add column** to create ``replicate`` with its own boxes. In each box, choose **Exact values** to enter lists of metadata values without writing a regular expression. For example:"
+msgstr "将第一个 **输出列** 命名为 ``genotype``，并保持 **分配值** 模式。使用 **添加条件** 创建其标签。按 **添加列** 创建 ``replicate``，它具有独立的条件框。在每个框中选择 **精确值**，即可输入元数据值列表，而无需编写正则表达式。例如："
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Example annotation rules"
+msgstr "标注规则示例"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Output column"
+msgstr "输出列"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Metadata column"
+msgstr "元数据列"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Included values"
+msgstr "包含的值"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Assigned label"
+msgstr "分配的标签"
+
+msgid "``genotype``"
+msgstr "``genotype``"
+
+msgid "``columnID``"
+msgstr "``columnID``"
+
+msgid "``c1,c2,c3``"
+msgstr "``c1,c2,c3``"
+
+msgid "``WildType``"
+msgstr "``WildType``"
+
+msgid "``c7,c4,c5,c6``"
+msgstr "``c7,c4,c5,c6``"
+
+msgid "``mutant``"
+msgstr "``mutant``"
+
+msgid "``replicate``"
+msgstr "``replicate``"
+
+msgid "``rowID``"
+msgstr "``rowID``"
+
+msgid "``r1,r4,r5,r6``"
+msgstr "``r1,r4,r5,r6``"
+
+msgid "``replicate 1``"
+msgstr "``replicate 1``"
+
+msgid "``r7,r9,r10``"
+msgstr "``r7,r9,r10``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect. Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign the same label may select the same row; two different labels in one output column require a correction before applying. Each output column has its own assignments, so a row can have both a genotype and a replicate."
+msgstr "``c1,c1`` 或 ``r7,r7`` 等重复项不会产生额外影响。精确匹配会区分 ``c1`` 和 ``c10``。分配同一标签的两条规则可以选择同一行；同一输出列中的两个不同标签则必须在应用前纠正。每个输出列都有独立分配，因此一行可以同时具有基因型和重复编号。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Add column**, name it ``condition``, and choose **Compose column**. Drag ``genotype`` into the composition field, insert a text token containing ``_``, then drag in ``replicate``. The token order determines the joining order. A row labelled ``WildType`` and ``replicate 1`` then receives ``WildType_replicate 1``. The label's space is retained. Column names, labels, component order and separator are editable; the example does not prescribe the names for your experiment."
+msgstr "按 **添加列**，将其命名为 ``condition``，并选择 **组合列**。将 ``genotype`` 拖入组合字段，插入包含 ``_`` 的文本标记，再拖入 ``replicate``。标记顺序决定连接顺序。标注为 ``WildType`` 和 ``replicate 1`` 的行会得到 ``WildType_replicate 1``。标签中的空格会保留。列名、标签、组成顺序和分隔符均可编辑；本示例不规定您的实验必须使用哪些名称。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe."
+msgstr "组合规则可使用源列或先前创建的标注列。请将依赖列放在列顺序的前面。缺失组成值会使组合值为空，而不会生成 ``nan`` 之类的文本。应用前请预览所有生成列。保存图表、导出表或保存新的已标注 SQLite 表，均会保留完整配方。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Rules and manual selection"
+msgstr "规则与手动选择"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Assign values**, choose **Regular expression** in a condition box to use its Include and Exclude fields. Choose **Manual rows only** to assign only the rows you drop into that box, without a comparison rule."
+msgstr "在 **分配值** 中，选择条件框内的 **正则表达式**，即可使用其 Include 和 Exclude 字段。选择 **仅手动分配的行** 时，只分配手动拖入该框的行，不使用比较规则。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically."
+msgstr "条件框上方的 **列的例子** 根据所选列的值提供可复制模式。选择示例类型，检查或编辑文本，按 **复制 regex**，然后粘贴到条件的 **包括** 或 **排除** 字段。复制示例不会改变条件规则。示例值中的字面标点会自动转义。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:"
+msgstr "对于 ``drug_A_rep1.tif`` 和 ``control_rep1.tif`` 等原始名称："
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``drug_A|control`` matches either text."
+msgstr "``drug_A|control`` 匹配两段文本中的任意一段。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``drug_A_rep.`` allows one character after ``rep``."
+msgstr "``drug_A_rep.`` 允许 ``rep`` 后有一个字符。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``drug_A.*rep`` allows any intervening text, including none."
+msgstr "``drug_A.*rep`` 允许中间有任意文本，也可以没有文本。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``^drug_A_rep1\\.tif$`` matches that entire value."
+msgstr "``^drug_A_rep1\\.tif$`` 匹配整个值。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``(?i)drug_a`` ignores letter case."
+msgstr "``(?i)drug_a`` 忽略字母大小写。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use Include to select the group and Exclude to remove exceptions, such as Include ``drug_A`` with Exclude ``failed|outlier``. A filename column containing several original names separated by semicolons is searched as one string, so a contains pattern can match any recorded name; a whole-value anchor applies to the entire combined string."
+msgstr "使用 Include 选择分组，使用 Exclude 排除例外，例如 Include 为 ``drug_A``、Exclude 为 ``failed|outlier``。若一个文件名列包含以分号分隔的多个原始名称，会将其作为一个字符串搜索，因此包含模式可以匹配任意一个已记录名称；整值锚点则作用于整个组合字符串。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Patterns search the chosen column's displayed string values. They are case-sensitive unless the expression includes a flag such as ``(?i)``. Use anchors when the whole value must match: ``^A0[1-3]$`` selects wells ``A01``, ``A02`` and ``A03``. ``.*`` includes all nonmissing values in the chosen column. A blank Include expression selects no rows automatically."
+msgstr "模式搜索所选列中显示的字符串值。除非表达式包含 ``(?i)`` 等标志，否则匹配区分大小写。需要整个值匹配时使用锚点：``^A0[1-3]$`` 选择孔 ``A01``、``A02`` 和 ``A03``。``.*`` 包含所选列中的所有非缺失值。Include 表达式留空时，不会自动选择任何行。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Manual rows are added to the rows matched by Include. Exclude then removes matches from both sets, including rows you dropped manually. Missing metadata values do not match a regex; they can still be assigned manually."
+msgstr "手动行会加入由 Include 匹配的行集合。随后 Exclude 会从两部分中移除匹配行，包括手动拖入的行。缺失元数据值不会匹配正则表达式，但仍可手动分配。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select multiple rows in the source table and drag them into a condition box. Use Shift for a range and Ctrl/Cmd for individual rows. Sorting by a column or using **Filter source metadata or preview conditions** changes the visible view, while assignments still refer to the original source rows. The filter box is a case-insensitive text search, separate from the condition regex rules. Dropping a row twice into the same box does not duplicate its assignment."
+msgstr "在源表中选择多行并拖入条件框。使用 Shift 选择连续范围，使用 Ctrl/Cmd 选择单独的行。按列排序或使用 **筛选源元数据或预览中的条件值** 会改变可见视图，但分配仍指向原始源行。筛选框执行不区分大小写的文本搜索，与条件正则规则相互独立。同一行两次拖入同一个框不会重复其分配。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Remove selected manual rows** or **Clear manual rows** to remove dropped memberships. An Include rule can still match those rows; change the rule or add an Exclude expression when they must leave the condition. **Remove condition** removes the whole box and its rules."
+msgstr "使用 **删除所选择的手动行** 或 **清除手动分配的行** 移除通过拖入建立的成员关系。Include 规则仍可能匹配这些行；如果必须将其移出条件，请修改规则或添加 Exclude 表达式。**取消条件** 删除整个条件框及其规则。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A row may receive only one distinct label within each annotation column. If boxes assign different labels to it, the preview shows those competing labels and **Apply conditions** stays disabled. Adjust the include/exclude patterns or manual assignments until the overlap count is zero. No condition silently wins. Unmatched rows remain blank in the output column and remain present in the table."
+msgstr "每个标注列中，一行只能获得一个不同的标签。如果多个框为其分配不同标签，预览会显示冲突标签，且 **应用条件** 保持禁用。调整包含／排除模式或手动分配，直到重叠计数为零。不会有某个条件静默胜出。未匹配行在输出列中保持为空，但仍保留在表中。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Reuse an annotation schema on another table"
+msgstr "在另一张表上重用标注方案"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Save schema** after the preview is valid. The JSON file retains the output-column names and order, extraction patterns and capture groups, matching rules, labels, and composition tokens. It contains the instructions for generating values, rather than a copy of the table or its generated values."
+msgstr "预览有效后选择 **保存方案**。JSON 文件保留输出列的名称和顺序、提取模式与捕获组、匹配规则、标签以及组合标记。它包含生成值所需的指令，而不是表或生成值的副本。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open another table, choose **Annotate conditions**, then **Load schema** and select the JSON file. The new table may have different rows and values, but must provide the columns referenced by the schema. All outputs are previewed against this table. Inspect the values and any overlapping assignments before choosing **Apply conditions**. Loading alone does not change the working table."
+msgstr "打开另一张表，选择 **标注实验条件**，然后选择 **加载方案** 并选取 JSON 文件。新表可以具有不同的行和值，但必须提供方案引用的列。所有输出都会针对该表进行预览。选择 **应用条件** 前，请检查生成值及任何重叠分配。仅加载方案不会更改工作表。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Manually dragged row assignments are specific to their source table and are omitted from reusable schemas. The save result reports how many assignments were omitted. Manual-only condition boxes remain available as empty groups to fill for the new table. To preserve manual assignments for the original analysis, use **Save chart** or **Save annotated table…** instead."
+msgstr "手动拖入的行分配专属于其源表，因此会从可重用方案中省略。保存结果会报告省略了多少个分配。仅含手动行的条件框会作为空组保留，供新表填充。若要保留原始分析的手动分配，请改用 **保存图** 或 **保存已标注的表格…**。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Malformed files, unsupported versions, unavailable columns, invalid patterns and invalid output dependencies leave the existing dialog draft unchanged. An existing source column cannot be overwritten by a schema output. Schema files are written atomically; saving a schema over the source table itself is refused. The file size limit is 8 MiB."
+msgstr "格式错误的文件、不支持的版本、不可用的列、无效模式和无效输出依赖，均不会改变当前对话框草稿。方案输出不能覆盖已有源列。方案文件采用原子写入；不允许将方案保存到源表自身的路径。文件大小限制为 8 MiB。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Keep conditions with the analysis"
+msgstr "随分析保存条件"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Reopen **Annotate conditions** to edit the current assignments. They survive table refreshes in the current Graph Builder session when the source is unchanged. Use **Save chart** to preserve the rules, manual assignments, output-column definitions and any merge definition with the chart. **Load chart** reconstructs the source and checks its identity before applying those labels."
+msgstr "重新打开 **标注实验条件** 可编辑当前分配。只要数据源未改变，这些分配在当前 Graph Builder 会话中刷新表后仍会保留。使用 **保存图** 可将规则、手动分配、输出列定义和任何合并定义与图表一起保存。**加载图** 在应用这些标签前会重建数据源并检查其身份。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saved conditions belong to the exact source table, including its row order, values and schema. Changed source data or a different merge definition requires reviewing and recreating the conditions. Sorting the dialog's view does not change that source identity. This check prevents saved manual selections from labelling unrelated rows after a source changes."
+msgstr "保存的条件属于确切的源表，包括其行顺序、值和结构。源数据变化或合并定义不同，就需要重新审查并重建条件。对话框视图中的排序不会改变源身份。此检查可防止数据源变化后，保存的手动选择错误地标注无关行。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For a SQLite source, **Save annotated table…** saves the working values as a new physical table in the same database. The prompt **New table name (existing tables are preserved)** proposes the current table name followed by ``_annotated``. Existing tables, views and saved merged-table names cannot be overwritten; names beginning with ``sqlite_`` or ``_spacr_`` are reserved. This action adds a table and its annotation provenance while preserving the original measurement tables."
+msgstr "对于 SQLite 数据源，**保存已标注的表格…** 将工作值保存为同一数据库中的新物理表。提示 **新表名称(现有表保存)** 默认建议在当前表名后添加 ``_annotated``。不能覆盖已有表、视图或保存的合并表名称；以 ``sqlite_`` 或 ``_spacr_`` 开头的名称为保留名称。此操作添加新表及其标注来源信息，同时保留原始测量表。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved table is selected in the picker and can be loaded in other table screens, including Gate Editor. It contains a snapshot of the annotated values, unlike a derived merge that is recalculated from its inputs. Reopening it in Graph Builder restores editable condition rules when the saved rows and schema are unchanged. Save revised values under a new table name. Changed saved data are still readable, but old editable rules are not silently restored onto them. Image-specific actions continue to require appropriate object provenance."
+msgstr "保存的表会在选择器中被选中，并可在包括 Gate Editor 在内的其他表界面加载。它包含已标注值的快照，不同于根据输入重新计算的派生合并。在 Graph Builder 中重新打开时，如果保存的行和结构未变，则恢复可编辑的条件规则。请将修改后的值保存为新表名。保存数据改变后仍可读取，但不会将旧的可编辑规则静默恢复到其上。图像专用操作仍然要求适当的对象来源信息。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export table…** writes the working table, including every annotation column, to a new CSV and records its source, merge definition and condition rules in ``<export>.csv.conditions.json``. It exports the working table rather than just a brushed selection. The original database or imported file is preserved, and exporting over that source path is refused. Reopening the CSV gives you its saved labels; use the saved chart to reopen the original source and editable condition rules."
+msgstr "**导出表格…** 将工作表及每个标注列写入新 CSV，并在 ``<export>.csv.conditions.json`` 中记录数据源、合并定义和条件规则。导出的是整个工作表，而不只是框选的子集。原数据库或导入文件会被保留，且不允许导出到该源路径。重新打开 CSV 可得到其保存的标签；如需重新打开原始数据源和可编辑条件规则，请使用已保存的图表。"
+

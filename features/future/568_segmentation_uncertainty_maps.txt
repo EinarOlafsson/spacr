@@ -132,3 +132,16 @@ WHAT IS LEFT
       (item 532 set) to confirm the crop-level result; more than ten fields.
     * The map is not saved to disk; the CLI cannot compute scores itself
       (only Make Masks writes curate_uncertainty.csv).
+
+2026-10-01 — ENSEMBLE, MAP EXPORT AND HEADLESS SCORING IMPLEMENTED
+Optional persisted second-model selection supplies four additional aligned
+TTA passes while retaining the reference model's object IDs and probability
+calibration. The whole setting row obeys the alpha gate. Lossless float32 TIFF
+map export is atomic and carries source/model/settings provenance; blind,
+stale-source and overwrite guards apply. The headless make-masks CLI can
+compute uncertainty on CPU, optionally export maps, checkpoint each completed
+field to the queue CSV and dry-run without loading a model.
+Validation: 89 focused checks passed, including no-PySide CLI import, resumed
+partial CSV after later inference failure, source identity and map values.
+Status: requested code additions implemented; whole-field GPU and independent
+biological validation outside the training pool remain OPEN, as described above.

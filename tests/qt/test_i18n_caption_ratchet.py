@@ -366,6 +366,28 @@ COMPACT_CAPTION_SHA256 = (
 # have source-bound AI technical review, no native-speaker signoff.
 # Every existing translation is preserved; exact additions and prior
 # fingerprint: features/data/316_runtime_counterfactual_databases_delta_2026-09-28.json.
+# 2026-10-01: measured canonical inventory after the complete nine-locale
+# generator audit. 214 identities added and 8 removed relative to the
+# preceding committed English catalogue. Translation quality gates unchanged.
+# 2026-10-01 N628/N629: measured canonical inventory after the complete nine-locale
+# generator audit. 72 identities added and 14 removed relative to the
+# preceding committed English catalogue. Translation quality gates unchanged.
+# 2026-10-01 F542: measured canonical inventory after the complete nine-locale
+# generator audit. One identity added and none removed relative to the
+# preceding committed English catalogue. Translation quality gates unchanged.
+# 2026-10-02 F583: measured canonical inventory after the complete nine-locale
+# generator audit. 13 identities added and 0 removed relative to the
+# preceding committed English catalogue. Also reconcile the prior F538 export
+# delta (+16/-1): its accepted catalog had 6512 UI rows while this pin still
+# recorded 6497. The two deltas are proved separately; no gate is relaxed.
+# 2026-10-02 F563: measured canonical inventory after the complete nine-locale
+# generator audit. One identity added and none removed relative to the
+# preceding committed English catalogue. Translation quality gates unchanged.
+# 2026-10-02 F580: measured canonical inventory after the complete nine-locale
+# generator audit. Twenty identities added and none removed relative to the
+# preceding committed English catalogue. Translation quality gates unchanged.
+# 2026-10-02 F572: six reviewed post-save integrity notice identities added,
+# none removed; subtracting exactly those keys reproduces the preceding pin.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -376,15 +398,15 @@ EXTERNAL_SOURCE_COUNTS = {
     # to the fingerprint below.
     # `recursive` keeps its row: its English now comes from
     # spacr.external_masks, which reads it, so its identity is unchanged.
-    "SETTING_LABELS": 1203,
-    "SETTING_TOOLTIPS": 1225,
+    "SETTING_LABELS": 1209,
+    "SETTING_TOOLTIPS": 1231,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
     # tooltip says nothing about the settings under it, which costs the
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
-    "CATEGORY_HELP": 231,
+    "CATEGORY_HELP": 237,
     # 2,988 -> 3,291 on 2026-09-14, and reviewed record by record against
     # 49c1189f7, where every count in this dict still reproduces exactly.
     # +304 / -1, NOT a flat +303: the four other tables did not move at all,
@@ -490,7 +512,15 @@ EXTERNAL_SOURCE_COUNTS = {
     # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
     # Every new prose row has a reviewed record in each of the nine locales.
     # The runtime pass preserved every pre-existing translated value.
-    "UI": 6049,
+    # 2026-10-01: +4 indirect tr() captions: Low/Medium/High from the
+    # thumbnail quality selector and Plugins from Preferences._page.
+    # All nine source-bound reviewed targets passed the normal builder.
+    # 2026-10-01: +5 CellProfiler example export captions; subtracting
+    # those exact source keys reproduces the previous 6,489-key inventory.
+    # 2026-10-01: CellProfiler provisioning replaces one blurb and adds
+    # "Prepare compatible Python": two arrivals, one retirement, net +1.
+    # F538: two reviewed opt-in unmixed Measure display captions, no removals.
+    "UI": 6552,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -602,7 +632,14 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # EXTERNAL_SOURCE_COUNTS give this current source digest.
     # 47: one reviewed UI arrival, "Checking compatible GPUs…", no removals.
     # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
-    'dd0cf27603efe193d0102d0e63f734d27fe464a66a2a9478617dac212891b9b3'
+    # Removing those four indirect UI keys reproduces fa4c72cf...e02433.
+    # Subtracting the five example-export UI keys reproduces f4809f01...70741.
+    # Removing the two CellProfiler-provisioning arrivals and restoring its
+    # retired blurb reproduces e4ee6a9c...c87d3 exactly.
+    # Removing the two F538 display captions reproduces fa681c9c...ff8d1d7.
+    # N610: replace only the cancellation tooltip with the accurate
+    # no-new-suggestions / possible earlier clears-and-scores wording.
+    '70748cfb75e90f603b71dac275876ad74d1be82944088ad6930a5a20ab181c60'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
@@ -1197,9 +1234,21 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 316, 2026-09-30 (tenth pass): 598's two captions have rows; empty again.
 # 563, 2026-09-30: the Control Charts anomaly table's Control percentile
 # column (alpha), after the real-screen check ranked wells by it.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    "Control percentile",
-})
+# 573, 2026-09-30: the analysis lock dialog's Gate files row and its
+# placeholder (alpha).
+# 422, 2026-09-30: the Help search result-row templates in help_index.py,
+# now extractable through `_template`. The list's new "and {count} more" row
+# reuses a caption the catalogs already carry, so it owes nothing.
+# 585, 2026-09-30: the arrayed-assay planner's readout and condition
+# pickers and its plan/load error lines (alpha); "Load plan…" already has
+# a row.
+# 603, 2026-09-30: Preferences' Tooltip delay row and its explanation.
+# 610, 2026-10-01: Annotate's Suggest run -- its step n of N line and step
+# names, the Cancel button's tooltip and cancel lines, and the console note
+# for a round checked on a random split.
+# 2026-10-01: full nine-locale rebuild completed; pending rows are now
+# catalogued or retired with their source captions. No translation bypass remains.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
 
 
 

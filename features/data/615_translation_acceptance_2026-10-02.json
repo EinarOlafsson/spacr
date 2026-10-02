@@ -1,0 +1,79 @@
+{
+  "scope": "N615.3 Translations support track: complete for the pinned current source snapshot. N615 overall, documentation rendering/publication, tutorials and F411 future helper expansion are not closed.",
+  "source_commit": "83932c0bda861183a26908bd97860c83b384efa8",
+  "languages": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "runtime": {
+    "ui_sources": 6546,
+    "setting_labels": 1209,
+    "setting_tooltips": 1231,
+    "categories": 237,
+    "module_summaries": 72,
+    "full_nine_locale_audit_receipt": "features/data/580_gain_preview_i18n_2026-10-02.json",
+    "current_english_source_recheck": "runtime-current.log",
+    "installer": "Included by the unchanged full runtime audit; separate current exact-key/placeholder test also passes."
+  },
+  "api": {
+    "symbols": 12036,
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing_records": 0,
+    "full_strict_nine_locale_audit": "api-build.log",
+    "readmes": "All nine current source/syntax/links/safety contracts checked by the same standard full API/readme audit."
+  },
+  "guides": {
+    "domains_per_language": 34,
+    "messages_per_language": 2869,
+    "total_translations": 25821,
+    "stale": 0,
+    "invalid": 0,
+    "missing_control_labels": 0,
+    "source_check": "Fresh normal gettext extraction followed by complete nine-locale guide.audit. Guide-only missing API-document reference warnings in gettext.log are retained; this is not a Sphinx HTML rendering acceptance."
+  },
+  "review": "Existing source-bound review provenance preserved. The sole new module overview has nine direct Codex AI technical translations independently accepted by root Codex AI. No human/native-speaker signoff.",
+  "focused_tests": {
+    "passed": 14,
+    "seconds": 97.92,
+    "skipped": 0,
+    "xfail": 0
+  },
+  "validation": "Normal strict audits and focused source-inventory/catalog/installer/glossary checks; no gates weakened, no catalog edits outside normal writers. Exact +1 API pin changes backed by api-source-delta.json.",
+  "limits": "API generation/audit: 4 GiB and zero swap; initially CPU0, then all threads moved to CPU4 with explicit root authorization to avoid contention. Extraction/preflight/focused checks: 1 GiB, CPU0, zero swap. Kernel memory/swap and affinity receipts retained. CPUQuota=100% requested.",
+  "artifacts": {
+    "features/data/615_translation_acceptance_2026-10-02/accepted-catalog-hashes.json": "6cbc7d8fc3044aeadb2295586d2b1087ecea363badaf17021b49691ddfee116d",
+    "features/data/615_translation_acceptance_2026-10-02/api-audit-progress.json": "becf35656549bde2de58e91c91c9f2f46042ea634b73ec1168f9718807a29bce",
+    "features/data/615_translation_acceptance_2026-10-02/api-audit-result.json": "c170f8812386a6cd9635495235ec5cc8d41d7ed099c749ccd39e64d4ca615909",
+    "features/data/615_translation_acceptance_2026-10-02/api-build-resources.json": "233abf5fe4471bf575d7eae25ad700e9819ea774677d04bbd2f9d0180622ae04",
+    "features/data/615_translation_acceptance_2026-10-02/api-build.log": "74546d675540834f65964d40b5e8783cf4967fd49c8d202e7d0d3f031ece8882",
+    "features/data/615_translation_acceptance_2026-10-02/api-catalog-diff.json": "075a489aa3d5a922cc41b3030cc624ab955facb1275cfca0c031e2f85f97e577",
+    "features/data/615_translation_acceptance_2026-10-02/api-cpu4-handoff.json": "cec0505681016bba42424d1813da5da5efa01d0fa53138f9a16c5206916aa7eb",
+    "features/data/615_translation_acceptance_2026-10-02/api-drafts.json": "1372ad94a07ea3e2fc24171587121b5e26a0cc07fd7e60d492de09521e933743",
+    "features/data/615_translation_acceptance_2026-10-02/api-english-resources.json": "a398614acd1ecc112fe5d7a6536e4d19f497d2c3424c2ec71197a4e4f0942f26",
+    "features/data/615_translation_acceptance_2026-10-02/api-english.log": "31e04391c3f99413e88394274964515d48c801252025cd6f44e2789c2bee7719",
+    "features/data/615_translation_acceptance_2026-10-02/api-peer-review.json": "fe839e7461b254282f98514a84958fbcf0f58e25b1a0f0e1ecde7488daffd7cf",
+    "features/data/615_translation_acceptance_2026-10-02/api-source-delta.json": "2f09194ebc8e6cb6ab9cb6fbbeb0cfd3cec1ed3b0c32532a3d92b145f7327139",
+    "features/data/615_translation_acceptance_2026-10-02/build-api.py": "5c03ecd68950cf09a9139818bd094666204007a9b9e5b3f997598dbd870b4295",
+    "features/data/615_translation_acceptance_2026-10-02/gettext-resources.json": "8fb7f11a2a961bec226c6de57d4b6d65b6131254159c7f922b21754fb8303a1c",
+    "features/data/615_translation_acceptance_2026-10-02/gettext.log": "0abda98d6463bc395804c94ebff1ed46dd63f2291bb8dda14eb4b85d4c7abd8e",
+    "features/data/615_translation_acceptance_2026-10-02/guide-audit.json": "8ac767f1af80a8411a4cd30aed645f6ce38a9c2096fca1704a3c1e74f6738c1d",
+    "features/data/615_translation_acceptance_2026-10-02/prepare-resources.json": "dcf10ca2510461bf8adde2485f72eb51054cf5aac03840e82067d50a324918b8",
+    "features/data/615_translation_acceptance_2026-10-02/prepare.log": "e3fc1e767644f4443e81e584dae0161e5f626dbf11689ea65ffa1a6588ea1efc",
+    "features/data/615_translation_acceptance_2026-10-02/prepare.py": "df9b0f6256f854e2f36248e808ee02ae6d7d9b4e87745ddf829dae35ebd58da0",
+    "features/data/615_translation_acceptance_2026-10-02/runtime-audited-snapshot-proof.json": "a0f880ab0e6d4cb79e901b58ff420c583ade5bba28bb3e3b0f353040334fc4ee",
+    "features/data/615_translation_acceptance_2026-10-02/runtime-current-resources.json": "8be0db20e00e0b462034cde46e20ac9b2c56d5ebfc1484a021e82a74126c437b",
+    "features/data/615_translation_acceptance_2026-10-02/runtime-current.log": "95ef95500ee364ef2c3b09826c196b68560e62e8e1c9d1a9bfec9de6316d4572",
+    "features/data/615_translation_acceptance_2026-10-02/tests-resources.json": "976bfe5c5aa8bb8ed68fe6501d69c5441c34ecdcaff284815bd15a4fda7eb8fb",
+    "features/data/615_translation_acceptance_2026-10-02/tests.log": "2e9cf1a453c60cc201df4fc0037501fd668d9a42577c5058a63d435c3c4543ac"
+  }
+}

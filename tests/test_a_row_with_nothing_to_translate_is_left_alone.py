@@ -83,6 +83,23 @@ DAMAGED_ROWS = (
 )
 
 
+@pytest.mark.parametrize("language", LANGUAGES)
+def test_plate_barcode_assignment_example_stays_executable(builder, catalogs, language):
+    """The placeholder retains identifiers while its explanatory prose translates."""
+    source = "plate1=BC001; plate2=BC002"
+    assert builder._reviewed_translation(source, language) == source
+    assert not builder._translation_rejection_reasons(source, source, language)
+    assert catalogs[language].UI[source] == source
+    explanation = (
+        "Barcodes can be read from barcode.txt at the source root or in a source plate folder. "
+        "Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. "
+        "Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. "
+        "Output plate names can differ from source folder names."
+    )
+    assert builder._looks_translatable(explanation)
+    assert catalogs[language].UI[explanation] != explanation
+
+
 @pytest.mark.parametrize("source", DAMAGED_ROWS)
 def test_the_predicate_finds_no_prose_in_these(builder, source):
     """These are the rows with nothing a translator could change."""

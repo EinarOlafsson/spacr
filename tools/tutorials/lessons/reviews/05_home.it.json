@@ -1,13 +1,22 @@
 {
   "lesson": "05_home",
-  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
+    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
+    "date": "2026-10-01",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "new_scene_peer_review": {
+      "indices": [
+        10,
+        11,
+        12
+      ],
+      "reviewer": "Independent Codex AI technical review",
+      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
+    }
   },
   "language": "it",
   "title": "Schermata Home e navigazione",
@@ -29,6 +38,20 @@
     "Per provare un modulo, fai clic su Load test data quando è disponibile. Attendi la fine del download, poi controlla gli input e le impostazioni compilati. In Mask, fai clic su Live per esaminare un campo prima di premere Run. Attiva Time per una serie temporale o 3D per un’immagine volumetrica.",
     "Scrivi il nome di un modulo, di un’impostazione o di una funzione nel campo di ricerca accanto a Help. Qui la ricerca di Performance trova la pagina corrispondente di Preferences. Fai clic su un risultato per aprirne la destinazione. I risultati API aprono la documentazione della funzione selezionata.",
     "In Preferences, scegli un profilo Performance per il tuo computer. Laptop usa meno risorse; i profili più alti consentono più cache e più lavoro in background. Parti da un profilo modesto se la memoria è limitata. Le impostazioni delle analisi restano sotto il tuo controllo in ciascun modulo.",
+    "Apri Appearance in Preferences per regolare l'interfaccia. Theme e Animation sono sezioni comprimibili di questa pagina. Fai clic sull'intestazione di una sezione per aprirne i controlli o richiuderla.",
+    "Apri Theme per scegliere il tema dell'interfaccia e l'opacità delle pagine. La stessa sezione contiene i controlli del bordo della finestra, tra cui lunghezza, allineamento e modalità bagliore.",
+    "Apri Animation per scegliere lo sfondo animato e la sua tavolozza. Regola qui dettaglio, sfocatura, velocità, dimensione e densità. Puoi anche scegliere se animare i suggerimenti delle impostazioni e selezionare uno sfondo per le impostazioni.",
     "Torna a Home e fai clic su Pipeline overviews per scegliere un flusso di lavoro. Inizia con spaCR screens per uno screening in pool basato sulle immagini, oppure scegli un percorso di analisi delle immagini o di sequenziamento per i tuoi dati. I tutorial successivi mostrano come si collegano quei moduli, e le lezioni dei moduli guidano poi in ciascuna attività."
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

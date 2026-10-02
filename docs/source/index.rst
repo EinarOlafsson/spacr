@@ -131,9 +131,12 @@ Contents
    installer_guide
    system_requirements
    workflows
+   table_workflows
    installers
    features
    make_masks
+   measure_live
+   plate_barcode_linkage
    cellpose_training
    point_spread
    recruitment

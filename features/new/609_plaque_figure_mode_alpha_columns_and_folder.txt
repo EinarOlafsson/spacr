@@ -1,0 +1,66 @@
+================================================================================
+PLAQUE FIGURE MODE: ALPHA ESTIMATE COLUMNS SHOW, AND THE FIGURE FOLDER DOES NOT LOAD
+================================================================================
+
+Status:    done 2026-10-01
+Requested: 2026-10-01 -- found by spacr-d7 while re-recording tutorials,
+           2026-10-01: (a) the wells table shows 501's alpha columns
+           ("Estimated pixels per µm / time") with Show alpha features OFF;
+           (b) the figure folder didn't load in Figure mode.
+Owner:     item-607 agent (master session)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+(a) spacr/qt/widgets/plaque_preview.py. The Wells table (TABLE_COLUMNS) and
+the Plaques table (PLAQUE_COLUMNS) both end in item 501's three columns,
+"Estimated pixels per µm", "Estimated time (hours)", "Estimate basis".
+Item 501's button (PlaqueEstimateScaleTime) is registered in
+ALPHA_FEATURES[501] and was hidden, but the columns it fills were not.
+
+Fix: PlaquePreviewPanel._apply_alpha_columns hides the three columns in both
+tables unless preferences._is_alpha_visible("widgets",
+"PlaqueEstimateScaleTime") -- the same ALPHA_FEATURES[501] gate as the
+button, no new registry entry. Run at construction and on every mode
+change; AppScreen._refresh_alpha_visibility (called for every open screen
+when Preferences closes) calls it on a built live preview, so the switch
+applies live. Columns are hidden, not removed: a saved estimate still sits
+in the table and is still written. Item 500's Well diameter / Pixels per
+µm / Formation time columns are not alpha and stay.
+
+(b) Reproduced offscreen on a real Plaque Assay screen
+(/mnt/wd4tb/scratch/609/repro.py): with src set to a folder of paper
+folders (what reading several PDFs leaves, item 526) while in Plaque mode,
+the preview listed it the Plaque way -- no images directly inside -- and
+said "No images found". Switching to Figure mode changed the controls but
+never listed the source again, so it stayed empty. Figure mode first, or a
+single paper folder, already worked.
+
+Fix: load_source_async records the mode a listing was made for
+(_listed_mode); set_mode lists the source again when that differs from the
+new mode. Works for the screen's switch, the panel's own switch, and a mode
+written into the form.
+
+Tests: tests/qt/test_609_plaque_figure_mode_alpha_columns_and_folder.py --
+columns hidden with the preference off, shown with it on, hidden again; the
+screen's _refresh_alpha_visibility re-applies it; a value in a hidden column
+is kept; a figure folder loaded in Plaque mode lists both papers' figures
+after the switch (panel and full screen); no source, nothing listed.
+
+--------------------------------------------------------------------------------
+DECISIONS (maintainer asleep)
+--------------------------------------------------------------------------------
+
+* Gated the Plaques table too: it carries the same three 501 columns, and
+  the brief's reason (alpha shown with alpha off) applies equally.
+* Keyed the columns to the button's widget name rather than to the
+  plaque_estimate_growth setting: the columns are the button's output, so
+  they show exactly when it does.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+* No ALPHA_FEATURES change: 501 is already registered; this only makes its
+  columns obey it.

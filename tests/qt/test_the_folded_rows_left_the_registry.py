@@ -165,7 +165,7 @@ def test_the_page_and_the_measure_panel_offer_the_same_illumination_keys(
         'illumination_estimator', 'illumination_degree',
         'illumination_per_plate', 'illumination_max_fields',
         'illumination_dark', 'illumination_on_missing', 'illumination_qc',
-        'illumination_vendor_profile',
+        'illumination_vendor_profile', 'illumination_vendor_channel_map',
     }
 
     panels = {}

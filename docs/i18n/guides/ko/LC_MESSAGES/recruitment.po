@@ -1,0 +1,90 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Recruitment: compartment ratios and channel identity"
+msgstr "리크루트먼트 분석: 구획 비율과 채널 식별"
+
+msgid "From **Home → Assays → Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
+msgstr "분할과 측정이 끝나면 **홈 → 어세이 → 톡소플라스마** 에서 **리크루트먼트 분석** 을 엽니다. ``measurements/measurements.db`` 가 있는 프로젝트를 지정하고, 그 안의 세포, 핵, 병원체, 세포질 측정값이 의도한 객체와 채널을 가리키는지 확인합니다. 주변 워크플로는 :ref:`모듈 맵의 리크루트먼트 분석 <workflow-module-recruitment>`, `리크루트먼트 튜토리얼 <tutorials/#lesson=25_recruitment>`_, :func:`spacr.submodules.analyze_recruitment` 를 참조합니다."
+
+msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
+msgstr "전체 액포의 마커 상태, 명시적인 숙주 감염 분모, 선택적 기생충 수는 :doc:`숙주–병원체 분석 <host_pathogen>` 을 참조합니다. 두 모듈은 서로 별개의 분석 선택지로 유지됩니다."
+
+msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. The primary ``recruitment`` column is the pathogen mean intensity divided by the cytoplasm mean intensity in that channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
+msgstr "리크루트먼트를 측정할 형광 마커에 대해 ``channel_of_interest`` 를 선택합니다. 기본 ``recruitment`` 열은 해당 채널에서 병원체 평균 강도를 세포질 평균 강도로 나눈 값입니다. 결과를 비교하기 전에 조건 메타데이터, 객체 크기/강도 필터, 웰당 최소 객체 수를 구성합니다. 구획 식별과 분모 강도를 검사합니다. 분모가 없거나 0이면 리크루트먼트가 입증되지 않습니다."
+
+msgid "Auxiliary ratios retain their channel"
+msgstr "보조 비율은 채널 정보를 유지합니다"
+
+msgid "``channel_dims`` selects image-channel indices for overlays and auxiliary recruitment measurements. The auxiliary calculation also includes ``channel_of_interest`` if it was omitted from that list. Output names follow this pattern::"
+msgstr "``channel_dims`` 는 오버레이와 보조 리크루트먼트 측정에 사용할 이미지 채널 인덱스를 선택합니다. 이 목록에서 ``channel_of_interest`` 가 빠져 있어도 보조 계산에는 포함됩니다. 출력 이름은 다음 패턴을 따릅니다::"
+
+msgid "``compartment`` is ``cell``, ``cytoplasm`` or ``nucleus``. Each denominator is the mean intensity of that compartment in the same channel. ``statistic`` identifies the pathogen numerator:"
+msgstr "``compartment`` 는 ``cell``, ``cytoplasm``, ``nucleus`` 중 하나입니다. 각 분모는 같은 채널에서 해당 구획의 평균 강도입니다. ``statistic`` 은 병원체 분자를 나타냅니다."
+
+msgid "Statistic"
+msgstr "통계량"
+
+msgid "Measurement used as numerator"
+msgstr "분자로 사용되는 측정값"
+
+msgid "``mean``"
+msgstr "``mean``"
+
+msgid "``pathogen_channel_<channel>_mean_intensity``"
+msgstr "``pathogen_channel_<channel>_mean_intensity``"
+
+msgid "``q75``"
+msgstr "``q75``"
+
+msgid "``pathogen_channel_<channel>_percentile_75``"
+msgstr "``pathogen_channel_<channel>_percentile_75``"
+
+msgid "``outside_mean``"
+msgstr "``outside_mean``"
+
+msgid "``pathogen_channel_<channel>_outside_mean``"
+msgstr "``pathogen_channel_<channel>_outside_mean``"
+
+msgid "``outside_q75``"
+msgstr "``outside_q75``"
+
+msgid "``pathogen_channel_<channel>_outside_percentile_75``"
+msgstr "``pathogen_channel_<channel>_outside_percentile_75``"
+
+msgid "``periphery_mean``"
+msgstr "``periphery_mean``"
+
+msgid "``pathogen_channel_<channel>_periphery_mean``"
+msgstr "``pathogen_channel_<channel>_periphery_mean``"
+
+msgid "For example, a channel 2 pathogen mean of 12 and cytoplasm mean of 4 produces ``pathogen_channel_2_cytoplasm_mean_ratio = 3``. If channel 3 has means of 100 and 4, its separate column is ``pathogen_channel_3_cytoplasm_mean_ratio = 25``. Calculating channel 3 retains the channel 2 result. These are illustrative intensities, not experiment data."
+msgstr "예를 들어 채널 2에서 병원체 평균이 12이고 세포질 평균이 4이면 ``pathogen_channel_2_cytoplasm_mean_ratio = 3`` 이 됩니다. 채널 3의 평균이 100과 4이면 별도의 열은 ``pathogen_channel_3_cytoplasm_mean_ratio = 25`` 입니다. 채널 3을 계산해도 채널 2의 결과는 유지됩니다. 이는 설명을 위한 강도이며 실험 데이터가 아닙니다."
+
+msgid "The calculation produces fifteen auxiliary ratios per channel. It does not creates constant-one pathogen/nucleus slope columns; these ratios do not estimate a spatial slope. Genuine slope columns already supplied by the caller are preserved. When comparing historical exports, check whether their auxiliary column names identify a channel before combining runs."
+msgstr "이 계산은 채널당 15개의 보조 비율을 만듭니다. 값이 항상 1인 병원체/핵 기울기 열은 만들지 않으며, 이 비율들은 공간 기울기를 추정하지 않습니다. 호출자가 이미 제공한 실제 기울기 열은 보존됩니다. 과거에 내보낸 결과를 비교할 때는 실행을 합치기 전에 보조 열 이름에 채널이 표시되어 있는지 확인합니다."
+
+msgid "Saved results"
+msgstr "저장된 결과"
+
+msgid "The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv`` with per-well summaries, alongside recruitment plots. The historical ``cells.csv`` filename does not change the per-PV unit of these rows. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
+msgstr "실행은 리크루트먼트 그래프와 함께 PV별로 보존된 행이 담긴 ``cells.csv`` 와 웰별 요약이 담긴 ``wells.csv`` 를 씁니다. 과거부터 사용해 온 파일 이름 ``cells.csv`` 는 이 행들의 단위가 PV라는 사실을 바꾸지 않습니다. 두 집계 수준을 비교할 때는 조건 할당, 필터링, 선택된 채널을 확인합니다."
+

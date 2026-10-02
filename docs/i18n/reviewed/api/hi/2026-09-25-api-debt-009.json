@@ -2413,7 +2413,9 @@
       "source_sha256": "4428cd346435e56b7b911f51f7767ad89a060bd4a69cac3a2dbfbb013018908e",
       "context": "the widget whose window mask is cut to a rounded rectangle of its current size; an empty size returns ``False``.",
       "translation": "वह विजेट जिसका विंडो मास्क उसके वर्तमान आकार के गोल कोनों वाले आयत में काटा जाता है; खाली आकार ``False`` लौटाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.qt.widgets.glass.spin_on_every_button#3",

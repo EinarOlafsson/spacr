@@ -175,6 +175,7 @@ def test_moving_to_another_widget_hands_the_tooltip_over(policy, qapp):
     second.setToolTip("the second")
     host.resize(200, 80)
     host.show()
+    qapp.processEvents()
     try:
         policy.eventFilter(first, _tooltip_event(first))
         policy._show_now()
@@ -209,14 +210,9 @@ def test_a_widget_can_opt_out_and_keep_qt_s_own_tooltip(policy, button, qapp):
     assert handled is False, "Qt must be left to show this one itself"
 
 
-def test_the_wait_counts_the_wait_qt_has_already_served(policy, qapp):
-    """Two seconds means two, not two on top of the style's own 700 ms."""
-    from PySide6.QtWidgets import QStyle
-
-    style = qapp.style()
-    already = int(style.styleHint(QStyle.StyleHint.SH_ToolTip_WakeUpDelay))
-    assert policy.remaining_delay_ms() + already == \
-        tooltip_policy.SHOW_DELAY_MS or already > tooltip_policy.SHOW_DELAY_MS
+def test_an_unobserved_hover_never_assumes_qts_style_delay_elapsed(policy):
+    """Qt's warm-tooltip fast path can request help before its nominal delay."""
+    assert policy.remaining_delay_ms() == tooltip_policy.SHOW_DELAY_MS
 
 
 def test_a_child_without_a_tooltip_still_shows_its_parents(policy, qapp):

@@ -1,10 +1,10 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Scarica ed estrai SYNTHETIC_timelapse_preview.zip. L’esempio didattico contiene otto fotogrammi di immagini cellulari e le immagini di etichette corrispondenti. Per un’esecuzione completa di Mask sui tuoi dati, prepara immagini di microscopia ordinate nel tempo e annota l’intervallo di acquisizione.",
   "scenes": [
-    "Da Home, apri Mask e fai clic sull’icona Timelapse in alto a destra per attivare il tracciamento. Usa Timelapse per collegare gli oggetti tra immagini consecutive. Prima proveremo l’esempio collegato in Track preview, poi esamineremo le impostazioni per elaborare la tua sequenza di immagini.",
+    "Da Home apri Mask, attiva Time nella riga Actions e accendi Timelapse per attivare il tracciamento. Timelapse collega gli oggetti tra immagini consecutive. Prima proveremo l’esempio collegato in Track preview, poi esamineremo le impostazioni per elaborare la tua sequenza di immagini.",
     "Scarica ed estrai l’archivio di esempio qui sotto, poi fai clic su Track preview a destra dell’intestazione Actions. L’archivio contiene una sequenza di immagini e la corrispondente sequenza di maschere per otto fotogrammi. Tieni insieme le due cartelle per poter selezionare immagini ed etichette corrispondenti.",
     "Scegli image_sequences, poi field_A01, come cartella delle immagini. Seleziona il canale zero: ogni immagine di esempio contiene un solo canale di intensità cellulare. Imposta Frames previewed su otto e Fields su uno.",
     "Fai clic su Masks e seleziona label_sequences, poi field_A01. Ogni etichetta identifica un oggetto nell’immagine corrispondente. All’inizio lascia disattivato Keep only full-length tracks, così puoi esaminare le tracce che iniziano o finiscono all’interno della sequenza.",

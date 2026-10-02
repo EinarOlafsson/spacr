@@ -38,14 +38,17 @@ def test_the_sentence_moves_off_the_button(qtbot):
     assert bar.explains(button) == "Frees cached memory. Asks first."
 
 
-def test_hovering_writes_it_and_leaving_puts_the_default_back(qtbot):
+def test_hovering_writes_it_and_leaving_puts_the_default_back(qtbot, monkeypatch):
+    monkeypatch.setattr("spacr.qt.tooltip_policy._preferred_delay_ms", lambda: 0)
     bar = HintBar()
     qtbot.addWidget(bar)
     button = QPushButton("Go")
     qtbot.addWidget(button)
     bar.explain(button, "Starts the run and cannot be undone.")
+    button.show()
 
     QApplication.sendEvent(button, QEvent(QEvent.Enter))
+    qtbot.waitUntil(lambda: bar.text() == "Starts the run and cannot be undone.")
     assert bar.text() == "Starts the run and cannot be undone."
     QApplication.sendEvent(button, QEvent(QEvent.Leave))
     assert bar.text() == DEFAULT_HINT
@@ -73,19 +76,26 @@ def test_a_control_with_nothing_to_say_is_not_watched(qtbot):
     assert bar.count() == 0
 
 
-def test_crossing_between_two_buttons_does_not_flash_the_default(qtbot):
+def test_crossing_between_two_buttons_does_not_flash_the_default(qtbot, monkeypatch):
     """Leave and Enter arrive in that order often enough to matter."""
+    monkeypatch.setattr("spacr.qt.tooltip_policy._preferred_delay_ms", lambda: 0)
     bar = HintBar()
     qtbot.addWidget(bar)
-    first, second = QPushButton("A"), QPushButton("B")
-    qtbot.addWidget(first)
-    qtbot.addWidget(second)
+    window = QWidget()
+    qtbot.addWidget(window)
+    first, second = QPushButton("A", window), QPushButton("B", window)
     bar.explain(first, "Does the first thing.")
     bar.explain(second, "Does the second thing.")
+    window.show()
+    assert first.isVisible() and second.isVisible()
 
-    QApplication.sendEvent(first, QEvent(QEvent.Enter))
-    QApplication.sendEvent(second, QEvent(QEvent.Enter))
-    QApplication.sendEvent(first, QEvent(QEvent.Leave))
+    bar.eventFilter(first, QEvent(QEvent.Enter))
+    bar._hover_delay._deliver()
+    assert bar.text() == "Does the first thing."
+    bar.eventFilter(second, QEvent(QEvent.Enter))
+    bar._hover_delay._deliver()
+    assert bar.text() == "Does the second thing."
+    bar.eventFilter(first, QEvent(QEvent.Leave))
     assert bar.text() == "Does the second thing.", (
         "the bar showed the button the pointer had left, then blanked")
 

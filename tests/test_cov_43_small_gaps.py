@@ -90,8 +90,10 @@ def test_the_command_line_reports_the_analysis_lock(lock_run, monkeypatch,
 
     module, settings = lock_run
     summary = f"the analysis lock says {status}"
+    monkeypatch.setattr(run_journal, "_find_lock",
+                        lambda app_key, src: {"lock_id": "lock-1"})
     monkeypatch.setattr(run_journal, "check_analysis_lock",
-                        lambda settings, app_key=None: {
+                        lambda settings, app_key=None, lock=None: {
                             "status": status, "summary": summary,
                             "deviations": []})
     assert cli.main(["_lock_fake", "--settings", settings]) == cli.EXIT_OK

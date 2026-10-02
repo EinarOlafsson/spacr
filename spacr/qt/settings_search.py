@@ -422,11 +422,21 @@ class SettingsSearchBar(QWidget):
         if not _row_is_visible(section, field) and self._level != ALL:
             self._show_all_without_remembering()
             self.apply()
+        # A nested heading is only reachable with every containing heading
+        # open. Logical ancestry also crosses bodies parked off the widget tree.
+        ancestors = set()
+        parent = section
+        while parent is not None:
+            ancestors.add(id(parent))
+            parent = _logical_parent(parent)
         for other in self._sections:
             if not hasattr(other, "set_expanded"):
                 continue
             try:
-                other.set_expanded(other is section)
+                contains_target = id(other) in ancestors
+                if contains_target:
+                    other.setVisible(True)
+                other.set_expanded(contains_target)
             except Exception:
                 LOG.debug("could not collapse a section", exc_info=True)
         self._restore_expanded = None

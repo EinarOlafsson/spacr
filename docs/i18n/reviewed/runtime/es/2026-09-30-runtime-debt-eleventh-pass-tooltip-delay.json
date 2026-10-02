@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-09-30: item 603's Preferences tooltip-delay caption and its help, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Tooltip delay",
+      "source": "Tooltip delay",
+      "source_sha256": "1c6066f81b63dc5bf9709a8a94ca9119d5cf0ddab14ec10ecddf638e8183c881",
+      "translation": "Retraso de la información emergente"
+    },
+    {
+      "table": "ui",
+      "key": "Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.",
+      "source": "Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.",
+      "source_sha256": "02681fb0113538b5c60c0625e1b8a5d8a93f06378ec82cfe097b971b9fdfc64c",
+      "translation": "Segundos que el puntero permanece sobre un control antes de que aparezca su información emergente. 0 la muestra al instante. Valor predeterminado: 2.0 s."
+    }
+  ]
+}

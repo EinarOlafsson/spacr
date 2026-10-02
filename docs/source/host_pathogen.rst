@@ -2,8 +2,9 @@ Host–Pathogen Analysis
 ========================
 
 From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**.
-This alpha module combines vacuole-level marker recruitment with host and well
-summaries. Existing :doc:`Recruitment <recruitment>` remains available.
+This module combines vacuole-level marker recruitment with host and well
+summaries. For vacuole recruitment on its own, use
+:doc:`Recruitment <recruitment>`.
 
 Try the real microscopy test data
 ----------------------------------------

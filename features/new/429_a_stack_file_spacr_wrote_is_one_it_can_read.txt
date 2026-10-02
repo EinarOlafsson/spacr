@@ -2,7 +2,7 @@
 A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
 ================================================================================
 
-Status:    DONE here (re-verified 2026-09-25, 93 regression checks pass on
+Status:    DONE here (re-verified 2026-10-02, 93 regression checks pass on
            nightly a93f937d2); remaining: (a) docs lane -- the consolidated
            API-page/translation pass for the changed public docstrings
            (handed off in #325); (b) the reporter (jak18015) confirming on
@@ -394,3 +394,15 @@ test_spacr_masks_load_without_unpickling.
 Every code follow-up recorded above is closed. What remains is not code:
 the docs lane's translation of the changed docstrings, and a confirming run
 by the reporter on a real macOS volume.
+
+2026-10-02 -- CURRENT-SOURCE REGRESSION REPAIRED
+The same six-file cohort found one regression after the plate-memory streaming
+change: when every source image failed to decode, ingest created an empty
+stack/ directory before it knew whether it had pixels to save. The input
+folder was otherwise untouched, but the existing failed-read regression
+correctly required no new artifact at all. stack/ is now created immediately
+before publishing the first valid field. This changes no public API or
+documentable signature. All 93 tests in the six-file current-source cohort
+pass, including simulated AppleDouble sidecars and failed-read rollback.
+Receipt: features/data/429_current_source_stack_acceptance_2026-10-02.json.
+A real macOS external-volume run remains outside this Linux host's validation.

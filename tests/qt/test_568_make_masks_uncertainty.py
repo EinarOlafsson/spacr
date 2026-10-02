@@ -56,7 +56,7 @@ def test_the_button_is_hidden_unless_alpha_features_are_shown(
         button = widget._btn_uncertainty
         assert button.objectName() == "MakeMasksUncertaintyButton"
         assert button.isHidden() is not shown
-        assert set(widget._uncertainty_actions) == {"map", "rank"}
+        assert set(widget._uncertainty_actions) == {"map", "rank", "save"}
         monkeypatch.setattr(preferences, "_get_show_alpha_features",
                             lambda s=shown: not s)
         preferences._apply_alpha_widgets(widget)
@@ -127,3 +127,37 @@ def test_cellpose_passes_add_near_misses_and_flow_errors(screen, monkeypatch):
     assert result["map"][42, 5] > 0.5
     assert set(result["flow_errors"]) == {1}
     assert result["objects"][1] > 0.5
+
+
+def test_the_object_operations_setting_is_the_same_uncertainty(
+        qtbot, qt_theme_applied, monkeypatch):
+    """Uncertainty also sits in Object operations, right after Swap.
+
+    It opens the same Map / Rank menu, is disabled with the toolbar button
+    while a run is under way, and is hidden by the same alpha gate.
+    """
+    from PySide6.QtWidgets import QPushButton
+
+    from spacr.qt import preferences
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    for shown in (False, True):
+        monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                            lambda s=shown: s)
+        widget = MakeMasksScreen()
+        qtbot.addWidget(widget)
+        setting = widget._btn_uncertainty_setting
+        assert setting.objectName() == "MakeMasksUncertaintySetting"
+        assert setting.isHidden() is not shown
+        assert setting.menu() is widget._btn_uncertainty.menu()
+        column = setting.parentWidget().layout()
+        texts = [column.itemAt(i).widget().text()
+                 for i in range(column.count())
+                 if isinstance(column.itemAt(i).widget(), QPushButton)]
+        index = texts.index("Swap object and background")
+        assert texts[index + 1] == "Uncertainty…"
+        widget._set_uncertainty_enabled(False)
+        assert not setting.isEnabled()
+        assert not widget._btn_uncertainty.isEnabled()
+        widget._set_uncertainty_enabled(True)
+        assert setting.isEnabled() and widget._btn_uncertainty.isEnabled()

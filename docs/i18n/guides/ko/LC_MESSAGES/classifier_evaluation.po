@@ -1,0 +1,207 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Classifier evaluation workbench"
+msgstr "분류기 평가 워크벤치"
+
+msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead, because judging a classifier is the sentence after training one. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
+msgstr "분류기 교차 검증은 각 폴드를 정확도 숫자 하나로 줄이지 않고 모든 폴드 외(out-of-fold) 확률을 보존합니다. 워크벤치에는 자체 타일이 없습니다. 분류기를 평가하는 일은 학습 바로 다음 단계이므로 **분류** 헤더에서 열립니다. 그곳에서 **분류기 평가** 를 누르고 모델/결과 폴더를 페이지에 끌어다 놓습니다. 검색은 백그라운드에서 실행되며 해당 폴더 아래의 모든 ``evaluation_manifest.json`` 을 찾습니다."
+
+msgid "The workbench shows:"
+msgstr "워크벤치에는 다음이 표시됩니다."
+
+msgid "overall accuracy, balanced accuracy, macro precision/recall/F1, log loss, and expected calibration error;"
+msgstr "전체 정확도, 균형 정확도, 매크로 정밀도/재현율/F1, 로그 손실, 기대 보정 오차;"
+
+msgid "raw counts and row-normalized confusion matrices for any number of classes;"
+msgstr "클래스 수에 관계없는 원시 개수 혼동 행렬과 행 정규화 혼동 행렬;"
+
+msgid "the same metrics separately for every plate;"
+msgstr "모든 플레이트에 대해 따로 계산한 같은 지표;"
+
+msgid "cross-fitted calibration curves and per-class reliability bins;"
+msgstr "교차 적합 보정 곡선과 클래스별 신뢰도 구간;"
+
+msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
+msgstr "플레이트, 웰, 시야, 객체, 신뢰도, 원시/보정된 클래스 확률을 포함한 검색 가능한 홀드아웃 예측;"
+
+msgid "an explicit leakage report for every outer and inner split."
+msgstr "모든 외부 및 내부 분할에 대한 명시적인 누수 보고서."
+
+msgid "Crop decoding and existing models"
+msgstr "크롭 디코딩과 기존 모델"
+
+msgid "Image classifiers must see the same channel order and intensity conversion during training and prediction. New training runs use ``declared_uint8_v1`` and save it in the checkpoint's ``preprocessing.crop_loading_policy`` record. Folder and tar inputs use the same decoder: crop formats 1 and 3 already have declared channel order; format 2 has its channels reversed. EXIF orientation is applied before decoding."
+msgstr "이미지 분류기는 학습과 예측 시 같은 채널 순서와 강도 변환을 보아야 합니다. 새 학습 실행은 ``declared_uint8_v1`` 을 사용하며, 이를 체크포인트의 ``preprocessing.crop_loading_policy`` 기록에 저장합니다. 폴더 입력과 tar 입력은 같은 디코더를 사용합니다. 크롭 형식 1과 3은 이미 채널 순서가 선언되어 있고, 형식 2는 채널 순서가 반대입니다. 디코딩 전에 EXIF 방향이 적용됩니다."
+
+msgid "For unsigned 16-bit crops, decoding keeps the high byte instead of clipping every value above 255. For example, intensities ``[0, 256, 1024, 32768, 65535]`` become ``[0, 1, 4, 128, 255]``. This converts the classifier input to eight bits; it does not preserve the full precision of the original scientific image or modify that source file."
+msgstr "부호 없는 16비트 크롭의 경우 디코딩은 255를 넘는 값을 모두 잘라내지 않고 상위 바이트를 유지합니다. 예를 들어 강도 ``[0, 256, 1024, 32768, 65535]`` 는 ``[0, 1, 4, 128, 255]`` 가 됩니다. 이 과정은 분류기 입력을 8비트로 변환할 뿐, 원래 과학 이미지의 전체 정밀도를 보존하거나 원본 파일을 수정하지 않습니다."
+
+msgid "Existing checkpoints without a decoding record keep ``stored_pil_v1``, the historical PIL RGB conversion and stored channel order. spaCR reports this fallback when loading the model. This policy can clip high-bit-depth crops, but changing it for an already trained model would change its inputs. Retrain and evaluate a new model to adopt the new decoding policy. Resuming or fine-tuning retains the checkpoint's policy. Training and validation policies must agree, and fusion or teacher models with conflicting policies cannot be combined."
+msgstr "디코딩 기록이 없는 기존 체크포인트는 과거의 PIL RGB 변환과 저장된 채널 순서인 ``stored_pil_v1`` 을 유지합니다. 모델을 불러올 때 spaCR은 이 대체 동작을 보고합니다. 이 정책은 비트 심도가 높은 크롭을 잘라낼 수 있지만, 이미 학습된 모델에 대해 정책을 바꾸면 입력이 달라집니다. 새 디코딩 정책을 적용하려면 새 모델을 다시 학습하고 평가합니다. 재개나 미세 조정은 체크포인트의 정책을 유지합니다. 학습 정책과 검증 정책은 일치해야 하며, 정책이 서로 다른 융합 모델이나 교사 모델은 결합할 수 없습니다."
+
+msgid "When constructing loaders through the API, pass the checkpoint policy to ``crop_loading_policy`` in :func:`spacr.io.generate_loaders` or :func:`spacr.io.generate_cv_loaders`. Use :func:`spacr.classification_pixels.checkpoint_policy` to read that contract; :func:`spacr.classification_pixels.read_classification_image` and :func:`spacr.crops.decode_crop_image` document the decoding operations."
+msgstr "API로 로더를 만들 때는 :func:`spacr.io.generate_loaders` 또는 :func:`spacr.io.generate_cv_loaders` 의 ``crop_loading_policy`` 에 체크포인트 정책을 전달합니다. 이 규약은 :func:`spacr.classification_pixels.checkpoint_policy` 로 읽으며, :func:`spacr.classification_pixels.read_classification_image` 와 :func:`spacr.crops.decode_crop_image` 에 디코딩 연산이 문서화되어 있습니다."
+
+msgid "Grouped and nested cross-validation"
+msgstr "그룹 교차 검증과 중첩 교차 검증"
+
+msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
+msgstr "``cross_validation_folds`` 는 외부 폴드를 제어하고, ``cv_group_by`` 는 관련된 시야, 웰 또는 플레이트를 함께 묶어 둡니다. 기본값은 웰 그룹 교차 검증입니다. 진정한 중첩 교차 검증을 사용하려면 ``nested_cv_inner_folds`` 를 2 이상으로 설정합니다."
+
+msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This is fast and useful for routine comparisons, but can give a slightly optimistic estimate when many choices are made against that fold."
+msgstr "일반 교차 검증에서는 외부 검증 폴드가 체크포인트 선택과 성능 보고에 모두 사용됩니다. 빠르고 일상적인 비교에 유용하지만, 그 폴드에 맞춰 많은 선택을 하면 추정치가 약간 낙관적일 수 있습니다."
+
+msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
+msgstr "중첩 교차 검증에서는 각 외부 학습 분할을 다시 나눕니다. 모델은 내부 검증 폴드에 대해서만 체크포인트를 선택하며, 손대지 않은 외부 폴드는 최종 점수 계산에 한 번만 사용됩니다. 내부 모델들은 해당 외부 폴드에 대한 앙상블을 이룹니다. 학습 실행이 ``cross_validation_folds * nested_cv_inner_folds`` 번 필요하지만, 모델 선택과 성능 추정이 분리됩니다."
+
+msgid "Leakage protection"
+msgstr "누수 방지"
+
+msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises an actionable error before model fitting. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
+msgstr "학습 전에 spaCR은 모든 분할의 양쪽에서 정확한 경로, 증강 계열, 객체, 구성된 그룹 수준을 확인합니다. ``evaluation_fail_on_leakage=True`` (기본값)이면 보호 대상의 겹침이 있을 때 모델 적합 전에 조치 가능한 오류가 발생합니다. 증강은 분할 후에 생성되므로 변환된 복사본이 홀드아웃 폴드에 들어갈 수 없습니다."
+
+msgid "Temperature calibration"
+msgstr "온도 보정"
+
+msgid "``evaluation_calibration=temperature`` fits a scalar temperature without using a prediction to calibrate itself. For each held-out outer fold, the temperature is fit only from the other folds. Set it to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
+msgstr "``evaluation_calibration=temperature`` 는 예측이 자기 자신을 보정하는 데 쓰이지 않도록 스칼라 온도를 적합합니다. 각 홀드아웃 외부 폴드에 대해 온도는 다른 폴드만으로 적합됩니다. 모델의 원시 확률을 유지하려면 ``none`` 으로 설정합니다. ``evaluation_bins`` 는 신뢰도 표와 기대 보정 오차의 해상도를 제어합니다."
+
+msgid "Evaluation bundle"
+msgstr "평가 번들"
+
+msgid "The ``evaluation`` folder contains:"
+msgstr "``evaluation`` 폴더에는 다음이 들어 있습니다."
+
+msgid "``oof_predictions.csv``"
+msgstr "``oof_predictions.csv``"
+
+msgid "One held-out row per crop, including identities and class probabilities."
+msgstr "크롭당 하나의 홀드아웃 행으로, 식별 정보와 클래스 확률을 포함합니다."
+
+msgid "``confusion_counts.csv`` and ``confusion_normalized.csv``"
+msgstr "``confusion_counts.csv`` 및 ``confusion_normalized.csv``"
+
+msgid "Arbitrary-class confusion matrices."
+msgstr "임의 클래스 수의 혼동 행렬입니다."
+
+msgid "``per_plate_metrics.csv`` and ``calibration.csv``"
+msgstr "``per_plate_metrics.csv`` 및 ``calibration.csv``"
+
+msgid "Plate-specific quality and reliability-bin statistics."
+msgstr "플레이트별 품질과 신뢰도 구간 통계입니다."
+
+msgid "``leakage.json``"
+msgstr "``leakage.json``"
+
+msgid "The auditable split checks, overlap counts, examples and warnings."
+msgstr "감사 가능한 분할 검사, 겹침 수, 예시, 경고입니다."
+
+msgid "``summary.json`` and ``evaluation_manifest.json``"
+msgstr "``summary.json`` 및 ``evaluation_manifest.json``"
+
+msgid "Machine-readable overall results and the stable bundle schema."
+msgstr "기계가 읽을 수 있는 전체 결과와 안정적인 번들 스키마입니다."
+
+msgid "The Python entry points are :func:`spacr.classifier_evaluation.evaluate_predictions`, :func:`spacr.classifier_evaluation.audit_split_leakage`, :func:`spacr.classifier_evaluation.nested_group_folds`, :func:`spacr.classifier_evaluation.write_evaluation_bundle`, and :func:`spacr.classifier_evaluation.load_evaluation_bundle`."
+msgstr "Python 진입점은 :func:`spacr.classifier_evaluation.evaluate_predictions`, :func:`spacr.classifier_evaluation.audit_split_leakage`, :func:`spacr.classifier_evaluation.nested_group_folds`, :func:`spacr.classifier_evaluation.write_evaluation_bundle`, :func:`spacr.classifier_evaluation.load_evaluation_bundle` 입니다."
+
+msgid "Orientation stability during inference"
+msgstr "추론 시 방향 안정성"
+
+msgid "In **Classify**, with ``classifier_family`` set to ``cv``, the **Test-time augmentation** settings apply selected rotations and reflections when scoring phenotype crops. This is an inference option; it does not change training augmentation or the held-out evaluation procedure described above. Leave it disabled when orientation is biologically meaningful."
+msgstr "**분류** 에서 ``classifier_family`` 가 ``cv`` 로 설정되어 있으면, **추론 시 데이터 증강** 설정은 표현형 크롭에 점수를 매길 때 선택한 회전과 반사를 적용합니다. 이는 추론 옵션이며, 학습 증강이나 위에서 설명한 홀드아웃 평가 절차를 바꾸지 않습니다. 방향이 생물학적으로 의미가 있을 때는 끈 상태로 둡니다."
+
+msgid "Enable ``tta_enabled`` and choose the transformations to evaluate:"
+msgstr "``tta_enabled`` 를 켜고 평가할 변환을 선택합니다."
+
+msgid "``tta_rotations`` adds 90, 180 and 270 degree rotations without pixel interpolation."
+msgstr "``tta_rotations`` 는 픽셀 보간 없이 90, 180, 270도 회전을 추가합니다."
+
+msgid "``tta_horizontal_flip`` adds horizontal reflections of the selected rotations; ``tta_vertical_flip`` adds vertical reflections."
+msgstr "``tta_horizontal_flip`` 은 선택한 회전의 수평 반사를, ``tta_vertical_flip`` 은 수직 반사를 추가합니다."
+
+msgid "The original orientation is always included. Equivalent orientations are evaluated once, giving at most eight views when all options are enabled. Enabling the feature without selecting transformations evaluates only the original view."
+msgstr "원래 방향은 항상 포함됩니다. 동등한 방향은 한 번만 평가되므로 모든 옵션을 켜면 최대 8개의 뷰가 생깁니다. 기능을 켜고 변환을 선택하지 않으면 원래 뷰만 평가됩니다."
+
+msgid "``tta_aggregation=probability_mean`` selects a label from the mean class probabilities. ``majority_vote`` instead counts the labels of individual views; ties prefer the higher mean probability, then the lower class index. For binary predictions, ``score_threshold`` labels each view before agreement and voting are calculated."
+msgstr "``tta_aggregation=probability_mean`` 은 평균 클래스 확률로 레이블을 선택합니다. ``majority_vote`` 는 대신 개별 뷰의 레이블을 셉니다. 동점이면 평균 확률이 높은 쪽, 그다음 클래스 인덱스가 낮은 쪽을 우선합니다. 이진 예측에서는 ``score_threshold`` 가 일치도와 투표를 계산하기 전에 각 뷰에 레이블을 붙입니다."
+
+msgid "The enabled output retains both the original prediction and the aggregated result:"
+msgstr "기능을 켜면 출력에 원래 예측과 집계 결과가 모두 유지됩니다."
+
+msgid "Column"
+msgstr "콜롬비아"
+
+msgid "Meaning"
+msgstr "의미"
+
+msgid "``pred``, ``prediction_mean``"
+msgstr "``pred``, ``prediction_mean``"
+
+msgid "Mean positive-class probability for binary output, or mean probability of the selected class for multiclass output."
+msgstr "이진 출력에서는 양성 클래스의 평균 확률, 다중 클래스 출력에서는 선택된 클래스의 평균 확률입니다."
+
+msgid "``predicted_label``"
+msgstr "``predicted_label``"
+
+msgid "Class selected by the configured aggregation method. The tar workflow's ``cv_predictions`` uses this label too."
+msgstr "구성된 집계 방법으로 선택된 클래스입니다. tar 워크플로의 ``cv_predictions`` 도 이 레이블을 사용합니다."
+
+msgid "``original_pred``, ``original_predicted_label``"
+msgstr "``original_pred``, ``original_predicted_label``"
+
+msgid "Score and label from the original orientation before aggregation."
+msgstr "집계 전 원래 방향의 점수와 레이블입니다."
+
+msgid "``prediction_std``"
+msgstr "``prediction_std``"
+
+msgid "Population standard deviation across views of the positive-class probability for binary output, or the selected-class probability for multiclass output."
+msgstr "이진 출력에서는 양성 클래스 확률의, 다중 클래스 출력에서는 선택된 클래스 확률의 뷰 간 모집단 표준편차입니다."
+
+msgid "``transform_agreement``"
+msgstr "``transform_agreement``"
+
+msgid "Fraction of view labels matching the selected label."
+msgstr "선택된 레이블과 일치하는 뷰 레이블의 비율입니다."
+
+msgid "``review_flag``, ``tta_views``"
+msgstr "``review_flag``, ``tta_views``"
+
+msgid "Whether the stability thresholds request review, and the number of distinct views scored."
+msgstr "안정성 임계값이 검토를 요청하는지 여부와 점수가 매겨진 서로 다른 뷰의 수입니다."
+
+msgid "``prob_class_<i>``, ``original_prob_class_<i>``, ``prob_class_<i>_std``"
+msgstr "``prob_class_<i>``, ``original_prob_class_<i>``, ``prob_class_<i>_std``"
+
+msgid "Mean probability, original probability and population standard deviation for each class index."
+msgstr "각 클래스 인덱스의 평균 확률, 원래 확률, 모집단 표준편차입니다."
+
+msgid "With majority voting, retain ``predicted_label`` or ``cv_predictions`` as the selected result. Thresholding ``pred`` again can produce a different label because ``pred`` still stores a mean probability."
+msgstr "다수결 투표를 사용할 때는 ``predicted_label`` 또는 ``cv_predictions`` 를 선택된 결과로 유지합니다. ``pred`` 에는 여전히 평균 확률이 저장되어 있으므로, ``pred`` 에 다시 임계값을 적용하면 다른 레이블이 나올 수 있습니다."
+
+msgid "An object is flagged when agreement is below ``tta_min_agreement`` (default 0.75) or probability standard deviation exceeds ``tta_max_std`` (default 0.15). Agreement measures stability across orientations, not calibrated confidence or accuracy on independent data. Compare results on a separate validation set before choosing these options for an experiment."
+msgstr "일치도가 ``tta_min_agreement`` (기본값 0.75)보다 낮거나 확률 표준편차가 ``tta_max_std`` (기본값 0.15)를 넘으면 객체에 표시가 붙습니다. 일치도는 방향 간 안정성을 측정할 뿐, 보정된 신뢰도나 독립 데이터에서의 정확도를 측정하지 않습니다. 실험에 이 옵션을 선택하기 전에 별도의 검증 세트에서 결과를 비교합니다."
+
+msgid "For directory input, pass the options as keyword arguments to :func:`spacr.deep_spacr.apply_model`. For tar input, supply the same keys in the settings passed to :func:`spacr.deep_spacr.apply_model_to_tar`. :func:`spacr.inference_augmentation.transforms_for` defines the distinct views and :func:`spacr.inference_augmentation.predict_augmented` documents the aggregation contract. Disabled augmentation preserves ordinary inference."
+msgstr "디렉터리 입력의 경우 옵션을 :func:`spacr.deep_spacr.apply_model` 에 키워드 인수로 전달합니다. tar 입력의 경우 :func:`spacr.deep_spacr.apply_model_to_tar` 에 전달하는 설정에 같은 키를 제공합니다. :func:`spacr.inference_augmentation.transforms_for` 는 서로 다른 뷰를 정의하고, :func:`spacr.inference_augmentation.predict_augmented` 는 집계 규약을 문서화합니다. 증강을 끄면 일반 추론이 그대로 유지됩니다."
+

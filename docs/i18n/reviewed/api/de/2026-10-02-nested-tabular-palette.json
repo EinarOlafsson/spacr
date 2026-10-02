@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "Direct Codex AI translation with independent Codex AI peer review; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.tabular._write_workbook._write#0",
+      "source": "Write every sheet into ``pending``.",
+      "source_sha256": "f3faccbdbd7cbd279a088bf973b7e80a6eb1fb47c93f94e75bd10a6fbbb771a0",
+      "context": "Write every sheet into ``pending``.",
+      "translation": "Schreibe jedes Tabellenblatt nach ``pending``.",
+      "review_basis": "Independent AI technical peer review; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible#0",
+      "source": "Fallback that treats every app as visible.",
+      "source_sha256": "2491b698ca8075a2cfe1dcebf8f84ca43e137a039e60bfbf39227d544c143da9",
+      "context": "Fallback that treats every app as visible.",
+      "translation": "Ersatzverhalten, das jede App als sichtbar behandelt.",
+      "review_basis": "Independent AI technical peer review; no native-speaker signoff."
+    }
+  ]
+}

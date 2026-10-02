@@ -31,8 +31,18 @@ def record_help_search(app, window, capture, settle, name="08_help_search"):
     return region
 
 
-def record_performance(window, capture, settle):
-    from PySide6.QtWidgets import QComboBox, QTabWidget
+def record_performance(window, capture, settle, *, dialog_size=(1200, 1200)):
+    """Capture Performance and the current Appearance category navigation.
+
+    :param window: owning recording window.
+    :param capture: callback receiving each stable scene name.
+    :param settle: callback that processes events until painting settles.
+    :param dialog_size: recording dialog size in logical pixels.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QComboBox, QScrollArea, QTabWidget
+    from spacr.qt.widgets.section import Section
 
     from spacr.qt.preferences import PreferencesDialog
 
@@ -46,12 +56,48 @@ def record_performance(window, capture, settle):
             if tabs.widget(index).findChild(QComboBox, "PerformanceLevel") is selector:
                 tabs.setCurrentIndex(index)
                 break
-        dialog.resize(1200, 1200)
+        dialog.resize(*dialog_size)
+        dialog.move(window.mapToGlobal(window.rect().center()) - dialog.rect().center())
         dialog.show()
         settle()
         if not selector.isVisible():
             raise RuntimeError("The Performance selector is not visible")
         capture("09_performance")
+        titles = [tabs.tabText(i) for i in range(tabs.count())]
+        if "Theme" in titles or "Animation" in titles or "Appearance" not in titles:
+            raise RuntimeError("Tutorial requires Theme and Animation inside Appearance")
+        QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
+                         pos=tabs.tabBar().tabRect(titles.index("Appearance")).center())
+        settle()
+        page = tabs.currentWidget()
+        categories = {section.title(): section for section in page.findChildren(Section)}
+        if not {"THEME", "ANIMATION"} <= categories.keys():
+            raise RuntimeError("Appearance is missing its Theme or Animation category")
+        if any(categories[name].is_expanded() for name in ("THEME", "ANIMATION")):
+            raise RuntimeError("Appearance categories must begin folded")
+        if isinstance(page, QScrollArea):
+            page.ensureWidgetVisible(categories["ANIMATION"]._header)
+        settle()
+        capture("10_appearance_categories")
+        for title, frame in (("THEME", "11_appearance_theme"),
+                             ("ANIMATION", "12_appearance_animation")):
+            section = categories[title]
+            if isinstance(page, QScrollArea):
+                page.ensureWidgetVisible(section._header)
+            QTest.mouseClick(section._header, Qt.LeftButton)
+            settle()
+            if not section.is_expanded():
+                raise RuntimeError(f"The {title} category did not open")
+            if isinstance(page, QScrollArea):
+                page.ensureWidgetVisible(section._header)
+            settle()
+            controls = section.findChildren(QComboBox)
+            if not controls or not any(control.isVisible() for control in controls):
+                raise RuntimeError(f"The {title} controls are not visible")
+            capture(frame)
+            QTest.mouseClick(section._header, Qt.LeftButton)
+            settle()
+
     finally:
         dialog.close()
         dialog.deleteLater()

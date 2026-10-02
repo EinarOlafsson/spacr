@@ -1,0 +1,438 @@
+{
+  "schema": 1,
+  "time_utc": "2026-10-02T07:15:10.225883+00:00",
+  "status": "Documentation support615.2 complete at pinned local snapshot",
+  "source_base": "b49ad96ef3a46d2067ac7d893ed542537e71c82d",
+  "upstream_generated_docs_commit": "5e1338200",
+  "scope": [
+    "Current user workflow/help and shared workflow map",
+    "Measure crop-unmix preview/export and reference-well gain-preview instructions",
+    "Source-bound six-message guide delta in all nine locales",
+    "Fresh strict complete English Sphinx plus strict nine guide trees",
+    "Normal generated Help index refresh and existing regression checks"
+  ],
+  "translation_review": "Independent Codex AI technical review; no human/native-speaker certification",
+  "guide_counts": {
+    "sv": {
+      "total": 2875,
+      "translated": 2875,
+      "stale": 0
+    },
+    "de": {
+      "total": 2875,
+      "translated": 2875,
+      "stale": 0
+    },
+    "es": {
+      "total": 2875,
+      "translated": 2875,
+      "stale": 0
+    },
+    "pt": {
+      "total": 2875,
+      "translated": 2875,
+      "stale": 0
+    },
+    "fr": {
+      "total": 2875,
+      "translated": 2875,
+      "stale": 0
+    },
+    "is": {
+      "total": 2875,
+      "translated": 2875,
+      "stale": 0
+    },
+    "zh_CN": {
+      "total": 2875,
+      "translated": 2875,
+      "stale": 0
+    },
+    "ko": {
+      "total": 2875,
+      "translated": 2875,
+      "stale": 0
+    },
+    "hi": {
+      "total": 2875,
+      "translated": 2875,
+      "stale": 0
+    }
+  },
+  "guide_source_messages_added": 6,
+  "translated_pairs_added": 54,
+  "previous_measure_translations_preserved_per_locale": 11,
+  "build_phases": {
+    "dummy": {
+      "exit_code": 0,
+      "strict_warnings": true,
+      "elapsed": "3:29.97",
+      "log_sha256": "7ce3ecf0b193618586fcc45a228dc8934774cfc2475a0da54cda8c26a177465f",
+      "limits": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r70f77ce2e2ec46308fbee0d29575e160.scope",
+        "limits": {
+          "memory.max": "4294967296",
+          "memory.swap.max": "0",
+          "cpu.max": null,
+          "cpu_affinity": [
+            4
+          ],
+          "systemd_requested_properties": [
+            "CPUQuotaPerSecUSec=1s",
+            "MemoryMax=4294967296",
+            "MemorySwapMax=0"
+          ]
+        }
+      }
+    },
+    "html": {
+      "exit_code": 0,
+      "strict_warnings": true,
+      "elapsed": "3:21.14",
+      "log_sha256": "a6229ca7b7260a72a7b8eef8b57ce4c7f478f29134b0959ea27f08c14b0f8f4e",
+      "limits": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-refad6f70ca784bb587964af351176ee1.scope",
+        "limits": {
+          "memory.max": "4294967296",
+          "memory.swap.max": "0",
+          "cpu.max": null,
+          "cpu_affinity": [
+            4
+          ],
+          "systemd_requested_properties": [
+            "CPUQuotaPerSecUSec=1s",
+            "MemoryMax=4294967296",
+            "MemorySwapMax=0"
+          ]
+        }
+      }
+    },
+    "html-final": {
+      "exit_code": 0,
+      "strict_warnings": true,
+      "elapsed": "3:20.99",
+      "log_sha256": "ad45563bcfc3e16fc1fd731a894def1ea72422da777b00bd38b3ac832e4ff2ef",
+      "limits": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r1d04ad521182492490834136be36c3a0.scope",
+        "limits": {
+          "memory.max": "4294967296",
+          "memory.swap.max": "0",
+          "cpu.max": null,
+          "cpu_affinity": [
+            4
+          ],
+          "systemd_requested_properties": [
+            "CPUQuotaPerSecUSec=1s",
+            "MemoryMax=4294967296",
+            "MemorySwapMax=0"
+          ]
+        }
+      }
+    }
+  },
+  "refresh_failure_preserved": {
+    "exit_code": 137,
+    "cause": "Normal AutoAPI regenerated635API RST timestamps after Help-index source change; combined reread/write exceeded unchanged4GiB cap at14%write.",
+    "resolution": "Verified completed fresh read cache and unchanged sources, then separate strict -a HTML with0added/0changed/0removed. Final all-page write passed under same cap.",
+    "log": "html-refresh.log.gz"
+  },
+  "rendered": {
+    "local_only": true,
+    "api_publication_mode": "all",
+    "api_pages_with_exact_mode_and_catalog_version": 635,
+    "api_catalog_version": "69e5fab95d76819f",
+    "languages": {
+      "sv": {
+        "page_sha256": "87ab5f15b5dd6138e95c7d70f7b3d2563bbdb76528bd535263460b382de7d2e3",
+        "all_new_headings_present": true,
+        "all_literal_and_ui_bindings_present": true,
+        "untranslated_elements": 0,
+        "strict_build_exit_code": 0
+      },
+      "de": {
+        "page_sha256": "5cde47664d7a5385e3a82ba720d662bd7e1d0cbdb8092bc3495269fde87b19ce",
+        "all_new_headings_present": true,
+        "all_literal_and_ui_bindings_present": true,
+        "untranslated_elements": 0,
+        "strict_build_exit_code": 0
+      },
+      "es": {
+        "page_sha256": "7252bd5fa5a8995595ea913ea20ceba670fab80e81d327c1248b9a4ea24b7e08",
+        "all_new_headings_present": true,
+        "all_literal_and_ui_bindings_present": true,
+        "untranslated_elements": 0,
+        "strict_build_exit_code": 0
+      },
+      "pt": {
+        "page_sha256": "1c0095fb7d1115c6e81bceabf99826245516d8b1c401b7ae06ffe047f4beec95",
+        "all_new_headings_present": true,
+        "all_literal_and_ui_bindings_present": true,
+        "untranslated_elements": 0,
+        "strict_build_exit_code": 0
+      },
+      "fr": {
+        "page_sha256": "cbae64080208bfbcec88eefe47d7df5e5fc76231927da9c447fee340ddd6f7ad",
+        "all_new_headings_present": true,
+        "all_literal_and_ui_bindings_present": true,
+        "untranslated_elements": 0,
+        "strict_build_exit_code": 0
+      },
+      "is": {
+        "page_sha256": "548c87635f3b1f6e43256fb492cc13d9de4472240f3df65234094d384aec4f4f",
+        "all_new_headings_present": true,
+        "all_literal_and_ui_bindings_present": true,
+        "untranslated_elements": 0,
+        "strict_build_exit_code": 0
+      },
+      "zh_CN": {
+        "page_sha256": "34f236ed19fbac2da433fac252aa9b954ea9902433d65f20b17741c2110a3be3",
+        "all_new_headings_present": true,
+        "all_literal_and_ui_bindings_present": true,
+        "untranslated_elements": 0,
+        "strict_build_exit_code": 0
+      },
+      "ko": {
+        "page_sha256": "cc67dc50f2d6db26d8728ba04aaa9c307ad65cb6fcf2c98bd4b17a22361dc475",
+        "all_new_headings_present": true,
+        "all_literal_and_ui_bindings_present": true,
+        "untranslated_elements": 0,
+        "strict_build_exit_code": 0
+      },
+      "hi": {
+        "page_sha256": "e6f36885c3a7954f658c696d51a9b4da0457b44977a0193e724744838b57b9a1",
+        "all_new_headings_present": true,
+        "all_literal_and_ui_bindings_present": true,
+        "untranslated_elements": 0,
+        "strict_build_exit_code": 0
+      }
+    },
+    "html_pages_total": 1614,
+    "english_html_pages": 1290,
+    "api_catalogs_exact": {
+      "sv.json": "bb55b77c9b6466e4efe67945b7d05b6ad8b7533b02dd7cd6e11a3a6dec7fcc82",
+      "de.json": "9a05a6a4d2eefe29ff2dc5e5a5cf8322697181558dcca69e1eaeffdc625bee0d",
+      "is.json": "2cc8496920b1f3b5cd805f43e4d76f87d79afe933edbe1f5dc41ebd6c472a257",
+      "fr.json": "7af31859607cac422261a501e762a0a0ca88e4fa0ee6e9a79e7e4e5df066846b",
+      "ko.json": "e7e0fa50bc10dd18a03428f4842b9a9b2209c2c62f58a34904666c96ad2b836d",
+      "hi.json": "5fafd9a1b14b139f6633539e2121da5a71a083fb53e4b1e56e6e4e1111dbfbb1",
+      "pt.json": "52cf09d4ffc144590981328fd533a0984d46bc3c40406ece7f246cba7ad564d2",
+      "en.json": "f6cd7378caef88418b75d6f8c3a848aaad82fd66cbd8c5f2139e0af053016334",
+      "es.json": "92f5ffa2c898e27737d0dd1b27bcd95b20be43c77a98034e22cb125e463e7e57",
+      "zh_CN.json": "ed0e49dbadd6934d85d46b9e30cf8f937cb08a9ea38af460b54167e5827f8532"
+    },
+    "final_source_files_unchanged": 783
+  },
+  "checks": {
+    "workflow_map_cases_passed": 34,
+    "help_index_cases_passed": 25,
+    "catalog_render_cases_passed": 13,
+    "unique_existing_checks_passed": 72,
+    "initial_cohort": "58passed,1real stale generated Help-index failure; fixed via normal generator",
+    "final_cohort": "38passed:25Help and13catalog/render checks",
+    "normal_help_generator_check": "current",
+    "publication_harness_correction": "English-only mode assertion was incorrectly enabled against the normal all-locale build; preserved37passed/1mode-mismatch receipt, then checked actual all-mode on every635API page and used the existing all-mode frontend test. No test or product gate changed."
+  },
+  "help_index_delta": {
+    "api_added": [
+      "spacr.condition_annotations",
+      "spacr.condition_annotations.AnnotationError",
+      "spacr.condition_annotations.ConditionPreview",
+      "spacr.condition_annotations.annotation_columns",
+      "spacr.condition_annotations.apply_conditions",
+      "spacr.condition_annotations.new_definition",
+      "spacr.condition_annotations.preview",
+      "spacr.condition_annotations.save_annotated_table",
+      "spacr.condition_annotations.saved_table_annotation",
+      "spacr.condition_annotations.source_context",
+      "spacr.condition_annotations.table_identity",
+      "spacr.derived_tables",
+      "spacr.derived_tables.allowed_methods",
+      "spacr.derived_tables.column_sample",
+      "spacr.derived_tables.default_definition",
+      "spacr.derived_tables.execute",
+      "spacr.derived_tables.identity_columns",
+      "spacr.derived_tables.load_definitions",
+      "spacr.derived_tables.save_definition",
+      "spacr.derived_tables.schemas",
+      "spacr.derived_tables.sidecar_path",
+      "spacr.derived_tables.validate_source",
+      "spacr.merge_tables.aggregation_overrides",
+      "spacr.original_filenames",
+      "spacr.original_filenames.discover_maps",
+      "spacr.original_filenames.enrich",
+      "spacr.qt.mask_thumbnail_quality",
+      "spacr.qt.mask_thumbnail_quality.get_quality",
+      "spacr.qt.mask_thumbnail_quality.quality_combo",
+      "spacr.qt.mask_thumbnail_quality.set_quality",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.apply_condition_definition",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_export_table",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_load_chart",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_save_annotated_table",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.choose_save_chart",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.load_chart",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.open_condition_dialog",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.save_annotated_table",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.save_chart",
+      "spacr.qt.tooltip_policy.HoverDelay",
+      "spacr.qt.tooltip_policy.HoverDelay.cancel",
+      "spacr.qt.tooltip_policy.HoverDelay.cancel_for",
+      "spacr.qt.tooltip_policy.HoverDelay.eventFilter",
+      "spacr.qt.tooltip_policy.HoverDelay.schedule",
+      "spacr.qt.widgets.calibration_preview",
+      "spacr.qt.widgets.collapse_arrow",
+      "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow",
+      "spacr.qt.widgets.condition_annotation_dialog",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.accept",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.add_box",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.configuration",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.reject",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.remove_box",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.add_mime_rows",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.clear_manual_rows",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.definition",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.dragEnterEvent",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.dragMoveEvent",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.dropEvent",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.remove_selected_rows",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.columnCount",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.data",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.headerData",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.rowCount",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.row_summary",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionRowsModel.set_preview",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.selection_mime",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.startDrag",
+      "spacr.qt.widgets.derived_table_source",
+      "spacr.qt.widgets.derived_table_source.DerivedTableSource",
+      "spacr.qt.widgets.derived_table_source.DerivedTableSource.open_merge_dialog",
+      "spacr.qt.widgets.derived_table_source.DerivedTableSource.use_derived_table",
+      "spacr.qt.widgets.dock.DockEdge.is_collapsed",
+      "spacr.qt.widgets.dock.DockEdge.keyPressEvent",
+      "spacr.qt.widgets.dock.DockEdge.set_collapsed",
+      "spacr.qt.widgets.graph_spec.GraphSpec.binding_error",
+      "spacr.qt.widgets.merge_tables_dialog",
+      "spacr.qt.widgets.merge_tables_dialog.CustomMergeDialog",
+      "spacr.qt.widgets.merge_tables_dialog.CustomMergeDialog.accept",
+      "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog",
+      "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.accept",
+      "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.configuration",
+      "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.reject",
+      "spacr.qt.widgets.merge_tables_dialog.MergeTablesDialog.validate_preview",
+      "spacr.segmentation_uncertainty",
+      "spacr.segmentation_uncertainty.compute_queue_uncertainty",
+      "spacr.segmentation_uncertainty.compute_uncertainty",
+      "spacr.segmentation_uncertainty.save_uncertainty_map"
+    ],
+    "api_removed": [],
+    "api_summary_changes": {
+      "spacr.install_cleanup.start_update_helper": {
+        "old": "Hand deleting and installing to a process that outlives spaCR.",
+        "new": "Run an installation update in a process that outlives spaCR."
+      },
+      "spacr.qt.widgets.live_preview.load_preview_image": {
+        "old": "Read *path* into an (H, W) or (H, W, C) uint8/uint16 array.",
+        "new": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array."
+      },
+      "spacr.qt.widgets.dock.DockEdge.retranslate_dynamic_content": {
+        "old": "Rewrite the tooltip in ``language``.",
+        "new": "Explain the current collapse action and the resize gesture."
+      },
+      "spacr.install_cleanup": {
+        "old": "Find every older spaCR on this computer, and remove the installer-made ones.",
+        "new": "Find spaCR installations and run the appropriate update or removal procedure."
+      },
+      "spacr.qt.widgets.glass.round_the_corners": {
+        "old": "Cut the window itself to the card's rounded shape. True if applied.",
+        "new": "Keep antialiased alpha edges on translucent windows."
+      }
+    },
+    "setting_consumers_unchanged": false,
+    "preference_entries_unchanged": false,
+    "module_docstring_unchanged": true,
+    "after_sha256": "806d189c4022ac781d4da47ed5229377206e20f6423b212dcd3e395d3e15514f"
+  },
+  "limitations": [
+    "Local strict builds and rendered checks; no new live-site or release publication claimed.",
+    "Tutorial narration, media publication, broad nested-helper rollout and unrelated platform/scientific acceptance remain separately tracked.",
+    "Root F552 private helper/docstring delta is later than this pinned snapshot and is assessed separately."
+  ],
+  "artifacts": {
+    "build-guides.py": "aa897ed1b3dfaf3dfccd3a38f24e9c073aad6f2686cd81bf7ea8e476a8106b8b",
+    "de-draft.json": "de2936af8b1d7972f30695592242339b2d9606a83c254bc7b6d014b24358e857",
+    "de-worklist.json": "81776e8eb3bb04582e040e8689bb5105326d65a37160bbd9c5c8de81a8ee9a09",
+    "dummy-command.json": "24316b4c843e29aacd8fbb6f384edf0147285752a4fdca9e8be5f9c96509a70f",
+    "dummy-limits.json": "f6e2b63df3f8bf3fbf0c9c32031c008e96660f7768dac28b4e608d3f0db88231",
+    "dummy.log.gz": "81719624d17236e3ad3433487abc24ea66d2c1442e799d9e2c85374ea2cad790",
+    "english-source-snapshot.json": "7e7eff556b6bd59e3c72ccfae6841780dba55f29755d008221669522836e9209",
+    "es-draft.json": "a7090e4a29e168979a90ebe304f7d98f56dbc7b8cb641b7ddc85ec5c07a4a29c",
+    "es-worklist.json": "d552d50c0eeb5cdfcfaf6bdeac3b7f0a522c88f2bcc8c4edd33242f9af3437d8",
+    "final-source-snapshot.json": "4a14fd204947d8320155116c845c65101bc0b21982d95f6da65bfaf824ec146b",
+    "final-tests-resources.json": "851a87c76785631ee953153d0b10d83faffe076da163856e30d669dfa012a139",
+    "final-tests.log.gz": "26933f6bec9e0f22448012f0b2bc38657519d86f21bd27d8925b2afe865946ba",
+    "final-tests.xml": "0ca0f9175473217f745dd721f0581e5ce6abcff23a1edf468d01fce1ca3b3d75",
+    "fr-draft.json": "980033e72d339c417517e2cdd0b435b35cff2db73c2b4ff8768f0f2c74b4635f",
+    "fr-worklist.json": "1079557e31c76d46c86810bc634bd1d06b81d4a8ec6b17d867b672e3abdd7bb8",
+    "gettext-resources.json": "9ec5a5828c6bf15df3b67a744b82850ba6583beee5da3bef1677bb7863e7a6e2",
+    "gettext.log.gz": "8e005fe52ee391473a1c41ce0af562fd0afefc2802eca06454d1756be455dc20",
+    "guide-audit.json": "1a5377c1433148968b7c51ff2be4fbe96c596191bdbd2164104f6bba407088dc",
+    "guide-build-resources.json": "21ecb69c6825c2155d45ab93f71c24b1f84ea48df80cc5477533ea8a4fe38fb4",
+    "guide-builds.json": "67f8fb5a4f602f8f6e5ff27d0b08e73b0c933c86a415d494d01cff30089bd7ff",
+    "guide-builds.log.gz": "766177833edc1386d2d92665d398c51727a0357f38275e700719a48d51f10462",
+    "help-generator-resources.json": "ed37360eafbf27e930ca6ae150681db0439642e4e6b8a5a22bd6895c9fdb0c2c",
+    "help-generator.log.gz": "7d65c4af8efdd1c702cf9e1566c5ad12d4aeaecf2998f2320f291c06a27dde7d",
+    "help-index-delta.json": "8a19bd98fb8c903023e9daee2c8cc48e1a7b96f5be5565ae837386266a670ee6",
+    "hi-draft.json": "5d69d4ffbf169204c0c355c2b968990cc76a4bd88833d7d3985b422d074efa7f",
+    "hi-worklist.json": "f091ccff8a1fb24f87c52e3602322e14b2b4558527a78cf81d5518e08b946f24",
+    "html-command.json": "98606db17c8fea041eba465e3343c2f22d879439ac5fb12ecf0249fbdcea6488",
+    "html-final-command.json": "98606db17c8fea041eba465e3343c2f22d879439ac5fb12ecf0249fbdcea6488",
+    "html-final-limits.json": "325a132d3373bf475212c29f132f7f15674759156efbe47b9b28bbb19c62fdf0",
+    "html-final.log.gz": "4d4b1aa836f90af2e0231aa29e00428dfd29c2fde5ff2a4402387cf5f6520143",
+    "html-hashes.json": "b92494e351e9a8a3c3c1c39494719003d90339dd363b8bd4be53713db2a909a2",
+    "html-limits.json": "93aafcd6e033f916ab97d2aa4a852b40f9058350eb7141bf58446ecfaa72dd89",
+    "html-refresh-command.json": "ae0d965007692f653c241d4f2eca7007e98b3f8fc9d2888ead828ae024f71fbb",
+    "html-refresh-limits.json": "cea704825e122f4ed64db50105afa4d2230b6864a516aec5accdeeae2d7f8dfb",
+    "html-refresh.log.gz": "abea5c5db5cd9d5910ce1e75411ef24a3261f9eb7998acc8397bb1071eb3f6e1",
+    "html.log.gz": "369fc9a6f45927e499a2ebbae5af77254d9717881df0403e9b66b91620ba28ad",
+    "import-guides.py": "fe74d5223a5705c8bbb036f5712faf0921449cf6bb2ce215718210b54c4ba06a",
+    "import-proof.json": "838df938521365cb00cc0c3945e135adf55d303a1129443c2091a653d5a3980d",
+    "import-resources.json": "dfc6654e0027e3b9ca61c433c9af8f1f164e79a4dd79fb46c124fd1c55f566e1",
+    "import.log.gz": "8646862a22e80e7920c38897438cf038d3c001c28165abd37834610940de5e90",
+    "independent-review.json": "f1c4acd71d31595309432444106a3407d74132dc49f734e901b1de0a548f3feb",
+    "is-draft.json": "52eb543fa09abc0d1e54e16bce2f35a73c1c4d57ab5abaac10abbcac3d8cc847",
+    "is-worklist.json": "3221080e9207170b1f1c6393d11ce9ae63661a93bd95818c8f8c1bf7b1bf9582",
+    "ko-draft.json": "23be15316b08991d1f84cb3666b9d261b3066553f1ba4d6d8cc95eed74934a70",
+    "ko-is-authorship.json": "418a54dc18276ef56cbfed9c7309d47a92c73213d0463329061250ce633eeae7",
+    "ko-worklist.json": "a8413abda5d4bce5d5f18517eb7fd7cac9f1817f84b9703d1525b1ece4c18225",
+    "prepare-guides.py": "9a949a6ec00f7843e50dcdcc14da7ea22509f5f88252172f454515485f583122",
+    "prepare-resources.json": "eeac9b12b2954af6ee592c4d268f6e2a87e98dd0c15d6565d37b531245b7a6d3",
+    "pt-draft.json": "55ae84842355e9e8e65bf81ad1e316086268537a115b7405d96dac4b963e9d95",
+    "pt-worklist.json": "9cafe189a4c0c55d7ace1def799a3ee6d487b7d6674e868f8009286422153dbb",
+    "publication-mode-mismatch-resources.json": "f7391774caf5836bead02e17ad0f3b0f274fe4139f438d234aeff60ed73871ed",
+    "publication-mode-mismatch.log.gz": "62637812cf6101892b203b7043eef429ea691c7ab86705383b66d073f4c1cd5c",
+    "publication-mode-mismatch.xml": "71a36df7212afbdaee59c3fe9e04b64f2fba13bb2dc8e14a85a6e604b62db64b",
+    "refresh-read-cache-proof.json": "acdc0af7795a699591d30646589c0a01826bcc2e4f0117929e2d45d6ad4a73d9",
+    "rendered-proof.json": "b9c9f8325e4d80260504c19585e75b947998444aab4348d442d35595c3de0cf2",
+    "rendered-resources.json": "cfdcc3550f8cb6982fe698eb6661dffbc855368d55481a0b3fd21b38033c275b",
+    "rendered.log.gz": "3711d791a8ea36961f571ee8f2914de2c1e20685c928ee2e4bd861a63c5a3b02",
+    "run-phase.py": "9f8795233279e37f1d3fa51c033b62ee5e2b78cc7794cedcac7714adf3275d62",
+    "run-tests.sh": "c65295c5c71d053f6f82a2f9e1e78dd1d1178a0954559f79d5efe348f94d1aa8",
+    "shared-authorship.json": "30a4704728fba6b7e199f9dad84d6d5e3278521ce3504f392df4aed46a67d6fd",
+    "source-refresh-delta.json": "38b33ceec854fe34d4ecc63bc132de5a77f175d09395dd148f9ea2a7e0ad19b8",
+    "source-stability.json": "7d3e69bbc5917a17ec1db51649929887ddbfbe067ac750ea3ba6f0b60b5c3fd4",
+    "sv-draft.json": "e75e97c10feb022a322c098ce5525ea8e6d617fcfafe98267ca776a530c4275d",
+    "sv-worklist.json": "0f0718520712cc9272f836f59e36283f7fc21a3754d0af45d9d10f27d6934297",
+    "verify-rendered.py": "10c8d0a48a1210311963452c4e53a91e5a6fd7d9c6ce8f4990f9db42f096a602",
+    "west-authorship.json": "05be1f1497ca88748190fca4649dff8e859fc9cd1ad34858cb76ea9c33b60bc1",
+    "workflow-help-resources.json": "1ac4abc546f418ba4d38b778c02f1a5b2aad3a28cb655d3fc1ff1f35b8f9e866",
+    "workflow-help-tests.log.gz": "c8b281df2ca67b2efc221d54ea18ed03c0127f652f3a9c950d5431bfdf390ecc",
+    "worklist-proof.json": "a189bf64d6b566a04e40cd2ff092eb88f17b92e169c3f104890d3f33313e2fab",
+    "zh_CN-draft.json": "059ade455b03b025b18cfd9027fd7f37c8cf3d4ae42a2780286f7f641b85e9a2",
+    "zh_CN-worklist.json": "0f3bba2605fe6e545357878e28141c686a5c68d03b791226207486a58d5687f5"
+  }
+}

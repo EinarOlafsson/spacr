@@ -250,13 +250,6 @@
       "translation": "Unsicherheit dieses Bildfelds darstellen"
     },
     {
-      "table": "ui",
-      "key": "Mapping segmentation uncertainty: four detection runs…",
-      "source": "Mapping segmentation uncertainty: four detection runs…",
-      "source_sha256": "c9c443b58a7546c273183ee8ab5dc5d323afeb3b7f72b7cfc3d628267d64f3d7",
-      "translation": "Segmentierungsunsicherheit berechnen: vier Erkennungsläufe…"
-    },
-    {
       "table": "setting_labels",
       "key": "measure_gpu",
       "source": "Measure GPU",
@@ -453,13 +446,6 @@
       "translation": "Das Ordnen nach Unsicherheit würde die verblindete Reihenfolge aufheben. Heben Sie zuerst die Verblindung auf."
     },
     {
-      "table": "ui",
-      "key": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
-      "source": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
-      "source_sha256": "6c519545d490a13d4c697f617549327dcccf8e2e02377b2a1e9422fb38dbcb3b",
-      "translation": "{count} Bildfelder nach Segmentierungsunsicherheit ordnen: je vier Erkennungsläufe…"
-    },
-    {
       "table": "categories",
       "key": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
       "source": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
@@ -549,13 +535,6 @@
       "source": "Seconds between the timelapse images of one event when microscope_timepoints is above 1. The watch waits at the event meanwhile, so long timelapses delay later fields. Default 0.",
       "source_sha256": "7ee11ee687c387671716d7c7329f9f57bd1fe0aedee4ec51d0fa5ec1c4d29955",
       "translation": "Sekunden zwischen den Zeitrafferbildern eines Ereignisses, wenn microscope_timepoints über 1 liegt. Der Beobachter wartet währenddessen am Ereignis; lange Zeitrafferaufnahmen verzögern daher spätere Bildfelder. Standard 0."
-    },
-    {
-      "table": "ui",
-      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
-      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
-      "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
-      "translation": "Jedes Bildfeld mit den Einstellungen der Objekterkennung viermal segmentieren: unverändert, in zwei Richtungen gespiegelt und um eine Vierteldrehung gedreht. Die Abweichungen der vier Ergebnisse messen. Die Felddarstellung zeigt sie als Heatmap in einem eigenen Reiter; die Feldsortierung setzt die unsichersten zuerst und speichert die Werte als curate_uncertainty.csv für spacr-make-masks --order uncertain. Erfordert vier Erkennungsläufe pro Bildfeld."
     },
     {
       "table": "ui",
@@ -956,5 +935,29 @@
       "source_sha256": "e52c06fed71e307e6c87388838799babb056a41ff4544e9e0d7bb8e74b794dbd",
       "translation": "s3://bucket/folder, gs://, az:// oder https://"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Mapping segmentation uncertainty: four detection runs…",
+      "source": "Mapping segmentation uncertainty: four detection runs…",
+      "source_sha256": "c9c443b58a7546c273183ee8ab5dc5d323afeb3b7f72b7cfc3d628267d64f3d7",
+      "translation": "Segmentierungsunsicherheit berechnen: vier Erkennungsläufe…"
+    },
+    {
+      "table": "ui",
+      "key": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source_sha256": "6c519545d490a13d4c697f617549327dcccf8e2e02377b2a1e9422fb38dbcb3b",
+      "translation": "{count} Bildfelder nach Segmentierungsunsicherheit ordnen: je vier Erkennungsläufe…"
+    },
+    {
+      "table": "ui",
+      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
+      "translation": "Jedes Bildfeld mit den Einstellungen der Objekterkennung viermal segmentieren: unverändert, in zwei Richtungen gespiegelt und um eine Vierteldrehung gedreht. Die Abweichungen der vier Ergebnisse messen. Die Felddarstellung zeigt sie als Heatmap in einem eigenen Reiter; die Feldsortierung setzt die unsichersten zuerst und speichert die Werte als curate_uncertainty.csv für spacr-make-masks --order uncertain. Erfordert vier Erkennungsläufe pro Bildfeld."
+    }
+  ],
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
 }

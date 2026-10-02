@@ -2009,6 +2009,7 @@ class AppScreen(QWidget):
 
         self._categories_wait = bool(getattr(
             _screens_package, "_categories_wait_to_be_opened", False))
+        self._settings_lock_observation_ready = False
         self._settings_panel = self._build_settings_panel()
         body.add_pane(self._settings_panel, "Settings", mode=EDGE,
                       fold_key=f"{app_key}/Settings", stretch=1, extent=400)
@@ -2087,6 +2088,8 @@ class AppScreen(QWidget):
         except Exception:                                       # noqa: BLE001
             LOG.debug("could not take the tab scroll arrows off",
                       exc_info=True)
+
+        self._settings_lock_observation_ready = True
 
     def _heavy_lock_is_free(self) -> bool:
         """Whether the heavy-import lock could be taken right now.
@@ -2579,6 +2582,8 @@ class AppScreen(QWidget):
         self._settings_model = SettingsWidgets(
             self.app_key, parent=content,
             current=AppScreen.values_the_next_screen_is_built_for)
+        self._settings_model._enable_commit_observation(
+            self._observe_settings_commit)
         self._rows_awaiting_layout = {}
         self._run_has_no_object_for = None
         #: Headings that gained a caption since the last pass, so the language
@@ -6382,6 +6387,11 @@ class AppScreen(QWidget):
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self)
+        if not self._part_is_owed(_LIVE_PREVIEW):
+            columns = getattr(getattr(self, "_live_preview", None),
+                              "_apply_alpha_columns", None)
+            if callable(columns):
+                columns()
 
     def setting_row_is_visible(self, key: str) -> bool:
         """Whether ``key``'s row is currently on the form.
@@ -6725,8 +6735,8 @@ class AppScreen(QWidget):
             ``settingKey`` property decides whether a category blurb or a
             setting's help is shown.
         :param event: the filtered event; a ``ToolTip`` on a widget with
-            hover help is swallowed, ``Enter`` shows the help and ``Leave``
-            hides it, and every event is otherwise passed to the base class.
+            hover help is swallowed, ``Enter`` schedules the help after the
+            global delay and ``Leave`` cancels pending help, and every event is otherwise passed to the base class.
         """
         event_type = event.type()
         if event_type == QEvent.ToolTip:
@@ -6735,49 +6745,58 @@ class AppScreen(QWidget):
                 return True
         if event_type not in (QEvent.Enter, QEvent.Leave):
             return super().eventFilter(obj, event)
+        from ..tooltip_policy import HoverDelay
+        from ..widgets.hover_tooltip import HoverTooltip
+        delay = getattr(self, "_hint_hover_delay", None)
+        if delay is None:
+            delay = self._hint_hover_delay = HoverDelay(self)
+        if event_type == QEvent.Enter:
+            delay.schedule(obj, lambda: self._show_hover_hint(obj))
+        else:
+            delay.cancel_for(obj)
+            if obj.property("settingsCategory"):
+                self.clear_category_hint()
+            HoverTooltip.instance().start_hide()
+        return super().eventFilter(obj, event)
+
+    def _show_hover_hint(self, obj) -> None:
+        """Show setting/category help after uninterrupted global hover delay."""
         from ..widgets.hover_tooltip import HoverTooltip
         category = obj.property("settingsCategory")
         if category:
-            if event_type == QEvent.Enter:
-                self.show_category_hint(str(category))
-            else:
-                self.clear_category_hint()
-            return super().eventFilter(obj, event)
-        if event_type == QEvent.Enter:
-            key = obj.property("settingKey")
-            if key:
-                from .settings_model import refresh_api_tooltips
-                refresh_api_tooltips(obj)
-                hint = self._settings_model.plain_tooltip_for(str(key))
-                html = obj.property("apiTooltipHtml")
-                self._hint_map[obj] = hint
-                self._html_tip_map[obj] = html
-            else:
-                hint = self._hint_map.get(obj)
-                html = self._html_tip_map.get(obj)
-            from ..preferences import (get_tooltips_bottom_enabled,
-                                       get_tooltips_box_enabled)
-            want_bottom = get_tooltips_bottom_enabled()
-            want_box = get_tooltips_box_enabled()
-            shown_at_the_bottom = False
-            if hint and want_bottom and hasattr(self, "_hint_strip"):
-                link = ""
-                if key:
-                    try:
-                        from .settings_model import api_docs_url
-                        link = api_docs_url(self.app_key, str(key))
-                    except Exception:                        # noqa: BLE001
-                        link = ""
-                self._hinted_widget = obj
-                self._hinted_html = html
-                self._write_hint(hint, link, hold=True,
-                                 animated=_setting_has_an_animation(key))
-                shown_at_the_bottom = True
-            if html and (want_box or not shown_at_the_bottom):
-                HoverTooltip.instance().show_for(obj, html)
+            self.show_category_hint(str(category))
+            return
+        key = obj.property("settingKey")
+        if key:
+            from .settings_model import refresh_api_tooltips
+            refresh_api_tooltips(obj)
+            hint = self._settings_model.plain_tooltip_for(str(key))
+            html = obj.property("apiTooltipHtml")
+            self._hint_map[obj] = hint
+            self._html_tip_map[obj] = html
         else:
-            HoverTooltip.instance().start_hide()
-        return super().eventFilter(obj, event)
+            hint = self._hint_map.get(obj)
+            html = self._html_tip_map.get(obj)
+        from ..preferences import (get_tooltips_bottom_enabled,
+                                   get_tooltips_box_enabled)
+        want_bottom = get_tooltips_bottom_enabled()
+        want_box = get_tooltips_box_enabled()
+        shown_at_the_bottom = False
+        if hint and want_bottom and hasattr(self, "_hint_strip"):
+            link = ""
+            if key:
+                try:
+                    from .settings_model import api_docs_url
+                    link = api_docs_url(self.app_key, str(key))
+                except Exception:                        # noqa: BLE001
+                    link = ""
+            self._hinted_widget = obj
+            self._hinted_html = html
+            self._write_hint(hint, link, hold=True,
+                             animated=_setting_has_an_animation(key))
+            shown_at_the_bottom = True
+        if html and (want_box or not shown_at_the_bottom):
+            HoverTooltip.instance().show_for(obj, html, immediate=True)
 
     def show_module_hint(self, key: str, summary: str = "") -> bool:
         """Explain a MODULE in this screen's strip, for a dock hover.
@@ -8152,7 +8171,7 @@ class AppScreen(QWidget):
         from ..widgets.hover_tooltip import HoverTooltip
 
         popup = HoverTooltip.instance()
-        popup.show_for(widget, html)
+        popup.show_for(widget, html, immediate=True)
         popup.toggle_animation()
 
     def _release_the_hint(self) -> None:
@@ -8394,6 +8413,9 @@ class AppScreen(QWidget):
             QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
 
+        if (self.app_key == "measure"
+                and not self._confirm_measure_plane_layout(settings)):
+            return
         if self.app_key == "measure" and not self._confirm_crop_choices(
                 settings):
             log_button_press(f"{self.app_key}.Run",
@@ -9502,6 +9524,69 @@ class AppScreen(QWidget):
                 "stores; streaming from the arrays uses the object masks, so "
                 "it can cut to the object itself.")
         return notes
+
+    def _confirm_measure_plane_layout(self, settings) -> bool:
+        """Resolve a stale form explicitly before starting Measure.
+
+        A saved form does not record which plane indices were typed and
+        which were defaults. Never guess that provenance: offer the stored
+        layout for review, update the form only on request, and require Run
+        again. The pipeline retains its independent conflict check.
+
+        :param settings: the proposed run settings, never mutated here.
+        :returns: whether the current settings may proceed unchanged.
+        """
+        from pathlib import Path
+        from ...crops import (PlaneLayoutConflict, read_merged_plane_layout,
+                              reconcile_merged_mask_dims)
+
+        sources = settings.get("src") or []
+        if isinstance(sources, (str, Path)):
+            sources = [sources]
+        corrections, conflicts = [], []
+        try:
+            for source in sources:
+                folder = Path(str(source)).expanduser()
+                if not folder.name.endswith("merged"):
+                    folder = folder / "merged"
+                if read_merged_plane_layout(folder) is None:
+                    # An unknown legacy layout cannot share a correction.
+                    corrections.append(None)
+                    continue
+                resolved = reconcile_merged_mask_dims(settings, folder)
+                corrections.append({key: value for key, value in resolved.items()
+                                    if key.endswith("_mask_dim")})
+                try:
+                    reconcile_merged_mask_dims(settings, folder,
+                                               explicit_keys=settings)
+                except PlaneLayoutConflict as exc:
+                    conflicts.append(str(exc))
+        except Exception as exc:
+            QMessageBox.warning(self, tr("Review stored image layout"), str(exc))
+            return False
+        if not conflicts:
+            return True
+        box = QMessageBox(self)
+        box.setWindowTitle(tr("Review stored image layout"))
+        box.setIcon(QMessageBox.Warning)
+        box.setText("\n\n".join(conflicts))
+        box.setStandardButtons(QMessageBox.Cancel)
+        correction = corrections[0] if corrections else None
+        adopt = None
+        if correction is not None and all(c == correction for c in corrections):
+            box.setInformativeText(tr(
+                "Use the stored layout to update the form, review the object "
+                "settings, then press Run again."))
+            adopt = box.addButton(tr("Use stored image layout"),
+                                  QMessageBox.ActionRole)
+        else:
+            box.setInformativeText(tr(
+                "These sources have different or unknown layouts. Run each "
+                "layout separately with its matching mask settings."))
+        box.exec()
+        if adopt is not None and box.clickedButton() is adopt:
+            self.apply_settings_dict(correction)
+        return False
 
     def _confirm_crop_choices(self, settings) -> bool:
         """Ask before a crop setting that changes every downstream image.
@@ -11105,6 +11190,39 @@ class AppScreen(QWidget):
                 "still finishing in the background and may keep writing for "
                 "a while. The window is yours again.\n")
 
+    def _observe_settings_commit(self, key=None):
+        """Timestamp valid committed settings only, without a full lock verdict."""
+        from ...run_journal import _observe_settings_changes
+
+        model = getattr(self, "_settings_model", None)
+        if (model is None or getattr(model, "_applying_settings", False)
+                or not getattr(self, "_settings_lock_observation_ready", True)):
+            return
+        try:
+            source = model._valid_committed_value("src")
+            if key not in (None, "src"):
+                settings = {"src": source,
+                            key: model._valid_committed_value(key)}
+                keys = [key]
+            else:
+                # A source switch or completed bulk load binds its complete
+                # valid snapshot to the NEW source, never the previous lock.
+                settings = dict(model.collect())
+                for name in settings:
+                    settings[name] = model._valid_committed_value(name)
+                keys = None
+        except (TypeError, ValueError, RuntimeError):
+            return  # Leave drafts untouched; failed validation is not an edit.
+        try:
+            self._settings_lock_observation = _observe_settings_changes(
+                settings, self.app_key, keys)
+        except (OSError, ValueError) as error:
+            self._settings_lock_observation = None
+            LOG.warning("Could not record committed analysis settings: %s", error)
+            console = getattr(self, "_console", None)
+            if console is not None:
+                console.append_error(str(error) + "\n")
+
     def _build_analysis_lock_button(self) -> QPushButton:
         """The Lock analysis button: preregister these settings before results.
 
@@ -11178,8 +11296,13 @@ class AppScreen(QWidget):
         thresholds.setPlaceholderText(tr(
             "The thresholds and gates that decide a call, one per line."))
         note = QLineEdit(dialog)
+        gate_files = QLineEdit(dialog)
+        gate_files.setObjectName("AnalysisLockGateFiles")
+        gate_files.setPlaceholderText(tr(
+            "Saved Gate Editor gate files, separated by semicolons."))
         form.addRow(tr("Hypotheses"), hypotheses)
         form.addRow(tr("Thresholds and gates"), thresholds)
+        form.addRow(tr("Gate files"), gate_files)
         form.addRow(tr("Note"), note)
         layout.addLayout(form)
         buttons = QDialogButtonBox(QDialogButtonBox.Close, dialog)
@@ -11189,9 +11312,15 @@ class AppScreen(QWidget):
 
         def _lock():
             """Persist the displayed analysis plan and show its immutable identity."""
-            record = self._lock_analysis_now(
-                settings, hypotheses.toPlainText(), thresholds.toPlainText(),
-                note.text())
+            try:
+                record = self._lock_analysis_now(
+                    settings, hypotheses.toPlainText(),
+                    thresholds.toPlainText(), note.text(),
+                    gate_files=[part.strip() for part in
+                                gate_files.text().split(";") if part.strip()])
+            except (OSError, ValueError) as exc:
+                QMessageBox.warning(dialog, tr("Lock analysis"), str(exc))
+                return
             status.setText(tr(
                 "Locked {sha} at {time}. Runs of these settings on this "
                 "source are checked against it.",
@@ -11202,24 +11331,39 @@ class AppScreen(QWidget):
         layout.addWidget(buttons)
         dialog._spacr_lock_parts = {
             "status": status, "hypotheses": hypotheses,
-            "thresholds": thresholds, "note": note, "lock": lock}
+            "thresholds": thresholds, "note": note, "lock": lock,
+            "gate_files": gate_files}
         return dialog
 
     def _lock_analysis_now(self, settings, hypotheses: str = "",
-                           thresholds: str = "", note: str = "") -> dict:
+                           thresholds: str = "", note: str = "",
+                           gate_files=()) -> dict:
         """Freeze ``settings`` and the plan, and say so in the console.
+
+        The models the newest journalled run of this module on this source
+        recorded are locked with them, so a changed checkpoint is caught
+        when the next run records it.
 
         :param settings: the settings to lock.
         :param hypotheses: the hypotheses, in words.
         :param thresholds: the thresholds and gates, in words.
         :param note: anything else to keep with the plan.
+        :param gate_files: saved Gate Editor gate files the plan depends on.
         :returns: the lock :func:`spacr.run_journal.lock_analysis` wrote.
+        :raises ValueError: when a gate file is not a gating strategy.
+        :raises FileNotFoundError: when a gate file does not exist.
         """
-        from ...run_journal import lock_analysis
+        from ...run_journal import _recorded_models, lock_analysis
 
+        missing = [path for path in gate_files
+                   if not os.path.isfile(os.path.expanduser(path))]
+        if missing:
+            raise FileNotFoundError(", ".join(missing))
         record = lock_analysis(settings, app_key=self.app_key,
                                hypotheses=hypotheses, thresholds=thresholds,
-                               note=note)
+                               note=note, gates=list(gate_files) or None,
+                               models=_recorded_models(
+                                   self.app_key, settings.get("src")))
         try:
             self._console.append_notice(
                 "Analysis locked: {sha} at {time}.\n",
@@ -11639,6 +11783,7 @@ class AppScreen(QWidget):
             if model is not None:
                 model._applying_settings = False
         self._refresh_after_bulk_apply(settings)
+        self._observe_settings_commit()
         return applied
 
     def _refresh_after_bulk_apply(self, settings: dict) -> None:

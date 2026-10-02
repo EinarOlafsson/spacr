@@ -105,8 +105,9 @@ What is left
     output folder) and reused REGIONS (a crop of one panel inside another,
     at another zoom): the 75 % crop case above is missed. Splice detection.
     Repeats with heavy added noise (15 % of range) are missed.
-    Detector saturation is only seen at the integer type's ceiling: a
-    12-bit camera stored in uint16 saturates at 4095 and is not flagged.
+    Without trustworthy explicit significant-bit metadata, detector
+    saturation still uses the integer storage ceiling. The metadata-backed
+    montage path is covered by the 2026-10-01 follow-up below.
     Only plot_image_grid tiles are traced to source files so far;
     plot_image_mask_overlay channel panels, cell_montage_view crops and
     other imshow sites are checked but untraced (no source, not replayable).
@@ -117,3 +118,81 @@ What is left
     shows no dialog for them.
     The new captions are in _AWAITING_CATALOG_REBUILD; UI catalogs not
     regenerated.
+
+
+2026-10-01 — METADATA-BACKED CAMERA BIT DEPTH IN MONTAGE EXPORTS
+plot_image_grid reads the already-open TIFF's OME ImageDescription metadata
+alongside the source pixels. For a uniquely mapped current-file/current-IFD
+Pixels element, validated SignificantBits supplies the detector ceiling:
+12-bit data stored as uint16 is checked at 4095; 14-bit at 16383. Source
+shape and unsigned storage type must agree, and actual pixels must not exceed
+the declared ceiling. No bit depth is inferred from the observed maximum.
+The selected Pixels ID, IFD, significant bits, ceiling and metadata source
+are recorded in panel provenance; the saturation warning names that ceiling.
+
+The metadata parser is bounded to 1 MiB, rejects XML entity declarations,
+and does not read another pixel plane or fetch external files. TiffData
+mappings are checked for current-file UUID, unique IFD membership, dimension
+order and coordinate bounds. Explicit IFD without PlaneCount means one plane.
+When both IFD and PlaneCount are absent, the specification's default requires
+the actual file IFD count; this implementation records a dtype fallback
+instead of enumerating an unbounded image sequence. Mixed SamplesPerPixel
+and nonzero packed-channel origins also fall back rather than guessing RGB
+channel boundaries. Absent, malformed, ambiguous or contradictory metadata
+keeps the prior storage-type ceiling with its reason recorded in provenance.
+Ordinary exports and existing warning thresholds/counts are preserved.
+
+Validation: all 40 new and existing figure-integrity checks passed on the
+final implementation under 4 GiB, one actual CPU, zero swap and no GPU.
+Actual 12/14-bit OME-TIFF -> montage -> checked PNG/sidecar exports each
+produce the expected single saturation warning, retain source array/file
+hashes, and replay the displayed panel exactly. Real multi-series input and
+reordered IFD mappings bind to the displayed series. Tests cover UUID scope,
+range/shape/type contradictions, metadata bounds/entity refusal and valid
+unannotated 12-bit-valued images that must not be guessed as saturated.
+All 74 existing public signature/docstring entries and the module docstring
+remain unchanged. No new Qt captions or dependencies are introduced.
+
+Primary specification checked during implementation:
+https://www.openmicroscopy.org/Schemas/Documentation/Generated/OME-2016-06/ome_xsd.html
+https://docs.openmicroscopy.org/ome-model/6.2.2/ome-tiff/specification.html
+
+This is a bounded partial completion. Untraced image sites, cross-figure/
+region reuse, heavy-noise repeats, splice detection and a GUI warning dialog
+remain open as listed above. Camera metadata absent from source crops cannot
+be reconstructed from pixel values alone.
+
+2026-10-02 — EXACT CROSS-FIGURE REUSE IN AN OUTPUT FOLDER
+Checked figure exports now compare panel byte digests with the 64 newest
+small, regular provenance sidecars beside the destination. A repeated panel
+in a prior figure produces a warning naming that figure and panel; declared
+same-source reuse is a note. The earlier figure's file hash must still match
+its sidecar before it can be used as evidence, so an overwritten/stale figure
+cannot create a false repeat. The same check runs through save_figure and the
+Matplotlib Save figure dialog. It scans metadata only and hashes a prior
+figure only after its panel digest matches; source images are not loaded.
+All 35 focused figure-integrity, alpha-gate and save-dialog tests passed
+under a 2 GiB hard cap, one CPU, zero swap and offscreen Qt. Receipt:
+features/data/572_cross_figure_exact_reuse_2026-10-02.json.
+This is partial: approximate or region reuse across figures, untraced
+panels, splice detection and GUI warning presentation remain open.
+
+2026-10-02 — MODELESS WARNINGS AFTER SAVING A FIGURE (partial)
+The Matplotlib Save figure dialog now presents existing warning findings in
+a separate modeless notice after the figure has been written. It identifies
+the saved file and successful provenance sidecar, retains the backend's panel
+IDs and corrective advice, and offers Open output folder and Close. Closing
+the notice does not alter the exported bytes. Clean, disabled and non-image
+exports stay quiet; a failed provenance write is reported explicitly while
+the successful figure remains saved. The notice survives a parentless Save
+dialog closing, and a presentation failure cannot change a successful save.
+
+Validation: 38 focused checks passed, including 11 new real-write/notice
+cases, existing detector/alpha/save guards, lossless and JPEG exports, source
+figure preservation, cancellation, failed writes, sidecar failure and notice
+lifetime. Actual Save-button captures in dark/light offscreen Qt show readable
+findings and actions. Existing public prose/signatures and plot.py are unchanged.
+Receipt: features/data/572_gui_warning_2026-10-02.json. The six new UI captions
+are handed off for a separate reviewed nine-locale catalog delta. F572 stays
+partial; this does not establish broader tracing, splice or region-reuse
+acceptance.

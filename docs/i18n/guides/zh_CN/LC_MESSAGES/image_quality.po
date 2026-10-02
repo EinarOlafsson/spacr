@@ -1,0 +1,81 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Image quality before segmentation"
+msgstr "分割前的图像质量"
+
+msgid "From **Home → Core → Mask**, open the **Image Quality** settings category before running segmentation. The same settings apply when Mask's **Timelapse** switch is on. Screening measures the raw, unnormalized image channels. Start in ``report`` mode to inspect acquisition problems before deciding which fields to exclude."
+msgstr "在运行分割之前，从 **主页 → 核心 → 掩膜** 打开 **图像质量** 设置类别。当掩膜的 **延时成像** 开关打开时，同样的设置也适用。筛查测量的是原始、未归一化的图像通道。请先使用 ``report`` 模式检查采集问题，再决定要排除哪些视野。"
+
+msgid "The policy"
+msgstr "策略"
+
+msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
+msgstr "``image_qc_mode``：``off`` （默认）、``report`` （标记视野但仍处理）或 ``exclude`` （在下游跳过被标记的视野）。"
+
+msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
+msgstr "``image_qc_channels``：要筛查的采集通道索引；空列表表示筛查所有可用通道。"
+
+msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
+msgstr "``image_qc_min_focus``：从通道到阈值的映射，用于最小拉普拉斯方差。图像栈使用其最佳平面的分数；单个失焦平面不会导致原本可用的图像栈被拒绝。请根据使用相同强度标度和光学系统采集的对照来选择阈值。"
+
+msgid "``image_qc_max_saturation``: channel-to-threshold mapping for the maximum fraction of saturated pixels, from zero to one."
+msgstr "``image_qc_max_saturation``：从通道到阈值的映射，用于饱和像素的最大比例，取值 0 到 1。"
+
+msgid "``image_qc_saturation_level``: channel-to-intensity mapping for the acquisition saturation ceiling. For example, a 12-bit acquisition stored in ``uint16`` normally needs its acquisition ceiling rather than the ``uint16`` ceiling. Integer data otherwise use the dtype maximum; floating data require an explicit level when a saturation threshold is enabled."
+msgstr "``image_qc_saturation_level``：从通道到强度的映射，用于采集的饱和上限。例如，以 ``uint16`` 存储的 12 位采集通常需要使用其采集上限，而不是 ``uint16`` 的上限。否则整数数据使用 dtype 的最大值；启用饱和阈值时，浮点数据需要显式指定该水平。"
+
+msgid "``image_qc_max_nonfinite``: maximum fraction of nonfinite pixels, from zero to one; defaults to zero."
+msgstr "``image_qc_max_nonfinite``：非有限像素的最大比例，取值 0 到 1；默认值为零。"
+
+msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
+msgstr "对焦阈值使用原始强度单位的平方。这些是采集检查：对象数量少不会导致排除。观测到的最亮像素绝不会替代经过校准的饱和水平。"
+
+msgid "Review and outputs"
+msgstr "审查与输出"
+
+msgid "Open **Home → Data → QC** and choose **Review image quality** for a local thumbnail gallery. Flagged fields appear first, with at most 64 previews. Display contrast is stretched for inspection; the metrics still use raw intensities. Stack thumbnails are maximum projections."
+msgstr "打开 **主页 → 数据 → QC** 并选择 **审查图像质量**，查看本地缩略图库。被标记的视野排在最前，最多显示 64 个预览。显示对比度经过拉伸以便检查；各项指标仍使用原始强度。图像栈的缩略图为最大投影。"
+
+msgid "The project's ``qc`` directory contains:"
+msgstr "项目的 ``qc`` 目录包含："
+
+msgid "``image_quality.csv``: every screened field and channel, its focus variance, saturation level/fraction, nonfinite fraction, status and reasons;"
+msgstr "``image_quality.csv``：每个被筛查的视野和通道，及其对焦方差、饱和水平/比例、非有限值比例、状态和原因；"
+
+msgid "``image_quality.json``: the exact policy and excluded field identities;"
+msgstr "``image_quality.json``：确切的策略和被排除视野的标识；"
+
+msgid "``image_quality.html``: the review gallery."
+msgstr "``image_quality.html``：审查图库。"
+
+msgid "Exclusion retains the original inputs. Segmentation, merge and Measure respect the saved exclusions; excluded fields are not represented as successful zero-object detections."
+msgstr "排除会保留原始输入。分割、合并和测量都会遵循已保存的排除项；被排除的视野不会被表示为成功检测到零个对象。"
+
+msgid "Revisiting an analyzed project"
+msgstr "重新处理已分析的项目"
+
+msgid "New exclusions are refused if the affected fields already have retained measurement rows. Use ``report`` to inspect that project without changing its inclusion policy, or run the exclusion policy in a fresh project. Existing measurements and the previous policy are retained when this check refuses a change. Turning screening ``off`` clears the active exclusion policy."
+msgstr "如果受影响的视野已有保留的测量行，则会拒绝新的排除。可以使用 ``report`` 检查该项目而不改变其纳入策略，或在新项目中运行排除策略。当此检查拒绝更改时，现有测量结果和先前的策略都会保留。将筛查设为 ``off`` 会清除当前生效的排除策略。"
+
+msgid "The Python entry points are :func:`spacr.image_quality.quality_policy`, :func:`spacr.image_quality.assess_image` and :func:`spacr.image_quality.screen_fields`."
+msgstr "Python 入口点为 :func:`spacr.image_quality.quality_policy`、:func:`spacr.image_quality.assess_image` 和 :func:`spacr.image_quality.screen_fields`。"
+

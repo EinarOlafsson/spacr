@@ -1726,7 +1726,9 @@
       "source_sha256": "6c86973ad901a5dc365fdbcba22ce5f97bc5bcf2af41acb9a191c7f233eff514",
       "context": "Rewrite the tooltip in ``language``.",
       "translation": "Endurskrifa verkfæraábendinguna á ``language``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#5",

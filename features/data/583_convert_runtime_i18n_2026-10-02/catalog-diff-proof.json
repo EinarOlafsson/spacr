@@ -1,0 +1,152 @@
+{
+  "en": {
+    "delta": {
+      "UI_SOURCES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "ccfdc45d1fb4c3358f024236bc3ca8fce951e711cff6e7e2b4e9e8e0cb2ee0cb"
+  },
+  "sv": {
+    "delta": {
+      "UI": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "984077f976c56fe004f06eb939e4d1cf9f3f8c4ff6c64ef03fc1be5dc8fb6c52"
+  },
+  "de": {
+    "delta": {
+      "UI": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "48b8490877dd65f7f44ba50cc94837d79c620c882be88cbf9a8a9034ac37d50d"
+  },
+  "es": {
+    "delta": {
+      "UI": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "5534052de766258dae03e56c21f87b64592e767ceabd9b94a50d659c3af7ece2"
+  },
+  "fr": {
+    "delta": {
+      "UI": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "20ca4939e839ea3726e7c13f24b6f3bf72b9cdcd74d4266739493f2ddab0052e"
+  },
+  "pt": {
+    "delta": {
+      "UI": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "b32d9e3bf4290c0433e4af47c6f419ee81e5d3fde78486347c1c440f182c6a0d"
+  },
+  "zh_CN": {
+    "delta": {
+      "UI": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "9cea01407701175cb17ddfd25684fcaf011e9948dc9c33c70844b088c7a5c837"
+  },
+  "hi": {
+    "delta": {
+      "UI": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "d0ad67799e79cad6d3d5ab0d042fbec26fb8db2a9a7aa50c62d10d4a2f0f1f1b"
+  },
+  "ko": {
+    "delta": {
+      "UI": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "706c26ba64ef77b393c4be124224a17d7c44b7e0c2ccf2b4a4809e93c6697e0a"
+  },
+  "is": {
+    "delta": {
+      "UI": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      },
+      "SOURCE_HASHES": {
+        "added": 13,
+        "removed": 0,
+        "changed_existing": 0
+      }
+    },
+    "sha256": "1d60fe4e502fa7e179b6d40bd60d924728457af46188589ebf4a0108cdc4c35b"
+  }
+}

@@ -315,3 +315,230 @@ def test_failed_save_preserves_the_destination_and_allows_retry(
     assert retained.read_text(encoding="utf-8") == "untouched"
     assert "Export failed" in planner._plan_summary.text()
     assert planner._save_plan.isEnabled()
+
+
+# 585, 2026-09-30: readout and condition pickers, and Load plan… (the
+# audit's load-plan action).
+
+
+def _two_arm_pilot_csv(tmp_path):
+    """A pilot with a control and a treated arm on three plates.
+
+    :param tmp_path: where to write it.
+    :returns: the CSV path.
+    """
+    rng = np.random.default_rng(1)
+    rows = []
+    for plate in range(3):
+        for arm, shift in (("ctrl", 0.0), ("drug", 1.0)):
+            inter = rng.normal(0, 0.3)
+            for well in range(4):
+                for field in range(3):
+                    for _ in range(10):
+                        rows.append({
+                            "area": 5 + shift + inter + rng.normal(0, 1.0),
+                            "infected": float(rng.random() < 0.3),
+                            "plateID": f"p{plate}", "arm": arm,
+                            "prc": f"p{plate}_{arm}_c{well}",
+                            "fieldID": field})
+    path = tmp_path / "two_arm.csv"
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def test_readout_and_condition_reach_the_engine(planner, tmp_path):
+    from spacr.sp_stats import _plan_arrayed_design
+
+    planner._pilot_path.setText(str(_two_arm_pilot_csv(tmp_path)))
+    planner._refresh_pilot_columns()
+    assert planner._pilot_columns["condition"].itemText(0) == ""
+    assert planner._pilot_columns["condition"].findText("arm") >= 0
+    planner._pilot_columns["value"].setEditText("infected")
+    planner._pilot_columns["replicate"].setEditText("plateID")
+    planner._pilot_columns["condition"].setEditText("arm")
+    planner._plan_readout.setCurrentIndex(
+        planner._plan_readout.findData("proportion"))
+    planner._plan_effect.setValue(0.2)
+    planner._plan_power.setValue(0.8)
+    designs = planner._plan_from_pilot()
+    assert designs is not None and not designs.empty
+    plan = planner._arrayed_plan
+    assert plan["design_inputs"]["readout"] == "proportion"
+    assert plan["pilot"]["columns"]["condition"] == "arm"
+    assert plan["variance_components"]["estimated"]["replicate_condition"]
+    assert "Replicate-by-condition variance" in planner._plan_summary.text()
+    pd.testing.assert_frame_equal(
+        _plan_arrayed_design(plan["variance_components"],
+                             **plan["design_inputs"]), designs)
+    planner._plan_effect.setValue(0.9)
+    assert planner._plan_from_pilot() is None
+    assert "Could not plan the design" in planner._plan_summary.text()
+    assert not planner._save_plan.isEnabled()
+    planner._plan_effect.setValue(-0.2)
+    assert planner._plan_effect.value() == -0.2
+
+
+def test_load_plan_restores_the_form_and_the_designs(
+        planner, monkeypatch, tmp_path):
+    from spacr.qt.screens.power import QFileDialog
+
+    planner._plan_readout.setCurrentIndex(
+        planner._plan_readout.findData("count"))
+    planner._plan_effect.setValue(1.5)
+    planner._plan_costs["well"].setValue(2.5)
+    planner._plan_limits["fields"].setValue(9)
+    planner._pilot_columns["replicate"].setEditText("plateID")
+    designs = planner._plan_from_pilot()
+    assert designs is not None and not designs.empty
+    summary = planner._plan_summary.text()
+    target = tmp_path / "plan.json"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        lambda *args: (str(target), ""))
+    assert planner._save_arrayed_plan()
+    saved = target.read_text(encoding="utf-8")
+    rows = [tuple(planner._plan_table.item(r, c).text() for c in range(5))
+            for r in range(planner._plan_table.rowCount())]
+
+    planner._plan_readout.setCurrentIndex(0)
+    planner._plan_effect.setValue(0.0)
+    planner._plan_costs["well"].setValue(1.0)
+    planner._plan_limits["fields"].setValue(25)
+    planner._plan_paired.setChecked(True)
+    for combo in planner._pilot_columns.values():
+        combo.setEditText("")
+    planner._plan_table.setRowCount(0)
+    planner._arrayed_plan = None
+    planner._save_plan.setEnabled(False)
+
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        lambda *args: (str(target), ""))
+    planner._load_plan.click()
+    assert planner._plan_readout.currentData() == "count"
+    assert planner._plan_effect.value() == 1.5
+    assert planner._plan_costs["well"].value() == 2.5
+    assert planner._plan_limits["fields"].value() == 9
+    assert planner._plan_paired.isChecked() is False
+    assert planner._pilot_columns["value"].currentText() == "area"
+    assert planner._pilot_columns["replicate"].currentText() == "plateID"
+    assert planner._pilot_columns["condition"].currentText() == ""
+    assert [tuple(planner._plan_table.item(r, c).text() for c in range(5))
+            for r in range(planner._plan_table.rowCount())] == rows
+    assert planner._plan_summary.text() == summary + "\n" + str(target)
+    assert planner._save_plan.isEnabled()
+    again = tmp_path / "again.json"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        lambda *args: (str(again), ""))
+    assert planner._save_arrayed_plan()
+    assert json.loads(again.read_text(encoding="utf-8")) == json.loads(saved)
+
+
+@pytest.mark.parametrize("content", [
+    "not json", json.dumps({"schema": "something-else"}),
+    json.dumps({"schema": "spacr-arrayed-plan-v1", "pilot": {},
+                "designs": []})])
+def test_a_file_that_is_not_a_plan_changes_nothing(planner, tmp_path,
+                                                   content):
+    bad = tmp_path / "bad.json"
+    bad.write_text(content, encoding="utf-8")
+    planner._plan_effect.setValue(3.0)
+    assert planner._load_arrayed_plan(str(bad)) is False
+    assert "Could not load the plan" in planner._plan_summary.text()
+    assert planner._plan_effect.value() == 3.0
+    assert planner._arrayed_plan is None
+    assert not planner._save_plan.isEnabled()
+
+
+def test_cancelling_load_changes_nothing(planner, monkeypatch):
+    from spacr.qt.screens.power import QFileDialog
+
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        lambda *args: ("", ""))
+    summary = planner._plan_summary.text()
+    assert planner._load_arrayed_plan() is False
+    assert planner._plan_summary.text() == summary
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36794763761)
+# ---------------------------------------------------------------------------
+
+def _saved_plan(planner, tmp_path, monkeypatch):
+    from spacr.qt.screens.power import QFileDialog
+
+    planner._plan_from_pilot()
+    target = tmp_path / "plan.json"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        lambda *args: (str(target), ""))
+    assert planner._save_arrayed_plan()
+    return json.loads(target.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("damage,match", [
+    (lambda p: [row.pop("cost") for row in p["designs"]], "designs lack"),
+    (lambda p: p["design_inputs"].__setitem__("readout", "photons"),
+     "unknown readout"),
+])
+def test_a_plan_with_damaged_designs_or_an_unknown_readout_is_refused(
+        planner, tmp_path, monkeypatch, damage, match):
+    plan = _saved_plan(planner, tmp_path, monkeypatch)
+    damage(plan)
+    broken = tmp_path / "broken.json"
+    broken.write_text(json.dumps(plan), encoding="utf-8")
+    assert planner._load_arrayed_plan(str(broken)) is False
+    assert match in planner._plan_summary.text()
+
+
+@pytest.mark.parametrize("failure", ["short", "commit"])
+def test_a_save_the_disk_does_not_finish_is_reported(planner, tmp_path,
+                                                     monkeypatch, failure):
+    from PySide6.QtCore import QSaveFile
+
+    from spacr.qt.screens.power import QFileDialog
+
+    planner._plan_from_pilot()
+    target = tmp_path / "plan.json"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        lambda *args: (str(target), ""))
+    if failure == "short":
+        monkeypatch.setattr(QSaveFile, "write", lambda self, data: 0)
+    else:
+        monkeypatch.setattr(QSaveFile, "commit", lambda self: False)
+    assert planner._save_arrayed_plan() is False
+    assert "Export failed" in planner._plan_summary.text()
+    assert not target.exists()
+
+
+def test_browsing_for_a_pilot_lists_its_columns(planner, tmp_path,
+                                                monkeypatch):
+    from spacr.qt.screens.power import QFileDialog
+
+    other = tmp_path / "other.csv"
+    pd.DataFrame({"intensity": [1.0, 2.0], "plate": ["a", "b"]}).to_csv(
+        other, index=False)
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        lambda *args: (str(other), ""))
+    planner._browse_pilot()
+    assert planner._pilot_path.text() == str(other)
+    combo = planner._pilot_columns["value"]
+    assert "intensity" in [combo.itemText(i) for i in range(combo.count())]
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        lambda *args: ("", ""))
+    planner._browse_pilot()
+    assert planner._pilot_path.text() == str(other)
+
+
+def test_an_empty_or_unreadable_pilot_lists_nothing(planner, tmp_path):
+    combo = planner._pilot_columns["value"]
+    before = [combo.itemText(i) for i in range(combo.count())]
+    planner._pilot_path.setText("")
+    planner._refresh_pilot_columns()
+    planner._pilot_path.setText(str(tmp_path / "missing.csv"))
+    planner._refresh_pilot_columns()
+    assert [combo.itemText(i) for i in range(combo.count())] == before
+
+
+def test_a_worker_traceback_reports_its_last_line(planner):
+    planner._on_worker_error_text("Traceback\n  ...\nValueError: no pilot\n\n")
+    assert planner._status.text() == "The sweep failed: ValueError: no pilot"
+    planner._on_worker_error_text("   ")
+    assert planner._status.text() == "The sweep failed: unknown error"

@@ -1,0 +1,324 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+msgid "spaCR plugin SDK"
+msgstr "spaCR 플러그인 SDK"
+
+msgid "The plugin SDK lets a separately installed Python package add assays, importers, analysis utilities, settings panels, model-zoo entries and report sections without editing spaCR. Plugins use Python package entry points, so spaCR discovers them at startup and keeps them available to both the Qt application and ``spacr-run``."
+msgstr "플러그인 SDK를 사용하면 별도로 설치한 Python 패키지가 spaCR을 수정하지 않고도 어세이, 가져오기 도구, 분석 유틸리티, 설정 패널, 모델 라이브러리 항목, 보고서 섹션을 추가할 수 있습니다. 플러그인은 Python 패키지 진입점을 사용하므로, spaCR이 시작할 때 이를 발견하고 Qt 애플리케이션과 ``spacr-run`` 모두에서 사용할 수 있게 유지합니다."
+
+msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
+msgstr "현재 SDK API는 ``1.0`` 입니다. 호환성은 주 버전만으로 결정됩니다. API ``1.x`` 를 선언한 플러그인은 spaCR의 ``1.x`` SDK와 함께 동작합니다. 형식이 잘못되었거나 오류가 나는 플러그인은 격리되어 ``spacr-plugins doctor`` 로 보고되며, 기본 제공 모듈을 대체하거나 spaCR의 시작을 막을 수 없습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Browse and install from a catalogue"
+msgstr "카탈로그에서 찾아보기 및 설치"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis."
+msgstr "환경설정에서 **알파 기능 표시**\\ 를 활성화한 다음 **플러그인** 탭을 여세요. **카탈로그**\\ 에 카탈로그 JSON 파일, 해당 파일이 있는 폴더 또는 HTTP(S) 주소를 입력하고 **목록**\\ 을 누르세요. 항목을 선택하여 **설치 또는 업데이트**\\ 하거나 **제거**\\ 할 수 있습니다. 설치된 레시피에서 **열기**\\ 를 선택하면 분석을 시작하지 않고 저장된 설정을 해당 모듈로 불러옵니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal."
+msgstr "목록 조회, 설치 및 제거는 백그라운드에서 실행됩니다. 작업 중에는 탭에 **작업 중…**\\ 이라는 상태가 표시되고 카탈로그 컨트롤이 일시적으로 비활성화됩니다. 다른 인터페이스 컨트롤은 계속 사용할 수 있습니다. 환경설정을 닫아도 설치는 취소되지 않으며 창과 독립적으로 완료됩니다. 설치 결과를 확인하려면 탭을 다시 여세요. 카탈로그 새로 고침 실패는 설치 또는 제거 성공과 별도로 보고됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer."
+msgstr "카탈로그 플러그인은 별도의 설치 폴더를 사용하지만 spaCR의 Python 인터프리터를 공유합니다. 이 카탈로그 설치 프로그램은 의존성 충돌을 위한 별도 환경을 아직 제공하지 않습니다."
+
+msgid "Minimal plugin"
+msgstr "최소 플러그인"
+
+msgid "Declare the entry point in the plugin package's ``pyproject.toml``:"
+msgstr "플러그인 패키지의 ``pyproject.toml`` 에 진입점을 선언합니다."
+
+msgid "Then expose a manifest:"
+msgstr "그런 다음 매니페스트를 노출합니다."
+
+msgid "The pipeline callable receives one settings dictionary. The defaults callable must accept an optional settings dictionary and return a dictionary. A validator returns :class:`spacr.validate.Problem` objects (or equivalent mappings). All processing still runs through spaCR's worker, journal, cancellation and reproducibility paths."
+msgstr "파이프라인 호출 가능 객체는 설정 딕셔너리 하나를 받습니다. 기본값 호출 가능 객체는 선택적 설정 딕셔너리를 받아 딕셔너리를 반환해야 합니다. 검증기는 :class:`spacr.validate.Problem` 객체(또는 동등한 매핑)를 반환합니다. 모든 처리는 여전히 spaCR의 작업자, 기록, 취소, 재현성 경로를 거칩니다."
+
+msgid "Settings and custom screens"
+msgstr "설정과 사용자 지정 화면"
+
+msgid "The generic settings screen is preferred: declare ``categories``, ``tooltips`` and optional ``labels`` on :class:`spacr.plugins.AppContribution`. The UI then provides the normal Run/Stop controls, console, progress reporting, API links, drag-and-drop fallback and remote-submit action."
+msgstr "일반 설정 화면을 권장합니다. :class:`spacr.plugins.AppContribution` 에 ``categories``, ``tooltips``, 선택적 ``labels`` 를 선언합니다. 그러면 UI가 일반적인 Run/Stop 컨트롤, 콘솔, 진행 상황 보고, API 링크, 끌어다 놓기 대체 기능, 원격 제출 작업을 제공합니다."
+
+msgid "For a layout the generic screen cannot express, set ``screen_factory`` to a ``module:callable``. The callable is invoked as ``factory(app_key=...)`` and must return a ``PySide6.QtWidgets.QWidget``. A custom ``drop_handler`` must be a subclass of ``spacr.qt.dnd_handlers.DropHandler``. ``icon`` may name a spaCR semantic icon or an absolute image path; otherwise the normal puzzle piece fallback is used."
+msgstr "일반 화면으로 표현할 수 없는 레이아웃에는 ``screen_factory`` 를 ``module:callable`` 로 설정합니다. 이 호출 가능 객체는 ``factory(app_key=...)`` 형태로 호출되며 ``PySide6.QtWidgets.QWidget`` 을 반환해야 합니다. 사용자 지정 ``drop_handler`` 는 ``spacr.qt.dnd_handlers.DropHandler`` 의 하위 클래스여야 합니다. ``icon`` 에는 spaCR 의미 아이콘 이름이나 절대 이미지 경로를 지정할 수 있으며, 그렇지 않으면 일반 퍼즐 조각 아이콘이 대신 사용됩니다."
+
+msgid "Model providers"
+msgstr "모델 제공자"
+
+msgid "Add a :class:`spacr.plugins.ModelProviderContribution`. Its zero-argument callable returns an iterable of :class:`spacr.model_zoo.ModelEntry` objects or the mappings accepted by spaCR's JSON model catalogue."
+msgstr ":class:`spacr.plugins.ModelProviderContribution` 을 추가합니다. 인수가 없는 호출 가능 객체는 :class:`spacr.model_zoo.ModelEntry` 객체나 spaCR의 JSON 모델 카탈로그가 받아들이는 매핑의 반복 가능 객체를 반환합니다."
+
+msgid "Providers must be read-only during catalogue discovery. Downloads remain an explicit Model Zoo action. A provider exception is shown by ``spacr-plugins doctor`` and built-in models remain available."
+msgstr "제공자는 카탈로그 탐색 중에 읽기 전용이어야 합니다. 다운로드는 여전히 모델 라이브러리의 명시적 작업입니다. 제공자에서 발생한 예외는 ``spacr-plugins doctor`` 가 표시하며, 기본 제공 모델은 계속 사용할 수 있습니다."
+
+msgid "Report sections"
+msgstr "보고서 섹션"
+
+msgid "A :class:`spacr.plugins.ReportSectionContribution` builder receives a read-only :class:`spacr.plugins.ReportContext` and returns a :class:`spacr.report.Section`:"
+msgstr ":class:`spacr.plugins.ReportSectionContribution` 빌더는 읽기 전용 :class:`spacr.plugins.ReportContext` 를 받아 :class:`spacr.report.Section` 을 반환합니다."
+
+msgid "If the builder raises, the generated report contains a visible problem chapter with the exception instead of silently omitting the section."
+msgstr "빌더가 예외를 발생시키면, 생성된 보고서는 해당 섹션을 조용히 빼는 대신 예외 내용을 담은 눈에 보이는 문제 장을 포함합니다."
+
+msgid "Translations"
+msgstr "번역"
+
+msgid "``SpacrPlugin.translations`` maps spaCR language codes to English-source / translated-text mappings. Supported codes are ``sv``, ``de``, ``es``, ``zh_CN``, ``pt``, ``hi``, ``ko``, ``is`` and ``fr``. Missing strings fall back to English."
+msgstr "``SpacrPlugin.translations`` 는 spaCR 언어 코드를 영어 원문/번역문 매핑에 대응시킵니다. 지원되는 코드는 ``sv``, ``de``, ``es``, ``zh_CN``, ``pt``, ``hi``, ``ko``, ``is``, ``fr`` 입니다. 누락된 문자열은 영어로 대체됩니다."
+
+msgid "Development and diagnostics"
+msgstr "개발 및 진단"
+
+msgid "During local development only, point ``SPACR_PLUGIN_MODULES`` at a comma-separated list of ``module:attribute`` references. Set ``SPACR_DISABLE_PLUGINS=1`` to start spaCR without third-party plugins."
+msgstr "로컬 개발 중에만 ``SPACR_PLUGIN_MODULES`` 가 쉼표로 구분된 ``module:attribute`` 참조 목록을 가리키도록 합니다. 타사 플러그인 없이 spaCR을 시작하려면 ``SPACR_DISABLE_PLUGINS=1`` 을 설정합니다."
+
+msgid "The public SDK lives in :mod:`spacr.plugins`; the diagnostics command lives in :mod:`spacr.cli_plugins`."
+msgstr "공개 SDK는 :mod:`spacr.plugins` 에, 진단 명령은 :mod:`spacr.cli_plugins` 에 있습니다."
+
+msgid "API reference"
+msgstr "API 참조"
+
+msgid "Versioned extension SDK for third-party spaCR plugins."
+msgstr "타사 spaCR 플러그인을 위한 버전 관리형 확장 SDK입니다."
+
+msgid "Plugins are ordinary Python distributions exposing one entry point in the ``spacr.plugins`` group.  The entry point may resolve to a :class:`SpacrPlugin`, a mapping accepted by :func:`plugin_from_mapping`, or a zero-argument factory returning either.  Discovery is lazy, deterministic and failure-isolated: one malformed plugin is recorded in :func:`diagnostics` without preventing spaCR or the remaining plugins from loading."
+msgstr "플러그인은 ``spacr.plugins`` 그룹에 진입점 하나를 노출하는 일반 Python 배포판입니다. 진입점은 :class:`SpacrPlugin`, :func:`plugin_from_mapping` 이 받아들이는 매핑, 또는 둘 중 하나를 반환하는 인수 없는 팩토리로 해석될 수 있습니다. 탐색은 지연적이고, 결정적이며, 오류가 격리됩니다. 형식이 잘못된 플러그인 하나는 :func:`diagnostics` 에 기록될 뿐 spaCR이나 나머지 플러그인의 로드를 막지 않습니다."
+
+msgid "For editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a comma-separated list of ``module`` or ``module:attribute`` references. Installed plugins should always use package entry points instead."
+msgstr "편집 가능/로컬 개발에서는 ``SPACR_PLUGIN_MODULES`` 에 쉼표로 구분된 ``module`` 또는 ``module:attribute`` 참조 목록을 넣을 수 있습니다. 설치된 플러그인은 항상 패키지 진입점을 사용해야 합니다."
+
+msgid "Plugins and assay recipes can also be installed from a catalogue, a JSON file listing each entry's version, author and licence. A catalogue plugin is installed into its own folder under ``~/.spacr/plugins`` (or ``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never replaces or upgrades a package spaCR itself uses; it is discovered like any other plugin until it is uninstalled."
+msgstr "플러그인과 어세이 레시피는 카탈로그에서도 설치할 수 있습니다. 카탈로그는 각 항목의 버전, 작성자, 라이선스를 나열한 JSON 파일입니다. 카탈로그 플러그인은 요청한 라이브러리와 함께 ``~/.spacr/plugins`` (또는 ``SPACR_PLUGIN_HOME``) 아래의 자체 폴더에 설치되므로, spaCR 자체가 사용하는 패키지를 대체하거나 업그레이드하지 않습니다. 제거되기 전까지는 다른 플러그인과 마찬가지로 발견됩니다."
+
+msgid "Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively) skips discovery entirely, so no plugin loads from either source."
+msgstr "``SPACR_DISABLE_PLUGINS`` 를 ``1``, ``true``, ``yes`` 또는 ``on`` (대소문자 구분 없음)으로 설정하면 탐색을 완전히 건너뛰므로 어느 출처에서도 플러그인이 로드되지 않습니다."
+
+msgid "One runnable GUI/headless application contributed by a plugin."
+msgstr "플러그인이 제공하는 실행 가능한 GUI/헤드리스 애플리케이션 하나입니다."
+
+#, python-brace-format
+msgid "Discovery rejects the contribution with :exc:`ValueError` when ``section``, ``stage``, ``kind`` or ``call_style`` falls outside the fixed vocabulary listed below, when ``key`` does not match ``^[a-z][a-z0-9_]{1,63}$``, or when any non-empty ``module:callable`` reference is malformed."
+msgstr "``section``, ``stage``, ``kind`` 또는 ``call_style`` 이 아래에 나열된 고정 어휘를 벗어나거나, ``key`` 가 ``^[a-z][a-z0-9_]{1,63}$`` 와 일치하지 않거나, 비어 있지 않은 ``module:callable`` 참조의 형식이 잘못되면 탐색 과정에서 :exc:`ValueError` 로 이 기여를 거부합니다."
+
+msgid "Variables"
+msgstr "변수"
+
+#, python-brace-format
+msgid "identifier the CLI accepts and the GUI registers under; must match ``^[a-z][a-z0-9_]{1,63}$``. Reusing another plugin's key fails that plugin's load; colliding with a built-in app skips the contribution and records a diagnostic."
+msgstr "CLI가 받아들이고 GUI가 등록할 때 사용하는 식별자입니다. ``^[a-z][a-z0-9_]{1,63}$`` 와 일치해야 합니다. 다른 플러그인의 키를 재사용하면 그 플러그인의 로드가 실패하고, 기본 제공 앱과 충돌하면 이 기여를 건너뛰고 진단을 기록합니다."
+
+msgid "human-readable title shown in the sidebar and screen header; cannot be blank."
+msgstr "사이드바와 화면 머리글에 표시되는 사람이 읽을 수 있는 제목입니다. 비워 둘 수 없습니다."
+
+msgid "one-line blurb used as the app intro and the ``spacr-run --list`` summary; cannot be blank."
+msgstr "앱 소개와 ``spacr-run --list`` 요약에 쓰이는 한 줄 설명입니다. 비워 둘 수 없습니다."
+
+msgid "``\"module:callable\"`` reference to the callable that does the work."
+msgstr "실제 작업을 수행하는 호출 가능 객체에 대한 ``\"module:callable\"`` 참조입니다."
+
+#, python-brace-format
+msgid "``\"module:callable\"`` reference to a helper returning the settings dictionary; called with ``{}`` and retried with no argument."
+msgstr "설정 딕셔너리를 반환하는 도우미에 대한 ``\"module:callable\"`` 참조입니다. ``{}`` 로 호출하고, 실패하면 인수 없이 다시 시도합니다."
+
+msgid "sidebar group; one of ``\"core\"``, ``\"data\"``, ``\"models\"``, ``\"results\"`` or ``\"toxo\"``."
+msgstr "사이드바 그룹입니다. ``\"core\"``, ``\"data\"``, ``\"models\"``, ``\"results\"``, ``\"toxo\"`` 중 하나입니다."
+
+msgid "maturity annotation; one of ``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``."
+msgstr "성숙도 표시입니다. ``\"alpha\"``, ``\"beta\"``, ``\"stable\"`` 중 하나입니다."
+
+msgid "what the app is; one of ``\"assay\"``, ``\"importer\"``, ``\"analysis\"`` or ``\"utility\"``."
+msgstr "앱의 종류입니다. ``\"assay\"``, ``\"importer\"``, ``\"analysis\"``, ``\"utility\"`` 중 하나입니다."
+
+msgid "settings-screen tabs, mapping a tab name to the setting keys it holds; empty means the generic ungrouped layout."
+msgstr "설정 화면 탭으로, 탭 이름을 그 탭에 있는 설정 키에 대응시킵니다. 비어 있으면 그룹 없는 일반 레이아웃을 뜻합니다."
+
+msgid "hover text per setting key."
+msgstr "설정 키별 마우스 오버 텍스트입니다."
+
+msgid "display label per setting key, overriding the generated one."
+msgstr "자동 생성된 레이블을 재정의하는 설정 키별 표시 레이블입니다."
+
+msgid "address the settings screen's API link opens."
+msgstr "설정 화면의 API 링크가 여는 주소입니다."
+
+msgid "extra names the CLI and :mod:`spacr.validate` resolve to :attr:`key`."
+msgstr "CLI와 :mod:`spacr.validate` 가 :attr:`key` 로 해석하는 추가 이름입니다."
+
+msgid "optional ``\"module:callable\"`` reference to a callable taking the settings dict and returning ``spacr.validate.Problem`` objects or equivalent mappings."
+msgstr "설정 딕셔너리를 받아 ``spacr.validate.Problem`` 객체나 동등한 매핑을 반환하는 호출 가능 객체에 대한 선택적 ``\"module:callable\"`` 참조입니다."
+
+msgid "optional ``\"module:callable\"`` reference to a factory returning a ``QWidget``, replacing the generic settings screen; it is always invoked as ``factory(app_key=...)`` and so must accept that keyword."
+msgstr "일반 설정 화면을 대체하는 ``QWidget`` 을 반환하는 팩토리에 대한 선택적 ``\"module:callable\"`` 참조입니다. 항상 ``factory(app_key=...)`` 형태로 호출되므로 이 키워드를 받아야 합니다."
+
+msgid "optional ``\"module:callable\"`` reference to a ``spacr.qt.dnd_handlers.DropHandler`` subclass."
+msgstr "``spacr.qt.dnd_handlers.DropHandler`` 하위 클래스에 대한 선택적 ``\"module:callable\"`` 참조입니다."
+
+msgid "absolute image path, or the name of a spaCR semantic icon; empty falls back to the puzzle-piece icon."
+msgstr "절대 이미지 경로 또는 spaCR 의미 아이콘의 이름입니다. 비어 있으면 퍼즐 조각 아이콘을 사용합니다."
+
+msgid "settings the user must supply, phrased for a human."
+msgstr "사용자가 제공해야 하는 설정으로, 사람을 위해 서술합니다."
+
+msgid "what the app leaves on disk."
+msgstr "앱이 디스크에 남기는 결과물입니다."
+
+msgid "``\"settings\"`` for ``fn(settings_dict)``; ``\"folder\"`` for a callable taking a bare path."
+msgstr "``fn(settings_dict)`` 에는 ``\"settings\"`` 를, 경로 하나만 받는 호출 가능 객체에는 ``\"folder\"`` 를 사용합니다."
+
+msgid "Immutable record naming a plugin's model-zoo provider."
+msgstr "플러그인의 모델 라이브러리 제공자를 지정하는 불변 레코드입니다."
+
+msgid "Parameters"
+msgstr "매개변수"
+
+#, python-brace-format
+msgid "identifier for the provider; must match ``^[a-z][a-z0-9_]{1,63}$`` and be unique across all loaded plugins."
+msgstr "제공자 식별자입니다. ``^[a-z][a-z0-9_]{1,63}$`` 와 일치해야 하며 로드된 모든 플러그인에서 고유해야 합니다."
+
+msgid "``\"module:callable\"`` reference string -- not the callable itself -- resolved at catalogue time to a zero-argument callable returning model-zoo entries or entry mappings."
+msgstr "``\"module:callable\"`` 참조 문자열(호출 가능 객체 자체가 아님)로, 카탈로그 구성 시 모델 라이브러리 항목이나 항목 매핑을 반환하는 인수 없는 호출 가능 객체로 해석됩니다."
+
+msgid "One discovery or contribution error visible to users and logs."
+msgstr "사용자와 로그에 표시되는 탐색 또는 기여 오류 하나입니다."
+
+msgid "entry-point or manifest name identifying the plugin that could not be loaded."
+msgstr "로드할 수 없었던 플러그인을 식별하는 진입점 또는 매니페스트 이름입니다."
+
+msgid "diagnostic level, such as ``\"error\"`` or ``\"warning\"``."
+msgstr "``\"error\"`` 나 ``\"warning\"`` 같은 진단 수준입니다."
+
+msgid "concise user-facing account of the failed operation."
+msgstr "실패한 작업에 대한 사용자 대상의 간결한 설명입니다."
+
+msgid "captured exception text with the technical cause; empty when no exception accompanied the diagnostic."
+msgstr "기술적 원인이 담긴 캡처된 예외 텍스트입니다. 진단에 예외가 없으면 비어 있습니다."
+
+msgid "Read-only inputs passed to plugin report-section builders."
+msgstr "플러그인 보고서 섹션 빌더에 전달되는 읽기 전용 입력입니다."
+
+msgid "source folder or object from which the core report is built."
+msgstr "핵심 보고서를 만드는 원본 폴더 또는 객체입니다."
+
+msgid "named core report artifacts available for reuse by the plugin section."
+msgstr "플러그인 섹션이 재사용할 수 있는 이름 있는 핵심 보고서 산출물입니다."
+
+msgid "immutable sequence of recorded run summaries associated with the report source."
+msgstr "보고서 원본과 연결된 기록된 실행 요약의 불변 시퀀스입니다."
+
+msgid "report-generation options supplied by the caller."
+msgstr "호출자가 제공한 보고서 생성 옵션입니다."
+
+msgid "Immutable record naming a builder that adds one report section."
+msgstr "보고서 섹션 하나를 추가하는 빌더를 지정하는 불변 레코드입니다."
+
+msgid ":func:`spacr.report.collect_report` resolves and calls the builder, and substitutes a visible problem section if it fails."
+msgstr ":func:`spacr.report.collect_report` 가 빌더를 해석하여 호출하고, 실패하면 눈에 보이는 문제 섹션으로 대체합니다."
+
+#, python-brace-format
+msgid "stable section identifier; plugin validation requires ``^[a-z][a-z0-9_]{1,63}$`` and discovery rejects duplicate contribution keys."
+msgstr "안정적인 섹션 식별자입니다. 플러그인 검증에는 ``^[a-z][a-z0-9_]{1,63}$`` 가 필요하며, 탐색 과정은 중복된 기여 키를 거부합니다."
+
+msgid "fallback section heading used when the builder returns no title and when the builder fails; cannot be blank."
+msgstr "빌더가 제목을 반환하지 않거나 실패했을 때 사용하는 대체 섹션 제목입니다. 비워 둘 수 없습니다."
+
+msgid "``\"module:callable\"`` reference resolved at report collection to a callable taking :class:`ReportContext` and returning a :class:`spacr.report.Section`."
+msgstr "보고서 수집 시 :class:`ReportContext` 를 받아 :class:`spacr.report.Section` 을 반환하는 호출 가능 객체로 해석되는 ``\"module:callable\"`` 참조입니다."
+
+msgid "existing section key after which this section is inserted; an unmatched key appends it to the report."
+msgstr "이 섹션을 뒤에 삽입할 기존 섹션 키입니다. 일치하지 않는 키이면 보고서 끝에 추가합니다."
+
+msgid "Validated plugin manifest returned by a ``spacr.plugins`` entry point."
+msgstr "``spacr.plugins`` 진입점이 반환하는 검증된 플러그인 매니페스트입니다."
+
+msgid "human-readable plugin name used in diagnostics and discovery output."
+msgstr "진단과 탐색 출력에 쓰이는 사람이 읽을 수 있는 플러그인 이름입니다."
+
+msgid "version of the plugin distribution, reported to users without being interpreted by spaCR."
+msgstr "플러그인 배포판의 버전으로, spaCR이 해석하지 않고 사용자에게 보고합니다."
+
+msgid "plugin SDK version the manifest targets; its major version must match :data:`PLUGIN_API_VERSION`."
+msgstr "매니페스트가 대상으로 하는 플러그인 SDK 버전입니다. 주 버전이 :data:`PLUGIN_API_VERSION` 과 일치해야 합니다."
+
+msgid "runnable applications the plugin adds to the GUI and headless registry."
+msgstr "플러그인이 GUI와 헤드리스 레지스트리에 추가하는 실행 가능한 애플리케이션입니다."
+
+msgid "providers that extend the model-zoo catalogue."
+msgstr "모델 라이브러리 카탈로그를 확장하는 제공자입니다."
+
+msgid "builders that insert plugin-owned sections into generated reports."
+msgstr "플러그인이 소유한 섹션을 생성된 보고서에 삽입하는 빌더입니다."
+
+msgid "locale-to-message mappings that translate the plugin's own visible strings."
+msgstr "플러그인 자체의 표시 문자열을 번역하는 로캘-메시지 매핑입니다."
+
+msgid "Return discovery and runtime contribution failures."
+msgstr "탐색 및 런타임 기여 실패를 반환합니다."
+
+msgid "Return every valid discovered plugin in deterministic order."
+msgstr "발견된 유효한 플러그인을 결정적인 순서로 모두 반환합니다."
+
+msgid "Returns an empty tuple, with no diagnostic recorded, when ``SPACR_DISABLE_PLUGINS`` is set to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively): nothing is imported at all. The result is cached; :func:`reload_plugins` discards the cache and discovers again."
+msgstr "``SPACR_DISABLE_PLUGINS`` 가 ``1``, ``true``, ``yes`` 또는 ``on`` (대소문자 구분 없음)으로 설정되어 있으면 진단을 기록하지 않고 빈 튜플을 반환하며, 아무것도 가져오지 않습니다. 결과는 캐시되며, :func:`reload_plugins` 는 캐시를 버리고 다시 탐색합니다."
+
+msgid "Return a contributed app by key, or ``None``."
+msgstr "키로 기여된 앱을 반환하거나 ``None`` 을 반환합니다."
+
+msgid "``key`` of an installed plugin's :class:`AppContribution`; converted with ``str()`` before the registry lookup."
+msgstr "설치된 플러그인의 :class:`AppContribution` 에 있는 ``key`` 입니다. 레지스트리 조회 전에 ``str()`` 로 변환됩니다."
+
+msgid "Import and return ``module:attribute`` (nested attributes supported)."
+msgstr "``module:attribute`` 를 가져와 반환합니다(중첩 속성 지원)."
+
+msgid "string of the form ``\"package.module:attribute\"``; the attribute part may be dotted to reach nested objects. Anything else raises ``ValueError``."
+msgstr "``\"package.module:attribute\"`` 형식의 문자열입니다. 속성 부분은 점으로 중첩 객체에 접근할 수 있습니다. 그 밖의 형식은 ``ValueError`` 를 발생시킵니다."
+
+msgid "Return ``(plugin_name, provider)`` model-zoo contributions."
+msgstr "``(plugin_name, provider)`` 형태의 모델 라이브러리 기여를 반환합니다."
+
+msgid "Return all contributed applications."
+msgstr "기여된 모든 애플리케이션을 반환합니다."
+
+msgid "Validate a mapping and return its immutable :class:`SpacrPlugin`."
+msgstr "매핑을 검증하고 불변 :class:`SpacrPlugin` 을 반환합니다."
+
+msgid "manifest mapping whose keys are the :class:`SpacrPlugin` fields; ``apps``, ``model_providers`` and ``report_sections`` may hold mappings or contribution objects, and ``translations`` must map language codes to string mappings. A non-mapping raises ``TypeError``."
+msgstr "키가 :class:`SpacrPlugin` 필드인 매니페스트 매핑입니다. ``apps``, ``model_providers``, ``report_sections`` 에는 매핑이나 기여 객체를 넣을 수 있고, ``translations`` 는 언어 코드를 문자열 매핑에 대응시켜야 합니다. 매핑이 아니면 ``TypeError`` 가 발생합니다."
+
+msgid "Record a model/report/runtime plugin failure without aborting spaCR."
+msgstr "spaCR을 중단하지 않고 모델/보고서/런타임 플러그인 실패를 기록합니다."
+
+msgid "name of the plugin that failed, stored on the :class:`PluginDiagnostic` and written to the log."
+msgstr "실패한 플러그인의 이름으로, :class:`PluginDiagnostic` 에 저장되고 로그에 기록됩니다."
+
+msgid "user-facing account of the failed operation."
+msgstr "실패한 작업에 대한 사용자 대상 설명입니다."
+
+msgid "Clear the discovery cache and discover again (primarily for tests/dev)."
+msgstr "탐색 캐시를 지우고 다시 탐색합니다(주로 테스트/개발용)."
+
+msgid "Return ``(plugin_name, section)`` report contributions."
+msgstr "``(plugin_name, section)`` 형태의 보고서 기여를 반환합니다."
+

@@ -2025,3 +2025,24 @@ file_issue(self, {"screen": "annotate"}, body)
 It survived because the button is hidden behind `get_auto_file_issues()`, which shipped OFF. That default is now ON, so this button is part of the default experience, and `tests/qt/test_annotate_console_can_be_copied_and_reported.py` presses it.
 
 It now builds the report from the console text with `active_app="annotate"`, shows the same `IssuePreviewDialog` the module screens show -- the button's own tooltip promises "You review it before submitting", and a press is already the affirmative act that 'always' exists to avoid asking for -- and posts from its own `JobRunner`. Not from `_total_jobs`: that one is cancelled whenever a count is restarted, and a cancelled generation is a result the runner drops. Posting stays off the GUI thread for the reason the module screens measured: up to 28 s of frozen window between `gh auth token` and `api.github.com`.
+
+
+## Similarity search controls (F565, 2026-10-01)
+
+With **Show alpha features** enabled, **Like this** has a **Similar crops**
+count (default 100) and **Unlabelled only**. The count excludes the selected
+reference crop, which remains first even when labelled. Eligible matches
+follow in similarity order; fewer than requested means the eligible pool is
+smaller.
+
+Unlabelled filtering follows Annotate's unanswered state: blank labels,
+cleared zero and pending model suggestions remain eligible. A committed
+nonzero class in the current annotation column is excluded. The active crop
+table and column are read anew for each search, while the measurement index
+may be reused. Unsaved local label changes override the stored values for
+that search. Already-submitted writes settle on the search worker before
+reading; a failed save produces an actionable search error.
+
+This adds controls to the existing single-database measurement search. It
+does not provide multi-database indexes, stored crop embeddings, GPU timing
+or new validation on human-labelled biological examples.

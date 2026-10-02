@@ -527,7 +527,7 @@ class TestTheHoverFilterIgnoresWhatIsNotAHover:
         qtbot.addWidget(label)
         assert scr.eventFilter(label, QEvent(QEvent.StyleChange)) is False
 
-    def test_a_hover_still_writes_the_hint_strip(self, qtbot):
+    def test_a_hover_still_writes_the_hint_strip(self, qtbot, immediate_hover_help):
         """The early return must not swallow the events that matter.
 
         Delivered through ``QApplication.sendEvent`` rather than by calling
@@ -535,16 +535,15 @@ class TestTheHoverFilterIgnoresWhatIsNotAHover:
         a test that calls the method directly would still pass if the
         filter had stopped being installed at all.
         """
-        from PySide6.QtCore import QPointF
-        from PySide6.QtGui import QEnterEvent
         from PySide6.QtWidgets import QApplication
 
         scr = _make_screen(qtbot, "mask")
-        label = next(iter(scr._hint_map))
+        scr.resize(1200, 900)
+        scr.show()
+        qtbot.waitExposed(scr)
+        label = next(w for w in scr._hint_map if w.isVisible())
         scr._hint_strip.setText("")
-        pos = QPointF(1.0, 1.0)
-        QApplication.sendEvent(label, QEnterEvent(pos, pos, pos))
-        qtbot.wait(10)
+        immediate_hover_help(label, lambda: bool(scr._hint_strip.text()))
         assert scr._hint_strip.text(), "hovering a setting wrote nothing"
         assert "https://" in scr._hint_strip.text()
 
@@ -557,10 +556,13 @@ class TestTheHoverFilterIgnoresWhatIsNotAHover:
         # prompt here is what made the link unreachable.
         assert scr._hint_strip.text() == held
 
-    def test_leaving_holds_the_help_until_the_hold_runs_out(self, qtbot):
+    def test_leaving_holds_the_help_until_the_hold_runs_out(self, qtbot, immediate_hover_help):
         scr = _make_screen(qtbot, "mask")
-        label = next(iter(scr._hint_map))
-        scr.eventFilter(label, QEvent(QEvent.Enter))
+        scr.resize(1200, 900)
+        scr.show()
+        qtbot.waitExposed(scr)
+        label = next(w for w in scr._hint_map if w.isVisible())
+        immediate_hover_help(label, lambda: scr._hint_strip.text() != scr._default_hint())
         held = scr._hint_strip.text()
         assert held != scr._default_hint(), "hovering wrote nothing to hold"
 

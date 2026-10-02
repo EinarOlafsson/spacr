@@ -1122,7 +1122,9 @@
       "source_sha256": "8268982be4a59a166687566f77cbff9be9c2eac1594319ea55bdbd0e07c7e097",
       "context": "Beside the runs, the journal keeps two records for blinded work. :func:`start_blinding` writes a blinding structured-data name (coded names and a shuffled order) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and when. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped, in ``~/.spacr/analysis_locks``; every later run of the same workflow on the same ``src`` is checked against it by :func:`check_analysis_lock`, and the verdict is written into that processing session's ``manifest.json`` under ``analysis_lock``, with any difference also listed in ``provenance_warnings``.",
       "translation": "除处理记录外，日志还为盲法工作保存两类记录。:func:`start_blinding` 将盲法编码表（编码名称和打乱的顺序）写入 ``~/.spacr/blinding``，:func:`unblind` 记录由谁在何时打开了它。:func:`lock_analysis` 把分析计划冻结在 ``~/.spacr/analysis_locks`` 中，并附上哈希和时间戳；之后在同一 ``src`` 上对同一流程的每次处理都由 :func:`check_analysis_lock` 与之核对，结论写入该次处理的 ``manifest.json`` 中的 ``analysis_lock`` 下，任何差异也会列在 ``provenance_warnings`` 中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#0",
@@ -1138,31 +1140,36 @@
       "source_sha256": "fa1d435e1c436efdb5877fa024be6c851d6d98011578205654eeacb7f952c4df",
       "context": "The lock is the newest one :func:`lock_analysis` made for ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting and every hashed file is compared.",
       "translation": "除非传入了锁，否则所用的锁是 :func:`lock_analysis` 为 ``app_key`` 在这些设置的 ``src`` 上创建的最新锁。锁首先与其自身的哈希核对，因此被编辑过的锁文件会被发现；然后逐项比较每个设置和每个已计算哈希的文件。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
-      "label": "spacr.run_journal.check_analysis_lock#2",
+      "label": "spacr.run_journal.check_analysis_lock#3",
       "source": "the settings of the run being checked.",
       "source_sha256": "21c35046c8d05f886c15bdd8240f3c09c0e79b554dc0b7ae203f18b786ae19c0",
       "context": "the settings of the processing session being checked.",
       "translation": "被核对的那次处理的设置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#2"
     },
     {
-      "label": "spacr.run_journal.check_analysis_lock#3",
+      "label": "spacr.run_journal.check_analysis_lock#4",
       "source": "the pipeline running them.",
       "source_sha256": "09f82ec376a95edec730570ef26a0339cd6171afc441c2382de7f6f3fa6212e1",
       "context": "the workflow executing them.",
       "translation": "执行这些设置的流程。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#3"
     },
     {
-      "label": "spacr.run_journal.check_analysis_lock#4",
+      "label": "spacr.run_journal.check_analysis_lock#5",
       "source": "a lock record to check against instead of the newest one.",
       "source_sha256": "04cfcc06ecb6198567eb63a5ad798f1401693b1357367656ab5724c2c8604e0f",
       "context": "a lock record to check against instead of the newest one.",
       "translation": "用于核对的锁记录，代替最新的锁。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.check_analysis_lock#4"
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#5",
@@ -1170,7 +1177,9 @@
       "source_sha256": "b0c257c3fb76778206d96f0aaca390e18f89edf8aafb0abc32a1b129979b4626",
       "context": "``status`` -- ``\"unlocked\"`` (no lock applies), ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, and no key on the folder has been unblinded since the lock), ``\"post_hoc\"`` (changed, and a key on the folder was unblinded after the lock), ``\"not_preregistered\"`` (unchanged, but the lock was made after an unblinding) or ``\"tampered\"`` (the lock no longer matches its hash) -- with ``lock_id``, ``sha256``, ``locked_utc``, ``locked_by``, ``deviations`` (``key``, ``locked``, ``now``), ``unblinded_utc`` and a one-sentence ``summary``.",
       "translation": "``status``——``\"unlocked\"``（没有适用的锁）、``\"verified\"``（没有变化）、``\"deviation\"``（有变化，且自上锁以来该文件夹没有任何编码表被揭盲）、``\"post_hoc\"``（有变化，且该文件夹的某个编码表在上锁后被揭盲）、``\"not_preregistered\"``（没有变化，但锁是在揭盲之后创建的）或 ``\"tampered\"``（锁已与其哈希不符）——并附带 ``lock_id``、``sha256``、``locked_utc``、``locked_by``、``deviations``（``key``、``locked``、``now``）、``unblinded_utc`` 以及一句话的 ``summary``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.lock_analysis#0",
@@ -1186,7 +1195,9 @@
       "source_sha256": "b39a0ffbfd1aa184adf4a8273c3ec2c2646fda3903cc42ea1165bc406dfc1da8",
       "context": "The settings, the stated hypotheses and thresholds, and the SHA-256 of every model, data-selection boundary or threshold file the settings name (plus ``files``) are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of ``app_key`` on the same ``src`` is checked against the newest lock by :func:`check_analysis_lock`; the verdict goes into the processing session's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
       "translation": "设置、声明的假设和阈值，以及设置中提到的每个模型、门控或阈值文件的 SHA-256（外加 ``files``），会连同时间和用户一起写入 ``~/.spacr/analysis_locks/<lock id>.json`` 并计算哈希。此后，``app_key`` 在同一 ``src`` 上每次记入日志的处理都会由 :func:`check_analysis_lock` 与最新的锁核对；结论写入该次处理的 ``manifest.json``，差异则列在清单的警告、报告和方法文本中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.lock_analysis#2",
@@ -1194,7 +1205,9 @@
       "source_sha256": "cf47343d42802b2c2950a7f9bd29025f6e5effa678455bf8687dcb0aaf51a6aa",
       "context": "A lock made after a blinding key on the same folder was unblinded is marked as such, because it was not made blind.",
       "translation": "如果在同一文件夹的盲法编码表被揭盲之后才创建锁，该锁会被如实标记，因为它不是在盲态下创建的。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.run_journal.lock_analysis#3",
@@ -1245,12 +1258,13 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.run_journal.lock_analysis#9",
+      "label": "spacr.run_journal.lock_analysis#12",
       "source": "the stored lock, including ``lock_id``, ``locked_utc`` and ``sha256``.",
       "source_sha256": "07d8ff4c8fd4fc1d666e2a6174a9471f98898a75a1efce1495955d616fe8c72b",
       "context": "the stored lock, including ``lock_id``, ``locked_utc`` and ``sha256``.",
       "translation": "已保存的锁，包括 ``lock_id``、``locked_utc`` 和 ``sha256``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "relocated_from_2026_10_01": "spacr.run_journal.lock_analysis#9"
     },
     {
       "label": "spacr.run_journal.start_blinding#0",
@@ -1370,7 +1384,9 @@
       "source_sha256": "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
       "context": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation (the factor R's ``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so the residuals agree with the B-score cellHTS2 computes.",
       "translation": "常量：``MAD_SCALE`` 为 ``1 / Phi^-1(0.75)`` = 1.4826，使正态样本的 MAD 能估计其标准差（这是 R 的 ``mad()`` 以及 cellHTS2 所用的系数）。``SSMD_ESTIMATORS`` 为 ``mm``（矩估计法）、``umvue``（一致最小方差无偏）和 ``robust``（中位数/MAD，SSMD*）。``DEFAULT_HIT_THRESHOLDS`` 对每种统计量都是 3：SSMD 3 是 Zhang 所说的 \"strong\" 效应，3 个稳健 sigma 是稳健 z 和 B 分数的常用临界值。``MEDIAN_POLISH_MAX_ITER`` 和 ``MEDIAN_POLISH_EPS`` 是 R 的 ``medpolish`` 默认值（10 和 0.01），保留它们是为了让残差与 cellHTS2 计算的 B 分数一致。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-01: the B-score constants/convergence overview now states the original cellHTS2 settings. Preserve this review for its original source; the changed source receives a separate current technical review."
     },
     {
       "label": "spacr.sp_stats#6",

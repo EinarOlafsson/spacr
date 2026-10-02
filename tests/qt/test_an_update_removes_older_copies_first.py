@@ -85,8 +85,8 @@ class _Window:
         self.closed = True
 
 
-@pytest.fixture
-def frozen_window(qtbot, monkeypatch, tmp_path):
+@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1"])
+def frozen_window(qtbot, monkeypatch, tmp_path, request):
     from types import SimpleNamespace
     from PySide6.QtWidgets import QMainWindow
     from spacr.qt import bridge
@@ -104,6 +104,7 @@ def frozen_window(qtbot, monkeypatch, tmp_path):
             self._update_version = "1.5.1.1"
 
         def _confirm_old_installs(self, records):
+            assert request.param == "macos-frozen-v1", "online upgrades must not offer deletion"
             return ()
 
         def _release_update_workers(self):
@@ -112,9 +113,13 @@ def frozen_window(qtbot, monkeypatch, tmp_path):
 
     work = tmp_path / "helper"
     work.mkdir(mode=0o700)
+    online = request.param == "macos-online-uv-v1"
     record = install_cleanup.InstallRecord(
-        "installer", "macos-app", "macos", str(tmp_path / "spaCR.app"), running=True)
-    plan = {"adapter": "macos-frozen-v1", "command": ["inert-helper"],
+        "installer", "macos-runtime" if online else "macos-app", "macos",
+        str(tmp_path / ("Application Support" if online else "spaCR.app")), running=True)
+    monkeypatch.setattr(install_cleanup, "_macos_online_update_record",
+                        lambda records: record if online else None)
+    plan = {"adapter": request.param, "command": ["inert-helper"],
             "version": "1.5.1.1", "pid": 123, "workdir": str(work),
             "records": [install_cleanup.asdict(record)], "ticked": [],
             "handshake": {"schema": 1, "token": "a" * 64,
@@ -214,7 +219,14 @@ def test_frozen_close_veto_or_approval_failure_preserves_the_gui(
 def test_frozen_accepted_close_approves_after_vetoes_before_teardown(frozen_window, monkeypatch):
     state = frozen_window
     state.handshake.ready()
-    monkeypatch.setattr(qt_app.QMessageBox, "information", lambda *a, **k: qt_app.QMessageBox.Ok)
+    def accept(parent, title, message, buttons):
+        if state.plan["adapter"] == "macos-online-uv-v1":
+            assert "reinstall spaCR in its current environment" in message
+            assert "reopen automatically" in message
+            assert "remove" not in message
+        return qt_app.QMessageBox.Ok
+
+    monkeypatch.setattr(qt_app.QMessageBox, "information", accept)
     approve = state.handshake.approve
 
     def approval():
@@ -229,6 +241,30 @@ def test_frozen_accepted_close_approves_after_vetoes_before_teardown(frozen_wind
     assert not state.window.isVisible() and state.window._closing
     assert not (state.work / "cancelled.json").exists()
     state.handshake.wait_for_shutdown(lambda pid: True)
+
+
+
+def test_update_confirmation_accepts_a_real_button_click(frozen_window, qtbot, monkeypatch):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QMessageBox
+
+    state = frozen_window
+    state.handshake.ready()
+
+    def accept(parent, title, message, buttons):
+        box = QMessageBox(QMessageBox.Information, title, message, buttons, parent)
+        qtbot.addWidget(box)
+        box.show()
+        qtbot.waitUntil(box.isVisible)
+        box.grab().save(str(state.work / "confirmation.png"))
+        qtbot.mouseClick(box.button(QMessageBox.Ok), Qt.LeftButton)
+        return box.result()
+
+    monkeypatch.setattr(qt_app.QMessageBox, "information", accept)
+    state.window._poll_frozen_update()
+    assert (state.work / "approved.json").exists()
+    assert not state.window.isVisible()
+    assert state.events == ["veto checks", "teardown", "quit"]
 
 
 def _record(tmp_path, kind, name, running=False):

@@ -1549,13 +1549,17 @@ def test_the_direction_row_is_only_there_for_the_starfield(prefs, qtbot,
 
 
 def _show_tab_holding(dialog, widget):
-    """Make the Preferences tab that holds ``widget`` the current one."""
+    """Make the Preferences tab that holds ``widget`` the current one, and
+    open the folded category it sits in (Animation is a category of
+    Appearance since 2026-09-30)."""
     from PySide6.QtWidgets import QTabWidget
+    from spacr.qt.preferences_navigation import _unfold_around
     tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
     assert tabs is not None, "Preferences is not tabbed"
     for index in range(tabs.count()):
         if tabs.widget(index).isAncestorOf(widget):
             tabs.setCurrentIndex(index)
+            _unfold_around(widget)
             return tabs.tabText(index)
     raise AssertionError("that control is not on any tab")
 

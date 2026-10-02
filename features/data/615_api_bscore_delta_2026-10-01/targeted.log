@@ -1,0 +1,178 @@
+BEGIN public_docstrings
+END public_docstrings elapsed=9.4s
+BEGIN repair_api_translations sv
+BEGIN _proven_api_history sv
+END _proven_api_history sv elapsed=10.5s
+BEGIN reviewed_api_block_translations sv
+END reviewed_api_block_translations sv elapsed=0.0s
+sv: API blocks reused=5 historical_reused=5 generated=0 unresolved=0 review_recovered=3 cache_recovered=0 decoded=0 relaid_symbols=1 history_from_head=1 history_unproven=0
+END repair_api_translations sv elapsed=10.6s
+BEGIN write_language sv
+HEARTBEAT elapsed=30.0s stage=write_language sv; context=CacheInfo(hits=2186, misses=25737, maxsize=65536, currsize=25737) OpenCC=CacheInfo(hits=0, misses=0, maxsize=65536, currsize=0)
+sv: atomic catalog write complete; context=CacheInfo(hits=4297, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=0, misses=0, maxsize=65536, currsize=0)
+END write_language sv elapsed=15.8s
+sv: exact one-symbol diff verified; all other records unchanged
+BEGIN repair_api_translations de
+BEGIN _proven_api_history de
+END _proven_api_history de elapsed=10.2s
+BEGIN reviewed_api_block_translations de
+END reviewed_api_block_translations de elapsed=0.0s
+de: API blocks reused=5 historical_reused=5 generated=0 unresolved=0 review_recovered=3 cache_recovered=0 decoded=0 relaid_symbols=1 history_from_head=1 history_unproven=0
+END repair_api_translations de elapsed=10.3s
+BEGIN write_language de
+de: atomic catalog write complete; context=CacheInfo(hits=52130, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=0, misses=0, maxsize=65536, currsize=0)
+END write_language de elapsed=0.6s
+de: exact one-symbol diff verified; all other records unchanged
+BEGIN repair_api_translations es
+BEGIN _proven_api_history es
+END _proven_api_history es elapsed=11.9s
+BEGIN reviewed_api_block_translations es
+END reviewed_api_block_translations es elapsed=0.0s
+es: API blocks reused=5 historical_reused=5 generated=0 unresolved=0 review_recovered=3 cache_recovered=0 decoded=0 relaid_symbols=1 history_from_head=1 history_unproven=0
+END repair_api_translations es elapsed=12.0s
+BEGIN write_language es
+HEARTBEAT elapsed=60.0s stage=write_language es; context=CacheInfo(hits=79978, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=0, misses=0, maxsize=65536, currsize=0)
+es: atomic catalog write complete; context=CacheInfo(hits=99963, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=0, misses=0, maxsize=65536, currsize=0)
+END write_language es elapsed=0.6s
+es: exact one-symbol diff verified; all other records unchanged
+BEGIN repair_api_translations zh_CN
+BEGIN _proven_api_history zh_CN
+END _proven_api_history zh_CN elapsed=27.5s
+BEGIN reviewed_api_block_translations zh_CN
+END reviewed_api_block_translations zh_CN elapsed=0.1s
+zh_CN: API blocks reused=6 historical_reused=6 generated=0 unresolved=0 review_recovered=2 cache_recovered=0 decoded=0 relaid_symbols=1 history_from_head=1 history_unproven=0
+END repair_api_translations zh_CN elapsed=27.6s
+BEGIN write_language zh_CN
+HEARTBEAT elapsed=90.0s stage=write_language zh_CN; context=CacheInfo(hits=99994, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=5907, misses=6257, maxsize=65536, currsize=6256)
+HEARTBEAT elapsed=120.0s stage=write_language zh_CN; context=CacheInfo(hits=99994, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6091, misses=16202, maxsize=65536, currsize=16201)
+zh_CN: atomic catalog write complete; context=CacheInfo(hits=147795, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17567, maxsize=65536, currsize=17567)
+END write_language zh_CN elapsed=36.9s
+zh_CN: exact one-symbol diff verified; all other records unchanged
+BEGIN repair_api_translations pt
+BEGIN _proven_api_history pt
+END _proven_api_history pt elapsed=11.7s
+BEGIN reviewed_api_block_translations pt
+END reviewed_api_block_translations pt elapsed=0.0s
+pt: API blocks reused=5 historical_reused=5 generated=0 unresolved=0 review_recovered=3 cache_recovered=0 decoded=0 relaid_symbols=1 history_from_head=1 history_unproven=0
+END repair_api_translations pt elapsed=11.7s
+BEGIN write_language pt
+pt: atomic catalog write complete; context=CacheInfo(hits=195628, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17567, maxsize=65536, currsize=17567)
+END write_language pt elapsed=0.6s
+pt: exact one-symbol diff verified; all other records unchanged
+BEGIN repair_api_translations hi
+BEGIN _proven_api_history hi
+HEARTBEAT elapsed=150.0s stage=repair_api_translations hi > _proven_api_history hi; context=CacheInfo(hits=195637, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17567, maxsize=65536, currsize=17567)
+END _proven_api_history hi elapsed=14.2s
+BEGIN reviewed_api_block_translations hi
+END reviewed_api_block_translations hi elapsed=0.1s
+hi: API blocks reused=5 historical_reused=5 generated=0 unresolved=0 review_recovered=3 cache_recovered=0 decoded=0 relaid_symbols=1 history_from_head=1 history_unproven=0
+END repair_api_translations hi elapsed=14.4s
+BEGIN write_language hi
+hi: atomic catalog write complete; context=CacheInfo(hits=243461, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17567, maxsize=65536, currsize=17567)
+END write_language hi elapsed=1.3s
+hi: exact one-symbol diff verified; all other records unchanged
+BEGIN repair_api_translations ko
+BEGIN _proven_api_history ko
+END _proven_api_history ko elapsed=16.2s
+BEGIN reviewed_api_block_translations ko
+END reviewed_api_block_translations ko elapsed=0.1s
+ko: API blocks reused=5 historical_reused=5 generated=0 unresolved=0 review_recovered=3 cache_recovered=0 decoded=0 relaid_symbols=1 history_from_head=1 history_unproven=0
+END repair_api_translations ko elapsed=16.3s
+BEGIN write_language ko
+ko: atomic catalog write complete; context=CacheInfo(hits=291294, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17567, maxsize=65536, currsize=17567)
+END write_language ko elapsed=1.3s
+ko: exact one-symbol diff verified; all other records unchanged
+BEGIN repair_api_translations is
+BEGIN _proven_api_history is
+HEARTBEAT elapsed=180.0s stage=repair_api_translations is > _proven_api_history is; context=CacheInfo(hits=291303, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17567, maxsize=65536, currsize=17567)
+END _proven_api_history is elapsed=17.8s
+BEGIN reviewed_api_block_translations is
+END reviewed_api_block_translations is elapsed=0.1s
+is: API blocks reused=4 historical_reused=4 generated=0 unresolved=0 review_recovered=4 cache_recovered=0 decoded=0 relaid_symbols=1 history_from_head=1 history_unproven=0
+END repair_api_translations is elapsed=18.0s
+BEGIN write_language is
+is: atomic catalog write complete; context=CacheInfo(hits=339129, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17567, maxsize=65536, currsize=17567)
+END write_language is elapsed=1.3s
+is: exact one-symbol diff verified; all other records unchanged
+BEGIN repair_api_translations fr
+BEGIN _proven_api_history fr
+HEARTBEAT elapsed=210.0s stage=repair_api_translations fr > _proven_api_history fr; context=CacheInfo(hits=339138, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17567, maxsize=65536, currsize=17567)
+END _proven_api_history fr elapsed=19.4s
+BEGIN reviewed_api_block_translations fr
+END reviewed_api_block_translations fr elapsed=0.1s
+fr: API blocks reused=5 historical_reused=5 generated=0 unresolved=0 review_recovered=3 cache_recovered=0 decoded=0 relaid_symbols=1 history_from_head=1 history_unproven=0
+END repair_api_translations fr elapsed=19.6s
+BEGIN write_language fr
+fr: atomic catalog write complete; context=CacheInfo(hits=386962, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17567, maxsize=65536, currsize=17567)
+END write_language fr elapsed=1.4s
+fr: exact one-symbol diff verified; all other records unchanged
+All nine catalogs written; beginning unchanged full strict audit.
+BEGIN audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr')
+BEGIN reviewed_api_block_translations sv
+END reviewed_api_block_translations sv elapsed=18.2s
+HEARTBEAT elapsed=240.0s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=397297, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=270.0s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=414801, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=300.0s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=432351, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=330.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=450988, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=360.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=469012, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=390.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=487911, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+BEGIN reviewed_api_block_translations de
+END reviewed_api_block_translations de elapsed=19.5s
+HEARTBEAT elapsed=420.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=503118, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=450.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=519201, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=480.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=535637, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=510.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=552753, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=540.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=576954, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+BEGIN reviewed_api_block_translations es
+END reviewed_api_block_translations es elapsed=11.0s
+HEARTBEAT elapsed=570.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=606564, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=600.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=630455, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=630.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=655938, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+HEARTBEAT elapsed=660.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=683583, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=6098, misses=17568, maxsize=65536, currsize=17568)
+BEGIN reviewed_api_block_translations zh_CN
+HEARTBEAT elapsed=690.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr') > reviewed_api_block_translations zh_CN; context=CacheInfo(hits=701915, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=9310, misses=20533, maxsize=65536, currsize=20532)
+END reviewed_api_block_translations zh_CN elapsed=38.1s
+HEARTBEAT elapsed=720.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=711839, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15454, misses=26551, maxsize=65536, currsize=26551)
+HEARTBEAT elapsed=750.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=730596, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15524, misses=28115, maxsize=65536, currsize=28114)
+HEARTBEAT elapsed=780.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=748250, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15591, misses=29377, maxsize=65536, currsize=29377)
+HEARTBEAT elapsed=810.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=766368, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15758, misses=30558, maxsize=65536, currsize=30557)
+HEARTBEAT elapsed=840.1s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=784883, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15854, misses=31821, maxsize=65536, currsize=31820)
+BEGIN reviewed_api_block_translations pt
+HEARTBEAT elapsed=870.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr') > reviewed_api_block_translations pt; context=CacheInfo(hits=802883, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+END reviewed_api_block_translations pt elapsed=19.6s
+HEARTBEAT elapsed=900.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=816873, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=930.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=830808, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=960.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=845068, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=990.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=860491, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1020.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=874778, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1050.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=890295, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1080.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=905583, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+BEGIN reviewed_api_block_translations hi
+END reviewed_api_block_translations hi elapsed=19.5s
+HEARTBEAT elapsed=1110.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=920606, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1140.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=939215, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1170.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=958500, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1200.2s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=977183, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1230.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=997475, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+BEGIN reviewed_api_block_translations ko
+HEARTBEAT elapsed=1260.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr') > reviewed_api_block_translations ko; context=CacheInfo(hits=1015433, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+END reviewed_api_block_translations ko elapsed=16.8s
+HEARTBEAT elapsed=1290.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1036629, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1320.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1060031, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1350.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1083234, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1380.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1107577, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+BEGIN reviewed_api_block_translations is
+HEARTBEAT elapsed=1410.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr') > reviewed_api_block_translations is; context=CacheInfo(hits=1124244, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+END reviewed_api_block_translations is elapsed=21.2s
+HEARTBEAT elapsed=1440.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1142909, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1470.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1161721, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1500.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1188026, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+BEGIN reviewed_api_block_translations fr
+HEARTBEAT elapsed=1530.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr') > reviewed_api_block_translations fr; context=CacheInfo(hits=1224974, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+END reviewed_api_block_translations fr elapsed=12.7s
+HEARTBEAT elapsed=1560.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1252560, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1590.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1279526, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+HEARTBEAT elapsed=1620.3s stage=audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'); context=CacheInfo(hits=1305786, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)
+verified API catalogs: languages=9 symbols=12035
+END audit ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr') elapsed=1417.1s
+Final cache counts: context=CacheInfo(hits=1323244, misses=43536, maxsize=65536, currsize=43536) OpenCC=CacheInfo(hits=15937, misses=33130, maxsize=65536, currsize=33130)

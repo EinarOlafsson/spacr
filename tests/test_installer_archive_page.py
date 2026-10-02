@@ -468,7 +468,9 @@ def test_every_link_on_the_page_is_live():
         try:
             with urllib.request.urlopen(request, timeout=30) as response:
                 assert response.status == 200, f"{url} answered {response.status}"
-        except urllib.error.HTTPError as error:          # a real dead link
+        except urllib.error.HTTPError as error:
+            if error.code >= 500 or error.code == 429:
+                pytest.skip(f"GitHub asset service unavailable: {url} answered {error.code}")
             pytest.fail(f"{url} answered {error.code}")
         except OSError as error:                          # no network
             pytest.skip(f"GitHub unreachable: {error}")

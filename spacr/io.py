@@ -1146,8 +1146,10 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
 
     Instead of MIP-ing each channel to a ``src/<channel>/`` folder and then
     re-reading those folders to merge them (which duplicated the pixel data on
-    disk), this builds an in-memory dict ``{fov_filename: {channel: mip}}`` and
-    concatenates the channels of each FOV into one ``stack/<fov>.npy``. The
+    disk), this projects and writes one field at a time. Only filenames are
+    retained across fields; pixel memory is bounded by one field's channels
+    plus a decoded plane and the output stack. Each z-plane is folded into
+    its channel maximum without materializing an entire z-stack. The
     merge order and MIP maths are identical to the old folder+\\ ``_merge_file``
     path, so the produced stacks are byte-for-byte the same.
 
@@ -1168,7 +1170,8 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     Args:
         src (str): The source directory containing the z-stack images.
         regex (str): The regular expression pattern used to match the filenames of the z-stack images.
-        batch_size (int, optional): The number of images to process in each batch. Defaults to 100.
+        batch_size (int, optional): Retained for call compatibility; raw ingest
+            always streams one field at a time regardless of this value.
         metadata_type (str, optional): The type of metadata associated with the images. Defaults to ''.
         save_original_images (bool, optional): When True (default) the raw input
             images are moved aside into ``src/orig/`` for safekeeping. When
@@ -1229,50 +1232,47 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         if stem_of[key] in existing:
             channels_seen.add(key[3])
 
-    time_ls = []
+    # Keep only filenames plate-wide. Pixel buffers belong to one field at a
+    # time; retaining every MIP here used plate-sized RAM before the first
+    # stack was written (over 100 GB for a 2000 x 2000 multi-channel plate).
+    from .cancellation import checkpoint
+    field_keys = defaultdict(list)
+    for key in pending_keys:
+        field_keys[stem_of[key]].append(key)
+    sorted_channels = sorted({key[3] for key in image_paths_by_key})
     files_to_process = sum(len(image_paths_by_key[key]) for key in pending_keys)
-    fov_channels = {}
-    for idx in range(0, len(pending_keys), batch_size):
+    time_ls = []
+    for stem, keys in field_keys.items():
+        checkpoint()
         start = time.time()
-
-        batch_keys = pending_keys[idx:idx+batch_size]
-        batch_images_by_key = {key: image_paths_by_key[key] for key in batch_keys}
-        images_by_key = load_images_from_paths(batch_images_by_key)
-
-        for i, (key, images) in enumerate(images_by_key.items()):
-
-            plate, well, field, channel, timeID, sliceID = key
-
-            if not images:
-                print(f"Warning: no readable images for {key}, skipping")
-                files_processed += 1
-                continue
-
-            output_filename = stem_of[key] + '.tif'
-
-            mip = np.max(np.stack(images), axis=0)
-            channels_seen.add(channel)
-            _chans = fov_channels.setdefault(output_filename, {})
-            _prev = _chans.get(channel)
-            _chans[channel] = mip if _prev is None else np.maximum(_prev, mip)
-
-            files_processed += 1
-            stop = time.time()
-            duration = stop - start
-            time_ls.append(duration)
-            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
-
-        images_by_key.clear()
-
-    if fov_channels:
-        os.makedirs(stack_path, exist_ok=True)
-    sorted_channels = sorted(channels_seen)
-    for output_filename, chan_mips in fov_channels.items():
-        file_root = os.path.splitext(output_filename)[0]
-        new_file = os.path.join(stack_path, file_root + '.npy')
+        output_filename = stem + '.tif'
+        new_file = os.path.join(stack_path, stem + '.npy')
         if os.path.exists(new_file):
             print(f'WARNING: A file with the same name already exists at location {new_file}')
+            channels_seen.update(key[3] for key in keys)
             continue
+        chan_mips = {}
+        for key in keys:
+            channel = key[3]
+            for path in image_paths_by_key[key]:
+                checkpoint()
+                # Decode one plane, including when a regex groups all z
+                # slices under one key. No z-stack-sized np.stack temporary.
+                loaded = load_images_from_paths({key: [path]})[key]
+                for plane in loaded:
+                    previous = chan_mips.get(channel)
+                    if previous is None:
+                        chan_mips[channel] = plane
+                    elif previous.dtype == plane.dtype:
+                        np.maximum(previous, plane, out=previous)
+                    else:
+                        chan_mips[channel] = np.maximum(previous, plane)
+                    channels_seen.add(channel)
+                loaded.clear()
+                # Loop locals must not retain the last plane of the previous
+                # field while the next field is decoded.
+                plane = previous = None
+                files_processed += 1
         planes = []
         for channel in sorted_channels:
             mip = chan_mips.get(channel)
@@ -1281,10 +1281,21 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 continue
             planes.append(np.expand_dims(mip, axis=2))
         if planes:
+            checkpoint()
+            # A failed read must leave the input folder untouched, including
+            # its directory layout. Create stack/ only when there is a field
+            # ready to publish.
+            os.makedirs(stack_path, exist_ok=True)
             _save_array_atomic(new_file, np.concatenate(planes, axis=2))
         else:
             print(f"No valid channels to merge for file {output_filename}")
-    fov_channels.clear()
+        planes.clear()
+        chan_mips.clear()
+        mip = None
+        time_ls.append(time.time() - start)
+        print_progress(files_processed, files_to_process, n_jobs=1,
+                       time_ls=time_ls, batch_size=1,
+                       operation_type='Preprocessing filenames')
 
     stacked = _stack_field_stems(stack_path)
     if save_original_images:
@@ -1665,8 +1676,11 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     background-removal switch of the object whose ``<object>_channel`` names
     it: the nucleus, the cell, the pathogen, or any organelle slot the run
     enables (``organelle``, ``organelleb``, ...). A slot reads
-    ``<slot>_background``, ``<slot>_signal_to_noise`` and
-    ``remove_background_<slot>``. A channel no object names keeps the generic
+    ``<slot>_background``, ``<slot>_signal_to_noise`` and its background
+    switch, ``remove_background_organelle`` for slot 1 and
+    ``remove_background_organelle_N`` for slot N (the lettered
+    ``remove_background_organelleb`` is still read when a caller passes
+    settings that were never folded). A channel no object names keeps the generic
     ``background``, ``Signal_to_noise`` and ``remove_background``. The three
     are read one by one, so one a slot does not carry, or carries empty, keeps
     the value the channel already had, and when two objects name the same
@@ -1688,6 +1702,8 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     channels = [int(c) for c in channels]
 
     normalized_stack = np.zeros_like(stack, dtype=np.float32)
+
+    from .organelle_types import _background_switch_key
 
     organelle_slot_channels = [
         (role, settings.get(f'{role}_channel'))
@@ -1725,11 +1741,13 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
             if role_signal_to_noise is None:
                 role_signal_to_noise = settings.get('Signal_to_noise', 10)
             signal_threshold = role_signal_to_noise * background
-            role_remove_background = settings.get(f'remove_background_{role}')
+            role_remove_background = settings.get(
+                _background_switch_key(role),
+                settings.get(f'remove_background_{role}'))
             if role_remove_background is not None:
                 remove_background = role_remove_background
 
-        single_channel = stack[:, :, :, channel]
+        single_channel = stack[..., channel]
 
         print(f'Processing channel {channel}: background={background}, signal_threshold={signal_threshold}, remove_background={remove_background}')
 
@@ -1737,6 +1755,8 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
             single_channel[single_channel < background] = 0
 
         non_zero_single_channel = single_channel[single_channel != 0]
+        if not non_zero_single_channel.size:
+            continue
         global_lower = np.percentile(non_zero_single_channel, settings['lower_percentile'])
 
         global_upper = None
@@ -1752,9 +1772,9 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         print(f'Channel {channel}: global_lower={global_lower}, global_upper={global_upper}, Signal-to-noise={global_upper / global_lower}')
 
         for array_index in range(single_channel.shape[0]):
-            arr_2d = single_channel[array_index, :, :]
+            arr_2d = single_channel[array_index]
             arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
-            normalized_stack[array_index, :, :, channel] = arr_2d_normalized
+            normalized_stack[array_index, ..., channel] = arr_2d_normalized
 
         stop = time.time()
         duration = stop - start
@@ -1763,7 +1783,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         files_to_process = len(channels)
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f"Normalizing")
 
-    return normalized_stack.astype(save_dtype)
+    return normalized_stack.astype(save_dtype, copy=False)
 
 _PARTIAL_SUFFIX = '.partial'
 _DAMAGED_SUFFIX = '.damaged'
@@ -3252,16 +3272,201 @@ def _no_stacks_error(src, requested_src, regex, metadata_type):
         f"{len(images)} image file(s) directly in that folder.{hint}")
 
 
+def _volume_file_hash(path):
+    """Hash one immutable source or derived volume in bounded chunks."""
+    import hashlib
+
+    before = os.stat(path)
+    digest = hashlib.sha256()
+    with open(path, 'rb') as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+            digest.update(chunk)
+    after = os.stat(path)
+    if any(getattr(before, key) != getattr(after, key)
+           for key in ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns')):
+        raise ValueError(f'Volume changed while being read: {path}')
+    return digest.hexdigest()
+
+
+def _preprocess_volume_tiffs(settings):
+    """Preserve explicitly labelled ZYX TIFFs through raw Mask preprocessing.
+
+    Each file is one complete field/channel volume. Filename metadata owns
+    field/channel identity, TIFF axes own spatial identity. Raw files stay
+    untouched; an exact source/output receipt guards reuse of existing stacks.
+    Unsupported layouts are refused before writing any stack.
+    """
+    from .settings import set_default_settings_preprocess_img_data
+    from .utils import _get_regex, _extract_filename_metadata
+    from .psf_pipeline import processing_requested
+    from .cancellation import checkpoint
+
+    settings = set_default_settings_preprocess_img_data(settings)
+    src = os.fspath(settings['src'])
+    if settings.get('timelapse') or settings.get('t_stack'):
+        raise ValueError('Raw volumetric TIFF ingest does not combine time and Z; use prepared volumes')
+    if settings.get('z_axis', 0) not in (None, 0):
+        raise ValueError('Raw volumetric TIFF ingest writes canonical ZYXC: z_axis must be 0')
+    if settings.get('test_mode'):
+        raise ValueError('Raw volumetric TIFF ingest needs a source folder of complete volumes; turn test_mode off')
+    if settings.get('illumination_correction') or processing_requested(settings):
+        raise ValueError('Raw volumetric TIFF ingest does not yet support illumination or PSF preprocessing')
+    names = _raw_image_names(src)
+    if not names or any(Path(name).suffix.lower() not in ('.tif', '.tiff') for name in names):
+        raise ValueError('Raw volumetric ingest requires metadata-labelled ZYX TIFF files in src')
+    pattern = re.compile(_get_regex(settings['metadata_type'], 'tif', settings['custom_regex']))
+    parsed = _extract_filename_metadata(names, src, pattern, settings['metadata_type'])
+    if sum(map(len, parsed.values())) != len(names):
+        raise ValueError('Every volumetric TIFF must match the filename metadata pattern')
+    fields = defaultdict(dict)
+    inputs = []
+    for key, paths in sorted(parsed.items(), key=lambda item: str(item[0])):
+        stem = _escaped_field_stem(key[0], key[1], key[2], key[4])
+        channel = key[3]
+        if len(paths) != 1 or channel in fields[stem]:
+            raise ValueError(f'Volume {stem} channel {channel} has multiple files; provide one complete ZYX TIFF per channel')
+        path = paths[0]
+        checkpoint()
+        digest = _volume_file_hash(path)
+        with tifffile.TiffFile(path) as image:
+            if len(image.series) != 1:
+                raise ValueError(f'Volume {path} contains multiple TIFF series; select one explicitly')
+            series = image.series[0]
+            if series.axes != 'ZYX' or len(series.shape) != 3 or min(series.shape) < 2:
+                raise ValueError(f'Volume {path} must explicitly declare ZYX axes with at least two Z planes; got {series.axes} {series.shape}')
+            if series.dtype.kind not in 'uif':
+                raise ValueError(f'Volume {path} must contain real numeric intensities')
+            shape, dtype = tuple(series.shape), str(series.dtype)
+        record = dict(name=os.path.basename(path), field=stem, channel=channel,
+                      sha256=digest, shape=list(shape), dtype=dtype, axes='ZYX')
+        fields[stem][channel] = record
+        inputs.append(record)
+    channels = sorted({channel for field in fields.values() for channel in field})
+    for stem, field in fields.items():
+        if set(field) != set(channels):
+            raise ValueError(f'Volume {stem} is missing channel companions')
+        if len({tuple(row['shape']) for row in field.values()}) != 1:
+            raise ValueError(f'Volume {stem} channels have different ZYX shapes')
+    channel_keys = ['nucleus_channel', 'cell_channel', 'pathogen_channel',
+                    *(f'{role}_channel' for role in ORGANELLE_ROLES)]
+    selected = list(dict.fromkeys(settings[key] for key in channel_keys
+                                 if settings.get(key) is not None))
+    if not selected or any(type(value) is not int or not 0 <= value < len(channels) for value in selected):
+        raise ValueError('Volumetric object channels must index the sorted source-channel list')
+    recipe_keys = {'background', 'Signal_to_noise', 'remove_background',
+                   'lower_percentile', 'normalize', 'segmentation_backend',
+                   'magnification', 'anisotropy', 'seg_qc', 'adjust_cells'}
+    recipe_prefixes = ('nucleus_', 'cell_', 'pathogen_', 'organelle',
+                       'remove_background_', 'z_', 'voxel_size_')
+    recipe = json.loads(json.dumps({
+        key: value for key, value in settings.items()
+        if key in recipe_keys or key.startswith(recipe_prefixes)}, default=str))
+    receipt_path = os.path.join(src, 'stack', '.spacr_volume_ingest.json')
+    stack_path = os.path.dirname(receipt_path)
+    existing = _stack_field_stems(stack_path)
+    if os.path.isfile(receipt_path):
+        with open(receipt_path, encoding='utf8') as handle:
+            content = handle.read(16 * 1024 * 1024 + 1)
+        if len(content) > 16 * 1024 * 1024:
+            raise ValueError('Volumetric source receipt exceeds 16 MiB')
+        receipt = json.loads(content)
+        if not isinstance(receipt, dict) or receipt.get('version') != 1:
+            raise ValueError('Volumetric source receipt has an unsupported format')
+        if (receipt.get('inputs') != inputs or receipt.get('channels') != channels
+                or receipt.get('recipe') != recipe):
+            raise ValueError('Volumetric source identity or processing settings changed; use a fresh output folder')
+        if existing != set(fields):
+            raise ValueError('Volumetric stack inventory differs from its receipt; use a fresh output folder')
+        if set(receipt.get('stacks', {})) != {stem + '.npy' for stem in fields}:
+            raise ValueError('Volumetric stack receipt is incomplete')
+        for name, digest in receipt['stacks'].items():
+            if _volume_file_hash(os.path.join(stack_path, name)) != digest:
+                raise ValueError(f'Volumetric stack changed: {name}')
+    elif existing or any(os.path.exists(os.path.join(src, name)) for name in ('masks', 'merged')):
+        raise ValueError('Existing outputs have no volumetric source receipt; use a fresh output folder')
+    else:
+        staging = tempfile.mkdtemp(prefix='.spacr-volume-', dir=src)
+        try:
+            stacks = {}
+            for stem, field in fields.items():
+                checkpoint()
+                volumes = []
+                for channel in channels:
+                    row = field[channel]
+                    path = os.path.join(src, row['name'])
+                    with tifffile.TiffFile(path) as image:
+                        volume = image.series[0].asarray()
+                    if (list(volume.shape) != row['shape'] or str(volume.dtype) != row['dtype']
+                            or not np.isfinite(volume).all()
+                            or _volume_file_hash(path) != row['sha256']):
+                        raise ValueError(f'Volume changed or contains nonfinite intensities: {path}')
+                    volumes.append(volume)
+                output = os.path.join(staging, stem + '.npy')
+                _save_array_atomic(output, np.stack(volumes, axis=-1))
+                stacks[stem + '.npy'] = _volume_file_hash(output)
+                del volumes, volume
+            for row in inputs:
+                if _volume_file_hash(os.path.join(src, row['name'])) != row['sha256']:
+                    raise ValueError('Volumetric input changed before stack publication')
+            with open(os.path.join(staging, '.spacr_volume_ingest.json'), 'w', encoding='utf8') as handle:
+                json.dump(dict(version=1, axes='ZYXC', inputs=inputs,
+                               channels=channels, recipe=recipe, stacks=stacks), handle, indent=2)
+                handle.write('\n')
+            # Exclusive directory creation protects even a late empty-folder
+            # collision. Publish the completion receipt only after every
+            # immutable stack exists; interrupted folders cannot be reused.
+            os.mkdir(stack_path)
+            published = []
+            try:
+                for name in [*stacks, '.spacr_volume_ingest.json']:
+                    destination = os.path.join(stack_path, name)
+                    os.link(os.path.join(staging, name), destination)
+                    published.append(destination)
+            except BaseException:
+                for destination in reversed(published):
+                    os.unlink(destination)
+                try:
+                    os.rmdir(stack_path)
+                except OSError:
+                    pass
+                raise
+        finally:
+            if os.path.isdir(staging):
+                shutil.rmtree(staging)
+    print('Volumetric TIFF ingest preserves raw files and ZYX planes; normalizing one field at a time.')
+    normalization = dict(settings, batch_size=1, randomize=False, plot=False)
+    concatenate_and_normalize(stack_path, selected, np.float32, normalization)
+    for key in channel_keys:
+        if settings.get(key) is not None:
+            settings[f'cellpose_{key}'] = selected.index(settings[key])
+    settings['channels'] = list(range(len(channels)))
+    settings['z_axis'] = 0
+    return settings, src
+
+
 def preprocess_img_data(settings):
     """Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.
 
     Usually invoked internally by
     :func:`spacr.core.preprocess_generate_masks`, but callable directly
-    when you only want the preprocessing half. Converts z-stacks to MIPs,
+    when you only want the preprocessing half. By default it converts z-stacks to MIPs,
     renames files into the Yokogawa/spacr layout, merges per-channel
     folders into stacked ``.npy`` arrays with optional background
     subtraction and percentile normalization, and (in ``test_mode``)
     emits example plots.
+
+    With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a
+    separate raw TIFF route preserves Z. Each field/channel must be one
+    complete TIFF series explicitly labelled ``ZYX``. Filename metadata
+    identifies the field and channel; ambiguous axes, duplicate channels
+    and missing companions are refused before any stack is written. This
+    route retains the original files even if ``save_original_images`` is
+    false, publishes canonical ``ZYXC`` stacks with a completion record,
+    and normalises one field at a time. Reuse verifies source and stack
+    hashes and relevant processing settings. An old projected stack cannot
+    be reused as a volume. Individual slice-file layouts, time-series,
+    test-mode sampling and illumination or PSF preprocessing are not
+    supported by this raw volumetric route.
 
     Running it again on a plate folder it has already processed resumes
     rather than starting over. Raw images an earlier run moved into
@@ -3287,9 +3492,9 @@ def preprocess_img_data(settings):
         - ``custom_regex`` — override the built-in regex.
         - ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``,
           ``organelle_channel``, ``channels`` — channel selection.
-        - z-stacks are max-projected per field and channel during
-          ``_rename_and_organize_image_files``, before anything reaches
-          ``stack/``, so no setting gates it.
+        - ``z_stack`` and ``z_segmentation_mode`` select the explicit
+          volumetric TIFF route described above. Other raw layouts retain
+          the existing per-field/channel projection behavior.
         - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` /
           ``_organelle`` and each object's ``*_background`` and
           ``*_signal_to_noise`` values. Every organelle slot the run
@@ -3319,6 +3524,8 @@ def preprocess_img_data(settings):
         :func:`spacr.core.preprocess_generate_masks` — full pipeline
         wrapper that calls this then generates masks.
     """
+    if settings.get('z_stack') and settings.get('z_segmentation_mode') == 'volumetric':
+        return _preprocess_volume_tiffs(settings)
     src = settings['src']
     requested_src = src
     
@@ -6151,6 +6358,13 @@ def generate_dataset(settings=None):
         no images are selected, no image could be written, or the
         destination folder cannot be resolved.
 
+    The tar-writing pool is closed and joined, not left to the ``with``
+    block's ``terminate()``: that sends SIGTERM to idle workers, and a
+    worker whose SIGTERM handler needs a lock the interrupted code holds
+    (coverage's ``sigterm = True`` data save does) never exits, so the
+    shutdown waited on it for ever. Workers that finished their tasks are
+    let go by a normal exit instead.
+
     Example:
         .. code-block:: python
 
@@ -6283,6 +6497,8 @@ def generate_dataset(settings=None):
             add_images_to_tar,
             [(paths_chunks[i], temp_tar_files[i], total_images) for i in range(num_procs)]
         )
+        pool.close()
+        pool.join()
 
     print(f"Merging temporary files")
 

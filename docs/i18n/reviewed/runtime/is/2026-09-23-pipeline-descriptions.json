@@ -68,13 +68,6 @@
     },
     {
       "table": "ui",
-      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
-      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
-      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
-      "translation": "Skilgreindu þröskulds- eða marghyrningslaga valmörk út frá raunverulegum eiginda- eða hnitadálkum og beittu síðan vistuðu valmörkunum á samhæfa hluti. Notaðu Annotate til að skrifa sýnd valmörk í merkingardálk; farðu yfir valda hluti og veldu tvíflokka eða fjölflokka merki."
-    },
-    {
-      "table": "ui",
       "key": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
       "source": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
       "source_sha256": "f4df2fba7df0893839a5641cf1a4cb59d69357bd65990f825fd57a5df3c6edeb",
@@ -297,5 +290,15 @@
       "source_sha256": "58db35103d61222a13953662b624c7ea7a0cb41d637097998392b51e007aabe8",
       "translation": "Skrifaðu yfirfarið lassóval í merkingardálk í samsvarandi hlutagagnagrunni og veldu síðan þann dálk í Classify. Skoðaðu myndskurði og sannreyndu merki; klasar í innfellingu eru ekki sannleiksgögn."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "ab5f08eb17068239c0ef031c98a33aeeeec51c7c6ce4060cc659597618c288bc",
+      "translation": "Skilgreindu þröskulds- eða marghyrningslaga valmörk út frá raunverulegum eiginda- eða hnitadálkum og beittu síðan vistuðu valmörkunum á samhæfa hluti. Notaðu Annotate til að skrifa sýnd valmörk í merkingardálk; farðu yfir valda hluti og veldu tvíflokka eða fjölflokka merki."
+    }
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }

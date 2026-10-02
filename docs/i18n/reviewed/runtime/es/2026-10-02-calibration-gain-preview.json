@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "Direct Codex AI technical translation with independent Codex AI peer review; no human/native-speaker signoff.",
+  "draft_author": "merge_interfaces",
+  "technical_reviewer": "root",
+  "draft_sha256": "a7cd2184bda14e27ca65303b6e2bd4ba3d7f8aa174e795b01f7d7ef178fa585c",
+  "peer_review_sha256": "a670aff188b9e5a26b99d464c58e2ae899edc645271e26be9ad32484c371881e",
+  "review": "All twenty new gain-preview captions reviewed for multiplicative intensity factors, microscope fields versus assay plates, reference wells, camera offset, source-folder isolation, first plate in name order, unchanged images/measurements, valid settings and cancellation that discards results while an existing file scan safely finishes. Root module-name and terminology corrections are recorded separately from immutable drafts. Standard context normalization and release gates are unchanged.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Calculate reference-well gains without running Measure or changing files.",
+      "source": "Calculate reference-well gains without running Measure or changing files.",
+      "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+      "translation": "Calcular los factores de ganancia de los pocillos de referencia sin ejecutar Measure ni modificar archivos."
+    },
+    {
+      "table": "ui",
+      "key": "Calculating calibration gains…",
+      "source": "Calculating calibration gains…",
+      "source_sha256": "0e3e64a2616fc53a6d970615ca7a9240a6883c892b3ad6d2eaa5b11052316381",
+      "translation": "Calculando los factores de calibración…"
+    },
+    {
+      "table": "ui",
+      "key": "Calibration gains",
+      "source": "Calibration gains",
+      "source_sha256": "d365b996ea2032e973a5e1c8e5ba08109380f7969593df0c4020f1d33fc2de70",
+      "translation": "Factores de calibración"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a local source folder containing merged arrays.",
+      "source": "Choose a local source folder containing merged arrays.",
+      "source_sha256": "3c43f6a2d78afe3ac83fb0e72dbdce55fac4005c3e93305479fa16c35f23e6bf",
+      "translation": "Seleccione una carpeta de origen local que contenga matrices combinadas."
+    },
+    {
+      "table": "ui",
+      "key": "Discard this preview. Any source scan already running will finish safely.",
+      "source": "Discard this preview. Any source scan already running will finish safely.",
+      "source_sha256": "b9da600c960ba5d78c29f871af048ee750ac514d6876a6d6706414948ebd4a4a",
+      "translation": "Descartar esta vista previa. Cualquier exploración de archivos de origen ya iniciada terminará de forma segura."
+    },
+    {
+      "table": "ui",
+      "key": "Enable intensity calibration before previewing gains.",
+      "source": "Enable intensity calibration before previewing gains.",
+      "source_sha256": "abd81a83888da02409bdc8251cb0e1b0fb37abd210f617076153a41533f58dab",
+      "translation": "Active la calibración de intensidad antes de previsualizar los factores de ganancia."
+    },
+    {
+      "table": "ui",
+      "key": "Finish valid settings before previewing gains.",
+      "source": "Finish valid settings before previewing gains.",
+      "source_sha256": "f55ff1a90326d4a9667e04426e05db481bf4f051b44eaed1e1a3cc2f7ff996cd",
+      "translation": "Complete una configuración válida antes de previsualizar los factores de ganancia."
+    },
+    {
+      "table": "ui",
+      "key": "Gain",
+      "source": "Gain",
+      "source_sha256": "4e125a3ef68a00b029459c9aa8aa94aa07e74cc54188ffef7f60f38f016e61ca",
+      "translation": "Factor de ganancia"
+    },
+    {
+      "table": "ui",
+      "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+      "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+      "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+      "translation": "Los factores de ganancia usan el offset de la cámara y los pocillos de referencia; las imágenes y las mediciones no cambian."
+    },
+    {
+      "table": "ui",
+      "key": "No eligible merged arrays were found.",
+      "source": "No eligible merged arrays were found.",
+      "source_sha256": "d03250c62cb296872f8c6e3aae17d97c198fa87be7292a07f9bc2749a51a4629",
+      "translation": "No se encontraron matrices combinadas aptas."
+    },
+    {
+      "table": "ui",
+      "key": "Preview complete. No images or measurements were changed.",
+      "source": "Preview complete. No images or measurements were changed.",
+      "source_sha256": "b27e2ea81803586699e0c3cdd32fec68ce883154d64eda6dfa3440b9dd52b556",
+      "translation": "Vista previa completada. No se modificaron imágenes ni mediciones."
+    },
+    {
+      "table": "ui",
+      "key": "Preview gains",
+      "source": "Preview gains",
+      "source_sha256": "dfb570044dbb3bfa8fc8d38fbe21d4db47207fd65d9181081dd110e469d9b121",
+      "translation": "Previsualizar ganancias"
+    },
+    {
+      "table": "ui",
+      "key": "Preview only: each source folder is planned separately.",
+      "source": "Preview only: each source folder is planned separately.",
+      "source_sha256": "b62844589a9e007612c6be2cdee27ea161ccd57416a4a45dd41d343d795748f1",
+      "translation": "Solo vista previa: cada carpeta de origen se planifica por separado."
+    },
+    {
+      "table": "ui",
+      "key": "Reference fields",
+      "source": "Reference fields",
+      "source_sha256": "9b485a318534f5d188cd364a548ed7320f8dd2d62831424c0c41923fdf6752e2",
+      "translation": "Campos de imagen de referencia"
+    },
+    {
+      "table": "ui",
+      "key": "Reference plate",
+      "source": "Reference plate",
+      "source_sha256": "334cfb3f7491349813ea62b2f76098c9d25a05b99aa1cc0035a044cab8004509",
+      "translation": "Placa de referencia"
+    },
+    {
+      "table": "ui",
+      "key": "Reference statistic",
+      "source": "Reference statistic",
+      "source_sha256": "1906b72c59b141c7805ac0554b74e5a2ee1f26750d6cafab5e234ff37ebd2191",
+      "translation": "Estadístico de referencia"
+    },
+    {
+      "table": "ui",
+      "key": "Settings changed. Preview the gains again.",
+      "source": "Settings changed. Preview the gains again.",
+      "source_sha256": "a75b6608a7cfa430a6a2e07ae1844dd993afdd5a2018d1133eacd5bcb0024b0f",
+      "translation": "La configuración ha cambiado. Vuelva a previsualizar los factores de ganancia."
+    },
+    {
+      "table": "ui",
+      "key": "Some merged arrays could not be read. Check the source files.",
+      "source": "Some merged arrays could not be read. Check the source files.",
+      "source_sha256": "8bf706e834a57d6a034497355710940559b1660540af1da8eb1b0423691dd817",
+      "translation": "No se pudieron leer algunas matrices combinadas. Revise los archivos de origen."
+    },
+    {
+      "table": "ui",
+      "key": "The first plate by name is the reference.",
+      "source": "The first plate by name is the reference.",
+      "source_sha256": "9330ed298c868c1e172f2bb044de20850754da1e5e18bf08f9a0343fadb5d51c",
+      "translation": "La primera placa por nombre es la referencia."
+    },
+    {
+      "table": "ui",
+      "key": "Turn off Test mode to preview gains for all source fields.",
+      "source": "Turn off Test mode to preview gains for all source fields.",
+      "source_sha256": "a3723287033d400bf6ce0fca5d3c1341beac8178ad007b734abe911669828190",
+      "translation": "Desactive Modo de prueba para previsualizar los factores de ganancia de todos los campos de imagen de origen."
+    }
+  ]
+}

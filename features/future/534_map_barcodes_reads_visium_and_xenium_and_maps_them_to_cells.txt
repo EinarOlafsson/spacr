@@ -120,10 +120,30 @@ VALIDATION (CPU only; data in /mnt/firecuda2/codex/scratch-docs/534)
 
 LEFT
   * A real infected-tissue Visium/Xenium dataset to replace the stand-in.
-  * Load and Assign run on the GUI thread (fine for the 10x examples; a
-    full Xenium slide should move to a worker).
   * spatialdata-io / SpatialData .zarr output, Visium HD run on real HD
     data (reader tested only on the layout), intensity registration across
     modalities (H&E vs IF) usually needs landmarks.
   * Optional dependencies for the maintainer: h5py (10x .h5), pyarrow
     (parquet), anndata (.h5ad export).
+
+2026-10-01 — RESPONSIVE LOAD / ASSIGN CONTROLS
+The actual Load/register and Assign/write buttons now run private worker jobs
+(commits 4ac7527eb, 74ace76e8). Canvas updates remain on the Qt thread. Input
+snapshots and generation checks reject stale results, duplicate writes are
+blocked, and close/destruction suppresses delivery. A reopened panel cannot
+start another write while the previous computation is still finishing.
+Cancellation before writing prevents the write; an already-started write is
+allowed to finish without claiming rollback. Existing public load/run methods
+remain synchronous for compatibility.
+
+Validation: 13 distinct focused worker/legacy cases passed across bounded
+cohorts, including the five affected lifecycle cases after the destruction
+follow-up. An initial 1 GiB guard terminated a run; checks used the existing
+4 GiB allowance thereafter, with numerical threads limited to one (not an OS
+CPU quota). New test lint is clean; seven existing source import findings are
+unchanged. No public API or translated caption changes were introduced.
+
+Limit: an already-hidden parent accepting close without deletion has no
+observable visibility transition; its job may finish. Real infected tissue,
+SpatialData output and real Visium HD acceptance remain outstanding above.
+The feature remains alpha/partial overall.

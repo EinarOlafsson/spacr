@@ -125,6 +125,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import tempfile
 import time
 from dataclasses import dataclass
@@ -968,12 +969,26 @@ def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
         if foreground is None:
             continue
         coefficients = blob['Foreground']['Profile']['Coefficients']
-        profiles[int(channel)] = {
+        candidate = {
             'foreground': foreground,
             'background': _harmony_surface(blob.get('Background')),
             'degree': max(len(coefficients) - 1, 0),
             'name': str(blob.get('ChannelName', '') or ''),
         }
+        channel = int(channel)
+        if channel in profiles:
+            previous = profiles[channel]
+            same_foreground = np.array_equal(previous['foreground'], foreground)
+            old_dark, new_dark = previous['background'], candidate['background']
+            same_background = ((old_dark is None and new_dark is None)
+                               or (old_dark is not None and new_dark is not None
+                                   and np.array_equal(old_dark, new_dark)))
+            if not same_foreground or not same_background:
+                raise IlluminationError(
+                    f"{path!r} contains conflicting Harmony flat-field "
+                    f"profiles for channel {channel}; select an unambiguous export.")
+            continue
+        profiles[channel] = candidate
     if not profiles:
         raise IlluminationError(
             f"{path!r} contains no Harmony FlatfieldProfile with a "
@@ -1022,8 +1037,41 @@ def _vendor_reference_image(path: str) -> np.ndarray:
     return image
 
 
+def _parse_vendor_channel_map(value: str, channels: Sequence[int]) -> Dict[int, int]:
+    """Parse an explicit intensity-axis to vendor-profile assignment.
+
+    :param value: comma-separated zero-based:one-based channel pairs, or blank.
+    :param channels: persisted intensity-axis positions being corrected.
+    :returns: integer mapping, or an empty dict for the legacy default order.
+    :raises IlluminationError: for malformed, duplicated or incomplete pairs.
+    """
+    text = str(value or '').strip()
+    if not text:
+        return {}
+    mapping = {}
+    for pair in text.split(','):
+        match = re.fullmatch(r'\s*(\d+)\s*:\s*(\d+)\s*', pair)
+        if match is None:
+            raise IlluminationError(
+                "illumination_vendor_channel_map must use comma-separated "
+                "zero-based intensity:one-based vendor pairs, for example 0:2,1:1.")
+        channel, vendor = (int(value) for value in match.groups())
+        if vendor < 1 or channel in mapping:
+            raise IlluminationError(
+                "illumination_vendor_channel_map needs one assignment per intensity "
+                "channel and vendor channel/plane numbers starting at 1.")
+        mapping[channel] = vendor
+    missing = sorted(set(int(channel) for channel in channels) - set(mapping))
+    if missing:
+        raise IlluminationError(
+            "illumination_vendor_channel_map does not cover corrected intensity "
+            f"channel(s) {missing}; add an explicit assignment for each.")
+    return mapping
+
+
 def _vendor_illumination(path: str, channels: Sequence[int], *,
                          dark: float = 0.0,
+                         channel_map: str = '',
                          verbose: bool = True) -> IlluminationModel:
     """Build an :class:`IlluminationModel` from a vendor flat-field file.
 
@@ -1046,7 +1094,13 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
     :param path: the vendor file.
     :param channels: merged-stack channel indices to correct.
     :param dark: camera offset in raw counts.
+    :param channel_map: optional comma-separated intensity:vendor pairs, e.g.
+        ``0:2,1:1``. Intensity positions are zero-based, Harmony IDs and image
+        planes one-based. Every corrected channel must be covered; entries
+        for other intensity channels may be retained when selecting a subset.
+        Blank keeps the existing channel order and single-plane broadcasting.
     :param verbose: print the resulting field's description.
+    :returns: model with resolved channel mapping in its saved metadata.
     :raises IlluminationError: when the file does not cover a channel, or a
         plane cannot be inverted.
     """
@@ -1059,36 +1113,44 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
         raise IlluminationError(
             'a vendor flat-field profile needs at least one channel to apply '
             'to; settings["channels"] is empty.')
+    try:
+        with np.errstate(over='ignore', invalid='ignore'):
+            scalar_dark = np.float32(float(dark))
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise IlluminationError('vendor camera offset must be a finite number') from exc
+    if not np.isfinite(scalar_dark):
+        raise IlluminationError('vendor camera offset must be finite in float32')
+    explicit_mapping = _parse_vendor_channel_map(channel_map, channels)
+    resolved_mapping = {c: explicit_mapping.get(c, c + 1) for c in channels}
     suffix = os.path.splitext(path)[1].lower()
     darkfield = None
     if suffix == '.xml':
         profiles = _harmony_profiles(path)
-        missing = [c for c in channels if c + 1 not in profiles]
+        missing = [c for c in channels if resolved_mapping[c] not in profiles]
         if missing:
             raise IlluminationError(
                 f"{path!r} has Harmony profiles for channels "
                 f"{sorted(profiles)} (1-based), but merged channel(s) "
                 f"{missing} need Harmony channel(s) "
-                f"{[c + 1 for c in missing]}.")
-        planes = [profiles[c + 1]['foreground'] for c in channels]
-        backgrounds = [profiles[c + 1]['background'] for c in channels]
-        if any(b is not None for b in backgrounds):
-            darkfield = np.stack(
-                [np.zeros_like(planes[i]) if b is None else b
-                 for i, b in enumerate(backgrounds)]).astype(np.float32)
+                f"{[resolved_mapping[c] for c in missing]}.")
+        planes = [profiles[resolved_mapping[c]]['foreground'] for c in channels]
+        backgrounds = [profiles[resolved_mapping[c]]['background'] for c in channels]
         estimator = 'harmony'
-        degree = max(profiles[c + 1]['degree'] for c in channels)
+        degree = max(profiles[resolved_mapping[c]]['degree'] for c in channels)
     elif suffix in _VENDOR_IMAGE_SUFFIXES:
         image = _vendor_reference_image(path)
-        if image.shape[0] == 1:
+        if image.shape[0] == 1 and not explicit_mapping:
+            resolved_mapping = {c: 1 for c in channels}
             planes = [image[0] - float(dark) for _ in channels]
         else:
-            missing = [c for c in channels if not 0 <= c < image.shape[0]]
+            missing = [c for c in channels
+                       if not 1 <= resolved_mapping[c] <= image.shape[0]]
             if missing:
                 raise IlluminationError(
                     f"{path!r} has {image.shape[0]} plane(s), but merged "
-                    f"channel(s) {missing} were asked for.")
-            planes = [image[c] - float(dark) for c in channels]
+                    f"channel(s) {missing} request vendor plane(s) "
+                    f"{[resolved_mapping[c] for c in missing]} (1-based).")
+            planes = [image[resolved_mapping[c] - 1] - float(dark) for c in channels]
         planes = [plane / max(float(plane.mean()), 1e-12) for plane in planes]
         estimator = 'vendor image'
         degree = 0
@@ -1102,9 +1164,27 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
         raise IlluminationError(
             f"the profiles in {path!r} differ in size between channels "
             f"({sorted(shapes)}); one correction cannot cover them all.")
-    flatfield = np.stack(planes).astype(np.float32)
+    if suffix == '.xml' and any(b is not None for b in backgrounds):
+        for channel, plane, background in zip(channels, planes, backgrounds):
+            if background is not None and background.shape != plane.shape:
+                raise IlluminationError(
+                    f"the Harmony background for channel {resolved_mapping[channel]} "
+                    f"has shape {background.shape}, but its foreground has "
+                    f"shape {plane.shape}; calibration grids must match exactly.")
+        with np.errstate(over='ignore', invalid='ignore'):
+            darkfield = np.stack(
+                [np.zeros_like(planes[i]) if b is None else b
+                 for i, b in enumerate(backgrounds)]).astype(np.float32)
+        if not np.isfinite(darkfield).all():
+            raise IlluminationError(
+                f"the vendor spatial background in {path!r} must be finite in float32.")
+    with np.errstate(over='ignore', invalid='ignore'):
+        flatfield = np.stack(planes).astype(np.float32)
+    if not np.isfinite(flatfield).all():
+        raise IlluminationError(
+            f"the vendor flat field in {path!r} must be finite in float32.")
     low = float(flatfield.min())
-    if not np.isfinite(low) or low <= 0:
+    if low <= 0:
         raise IlluminationError(
             f"the vendor flat field in {path!r} reaches {low!r}; a gain map "
             f"that is not strictly positive cannot be inverted.")
@@ -1123,6 +1203,8 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
         print(item.describe())
     meta = {
         'vendor_profile': path,
+        'vendor_channel_map': {str(c): resolved_mapping[c] for c in channels},
+        'vendor_channel_map_explicit': bool(explicit_mapping),
         'channels': channels,
         'per_plate': False,
         'estimator': estimator,
@@ -2324,15 +2406,16 @@ def prepare_illumination_model(
         verbose: Optional[bool] = None) -> Optional[PreparedIllumination]:
     """Prepare one reusable optical model without installing a Measure hook.
 
-    This is the direct consumer of all ten ``illumination_*`` settings.  It
+    This is the direct consumer of the ``illumination_*`` settings.  It
     estimates, loads or reads a vendor flat-field profile into the model once, ensures a fitted model is saved, hashes
     the exact saved bytes, optionally writes stage-labelled QC, and builds a
     corrector.  Applying that corrector belongs to the caller's stage.
 
-    :param settings: settings carrying the ten illumination controls. A
+    :param settings: settings carrying the illumination controls. A
         non-empty ``illumination_vendor_profile`` replaces the estimate with
-        the vendor's own flat field; ``illumination_model`` still wins over
-        both.
+        the vendor's own flat field; ``illumination_vendor_channel_map``
+        optionally assigns persisted channels to vendor channels/planes.
+        ``illumination_model`` still wins over both.
     :param src: optional raw field folder override. Defaults to ``settings['src']``.
     :param channels: optional persisted intensity-axis positions. Defaults to
         ``settings['channels']``.
@@ -2366,6 +2449,7 @@ def prepare_illumination_model(
         model = _vendor_illumination(
             vendor, wanted,
             dark=float(settings.get('illumination_dark', 0.0)),
+            channel_map=settings.get('illumination_vendor_channel_map', ''),
             verbose=talk)
         model_path = os.path.join(folder, 'illumination_model.npz')
     else:
@@ -2423,8 +2507,8 @@ def prepare_illumination_correction(settings: Mapping[str, Any], *,
         ``illumination_estimator``, ``illumination_degree``,
         ``illumination_per_plate``, ``illumination_max_fields``,
         ``illumination_dark``, ``illumination_on_missing``,
-        ``illumination_qc``, ``illumination_vendor_profile``, plus ``src``
-        and ``channels``.
+        ``illumination_qc``, ``illumination_vendor_profile``,
+        ``illumination_vendor_channel_map``, plus ``src`` and ``channels``.
     :param verbose: overrides ``settings['verbose']``.
     :returns: the :class:`IlluminationModel` that was enabled, or None.
     """
@@ -2496,6 +2580,7 @@ def illumination_settings(settings=None):
     settings.setdefault('illumination_on_missing', 'error')
     settings.setdefault('illumination_qc', True)
     settings.setdefault('illumination_vendor_profile', '')
+    settings.setdefault('illumination_vendor_channel_map', '')
     return settings
 
 
@@ -2549,6 +2634,15 @@ _TOOLTIPS = {
         'and the percentage of the position bias the correction removed. '
         'The figure has low computational cost and provides direct '
         'verification of the correction. Default True.'),
+    'illumination_vendor_channel_map': (
+        '(str) - Assign saved intensity channels to a vendor flat-field calibration. '
+        'Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. '
+        'Intensity channel numbers start at 0. Calibration channel or image-layer '
+        'numbers start at 1. Include every corrected intensity channel. '
+        'An empty value keeps the original channel order. With an empty value, '
+        'a single calibration image layer applies to all channels. Select a vendor calibration '
+        'file first. A saved illumination model takes priority. '
+        'Default empty.'),
     'illumination_vendor_profile': (
         '(str) - Path to the flat-field correction the microscope software '
         'saved, used instead of estimating one from the fields: a Harmony '
@@ -2570,6 +2664,7 @@ _TYPES = {
     'illumination_on_missing': str,
     'illumination_qc': bool,
     'illumination_vendor_profile': str,
+    'illumination_vendor_channel_map': str,
 }
 
 _DESCRIPTION = (
@@ -2595,7 +2690,7 @@ def register_illumination_settings(replace: bool = False) -> bool:
     so contributing categories would make that test's result depend on which
     files pytest was pointed at.
 
-    The ten keys ARE filed under a heading -- "Illumination Correction" in
+    The illumination keys ARE filed under a heading -- "Illumination Correction" in
     ``spacr.settings.categories`` -- and Measure's panel offers every one of
     them, because ``measure_crop`` calls
     :func:`prepare_illumination_correction` itself and these are the keys

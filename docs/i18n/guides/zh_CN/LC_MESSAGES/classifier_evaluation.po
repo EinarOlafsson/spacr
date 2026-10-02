@@ -1,0 +1,207 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Classifier evaluation workbench"
+msgstr "分类器评估工作台"
+
+msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead, because judging a classifier is the sentence after training one. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
+msgstr "分类器交叉验证会保留每个折外（out-of-fold）概率，而不是把每一折简化为一个准确率数字。工作台没有自己的磁贴：它从 **分类** 标题栏打开，因为评估分类器是训练之后的下一步。在那里按下 **分类器评估**，然后将模型/结果文件夹拖放到页面上。扫描在后台运行，并查找该文件夹下的所有 ``evaluation_manifest.json``。"
+
+msgid "The workbench shows:"
+msgstr "工作台显示："
+
+msgid "overall accuracy, balanced accuracy, macro precision/recall/F1, log loss, and expected calibration error;"
+msgstr "总体准确率、平衡准确率、宏平均精确率/召回率/F1、对数损失以及期望校准误差；"
+
+msgid "raw counts and row-normalized confusion matrices for any number of classes;"
+msgstr "任意类别数的原始计数混淆矩阵和按行归一化的混淆矩阵；"
+
+msgid "the same metrics separately for every plate;"
+msgstr "按每块孔板分别计算的相同指标；"
+
+msgid "cross-fitted calibration curves and per-class reliability bins;"
+msgstr "交叉拟合的校准曲线和逐类别的可靠性分箱；"
+
+msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
+msgstr "可搜索的留出预测，包括孔板、孔、视野、对象、置信度以及原始/校准后的类别概率；以及"
+
+msgid "an explicit leakage report for every outer and inner split."
+msgstr "针对每个外层和内层划分的明确泄漏报告。"
+
+msgid "Crop decoding and existing models"
+msgstr "裁剪图解码与现有模型"
+
+msgid "Image classifiers must see the same channel order and intensity conversion during training and prediction. New training runs use ``declared_uint8_v1`` and save it in the checkpoint's ``preprocessing.crop_loading_policy`` record. Folder and tar inputs use the same decoder: crop formats 1 and 3 already have declared channel order; format 2 has its channels reversed. EXIF orientation is applied before decoding."
+msgstr "图像分类器在训练和预测时必须看到相同的通道顺序和强度转换。新的训练运行使用 ``declared_uint8_v1``，并将其保存在检查点的 ``preprocessing.crop_loading_policy`` 记录中。文件夹输入和 tar 输入使用相同的解码器：裁剪图格式 1 和 3 已有声明的通道顺序；格式 2 的通道顺序是反转的。解码前会应用 EXIF 方向。"
+
+msgid "For unsigned 16-bit crops, decoding keeps the high byte instead of clipping every value above 255. For example, intensities ``[0, 256, 1024, 32768, 65535]`` become ``[0, 1, 4, 128, 255]``. This converts the classifier input to eight bits; it does not preserve the full precision of the original scientific image or modify that source file."
+msgstr "对于无符号 16 位裁剪图，解码会保留高位字节，而不是把所有高于 255 的值截断。例如，强度 ``[0, 256, 1024, 32768, 65535]`` 会变为 ``[0, 1, 4, 128, 255]``。这会把分类器输入转换为 8 位；它不会保留原始科学图像的完整精度，也不会修改该源文件。"
+
+msgid "Existing checkpoints without a decoding record keep ``stored_pil_v1``, the historical PIL RGB conversion and stored channel order. spaCR reports this fallback when loading the model. This policy can clip high-bit-depth crops, but changing it for an already trained model would change its inputs. Retrain and evaluate a new model to adopt the new decoding policy. Resuming or fine-tuning retains the checkpoint's policy. Training and validation policies must agree, and fusion or teacher models with conflicting policies cannot be combined."
+msgstr "没有解码记录的现有检查点保留 ``stored_pil_v1``，即历史上的 PIL RGB 转换和存储的通道顺序。加载模型时，spaCR 会报告这一回退。此策略可能会截断高位深的裁剪图，但对已训练的模型更改该策略会改变其输入。如需采用新的解码策略，请重新训练并评估新模型。继续训练或微调会保留检查点的策略。训练和验证的策略必须一致，策略冲突的融合模型或教师模型不能组合使用。"
+
+msgid "When constructing loaders through the API, pass the checkpoint policy to ``crop_loading_policy`` in :func:`spacr.io.generate_loaders` or :func:`spacr.io.generate_cv_loaders`. Use :func:`spacr.classification_pixels.checkpoint_policy` to read that contract; :func:`spacr.classification_pixels.read_classification_image` and :func:`spacr.crops.decode_crop_image` document the decoding operations."
+msgstr "通过 API 构建数据加载器时，请将检查点策略传给 :func:`spacr.io.generate_loaders` 或 :func:`spacr.io.generate_cv_loaders` 中的 ``crop_loading_policy``。使用 :func:`spacr.classification_pixels.checkpoint_policy` 读取该约定；:func:`spacr.classification_pixels.read_classification_image` 和 :func:`spacr.crops.decode_crop_image` 记录了解码操作。"
+
+msgid "Grouped and nested cross-validation"
+msgstr "分组交叉验证与嵌套交叉验证"
+
+msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
+msgstr "``cross_validation_folds`` 控制外层折数，``cv_group_by`` 使相关的视野、孔或孔板保持在一起。默认按孔分组进行交叉验证。将 ``nested_cv_inner_folds`` 设为 2 或更大即可启用真正的嵌套交叉验证。"
+
+msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This is fast and useful for routine comparisons, but can give a slightly optimistic estimate when many choices are made against that fold."
+msgstr "在普通交叉验证中，外层验证折同时用于选择检查点和报告性能。这种方式速度快，适合日常比较，但当针对该折做出许多选择时，可能给出略微乐观的估计。"
+
+msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
+msgstr "在嵌套交叉验证中，每个外层训练分区会再次划分。模型只针对内层验证折选择检查点；未触碰的外层折只用于一次最终评分。内层模型为该外层折构成一个集成。这需要 ``cross_validation_folds * nested_cv_inner_folds`` 次训练运行，但能使模型选择与性能估计相互分离。"
+
+msgid "Leakage protection"
+msgstr "泄漏防护"
+
+msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises an actionable error before model fitting. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
+msgstr "训练之前，spaCR 会在每个划分的两侧检查精确路径、数据增强族、对象以及配置的分组层级。使用 ``evaluation_fail_on_leakage=True`` （默认）时，任何受保护的重叠都会在模型拟合前引发一个可据以处理的错误。数据增强在划分之后生成，因此变换后的副本无法进入留出折。"
+
+msgid "Temperature calibration"
+msgstr "温度校准"
+
+msgid "``evaluation_calibration=temperature`` fits a scalar temperature without using a prediction to calibrate itself. For each held-out outer fold, the temperature is fit only from the other folds. Set it to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
+msgstr "``evaluation_calibration=temperature`` 拟合一个标量温度，且不会用某个预测来校准其自身。对于每个留出的外层折，温度仅根据其他折拟合。将其设为 ``none`` 可保留模型的原始概率。``evaluation_bins`` 控制可靠性表以及期望校准误差的分辨率。"
+
+msgid "Evaluation bundle"
+msgstr "评估文件集"
+
+msgid "The ``evaluation`` folder contains:"
+msgstr "``evaluation`` 文件夹包含："
+
+msgid "``oof_predictions.csv``"
+msgstr "``oof_predictions.csv``"
+
+msgid "One held-out row per crop, including identities and class probabilities."
+msgstr "每个裁剪图一行留出结果，包括标识和类别概率。"
+
+msgid "``confusion_counts.csv`` and ``confusion_normalized.csv``"
+msgstr "``confusion_counts.csv`` 和 ``confusion_normalized.csv``"
+
+msgid "Arbitrary-class confusion matrices."
+msgstr "任意类别的混淆矩阵。"
+
+msgid "``per_plate_metrics.csv`` and ``calibration.csv``"
+msgstr "``per_plate_metrics.csv`` 和 ``calibration.csv``"
+
+msgid "Plate-specific quality and reliability-bin statistics."
+msgstr "孔板特定的质量和可靠性分箱统计。"
+
+msgid "``leakage.json``"
+msgstr "``leakage.json``"
+
+msgid "The auditable split checks, overlap counts, examples and warnings."
+msgstr "可审计的划分检查、重叠计数、示例和警告。"
+
+msgid "``summary.json`` and ``evaluation_manifest.json``"
+msgstr "``summary.json`` 和 ``evaluation_manifest.json``"
+
+msgid "Machine-readable overall results and the stable bundle schema."
+msgstr "机器可读的总体结果和稳定的文件集模式。"
+
+msgid "The Python entry points are :func:`spacr.classifier_evaluation.evaluate_predictions`, :func:`spacr.classifier_evaluation.audit_split_leakage`, :func:`spacr.classifier_evaluation.nested_group_folds`, :func:`spacr.classifier_evaluation.write_evaluation_bundle`, and :func:`spacr.classifier_evaluation.load_evaluation_bundle`."
+msgstr "Python 入口点为 :func:`spacr.classifier_evaluation.evaluate_predictions`、:func:`spacr.classifier_evaluation.audit_split_leakage`、:func:`spacr.classifier_evaluation.nested_group_folds`、:func:`spacr.classifier_evaluation.write_evaluation_bundle` 和 :func:`spacr.classifier_evaluation.load_evaluation_bundle`。"
+
+msgid "Orientation stability during inference"
+msgstr "推理时的方向稳定性"
+
+msgid "In **Classify**, with ``classifier_family`` set to ``cv``, the **Test-time augmentation** settings apply selected rotations and reflections when scoring phenotype crops. This is an inference option; it does not change training augmentation or the held-out evaluation procedure described above. Leave it disabled when orientation is biologically meaningful."
+msgstr "在 **分类** 中，当 ``classifier_family`` 设为 ``cv`` 时，**推理时数据增强** 设置会在为表型裁剪图打分时应用所选的旋转和镜像。这是一个推理选项；它不会改变训练时的数据增强，也不会改变上文所述的留出评估流程。当方向具有生物学意义时，请保持禁用。"
+
+msgid "Enable ``tta_enabled`` and choose the transformations to evaluate:"
+msgstr "启用 ``tta_enabled`` 并选择要评估的变换："
+
+msgid "``tta_rotations`` adds 90, 180 and 270 degree rotations without pixel interpolation."
+msgstr "``tta_rotations`` 添加 90、180 和 270 度旋转，且不进行像素插值。"
+
+msgid "``tta_horizontal_flip`` adds horizontal reflections of the selected rotations; ``tta_vertical_flip`` adds vertical reflections."
+msgstr "``tta_horizontal_flip`` 为所选旋转添加水平镜像；``tta_vertical_flip`` 添加垂直镜像。"
+
+msgid "The original orientation is always included. Equivalent orientations are evaluated once, giving at most eight views when all options are enabled. Enabling the feature without selecting transformations evaluates only the original view."
+msgstr "原始方向始终包含在内。等效方向只评估一次，因此启用所有选项时最多有八个视图。启用该功能但未选择任何变换时，只评估原始视图。"
+
+msgid "``tta_aggregation=probability_mean`` selects a label from the mean class probabilities. ``majority_vote`` instead counts the labels of individual views; ties prefer the higher mean probability, then the lower class index. For binary predictions, ``score_threshold`` labels each view before agreement and voting are calculated."
+msgstr "``tta_aggregation=probability_mean`` 根据平均类别概率选择标签。``majority_vote`` 则统计各个视图的标签；平票时优先选择平均概率较高者，其次是类别索引较小者。对于二元预测，``score_threshold`` 会在计算一致性和投票之前为每个视图打标签。"
+
+msgid "The enabled output retains both the original prediction and the aggregated result:"
+msgstr "启用后的输出同时保留原始预测和汇总结果："
+
+msgid "Column"
+msgstr "列"
+
+msgid "Meaning"
+msgstr "含义"
+
+msgid "``pred``, ``prediction_mean``"
+msgstr "``pred``, ``prediction_mean``"
+
+msgid "Mean positive-class probability for binary output, or mean probability of the selected class for multiclass output."
+msgstr "二元输出时为正类的平均概率，多类输出时为所选类别的平均概率。"
+
+msgid "``predicted_label``"
+msgstr "``predicted_label``"
+
+msgid "Class selected by the configured aggregation method. The tar workflow's ``cv_predictions`` uses this label too."
+msgstr "由所配置的汇总方法选出的类别。tar 工作流程的 ``cv_predictions`` 也使用此标签。"
+
+msgid "``original_pred``, ``original_predicted_label``"
+msgstr "``original_pred``, ``original_predicted_label``"
+
+msgid "Score and label from the original orientation before aggregation."
+msgstr "汇总之前原始方向的分数和标签。"
+
+msgid "``prediction_std``"
+msgstr "``prediction_std``"
+
+msgid "Population standard deviation across views of the positive-class probability for binary output, or the selected-class probability for multiclass output."
+msgstr "二元输出时为各视图正类概率的总体标准差，多类输出时为所选类别概率的总体标准差。"
+
+msgid "``transform_agreement``"
+msgstr "``transform_agreement``"
+
+msgid "Fraction of view labels matching the selected label."
+msgstr "与所选标签一致的视图标签比例。"
+
+msgid "``review_flag``, ``tta_views``"
+msgstr "``review_flag``, ``tta_views``"
+
+msgid "Whether the stability thresholds request review, and the number of distinct views scored."
+msgstr "稳定性阈值是否要求审查，以及已打分的不同视图数量。"
+
+msgid "``prob_class_<i>``, ``original_prob_class_<i>``, ``prob_class_<i>_std``"
+msgstr "``prob_class_<i>``, ``original_prob_class_<i>``, ``prob_class_<i>_std``"
+
+msgid "Mean probability, original probability and population standard deviation for each class index."
+msgstr "每个类别索引的平均概率、原始概率和总体标准差。"
+
+msgid "With majority voting, retain ``predicted_label`` or ``cv_predictions`` as the selected result. Thresholding ``pred`` again can produce a different label because ``pred`` still stores a mean probability."
+msgstr "使用多数投票时，请将 ``predicted_label`` 或 ``cv_predictions`` 作为所选结果。再次对 ``pred`` 设定阈值可能得到不同的标签，因为 ``pred`` 存储的仍是平均概率。"
+
+msgid "An object is flagged when agreement is below ``tta_min_agreement`` (default 0.75) or probability standard deviation exceeds ``tta_max_std`` (default 0.15). Agreement measures stability across orientations, not calibrated confidence or accuracy on independent data. Compare results on a separate validation set before choosing these options for an experiment."
+msgstr "当一致性低于 ``tta_min_agreement`` （默认 0.75）或概率标准差超过 ``tta_max_std`` （默认 0.15）时，对象会被标记。一致性衡量的是跨方向的稳定性，而不是经过校准的置信度或在独立数据上的准确率。在为实验选择这些选项之前，请在单独的验证集上比较结果。"
+
+msgid "For directory input, pass the options as keyword arguments to :func:`spacr.deep_spacr.apply_model`. For tar input, supply the same keys in the settings passed to :func:`spacr.deep_spacr.apply_model_to_tar`. :func:`spacr.inference_augmentation.transforms_for` defines the distinct views and :func:`spacr.inference_augmentation.predict_augmented` documents the aggregation contract. Disabled augmentation preserves ordinary inference."
+msgstr "对于目录输入，请将这些选项作为关键字参数传给 :func:`spacr.deep_spacr.apply_model`。对于 tar 输入，请在传给 :func:`spacr.deep_spacr.apply_model_to_tar` 的设置中提供相同的键。:func:`spacr.inference_augmentation.transforms_for` 定义了不同的视图，:func:`spacr.inference_augmentation.predict_augmented` 记录了汇总约定。禁用数据增强时保持普通推理不变。"
+

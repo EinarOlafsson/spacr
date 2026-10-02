@@ -250,13 +250,6 @@
       "translation": "Cartographier l'incertitude de ce champ"
     },
     {
-      "table": "ui",
-      "key": "Mapping segmentation uncertainty: four detection runs…",
-      "source": "Mapping segmentation uncertainty: four detection runs…",
-      "source_sha256": "c9c443b58a7546c273183ee8ab5dc5d323afeb3b7f72b7cfc3d628267d64f3d7",
-      "translation": "Cartographie de l'incertitude de segmentation : quatre détections…"
-    },
-    {
       "table": "setting_labels",
       "key": "measure_gpu",
       "source": "Measure GPU",
@@ -453,13 +446,6 @@
       "translation": "Le classement par incertitude annulerait l'ordre en aveugle. Levez d'abord l'aveugle."
     },
     {
-      "table": "ui",
-      "key": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
-      "source": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
-      "source_sha256": "6c519545d490a13d4c697f617549327dcccf8e2e02377b2a1e9422fb38dbcb3b",
-      "translation": "Classement de {count} champs par incertitude de segmentation : quatre détections par champ…"
-    },
-    {
       "table": "categories",
       "key": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
       "source": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
@@ -549,13 +535,6 @@
       "source": "Seconds between the timelapse images of one event when microscope_timepoints is above 1. The watch waits at the event meanwhile, so long timelapses delay later fields. Default 0.",
       "source_sha256": "7ee11ee687c387671716d7c7329f9f57bd1fe0aedee4ec51d0fa5ec1c4d29955",
       "translation": "Secondes entre les images temporelles d'un événement lorsque microscope_timepoints est supérieur à 1. La surveillance attend sur l'événement pendant ce temps ; les longues séquences retardent donc les champs suivants. Par défaut : 0."
-    },
-    {
-      "table": "ui",
-      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
-      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
-      "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
-      "translation": "Segmentez chaque champ quatre fois, tel quel, retourné de deux façons et tourné d'un quart de tour, avec les réglages de Détection d'objets, puis mesurez où les quatre résultats divergent. Cartographier ce champ affiche les divergences en carte thermique dans un onglet distinct ; Classer les champs place les champs les plus incertains en premier et enregistre les scores dans curate_uncertainty.csv pour spacr-make-masks --order uncertain. Nécessite quatre détections par champ."
     },
     {
       "table": "ui",
@@ -956,5 +935,29 @@
       "source_sha256": "e52c06fed71e307e6c87388838799babb056a41ff4544e9e0d7bb8e74b794dbd",
       "translation": "s3://bucket/folder, gs://, az:// ou https://"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Mapping segmentation uncertainty: four detection runs…",
+      "source": "Mapping segmentation uncertainty: four detection runs…",
+      "source_sha256": "c9c443b58a7546c273183ee8ab5dc5d323afeb3b7f72b7cfc3d628267d64f3d7",
+      "translation": "Cartographie de l'incertitude de segmentation : quatre détections…"
+    },
+    {
+      "table": "ui",
+      "key": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source_sha256": "6c519545d490a13d4c697f617549327dcccf8e2e02377b2a1e9422fb38dbcb3b",
+      "translation": "Classement de {count} champs par incertitude de segmentation : quatre détections par champ…"
+    },
+    {
+      "table": "ui",
+      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
+      "translation": "Segmentez chaque champ quatre fois, tel quel, retourné de deux façons et tourné d'un quart de tour, avec les réglages de Détection d'objets, puis mesurez où les quatre résultats divergent. Cartographier ce champ affiche les divergences en carte thermique dans un onglet distinct ; Classer les champs place les champs les plus incertains en premier et enregistre les scores dans curate_uncertainty.csv pour spacr-make-masks --order uncertain. Nécessite quatre détections par champ."
+    }
+  ],
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
 }

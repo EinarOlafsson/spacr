@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, tenth pass 2026-09-30: the Make Masks button re-layout (Upload data, the Load test data menu, the Uncertainty setting in Object operations) and the two contribute-dialog captions item 598 reworded, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "The arrow offers a sample of each training dataset a published model was trained on, with its masks, to edit here.",
+      "source": "The arrow offers a sample of each training dataset a published model was trained on, with its masks, to edit here.",
+      "source_sha256": "e14645a5cff638bbac4512e39b0f7a5fc9dd5e8bfe3a0282f8af3d04a4f6e16a",
+      "translation": "La flèche propose un échantillon de chaque jeu de données d'entraînement sur lequel un modèle publié a été entraîné, avec ses masques, à modifier ici."
+    },
+    {
+      "table": "ui",
+      "key": "Toxoplasma vacuoles (test data)",
+      "source": "Toxoplasma vacuoles (test data)",
+      "source_sha256": "40b891f323dcb211aded483a2dec3a6c78fc491b04b6b0a7828e3b0fd44f7ea9",
+      "translation": "Vacuoles de Toxoplasma (données de test)"
+    },
+    {
+      "table": "ui",
+      "key": "Training dataset: {name}",
+      "source": "Training dataset: {name}",
+      "source_sha256": "119af2acbcdcbe5a777829f65a1b14ba71828354ea7638942b1dd5a891d7b50d",
+      "translation": "Jeu de données d'entraînement : {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Upload data",
+      "source": "Upload data",
+      "source_sha256": "4c834956be9d6ee730f4a5672c24331d581652faa3cc984a0b632427b6de231d",
+      "translation": "Téléverser des données"
+    },
+    {
+      "table": "ui",
+      "key": "Upload data: send images and their masks to a community training dataset.",
+      "source": "Upload data: send images and their masks to a community training dataset.",
+      "source_sha256": "7285ee14f2ea26b0a020c0ea0faa91ba0ffd672d659caeadda659434cf02b7f3",
+      "translation": "Téléverser des données : envoyer des images et leurs masques vers un jeu de données d'entraînement communautaire."
+    },
+    {
+      "table": "ui",
+      "key": "Upload data…",
+      "source": "Upload data…",
+      "source_sha256": "6fe6a77551d7ea3b1fd55b3ad0945747e8e0e7e31dbf9e8ae2fc1a9ea0cf1fa1",
+      "translation": "Téléverser des données…"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Map where the segmentation of this field is least sure, or rank the open fields with the most uncertain first. The same menu as the Uncertainty button on the bottom row; four detection runs per field.",
+      "source": "Map where the segmentation of this field is least sure, or rank the open fields with the most uncertain first. The same menu as the Uncertainty button on the bottom row; four detection runs per field.",
+      "source_sha256": "efe26d769933eee393d2278c47e64fc6b01b83ccde576d3ae0b5166a8d2559d7",
+      "translation": "Cartographie l'endroit où la segmentation de ce champ est la moins sûre, ou classe les champs ouverts en commençant par les plus incertains. Le même menu que le bouton Incertitude de la rangée du bas ; quatre exécutions de détection par champ."
+    }
+  ],
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
+}

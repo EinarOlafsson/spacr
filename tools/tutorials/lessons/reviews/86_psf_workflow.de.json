@@ -1,0 +1,36 @@
+{
+  "lesson": "86_psf_workflow",
+  "english_sha256": "486874655765fd9afa8dea1a68fd795654b8d909705fdb95230018e32dee4aab",
+  "language": "de",
+  "review": {
+    "kind": "Codex AI technical translation and independent technical peer review",
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "translator": "Codex AI, translated directly from the frozen English source",
+    "date": "2026-10-01",
+    "independent_peer_review": true,
+    "scope": "Scientific meaning and English video control labels; not native-speaker or listening signoff",
+    "route_rebinding": {
+      "previous_english_sha256": "1b2606bba6a8beb3040c3506eada1a75ea3994c7422875fddac237549881f11d",
+      "reason": "Only app_key changed to null and host_app_key removed; narration and all translated source prose unchanged"
+    },
+    "original_draft_sha256": "33d81e316d97dd87f3b53bb2c5c0342b38c0505d565ab81368687e07e4999aae"
+  },
+  "title": "PSF: Verarbeitung vergleichen und Messintensitäten auswählen",
+  "description": "Prüfen Sie die Quellenangaben der PSF-Werte, vergleichen und übernehmen Sie die Bildverarbeitung und wählen Sie in Measure ausdrücklich ursprüngliche oder verarbeitete Intensitäten.",
+  "objectives": [
+    "Objektiv, abgeleitete Bildmaße und Quellenangaben der Kalibrierung prüfen.",
+    "Die Verarbeitung vergleichen und zum Originalbild zurückkehren, ohne Quelldateien zu ändern.",
+    "Vor quantitativen Messungen die Intensitätsquelle ausdrücklich auswählen."
+  ],
+  "prerequisite": "Öffnen Sie in Make Masks einen Bildordner. Verwenden Sie für quantitative Verarbeitung die bekannte Kalibrierung der Aufnahme; das Tutorial nutzt einen Ausschnitt des mitgelieferten Measure-Beispiels und illustrative optische Werte.",
+  "scenes": [
+    "Mit den Einstellungen für die Punktspreizfunktion können Sie eine Bildverarbeitung vergleichen, bevor Sie sie für Erkennung oder Messung verwenden. Öffnen Sie in Make Masks Ihren Bildordner, dann Settings und Image enhancement. Wählen Sie das bei der Aufnahme verwendete Objektiv und klicken Sie auf Infer from images, um die verfügbaren Bildinformationen auszulesen.",
+    "Öffnen Sie PSF optics und prüfen Sie die Quellenangabe neben jedem Wert. Das Objektiv ist hier nur ein Beispiel. Standardwerte für Kamera und Wellenlänge fließen in den berechneten Pixelabstand und die Gauß-Breite ein. Ersetzen Sie diese Annahmen vor quantitativer Arbeit durch Ihre Aufnahmewerte. Bildmaße allein belegen keine optische Kalibrierung.",
+    "Wählen Sie Convolution und klicken Sie auf Compare. Links sehen Sie das Original; rechts die für den Detektor verwendete Verarbeitung. Gauß-Faltung fügt Unschärfe hinzu. Richardson–Lucy-Dekonvolution ist eine getrennte Wahl; prüfen Sie Rauschen und Artefakte, bevor Sie sie übernehmen.",
+    "Klicken Sie auf Apply, um die gewählte Verarbeitung für Anzeige und Erkennung zu verwenden. Das Originalbild und vorhandene Objektmarkierungen bleiben unverändert. Prüfen Sie das Ergebnis, bevor Sie Masken erzeugen oder bearbeiten.",
+    "Schalten Sie Apply aus, um zum Originalbild zurückzukehren. Diese Wahl im Editor bestimmt nicht die Intensitätsquelle für quantitative Messungen. Treffen Sie diese Wahl gesondert in Measure.",
+    "Öffnen Sie Measure und blenden Sie die PSF-Einstellungen ein. Die Intensitätsquelle steht standardmäßig auf original; gespeicherte PSF-Verarbeitungseinstellungen ändern die gemessenen Intensitäten daher nicht. Behalten Sie original bei, wenn Ihre Analyse die aufgenommenen Pixel verwenden soll.",
+    "Wenn Sie verarbeitete Intensitäten messen möchten, wählen Sie processed und die Operation. Geben Sie Bildabtastung und Kernelbreite in Mikrometern anhand Ihrer Aufnahmekalibrierung ein; die gezeigten Zahlen sind nur Beispiele. Prüfen Sie die übrigen Messeinstellungen und starten Sie Measure erst dann. Bewahren Sie die PSF-Provenienz bei den Ergebnissen auf. Diese Editor- und Measure-Steuerelemente sind auch bei deaktivierten Alpha-Funktionen verfügbar; die Batch-PSF-Steuerelemente von Mask und Timelapse erfordern Alpha-Funktionen."
+  ]
+}

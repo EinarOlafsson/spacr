@@ -58,9 +58,20 @@ on:
 # ask "is this branch actually green?" and get an answer that survives the
 # next commit. That question is instruction 82, and answering it is what a
 # release gates on.
+#
+# 2026-09-30 (item 101 again): A PUSH RUN IS NO LONGER CANCELLED EITHER. Even
+# with docs-only pushes ignored, code pushes to nightly land faster than a
+# ~2.5 h suite, so every push run that day (36789261999, 36790017225,
+# 36790671389, ...) was cancelled by the next one and nightly again had no
+# push verdict. Only a pull request cancels its previous run now. The
+# 5 August starvation stays bounded without cancellation, by the group
+# itself: GitHub runs ONE run per group and keeps at most ONE pending, and a
+# newer pending run replaces the older pending one. So a burst of pushes
+# costs the run already going plus one waiting run for the newest commit,
+# never a queue of thirty.
 concurrency:
   group: tests-${{ github.ref }}-${{ github.event_name }}
-  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # THE NEWEST END of the dependency policy setup.py states: this job installs
@@ -359,7 +370,15 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --index-url https://download.pytorch.org/whl/cpu \
             "torch>=2.0" torchvision
-          python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi]"
+          # The optional stores (databases: DuckDB and psycopg), AnnData, timm
+          # (embeddings), RDKit (chem) and pyreadr are installed here and only
+          # here: the code that only runs with them (spacr.tabular's DuckDB
+          # and .rds paths, the AnnData export, the chemistry-aware hit view,
+          # the timm encoders) is
+          # measured by the tests that exercise it with the real library,
+          # rather than read as untested because this job lacked it (288).
+          python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi,databases,anndata,chem,embeddings]"
+          python -m pip install "pyreadr>=0.5,<1"
           # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
           # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
           # passing `--timeout` without this makes pytest exit on

@@ -1,0 +1,10 @@
+sv {'total': 2869, 'translated': 2869, 'coverage': 1.0, 'stale': 0, 'invalid': [], 'label_missing': []}
+de {'total': 2869, 'translated': 2869, 'coverage': 1.0, 'stale': 0, 'invalid': [], 'label_missing': []}
+es {'total': 2869, 'translated': 2869, 'coverage': 1.0, 'stale': 0, 'invalid': [], 'label_missing': []}
+pt {'total': 2869, 'translated': 2869, 'coverage': 1.0, 'stale': 0, 'invalid': [], 'label_missing': []}
+fr {'total': 2869, 'translated': 2869, 'coverage': 1.0, 'stale': 0, 'invalid': [], 'label_missing': []}
+is {'total': 2869, 'translated': 2869, 'coverage': 1.0, 'stale': 0, 'invalid': [], 'label_missing': []}
+zh_CN {'total': 2869, 'translated': 2869, 'coverage': 1.0, 'stale': 0, 'invalid': [], 'label_missing': []}
+ko {'total': 2869, 'translated': 2869, 'coverage': 1.0, 'stale': 0, 'invalid': [], 'label_missing': []}
+hi {'total': 2869, 'translated': 2869, 'coverage': 1.0, 'stale': 0, 'invalid': [], 'label_missing': []}
+PASS +1 API module; nine accepted reviewed records; complete current guide source coverage

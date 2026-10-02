@@ -1580,8 +1580,10 @@ def _intensity_measurements(
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(periphery_intensity_stats, columns=[f'periphery_{stat}' for stat in col_lables])], axis=1)
 
             if outside:
-                if ls[j] in ('nucleus', 'pathogen', *ORGANELLE_ROLES):
-                    outside_intensity_stats = _outside_intensity(label, channel, spacing=spacing)
+                if ls[j] in ('cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES):
+                    outside_intensity_stats = _outside_intensity(
+                        label, channel, spacing=spacing,
+                        exclude_foreground=(ls[j] == 'cell'))
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
 
             label_shape = np.asarray(label).shape
@@ -2372,7 +2374,8 @@ def _periphery_intensity(label_mask, image):
                 (region, np.mean(intensities), *quantiles))
     return periphery_intensity_stats
 
-def _outside_intensity(label_mask, image, distance=5, spacing=None):
+def _outside_intensity(label_mask, image, distance=5, spacing=None, *,
+                       exclude_foreground=False):
     """Return per-region intensity stats within a ``distance``-pixel ring outside each object.
 
     :param label_mask: Label mask defining the regions.
@@ -2380,6 +2383,9 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None):
     :param distance: Ring width, in xy pixels.
     :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`.
         ``None`` (2-D) keeps the historical ``binary_dilation`` ring exactly.
+    :param exclude_foreground: Keep only label-zero ring pixels for cell
+        background; an empty background ring yields NaN statistics. False
+        preserves the historical surrounding-object measurements.
     :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
 
     .. note::
@@ -2401,7 +2407,9 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None):
     whole = _whole_field_window(shape)
     pad = _ring_padding(distance, spacing, shape)
     cut_points = [5, 10, 25, 50, 75, 85, 95]
-    for region in np.unique(label_mask)[1:]:
+    for region in np.unique(label_mask):
+        if region == 0:
+            continue
         box = _box_for(boxes, region)
         window = whole if box is None else _grow_window(box, pad, shape)
         region_mask = label_mask[window] == region
@@ -2411,6 +2419,8 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None):
             edt = distance_transform_edt(~region_mask, sampling=spacing)
             dilated_mask = edt <= ring_width
         outside_mask = dilated_mask & ~region_mask
+        if exclude_foreground:
+            outside_mask &= label_mask[window] == 0
         intensities = image[window][outside_mask]
         if intensities.size == 0:
             outside_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
@@ -3321,7 +3331,7 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         conn.close()
 
 
-_CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity')
+_CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity', 'phase')
 _CONFLUENCY_TABLE = 'confluency'
 _CONFLUENCY_WELL_TABLE = 'confluency_well'
 _CONFLUENCY_WELL_KEYS = ('plateID', 'rowID', 'columnID')
@@ -3329,6 +3339,12 @@ _CONFLUENCY_SEPARATION_MIN = 3.2
 _CONFLUENCY_TEXTURE_RATIO_MIN = 3.0
 _CONFLUENCY_PHASE_RATIO_MIN = 1.8
 _CONFLUENCY_INTENSITY_FRACTION = 0.25
+_CONFLUENCY_PHASE_WEIGHTS = 'confluency_phase_mlp.csv'
+_CONFLUENCY_PHASE_WINDOW = 15
+_CONFLUENCY_PHASE_SMOOTH = 1.0
+_CONFLUENCY_PHASE_CUT = 0.6
+_CONFLUENCY_PHASE_CLEAN = 3
+_CONFLUENCY_PHASE_NETWORK = []
 
 
 @dataclass
@@ -3554,6 +3570,167 @@ def _intensity_coverage(image, sigma=1.0):
                             level, separation, False)
 
 
+def _confluency_phase_features(x):
+    """The per-pixel description the phase classifier reads.
+
+    Thirty planes, each in units of the field's own pixel noise so that the
+    classifier does not depend on exposure or gain: local standard
+    deviation over 3 to 61 pixels, gradient magnitude and Hessian
+    eigenvalues at several scales, the structure tensor's strength and
+    coherence, the smoothed deviation from the slowly varying background,
+    and the local texture averaged, maximised and minimised over the
+    neighbourhood, which lets a smooth cell interior borrow the texture of
+    its own edge.
+
+    :param x: 0-1 scaled plane.
+    :returns: ``float32`` array of shape ``(Y, X, 30)``.
+    """
+    from scipy.ndimage import maximum_filter, minimum_filter
+    from skimage.feature import (hessian_matrix, hessian_matrix_eigvals,
+                                 structure_tensor,
+                                 structure_tensor_eigenvalues)
+    from skimage.restoration import estimate_sigma
+    noise = max(float(estimate_sigma(x)), 1e-4)
+
+    def log_sd(window):
+        """Log of the local standard deviation in ``window``, in noise units."""
+        return np.log(_local_sd(x, window) / noise + 1e-3)
+
+    planes = {window: log_sd(window) for window in (3, 7, 15, 31)}
+    out = [planes[3], planes[7], planes[15], planes[31]]
+    for sigma in (1, 2, 4, 8):
+        gy, gx = np.gradient(gaussian_filter(x, sigma))
+        out.append(np.log(np.hypot(gx, gy) * sigma / noise + 1e-3))
+    for sigma in (1, 3):
+        hessian = hessian_matrix(x, sigma=sigma, order='rc',
+                                 use_gaussian_derivatives=False)
+        for eigen in hessian_matrix_eigvals(hessian):
+            out.append(eigen * sigma * sigma / noise)
+    background = gaussian_filter(x, 40)
+    deviation = {sigma: (gaussian_filter(x, sigma) - background) / noise
+                 for sigma in (2, 8)}
+    out += [deviation[2], deviation[8]]
+    out += [gaussian_filter(planes[7], 8), gaussian_filter(planes[7], 24)]
+    for sigma in (2, 6):
+        first, second = structure_tensor_eigenvalues(
+            structure_tensor(x, sigma=sigma, order='rc'))
+        total = first + second
+        out.append(np.log(np.sqrt(np.maximum(total, 0.0)) / noise + 1e-3))
+        out.append((first - second) / (total + 1e-12))
+    out.append(log_sd(61))
+    out.append(gaussian_filter(planes[7], 48))
+    out.append((gaussian_filter(x, 1) - gaussian_filter(x, 4)) / noise)
+    out.append(minimum_filter(gaussian_filter(planes[7], 1), 15))
+    out += [gaussian_filter(planes[3], sigma) for sigma in (4, 16, 32)]
+    out.append(gaussian_filter(planes[15], 16))
+    out.append(maximum_filter(gaussian_filter(planes[7], 2), 21))
+    out.append(np.abs(deviation[8]))
+    return np.stack(out, axis=-1).astype(np.float32)
+
+
+def _confluency_phase_network():
+    """The phase classifier's layers, read once from the bundled weights.
+
+    The weights were trained on LIVECell (Edlund et al. 2021, Nature
+    Methods) and carry its licence, CC BY-NC 4.0: non-commercial use. The
+    file's ``#`` header says so. It is a long table, one row per weight:
+    ``layer``,
+    ``source`` (input unit, or -1 for the bias), ``target`` (output unit)
+    and ``weight``. The input standardisation is already folded into the
+    first layer. Hidden layers are rectified, the output is logistic.
+
+    :returns: list of ``(weights, bias)`` pairs, first layer first.
+    """
+    if _CONFLUENCY_PHASE_NETWORK:
+        return _CONFLUENCY_PHASE_NETWORK
+    from .tabular import read_table
+    path = os.path.join(os.path.dirname(__file__), 'resources', 'data',
+                        _CONFLUENCY_PHASE_WEIGHTS)
+    table = read_table(path, canonicalise=False, report=None, sep=',',
+                       comment='#')
+    layers = []
+    for layer in sorted(table['layer'].unique()):
+        rows = table[table['layer'] == layer]
+        inputs = int(rows['source'].max()) + 1
+        outputs = int(rows['target'].max()) + 1
+        weights = np.zeros((inputs, outputs))
+        bias = np.zeros(outputs)
+        linked = rows[rows['source'] >= 0]
+        weights[linked['source'].to_numpy(int),
+                linked['target'].to_numpy(int)] = linked['weight'].to_numpy()
+        biased = rows[rows['source'] < 0]
+        bias[biased['target'].to_numpy(int)] = biased['weight'].to_numpy()
+        layers.append((weights, bias))
+    _CONFLUENCY_PHASE_NETWORK[:] = layers
+    return _CONFLUENCY_PHASE_NETWORK
+
+
+def _confluency_phase_probability(x):
+    """Per-pixel probability that a phase-contrast pixel lies in a cell.
+
+    :param x: 0-1 scaled plane.
+    :returns: float plane of the same shape, 0 to 1.
+    """
+    features = _confluency_phase_features(x)
+    flat = features.reshape(-1, features.shape[-1]).astype(np.float64)
+    layers = _confluency_phase_network()
+    probability = np.empty(flat.shape[0])
+    step = 1 << 18
+    for start in range(0, flat.shape[0], step):
+        values = flat[start:start + step]
+        for weights, bias in layers[:-1]:
+            values = np.maximum(values @ weights + bias, 0.0)
+        weights, bias = layers[-1]
+        logit = (values @ weights + bias)[:, 0]
+        probability[start:start + step] = 1.0 / (1.0 + np.exp(-logit))
+    return probability.reshape(x.shape)
+
+
+def _phase_coverage(image, window=15):
+    """Covered area of a phase-contrast or brightfield field, learned.
+
+    A small pixel classifier (a two-layer perceptron over
+    :func:`_confluency_phase_features`) whose weights were trained on
+    LIVECell (Edlund et al. 2021, Nature Methods), CC BY-NC 4.0,
+    non-commercial use: Incucyte phase-contrast fields of eight cell lines
+    with expert-drawn cell outlines, together with bare-plastic and fully
+    covered crops and pure-noise fields so that a field of one
+    kind is not forced into two classes. The probability map is smoothed
+    and cut at :data:`_CONFLUENCY_PHASE_CUT`. Unlike the texture source
+    there is no whole-field decision: every pixel is classified.
+
+    The classifier saw cells at LIVECell's pixel size. ``window`` rescales
+    the field by ``15 / window`` before classifying, so a field whose cells
+    are twice as many pixels across is read with ``window=30``; 15 reads it
+    as it is.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param window: cell scale relative to the training images, as above.
+    :returns: :class:`_ConfluencyResult` with ``source='phase'``.
+    """
+    plane = np.asarray(_confluency_plane(image), dtype=np.float64)
+    if np.ptp(plane) == 0:
+        return _ConfluencyResult(np.zeros(plane.shape, dtype=bool), 0.0,
+                                'phase', _CONFLUENCY_PHASE_CUT, None, True)
+    scale = _CONFLUENCY_PHASE_WINDOW / max(3, int(window))
+    work = plane
+    if scale != 1.0:
+        from skimage.transform import rescale
+        work = rescale(plane, scale, order=1, anti_aliasing=scale < 1.0,
+                       preserve_range=True)
+    probability = gaussian_filter(
+        _confluency_phase_probability(_unit_scaled(work)),
+        _CONFLUENCY_PHASE_SMOOTH)
+    if probability.shape != plane.shape:
+        from skimage.transform import resize
+        probability = resize(probability, plane.shape, order=1,
+                             preserve_range=True)
+    covered = _clean_coverage(probability > _CONFLUENCY_PHASE_CUT,
+                              round(_CONFLUENCY_PHASE_CLEAN / scale))
+    return _ConfluencyResult(covered, float(covered.mean()), 'phase',
+                            _CONFLUENCY_PHASE_CUT, None, False)
+
+
 def _mask_coverage(mask):
     """Covered area as the union of every labelled cell.
 
@@ -3573,7 +3750,7 @@ def _resolve_confluency_source(settings):
 
     :param settings: Measure settings; reads ``confluency_source`` and
         ``cell_mask_dim``.
-    :returns: ``'masks'``, ``'texture'`` or ``'intensity'``.
+    :returns: ``'masks'``, ``'texture'``, ``'intensity'`` or ``'phase'``.
     :raises ValueError: for a source outside :data:`_CONFLUENCY_SOURCES`.
     """
     source = str(settings.get('confluency_source') or 'auto').strip().lower()
@@ -3588,12 +3765,12 @@ def _resolve_confluency_source(settings):
         raise ValueError(
             "Setting: confluency_source is 'masks' but cell_mask_dim is "
             "blank, so there are no cell masks to cover the field with. "
-            "Set cell_mask_dim, or choose texture or intensity.")
+            "Set cell_mask_dim, or choose texture, intensity or phase.")
     return source
 
 
 def _confluency_channel(settings):
-    """The merged-array channel a texture or intensity source reads.
+    """The merged-array channel a texture, intensity or phase source reads.
 
     :param settings: Measure settings; reads ``confluency_channel`` and,
         when it is blank, the first entry of ``channels``.
@@ -3613,8 +3790,9 @@ def _field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
     :param image: the channel to read for ``texture`` and ``intensity``.
     :param cell_mask: the cell label image for ``masks``.
     :param source: ``auto`` (masks when ``cell_mask`` is given, else
-        texture), ``masks``, ``texture`` or ``intensity``.
-    :param window: texture window in pixels.
+        texture), ``masks``, ``texture``, ``intensity`` or ``phase``.
+    :param window: texture window in pixels; for ``phase``, the cell scale
+        relative to the classifier's training images (15 = as trained).
     :param channel: recorded on the result; not used to read anything.
     :returns: :class:`_ConfluencyResult`.
     :raises ValueError: for an unknown source or a missing input.
@@ -3631,8 +3809,12 @@ def _field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
         return _mask_coverage(cell_mask)
     if image is None:
         raise ValueError(f"the {source} confluency source needs an image")
-    result = (_texture_coverage(image, window) if source == 'texture'
-              else _intensity_coverage(image))
+    if source == 'texture':
+        result = _texture_coverage(image, window)
+    elif source == 'phase':
+        result = _phase_coverage(image, window)
+    else:
+        result = _intensity_coverage(image)
     result.channel = None if channel is None else int(channel)
     return result
 
@@ -5284,6 +5466,18 @@ _WOUND_RELEVEL_MIN_FAR = 0.05
 _WOUND_FRONT_SPAN = 0.3
 _WOUND_FRONT_MIN_WIDTH = 0.3
 _WOUND_FRONT_DEVIATION = 0.25
+_WOUND_FOLLOW_MARGIN = 1.0
+_WOUND_FOLLOW_MIN_REGION = 0.5
+_WOUND_FLOOR_MIN_OPEN = 0.1
+_WOUND_FLOOR_MIN_GAP = 1.75
+_WOUND_FLOOR_BELOW = 1.0
+_WOUND_FLOOR_ABOVE = 1.5
+_WOUND_FLOOR_REACH = 3
+_WOUND_FRONT_ONLY = True
+_WOUND_FLOOR_MIN_CORE = 0.04
+_WOUND_SATURATED_MIN = 0.001
+_WOUND_SATURATED_REACH = 1.0
+_WOUND_SCATTERED_RADIUS = 0.5
 
 
 @dataclass
@@ -5340,7 +5534,7 @@ def _wound_signal(plane, source, window):
     return smooth / top if top > 0 else smooth
 
 
-def _wound_level(signal, source):
+def _wound_level(signal, source, manual=None):
     """The cut between open and covered pixels, decided on the first frame.
 
     Otsu's method splits the map (on its logarithm for texture); the cut is
@@ -5361,6 +5555,9 @@ def _wound_level(signal, source):
     than the gap by ``(0.5 - share) * window`` on each side, which
     :func:`_wound_open` grows back.
 
+    :param manual: a cut set by hand on the map's own scale, or ``None``
+        for the automatic one; the share is still worked out from the two
+        classes' levels.
     :returns: ``(level, separation, share)``; ``share`` is 0.5 for
         intensity, whose cut is not smeared by a window.
     """
@@ -5379,6 +5576,9 @@ def _wound_level(signal, source):
     fraction = (_WOUND_TEXTURE_FRACTION if texture
                 else _CONFLUENCY_INTENSITY_FRACTION)
     level = off + fraction * (on - off)
+    if manual is not None:
+        level = (float(np.log(max(float(manual), 1e-18))) if texture
+                 else float(manual))
     if not texture:
         return level, float(separation), 0.5
     low, high, cut = np.exp(off), np.exp(on), np.exp(level)
@@ -5386,7 +5586,8 @@ def _wound_level(signal, source):
     return float(cut), float(separation), float(np.clip(share, 0.0, 0.5))
 
 
-def _wound_open(plane, source='texture', window=15, level=None, share=0.5):
+def _wound_open(plane, source='texture', window=15, level=None, share=0.5,
+                manual=None):
     """The open, cell-free area of one frame.
 
     :param plane: the frame, 2-D or a ``(Z, Y, X)`` stack (max-projected);
@@ -5397,6 +5598,8 @@ def _wound_open(plane, source='texture', window=15, level=None, share=0.5):
     :param level: the cut from the series' first frame; ``None`` decides
         it on this frame.
     :param share: with ``level``, the window share it corresponds to
+        (:func:`_wound_level`).
+    :param manual: with ``level`` ``None``, a cut set by hand
         (:func:`_wound_level`).
     :returns: ``(open, level, share, separation)``: the boolean plane, true
         where no cell covers the field, the cut and share used and, when
@@ -5414,7 +5617,7 @@ def _wound_open(plane, source='texture', window=15, level=None, share=0.5):
     signal = _wound_signal(_confluency_plane(plane), source, window)
     separation = None
     if level is None:
-        level, separation, share = _wound_level(signal, source)
+        level, separation, share = _wound_level(signal, source, manual)
     radius = window // 4 if source == 'texture' else 2
     opened = ~_clean_coverage(signal > level, radius)
     return opened, level, share, separation
@@ -5497,6 +5700,40 @@ def _wound_widths(wound, axis):
     inside = (bins >= 0) & (bins < size)
     counts = np.bincount(bins[inside], minlength=size)[:size]
     return counts[axis.valid].astype(np.float64)
+
+
+def _wound_front_only(open_mask, axis, window):
+    """A later frame's open area with scattered cells inside the wound opened.
+
+    Only a continuous cell front closes a wound: cells that have come loose
+    from the monolayer and lie on the wound's floor, alone or in small
+    clumps, leave it open, as wound-healing hand annotation counts them.
+    Covered pixels inside the first frame's band are kept covered only
+    when they belong to a front, a covered region that reaches the
+    monolayer outside the band once necks narrower than
+    :data:`_WOUND_SCATTERED_RADIUS` of a window are cut, grown back over
+    the covered pixels it was cut from. Every other covered pixel in the
+    band is counted open.
+
+    :param open_mask: boolean open area of the frame.
+    :param axis: the series' :class:`_WoundAxis`.
+    :param window: texture window in pixels.
+    :returns: the boolean open area.
+    """
+    from scipy.ndimage import binary_opening, label as label_regions
+    opened = np.asarray(open_mask, dtype=bool)
+    covered = ~opened
+    band = _wound_band(axis, opened.shape)
+    radius = int(round(_WOUND_SCATTERED_RADIUS * window))
+    core = covered
+    if radius > 0:
+        core = binary_opening(covered, structure=morphology.disk(radius))
+    regions, _count = label_regions(core)
+    fronts = np.unique(regions[core & ~band])
+    front = np.isin(regions, fronts[fronts > 0])
+    if radius > 0:
+        front = binary_dilation(front, structure=morphology.disk(radius))
+    return opened | (covered & band & ~front)
 
 
 def _wound_select(open_mask, axis=None, min_area=0):
@@ -5667,7 +5904,100 @@ def _wound_fronts(wound, window):
             & (offset < right[position] + 0.5))
 
 
-def _wound_relevel(plane, axis, level, start_area, window):
+def _wound_follow(first, later, axis):
+    """The first frame's wound moved across the scratch to meet a later one.
+
+    A wound only narrows, so a later frame's open pixels outside the first
+    wound are monolayer that reads as open (a flat or over-exposed patch),
+    not wound. Imaged at the same position the first wound is where the
+    later one is; imaged again, the stage may put the scratch elsewhere
+    across the field. The first wound is therefore moved across the scratch
+    by the offset, up to half the band, at which its profile across the
+    scratch best overlaps the later frame's largest open region, the
+    wound itself rather than a patch beside it (the product of the two
+    profiles, summed; ties go to the smaller offset).
+
+    :param first: boolean first-frame wound.
+    :param later: boolean later-frame open pixels in the band.
+    :param axis: the series' :class:`_WoundAxis`.
+    :returns: boolean plane, the first wound at the later frame's offset.
+    """
+    from scipy.ndimage import label as label_regions, shift as shift_plane
+    regions, count = label_regions(later)
+    if count > 1:
+        sizes = np.bincount(regions.ravel())
+        sizes[0] = 0
+        later = np.isin(regions, np.nonzero(
+            sizes >= _WOUND_FOLLOW_MIN_REGION * sizes.max())[0])
+    across = np.round(_wound_across(axis, first.shape)).astype(np.int64)
+    low = int(across.min())
+    size = int(across.max()) - low + 1
+    before = np.bincount(across[first] - low, minlength=size).astype(
+        np.float64)
+    after = np.bincount(across[later] - low, minlength=size).astype(
+        np.float64)
+    if not before.any() or not after.any():
+        return first
+    overlap = np.correlate(after, before, mode='full')
+    lags = np.arange(-(size - 1), size)
+    limit = max(0, int(axis.half_band))
+    allowed = np.abs(lags) <= limit
+    lags, overlap = lags[allowed], overlap[allowed]
+    best = overlap.max()
+    candidates = lags[overlap >= best]
+    offset = int(candidates[np.argmin(np.abs(candidates))])
+    if offset == 0:
+        return first
+    dy, dx = axis.direction
+    moved = shift_plane(first.astype(np.uint8),
+                        (offset * (-dx), offset * dy), order=0,
+                        mode='constant')
+    return moved > 0
+
+
+def _wound_unsaturated(plane, window):
+    """The pixels whose texture says something about the field.
+
+    A stretch of the frame at the camera's ceiling is flat whether it is a
+    bright wound floor or over-exposed monolayer, so its texture reads as
+    open either way. When more than :data:`_WOUND_SATURATED_MIN` of the
+    frame sits at its maximum, those pixels and everything within
+    :data:`_WOUND_SATURATED_REACH` of a window of them are left out of the
+    levels a later frame's cut is read from; they are still classified by
+    that cut.
+
+    :param plane: the 2-D frame.
+    :param window: texture window in pixels.
+    :returns: boolean plane, true where the texture is informative.
+    """
+    x = np.asarray(plane, dtype=np.float64)
+    saturated = x >= float(x.max())
+    if saturated.mean() <= _WOUND_SATURATED_MIN:
+        return np.ones(x.shape, dtype=bool)
+    reach = max(1, int(_WOUND_SATURATED_REACH * window))
+    return ~binary_dilation(saturated, iterations=reach)
+
+
+def _wound_floor(plane, wound, axis, window):
+    """What a later frame's open-floor level is checked against.
+
+    :param plane: the 2-D first frame.
+    :param wound: its boolean wound.
+    :param axis: the series' :class:`_WoundAxis`.
+    :param window: texture window in pixels.
+    :returns: ``(region, open_level, covered_level)``: the first wound
+        widened by one window, and the median log texture of the first
+        wound and of the field outside the band.
+    """
+    values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
+                               1e-18))
+    far = np.abs(_wound_across(axis, values.shape)) > axis.half_band
+    region = binary_dilation(wound, iterations=max(1, int(window)))
+    covered = float(np.median(values[far])) if far.any() else 0.0
+    return region, float(np.median(values[wound])), covered
+
+
+def _wound_relevel(plane, axis, level, start_area, window, floor=None):
     """The texture cut for a later frame, recalibrated on that frame.
 
     A later time point is often imaged again rather than left on the stage,
@@ -5690,6 +6020,29 @@ def _wound_relevel(plane, axis, level, start_area, window):
     :param level: the first frame's cut.
     :param start_area: the first frame's wound area in pixels.
     :param window: texture window in pixels.
+    :param floor: from :func:`_wound_floor` on the first frame, or
+        ``None``. Cells or debris scattered over a wound's floor raise its
+        texture, so the open pixels left under the cut above are only the
+        smoothest part of the floor and the open level read from them sits
+        too low. When given, and the cut above leaves at least
+        :data:`_WOUND_FLOOR_MIN_OPEN` of the first wound's area open, the
+        open level is read instead from Otsu's lower class among the
+        pixels within one window of the first wound and within
+        :data:`_WOUND_FLOOR_REACH` windows of the pixels the cut above
+        leaves open in the band (so a nearly closed wound is not read
+        against the monolayer that has filled the rest of the first
+        wound), provided that class lies at least
+        :data:`_WOUND_FLOOR_MIN_GAP` below the covered level in log
+        texture (a closed wound's monolayer splits into two classes much
+        closer together). That level is held to within
+        :data:`_WOUND_FLOOR_BELOW` below and :data:`_WOUND_FLOOR_ABOVE`
+        above the first frame's open level, shifted by the change in the
+        covered level since then, so a floor with a bright, smooth stretch
+        and a dimmer one is not split between them. The lower class must
+        hold at least :data:`_WOUND_FLOOR_MIN_CORE` of the first wound's
+        area. Every level is read from informative pixels only
+        (:func:`_wound_unsaturated`), so a stretch of floor at the
+        camera's ceiling does not stand in for the open level.
     :returns: the cut for this frame.
     """
     values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
@@ -5699,9 +6052,13 @@ def _wound_relevel(plane, axis, level, start_area, window):
     far = distance > axis.half_band
     if far.sum() < _WOUND_RELEVEL_MIN_FAR * values.size:
         return level
-    covered = float(np.median(values[far]))
+    informative = _wound_unsaturated(plane, window)
+    covered = float(np.median(values[far & informative]
+                              if (far & informative).sum() > 100
+                              else values[far]))
     cut = float(np.log(level))
-    band = values[near]
+    measured = near & informative
+    band = values[measured]
     if band.size > 100:
         split, separation = _otsu_separation(band)
         if (separation >= _CONFLUENCY_SEPARATION_MIN
@@ -5709,16 +6066,36 @@ def _wound_relevel(plane, axis, level, start_area, window):
                 * start_area):
             cut = split
     for _round in range(_WOUND_RELEVEL_ROUNDS):
-        core = near & (values <= cut)
+        core = measured & (values <= cut)
         if core.sum() < _WOUND_RELEVEL_MIN_CORE * start_area:
             break
         opened = float(np.median(values[core]))
         cut = opened + _WOUND_TEXTURE_FRACTION * (covered - opened)
-    return float(np.exp(cut))
+    if floor is None or (near & (values <= cut)).sum() < (
+            _WOUND_FLOOR_MIN_OPEN * start_area):
+        return float(np.exp(cut))
+    region, first_open, first_covered = floor
+    reach = distance_transform_edt(~(near & (values <= cut)))
+    inside = values[region & informative
+                    & (reach <= _WOUND_FLOOR_REACH * window)]
+    if inside.size <= 100:
+        return float(np.exp(cut))
+    split, _separation = _otsu_separation(inside)
+    lower = inside[inside <= split]
+    if lower.size < _WOUND_FLOOR_MIN_CORE * start_area:
+        return float(np.exp(cut))
+    opened = float(np.median(lower))
+    if covered - opened < _WOUND_FLOOR_MIN_GAP:
+        return float(np.exp(cut))
+    expected = first_open + covered - first_covered
+    opened = float(np.clip(opened, expected - _WOUND_FLOOR_BELOW,
+                           expected + _WOUND_FLOOR_ABOVE))
+    return float(np.exp(opened + _WOUND_TEXTURE_FRACTION
+                        * (covered - opened)))
 
 
 def _wound_series(planes, times, *, source='texture', window=15,
-                  pixel_size_um=None, keep=()):
+                  pixel_size_um=None, keep=(), threshold=None):
     """Open wound area and width of one field through time.
 
     The first frame decides where the scratch is: its largest open region,
@@ -5726,11 +6103,18 @@ def _wound_series(planes, times, *, source='texture', window=15,
     and be open across at least :data:`_WOUND_MIN_SPAN` of the positions
     along its axis, or the series is not a scratch and every metric is left
     blank. Later frames count the open regions inside the first frame's
-    band. The cut between open and covered is decided on the first frame
+    band and, for ``texture`` and ``intensity``, within a window of the
+    first frame's wound moved across the scratch to meet them
+    (:func:`_wound_follow`), since a wound only narrows. The cut between
+    open and covered is decided on the first frame
     (:func:`_wound_level`); for ``texture`` each later frame recalibrates it
-    on its own open and covered levels (:func:`_wound_relevel`), and for
+    on its own open and covered levels (:func:`_wound_relevel`), reading
+    the open level of a floor that carries scattered cells against the
+    first frame's (:func:`_wound_floor`), and for
     ``texture`` and ``intensity`` a first frame that is a scratch is
-    redrawn between smooth fronts (:func:`_wound_fronts`).
+    redrawn between smooth fronts (:func:`_wound_fronts`). In later frames
+    only a continuous cell front closes the wound: scattered cells on its
+    floor count as open (:func:`_wound_front_only`).
 
     :param planes: iterable of frames in time order (2-D, a ``(Z, Y, X)``
         stack, or a label image for ``masks``).
@@ -5740,6 +6124,12 @@ def _wound_series(planes, times, *, source='texture', window=15,
     :param pixel_size_um: micrometres per pixel, for the ``_um`` columns;
         ``None`` leaves them blank.
     :param keep: positions in the series whose wound masks are returned.
+    :param threshold: a cut set by hand, on the scale of the
+        ``wound_level`` column (texture: local variance over the field's
+        median; intensity: a share of the frame's 95th percentile), used
+        on every frame in place of the automatic cut and its later-frame
+        recalibration; ``None`` or 0 leaves the cut automatic. Ignored by
+        ``masks``.
     :returns: ``(frame, status, masks)``: one row per frame with
         ``open_area_px``, ``open_fraction``, ``relative_open_area``,
         ``closure``, ``mean_width_px``, ``min_width_px``, ``max_width_px``,
@@ -5753,16 +6143,19 @@ def _wound_series(planes, times, *, source='texture', window=15,
     rows, masks = [], {}
     axis, start_area, status = None, None, 'ok'
     keep = set(int(k) for k in keep)
-    level, share, first_separation = None, 0.5, None
+    level, share, first_separation, floor = None, 0.5, None, None
+    manual = (float(threshold) if threshold not in (None, '')
+              and float(threshold) > 0 and source != 'masks' else None)
     for index, (plane, time) in enumerate(zip(planes, times)):
         if source != 'masks':
             plane = _confluency_plane(plane)
         frame_level = level
-        if index > 0 and status == 'ok' and source == 'texture':
+        if (index > 0 and status == 'ok' and source == 'texture'
+                and manual is None):
             frame_level = _wound_relevel(plane, axis, level, start_area,
-                                         window)
+                                         window, floor)
         open_mask, frame_level, share, separation = _wound_open(
-            plane, source, window, frame_level, share)
+            plane, source, window, frame_level, share, manual)
         if index == 0:
             level = frame_level
         if index == 0:
@@ -5786,10 +6179,19 @@ def _wound_series(planes, times, *, source='texture', window=15,
                                  0.25 * float(first_widths.mean()))
                     axis = _wound_axis(wound, margin)
             start_area = int(wound.sum())
+            first_wound = wound
+            if status == 'ok' and source == 'texture':
+                floor = _wound_floor(plane, wound, axis, window)
         elif status == 'ok':
+            if _WOUND_FRONT_ONLY:
+                open_mask = _wound_front_only(open_mask, axis, window)
             wound, regions = _wound_select(open_mask, axis, window * window)
             wound = _wound_grow(wound, share, window, source) & _wound_band(
                 axis, wound.shape)
+            if source != 'masks':
+                wound &= binary_dilation(
+                    _wound_follow(first_wound, wound, axis),
+                    iterations=max(1, int(_WOUND_FOLLOW_MARGIN * window)))
         else:
             wound, regions = np.zeros(open_mask.shape, dtype=bool), 0
         area = int(wound.sum())
@@ -6080,7 +6482,8 @@ def _wound_settings_check(settings):
     :param settings: Measure settings.
     :returns: the resolved source.
     :raises ValueError: for an unknown source, ``masks`` without a cell
-        mask, or a ``wound_conditions`` entry that is not a well.
+        mask, a negative or non-numeric ``wound_threshold``, or a
+        ``wound_conditions`` entry that is not a well.
     """
     source = str(settings.get('wound_source') or 'texture').strip().lower()
     if source not in _WOUND_SOURCES:
@@ -6092,6 +6495,17 @@ def _wound_settings_check(settings):
             "Setting: wound_source is 'masks' but cell_mask_dim is blank, so "
             "there are no cell masks to find the wound between. Set "
             "cell_mask_dim, or choose texture or intensity.")
+    threshold = settings.get('wound_threshold')
+    if threshold not in (None, ''):
+        try:
+            value = float(threshold)
+        except (TypeError, ValueError):
+            value = -1.0
+        if not np.isfinite(value) or value < 0:
+            raise ValueError(
+                f"Setting: wound_threshold is {threshold!r}; use a positive "
+                "number on the scale of the wound_level column, or leave it "
+                "blank for the automatic cut.")
     _wound_condition_lookup(settings.get('wound_conditions'))
     return source
 
@@ -6135,7 +6549,8 @@ def _measure_field_wound(data, settings):
     frame, status, masks = _wound_series(
         [plane], [0.0], source=source,
         window=int(settings.get('wound_window') or 15),
-        pixel_size_um=settings.get('voxel_size_xy_um'), keep=(0,))
+        pixel_size_um=settings.get('voxel_size_xy_um'), keep=(0,),
+        threshold=settings.get('wound_threshold'))
     shown, wound = masks[0]
     return frame.iloc[0].to_dict(), shown, wound, status
 
@@ -6313,7 +6728,8 @@ def _wound_closure_tables(merged_dir, settings, figures=None):
         frame, status, masks = _wound_series(
             planes(), times, source=source, window=window,
             pixel_size_um=settings.get('voxel_size_xy_um'),
-            keep=shown if figures is not None else ())
+            keep=shown if figures is not None else (),
+            threshold=settings.get('wound_threshold'))
         if items[0][0] != start and status == 'ok':
             status = 'missing_start'
         frame.insert(0, 'fieldID', key[3])
@@ -8622,6 +9038,11 @@ def measure_crop(settings):
                         and os.path.isfile(db_path)):
                     _run_cellprofiler_step(db_path, settings)
 
+                if (settings.get('timelapse_lineage') and settings['timelapse']
+                        and os.path.isfile(db_path)):
+                    from ._lineage_measurements import _run_measured_lineage_step
+                    _run_measured_lineage_step(db_path, settings)
+
                 if settings['timelapse']:
                     if settings['timelapse_objects'] == 'nucleus':
                         folder_path = settings['src']
@@ -8835,6 +9256,52 @@ def _cellprofiler_role(name, roles):
     return None
 
 
+def _cellprofiler_overlap_labels(paths, mask):
+    """Map each CP object to a strict pixel-majority spaCR label, or leave it unmatched.
+
+    Supplied planes must be integer 2D labels in the same coordinates and
+    shape as the spaCR mask. Background counts against a majority. Repeated
+    object IDs across planes, malformed arrays, and ties are not guessed.
+    Files are mapped read-only; at most 64 planes of 16M pixels are accepted.
+    """
+    if not isinstance(paths, (list, tuple)) or not paths or len(paths) > 64:
+        return {}
+    matched, seen = {}, set()
+    try:
+        if (mask.ndim != 2 or mask.size > 16 * 1024 * 1024
+                or mask.dtype.kind not in 'iuf' or not np.isfinite(mask).all()
+                or np.any(mask < 0) or np.any(mask >= 2**63)
+                or np.any(mask != np.floor(mask))):
+            return {}
+        for path in paths:
+            plane = np.load(path, mmap_mode='r', allow_pickle=False)
+            if not isinstance(plane, np.ndarray):
+                if hasattr(plane, 'close'):
+                    plane.close()
+                return {}
+            if (plane.shape != mask.shape or plane.dtype.kind not in 'iu'
+                    or np.any(plane < 0) or np.any(plane >= 2**63)):
+                return {}
+            positive = plane > 0
+            objects, totals = np.unique(plane[positive], return_counts=True)
+            ids = set(int(value) for value in objects)
+            if seen.intersection(ids):
+                return {}
+            seen.update(ids)
+            # Include background in totals so a tiny edge overlap is rejected.
+            foreground = positive & (mask > 0)
+            pairs, counts = np.unique(np.column_stack((
+                plane[foreground].astype(np.int64),
+                mask[foreground].astype(np.int64))), axis=0, return_counts=True)
+            sizes = dict(zip((int(value) for value in objects), totals))
+            for (cp_id, label), count in zip(pairs, counts):
+                if count > sizes[int(cp_id)] / 2:
+                    matched[int(cp_id)] = int(label)
+    except (OSError, TypeError, ValueError, OverflowError):
+        return {}
+    return matched
+
+
 def _cellprofiler_tables(reply, merged_folder, settings):
     """CellProfiler's per-object tables keyed by spaCR's object ids.
 
@@ -8858,11 +9325,15 @@ def _cellprofiler_tables(reply, merged_folder, settings):
 
     stems = {}
     for number, names in (reply.get('images') or {}).items():
+        matched_stems = []
         for file_name in names:
             match = _CELLPROFILER_FILE.match(os.path.basename(str(file_name)))
             if match:
-                stems[int(number)] = match.group('stem')
-                break
+                matched_stems.append(match.group('stem'))
+        if matched_stems:
+            supplied = str(int(number)) in (reply.get('labels') or {})
+            if not supplied or len(set(matched_stems)) == 1:
+                stems[int(number)] = matched_stems[0]
     masks = {}
 
     def field_masks(stem):
@@ -8879,12 +9350,27 @@ def _cellprofiler_tables(reply, merged_folder, settings):
     def lookup(role, image_numbers, xs, ys):
         """The spaCR label under each centre in ``role``'s mask."""
         found = np.zeros(len(xs))
+        overlaps = {}
+        supplied = reply.get('labels') or {}
         for i, (number, x, y) in enumerate(zip(image_numbers, xs, ys)):
             stem = stems.get(int(number))
-            if stem is None or not np.isfinite(x) or not np.isfinite(y):
+            if stem is None:
                 continue
             mask = field_masks(stem).get(role)
             if mask is None:
+                continue
+            planes = supplied.get(str(int(number)), {})
+            if cp_name in planes:
+                if int(number) not in overlaps:
+                    overlaps[int(number)] = _cellprofiler_overlap_labels(
+                        planes[cp_name], mask)
+                found[i] = overlaps[int(number)].get(int(object_numbers[i]), 0)
+                continue
+            if not np.isfinite(x) or not np.isfinite(y):
+                continue
+            # A centre outside the image cannot identify an edge object.
+            # Check before rounding so negative subpixels stay unmatched.
+            if not (0 <= x < mask.shape[1] and 0 <= y < mask.shape[0]):
                 continue
             row = int(min(max(round(y), 0), mask.shape[0] - 1))
             col = int(min(max(round(x), 0), mask.shape[1] - 1))
@@ -8897,25 +9383,35 @@ def _cellprofiler_tables(reply, merged_folder, settings):
         columns = list(block['columns'])
         values = np.load(block['path'], allow_pickle=False)
         frame = pd.DataFrame(values.reshape(-1, len(columns)), columns=columns)
-        if 'Location_Center_X' not in frame or 'Location_Center_Y' not in frame:
+        has_centres = ('Location_Center_X' in frame and 'Location_Center_Y' in frame)
+        has_labels = any(cp_name in objects for objects in
+                         (reply.get('labels') or {}).values())
+        if not has_centres and not has_labels:
             print(f"CellProfiler object {cp_name} has no Location_Center_X/Y "
                   f"(add MeasureObjectSizeShape), so it cannot be matched to "
                   f"spaCR objects; it was not imported.")
             continue
         numbers = frame['ImageNumber'].to_numpy()
-        xs = frame['Location_Center_X'].to_numpy(dtype=float)
-        ys = frame['Location_Center_Y'].to_numpy(dtype=float)
+        xs = (frame['Location_Center_X'].to_numpy(dtype=float) if has_centres
+              else np.full(len(frame), np.nan))
+        ys = (frame['Location_Center_Y'].to_numpy(dtype=float) if has_centres
+              else np.full(len(frame), np.nan))
+        object_numbers = frame['ObjectNumber'].to_numpy()
         roles = sorted({r for s in set(stems.values())
                         for r in field_masks(s)})
         role = _cellprofiler_role(cp_name, roles)
         if role is not None:
             labels = lookup(role, numbers, xs, ys)
         else:
-            best = None
+            best, tied = None, False
             for candidate in roles:
                 hits = lookup(candidate, numbers, xs, ys)
                 if best is None or (hits > 0).sum() > (best[1] > 0).sum():
-                    best = (candidate, hits)
+                    best, tied = (candidate, hits), False
+                elif (hits > 0).sum() == (best[1] > 0).sum():
+                    tied = True
+            if has_labels and tied:
+                best = None
             role, labels = best if best else (None, np.zeros(len(frame)))
         prcf = []
         for number in numbers:
@@ -9003,6 +9499,8 @@ def _run_bleach_correction_step(db_path, settings):
     Runs :func:`spacr.timelapse._correct_timelapse_bleaching` with the
     ``bleach_correction`` method. A failure is reported and does not fail
     the run: the measured tables are already written and are not changed.
+    With ``histogram``, series whose trend rises more than 10% above its
+    first timepoint are reported, since matching removes that rise too.
 
     :param db_path: the ``measurements.db`` the run produced.
     :param settings: Measure settings.
@@ -9020,6 +9518,12 @@ def _run_bleach_correction_step(db_path, settings):
     print(f"Bleach correction ({method}): {len(fits)} field-channel series in "
           f"{', '.join(f'{t}_bleach_corrected' for t in tables)}; fits in "
           f"measurements.db:bleach_correction")
+    rising = fits['trend_peak_rise'] > 0.1 if 'trend_peak_rise' in fits else pd.Series([], dtype=bool)
+    if method == 'histogram' and rising.any():
+        print(f"Bleach correction: {int(rising.sum())} of {len(fits)} series "
+              f"brighten by more than 10% at some point, which bleaching "
+              f"cannot do; histogram matching maps that rise away with the "
+              f"decay, so compare intensities after ratio or exponential.")
     return fits
 
 

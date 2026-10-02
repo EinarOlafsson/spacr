@@ -1,0 +1,169 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Plaque Assay: fields, figures and reviewed conditions"
+msgstr "空斑分析：视野、图和经审查的条件"
+
+msgid "Open **Home → Assays → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>`, the `Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
+msgstr "打开 **主页 → 实验分析 → 弓形虫 → 空斑分析**。选择 **空斑** 处理空斑视野，或选择 **图** 处理包含孔、分图和周围文字的已发表图。这些输入不需要事先运行测量。有关上下游工作流程，请参阅 :ref:`模块图 <workflow-module-analyze_plaques>`、`空斑分析教程 <tutorials/#lesson=24_plaque>`_ 和 :func:`spacr.submodules.analyze_plaques`。"
+
+msgid "Preview a plaque field"
+msgstr "预览空斑视野"
+
+msgid "Choose the source folder and select an image in the preview picker."
+msgstr "选择源文件夹，并在预览选择器中选择一张图像。"
+
+msgid "Select **Plaque** mode. In **Settings… → Plaque detection**, choose the plaque checkpoint, diameter, flow threshold and cell-probability threshold. Use **Model zoo…** to inspect available models or **Browse…** for a local checkpoint. A model key is different from a detector backend: both the checkpoint and a compatible runtime must be available."
+msgstr "选择 **空斑** 模式。在 **设置… → 蚀斑检测** 中，选择空斑检查点、直径、流场阈值和细胞概率阈值。使用 **模型库…** 查看可用模型，或使用 **浏览…** 选择本地检查点。模型键与检测器后端不同：检查点和兼容的运行时都必须可用。"
+
+msgid "Run the preview and inspect the labels against the image. Counts and mean areas describe the proposed segmentation, so check merged plaques, missed plaques and non-plaque regions before interpreting them."
+msgstr "运行预览，并对照图像检查标签。计数和平均面积描述的是建议的分割，因此在解读之前，请检查合并的空斑、漏检的空斑以及非空斑区域。"
+
+msgid "Inspect the object, probability and flow views when the chosen segmenter supplies those outputs. Missing flow output is not a zero-valued result."
+msgstr "当所选分割器提供这些输出时，请检查对象、概率和流场视图。缺少流场输出并不等于结果为零。"
+
+msgid "Choose **Use these settings** to copy the tuned values into the form that the analysis run reads. A preview alone does not run the folder analysis."
+msgstr "选择 **使用这些设置**，将调好的值复制到分析运行所读取的表单中。仅预览并不会对文件夹运行分析。"
+
+msgid "The preview resolves local checkpoints without downloading them implicitly. When a model is absent, the panel explains what is missing and offers the appropriate download. Keep the selected model and settings with the results; ``bundled`` names the historical packaged checkpoint, not an alias for the current Model Zoo model."
+msgstr "预览会解析本地检查点，而不会隐式下载。缺少模型时，面板会说明缺少什么，并提供相应的下载。请将所选模型和设置与结果一起保存；``bundled`` 指的是历史上打包的检查点，而不是当前模型库中模型的别名。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview colony counting (alpha)"
+msgstr "预览菌落计数（Alpha）"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path."
+msgstr "启用 **偏好 → 显示 Alpha 功能**，然后在模块的 **菌落计数** 设置中打开 **菌落计数**。保持 **空斑** 模式并按 **运行预览**。预览使用菌落计数设置和原图像素，显示菌落叠加层，并以原图像素为单位报告数量和平均面积。启用孔检测时，会分别统计检测到的孔，并在原始照片的对应位置显示。此流程不需要空斑分割模型。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode."
+msgstr "将菌落检测器留空可使用阈值法，也可以选择已安装的菌落检测器。预览会报告缺失的检查点或检测器依赖项，而不会静默切换方法；批量运行在可选检测器依赖项不可用时可以回退到阈值法。比较预览和批量结果时，请确认所需方法可用。菌落计数不生成流场或细胞概率输出，因此这些视图会显示输出不可用的提示。预览不写入分析数据库，也不改变源图像。在 Figure 模式下，菌落计数设置会被忽略。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL."
+msgstr "若各实验板的稀释度不同，在 **菌落稀释度** 中输入 UTF-8 CSV 路径。必需的表头为 ``file,dilution``；每行给出图像文件名（包含扩展名）或不带扩展名的文件名，以及一个正的有限稀释数值。例如，``plate1.png,10000`` 和 ``plate2,0.0001`` 都表示稀释倍数为 10000。完整文件名的优先级高于不带扩展名的文件名。重复标识或格式错误的行会在检测或写出结果之前停止预览或分析；不在映射中的板仍会得到计数，但没有 CFU/mL。仍支持单个数值或 Python 字典。铺板体积以 µL 为单位另行设置；计算 CFU/mL 时会将体积换算为 mL。"
+
+msgid "Read a published figure"
+msgstr "读取已发表的图"
+
+msgid "Select **Figure** mode. Supply a folder of figures, or use **From a paper…** to retrieve figures and legends from a DOI, PMID, PMC identifier or PDF into a new folder."
+msgstr "选择 **图** 模式。提供一个图文件夹，或使用 **从科研论文获取…** 根据 DOI、PMID、PMC 标识符或 PDF 将图和图注下载到新文件夹中。"
+
+msgid "If the figure reader is missing, use the panel's **Install** action. It installs the YOLO/OCR reader in its own backend environment under ``~/.spacr/backends``. Inspect the installation result before previewing."
+msgstr "如果缺少图读取器，请使用面板上的 **安装** 操作。它会在 ``~/.spacr/backends`` 下自己的后端环境中安装 YOLO/OCR 读取器。预览之前请检查安装结果。"
+
+msgid "In **Settings… → Figure**, choose the well detector, inference sizes and confidence cutoff; the text-reading settings are on the **Text detection** tab. **Run preview** finds wells and reads the figure text; this first pass does not segment the plaques."
+msgstr "在 **设置… → 图** 中，选择孔检测器、推理尺寸和置信度阈值；文字读取设置位于 **文本检测** 选项卡上。**运行预览** 会查找孔并读取图中的文字；这第一遍不会分割空斑。"
+
+msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence; Cancel stops after the current well."
+msgstr "单击图像中的某个孔或表格中的某一行。**空斑预览** 会使用空斑设置分割该孔。**在所有孔中查找空斑** 会依次处理检测到的孔；Cancel 会在当前孔完成后停止。"
+
+msgid "Compare the proposed condition with the nearby label and the relevant legend passage. Correct the condition, mark reviewed entries **OK**, and save the annotations. With **Confirm annotations** enabled, the run measures only the saved approved entries."
+msgstr "将建议的条件与附近的标签以及相关的图注段落进行比较。更正条件，将已审查的条目标记为 **OK**，然后保存标注。启用 **确认标注** 后，运行只测量已保存且已批准的条目。"
+
+msgid "Copy the tuned settings into the form before starting the analysis run. Retain the original figure, legend, annotation review and calibration information alongside the measurements."
+msgstr "在开始分析运行之前，将调好的设置复制到表单中。请将原始图、图注、标注审查和校准信息与测量结果一起保留。"
+
+msgid "The preview saves condition reviews in ``figure_annotations.csv`` and pasted legends in ``legends.csv`` in the source folder, preserving other figures' entries. The batch figure workflow uses these files and writes its database under ``<src>/plaque_figures/plaque_figures.db`` by default. Reprocessing a figure replaces its previous rows; duplicate image content is recorded rather than counted as an independent image. See :func:`spacr.plaque_papers.measure_figure_folder` for the full file contract."
+msgstr "预览将条件审查保存在源文件夹中的 ``figure_annotations.csv``，将粘贴的图注保存在 ``legends.csv``，并保留其他图的条目。批量图工作流程使用这些文件，默认将其数据库写入 ``<src>/plaque_figures/plaque_figures.db``。重新处理某张图会替换其先前的行；重复的图像内容会被记录，而不会被计为独立图像。完整的文件约定请参阅 :func:`spacr.plaque_papers.measure_figure_folder`。"
+
+msgid "Areas in pixels and calibrated areas are different quantities. Verify the reported scale and its source before comparing physical areas between images. A detector box or an automatically read condition is a proposal to inspect, not evidence that the experimental identity or calibration is correct."
+msgstr "像素面积和校准面积是不同的量。在比较不同图像之间的物理面积之前，请核实报告的比例尺及其来源。检测器框或自动读取的条件只是需要检查的建议，而不是实验标识或校准正确的证据。"
+
+msgid "For a figure crop, its own labeled scale bar takes priority, followed by its own unlabeled bar whose length is stated in the legend. A crop without its own bar can share an agreeing calibration from similarly sized crops in the same grid. Conflicting peer bars leave that crop in pixels with a conflict note. Whole-well calibration is a later fallback when the plate format is known; stated magnification alone does not calibrate a rescaled figure."
+msgstr "对于图中的裁剪区域，其自身带标注的比例尺优先，其次是长度在图注中说明的自身无标注比例尺。没有自身比例尺的裁剪区域可以共享同一网格中大小相近的裁剪区域的一致校准。相邻比例尺相互冲突时，该裁剪区域保持以像素为单位，并附有冲突说明。已知孔板规格时，整孔校准是后备方案；仅凭声明的放大倍数无法校准经过缩放的图。"
+
+msgid "Drop images, PDFs and folders"
+msgstr "拖放图像、PDF 和文件夹"
+
+msgid "Drop any number of images, PDFs or folders onto Plaque Assay. Images are read in **Plaque** mode and PDFs in **Figure** mode; every PDF is read in turn, with progress naming the paper being read, and a paper that cannot be read is reported by name without stopping the others. Files that are neither images nor PDFs are left out and counted once. When the drop does not match the current mode, a prompt offers to switch; when it holds both images and PDFs, choose which mode to run. If the figure reader needs installing or reinstalling, the prompt installs it in place and reports the result."
+msgstr "可以将任意数量的图像、PDF 或文件夹拖放到空斑分析上。图像以 **空斑** 模式读取，PDF 以 **图** 模式读取；每个 PDF 依次读取，进度信息会显示正在读取的论文，无法读取的论文会按名称报告而不会中断其他论文。既不是图像也不是 PDF 的文件会被忽略并统一计数一次。当拖放内容与当前模式不符时，会提示切换模式；当同时包含图像和 PDF 时，请选择要运行的模式。如果需要安装或重新安装图读取器，提示框会就地安装并报告结果。"
+
+msgid "Inspect the result views"
+msgstr "检查结果视图"
+
+msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
+msgstr "预览上方的视图选择器在两种模式下都提供 **叠加**、**掩膜**、**流场** 和 **细胞概率**。在图模式下，每个已分割孔的输出会放置在图上该孔的框内。右键单击图像可使用叠加选项：轮廓或填充对象、随机颜色、**叠加设置…** 和 **保存图片…**。叠加设置包括轮廓和填充颜色、填充不透明度以及 **孔框** 的 **线宽**。**标尺** 测量图像上的距离，已知像素尺寸时以 µm 为单位，否则以像素为单位；右键单击可清除。"
+
+msgid "Contribute training data"
+msgstr "贡献训练数据"
+
+msgid "**Contribute training data…** sends an annotated image to spaCR's community training data on Hugging Face. In Figure mode, box every well for the well detector; in Plaque mode, paint every plaque for the next plaque model. An image without annotations is not sent, and you must agree to the licence before uploading. The dialog shows the destination dataset as a link that can be opened, selected and copied. A contribution is reviewed before it is used for training, so draw the annotations carefully."
+msgstr "**贡献训练数据…** 会将一张已标注的图像发送到 spaCR 在 Hugging Face 上的社区训练数据中。在图模式下，请为孔检测器框出每个孔；在空斑模式下，请为下一个空斑模型涂出每个空斑。没有标注的图像不会被发送，上传前您必须同意许可协议。对话框会以链接形式显示目标数据集，可以打开、选择和复制该链接。贡献在用于训练之前会经过审查，因此请仔细绘制标注。"
+
+msgid "Changing selections while a preview runs"
+msgstr "预览运行期间更改选择"
+
+msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
+msgstr "更改来源、所选图像或模式会放弃之前的预览。之前预览迟到的结果无法替换新选择的视图。空的源文件夹会清除之前的掩膜、对象视图和图表格。加载完成后，请为目标选择启动新的预览。取消会丢弃旧结果；当前的模型调用完成后，**运行预览** 和孔控件才会再次可用。请等这些控件可用后再使用更改后的设置重新运行。"
+
+msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving happens in the background so the image remains responsive; a queued save is not yet a completed write."
+msgstr "选择 **保存标注** 后，请等待预览状态中出现保存确认，再开始批量分析。保存在后台进行，因此图像保持可响应；排队中的保存尚不是已完成的写入。"
+
+msgid "Python preview contracts"
+msgstr "Python 预览约定"
+
+msgid "The same operations are available as worker-safe functions; they do not touch widgets. Their returned data is preview output, separate from the batch analysis database."
+msgstr "相同的操作以工作线程安全的函数形式提供；它们不会触碰界面控件。其返回的数据是预览输出，与批量分析数据库相互独立。"
+
+msgid "Function"
+msgstr "函数"
+
+msgid "Result and scope"
+msgstr "结果与范围"
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.plaque_pass`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.plaque_pass`"
+
+msgid "Segment one plaque image and return labels, counts, areas and available flow outputs."
+msgstr "分割一张空斑图像，并返回标签、计数、面积和可用的流场输出。"
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.detect_figure`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.detect_figure`"
+
+msgid "Find figure regions and read text without segmenting plaques."
+msgstr "查找图中的区域并读取文字，但不分割空斑。"
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.prepare_figure_review`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.prepare_figure_review`"
+
+msgid "Read saved review information and propose ruler calibration for the detected figure while preserving supplied manual edits."
+msgstr "读取已保存的审查信息，并为检测到的图建议标尺校准，同时保留提供的手动编辑。"
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.segment_well`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.segment_well`"
+
+msgid "Segment a selected well crop with the plaque settings."
+msgstr "使用空斑设置分割所选孔的裁剪图。"
+
+msgid ":func:`spacr.qt.widgets.plaque_preview.figure_pass`"
+msgstr ":func:`spacr.qt.widgets.plaque_preview.figure_pass`"
+
+msgid "Find, read and segment a figure in one function call. This differs from the GUI's initial detection-only preview."
+msgstr "在一次函数调用中查找、读取并分割一张图。这与图形界面最初仅做检测的预览不同。"
+
+msgid "With the default segmenter, ``plaque_pass``, ``segment_well`` and ``figure_pass`` use :func:`spacr.plaque.segment_plaque_image`, including the configured ``diameter``, ``flow_threshold``, ``CP_prob`` and channel-axis policy. A custom ``segment`` callback supplies its own segmentation behavior. Keep those settings explicit when comparing Python results with the GUI."
+msgstr "使用默认分割器时，``plaque_pass``、``segment_well`` 和 ``figure_pass`` 使用 :func:`spacr.plaque.segment_plaque_image`，包括配置的 ``diameter``、``flow_threshold``、``CP_prob`` 和通道轴策略。自定义的 ``segment`` 回调提供其自己的分割行为。将 Python 结果与图形界面比较时，请显式保持这些设置。"
+
+msgid "For GUI integrations, ``PlaquePreviewPanel.preview_running()`` remains true while a cancelled worker is finishing. ``set_preview_busy(False)`` therefore keeps rerun controls disabled until that worker exits. ``save_annotations()`` returns the queued destination; observe the preview status for completion or failure before consuming the file."
+msgstr "对于图形界面集成，在被取消的工作线程正在收尾时，``PlaquePreviewPanel.preview_running()`` 仍为真。因此，``set_preview_busy(False)`` 会使重新运行的控件保持禁用，直到该工作线程退出。``save_annotations()`` 返回排队的目标位置；在使用该文件之前，请通过预览状态确认其完成或失败。"
+

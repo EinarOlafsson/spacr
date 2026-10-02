@@ -50,3 +50,14 @@ translations), so it is listed rather than edited here:
     spacr/qt/i18n.py and the translation-correctness exemption for "Demos";
   * docs/notes/spacr/qt/{tutorial/scripts,app,screens/app_screen,
     synthetic}.md and the reviewed API translation JSONs that still name it.
+
+2026-10-01 — REMAINING NAVIGATION AND DOCUMENTATION CLEANUP COMPLETE
+Removed the dead Demos lookup/target helpers and menu fallbacks, five retired
+chrome translation rows, the Demos translation exemption, and obsolete
+instructions in all four assigned notes. Synthetic generators remain valid
+test/recording fixtures. Historical reviewed translation files mentioning the
+old navigation are explicitly retired evidence, not active product strings.
+Validation: 145 named tutorial/translation tests passed, one existing
+report-only translation xfail. Actual app and walkthrough menu-absence checks
+remain. No live Demos navigation reference remains in runtime or those notes.
+Status: COMPLETE on nightly.

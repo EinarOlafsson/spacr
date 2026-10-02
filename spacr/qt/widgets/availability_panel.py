@@ -203,6 +203,10 @@ class AvailabilityPanel(QFrame):
         column.addWidget(self._body)
         column.addWidget(self._links)
 
+        from ..tooltip_policy import HoverDelay
+        self._hover_delay = HoverDelay(self)
+        self._hover_delay.invalidated.connect(self._cancel_hover)
+        self._hover_identity = None
         self._hide_timer = QTimer(self)
         self._hide_timer.setSingleShot(True)
         self._hide_timer.timeout.connect(self._maybe_hide)
@@ -300,7 +304,7 @@ class AvailabilityPanel(QFrame):
 
     def show_for(self, anchor: QWidget, entries, index: int = 0, *,
                  anchor_rect: Optional[QRect] = None,
-                 pinned: bool = False) -> None:
+                 pinned: bool = False, immediate: bool = False) -> None:
         """Show the panel for ``entries[index]``, docked under ``anchor``.
 
         :param anchor: the widget the panel belongs to. Used for placement
@@ -314,10 +318,25 @@ class AvailabilityPanel(QFrame):
             when the thing being explained is smaller than the widget -- a
             single row of an open combo popup, for instance.
         :param pinned: opened by keyboard. See :meth:`open_for`.
+        :param immediate: explicit click/keyboard request, bypassing hover delay.
         """
         items = [dict(entry) for entry in (entries or [])]
         if not items:
             return
+        identity = (anchor, int(index), repr(items),
+                    (anchor_rect.x(), anchor_rect.y(), anchor_rect.width(),
+                     anchor_rect.height()) if anchor_rect else None)
+        if not (immediate or pinned):
+            if identity == self._hover_identity and (
+                    self._hover_delay._timer.isActive() or self.isVisible()):
+                return
+            self.hide()
+            self._hover_identity = identity
+            self._hover_delay.schedule(anchor, lambda: self.show_for(
+                anchor, items, index, anchor_rect=anchor_rect, immediate=True))
+            return
+        self._hover_delay.cancel()
+        self._hover_identity = identity
         self._entries = items
         self._index = max(0, min(int(index), len(items) - 1))
         self._anchor = anchor
@@ -444,8 +463,14 @@ class AvailabilityPanel(QFrame):
         return QRect(top_left, anchor.size())
 
 
+    def _cancel_hover(self) -> None:
+        """Cancel hover help when preferences change; keep explicit help."""
+        if not self._pinned:
+            self.hide()
+
     def start_hide(self, delay_ms: Optional[int] = None) -> None:
         """Schedule the hide the pointer is allowed to interrupt."""
+        self._hover_delay.cancel()
         if self._pinned:
             return
         if not self._hide_timer.isActive():
@@ -606,6 +631,7 @@ class AvailabilityPanel(QFrame):
 
         :param event: the hide event, passed on to the base class.
         """
+        self._hover_delay.cancel()
         self._remove_filter()
         super().hideEvent(event)
 
@@ -861,5 +887,6 @@ def explain(anchor, entries, index: int = 0, *, pinned: bool = False,
     if pinned:
         panel.open_for(anchor, entries, index, anchor_rect=anchor_rect)
     else:
-        panel.show_for(anchor, entries, index, anchor_rect=anchor_rect)
+        panel.show_for(anchor, entries, index, anchor_rect=anchor_rect,
+                       immediate=True)
     return panel

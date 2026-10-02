@@ -94,3 +94,48 @@ def test_a_folder_run_writes_model_predictions_and_scores(tmp_path):
     table = read_table(out / "virtual_stain_scores.csv", report=None)
     assert sorted(table["kind"]) == ["input_baseline", "predicted"]
     assert "predicted_f1_50" in summary
+
+
+# ---------------------------------------------------------------------------
+# Edges the coverage ratchet found untested (dispatch 36739819315)
+# ---------------------------------------------------------------------------
+
+def test_a_plane_is_block_averaged_with_its_ragged_edge_trimmed():
+    plane = np.arange(7 * 9, dtype=np.float32).reshape(7, 9)
+    small = ds._vs_downscale(plane, 2)
+    assert small.shape == (3, 4)
+    assert small[0, 0] == pytest.approx(plane[:2, :2].mean())
+
+
+def test_fields_are_read_from_tiff_with_channels_first_or_a_single_plane(
+        tmp_path):
+    import tifffile
+
+    tifffile.imwrite(tmp_path / "first.tif",
+                     np.zeros((2, 32, 40), np.uint16))
+    tifffile.imwrite(tmp_path / "plane.tif", np.zeros((32, 40), np.uint16))
+    assert ds._vs_read_field(tmp_path / "first.tif").shape == (32, 40, 2)
+    assert ds._vs_read_field(tmp_path / "plane.tif").shape == (32, 40, 1)
+
+
+def test_a_crop_the_network_cannot_halve_is_refused_and_progress_is_told():
+    with pytest.raises(ValueError, match="crop must be divisible by 4"):
+        ds._train_virtual_stain([_field(0)], [1], 0, crop=30, depth=2,
+                                epochs=1)
+    heard = []
+    ds._train_virtual_stain([_field(0)], [1], 0, scale=1, crop=32,
+                            per_field=2, epochs=2, batch_size=2, base=4,
+                            depth=2, progress=lambda e, loss: heard.append(e))
+    assert heard == [1, 2]
+
+
+def test_a_flat_plane_has_no_objects_and_no_correlation():
+    flat = np.full((32, 32), 0.5, np.float32)
+    assert not ds._vs_segment(flat).any()
+    assert np.isnan(ds._vs_pixel_metrics(flat, flat)["pearson"])
+
+
+def test_a_folder_with_one_field_cannot_be_split(tmp_path):
+    np.save(tmp_path / "only.npy", _field(0))
+    with pytest.raises(ValueError, match="at least two paired fields"):
+        ds._virtual_stain_from_folder(str(tmp_path), [1], 0, epochs=1)

@@ -134,7 +134,10 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     additions = later_sources - earlier_sources
     # 781 -> 780 on 2026-09-25: nightly merge 5c03e8bda removed one retired PSF
     # help record from 2026-09-23-psf-help.json (11 -> 10 records).
-    assert len(additions) == report["later_distinct_additions"] == 780
+    # 780 -> 778 on 2026-10-01: the Make Masks re-layout rewrote two
+    # FEATURES workflow-map phrases; their records were retired in place
+    # (2026-09-23-workflow-map-phrases.json, 208 -> 206 records).
+    assert len(additions) == report["later_distinct_additions"] == 778
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
     for filename, record_count, source_count in (
@@ -344,13 +347,37 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert len(pass9) == len(latest_p9) and not latest_p9 & sources
     sources |= latest_p9
     # The 2026-09-30 tenth runtime pass: item 598's contribute-dialog
-    # captions, whose links moved onto their own line; the third-pass record
-    # of the old linked thank-you was retired in place (retired_records).
+    # captions (the third-pass record of the old linked thank-you was retired
+    # in place) and the Make Masks button re-layout (Upload data, the Load
+    # test data menu, the Uncertainty setting).
     pass10 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-tenth-pass-*.json"))
               for record in json.loads(path.read_text())["records"]]
     latest_p10 = {record["source"] for record in pass10}
     assert len(pass10) == len(latest_p10) and not latest_p10 & sources
     sources |= latest_p10
+    # The 2026-09-30 eleventh runtime pass, first slice: the confluency
+    # tooltips item 536 rewrote (their fourth-pass records retired in place)
+    # and item 603's tooltip-delay row; disjoint from every earlier slice.
+    pass11a = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-eleventh-pass-*.json"))
+               for record in json.loads(path.read_text())["records"]]
+    latest_p11a = {record["source"] for record in pass11a}
+    assert len(pass11a) == len(latest_p11a) and not latest_p11a & sources
+    sources |= latest_p11a
+    # The 2026-09-30 eleventh runtime pass: meaning fixes for machine-
+    # translated names (train, model zoo, batch, run, seed, hit, well, ...)
+    # that had no reviewed record before; another disjoint slice.
+    pass11 = [record for path in sorted(folder.glob("2026-09-30-runtime-meaning-fixes-eleventh-pass*.json"))
+              for record in json.loads(path.read_text())["records"]]
+    latest_p11 = {record["source"] for record in pass11}
+    assert len(pass11) == len(latest_p11) and not latest_p11 & sources
+    sources |= latest_p11
+    # The 2026-10-01 twelfth runtime pass: the AI meaning review of setting
+    # labels and tooltips that had only a machine translation; disjoint.
+    pass12 = [record for path in sorted(folder.glob("2026-10-01-runtime-review-twelfth-pass-*.json"))
+              for record in json.loads(path.read_text())["records"]]
+    latest_p12 = {record["source"] for record in pass12}
+    assert len(pass12) == len(latest_p12) and not latest_p12 & sources
+    sources |= latest_p12
     assert sources <= reviewed.keys()
     return sources
 
@@ -606,7 +633,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 626  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1686  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1684  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -859,7 +886,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 619  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1678  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1676  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

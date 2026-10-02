@@ -477,3 +477,90 @@ on the field in view; this one changes WHICH FIELD is in view, writes new
 crops and retires the original. spaCR reads crops from a database rather
 than a folder of `_seg.npy` files, so the queue and the moved-aside original
 are answered in spaCR's own terms rather than copied.
+
+--------------------------------------------------------------------------------
+2026-10-01 — CLAUDE.md REQUIREMENTS RECONCILIATION
+--------------------------------------------------------------------------------
+
+Status: OPEN for the new acceptance below; earlier completed scope is preserved.
+Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
+Owner: Codex inventory session (tracking only).
+
+This update records requirements, not implementation or acceptance. The current
+user request is to update the lists and report scope; implementation and release
+operations are not performed by this inventory session. Earlier evidence remains
+historical and does not prove the newly requested acceptance conditions.
+
+Make Masks action-row alignment
+
+Place **Save mask**, **Previous**, and **Next** on the same horizontal row and vertical level as the other Make Masks action buttons. They must not remain on a separate lower row.
+
+Use the existing layout system, styling, spacing, and sizing conventions. Preserve callbacks, keyboard shortcuts, enabled/disabled states, and existing handling of unsaved changes during navigation. Do not introduce unrelated changes to saving behavior.
+
+Check alignment at normal supported window sizes and display scaling settings. Avoid clipping, overlap, and platform-specific pixel-offset workarounds.
+
+**Acceptance:** All these action buttons visibly share the intended control row, and saving and navigation continue to work as before.
+
+SCOPING EVIDENCE
+Existing toolbar work is in spacr/qt/screens/make_masks.py. Recheck actual
+Save mask / Previous / Next geometry and callbacks at supported scales.
+
+Supporting API, docs, translations, tutorials and validation are tracked in 615.
+
+2026-10-01 — CONSOLIDATED CONCURRENT TRACKING RECORD
+The following original record from 25ba0c8ef is retained verbatim as historical
+scoping evidence. Its old numeric references are superseded by the mapping in
+item 615; the user-facing item numbers from the Codex table remain authoritative.
+
+================================================================================
+MAKE MASKS: SAVE MASK, PREVIOUS AND NEXT JOIN THE ACTION-BUTTON ROW
+================================================================================
+
+Status:    not started (filed 2026-10-01; scoped, see below)
+Requested: 2026-10-01 -- "Place Save mask, Previous, and Next on the same
+           horizontal row and vertical level as the other Make Masks action
+           buttons. They must not remain on a separate lower row."
+Owner:     1.5.1.1 implementation session (Claude)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr/qt/screens/make_masks.py, _build_ui (~8560-8661): the bottom bar
+`nav` (outer_row) holds the left toolbar strip (Open folder, Organize for
+Measure, Load test data, Uncertainty) and, right, _nav_curate_group
+(Discard, Keep, Skip, Blind, ROIs, Upload data). _nav_step_group (Save mask,
+Prev image, Next image) is put in _image_nav_row under the view tabs
+(~8659), i.e. a separate row. Item 600c's test
+(tests/qt/test_600_popup_layout_and_selection.py::
+test_the_maintainers_button_layout) pins that older layout and is updated
+by this item, since the maintainer has now asked for a single row.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Move _nav_step_group into outer_row with the same alignment as the other
+groups (keep the group widget so the three never wrap apart). Callbacks,
+shortcuts (Left/Right/Ctrl+S), enabled states and the recrop-before-navigate
+behaviour are unchanged. Keep the status label where it is.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The 600c layout test asserts one shared top y for toolbar, step and curate
+buttons at 1600x900 and at a narrow width, no overlap between groups, and
+that Save/Prev/Next still fire their slots.
+
+2026-10-01 — REQUESTED ACTION-ROW FOLLOW-UP COMPLETE
+Save mask, Previous image and Next image now share the existing horizontally
+scrolling action toolbar with the other Make Masks tools. Their callbacks,
+keyboard shortcuts and unsaved-navigation behavior are preserved. The old
+separate navigation row is removed.
+Rendered geometry and save/navigation checks pass at 1280, 1600 and 1920 px;
+all three alignment cases also pass at display scale 2. The combined named
+quality/organizer/layout cohort passed 119 tests. The action-row capture in
+/tmp/spacr-implementation-20261001/review/masks/action-row.png was inspected.
+This closes the newly requested N247 runtime follow-up; shared catalog and
+tutorial refresh are tracked under N615.

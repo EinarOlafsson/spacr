@@ -673,7 +673,11 @@ def preprocess_generate_masks(settings):
                                                 save_pdf=True,
                                                 outline_palette=settings.get(
                                                     'outline_palette',
-                                                    'default')
+                                                    'default'),
+                                                organelle_channels={
+                                                    role: settings.get(f'{role}_channel')
+                                                    for role in ORGANELLE_ROLES[1:]
+                                                    if settings.get(f'{role}_channel') is not None}
                                             )
                                             stop = time.time()
                                             duration = stop-start
@@ -688,6 +692,17 @@ def preprocess_generate_masks(settings):
 
                     torch.cuda.empty_cache()
                     gc.collect()
+
+                    # Item 76, decided 2026-09-29: Mask writes which object
+                    # sits in which as its own table in measurements.db.
+                    try:
+                        from .filters import _write_object_relationships
+                        _write_object_relationships(
+                            src, timelapse=bool(settings.get('timelapse')))
+                    except Exception as exc:
+                        print(f"WARNING: could not write the object "
+                              f"relationships table for {src}: "
+                              f"{type(exc).__name__}: {exc}")
 
                     from .utils import cleanup_pipeline_folders
                     keep_intermediate = settings.get('keep_intermediate', False) and not settings.get('delete_intermediate', False)
@@ -705,8 +720,12 @@ def preprocess_generate_masks(settings):
             if os.path.isfile(db_path):
                 ledger.stamp(db_path)
                 try:
-                    from .filters import write_relationships
-                    write_relationships(db_path)
+                    from .filters import object_tables, write_relationships
+                    # The filters' relationships table is built from
+                    # Measure's object tables; before Measure has run there
+                    # are none, and that is not a failure (item 76).
+                    if object_tables(db_path):
+                        write_relationships(db_path)
                 except Exception as exc:
                     print(f"WARNING: could not write the relationships "
                           f"table for {db_path}: "
@@ -762,6 +781,8 @@ _WATCH_PIPELINES = ('mask', 'mask_measure')
 _WATCH_SUFFIXES = ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2',
                    '.czi', '.lif')
 _WATCH_KEY_GROUPS = ('plateID', 'wellID', 'timeID', 'fieldID')
+_WATCH_OUTPUT_DIRS = frozenset({_WATCH_DIR, 'orig', 'stack', 'masks', 'merged',
+                               'measurements', 'results', 'test'})
 
 
 def _watch_truthy(value):
@@ -860,6 +881,7 @@ def _watch_field_of(name, settings, cache):
     """
     import re
 
+    name = os.path.basename(name)
     stem, extension = os.path.splitext(name)
     pattern = _watch_pattern(settings, extension.lstrip('.').lower(), cache)
     match = pattern.match(name) if pattern is not None else None
@@ -871,6 +893,145 @@ def _watch_field_of(name, settings, cache):
         parts, channel = [stem], None
     key = re.sub(r'[^A-Za-z0-9._-]+', '_', '_'.join(parts)).strip('._')
     return key or 'field', channel
+
+
+def _watch_map_bytes(src):
+    """Read at most 16 MiB of the local Convert map without following links.
+
+    :param src: acquisition directory containing the default Convert map.
+    :returns: immutable file bytes, or None when no map exists.
+    :raises ValueError: for oversized, nonregular or changing metadata.
+    """
+    import stat
+
+    from .convert import MAP_FILENAME
+
+    path = os.path.join(src, MAP_FILENAME)
+    if not os.path.lexists(path):
+        return None
+    if os.path.islink(path) or not os.path.isfile(path):
+        raise ValueError(f'watch_folder: {path} must be a regular conversion map.')
+    flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise ValueError(f'watch_folder: cannot safely open conversion_map.csv: {exc}') from exc
+    with os.fdopen(descriptor, 'rb') as handle:
+        before = os.fstat(handle.fileno())
+        current = os.stat(path, follow_symlinks=False)
+        if (not stat.S_ISREG(before.st_mode) or not stat.S_ISREG(current.st_mode)
+                or (before.st_dev, before.st_ino) != (current.st_dev, current.st_ino)):
+            raise ValueError('watch_folder: conversion_map.csv is not a stable regular file.')
+        data = handle.read(16 * 1024 * 1024 + 1)
+        after = os.fstat(handle.fileno())
+    if len(data) > 16 * 1024 * 1024:
+        raise ValueError('watch_folder: conversion_map.csv exceeds the 16 MiB limit.')
+    if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
+        raise ValueError('watch_folder: conversion_map.csv changed while being read.')
+    return data
+
+
+def _watch_validate_map_channels(settings, channels):
+    """Refuse schemas that raw preprocessing would compact or reinterpret.
+
+    Convert assigns channel IDs 1..N; preprocessing writes present planes in
+    ascending channel order. Requiring the same dense set in every field keeps
+    selected zero-based positions attached to the same declared channel IDs.
+
+    :param settings: watch settings containing selected positional channels.
+    :param channels: mapped field keys to sets of assigned channel IDs.
+    :returns: None when each field has one shared dense schema and valid indices.
+    :raises ValueError: for sparse/mixed fields or invalid selected positions.
+    """
+    import ast
+
+    combined = set().union(*channels.values())
+    expected = set(range(1, len(combined) + 1))
+    if combined != expected or any(values != expected for values in channels.values()):
+        raise ValueError('mapped fields must share the same complete C01..CN channel '
+                         'schema; sparse or mixed fields would shift channel positions. '
+                         'Use complete acquisitions or separate watch folders.')
+    selected = settings.get('channels', [0])
+    if isinstance(selected, str):
+        try:
+            selected = ast.literal_eval(selected)
+        except (ValueError, SyntaxError):
+            selected = None
+    if (not isinstance(selected, (list, tuple)) or not selected
+            or any(type(value) is not int or value < 0 or value >= len(expected)
+                   for value in selected)
+            or len(set(selected)) != len(selected)):
+        raise ValueError(f'channels must be distinct zero-based positions in the '
+                         f'mapped channel schema (0..{len(expected) - 1}).')
+
+
+def _watch_map_manifest(src, settings):
+    """Validate a fixed Convert map and bind exact target names to each field.
+
+    :param src: acquisition directory containing converted images.
+    :param settings: the watch filename convention and optional custom regex.
+    :returns: field-to-target sets and the map SHA256, or two None values.
+    :raises ValueError: when map identities are unsupported or ambiguous.
+    """
+    import csv
+    import hashlib
+    import io
+
+    from .convert import _REQUIRED_MAP_COLUMNS, target_name
+
+    data = _watch_map_bytes(src)
+    if data is None:
+        return None, None
+    try:
+        reader = csv.DictReader(io.StringIO(data.decode('utf-8-sig')))
+        if not reader.fieldnames or not set(_REQUIRED_MAP_COLUMNS) <= set(reader.fieldnames):
+            raise ValueError('required Convert map columns are missing')
+        if len(reader.fieldnames) != len(set(reader.fieldnames)):
+            raise ValueError('duplicate column headers')
+        groups, channels, patterns, targets = {}, {}, {}, set()
+        for row in reader:
+            name = row['target']
+            if not name or name != os.path.basename(name) or '/' in name or '\\' in name:
+                raise ValueError('targets must be plain output filenames')
+            numbers = {key: int(row[key]) for key in ('field', 'channel', 'z', 't')}
+            if any(value < 1 for value in numbers.values()):
+                raise ValueError('output field/channel/z/t identifiers must be positive')
+            expected = target_name(row['plate'], row['well'], **numbers)
+            if name != expected or not row['source']:
+                raise ValueError(f'target disagrees with its Convert metadata: {name}')
+            if numbers['z'] != 1 or numbers['t'] != 1:
+                raise ValueError('mapped z-stacks and time series are not supported by watch mode')
+            key, channel = _watch_field_of(name, settings, patterns)
+            if channel is None or not str(channel).isdecimal() or int(channel) != numbers['channel']:
+                raise ValueError(f'watch filename settings do not identify the mapped channel: {name}')
+            if name in targets or numbers['channel'] in channels.setdefault(key, set()):
+                raise ValueError(f'duplicate target or field channel: {name}')
+            targets.add(name)
+            channels[key].add(numbers['channel'])
+            groups.setdefault(key, set()).add(name)
+        if not groups:
+            raise ValueError('the conversion map has no output rows')
+        _watch_validate_map_channels(settings, channels)
+    except (ValueError, TypeError, KeyError, UnicodeError, csv.Error) as exc:
+        raise ValueError(f'watch_folder: invalid conversion_map.csv: {exc}') from exc
+    return groups, hashlib.sha256(data).hexdigest()
+
+
+def _watch_check_map(context):
+    """Stop before processing if the bound map is changed, removed or introduced.
+
+    :param context: watch state containing src and the initial map_sha256.
+    :returns: None when the current metadata matches the initial snapshot.
+    :raises ValueError: when that snapshot no longer describes the folder.
+    """
+    import hashlib
+
+    data = _watch_map_bytes(context['src'])
+    digest = hashlib.sha256(data).hexdigest() if data is not None else None
+    if digest != context.get('map_sha256'):
+        raise ValueError('watch_folder: conversion_map.csv changed since this watch '
+                         'started; stop conversion and use a separate watch workspace '
+                         'for a different map. Existing results are preserved.')
 
 
 def _watch_unreadable(path):
@@ -888,7 +1049,8 @@ def _watch_unreadable(path):
         if extension in ('.tif', '.tiff'):
             import tifffile
 
-            tifffile.imread(path)
+            if tifffile.imread(path).size == 0:
+                return 'TIFF contains no readable image pixels'
         elif extension in ('.png', '.jpg', '.jpeg', '.bmp'):
             from PIL import Image
 
@@ -906,19 +1068,31 @@ def _watch_unreadable(path):
 
 
 def _watch_images(src):
-    """The image files directly in ``src``, hidden files excluded.
+    """List relative acquisition image paths without following output trees.
+
+    Hidden entries, symbolic links and spaCR's generated folders are pruned.
+    Relative paths keep nested file identity in the watch ledger; filename
+    metadata is still parsed from the basename, not guessed from directories.
 
     :param src: the watched folder.
-    :returns: the file names, sorted.
+    :returns: relative image paths, sorted; root-level names stay unchanged.
     """
-    try:
-        names = os.listdir(src)
-    except OSError:
-        return []
-    return sorted(name for name in names
-                  if not name.startswith('.')
-                  and name.lower().endswith(_WATCH_SUFFIXES)
-                  and os.path.isfile(os.path.join(src, name)))
+    from .cancellation import checkpoint
+
+    names = []
+    for directory, folders, files in os.walk(src, followlinks=False):
+        checkpoint()
+        folders[:] = sorted(folder for folder in folders
+                            if not folder.startswith('.')
+                            and folder.lower() not in _WATCH_OUTPUT_DIRS
+                            and not folder.lower().endswith('_mask_stack')
+                            and not os.path.islink(os.path.join(directory, folder)))
+        for name in files:
+            path = os.path.join(directory, name)
+            if (not name.startswith('.') and name.lower().endswith(_WATCH_SUFFIXES)
+                    and not os.path.islink(path) and os.path.isfile(path)):
+                names.append(os.path.relpath(path, src))
+    return sorted(names)
 
 
 def _watch_load_ledger(path, src):
@@ -1023,13 +1197,67 @@ def _watch_analyse_field(field_dir, settings):
         return
     from .measure import measure_crop
 
-    measure = _watch_measure_settings(settings)
+    from copy import deepcopy
+
+    measure = (deepcopy(settings['watch_measure_snapshot'])
+               if 'watch_measure_snapshot' in settings
+               else _watch_measure_settings(settings))
     measure['src'] = merged
     measure_crop(measure)
     if not os.path.exists(os.path.join(field_dir, 'measurements',
                                        'measurements.db')):
         raise RuntimeError('Measure wrote no measurements.db for this field; '
                            'the log above says why.')
+
+
+def _watch_measure_recipe(settings):
+    """Capture Measure input settings and hash their canonical JSON content.
+
+    The source folder is excluded by the existing settings loader. Each field
+    receives its own copy, so later file edits or downstream mutations cannot
+    change the recipe of an active watch. Only the digest is stored in the
+    ledger; this avoids duplicating potentially sensitive settings values.
+
+    :param settings: watch settings naming a Measure file or default channels.
+    :returns: independent settings dictionary and SHA256 of its JSON content.
+    :raises ValueError: when settings cannot be represented as finite JSON.
+    """
+    import hashlib
+    import json
+    from copy import deepcopy
+
+    recipe = deepcopy(_watch_measure_settings(settings))
+    try:
+        encoded = json.dumps(recipe, sort_keys=True, separators=(',', ':'),
+                             ensure_ascii=False, allow_nan=False).encode('utf-8')
+    except (TypeError, ValueError) as exc:
+        raise ValueError('watch_folder: Measure settings must contain finite '
+                         'JSON-compatible values for a reproducible recipe.') from exc
+    return recipe, hashlib.sha256(encoded).hexdigest()
+
+
+def _watch_mask_recipe(settings):
+    """Freeze the effective Mask inputs and fingerprint them for watch resumes.
+
+    Watch timing and source paths do not change the per-field Mask recipe.
+    The three output/control switches below are forced by the field adapter,
+    so their caller-supplied values do not change its result either.
+    """
+    import hashlib
+    import json
+    from copy import deepcopy
+
+    recipe = {key: value for key, value in settings.items()
+              if not str(key).startswith('watch_') and key != 'src'}
+    recipe.update(consolidate=False, dry_run=False, test_mode=False)
+    recipe = deepcopy(recipe)
+    try:
+        encoded = json.dumps(recipe, sort_keys=True, separators=(',', ':'),
+                             ensure_ascii=False, allow_nan=False).encode('utf-8')
+    except (TypeError, ValueError) as exc:
+        raise ValueError('watch_folder: Mask settings must contain finite '
+                         'JSON-compatible values for a reproducible recipe.') from exc
+    return recipe, hashlib.sha256(encoded).hexdigest()
 
 
 def _watch_quote(name):
@@ -1104,7 +1332,7 @@ def _watch_merge_database(field_db, combined_db, key):
     return True
 
 
-def _watch_collect(field_dir, work, key):
+def _watch_collect(field_dir, work, key, database_snapshot=None):
     """Gather one analysed field into the watch folder's combined outputs.
 
     The field's ``merged`` files are linked into ``<work>/merged`` and its
@@ -1114,6 +1342,7 @@ def _watch_collect(field_dir, work, key):
     :param field_dir: the analysed field's folder.
     :param work: the ``spacr_watch`` folder.
     :param key: the field key.
+    :param database_snapshot: optional closed SQLite snapshot captured after analysis.
     """
     merged = os.path.join(field_dir, 'merged')
     if os.path.isdir(merged):
@@ -1124,11 +1353,141 @@ def _watch_collect(field_dir, work, key):
             destination = os.path.join(target, name)
             if os.path.isfile(source) and not os.path.exists(destination):
                 _watch_link(source, destination)
-    field_db = os.path.join(field_dir, 'measurements', 'measurements.db')
+    field_db = database_snapshot or os.path.join(field_dir, 'measurements', 'measurements.db')
+    if database_snapshot is not None and not os.path.isfile(field_db):
+        raise ValueError('Collection database snapshot disappeared before append.')
     if os.path.exists(field_db):
         _watch_merge_database(
             field_db, os.path.join(work, 'measurements', 'measurements.db'),
             key)
+
+
+def _watch_artifact_sha256(path):
+    """Hash one stable regular output with cancellable, bounded reads.
+
+    :param path: staged or combined artifact; final-component links are refused.
+    :returns: SHA256 of verified bytes.
+    :raises ValueError: when an artifact is missing, nonregular or changes.
+    """
+    import hashlib
+    from .cancellation import checkpoint
+
+    identity = _watch_file_identity(path)
+    if identity is None:
+        raise ValueError(f'Collection artifact is missing or unsafe: {path}')
+    flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise ValueError(f'Collection artifact cannot be opened: {path}') from exc
+    with os.fdopen(descriptor, 'rb') as handle:
+        info = os.fstat(handle.fileno())
+        if [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns] != identity:
+            raise ValueError(f'Collection artifact changed before hashing: {path}')
+        digest, size = hashlib.sha256(), 0
+        while True:
+            checkpoint()
+            chunk = os.read(handle.fileno(), min(1024 * 1024, identity[2] - size + 1))
+            if not chunk:
+                break
+            size += len(chunk)
+            if size > identity[2]:
+                raise ValueError(f'Collection artifact grew while hashing: {path}')
+            digest.update(chunk)
+        if size != identity[2] or _watch_file_identity(path) != identity:
+            raise ValueError(f'Collection artifact changed while hashing: {path}')
+    return digest.hexdigest()
+
+
+def _watch_collection_artifacts(field_dir):
+    """Fingerprint the precise merged files and SQLite output to be collected.
+
+    :param field_dir: completed field staging directory.
+    :returns: relative artifact paths mapped to SHA256 values.
+    :raises ValueError: when no usable outputs exist or an output is unsafe.
+    """
+    artifacts = {}
+    merged = os.path.join(field_dir, 'merged')
+    if os.path.isdir(merged):
+        for name in sorted(os.listdir(merged)):
+            relative = os.path.join('merged', name)
+            artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
+    relative = os.path.join('.watch_collection', 'measurements.db')
+    if os.path.lexists(os.path.join(field_dir, relative)):
+        for suffix in ('-wal', '-journal', '-shm'):
+            if os.path.lexists(os.path.join(field_dir, relative + suffix)):
+                raise ValueError('Collection requires a closed, checkpointed SQLite '
+                                 f'database without sidecars: {relative + suffix}')
+        artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
+    if not artifacts:
+        raise ValueError('Collection has no completed analysis artifacts to preserve.')
+    return artifacts
+
+
+def _watch_backup_progress(status, remaining, total):
+    """Allow Stop between bounded SQLite backup page batches.
+
+    :param status: SQLite status code supplied by the backup API.
+    :param remaining: pages remaining in the source snapshot.
+    :param total: source page count reported by SQLite.
+    :returns: None; cancellation interrupts backup without publishing a snapshot.
+    """
+    from .cancellation import checkpoint
+
+    checkpoint()
+
+
+def _watch_snapshot_database(field_dir):
+    """Capture committed rows, including WAL contents, into a closed private DB.
+
+    :param field_dir: completed field staging directory.
+    :returns: None; publishes a new snapshot only after backup and close succeed.
+    :raises OSError: when the owned destination cannot be created or published.
+    :raises sqlite3.Error: when the source cannot be backed up consistently.
+    """
+    import sqlite3
+    from pathlib import Path
+
+    source = Path(field_dir) / 'measurements' / 'measurements.db'
+    if not source.exists():
+        return
+    if _watch_file_identity(source) is None:
+        raise ValueError('Collection producer database is not a regular file.')
+    folder = Path(field_dir) / '.watch_collection'
+    folder.mkdir()
+    partial = folder / 'measurements.db.partial'
+    incoming = sqlite3.connect(source.resolve().as_uri() + '?mode=ro', uri=True, timeout=1)
+    try:
+        outgoing = sqlite3.connect(partial, timeout=30.0)
+        try:
+            incoming.backup(outgoing, pages=256, progress=_watch_backup_progress, sleep=0.05)
+            outgoing.execute('PRAGMA journal_mode=DELETE').fetchone()
+        finally:
+            outgoing.close()
+    finally:
+        incoming.close()
+    os.replace(partial, folder / 'measurements.db')
+
+
+def _watch_validate_collection(field_dir, work, saved, *, verify_staged):
+    """Refuse altered checkpoints or conflicting combined pixels before writes.
+
+    :param field_dir: completed field staging directory.
+    :param work: shared watch output directory.
+    :param saved: checkpoint artifact path/hash mapping.
+    :param verify_staged: True on restart; False just after fingerprinting outputs.
+    :returns: None when collection can safely continue.
+    :raises ValueError: for missing/changed outputs or conflicting combined files.
+    """
+    if verify_staged and _watch_collection_artifacts(field_dir) != saved:
+        raise ValueError('Collection checkpoint artifacts changed; preserved outputs '
+                         'must be recovered before resuming this workspace.')
+    for relative, digest in saved.items():
+        if os.path.dirname(relative) != 'merged':
+            continue
+        destination = os.path.join(work, relative)
+        if os.path.lexists(destination) and _watch_artifact_sha256(destination) != digest:
+            raise ValueError(f'Collection conflicts with an existing combined artifact: {destination}')
 
 
 def _watch_status_line(ledger, waiting):
@@ -1188,6 +1547,103 @@ def _watch_check_settings(settings):
     return src, pipeline, settle, poll, idle
 
 
+def _watch_file_identity(path):
+    """Return regular-file identity or None for missing, linked or unsafe input.
+
+    :param path: acquired image path; the final path component is not followed.
+    :returns: device, inode, size, mtime_ns and ctime_ns as a JSON-safe list.
+    """
+    import stat
+
+    try:
+        info = os.stat(path, follow_symlinks=False)
+    except OSError:
+        return None
+    if not stat.S_ISREG(info.st_mode):
+        return None
+    return [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns]
+
+
+def _watch_copy_snapshot(source, target, expected):
+    """Copy one unchanged acquired file in cancellable 1 MiB chunks.
+
+    :param source: original acquired file, opened read-only without link following.
+    :param target: new path inside this field's private staging directory.
+    :param expected: identity recorded when the image was last observed.
+    :returns: SHA256 of copied bytes, or None when source identity changed.
+    :raises OSError: for destination write errors; pipeline failures remain failures.
+    :raises spacr.cancellation.PipelineCancelled: when Stop interrupts copying.
+    """
+    import hashlib
+    import stat
+
+    from .cancellation import checkpoint
+
+    if expected is None or _watch_file_identity(source) != expected:
+        return None
+    flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+    try:
+        descriptor = os.open(source, flags)
+    except OSError:
+        return None
+    with os.fdopen(descriptor, 'rb') as incoming:
+        before = os.fstat(incoming.fileno())
+        identity = [before.st_dev, before.st_ino, before.st_size,
+                    before.st_mtime_ns, before.st_ctime_ns]
+        if not stat.S_ISREG(before.st_mode) or identity != expected:
+            return None
+        digest = hashlib.sha256()
+        copied = 0
+        with open(target, 'xb') as outgoing:
+            while True:
+                checkpoint()
+                try:
+                    chunk = os.read(incoming.fileno(), min(1024 * 1024, expected[2] - copied + 1))
+                except OSError:
+                    return None
+                if not chunk:
+                    break
+                copied += len(chunk)
+                if copied > expected[2]:
+                    return None
+                outgoing.write(chunk)
+                digest.update(chunk)
+        after = os.fstat(incoming.fileno())
+        identity = [after.st_dev, after.st_ino, after.st_size,
+                    after.st_mtime_ns, after.st_ctime_ns]
+        if identity != expected or _watch_file_identity(source) != expected:
+            return None
+    if os.path.getsize(target) != expected[2]:
+        return None
+    os.utime(target, ns=(before.st_atime_ns, before.st_mtime_ns))
+    return digest.hexdigest()
+
+
+def _watch_defer_snapshot(key, members, field_dir, context):
+    """Discard only unanalysed staging and wait for acquired files to settle again.
+
+    :param key: scientific field identity.
+    :param members: acquired filename/channel pairs of the attempted snapshot.
+    :param field_dir: private directory created for this attempt.
+    :param context: mutable watcher observations and ledger.
+    :returns: None; analysis retries after a fresh observation and settle interval.
+    """
+    import shutil
+
+    shutil.rmtree(field_dir)
+    now = time.time()
+    for name, _channel in members:
+        if name in context['seen']:
+            context['seen'][name].update(signature=None, identity=None,
+                                         changed=now, readable=False)
+    context['ledger']['fields'][key].update(
+        status='waiting', finished=now,
+        error='Source files changed while preparing the field snapshot; waiting again.')
+    _watch_save_ledger(context['ledger_path'], context['ledger'])
+    print(f'watch_folder: {key} changed during snapshot copying; staging was '
+          f'discarded and the field will wait for stable files again.')
+
+
 def _watch_run_field(key, members, signature, context):
     """Analyse one ready field and record the outcome.
 
@@ -1203,24 +1659,66 @@ def _watch_run_field(key, members, signature, context):
 
     from .cancellation import PipelineCancelled
 
+    _watch_check_map(context)
     seen, ledger = context['seen'], context['ledger']
     arrived = max(seen[name]['changed'] for name, _channel in members)
     entry = ledger['fields'].setdefault(key, {})
-    entry.update(status='running', files=signature,
-                 first_seen=min(seen[name]['first'] for name, _c in members),
-                 stable_since=arrived, started=time.time(), error=None)
+    saved_collection = entry.get('collection_checkpoint')
+    if saved_collection is None:
+        entry.pop('snapshot_sha256', None)
+        entry.pop('source_identity', None)
+        entry.update(status='running', files=signature,
+                     first_seen=min(seen[name]['first'] for name, _c in members),
+                     stable_since=arrived, started=time.time(), error=None)
+    else:
+        arrived = entry['stable_since']
+        entry.update(status='running', error=None)
     _watch_save_ledger(context['ledger_path'], ledger)
     field_dir = os.path.join(context['work'], 'fields', key)
-    if os.path.exists(field_dir):
-        shutil.rmtree(field_dir)
-    os.makedirs(field_dir)
-    print(f'watch_folder: analysing {key} ({len(members)} file(s)).')
     try:
-        for name, _channel in members:
-            shutil.copy2(os.path.join(context['src'], name),
-                         os.path.join(field_dir, name))
-        context['analyse'](field_dir, context['settings'])
-        _watch_collect(field_dir, context['work'], key)
+        identities = {name: seen[name].get('identity') for name, _channel in members}
+        if saved_collection is not None:
+            if entry.get('files') != signature or entry.get('source_identity') != identities:
+                raise ValueError('Collection checkpoint inputs changed; preserved outputs '
+                                 'cannot be combined with a new analysis attempt.')
+            print(f'watch_folder: resuming collection for {key} without reanalysing it.')
+        else:
+            if os.path.exists(field_dir):
+                shutil.rmtree(field_dir)
+            os.makedirs(field_dir)
+            print(f'watch_folder: analysing {key} ({len(members)} file(s)).')
+            snapshots = {}
+            for name, _channel in members:
+                digest = _watch_copy_snapshot(
+                    os.path.join(context['src'], name),
+                    os.path.join(field_dir, os.path.basename(name)), identities[name])
+                if digest is None:
+                    _watch_defer_snapshot(key, members, field_dir, context)
+                    return
+                snapshots[name] = digest
+            if any(_watch_file_identity(os.path.join(context['src'], name)) != identities[name]
+                   for name, _channel in members):
+                _watch_defer_snapshot(key, members, field_dir, context)
+                return
+            _watch_check_map(context)
+            entry.update(snapshot_sha256=snapshots, source_identity=identities)
+            _watch_save_ledger(context['ledger_path'], ledger)
+            context['analyse'](field_dir, context['settings'])
+            _watch_snapshot_database(field_dir)
+            entry['collection_checkpoint'] = {
+                'artifacts': _watch_collection_artifacts(field_dir),
+                'analysis_seconds': time.time() - entry['started']}
+            _watch_save_ledger(context['ledger_path'], ledger)
+        collection_started = time.time()
+        _watch_validate_collection(
+            field_dir, context['work'], entry['collection_checkpoint']['artifacts'],
+            verify_staged=saved_collection is not None)
+        _watch_check_map(context)
+        database_relative = os.path.join('.watch_collection', 'measurements.db')
+        database_snapshot = (os.path.join(field_dir, database_relative)
+                             if database_relative in entry['collection_checkpoint']['artifacts']
+                             else None)
+        _watch_collect(field_dir, context['work'], key, database_snapshot=database_snapshot)
     except PipelineCancelled:
         entry.update(status='interrupted', finished=time.time())
         _watch_save_ledger(context['ledger_path'], ledger)
@@ -1234,7 +1732,8 @@ def _watch_run_field(key, members, signature, context):
         return
     finished = time.time()
     entry.update(status='done', finished=finished,
-                 seconds=round(finished - entry['started'], 3),
+                 seconds=round(entry['collection_checkpoint']['analysis_seconds']
+                               + finished - collection_started, 3),
                  waited=round(entry['started'] - arrived, 3))
     _watch_save_ledger(context['ledger_path'], ledger)
     print(f'watch_folder: analysed {key} in {entry["seconds"]:.1f} s, taken '
@@ -1258,13 +1757,49 @@ def _watch_ready_fields(context, now):
         key, channel = _watch_field_of(name, context['settings'],
                                        context['patterns'])
         groups.setdefault(key, []).append((name, channel))
-    ready, waiting = [], 0
+    manifest = context.get('manifest')
+    if manifest is not None:
+        for key in manifest:
+            groups.setdefault(key, [])
+    ready = []
+    waiting = sum(entry.get('status') == 'waiting' and key not in groups
+                  for key, entry in fields.items())
     for key, members in sorted(groups.items()):
+        # Convert binds exact basenames; relative folders are provenance only.
+        # The guards below still reject split companions and duplicate locations.
+        if manifest is not None and (key not in manifest or
+                {os.path.basename(name) for name, _channel in members} != manifest[key]):
+            waiting += 1
+            warning = ('manifest', key, tuple(sorted(name for name, _c in members)))
+            if warning not in context['warned']:
+                context['warned'].add(warning)
+                print(f'watch_folder: {key} does not yet match its exact conversion-map '
+                      f'companions; missing or unexpected files remain unprocessed.')
+            continue
+        parents = {os.path.dirname(name) for name, _channel in members}
+        channels = {str(int(channel)) if str(channel).isdecimal() else channel
+                    for _name, channel in members}
+        ambiguous = (len(parents) != 1 or len(channels) != len(members))
+        if ambiguous:
+            waiting += 1
+            warning = ('ambiguous', key, tuple(sorted(name for name, _c in members)))
+            if warning not in context['warned']:
+                context['warned'].add(warning)
+                print(f'watch_folder: {key} has files in different acquisition '
+                      f'folders or duplicate channels; waiting without combining '
+                      f'them. Use unique filename field identifiers for separate '
+                      f'acquisitions: {", ".join(name for name, _c in members)}')
+            continue
         entry = fields.get(key, {})
         signature = {name: list(seen[name]['signature'])
                      for name, _channel in members}
         if entry.get('status') == 'done':
-            if signature != entry.get('files') and key not in context['warned']:
+            previous_identity = entry.get('source_identity')
+            identity_changed = isinstance(previous_identity, dict) and {
+                name: seen[name].get('identity') for name, _channel in members
+            } != previous_identity
+            if ((signature != entry.get('files') or identity_changed)
+                    and key not in context['warned']):
                 context['warned'].add(key)
                 print(f'watch_folder: {key} changed after it was analysed; it '
                       f'is not analysed again. Remove its entry from '
@@ -1273,8 +1808,7 @@ def _watch_ready_fields(context, now):
         if (key, repr(sorted(signature.items()))) in context['tried']:
             continue
         waiting += 1
-        channels = {channel for _name, channel in members}
-        if None not in channels and len(channels) < context['expected']:
+        if manifest is None and None not in channels and len(channels) < context['expected']:
             continue
         if any(now - seen[name]['changed'] < context['settle']
                for name, _channel in members):
@@ -1307,14 +1841,17 @@ def _watch_observe(context, now):
     names = _watch_images(context['src'])
     changed = False
     for name in names:
-        try:
-            stat = os.stat(os.path.join(context['src'], name))
-        except OSError:
+        identity = _watch_file_identity(os.path.join(context['src'], name))
+        if identity is None:
+            if name in seen:
+                del seen[name]
+                changed = True
             continue
-        signature = (stat.st_size, stat.st_mtime_ns)
+        signature = tuple(identity[2:4])
         record = seen.get(name)
-        if record is None or record['signature'] != signature:
-            seen[name] = {'signature': signature, 'changed': now,
+        if (record is None or record['signature'] != signature
+                or record.get('identity') != identity):
+            seen[name] = {'signature': signature, 'identity': identity, 'changed': now,
                           'first': (record or {}).get('first', now),
                           'readable': False}
             changed = True
@@ -1831,10 +2368,43 @@ def _watch_folder_and_analyse(settings, analyse=None):
     from .cancellation import PipelineCancelled, checkpoint
 
     src, pipeline, settle, poll, idle = _watch_check_settings(settings)
+    # A callback or UI edit must not change the recipe between live fields.
+    from copy import deepcopy
+
+    settings = deepcopy(dict(settings))
+    _, mask_sha256 = _watch_mask_recipe(settings)
+    manifest, map_sha256 = _watch_map_manifest(src, settings)
+    measure_sha256 = None
+    if pipeline == 'mask_measure':
+        measure_recipe, measure_sha256 = _watch_measure_recipe(settings)
+        settings = {**settings, 'watch_measure_snapshot': measure_recipe}
     work = os.path.join(src, _WATCH_DIR)
     os.makedirs(work, exist_ok=True)
     ledger_path = os.path.join(work, _WATCH_LEDGER)
     ledger = _watch_load_ledger(ledger_path, src)
+    if ledger['fields'] and ledger.get('pipeline') != pipeline:
+        raise ValueError(
+            'watch_folder: the saved pipeline differs or is unknown; use a '
+            'separate watch workspace for a different pipeline. Existing '
+            'results and the saved record are preserved.')
+    if (ledger.get('conversion_map_sha256') != map_sha256 and
+            (ledger['fields'] or 'conversion_map_sha256' in ledger)):
+        raise ValueError('watch_folder: conversion_map.csv differs from the saved watch '
+                         'record; use a separate watch workspace. Existing results are preserved.')
+    if pipeline == 'mask_measure':
+        if ledger['fields'] and ledger.get('measure_settings_sha256') != measure_sha256:
+            raise ValueError(
+                'watch_folder: Measure settings differ from the saved recipe or '
+                'its provenance is unknown; use a separate watch workspace. '
+                'Existing results and the saved record are preserved.')
+        ledger['measure_settings_sha256'] = measure_sha256
+    if ledger['fields'] and ledger.get('mask_settings_sha256') != mask_sha256:
+        raise ValueError(
+            'watch_folder: Mask settings differ from the saved recipe or '
+            'its provenance is unknown; use a separate watch workspace. '
+            'Existing results and the saved record are preserved.')
+    ledger['mask_settings_sha256'] = mask_sha256
+    ledger['conversion_map_sha256'] = map_sha256
     ledger['pipeline'] = pipeline
     for entry in ledger['fields'].values():
         if entry.get('status') == 'running':
@@ -1845,6 +2415,7 @@ def _watch_folder_and_analyse(settings, analyse=None):
                'analyse': analyse or _watch_analyse_field, 'settle': settle,
                'expected': _watch_expected_channels(settings), 'seen': {},
                'patterns': {}, 'tried': set(), 'warned': set(),
+               'manifest': manifest, 'map_sha256': map_sha256,
                'microscope': None}
     if _watch_truthy(settings.get('microscope_feedback', False)):
         context.update(positions=_microscope_positions(settings),
@@ -1864,6 +2435,7 @@ def _watch_folder_and_analyse(settings, analyse=None):
         while True:
             checkpoint()
             now = time.time()
+            _watch_check_map(context)
             if _watch_observe(context, now):
                 last_change = now
             ready, waiting = _watch_ready_fields(context, now)
@@ -1899,7 +2471,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
                     if entry.get('status') == 'failed')
     incomplete = sorted(
         {_watch_field_of(name, settings, context['patterns'])[0]
-         for name in context['seen']} - set(done) - set(failed))
+         for name in context['seen']} | set(manifest or {}) |
+        {key for key, entry in fields.items() if entry.get('status') == 'waiting'})
+    incomplete = sorted(set(incomplete) - set(done) - set(failed))
     print(_watch_status_line(ledger, len(incomplete)))
     if incomplete:
         print(f'watch_folder: {len(incomplete)} field(s) never became '

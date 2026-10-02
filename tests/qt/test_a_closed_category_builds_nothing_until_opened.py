@@ -417,13 +417,22 @@ def test_a_category_opened_after_a_switch_to_swedish_is_in_swedish(qtbot):
             heading = section
             break
     assert heading is not None, "no waiting category has a Swedish caption"
+    # A setting's own Swedish label is Swedish even when tr() would still
+    # touch it: the word glossary maps "batch" to "Batch", so the reviewed
+    # "Fält per batch" is not a fixed point of tr().
+    from spacr.qt.i18n_catalogs import setting_label
+
+    swedish = {setting_label(key, screen._settings_model._label_for(key), "sv")
+               for key, owner in screen._waiting_heading_of.items()
+               if owner is heading} - {None}
     with _language("sv"):
         retranslate_widget_tree(window, "sv")
         heading.set_expanded(True)
         _pump(10)
         captions = [label.text() for label in heading.findChildren(QLabel)
                     if label.text()]
-        english = [text for text in captions if tr(text, "sv") != text]
+        english = [text for text in captions
+                   if text not in swedish and tr(text, "sv") != text]
         assert not english, f"opened in English: {english[:5]}"
 
 

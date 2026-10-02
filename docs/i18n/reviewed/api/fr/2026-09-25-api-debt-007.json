@@ -210,7 +210,9 @@
       "source_sha256": "c3d480a1c93c46593205ea41fe41200a122d718ace1f964cb9a8b001961d23a7",
       "context": "a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;",
       "translation": "une infobulle apparaît après :data:`SHOW_DELAY_MS` de survol, pas avant ;",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-01: priority implementation changed this source paragraph. The prior review remains recorded; replacement text requires a new translation."
     },
     {
       "label": "spacr.qt.tooltip_policy#4",

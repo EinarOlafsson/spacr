@@ -307,7 +307,11 @@ def reconcile_merged_mask_dims(
                     f"{key}={requested_dim} conflicts with "
                     f"{os.path.join(merged_folder, MERGED_LAYOUT_SIDECAR)}, "
                     f"which records {expected!r}. Refusing to measure a "
-                    "possibly wrong image plane.")
+                    "possibly wrong image plane. "
+                    f"Set {key} to {expected!r} in Measure settings "
+                    "(None means this object is absent), or choose the "
+                    "merged folder that belongs to these settings. "
+                    "Do not change the plane-layout file to bypass this check.")
         out[key] = expected
     return out
 

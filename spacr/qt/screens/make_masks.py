@@ -599,7 +599,7 @@ _NOT_CONSOLIDATED = ("masks", "orig", "sorted_channels")
 
 
 def _copy_mask_as_tiff(source: str, target: str) -> None:
-    """Copy a dropped mask to where Make Masks looks for it (item 600).
+    """Copy a dropped mask to where Make Masks looks for it.
 
     A TIFF is copied as it is; a mask saved in another format is read and
     written as a TIFF, because Make Masks keeps every mask as
@@ -650,6 +650,85 @@ class _FolderJobWorker(QThread):
         except Exception as exc:
             self.error = exc
             LOG.exception("Make Masks folder job failed")
+
+
+class _SplitMenuButton(QPushButton):
+    """A push button that also opens a menu from an arrow on its right.
+
+    Pressing the body does what the button always did -- ``clicked`` fires,
+    and :meth:`click` still presses it -- while the arrow, a right-click or
+    Alt+Down opens the menu. Unlike ``QPushButton.setMenu`` the body press
+    is never swallowed by the menu, so the button keeps its own action.
+    """
+
+    #: Width of the arrow zone on the right, in pixels.
+    ARROW = 18
+
+    def __init__(self, text: str = "", parent=None):
+        """A button reading ``text``, with no menu until one is set."""
+        super().__init__(text, parent)
+        self._split_menu: Optional[QMenu] = None
+
+    def set_split_menu(self, menu: QMenu) -> None:
+        """Offer ``menu`` from the arrow."""
+        self._split_menu = menu
+
+    def split_menu(self) -> Optional[QMenu]:
+        """The menu the arrow opens, or ``None``."""
+        return self._split_menu
+
+    def sizeHint(self):
+        """The push button's size, widened by the arrow zone."""
+        hint = super().sizeHint()
+        hint.setWidth(hint.width() + self.ARROW)
+        return hint
+
+    def _pop_menu(self) -> None:
+        """Open the menu under the button, if there is one and it is enabled."""
+        if self._split_menu is not None and self.isEnabled():
+            self._split_menu.popup(self.mapToGlobal(self.rect().bottomLeft()))
+
+    def mousePressEvent(self, event):
+        """A press on the arrow opens the menu; anywhere else presses."""
+        if (self._split_menu is not None and event.button() == Qt.LeftButton
+                and event.position().x() >= self.width() - self.ARROW - 4):
+            event.accept()
+            self._pop_menu()
+            return
+        super().mousePressEvent(event)
+
+    def contextMenuEvent(self, event):
+        """A right-click opens the menu too."""
+        if self._split_menu is None:
+            return super().contextMenuEvent(event)
+        event.accept()
+        self._pop_menu()
+
+    def keyPressEvent(self, event):
+        """Alt+Down opens the menu from the keyboard."""
+        if (event.key() == Qt.Key_Down
+                and event.modifiers() & Qt.AltModifier):
+            event.accept()
+            self._pop_menu()
+            return
+        super().keyPressEvent(event)
+
+    def paintEvent(self, event):
+        """Paint the button, then the down arrow in its right-hand zone."""
+        super().paintEvent(event)
+        if self._split_menu is None:
+            return
+        from PySide6.QtWidgets import QStyle, QStyleOption
+
+        option = QStyleOption()
+        option.initFrom(self)
+        size = 8
+        option.rect.setRect(self.width() - self.ARROW - 2,
+                            (self.height() - size) // 2, size + 4, size)
+        painter = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_IndicatorArrowDown, option,
+                                   painter, self)
+        painter.end()
 
 
 class _StatusLabel(QLabel):
@@ -4405,7 +4484,7 @@ def _uncertainty_snapshot(request, models):
         ``rank``, ``{(folder, file name): score dictionary}`` without the
         maps, a field that cannot be read or segmented being left out.
     """
-    from ...active_learning import _segmentation_uncertainty, _tta_passes
+    from ...segmentation_uncertainty import compute_uncertainty
 
     segment = request.get('segment')
     threshold = 0.0
@@ -4423,15 +4502,30 @@ def _uncertainty_snapshot(request, models):
                 dict(request['detect'], image=image, vectors=True), models)
             return labels, cellprob, vectors
 
-    def _score(image):
-        """:param image: one field.
+    secondary = request.get('second_segment')
+    second_model = request.get('second_model')
+    if second_model and secondary is None:
+        if second_model == request['detect']['model']:
+            raise ValueError("The ensemble model must differ from the primary model.")
 
-        :returns: its uncertainty over the test-time passes.
+        def secondary(image):
+            """Segment a transform with the captured second model.
+
+            :param image: one transformed field.
+            :returns: labels, cell probability and vectors.
+            """
+            labels, cellprob, _rgb, vectors = _detect_cellpose_snapshot(
+                dict(request['detect'], model=second_model, image=image, vectors=True), models)
+            return labels, cellprob, vectors
+
+    def _score(image):
+        """Score primary TTA and the optional second model in one frame.
+
+        :param image: one field.
+        :returns: its uncertainty over four or eight aligned passes.
         """
-        passes = _tta_passes(image, segment)
-        return _segmentation_uncertainty(
-            passes['labels'], probabilities=passes['probabilities'],
-            vectors=passes['vectors'], probability_threshold=threshold)
+        return compute_uncertainty(image, segment, second_segment=secondary,
+                                   probability_threshold=threshold)
 
     if request['kind'] == 'field':
         return _score(request['image'])
@@ -8188,6 +8282,7 @@ class MakeMasksScreen(QWidget):
         self._uncertainty_worker = None
         self._uncertainty_request = None
         self._uncertainty_pane = None
+        self._uncertainty_result = None
         self._uncertainty_delivered.connect(self._take_uncertainty)
         self._comparison_worker = None
         self._comparison_request = None
@@ -8478,6 +8573,13 @@ class MakeMasksScreen(QWidget):
 
         outer.addWidget(self._body_stack, 1)
 
+        # The maintainer's layout (2026-09-30). The bottom row is the
+        # toolbar on the left -- Open folder, Organize for Measure, Load
+        # test data, Uncertainty -- and the curation buttons on the right,
+        # under the console: Discard, Keep, Skip, Blind, ROIs, Upload data.
+        # Save mask, Prev and Next share the editor action toolbar above.
+        from ..i18n import tr
+
         nav = QWidget()
         outer_row = QHBoxLayout(nav)
         outer_row.setContentsMargins(0, 0, 0, 0)
@@ -8485,74 +8587,63 @@ class MakeMasksScreen(QWidget):
         from .app_screen import _WrappingButtonStrip
 
         nav_row = _WrappingButtonStrip(SPACING["sm"])
-        outer_row.addLayout(nav_row)
-        self._btn_open = QPushButton("Open folder…")
+        outer_row.addLayout(nav_row, 1)
+        self._btn_open = QPushButton(tr("Open folder…"))
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
         self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_folder)
         nav_row.addWidget(self._btn_open)
         nav_row.addWidget(self._build_organize_button())
-        from ..make_masks_demo import install_test_data_button
-        nav_row.addWidget(install_test_data_button(self))
-        from ..make_masks_datasets import install_dataset_button
-        nav_row.addWidget(install_dataset_button(self))
-        nav_row.addWidget(self._build_contribute_button())
-        nav_row.addWidget(self._build_roi_button())
-        nav_row.addWidget(self._build_blind_toggle())
+        nav_row.addWidget(self._build_test_data_button())
         nav_row.addWidget(self._build_uncertainty_button())
 
-        # 600c: Prev / Next / Save / Skip travel as ONE group, so the
-        # wrapping strip can never put Skip on a row of its own, and Keep /
-        # Discard are a second group set apart by a separator and a gap.
-        self._nav_step_group, step_row = self._nav_button_group()
-        self._nav_curate_group, curate_row = self._nav_button_group(
-            separated=True)
-        self._btn_prev = QPushButton("Prev image")
+        # Curation stays on the bottom row; save/navigation use the same
+        # scrolling horizontal action row as detection, undo and redo.
+        self._nav_curate_group, curate_row = self._nav_button_group()
+        self._btn_prev = QPushButton(tr("Prev image"))
         self._btn_prev.setIcon(iconset.icon("prev"))
         self._btn_prev.setCursor(Qt.PointingHandCursor)
         self._btn_prev.clicked.connect(self._on_prev)
-        step_row.addWidget(self._btn_prev)
 
-        self._btn_next = QPushButton("Next image")
+        self._btn_next = QPushButton(tr("Next image"))
         self._btn_next.setIcon(iconset.icon("next"))
         self._btn_next.setLayoutDirection(Qt.RightToLeft)
         self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
-        step_row.addWidget(self._btn_next)
 
-        self._btn_discard = QPushButton("Discard")
+        self._btn_discard = QPushButton(tr("Discard"))
         self._btn_discard.setIcon(iconset.icon("trash"))
         self._btn_discard.setCheckable(True)
         self._btn_discard.setCursor(Qt.PointingHandCursor)
-        self._btn_discard.setToolTip(
+        self._btn_discard.setToolTip(tr(
             "Mark this field as one to discard and move to the next. "
             "Nothing is deleted: the verdict goes to csv/keep_discard.csv "
             "beside the images, and the field, its mask and its objects "
-            "stay as they are.")
+            "stay as they are."))
         self._btn_discard.clicked.connect(lambda: self._on_curate(False))
         curate_row.addWidget(self._btn_discard)
 
-        self._btn_keep = QPushButton("Keep")
+        self._btn_keep = QPushButton(tr("Keep"))
         self._btn_keep.setIcon(iconset.icon("check"))
         self._btn_keep.setCheckable(True)
         self._btn_keep.setCursor(Qt.PointingHandCursor)
-        self._btn_keep.setToolTip(
+        self._btn_keep.setToolTip(tr(
             "Mark this field as one to keep and move to the next. The "
             "verdict is written to csv/keep_discard.csv beside the images, "
             "with the image, its mask and the number of objects the mask "
-            "holds right now.")
+            "holds right now."))
         self._btn_keep.clicked.connect(lambda: self._on_curate(True))
         curate_row.addWidget(self._btn_keep)
 
-        self._btn_save = QPushButton("Save mask")
+        self._btn_save = QPushButton(tr("Save mask"))
         self._btn_save.setObjectName("PrimaryButton")
         self._btn_save.setIcon(iconset.contrast_icon("save"))
         self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.clicked.connect(self._on_save)
-        step_row.addWidget(self._btn_save)
-
-        from ..i18n import tr
+        for button in (self._btn_save, self._btn_prev, self._btn_next):
+            button.setMinimumHeight(32)
+            self.add_toolbar_action(button)
 
         self._btn_skip = QPushButton(tr("Skip"))
         self._btn_skip.setIcon(iconset.icon("next"))
@@ -8562,17 +8653,23 @@ class MakeMasksScreen(QWidget):
             "next. It is written to the session's curate_status.csv as skip, "
             "so the next session does not offer it again. No mask is written."))
         self._btn_skip.clicked.connect(self._on_skip)
-        step_row.addWidget(self._btn_skip)
+        curate_row.addWidget(self._btn_skip)
+        curate_row.addWidget(self._build_blind_toggle())
+        curate_row.addWidget(self._build_roi_button())
+        curate_row.addWidget(self._build_contribute_button())
 
-        nav_row.addWidget(self._nav_step_group)
-        nav_row.addWidget(self._nav_curate_group)
+        outer_row.addWidget(self._nav_curate_group, 0, Qt.AlignBottom)
 
-        outer_row.addStretch(1)
         self._status_label = _StatusLabel("Ready.")
         self._status_label._blind_owner = weakref.ref(self)
         self._status_label.setObjectName("SubtitleSmall")
         self._status_label.said.connect(self._report_status)
-        outer_row.addWidget(self._status_label)
+        # Under the image the line must never widen the pane: a long status
+        # would otherwise push the splitter and resize the canvas mid-edit.
+        self._status_label.setSizePolicy(QSizePolicy.Ignored,
+                                         QSizePolicy.Preferred)
+        self._status_label.setMinimumWidth(0)
+        self._image_nav_row.addWidget(self._status_label, 1)
         outer.addWidget(nav)
 
     def _nav_button_group(self, separated: bool = False):
@@ -8580,8 +8677,7 @@ class MakeMasksScreen(QWidget):
 
         The navigation strip wraps widget by widget, so buttons that must stay
         on one line are put in one of these and the group is added instead.
-        With ``separated`` the group opens with a gap and a vertical line, which
-        is how Keep / Discard are set apart from Prev / Next / Save / Skip.
+        With ``separated`` the group opens with a gap and a vertical line.
 
         :param separated: lead the group with a visible gap and separator.
         :returns: ``(widget, layout)``; add the buttons to ``layout``.
@@ -8881,14 +8977,75 @@ class MakeMasksScreen(QWidget):
         """
         screen._on_run()
 
+    def _build_test_data_button(self):
+        """The "Load test data…" button, with the training datasets on its menu.
+
+        One split button (:class:`_SplitMenuButton`): pressing it loads the
+        Toxoplasma test data, as it always did
+        (:func:`spacr.qt.make_masks_demo.load_the_test_data`), and its arrow
+        opens a menu offering the test data again and a sample of
+        each training dataset a published model was trained on
+        (:func:`spacr.qt.make_masks_datasets.open_a_training_dataset`). It
+        replaces the separate "Training datasets…" button, so the screen
+        keeps it as both ``_btn_test_data`` and ``_btn_training_datasets``
+        and either download disables it while it runs.
+
+        :returns: the button, with its menu.
+        """
+        from ..i18n import tr
+        from .. import make_masks_datasets as datasets
+        from ..make_masks_demo import load_the_test_data
+
+        button = _SplitMenuButton(tr("Load test data…"), self)
+        button.setObjectName("MakeMasksTestDataButton")
+        button.setAccessibleName(tr("Load test data"))
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Download ten example images of Toxoplasma vacuoles (about 40 MB) and "
+            "open the first one. Their curated masks come too, in the "
+            "ground_truth_masks folder, which the editor does not read. Cached "
+            "after the first download.") + " " + tr(
+            "The arrow offers a sample of each training dataset a published "
+            "model was trained on, with its masks, to edit here."))
+        button.clicked.connect(
+            lambda _checked=False: load_the_test_data(self))
+        menu = QMenu(button)
+        self._test_data_actions = {}
+        action = menu.addAction(tr("Toxoplasma vacuoles (test data)"))
+        action.triggered.connect(
+            lambda _checked=False: load_the_test_data(self))
+        self._test_data_actions["test_data"] = action
+        menu.addSeparator()
+        for dataset in datasets.datasets_for("mask"):
+            action = menu.addAction(tr("Training dataset: {name}",
+                                       name=dataset.title))
+            action.setToolTip(dataset.title)
+            action.triggered.connect(
+                lambda _checked=False, chosen=dataset:
+                datasets.open_a_training_dataset(
+                    self, pick=lambda _screen: chosen))
+            self._test_data_actions[dataset.key] = action
+        button.set_split_menu(menu)
+        self._btn_test_data = button
+        self._btn_training_datasets = button
+        return button
+
     def _build_contribute_button(self) -> QPushButton:
-        """The "Contribute images and masks…" button beside the datasets one."""
+        """The "Upload data…" button: send images and masks to a community set.
+
+        It was "Contribute images and masks…"; the object name and the
+        dialog it opens are unchanged.
+        """
         from ..i18n import tr
         from ..widgets.model_share_dialog import contribute_masks_tooltip
 
-        button = QPushButton(tr("Contribute images and masks…"), self)
+        button = QPushButton(tr("Upload data…"), self)
+        button.setObjectName("MakeMasksUploadDataButton")
+        button.setAccessibleName(tr("Upload data"))
         button.setCursor(Qt.PointingHandCursor)
-        button.setToolTip(contribute_masks_tooltip())
+        button.setToolTip(tr(
+            "Upload data: send images and their masks to a community "
+            "training dataset.") + "\n\n" + contribute_masks_tooltip())
         button.clicked.connect(
             lambda _checked=False: self.contribute_images_and_masks())
         self._btn_contribute = button
@@ -9079,21 +9236,187 @@ class MakeMasksScreen(QWidget):
             "disagreement as a heat map on its own tab; Rank the fields puts "
             "the most uncertain fields first and saves the scores as "
             "curate_uncertainty.csv for spacr-make-masks --order uncertain. "
-            "Takes four detection runs per field."))
-        menu = QMenu(button)
+            "Takes four detection runs per field, or eight when an optional "
+            "ensemble model is selected in Detection method."))
+        button.setMenu(self._uncertainty_menu())
+        _apply_alpha_widgets(button)
+        self._btn_uncertainty = button
+        return button
+
+    def _uncertainty_menu(self) -> QMenu:
+        """The one Map / Rank menu both Uncertainty buttons open.
+
+        Built on first use and shared, so the toolbar button and the one in
+        the Object operations settings run the same two actions.
+        """
+        menu = getattr(self, "_uncertainty_menu_widget", None)
+        if menu is not None:
+            return menu
+        from ..i18n import tr
+
+        menu = QMenu(self)
         self._uncertainty_actions = {}
         for key, text, slot in (
                 ("map", tr("Map this field's uncertainty"),
                  self._on_map_uncertainty),
                 ("rank", tr("Rank the fields, most uncertain first"),
-                 self._on_rank_uncertainty)):
+                 self._on_rank_uncertainty),
+                ("save", tr("Save uncertainty map…"),
+                 self._on_save_uncertainty)):
             action = menu.addAction(text)
             action.triggered.connect(lambda _checked=False, run=slot: run())
             self._uncertainty_actions[key] = action
-        button.setMenu(menu)
+        menu.aboutToShow.connect(self._sync_uncertainty_export)
+        self._uncertainty_menu_widget = menu
+        return menu
+
+    def _build_uncertainty_setting(self) -> QPushButton:
+        """Uncertainty in the Object operations settings, after Swap.
+
+        The same control as the toolbar's Uncertainty button: it opens the
+        same Map / Rank menu, and :meth:`_set_uncertainty_enabled` disables
+        and re-enables both together while a run is under way. Alpha-gated
+        with it, as ``MakeMasksUncertaintySetting`` under item 568 in
+        :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button, with the shared menu.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Uncertainty…"), self)
+        button.setObjectName("MakeMasksUncertaintySetting")
+        button.setAccessibleName(tr("Uncertainty"))
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Map where the segmentation of this field is least sure, or rank "
+            "the open fields with the most uncertain first. The same menu as "
+            "the Uncertainty button on the bottom row; four detection "
+            "runs per field, or eight with the optional ensemble model."))
+        button.setMenu(self._uncertainty_menu())
         _apply_alpha_widgets(button)
-        self._btn_uncertainty = button
+        self._btn_uncertainty_setting = button
         return button
+
+    def _set_uncertainty_enabled(self, enabled: bool) -> None:
+        """Enable or disable both Uncertainty buttons together."""
+        for button in (getattr(self, "_btn_uncertainty", None),
+                       getattr(self, "_btn_uncertainty_setting", None)):
+            if button is not None:
+                button.setEnabled(enabled)
+
+    def _build_uncertainty_ensemble_setting(self) -> QWidget:
+        """Offer an optional second model for alpha uncertainty scoring.
+
+        This display-side choice is persisted independently of segmentation
+        settings and never changes the model used to create or save masks.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+        from ..prefs import _s
+
+        row = QWidget(self)
+        row.setObjectName("MakeMasksUncertaintyEnsembleSetting")
+        layout = QVBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(QLabel(tr("Uncertainty ensemble model (optional)")))
+        controls = QHBoxLayout()
+        self._uncertainty_ensemble = QComboBox(row)
+        self._uncertainty_ensemble.setEditable(True)
+        self._uncertainty_ensemble.addItem(tr("None"), "")
+        for index in range(self._cp_model.count()):
+            value = self._cp_model.itemData(index)
+            if value:
+                self._uncertainty_ensemble.addItem(self._cp_model.itemText(index), value)
+        value = str(_s().value("make_masks/uncertainty_second_model", "") or "")
+        index = self._uncertainty_ensemble.findData(value)
+        if index >= 0:
+            self._uncertainty_ensemble.setCurrentIndex(index)
+        else:
+            self._uncertainty_ensemble.setEditText(value)
+        self._uncertainty_ensemble.setToolTip(tr(
+            "Optional second model for uncertainty only. Blank or None uses "
+            "four primary-model passes. A different model adds four passes "
+            "and can reveal errors both flips and rotations repeat. "
+            "Saved masks and ordinary detection are unchanged."))
+        self._uncertainty_ensemble.currentTextChanged.connect(self._remember_uncertainty_ensemble)
+        controls.addWidget(self._uncertainty_ensemble, 1)
+        browse = QPushButton(tr("Browse…"), row)
+        browse.clicked.connect(self._pick_uncertainty_ensemble)
+        controls.addWidget(browse)
+        layout.addLayout(controls)
+        _apply_alpha_widgets(row)
+        return row
+
+    def _uncertainty_ensemble_model(self) -> str:
+        """Return the optional second model's stable name or checkpoint path."""
+        combo = self._uncertainty_ensemble
+        index = combo.currentIndex()
+        value = (combo.currentData() if index >= 0
+                 and combo.currentText() == combo.itemText(index) else None)
+        return str(value if value is not None else combo.currentText()).strip()
+
+    def _remember_uncertainty_ensemble(self, _text):
+        """Persist the model choice without starting inference.
+
+        :param _text: changed combo caption; stable item data is read instead.
+        """
+        from ..prefs import _s
+
+        _s().setValue("make_masks/uncertainty_second_model", self._uncertainty_ensemble_model())
+
+    def _pick_uncertainty_ensemble(self):
+        """Select a local checkpoint for the second uncertainty model."""
+        from ..i18n import tr
+
+        path, _filter = QFileDialog.getOpenFileName(self, tr("Choose ensemble model"))
+        if path:
+            self._uncertainty_ensemble.setEditText(path)
+
+    def _sync_uncertainty_export(self):
+        """Enable export only for a completed map of the field still in view."""
+        current = self._uncertainty_result
+        valid = (current is not None and self._blind is None
+                 and current[0]['token'] == self._load_token
+                 and current[0]['image_reference'] is self._canvas.image)
+        self._uncertainty_actions['save'].setEnabled(valid)
+
+    def _on_save_uncertainty(self, path=None) -> bool:
+        """Save the current lossless map, with captured model/source provenance.
+
+        :param path: optional destination for scripted use; None opens a picker.
+        :returns: whether a map was saved successfully.
+        """
+        from ..i18n import tr
+        from ...segmentation_uncertainty import save_uncertainty_map
+
+        self._sync_uncertainty_export()
+        if not self._uncertainty_actions['save'].isEnabled():
+            self._status_label.setText(tr("Map the current field before saving uncertainty, and leave blind mode first."))
+            return False
+        request, result = self._uncertainty_result
+        source = request.get('source') or 'field'
+        if path is None:
+            default = os.path.join(os.path.dirname(source), 'uncertainty',
+                                   engine.field_stem(os.path.basename(source)) + '_uncertainty.tif')
+            path, _filter = QFileDialog.getSaveFileName(
+                self, tr("Save uncertainty map"), default, tr("TIFF image (*.tif *.tiff)"))
+        if not path:
+            return False
+        detect = request['detect']
+        provenance = dict(source=source, primary_model=detect['model'],
+                          second_model=request.get('second_model') or None,
+                          parameters=detect['parameters'], invert=detect['invert'],
+                          percentiles=detect['percentiles'], preprocessing=str(detect['chain']),
+                          transforms=['identity', 'flip_lr', 'flip_ud', 'rot90'])
+        try:
+            target = save_uncertainty_map(path, result, provenance=provenance,
+                                          protected_paths=(source, request.get('mask_path')))
+        except (OSError, ValueError) as exc:
+            self._warn(tr("Uncertainty map not saved"), str(exc))
+            return False
+        self._status_label.setText(tr("Uncertainty map saved to {path}.", path=str(target)))
+        return True
 
     def _uncertainty_detect_request(self) -> dict:
         """The Object detection settings, captured for a worker thread.
@@ -9123,7 +9446,7 @@ class MakeMasksScreen(QWidget):
         if self._uncertainty_request is not None:
             return False
         self._uncertainty_request = request
-        self._btn_uncertainty.setEnabled(False)
+        self._set_uncertainty_enabled(False)
         work = partial(_uncertainty_snapshot, models=self._cp_loaded)
         if not threaded:
             try:
@@ -9164,11 +9487,14 @@ class MakeMasksScreen(QWidget):
                        image=np.array(self._canvas.image, copy=True),
                        image_reference=self._canvas.image,
                        token=self._load_token,
-                       detect=self._uncertainty_detect_request())
+                       detect=self._uncertainty_detect_request(),
+                       second_model=self._uncertainty_ensemble_model(),
+                       source=self._curation_paths()[0], mask_path=self._curation_paths()[1])
         if not self._start_uncertainty(request, threaded):
             return False
         self._status_label.setText(tr(
-            "Mapping segmentation uncertainty: four detection runs…"))
+            "Mapping segmentation uncertainty: {passes} detection runs…",
+            passes=8 if request.get("second_model") else 4))
         return True
 
     def _on_rank_uncertainty(self, *, segment=None,
@@ -9196,12 +9522,14 @@ class MakeMasksScreen(QWidget):
         pairs = self._field_pairs()
         request = dict(kind='rank', segment=segment, fields=pairs,
                        layout=self._layout_kwargs(),
-                       detect=self._uncertainty_detect_request())
+                       detect=self._uncertainty_detect_request(),
+                       second_model=self._uncertainty_ensemble_model())
         if not self._start_uncertainty(request, threaded):
             return False
         self._status_label.setText(tr(
-            "Ranking {count} fields by segmentation uncertainty: four "
-            "detection runs each…", count=len(pairs)))
+            "Ranking {count} fields by segmentation uncertainty: {passes} "
+            "detection runs each…", count=len(pairs),
+            passes=8 if request.get("second_model") else 4))
         return True
 
     def _take_uncertainty(self, payload) -> None:
@@ -9212,7 +9540,7 @@ class MakeMasksScreen(QWidget):
         if request is not self._uncertainty_request:
             return
         self._uncertainty_request = None
-        self._btn_uncertainty.setEnabled(True)
+        self._set_uncertainty_enabled(True)
         if error is not None:
             self._warn(tr("Uncertainty failed"), str(error))
             return
@@ -9222,9 +9550,12 @@ class MakeMasksScreen(QWidget):
                 self._status_label.setText(tr(
                     "Uncertainty map discarded because the field changed."))
                 return
+            self._uncertainty_result = (request, result)
             self._show_uncertainty_map(result, request['image'])
             return
-        self._apply_uncertainty_ranking(request['fields'], result)
+        model = ' + '.join(filter(None, (request['detect']['model'],
+                                          request.get('second_model'))))
+        self._apply_uncertainty_ranking(request['fields'], result, model=model)
 
     def _show_uncertainty_map(self, result: dict, image) -> None:
         """Put the map on an Uncertainty tab, made the first time it is used.
@@ -9250,7 +9581,7 @@ class MakeMasksScreen(QWidget):
                              label=worst, value=f"{objects[worst]:.2f}")
         self._status_label.setText(text)
 
-    def _apply_uncertainty_ranking(self, pairs, scores) -> None:
+    def _apply_uncertainty_ranking(self, pairs, scores, *, model=None) -> None:
         """Save the scores and offer the most uncertain field first.
 
         The scores are merged into ``curate_uncertainty.csv`` in the queue's
@@ -9260,6 +9591,7 @@ class MakeMasksScreen(QWidget):
 
         :param pairs: the ``(folder, file name)`` pairs that were ranked.
         :param scores: ``{pair: score dictionary}``.
+        :param model: captured model identity; defaults to the current selection.
         """
         from ..i18n import tr
         from ...curation_queue import SEG_SUFFIX, _write_uncertainty
@@ -9273,7 +9605,7 @@ class MakeMasksScreen(QWidget):
                 return name[:-len(SEG_SUFFIX)]
             return os.path.splitext(name)[0]
 
-        model = self._cp_model.currentData() or 'cpsam'
+        model = model or self._cp_model.currentData() or 'cpsam'
         rows = {stem(name): dict(uncertainty=round(score['field'], 4),
                                  n_objects=score['n_objects'],
                                  passes=score['n_passes'], model=model)
@@ -9286,6 +9618,10 @@ class MakeMasksScreen(QWidget):
         except OSError as exc:
             self._report(tr("Uncertainty scores not saved: {error}",
                             error=str(exc)), "warning")
+        if self._blind is not None:
+            self._status_label.setText(tr(
+                "Uncertainty saved; blind order was preserved."))
+            return
         if self._field_pairs() != list(pairs):
             self._status_label.setText(tr(
                 "Uncertainty saved; the open fields changed while ranking, "
@@ -9405,6 +9741,7 @@ class MakeMasksScreen(QWidget):
         self._console_section.setProperty(
             "_spacr_blind_visible", not self._console_section.isHidden())
         self._console_section.hide()
+        self._blind_lock_rois(True)
         self._set_field_pairs([pairs[i] for i in order])
         self._current_index = 0
         self._set_blind_checked(True)
@@ -9456,6 +9793,26 @@ class MakeMasksScreen(QWidget):
         _close_blinding(self._blind["key_id"], reason=reason)
         self._restore_blind_order()
 
+    def _blind_lock_rois(self, on: bool) -> None:
+        """Disable the ROIs menu while blinded, and give it back afterwards.
+
+        Its exports are named after the field (``<stem>.geojson``,
+        ``<stem>_RoiSet.zip``) and carry the image's file name inside, and
+        its file pickers open in the source folder, so each would show the
+        name blinding hides.
+
+        :param on: true when blinding starts.
+        """
+        button = getattr(self, "_btn_rois", None)
+        if button is None:
+            return
+        if on:
+            button.setProperty("_spacr_blind_was", button.isEnabled())
+            button.setEnabled(False)
+        elif button.property("_spacr_blind_was") is not None:
+            button.setEnabled(bool(button.property("_spacr_blind_was")))
+            button.setProperty("_spacr_blind_was", None)
+
     def _restore_blind_order(self) -> None:
         """Put the fields back in their own order and show their names again.
 
@@ -9468,6 +9825,7 @@ class MakeMasksScreen(QWidget):
         self._console_section.setVisible(bool(
             self._console_section.property("_spacr_blind_visible")))
         self._console_section.setProperty("_spacr_blind_visible", None)
+        self._blind_lock_rois(False)
         self._set_blind_checked(False)
         pairs = self._field_pairs()
         current = (pairs[self._current_index]
@@ -10440,6 +10798,10 @@ class MakeMasksScreen(QWidget):
 
         norm_card = self._settings_category("Display")
         norm_form = QFormLayout()
+        from ..mask_thumbnail_quality import quality_combo
+
+        self._thumbnail_quality = quality_combo(self)
+        norm_form.addRow(tr("Thumbnail quality"), self._thumbnail_quality)
         self._norm_lo = QDoubleSpinBox()
         self._norm_lo.setDecimals(PERCENTILE_DECIMALS)
         self._norm_lo.setRange(0.0, 100.0)
@@ -10569,6 +10931,7 @@ class MakeMasksScreen(QWidget):
             btn.setToolTip(hint)
             btn.clicked.connect(cb)
             ops_col.addWidget(btn)
+        ops_col.addWidget(self._build_uncertainty_setting())
         remove_row = QHBoxLayout()
         remove_row.setSpacing(SPACING["sm"])
         self._min_area = QSpinBox()
@@ -11706,7 +12069,18 @@ class MakeMasksScreen(QWidget):
             self._masks_console, "Console", persist_key="make_masks/Console",
             stretch=1, extent=240, minimum=120)
         self._shortcut_panel = column
-        pane.add_pane(self._view_tabs, "Views", stretch=1, extent=900)
+        # Under the image: the status line, filled in by _build_ui.
+        views = QWidget()
+        views.setObjectName("MakeMasksViewsColumn")
+        views_col = QVBoxLayout(views)
+        views_col.setContentsMargins(0, 0, 0, 0)
+        views_col.setSpacing(SPACING["sm"])
+        views_col.addWidget(self._view_tabs, 1)
+        self._image_nav_row = QHBoxLayout()
+        self._image_nav_row.setContentsMargins(0, 0, 0, 0)
+        self._image_nav_row.setSpacing(SPACING["sm"])
+        views_col.addLayout(self._image_nav_row)
+        pane.add_pane(views, "Views", stretch=1, extent=900)
         pane.add_pane(column, "Shortcuts", mode=EDGE, stretch=0,
                       extent=SHORTCUTS_WIDTH, minimum=SHORTCUTS_WIDTH,
                       fold_key="make_masks/Shortcuts",
@@ -12463,6 +12837,7 @@ class MakeMasksScreen(QWidget):
         }
         for group in self._method_groups.values():
             card.body_layout.addWidget(group)
+        card.body_layout.addWidget(self._build_uncertainty_ensemble_setting())
         return card
 
     def _mode_guidance(self, mode: str) -> str:
@@ -13107,9 +13482,13 @@ class MakeMasksScreen(QWidget):
             "plate run applies these steps to every selected channel after "
             "illumination correction and before normalization. Morphology "
             "and split reshape a detector's labels and stay here."))
+        self._btn_to_mask.setObjectName("MakeMasksUseInMaskGeneration")
         self._btn_to_mask.clicked.connect(self._send_chain_to_mask)
         actions.addWidget(self._btn_to_mask)
         card.body_layout.addLayout(actions)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._btn_to_mask)
 
         for widget in (self._enh_background, self._enh_denoise,
                        self._enh_morphology):
@@ -14183,6 +14562,56 @@ class MakeMasksScreen(QWidget):
         self._mag_mode.setCurrentIndex(max(previous, 0))
         self._offer_backend_install(mode)
 
+    def _refresh_alpha_visibility(self) -> None:
+        """Refresh alpha model choices immediately after Preferences changes.
+
+        The app already calls this hook on open screens. Hidden rows remain
+        in the model so an explicitly selected backend keeps its value and
+        remains executable; they cannot be chosen from the popup or keyboard.
+        """
+        from ..._segmentation_backends import _prefixed_backend
+        from ..preferences import _apply_alpha_widgets, _get_show_alpha_features
+
+        if _get_show_alpha_features():
+            _offer_prefixed_modes()
+            _offer_cellpose_dino_modes()
+            self._mag_mode.blockSignals(True)
+            try:
+                for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
+                    if self._mag_mode.findData(mode) < 0:
+                        self._mag_mode.addItem(label, mode)
+            finally:
+                self._mag_mode.blockSignals(False)
+            self._fill_zoo_models()
+            ensemble = getattr(self, '_uncertainty_ensemble', None)
+            if ensemble is not None:
+                ensemble.blockSignals(True)
+                try:
+                    for index in range(self._cp_model.count()):
+                        value = self._cp_model.itemData(index)
+                        if value and ensemble.findData(value) < 0:
+                            ensemble.addItem(self._cp_model.itemText(index), value)
+                finally:
+                    ensemble.blockSignals(False)
+        for combo in (self._mag_mode, self._cp_model,
+                      getattr(self, '_uncertainty_ensemble', None)):
+            if combo is None:
+                continue
+            for index in range(combo.count()):
+                value = str(combo.itemData(index) or '')
+                backend = _prefixed_backend(value)
+                if backend is None:
+                    continue
+                model = value.partition(':')[2]
+                hidden = _prefixed_alpha_hidden(backend, model)
+                combo.view().setRowHidden(index, hidden)
+                item = combo.model().item(index)
+                if item is not None:
+                    item.setEnabled(not hidden)
+                    item.setSelectable(not hidden)
+        self._resync_magnifier_modes()
+        _apply_alpha_widgets(self)
+
     def _resync_magnifier_modes(self) -> None:
         """Re-read where each backend stands and redraw the Mode box.
 
@@ -14849,8 +15278,11 @@ class MakeMasksScreen(QWidget):
 
     def _on_pick_folder(self):
         """Ask for a folder of images and open it."""
-        d = QFileDialog.getExistingDirectory(self, "Pick images folder",
-                                              self._folder or os.getcwd())
+        # Blinded, the picker opens at home: in the source its path bar would
+        # name the plate.
+        start = (os.path.expanduser("~") if self._blind is not None
+                 else self._folder or os.getcwd())
+        d = QFileDialog.getExistingDirectory(self, "Pick images folder", start)
         if not d:
             return
         if self._offer_consolidation(d):
@@ -14859,7 +15291,7 @@ class MakeMasksScreen(QWidget):
 
 
     def _build_organize_button(self) -> QPushButton:
-        """The "Organize for Measure…" button beside "Open folder…" (item 600)."""
+        """The "Organize for Measure…" button beside "Open folder…"."""
         from ..i18n import tr
 
         button = QPushButton(tr("Organize for Measure…"), self)
@@ -15036,7 +15468,7 @@ class MakeMasksScreen(QWidget):
             moved=result.moved, stacks=len(result.stacks),
             merged=len(result.merged), dest=result.dest,
             manifest=result.manifest))
-        # Item 600: point Measure at the result, so features are one step away.
+        # Point Measure at the result, so features are one step away.
         prefs.push_recent_source("measure", str(result.dest))
         self._masks_console.post(tr(
             "Ready for Measure: open Measure and use {dest} as its source (it "

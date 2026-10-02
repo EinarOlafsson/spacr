@@ -1,7 +1,9 @@
 STARDIST AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
 
-Status: BUILT AS ALPHA 2026-09-26. Installed for real (CPU); segments nuclei through Mask
-generation and Make Masks (previews routed, tested faked); scored in item 532. No GPU.
+Status: COMPLETE 2026-10-02 (CPU acceptance; remains alpha-gated).
+Installed in its own environment; 2-D and native 3-D nucleus segmentation
+accepted through Mask, raw-volume ingestion and Measure/SQLite. Make Masks
+uses the real 2-D backend; comparison against Cellpose is recorded below. No GPU.
 Owner: Claude (551-553 worktree). Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -206,3 +208,79 @@ NOT DONE
   * The Make Masks Mode box re-reads the alpha switch when it is built,
     not live.
   * i18n catalog rows for the strings above.
+
+2026-10-01 — LIVE ALPHA VISIBILITY IMPLEMENTED
+Make Masks now refreshes Mode, Model and uncertainty-ensemble choices when
+Preferences changes the alpha switch. Hidden entries are disabled as well
+as hidden, including keyboard access. Existing selected model/mode is
+preserved so changing visibility never silently changes scientific settings;
+turning alpha back on restores choices without duplicates.
+Validation: 33 focused alpha/uncertainty checks passed.
+Remaining: GPU and volumetric StarDist acceptance and translated catalogue
+refresh. This UI improvement does not close those scientific/runtime gaps.
+
+2026-10-02 — FRESH 2-D CPU CHECK, PARTIAL
+The current isolated installer completed in 41.4 s on Python 3.13.14 and
+loaded StarDist 0.9.2 with TensorFlow 2.21.0 on CPU. The official StarDist
+package's 512×512 nuclei example includes an independently annotated mask
+with 125 objects. Through spaCR's Mask benchmark path, the 2D_versatile_fluo
+model predicted 122 objects and reached F1@0.5 0.972 and F1@0.75 0.891.
+Cellpose 3 nuclei on the identical image and labels predicted 118 objects,
+F1@0.5 0.955 and F1@0.75 0.905. Input and result hashes and the 4 GiB,
+zero-swap, CPU3 scope are recorded in
+features/data/551_stardist_current_2d_2026-10-02.json. Fifty-two focused
+prefixed-backend checks passed on the current source in the same session.
+This is one official annotated 2-D field, not a multi-study holdout. The
+requested 3-D volumetric path and its validation remain open, so F551 is
+not marked complete by this 2-D result.
+
+2026-10-02 — NATIVE 3-D AND RAW TIFF ACCEPTANCE COMPLETE
+Custom StarDist model folders declaring n_dim=3, single-channel ZYXC
+configuration now load StarDist3D in the existing private TensorFlow worker.
+A native volumetric call transports one full volume, applies the model's
+percentile normalization and explicit input/model anisotropy scaling, then
+restores label/probability arrays to the original spatial grid. Minimum
+size counts voxels. Unsupported projection, stitching and time-series
+requests are refused for 3-D models; stock 2-D behavior remains available.
+
+Raw Mask input now has a source-backed opt-in route: z_stack=True and
+z_segmentation_mode='volumetric' require one complete, explicitly labelled
+ZYX TIFF series per field/channel. Filename metadata supplies identities;
+missing/duplicate channels and ambiguous axes are refused. Source files
+remain byte-identical, including when save_original_images=False. Stacks
+are published into an exclusively created directory with the completion
+record last. Source/stack hashes and relevant processing settings guard
+reuse, so old projected or changed inputs are not accepted as volumes.
+Normalization uses the last channel axis and processes one field at a time.
+
+REAL BIOLOGICAL ACCEPTANCE (not a synthetic package fixture): Qin Yu/EMBL's
+CC-BY-4.0 StarDist Plant Nuclei 3D ResNet, Zenodo record 8429205, supplies a
+66x116x116 Arabidopsis ovule TO-PRO-3 nucleus example and genuine pretrained
+weights. Downloads were bounded and verified against publisher MD5 and
+local SHA-256. The published NPY example was losslessly re-containerized as
+an explicit-ZYX TIFF for normal preprocess=True raw Mask acceptance. This
+is not claimed to be an untouched vendor acquisition file or held-out
+accuracy benchmark. The baseline organizer lost Z; the new full Mask ->
+merged -> measure_crop route retained all 66 planes, returned 13 nucleus
+objects spanning 60 planes, and wrote 13 SQLite rows with exact 129417 total
+foreground voxels. Raw intensities and TIFF bytes stayed unchanged.
+Unknown physical spacing was not invented: explicit relative anisotropy 2
+from model geometry yields measurement_ndim=3 and measurement_units=px_xy.
+The final offline CPU 6 run exited 0 in 15.07 s, peak 1.40 GB under 4 GiB/no swap.
+
+Current Make Masks real loader/detector also segmented the official 512x512
+2-D nucleus example: 118 objects, 5.06 s, peak 1.10 GB, network disabled. This
+checks its real entry points, not a claimed GUI button-click replay. The
+fresh isolated install and independent 2-D Cellpose benchmark are retained
+in 551_stardist_current_2d_2026-10-02.json. All 185 focused backend, raw-TIFF,
+normalization, organizer and full 3-D measurement regressions passed. The
+inherited no-usable-MIP test was corrected to require no stack directory
+and intact raw input; the organizer function is AST-identical to 52146a269.
+
+Limits: raw individual-slice vendor layouts, multiple/time-series TIFF
+series, test-mode sampling and illumination/PSF preprocessing remain outside
+this explicit-volume input route and are refused. No GPU or 3-D annotation
+editor is claimed. Large biological/model artifacts remain private.
+Receipt: features/data/551_stardist_native_3d_acceptance_2026-10-02.json.
+Public API prose was updated for the new contracts; the matching nine-locale
+API source-bound refresh is tracked in the integration follow-up.

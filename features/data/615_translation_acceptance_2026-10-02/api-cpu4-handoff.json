@@ -1,0 +1,39 @@
+{
+  "authorized_by": "root task message: move active audit to unused CPU4 while preserving its 4 GiB cgroup",
+  "epoch": 1790922350.4969375,
+  "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r5f4f2918a76b47039ddaa5ff2932f778.scope",
+  "processes": [
+    {
+      "pid": 559069,
+      "before": {
+        "559069": [
+          0
+        ],
+        "559074": [
+          0
+        ],
+        "559206": [
+          0
+        ]
+      },
+      "after": {
+        "559069": [
+          4
+        ],
+        "559074": [
+          4
+        ],
+        "559206": [
+          4
+        ]
+      },
+      "taskset_output": "pid 559069's current affinity list: 0\npid 559069's new affinity list: 4\npid 559074's current affinity list: 0\npid 559074's new affinity list: 4\npid 559206's current affinity list: 0\npid 559206's new affinity list: 4\n"
+    }
+  ],
+  "limits": {
+    "memory.max": "4294967296",
+    "memory.swap.max": "0",
+    "memory.current": "750456832",
+    "memory.peak": "840941568"
+  }
+}

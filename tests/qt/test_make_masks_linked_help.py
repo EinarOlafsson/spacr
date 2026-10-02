@@ -51,11 +51,11 @@ def test_make_masks_animation_reveal_keeps_separate_state_for_each_control(scree
     popup = HoverTooltip.instance()
     low = _sibling_label_for(screen._norm_lo)
     high = _sibling_label_for(screen._norm_hi)
-    popup.show_for(low, low.toolTip())
+    popup.show_for(low, low.toolTip(), immediate=True)
     assert popup._offered_animation is not None
     assert popup._api_url
     popup.toggle_animation()
     assert popup.animation() is not None
-    popup.show_for(high, high.toolTip())
+    popup.show_for(high, high.toolTip(), immediate=True)
     assert popup.animation() is None
     assert low.property('settingKey') != high.property('settingKey')

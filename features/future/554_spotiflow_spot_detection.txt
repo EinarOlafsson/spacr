@@ -1,6 +1,7 @@
 SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27
+Status: PARTIAL — alpha runtime implemented; current real-data acceptance
+        replay remains unavailable (2026-10-02).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -84,3 +85,40 @@ features/data/554_spotiflow_vs_spotnet_vs_native.json.
 WHAT IS LEFT: a lower Spotiflow threshold (or the hybiss model) on OPS
 fields, and a real puncta/FISH field through the object prefix; GPU timing
 once the card is free; the two new combo captions await catalog entries.
+
+
+2026-10-02 — STRICT, SOURCE-BOUND COMPARISON RECEIPTS
+The existing tools/compare_spotnet_ops.py keeps its exploratory mode and gains
+an opt-in --strict mode with a new --out receipt path. Every requested detector
+must be available with cached model artifacts; every requested field must
+actually decode and produce spots. Missing detectors, skipped or wrong fields,
+zero detections and changed inputs cannot yield a passing acceptance receipt.
+The receipt binds selected image files and plane indices, the measurement
+database and library, decoder/adapter/comparison sources, backend installation
+markers and cached model files to streamed SHA-256 hashes. Files are checked
+before and after the comparison. A database with a WAL is refused until it is
+checkpointed, including databases reached through a symlink. New model-cache
+artifacts appearing during the run also fail the strict check.
+
+Strict output never replaces an existing file, symlink or hardlink. A private
+sibling is flushed/fsynced and atomically published with a no-replace hardlink;
+failed publication removes the temporary file. Incomplete comparisons return
+a nonzero status and, when the comparison reached completion, an explicitly
+failed receipt. These checks establish complete, reproducible comparisons,
+not biological accuracy or superiority over the native detector.
+
+Validation: 20 distinct named CPU checks passed under 4 GiB, CPU0 affinity,
+zero swap and hidden CUDA: 18 tool/Spotiflow checks, then two added direct and
+symlinked SQLite-WAL refusal checks. The new tool tests simulate inference
+only; they exercise the real CLI, file hashing and receipt publication. No
+backend was installed, no weights or image data downloaded, and no real
+inference or GPU work was performed in this follow-up.
+
+The historical real comparison above is retained, not represented as a new
+run. Its Spotiflow environment and /mnt/wd4tb replay inputs are absent on this
+host, and the old receipt does not bind image/model hashes. F554 therefore
+remains partial until a strict real-input replay can be executed. Threshold/
+hybiss exploration, additional puncta/FISH validation and GPU timing remain
+separate follow-ups. The earlier caption debt has been covered by the current
+nine-locale runtime catalog audit; no new application captions are added here.
+Receipt: features/data/554_strict_comparison_2026-10-02.json.

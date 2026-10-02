@@ -1,13 +1,22 @@
 {
   "lesson": "05_home",
-  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "english_sha256": "a004499c8b6d66f2ccc1e816f2dcb1ae838009a397704bdbfd612b0e1692558c",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical draft; new Appearance scenes independently peer reviewed",
+    "translator": "Codex AI, three new Appearance scenes adapted from current English source; prior scenes retained",
+    "date": "2026-10-01",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "new_scene_peer_review": {
+      "indices": [
+        10,
+        11,
+        12
+      ],
+      "reviewer": "Independent Codex AI technical review",
+      "receipt": "/tmp/spacr-ui-evidence/601/appearance-translations/shared-ui-peer-review.json"
+    }
   },
   "language": "ko",
   "title": "Home 화면과 탐색",
@@ -29,6 +38,20 @@
     "모듈을 시험해 보려면 Load test data가 있을 때 클릭하세요. 다운로드가 끝날 때까지 기다린 뒤 채워진 입력과 설정을 검토하세요. Mask에서는 Run을 누르기 전에 Live를 클릭해 시야를 확인하세요. 시계열에는 Time을, 부피 이미지에는 3D를 켜세요.",
     "Help 옆의 검색 창에 모듈, 설정, 함수 이름을 입력하세요. 여기서는 Performance를 검색하면 해당 Preferences 페이지가 나옵니다. 결과를 클릭하면 그 위치가 열립니다. API 결과는 선택한 함수의 문서를 엽니다.",
     "Preferences에서 컴퓨터에 맞는 Performance 프로필을 고르세요. Laptop은 자원을 적게 쓰고, 더 높은 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 부족하다면 적당한 프로필로 시작하세요. 분석 설정은 각 모듈에서 여전히 직접 관리합니다.",
+    "인터페이스를 조정하려면 Preferences에서 Appearance를 여세요. Theme과 Animation은 이 페이지에서 접고 펼칠 수 있는 섹션입니다. 섹션 제목을 클릭하면 해당 컨트롤이 열리거나 다시 접힙니다.",
+    "Theme을 열어 인터페이스 테마와 페이지 불투명도를 선택하세요. 같은 섹션에는 길이, 정렬, 빛남 모드를 포함한 창 테두리 컨트롤도 있습니다.",
+    "Animation을 열어 움직이는 배경과 색상 팔레트를 선택하세요. 여기에서 세부 수준, 흐림, 속도, 크기, 밀도를 조정합니다. 설정 도구 설명에 애니메이션을 적용할지 선택하고 설정 배경도 고를 수 있습니다.",
     "Home으로 돌아가 Pipeline overviews를 클릭해 워크플로를 고르세요. 풀링된 이미지 기반 스크린이라면 spaCR screens로 시작하고, 아니면 데이터에 맞는 이미지 분석 또는 시퀀싱 경로를 고르세요. 다음 튜토리얼에서 이 모듈들이 어떻게 연결되는지 보여 주고, 이어서 각 모듈 강의가 작업을 하나씩 안내합니다."
-  ]
+  ],
+  "prior_review": {
+    "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+    "review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
 }

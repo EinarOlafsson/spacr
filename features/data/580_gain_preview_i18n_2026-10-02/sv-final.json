@@ -1,0 +1,22 @@
+{
+  "Calculate reference-well gains without running Measure or changing files.": "Beräkna kalibreringsfaktorer från referensbrunnar utan att köra Measure eller ändra filer.",
+  "Calculating calibration gains…": "Beräknar kalibreringsfaktorer…",
+  "Calibration gains": "Kalibreringsfaktorer",
+  "Choose a local source folder containing merged arrays.": "Välj en lokal källmapp med sammanslagna arrayer.",
+  "Discard this preview. Any source scan already running will finish safely.": "Kassera förhandsgranskningen. En pågående genomgång av källfiler slutförs på ett säkert sätt.",
+  "Enable intensity calibration before previewing gains.": "Aktivera intensitetskalibrering innan du förhandsgranskar faktorerna.",
+  "Finish valid settings before previewing gains.": "Ange giltiga inställningar innan du förhandsgranskar faktorerna.",
+  "Gain": "Faktor",
+  "Gains use the camera offset and reference wells; images and measurements are unchanged.": "Faktorerna använder kamerans offset och referensbrunnar; bilder och mätningar ändras inte.",
+  "No eligible merged arrays were found.": "Inga lämpliga sammanslagna arrayer hittades.",
+  "Preview complete. No images or measurements were changed.": "Förhandsgranskningen är klar. Inga bilder eller mätningar har ändrats.",
+  "Preview gains": "Förhandsgranska faktorer",
+  "Preview only: each source folder is planned separately.": "Endast förhandsgranskning: varje källmapp planeras separat.",
+  "Reference fields": "Referensbildfält",
+  "Reference plate": "Referensplatta",
+  "Reference statistic": "Referensstatistik",
+  "Settings changed. Preview the gains again.": "Inställningarna har ändrats. Förhandsgranska faktorerna igen.",
+  "Some merged arrays could not be read. Check the source files.": "Vissa sammanslagna arrayer kunde inte läsas. Kontrollera källfilerna.",
+  "The first plate by name is the reference.": "Den platta som kommer först i namnordning används som referens.",
+  "Turn off Test mode to preview gains for all source fields.": "Stäng av testläget för att förhandsgranska faktorer för alla bildfält i källan."
+}

@@ -371,7 +371,7 @@ def test_every_masthead_still_reaches_its_own_api_page(
 
 
 def test_hovering_a_masthead_delivers_the_description_and_the_link(
-        qtbot, qt_theme_applied):
+        qtbot, qt_theme_applied, immediate_hover_help):
     """Driven with the Enter event Qt sends, read out of the popup shown.
 
     The property being right is not the claim. The claim is that a reader
@@ -388,7 +388,7 @@ def test_hovering_a_masthead_delivers_the_description_and_the_link(
     qtbot.waitExposed(header)
     tooltip = HoverTooltip.instance()
 
-    QApplication.sendEvent(header.api_help, QEvent(QEvent.Type.Enter))
+    immediate_hover_help(header.api_help, tooltip.isVisible)
     try:
         assert tooltip.isVisible()
         assert APP_INTROS["mask"] in tooltip._label.text()
@@ -397,7 +397,7 @@ def test_hovering_a_masthead_delivers_the_description_and_the_link(
         QApplication.sendEvent(header.api_help, QEvent(QEvent.Type.Leave))
 
 
-def test_a_masthead_hover_delivers_exactly_one_popup(qtbot, qt_theme_applied):
+def test_a_masthead_hover_delivers_exactly_one_popup(qtbot, qt_theme_applied, immediate_hover_help):
     """One filter per label. Qt keeps a LIST of them, and a second install
     would show two popups for one hover -- invisible in the text, and the
     bug that had the settings forms popping help twice."""
@@ -407,6 +407,8 @@ def test_a_masthead_hover_delivers_exactly_one_popup(qtbot, qt_theme_applied):
     header = ModuleHeader("Mask Generation", APP_INTROS["mask"],
                           app_key="mask")
     qtbot.addWidget(header)
+    header.show()
+    qtbot.waitExposed(header)
     # Repointed twice on the way in, as a workbench tab change does.
     header.api_help.set_api_app_key("measure")
     header.api_help.set_api_app_key("mask")
@@ -416,8 +418,7 @@ def test_a_masthead_hover_delivers_exactly_one_popup(qtbot, qt_theme_applied):
     ht.HoverTooltip.show_for = (
         lambda self, anchor, html: shown.append((anchor, html)))
     try:
-        QApplication.sendEvent(header.api_help, QEvent(QEvent.Type.Enter))
-        QApplication.processEvents()
+        immediate_hover_help(header.api_help, lambda: bool(shown))
     finally:
         ht.HoverTooltip.show_for = original
 

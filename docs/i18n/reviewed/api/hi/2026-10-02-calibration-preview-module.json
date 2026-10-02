@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Direct Codex AI technical translation; independently peer-reviewed by root Codex AI; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.calibration_preview#0",
+      "source": "Read-only preview of Measure's existing plate calibration plan.",
+      "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+      "context": "Read-only preview of Measure's existing plate calibration plan.",
+      "translation": "Measure की मौजूदा प्लेट अंशांकन योजना का केवल-पठन पूर्वावलोकन।",
+      "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+    }
+  ]
+}

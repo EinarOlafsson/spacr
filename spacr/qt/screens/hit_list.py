@@ -119,9 +119,9 @@ APP_CLI_NOTE = (
 APP_TRANSLATIONS = (
     "Träfflista",
     "Trefferliste",
-    "Lista de aciertos",
+    "Lista de candidatos",
     "命中列表",
-    "Lista de acertos",
+    "Lista de candidatos",
     "हिट सूची",
     "히트 목록",
     "Niðurstöðulisti",

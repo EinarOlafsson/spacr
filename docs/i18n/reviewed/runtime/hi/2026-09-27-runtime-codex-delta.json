@@ -250,13 +250,6 @@
       "translation": "इस दृश्य क्षेत्र की अनिश्चितता का मानचित्र बनाएँ"
     },
     {
-      "table": "ui",
-      "key": "Mapping segmentation uncertainty: four detection runs…",
-      "source": "Mapping segmentation uncertainty: four detection runs…",
-      "source_sha256": "c9c443b58a7546c273183ee8ab5dc5d323afeb3b7f72b7cfc3d628267d64f3d7",
-      "translation": "विभाजन अनिश्चितता का मानचित्र बना रहे हैं: पहचान के चार रन…"
-    },
-    {
       "table": "setting_labels",
       "key": "measure_gpu",
       "source": "Measure GPU",
@@ -453,13 +446,6 @@
       "translation": "अनिश्चितता के अनुसार क्रम देने से ब्लाइंड क्रम हट जाएगा। पहले ब्लाइंडिंग हटाएँ।"
     },
     {
-      "table": "ui",
-      "key": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
-      "source": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
-      "source_sha256": "6c519545d490a13d4c697f617549327dcccf8e2e02377b2a1e9422fb38dbcb3b",
-      "translation": "विभाजन अनिश्चितता के अनुसार {count} दृश्य क्षेत्र क्रमित कर रहे हैं: हर एक के लिए पहचान के चार रन…"
-    },
-    {
       "table": "categories",
       "key": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
       "source": "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.",
@@ -549,13 +535,6 @@
       "source": "Seconds between the timelapse images of one event when microscope_timepoints is above 1. The watch waits at the event meanwhile, so long timelapses delay later fields. Default 0.",
       "source_sha256": "7ee11ee687c387671716d7c7329f9f57bd1fe0aedee4ec51d0fa5ec1c4d29955",
       "translation": "microscope_timepoints के 1 से अधिक होने पर एक घटना के टाइमलैप्स चित्रों के बीच सेकंड। इस दौरान निगरानी उसी घटना पर प्रतीक्षा करती है, इसलिए लंबे टाइमलैप्स बाद के दृश्य क्षेत्रों में देरी करते हैं। डिफ़ॉल्ट: 0।"
-    },
-    {
-      "table": "ui",
-      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
-      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
-      "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
-      "translation": "वस्तु पहचान सेटिंगों के साथ हर दृश्य क्षेत्र का चार बार विभाजन करें: मूल रूप में, दो दिशाओं में पलटकर और चौथाई चक्कर घुमाकर। मापें कि चारों परिणाम कहाँ अलग हैं। इस दृश्य क्षेत्र का मानचित्र अंतर को अलग टैब में हीटमैप के रूप में दिखाता है; दृश्य क्षेत्रों को क्रम दें सबसे अनिश्चित दृश्य क्षेत्रों को पहले रखता है और spacr-make-masks --order uncertain के लिए स्कोर curate_uncertainty.csv में सहेजता है। हर दृश्य क्षेत्र के लिए पहचान के चार रन चाहिए।"
     },
     {
       "table": "ui",
@@ -1201,5 +1180,29 @@
       "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e",
       "translation": "संगीत पृष्ठभूमि में spaCR के संगीत की जगह चलाने के लिए आपकी अपनी WAV फ़ाइल। spaCR का संगीत रखने के लिए खाली छोड़ें। कुछ भी अपलोड या कॉपी नहीं होता: फ़ाइल जहाँ है वहीं से पढ़ी जाती है, और Resonance की पृष्ठभूमि भी उसी संगीत के साथ चलती है।"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Mapping segmentation uncertainty: four detection runs…",
+      "source": "Mapping segmentation uncertainty: four detection runs…",
+      "source_sha256": "c9c443b58a7546c273183ee8ab5dc5d323afeb3b7f72b7cfc3d628267d64f3d7",
+      "translation": "विभाजन अनिश्चितता का मानचित्र बना रहे हैं: पहचान के चार रन…"
+    },
+    {
+      "table": "ui",
+      "key": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source": "Ranking {count} fields by segmentation uncertainty: four detection runs each…",
+      "source_sha256": "6c519545d490a13d4c697f617549327dcccf8e2e02377b2a1e9422fb38dbcb3b",
+      "translation": "विभाजन अनिश्चितता के अनुसार {count} दृश्य क्षेत्र क्रमित कर रहे हैं: हर एक के लिए पहचान के चार रन…"
+    },
+    {
+      "table": "ui",
+      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
+      "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
+      "translation": "वस्तु पहचान सेटिंगों के साथ हर दृश्य क्षेत्र का चार बार विभाजन करें: मूल रूप में, दो दिशाओं में पलटकर और चौथाई चक्कर घुमाकर। मापें कि चारों परिणाम कहाँ अलग हैं। इस दृश्य क्षेत्र का मानचित्र अंतर को अलग टैब में हीटमैप के रूप में दिखाता है; दृश्य क्षेत्रों को क्रम दें सबसे अनिश्चित दृश्य क्षेत्रों को पहले रखता है और spacr-make-masks --order uncertain के लिए स्कोर curate_uncertainty.csv में सहेजता है। हर दृश्य क्षेत्र के लिए पहचान के चार रन चाहिए।"
+    }
+  ],
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
 }

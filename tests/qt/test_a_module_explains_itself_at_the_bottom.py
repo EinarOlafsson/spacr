@@ -30,8 +30,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QPoint, QPointF
-from PySide6.QtGui import QEnterEvent
+from PySide6.QtCore import QEvent
 from PySide6.QtWidgets import QApplication
 
 from spacr.qt.app import MainWindow
@@ -55,16 +54,13 @@ def window(qapp, qt_theme_applied):
 def home(window):
     """Home, with its strip put back to the prompt after each test."""
     page = window._startup
+    window._stack.setCurrentWidget(page)
+    page._tabs.setCurrentIndex(0)
+    window.show()
+    QApplication.processEvents()
     yield page
     page._hint_bar.release()
 
-
-def _enter(widget):
-    where = QPointF(widget.width() / 2, widget.height() / 2)
-    QApplication.sendEvent(widget, QEnterEvent(
-        where, where,
-        QPointF(widget.mapToGlobal(QPoint(int(where.x()),
-                                          int(where.y()))))))
 
 
 # ---------------------------------------------------------------------------
@@ -106,11 +102,11 @@ def test_the_sentence_moved_rather_than_vanishing(window, home):
 # The strip
 # ---------------------------------------------------------------------------
 
-def test_hovering_a_tile_writes_the_module_and_both_links(home):
+def test_hovering_a_tile_writes_the_module_and_both_links(home, immediate_hover_help):
     """Summary, API and Tutorial, all in the strip."""
     tile = next(t for t in home.findChildren(AppTile)
-                if t.text_label == "Mask")
-    _enter(tile)
+                if t.text_label == "Mask" and t.isVisible())
+    immediate_hover_help(tile, lambda: home._hint_bar.module_key == tile.property("moduleAppKey"))
     bar = home._hint_bar
     assert isinstance(bar, ModuleHintBar)
     assert bar.module_key == "mask", (
@@ -122,11 +118,11 @@ def test_hovering_a_tile_writes_the_module_and_both_links(home):
     assert "einarolafsson.github.io/spacr/tutorials/#lesson=" in text
 
 
-def test_the_strip_holds_after_the_pointer_leaves(home):
+def test_the_strip_holds_after_the_pointer_leaves(home, immediate_hover_help):
     """The reach the hold exists to make possible."""
     tile = next(t for t in home.findChildren(AppTile)
-                if t.text_label == "Measure")
-    _enter(tile)
+                if t.text_label == "Measure" and t.isVisible())
+    immediate_hover_help(tile, lambda: home._hint_bar.module_key == tile.property("moduleAppKey"))
     held = home._hint_bar.text()
     assert home._hint_bar.is_holding()
 
@@ -141,20 +137,20 @@ def test_the_hold_is_thirty_seconds():
     assert ModuleHintBar.HOLD_MS == 30_000
 
 
-def test_the_hold_restarts_on_the_next_module(home):
+def test_the_hold_restarts_on_the_next_module(home, immediate_hover_help):
     """Reading across a row of tiles is not a race against the first clock."""
-    tiles = {t.text_label: t for t in home.findChildren(AppTile)}
-    _enter(tiles["Mask"])
+    tiles = {t.text_label: t for t in home.findChildren(AppTile) if t.isVisible()}
+    immediate_hover_help(tiles["Mask"], lambda: home._hint_bar.module_key == "mask")
     assert home._hint_bar.module_key == "mask"
-    _enter(tiles["Measure"])
+    immediate_hover_help(tiles["Measure"], lambda: home._hint_bar.module_key == "measure")
     assert home._hint_bar.module_key == "measure"
     assert home._hint_bar.is_holding()
 
 
-def test_releasing_puts_the_prompt_back(home):
+def test_releasing_puts_the_prompt_back(home, immediate_hover_help):
     tile = next(t for t in home.findChildren(AppTile)
-                if t.text_label == "Mask")
-    _enter(tile)
+                if t.text_label == "Mask" and t.isVisible())
+    immediate_hover_help(tile, lambda: home._hint_bar.module_key == tile.property("moduleAppKey"))
     home._hint_bar.release()
     assert home._hint_bar.module_key == ""
     assert not home._hint_bar.is_holding()
@@ -165,14 +161,19 @@ def test_releasing_puts_the_prompt_back(home):
 # The dock writes to the same strip
 # ---------------------------------------------------------------------------
 
-def test_hovering_a_dock_row_explains_it_in_home_s_strip(window, home, qapp):
+def test_hovering_a_dock_row_explains_it_in_home_s_strip(window, home, qapp, immediate_hover_help):
     """"the hover over the doc should function the same"."""
     window._stack.setCurrentWidget(home)
     qapp.processEvents()
     row = next(r for r in window._sidebar._items
                if str(r.property("navKey")) == "regression")
+    window.apply_dock_mode("locked")
+    section = window._sidebar._section_of[row.key]
+    if not window._sidebar.section_is_open(section):
+        window._sidebar.toggle_section(section)
+    qapp.processEvents()
     home._hint_bar.release()
-    _enter(row)
+    immediate_hover_help(row, lambda: home._hint_bar.module_key == "regression")
     qapp.processEvents()
     assert home._hint_bar.module_key == "regression", (
         f"the dock hover wrote {home._hint_bar.module_key!r}")
@@ -180,13 +181,20 @@ def test_hovering_a_dock_row_explains_it_in_home_s_strip(window, home, qapp):
     assert home._hint_bar.is_holding()
 
 
-def test_the_home_row_is_not_announced_as_a_module(window, home, qapp):
+def test_the_home_row_is_not_announced_as_a_module(window, home, qapp, immediate_hover_help):
     """`__home__` has no documentation page and no lesson."""
     window._stack.setCurrentWidget(home)
     home._hint_bar.release()
     row = next(r for r in window._sidebar._items
                if str(r.property("navKey")) == "__home__")
-    _enter(row)
+    window.apply_dock_mode("locked")
+    qapp.processEvents()
+    seen = []
+    window._sidebar.module_hovered.connect(seen.append)
+    try:
+        immediate_hover_help(row, lambda: seen == ["__home__"])
+    finally:
+        window._sidebar.module_hovered.disconnect(seen.append)
     qapp.processEvents()
     assert home._hint_bar.module_key == "", (
         "Home was announced as a module")

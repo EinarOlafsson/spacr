@@ -84,7 +84,7 @@ from ...organelle_types import (organelle_count, organelle_role,
 
 LOG = logging.getLogger("spacr.qt.live_preview")
 
-SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
+SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".npy")
 
 _PLANE_ROLE = int(Qt.UserRole) + 1
 
@@ -127,6 +127,21 @@ OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen", "organelle")
 #: The object choices that are never per-slot, in the order they are offered.
 FIXED_OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen")
 
+
+def _background_switch_of(obj: str) -> str:
+    """The background-removal switch key of one object.
+
+    ``remove_background_cell`` for the fixed kinds; an organelle slot's is
+    numbered, ``remove_background_organelle_2`` for the second (item 76,
+    2026-09-30).
+
+    :param obj: an object role such as ``'cell'`` or ``'organelleb'``.
+    """
+    from spacr.organelle_types import ALL_ORGANELLE_ROLES, _background_switch_key
+
+    if obj in ALL_ORGANELLE_ROLES:
+        return _background_switch_key(obj)
+    return f"remove_background_{obj}"
 
 def organelle_label(number: int) -> str:
     """The dropdown caption for organelle slot ``number``.
@@ -331,18 +346,26 @@ in memory for a popup that lists eight comfortably."""
 
 
 def load_preview_image(path: Path) -> np.ndarray:
-    """Read *path* into an (H, W) or (H, W, C) uint8/uint16 array.
+    """Read *path* into a nonempty (H, W) or (H, W, C) numeric array.
 
-    Tifffile is used for TIFFs to preserve bit-depth; other formats fall
-    back to PIL. Raises :class:`FileNotFoundError` if the path is bad.
+    Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy``
+    stacks are memory mapped without loading pickled objects. Raises
+    :class:`FileNotFoundError` if the path is bad.
 
-    :param path: image file path (``str`` or :class:`~pathlib.Path`); a
-        ``.tif``/``.tiff`` suffix, in any case, selects tifffile.
+    :param path: image file path (``str`` or :class:`~pathlib.Path`);
+        ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.
     """
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(path)
     suf = path.suffix.lower()
+    if suf == ".npy":
+        array = np.load(path, mmap_mode="r", allow_pickle=False)
+        if array.ndim not in (2, 3) or not all(array.shape):
+            raise ValueError("Preview NPY must contain a nonempty (H,W) or (H,W,C) array")
+        if not np.issubdtype(array.dtype, np.number):
+            raise ValueError("Preview NPY must contain numeric image pixels")
+        return array
     if suf in (".tif", ".tiff"):
         import tifffile
         return tifffile.imread(str(path))
@@ -959,6 +982,44 @@ def _check_preview_cancel(req: PreviewRequest) -> None:
         raise PipelineCancelled('Preview cancelled')
 
 
+def _unmix_preview_field(req):
+    """Unmix an organized intensity stack without modifying its source."""
+    if not req.preprocess_settings.get('unmix', False):
+        return req.image, None
+    from ...psf_pipeline import _prepare_unmixing
+    from ...schema import parse_field_stem
+
+    source = Path(req.source_path)
+    if (source.suffix.lower() != '.npy' or source.parent.name != 'stack'
+            or not source.is_file()):
+        raise ValueError(
+            'Spectral unmixing preview requires an organized NPY intensity '
+            'field from the project stack folder; select that field instead '
+            'of a raw single-channel image or merged mask array.')
+    parse_field_stem(source.name, strict=True)
+    if req.image.ndim != 3 or not all(req.image.shape):
+        raise ValueError('Spectral unmixing preview requires a nonempty (H,W,C) stack')
+
+    def load_control(path):
+        """Read controls cooperatively and reject incompatible channel layouts."""
+        _check_preview_cancel(req)
+        field = np.load(path, mmap_mode='r', allow_pickle=False)
+        if field.ndim != 3 or field.shape[-1] != req.image.shape[-1]:
+            raise ValueError('Unmixing controls and preview must have the same intensity channels')
+        return field
+
+    _check_preview_cancel(req)
+    plan = _prepare_unmixing(req.preprocess_settings, source.parent,
+                            load=load_control)
+    _check_preview_cancel(req)
+    image = plan.apply(req.image)
+    _check_preview_cancel(req)
+    record = plan.provenance()
+    record['source_directory'] = str(source.parent.resolve())
+    record['stage'] = 'before channel selection, PSF and enhancement'
+    return image, record
+
+
 def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     """Run one Cellpose pass per requested object type.
 
@@ -986,6 +1047,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     from ..detect_chain import provenance as chain_provenance
 
     _check_preview_cancel(req)
+    preview_image, unmixing = _unmix_preview_field(req)
     inferred = fill_psf_settings(req.preprocess_settings,
                                  req.source_path or None)
     plan = prepare_psf(req.preprocess_settings)
@@ -1003,6 +1065,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         'stage': 'loaded preview field, before background and model normalization',
         'normalization': 'field-local Cellpose defaults; classical method specific',
         'illumination': 'no preview illumination correction',
+        'unmixing': unmixing or {'operation': 'none'},
         'input_modified': False,
         'filter_intensity_source': 'original loaded preview field',
         'input_shape': list(req.image.shape),
@@ -1018,7 +1081,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     def _prepared(ch_idx: int) -> np.ndarray:
         """One channel's plane after the PSF or enhancement chain, once."""
         if ch_idx not in processed:
-            plane = _select_channel(req.image, ch_idx)
+            plane = _select_channel(preview_image, ch_idx)
             if chain is not None:
                 processed[ch_idx] = apply_chain(
                     plane[..., None], chain, cancel=req.cancel)[..., 0]
@@ -1036,7 +1099,7 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         req.provenance['channels'][obj] = ch_idx
         image_2d = _prepared(ch_idx).copy()
 
-        if req.preprocess_settings.get(f"remove_background_{obj}"):
+        if req.preprocess_settings.get(_background_switch_of(obj)):
             bg = float(req.preprocess_settings.get(
                 f"{obj}_background",
                 req.preprocess_settings.get("background", 100.0)))
@@ -1118,9 +1181,9 @@ def _backend_preview_pass(req: PreviewRequest, obj: str,
     :param image_2d: the object's own plane, prepared as for Cellpose-SAM.
     :param route: ``(backend, masks function)`` from
         :func:`spacr.object._prefixed_model_route`.
-    :param prepared: a channel index's plane, prepared the way
-        ``image_2d`` was; a cell is given its nucleus plane from it when the
-        request has a nucleus channel.
+    :param prepared: a channel index's prepared plane. InstanSeg receives
+        every configured intensity channel, with the object channel first;
+        other backends retain their existing role-specific input.
     :returns: ``(mask, RGB flow or None, cell probability or None)``.
     """
     from ... import _segmentation_backends
@@ -1132,7 +1195,15 @@ def _backend_preview_pass(req: PreviewRequest, obj: str,
     settings[f"{obj}_cellprob_threshold"] = float(req.cellprob)
     image = image_2d
     nucleus = req.channels.get("nucleus")
-    if (obj == "cell" and nucleus is not None and req.image.ndim == 3
+    if backend == "instanseg" and req.image.ndim == 3:
+        count = req.image.shape[-1]
+        own = int(req.channels.get(obj, 0)) % count
+        configured = {int(value) % count for value in req.channels.values()
+                      if value is not None}
+        order = [own] + sorted(configured - {own})
+        image = np.stack([image_2d if index == own else prepared(index)
+                          for index in order], axis=-1)
+    elif (obj == "cell" and nucleus is not None and req.image.ndim == 3
             and req.image.shape[-1] > 1):
         index = int(nucleus) % req.image.shape[-1]
         image = np.stack([image_2d, prepared(index)], axis=-1)
@@ -1697,8 +1768,8 @@ def _plaque_model_the_run_would_use(
     """The checkpoint the plaque RUN would segment with, by its own resolver.
 
     ``analyze_plaques`` never hands ``model_name`` to Cellpose. It resolves
-    ``plaque_model`` -- ``'bundled'`` by default, a :mod:`spacr.model_zoo`
-    key, or a path -- through :func:`spacr.submodules._resolve_plaque_model`
+    ``plaque_model`` -- a :mod:`spacr.model_zoo` key (``toxoplasma_plaque_v2``
+    by default), ``'bundled'``, or a path -- through :func:`spacr.submodules._resolve_plaque_model`
     and loads the answer as ``custom_model``. Measured on a built Plaque Assay
     screen the form carries ``plaque_model='bundled'`` AND
     ``model_name='cpsam'``, and this panel seeded the second: a preview on
@@ -4229,7 +4300,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         for obj in self._selected_object_types():
             out[f"{obj}_signal_to_noise"] = self._widget_value(
                 self._common_widgets["signal_to_noise"])
-            out[f"remove_background_{obj}"] = self._widget_value(
+            out[_background_switch_of(obj)] = self._widget_value(
                 self._common_widgets["remove_background"])
             out[f"{obj}_background"] = self._widget_value(
                 self._common_widgets["background"])

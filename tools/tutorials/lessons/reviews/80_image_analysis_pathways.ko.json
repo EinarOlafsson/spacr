@@ -1,7 +1,7 @@
 {
   "language": "ko",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "31082f017cb8971f3b4fb79b8185b9270238cf0e756eee105dfe7ade3d76799e",
+  "english_sha256": "248e5aaff34ba0af1c0ea8c170fa82f657332ca16f72cb82cb1364de9572f9a8",
   "title": "이미지 분석 모듈과 그 관계",
   "section": "Workflows",
   "description": "분할, 측정, 주석, 분류, 투영, 게이트, 이미지 정합, 품질 관리, 분석을 거치는 이미지 분석 경로를 고르세요.",
@@ -14,7 +14,7 @@
   "scenes": [
     "spaCR의 이미지 분석은 픽셀에서 답까지 이미지를 따라갑니다. 원본 이미지는 객체를 찾는 Mask에서 시작합니다. 마스크를 손으로 고치고 싶다면 Make Masks를 쓰거나 이미 있는 마스크를 가져오세요. 그다음 Measure가 이미지와 마스크를 숫자로, 원하면 크롭으로도 바꿉니다. 거기서부터는 분류, 이미지 탐색, 게이팅, 분석 중에서 길을 고릅니다. 분석에 하나의 좌표계가 필요하면 먼저 타일을 이어 붙이세요.",
     "원본 현미경 이미지는 Mask에서 시작합니다. Home에서 열고 채널과 분할 모델을 고른 뒤, 실행하기 전에 미리 보기를 확인하세요. Mask는 각 시야를 병합 배열로 저장하며, 여기에는 이미지 채널과 정수 라벨 평면이 함께 들어 있습니다. 다음에 Measure가 읽는 것이 바로 이 병합 배열입니다. Mask는 작은 개수 데이터베이스도 남기지만, 그것은 집계일 뿐 특징 표가 아닙니다.",
-    "때로는 마스크에 사람의 손길이 필요합니다. Home에서 Make Masks를 열고 시야별로 고치세요. 여기서 저장한 것은 두 방향으로 갈 수 있습니다. 분할 모델을 학습시키려면 이미지-마스크 쌍을 정리해 학습 시야로 함께 보관하세요. 측정하려면 FEATURES로 각 이미지를 마스크와 짝지어 측정 프로젝트를 저장하세요. 이렇게 해야 마스크가 Measure에 도달합니다. 따로 떨어진 마스크는 병합 배열이 아닙니다. 여기서 그린 플라크 마스크는 대응하는 원본 이미지와 함께 Plaque Assay에도 쓸 수 있습니다. 마스크를 저장한다고 분류기가 학습되지는 않습니다.",
+    "때로는 마스크에 사람의 손길이 필요합니다. Home에서 Make Masks를 열고 시야별로 고치세요. 여기서 저장한 것은 두 방향으로 갈 수 있습니다. 분할 모델을 학습시키려면 이미지-마스크 쌍을 정리해 학습 시야로 함께 보관하세요. 측정하려면 Organize for Measure를 사용하세요. 각 이미지와 그 마스크를 채널 폴더로 옮기고 Measure가 읽는 배열로 병합합니다. 따로 떨어진 마스크는 병합 배열이 아닙니다. 여기서 그린 플라크 마스크는 대응하는 원본 이미지와 함께 Plaque Assay에도 쓸 수 있습니다. 마스크를 저장한다고 분류기가 학습되지는 않습니다.",
     "Measure는 이 지도 전체의 중심입니다. Home에서 열고, 이미지와 마스크 채널 인덱스를 올바르게 설정한 채 Mask가 만든 프로젝트를 지정하세요. Make Masks에서 짝지은 마스크도 여기로 옵니다. Measure는 이미지와 라벨 평면을 함께 읽고, 세포, 핵, 기생충 하나하나를 measurements.db의 한 행으로 씁니다. 각 객체의 PNG가 필요하면 크롭 저장을 켜고, 대신 크롭을 스트리밍한다면 데이터베이스를 원본 프로젝트와 함께 보관하세요. 거의 모든 것이 이 행들에서 시작합니다. Annotate와 Classify는 측정값과 크롭으로 표현형을 배웁니다. Image UMAP은 이를 투영해 그룹을 찾게 해 주고, Embeddings는 모델로 크롭을 인코딩하면서 인코더와 채널 정책을 기록합니다. Gate Editor는 실제 단위를 가진 실제 측정 특징에 임곗값을 설정하고, QC는 어떤 검사가 있고 어떤 검사가 빠졌는지 보여 줍니다. Toxoplasma 분석도 여기서 시작합니다. Recruitment에는 알맞은 구획 강도가, Invasion Assay에는 기준 대조군을 포함한 2색 염색 측정값이, Replication Assay에는 기생충과 액포의 명시적 연결이 필요합니다. Host–Pathogen Analysis에는 액포 전체 마스크와 숙주 기준 강도가 필요하며, 비감염 세포도 남겨 두어야 합니다. 그리고 내출아 크기 지표는 숙주 세포별 집계와 면적 단위를 확인한 뒤 Python에서 측정된 프로젝트를 읽습니다. Mask의 개수 데이터베이스만으로는 부족합니다.",
     "측정값이 준비되면 Annotate에서 예시로 가르칩니다. Home에서 열면 Measure가 저장했거나 프로젝트에서 스트리밍하는 객체 크롭이 표시됩니다. 대표적인 객체에 라벨을 붙이세요. 각 라벨은 png_list 테이블의 주석 열에 해당 객체의 식별 정보와 연결되어 들어갑니다. 처음부터 시작할 필요는 없습니다. Gate Editor에 저장한 게이트가 검토할 라벨 후보를 제안할 수 있습니다. 질문마다 별도의 열을 쓰고 학습용과 평가용 객체를 분리하세요. 다음에 Classify가 학습하는 것이 바로 이 열입니다.",
     "Home에서 Classify를 열어 라벨을 예측으로 바꾸세요. 두 계열이 있으며, 데이터에 따라 어느 쪽을 쓸지 정해집니다. Computer Vision은 Measure가 저장하거나 스트리밍하는 객체 크롭에서, Tabular Machine Learning은 측정된 특징 열에서 배웁니다. 라벨은 세 곳에서 올 수 있습니다. 대부분은 Annotate에서 옵니다. Gate Editor는 검토한 게이트 선택을 주석 열에 쓸 수 있고, Image UMAP도 검토한 올가미 선택으로 같은 일을 할 수 있습니다. 어느 경우든 여기서 같은 열과 같은 객체 집단을 선택하세요. 임베딩 클러스터는 정답이 아니므로 크롭을 확인하고, 라벨을 검증하고, 검증용 객체는 학습에서 떼어 두세요. 그러면 Classify는 점수, 학습된 모델, 그리고 떼어 둔 데이터에 대한 예측을 담은 평가 묶음을 저장합니다. 스크린에서는 사용할 CV 또는 ML 점수 열을 고르고, 플레이트와 웰 식별 정보를 유지한 채 Regression으로 가져가세요.",
@@ -33,15 +33,13 @@
     "이처럼 이미지 경로는 거의 항상 Mask에서 Measure로 이어진 뒤 질문에 따라 갈라집니다. 자신만의 분할 모델을 학습시키려면 Make Masks에서 이미지-마스크 쌍을 준비하고, Cellpose Workbench에서 학습시킨 뒤, 저장된 모델을 Mask에서 다시 여세요. 호환되는 출력이 이미 있다면 중간 단계부터 시작할 수 있습니다. 어디로 가든 각 결과에 채널 식별 정보, 단위, 객체 키를 함께 보관하세요."
   ],
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
-    "phrase_bank_sha256": "9d25bde437b50a2aa1a08c9e0440b4af3addfc37527406697546d589bb5ab159",
+    "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
+    "phrase_bank_sha256": "288d4eb86f2970ec864d009ed3ebae7ac653999d7a0d0e151ec9cca27f5f0ef2",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
-    ],
-    "independent_peer_review": false,
-    "listening_review": false
+    ]
   }
 }

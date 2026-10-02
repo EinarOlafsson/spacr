@@ -178,6 +178,8 @@ def test_the_page_scope_narrows_what_is_written_not_what_is_fitted(
 
     import spacr.active_learning as al
     import spacr.suggest as sug
+    monkeypatch.setattr(al, "round_features",
+                        lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(al, "retrain_round", fake_retrain)
     monkeypatch.setattr(sug, "suggest_from_scores", fake_suggest)
     monkeypatch.setattr(sug, "write_suggestions", fake_write)
@@ -217,6 +219,8 @@ def test_no_scope_writes_every_unanswered_crop(monkeypatch, tmp_path):
 
     import spacr.active_learning as al
     import spacr.suggest as sug
+    monkeypatch.setattr(al, "round_features",
+                        lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(al, "retrain_round", lambda *a, **k: object())
     monkeypatch.setattr(sug, "suggest_from_scores",
                         lambda *a, **k: FakeProposal())
@@ -405,6 +409,8 @@ def test_a_second_run_does_not_train_on_the_first_run_s_suggestions(
 
     import spacr.active_learning as al
     import spacr.suggest as sug
+    monkeypatch.setattr(al, "round_features",
+                        lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(al, "retrain_round", fake_retrain)
     monkeypatch.setattr(sug, "suggest_from_scores",
                         lambda *a, **k: FakeProposal())
@@ -649,6 +655,8 @@ def test_the_fit_is_asked_to_downsample_and_to_invent(monkeypatch, tmp_path):
 
     import spacr.active_learning as al
     import spacr.suggest as sug
+    monkeypatch.setattr(al, "round_features",
+                        lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(al, "retrain_round",
                         lambda db, col, **opts: seen.update(opts) or object())
     monkeypatch.setattr(sug, "suggest_from_scores",

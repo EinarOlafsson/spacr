@@ -138,6 +138,24 @@
       "hold_after": 0.7
     },
     {
+      "visual": "10_appearance_categories",
+      "narration": "Open Appearance in Preferences to adjust the interface. Theme and Animation are collapsible sections on this page. Click a section heading to open its controls or fold them away.",
+      "hold_after": 0.7,
+      "focus": [960, 200, 1920, 1080]
+    },
+    {
+      "visual": "11_appearance_theme",
+      "narration": "Open Theme to choose the interface theme and page opacity. The same section holds the window rim controls, including its length, alignment and glow mode.",
+      "hold_after": 0.7,
+      "focus": [960, 200, 1920, 1080]
+    },
+    {
+      "visual": "12_appearance_animation",
+      "narration": "Open Animation to choose the animated backdrop and its palette. Adjust its detail, blur, speed, size and density here. You can also choose whether setting tooltips animate and select a settings backdrop.",
+      "hold_after": 0.7,
+      "focus": [960, 200, 1920, 1080]
+    },
+    {
       "visual": "00_home",
       "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
       "hold_after": 0.7,

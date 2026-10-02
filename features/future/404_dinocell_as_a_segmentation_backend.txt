@@ -2,7 +2,13 @@
 DINOCELL AS A SEGMENTATION BACKEND
 ================================================================================
 
-Status:    RUN FOR REAL, ~85%, 2026-09-19 (the trailing note of that date).
+Status:    LIVE_CELL SCORECARD DONE 2026-10-02 (the trailing section of that
+           date): DINOCell stays an ALPHA backend, cpsam_v2 stays the
+           default, and the zero-shot claim is not supported on the
+           live_cell hold-out. PV SCORECARD WAITS on item 370's curation
+           (maintainer). ~90%.
+           Before that: RUN FOR REAL, ~85%, 2026-09-19 (the trailing note
+           of that date).
            DINOCell installs into an environment of its own from PyPI
            (dinocell 0.74, torch 2.10.0, its own numpy and Cellpose), spaCR
            calls it out of process, and it segmented a field end to end
@@ -329,3 +335,69 @@ HOW THE SCORING IS RUN (scratch, /mnt/wd4tb/scratch/404):
   gpu_turn.sh turn per chunk, the next only after the last has exited.
   The pre-fix partial rows are kept as
   livecell_eval/per_field_dinocell.before_fix_2026-09-30.csv and not scored.
+
+--------------------------------------------------------------------------------
+2026-10-02 -- LIVE_CELL HOLD-OUT SCORECARD: DONE. DINOCELL STAYS ALPHA.
+--------------------------------------------------------------------------------
+
+Status of this part: DONE. The live_cell hold-out is scored, both arms, all
+431 fields (267 mammalian, 108 bacteria, 56 yeast), 0 timeouts, 0 errors.
+Files: features/data/404_livecell_scorecard_2026-10-02/ (summary.txt,
+per_field_dinocell.csv, per_field_cpsam_v2.csv; the evaluator and the
+pre-fix rows stay in /mnt/wd4tb/scratch/404). Run on the GPU in
+gpu_turn.sh turns, after the hang fix below; timings are wall clock on a
+card shared with a GUI process (see the 2026-10-01 section).
+
+AP = TP/(TP+FP+FN) pooled over the domain's objects (Cellpose's metric):
+
+  arm       domain     fields  n_true  n_pred  AP@0.5  AP@0.75  F1@0.5  med s/field
+  dinocell  mammalian     267   14027   61141   0.160    0.060   0.275    7.7
+  dinocell  bacteria      108   10981   12226   0.603    0.388   0.752    1.1
+  dinocell  yeast          56    1889    2291   0.770    0.574   0.870    3.6
+  dinocell  all           431   26897   75658   0.256    0.136   0.408    7.5
+  cpsam_v2  mammalian     267   14027   13908   0.535    0.262   0.697    0.8
+  cpsam_v2  bacteria      108   10981    9733   0.753    0.596   0.859    0.3
+  cpsam_v2  yeast          56    1889    1906   0.938    0.837   0.968    0.2
+  cpsam_v2  all           431   26897   25547   0.640    0.411   0.781    0.6
+
+cpsam_v2 is ahead in every domain at both IoU thresholds, and 12x faster
+per field overall.
+
+OVER-SEGMENTATION IS DINOCELL'S FAILURE MODE. It called 75,658 objects
+against 26,897 true (2.8x; cpsam_v2 25,547, 0.95x). It is concentrated in
+mammalian label-free fields: 61,141 called vs 14,027 true (4.4x). Worst
+sources, called/true: brain_organoid_tracking 6,634/12, hela_coco
+2,743/49, revvity_brightfield 8,548/258, ctc_bf_musc_brightfield
+1,798/64, dic_hepg2 4,470/234, sartorius_neurons 13,509/1,044 -- large or
+textured cells broken into many fragments, and background texture called
+as cells. Where cells are small and compact it is close to the truth
+(bacteria 1.1x, yeast 1.2x; yeaz, cell_acdc_yeast,
+omnipose_bact_phase, cglutamicum_tracking, partaker all 0.99-1.12x), and
+its AP there trails cpsam_v2 by 0.15-0.17.
+
+THE HANG, ITS CAUSE AND FIX (commit 3ad37213c, recorded in full in the
+2026-10-01 section): `eval` given one bare (H, W, C) array iterated it as H
+images of shape (W, C), each upscaled to thousands of tiles -- the first
+run sat 68 min on a 1032x1376 RGB field. `_eval_images` now reads an array
+of up to three dimensions as ONE image and a list or 4-D array as a batch,
+on both the in-process and remote paths (merged with nightly's StarDist 3D
+single-volume rule, which still wins for a 3-D volume). Small fields are
+mirror-padded to one 512 tile and cropped back before Cellpose's dynamics
+instead of being upscaled (bacmother 1.1 s/field, was ~18 s). Tests:
+test_one_rgb_field_is_one_image_not_a_batch_of_its_rows,
+test_the_remote_backend_sends_one_rgb_field_as_one_image,
+test_a_small_plane_is_mirror_padded_to_one_tile_and_labelled_at_its_own_size,
+test_a_mother_machine_channel_costs_one_tile_not_fifteen.
+
+SCORING CAVEAT. The live_cell truth is curated_v3, the live_cell session's
+own curation, not the maintainer's. The 370 PV hold-out has not yet been
+curated by the maintainer, so the Toxoplasma PV scorecard (DINOCell and
+toxoplasma_pv_v1 on the same set, gpu_queue/404-dinocell-1.md) is still
+owed and waits on 370.
+
+CONCLUSION. DINOCell stays an alpha backend (behind "Show alpha features")
+and cpsam_v2 remains the default. The zero-shot generalisation claim this
+item was filed to test is NOT supported on this hold-out: it is usable on
+small compact cells (bacteria, yeast) and unfit on mammalian label-free
+fields without tuning. Left: the PV scorecard after 370's curation
+(maintainer); Windows and macOS runs.

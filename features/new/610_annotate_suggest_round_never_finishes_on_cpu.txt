@@ -1,0 +1,193 @@
+================================================================================
+ANNOTATE: ONE SUGGEST ROUND NEVER FINISHES ON THE SMALL EXAMPLE SET
+================================================================================
+
+Status:    done 2026-10-01
+Requested: 2026-10-01 -- from the tutorial-recording session: "in Annotate,
+           one Suggest round (512) ran for more than 4 hours on CPU without
+           finishing, on the tutorial's small example set."
+Owner:     item-610 agent (master session)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Fixed in spacr/qt/screens/annotate.py (_SuggestWorker and the Suggest
+handlers) and spacr/classifier_evaluation.py (a typed refusal).
+
+CAUSE. Not compute. The recording (logs in
+/mnt/firecuda2/codex/scratch-docs/rerec-b/logs/ann09.log, private database
+in /mnt/wd4tb/scratch-docs-overflow/rerec-b/st09/example_data) labelled ten
+crops of class 1 and ten of class 2 on one page of the example plate
+(2,341 crops). All ten class-1 crops were in well r12c2; class 2 was in
+r12c2 and r5c2. retrain_round's held-out split is grouped by well and
+refuses when a class lives in one well ("Independent groups per class:
+{'0': 1, '1': 2}"), so the round raised after about 7 s. The failure slot
+then called QMessageBox.warning -- a BLOCKING box with a nested event loop.
+The recorder was pumping events (settle/processEvents) while it waited for
+the run to end, so the slot ran inside its wait and the box sat there,
+unanswered, until the run was killed at 21:19 (started 17:24, 3 h 55 min;
+ann09.exit = 143). The log stops right after round_features' messages, and
+the database has no round and no suggestion, which is what the refusal
+leaves.
+
+Reproduced offscreen on a copy of the cached example database with the
+same kind of labels (scratch: /mnt/wd4tb/scratch/item-610, gui_repro*.py):
+the main thread's stack sits in _on_suggest_failed -> _blind_warning ->
+QMessageBox.warning indefinitely. The suspects in the brief were checked
+and are not it: there is no torch or image embedding in this path (it fits
+HistGradientBoosting on the 1,143 measurement features), no per-image model
+load, png_path is indexed so the per-row UPDATEs are not O(n^2), and the
+same round run outside Qt takes ~7 s (round_features 5.6 s, fit 0.7 s,
+rank+write 0.1 s).
+
+FIX.
+1. A suggestion does not need a well-separated score. When the grouped
+   split is impossible (now raised as classifier_evaluation's
+   _GroupedSplitImpossible, a ValueError subclass, so existing callers are
+   unchanged) the Suggest worker refits the round with group_by="none"
+   (a stratified random split). The round's split rule then says it is
+   not grouped, and the console says why and that the accuracy reads
+   high. The Retrain button keeps the refusal: its product IS the
+   accuracy.
+2. The failure box is opened non-blocking (QMessageBox.open(), object name
+   AnnotateSuggestFailedBox), so no worker failure can trap a caller in a
+   nested event loop.
+3. Visible progress: the worker emits progress(n, 5, stage) before each of
+   its five steps -- clear outstanding suggestions, read measurements, fit,
+   rank, write -- and the status line reads
+   "Suggest: step n of 5 — <step>…".
+4. Cancel: a Cancel button (AnnotateSuggestCancel) beside Suggest, shown
+   only while a run is going. It calls requestInterruption(); the worker
+   stops at the next step boundary and emits cancelled instead of done.
+   Measurements are now read as their own step (round_features, then
+   retrain_round(features=...)), so a cancel during the slowest step stops
+   before the fit.
+
+BEFORE / AFTER on the example set, CPU only (CUDA_VISIBLE_DEVICES=''):
+before, the round never ends (blocked in the box; the recording was killed
+after 3 h 55 min); after, the same GUI path writes its suggestions in
+13.9 s (offscreen repro, unanswered page of 21 crops; 1 suggestion), with
+no box.
+
+SAME SUGGESTIONS. Where the grouped split works, nothing changes: three
+fixed-seed rounds on the example database with labels spread over wells
+(compare.py) gave identical suggestions and identical probabilities
+(max |diff| 0.0) between the old procedure and the new worker.
+
+DECISIONS (maintainer busy, taken here):
+- Fall back to a random split for Suggest only, with a console note,
+  rather than refusing; the tutorial narration promises suggestions from
+  ten labels of each class on one page.
+- Cancel stops at step boundaries, not inside a fit. The fit is about a
+  second here; interrupting sklearn mid-fit would need a thread kill,
+  which this application never does (bridge.drain_thread).
+- A cancel after the fit keeps that round's scores (they only reorder
+  the queue) and writes no suggestions; a cancel after step 1 has already
+  cleared the outstanding suggestions, and the cancel line says so.
+- Not alpha: this is a fix to an existing feature, not a features/future
+  item. Lesson 09's layout at rest is unchanged (Cancel is hidden when no
+  run is going), so no tutorial re-record is needed.
+
+TESTS. tests/qt/test_610_suggest_round_finishes_and_cancels.py: the
+recording's label layout is refused by the grouped split; the worker still
+suggests, within a 60 s bound (takes about 1 s), naming steps 1..5; the
+screen runs the whole menu path on a real thread without a blocking box;
+Cancel during step 2 of 5 ends the thread as cancelled with no fit and no
+suggestion; Cancel with no run does nothing. Existing Suggest tests were
+updated for the separate features step and the non-blocking box.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+- Runtime caption follow-up completed 2026-10-01: all nine locales now
+  carry technically reviewed translations of the 14 current descendants
+  of the original 11 captions; see the runtime receipt below.
+- Re-run the lesson 09 Suggest segment (SPACR_TUTORIAL_ANNOTATE_SUGGEST=1)
+  to record frames 20/21; it should now finish in seconds.
+
+2026-10-01 — CANCELLATION AT THE FINAL WRITE AND ATOMIC PROPOSALS
+A follow-up audit found that a Cancel request arriving during step 5 could
+be checked after write_suggestions returned and emit cancelled, despite the
+new suggestions already being saved. The worker now honors cancellation at
+the existing boundary before step 5 and reports done after a successful
+write, including a cancellation that arrived during that write.
+
+The writer also relied on the SQLite connection context plus db.commit(),
+but the shared connection factory uses autocommit. Each UPDATE could become
+durable independently, leaving a partial new proposal batch if a later row
+failed. write_suggestions now wraps only its final updates in the existing
+database_concurrency.transaction helper. Body/commit errors roll back the
+whole new proposal batch; human annotation protection (IS NULL) is retained.
+No global connection setting or schema changes.
+
+Earlier phases remain separately committed: old pending suggestions can
+already have been cleared and round scores can already have been updated.
+The failure dialog no longer says Nothing was written. It states that no
+new suggestions from this round were saved and names the earlier changes
+that may remain. The cancellation notice likewise no longer claims that
+old proposals were necessarily cleared when cancellation preceded step 1.
+The failure dialog remains nonblocking.
+
+Validation: 40 focused checks passed under a 4 GiB cap, hidden CUDA and two
+numerical threads. The new tests send real QThread interruption requests
+while ranking and while the final write is paused. A real SQLite trigger
+aborts the second proposal UPDATE after the first succeeded, proving that
+both new proposals roll back while the earlier score and old-proposal clear
+remain; a human annotation stays unchanged. Existing bounded CPU round,
+cancel, annotation-protection and multiclass-offset tests also pass.
+
+The original hang fix remains done. Lesson 09 Suggest media rerecording and
+the current caption/catalog publication follow-up remain in their existing
+lanes; no media or native reporter acceptance is claimed here.
+
+2026-10-01 — REAL LESSON 09 SUGGEST CAPTURE FOLLOW-UP
+The new standalone tools/tutorials/capture_suggest_segment.py reuses the
+existing real Suggest menu/crop interaction recorder with an isolated
+QSettings profile and a private project copy. Accepted runtime source is
+2892d7516 (full SHA and source hashes in the receipt), before the separate
+Cancel-tooltip-only correction; no post-tooltip rerun is claimed.
+
+The pinned public spaCR annotation example database and 1,423 existing real
+PNG crops completed labels → Suggest → confirm/reject in 44.74 seconds,
+under a 60-second bound. It wrote 116 proposals; 99 were visible in frame20.
+Frame21 shows the confirmed and rejected proposals, each persisted once.
+A second real round cancelled at the feature boundary and drained in
+9.59 seconds, preserving human judgements and writing no new proposals.
+All 1,423 original cached PNG hashes and the private input DB are unchanged.
+The original public database has 2,341 crop rows; only the private copy's
+png_list omitted 918 missing local-cache PNGs. No data were fabricated.
+
+Actual offscreen Qt frames20/21/22 were inspected at 3840x2160; CPU affinity
+was one CPU, memory.max 4 GiB, memory.swap.max zero, CUDA hidden. Exact
+source/data/image/log hashes and the honest failed first harness attempt
+are recorded in tools/tutorials/evidence/
+2026-10-01-annotate-suggest-current-capture.json. Full-resolution media stay
+in /tmp/spacr-tutorials-610/run2/captures without replacing an old master.
+This completes the requested Suggest-segment capture, not publication of a
+new full lesson09 video/audio or native desktop acceptance. Caption catalog
+publication remains the separate translation lane.
+
+2026-10-01 — SOURCE-BOUND RUNTIME LOCALIZATION COMPLETE
+The original 11-caption wait-list note was stale: the current inventory
+already contained nine unchanged originals and five replacement captions
+for two retired originals. The 14 current captions were technically
+reviewed in all nine locales (126 source-bound records), correcting
+statistical fitting, pending suggestions, laboratory wells, round scores
+and the direction of the accuracy warning. The Cancel tooltip now says
+that no NEW suggestions are written before the final writing step, while
+earlier proposal clears and score updates may remain. No Suggest behavior
+or public signatures/docstrings changed.
+
+Normal generation and the all-nine audit passed: 6,497 UI sources, 1,231
+setting tooltips, 237 categories and 72 module summaries. Only the tooltip
+source key was replaced; no translated value outside the 14-caption scope
+changed. Initial Hindi placeholder-order rejection was resolved by
+peer-reviewed, order-preserving Hindi/Korean wording, without changing
+gates; its failed log is retained in the receipt. All 20 focused checks
+passed, including actual localized controls/console notices in nine
+languages and existing hang, cancellation and atomic-write regressions.
+AI technical review only; no human/native-speaker signoff is claimed.
+Lesson 09 capture/publication evidence is tracked separately.
+Receipt: features/data/610_runtime_localization_2026-10-01.json.

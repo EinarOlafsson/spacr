@@ -79,7 +79,7 @@ SIZES = {"1080p": (1920, 1080), "4k": (3840, 2160)}
 #: felt.
 FRAME_MS = 1000.0 / 60.0
 
-SCHEMA = 1
+SCHEMA = 2  # Witnessed interaction trials replace inferred dropped-frame counts.
 
 
 def _load() -> Dict[str, float]:
@@ -305,113 +305,165 @@ def _drain_until_quiet(app, rounds: int = 50, pause: float = 0.01) -> None:
         app.processEvents()
 
 
+def _usable_control(widget) -> bool:
+    """Require a control the user can currently see and operate."""
+    return (widget.isVisible() and widget.isEnabled()
+            and not widget.visibleRegion().isEmpty())
+
+
+def _type_character(field, app) -> dict:
+    """Dispatch a real key and reject hidden, read-only or unchanged fields."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    if not _usable_control(field) or field.isReadOnly():
+        raise RuntimeError("the text field is not visible and editable")
+    before = field.text()
+    field.setFocus()
+    QTest.keyClick(field, Qt.Key.Key_A)
+    app.processEvents()
+    after = field.text()
+    if before == after:
+        raise RuntimeError("the typed character did not change the field")
+    # Lengths witness input without copying source paths into the receipt.
+    return {"text_length_before": len(before), "text_length_after": len(after)}
+
+
+def _scroll_settings(area, app) -> dict:
+    """Move a real scrollbar, reversing at the midpoint to avoid no-op repeats."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    bar = area.verticalScrollBar()
+    if not _usable_control(area) or not _usable_control(bar):
+        raise RuntimeError("the settings scrollbar is not visible and enabled")
+    before = bar.value()
+    if bar.maximum() <= bar.minimum():
+        raise RuntimeError("the settings column has no scrollable content")
+    direction = (Qt.Key.Key_PageUp
+                 if before > (bar.maximum() + bar.minimum()) / 2
+                 else Qt.Key.Key_PageDown)
+    QTest.keyClick(bar, direction)
+    app.processEvents()
+    after = bar.value()
+    if before == after:
+        raise RuntimeError("scroll input did not move the settings column")
+    return {"scroll_value_before": before, "scroll_value_after": after}
+
+
+def _toggle_section(section, app) -> dict:
+    """Click the visible heading and require a changed expansion state."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    header = section._header
+    if not _usable_control(header):
+        raise RuntimeError("the section heading is not visible and enabled")
+    before = section.is_expanded()
+    QTest.mouseClick(header, Qt.MouseButton.LeftButton)
+    app.processEvents()
+    after = section.is_expanded()
+    if before == after:
+        raise RuntimeError("the section click did not change its expansion state")
+    return {"expanded_before": before, "expanded_after": after}
+
+
 def measure_interaction(app_key: str = "mask") -> List[dict]:
-    """Input latency for the interactions the request names.
+    """Observe real section, text and scroll input with before/after witnesses.
 
-    Expanding a section, typing a character, and scrolling the settings
-    column -- each timed from the event being posted to the application
-    being idle again, which is what a user waits through.
-
-    :param app_key: the module screen to measure on.
-    :returns: one row per interaction, with the frames it dropped.
+    Timings cover Qt dispatch/event handling, not physical input-to-display
+    latency. Paint delivery and independent GUI-loop gaps are recorded for
+    each trial; physical presented or dropped frames remain unknown.
     """
-    from PySide6.QtCore import QPoint, Qt
-    from PySide6.QtGui import QKeyEvent, QWheelEvent
-    from PySide6.QtWidgets import (QApplication, QLineEdit, QScrollArea,
-                                   QWidget)
+    from PySide6.QtWidgets import QApplication, QLineEdit, QScrollArea
 
     from spacr.qt.screens.app_screen import AppScreen
-
-    app = QApplication.instance() or QApplication([])
-    screen = AppScreen(app_key=app_key)
-    screen.resize(1600, 1000)
-    screen.show()
-    _drain_until_quiet(app)
-
-    rows: List[dict] = []
-
-    def timed(name: str, action, repeats: int = 3) -> None:
-        """Time an interaction cold and then warm.
-
-        BOTH NUMBERS, because they are different questions and the first
-        one is the one a user meets.
-
-        THE EXAMPLE THAT USED TO BE HERE WAS AN ARTEFACT OF THIS FUNCTION.
-        It said "typing the first character into a freshly built Mask panel
-        measured 39 ms -- two dropped frames -- and the second character
-        0.1", and that 39 ms was the BUILD's deferred translation passes
-        landing on whatever was timed first. With `_drain_until_quiet` in
-        front of it the same keystroke measures 0.07 ms cold and 0.01 warm,
-        and nothing drops a frame.
-
-        The principle survives the example: a cold number and a warm one
-        are different questions, and work done once per widget is real. But
-        a "first" measured before the build has settled is not that work,
-        it is the build.
-        """
-        taken = []
-        for _ in range(max(1, repeats)):
-            started = time.perf_counter()
-            try:
-                action()
-            except Exception as error:                       # noqa: BLE001
-                rows.append({"measurement": "interaction", "action": name,
-                             "error": str(error)})
-                return
-            app.processEvents()
-            taken.append((time.perf_counter() - started) * 1000)
-        first, rest = taken[0], taken[1:]
-        rows.append({
-            "measurement": "interaction",
-            "action": name,
-            "screen": app_key,
-            "first_ms": round(first, 2),
-            "repeat_ms": round(min(rest), 2) if rest else round(first, 2),
-            "frames_dropped": max(0, int(first // FRAME_MS)),
-        })
-
-    # BY THE CLASSES THE PANEL ACTUALLY USES, not by a duck-typed
-    # `hasattr`: the first version of this looked for anything carrying
-    # `set_expanded` and found nothing at all, which reads exactly like
-    # "expanding a section is free".
     from spacr.qt.widgets.collapsible_section import CollapsibleSection
     from spacr.qt.widgets.section import Section
 
-    sections = (screen.findChildren(Section)
-                + screen.findChildren(CollapsibleSection))
-    if sections:
-        # ALTERNATED, so the repeat is a real repeat: expanding a section
-        # that is already expanded measures a no-op branch.
-        timed("expand a section",
-              lambda: (sections[0].set_expanded(False),
-                       sections[0].set_expanded(True)))
-        timed("collapse a section",
-              lambda: (sections[0].set_expanded(True),
-                       sections[0].set_expanded(False)))
+    app = QApplication.instance() or QApplication([])
+    screen = AppScreen(app_key=app_key)
+    rows: List[dict] = []
 
-    fields = screen.findChildren(QLineEdit)
-    if fields:
-        field = fields[0]
-        field.setFocus()
+    def unavailable(name):
+        """Record absent eligible controls instead of silently omitting them."""
+        rows.append({"measurement": "interaction", "action": name,
+                     "screen": app_key, "status": "unavailable",
+                     "reason": "no visible enabled eligible control"})
 
-        def type_one():
-            event = QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key_A,
-                              Qt.NoModifier, "a")
-            QApplication.sendEvent(field, event)
+    def timed(name, action, prepare=None):
+        """Record three witnessed trials; reset outside the measured interval."""
+        samples = []
+        for repeat in range(3):
+            if prepare is not None:
+                prepare()
+                _drain_until_quiet(app)
+            witness = {}
 
-        timed("type one character", type_one)
+            def observed(witness=witness):
+                """Keep the application-state witness from this exact trial."""
+                witness.update(action())
 
-    areas = screen.findChildren(QScrollArea)
-    if areas:
-        area = areas[0]
+            metrics = _observe_activity(app, screen, .15, observed)
+            samples.append({"repeat": repeat, **metrics, **witness})
+        durations = [sample["input_dispatch_and_events_ms"] for sample in samples]
+        rows.append({
+            "measurement": "interaction", "action": name,
+            "screen": app_key, "status": "observed",
+            "first_ms": durations[0], "repeat_ms": min(durations[1:]),
+            "samples": samples,
+            "frame_scope": samples[0]["frame_scope"],
+        })
 
-        def scroll_once():
-            bar = area.verticalScrollBar()
-            bar.setValue(min(bar.maximum(), bar.value() + 240))
+    try:
+        screen.resize(1600, 1000)
+        screen.show()
+        _drain_until_quiet(app)
+        sections = [section for section in
+                    (screen.findChildren(Section)
+                     + screen.findChildren(CollapsibleSection))
+                    if _usable_control(section._header)]
+        if sections:
+            section = sections[0]
+            timed("expand a section", lambda: _toggle_section(section, app),
+                  lambda: section.set_expanded(False))
+            timed("collapse a section", lambda: _toggle_section(section, app),
+                  lambda: section.set_expanded(True))
+            # Leave the measured section available to the following field input.
+            section.set_expanded(True)
+            _drain_until_quiet(app)
+        else:
+            unavailable("expand a section")
+            unavailable("collapse a section")
 
-        timed("scroll the settings column", scroll_once)
+        fields = [field for field in screen.findChildren(QLineEdit)
+                  if _usable_control(field) and not field.isReadOnly()
+                  and field.validator() is None and not field.inputMask()
+                  and field.echoMode() == QLineEdit.EchoMode.Normal
+                  and len(field.text()) < field.maxLength()]
+        if fields:
+            field = fields[0]
+            original = field.text()
+            try:
+                timed("type one character", lambda: _type_character(field, app),
+                      lambda: field.setText(original))
+            finally:
+                field.setText(original)
+                _drain_until_quiet(app)
+        else:
+            unavailable("type one character")
 
-    _shut_down(screen, app)
+        areas = [area for area in screen.findChildren(QScrollArea)
+                 if _usable_control(area)
+                 and _usable_control(area.verticalScrollBar())
+                 and area.verticalScrollBar().maximum()
+                 > area.verticalScrollBar().minimum()]
+        if areas:
+            timed("scroll the settings column", lambda: _scroll_settings(areas[0], app))
+        else:
+            unavailable("scroll the settings column")
+    finally:
+        _shut_down(screen, app)
     return rows
 
 
@@ -738,16 +790,32 @@ def measure_pointer_interaction(app_key: str = "mask") -> List[dict]:
             if home._hint_bar.module_key == tile.property("moduleAppKey"):
                 raise RuntimeError("the hover target was already active")
 
+            from spacr.qt.tooltip_policy import _preferred_delay_ms
+
+            delay_ms = _preferred_delay_ms()
+            entered_at = None
+
             def hover():
-                """Deliver a pointer move and require the real hint-bar update."""
+                """Time pointer dispatch without charging the chosen help delay."""
+                nonlocal entered_at
+                entered_at = time.perf_counter()
                 QTest.mouseMove(tile, tile.rect().center(), delay=0)
                 app.processEvents()
-                if home._hint_bar.module_key != tile.property("moduleAppKey"):
-                    raise RuntimeError("Home hover did not update its module hint")
 
             metrics = _observe_activity(app, home, .2, hover)
+            # The content witness follows the configured delay, outside the
+            # paint/input sample. A missing callback must still fail the run.
+            deadline = entered_at + delay_ms / 1000 + 2.0
+            while (home._hint_bar.module_key != tile.property("moduleAppKey")
+                   and time.perf_counter() < deadline):
+                QTest.qWait(10)
+            if home._hint_bar.module_key != tile.property("moduleAppKey"):
+                raise RuntimeError("Home hover did not update its module hint")
+            witness_ms = (time.perf_counter() - entered_at) * 1000
             rows.append({"measurement": "interaction", "action": "hover Home grid",
                          "module": str(tile.property("moduleAppKey")),
+                         "configured_hint_delay_ms": delay_ms,
+                         "hint_witness_elapsed_ms": witness_ms,
                          "repeat": repeat, **metrics, **_surface(home)})
     finally:
         _shut_down(home, app)

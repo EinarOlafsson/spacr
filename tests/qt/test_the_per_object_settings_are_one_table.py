@@ -753,7 +753,8 @@ class TestTheHelpSitsAboveTheTable:
         assert grid._help_show_timer.isActive()
         assert grid._help.text() == resting, (
             "the help arrived before the pointer had rested")
-        assert grid._help_show_timer.interval() == grid.HELP_SHOW_DELAY_MS
+        from spacr.qt.tooltip_policy import _preferred_delay_ms
+        assert grid._help_show_timer.interval() == _preferred_delay_ms()
 
     def test_hovering_a_cell_writes_that_setting_into_the_band(
             self, grid, qtbot):

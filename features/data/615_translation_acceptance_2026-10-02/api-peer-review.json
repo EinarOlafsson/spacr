@@ -1,0 +1,17 @@
+{
+  "reviewer": "Codex AI root",
+  "method": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim.",
+  "draft_sha256": "1372ad94a07ea3e2fc24171587121b5e26a0cc07fd7e60d492de09521e933743",
+  "scope": "Read-only preview of the existing plate-calibration plan in Measure.",
+  "accepted": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ]
+}
