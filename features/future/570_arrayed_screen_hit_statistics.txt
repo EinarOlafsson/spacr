@@ -1,10 +1,10 @@
 ARRAYED-SCREEN HIT STATISTICS: SSMD, ROBUST Z AGAINST NEGATIVE CONTROLS, B-SCORE
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26. Statistics, report writer and the
-Control Charts option are built and tested against hand-computed values, R's
-medpolish example and pycytominer's RobustMAD. Checked on a public screen
-with known actives on 2026-09-30 (CPJUMP1; see the end of this file). Still
-open: a B-score comparison with cellHTS2 (no R here).
+Status: DONE AS ALPHA 2026-10-01. Statistics, report writer and the Control
+Charts option meet the public-screen/reference/plate-plot acceptance below.
+The final cellHTS2 B-score comparison exposed and corrected stopping/scaling
+differences; all 6,144 reference scores and hit calls now agree. Earlier
+public-screen robust-z/SSMD and known-active evidence is retained below.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -122,3 +122,39 @@ readout wrote the SSMD, robust z and B-score heatmaps of all four plates
 and the tables. Per-plate Z' is -0.8 to -1.3 with the fourteen positive
 controls pooled, because their effects on cell count range from none to
 total loss. LEFT: cellHTS2 B-score parity.
+
+2026-10-01 — FINAL CELLHTS2 REFERENCE ACCEPTANCE; DONE AS ALPHA
+Executed unchanged Bscore, adjustVariancebyPlate and
+adjustVariancebyExperiment from pinned cellHTS2 2.69.0 source commit
+88e87ebc294490547a2f224eca75a6de14dafea3. A private WebR 0.6.0 runtime supplied
+actual R 4.6.0 stats::medpolish/mad without installing R or dependencies into
+the application. A data-only S4 adapter supplies the object slots/accessors;
+the upstream numerical source was neither translated nor modified.
+
+Four pinned CPJUMP1 plates BR00117010–13 supply 1,536 real wells, including
+112 annotated diverse positive controls. Cell-count proxy and nuclear area,
+each under plate and pooled scoring, give 6,144 reference scores. The
+comparison found a real defect: spaCR used general median-polish defaults
+(10 iterations, eps 0.01), whereas cellHTS2 uses 200 and 1e-5. On cell count
+this changed 12 per-plate hit calls at threshold 3. B-score now uses the
+reference stopping settings and R's rounded MAD factor 1.4826 for both
+plate and pooled scaling. General MAD, robust z and SSMD are unchanged.
+
+After correction, every score matches within 1.50e-13 absolute, all hit
+calls agree, and no distinct reference score is reversed in the ranking.
+Near-zero floating-point ties are compared at 1e-10; raw tie-sensitive
+Spearman values are preserved, not presented as exact equality. Both real
+four-plate B-score heatmaps were written and visually inspected. The older
+Sep30 B-score recovery/call metrics remain historical, not post-fix claims.
+
+Validation: 47 named statistical/Control Charts/golden checks passed; one
+existing optional pycytominer import test skipped. The earlier independent
+public-screen pycytominer robust-z acceptance remains unchanged. Reference
+execution used 1GiB, other checks 4GiB, with CPU0 affinity and zero swap.
+Receipt, source hashes, package integrity, actual R output, golden data,
+plot images, execution caps and scripts:
+features/data/570_cellhts2_reference_2026-10-01.json.
+
+This satisfies this item's DONE WHEN on the named public screen/readouts.
+It does not claim universal biological hit recovery or validation of the
+entire Bioconductor import/reporting stack. Alpha gating remains in place.

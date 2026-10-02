@@ -30,14 +30,15 @@ located by :mod:`spacr.plate_qc` and controls named in the
 control-chart screen's own :func:`~spacr.qt.widgets.control_chart.zprime_frame`.
 
 The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes
-the MAD of a normal sample estimate its standard deviation (the factor R's
-``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of
-moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust``
+the MAD of a normal sample estimate its standard deviation. B-scores use
+R's rounded factor 1.4826 to match cellHTS2. ``SSMD_ESTIMATORS`` are ``mm``
+(method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust``
 (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic:
 SSMD 3 is Zhang's "strong" effect, and 3 robust sigma is the usual cut-off
 for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and
-``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so
-the residuals agree with the B-score cellHTS2 computes.
+``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01) for
+general median polish. B-scores use cellHTS2's tighter stopping settings:
+200 iterations and a tolerance of 1e-5.
 
 Image-based profiling
 ---------------------
@@ -473,6 +474,7 @@ WELL_ROLES = (ROLE_NEGATIVE, ROLE_POSITIVE, ROLE_SAMPLE)
 DEFAULT_HIT_THRESHOLDS = {"ssmd": 3.0, "robust_z": 3.0, "b_score": 3.0}
 MEDIAN_POLISH_MAX_ITER = 10
 MEDIAN_POLISH_EPS = 0.01
+_BSCORE_MAD_SCALE = 1.4826
 
 
 class HitScoringError(ValueError):
@@ -716,12 +718,14 @@ def b_scores(matrix, *, fit_mask=None, scale: Optional[float] = None
     fit = np.isfinite(values)
     if fit_mask is not None:
         fit &= np.asarray(fit_mask, dtype=bool)
-    polish = median_polish(np.where(fit, values, np.nan))
+    # cellHTS2::Bscore overrides the looser stats::medpolish defaults.
+    polish = median_polish(np.where(fit, values, np.nan),
+                           max_iter=200, eps=1e-5)
     residuals = values - (polish.overall
                           + np.nan_to_num(polish.row)[:, None]
                           + np.nan_to_num(polish.column)[None, :])
     if scale is None:
-        scale = mad(residuals[fit])
+        scale = mad(residuals[fit], scale=False) * _BSCORE_MAD_SCALE
     scale = float(scale)
     if not np.isfinite(scale) or scale <= 0:
         return np.full(values.shape, np.nan), polish, scale
@@ -1075,7 +1079,8 @@ def score_screen(wells: pd.DataFrame, *, scope: str = "plate",
         grids[plate] = (on, rows, cols, grid, fit)
         residuals = grid - polish.fitted()
         residual_pool.append(residuals[fit & np.isfinite(residuals)])
-    pooled_scale = (mad(np.concatenate(residual_pool)) if residual_pool
+    pooled_scale = (mad(np.concatenate(residual_pool), scale=False)
+                    * _BSCORE_MAD_SCALE if residual_pool
                     else float("nan"))
     b = np.full(len(out), np.nan)
     polishes: Dict[str, Tuple[MedianPolish, float]] = {}

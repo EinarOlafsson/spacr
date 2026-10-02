@@ -1,0 +1,57 @@
+Package: cellHTS2
+Version: 2.69.0
+Title: Analysis of cell-based screens - revised version of cellHTS
+Author: Ligia Bras, Wolfgang Huber <wolfgang.huber@embl.org>, Michael Boutros <m.boutros@dkfz.de>, Gregoire Pau, Florian Hahne <florian.hahne@novartis.com>
+Maintainer: Wolfgang Huber <wolfgang.huber@embl.org>
+Depends: R (>= 2.10), RColorBrewer, Biobase, methods, genefilter, splots, vsn, hwriter, locfit, grid
+Suggests: ggplot2, GO.db
+Imports: GSEABase, Category, stats4, BiocGenerics
+Description: This package provides tools for the analysis of high-throughput assays that were performed in microtitre plate formats (including but not limited to 384-well plates). The functionality includes data import and management, normalisation, quality assessment, replicate summarisation and statistical scoring. A webpage that provides a detailed graphical overview over the data and analysis results is produced. In our work, we have applied the package to RNAi screens on fly and human cells, and for screens of yeast libraries. See ?cellHTS2 for a brief introduction.
+Reference: Michael Boutros and Ligia P. Bras and Wolfgang Huber.
+	Analysis of cell-based RNAi screens. Genome Biology 7:7 R66 (2006).
+License: Artistic-2.0
+URL: http://www.dkfz.de/signaling, http://www.huber.embl.de
+biocViews: ImmunoOncology, CellBasedAssays, Preprocessing, Visualization
+Collate: AllClasses.R
+	 AllGenerics.R
+	 adjustVariance.R
+	 checkColumns.R
+	 checkControls.R
+	 convertOldCellHTS.R
+	 envisionPlateReader.R
+	 getDynamicRange.R
+	 getMeasureRepAgreement.R
+	 getTopTable.R
+	 getZfactor.R
+	 gseaModule.R
+	 glossary.R
+	 htmlFunctions.R
+	 imageScreen.R
+	 makePlot.R
+	 methods-cellHTS.R
+	 methods-ROC.R
+	 normalizePlates.R
+	 oneRowPerId.R
+	 perPlateScaling.R
+	 plateConfModule.R
+	 plateListModule.R
+	 plateSummariesModule.R
+	 plotSpatialEffects.R
+         prada.R
+	 progressReport.R
+	 readHTAnalystData.R
+	 readPlateList.R
+	 rsa.R
+	 screenResultsModule.R
+	 screenDescriptionModule.R
+	 screenScriptModule.R
+	 screenSummaryModule.R
+	 settings.R
+	 summarizeReplicates.R
+	 tableOutput.R
+	 templateDescriptionFile.R
+	 writeHTML-methods.R
+	 writeReport.R
+	 write.tabdel.R
+	 zzz.R
+PackageStatus: Deprecated
