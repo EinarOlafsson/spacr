@@ -12291,6 +12291,7 @@ n_jobs
 |                 ``_describe_workload`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |             :py:func:`~spacr.validate.describe_resources` **-- reads it**
+|                 :py:func:`~spacr.intensity_rescale.build_plate_plan` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.core.reducer_hyperparameter_search` **-- reads it**
@@ -12315,6 +12316,10 @@ n_jobs
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop` **-- reads it**
+|     :py:func:`~spacr.intensity_rescale.build_plate_plan` **-- reads it**
+|     ``_prepare_measurement_calibration``
+|         :py:func:`~spacr.intensity_rescale.build_plate_plan` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
 |     ``_run_cell_cycle_step``
 |         ``_classify_cell_cycle`` **-- reads it**
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
@@ -12323,6 +12328,7 @@ n_jobs
 |             ``_describe_workload`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.validate.describe_resources` **-- reads it**
+|             :py:func:`~spacr.intensity_rescale.build_plate_plan` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
@@ -12332,6 +12338,9 @@ n_jobs
 | :py:func:`~spacr.qt.bridge.make_thread`
 |     :py:func:`~spacr.qt.bridge.apply_worker_budget` **-- reads it**
 | ``_plan_gains``
+|     ``_prepare_measurement_calibration``
+|         :py:func:`~spacr.intensity_rescale.build_plate_plan` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | ``_describe_plan_safe``
@@ -12344,7 +12353,7 @@ n_jobs
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by ``_compute_umap``, ``generate_image_umap``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``_cross_validate_model``, ``_fit_one``, ``_inner_loader``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``run_search_for_app``, ``_classify_cell_cycle``, ``measure_crop``, ``generate_ml_scores``, ``interpret_vision_model``, ``generate_organelle_masks_sam``, ``apply_worker_budget``, ``generate_barecode_mapping``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``interpret_vision_model``, ``automated_motility_assay``, ``reduction_and_clustering``, ``_describe_workload``, ``describe_resources``.
+Read by ``_compute_umap``, ``generate_image_umap``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``_cross_validate_model``, ``_fit_one``, ``_inner_loader``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``run_search_for_app``, ``build_plate_plan``, ``_classify_cell_cycle``, ``measure_crop``, ``generate_ml_scores``, ``interpret_vision_model``, ``generate_organelle_masks_sam``, ``apply_worker_budget``, ``generate_barecode_mapping``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``interpret_vision_model``, ``automated_motility_assay``, ``reduction_and_clustering``, ``_describe_workload``, ``describe_resources``.
 
 .. _setting-flow-n_neighbors:
 

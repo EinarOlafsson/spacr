@@ -1559,3 +1559,13 @@ never written (it writes at session end). Same stop as the 09-28 frozen run
 (exit 3 at the guard, 11.4 GiB), a little later in the order. Log:
 /mnt/wd4tb/scratch/ci/serial_run.log. Nothing is claimed green; a serial
 rerun on the current source follows (recorded below when it ends).
+
+2026-10-02 (Claude, ci-fix) -- the three REMAINING REAL items are green
+Rechecked on origin/nightly 1b9733338 with no change needed: the `classes`
+product default is already the dict shape (all three settings.setdefault("classes", {})
+in spacr/settings.py, from a260e0914), and
+tests/qt/test_settings_list_editor.py passes 83/83; tests/qt/test_home_variants.py
+(test_no_variant_clips_elides_or_overflows, no hardcoded alphabetical()
+slices remain in spacr/) and tests/qt/test_preview_set_sampling.py
+(test_max_sets_control_sits_left_of_the_sets_dropdown) pass. Whole-suite
+serial Qt acceptance remains open as recorded above.

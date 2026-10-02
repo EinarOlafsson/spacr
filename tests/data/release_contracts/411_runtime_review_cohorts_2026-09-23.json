@@ -8,7 +8,7 @@
       "current_total": 1700,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 778,
+      "later_distinct_additions": 776,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -127,9 +127,9 @@
         },
         {
           "name": "2026-09-23-pipeline-workflow-phrases.json",
-          "records": 8,
-          "sources": 8,
-          "sha256": "0b2e790b0ab03c36c812d39f20bb94cfb4b6328d907cfd6f23dd71e0563321ca"
+          "records": 7,
+          "sources": 7,
+          "sha256": "93e0fc92c43557e7ab75004349a0a6b3496d5c6a8efdc1c00e08e49381e4a6a0"
         },
         {
           "name": "2026-09-23-preview-compatibility.json",
@@ -218,9 +218,9 @@
         },
         {
           "name": "2026-09-23-workflow-map-phrases.json",
-          "records": 206,
-          "sources": 206,
-          "sha256": "128d6e2e08511650fad6879e6a693af9a06cd3ca5d440b13c21cbc3b9e7798c5"
+          "records": 205,
+          "sources": 205,
+          "sha256": "77de328d47ef86c530a91d750994a25abe42d490a621114e36dece06cddf8715"
         },
         {
           "name": "2026-09-24-cellpose-inversion.json",
@@ -277,14 +277,14 @@
           "sha256": "2ad1f04060ecb740e69ba91e478d9d1b914a7e6576802d18201d61b5b64a1263"
         }
       ],
-      "added_sources_sha256": "76ee958e93efee7b6321a7c45168b0beb5f5912595a9d44cfc52967bb2ff0683"
+      "added_sources_sha256": "2e385a30cbe355320e743c83493a3e4afaec874d2f605e5c9f071df69ecf025c"
     },
     "fr": {
       "previous_total": 926,
       "current_total": 1696,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 778,
+      "later_distinct_additions": 776,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -403,9 +403,9 @@
         },
         {
           "name": "2026-09-23-pipeline-workflow-phrases.json",
-          "records": 8,
-          "sources": 8,
-          "sha256": "bb59bbd6d6de8286017b056bde4fcecbcbb7bddcf49f8140e504690451d6c19a"
+          "records": 7,
+          "sources": 7,
+          "sha256": "f7f35ab7e78c0e27be4b7a8f435f17080f4bbd9297582474bd4aaeca99d01f34"
         },
         {
           "name": "2026-09-23-preview-compatibility.json",
@@ -494,9 +494,9 @@
         },
         {
           "name": "2026-09-23-workflow-map-phrases.json",
-          "records": 206,
-          "sources": 206,
-          "sha256": "b7ccbf512b0733818f4853ffd64a88b779f151dc0fedfb42bf3f54d1485665b6"
+          "records": 205,
+          "sources": 205,
+          "sha256": "95d372dde47773c64330cb6f4603a1930b2f6dae8332c22132bc55127ea2f3a7"
         },
         {
           "name": "2026-09-24-cellpose-inversion.json",
@@ -553,7 +553,7 @@
           "sha256": "53917479df2ce0a03389ccd24e558ca7c32a5580fac313c766372750bd52b87c"
         }
       ],
-      "added_sources_sha256": "76ee958e93efee7b6321a7c45168b0beb5f5912595a9d44cfc52967bb2ff0683"
+      "added_sources_sha256": "2e385a30cbe355320e743c83493a3e4afaec874d2f605e5c9f071df69ecf025c"
     }
   }
 }

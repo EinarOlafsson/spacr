@@ -8926,6 +8926,7 @@ class _SpinCommitInput(QObject):
     """Distinguish typed numeric drafts from completed arrow/wheel changes."""
 
     def __init__(self, widget):
+        """Watch ``widget`` and its line edit for the events this filter handles."""
         super().__init__(widget)
         self._widget = widget
         widget.installEventFilter(self)

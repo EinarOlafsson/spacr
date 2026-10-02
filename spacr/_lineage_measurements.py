@@ -1,3 +1,9 @@
+"""Measured values on lineage trees.
+
+Records which images and label stacks a tracking run used, so a later
+Measure run can join its per-object measurements onto the same tracks and
+colour the lineage trees by a measured column.
+"""
 import hashlib
 import io
 import json

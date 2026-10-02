@@ -2584,13 +2584,16 @@ _SPATIAL_ALPHA_WIDGETS: Tuple[str, ...] = ("MapBarcodesSpatialToggle",
 
 
 class _SpatialPanelLifecycle(QObject):
+    """Stops the spatial panel's background work when its window closes."""
     def __init__(self, panel):
+        """Watch ``panel`` through a weak reference."""
         super().__init__(panel)
         from weakref import ref
 
         self._panel = ref(panel)
 
     def eventFilter(self, watched, event):  # noqa: N802
+        """Shut the panel down on deletion or on a close its host accepted."""
         from PySide6.QtCore import QEvent
 
         if event.type() == QEvent.DeferredDelete:
@@ -2607,6 +2610,7 @@ class _SpatialPanelLifecycle(QObject):
         return False
 
     def _check_closed(self, watched):
+        """Shut the panel down if its window really ended up hidden."""
         panel = self._panel()
         try:
             if panel is not None and not watched.isVisible():
@@ -2661,6 +2665,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         def destroyed(*_args):
             # Destruction may follow a reopen, after the initial token retired.
             # This state remains usable without touching the destroyed QWidget.
+            """Stop the job runner when the panel object is destroyed."""
             stop_holder[0].set()
             jobs.shutdown()
 
@@ -2869,6 +2874,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
 
     @staticmethod
     def _read_registered(request):
+        """Read and register one spatial bundle; returns its genes and top gene."""
         from ... import ops_engine
 
         bundle = ops_engine._st_read_bundle(
@@ -2888,6 +2894,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         return bundle, registered, genes, top
 
     def _show_loaded(self, request, loaded):
+        """Show a loaded bundle: fill the gene list and draw the chosen gene."""
         self._bundle, self._registered, genes, top = loaded
         self._loaded_key = self._load_key(request)
         wanted = request["gene"] if request["gene"] in genes else top
@@ -2906,18 +2913,21 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self._draw()
 
     def _load_inputs_changed(self, *_args):
+        """Forget the loaded bundle when an input that defines it changes."""
         self._load_generation += 1
         self._clear_loaded()
         if not self._busy:
             self.status.clear()
 
     def _clear_loaded(self):
+        """Drop the loaded bundle and clear the gene list and figure."""
         self._bundle = self._registered = self._loaded_key = None
         self.gene.clear()
         self.figure.clear()
         self.canvas.draw_idle()
 
     def _set_busy(self, action):
+        """Mark an action as running, or None as idle, and lock inputs to match."""
         self._busy = action
         self.load_button.setEnabled(action is None)
         self.assign_button.setEnabled(action is None)
@@ -2930,12 +2940,15 @@ class _SpatialTranscriptomicsPanel(QWidget):
             control.setEnabled(action != "run")
 
     def _start_load(self, _checked=False):
+        """Load and register the chosen bundle in the background."""
         self._start_action("load")
 
     def _start_run(self, _checked=False):
+        """Assign spatial counts to masks and write them in the background."""
         self._start_action("run")
 
     def _start_action(self, action):
+        """Validate the form and start a load or run in the background."""
         if self._busy or self._closed:
             return
         request = self.request()
@@ -2956,6 +2969,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         read_registered = self._read_registered
 
         def work():
+            """Load, register and optionally assign in a worker thread."""
             from ... import ops_engine
 
             phase = "load"
@@ -2980,6 +2994,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self._jobs.submit(work, self._action_finished)
 
     def _action_finished(self, payload):
+        """Show a finished load or run, ignoring results that were superseded."""
         if self._closed:
             return
         request, generation, loaded, summary, error = payload
@@ -3011,12 +3026,14 @@ class _SpatialTranscriptomicsPanel(QWidget):
             self._set_busy(None)
 
     def _shutdown(self):
+        """Stop background work and mark the panel closed."""
         self._closed = True
         self._reopen_timer.stop()
         self._stop.set()
         self._jobs.shutdown()
 
     def _reopen(self):
+        """Make a closed panel usable again once its last job has ended."""
         if not self._closed:
             return
         if not self._active_done.is_set():
@@ -3031,6 +3048,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self._set_busy(None)
 
     def closeEvent(self, event):  # noqa: N802
+        """Stop background work when the panel's close is accepted."""
         super().closeEvent(event)
         if event.isAccepted():
             self._shutdown()
@@ -3076,6 +3094,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         return summary
 
     def _show_summary(self, summary):
+        """Report how many objects received counts and where results went."""
         self.summary = summary
         written = ", ".join(f"{kind} {entry['objects']}"
                             for kind, entry in summary["objects"].items())

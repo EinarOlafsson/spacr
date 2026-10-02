@@ -41,6 +41,10 @@ WORKER_ONLY_TF_IMPORTS = {
         "loads the StarDist model inside the stardist backend worker",
     ("_segmentation_backends.py", "_StarDistAdapter._segment"):
         "csbdeep's percentile normalisation, inside the worker",
+    # 2026-10-02 (item 43): native StarDist3D volumes, reached only from
+    # the worker adapter's eval with that adapter as its first argument.
+    ("_segmentation_backends.py", "_stardist_volume_batch"):
+        "csbdeep's percentile normalisation for 3-D volumes, inside the worker",
     ("_segmentation_backends.py", "_tensorflow_device"):
         "the worker's GPU probe in an environment without PyTorch",
 }

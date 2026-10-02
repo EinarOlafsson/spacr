@@ -231,7 +231,10 @@ TOOLS = ROOT / "tools"
 # qt.command_palette.CommandPalette._collect_commands.app_is_visible.
 # All 12,036 prior source keys/texts unchanged; nested private parents
 # remain hidden. Exact subtraction is recorded in the F411 slice receipt.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_038
+# 2026-10-02 item 43: +2/-0, the module overviews of spacr._lineage_trees
+# and spacr._lineage_measurements (the API docstring contract requires
+# one per module); all 12,038 prior symbols unchanged.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_040
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

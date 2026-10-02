@@ -5576,3 +5576,21 @@ A fresh listing (GitHub API, all pages, state=open) returns one issue,
 #134 (auto-filed PlaneLayoutConflict in Measure, spaCR 1.5.1.1). It is
 promoted into the 1.5.1.1 implementation batch as features/new/618; the
 fix, tests and closing comment are recorded there. Open PRs: none.
+
+2026-10-02 (Claude, ci-fix) -- non-Qt CI failures from run 37026417525 fixed
+Fixed on nightly: the coverage gate denominator 652 -> 664 (workflow and
+test_module_coverage_ratchet, verified with discover_shipped_python_files);
+the stale English API catalog (preprocess_img_data) regenerated with
+tools/build_documentation_i18n.py --sources-only; module overviews for
+_lineage_trees/_lineage_measurements (API pins 12038 -> 12040); docstrings
+for 58 undocumented callables; csbdeep in _stardist_volume_batch declared
+worker-only; two Cellpose doubles given the real eval signature; stale
+merge-aggregation, outside-ring scope and cli watch-sleep tests updated to
+the deliberate product changes; spaCR casing; one assertion-free test;
+settings_flow.rst and setting_consumers.json regenerated. 1918 tests pass
+across the 36 affected modules and guards.
+STILL RED: tests/test_runtime_i18n_syntax.py sv and fr. The receipt hashes,
+counts and the 778->776 / 709->708 / 136->133 pins were rebound to the
+records 603423d0a retired, but the 2026-10-01/02 review batches are not yet
+classified by the test (older_sources 441 vs 305); translation lane.
+Qt shards were not rerun here.

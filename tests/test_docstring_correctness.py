@@ -3411,7 +3411,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # Calibration Preview contributes one current module overview.
     # F411: +2 documented nested helpers in tabular and command_palette;
     # all 12,036 existing source entries and public callable pins unchanged.
-    assert len(docs) == 12038
+    # 2026-10-02 item 43: +2/-0, the module overviews of spacr._lineage_trees
+    # and spacr._lineage_measurements (the API docstring contract requires
+    # one per module); all 12,038 prior symbols unchanged.
+    assert len(docs) == 12040
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

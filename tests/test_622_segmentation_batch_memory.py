@@ -52,17 +52,26 @@ def test_completed_arrays_are_released_before_next_batch_and_archive(
         return (Archive(path, *args, **kwargs) if str(path).endswith(".npz")
                 else original_load(path, *args, **kwargs))
 
+    # `eval` declares cellpose's own `channels` parameter, which shadows ours.
+    image_channels = channels
+
     class Model:
         def __init__(self, **kwargs):
             assert kwargs["gpu"] is False
 
-        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
             check_cellpose_eval_call(x, channel_axis)
             assert all(ref() is None for ref in live), "previous batch retained"
             assert all(ref() is None for ref in auxiliary), "unused flow outputs retained"
             assert len(x) == 1
-            np.testing.assert_allclose(x[0][..., 0], .25 if channels == 1 else .75)
-            if channels > 1:
+            np.testing.assert_allclose(x[0][..., 0], .25 if image_channels == 1 else .75)
+            if image_channels > 1:
                 np.testing.assert_allclose(x[0][..., 1], .25)
             seen.append(x[0].shape)
             live.extend(weakref.ref(image) for image in x)

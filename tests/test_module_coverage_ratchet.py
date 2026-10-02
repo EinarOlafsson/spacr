@@ -771,12 +771,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 647 -> 650: item 593's three modules, the same +3 as `shipped`.
     # 650 -> 652 on 2026-09-30: item 600's two modules (81c9b6262), the
     # same +2 as `shipped`, moved with the workflow in one commit (item 43).
-    # 2026-10-02: `shipped` is 664 now (twelve modules, named in the
-    # denominator test), but this line reads the workflow as committed, and
-    # the workflow can only be changed by the maintainer. It moves to 664 in
-    # the same commit that changes `--expected-file-count 652` to 664 in
-    # .github/workflows/tests.yml.
-    assert "--expected-file-count 652" in combine_script
+    # 652 -> 664 on 2026-10-02 (item 43): the twelve modules named in the
+    # denominator test, the same +12 as `shipped`; the gate's own inventory
+    # returns 664. Moved with the workflow in one commit.
+    assert "--expected-file-count 664" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

@@ -141,6 +141,7 @@ def _exact_values(condition, key, name):
 
 def _predicate_selection(frame, criterion, name):
     # Literal operators never interpret regex metacharacters.
+    """Rows where one literal criterion holds, as a boolean array."""
     if not isinstance(criterion, dict):
         raise AnnotationError(f"{name}: each criterion needs a column, operator and text value.")
     column = criterion.get("metadata_column")
@@ -178,6 +179,7 @@ def _predicate_selection(frame, criterion, name):
 
 
 def _criteria_selection(frame, conditions, name, match):
+    """Combine several criteria with all or any into one row selection."""
     if not isinstance(conditions, list):
         raise AnnotationError(f"{name}: criteria must be a list.")
     if not isinstance(match, str) or match not in {"all", "any"}:
@@ -286,12 +288,14 @@ def _combine_preview(frame, entry):
 
 
 def _value_preview(values):
+    """Preview a finished column: its values, their counts and blanks."""
     values = values.astype("string")
     return ConditionPreview(values, {str(key): int(value) for key, value in values.value_counts().items()},
                             int(values.isna().sum()), np.array([], dtype=np.int64))
 
 
 def _extract_preview(frame, entry):
+    """Preview a regular-expression extraction from one metadata column."""
     column = entry.get("metadata_column")
     if not isinstance(column, str) or column not in frame.columns:
         raise AnnotationError("Extraction must name a source column or an earlier annotation output.")
@@ -310,6 +314,7 @@ def _extract_preview(frame, entry):
     text = frame[column].reset_index(drop=True).astype("string")
 
     def extract(value):
+        """The captured group for one value, or NA when nothing matched."""
         if pd.isna(value):
             return pd.NA
         match = compiled.search(value)
@@ -320,6 +325,7 @@ def _extract_preview(frame, entry):
 
 
 def _template_preview(frame, entry):
+    """Preview a composed value built from columns and fixed text."""
     parts = entry.get("parts")
     if not isinstance(parts, list) or not parts:
         raise AnnotationError("Add at least one column or fixed-text part to the composition.")
@@ -564,6 +570,7 @@ def _schema_object(pairs):
 
 
 def _schema_constant(value):
+    """Refuse a NaN or infinite constant while reading a saved schema."""
     raise AnnotationError(f"The annotation schema contains a nonfinite value: {value}.")
 
 
@@ -652,6 +659,7 @@ def save_annotated_table(path, name, frame, definition, source, *, merge_definit
              else 'REAL' if pd.api.types.is_float_dtype(dtype) else 'TEXT' for dtype in frame.dtypes]
 
     def scalar(value):
+        """One value as plain JSON: ISO dates, Python numbers, None for blanks."""
         if value is None or value is pd.NA or value is pd.NaT:
             return None
         if isinstance(value, (datetime, date, pd.Timestamp)):

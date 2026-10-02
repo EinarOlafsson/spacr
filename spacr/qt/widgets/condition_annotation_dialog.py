@@ -74,6 +74,7 @@ class _CriterionRow(QWidget):
     remove_requested = Signal(object)
 
     def __init__(self, columns, criterion=None, parent=None):
+        """One criterion row: a column, an operator and a text value."""
         super().__init__(parent)
         criterion = criterion or {}
         layout = QHBoxLayout(self)
@@ -107,6 +108,7 @@ class _CriterionRow(QWidget):
         self.remove.clicked.connect(lambda: self.remove_requested.emit(self))
 
     def _definition(self):
+        """The criterion this row describes, as a dict."""
         return {"metadata_column": self.column.currentText(), "operator": self.operator.currentData(),
                 "value": self.value.text()}
 
@@ -134,6 +136,7 @@ class _TemplateParts(QListWidget):
     changed = Signal()
 
     def __init__(self, parent=None):
+        """An ordered strip of column and fixed-text parts, reorderable by drag."""
         super().__init__(parent)
         self.allowed_columns = set()
         self._next_token = 0
@@ -159,6 +162,7 @@ class _TemplateParts(QListWidget):
         self.changed.emit()
 
     def _append_part(self, part, row=None):
+        """Add one column or fixed-text part, at ``row`` or at the end."""
         item = QListWidgetItem("{" + part.get("column", "") + "}" if part["kind"] == "column" else part.get("text", ""))
         item.setData(Qt.UserRole, part["kind"])
         self._next_token += 1
@@ -177,6 +181,7 @@ class _TemplateParts(QListWidget):
         return item
 
     def _parts(self):
+        """The parts in their shown order, as dicts."""
         return [{"kind": self.item(i).data(Qt.UserRole),
                  "column" if self.item(i).data(Qt.UserRole) == "column" else "text":
                  self.item(i).data(Qt.UserRole + 1) if self.item(i).data(Qt.UserRole) == "column" else self.item(i).text()}
@@ -924,6 +929,7 @@ class ConditionAnnotationDialog(QDialog):
         self.status.setText(tr("Saving annotation schema…"))
 
         def work():
+            """Save the schema in a worker; returns the path, rows and any error."""
             from ...condition_annotations import _save_schema
             try:
                 return path, _save_schema(path, self.frame, definition, self.source), None
@@ -963,6 +969,7 @@ class ConditionAnnotationDialog(QDialog):
         self.status.setText(tr("Checking annotation schema for this table…"))
 
         def work():
+            """Load a schema in a worker and apply it to a copy of the table."""
             from ...condition_annotations import _load_schema
             try:
                 definition, report = _load_schema(path, self.frame, self.source)
@@ -1517,6 +1524,7 @@ class ConditionAnnotationDialog(QDialog):
         def work():
             # Carry failures through the generation-guarded result channel too;
             # a slow invalid draft must not disable a newer valid preview.
+            """Preview the draft in a worker and apply it to a copy of the table."""
             try:
                 report = preview(self.frame, definition, self.source)
                 result = None

@@ -440,7 +440,12 @@ def test_watch_polls_until_the_job_is_terminal(state_dir, settings_file,
     job_id = _submitted_job_id(capsys)
 
     slept = []
-    monkeypatch.setattr("time.sleep", slept.append)
+    # Only the watch loop's own sleeps: patching ``time.sleep`` globally also
+    # caught subprocess's internal wait back-off (0.001, 0.002, ...).
+    import types
+    clock = types.SimpleNamespace(**vars(cli_remote.time))
+    clock.sleep = slept.append
+    monkeypatch.setattr(cli_remote, "time", clock)
 
     assert cli_remote.main(["watch", job_id, "--interval", "1"]) \
         == cli_remote.EXIT_OK
