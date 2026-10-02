@@ -1,6 +1,7 @@
 EXPORT A RECORDED RUN AS A NEXTFLOW OR SNAKEMAKE WORKFLOW
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27; feature-wide OPEN 2026-09-28.
+Status: DONE (ALPHA) 2026-10-02 against the original small-plate GUI/workflow
+        output-equivalence criterion; cluster/container deployment unclaimed.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -127,3 +128,21 @@ This closes the bounded genuine GUI-Measure/local-Snakemake equivalence gap,
 not the entire feature. It is one representative field, not a full biological
 plate; per-well filtering, container execution and cluster/cloud acceptance
 remain open. Feature 575 stays ALPHA/partial.
+
+2026-10-02 — ORIGINAL DONE WHEN ACCEPTED ON A TWO-WELL PLATE
+    An actual Measure Run processed two distinct full 1994×1994 seven-plane
+    cached example fields, E01 and E02, through the threaded GUI. Run History
+    exported its recorded settings and Snakemake rule. A local CPU Snakemake
+    replay on separate byte-identical private inputs produced both wells:
+    60 and 39 cells, 107 nuclei in total. All nine SQLite tables match
+    value-for-value after only the recorded source-root and run-metadata
+    normalization, and all 198 PNG/NPY products match by SHA256. Original
+    cached inputs, private inputs and the GUI journal retained their hashes.
+    The actual GUI, export, engine logs, settings, source hashes, table hashes
+    and product hashes are recorded in
+    features/data/575_two_well_gui_replay_2026-10-02.json.
+
+    This meets the original small-plate reproduction criterion locally.
+    The two wells are a sampled plate, not a whole acquisition; one job per
+    plate is the tested export granularity. Container execution, HPC/cloud
+    scheduling and per-well job splitting remain outside this acceptance.
