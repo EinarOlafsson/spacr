@@ -130,3 +130,19 @@ unmixes channel arrays internally for measurements. An opt-in processed
 intensity preview must preserve that distinction or update the exported PNG
 path in step with the preview; that preview parity is still open. Known real
 double-stain/registration limitations above also remain open.
+
+2026-10-01 — OPT-IN UNMIXED MEASURE DISPLAY (partial item)
+Measure's crop preview now has an explicit Unmixed display option when the
+run's spectral-unmix setting is enabled. It uses the same ordered channels,
+single-stain controls and matrix as measurement processing before RGB crop
+rendering. The default remains the original raw display; PNG exports and
+source files remain unchanged. A worker snapshots the selected settings,
+and stale/cancelled results are not installed in the UI. Invalid or missing
+controls fail visibly. Twenty-one focused and existing Measure-preview tests
+passed under a 4 GiB no-swap, one-core scope. This closes the choice of raw
+versus processed on-screen display. It does not make PNG export match the
+unmixed option, and real double-stain/registration limitations remain open.
+See features/data/538_measure_preview_unmix_2026-10-01.json.
+The two new display captions are source-bound and independently technically
+reviewed for all nine runtime locales. The normal builder and full runtime
+audit passed; 29 focused checks passed with one existing report-only xfail.
