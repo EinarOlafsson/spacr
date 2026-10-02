@@ -192,3 +192,18 @@ were changed. A Preferences rerun was obscured by another foreground window
 and those captures were discarded; it adds no acceptance evidence beyond the
 controlled Preferences check above. No additional runtime change was needed.
 Native Windows/macOS and additional native display scales remain untested.
+
+2026-10-02 — READ-ONLY NATIVE PREFERENCES REGRESSION CHECK
+An offscreen tutorial frame appeared to have a square black corner. Fresh
+native Ubuntu/GNOME X11 checks of actual Preferences in dark and light themes
+showed an 8-bit alpha surface, stable window ID, and all four outside corners
+matching the controlled checkerboard exactly on initial display and resize.
+The representative screenshots were inspected: rounded corners remain clean.
+No product change or new black-corner defect was found. Reopening was obscured
+by the probe's own checkerboard host; its center-pixel guard rejected that
+stage, so reopen adds no new acceptance evidence. The two probe process exits
+are nonzero for that deliberate occlusion guard, not for a corner mismatch.
+Fresh temporary settings were used; the real preferences file's SHA256 and
+_NET_ACTIVE_WINDOW were unchanged. No window activation was requested.
+Receipt: features/data/602_preferences_native_recheck_2026-10-02.json.
+Existing N602 status is unchanged; Windows/macOS were not checked here.

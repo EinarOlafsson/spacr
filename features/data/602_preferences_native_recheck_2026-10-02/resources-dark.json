@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/carruthers/anaconda3/envs/spacr/bin/python",
+    "/tmp/spacr-implementation-20261001/preferences-native-recheck/check.py",
+    "dark"
+  ],
+  "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r233746033f5048bf9ac869b76d0b78dc.scope",
+  "limits": {
+    "memory.max": "1073741824",
+    "memory.swap.max": "0",
+    "cpu_affinity": [
+      0
+    ],
+    "cpu.max": null,
+    "systemd_properties": [
+      "CPUQuotaPerSecUSec=1s",
+      "MemoryMax=1073741824",
+      "MemorySwapMax=0"
+    ]
+  }
+}
