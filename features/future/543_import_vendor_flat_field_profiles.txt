@@ -106,3 +106,13 @@ WHAT IS LEFT
     model; disabling or hiding it retains its saved value. Thirteen focused
     alpha, real-form visibility, value-retention and dependency/layout
     checks passed under the same 4 GiB CPU/offscreen cap.
+
+2026-10-01 — VENDOR PROFILE PREFLIGHT GUARDS (partial item)
+The profile loader now rejects nonfinite gain/background, shape mismatch,
+and conflicting duplicate channels before a model can be applied. Identical
+repeated profiles remain valid. The combined relevant suite passed 66 tests
+under a 4 GiB no-swap, single-core scope; the standalone vendor suite passed
+50 tests. Input and saved model remain unchanged on preflight failure. Real
+Harmony original/corrected image-pair acceptance and embedded proprietary
+reference formats remain open. See
+features/data/543_vendor_profile_validation_2026-10-01.json.

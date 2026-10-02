@@ -109,3 +109,21 @@ source-bound translations. The normal catalog builder and four inventory,
 hash and placeholder checks pass. The workflow paragraph is translated and
 renders in every strict guide site. See
 features/data/546_example_export_i18n_2026-10-01.json.
+
+2026-10-01 — COMPATIBLE PYTHON AND PIXEL-OVERLAP MATCHING (partial item)
+The explicit Install action can now provision a private Python 3.9 through
+bundled or PATH uv when no compatible 3.8/3.9 is installed. Failed or
+cancelled preflight leaves any existing backend environment intact. The
+worker captures final CellProfiler object-label planes and matches each
+object by pixel overlap with spaCR labels. Invalid, cropped and ambiguous
+objects stay unmatched; centre matching remains a fallback only when no
+plane was captured. The capture is bounded to 64 planes/256 MiB per image
+set and 16 million pixels per plane.
+
+The new installer caption and description have source-bound translations in
+all nine locales, with the retired description removed. Normal catalogue
+generation and the full runtime audit passed. The combined relevant suite
+passed 66 tests under a 4 GiB no-swap, single-core scope. The actual uv
+provisioning and a concave object in a real CellProfiler run still need
+acceptance; no completed CellProfiler install is claimed here. See
+features/data/546_python_provision_and_overlap_2026-10-01.json.

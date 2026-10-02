@@ -504,7 +504,9 @@ EXTERNAL_SOURCE_COUNTS = {
     # All nine source-bound reviewed targets passed the normal builder.
     # 2026-10-01: +5 CellProfiler example export captions; subtracting
     # those exact source keys reproduces the previous 6,489-key inventory.
-    "UI": 6494,
+    # 2026-10-01: CellProfiler provisioning replaces one blurb and adds
+    # "Prepare compatible Python": two arrivals, one retirement, net +1.
+    "UI": 6495,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -618,7 +620,9 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # Exact subtraction reproduces the preceding 5a560d33...ef0091b pin.
     # Removing those four indirect UI keys reproduces fa4c72cf...e02433.
     # Subtracting the five example-export UI keys reproduces f4809f01...70741.
-    'e4ee6a9c1ac0577d20f20bd55bdb9fcfecaca06133f8abf10ee346e45c6d87d3'
+    # Removing the two CellProfiler-provisioning arrivals and restoring its
+    # retired blurb reproduces e4ee6a9c...c87d3 exactly.
+    'fa681c9c0dbbd08e2ce05ac92663c171247ebe301095b312971d53432ff8d1d7'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
