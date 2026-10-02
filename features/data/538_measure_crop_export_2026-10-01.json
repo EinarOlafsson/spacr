@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "feature": "F538 displayed Measure crop PNG export",
+  "date": "2026-10-01",
+  "status": "partial",
+  "source": {
+    "spacr/qt/widgets/measure_preview.py": "c4f7a5e3835b56077f2d93cc01fe935e2d0ca72b181b3b1b65caec171cc58d33",
+    "tests/qt/test_measure_preview_export_f538.py": "03944c1c68b3c46d1a3f1c4d15596b658442b898886c7d51c6b233523a2c631c"
+  },
+  "validation": {
+    "unique_focused_tests_passed": 45,
+    "new_export_tests_passed": 24,
+    "light_dark_captures_inspected": true,
+    "public_api_unchanged": true,
+    "cap": "4 GiB memory, no swap, one CPU"
+  },
+  "localization": {
+    "languages": [
+      "sv",
+      "de",
+      "es",
+      "fr",
+      "pt",
+      "zh_CN",
+      "hi",
+      "ko",
+      "is"
+    ],
+    "review": "AI technical and peer review; native-speaker signoff not claimed",
+    "ui_additions": 16,
+    "ui_retirements": 1,
+    "unrelated_translation_changes": 0,
+    "strict_audit": {
+      "settings": 1231,
+      "categories": 237,
+      "ui": 6512,
+      "modules": 72
+    },
+    "build_log_sha256": "0cf16c8aa43174dba95580eac4256078bad4d227e4147326933c4cbd5ee9d9f0",
+    "catalog_diff_proof_sha256": "8290cb92b8d1e56794c0d5d645e7db3672ceda959a6cbc2a86d3c8f1c71e8f23"
+  },
+  "behavior": [
+    "Exports the completed visible raw or unmixed crop with provenance",
+    "Staged export publishes only current successful job",
+    "Collision-safe local filename and cancellation/shutdown cleanup",
+    "No measurement-input, batch-output, or source-image writes"
+  ],
+  "limits": [
+    "Real known-amount double-stain acceptance pending",
+    "Registration/PSF mismatch and strong-spill clipping bias remain"
+  ]
+}

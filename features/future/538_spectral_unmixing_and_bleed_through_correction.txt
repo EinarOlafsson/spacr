@@ -146,3 +146,24 @@ See features/data/538_measure_preview_unmix_2026-10-01.json.
 The two new display captions are source-bound and independently technically
 reviewed for all nine runtime locales. The normal builder and full runtime
 audit passed; 29 focused checks passed with one existing report-only xfail.
+
+2026-10-01 — DISPLAYED MEASURE CROP EXPORT AND LOCALIZATION (partial item)
+The Measure crop preview can now export the currently completed raw or
+unmixed display as a PNG with provenance. The worker stages the PNG and
+metadata in a private directory and publishes only the current job after a
+successful completion; stale callbacks cannot clear or publish a newer job.
+An export has a collision-safe name, and cleanup covers cancellation and
+window shutdown. It does not alter measurement inputs, batch output, or the
+source image. Forty-five unique focused tests passed, including late rename,
+callback race, shutdown, and light/dark UI captures.
+
+Sixteen new export UI strings and one retired tooltip were reconciled across
+all nine runtime locales. The normal catalog build and strict runtime audit
+passed: 9 languages, 1231 settings, 237 categories, 6512 UI strings, and 72
+modules. Exact catalog-diff proof found no unrelated translation changes.
+Translations received AI technical review and peer review; native-speaker
+signoff is not claimed. Receipt: features/data/538_measure_crop_export_2026-10-01.json.
+
+Feature-wide acceptance still needs a real double-stained sample with known
+amounts and correction of registration/PSF mismatch and strong-spill clipping
+bias described above.
