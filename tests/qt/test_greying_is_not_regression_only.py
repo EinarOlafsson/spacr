@@ -184,16 +184,17 @@ class TestTheRegressionPanelIsUnchangedByTheWidening:
         panel = _panel(qtbot, "mask")
         assert panel.set_value_for_key("mask_parallel", True)
 
-        assert set(panel._rules_for_this_panel()) == {"custom_regex"}
+        assert set(panel._rules_for_this_panel()) == {
+            "custom_regex", "illumination_vendor_channel_map"}
 
         panel._refresh_setting_dependencies()
         greyed = {key for key, widget in panel._widgets.items()
                   if not widget.isEnabled()}
 
-        # The default convention is 'cellvoyager', which does not read the
-        # regex, so the one ruled setting is off and every other is live.
+        # The default convention does not read the regex, and no vendor
+        # profile is selected, so its channel map is also inapplicable.
         assert panel.collect().get("metadata_type") == "cellvoyager"
-        assert greyed == {"custom_regex"}
+        assert greyed == {"custom_regex", "illumination_vendor_channel_map"}
 
     def test_masks_rule_lets_the_regex_back_on_both_conventions_that_read_it(
             self, qtbot, qt_theme_applied):

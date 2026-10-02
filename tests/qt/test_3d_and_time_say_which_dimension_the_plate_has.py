@@ -220,6 +220,10 @@ def test_a_switch_reveals_its_own_settings_and_only_its_own(
     screen = _screen(qtbot, app_key)
     mine, theirs = _rendered(screen, dimension), _rendered(screen, other)
     assert mine, f"{app_key} renders no {dimension} settings to reveal"
+    # Dimension switches do not override Preferences' separate alpha gate.
+    alpha = screen._alpha_hidden_keys() & (mine | theirs)
+    mine -= alpha
+    theirs -= alpha
 
     assert _visible(screen, mine | theirs) == set(), (
         "a dimensional setting is on the form before either switch is on")
@@ -229,6 +233,8 @@ def test_a_switch_reveals_its_own_settings_and_only_its_own(
     assert _visible(screen, mine) == mine
     assert _visible(screen, theirs) == set(), (
         f"the {dimension} switch also revealed {other} settings")
+    assert _visible(screen, alpha) == set(), (
+        "a dimension switch bypassed the alpha-feature preference")
 
 
 @pytest.mark.parametrize("app_key", sorted(INSTALL_FOLDS))

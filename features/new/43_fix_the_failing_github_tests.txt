@@ -2451,3 +2451,18 @@ pending and compat 36901659963 queued. Latest completed docs failure
 36849859089 is an external docs.python.org inventory HTTP 503 after three
 retries, not evidence of a source documentation defect.
 Receipt: features/data/43_mandelbrot_boundaries_2026-10-01.json.
+
+2026-10-02 — COVERAGE SHARD 3 CURRENT-SOURCE REPAIRS (PARTIAL)
+The actual failed job 110744169875 in tests run 36977354516 names seven
+failures. Six have current-source fixes in this commit: the dimension-switch
+test now checks its own visible rows while separately asserting alpha-only
+rows stay hidden; Mask's dependency test includes the new vendor channel-map
+rule; the folded illumination inventory includes that same real setting;
+two hover checks wait for the configured delayed tooltip and one opens the
+Modules tab before hovering its Diagnostics row; the converted-field watch
+fixture supplies the merged artifact a real completed mask run produces.
+No production gate or user-facing runtime behavior was weakened. The six
+affected complete files pass 78 tests under 4 GiB/offscreen Qt. The seventh
+failure is the tutorial player's stale source hash, owned by the N601 media
+lane; its historical publication receipt must not be rewritten. The job
+remains red until that repair and a new final-source CI run pass.

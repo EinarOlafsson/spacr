@@ -83,7 +83,15 @@ def test_valid_converted_fields_preserve_actual_batch_stack_order(tmp_path):
             folder, pattern, 1, 'cellvoyager', ['.tif'],
             timelapse=False, save_original_images=True)
         assert count == 4
-        observed.extend(Path(folder, 'stack').glob('*.npy'))
+        stacked = list(Path(folder, 'stack').glob('*.npy'))
+        observed.extend(stacked)
+        # A successful mask run publishes a merged artifact. The watcher
+        # refuses to mark a stack-only analysis complete, so model that
+        # collection output while retaining the real organizer's pixels.
+        merged = Path(folder, 'merged')
+        merged.mkdir()
+        for path in stacked:
+            np.save(merged / path.name, np.load(path))
 
     settings = dict(_fast(output), channels=[0, 3])
     watched = core._watch_folder_and_analyse(settings, preprocess)
