@@ -2162,6 +2162,11 @@ def _watch_folder_and_analyse(settings, analyse=None):
     os.makedirs(work, exist_ok=True)
     ledger_path = os.path.join(work, _WATCH_LEDGER)
     ledger = _watch_load_ledger(ledger_path, src)
+    if ledger['fields'] and ledger.get('pipeline') != pipeline:
+        raise ValueError(
+            'watch_folder: the saved pipeline differs or is unknown; use a '
+            'separate watch workspace for a different pipeline. Existing '
+            'results and the saved record are preserved.')
     if (ledger.get('conversion_map_sha256') != map_sha256 and
             (ledger['fields'] or 'conversion_map_sha256' in ledger)):
         raise ValueError('watch_folder: conversion_map.csv differs from the saved watch '
