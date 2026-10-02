@@ -122,3 +122,13 @@ scan has actually stopped, preventing a second dialog from duplicating that scan
 Six focused worker/cancel/stale/close-reopen checks pass under 4 GiB, CPU0 and
 zero swap. No caption or public API changes. Receipt:
 features/data/580_gain_preview_close_reopen_2026-10-02.json. F580 remains partial.
+
+2026-10-02 — GAIN PREVIEW RUNTIME LOCALIZATION VERIFIED
+All twenty new captions now have source-bound, independently AI-peer-reviewed
+translations in all nine runtime locales. The unchanged normal generator/audit
+passes, all 180 targets match, and the ten generated catalogs retain every old
+value. English UI inventory rises from 6,526 to 6,546. Inventory/source-hash
+checks pass. Original drafts, corrections and exact checks are preserved in
+features/data/580_gain_preview_i18n_2026-10-02.json. No human/native review or
+new scientific acquisition is claimed; F580 remains partial for the stated
+known-exposure paired-session acceptance gap.

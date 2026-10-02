@@ -383,6 +383,9 @@ COMPACT_CAPTION_SHA256 = (
 # 2026-10-02 F563: measured canonical inventory after the complete nine-locale
 # generator audit. One identity added and none removed relative to the
 # preceding committed English catalogue. Translation quality gates unchanged.
+# 2026-10-02 F580: measured canonical inventory after the complete nine-locale
+# generator audit. Twenty identities added and none removed relative to the
+# preceding committed English catalogue. Translation quality gates unchanged.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -515,7 +518,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # 2026-10-01: CellProfiler provisioning replaces one blurb and adds
     # "Prepare compatible Python": two arrivals, one retirement, net +1.
     # F538: two reviewed opt-in unmixed Measure display captions, no removals.
-    "UI": 6526,
+    "UI": 6546,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -634,7 +637,7 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # Removing the two F538 display captions reproduces fa681c9c...ff8d1d7.
     # N610: replace only the cancellation tooltip with the accurate
     # no-new-suggestions / possible earlier clears-and-scores wording.
-    '9aabdc179dcd9ab7ef9145b9a01eb14aaed7784be2bf1182997b04fb3c161910'
+    '57a2da362aa0375d15543f0b745af045259b297b524e389fe572aa5505766758'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

@@ -1,0 +1,22 @@
+{
+  "Calculate reference-well gains without running Measure or changing files.": "计算参考孔的增益，不运行 Measure，也不更改文件。",
+  "Calculating calibration gains…": "正在计算校准增益…",
+  "Calibration gains": "校准增益",
+  "Choose a local source folder containing merged arrays.": "请选择包含合并数组的本地源文件夹。",
+  "Discard this preview. Any source scan already running will finish safely.": "丢弃此次预览。已开始的源文件扫描将安全完成。",
+  "Enable intensity calibration before previewing gains.": "请先启用强度校准，再预览增益。",
+  "Finish valid settings before previewing gains.": "请完成设置并确保输入有效，然后预览增益。",
+  "Gain": "增益",
+  "Gains use the camera offset and reference wells; images and measurements are unchanged.": "增益根据相机偏置和参考孔计算；图像和测量数据保持不变。",
+  "No eligible merged arrays were found.": "未找到符合条件的合并数组。",
+  "Preview complete. No images or measurements were changed.": "预览完成。未更改任何图像或测量数据。",
+  "Preview gains": "预览增益",
+  "Preview only: each source folder is planned separately.": "仅供预览：每个源文件夹分别计算校准方案。",
+  "Reference fields": "参考视野",
+  "Reference plate": "参考板",
+  "Reference statistic": "参考统计量",
+  "Settings changed. Preview the gains again.": "设置已更改。请重新预览增益。",
+  "Some merged arrays could not be read. Check the source files.": "部分合并数组无法读取。请检查源文件。",
+  "The first plate by name is the reference.": "按名称排序后的第一块板作为参考板。",
+  "Turn off Test mode to preview gains for all source fields.": "请关闭测试模式，以预览所有源视野的增益。"
+}

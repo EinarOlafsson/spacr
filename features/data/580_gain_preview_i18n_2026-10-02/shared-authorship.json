@@ -1,0 +1,9 @@
+{
+  "author": "Codex AI shared_ui",
+  "method": "Direct AI technical translation; no local model draft or human/native-speaker review claimed.",
+  "source_sha256": "5c50978e198727077a82c5daf9ae728cb89ac2570976c91011daa034fae0a60e",
+  "draft_sha256": {
+    "zh_CN": "1a0d49a04f81867cf0009f85dd5e6f99a7c50f0a84f68b4fbf4a0f668be0dfc6",
+    "hi": "76215565a2938445b5179d72ae2ec645fc4a8e92e1807379ac2c07167e38cbe3"
+  }
+}
