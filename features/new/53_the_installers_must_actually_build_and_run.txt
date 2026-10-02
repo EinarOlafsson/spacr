@@ -695,3 +695,14 @@ NSIS's documented RMDir and IfFileExists behavior was checked against
 https://nsis.sourceforge.io/Docs/Chapter4.html and
 https://nsis.sourceforge.io/Reference/IfFileExists. The whole item stays OPEN
 until actual platform upgrade/restart and the other tails above pass.
+
+`tools/accept_frozen_windows_upgrade.ps1` is a prepared native acceptance
+driver for checksum-verified 1.5.1.0 and 1.5.1.1 build artifacts on a clean
+Windows runner. It installs and launches Measure before and after an in-place
+replacement, checks that obsolete imageio disappears, and verifies that an
+unrelated file and the prior analysis database survive replacement. The
+driver keeps JSON and smoke receipts; it has not been run on Windows yet.
+The local packaging cohort passes 82 checks with three known skips.
+An attempted workflow update was rejected by GitHub because the current
+OAuth credential lacks the `workflow` scope; no workflow file was pushed.
+The already-dispatched native build on a327123b1 remains separate.
