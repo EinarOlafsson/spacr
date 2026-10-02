@@ -36,7 +36,6 @@ from narration_audio import (
     synthesis_runtime_identity,
 )
 
-
 PRONUNCIATION_PATH = Path(__file__).with_name("pronunciation.py")
 pronunciation_profile, PRONUNCIATION_SOURCE_SNAPSHOT = load_module_snapshot(
     PRONUNCIATION_PATH,
@@ -231,6 +230,56 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
     Match it explicitly so neither the second CUDA mention nor another voice
     is silently changed. The resolved speech text enters the fingerprint.
     """
+    if lesson_id == "86_psf_workflow" and language in {"ja", "zh-CN"}:
+        # These frontends otherwise pass English control names through as
+        # literal Latin letters, some absent from the model's phoneme set.
+        # Keep the visible English labels; only this lesson's speech changes.
+        forms = {
+            "ja": {
+                "Infer from images": "インファー フロム イメージズ",
+                "Image enhancement": "イメージ エンハンスメント",
+                "Richardson–Lucy": "リチャードソン・ルーシー",
+                "Make Masks": "メイク マスクス",
+                "PSF optics": "ピー エス エフ オプティクス",
+                "Convolution": "コンボリューション",
+                "Settings": "セッティングス",
+                "Compare": "コンペア",
+                "Apply": "アプライ",
+                "Measure": "メジャー",
+                "original": "オリジナル",
+                "processed": "プロセスト",
+                "Timelapse": "タイムラプス",
+                "Mask": "マスク",
+                "PSF": "ピー エス エフ",
+            },
+            "zh-CN": {
+                "Infer from images": "从图像推断",
+                "Image enhancement": "图像增强",
+                "Richardson–Lucy": "理查德森露西",
+                "Make Masks": "制作掩膜编辑器",
+                "PSF optics": "点扩散函数光学参数",
+                "Convolution": "卷积",
+                "Settings": "设置",
+                "Compare": "比较",
+                "Apply": "应用",
+                "Measure": "测量",
+                "original": "原始图像",
+                "processed": "处理后图像",
+                "Timelapse": "延时成像",
+                "Mask": "批量掩膜模块",
+                "PSF": "点扩散函数",
+            },
+        }[language]
+        for label, spoken in forms.items():
+            pattern = rf"(?<![A-Za-z]){re.escape(label)}(?![A-Za-z])"
+            if len(re.findall(pattern, speech_text)) != len(re.findall(pattern, display_text)):
+                raise ValueError(f"The PSF control pronunciation premise changed: {label}")
+            speech_text = re.sub(pattern, spoken, speech_text)
+            # Later shorter labels must be counted after the same replacement.
+            display_text = re.sub(pattern, spoken, display_text)
+        if re.search(r"[A-Za-z]", speech_text):
+            raise ValueError("Unreviewed Latin text in PSF Japanese/Chinese narration")
+        return speech_text
     if (lesson_id, language, display_text) == (
         "12_map_barcodes", "en",
         "This Python verification figure displays read depth from the saved three-barcode GUI run.",
