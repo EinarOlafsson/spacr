@@ -127,3 +127,23 @@ passed 66 tests under a 4 GiB no-swap, single-core scope. The actual uv
 provisioning and a concave object in a real CellProfiler run still need
 acceptance; no completed CellProfiler install is claimed here. See
 features/data/546_python_provision_and_overlap_2026-10-01.json.
+
+2026-10-01 — REAL BACKEND AND CONCAVE-OBJECT ACCEPTANCE (alpha item complete)
+A scratch, headless CellProfiler 4.2.8.1 environment ran the bundled example
+pipeline on hollow nucleus and cell rings. Both CellProfiler centres landed
+on background, while captured label planes correctly matched the database
+rows to spaCR object ids 17 and 31. The worker self-test, pipeline,
+per-object features and SQLite join all passed under 4 GiB, one CPU and zero
+swap. The isolated environment stayed inside a 1.5 GiB hard scratch limit.
+
+The uv provisioning helper also created a private Python 3.9.25 in a 1 GiB
+scope. This environment's default Astral mirror returned HTTP 403, so that
+test supplied the same official Python-build-standalone asset through a
+scratch mirror; it verifies the helper and interpreter, not availability of
+the default mirror from every lab. The real CellProfiler run reused an
+existing Java 11 and cached javabridge wheel, so a fresh JDK download was
+not separately exercised. The 2026-09-27 example already passed through
+the normal backend installer and now the centre-outside-mask gap is closed
+with real pixel-overlap evidence. This meets the stated DONE WHEN for the
+alpha feature; the external network/JDK paths remain operational limits.
+See features/data/546_real_backend_acceptance_2026-10-01.json.
