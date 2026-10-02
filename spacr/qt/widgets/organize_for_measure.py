@@ -2376,14 +2376,12 @@ class OrganizeForMeasureDialog(QDialog):
         qimage = QImage(array.data, array.shape[1], array.shape[0],
                         array.shape[1], QImage.Format_Grayscale8)
         pixmap = QPixmap.fromImage(qimage.copy())
-        # Keep only useful display pixels; source reads still use the selected
-        # quality. This bounds a large grid without retaining full-size fields.
-        from ..hidpi import device_ratio
+        from ..hidpi import device_ratio, scaled_for
 
-        display_cap = max(1, round((self.thumb_size + 24) * device_ratio(self.table)))
+        display_side = self.thumb_size + 24
+        display_cap = max(1, round(display_side * device_ratio(self.table)))
         if max(pixmap.width(), pixmap.height()) > display_cap:
-            pixmap = pixmap.scaled(display_cap, display_cap, Qt.KeepAspectRatio,
-                                   Qt.SmoothTransformation)
+            pixmap = scaled_for(pixmap, self.table, display_side)
         self.delegate.pixmaps[path] = pixmap
         self._thumb_signatures[path] = signature
         cache = self.delegate.pixmaps
