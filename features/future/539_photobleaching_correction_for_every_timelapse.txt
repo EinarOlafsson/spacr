@@ -154,3 +154,19 @@ Legacy behavior remains the default. Motility integration, image-level
 histogram behavior, and distinguishing true population-wide decay from
 bleaching remain open. See
 features/data/539_calcium_bleaching_2026-10-01.json.
+
+2026-10-01 — OPT-IN MOTILITY BLEACH CORRECTION (partial item)
+The automated motility assay now applies the existing field-local correction
+per role and channel before aggregating unequal child counts or running
+infection QC. A five-pixel label-zero ring supplies local background; missing
+background remains unknown rather than being interpolated by teleport
+smoothing. The raw source and measurement tables remain unchanged. Separate
+corrected-measurement and fit outputs record provenance. Opt-in reuse of old
+cached motility rows refuses before writes because those rows lack the required
+per-object background; recomputing reads raw arrays and cannot double-correct.
+The default none path retains legacy behavior. Fifty-six unique focused checks
+passed under 4 GiB, CPU 0 and zero swap, including a real SQLite assay/QC
+boundary and missing-background regression. Public signature is unchanged;
+its updated docstring has a separate API translation follow-up. Distinguishing
+a real population-wide biological decline from bleaching and image-level
+histogram acceptance remain open, so F539 stays partial.
