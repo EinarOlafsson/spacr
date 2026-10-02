@@ -75,11 +75,17 @@ MEASURED (CPU only; the GPU was held for days)
 WHAT IS LEFT
     - A real arrayed screen with known responder fractions (e.g. a titrated
       infection or a spike-in plate) and hundreds of wells; GPU runs.
-    - A form for choosing the well, label and feature columns instead of
-      the fixed wellID/well_label names; show the scorecard and a
-      top-attention crop montage on the screen.
     - Feed embeddings straight from the screen's result (needs object ids
       and wells carried through crop loading).
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: real arrayed screen and GPU runs (data, GPU). OPEN code over 1 h: column-picker form with scorecard/montage, embeddings carried with object ids and wells.
+
+2026-10-02 — COLUMN FORM, SCORECARD AND MONTAGE (alpha, CPU)
+    The button now opens a form (EmbeddingsWellMilForm) to pick the well,
+    label and feature columns (defaults wellID/well, well_label, emb_*).
+    When the run finishes a window (EmbeddingsWellMilResult) shows the
+    scorecard table and a montage of the 24 highest-attention crops from a
+    png_path column. Tests: tests/qt/test_well_mil_alpha_gate.py.
+    Left: real screen + GPU runs (blocked); embeddings carried with object
+    ids and wells from the screen's own result.

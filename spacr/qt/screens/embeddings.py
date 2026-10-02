@@ -458,17 +458,82 @@ class EmbeddingsScreen(QWidget):
         controls.addWidget(self._well_mil)
         _apply_alpha_widgets(self._well_mil)
 
-    def _learn_from_well_labels(self, path: str = "") -> str:
+    def _mil_column_form(self, columns):
+        """A form for choosing the well, label and feature columns.
+
+        :param columns: the table's column names.
+        :returns: ``(dialog, well, label, features)``: the dialog, the two
+            combo boxes and the feature list; the defaults are the ``wellID``
+            or ``well`` column, ``well_label`` and the ``emb_`` columns.
+        """
+        from PySide6.QtWidgets import (QAbstractItemView, QComboBox,
+                                       QDialog, QDialogButtonBox,
+                                       QFormLayout, QListWidget)
+
+        columns = [str(c) for c in columns]
+        dialog = QDialog(self)
+        dialog.setObjectName("EmbeddingsWellMilForm")
+        dialog.setWindowTitle(tr("Learn from well labels"))
+        form = QFormLayout(dialog)
+        well = QComboBox(dialog)
+        well.setObjectName("EmbeddingsWellMilWellColumn")
+        well.addItems(columns)
+        for name in ("wellID", "well"):
+            if name in columns:
+                well.setCurrentText(name)
+                break
+        label = QComboBox(dialog)
+        label.setObjectName("EmbeddingsWellMilLabelColumn")
+        label.addItems(columns)
+        if "well_label" in columns:
+            label.setCurrentText("well_label")
+        features = QListWidget(dialog)
+        features.setObjectName("EmbeddingsWellMilFeatureColumns")
+        features.setSelectionMode(QAbstractItemView.MultiSelection)
+        features.addItems(columns)
+        wanted = [c for c in columns if c.startswith("emb_")]
+        for row, name in enumerate(columns):
+            if name in wanted:
+                features.item(row).setSelected(True)
+        form.addRow(tr("Well column"), well)
+        form.addRow(tr("Label column"), label)
+        form.addRow(tr("Feature columns"), features)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        form.addRow(buttons)
+        return dialog, well, label, features
+
+    def _ask_mil_columns(self, columns):
+        """Ask for the columns; ``None`` when the form is dismissed."""
+        from PySide6.QtWidgets import QDialog
+
+        dialog, well, label, features = self._mil_column_form(columns)
+        if dialog.exec() != QDialog.Accepted:
+            return None
+        chosen = [i.text() for i in features.selectedItems()]
+        return {"well_column": well.currentText(),
+                "label_column": label.currentText(),
+                "feature_columns": chosen or None}
+
+    def _learn_from_well_labels(self, path: str = "",
+                                columns=None) -> str:
         """Train the well-label attention model on a per-cell table.
 
-        The table is read, the model is cross-validated and then fitted on
-        every well in the background, and ``<name>_mil_cells.csv`` and
-        ``<name>_mil_wells.csv`` are written beside it. The status line gives
-        the held-out well AUROC against a mean-feature baseline.
+        The table is read, a form asks for the well, label and feature
+        columns, the model is cross-validated and then fitted on every well
+        in the background, and ``<name>_mil_cells.csv`` and
+        ``<name>_mil_wells.csv`` are written beside it. The scorecard and a
+        montage of the highest-attention crops are shown on the screen.
 
         :param path: the table; asks for one when empty.
-        :returns: the table used, or ``''`` when the dialog was dismissed.
+        :param columns: ``well_column``, ``label_column`` and
+            ``feature_columns`` for the model; asks with a form when ``None``.
+        :returns: the table used, or ``''`` when a dialog was dismissed.
         """
+        from ...tabular import read_table
+
         if not path:
             path, _filter = QFileDialog.getOpenFileName(
                 self, tr("Choose a per-cell table with well labels"), "",
@@ -476,25 +541,31 @@ class EmbeddingsScreen(QWidget):
         if not path:
             return ""
         path = str(path)
+        frame = read_table(path, report=None)
+        if columns is None:
+            columns = self._ask_mil_columns(frame.columns)
+            if columns is None:
+                return ""
+        columns = dict(columns)
         self._status.setText(tr("Learning from well labels…"))
 
         def work():
-            """Read, score and fit off the GUI thread."""
+            """Score and fit off the GUI thread."""
             from ...embeddings import _mil_from_table
-            from ...tabular import read_table, write_table
+            from ...tabular import write_table
 
-            frame = read_table(path, report=None)
-            cells, wells, card = _mil_from_table(frame)
+            cells, wells, card = _mil_from_table(frame, **columns)
             stem = os.path.splitext(path)[0]
             write_table(cells, stem + "_mil_cells.csv")
             write_table(wells, stem + "_mil_wells.csv")
-            return card
+            return card, cells
 
         self._jobs.submit(work, self._on_well_mil_done)
         return path
 
-    def _on_well_mil_done(self, card) -> None:
-        """Say how the attention model did against the mean baseline."""
+    def _on_well_mil_done(self, result) -> None:
+        """Show the scorecard and the highest-attention crops."""
+        card, cells = result
         self._mil_card = dict(card)
         self._status.setText(tr(
             "Well-label model: held-out well AUROC {mil:.2f} (mean-feature "
@@ -502,6 +573,69 @@ class EmbeddingsScreen(QWidget):
             "well probabilities were written beside the table.").format(
                 mil=card["mil_auroc"], mean=card["mean_auroc"],
                 wells=int(card["wells"])))
+        self._show_mil_result(card, cells)
+
+    def _show_mil_result(self, card, cells, top: int = 24) -> None:
+        """A window with the scorecard and a montage of the top crops.
+
+        The montage holds the ``top`` cells with the highest attention that
+        have a ``png_path``; without crop paths only the scorecard shows.
+        """
+        from PySide6.QtCore import QPoint
+        from PySide6.QtGui import QPainter, QPixmap
+        from PySide6.QtWidgets import (QDialog, QLabel, QTableWidget,
+                                       QVBoxLayout)
+
+        from ..hidpi import scaled_for
+
+        dialog = QDialog(self)
+        dialog.setObjectName("EmbeddingsWellMilResult")
+        dialog.setWindowTitle(tr("Well-label model"))
+        layout = QVBoxLayout(dialog)
+        table = QTableWidget(len(card), 2, dialog)
+        table.setObjectName("EmbeddingsWellMilScorecard")
+        table.setHorizontalHeaderLabels([tr("Measure"), tr("Value")])
+        for row, (key, value) in enumerate(card.items()):
+            table.setItem(row, 0, table_item(str(key)))
+            text = (f"{value:.3f}" if isinstance(value, float)
+                    else str(value))
+            table.setItem(row, 1, table_item(text))
+        layout.addWidget(table)
+        montage = QLabel(dialog)
+        montage.setObjectName("EmbeddingsWellMilMontage")
+        self._mil_montage_count = 0
+        if "png_path" in cells.columns and "mil_attention" in cells.columns:
+            ranked = cells.sort_values("mil_attention", ascending=False)
+            tiles = []
+            for crop in ranked["png_path"].dropna().astype(str):
+                pixmap = QPixmap(crop)
+                if not pixmap.isNull():
+                    tiles.append(scaled_for(pixmap, montage, 64))
+                if len(tiles) >= top:
+                    break
+            if tiles:
+                across = min(len(tiles), 8)
+                down = -(-len(tiles) // across)
+                ratio = self.devicePixelRatioF()
+                sheet = QPixmap(int(across * 66 * ratio),
+                                int(down * 66 * ratio))
+                sheet.setDevicePixelRatio(ratio)
+                sheet.fill(Qt.black)
+                painter = QPainter(sheet)
+                for i, tile in enumerate(tiles):
+                    painter.drawPixmap(
+                        QPoint((i % across) * 66 + 1, (i // across) * 66 + 1),
+                        tile)
+                painter.end()
+                montage.setPixmap(sheet)
+                self._mil_montage_count = len(tiles)
+        if not self._mil_montage_count:
+            montage.setText(tr(
+                "No crop images: add a 'png_path' column to see the cells "
+                "with the highest attention."))
+        layout.addWidget(montage)
+        self._mil_result = dialog
+        dialog.show()
 
     def _add_dino_button(self, controls) -> None:
         """The alpha button that pretrains a backbone on the loaded crops."""

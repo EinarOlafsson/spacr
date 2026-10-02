@@ -1248,7 +1248,14 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # for a round checked on a random split.
 # 2026-10-01: full nine-locale rebuild completed; pending rows are now
 # catalogued or retired with their source captions. No translation bypass remains.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Feature columns",
+    "Label column",
+    "Learn from well labels",
+    "No crop images: add a 'png_path' column to see the cells with the "
+    "highest attention.",
+    "Well-label model",
+})
 
 
 

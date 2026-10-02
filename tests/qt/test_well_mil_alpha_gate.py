@@ -63,8 +63,8 @@ def test_a_table_given_while_hidden_still_reaches_the_run(
          "emb_0": [0.1, 0.2, 0.9, 1.0]}), source)
     seen = []
 
-    def fake(frame):
-        seen.append(len(frame))
+    def fake(frame, **columns):
+        seen.append((len(frame), columns["well_column"]))
         wells = frame.groupby("wellID", as_index=False)["well_label"].first()
         wells["mil_probability"] = wells["well_label"].astype(float)
         cells = frame.assign(mil_attention=1.0)
@@ -73,8 +73,11 @@ def test_a_table_given_while_hidden_still_reaches_the_run(
 
     monkeypatch.setattr(emb, "_mil_from_table", fake)
     assert screen._well_mil.isHidden()
-    assert screen._learn_from_well_labels(str(source)) == str(source)
-    assert seen == [4]
+    assert screen._learn_from_well_labels(
+        str(source), columns={"well_column": "wellID",
+                              "label_column": "well_label",
+                              "feature_columns": ["emb_0"]}) == str(source)
+    assert seen == [(4, "wellID")]
     assert screen._mil_card["mil_auroc"] == 1.0
     cells = read_table(tmp_path / "cells_mil_cells.csv", report=None)
     assert "mil_attention" in cells.columns
@@ -93,3 +96,63 @@ def test_a_dismissed_table_dialog_starts_nothing(screen, monkeypatch):
                         staticmethod(lambda *a, **k: asked.append(a) or ("", "")))
     assert screen._learn_from_well_labels() == ""
     assert len(asked) == 1 and called == []
+
+
+def test_the_form_defaults_to_the_usual_columns(screen):
+    dialog, well, label, features = screen._mil_column_form(
+        ["plate", "well", "well_label", "emb_0", "emb_1", "area"])
+    assert dialog.objectName() == "EmbeddingsWellMilForm"
+    assert well.currentText() == "well"
+    assert label.currentText() == "well_label"
+    assert sorted(i.text() for i in features.selectedItems()) == [
+        "emb_0", "emb_1"]
+
+
+def test_a_dismissed_form_starts_nothing(screen, monkeypatch, tmp_path):
+    import pandas as pd
+
+    import spacr.embeddings as emb
+    from spacr.tabular import write_table
+
+    source = tmp_path / "cells.csv"
+    write_table(pd.DataFrame({"well": ["A1"], "well_label": [0],
+                              "emb_0": [0.1]}), source)
+    called = []
+    monkeypatch.setattr(emb, "_mil_from_table",
+                        lambda *a, **k: called.append(a))
+    monkeypatch.setattr(screen, "_ask_mil_columns", lambda columns: None)
+    assert screen._learn_from_well_labels(str(source)) == ""
+    assert called == []
+
+
+def test_chosen_columns_reach_the_model(screen, tmp_path):
+    import numpy as np
+    import pandas as pd
+    from PySide6.QtGui import QColor, QImage
+
+    from spacr.embeddings import _synthetic_mil_bags
+
+    bags, labels = _synthetic_mil_bags(wells=8, cells=10, features=3)[:2]
+    rows = []
+    for w, (bag, lab) in enumerate(zip(bags, labels)):
+        for c, v in enumerate(bag):
+            crop = tmp_path / f"{w}_{c}.png"
+            image = QImage(8, 8, QImage.Format_RGB32)
+            image.fill(QColor(int(w * 20), 0, 0))
+            image.save(str(crop))
+            rows.append({"site": f"W{w}", "group": "hit" if lab else "ctl",
+                         "f0": v[0], "f1": v[1], "f2": v[2],
+                         "png_path": str(crop)})
+    source = tmp_path / "cells.csv"
+    pd.DataFrame(rows).to_csv(source, index=False)
+    screen._learn_from_well_labels(str(source), columns={
+        "well_column": "site", "label_column": "group",
+        "feature_columns": ["f0", "f1", "f2"], "positive": "hit",
+        "folds": 2})
+    assert np.isfinite(screen._mil_card["mil_auroc"])
+    assert screen._mil_result.findChild(
+        object, "EmbeddingsWellMilScorecard").rowCount() == len(
+            screen._mil_card)
+    assert screen._mil_montage_count == 24
+    assert not screen._mil_result.findChild(
+        object, "EmbeddingsWellMilMontage").pixmap().isNull()
