@@ -14,6 +14,8 @@ retained by the current filter settings.
 from __future__ import annotations
 
 import itertools
+import json
+from copy import deepcopy
 import logging
 import os
 import threading
@@ -340,8 +342,53 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
     return {"crops": crops, "error": ""}
 
 
+def _unmixed_crop_source(data, path, settings, cancelled, plans):
+    """Make a display copy using Measure's ordered intensity-channel plan."""
+    from spacr.psf_pipeline import (_prepare_unmixing, _apply_recorded_unmixing,
+                                    _UNMIX_RECORD_KEY)
+    from spacr.cancellation import PipelineCancelled
+
+    def checkpoint():
+        """Stop between controls and before expensive display processing."""
+        if cancelled.is_set():
+            raise PipelineCancelled("Preview cancelled")
+
+    channels = settings.get('channels', [])
+    if (not channels or any(isinstance(c, bool) or not isinstance(c, int)
+                            or c < 0 or c >= data.shape[-1] for c in channels)
+            or len(set(channels)) != len(channels)):
+        raise ValueError('Unmixed display requires distinct valid measured channels')
+    masks = settings.get('_preview_mask_dims', [])
+    if set(channels).intersection(masks):
+        raise ValueError('Unmixed display channels must not include mask planes')
+    directory = str(Path(path).parent.resolve())
+
+    def load_control(filename):
+        """Read each control without changing it or accepting a wrong layout."""
+        checkpoint()
+        control = np.load(filename, mmap_mode='r', allow_pickle=False)
+        if control.ndim != 3 or control.shape[-1] != data.shape[-1]:
+            raise ValueError('Unmixing controls and preview must have the same plane layout')
+        return control
+
+    checkpoint()
+    if directory not in plans:
+        plans[directory] = _prepare_unmixing(
+            dict(settings, unmix=True), directory, channels=tuple(channels),
+            load=load_control)
+    plan = plans[directory]
+    checkpoint()
+    display = np.array(data, copy=True)
+    display[..., channels] = _apply_recorded_unmixing(
+        data[..., channels], {_UNMIX_RECORD_KEY: json.dumps(plan.provenance())})
+    checkpoint()
+    record = dict(plan.provenance(), source_directory=directory,
+                  display_only=True, input_modified=False)
+    return display, record
+
+
 def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
-                           category_params, cancelled):
+                           category_params, cancelled, unmix_settings=None):
     """Stream checked fields with a shared crop budget and source identity.
 
     Only one additional source array is mapped at a time. The crop count is
@@ -350,6 +397,7 @@ def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
     never publishes a partial grid.
     """
     crops, errors = [], []
+    plans = {}
     limit = max(1, int(crop_kwargs.get("limit", 60)))
     quota, extra = divmod(limit, max(1, len(paths)))
     for index, path in enumerate(paths):
@@ -368,7 +416,20 @@ def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
             if (kwargs["mask_dim"] >= data.shape[2]
                     or any(c >= data.shape[2] for c in kwargs["channels"])):
                 raise ValueError("Configured mask or image channels are absent")
-            result = compute_crops(data, kwargs, category_params)
+            if unmix_settings is None:
+                result = compute_crops(data, kwargs, category_params)
+            else:
+                from spacr.measure import crop_objects_from_array
+                if not set(kwargs['channels']).issubset(unmix_settings.get('channels', [])):
+                    raise ValueError('Unmixed display requires measured channels for every displayed colour')
+                display, provenance = _unmixed_crop_source(
+                    data, path, unmix_settings, cancelled, plans)
+                entries = crop_objects_from_array(display, **kwargs)
+                annotate_crops(entries, data, category_params)
+                for entry in entries:
+                    entry['unmixing'] = provenance
+                result = {'crops': entries, 'error': ''}
+                del display
             if result.get("error"):
                 raise ValueError(result["error"])
             for entry in result.get("crops") or []:
@@ -668,6 +729,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._load_token = 0
         self._crop_token = 0
         self._loading_fov = False
+        self._unmix_settings: Dict[str, Any] = {}
         self._confluency_settings: Dict[str, Any] = {}
         self._confluency_token = 0
         self._wound_settings: Dict[str, Any] = {}
@@ -920,6 +982,16 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         actions.addWidget(self._run_btn)
         actions.addWidget(self._cancel_btn)
         actions.addWidget(self._settings_btn)
+        self._unmix_btn = QPushButton(tr("Unmixed display"))
+        self._unmix_btn.setCheckable(True)
+        self._unmix_btn.setEnabled(False)
+        self._unmix_btn.setProperty("maturity", "alpha")
+        self._unmix_btn.setToolTip(tr(
+            "Preview spectral unmixing using the run’s single-stain controls. "
+            "This changes only the displayed crops; PNG exports and source "
+            "files are unchanged."))
+        self._unmix_btn.toggled.connect(self.refresh)
+        actions.addWidget(self._unmix_btn)
         self._confluency_btn = QPushButton(tr("Confluency"))
         self._confluency_btn.setObjectName("MeasureConfluencyToggle")
         self._confluency_btn.setCheckable(True)
@@ -1451,6 +1523,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """
         from ..preferences import _is_alpha_visible
 
+        unmix_visible = _is_alpha_visible("settings", "unmix")
+        if not unmix_visible:
+            self._unmix_btn.setChecked(False)
+        self._unmix_btn.setVisible(unmix_visible)
         visible = _is_alpha_visible(
             "widgets", self._confluency_btn.objectName())
         if not visible and self._confluency_btn.isChecked():
@@ -1807,6 +1883,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             cannot be applied is skipped.
         """
         settings = dict(settings or {})
+        for key in ('unmix', 'unmix_controls', 'unmix_background_percentile'):
+            if key in settings:
+                self._unmix_settings[key] = deepcopy(settings[key])
+        self._unmix_btn.setEnabled(bool(self._unmix_settings.get('unmix')))
+        if not self._unmix_btn.isEnabled():
+            self._unmix_btn.setChecked(False)
 
         speaks_to_the_count = (
             settings.get("number_of_organelles") is not None
@@ -1902,6 +1984,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
         if settings.get("src"):
             self._auto_load_from_src(settings["src"])
+        if self._unmix_btn.isChecked():
+            self.refresh()
 
     def set_propagate_callback(self, callback) -> None:
         """Set what to call when the user pushes these settings to the run.
@@ -2069,8 +2153,15 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             size=self._png_size_pair(),
         )
         paths = tuple(sorted(self._checked_sources))
+        unmix_settings = None
+        if self._unmix_btn.isChecked():
+            unmix_settings = deepcopy(self._unmix_settings)
+            unmix_settings['channels'] = _parse_channels(self._measurement_channels.text())
+            unmix_settings['_preview_mask_dims'] = [
+                widget.value() for widget in self._mask_dims.values()
+                if widget.value() >= 0]
         request = (self._crop_token, paths, self._data_path, self._data,
-                   crop_kwargs, self._category_params())
+                   crop_kwargs, self._category_params(), unmix_settings)
         self.set_preview_busy(True)
         if self._crop_running:
             self._pending_crop_request = request
@@ -2079,12 +2170,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _start_crop_request(self, request) -> None:
         """Run one crop pass at a time and retain only the newest request."""
-        token, paths, path, data, kwargs, params = request
+        token, paths, path, data, kwargs, params, unmix_settings = request
         cancelled = self._crop_cancel = threading.Event()
         self._crop_running = True
         self._jobs.submit(
             lambda: _compute_checked_crops(paths, path, data, kwargs, params,
-                                           cancelled),
+                                           cancelled, unmix_settings),
             lambda result: self._finish_crop_request(token, result))
 
     def _finish_crop_request(self, token, result) -> None:
