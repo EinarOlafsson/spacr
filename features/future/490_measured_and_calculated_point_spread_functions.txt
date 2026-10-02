@@ -306,3 +306,21 @@ animation. No optical-resolution or biological-improvement claim is made.
   hash from tifffile 2026.3.3). Receipt: features/data/490_measured_psf_
   recheck_2026-09-30.json. Same limits as before: no resolution, accuracy
   or biological-improvement claim. Tutorial/translations: docs lane.
+
+2026-10-01 — CURRENT PSF WORKFLOW PRIVATE CAPTURE (partial item)
+A new bounded lesson-86 recorder uses actual Make Masks Objective/Infer,
+Compare/Apply, source-label and Measure source controls with Show alpha features
+off. It copies a real cached example crop and mask to scratch without changing
+the originals. Seven offscreen Qt scenes show illustrative optics and the
+explicit source-versus-processed intensity choice; four focused control tests
+pass under 4 GiB, CPU 0 and zero swap. The first capture's framing was
+corrected after visual review; the final Objective/default/calculated source
+labels and selected Measure source are readable. Original image and mask hashes
+remain unchanged. This demonstrates the controls, not optical recovery or a
+quantitative Measure batch. The settings-search target section was revealed
+inside a collapsed ancestor; the helper opened the outer section as a user
+can. That search-navigation issue remains a separate UI fix.
+Receipt: features/data/490_psf_tutorial_private_capture_2026-10-01.json.
+The seven scenes and draft narration are private/unpublished. Full narrated
+media, caption matrix, publication and native desktop focus acceptance remain
+open; the alpha-gated Mask/Timelapse settings are described separately.
