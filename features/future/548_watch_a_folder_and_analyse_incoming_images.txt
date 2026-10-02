@@ -144,3 +144,38 @@ RECURSIVE ACQUISITION FOLLOW-UP (2026-10-02, partial)
     Both runs used a 4 GiB cap, CPU0, zero swap and hidden CUDA. Public API
     signatures/docstrings and translation captions are unchanged. Receipt:
     features/data/548_recursive_watch_2026-10-02.json.
+
+CONVERT-MAP COMPLETENESS FOLLOW-UP (2026-10-02, partial)
+    A fixed conversion_map.csv at the watched folder root now supplies exact
+    filename companions, using Convert's required columns and canonical target
+    naming. Every mapped file of a field must be present, stable and readable;
+    a matching channel count with different IDs is insufficient. Unexpected
+    files, missing whole fields and cross-directory companions stay waiting.
+    The default map must describe flat static outputs (t=1 and z=1); incompatible
+    filename settings, duplicate/contradictory rows, unsafe paths, unsupported
+    series and maps larger than 16 MiB fail closed before watch output begins.
+
+    The map's SHA256 is bound into the watch ledger. Content is checked at each
+    poll and before each field: edits, removal or introduction stop the run;
+    incompatible resumes refuse without changing existing saved results. A map
+    is a fixed input, not a vendor live-acquisition completion signal. Copy the
+    complete map before starting the watch, then copy its expected TIFFs. The
+    map bytes and source images are never modified. File opening rejects links
+    and validates regular-file identity; O_NOFOLLOW/O_NONBLOCK are used where
+    the platform supplies them. A symlink swap is covered by a Linux regression.
+
+    No-map folders retain legacy channel-cardinality behavior. This does not
+    resolve positional selected-channel mapping for arbitrary raw vendors,
+    custom-named maps, recursively relocated converted outputs, vendor finish
+    markers, timelapse/z-stack acquisition or real GPU acceptance. F548 remains
+    partial/alpha. There are no new settings, public API signatures/docstrings
+    or translatable UI captions.
+
+    Validation: 47 unique named CPU cases pass across the initial 46-case
+    manifest/recursive/existing-watch cohort and the affected 20-case manifest
+    rerun after descriptor-level no-follow protection. A real Convert output
+    map is accepted with source/map/TIFF bytes preserved. Existing synthetic
+    real-preprocessing/Measure batch_size=1 parity and resume/cancellation
+    checks pass; Cellpose model execution remains stubbed. Both test processes
+    used 4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
+    features/data/548_conversion_manifest_watch_2026-10-02.json.

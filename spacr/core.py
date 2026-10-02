@@ -895,6 +895,110 @@ def _watch_field_of(name, settings, cache):
     return key or 'field', channel
 
 
+def _watch_map_bytes(src):
+    """Read at most 16 MiB of the local Convert map without following links.
+
+    :param src: acquisition directory containing the default Convert map.
+    :returns: immutable file bytes, or None when no map exists.
+    :raises ValueError: for oversized, nonregular or changing metadata.
+    """
+    import stat
+
+    from .convert import MAP_FILENAME
+
+    path = os.path.join(src, MAP_FILENAME)
+    if not os.path.lexists(path):
+        return None
+    if os.path.islink(path) or not os.path.isfile(path):
+        raise ValueError(f'watch_folder: {path} must be a regular conversion map.')
+    flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise ValueError(f'watch_folder: cannot safely open conversion_map.csv: {exc}') from exc
+    with os.fdopen(descriptor, 'rb') as handle:
+        before = os.fstat(handle.fileno())
+        current = os.stat(path, follow_symlinks=False)
+        if (not stat.S_ISREG(before.st_mode) or not stat.S_ISREG(current.st_mode)
+                or (before.st_dev, before.st_ino) != (current.st_dev, current.st_ino)):
+            raise ValueError('watch_folder: conversion_map.csv is not a stable regular file.')
+        data = handle.read(16 * 1024 * 1024 + 1)
+        after = os.fstat(handle.fileno())
+    if len(data) > 16 * 1024 * 1024:
+        raise ValueError('watch_folder: conversion_map.csv exceeds the 16 MiB limit.')
+    if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
+        raise ValueError('watch_folder: conversion_map.csv changed while being read.')
+    return data
+
+
+def _watch_map_manifest(src, settings):
+    """Validate a fixed Convert map and bind exact target names to each field.
+
+    :param src: acquisition directory containing converted images.
+    :param settings: the watch filename convention and optional custom regex.
+    :returns: field-to-target sets and the map SHA256, or two None values.
+    :raises ValueError: when map identities are unsupported or ambiguous.
+    """
+    import csv
+    import hashlib
+    import io
+
+    from .convert import _REQUIRED_MAP_COLUMNS, target_name
+
+    data = _watch_map_bytes(src)
+    if data is None:
+        return None, None
+    try:
+        reader = csv.DictReader(io.StringIO(data.decode('utf-8-sig')))
+        if not reader.fieldnames or not set(_REQUIRED_MAP_COLUMNS) <= set(reader.fieldnames):
+            raise ValueError('required Convert map columns are missing')
+        if len(reader.fieldnames) != len(set(reader.fieldnames)):
+            raise ValueError('duplicate column headers')
+        groups, channels, patterns, targets = {}, {}, {}, set()
+        for row in reader:
+            name = row['target']
+            if not name or name != os.path.basename(name) or '/' in name or '\\' in name:
+                raise ValueError('targets must be plain output filenames')
+            numbers = {key: int(row[key]) for key in ('field', 'channel', 'z', 't')}
+            if any(value < 1 for value in numbers.values()):
+                raise ValueError('output field/channel/z/t identifiers must be positive')
+            expected = target_name(row['plate'], row['well'], **numbers)
+            if name != expected or not row['source']:
+                raise ValueError(f'target disagrees with its Convert metadata: {name}')
+            if numbers['z'] != 1 or numbers['t'] != 1:
+                raise ValueError('mapped z-stacks and time series are not supported by watch mode')
+            key, channel = _watch_field_of(name, settings, patterns)
+            if channel is None or not str(channel).isdecimal() or int(channel) != numbers['channel']:
+                raise ValueError(f'watch filename settings do not identify the mapped channel: {name}')
+            if name in targets or numbers['channel'] in channels.setdefault(key, set()):
+                raise ValueError(f'duplicate target or field channel: {name}')
+            targets.add(name)
+            channels[key].add(numbers['channel'])
+            groups.setdefault(key, set()).add(name)
+        if not groups:
+            raise ValueError('the conversion map has no output rows')
+    except (ValueError, TypeError, KeyError, UnicodeError, csv.Error) as exc:
+        raise ValueError(f'watch_folder: invalid conversion_map.csv: {exc}') from exc
+    return groups, hashlib.sha256(data).hexdigest()
+
+
+def _watch_check_map(context):
+    """Stop before processing if the bound map is changed, removed or introduced.
+
+    :param context: watch state containing src and the initial map_sha256.
+    :returns: None when the current metadata matches the initial snapshot.
+    :raises ValueError: when that snapshot no longer describes the folder.
+    """
+    import hashlib
+
+    data = _watch_map_bytes(context['src'])
+    digest = hashlib.sha256(data).hexdigest() if data is not None else None
+    if digest != context.get('map_sha256'):
+        raise ValueError('watch_folder: conversion_map.csv changed since this watch '
+                         'started; stop conversion and use a separate watch workspace '
+                         'for a different map. Existing results are preserved.')
+
+
 def _watch_unreadable(path):
     """Why an image cannot be read yet, or None when it reads whole.
 
@@ -1238,6 +1342,7 @@ def _watch_run_field(key, members, signature, context):
 
     from .cancellation import PipelineCancelled
 
+    _watch_check_map(context)
     seen, ledger = context['seen'], context['ledger']
     arrived = max(seen[name]['changed'] for name, _channel in members)
     entry = ledger['fields'].setdefault(key, {})
@@ -1293,8 +1398,21 @@ def _watch_ready_fields(context, now):
         key, channel = _watch_field_of(name, context['settings'],
                                        context['patterns'])
         groups.setdefault(key, []).append((name, channel))
+    manifest = context.get('manifest')
+    if manifest is not None:
+        for key in manifest:
+            groups.setdefault(key, [])
     ready, waiting = [], 0
     for key, members in sorted(groups.items()):
+        if manifest is not None and (key not in manifest or
+                {name for name, _channel in members} != manifest[key]):
+            waiting += 1
+            warning = ('manifest', key, tuple(sorted(name for name, _c in members)))
+            if warning not in context['warned']:
+                context['warned'].add(warning)
+                print(f'watch_folder: {key} does not yet match its exact conversion-map '
+                      f'companions; missing or unexpected files remain unprocessed.')
+            continue
         parents = {os.path.dirname(name) for name, _channel in members}
         channels = {str(int(channel)) if str(channel).isdecimal() else channel
                     for _name, channel in members}
@@ -1322,7 +1440,7 @@ def _watch_ready_fields(context, now):
         if (key, repr(sorted(signature.items()))) in context['tried']:
             continue
         waiting += 1
-        if None not in channels and len(channels) < context['expected']:
+        if manifest is None and None not in channels and len(channels) < context['expected']:
             continue
         if any(now - seen[name]['changed'] < context['settle']
                for name, _channel in members):
@@ -1879,10 +1997,16 @@ def _watch_folder_and_analyse(settings, analyse=None):
     from .cancellation import PipelineCancelled, checkpoint
 
     src, pipeline, settle, poll, idle = _watch_check_settings(settings)
+    manifest, map_sha256 = _watch_map_manifest(src, settings)
     work = os.path.join(src, _WATCH_DIR)
     os.makedirs(work, exist_ok=True)
     ledger_path = os.path.join(work, _WATCH_LEDGER)
     ledger = _watch_load_ledger(ledger_path, src)
+    if (ledger.get('conversion_map_sha256') != map_sha256 and
+            (ledger['fields'] or 'conversion_map_sha256' in ledger)):
+        raise ValueError('watch_folder: conversion_map.csv differs from the saved watch '
+                         'record; use a separate watch workspace. Existing results are preserved.')
+    ledger['conversion_map_sha256'] = map_sha256
     ledger['pipeline'] = pipeline
     for entry in ledger['fields'].values():
         if entry.get('status') == 'running':
@@ -1893,6 +2017,7 @@ def _watch_folder_and_analyse(settings, analyse=None):
                'analyse': analyse or _watch_analyse_field, 'settle': settle,
                'expected': _watch_expected_channels(settings), 'seen': {},
                'patterns': {}, 'tried': set(), 'warned': set(),
+               'manifest': manifest, 'map_sha256': map_sha256,
                'microscope': None}
     if _watch_truthy(settings.get('microscope_feedback', False)):
         context.update(positions=_microscope_positions(settings),
@@ -1912,6 +2037,7 @@ def _watch_folder_and_analyse(settings, analyse=None):
         while True:
             checkpoint()
             now = time.time()
+            _watch_check_map(context)
             if _watch_observe(context, now):
                 last_change = now
             ready, waiting = _watch_ready_fields(context, now)
@@ -1947,7 +2073,8 @@ def _watch_folder_and_analyse(settings, analyse=None):
                     if entry.get('status') == 'failed')
     incomplete = sorted(
         {_watch_field_of(name, settings, context['patterns'])[0]
-         for name in context['seen']} - set(done) - set(failed))
+         for name in context['seen']} | set(manifest or {}))
+    incomplete = sorted(set(incomplete) - set(done) - set(failed))
     print(_watch_status_line(ledger, len(incomplete)))
     if incomplete:
         print(f'watch_folder: {len(incomplete)} field(s) never became '
