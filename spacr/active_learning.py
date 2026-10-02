@@ -2657,6 +2657,93 @@ class _SimilarityIndex:
         return frame
 
 
+_EMBEDDING_TABLE = "crop_embedding"
+
+
+def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
+                           embedding: Any) -> int:
+    """Save crop embeddings in ``measurements.db``, one row per object.
+
+    The table is keyed by ``prcfo``, so it joins to the crop table the same
+    way the measurements do. Rows for the same ``prcfo`` are replaced; a
+    new embedding with different columns replaces the whole table, so the
+    table always holds one encoder's vectors.
+
+    :param db_path: path to ``measurements.db``.
+    :param prcfo: one object key per row of ``embedding``.
+    :param embedding: an :class:`spacr.embeddings.EmbeddingResult`, or a
+        numeric ``(n, d)`` array or frame.
+    :returns: the number of rows written.
+    :raises ValueError: when the keys and rows do not match in number.
+    """
+    from . import tabular
+    columns = getattr(embedding, "columns", None)
+    values = getattr(embedding, "values", embedding)
+    if isinstance(embedding, pd.DataFrame):
+        columns, values = list(embedding.columns), embedding.to_numpy()
+    values = np.asarray(values, dtype=np.float32)
+    keys = [str(k) for k in prcfo]
+    if values.ndim != 2 or len(keys) != values.shape[0]:
+        raise ValueError(
+            f"{len(keys)} object keys for {values.shape[0] if values.ndim else 0} "
+            f"embedding rows; pass one prcfo per crop.")
+    if columns is None:
+        columns = [f"emb_{i}" for i in range(values.shape[1])]
+    frame = pd.DataFrame(values, columns=[str(c) for c in columns])
+    frame.insert(0, "prcfo", keys)
+    frame = frame.drop_duplicates("prcfo", keep="last")
+    existing = _stored_embedding_frame(db_path)
+    if existing is not None and list(existing.columns) == list(frame.columns):
+        existing = existing[~existing["prcfo"].isin(frame["prcfo"])]
+        frame = pd.concat([existing, frame], ignore_index=True)
+    tabular.write_database(frame, db_path, _EMBEDDING_TABLE,
+                           if_exists="replace", canonicalise=False)
+    return len(frame)
+
+
+def _stored_embedding_frame(db_path: str) -> Optional[pd.DataFrame]:
+    """The stored crop-embedding table, or ``None`` when there is none."""
+    from . import tabular
+    if not os.path.exists(str(db_path)):
+        return None
+    if _EMBEDDING_TABLE not in tabular.database_tables(db_path):
+        return None
+    return tabular.read_table(db_path, table=_EMBEDDING_TABLE,
+                              canonicalise=False, report=None,
+                              repair_plate_ids=False)
+
+
+def _stored_embeddings(db_path: str, table: str = PNG_TABLE,
+                       key: str = PNG_KEY) -> Optional[pd.DataFrame]:
+    """Stored crop embeddings indexed by the crop key, or ``None``.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: crop table carrying ``key`` and ``prcfo``.
+    :param key: the crop key column.
+    :returns: the embedding columns for every crop with a stored vector,
+        or ``None`` when no embedding is stored or none joins a crop.
+    """
+    stored = _stored_embedding_frame(db_path)
+    if stored is None or stored.empty:
+        return None
+    con = _connect(db_path)
+    try:
+        if "prcfo" not in _table_columns(con, table, db_path):
+            return None
+        rows = con.execute(
+            f"SELECT {_quote_ident(key)}, \"prcfo\" FROM {_quote_ident(table)}"
+        ).fetchall()
+    finally:
+        con.close()
+    crops = pd.DataFrame(rows, columns=[key, "prcfo"]).dropna(subset=["prcfo"])
+    crops["prcfo"] = crops["prcfo"].astype(str)
+    stored["prcfo"] = stored["prcfo"].astype(str)
+    joined = crops.merge(stored, on="prcfo", how="inner")
+    if joined.empty:
+        return None
+    return joined.drop(columns=["prcfo"]).set_index(key)
+
+
 def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
                       image_type: Optional[str] = None,
                       backend: str = "auto") -> _SimilarityIndex:
@@ -2665,13 +2752,16 @@ def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
     :param db_path: path to ``measurements.db``.
     :param features: the vectors to compare by, indexed by ``png_path``,
         such as an embedding from :func:`spacr.embeddings.embed_array`.
-        Read from the measurement tables with :func:`round_features` when
-        omitted.
+        When omitted, the crop embeddings stored in the database by
+        :func:`_store_crop_embeddings` are used if present, otherwise the
+        measurement features from :func:`round_features`.
     :param image_type: substring filter on the crop key.
     :param backend: passed to :class:`_SimilarityIndex`.
     :returns: the index.
     :raises ValueError: when no crop has usable features.
     """
+    if features is None:
+        features = _stored_embeddings(db_path)
     if features is None:
         features = round_features(db_path)
         features = features[_similarity_columns(features.columns)]

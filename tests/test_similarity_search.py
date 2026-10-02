@@ -211,3 +211,34 @@ def test_crops_without_numeric_features_cannot_be_compared():
     with pytest.raises(ValueError, match="No crop has numeric features"):
         al._SimilarityIndex(pd.DataFrame({"label": ["a", "b"]},
                                          index=["x", "y"]))
+
+
+def test_stored_crop_embeddings_drive_the_search_and_fall_back(tmp_path):
+    import sqlite3
+    from types import SimpleNamespace
+    from tests.test_cov_active_learning_rounds import _make_project
+
+    project = _make_project(tmp_path, per_well=10)
+    db = project["db"]
+    assert al._stored_embeddings(db) is None
+    assert "cell_area" in al._similarity_index(db).columns
+    with sqlite3.connect(db) as con:
+        rows = con.execute("SELECT png_path, prcfo FROM png_list").fetchall()
+    labels = {c["png_path"]: c["_class"] for c in project["crops"]}
+    rng = np.random.default_rng(1)
+    values = np.stack([np.eye(4)[int(labels[p]) % 4] + 0.01 * rng.standard_normal(4)
+                       for p, _ in rows]).astype(np.float32)
+    result = SimpleNamespace(values=values,
+                             columns=tuple(f"emb_c0_{i}" for i in range(4)))
+    assert al._store_crop_embeddings(db, [r[1] for r in rows], result) == len(rows)
+    assert al._store_crop_embeddings(db, [rows[0][1]], result.values[:1]
+                                     ) == 1
+    assert al._store_crop_embeddings(db, [r[1] for r in rows], result
+                                     ) == len(rows)
+    index = al._similarity_index(db)
+    assert list(index.columns) == [f"emb_c0_{i}" for i in range(4)]
+    assert len(index) == len(rows)
+    table = al._similarity_agreement(index, labels, k=5).set_index("class")
+    assert table.loc["all", "precision_at_k"] > 0.95
+    with pytest.raises(ValueError):
+        al._store_crop_embeddings(db, ["a"], values)

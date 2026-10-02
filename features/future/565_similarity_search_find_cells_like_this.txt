@@ -82,4 +82,17 @@ FOLLOW-UP IMPLEMENTED 2026-10-01 — SEARCH CONTROLS
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     Done on nightly: Like-this controls 2026-10-01 note.
-    BLOCKED / open: human-annotated set (data); GPU FAISS timing (GPU, optional dependency). OPEN code over 1 h: crop embeddings stored in measurements.db, screen-wide index.
+    BLOCKED / open: human-annotated set (data); GPU FAISS timing (GPU, optional dependency). OPEN code over 1 h: screen-wide index. (Embedding storage done 2026-10-02, below.)
+
+2026-10-02 — CROP EMBEDDINGS STORED IN measurements.db (alpha, CPU)
+    spacr/active_learning.py: _store_crop_embeddings(db, prcfo, embedding)
+    writes an EmbeddingResult / array / frame to table crop_embedding keyed by
+    prcfo via spacr.tabular (same-prcfo rows replaced; a different encoder's
+    columns replace the table). _stored_embeddings joins it to png_list;
+    _similarity_index (so Annotate's alpha "Like this") uses it when present,
+    else falls back to measurement features. Test (stub vectors, CPU):
+    tests/test_similarity_search.py. Still open: a GUI/pipeline step that
+    runs spacr.embeddings and stores the result; measuring retrieval on real
+    DINOv2/timm embeddings; human-annotated set; GPU FAISS; screen-wide index.
+    test_real_screen_count_unlabelled_filter_and_reference failed once under
+    -n 4 with eight files, passed alone and on rerun (timing flake).
