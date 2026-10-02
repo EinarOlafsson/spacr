@@ -11,7 +11,9 @@
       "source": "Unmixed display",
       "source_sha256": "76e203cab09b647615cee8f51e5749c96ab5d0bfeb267137bf678fd069a5d618",
       "translation": "Vista con separación espectral"
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "ui",
       "key": "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; PNG exports and source files are unchanged.",
@@ -19,5 +21,6 @@
       "source_sha256": "670cc3a397f6e3f5d9cdf425227ed8a2f9942a9c23b615f48ac48a80800f248c",
       "translation": "Previsualice la separación espectral usando los controles de una sola tinción de la ejecución. Esto solo cambia los recortes mostrados; las exportaciones PNG y los archivos de origen no se modifican."
     }
-  ]
+  ],
+  "retirement_2026_10_02": "The explicit displayed-crop export now writes PNGs. The updated tooltip distinguishes unchanged batch PNG exports; the historical source-bound record is preserved."
 }

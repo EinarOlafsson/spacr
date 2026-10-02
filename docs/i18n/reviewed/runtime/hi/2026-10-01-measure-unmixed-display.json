@@ -11,7 +11,9 @@
       "source": "Unmixed display",
       "source_sha256": "76e203cab09b647615cee8f51e5749c96ab5d0bfeb267137bf678fd069a5d618",
       "translation": "वर्णक्रमीय पृथक्करण के बाद प्रदर्शन"
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "ui",
       "key": "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; PNG exports and source files are unchanged.",
@@ -19,5 +21,6 @@
       "source_sha256": "670cc3a397f6e3f5d9cdf425227ed8a2f9942a9c23b615f48ac48a80800f248c",
       "translation": "इस रन के एकल-रंजन नियंत्रणों का उपयोग करके वर्णक्रमीय पृथक्करण का पूर्वावलोकन करें। इससे केवल प्रदर्शित क्रॉप की गई छवियाँ बदलती हैं; PNG निर्यात और स्रोत फ़ाइलें अपरिवर्तित रहती हैं।"
     }
-  ]
+  ],
+  "retirement_2026_10_02": "The explicit displayed-crop export now writes PNGs. The updated tooltip distinguishes unchanged batch PNG exports; the historical source-bound record is preserved."
 }
