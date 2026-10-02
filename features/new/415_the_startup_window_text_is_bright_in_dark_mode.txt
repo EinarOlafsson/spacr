@@ -2,12 +2,11 @@
 THE STARTUP WINDOW'S TEXT IS BRIGHT IN DARK MODE
 ================================================================================
 
-Status:    DONE here (re-verified 2026-09-25: 19/19 offscreen cases pass on
-           nightly a93f937d2); remaining: a check on a real Windows machine by
-           the maintainer (OS light + spaCR dark; and both light). Nothing
-           else is implementable on this Linux box. The startup window wears
-           the theme spaCR opens in, and its words read at 7:1 or better in
-           every OS-scheme x spaCR-theme pair.
+Status:    DONE — native Windows technical acceptance completed 2026-10-01
+           (America/Detroit), run36944677475 on7c13c23d3. All six real OS
+           light/dark × spaCR light/dark/system combinations passed; native
+           screenshots were inspected. This is hosted Windows acceptance,
+           not a claim of the maintainer's personal hands-on approval.
 Requested: 2026-09-15, by the maintainer, in these words (item 2 of three):
            "the text in the startup needs to be bright if the mode is dark
            mode."
@@ -180,3 +179,44 @@ real-Windows look (maintainer): OS light + spaCR dark shows bright words on
 black, both light shows dark words on light. Remember the loading screen only
 shows under the "eager" preload policy; under the default "on_demand" what
 shows at startup is MainWindow's first frame, covered by the same test.
+
+
+2026-10-01 — REAL WINDOWS ACCEPTANCE, ALL SIX THEME COMBINATIONS
+Native workflow run36944677475 passed on commit7c13c23d35ae17677fdf421efeb01e59bdb9c772:
+https://github.com/EinarOlafsson/spacr/actions/runs/36944677475
+Windows Server2025 build26100, Qt6.11.2, native windows QPA, 1920×1080, DPR1.
+The actual OS registry preference was changed on the disposable hosted runner
+and verified through native QStyleHints before applying spaCR preferences.
+Neither the scheme query, palette nor painter was mocked. Registry values
+and the runner's native spaCR preference store were restored and verified.
+
+All six OS light/dark × explicit spaCR light/dark/system combinations passed.
+Before and after applying application preferences, real LoadingScreen windows
+were advanced through0/2/6 completed phases. QScreen.grabWindow captured36
+native images;180 phrase/arrow boxes were measured. Minimum strongest actual
+text-pixel contrast was7.0109:1 on dark and7.0390:1 on light; every element
+contained at least11 pixels above4.5:1. Independent Pillow remeasurement of
+all180 boxes agrees. The actual default on-demand MainWindow was constructed
+and captured in all six combinations; its backing WindowText/Window contrast
+was21:1 dark and18.5022:1 light.
+
+All14 unique screenshots were visually inspected, including the original
+reported OS-light/app-dark case and both-light case. The other28 screenshots
+are byte-identical corresponding-theme images; their hashes are recorded.
+Words and arrows remain legible and progression correctly lights each phase.
+The light splash logo remains the existing white asset; this text-contrast
+acceptance does not claim a separate logo-contrast redesign.
+
+Durable receipt, all measurements/source hashes, and four representative
+native screenshots: features/data/415_windows_native_2026-10-01/.
+The full42-image artifact is windows-native-startup-7c13c23d35ae17677fdf421efeb01e59bdb9c772
+(artifact11202070071, archive SHA256 recorded in receipt.json).
+The ten local sampler/safety checks also passed; they reject blank/low-contrast,
+clipped and one-bright-pixel evidence and prevent local registry-changing runs.
+
+Acceptance is native hosted Windows technical evidence, not the maintainer's
+personal approval, a consumer-Windows build matrix or a high-DPI claim. The
+older STILL OWED paragraphs above remain as dated history; their missing
+native-platform evidence is now supplied without inventing a human signoff.
+Workers used one actual CPU and a4GiB Windows Job Object committed-memory cap;
+Windows-managed pagefile behavior is explicitly not called zero-swap.
