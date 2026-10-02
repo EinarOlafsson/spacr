@@ -1,7 +1,6 @@
 COMMUNITY PLAQUE TRAINING DATA: ANNOTATE WELLS AND PLAQUES, THEN UPLOAD TO HUGGING FACE
 
-Status: IMPLEMENTED 2026-09-25 (awaiting the maintainer's check and the
-one real test upload; see the note at the end). Filed 2026-09-25.
+Status: DONE 2026-10-02. Filed 2026-09-25.
 Owner: 523 agent. Related: 513 (the plaque Ruler, already on nightly: the
 Ruler button in the plaque live preview's zoom row), the Model Zoo's "share a
 model" upload (spacr/qt/widgets/model_share.py, einarolafsson/user-models),
@@ -300,3 +299,17 @@ For the maintainer to decide
   to Hugging Face first ..." is no longer used). Catalogs untouched.
   API: new public callable central_contribute; contribute's token is now
   optional.
+
+2026-10-02 -- LIVE UPLOAD ACCEPTANCE COMPLETE
+
+  A synthetic plaque image and matching uint16 mask were packaged by the
+  production write_contribution() path with consent and CC BY 4.0 metadata.
+  A real Hugging Face dataset pull request was opened at
+  https://huggingface.co/datasets/einarolafsson/community_toxoplasma_plaques/discussions/1
+  via HfApi.upload_folder(create_pr=True). All four files were downloaded
+  again from refs/pr/1 and their SHA-256 hashes matched the local source.
+  The pull request was then closed without merging: dataset main still
+  contains only .gitattributes and README.md. The synthetic image is marked
+  as a test and never entered the training set. Full immutable hashes and
+  the verification steps are in features/data/523_live_upload_acceptance_2026-10-02.json.
+  The current-source 523 annotation and upload-space suites pass: 48 tests.
