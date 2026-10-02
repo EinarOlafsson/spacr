@@ -8428,9 +8428,11 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             size_ls = _per_crop_mode(size_ls, len(crop_ls), 'png_size')
             dialate_pngs = _per_crop_mode(
                 settings['dialate_pngs'], len(crop_ls), 'dialate_pngs')
-            dialate_png_ratios = _per_crop_mode(
-                settings['dialate_png_ratios'], len(crop_ls),
-                'dialate_png_ratios')
+            dialate_png_ratios = (
+                _per_crop_mode(
+                    settings['dialate_png_ratios'], len(crop_ls),
+                    'dialate_png_ratios')
+                if any(dialate_pngs) else [None] * len(crop_ls))
 
             for crop_idx, crop_mode in enumerate(crop_ls):
                 if crop_mode not in CROP_MODES:

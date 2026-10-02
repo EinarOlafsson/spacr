@@ -3048,7 +3048,7 @@ def validate_object_table_frame(
                 f'n_z=1; invalid rows: {examples}.')
 
     expected_prcf = (
-        out[PLATE_KEY]
+        out[PLATE_KEY].map(escape_filename_component)
         + KEY_SEPARATOR + out[ROW_KEY]
         + KEY_SEPARATOR + out[COLUMN_KEY]
         + KEY_SEPARATOR + out[FIELD_KEY]
