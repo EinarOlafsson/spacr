@@ -137,7 +137,10 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # item 600); named in test_api_i18n_extractor.
 # 2026-10-01: merge, uncertainty and condition APIs; exact source delta
 # recorded in features/data/615_public_api_delta_2026-10-01.json.
-REAL_SYMBOL_COUNT = 12_035
+# 2026-10-02 F580: +1/-0, the calibration_preview module overview only;
+# all 12,035 previous symbols unchanged. Exact subtraction and nine-locale
+# strict audit: features/data/615_translation_acceptance_2026-10-02.json.
+REAL_SYMBOL_COUNT = 12_036
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

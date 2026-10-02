@@ -424,3 +424,25 @@ locale remain unchanged. All ten English/locale source-hash checks pass.
 Receipt: features/data/615_api_bscore_delta_2026-10-01.json.
 This is a source-current API checkpoint, not native-speaker review, a new
 full-site build, or live publication. The aggregate item remains partial.
+
+2026-10-02 — TRANSLATIONS SUPPORT TRACK COMPLETE FOR CURRENT SOURCES
+N615.3 is complete at this pinned source checkpoint. The runtime catalogs
+cover all 6,546 UI captions, 1,231 tooltips, 1,209 setting labels, 237 category
+entries and 72 module summaries in all nine locales, with current source
+hashes and the unchanged full audit. Installer keys/placeholders also pass.
+A fresh complete guide-source extraction and audit finds 2,869/2,869 messages
+in each locale across 34 domains: 25,821 translations, none stale or invalid,
+and no missing control labels.
+
+The API source audit found and repaired exactly one omission: the overview
+of spacr.qt.widgets.calibration_preview. The normal writer adds that reviewed
+one-sentence entry in English and all nine locales; all 12,035 old records
+remain unchanged. The full strict API/README audit passes at 12,036 symbols.
+All three symbol pins move by the measured +1/-0. Existing review records
+are preserved; the new targets have independent AI technical peer review,
+not human/native-speaker signoff.
+
+Receipt: features/data/615_translation_acceptance_2026-10-02.json. This closes
+the Translations support row only. N615 overall, current full-site rendering
+and publication, tutorial media and F411 nested-helper expansion remain open.
+Later source changes require a new bounded translation delta.

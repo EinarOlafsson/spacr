@@ -72131,6 +72131,13 @@
       "source_sha256": "dd08764c9a1b9005b69563bc141f9bc1ac77583223cd2990df356a7b5102631d",
       "text": "Compile a barcode regex and optionally apply it to one sequence.\n\nA usable mapping expression must define every named group consumed by\n:mod:`spacr.sequencing`.  When a sample is supplied it must also match and\nproduce a non-empty value for each required group.\n\n:param pattern: the regular expression, stripped of surrounding\n    whitespace; it must define the named groups ``columnID``, ``grna``\n    and ``rowID``.\n:param sample: an optional read to match from its start with\n    ``re.match``; all whitespace is removed first, and empty skips the\n    match."
     },
+    "spacr.qt.widgets.calibration_preview": {
+      "source_blocks_sha256": [
+        "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5"
+      ],
+      "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+      "text": "Read-only preview of Measure's existing plate calibration plan."
+    },
     "spacr.qt.widgets.card": {
       "source_blocks_sha256": [
         "5eee6e10c6fa60b49efb9ccd8d312178270e53fb802af4ec2811432f343e50b5",

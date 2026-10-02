@@ -115644,6 +115644,16 @@
         "d51ca89c50a42cf25dc9ad292cd0f10ea8f5055964d4e3700409191e92a97344"
       ]
     },
+    "spacr.qt.widgets.calibration_preview": {
+      "source_blocks_sha256": [
+        "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5"
+      ],
+      "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+      "text": "Vista previa de solo lectura del plan existente de calibración de placas de Measure.",
+      "translation_source_blocks_sha256": [
+        "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5"
+      ]
+    },
     "spacr.qt.widgets.card": {
       "source_blocks_sha256": [
         "5eee6e10c6fa60b49efb9ccd8d312178270e53fb802af4ec2811432f343e50b5",
