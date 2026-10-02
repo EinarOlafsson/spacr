@@ -1,0 +1,59 @@
+{
+  "legacy_test_mismatches": [
+    [
+      "sv",
+      "Checked images",
+      null,
+      "Markerade bilder"
+    ],
+    [
+      "de",
+      "Checked images",
+      null,
+      "Ausgewählte Bilder"
+    ],
+    [
+      "es",
+      "Checked images",
+      null,
+      "Imágenes marcadas"
+    ],
+    [
+      "pt",
+      "Checked images",
+      null,
+      "Imagens marcadas"
+    ],
+    [
+      "fr",
+      "Checked images",
+      null,
+      "Images cochées"
+    ],
+    [
+      "is",
+      "Checked images",
+      null,
+      "Valdar myndir"
+    ],
+    [
+      "zh_CN",
+      "Checked images",
+      null,
+      "已勾选的图像"
+    ],
+    [
+      "ko",
+      "Checked images",
+      null,
+      "선택한 이미지"
+    ],
+    [
+      "hi",
+      "Checked images",
+      null,
+      "चेक किए गए चित्र"
+    ]
+  ],
+  "current_resolver_mismatches": []
+}
