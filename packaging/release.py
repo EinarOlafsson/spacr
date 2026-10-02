@@ -9,6 +9,7 @@ documentation language.
 
 from __future__ import annotations
 
+import sys
 import argparse
 import hashlib
 import re
@@ -376,7 +377,7 @@ def restamp_info_deck(root: Path, version: str) -> str | None:
     except ImportError:
         print(f"info deck: Pillow is not installed here, so its title slide "
               f"still reads {shown}; run python tools/build_readme_deck.py "
-              f"--stamp where it is.")
+              f"--stamp where it is.", file=sys.stderr)
         return None
     del PIL
     spec = importlib.util.spec_from_file_location("build_readme_deck", tool)
