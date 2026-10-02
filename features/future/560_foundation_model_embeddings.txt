@@ -82,3 +82,6 @@ WHAT IS LEFT
       loading under spaCR's transformers; none needed today.
     - Wire _retrieval_scorecard into encoder_entry's scorecard from the
       screen, and add these backbones to image UMAP / classifier pickers.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: human-annotated set and GPU repeat (data, GPU); Cell-DINO weights (unpublished). OPEN code over 1 h: SubCell 4-channel model, scorecard wiring and UMAP/classifier pickers.

@@ -123,3 +123,6 @@ WHAT IS LEFT
   segmenter in the scorecard by default; applying a saved model from the
   Timelapse or Make Masks screens (only the Cellpose workbench button runs
   it now); a pix2pix / published-model option.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: label-free paired data set (external data). OPEN code over 1 h: default Cellpose scorecard segmenter, apply saved model from Timelapse/Make Masks, pix2pix option.

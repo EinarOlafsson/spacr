@@ -1,6 +1,6 @@
 LINEAGE TREES FROM TRACKS
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: endodyogeny on real tracked parasite movies (external data)..
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -186,3 +186,7 @@ with their original source, target and hash. The Timelapse guide gains one
 measured-colour paragraph per locale through the normal guide importer. No
 human or native-speaker signoff is claimed. This documentation pass does not
 close the remaining real parasite endodyogeny acceptance for F537.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: Measure-column colouring after Measure: 9658d5f86 (tests/test_lineage_measurements_f537.py); hours-per-frame: e021e3aa0 (tests/test_lineage_calibrated_time_f537.py).
+    BLOCKED / open: endodyogeny on real tracked parasite movies (external data).

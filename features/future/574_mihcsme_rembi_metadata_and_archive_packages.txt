@@ -135,3 +135,6 @@ inspected but no service or full library/curation acceptance is claimed.
 F574 remains partial. Pinned sources, unchanged-image proof, both official
 failures, corrected metadata and resource/test evidence are recorded in
 features/data/574_official_idr_probe_2026-10-02.json.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: IDR/BioStudies curator-assigned accessions (external curators). OPEN code: ontology enrichment, multi-screen studies.

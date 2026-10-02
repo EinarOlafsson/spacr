@@ -1,6 +1,6 @@
 APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
 
-Status: IMPLEMENTED 2026-09-27 (packaging only, no GUI or settings, so the
+Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: --nv Mask+Measure run (GPU turn), workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (another machine)..
         alpha registry does not apply). Built and CPU-proven; --nv run pending.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
@@ -107,3 +107,7 @@ SLURM SETTINGS BIND CORRECTION (2026-10-02, partial)
     This is not a real Slurm, Apptainer or GPU acceptance run. The --nv
     Mask+Measure and publication gaps above remain open.
     Receipt: features/data/586_slurm_settings_binds_2026-10-02.json.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: --nv GLIBC shadowing fix (2026-09-30 note).
+    BLOCKED / open: --nv Mask+Measure run (GPU turn), workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (another machine).

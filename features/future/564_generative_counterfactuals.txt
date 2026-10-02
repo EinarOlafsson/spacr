@@ -80,3 +80,6 @@ GPU RUN 2026-09-30
     Conclusion: with more data the edits are six times smaller, and now
     smaller than the baseline's, for a flip rate that falls only from 0.99
     to 0.92; real screen crops are still the open DONE WHEN step.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: real screen crops with known phenotype (data); diffusion/StyleGAN generator (GPU, own env). OPEN code over 1 h: per-condition target, Qt viewer.

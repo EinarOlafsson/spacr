@@ -2066,3 +2066,6 @@ rendering evidence: features/data/411_nested_tabular_palette_2026-10-02.json.
 This is local slice acceptance, not current live publication. Four modules
 now enable 14 of 1,134 canonical documented helpers; 1,120 remain. The whole
 F411 item is still PARTIAL. No human/native-speaker review is implied.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: OPEN docs work: 1,120 of 1,134 nested helpers (large, docs lane); native-speaker review and HTML publication (maintainer).

@@ -79,3 +79,7 @@ FOLLOW-UP IMPLEMENTED 2026-10-01 — SEARCH CONTROLS
     tests/qt/test_find_similar_alpha_gate.py — 13 passed on CPU, offscreen,
     under a 4 GiB cap with two compute threads. No GPU run or biological
     validation is claimed; the acceptance gaps above remain open.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: Like-this controls 2026-10-01 note.
+    BLOCKED / open: human-annotated set (data); GPU FAISS timing (GPU, optional dependency). OPEN code over 1 h: crop embeddings stored in measurements.db, screen-wide index.

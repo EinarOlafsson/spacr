@@ -106,3 +106,6 @@ passed. The new arXiv attribution regression belongs to the runtime pass.
 Receipts: features/data/559_settings_consumers_2026-09-28/.
 The original public-QC pretraining, Annotate field labels and real-data
 precision/recall acceptance remain open; this note does not close item 559.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: public QC pretraining and shipped weights (network, maintainer package-data decision); real labelled bubble fields (data). OPEN code over 1 h: Annotate field-QC labelling view, classifier QC card.

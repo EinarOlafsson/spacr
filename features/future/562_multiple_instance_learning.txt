@@ -81,3 +81,5 @@ WHAT IS LEFT
     - Feed embeddings straight from the screen's result (needs object ids
       and wells carried through crop loading).
 
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: real arrayed screen and GPU runs (data, GPU). OPEN code over 1 h: column-picker form with scorecard/montage, embeddings carried with object ids and wells.

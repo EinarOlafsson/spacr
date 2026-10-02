@@ -1,6 +1,6 @@
 MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: a real infected-tissue Visium/Xenium and Visium HD dataset (external data).
 Owner: unassigned. Related: Map Barcodes (spacr/qt/screens/map_barcodes.py and
 the barcode mapping it drives), OPS (spacr/ops_engine.py: reads assigned to
 segmented nuclei by position), Measure (per-object tables), image UMAP.
@@ -147,3 +147,7 @@ Limit: an already-hidden parent accepting close without deletion has no
 observable visibility transition; its job may finish. Real infected tissue,
 SpatialData output and real Visium HD acceptance remain outstanding above.
 The feature remains alpha/partial overall.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: responsive Load/Assign controls (4ac7527eb, 74ace76e8).
+    BLOCKED / open: a real infected-tissue Visium/Xenium and Visium HD dataset (external data); SpatialData .zarr output and h5py/pyarrow/anndata as optional dependencies (maintainer decision on dependencies); H&E-IF landmark registration needs real paired data.

@@ -234,3 +234,6 @@ resolved-model contracts for backends other than Cellpose.
 ALPHA: settings mask_parallel, mask_gpu_indices; widgets: the mask_parallel
 and mask_gpu_indices controls in Mask Generation, the Cluster Distribution
 checkbox DistributedAllocatedGpus, the progress label MaskGpuProgress.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: step 5 on two or more physical GPUs (machine has one shared GPU). OPEN code: resolved-model contracts for non-Cellpose backends (over 1 h).

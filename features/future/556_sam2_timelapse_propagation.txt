@@ -116,3 +116,6 @@ Not done
       screen offers them.
     - Lineage: a daughter starts a new track (no parent link).
     - Exporting SAM2 tracks as Timeflows (426) training data.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: GPU whole-movie run (GPU). OPEN code over 1 h: click seeds and re-propagate screen, daughter parent links, Timeflows export.

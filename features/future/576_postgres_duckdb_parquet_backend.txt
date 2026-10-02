@@ -59,3 +59,6 @@ LEFT
     run on each backend. Next: route those sites through write_database /
     read_database with the chosen store, then run the suites per backend.
     A Settings-side migration button (SQLite <-> store) is not built.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: OPEN code over 1 h: route io._save_to_db and classification/regression through the store, per-backend suites, Settings migration button; PostgreSQL suite needs a server.

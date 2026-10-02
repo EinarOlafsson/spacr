@@ -196,3 +196,7 @@ Receipt: features/data/572_gui_warning_2026-10-02.json. The six new UI captions
 are handed off for a separate reviewed nine-locale catalog delta. F572 stays
 partial; this does not establish broader tracing, splice or region-reuse
 acceptance.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: GUI dialog after export: 2964f0a0c (tests/qt/test_figure_integrity_notice_f572.py).
+    BLOCKED / open: bit depth without metadata (needs camera metadata); captions wait for the catalog lane. OPEN code over 1 h: cross-figure index, region-reuse/splice detection, tracing other imshow sites, picture_export check.

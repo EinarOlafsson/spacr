@@ -1,6 +1,6 @@
 SEGMENTATION UNCERTAINTY MAPS (TEST-TIME AUGMENTATION / ENSEMBLES)
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27
+Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: whole 1994 px fields on GPU and fields outside r5's training pool (GPU, data)..
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -145,3 +145,7 @@ Validation: 89 focused checks passed, including no-PySide CLI import, resumed
 partial CSV after later inference failure, source identity and map values.
 Status: requested code additions implemented; whole-field GPU and independent
 biological validation outside the training pool remain OPEN, as described above.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: ensemble, map export and headless CLI scoring: 73d35973a.
+    BLOCKED / open: whole 1994 px fields on GPU and fields outside r5's training pool (GPU, data).

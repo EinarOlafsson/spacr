@@ -137,3 +137,6 @@ shared machine; no GPU turn; scripts in /mnt/wd4tb/scratch/571/scripts)
     cycles split at each mitosis (tests/test_event_detection_on_tracks.py).
     Verdict: mitosis detection holds on real data; death timing is only
     good to hours, not frames, and should be read as a population estimate.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: annotated Toxoplasma egress/invasion movie (external data); pretrained video model (GPU, own env). OPEN code over 1 h: two-object-type events, GUI annotation tool.

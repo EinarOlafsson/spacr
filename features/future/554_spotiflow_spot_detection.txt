@@ -1,6 +1,6 @@
 SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
 
-Status: PARTIAL — alpha runtime implemented; current real-data acceptance
+Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: threshold/hybiss and puncta/FISH acceptance on real fields (data), GPU timing (GPU), captions wait for the catalog lane..
         replay remains unavailable (2026-10-02).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
@@ -122,3 +122,7 @@ hybiss exploration, additional puncta/FISH validation and GPU timing remain
 separate follow-ups. The earlier caption debt has been covered by the current
 nine-locale runtime catalog audit; no new application captions are added here.
 Receipt: features/data/554_strict_comparison_2026-10-02.json.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: strict comparison receipts (2026-10-02 note).
+    BLOCKED / open: threshold/hybiss and puncta/FISH acceptance on real fields (data), GPU timing (GPU), captions wait for the catalog lane.

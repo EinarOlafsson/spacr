@@ -65,3 +65,6 @@ WHAT IS LEFT
       table once cuCIM is an optional dependency.
     - Measure workers each open their own CUDA context (~300 MB each); with
       many n_jobs a GPU run may want fewer workers.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: GPU timing and real plate on/off comparison (GPU, data). OPEN code over 1 h: cuCIM morphology table and remaining CPU features.
