@@ -140,3 +140,30 @@ cancel, annotation-protection and multiclass-offset tests also pass.
 The original hang fix remains done. Lesson 09 Suggest media rerecording and
 the current caption/catalog publication follow-up remain in their existing
 lanes; no media or native reporter acceptance is claimed here.
+
+2026-10-01 — REAL LESSON 09 SUGGEST CAPTURE FOLLOW-UP
+The new standalone tools/tutorials/capture_suggest_segment.py reuses the
+existing real Suggest menu/crop interaction recorder with an isolated
+QSettings profile and a private project copy. Accepted runtime source is
+2892d7516 (full SHA and source hashes in the receipt), before the separate
+Cancel-tooltip-only correction; no post-tooltip rerun is claimed.
+
+The pinned public spaCR annotation example database and 1,423 existing real
+PNG crops completed labels → Suggest → confirm/reject in 44.74 seconds,
+under a 60-second bound. It wrote 116 proposals; 99 were visible in frame20.
+Frame21 shows the confirmed and rejected proposals, each persisted once.
+A second real round cancelled at the feature boundary and drained in
+9.59 seconds, preserving human judgements and writing no new proposals.
+All 1,423 original cached PNG hashes and the private input DB are unchanged.
+The original public database has 2,341 crop rows; only the private copy's
+png_list omitted 918 missing local-cache PNGs. No data were fabricated.
+
+Actual offscreen Qt frames20/21/22 were inspected at 3840x2160; CPU affinity
+was one CPU, memory.max 4 GiB, memory.swap.max zero, CUDA hidden. Exact
+source/data/image/log hashes and the honest failed first harness attempt
+are recorded in tools/tutorials/evidence/
+2026-10-01-annotate-suggest-current-capture.json. Full-resolution media stay
+in /tmp/spacr-tutorials-610/run2/captures without replacing an old master.
+This completes the requested Suggest-segment capture, not publication of a
+new full lesson09 video/audio or native desktop acceptance. Caption catalog
+publication remains the separate translation lane.
