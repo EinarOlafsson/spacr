@@ -1,6 +1,7 @@
 TIME-TO-EVENT ANALYSIS: KAPLAN-MEIER AND COX FOR EGRESS, LYSIS, HOST DEATH
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26. After measuring a timelapse, Measure
+Status: DONE (ALPHA) 2026-10-02 against the original annotated-event
+comparison criterion. After measuring a timelapse, Measure
 follows every tracked object to an event (track end, an annotated label, a
 measurement crossing a threshold, or a fold change) or to censoring at the
 end of its track, and writes Kaplan-Meier curves with 95% bands, median time
@@ -208,3 +209,20 @@ lifelines 0.30.3 in the scratch venv as the independent reference)
     death once per track). Status stays alpha: the per-well dependence,
     competing risks and left truncation listed above are untouched.
 
+2026-10-02 — ORIGINAL DONE WHEN ACCEPTED ON CURRENT SOURCE
+    The archived annotated LNCaP comparison above used lifelines on the
+    very same event table and reported identical Kaplan-Meier curves and
+    hazard ratios for three treatments. Today's current-source focused
+    suite passed 29 tests under 4 GiB, CPU0 and zero swap. It checks
+    published Gehan lifelines/R numeric values, event/censoring extraction,
+    output tables/figures, division timing and alpha visibility. One direct
+    dual-engine test skipped because the optional lifelines package is not
+    installed in the spaCR environment; four expensive event-model tests
+    were deliberately outside this focused cohort. The prior LNCaP scratch
+    data were not rerun here. See
+    features/data/571_current_source_acceptance_2026-10-02.json.
+
+    This is a DONE (ALPHA) acceptance of the stated comparison, not a claim
+    of Toxoplasma-specific biological event detection or independent-well
+    statistics. The cluster dependence, delayed-entry, competing-risk and
+    lineage-parent limitations listed above remain explicit extensions.
