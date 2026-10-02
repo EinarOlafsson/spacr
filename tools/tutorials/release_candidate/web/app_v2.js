@@ -162,7 +162,7 @@ let narrationObjectUrl = "";
 let captionSettings = readCaptionSettings();
 let completed = readStoredSet(STORAGE_KEY);
 let watchProgress = readStoredObject(WATCH_KEY);
-const mobileSidebarQuery = window.matchMedia("(max-width: 780px)");
+const mobileSidebarQuery = window.matchMedia("(max-width: 900px)");
 
 function applyTheme(theme, persist = false) {
   const normalized = theme === "light" ? "light" : "dark";

@@ -139,3 +139,16 @@ English control labels against the captured UI. This is source text only:
 no synthesized narration, listening review, completed captions, player check
 or paired media/catalog publication is claimed. Native-speaker signoff is
 also not claimed. Receipt: features/data/601_appearance_translations_2026-10-01.json.
+
+2026-10-02 — LANDSCAPE PHONE PLAYER WIDTH (partial item)
+The tutorial sidebar's desktop layout still occupied 310 px at an 844 px
+landscape phone viewport, leaving the inline video only 461 px wide. The
+shared player now collapses the sidebar at 900 px, using the same breakpoint
+in CSS and JavaScript across authoring, release-candidate and docs copies.
+In an actual headless Chrome session with the same decoded Home Appearance
+pilot frame, the video widened from 461 × 259 to 810 × 456 px; the sidebar
+became inert and offscreen, and video decoding reported no error. The existing
+player contract suite passed (7 passed, 7 skipped for absent Node.js).
+This improves the landscape inline view but does not by itself prove mobile
+readability of every N601 control, narration alignment or publication.
+Receipt: features/data/601_landscape_player_width_2026-10-02.json.
