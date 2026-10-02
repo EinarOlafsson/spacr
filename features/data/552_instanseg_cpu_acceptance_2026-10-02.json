@@ -1,7 +1,7 @@
 {
   "item": "F552",
   "date": "2026-10-02",
-  "scope": "original DONE WHEN gate; isolated CPU install, Mask generation and score; historical actual Make Masks run retained",
+  "scope": "isolated CPU installation, four-field Mask benchmark, Make Masks route, and real selected three-channel inference",
   "installer": {
     "state": "installed",
     "python": "3.13.14",
@@ -69,6 +69,22 @@
     "reference": "bundled Cellpose-SAM saved mask plane, not independent human ground truth"
   },
   "make_masks": "2026-09-26 actual Make Masks run: plate1_E02_10_1, 37 objects, documented in feature note; fresh 2026-10-02 GUI picker/route tests passed but no repeat GUI inference",
-  "tests": "137 passed: prefixed backend, Model Zoo and Qt picker under 4 GiB cap, single CPU, GPU hidden",
-  "limits": "No GPU result; brightfield model and multi-channel input not newly scored; existing 2D CPU gate passed."
+  "tests": "145 passed in prefixed backend/Model Zoo/Qt picker/setting links, 21 passed in generated consumer-link guards, and 4 passed in settings-flow freshness; each under 4 GiB, one CPU, hidden GPU. Existing Qt picker test left 1 busy JobRunner at session end (N47).",
+  "limits": "CPU-only; brightfield model and GPU not newly scored; Make Masks uses its displayed 2-D canvas field while batch Mask generation can forward all configured intensity channels.",
+  "multichannel": {
+    "source": "bundled plate1_E01_10_1.npy, first 384x384 pixels, selected real intensity channels 0/1/2",
+    "single_channel": {
+      "objects": 1,
+      "mask_sha256": "9fcf6041b60681e953e5c25b6c56760988fc844dd30bad239ebe08f8d54bf27b",
+      "seconds": 3.73
+    },
+    "three_channels": {
+      "objects": 8,
+      "mask_sha256": "168191876dfa3502cbd51904c8cf1199ea6e6961b25ce8ab5c39df09bec0d61d",
+      "seconds": 1.701
+    },
+    "conclusion": "real worker receives and uses all three selected channels; distinct masks are not evidence of improved accuracy",
+    "live_preview": "focused real PreviewRequest test verified all three configured channel planes in object-first order; other backend branch unchanged"
+  },
+  "independent_review": "Read-only review found and prompted Live Preview parity fix; confirmed StarDist/Omnipose default single-plane path unchanged. /tmp/spacr-implementation-20261001/review/f552-independent-review.json"
 }

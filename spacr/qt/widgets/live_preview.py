@@ -1181,9 +1181,9 @@ def _backend_preview_pass(req: PreviewRequest, obj: str,
     :param image_2d: the object's own plane, prepared as for Cellpose-SAM.
     :param route: ``(backend, masks function)`` from
         :func:`spacr.object._prefixed_model_route`.
-    :param prepared: a channel index's plane, prepared the way
-        ``image_2d`` was; a cell is given its nucleus plane from it when the
-        request has a nucleus channel.
+    :param prepared: a channel index's prepared plane. InstanSeg receives
+        every configured intensity channel, with the object channel first;
+        other backends retain their existing role-specific input.
     :returns: ``(mask, RGB flow or None, cell probability or None)``.
     """
     from ... import _segmentation_backends
@@ -1195,7 +1195,15 @@ def _backend_preview_pass(req: PreviewRequest, obj: str,
     settings[f"{obj}_cellprob_threshold"] = float(req.cellprob)
     image = image_2d
     nucleus = req.channels.get("nucleus")
-    if (obj == "cell" and nucleus is not None and req.image.ndim == 3
+    if backend == "instanseg" and req.image.ndim == 3:
+        count = req.image.shape[-1]
+        own = int(req.channels.get(obj, 0)) % count
+        configured = {int(value) % count for value in req.channels.values()
+                      if value is not None}
+        order = [own] + sorted(configured - {own})
+        image = np.stack([image_2d if index == own else prepared(index)
+                          for index in order], axis=-1)
+    elif (obj == "cell" and nucleus is not None and req.image.ndim == 3
             and req.image.shape[-1] > 1):
         index = int(nucleus) % req.image.shape[-1]
         image = np.stack([image_2d, prepared(index)], axis=-1)

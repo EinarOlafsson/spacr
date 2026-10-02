@@ -4122,7 +4122,7 @@ class _PrefixedAdapter:
                 self.ignored.add(key)
 
     def eval(self, x, channel_axis=-1, min_size=None, **params):
-        """Segment each image's object channel.
+        """Segment each image, keeping the selected input for this backend.
 
         :param x: a list of ``(H, W)`` or ``(H, W, C)`` images; the first
             channel is the object's own, as ``_get_cellpose_channels``
@@ -4135,7 +4135,8 @@ class _PrefixedAdapter:
         masks, flows = [], []
         for image in x:
             plane = _object_plane(image, channel_axis)
-            labels, parts = self._segment(plane, **params)
+            labels, parts = self._segment(
+                self._input_image(image, channel_axis), **params)
             labels = np.asarray(labels)
             if labels.shape != plane.shape:
                 raise ValueError(
@@ -4150,6 +4151,10 @@ class _PrefixedAdapter:
                     np.asarray(probability, np.float32), plane.shape),
                 None])
         return masks, flows, None
+
+    def _input_image(self, image, channel_axis):
+        """Use the object's first channel unless a backend supports more."""
+        return _object_plane(image, channel_axis)
 
     def _segment(self, plane, **params):
         """``(labels, [RGB flow, dP, probability])`` for one 2-D plane;
@@ -4248,9 +4253,10 @@ class _InstanSegAdapter(_PrefixedAdapter):
     unless the model setting ends in ``#nuclei`` or ``#cells``. A model
     with one output ignores it.
 
-    THE SETTINGS. InstanSeg normalises each plane to its own percentiles,
-    as it was trained, whatever ``normalize`` says (spaCR's scaling is
-    linear, so this is the normalisation of the raw plane). InstanSeg
+    THE INPUT. The requested object's channel comes first, followed by the
+    other configured intensity channels. InstanSeg receives all of them in
+    channel-first order and normalises them to its training percentiles,
+    whatever ``normalize`` says (spaCR's scaling is linear). InstanSeg
     rescales by pixel size, and spaCR's mask settings carry none, so a
     diameter is given to it as the pixel size that makes the objects
     :data:`_INSTANSEG_DIAMETER` pixels across at the model's own pixel
@@ -4306,16 +4312,27 @@ class _InstanSegAdapter(_PrefixedAdapter):
             return None
         return float(native) * _INSTANSEG_DIAMETER / float(diameter)
 
+    def _input_image(self, image, channel_axis):
+        """Keep every selected intensity channel for InstanSeg's model."""
+        array = np.asarray(image)
+        if array.ndim == 2:
+            return array
+        axis = -1 if channel_axis is None else channel_axis
+        return np.moveaxis(array, axis, -1)
+
     def _segment(self, plane, normalize=True, diameter=None, **other):
-        """InstanSeg's instances of the chosen target for one plane."""
+        """InstanSeg's instances from a plane or channel-last image."""
         if normalize is False:
             self.translated.add(
                 "normalize=False became InstanSeg's own percentile "
                 "normalisation, which its models were trained on")
-        image = np.asarray(plane, np.float32)[np.newaxis]
+        array = np.asarray(plane, np.float32)
+        image = (array[np.newaxis] if array.ndim == 2 else
+                 np.moveaxis(array, -1, 0))
         pixel_size = self._pixel_size(diameter)
         choose = getattr(self._model, "_get_eval_function_to_use", None)
-        size = choose(plane.size) if callable(choose) else "small"
+        pixels = array.shape[0] * array.shape[1]
+        size = choose(pixels) if callable(choose) else "small"
         if size == "small":
             labels = self._model.eval_small_image(
                 image, pixel_size=pixel_size, normalise=True,
