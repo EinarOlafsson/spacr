@@ -2242,3 +2242,21 @@ No runtime speedup, physical dropped-frame count, native compositor, Windows,
 macOS or lower-end hardware acceptance is claimed. Those existing acceptance
 boundaries remain open; this change makes the CPU diagnostic runnable and
 rejects misleading successful measurements.
+
+2026-10-02 — AREA 3 RE-MEASURED: THE HEAVY SCREENS ARE UNDER 500 MS ON LINUX
+The "NOT done" note of 2026-09-21 named two next levers: the hidden settings
+sections and the first PreferencesDialog cost. Both have since shipped: the
+hidden categories leave the page (2026-09-22 notes above) and Preferences
+holds back its unopened tabs (284's 2026-09-26 note: stall 403-661 -> 250-374
+ms). No new code was needed for this note. Re-measured on nightly 1b9733338,
+byte-compiled, tools/spacr_startup_benchmark.py --runs 1 --record-only
+--offscreen, three fresh cold processes, 49 modules each, load 25 -> 13:
+  worst event-loop stall per run   342 / 348 / 347 ms   (budget 500)
+  modules with an interval > 500    0 / 0 / 0
+  stall_budget_met                  true in all three
+Before (2026-09-21, load ~30): 29 intervals over 500 ms per run, about 42 s
+of over-ceiling stall in total; Regression 2,454 ms and Make Masks 4,254 ms
+at their worst (2026-09-25). So on Linux offscreen at moderate load, area
+3's 500 ms ceiling is now met. STILL OPEN: macOS and Windows checks (they
+need those machines), a real display with a compositor, and lower-end
+hardware. At load 35 and above, intervals still go over (see 284).
