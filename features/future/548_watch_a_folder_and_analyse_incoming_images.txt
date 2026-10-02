@@ -214,3 +214,44 @@ CONVERT-MAP CHANNEL-POSITION GUARD (2026-10-02, partial)
     values at [0, 3]. The existing model forward pass remains stubbed. Resource
     limits were 4 GiB, CPU0, zero swap and hidden CUDA. Receipt:
     features/data/548_channel_schema_watch_2026-10-02.json.
+
+VERIFIED READY-TO-COPY HANDOFF (2026-10-02, partial)
+    Readiness now tracks device/inode identity and ctime as well as file size
+    and mtime, so replacement or rewriting that preserves size/mtime restarts
+    the settle interval. A regular filename replaced by a link or nonregular
+    entry between discovery and the identity check loses its stale observation.
+
+    Each ready source is copied read-only to private field staging in cancellable
+    chunks of at most 1 MiB, with a read ceiling of the observed size plus one
+    byte. Descriptor identity is checked against the observed source before
+    copying and again afterward; final-component links are rejected, including
+    the source-open swap race. Every companion's identity is checked once more
+    before analysis begins. If acquired inputs disappear, change or cannot be
+    copied as the observed snapshot, only that unanalysed staging is discarded
+    and the field waits for new stable observations. Completely vanished fields
+    remain reported as incomplete, rather than disappearing from the result.
+
+    Stable staged bytes receive per-file SHA256 values and source identities in
+    the field ledger before analysis. Acquisition files are never written by
+    this path. Real destination/pipeline failures retain failed status and the
+    existing next-start retry policy; cancellation during copying records an
+    interrupted field. Normal completed-field resume behavior remains unchanged.
+
+    This guards the observed companions at the handoff. It does not provide a
+    vendor acquisition-finished signal or a filesystem lock against writes
+    after analysis starts, and does not fix the remaining raw channel-identity,
+    z/t completeness or batch-normalisation limitations. Later modifications to
+    completed fields retain the existing warning/no-automatic-reanalysis policy.
+    F548 remains partial/alpha. No io.py edits, settings additions, public API
+    signatures/docstrings or translatable UI captions were introduced.
+
+    Validation: all 77 named CPU cases passed in 47.32 seconds (13 new snapshot
+    cases plus the four existing watch, recursive, manifest and channel-schema
+    files). Real TIFF tests cover same-size/mtime in-place mutation and inode
+    replacement during copying, an earlier companion changing during a later
+    copy, deletion, source-link swaps, bounded growth, cancellation, destination
+    failure/retry and unchanged top-level/nested pixel/hash provenance. Existing
+    real preprocessing/Measure synthetic batch parity still passes with its
+    model forward pass stubbed. The run used 4 GiB, CPU0, zero swap and hidden
+    CUDA. Receipt:
+    features/data/548_verified_snapshot_handoff_2026-10-02.json.

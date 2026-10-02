@@ -1362,6 +1362,103 @@ def _watch_check_settings(settings):
     return src, pipeline, settle, poll, idle
 
 
+def _watch_file_identity(path):
+    """Return regular-file identity or None for missing, linked or unsafe input.
+
+    :param path: acquired image path; the final path component is not followed.
+    :returns: device, inode, size, mtime_ns and ctime_ns as a JSON-safe list.
+    """
+    import stat
+
+    try:
+        info = os.stat(path, follow_symlinks=False)
+    except OSError:
+        return None
+    if not stat.S_ISREG(info.st_mode):
+        return None
+    return [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns]
+
+
+def _watch_copy_snapshot(source, target, expected):
+    """Copy one unchanged acquired file in cancellable 1 MiB chunks.
+
+    :param source: original acquired file, opened read-only without link following.
+    :param target: new path inside this field's private staging directory.
+    :param expected: identity recorded when the image was last observed.
+    :returns: SHA256 of copied bytes, or None when source identity changed.
+    :raises OSError: for destination write errors; pipeline failures remain failures.
+    :raises spacr.cancellation.PipelineCancelled: when Stop interrupts copying.
+    """
+    import hashlib
+    import stat
+
+    from .cancellation import checkpoint
+
+    if expected is None or _watch_file_identity(source) != expected:
+        return None
+    flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+    try:
+        descriptor = os.open(source, flags)
+    except OSError:
+        return None
+    with os.fdopen(descriptor, 'rb') as incoming:
+        before = os.fstat(incoming.fileno())
+        identity = [before.st_dev, before.st_ino, before.st_size,
+                    before.st_mtime_ns, before.st_ctime_ns]
+        if not stat.S_ISREG(before.st_mode) or identity != expected:
+            return None
+        digest = hashlib.sha256()
+        copied = 0
+        with open(target, 'xb') as outgoing:
+            while True:
+                checkpoint()
+                try:
+                    chunk = os.read(incoming.fileno(), min(1024 * 1024, expected[2] - copied + 1))
+                except OSError:
+                    return None
+                if not chunk:
+                    break
+                copied += len(chunk)
+                if copied > expected[2]:
+                    return None
+                outgoing.write(chunk)
+                digest.update(chunk)
+        after = os.fstat(incoming.fileno())
+        identity = [after.st_dev, after.st_ino, after.st_size,
+                    after.st_mtime_ns, after.st_ctime_ns]
+        if identity != expected or _watch_file_identity(source) != expected:
+            return None
+    if os.path.getsize(target) != expected[2]:
+        return None
+    os.utime(target, ns=(before.st_atime_ns, before.st_mtime_ns))
+    return digest.hexdigest()
+
+
+def _watch_defer_snapshot(key, members, field_dir, context):
+    """Discard only unanalysed staging and wait for acquired files to settle again.
+
+    :param key: scientific field identity.
+    :param members: acquired filename/channel pairs of the attempted snapshot.
+    :param field_dir: private directory created for this attempt.
+    :param context: mutable watcher observations and ledger.
+    :returns: None; analysis retries after a fresh observation and settle interval.
+    """
+    import shutil
+
+    shutil.rmtree(field_dir)
+    now = time.time()
+    for name, _channel in members:
+        if name in context['seen']:
+            context['seen'][name].update(signature=None, identity=None,
+                                         changed=now, readable=False)
+    context['ledger']['fields'][key].update(
+        status='waiting', finished=now,
+        error='Source files changed while preparing the field snapshot; waiting again.')
+    _watch_save_ledger(context['ledger_path'], context['ledger'])
+    print(f'watch_folder: {key} changed during snapshot copying; staging was '
+          f'discarded and the field will wait for stable files again.')
+
+
 def _watch_run_field(key, members, signature, context):
     """Analyse one ready field and record the outcome.
 
@@ -1381,6 +1478,8 @@ def _watch_run_field(key, members, signature, context):
     seen, ledger = context['seen'], context['ledger']
     arrived = max(seen[name]['changed'] for name, _channel in members)
     entry = ledger['fields'].setdefault(key, {})
+    entry.pop('snapshot_sha256', None)
+    entry.pop('source_identity', None)
     entry.update(status='running', files=signature,
                  first_seen=min(seen[name]['first'] for name, _c in members),
                  stable_since=arrived, started=time.time(), error=None)
@@ -1391,9 +1490,23 @@ def _watch_run_field(key, members, signature, context):
     os.makedirs(field_dir)
     print(f'watch_folder: analysing {key} ({len(members)} file(s)).')
     try:
+        snapshots = {}
+        identities = {name: seen[name].get('identity') for name, _channel in members}
         for name, _channel in members:
-            shutil.copy2(os.path.join(context['src'], name),
-                         os.path.join(field_dir, os.path.basename(name)))
+            digest = _watch_copy_snapshot(
+                os.path.join(context['src'], name),
+                os.path.join(field_dir, os.path.basename(name)), identities[name])
+            if digest is None:
+                _watch_defer_snapshot(key, members, field_dir, context)
+                return
+            snapshots[name] = digest
+        if any(_watch_file_identity(os.path.join(context['src'], name)) != identities[name]
+               for name, _channel in members):
+            _watch_defer_snapshot(key, members, field_dir, context)
+            return
+        _watch_check_map(context)
+        entry.update(snapshot_sha256=snapshots, source_identity=identities)
+        _watch_save_ledger(context['ledger_path'], ledger)
         context['analyse'](field_dir, context['settings'])
         _watch_collect(field_dir, context['work'], key)
     except PipelineCancelled:
@@ -1437,7 +1550,9 @@ def _watch_ready_fields(context, now):
     if manifest is not None:
         for key in manifest:
             groups.setdefault(key, [])
-    ready, waiting = [], 0
+    ready = []
+    waiting = sum(entry.get('status') == 'waiting' and key not in groups
+                  for key, entry in fields.items())
     for key, members in sorted(groups.items()):
         if manifest is not None and (key not in manifest or
                 {name for name, _channel in members} != manifest[key]):
@@ -1508,14 +1623,17 @@ def _watch_observe(context, now):
     names = _watch_images(context['src'])
     changed = False
     for name in names:
-        try:
-            stat = os.stat(os.path.join(context['src'], name))
-        except OSError:
+        identity = _watch_file_identity(os.path.join(context['src'], name))
+        if identity is None:
+            if name in seen:
+                del seen[name]
+                changed = True
             continue
-        signature = (stat.st_size, stat.st_mtime_ns)
+        signature = tuple(identity[2:4])
         record = seen.get(name)
-        if record is None or record['signature'] != signature:
-            seen[name] = {'signature': signature, 'changed': now,
+        if (record is None or record['signature'] != signature
+                or record.get('identity') != identity):
+            seen[name] = {'signature': signature, 'identity': identity, 'changed': now,
                           'first': (record or {}).get('first', now),
                           'readable': False}
             changed = True
@@ -2108,7 +2226,8 @@ def _watch_folder_and_analyse(settings, analyse=None):
                     if entry.get('status') == 'failed')
     incomplete = sorted(
         {_watch_field_of(name, settings, context['patterns'])[0]
-         for name in context['seen']} | set(manifest or {}))
+         for name in context['seen']} | set(manifest or {}) |
+        {key for key, entry in fields.items() if entry.get('status') == 'waiting'})
     incomplete = sorted(set(incomplete) - set(done) - set(failed))
     print(_watch_status_line(ledger, len(incomplete)))
     if incomplete:
