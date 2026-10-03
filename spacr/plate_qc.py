@@ -85,7 +85,6 @@ from urllib.parse import quote as _urlquote
 
 import numpy as np
 import pandas as pd
-from scipy import stats as _sps
 
 from . import schema
 
@@ -231,6 +230,8 @@ def _rank_compare(a: np.ndarray, b: np.ndarray) -> Tuple[Optional[float], Option
     both = np.concatenate([a, b])
     if float(np.max(both) - np.min(both)) == 0.0:
         return 1.0, 0.0
+    from scipy import stats as _sps
+
     try:
         res = _sps.mannwhitneyu(a, b, alternative="two-sided")
     except ValueError:
@@ -1023,6 +1024,8 @@ def _spearman(x: np.ndarray, y: np.ndarray) -> Tuple[Optional[float], Optional[f
         return None, None
     if float(np.max(x) - np.min(x)) == 0 or float(np.max(y) - np.min(y)) == 0:
         return None, None
+    from scipy import stats as _sps
+
     res = _sps.spearmanr(x, y)
     return _finite(res.statistic), _finite(res.pvalue)
 
