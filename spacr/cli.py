@@ -1810,6 +1810,9 @@ def _archive_package_parser():
     )
     parser.add_argument("--src", required=True, help="Run folder containing raw images.")
     parser.add_argument("--out", required=True, help="Parent folder for the new named package.")
+    parser.add_argument("--screen-src", action="append", default=[], metavar="RUN",
+                        help="Another run folder, added as the next screen of the same "
+                             "study; repeat for more screens.")
     metadata = parser.add_mutually_exclusive_group(required=True)
     metadata.add_argument("--metadata", metavar="FILE", help="UTF-8 JSON metadata file.")
     metadata.add_argument("--metadata-json", metavar="JSON", help="Inline JSON metadata object.")
@@ -1842,8 +1845,9 @@ def _cmd_archive_package(argv):
                for value in form.values()):
             raise ValueError("metadata fields must contain text or null")
         src = Path(args.src).expanduser().resolve()
-        if not src.is_dir():
-            raise ValueError(f"Not a folder: {src}")
+        for folder in (src, *(Path(p).expanduser().resolve() for p in args.screen_src)):
+            if not folder.is_dir():
+                raise ValueError(f"Not a folder: {folder}")
     except (OSError, UnicodeError, ValueError, RecursionError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE
@@ -1862,9 +1866,10 @@ def _cmd_archive_package(argv):
                    if required and not values.get(key)]
         if missing:
             raise SettingsError("missing required metadata: " + ", ".join(missing))
-        package = report._write_archive_package(
-            src, args.out, values, copy_images=args.copy_images)
-        problems = report._validate_archive_package(package)
+        package = report._write_archive_study(
+            [src, *args.screen_src], args.out, values,
+            copy_images=args.copy_images)
+        problems = report._validate_archive_study(package)
         if problems:
             print(f"Package written to {package}, but spaCR's local checks failed:",
                   file=sys.stderr)

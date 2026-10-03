@@ -179,3 +179,49 @@ def test_a_report_without_an_output_folder_writes_nothing(trained, tmp_path,
     assert summary["heldout_crops"] == len(rows) == 2
     assert frames.shape[0] == 1
     assert list(tmp_path.iterdir()) == []
+
+
+def test_condition_names_come_from_the_crop_file_name():
+    from spacr.attribution import _cf_condition_of
+
+    name = "plate2_B03_1_7.png"
+    assert _cf_condition_of(name, "plate") == "plate2"
+    assert _cf_condition_of(name, "well") == "plate2_B03"
+    assert _cf_condition_of(name, "row") == "r2"
+    assert _cf_condition_of(name, "column") == "c3"
+    assert _cf_condition_of("nowell", "column") == ""
+
+
+def test_a_control_well_morphs_toward_the_hit_well(trained, tmp_path):
+    model, x = trained
+    _x, y = _crops(160)
+    wells = ["control" if int(label) == 0 else "hit" for label in y]
+    summary, rows, frames = _counterfactual_report(
+        model, x, epochs=20, show=2, out_dir=str(tmp_path),
+        conditions=wells)
+    assert summary["conditions"] == 2
+    assert {(r["source_condition"], r["target_condition"]) for r in rows} == {
+        ("control", "hit"), ("hit", "control")}
+    assert summary["flip_rate"] >= 0.7, summary
+    assert summary["flip_rate"] > summary["baseline_flip_rate"], summary
+    assert summary["monotone_fraction"] >= 0.8, summary
+    assert (tmp_path / "counterfactual_frames.npy").exists()
+    with pytest.raises(ValueError, match="at least 2"):
+        _counterfactual_report(model, x[:8], epochs=1, conditions=["a"] * 8)
+
+
+def test_the_activation_run_uses_the_condition_setting(trained, tmp_path,
+                                                       capsys):
+    from spacr.deep_spacr import _run_counterfactuals
+
+    model, x = trained
+    names = [f"p1_A0{1 + i % 2}_1_{i}.png" for i in range(12)]
+    summary = _run_counterfactuals(
+        {"counterfactual_epochs": 2, "counterfactual_condition": "column"},
+        model, [x[:12]], names, str(tmp_path / "cf"), "cpu")
+    assert summary["conditions"] == 2
+    one = [f"p1_A01_1_{i}.png" for i in range(12)]
+    assert _run_counterfactuals(
+        {"counterfactual_epochs": 1, "counterfactual_condition": "well"},
+        model, [x[:12]], one, str(tmp_path / "cf2"), "cpu") is None
+    assert "at least 2" in capsys.readouterr().out

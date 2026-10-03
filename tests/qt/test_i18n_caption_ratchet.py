@@ -1250,6 +1250,12 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # catalogued or retired with their source captions. No translation bypass remains.
 # 558, 2026-10-02: the Apply virtual stain button on Mask and Make Masks.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # item 564: counterfactual sequence viewer on Activation Maps
+    "Counterfactuals…", "Choose a counterfactuals folder",
+    "Counterfactual sequences",
+    "No counterfactual_cells.csv in this folder.",
+    "{n} sequences; the first {k} have saved frames.",
+    "Browse the counterfactual sequences of a finished run: pick its counterfactuals folder to step through each crop as it is morphed toward the target class or condition, with the classifier's score at every step. Default not opened.",
     # item 556: SAM2 click-seeding dialog
     "SAM2 tracking…", "Choose a timelapse movie", "TIFF stacks (*.tif *.tiff)",
     "SAM2 tracking", "Object", "New object", "Also follow backward",

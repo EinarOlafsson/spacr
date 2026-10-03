@@ -83,3 +83,27 @@ GPU RUN 2026-09-30
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: real screen crops with known phenotype (data); diffusion/StyleGAN generator (GPU, own env). OPEN code over 1 h: per-condition target, Qt viewer.
+
+PER-CONDITION TARGET AND QT VIEWER 2026-10-03 (alpha, CPU)
+    New setting counterfactual_condition (ALPHA_FEATURES[564], Counterfactuals
+    heading): 'class' (default, as before) or 'plate', 'well', 'row',
+    'column', read from each crop's <plate>_<well>_... file name. With a
+    condition, the generator's codes are conditions; each condition's target
+    is the classifier's mean class probabilities over its training crops
+    (soft cross-entropy), held-out crops morph to the next condition, rows
+    carry source_condition/target_condition, the class-mean baseline is per
+    condition, and the step score is p.t/(t.t) (equal to the target-class
+    probability for class targets). Fewer than two conditions skip with a
+    note. The run also writes counterfactual_frames.npy.
+    Qt viewer: Activation Maps header button "Counterfactuals…"
+    (ActivationCounterfactualViewer, alpha widget) opens a counterfactuals
+    folder and lists every sequence (source -> target, score change,
+    flipped) and draws the saved frames with the score per step.
+    CPU check (synthetic puncta crops, control vs hit wells, 20 epochs):
+    flip rate >= 0.7 and above the per-condition baseline, monotone >= 0.8.
+    Tests: tests/test_generative_counterfactuals.py,
+    tests/qt/test_generative_counterfactuals_alpha_gate.py.
+    Still left: real screen crops with a known phenotype; a
+    diffusion/StyleGAN generator in its own env; picking the target
+    condition (now the next one in sorted order); i18n catalog entries for
+    the new captions and tooltip.

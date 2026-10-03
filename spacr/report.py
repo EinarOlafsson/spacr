@@ -3410,6 +3410,207 @@ def _validate_archive_package(pkg: Any, *, verify_checksums: bool = True
     return problems
 
 
+def _archive_study_screens(lines: List[str]) -> Tuple[List[str], List[List[str]], List[str]]:
+    """Split IDR study lines into the study head, each screen and the tail.
+
+    The head runs up to the first ``# Screen`` heading, each screen from its
+    ``# Screen`` heading to the next one or to ``# Ontologies``, and the tail
+    from ``# Ontologies`` on.
+    """
+    head: List[str] = []
+    screens: List[List[str]] = []
+    tail: List[str] = []
+    for line in lines:
+        if line.startswith("# Ontologies") or tail:
+            tail.append(line)
+        elif line.startswith("# Screen"):
+            screens.append([line])
+        elif screens:
+            screens[-1].append(line)
+        else:
+            head.append(line)
+    return head, screens, tail
+
+
+def _write_archive_study(srcs: Sequence[Any], out: Any, form: Dict[str, Any], *,
+                         copy_images: bool = False,
+                         progress: Optional[Any] = None) -> Path:
+    """Write one IDR study that holds several screens, one per run folder.
+
+    With a single run folder this is :func:`_write_archive_package`. With
+    more, every run is first written as its own complete package under
+    ``out/<title>/screens/screen<letter>/``, and the study folder gets an
+    ``idr/`` folder with one study file listing every screen (``Study
+    Screens Number``, and per screen its number, IDR screen name, library,
+    processed and plate files) next to those files, renamed
+    ``<title>-screen<letter>-*.txt``. ``study_manifest.json`` names the
+    screens and their run folders and ``checksums.md5`` covers the study
+    files; each screen package keeps its own BioStudies, MIHCSME and
+    checksum files. Nothing is uploaded and no run folder is written to.
+
+    :param srcs: the run folders, in screen order (screen A first).
+    :param out: the folder the study folder is created in.
+    :param form: the form values shared by every screen.
+    :param copy_images: also copy each screen's images into its package.
+    :param progress: called with a short text now and then, or ``None``.
+    :returns: the study folder.
+    :raises ValueError: for no run folders, a run listed twice, more than
+        26 screens, a destination inside a run folder or one that exists.
+    """
+    import shutil
+
+    sources = [Path(str(s)).expanduser().resolve() for s in srcs]
+    if not sources:
+        raise ValueError("A study needs at least one run folder.")
+    if len(sources) == 1:
+        return _write_archive_package(sources[0], out, form,
+                                      copy_images=copy_images,
+                                      progress=progress)
+    if len(set(sources)) != len(sources):
+        raise ValueError("A run folder is listed twice.")
+    if len(sources) > 26:
+        raise ValueError("A study holds at most 26 screens.")
+    say = progress or (lambda _text: None)
+    values = dict(_archive_form_defaults(sources[0]))
+    values.update({k: str(v).strip() for k, v in (form or {}).items()
+                   if v is not None})
+    slug = _archive_slug(values["title"])
+    pkg = Path(str(out)).expanduser().resolve() / slug
+    for src in sources:
+        if pkg == src or src in pkg.parents:
+            raise ValueError(
+                "Choose an archive destination outside the source run folders.")
+    try:
+        pkg.mkdir(parents=True, exist_ok=False)
+    except FileExistsError as exc:
+        raise ValueError(
+            f"Archive package already exists: {pkg}. Choose another output "
+            "folder or title.") from exc
+
+    idr = pkg / "idr"
+    idr.mkdir()
+    head: List[str] = []
+    tail: List[str] = []
+    blocks: List[str] = []
+    screens = []
+    for number, src in enumerate(sources, start=1):
+        letter = _archive_row_letters(number)
+        say(f"Writing screen {letter} from {src.name}")
+        sub = _write_archive_package(src, pkg / "screens" / f"screen{letter}",
+                                     values, copy_images=copy_images,
+                                     progress=progress)
+        names = {}
+        for kind in ("library", "processed", "plates"):
+            old = sub / "idr" / f"{slug}-screenA-{kind}.txt"
+            if old.is_file():
+                names[kind] = f"{slug}-screen{letter}-{kind}.txt"
+                shutil.copy2(old, idr / names[kind])
+        text = (sub / "idr" / f"{slug}-study.txt").read_text(encoding="utf-8")
+        study_head, (screen,), study_tail = _archive_study_screens(
+            text.splitlines())
+        head, tail = head or study_head, tail or study_tail
+        for line in screen:
+            key, _sep, _rest = line.partition("\t")
+            if key == "Screen Number":
+                line = f"{key}\t{number}"
+            elif key == "Comment[IDR Screen Name]":
+                line = f"{key}\t{slug}/screen{letter}"
+            elif key == "Library File Name":
+                line = f"{key}\t{names.get('library', '')}"
+            elif key == "Processed Data File Name":
+                line = f"{key}\t{names.get('processed', '')}"
+            blocks.append(line)
+        screens.append({"screen": letter, "source": str(src),
+                        "package": sub.relative_to(pkg).as_posix(),
+                        "files": sorted(names.values())})
+    head = [f"Study Screens Number\t{len(sources)}"
+            if line.startswith("Study Screens Number\t") else line
+            for line in head]
+    _archive_write_text(idr / f"{slug}-study.txt",
+                        "\n".join(head + blocks + tail) + "\n")
+    _archive_write_text(pkg / "study_manifest.json", json.dumps(
+        {"slug": slug, "copy_images": bool(copy_images),
+         "screens": screens}, indent=2))
+    say("Computing checksums")
+    lines = [f"{_archive_md5(path)}  {path.relative_to(pkg).as_posix()}"
+             for path in sorted(idr.iterdir()) if path.is_file()]
+    lines.append(f"{_archive_md5(pkg / 'study_manifest.json')}  "
+                 "study_manifest.json")
+    _archive_write_text(pkg / "checksums.md5", "\n".join(lines) + "\n")
+    return pkg
+
+
+def _validate_archive_study(pkg: Any, *, verify_checksums: bool = True
+                            ) -> List[str]:
+    """Check a study folder written by :func:`_write_archive_study`.
+
+    A folder without ``study_manifest.json`` is a single-screen package and
+    is checked by :func:`_validate_archive_package`. Otherwise every screen
+    package is checked, each problem prefixed with its screen, and the
+    study file must carry the required IDR keys, a ``Study Screens Number``
+    equal to the number of screens, one block per screen with a unique IDR
+    screen name, and a library file present in ``idr/``. With
+    ``verify_checksums`` the study's own checksums are re-hashed.
+
+    :param pkg: the study folder.
+    :param verify_checksums: re-hash every file.
+    :returns: one line per problem; empty when the study is valid.
+    """
+    pkg = Path(str(pkg)).expanduser()
+    manifest_path = pkg / "study_manifest.json"
+    if not manifest_path.is_file():
+        return _validate_archive_package(pkg, verify_checksums=verify_checksums)
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except ValueError:
+        return [f"{manifest_path} is not readable JSON"]
+    problems: List[str] = []
+    entries = manifest.get("screens") or []
+    for entry in entries:
+        problems += [f"screen {entry.get('screen')}: {p}" for p in
+                     _validate_archive_package(
+                         pkg / entry.get("package", ""),
+                         verify_checksums=verify_checksums)]
+    slug = manifest.get("slug", "")
+    study_path = pkg / "idr" / f"{slug}-study.txt"
+    if not study_path.is_file():
+        return problems + [f"IDR: {study_path.name} is missing"]
+    lines = study_path.read_text(encoding="utf-8").splitlines()
+    head, blocks, _tail = _archive_study_screens(lines)
+    study = _archive_read_kv(study_path)
+    for key in _IDR_STUDY_REQUIRED:
+        if not study.get(key):
+            problems.append(f"IDR study: '{key}' has no value")
+    if (study.get("Study Screens Number") or [""])[0] != str(len(entries)):
+        problems.append("IDR study: 'Study Screens Number' is not "
+                        f"{len(entries)}")
+    if len(blocks) != len(entries):
+        problems.append(f"IDR study: {len(blocks)} screen block(s) for "
+                        f"{len(entries)} screen(s)")
+    seen = set()
+    for block in blocks:
+        rows = dict(line.split("\t", 1) for line in block if "\t" in line)
+        name = rows.get("Comment[IDR Screen Name]", "").strip()
+        if not name or name in seen:
+            problems.append(f"IDR study: screen name {name!r} is empty or "
+                            "repeated")
+        seen.add(name)
+        library = rows.get("Library File Name", "").strip()
+        if not library or not (pkg / "idr" / library).is_file():
+            problems.append(f"IDR study: library file {library!r} of "
+                            f"{name or 'a screen'} is missing")
+    sums_path = pkg / "checksums.md5"
+    if not sums_path.is_file():
+        return problems + ["checksums.md5 is missing"]
+    if verify_checksums:
+        for line in sums_path.read_text(encoding="utf-8").splitlines():
+            digest, _sep, rel = line.partition("  ")
+            if rel and (not (pkg / rel).is_file()
+                        or _archive_md5(pkg / rel) != digest):
+                problems.append(f"checksums: {rel} does not match")
+    return problems
+
+
 _ZENODO_API = {"sandbox": "https://sandbox.zenodo.org/api",
                "zenodo": "https://zenodo.org/api"}
 """The Zenodo REST API root for the sandbox and for the real archive."""

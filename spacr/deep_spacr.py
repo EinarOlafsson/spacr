@@ -3186,7 +3186,13 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
     the class-mean baseline) and a figure of the first sequences go to
     ``out_dir``. Fewer than four crops print a note and write nothing.
 
-    :param settings: the activation-map settings (``counterfactual_epochs``).
+    With ``counterfactual_condition`` set to ``plate``, ``well``, ``row`` or
+    ``column`` the crops morph between those conditions, read from their
+    file names, instead of between the classifier's classes; fewer than two
+    conditions print a note and write nothing.
+
+    :param settings: the activation-map settings (``counterfactual_epochs``,
+        ``counterfactual_condition``).
     :param model: the loaded classifier, in eval mode.
     :param crops: list of ``(B, C, H, W)`` tensors in model input space.
     :param names: one file name per crop.
@@ -3194,16 +3200,23 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
     :param device: torch device for training.
     :returns: the summary dict, or ``None`` when too few crops were collected.
     """
-    from .attribution import _counterfactual_report
+    from .attribution import _cf_condition_of, _counterfactual_report
     batch = torch.cat(crops, dim=0) if crops else torch.zeros(0)
     if batch.shape[0] < 4:
         print(f"Counterfactuals skipped: {batch.shape[0]} crops collected, "
               "at least 4 are needed.")
         return None
-    summary, _rows, _frames = _counterfactual_report(
-        model, batch, names=names,
-        epochs=int(settings.get('counterfactual_epochs') or 30),
-        device=device, out_dir=out_dir)
+    key = str(settings.get('counterfactual_condition') or 'class').lower()
+    conditions = (None if key == 'class' else
+                  [_cf_condition_of(name, key) for name in names])
+    try:
+        summary, _rows, _frames = _counterfactual_report(
+            model, batch, names=names,
+            epochs=int(settings.get('counterfactual_epochs') or 30),
+            device=device, out_dir=out_dir, conditions=conditions)
+    except ValueError as exc:
+        print(f"Counterfactuals skipped: {exc}")
+        return None
     print(f"Counterfactuals: flip rate {summary['flip_rate']:.2f} "
           f"(class-mean shift {summary['baseline_flip_rate']:.2f}), "
           f"monotone {summary['monotone_fraction']:.2f}, median edit "

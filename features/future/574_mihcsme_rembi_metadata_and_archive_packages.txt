@@ -147,3 +147,20 @@ primary/secondary screen -> EFO). Unknown terms stay blank for curators.
 Accessions should be confirmed by IDR curators. Test:
 test_known_screen_terms_get_their_accessions. Still open: multi-screen
 studies (code), curator checks (external).
+
+
+2026-10-03 — MULTI-SCREEN STUDIES (alpha, CPU)
+spacr.report._write_archive_study(srcs, out, form) writes one IDR study over
+several runs: each run becomes a full screen package under
+<title>/screens/screen<letter>/, and <title>/idr/ holds one study file with
+Study Screens Number = N and one Screen block per run (Screen Number, IDR
+screen name <title>/screen<letter>, library/processed/plate files renamed
+<title>-screen<letter>-*.txt and copied next to it), plus
+study_manifest.json and checksums.md5. One run falls back to the
+single-screen package. _validate_archive_study checks every screen package,
+the screen count, unique screen names, library files and checksums.
+CLI: spacr-run archive-package --screen-src RUN (repeatable) adds screens.
+Tests: tests/test_archive_study_multi_screen.py (5) plus the existing
+archive/CLI tests. Left: the Qt form still takes one run; BioStudies keeps
+one PageTab per screen (no combined multi-screen PageTab); IDR/BioStudies
+service acceptance and ontology enrichment remain open.

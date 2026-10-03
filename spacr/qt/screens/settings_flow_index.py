@@ -226,6 +226,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'count_grna_column',
     'count_value_column',
     'count_well_column',
+    'counterfactual_condition',
     'counterfactual_crops',
     'counterfactual_epochs',
     'counterfactuals',

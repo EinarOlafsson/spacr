@@ -2618,16 +2618,25 @@ def _train_counterfactual_generator(model: nn.Module, crops: torch.Tensor, *,
                                     epochs: int = 30, batch_size: int = 32,
                                     lr: float = 2e-3, guidance: float = 1.0,
                                     proximity: float = 1.0, latent: int = 32,
-                                    seed: int = 0, device: Any = 'cpu'):
+                                    seed: int = 0, device: Any = 'cpu',
+                                    labels: Optional[torch.Tensor] = None,
+                                    target_probs: Optional[torch.Tensor] = None):
     """Train a class-conditional generator on crops, guided by the classifier.
 
-    The classifier is frozen and labels each crop with its own prediction, so
-    the generator learns what the classifier separates, not what an
-    annotator meant. Three terms are minimised per batch: reconstruction of
-    the crop under its predicted class; the classifier's cross-entropy for a
-    different class on the edited crop (see ``_cf_edit``); and the mean
-    absolute size of the edit, which keeps counterfactuals close to the
-    original.
+    The classifier is frozen and, by default, labels each crop with its own
+    prediction, so the generator learns what the classifier separates, not
+    what an annotator meant. Three terms are minimised per batch:
+    reconstruction of the crop under its own code; the classifier's
+    cross-entropy against the target code's class probabilities on the
+    edited crop (see ``_cf_edit``); and the mean absolute size of the edit,
+    which keeps counterfactuals close to the original.
+
+    With ``labels`` and ``target_probs`` the codes are conditions instead of
+    classes (for example the plate or well a crop came from): each crop has
+    its condition's code, and an edit toward another condition is pushed to
+    the classifier's mean class probabilities for that condition, so a
+    control crop is drawn the way the classifier sees cells of a treated
+    well. Without them the targets are the classes themselves (one-hot).
 
     Because the same classifier guides training and later scores the
     counterfactuals, a high flip rate alone can reflect an adversarial edit;
@@ -2644,6 +2653,11 @@ def _train_counterfactual_generator(model: nn.Module, crops: torch.Tensor, *,
     :param latent: latent vector length.
     :param seed: seed for initialisation, batching and target classes.
     :param device: torch device for training.
+    :param labels: per-crop condition index, or ``None`` for the predicted
+        class.
+    :param target_probs: ``(n_conditions, n_classes)`` class probabilities
+        each condition's edits are pushed toward; ``None`` for one-hot
+        classes.
     :returns: ``(generator, history)``, the generator in eval mode on
         ``device`` and a list with one dict of mean losses per epoch.
     """
@@ -2652,8 +2666,9 @@ def _train_counterfactual_generator(model: nn.Module, crops: torch.Tensor, *,
     rng = torch.Generator().manual_seed(int(seed))
     wrapped = ClassScoreModel(model).to(device).eval()
     crops = crops.float().to(device)
-    labels = _cf_scores(wrapped, crops).argmax(dim=1).cpu()
-    n_classes = wrapped.n_classes
+    labels, target_probs = _cf_codes(wrapped, crops, labels, target_probs)
+    target_probs = target_probs.to(device)
+    n_classes = target_probs.shape[0]
     side = _cf_side(crops.shape[-1])
     generator = _CounterfactualGenerator(crops.shape[1], side, n_classes,
                                          latent=latent).to(device)
@@ -2679,7 +2694,7 @@ def _train_counterfactual_generator(model: nn.Module, crops: torch.Tensor, *,
                 edit = (flipped - base).abs().mean()
                 edited = xb + F.interpolate(flipped - base, size=tuple(xb.shape[-2:]),
                                             mode='bilinear', align_corners=False)
-                cls = F.cross_entropy(wrapped(edited), tgt.to(device))
+                cls = F.cross_entropy(wrapped(edited), target_probs[tgt.to(device)])
                 loss = recon + guidance * cls + proximity * edit
                 optimiser.zero_grad()
                 loss.backward()
@@ -2694,6 +2709,43 @@ def _train_counterfactual_generator(model: nn.Module, crops: torch.Tensor, *,
             p.requires_grad_(flag)
     generator.eval()
     return generator, history
+
+
+def _cf_codes(wrapped: ClassScoreModel, crops: torch.Tensor,
+              labels: Optional[torch.Tensor] = None,
+              target_probs: Optional[torch.Tensor] = None):
+    """Per-crop codes and each code's target class probabilities.
+
+    Without ``labels`` a crop's code is its predicted class and the targets
+    are one-hot; otherwise both are returned as given.
+    """
+    if labels is None:
+        labels = _cf_scores(wrapped, crops).argmax(dim=1).cpu()
+        target_probs = torch.eye(wrapped.n_classes)
+    return (torch.as_tensor(labels).long().cpu(),
+            torch.as_tensor(target_probs).float())
+
+
+def _cf_condition_of(name: str, key: str) -> str:
+    """The condition a crop file named ``<plate>_<well>_...`` belongs to.
+
+    ``key`` is ``plate``, ``well``, ``row`` or ``column``; rows and columns
+    are read from the well (``B03`` is row ``r2``, column ``c3``). An empty
+    string when the name has no such part.
+    """
+    from .schema import parse_well
+
+    parts = str(name).split('_')
+    if key == 'plate':
+        return parts[0]
+    well = parts[1] if len(parts) > 1 else ''
+    if key == 'well':
+        return f'{parts[0]}_{well}' if well else ''
+    try:
+        row, column = parse_well(well)
+    except Exception:
+        return ''
+    return row if key == 'row' else column
 
 
 def _spearman(a: np.ndarray, b: np.ndarray) -> float:
@@ -2711,12 +2763,16 @@ def _counterfactual_sequences(model: nn.Module,
                               crops: torch.Tensor, *, targets=None,
                               steps: int = 7, keep: int = 0,
                               monotone_tolerance: float = 0.02,
-                              device: Any = 'cpu'):
+                              device: Any = 'cpu', labels=None,
+                              target_probs=None):
     """Morph each crop toward another class and score every step.
 
-    The class code moves in ``steps`` equal steps from the crop's predicted
-    class to its target, and the classifier scores the target class at every
-    step.
+    The code moves in ``steps`` equal steps from the crop's own code to its
+    target, and every step is scored as the classifier's class
+    probabilities projected on the target's, ``p . t / (t . t)``; for a
+    class target that is the classifier's probability of the target class.
+    With ``labels`` and ``target_probs`` the codes are conditions, as in
+    ``_train_counterfactual_generator``.
 
     :param model: the classifier the generator was trained against.
     :param generator: from ``_train_counterfactual_generator``.
@@ -2728,6 +2784,8 @@ def _counterfactual_sequences(model: nn.Module,
     :param monotone_tolerance: largest drop in the target score between
         consecutive frames that still counts as monotone.
     :param device: torch device.
+    :param labels: per-crop condition index, or ``None``.
+    :param target_probs: per-condition class probabilities, or ``None``.
     :returns: ``(rows, frames)``: a list of one dict per crop (source and
         target class, target score at every step, Spearman correlation of
         score with step, whether the score is monotone, whether the final
@@ -2741,7 +2799,8 @@ def _counterfactual_sequences(model: nn.Module,
     generator = generator.to(device).eval()
     crops = crops.float().to(device)
     n = generator.n_classes
-    src = _cf_scores(wrapped, crops).argmax(dim=1).cpu()
+    src, target_probs = _cf_codes(wrapped, crops, labels, target_probs)
+    target_probs = target_probs.to(device)
     tgt = (src + 1) % n if targets is None else torch.as_tensor(targets).long()
     alphas = torch.linspace(0.0, 1.0, int(steps))
     rows, frames = [], []
@@ -2757,7 +2816,8 @@ def _counterfactual_sequences(model: nn.Module,
                                       (1 - a) * one_src + a * one_tgt)
                              for a in alphas], dim=0)
             probs = torch.softmax(wrapped(seq), dim=-1)
-            score = probs[:, int(tgt[i])].cpu().numpy()
+            want = target_probs[int(tgt[i])]
+            score = ((probs @ want) / (want @ want)).cpu().numpy()
             span = float(x.max() - x.min()) or 1.0
             change = (seq[-1] - x[0]).abs() / span
             rows.append({
@@ -2766,7 +2826,7 @@ def _counterfactual_sequences(model: nn.Module,
                 'score_path': ';'.join(f'{s:.4f}' for s in score),
                 'spearman': _spearman(alphas.numpy(), score),
                 'monotone': bool(np.all(np.diff(score) >= -monotone_tolerance)),
-                'flipped': bool(int(probs[-1].argmax()) == int(tgt[i])),
+                'flipped': bool(int(probs[-1].argmax()) == int(want.argmax())),
                 'edit_l1': float(change.mean()),
                 'changed_fraction': float((change > 0.1).float().mean()),
             })
@@ -2776,13 +2836,17 @@ def _counterfactual_sequences(model: nn.Module,
 
 
 def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
-                         test: torch.Tensor, *, device: Any = 'cpu'):
+                         test: torch.Tensor, *, device: Any = 'cpu',
+                         train_labels=None, test_labels=None,
+                         target_probs=None):
     """Flip rate and edit size of the naive counterfactual, a class-mean shift.
 
     Each test crop gets the difference between the mean training crop of its
     target class and of its own predicted class added to it. A generator
     that does no better than this has learned nothing beyond the average
-    difference between the classes.
+    difference between the classes. With condition labels and
+    ``target_probs`` the means are per condition and a flip is the
+    target condition's most likely class.
 
     :returns: ``(flip_rate, median_edit_l1)``, NaN when a class has no
         training crops.
@@ -2790,19 +2854,21 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     device = torch.device(device)
     wrapped = ClassScoreModel(model).to(device).eval()
     train, test = train.float().to(device), test.float().to(device)
-    train_labels = _cf_scores(wrapped, train).argmax(dim=1)
-    n = wrapped.n_classes
+    train_labels, target_probs = _cf_codes(wrapped, train, train_labels,
+                                           target_probs)
+    src, _ = _cf_codes(wrapped, test, test_labels, target_probs)
+    n = target_probs.shape[0]
     means = []
     for c in range(n):
-        members = train[train_labels == c]
+        members = train[(train_labels == c).to(device)]
         if members.shape[0] == 0:
             return float('nan'), float('nan')
         means.append(members.mean(dim=0))
-    src = _cf_scores(wrapped, test).argmax(dim=1)
     tgt = (src + 1) % n
     shift = torch.stack([means[int(t)] - means[int(s)] for s, t in zip(src, tgt)])
     moved = test + shift
-    flipped = (_cf_scores(wrapped, moved).argmax(dim=1) == tgt).float().mean()
+    wanted = target_probs.argmax(dim=1)[tgt].to(device)
+    flipped = (_cf_scores(wrapped, moved).argmax(dim=1) == wanted).float().mean()
     span = (test.amax(dim=(1, 2, 3)) - test.amin(dim=(1, 2, 3))).clamp_min(1e-8)
     l1 = shift.abs().mean(dim=(1, 2, 3)) / span
     return float(flipped), float(l1.median())
@@ -2813,7 +2879,8 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                            epochs: int = 30, steps: int = 7,
                            holdout: float = 0.25, show: int = 6,
                            seed: int = 0, device: Any = 'cpu',
-                           out_dir: Optional[str] = None):
+                           out_dir: Optional[str] = None,
+                           conditions: Optional[Sequence[str]] = None):
     """Train a counterfactual generator on crops and score it on held-out ones.
 
     The crops are split, seeded, into a training part and a held-out part.
@@ -2836,9 +2903,15 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
     :param out_dir: when given, ``counterfactual_cells.csv``,
         ``counterfactual_summary.csv`` and a ``counterfactual_sequences``
         figure are written there.
+    :param conditions: optional condition per crop (for example its well).
+        Given, the generator morphs toward conditions rather than classes:
+        each condition's target is the classifier's mean class probabilities
+        over its training crops, every held-out crop moves to the next
+        condition in sorted order, and the rows name both conditions.
     :returns: ``(summary, rows, frames)``: a dict of summary metrics, the
         held-out rows of ``_counterfactual_sequences`` and their frames.
-    :raises ValueError: for fewer than four crops.
+    :raises ValueError: for fewer than four crops, or fewer than two
+        conditions among the training crops.
     """
     crops = torch.as_tensor(crops).float()
     n = crops.shape[0]
@@ -2847,16 +2920,45 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
     order = torch.randperm(n, generator=torch.Generator().manual_seed(int(seed)))
     n_test = min(n - 2, max(2, int(round(n * float(holdout)))))
     test_idx, train_idx = order[:n_test], order[n_test:]
+    codes = {'labels': None, 'target_probs': None}
+    levels: List[str] = []
+    if conditions is not None:
+        conditions = [str(c) for c in conditions]
+        levels = sorted({conditions[i] for i in train_idx.tolist()})
+        if len(levels) < 2:
+            raise ValueError('counterfactuals by condition need at least 2 '
+                             f'conditions among the training crops; got {levels}')
+        index = {c: k for k, c in enumerate(levels)}
+        keep = [i for i in test_idx.tolist() if conditions[i] in index]
+        if not keep:
+            raise ValueError('no held-out crop belongs to a training condition')
+        test_idx = torch.as_tensor(keep, dtype=torch.long)
+        labels = torch.as_tensor([index.get(c, 0) for c in conditions])
+        wrapped = ClassScoreModel(model).to(torch.device(device)).eval()
+        probs = _cf_scores(wrapped, crops[train_idx].to(torch.device(device))).cpu()
+        target = torch.stack([probs[labels[train_idx] == k].mean(dim=0)
+                              for k in range(len(levels))])
+        codes = {'labels': labels, 'target_probs': target}
     generator, history = _train_counterfactual_generator(
-        model, crops[train_idx], epochs=epochs, seed=seed, device=device)
+        model, crops[train_idx], epochs=epochs, seed=seed, device=device,
+        labels=None if codes['labels'] is None else codes['labels'][train_idx],
+        target_probs=codes['target_probs'])
     rows, frames = _counterfactual_sequences(
         model, generator, crops[test_idx], steps=steps, keep=show,
-        device=device)
+        device=device,
+        labels=None if codes['labels'] is None else codes['labels'][test_idx],
+        target_probs=codes['target_probs'])
     names = list(names) if names is not None else [str(i) for i in range(n)]
     for row, i in zip(rows, test_idx.tolist()):
         row['name'] = names[i]
-    base_flip, base_l1 = _class_mean_baseline(model, crops[train_idx],
-                                              crops[test_idx], device=device)
+        if levels:
+            row['source_condition'] = levels[row['source_class']]
+            row['target_condition'] = levels[row['target_class']]
+    base_flip, base_l1 = _class_mean_baseline(
+        model, crops[train_idx], crops[test_idx], device=device,
+        train_labels=None if codes['labels'] is None else codes['labels'][train_idx],
+        test_labels=None if codes['labels'] is None else codes['labels'][test_idx],
+        target_probs=codes['target_probs'])
     spear = np.array([r['spearman'] for r in rows], dtype=float)
     summary = {
         'train_crops': int(len(train_idx)), 'heldout_crops': int(len(test_idx)),
@@ -2868,6 +2970,7 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         'median_edit_l1': float(np.median([r['edit_l1'] for r in rows])),
         'median_changed_fraction': float(np.median([r['changed_fraction'] for r in rows])),
         'baseline_flip_rate': base_flip, 'baseline_median_edit_l1': base_l1,
+        'conditions': len(levels),
     }
     if out_dir:
         _write_counterfactual_outputs(out_dir, summary, rows, frames)
@@ -2889,6 +2992,8 @@ def _write_counterfactual_outputs(out_dir: str, summary: Dict[str, Any],
                 os.path.join(out_dir, 'counterfactual_summary.csv'))
     if frames.ndim != 5 or not len(frames):
         return
+    np.save(os.path.join(out_dir, 'counterfactual_frames.npy'),
+            frames.astype(np.float32))
     import matplotlib.pyplot as plt
     from .figures.style import figure_style, theme_target
 
@@ -2909,8 +3014,9 @@ def _write_counterfactual_outputs(out_dir: str, summary: Dict[str, Any],
                 ax.set_xticks([])
                 ax.set_yticks([])
                 ax.set_title(f'p={path[k]:.2f}', fontsize=7)
-            axes[r][0].set_ylabel(f"{rows[r]['source_class']}→{rows[r]['target_class']}",
-                                  fontsize=7)
+            source = rows[r].get('source_condition', rows[r]['source_class'])
+            target = rows[r].get('target_condition', rows[r]['target_class'])
+            axes[r][0].set_ylabel(f"{source}→{target}", fontsize=7)
         fig.suptitle('Counterfactual sequences (classifier score for the target class)',
                      fontsize=8)
         save_figure(fig, os.path.join(out_dir, 'counterfactual_sequences.pdf'),

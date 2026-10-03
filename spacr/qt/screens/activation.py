@@ -44,7 +44,141 @@ def build(host_window: Optional[QWidget] = None) -> QWidget:
     """
     from .map_barcodes import build_settings_screen
 
-    return build_settings_screen(APP_KEY, host_window)
+    screen = build_settings_screen(APP_KEY, host_window)
+    _add_counterfactual_viewer_button(screen)
+    return screen
+
+
+def _add_counterfactual_viewer_button(screen: Optional[QWidget]) -> Optional[QWidget]:
+    """Put the counterfactual viewer button on ``screen``'s header row.
+
+    An alpha widget, ``ActivationCounterfactualViewer`` in
+    :data:`spacr.settings.ALPHA_FEATURES`, hidden unless alpha features are
+    shown. It asks for a ``counterfactuals`` folder and opens
+    :func:`_counterfactual_viewer` on it.
+
+    :param screen: the activation screen; one without a header gets nothing.
+    :returns: the button, or None.
+    """
+    from PySide6.QtWidgets import QFileDialog, QPushButton
+
+    from ..i18n import tr
+    from ..preferences import _apply_alpha_widgets
+
+    header = getattr(screen, "_header", None)
+    if header is None or not hasattr(header, "add_trailing"):
+        return None
+    button = QPushButton(tr("Counterfactuals…"), screen)
+    button.setObjectName("ActivationCounterfactualViewer")
+    button.setToolTip(tr(
+        "Browse the counterfactual sequences of a finished run: pick its "
+        "counterfactuals folder to step through each crop as it is morphed "
+        "toward the target class or condition, with the classifier's score "
+        "at every step. Default not opened."))
+
+    def _open() -> None:
+        folder = QFileDialog.getExistingDirectory(
+            screen, tr("Choose a counterfactuals folder"))
+        if folder:
+            dialog = _counterfactual_viewer(folder, screen)
+            dialog.show()
+            screen._counterfactual_viewer = dialog
+
+    button.clicked.connect(_open)
+    header.add_trailing(button)
+    _apply_alpha_widgets(button)
+    return button
+
+
+def _counterfactual_viewer(folder: str, parent: Optional[QWidget] = None) -> QWidget:
+    """A dialog listing a run's counterfactual sequences and drawing one.
+
+    Reads ``counterfactual_cells.csv`` and ``counterfactual_frames.npy``
+    from the folder ``generate_activation_map`` wrote. The list shows each
+    held-out crop with its source, target, score change and whether it
+    flipped; the first sequences, the ones with saved frames, are drawn as
+    a row of steps captioned with the score at each step.
+
+    :param folder: the ``counterfactuals`` folder of a run.
+    :param parent: the dialog's parent widget.
+    :returns: the dialog, not yet shown.
+    """
+    import os
+
+    import numpy as np
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QImage, QPixmap
+    from PySide6.QtWidgets import (QDialog, QGridLayout, QLabel,
+                                   QListWidget, QVBoxLayout, QWidget)
+
+    from ...tabular import read_table
+    from ..hidpi import scaled_for
+    from ..i18n import tr
+
+    dialog = QDialog(parent)
+    dialog.setObjectName("CounterfactualViewerDialog")
+    dialog.setWindowTitle(tr("Counterfactual sequences"))
+    layout = QVBoxLayout(dialog)
+    cells = os.path.join(folder, "counterfactual_cells.csv")
+    frames_path = os.path.join(folder, "counterfactual_frames.npy")
+    rows = read_table(cells).to_dict("records") if os.path.isfile(cells) else []
+    frames = (np.load(frames_path) if os.path.isfile(frames_path)
+              else np.zeros((0,)))
+    status = QLabel(dialog)
+    status.setWordWrap(True)
+    layout.addWidget(status)
+    listing = QListWidget(dialog)
+    listing.setObjectName("CounterfactualViewerList")
+    layout.addWidget(listing)
+    strip = QWidget(dialog)
+    grid = QGridLayout(strip)
+    layout.addWidget(strip)
+    dialog.rows, dialog.frames, dialog.listing = rows, frames, listing
+    dialog.strip_labels = []
+    if not rows:
+        status.setText(tr("No counterfactual_cells.csv in this folder."))
+        return dialog
+    status.setText(tr("{n} sequences; the first {k} have saved frames.")
+                   .format(n=len(rows), k=int(frames.shape[0])
+                           if frames.ndim == 5 else 0))
+    for row in rows:
+        source = row.get("source_condition", row.get("source_class"))
+        target = row.get("target_condition", row.get("target_class"))
+        listing.addItem(
+            f"{row.get('name', '')}  {source}→{target}  "
+            f"{float(row.get('score_start', 0)):.2f}→"
+            f"{float(row.get('score_end', 0)):.2f}"
+            + ("  ✓" if str(row.get("flipped")) == "True" else ""))
+
+    def _show(index: int) -> None:
+        for label in dialog.strip_labels:
+            label.deleteLater()
+        dialog.strip_labels = []
+        if frames.ndim != 5 or not 0 <= index < frames.shape[0]:
+            return
+        seq = frames[index]
+        lo, hi = float(seq[0].min()), float(seq[0].max())
+        path = str(rows[index].get("score_path", "")).split(";")
+        for step in range(seq.shape[0]):
+            img = seq[step]
+            img = img[0] if img.shape[0] != 3 else np.moveaxis(img, 0, -1)
+            img = np.clip((img - lo) / ((hi - lo) or 1.0), 0, 1)
+            img = np.ascontiguousarray((img * 255).astype(np.uint8))
+            fmt = QImage.Format_RGB888 if img.ndim == 3 else QImage.Format_Grayscale8
+            qimg = QImage(img.data, img.shape[1], img.shape[0],
+                          img.strides[0], fmt).copy()
+            picture = QLabel(strip)
+            picture.setPixmap(scaled_for(QPixmap.fromImage(qimg), picture,
+                                         96, 96))
+            caption = QLabel(path[step] if step < len(path) else "", strip)
+            caption.setAlignment(Qt.AlignHCenter)
+            grid.addWidget(picture, 0, step)
+            grid.addWidget(caption, 1, step)
+            dialog.strip_labels += [picture, caption]
+
+    listing.currentRowChanged.connect(_show)
+    listing.setCurrentRow(0)
+    return dialog
 
 
 def opener_on(screen: Optional[QWidget]) -> Optional[Any]:
