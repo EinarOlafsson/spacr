@@ -1,6 +1,6 @@
 DEEP-LEARNING IMAGE QC: OUT-OF-FOCUS, SATURATION, DEBRIS, EMPTY FIELDS
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Status: DONE 2026-10-03 (alpha-gated); only external points left: real debris/bubble/saturation/empty labels (maintainer annotation) and shipped weights (maintainer package-data decision).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -166,3 +166,10 @@ precision/recall acceptance remain open; this note does not close item 559.
       60 bubble, 36 out_of_focus.
     Test: test_image_qc_classifier.py (cut-offs applied, map to 0.5).
     LEFT: real debris/bubble/saturation/empty labels; shipped weights.
+
+2026-10-03 — BLOCKED RECHECK
+    (b) real labelled fields: blur done on BBBC006 2026-10-03; built-in model
+    recalibrated. OPEN code (Field QC view, QC card) done 2026-10-03.
+    (c) debris/bubble/saturation/empty: no public labels; unblocks when the
+    maintainer labels fields in Annotate > Field QC.
+    (c) public pretraining / shipped weights: maintainer decision on package data.

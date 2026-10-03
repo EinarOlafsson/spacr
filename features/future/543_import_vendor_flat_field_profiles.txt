@@ -1,6 +1,6 @@
 IMPORT VENDOR FLAT-FIELD PROFILES (OPERETTA/HARMONY, ZEN, ...)
 
-Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: real Operetta plus Harmony-corrected export.
+Status: DONE 2026-10-02 (alpha-gated); only external point left: vendor sample files (Harmony profile with a Foreground polynomial, CZI shading attachment, ND2/Olympus shading).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -154,3 +154,9 @@ features/data/543_vendor_profile_validation_2026-10-01.json.
     Tests: tests/test_vendor_flat_field_profiles.py (background-only
     additive, background-only without Mean refused).
     LEFT: a real Foreground+Background profile; CZI/ND2/Olympus formats.
+
+2026-10-03 — BLOCKED RECHECK
+    (b) real Operetta + Harmony-corrected export: done 2026-10-03 (scPortrait
+    Zenodo set; Background-only profiles now supported, median error 0).
+    (c) a Harmony export carrying a Foreground polynomial, and CZI/ND2/Olympus
+    files with embedded shading: none public. Unblocks: one sample of each.

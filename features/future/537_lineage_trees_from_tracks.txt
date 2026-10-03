@@ -1,6 +1,6 @@
 LINEAGE TREES FROM TRACKS
 
-Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: endodyogeny on real tracked parasite movies (external data)..
+Status: DONE 2026-10-02 (alpha-gated); only external point left: real tracked Toxoplasma endodyogeny movies (maintainer lab data).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -241,3 +241,9 @@ close the remaining real parasite endodyogeny acceptance for F537.
     Tests: test_lineage_trees_from_tracks.py (strict inference),
     test_native_lineage_f537.py (legacy lone-daughter no longer adopted).
     LEFT: parasite endodyogeny on real movies.
+
+2026-10-03 — BLOCKED RECHECK
+    (b) real lineage ground truth: done on CTC Fluo-N2DL-HeLa 2026-10-03.
+    (c) endodyogeny: no tracked parasite time-lapse with daughter links on disk
+    or public. Unblocks: one maintainer Toxoplasma movie with tracked
+    mother/daughter pairs.

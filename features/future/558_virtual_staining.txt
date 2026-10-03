@@ -1,6 +1,6 @@
 VIRTUAL STAINING: PREDICT A FLUORESCENT CHANNEL FROM BRIGHTFIELD/PHASE
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27 (CPU-validated; GPU run 2026-09-28).
+Status: DONE 2026-10-03 (alpha-gated; CPU-validated, GPU run 2026-09-28); only external point left: the Cellpose-cpsam scorecard on GPU.
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -173,3 +173,11 @@ WHAT IS LEFT
     is not reported. Script/results: /mnt/wd4tb/scratch/558/jump/
     (get.py, run.py, ws.py, out/scores_watershed.csv, out/virtual_stain_c0.pt).
     LEFT: Cellpose scorecard on GPU; a second source/cell line.
+
+2026-10-03 — BLOCKED RECHECK
+    (b) label-free paired data: done 2026-10-03 (JUMP brightfield -> Hoechst,
+    F1@0.5 0.945 on an unseen plate). OPEN code points closed 2026-10-02/03
+    (Cellpose scorecard default, apply from Mask/Make Masks, pix2pix).
+    (c) Cellpose-cpsam scorecard: stopped after 2.5 h on the shared CPU; needs a
+    GPU turn on /mnt/wd4tb/scratch/558/jump. A second cell line and published
+    pretrained weights are optional extensions, not in DONE WHEN.

@@ -113,3 +113,9 @@ WHAT IS LEFT
     with independent wells; features are measurements, not embeddings.
     Scripts/results: /mnt/wd4tb/scratch/562/work/ (cells.py, bench.py,
     bench.csv). GPU not used.
+
+2026-10-03 — BLOCKED RECHECK
+    (b) real arrayed screen: done on BBBC014 2026-10-03 (done-when met on CPU).
+    GPU runs: N/A for DONE WHEN (met on CPU in 9-11 s per run); optional.
+    Not blocked, still OPEN code: embeddings carried with object ids and wells
+    from the screen's own result. Status stays IMPLEMENTED AS ALPHA until then.

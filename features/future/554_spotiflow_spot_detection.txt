@@ -1,6 +1,6 @@
 SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
 
-Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: threshold/hybiss and puncta/FISH acceptance on real fields (data), GPU timing (GPU), captions wait for the catalog lane..
+Status: DONE 2026-10-02 (alpha-gated); only external points left: GPU timing (GPU turn) and the strict real-field replay (Spotiflow env + inputs, with the agent on 554's code).
         replay remains unavailable (2026-10-02).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
@@ -126,3 +126,10 @@ Receipt: features/data/554_strict_comparison_2026-10-02.json.
 2026-10-02 — WHAT-IS-LEFT AUDIT
     Done on nightly: strict comparison receipts (2026-10-02 note).
     BLOCKED / open: threshold/hybiss and puncta/FISH acceptance on real fields (data), GPU timing (GPU), captions wait for the catalog lane.
+
+2026-10-03 — BLOCKED RECHECK
+    (a) captions waiting for the catalog lane: N/A, covered by the nine-locale
+    runtime catalog audit (note above); no new captions since.
+    (c) GPU timing: needs a gpu_turn.sh slot.
+    threshold/hybiss and puncta/FISH real-field acceptance: left to the agent
+    now on 554's code (strict replay needs the Spotiflow env and inputs).

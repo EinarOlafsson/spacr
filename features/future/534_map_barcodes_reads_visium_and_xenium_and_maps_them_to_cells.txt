@@ -1,6 +1,6 @@
 MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES
 
-Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: a real infected-tissue Visium/Xenium and Visium HD dataset (external data).
+Status: DONE 2026-10-02 (alpha-gated); only external points left: a public infected-tissue Visium HD/Xenium set with cell-resolution images, paired H&E-IF sections, and the maintainer's decision on SpatialData/h5py/pyarrow/anndata as optional dependencies.
 Owner: unassigned. Related: Map Barcodes (spacr/qt/screens/map_barcodes.py and
 the barcode mapping it drives), OPS (spacr/ops_engine.py: reads assigned to
 segmented nuclei by position), Measure (per-object tables), image UMAP.
@@ -178,3 +178,10 @@ The feature remains alpha/partial overall.
     hires/lowres images are published (3.5 um/px, nuclei ~3 px), so no cell
     segmentation is possible; analysis is per spot. Visium HD: no public
     infected-tissue HD dataset found (still BLOCKED).
+
+2026-10-03 — BLOCKED RECHECK
+    (b) real infected-tissue Visium: done 2026-10-03 (P. berghei liver, above).
+    (c) Visium HD / Xenium infected tissue: no public set found; unblocks with
+    one (also needed for cell-level assignment; Visium hires is 3.5 um/px).
+    (c) H&E-IF landmark registration: needs real paired H&E + IF sections.
+    (c) SpatialData .zarr output: maintainer decision on optional dependencies.

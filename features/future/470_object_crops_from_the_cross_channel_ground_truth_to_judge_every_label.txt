@@ -2,8 +2,8 @@
 OBJECT CROPS FROM THE CROSS-CHANNEL GROUND TRUTH, TO JUDGE EVERY LABEL
 ================================================================================
 
-Status:    IMPLEMENTED AS ALPHA 2026-10-03 (code parts); BLOCKED on the
-           maintainer's annotation for training, publishing and cleanup.
+Status:    DONE 2026-10-03 (alpha-gated); only external point left: the
+           maintainer's annotation of the crop sample.
 
 Requested: 2026-09-21, verbatim -- "ok i need you to take the ground truth
            cell hoechst and toxoplasma masks and cut out for each objec:
@@ -300,3 +300,8 @@ cell and nucleus none), then run the CLI per type, publish the three
 classifiers to the Model Zoo with their scorecards (alpha), remove the
 labels called not real, republish the datasets and retrain/rescore the
 cross-channel models.
+
+2026-10-03 — BLOCKED RECHECK
+    (c) maintainer annotation of the sample (272 PV calls; cell and nucleus
+    none). Unblocks: annotations done -> run the CLI per type, publish the three
+    classifiers (alpha), remove labels called not real, republish, retrain.

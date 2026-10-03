@@ -1,6 +1,6 @@
 APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
 
-Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: --nv Mask+Measure run (GPU turn), workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (another machine)..
+Status: DONE 2026-10-02 (alpha-gated); only external points left: --nv Mask+Measure run (GPU turn), workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (a cluster).
         alpha registry does not apply). Built and CPU-proven; --nv run pending.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
@@ -120,3 +120,8 @@ SLURM SETTINGS BIND CORRECTION (2026-10-02, partial)
     (apptainer run --nv spacr-cuda.sif python /opt/spacr/smoke_pipeline.py
     --mask --workspace /mnt/wd4tb/scratch/586/runs/gpu). The SIF from 09-30
     is still in place.
+
+2026-10-03 — BLOCKED RECHECK
+    (c) --nv run: scripted, needs a GPU turn (/mnt/wd4tb/scratch/586/gpu_mask.sh).
+    (c) workflow adoption and GHCR package visibility: maintainer (.github is off
+    limits to agents). (c) SingularityCE + Slurm: needs a cluster node.

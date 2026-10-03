@@ -250,3 +250,11 @@ not change the signature. 8 CPU tests with stand-in files and records in
 tests/test_mask_worker_backend_contracts.py. Dispatch still refuses these
 backends (_prepare_mask_model): their worker segmenters are not wired yet.
 Still open: per-backend worker segmenters and step 5 on two physical GPUs.
+
+2026-10-03 — BLOCKED RECHECK
+    (c) step 5 on two or more physical GPUs: this machine has one shared GPU.
+    Unblocks: one run on a 2+ GPU node (distinct devices, mixed memory limits,
+    unselected devices untouched).
+    Not blocked, still OPEN code: per-backend worker segmenters for the
+    non-Cellpose backends (dispatch refuses them). Status stays IMPLEMENTED AS
+    ALPHA until that code lands.

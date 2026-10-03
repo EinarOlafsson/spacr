@@ -164,3 +164,9 @@ Tests: tests/test_archive_study_multi_screen.py (5) plus the existing
 archive/CLI tests. Left: the Qt form still takes one run; BioStudies keeps
 one PageTab per screen (no combined multi-screen PageTab); IDR/BioStudies
 service acceptance and ontology enrichment remain open.
+
+2026-10-03 — BLOCKED RECHECK
+    (c) IDR/BioStudies accessions: curator-assigned only; unblocks on a real
+    submission. Ontology enrichment partly done (offline term table).
+    Not blocked, still OPEN code: multi-run Qt form, combined multi-screen
+    PageTab. Status stays IMPLEMENTED AS ALPHA.
